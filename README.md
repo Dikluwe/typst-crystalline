@@ -1,3 +1,4 @@
+
 <h1 align="center">
   <img alt="Typst" src="https://user-images.githubusercontent.com/17899797/226108480-722b770e-6313-40d7-84f2-26bebb55a281.png">
 </h1>
@@ -19,6 +20,16 @@
     <img alt="Jobs at Typst" src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Ftypst.app%2Fassets%2Fdata%2Fshields.json&query=%24.jobs.text&label=jobs&color=%23A561FF&cacheSeconds=1800"
   ></a>
 </p>
+
+# 💎 Crystalline Typst (Experimental Research Fork)
+
+> **⚠️ DISCLAIMER:** This is **NOT** the official Typst repository.
+> This is an architectural experiment by [@SeuUser] to refactor the Typst codebase according to the [Crystalline Architecture Standard](https://github.com/Dikluwe/crystalline-architecture-standard).
+>
+> **Goal:** To demonstrate how "Physical Topology" improves AI-assisted development and reduces entropy in complex Rust projects.
+> **Original Project:** Please visit [typst/typst](https://github.com/typst/typst) for the official compiler.
+
+---
 
 Typst is a new markup-based typesetting system that is designed to be as powerful
 as LaTeX while being much easier to learn and use. Typst has:
