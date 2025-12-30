@@ -8,10 +8,10 @@ desktop.ini
 # Tests and benchmarks
 tests/store
 tests/suite/**/*.pdf
-tests/fuzz/target
-tests/fuzz/corpus
-tests/fuzz/artifacts
-tests/fuzz/coverage
+03_infra/fuzz/target
+03_infra/fuzz/corpus
+03_infra/fuzz/artifacts
+03_infra/fuzz/coverage
 tarpaulin-report.html
 
 # Rust

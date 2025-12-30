@@ -1,0 +1,110 @@
+# Typst Crystalline Architecture - AI Rules
+# ==========================================
+# Este arquivo configura assistentes AI para trabalhar com este projeto
+# seguindo a arquitetura Crystalline.
+
+## Estrutura do Projeto
+
+Este projeto segue a **Crystalline Architecture** para organização de código Rust:
+
+```
+00_nucleo/          - Documentação e especificações arquiteturais
+├── specs/          - Especificações técnicas
+├── contracts/      - Interfaces e contratos
+├── adr/            - Architecture Decision Records
+└── legacy-docs/    - Documentação legada (antigo docs/)
+
+01_core/            - Crates fundamentais do compilador
+├── typst-syntax    - Parser e AST
+├── typst-eval      - Avaliador de expressões
+├── typst-layout    - Engine de layout
+├── typst-library   - Biblioteca padrão
+├── typst-utils     - Utilitários comuns
+├── typst-macros    - Proc macros
+├── typst-realize   - Realização de documentos
+└── typst-timing    - Telemetria e timing
+
+02_shell/           - Interfaces de usuário
+├── typst-cli       - Interface de linha de comando
+└── typst-ide       - Suporte para IDEs
+
+03_infra/           - Infraestrutura e exportadores
+├── typst-pdf       - Exportador PDF
+├── typst-svg       - Exportador SVG
+├── typst-render    - Rasterização
+├── typst-html      - Exportador HTML
+├── typst-kit       - Downloader de pacotes
+├── fuzz/           - Testes de fuzzing
+└── tools/          - Ferramentas auxiliares
+
+04_wiring/          - Fachada e integração
+└── typst           - Crate principal (facade)
+
+tests/              - Suíte de testes integrados
+```
+
+## Regras de Dependência (Direção do Fluxo)
+
+```
+01_core  →  02_shell
+   ↓           ↓
+03_infra ←  04_wiring
+```
+
+1. **01_core** pode ser importado por qualquer camada
+2. **02_shell** pode importar de 01_core e 04_wiring
+3. **03_infra** pode importar de 01_core
+4. **04_wiring** orquestra todos, pode importar de qualquer camada
+
+⚠️ **NUNCA** crie dependências cíclicas entre camadas!
+
+## Regras para Modificações de Código
+
+### ✅ FAZER:
+- Sempre executar `cargo check` após modificações
+- Manter as dependências declaradas em `workspace.dependencies` no Cargo.toml raiz
+- Usar `{ workspace = true }` para dependências em crates individuais
+- Seguir o estilo de código existente (ver rustfmt.toml)
+- Documentar mudanças significativas em 00_nucleo/adr/
+
+### ❌ NÃO FAZER:
+- Mover crates entre camadas sem atualizar Cargo.toml
+- Adicionar dependências diretas (path = "...") em crates individuais
+- Modificar a estrutura de diretórios sem rodar validação
+- Ignorar warnings do clippy
+
+## Comandos Úteis
+
+```bash
+# Verificar build
+cargo check --workspace
+
+# Rodar testes
+cargo test --workspace
+
+# Verificar formatação
+cargo fmt --check
+
+# Verificar lints
+cargo clippy --workspace
+```
+
+## Workspace Dependencies
+
+Todas as dependências de crates internos estão centralizadas em `Cargo.toml` raiz:
+
+```toml
+[workspace.dependencies]
+typst = { path = "04_wiring/typst", version = "0.14.1" }
+typst-cli = { path = "02_shell/typst-cli", version = "0.14.1" }
+typst-eval = { path = "01_core/typst-eval", version = "0.14.1" }
+# ... etc
+```
+
+## Contexto do Projeto
+
+- **Linguagem**: Rust (edition 2024, rust-version 1.89+)
+- **Build System**: Cargo workspace
+- **Propósito**: Sistema de typesetting markup-based
+- **Website**: https://typst.app
+- **Licença**: Apache-2.0
