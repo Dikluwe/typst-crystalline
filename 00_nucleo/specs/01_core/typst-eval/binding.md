@@ -1,52 +1,61 @@
 # 🧬 Crystal Facet: binding.rs
 
-> **Crystal Face**: The Binding Engine — Pattern Isomorphism Projection.
+> **Crystal Face**: The Binding Engine — Isomorphic Template Projection.
 
 ---
 
 ## 💎 Facet DNA
 
-$$
-\text{bind} : (\text{Pattern}, \text{Value}) \to \text{Scopes}
-$$
+**binding.rs** governs **Isomorphic Projection**. Its fundamental role is to decompose complex data volumes (Arrays, Dictionaries) and map their internal components onto symbolic identities or physical coordinates (**Loci**). It serves as the formal bridge between raw data topology and the semantics of the Scope Graph.
 
-**binding.rs** implements the **Pattern Isomorphism Projection** — mapping values onto patterns to produce scope bindings.
+---
+
+## 📐 Precise Terminology
+
+| Term | Why it is used | What is rejected |
+| --- | --- | --- |
+| **Template** | Defines a "shape" to be filled. | **Pattern**, as it suggests search/regex rather than structure. |
+| **Isomorphism** | Requires the data and template shapes to be identical. | **Matching**, a vague term from procedural languages. |
+| **Residue** | The content captured by a spread operator (`..`). | **Sink** or **Rest**, which imply discard or leftover. |
+| **Projection** | The act of mapping a value to an identity. | **Assignment**, which focuses on the effect, not the geometry. |
 
 ---
 
 ## Prescriptive Axioms
 
-### Axiom I: Pattern Isomorphism Projection
+### Law I: Structural Isomorphism
 
-$$
-\text{destructure}(P, V) \xrightarrow{\cong} \{x_i \mapsto v_i\}
-$$
+A projection is valid if, and only if, the topology of the **Volume** () is compatible with the topology of the **Template** ().
 
-Destructuring is a **Pattern Isomorphism Projection** — an isomorphic mapping from value structure to pattern structure. Each pattern component maps to a corresponding value component.
+* If  requires  elements and  contains  (where  and no Residue is defined), the geometry collapses into an **Arity Inconsistency**.
 
-$$
-((a, b), c) \cong ((v_1, v_2), v_3) \Rightarrow \{a: v_1, b: v_2, c: v_3\}
-$$
+### Law II: Destination Duality (Locus vs. Identity)
+
+The projection of a value occurs in one of two states:
+
+1. **Genesis (Binding)**: Creates a new identity within the Scope Graph.
+2. **Mutation (Reassignment)**: Projects the value into an existing **Locus** (via `access.rs`).
+
+> *Note: The Binding Engine is agnostic to the destination; it merely delivers the volume fragment to the destination resolver.*
+
+### Law III: The Residue Principle
+
+The **Residue** (`..`) acts as a collector for unmapped sub-volumes.
+
+* In ordered volumes (Arrays), the residue is the difference between total arity and fixed slots.
+* In named volumes (Dictionaries), the residue is the complement of the set of projected keys.
 
 ---
 
-### Axiom II: Binding Immutability Principle
+## 📐 Geometric Contract
 
-$$
-\text{let } x = v \Rightarrow \text{immutable}(x)
-$$
-
-Bindings are **immutable by default**. Mutation requires explicit reassignment syntax.
-
----
-
-### Axiom III: Pattern Exhaustiveness
-
-$$
-\neg\text{matches}(P, V) \Rightarrow \bot
-$$
-
-Pattern matching must be **exhaustive**. Failed matches produce errors.
+| Element | Definition | Role in Architecture |
+| --- | --- | --- |
+| **Input: Volume** | The original data (Array/Dict) | The source of data mass. |
+| **Input: Template** | The destination structure (AST Pattern) | The mold defining fragmentation. |
+| **Invariant: Uniqueness** |  Identity  Template,  | Prohibits mapping two fragments to the same key in a single act. |
+| **Invariant: Totality** | The projection must be exhaustive | No "orphan" data is allowed without a slot or residue to capture it (in strict contexts). |
+| **Output: Scope Delta** | Set of Projections  | The result of fragmentation ready for application. |
 
 ---
 
@@ -54,34 +63,19 @@ Pattern matching must be **exhaustive**. Failed matches produce errors.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    PATTERN PROJECTION CHAIN                     │
+│                 ISOMORPHIC PROJECTION PIPELINE                  │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   Value ══project══▶ Pattern ══bind══▶ Scopes                   │
+│   SOURCE VOLUME ══fragment══▶ TEMPLATE SLOTS                    │
 │                                                                 │
-│   Examples:                                                     │
-│     let x = v           →  {x: v}                               │
-│     let (a, b) = (1, 2) →  {a: 1, b: 2}                         │
-│     let (x, _) = (1, 2) →  {x: 1}                               │
+│   Sub-Volumes:                                                  │
+│     - Fixed Slots ───▶ Direct Projection (Identity/Locus)        │
+│     - Residual Slots ──▶ Collection Projection (Residue)        │
 │                                                                 │
-│   Isomorphism: Pattern shape ≅ Value shape                      │
+│   Constraint Check:                                             │
+│     - Shape(Volume) ≅ Shape(Template)                           │
+│     - If mismatch => COLLAPSE (Arity Error)                     │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
-```
 
----
-
-## Geometric Contract
-
-```
-┌──────────────────────────────────────────────────────────┐
-│          THE BINDING ENGINE (binding.rs)                 │
-├──────────────────────────────────────────────────────────┤
-│  Role: Pattern isomorphism projection                    │
-│                                                          │
-│  Laws:                                                   │
-│    ✓ Pattern Isomorphism Projection — shape mapping      │
-│    ✓ Binding Immutability Principle — immutable default  │
-│    ✓ Pattern Exhaustiveness — failed matches error       │
-└──────────────────────────────────────────────────────────┘
 ```

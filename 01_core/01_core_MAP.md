@@ -2,6 +2,12 @@
 
 > Modules in this architectural layer.
 
+## 📄 Layer Files
+
+| File | Purpose |
+|---|---|
+| `diagnostics.rs` | A Facet Lattice do diagnóstico exige que o Core seja silencioso. |
+
 ## 📂 Modules
 
 - **[typst-eval]** - [View Map](typst-eval/typst-eval_MAP.md)

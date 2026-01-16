@@ -2,6 +2,12 @@
 
 > Modules in this architectural layer.
 
+## 📄 Layer Files
+
+| File | Purpose |
+|---|---|
+| `Cargo.toml` | — |
+
 ## 📂 Modules
 
-- **[typst]** - [View Map](typst/typst_MAP.md)
+- **[src]** - [View Map](src/src_MAP.md)

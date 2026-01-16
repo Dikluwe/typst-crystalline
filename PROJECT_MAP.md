@@ -14,7 +14,6 @@
 | `LICENSE` | — |
 | `NOTICE` | — |
 | `README.md` | <h1 align="center"> |
-| `arvore.txt` | — |
 | `flake.lock` | — |
 | `flake.nix` | — |
 | `rustfmt.toml` | — |

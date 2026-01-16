@@ -2,9 +2,18 @@
 
 > Modules in this architectural layer.
 
+## 📄 Layer Files
+
+| File | Purpose |
+|---|---|
+| `GLOSSARY.md` | 📖 Typst Crystalline Glossary |
+| `GLOSSARY.pt.md` | 📖 Glossário Typst Crystalline |
+| `MIGRATION_PLAN.md` | Typst Crystalline Migration Plan |
+| `MIGRATION_PLAN.pt.md` | Plano de Migração Typst Crystalline |
+
 ## 📂 Modules
 
-- **[adr]** *(empty)*
-- **[contracts]** *(empty)*
+- **[adr]** - [View Map](adr/adr_MAP.md)
+- **[contracts]** - [View Map](contracts/contracts_MAP.md)
 - **[legacy-docs]** - [View Map](legacy-docs/legacy-docs_MAP.md)
-- **[specs]** *(empty)*
+- **[specs]** - [View Map](specs/specs_MAP.md)
