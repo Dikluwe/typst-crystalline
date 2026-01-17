@@ -1,0 +1,31 @@
+[package]
+name = "html"
+description = "Typst's HTML exporter."
+version = { workspace = true }
+rust-version = { workspace = true }
+authors = { workspace = true }
+edition = { workspace = true }
+homepage = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+categories = { workspace = true }
+keywords = { workspace = true }
+readme = { workspace = true }
+
+[dependencies]
+typst-assets = { workspace = true }
+primitives = { workspace = true }
+metaprogramming = { workspace = true }
+lexicon = { workspace = true }
+profiling = { workspace = true }
+shared = { workspace = true }
+svg = { workspace = true }
+bumpalo = { workspace = true }
+comemo = { workspace = true }
+ecow = { workspace = true }
+palette = { workspace = true }
+rustc-hash = { workspace = true }
+time = { workspace = true }
+
+[lints]
+workspace = true

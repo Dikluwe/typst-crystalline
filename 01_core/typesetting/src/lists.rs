@@ -13,7 +13,7 @@ use primitives::text::TextElem;
 use crate::grid::GridLayouter;
 
 /// Layout the list.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_list(
     elem: &Packed<ListElem>,
     engine: &mut Engine,
@@ -67,7 +67,7 @@ pub fn layout_list(
 }
 
 /// Layout the enumeration.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_enum(
     elem: &Packed<EnumElem>,
     engine: &mut Engine,

@@ -121,7 +121,7 @@ impl Segment<'_> {
 /// Collects all text into one string and a collection of segments that
 /// correspond to pieces of that string. This also performs string-level
 /// preprocessing like case transformations.
-#[typst_macros::time]
+#[metaprogramming::time]
 pub fn collect<'a>(
     children: &[Pair<'a>],
     engine: &mut Engine<'_>,

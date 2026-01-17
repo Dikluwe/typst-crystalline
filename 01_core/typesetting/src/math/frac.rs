@@ -18,7 +18,7 @@ use super::{
 const FRAC_AROUND: Em = Em::new(0.1);
 
 /// Lays out a [`FracElem`].
-#[typst_macros::time(name = "math.frac", span = elem.span())]
+#[metaprogramming::time(name = "math.frac", span = elem.span())]
 pub fn layout_frac(
     elem: &Packed<FracElem>,
     ctx: &mut MathContext,
@@ -49,7 +49,7 @@ pub fn layout_frac(
 }
 
 /// Lays out a [`BinomElem`].
-#[typst_macros::time(name = "math.binom", span = elem.span())]
+#[metaprogramming::time(name = "math.binom", span = elem.span())]
 pub fn layout_binom(
     elem: &Packed<BinomElem>,
     ctx: &mut MathContext,

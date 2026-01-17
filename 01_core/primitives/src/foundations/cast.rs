@@ -1,6 +1,6 @@
 #[rustfmt::skip]
 #[doc(inline)]
-pub use typst_macros::{cast, Cast};
+pub use metaprogramming::{cast, Cast};
 
 use std::borrow::Cow;
 use std::fmt::Write;

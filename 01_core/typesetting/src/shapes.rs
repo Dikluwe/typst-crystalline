@@ -18,7 +18,7 @@ use lexicon::Span;
 use ::shared::{Get, Numeric};
 
 /// Layout the line.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_line(
     elem: &Packed<LineElem>,
     _: &mut Engine,
@@ -54,7 +54,7 @@ pub fn layout_line(
 }
 
 /// Layout the path.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_path(
     elem: &Packed<PathElem>,
     _: &mut Engine,
@@ -144,7 +144,7 @@ pub fn layout_path(
 }
 
 /// Layout the curve.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_curve(
     elem: &Packed<CurveElem>,
     _: &mut Engine,
@@ -395,7 +395,7 @@ fn point_to_kurbo(point: Point) -> kurbo::Point {
 }
 
 /// Layout the polygon.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_polygon(
     elem: &Packed<PolygonElem>,
     _: &mut Engine,
@@ -449,7 +449,7 @@ pub fn layout_polygon(
 }
 
 /// Lay out the rectangle.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_rect(
     elem: &Packed<RectElem>,
     engine: &mut Engine,
@@ -474,7 +474,7 @@ pub fn layout_rect(
 }
 
 /// Lay out the square.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_square(
     elem: &Packed<SquareElem>,
     engine: &mut Engine,
@@ -499,7 +499,7 @@ pub fn layout_square(
 }
 
 /// Lay out the ellipse.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_ellipse(
     elem: &Packed<EllipseElem>,
     engine: &mut Engine,
@@ -524,7 +524,7 @@ pub fn layout_ellipse(
 }
 
 /// Lay out the circle.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_circle(
     elem: &Packed<CircleElem>,
     engine: &mut Engine,

@@ -51,7 +51,7 @@ pub fn layout_blank_page(
 }
 
 /// Layout a page run with uniform properties.
-#[typst_macros::time(name = "page run")]
+#[metaprogramming::time(name = "page run")]
 pub fn layout_page_run(
     engine: &mut Engine,
     children: &[Pair],

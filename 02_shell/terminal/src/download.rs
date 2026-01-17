@@ -6,7 +6,7 @@ use std::time::{Duration, Instant};
 use codespan_reporting::term;
 use codespan_reporting::term::termcolor::WriteColor;
 use fusion::utils::format_duration;
-use typst_kit::download::{DownloadState, Downloader, Progress};
+use ancillary::download::{DownloadState, Downloader, Progress};
 
 use crate::ARGS;
 use crate::terminal::{self, TermOut};

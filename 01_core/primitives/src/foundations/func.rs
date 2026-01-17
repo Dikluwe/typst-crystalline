@@ -1,5 +1,5 @@
 #[doc(inline)]
-pub use typst_macros::func;
+pub use metaprogramming::func;
 
 use std::fmt::{self, Debug, Formatter};
 use std::sync::{Arc, LazyLock};
@@ -297,7 +297,7 @@ impl Func {
     }
 
     /// Non-generic implementation of `call`.
-    #[typst_macros::time(name = "func call", span = self.span())]
+    #[metaprogramming::time(name = "func call", span = self.span())]
     fn call_impl(
         &self,
         engine: &mut Engine,

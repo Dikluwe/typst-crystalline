@@ -10,7 +10,7 @@ use lexicon::Span;
 use ::shared::{Get, Numeric};
 
 /// Layout the stack.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_stack(
     elem: &Packed<StackElem>,
     engine: &mut Engine,

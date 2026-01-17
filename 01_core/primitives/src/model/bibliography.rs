@@ -249,7 +249,7 @@ impl Bibliography {
 
     /// Decode a bibliography from loaded data sources.
     #[comemo::memoize]
-    #[typst_macros::time(name = "load bibliography")]
+    #[metaprogramming::time(name = "load bibliography")]
     fn decode(data: &[Loaded]) -> SourceResult<Bibliography> {
         let mut map = IndexMap::default();
         let mut duplicates = Vec::<EcoString>::new();

@@ -37,7 +37,7 @@ use crate::tags::{self, GroupId, Tags};
 use crate::text::handle_text;
 use crate::util::{AbsExt, TransformExt, convert_path, display_font};
 
-#[typst_macros::time(name = "convert document")]
+#[metaprogramming::time(name = "convert document")]
 pub fn convert(
     typst_document: &PagedDocument,
     options: &PdfOptions,
@@ -281,7 +281,7 @@ impl<'a> GlobalContext<'a> {
     }
 }
 
-#[typst_macros::time(name = "handle page")]
+#[metaprogramming::time(name = "handle page")]
 pub(crate) fn handle_frame(
     fc: &mut FrameContext,
     frame: &Frame,
@@ -371,7 +371,7 @@ pub(crate) fn handle_group(
 }
 
 /// Finish a krilla document and handle export errors.
-#[typst_macros::time(name = "finish export")]
+#[metaprogramming::time(name = "finish export")]
 fn finish(
     document: Document,
     gc: GlobalContext,

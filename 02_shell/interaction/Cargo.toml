@@ -15,7 +15,7 @@ readme = { workspace = true }
 [dependencies]
 fusion = { workspace = true }
 semantics = { workspace = true }
-typst-html = { workspace = true }
+html = { workspace = true }
 comemo = { workspace = true }
 ecow = { workspace = true }
 pathdiff = { workspace = true }

@@ -8,7 +8,7 @@ use primitives::layout::{
 use primitives::visualize::{Curve, Image, ImageElem, ImageFit};
 
 /// Layout the image.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_image(
     elem: &Packed<ImageElem>,
     engine: &mut Engine,

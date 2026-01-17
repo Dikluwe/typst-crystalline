@@ -18,6 +18,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "ancillary"
+version = "0.14.1"
+dependencies = [
+ "dirs",
+ "ecow",
+ "env_proxy",
+ "fastrand",
+ "flate2",
+ "fontdb",
+ "lexicon",
+ "native-tls",
+ "once_cell",
+ "openssl",
+ "primitives",
+ "profiling",
+ "serde",
+ "serde_json",
+ "shared",
+ "tar",
+ "typst-assets",
+ "ureq",
+]
+
+[[package]]
 name = "android-tzdata"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -869,16 +893,31 @@ dependencies = [
  "arrayvec",
  "comemo",
  "ecow",
+ "html",
  "lexicon",
  "materialization",
+ "metaprogramming",
  "primitives",
+ "profiling",
  "rustc-hash",
  "semantics",
  "shared",
  "typesetting",
- "typst-html",
- "typst-macros",
- "typst-timing",
+]
+
+[[package]]
+name = "fuzzing"
+version = "0.14.1"
+dependencies = [
+ "comemo",
+ "fusion",
+ "html",
+ "lexicon",
+ "libfuzzer-sys",
+ "pdf",
+ "raster",
+ "svg",
+ "typst-assets",
 ]
 
 [[package]]
@@ -1059,6 +1098,25 @@ name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
+
+[[package]]
+name = "html"
+version = "0.14.1"
+dependencies = [
+ "bumpalo",
+ "comemo",
+ "ecow",
+ "lexicon",
+ "metaprogramming",
+ "palette",
+ "primitives",
+ "profiling",
+ "rustc-hash",
+ "shared",
+ "svg",
+ "time",
+ "typst-assets",
+]
 
 [[package]]
 name = "httpdate"
@@ -1383,6 +1441,7 @@ dependencies = [
  "comemo",
  "ecow",
  "fusion",
+ "html",
  "once_cell",
  "pathdiff",
  "rustc-hash",
@@ -1390,7 +1449,6 @@ dependencies = [
  "serde",
  "typst-assets",
  "typst-dev-assets",
- "typst-html",
  "unscanny",
 ]
 
@@ -1544,11 +1602,11 @@ name = "lexicon"
 version = "0.14.1"
 dependencies = [
  "ecow",
+ "profiling",
  "rustc-hash",
  "serde",
  "shared",
  "toml",
- "typst-timing",
  "unicode-ident",
  "unicode-math-class",
  "unicode-script",
@@ -1689,11 +1747,11 @@ dependencies = [
  "comemo",
  "ecow",
  "lexicon",
+ "metaprogramming",
  "primitives",
+ "profiling",
  "regex",
  "shared",
- "typst-macros",
- "typst-timing",
 ]
 
 [[package]]
@@ -1709,6 +1767,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd3f7eed9d3848f8b98834af67102b720745c4ec028fcd0aa0239277e7de374f"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "metaprogramming"
+version = "0.14.1"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -2009,14 +2077,14 @@ dependencies = [
  "krilla",
  "krilla-svg",
  "lexicon",
+ "metaprogramming",
  "primitives",
+ "profiling",
  "rustc-hash",
  "serde",
  "shared",
  "smallvec",
  "typst-assets",
- "typst-macros",
- "typst-timing",
 ]
 
 [[package]]
@@ -2189,9 +2257,11 @@ dependencies = [
  "lexicon",
  "lipsum",
  "memchr",
+ "metaprogramming",
  "palette",
  "phf",
  "png",
+ "profiling",
  "qcms",
  "rayon",
  "regex",
@@ -2214,8 +2284,6 @@ dependencies = [
  "typed-arena",
  "typst-assets",
  "typst-dev-assets",
- "typst-macros",
- "typst-timing",
  "unicode-math-class",
  "unicode-normalization",
  "unicode-segmentation",
@@ -2239,6 +2307,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "89ae43fd86e4158d6db51ad8e2b80f313af9cc74f5c0e03ccb87de09998732de"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "profiling"
+version = "0.14.1"
+dependencies = [
+ "parking_lot",
+ "serde",
+ "serde_json",
+ "web-sys",
 ]
 
 [[package]]
@@ -2350,14 +2428,14 @@ dependencies = [
  "comemo",
  "hayro",
  "image",
+ "metaprogramming",
  "pixglyph",
  "primitives",
+ "profiling",
  "resvg",
  "tiny-skia",
  "ttf-parser",
  "typst-assets",
- "typst-macros",
- "typst-timing",
 ]
 
 [[package]]
@@ -2608,13 +2686,13 @@ dependencies = [
  "ecow",
  "indexmap 2.12.1",
  "lexicon",
+ "metaprogramming",
  "primitives",
+ "profiling",
  "rustc-hash",
  "shared",
  "stacker",
  "toml",
- "typst-macros",
- "typst-timing",
  "unicode-segmentation",
 ]
 
@@ -2788,6 +2866,32 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
 
 [[package]]
+name = "specification"
+version = "0.14.1"
+dependencies = [
+ "clap",
+ "codex",
+ "ecow",
+ "fusion",
+ "heck",
+ "pulldown-cmark",
+ "raster",
+ "regex",
+ "rustc-hash",
+ "serde",
+ "serde_json",
+ "serde_yaml 0.9.34+deprecated",
+ "shared",
+ "syntect",
+ "typed-arena",
+ "typst-assets",
+ "typst-dev-assets",
+ "unicode-math-class",
+ "unscanny",
+ "yaml-front-matter",
+]
+
+[[package]]
 name = "spin"
 version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2858,6 +2962,28 @@ dependencies = [
  "rustc-hash",
  "skrifa",
  "write-fonts",
+]
+
+[[package]]
+name = "svg"
+version = "0.14.1"
+dependencies = [
+ "base64",
+ "comemo",
+ "ecow",
+ "flate2",
+ "hayro",
+ "hayro-svg",
+ "image",
+ "metaprogramming",
+ "primitives",
+ "profiling",
+ "rustc-hash",
+ "shared",
+ "ttf-parser",
+ "typst-assets",
+ "xmlparser",
+ "xmlwriter",
 ]
 
 [[package]]
@@ -2957,6 +3083,7 @@ dependencies = [
 name = "terminal"
 version = "0.14.1"
 dependencies = [
+ "ancillary",
  "chrono",
  "clap",
  "clap_complete",
@@ -2968,11 +3095,14 @@ dependencies = [
  "ecow",
  "fs_extra",
  "fusion",
+ "html",
+ "metaprogramming",
  "notify",
  "open",
  "parking_lot",
  "pathdiff",
  "pdf",
+ "profiling",
  "raster",
  "rayon",
  "rustc-hash",
@@ -2986,15 +3116,11 @@ dependencies = [
  "shared",
  "shell-escape",
  "sigpipe",
+ "svg",
  "tar",
  "tempfile",
  "tiny_http",
  "toml",
- "typst-html",
- "typst-kit",
- "typst-macros",
- "typst-svg",
- "typst-timing",
  "ureq",
  "xz2",
  "zip",
@@ -3220,15 +3346,15 @@ dependencies = [
  "kurbo 0.12.0",
  "lexicon",
  "memchr",
+ "metaprogramming",
  "primitives",
+ "profiling",
  "rustc-hash",
  "rustybuzz",
  "shared",
  "smallvec",
  "ttf-parser",
  "typst-assets",
- "typst-macros",
- "typst-timing",
  "unicode-bidi",
  "unicode-math-class",
  "unicode-script",
@@ -3246,122 +3372,6 @@ version = "0.14.1"
 source = "git+https://github.com/typst/typst-dev-assets?rev=03addcf#03addcfb64f3f95209464a521e6aa49645bd271a"
 
 [[package]]
-name = "typst-docs"
-version = "0.14.1"
-dependencies = [
- "clap",
- "codex",
- "ecow",
- "fusion",
- "heck",
- "pulldown-cmark",
- "raster",
- "regex",
- "rustc-hash",
- "serde",
- "serde_json",
- "serde_yaml 0.9.34+deprecated",
- "shared",
- "syntect",
- "typed-arena",
- "typst-assets",
- "typst-dev-assets",
- "unicode-math-class",
- "unscanny",
- "yaml-front-matter",
-]
-
-[[package]]
-name = "typst-fuzz"
-version = "0.14.1"
-dependencies = [
- "comemo",
- "fusion",
- "lexicon",
- "libfuzzer-sys",
- "pdf",
- "raster",
- "typst-assets",
- "typst-html",
- "typst-svg",
-]
-
-[[package]]
-name = "typst-html"
-version = "0.14.1"
-dependencies = [
- "bumpalo",
- "comemo",
- "ecow",
- "lexicon",
- "palette",
- "primitives",
- "rustc-hash",
- "shared",
- "time",
- "typst-assets",
- "typst-macros",
- "typst-svg",
- "typst-timing",
-]
-
-[[package]]
-name = "typst-kit"
-version = "0.14.1"
-dependencies = [
- "dirs",
- "ecow",
- "env_proxy",
- "fastrand",
- "flate2",
- "fontdb",
- "lexicon",
- "native-tls",
- "once_cell",
- "openssl",
- "primitives",
- "serde",
- "serde_json",
- "shared",
- "tar",
- "typst-assets",
- "typst-timing",
- "ureq",
-]
-
-[[package]]
-name = "typst-macros"
-version = "0.14.1"
-dependencies = [
- "heck",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "typst-svg"
-version = "0.14.1"
-dependencies = [
- "base64",
- "comemo",
- "ecow",
- "flate2",
- "hayro",
- "hayro-svg",
- "image",
- "primitives",
- "rustc-hash",
- "shared",
- "ttf-parser",
- "typst-assets",
- "typst-macros",
- "typst-timing",
- "xmlparser",
- "xmlwriter",
-]
-
-[[package]]
 name = "typst-tests"
 version = "0.14.1"
 dependencies = [
@@ -3371,6 +3381,7 @@ dependencies = [
  "ecow",
  "fusion",
  "hayro-syntax",
+ "html",
  "indexmap 2.12.1",
  "lexicon",
  "oxipng",
@@ -3384,23 +3395,12 @@ dependencies = [
  "rustc-hash",
  "serde_yaml 0.9.34+deprecated",
  "shared",
+ "svg",
  "tiny-skia",
  "typst-assets",
  "typst-dev-assets",
- "typst-html",
- "typst-svg",
  "unscanny",
  "walkdir",
-]
-
-[[package]]
-name = "typst-timing"
-version = "0.14.1"
-dependencies = [
- "parking_lot",
- "serde",
- "serde_json",
- "web-sys",
 ]
 
 [[package]]

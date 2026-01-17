@@ -80,7 +80,7 @@ pub fn layout_fragment(
 ///
 /// This is different from just laying out into column-sized regions as the
 /// columns can interact due to parent-scoped placed elements.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_columns(
     elem: &Packed<ColumnsElem>,
     engine: &mut Engine,

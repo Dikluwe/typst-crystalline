@@ -23,7 +23,7 @@ use shared::{NonZeroExt, SmallBitSet};
 use crate::pdf::{TableCellKind, TableHeaderScope};
 
 /// Convert a grid to a cell grid.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn grid_to_cellgrid(
     elem: &Packed<GridElem>,
     engine: &mut Engine,
@@ -75,7 +75,7 @@ pub fn grid_to_cellgrid(
 }
 
 /// Convert a table to a cell grid.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn table_to_cellgrid(
     elem: &Packed<TableElem>,
     engine: &mut Engine,

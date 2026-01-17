@@ -45,7 +45,7 @@ impl RasterImage {
 
     /// The internal, non-generic implementation.
     #[comemo::memoize]
-    #[typst_macros::time(name = "load raster image")]
+    #[metaprogramming::time(name = "load raster image")]
     fn new_impl(
         data: Bytes,
         format: RasterFormat,

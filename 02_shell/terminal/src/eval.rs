@@ -5,7 +5,7 @@ use fusion::foundations::{Context, Scope, StyleChain, Value};
 use fusion::syntax::{Span, SyntaxMode};
 use fusion::{World, engine::Sink, introspection::Introspector, layout::PagedDocument};
 use semantics::eval_string;
-use typst_html::HtmlDocument;
+use html::HtmlDocument;
 
 use crate::args::{EvalCommand, Target};
 use crate::compile::print_diagnostics;

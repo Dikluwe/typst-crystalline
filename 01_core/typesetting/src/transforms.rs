@@ -11,7 +11,7 @@ use primitives::layout::{
 use ::shared::Numeric;
 
 /// Layout the moved content.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_move(
     elem: &Packed<MoveElem>,
     engine: &mut Engine,
@@ -27,7 +27,7 @@ pub fn layout_move(
 }
 
 /// Layout the rotated content.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_rotate(
     elem: &Packed<RotateElem>,
     engine: &mut Engine,
@@ -60,7 +60,7 @@ pub fn layout_rotate(
 }
 
 /// Layout the scaled content.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_scale(
     elem: &Packed<ScaleElem>,
     engine: &mut Engine,
@@ -144,7 +144,7 @@ fn resolve_scale(
 }
 
 /// Layout the skewed content.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_skew(
     elem: &Packed<SkewElem>,
     engine: &mut Engine,

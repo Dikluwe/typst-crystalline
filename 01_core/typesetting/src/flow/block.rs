@@ -15,7 +15,7 @@ use ::shared::Numeric;
 use crate::shapes::{clip_rect, fill_and_stroke};
 
 /// Lay this out as an unbreakable block.
-#[typst_macros::time(name = "block", span = elem.span())]
+#[metaprogramming::time(name = "block", span = elem.span())]
 pub fn layout_single_block(
     elem: &Packed<BlockElem>,
     engine: &mut Engine,
@@ -103,7 +103,7 @@ pub fn layout_single_block(
 }
 
 /// Lay this out as a breakable block.
-#[typst_macros::time(name = "block", span = elem.span())]
+#[metaprogramming::time(name = "block", span = elem.span())]
 pub fn layout_multi_block(
     elem: &Packed<BlockElem>,
     engine: &mut Engine,

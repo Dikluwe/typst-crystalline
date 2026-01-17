@@ -44,7 +44,7 @@ use arrayvec::ArrayVec;
 use comemo::{Track, Tracked};
 use ecow::{EcoString, EcoVec, eco_format, eco_vec};
 use rustc_hash::FxHashSet;
-use typst_html::HtmlDocument;
+use html::HtmlDocument;
 use primitives::diag::{
     FileError, SourceDiagnostic, SourceResult, Warned, bail, warning,
 };
@@ -54,7 +54,7 @@ use primitives::introspection::{ITER_NAMES, Introspector, MAX_ITERS};
 use primitives::layout::PagedDocument;
 use primitives::routines::Routines;
 use lexicon::{FileId, Span};
-use typst_timing::{TimingScope, timed};
+use profiling::{TimingScope, timed};
 use shared::Protected;
 
 use crate::foundations::{Target, TargetElem};
@@ -64,7 +64,7 @@ use crate::model::DocumentInfo;
 ///
 /// - Returns `Ok(document)` if there were no fatal errors.
 /// - Returns `Err(errors)` if there were fatal errors.
-#[typst_macros::time]
+#[metaprogramming::time]
 pub fn compile<D>(world: &dyn World) -> Warned<SourceResult<D>>
 where
     D: Document,
@@ -77,7 +77,7 @@ where
 
 /// Compiles sources and returns all values and styles observed at the given
 /// `span` during compilation.
-#[typst_macros::time]
+#[metaprogramming::time]
 pub fn trace<D>(world: &dyn World, span: Span) -> EcoVec<(Value, Option<Styles>)>
 where
     D: Document,
@@ -370,7 +370,7 @@ mod sealed {
             content: &Content,
             styles: StyleChain,
         ) -> SourceResult<Self> {
-            typst_html::html_document(engine, content, styles)
+            html::html_document(engine, content, styles)
         }
     }
 }
@@ -402,13 +402,13 @@ pub static ROUTINES: LazyLock<Routines> = LazyLock::new(|| Routines {
     rules: {
         let mut rules = NativeRuleMap::new();
         typesetting::register(&mut rules);
-        typst_html::register(&mut rules);
+        html::register(&mut rules);
         rules
     },
     eval_string: semantics::eval_string,
     eval_closure: semantics::eval_closure,
     realize: materialization::realize,
     layout_frame: typesetting::layout_frame,
-    html_module: typst_html::module,
-    html_span_filled: typst_html::html_span_filled,
+    html_module: html::module,
+    html_span_filled: html::html_span_filled,
 });

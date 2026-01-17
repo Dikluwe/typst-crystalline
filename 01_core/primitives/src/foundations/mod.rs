@@ -66,7 +66,7 @@ pub use self::target_::*;
 pub use self::ty::*;
 pub use self::value::*;
 pub use self::version::*;
-pub use typst_macros::{scope, ty};
+pub use metaprogramming::{scope, ty};
 
 #[rustfmt::skip]
 #[doc(hidden)]

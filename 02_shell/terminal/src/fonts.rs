@@ -1,5 +1,5 @@
 use fusion::text::FontVariant;
-use typst_kit::fonts::Fonts;
+use ancillary::fonts::Fonts;
 
 use crate::args::FontsCommand;
 

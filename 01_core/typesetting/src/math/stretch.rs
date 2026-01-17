@@ -7,7 +7,7 @@ use ::shared::Get;
 use super::{MathContext, MathFragment, stretch_axes};
 
 /// Lays out a [`StretchElem`].
-#[typst_macros::time(name = "math.stretch", span = elem.span())]
+#[metaprogramming::time(name = "math.stretch", span = elem.span())]
 pub fn layout_stretch(
     elem: &Packed<StretchElem>,
     ctx: &mut MathContext,

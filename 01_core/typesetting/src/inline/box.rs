@@ -12,7 +12,7 @@ use crate::flow::unbreakable_pod;
 use crate::shapes::{clip_rect, fill_and_stroke};
 
 /// Lay out a box as part of inline layout.
-#[typst_macros::time(name = "box", span = elem.span())]
+#[metaprogramming::time(name = "box", span = elem.span())]
 pub fn layout_box(
     elem: &Packed<BoxElem>,
     engine: &mut Engine,

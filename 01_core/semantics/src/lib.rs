@@ -36,7 +36,7 @@ use shared::Protected;
 
 /// Evaluate a source file and return the resulting module.
 #[comemo::memoize]
-#[typst_macros::time(name = "eval", span = source.root().span())]
+#[metaprogramming::time(name = "eval", span = source.root().span())]
 pub fn eval(
     routines: &Routines,
     world: Tracked<dyn World + '_>,

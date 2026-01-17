@@ -27,7 +27,7 @@ use primitives::layout::{PageRanges, PagedDocument};
 /// Export a document into a PDF file.
 ///
 /// Returns the raw bytes making up the PDF file.
-#[typst_macros::time(name = "pdf")]
+#[metaprogramming::time(name = "pdf")]
 pub fn pdf(document: &PagedDocument, options: &PdfOptions) -> SourceResult<Vec<u8>> {
     convert::convert(document, options)
 }

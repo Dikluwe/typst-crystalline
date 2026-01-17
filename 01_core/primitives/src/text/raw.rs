@@ -590,7 +590,7 @@ impl RawSyntax {
 
     /// Decode a syntax from a loaded source.
     #[comemo::memoize]
-    #[typst_macros::time(name = "load syntaxes")]
+    #[metaprogramming::time(name = "load syntaxes")]
     fn decode(bytes: &Bytes) -> LoadResult<RawSyntax> {
         let str = bytes.as_str()?;
 

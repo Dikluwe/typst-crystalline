@@ -8,7 +8,7 @@ use primitives::layout::{
 use ::shared::Numeric;
 
 /// Layout the repeated content.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_repeat(
     elem: &Packed<RepeatElem>,
     engine: &mut Engine,

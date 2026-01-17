@@ -8,7 +8,7 @@ use unicode_math_class::MathClass;
 use super::{DELIM_SHORT_FALL, MathContext, MathFragment, stretch_fragment};
 
 /// Lays out an [`LrElem`].
-#[typst_macros::time(name = "math.lr", span = elem.span())]
+#[metaprogramming::time(name = "math.lr", span = elem.span())]
 pub fn layout_lr(
     elem: &Packed<LrElem>,
     ctx: &mut MathContext,
@@ -87,7 +87,7 @@ pub fn layout_lr(
 }
 
 /// Lays out a [`MidElem`].
-#[typst_macros::time(name = "math.mid", span = elem.span())]
+#[metaprogramming::time(name = "math.mid", span = elem.span())]
 pub fn layout_mid(
     elem: &Packed<MidElem>,
     ctx: &mut MathContext,

@@ -15,5 +15,5 @@
 
 - **[adr]** - [View Map](adr/adr_MAP.md)
 - **[contracts]** - [View Map](contracts/contracts_MAP.md)
-- **[legacy-docs]** - [View Map](legacy-docs/legacy-docs_MAP.md)
+- **[specification]** - [View Map](specification/specification_MAP.md)
 - **[specs]** - [View Map](specs/specs_MAP.md)

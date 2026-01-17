@@ -96,7 +96,7 @@ fn generate_tags<T: NativeElement>(
 }
 
 /// Layout the grid.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_grid(
     elem: &Packed<GridElem>,
     engine: &mut Engine,
@@ -109,7 +109,7 @@ pub fn layout_grid(
 }
 
 /// Layout the table.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_table(
     elem: &Packed<TableElem>,
     engine: &mut Engine,

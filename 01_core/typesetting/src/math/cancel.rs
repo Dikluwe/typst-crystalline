@@ -10,7 +10,7 @@ use lexicon::Span;
 use super::{FrameFragment, MathContext};
 
 /// Lays out a [`CancelElem`].
-#[typst_macros::time(name = "math.cancel", span = elem.span())]
+#[metaprogramming::time(name = "math.cancel", span = elem.span())]
 pub fn layout_cancel(
     elem: &Packed<CancelElem>,
     ctx: &mut MathContext,

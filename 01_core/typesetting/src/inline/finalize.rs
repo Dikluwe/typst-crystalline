@@ -4,7 +4,7 @@ use ::shared::Numeric;
 use super::*;
 
 /// Turns the selected lines into frames.
-#[typst_macros::time]
+#[metaprogramming::time]
 pub fn finalize(
     engine: &mut Engine,
     p: &Preparation,

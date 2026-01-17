@@ -14,9 +14,9 @@ readme = { workspace = true }
 
 [dependencies]
 typst-assets = { workspace = true }
-typst-macros = { workspace = true }
+metaprogramming = { workspace = true }
 lexicon = { workspace = true }
-typst-timing = { workspace = true }
+profiling = { workspace = true }
 shared = { workspace = true }
 arrayvec = { workspace = true }
 az = { workspace = true }

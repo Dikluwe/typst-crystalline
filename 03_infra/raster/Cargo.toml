@@ -15,8 +15,8 @@ readme = { workspace = true }
 [dependencies]
 typst-assets = { workspace = true }
 primitives = { workspace = true }
-typst-macros = { workspace = true }
-typst-timing = { workspace = true }
+metaprogramming = { workspace = true }
+profiling = { workspace = true }
 bytemuck = { workspace = true }
 comemo = { workspace = true }
 hayro = { workspace = true }

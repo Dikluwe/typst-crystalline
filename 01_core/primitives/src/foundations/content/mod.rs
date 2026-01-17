@@ -9,7 +9,7 @@ pub use self::field::*;
 pub use self::packed::Packed;
 pub use self::vtable::{ContentVtable, FieldVtable};
 #[doc(inline)]
-pub use typst_macros::elem;
+pub use metaprogramming::elem;
 
 use std::fmt::{self, Debug, Formatter};
 use std::hash::Hash;

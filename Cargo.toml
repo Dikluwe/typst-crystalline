@@ -2,15 +2,16 @@
 members = [
     "01_core/*",
     "02_shell/terminal",
+    "02_shell/profiling",
     "02_shell/interaction",
     "03_infra/pdf",
-    "03_infra/typst-svg",
+    "03_infra/svg",
     "03_infra/raster",
-    "03_infra/typst-html",
-    "03_infra/typst-kit",
-    "03_infra/fuzz",
+    "03_infra/html",
+    "03_infra/ancillary",
+    "03_infra/fuzzing",
     "04_wiring",
-    "00_nucleo/legacy-docs",
+    "00_nucleo/specification",
     "tests"
 ]
 default-members = ["02_shell/terminal"]
@@ -32,18 +33,18 @@ readme = "README.md"
 fusion = { path = "04_wiring", version = "0.14.1" }
 terminal = { path = "02_shell/terminal", version = "0.14.1" }
 semantics = { path = "01_core/semantics", version = "0.14.1" }
-typst-html = { path = "03_infra/typst-html", version = "0.14.1" }
+html = { path = "03_infra/html", version = "0.14.1" }
 interaction = { path = "02_shell/interaction", version = "0.14.1" }
-typst-kit = { path = "03_infra/typst-kit", version = "0.14.1" }
+ancillary = { path = "03_infra/ancillary", version = "0.14.1" }
 typesetting = { path = "01_core/typesetting", version = "0.14.1" }
 primitives = { path = "01_core/primitives", version = "0.14.1" }
-typst-macros = { path = "01_core/typst-macros", version = "0.14.1" }
+metaprogramming = { path = "01_core/metaprogramming", version = "0.14.1" }
 pdf = { path = "03_infra/pdf", version = "0.14.1" }
 materialization = { path = "01_core/materialization", version = "0.14.1" }
 raster = { path = "03_infra/raster", version = "0.14.1" }
-typst-svg = { path = "03_infra/typst-svg", version = "0.14.1" }
+svg = { path = "03_infra/svg", version = "0.14.1" }
 lexicon = { path = "01_core/lexicon", version = "0.14.1" }
-typst-timing = { path = "01_core/typst-timing", version = "0.14.1" }
+profiling = { path = "02_shell/profiling", version = "0.14.1" }
 shared = { path = "01_core/shared", version = "0.14.1" }
 typst-assets = { git = "https://github.com/typst/typst-assets", rev = "48b6cf4" }
 typst-dev-assets = { git = "https://github.com/typst/typst-dev-assets", rev = "03addcf" }

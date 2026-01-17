@@ -18,7 +18,7 @@ const VERTICAL_PADDING: Ratio = Ratio::new(0.1);
 const DEFAULT_STROKE_THICKNESS: Em = Em::new(0.05);
 
 /// Lays out a [`VecElem`].
-#[typst_macros::time(name = "math.vec", span = elem.span())]
+#[metaprogramming::time(name = "math.vec", span = elem.span())]
 pub fn layout_vec(
     elem: &Packed<VecElem>,
     ctx: &mut MathContext,
@@ -44,7 +44,7 @@ pub fn layout_vec(
 }
 
 /// Lays out a [`CasesElem`].
-#[typst_macros::time(name = "math.cases", span = elem.span())]
+#[metaprogramming::time(name = "math.cases", span = elem.span())]
 pub fn layout_cases(
     elem: &Packed<CasesElem>,
     ctx: &mut MathContext,
@@ -75,7 +75,7 @@ pub fn layout_cases(
 }
 
 /// Lays out a [`MatElem`].
-#[typst_macros::time(name = "math.mat", span = elem.span())]
+#[metaprogramming::time(name = "math.mat", span = elem.span())]
 pub fn layout_mat(
     elem: &Packed<MatElem>,
     ctx: &mut MathContext,

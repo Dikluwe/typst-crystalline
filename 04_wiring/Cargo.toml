@@ -14,13 +14,13 @@ readme = { workspace = true }
 
 [dependencies]
 semantics = { workspace = true }
-typst-html = { workspace = true }
+html = { workspace = true }
 typesetting = { workspace = true }
 primitives = { workspace = true }
-typst-macros = { workspace = true }
+metaprogramming = { workspace = true }
 materialization = { workspace = true }
 lexicon = { workspace = true }
-typst-timing = { workspace = true }
+profiling = { workspace = true }
 shared = { workspace = true }
 arrayvec = { workspace = true }
 comemo = { workspace = true }

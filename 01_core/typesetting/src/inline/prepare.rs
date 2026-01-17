@@ -62,7 +62,7 @@ impl<'a> Preparation<'a> {
 /// Performs BiDi analysis and then prepares further layout by building a
 /// representation on which we can do line breaking without layouting each and
 /// every line from scratch.
-#[typst_macros::time]
+#[metaprogramming::time]
 pub fn prepare<'a>(
     engine: &mut Engine,
     config: &'a Config,

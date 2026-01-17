@@ -25,7 +25,7 @@ macro_rules! measure {
 }
 
 /// Lays out an [`AttachElem`].
-#[typst_macros::time(name = "math.attach", span = elem.span())]
+#[metaprogramming::time(name = "math.attach", span = elem.span())]
 pub fn layout_attach(
     elem: &Packed<AttachElem>,
     ctx: &mut MathContext,
@@ -94,7 +94,7 @@ pub fn layout_attach(
 }
 
 /// Lays out a [`PrimeElem`].
-#[typst_macros::time(name = "math.primes", span = elem.span())]
+#[metaprogramming::time(name = "math.primes", span = elem.span())]
 pub fn layout_primes(
     elem: &Packed<PrimesElem>,
     ctx: &mut MathContext,
@@ -140,7 +140,7 @@ pub fn layout_primes(
 }
 
 /// Lays out a [`ScriptsElem`].
-#[typst_macros::time(name = "math.scripts", span = elem.span())]
+#[metaprogramming::time(name = "math.scripts", span = elem.span())]
 pub fn layout_scripts(
     elem: &Packed<ScriptsElem>,
     ctx: &mut MathContext,
@@ -153,7 +153,7 @@ pub fn layout_scripts(
 }
 
 /// Lays out a [`LimitsElem`].
-#[typst_macros::time(name = "math.limits", span = elem.span())]
+#[metaprogramming::time(name = "math.limits", span = elem.span())]
 pub fn layout_limits(
     elem: &Packed<LimitsElem>,
     ctx: &mut MathContext,

@@ -13,7 +13,7 @@ keywords = { workspace = true }
 readme = { workspace = true }
 
 [dependencies]
-typst-timing = { workspace = true }
+profiling = { workspace = true }
 shared = { workspace = true }
 ecow = { workspace = true }
 rustc-hash = { workspace = true }

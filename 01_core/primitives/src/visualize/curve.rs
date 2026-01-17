@@ -1,5 +1,5 @@
 use kurbo::ParamCurveExtrema;
-use typst_macros::{Cast, scope};
+use metaprogramming::{Cast, scope};
 use shared::Numeric;
 
 use crate::diag::{HintedStrResult, HintedString, bail};

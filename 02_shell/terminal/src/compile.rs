@@ -15,7 +15,7 @@ use fusion::diag::{
 use fusion::foundations::{Datetime, Smart};
 use fusion::layout::{Page, PageRanges, PagedDocument};
 use fusion::syntax::{FileId, Lines, Span};
-use typst_html::HtmlDocument;
+use html::HtmlDocument;
 use pdf::{PdfOptions, PdfStandards, Timestamp};
 
 use crate::args::{
@@ -241,7 +241,7 @@ impl CompileConfig {
 /// Compile a single time.
 ///
 /// Returns whether it compiled without errors.
-#[typst_macros::time(name = "compile once")]
+#[metaprogramming::time(name = "compile once")]
 pub fn compile_once(
     world: &mut SystemWorld,
     config: &mut CompileConfig,
@@ -324,7 +324,7 @@ fn compile_and_export(
 
 /// Export to HTML.
 fn export_html(document: &HtmlDocument, config: &CompileConfig) -> SourceResult<()> {
-    let html = typst_html::html(document)?;
+    let html = html::html(document)?;
     let result = config.output.write(html.as_bytes());
 
     #[cfg(feature = "http-server")]
@@ -532,7 +532,7 @@ fn export_image_page(
                 .map_err(|err| eco_format!("failed to write PNG file ({err})"))?;
         }
         ImageExportFormat::Svg => {
-            let svg = typst_svg::svg(page);
+            let svg = svg::svg(page);
             output
                 .write(svg.as_bytes())
                 .map_err(|err| eco_format!("failed to write SVG file ({err})"))?;

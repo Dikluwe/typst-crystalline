@@ -250,7 +250,7 @@ impl State {
     /// Retrieves the value of the state at the current location.
     ///
     /// This is equivalent to `{state.at(here())}`.
-    #[typst_macros::time(name = "state.get", span = span)]
+    #[metaprogramming::time(name = "state.get", span = span)]
     #[func(contextual)]
     pub fn get(
         &self,
@@ -267,7 +267,7 @@ impl State {
     /// The `selector` must match exactly one element in the document. The most
     /// useful kinds of selectors for this are [labels]($label) and
     /// [locations]($location).
-    #[typst_macros::time(name = "state.at", span = span)]
+    #[metaprogramming::time(name = "state.at", span = span)]
     #[func(contextual)]
     pub fn at(
         &self,

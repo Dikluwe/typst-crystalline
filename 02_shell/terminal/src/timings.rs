@@ -29,7 +29,7 @@ impl Timer {
 
         // Enable event collection.
         if record.is_some() {
-            typst_timing::enable();
+            profiling::enable();
         }
 
         let path =
@@ -48,7 +48,7 @@ impl Timer {
             return Ok(f(world));
         };
 
-        typst_timing::clear();
+        profiling::clear();
 
         let string = path.to_str().unwrap_or_default();
         let numbered = string.contains("{n}");
@@ -71,7 +71,7 @@ impl Timer {
             File::create(path).map_err(|e| format!("failed to create file: {e}"))?;
         let writer = BufWriter::with_capacity(1 << 20, file);
 
-        typst_timing::export_json(writer, |span| {
+        profiling::export_json(writer, |span| {
             resolve_span(world, Span::from_raw(span))
                 .unwrap_or_else(|| ("unknown".to_string(), 0))
         })?;

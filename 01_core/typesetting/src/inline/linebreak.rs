@@ -153,7 +153,7 @@ pub fn linebreak<'a>(
 /// Performs line breaking in simple first-fit style. This means that we build
 /// lines greedily, always taking the longest possible line. This may lead to
 /// very unbalanced line, but is fast and simple.
-#[typst_macros::time]
+#[metaprogramming::time]
 fn linebreak_simple<'a>(
     engine: &Engine,
     p: &'a Preparation<'a>,
@@ -213,7 +213,7 @@ fn linebreak_simple<'a>(
 /// the cost of the optimal layout up to the start point (already computed and
 /// stored in dynamic programming table) is minimal. The final result is simply
 /// the layout determined for the last breakpoint at the end of text.
-#[typst_macros::time]
+#[metaprogramming::time]
 fn linebreak_optimized<'a>(
     engine: &Engine,
     p: &'a Preparation<'a>,
@@ -232,7 +232,7 @@ fn linebreak_optimized<'a>(
 
 /// Performs line breaking in optimized Knuth-Plass style, but with an upper
 /// bound on the cost. This allows us to skip many parts of the search space.
-#[typst_macros::time]
+#[metaprogramming::time]
 fn linebreak_optimized_bounded<'a>(
     engine: &Engine,
     p: &'a Preparation<'a>,
@@ -370,7 +370,7 @@ fn linebreak_optimized_bounded<'a>(
 /// This results in a likely good inline layouts, for which we then compute
 /// the exact cost. This cost is an upper bound for proper optimized
 /// linebreaking. We can use it to heavily prune the search space.
-#[typst_macros::time]
+#[metaprogramming::time]
 fn linebreak_optimized_approximate(
     engine: &Engine,
     p: &Preparation,

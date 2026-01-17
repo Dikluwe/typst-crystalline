@@ -8,7 +8,7 @@ use tiny_skia as sk;
 use fusion::diag::{At, SourceResult, StrResult, bail};
 use fusion::layout::{Abs, Frame, FrameItem, PagedDocument, Transform};
 use fusion::visualize::Color;
-use typst_html::HtmlDocument;
+use html::HtmlDocument;
 use pdf::{PdfOptions, PdfStandard, PdfStandards};
 use lexicon::Span;
 
@@ -288,7 +288,7 @@ impl OutputType for Svg {
     }
 
     fn make_live(_: &Test, doc: &Self::Doc) -> SourceResult<Self::Live> {
-        Ok(typst_svg::svg_merged(doc, Abs::pt(5.0)))
+        Ok(svg::svg_merged(doc, Abs::pt(5.0)))
     }
 
     fn save_live(_: &Self::Doc, live: &Self::Live) -> impl AsRef<[u8]> {
@@ -317,7 +317,7 @@ impl OutputType for Html {
     }
 
     fn make_live(_: &Test, doc: &Self::Doc) -> SourceResult<Self::Live> {
-        typst_html::html(doc)
+        html::html(doc)
     }
 
     fn save_live(_: &Self::Doc, live: &Self::Live) -> impl AsRef<[u8]> {

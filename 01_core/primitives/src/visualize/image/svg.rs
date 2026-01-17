@@ -34,7 +34,7 @@ struct SvgImageInner {
 impl SvgImage {
     /// Decode an SVG image without fonts.
     #[comemo::memoize]
-    #[typst_macros::time(name = "load svg")]
+    #[metaprogramming::time(name = "load svg")]
     pub fn new(data: Bytes) -> LoadResult<SvgImage> {
         let tree =
             usvg::Tree::from_data(&data, &base_options()).map_err(format_usvg_error)?;
@@ -48,7 +48,7 @@ impl SvgImage {
 
     /// Decode an SVG image with access to fonts and linked images.
     #[comemo::memoize]
-    #[typst_macros::time(name = "load svg")]
+    #[metaprogramming::time(name = "load svg")]
     pub fn with_fonts_images(
         data: Bytes,
         world: Tracked<dyn World + '_>,

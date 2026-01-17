@@ -4,10 +4,10 @@
 
 ## 📂 Modules
 
-- **[fuzz]** - [View Map](fuzz/fuzz_MAP.md)
+- **[ancillary]** - [View Map](ancillary/ancillary_MAP.md)
+- **[fuzzing]** - [View Map](fuzzing/fuzzing_MAP.md)
+- **[html]** - [View Map](html/html_MAP.md)
+- **[pdf]** - [View Map](pdf/pdf_MAP.md)
+- **[raster]** - [View Map](raster/raster_MAP.md)
+- **[svg]** - [View Map](svg/svg_MAP.md)
 - **[tools]** *(empty)*
-- **[typst-html]** - [View Map](typst-html/typst-html_MAP.md)
-- **[typst-kit]** - [View Map](typst-kit/typst-kit_MAP.md)
-- **[typst-pdf]** - [View Map](typst-pdf/typst-pdf_MAP.md)
-- **[typst-render]** - [View Map](typst-render/typst-render_MAP.md)
-- **[typst-svg]** - [View Map](typst-svg/typst-svg_MAP.md)

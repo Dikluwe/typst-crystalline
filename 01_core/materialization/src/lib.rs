@@ -36,7 +36,7 @@ use lexicon::Span;
 use shared::{ListSet, SliceExt, SmallBitSet};
 
 /// Realize content into a flat list of well-known, styled items.
-#[typst_macros::time(name = "realize")]
+#[metaprogramming::time(name = "realize")]
 pub fn realize<'a>(
     kind: RealizationKind,
     engine: &mut Engine,
@@ -376,7 +376,7 @@ fn visit_show_rules<'a>(
 
             // Apply a built-in show rule.
             ShowStep::Builtin(rule) => {
-                let _scope = typst_timing::TimingScope::new(output.elem().name());
+                let _scope = profiling::TimingScope::new(output.elem().name());
                 rule.apply(&output, s.engine, chained)
                     .map(|content| content.spanned(output.span()))
             }

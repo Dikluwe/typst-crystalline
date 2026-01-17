@@ -22,7 +22,7 @@ const INSTANCES: usize = MAX_ITERS + 1;
 
 /// Analyzes all introspections that were performed during compilation and
 /// produces non-convergence diagnostics.
-#[typst_macros::time(name = "analyze introspections")]
+#[metaprogramming::time(name = "analyze introspections")]
 pub fn analyze(
     world: Tracked<dyn World + '_>,
     routines: &Routines,

@@ -12,7 +12,7 @@ use super::{
 const ACCENT_SHORT_FALL: Em = Em::new(0.5);
 
 /// Lays out an [`AccentElem`].
-#[typst_macros::time(name = "math.accent", span = elem.span())]
+#[metaprogramming::time(name = "math.accent", span = elem.span())]
 pub fn layout_accent(
     elem: &Packed<AccentElem>,
     ctx: &mut MathContext,

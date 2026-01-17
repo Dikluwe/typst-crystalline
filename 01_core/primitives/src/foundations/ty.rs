@@ -1,5 +1,5 @@
 #[doc(inline)]
-pub use typst_macros::{scope, ty};
+pub use metaprogramming::{scope, ty};
 
 use std::cmp::Ordering;
 use std::fmt::{self, Debug, Display, Formatter};

@@ -46,7 +46,7 @@ use self::shared::*;
 use self::stretch::stretch_fragment;
 
 /// Layout an inline equation (in a paragraph).
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_equation_inline(
     elem: &Packed<EquationElem>,
     engine: &mut Engine,
@@ -102,7 +102,7 @@ pub fn layout_equation_inline(
 }
 
 /// Layout a block-level equation (in a flow).
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_equation_block(
     elem: &Packed<EquationElem>,
     engine: &mut Engine,
@@ -600,7 +600,7 @@ fn layout_h(
 }
 
 /// Lays out a [`ClassElem`].
-#[typst_macros::time(name = "math.class", span = elem.span())]
+#[metaprogramming::time(name = "math.class", span = elem.span())]
 fn layout_class(
     elem: &Packed<ClassElem>,
     ctx: &mut MathContext,
@@ -615,7 +615,7 @@ fn layout_class(
 }
 
 /// Lays out an [`OpElem`].
-#[typst_macros::time(name = "math.op", span = elem.span())]
+#[metaprogramming::time(name = "math.op", span = elem.span())]
 fn layout_op(
     elem: &Packed<OpElem>,
     ctx: &mut MathContext,

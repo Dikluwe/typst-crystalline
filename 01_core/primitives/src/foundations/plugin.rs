@@ -220,14 +220,14 @@ impl PluginFunc {
 
     /// Call the WebAssembly function with the given arguments.
     #[comemo::memoize]
-    #[typst_macros::time(name = "call plugin")]
+    #[metaprogramming::time(name = "call plugin")]
     pub fn call(&self, args: Vec<Bytes>) -> StrResult<Bytes> {
         self.plugin.call(&self.name, args)
     }
 
     /// Transition a plugin and turn the result into a module.
     #[comemo::memoize]
-    #[typst_macros::time(name = "transition plugin")]
+    #[metaprogramming::time(name = "transition plugin")]
     pub fn transition(&self, args: Vec<Bytes>) -> StrResult<Module> {
         self.plugin.transition(&self.name, args).map(Plugin::into_module)
     }
@@ -261,7 +261,7 @@ struct Plugin {
 impl Plugin {
     /// Create a plugin and turn it into a module.
     #[comemo::memoize]
-    #[typst_macros::time(name = "load plugin")]
+    #[metaprogramming::time(name = "load plugin")]
     fn module(bytes: Bytes) -> StrResult<Module> {
         Self::new(bytes).map(Self::into_module)
     }
@@ -430,7 +430,7 @@ struct Snapshot {
 impl PluginInstance {
     /// Create a new execution instance of a plugin, potentially restoring
     /// a snapshot.
-    #[typst_macros::time(name = "create plugin instance")]
+    #[metaprogramming::time(name = "create plugin instance")]
     fn new(base: &PluginBase, snapshot: Option<&Snapshot>) -> StrResult<PluginInstance> {
         let mut store = wasmi::Store::new(base.linker.engine(), CallData::default());
         let instance = base
@@ -523,7 +523,7 @@ impl PluginInstance {
 
     /// Creates a snapshot of this instance from which another one can be
     /// initialized.
-    #[typst_macros::time(name = "save snapshot")]
+    #[metaprogramming::time(name = "save snapshot")]
     fn snapshot(&self) -> Snapshot {
         let memory = self.memory();
         let mem_pages = memory.size(&self.store);
@@ -532,7 +532,7 @@ impl PluginInstance {
     }
 
     /// Restores the instance to a snapshot.
-    #[typst_macros::time(name = "restore snapshot")]
+    #[metaprogramming::time(name = "restore snapshot")]
     fn restore(&mut self, snapshot: &Snapshot) {
         let memory = self.memory();
         let current_size = memory.size(&self.store);

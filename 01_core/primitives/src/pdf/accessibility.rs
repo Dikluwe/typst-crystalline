@@ -1,7 +1,7 @@
 use std::num::NonZeroU32;
 
 use ecow::EcoString;
-use typst_macros::{Cast, elem, func};
+use metaprogramming::{Cast, elem, func};
 use shared::NonZeroExt;
 
 use crate::diag::SourceResult;

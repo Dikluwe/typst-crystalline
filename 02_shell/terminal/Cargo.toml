@@ -20,13 +20,13 @@ doc = false
 [dependencies]
 fusion = { workspace = true }
 semantics = { workspace = true }
-typst-html = { workspace = true }
-typst-kit = { workspace = true }
-typst-macros = { workspace = true }
+html = { workspace = true }
+ancillary = { workspace = true }
+metaprogramming = { workspace = true }
 pdf = { workspace = true }
 raster = { workspace = true }
-typst-svg = { workspace = true }
-typst-timing = { workspace = true }
+svg = { workspace = true }
+profiling = { workspace = true }
 shared = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true, features = ["string"] }
@@ -72,8 +72,8 @@ shared = { workspace = true }
 [features]
 default = ["embed-fonts", "http-server"]
 
-# Embeds some fonts into the binary, see typst-kit
-embed-fonts = ["typst-kit/embed-fonts"]
+# Embeds some fonts into the binary, see ancillary
+embed-fonts = ["ancillary/embed-fonts"]
 
 # Enables the built-in HTTP server for `typst watch` and HTML export.
 http-server = ["dep:tiny_http"]
@@ -82,7 +82,7 @@ http-server = ["dep:tiny_http"]
 self-update = ["dep:self-replace", "dep:xz2", "dep:zip"]
 
 # Whether to vendor OpenSSL. Not applicable to Windows and macOS builds.
-vendor-openssl = ["typst-kit/vendor-openssl"]
+vendor-openssl = ["ancillary/vendor-openssl"]
 
 [lints]
 workspace = true

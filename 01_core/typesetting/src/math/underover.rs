@@ -23,7 +23,7 @@ enum Position {
 }
 
 /// Lays out an [`UnderlineElem`].
-#[typst_macros::time(name = "math.underline", span = elem.span())]
+#[metaprogramming::time(name = "math.underline", span = elem.span())]
 pub fn layout_underline(
     elem: &Packed<UnderlineElem>,
     ctx: &mut MathContext,
@@ -33,7 +33,7 @@ pub fn layout_underline(
 }
 
 /// Lays out an [`OverlineElem`].
-#[typst_macros::time(name = "math.overline", span = elem.span())]
+#[metaprogramming::time(name = "math.overline", span = elem.span())]
 pub fn layout_overline(
     elem: &Packed<OverlineElem>,
     ctx: &mut MathContext,
@@ -43,7 +43,7 @@ pub fn layout_overline(
 }
 
 /// Lays out an [`UnderbraceElem`].
-#[typst_macros::time(name = "math.underbrace", span = elem.span())]
+#[metaprogramming::time(name = "math.underbrace", span = elem.span())]
 pub fn layout_underbrace(
     elem: &Packed<UnderbraceElem>,
     ctx: &mut MathContext,
@@ -61,7 +61,7 @@ pub fn layout_underbrace(
 }
 
 /// Lays out an [`OverbraceElem`].
-#[typst_macros::time(name = "math.overbrace", span = elem.span())]
+#[metaprogramming::time(name = "math.overbrace", span = elem.span())]
 pub fn layout_overbrace(
     elem: &Packed<OverbraceElem>,
     ctx: &mut MathContext,
@@ -79,7 +79,7 @@ pub fn layout_overbrace(
 }
 
 /// Lays out an [`UnderbracketElem`].
-#[typst_macros::time(name = "math.underbracket", span = elem.span())]
+#[metaprogramming::time(name = "math.underbracket", span = elem.span())]
 pub fn layout_underbracket(
     elem: &Packed<UnderbracketElem>,
     ctx: &mut MathContext,
@@ -97,7 +97,7 @@ pub fn layout_underbracket(
 }
 
 /// Lays out an [`OverbracketElem`].
-#[typst_macros::time(name = "math.overbracket", span = elem.span())]
+#[metaprogramming::time(name = "math.overbracket", span = elem.span())]
 pub fn layout_overbracket(
     elem: &Packed<OverbracketElem>,
     ctx: &mut MathContext,
@@ -115,7 +115,7 @@ pub fn layout_overbracket(
 }
 
 /// Lays out an [`UnderparenElem`].
-#[typst_macros::time(name = "math.underparen", span = elem.span())]
+#[metaprogramming::time(name = "math.underparen", span = elem.span())]
 pub fn layout_underparen(
     elem: &Packed<UnderparenElem>,
     ctx: &mut MathContext,
@@ -133,7 +133,7 @@ pub fn layout_underparen(
 }
 
 /// Lays out an [`OverparenElem`].
-#[typst_macros::time(name = "math.overparen", span = elem.span())]
+#[metaprogramming::time(name = "math.overparen", span = elem.span())]
 pub fn layout_overparen(
     elem: &Packed<OverparenElem>,
     ctx: &mut MathContext,
@@ -151,7 +151,7 @@ pub fn layout_overparen(
 }
 
 /// Lays out an [`UndershellElem`].
-#[typst_macros::time(name = "math.undershell", span = elem.span())]
+#[metaprogramming::time(name = "math.undershell", span = elem.span())]
 pub fn layout_undershell(
     elem: &Packed<UndershellElem>,
     ctx: &mut MathContext,
@@ -169,7 +169,7 @@ pub fn layout_undershell(
 }
 
 /// Lays out an [`OvershellElem`].
-#[typst_macros::time(name = "math.overshell", span = elem.span())]
+#[metaprogramming::time(name = "math.overshell", span = elem.span())]
 pub fn layout_overshell(
     elem: &Packed<OvershellElem>,
     ctx: &mut MathContext,

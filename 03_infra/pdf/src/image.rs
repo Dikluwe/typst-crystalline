@@ -20,7 +20,7 @@ use crate::convert::{FrameContext, GlobalContext};
 use crate::tags;
 use crate::util::{SizeExt, TransformExt};
 
-#[typst_macros::time(name = "handle image")]
+#[metaprogramming::time(name = "handle image")]
 pub(crate) fn handle_image(
     gc: &mut GlobalContext,
     fc: &mut FrameContext,

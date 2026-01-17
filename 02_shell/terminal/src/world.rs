@@ -13,9 +13,9 @@ use fusion::syntax::{FileId, Lines, Source, VirtualPath};
 use fusion::text::{Font, FontBook};
 use fusion::utils::LazyHash;
 use fusion::{Library, LibraryExt, World};
-use typst_kit::fonts::Fonts;
-use typst_kit::package::PackageStorage;
-use typst_timing::timed;
+use ancillary::fonts::Fonts;
+use ancillary::package::PackageStorage;
+use profiling::timed;
 
 use crate::args::{Feature, FontArgs, Input, ProcessArgs, WorldArgs};
 use crate::download::PrintDownload;
@@ -398,7 +398,7 @@ impl<T: Clone> SlotCell<T> {
 }
 
 /// Discovers the fonts as specified by the CLI flags.
-#[typst_macros::time(name = "scan fonts")]
+#[metaprogramming::time(name = "scan fonts")]
 fn scan_fonts(args: &FontArgs) -> Fonts {
     let mut fonts = Fonts::searcher();
     fonts.include_system_fonts(!args.ignore_system_fonts);

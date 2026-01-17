@@ -9,7 +9,7 @@ use rustc_hash::FxHashMap;
 use fusion::diag::{SourceDiagnostic, Warned};
 use fusion::layout::PagedDocument;
 use fusion::{Document, WorldExt};
-use typst_html::HtmlDocument;
+use html::HtmlDocument;
 use lexicon::{FileId, Lines, VirtualPath};
 
 use crate::collect::{FileSize, NoteKind, Test, TestStage, TestStages, TestTarget};

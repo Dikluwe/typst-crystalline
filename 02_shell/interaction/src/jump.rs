@@ -5,7 +5,7 @@ use fusion::model::{Destination, Url};
 use fusion::syntax::{FileId, LinkedNode, Side, Source, Span, SyntaxKind};
 use fusion::visualize::{Curve, CurveItem, FillRule, Geometry};
 use fusion::{AsDocument, WorldExt};
-use typst_html::{HtmlDocument, HtmlElement, HtmlNode, HtmlSliceExt};
+use html::{HtmlDocument, HtmlElement, HtmlNode, HtmlSliceExt};
 
 use crate::IdeWorld;
 
@@ -48,7 +48,7 @@ impl JumpFromDocument for HtmlDocument {}
 mod jump_from_document_sealed {
     use fusion::introspection::{HtmlPosition, InnerHtmlPosition};
     use fusion::layout::{PagedDocument, Position};
-    use typst_html::{HtmlDocument, HtmlNode, HtmlSliceExt};
+    use html::{HtmlDocument, HtmlNode, HtmlSliceExt};
 
     use super::{Jump, jump_from_click_in_frame};
     use crate::IdeWorld;
@@ -376,7 +376,7 @@ mod jump_in_document_sealed {
     use fusion::introspection::HtmlPosition;
     use fusion::layout::{PagedDocument, Position};
     use fusion::syntax::Span;
-    use typst_html::HtmlDocument;
+    use html::HtmlDocument;
 
     use super::{find_in_elem, find_in_frame};
 
@@ -487,7 +487,7 @@ mod tests {
     use fusion::introspection::HtmlPosition;
     use fusion::layout::{Abs, PagedDocument, Point, Position};
     use fusion::utils::NonZeroExt;
-    use typst_html::HtmlDocument;
+    use html::HtmlDocument;
 
     use super::{Jump, jump_from_click, jump_from_cursor};
     use crate::tests::{FilePos, TestWorld, WorldLike};

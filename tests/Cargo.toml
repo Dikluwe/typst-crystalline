@@ -18,11 +18,11 @@ lexicon = { workspace = true }
 fusion = { workspace = true }
 typst-assets = { workspace = true, features = ["fonts"] }
 typst-dev-assets = { workspace = true }
-typst-html = { workspace = true }
+html = { workspace = true }
 primitives = { workspace = true }
 pdf = { workspace = true }
 raster = { workspace = true }
-typst-svg = { workspace = true }
+svg = { workspace = true }
 shared = { workspace = true }
 bitflags = { workspace = true }
 clap = { workspace = true }

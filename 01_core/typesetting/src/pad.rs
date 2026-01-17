@@ -7,7 +7,7 @@ use primitives::layout::{
 };
 
 /// Layout the padded content.
-#[typst_macros::time(span = elem.span())]
+#[metaprogramming::time(span = elem.span())]
 pub fn layout_pad(
     elem: &Packed<PadElem>,
     engine: &mut Engine,

@@ -11,7 +11,7 @@ use super::{FrameFragment, MathContext, style_cramped};
 ///
 /// TeXbook page 443, page 360
 /// See also: <https://www.w3.org/TR/mathml-core/#radicals-msqrt-mroot>
-#[typst_macros::time(name = "math.root", span = elem.span())]
+#[metaprogramming::time(name = "math.root", span = elem.span())]
 pub fn layout_root(
     elem: &Packed<RootElem>,
     ctx: &mut MathContext,

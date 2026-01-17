@@ -10,7 +10,7 @@ use fusion::introspection::Introspector;
 use fusion::layout::PagedDocument;
 use fusion::syntax::{Span, SyntaxMode};
 use semantics::eval_string;
-use typst_html::HtmlDocument;
+use html::HtmlDocument;
 
 use crate::args::{Input, QueryCommand, Target};
 use crate::compile::print_diagnostics;

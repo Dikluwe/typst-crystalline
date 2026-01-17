@@ -19,7 +19,7 @@ struct PdfDocumentInner {
 impl PdfDocument {
     /// Loads a PDF document.
     #[comemo::memoize]
-    #[typst_macros::time(name = "load pdf document")]
+    #[metaprogramming::time(name = "load pdf document")]
     pub fn new(data: Bytes) -> Result<PdfDocument, LoadPdfError> {
         let pdf = Arc::new(Pdf::new(Arc::new(data.clone()))?);
         Ok(Self(Arc::new(PdfDocumentInner { data, pdf })))

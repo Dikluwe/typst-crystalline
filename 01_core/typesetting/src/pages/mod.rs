@@ -30,7 +30,7 @@ use self::run::{LayoutedPage, layout_blank_page, layout_page_run};
 /// elements. In contrast to [`layout_fragment`](crate::layout_fragment),
 /// this does not take regions since the regions are defined by the page
 /// configuration in the content and style chain.
-#[typst_macros::time(name = "layout document")]
+#[metaprogramming::time(name = "layout document")]
 pub fn layout_document(
     engine: &mut Engine,
     content: &Content,
@@ -164,7 +164,7 @@ fn layout_pages<'a>(
 }
 
 /// Introspects pages.
-#[typst_macros::time(name = "introspect pages")]
+#[metaprogramming::time(name = "introspect pages")]
 fn introspect_pages(pages: &[Page]) -> Introspector {
     let mut builder = IntrospectorBuilder::new();
     builder.pages = pages.len();

@@ -349,12 +349,12 @@ pub fn info(command: &InfoCommand) -> StrResult<()> {
                 .typst_package_path
                 .as_ref()
                 .map(PathBuf::from)
-                .or_else(typst_kit::package::default_package_path),
+                .or_else(ancillary::package::default_package_path),
             package_cache_path: env
                 .typst_package_cache_path
                 .as_ref()
                 .map(PathBuf::from)
-                .or_else(typst_kit::package::default_package_cache_path),
+                .or_else(ancillary::package::default_package_cache_path),
         },
         env,
     };

@@ -28,7 +28,7 @@ use crate::modifiers::layout_and_modify;
 
 /// Collects all elements of the flow into prepared children. These are much
 /// simpler to handle than the raw elements.
-#[typst_macros::time]
+#[metaprogramming::time]
 #[allow(clippy::too_many_arguments)]
 pub fn collect<'a>(
     engine: &mut Engine,

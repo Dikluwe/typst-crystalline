@@ -16,7 +16,7 @@ use primitives::visualize::{Color, Geometry, Paint};
 ///
 /// This renders the page at the given number of pixels per point and returns
 /// the resulting `tiny-skia` pixel buffer.
-#[typst_macros::time(name = "render")]
+#[metaprogramming::time(name = "render")]
 pub fn render(page: &Page, pixel_per_pt: f32) -> sk::Pixmap {
     let size = page.frame.size();
     let pxw = (pixel_per_pt * size.x.to_f32()).round().max(1.0) as u32;

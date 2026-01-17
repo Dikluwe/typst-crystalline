@@ -7,7 +7,7 @@ use semver::Version;
 use serde::Deserialize;
 use tempfile::NamedTempFile;
 use fusion::diag::{StrResult, bail};
-use typst_kit::download::Downloader;
+use ancillary::download::Downloader;
 use xz2::bufread::XzDecoder;
 use zip::ZipArchive;
 

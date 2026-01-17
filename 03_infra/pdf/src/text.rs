@@ -15,7 +15,7 @@ use crate::convert::{FrameContext, GlobalContext};
 use crate::util::{AbsExt, TransformExt, display_font};
 use crate::{paint, tags};
 
-#[typst_macros::time(name = "handle text")]
+#[metaprogramming::time(name = "handle text")]
 pub(crate) fn handle_text(
     fc: &mut FrameContext,
     t: &TextItem,

@@ -17,6 +17,7 @@
 | `flake.lock` | — |
 | `flake.nix` | — |
 | `rustfmt.toml` | — |
+| `typst_cristal_tree.txt` | — |
 
 ## 📂 Architectural Layers
 
