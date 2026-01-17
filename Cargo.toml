@@ -10,7 +10,7 @@ members = [
     "03_infra/html",
     "03_infra/ancillary",
     "03_infra/fuzzing",
-    "04_wiring",
+    "04_wiring/fusion",
     "00_nucleo/specification",
     "tests"
 ]
@@ -30,7 +30,7 @@ keywords = ["typst"]
 readme = "README.md"
 
 [workspace.dependencies]
-fusion = { path = "04_wiring", version = "0.14.1" }
+fusion = { path = "04_wiring/fusion", version = "0.14.1" }
 terminal = { path = "02_shell/terminal", version = "0.14.1" }
 semantics = { path = "01_core/semantics", version = "0.14.1" }
 html = { path = "03_infra/html", version = "0.14.1" }
