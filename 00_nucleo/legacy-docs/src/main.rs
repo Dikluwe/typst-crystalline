@@ -2,9 +2,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use clap::Parser;
-use typst::layout::PagedDocument;
+use fusion::layout::PagedDocument;
 use typst_docs::{Html, Resolver, provide};
-use typst_render::render;
+use raster::render;
 
 #[derive(Debug)]
 struct CliResolver<'a> {

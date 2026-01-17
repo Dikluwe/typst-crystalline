@@ -7,10 +7,10 @@ use std::sync::LazyLock;
 use bitflags::{Flags, bitflags};
 use ecow::{EcoString, eco_format};
 use rustc_hash::{FxHashMap, FxHashSet};
-use typst::foundations::Bytes;
-use typst_pdf::PdfStandard;
-use typst_syntax::package::PackageVersion;
-use typst_syntax::{
+use fusion::foundations::Bytes;
+use pdf::PdfStandard;
+use lexicon::package::PackageVersion;
+use lexicon::{
     FileId, Lines, Source, VirtualPath, is_id_continue, is_ident, is_newline,
 };
 use unscanny::Scanner;
@@ -174,7 +174,7 @@ impl Display for TestStages {
     }
 }
 
-/// A compilation target, analog to [`typst::Target`].
+/// A compilation target, analog to [`fusion::Target`].
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 #[repr(u8)]
 pub enum TestTarget {

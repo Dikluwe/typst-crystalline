@@ -863,6 +863,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6d5a32815ae3f33302d95fdcb2ce17862f8c65363dcfd29360480ba1001fc9c"
 
 [[package]]
+name = "fusion"
+version = "0.14.1"
+dependencies = [
+ "arrayvec",
+ "comemo",
+ "ecow",
+ "lexicon",
+ "materialization",
+ "primitives",
+ "rustc-hash",
+ "semantics",
+ "shared",
+ "typesetting",
+ "typst-html",
+ "typst-macros",
+ "typst-timing",
+]
+
+[[package]]
 name = "getopts"
 version = "0.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1358,6 +1377,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "interaction"
+version = "0.14.1"
+dependencies = [
+ "comemo",
+ "ecow",
+ "fusion",
+ "once_cell",
+ "pathdiff",
+ "rustc-hash",
+ "semantics",
+ "serde",
+ "typst-assets",
+ "typst-dev-assets",
+ "typst-html",
+ "unscanny",
+]
+
+[[package]]
 name = "is-docker"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1503,6 +1540,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "lexicon"
+version = "0.14.1"
+dependencies = [
+ "ecow",
+ "rustc-hash",
+ "serde",
+ "shared",
+ "toml",
+ "typst-timing",
+ "unicode-ident",
+ "unicode-math-class",
+ "unicode-script",
+ "unicode-segmentation",
+ "unscanny",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.169"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1624,6 +1678,22 @@ dependencies = [
  "cc",
  "libc",
  "pkg-config",
+]
+
+[[package]]
+name = "materialization"
+version = "0.14.1"
+dependencies = [
+ "arrayvec",
+ "bumpalo",
+ "comemo",
+ "ecow",
+ "lexicon",
+ "primitives",
+ "regex",
+ "shared",
+ "typst-macros",
+ "typst-timing",
 ]
 
 [[package]]
@@ -1926,6 +1996,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3"
 
 [[package]]
+name = "pdf"
+version = "0.14.1"
+dependencies = [
+ "az",
+ "bytemuck",
+ "comemo",
+ "ecow",
+ "image",
+ "indexmap 2.12.1",
+ "infer",
+ "krilla",
+ "krilla-svg",
+ "lexicon",
+ "primitives",
+ "rustc-hash",
+ "serde",
+ "shared",
+ "smallvec",
+ "typst-assets",
+ "typst-macros",
+ "typst-timing",
+]
+
+[[package]]
 name = "pdf-writer"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2067,6 +2161,72 @@ dependencies = [
 ]
 
 [[package]]
+name = "primitives"
+version = "0.14.1"
+dependencies = [
+ "arrayvec",
+ "az",
+ "bitflags 2.9.1",
+ "bumpalo",
+ "chinese-number",
+ "ciborium",
+ "codex",
+ "comemo",
+ "csv",
+ "ecow",
+ "flate2",
+ "fontdb",
+ "glidesort",
+ "hayagriva",
+ "hayro-syntax",
+ "icu_properties",
+ "icu_provider",
+ "icu_provider_blob",
+ "image",
+ "indexmap 2.12.1",
+ "kamadak-exif",
+ "kurbo 0.12.0",
+ "lexicon",
+ "lipsum",
+ "memchr",
+ "palette",
+ "phf",
+ "png",
+ "qcms",
+ "rayon",
+ "regex",
+ "regex-syntax",
+ "roxmltree",
+ "rust_decimal",
+ "rustc-hash",
+ "rustybuzz",
+ "serde",
+ "serde_json",
+ "serde_yaml 0.9.34+deprecated",
+ "shared",
+ "siphasher",
+ "smallvec",
+ "syntect",
+ "time",
+ "toml",
+ "ttf-parser",
+ "two-face",
+ "typed-arena",
+ "typst-assets",
+ "typst-dev-assets",
+ "typst-macros",
+ "typst-timing",
+ "unicode-math-class",
+ "unicode-normalization",
+ "unicode-segmentation",
+ "unscanny",
+ "usvg",
+ "utf8_iter",
+ "wasmi",
+ "xmlwriter",
+]
+
+[[package]]
 name = "proc-macro-hack"
 version = "0.5.20+deprecated"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2181,6 +2341,24 @@ name = "rand_core"
 version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
+
+[[package]]
+name = "raster"
+version = "0.14.1"
+dependencies = [
+ "bytemuck",
+ "comemo",
+ "hayro",
+ "image",
+ "pixglyph",
+ "primitives",
+ "resvg",
+ "tiny-skia",
+ "ttf-parser",
+ "typst-assets",
+ "typst-macros",
+ "typst-timing",
+]
 
 [[package]]
 name = "rayon"
@@ -2423,6 +2601,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "semantics"
+version = "0.14.1"
+dependencies = [
+ "comemo",
+ "ecow",
+ "indexmap 2.12.1",
+ "lexicon",
+ "primitives",
+ "rustc-hash",
+ "shared",
+ "stacker",
+ "toml",
+ "typst-macros",
+ "typst-timing",
+ "unicode-segmentation",
+]
+
+[[package]]
 name = "semver"
 version = "1.0.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2502,6 +2698,20 @@ dependencies = [
  "ryu",
  "serde",
  "unsafe-libyaml",
+]
+
+[[package]]
+name = "shared"
+version = "0.14.1"
+dependencies = [
+ "once_cell",
+ "portable-atomic",
+ "rayon",
+ "rustc-hash",
+ "semver",
+ "siphasher",
+ "thin-vec",
+ "unicode-math-class",
 ]
 
 [[package]]
@@ -2744,6 +2954,53 @@ dependencies = [
 ]
 
 [[package]]
+name = "terminal"
+version = "0.14.1"
+dependencies = [
+ "chrono",
+ "clap",
+ "clap_complete",
+ "clap_mangen",
+ "codespan-reporting",
+ "color-print",
+ "comemo",
+ "dirs",
+ "ecow",
+ "fs_extra",
+ "fusion",
+ "notify",
+ "open",
+ "parking_lot",
+ "pathdiff",
+ "pdf",
+ "raster",
+ "rayon",
+ "rustc-hash",
+ "same-file",
+ "self-replace",
+ "semantics",
+ "semver",
+ "serde",
+ "serde_json",
+ "serde_yaml 0.9.34+deprecated",
+ "shared",
+ "shell-escape",
+ "sigpipe",
+ "tar",
+ "tempfile",
+ "tiny_http",
+ "toml",
+ "typst-html",
+ "typst-kit",
+ "typst-macros",
+ "typst-svg",
+ "typst-timing",
+ "ureq",
+ "xz2",
+ "zip",
+]
+
+[[package]]
 name = "terminal_size"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2945,203 +3202,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6af6ae20167a9ece4bcb41af5b80f8a1f1df981f6391189ce00fd257af04126a"
 
 [[package]]
-name = "typst"
-version = "0.14.1"
-dependencies = [
- "arrayvec",
- "comemo",
- "ecow",
- "rustc-hash",
- "typst-eval",
- "typst-html",
- "typst-layout",
- "typst-library",
- "typst-macros",
- "typst-realize",
- "typst-syntax",
- "typst-timing",
- "typst-utils",
-]
-
-[[package]]
-name = "typst-assets"
-version = "0.14.1"
-source = "git+https://github.com/typst/typst-assets?rev=48b6cf4#48b6cf4ee1bb8ad2b0a1bff5c06335ee31640f06"
-
-[[package]]
-name = "typst-cli"
-version = "0.14.1"
-dependencies = [
- "chrono",
- "clap",
- "clap_complete",
- "clap_mangen",
- "codespan-reporting",
- "color-print",
- "comemo",
- "dirs",
- "ecow",
- "fs_extra",
- "notify",
- "open",
- "parking_lot",
- "pathdiff",
- "rayon",
- "rustc-hash",
- "same-file",
- "self-replace",
- "semver",
- "serde",
- "serde_json",
- "serde_yaml 0.9.34+deprecated",
- "shell-escape",
- "sigpipe",
- "tar",
- "tempfile",
- "tiny_http",
- "toml",
- "typst",
- "typst-eval",
- "typst-html",
- "typst-kit",
- "typst-macros",
- "typst-pdf",
- "typst-render",
- "typst-svg",
- "typst-timing",
- "typst-utils",
- "ureq",
- "xz2",
- "zip",
-]
-
-[[package]]
-name = "typst-dev-assets"
-version = "0.14.1"
-source = "git+https://github.com/typst/typst-dev-assets?rev=03addcf#03addcfb64f3f95209464a521e6aa49645bd271a"
-
-[[package]]
-name = "typst-docs"
-version = "0.14.1"
-dependencies = [
- "clap",
- "codex",
- "ecow",
- "heck",
- "pulldown-cmark",
- "regex",
- "rustc-hash",
- "serde",
- "serde_json",
- "serde_yaml 0.9.34+deprecated",
- "syntect",
- "typed-arena",
- "typst",
- "typst-assets",
- "typst-dev-assets",
- "typst-render",
- "typst-utils",
- "unicode-math-class",
- "unscanny",
- "yaml-front-matter",
-]
-
-[[package]]
-name = "typst-eval"
-version = "0.14.1"
-dependencies = [
- "comemo",
- "ecow",
- "indexmap 2.12.1",
- "rustc-hash",
- "stacker",
- "toml",
- "typst-library",
- "typst-macros",
- "typst-syntax",
- "typst-timing",
- "typst-utils",
- "unicode-segmentation",
-]
-
-[[package]]
-name = "typst-fuzz"
-version = "0.14.1"
-dependencies = [
- "comemo",
- "libfuzzer-sys",
- "typst",
- "typst-assets",
- "typst-html",
- "typst-pdf",
- "typst-render",
- "typst-svg",
- "typst-syntax",
-]
-
-[[package]]
-name = "typst-html"
-version = "0.14.1"
-dependencies = [
- "bumpalo",
- "comemo",
- "ecow",
- "palette",
- "rustc-hash",
- "time",
- "typst-assets",
- "typst-library",
- "typst-macros",
- "typst-svg",
- "typst-syntax",
- "typst-timing",
- "typst-utils",
-]
-
-[[package]]
-name = "typst-ide"
-version = "0.14.1"
-dependencies = [
- "comemo",
- "ecow",
- "once_cell",
- "pathdiff",
- "rustc-hash",
- "serde",
- "typst",
- "typst-assets",
- "typst-dev-assets",
- "typst-eval",
- "typst-html",
- "unscanny",
-]
-
-[[package]]
-name = "typst-kit"
-version = "0.14.1"
-dependencies = [
- "dirs",
- "ecow",
- "env_proxy",
- "fastrand",
- "flate2",
- "fontdb",
- "native-tls",
- "once_cell",
- "openssl",
- "serde",
- "serde_json",
- "tar",
- "typst-assets",
- "typst-library",
- "typst-syntax",
- "typst-timing",
- "typst-utils",
- "ureq",
-]
-
-[[package]]
-name = "typst-layout"
+name = "typesetting"
 version = "0.14.1"
 dependencies = [
  "az",
@@ -3157,17 +3218,17 @@ dependencies = [
  "icu_provider_blob",
  "icu_segmenter",
  "kurbo 0.12.0",
+ "lexicon",
  "memchr",
+ "primitives",
  "rustc-hash",
  "rustybuzz",
+ "shared",
  "smallvec",
  "ttf-parser",
  "typst-assets",
- "typst-library",
  "typst-macros",
- "typst-syntax",
  "typst-timing",
- "typst-utils",
  "unicode-bidi",
  "unicode-math-class",
  "unicode-script",
@@ -3175,69 +3236,97 @@ dependencies = [
 ]
 
 [[package]]
-name = "typst-library"
+name = "typst-assets"
+version = "0.14.1"
+source = "git+https://github.com/typst/typst-assets?rev=48b6cf4#48b6cf4ee1bb8ad2b0a1bff5c06335ee31640f06"
+
+[[package]]
+name = "typst-dev-assets"
+version = "0.14.1"
+source = "git+https://github.com/typst/typst-dev-assets?rev=03addcf#03addcfb64f3f95209464a521e6aa49645bd271a"
+
+[[package]]
+name = "typst-docs"
 version = "0.14.1"
 dependencies = [
- "arrayvec",
- "az",
- "bitflags 2.9.1",
- "bumpalo",
- "chinese-number",
- "ciborium",
+ "clap",
  "codex",
- "comemo",
- "csv",
  "ecow",
- "flate2",
- "fontdb",
- "glidesort",
- "hayagriva",
- "hayro-syntax",
- "icu_properties",
- "icu_provider",
- "icu_provider_blob",
- "image",
- "indexmap 2.12.1",
- "kamadak-exif",
- "kurbo 0.12.0",
- "lipsum",
- "memchr",
- "palette",
- "phf",
- "png",
- "qcms",
- "rayon",
+ "fusion",
+ "heck",
+ "pulldown-cmark",
+ "raster",
  "regex",
- "regex-syntax",
- "roxmltree",
- "rust_decimal",
  "rustc-hash",
- "rustybuzz",
  "serde",
  "serde_json",
  "serde_yaml 0.9.34+deprecated",
- "siphasher",
- "smallvec",
+ "shared",
  "syntect",
- "time",
- "toml",
- "ttf-parser",
- "two-face",
  "typed-arena",
  "typst-assets",
  "typst-dev-assets",
- "typst-macros",
- "typst-syntax",
- "typst-timing",
- "typst-utils",
  "unicode-math-class",
- "unicode-normalization",
- "unicode-segmentation",
  "unscanny",
- "usvg",
- "utf8_iter",
- "wasmi",
- "xmlwriter",
+ "yaml-front-matter",
+]
+
+[[package]]
+name = "typst-fuzz"
+version = "0.14.1"
+dependencies = [
+ "comemo",
+ "fusion",
+ "lexicon",
+ "libfuzzer-sys",
+ "pdf",
+ "raster",
+ "typst-assets",
+ "typst-html",
+ "typst-svg",
+]
+
+[[package]]
+name = "typst-html"
+version = "0.14.1"
+dependencies = [
+ "bumpalo",
+ "comemo",
+ "ecow",
+ "lexicon",
+ "palette",
+ "primitives",
+ "rustc-hash",
+ "shared",
+ "time",
+ "typst-assets",
+ "typst-macros",
+ "typst-svg",
+ "typst-timing",
+]
+
+[[package]]
+name = "typst-kit"
+version = "0.14.1"
+dependencies = [
+ "dirs",
+ "ecow",
+ "env_proxy",
+ "fastrand",
+ "flate2",
+ "fontdb",
+ "lexicon",
+ "native-tls",
+ "once_cell",
+ "openssl",
+ "primitives",
+ "serde",
+ "serde_json",
+ "shared",
+ "tar",
+ "typst-assets",
+ "typst-timing",
+ "ureq",
 ]
 
 [[package]]
@@ -3251,64 +3340,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "typst-pdf"
-version = "0.14.1"
-dependencies = [
- "az",
- "bytemuck",
- "comemo",
- "ecow",
- "image",
- "indexmap 2.12.1",
- "infer",
- "krilla",
- "krilla-svg",
- "rustc-hash",
- "serde",
- "smallvec",
- "typst-assets",
- "typst-library",
- "typst-macros",
- "typst-syntax",
- "typst-timing",
- "typst-utils",
-]
-
-[[package]]
-name = "typst-realize"
-version = "0.14.1"
-dependencies = [
- "arrayvec",
- "bumpalo",
- "comemo",
- "ecow",
- "regex",
- "typst-library",
- "typst-macros",
- "typst-syntax",
- "typst-timing",
- "typst-utils",
-]
-
-[[package]]
-name = "typst-render"
-version = "0.14.1"
-dependencies = [
- "bytemuck",
- "comemo",
- "hayro",
- "image",
- "pixglyph",
- "resvg",
- "tiny-skia",
- "ttf-parser",
- "typst-assets",
- "typst-library",
- "typst-macros",
- "typst-timing",
-]
-
-[[package]]
 name = "typst-svg"
 version = "0.14.1"
 dependencies = [
@@ -3319,32 +3350,15 @@ dependencies = [
  "hayro",
  "hayro-svg",
  "image",
+ "primitives",
  "rustc-hash",
+ "shared",
  "ttf-parser",
  "typst-assets",
- "typst-library",
  "typst-macros",
  "typst-timing",
- "typst-utils",
  "xmlparser",
  "xmlwriter",
-]
-
-[[package]]
-name = "typst-syntax"
-version = "0.14.1"
-dependencies = [
- "ecow",
- "rustc-hash",
- "serde",
- "toml",
- "typst-timing",
- "typst-utils",
- "unicode-ident",
- "unicode-math-class",
- "unicode-script",
- "unicode-segmentation",
- "unscanny",
 ]
 
 [[package]]
@@ -3355,26 +3369,26 @@ dependencies = [
  "clap",
  "comemo",
  "ecow",
+ "fusion",
  "hayro-syntax",
  "indexmap 2.12.1",
+ "lexicon",
  "oxipng",
  "parking_lot",
+ "pdf",
+ "primitives",
+ "raster",
  "rayon",
  "regex",
  "roxmltree",
  "rustc-hash",
  "serde_yaml 0.9.34+deprecated",
+ "shared",
  "tiny-skia",
- "typst",
  "typst-assets",
  "typst-dev-assets",
  "typst-html",
- "typst-library",
- "typst-pdf",
- "typst-render",
  "typst-svg",
- "typst-syntax",
- "typst-utils",
  "unscanny",
  "walkdir",
 ]
@@ -3387,20 +3401,6 @@ dependencies = [
  "serde",
  "serde_json",
  "web-sys",
-]
-
-[[package]]
-name = "typst-utils"
-version = "0.14.1"
-dependencies = [
- "once_cell",
- "portable-atomic",
- "rayon",
- "rustc-hash",
- "semver",
- "siphasher",
- "thin-vec",
- "unicode-math-class",
 ]
 
 [[package]]

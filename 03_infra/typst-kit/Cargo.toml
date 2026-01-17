@@ -12,10 +12,10 @@ readme = { workspace = true }
 
 [dependencies]
 typst-assets = { workspace = true, optional = true }
-typst-library = { workspace = true }
-typst-syntax = { workspace = true }
+primitives = { workspace = true }
+lexicon = { workspace = true }
 typst-timing = { workspace = true }
-typst-utils = { workspace = true }
+shared = { workspace = true }
 dirs = { workspace = true, optional = true }
 ecow = { workspace = true }
 env_proxy = { workspace = true, optional = true }

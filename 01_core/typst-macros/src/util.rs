@@ -198,13 +198,13 @@ impl<T: Parse> Parse for Array<T> {
     }
 }
 
-/// Shorthand for `::typst_library::foundations`.
+/// Shorthand for `::primitives::foundations`.
 #[allow(non_camel_case_types)]
 pub struct foundations;
 
 impl quote::ToTokens for foundations {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        quote! { ::typst_library::foundations }.to_tokens(tokens);
+        quote! { ::primitives::foundations }.to_tokens(tokens);
     }
 }
 

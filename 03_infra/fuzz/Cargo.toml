@@ -8,13 +8,13 @@ publish = false
 cargo-fuzz = true
 
 [dependencies]
-typst = { workspace = true }
+fusion = { workspace = true }
 typst-assets = { workspace = true, features = ["fonts"] }
-typst-pdf = { workspace = true }
+pdf = { workspace = true }
 typst-svg = { workspace = true }
 typst-html = { workspace = true }
-typst-render = { workspace = true }
-typst-syntax = { workspace = true }
+raster = { workspace = true }
+lexicon = { workspace = true }
 comemo = { workspace = true }
 libfuzzer-sys = { workspace = true }
 

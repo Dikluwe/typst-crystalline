@@ -1,6 +1,6 @@
 use regex::Regex;
-use typst::diag::{StrResult, bail};
-use typst::foundations::{Binding, Func, Type};
+use fusion::diag::{StrResult, bail};
+use fusion::foundations::{Binding, Func, Type};
 
 use crate::{GROUPS, LIBRARY, get_module};
 
@@ -11,7 +11,7 @@ pub fn resolve(link: &str, base: &str) -> StrResult<String> {
     }
 
     if let Some(cap) =
-        typst_utils::singleton!(Regex, Regex::new(r"^\$((\w+)\/(\w+))?#(\d+)$").unwrap())
+        shared::singleton!(Regex, Regex::new(r"^\$((\w+)\/(\w+))?#(\d+)$").unwrap())
             .captures(link)
     {
         let org = cap.get(2).map(|m| m.as_str()).unwrap_or("typst");

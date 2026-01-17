@@ -8,19 +8,19 @@ use std::sync::OnceLock;
 use comemo::Tracked;
 use parking_lot::Mutex;
 use rustc_hash::FxHashMap;
-use typst::diag::{At, FileError, FileResult, SourceResult, StrResult, bail};
-use typst::engine::Engine;
-use typst::foundations::{
+use fusion::diag::{At, FileError, FileResult, SourceResult, StrResult, bail};
+use fusion::engine::Engine;
+use fusion::foundations::{
     Array, Bytes, Context, Datetime, IntoValue, NoneValue, Repr, Smart, Value, func,
 };
-use typst::layout::{Abs, Margin, PageElem};
-use typst::model::{Numbering, NumberingPattern};
-use typst::syntax::{FileId, Source, Span};
-use typst::text::{Font, FontBook, TextElem, TextSize};
-use typst::utils::{LazyHash, singleton};
-use typst::visualize::Color;
-use typst::{Feature, Library, LibraryExt, World};
-use typst_syntax::Lines;
+use fusion::layout::{Abs, Margin, PageElem};
+use fusion::model::{Numbering, NumberingPattern};
+use fusion::syntax::{FileId, Source, Span};
+use fusion::text::{Font, FontBook, TextElem, TextSize};
+use fusion::utils::{LazyHash, singleton};
+use fusion::visualize::Color;
+use fusion::{Feature, Library, LibraryExt, World};
+use lexicon::Lines;
 
 /// A world that provides access to the tests environment.
 #[derive(Clone)]

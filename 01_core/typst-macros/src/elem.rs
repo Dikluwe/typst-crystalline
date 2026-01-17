@@ -585,9 +585,9 @@ fn create_construct_impl(element: &Elem) -> TokenStream {
     quote! {
         impl #foundations::Construct for #ident {
             fn construct(
-                engine: &mut ::typst_library::engine::Engine,
+                engine: &mut ::primitives::engine::Engine,
                 args: &mut #foundations::Args,
-            ) -> ::typst_library::diag::SourceResult<#foundations::Content> {
+            ) -> ::primitives::diag::SourceResult<#foundations::Content> {
                 #(#setup)*
                 Ok(#foundations::Content::new(Self { #(#fields),* }))
             }
@@ -612,9 +612,9 @@ fn create_set_impl(element: &Elem) -> TokenStream {
     quote! {
         impl #foundations::Set for #ident {
             fn set(
-                engine: &mut ::typst_library::engine::Engine,
+                engine: &mut ::primitives::engine::Engine,
                 args: &mut #foundations::Args,
-            ) -> ::typst_library::diag::SourceResult<#foundations::Styles> {
+            ) -> ::primitives::diag::SourceResult<#foundations::Styles> {
                 let mut styles = #foundations::Styles::new();
                 #(#handlers)*
                 Ok(styles)
@@ -661,7 +661,7 @@ fn create_capable_func(element: &Elem) -> TokenStream {
                 // Safety: The vtable function doesn't require initialized
                 // data, so it's fine to use a dangling pointer.
                 return Some(unsafe {
-                    ::typst_utils::fat::vtable(dangling as *const dyn #capability)
+                    ::shared::fat::vtable(dangling as *const dyn #capability)
                 });
             }
         }
@@ -679,11 +679,11 @@ fn create_capable_func(element: &Elem) -> TokenStream {
 /// Creates the element's introspection capability implementation.
 fn create_introspection_impl(element: &Elem, capability: &Ident) -> TokenStream {
     let ident = &element.ident;
-    quote! { impl ::typst_library::introspection::#capability for #foundations::Packed<#ident> {} }
+    quote! { impl ::primitives::introspection::#capability for #foundations::Packed<#ident> {} }
 }
 
 /// Creates the element's `Mathy` implementation.
 fn create_mathy_impl(element: &Elem) -> TokenStream {
     let ident = &element.ident;
-    quote! { impl ::typst_library::math::Mathy for #foundations::Packed<#ident> {} }
+    quote! { impl ::primitives::math::Mathy for #foundations::Packed<#ident> {} }
 }

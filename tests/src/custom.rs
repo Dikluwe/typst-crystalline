@@ -1,10 +1,10 @@
 use std::fmt::Write;
 
-use typst::World;
-use typst::foundations::Smart;
-use typst::introspection::{Location, Tag};
-use typst::layout::{Frame, FrameItem, PagedDocument};
-use typst::model::DocumentInfo;
+use fusion::World;
+use fusion::foundations::Smart;
+use fusion::introspection::{Location, Tag};
+use fusion::layout::{Frame, FrameItem, PagedDocument};
+use fusion::model::DocumentInfo;
 
 use crate::collect::Test;
 use crate::world::TestWorld;

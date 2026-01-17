@@ -19,9 +19,9 @@ pub use self::encode::html;
 pub use self::rules::{html_span_filled, register};
 
 use ecow::EcoString;
-use typst_library::Category;
-use typst_library::foundations::{Content, Module, Scope};
-use typst_library::introspection::Location;
+use primitives::Category;
+use primitives::foundations::{Content, Module, Scope};
+use primitives::introspection::Location;
 use typst_macros::elem;
 
 /// Creates the module with all HTML definitions.

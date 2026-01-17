@@ -11,15 +11,15 @@ use bumpalo::Bump;
 use comemo::Tracked;
 use ecow::{EcoString, eco_format, eco_vec};
 use typst_assets::html as data;
-use typst_library::diag::{At, Hint, HintedStrResult, SourceResult, bail};
-use typst_library::engine::Engine;
-use typst_library::foundations::{
+use primitives::diag::{At, Hint, HintedStrResult, SourceResult, bail};
+use primitives::engine::Engine;
+use primitives::foundations::{
     Args, Array, AutoValue, CastInfo, Content, Context, Datetime, Dict, Duration,
     FromValue, IntoValue, NativeFuncData, NativeFuncPtr, NoneValue, ParamInfo,
     PositiveF64, Reflect, Scope, Str, Type, Value,
 };
-use typst_library::layout::{Axes, Axis, Dir, Length};
-use typst_library::visualize::Color;
+use primitives::layout::{Axes, Axis, Dir, Length};
+use primitives::visualize::Color;
 use typst_macros::cast;
 
 use crate::{HtmlAttr, HtmlAttrs, HtmlElem, HtmlTag, css, tag};
@@ -567,7 +567,7 @@ impl IntoAttr for Duration {
 
 impl IntoAttr for Datetime {
     fn into_attr(self) -> EcoString {
-        let fmt = typst_utils::display(|f| match self {
+        let fmt = shared::display(|f| match self {
             Self::Date(date) => datetime::date(f, date),
             Self::Time(time) => datetime::time(f, time),
             Self::Datetime(datetime) => datetime::datetime(f, datetime),

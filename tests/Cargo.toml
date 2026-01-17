@@ -12,18 +12,18 @@ path = "src/tests.rs"
 harness = false
 
 [dependencies]
-typst-syntax = { workspace = true }
+lexicon = { workspace = true }
 # Mark other Typst crates as optional so we can use '--no-default-features'
 # to decrease compile times for parser testing.
-typst = { workspace = true }
+fusion = { workspace = true }
 typst-assets = { workspace = true, features = ["fonts"] }
 typst-dev-assets = { workspace = true }
 typst-html = { workspace = true }
-typst-library = { workspace = true }
-typst-pdf = { workspace = true }
-typst-render = { workspace = true }
+primitives = { workspace = true }
+pdf = { workspace = true }
+raster = { workspace = true }
 typst-svg = { workspace = true }
-typst-utils = { workspace = true }
+shared = { workspace = true }
 bitflags = { workspace = true }
 clap = { workspace = true }
 comemo = { workspace = true }

@@ -1,13 +1,13 @@
 use comemo::{Track, Tracked, TrackedMut};
 use ecow::EcoVec;
-use typst_library::World;
-use typst_library::diag::{At, SourceResult};
-use typst_library::engine::{Engine, Route, Sink, Traced};
-use typst_library::foundations::{Content, StyleChain};
-use typst_library::introspection::{Introspector, Locator, LocatorLink, SplitLocator};
-use typst_library::routines::{Arenas, FragmentKind, Pair, RealizationKind, Routines};
-use typst_library::text::SmartQuoter;
-use typst_utils::Protected;
+use primitives::World;
+use primitives::diag::{At, SourceResult};
+use primitives::engine::{Engine, Route, Sink, Traced};
+use primitives::foundations::{Content, StyleChain};
+use primitives::introspection::{Introspector, Locator, LocatorLink, SplitLocator};
+use primitives::routines::{Arenas, FragmentKind, Pair, RealizationKind, Routines};
+use primitives::text::SmartQuoter;
+use shared::Protected;
 
 use crate::convert::{ConversionLevel, Whitespace};
 use crate::{HtmlElem, HtmlNode};

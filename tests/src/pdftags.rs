@@ -9,7 +9,7 @@ use hayro_syntax::object::{Array, Dict, Name, Object, Stream};
 use hayro_syntax::object::{Number, ObjRef};
 use indexmap::IndexMap;
 use roxmltree::{Document, Node};
-use typst::diag::{StrResult, bail};
+use fusion::diag::{StrResult, bail};
 
 /// The context used while formatting the PDF tag tree.
 struct Formatter<'a> {

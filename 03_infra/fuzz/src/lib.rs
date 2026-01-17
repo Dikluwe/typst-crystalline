@@ -1,9 +1,9 @@
-use typst::diag::{FileError, FileResult};
-use typst::foundations::{Bytes, Datetime};
-use typst::syntax::{FileId, Source};
-use typst::text::{Font, FontBook};
-use typst::utils::LazyHash;
-use typst::{Library, LibraryExt, World};
+use fusion::diag::{FileError, FileResult};
+use fusion::foundations::{Bytes, Datetime};
+use fusion::syntax::{FileId, Source};
+use fusion::text::{Font, FontBook};
+use fusion::utils::LazyHash;
+use fusion::{Library, LibraryExt, World};
 
 pub struct FuzzWorld {
     library: LazyHash<Library>,

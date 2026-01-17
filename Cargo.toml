@@ -1,18 +1,19 @@
 [workspace]
 members = [
     "01_core/*",
-    "02_shell/*",
-    "03_infra/typst-pdf",
+    "02_shell/terminal",
+    "02_shell/interaction",
+    "03_infra/pdf",
     "03_infra/typst-svg",
-    "03_infra/typst-render",
+    "03_infra/raster",
     "03_infra/typst-html",
     "03_infra/typst-kit",
     "03_infra/fuzz",
-    "04_wiring/typst",
+    "04_wiring",
     "00_nucleo/legacy-docs",
     "tests"
 ]
-default-members = ["02_shell/typst-cli"]
+default-members = ["02_shell/terminal"]
 resolver = "2"
 
 [workspace.package]
@@ -28,22 +29,22 @@ keywords = ["typst"]
 readme = "README.md"
 
 [workspace.dependencies]
-typst = { path = "04_wiring/typst", version = "0.14.1" }
-typst-cli = { path = "02_shell/typst-cli", version = "0.14.1" }
-typst-eval = { path = "01_core/typst-eval", version = "0.14.1" }
+fusion = { path = "04_wiring", version = "0.14.1" }
+terminal = { path = "02_shell/terminal", version = "0.14.1" }
+semantics = { path = "01_core/semantics", version = "0.14.1" }
 typst-html = { path = "03_infra/typst-html", version = "0.14.1" }
-typst-ide = { path = "02_shell/typst-ide", version = "0.14.1" }
+interaction = { path = "02_shell/interaction", version = "0.14.1" }
 typst-kit = { path = "03_infra/typst-kit", version = "0.14.1" }
-typst-layout = { path = "01_core/typst-layout", version = "0.14.1" }
-typst-library = { path = "01_core/typst-library", version = "0.14.1" }
+typesetting = { path = "01_core/typesetting", version = "0.14.1" }
+primitives = { path = "01_core/primitives", version = "0.14.1" }
 typst-macros = { path = "01_core/typst-macros", version = "0.14.1" }
-typst-pdf = { path = "03_infra/typst-pdf", version = "0.14.1" }
-typst-realize = { path = "01_core/typst-realize", version = "0.14.1" }
-typst-render = { path = "03_infra/typst-render", version = "0.14.1" }
+pdf = { path = "03_infra/pdf", version = "0.14.1" }
+materialization = { path = "01_core/materialization", version = "0.14.1" }
+raster = { path = "03_infra/raster", version = "0.14.1" }
 typst-svg = { path = "03_infra/typst-svg", version = "0.14.1" }
-typst-syntax = { path = "01_core/typst-syntax", version = "0.14.1" }
+lexicon = { path = "01_core/lexicon", version = "0.14.1" }
 typst-timing = { path = "01_core/typst-timing", version = "0.14.1" }
-typst-utils = { path = "01_core/typst-utils", version = "0.14.1" }
+shared = { path = "01_core/shared", version = "0.14.1" }
 typst-assets = { git = "https://github.com/typst/typst-assets", rev = "48b6cf4" }
 typst-dev-assets = { git = "https://github.com/typst/typst-dev-assets", rev = "03addcf" }
 arrayvec = "0.7.4"
@@ -168,7 +169,7 @@ opt-level = 2
 lto = "thin"
 codegen-units = 1
 
-[profile.release.package."typst-cli"]
+[profile.release.package."terminal"]
 strip = true
 
 [workspace.lints.clippy]

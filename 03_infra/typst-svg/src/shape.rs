@@ -1,6 +1,6 @@
 use ecow::EcoString;
-use typst_library::layout::{Abs, Point, Ratio, Size, Transform};
-use typst_library::visualize::{
+use primitives::layout::{Abs, Point, Ratio, Size, Transform};
+use primitives::visualize::{
     Curve, CurveItem, FixedStroke, Geometry, LineCap, LineJoin, Paint, RelativeTo, Shape,
 };
 

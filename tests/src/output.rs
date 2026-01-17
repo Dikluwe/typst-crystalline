@@ -5,12 +5,12 @@ use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 use tiny_skia as sk;
-use typst::diag::{At, SourceResult, StrResult, bail};
-use typst::layout::{Abs, Frame, FrameItem, PagedDocument, Transform};
-use typst::visualize::Color;
+use fusion::diag::{At, SourceResult, StrResult, bail};
+use fusion::layout::{Abs, Frame, FrameItem, PagedDocument, Transform};
+use fusion::visualize::Color;
 use typst_html::HtmlDocument;
-use typst_pdf::{PdfOptions, PdfStandard, PdfStandards};
-use typst_syntax::Span;
+use pdf::{PdfOptions, PdfStandard, PdfStandards};
+use lexicon::Span;
 
 use crate::collect::{Test, TestOutput};
 use crate::pdftags;
@@ -231,7 +231,7 @@ impl HashOutputType for Pdf {
     const INDEX: usize = 0;
 
     fn make_hash(live: &Self::Live) -> HashedRef {
-        HashedRef(typst_utils::hash128(live))
+        HashedRef(shared::hash128(live))
     }
 }
 
@@ -241,7 +241,7 @@ fn generate_pdf(
 ) -> SourceResult<Vec<u8>> {
     let standards = PdfStandards::new(standard.as_slice()).unwrap();
     let options = PdfOptions { standards, ..Default::default() };
-    typst_pdf::pdf(doc, &options)
+    pdf::pdf(doc, &options)
 }
 
 pub struct Pdftags;
@@ -300,7 +300,7 @@ impl HashOutputType for Svg {
     const INDEX: usize = 1;
 
     fn make_hash(live: &Self::Live) -> HashedRef {
-        HashedRef(typst_utils::hash128(live))
+        HashedRef(shared::hash128(live))
     }
 }
 
@@ -366,7 +366,7 @@ fn render(document: &PagedDocument, pixel_per_pt: f32) -> sk::Pixmap {
 
     let gap = Abs::pt(1.0);
     let mut pixmap =
-        typst_render::render_merged(document, pixel_per_pt, gap, Some(Color::BLACK));
+        raster::render_merged(document, pixel_per_pt, gap, Some(Color::BLACK));
 
     let gap = (pixel_per_pt * gap.to_pt() as f32).round();
 

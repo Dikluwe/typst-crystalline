@@ -1,6 +1,6 @@
 use crate::core::diagnostics::{NarrativeVisitor, VoidSignal, AccessSignal, TypeMismatchSignal, MissingFieldSignal};
-use typst::diag::{SourceDiagnostic, Severity};
-use typst::syntax::Span;
+use fusion::diag::{SourceDiagnostic, Severity};
+use fusion::syntax::Span;
 
 /// O Shield é o Adaptador Primário (L2) que transforma o colapso técnico
 /// em uma experiência social inteligível.

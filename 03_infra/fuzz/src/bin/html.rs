@@ -6,7 +6,7 @@ use typst_html::HtmlDocument;
 
 fuzz_target!(|text: &str| {
     let world = FuzzWorld::new(text);
-    if let Ok(document) = typst::compile::<HtmlDocument>(&world).output {
+    if let Ok(document) = fusion::compile::<HtmlDocument>(&world).output {
         _ = std::hint::black_box(typst_html::html(&document));
     }
     comemo::evict(10);

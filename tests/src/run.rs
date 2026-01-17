@@ -6,11 +6,11 @@ use std::sync::LazyLock;
 use parking_lot::RwLock;
 use regex::{Captures, Regex};
 use rustc_hash::FxHashMap;
-use typst::diag::{SourceDiagnostic, Warned};
-use typst::layout::PagedDocument;
-use typst::{Document, WorldExt};
+use fusion::diag::{SourceDiagnostic, Warned};
+use fusion::layout::PagedDocument;
+use fusion::{Document, WorldExt};
 use typst_html::HtmlDocument;
-use typst_syntax::{FileId, Lines, VirtualPath};
+use lexicon::{FileId, Lines, VirtualPath};
 
 use crate::collect::{FileSize, NoteKind, Test, TestStage, TestStages, TestTarget};
 use crate::logger::TestResult;
@@ -180,7 +180,7 @@ impl<'a> Runner<'a> {
 
     /// Compile a document with the specified target.
     fn compile<D: Document>(&mut self, target: TestTarget) -> Option<D> {
-        let Warned { output, warnings } = typst::compile::<D>(&self.world);
+        let Warned { output, warnings } = fusion::compile::<D>(&self.world);
         for warning in &warnings {
             self.check_diagnostic(NoteKind::Warning, warning, target);
         }

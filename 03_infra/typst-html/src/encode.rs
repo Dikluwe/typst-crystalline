@@ -1,10 +1,10 @@
 use std::fmt::Write;
 
 use ecow::{EcoString, eco_format};
-use typst_library::diag::{At, SourceResult, StrResult, bail};
-use typst_library::foundations::Repr;
-use typst_library::introspection::Introspector;
-use typst_syntax::Span;
+use primitives::diag::{At, SourceResult, StrResult, bail};
+use primitives::foundations::Repr;
+use primitives::introspection::Introspector;
+use lexicon::Span;
 
 use crate::{
     HtmlDocument, HtmlElement, HtmlFrame, HtmlNode, HtmlTag, attr, charsets, tag,

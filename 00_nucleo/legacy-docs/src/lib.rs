@@ -15,16 +15,16 @@ use rustc_hash::FxHashSet;
 use serde::Deserialize;
 use serde_yaml as yaml;
 use std::sync::LazyLock;
-use typst::diag::{StrResult, bail};
-use typst::foundations::Deprecation;
-use typst::foundations::{
+use fusion::diag::{StrResult, bail};
+use fusion::foundations::Deprecation;
+use fusion::foundations::{
     AutoValue, Binding, Bytes, CastInfo, Func, Module, NoneValue, ParamInfo, Repr, Scope,
     Smart, Type, Value,
 };
-use typst::layout::{Abs, Margin, PageElem, PagedDocument};
-use typst::text::{Font, FontBook};
-use typst::utils::LazyHash;
-use typst::{Category, Feature, Library, LibraryExt};
+use fusion::layout::{Abs, Margin, PageElem, PagedDocument};
+use fusion::text::{Font, FontBook};
+use fusion::utils::LazyHash;
+use fusion::{Category, Feature, Library, LibraryExt};
 use unicode_math_class::MathClass;
 
 macro_rules! load {
@@ -521,8 +521,8 @@ fn param_model(resolver: &dyn Resolver, info: &ParamInfo) -> ParamModel {
         types,
         strings,
         default: info.default.map(|default| {
-            let node = typst::syntax::parse_code(&default().repr());
-            Html::new(typst::syntax::highlight_html(&node))
+            let node = fusion::syntax::parse_code(&default().repr());
+            Html::new(fusion::syntax::highlight_html(&node))
         }),
         positional: info.positional,
         named: info.named,
@@ -905,15 +905,15 @@ fn symbols_model(resolver: &dyn Resolver, group: &GroupData) -> SymbolsModel {
 
             list.push(SymbolModel {
                 name,
-                markup_shorthand: shorthand(typst::syntax::ast::Shorthand::LIST),
-                math_shorthand: shorthand(typst::syntax::ast::MathShorthand::LIST),
-                // Matches `typst_layout::math::GlyphFragment::new`
+                markup_shorthand: shorthand(fusion::syntax::ast::Shorthand::LIST),
+                math_shorthand: shorthand(fusion::syntax::ast::MathShorthand::LIST),
+                // Matches `typesetting::math::GlyphFragment::new`
                 math_class: value.chars().next().and_then(|c| {
-                    typst_utils::default_math_class(c).map(math_class_name)
+                    shared::default_math_class(c).map(math_class_name)
                 }),
                 value: value.into(),
                 // Matches casting `Symbol` to `Accent`
-                accent: typst::math::Accent::combining(value).is_some(),
+                accent: fusion::math::Accent::combining(value).is_some(),
                 alternates: symbol
                     .variants()
                     .filter(|(other, _, _)| other != &variant)

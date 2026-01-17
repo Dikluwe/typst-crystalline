@@ -7,8 +7,8 @@ use std::path::{Path, PathBuf};
 use ecow::eco_format;
 use once_cell::sync::OnceCell;
 use serde::Deserialize;
-use typst_library::diag::{PackageError, PackageResult, StrResult, bail};
-use typst_syntax::package::{PackageSpec, PackageVersion, VersionlessPackageSpec};
+use primitives::diag::{PackageError, PackageResult, StrResult, bail};
+use lexicon::package::{PackageSpec, PackageVersion, VersionlessPackageSpec};
 
 use crate::download::{Downloader, Progress};
 

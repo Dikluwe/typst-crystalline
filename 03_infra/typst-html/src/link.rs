@@ -2,13 +2,13 @@ use std::collections::VecDeque;
 
 use ecow::{EcoString, EcoVec, eco_format, eco_vec};
 use rustc_hash::{FxHashMap, FxHashSet};
-use typst_library::foundations::{Label, NativeElement};
-use typst_library::introspection::{
+use primitives::foundations::{Label, NativeElement};
+use primitives::introspection::{
     DocumentPosition, InnerHtmlPosition, Introspector, Location, Tag,
 };
-use typst_library::layout::{Frame, FrameItem, Point};
-use typst_library::model::{Destination, LinkElem};
-use typst_utils::PicoStr;
+use primitives::layout::{Frame, FrameItem, Point};
+use primitives::model::{Destination, LinkElem};
+use shared::PicoStr;
 
 use crate::{HtmlElement, HtmlNode, attr, tag};
 

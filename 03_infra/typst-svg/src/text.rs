@@ -3,14 +3,14 @@ use std::io::Read;
 use base64::Engine;
 use ecow::EcoString;
 use ttf_parser::GlyphId;
-use typst_library::foundations::Bytes;
-use typst_library::layout::{Abs, Point, Ratio, Size, Transform};
-use typst_library::text::color::colr_glyph_to_svg;
-use typst_library::text::{Font, TextItem};
-use typst_library::visualize::{
+use primitives::foundations::Bytes;
+use primitives::layout::{Abs, Point, Ratio, Size, Transform};
+use primitives::text::color::colr_glyph_to_svg;
+use primitives::text::{Font, TextItem};
+use primitives::visualize::{
     ExchangeFormat, FillRule, Image, Paint, RasterImage, RelativeTo,
 };
-use typst_utils::hash128;
+use shared::hash128;
 
 use crate::{SVGRenderer, State, SvgMatrix, SvgPathBuilder};
 

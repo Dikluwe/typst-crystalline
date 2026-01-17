@@ -1,5 +1,5 @@
 [package]
-name = "typst"
+name = "fusion"
 description = "A new markup-based typesetting system that is powerful and easy to learn."
 categories = ["compilers", "science"]
 keywords = ["markup", "typesetting", "typst"]
@@ -13,15 +13,15 @@ license = { workspace = true }
 readme = { workspace = true }
 
 [dependencies]
-typst-eval = { workspace = true }
+semantics = { workspace = true }
 typst-html = { workspace = true }
-typst-layout = { workspace = true }
-typst-library = { workspace = true }
+typesetting = { workspace = true }
+primitives = { workspace = true }
 typst-macros = { workspace = true }
-typst-realize = { workspace = true }
-typst-syntax = { workspace = true }
+materialization = { workspace = true }
+lexicon = { workspace = true }
 typst-timing = { workspace = true }
-typst-utils = { workspace = true }
+shared = { workspace = true }
 arrayvec = { workspace = true }
 comemo = { workspace = true }
 ecow = { workspace = true }

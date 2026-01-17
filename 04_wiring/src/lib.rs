@@ -19,24 +19,24 @@
 //!   These frames can finally be exported into an output format (currently PDF,
 //!   PNG, SVG, and HTML).
 //!
-//! [tokens]: typst_syntax::SyntaxKind
-//! [parsed]: typst_syntax::parse
-//! [syntax tree]: typst_syntax::SyntaxNode
-//! [AST]: typst_syntax::ast
-//! [evaluate]: typst_eval::eval
+//! [tokens]: lexicon::SyntaxKind
+//! [parsed]: lexicon::parse
+//! [syntax tree]: lexicon::SyntaxNode
+//! [AST]: lexicon::ast
+//! [evaluate]: semantics::eval
 //! [module]: crate::foundations::Module
 //! [content]: crate::foundations::Content
-//! [laid out]: typst_layout::layout_document
+//! [laid out]: typesetting::layout_document
 //! [frame]: crate::layout::Frame
 
 pub extern crate comemo;
 pub extern crate ecow;
 
-pub use typst_library::*;
+pub use primitives::*;
 #[doc(inline)]
-pub use typst_syntax as syntax;
+pub use lexicon as syntax;
 #[doc(inline)]
-pub use typst_utils as utils;
+pub use shared as utils;
 
 use std::sync::LazyLock;
 
@@ -45,17 +45,17 @@ use comemo::{Track, Tracked};
 use ecow::{EcoString, EcoVec, eco_format, eco_vec};
 use rustc_hash::FxHashSet;
 use typst_html::HtmlDocument;
-use typst_library::diag::{
+use primitives::diag::{
     FileError, SourceDiagnostic, SourceResult, Warned, bail, warning,
 };
-use typst_library::engine::{Engine, Route, Sink, Traced};
-use typst_library::foundations::{NativeRuleMap, StyleChain, Styles, Value};
-use typst_library::introspection::{ITER_NAMES, Introspector, MAX_ITERS};
-use typst_library::layout::PagedDocument;
-use typst_library::routines::Routines;
-use typst_syntax::{FileId, Span};
+use primitives::engine::{Engine, Route, Sink, Traced};
+use primitives::foundations::{NativeRuleMap, StyleChain, Styles, Value};
+use primitives::introspection::{ITER_NAMES, Introspector, MAX_ITERS};
+use primitives::layout::PagedDocument;
+use primitives::routines::Routines;
+use lexicon::{FileId, Span};
 use typst_timing::{TimingScope, timed};
-use typst_utils::Protected;
+use shared::Protected;
 
 use crate::foundations::{Target, TargetElem};
 use crate::model::DocumentInfo;
@@ -112,7 +112,7 @@ fn compile_impl<D: Document>(
         .map_err(|err| hint_invalid_main_file(world, err, main))?;
 
     // First evaluate the main source file into a module.
-    let content = typst_eval::eval(
+    let content = semantics::eval(
         &ROUTINES,
         world,
         traced,
@@ -159,7 +159,7 @@ fn compile_impl<D: Document>(
             }
             introspectors[MAX_ITERS] = document.introspector();
 
-            let warnings = typst_library::introspection::analyze(
+            let warnings = primitives::introspection::analyze(
                 world,
                 &ROUTINES,
                 introspectors,
@@ -189,7 +189,7 @@ fn compile_impl<D: Document>(
 fn deduplicate(mut diags: EcoVec<SourceDiagnostic>) -> EcoVec<SourceDiagnostic> {
     let mut unique = FxHashSet::default();
     diags.retain(|diag| {
-        let hash = typst_utils::hash128(&(&diag.span, &diag.message));
+        let hash = shared::hash128(&(&diag.span, &diag.message));
         unique.insert(hash)
     });
     diags
@@ -328,7 +328,7 @@ impl<D: Document> AsDocument for &D {
 }
 
 mod sealed {
-    use typst_library::foundations::{Content, Target};
+    use primitives::foundations::{Content, Target};
 
     use super::*;
 
@@ -356,7 +356,7 @@ mod sealed {
             content: &Content,
             styles: StyleChain,
         ) -> SourceResult<Self> {
-            typst_layout::layout_document(engine, content, styles)
+            typesetting::layout_document(engine, content, styles)
         }
     }
 
@@ -401,14 +401,14 @@ impl LibraryExt for Library {
 pub static ROUTINES: LazyLock<Routines> = LazyLock::new(|| Routines {
     rules: {
         let mut rules = NativeRuleMap::new();
-        typst_layout::register(&mut rules);
+        typesetting::register(&mut rules);
         typst_html::register(&mut rules);
         rules
     },
-    eval_string: typst_eval::eval_string,
-    eval_closure: typst_eval::eval_closure,
-    realize: typst_realize::realize,
-    layout_frame: typst_layout::layout_frame,
+    eval_string: semantics::eval_string,
+    eval_closure: semantics::eval_closure,
+    realize: materialization::realize,
+    layout_frame: typesetting::layout_frame,
     html_module: typst_html::module,
     html_span_filled: typst_html::html_span_filled,
 });

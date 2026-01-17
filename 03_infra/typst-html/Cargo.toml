@@ -14,11 +14,11 @@ readme = { workspace = true }
 
 [dependencies]
 typst-assets = { workspace = true }
-typst-library = { workspace = true }
+primitives = { workspace = true }
 typst-macros = { workspace = true }
-typst-syntax = { workspace = true }
+lexicon = { workspace = true }
 typst-timing = { workspace = true }
-typst-utils = { workspace = true }
+shared = { workspace = true }
 typst-svg = { workspace = true }
 bumpalo = { workspace = true }
 comemo = { workspace = true }

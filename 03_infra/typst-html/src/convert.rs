@@ -1,15 +1,15 @@
 use ecow::{EcoString, EcoVec, eco_vec};
-use typst_library::diag::{SourceResult, warning};
-use typst_library::engine::Engine;
-use typst_library::foundations::{Content, Packed, StyleChain, Target, TargetElem};
-use typst_library::introspection::{SplitLocator, TagElem};
-use typst_library::layout::{Abs, Axes, HElem, Region, Size};
-use typst_library::routines::Pair;
-use typst_library::text::{
+use primitives::diag::{SourceResult, warning};
+use primitives::engine::Engine;
+use primitives::foundations::{Content, Packed, StyleChain, Target, TargetElem};
+use primitives::introspection::{SplitLocator, TagElem};
+use primitives::layout::{Abs, Axes, HElem, Region, Size};
+use primitives::routines::Pair;
+use primitives::text::{
     LinebreakElem, SmartQuoteElem, SmartQuoter, SmartQuotes, SpaceElem, TextElem,
     is_default_ignorable,
 };
-use typst_syntax::Span;
+use lexicon::Span;
 
 use crate::fragment::{html_block_fragment, html_inline_fragment};
 use crate::{FrameElem, HtmlElem, HtmlElement, HtmlFrame, HtmlNode, attr, css, tag};

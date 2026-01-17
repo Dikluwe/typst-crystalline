@@ -1,10 +1,10 @@
 use std::f32::consts::TAU;
 
 use ecow::{EcoString, eco_format};
-use typst_library::foundations::Repr;
-use typst_library::layout::{Angle, Axes, Frame, Quadrant, Ratio, Size, Transform};
-use typst_library::visualize::{Color, FillRule, Gradient, Paint, RatioOrAngle, Tiling};
-use typst_utils::hash128;
+use primitives::foundations::Repr;
+use primitives::layout::{Angle, Axes, Frame, Quadrant, Ratio, Size, Transform};
+use primitives::visualize::{Color, FillRule, Gradient, Paint, RatioOrAngle, Tiling};
+use shared::hash128;
 use xmlwriter::XmlWriter;
 
 use crate::{Id, SVGRenderer, State, SvgMatrix, SvgPathBuilder};

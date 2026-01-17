@@ -7,18 +7,18 @@ mod text;
 
 pub use image::{convert_image_scaling, convert_image_to_base64_url};
 use rustc_hash::FxHashMap;
-use typst_library::introspection::Introspector;
-use typst_library::model::Destination;
+use primitives::introspection::Introspector;
+use primitives::model::Destination;
 
 use std::fmt::{self, Display, Formatter, Write};
 
 use ecow::EcoString;
-use typst_library::layout::{
+use primitives::layout::{
     Abs, Frame, FrameItem, FrameKind, GroupItem, Page, PagedDocument, Point, Ratio, Size,
     Transform,
 };
-use typst_library::visualize::{Geometry, Gradient, Tiling};
-use typst_utils::hash128;
+use primitives::visualize::{Geometry, Gradient, Tiling};
+use shared::hash128;
 use xmlwriter::XmlWriter;
 
 use crate::paint::{GradientRef, SVGSubGradient, TilingRef};

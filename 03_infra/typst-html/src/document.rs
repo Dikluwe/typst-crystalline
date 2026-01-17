@@ -1,18 +1,18 @@
 use comemo::{Tracked, TrackedMut};
 use ecow::{EcoVec, eco_vec};
 use rustc_hash::FxHashSet;
-use typst_library::World;
-use typst_library::diag::{SourceResult, bail};
-use typst_library::engine::{Engine, Route, Sink, Traced};
-use typst_library::foundations::{Content, StyleChain, Styles};
-use typst_library::introspection::{
+use primitives::World;
+use primitives::diag::{SourceResult, bail};
+use primitives::engine::{Engine, Route, Sink, Traced};
+use primitives::foundations::{Content, StyleChain, Styles};
+use primitives::introspection::{
     DocumentPosition, HtmlPosition, Introspector, IntrospectorBuilder, Location, Locator,
 };
-use typst_library::layout::Transform;
-use typst_library::model::DocumentInfo;
-use typst_library::routines::{Arenas, RealizationKind, Routines};
-use typst_syntax::Span;
-use typst_utils::Protected;
+use primitives::layout::Transform;
+use primitives::model::DocumentInfo;
+use primitives::routines::{Arenas, RealizationKind, Routines};
+use lexicon::Span;
+use shared::Protected;
 
 use crate::convert::{ConversionLevel, Whitespace};
 use crate::rules::FootnoteContainer;

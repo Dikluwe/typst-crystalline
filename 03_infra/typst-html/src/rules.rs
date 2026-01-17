@@ -2,34 +2,34 @@ use std::num::NonZeroUsize;
 
 use comemo::{Track, Tracked};
 use ecow::{EcoString, EcoVec, eco_format};
-use typst_library::diag::{At, SourceDiagnostic, SourceResult, bail, error, warning};
-use typst_library::engine::Engine;
-use typst_library::foundations::{
+use primitives::diag::{At, SourceDiagnostic, SourceResult, bail, error, warning};
+use primitives::engine::Engine;
+use primitives::foundations::{
     Content, Context, NativeElement, NativeRuleMap, Selector, ShowFn, Smart, StyleChain,
     Target,
 };
-use typst_library::introspection::{
+use primitives::introspection::{
     Counter, History, Introspect, Introspector, Location, QueryIntrospection,
 };
-use typst_library::layout::resolve::{Cell, CellGrid, Entry, Header};
-use typst_library::layout::{
+use primitives::layout::resolve::{Cell, CellGrid, Entry, Header};
+use primitives::layout::{
     BlockBody, BlockElem, BoxElem, HElem, OuterVAlignment, Sizing,
 };
-use typst_library::model::{
+use primitives::model::{
     Attribution, BibliographyElem, CiteElem, CiteGroup, CslIndentElem, CslLightElem,
     Destination, DirectLinkElem, EmphElem, EnumElem, FigureCaption, FigureElem,
     FootnoteElem, FootnoteEntry, FootnoteMarker, HeadingElem, LinkElem, LinkTarget,
     ListElem, OutlineElem, OutlineEntry, OutlineNode, ParElem, ParbreakElem, QuoteElem,
     RefElem, StrongElem, TableCell, TableElem, TermsElem, TitleElem, Works,
 };
-use typst_library::text::{
+use primitives::text::{
     HighlightElem, LinebreakElem, OverlineElem, RawElem, RawLine, SmallcapsElem,
     SpaceElem, StrikeElem, SubElem, SuperElem, UnderlineElem,
 };
-use typst_library::visualize::{Color, ImageElem};
+use primitives::visualize::{Color, ImageElem};
 use typst_macros::elem;
-use typst_syntax::Span;
-use typst_utils::singleton;
+use lexicon::Span;
+use shared::singleton;
 
 use crate::{FrameElem, HtmlAttr, HtmlAttrs, HtmlElem, HtmlTag, attr, css, tag};
 

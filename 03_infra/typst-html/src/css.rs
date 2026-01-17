@@ -3,9 +3,9 @@
 use std::fmt::{self, Display, Write};
 
 use ecow::EcoString;
-use typst_library::layout::{Length, Rel};
-use typst_library::visualize::{Color, Hsl, LinearRgb, Oklab, Oklch, Rgb};
-use typst_utils::Numeric;
+use primitives::layout::{Length, Rel};
+use primitives::visualize::{Color, Hsl, LinearRgb, Oklab, Oklch, Rgb};
+use shared::Numeric;
 
 /// A list of CSS properties with values.
 #[derive(Debug, Default)]
@@ -39,7 +39,7 @@ impl Properties {
 }
 
 pub fn rel(rel: Rel) -> impl Display {
-    typst_utils::display(move |f| match (rel.abs.is_zero(), rel.rel.is_zero()) {
+    shared::display(move |f| match (rel.abs.is_zero(), rel.rel.is_zero()) {
         (false, false) => {
             write!(f, "calc({} + {})", percent(rel.rel.get() as f32), length(rel.abs))
         }
@@ -49,7 +49,7 @@ pub fn rel(rel: Rel) -> impl Display {
 }
 
 pub fn length(length: Length) -> impl Display {
-    typst_utils::display(move |f| match (length.abs.is_zero(), length.em.is_zero()) {
+    shared::display(move |f| match (length.abs.is_zero(), length.em.is_zero()) {
         (false, false) => {
             write!(f, "calc({}pt + {}em)", length.abs.to_pt(), length.em.get())
         }
@@ -59,7 +59,7 @@ pub fn length(length: Length) -> impl Display {
 }
 
 pub fn color(color: Color) -> impl Display {
-    typst_utils::display(move |f| match color {
+    shared::display(move |f| match color {
         Color::Rgb(_) | Color::Cmyk(_) | Color::Luma(_) => rgb(f, color.to_rgb()),
         Color::Oklab(v) => oklab(f, v),
         Color::Oklch(v) => oklch(f, v),
@@ -141,7 +141,7 @@ fn hsl(f: &mut fmt::Formatter<'_>, v: Hsl) -> fmt::Result {
 
 /// Displays an alpha component if it not 1.
 fn alpha(value: f32) -> impl Display {
-    typst_utils::display(move |f| {
+    shared::display(move |f| {
         if !is_very_close(value, 1.0) {
             write!(f, " / {}", percent(value))?;
         }
@@ -154,8 +154,8 @@ fn alpha(value: f32) -> impl Display {
 /// For a percentage, two significant digits after the comma gives us a
 /// precision of 1/10_000, which is more than 12 bits (see `is_very_close`).
 fn percent(ratio: f32) -> impl Display {
-    typst_utils::display(move |f| {
-        write!(f, "{}%", typst_utils::round_with_precision(ratio as f64 * 100.0, 2))
+    shared::display(move |f| {
+        write!(f, "{}%", shared::round_with_precision(ratio as f64 * 100.0, 2))
     })
 }
 
@@ -164,7 +164,7 @@ fn percent(ratio: f32) -> impl Display {
 /// For a number between 0 and 1, four significant digits give us a
 /// precision of 1/10_000, which is more than 12 bits (see `is_very_close`).
 fn number(value: f32) -> impl Display {
-    typst_utils::round_with_precision(value as f64, 4)
+    shared::round_with_precision(value as f64, 4)
 }
 
 /// Whether two component values are close enough that there is no

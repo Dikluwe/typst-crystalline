@@ -13,10 +13,10 @@ use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
 use fontdb::{Database, Source};
-use typst_library::foundations::Bytes;
-use typst_library::text::{Font, FontBook, FontInfo};
+use primitives::foundations::Bytes;
+use primitives::text::{Font, FontBook, FontInfo};
 use typst_timing::TimingScope;
-use typst_utils::LazyHash;
+use shared::LazyHash;
 
 /// Holds details about the location of a font and lazily the font itself.
 #[derive(Debug)]
@@ -66,12 +66,12 @@ impl FontSlot {
 pub struct Fonts {
     /// Metadata about all discovered fonts.
     ///
-    /// Can directly be used in [`World::book`](typst_library::World::book).
+    /// Can directly be used in [`World::book`](primitives::World::book).
     pub book: LazyHash<FontBook>,
     /// Slots that the fonts are loaded into.
     ///
     /// Assuming your world implementation has a field `fonts: Fonts`, this can
-    /// be used in [`World::font`](typst_library::World::font) as such:
+    /// be used in [`World::font`](primitives::World::font) as such:
     /// ```ignore
     /// fn font(&self, index: usize) -> Option<Font> {
     ///     self.fonts.slots.get(index)?.get()

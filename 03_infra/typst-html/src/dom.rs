@@ -1,14 +1,14 @@
 use std::fmt::{self, Debug, Display, Formatter};
 
 use ecow::{EcoString, EcoVec};
-use typst_library::diag::{HintedStrResult, StrResult, bail};
-use typst_library::foundations::{Dict, Repr, Str, StyleChain, cast};
-use typst_library::introspection::{Introspector, Location, Tag};
-use typst_library::layout::{Abs, Frame, Point};
-use typst_library::model::DocumentInfo;
-use typst_library::text::TextElem;
-use typst_syntax::Span;
-use typst_utils::{PicoStr, ResolvedPicoStr};
+use primitives::diag::{HintedStrResult, StrResult, bail};
+use primitives::foundations::{Dict, Repr, Str, StyleChain, cast};
+use primitives::introspection::{Introspector, Location, Tag};
+use primitives::layout::{Abs, Frame, Point};
+use primitives::model::DocumentInfo;
+use primitives::text::TextElem;
+use lexicon::Span;
+use shared::{PicoStr, ResolvedPicoStr};
 
 use crate::{attr, charsets, css};
 
@@ -436,8 +436,8 @@ impl HtmlFrame {
 
 #[cfg(test)]
 mod tests {
-    use typst_library::foundations::Content;
-    use typst_library::introspection::TagFlags;
+    use primitives::foundations::Content;
+    use primitives::introspection::TagFlags;
 
     use super::*;
     use crate::tag;

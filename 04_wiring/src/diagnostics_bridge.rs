@@ -1,7 +1,7 @@
 use crate::core::diagnostics::{CrystalResult, VoidSignal};
 use crate::shell::diagnostics::Shield;
-use typst::diag::SourceDiagnostic;
-use typst::syntax::Span;
+use fusion::diag::SourceDiagnostic;
+use fusion::syntax::Span;
 
 /// A Bridge é a Composição (L4) que executa a "Solda" entre camadas.
 pub struct DiagnosticBridge;

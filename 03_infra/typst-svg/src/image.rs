@@ -4,9 +4,9 @@ use base64::Engine;
 use ecow::{EcoString, eco_format};
 use hayro::{FontData, FontQuery, InterpreterSettings, StandardFont};
 use image::{ImageEncoder, codecs::png::PngEncoder};
-use typst_library::foundations::Smart;
-use typst_library::layout::{Abs, Axes};
-use typst_library::visualize::{
+use primitives::foundations::Smart;
+use primitives::layout::{Abs, Axes};
+use primitives::visualize::{
     ExchangeFormat, Image, ImageKind, ImageScaling, PdfImage, RasterFormat,
 };
 

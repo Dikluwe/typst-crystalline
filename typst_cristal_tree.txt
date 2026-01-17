@@ -1,0 +1,1099 @@
+.
+├── 00_nucleo
+│   ├── 00_nucleo_MAP.md
+│   ├── adr
+│   │   ├── ADR-001-compilation-phases.md
+│   │   ├── ADR-002-incremental-compilation.md
+│   │   ├── ADR-003-cst-ast-projection.md
+│   │   ├── ADR-004-span-numbers.md
+│   │   ├── ADR-005-tree-walking-interpreter.md
+│   │   ├── ADR-006-capture-by-value.md
+│   │   ├── ADR-007-world-interface.md
+│   │   ├── ADR-008-introspection-loop.md
+│   │   ├── ADR-009-realization-vs-layout.md
+│   │   ├── ADR-010-region-based-layout.md
+│   │   ├── ADR-011-content-type.md
+│   │   ├── ADR-012-custom-vtable.md
+│   │   ├── ADR-013-packed-wrapper.md
+│   │   ├── ADR-014-multiple-exporters.md
+│   │   ├── adr_MAP.md
+│   │   └── README.md
+│   ├── contracts
+│   │   ├── content.md
+│   │   ├── contracts_MAP.md
+│   │   ├── element.md
+│   │   ├── exporter.md
+│   │   ├── layout.md
+│   │   ├── native-element.md
+│   │   ├── packed.md
+│   │   ├── README.md
+│   │   ├── span.md
+│   │   ├── stylechain.md
+│   │   ├── value.md
+│   │   └── world.md
+│   ├── GLOSSARY.md
+│   ├── GLOSSARY.pt.md
+│   ├── legacy-docs
+│   │   ├── Cargo.toml
+│   │   ├── changelog
+│   │   │   ├── 0.10.0.md
+│   │   │   ├── 0.1.0.md
+│   │   │   ├── 0.11.0.md
+│   │   │   ├── 0.11.1.md
+│   │   │   ├── 0.12.0.md
+│   │   │   ├── 0.13.0.md
+│   │   │   ├── 0.13.1.md
+│   │   │   ├── 0.14.0.md
+│   │   │   ├── 0.14.1.md
+│   │   │   ├── 0.14.2.md
+│   │   │   ├── 0.2.0.md
+│   │   │   ├── 0.3.0.md
+│   │   │   ├── 0.4.0.md
+│   │   │   ├── 0.5.0.md
+│   │   │   ├── 0.6.0.md
+│   │   │   ├── 0.7.0.md
+│   │   │   ├── 0.8.0.md
+│   │   │   ├── 0.9.0.md
+│   │   │   ├── earlier.md
+│   │   │   └── welcome.md
+│   │   ├── dev
+│   │   │   └── architecture.md
+│   │   ├── guides
+│   │   │   ├── accessibility.md
+│   │   │   ├── guide-for-latex-users.md
+│   │   │   ├── page-setup.md
+│   │   │   ├── tables.md
+│   │   │   └── welcome.md
+│   │   ├── legacy-docs_MAP.md
+│   │   ├── overview.md
+│   │   ├── reference
+│   │   │   ├── export
+│   │   │   │   ├── html.md
+│   │   │   │   ├── pdf.md
+│   │   │   │   ├── png.md
+│   │   │   │   └── svg.md
+│   │   │   ├── groups.yml
+│   │   │   ├── language
+│   │   │   │   ├── context.md
+│   │   │   │   ├── scripting.md
+│   │   │   │   ├── styling.md
+│   │   │   │   └── syntax.md
+│   │   │   ├── library
+│   │   │   │   ├── data-loading.md
+│   │   │   │   ├── foundations.md
+│   │   │   │   ├── introspection.md
+│   │   │   │   ├── layout.md
+│   │   │   │   ├── math.md
+│   │   │   │   ├── model.md
+│   │   │   │   ├── symbols.md
+│   │   │   │   ├── text.md
+│   │   │   │   └── visualize.md
+│   │   │   └── welcome.md
+│   │   ├── src
+│   │   │   ├── contribs.rs
+│   │   │   ├── html.rs
+│   │   │   ├── lib.rs
+│   │   │   ├── link.rs
+│   │   │   ├── main.rs
+│   │   │   └── model.rs
+│   │   └── tutorial
+│   │       ├── 1-writing.md
+│   │       ├── 2-formatting.md
+│   │       ├── 3-advanced.md
+│   │       ├── 4-template.md
+│   │       └── welcome.md
+│   ├── MIGRATION_PLAN.md
+│   ├── MIGRATION_PLAN.pt.md
+│   └── specs
+│       ├── 01_core
+│       │   ├── typst-eval
+│       │   │   ├── access.md
+│       │   │   ├── binding.md
+│       │   │   ├── call.md
+│       │   │   ├── code.md
+│       │   │   ├── flow.md
+│       │   │   ├── import.md
+│       │   │   ├── lib.md
+│       │   │   ├── markup.md
+│       │   │   ├── math.md
+│       │   │   ├── methods.md
+│       │   │   ├── ops.md
+│       │   │   ├── rules.md
+│       │   │   └── vm.md
+│       │   ├── typst-layout
+│       │   │   ├── flow
+│       │   │   │   ├── block.md
+│       │   │   │   ├── collect.md
+│       │   │   │   ├── compose.md
+│       │   │   │   ├── distribute.md
+│       │   │   │   └── mod.md
+│       │   │   ├── grid
+│       │   │   │   ├── layouter.md
+│       │   │   │   ├── lines.md
+│       │   │   │   ├── mod.md
+│       │   │   │   ├── repeated.md
+│       │   │   │   └── rowspans.md
+│       │   │   ├── image.md
+│       │   │   ├── inline
+│       │   │   │   ├── box.md
+│       │   │   │   ├── collect.md
+│       │   │   │   ├── deco.md
+│       │   │   │   ├── finalize.md
+│       │   │   │   ├── fusion.md
+│       │   │   │   ├── linebreak.md
+│       │   │   │   ├── line.md
+│       │   │   │   ├── mod.md
+│       │   │   │   ├── prepare.md
+│       │   │   │   └── shaping.md
+│       │   │   ├── laws
+│       │   │   ├── lib.md
+│       │   │   ├── lists.md
+│       │   │   ├── math
+│       │   │   │   ├── accent.md
+│       │   │   │   ├── attach.md
+│       │   │   │   ├── cancel.md
+│       │   │   │   ├── frac.md
+│       │   │   │   ├── fragment.md
+│       │   │   │   ├── lr.md
+│       │   │   │   ├── mat.md
+│       │   │   │   ├── mod.md
+│       │   │   │   ├── morphology.md
+│       │   │   │   ├── root.md
+│       │   │   │   ├── run.md
+│       │   │   │   ├── shaping.md
+│       │   │   │   ├── shared.md
+│       │   │   │   ├── stretch.md
+│       │   │   │   ├── text.md
+│       │   │   │   └── underover.md
+│       │   │   ├── modifiers.md
+│       │   │   ├── pad.md
+│       │   │   ├── pages
+│       │   │   │   ├── collect.md
+│       │   │   │   ├── finalize.md
+│       │   │   │   ├── mod.md
+│       │   │   │   └── run.md
+│       │   │   ├── repeat.md
+│       │   │   ├── rules.md
+│       │   │   ├── shapes.md
+│       │   │   ├── stack.md
+│       │   │   └── transforms.md
+│       │   ├── typst-library
+│       │   │   ├── diag.md
+│       │   │   ├── engine.md
+│       │   │   ├── foundations
+│       │   │   │   ├── args.md
+│       │   │   │   ├── array.md
+│       │   │   │   ├── auto.md
+│       │   │   │   ├── bool.md
+│       │   │   │   ├── bytes.md
+│       │   │   │   ├── calc.md
+│       │   │   │   ├── cast.md
+│       │   │   │   ├── content
+│       │   │   │   │   ├── element.md
+│       │   │   │   │   ├── field.md
+│       │   │   │   │   ├── mod.md
+│       │   │   │   │   ├── packed.md
+│       │   │   │   │   ├── raw.md
+│       │   │   │   │   ├── representation.md
+│       │   │   │   │   └── vtable.md
+│       │   │   │   ├── context.md
+│       │   │   │   ├── datetime.md
+│       │   │   │   ├── decimal.md
+│       │   │   │   ├── dict.md
+│       │   │   │   ├── duration.md
+│       │   │   │   ├── fields.md
+│       │   │   │   ├── float.md
+│       │   │   │   ├── func.md
+│       │   │   │   ├── int.md
+│       │   │   │   ├── label.md
+│       │   │   │   ├── laws
+│       │   │   │   ├── mod.md
+│       │   │   │   ├── module.md
+│       │   │   │   ├── none.md
+│       │   │   │   ├── ops.md
+│       │   │   │   ├── plugin.md
+│       │   │   │   ├── repr.md
+│       │   │   │   ├── scope.md
+│       │   │   │   ├── selector.md
+│       │   │   │   ├── str.md
+│       │   │   │   ├── styles.md
+│       │   │   │   ├── symbol.md
+│       │   │   │   ├── sys.md
+│       │   │   │   ├── target.md
+│       │   │   │   ├── ty.md
+│       │   │   │   ├── value.md
+│       │   │   │   └── version.md
+│       │   │   ├── introspection
+│       │   │   │   ├── convergence.md
+│       │   │   │   ├── counter.md
+│       │   │   │   ├── here.md
+│       │   │   │   ├── introspector.md
+│       │   │   │   ├── locate.md
+│       │   │   │   ├── location.md
+│       │   │   │   ├── locator.md
+│       │   │   │   ├── metadata.md
+│       │   │   │   ├── mod.md
+│       │   │   │   ├── query.md
+│       │   │   │   ├── state.md
+│       │   │   │   └── tag.md
+│       │   │   ├── layout
+│       │   │   │   ├── abs.md
+│       │   │   │   ├── align.md
+│       │   │   │   ├── angle.md
+│       │   │   │   ├── axes.md
+│       │   │   │   ├── columns.md
+│       │   │   │   ├── container.md
+│       │   │   │   ├── corners.md
+│       │   │   │   ├── dir.md
+│       │   │   │   ├── em.md
+│       │   │   │   ├── fragment.md
+│       │   │   │   ├── frame.md
+│       │   │   │   ├── fr.md
+│       │   │   │   ├── grid
+│       │   │   │   │   ├── mod.md
+│       │   │   │   │   └── resolve.md
+│       │   │   │   ├── hide.md
+│       │   │   │   ├── layout.md
+│       │   │   │   ├── length.md
+│       │   │   │   ├── measure.md
+│       │   │   │   ├── mod.md
+│       │   │   │   ├── pad.md
+│       │   │   │   ├── page.md
+│       │   │   │   ├── place.md
+│       │   │   │   ├── point.md
+│       │   │   │   ├── ratio.md
+│       │   │   │   ├── rect.md
+│       │   │   │   ├── regions.md
+│       │   │   │   ├── rel.md
+│       │   │   │   ├── repeat.md
+│       │   │   │   ├── sides.md
+│       │   │   │   ├── size.md
+│       │   │   │   ├── spacing.md
+│       │   │   │   ├── stack.md
+│       │   │   │   └── transform.md
+│       │   │   ├── lib.md
+│       │   │   ├── loading
+│       │   │   │   ├── cbor.md
+│       │   │   │   ├── csv.md
+│       │   │   │   ├── json.md
+│       │   │   │   ├── mod.md
+│       │   │   │   ├── read.md
+│       │   │   │   ├── toml.md
+│       │   │   │   ├── xml.md
+│       │   │   │   └── yaml.md
+│       │   │   ├── math
+│       │   │   │   ├── accent.md
+│       │   │   │   ├── attach.md
+│       │   │   │   ├── cancel.md
+│       │   │   │   ├── equation.md
+│       │   │   │   ├── frac.md
+│       │   │   │   ├── lr.md
+│       │   │   │   ├── matrix.md
+│       │   │   │   ├── mod.md
+│       │   │   │   ├── op.md
+│       │   │   │   ├── root.md
+│       │   │   │   ├── style.md
+│       │   │   │   └── underover.md
+│       │   │   ├── model
+│       │   │   │   ├── bibliography.md
+│       │   │   │   ├── cite.md
+│       │   │   │   ├── document.md
+│       │   │   │   ├── emph.md
+│       │   │   │   ├── enum.md
+│       │   │   │   ├── figure.md
+│       │   │   │   ├── footnote.md
+│       │   │   │   ├── heading.md
+│       │   │   │   ├── link.md
+│       │   │   │   ├── list.md
+│       │   │   │   ├── mod.md
+│       │   │   │   ├── numbering.md
+│       │   │   │   ├── outline.md
+│       │   │   │   ├── par.md
+│       │   │   │   ├── quote.md
+│       │   │   │   ├── reference.md
+│       │   │   │   ├── strong.md
+│       │   │   │   ├── table.md
+│       │   │   │   ├── terms.md
+│       │   │   │   └── title.md
+│       │   │   ├── pdf
+│       │   │   │   ├── accessibility.md
+│       │   │   │   ├── attach.md
+│       │   │   │   └── mod.md
+│       │   │   ├── routines.md
+│       │   │   ├── symbols.md
+│       │   │   ├── text
+│       │   │   │   ├── case.md
+│       │   │   │   ├── deco.md
+│       │   │   │   ├── font
+│       │   │   │   │   ├── book.md
+│       │   │   │   │   ├── color.md
+│       │   │   │   │   ├── exceptions.md
+│       │   │   │   │   ├── mod.md
+│       │   │   │   │   └── variant.md
+│       │   │   │   ├── item.md
+│       │   │   │   ├── lang.md
+│       │   │   │   ├── linebreak.md
+│       │   │   │   ├── lorem.md
+│       │   │   │   ├── mod.md
+│       │   │   │   ├── raw.md
+│       │   │   │   ├── shift.md
+│       │   │   │   ├── smallcaps.md
+│       │   │   │   ├── smartquote.md
+│       │   │   │   └── space.md
+│       │   │   └── visualize
+│       │   │       ├── color.md
+│       │   │       ├── curve.md
+│       │   │       ├── gradient.md
+│       │   │       ├── image
+│       │   │       │   ├── mod.md
+│       │   │       │   ├── pdf.md
+│       │   │       │   ├── raster.md
+│       │   │       │   └── svg.md
+│       │   │       ├── line.md
+│       │   │       ├── mod.md
+│       │   │       ├── paint.md
+│       │   │       ├── path.md
+│       │   │       ├── polygon.md
+│       │   │       ├── shape.md
+│       │   │       ├── stroke.md
+│       │   │       └── tiling.md
+│       │   ├── typst-macros
+│       │   │   ├── cast.md
+│       │   │   ├── elem.md
+│       │   │   ├── func.md
+│       │   │   ├── lib.md
+│       │   │   ├── scope.md
+│       │   │   ├── time.md
+│       │   │   ├── ty.md
+│       │   │   └── util.md
+│       │   ├── typst-realize
+│       │   │   └── lib.md
+│       │   ├── typst-syntax
+│       │   │   ├── ast.md
+│       │   │   ├── file.md
+│       │   │   ├── highlight.md
+│       │   │   ├── kind.md
+│       │   │   ├── lexer.md
+│       │   │   ├── lib.md
+│       │   │   ├── lines.md
+│       │   │   ├── node.md
+│       │   │   ├── package.md
+│       │   │   ├── parser.md
+│       │   │   ├── path.md
+│       │   │   ├── reparser.md
+│       │   │   ├── set.md
+│       │   │   ├── source.md
+│       │   │   └── span.md
+│       │   ├── typst-timing
+│       │   │   └── lib.md
+│       │   └── typst-utils
+│       │       ├── bitset.md
+│       │       ├── deferred.md
+│       │       ├── duration.md
+│       │       ├── fat.md
+│       │       ├── hash.md
+│       │       ├── lib.md
+│       │       ├── listset.md
+│       │       ├── macros.md
+│       │       ├── pico.md
+│       │       ├── protected.md
+│       │       ├── round.md
+│       │       ├── scalar.md
+│       │       └── version.md
+│       ├── 02_shell
+│       │   ├── typst-cli
+│       │   │   ├── args.md
+│       │   │   ├── compile.md
+│       │   │   ├── completions.md
+│       │   │   ├── deps.md
+│       │   │   ├── download.md
+│       │   │   ├── eval.md
+│       │   │   ├── fonts.md
+│       │   │   ├── greet.md
+│       │   │   ├── info.md
+│       │   │   ├── init.md
+│       │   │   ├── lib.md
+│       │   │   ├── main.md
+│       │   │   ├── package.md
+│       │   │   ├── query.md
+│       │   │   ├── server.md
+│       │   │   ├── terminal.md
+│       │   │   ├── timings.md
+│       │   │   ├── update.md
+│       │   │   ├── watch.md
+│       │   │   └── world.md
+│       │   └── typst-ide
+│       │       ├── analyze.md
+│       │       ├── complete.md
+│       │       ├── definition.md
+│       │       ├── jump.md
+│       │       ├── lib.md
+│       │       ├── matchers.md
+│       │       ├── tests.md
+│       │       ├── tooltip.md
+│       │       └── utils.md
+│       ├── 03_infra
+│       │   ├── fuzz
+│       │   │   ├── bin
+│       │   │   └── mod.md
+│       │   ├── typst-html
+│       │   │   ├── attr.md
+│       │   │   ├── charsets.md
+│       │   │   ├── convert.md
+│       │   │   ├── css.md
+│       │   │   ├── document.md
+│       │   │   ├── dom.md
+│       │   │   ├── encode.md
+│       │   │   ├── fragment.md
+│       │   │   ├── lib.md
+│       │   │   ├── link.md
+│       │   │   ├── rules.md
+│       │   │   ├── tag.md
+│       │   │   └── typed.md
+│       │   ├── typst-kit
+│       │   │   ├── download.md
+│       │   │   ├── fonts.md
+│       │   │   ├── lib.md
+│       │   │   └── package.md
+│       │   ├── typst-pdf
+│       │   │   ├── attach.md
+│       │   │   ├── convert.md
+│       │   │   ├── image.md
+│       │   │   ├── lib.md
+│       │   │   ├── link.md
+│       │   │   ├── metadata.md
+│       │   │   ├── outline.md
+│       │   │   ├── page.md
+│       │   │   ├── paint.md
+│       │   │   ├── shape.md
+│       │   │   ├── tags
+│       │   │   │   ├── context
+│       │   │   │   │   ├── figure.md
+│       │   │   │   │   ├── grid.md
+│       │   │   │   │   ├── list.md
+│       │   │   │   │   ├── mod.md
+│       │   │   │   │   ├── outline.md
+│       │   │   │   │   └── table.md
+│       │   │   │   ├── groups.md
+│       │   │   │   ├── mod.md
+│       │   │   │   ├── resolve.md
+│       │   │   │   ├── tree
+│       │   │   │   │   ├── build.md
+│       │   │   │   │   ├── mod.md
+│       │   │   │   │   └── text.md
+│       │   │   │   └── util
+│       │   │   │       ├── idvec.md
+│       │   │   │       ├── mod.md
+│       │   │   │       └── prop.md
+│       │   │   ├── text.md
+│       │   │   └── util.md
+│       │   ├── typst-render
+│       │   │   ├── image.md
+│       │   │   ├── lib.md
+│       │   │   ├── paint.md
+│       │   │   ├── shape.md
+│       │   │   └── text.md
+│       │   └── typst-svg
+│       │       ├── image.md
+│       │       ├── lib.md
+│       │       ├── paint.md
+│       │       ├── shape.md
+│       │       └── text.md
+│       ├── 04_wiring
+│       │   └── typst
+│       │       └── lib.md
+│       ├── diagnostics.md
+│       └── specs_MAP.md
+├── 01_core
+│   ├── 01_core_MAP.md
+│   ├── diagnostics.rs
+│   ├── typst-eval
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   ├── access.rs
+│   │   │   ├── binding.rs
+│   │   │   ├── call.rs
+│   │   │   ├── code.rs
+│   │   │   ├── flow.rs
+│   │   │   ├── import.rs
+│   │   │   ├── lib.rs
+│   │   │   ├── markup.rs
+│   │   │   ├── math.rs
+│   │   │   ├── methods.rs
+│   │   │   ├── ops.rs
+│   │   │   ├── rules.rs
+│   │   │   └── vm.rs
+│   │   └── typst-eval_MAP.md
+│   ├── typst-layout
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   ├── flow
+│   │   │   │   ├── block.rs
+│   │   │   │   ├── collect.rs
+│   │   │   │   ├── compose.rs
+│   │   │   │   ├── distribute.rs
+│   │   │   │   └── mod.rs
+│   │   │   ├── grid
+│   │   │   │   ├── layouter.rs
+│   │   │   │   ├── lines.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── repeated.rs
+│   │   │   │   └── rowspans.rs
+│   │   │   ├── image.rs
+│   │   │   ├── inline
+│   │   │   │   ├── box.rs
+│   │   │   │   ├── collect.rs
+│   │   │   │   ├── deco.rs
+│   │   │   │   ├── finalize.rs
+│   │   │   │   ├── linebreak.rs
+│   │   │   │   ├── line.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── prepare.rs
+│   │   │   │   └── shaping.rs
+│   │   │   ├── lib.rs
+│   │   │   ├── lists.rs
+│   │   │   ├── math
+│   │   │   │   ├── accent.rs
+│   │   │   │   ├── attach.rs
+│   │   │   │   ├── cancel.rs
+│   │   │   │   ├── frac.rs
+│   │   │   │   ├── fragment.rs
+│   │   │   │   ├── lr.rs
+│   │   │   │   ├── mat.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── root.rs
+│   │   │   │   ├── run.rs
+│   │   │   │   ├── shaping.rs
+│   │   │   │   ├── shared.rs
+│   │   │   │   ├── stretch.rs
+│   │   │   │   ├── text.rs
+│   │   │   │   └── underover.rs
+│   │   │   ├── modifiers.rs
+│   │   │   ├── pad.rs
+│   │   │   ├── pages
+│   │   │   │   ├── collect.rs
+│   │   │   │   ├── finalize.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   └── run.rs
+│   │   │   ├── repeat.rs
+│   │   │   ├── rules.rs
+│   │   │   ├── shapes.rs
+│   │   │   ├── stack.rs
+│   │   │   └── transforms.rs
+│   │   └── typst-layout_MAP.md
+│   ├── typst-library
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   ├── diag.rs
+│   │   │   ├── engine.rs
+│   │   │   ├── foundations
+│   │   │   │   ├── args.rs
+│   │   │   │   ├── array.rs
+│   │   │   │   ├── auto.rs
+│   │   │   │   ├── bool.rs
+│   │   │   │   ├── bytes.rs
+│   │   │   │   ├── calc.rs
+│   │   │   │   ├── cast.rs
+│   │   │   │   ├── content
+│   │   │   │   │   ├── element.rs
+│   │   │   │   │   ├── field.rs
+│   │   │   │   │   ├── mod.rs
+│   │   │   │   │   ├── packed.rs
+│   │   │   │   │   ├── raw.rs
+│   │   │   │   │   └── vtable.rs
+│   │   │   │   ├── context.rs
+│   │   │   │   ├── datetime.rs
+│   │   │   │   ├── decimal.rs
+│   │   │   │   ├── dict.rs
+│   │   │   │   ├── duration.rs
+│   │   │   │   ├── fields.rs
+│   │   │   │   ├── float.rs
+│   │   │   │   ├── func.rs
+│   │   │   │   ├── int.rs
+│   │   │   │   ├── label.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── module.rs
+│   │   │   │   ├── none.rs
+│   │   │   │   ├── ops.rs
+│   │   │   │   ├── plugin.rs
+│   │   │   │   ├── repr.rs
+│   │   │   │   ├── scope.rs
+│   │   │   │   ├── selector.rs
+│   │   │   │   ├── str.rs
+│   │   │   │   ├── styles.rs
+│   │   │   │   ├── symbol.rs
+│   │   │   │   ├── sys.rs
+│   │   │   │   ├── target.rs
+│   │   │   │   ├── ty.rs
+│   │   │   │   ├── value.rs
+│   │   │   │   └── version.rs
+│   │   │   ├── introspection
+│   │   │   │   ├── convergence.rs
+│   │   │   │   ├── counter.rs
+│   │   │   │   ├── here.rs
+│   │   │   │   ├── introspector.rs
+│   │   │   │   ├── locate.rs
+│   │   │   │   ├── location.rs
+│   │   │   │   ├── locator.rs
+│   │   │   │   ├── metadata.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── query.rs
+│   │   │   │   ├── state.rs
+│   │   │   │   └── tag.rs
+│   │   │   ├── layout
+│   │   │   │   ├── abs.rs
+│   │   │   │   ├── align.rs
+│   │   │   │   ├── angle.rs
+│   │   │   │   ├── axes.rs
+│   │   │   │   ├── columns.rs
+│   │   │   │   ├── container.rs
+│   │   │   │   ├── corners.rs
+│   │   │   │   ├── dir.rs
+│   │   │   │   ├── em.rs
+│   │   │   │   ├── fragment.rs
+│   │   │   │   ├── frame.rs
+│   │   │   │   ├── fr.rs
+│   │   │   │   ├── grid
+│   │   │   │   │   ├── mod.rs
+│   │   │   │   │   └── resolve.rs
+│   │   │   │   ├── hide.rs
+│   │   │   │   ├── layout.rs
+│   │   │   │   ├── length.rs
+│   │   │   │   ├── measure.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── pad.rs
+│   │   │   │   ├── page.rs
+│   │   │   │   ├── place.rs
+│   │   │   │   ├── point.rs
+│   │   │   │   ├── ratio.rs
+│   │   │   │   ├── rect.rs
+│   │   │   │   ├── regions.rs
+│   │   │   │   ├── rel.rs
+│   │   │   │   ├── repeat.rs
+│   │   │   │   ├── sides.rs
+│   │   │   │   ├── size.rs
+│   │   │   │   ├── spacing.rs
+│   │   │   │   ├── stack.rs
+│   │   │   │   └── transform.rs
+│   │   │   ├── lib.rs
+│   │   │   ├── loading
+│   │   │   │   ├── cbor.rs
+│   │   │   │   ├── csv.rs
+│   │   │   │   ├── json.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── read.rs
+│   │   │   │   ├── toml.rs
+│   │   │   │   ├── xml.rs
+│   │   │   │   └── yaml.rs
+│   │   │   ├── math
+│   │   │   │   ├── accent.rs
+│   │   │   │   ├── attach.rs
+│   │   │   │   ├── cancel.rs
+│   │   │   │   ├── equation.rs
+│   │   │   │   ├── frac.rs
+│   │   │   │   ├── lr.rs
+│   │   │   │   ├── matrix.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── op.rs
+│   │   │   │   ├── root.rs
+│   │   │   │   ├── style.rs
+│   │   │   │   └── underover.rs
+│   │   │   ├── model
+│   │   │   │   ├── bibliography.rs
+│   │   │   │   ├── cite.rs
+│   │   │   │   ├── document.rs
+│   │   │   │   ├── emph.rs
+│   │   │   │   ├── enum.rs
+│   │   │   │   ├── figure.rs
+│   │   │   │   ├── footnote.rs
+│   │   │   │   ├── heading.rs
+│   │   │   │   ├── link.rs
+│   │   │   │   ├── list.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── numbering.rs
+│   │   │   │   ├── outline.rs
+│   │   │   │   ├── par.rs
+│   │   │   │   ├── quote.rs
+│   │   │   │   ├── reference.rs
+│   │   │   │   ├── strong.rs
+│   │   │   │   ├── table.rs
+│   │   │   │   ├── terms.rs
+│   │   │   │   └── title.rs
+│   │   │   ├── pdf
+│   │   │   │   ├── accessibility.rs
+│   │   │   │   ├── attach.rs
+│   │   │   │   └── mod.rs
+│   │   │   ├── routines.rs
+│   │   │   ├── symbols.rs
+│   │   │   ├── text
+│   │   │   │   ├── case.rs
+│   │   │   │   ├── deco.rs
+│   │   │   │   ├── font
+│   │   │   │   │   ├── book.rs
+│   │   │   │   │   ├── color.rs
+│   │   │   │   │   ├── exceptions.rs
+│   │   │   │   │   ├── mod.rs
+│   │   │   │   │   └── variant.rs
+│   │   │   │   ├── item.rs
+│   │   │   │   ├── lang.rs
+│   │   │   │   ├── linebreak.rs
+│   │   │   │   ├── lorem.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── raw.rs
+│   │   │   │   ├── shift.rs
+│   │   │   │   ├── smallcaps.rs
+│   │   │   │   ├── smartquote.rs
+│   │   │   │   └── space.rs
+│   │   │   └── visualize
+│   │   │       ├── color.rs
+│   │   │       ├── curve.rs
+│   │   │       ├── gradient.rs
+│   │   │       ├── image
+│   │   │       │   ├── mod.rs
+│   │   │       │   ├── pdf.rs
+│   │   │       │   ├── raster.rs
+│   │   │       │   └── svg.rs
+│   │   │       ├── line.rs
+│   │   │       ├── mod.rs
+│   │   │       ├── paint.rs
+│   │   │       ├── path.rs
+│   │   │       ├── polygon.rs
+│   │   │       ├── shape.rs
+│   │   │       ├── stroke.rs
+│   │   │       └── tiling.rs
+│   │   ├── translations
+│   │   │   ├── af.txt
+│   │   │   ├── alt.txt
+│   │   │   ├── am.txt
+│   │   │   ├── ar.txt
+│   │   │   ├── ast.txt
+│   │   │   ├── as.txt
+│   │   │   ├── az.txt
+│   │   │   ├── be.txt
+│   │   │   ├── bg.txt
+│   │   │   ├── bn.txt
+│   │   │   ├── bo.txt
+│   │   │   ├── br.txt
+│   │   │   ├── bs.txt
+│   │   │   ├── bua.txt
+│   │   │   ├── ca.txt
+│   │   │   ├── ckb.txt
+│   │   │   ├── cs.txt
+│   │   │   ├── cu.txt
+│   │   │   ├── cy.txt
+│   │   │   ├── da.txt
+│   │   │   ├── de.txt
+│   │   │   ├── dsb.txt
+│   │   │   ├── el.txt
+│   │   │   ├── en.txt
+│   │   │   ├── eo.txt
+│   │   │   ├── es.txt
+│   │   │   ├── et.txt
+│   │   │   ├── eu.txt
+│   │   │   ├── fa.txt
+│   │   │   ├── fil.txt
+│   │   │   ├── fi.txt
+│   │   │   ├── fr-CA.txt
+│   │   │   ├── fr.txt
+│   │   │   ├── fur.txt
+│   │   │   ├── ga.txt
+│   │   │   ├── gd.txt
+│   │   │   ├── gl.txt
+│   │   │   ├── grc.txt
+│   │   │   ├── gu.txt
+│   │   │   ├── ha.txt
+│   │   │   ├── he.txt
+│   │   │   ├── hi.txt
+│   │   │   ├── hr.txt
+│   │   │   ├── hsb.txt
+│   │   │   ├── hu.txt
+│   │   │   ├── hy.txt
+│   │   │   ├── ia.txt
+│   │   │   ├── id.txt
+│   │   │   ├── is.txt
+│   │   │   ├── isv.txt
+│   │   │   ├── it.txt
+│   │   │   ├── ja.txt
+│   │   │   ├── ka.txt
+│   │   │   ├── kmr.txt
+│   │   │   ├── km.txt
+│   │   │   ├── kn.txt
+│   │   │   ├── ko.txt
+│   │   │   ├── ku.txt
+│   │   │   ├── la.txt
+│   │   │   ├── lb.txt
+│   │   │   ├── lo.txt
+│   │   │   ├── lt.txt
+│   │   │   ├── lv.txt
+│   │   │   ├── mk.txt
+│   │   │   ├── ml.txt
+│   │   │   ├── mr.txt
+│   │   │   ├── ms.txt
+│   │   │   ├── nb.txt
+│   │   │   ├── nl.txt
+│   │   │   ├── nn.txt
+│   │   │   ├── no.txt
+│   │   │   ├── oc.txt
+│   │   │   ├── or.txt
+│   │   │   ├── pa.txt
+│   │   │   ├── pl.txt
+│   │   │   ├── pms.txt
+│   │   │   ├── pt-PT.txt
+│   │   │   ├── pt.txt
+│   │   │   ├── rm.txt
+│   │   │   ├── ro.txt
+│   │   │   ├── ru.txt
+│   │   │   ├── se.txt
+│   │   │   ├── si.txt
+│   │   │   ├── sk.txt
+│   │   │   ├── sl.txt
+│   │   │   ├── sq.txt
+│   │   │   ├── sr.txt
+│   │   │   ├── sv.txt
+│   │   │   ├── ta.txt
+│   │   │   ├── te.txt
+│   │   │   ├── th.txt
+│   │   │   ├── tk.txt
+│   │   │   ├── tl.txt
+│   │   │   ├── tr.txt
+│   │   │   ├── ug.txt
+│   │   │   ├── uk.txt
+│   │   │   ├── ur.txt
+│   │   │   ├── vi.txt
+│   │   │   ├── zh-TW.txt
+│   │   │   └── zh.txt
+│   │   └── typst-library_MAP.md
+│   ├── typst-macros
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   ├── cast.rs
+│   │   │   ├── elem.rs
+│   │   │   ├── func.rs
+│   │   │   ├── lib.rs
+│   │   │   ├── scope.rs
+│   │   │   ├── time.rs
+│   │   │   ├── ty.rs
+│   │   │   └── util.rs
+│   │   └── typst-macros_MAP.md
+│   ├── typst-realize
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   └── lib.rs
+│   │   └── typst-realize_MAP.md
+│   ├── typst-syntax
+│   │   ├── Cargo.toml
+│   │   ├── README.md
+│   │   ├── src
+│   │   │   ├── ast.rs
+│   │   │   ├── file.rs
+│   │   │   ├── highlight.rs
+│   │   │   ├── kind.rs
+│   │   │   ├── lexer.rs
+│   │   │   ├── lib.rs
+│   │   │   ├── lines.rs
+│   │   │   ├── node.rs
+│   │   │   ├── package.rs
+│   │   │   ├── parser.rs
+│   │   │   ├── path.rs
+│   │   │   ├── reparser.rs
+│   │   │   ├── set.rs
+│   │   │   ├── source.rs
+│   │   │   └── span.rs
+│   │   └── typst-syntax_MAP.md
+│   ├── typst-timing
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   └── lib.rs
+│   │   └── typst-timing_MAP.md
+│   └── typst-utils
+│       ├── build.rs
+│       ├── Cargo.toml
+│       ├── src
+│       │   ├── bitset.rs
+│       │   ├── deferred.rs
+│       │   ├── duration.rs
+│       │   ├── fat.rs
+│       │   ├── hash.rs
+│       │   ├── lib.rs
+│       │   ├── listset.rs
+│       │   ├── macros.rs
+│       │   ├── pico.rs
+│       │   ├── protected.rs
+│       │   ├── round.rs
+│       │   ├── scalar.rs
+│       │   └── version.rs
+│       └── typst-utils_MAP.md
+├── 02_shell
+│   ├── 02_shell_MAP.md
+│   ├── typst-cli
+│   │   ├── build.rs
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   ├── args.rs
+│   │   │   ├── compile.rs
+│   │   │   ├── completions.rs
+│   │   │   ├── deps.rs
+│   │   │   ├── download.rs
+│   │   │   ├── eval.rs
+│   │   │   ├── fonts.rs
+│   │   │   ├── greet.rs
+│   │   │   ├── info.rs
+│   │   │   ├── init.rs
+│   │   │   ├── main.rs
+│   │   │   ├── package.rs
+│   │   │   ├── query.rs
+│   │   │   ├── server.rs
+│   │   │   ├── terminal.rs
+│   │   │   ├── timings.rs
+│   │   │   ├── update.rs
+│   │   │   ├── watch.rs
+│   │   │   └── world.rs
+│   │   └── typst-cli_MAP.md
+│   ├── typst-diagnostics
+│   │   ├── shield.rs
+│   │   └── typst-diagnostics_MAP.md
+│   └── typst-ide
+│       ├── Cargo.toml
+│       ├── src
+│       │   ├── analyze.rs
+│       │   ├── complete.rs
+│       │   ├── definition.rs
+│       │   ├── jump.rs
+│       │   ├── lib.rs
+│       │   ├── matchers.rs
+│       │   ├── tests.rs
+│       │   ├── tooltip.rs
+│       │   └── utils.rs
+│       └── typst-ide_MAP.md
+├── 03_infra
+│   ├── 03_infra_MAP.md
+│   ├── fuzz
+│   │   ├── Cargo.toml
+│   │   ├── fuzz_MAP.md
+│   │   └── src
+│   │       ├── bin
+│   │       │   ├── html.rs
+│   │       │   ├── paged.rs
+│   │       │   └── parse.rs
+│   │       └── lib.rs
+│   ├── tools
+│   │   ├── support
+│   │   │   ├── config.json
+│   │   │   ├── package.json
+│   │   │   ├── README.md
+│   │   │   └── typst.tmLanguage.json
+│   │   └── test-helper
+│   │       ├── package.json
+│   │       ├── README.md
+│   │       ├── src
+│   │       │   └── extension.ts
+│   │       └── tsconfig.json
+│   ├── typst-html
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   ├── attr.rs
+│   │   │   ├── charsets.rs
+│   │   │   ├── convert.rs
+│   │   │   ├── css.rs
+│   │   │   ├── document.rs
+│   │   │   ├── dom.rs
+│   │   │   ├── encode.rs
+│   │   │   ├── fragment.rs
+│   │   │   ├── lib.rs
+│   │   │   ├── link.rs
+│   │   │   ├── rules.rs
+│   │   │   ├── tag.rs
+│   │   │   └── typed.rs
+│   │   └── typst-html_MAP.md
+│   ├── typst-kit
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   ├── download.rs
+│   │   │   ├── fonts.rs
+│   │   │   ├── lib.rs
+│   │   │   └── package.rs
+│   │   └── typst-kit_MAP.md
+│   ├── typst-pdf
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   ├── attach.rs
+│   │   │   ├── convert.rs
+│   │   │   ├── image.rs
+│   │   │   ├── lib.rs
+│   │   │   ├── link.rs
+│   │   │   ├── metadata.rs
+│   │   │   ├── outline.rs
+│   │   │   ├── page.rs
+│   │   │   ├── paint.rs
+│   │   │   ├── shape.rs
+│   │   │   ├── tags
+│   │   │   │   ├── context
+│   │   │   │   │   ├── figure.rs
+│   │   │   │   │   ├── grid.rs
+│   │   │   │   │   ├── list.rs
+│   │   │   │   │   ├── mod.rs
+│   │   │   │   │   ├── outline.rs
+│   │   │   │   │   └── table.rs
+│   │   │   │   ├── groups.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── resolve.rs
+│   │   │   │   ├── tree
+│   │   │   │   │   ├── build.rs
+│   │   │   │   │   ├── mod.rs
+│   │   │   │   │   └── text.rs
+│   │   │   │   └── util
+│   │   │   │       ├── idvec.rs
+│   │   │   │       ├── mod.rs
+│   │   │   │       └── prop.rs
+│   │   │   ├── text.rs
+│   │   │   └── util.rs
+│   │   └── typst-pdf_MAP.md
+│   ├── typst-render
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   ├── image.rs
+│   │   │   ├── lib.rs
+│   │   │   ├── paint.rs
+│   │   │   ├── shape.rs
+│   │   │   └── text.rs
+│   │   └── typst-render_MAP.md
+│   └── typst-svg
+│       ├── Cargo.toml
+│       ├── src
+│       │   ├── image.rs
+│       │   ├── lib.rs
+│       │   ├── paint.rs
+│       │   ├── shape.rs
+│       │   └── text.rs
+│       └── typst-svg_MAP.md
+├── 04_wiring
+│   ├── 04_wiring_MAP.md
+│   ├── Cargo.toml
+│   └── src
+│       ├── diagnostics_bridge.rs
+│       ├── lib.rs
+│       └── src_MAP.md
+├── .agent
+│   ├── tools
+│   │   ├── cartographer
+│   │   ├── cartographer.rs
+│   │   ├── README.md
+│   │   └── README.pt.md
+│   └── workflows
+│       ├── add-crate.md
+│       ├── build-check.md
+│       ├── move-crate.md
+│       └── run-tests.md
+├── .cargo
+│   └── config.toml
+├── Cargo.lock
+├── Cargo.toml
+├── CITATION.cff
+├── CONTRIBUTING.md
+├── .cursorrules
+├── Dockerfile
+├── .editorconfig
+├── .envrc
+├── flake.lock
+├── flake.nix
+├── GEMINI.md
