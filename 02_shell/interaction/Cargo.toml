@@ -14,6 +14,9 @@ readme = { workspace = true }
 
 [dependencies]
 fusion = { workspace = true }
+shared = { workspace = true }
+primitives = { workspace = true }
+lexicon = { workspace = true }
 semantics = { workspace = true }
 html = { workspace = true }
 comemo = { workspace = true }

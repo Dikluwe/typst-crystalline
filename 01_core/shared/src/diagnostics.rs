@@ -1,22 +1,30 @@
-/// A Facet Lattice do diagnóstico exige que o Core seja silencioso.
-/// Esta trait define os "ganchos" que o Shell (L2) deve implementar para
-/// dar uma narrativa aos sinais técnicos.
+//! Pure diagnostic signals for the Crystalline Architecture.
+//!
+//! This module defines the "Void Signals" - logical collapse indicators that are
+//! completely free from I/O, formatting, and geography (Span) concerns.
+//!
+//! # Laws
+//! - **Law II**: Signals are stable, invariant data objects (no messages)
+//! - **Law III**: Double dispatch via `accept()` maintains purity
+
+/// The NarrativeVisitor defines hooks that the Shell (L2) must implement
+/// to give a narrative to technical signals.
 pub trait NarrativeVisitor {
     fn on_access_denied(&mut self, signal: &AccessSignal);
     fn on_type_mismatch(&mut self, signal: &TypeMismatchSignal);
     fn on_missing_field(&mut self, signal: &MissingFieldSignal);
-    // Adicione novos sinais conforme a evolução do Core.
 }
 
-/// Law II: O sinal é um objeto de dados estável e invariante.
-/// Ele não contém mensagens, apenas os dados brutos do colapso lógico.
+/// Law II: A signal is a stable, invariant data object.
+/// It contains no messages, only the raw data of the logical collapse.
 pub trait VoidSignal: std::fmt::Debug + Send + Sync {
-    /// Law III: Double Dispatch para evitar downcasting e manter a pureza.
+    /// Law III: Double Dispatch to avoid downcasting and maintain purity.
     fn accept(&self, visitor: &mut dyn NarrativeVisitor);
 }
 
-// --- Implementações de Sinais (Exemplos de Colapsos Geométricos) ---
+// --- Signal Implementations (Examples of Geometric Collapses) ---
 
+/// Signal for access control violations.
 #[derive(Debug, Clone)]
 pub struct AccessSignal {
     pub target: String,
@@ -29,6 +37,7 @@ impl VoidSignal for AccessSignal {
     }
 }
 
+/// Signal for type mismatches.
 #[derive(Debug, Clone)]
 pub struct TypeMismatchSignal {
     pub expected: String,
@@ -41,6 +50,7 @@ impl VoidSignal for TypeMismatchSignal {
     }
 }
 
+/// Signal for missing required fields.
 #[derive(Debug, Clone)]
 pub struct MissingFieldSignal {
     pub parent_type: String,
@@ -53,5 +63,5 @@ impl VoidSignal for MissingFieldSignal {
     }
 }
 
-/// Tipo utilitário para o Core retornar falhas sem interromper o fluxo com strings.
+/// Utility type for the Core to return failures without string interruptions.
 pub type CrystalResult<T> = Result<T, Box<dyn VoidSignal>>;

@@ -7,6 +7,7 @@ mod jump;
 mod matchers;
 mod tooltip;
 mod utils;
+pub mod diagnostics_shield;
 
 pub use self::analyze::{analyze_expr, analyze_import, analyze_labels};
 pub use self::complete::{Completion, CompletionKind, autocomplete};

@@ -32,6 +32,8 @@
 pub extern crate comemo;
 pub extern crate ecow;
 
+pub mod diagnostics_bridge;
+
 pub use primitives::*;
 #[doc(inline)]
 pub use lexicon as syntax;

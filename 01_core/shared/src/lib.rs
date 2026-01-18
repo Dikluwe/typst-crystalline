@@ -1,6 +1,7 @@
 //! Utilities for Typst.
 
 pub mod fat;
+pub mod diagnostics;
 
 #[macro_use]
 mod macros;
