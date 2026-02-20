@@ -1,0 +1,2861 @@
+.
+├── Cargo.lock
+├── Cargo.toml
+├── CITATION.cff
+├── clippy.toml
+├── CONTRIBUTING.md
+├── crates
+│   ├── typst
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       └── lib.rs
+│   ├── typst-cli
+│   │   ├── build.rs
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   ├── args.rs
+│   │   │   ├── compile.rs
+│   │   │   ├── completions.rs
+│   │   │   ├── deps.rs
+│   │   │   ├── download.rs
+│   │   │   ├── eval.rs
+│   │   │   ├── fonts.rs
+│   │   │   ├── greet.rs
+│   │   │   ├── info.rs
+│   │   │   ├── init.rs
+│   │   │   ├── main.rs
+│   │   │   ├── packages.rs
+│   │   │   ├── query.rs
+│   │   │   ├── terminal.rs
+│   │   │   ├── timings.rs
+│   │   │   ├── update.rs
+│   │   │   ├── watch.rs
+│   │   │   └── world.rs
+│   │   └── tests
+│   │       └── smoke.rs
+│   ├── typst-eval
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       ├── access.rs
+│   │       ├── binding.rs
+│   │       ├── call.rs
+│   │       ├── code.rs
+│   │       ├── flow.rs
+│   │       ├── import.rs
+│   │       ├── lib.rs
+│   │       ├── markup.rs
+│   │       ├── math.rs
+│   │       ├── methods.rs
+│   │       ├── ops.rs
+│   │       ├── rules.rs
+│   │       └── vm.rs
+│   ├── typst-html
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       ├── attr.rs
+│   │       ├── charsets.rs
+│   │       ├── convert.rs
+│   │       ├── css.rs
+│   │       ├── document.rs
+│   │       ├── dom.rs
+│   │       ├── encode.rs
+│   │       ├── fragment.rs
+│   │       ├── lib.rs
+│   │       ├── link.rs
+│   │       ├── rules.rs
+│   │       ├── tag.rs
+│   │       └── typed.rs
+│   ├── typst-ide
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       ├── analyze.rs
+│   │       ├── complete.rs
+│   │       ├── definition.rs
+│   │       ├── docs.rs
+│   │       ├── jump.rs
+│   │       ├── lib.rs
+│   │       ├── matchers.rs
+│   │       ├── tests.rs
+│   │       ├── tooltip.rs
+│   │       └── utils.rs
+│   ├── typst-kit
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       ├── diagnostics.rs
+│   │       ├── downloader.rs
+│   │       ├── files.rs
+│   │       ├── fonts.rs
+│   │       ├── lib.rs
+│   │       ├── packages.rs
+│   │       ├── server.rs
+│   │       └── watcher.rs
+│   ├── typst-layout
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       ├── flow
+│   │       │   ├── block.rs
+│   │       │   ├── collect.rs
+│   │       │   ├── compose.rs
+│   │       │   ├── distribute.rs
+│   │       │   └── mod.rs
+│   │       ├── grid
+│   │       │   ├── layouter.rs
+│   │       │   ├── lines.rs
+│   │       │   ├── mod.rs
+│   │       │   ├── repeated.rs
+│   │       │   └── rowspans.rs
+│   │       ├── image.rs
+│   │       ├── inline
+│   │       │   ├── box.rs
+│   │       │   ├── collect.rs
+│   │       │   ├── deco.rs
+│   │       │   ├── finalize.rs
+│   │       │   ├── linebreak.rs
+│   │       │   ├── line.rs
+│   │       │   ├── mod.rs
+│   │       │   ├── prepare.rs
+│   │       │   └── shaping.rs
+│   │       ├── lib.rs
+│   │       ├── lists.rs
+│   │       ├── math
+│   │       │   ├── accent.rs
+│   │       │   ├── cancel.rs
+│   │       │   ├── fenced.rs
+│   │       │   ├── fraction.rs
+│   │       │   ├── fragment.rs
+│   │       │   ├── line.rs
+│   │       │   ├── mod.rs
+│   │       │   ├── radical.rs
+│   │       │   ├── run.rs
+│   │       │   ├── scripts.rs
+│   │       │   ├── shaping.rs
+│   │       │   ├── table.rs
+│   │       │   └── text.rs
+│   │       ├── modifiers.rs
+│   │       ├── pad.rs
+│   │       ├── pages
+│   │       │   ├── collect.rs
+│   │       │   ├── finalize.rs
+│   │       │   ├── mod.rs
+│   │       │   └── run.rs
+│   │       ├── repeat.rs
+│   │       ├── rules.rs
+│   │       ├── shapes.rs
+│   │       ├── stack.rs
+│   │       └── transforms.rs
+│   ├── typst-library
+│   │   ├── Cargo.toml
+│   │   ├── src
+│   │   │   ├── diag.rs
+│   │   │   ├── engine.rs
+│   │   │   ├── foundations
+│   │   │   │   ├── args.rs
+│   │   │   │   ├── array.rs
+│   │   │   │   ├── auto.rs
+│   │   │   │   ├── bool.rs
+│   │   │   │   ├── bytes.rs
+│   │   │   │   ├── calc.rs
+│   │   │   │   ├── cast.rs
+│   │   │   │   ├── content
+│   │   │   │   │   ├── element.rs
+│   │   │   │   │   ├── field.rs
+│   │   │   │   │   ├── mod.rs
+│   │   │   │   │   ├── packed.rs
+│   │   │   │   │   ├── raw.rs
+│   │   │   │   │   └── vtable.rs
+│   │   │   │   ├── context.rs
+│   │   │   │   ├── datetime.rs
+│   │   │   │   ├── decimal.rs
+│   │   │   │   ├── dict.rs
+│   │   │   │   ├── duration.rs
+│   │   │   │   ├── fields.rs
+│   │   │   │   ├── float.rs
+│   │   │   │   ├── func.rs
+│   │   │   │   ├── int.rs
+│   │   │   │   ├── label.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── module.rs
+│   │   │   │   ├── none.rs
+│   │   │   │   ├── ops.rs
+│   │   │   │   ├── path.rs
+│   │   │   │   ├── plugin.rs
+│   │   │   │   ├── repr.rs
+│   │   │   │   ├── scope.rs
+│   │   │   │   ├── selector.rs
+│   │   │   │   ├── str.rs
+│   │   │   │   ├── styles.rs
+│   │   │   │   ├── symbol.rs
+│   │   │   │   ├── sys.rs
+│   │   │   │   ├── target.rs
+│   │   │   │   ├── ty.rs
+│   │   │   │   ├── value.rs
+│   │   │   │   └── version.rs
+│   │   │   ├── introspection
+│   │   │   │   ├── convergence.rs
+│   │   │   │   ├── counter.rs
+│   │   │   │   ├── here.rs
+│   │   │   │   ├── introspector.rs
+│   │   │   │   ├── locate.rs
+│   │   │   │   ├── location.rs
+│   │   │   │   ├── locator.rs
+│   │   │   │   ├── metadata.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── query.rs
+│   │   │   │   ├── state.rs
+│   │   │   │   └── tag.rs
+│   │   │   ├── layout
+│   │   │   │   ├── abs.rs
+│   │   │   │   ├── align.rs
+│   │   │   │   ├── angle.rs
+│   │   │   │   ├── axes.rs
+│   │   │   │   ├── columns.rs
+│   │   │   │   ├── container.rs
+│   │   │   │   ├── corners.rs
+│   │   │   │   ├── dir.rs
+│   │   │   │   ├── em.rs
+│   │   │   │   ├── fragment.rs
+│   │   │   │   ├── frame.rs
+│   │   │   │   ├── fr.rs
+│   │   │   │   ├── grid
+│   │   │   │   │   ├── mod.rs
+│   │   │   │   │   └── resolve.rs
+│   │   │   │   ├── hide.rs
+│   │   │   │   ├── layout.rs
+│   │   │   │   ├── length.rs
+│   │   │   │   ├── measure.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── pad.rs
+│   │   │   │   ├── page.rs
+│   │   │   │   ├── place.rs
+│   │   │   │   ├── point.rs
+│   │   │   │   ├── ratio.rs
+│   │   │   │   ├── rect.rs
+│   │   │   │   ├── regions.rs
+│   │   │   │   ├── rel.rs
+│   │   │   │   ├── repeat.rs
+│   │   │   │   ├── sides.rs
+│   │   │   │   ├── size.rs
+│   │   │   │   ├── spacing.rs
+│   │   │   │   ├── stack.rs
+│   │   │   │   └── transform.rs
+│   │   │   ├── lib.rs
+│   │   │   ├── loading
+│   │   │   │   ├── cbor.rs
+│   │   │   │   ├── csv.rs
+│   │   │   │   ├── json.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── read.rs
+│   │   │   │   ├── toml.rs
+│   │   │   │   ├── xml.rs
+│   │   │   │   └── yaml.rs
+│   │   │   ├── math
+│   │   │   │   ├── accent.rs
+│   │   │   │   ├── attach.rs
+│   │   │   │   ├── cancel.rs
+│   │   │   │   ├── equation.rs
+│   │   │   │   ├── frac.rs
+│   │   │   │   ├── ir
+│   │   │   │   │   ├── item.rs
+│   │   │   │   │   ├── mod.rs
+│   │   │   │   │   ├── preprocess.rs
+│   │   │   │   │   └── resolve.rs
+│   │   │   │   ├── lr.rs
+│   │   │   │   ├── matrix.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── op.rs
+│   │   │   │   ├── root.rs
+│   │   │   │   ├── style.rs
+│   │   │   │   └── underover.rs
+│   │   │   ├── model
+│   │   │   │   ├── bibliography.rs
+│   │   │   │   ├── cite.rs
+│   │   │   │   ├── document.rs
+│   │   │   │   ├── emph.rs
+│   │   │   │   ├── enum.rs
+│   │   │   │   ├── figure.rs
+│   │   │   │   ├── footnote.rs
+│   │   │   │   ├── heading.rs
+│   │   │   │   ├── link.rs
+│   │   │   │   ├── list.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── numbering.rs
+│   │   │   │   ├── outline.rs
+│   │   │   │   ├── par.rs
+│   │   │   │   ├── quote.rs
+│   │   │   │   ├── reference.rs
+│   │   │   │   ├── strong.rs
+│   │   │   │   ├── table.rs
+│   │   │   │   ├── terms.rs
+│   │   │   │   └── title.rs
+│   │   │   ├── pdf
+│   │   │   │   ├── accessibility.rs
+│   │   │   │   ├── attach.rs
+│   │   │   │   └── mod.rs
+│   │   │   ├── routines.rs
+│   │   │   ├── symbols.rs
+│   │   │   ├── text
+│   │   │   │   ├── case.rs
+│   │   │   │   ├── deco.rs
+│   │   │   │   ├── font
+│   │   │   │   │   ├── book.rs
+│   │   │   │   │   ├── color.rs
+│   │   │   │   │   ├── exceptions.rs
+│   │   │   │   │   ├── mod.rs
+│   │   │   │   │   └── variant.rs
+│   │   │   │   ├── item.rs
+│   │   │   │   ├── lang.rs
+│   │   │   │   ├── linebreak.rs
+│   │   │   │   ├── lorem.rs
+│   │   │   │   ├── mod.rs
+│   │   │   │   ├── raw.rs
+│   │   │   │   ├── shift.rs
+│   │   │   │   ├── smallcaps.rs
+│   │   │   │   ├── smartquote.rs
+│   │   │   │   └── space.rs
+│   │   │   └── visualize
+│   │   │       ├── color.rs
+│   │   │       ├── curve.rs
+│   │   │       ├── gradient.rs
+│   │   │       ├── image
+│   │   │       │   ├── mod.rs
+│   │   │       │   ├── pdf.rs
+│   │   │       │   ├── raster.rs
+│   │   │       │   └── svg.rs
+│   │   │       ├── line.rs
+│   │   │       ├── mod.rs
+│   │   │       ├── paint.rs
+│   │   │       ├── polygon.rs
+│   │   │       ├── shape.rs
+│   │   │       ├── stroke.rs
+│   │   │       └── tiling.rs
+│   │   └── translations
+│   │       ├── af.txt
+│   │       ├── alt.txt
+│   │       ├── am.txt
+│   │       ├── ar.txt
+│   │       ├── ast.txt
+│   │       ├── as.txt
+│   │       ├── az.txt
+│   │       ├── be.txt
+│   │       ├── bg.txt
+│   │       ├── bn.txt
+│   │       ├── bo.txt
+│   │       ├── br.txt
+│   │       ├── bs.txt
+│   │       ├── bua.txt
+│   │       ├── ca.txt
+│   │       ├── ckb.txt
+│   │       ├── cs.txt
+│   │       ├── cu.txt
+│   │       ├── cy.txt
+│   │       ├── da.txt
+│   │       ├── de.txt
+│   │       ├── dsb.txt
+│   │       ├── el.txt
+│   │       ├── en.txt
+│   │       ├── eo.txt
+│   │       ├── es.txt
+│   │       ├── et.txt
+│   │       ├── eu.txt
+│   │       ├── fa.txt
+│   │       ├── fil.txt
+│   │       ├── fi.txt
+│   │       ├── fr-CA.txt
+│   │       ├── fr.txt
+│   │       ├── fur.txt
+│   │       ├── ga.txt
+│   │       ├── gd.txt
+│   │       ├── gl.txt
+│   │       ├── grc.txt
+│   │       ├── gu.txt
+│   │       ├── ha.txt
+│   │       ├── he.txt
+│   │       ├── hi.txt
+│   │       ├── hr.txt
+│   │       ├── hsb.txt
+│   │       ├── hu.txt
+│   │       ├── hy.txt
+│   │       ├── ia.txt
+│   │       ├── id.txt
+│   │       ├── is.txt
+│   │       ├── isv.txt
+│   │       ├── it.txt
+│   │       ├── ja.txt
+│   │       ├── ka.txt
+│   │       ├── kmr.txt
+│   │       ├── km.txt
+│   │       ├── kn.txt
+│   │       ├── ko.txt
+│   │       ├── ku.txt
+│   │       ├── la.txt
+│   │       ├── lb.txt
+│   │       ├── lo.txt
+│   │       ├── lt.txt
+│   │       ├── lv.txt
+│   │       ├── mk.txt
+│   │       ├── ml.txt
+│   │       ├── mr.txt
+│   │       ├── ms.txt
+│   │       ├── nb.txt
+│   │       ├── nl.txt
+│   │       ├── nn.txt
+│   │       ├── no.txt
+│   │       ├── oc.txt
+│   │       ├── or.txt
+│   │       ├── pa.txt
+│   │       ├── pl.txt
+│   │       ├── pms.txt
+│   │       ├── pt-PT.txt
+│   │       ├── pt.txt
+│   │       ├── rm.txt
+│   │       ├── ro.txt
+│   │       ├── ru.txt
+│   │       ├── se.txt
+│   │       ├── si.txt
+│   │       ├── sk.txt
+│   │       ├── sl.txt
+│   │       ├── sq.txt
+│   │       ├── sr.txt
+│   │       ├── sv.txt
+│   │       ├── ta.txt
+│   │       ├── te.txt
+│   │       ├── th.txt
+│   │       ├── tk.txt
+│   │       ├── tl.txt
+│   │       ├── tr.txt
+│   │       ├── ug.txt
+│   │       ├── uk.txt
+│   │       ├── ur.txt
+│   │       ├── vi.txt
+│   │       ├── zh-TW.txt
+│   │       └── zh.txt
+│   ├── typst-macros
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       ├── cast.rs
+│   │       ├── elem.rs
+│   │       ├── func.rs
+│   │       ├── lib.rs
+│   │       ├── scope.rs
+│   │       ├── time.rs
+│   │       ├── ty.rs
+│   │       └── util.rs
+│   ├── typst-pdf
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       ├── attach.rs
+│   │       ├── convert.rs
+│   │       ├── image.rs
+│   │       ├── lib.rs
+│   │       ├── link.rs
+│   │       ├── metadata.rs
+│   │       ├── outline.rs
+│   │       ├── page.rs
+│   │       ├── paint.rs
+│   │       ├── shape.rs
+│   │       ├── tags
+│   │       │   ├── context
+│   │       │   │   ├── figure.rs
+│   │       │   │   ├── grid.rs
+│   │       │   │   ├── list.rs
+│   │       │   │   ├── mod.rs
+│   │       │   │   ├── outline.rs
+│   │       │   │   └── table.rs
+│   │       │   ├── groups.rs
+│   │       │   ├── mod.rs
+│   │       │   ├── resolve.rs
+│   │       │   ├── tree
+│   │       │   │   ├── build.rs
+│   │       │   │   ├── mod.rs
+│   │       │   │   └── text.rs
+│   │       │   └── util
+│   │       │       ├── idvec.rs
+│   │       │       ├── mod.rs
+│   │       │       └── prop.rs
+│   │       ├── text.rs
+│   │       └── util.rs
+│   ├── typst-realize
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       ├── lib.rs
+│   │       └── spaces.rs
+│   ├── typst-render
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       ├── image.rs
+│   │       ├── lib.rs
+│   │       ├── paint.rs
+│   │       ├── shape.rs
+│   │       └── text.rs
+│   ├── typst-svg
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       ├── image.rs
+│   │       ├── lib.rs
+│   │       ├── paint.rs
+│   │       ├── path.rs
+│   │       ├── shape.rs
+│   │       ├── text.rs
+│   │       └── write.rs
+│   ├── typst-syntax
+│   │   ├── Cargo.toml
+│   │   ├── README.md
+│   │   └── src
+│   │       ├── ast.rs
+│   │       ├── highlight.rs
+│   │       ├── kind.rs
+│   │       ├── lexer.rs
+│   │       ├── lib.rs
+│   │       ├── lines.rs
+│   │       ├── node.rs
+│   │       ├── package.rs
+│   │       ├── parser.rs
+│   │       ├── path.rs
+│   │       ├── reparser.rs
+│   │       ├── set.rs
+│   │       ├── source.rs
+│   │       └── span.rs
+│   ├── typst-timing
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       └── lib.rs
+│   └── typst-utils
+│       ├── build.rs
+│       ├── Cargo.toml
+│       └── src
+│           ├── bitset.rs
+│           ├── deferred.rs
+│           ├── duration.rs
+│           ├── fat.rs
+│           ├── hash.rs
+│           ├── lib.rs
+│           ├── listset.rs
+│           ├── macros.rs
+│           ├── pico.rs
+│           ├── protected.rs
+│           ├── round.rs
+│           ├── scalar.rs
+│           └── version.rs
+├── Dockerfile
+├── docs
+│   ├── Cargo.toml
+│   ├── changelog
+│   │   ├── 0.10.0.md
+│   │   ├── 0.1.0.md
+│   │   ├── 0.11.0.md
+│   │   ├── 0.11.1.md
+│   │   ├── 0.12.0.md
+│   │   ├── 0.13.0.md
+│   │   ├── 0.13.1.md
+│   │   ├── 0.14.0.md
+│   │   ├── 0.14.1.md
+│   │   ├── 0.14.2.md
+│   │   ├── 0.2.0.md
+│   │   ├── 0.3.0.md
+│   │   ├── 0.4.0.md
+│   │   ├── 0.5.0.md
+│   │   ├── 0.6.0.md
+│   │   ├── 0.7.0.md
+│   │   ├── 0.8.0.md
+│   │   ├── 0.9.0.md
+│   │   ├── earlier.md
+│   │   └── welcome.md
+│   ├── dev
+│   │   └── architecture.md
+│   ├── guides
+│   │   ├── accessibility.md
+│   │   ├── guide-for-latex-users.md
+│   │   ├── page-setup.md
+│   │   ├── tables.md
+│   │   └── welcome.md
+│   ├── overview.md
+│   ├── reference
+│   │   ├── export
+│   │   │   ├── html.md
+│   │   │   ├── pdf.md
+│   │   │   ├── png.md
+│   │   │   └── svg.md
+│   │   ├── groups.yml
+│   │   ├── language
+│   │   │   ├── context.md
+│   │   │   ├── scripting.md
+│   │   │   ├── styling.md
+│   │   │   └── syntax.md
+│   │   ├── library
+│   │   │   ├── data-loading.md
+│   │   │   ├── foundations.md
+│   │   │   ├── introspection.md
+│   │   │   ├── layout.md
+│   │   │   ├── math.md
+│   │   │   ├── model.md
+│   │   │   ├── symbols.md
+│   │   │   ├── text.md
+│   │   │   └── visualize.md
+│   │   └── welcome.md
+│   ├── src
+│   │   ├── contribs.rs
+│   │   ├── html.rs
+│   │   ├── lib.rs
+│   │   ├── link.rs
+│   │   ├── main.rs
+│   │   └── model.rs
+│   └── tutorial
+│       ├── 1-writing.md
+│       ├── 2-formatting.md
+│       ├── 3-advanced.md
+│       ├── 4-template.md
+│       └── welcome.md
+├── init-tekt.sh
+├── LICENSE
+├── map.txt
+├── NOTICE
+├── README.md
+├── rustfmt.toml
+├── tests
+│   ├── Cargo.toml
+│   ├── fuzz
+│   │   ├── Cargo.toml
+│   │   └── src
+│   │       ├── bin
+│   │       │   ├── html.rs
+│   │       │   ├── paged.rs
+│   │       │   └── parse.rs
+│   │       └── lib.rs
+│   ├── packages
+│   │   ├── adder-0.1.0
+│   │   │   ├── lib.typ
+│   │   │   └── typst.toml
+│   │   ├── future-0.1.0
+│   │   │   ├── lib.typ
+│   │   │   └── typst.toml
+│   │   └── reader-0.1.0
+│   │       ├── hello.txt
+│   │       ├── src
+│   │       │   └── lib.typ
+│   │       └── typst.toml
+│   ├── README.md
+│   ├── ref
+│   │   ├── html
+│   │   │   ├── basic-sup-sub.html
+│   │   │   ├── basic-table.html
+│   │   │   ├── bibliography-basic.html
+│   │   │   ├── bibliography-csl-display.html
+│   │   │   ├── bibliography-custom-title.html
+│   │   │   ├── bibliography-multiple-files.html
+│   │   │   ├── bibliography-no-title.html
+│   │   │   ├── block-html.html
+│   │   │   ├── box-html.html
+│   │   │   ├── cases-content-html.html
+│   │   │   ├── cite-form.html
+│   │   │   ├── cite-group.html
+│   │   │   ├── col-gutter-table.html
+│   │   │   ├── col-row-gutter-table.html
+│   │   │   ├── enum-par.html
+│   │   │   ├── enum-start.html
+│   │   │   ├── footnote-basic.html
+│   │   │   ├── footnote-container-set-rule-html.html
+│   │   │   ├── footnote-container-show-set-rule-html.html
+│   │   │   ├── footnote-custom-head-html-show-none.html
+│   │   │   ├── footnote-entry-html.html
+│   │   │   ├── footnote-nested.html
+│   │   │   ├── footnote-ref-multiple.html
+│   │   │   ├── footnote-space-collapsing.html
+│   │   │   ├── heading-html-basic.html
+│   │   │   ├── html-deco.html
+│   │   │   ├── html-elem-alone-context.html
+│   │   │   ├── html-elem-custom.html
+│   │   │   ├── html-elem-metadata.html
+│   │   │   ├── html-escapable-raw-text-contains-closing-tag.html
+│   │   │   ├── html-frame.html
+│   │   │   ├── html-pre-starting-with-newline.html
+│   │   │   ├── html-script.html
+│   │   │   ├── html-space-collapsing.html
+│   │   │   ├── html-style.html
+│   │   │   ├── html-style-str.html
+│   │   │   ├── html-textarea-starting-with-newline.html
+│   │   │   ├── html-typed.html
+│   │   │   ├── html-untyped-style-content.html
+│   │   │   ├── image-jpg-html-base64.html
+│   │   │   ├── image-pdf-basic.html
+│   │   │   ├── image-scaling-methods.html
+│   │   │   ├── image-sizing-html-css.html
+│   │   │   ├── issue-7751-table-cell-show-rules.html
+│   │   │   ├── link-basic.html
+│   │   │   ├── link-html-frame.html
+│   │   │   ├── link-html-frame-ref.html
+│   │   │   ├── link-html-here.html
+│   │   │   ├── link-html-id-attach.html
+│   │   │   ├── link-html-id-existing.html
+│   │   │   ├── link-html-label-disambiguation.html
+│   │   │   ├── link-html-nested-empty.html
+│   │   │   ├── list-par.html
+│   │   │   ├── multi-header-inside-table.html
+│   │   │   ├── multi-header-table-gutter.html
+│   │   │   ├── multi-header-table.html
+│   │   │   ├── outline-figure-html.html
+│   │   │   ├── outline-html.html
+│   │   │   ├── page-set-html.html
+│   │   │   ├── par-semantic-html.html
+│   │   │   ├── quote-attribution-link.html
+│   │   │   ├── quote-nesting-html.html
+│   │   │   ├── quote-plato.html
+│   │   │   ├── raw-html.html
+│   │   │   ├── raw-html-inline-spaces.html
+│   │   │   ├── ref-basic.html
+│   │   │   ├── row-gutter-table.html
+│   │   │   ├── smallcaps-all.html
+│   │   │   ├── smartquote-inline-block.html
+│   │   │   ├── smartquote-nesting-twice.html
+│   │   │   ├── table-wide-header-gutter-table.html
+│   │   │   ├── table-wide-header-table.html
+│   │   │   ├── terms-par.html
+│   │   │   ├── text-lang.html
+│   │   │   ├── text-lang-region.html
+│   │   │   ├── text-lang-unknown-region.html
+│   │   │   ├── title.html
+│   │   │   └── title-with-body.html
+│   │   ├── pdf
+│   │   │   └── hashes.txt
+│   │   ├── pdftags
+│   │   │   ├── bibliography-basic.yml
+│   │   │   ├── break-tags-nested-parbreak-with-nested-groups.yml
+│   │   │   ├── break-tags-nested-parbreak.yml
+│   │   │   ├── deco-tags-different-color.yml
+│   │   │   ├── deco-tags-different-stroke-thickness.yml
+│   │   │   ├── deco-tags-different-type.yml
+│   │   │   ├── deco-tags-emph-basic.yml
+│   │   │   ├── deco-tags-highlight-basic.yml
+│   │   │   ├── deco-tags-script-custom-baseline.yml
+│   │   │   ├── deco-tags-strong-and-em.yml
+│   │   │   ├── deco-tags-strong-basic.yml
+│   │   │   ├── deco-tags-strong-em-and-more-attrs.yml
+│   │   │   ├── deco-tags-subscript-basic.yml
+│   │   │   ├── deco-tags-superscript-basic.yml
+│   │   │   ├── deco-tags-underline.yml
+│   │   │   ├── disable-tags-artifact.yml
+│   │   │   ├── disable-tags-broken-paragraph-artifact.yml
+│   │   │   ├── disable-tags-broken-paragraph-hide.yml
+│   │   │   ├── disable-tags-hide.yml
+│   │   │   ├── disable-tags-partially-hidden-list.yml
+│   │   │   ├── disable-tags-tiling.yml
+│   │   │   ├── enum-number-override-nested.yml
+│   │   │   ├── figure-basic.yml
+│   │   │   ├── figure-tags-additional-caption-inside-body.yml
+│   │   │   ├── figure-tags-alt-with-different-lang.yml
+│   │   │   ├── figure-tags-block-equation-with-caption.yml
+│   │   │   ├── figure-tags-image-basic.yml
+│   │   │   ├── figure-tags-image-figure-with-caption.yml
+│   │   │   ├── figure-tags-inline-equation-with-caption.yml
+│   │   │   ├── figure-tags-listing.yml
+│   │   │   ├── figure-tags-only-marked-content.yml
+│   │   │   ├── figure-tags-with-alt-flatten-content-basic.yml
+│   │   │   ├── figure-tags-with-alt-flatten-content-complex.yml
+│   │   │   ├── footnote-tags-basic.yml
+│   │   │   ├── footnote-tags-different-lang.yml
+│   │   │   ├── footnote-tags-ref-to-other-footnote.yml
+│   │   │   ├── grid-headers.yml
+│   │   │   ├── grid-tags-cell-breaking.yml
+│   │   │   ├── grid-tags-internal-grid-layout-breaking-bibliography.yml
+│   │   │   ├── grid-tags-rowspan-split-3.yml
+│   │   │   ├── grid-tags-rowspan.yml
+│   │   │   ├── heading-offset.yml
+│   │   │   ├── heading-tags-basic.yml
+│   │   │   ├── heading-tags-complex.yml
+│   │   │   ├── issue-7020-break-tags.yml
+│   │   │   ├── issue-7301-link-tags-empty-link-body-footnote.yml
+│   │   │   ├── issue-7301-link-tags-empty-link-body-linebreak.yml
+│   │   │   ├── issue-7301-link-tags-empty-link-body-mutliple.yml
+│   │   │   ├── issue-7301-link-tags-empty-link-body.yml
+│   │   │   ├── issue-7789-list-tags-breaking.yml
+│   │   │   ├── lang-tags-pars-basic.yml
+│   │   │   ├── lang-tags-propagation.yml
+│   │   │   ├── layout-tags-placement-float.yml
+│   │   │   ├── link-basic.yml
+│   │   │   ├── link-tags-contact-prefix.yml
+│   │   │   ├── link-tags-heading-with-numbering.yml
+│   │   │   ├── link-tags-heading-without-numbering.yml
+│   │   │   ├── link-tags-non-refable-location.yml
+│   │   │   ├── link-tags-position.yml
+│   │   │   ├── link-tags-with-parbreak.yml
+│   │   │   ├── list-indent-specifics.yml
+│   │   │   ├── list-tags-basic.yml
+│   │   │   ├── list-tags-complex-item-with-nested-list.yml
+│   │   │   ├── list-tags-complex-item-with-sub-list.yml
+│   │   │   ├── list-tags-mixed-with-enum.yml
+│   │   │   ├── list-tags-terms-basic-wide.yml
+│   │   │   ├── list-tags-terms-basic.yml
+│   │   │   ├── list-tags-terms-body-with-parbreak.yml
+│   │   │   ├── list-tags-terms-indented.yml
+│   │   │   ├── list-tags-terms-label-with-parbreak.yml
+│   │   │   ├── list-tags-wide-with-nested-list.yml
+│   │   │   ├── logical-children-tags-decorations-in-broken-grid-cell.yml
+│   │   │   ├── logical-children-tags-hide-around-footnote.yml
+│   │   │   ├── logical-children-tags-hide-around-place.yml
+│   │   │   ├── logical-children-tags-underline-around-footnote.yml
+│   │   │   ├── logical-children-tags-underline-around-place.yml
+│   │   │   ├── outline-spacing.yml
+│   │   │   ├── par-basic.yml
+│   │   │   ├── par-first-line-indent-all-terms.yml
+│   │   │   ├── query-tags-ambiguous-parent-footnote.yml
+│   │   │   ├── query-tags-ambiguous-parent-place.yml
+│   │   │   ├── query-tags-duplicate-heading.yml
+│   │   │   ├── query-tags-duplicate-labelled-element.yml
+│   │   │   ├── quote-dir-align.yml
+│   │   │   ├── quote-dir-author-pos.yml
+│   │   │   ├── raw-tags-basic-block.yml
+│   │   │   ├── raw-tags-basic-inline.yml
+│   │   │   ├── table-tags-basic.yml
+│   │   │   ├── table-tags-column-and-row-header.yml
+│   │   │   ├── table-tags-different-default-border.yml
+│   │   │   ├── table-tags-empty.yml
+│   │   │   ├── table-tags-explicit-lines.yml
+│   │   │   ├── table-tags-missing-cells.yml
+│   │   │   ├── table-tags-rowspan-split-1.yml
+│   │   │   ├── table-tags-rowspan-split-2.yml
+│   │   │   ├── table-tags-show-rule.yml
+│   │   │   ├── table-tags-unset-bottom-line.yml
+│   │   │   ├── table-tags-unstable-functions.yml
+│   │   │   ├── terms-constructor.yml
+│   │   │   ├── text-lang-region.yml
+│   │   │   ├── text-lang-unknown-region.yml
+│   │   │   ├── text-lang.yml
+│   │   │   └── title.yml
+│   │   ├── render
+│   │   │   ├── align-center-in-flow.png
+│   │   │   ├── align-in-stack.png
+│   │   │   ├── align-right.png
+│   │   │   ├── align-start-and-end.png
+│   │   │   ├── array-basic-syntax.png
+│   │   │   ├── array-join-content.png
+│   │   │   ├── baseline-box.png
+│   │   │   ├── baseline-text.png
+│   │   │   ├── bibliography-basic.png
+│   │   │   ├── bibliography-before-content.png
+│   │   │   ├── bibliography-csl-display.png
+│   │   │   ├── bibliography-custom-title.png
+│   │   │   ├── bibliography-full.png
+│   │   │   ├── bibliography-grid-par.png
+│   │   │   ├── bibliography-indent-par.png
+│   │   │   ├── bibliography-math.png
+│   │   │   ├── bibliography-multiple-files.png
+│   │   │   ├── bibliography-no-title.png
+│   │   │   ├── bibliography-ordering.png
+│   │   │   ├── bidi-consecutive-embedded-ltr-runs.png
+│   │   │   ├── bidi-consecutive-embedded-rtl-runs.png
+│   │   │   ├── bidi-en-he-top-level.png
+│   │   │   ├── bidi-explicit-dir.png
+│   │   │   ├── bidi-manual-linebreak.png
+│   │   │   ├── bidi-nesting.png
+│   │   │   ├── bidi-obj.png
+│   │   │   ├── bidi-raw.png
+│   │   │   ├── bidi-spacing.png
+│   │   │   ├── bidi-whitespace-reset.png
+│   │   │   ├── block-box-fill.png
+│   │   │   ├── block-clipping-multiple-pages.png
+│   │   │   ├── block-clip-svg-glyphs.png
+│   │   │   ├── block-clip-text.png
+│   │   │   ├── block-consistent-width.png
+│   │   │   ├── block-fixed-height.png
+│   │   │   ├── block-fr-height-auto-width.png
+│   │   │   ├── block-fr-height-first-child.png
+│   │   │   ├── block-fr-height-multiple.png
+│   │   │   ├── block-fr-height.png
+│   │   │   ├── block-multiple-pages-empty.png
+│   │   │   ├── block-multiple-pages.png
+│   │   │   ├── block-sizing.png
+│   │   │   ├── block-spacing-basic.png
+│   │   │   ├── block-spacing-collapse-text-style.png
+│   │   │   ├── block-spacing-maximum.png
+│   │   │   ├── block-spacing-table.png
+│   │   │   ├── block-sticky-alone.png
+│   │   │   ├── block-sticky-breakable.png
+│   │   │   ├── block-sticky-colbreak.png
+│   │   │   ├── block-sticky-many.png
+│   │   │   ├── block-sticky.png
+│   │   │   ├── box-clip-outset.png
+│   │   │   ├── box-clip-radius.png
+│   │   │   ├── box-clip-radius-without-stroke.png
+│   │   │   ├── box-clip-rect.png
+│   │   │   ├── box-fr-width.png
+│   │   │   ├── box.png
+│   │   │   ├── call-basic.png
+│   │   │   ├── cases-content-symbol.png
+│   │   │   ├── cases-content-text.png
+│   │   │   ├── circle-auto-sizing.png
+│   │   │   ├── circle-beyond-page-width-overflows.png
+│   │   │   ├── circle-directly-in-rect.png
+│   │   │   ├── circle.png
+│   │   │   ├── circle-relative-sizing.png
+│   │   │   ├── circle-size-beyond-default.png
+│   │   │   ├── circle-sizing-options.png
+│   │   │   ├── cite-chicago-fullnotes-warning.png
+│   │   │   ├── cite-footnote.png
+│   │   │   ├── cite-form.png
+│   │   │   ├── cite-grouping-and-ordering.png
+│   │   │   ├── cite-group.png
+│   │   │   ├── cite-supplements-and-ibid.png
+│   │   │   ├── cjk-punctuation-adjustment-1.png
+│   │   │   ├── cjk-punctuation-adjustment-2.png
+│   │   │   ├── cjk-punctuation-adjustment-3.png
+│   │   │   ├── closure-capture-in-lvalue.png
+│   │   │   ├── closure-path-resolve-in-layout-phase.png
+│   │   │   ├── closure-without-params-non-atomic.png
+│   │   │   ├── code-block-basic-syntax.png
+│   │   │   ├── colbreak-weak.png
+│   │   │   ├── color-cmyk-ops.png
+│   │   │   ├── color-luma.png
+│   │   │   ├── color-outside-srgb-gamut.png
+│   │   │   ├── color-rotate-hue.png
+│   │   │   ├── color-saturation.png
+│   │   │   ├── color-spaces.png
+│   │   │   ├── columns-colbreak-after-place.png
+│   │   │   ├── columns-empty-second-column.png
+│   │   │   ├── columns-in-auto-sized-rect.png
+│   │   │   ├── columns-in-fixed-size-rect.png
+│   │   │   ├── columns-more-with-gutter.png
+│   │   │   ├── columns-one.png
+│   │   │   ├── columns-page-height-auto.png
+│   │   │   ├── columns-page-width-auto.png
+│   │   │   ├── columns-rtl.png
+│   │   │   ├── columns-set-page-colbreak-pagebreak.png
+│   │   │   ├── columns-set-page.png
+│   │   │   ├── coma.png
+│   │   │   ├── comment-end-of-line.png
+│   │   │   ├── comments.png
+│   │   │   ├── container-layoutable-child.png
+│   │   │   ├── content-field-materialized-heading.png
+│   │   │   ├── content-field-materialized-query.png
+│   │   │   ├── content-field-materialized-table.png
+│   │   │   ├── content-fields-complex.png
+│   │   │   ├── content-label-field-access.png
+│   │   │   ├── content-label-fields-method.png
+│   │   │   ├── content-label-has-method.png
+│   │   │   ├── context-body-is-closure.png
+│   │   │   ├── convergence-page.png
+│   │   │   ├── convergence-page-supplement.png
+│   │   │   ├── convergence-position.png
+│   │   │   ├── convergence-query-first-and-unique.png
+│   │   │   ├── convergence-query.png
+│   │   │   ├── costs-hyphenation-avoid.png
+│   │   │   ├── costs-runt-allow.png
+│   │   │   ├── costs-runt-avoid.png
+│   │   │   ├── costs-widow-orphan.png
+│   │   │   ├── counter-basic-1.png
+│   │   │   ├── counter-display-at.png
+│   │   │   ├── counter-display-matching-numbering-basic.png
+│   │   │   ├── counter-display-matching-numbering-fallback.png
+│   │   │   ├── counter-display-matching-numbering-full.png
+│   │   │   ├── counter-display-matching-numbering-page.png
+│   │   │   ├── counter-display-matching-numbering-wrong.png
+│   │   │   ├── counter-figure.png
+│   │   │   ├── counter-heading.png
+│   │   │   ├── counter-label.png
+│   │   │   ├── counter-page-between-pages.png
+│   │   │   ├── counter-page-footer-before-set-page.png
+│   │   │   ├── counter-page-footer-only-update.png
+│   │   │   ├── counter-page-header-before-set-page.png
+│   │   │   ├── counter-page-header-only-update.png
+│   │   │   ├── counter-page.png
+│   │   │   ├── counter-rtl.png
+│   │   │   ├── csv.png
+│   │   │   ├── curve-close-intersection.png
+│   │   │   ├── curve-close-smooth.png
+│   │   │   ├── curve-close-straight.png
+│   │   │   ├── curve-cubic-inflection.png
+│   │   │   ├── curve-cubic-mirror.png
+│   │   │   ├── curve-fill-rule.png
+│   │   │   ├── curve-line.png
+│   │   │   ├── curve-move-multiple-even-odd.png
+│   │   │   ├── curve-move-multiple-non-zero.png
+│   │   │   ├── curve-move-single.png
+│   │   │   ├── curve-multiple-non-closed.png
+│   │   │   ├── curve-quad-mirror.png
+│   │   │   ├── curve-stroke-gradient.png
+│   │   │   ├── curve-stroke-gradient-sharp.png
+│   │   │   ├── decimal-display.png
+│   │   │   ├── decimal-display-round.png
+│   │   │   ├── destructuring-during-loop-continue.png
+│   │   │   ├── dict-basic-syntax.png
+│   │   │   ├── document-set-after-content.png
+│   │   │   ├── document-set-title.png
+│   │   │   ├── ellipse-auto-sizing.png
+│   │   │   ├── ellipse.png
+│   │   │   ├── emph-and-strong-call-in-word.png
+│   │   │   ├── emph-double-underscore-empty-hint.png
+│   │   │   ├── emph-syntax.png
+│   │   │   ├── enum-array-deprecated.png
+│   │   │   ├── enum-built-in-loop.png
+│   │   │   ├── enum-function-call.png
+│   │   │   ├── enum-item-number-optional.png
+│   │   │   ├── enum-number-align-2d.png
+│   │   │   ├── enum-number-align-default.png
+│   │   │   ├── enum-number-align-specified.png
+│   │   │   ├── enum-number-align-unaffected.png
+│   │   │   ├── enum-number-align-unfolded.png
+│   │   │   ├── enum-numbering-closure-nested-complex.png
+│   │   │   ├── enum-numbering-closure-nested.png
+│   │   │   ├── enum-numbering-closure.png
+│   │   │   ├── enum-numbering-full.png
+│   │   │   ├── enum-numbering-huge.png
+│   │   │   ├── enum-numbering-pattern.png
+│   │   │   ├── enum-numbering-reversed-overridden.png
+│   │   │   ├── enum-numbering-reversed.png
+│   │   │   ├── enum-number-override-nested.png
+│   │   │   ├── enum-number-override.png
+│   │   │   ├── enum-par.png
+│   │   │   ├── enum-syntax-at-start.png
+│   │   │   ├── enum-syntax-edge-cases.png
+│   │   │   ├── enum-syntax-number-length.png
+│   │   │   ├── escape.png
+│   │   │   ├── eval-in-show-rule.png
+│   │   │   ├── eval-mode.png
+│   │   │   ├── eval-path-resolve-in-show-rule.png
+│   │   │   ├── eval-path-resolve.png
+│   │   │   ├── field-function.png
+│   │   │   ├── figure-align.png
+│   │   │   ├── figure-and-caption-show.png
+│   │   │   ├── figure-basic.png
+│   │   │   ├── figure-breakable.png
+│   │   │   ├── figure-caption-separator.png
+│   │   │   ├── figure-caption-show.png
+│   │   │   ├── figure-caption-where-selector.png
+│   │   │   ├── figure-localization-el.png
+│   │   │   ├── figure-localization-fr.png
+│   │   │   ├── figure-localization-ru.png
+│   │   │   ├── figure-localization-zh.png
+│   │   │   ├── figure-par.png
+│   │   │   ├── figure-placement.png
+│   │   │   ├── figure-table.png
+│   │   │   ├── figure-theorem.png
+│   │   │   ├── float-display.png
+│   │   │   ├── flow-first-region-counter-update-and-placed.png
+│   │   │   ├── flow-first-region-counter-update-placed-and-line.png
+│   │   │   ├── flow-first-region-counter-update.png
+│   │   │   ├── flow-first-region-no-item.png
+│   │   │   ├── flow-first-region-placed.png
+│   │   │   ├── flow-first-region-zero-sized-item.png
+│   │   │   ├── flow-fr.png
+│   │   │   ├── flow-heading-no-orphan.png
+│   │   │   ├── flow-par-no-orphan-and-widow-lines.png
+│   │   │   ├── flow-widow-forced.png
+│   │   │   ├── fold-vec-order-meta.png
+│   │   │   ├── fold-vec-order-text-decos.png
+│   │   │   ├── fold-vec-order-text-features.png
+│   │   │   ├── footnote-basic.png
+│   │   │   ├── footnote-block-at-end.png
+│   │   │   ├── footnote-block-fr.png
+│   │   │   ├── footnote-break-across-pages-block.png
+│   │   │   ├── footnote-break-across-pages-float.png
+│   │   │   ├── footnote-break-across-pages-nested.png
+│   │   │   ├── footnote-break-across-pages.png
+│   │   │   ├── footnote-duplicate.png
+│   │   │   ├── footnote-entry.png
+│   │   │   ├── footnote-float-priority.png
+│   │   │   ├── footnote-in-caption.png
+│   │   │   ├── footnote-in-columns.png
+│   │   │   ├── footnote-in-list.png
+│   │   │   ├── footnote-in-place.png
+│   │   │   ├── footnote-in-table.png
+│   │   │   ├── footnote-invariant.png
+│   │   │   ├── footnote-multiple-in-one-line.png
+│   │   │   ├── footnote-nested-break-across-pages.png
+│   │   │   ├── footnote-nested.png
+│   │   │   ├── footnote-ref-call.png
+│   │   │   ├── footnote-ref-forward.png
+│   │   │   ├── footnote-ref-in-footnote.png
+│   │   │   ├── footnote-ref-multiple.png
+│   │   │   ├── footnote-ref.png
+│   │   │   ├── footnote-space-collapsing.png
+│   │   │   ├── footnote-styling.png
+│   │   │   ├── for-loop-basic.png
+│   │   │   ├── gradient-angle-rotation-aspect.png
+│   │   │   ├── gradient-conic-angled.png
+│   │   │   ├── gradient-conic-center-shifted-1.png
+│   │   │   ├── gradient-conic-center-shifted-2.png
+│   │   │   ├── gradient-conic-hsl.png
+│   │   │   ├── gradient-conic-hsv.png
+│   │   │   ├── gradient-conic-oklab.png
+│   │   │   ├── gradient-conic-oklch.png
+│   │   │   ├── gradient-conic.png
+│   │   │   ├── gradient-conic-relative-parent.png
+│   │   │   ├── gradient-conic-relative-self.png
+│   │   │   ├── gradient-conic-stroke.png
+│   │   │   ├── gradient-conic-text.png
+│   │   │   ├── gradient-fill-and-stroke.png
+│   │   │   ├── gradient-linear-angled.png
+│   │   │   ├── gradient-linear-hsl.png
+│   │   │   ├── gradient-linear-hsv.png
+│   │   │   ├── gradient-linear-line.png
+│   │   │   ├── gradient-linear-oklab.png
+│   │   │   ├── gradient-linear-oklch.png
+│   │   │   ├── gradient-linear-relative-parent-block.png
+│   │   │   ├── gradient-linear-relative-parent.png
+│   │   │   ├── gradient-linear-relative-self.png
+│   │   │   ├── gradient-linear-repeat-and-mirror-1.png
+│   │   │   ├── gradient-linear-repeat-and-mirror-2.png
+│   │   │   ├── gradient-linear-repeat-and-mirror-3.png
+│   │   │   ├── gradient-linear-sharp-and-repeat.png
+│   │   │   ├── gradient-linear-sharp-and-smooth.png
+│   │   │   ├── gradient-linear-sharp.png
+│   │   │   ├── gradient-linear-sharp-repeat-and-mirror.png
+│   │   │   ├── gradient-linear-stroke.png
+│   │   │   ├── gradient-linear-stroke-relative-parent.png
+│   │   │   ├── gradient-math-cancel.png
+│   │   │   ├── gradient-math-conic.png
+│   │   │   ├── gradient-math-dir.png
+│   │   │   ├── gradient-math-frac.png
+│   │   │   ├── gradient-math-mat.png
+│   │   │   ├── gradient-math-misc.png
+│   │   │   ├── gradient-math-radial.png
+│   │   │   ├── gradient-math-root.png
+│   │   │   ├── gradient-math-underover.png
+│   │   │   ├── gradient-negative-square-angles.png
+│   │   │   ├── gradient-presets.png
+│   │   │   ├── gradient-radial-center.png
+│   │   │   ├── gradient-radial-focal-center-and-radius.png
+│   │   │   ├── gradient-radial-hsl.png
+│   │   │   ├── gradient-radial-radius.png
+│   │   │   ├── gradient-radial-relative-parent.png
+│   │   │   ├── gradient-radial-relative-self.png
+│   │   │   ├── gradient-radial-text.png
+│   │   │   ├── gradient-text-decoration.png
+│   │   │   ├── gradient-text-dir.png
+│   │   │   ├── gradient-text-global.png
+│   │   │   ├── gradient-text-in-container.png
+│   │   │   ├── gradient-text-rotate.png
+│   │   │   ├── gradient-transformed.png
+│   │   │   ├── grid-align.png
+│   │   │   ├── grid-auto-shrink.png
+│   │   │   ├── grid-breaking-expand-vertically.png
+│   │   │   ├── grid-calendar.png
+│   │   │   ├── grid-cell-align-override.png
+│   │   │   ├── grid-cell-breaking.png
+│   │   │   ├── grid-cell-folding.png
+│   │   │   ├── grid-cell-override-in-header-and-footer.png
+│   │   │   ├── grid-cell-override-in-header-and-footer-with-gutter.png
+│   │   │   ├── grid-cell-override.png
+│   │   │   ├── grid-cell-position-automatic-skip-manual.png
+│   │   │   ├── grid-cell-position-extra-rows.png
+│   │   │   ├── grid-cell-position-out-of-order.png
+│   │   │   ├── grid-cell-position-partial.png
+│   │   │   ├── grid-cell-set.png
+│   │   │   ├── grid-cell-show-and-override.png
+│   │   │   ├── grid-cell-show-based-on-position.png
+│   │   │   ├── grid-cell-show-emph.png
+│   │   │   ├── grid-cell-show.png
+│   │   │   ├── grid-cell-show-x-y.png
+│   │   │   ├── grid-cell-various-overrides.png
+│   │   │   ├── grid-colspan-gutter.png
+│   │   │   ├── grid-colspan-multiple-regions.png
+│   │   │   ├── grid-colspan-over-all-fr-columns-page-width-auto.png
+│   │   │   ├── grid-colspan-over-all-fr-columns.png
+│   │   │   ├── grid-colspan-over-some-fr-columns.png
+│   │   │   ├── grid-colspan.png
+│   │   │   ├── grid-colspan-thick-stroke.png
+│   │   │   ├── grid-column-sizing-auto-base.png
+│   │   │   ├── grid-column-sizing-fr-base.png
+│   │   │   ├── grid-column-sizing-mixed-base.png
+│   │   │   ├── grid-columns-sizings-rect.png
+│   │   │   ├── grid-complete-rows.png
+│   │   │   ├── grid-consecutive-rows-breaking.png
+│   │   │   ├── grid-exam.png
+│   │   │   ├── grid-fill-func.png
+│   │   │   ├── grid-finance.png
+│   │   │   ├── grid-footer-bare-1.png
+│   │   │   ├── grid-footer-bare-2.png
+│   │   │   ├── grid-footer-below-rowspans.png
+│   │   │   ├── grid-footer-cell-with-y.png
+│   │   │   ├── grid-footer-gutter-and-no-repeat.png
+│   │   │   ├── grid-footer-hline-and-vline-1.png
+│   │   │   ├── grid-footer-hline-and-vline-2.png
+│   │   │   ├── grid-footer-moved-to-bottom-of-rowspans.png
+│   │   │   ├── grid-footer-non-repeatable-unbreakable.png
+│   │   │   ├── grid-footer.png
+│   │   │   ├── grid-footer-relative-row-sizes.png
+│   │   │   ├── grid-footer-repeatable-unbreakable.png
+│   │   │   ├── grid-footer-rowbreak-line.png
+│   │   │   ├── grid-footer-rowspan.png
+│   │   │   ├── grid-footer-stroke-edge-cases.png
+│   │   │   ├── grid-footer-top-hlines-with-only-row-pos-cell.png
+│   │   │   ├── grid-footer-top-hlines-with-row-and-auto-pos-cell.png
+│   │   │   ├── grid-footer-top-stroke.png
+│   │   │   ├── grid-funcs-gutter.png
+│   │   │   ├── grid-gutter-fr.png
+│   │   │   ├── grid-header-and-footer-containing-rowspan.png
+│   │   │   ├── grid-header-and-footer-empty.png
+│   │   │   ├── grid-header-and-footer-lack-of-space.png
+│   │   │   ├── grid-header-and-footer-orphan-prevention.png
+│   │   │   ├── grid-header-and-large-auto-contiguous.png
+│   │   │   ├── grid-header-and-rowspan-contiguous-1.png
+│   │   │   ├── grid-header-and-rowspan-contiguous-2.png
+│   │   │   ├── grid-header-and-rowspan-non-contiguous-1.png
+│   │   │   ├── grid-header-and-rowspan-non-contiguous-2.png
+│   │   │   ├── grid-header-and-rowspan-non-contiguous-3.png
+│   │   │   ├── grid-header-block-with-fixed-height.png
+│   │   │   ├── grid-header-cell-with-x.png
+│   │   │   ├── grid-header-cell-with-y.png
+│   │   │   ├── grid-header-containing-rowspan.png
+│   │   │   ├── grid-header-empty.png
+│   │   │   ├── grid-header-footer-and-rowspan-non-contiguous-1.png
+│   │   │   ├── grid-header-footer-and-rowspan-non-contiguous-2.png
+│   │   │   ├── grid-header-footer-block-with-fixed-height.png
+│   │   │   ├── grid-header-hline-and-vline.png
+│   │   │   ├── grid-header-hline-bottom-manually.png
+│   │   │   ├── grid-header-hline-bottom.png
+│   │   │   ├── grid-header-lack-of-space.png
+│   │   │   ├── grid-header-last-child.png
+│   │   │   ├── grid-header-multiple.png
+│   │   │   ├── grid-header-multiple-unordered.png
+│   │   │   ├── grid-header-nested.png
+│   │   │   ├── grid-header-non-repeating-orphan-prevention.png
+│   │   │   ├── grid-header-not-at-first-row.png
+│   │   │   ├── grid-header-not-at-first-row-two-columns.png
+│   │   │   ├── grid-header-not-at-the-top.png
+│   │   │   ├── grid-header-orphan-prevention.png
+│   │   │   ├── grid-header-relative-row-sizes.png
+│   │   │   ├── grid-header-replace-doesnt-fit.png
+│   │   │   ├── grid-header-replace-orphan.png
+│   │   │   ├── grid-header-replace.png
+│   │   │   ├── grid-header-rowbreak-auto-and-fixed-pos.png
+│   │   │   ├── grid-header-rowbreak-auto-pos.png
+│   │   │   ├── grid-header-rowbreak-fixed-pos.png
+│   │   │   ├── grid-header-rowbreak-mixed-pos.png
+│   │   │   ├── grid-header-rowspan-base.png
+│   │   │   ├── grid-headers-gutter.png
+│   │   │   ├── grid-header-skip.png
+│   │   │   ├── grid-header-skip-unordered.png
+│   │   │   ├── grid-headers-no-repeat.png
+│   │   │   ├── grid-headers.png
+│   │   │   ├── grid-header-stroke-edge-cases.png
+│   │   │   ├── grid-header-too-large-non-repeating-orphan.png
+│   │   │   ├── grid-header-too-large-repeating-orphan-not-at-first-row.png
+│   │   │   ├── grid-header-too-large-repeating-orphan.png
+│   │   │   ├── grid-header-too-large-repeating-orphan-with-footer.png
+│   │   │   ├── grid-inset-folding.png
+│   │   │   ├── grid-inset.png
+│   │   │   ├── grid-nested-breaking.png
+│   │   │   ├── grid-nested-footers.png
+│   │   │   ├── grid-nested-headers.png
+│   │   │   ├── grid-nested-with-footers.png
+│   │   │   ├── grid-nested-with-headers.png
+│   │   │   ├── grid-row-sizing-manual-align.png
+│   │   │   ├── grid-rowspan-block-full-height.png
+│   │   │   ├── grid-rowspan-block-overflow.png
+│   │   │   ├── grid-rowspan-cell-coordinates.png
+│   │   │   ├── grid-rowspan-cell-order.png
+│   │   │   ├── grid-rowspan-excessive-gutter.png
+│   │   │   ├── grid-rowspan-excessive.png
+│   │   │   ├── grid-rowspan-fixed-size.png
+│   │   │   ├── grid-rowspan-gutter.png
+│   │   │   ├── grid-rowspan-in-all-columns-stroke-gutter.png
+│   │   │   ├── grid-rowspan-in-all-columns-stroke.png
+│   │   │   ├── grid-rowspan-over-auto-row.png
+│   │   │   ├── grid-rowspan-over-fr-row-at-end.png
+│   │   │   ├── grid-rowspan-over-fr-row-at-start.png
+│   │   │   ├── grid-rowspan.png
+│   │   │   ├── grid-rowspan-split-10.png
+│   │   │   ├── grid-rowspan-split-11.png
+│   │   │   ├── grid-rowspan-split-12.png
+│   │   │   ├── grid-rowspan-split-13.png
+│   │   │   ├── grid-rowspan-split-14.png
+│   │   │   ├── grid-rowspan-split-15.png
+│   │   │   ├── grid-rowspan-split-16.png
+│   │   │   ├── grid-rowspan-split-17.png
+│   │   │   ├── grid-rowspan-split-1.png
+│   │   │   ├── grid-rowspan-split-2.png
+│   │   │   ├── grid-rowspan-split-3.png
+│   │   │   ├── grid-rowspan-split-4.png
+│   │   │   ├── grid-rowspan-split-5.png
+│   │   │   ├── grid-rowspan-split-6.png
+│   │   │   ├── grid-rowspan-split-7.png
+│   │   │   ├── grid-rowspan-split-8.png
+│   │   │   ├── grid-rowspan-split-9.png
+│   │   │   ├── grid-rowspan-unbreakable-1.png
+│   │   │   ├── grid-rowspan-unbreakable-2.png
+│   │   │   ├── grid-rtl-colspan.png
+│   │   │   ├── grid-rtl-colspan-stroke.png
+│   │   │   ├── grid-rtl-complex.png
+│   │   │   ├── grid-rtl-counter.png
+│   │   │   ├── grid-rtl-header.png
+│   │   │   ├── grid-rtl-multiple-regions.png
+│   │   │   ├── grid-rtl.png
+│   │   │   ├── grid-rtl-rowspan-counter-equal.png
+│   │   │   ├── grid-rtl-rowspan-counter-mixed-1.png
+│   │   │   ├── grid-rtl-rowspan-counter-mixed-2.png
+│   │   │   ├── grid-rtl-rowspan-counter-unequal-1.png
+│   │   │   ├── grid-rtl-rowspan-counter-unequal-2.png
+│   │   │   ├── grid-rtl-rowspan.png
+│   │   │   ├── grid-rtl-vline-position.png
+│   │   │   ├── grid-same-row-multiple-columns-breaking.png
+│   │   │   ├── grid-stroke-array.png
+│   │   │   ├── grid-stroke-automatically-positioned-lines.png
+│   │   │   ├── grid-stroke-border-partial.png
+│   │   │   ├── grid-stroke-complex.png
+│   │   │   ├── grid-stroke-field-in-show.png
+│   │   │   ├── grid-stroke-folding.png
+│   │   │   ├── grid-stroke-func.png
+│   │   │   ├── grid-stroke-hline-position-bottom-gutter.png
+│   │   │   ├── grid-stroke-hline-position-bottom.png
+│   │   │   ├── grid-stroke-hline-rowspan.png
+│   │   │   ├── grid-stroke-manually-positioned-lines.png
+│   │   │   ├── grid-stroke-none.png
+│   │   │   ├── grid-stroke-priority-cell.png
+│   │   │   ├── grid-stroke-priority-line-cell.png
+│   │   │   ├── grid-stroke-priority-line.png
+│   │   │   ├── grid-stroke-set-on-cell-and-line.png
+│   │   │   ├── grid-stroke-tiling.png
+│   │   │   ├── grid-stroke-vline-colspan.png
+│   │   │   ├── grid-stroke-vline-position-left-and-right.png
+│   │   │   ├── grid-subheaders-alone-no-orphan-prevention.png
+│   │   │   ├── grid-subheaders-alone.png
+│   │   │   ├── grid-subheaders-alone-with-footer-no-orphan-prevention.png
+│   │   │   ├── grid-subheaders-alone-with-footer.png
+│   │   │   ├── grid-subheaders-alone-with-gutter-and-footer-no-orphan-prevention.png
+│   │   │   ├── grid-subheaders-alone-with-gutter-no-orphan-prevention.png
+│   │   │   ├── grid-subheaders-basic-non-consecutive.png
+│   │   │   ├── grid-subheaders-basic-non-consecutive-with-footer.png
+│   │   │   ├── grid-subheaders-basic.png
+│   │   │   ├── grid-subheaders-basic-replace.png
+│   │   │   ├── grid-subheaders-basic-with-footer.png
+│   │   │   ├── grid-subheaders-colorful.png
+│   │   │   ├── grid-subheaders-demo.png
+│   │   │   ├── grid-subheaders-multi-page-row.png
+│   │   │   ├── grid-subheaders-multi-page-row-right-after.png
+│   │   │   ├── grid-subheaders-multi-page-row-right-after-with-footer.png
+│   │   │   ├── grid-subheaders-multi-page-rowspan-gutter.png
+│   │   │   ├── grid-subheaders-multi-page-rowspan.png
+│   │   │   ├── grid-subheaders-multi-page-rowspan-right-after.png
+│   │   │   ├── grid-subheaders-multi-page-rowspan-with-footer.png
+│   │   │   ├── grid-subheaders-multi-page-row-with-footer.png
+│   │   │   ├── grid-subheaders-non-repeating-header-before-multi-page-row.png
+│   │   │   ├── grid-subheaders-non-repeating-orphan-prevention.png
+│   │   │   ├── grid-subheaders-non-repeating-replace-didnt-fit-once.png
+│   │   │   ├── grid-subheaders-non-repeating-replace-orphan.png
+│   │   │   ├── grid-subheaders-non-repeat.png
+│   │   │   ├── grid-subheaders-non-repeat-replace.png
+│   │   │   ├── grid-subheaders-repeat-gutter.png
+│   │   │   ├── grid-subheaders-repeating-orphan-prevention.png
+│   │   │   ├── grid-subheaders-repeat-non-consecutive.png
+│   │   │   ├── grid-subheaders-repeat.png
+│   │   │   ├── grid-subheaders-repeat-replace-didnt-fit-once.png
+│   │   │   ├── grid-subheaders-repeat-replace-double-orphan.png
+│   │   │   ├── grid-subheaders-repeat-replace-gutter-orphan-at-child.png
+│   │   │   ├── grid-subheaders-repeat-replace-gutter-orphan-at-gutter.png
+│   │   │   ├── grid-subheaders-repeat-replace-gutter.png
+│   │   │   ├── grid-subheaders-repeat-replace-multiple-levels.png
+│   │   │   ├── grid-subheaders-repeat-replace-orphan.png
+│   │   │   ├── grid-subheaders-repeat-replace.png
+│   │   │   ├── grid-subheaders-repeat-replace-short-lived.png
+│   │   │   ├── grid-subheaders-repeat-replace-with-footer-orphan.png
+│   │   │   ├── grid-subheaders-repeat-replace-with-footer.png
+│   │   │   ├── grid-subheaders-repeat-short-lived-also-replaces.png
+│   │   │   ├── grid-subheaders-repeat-with-footer.png
+│   │   │   ├── grid-subheaders-short-lived-no-orphan-prevention.png
+│   │   │   ├── grid-subheaders-too-large-non-repeating-orphan-before-auto.png
+│   │   │   ├── grid-subheaders-too-large-non-repeating-orphan-before-relative.png
+│   │   │   ├── grid-subheaders-too-large-repeating-orphan-before-auto.png
+│   │   │   ├── grid-subheaders-too-large-repeating-orphan-before-relative.png
+│   │   │   ├── grid-trailing-linebreak-region-overflow.png
+│   │   │   ├── heading-basic.png
+│   │   │   ├── heading-block.png
+│   │   │   ├── heading-hanging-indent-auto-center-align.png
+│   │   │   ├── heading-hanging-indent-auto.png
+│   │   │   ├── heading-hanging-indent-length.png
+│   │   │   ├── heading-hanging-indent-zero.png
+│   │   │   ├── heading-offset-and-level.png
+│   │   │   ├── heading-offset.png
+│   │   │   ├── heading-par.png
+│   │   │   ├── heading-show-where.png
+│   │   │   ├── heading-syntax-at-start.png
+│   │   │   ├── heading-syntax-edge-cases.png
+│   │   │   ├── hide-image.png
+│   │   │   ├── hide-line.png
+│   │   │   ├── hide-list.png
+│   │   │   ├── hide-polygon.png
+│   │   │   ├── hide-rect.png
+│   │   │   ├── hide-table.png
+│   │   │   ├── hide-text.png
+│   │   │   ├── highlight-bounds.png
+│   │   │   ├── highlight-edges-bounds.png
+│   │   │   ├── highlight-edges.png
+│   │   │   ├── highlight.png
+│   │   │   ├── highlight-radius.png
+│   │   │   ├── highlight-stroke.png
+│   │   │   ├── html-frame-in-layout.png
+│   │   │   ├── hyphenate-between-shape-runs.png
+│   │   │   ├── hyphenate-es-capitalized-names.png
+│   │   │   ├── hyphenate-es-repeat-hyphen.png
+│   │   │   ├── hyphenate-off-temporarily.png
+│   │   │   ├── hyphenate-outside-of-words.png
+│   │   │   ├── hyphenate.png
+│   │   │   ├── hyphenate-pt-dash-emphasis.png
+│   │   │   ├── hyphenate-pt-no-repeat-hyphen.png
+│   │   │   ├── hyphenate-pt-repeat-hyphen-hyphenate-true.png
+│   │   │   ├── hyphenate-pt-repeat-hyphen-hyphenate-true-with-emphasis.png
+│   │   │   ├── hyphenate-pt-repeat-hyphen-natural-word-breaking.png
+│   │   │   ├── hyphenate-punctuation.png
+│   │   │   ├── hyphenate-repeat-style.png
+│   │   │   ├── hyphenate-shy.png
+│   │   │   ├── if-condition-complex.png
+│   │   │   ├── if-markup.png
+│   │   │   ├── image-baseline-with-box.png
+│   │   │   ├── image-decode-detect-format.png
+│   │   │   ├── image-decode-specify-format.png
+│   │   │   ├── image-decode-svg.png
+│   │   │   ├── image-exif-rotation.png
+│   │   │   ├── image-fit.png
+│   │   │   ├── image-jpg.png
+│   │   │   ├── image-jump-to-next-page.png
+│   │   │   ├── image-natural-dpi-sizing.png
+│   │   │   ├── image-pdf-base14-fonts.png
+│   │   │   ├── image-pdf-basic.png
+│   │   │   ├── image-pdf-complex.png
+│   │   │   ├── image-pdf-multiple-pages.png
+│   │   │   ├── image-pixmap-luma8.png
+│   │   │   ├── image-pixmap-lumaa8.png
+│   │   │   ├── image-pixmap-rgb8.png
+│   │   │   ├── image-pixmap-rgba8.png
+│   │   │   ├── image-png.png
+│   │   │   ├── image-scaling-methods.png
+│   │   │   ├── image-sizing.png
+│   │   │   ├── image-svg-auto-detection.png
+│   │   │   ├── image-svg-complex.png
+│   │   │   ├── image-svg-linked-jpg1.png
+│   │   │   ├── image-svg-linked-jpg2.png
+│   │   │   ├── image-svg-linked-many-formats.png
+│   │   │   ├── image-svg-text-font.png
+│   │   │   ├── image-svg-text.png
+│   │   │   ├── import-basic.png
+│   │   │   ├── import-from-function-scope.png
+│   │   │   ├── import-source-field-access.png
+│   │   │   ├── include-file.png
+│   │   │   ├── include-path.png
+│   │   │   ├── int-display.png
+│   │   │   ├── issue-1041-smartquotes-in-outline.png
+│   │   │   ├── issue-1050-terms-indent.png
+│   │   │   ├── issue-1052-math-number-spacing.png
+│   │   │   ├── issue-1216-clamp-panic.png
+│   │   │   ├── issue-1240-stack-h-fr.png
+│   │   │   ├── issue-1240-stack-v-fr.png
+│   │   │   ├── issue-1368-place-pagebreak.png
+│   │   │   ├── issue-1373-bidi-tofus.png
+│   │   │   ├── issue-1388-table-row-missing.png
+│   │   │   ├── issue-1398-line-align.png
+│   │   │   ├── issue-1433-footnote-in-list.png
+│   │   │   ├── issue-1445-widow-orphan-unnecessary-skip.png
+│   │   │   ├── issue-1540-smartquotes-across-newlines.png
+│   │   │   ├── issue-1597-cite-footnote.png
+│   │   │   ├── issue-1617-mat-align.png
+│   │   │   ├── issue-1825-rect-overflow.png
+│   │   │   ├── issue-1833-locate-place.png
+│   │   │   ├── issue-183-table-lines.png
+│   │   │   ├── issue-1850-list-attach-spacing.png
+│   │   │   ├── issue-1886-locate-after-metadata.png
+│   │   │   ├── issue-1948-math-text-break.png
+│   │   │   ├── issue-2044-invalid-parsed-ident.png
+│   │   │   ├── issue-2048-outline-multiline.png
+│   │   │   ├── issue-2051-new-cm-svg.png
+│   │   │   ├── issue-2055-math-eval.png
+│   │   │   ├── issue-2095-pagebreak-numbering.png
+│   │   │   ├── issue-2105-linebreak-tofu.png
+│   │   │   ├── issue-2128-block-width-box.png
+│   │   │   ├── issue-2134-pagebreak-bibliography.png
+│   │   │   ├── issue-2162-pagebreak-set-style.png
+│   │   │   ├── issue-2199-place-spacing-bottom.png
+│   │   │   ├── issue-2199-place-spacing-default.png
+│   │   │   ├── issue-2213-align-fr.png
+│   │   │   ├── issue-2214-baseline-math.png
+│   │   │   ├── issue-2259-raw-color-overwrite.png
+│   │   │   ├── issue-2268-mat-augment-color.png
+│   │   │   ├── issue-2326-context-set-page.png
+│   │   │   ├── issue-2419-justify-hanging-indent.png
+│   │   │   ├── issue-2480-counter-reset-2.png
+│   │   │   ├── issue-2480-counter-reset.png
+│   │   │   ├── issue-2530-enum-item-panic.png
+│   │   │   ├── issue-2530-figure-caption-panic.png
+│   │   │   ├── issue-2530-list-item-panic.png
+│   │   │   ├── issue-2530-term-item-panic.png
+│   │   │   ├── issue-2531-cite-show-set.png
+│   │   │   ├── issue-2538-cjk-latin-spacing-before-linebreak.png
+│   │   │   ├── issue-2595-float-overlap.png
+│   │   │   ├── issue-2631-page-header-ordering.png
+│   │   │   ├── issue-2650-cjk-latin-spacing-meta.png
+│   │   │   ├── issue-2841-pagebreak-to-weak.png
+│   │   │   ├── issue-2902-gradient-oklab-panic.png
+│   │   │   ├── issue-2902-gradient-oklch-panic.png
+│   │   │   ├── issue-2914-block-fill-skip-nested.png
+│   │   │   ├── issue-2914-block-height-cut-off.png
+│   │   │   ├── issue-3082-chinese-punctuation.png
+│   │   │   ├── issue-3191-raw-justify.png
+│   │   │   ├── issue-3191-raw-normal-paragraphs-still-shrink.png
+│   │   │   ├── issue-3232-dict-empty.png
+│   │   │   ├── issue-3264-rect-negative-dimensions.png
+│   │   │   ├── issue-3355-metadata-weak-spacing.png
+│   │   │   ├── issue-3363-json-large-number.png
+│   │   │   ├── issue-3481-cite-location.png
+│   │   │   ├── issue-3586-figure-caption-separator.png
+│   │   │   ├── issue-3601-empty-raw.png
+│   │   │   ├── issue-3624-spacing-behaviour.png
+│   │   │   ├── issue-3641-float-loop.png
+│   │   │   ├── issue-3650-italic-equation.png
+│   │   │   ├── issue-3658-math-size.png
+│   │   │   ├── issue-3662-pdf-smartquotes.png
+│   │   │   ├── issue-3696-equation-rtl.png
+│   │   │   ├── issue-3699-cite-twice-et-al.png
+│   │   │   ├── issue-3700-deformed-stroke.png
+│   │   │   ├── issue-3726-query-show-set.png
+│   │   │   ├── issue-3733-dpi-svg.png
+│   │   │   ├── issue-3774-math-call-empty-2d-args.png
+│   │   │   ├── issue-3820-raw-space-when-end-with-backtick.png
+│   │   │   ├── issue-3841-tabs-in-raw-type-code.png
+│   │   │   ├── issue-3866-block-migration.png
+│   │   │   ├── issue-3973-math-equation-align.png
+│   │   │   ├── issue-4029-locate-after-pagebreak.png
+│   │   │   ├── issue-4029-locate-after-par-and-pagebreak.png
+│   │   │   ├── issue-4029-locate-after-spacing.png
+│   │   │   ├── issue-4087.png
+│   │   │   ├── issue-4187-alignment-point-affects-row-height.png
+│   │   │   ├── issue-4188-lr-corner-brackets.png
+│   │   │   ├── issue-4278-par-trim-before-equation.png
+│   │   │   ├── issue-4340-set-document-and-page.png
+│   │   │   ├── issue-4361-transparency-leak.png
+│   │   │   ├── issue-4363-set-page-after-tag.png
+│   │   │   ├── issue-4454-footnote-ref-numbering.png
+│   │   │   ├── issue-4468-linebreak-thai.png
+│   │   │   ├── issue-4476-outline-rtl-title-ending-in-ltr-text.png
+│   │   │   ├── issue-4618-bibliography-set-heading-level.png
+│   │   │   ├── issue-4651-justify-bad-bound.png
+│   │   │   ├── issue-4662-math-mode-language-for-raw.png
+│   │   │   ├── issue-4828-math-number-multi-char.png
+│   │   │   ├── issue-4829-math-pagebreaking-wrong-number.png
+│   │   │   ├── issue-4859-outline-entry-show-set.png
+│   │   │   ├── issue-4938-par-bad-ratio.png
+│   │   │   ├── issue-4966-figure-float-counter.png
+│   │   │   ├── issue-4985-up-tack-is-normal-perp-is-relation.png
+│   │   │   ├── issue-5014-show-text-tags.png
+│   │   │   ├── issue-5024-spill-backlog.png
+│   │   │   ├── issue-5044-pad-100-percent.png
+│   │   │   ├── issue-5146-smartquotes-after-equations.png
+│   │   │   ├── issue-5160-unbreakable-pad.png
+│   │   │   ├── issue-5176-outline-cjk-title.png
+│   │   │   ├── issue-5235-linebreak-optimized-without-justify.png
+│   │   │   ├── issue-5244-consecutive-weak-space-heading.png
+│   │   │   ├── issue-5244-consecutive-weak-space.png
+│   │   │   ├── issue-5253-consecutive-weak-space-math.png
+│   │   │   ├── issue-5256-multiple-footnotes-in-footnote.png
+│   │   │   ├── issue-5262-block-negative-height-implicit.png
+│   │   │   ├── issue-5262-block-negative-height-in-flow.png
+│   │   │   ├── issue-5262-block-negative-height.png
+│   │   │   ├── issue-5262-text-negative-size.png
+│   │   │   ├── issue-5276-shaping-consecutive-ltr-with-lang.png
+│   │   │   ├── issue-5296-block-sticky-in-block-at-top.png
+│   │   │   ├── issue-5296-block-sticky-spaced-from-top-of-page.png
+│   │   │   ├── issue-5296-block-sticky-weakly-spaced-from-top-of-page.png
+│   │   │   ├── issue-5354-footnote-empty-frame-infinite-loop.png
+│   │   │   ├── issue-5359-column-override-stays-inside-footer.png
+│   │   │   ├── issue-5359-column-override-stays-inside-header.png
+│   │   │   ├── issue-5360-unnecessary-hyphenation.png
+│   │   │   ├── issue-5435-footnote-migration-in-floats.png
+│   │   │   ├── issue-5489-matrix-stray-linebreak.png
+│   │   │   ├── issue-5490-bidi-invalid-range-2.png
+│   │   │   ├── issue-5490-bidi-invalid-range.png
+│   │   │   ├── issue-5496-footnote-in-float-never-fits.png
+│   │   │   ├── issue-5496-footnote-never-fits-multiple.png
+│   │   │   ├── issue-5496-footnote-never-fits.png
+│   │   │   ├── issue-5496-footnote-separator-never-fits.png
+│   │   │   ├── issue-5499-text-fill-in-clip-block.png
+│   │   │   ├── issue-5503-cite-group-interrupted-by-par-align.png
+│   │   │   ├── issue-5503-cite-in-align.png
+│   │   │   ├── issue-5503-enum-in-align.png
+│   │   │   ├── issue-5503-list-in-align.png
+│   │   │   ├── issue-5503-terms-in-align.png
+│   │   │   ├── issue-5536-quote-inline-quotes-false.png
+│   │   │   ├── issue-5719-enum-nested.png
+│   │   │   ├── issue-5719-heading-nested.png
+│   │   │   ├── issue-5719-list-nested.png
+│   │   │   ├── issue-5719-terms-nested.png
+│   │   │   ├── issue-5723-grid-heading-numbering.png
+│   │   │   ├── issue-5760-disable-cjk-latin-spacing-in-raw.png
+│   │   │   ├── issue-5775-cite-order-rtl.png
+│   │   │   ├── issue-5831-par-constructor-args.png
+│   │   │   ├── issue-5930-symbol-label.png
+│   │   │   ├── issue-5940-text-negative-size-panic.png
+│   │   │   ├── issue-6062-justify-cjk-latin-spacing.png
+│   │   │   ├── issue-6090-math-overhang.png
+│   │   │   ├── issue-6125-block-place-width-limited.png
+│   │   │   ├── issue-6162-coincident-gradient-stops-export-png.png
+│   │   │   ├── issue-6170-equation-stroke.png
+│   │   │   ├── issue-622-hide-meta-cite.png
+│   │   │   ├── issue-622-hide-meta-outline.png
+│   │   │   ├── issue-6242-tight-list-attach-spacing.png
+│   │   │   ├── issue-6267-clip-anti-alias.png
+│   │   │   ├── issue-6304-block-skip-label.png
+│   │   │   ├── issue-6399-grid-cell-colspan-set-rule.png
+│   │   │   ├── issue-6399-grid-cell-rowspan-set-rule.png
+│   │   │   ├── issue-6539-cjk-latin-spacing-at-manual-linebreak.png
+│   │   │   ├── issue-6597-gradient-angle-negative-size.png
+│   │   │   ├── issue-6666-auto-hlines-around-footer.png
+│   │   │   ├── issue-6666-auto-hlines-around-header.png
+│   │   │   ├── issue-6680-gradient-linear-with-aspect-correction.png
+│   │   │   ├── issue-6869-image-zero-sized.png
+│   │   │   ├── issue-6961-tab-crlf-raw-indent.png
+│   │   │   ├── issue-7103-wrong-state-calculation.png
+│   │   │   ├── issue-7113-cjk-latin-spacing-shift.png
+│   │   │   ├── issue-7178-svg-fallback-deadlock.png
+│   │   │   ├── issue-7188-grid-counter-order.png
+│   │   │   ├── issue-7249-multiple-lookup-tables.png
+│   │   │   ├── issue-7292-page-height-auto-margin-zero.png
+│   │   │   ├── issue-7292-page-size-auto-margin-zero.png
+│   │   │   ├── issue-7292-page-width-auto-margin-zero.png
+│   │   │   ├── issue-7398-grid-line-end-oob.png
+│   │   │   ├── issue-7428-heading-numbering-errors.png
+│   │   │   ├── issue-7437-math-accent-text-presentation.png
+│   │   │   ├── issue-758-link-repeat.png
+│   │   │   ├── issue-785-cite-locate.png
+│   │   │   ├── issue-80-emoji-linebreak.png
+│   │   │   ├── issue-852-mat-type.png
+│   │   │   ├── issue-886-args-sink.png
+│   │   │   ├── issue-color-mix-luma.png
+│   │   │   ├── issue-columns-heading.png
+│   │   │   ├── issue-curve-in-sized-container.png
+│   │   │   ├── issue-flow-frame-placement.png
+│   │   │   ├── issue-flow-layout-index-out-of-bounds.png
+│   │   │   ├── issue-flow-overlarge-frames.png
+│   │   │   ├── issue-flow-trailing-leading.png
+│   │   │   ├── issue-flow-weak-spacing.png
+│   │   │   ├── issue-footnotes-skip-first-page.png
+│   │   │   ├── issue-gradient-cmyk-encode.png
+│   │   │   ├── issue-grid-base-auto-row-list.png
+│   │   │   ├── issue-grid-base-auto-row.png
+│   │   │   ├── issue-grid-double-skip.png
+│   │   │   ├── issue-grid-gutter-skip.png
+│   │   │   ├── issue-grid-skip-list.png
+│   │   │   ├── issue-grid-skip.png
+│   │   │   ├── issue-hyphenate-after-tag.png
+│   │   │   ├── issue-hyphenate-in-link.png
+│   │   │   ├── issue-math-realize-hide.png
+│   │   │   ├── issue-math-realize-scripting.png
+│   │   │   ├── issue-math-realize-show.png
+│   │   │   ├── issue-non-atomic-closure.png
+│   │   │   ├── issue-place-base.png
+│   │   │   ├── issue-rtl-safe-to-break-panic.png
+│   │   │   ├── issues-7168-linebreak-whitespace-trimming-justify-rtl.png
+│   │   │   ├── justify-avoid-runts.png
+│   │   │   ├── justify-basically-empty.png
+│   │   │   ├── justify-chinese.png
+│   │   │   ├── justify-code-blocks.png
+│   │   │   ├── justify-japanese.png
+│   │   │   ├── justify-justified-linebreak.png
+│   │   │   ├── justify-knuth-story.png
+│   │   │   ├── justify-limits-glyph-grow-only.png
+│   │   │   ├── justify-limits-glyph-shrink-only.png
+│   │   │   ├── justify-limits-tight-overstretch.png
+│   │   │   ├── justify-manual-linebreak.png
+│   │   │   ├── justify-no-leading-spaces.png
+│   │   │   ├── justify.png
+│   │   │   ├── justify-punctuation-adjustment.png
+│   │   │   ├── justify-shrink-last-line.png
+│   │   │   ├── justify-variants.png
+│   │   │   ├── justify-whitespace-adjustment.png
+│   │   │   ├── justify-without-justifiables.png
+│   │   │   ├── label-after-expression.png
+│   │   │   ├── label-after-parbreak.png
+│   │   │   ├── label-dynamic-show-set.png
+│   │   │   ├── label-in-block.png
+│   │   │   ├── label-show-where-selector.png
+│   │   │   ├── label-unclosed-is-text.png
+│   │   │   ├── layout-in-fixed-size-block.png
+│   │   │   ├── layout-in-page-call.png
+│   │   │   ├── let-basic.png
+│   │   │   ├── let-termination.png
+│   │   │   ├── line-basic.png
+│   │   │   ├── linebreak-cite-punctuation.png
+│   │   │   ├── linebreak-default-ignorables.png
+│   │   │   ├── linebreak-hyphen-nbsp.png
+│   │   │   ├── linebreak-link-end.png
+│   │   │   ├── linebreak-link-justify.png
+│   │   │   ├── linebreak-link.png
+│   │   │   ├── linebreak-manual-consecutive.png
+│   │   │   ├── linebreak-manual-directly-after-automatic.png
+│   │   │   ├── linebreak-manual-justified.png
+│   │   │   ├── linebreak-manual.png
+│   │   │   ├── linebreak-manual-trailing-multiple.png
+│   │   │   ├── linebreak-math-punctuation.png
+│   │   │   ├── linebreak-narrow-nbsp.png
+│   │   │   ├── linebreak-overflow-double.png
+│   │   │   ├── linebreak-overflow.png
+│   │   │   ├── linebreak-shape-run.png
+│   │   │   ├── linebreak-thai.png
+│   │   │   ├── linebreak-whitespace-trimming.png
+│   │   │   ├── line-numbers-auto-alignment.png
+│   │   │   ├── line-numbers-clearance.png
+│   │   │   ├── line-numbers-columns-alignment.png
+│   │   │   ├── line-numbers-columns-override.png
+│   │   │   ├── line-numbers-columns.png
+│   │   │   ├── line-numbers-columns-rtl.png
+│   │   │   ├── line-numbers-deduplication.png
+│   │   │   ├── line-numbers-deduplication-tall-line.png
+│   │   │   ├── line-numbers-deduplication-zero-height-number.png
+│   │   │   ├── line-numbers-default-alignment.png
+│   │   │   ├── line-numbers-enable.png
+│   │   │   ├── line-numbers-equation-number.png
+│   │   │   ├── line-numbers-margin.png
+│   │   │   ├── line-numbers-multi-columns.png
+│   │   │   ├── line-numbers-nested-content.png
+│   │   │   ├── line-numbers-page-scope.png
+│   │   │   ├── line-numbers-page-scope-quasi-empty-first-column.png
+│   │   │   ├── line-numbers-page-scope-with-columns.png
+│   │   │   ├── line-numbers-place-out-of-order.png
+│   │   │   ├── line-numbers-rtl.png
+│   │   │   ├── line-numbers-start-alignment.png
+│   │   │   ├── line-positioning.png
+│   │   │   ├── line-stroke-dash.png
+│   │   │   ├── line-stroke.png
+│   │   │   ├── line-stroke-set.png
+│   │   │   ├── link-basic.png
+│   │   │   ├── link-bracket-balanced.png
+│   │   │   ├── link-bracket-unbalanced-closing.png
+│   │   │   ├── link-empty-block.png
+│   │   │   ├── link-on-block.png
+│   │   │   ├── link-show.png
+│   │   │   ├── link-to-label.png
+│   │   │   ├── link-to-page.png
+│   │   │   ├── link-trailing-period.png
+│   │   │   ├── link-transformed.png
+│   │   │   ├── list-attached-above-spacing.png
+│   │   │   ├── list-attached.png
+│   │   │   ├── list-basic.png
+│   │   │   ├── list-content-block.png
+│   │   │   ├── list-indent-specifics.png
+│   │   │   ├── list-items-context.png
+│   │   │   ├── list-item-styling.png
+│   │   │   ├── list-marker-align-unaffected.png
+│   │   │   ├── list-marker-bare-hyphen.png
+│   │   │   ├── list-marker-closure.png
+│   │   │   ├── list-marker-cycle.png
+│   │   │   ├── list-marker-dash.png
+│   │   │   ├── list-mixed-tabs-and-spaces.png
+│   │   │   ├── list-mix.png
+│   │   │   ├── list-nested.png
+│   │   │   ├── list-non-attached-followed-by-attached.png
+│   │   │   ├── list-par.png
+│   │   │   ├── list-rtl.png
+│   │   │   ├── list-syntax-edge-cases.png
+│   │   │   ├── list-tabs.png
+│   │   │   ├── list-tight-non-attached-tight.png
+│   │   │   ├── list-top-level-indent.png
+│   │   │   ├── list-wide-cannot-attach.png
+│   │   │   ├── list-wide-really-cannot-attach.png
+│   │   │   ├── locate-between-pages.png
+│   │   │   ├── locate-element-selector.png
+│   │   │   ├── locate-migrated-breakable.png
+│   │   │   ├── locate-position.png
+│   │   │   ├── locate-position-trailing-tag.png
+│   │   │   ├── locate-start-of-par.png
+│   │   │   ├── logical-children-tags-underline-around-place.png
+│   │   │   ├── long-scripts.png
+│   │   │   ├── loop-break-join-in-first-arg.png
+│   │   │   ├── loop-break-join-in-nested-blocks.png
+│   │   │   ├── loop-break-join-in-set-rule-args.png
+│   │   │   ├── loop-break-join-set-and-show.png
+│   │   │   ├── lorem-pars.png
+│   │   │   ├── lorem.png
+│   │   │   ├── math-accent-align.png
+│   │   │   ├── math-accent-bottom-high-base.png
+│   │   │   ├── math-accent-bottom.png
+│   │   │   ├── math-accent-bottom-sized.png
+│   │   │   ├── math-accent-bottom-subscript.png
+│   │   │   ├── math-accent-bottom-wide-base.png
+│   │   │   ├── math-accent-bounds.png
+│   │   │   ├── math-accent-dotless-disabled.png
+│   │   │   ├── math-accent-dotless-greedy.png
+│   │   │   ├── math-accent-dotless.png
+│   │   │   ├── math-accent-dotless-set-rule.png
+│   │   │   ├── math-accent-flattened.png
+│   │   │   ├── math-accent-func.png
+│   │   │   ├── math-accent-high-base.png
+│   │   │   ├── math-accent-nested.png
+│   │   │   ├── math-accent-overlay.png
+│   │   │   ├── math-accent-show-rule-1.png
+│   │   │   ├── math-accent-show-rule-2.png
+│   │   │   ├── math-accent-show-rule-3.png
+│   │   │   ├── math-accent-show-rule-4.png
+│   │   │   ├── math-accent-sized.png
+│   │   │   ├── math-accent-sized-script.png
+│   │   │   ├── math-accent-superscript.png
+│   │   │   ├── math-accent-sym-call.png
+│   │   │   ├── math-accent-wide-base.png
+│   │   │   ├── math-align-aligned-in-source.png
+│   │   │   ├── math-align-basic.png
+│   │   │   ├── math-align-cases.png
+│   │   │   ├── math-align-implicit.png
+│   │   │   ├── math-align-lines-mixed.png
+│   │   │   ├── math-align-post-fix.png
+│   │   │   ├── math-align-spacing-ignorant.png
+│   │   │   ├── math-align-spacing.png
+│   │   │   ├── math-align-toggle.png
+│   │   │   ├── math-align-weird.png
+│   │   │   ├── math-align-wider-first-column.png
+│   │   │   ├── math-at-line-end.png
+│   │   │   ├── math-at-line-start.png
+│   │   │   ├── math-at-par-end.png
+│   │   │   ├── math-at-par-start.png
+│   │   │   ├── math-attach-default-placement.png
+│   │   │   ├── math-attach-descender-collision.png
+│   │   │   ├── math-attach-double-chain.png
+│   │   │   ├── math-attach-followed-by-func-call.png
+│   │   │   ├── math-attach-force-scripts-and-limits.png
+│   │   │   ├── math-attach-high.png
+│   │   │   ├── math-attach-horizontal-align.png
+│   │   │   ├── math-attach-integral.png
+│   │   │   ├── math-attach-kerning-mixed.png
+│   │   │   ├── math-attach-kerning.png
+│   │   │   ├── math-attach-large-operator.png
+│   │   │   ├── math-attach-limit-long.png
+│   │   │   ├── math-attach-limit.png
+│   │   │   ├── math-attach-mixed.png
+│   │   │   ├── math-attach-nested-base-bad-placement.png
+│   │   │   ├── math-attach-nested-base.png
+│   │   │   ├── math-attach-nested-deep-base.png
+│   │   │   ├── math-attach-nested.png
+│   │   │   ├── math-attach-postscripts.png
+│   │   │   ├── math-attach-prescripts.png
+│   │   │   ├── math-attach-scripts-extended-shapes.png
+│   │   │   ├── math-attach-show-limit.png
+│   │   │   ├── math-attach-subscript-multiline.png
+│   │   │   ├── math-attach-to-group.png
+│   │   │   ├── math-binom-multiple.png
+│   │   │   ├── math-binom.png
+│   │   │   ├── math-box-with-baseline.png
+│   │   │   ├── math-box-without-baseline.png
+│   │   │   ├── math-call-2d-semicolon-priority.png
+│   │   │   ├── math-call-empty-args-non-func.png
+│   │   │   ├── math-call-named-args.png
+│   │   │   ├── math-call-non-func.png
+│   │   │   ├── math-call-pass-to-box.png
+│   │   │   ├── math-call-shadowed-builtin.png
+│   │   │   ├── math-call-spread-shorthand-clash.png
+│   │   │   ├── math-call-symbol.png
+│   │   │   ├── math-cancel-angle-absolute.png
+│   │   │   ├── math-cancel-angle-func.png
+│   │   │   ├── math-cancel-cross.png
+│   │   │   ├── math-cancel-customized.png
+│   │   │   ├── math-cancel-display.png
+│   │   │   ├── math-cancel-inline.png
+│   │   │   ├── math-cancel-inverted.png
+│   │   │   ├── math-cases-delim-class.png
+│   │   │   ├── math-cases-delim.png
+│   │   │   ├── math-cases-gap.png
+│   │   │   ├── math-cases-linebreaks.png
+│   │   │   ├── math-cases.png
+│   │   │   ├── math-class-chars.png
+│   │   │   ├── math-class-content.png
+│   │   │   ├── math-class-exceptions.png
+│   │   │   ├── math-class-limits.png
+│   │   │   ├── math-class-nested.png
+│   │   │   ├── math-common-symbols.png
+│   │   │   ├── math-consecutive.png
+│   │   │   ├── math-delim-show-rule-1.png
+│   │   │   ├── math-delim-show-rule-2.png
+│   │   │   ├── math-delim-show-rule-3.png
+│   │   │   ├── math-delim-show-rule-4.png
+│   │   │   ├── math-delim-show-rule-5.png
+│   │   │   ├── math-dif.png
+│   │   │   ├── math-equation-align-numbered.png
+│   │   │   ├── math-equation-align-unnumbered.png
+│   │   │   ├── math-equation-auto-wrapping.png
+│   │   │   ├── math-equation-font.png
+│   │   │   ├── math-equation-number-align-end.png
+│   │   │   ├── math-equation-number-align-left.png
+│   │   │   ├── math-equation-number-align-monoline.png
+│   │   │   ├── math-equation-number-align-multiline-bottom.png
+│   │   │   ├── math-equation-number-align-multiline-expand.png
+│   │   │   ├── math-equation-number-align-multiline-no-expand.png
+│   │   │   ├── math-equation-number-align-multiline.png
+│   │   │   ├── math-equation-number-align-multiline-top-start.png
+│   │   │   ├── math-equation-number-align.png
+│   │   │   ├── math-equation-number-align-right.png
+│   │   │   ├── math-equation-number-align-start.png
+│   │   │   ├── math-equation-number-empty.png
+│   │   │   ├── math-equation-numbering.png
+│   │   │   ├── math-equation-show-rule.png
+│   │   │   ├── math-equation-tag-affects-row-height.png
+│   │   │   ├── math-font-covers.png
+│   │   │   ├── math-font-fallback-class.png
+│   │   │   ├── math-font-fallback.png
+│   │   │   ├── math-font-features.png
+│   │   │   ├── math-font-features-switch.png
+│   │   │   ├── math-font-switch.png
+│   │   │   ├── math-font-warning.png
+│   │   │   ├── math-frac-associativity.png
+│   │   │   ├── math-frac-baseline.png
+│   │   │   ├── math-frac-gap.png
+│   │   │   ├── math-frac-horizontal-explicit.png
+│   │   │   ├── math-frac-horizontal-lr-paren.png
+│   │   │   ├── math-frac-horizontal-nonparen-brackets.png
+│   │   │   ├── math-frac-horizontal.png
+│   │   │   ├── math-frac-implicit-func.png
+│   │   │   ├── math-frac-large.png
+│   │   │   ├── math-frac-line-fill-stroke.png
+│   │   │   ├── math-frac-paren-removal.png
+│   │   │   ├── math-frac-precedence.png
+│   │   │   ├── math-frac-skewed.png
+│   │   │   ├── math-frac-styles-inline.png
+│   │   │   ├── math-frac-tan-sin-cos.png
+│   │   │   ├── math-glyph-show-rule.png
+│   │   │   ├── math-linebreaking-after-binop-and-rel.png
+│   │   │   ├── math-linebreaking-after-relation-without-space.png
+│   │   │   ├── math-linebreaking-between-consecutive-relations.png
+│   │   │   ├── math-linebreaking-empty.png
+│   │   │   ├── math-linebreaking-in-box.png
+│   │   │   ├── math-linebreaking-lr.png
+│   │   │   ├── math-linebreaking-multiline.png
+│   │   │   ├── math-linebreaking-trailing-linebreak.png
+│   │   │   ├── math-lr-call.png
+│   │   │   ├── math-lr-color.png
+│   │   │   ├── math-lr-fences.png
+│   │   │   ├── math-lr-half.png
+│   │   │   ├── math-lr-ignore-ignorant.png
+│   │   │   ├── math-lr-matching.png
+│   │   │   ├── math-lr-mid-class.png
+│   │   │   ├── math-lr-mid.png
+│   │   │   ├── math-lr-mid-size-nested-equation.png
+│   │   │   ├── math-lr-mid-size.png
+│   │   │   ├── math-lr-nested-mid.png
+│   │   │   ├── math-lr-nested.png
+│   │   │   ├── math-lr-scripts.png
+│   │   │   ├── math-lr-shorthands.png
+│   │   │   ├── math-lr-size.png
+│   │   │   ├── math-lr-symbol-unmatched.png
+│   │   │   ├── math-lr-sym-call.png
+│   │   │   ├── math-lr-sym-call-size.png
+│   │   │   ├── math-lr-unbalanced.png
+│   │   │   ├── math-lr-unmatched.png
+│   │   │   ├── math-lr-unparen.png
+│   │   │   ├── math-lr-weak-spacing.png
+│   │   │   ├── math-mat-align-complex.png
+│   │   │   ├── math-mat-align-explicit-alternating.png
+│   │   │   ├── math-mat-align-explicit-left.png
+│   │   │   ├── math-mat-align-explicit-mixed.png
+│   │   │   ├── math-mat-align-explicit-right.png
+│   │   │   ├── math-mat-align-implicit.png
+│   │   │   ├── math-mat-align.png
+│   │   │   ├── math-mat-align-signed-numbers.png
+│   │   │   ├── math-mat-augment.png
+│   │   │   ├── math-mat-augment-set.png
+│   │   │   ├── math-mat-baseline.png
+│   │   │   ├── math-mat-delim-class.png
+│   │   │   ├── math-mat-delim-direct.png
+│   │   │   ├── math-mat-delim-set.png
+│   │   │   ├── math-mat-delims-inverted.png
+│   │   │   ├── math-mat-delims-pair.png
+│   │   │   ├── math-mat-delims.png
+│   │   │   ├── math-mat-gap.png
+│   │   │   ├── math-mat-gaps.png
+│   │   │   ├── math-mat-linebreaks.png
+│   │   │   ├── math-mat-semicolon.png
+│   │   │   ├── math-mat-sparse.png
+│   │   │   ├── math-mat-spread-1d.png
+│   │   │   ├── math-mat-spread-2d.png
+│   │   │   ├── math-mat-spread.png
+│   │   │   ├── math-mat-vec-cases-unity.png
+│   │   │   ├── math-multiline-multiple-trailing-linebreaks.png
+│   │   │   ├── math-multiline-no-trailing-linebreak.png
+│   │   │   ├── math-multiline-trailing-linebreak.png
+│   │   │   ├── math-nested-normal-layout.png
+│   │   │   ├── math-non-math-content.png
+│   │   │   ├── math-op-call.png
+│   │   │   ├── math-op-custom.png
+│   │   │   ├── math-op-font.png
+│   │   │   ├── math-op-predefined.png
+│   │   │   ├── math-op-scripts-vs-limits.png
+│   │   │   ├── math-op-set-font.png
+│   │   │   ├── math-op-styled.png
+│   │   │   ├── math-optical-size-frac-script-script.png
+│   │   │   ├── math-optical-size-nested-scripts.png
+│   │   │   ├── math-optical-size-prime-large-operator.png
+│   │   │   ├── math-optical-size-primes.png
+│   │   │   ├── math-pagebreaking-numbered.png
+│   │   │   ├── math-pagebreaking.png
+│   │   │   ├── math-pagebreaking-single-line-numbered.png
+│   │   │   ├── math-pagebreaking-single-line.png
+│   │   │   ├── math-par.png
+│   │   │   ├── math-primes-after-code-expr.png
+│   │   │   ├── math-primes-attach.png
+│   │   │   ├── math-primes-complex.png
+│   │   │   ├── math-primes-factorial.png
+│   │   │   ├── math-primes-limits.png
+│   │   │   ├── math-primes-merge-inner-prime.png
+│   │   │   ├── math-primes-merge-top-nested.png
+│   │   │   ├── math-primes-merge-top.png
+│   │   │   ├── math-primes.png
+│   │   │   ├── math-primes-scripts.png
+│   │   │   ├── math-primes-show-rule.png
+│   │   │   ├── math-primes-spaces.png
+│   │   │   ├── math-primes-with-superscript.png
+│   │   │   ├── math-root-basic.png
+│   │   │   ├── math-root-frame-size-index.png
+│   │   │   ├── math-root-large-body.png
+│   │   │   ├── math-root-large-index.png
+│   │   │   ├── math-root-line-fill-stroke.png
+│   │   │   ├── math-root-precomposed.png
+│   │   │   ├── math-root-radical-attachment.png
+│   │   │   ├── math-root-show-rule-1.png
+│   │   │   ├── math-root-show-rule-2.png
+│   │   │   ├── math-root-show-rule-3.png
+│   │   │   ├── math-root-show-rule-4.png
+│   │   │   ├── math-root-show-rule-5.png
+│   │   │   ├── math-root-syntax.png
+│   │   │   ├── math-root-syntax-prec.png
+│   │   │   ├── math-shorthands-noncontinuable.png
+│   │   │   ├── math-shorthands.png
+│   │   │   ├── math-size-arbitrary-content.png
+│   │   │   ├── math-size-math-content-1.png
+│   │   │   ├── math-size-math-content-2.png
+│   │   │   ├── math-size-math-content-3.png
+│   │   │   ├── math-size.png
+│   │   │   ├── math-size-resolve.png
+│   │   │   ├── math-size-space.png
+│   │   │   ├── math-spacing-basic.png
+│   │   │   ├── math-spacing-decorated.png
+│   │   │   ├── math-spacing-ignorant.png
+│   │   │   ├── math-spacing-kept-spaces.png
+│   │   │   ├── math-spacing-predefined.png
+│   │   │   ├── math-spacing-script.png
+│   │   │   ├── math-spacing-set-comprehension.png
+│   │   │   ├── math-spacing-weak.png
+│   │   │   ├── math-stretch-attach-nested-equation.png
+│   │   │   ├── math-stretch-basic.png
+│   │   │   ├── math-stretch-complex.png
+│   │   │   ├── math-stretch-horizontal-attach.png
+│   │   │   ├── math-stretch-horizontal.png
+│   │   │   ├── math-stretch-lr-nested-horizontal-attach.png
+│   │   │   ├── math-stretch-lr-nested-horizontal.png
+│   │   │   ├── math-stretch-lr-nested-vertical-attach.png
+│   │   │   ├── math-stretch-lr-nested-vertical.png
+│   │   │   ├── math-stretch-min-overlap-exceeds-max.png
+│   │   │   ├── math-stretch-nested-horizontal-attach.png
+│   │   │   ├── math-stretch-nested.png
+│   │   │   ├── math-stretch-nested-vertical-attach.png
+│   │   │   ├── math-stretch-shorthand.png
+│   │   │   ├── math-stretch-vertical-attach.png
+│   │   │   ├── math-stretch-vertical-large-class.png
+│   │   │   ├── math-stretch-vertical.png
+│   │   │   ├── math-stretch-vertical-scripts.png
+│   │   │   ├── math-style-cluster.png
+│   │   │   ├── math-style-dotless.png
+│   │   │   ├── math-style-exceptions.png
+│   │   │   ├── math-style-fallback.png
+│   │   │   ├── math-style-font-no-dotless.png
+│   │   │   ├── math-style-greek-exceptions.png
+│   │   │   ├── math-style-hebrew-exceptions.png
+│   │   │   ├── math-style-italic-default.png
+│   │   │   ├── math-style.png
+│   │   │   ├── math-style-script.png
+│   │   │   ├── math-symbol-show-rule.png
+│   │   │   ├── math-table.png
+│   │   │   ├── math-text-color.png
+│   │   │   ├── math-text-grapheme-cluster-fallback.png
+│   │   │   ├── math-text-single-grapheme-cluster.png
+│   │   │   ├── math-text-size.png
+│   │   │   ├── math-underover-brace.png
+│   │   │   ├── math-underover-brackets.png
+│   │   │   ├── math-underover-line-bracket.png
+│   │   │   ├── math-underover-line-fill-stroke.png
+│   │   │   ├── math-underover-line-subscript.png
+│   │   │   ├── math-underover-line-superscript.png
+│   │   │   ├── math-underover-multiline-annotation-align.png
+│   │   │   ├── math-underover-multiline-annotation.png
+│   │   │   ├── math-underover-parens.png
+│   │   │   ├── math-underover-shells.png
+│   │   │   ├── math-unicode.png
+│   │   │   ├── math-vec-align-explicit-alternating.png
+│   │   │   ├── math-vec-align.png
+│   │   │   ├── math-vec-delim-class.png
+│   │   │   ├── math-vec-delim-set.png
+│   │   │   ├── math-vec-gap.png
+│   │   │   ├── math-vec-linebreaks.png
+│   │   │   ├── math-vec-wide.png
+│   │   │   ├── measure-citation-deeply-nested.png
+│   │   │   ├── measure-citation-in-flow.png
+│   │   │   ├── measure-counter-multiple-times.png
+│   │   │   ├── measure-counter-width.png
+│   │   │   ├── newline-continuation-code.png
+│   │   │   ├── newline-continuation-markup.png
+│   │   │   ├── numbers.png
+│   │   │   ├── ops-add-content.png
+│   │   │   ├── ops-multiply-inf-with-length.png
+│   │   │   ├── outline-bookmark.png
+│   │   │   ├── outline-entry-complex.png
+│   │   │   ├── outline-entry-inner.png
+│   │   │   ├── outline-entry.png
+│   │   │   ├── outline-first-line-indent.png
+│   │   │   ├── outline-heading-start-of-page.png
+│   │   │   ├── outline-indent-auto-mixed-prefix.png
+│   │   │   ├── outline-indent-auto-mixed-prefix-short.png
+│   │   │   ├── outline-indent-auto-no-prefix.png
+│   │   │   ├── outline-indent-auto.png
+│   │   │   ├── outline-indent-fixed.png
+│   │   │   ├── outline-indent-func.png
+│   │   │   ├── outline-indent-zero.png
+│   │   │   ├── outline-par.png
+│   │   │   ├── outline-spacing.png
+│   │   │   ├── outline-styled-text.png
+│   │   │   ├── overhang-lone.png
+│   │   │   ├── overhang.png
+│   │   │   ├── overline-background.png
+│   │   │   ├── pad-basic.png
+│   │   │   ├── pad-expanding-contents.png
+│   │   │   ├── pad-followed-by-content.png
+│   │   │   ├── pagebreak-around-set-page.png
+│   │   │   ├── pagebreak-followed-by-page-call.png
+│   │   │   ├── pagebreak-meta.png
+│   │   │   ├── pagebreak.png
+│   │   │   ├── pagebreak-set-page-mixed.png
+│   │   │   ├── pagebreak-to-auto-sized.png
+│   │   │   ├── pagebreak-to-multiple-pages.png
+│   │   │   ├── pagebreak-to.png
+│   │   │   ├── pagebreak-weak-after-set-page.png
+│   │   │   ├── pagebreak-weak-meta.png
+│   │   │   ├── pagebreak-weak-place.png
+│   │   │   ├── page-call-followed-by-pagebreak.png
+│   │   │   ├── page-call-styled-empty.png
+│   │   │   ├── page-fill-none.png
+│   │   │   ├── page-fill.png
+│   │   │   ├── page-large.png
+│   │   │   ├── page-marginals.png
+│   │   │   ├── page-marginal-style-context.png
+│   │   │   ├── page-marginal-style-empty.png
+│   │   │   ├── page-marginal-style-page-call.png
+│   │   │   ├── page-marginal-style-shared-initial-interaction.png
+│   │   │   ├── page-marginal-style-show-rule.png
+│   │   │   ├── page-marginal-style-show-rule-with-pagebreak.png
+│   │   │   ├── page-marginal-style-show-rule-with-page-call.png
+│   │   │   ├── page-marginal-style-show-rule-with-set-page.png
+│   │   │   ├── page-marginal-style-text-call-around-pagebreak.png
+│   │   │   ├── page-marginal-style-text-call-around-page-call.png
+│   │   │   ├── page-marginal-style-text-call-around-set-page.png
+│   │   │   ├── page-marginal-style-text-call-code.png
+│   │   │   ├── page-marginal-style-text-call.png
+│   │   │   ├── page-marginal-style-text-set-first.png
+│   │   │   ├── page-marginal-style-text-set.png
+│   │   │   ├── page-margin-binding-from-text-lang.png
+│   │   │   ├── page-margin-individual.png
+│   │   │   ├── page-margin-inside-outside-override.png
+│   │   │   ├── page-margin-inside.png
+│   │   │   ├── page-margin-inside-with-binding.png
+│   │   │   ├── page-margin-uniform.png
+│   │   │   ├── page-number-align-bottom-left.png
+│   │   │   ├── page-number-align-top-right.png
+│   │   │   ├── page-numbering-huge.png
+│   │   │   ├── page-numbering-pdf-label.png
+│   │   │   ├── page-set-empty.png
+│   │   │   ├── page-set-forces-break.png
+│   │   │   ├── page-set-only-pagebreak.png
+│   │   │   ├── page-set-override-and-mix.png
+│   │   │   ├── page-set-override-thrice.png
+│   │   │   ├── page-suppress-headers-and-footers.png
+│   │   │   ├── par-basic.png
+│   │   │   ├── par-contains-block.png
+│   │   │   ├── par-contains-parbreak.png
+│   │   │   ├── par-explicit-trim-space.png
+│   │   │   ├── par-first-line-indent-all-enum.png
+│   │   │   ├── par-first-line-indent-all-list.png
+│   │   │   ├── par-first-line-indent-all.png
+│   │   │   ├── par-first-line-indent-all-terms.png
+│   │   │   ├── par-first-line-indent-columns.png
+│   │   │   ├── par-first-line-indent.png
+│   │   │   ├── par-hanging-indent-manual-linebreak.png
+│   │   │   ├── par-hanging-indent.png
+│   │   │   ├── par-hanging-indent-rtl.png
+│   │   │   ├── par-hanging-indent-semantic.png
+│   │   │   ├── par-leading-and-spacing.png
+│   │   │   ├── par-metadata-after-trimmed-space.png
+│   │   │   ├── par-semantic-align.png
+│   │   │   ├── par-semantic.png
+│   │   │   ├── par-semantic-tag.png
+│   │   │   ├── parser-backtracking-destructuring-whitespace.png
+│   │   │   ├── par-show-children.png
+│   │   │   ├── par-show-styles.png
+│   │   │   ├── par-spacing-and-first-line-indent.png
+│   │   │   ├── par-trailing-whitespace.png
+│   │   │   ├── place-basic.png
+│   │   │   ├── place-block-spacing.png
+│   │   │   ├── place-bottom-in-box.png
+│   │   │   ├── place-bottom-right-in-box.png
+│   │   │   ├── place-float-align-auto.png
+│   │   │   ├── place-float-block-backlog.png
+│   │   │   ├── place-float-clearance-empty.png
+│   │   │   ├── place-float-column-align-auto.png
+│   │   │   ├── place-float-column-queued.png
+│   │   │   ├── place-float-counter.png
+│   │   │   ├── place-float-delta.png
+│   │   │   ├── place-float-flow-around.png
+│   │   │   ├── place-float-flow-size-alone.png
+│   │   │   ├── place-float-flow-size.png
+│   │   │   ├── place-float-fr.png
+│   │   │   ├── place-float-queued.png
+│   │   │   ├── place-float-rel-sizing.png
+│   │   │   ├── place-float-threecolumn-block-backlog.png
+│   │   │   ├── place-float-threecolumn.png
+│   │   │   ├── place-float-twocolumn-align-auto.png
+│   │   │   ├── place-float-twocolumn-fits-not.png
+│   │   │   ├── place-float-twocolumn-fits.png
+│   │   │   ├── place-float-twocolumn.png
+│   │   │   ├── place-float-twocolumn-queued.png
+│   │   │   ├── place-flush-figure.png
+│   │   │   ├── place-flush.png
+│   │   │   ├── place-horizon-in-boxes.png
+│   │   │   ├── place-top-left-in-box.png
+│   │   │   ├── polygon-line-join.png
+│   │   │   ├── polygon.png
+│   │   │   ├── presentation-selectors.png
+│   │   │   ├── query-complex.png
+│   │   │   ├── query-list-of-figures.png
+│   │   │   ├── query-quote.png
+│   │   │   ├── query-running-header.png
+│   │   │   ├── quote-block-spacing.png
+│   │   │   ├── quote-cite-format-author-date.png
+│   │   │   ├── quote-cite-format-label-or-numeric.png
+│   │   │   ├── quote-cite-format-note.png
+│   │   │   ├── quote-dir-align.png
+│   │   │   ├── quote-dir-author-pos.png
+│   │   │   ├── quote-inline.png
+│   │   │   ├── quote-nesting-custom.png
+│   │   │   ├── quote-nesting.png
+│   │   │   ├── quote-par.png
+│   │   │   ├── raw-align-default.png
+│   │   │   ├── raw-align-specified.png
+│   │   │   ├── raw-block-no-parbreaks.png
+│   │   │   ├── raw-consecutive-single-backticks.png
+│   │   │   ├── raw-dedent-empty-line.png
+│   │   │   ├── raw-dedent-first-line.png
+│   │   │   ├── raw-dedent-last-line.png
+│   │   │   ├── raw-default-json-theme.png
+│   │   │   ├── raw-default-yaml-theme.png
+│   │   │   ├── raw-empty-lines.png
+│   │   │   ├── raw-empty.png
+│   │   │   ├── raw-highlight-cpp.png
+│   │   │   ├── raw-highlight-html-jinja2.png
+│   │   │   ├── raw-highlight-html.png
+│   │   │   ├── raw-highlight-py.png
+│   │   │   ├── raw-highlight-rust.png
+│   │   │   ├── raw-highlight-typc.png
+│   │   │   ├── raw-highlight-typm-extra.png
+│   │   │   ├── raw-highlight-typm.png
+│   │   │   ├── raw-highlight-typ.png
+│   │   │   ├── raw-inline-multiline.png
+│   │   │   ├── raw-line-alternating-fill.png
+│   │   │   ├── raw-line.png
+│   │   │   ├── raw-line-text-fill.png
+│   │   │   ├── raw-more-backticks.png
+│   │   │   ├── raw-show-set.png
+│   │   │   ├── raw-single-backtick-lang.png
+│   │   │   ├── raw-syntaxes.png
+│   │   │   ├── raw-tab-size.png
+│   │   │   ├── raw-theme.png
+│   │   │   ├── raw-theme-set-to-none.png
+│   │   │   ├── raw-theme-types.png
+│   │   │   ├── raw-trimming.png
+│   │   │   ├── raw-typst-lang.png
+│   │   │   ├── rect-adjacent-dashed-stroke-cap-change.png
+│   │   │   ├── rect-adjacent-dashed-stroke-thickness-change.png
+│   │   │   ├── rect-cap-variations-radius-1-3-of-stroke-thickness.png
+│   │   │   ├── rect-cap-variations-radius-2-3-of-stroke-thickness.png
+│   │   │   ├── rect-cap-variations-radius-4-3-of-stroke-thickness.png
+│   │   │   ├── rect-cap-variations-radius-same-as-stroke-thickness.png
+│   │   │   ├── rect-customization.png
+│   │   │   ├── rect-fill-stroke.png
+│   │   │   ├── rect.png
+│   │   │   ├── rect-size-beyond-default.png
+│   │   │   ├── rect-stroke-caps.png
+│   │   │   ├── rect-stroke.png
+│   │   │   ├── rect-stroke-variations-without-radius.png
+│   │   │   ├── rect-stroke-variations-with-radius-and-adjacent-thin-stroke.png
+│   │   │   ├── rect-stroke-variations-with-radius-and-adjacent-zero-width-stroke.png
+│   │   │   ├── rect-stroke-variations-with-radius.png
+│   │   │   ├── ref-basic.png
+│   │   │   ├── ref-form-page.png
+│   │   │   ├── ref-form-page-unambiguous.png
+│   │   │   ├── ref-supplements.png
+│   │   │   ├── ref-to-empty-label-not-possible.png
+│   │   │   ├── repeat-align-and-dir.png
+│   │   │   ├── repeat-basic.png
+│   │   │   ├── repeat-dots-rtl.png
+│   │   │   ├── repeat-empty.png
+│   │   │   ├── repeat-gap.png
+│   │   │   ├── repeat-no-justify-align.png
+│   │   │   ├── repeat-no-justify.png
+│   │   │   ├── repeat-unboxed.png
+│   │   │   ├── return-in-nested-content-block.png
+│   │   │   ├── script-metrics-bundled-fonts.png
+│   │   │   ├── set-if.png
+│   │   │   ├── set-instantiation-site-markup.png
+│   │   │   ├── set-instantiation-site.png
+│   │   │   ├── set-scoped-in-code-block.png
+│   │   │   ├── set-shadowed-builtin-with-std.png
+│   │   │   ├── set-text-override.png
+│   │   │   ├── set-vs-construct-1.png
+│   │   │   ├── set-vs-construct-2.png
+│   │   │   ├── set-vs-construct-3.png
+│   │   │   ├── set-vs-construct-4.png
+│   │   │   ├── shaping-emoji-bad-zwj.png
+│   │   │   ├── shaping-emoji-basic.png
+│   │   │   ├── shaping-font-fallback.png
+│   │   │   ├── shaping-forced-script-font-feature-enabled.png
+│   │   │   ├── shaping-forced-script-font-feature-inhibited.png
+│   │   │   ├── shaping-script-separation.png
+│   │   │   ├── shorthand-dashes.png
+│   │   │   ├── shorthand-ellipsis.png
+│   │   │   ├── shorthand-minus.png
+│   │   │   ├── shorthand-nbsp-and-shy-hyphen.png
+│   │   │   ├── shorthand-nbsp-width.png
+│   │   │   ├── shorthands-math.png
+│   │   │   ├── show-bare-basic.png
+│   │   │   ├── show-bare-content-block.png
+│   │   │   ├── show-bare-replace-with-content.png
+│   │   │   ├── show-bare-vs-set-text.png
+│   │   │   ├── show-function-order-with-set.png
+│   │   │   ├── show-function-set-on-it.png
+│   │   │   ├── show-in-show.png
+│   │   │   ├── show-multiple-rules.png
+│   │   │   ├── show-nested-scopes.png
+│   │   │   ├── show-recursive-identity.png
+│   │   │   ├── show-recursive-multiple.png
+│   │   │   ├── show-rule-in-function.png
+│   │   │   ├── show-selector-basic.png
+│   │   │   ├── show-selector-discard.png
+│   │   │   ├── show-selector-element-or-label.png
+│   │   │   ├── show-selector-or-elements-with-set.png
+│   │   │   ├── show-selector-realistic.png
+│   │   │   ├── show-selector-replace-and-show-set.png
+│   │   │   ├── show-selector-replace.png
+│   │   │   ├── show-selector-shadowed-builtin-with-std.png
+│   │   │   ├── show-selector-where.png
+│   │   │   ├── show-set-on-layoutable-element.png
+│   │   │   ├── show-set-on-same-element.png
+│   │   │   ├── show-set-override.png
+│   │   │   ├── show-set-same-element-and-order.png
+│   │   │   ├── show-set-same-element-matched-field.png
+│   │   │   ├── show-set-same-element-matching-interaction.png
+│   │   │   ├── show-set-same-element-synthesized-matched-field.png
+│   │   │   ├── show-set-text-order-adjacent-1.png
+│   │   │   ├── show-set-text-order-adjacent-2.png
+│   │   │   ├── show-set-text-order-contained-1.png
+│   │   │   ├── show-set-text-order-contained-2.png
+│   │   │   ├── show-set-text-order-contained-3.png
+│   │   │   ├── show-set-text-order-contained-4.png
+│   │   │   ├── show-set-text-order-overlapping-1.png
+│   │   │   ├── show-set-text-order-overlapping-2.png
+│   │   │   ├── show-set-vs-construct.png
+│   │   │   ├── show-set-where-override.png
+│   │   │   ├── show-text-after-normal-show.png
+│   │   │   ├── show-text-apostrophe.png
+│   │   │   ├── show-text-basic.png
+│   │   │   ├── show-text-citation.png
+│   │   │   ├── show-text-citation-smartquote.png
+│   │   │   ├── show-text-cyclic.png
+│   │   │   ├── show-text-cyclic-raw.png
+│   │   │   ├── show-text-exactly-once.png
+│   │   │   ├── show-text-get-text-on-it.png
+│   │   │   ├── show-text-in-citation.png
+│   │   │   ├── show-text-indirectly-cyclic.png
+│   │   │   ├── show-text-in-other-show.png
+│   │   │   ├── show-text-linebreak.png
+│   │   │   ├── show-text-line-wrapping.png
+│   │   │   ├── show-text-list.png
+│   │   │   ├── show-text-outer-space.png
+│   │   │   ├── show-text-path-resolving.png
+│   │   │   ├── show-text-regex-case-insensitive.png
+│   │   │   ├── show-text-regex-character-class.png
+│   │   │   ├── show-text-regex.png
+│   │   │   ├── show-text-regex-word-boundary.png
+│   │   │   ├── show-text-smartquote.png
+│   │   │   ├── show-text-space-collapsing.png
+│   │   │   ├── show-text-style-boundary.png
+│   │   │   ├── show-text-styled-space.png
+│   │   │   ├── show-text-where-text-is-space.png
+│   │   │   ├── show-text-within-par.png
+│   │   │   ├── show-where-folding-stroke.png
+│   │   │   ├── show-where-folding-text-size.png
+│   │   │   ├── show-where-optional-field-raw.png
+│   │   │   ├── show-where-optional-field-text.png
+│   │   │   ├── show-where-resolving-hyphenate.png
+│   │   │   ├── show-where-resolving-length.png
+│   │   │   ├── smallcaps-all.png
+│   │   │   ├── smallcaps.png
+│   │   │   ├── smallcaps-show-rule.png
+│   │   │   ├── smartquote-apostrophe.png
+│   │   │   ├── smartquote-bracket.png
+│   │   │   ├── smartquote-close-before-letter.png
+│   │   │   ├── smartquote-custom-complex.png
+│   │   │   ├── smartquote-custom.png
+│   │   │   ├── smartquote-de-ch.png
+│   │   │   ├── smartquote-de.png
+│   │   │   ├── smartquote-disabled-temporarily.png
+│   │   │   ├── smartquote-disable.png
+│   │   │   ├── smartquote-el.png
+│   │   │   ├── smartquote-empty.png
+│   │   │   ├── smartquote-escape.png
+│   │   │   ├── smartquote-es-mx.png
+│   │   │   ├── smartquote-es.png
+│   │   │   ├── smartquote-fi.png
+│   │   │   ├── smartquote-fr-ch.png
+│   │   │   ├── smartquote-fr.png
+│   │   │   ├── smartquote-gl.png
+│   │   │   ├── smartquote-he.png
+│   │   │   ├── smartquote-it.png
+│   │   │   ├── smartquote-la.png
+│   │   │   ├── smartquote-nesting.png
+│   │   │   ├── smartquote-nesting-twice.png
+│   │   │   ├── smartquote.png
+│   │   │   ├── smartquote-prime.png
+│   │   │   ├── smartquote-ro.png
+│   │   │   ├── smartquote-ru.png
+│   │   │   ├── smartquote-slash.png
+│   │   │   ├── smartquote-uk.png
+│   │   │   ├── smartquote-with-embedding-chars.png
+│   │   │   ├── space-collapsing-comments.png
+│   │   │   ├── space-collapsing-linebreaks.png
+│   │   │   ├── space-collapsing.png
+│   │   │   ├── space-collapsing-stringy-linebreak.png
+│   │   │   ├── space-collapsing-with-h.png
+│   │   │   ├── space-ideographic-kept.png
+│   │   │   ├── space-thin-kept.png
+│   │   │   ├── space-trailing-linebreak.png
+│   │   │   ├── spacing-fr-weak-collapse.png
+│   │   │   ├── spacing-fr-weak-destructs-rel-abs.png
+│   │   │   ├── spacing-fr-weak-destructs-smaller.png
+│   │   │   ├── spacing-fr-weak-standalone-end.png
+│   │   │   ├── spacing-fr-weak-standalone-start.png
+│   │   │   ├── spacing-fr-weak-survives-with-strong.png
+│   │   │   ├── spacing-fr-weak-versus-fr-block-spacing.png
+│   │   │   ├── spacing-fr-weak-with-fr-block.png
+│   │   │   ├── spacing-h-and-v.png
+│   │   │   ├── spacing-rtl.png
+│   │   │   ├── spacing-weak-versus-block-spacing.png
+│   │   │   ├── square-auto-sized.png
+│   │   │   ├── square-base.png
+│   │   │   ├── square-circle-alignment.png
+│   │   │   ├── square-circle-overspecified.png
+│   │   │   ├── square-contents-overflow.png
+│   │   │   ├── square-height-limited.png
+│   │   │   ├── square-height-limited-stack.png
+│   │   │   ├── square-no-overflow.png
+│   │   │   ├── square-overflow-forced-height.png
+│   │   │   ├── square-overflow-forced-width.png
+│   │   │   ├── square.png
+│   │   │   ├── square-rect-rounded.png
+│   │   │   ├── square-relatively-sized-child.png
+│   │   │   ├── square-relative-size.png
+│   │   │   ├── square-size-beyond-default.png
+│   │   │   ├── stack-basic.png
+│   │   │   ├── stack-fr.png
+│   │   │   ├── stack-overflow.png
+│   │   │   ├── stack-rtl-align-and-fr.png
+│   │   │   ├── stack-spacing.png
+│   │   │   ├── state-basic.png
+│   │   │   ├── state-multiple-calls-same-key.png
+│   │   │   ├── state-nested.png
+│   │   │   ├── std-math.png
+│   │   │   ├── strike-background.png
+│   │   │   ├── strike-with.png
+│   │   │   ├── stroke-composition.png
+│   │   │   ├── stroke-folding.png
+│   │   │   ├── stroke-text.png
+│   │   │   ├── stroke-zero-thickness.png
+│   │   │   ├── strong-delta.png
+│   │   │   ├── strong-double-star-empty-hint.png
+│   │   │   ├── sub-super-italic-compensation.png
+│   │   │   ├── sub-super-non-typographic.png
+│   │   │   ├── sub-super.png
+│   │   │   ├── sub-super-typographic.png
+│   │   │   ├── super-highlight.png
+│   │   │   ├── super-underline.png
+│   │   │   ├── symbol-constructor.png
+│   │   │   ├── symbol-modifier-deprecated.png
+│   │   │   ├── symbol.png
+│   │   │   ├── symbol-sect-deprecated.png
+│   │   │   ├── table-align-array.png
+│   │   │   ├── table-cell-align-override.png
+│   │   │   ├── table-cell-folding.png
+│   │   │   ├── table-cell-override.png
+│   │   │   ├── table-cell-par.png
+│   │   │   ├── table-cell-set.png
+│   │   │   ├── table-cell-show-and-override.png
+│   │   │   ├── table-cell-show-based-on-position.png
+│   │   │   ├── table-cell-show-emph.png
+│   │   │   ├── table-cell-show.png
+│   │   │   ├── table-cell-various-overrides.png
+│   │   │   ├── table-contextual-measurement.png
+│   │   │   ├── table-fill-basic.png
+│   │   │   ├── table-gutters.png
+│   │   │   ├── table-header-citation.png
+│   │   │   ├── table-header-counter.png
+│   │   │   ├── table-header-footer-madness.png
+│   │   │   ├── table-inset-fold.png
+│   │   │   ├── table-inset.png
+│   │   │   ├── table-newlines.png
+│   │   │   ├── table-stroke-vline-position-left-and-right.png
+│   │   │   ├── tags-textual.png
+│   │   │   ├── terms-array-deprecated.png
+│   │   │   ├── terms-built-in-loop.png
+│   │   │   ├── terms-constructor.png
+│   │   │   ├── terms-grid.png
+│   │   │   ├── terms-multiline.png
+│   │   │   ├── terms-par.png
+│   │   │   ├── terms-rtl.png
+│   │   │   ├── terms-style-change-interrupted.png
+│   │   │   ├── terms-syntax-edge-cases.png
+│   │   │   ├── text-alternates-and-stylistic-sets.png
+│   │   │   ├── text-alternates-int.png
+│   │   │   ├── text-call-body.png
+│   │   │   ├── text-chinese-basic.png
+│   │   │   ├── text-cjk-latin-spacing.png
+│   │   │   ├── text-colr-svg-glyphs-different-size.png
+│   │   │   ├── text-copy-paste-ligatures.png
+│   │   │   ├── text-edge.png
+│   │   │   ├── text-features.png
+│   │   │   ├── text-font-change-after-space.png
+│   │   │   ├── text-font-covers-chinese.png
+│   │   │   ├── text-font-covers-numbers.png
+│   │   │   ├── text-font-covers-repeat.png
+│   │   │   ├── text-font-covers-riffle.png
+│   │   │   ├── text-font-just-a-space.png
+│   │   │   ├── text-font-properties.png
+│   │   │   ├── text-kerning.png
+│   │   │   ├── text-lang-hyphenate.png
+│   │   │   ├── text-lang.png
+│   │   │   ├── text-lang-region.png
+│   │   │   ├── text-lang-script-shaping.png
+│   │   │   ├── text-lang-shaping.png
+│   │   │   ├── text-language-fallback-english.png
+│   │   │   ├── text-lang-unknown-region.png
+│   │   │   ├── text-ligatures.png
+│   │   │   ├── text-number-type.png
+│   │   │   ├── text-number-width.png
+│   │   │   ├── text-size-em-nesting.png
+│   │   │   ├── text-size-em.png
+│   │   │   ├── text-slashed-zero-and-fractions.png
+│   │   │   ├── text-spacing.png
+│   │   │   ├── text-spacing-relative.png
+│   │   │   ├── text-tracking-arabic.png
+│   │   │   ├── text-tracking-changed-temporarily.png
+│   │   │   ├── text-tracking-mark-placement.png
+│   │   │   ├── text-tracking-negative.png
+│   │   │   ├── text-unknown-font-family-warning.png
+│   │   │   ├── tiling-line.png
+│   │   │   ├── tiling-lines.png
+│   │   │   ├── tiling-pattern-compatibility.png
+│   │   │   ├── tiling-relative-parent.png
+│   │   │   ├── tiling-relative-self.png
+│   │   │   ├── tiling-small.png
+│   │   │   ├── tiling-spacing-negative.png
+│   │   │   ├── tiling-spacing-positive.png
+│   │   │   ├── tiling-spacing-zero.png
+│   │   │   ├── tiling-stroke.png
+│   │   │   ├── tiling-stroke-relative-parent.png
+│   │   │   ├── tiling-text-fill.png
+│   │   │   ├── tiling-text.png
+│   │   │   ├── tiling-with-different-size.png
+│   │   │   ├── tiling-with-different-spacing.png
+│   │   │   ├── title.png
+│   │   │   ├── title-show-set.png
+│   │   │   ├── title-with-body-auto.png
+│   │   │   ├── title-with-body.png
+│   │   │   ├── transform-combinations.png
+│   │   │   ├── transform-rotate-and-scale.png
+│   │   │   ├── transform-rotate-origin.png
+│   │   │   ├── transform-rotate.png
+│   │   │   ├── transform-rotate-relative-sizing.png
+│   │   │   ├── transform-scale-abs-and-auto.png
+│   │   │   ├── transform-scale-origin.png
+│   │   │   ├── transform-scale.png
+│   │   │   ├── transform-scale-relative-sizing.png
+│   │   │   ├── transform-skew-both-axes.png
+│   │   │   ├── transform-skew-origin.png
+│   │   │   ├── transform-skew.png
+│   │   │   ├── transform-skew-relative-sizing.png
+│   │   │   ├── transform-tex-logo.png
+│   │   │   ├── trim-weak-space-line-beginning.png
+│   │   │   ├── trim-weak-space-line-end.png
+│   │   │   ├── underline-background.png
+│   │   │   ├── underline-overline-strike.png
+│   │   │   ├── underline-stroke-folding.png
+│   │   │   └── while-loop-basic.png
+│   │   └── svg
+│   │       └── hashes.txt
+│   ├── skip.txt
+│   ├── src
+│   │   ├── args.rs
+│   │   ├── collect.rs
+│   │   ├── custom.rs
+│   │   ├── git.rs
+│   │   ├── logger.rs
+│   │   ├── notes.rs
+│   │   ├── output.rs
+│   │   ├── pdftags.rs
+│   │   ├── report
+│   │   │   ├── diff.rs
+│   │   │   ├── html.rs
+│   │   │   ├── mod.rs
+│   │   │   ├── report.css
+│   │   │   └── report.js
+│   │   ├── run.rs
+│   │   ├── tests.rs
+│   │   └── world.rs
+│   ├── suite
+│   │   ├── foundations
+│   │   │   ├── arguments.typ
+│   │   │   ├── array.typ
+│   │   │   ├── assert.typ
+│   │   │   ├── bytes.typ
+│   │   │   ├── calc.typ
+│   │   │   ├── content.typ
+│   │   │   ├── context.typ
+│   │   │   ├── datetime.typ
+│   │   │   ├── decimal.typ
+│   │   │   ├── dict.typ
+│   │   │   ├── duration.typ
+│   │   │   ├── eval.typ
+│   │   │   ├── float.typ
+│   │   │   ├── int.typ
+│   │   │   ├── label.typ
+│   │   │   ├── panic.typ
+│   │   │   ├── path.typ
+│   │   │   ├── plugin.typ
+│   │   │   ├── repr.typ
+│   │   │   ├── std.typ
+│   │   │   ├── str.typ
+│   │   │   ├── type.typ
+│   │   │   └── version.typ
+│   │   ├── html
+│   │   │   ├── elem.typ
+│   │   │   ├── frame.typ
+│   │   │   ├── syntax.typ
+│   │   │   └── typed.typ
+│   │   ├── introspection
+│   │   │   ├── convergence.typ
+│   │   │   ├── counter.typ
+│   │   │   ├── here.typ
+│   │   │   ├── locate.typ
+│   │   │   ├── query.typ
+│   │   │   ├── state.typ
+│   │   │   ├── switch.typ
+│   │   │   └── tags.typ
+│   │   ├── layout
+│   │   │   ├── align.typ
+│   │   │   ├── angle.typ
+│   │   │   ├── clip.typ
+│   │   │   ├── columns.typ
+│   │   │   ├── container.typ
+│   │   │   ├── dir.typ
+│   │   │   ├── flow
+│   │   │   │   ├── flow.typ
+│   │   │   │   ├── footnote.typ
+│   │   │   │   ├── invisibles.typ
+│   │   │   │   ├── orphan.typ
+│   │   │   │   └── place.typ
+│   │   │   ├── grid
+│   │   │   │   ├── cell.typ
+│   │   │   │   ├── colspan.typ
+│   │   │   │   ├── footers.typ
+│   │   │   │   ├── grid.typ
+│   │   │   │   ├── headers.typ
+│   │   │   │   ├── html.typ
+│   │   │   │   ├── positioning.typ
+│   │   │   │   ├── rowspan.typ
+│   │   │   │   ├── rtl.typ
+│   │   │   │   ├── stroke.typ
+│   │   │   │   ├── styling.typ
+│   │   │   │   └── subheaders.typ
+│   │   │   ├── hide.typ
+│   │   │   ├── inline
+│   │   │   │   ├── baseline.typ
+│   │   │   │   ├── bidi.typ
+│   │   │   │   ├── cjk.typ
+│   │   │   │   ├── hyphenate.typ
+│   │   │   │   ├── justify.typ
+│   │   │   │   ├── linebreak.typ
+│   │   │   │   ├── overhang.typ
+│   │   │   │   ├── shaping.typ
+│   │   │   │   └── text.typ
+│   │   │   ├── layout.typ
+│   │   │   ├── length.typ
+│   │   │   ├── limits.typ
+│   │   │   ├── line-numbers.typ
+│   │   │   ├── measure.typ
+│   │   │   ├── pad.typ
+│   │   │   ├── pagebreak.typ
+│   │   │   ├── page.typ
+│   │   │   ├── relative.typ
+│   │   │   ├── repeat.typ
+│   │   │   ├── spacing.typ
+│   │   │   ├── stack.typ
+│   │   │   ├── table.typ
+│   │   │   └── transform.typ
+│   │   ├── loading
+│   │   │   ├── cbor.typ
+│   │   │   ├── csv.typ
+│   │   │   ├── edge-case.typ
+│   │   │   ├── json.typ
+│   │   │   ├── read.typ
+│   │   │   ├── toml.typ
+│   │   │   ├── xml.typ
+│   │   │   └── yaml.typ
+│   │   ├── math
+│   │   │   ├── accent.typ
+│   │   │   ├── alignment.typ
+│   │   │   ├── attach.typ
+│   │   │   ├── call.typ
+│   │   │   ├── cancel.typ
+│   │   │   ├── cases.typ
+│   │   │   ├── class.typ
+│   │   │   ├── delimited.typ
+│   │   │   ├── equation.typ
+│   │   │   ├── frac.typ
+│   │   │   ├── interactions.typ
+│   │   │   ├── mat.typ
+│   │   │   ├── multiline.typ
+│   │   │   ├── op.typ
+│   │   │   ├── primes.typ
+│   │   │   ├── root.typ
+│   │   │   ├── size.typ
+│   │   │   ├── spacing.typ
+│   │   │   ├── stretch.typ
+│   │   │   ├── style.typ
+│   │   │   ├── symbols.typ
+│   │   │   ├── syntax.typ
+│   │   │   ├── text.typ
+│   │   │   ├── underover.typ
+│   │   │   └── vec.typ
+│   │   ├── model
+│   │   │   ├── bibliography.typ
+│   │   │   ├── cite.typ
+│   │   │   ├── document.typ
+│   │   │   ├── emph-strong.typ
+│   │   │   ├── enum.typ
+│   │   │   ├── figure.typ
+│   │   │   ├── heading.typ
+│   │   │   ├── link.typ
+│   │   │   ├── list.typ
+│   │   │   ├── numbering.typ
+│   │   │   ├── outline.typ
+│   │   │   ├── par.typ
+│   │   │   ├── quote.typ
+│   │   │   ├── ref.typ
+│   │   │   ├── terms.typ
+│   │   │   └── title.typ
+│   │   ├── pdf
+│   │   │   ├── attach.typ
+│   │   │   └── validation.typ
+│   │   ├── pdftags
+│   │   │   ├── break.typ
+│   │   │   ├── deco.typ
+│   │   │   ├── disable.typ
+│   │   │   ├── figure.typ
+│   │   │   ├── footnote.typ
+│   │   │   ├── grid.typ
+│   │   │   ├── heading.typ
+│   │   │   ├── lang.typ
+│   │   │   ├── layout.typ
+│   │   │   ├── link.typ
+│   │   │   ├── list.typ
+│   │   │   ├── logical-children.typ
+│   │   │   ├── query.typ
+│   │   │   ├── raw.typ
+│   │   │   └── table.typ
+│   │   ├── playground.typ
+│   │   ├── scripting
+│   │   │   ├── blocks.typ
+│   │   │   ├── call.typ
+│   │   │   ├── closure.typ
+│   │   │   ├── destructuring.typ
+│   │   │   ├── field.typ
+│   │   │   ├── for.typ
+│   │   │   ├── get-rule.typ
+│   │   │   ├── if.typ
+│   │   │   ├── import.typ
+│   │   │   ├── include.typ
+│   │   │   ├── let.typ
+│   │   │   ├── loop.typ
+│   │   │   ├── methods.typ
+│   │   │   ├── modules
+│   │   │   │   ├── chap1.typ
+│   │   │   │   ├── chap2.typ
+│   │   │   │   ├── cycle1.typ
+│   │   │   │   ├── cycle2.typ
+│   │   │   │   └── with space.typ
+│   │   │   ├── module.typ
+│   │   │   ├── ops.typ
+│   │   │   ├── params.typ
+│   │   │   ├── recursion.typ
+│   │   │   ├── return.typ
+│   │   │   └── while.typ
+│   │   ├── styling
+│   │   │   ├── fold.typ
+│   │   │   ├── set.typ
+│   │   │   ├── show-set.typ
+│   │   │   ├── show-text.typ
+│   │   │   ├── show.typ
+│   │   │   └── show-where.typ
+│   │   ├── symbols
+│   │   │   └── symbol.typ
+│   │   ├── syntax
+│   │   │   ├── backtracking.typ
+│   │   │   ├── code.typ
+│   │   │   ├── comment.typ
+│   │   │   ├── depth.typ
+│   │   │   ├── escape.typ
+│   │   │   ├── newlines.typ
+│   │   │   ├── numbers.typ
+│   │   │   ├── panics.typ
+│   │   │   ├── shebang.typ
+│   │   │   └── shorthand.typ
+│   │   ├── text
+│   │   │   ├── case.typ
+│   │   │   ├── coma.typ
+│   │   │   ├── copy-paste.typ
+│   │   │   ├── deco.typ
+│   │   │   ├── edge.typ
+│   │   │   ├── em.typ
+│   │   │   ├── font.typ
+│   │   │   ├── lang.typ
+│   │   │   ├── lorem.typ
+│   │   │   ├── raw.typ
+│   │   │   ├── shift.typ
+│   │   │   ├── smallcaps.typ
+│   │   │   ├── smartquote.typ
+│   │   │   └── space.typ
+│   │   └── visualize
+│   │       ├── block.typ
+│   │       ├── circle.typ
+│   │       ├── color.typ
+│   │       ├── curve.typ
+│   │       ├── ellipse.typ
+│   │       ├── gradient.typ
+│   │       ├── image.typ
+│   │       ├── line.typ
+│   │       ├── polygon.typ
+│   │       ├── rect.typ
+│   │       ├── square.typ
+│   │       ├── stroke.typ
+│   │       └── tiling.typ
+│   └── wrapper
+│       ├── Cargo.toml
+│       └── src
+│           └── main.rs
+└── tools
+    ├── support
+    │   ├── config.json
+    │   ├── package.json
+    │   ├── README.md
+    │   └── typst.tmLanguage.json
+    └── test-helper
+        ├── package.json
+        ├── README.md
+        ├── src
+        │   └── extension.ts
+        └── tsconfig.json
+
+112 directories, 2747 files
