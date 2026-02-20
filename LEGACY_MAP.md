@@ -103,8 +103,8 @@
   - *↳ [ ] L0 (Spec Criada)*
 
 ## Módulo: typst-ide (20_lab/crates/typst-ide/src)
-- [ ] `20_lab/crates/typst-ide/src/analyze.rs`
-  - *↳ [ ] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-ide/src/analyze.rs`
+  - *↳ [x] L0 (Spec Criada)*
 - [ ] `20_lab/crates/typst-ide/src/complete.rs`
   - *↳ [ ] L0 (Spec Criada)*
 - [ ] `20_lab/crates/typst-ide/src/definition.rs`
@@ -795,8 +795,8 @@
   - *↳ [ ] L0 (Spec Criada)*
 
 ## Módulo: typst (20_lab/crates/typst/src)
-- [ ] `20_lab/crates/typst/src/lib.rs`
-  - *↳ [ ] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst/src/lib.rs`
+  - *↳ [x] L0 (Spec Criada)*
 
 ## Módulo: src (20_lab/docs/src)
 - [ ] `20_lab/docs/src/contribs.rs`

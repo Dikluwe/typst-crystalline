@@ -1,0 +1,83 @@
+    Checking typst-utils v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-utils)
+    Checking typst-timing v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-timing)
+   Compiling psm v0.1.24
+   Compiling stacker v0.1.21
+   Compiling openssl-sys v0.9.107
+   Compiling libfuzzer-sys v0.4.9
+    Checking typst-syntax v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-syntax)
+   Compiling openssl v0.10.72
+   Compiling native-tls v0.2.13
+    Checking typst-library v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-library)
+    Checking ureq v2.12.1
+    Checking typst-svg v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-svg)
+    Checking typst-realize v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-realize)
+    Checking typst-layout v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-layout)
+    Checking typst-eval v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-eval)
+    Checking typst-render v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-render)
+    Checking typst-pdf v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-pdf)
+    Checking typst-kit v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-kit)
+    Checking typst-html v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-html)
+    Checking typst v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst)
+    Checking typst-fuzz v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/tests/fuzz)
+    Checking typst-docs v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/docs)
+    Checking typst-cli v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-cli)
+    Checking wiring v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/04_wiring)
+    Checking typst-ide v0.14.2 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/20_lab/crates/typst-ide)
+warning: unused import: `DateTime`
+ --> 04_wiring/src/../../04_wiring/../01_core/compile_logic.rs:6:14
+  |
+6 | use chrono::{DateTime, Datelike, Timelike};
+  |              ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::path::Path`
+ --> 04_wiring/src/../../04_wiring/../03_infra/../00_nucleo/contracts/compile_io.rs:4:5
+  |
+4 | use std::path::Path;
+  |     ^^^^^^^^^^^^^^^
+
+warning: unused import: `PathBuf`
+ --> 04_wiring/src/../../04_wiring/../03_infra/fonts_io_impl.rs:7:23
+  |
+7 | use std::path::{Path, PathBuf};
+  |                       ^^^^^^^
+
+warning: unused import: `PathBuf`
+ --> 04_wiring/src/../../04_wiring/../03_infra/../00_nucleo/contracts/init_io.rs:4:23
+  |
+4 | use std::path::{Path, PathBuf};
+  |                       ^^^^^^^
+
+warning: unused import: `ColorChoice`
+ --> 04_wiring/src/../../04_wiring/../03_infra/terminal_io_impl.rs:8:49
+  |
+8 | use codespan_reporting::term::termcolor::{self, ColorChoice, ColorSpec, WriteColor};
+  |                                                 ^^^^^^^^^^^
+
+warning: unused import: `ColorSpec`
+ --> 04_wiring/src/../../04_wiring/../03_infra/../00_nucleo/contracts/terminal_io.rs:5:43
+  |
+5 | use codespan_reporting::term::termcolor::{ColorSpec, WriteColor};
+  |                                           ^^^^^^^^^
+
+warning: unused import: `Path`
+ --> 04_wiring/src/../../04_wiring/../03_infra/timings_io_impl.rs:8:17
+  |
+8 | use std::path::{Path, PathBuf};
+  |                 ^^^^
+
+warning: unused import: `timings_io::ITimingExporter`
+  --> 04_wiring/src/../../04_wiring/../03_infra/timings_io_impl.rs:18:5
+   |
+18 | use timings_io::ITimingExporter;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `ColorSpec`
+  --> 04_wiring/src/../../04_wiring/../03_infra/main_io_impl.rs:11:56
+   |
+11 | use codespan_reporting::term::termcolor::{ColorChoice, ColorSpec, StandardStream, WriteColor};
+   |                                                        ^^^^^^^^^
+
+warning: `wiring` (bin "typst") generated 9 warnings (run `cargo fix --bin "typst" -p wiring` to apply 9 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 7.80s

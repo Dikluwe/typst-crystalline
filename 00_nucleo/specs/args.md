@@ -11,6 +11,7 @@ As funções e métodos a seguir **não dependem de I/O** e devem ser transferid
 - **`parse_sys_input_pair(raw: &str) -> Result<(String, String), String>`**: Utilitário puro de string splitting (no `=` sign) para separar chaves e valores.
 - **`parse_source_date_epoch(raw: &str) -> Result<DateTime<Utc>, String>`**: Parsing de uma *string* representando o timestamp numérico para um objeto de data explícito, sem depender do *clock* real.
 - **`OutputFormat::is_paged(&self) -> bool`**: Retorna logicamente se a variação formatada (PDF, PNG, SVG) diz respeito à saída empaginada ou não (HTML).
+- **`input_value_parser` e `output_value_parser`**: Tradutores semânticos puros atrelados ao Clap que validam se a string lida é vazia e convertem magicamente o token `"-"` em suas variantes enumeradas `Stdin`/`Stdout`, sem ainda acionar IO.
 
 ## 3. Efeitos Colaterais Identificados (Para os futuros Contratos L3)
 A implementação atual de `args.rs` se acopla a efeitos colaterais (side-effects) que prejudicam a testabilidade unitária pura e violam o `Invariante de Nucleação`. São eles:

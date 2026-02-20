@@ -16,6 +16,7 @@ O arquivo atual mistura orquestração de I/O com regras de negócio. As seguint
 - **Processamento de Templates Numéricos (`output_template::*`)**: Funções `has_indexable_template` e `format` responsáveis unicamente por substituir strings lógicas (`"{p}", "{0p}", "{n}", "{t}"`) pelo número do índice renderizado, usando `width` em base 10.
 - **Conversão de Structs Temporais (`convert_datetime`)**: Conversor matemático sem efeito colateral de `chrono::DateTime<Tz>` para `typst::foundations::Datetime`.
 - **Match de Tipos e Coerção (`impl From<PdfStandard> for typst_pdf::PdfStandard`)**: Tratação puramente semântica entre tipos de frameworks externos.
+- **Validação Restritiva de Stdout/Deps (`CompileConfig::new_impl`)**: Regras lógicas puras que rejeitam a combinação de Watch Mode com output via Stdout, ou Deps via Stdout se o principal já for Stdout.
 
 ## 3. Efeitos Colaterais Identificados (Para os futuros Contratos L3)
 A camada que engolobiliza os processamentos se interliga profundamente ao ambiente da máquina. Os Seguintes I/Os violam a arquitetura pura e devem ter interfaces (contratos) definidos no Núcleo:
@@ -25,6 +26,7 @@ A camada que engolobiliza os processamentos se interliga profundamente ao ambien
 - **Efeito 3: Servidor HTTP Acoplado**: Subir um socket ou um `HttpServer` via porta de rede local (para HTML watcher).
 - **Efeito 4: Escrita Direta Otimizada**: Usar caminhos diretos (IO de filesystem) na escrita dos buffers (`config.output.write(...)` e `write_deps()`).
 - **Efeito 5: Diagnósticos com Código ANSI no Terminal**: Uso da biblioteca `codespan_reporting` para jogar bytes coloridos e erros lidos sob os locks do `stdout/stderr` (através de `terminal::out()`).
+- **Efeito 6: Estado Global/Cache de Exportação (`ExportCache`)**: Controle de concorrência global em `RwLock<Vec<u128>>` e cálculo de `hash128` das imagens renderizadas, invalidando renderizações futuras (um puro side effect que quebra o determinismo idempotente).
 
 *(Ver `00_nucleo/contracts/compile_io.rs` para as abstrações/interfaces propostas).*
 
