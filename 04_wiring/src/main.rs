@@ -88,7 +88,6 @@ static ARGS: LazyLock<CliArguments> = LazyLock::new(|| {
 fn main() -> ExitCode {
     // Inicia e carrega a nova estrutura de injeção L4 da App Inteira, mantendo compatibilidade
     let _app = app_wiring::TypstApp::default();
-    println!("Wiring crystal architecture loaded: IO/Env injected na raiz.");
 
     // Handle SIGPIPE
     sigpipe::reset();

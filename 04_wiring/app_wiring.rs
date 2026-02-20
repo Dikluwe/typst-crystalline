@@ -105,6 +105,18 @@ pub mod terminal_logic;
 #[path = "../03_infra/terminal_io_impl.rs"]
 pub mod terminal_io_impl;
 
+#[path = "../01_core/timings_logic.rs"]
+pub mod timings_logic;
+
+#[path = "../03_infra/timings_io_impl.rs"]
+pub mod timings_io_impl;
+
+#[path = "../01_core/main_logic.rs"]
+pub mod main_logic;
+
+#[path = "../03_infra/main_io_impl.rs"]
+pub mod main_io_impl;
+
 // (Não estamos adicionando um 02_shell para compile/info porque esses módulos ATUAIS funcionam como controllers legados no projeto inteiro)
 
 pub use args_io_impl::{StandardOutputWriter, SystemEnvProvider};
@@ -124,6 +136,8 @@ pub use packages_io_impl::OsPackageRegistryFactory;
 pub use init_io_impl::{OsInitFileSystem, StandardInitPrinter};
 pub use query_io_impl::StandardQueryOutputWriter;
 pub use terminal_io_impl::AnsiTerminalOutput;
+pub use timings_io_impl::SystemTimer as Timer;
+pub use main_io_impl::{ThreadLocalExitController, ColoredErrorPrinter};
 pub use args_cli::CliArguments;
 
 pub struct TypstApp {

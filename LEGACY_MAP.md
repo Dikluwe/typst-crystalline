@@ -1,8 +1,8 @@
 # Controle de Migração Tekt (Typst)
 
 ## Módulo: typst-cli (20_lab/crates/typst-cli)
-- [ ] `20_lab/crates/typst-cli/build.rs`
-  - *↳ [ ] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/build.rs`
+  - *↳ [x] L0 (Spec Criada)*
 
 ## Módulo: typst-cli (20_lab/crates/typst-cli/src)
 - [x] `20_lab/crates/typst-cli/src/args.rs`
@@ -25,16 +25,16 @@
   - *↳ [x] L0 (Spec Criada)*
 - [x] `20_lab/crates/typst-cli/src/init.rs`
   - *↳ [x] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/main.rs`
-  - *↳ [ ] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/main.rs`
+  - *↳ [x] L0 (Spec Criada)*
 - [x] `20_lab/crates/typst-cli/src/packages.rs`
   - *↳ [x] L0 (Spec Criada)*
 - [x] `20_lab/crates/typst-cli/src/query.rs`
   - *↳ [x] L0 (Spec Criada)*
 - [x] `20_lab/crates/typst-cli/src/terminal.rs`
   - *↳ [x] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/timings.rs`
-  - *↳ [ ] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/timings.rs`
+  - *↳ [x] L0 (Spec Criada)*
 - [x] `20_lab/crates/typst-cli/src/update.rs`
   - *↳ [x] L0 (Spec Criada)*
 - [x] `20_lab/crates/typst-cli/src/watch.rs`
@@ -43,8 +43,8 @@
   - *↳ [x] L0 (Spec Criada)*
 
 ## Módulo: typst-cli (20_lab/crates/typst-cli/tests)
-- [ ] `20_lab/crates/typst-cli/tests/smoke.rs`
-  - *↳ [ ] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/tests/smoke.rs`
+  - *↳ [x] L0 (Spec Criada)*
 
 ## Módulo: typst-eval (20_lab/crates/typst-eval/src)
 - [ ] `20_lab/crates/typst-eval/src/access.rs`
