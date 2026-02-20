@@ -9,14 +9,14 @@
   - *↳ [x] L0 (Spec Criada)*
 - [x] `20_lab/crates/typst-cli/src/compile.rs`
   - *↳ [x] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/completions.rs`
-  - *↳ [ ] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/deps.rs`
-  - *↳ [ ] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/download.rs`
-  - *↳ [ ] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/eval.rs`
-  - *↳ [ ] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/completions.rs`
+  - *↳ [x] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/deps.rs`
+  - *↳ [x] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/download.rs`
+  - *↳ [x] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/eval.rs`
+  - *↳ [x] L0 (Spec Criada)*
 - [ ] `20_lab/crates/typst-cli/src/fonts.rs`
   - *↳ [ ] L0 (Spec Criada)*
 - [ ] `20_lab/crates/typst-cli/src/greet.rs`
@@ -35,10 +35,10 @@
   - *↳ [ ] L0 (Spec Criada)*
 - [ ] `20_lab/crates/typst-cli/src/timings.rs`
   - *↳ [ ] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/update.rs`
-  - *↳ [ ] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/watch.rs`
-  - *↳ [ ] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/update.rs`
+  - *↳ [x] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/watch.rs`
+  - *↳ [x] L0 (Spec Criada)*
 - [x] `20_lab/crates/typst-cli/src/world.rs`
   - *↳ [x] L0 (Spec Criada)*
 

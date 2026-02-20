@@ -30,8 +30,44 @@ pub mod world_logic;
 #[path = "../03_infra/world_io_impl.rs"]
 pub mod world_io_impl;
 
+#[path = "../01_core/update_logic.rs"]
+pub mod update_logic;
+
+#[path = "../03_infra/update_io_impl.rs"]
+pub mod update_io_impl;
+
+#[path = "../01_core/watch_logic.rs"]
+pub mod watch_logic;
+
+#[path = "../03_infra/watch_io_impl.rs"]
+pub mod watch_io_impl;
+
+#[path = "../01_core/deps_logic.rs"]
+pub mod deps_logic;
+
+#[path = "../03_infra/deps_io_impl.rs"]
+pub mod deps_io_impl;
+
+#[path = "../01_core/completions_logic.rs"]
+pub mod completions_logic;
+
 #[path = "../02_shell/args_cli.rs"]
 pub mod args_cli;
+
+#[path = "../03_infra/completions_io_impl.rs"]
+pub mod completions_io_impl;
+
+#[path = "../01_core/download_logic.rs"]
+pub mod download_logic;
+
+#[path = "../03_infra/download_io_impl.rs"]
+pub mod download_io_impl;
+
+#[path = "../01_core/eval_logic.rs"]
+pub mod eval_logic;
+
+#[path = "../03_infra/eval_io_impl.rs"]
+pub mod eval_io_impl;
 
 // (Não estamos adicionando um 02_shell para compile/info porque esses módulos ATUAIS funcionam como controllers legados no projeto inteiro)
 
@@ -39,6 +75,13 @@ pub use args_io_impl::{StandardOutputWriter, SystemEnvProvider};
 pub use compile_io_impl::{SystemProcessOpener, SystemClockProvider, SystemDiagnosticPublisher};
 pub use info_io_impl::{SystemEnvReader, TermColorWriter, SystemPathResolver};
 pub use world_io_impl::{OsFileSystem, OsStdinReader, RayonRuntimeConfig};
+pub use update_io_impl::{OsBackupPathResolver};
+#[cfg(feature = "self-update")]
+pub use update_io_impl::{OsSelfReplacer, SystemArchiveExtractor};
+pub use watch_io_impl::ChronoTimestampProvider;
+pub use deps_io_impl::OsWorkingDirectory;
+pub use completions_io_impl::ClapCompletionGenerator;
+pub use eval_io_impl::StandardEvalOutputWriter;
 pub use args_cli::CliArguments;
 
 pub struct TypstApp {
@@ -52,6 +95,7 @@ pub struct TypstApp {
     pub filesystem: Box<dyn world_io_impl::world_io::IFileSystem>,
     pub stdin_reader: Box<dyn world_io_impl::world_io::IStdinReader>,
     pub runtime: Box<dyn world_io_impl::world_io::IRuntimeConfig>,
+    pub backup_resolver: Box<dyn update_io_impl::update_io::IBackupPathResolver>,
 }
 
 impl Default for TypstApp {
@@ -67,6 +111,7 @@ impl Default for TypstApp {
             filesystem: Box::new(OsFileSystem),
             stdin_reader: Box::new(OsStdinReader),
             runtime: Box::new(RayonRuntimeConfig),
+            backup_resolver: Box::new(OsBackupPathResolver),
         }
     }
 }
