@@ -24,13 +24,15 @@ pub mod args_cli;
 // (Não estamos adicionando um 02_shell para compile porque compile.rs ATUAL funciona como controller legado no projeto inteiro)
 
 pub use args_io_impl::{StandardOutputWriter, SystemEnvProvider};
-pub use compile_io_impl::SystemProcessOpener;
+pub use compile_io_impl::{SystemProcessOpener, SystemClockProvider, SystemDiagnosticPublisher};
 pub use args_cli::CliArguments;
 
 pub struct TypstApp {
     pub io: Box<dyn args_io::IOutputWriter>,
     pub env: Box<dyn args_io::IEnvProvider>,
     pub process: Box<dyn compile_io_impl::compile_io::IProcessOpener>,
+    pub clock: Box<dyn compile_io_impl::compile_io::IClockProvider>,
+    pub diagnostics: Box<dyn compile_io_impl::compile_io::IDiagnosticPublisher>,
 }
 
 impl Default for TypstApp {
@@ -39,6 +41,8 @@ impl Default for TypstApp {
             io: Box::new(StandardOutputWriter),
             env: Box::new(SystemEnvProvider),
             process: Box::new(SystemProcessOpener),
+            clock: Box::new(SystemClockProvider),
+            diagnostics: Box::new(SystemDiagnosticPublisher),
         }
     }
 }
