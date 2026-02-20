@@ -1,0 +1,28 @@
+<svg viewBox="0 0 220 60" width="220pt" height="60pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 60h 220v -60Z "/>
+  <path fill="none" stroke="url(#rB5562AD213D32AAB4CC131AB0A7CED80)" stroke-width="4" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(10 10)" d="M 0 0l 40 40l 40 -40l 40 40l 40 -40l 40 40"/>
+  <defs>
+    <linearGradient id="f59B7AD2733B29C917A82FFE35E516ED0" spreadMethod="pad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff4136"/>
+      <stop offset="6.25%" stop-color="#f44c47"/>
+      <stop offset="12.5%" stop-color="#e95555"/>
+      <stop offset="18.75%" stop-color="#de5c62"/>
+      <stop offset="25%" stop-color="#d3626d"/>
+      <stop offset="31.25%" stop-color="#c76678"/>
+      <stop offset="37.5%" stop-color="#bb6a82"/>
+      <stop offset="43.75%" stop-color="#b06e8c"/>
+      <stop offset="50%" stop-color="#a37095"/>
+      <stop offset="56.25%" stop-color="#97739e"/>
+      <stop offset="62.5%" stop-color="#8a74a7"/>
+      <stop offset="68.75%" stop-color="#7c75af"/>
+      <stop offset="75%" stop-color="#6d76b8"/>
+      <stop offset="81.25%" stop-color="#5d76c0"/>
+      <stop offset="87.5%" stop-color="#4b76c9"/>
+      <stop offset="93.75%" stop-color="#3375d1"/>
+      <stop offset="100%" stop-color="#0074d9"/>
+    </linearGradient>
+  </defs>
+  <defs>
+    <linearGradient gradientTransform="scale(200 40)" id="rB5562AD213D32AAB4CC131AB0A7CED80" href="#f59B7AD2733B29C917A82FFE35E516ED0" xlink:href="#f59B7AD2733B29C917A82FFE35E516ED0"/>
+  </defs>
+</svg>

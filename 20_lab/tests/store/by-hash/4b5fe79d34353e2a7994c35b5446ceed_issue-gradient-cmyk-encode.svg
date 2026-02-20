@@ -1,0 +1,61 @@
+<svg viewBox="0 0 100 54" width="100pt" height="54pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 54h 100v -54Z "/>
+  <path fill="url(#rA74853ED6756D7D2A7169E55009761CE)" fill-rule="nonzero" d="M 0 0v 10h 100v -10Z "/>
+  <path fill="url(#r64C4FE0B7BDBB8897E532CC3A8DFF74D)" fill-rule="nonzero" transform="translate(0 22)" d="M 0 0v 10h 100v -10Z "/>
+  <path fill="url(#r3E563CC5475B727EAC27944FEABB27A2)" fill-rule="nonzero" transform="translate(0 44)" d="M 0 0v 10h 100v -10Z "/>
+  <defs>
+    <linearGradient id="fE2A342BA2FCF90D3F337456FD4515141" spreadMethod="pad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#5c50a2"/>
+      <stop offset="12.5%" stop-color="#5a59a8"/>
+      <stop offset="25%" stop-color="#5761ae"/>
+      <stop offset="37.5%" stop-color="#5369b3"/>
+      <stop offset="50%" stop-color="#4e72b9"/>
+      <stop offset="62.5%" stop-color="#487abf"/>
+      <stop offset="75%" stop-color="#4082c5"/>
+      <stop offset="87.5%" stop-color="#368bcb"/>
+      <stop offset="100%" stop-color="#2693d1"/>
+    </linearGradient>
+    <linearGradient id="f36F66586BFBC530695B1EBBB545A0BEE" spreadMethod="pad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#5c50a2"/>
+      <stop offset="12.5%" stop-color="#5a59a8"/>
+      <stop offset="25%" stop-color="#5761ae"/>
+      <stop offset="37.5%" stop-color="#5369b3"/>
+      <stop offset="50%" stop-color="#4e72b9"/>
+      <stop offset="62.5%" stop-color="#487abf"/>
+      <stop offset="75%" stop-color="#4082c5"/>
+      <stop offset="87.5%" stop-color="#368bcb"/>
+      <stop offset="100%" stop-color="#2693d1"/>
+    </linearGradient>
+    <linearGradient id="fB5BE63649E88F5262AC958C257FBBC47" spreadMethod="pad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#5c50a2"/>
+      <stop offset="6.25%" stop-color="#5a54a4"/>
+      <stop offset="7.81%" stop-color="#5a56a5"/>
+      <stop offset="9.38%" stop-color="#5a57a6"/>
+      <stop offset="10.94%" stop-color="#5958a7"/>
+      <stop offset="12.5%" stop-color="#5959a7"/>
+      <stop offset="25%" stop-color="#5562ad"/>
+      <stop offset="26.56%" stop-color="#5463ae"/>
+      <stop offset="28.13%" stop-color="#5464ae"/>
+      <stop offset="31.25%" stop-color="#5266b0"/>
+      <stop offset="37.5%" stop-color="#506ab2"/>
+      <stop offset="50%" stop-color="#4b72b8"/>
+      <stop offset="62.5%" stop-color="#457abe"/>
+      <stop offset="75%" stop-color="#3d82c4"/>
+      <stop offset="78.13%" stop-color="#3b84c6"/>
+      <stop offset="79.69%" stop-color="#3a85c6"/>
+      <stop offset="81.25%" stop-color="#3986c7"/>
+      <stop offset="84.38%" stop-color="#3688c9"/>
+      <stop offset="85.94%" stop-color="#358aca"/>
+      <stop offset="87.5%" stop-color="#338bca"/>
+      <stop offset="93.75%" stop-color="#2d8fce"/>
+      <stop offset="95.31%" stop-color="#2b90cf"/>
+      <stop offset="96.88%" stop-color="#2a91cf"/>
+      <stop offset="100%" stop-color="#2693d1"/>
+    </linearGradient>
+  </defs>
+  <defs>
+    <linearGradient gradientTransform="scale(100 10)" id="rA74853ED6756D7D2A7169E55009761CE" href="#fE2A342BA2FCF90D3F337456FD4515141" xlink:href="#fE2A342BA2FCF90D3F337456FD4515141"/>
+    <linearGradient gradientTransform="scale(100 10)" id="r64C4FE0B7BDBB8897E532CC3A8DFF74D" href="#f36F66586BFBC530695B1EBBB545A0BEE" xlink:href="#f36F66586BFBC530695B1EBBB545A0BEE"/>
+    <linearGradient gradientTransform="scale(100 10)" id="r3E563CC5475B727EAC27944FEABB27A2" href="#fB5BE63649E88F5262AC958C257FBBC47" xlink:href="#fB5BE63649E88F5262AC958C257FBBC47"/>
+  </defs>
+</svg>

@@ -1,0 +1,6 @@
+<svg viewBox="0 0 120 66" width="120pt" height="66pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 66h 120v -66Z "/>
+  <path fill="#239dad" fill-rule="nonzero" transform="translate(10 10)" d="M 0 0v 46h 46v -46Z "/>
+  <path fill="#9feb52" fill-rule="nonzero" transform="translate(15 15)" d="M 0 0v 5h 10v -5Z "/>
+  <path fill="none" stroke="#9feb52" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(15 32)" d="M 0 0v 5h 14.4v -5Z "/>
+</svg>

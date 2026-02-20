@@ -1,0 +1,40 @@
+<svg viewBox="0 0 120 37.075" width="120pt" height="37.075pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 37.075h 120v -37.075Z "/>
+  <g transform="matrix(1 0 0 -1 10 27.075)">
+    <use xlink:href="#gCAFCF251E3E7C622E910E041337A0140" x="0" y="0" fill="#ffdc00" fill-rule="nonzero" stroke="#ff4136" stroke-width="0.5" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"/>
+  </g>
+  <path fill="#ffdc00" fill-rule="nonzero" stroke="#ff4136" stroke-width="0.5" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(10 29.955)" d="M 0 0v 0.96h 16.66v -0.96Z "/>
+  <g transform="matrix(1 0 0 -1 26.66 27.075)">
+    <use xlink:href="#g7DA5A1B0D4041F1C41873BD5D0F3D359" x="0" y="0" fill="#ffdc00" fill-rule="nonzero" stroke="#ff4136" stroke-width="0.5" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 32.22 27.075)">
+    <use xlink:href="#gCAFCF251E3E7C622E910E041337A0140" x="0" y="0" fill="#ffdc00" fill-rule="nonzero" stroke="#ff4136" stroke-width="0.5" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"/>
+  </g>
+  <path fill="#ffdc00" fill-rule="nonzero" stroke="#ff4136" stroke-width="0.5" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(32.22 9.875)" d="M 0 0v 0.96h 16.66v -0.96Z "/>
+  <g transform="matrix(1 0 0 -1 48.88 27.075)"/>
+  <g transform="matrix(1 0 0 -1 51.38 27.075)">
+    <use xlink:href="#g345729B29BA2231DA6D81361FF2D62B8" x="0" y="0" fill="#000000" fill-rule="nonzero" stroke="#ff4136" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"/>
+  </g>
+  <path fill="#000000" fill-rule="nonzero" stroke="#ff4136" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(51.38 30.675)" d="M 0 0v 1.2h 20.825v -1.2Z "/>
+  <g transform="matrix(1 0 0 -1 72.205 27.075)">
+    <use xlink:href="#g2B1E2A4538A64B0CEBF2BCAB7A34FA00" x="0" y="0" fill="#000000" fill-rule="nonzero" stroke="#ff4136" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 79.155 27.075)">
+    <use xlink:href="#g345729B29BA2231DA6D81361FF2D62B8" x="0" y="0" fill="#000000" fill-rule="nonzero" stroke="#ff4136" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4"/>
+  </g>
+  <path fill="#000000" fill-rule="nonzero" stroke="#ff4136" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(79.155 5.575)" d="M 0 0v 1.2h 20.825v -1.2Z "/>
+  <defs>
+    <symbol id="gCAFCF251E3E7C622E910E041337A0140" overflow="visible">
+      <path d="M 0 0m 15.18 0c 0.34 0 0.52 0.08 0.52 0.26l -6.8 13.66c -0.14 0.26 -0.32 0.4 -0.58 0.4c -0.26 0 -0.44 -0.14 -0.58 -0.4l -6.7 -13.42c -0.06 -0.14 -0.1 -0.22 -0.1 -0.26c 0 -0.16 0.18 -0.24 0.52 -0.24Z m -7.5 12.08l 5.2 -10.42h -10.4Z "/>
+    </symbol>
+    <symbol id="g7DA5A1B0D4041F1C41873BD5D0F3D359" overflow="visible">
+      <path d="M 0 0m 3.84 1.06c 0 0.58 -0.48 1.06 -1.06 1.06c -0.58 0 -1.06 -0.48 -1.06 -1.06c 0 -0.58 0.48 -1.06 1.06 -1.06c 0.58 0 1.06 0.48 1.06 1.06Z "/>
+    </symbol>
+    <symbol id="g345729B29BA2231DA6D81361FF2D62B8" overflow="visible">
+      <path d="M 0 0m 18.975 0c 0.425 0 0.65 0.1 0.65 0.325l -8.5 17.075c -0.175 0.325 -0.4 0.5 -0.725 0.5c -0.325 0 -0.55 -0.175 -0.725 -0.5l -8.375 -16.775c -0.075 -0.175 -0.125 -0.275 -0.125 -0.325c 0 -0.2 0.225 -0.3 0.65 -0.3Z m -9.375 15.1l 6.5 -13.025h -13Z "/>
+    </symbol>
+    <symbol id="g2B1E2A4538A64B0CEBF2BCAB7A34FA00" overflow="visible">
+      <path d="M 0 0m 4.8 1.325c 0 0.725 -0.6 1.325 -1.325 1.325c -0.725 0 -1.325 -0.6 -1.325 -1.325c 0 -0.725 0.6 -1.325 1.325 -1.325c 0.725 0 1.325 0.6 1.325 1.325Z "/>
+    </symbol>
+  </defs>
+</svg>

@@ -1,0 +1,21 @@
+<svg viewBox="0 0 120 70" width="120pt" height="70pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 70h 120v -70Z "/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(10 9.5)" d="M 0 0v 31"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(40 9.5)" d="M 0 0v 31"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(70 9.5)" d="M 0 0v 31"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(100 9.5)" d="M 0 0v 31"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(9.5 10)" d="M 0 0h 91"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(9.5 20)" d="M 0 0h 61"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(9.5 30)" d="M 0 0h 31"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(69.5 30)" d="M 0 0h 31"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(9.5 40)" d="M 0 0h 91"/>
+  <g transform="translate(75 15)">
+    <path fill="#ff4136" fill-rule="nonzero" d="M 0 0v 40h 20v -40Z "/>
+  </g>
+  <g transform="translate(15 25)">
+    <path fill="#ff4136" fill-rule="nonzero" d="M 0 0h 20Z "/>
+  </g>
+  <g transform="translate(45 25)">
+    <path fill="#ff4136" fill-rule="nonzero" d="M 0 0v 10h 20v -10Z "/>
+  </g>
+</svg>

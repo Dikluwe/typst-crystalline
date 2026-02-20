@@ -1,0 +1,17 @@
+<svg viewBox="0 0 120 24" width="120pt" height="24pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 24h 120v -24Z "/>
+  <g transform="translate(10 10)">
+    <path fill="url(#t5F78F02683B8F782A6BFCFFC9FB63839)" fill-rule="nonzero" d="M 0 0v 1h 8v -1Z "/>
+  </g>
+  <g transform="translate(10 13)">
+    <path fill="url(#t3DD946598A23E542DDB51AE4A1291727)" fill-rule="nonzero" d="M 0 0v 1h 8v -1Z "/>
+  </g>
+  <defs>
+    <pattern id="t5F78F02683B8F782A6BFCFFC9FB63839" width="1" height="1" patternUnits="userSpaceOnUse" viewBox="0 0 1 1">
+      <path fill="#000000" fill-rule="nonzero" d="M 0 0v 1h 1v -1Z "/>
+    </pattern>
+    <pattern id="t3DD946598A23E542DDB51AE4A1291727" width="2" height="1" patternUnits="userSpaceOnUse" viewBox="0 0 2 1">
+      <path fill="#000000" fill-rule="nonzero" d="M 0 0v 1h 1v -1Z "/>
+    </pattern>
+  </defs>
+</svg>

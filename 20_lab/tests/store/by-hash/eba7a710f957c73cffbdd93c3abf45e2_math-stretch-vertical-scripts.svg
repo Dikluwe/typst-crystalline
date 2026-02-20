@@ -1,0 +1,65 @@
+<svg viewBox="0 0 120 64.288" width="120pt" height="64.288pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 64.288h 120v -64.288Z "/>
+  <g transform="matrix(1 0 0 -1 39.824 52.148)">
+    <use xlink:href="#gC83294086DE4919E6908BECC497ECD8F" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+    <use xlink:href="#g59F1BD94169F0E3FF793CD796C54BEC9" x="0" y="9.965955631" fill="#000000" fill-rule="nonzero"/>
+    <use xlink:href="#g59F1BD94169F0E3FF793CD796C54BEC9" x="0" y="18.014044369" fill="#000000" fill-rule="nonzero"/>
+    <use xlink:href="#g8D00E1801914D23F9E8BEB655EEF7718" x="0" y="27.98" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 43.154 14.648)">
+    <use xlink:href="#gDC30E4AE723C91FF52B436F588F647C3" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 43.154 54.148)">
+    <use xlink:href="#gEEBE111DF3A4F0ADF0C936AF153778EF" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 51.017 34.648)">
+    <use xlink:href="#g8544D1B350D27848F3D87EBD075E4DE2" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 54.347 25.978)">
+    <use xlink:href="#gDC30E4AE723C91FF52B436F588F647C3" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 54.347 42.818)">
+    <use xlink:href="#gEEBE111DF3A4F0ADF0C936AF153778EF" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 62.21 34.648)">
+    <use xlink:href="#gF1B731BB9F61DFB37090F6424EE39CF1" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 64.99 30.944)">
+    <use xlink:href="#gDC30E4AE723C91FF52B436F588F647C3" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 64.99 37.192)">
+    <use xlink:href="#gEEBE111DF3A4F0ADF0C936AF153778EF" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 72.853 34.648)">
+    <use xlink:href="#gF1B731BB9F61DFB37090F6424EE39CF1" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 75.633 30.944)">
+    <use xlink:href="#gDC30E4AE723C91FF52B436F588F647C3" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 75.633 37.192)">
+    <use xlink:href="#gEEBE111DF3A4F0ADF0C936AF153778EF" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <defs>
+    <symbol id="gC83294086DE4919E6908BECC497ECD8F" overflow="visible">
+      <path d="M 0 0m 1.88 12.02h -0.44v -11.65c 0 -0.16 0.01 -0.37 0.22 -0.37c 0.22 0 0.22 0.2 0.22 0.37Z "/>
+    </symbol>
+    <symbol id="g59F1BD94169F0E3FF793CD796C54BEC9" overflow="visible">
+      <path d="M 0 0m 1.88 0h -0.44v 12.02h 0.44Z "/>
+    </symbol>
+    <symbol id="g8D00E1801914D23F9E8BEB655EEF7718" overflow="visible">
+      <path d="M 0 0m 1.88 0v 11.65c 0 0.17 0 0.37 -0.22 0.37c -0.21 0 -0.22 -0.21 -0.22 -0.37v -11.65Z "/>
+    </symbol>
+    <symbol id="gDC30E4AE723C91FF52B436F588F647C3" overflow="visible">
+      <path d="M 0 0m 2.121 4.648c -0.301 -0.294 -0.749 -0.441 -1.358 -0.441v -0.308c 0.413 0 0.742 0.063 0.994 0.182v -3.486c 0 -0.091 -0.007 -0.147 -0.028 -0.175c -0.035 -0.077 -0.245 -0.119 -0.63 -0.119h -0.287v -0.301l 1.246 0.028l 1.253 -0.028v 0.301h -0.287c -0.385 0 -0.595 0.042 -0.637 0.119c -0.014 0.028 -0.021 0.084 -0.021 0.175v 3.829c 0 0.189 -0.028 0.224 -0.245 0.224Z "/>
+    </symbol>
+    <symbol id="gEEBE111DF3A4F0ADF0C936AF153778EF" overflow="visible">
+      <path d="M 0 0m 3.612 2.233c 0 0.791 -0.14 1.393 -0.413 1.806c -0.224 0.35 -0.672 0.609 -1.211 0.609c -0.224 0 -0.427 -0.035 -0.602 -0.112c -0.77 -0.322 -1.022 -1.218 -1.022 -2.303c 0 -0.238 0.014 -0.462 0.035 -0.679c 0.119 -0.917 0.546 -1.694 1.589 -1.694c 0.224 0 0.427 0.035 0.602 0.112c 0.77 0.315 1.022 1.19 1.022 2.261Z m -0.798 1.554c 0.077 -0.259 0.119 -0.742 0.119 -1.463c 0 -0.686 -0.028 -1.169 -0.091 -1.456c -0.084 -0.413 -0.378 -0.756 -0.854 -0.756c -0.175 0 -0.35 0.056 -0.511 0.175c -0.217 0.161 -0.35 0.476 -0.406 0.959c -0.021 0.161 -0.028 0.518 -0.028 1.078c 0 0.679 0.035 1.148 0.105 1.4c 0.119 0.448 0.399 0.672 0.84 0.672c 0.42 0 0.728 -0.273 0.826 -0.609Z "/>
+    </symbol>
+    <symbol id="g8544D1B350D27848F3D87EBD075E4DE2" overflow="visible">
+      <path d="M 0 0m 1.45 -5.8c 0 -0.16 0 -0.37 0.21 -0.37c 0.22 0 0.23 0.2 0.23 0.37v 16.6c 0 0.16 -0.01 0.37 -0.22 0.37c -0.22 0 -0.22 -0.2 -0.22 -0.37Z "/>
+    </symbol>
+    <symbol id="gF1B731BB9F61DFB37090F6424EE39CF1" overflow="visible">
+      <path d="M 0 0m 1.39 -2.5c 0.13 0 0.2 0.08 0.2 0.24v 9.52c 0 0.16 -0.07 0.24 -0.2 0.24c -0.13 0 -0.2 -0.08 -0.2 -0.24v -9.52c 0 -0.16 0.07 -0.24 0.2 -0.24Z "/>
+    </symbol>
+  </defs>
+</svg>

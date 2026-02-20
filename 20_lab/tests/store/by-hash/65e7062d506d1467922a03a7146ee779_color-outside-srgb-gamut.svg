@@ -1,0 +1,10 @@
+<svg viewBox="0 0 120 29" width="120pt" height="29pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 29h 120v -29Z "/>
+  <g transform="translate(10 10)">
+    <path fill="oklab(90% -0.2 -0.1)" fill-rule="nonzero" d="M 0 0v 9h 9v -9Z "/>
+  </g>
+  <g transform="matrix(1 0 0 -1 19 19)"/>
+  <g transform="translate(21.5 10)">
+    <path fill="oklch(50% 0.5 0)" fill-rule="nonzero" d="M 0 0v 9h 9v -9Z "/>
+  </g>
+</svg>

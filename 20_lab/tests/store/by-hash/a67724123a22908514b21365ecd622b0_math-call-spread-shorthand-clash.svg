@@ -1,0 +1,11 @@
+<svg viewBox="0 0 120 26.83" width="120pt" height="26.83pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 26.83h 120v -26.83Z "/>
+  <g transform="matrix(1 0 0 -1 10 16.83)">
+    <use xlink:href="#gD4D647BC10250F1A4EF9ABC40FCFB636" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <defs>
+    <symbol id="gD4D647BC10250F1A4EF9ABC40FCFB636" overflow="visible">
+      <path d="M 0 0m 7.51 0.53c 0 0.3 -0.26 0.53 -0.56 0.53c -0.31 0 -0.57 -0.23 -0.57 -0.53c 0 -0.3 0.26 -0.53 0.57 -0.53c 0.3 0 0.56 0.23 0.56 0.53Z m -2.76 0c 0 0.3 -0.26 0.53 -0.56 0.53c -0.31 0 -0.56 -0.23 -0.56 -0.53c 0 -0.3 0.25 -0.53 0.56 -0.53c 0.3 0 0.56 0.23 0.56 0.53Z m -2.75 0c 0 0.3 -0.26 0.53 -0.57 0.53c -0.3 0 -0.56 -0.23 -0.56 -0.53c 0 -0.3 0.26 -0.53 0.56 -0.53c 0.3 0 0.57 0.23 0.57 0.53Z "/>
+    </symbol>
+  </defs>
+</svg>

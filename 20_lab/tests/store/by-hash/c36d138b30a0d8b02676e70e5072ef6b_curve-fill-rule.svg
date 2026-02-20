@@ -1,0 +1,7 @@
+<svg viewBox="0 0 120 70" width="120pt" height="70pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 70h 120v -70Z "/>
+  <g transform="translate(10 10)">
+    <path fill="#ff4136" fill-rule="nonzero" d="M 0 0m 25 0l -15 50l 40 -30h -50l 40 30c 0 0 -15 -50 -15 -50Z "/>
+    <path fill="#ff4136" fill-rule="evenodd" transform="translate(50)" d="M 0 0m 25 0l -15 50l 40 -30h -50l 40 30c 0 0 -15 -50 -15 -50Z "/>
+  </g>
+</svg>

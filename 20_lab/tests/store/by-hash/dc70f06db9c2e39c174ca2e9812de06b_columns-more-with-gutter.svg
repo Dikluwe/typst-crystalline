@@ -1,0 +1,8 @@
+<svg viewBox="0 0 199.842519685 92.125984252" width="199.842519685pt" height="92.125984252pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 92.125984252h 199.842519685v -92.125984252Z "/>
+  <g transform="translate(10 10)">
+    <path fill="#9feb52" fill-rule="nonzero" d="M 0 0v 70.866141732h 39.947506562v -70.866141732Z "/>
+    <path fill="#239dad" fill-rule="nonzero" transform="translate(69.947506562)" d="M 0 0v 56.692913386h 39.947506562v -56.692913386Z "/>
+    <path fill="#239dad" fill-rule="nonzero" transform="translate(139.895013123)" d="M 0 0m 0 15c 0 -8.27676 6.72324 -15 15 -15c 8.27676 0 15 6.72324 15 15c 0 8.27676 -6.72324 15 -15 15c -8.27676 0 -15 -6.72324 -15 -15"/>
+  </g>
+</svg>

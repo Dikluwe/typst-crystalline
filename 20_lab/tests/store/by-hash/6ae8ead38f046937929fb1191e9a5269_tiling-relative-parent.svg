@@ -1,0 +1,18 @@
+<svg viewBox="0 0 100 100" width="100pt" height="100pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="url(#tA68C3878C9DFA661B369FD4A47EFDCB)" fill-rule="nonzero" d="M 0 0v 100h 100v -100Z "/>
+  <path fill="url(#p2FE7788F8FF36EC531DB8BFE252762BB)" fill-rule="nonzero" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(10 10)" d="M 0 0v 80h 80v -80Z "/>
+  <defs>
+    <pattern id="tA68C3878C9DFA661B369FD4A47EFDCB" width="30" height="30" patternUnits="userSpaceOnUse" viewBox="0 0 30 30">
+      <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 30h 30v -30Z "/>
+      <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" d="M 0 0l 30 30"/>
+      <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(0 30)" d="M 0 0l 30 -30"/>
+    </pattern>
+    <pattern id="t4D3A898285553E51EB55E9A21427835D" width="30" height="30" patternUnits="userSpaceOnUse" viewBox="0 0 30 30">
+      <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" d="M 0 0l 30 30"/>
+      <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(0 30)" d="M 0 0l 30 -30"/>
+    </pattern>
+  </defs>
+  <defs>
+    <pattern patternTransform="translate(-10 -10)" id="p2FE7788F8FF36EC531DB8BFE252762BB" href="#t4D3A898285553E51EB55E9A21427835D" xlink:href="#t4D3A898285553E51EB55E9A21427835D"/>
+  </defs>
+</svg>

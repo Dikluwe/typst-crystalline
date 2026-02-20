@@ -1,0 +1,65 @@
+<svg viewBox="0 0 120 67.7" width="120pt" height="67.7pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 67.7h 120v -67.7Z "/>
+  <g transform="matrix(1 0 0 -1 53.125 16.83)">
+    <use xlink:href="#g30C7A126785C6A89C66960D5E7F2EDB7" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 58.125 16.83)">
+    <use xlink:href="#g8DE2B89E5565AF5B01F0B73F7ECBA8EB" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 63.125 16.83)">
+    <use xlink:href="#gBB17B13839B45E074A35557C50A861F5" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 53.125 30.38)">
+    <use xlink:href="#g30C7A126785C6A89C66960D5E7F2EDB7" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 58.125 30.38)">
+    <use xlink:href="#g8DE2B89E5565AF5B01F0B73F7ECBA8EB" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 63.125 30.38)">
+    <use xlink:href="#gBB17B13839B45E074A35557C50A861F5" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 49.235 43.93)">
+    <use xlink:href="#g30C7A126785C6A89C66960D5E7F2EDB7" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 54.235 43.93)">
+    <use xlink:href="#g8DE2B89E5565AF5B01F0B73F7ECBA8EB" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 59.235 43.93)">
+    <use xlink:href="#g2C03A257BC19CD2EBE14737792544F6B" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 62.015 43.93)">
+    <use xlink:href="#g30C7A126785C6A89C66960D5E7F2EDB7" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 67.015 43.93)">
+    <use xlink:href="#gBB17B13839B45E074A35557C50A861F5" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 49.235 57.48)">
+    <use xlink:href="#g30C7A126785C6A89C66960D5E7F2EDB7" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 54.235 57.48)">
+    <use xlink:href="#g8DE2B89E5565AF5B01F0B73F7ECBA8EB" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 59.235 57.48)">
+    <use xlink:href="#g2C03A257BC19CD2EBE14737792544F6B" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 62.015 57.48)">
+    <use xlink:href="#g30C7A126785C6A89C66960D5E7F2EDB7" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 67.015 57.48)">
+    <use xlink:href="#gBB17B13839B45E074A35557C50A861F5" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <defs>
+    <symbol id="g30C7A126785C6A89C66960D5E7F2EDB7" overflow="visible">
+      <path d="M 0 0m 2.69 6.66c -0.41 -0.42 -1.01 -0.63 -1.8 -0.63v -0.39c 0.52 0 0.95 0.08 1.28 0.24v -5.06c 0 -0.18 -0.04 -0.3 -0.13 -0.35c -0.09 -0.05 -0.34 -0.08 -0.74 -0.08h -0.35v -0.39c 0.25 0.02 0.79 0.03 1.62 0.03c 0.83 0 1.37 -0.01 1.62 -0.03v 0.39h -0.35c -0.41 0 -0.66 0.03 -0.74 0.08c -0.08 0.05 -0.13 0.17 -0.13 0.35v 5.54c 0 0.24 -0.02 0.3 -0.28 0.3Z "/>
+    </symbol>
+    <symbol id="g8DE2B89E5565AF5B01F0B73F7ECBA8EB" overflow="visible">
+      <path d="M 0 0m 2.49 -0.22c 1.41 0 2.11 1.14 2.11 3.42c 0 1.53 -0.32 2.55 -0.95 3.05c -0.35 0.27 -0.74 0.41 -1.15 0.41c -1.41 0 -2.11 -1.15 -2.11 -3.46c 0 -1.84 0.49 -3.42 2.1 -3.42Z m 1.12 5.46c 0.07 -0.35 0.1 -0.99 0.1 -1.92c 0 -0.92 -0.04 -1.6 -0.11 -2.04c -0.13 -0.8 -0.5 -1.2 -1.11 -1.2c -0.23 0 -0.46 0.09 -0.67 0.26c -0.27 0.23 -0.43 0.7 -0.5 1.42c -0.03 0.25 -0.04 0.77 -0.04 1.56c 0 0.87 0.03 1.48 0.08 1.81c 0.09 0.55 0.27 0.9 0.55 1.05c 0.22 0.12 0.41 0.18 0.58 0.18c 0.65 0 1.01 -0.53 1.12 -1.12Z "/>
+    </symbol>
+    <symbol id="gBB17B13839B45E074A35557C50A861F5" overflow="visible">
+      <path d="M 0 0m 3.26 5.44c 0 0.77 -0.61 1.39 -1.38 1.39c -0.77 0 -1.39 -0.62 -1.39 -1.39c 0 -0.77 0.62 -1.38 1.39 -1.38c 0.75 0 1.38 0.63 1.38 1.38Z m -0.47 0c 0 -0.5 -0.41 -0.91 -0.91 -0.91c -0.51 0 -0.92 0.4 -0.92 0.91c 0 0.52 0.4 0.92 0.92 0.92c 0.51 0 0.91 -0.41 0.91 -0.92Z "/>
+    </symbol>
+    <symbol id="g2C03A257BC19CD2EBE14737792544F6B" overflow="visible">
+      <path d="M 0 0m 1.92 0.53c 0 0.29 -0.24 0.53 -0.53 0.53c -0.29 0 -0.53 -0.24 -0.53 -0.53c 0 -0.29 0.24 -0.53 0.53 -0.53c 0.29 0 0.53 0.24 0.53 0.53Z "/>
+    </symbol>
+  </defs>
+</svg>

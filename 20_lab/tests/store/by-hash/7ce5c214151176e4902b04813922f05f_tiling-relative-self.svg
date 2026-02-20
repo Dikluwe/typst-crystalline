@@ -1,0 +1,10 @@
+<svg viewBox="0 0 100 100" width="100pt" height="100pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="url(#t3EDB154841D6CAB1F4F26ACF79B262BC)" fill-rule="nonzero" d="M 0 0v 100h 100v -100Z "/>
+  <path fill="url(#t3EDB154841D6CAB1F4F26ACF79B262BC)" fill-rule="nonzero" stroke="#2ecc40" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(10 10)" d="M 0 0v 80h 80v -80Z "/>
+  <defs>
+    <pattern id="t3EDB154841D6CAB1F4F26ACF79B262BC" width="30" height="30" patternUnits="userSpaceOnUse" viewBox="0 0 30 30">
+      <path fill="none" stroke="#2ecc40" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" d="M 0 0l 30 30"/>
+      <path fill="none" stroke="#2ecc40" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(0 30)" d="M 0 0l 30 -30"/>
+    </pattern>
+  </defs>
+</svg>

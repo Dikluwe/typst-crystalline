@@ -1,0 +1,33 @@
+<svg viewBox="0 0 120 70" width="120pt" height="70pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 70h 120v -70Z "/>
+  <g transform="translate(35 10)">
+    <path fill="url(#r2496C59EE7473D731346A0978D1B7A)" fill-rule="nonzero" d="M 0 0v 50h 50v -50Z "/>
+    <path fill="none" stroke="url(#r7CCE8E50A846E5C79054439F72D7E3CF)" stroke-width="5" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(7 7)" d="M 0 0m 0 18c 0 -9.932112 8.067888 -18 18 -18c 9.932112 0 18 8.067888 18 18c 0 9.932112 -8.067888 18 -18 18c -9.932112 0 -18 -8.067888 -18 -18"/>
+  </g>
+  <defs>
+    <linearGradient id="fD7556A4633F9D7BE354BB1A13A7EB0E6" spreadMethod="pad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff4136"/>
+      <stop offset="25%" stop-color="#ff4136"/>
+      <stop offset="25%" stop-color="#c3687b"/>
+      <stop offset="50%" stop-color="#c3687b"/>
+      <stop offset="50%" stop-color="#8175ac"/>
+      <stop offset="75%" stop-color="#8175ac"/>
+      <stop offset="75%" stop-color="#0074d9"/>
+      <stop offset="100%" stop-color="#0074d9"/>
+    </linearGradient>
+    <linearGradient id="fFB9CB772F3AF3E628BD30C2309125E72" spreadMethod="pad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff4136"/>
+      <stop offset="25%" stop-color="#ff4136"/>
+      <stop offset="25%" stop-color="#c3687b"/>
+      <stop offset="50%" stop-color="#c3687b"/>
+      <stop offset="50%" stop-color="#8175ac"/>
+      <stop offset="75%" stop-color="#8175ac"/>
+      <stop offset="75%" stop-color="#0074d9"/>
+      <stop offset="100%" stop-color="#0074d9"/>
+    </linearGradient>
+  </defs>
+  <defs>
+    <linearGradient gradientTransform="scale(50)" id="r2496C59EE7473D731346A0978D1B7A" href="#fD7556A4633F9D7BE354BB1A13A7EB0E6" xlink:href="#fD7556A4633F9D7BE354BB1A13A7EB0E6"/>
+    <linearGradient gradientTransform="matrix(50 0 0 50 -7 -7)" id="r7CCE8E50A846E5C79054439F72D7E3CF" href="#fFB9CB772F3AF3E628BD30C2309125E72" xlink:href="#fFB9CB772F3AF3E628BD30C2309125E72"/>
+  </defs>
+</svg>

@@ -1,0 +1,8 @@
+<svg viewBox="0 0 120 48.346456693" width="120pt" height="48.346456693pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 48.346456693h 120v -48.346456693Z "/>
+  <g transform="translate(10 10)">
+    <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAIAAADZSiLoAAAAKUlEQVR4AQEeAOH/AP8AAAD/AAAA/wCAAAAAgAAAAIAAgIAAAICAgACAcFMHfiTGz0oAAAAASUVORK5CYII=" width="28.346456693" height="28.346456693" preserveAspectRatio="none"/>
+    <image transform="translate(32.346456693)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAIAAADZSiLoAAAAKUlEQVR4AQEeAOH/AP8AAAD/AAAA/wCAAAAAgAAAAIAAgIAAAICAgACAcFMHfiTGz0oAAAAASUVORK5CYII=" width="28.346456693" height="28.346456693" preserveAspectRatio="none" style="image-rendering: smooth"/>
+    <image transform="translate(64.692913386)" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAADCAIAAADZSiLoAAAAKUlEQVR4AQEeAOH/AP8AAAD/AAAA/wCAAAAAgAAAAIAAgIAAAICAgACAcFMHfiTGz0oAAAAASUVORK5CYII=" width="28.346456693" height="28.346456693" preserveAspectRatio="none" style="image-rendering: pixelated"/>
+  </g>
+</svg>

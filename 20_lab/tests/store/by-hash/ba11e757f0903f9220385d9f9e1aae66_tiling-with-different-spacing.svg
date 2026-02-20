@@ -1,0 +1,13 @@
+<svg viewBox="0 0 120 72" width="120pt" height="72pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 72h 120v -72Z "/>
+  <path fill="url(#t20B06EE5A172FCBCB38F549905BBE02E)" fill-rule="nonzero" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(10 10)" d="M 0 0v 20h 100v -20Z "/>
+  <path fill="url(#tC106AE75105EBE12770FFAF860773D4D)" fill-rule="nonzero" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(10 42)" d="M 0 0v 20h 100v -20Z "/>
+  <defs>
+    <pattern id="t20B06EE5A172FCBCB38F549905BBE02E" width="20" height="20" patternUnits="userSpaceOnUse" viewBox="0 0 20 20">
+      <path fill="#0074d9" fill-rule="nonzero" transform="translate(5 5)" d="M 0 0m 0 5c 0 -2.75892 2.24108 -5 5 -5c 2.75892 0 5 2.24108 5 5c 0 2.75892 -2.24108 5 -5 5c -2.75892 0 -5 -2.24108 -5 -5"/>
+    </pattern>
+    <pattern id="tC106AE75105EBE12770FFAF860773D4D" width="40" height="20" patternUnits="userSpaceOnUse" viewBox="0 0 40 20">
+      <path fill="#0074d9" fill-rule="nonzero" transform="translate(5 5)" d="M 0 0m 0 5c 0 -2.75892 2.24108 -5 5 -5c 2.75892 0 5 2.24108 5 5c 0 2.75892 -2.24108 5 -5 5c -2.75892 0 -5 -2.24108 -5 -5"/>
+    </pattern>
+  </defs>
+</svg>

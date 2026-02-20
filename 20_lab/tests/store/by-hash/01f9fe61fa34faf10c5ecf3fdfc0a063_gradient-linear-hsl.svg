@@ -1,0 +1,37 @@
+<svg viewBox="0 0 100 30" width="100pt" height="30pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="url(#rAEDEE9D5086A188F19505C5B8D566C56)" fill-rule="nonzero" d="M 0 0v 30h 100v -30Z "/>
+  <defs>
+    <linearGradient id="fD3289ED6C7BB4F721849DC81123A7ED6" spreadMethod="pad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff4136"/>
+      <stop offset="3.13%" stop-color="#ff3733"/>
+      <stop offset="4.69%" stop-color="#fe3232"/>
+      <stop offset="6.25%" stop-color="#fe3135"/>
+      <stop offset="12.5%" stop-color="#fd2c3f"/>
+      <stop offset="18.75%" stop-color="#fd274a"/>
+      <stop offset="25%" stop-color="#fc2256"/>
+      <stop offset="31.25%" stop-color="#fb1d63"/>
+      <stop offset="37.5%" stop-color="#fa1870"/>
+      <stop offset="40.63%" stop-color="#f91576"/>
+      <stop offset="43.75%" stop-color="#f9137d"/>
+      <stop offset="46.88%" stop-color="#f81084"/>
+      <stop offset="50%" stop-color="#f70e8b"/>
+      <stop offset="53.13%" stop-color="#f70c93"/>
+      <stop offset="56.25%" stop-color="#f6099a"/>
+      <stop offset="57.81%" stop-color="#f5099d"/>
+      <stop offset="59.38%" stop-color="#f309a1"/>
+      <stop offset="62.5%" stop-color="#f009a7"/>
+      <stop offset="68.75%" stop-color="#ea0ab4"/>
+      <stop offset="75%" stop-color="#e30bbf"/>
+      <stop offset="81.25%" stop-color="#dc0bc9"/>
+      <stop offset="87.5%" stop-color="#d60cd2"/>
+      <stop offset="89.06%" stop-color="#d40cd4"/>
+      <stop offset="90.63%" stop-color="#cf0cd3"/>
+      <stop offset="93.75%" stop-color="#c50dcf"/>
+      <stop offset="96.88%" stop-color="#bb0dcc"/>
+      <stop offset="100%" stop-color="#b10dc9"/>
+    </linearGradient>
+  </defs>
+  <defs>
+    <linearGradient gradientTransform="scale(100 30)" id="rAEDEE9D5086A188F19505C5B8D566C56" href="#fD3289ED6C7BB4F721849DC81123A7ED6" xlink:href="#fD3289ED6C7BB4F721849DC81123A7ED6"/>
+  </defs>
+</svg>

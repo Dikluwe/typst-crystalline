@@ -1,0 +1,41 @@
+<svg viewBox="0 0 120 50" width="120pt" height="50pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 50h 120v -50Z "/>
+  <path fill="url(#rE0B76C26D50D23895D3E122351A93CD6)" fill-rule="nonzero" transform="translate(10 10)" d="M 0 0v 30h 45v -30Z "/>
+  <defs>
+    <linearGradient id="fF92135311A87608489900A3EB6D7AA65" spreadMethod="pad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#000000"/>
+      <stop offset="6.25%" stop-color="#0e0e0e"/>
+      <stop offset="12.5%" stop-color="#1c1c1c"/>
+      <stop offset="18.75%" stop-color="#292929"/>
+      <stop offset="21.88%" stop-color="#303030"/>
+      <stop offset="25%" stop-color="#373737"/>
+      <stop offset="28.13%" stop-color="#3e3e3e"/>
+      <stop offset="31.25%" stop-color="#454545"/>
+      <stop offset="34.38%" stop-color="#4c4c4c"/>
+      <stop offset="37.5%" stop-color="#535353"/>
+      <stop offset="40.63%" stop-color="#5a5a5a"/>
+      <stop offset="43.75%" stop-color="#616161"/>
+      <stop offset="46.88%" stop-color="#686868"/>
+      <stop offset="50%" stop-color="#6e6e6e"/>
+      <stop offset="53.13%" stop-color="#757575"/>
+      <stop offset="56.25%" stop-color="#7c7c7c"/>
+      <stop offset="59.38%" stop-color="#838383"/>
+      <stop offset="62.5%" stop-color="#8a8a8a"/>
+      <stop offset="65.63%" stop-color="#919191"/>
+      <stop offset="68.75%" stop-color="#989898"/>
+      <stop offset="71.88%" stop-color="#9f9f9f"/>
+      <stop offset="75%" stop-color="#a6a6a6"/>
+      <stop offset="78.13%" stop-color="#adadad"/>
+      <stop offset="81.25%" stop-color="#b4b4b4"/>
+      <stop offset="84.38%" stop-color="#bababa"/>
+      <stop offset="87.5%" stop-color="#c1c1c1"/>
+      <stop offset="90.63%" stop-color="#c8c8c8"/>
+      <stop offset="93.75%" stop-color="#cfcfcf"/>
+      <stop offset="96.88%" stop-color="#d6d6d6"/>
+      <stop offset="100%" stop-color="#dddddd"/>
+    </linearGradient>
+  </defs>
+  <defs>
+    <linearGradient gradientTransform="scale(45 30)" id="rE0B76C26D50D23895D3E122351A93CD6" href="#fF92135311A87608489900A3EB6D7AA65" xlink:href="#fF92135311A87608489900A3EB6D7AA65"/>
+  </defs>
+</svg>

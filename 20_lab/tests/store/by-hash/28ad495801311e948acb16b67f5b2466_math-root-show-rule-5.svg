@@ -1,0 +1,42 @@
+<svg viewBox="0 0 120 44.49" width="120pt" height="44.49pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 44.49h 120v -44.49Z "/>
+  <g transform="matrix(1 0 0 -1 42.6875 24.98)">
+    <use xlink:href="#gBB084628BD3C0EBE8540C3A4F5D8CA20" x="0" y="0" fill="#b10dc9" fill-rule="nonzero"/>
+  </g>
+  <path fill="none" stroke="#b10dc9" stroke-width="0.48" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(52.6875 10.72)" d="M 0 0h 7"/>
+  <g transform="matrix(1 0 0 -1 53.6875 19.98)">
+    <use xlink:href="#g30C7A126785C6A89C66960D5E7F2EDB7" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 53.6875 33.61)">
+    <use xlink:href="#g55F213D127AB73AA6C92E60D48E4DDD7" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <path fill="none" stroke="#000000" stroke-width="0.48" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(53.6875 24.25)" d="M 0 0h 5"/>
+  <g transform="matrix(1 0 0 -1 62.4675 21.234)">
+    <use xlink:href="#g1D9462BA052FBF3FA8FD37A23C5F7D4A" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 60.3125 24.98)">
+    <use xlink:href="#gBB084628BD3C0EBE8540C3A4F5D8CA20" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <path fill="none" stroke="#000000" stroke-width="0.48" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(70.3125 10.72)" d="M 0 0h 7"/>
+  <g transform="matrix(1 0 0 -1 71.3125 19.98)">
+    <use xlink:href="#g30C7A126785C6A89C66960D5E7F2EDB7" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 71.3125 33.61)">
+    <use xlink:href="#g55F213D127AB73AA6C92E60D48E4DDD7" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <path fill="none" stroke="#000000" stroke-width="0.48" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(71.3125 24.25)" d="M 0 0h 5"/>
+  <defs>
+    <symbol id="gBB084628BD3C0EBE8540C3A4F5D8CA20" overflow="visible">
+      <path d="M 0 0m 4.67 -7.33l -2.13 9.93l -1.35 -2.13c -0.05 -0.07 -0.08 -0.11 -0.08 -0.14c 0 -0.04 0.06 -0.11 0.19 -0.22l 0.64 1.02l 2.28 -10.63c 0.39 0 0.42 -0.01 0.49 0.29l 5.45 23.25c 0.03 0.12 0.04 0.19 0.04 0.22c 0 0.16 -0.08 0.24 -0.24 0.24c -0.12 0 -0.2 -0.1 -0.25 -0.3Z "/>
+    </symbol>
+    <symbol id="g30C7A126785C6A89C66960D5E7F2EDB7" overflow="visible">
+      <path d="M 0 0m 2.69 6.66c -0.41 -0.42 -1.01 -0.63 -1.8 -0.63v -0.39c 0.52 0 0.95 0.08 1.28 0.24v -5.06c 0 -0.18 -0.04 -0.3 -0.13 -0.35c -0.09 -0.05 -0.34 -0.08 -0.74 -0.08h -0.35v -0.39c 0.25 0.02 0.79 0.03 1.62 0.03c 0.83 0 1.37 -0.01 1.62 -0.03v 0.39h -0.35c -0.41 0 -0.66 0.03 -0.74 0.08c -0.08 0.05 -0.13 0.17 -0.13 0.35v 5.54c 0 0.24 -0.02 0.3 -0.28 0.3Z "/>
+    </symbol>
+    <symbol id="g55F213D127AB73AA6C92E60D48E4DDD7" overflow="visible">
+      <path d="M 0 0m 2.37 6.66c -0.51 0 -0.94 -0.18 -1.31 -0.54c -0.37 -0.36 -0.56 -0.78 -0.56 -1.29c 0 -0.34 0.25 -0.59 0.56 -0.59c 0.3 0 0.55 0.26 0.55 0.56c 0 0.33 -0.24 0.56 -0.56 0.56c -0.03 0 -0.05 0 -0.07 -0.01c 0.19 0.49 0.63 0.92 1.26 0.92c 0.82 0 1.28 -0.71 1.28 -1.57c 0 -0.67 -0.34 -1.39 -1.02 -2.15l -1.88 -2.12c -0.13 -0.15 -0.12 -0.14 -0.12 -0.43h 3.71l 0.29 1.8h -0.33c -0.08 -0.51 -0.15 -0.8 -0.21 -0.89c -0.05 -0.05 -0.35 -0.07 -0.9 -0.07h -1.67l 0.97 0.95c 0.68 0.64 1.54 1.33 1.83 1.86c 0.2 0.35 0.3 0.7 0.3 1.05c 0 1.18 -0.92 1.96 -2.12 1.96Z "/>
+    </symbol>
+    <symbol id="g1D9462BA052FBF3FA8FD37A23C5F7D4A" overflow="visible">
+      <path d="M 0 0m 2.13 1.76c 0.465 0.175 0.7 0.455 0.7 0.845c 0 0.24 -0.14 0.43 -0.415 0.565c -0.22 0.105 -0.465 0.16 -0.73 0.16c -0.275 0 -0.515 -0.05 -0.72 -0.15c -0.265 -0.13 -0.395 -0.32 -0.395 -0.57c 0 -0.18 0.125 -0.315 0.305 -0.315c 0.17 0 0.3 0.135 0.3 0.305c 0 0.155 -0.075 0.255 -0.22 0.29c 0.15 0.145 0.39 0.215 0.715 0.215c 0.34 0 0.595 -0.175 0.595 -0.5c 0 -0.41 -0.295 -0.725 -0.685 -0.75c -0.17 -0.01 -0.265 -0.015 -0.285 -0.015c -0.085 -0.005 -0.125 -0.04 -0.125 -0.1c 0 -0.105 0.05 -0.105 0.155 -0.105h 0.325c 0.46 0 0.735 -0.29 0.735 -0.75c 0 -0.465 -0.27 -0.755 -0.73 -0.755c -0.395 0 -0.68 0.075 -0.85 0.225c 0.16 0.04 0.24 0.145 0.24 0.315c 0 0.185 -0.14 0.32 -0.32 0.32c -0.195 0 -0.325 -0.135 -0.325 -0.33c 0 -0.275 0.15 -0.485 0.455 -0.62c 0.225 -0.1 0.495 -0.15 0.815 -0.15c 0.325 0 0.62 0.08 0.88 0.24c 0.3 0.19 0.45 0.44 0.45 0.75c 0 0.47 -0.445 0.775 -0.87 0.88Z "/>
+    </symbol>
+  </defs>
+</svg>

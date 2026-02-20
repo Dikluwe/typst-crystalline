@@ -1,0 +1,42 @@
+<svg viewBox="0 0 120 26.83" width="120pt" height="26.83pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 26.83h 120v -26.83Z "/>
+  <g transform="matrix(1 0 0 -1 10 16.83)">
+    <use xlink:href="#g1C9CE1913F9D7511ABDFA4705243B567" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 14.44 16.83)">
+    <use xlink:href="#gF4627631420CFA5151544FC508D0F2A1" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 20.45 16.83)">
+    <use xlink:href="#g2C03A257BC19CD2EBE14737792544F6B" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 23.23 16.83)">
+    <use xlink:href="#g75F21E9E5F91D13260DD43437C6F4C62" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 27.67 16.83)"/>
+  <g transform="matrix(1 0 0 -1 30.17 16.83)">
+    <use xlink:href="#g1C9CE1913F9D7511ABDFA4705243B567" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 34.61 16.83)">
+    <use xlink:href="#gF4627631420CFA5151544FC508D0F2A1" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 40.62 16.83)">
+    <use xlink:href="#g2C03A257BC19CD2EBE14737792544F6B" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 43.4 16.83)">
+    <use xlink:href="#g75F21E9E5F91D13260DD43437C6F4C62" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <defs>
+    <symbol id="g1C9CE1913F9D7511ABDFA4705243B567" overflow="visible">
+      <path d="M 0 0m 3.93 -2.02h -1.73v 9.28c 0 0.16 -0.08 0.24 -0.23 0.24c -0.15 0 -0.23 -0.08 -0.23 -0.24v -9.76h 2.19c 0.15 0 0.23 0.08 0.23 0.24c 0 0.12 -0.11 0.24 -0.23 0.24Z "/>
+    </symbol>
+    <symbol id="gF4627631420CFA5151544FC508D0F2A1" overflow="visible">
+      <path d="M 0 0m 3.85 4.45c 0.19 0.79 0.39 1.56 0.57 2.35v 0.03c -0.03 0.07 -0.08 0.11 -0.16 0.11c -0.09 0 -0.15 -0.08 -0.18 -0.23l -0.57 -2.26c -0.75 -0.03 -1.43 -0.31 -2.04 -0.83c -0.65 -0.55 -0.98 -1.19 -0.98 -1.92c 0 -1.08 0.83 -1.77 1.88 -1.83c -0.19 -0.79 -0.33 -1.36 -0.42 -1.7c -0.01 -0.03 -0.01 -0.06 -0.01 -0.07c 0 -0.1 0.05 -0.15 0.16 -0.15c 0.11 0 0.14 0.06 0.17 0.18l 0.44 1.73c 0.75 0.03 1.43 0.31 2.04 0.83c 0.65 0.56 0.98 1.2 0.98 1.93c 0 1.07 -0.85 1.74 -1.88 1.83Z m -0.08 -0.3c 0.76 -0.05 1.24 -0.52 1.24 -1.32c 0 -0.4 -0.09 -0.8 -0.27 -1.19c -0.32 -0.72 -1.05 -1.38 -1.96 -1.47Z m -2.56 -2.66c 0 0.4 0.09 0.8 0.27 1.19c 0.32 0.72 1.05 1.37 1.95 1.47l -0.99 -3.99c -0.75 0.06 -1.23 0.53 -1.23 1.33Z "/>
+    </symbol>
+    <symbol id="g2C03A257BC19CD2EBE14737792544F6B" overflow="visible">
+      <path d="M 0 0m 1.92 0.53c 0 0.29 -0.24 0.53 -0.53 0.53c -0.29 0 -0.53 -0.24 -0.53 -0.53c 0 -0.29 0.24 -0.53 0.53 -0.53c 0.29 0 0.53 0.24 0.53 0.53Z "/>
+    </symbol>
+    <symbol id="g75F21E9E5F91D13260DD43437C6F4C62" overflow="visible">
+      <path d="M 0 0m 0.51 -2.5h 2.19v 9.76c 0 0.16 -0.08 0.24 -0.23 0.24c -0.15 0 -0.23 -0.08 -0.23 -0.24v -9.28h -1.73c -0.15 0 -0.23 -0.08 -0.23 -0.24c 0 -0.16 0.08 -0.24 0.23 -0.24Z "/>
+    </symbol>
+  </defs>
+</svg>

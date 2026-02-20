@@ -1,0 +1,20 @@
+<svg viewBox="0 0 120 45.16" width="120pt" height="45.16pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 45.16h 120v -45.16Z "/>
+  <g transform="matrix(1 0 0 -1 10 16.58)">
+    <use xlink:href="#gF503A63B496F17FAE6501D24E7C8FF98" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+    <use xlink:href="#gF503A63B496F17FAE6501D24E7C8FF98" x="5" y="0" fill="#000000" fill-rule="nonzero"/>
+    <use xlink:href="#gF503A63B496F17FAE6501D24E7C8FF98" x="10" y="0" fill="#000000" fill-rule="nonzero"/>
+    <use xlink:href="#gF503A63B496F17FAE6501D24E7C8FF98" x="15" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 10 35.16)">
+    <use xlink:href="#gF503A63B496F17FAE6501D24E7C8FF98" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+    <use xlink:href="#gF503A63B496F17FAE6501D24E7C8FF98" x="5" y="0" fill="#000000" fill-rule="nonzero"/>
+    <use xlink:href="#gF503A63B496F17FAE6501D24E7C8FF98" x="10" y="0" fill="#000000" fill-rule="nonzero"/>
+    <use xlink:href="#gF503A63B496F17FAE6501D24E7C8FF98" x="15" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <defs>
+    <symbol id="gF503A63B496F17FAE6501D24E7C8FF98" overflow="visible">
+      <path d="M 0 0h 5v 6.98h -5Z m 0.8 0.5l 1.7 2.54l 1.7 -2.54Z m -0.3 5.53l 1.7 -2.54l -1.7 -2.54Z m 2.3 -2.54l 1.7 2.54v -5.08Z m -0.3 0.45l -1.7 2.53h 3.4Z "/>
+    </symbol>
+  </defs>
+</svg>

@@ -1,0 +1,31 @@
+<svg viewBox="0 0 120 48.078125" width="120pt" height="48.078125pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 48.078125h 120v -48.078125Z "/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(10 9.5)" d="M 0 0v 11"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(20 9.5)" d="M 0 0v 11"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(47 9.5)" d="M 0 0v 11"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(57 9.5)" d="M 0 0v 11"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(68 9.5)" d="M 0 0v 11"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(78 9.5)" d="M 0 0v 11"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(9.5 10)" d="M 0 0h 69"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(9.5 20)" d="M 0 0h 69"/>
+  <g transform="matrix(1 0 0 -1 10 38.078125)">
+    <use xlink:href="#gA4D4522809E0BD3EB057884B0E9F7A4" x="0" y="0" fill="#b60157" fill-rule="nonzero"/>
+    <use xlink:href="#gE095436447DB6FFE09E87624E953B2F6" x="4.81640625" y="0" fill="#b60157" fill-rule="nonzero"/>
+    <use xlink:href="#gF2D67F9584BC8102855CC022E672AEFF" x="9.6328125" y="0" fill="#b60157" fill-rule="nonzero"/>
+    <use xlink:href="#g8724671A56DA8E67AFD18DEC713D2636" x="14.44921875" y="0" fill="#b60157" fill-rule="nonzero"/>
+  </g>
+  <defs>
+    <symbol id="gA4D4522809E0BD3EB057884B0E9F7A4" overflow="visible">
+      <path d="M 0 0m 1.0546875 0.6640625h 1.2265625v 4.45703125l -1.3203125 -0.296875v 0.71875l 1.3125 0.2890625h 0.7890625v -5.16796875h 1.2109375v -0.6640625h -3.21875v 0.6640625Z "/>
+    </symbol>
+    <symbol id="gE095436447DB6FFE09E87624E953B2F6" overflow="visible">
+      <path d="M 0 0m 0.54296875 5.83203125h 3.671875v -0.3359375l -2.0859375 -5.49609375h -0.82421875l 2.03125 5.16796875h -2.79296875v 0.6640625Z "/>
+    </symbol>
+    <symbol id="gF2D67F9584BC8102855CC022E672AEFF" overflow="visible">
+      <path d="M 0 0m 1.46484375 0.55078125v -2.21484375h -0.72265625v 6.0390625h 0.72265625v -0.55859375q 0.1796875 0.32421875 0.478515625 0.494140625q 0.298828125 0.169921875 0.689453125 0.169921875q 0.79296875 0 1.244140625 -0.61328125q 0.451171875 -0.61328125 0.451171875 -1.69921875q 0 -1.06640625 -0.453125 -1.673828125q -0.453125 -0.607421875 -1.2421875 -0.607421875q -0.3984375 0 -0.697265625 0.169921875q -0.298828125 0.169921875 -0.470703125 0.494140625Z m 2.109375 1.6328125q 0 0.8359375 -0.263671875 1.26171875q -0.263671875 0.42578125 -0.783203125 0.42578125q -0.5234375 0 -0.79296875 -0.427734375q -0.26953125 -0.427734375 -0.26953125 -1.259765625q 0 -0.828125 0.26953125 -1.2578125q 0.26953125 -0.4296875 0.79296875 -0.4296875q 0.51953125 0 0.783203125 0.42578125q 0.263671875 0.42578125 0.263671875 1.26171875Z "/>
+    </symbol>
+    <symbol id="g8724671A56DA8E67AFD18DEC713D2636" overflow="visible">
+      <path d="M 0 0m 2.3984375 5.6171875v -1.2421875h 1.6328125v -0.55859375h -1.6328125v -2.375q 0 -0.484375 0.18359375 -0.67578125q 0.18359375 -0.19140625 0.640625 -0.19140625h 0.80859375v -0.57421875h -0.87890625q -0.80859375 0 -1.140625 0.32421875q -0.33203125 0.32421875 -0.33203125 1.1171875v 2.375h -1.16796875v 0.55859375h 1.16796875v 1.2421875h 0.71875Z "/>
+    </symbol>
+  </defs>
+</svg>

@@ -1,0 +1,9 @@
+<svg viewBox="0 0 120 41" width="120pt" height="41pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 20h 120v -20Z "/>
+  <g transform="translate(0 21)">
+    <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 20h 120v -20Z "/>
+    <g>
+      <path fill="#ff4136" fill-rule="nonzero" d="M 0 0m 0 4c 0 -2.209138999 1.790861001 -4 4 -4h 112c 2.209138999 0 4 1.790861001 4 4v 2c 0 2.209138999 -1.790861001 4 -4 4h -112c -2.209138999 0 -4 -1.790861001 -4 -4Z "/>
+    </g>
+  </g>
+</svg>

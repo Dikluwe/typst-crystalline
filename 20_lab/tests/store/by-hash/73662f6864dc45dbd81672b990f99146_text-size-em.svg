@@ -1,0 +1,7 @@
+<svg viewBox="0 0 120 45" width="120pt" height="45pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 45h 120v -45Z "/>
+  <g transform="translate(10 10)">
+    <path fill="#ff4136" fill-rule="nonzero" d="M 0 0v 25h 25v -25Z "/>
+    <path fill="#ff4136" fill-rule="nonzero" transform="translate(75)" d="M 0 0v 25h 25v -25Z "/>
+  </g>
+</svg>

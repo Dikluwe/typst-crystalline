@@ -1,0 +1,54 @@
+<svg viewBox="0 0 50 50" width="50pt" height="50pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="url(#r6F6A88A2A7E3DCE6A8A57DACE4EC780)" fill-rule="nonzero" d="M 0 0v 50h 50v -50Z "/>
+  <path fill="url(#r6F6A88A2A7E3DCE6A8A57DACE4EC780)" fill-rule="nonzero" d="M 0 0v 25h 25v -25Z "/>
+  <path fill="url(#rFB3E410AC3C64533EAA3D13E025A0F83)" fill-rule="nonzero" transform="translate(25 2.5)" d="M 0 0v 22.5h 22.5v -22.5Z "/>
+  <path fill="url(#rA73452EB9F311A221106CB9590F3199E)" fill-rule="nonzero" transform="matrix(0.707106781 0.707106781 -0.707106781 0.707106781 25 20.340097423)" d="M 0 0v 22.5h 22.5v -22.5Z "/>
+  <defs>
+    <linearGradient id="fADDFF04C9DF5AF9C947486FEFEB53D70" spreadMethod="pad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff4136"/>
+      <stop offset="2.08%" stop-color="#f44c47"/>
+      <stop offset="4.17%" stop-color="#e95555"/>
+      <stop offset="6.25%" stop-color="#de5c62"/>
+      <stop offset="8.33%" stop-color="#d3626d"/>
+      <stop offset="10.42%" stop-color="#c76678"/>
+      <stop offset="12.5%" stop-color="#bb6a82"/>
+      <stop offset="14.58%" stop-color="#b06e8c"/>
+      <stop offset="16.67%" stop-color="#a37095"/>
+      <stop offset="18.75%" stop-color="#97739e"/>
+      <stop offset="20.83%" stop-color="#8a74a7"/>
+      <stop offset="22.92%" stop-color="#7c75af"/>
+      <stop offset="25%" stop-color="#6d76b8"/>
+      <stop offset="27.08%" stop-color="#5d76c0"/>
+      <stop offset="29.17%" stop-color="#4b76c9"/>
+      <stop offset="31.25%" stop-color="#3375d1"/>
+      <stop offset="33.33%" stop-color="#0074d9"/>
+      <stop offset="37.5%" stop-color="#0082cc"/>
+      <stop offset="41.67%" stop-color="#008fbe"/>
+      <stop offset="45.83%" stop-color="#009baf"/>
+      <stop offset="50%" stop-color="#00a59f"/>
+      <stop offset="54.17%" stop-color="#00b08e"/>
+      <stop offset="56.25%" stop-color="#00b584"/>
+      <stop offset="58.33%" stop-color="#0ab97a"/>
+      <stop offset="62.5%" stop-color="#1fc362"/>
+      <stop offset="66.67%" stop-color="#2ecc40"/>
+      <stop offset="68.75%" stop-color="#48c452"/>
+      <stop offset="70.83%" stop-color="#59bd60"/>
+      <stop offset="72.92%" stop-color="#67b56c"/>
+      <stop offset="75%" stop-color="#72ad76"/>
+      <stop offset="77.08%" stop-color="#7ba580"/>
+      <stop offset="79.17%" stop-color="#839d88"/>
+      <stop offset="81.25%" stop-color="#8a9490"/>
+      <stop offset="83.33%" stop-color="#918b98"/>
+      <stop offset="85.42%" stop-color="#96829f"/>
+      <stop offset="87.5%" stop-color="#9b78a6"/>
+      <stop offset="91.67%" stop-color="#a462b2"/>
+      <stop offset="95.83%" stop-color="#ab45be"/>
+      <stop offset="100%" stop-color="#b10dc9"/>
+    </linearGradient>
+  </defs>
+  <defs>
+    <linearGradient gradientTransform="scale(50)" id="r6F6A88A2A7E3DCE6A8A57DACE4EC780" href="#fADDFF04C9DF5AF9C947486FEFEB53D70" xlink:href="#fADDFF04C9DF5AF9C947486FEFEB53D70"/>
+    <linearGradient gradientTransform="matrix(50 0 0 50 -25 -2.5)" id="rFB3E410AC3C64533EAA3D13E025A0F83" href="#fADDFF04C9DF5AF9C947486FEFEB53D70" xlink:href="#fADDFF04C9DF5AF9C947486FEFEB53D70"/>
+    <linearGradient gradientTransform="matrix(35.355339059 -35.355339059 35.355339059 35.355339059 -32.060290348 3.295048712)" id="rA73452EB9F311A221106CB9590F3199E" href="#fADDFF04C9DF5AF9C947486FEFEB53D70" xlink:href="#fADDFF04C9DF5AF9C947486FEFEB53D70"/>
+  </defs>
+</svg>

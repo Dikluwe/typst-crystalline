@@ -3889,6 +3889,50 @@ dependencies = [
 ]
 
 [[package]]
+name = "wiring"
+version = "0.14.2"
+dependencies = [
+ "chrono",
+ "clap",
+ "clap_complete",
+ "clap_mangen",
+ "codespan-reporting",
+ "color-print",
+ "comemo",
+ "dirs",
+ "ecow",
+ "fs_extra",
+ "memchr",
+ "open",
+ "parking_lot",
+ "pathdiff",
+ "rayon",
+ "self-replace",
+ "semver",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "shell-escape",
+ "sigpipe",
+ "tar",
+ "tempfile",
+ "toml",
+ "typst",
+ "typst-dev-assets",
+ "typst-eval",
+ "typst-html",
+ "typst-kit",
+ "typst-macros",
+ "typst-pdf",
+ "typst-render",
+ "typst-svg",
+ "typst-timing",
+ "typst-utils",
+ "xz2",
+ "zip",
+]
+
+[[package]]
 name = "wit-bindgen-rt"
 version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -1,0 +1,4 @@
+<svg viewBox="0 0 120 100" width="120pt" height="100pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 100h 120v -100Z "/>
+  <path fill="#cce3f7" fill-rule="nonzero" stroke="#0074d9" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(10 10)" d="M 0 0m 0 40c 0 30 10 40 40 40c 30 0 40 -10 40 -40c 0 -30 -10 -40 -40 -40c -30 0 -40 10 -40 40Z "/>
+</svg>

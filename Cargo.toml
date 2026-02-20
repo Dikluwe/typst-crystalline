@@ -1,6 +1,6 @@
 [workspace]
-members = ["20_lab/crates/*", "20_lab/docs", "20_lab/tests", "20_lab/tests/fuzz", "20_lab/tests/wrapper"]
-default-members = ["20_lab/crates/typst-cli"]
+members = ["04_wiring", "20_lab/crates/*", "20_lab/docs", "20_lab/tests", "20_lab/tests/fuzz", "20_lab/tests/wrapper"]
+default-members = ["04_wiring", "20_lab/crates/typst-cli"]
 resolver = "2"
 
 [workspace.package]

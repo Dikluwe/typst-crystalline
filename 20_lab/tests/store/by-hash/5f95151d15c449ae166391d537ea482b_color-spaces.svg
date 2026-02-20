@@ -1,0 +1,38 @@
+<svg viewBox="0 0 120 44.5" width="120pt" height="44.5pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 44.5h 120v -44.5Z "/>
+  <g transform="translate(10 10)">
+    <path fill="#80a329" fill-rule="nonzero" d="M 0 0v 9h 9v -9Z "/>
+  </g>
+  <g transform="matrix(1 0 0 -1 19 19)"/>
+  <g transform="translate(21.5 10)">
+    <path fill="#80a329" fill-rule="nonzero" d="M 0 0v 9h 9v -9Z "/>
+  </g>
+  <g transform="matrix(1 0 0 -1 30.5 19)"/>
+  <g transform="translate(33 10)">
+    <path fill="oklab(66.653% -0.08607 0.12367)" fill-rule="nonzero" d="M 0 0v 9h 9v -9Z "/>
+  </g>
+  <g transform="matrix(1 0 0 -1 42 19)"/>
+  <g transform="translate(44.5 10)">
+    <path fill="oklch(66.653% 0.15067 124.83642)" fill-rule="nonzero" d="M 0 0v 9h 9v -9Z "/>
+  </g>
+  <g transform="matrix(1 0 0 -1 53.5 19)"/>
+  <g transform="translate(56 10)">
+    <path fill="#979797" fill-rule="nonzero" d="M 0 0v 9h 9v -9Z "/>
+  </g>
+  <g transform="matrix(1 0 0 -1 65 19)"/>
+  <g transform="translate(67.5 10)">
+    <path fill="#8c9b49" fill-rule="nonzero" d="M 0 0v 9h 9v -9Z "/>
+  </g>
+  <g transform="matrix(1 0 0 -1 76.5 19)"/>
+  <g transform="translate(79 10)">
+    <path fill="color(srgb-linear 0.21404 0.36725 0.02198)" fill-rule="nonzero" d="M 0 0v 9h 9v -9Z "/>
+  </g>
+  <g transform="matrix(1 0 0 -1 88 19)"/>
+  <g transform="translate(90.5 10)">
+    <path fill="hsl(77.5deg 60% 40)" fill-rule="nonzero" d="M 0 0v 9h 9v -9Z "/>
+  </g>
+  <g transform="matrix(1 0 0 -1 99.5 19)"/>
+  <g transform="translate(10 25.5)">
+    <path fill="#80a329" fill-rule="nonzero" d="M 0 0v 9h 9v -9Z "/>
+  </g>
+</svg>

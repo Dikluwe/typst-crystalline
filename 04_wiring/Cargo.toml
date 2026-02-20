@@ -1,0 +1,80 @@
+[package]
+name = "wiring"
+description = "The command line interface for Typst Crystal."
+version = "0.14.2"
+edition = "2024"
+
+[[bin]]
+name = "typst"
+path = "src/main.rs"
+doc = false
+
+[dependencies]
+typst = { workspace = true }
+typst-eval = { workspace = true }
+typst-html = { workspace = true }
+typst-macros = { workspace = true }
+typst-pdf = { workspace = true }
+typst-render = { workspace = true }
+typst-svg = { workspace = true }
+typst-timing = { workspace = true }
+typst-utils = { workspace = true }
+chrono = { workspace = true }
+clap = { workspace = true, features = ["string"] }
+clap_complete = { workspace = true }
+codespan-reporting = { workspace = true }
+color-print = { workspace = true }
+comemo = { workspace = true }
+dirs = { workspace = true }
+ecow = { workspace = true }
+fs_extra = { workspace = true }
+open = { workspace = true }
+parking_lot = { workspace = true }
+pathdiff = { workspace = true }
+rayon = { workspace = true }
+self-replace = { workspace = true, optional = true }
+semver = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+shell-escape = { workspace = true }
+sigpipe = { workspace = true }
+tar = { workspace = true }
+tempfile = { workspace = true }
+toml = { workspace = true }
+xz2 = { workspace = true, optional = true }
+zip = { workspace = true, optional = true }
+
+[dependencies.typst-kit]
+workspace = true
+features = [
+    "embedded-fonts",
+    "scan-fonts",
+    "system-packages",
+    "universe-packages",
+    "emit-diagnostics",
+    "system-downloader",
+    "watcher",
+]
+
+[dev-dependencies]
+typst-dev-assets = { workspace = true }
+memchr = { workspace = true }
+tempfile = { workspace = true }
+
+[build-dependencies]
+chrono = { workspace = true }
+clap = { workspace = true, features = ["string"] }
+clap_complete = { workspace = true }
+clap_mangen = { workspace = true }
+color-print = { workspace = true }
+semver = { workspace = true }
+serde = { workspace = true }
+typst-utils = { workspace = true }
+
+[features]
+default = ["embedded-fonts", "http-server"]
+embedded-fonts = ["typst-kit/embedded-fonts"]
+http-server = ["typst-kit/http-server"]
+self-update = ["dep:self-replace", "dep:xz2", "dep:zip"]
+vendor-openssl = ["typst-kit/vendor-openssl"]

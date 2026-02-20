@@ -1,0 +1,26 @@
+<svg viewBox="0 0 120 31.74" width="120pt" height="31.74pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 31.74h 120v -31.74Z "/>
+  <g transform="matrix(1 0 0 -1 10 18.37)">
+    <use xlink:href="#g565ECEB20D34EC54262CE14C777BBE91" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 13.33 18.37)"/>
+  <g transform="matrix(1 0 0 -1 15.83 18.37)">
+    <use xlink:href="#gF1B731BB9F61DFB37090F6424EE39CF1" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 18.61 18.37)"/>
+  <g transform="matrix(1 0 0 -1 21.11 18.37)">
+    <use xlink:href="#gF1B731BB9F61DFB37090F6424EE39CF1" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 23.89 18.37)"/>
+  <g transform="matrix(1 0 0 -1 26.39 18.37)">
+    <use xlink:href="#gF1B731BB9F61DFB37090F6424EE39CF1" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <defs>
+    <symbol id="g565ECEB20D34EC54262CE14C777BBE91" overflow="visible">
+      <path d="M 0 0m 1.45 -7.55c 0 -0.16 0 -0.37 0.21 -0.37c 0.22 0 0.23 0.2 0.23 0.37v 20.1c 0 0.16 -0.01 0.37 -0.22 0.37c -0.22 0 -0.22 -0.2 -0.22 -0.37Z "/>
+    </symbol>
+    <symbol id="gF1B731BB9F61DFB37090F6424EE39CF1" overflow="visible">
+      <path d="M 0 0m 1.39 -2.5c 0.13 0 0.2 0.08 0.2 0.24v 9.52c 0 0.16 -0.07 0.24 -0.2 0.24c -0.13 0 -0.2 -0.08 -0.2 -0.24v -9.52c 0 -0.16 0.07 -0.24 0.2 -0.24Z "/>
+    </symbol>
+  </defs>
+</svg>

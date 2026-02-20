@@ -1,0 +1,8 @@
+<svg viewBox="0 0 120 30" width="120pt" height="30pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 30h 120v -30Z "/>
+  <g transform="translate(10 10)">
+    <a href="https://example.com" xlink:href="https://example.com">
+      <rect width="100" height="10" fill="transparent" stroke="none"/>
+    </a>
+  </g>
+</svg>

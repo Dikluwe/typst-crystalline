@@ -1,0 +1,14 @@
+<svg viewBox="0 0 200 20" width="200pt" height="20pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="url(#rAFF5A0C59865A581E801855EE9743247)" fill-rule="nonzero" d="M 0 0v 20h 200v -20Z "/>
+  <defs>
+    <linearGradient id="fCDDF6695162D7734E29463C8A95B3854" spreadMethod="pad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="1.089108911" y2="0.108910891">
+      <stop offset="0%" stop-color="#ff4136"/>
+      <stop offset="50%" stop-color="#ff4136"/>
+      <stop offset="50%" stop-color="#0074d9"/>
+      <stop offset="100%" stop-color="#0074d9"/>
+    </linearGradient>
+  </defs>
+  <defs>
+    <linearGradient gradientTransform="scale(200 20)" id="rAFF5A0C59865A581E801855EE9743247" href="#fCDDF6695162D7734E29463C8A95B3854" xlink:href="#fCDDF6695162D7734E29463C8A95B3854"/>
+  </defs>
+</svg>

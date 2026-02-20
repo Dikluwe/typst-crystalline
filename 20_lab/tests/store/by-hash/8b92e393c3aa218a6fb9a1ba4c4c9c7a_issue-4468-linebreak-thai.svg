@@ -1,0 +1,25 @@
+<svg viewBox="0 0 120 40.78" width="120pt" height="40.78pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 40.78h 120v -40.78Z "/>
+  <g transform="matrix(1 0 0 -1 95 17.14)">
+    <use xlink:href="#gEB1B5FAD3C868FC0FD9AF80FC6CBB628" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 10 30.78)">
+    <use xlink:href="#gBF39CA56F4D51A21C67A023C410F0E54" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+    <use xlink:href="#g114FEB26619CACD7E4C0115C1B3C4FCA" x="6.11" y="0" fill="#000000" fill-rule="nonzero"/>
+    <use xlink:href="#gCB0981525C2CB8E416A806C841A4CE83" x="6.04" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <defs>
+    <symbol id="gEB1B5FAD3C868FC0FD9AF80FC6CBB628" overflow="visible">
+      <path d="M 0 0m 1.71 0l -1.71 5.48h 0.9l 1.48 -4.71h 0.12q 0.24 0 0.47 0.115q 0.23 0.115 0.39 0.295q 0.3 0.33 0.44 0.835q 0.14 0.505 0.14 0.995q 0 0.83 -0.375 1.305q -0.375 0.475 -1.035 0.475q -0.27 0 -0.46 -0.07l -0.22 0.71q 0.21 0.06 0.395 0.08q 0.185 0.02 0.335 0.02q 0.98 0 1.57 -0.57q 0.35 -0.34 0.515 -0.85q 0.165 -0.51 0.165 -1.13q 0 -0.78 -0.24 -1.385q -0.24 -0.605 -0.6 -0.965q -0.29 -0.29 -0.71 -0.46q -0.42 -0.17 -1.07 -0.17h -0.5Z "/>
+    </symbol>
+    <symbol id="gBF39CA56F4D51A21C67A023C410F0E54" overflow="visible">
+      <path d="M 0 0m 3.01 -0.1q -1.18 0 -1.69 0.54q -0.51 0.54 -0.51 1.54v 3.5h 0.89v -3.51q 0 -1.33 1.31 -1.33q 0.68 0 1.005 0.33q 0.325 0.33 0.325 1v 3.51h 0.89v -3.5q 0 -1 -0.515 -1.54q -0.515 -0.54 -1.705 -0.54Z "/>
+    </symbol>
+    <symbol id="g114FEB26619CACD7E4C0115C1B3C4FCA" overflow="visible">
+      <path d="M 0 0m -5.14 6.35v 0.39l 0.73 0.32h 3.52v -0.71h -4.25Z "/>
+    </symbol>
+    <symbol id="gCB0981525C2CB8E416A806C841A4CE83" overflow="visible">
+      <path d="M 0 0m 0.76 0v 1.9q 0 0.63 0.28 0.915q 0.28 0.285 0.71 0.395l 0.01 0.03l -1.1 0.42v 0.33q 0 0.41 0.27 0.775q 0.27 0.365 0.775 0.59q 0.505 0.225 1.205 0.225q 0.61 0 1.13 -0.195q 0.52 -0.195 0.835 -0.61q 0.315 -0.415 0.315 -1.085v -3.69h -0.89v 3.6q 0 0.67 -0.405 0.955q -0.405 0.285 -0.995 0.285q -0.61 0 -0.97 -0.255q -0.36 -0.255 -0.36 -0.645l 1.08 -0.54l -0.08 -0.48q -0.37 0 -0.645 -0.245q -0.275 -0.245 -0.275 -0.775v -1.9h -0.89Z "/>
+    </symbol>
+  </defs>
+</svg>

@@ -1,0 +1,38 @@
+<svg viewBox="0 0 120 26.078125" width="120pt" height="26.078125pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 26.078125h 120v -26.078125Z "/>
+  <g transform="matrix(1 0 0 -1 10 16.078125)">
+    <use xlink:href="#gE9FBE78C65E026342614F2FF7A660806" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 14.81640625 16.078125)">
+    <use xlink:href="#gDF31FC31CF3B70025FAF6353162FAB1E" x="0" y="0" fill="#d73948" fill-rule="nonzero"/>
+    <use xlink:href="#gDF31FC31CF3B70025FAF6353162FAB1E" x="4.81640625" y="0" fill="#d73948" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 24.44921875 16.078125)">
+    <use xlink:href="#gEED955A8CA4D25EDCCD7FA2F6275DBE4" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 34.08203125 16.078125)">
+    <use xlink:href="#g8F0C8442EFEBCF9394C113F9FADDBB17" x="0" y="0" fill="#d73948" fill-rule="nonzero"/>
+    <use xlink:href="#g364B83BA4944AA6320B6375E51462EA1" x="4.81640625" y="0" fill="#d73948" fill-rule="nonzero"/>
+  </g>
+  <g transform="matrix(1 0 0 -1 43.71484375 16.078125)">
+    <use xlink:href="#gDF31FC31CF3B70025FAF6353162FAB1E" x="4.81640625" y="0" fill="#000000" fill-rule="nonzero"/>
+    <use xlink:href="#gDF31FC31CF3B70025FAF6353162FAB1E" x="9.6328125" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <defs>
+    <symbol id="gE9FBE78C65E026342614F2FF7A660806" overflow="visible">
+      <path d="M 0 0m 3.45703125 6.0703125q -0.51953125 -0.890625 -0.775390625 -1.775390625q -0.255859375 -0.884765625 -0.255859375 -1.783203125q 0 -0.89453125 0.255859375 -1.78125q 0.255859375 -0.88671875 0.775390625 -1.78515625h -0.625q -0.58984375 0.9296875 -0.87890625 1.810546875q -0.2890625 0.880859375 -0.2890625 1.755859375q 0 0.87109375 0.2890625 1.75390625q 0.2890625 0.8828125 0.87890625 1.8046875h 0.625Z "/>
+    </symbol>
+    <symbol id="gDF31FC31CF3B70025FAF6353162FAB1E" overflow="visible">
+      <path d="M 0 0m 1.91015625 1.19140625h 0.984375v -1.19140625h -0.984375v 1.19140625Z "/>
+    </symbol>
+    <symbol id="gEED955A8CA4D25EDCCD7FA2F6275DBE4" overflow="visible">
+      <path d="M 0 0m 1.359375 6.0703125h 0.625q 0.58984375 -0.921875 0.87890625 -1.8046875q 0.2890625 -0.8828125 0.2890625 -1.75390625q 0 -0.87890625 -0.2890625 -1.76171875q -0.2890625 -0.8828125 -0.87890625 -1.8046875h -0.625q 0.51953125 0.90625 0.775390625 1.79296875q 0.255859375 0.88671875 0.255859375 1.7734375q 0 0.890625 -0.255859375 1.77734375q -0.255859375 0.88671875 -0.775390625 1.78125Z "/>
+    </symbol>
+    <symbol id="g8F0C8442EFEBCF9394C113F9FADDBB17" overflow="visible">
+      <path d="M 0 0m 0.34375 2.046875h 4.12890625v -0.671875h -4.12890625v 0.671875Z m 0 1.5859375h 4.12890625v -0.6640625h -4.12890625v 0.6640625Z "/>
+    </symbol>
+    <symbol id="g364B83BA4944AA6320B6375E51462EA1" overflow="visible">
+      <path d="M 0 0m 0.34375 3.75390625v 0.7109375l 4.12890625 -1.6328125v -0.6484375l -4.12890625 -1.6328125v 0.71484375l 3.3203125 1.23828125l -3.3203125 1.25Z "/>
+    </symbol>
+  </defs>
+</svg>

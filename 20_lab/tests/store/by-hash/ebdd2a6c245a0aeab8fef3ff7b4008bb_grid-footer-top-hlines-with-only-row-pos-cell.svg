@@ -1,0 +1,19 @@
+<svg viewBox="0 0 120 22.948" width="120pt" height="22.948pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:h5="http://www.w3.org/1999/xhtml">
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 22.948h 120v -22.948Z "/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(7 1.5)" d="M 0 0v 19.948"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(12 1.5)" d="M 0 0v 19.948"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(19.742 1.5)" d="M 0 0v 19.948"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(1.5 2)" d="M 0 0h 18.742"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(1.5 7)" d="M 0 0h 18.742"/>
+  <path fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(1.5 20.948)" d="M 0 0h 18.742"/>
+  <path fill="none" stroke="#0074d9" stroke-width="3" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(2 0.5)" d="M 0 0v 21.948"/>
+  <path fill="none" stroke="#ff4136" stroke-width="3" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="4" transform="translate(0.5 12)" d="M 0 0h 20.742"/>
+  <g transform="matrix(1 0 0 -1 14.5 18.448)">
+    <use xlink:href="#gC523B9D540B3453960CE983C270E75BD" x="0" y="0" fill="#000000" fill-rule="nonzero"/>
+  </g>
+  <defs>
+    <symbol id="gC523B9D540B3453960CE983C270E75BD" overflow="visible">
+      <path d="M 0 0m 1.758 0.288c 0.036 -0.186 0.102 -0.348 0.402 -0.348c 0.228 0 0.444 0.102 0.57 0.222c -0.012 0.072 -0.036 0.126 -0.102 0.162c -0.042 -0.036 -0.144 -0.096 -0.222 -0.096c -0.174 0 -0.18 0.234 -0.18 0.51v 0.882c 0 0.852 -0.468 1.014 -0.906 1.014c -0.492 0 -0.99 -0.324 -0.99 -0.666c 0 -0.144 0.072 -0.216 0.21 -0.216c 0.174 0 0.282 0.126 0.282 0.204c 0 0.042 -0.006 0.084 -0.018 0.108c -0.006 0.018 -0.012 0.054 -0.012 0.12c 0 0.186 0.252 0.252 0.48 0.252c 0.204 0 0.486 -0.102 0.486 -0.78c 0 -0.042 -0.018 -0.066 -0.036 -0.072l -0.516 -0.126c -0.576 -0.144 -0.99 -0.462 -0.99 -0.87c 0 -0.492 0.336 -0.648 0.756 -0.648c 0.21 0 0.39 0.048 0.654 0.252l 0.12 0.096Z m 0 1.11v -0.792c 0 -0.078 -0.036 -0.12 -0.084 -0.156c -0.156 -0.126 -0.36 -0.264 -0.528 -0.264c -0.3 0 -0.432 0.24 -0.432 0.426c 0 0.27 0.126 0.546 0.57 0.66Z "/>
+    </symbol>
+  </defs>
+</svg>

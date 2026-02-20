@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Typst test report</title><style>:root {
+  --radius-panel: 6px;
+  --radius-control: 5px;
+  --radius-focus: 2px;
+
+  --size-xxxxsmall: 4px;
+  --size-xxxsmall: 8px;
+  --size-xxsmall: 12px;
+  --size-xsmall: 16px;
+  --size-small: 24px;
+  --size-medium: 32px;
+  --size-large: 40px;
+
+  --line-margin: 1px;
+
+  --font-size-h2: 32px;
+  --font-size-large: 16px;
+  --font-size-body: 13px;
+  --font-size-code: 13px;
+  --font-size-small: 10px;
+
+  --monospace: "Cascadia Mono", monospace;
+
+  --text: rgba(253,253,253,1);
+  --text-disabled: rgba(253, 253, 253, 0.5);
+  --text-gutter: rgba(59, 58, 72 ,1);
+  --text-gutter-active: rgb(176, 179, 194);
+  --text-link: #3DA8FF;
+  --text-gap: #5a92c2;
+
+  --action-primary: rgba(0,122,255,1);
+  --action-primary-selected: rgba(0,122,255,1);
+  --action-primary-hover: rgba(0,77,198,1);
+  --action-primary-active: rgba(0,41,140,1);
+  --action-primary-disabled: rgba(0, 122, 255, 0.5);
+  --action-secondary-hover: rgb(51, 50, 62, 1);
+  --action-secondary-active: rgba(68, 67, 82, 1);
+  --action-secondary-disabled: rgba(42, 41, 52, 0.5);
+
+  --layer-0: rgba(18, 17, 24, 1);
+  --layer-1: rgba(25, 24, 31, 1);
+  --layer-2: rgba(42, 41, 52, 1);
+  --layer-3: rgba(59, 58, 72, 1);
+  --layer-gap: #3a52a228;
+
+  --border-panel: 1px solid rgba(59, 58, 72, 1);
+  --border-toolbar-button: 1px solid rgba(77, 76, 91, 1);
+  --border-focus: 2px solid rgba(0,122,255,0.5);
+
+  --layer-deletion-rgb: 133, 41, 29;
+  --layer-deletion: rgba(var(--layer-deletion-rgb), 0.2);
+  --layer-insertion-rgb: 30, 124, 97;
+  --layer-insertion: rgba(var(--layer-insertion-rgb), 0.2);
+  --span-deletion: rgba(var(--layer-deletion-rgb), 0.8);
+  --span-insertion: rgba(var(--layer-insertion-rgb), 0.8);
+
+  --text-color-decreased: rgba(255, 96, 82, 1);
+  --text-color-slightly: rgba(85, 146, 235, 1);
+  --text-color-increased: rgba(98, 205, 98, 1);
+
+  color-scheme: dark;
+  background-color: var(--layer-1);
+  margin: 0;
+  padding: 0;
+  font-family: Inter, system-ui,  sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: var(--font-size-body);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  color: var(--text);
+}
+
+a {
+  color: var(--text);
+}
+
+a:hover {
+  color: var(--text-link);
+}
+
+del {
+  all: unset;
+  background-color: var(--span-deletion);
+}
+
+ins {
+  all: unset;
+  background-color: var(--span-insertion);
+}
+
+/* Make the html hidden attribute work even if `display` is changed from the default value. */
+[hidden]{
+  display: none !important;
+}
+
+:focus-visible {
+  outline: var(--border-focus);
+  border-radius: var(--radius-focus);
+}
+
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+/* ========== Sidebar ========== */
+
+.sidebar {
+  flex: 1;
+  min-width: 260px;
+  height: calc(100% - 2 * var(--size-xxxsmall));
+  box-sizing: border-box;
+  margin: var(--size-xxxsmall) 0;
+  padding: var(--size-xxsmall);
+  border-radius: 0 var(--radius-panel) var(--radius-panel) 0;
+  background-color: var(--layer-2);
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar > h2 {
+  font-size: var(--font-size-large);
+  margin-bottom: var(--size-xxxxsmall);;
+}
+
+.sidebar-setting {
+  margin: var(--size-xxxxsmall) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+ul.sidebar-list {
+  flex-grow: 1;
+  list-style-type: none;
+  /* use negative margin to make scrollbar extend to the side of the sidebar */
+  margin: 0 calc(-1 * var(--size-xxsmall));
+  padding: 0 var(--size-xxsmall);
+  overflow-y: auto;
+
+  li {
+    margin: var(--size-xxxxsmall) 0;
+
+    a {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      display: block;
+    }
+  }
+}
+
+.sidebar-list-empty {
+  letter-spacing: var(--size-xxxxsmall);
+  color: var(--text-gutter-active);
+  user-select: none;
+}
+
+/* ========== Diffs ========== */
+
+.diff-container {
+  flex: 6;
+  display: block;
+  scroll-behavior: smooth;
+  overflow-y: scroll;
+  height: 100%;
+}
+
+h2.diff-container-header {
+  font-size: var(--font-size-h2);
+  text-align: center;
+  width: 100%;
+}
+
+.diff-container-empty {
+  width: 100%;
+  text-align: center;
+  font-size: var(--text-large);
+  letter-spacing: var(--size-xxxxsmall);
+  color: var(--text-gutter-active);
+  user-select: none;
+}
+
+.diff-scroll-padding {
+  height: 95vh;
+}
+
+.test-report {
+  position: relative;
+  margin: var(--size-xxxsmall);
+  scroll-margin-top: var(--size-xxxsmall);
+  border-radius: var(--radius-panel);
+  border: var(--border-panel);
+  background-color: var(--layer-1);
+  overflow: clip;
+}
+
+.test-report-header {
+  position: sticky;
+  top: 0;
+  height: calc(var(--size-medium) + 2px);
+  background-color: var(--layer-2);
+  padding: var(--size-xxxxsmall);
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--size-xxsmall);
+
+  z-index: 200;
+
+  > h3 {
+    font-size: var(--font-size-body);
+    margin: 0;
+    padding: var(--size-xxxxsmall) 0;
+  }
+}
+
+.icon-button.test-report-toggle {
+  height: var(--size-medium);
+  width: var(--size-medium);
+  border-radius: var(--radius-control);
+
+  > svg {
+    transition: 120ms transform cubic-bezier(0.1, 0.6, 0.3, 0.3);
+  }
+}
+
+.icon-button.test-report-toggle[aria-expanded="false"] {
+  > svg {
+    transform: rotate(-90deg);
+  }
+}
+
+.flex-grow {
+  flex-grow: 1;
+}
+
+.report-file-header {
+  display: inline-flex;
+  flex-direction: row;
+  gap: var(--size-xxxxsmall);
+}
+
+a.report-file-link {
+  height: var(--size-medium);
+  margin: 0;
+  text-decoration: none;
+  user-select: none;
+
+  display: inline-flex;
+  align-items: center;
+  padding-right: var(--size-xxxsmall);
+
+  > svg {
+    width: var(--size-xsmall);
+    height: var(--size-xsmall);
+    padding: var(--size-xxxsmall);
+    margin: 0;
+  }
+
+  > span {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--size-xxxxsmall);
+  }
+}
+
+a.report-file-link:hover {
+  color: unset;
+  background-color: var(--action-secondary-hover);
+}
+
+a.report-file-link:active {
+  color: unset;
+  background-color: var(--action-secondary-active);
+}
+
+.file-size-change {
+  font-size: var(--font-size-small);
+  font-weight: bold;
+}
+
+.file-size-change.decreased {
+  color: var(--text-color-decreased);
+}
+
+.file-size-change.slightly {
+  color: var(--text-color-slightly);
+}
+
+.file-size-change.increased {
+  color: var(--text-color-increased);
+}
+
+.report-file-tab-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+
+  > .file-diff-tab-group-wrapper {
+    position: absolute;
+    top: calc(var(--size-medium));
+    /* Offset by negative padding and border */
+    right: calc(-1 * var(--size-xxxsmall) - 1px);
+    z-index: 300;
+
+
+    /* Hide the tabgroup by default, and only show it when the parent element is
+     * hovered or receives keyboard focus. */
+    visibility: hidden;
+    /* Expand the wrapper to bridge the gap between the parent tab and allow the
+     * cursor to move slightly outside of the tab group. */
+    padding: var(--size-xxxsmall) ;
+
+    > .file-diff-tab-group {
+      margin: 0;
+    }
+  }
+}
+
+.report-file-tab-wrapper:has(*:is(:hover,:focus-visible)) {
+  > .file-diff-tab-group-wrapper {
+    visibility: visible;
+  }
+}
+
+.report-file {
+  position: relative;
+}
+
+/* ========== Text diff ========== */
+
+table.text-diff {
+  width: 100%;
+  border-style: none;
+  border-spacing: 0;
+  table-layout: fixed;
+
+  td.line-body:nth-child(2) {
+    border-right: var(--border-panel);
+  }
+
+  td.diff-gap:nth-child(1) {
+    border-right: var(--border-panel);
+  }
+}
+
+tr {
+  padding: 0;
+  margin: 0;
+}
+
+.col-line-gutter {
+  width: 4em;
+  min-width: 4em;
+  max-width: 4em;
+}
+
+.col-line-body {
+  width: 50%;
+  min-width: 50%;
+  max-width: 50%;
+}
+
+.diff-line {
+  vertical-align: top;
+  min-height: calc(1.5em + 2px);
+  height: calc(1.5em + 2px);
+  line-height: 1.5em;
+}
+
+.diff-empty {
+  background-color: var(--layer-0)
+}
+
+.diff-del {
+  background-color: var(--layer-deletion);
+}
+
+.diff-add {
+  background-color: var(--layer-insertion);
+}
+
+.diff-unchanged {}
+
+.diff-gap {
+  text-align: center;
+  user-select: none;
+  font-size: 1.2em;
+  background-color: var(--layer-gap);
+  color: var(--text-gap)
+}
+
+.diff-end {}
+
+.line-gutter {
+  font-family: var(--monospace);
+  font-size: var(--font-size-code);
+  text-align: right;
+  user-select: none;
+  color: var(--text-gutter-active);
+  padding: 0 var(--size-xxxxsmall);
+  margin: var(--line-margin) 0;
+  border-right: var(--border-panel);
+}
+
+.line-gutter.diff-unchanged {
+  background-color: var(--layer-1);
+  color: var(--text-gutter);
+}
+
+.line-body {
+  margin: 0;
+  padding: 0 var(--size-xxxxsmall);
+}
+
+.line-text {
+  font-family: var(--monospace);
+  font-size: var(--font-size-code);
+  display: inline-block;
+  vertical-align: baseline;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: var(--line-margin) 0;
+}
+
+/* ========== Image diff ========== */
+
+.image-diff {
+  position: relative;
+  height: 400px;
+  width: 100%;
+  min-height: 100px;
+  max-height: 100vh;
+  resize: vertical;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Only show image controls on hover */
+.image-diff:not(:hover,:has(*:focus-visible)) {
+  > .image-controls,
+  > .image-mode-controls {
+    /* Avoid flicker in some cases */
+    transition: opacity 0.1s cubic-bezier(0.64, 0, 0.78, 0) 0.1s;
+    opacity: 0;
+  }
+}
+
+.image-controls {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  padding: var(--size-xxxsmall);
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: var(--size-xxxsmall);
+
+  z-index: 100;
+}
+
+.image-mode-controls {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: var(--size-xxxsmall);
+
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: var(--size-xxxsmall);
+
+  z-index: 100;
+}
+
+.image-diff-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ========== Control group ========== */
+
+fieldset.control-group {
+  height: var(--size-medium);
+  margin: 0;
+  padding: 0;
+  border: var(--border-toolbar-button);
+  border-radius: var(--radius-control);
+  background-color: var(--layer-1);
+
+  display: inline-flex;
+
+  > *:not(:last-child) {
+    box-sizing: content-box;
+    border-right: var(--border-toolbar-button);
+  }
+}
+
+fieldset.control-group:disabled {
+  background-color: var(--action-secondary-disabled);
+  color: var(--text-disabled);
+}
+
+/* ========== Slider ========== */
+
+label.slider {
+  display: inline-flex;
+  align-items: center;
+
+  > svg {
+    width: var(--size-xsmall);
+    height: var(--size-xsmall);
+    padding: var(--size-xxxsmall);
+    margin: 0;
+  }
+
+  > input {
+    margin: 0 var(--size-xxxsmall);
+  }
+
+  > input:focus-visible {
+    outline: unset;
+  }
+}
+
+label.slider:has(> input:focus-visible) {
+  outline: var(--border-focus);
+  border-radius: var(--radius-focus);
+}
+
+/* ========== Icon Toggle Button ========== */
+
+label.icon-toggle-button {
+  padding: 0;
+  margin: 0;
+  width: var(--size-medium);
+  height: var(--size-medium);
+  position: relative;
+
+  input {
+    appearance: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  svg {
+    width: var(--size-xsmall);
+    height: var(--size-xsmall);
+    padding: var(--size-xxxsmall);
+    margin: 0;
+  }
+}
+
+label.icon-toggle-button:has(input:hover:not(:disabled)) {
+  background-color: var(--action-secondary-hover);
+}
+
+label.icon-toggle-button:has(input:active:not(:disabled)) {
+  background-color: var(--action-secondary-active);
+}
+
+label.icon-toggle-button:has(input:checked) {
+  color: var(--action-primary-selected);
+}
+
+label.icon-toggle-button:has(input:disabled) {
+  background-color: var(--action-secondary-disabled);
+  color: var(--text-disabled);
+}
+
+label.icon-toggle-button:has(input:disabled:checked) {
+  color: var(--action-primary-disabled);
+}
+
+/* ========== Icon Button ========== */
+
+button.icon-button {
+  width: var(--size-medium);
+  height: var(--size-medium);
+  padding: 0;
+  margin: 0;
+  border: none;
+  background-color: unset;
+
+  svg {
+    width: var(--size-xsmall);
+    height: var(--size-xsmall);
+    padding: var(--size-xxxsmall);
+    margin: 0;
+  }
+}
+
+button.icon-button:hover {
+  background-color: var(--action-secondary-hover);
+}
+
+button.icon-button:active {
+  background-color: var(--action-secondary-active);
+}
+
+button.icon-button:disabled {
+  background-color: var(--action-secondary-disabled);
+  color: var(--text-disabled);
+}
+
+/* ========== Copy Button ========== */
+.icon-button.copy-button {
+  font-size: 0;
+  display: block;
+  overflow: hidden;
+
+  svg {
+    margin: 0;
+    transform: translate(0, calc(-1 * var(--size-medium)));
+  }
+}
+
+.icon-button.copy-button.copied {
+  svg {
+    transform: translate(0);
+  }
+}
+
+.icon-button.copy-button:not(.copied) {
+  svg {
+    transition: transform 0.2s cubic-bezier(0.64, 0, 0.78, 0) 0.2s;
+  }
+}
+
+/* ========== Search Field ========== */
+input.search-field {
+  flex: 1;
+  width: 100%;
+  padding: 0 var(--size-xxxsmall);
+  height: var(--size-medium);
+  border: none;
+  background-color: unset;
+}
+</style></head><body><div class="container"><div class="sidebar"><h2>Filter</h2><div class="sidebar-setting"><fieldset class="control-group flex-grow"><input type="search" id="filter-search" class="search-field" placeholder="Search…"><button class="icon-button" id="search-button" title="Search"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><path id="svg-icon-0" d="M6.781 2a4.781 4.781 0 1 0 2.91 8.576l3.422 3.42.883-.883-3.42-3.422A4.781 4.781 0 0 0 6.781 2m0 1.25a3.531 3.531 0 1 1 0 7.062 3.531 3.531 0 0 1 0-7.062"></path></svg></button></fieldset></div><div class="sidebar-setting">Diff Format<fieldset class="control-group"><label class="icon-toggle-button"><input type="checkbox" id="filter-diff-format-render" title="Filter PNG" value="render" disabled="disabled"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><path id="svg-icon-1" d="M1 3v10h14V3Zm1.2 1.2h11.6v5.2H9.567a.4.4 0 0 1-.343-.195L7.45 6.254a1.58 1.58 0 0 0-1.431-.756c-.553.021-1.096.313-1.372.863L2.2 11.26Zm9.3.8A1.5 1.5 0 0 0 10 6.5 1.5 1.5 0 0 0 11.5 8 1.5 1.5 0 0 0 13 6.5 1.5 1.5 0 0 0 11.5 5M6.064 6.656c.133-.005.268.066.358.215l1.771 2.951c.29.481.812.778 1.373.778h4.235v1.2H3.27l2.452-4.902c.077-.155.208-.237.341-.242"></path></svg></label><label class="icon-toggle-button"><input type="checkbox" id="filter-diff-format-svg" title="Filter SVG" value="svg" disabled="disabled"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><path id="svg-icon-2" d="M2.93 12v2h2v-2zm0-10v2h2V2Zm.46 2v8h1.2V4Zm9.68 0c-1.46 0-3.741-.01-5.726.438-.993.223-1.922.557-2.647 1.12l-.107.088v4.708q.052.046.107.087c.725.564 1.654.898 2.647 1.121 1.985.447 4.266.438 5.726.438v-1.2c-1.461 0-3.678-.006-5.463-.407-.892-.201-1.666-.506-2.171-.899-.506-.393-.764-.82-.764-1.494 0-.673.258-1.101.764-1.494.505-.393 1.28-.698 2.171-.899C9.392 5.206 11.61 5.2 13.07 5.2Z"></path></svg></label><label class="icon-toggle-button"><input type="checkbox" id="filter-diff-format-pdf" title="Filter PDF" value="pdf" disabled="disabled"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><path id="svg-icon-3" d="M7.56 3.608 8 4.492l.442-.884c.05-.173.059-.373.011-.495a.2.2 0 0 0-.084-.106c-.045-.028-.15-.073-.369-.073-.218 0-.323.045-.369.073a.2.2 0 0 0-.084.106c-.047.122-.04.322.011.495m-.562-1.62c.28-.175.621-.254 1.003-.254s.722.08 1.003.254c.286.179.468.429.57.692.19.493.103 1.024-.004 1.343l-.013.04-.02.039-.855 1.711 2.68 4.644 1.905.115.043.002.042.009c.33.067.833.257 1.165.669.177.22.303.501.314.838.011.331-.09.666-.28.996-.192.331-.431.586-.723.742-.298.159-.605.19-.883.147-.523-.082-.94-.423-1.162-.674l-.029-.032-.023-.036-1.056-1.6H5.323L4.27 13.23l-.023.035-.028.032c-.224.252-.64.593-1.163.675a1.4 1.4 0 0 1-.883-.147c-.292-.156-.531-.411-.722-.742-.191-.33-.292-.665-.281-.996.011-.337.138-.62.314-.838.332-.412.836-.602 1.165-.67l.042-.008.043-.003 1.91-.114 2.677-4.64-.856-1.712-.019-.038-.013-.04c-.107-.32-.194-.85-.003-1.344.102-.263.283-.513.569-.692m5.163 9.72.987.059c.175.042.352.135.434.238a.2.2 0 0 1 .05.126c.002.053-.012.167-.121.355-.11.19-.201.258-.248.283a.2.2 0 0 1-.133.02c-.13-.02-.3-.127-.424-.257zm-8.322-.004-.545.825c-.124.13-.293.236-.423.257a.2.2 0 0 1-.134-.02c-.047-.025-.139-.094-.248-.283s-.122-.303-.12-.356a.2.2 0 0 1 .049-.126c.082-.102.26-.195.434-.238zm6.118-1.27L8 7.039l-1.965 3.395z"></path></svg></label><label class="icon-toggle-button"><input type="checkbox" id="filter-diff-format-pdftags" title="Filter PDF tags" value="pdftags" disabled="disabled"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><path id="svg-icon-4" d="m2.732.732.084.747.051.458 1.227.168-.002-.013 3.287.365a3.4 3.4 0 0 1 2.03.975l4.01 4.011-.32.32.85.848.744-.744.424-.424-.424-.423-4.435-4.436a4.6 4.6 0 0 0-2.746-1.32L3.479.816Zm-2 2 .084.747.448 4.033a4.6 4.6 0 0 0 1.32 2.746l4.436 4.435.423.424.424-.424 4.826-4.826.424-.424-.424-.423-4.435-4.436a4.6 4.6 0 0 0-2.746-1.32l-4.033-.448Zm1.36 1.36 3.287.365a3.4 3.4 0 0 1 2.03.975l4.01 4.011-3.976 3.977-4.011-4.012a3.4 3.4 0 0 1-.975-2.03ZM5 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2"></path></svg></label><label class="icon-toggle-button"><input type="checkbox" id="filter-diff-format-html" title="Filter HTML" value="html" disabled="disabled"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><path id="svg-icon-5" d="M8 1.4A6.61 6.61 0 0 0 1.4 8c0 3.638 2.962 6.6 6.6 6.6s6.6-2.962 6.6-6.6S11.638 1.4 8 1.4m1.824.883c-.106.149-.2.31-.285.47-.166.316-.281.63-.281.84 0 .287.21.594.37.772a.3.3 0 0 0 .224.094.33.33 0 0 0 .332-.332v-.1c0-.182.086-.373.189-.533a.35.35 0 0 1 .37-.15q.137.08.27.17l.003.002a.46.46 0 0 1 .093.279v.121c0 .323-.21.609-.52.705l-.868.272-.496.23c-.286.133-.565.302-.729.57-.093.152-.166.328-.166.496 0 .433.465.866.928.866.2 0 .409-.17.584-.371.253-.291.548-.56.916-.674.504-.157 1.145-.052 1.262.463q.016.075.017.148c0 .216-.117.217-.232.217-.116 0-.23 0-.23.217 0 .456.668.285 1.04.021.193-.137.348-.282.348-.455 0-.12.105-.199.209-.187a5.4 5.4 0 0 1 .201 2.119 2.7 2.7 0 0 0-1.146-.475c-.563-.089-1.133-.158-1.53-.158-.26 0-.553-.03-.845-.059a8 8 0 0 0-.942-.054c-.472.014-.816.142-.816.572 0 .325-.085.695-.166 1.043-.148.634-.279 1.193.166 1.252 1.216.161 1.96 1.033 2.31 2.164-.723.36-1.54.562-2.404.562a5.4 5.4 0 0 1-2.084-.414l-.014.035q.029-.079.05-.162c.04-.171.075-.3.1-.367.065-.164.208-.297.376-.453.237-.22.524-.486.705-.95.15-.383-.487-.76-1.229-1.048a2.1 2.1 0 0 0-.818-.146c-.598.015-1.157.297-1.47.843q-.07.121-.128.235a5.4 5.4 0 0 1-.767-1.825l.736.49A.35.35 0 0 0 4 9.349c0-.193.159-.341.34-.276.194.07.432.2.66.428q.121.119.244.17c.417.18.495-.431.174-.752a.77.77 0 0 1-.133-.938c.203-.34.466-.73.715-.98.32-.32-.195-1.092-.67-1.643a2.4 2.4 0 0 0-.766-.574l-.222-.113a3 3 0 0 0-.45-.182A5.4 5.4 0 0 1 5 3.506C5.005 4.29 5.15 5 5.627 5c.206 0 .395-.023.564-.059.636-.134.84-.827.682-1.457l-.125-.494a1 1 0 0 0-.088-.224A5.4 5.4 0 0 1 8 2.6c.522 0 1.027.073 1.504.21.01-.019.025-.037.035-.056.085-.161.178-.322.285-.47M8.415 3.967a.25.25 0 0 0-.233.32l.138.47a.418.418 0 1 0 .645-.456l-.4-.285a.25.25 0 0 0-.15-.05m2.503 2.756a.4.4 0 0 0-.145.039c-.36.18-.233.724.17.724a.383.383 0 1 0-.025-.764m-5.102 6.502-.035.066z"></path></svg></label></fieldset></div><h2>Settings</h2><div class="sidebar-setting">Diff Format<fieldset class="control-group"><button class="icon-button" id="global-diff-format-render" title="Show PNG diffs" disabled="disabled"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><use href="#svg-icon-1"></use></svg></button><button class="icon-button" id="global-diff-format-svg" title="Show SVG diffs" disabled="disabled"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><use href="#svg-icon-2"></use></svg></button><button class="icon-button" id="global-diff-format-pdf" title="Show PDF diffs" disabled="disabled"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><use href="#svg-icon-3"></use></svg></button><button class="icon-button" id="global-diff-format-pdftags" title="Show PDF tags diffs" disabled="disabled"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><use href="#svg-icon-4"></use></svg></button><button class="icon-button" id="global-diff-format-html" title="Show HTML diffs" disabled="disabled"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><use href="#svg-icon-5"></use></svg></button></fieldset></div><div class="sidebar-setting">Diff Mode<fieldset class="control-group"><button class="icon-button" id="global-diff-mode-image" title="Show image diffs"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><use href="#svg-icon-1"></use></svg></button><button class="icon-button" id="global-diff-mode-text" title="Show text diffs"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><path id="svg-icon-6" d="M11.291 5.555a2 2 0 0 0-1.117.316q-.493.314-.776.904-.279.591-.279 1.418 0 .826.283 1.393.287.564.776.853.493.288 1.107.288.475 0 .772-.149a1.4 1.4 0 0 0 .466-.351 2.3 2.3 0 0 0 .262-.368h.065v1.02q0 .607-.373.883-.375.28-.95.281-.418 0-.683-.12a1.3 1.3 0 0 1-.42-.286 2 2 0 0 1-.242-.313l-.868.358q.14.316.418.582.28.266.723.43.445.16 1.063.161.66 0 1.187-.207.53-.205.84-.632.31-.43.31-1.098V5.621h-.988v.842h-.074a3 3 0 0 0-.26-.375 1.4 1.4 0 0 0-.463-.371q-.297-.162-.779-.162m.217.857q.441 0 .742.225.3.222.455.62.155.4.154.923 0 .535-.158.92-.154.381-.459.588-.3.2-.734.2-.45.001-.756-.214a1.33 1.33 0 0 1-.459-.602 2.4 2.4 0 0 1-.154-.892q0-.496.15-.899a1.4 1.4 0 0 1 .459-.633q.304-.236.76-.236M4.39 3.895l-2.487 6.91h1.108l.633-1.83h2.697l.633 1.83h1.107l-2.486-6.91Zm.578 1.255h.052L6.04 8.098H3.95Z"></path></svg></button></fieldset></div><div class="sidebar-setting">Image View Mode<fieldset class="control-group"><button class="icon-button" id="global-image-view-mode-side-by-side" title="Show Image View Mode side by side"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><path id="svg-icon-7" d="M7.43 5.438v6.568h1.25V5.438ZM3.744 3.047a1 1 0 0 0-1 1v7.92a1 1 0 0 0 1 1h8.512a1 1 0 0 0 1-1v-7.92a1 1 0 0 0-1-1H3.869zm.942.857a.685.685 0 1 1 0 1.371.685.685 0 0 1 0-1.37M7.43 5.438h1.25v.609h3.326v5.67H8.68v.289H7.43v-.29H3.994v-5.67H7.43z"></path></svg></button><button class="icon-button" id="global-image-view-mode-blend" title="Show Image View Mode blend"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><path id="svg-icon-8" d="M4.086 8.12 1.158 9.183a.2.2 0 0 0-.025.365l6.805 3.617c.25.133.544.153.81.057l5.533-2.012a.199.199 0 0 0 .026-.363l-2.952-1.57-2.503.91a1.25 1.25 0 0 1-1.014-.073zm3.203-5.403a1 1 0 0 0-.307.06L1.027 4.941l7.2 3.83a1 1 0 0 0 .812.057l5.953-2.166-7.199-3.83a1 1 0 0 0-.504-.115m.02 1.217 4.744 2.523-3.34 1.215L3.97 5.148Z"></path></svg></button><button class="icon-button" id="global-image-view-mode-difference" title="Show Image View Mode difference"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"><path id="svg-icon-9" d="M5 4a4 4 0 1 0 1.693 7.625c.14-.065.142-.258.016-.346A4 4 0 0 1 5 8c0-1.357.676-2.556 1.709-3.28.126-.088.124-.28-.016-.345A4 4 0 0 0 5 4m6 0a4.01 4.01 0 0 0-4 4c0 2.202 1.798 4 4 4s4-1.798 4-4-1.798-4-4-4m0 1.2c1.554 0 2.8 1.246 2.8 2.8s-1.246 2.8-2.8 2.8A2.79 2.79 0 0 1 8.2 8c0-1.554 1.246-2.8 2.8-2.8"></path></svg></button></fieldset></div><h2>Tests</h2><ul class="sidebar-list" tabindex="-1"><div class="sidebar-list-empty">NONE</div></ul></div><div class="diff-container" tabindex="-1"><h2 class="diff-container-header">Changes</h2><div class="diff-container-empty">NONE</div><div class="diff-scroll-padding"></div></div></div><script type="text/javascript">const sidebarList = document.querySelector(".sidebar > .sidebar-list")
+/** @type {HTMLAnchorElement[]} */
+const sidebarLinks = sidebarList.querySelectorAll("a")
+
+/** @type {TestReportState[]} */
+const testReports = []
+/** @type {ReportFileState[]} */
+const reportFiles = []
+
+/**
+ * @typedef TestReportState
+ * @type {object}
+ * @property report {HTMLDetailsElement}
+ * @property reportToggle {HTMLButtonElement}
+ * @property reportFileHeaders {NodeListOf<HTMLDivElement>}
+ * @property reportFileTabs {NodeListOf<HTMLInputElement>}
+ * @property reportBody HTMLDivElement
+ * @property reportFileTabpanels {NodeListOf<HTMLElement>}
+ */
+
+/**
+ * @typedef {"render" | "pdf" | "pdftags" | "svg" | "html"} TestOutput
+ */
+
+/**
+ * @typedef ReportFileState
+ * @type {object}
+ * @property fileDiffTabs {NodeListOf<HTMLInputElement>}
+ * @property fileDiffTabpanels {NodeListOf<HTMLElement>}
+ */
+
+/**
+ * @typedef {"image" | "text"} DiffKind
+ */
+
+for (const report of document.getElementsByClassName("test-report")) {
+  const reportHeader = report.querySelector(".test-report-header")
+  const reportToggle = reportHeader.querySelector(".test-report-toggle")
+  const reportFileHeaders = reportHeader.querySelectorAll(".report-file-header");
+  const reportFileTabGroup = reportHeader.querySelector(".report-file-tab-group");
+  const reportFileTabs = reportFileTabGroup.querySelectorAll(".report-file-tab");
+  const reportBody = report.querySelector(".test-report-body")
+  const reportFileTabpanels = reportBody.querySelectorAll(":scope > .report-file");
+
+  /** @type {TestReportState} */
+  const state = {
+    report,
+    reportBody,
+    reportFileHeaders,
+    reportFileTabs,
+    reportFileTabpanels,
+    reportToggle,
+  }
+  testReports.push(state);
+
+  reportToggle.addEventListener("click", () => {
+    const expanded = !(reportToggle.ariaExpanded == "true");
+    reportBody.hidden = !expanded;
+    reportToggle.ariaExpanded = expanded;
+  });
+
+  for (const button of reportHeader.querySelectorAll(".copy-button")) {
+    button.addEventListener("click", () => {
+      navigator.clipboard.writeText(button.dataset.filePath);
+      button.classList.add("copied");
+      setTimeout(() => button.classList.remove("copied"), 1)
+    })
+  }
+
+  for (const tab of reportFileTabs) {
+    tab.addEventListener("change", (e) => {
+      reportFileTabChanged(state, e.target.value)
+    })
+  }
+  reportFileTabChanged(state, currentReportFileTab(state))
+
+  for (const [idx, child] of reportFileTabGroup.childNodes.entries()) {
+    const fileDiffTabGroup = child.querySelector(".file-diff-tab-group");
+
+    // Not all file reports have multiple diffs. File diff tabs are only
+    // generated when necessary.
+    if (fileDiffTabGroup == null) {
+      continue;
+    }
+
+    const fileDiffTabs = fileDiffTabGroup.querySelectorAll(".file-diff-tab");
+    const fileDiffTabpanels = reportFileTabpanels[idx].querySelectorAll(":scope > .file-diff");
+
+    /** @type {ReportFileState} */
+    const state = {
+      fileDiffTabs,
+      fileDiffTabpanels,
+    }
+    reportFiles.push(state);
+
+    for (const tab of fileDiffTabs) {
+      tab.addEventListener("change", (e) => {
+        fileDiffTabChanged(state, e.target.value)
+      })
+    }
+    fileDiffTabChanged(state, currentFileDiffTab(state))
+  }
+}
+
+let outputs = ["render", "pdf", "pdftags", "svg", "html"]
+/** @type {HTMLInputElement[]} */
+let filterDiffFormats = []
+for (const output of outputs) {
+  let filterFormat = document.getElementById(`filter-diff-format-${output}`);
+  filterDiffFormats.push(filterFormat)
+  filterFormat.addEventListener("change", () => {
+    filterDiffs()
+  });
+
+  document.getElementById(`global-diff-format-${output}`)
+    .addEventListener("click", () => {
+      changeGlobalDiffFormat(output)
+    })
+}
+
+/** @type {HTMLInputElement} */
+let filterSearch = document.getElementById("filter-search");
+filterSearch.addEventListener("change", () => {
+  filterDiffs()
+})
+
+filterDiffs()
+
+let diff_kinds = ["text", "image"]
+for (const kind of diff_kinds) {
+  document.getElementById(`global-diff-mode-${kind}`)
+    .addEventListener("click", () => {
+      changeGlobalDiffMode(kind)
+    })
+}
+
+function filterDiffs() {
+  let outputs = filterDiffFormats
+    .filter((filterFormat) => !filterFormat.disabled && filterFormat.checked)
+    .map((filterFormat) => filterFormat.value)
+  let text = filterSearch.value
+
+  for (const [i, report] of testReports.entries()) {
+    // Ids are just the test names prefixed with `r-`.
+    const name = report.report.id.substring(2);
+    let filteredOut = false;
+
+    // Filter search
+    if (text.length > 0) {
+      filteredOut = !name.includes(text);
+    }
+
+    // Filter format
+    if (outputs.length > 0 && !filteredOut) {
+      filteredOut = true;
+      for (const tab of report.reportFileTabs) {
+        if (outputs.includes(tab.value)) {
+          filteredOut = false;
+          break;
+        }
+      }
+    }
+
+    report.report.hidden = filteredOut;
+    sidebarLinks[i].hidden = filteredOut;
+  }
+}
+
+/**
+ * @param output {TestOutput}
+ */
+function changeGlobalDiffFormat(output) {
+  for (const state of testReports) {
+    let found = false
+    for (const tab of state.reportFileTabs) {
+      if (tab.value == output) {
+        tab.checked = true;
+        found = true;
+        break;
+      }
+    }
+    if (found) {
+      reportFileTabChanged(state, output)
+    }
+  }
+}
+
+/**
+ * @param state {TestReportState}
+ * @param output {TestOutput}
+ */
+function reportFileTabChanged(state, output) {
+  for (const [idx, tab] of state.reportFileTabs.entries()) {
+    const selected = tab.value == output;
+    tab.ariaSelected = selected;
+    state.reportFileTabpanels[idx].hidden = !selected;
+    state.reportFileHeaders[idx].hidden = !selected;
+  }
+}
+
+/**
+ * @param state {TestReportState}
+ * @return {TestOutput}
+ */
+function currentReportFileTab(state) {
+  for (const tab of state.reportFileTabs) {
+    if (tab.checked) {
+      return tab.value
+    }
+  }
+}
+
+/**
+ * @param diff_kind {DiffKind}
+ */
+function changeGlobalDiffMode(diff_kind) {
+  for (const state of reportFiles) {
+    let found = false
+    for (const tab of state.fileDiffTabs) {
+      if (tab.value == diff_kind) {
+        tab.checked = true;
+        found = true;
+        break;
+      }
+    }
+    if (found) {
+      fileDiffTabChanged(state, diff_kind)
+    }
+  }
+}
+
+/**
+  * @param state {ReportFileState}
+  * @param diff_kind {DiffKind}
+  */
+function fileDiffTabChanged(state, diff_kind) {
+  for (const [idx, tab] of state.fileDiffTabs.entries()) {
+    const selected = tab.value == diff_kind;
+    tab.ariaSelected = selected;
+    state.fileDiffTabpanels[idx].hidden = !selected;
+  }
+}
+
+/**
+  * @param state {ReportFileState}
+  * @return {DiffKind}
+  */
+function currentFileDiffTab(state) {
+  for (const tab of state.fileDiffTabs) {
+    if (tab.checked) {
+      return tab.value
+    }
+  }
+}
+
+/** @type {ImageDiffState} */
+const imageDiffs = []
+
+/**
+ * @typedef ImageDiffState
+ * @type {object}
+ * @property visible {bool} Whether the canvas is visible.
+ * @property imagesDecoded {bool} Whether the images have been decoded and their
+ *                                natural dimensions are known.
+ * @property dirty {bool} Whether the canvas should be (re-)drawn.
+ * @property imageCanvas {HTMLCanvasElement}
+ * @property images {HTMLImageElement[]}
+ * @property imageModes {HTMLInputElement[]}
+ * @property imageAntialiasing {HTMLInputElement}
+ * @property imageZoom {HTMLInputElement}
+ * @property imageAlignXControl {HTMLElement}
+ * @property imageAlignY {HTMLInputElement[]}
+ * @property imageAlignX {HTMLInputElement[]}
+ * @property imageBlendControl {HTMLElement}
+ * @property imageBlend {HTMLInputElement}
+ */
+
+/**
+ * @typedef {"side-by-side" | "blend" | "difference"} ImageViewMode
+ */
+
+for (const imageDiff of document.getElementsByClassName("image-diff")) {
+  const imageWrapper = imageDiff.querySelector(".image-diff-wrapper")
+  const imageCanvas = imageWrapper.querySelector(".image-canvas")
+  const images = imageCanvas.querySelectorAll("img")
+
+  const imageModes = imageDiff.querySelectorAll("input.image-view-mode")
+  const imageAntialiasing = imageDiff.querySelector("input.image-antialiasing")
+  const imageZoom = imageDiff.querySelector("input.image-zoom")
+  const imageZoomPlus = imageDiff.querySelector("button.image-zoom-plus")
+  const imageZoomMinus = imageDiff.querySelector("button.image-zoom-minus")
+  const imageAlignXControl = imageDiff.querySelector(".image-align-x-control")
+  const imageAlignX = imageAlignXControl.querySelectorAll(".image-align-x")
+  const imageAlignYControl = imageDiff.querySelector(".image-align-y-control")
+  const imageAlignY = imageAlignYControl.querySelectorAll(".image-align-y")
+  const imageBlendControl = imageDiff.querySelector(".image-blend-control")
+  const imageBlend = imageDiff.querySelector("input.image-blend")
+
+  /** @type {ImageDiffState} */
+  const state = {
+    visible: false,
+    imagesLoaded: false,
+    dirty: true,
+    imageCanvas,
+    images,
+    imageModes,
+    imageAntialiasing,
+    imageZoom,
+    imageAlignXControl,
+    imageAlignX,
+    imageAlignY,
+    imageBlendControl,
+    imageBlend,
+  }
+  imageDiffs.push(state);
+
+  for (const imageMode of imageModes) {
+    imageMode.addEventListener("change", (e) => {
+      imageModeChanged(state, e.target.value);
+    });
+  }
+
+  imageAntialiasing.addEventListener("change", () => imageDiffChanged(state));
+
+  imageZoom.addEventListener("change", () => imageDiffChanged(state));
+  imageZoom.addEventListener("input", () => imageDiffChanged(state));
+
+  imageZoomMinus.addEventListener("click", () => {
+    imageZoom.stepDown()
+    imageDiffChanged(state)
+  });
+  imageZoomPlus.addEventListener("click", () => {
+    imageZoom.stepUp()
+    imageDiffChanged(state)
+  });
+
+  for (const align of imageAlignX) {
+    align.addEventListener("change", () => imageDiffChanged(state));
+  }
+  for (const align of imageAlignY) {
+    align.addEventListener("change", () => imageDiffChanged(state));
+  }
+
+  imageBlend.addEventListener("change", () => imageDiffChanged(state));
+  imageBlend.addEventListener("input", () => imageDiffChanged(state));
+
+  // Initially enable/disable the image controls.
+  disableImageControls(state, currentImageMode(state));
+
+  // Issue a lazy canvas redaw when the images have been decoded.
+  let numDecoded = 0;
+  for (const img of images) {
+    // Ignore invalid images.
+    img.decode().catch(() => {}).then(() => {
+      numDecoded += 1;
+      if (numDecoded == images.length) {
+        state.imagesDecoded = true;
+        redrawImageDiff(state);
+      }
+    })
+  }
+
+  // Issue a lazy canvas redaw if the images become visible on screen.
+  onViewportIntersectionChanged(imageWrapper, (visible) => {
+    state.visible = visible;
+    redrawImageDiff(state);
+  });
+}
+
+/**
+ * @param element {HTMLElement}
+ * @param callback {(visible: bool) => void}
+ */
+function onViewportIntersectionChanged(element, callback) {
+  var observer = new IntersectionObserver((entries, _observer) => {
+    for (const entry of entries) {
+      callback(entry.intersectionRatio > 0);
+    }
+  });
+
+  observer.observe(element);
+}
+
+let imageModes = ["side-by-side", "blend", "difference"]
+for (const mode of imageModes) {
+  document.getElementById(`global-image-view-mode-${mode}`)
+    .addEventListener("click", () => changeGlobalImageMode(mode));
+}
+
+/**
+ * @param mode {ImageViewMode}
+ */
+function changeGlobalImageMode(mode) {
+  for (const state of imageDiffs) {
+    for (const imageMode of state.imageModes) {
+      if (imageMode.value == mode) {
+        imageMode.checked = true;
+      }
+    }
+    imageModeChanged(state, mode);
+  }
+}
+
+/**
+ * @param state {ImageDiffState}
+ * @param mode {ImageViewMode}
+ */
+function imageModeChanged(state, mode) {
+  disableImageControls(state, mode);
+  imageDiffChanged(state);
+}
+
+/**
+ * @param state {ImageDiffState}
+ * @param mode {ImageViewMode}
+ */
+function disableImageControls(state, mode) {
+  switch (mode) {
+    case "side-by-side": {
+      state.imageAlignXControl.disabled = true;
+      state.imageBlendControl.disabled = true;
+      break;
+    }
+    case "blend": {
+      state.imageAlignXControl.disabled = false;
+      state.imageBlendControl.disabled = false;
+      break;
+    }
+    case "difference": {
+      state.imageAlignXControl.disabled = false;
+      state.imageBlendControl.disabled = false;
+      break;
+    }
+    default: throw `unknown mode ${mode}`
+  }
+}
+
+/**
+ * @typedef ImageParams
+ * @type {object}
+ * @property x {number}
+ * @property y {number}
+ * @property w {number}
+ * @property h {number}
+ * @property opacity {number}
+ */
+
+/**
+ * @param state {ImageDiffState}
+ */
+function imageDiffChanged(state) {
+  state.dirty = true;
+  redrawImageDiff(state);
+}
+
+/**
+ * @param state {ImageDiffState}
+ */
+function redrawImageDiff(state) {
+  // In large test reports drawing only the image diffs that are on screen is
+  // necessary to create a somewhat usable experience. It also dramatically
+  // reduces loading time.
+  if (!(state.visible  && state.dirty && state.imagesDecoded)) return;
+
+  state.dirty = false;
+
+  const scale = state.imageZoom.value
+  const antialiased = state.imageAntialiasing.checked;
+  const mode = currentImageMode(state)
+  const alignX = currentImageAlignX(state);
+  const alignY = currentImageAlignY(state);
+  const blend = state.imageBlend.value
+
+  const a = {
+    x: 0,
+    y: 0,
+    w: scale * state.images[0].naturalWidth,
+    h: scale * state.images[0].naturalHeight,
+    opacity: 1,
+  };
+  const b = {
+    x: 0,
+    y: 0,
+    w: scale * state.images[1].naturalWidth,
+    h: scale * state.images[1].naturalHeight,
+    opacity: 1,
+  };
+
+  const maxWidth = Math.max(a.w, b.w);
+  const maxHeight = Math.max(a.h, b.h);
+
+  const sideBySideGap = 1;
+
+  let canvasSize = { w: maxWidth, h: maxHeight };
+  let compositeMode;
+  switch (mode) {
+    case "side-by-side": {
+      compositeMode = "source-over";
+
+      const maxWidth = Math.max(a.w, b.w);
+      canvasSize = { w: 2 * maxWidth + sideBySideGap, h: Math.max(a.h, b.h) };
+
+      // Center align images
+      a.x = maxWidth - a.w;
+      b.x = maxWidth + sideBySideGap;
+
+      a.y = verticalAlignImage(a, canvasSize, alignY);
+      b.y = verticalAlignImage(b, canvasSize, alignY);
+
+      break;
+    }
+    case "blend": {
+      // Additive mixing.
+      compositeMode = "lighter";
+
+      // Blend images.
+      a.opacity = 1 - blend;
+      b.opacity = blend;
+
+      a.x = horizontalAlignImage(a, canvasSize, alignX);
+      b.x = horizontalAlignImage(b, canvasSize, alignX);
+      a.y = verticalAlignImage(a, canvasSize, alignY);
+      b.y = verticalAlignImage(b, canvasSize, alignY);
+
+      break;
+    }
+    case "difference": {
+      compositeMode = "difference";
+
+      // Fade out one of the images.
+      if (blend < 0.4) {
+        b.opacity = (blend / 0.4);
+      } else if (blend > 0.6) {
+        a.opacity = 1 - ((blend - 0.6) / 0.4);
+      }
+
+      a.x = horizontalAlignImage(a, canvasSize, alignX);
+      b.x = horizontalAlignImage(b, canvasSize, alignX);
+      a.y = verticalAlignImage(a, canvasSize, alignY);
+      b.y = verticalAlignImage(b, canvasSize, alignY);
+
+      break;
+    }
+    default: throw `unknown mode ${mode}`
+  }
+
+  state.imageCanvas.width = canvasSize.w;
+  state.imageCanvas.height = canvasSize.h;
+
+  const ctx = state.imageCanvas.getContext("2d")
+  ctx.clearRect(0, 0, state.imageCanvas.width, state.imageCanvas.height);
+
+  ctx.imageSmoothingEnabled = antialiased;
+  ctx.globalCompositeOperation = compositeMode;
+
+  ctx.globalAlpha = a.opacity;
+  ctx.drawImage(state.images[0], a.x, a.y, a.w, a.h);
+
+  ctx.globalAlpha = b.opacity;
+  ctx.drawImage(state.images[1], b.x, b.y, b.w, b.h);
+}
+
+/**
+ * @param img {ImageParams}
+ * @param size {{w: number, h: number}}
+ * @param align: {"left" | "center" | "right"}
+ * @returns number
+ */
+function horizontalAlignImage(img, size, align) {
+  switch (align) {
+    case "left": return 0;
+    case "center": return 0.5 * (size.w - img.w);
+    case "right": return size.w - img.w;
+    default: throw `unknown horizontal alignment ${align}`
+  }
+}
+
+/**
+ * @param img {ImageParams}
+ * @param size {{w: number, h: number}}
+ * @param align: { "top" | "center" | "bottom" }
+ * @returns number
+ */
+function verticalAlignImage(img, size, align) {
+  switch (align) {
+    case "top": return 0;
+    case "center": return 0.5 * (size.h - img.h);
+    case "bottom": return size.h - img.h;
+    default: throw `unknown vertical alignment ${align}`
+  }
+}
+
+/**
+ * @param state {ImageDiffState}
+ */
+function currentImageMode(state) {
+  for (const imageMode of state.imageModes) {
+    if (imageMode.checked) {
+      return imageMode.value
+    }
+  }
+}
+
+/**
+ * @param state {ImageDiffState}
+ */
+function currentImageAlignX(state) {
+  for (const align of state.imageAlignX) {
+    if (align.checked) {
+      return align.value
+    }
+  }
+}
+
+/**
+ * @param state {ImageDiffState}
+ */
+function currentImageAlignY(state) {
+  for (const align of state.imageAlignY) {
+    if (align.checked) {
+      return align.value
+    }
+  }
+}
+</script></body></html>
