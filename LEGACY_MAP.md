@@ -21,8 +21,8 @@
   - *↳ [ ] L0 (Spec Criada)*
 - [ ] `20_lab/crates/typst-cli/src/greet.rs`
   - *↳ [ ] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/info.rs`
-  - *↳ [ ] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/info.rs`
+  - *↳ [x] L0 (Spec Criada)*
 - [ ] `20_lab/crates/typst-cli/src/init.rs`
   - *↳ [ ] L0 (Spec Criada)*
 - [ ] `20_lab/crates/typst-cli/src/main.rs`
