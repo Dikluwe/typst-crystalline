@@ -24,6 +24,12 @@ pub mod compile_io_impl;
 #[path = "../03_infra/info_io_impl.rs"]
 pub mod info_io_impl;
 
+#[path = "../01_core/world_logic.rs"]
+pub mod world_logic;
+
+#[path = "../03_infra/world_io_impl.rs"]
+pub mod world_io_impl;
+
 #[path = "../02_shell/args_cli.rs"]
 pub mod args_cli;
 
@@ -32,6 +38,7 @@ pub mod args_cli;
 pub use args_io_impl::{StandardOutputWriter, SystemEnvProvider};
 pub use compile_io_impl::{SystemProcessOpener, SystemClockProvider, SystemDiagnosticPublisher};
 pub use info_io_impl::{SystemEnvReader, TermColorWriter, SystemPathResolver};
+pub use world_io_impl::{OsFileSystem, OsStdinReader, RayonRuntimeConfig};
 pub use args_cli::CliArguments;
 
 pub struct TypstApp {
@@ -42,6 +49,9 @@ pub struct TypstApp {
     pub diagnostics: Box<dyn compile_io_impl::compile_io::IDiagnosticPublisher>,
     pub env_reader: Box<dyn info_io_impl::info_io::IEnvReader>,
     pub path_resolver: Box<dyn info_io_impl::info_io::ISystemPathResolver>,
+    pub filesystem: Box<dyn world_io_impl::world_io::IFileSystem>,
+    pub stdin_reader: Box<dyn world_io_impl::world_io::IStdinReader>,
+    pub runtime: Box<dyn world_io_impl::world_io::IRuntimeConfig>,
 }
 
 impl Default for TypstApp {
@@ -54,6 +64,9 @@ impl Default for TypstApp {
             diagnostics: Box::new(SystemDiagnosticPublisher),
             env_reader: Box::new(SystemEnvReader),
             path_resolver: Box::new(SystemPathResolver),
+            filesystem: Box::new(OsFileSystem),
+            stdin_reader: Box::new(OsStdinReader),
+            runtime: Box::new(RayonRuntimeConfig),
         }
     }
 }

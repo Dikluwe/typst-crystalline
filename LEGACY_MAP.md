@@ -39,8 +39,8 @@
   - *↳ [ ] L0 (Spec Criada)*
 - [ ] `20_lab/crates/typst-cli/src/watch.rs`
   - *↳ [ ] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/world.rs`
-  - *↳ [ ] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/world.rs`
+  - *↳ [x] L0 (Spec Criada)*
 
 ## Módulo: typst-cli (20_lab/crates/typst-cli/tests)
 - [ ] `20_lab/crates/typst-cli/tests/smoke.rs`
