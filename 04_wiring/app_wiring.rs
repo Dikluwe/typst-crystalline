@@ -69,6 +69,42 @@ pub mod eval_logic;
 #[path = "../03_infra/eval_io_impl.rs"]
 pub mod eval_io_impl;
 
+#[path = "../01_core/fonts_logic.rs"]
+pub mod fonts_logic;
+
+#[path = "../03_infra/fonts_io_impl.rs"]
+pub mod fonts_io_impl;
+
+#[path = "../01_core/greet_logic.rs"]
+pub mod greet_logic;
+
+#[path = "../03_infra/greet_io_impl.rs"]
+pub mod greet_io_impl;
+
+#[path = "../01_core/packages_logic.rs"]
+pub mod packages_logic;
+
+#[path = "../03_infra/packages_io_impl.rs"]
+pub mod packages_io_impl;
+
+#[path = "../01_core/init_logic.rs"]
+pub mod init_logic;
+
+#[path = "../03_infra/init_io_impl.rs"]
+pub mod init_io_impl;
+
+#[path = "../01_core/query_logic.rs"]
+pub mod query_logic;
+
+#[path = "../03_infra/query_io_impl.rs"]
+pub mod query_io_impl;
+
+#[path = "../01_core/terminal_logic.rs"]
+pub mod terminal_logic;
+
+#[path = "../03_infra/terminal_io_impl.rs"]
+pub mod terminal_io_impl;
+
 // (Não estamos adicionando um 02_shell para compile/info porque esses módulos ATUAIS funcionam como controllers legados no projeto inteiro)
 
 pub use args_io_impl::{StandardOutputWriter, SystemEnvProvider};
@@ -82,6 +118,12 @@ pub use watch_io_impl::ChronoTimestampProvider;
 pub use deps_io_impl::OsWorkingDirectory;
 pub use completions_io_impl::ClapCompletionGenerator;
 pub use eval_io_impl::StandardEvalOutputWriter;
+pub use fonts_io_impl::{SystemFontDiscoverer, StandardFontPrinter};
+pub use greet_io_impl::{FsGreetStateRepository, ClapGreetTerminal};
+pub use packages_io_impl::OsPackageRegistryFactory;
+pub use init_io_impl::{OsInitFileSystem, StandardInitPrinter};
+pub use query_io_impl::StandardQueryOutputWriter;
+pub use terminal_io_impl::AnsiTerminalOutput;
 pub use args_cli::CliArguments;
 
 pub struct TypstApp {

@@ -17,22 +17,22 @@
   - *↳ [x] L0 (Spec Criada)*
 - [x] `20_lab/crates/typst-cli/src/eval.rs`
   - *↳ [x] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/fonts.rs`
-  - *↳ [ ] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/greet.rs`
-  - *↳ [ ] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/fonts.rs`
+  - *↳ [x] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/greet.rs`
+  - *↳ [x] L0 (Spec Criada)*
 - [x] `20_lab/crates/typst-cli/src/info.rs`
   - *↳ [x] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/init.rs`
-  - *↳ [ ] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/init.rs`
+  - *↳ [x] L0 (Spec Criada)*
 - [ ] `20_lab/crates/typst-cli/src/main.rs`
   - *↳ [ ] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/packages.rs`
-  - *↳ [ ] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/query.rs`
-  - *↳ [ ] L0 (Spec Criada)*
-- [ ] `20_lab/crates/typst-cli/src/terminal.rs`
-  - *↳ [ ] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/packages.rs`
+  - *↳ [x] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/query.rs`
+  - *↳ [x] L0 (Spec Criada)*
+- [x] `20_lab/crates/typst-cli/src/terminal.rs`
+  - *↳ [x] L0 (Spec Criada)*
 - [ ] `20_lab/crates/typst-cli/src/timings.rs`
   - *↳ [ ] L0 (Spec Criada)*
 - [x] `20_lab/crates/typst-cli/src/update.rs`
