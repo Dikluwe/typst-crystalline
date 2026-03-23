@@ -7,3 +7,6 @@
 pub mod file_id;
 pub mod span;
 pub mod syntax_kind;
+pub mod syntax_node;
+pub mod syntax_set;
+pub mod syntax_text;

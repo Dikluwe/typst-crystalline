@@ -63,7 +63,7 @@ V14 = { level = "error" }
 
 [l1_allowed_external]
 # comemo: memoização incremental — decisão intencional, ver ADR-0001
-# será isolado em L3 no Passo 10
+# ecow: autorizado em L3 para conversão na fronteira; não entra em L1 (ADR-0004 Opção C)
 rust = ["thiserror", "comemo"]
 
 [orphan_exceptions]
