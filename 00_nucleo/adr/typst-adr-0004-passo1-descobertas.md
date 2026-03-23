@@ -104,6 +104,77 @@ agora, o padrão correcto é não usar re-exports com `self::` em L1.
 
 ---
 
+## Decisões do Passo 2 (após diagnósticos)
+
+### ecow — Opção C aprovada (Newtype opaco)
+
+**Decisão revista** após consulta externa (Gemini/rust-analyzer pattern).
+
+A Opção A foi inicialmente recomendada porque `EcoString` aparece
+na interface pública de `SyntaxNode`. Mas isso confunde custo de
+migração com correcção arquitectural.
+
+`EcoString` é uma optimização de performance do compilador — clone
+O(1) para strings do CST. Isso é conhecimento de infraestrutura,
+não de domínio. O domínio não sabe nem deve saber que strings
+precisam de ser clonadas eficientemente.
+
+**Opção C — Newtype opaco em L1:**
+
+```rust
+// 01_core/entities/syntax_text.rs
+/// String de domínio para texto de tokens sintácticos.
+/// Representação interna opaca — pode mudar sem alterar a interface.
+pub struct SyntaxText(Arc<str>);
+
+impl SyntaxText {
+    pub fn as_str(&self) -> &str { &self.0 }
+    pub fn len(&self) -> usize { self.0.len() }
+    pub fn is_empty(&self) -> bool { self.0.is_empty() }
+}
+```
+
+L1 define o que é uma string de domínio. L3 faz a conversão
+`EcoString → Arc<str>` ao construir `SyntaxNode`. Se amanhã
+a conversão degradar performance, `SyntaxText` pode adoptar
+`ecow` internamente como detalhe privado — sem mudar a interface
+pública de L1.
+
+**`ecow` não entra em `[l1_allowed_external]`.**
+
+Interface pública de `SyntaxNode` em L1:
+```rust
+pub fn text(&self) -> &SyntaxText    // não EcoString
+pub fn into_text(self) -> SyntaxText // não EcoString
+pub struct SyntaxError {
+    pub message: SyntaxText,         // não EcoString
+    pub hints: Vec<SyntaxText>,      // não EcoVec<EcoString>
+}
+```
+
+Em L3, ao construir `SyntaxNode` a partir do parser:
+```rust
+// Adapter na fronteira L3→L1
+impl From<EcoString> for SyntaxText {
+    fn from(s: EcoString) -> Self {
+        SyntaxText(Arc::from(s.as_str()))
+    }
+}
+```
+
+### PackageSpec — Opção C (DTO pattern) para Passo 3
+
+`serde` e `unscanny` não entram em L1. O padrão correcto:
+
+- **L1**: `PackageSpec` puro, sem derives de `serde`
+- **L3**: `PackageSpecDto` com `Serialize`/`Deserialize`
+- **Conversão**: L3 faz parse → Dto → `Into<PackageSpec>`
+
+Chato de escrever, mas mantém L1 imune a mudanças em bibliotecas
+de terceiros. Análise e implementação no Passo 3.
+
+---
+
 ## Estado actual de 01_core/entities/
 
 | Módulo | Tipos | Estado |
@@ -111,8 +182,11 @@ agora, o padrão correcto é não usar re-exports com `self::` em L1.
 | `file_id.rs` | `FileId(NonZeroU16)` | ✓ migrado |
 | `syntax_kind.rs` | `SyntaxKind` (enum `#[repr(u8)]`) | ✓ migrado |
 | `span.rs` | `Span`, `Spanned<T>` | ✓ migrado |
-| `syntax_node.rs` | `SyntaxNode` | ✗ bloqueado (ecow) |
-| `source.rs` | `Source` | ✗ bloqueado (parse()) |
+| `syntax_text.rs` | `SyntaxText(Arc<str>)` | ✓ criado (Opção C) |
+| `syntax_node.rs` | `SyntaxNode`, `SyntaxError`, `LinkedNode` | ✓ migrado (sem ecow) |
+| `syntax_set.rs` | `SyntaxSet` | ✓ migrado |
+| `package_spec.rs` | `PackageSpec` | ✗ adiado para Passo 3 |
+| `source.rs` | `Source` | ✗ bloqueado (parse(), Passo 4) |
 
 ---
 

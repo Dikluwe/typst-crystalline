@@ -177,12 +177,66 @@ Declarados em `crystalline.toml` → `[l1_allowed_external]`:
 | `thiserror` | derive(Error) para tipos de erro de domínio |
 | `comemo` | compilação incremental + compatibilidade com ecossistema Typst (ADR-0001) |
 
-**`ecow`**: decisão pendente para Passo 2 — `SyntaxNode` e
-`PackageSpec` dependem de `ecow::EcoString`. Não adicionar sem
-ADR aprovado.
+**`ecow` não entra em L1** — ver Opção C abaixo.
+**`serde`, `unscanny`** — não entram em L1. DTO pattern em L3.
 
 Qualquer outro crate que V14 sinalize em L1 → criar ADR antes
 de adicionar à whitelist. Não adicionar por conveniência.
+
+---
+
+## Opção C — Newtype opaco para strings de domínio
+
+Quando um tipo externo aparece na interface pública de um tipo
+de domínio (ex: `EcoString` em `SyntaxNode`), o padrão correcto
+**não** é autorizar o externo em L1. É definir um newtype próprio:
+
+```rust
+// 01_core/entities/syntax_text.rs — L1 define o contrato
+pub struct SyntaxText(Arc<str>);
+
+impl SyntaxText {
+    pub fn as_str(&self) -> &str { &self.0 }
+    pub fn len(&self) -> usize { self.0.len() }
+    pub fn is_empty(&self) -> bool { self.0.is_empty() }
+}
+
+// 03_infra — L3 faz a conversão na fronteira
+impl From<EcoString> for SyntaxText {
+    fn from(s: EcoString) -> Self {
+        SyntaxText(Arc::from(s.as_str()))
+    }
+}
+```
+
+**Por que não Opção A** (autorizar o externo):
+L1 ficaria dependente dos contratos da biblioteca externa.
+Se `ecow` mudar a API, L1 muda.
+
+**Por que não Opção B** (substituir por `Arc<str>` directamente):
+L1 fica casado com `Arc<str>`. Se amanhã a performance exigir
+outra representação, L1 muda novamente.
+
+**Opção C**: L1 define o que é uma string de domínio. A
+representação interna é um detalhe privado — pode mudar de
+`Arc<str>` para `ecow` ou outra coisa sem alterar a interface.
+
+### DTO pattern para serde em L3
+
+Quando um tipo de domínio precisa de serialização:
+
+```rust
+// 01_core/entities/package_spec.rs — puro, sem serde
+pub struct PackageSpec { pub name: String, pub version: Version }
+
+// 03_infra/dto/package_spec_dto.rs — apenas em L3
+#[derive(Serialize, Deserialize)]
+struct PackageSpecDto { name: String, version: String }
+
+impl From<PackageSpecDto> for PackageSpec { ... }
+```
+
+`serde` nunca entra em L1.
 
 ---
 
@@ -345,8 +399,11 @@ ADRs `IDEIA` são referência conceptual — não implementar.
 ```
 ✓ Passo 0 — estrutura base, lab/, workspace cristalino
 ✓ Passo 1 — FileId, SyntaxKind, Span migrados
-            SyntaxNode e Source bloqueados (ecow, parse())
-→ Passo 2 — decidir ecow; migrar SyntaxNode
+✓ Passo 2 — SyntaxText (Opção C), SyntaxNode, SyntaxSet migrados
+            ecow fora de L1; fronteira EcoString→SyntaxText fica em L3
+            PackageSpec adiado para Passo 3 (DTO pattern)
+→ Passo 3 — PackageSpec (DTO); serde e unscanny avaliados para L3
+  Passo 4 — parse(), Source, pipeline
   ...
   Passo 10 — isolamento de comemo em L3 (ADR-0001 Opção B)
 ```

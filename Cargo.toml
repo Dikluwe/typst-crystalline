@@ -19,4 +19,5 @@ repository  = "https://github.com/typst/typst"
 [workspace.dependencies]
 thiserror = "2"
 comemo    = "0.4"
+ecow      = "0.2"   # autorizado em L1 — ver ADR-0004
 anyhow    = "1"
