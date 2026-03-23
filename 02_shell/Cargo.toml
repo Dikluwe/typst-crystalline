@@ -1,0 +1,12 @@
+[package]
+name        = "typst-shell"
+description = "CLI and formatters for the Typst compiler"
+version.workspace    = true
+edition.workspace    = true
+authors.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[dependencies]
+typst-core = { path = "../01_core" }
+anyhow     = { workspace = true }
