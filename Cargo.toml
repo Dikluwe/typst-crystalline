@@ -19,5 +19,10 @@ repository  = "https://github.com/typst/typst"
 [workspace.dependencies]
 thiserror = "2"
 comemo    = "0.4"
-ecow      = "0.2"   # autorizado em L1 — ver ADR-0004
+ecow      = "0.2"   # L3 apenas — fronteira; não entra em L1 (ADR-0004 Opção C)
 anyhow    = "1"
+# grupo Unicode — ADR-0010 a ADR-0013
+unicode-ident        = "1"
+unicode-math-class   = "0.1"
+unicode-script       = "0.5"
+unicode-segmentation = "1"

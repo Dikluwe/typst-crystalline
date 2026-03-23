@@ -8,5 +8,10 @@ license.workspace    = true
 repository.workspace = true
 
 [dependencies]
-thiserror = { workspace = true }
-comemo    = { workspace = true }
+thiserror            = { workspace = true }
+comemo               = { workspace = true }
+# grupo Unicode — ADR-0010 a ADR-0013
+unicode-ident        = { workspace = true }
+unicode-math-class   = { workspace = true }
+unicode-script       = { workspace = true }
+unicode-segmentation = { workspace = true }
