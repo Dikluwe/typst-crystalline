@@ -2,6 +2,25 @@
   <img alt="Typst" src="https://user-images.githubusercontent.com/17899797/226108480-722b770e-6313-40d7-84f2-26bebb55a281.png">
 </h1>
 
+> **⚠️ Este é um fork experimental do Typst em migração para a [Arquitetura Cristalina (Tekt)](https://github.com/Dikluwe/tekt-linter).**
+> O código original do compilador está em `lab/typst-original/` — intacto e funcional.
+> A migração acontece gradualmente nas camadas `01_core/`, `02_shell/`, `03_infra/`, `04_wiring/`.
+> Para contribuir com o Typst oficial, ver o [repositório original](https://github.com/typst/typst).
+
+## Estado da migração
+
+| Passo | Conteúdo | Estado |
+|-------|----------|--------|
+| 0 | Estrutura base, workspace cristalino | ✓ |
+| 1 | `FileId`, `SyntaxKind`, `Span` | ✓ |
+| 2 | `SyntaxText` (Opção C), `SyntaxNode`, `SyntaxSet` | ✓ |
+| 3 | `PackageSpec` (DTO pattern), `World` trait | → em curso |
+| 4–10 | Pipeline, infra, CLI, composição | pendente |
+
+Decisões arquitecturais: [`00_nucleo/adr/`](00_nucleo/adr/)
+
+---
+
 <p align="center">
   <a href="https://typst.app/docs/">
     <img alt="Documentation" src="https://img.shields.io/website?down_message=offline&label=docs&up_color=007aff&up_message=online&url=https%3A%2F%2Ftypst.app%2Fdocs"
