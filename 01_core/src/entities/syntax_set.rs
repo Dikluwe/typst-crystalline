@@ -57,10 +57,12 @@ const fn bit(kind: SyntaxKind) -> u128 {
 }
 
 /// Generate a compile-time constant `SyntaxSet` of the given kinds.
+#[macro_export]
 macro_rules! syntax_set {
     ($($kind:ident),* $(,)?) => {{
-        const SET: SyntaxSet = SyntaxSet::new()
-            $(.add(SyntaxKind:: $kind))*;
+        const SET: $crate::entities::syntax_set::SyntaxSet =
+            $crate::entities::syntax_set::SyntaxSet::new()
+            $(.add($crate::entities::syntax_kind::SyntaxKind:: $kind))*;
         SET
     }}
 }
