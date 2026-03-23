@@ -71,3 +71,11 @@ rust = ["thiserror", "comemo"]
 "00_nucleo/adr/adr-0001-estrategia-migracao.md" = "ADR — não materializa código"
 # Template editorial — não materializa código directamente
 "00_nucleo/prompts/template-prompts.md" = "template de prompt — contrato editorial, não materializa directamente"
+# World e TrackedWorld — implementação concreta (SystemWorld) em L3 no Passo 5
+"01_core/src/contracts/world.rs" = "implementação concreta (SystemWorld) em L3, Passo 5"
+"01_core/contracts/world.rs" = "implementação concreta (SystemWorld) em L3, Passo 5"
+# Prompts de Passo 3 que ainda não têm materialização em L3
+"00_nucleo/prompts/package-spec-dto.md" = "materializa em L3, Passo 3 (typst-infra não existe ainda)"
+"00_nucleo/prompts/shell.md" = "materializa em L2, passo futuro"
+"00_nucleo/prompts/infra.md" = "materializa em L3, passo futuro"
+"00_nucleo/prompts/wiring.md" = "materializa em L4, passo futuro"
