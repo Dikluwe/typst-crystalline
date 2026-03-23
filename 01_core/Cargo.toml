@@ -1,0 +1,12 @@
+[package]
+name        = "typst-core"
+description = "Pure domain logic for the Typst compiler"
+version.workspace    = true
+edition.workspace    = true
+authors.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[dependencies]
+thiserror = { workspace = true }
+comemo    = { workspace = true }

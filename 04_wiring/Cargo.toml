@@ -1,0 +1,18 @@
+[package]
+name        = "typst-wiring"
+description = "Composition root for the Typst compiler"
+version.workspace    = true
+edition.workspace    = true
+authors.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[[bin]]
+name = "typst"
+path = "src/main.rs"
+
+[dependencies]
+typst-core  = { path = "../01_core" }
+typst-shell = { path = "../02_shell" }
+typst-infra = { path = "../03_infra" }
+anyhow      = { workspace = true }

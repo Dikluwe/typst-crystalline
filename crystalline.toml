@@ -1,0 +1,73 @@
+[project]
+root = "."
+
+[languages]
+rust = { grammar = "tree-sitter-rust", enabled = true }
+
+# Mapeados — arquivos aqui são analisados e devem ter layer
+[layers]
+L0  = "00_nucleo"
+L1  = "01_core"
+L2  = "02_shell"
+L3  = "03_infra"
+L4  = "04_wiring"
+
+# Excluídos — ignorados intencionalmente, não disparam V8
+[excluded]
+build = "target"
+vcs   = ".git"
+cargo = ".cargo"
+lab   = "lab"   # quarentena — código original, não enforça regras cristalinas
+
+[excluded_files]
+license  = "LICENSE"
+notice   = "NOTICE"
+readme   = "README.md"
+citation = "CITATION.cff"
+cargo_lock   = "Cargo.lock"
+clippy_toml  = "clippy.toml"
+rustfmt_toml = "rustfmt.toml"
+contributing = "CONTRIBUTING.md"
+dockerfile   = "Dockerfile"
+
+# Rust module name → layer
+[module_layers]
+entities  = "L1"
+contracts = "L1"
+rules     = "L1"
+shell     = "L2"
+infra     = "L3"
+
+# Portas públicas de L1
+[l1_ports]
+entities  = "entities"
+contracts = "contracts"
+rules     = "rules"
+
+[rules]
+V0  = { level = "fatal" }
+V1  = { level = "error" }
+V2  = { level = "error" }
+V3  = { level = "error" }
+V4  = { level = "error" }
+V5  = { level = "warning" }
+V6  = { level = "warning" }
+V7  = { level = "warning" }
+V8  = { level = "fatal" }
+V9  = { level = "error" }
+V10 = { level = "fatal" }
+V11 = { level = "error" }
+V12 = { level = "warning" }
+V13 = { level = "error" }
+V14 = { level = "error" }
+
+[l1_allowed_external]
+# comemo: memoização incremental — decisão intencional, ver ADR-0001
+# será isolado em L3 no Passo 10
+rust = ["thiserror", "comemo"]
+
+[orphan_exceptions]
+# ADRs não materializam código directamente
+"00_nucleo/adr/adr-0001-estrategia-migracao.md" = "ADR — não materializa código"
+# Template editorial — não materializa código directamente
+"00_nucleo/prompts/template-prompts.md" = "template de prompt — contrato editorial, não materializa directamente"
