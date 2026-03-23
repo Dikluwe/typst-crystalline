@@ -222,11 +222,73 @@ pub struct TsParser {
 1. Verificar se existe prompt em `00_nucleo/prompts/` para o módulo
 2. **Prompt existe** → ler completamente
 3. **Prompt não existe** → PARAR. Propor prompt. Não avançar.
-4. Escrever testes que **falham** (a partir dos critérios do prompt)
+4. **Testes primeiro** — ver secção abaixo
 5. Implementar para os testes passarem
 6. Adicionar header de linhagem
 7. `cargo build && crystalline-lint .` — zero violations
 8. `crystalline-lint --fix-hashes .` se V5 disparar
+
+---
+
+## Testes primeiro — regra absoluta
+
+**Nunca escrever código de produção antes dos testes.**
+
+A IA tem tendência natural a escrever o código e depois os testes
+que descrevem o que o código faz. Isso produz testes que são uma
+sombra da implementação — não detectam bugs introduzidos durante
+a materialização.
+
+### Fase 1 — Testes (antes de qualquer implementação)
+
+```
+1. Ler a secção "Critérios de Verificação" do prompt L0
+2. Escrever os testes no #[cfg(test)] do módulo
+3. cargo test -p typst-core <módulo>
+4. VERIFICAR QUE OS NOVOS TESTES FALHAM
+```
+
+**Se um teste passar sem código de produção existir, o teste
+está errado.** Um teste que passa imediatamente não fornece
+nenhuma garantia — é documentação executável do comportamento
+actual, que pode ser o comportamento errado.
+
+### Fase 2 — Implementação
+
+```
+5. Escrever o código de produção para os testes passarem
+6. cargo test -p typst-core <módulo>
+7. VERIFICAR QUE TODOS OS TESTES PASSAM
+8. cargo build && crystalline-lint .
+9. VERIFICAR ZERO VIOLATIONS
+```
+
+### Cobertura obrigatória
+
+Cada cenário `Dado/Quando/Então` do prompt deve ter um teste.
+Os **caminhos negativos** são obrigatórios:
+
+```rust
+// Para cada função pública em L1:
+#[test] fn caso_normal() { ... }       // input válido → output correcto
+#[test] fn caso_invalido() { ... }     // input inválido → erro correcto
+#[test] fn caso_limite() { ... }       // zero, vazio, máximo
+
+// Para tipos migrados de lab/typst-original/:
+#[test] fn paridade_com_original() { ... }  // comportamento idêntico ao original
+```
+
+### O que fazer quando um teste passa imediatamente
+
+**Caso 1 — O comportamento já está correcto**
+Manter o teste com comentário:
+```rust
+// Contrato correcto — teste adicionado para prevenir regressão
+```
+
+**Caso 2 — O teste está mal escrito**
+Reescrever até falhar, ou documentar por que é impossível
+testar este comportamento com `cargo test`.
 
 ---
 
