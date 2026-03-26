@@ -10,3 +10,4 @@ repository.workspace = true
 [dependencies]
 typst-core = { path = "../01_core" }
 thiserror  = { workspace = true }
+# std::fs é suficiente para I/O de ficheiros neste passo — sem crates adicionais

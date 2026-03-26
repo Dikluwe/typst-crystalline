@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/value.md
-//! @prompt-hash 14b1f53a
+//! @prompt-hash 8229696a
 //! @layer L1
 //! @updated 2026-03-26
 
@@ -8,7 +8,7 @@
 ///
 /// Stub opaco — interior definido quando `typst-library/foundations/`
 /// for analisada e `Value` real for migrado.
-/// Ver ADR-0016.
+/// Ver ADR-0017.
 pub struct Value(());
 
 #[cfg(test)]

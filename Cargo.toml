@@ -17,8 +17,9 @@ license     = "Apache-2.0"
 repository  = "https://github.com/typst/typst"
 
 [workspace.dependencies]
-thiserror = "2"
-comemo    = "0.4"
+thiserror  = "2"
+comemo     = "0.4"
+rustc-hash = "2"    # ADR-0018 — hashing eficiente em L1 (revoga ADR-0007)
 ecow      = "0.2"   # L3 apenas — fronteira; não entra em L1 (ADR-0004 Opção C)
 anyhow    = "1"
 # grupo Unicode — ADR-0010 a ADR-0013

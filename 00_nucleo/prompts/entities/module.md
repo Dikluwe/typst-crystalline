@@ -2,7 +2,7 @@
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/module.rs`
-**ADRs relevantes**: ADR-0016 (adiamento eval/typst-library)
+**ADRs relevantes**: ADR-0017 (adiamento eval/typst-library)
 
 ## Contexto
 
@@ -13,7 +13,7 @@ migradas.
 
 Este ficheiro define apenas um stub opaco. O interior será definido
 quando `typst-library/src/foundations/` for analisada e `Module` real
-for migrado (ver ADR-0016).
+for migrado (ver ADR-0017).
 
 ## Interface pública (stub)
 

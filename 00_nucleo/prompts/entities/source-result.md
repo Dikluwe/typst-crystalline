@@ -2,7 +2,7 @@
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/source_result.rs`
-**ADRs relevantes**: ADR-0015 (ecow → String), ADR-0016 (adiamento eval)
+**ADRs relevantes**: ADR-0015 (ecow → String), ADR-0017 (adiamento eval)
 
 ## Contexto
 
