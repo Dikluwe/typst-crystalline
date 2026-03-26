@@ -4,8 +4,6 @@
 //! @layer L1
 //! @updated 2026-03-22
 
-use crate::entities::file_id::FileId;
-
 /// Conteúdo binário de um ficheiro carregado.
 /// Interior provisório — pode mudar de `Vec<u8>` para o tipo real no Passo 5.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -63,23 +61,9 @@ pub enum FileError {
 /// Resultado de uma operação de ficheiro.
 pub type FileResult<T> = Result<T, FileError>;
 
-/// Ficheiro de texto carregado em memória.
-/// Stub mínimo — substituído quando `parse()` migrar no Passo 4.
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct Source {
-    pub id:   FileId,
-    pub text: String,
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entities::file_id::FileId;
-    use std::num::NonZeroU16;
-
-    fn fid() -> FileId {
-        FileId::from_raw(NonZeroU16::new(1).unwrap())
-    }
 
     #[test]
     fn bytes_new_and_slice() {
@@ -109,13 +93,6 @@ mod tests {
     #[test]
     fn file_error_other_display() {
         assert_eq!(FileError::Other("custom".to_string()).to_string(), "custom");
-    }
-
-    #[test]
-    fn source_stub_fields() {
-        let src = Source { id: fid(), text: "hello".to_string() };
-        assert_eq!(src.text, "hello");
-        assert_eq!(src.id, fid());
     }
 
     #[test]
