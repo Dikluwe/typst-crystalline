@@ -5,8 +5,9 @@
 //! @updated 2026-03-22
 
 use crate::entities::file_id::FileId;
+use crate::entities::source::Source;
 use crate::entities::world_types::{
-    Bytes, Datetime, FileResult, Font, FontBook, Library, Source,
+    Bytes, Datetime, FileResult, Font, FontBook, Library,
 };
 
 /// Contrato entre o compilador Typst e o ambiente de execução.
@@ -84,8 +85,9 @@ impl<T: World> TrackedWorld for T {
 mod tests {
     use super::*;
     use crate::entities::file_id::FileId;
+    use crate::entities::source::Source;
     use crate::entities::world_types::{
-        Bytes, Datetime, FileError, FileResult, Font, FontBook, Library, Source,
+        Bytes, Datetime, FileError, FileResult, Font, FontBook, Library,
     };
     use std::num::NonZeroU16;
 

@@ -7,6 +7,9 @@
 use std::fmt;
 use std::str::FromStr;
 
+use crate::rules::lexer::{is_ident};
+use crate::rules::lexer::scanner::Scanner;
+
 /// Identifica um pacote Typst pelo seu namespace, nome e versão.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct PackageSpec {
@@ -62,6 +65,67 @@ pub struct PackageVersion {
 impl fmt::Display for PackageVersion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
+    }
+}
+
+/// Erro ao fazer parse de um `PackageSpec` ou `PackageVersion`.
+#[derive(Debug)]
+pub struct PackageSpecError(pub String);
+
+impl fmt::Display for PackageSpecError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl std::error::Error for PackageSpecError {}
+
+impl FromStr for PackageSpec {
+    type Err = PackageSpecError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut sc = Scanner::new(s);
+
+        // namespace: @name/
+        if !sc.eat_if('@') {
+            return Err(PackageSpecError("package specification must start with '@'".into()));
+        }
+        let namespace = sc.eat_until('/');
+        if namespace.is_empty() {
+            return Err(PackageSpecError("package specification is missing namespace".into()));
+        }
+        if !is_ident(namespace) {
+            return Err(PackageSpecError(
+                format!("`{namespace}` is not a valid package namespace"),
+            ));
+        }
+
+        // name: name:
+        sc.eat_if('/');
+        let name = sc.eat_until(':');
+        if name.is_empty() {
+            return Err(PackageSpecError("package specification is missing name".into()));
+        }
+        if !is_ident(name) {
+            return Err(PackageSpecError(
+                format!("`{name}` is not a valid package name"),
+            ));
+        }
+
+        // version: x.y.z
+        sc.eat_if(':');
+        let version_str = sc.after();
+        if version_str.is_empty() {
+            return Err(PackageSpecError("package specification is missing version".into()));
+        }
+        let version = version_str.parse::<PackageVersion>()
+            .map_err(|e| PackageSpecError(e.0))?;
+
+        Ok(Self {
+            namespace: namespace.to_owned(),
+            name: name.to_owned(),
+            version,
+        })
     }
 }
 

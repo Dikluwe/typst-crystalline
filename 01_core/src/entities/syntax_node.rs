@@ -121,6 +121,19 @@ impl SyntaxNode {
         }
     }
 
+    /// The text content as a string slice, borrowed from the node.
+    ///
+    /// Unlike `text()` which returns an owned `SyntaxText`, this borrows
+    /// directly and preserves the lifetime `'a` — needed by AST methods
+    /// that return `&'a str`.
+    pub fn text_str(&self) -> &str {
+        match &self.0 {
+            NodeKind::Leaf(leaf) => leaf.text.as_str(),
+            NodeKind::Inner(_) => "",
+            NodeKind::Error(node) => node.text.as_str(),
+        }
+    }
+
     /// The node's children.
     pub fn children(&self) -> std::slice::Iter<'_, SyntaxNode> {
         match &self.0 {
