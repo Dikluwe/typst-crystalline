@@ -2,7 +2,7 @@
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`
-**ADRs relevantes**: ADR-0016 (adiamento eval/typst-library)
+**ADRs relevantes**: ADR-0017 (adiamento eval/typst-library)
 
 ## Contexto
 
@@ -13,7 +13,7 @@ incluindo `Content`, `Module`, `Func`, `Args`, `Type`, `Gradient`,
 
 Este ficheiro define apenas um stub opaco. O interior será definido
 quando `typst-library/src/foundations/` for analisada e `Value` real
-for migrado (ver ADR-0016).
+for migrado (ver ADR-0017).
 
 ## Interface pública (stub)
 

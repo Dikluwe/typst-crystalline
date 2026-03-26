@@ -75,6 +75,7 @@ rust = [
     "unicode_math_class",
     "unicode_script",
     "unicode_segmentation",
+    "rustc_hash",    # ADR-0018 — revoga ADR-0007
 ]
 
 [orphan_exceptions]

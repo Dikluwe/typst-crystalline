@@ -4,7 +4,7 @@
 //! @layer L1
 //! @updated 2026-03-23
 
-use std::collections::{HashMap, HashSet};
+use rustc_hash::{FxHashMap, FxHashSet};
 use std::mem;
 use std::ops::{DerefMut, Index, IndexMut, Range};
 
@@ -479,7 +479,7 @@ fn math_args(p: &mut Parser) {
     let mut has_arrays = false;
 
     let mut maybe_array_start = p.marker();
-    let mut seen = HashSet::new();
+    let mut seen = FxHashSet::default();
     while !p.at_set(syntax_set!(End, Dollar, RightParen)) {
         positional = math_arg(p, &mut seen);
 
@@ -520,7 +520,7 @@ fn math_args(p: &mut Parser) {
 /// Parses a single argument in a math argument list.
 ///
 /// Returns whether the parsed argument was positional or not.
-fn math_arg<'s>(p: &mut Parser<'s>, seen: &mut HashSet<&'s str>) -> bool {
+fn math_arg<'s>(p: &mut Parser<'s>, seen: &mut FxHashSet<&'s str>) -> bool {
     let m = p.marker();
     let start = p.current_start();
 
@@ -834,7 +834,7 @@ fn let_binding(p: &mut Parser) {
             closure = true;
         }
     } else {
-        pattern(p, false, &mut HashSet::new(), None);
+        pattern(p, false, &mut FxHashSet::default(), None);
         other = true;
     }
 
@@ -926,7 +926,7 @@ fn for_loop(p: &mut Parser) {
     let m = p.marker();
     p.assert(SyntaxKind::For);
 
-    let mut seen = HashSet::new();
+    let mut seen = FxHashSet::default();
     pattern(p, false, &mut seen, None);
 
     if p.at(SyntaxKind::Comma) {
@@ -1087,7 +1087,7 @@ fn expr_with_paren(p: &mut Parser, atomic: bool) {
     } else if p.at(SyntaxKind::Eq) && kind != SyntaxKind::Parenthesized {
         p.restore(checkpoint);
         let m = p.marker();
-        destructuring_or_parenthesized(p, true, &mut HashSet::new());
+        destructuring_or_parenthesized(p, true, &mut FxHashSet::default());
         if !p.expect(SyntaxKind::Eq) {
             return;
         }
@@ -1110,7 +1110,7 @@ fn parenthesized_or_array_or_dict(p: &mut Parser) -> SyntaxKind {
         count: 0,
         maybe_just_parens: true,
         kind: None,
-        seen: HashSet::new(),
+        seen: FxHashSet::default(),
     };
 
     // An edge case with parens is whether we can interpret a leading spread
@@ -1172,7 +1172,7 @@ struct GroupState {
     /// The `SyntaxKind` to wrap as (if we've figured it out yet).
     kind: Option<SyntaxKind>,
     /// Store named arguments so we can give an error if they're repeated.
-    seen: HashSet<String>,
+    seen: FxHashSet<String>,
 }
 
 /// Parses a single item in an array or dictionary.
@@ -1246,7 +1246,7 @@ fn args(p: &mut Parser) {
         p.with_nl_mode(AtNewline::Continue, |p| {
             p.assert(SyntaxKind::LeftParen);
 
-            let mut seen = HashSet::new();
+            let mut seen = FxHashSet::default();
             while !p.current().is_terminator() {
                 if !p.at_set(set::ARG) {
                     p.unexpected();
@@ -1272,7 +1272,7 @@ fn args(p: &mut Parser) {
 }
 
 /// Parses a single argument in an argument list.
-fn arg<'s>(p: &mut Parser<'s>, seen: &mut HashSet<&'s str>) {
+fn arg<'s>(p: &mut Parser<'s>, seen: &mut FxHashSet<&'s str>) {
     let m = p.marker();
 
     // Parses a spread argument: `..args`.
@@ -1309,7 +1309,7 @@ fn params(p: &mut Parser) {
     p.with_nl_mode(AtNewline::Continue, |p| {
         p.assert(SyntaxKind::LeftParen);
 
-        let mut seen = HashSet::new();
+        let mut seen = FxHashSet::default();
         let mut sink = false;
 
         while !p.current().is_terminator() {
@@ -1331,7 +1331,7 @@ fn params(p: &mut Parser) {
 }
 
 /// Parses a single parameter in a parameter list.
-fn param<'s>(p: &mut Parser<'s>, seen: &mut HashSet<&'s str>, sink: &mut bool) {
+fn param<'s>(p: &mut Parser<'s>, seen: &mut FxHashSet<&'s str>, sink: &mut bool) {
     let m = p.marker();
 
     // Parses argument sink: `..sink`.
@@ -1366,7 +1366,7 @@ fn param<'s>(p: &mut Parser<'s>, seen: &mut HashSet<&'s str>, sink: &mut bool) {
 fn pattern<'s>(
     p: &mut Parser<'s>,
     reassignment: bool,
-    seen: &mut HashSet<&'s str>,
+    seen: &mut FxHashSet<&'s str>,
     dupe: Option<&'s str>,
 ) {
     let Some(p) = &mut p.increase_depth() else { return };
@@ -1382,7 +1382,7 @@ fn pattern<'s>(
 fn destructuring_or_parenthesized<'s>(
     p: &mut Parser<'s>,
     reassignment: bool,
-    seen: &mut HashSet<&'s str>,
+    seen: &mut FxHashSet<&'s str>,
 ) {
     let mut sink = false;
     let mut count = 0;
@@ -1420,7 +1420,7 @@ fn destructuring_or_parenthesized<'s>(
 fn destructuring_item<'s>(
     p: &mut Parser<'s>,
     reassignment: bool,
-    seen: &mut HashSet<&'s str>,
+    seen: &mut FxHashSet<&'s str>,
     maybe_just_parens: &mut bool,
     sink: &mut bool,
 ) {
@@ -1467,7 +1467,7 @@ fn destructuring_item<'s>(
 fn pattern_leaf<'s>(
     p: &mut Parser<'s>,
     reassignment: bool,
-    seen: &mut HashSet<&'s str>,
+    seen: &mut FxHashSet<&'s str>,
     dupe: Option<&'s str>,
 ) {
     if p.current().is_keyword() {
@@ -1940,7 +1940,7 @@ struct MemoArena {
     /// A map from the parser's current position to a range of previously parsed
     /// nodes in the arena and a checkpoint of the parser's state. These allow
     /// us to reset the parser to avoid parsing the same location again.
-    memo_map: HashMap<MemoKey, (Range<usize>, PartialState)>,
+    memo_map: FxHashMap<MemoKey, (Range<usize>, PartialState)>,
 }
 
 /// A type alias for the memo key so it doesn't get confused with other usizes.

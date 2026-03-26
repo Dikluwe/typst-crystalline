@@ -10,6 +10,7 @@ repository.workspace = true
 [dependencies]
 thiserror            = { workspace = true }
 comemo               = { workspace = true }
+rustc-hash           = { workspace = true }  # ADR-0018
 # grupo Unicode — ADR-0010 a ADR-0013
 unicode-ident        = { workspace = true }
 unicode-math-class   = { workspace = true }

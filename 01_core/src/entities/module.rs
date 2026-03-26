@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/module.md
-//! @prompt-hash bb646d26
+//! @prompt-hash 2619d822
 //! @layer L1
 //! @updated 2026-03-26
 
@@ -8,7 +8,7 @@
 ///
 /// Stub opaco — interior definido quando `typst-library/foundations/`
 /// for analisada e `Module` real for migrado.
-/// Ver ADR-0016.
+/// Ver ADR-0017.
 pub struct Module(());
 
 #[cfg(test)]
