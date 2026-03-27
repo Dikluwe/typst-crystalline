@@ -20,6 +20,8 @@ repository  = "https://github.com/typst/typst"
 thiserror  = "2"
 comemo     = "0.4"
 rustc-hash = "2"    # ADR-0018 — hashing eficiente em L1 (revoga ADR-0007)
+ttf-parser  = "0.25"  # ADR-0019 — parsing de fontes OpenType/TrueType em L3
+rustybuzz   = "0.20"  # ADR-0019 — shaping de texto em L3
 ecow      = "0.2"   # L3 apenas — fronteira; não entra em L1 (ADR-0004 Opção C)
 anyhow    = "1"
 # grupo Unicode — ADR-0010 a ADR-0013

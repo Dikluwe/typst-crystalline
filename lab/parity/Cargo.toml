@@ -1,0 +1,18 @@
+[package]
+name    = "typst-parity"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "parity-runner"
+path = "src/main.rs"
+
+[dependencies]
+typst-syntax = { path = "../typst-original/crates/typst-syntax" }
+typst-core   = { path = "../../01_core" }
+
+[dev-dependencies]
+typst-syntax      = { path = "../typst-original/crates/typst-syntax" }
+typst-core        = { path = "../../01_core" }
+pretty_assertions = "1"
+walkdir           = "2"

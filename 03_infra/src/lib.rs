@@ -4,4 +4,5 @@
 //! @layer L3
 //! @updated 2026-03-26
 
+pub mod fonts;
 pub mod world;

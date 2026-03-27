@@ -10,4 +10,5 @@ repository.workspace = true
 [dependencies]
 typst-core = { path = "../01_core" }
 thiserror  = { workspace = true }
-# std::fs é suficiente para I/O de ficheiros neste passo — sem crates adicionais
+ttf-parser  = { workspace = true }  # ADR-0019 — parsing de fontes
+rustybuzz   = { workspace = true }  # ADR-0019 — shaping de texto

@@ -1,0 +1,71 @@
+# Workspace virtual para lab/parity.
+#
+# Intercepta a busca de workspace root de typst-syntax e deps transitivas
+# (typst-utils, typst-timing) quando usadas como path deps em parity.
+# Sem este ficheiro, Cargo subiria até ao workspace cristalino (raiz)
+# que não define os campos de workspace.package necessários.
+#
+# lab/typst-original/ não é membro — permanece em quarentena.
+
+[workspace]
+resolver = "2"
+members  = ["parity"]
+
+[workspace.lints.clippy]
+blocks_in_conditions   = "allow"
+comparison_chain       = "allow"
+iter_over_hash_type    = "warn"
+manual_is_multiple_of  = "allow"
+manual_range_contains  = "allow"
+mutable_key_type       = "allow"
+uninlined_format_args  = "warn"
+wildcard_in_or_patterns = "allow"
+derived_hash_with_manual_eq = "allow"
+disallowed_methods     = "warn"
+
+# Campos herdados por typst-syntax, typst-utils, typst-timing.
+[workspace.package]
+version      = "0.14.2"
+rust-version = "1.89"
+authors      = ["The Typst Project Developers"]
+edition      = "2024"
+homepage     = "https://typst.app"
+repository   = "https://github.com/typst/typst"
+license      = "Apache-2.0"
+categories   = ["compilers"]
+keywords     = ["typst"]
+readme       = "README.md"
+
+[workspace.dependencies]
+# Path deps internos ao typst-original
+typst-timing = { path = "typst-original/crates/typst-timing" }
+typst-utils  = { path = "typst-original/crates/typst-utils" }
+
+# Deps externas de typst-syntax
+ecow                 = { version = "0.2.6", features = ["serde"] }
+rustc-hash           = "2.1"
+serde                = { version = "1.0.184", features = ["derive"] }
+serde_json           = "1"
+toml                 = { version = "0.8", default-features = false, features = ["parse", "display"] }
+unicode-ident        = "1.0"
+unicode-math-class   = "0.1"
+unicode-script       = "0.5"
+unicode-segmentation = "1"
+
+# Deps externas de typst-utils
+once_cell       = "1"
+portable-atomic = "1.6"
+rayon           = "1.7.0"
+semver          = "1"
+
+# Deps externas de typst-timing
+parking_lot = "0.12.1"
+web-sys     = "0.3"
+
+# Deps externas de typst-utils adicionais
+libm      = "0.2.11"
+siphasher = "1"
+thin-vec  = "0.2.13"
+
+# Dep de typst-syntax adicional
+unscanny = "0.1"
