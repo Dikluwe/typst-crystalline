@@ -21,6 +21,11 @@ impl Bytes {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Font(Vec<u8>);
 
+impl Font {
+    pub fn from_data(data: Vec<u8>) -> Self { Self(data) }
+    pub fn as_slice(&self) -> &[u8] { &self.0 }
+}
+
 /// Biblioteca de funções e valores do Typst.
 /// Opaca até Library ser migrada no Passo 4.
 #[derive(Debug, PartialEq, Eq, Hash)]
@@ -48,7 +53,7 @@ pub struct Datetime {
 }
 
 /// Erro de acesso a ficheiro.
-#[derive(Debug, PartialEq, Eq, Hash, thiserror::Error)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, thiserror::Error)]
 pub enum FileError {
     #[error("file not found")]
     NotFound,

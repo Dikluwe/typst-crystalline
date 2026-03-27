@@ -7,7 +7,7 @@
 use std::collections::HashMap;
 use std::num::NonZeroU16;
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicU16, Ordering};
+use std::sync::{Arc, Mutex, OnceLock};
 
 use typst_core::contracts::world::World;
 use typst_core::entities::file_id::FileId;
@@ -16,12 +16,36 @@ use typst_core::entities::world_types::{
     Bytes, Datetime, FileError, FileResult, Font, FontBook, Library,
 };
 
-/// Contador atómico para geração de `FileId` únicos nesta sessão.
-static NEXT_ID: AtomicU16 = AtomicU16::new(1);
+use crate::fonts::FontSlot;
 
-fn next_file_id() -> FileId {
-    let raw = NEXT_ID.fetch_add(1, Ordering::Relaxed);
-    FileId::from_raw(NonZeroU16::new(raw).unwrap_or(NonZeroU16::new(1).unwrap()))
+/// Slot de source com carregamento lazy e thread-safe.
+///
+/// `OnceLock` garante que o ficheiro é lido no máximo uma vez,
+/// mesmo com acessos concorrentes. TOCTOU-safe: a leitura acontece
+/// dentro do `get_or_init` sem race condition.
+struct SourceSlot {
+    id:     FileId,
+    path:   PathBuf,
+    source: OnceLock<FileResult<Source>>,
+}
+
+impl SourceSlot {
+    fn new(id: FileId, path: PathBuf) -> Self {
+        Self { id, path, source: OnceLock::new() }
+    }
+
+    /// Carrega o source do disco (apenas na primeira chamada).
+    fn get(&self) -> FileResult<Source> {
+        self.source.get_or_init(|| {
+            let text = std::fs::read_to_string(&self.path)
+                .map_err(|e| if e.kind() == std::io::ErrorKind::NotFound {
+                    FileError::NotFound
+                } else {
+                    FileError::Other(e.to_string())
+                })?;
+            Ok(Source::new(self.id, text))
+        }).clone()
+    }
 }
 
 /// Erro de criação do `SystemWorld`.
@@ -29,7 +53,7 @@ fn next_file_id() -> FileId {
 pub enum SystemWorldError {
     /// O ficheiro principal não existe.
     MainNotFound(PathBuf),
-    /// Erro de I/O ao ler o ficheiro principal.
+    /// Erro de I/O ao processar o ficheiro principal.
     Io(std::io::Error),
 }
 
@@ -46,26 +70,33 @@ impl std::error::Error for SystemWorldError {}
 
 /// Implementação concreta de `World` para o filesystem real.
 ///
-/// Vive em L3 porque faz I/O de disco. Usa stubs para `Library`,
-/// `FontBook`, `Font` e `Datetime` até esses tipos serem migrados.
+/// Usa `SourceSlot`+`OnceLock` para carregamento lazy e thread-safe
+/// das sources. `FontSlot`+`OnceLock` para as fontes (ADR-0019).
+/// `Library` e `FontBook` são stubs opacos até ao Passo 5.
 pub struct SystemWorld {
     /// Directório raiz do projecto.
-    root: PathBuf,
+    root:       PathBuf,
     /// `FileId` do ficheiro principal.
-    main: FileId,
-    /// Cache de `Source` por `FileId`.
-    sources: HashMap<FileId, Source>,
+    main:       FileId,
+    /// Slots de source por `FileId` (interior mutável via Mutex).
+    slots:      Mutex<HashMap<FileId, Arc<SourceSlot>>>,
     /// Mapa de path canónico → `FileId`.
-    paths: HashMap<PathBuf, FileId>,
-    /// Stub de biblioteca padrão.
-    library: Library,
+    path_to_id: Mutex<HashMap<PathBuf, FileId>>,
+    /// Contador de IDs (não-global — sem V13).
+    next_id:    Mutex<u16>,
+    /// Slots de fontes (índice = parâmetro de `font()`).
+    font_slots: Vec<FontSlot>,
     /// Stub do catálogo de fontes.
-    font_book: FontBook,
+    font_book:  FontBook,
+    /// Stub de biblioteca padrão.
+    library:    Library,
 }
 
 impl SystemWorld {
     /// Cria um `SystemWorld` com `root` como directório base e
     /// `main` como ficheiro principal (relativo a `root` ou absoluto).
+    /// Fonte slots inicializados com `Vec::new()` — usar `with_fonts`
+    /// para adicionar fontes.
     pub fn new(root: impl Into<PathBuf>, main: impl AsRef<Path>) -> Result<Self, SystemWorldError> {
         let root = root.into();
         let main_path = if main.as_ref().is_absolute() {
@@ -74,50 +105,68 @@ impl SystemWorld {
             root.join(main.as_ref())
         };
 
-        let text = std::fs::read_to_string(&main_path)
+        let main_path_canon = main_path.canonicalize()
             .map_err(|e| if e.kind() == std::io::ErrorKind::NotFound {
                 SystemWorldError::MainNotFound(main_path.clone())
             } else {
                 SystemWorldError::Io(e)
             })?;
 
-        let main_id = next_file_id();
-        let source = Source::new(main_id, text);
+        let main_id = FileId::from_raw(NonZeroU16::new(1).unwrap());
+        let main_slot = Arc::new(SourceSlot::new(main_id, main_path_canon.clone()));
 
-        let mut sources = HashMap::new();
-        let mut paths = HashMap::new();
-        sources.insert(main_id, source);
-        paths.insert(main_path.canonicalize().unwrap_or(main_path), main_id);
+        // Carrega eagerly para falhar rápido se o ficheiro não existir.
+        main_slot.get()
+            .map_err(|_| SystemWorldError::MainNotFound(main_path_canon.clone()))?;
+
+        let mut slots = HashMap::new();
+        slots.insert(main_id, main_slot);
+
+        let mut path_to_id = HashMap::new();
+        path_to_id.insert(main_path_canon, main_id);
 
         Ok(Self {
             root,
             main: main_id,
-            sources,
-            paths,
-            library: Library::new(),
-            font_book: FontBook::new(),
+            slots:      Mutex::new(slots),
+            path_to_id: Mutex::new(path_to_id),
+            next_id:    Mutex::new(2),
+            font_slots: Vec::new(),
+            font_book:  FontBook::new(),
+            library:    Library::new(),
         })
     }
 
-    /// Resolve um `FileId` para o path no filesystem.
-    fn path_for_id(&self, id: FileId) -> Option<PathBuf> {
-        self.paths.iter()
-            .find(|(_, &fid)| fid == id)
-            .map(|(p, _)| p.clone())
+    /// Builder: associa slots de fontes ao world.
+    pub fn with_fonts(mut self, font_slots: Vec<FontSlot>) -> Self {
+        self.font_slots = font_slots;
+        self
     }
 
-    /// Carrega um `Source` do disco e cacheia-o.
-    fn load_source(&mut self, id: FileId) -> FileResult<Source> {
-        let path = self.path_for_id(id).ok_or(FileError::NotFound)?;
-        let text = std::fs::read_to_string(&path)
-            .map_err(|e| if e.kind() == std::io::ErrorKind::NotFound {
-                FileError::NotFound
-            } else {
-                FileError::Other(e.to_string())
-            })?;
-        let src = Source::new(id, text);
-        self.sources.insert(id, src.clone());
-        Ok(src)
+    /// Regista um path e retorna o `FileId` correspondente
+    /// (cria novo slot se o path ainda não estava registado).
+    pub fn register_file(&self, path: PathBuf) -> FileId {
+        let canon = path.canonicalize().unwrap_or(path.clone());
+
+        let existing = self.path_to_id.lock().unwrap().get(&canon).copied();
+        if let Some(id) = existing {
+            return id;
+        }
+
+        let mut next = self.next_id.lock().unwrap();
+        let raw = *next;
+        *next = next.wrapping_add(1);
+        if *next == 0 { *next = 1; }
+        let id = FileId::from_raw(NonZeroU16::new(raw).expect("FileId counter exhausted"));
+
+        self.path_to_id.lock().unwrap().insert(canon.clone(), id);
+        self.slots.lock().unwrap().insert(id, Arc::new(SourceSlot::new(id, canon)));
+        id
+    }
+
+    /// Directório raiz do projecto.
+    pub fn root(&self) -> &Path {
+        &self.root
     }
 }
 
@@ -135,29 +184,26 @@ impl World for SystemWorld {
     }
 
     fn source(&self, id: FileId) -> FileResult<Source> {
-        if let Some(src) = self.sources.get(&id) {
-            return Ok(src.clone());
-        }
-        // Ficheiro não está em cache — tentar carregar do disco.
-        // Nota: sem mutabilidade interior aqui; ficheiros não-cached
-        // após construção retornam NotFound nesta implementação mínima.
-        // O Passo 8 introduzirá Mutex/RefCell para lazy-loading.
-        Err(FileError::NotFound)
+        let slot = self.slots.lock().unwrap().get(&id).cloned();
+        slot.ok_or(FileError::NotFound)?.get()
     }
 
     fn file(&self, id: FileId) -> FileResult<Bytes> {
-        let path = self.path_for_id(id).ok_or(FileError::NotFound)?;
-        let bytes = std::fs::read(&path)
+        let path = self.slots.lock().unwrap()
+            .get(&id)
+            .map(|s| s.path.clone());
+        let path = path.ok_or(FileError::NotFound)?;
+        std::fs::read(&path)
+            .map(Bytes::new)
             .map_err(|e| if e.kind() == std::io::ErrorKind::NotFound {
                 FileError::NotFound
             } else {
                 FileError::Other(e.to_string())
-            })?;
-        Ok(Bytes::new(bytes))
+            })
     }
 
-    fn font(&self, _index: usize) -> Option<Font> {
-        None // stub — fontes reais no Passo 8
+    fn font(&self, index: usize) -> Option<Font> {
+        self.font_slots.get(index)?.get()
     }
 
     fn today(&self, _offset: Option<i64>) -> Option<Datetime> {
@@ -176,9 +222,9 @@ mod tests {
 
     struct MockWorld {
         main_id: FileId,
-        source: Source,
+        source:  Source,
         library: Library,
-        book: FontBook,
+        book:    FontBook,
     }
 
     impl MockWorld {
@@ -186,9 +232,9 @@ mod tests {
             let id = FileId::from_raw(NonZeroU16::new(42).unwrap());
             Self {
                 main_id: id,
-                source: Source::new(id, text.to_string()),
+                source:  Source::new(id, text.to_string()),
                 library: Library::new(),
-                book: FontBook::new(),
+                book:    FontBook::new(),
             }
         }
     }
@@ -201,9 +247,9 @@ mod tests {
             if id == self.main_id { Ok(self.source.clone()) }
             else { Err(FileError::NotFound) }
         }
-        fn file(&self, _: FileId)   -> FileResult<Bytes>  { Err(FileError::NotFound) }
-        fn font(&self, _: usize)    -> Option<Font>       { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn file(&self, _: FileId)        -> FileResult<Bytes>   { Err(FileError::NotFound) }
+        fn font(&self, _: usize)         -> Option<Font>        { None }
+        fn today(&self, _: Option<i64>)  -> Option<Datetime>    { None }
     }
 
     // ── Testes de MockWorld ───────────────────────────────────────────────
@@ -259,7 +305,6 @@ mod tests {
     fn system_world_main_id_valid() {
         let dir = tempfile_write("hello.typ", "Hello world");
         let world = SystemWorld::new(dir.path(), "hello.typ").unwrap();
-        // main() deve retornar um FileId válido (não zero)
         let _ = world.main();
     }
 
@@ -298,6 +343,48 @@ mod tests {
         let dir = tempfile_write("main.typ", "text");
         let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
         assert!(world.today(None).is_none());
+    }
+
+    #[test]
+    fn system_world_source_lazy_via_onclock() {
+        // OnceLock: segunda chamada retorna o mesmo resultado
+        let dir = tempfile_write("main.typ", "lazy content");
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let src1 = world.source(world.main()).unwrap();
+        let src2 = world.source(world.main()).unwrap();
+        assert!(src1 == src2);
+    }
+
+    #[test]
+    fn system_world_register_file_returns_same_id() {
+        let dir = tempfile_write("a.typ", "content a");
+        let world = SystemWorld::new(dir.path(), "a.typ").unwrap();
+
+        let extra = dir.path().join("extra.typ");
+        std::fs::write(&extra, "extra").unwrap();
+
+        let id1 = world.register_file(extra.clone());
+        let id2 = world.register_file(extra);
+        assert_eq!(id1, id2);
+    }
+
+    #[test]
+    fn system_world_font_invalid_slot_returns_none() {
+        let dir = tempfile_write("main.typ", "text");
+        let font_dir = tempdir();
+        std::fs::write(font_dir.path().join("fake.ttf"), b"not a font").unwrap();
+
+        let slots = crate::fonts::discover_fonts(&[font_dir.path().to_path_buf()]);
+        assert_eq!(slots.len(), 1);
+
+        let world = SystemWorld::new(dir.path(), "main.typ")
+            .unwrap()
+            .with_fonts(slots);
+
+        // Slot existe mas bytes inválidos → font() retorna None
+        assert!(world.font(0).is_none());
+        // Índice fora dos limites → None
+        assert!(world.font(1).is_none());
     }
 
     // ── Utilitários de teste ──────────────────────────────────────────────
