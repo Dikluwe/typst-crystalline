@@ -76,6 +76,9 @@ rust = [
     "unicode_script",
     "unicode_segmentation",
     "rustc_hash",    # ADR-0018 — revoga ADR-0007
+    "time",          # ADR-0021 — aritmética de datas; time::now() não entra em L1
+    "indexmap",      # ADR-0023 — ordem de inserção em Scope; sem substituto no std
+    "ecow",          # ADR-0024 — EcoString em Value::Str; clone O(1) no hot path de eval()
 ]
 
 [orphan_exceptions]

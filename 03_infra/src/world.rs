@@ -11,9 +11,10 @@ use std::sync::{Arc, Mutex, OnceLock};
 
 use typst_core::contracts::world::World;
 use typst_core::entities::file_id::FileId;
+use typst_core::entities::font_book::FontBook;
 use typst_core::entities::source::Source;
 use typst_core::entities::world_types::{
-    Bytes, Datetime, FileError, FileResult, Font, FontBook, Library,
+    Bytes, Datetime, FileError, FileResult, Font, Library,
 };
 
 use crate::fonts::FontSlot;
@@ -137,8 +138,9 @@ impl SystemWorld {
         })
     }
 
-    /// Builder: associa slots de fontes ao world.
+    /// Builder: associa slots de fontes ao world e popula o `FontBook`.
     pub fn with_fonts(mut self, font_slots: Vec<FontSlot>) -> Self {
+        self.font_book  = crate::fonts::build_font_book(&font_slots);
         self.font_slots = font_slots;
         self
     }
@@ -206,8 +208,14 @@ impl World for SystemWorld {
         self.font_slots.get(index)?.get()
     }
 
-    fn today(&self, _offset: Option<i64>) -> Option<Datetime> {
-        None // stub — Datetime real após ADR-0017
+    fn today(&self, offset: Option<i64>) -> Option<Datetime> {
+        use time::OffsetDateTime;
+        let now = OffsetDateTime::now_utc();
+        let now = match offset {
+            Some(h) => now + time::Duration::hours(h),
+            None    => now,
+        };
+        Datetime::new_date(now.year(), now.month() as u8, now.day())
     }
 }
 
@@ -216,7 +224,8 @@ mod tests {
     use super::*;
     use std::num::NonZeroU16;
     use typst_core::contracts::world::World;
-    use typst_core::entities::world_types::{Bytes, Datetime, FileError, Font, FontBook, Library};
+    use typst_core::entities::font_book::FontBook;
+    use typst_core::entities::world_types::{Bytes, Datetime, FileError, Font, Library};
 
     // ── MockWorld para testes sem filesystem ──────────────────────────────
 
@@ -339,10 +348,13 @@ mod tests {
     }
 
     #[test]
-    fn system_world_today_stub_returns_none() {
+    fn system_world_today_returns_some() {
         let dir = tempfile_write("main.typ", "text");
         let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
-        assert!(world.today(None).is_none());
+        let dt = world.today(None);
+        assert!(dt.is_some());
+        // Ano razoável (> 2020) para verificar que é data real
+        assert!(dt.unwrap().year() > 2020);
     }
 
     #[test]
