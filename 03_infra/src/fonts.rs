@@ -7,6 +7,9 @@
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
+use typst_core::entities::font_book::{
+    FontBook, FontFlags, FontInfo, FontStretch, FontStyle, FontVariant, FontWeight,
+};
 use typst_core::entities::world_types::Font;
 
 /// Slot de fonte com carregamento lazy.
@@ -90,6 +93,67 @@ fn discover_in_dir(dir: &Path, slots: &mut Vec<FontSlot>) {
     }
 }
 
+/// Extrai `FontInfo` de bytes de fonte OpenType/TrueType (ADR-0022).
+///
+/// `ttf_parser` fica em L3 — L1 recebe apenas `FontInfo` com campos primitivos.
+/// Retorna `None` se os bytes não forem uma fonte válida ou o índice não existir.
+///
+/// Nota: `ttf_parser` não expõe directamente se uma fonte é serif.
+/// `flags.serif` fica `false` — heurísticas por nome de família são trabalho futuro.
+pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
+    let face = ttf_parser::Face::parse(data, index).ok()?;
+
+    // Preferir nome em inglês (en-US); fallback para qualquer idioma
+    let family = face.names()
+        .into_iter()
+        .filter(|n| n.name_id == ttf_parser::name_id::TYPOGRAPHIC_FAMILY
+                 || n.name_id == ttf_parser::name_id::FAMILY)
+        .filter_map(|n| n.to_string())
+        .next()
+        .or_else(|| {
+            face.names()
+                .into_iter()
+                .filter_map(|n| n.to_string())
+                .next()
+        })?;
+
+    let style = if face.is_italic() {
+        FontStyle::Italic
+    } else if face.is_oblique() {
+        FontStyle::Oblique
+    } else {
+        FontStyle::Normal
+    };
+
+    let weight  = FontWeight(face.weight().to_number());
+    let stretch = FontStretch::from_number(face.width().to_number());
+
+    Some(FontInfo {
+        family,
+        variant: FontVariant { style, weight, stretch },
+        flags:   FontFlags {
+            monospace: face.is_monospaced(),
+            serif:     false,
+        },
+    })
+}
+
+/// Popula um `FontBook` a partir de uma lista de `FontSlot`.
+///
+/// Lê os bytes de cada slot e extrai `FontInfo`.
+/// A leitura duplica o I/O com `FontSlot::get()` — optimização futura (Passo 11).
+pub fn build_font_book(slots: &[FontSlot]) -> FontBook {
+    let mut book = FontBook::new();
+    for slot in slots {
+        if let Ok(data) = std::fs::read(&slot.path) {
+            if let Some(info) = font_info_from_bytes(&data, slot.index) {
+                book.push(info);
+            }
+        }
+    }
+    book
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -160,5 +224,20 @@ mod tests {
         let slot = FontSlot::new(PathBuf::from("/nao/existe.ttf"), 0);
         // OnceLock garante que o resultado é sempre o mesmo
         assert_eq!(slot.get(), slot.get());
+    }
+
+    #[test]
+    fn font_info_bytes_invalidos() {
+        assert!(font_info_from_bytes(b"not a font", 0).is_none());
+    }
+
+    #[test]
+    fn build_font_book_com_slots_invalidos() {
+        let dir = tempdir();
+        std::fs::write(dir.path().join("fake.ttf"), b"not a font").unwrap();
+        let slots = discover_fonts(&[dir.path().to_path_buf()]);
+        let book = build_font_book(&slots);
+        // Bytes inválidos → sem entradas no FontBook
+        assert!(book.is_empty());
     }
 }

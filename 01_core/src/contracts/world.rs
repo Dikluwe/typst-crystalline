@@ -6,8 +6,9 @@
 
 use crate::entities::file_id::FileId;
 use crate::entities::source::Source;
+use crate::entities::font_book::FontBook;
 use crate::entities::world_types::{
-    Bytes, Datetime, FileResult, Font, FontBook, Library,
+    Bytes, Datetime, FileResult, Font, Library,
 };
 
 /// Contrato entre o compilador Typst e o ambiente de execução.
@@ -86,8 +87,9 @@ mod tests {
     use super::*;
     use crate::entities::file_id::FileId;
     use crate::entities::source::Source;
+    use crate::entities::font_book::FontBook;
     use crate::entities::world_types::{
-        Bytes, Datetime, FileError, FileResult, Font, FontBook, Library,
+        Bytes, Datetime, FileError, FileResult, Font, Library,
     };
     use std::num::NonZeroU16;
 

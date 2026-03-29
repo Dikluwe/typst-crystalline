@@ -5,6 +5,7 @@
 //! @updated 2026-03-22
 
 pub mod file_id;
+pub mod font_book;
 pub mod math_class;
 pub mod operators;
 pub mod package_spec;
@@ -18,5 +19,10 @@ pub mod ast;
 pub mod module;
 pub mod source;
 pub mod source_result;
+pub mod scope;
+pub mod args;
+pub mod content;
+pub mod func;
+pub mod layout_types;
 pub mod value;
 pub mod world_types;

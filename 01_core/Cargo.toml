@@ -16,3 +16,6 @@ unicode-ident        = { workspace = true }
 unicode-math-class   = { workspace = true }
 unicode-script       = { workspace = true }
 unicode-segmentation = { workspace = true }
+time                 = { workspace = true }  # ADR-0021 — Datetime real
+indexmap             = { workspace = true }  # ADR-0023 — Scope com ordem de inserção
+ecow                 = { workspace = true }  # ADR-0024 — EcoString em Value::Str
