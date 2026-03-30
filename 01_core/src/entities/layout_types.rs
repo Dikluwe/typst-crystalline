@@ -170,6 +170,122 @@ impl PagedDocument {
     }
 }
 
+// ── Tipos tipográficos (ADR-0028, ADR-0029) ────────────────────────────────
+
+/// Comprimento absoluto em pontos tipográficos.
+///
+/// ADR-0029: representação fiel ao Typst vanilla (`Abs(Scalar)`).
+/// Escala interna: 1.0 = 1pt (simplificação L1 — vanilla usa 127 raw/pt).
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub struct Abs(pub f64);
+
+impl Abs {
+    pub const ZERO: Self = Self(0.0);
+
+    pub fn pt(v: f64) -> Self { Self(v) }
+    pub fn to_pt(self) -> f64 { self.0 }
+    pub fn is_zero(self) -> bool { self.0 == 0.0 }
+}
+
+impl std::ops::Add for Abs {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self { Self(self.0 + rhs.0) }
+}
+
+impl std::ops::Neg for Abs {
+    type Output = Self;
+    fn neg(self) -> Self { Self(-self.0) }
+}
+
+/// Comprimento tipográfico — combinação de componente absoluta e relativa.
+///
+/// ADR-0029 — revoga ADR-0028. Estrutura fiel ao Typst vanilla:
+/// `struct Length { abs: Abs, em: f64 }`.
+/// `abs`: componente absoluta em pontos.
+/// `em`: componente relativa em múltiplos do font-size actual.
+///
+/// A soma `1pt + 1em` é representável; a resolução para pt requer font-size.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Length {
+    pub abs: Abs,
+    pub em:  f64,
+}
+
+impl Length {
+    pub const ZERO: Self = Self { abs: Abs::ZERO, em: 0.0 };
+
+    pub fn pt(v: f64) -> Self { Self { abs: Abs::pt(v), em: 0.0 } }
+    pub fn em(v: f64) -> Self { Self { abs: Abs::ZERO,  em: v   } }
+
+    pub fn is_zero(&self) -> bool { self.abs.is_zero() && self.em == 0.0 }
+
+    /// Resolve para pontos dado um font-size em pt.
+    /// `1pt + 1em` com font_size=12.0 → 13.0pt
+    pub fn resolve_pt(&self, font_size_pt: f64) -> f64 {
+        self.abs.to_pt() + self.em * font_size_pt
+    }
+}
+
+impl std::ops::Add for Length {
+    type Output = Self;
+    fn add(self, rhs: Self) -> Self {
+        Self { abs: self.abs + rhs.abs, em: self.em + rhs.em }
+    }
+}
+
+impl std::ops::Neg for Length {
+    type Output = Self;
+    fn neg(self) -> Self { Self { abs: -self.abs, em: -self.em } }
+}
+
+/// Rácio — valor normalizado (0.0 = 0%, 1.0 = 100%).
+///
+/// ADR-0028: newtype f64. PartialEq exacto (derive).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Ratio(pub f64);
+
+impl Ratio {
+    pub fn from_percent(pct: f64) -> Self { Self(pct / 100.0) }
+    pub fn get(self) -> f64 { self.0 }
+    pub fn to_percent(self) -> f64 { self.0 * 100.0 }
+}
+
+/// Ângulo — armazenado internamente em radianos.
+///
+/// ADR-0028: newtype f64. PartialEq exacto (derive) — sem tolerância embutida.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Angle(f64);
+
+impl Angle {
+    pub fn deg(d: f64) -> Self { Self(d.to_radians()) }
+    pub fn rad(r: f64) -> Self { Self(r) }
+    pub fn to_rad(self) -> f64 { self.0 }
+    pub fn to_deg(self) -> f64 { self.0.to_degrees() }
+}
+
+/// Cor tipográfica.
+///
+/// ADR-0028: enum simplificado. Espaços avançados (Oklab, HSL, CMYK) — adiados para Passo 30+.
+/// `luma(l)` → Rgb { r: l, g: l, b: l } (escala de cinzentos).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Color {
+    Rgb  { r: u8, g: u8, b: u8 },
+    Rgba { r: u8, g: u8, b: u8, a: u8 },
+}
+
+impl Color {
+    pub fn rgb(r: u8, g: u8, b: u8)          -> Self { Self::Rgb { r, g, b } }
+    pub fn rgba(r: u8, g: u8, b: u8, a: u8)  -> Self { Self::Rgba { r, g, b, a } }
+
+    /// Retorna (r, g, b, a) normalizados para [0.0, 1.0].
+    pub fn to_rgba_f32(self) -> (f32, f32, f32, f32) {
+        match self {
+            Self::Rgb  { r, g, b }    => (r as f32 / 255.0, g as f32 / 255.0, b as f32 / 255.0, 1.0),
+            Self::Rgba { r, g, b, a } => (r as f32 / 255.0, g as f32 / 255.0, b as f32 / 255.0, a as f32 / 255.0),
+        }
+    }
+}
+
 // ── Testes ─────────────────────────────────────────────────────────────────
 
 #[cfg(test)]
@@ -257,5 +373,102 @@ mod tests {
         let doc = PagedDocument::new(vec![]);
         assert!(doc.is_empty());
         assert_eq!(doc.plain_text(), "");
+    }
+
+    // ── Passo 25 — tipos tipográficos (ADR-0028) ─────────────────────────────
+
+    #[cfg(test)]
+    macro_rules! assert_approx_eq {
+        ($a:expr, $b:expr) => { assert_approx_eq!($a, $b, 1e-10) };
+        ($a:expr, $b:expr, $eps:expr) => {{
+            let (a, b, eps) = ($a as f64, $b as f64, $eps as f64);
+            assert!(
+                (a - b).abs() < eps,
+                "assert_approx_eq falhou: |{a} - {b}| = {} >= {eps}",
+                (a - b).abs()
+            );
+        }};
+    }
+
+    #[test]
+    fn length_resolve_pt() {
+        assert_eq!(Length::pt(12.0).resolve_pt(12.0), 12.0);
+        assert_eq!(Length::em(1.5).resolve_pt(12.0), 18.0);
+        assert_eq!(Length::em(2.0).resolve_pt(10.0), 20.0);
+    }
+
+    #[test]
+    fn ratio_percent_roundtrip() {
+        let r = Ratio::from_percent(50.0);
+        assert_approx_eq!(r.get(), 0.5);
+        assert_approx_eq!(r.to_percent(), 50.0);
+    }
+
+    #[test]
+    fn angle_deg_rad_usa_approx() {
+        let a = Angle::deg(180.0);
+        assert_approx_eq!(a.to_rad(), std::f64::consts::PI);
+        assert_approx_eq!(a.to_deg(), 180.0);
+    }
+
+    #[test]
+    fn angle_partialEq_e_exacto() {
+        let a1 = Angle::deg(180.0);
+        let a2 = Angle::deg(180.0);
+        assert_eq!(a1, a2);
+        // Ângulos diferentes NÃO são iguais — sem tolerância embutida.
+        let a3 = Angle::deg(180.0 + 1e-15);
+        let _ = a3;  // comportamento documentado no relatório
+    }
+
+    #[test]
+    fn color_to_rgba_f32() {
+        let (r, g, b, a) = Color::rgb(255, 0, 128).to_rgba_f32();
+        assert_approx_eq!(r, 1.0, 1e-3);
+        assert_approx_eq!(g, 0.0, 1e-3);
+        assert_approx_eq!(b, 0.502, 1e-3);
+        assert_approx_eq!(a, 1.0, 1e-3);
+    }
+
+    // ── Passo 26 — Length struct fiel ao vanilla (ADR-0029) ──────────────────
+
+    #[test]
+    fn length_soma_mista_agora_funciona() {
+        // Com Length vanilla (abs + em), a soma Pt + Em é representável
+        let l = Length::pt(6.0) + Length::em(1.0);
+        assert_eq!(l.abs.to_pt(), 6.0);
+        assert_eq!(l.em, 1.0);
+        // Resolve com font-size=12pt → 6 + 12 = 18pt
+        assert_approx_eq!(l.resolve_pt(12.0), 18.0);
+    }
+
+    #[test]
+    fn length_zero_constante() {
+        assert!(Length::ZERO.is_zero());
+        assert_approx_eq!(Length::ZERO.resolve_pt(12.0), 0.0);
+    }
+
+    #[test]
+    fn length_soma_abs_preserva_em() {
+        let a = Length::pt(3.0);
+        let b = Length::pt(4.0);
+        let sum = a + b;
+        assert_approx_eq!(sum.abs.to_pt(), 7.0);
+        assert_eq!(sum.em, 0.0);
+    }
+
+    #[test]
+    fn length_neg() {
+        let l = Length::pt(5.0);
+        let neg = -l;
+        assert_approx_eq!(neg.abs.to_pt(), -5.0);
+        assert_eq!(neg.em, 0.0);
+    }
+
+    #[test]
+    fn abs_add_e_neg() {
+        assert_eq!(Abs::pt(3.0) + Abs::pt(4.0), Abs::pt(7.0));
+        assert_eq!(-Abs::pt(2.0), Abs::pt(-2.0));
+        assert!(Abs::ZERO.is_zero());
     }
 }

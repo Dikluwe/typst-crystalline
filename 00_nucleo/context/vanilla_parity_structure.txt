@@ -1,0 +1,7 @@
+
+[2m[0m[38;2;84;142;200mcrate[0m parity_runner
+[2m├── [0m[38;2;84;142;200mmod[0m compact[2m:[0m [38;2;247;210;99mpub(crate)[0m
+[2m│   ├── [0m[38;2;84;142;200menum[0m CompactNode[2m:[0m [38;2;129;193;105mpub[0m
+[2m│   ├── [0m[38;2;84;142;200mfn[0m compact_cristalino[2m:[0m [38;2;129;193;105mpub[0m
+[2m│   └── [0m[38;2;84;142;200mfn[0m compact_original[2m:[0m [38;2;129;193;105mpub[0m
+[2m└── [0m[38;2;84;142;200mfn[0m main[2m:[0m [38;2;247;210;99mpub(crate)[0m

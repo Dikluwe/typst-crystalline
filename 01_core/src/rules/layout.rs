@@ -4,6 +4,8 @@
 //! @layer L1
 //! @updated 2026-03-28
 
+use ecow::EcoString;
+
 use crate::entities::{
     content::Content,
     layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle},
@@ -101,7 +103,7 @@ impl<M: FontMetrics> Layouter<M> {
             }
 
             Content::Sequence(parts) => {
-                for part in parts {
+                for part in parts.iter() {
                     self.layout_content(part);
                 }
             }
@@ -128,6 +130,57 @@ impl<M: FontMetrics> Layouter<M> {
                 self.layout_content(body);
                 self.flush_line();
                 self.style = prev;
+            }
+
+            Content::Raw { text, block, .. } => {
+                let prev = self.style;
+                // Raw: tamanho 90%, sem bold/italic
+                // DEBT: seleccionar fonte monospace real quando FontBook tiver uma
+                self.style = TextStyle { bold: false, italic: false, size: self.font_size_pt * 0.9 };
+                if *block {
+                    if self.cursor_x > MARGIN { self.flush_line(); }
+                    self.cursor_x = MARGIN + self.font_size_pt;
+                }
+                for word in text.split_whitespace() { self.layout_word(word); }
+                if *block { self.flush_line(); }
+                self.style = prev;
+            }
+
+            Content::ListItem(body) => {
+                if self.cursor_x > MARGIN { self.flush_line(); }
+                // Bullet: "•" é Unicode U+2022 — aparece como ? no PDF até DEBT-5
+                // usar "-" ASCII como fallback para o PDF actual
+                self.current_line.push(FrameItem::Text {
+                    pos:   Point { x: MARGIN, y: self.cursor_y },
+                    text:  "•".into(),  // U+2022 — suportado com CIDFont (DEBT-5 pago)
+                    style: self.style,
+                });
+                self.cursor_x = MARGIN + self.font_size_pt * 1.5;
+                self.layout_content(body);
+                self.flush_line();
+                self.cursor_x = MARGIN;
+            }
+
+            Content::EnumItem { number, body } => {
+                if self.cursor_x > MARGIN { self.flush_line(); }
+                let label: EcoString = match number {
+                    Some(n) => format!("{}.", n).into(),
+                    None    => "-".into(),
+                };
+                self.current_line.push(FrameItem::Text {
+                    pos:   Point { x: MARGIN, y: self.cursor_y },
+                    text:  label,
+                    style: self.style,
+                });
+                self.cursor_x = MARGIN + self.font_size_pt * 2.0;
+                self.layout_content(body);
+                self.flush_line();
+                self.cursor_x = MARGIN;
+            }
+
+            Content::Link { body, .. } => {
+                // DEBT: sublinhado e cor de link — requer FrameItem::Decoration (futuro)
+                self.layout_content(body);
             }
         }
     }
@@ -328,7 +381,7 @@ mod tests {
 
     #[test]
     fn heading_h1_tamanho_maior() {
-        let doc = layout(&Content::Sequence(vec![
+        let doc = layout(&Content::sequence(vec![
             Content::heading(1, Content::text("Title")),
             Content::text("body"),
         ]));
@@ -343,7 +396,7 @@ mod tests {
 
     #[test]
     fn estilo_restaurado_apos_strong() {
-        let doc = layout(&Content::Sequence(vec![
+        let doc = layout(&Content::sequence(vec![
             Content::strong(Content::text("Bold")),
             Content::text("normal"),
         ]));
@@ -417,5 +470,33 @@ mod tests {
             doc.plain_text().contains("Olá") || doc.plain_text().contains("mundo"),
             "texto deve estar no output: {:?}", doc.plain_text()
         );
+    }
+
+    // ── Passo 23 ────────────────────────────────────────────────────────────
+
+    #[test]
+    fn layout_list_item_tem_bullet() {
+        let doc = layout(&Content::list_item(Content::text("Item")));
+        let has_marker = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .any(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "•"));
+        assert!(has_marker, "ListItem deve ter marcador '•'");
+    }
+
+    #[test]
+    fn layout_raw_block_tamanho_menor() {
+        let content = Content::sequence(vec![
+            Content::text("normal"),
+            Content::raw("code", None, true),
+        ]);
+        let doc = layout(&content);
+        let sizes: std::collections::HashSet<u64> = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|i| match i {
+                FrameItem::Text { style, .. } => Some(style.size.val().to_bits()),
+                _ => None,
+            })
+            .collect();
+        assert!(sizes.len() > 1, "Raw deve ter tamanho diferente do texto normal");
     }
 }
