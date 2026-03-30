@@ -15,7 +15,7 @@ use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 use crate::entities::ast::code::{Conditional, ForLoop, LetBinding, LetBindingKind, WhileLoop};
 use crate::entities::ast::expr::{Arg, BinOp, Expr, Param, Pattern, UnOp};
-use crate::entities::ast::markup::{Emph, Heading, Strong};
+use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::func::{ClosureParam, ClosureRepr, Func, FuncRepr};
 use crate::entities::module::Module;
 use crate::entities::scope::Scope;
@@ -116,8 +116,6 @@ fn eval_markup(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext<'_>,
 ) -> SourceResult<Value> {
-    use crate::entities::syntax_kind::SyntaxKind;
-
     let mut parts: Vec<Content> = Vec::new();
 
     for child in node.children() {
@@ -253,6 +251,52 @@ fn eval_expr(
             Ok(Value::Content(Content::heading(level, body)))
         }
 
+        Expr::Raw(raw) => {
+            // Raw não tem método text() — raw.lines() itera nós Text (SyntaxKind::Text)
+            // tanto para inline como para block. RawTrimmed são apenas whitespace/newlines.
+            let text: EcoString = raw.lines()
+                .map(|l| l.get())
+                .collect::<Vec<_>>()
+                .join("\n")
+                .into();
+            let lang  = raw.lang().map(|l| EcoString::from(l.get()));
+            let block = raw.block();
+            Ok(Value::Content(Content::raw(text, lang, block)))
+        }
+
+        Expr::Link(link) => {
+            let url = link.get().to_string();
+            Ok(Value::Content(Content::link(url.clone(), Content::text(url))))
+        }
+
+        Expr::ListItem(item) => {
+            let body = eval_markup_body(item.body().to_untyped(), scopes, ctx)?;
+            Ok(Value::Content(Content::list_item(body)))
+        }
+
+        Expr::EnumItem(item) => {
+            let number = item.number().map(|n| n as u32);
+            let body   = eval_markup_body(item.body().to_untyped(), scopes, ctx)?;
+            Ok(Value::Content(Content::enum_item(number, body)))
+        }
+
+        Expr::FieldAccess(access) => {
+            let target = eval_expr(access.target(), scopes, ctx)?;
+            let field  = access.field().as_str().to_string();
+            match target {
+                Value::Dict(d) => d.get(field.as_str())
+                    .cloned()
+                    .ok_or_else(|| vec![SourceDiagnostic::error(
+                        access.span(),
+                        format!("campo '{field}' não existe"),
+                    )]),
+                other => Err(vec![SourceDiagnostic::error(
+                    access.span(),
+                    format!("field access não suportado em {}", other.type_name()),
+                )]),
+            }
+        }
+
         // Fronteira deliberada — requer tipos não migrados (Content, Styles, etc.)
         _ => Ok(Value::None),
     }
@@ -375,6 +419,16 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         // ── Lógica booleana ──────────────────────────────────────────────────
         (BinOp::And, Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(a && b)),
         (BinOp::Or,  Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(a || b)),
+
+        // ── Tipos tipográficos (ADR-0028, ADR-0029) ──────────────────────────
+        // Length + Length: sempre válido (abs + abs, em + em, mistos representáveis)
+        (BinOp::Add, Value::Length(a), Value::Length(b)) =>
+            Ok(Value::Length(a + b)),
+        // Ratio * Int ou Int * Ratio → escala o rácio
+        (BinOp::Mul, Value::Ratio(r), Value::Int(n)) =>
+            Ok(Value::Ratio(crate::entities::layout_types::Ratio(r.get() * n as f64))),
+        (BinOp::Mul, Value::Int(n), Value::Ratio(r)) =>
+            Ok(Value::Ratio(crate::entities::layout_types::Ratio(n as f64 * r.get()))),
 
         // ── Fronteira — tipos não migrados ou combinações inválidas ──────────
         (op, lhs, rhs) => Err(format!(
@@ -578,13 +632,22 @@ fn eval_let(
     Ok(Value::None)
 }
 
-/// Constrói a stdlib mínima: `type`, `len`, `range`.
+/// Constrói a stdlib: `type`, `len`, `range`, `rgb`, `luma`, `str`, `int`, `float`, `calc`.
 fn make_stdlib() -> Scope {
-    use crate::rules::stdlib::{native_len, native_range, native_type};
+    use crate::rules::stdlib::{
+        make_calc_module, native_float, native_int, native_len,
+        native_luma, native_range, native_rgb, native_str, native_type,
+    };
     let mut scope = Scope::new();
     scope.define("type",  Value::Func(Func::native("type",  native_type)));
     scope.define("len",   Value::Func(Func::native("len",   native_len)));
     scope.define("range", Value::Func(Func::native("range", native_range)));
+    scope.define("rgb",   Value::Func(Func::native("rgb",   native_rgb)));
+    scope.define("luma",  Value::Func(Func::native("luma",  native_luma)));
+    scope.define("str",   Value::Func(Func::native("str",   native_str)));
+    scope.define("int",   Value::Func(Func::native("int",   native_int)));
+    scope.define("float", Value::Func(Func::native("float", native_float)));
+    scope.define("calc",  make_calc_module());
     scope
 }
 
@@ -1240,5 +1303,137 @@ mod tests {
         let text = content.plain_text();
         assert!(text.contains("Introduction"), "plain_text deve ter Introduction: {:?}", text);
         assert!(text.contains("Body"),         "plain_text deve ter Body: {:?}", text);
+    }
+
+    // ── Passo 23 ────────────────────────────────────────────────────────────
+
+    #[test]
+    fn pipeline_raw_inline() {
+        let world = MockWorld::new("Use `cargo build` to compile");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().expect("deve ter content").plain_text();
+        assert!(text.contains("cargo") && text.contains("build"), "{:?}", text);
+    }
+
+    #[test]
+    fn pipeline_lista_bullets() {
+        let world = MockWorld::new("- item 1\n- item 2");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().expect("deve ter content").plain_text();
+        assert!(text.contains("item 1") && text.contains("item 2"), "{:?}", text);
+    }
+
+    // ── Passo 25 — tipos tipográficos ────────────────────────────────────────
+
+    #[test]
+    fn pipeline_rgb_em_let() {
+        use crate::entities::layout_types::Color;
+        let world = MockWorld::new("#let c = rgb(255, 0, 0)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("c"), Some(&Value::Color(Color::rgb(255, 0, 0))));
+    }
+
+    #[test]
+    fn ratio_mul_int() {
+        use crate::entities::layout_types::Ratio;
+        let r = eval_binary_op(BinOp::Mul, Value::Ratio(Ratio(0.5)), Value::Int(2));
+        assert_eq!(r, Ok(Value::Ratio(Ratio(1.0))));
+    }
+
+    #[test]
+    fn length_add_pt_pt() {
+        use crate::entities::layout_types::Length;
+        let r = eval_binary_op(BinOp::Add, Value::Length(Length::pt(10.0)), Value::Length(Length::pt(5.0)));
+        assert_eq!(r, Ok(Value::Length(Length::pt(15.0))));
+    }
+
+    #[test]
+    fn length_add_mista_agora_funciona() {
+        // ADR-0029: Length struct (abs + em) — soma mista é representável, não Err
+        use crate::entities::layout_types::Length;
+        let r = eval_binary_op(BinOp::Add, Value::Length(Length::pt(10.0)), Value::Length(Length::em(1.0)));
+        let l = r.expect("soma mista deve ser Ok com estrutura vanilla");
+        if let Value::Length(len) = l {
+            assert_eq!(len.abs.to_pt(), 10.0);
+            assert_eq!(len.em, 1.0);
+        } else {
+            panic!("esperado Value::Length");
+        }
+    }
+
+    #[test]
+    fn stdlib_type_color() {
+        let world = MockWorld::new("#let t = type(rgb(0, 0, 0))");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("t"), Some(&Value::Str("color".into())));
+    }
+
+    // ── Passo 27 — str/int/float/calc pipeline ───────────────────────────────
+
+    #[test]
+    fn pipeline_str_conversao() {
+        let world = MockWorld::new("#let s = str(42)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("s"), Some(&Value::Str("42".into())));
+    }
+
+    #[test]
+    fn pipeline_int_de_str() {
+        let world = MockWorld::new("#let n = int(\"99\")");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("n"), Some(&Value::Int(99)));
+    }
+
+    #[test]
+    fn pipeline_float_de_int() {
+        let world = MockWorld::new("#let f = float(3)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("f"), Some(&Value::Float(3.0)));
+    }
+
+    #[test]
+    fn pipeline_calc_abs() {
+        let world = MockWorld::new("#let x = calc.abs(-5)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(5)));
+    }
+
+    #[test]
+    fn pipeline_calc_pow() {
+        let world = MockWorld::new("#let x = calc.pow(2, 8)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(256)));
+    }
+
+    #[test]
+    fn pipeline_calc_sqrt() {
+        let world = MockWorld::new("#let x = calc.sqrt(9.0)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(3.0)));
+    }
+
+    #[test]
+    fn pipeline_calc_clamp() {
+        let world = MockWorld::new("#let x = calc.clamp(15, 0, 10)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(10)));
+    }
+
+    #[test]
+    fn pipeline_field_access_invalido_retorna_err() {
+        let world = MockWorld::new("#let x = calc.inexistente(1)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        assert!(eval_for_test(&world, &src).is_err());
     }
 }

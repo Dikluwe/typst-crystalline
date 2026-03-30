@@ -1,0 +1,6 @@
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/03_infra/src/fonts.rs:21:pub struct FontSlot {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/03_infra/src/world.rs:27:struct SourceSlot {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/03_infra/src/world.rs:54:pub enum SystemWorldError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/03_infra/src/world.rs:77:pub struct SystemWorld {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/03_infra/src/font_metrics.rs:14:pub struct FontBookMetrics<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/03_infra/src/export.rs:29:struct PdfBuilder {

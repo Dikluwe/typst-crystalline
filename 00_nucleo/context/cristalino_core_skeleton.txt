@@ -1,0 +1,102 @@
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/file_id.rs:17:pub struct FileId(NonZeroU16);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/span.rs:31:pub struct Span(NonZeroU64);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/span.rs:141:pub struct Spanned<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/syntax_kind.rs:12:pub enum SyntaxKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/syntax_text.rs:21:pub struct SyntaxText(Arc<str>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/math_class.rs:19:pub enum MathClass {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/operators.rs:11:pub enum UnOp {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/operators.rs:51:pub enum BinOp {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/operators.rs:136:pub enum Assoc {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/syntax_mode.rs:11:pub enum SyntaxMode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/syntax_set.rs:18:pub struct SyntaxSet(u128);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/code.rs:22:pub enum LetBindingKind<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/code.rs:141:pub enum BareImportError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/code.rs:194:pub enum Imports<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/code.rs:223:pub enum ImportItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/expr.rs:27:pub enum Expr<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/expr.rs:341:pub enum Unit {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/expr.rs:426:pub enum ArrayItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/expr.rs:457:pub enum DictItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/expr.rs:516:pub enum UnOp { Pos, Neg, Not }
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/expr.rs:554:pub enum BinOp {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/expr.rs:619:pub enum Assoc { Left, Right }
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/expr.rs:651:pub enum Arg<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/expr.rs:693:pub enum Param<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/expr.rs:719:pub enum Pattern<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/expr.rs:776:pub enum DestructuringItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/math.rs:61:pub enum MathTextKind<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/ast/mod.rs:24:pub trait AstNode<'a>: Sized {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/syntax_node.rs:19:pub struct SyntaxNode(NodeKind);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/syntax_node.rs:23:enum NodeKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/syntax_node.rs:338:struct LeafNode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/syntax_node.rs:368:struct InnerNode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/syntax_node.rs:571:struct ErrorNode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/syntax_node.rs:602:pub struct SyntaxError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/syntax_node.rs:633:pub struct LinkedNode<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/syntax_node.rs:793:pub enum Side {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/syntax_node.rs:903:pub struct LinkedChildren<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/package_spec.rs:15:pub struct PackageSpec {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/package_spec.rs:39:pub struct VersionlessPackageSpec {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/package_spec.rs:59:pub struct PackageVersion {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/package_spec.rs:73:pub struct PackageSpecError(pub String);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/package_spec.rs:134:pub struct PackageVersionError(pub String);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/package_spec.rs:174:pub struct VersionBound {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/source.rs:27:pub struct Source(Arc<SourceInner>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/source.rs:44:struct SourceInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/source_result.rs:11:pub enum Severity {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/source_result.rs:22:pub enum Tracepoint {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/source_result.rs:40:pub struct SourceDiagnostic {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/font_book.rs:9:pub enum FontStyle {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/font_book.rs:32:pub struct FontWeight(pub u16);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/font_book.rs:68:pub struct FontStretch(pub u16);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/font_book.rs:105:pub struct FontVariant {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/font_book.rs:113:pub struct FontFlags {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/font_book.rs:124:pub struct FontInfo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/font_book.rs:139:pub struct FontBook {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs:10:pub struct Bytes(Vec<u8>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs:22:pub struct Font(Vec<u8>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs:32:pub struct Library(());
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs:42:pub struct Datetime {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs:83:pub enum FileError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs:100:pub struct Routines(());
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs:115:pub struct Traced(());
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs:134:pub struct Styles(());
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs:150:pub struct Route(());
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs:169:pub struct Sink(());
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/world_types.rs:187:pub struct Engine(());
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/scope.rs:18:pub struct Binding {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/scope.rs:43:pub struct Scope {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/func.rs:20:pub struct Func(pub(crate) Arc<FuncRepr>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/func.rs:28:pub struct ClosureRepr {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/func.rs:45:pub struct ClosureParam {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/func.rs:53:pub struct NativeFunc {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/args.rs:17:pub struct Args {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/value.rs:18:pub enum Value {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/module.rs:16:pub struct Module(Arc<ModuleInner>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/module.rs:19:struct ModuleInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/content.rs:19:pub enum Content {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/layout_types.rs:17:pub struct Pt(pub f64);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/layout_types.rs:51:pub struct Point {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/layout_types.rs:62:pub struct Size {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/layout_types.rs:81:pub struct TextStyle {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/layout_types.rs:100:pub enum FrameItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/layout_types.rs:117:pub struct Frame {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/entities/layout_types.rs:150:pub struct PagedDocument {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/contracts/world.rs:20:pub trait World: Send + Sync {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/contracts/world.rs:61:pub trait TrackedWorld {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/lexer/mod.rs:1015:trait ScannerExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/lexer/scanner.rs:24:pub struct Scanner<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/lexer/scanner.rs:299:pub trait Pattern<T>: sealed::Sealed<T> {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/parse.rs:1166:struct GroupState {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/parse.rs:1538:struct Parser<'s> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/parse.rs:1569:struct Token {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/parse.rs:1588:struct Newline {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/parse.rs:1597:enum AtNewline {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/parse.rs:1639:struct Marker(usize);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/parse.rs:1936:struct MemoArena {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/parse.rs:1952:struct Checkpoint {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/parse.rs:1960:struct PartialState {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/scopes.rs:16:pub struct Scopes<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/layout.rs:21:pub trait FontMetrics: Send + Sync {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/layout.rs:35:pub struct FixedMetrics;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/01_core/src/rules/layout.rs:61:pub struct Layouter<M: FontMetrics> {

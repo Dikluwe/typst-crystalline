@@ -44,7 +44,7 @@ violations.
 | Camada | Directório | Propósito |
 |--------|-----------|-----------|
 | L0 | `00_nucleo/` | Prompts, ADRs — fonte de verdade. Não é código. |
-| L1 | `01_core/` | Domínio puro. Zero I/O. Funções determinísticas. |
+| L1 | `01_core/` | Domínio puro. Zero I/O de sistema. Funções determinísticas. |
 | L2 | `02_shell/` | CLI, formatadores. Conhece apenas L1. |
 | L3 | `03_infra/` | I/O, filesystem, fontes, pacotes. Conhece apenas L1. |
 | L4 | `04_wiring/` | Composição. Conhece L1, L2, L3. Zero lógica de negócio. |
@@ -67,13 +67,22 @@ Qualquer violação desta topologia é detectada por V3 (ForbiddenImport).
 L1 contém tipos de domínio e lógica de negócio pura:
 - Tipos de valor: `FileId`, `Span`, `SyntaxKind`, `SyntaxNode`
 - Contratos (traits): `World`, contratos de I/O
-- Regras: pipeline parse → eval → layout (sem I/O)
+- Regras: pipeline parse → eval → layout (sem I/O de sistema)
 
 **L1 nunca**:
-- Lê ou escreve ficheiros (`std::fs`)
-- Faz chamadas de rede
-- Tem estado global mutável
+- Lê ou escreve ficheiros (`std::fs`) — I/O de sistema
+- Faz chamadas de rede — I/O de sistema
+- Acede ao relógio do SO (`SystemTime::now()`, `OffsetDateTime::now_utc()`) — I/O de sistema
+- Lê variáveis de ambiente (`std::env`) — I/O de sistema
+- Tem estado global mutável (`static mut`, `static Mutex<T>`, `static OnceLock<T>`)
 - Importa crates externos não declarados em `[l1_allowed_external]`
+- Usa `Arc<Mutex<T>>` como estado partilhado entre threads (concorrência → L3)
+
+**L1 pode e deve usar** (ADR-0029, ADR-0030):
+- `Arc<T>` em campos de struct para clone O(1) no hot path de eval()
+- `Vec`, `Box`, `String`, `HashMap` — gestão de memória RAM
+- `EcoString`, `FxHashMap` e outras crates utilitárias declaradas em `[l1_allowed_external]`
+- Estruturas de dados de alta performance quando o domínio as justifica
 
 ### O que é L3 (infra)
 
@@ -122,7 +131,7 @@ Import que viola a topologia. Ex: L1 importando L3, L2 importando L3.
 Reorganizar a dependência ou mover o módulo para a camada correcta.
 
 **V4 — ImpureCore**
-Símbolo de I/O em L1: `std::fs`, `std::net`, `std::process`.
+Símbolo de I/O de sistema em L1: `std::fs`, `std::net`, `std::process`.
 Mover para L3 e injectar via trait em L1.
 
 **V9 — PubLeak**
@@ -135,6 +144,10 @@ Trait em `01_core/contracts/` sem implementação em L2 ou L3.
 Estado global mutável em L1: `static mut`, `static Mutex<T>`,
 `static OnceLock<T>`, `static LazyLock<T>`, `AtomicXxx` estático.
 Mover o estado para L3 e injectar.
+
+Nota: V13 detecta estado *global* mutável — não `Arc` em campos
+de struct. `Arc<T>` como campo de struct é gestão de RAM e é
+correcta em L1 (ADR-0029).
 
 **V14 — ExternalTypeInContract**
 Import externo em L1 não declarado em `[l1_allowed_external]`.
@@ -168,122 +181,148 @@ Declaração de tipo em L4 que não é adapter. Mover para L1 ou L3.
 
 ---
 
-## Externos autorizados em L1
+## Princípios de design Rust
 
-Declarados em `crystalline.toml` → `[l1_allowed_external]`:
+### Enums sobre booleanos e Options parciais (obrigatório)
 
-| Crate | Motivo |
-|-------|--------|
-| `thiserror` | derive(Error) para tipos de erro de domínio |
-| `comemo` | compilação incremental + compatibilidade com ecossistema Typst (ADR-0001) |
+Estados inválidos devem ser irrepresentáveis. Substituir
+`is_valid: bool` + `error: Option<String>` por enum que torna
+a contradição impossível.
 
-**`ecow` não entra em L1** — ver Opção C abaixo.
-**`serde`, `unscanny`** — não entram em L1. DTO pattern em L3.
+### Parse, não validar (obrigatório)
 
-Qualquer outro crate que V14 sinalize em L1 → criar ADR antes
-de adicionar à whitelist. Não adicionar por conveniência.
+Funções recebem dados brutos e retornam tipos validados.
+Downstream não revalida — o tipo é a prova.
+
+### Newtype para primitivos de domínio (obrigatório)
+
+Envolver primitivos que representam conceitos de domínio em
+structs de campo único.
 
 ---
 
-## Padrão B3 — separação de contrato puro e contrato de performance
+## Restrições por camada
 
-Quando um mecanismo de infraestrutura (ex: `comemo`) está acoplado
-à declaração de um contrato de domínio, **não** usar Opção C
-(newtype — funciona para dados passivos, não para mecanismos activos).
-Usar B3: dois traits com blanket impl de delegação.
+### L1 — Core (lógica pura)
+
+| Regra | Detalhe |
+|-------|---------|
+| Zero I/O de sistema | Sem `std::fs`, `std::net`, `std::process`, `std::env`, relógio do SO |
+| Erros | `thiserror` com enums tipados — sem `anyhow` |
+| Estado global | Sem `static mut`, `static Mutex<T>`, `static OnceLock<T>`, `static AtomicXxx` |
+| Gestão de RAM | `Arc`, `Rc`, `Vec`, `Box` permitidos — são memória, não I/O (ADR-0029) |
+| Concorrência | Nenhuma — sem `Arc<Mutex<T>>` como estado partilhado entre threads |
+| Traits seladas | Para contratos não destinados a implementação externa |
+| Typestate | Para operações com ordenação obrigatória |
+
+### L2 — Shell (CLI e formatadores)
+
+| Regra | Detalhe |
+|-------|---------|
+| Erros | `anyhow` permitido para propagação CLI |
+| Imports | Apenas L1 — nunca L3 |
+| Concorrência | Nenhuma — execução sequencial |
+
+### L3 — Infra (implementações de I/O)
+
+| Regra | Detalhe |
+|-------|---------|
+| Erros | `thiserror` — erros I/O tipados que mapeiam para erros L1 |
+| Imports | Apenas L1 — nunca L2 ou L4 |
+| Concorrência | `Arc<Mutex<T>>` ou canais permitidos para walking paralelo |
+
+### L4 — Wiring (composição)
+
+| Regra | Detalhe |
+|-------|---------|
+| Lógica | Zero — qualquer `if/else` de negócio é defeito estrutural |
+| Erros | `anyhow` para propagação top-level |
+| Concorrência | Spawning de threads apenas aqui |
+| `expect()` em threads rayon | Proibido — panic numa thread rayon produz mensagem pouco informativa; usar `?` ou tratamento explícito |
+
+---
+
+## Regras de teste
+
+### Atomização
+
+Um teste por comportamento. Sem setup partilhado. Sem teste que
+depende de outro. Mocks implementam traits L1 — nunca I/O real.
+
+### Localização
+
+Testes co-localizados no mesmo ficheiro via `#[cfg(test)]`.
+Nunca ficheiros `_test.rs` separados.
+
+### Cobertura mínima obrigatória por função
+
+Para cada função pública em L1:
+- Caminho feliz (input válido → output correcto)
+- Caminho negativo (input inválido → erro correcto)
+- Caso limite (zero, vazio, máximo)
+
+---
+
+## Decisão sobre performance em L1 (ADR-0029, ADR-0030)
+
+**A pergunta correcta** ao escolher uma estrutura de dados em L1:
+
+> "Esta estrutura tem efeitos colaterais no sistema operativo?"
+
+- **Sim** → não pertence a L1 (mover para L3)
+- **Não** → pertence a L1 se o domínio a justificar
+
+**A pergunta incorrecta**:
+
+> "Esta estrutura é uma optimização de performance?"
+
+Performance de alocação e gestão de RAM não é "optimização" — é
+parte do comportamento correcto de um compilador. Um compilador que
+copia árvores O(n) quando podia partilhá-las via `Arc` não é mais
+puro — é incorrectamente lento.
+
+**Exemplos concretos**:
 
 ```rust
-// Contrato puro — testável sem comemo
-pub trait World: Send + Sync {
-    fn library(&self) -> &Library;
-    fn file(&self, id: FileId) -> FileResult<Bytes>;
-}
+// ✓ Arc em campo de struct — gestão de RAM, correcto em L1 (ADR-0029)
+pub struct Module(Arc<ModuleInner>);      // clone O(1) em eval()
+pub struct SyntaxNode(Arc<NodeData>);     // partilha do CST sem cópia
+pub struct Func(Arc<FuncRepr>);           // clone O(1) de closures
 
-// Contrato de performance — comemo autorizado via ADR-0001
-// #[comemo::track] redeclara os métodos para gerar wrappers correctos
-#[comemo::track]
-pub trait TrackedWorld: World {
-    fn library(&self) -> &Library;
-    fn file(&self, id: FileId) -> FileResult<Bytes>;
-}
+// ✓ EcoString em Value::Str — clone O(1) no hot path (ADR-0024)
+Value::Str(EcoString),
 
-// Blanket impl — qualquer World é automaticamente TrackedWorld
-// Compatibilidade do ecossistema automática; dessincronização detectada
-// em tempo de compilação quando World muda
-impl<T: World> TrackedWorld for T {
-    fn library(&self) -> &Library { World::library(self) }
-    fn file(&self, id: FileId) -> FileResult<Bytes> { World::file(self, id) }
-}
+// ✓ FxHashMap em Scope — hasher sem I/O, mais rápido (ADR-0018)
+IndexMap<EcoString, Binding, FxBuildHasher>,
+
+// ❌ Estado global mutável — V13, proibido
+static INTERNER: Mutex<HashMap<PathBuf, FileId>> = Mutex::new(HashMap::new());
+static COUNTER: AtomicU16 = AtomicU16::new(1);
+static CACHE: OnceLock<Vec<SyntaxKind>> = OnceLock::new();
+
+// ❌ Re-exports com self:: — V14 (ADR-0004)
+pub use self::entities::FileId;
+
+// ❌ I/O de sistema — V4
+use std::fs;
+use std::env;
 ```
 
-**Por que não Opção C aqui**: `comemo::Tracked` é um mecanismo
-activo de rastreio. Embrulhá-lo sem invocar o rastreio seria
-silenciosamente incorrecto.
+**Sobre tipos tipográficos** (ADR-0029 revoga ADR-0028):
+Ao materializar `Length`, `Abs`, `Rel`, `Angle`, `Ratio`, `Color`
+em L1, diagnosticar a estrutura real no original Typst vanilla
+antes de definir o tipo. Não simplificar por conveniência — a
+representação vanilla é pura se não usa I/O de sistema.
 
-**Dívida planeada**: o boilerplate de delegação desaparece no
-Passo 10 quando `comemo` for isolado em L3 (ADR-0001 Opção B).
+**Sobre hashing em tipos pesados** (ADR-0031):
+Tipos como `Source` que precisam de `Hash`/`Eq` para uso com
+`comemo` devem pré-computar o hash na construção (`content_hash: u64`)
+em vez de usar `LazyHash` com mutabilidade interior. O hash é
+calculado uma vez, armazenado como campo imutável, consultado em O(1).
 
-## Stubs opacos para tipos bloqueantes
+---
 
-Quando um tipo de domínio depende de outros tipos ainda não
-migrados, criar newtypes opacos que compilam agora:
-
-```rust
-// Interior muda sem alterar a interface
-pub struct Bytes(Vec<u8>);
-pub struct Font(Vec<u8>);
-pub struct Library(());       // substituído no Passo 4
-pub struct FontBook(());      // substituído no Passo 5
-
-pub type FileResult<T> = Result<T, FileError>;
-
-#[derive(Debug, thiserror::Error)]
-pub enum FileError {
-    #[error("not found")]    NotFound,
-    #[error("access denied")] AccessDenied,
-    #[error("{0}")]          Other(String),
-}
-```
-
-**Custo zero**: quando o tipo real chegar, muda só o interior.
-**Testabilidade**: L1 testa com mocks sem filesystem nem fontes.
-**Propriedade**: erros de domínio em `String`, não em tipos externos.
-
-Quando um tipo externo aparece na interface pública de um tipo
-de domínio (ex: `EcoString` em `SyntaxNode`), o padrão correcto
-**não** é autorizar o externo em L1. É definir um newtype próprio:
-
-```rust
-// 01_core/entities/syntax_text.rs — L1 define o contrato
-pub struct SyntaxText(Arc<str>);
-
-impl SyntaxText {
-    pub fn as_str(&self) -> &str { &self.0 }
-    pub fn len(&self) -> usize { self.0.len() }
-    pub fn is_empty(&self) -> bool { self.0.is_empty() }
-}
-
-// 03_infra — L3 faz a conversão na fronteira
-impl From<EcoString> for SyntaxText {
-    fn from(s: EcoString) -> Self {
-        SyntaxText(Arc::from(s.as_str()))
-    }
-}
-```
-
-**Por que não Opção A** (autorizar o externo):
-L1 ficaria dependente dos contratos da biblioteca externa.
-Se `ecow` mudar a API, L1 muda.
-
-**Por que não Opção B** (substituir por `Arc<str>` directamente):
-L1 fica casado com `Arc<str>`. Se amanhã a performance exigir
-outra representação, L1 muda novamente.
-
-**Opção C**: L1 define o que é uma string de domínio. A
-representação interna é um detalhe privado — pode mudar de
-`Arc<str>` para `ecow` ou outra coisa sem alterar a interface.
-
-### DTO pattern para serde em L3
+## DTO pattern para serde em L3
 
 Quando um tipo de domínio precisa de serialização:
 
@@ -299,37 +338,6 @@ impl From<PackageSpecDto> for PackageSpec { ... }
 ```
 
 `serde` nunca entra em L1.
-
----
-
-## Padrões proibidos em L1
-
-```rust
-// ❌ Estado global mutável (V13)
-static INTERNER: Mutex<HashMap<PathBuf, FileId>> = Mutex::new(HashMap::new());
-static COUNTER: AtomicU16 = AtomicU16::new(1);
-static CACHE: OnceLock<Vec<SyntaxKind>> = OnceLock::new();
-
-// ❌ Re-exports com self:: (V14 — gap do linter, ADR-0004)
-pub use self::entities::FileId;
-pub use self::span::Span;
-
-// ❌ I/O (V4)
-use std::fs;
-
-// ✓ Declaração de módulo — correcto
-pub mod entities;
-pub mod span;
-pub mod syntax_kind;
-
-// ✓ Newtype puro — correcto
-pub struct FileId(NonZeroU16);
-
-// ✓ Mutex em campo de struct, não static — correcto em L3
-pub struct TsParser {
-    subdirs_buffer: Mutex<Vec<Box<str>>>,
-}
-```
 
 ---
 
@@ -394,21 +402,11 @@ Os **caminhos negativos** são obrigatórios:
 #[test] fn paridade_com_original() { ... }  // comportamento idêntico ao original
 ```
 
-### O que fazer quando um teste passa imediatamente
-
-**Caso 1 — O comportamento já está correcto**
-Manter o teste com comentário:
-```rust
-// Contrato correcto — teste adicionado para prevenir regressão
-```
-
-**Caso 2 — O teste está mal escrito**
-Reescrever até falhar, ou documentar por que é impossível
-testar este comportamento com `cargo test`.
-
 ---
 
 ## Header de linhagem obrigatório
+
+Todo ficheiro criado ou editado em L1–L4 deve começar com:
 
 ```rust
 //! Crystalline Lineage
@@ -417,6 +415,41 @@ testar este comportamento com `cargo test`.
 //! @layer L<n>
 //! @updated YYYY-MM-DD
 ```
+
+---
+
+## Quando um prompt está errado vs quando o código está errado
+
+Antes de corrigir qualquer problema, determinar a origem:
+
+**O prompt está errado quando:**
+- O prompt especifica explicitamente um algoritmo ou padrão incorreto
+- O prompt omite um caso que deveria cobrir
+- O prompt contradiz um ADR existente
+
+**Neste caso:** corrigir o prompt L0 primeiro. Só depois
+rematerializar. Materializar código a partir de um prompt errado
+reproduz o bug.
+
+**O código está errado quando:**
+- O prompt especifica o resultado correcto mas a implementação diverge
+- Um detalhe de implementação não coberto pelo prompt foi feito incorrectamente
+
+**Neste caso:** corrigir o código directamente.
+
+---
+
+## Restrições Rust — Todas as camadas
+
+### Borrowing (obrigatório)
+
+Preferir referências a valores owned. Sem `clone()` sem comentário
+justificativo. Sem `Rc<RefCell<T>>` — usar o borrow checker.
+
+### Lifetimes (obrigatório)
+
+Lifetimes explícitos quando o compilador os exige. Sem `'static`
+para evitar pensar em lifetimes.
 
 ---
 
@@ -434,6 +467,7 @@ testar este comportamento com `cargo test`.
 ```bash
 cargo build
 cargo test -p typst-core
+cargo test -p typst-infra
 cargo test
 crystalline-lint .
 crystalline-lint --fix-hashes .
@@ -446,40 +480,39 @@ cargo build && crystalline-lint .
 # ✓ No violations found
 ```
 
-**V11 configurável** (a partir do ADR-0014 do crystalline-lint):
-`V11 = { level = "warning" }` em `[rules]` funciona. Usar durante
-migração enquanto contratos em L1 não tiverem implementação em L3.
-
 ---
 
 ## ADRs — ler antes de decidir
 
 | ADR | Estado | Decisão |
 |-----|--------|---------|
-| ADR-0001 | PROPOSTO | Estratégia de migração; comemo em L1; lab/ em [excluded] |
-| ADR-0002 | IDEIA | Hierarquia de contenção como mecanismo de layout |
-| ADR-0003 | IDEIA | Coexistência de comemo e hierarquia de contenção |
-| ADR-0004 | IMPLEMENTADO | FileId interner → L3; ecow→SyntaxText (Opção C); self:: dispara V14 |
-| ADR-0005 | PROPOSTO | PackageSpec DTO; World B3 (puro + TrackedWorld); stubs opacos |
+| ADR-0001 | IMPLEMENTADO | Estratégia de migração; comemo em L1; lab/ em [excluded] |
+| ADR-0004 | IMPLEMENTADO | FileId interner → L3; SyntaxText(Arc<str>); self:: dispara V14 |
+| ADR-0005 | IMPLEMENTADO | PackageSpec DTO; World B3; stubs opacos |
+| ADR-0015 | IMPLEMENTADO | Remoção de ecow do parser (não revogada) |
+| ADR-0016 | IMPLEMENTADO | LazyHash removido; early hashing via content_hash (ADR-0031) |
+| ADR-0018 | IMPLEMENTADO | rustc_hash autorizado em L1; revoga ADR-0007 |
+| ADR-0024 | IMPLEMENTADO | EcoString em Value::Str — clone O(1) em eval() |
+| ADR-0026 | IMPLEMENTADO | Content como enum; Arc em Sequence antes do Passo 30 |
+| ADR-0028 | **REVOGADA** | Revogada por ADR-0029 |
+| ADR-0029 | ACCEPTED | Pureza física — Arc em struct permitido; revoga ADR-0028 |
+| ADR-0030 | ACCEPTED | Performance de RAM é domínio de L1; corrige ADR-0004/0015 |
+| ADR-0031 | ACCEPTED | Early hashing em Source; complementa ADR-0016 |
 
-ADRs `IMPLEMENTADO` são vinculativos.
-ADRs `IDEIA` são referência conceptual — não implementar.
+ADRs `IMPLEMENTADO` e `ACCEPTED` são vinculativos.
+ADRs `REVOGADA` não devem ser seguidas — ler a ADR que as revoga.
 
 ---
 
 ## Sequência de migração
 
 ```
-✓ Passo 0 — estrutura base, lab/, workspace cristalino
-✓ Passo 1 — FileId, SyntaxKind, Span migrados
-✓ Passo 2 — SyntaxText (Opção C), SyntaxNode, SyntaxSet migrados
-✓ Passo 3 — PackageSpec (DTO pattern), world_types (stubs),
-            World + TrackedWorld (B3, sem supertrait — limitação comemo)
-            69 testes
-→ Passo 4 — parse(), Source real, pipeline eval/layout
-  Passo 5 — SystemWorld em L3; V11 volta a ser verificado
-  ...
-  Passo 10 — isolamento de comemo em L3 (ADR-0001 Opção B)
+✓ Passos 0–25 — estrutura base, parser, eval, layout, export PDF, tipos tipográficos
+  Passo 26 — DEBT-4 continuação: funções nativas de conversão e cálculo
+  Passo 27 — DEBT-4 conclusão
+  Passo 28–29 — DEBT-3: safety rails
+  Passo 30 — DEBT-1: StyleChain
+  Passo 31+ — DEBT-2: closures lazy, DEBT-6: eval_for_test
 ```
 
 Ficheiros de cada passo em `00_nucleo/materialization/` —

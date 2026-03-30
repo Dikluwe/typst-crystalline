@@ -4,6 +4,8 @@
 //! @layer L1
 //! @updated 2026-03-28
 
+use std::sync::Arc;
+
 use ecow::EcoString;
 
 /// Conteúdo declarativo produzido por `eval()`.
@@ -15,7 +17,10 @@ use ecow::EcoString;
 ///
 /// **Invariante L1**: não desenha, não mede, não renderiza.
 /// Qualquer operação que precise de métricas de fonte ou I/O pertence a L3.
-#[derive(Debug, Clone, PartialEq)]
+///
+/// `PartialEq` implementado manualmente — `Arc<[Content]>` compara por ponteiro
+/// com `derive`, não por conteúdo (ADR-0026 revisão).
+#[derive(Debug, Clone)]
 pub enum Content {
     /// Conteúdo vazio.
     Empty,
@@ -23,8 +28,8 @@ pub enum Content {
     Text(EcoString),
     /// Espaço entre elementos (SpaceElem).
     Space,
-    /// Sequência de elementos.
-    Sequence(Vec<Content>),
+    /// Sequência de elementos — clone O(1) via Arc (ADR-0026 revisão).
+    Sequence(Arc<[Content]>),
 
     // ── Rich text (Passo 22) ─────────────────────────────────────────────
     /// Conteúdo em negrito (`*Strong*`).
@@ -34,10 +39,22 @@ pub enum Content {
     /// Cabeçalho com nível 1–6 (`= Heading`).
     Heading { level: u8, body: Box<Content> },
 
+    // ── Passo 23 ────────────────────────────────────────────────────────────
+    /// Código raw inline ou em bloco (`` `...` `` ou ```` ``` ... ``` ````).
+    Raw {
+        text:  EcoString,
+        lang:  Option<EcoString>,
+        block: bool,
+    },
+    /// Item de lista não ordenada (`- ...`).
+    ListItem(Box<Content>),
+    /// Item de lista ordenada (`+ ...` ou `1. ...`).
+    EnumItem { number: Option<u32>, body: Box<Content> },
+    /// Hiperligação (`https://...`).
+    Link { url: EcoString, body: Box<Content> },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
-    // Raw { text: EcoString, lang: Option<EcoString> },
-    // Link { url: EcoString, body: Box<Content> },
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
 }
 
@@ -63,11 +80,22 @@ impl Content {
         Self::Heading { level: level.clamp(1, 6), body: Box::new(body) }
     }
 
+    pub fn raw(text: impl Into<EcoString>, lang: Option<EcoString>, block: bool) -> Self {
+        Self::Raw { text: text.into(), lang, block }
+    }
+    pub fn list_item(body: Content) -> Self { Self::ListItem(Box::new(body)) }
+    pub fn enum_item(number: Option<u32>, body: Content) -> Self {
+        Self::EnumItem { number, body: Box::new(body) }
+    }
+    pub fn link(url: impl Into<EcoString>, body: Content) -> Self {
+        Self::Link { url: url.into(), body: Box::new(body) }
+    }
+
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,
             1 => parts.into_iter().next().unwrap(),
-            _ => Self::Sequence(parts),
+            _ => Self::Sequence(parts.into()),  // Vec<Content> → Arc<[Content]>
         }
     }
 
@@ -90,6 +118,35 @@ impl Content {
             Self::Strong(c)          => c.plain_text(),
             Self::Emph(c)            => c.plain_text(),
             Self::Heading { body, .. } => body.plain_text(),
+            Self::Raw { text, .. }   => text.to_string(),
+            Self::ListItem(c)        => format!("• {}", c.plain_text()),
+            Self::EnumItem { number, body } => {
+                let n = number.map(|n| format!("{}. ", n)).unwrap_or_default();
+                format!("{}{}", n, body.plain_text())
+            }
+            Self::Link { body, .. }  => body.plain_text(),
+        }
+    }
+}
+
+impl PartialEq for Content {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Empty,                Self::Empty)                => true,
+            (Self::Text(a),              Self::Text(b))              => a == b,
+            (Self::Space,                Self::Space)                => true,
+            (Self::Sequence(a),          Self::Sequence(b))          => a.as_ref() == b.as_ref(),
+            (Self::Strong(a),            Self::Strong(b))            => a == b,
+            (Self::Emph(a),              Self::Emph(b))              => a == b,
+            (Self::Heading { level: la, body: ba }, Self::Heading { level: lb, body: bb }) => la == lb && ba == bb,
+            (Self::Raw { text: ta, lang: la, block: ba },
+             Self::Raw { text: tb, lang: lb, block: bb })            => ta == tb && la == lb && ba == bb,
+            (Self::ListItem(a),          Self::ListItem(b))          => a == b,
+            (Self::EnumItem { number: na, body: ba },
+             Self::EnumItem { number: nb, body: bb })                => na == nb && ba == bb,
+            (Self::Link { url: ua, body: ba },
+             Self::Link { url: ub, body: bb })                       => ua == ub && ba == bb,
+            _ => false,
         }
     }
 }
@@ -142,7 +199,7 @@ mod tests {
 
     #[test]
     fn sequence_is_empty_para_vec_vazio() {
-        let c = Content::Sequence(vec![]);
+        let c = Content::Sequence(Arc::from(Vec::<Content>::new().into_boxed_slice()));
         assert!(c.is_empty());
     }
 
@@ -183,5 +240,60 @@ mod tests {
         let inner = Content::sequence(vec![Content::text("x"), Content::text("y")]);
         let outer = Content::sequence(vec![inner, Content::Space, Content::text("z")]);
         assert_eq!(outer.plain_text(), "xy z");
+    }
+
+    // ── Passo 23 ────────────────────────────────────────────────────────────
+
+    #[test]
+    fn raw_plain_text() {
+        assert_eq!(Content::raw("fn main() {}", None, false).plain_text(), "fn main() {}");
+    }
+
+    #[test]
+    fn list_item_tem_bullet_em_plain_text() {
+        assert!(Content::list_item(Content::text("Apple")).plain_text().contains("Apple"));
+    }
+
+    #[test]
+    fn enum_item_com_numero() {
+        let t = Content::enum_item(Some(1), Content::text("First")).plain_text();
+        assert!(t.contains("1") && t.contains("First"));
+    }
+
+    #[test]
+    fn link_plain_text_e_o_corpo() {
+        assert_eq!(
+            Content::link("https://typst.app", Content::text("Typst")).plain_text(),
+            "Typst",
+        );
+    }
+
+    // ── Passo 26 — Content::Sequence com Arc (ADR-0026 revisão) ─────────────
+
+    #[test]
+    fn sequence_clone_e_o1() {
+        let seq = Content::sequence(vec![
+            Content::text("a"),
+            Content::text("b"),
+            Content::text("c"),
+        ]);
+        let clone = seq.clone();
+        // PartialEq por conteúdo — não por ponteiro
+        assert_eq!(seq, clone);
+    }
+
+    #[test]
+    fn sequence_partialeq_por_conteudo() {
+        let s1 = Content::sequence(vec![Content::text("hello")]);
+        let s2 = Content::sequence(vec![Content::text("hello")]);
+        // Dois Arc distintos com mesmo conteúdo → iguais
+        assert_eq!(s1, s2);
+    }
+
+    #[test]
+    fn sequence_partialeq_conteudos_diferentes() {
+        let s1 = Content::sequence(vec![Content::text("a")]);
+        let s2 = Content::sequence(vec![Content::text("b")]);
+        assert_ne!(s1, s2);
     }
 }

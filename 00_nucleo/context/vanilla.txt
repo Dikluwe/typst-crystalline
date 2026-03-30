@@ -1,0 +1,1187 @@
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-bundle/src/export.rs:43:pub struct BundleOptions<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-bundle/src/introspect.rs:23:pub struct BundleIntrospector {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-bundle/src/introspect.rs:176:enum ChildIntrospector {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-bundle/src/introspect.rs:205:struct BundleIntrospectorBuilder {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-bundle/src/lib.rs:47:pub struct Bundle {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-bundle/src/lib.rs:78:pub enum BundleFile {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-bundle/src/lib.rs:89:pub enum BundleDocument {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-bundle/src/lib.rs:107:pub struct PagedExtras {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-bundle/src/lib.rs:224:enum Child<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-bundle/src/lib.rs:231:enum Item {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:64:pub struct CliArguments {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:81:pub enum Command {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:116:pub struct CompileCommand {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:124:pub struct WatchCommand {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:137:pub struct InitCommand {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:156:pub struct QueryCommand {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:197:pub struct EvalCommand {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:231:pub struct FontsCommand {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:243:pub struct UpdateCommand {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:269:pub struct CompletionsCommand {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:277:pub struct InfoCommand {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:294:pub struct CompileArgs {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:391:pub struct WorldArgs {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:427:pub struct ProcessArgs {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:445:pub struct PackageArgs {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:461:pub struct FontArgs {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:488:pub struct ServerArgs {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:520:pub enum Input {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:538:pub enum Output {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:574:pub enum OpenOutput<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:597:pub enum OutputFormat {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:616:pub enum DepsFormat {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:630:pub enum Target {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:642:pub enum DiagnosticFormat {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:652:pub enum Feature {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:663:pub enum PdfStandard {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:721:pub enum SerializationFormat {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/args.rs:735:pub struct Pages(pub RangeInclusive<Option<NonZeroUsize>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/compile.rs:49:pub struct CompileConfig {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/compile.rs:485:enum ImageExportFormat {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/compile.rs:628:pub struct ExportCache {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/download.rs:36:struct PrintProgress(Option<EcoString>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/info.rs:21:struct Info {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/info.rs:44:struct Build {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/info.rs:58:struct Platform {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/info.rs:85:struct Settings {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/info.rs:110:struct Features {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/info.rs:133:struct Fonts {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/info.rs:163:struct Packages {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/info.rs:185:struct Environment {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/info.rs:442:struct KeyValDesc<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/info.rs:468:enum Value<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/terminal.rs:20:pub struct TermOut {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/terminal.rs:76:struct TermOutInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/timings.rs:13:pub struct Timer {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/update.rs:119:struct Asset {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/update.rs:126:struct Release {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/watch.rs:86:pub enum Status {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/world.rs:24:pub struct SystemWorld {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/world.rs:218:struct SystemFiles {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/world.rs:316:enum Now {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/src/world.rs:326:pub enum WorldCreationError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/tests/smoke.rs:239:trait CommandExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/tests/smoke.rs:265:struct TestOutput {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/tests/smoke.rs:284:struct TempFs(TempDir);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-cli/tests/smoke.rs:311:struct Stream<T = Vec<u8>>(T);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-eval/src/call.rs:288:enum FieldCall {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-eval/src/call.rs:439:pub struct CapturesVisitor<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-eval/src/flow.rs:14:pub enum FlowEvent {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-eval/src/lib.rs:161:pub trait Eval {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-eval/src/math.rs:151:trait ExprExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-eval/src/vm.rs:16:pub struct Vm<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/convert.rs:18:pub enum ConversionLevel<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/convert.rs:30:pub enum Whitespace {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/convert.rs:314:struct Converter<'a, 'y, 'z> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/convert.rs:324:struct TrailingWhitespace {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/convert.rs:392:enum Protector<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/css.rs:12:pub struct Properties(EcoString);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/document.rs:194:pub struct HtmlOutput {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/dom.rs:26:pub struct HtmlDocument {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/dom.rs:101:pub enum HtmlNode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/dom.rs:148:pub trait HtmlSliceExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/dom.rs:184:pub struct HtmlElement {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/dom.rs:251:pub struct HtmlTag(PicoStr);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/dom.rs:364:pub struct HtmlAttrs(pub EcoVec<(HtmlAttr, EcoString)>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/dom.rs:407:pub struct HtmlAttr(PicoStr);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/dom.rs:482:pub struct HtmlFrame {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/encode.rs:45:struct Writer<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/encode.rs:291:enum RawMode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/introspect.rs:20:pub struct HtmlIntrospector {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/introspect.rs:144:struct HtmlIntrospectorBuilder {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/lib.rs:62:pub struct HtmlElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/lib.rs:143:pub struct FrameElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/link.rs:150:struct Work {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/link.rs:192:trait AnchorGeneratorExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:160:enum AttrType {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:248:struct StringsType {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:284:struct UnionType(&'static [data::Type]);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:313:struct ListType {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:381:struct NativeType {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:402:pub trait IntoAttr: FromValue {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:416:pub struct TrueFalseBool(pub bool);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:432:pub struct YesNoBool(pub bool);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:448:pub struct OnOffBool(pub bool);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:474:struct NoneEmpty;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:488:struct NoneUndefined;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:622:pub struct HorizontalDir(Dir);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:652:pub struct IconSize(Axes<u64>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:666:pub struct ImageCandidate(EcoString);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-html/src/typed.rs:703:pub struct SourceSize(EcoString);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/complete.rs:69:pub struct Completion {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/complete.rs:86:pub enum CompletionKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/complete.rs:1095:struct CompletionContext<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/complete.rs:1505:enum BracketMode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/definition.rs:13:pub enum Definition {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/docs.rs:53:pub enum Docs {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/jump.rs:16:pub enum Jump {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/jump.rs:44:pub trait JumpFromDocument: jump_from_document_sealed::JumpFromDocument {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/jump.rs:367:pub trait JumpInDocument: jump_in_document_sealed::JumpInDocument {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/lib.rs:25:pub trait IdeWorld: World {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/matchers.rs:179:pub enum NamedItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/matchers.rs:262:pub enum DerefTarget<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/tests.rs:19:pub struct TestWorld {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/tests.rs:146:struct TestFiles {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/tests.rs:152:struct TestBase {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/tests.rs:188:pub trait WorldLike {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/tests.rs:212:pub trait FilePos {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/tooltip.rs:46:pub enum Tooltip {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-ide/src/utils.rs:96:struct Searcher<F> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/diagnostics.rs:24:pub trait DiagnosticWorld: World {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/diagnostics.rs:33:pub enum DiagnosticFormat {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/diagnostics.rs:148:struct WorldFiles<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/downloader.rs:34:pub trait Downloader: Send + Sync + 'static {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/downloader.rs:90:pub struct SystemDownloader {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/downloader.rs:213:pub struct ProgressDownloader<T, F, P>
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/downloader.rs:280:pub trait ProgressReporter {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/downloader.rs:293:pub struct Progress {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/downloader.rs:389:struct ProgressReader<'p> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/files.rs:35:pub struct FileStore<L> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/files.rs:128:enum FileSlot {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/files.rs:255:pub trait FileLoader {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/files.rs:276:pub struct SystemFiles {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/files.rs:315:pub struct FsRoot(PathBuf);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/fonts.rs:24:pub struct FontStore {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/fonts.rs:86:struct FontSlot {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/fonts.rs:100:pub trait FontSource: Send + Sync + Any {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/fonts.rs:121:pub struct FontPath {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/packages.rs:33:pub struct SystemPackages {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/packages.rs:149:pub struct FsPackages(PathBuf);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/packages.rs:280:struct Tempdir(PathBuf);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/packages.rs:310:pub struct UniversePackages {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/server.rs:19:pub struct HttpServer {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/server.rs:68:pub enum HttpBody {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/server.rs:204:struct Bucket<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-kit/src/watcher.rs:19:pub struct Watcher {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/document.rs:17:pub struct PagedDocument {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/document.rs:83:pub struct Page {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/collect.rs:56:struct Collector<'a, 'x, 'y> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/collect.rs:348:pub enum Child<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/collect.rs:371:pub struct LineChild {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/collect.rs:379:pub struct SingleChild<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/collect.rs:446:pub struct MultiChild<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/collect.rs:546:pub struct MultiSpill<'a, 'b> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/collect.rs:623:pub struct PlacedChild<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/collect.rs:678:struct CachedCell<T>(RefCell<Option<(u128, T)>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/compose.rs:63:pub struct Composer<'a, 'b, 'x, 'y> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/compose.rs:624:struct Insertions<'a, 'b> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/distribute.rs:35:struct Distributor<'a, 'b, 'x, 'y, 'z> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/distribute.rs:68:struct DistributionSnapshot<'a, 'b> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/distribute.rs:74:enum Item<'a, 'b> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/mod.rs:170:pub enum FlowMode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/mod.rs:294:struct Work<'a, 'b> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/mod.rs:356:struct Config<'x> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/mod.rs:372:struct FootnoteConfig {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/mod.rs:384:struct ColumnConfig {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/mod.rs:397:struct LineNumberConfig {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/flow/mod.rs:421:enum Stop {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/grid/layouter.rs:27:pub struct GridLayouter<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/grid/layouter.rs:207:pub struct RowPiece {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/grid/lines.rs:13:pub enum StrokePriority {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/grid/lines.rs:31:pub struct LineSegment {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/grid/rowspans.rs:11:pub struct Rowspan {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/grid/rowspans.rs:52:pub struct UnbreakableRowGroup {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/grid/rowspans.rs:61:pub struct CellMeasurementData<'layouter> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/grid/rowspans.rs:1006:struct RowspanSimulator<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/collect.rs:32:pub enum Item<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/collect.rs:103:pub enum Segment<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/collect.rs:254:struct Collector<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/collect.rs:312:pub struct SpanMapper(Vec<(usize, Span)>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/deco.rs:163:struct BezPathBuilder {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/line.rs:32:pub struct Line<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/line.rs:117:pub enum Dash {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/line.rs:693:pub struct Items<'a>(Vec<(LogicalIndex, ItemEntry<'a>)>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/line.rs:781:pub struct LogicalIndex(usize);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/line.rs:800:pub enum ItemEntry<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/linebreak.rs:66:pub enum Breakpoint {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/linebreak.rs:125:pub struct Trim {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/linebreak.rs:905:struct CostMetrics {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/linebreak.rs:940:struct Estimates {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/linebreak.rs:988:struct CumulativeVec<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/mod.rs:249:pub enum ParSituation {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/mod.rs:261:struct ConfigBase {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/mod.rs:269:struct Config {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/prepare.rs:14:pub struct Preparation<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/shaping.rs:38:pub struct ShapedText<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/shaping.rs:67:pub struct Glyphs<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/shaping.rs:132:pub struct ShapedGlyph {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/shaping.rs:169:pub struct Adjustability {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/shaping.rs:831:struct ShapingContext<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/shaping.rs:844:pub trait SharedShapingContext<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/inline/shaping.rs:1373:pub enum CjkPunctStyle {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/introspect.rs:22:pub struct PagedIntrospector {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/introspect.rs:155:struct PagedIntrospectorBuilder {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/math/fragment.rs:30:pub enum MathFragment {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/math/fragment.rs:227:pub struct GlyphFragment {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/math/fragment.rs:482:pub struct FrameFragment {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/math/mod.rs:363:struct MathContext<'v, 'e> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/math/run.rs:74:pub struct RowLayout {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/math/run.rs:137:pub trait MathFragmentsExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/math/run.rs:234:pub struct MathRunFrameBuilder {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/math/shaping.rs:39:struct ShapingContext<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/math/table.rs:190:struct CellLayout {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/modifiers.rs:21:pub struct FrameModifiers {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/modifiers.rs:39:pub trait FrameModify {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/modifiers.rs:78:pub trait FrameModifyText {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/pages/collect.rs:8:pub enum Item<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/pages/run.rs:29:pub struct LayoutedPage {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/shapes.rs:144:struct CurveBuilder<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/shapes.rs:462:enum ShapeKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/shapes.rs:1069:struct ControlPoints {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/shapes.rs:1336:trait CurveExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/stack.rs:65:struct StackLayouter<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/stack.rs:94:enum StackItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-layout/src/stack.rs:292:struct GenericSize<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:169:pub trait CollectCombinedResult {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:207:pub trait ParallelCollectCombinedResult {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:235:pub struct Warned<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:255:pub struct SourceDiagnostic {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:276:pub enum Severity {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:354:pub trait DeprecationSink {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:377:pub enum Tracepoint {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:401:pub trait Trace<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:438:pub trait At<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:465:pub struct HintedString(EcoVec<EcoString>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:523:pub trait Hint<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:551:pub enum FileError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:636:pub enum PackageError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:696:pub struct LoadError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:733:pub trait LoadedWithin {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:845:pub enum ReportPos {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:918:pub struct LineCol {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/diag.rs:1004:pub trait ExpectInternal<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/engine.rs:19:pub struct Engine<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/engine.rs:120:pub struct Traced(Option<Span>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/engine.rs:150:pub struct Sink {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/engine.rs:251:pub struct Route<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/args.rs:48:pub struct Args {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/args.rs:266:pub enum ArgumentKey {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/args.rs:494:pub struct Arg {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/args.rs:532:pub trait IntoArgs {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/array.rs:75:pub struct Array(EcoVec<Value>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/array.rs:1132:pub struct ToArray(Array);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/array.rs:1273:pub struct OneOrMultiple<T>(pub Vec<T>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/auto.rs:21:pub struct AutoValue;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/auto.rs:66:pub enum Smart<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/bytes.rs:46:pub struct Bytes(Arc<LazyHash<dyn Bytelike>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/bytes.rs:379:pub struct IntoStringError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/bytes.rs:385:trait Bytelike: Any + Send + Sync {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/bytes.rs:410:struct StrWrapper<T>(T);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/bytes.rs:426:pub struct ToBytes(Bytes);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/calc.rs:82:pub struct ToAbs(Value);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/calc.rs:1172:pub enum Num {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/calc.rs:1199:pub enum DecNum {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/calc.rs:1294:pub enum AngleLike {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/cast.rs:33:pub trait Reflect {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/cast.rs:175:pub trait IntoValue {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/cast.rs:214:pub trait IntoResult {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/cast.rs:252:pub trait FromValue<V = Value>: Sized + Reflect {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/cast.rs:295:pub enum CastInfo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/cast.rs:420:pub trait Container {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/cast.rs:439:pub enum Never {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/cast.rs:531:pub struct Derived<S, D> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/element.rs:21:pub struct Element(Static<ContentVtable>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/element.rs:194:pub struct LazyElementStore {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/element.rs:223:pub trait Construct {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/element.rs:234:pub trait Set {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/element.rs:243:pub trait Synthesize {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/element.rs:253:pub trait ShowSet {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/element.rs:260:pub trait PlainText {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:18:pub struct Field<E: NativeElement, const I: u8>(pub PhantomData<E>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:52:pub trait RequiredField<const I: u8>: NativeElement {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:59:pub struct RequiredFieldData<E: RequiredField<I>, const I: u8> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:129:pub trait SynthesizedField<const I: u8>: NativeElement {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:136:pub struct SynthesizedFieldData<E: SynthesizedField<I>, const I: u8> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:182:pub trait ExternalField<const I: u8>: NativeElement {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:189:pub struct ExternalFieldData<E: ExternalField<I>, const I: u8> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:233:pub trait SettableField<const I: u8>: NativeElement {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:240:pub struct SettableFieldData<E: SettableField<I>, const I: u8> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:314:pub trait SettableProperty<const I: u8>: NativeElement {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:348:pub struct SettablePropertyData<E: SettableProperty<I>, const I: u8> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:410:pub trait RefableProperty<const I: u8>: SettableProperty<I> {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:418:pub struct Settable<E: NativeElement, const I: u8>(Option<E::Type>)
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/field.rs:544:pub enum FieldAccessError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:84:pub struct Content(raw::RawContent);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:708:pub struct SequenceElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/mod.rs:745:pub struct StyledElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/packed.rs:14:pub struct Packed<T: NativeElement>(
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/raw.rs:19:pub struct RawContent {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/raw.rs:52:struct Inner<E> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/raw.rs:62:struct Header {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/vtable.rs:80:pub struct ContentVtable<T: 'static = RawContent> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/content/vtable.rs:307:pub struct FieldVtable<T: 'static = RawContent> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/context.rs:16:pub struct Context<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/context.rs:65:pub struct ContextElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/datetime.rs:143:pub enum Datetime {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/datetime.rs:579:pub struct DisplayPattern(Str, format_description::OwnedFormatItem);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/datetime.rs:643:pub struct TodayOffset(Duration);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/decimal.rs:95:pub struct Decimal(rust_decimal::Decimal);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/decimal.rs:432:pub enum ToDecimal {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/dict.rs:81:pub struct Dict(Arc<IndexMap<Str, Value, FxBuildHasher>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/dict.rs:334:pub struct ToDict(Dict);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/duration.rs:12:pub struct Duration(time::Duration);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/float.rs:196:pub struct ToFloat(f64);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/float.rs:217:pub struct PositiveF64(f64);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/func.rs:139:pub struct Func {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/func.rs:148:enum FuncInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/func.rs:504:pub enum ParamInfo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/func.rs:598:pub trait NativeFunc {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/func.rs:610:pub struct NativeFuncData {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/func.rs:637:pub struct NativeFuncPtr(pub &'static NativeFuncSignature);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/func.rs:660:pub struct NativeParamInfo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/func.rs:686:pub enum ClosureNode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/func.rs:696:pub struct Closure {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/func.rs:761:pub enum ClosureParamInfo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/int.rs:402:pub enum Endianness {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/int.rs:412:pub enum ToInt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/label.rs:51:pub struct Label(PicoStr);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/label.rs:110:pub trait Unlabellable {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/module.rs:50:pub struct Module {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/module.rs:59:struct ModuleInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/none.rs:25:pub struct NoneValue;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/path.rs:179:pub enum PathOrStr {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/path.rs:257:pub struct BundlePath(VirtualPath);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/plugin.rs:207:pub struct PluginFunc {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/plugin.rs:243:struct Plugin {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/plugin.rs:404:struct PluginBase {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/plugin.rs:414:struct PluginInstance {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/plugin.rs:422:struct Snapshot {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/plugin.rs:560:struct CallData {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/plugin.rs:571:struct MemoryError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/repr.rs:51:pub trait Repr {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/scope.rs:18:pub struct Scopes<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/scope.rs:105:pub struct Scope {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/scope.rs:238:pub trait NativeScope {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/scope.rs:248:pub struct Binding {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/scope.rs:263:enum BindingKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/scope.rs:353:pub enum Capturer {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/scope.rs:362:pub struct Deprecation {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/selector.rs:75:pub enum Selector {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/selector.rs:309:pub struct LocatableSelector(pub Selector);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/selector.rs:413:pub struct ShowableSelector(pub Selector);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/str.rs:77:pub struct Str(EcoString);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/str.rs:843:pub enum ToStr {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/str.rs:865:pub enum Base {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/str.rs:887:pub enum UnicodeNormalForm {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/str.rs:976:pub struct Regex(regex::Regex);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/str.rs:1038:pub enum StrPattern {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/str.rs:1057:pub enum StrSide {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/str.rs:1075:pub enum Replacement {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:24:pub struct Styles(EcoVec<LazyHash<Style>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:215:pub enum Style {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:317:pub struct Property {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:384:struct Block(Box<dyn Blockable>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:417:trait Blockable: Debug + Any + Send + Sync + 'static {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:446:pub struct Recipe {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:527:pub struct RecipeIndex(pub usize);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:531:pub enum Transformation {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:564:pub struct StyleChain<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:788:pub trait Chainable {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:825:pub struct Entries<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:848:pub struct Links<'a>(Option<StyleChain<'a>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:861:pub trait Resolve {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:890:pub trait Fold {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:947:pub trait AlternativeFold {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:966:pub struct Depth(pub usize);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/styles.rs:985:pub struct NativeRuleMap {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/symbol.rs:51:pub struct Symbol(SymbolInner);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/symbol.rs:55:enum SymbolInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/symbol.rs:68:struct Modified {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/symbol.rs:84:enum List {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/symbol.rs:413:pub struct SymbolVariant(EcoString, EcoString);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/symbol.rs:428:enum Variants<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/symbol.rs:450:pub struct SymbolElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/target.rs:13:pub trait Output: Any {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/target.rs:48:pub trait AsOutput {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/target.rs:67:pub enum Target {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/target.rs:88:pub struct TargetElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/ty.rs:63:pub struct Type(Static<NativeTypeData>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/ty.rs:183:pub trait NativeType {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/ty.rs:200:pub struct NativeTypeData {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/value.rs:27:pub enum Value {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/value.rs:378:struct ValueVisitor;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/value.rs:497:pub struct Dynamic(Arc<dyn Bounds>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/value.rs:544:trait Bounds: Debug + Repr + Any + Sync + Send + 'static {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/version.rs:27:pub struct Version(EcoVec<u32>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/foundations/version.rs:201:pub enum VersionComponents {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/convergence.rs:95:pub trait Introspect: Debug + PartialEq + Hash + Send + Sync + Sized + 'static {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/convergence.rs:148:pub struct Introspection(Arc<dyn Bounds>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/convergence.rs:166:trait Bounds: Debug + Send + Sync + Any + 'static {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/convergence.rs:218:pub struct History<'a, T>([(&'a dyn Introspector, T); INSTANCES]);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/counter.rs:211:pub struct Counter(CounterKey);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/counter.rs:524:pub enum CounterKey {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/counter.rs:566:pub enum CounterUpdate {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/counter.rs:582:pub trait Count {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/counter.rs:589:pub struct CounterState(pub SmallVec<[u64; 3]>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/counter.rs:657:pub struct CounterUpdateElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/counter.rs:682:pub struct CounterDisplayElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/counter.rs:723:pub struct ManualPageCounter {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/counter.rs:781:struct CounterAtIntrospection(Counter, Location, Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/counter.rs:815:struct CounterBothIntrospection(Counter, Location, Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/counter.rs:855:struct CounterFinalIntrospection(Counter, Location, Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/introspector.rs:29:pub trait Introspector: Send + Sync {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/introspector.rs:92:pub struct EmptyIntrospector;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/introspector.rs:170:pub struct ElementIntrospector<P> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/introspector.rs:472:pub struct ElementIntrospectorBuilder<P> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/introspector.rs:483:enum BuilderItem<P> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/introspector.rs:634:struct MultiMap<K, V>(FxHashMap<K, SmallVec<[V; 1]>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/introspector.rs:679:struct QueryCache(RwLock<FxHashMap<u128, EcoVec<Content>>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/location.rs:19:pub trait Locatable {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/location.rs:22:pub trait Unqueriable: Locatable {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/location.rs:25:pub trait Tagged {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/location.rs:59:pub struct Location(u128);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/location.rs:156:pub struct LocationKey(u128);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/location.rs:173:pub struct PositionIntrospection(pub Location, pub Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/location.rs:212:pub struct PageIntrospection(pub Location, pub Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/location.rs:240:pub struct PageNumberingIntrospection(pub Location, pub Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/location.rs:269:pub struct PageSupplementIntrospection(pub Location, pub Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/location.rs:301:pub struct PathIntrospection(pub Location, pub Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/location.rs:335:pub struct DocumentIntrospection(pub Location, pub Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/locator.rs:153:pub struct Locator<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/locator.rs:233:enum Resolved {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/locator.rs:242:pub struct SplitLocator<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/locator.rs:309:struct MeasureIntrospection {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/locator.rs:345:pub struct LocatorLink<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/locator.rs:353:enum LinkKind<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/metadata.rs:26:pub struct MetadataElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/position.rs:14:pub enum DocumentPosition {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/position.rs:61:pub struct PagedPosition {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/position.rs:98:pub struct HtmlPosition {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/position.rs:162:pub enum InnerHtmlPosition {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/query.rs:169:pub struct QueryIntrospection(pub Selector, pub Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/query.rs:196:pub struct QueryFirstIntrospection(pub Selector, pub Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/query.rs:221:pub struct QueryUniqueIntrospection(pub Selector, pub Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/query.rs:246:pub struct QueryLabelIntrospection(pub Label, pub Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/state.rs:189:pub struct State {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/state.rs:376:pub enum StateUpdate {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/state.rs:391:pub struct StateUpdateElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/state.rs:410:struct StateAtIntrospection(State, Location, Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/state.rs:433:struct StateFinalIntrospection(State, Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/tag.rs:12:pub enum Tag {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/tag.rs:47:pub struct TagFlags {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/introspection/tag.rs:68:pub struct TagElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/abs.rs:12:pub struct Abs(Scalar);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/abs.rs:247:pub enum AbsUnit {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/align.rs:76:pub struct AlignElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/align.rs:142:pub enum Alignment {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/align.rs:288:pub trait FixAlignment {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/align.rs:295:pub enum HAlignment {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/align.rs:386:pub enum OuterHAlignment {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/align.rs:446:pub enum VAlignment {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/align.rs:537:pub enum OuterVAlignment {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/align.rs:587:pub enum SpecificAlignment<H, V> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/align.rs:704:pub enum FixedAlignment {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/angle.rs:25:pub struct Angle(Scalar);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/angle.rs:240:pub enum AngleUnit {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/angle.rs:259:pub enum Quadrant {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/axes.rs:16:pub struct Axes<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/axes.rs:170:pub enum Axis {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/columns.rs:59:pub struct ColumnsElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/columns.rs:98:pub struct ColbreakElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/container.rs:31:pub struct BoxElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/container.rs:141:pub struct InlineElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/container.rs:187:pub enum InlineItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/container.rs:228:pub struct BlockElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/container.rs:413:pub enum BlockBody {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/container.rs:441:pub enum Sizing {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/corners.rs:14:pub struct Corners<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/corners.rs:254:pub enum Corner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/dir.rs:23:pub enum Dir {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/em.rs:16:pub struct Em(Scalar);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/fr.rs:25:pub struct Fr(Scalar);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/fragment.rs:7:pub struct Fragment(Vec<Frame>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/frame.rs:18:pub struct Frame {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/frame.rs:438:pub enum FrameKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/frame.rs:465:pub enum FrameItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/frame.rs:495:pub struct GroupItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/frame.rs:534:pub struct FrameParent {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/frame.rs:572:pub enum Inherit {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:184:pub struct GridElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:451:pub struct TrackSizings(pub SmallVec<[Sizing; 4]>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:463:pub enum GridChild {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:507:pub enum GridItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:577:pub struct GridHeader {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:605:pub struct GridFooter {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:623:pub struct GridHLine {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:675:pub struct GridVLine {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:769:pub struct GridCell {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:894:pub enum Celled<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/mod.rs:999:pub struct ResolvedCelled<T: Resolve>(Celled<T::Output>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:397:pub struct Line {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:427:pub struct Header {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:446:pub struct Footer {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:471:pub struct Repeatable<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:502:pub trait ResolvableCell {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:539:pub enum ResolvableGridItem<T: ResolvableCell> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:572:pub struct Cell {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:620:pub enum LinePosition {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:629:pub enum Entry {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:650:pub enum ResolvableGridChild<T: ResolvableCell, I> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:658:pub struct CellGrid {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:940:struct CellGridResolver<'a, 'b> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:953:enum RowGroupKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/grid/resolve.rs:967:struct RowGroupData {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/hide.rs:26:pub struct HideElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/layout.rs:84:pub struct LayoutElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/length.rs:44:pub struct Length {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/pad.rs:18:pub struct PadElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/page.rs:54:pub struct PageElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/page.rs:483:pub struct PagebreakElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/page.rs:528:pub struct Margin {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/page.rs:637:pub enum Binding {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/page.rs:673:pub struct PageRanges(Vec<PageRange>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/page.rs:710:pub enum Parity {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/page.rs:729:pub struct Paper {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/place.rs:75:pub struct PlaceElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/place.rs:184:pub enum PlacementScope {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/place.rs:213:pub struct FlushElem {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/point.rs:10:pub struct Point {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/ratio.rs:42:pub struct Ratio(Scalar);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/rect.rs:5:pub struct Rect {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/regions.rs:7:pub struct Region {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/regions.rs:42:pub struct Regions<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/rel.rs:71:pub struct Rel<T: Numeric = Length> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/repeat.rs:32:pub struct RepeatElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/sides.rs:15:pub struct Sides<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/sides.rs:289:pub enum Side {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/spacing.rs:34:pub struct HElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/spacing.rs:96:pub struct VElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/spacing.rs:130:pub enum Spacing {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/stack.rs:26:pub struct StackElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/stack.rs:55:pub enum StackChild {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/transform.rs:29:pub struct MoveElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/transform.rs:56:pub struct RotateElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/transform.rs:112:pub struct ScaleElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/transform.rs:167:pub enum ScaleAmount {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/transform.rs:194:pub struct SkewElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/layout/transform.rs:243:pub struct Transform {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/lib.rs:60:pub trait World: Send + Sync {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/lib.rs:139:pub trait WorldExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/lib.rs:159:pub struct Library {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/lib.rs:177:pub struct LibraryBuilder {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/lib.rs:227:pub struct Features(SmallBitSet);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/lib.rs:259:pub enum Feature {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/lib.rs:275:pub enum Category {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/loading/csv.rs:127:pub struct Delimiter(char);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/loading/csv.rs:147:pub enum RowType {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/loading/mod.rs:48:pub enum DataSource {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/loading/mod.rs:66:pub trait Load {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/loading/mod.rs:136:pub struct Loaded {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/loading/mod.rs:151:pub enum LoadSource {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/loading/mod.rs:158:pub enum Readable {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/loading/read.rs:44:pub enum Encoding {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/accent.rs:31:pub struct AccentElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/accent.rs:91:pub struct Accent(pub char);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/attach.rs:20:pub struct AttachElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/attach.rs:62:pub struct PrimesElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/attach.rs:74:pub struct ScriptsElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/attach.rs:86:pub struct LimitsElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/attach.rs:115:pub struct StretchElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/attach.rs:128:pub enum Limits {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/cancel.rs:18:pub struct CancelElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/cancel.rs:102:pub enum CancelAngle {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/equation.rs:50:pub struct EquationElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/frac.rs:25:pub struct FracElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/frac.rs:88:pub enum FracStyle {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/frac.rs:107:pub struct BinomElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:63:pub enum MathItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:326:pub struct MathComponent<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:339:pub enum MathKind<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:378:pub struct MathProperties {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:446:pub struct GroupItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:465:pub struct MultilineItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:492:pub struct RadicalItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:520:pub struct FencedItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:556:pub struct FractionItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:586:pub struct SkewedFractionItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:614:pub struct TableItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:647:pub struct ScriptsItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:694:pub struct AccentItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:731:pub struct CancelItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:775:pub struct LineItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:803:pub struct PrimesItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:825:pub struct TextItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:852:pub struct NumberItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:872:pub struct GlyphItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:918:pub struct BoxItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:942:pub struct ExternalItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:969:pub struct SharedFenceSizing<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:1002:pub enum FencedBody<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:1042:pub struct Stretch(Axes<Option<StretchInfo>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:1120:pub struct StretchInfo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/item.rs:1166:pub enum Position {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/multiline.rs:10:pub struct AlignedRow<'a>(Vec<MathItem<'a>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/process.rs:112:struct Preprocessed<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/process.rs:314:struct MathBuffer<'a>(SmallVec<[RawMathItem<'a>; 8]>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/ir/resolve.rs:397:enum AttachmentList<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/lr.rs:24:pub struct LrElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/lr.rs:46:pub struct MidElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/matrix.rs:33:pub struct VecElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/matrix.rs:92:pub struct MatElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/matrix.rs:231:pub struct CasesElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/matrix.rs:275:pub struct Delimiter(Option<char>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/matrix.rs:323:pub struct DelimiterPair {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/matrix.rs:367:pub struct Augment<T: Numeric = Length> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/matrix.rs:442:pub struct AugmentOffsets(pub SmallVec<[isize; 1]>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/mod.rs:111:pub trait Mathy {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/mod.rs:115:pub struct AlignPointElem {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/mod.rs:142:pub struct ClassElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/mod.rs:155:pub enum LeftRightAlternator {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/op.rs:24:pub struct OpElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/root.rs:26:pub struct RootElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/style.rs:253:pub enum MathSize {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/underover.rs:10:pub struct UnderlineElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/underover.rs:22:pub struct OverlineElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/underover.rs:34:pub struct UnderbraceElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/underover.rs:50:pub struct OverbraceElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/underover.rs:66:pub struct UnderbracketElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/underover.rs:82:pub struct OverbracketElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/underover.rs:98:pub struct UnderparenElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/underover.rs:114:pub struct OverparenElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/underover.rs:131:pub struct UndershellElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/math/underover.rs:148:pub struct OvershellElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/asset.rs:53:pub struct AssetElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/asset.rs:79:pub struct AssetData(pub Bytes);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/bibliography.rs:88:pub struct BibliographyElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/bibliography.rs:235:pub struct Bibliography(
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/bibliography.rs:388:pub struct CslStyle(Arc<ManuallyHash<citationberg::IndependentStyle>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/bibliography.rs:448:pub enum CslSource {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/bibliography.rs:543:pub struct Works {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/bibliography.rs:614:struct CiteGroupIntrospection(Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/bibliography.rs:637:struct Generator<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/bibliography.rs:656:struct GroupInfo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/bibliography.rs:668:struct CiteInfo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/bibliography.rs:938:struct ElemRenderer<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/bibliography.rs:1175:pub struct CslLightElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/bibliography.rs:1187:pub struct CslIndentElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/cite.rs:46:pub struct CiteElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/cite.rs:136:pub enum CitationForm {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/cite.rs:155:pub struct CiteGroup {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/divider.rs:41:pub struct DividerElem {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/document.rs:127:pub struct DocumentElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/document.rs:257:pub enum DocumentFormat {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/document.rs:292:pub enum PagedFormat {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/document.rs:304:pub struct Author(Vec<EcoString>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/document.rs:315:pub struct Keywords(Vec<EcoString>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/document.rs:325:pub trait Document {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/document.rs:332:pub struct DocumentInfo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/emph.rs:28:pub struct EmphElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/enum.rs:70:pub struct EnumElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/enum.rs:236:pub struct EnumItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/figure.rs:121:pub struct FigureElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/figure.rs:495:pub struct FigureCaption {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/figure.rs:650:pub enum FigureKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/figure.rs:670:pub trait Figurable {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/footnote.rs:63:pub struct FootnoteElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/footnote.rs:183:pub enum FootnoteBody {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/footnote.rs:216:pub struct FootnoteEntry {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/footnote.rs:342:pub struct FootnoteContainer {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/footnote.rs:356:pub struct FootnoteMarker {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/heading.rs:78:pub struct HeadingElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:147:pub struct LinkElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:240:pub enum LinkTarget {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:295:pub enum Destination {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:387:pub struct Url(EcoString);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:442:pub struct DirectLinkElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:463:pub struct LinkMarker {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:480:pub enum UrlContactScheme {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:504:pub struct Email;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:510:pub struct Telephone;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:516:pub struct AnchorGenerator<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:594:pub struct EarlyLinkResolver {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:658:pub struct LateLinkResolver<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:706:pub enum ResolvedLink {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/link.rs:744:struct LinkAnchorIntrospection(Location, Span);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/list.rs:45:pub struct ListElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/list.rs:140:pub struct ListItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/list.rs:153:pub enum ListMarker {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/list.rs:198:pub trait ListLike: NativeElement {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/list.rs:207:pub trait ListItemLike: NativeElement {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/numbering.rs:97:pub enum Numbering {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/numbering.rs:153:pub struct NumberingPattern {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/numbering.rs:255:pub enum NumberingKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/outline.rs:151:pub struct OutlineElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/outline.rs:323:pub struct OutlineNode<T = Packed<OutlineEntry>> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/outline.rs:417:pub enum OutlineIndent {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/outline.rs:452:pub trait Outlinable: Refable {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/outline.rs:474:pub struct OutlineEntry {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/par.rs:98:pub struct ParElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/par.rs:440:pub struct JustificationLimits {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/par.rs:508:pub struct Limits<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/par.rs:581:trait Limit: Sized {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/par.rs:622:pub enum Linebreaks {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/par.rs:636:pub struct FirstLineIndent {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/par.rs:724:pub struct ParbreakElem {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/par.rs:789:pub struct ParLine {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/par.rs:913:pub enum LineNumberingScope {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/par.rs:927:pub struct ParLineMarker {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/quote.rs:45:pub struct QuoteElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/quote.rs:157:pub enum Attribution {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/reference.rs:139:pub struct RefElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/reference.rs:383:pub enum Supplement {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/reference.rs:417:pub enum RefForm {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/reference.rs:427:pub trait Refable {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/strong.rs:23:pub struct StrongElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/table.rs:139:pub struct TableElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/table.rs:335:pub enum TableChild {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/table.rs:380:pub enum TableItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/table.rs:498:pub struct TableHeader {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/table.rs:528:pub struct TableFooter {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/table.rs:571:pub struct TableHLine {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/table.rs:615:pub struct TableVLine {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/table.rs:735:pub struct TableCell {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/terms.rs:26:pub struct TermsElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/terms.rs:130:pub struct TermItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/model/title.rs:33:pub struct TitleElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/pdf/accessibility.rs:37:pub struct ArtifactElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/pdf/accessibility.rs:52:pub enum ArtifactKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/pdf/accessibility.rs:246:pub enum TableCellKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/pdf/accessibility.rs:255:pub enum TableHeaderScope {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/pdf/accessibility.rs:285:pub struct PdfMarkerTag {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/pdf/attach.rs:33:pub struct AttachElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/pdf/attach.rs:78:pub enum AttachedFileRelationship {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/routines.rs:110:pub enum RealizationKind<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/routines.rs:178:pub enum FragmentKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/routines.rs:191:pub struct Arenas {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/case.rs:45:pub enum Caseable {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/case.rs:62:pub enum Case {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/deco.rs:14:pub struct UnderlineElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/deco.rs:82:pub struct OverlineElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/deco.rs:156:pub struct StrikeElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/deco.rs:215:pub struct HighlightElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/deco.rs:290:pub struct Decoration {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/deco.rs:298:pub enum DecoLine {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/book.rs:16:pub struct FontBook {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/book.rs:180:pub struct FontInfo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/book.rs:446:pub struct Coverage(Vec<u32>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/color.rs:31:pub struct GlyphFrame {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/color.rs:60:pub enum GlyphFrameItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/color.rs:361:struct ColrBuilder<'a>(&'a mut String);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/exceptions.rs:10:pub struct Exception {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/mod.rs:30:pub struct Font(Arc<FontInner>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/mod.rs:33:struct FontInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/mod.rs:217:pub struct FontMetrics {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/mod.rs:517:pub struct LineMetrics {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/mod.rs:527:pub struct ScriptMetrics {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/mod.rs:547:pub struct MathConstants {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/mod.rs:605:pub enum VerticalFontMetric {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/mod.rs:620:pub enum TextEdgeBounds<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/variant.rs:12:pub struct FontVariant {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/variant.rs:38:pub enum FontStyle {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/variant.rs:75:pub struct FontWeight(pub(super) u16);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/font/variant.rs:186:pub struct FontStretch(pub(super) u16);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/item.rs:13:pub struct TextItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/item.rs:94:pub struct Glyph {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/item.rs:120:pub struct TextItemView<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/lang.rs:122:pub struct Locale {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/lang.rs:156:pub struct Lang([u8; 3], u8);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/lang.rs:539:pub struct Region([u8; 2]);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/lang.rs:577:pub struct WritingScript([u8; 4], u8);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/lang.rs:615:pub trait LocalName {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/linebreak.rs:23:pub struct LinebreakElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:95:pub struct TextElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:837:pub struct FontFamily {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:888:pub enum Covers {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:945:pub struct FontList(pub Vec<FontFamily>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1022:pub struct TextSize(pub Length);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1057:pub enum TopEdge {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1076:pub enum TopEdgeMetric {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1105:pub enum BottomEdge {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1124:pub enum BottomEdgeMetric {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1147:pub struct TextDir(pub Smart<Dir>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1173:pub struct Alternates(u32);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1184:pub struct StylisticSets(u32);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1225:pub enum NumberType {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1236:pub enum NumberWidth {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1245:pub struct FontFeatures(pub Vec<(Tag, u32)>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1420:pub struct ItalicToggle(pub bool);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1430:pub struct WeightDelta(pub i64);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/mod.rs:1443:pub struct Costs {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/raw.rs:137:pub struct RawElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/raw.rs:525:pub enum RawContent {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/raw.rs:573:pub struct RawSyntax(Arc<ManuallyHash<SyntaxSet>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/raw.rs:633:pub struct RawTheme(Arc<ManuallyHash<synt::Theme>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/raw.rs:677:pub struct RawLine {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/raw.rs:702:struct ThemedHighlighter<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/shift.rs:17:pub struct SubElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/shift.rs:72:pub struct SuperElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/shift.rs:124:pub struct ShiftSettings {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/shift.rs:146:pub enum ScriptKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/smallcaps.rs:44:pub struct SmallcapsElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/smallcaps.rs:63:pub enum Smallcaps {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/smartquote.rs:33:pub struct SmartQuoteElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/smartquote.rs:98:pub struct SmartQuoter {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/smartquote.rs:188:pub struct SmartQuotes<'s> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/smartquote.rs:335:pub struct SmartQuoteSet {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/smartquote.rs:385:pub struct SmartQuoteDict {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/text/space.rs:10:pub struct SpaceElem {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/color.rs:194:pub enum Color {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/color.rs:1687:pub struct Cmyk {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/color.rs:1759:pub struct WeightedColor {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/color.rs:1788:struct Weight(f64);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/color.rs:1798:pub enum ColorSpace {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/color.rs:1872:pub struct RatioComponent(Ratio);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/color.rs:1889:pub struct ChromaComponent(f32);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/color.rs:1898:pub struct Component(Ratio);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/curve.rs:43:pub struct CurveElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/curve.rs:115:pub enum CurveComponent {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/curve.rs:174:pub struct CurveMove {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/curve.rs:197:pub struct CurveLine {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/curve.rs:237:pub struct CurveQuad {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/curve.rs:284:pub struct CurveCubic {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/curve.rs:365:pub struct CurveClose {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/curve.rs:372:pub enum CloseMode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/curve.rs:383:pub struct Curve(pub Vec<CurveItem>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/curve.rs:387:pub enum CurveItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/gradient.rs:178:pub enum Gradient {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/gradient.rs:1001:pub struct LinearGradient {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/gradient.rs:1063:pub struct RadialGradient {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/gradient.rs:1145:pub struct ConicGradient {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/gradient.rs:1209:pub enum RelativeTo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/gradient.rs:1218:pub struct GradientStop {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/gradient.rs:1254:pub enum RatioOrAngle {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/mod.rs:54:pub struct ImageElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/mod.rs:420:pub enum ImageFit {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/mod.rs:439:pub struct Image(Arc<LazyHash<ImageInner>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/mod.rs:443:struct ImageInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/mod.rs:551:pub enum ImageKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/mod.rs:574:pub enum ImageFormat {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/mod.rs:623:pub enum VectorFormat {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/mod.rs:658:pub enum ImageScaling {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/pdf.rs:11:pub struct PdfDocument(Arc<PdfDocumentInner>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/pdf.rs:14:struct PdfDocumentInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/pdf.rs:47:pub struct PdfImage(Arc<PdfImageInner>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/pdf.rs:50:struct PdfImageInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/raster.rs:19:pub struct RasterImage(Arc<RasterImageInner>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/raster.rs:22:struct RasterImageInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/raster.rs:211:pub enum RasterFormat {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/raster.rs:242:pub enum ExchangeFormat {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/raster.rs:288:pub struct PixelFormat {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/raster.rs:299:pub enum PixelEncoding {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/svg.rs:25:pub struct SvgImage(Arc<SvgImageInner>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/svg.rs:28:struct SvgImageInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/svg.rs:171:struct FontResolver<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/image/svg.rs:325:struct ImageResolver<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/line.rs:19:pub struct LineElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/paint.rs:10:pub enum Paint {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/polygon.rs:25:pub struct PolygonElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/shape.rs:20:pub struct RectElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/shape.rs:144:pub struct SquareElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/shape.rs:222:pub struct EllipseElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/shape.rs:272:pub struct CircleElem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/shape.rs:334:pub struct Shape {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/shape.rs:356:pub enum FillRule {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/shape.rs:366:pub enum Geometry {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/stroke.rs:53:pub struct Stroke<T: Numeric = Length> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/stroke.rs:454:pub enum LineCap {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/stroke.rs:475:pub enum LineJoin {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/stroke.rs:498:pub struct DashPattern<T: Numeric = Length, DT = DashLength<T>> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/stroke.rs:570:pub enum DashLength<T: Numeric = Length> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/stroke.rs:622:pub struct FixedStroke {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/tiling.rs:103:pub struct Tiling(Arc<TilingInner>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-library/src/visualize/tiling.rs:107:struct TilingInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/cast.rs:64:struct Variant {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/cast.rs:126:struct CastInput {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/cast.rs:181:struct Cast {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/cast.rs:189:enum Pattern {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/elem.rs:20:struct Elem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/elem.rs:93:struct Field {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/elem.rs:132:struct Meta {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/func.rs:20:struct Func {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/func.rs:53:struct SpecialParams {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/func.rs:67:struct Param {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/func.rs:90:enum Binding {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/func.rs:100:pub struct Meta {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/scope.rs:119:struct Meta {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/scope.rs:177:enum FnKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/time.rs:15:pub struct Meta {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/ty.rs:30:struct Type {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/ty.rs:44:struct Meta {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/util.rs:181:struct Array<T>(Vec<T>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/util.rs:203:pub struct foundations;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/util.rs:217:pub struct BlockWithReturn {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-macros/src/util.rs:234:pub struct BareType {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/image.rs:85:struct PdfRasterImage(Arc<PdfRasterImageInner>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/image.rs:88:struct PdfRasterImageInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/lib.rs:58:pub struct PdfOptions<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/lib.rs:108:pub struct PdfStandards {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/lib.rs:211:pub enum PdfStandard {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/metadata.rs:97:pub struct Timestamp {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/metadata.rs:132:pub enum Timezone {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/figure.rs:14:pub struct FigureCtx {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/figure.rs:32:pub enum FigureTagKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/grid.rs:36:pub struct GridCtx {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/list.rs:7:pub struct ListCtx {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/list.rs:12:struct ListItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/mod.rs:38:pub struct Tags {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/mod.rs:65:pub struct Ctx {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/mod.rs:95:pub struct Annotations(Vec<OnceCell<Identifier>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/mod.rs:122:pub struct BBoxCtx {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/outline.rs:9:pub struct OutlineCtx {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/table.rs:26:pub struct TableCtx {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/table.rs:37:pub struct TableCellData {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/table.rs:45:struct PrioritzedStroke {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/table.rs:51:pub enum StrokePriority {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/context/table.rs:365:struct HeaderCells {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/groups.rs:29:pub struct Groups {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/groups.rs:228:pub enum BreakOpportunity {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/groups.rs:249:pub enum BreakPriority {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/groups.rs:326:pub struct TagStorage(Vec<Option<TagKind>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/groups.rs:353:pub struct LocatedGroup {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/groups.rs:359:pub struct Group {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/groups.rs:419:pub enum GroupKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/mod.rs:159:pub struct TagHandle<'a, 'b> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/resolve/accumulator.rs:5:pub struct Accumulator {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/resolve/mod.rs:23:pub enum TagNode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/resolve/mod.rs:34:struct Resolver<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/resolve/mod.rs:353:enum ElementKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/build.rs:55:pub struct TreeBuilder<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/build.rs:137:struct TagStack {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/build.rs:171:struct StackEntry {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/mod.rs:25:pub struct Tree {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/mod.rs:98:struct TraversalStates {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/mod.rs:134:struct TraversalState {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/mod.rs:166:struct Break {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/mod.rs:182:struct Unfinished {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/text.rs:18:pub struct TextAttrs {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/text.rs:52:pub enum TextAttr {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/text.rs:64:pub struct ResolvedTextAttrs {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/text.rs:87:pub struct ResolvedScript {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/text.rs:93:pub struct ResolvedTextDeco {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/text.rs:100:pub enum TextDecoKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/tree/text.rs:118:struct TextParams(u128);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/util/idvec.rs:4:pub struct IdVec<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/util/idvec.rs:50:pub struct Id<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/util/mod.rs:25:pub trait ArtifactKindExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/util/mod.rs:40:pub trait TableHeaderScopeExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/util/prop.rs:11:pub trait PropertyValCopied<E, T, const I: u8> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/util/prop.rs:26:pub trait PropertyValCloned<E, T, const I: u8> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/tags/util/prop.rs:41:pub trait PropertyOptRef<E, T, const I: u8> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-pdf/src/text.rs:97:struct PdfGlyph(Glyph);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-realize/src/lib.rs:88:struct State<'a, 'x, 'y, 'z> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-realize/src/lib.rs:113:struct GroupingRule {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-realize/src/lib.rs:134:struct Grouping<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-realize/src/lib.rs:146:struct Grouped<'a, 'x, 'y, 'z, 's> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-realize/src/lib.rs:154:struct Verdict<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-realize/src/lib.rs:165:enum ShowStep<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-realize/src/lib.rs:173:struct RegexMatch<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-render/src/lib.rs:86:struct State<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-render/src/lib.rs:246:trait AbsExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-render/src/paint.rs:13:pub trait PaintSampler: Copy {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-render/src/paint.rs:29:pub struct GradientSampler<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-render/src/paint.rs:82:pub struct TilingSampler<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-render/src/text.rs:242:struct WrappedPathBuilder(sk::PathBuilder);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/lib.rs:154:struct SVGRenderer<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/lib.rs:195:struct State {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/lib.rs:442:struct Deduplicator<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/lib.rs:490:struct DedupId(char, u128);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/paint.rs:374:pub struct TilingRef {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/paint.rs:386:pub struct GradientRef {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/paint.rs:398:pub struct SVGSubGradient {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/paint.rs:413:enum GradientKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/path.rs:8:pub struct SvgPathBuilder {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/text.rs:16:pub enum RenderedGlyph {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/write.rs:8:pub struct SvgElem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/write.rs:57:pub struct LazySvgElem<'a, 'b> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/write.rs:92:pub trait SvgWrite: Sized {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/write.rs:142:pub struct SvgFormatter<'a, T = Vec<u8>> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/write.rs:164:pub trait SvgDisplay {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/write.rs:208:pub struct SvgTransform(pub Transform);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/write.rs:244:pub struct SvgUrl<T>(pub T);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-svg/src/write.rs:255:pub struct SvgIdRef<T>(pub T);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:100:pub trait AstNode<'a>: Sized {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:250:pub enum Expr<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:899:pub enum MathTextKind<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:1238:pub enum Unit {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:1380:pub enum ArrayItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:1421:pub enum DictItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:1554:pub enum UnOp {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:1627:pub enum BinOp {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:1772:pub enum Assoc {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:1837:pub enum Arg<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:1906:pub enum Param<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:1939:pub enum Pattern<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:2018:pub enum DestructuringItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:2056:pub enum LetBindingKind<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:2307:pub enum BareImportError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:2319:pub enum Imports<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/ast.rs:2361:pub enum ImportItem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/highlight.rs:5:pub enum Tag {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/kind.rs:6:pub enum SyntaxKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/lexer.rs:1005:trait ScannerExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/lib.rs:38:pub enum SyntaxMode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/lines.rs:12:pub struct Lines<S>(Arc<LinesInner<S>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/lines.rs:16:struct LinesInner<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/lines.rs:23:pub struct Line {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/node.rs:12:pub struct SyntaxNode(NodeKind);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/node.rs:16:enum NodeKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/node.rs:314:struct LeafNode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/node.rs:351:struct InnerNode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/node.rs:601:struct ErrorNode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/node.rs:638:pub struct SyntaxError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/node.rs:671:pub struct LinkedNode<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/node.rs:826:pub enum Side {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/node.rs:952:pub struct LinkedChildren<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/package.rs:22:pub struct PackageManifest {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/package.rs:70:pub struct ToolInfo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/package.rs:80:pub struct TemplateInfo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/package.rs:100:pub struct PackageInfo {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/package.rs:226:pub struct PackageSpec {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/package.rs:270:pub struct VersionlessPackageSpec {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/package.rs:355:pub struct PackageVersion {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/package.rs:484:pub struct VersionBound {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/parser.rs:1157:struct GroupState {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/parser.rs:1524:struct Parser<'s> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/parser.rs:1555:struct Token {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/parser.rs:1574:struct Newline {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/parser.rs:1583:enum AtNewline {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/parser.rs:1625:struct Marker(usize);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/parser.rs:1918:struct MemoArena {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/parser.rs:1934:struct Checkpoint {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/parser.rs:1942:struct PartialState {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/path.rs:18:pub struct RootedPath {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/path.rs:72:pub enum VirtualRoot {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/path.rs:87:struct Interner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/path.rs:96:pub struct FileId(NonZeroU16);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/path.rs:189:pub struct VirtualPath(Segments);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/path.rs:387:enum Component<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/path.rs:426:struct Segment<'a>(&'a str);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/path.rs:467:struct Segments(EcoString);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/path.rs:555:pub enum PathError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/path.rs:569:pub enum VirtualizeError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/set.rs:9:pub struct SyntaxSet(u128);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/source.rs:22:pub struct Source(Arc<LazyHash<SourceInner>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/source.rs:26:struct SourceInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/span.rs:44:pub struct Span(NonZeroU64);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-syntax/src/span.rs:169:pub struct Spanned<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-timing/src/lib.rs:150:pub struct TimingScope {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-timing/src/lib.rs:205:struct Event {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-timing/src/lib.rs:220:enum EventKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-timing/src/lib.rs:227:struct Timestamp {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-timing/src/lib.rs:270:struct ThreadData {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-timing/src/lib.rs:284:struct WasmTimer {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/bitset.rs:17:pub struct BitSet(ThinVec<usize>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/bitset.rs:67:pub struct SmallBitSet {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/deferred.rs:8:pub struct Deferred<T>(Arc<OnceCell<T>>);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/duration.rs:12:struct DurationDisplay(Duration);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/fat.rs:61:struct FatPointer {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/hash.rs:72:pub struct LazyHash<T: ?Sized> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/hash.rs:171:pub struct ManuallyHash<T: ?Sized> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/hash.rs:226:pub struct HashLock(AtomicU128);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/lib.rs:81:pub trait NonZeroExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/lib.rs:95:pub trait ArcExt<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/lib.rs:111:pub trait OptionExt<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/lib.rs:132:pub trait SliceExt<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/lib.rs:210:pub struct GroupByKey<'a, T, F> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/lib.rs:233:pub trait MaybeReverseIter {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/lib.rs:270:pub struct Static<T: 'static>(pub &'static T);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/lib.rs:303:pub trait Get<Index> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/lib.rs:338:pub trait Numeric:
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/listset.rs:15:pub struct ListSet<S>(S);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/pico.rs:20:struct Interner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/pico.rs:40:pub struct PicoStr(NonZeroU64);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/pico.rs:343:pub struct ResolvedPicoStr(ResolvedPicoStrInner);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/pico.rs:347:enum ResolvedPicoStrInner {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/protected.rs:6:pub struct Protected<T>(T);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/scalar.rs:15:pub struct Scalar(f64);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst-utils/src/version.rs:50:pub struct TypstVersion {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/crates/typst/src/lib.rs:296:pub trait LibraryExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/fuzz/src/lib.rs:8:pub struct FuzzWorld {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/args.rs:13:pub struct CliArguments {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/args.rs:140:pub enum Command {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/args.rs:150:pub struct PdftagsCommand {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/args.rs:156:pub enum TestStage {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:29:pub struct Test {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:67:pub struct FilePos {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:95:pub struct Attrs {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:117:pub trait TestStage: Into<TestStages> + Display + Copy {}
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:234:pub struct TestEval;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:253:pub enum TestTarget {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:303:pub enum TestOutput {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:407:pub enum TestOutputKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:413:pub struct FileSize(pub usize);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:422:struct Collector {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:588:struct Parser<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:806:pub struct TestParseError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:827:pub enum TestParseErrorKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/collect.rs:851:trait ScannerExt {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/git.rs:88:trait Run {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/logger.rs:16:pub enum SuiteError {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/logger.rs:34:pub struct TestResult {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/logger.rs:56:pub struct Logger {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/notes.rs:25:pub struct TestBody {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/notes.rs:167:pub struct Note {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/notes.rs:176:pub enum NoteStatus {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/notes.rs:188:pub enum NoteKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/notes.rs:260:pub enum NoteRange {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/notes.rs:374:pub struct LineCol {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/output.rs:30:pub struct HashedRefs {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/output.rs:99:pub struct HashedRef(u128);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/output.rs:123:pub trait OutputType: Sized {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/output.rs:152:pub trait FileOutputType: OutputType {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/output.rs:161:pub trait HashOutputType: OutputType {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/output.rs:172:pub struct Render;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/output.rs:227:pub struct Pdf;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/output.rs:337:pub struct Pdftags;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/output.rs:380:pub struct Svg;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/output.rs:417:pub struct Html;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/output.rs:471:pub struct Bundle;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/pdftags.rs:15:struct Formatter<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/pdftags.rs:30:struct PageContent<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/pdftags.rs:36:struct MarkedContent<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/diff.rs:14:pub struct ReportFile {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/diff.rs:38:pub struct File {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/diff.rs:45:pub enum Diff {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/diff.rs:69:pub enum DiffMode {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/diff.rs:84:pub enum FileDiff<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/diff.rs:110:pub enum Old<T> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/diff.rs:150:pub struct Lines {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/diff.rs:161:pub enum LineKind {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/diff.rs:183:pub struct Line {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/diff.rs:197:pub struct TextSpan {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/diff.rs:314:pub struct Image {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/diff.rs:339:pub struct Html {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/html.rs:20:struct Html {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/html.rs:101:struct EscWriter<W, F> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/html.rs:136:struct EscFmt<T, F> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/html.rs:177:struct HtmlElem<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/report/mod.rs:32:pub struct TestReport {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/run.rs:55:pub struct Runner<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/run.rs:67:enum UnexpectedNonEmpty {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/run.rs:98:enum UnexpectedEmpty {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/world.rs:29:pub struct TestWorld {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/world.rs:111:struct TestBase {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/src/world.rs:136:pub struct TestFiles;
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/suite/text/raw.typ:299:enum State<'a> { A(u8), B(&'a str) }
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/wrapper/src/main.rs:51:struct RegenCommand {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/wrapper/src/main.rs:224:trait Run {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tests/wrapper/src/main.rs:247:trait ExitOnFailure {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/contribs.rs:73:struct Contributor {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/contribs.rs:81:pub struct Commit {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/contribs.rs:87:pub struct Author {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/html.rs:25:pub struct Html {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/html.rs:156:struct Metadata {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/html.rs:161:struct Handler<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/html.rs:359:pub struct ExampleArgs<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/html.rs:405:pub enum ExampleView {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/html.rs:508:struct DocWorld(Source);
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/lib.rs:102:pub trait Resolver {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/lib.rs:545:enum RawDetailsBlock<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/lib.rs:1048:struct GroupData {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/main.rs:10:struct CliResolver<'a> {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/main.rs:101:struct Args {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:9:pub struct PageModel {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:31:pub struct OutlineItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:53:pub enum BodyModel {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:65:pub struct CategoryModel {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:75:pub struct CategoryItem {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:85:pub struct FuncModel {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:105:pub struct ParamModel {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:122:pub enum DetailsBlock {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:131:pub struct StrParam {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:139:pub struct GroupModel {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:149:pub struct TypeModel {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:161:pub struct SymbolsModel {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:171:pub struct SymbolModel {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/docs/src/model.rs:185:pub struct ShorthandsModel {
+/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/tools/test-helper/src/extension.ts:398:enum Format {

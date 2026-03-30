@@ -46,15 +46,22 @@ pub enum Value {
     /// Conteúdo tipográfico produzido por eval().
     Content(crate::entities::content::Content),
 
+    // ── Variantes Passo 25 (ADR-0028) ────────────────────────────────────────
+    /// O valor `auto` do Typst.
+    Auto,
+    /// Comprimento tipográfico (pt ou em). Ver ADR-0028.
+    Length(crate::entities::layout_types::Length),
+    /// Rácio (percentagem normalizada). Ver ADR-0028.
+    Ratio(crate::entities::layout_types::Ratio),
+    /// Ângulo (armazenado em radianos). Ver ADR-0028.
+    Angle(crate::entities::layout_types::Angle),
+    /// Cor tipográfica. Ver ADR-0028.
+    Color(crate::entities::layout_types::Color),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
-    // Variantes futuras (~19 restantes após Passo 18):
-    // Auto,                     // o valor `auto`
-    // Length(Length),           // comprimento tipográfico (pt, em, etc.)
-    // Angle(Angle),             // ângulo (deg, rad)
-    // Ratio(Ratio),             // rácio (percentagem)
+    // Variantes futuras (~14 restantes após Passo 25):
     // Relative(Relative),       // comprimento relativo
     // Fraction(Fraction),       // fracção de espaço disponível
-    // Color(Color),             // cor (rgb, cmyk, etc.)
     // Gradient(Gradient),       // gradiente
     // Tiling(Tiling),           // padrão de azulejos
     // Symbol(Symbol),           // símbolo Unicode
@@ -84,6 +91,11 @@ impl Value {
             Self::Datetime(_)=> "datetime",
             Self::Func(_)    => "function",
             Self::Content(_) => "content",
+            Self::Auto       => "auto",
+            Self::Length(_)  => "length",
+            Self::Ratio(_)   => "ratio",
+            Self::Angle(_)   => "angle",
+            Self::Color(_)   => "color",
         }
     }
 
@@ -152,6 +164,18 @@ impl From<crate::entities::func::Func> for Value {
 }
 impl From<crate::entities::content::Content> for Value {
     fn from(c: crate::entities::content::Content) -> Self { Self::Content(c) }
+}
+impl From<crate::entities::layout_types::Length> for Value {
+    fn from(v: crate::entities::layout_types::Length) -> Self { Self::Length(v) }
+}
+impl From<crate::entities::layout_types::Ratio> for Value {
+    fn from(v: crate::entities::layout_types::Ratio) -> Self { Self::Ratio(v) }
+}
+impl From<crate::entities::layout_types::Angle> for Value {
+    fn from(v: crate::entities::layout_types::Angle) -> Self { Self::Angle(v) }
+}
+impl From<crate::entities::layout_types::Color> for Value {
+    fn from(v: crate::entities::layout_types::Color) -> Self { Self::Color(v) }
 }
 
 #[cfg(test)]
@@ -260,5 +284,17 @@ mod tests {
     fn datetime_em_value() {
         let dt = crate::entities::world_types::Datetime::new_date(2026, 3, 27).unwrap();
         assert_eq!(Value::from(dt).type_name(), "datetime");
+    }
+
+    // ── Passo 25 — tipos tipográficos (ADR-0028) ─────────────────────────────
+
+    #[test]
+    fn value_type_names_novos() {
+        use crate::entities::layout_types::{Angle, Color, Length, Ratio};
+        assert_eq!(Value::Length(Length::pt(12.0)).type_name(), "length");
+        assert_eq!(Value::Ratio(Ratio(0.5)).type_name(),        "ratio");
+        assert_eq!(Value::Angle(Angle::deg(90.0)).type_name(),  "angle");
+        assert_eq!(Value::Color(Color::rgb(0, 0, 0)).type_name(), "color");
+        assert_eq!(Value::Auto.type_name(),                     "auto");
     }
 }
