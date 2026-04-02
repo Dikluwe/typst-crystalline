@@ -2,11 +2,13 @@
 //! @prompt 00_nucleo/prompts/entities/content.md
 //! @prompt-hash cbe9996f
 //! @layer L1
-//! @updated 2026-03-28
+//! @updated 2026-04-01
 
 use std::sync::Arc;
 
 use ecow::EcoString;
+
+use crate::entities::layout_types::{Pt, TextStyle};
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -24,8 +26,9 @@ use ecow::EcoString;
 pub enum Content {
     /// Conteúdo vazio.
     Empty,
-    /// Texto simples (TextElem mínimo).
-    Text(EcoString),
+    /// Texto simples com estilo capturado em eval (Passo 30).
+    /// O estilo reflecte as `#set text()` rules activas no momento da produção.
+    Text(EcoString, TextStyle),
     /// Espaço entre elementos (SpaceElem).
     Space,
     /// Sequência de elementos — clone O(1) via Arc (ADR-0026 revisão).
@@ -59,9 +62,11 @@ pub enum Content {
 }
 
 impl Content {
-    /// Cria conteúdo de texto.
+    /// Cria conteúdo de texto com estilo por defeito (regular 11pt).
+    /// Em eval, usar `Content::Text(s, TextStyle::from(&ctx.styles))` directamente
+    /// para capturar o estilo activo no momento da produção.
     pub fn text(s: impl Into<EcoString>) -> Self {
-        Self::Text(s.into())
+        Self::Text(s.into(), TextStyle::regular(Pt(11.0)))
     }
 
     /// Cria conteúdo vazio.
@@ -111,8 +116,8 @@ impl Content {
     /// Extrai texto plano recursivamente — para verificação em testes.
     pub fn plain_text(&self) -> String {
         match self {
-            Self::Empty              => String::new(),
-            Self::Text(s)            => s.to_string(),
+            Self::Empty                 => String::new(),
+            Self::Text(s, _)            => s.to_string(),
             Self::Space              => " ".to_string(),
             Self::Sequence(v)        => v.iter().map(|c| c.plain_text()).collect(),
             Self::Strong(c)          => c.plain_text(),
@@ -133,7 +138,7 @@ impl PartialEq for Content {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Empty,                Self::Empty)                => true,
-            (Self::Text(a),              Self::Text(b))              => a == b,
+            (Self::Text(a, sa),          Self::Text(b, sb))          => a == b && sa == sb,
             (Self::Space,                Self::Space)                => true,
             (Self::Sequence(a),          Self::Sequence(b))          => a.as_ref() == b.as_ref(),
             (Self::Strong(a),            Self::Strong(b))            => a == b,

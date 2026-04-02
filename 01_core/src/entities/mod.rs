@@ -24,5 +24,6 @@ pub mod args;
 pub mod content;
 pub mod func;
 pub mod layout_types;
+pub mod style_chain;
 pub mod value;
 pub mod world_types;
