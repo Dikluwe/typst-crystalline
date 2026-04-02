@@ -89,10 +89,27 @@ impl<M: FontMetrics> Layouter<M> {
         match content {
             Content::Empty => {}
 
-            Content::Text(text) => {
+            Content::Text(text, node_style) => {
+                // Ler o estilo do nó (Passo 30): capturado em eval via #set text().
+                // Merge com self.style (contexto de traversal Strong/Emph/Heading):
+                // - bold/italic: OR — qualquer dos dois pode activar
+                // - size: o nó tem prioridade se diferir do default (11pt);
+                //   self.style tem prioridade quando vem de heading (maior que base).
+                let effective = TextStyle {
+                    bold:   self.style.bold || node_style.bold,
+                    italic: self.style.italic || node_style.italic,
+                    size:   if self.style.size > self.font_size_pt {
+                        self.style.size   // heading ou outro override de contexto
+                    } else {
+                        node_style.size   // #set text(size:) capturado em eval
+                    },
+                };
+                let prev_style = self.style;
+                self.style = effective;
                 for word in text.split_whitespace() {
                     self.layout_word(word);
                 }
+                self.style = prev_style;
             }
 
             Content::Space => {

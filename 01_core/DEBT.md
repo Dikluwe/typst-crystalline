@@ -17,27 +17,58 @@ o mecanismo de telemetria escolhido (trait injectável ou outro).
 
 Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 
-## StyleChain — dívida estrutural do sistema de estilos
+## DEBT-3 — Safety rails hardcoded — RESOLVIDO (estrutura)
 
-`TextStyle { bold, italic, size }` é um struct plano.
-O Typst real tem centenas de propriedades de estilo (kerning, tracking,
-cores, stroke, fallback fonts, propriedades de tabela, etc.).
-Manter um struct plano significa que cada nó da árvore copia N bytes
-onde N cresce linearmente com propriedades — inaceitável a longo prazo.
+### Resolvido no Passo 28
 
-O Typst original usa StyleChain: lista ligada construída de trás para
-a frente. Cada nó carrega apenas o "delta" (o que mudou); o Layouter
-sobe a cadeia para encontrar o primeiro valor definido. Custo: O(1)
-de alocação por nó, não O(N).
+- **`while` limit**: 10.000 → 1.000.000, via `EvalContext::tick_loop()`
+- **`MAX_CALL_DEPTH`**: 200 → 250, via `EvalContext::check_call_depth()`
+- **Limites documentados em `EvalContext`**: não mais magia inline
+- **Métodos de verificação**: `check_call_depth()` e `tick_loop()` implementados
+- **Limite global de loop**: contador acumulado ao longo de toda eval, não por loop
 
-A sintaxe `#set text(font: "Arial", size: 10pt)` requer StyleChain —
-é incompatível com struct plano.
+### Resolvido no Passo 29
 
-Estimativa de refactorização: Passo 30+, após o pipeline básico estar
-estável. Não tentar antes.
+- **Detecção de ciclos de importação**: `EvalContext::enter_import()` + `ImportGuard`
+- **`import_stack: Vec<FileId>`**: rastreamento de ficheiros em avaliação
+- **`ModuleImport` e `ModuleInclude`**: retornam Err limpo (não panic)
 
-Ficheiros a refactorizar quando chegar a hora:
-- 01_core/src/entities/layout_types.rs (TextStyle → StyleChain)
-- 01_core/src/rules/layout.rs (Layouter, contexto de estilo)
-- 01_core/src/entities/content.rs (Content::Styled com StyleChain)
-- 03_infra/src/export.rs (resolução de estilos para PDF)
+### Pendente (não é DEBT — é feature futura)
+
+- **Implementação de `import` completo**: Passo 33+
+- **Integração com `comemo`**: tracking semântico real (aguarda TrackedWorld real)
+
+### Ficheiros alterados
+
+- `01_core/src/rules/eval.rs`: `EvalContext` (max_call_depth 250, import_stack), `ImportGuard`, `ModuleImport`/`ModuleInclude` handling
+- `01_core/src/rules/eval.rs`: testes novos de import_stack e ModuleImport/Include
+
+## DEBT-1 — StyleChain — PARCIALMENTE RESOLVIDO
+
+### Resolvido no Passo 30
+
+- **`StyleChain`** implementada em `entities/style_chain.rs` (L1)
+- **`StyleDelta { bold, italic, size }`** como delta de herança
+- **`#set text(bold:, italic:, size:)`** avaliado em `eval_expr` (Expr::SetRule)
+- **`EvalContext::styles: StyleChain`** — cadeia activa durante eval
+- **`TextStyle::from(&StyleChain)`** — bridge para layout/export actuais
+- **`Content::Text(EcoString, TextStyle)`** — estilo capturado em eval
+- **Strong/Emph/Heading** em eval: push/pop de estilos correcto
+
+### Divergência intencional
+
+- `#set` é global ao eval (não tem scoping por bloco) — DEBT menor
+- Apenas `text` como target suportado — outros targets ignorados silenciosamente
+- StyleChain não integrada com `#show` rules (Passo futuro)
+- Layout usa merge de node_style + self.style para compatibilidade com testes directos
+
+### Pendente
+
+- Scoping de `#set` por bloco `{ }`
+- Propriedades adicionais (fill, font-family, weight numérico, etc.)
+- `#show` rules
+- Paridade total com o sistema de styles do original
+- Remover os wrappers Content::Strong/Emph do layout quando eval os tiver totalmente substituído
+
+**Ficheiros alterados**: `entities/style_chain.rs` (novo), `entities/mod.rs`,
+`entities/content.rs`, `rules/eval.rs`, `rules/layout.rs`
