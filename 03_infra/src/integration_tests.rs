@@ -280,6 +280,34 @@ mod integration {
     }
 
     #[test]
+    fn pipeline_simbolos_gregos_gera_pdf() {
+        // Passo 39: alpha/beta/gamma → Unicode α/β/γ no PDF
+        let (world, _dir) = world_from_str("$alpha + beta = gamma$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty());
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pipeline_funcao_sin_gera_pdf() {
+        // Passo 39: sin(x) — sin em não-itálico, x em itálico
+        let (world, _dir) = world_from_str("$sin(x)$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty());
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
     fn pipeline_eval_retorna_err_em_sintaxe_invalida() {
         // #let x = sem valor — incompleto. Pode ser Err de parse ou eval.
         // O importante é não entrar em panic.
@@ -287,5 +315,33 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let _ = do_eval(&world, &source);
         // Se chegamos aqui, não houve panic — teste passa
+    }
+
+    #[test]
+    fn pipeline_sqrt_basico_gera_pdf() {
+        // Passo 40: sqrt(x) — MathRoot sem índice, símbolo √ + overline
+        let (world, _dir) = world_from_str("$sqrt(x^2 + 1)$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty());
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pipeline_root_com_indice_gera_pdf() {
+        // Passo 40: root(3, x) — MathRoot com índice 3
+        let (world, _dir) = world_from_str("$root(3, x)$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty());
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
     }
 }

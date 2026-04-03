@@ -845,7 +845,16 @@ fn eval_math_expr(
     expr: Expr<'_>,
 ) -> SourceResult<Content> {
     match expr {
-        Expr::MathIdent(ident) => Ok(Content::MathIdent(ident.get().into())),
+        Expr::MathIdent(ident) => {
+            let name = ident.get();
+            if let Some(sym) = crate::rules::math::symbols::ident_to_unicode(name) {
+                // Símbolo grego ou operador: converter para Unicode
+                Ok(Content::MathText(sym.into()))
+            } else {
+                // Variável, função, ou identificador desconhecido — manter como MathIdent
+                Ok(Content::MathIdent(name.into()))
+            }
+        }
         Expr::MathText(text) => {
             let s = match text.get() {
                 MathTextKind::Grapheme(s) => s,
@@ -906,6 +915,37 @@ fn eval_math_expr(
                     } else {
                         Ok(Content::Empty)
                     }
+                }
+                // sqrt(x) — 1 argumento posicional → Content::MathRoot { index: None }
+                "sqrt" => {
+                    let args: Vec<_> = call.args().items().filter_map(|a| match a {
+                        Arg::Pos(e) => Some(e),
+                        _ => None,
+                    }).collect();
+                    if args.len() != 1 {
+                        return Err(vec![SourceDiagnostic::error(
+                            call.span(),
+                            format!("sqrt espera exactamente 1 argumento, recebeu {}", args.len()),
+                        )]);
+                    }
+                    let radicand = eval_math_expr(scopes, ctx, args[0])?;
+                    Ok(Content::MathRoot { index: None, radicand: Box::new(radicand) })
+                }
+                // root(n, x) — 2 argumentos posicionais: índice, radicando
+                "root" => {
+                    let args: Vec<_> = call.args().items().filter_map(|a| match a {
+                        Arg::Pos(e) => Some(e),
+                        _ => None,
+                    }).collect();
+                    if args.len() != 2 {
+                        return Err(vec![SourceDiagnostic::error(
+                            call.span(),
+                            format!("root espera exactamente 2 argumentos, recebeu {}", args.len()),
+                        )]);
+                    }
+                    let index    = eval_math_expr(scopes, ctx, args[0])?;
+                    let radicand = eval_math_expr(scopes, ctx, args[1])?;
+                    Ok(Content::MathRoot { index: Some(Box::new(index)), radicand: Box::new(radicand) })
                 }
                 // Outros nomes: tratar como MathIdent (sin, cos, lim, …)
                 _ => Ok(Content::MathIdent(name.into())),
@@ -2143,6 +2183,38 @@ mod tests {
         }
     }
 
+    // ── Testes de Passo 39 — símbolos matemáticos ────────────────────────────
+
+    #[test]
+    fn eval_alpha_produz_unicode() {
+        use crate::rules::layout::layout;
+        let world = MockWorld::new("$alpha$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let m     = eval_for_test(&world, &src).unwrap();
+        let content = m.content().expect("módulo deve ter content");
+        let doc = layout(content);
+        // α deve aparecer no texto, não "alpha"
+        let plain = doc.plain_text();
+        assert!(plain.contains('α'), "α deve estar no output, não 'alpha': {}", plain);
+        assert!(!plain.contains("alpha"), "texto literal 'alpha' não deve aparecer: {}", plain);
+    }
+
+    #[test]
+    fn eval_shorthand_seta() {
+        let world = MockWorld::new("$x -> y$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_ok(), "$x -> y$ falhou: {:?}", result);
+    }
+
+    #[test]
+    fn eval_equacao_com_sum() {
+        let world = MockWorld::new("$sum_(i=0)^n x_i$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_ok(), "equação com sum falhou: {:?}", result);
+    }
+
     // ── Testes de Passo 38 — frac() nativa e MathDelimited ──────────────────
 
     #[test]
@@ -2173,6 +2245,111 @@ mod tests {
         let src   = World::source(&world, World::main(&world)).unwrap();
         let result = eval_for_test(&world, &src);
         assert!(result.is_ok(), "$[x]$ deve avaliar sem erro: {:?}", result);
+    }
+
+    // ── Testes de Passo 40 — sqrt() e root() nativos ────────────────────────
+
+    #[test]
+    fn eval_sqrt_produz_math_root_sem_indice() {
+        let world = MockWorld::new("$sqrt(x)$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let m     = eval_for_test(&world, &src).unwrap();
+        let content = m.content().expect("módulo deve ter content");
+        // Verificar que o conteúdo contém MathRoot
+        fn has_math_root(c: &Content) -> bool {
+            match c {
+                Content::MathRoot { index, .. } => index.is_none(),
+                Content::Equation { body, .. } => has_math_root(body),
+                Content::MathSequence(ns) => ns.iter().any(has_math_root),
+                Content::Sequence(ns) => ns.iter().any(has_math_root),
+                _ => false,
+            }
+        }
+        assert!(has_math_root(content), "sqrt(x) deve produzir MathRoot sem índice");
+    }
+
+    #[test]
+    fn eval_root_com_indice_produz_math_root_com_indice() {
+        let world = MockWorld::new("$root(3, x)$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let m     = eval_for_test(&world, &src).unwrap();
+        let content = m.content().expect("módulo deve ter content");
+        fn has_math_root_with_index(c: &Content) -> bool {
+            match c {
+                Content::MathRoot { index, .. } => index.is_some(),
+                Content::Equation { body, .. } => has_math_root_with_index(body),
+                Content::MathSequence(ns) => ns.iter().any(has_math_root_with_index),
+                Content::Sequence(ns) => ns.iter().any(has_math_root_with_index),
+                _ => false,
+            }
+        }
+        assert!(has_math_root_with_index(content), "root(3,x) deve produzir MathRoot com índice");
+    }
+
+    #[test]
+    fn eval_sqrt_zero_args_retorna_erro() {
+        let world = MockWorld::new("$sqrt()$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "sqrt() com 0 args deve retornar erro");
+    }
+
+    #[test]
+    fn eval_sqrt_dois_args_retorna_erro() {
+        let world = MockWorld::new("$sqrt(x, y)$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "sqrt(x,y) com 2 args deve retornar erro");
+    }
+
+    #[test]
+    fn eval_root_um_arg_retorna_erro() {
+        let world = MockWorld::new("$root(3)$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "root(3) com 1 arg deve retornar erro");
+    }
+
+    #[test]
+    fn eval_sqrt_layout_contem_radical() {
+        use crate::rules::layout::layout;
+        let world = MockWorld::new("$sqrt(x)$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let m     = eval_for_test(&world, &src).unwrap();
+        let content = m.content().expect("content");
+        let doc = layout(content);
+        let plain = doc.plain_text();
+        assert!(plain.contains('√'), "layout de sqrt deve conter √: {}", plain);
+        assert!(plain.contains('x'), "layout de sqrt deve conter x: {}", plain);
+    }
+
+    #[test]
+    fn eval_sqrt_layout_tem_overline() {
+        use crate::rules::layout::layout;
+        use crate::entities::layout_types::FrameItem;
+        let world = MockWorld::new("$sqrt(x)$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let m     = eval_for_test(&world, &src).unwrap();
+        let content = m.content().expect("content");
+        let doc = layout(content);
+        let has_line = doc.pages.iter().any(|p| {
+            p.items.iter().any(|i| matches!(i, FrameItem::Line { .. }))
+        });
+        assert!(has_line, "layout de sqrt deve conter FrameItem::Line para overline");
+    }
+
+    #[test]
+    fn eval_root_layout_contem_indice_e_radicando() {
+        use crate::rules::layout::layout;
+        let world = MockWorld::new("$root(3, x)$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let m     = eval_for_test(&world, &src).unwrap();
+        let content = m.content().expect("content");
+        let doc = layout(content);
+        let plain = doc.plain_text();
+        assert!(plain.contains('3'), "layout de root(3,x) deve conter 3: {}", plain);
+        assert!(plain.contains('√'), "layout de root(3,x) deve conter √: {}", plain);
+        assert!(plain.contains('x'), "layout de root(3,x) deve conter x: {}", plain);
     }
 
     // ── Testes de Passo 33 — scoping de #set por bloco ──────────────────────
