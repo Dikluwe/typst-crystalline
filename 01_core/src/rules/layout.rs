@@ -10,6 +10,7 @@ use crate::entities::{
     content::Content,
     layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle},
 };
+use crate::rules::math;
 
 // ── Métricas de fonte ──────────────────────────────────────────────────────
 
@@ -199,22 +200,32 @@ impl<M: FontMetrics> Layouter<M> {
                 self.layout_content(body);
             }
 
-            // ── Matemática (Passo 34) — placeholder até Passo 36 ────────────
+            // ── Matemática (Passo 36) — delegação ao MathLayouter ───────────
             Content::Equation { body, block } => {
-                // Placeholder: renderizar como texto plano até o motor de equações
-                // (Passo 36+) tratar correctamente (DEBT-8).
-                let text = body.plain_text();
+                let mut math_layouter = math::layout::MathLayouter::new(&self.metrics);
+                let math_frame = math_layouter.layout_equation(body, &self.style);
+
                 if *block {
                     if self.cursor_x > MARGIN { self.flush_line(); }
-                    for word in format!("[{}]", text).split_whitespace() {
-                        self.layout_word(word);
-                    }
-                    self.flush_line();
-                } else {
-                    for word in text.split_whitespace() {
-                        self.layout_word(word);
+                }
+
+                // Integrar items do frame matemático no frame actual.
+                // Posições do math_frame são relativas à origem — ajustar para
+                // a posição absoluta actual (cursor_x, cursor_y).
+                let offset_x = self.cursor_x;
+                let offset_y = self.cursor_y;
+                for item in math_frame.items {
+                    if let FrameItem::Text { pos, text, style } = item {
+                        let abs_pos = Point { x: offset_x + pos.x, y: offset_y };
+                        let advance = self.metrics.advance(&text, style.size);
+                        self.current_line.push(FrameItem::Text {
+                            pos: abs_pos, text, style,
+                        });
+                        self.cursor_x = self.cursor_x + advance;
                     }
                 }
+
+                if *block { self.flush_line(); }
             }
 
             Content::MathSequence(_)

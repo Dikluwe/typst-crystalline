@@ -2090,6 +2090,26 @@ mod tests {
         let _ = m;
     }
 
+    #[test]
+    fn eval_e_layout_equation_sem_colchetes() {
+        use crate::rules::layout::{layout, FixedMetrics};
+        let world = MockWorld::new("$x$");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        // Verificar que o layout não produz "[" nos FrameItems
+        if let Some(content) = m.content() {
+            let doc = layout(content);
+            for page in &doc.pages {
+                for item in &page.items {
+                    if let crate::entities::layout_types::FrameItem::Text { text, .. } = item {
+                        assert!(!text.starts_with('['),
+                            "equação não deve produzir '[' no layout: {}", text);
+                    }
+                }
+            }
+        }
+    }
+
     // ── Testes de Passo 33 — scoping de #set por bloco ──────────────────────
 
     #[test]
