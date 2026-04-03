@@ -143,7 +143,7 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 
 ## DEBT-8 — Motor de equações — PARCIALMENTE RESOLVIDO
 
-**Parcialmente resolvido no Passo 36**. Registado no Passo 34.
+**Parcialmente resolvido no Passo 37**. Registado no Passo 34.
 
 **Resolvido no Passo 36**:
 - `MathLayouter` criado em `rules/math/layout.rs` (L1 puro)
@@ -152,25 +152,32 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 - Placeholder `[equação]` removido do layouter principal
 - `Content::Equation` delega ao `MathLayouter` para inline e block
 
+**Resolvido no Passo 38**:
+- `FrameItem::Line { start, end, thickness }` adicionado a `layout_types.rs`
+- `layout_frac` emite `FrameItem::Line` para a linha horizontal entre num/den
+- `MathBox::place()` e `hconcat()` propagam offsets para `FrameItem::Line`
+- `export.rs` trata `FrameItem::Line` com operadores PDF `q w m l S Q`
+- `frac(a, b)` em `eval_math_expr` via `Expr::FuncCall` → `Content::MathFrac`
+- `MathDelimited` em `eval_math_expr` inclui `open` e `close` como `MathText`
+
+**Resolvido no Passo 37**:
+- `MathBox { width, ascent, descent, items }` como unidade de layout
+- `MathFrac`: numerador acima da baseline, denominador abaixo,
+  tamanho 70% do texto base. Sem linha de fracção (Passo 38+)
+- `MathAttach`: sup elevado a 50% do ascender, sub baixado a 30%
+  da descida, tamanho 65% do texto base
+- `hconcat`: concatenação horizontal de `MathBox`es
+- `MathLayouter` refactorizado para stateless (`&self`)
+- `layout_equation` retorna `Vec<FrameItem>` (posições relativas)
+- Integração em `layout.rs` usa `y: offset_y + pos.y` para
+  posicionamento vertical correcto
+
 **Ainda pendente**:
-- Espaçamento matemático correcto (kern entre símbolos)
+- Kern matemático entre símbolos
 - Fontes OpenType MATH (tabelas MATH, variantes de tamanho)
-- Layout tipográfico de `MathFrac` (numerador sobre denominador)
-- Layout tipográfico de `MathAttach` (sup elevado, sub baixado)
 - Layout tipográfico de `MathRoot` (radical com extensão)
 - `MathDelimited`, `MathPrimes`, `MathAlignPoint`, `MathShorthand`
-
-**Comportamento actual**: equações renderizam como texto plano contínuo.
-`x^2` → `x^2` no PDF. Não há mais `[...]`.
-
-**Estrutura de MathAttach no AST** (para Passo 36):
-- `attach.base()` → `Expr<'a>` — a base
-- `attach.bottom()` → `Option<Expr<'a>>` — subscript (depois de `_`)
-- `attach.top()` → `Option<Expr<'a>>` — superscript (depois de `^`)
-- `attach.primes()` → `Option<MathPrimes<'a>>` — primes (`a'`)
-
-**Ficheiros a alterar no Passo 36+**: `rules/layout.rs`, `rules/eval.rs`,
-`entities/content.rs` (possível extensão de variantes matemáticas), `03_infra/src/export.rs`
+- Baseline correcta em relação ao x-height da fonte
 
 ---
 

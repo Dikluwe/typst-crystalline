@@ -2211,4 +2211,42 @@ mod tests {
         assert_eq!(node.kind(), SyntaxKind::Code);
         assert!(!node.erroneous());
     }
+
+    // ── Testes de Passo 32 — sintaxe #let f(params) = ... ────────────────
+
+    #[test]
+    fn parse_let_funcao_com_parametros() {
+        // #let f(x, y) = x + y deve gerar LetBinding sem erros de parse
+        let node = parse("#let f(x, y) = x + y");
+        assert!(
+            node.errors().is_empty(),
+            "parse de #let f(x,y) gerou erros: {:?}", node.errors()
+        );
+        let binding = node.children()
+            .find(|n| n.kind() == SyntaxKind::LetBinding);
+        assert!(binding.is_some(), "deve gerar LetBinding");
+    }
+
+    #[test]
+    fn parse_let_funcao_sem_parametros() {
+        // #let f() = 42 — closure sem parâmetros
+        let node = parse("#let f() = 42");
+        assert!(
+            node.errors().is_empty(),
+            "parse de #let f() = 42 gerou erros: {:?}", node.errors()
+        );
+        let binding = node.children()
+            .find(|n| n.kind() == SyntaxKind::LetBinding);
+        assert!(binding.is_some(), "deve gerar LetBinding");
+    }
+
+    #[test]
+    fn parse_let_funcao_recursiva() {
+        // #let fib(n) = if n <= 1 { n } else { fib(n - 1) + fib(n - 2) }
+        let node = parse("#let fib(n) = if n <= 1 { n } else { fib(n - 1) + fib(n - 2) }");
+        assert!(
+            node.errors().is_empty(),
+            "parse de #let fib(n) gerou erros: {:?}", node.errors()
+        );
+    }
 }

@@ -252,6 +252,16 @@ fn build_page_stream_type1(page: &Frame) -> Vec<u8> {
                     style.size.val(), pos.x.val(), pdf_y
                 ));
             }
+            FrameItem::Line { start, end, thickness } => {
+                let x1 = start.x.val();
+                let y1 = page_height - start.y.val();
+                let x2 = end.x.val();
+                let y2 = page_height - end.y.val();
+                ops.push_str(&format!(
+                    "q {:.3} w {:.1} {:.1} m {:.1} {:.1} l S Q\n",
+                    thickness, x1, y1, x2, y2
+                ));
+            }
         }
     }
 
@@ -367,6 +377,16 @@ fn build_page_stream_cidfont(page: &Frame, char_to_gid: &HashMap<char, u16>) -> 
                 ops.push_str(&format!(
                     "BT\n/F1 {:.1} Tf\n{:.1} {:.1} Td\n{hex_str} Tj\nET\n",
                     style.size.val(), pos.x.val(), pdf_y
+                ));
+            }
+            FrameItem::Line { start, end, thickness } => {
+                let x1 = start.x.val();
+                let y1 = page_height - start.y.val();
+                let x2 = end.x.val();
+                let y2 = page_height - end.y.val();
+                ops.push_str(&format!(
+                    "q {:.3} w {:.1} {:.1} m {:.1} {:.1} l S Q\n",
+                    thickness, x1, y1, x2, y2
                 ));
             }
         }

@@ -878,7 +878,40 @@ fn eval_math_expr(
             Ok(Content::MathRoot { index, radicand: Box::new(radicand) })
         }
         Expr::Math(inner) => eval_math_content(scopes, ctx, inner),
-        Expr::MathDelimited(delim) => eval_math_content(scopes, ctx, delim.body()),
+
+        // MathDelimited: inclui os delimitadores como MathText (Passo 38)
+        Expr::MathDelimited(delim) => {
+            let open  = eval_math_expr(scopes, ctx, delim.open())?;
+            let body  = eval_math_content(scopes, ctx, delim.body())?;
+            let close = eval_math_expr(scopes, ctx, delim.close())?;
+            Ok(Content::MathSequence(vec![open, body, close].into()))
+        }
+
+        // frac() e outras funções nativas de math (Passo 38)
+        Expr::FuncCall(call) => {
+            let name = match call.callee() {
+                Expr::MathIdent(ident) => ident.get().to_string(),
+                _ => return Ok(Content::Empty),
+            };
+            match name.as_str() {
+                "frac" => {
+                    let mut pos_args = call.args().items().filter_map(|arg| match arg {
+                        Arg::Pos(expr) => Some(expr),
+                        _ => None,
+                    });
+                    if let (Some(num_expr), Some(den_expr)) = (pos_args.next(), pos_args.next()) {
+                        let num = eval_math_expr(scopes, ctx, num_expr)?;
+                        let den = eval_math_expr(scopes, ctx, den_expr)?;
+                        Ok(Content::MathFrac { num: Box::new(num), den: Box::new(den) })
+                    } else {
+                        Ok(Content::Empty)
+                    }
+                }
+                // Outros nomes: tratar como MathIdent (sin, cos, lim, …)
+                _ => Ok(Content::MathIdent(name.into())),
+            }
+        }
+
         // Primes, AlignPoint, e outros nós não implementados → placeholder vazio
         _ => Ok(Content::Empty),
     }
@@ -2108,6 +2141,38 @@ mod tests {
                 }
             }
         }
+    }
+
+    // ── Testes de Passo 38 — frac() nativa e MathDelimited ──────────────────
+
+    #[test]
+    fn eval_frac_funcao_nativa_produz_mathfrac() {
+        // frac(a, b) em modo math deve produzir Content::MathFrac, não Content::Empty
+        let world = MockWorld::new("$frac(a, b)$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let m     = eval_for_test(&world, &src).unwrap();
+        // Módulo deve ter content (equação não foi silenciada)
+        let content = m.content().expect("módulo deve ter content");
+        // Plain text do layout deve conter "a" e "b" (não vazio)
+        use crate::rules::layout::layout;
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty(), "frac(a,b) deve produzir pelo menos uma página");
+    }
+
+    #[test]
+    fn eval_math_delimited_parenteses() {
+        let world = MockWorld::new("$(a + b)$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_ok(), "$(a + b)$ deve avaliar sem erro: {:?}", result);
+    }
+
+    #[test]
+    fn eval_math_delimited_colchetes() {
+        let world = MockWorld::new("$[x]$");
+        let src   = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_ok(), "$[x]$ deve avaliar sem erro: {:?}", result);
     }
 
     // ── Testes de Passo 33 — scoping de #set por bloco ──────────────────────

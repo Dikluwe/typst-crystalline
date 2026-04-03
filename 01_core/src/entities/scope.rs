@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/entities/scope.md
 //! @prompt-hash 9c418396
 //! @layer L1
-//! @updated 2026-03-28
+//! @updated 2026-04-02
 
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
@@ -14,7 +14,7 @@ use crate::entities::value::Value;
 /// Mantido acoplado ao stub Value::None neste passo.
 /// Campos adicionais do original (kind, span, category, deprecation) são
 /// adicionados quando Value real migrar — não antecipar. (ADR-0017)
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Binding {
     value: Value,
 }
@@ -39,7 +39,7 @@ impl Binding {
 /// de bindings em Typst é semanticamente significativa (ADR-0023).
 /// Hasher: FxBuildHasher de rustc_hash (ADR-0018) — rápido para
 /// identificadores curtos.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Scope {
     map: IndexMap<String, Binding, FxBuildHasher>,
 }

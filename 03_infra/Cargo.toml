@@ -13,3 +13,8 @@ thiserror  = { workspace = true }
 ttf-parser  = { workspace = true }  # ADR-0019 — parsing de fontes
 rustybuzz   = { workspace = true }  # ADR-0019 — shaping de texto
 time        = { workspace = true }  # ADR-0021 — today() em SystemWorld
+
+[dev-dependencies]
+# comemo: necessário para chamar eval() nos testes de integração (DEBT-6, Passo 32).
+# Só em dev-dependencies — não entra em produção.
+comemo = { workspace = true }

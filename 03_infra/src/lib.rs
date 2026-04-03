@@ -9,3 +9,6 @@ pub mod font_metrics;
 pub mod fonts;
 pub mod layout;
 pub mod world;
+
+#[cfg(test)]
+mod integration_tests;
