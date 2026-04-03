@@ -15,6 +15,7 @@ use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 use crate::entities::ast::code::{Conditional, ForLoop, LetBinding, LetBindingKind, WhileLoop};
 use crate::entities::ast::expr::{Arg, BinOp, Expr, Param, Pattern, UnOp};
+use crate::entities::ast::math::{Math, MathTextKind};
 use crate::entities::file_id::FileId;
 use crate::entities::layout_types::TextStyle;
 use crate::entities::style_chain::{StyleChain, StyleDelta};
@@ -478,6 +479,21 @@ fn eval_expr(
             result
         }
 
+        Expr::Equation(eq) => {
+            let block = eq.block();
+            let body  = eval_math_content(scopes, ctx, eq.body())?;
+            Ok(Value::Content(Content::Equation {
+                body: Box::new(body),
+                block,
+            }))
+        }
+
+        Expr::Math(math) => {
+            // Math node isolado (fora de Equation) — produzir como sequence.
+            let content = eval_math_content(scopes, ctx, math)?;
+            Ok(Value::Content(content))
+        }
+
         Expr::ModuleImport(_import) => {
             // import não implementado — Passo 33+
             // A estrutura de detecção de ciclos (EvalContext::enter_import)
@@ -797,6 +813,75 @@ fn apply_closure(
 
     ctx.leave_call();
     result
+}
+
+/// Avalia o corpo de uma equação matemática — produz `Content` a partir de `Math<'_>`.
+///
+/// Stub intencional (Passo 34): produz a estrutura de nós correcta sem motor de
+/// renderização. O motor real (Passo 36+) substitui esta função com layout tipográfico.
+fn eval_math_content(
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext<'_>,
+    math: Math<'_>,
+) -> SourceResult<Content> {
+    let mut nodes: Vec<Content> = Vec::new();
+    for expr in math.exprs() {
+        let node = eval_math_expr(scopes, ctx, expr)?;
+        if !matches!(node, Content::Empty) {
+            nodes.push(node);
+        }
+    }
+    match nodes.len() {
+        0 => Ok(Content::Empty),
+        1 => Ok(nodes.remove(0)),
+        _ => Ok(Content::MathSequence(nodes.into())),
+    }
+}
+
+/// Avalia um nó de expressão em modo matemático.
+fn eval_math_expr(
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext<'_>,
+    expr: Expr<'_>,
+) -> SourceResult<Content> {
+    match expr {
+        Expr::MathIdent(ident) => Ok(Content::MathIdent(ident.get().into())),
+        Expr::MathText(text) => {
+            let s = match text.get() {
+                MathTextKind::Grapheme(s) => s,
+                MathTextKind::Number(s)   => s,
+            };
+            Ok(Content::MathText(s.into()))
+        }
+        Expr::MathShorthand(sh) => Ok(Content::MathText(sh.get().to_string().into())),
+        Expr::MathFrac(frac) => {
+            let num = eval_math_expr(scopes, ctx, frac.num())?;
+            let den = eval_math_expr(scopes, ctx, frac.denom())?;
+            Ok(Content::MathFrac { num: Box::new(num), den: Box::new(den) })
+        }
+        Expr::MathAttach(attach) => {
+            let base = eval_math_expr(scopes, ctx, attach.base())?;
+            let sub  = attach.bottom()
+                .map(|e| eval_math_expr(scopes, ctx, e))
+                .transpose()?
+                .map(Box::new);
+            let sup  = attach.top()
+                .map(|e| eval_math_expr(scopes, ctx, e))
+                .transpose()?
+                .map(Box::new);
+            Ok(Content::MathAttach { base: Box::new(base), sub, sup })
+        }
+        Expr::MathRoot(root) => {
+            // root.index() retorna Option<u8> — converter para Content::MathText se presente
+            let index = root.index().map(|n| Box::new(Content::MathText(n.to_string().into())));
+            let radicand = eval_math_expr(scopes, ctx, root.radicand())?;
+            Ok(Content::MathRoot { index, radicand: Box::new(radicand) })
+        }
+        Expr::Math(inner) => eval_math_content(scopes, ctx, inner),
+        Expr::MathDelimited(delim) => eval_math_content(scopes, ctx, delim.body()),
+        // Primes, AlignPoint, e outros nós não implementados → placeholder vazio
+        _ => Ok(Content::Empty),
+    }
 }
 
 fn eval_let(
@@ -1966,6 +2051,42 @@ mod tests {
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
         // No mínimo, confirmar que eval não dá Err.
+        let _ = m;
+    }
+
+    // ── Testes de Passo 34 — equações matemáticas ────────────────────────────
+
+    #[test]
+    fn eval_equation_inline_nao_da_err() {
+        let world = MockWorld::new("O valor de $x$ é 1.");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_ok(), "equação inline falhou: {:?}", result);
+    }
+
+    #[test]
+    fn eval_equation_block_nao_da_err() {
+        let world = MockWorld::new("$ x^2 + y^2 = r^2 $");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_ok(), "equação block falhou: {:?}", result);
+    }
+
+    #[test]
+    fn eval_equation_frac_nao_da_err() {
+        let world = MockWorld::new("$ x/2 $");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_ok(), "equação com frac falhou: {:?}", result);
+    }
+
+    #[test]
+    fn eval_equation_nao_cai_no_catch_all() {
+        // Verificar que Expr::Equation tem arm próprio e produz Content (não Value::None)
+        let world = MockWorld::new("$x$");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        // O módulo deve ter Content não-vazio (equação não foi silenciada)
         let _ = m;
     }
 
