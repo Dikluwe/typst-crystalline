@@ -2,7 +2,9 @@
 //! @prompt 00_nucleo/prompts/rules/scopes.md
 //! @prompt-hash 9ef970cc
 //! @layer L1
-//! @updated 2026-03-28
+//! @updated 2026-04-02
+
+use std::sync::Arc;
 
 use crate::entities::scope::Scope;
 use crate::entities::value::Value;
@@ -11,13 +13,18 @@ use crate::entities::world_types::Library;
 /// Pilha de âmbitos durante avaliação de Typst.
 ///
 /// Mantém o âmbito activo (`top`), uma pilha de âmbitos anteriores
-/// (`scopes`), e uma referência opcional à Library (âmbito base do std).
-/// Pesquisa: top → scopes (do mais recente para o mais antigo) → base.
+/// (`scopes`), um scope capturado opcional (para chamadas de closure),
+/// e uma referência opcional à Library (âmbito base do std).
+/// Pesquisa: top → scopes (do mais recente para o mais antigo) → captured → base.
 pub struct Scopes<'a> {
     /// Âmbito activo no momento.
     pub top: Scope,
     /// Âmbitos anteriores (mais antigo na posição 0).
     pub scopes: Vec<Scope>,
+    /// Scope capturado pela closure — partilhado via Arc sem clone dos valores.
+    /// Consultado depois de `top`/`scopes` e antes de `base`.
+    /// Permite lookup lazy das variáveis capturadas durante chamadas de closure.
+    pub captured: Option<Arc<Scope>>,
     /// Âmbito base — a biblioteca standard do Typst.
     pub base: Option<&'a Library>,
 }
@@ -28,8 +35,45 @@ impl<'a> Scopes<'a> {
         Self {
             top: Scope::new(),
             scopes: Vec::new(),
+            captured: None,
             base,
         }
+    }
+
+    /// Cria uma pilha para chamada de closure com o scope capturado como parent.
+    ///
+    /// O `parent` é partilhado via Arc — sem clone dos valores.
+    /// Lookup order: top (params/auto-ref) → captured (scope da definição).
+    pub fn with_parent(parent: Arc<Scope>) -> Scopes<'static> {
+        Scopes {
+            top: Scope::new(),
+            scopes: Vec::new(),
+            captured: Some(parent),
+            base: None,
+        }
+    }
+
+    /// Captura todos os bindings visíveis num novo Scope (snapshot eager).
+    ///
+    /// Ordem de inserção: captured → scopes → top (mais recente sobrescreve).
+    /// Wrapping em `Arc::new(scopes.snapshot())` dá captura O(N) única,
+    /// depois partilhada em O(1) por cada closure que usa o scope.
+    pub fn snapshot(&self) -> Scope {
+        let mut s = Scope::new();
+        if let Some(cap) = &self.captured {
+            for (name, binding) in cap.iter() {
+                s.define(name, binding.value().clone());
+            }
+        }
+        for scope in &self.scopes {
+            for (name, binding) in scope.iter() {
+                s.define(name, binding.value().clone());
+            }
+        }
+        for (name, binding) in self.top.iter() {
+            s.define(name, binding.value().clone());
+        }
+        s
     }
 
     /// Entra num novo âmbito: empurra `top` para a pilha e cria novo `top` vazio.
@@ -61,24 +105,36 @@ impl<'a> Scopes<'a> {
 
     /// Itera sobre todos os bindings visíveis em todos os âmbitos.
     ///
-    /// Ordem: scopes[0] (mais antigo) → scopes[n-1] → top (mais recente).
-    /// Usado pela captura eager: inserção mais recente sobrescreve anterior
-    /// no IndexMap de captura, garantindo o valor correcto.
+    /// Ordem: captured → scopes[0] (mais antigo) → scopes[n-1] → top (mais recente).
+    /// Inserção mais recente sobrescreve anterior, garantindo o valor correcto.
     pub fn iter_all(&self) -> impl Iterator<Item = (&str, &Value)> + '_ {
-        self.scopes.iter()
-            .chain(std::iter::once(&self.top))
-            .flat_map(|scope| scope.iter().map(|(name, binding)| (name, binding.value())))
+        let cap_iter: Box<dyn Iterator<Item = (&str, &Value)> + '_> =
+            if let Some(cap) = &self.captured {
+                Box::new(cap.iter().map(|(name, binding)| (name, binding.value())))
+            } else {
+                Box::new(std::iter::empty())
+            };
+        cap_iter.chain(
+            self.scopes.iter()
+                .chain(std::iter::once(&self.top))
+                .flat_map(|scope| scope.iter().map(|(name, binding)| (name, binding.value())))
+        )
     }
 
     /// Pesquisa um nome do âmbito mais local para o mais global.
     ///
-    /// Ordem: top → scopes (reverso) → base.
+    /// Ordem: top → scopes (reverso) → captured → base.
     pub fn get(&self, name: &str) -> Option<&Value> {
         if let Some(v) = self.top.get(name) {
             return Some(v);
         }
         for scope in self.scopes.iter().rev() {
             if let Some(v) = scope.get(name) {
+                return Some(v);
+            }
+        }
+        if let Some(cap) = &self.captured {
+            if let Some(v) = cap.get(name) {
                 return Some(v);
             }
         }

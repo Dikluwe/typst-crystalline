@@ -223,6 +223,63 @@ mod integration {
     }
 
     #[test]
+    fn pipeline_frac_gera_pdf_sem_panic() {
+        // Passo 37: MathFrac com posicionamento vertical.
+        // Usa a/b (operador /) que produz Expr::MathFrac no AST — não frac(a,b).
+        let (world, _dir) = world_from_str("$a/b$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty());
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pipeline_attach_sup_gera_pdf_sem_panic() {
+        // Passo 37: MathAttach com sup elevado — usa ^ que produz Expr::MathAttach.
+        let (world, _dir) = world_from_str("$x^2$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty());
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pipeline_frac_funcao_nativa_gera_pdf() {
+        // Passo 38: frac(a,b) como função nativa → Content::MathFrac
+        let (world, _dir) = world_from_str("$frac(a, b)$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty());
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pipeline_linha_fraccao_no_pdf() {
+        // Passo 38: linha de fracção deve produzir operador S (stroke) no PDF
+        let (world, _dir) = world_from_str("$a/b$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+        assert!(pdf_str.contains(" S ") || pdf_str.contains(" S Q"),
+            "PDF deve conter operador S (stroke) para a linha de fracção");
+    }
+
+    #[test]
     fn pipeline_eval_retorna_err_em_sintaxe_invalida() {
         // #let x = sem valor — incompleto. Pode ser Err de parse ou eval.
         // O importante é não entrar em panic.

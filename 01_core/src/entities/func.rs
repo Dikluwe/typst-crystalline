@@ -2,13 +2,11 @@
 //! @prompt 00_nucleo/prompts/entities/func.md
 //! @prompt-hash 854fecc9
 //! @layer L1
-//! @updated 2026-03-28
+//! @updated 2026-04-02
 
 use std::sync::Arc;
 
-use indexmap::IndexMap;
-use rustc_hash::FxBuildHasher;
-
+use crate::entities::scope::Scope;
 use crate::entities::source_result::SourceResult;
 use crate::entities::syntax_node::SyntaxNode;
 use crate::entities::value::Value;
@@ -33,12 +31,17 @@ pub struct ClosureRepr {
     pub params:   Vec<ClosureParam>,
     /// Corpo da closure — SyntaxNode clone O(1) via Arc interno.
     pub body:     SyntaxNode,
-    /// Variáveis capturadas — eager snapshot do scope no momento da definição.
+    /// Scope capturado no momento da definição da closure.
     ///
-    /// Semântica: captura por valor (não por referência).
-    /// Divergência do original (que usa comemo para lazy access ao scope):
-    /// registada em DEBT.md — não emular comemo na closure.
-    pub captured: IndexMap<String, Value, FxBuildHasher>,
+    /// `Arc<Scope>` com snapshot eager (Opção B — DEBT-2):
+    /// - Captura: O(N) uma única vez para construir o snapshot
+    /// - Partilha: O(1) por Arc::clone em `apply_closure`
+    /// - Semântica: snapshot do estado do scope no momento da definição.
+    ///   Closures vêem os valores do momento da captura, não da chamada.
+    ///
+    /// Divergência do original (que usa comemo para lazy access):
+    /// registada em DEBT-2. A integração com comemo é trabalho futuro.
+    pub captured: Arc<Scope>,
 }
 
 /// Um parâmetro de closure com nome e default opcional.
@@ -105,8 +108,7 @@ impl PartialEq for Func {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use indexmap::IndexMap;
-    use rustc_hash::FxBuildHasher;
+    use crate::entities::scope::Scope;
     use crate::entities::source::Source;
     use crate::entities::value::Value;
 
@@ -117,7 +119,7 @@ mod tests {
             name: None,
             params: vec![ClosureParam { name: "x".into(), default: None }],
             body,
-            captured: IndexMap::with_hasher(FxBuildHasher::default()),
+            captured: Arc::new(Scope::new()),
         })
     }
 

@@ -200,28 +200,38 @@ impl<M: FontMetrics> Layouter<M> {
                 self.layout_content(body);
             }
 
-            // ── Matemática (Passo 36) — delegação ao MathLayouter ───────────
+            // ── Matemática (Passo 37) — delegação ao MathLayouter ───────────
             Content::Equation { body, block } => {
-                let mut math_layouter = math::layout::MathLayouter::new(&self.metrics);
-                let math_frame = math_layouter.layout_equation(body, &self.style);
+                let math_layouter = math::layout::MathLayouter::new(&self.metrics);
+                let math_items    = math_layouter.layout_equation(body, &self.style);
 
                 if *block {
                     if self.cursor_x > MARGIN { self.flush_line(); }
                 }
 
-                // Integrar items do frame matemático no frame actual.
-                // Posições do math_frame são relativas à origem — ajustar para
-                // a posição absoluta actual (cursor_x, cursor_y).
+                // Integrar items matemáticos no frame actual.
+                // pos.x e pos.y são relativos à origem da equação —
+                // pos.y inclui deslocamento vertical (sup/sub, frac).
                 let offset_x = self.cursor_x;
                 let offset_y = self.cursor_y;
-                for item in math_frame.items {
-                    if let FrameItem::Text { pos, text, style } = item {
-                        let abs_pos = Point { x: offset_x + pos.x, y: offset_y };
-                        let advance = self.metrics.advance(&text, style.size);
-                        self.current_line.push(FrameItem::Text {
-                            pos: abs_pos, text, style,
-                        });
-                        self.cursor_x = self.cursor_x + advance;
+                for item in math_items {
+                    match item {
+                        FrameItem::Text { pos, text, style } => {
+                            let abs_pos = Point {
+                                x: offset_x + pos.x,
+                                y: offset_y + pos.y,
+                            };
+                            let advance = self.metrics.advance(&text, style.size);
+                            self.current_line.push(FrameItem::Text { pos: abs_pos, text, style });
+                            self.cursor_x = self.cursor_x + advance;
+                        }
+                        FrameItem::Line { start, end, thickness } => {
+                            let abs_start = Point { x: offset_x + start.x, y: offset_y + start.y };
+                            let abs_end   = Point { x: offset_x + end.x,   y: offset_y + end.y };
+                            self.current_line.push(FrameItem::Line {
+                                start: abs_start, end: abs_end, thickness,
+                            });
+                        }
                     }
                 }
 
@@ -388,15 +398,16 @@ mod tests {
 
         for page in &doc.pages {
             for item in &page.items {
-                let FrameItem::Text { pos, .. } = item;
-                assert!(
-                    pos.x.val() >= 0.0 && pos.x.val() < 595.0,
-                    "x={} fora dos limites da página", pos.x.val()
-                );
-                assert!(
-                    pos.y.val() >= 0.0 && pos.y.val() < 842.0,
-                    "y={} fora dos limites da página", pos.y.val()
-                );
+                if let FrameItem::Text { pos, .. } = item {
+                    assert!(
+                        pos.x.val() >= 0.0 && pos.x.val() < 595.0,
+                        "x={} fora dos limites da página", pos.x.val()
+                    );
+                    assert!(
+                        pos.y.val() >= 0.0 && pos.y.val() < 842.0,
+                        "y={} fora dos limites da página", pos.y.val()
+                    );
+                }
             }
         }
     }
@@ -413,7 +424,7 @@ mod tests {
             .pages
             .iter()
             .flat_map(|p| p.items.iter())
-            .map(|i| { let FrameItem::Text { pos, .. } = i; pos.y.val().to_bits() })
+            .filter_map(|i| { if let FrameItem::Text { pos, .. } = i { Some(pos.y.val().to_bits()) } else { None } })
             .collect();
         assert!(y_values.len() > 1, "texto longo deve ter múltiplas linhas: {} items", items);
     }
@@ -454,7 +465,7 @@ mod tests {
         ]));
         let sizes: Vec<f64> = doc.pages.iter()
             .flat_map(|p| p.items.iter())
-            .map(|i| { let FrameItem::Text { style, .. } = i; style.size.val() })
+            .filter_map(|i| { if let FrameItem::Text { style, .. } = i { Some(style.size.val()) } else { None } })
             .collect();
         let max_size = sizes.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
         let min_size = sizes.iter().cloned().fold(f64::INFINITY,     f64::min);

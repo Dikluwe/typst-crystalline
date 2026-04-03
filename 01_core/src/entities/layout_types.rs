@@ -104,9 +104,14 @@ pub enum FrameItem {
         text:  EcoString,
         style: TextStyle,
     },
-    // Variantes futuras — NÃO implementar sem ADR:
-    // Shape { pos: Point, geometry: Geometry },
-    // Image { pos: Point, size: Size, data: Bytes },
+    /// Linha horizontal. Usada pela linha de fracção matemática (Passo 38).
+    /// `start` e `end` são posições absolutas no Frame.
+    /// `thickness` em pontos tipográficos.
+    Line {
+        start:     Point,
+        end:       Point,
+        thickness: f64,
+    },
 }
 
 /// Canvas de uma página — colecção de itens com posições absolutas.
@@ -134,6 +139,7 @@ impl Frame {
             .iter()
             .filter_map(|i| match i {
                 FrameItem::Text { text, .. } => Some(text.as_str()),
+                FrameItem::Line { .. }       => None,
             })
             .collect::<Vec<_>>()
             .join(" ")
