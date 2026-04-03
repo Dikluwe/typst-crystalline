@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/entities/content.md
 //! @prompt-hash cbe9996f
 //! @layer L1
-//! @updated 2026-04-01
+//! @updated 2026-04-03
 
 use std::sync::Arc;
 
@@ -55,6 +55,45 @@ pub enum Content {
     EnumItem { number: Option<u32>, body: Box<Content> },
     /// Hiperligação (`https://...`).
     Link { url: EcoString, body: Box<Content> },
+
+    // ── Matemática (Passo 34) ────────────────────────────────────────────────
+    /// Equação matemática (`$...$` inline, `$ ... $` block).
+    /// `block: true` → equação em linha própria (display mode).
+    /// O motor de equações (Passo 36+) processa `body`.
+    Equation {
+        body:  Box<Content>,
+        block: bool,
+    },
+
+    /// Sequência de nós matemáticos — corpo interno de uma equação.
+    MathSequence(Arc<[Content]>),
+
+    /// Identificador matemático: variável, função, símbolo (`x`, `sin`, `alpha`).
+    MathIdent(EcoString),
+
+    /// Texto literal em modo matemático (`"texto"` dentro de `$...$`).
+    MathText(EcoString),
+
+    /// Fracção matemática (`a/b` ou `frac(a, b)`).
+    MathFrac {
+        num: Box<Content>,
+        den: Box<Content>,
+    },
+
+    /// Base com índice e/ou expoente (`x_1^2`).
+    /// `sub` = índice (subscript), `sup` = expoente (superscript).
+    MathAttach {
+        base: Box<Content>,
+        sub:  Option<Box<Content>>,
+        sup:  Option<Box<Content>>,
+    },
+
+    /// Raiz matemática (`√x`, `∛x`, `∜x`).
+    /// `index`: None = raiz quadrada, Some(n) = raiz n-ésima.
+    MathRoot {
+        index:    Option<Box<Content>>,
+        radicand: Box<Content>,
+    },
 
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
@@ -130,6 +169,26 @@ impl Content {
                 format!("{}{}", n, body.plain_text())
             }
             Self::Link { body, .. }  => body.plain_text(),
+            Self::Equation { body, block } => {
+                if *block { format!("\n{}\n", body.plain_text()) }
+                else       { body.plain_text() }
+            }
+            Self::MathSequence(nodes) => nodes.iter().map(|n| n.plain_text()).collect(),
+            Self::MathIdent(s)        => s.to_string(),
+            Self::MathText(s)         => s.to_string(),
+            Self::MathFrac { num, den } => {
+                format!("({})/({})", num.plain_text(), den.plain_text())
+            }
+            Self::MathAttach { base, sub, sup } => {
+                let mut s = base.plain_text();
+                if let Some(sub) = sub { s.push_str(&format!("_{}", sub.plain_text())); }
+                if let Some(sup) = sup { s.push_str(&format!("^{}", sup.plain_text())); }
+                s
+            }
+            Self::MathRoot { index, radicand } => match index {
+                None    => format!("sqrt({})", radicand.plain_text()),
+                Some(i) => format!("root({}, {})", i.plain_text(), radicand.plain_text()),
+            },
         }
     }
 }
@@ -151,6 +210,17 @@ impl PartialEq for Content {
              Self::EnumItem { number: nb, body: bb })                => na == nb && ba == bb,
             (Self::Link { url: ua, body: ba },
              Self::Link { url: ub, body: bb })                       => ua == ub && ba == bb,
+            (Self::Equation { body: ba, block: ka },
+             Self::Equation { body: bb, block: kb })                 => ba == bb && ka == kb,
+            (Self::MathSequence(a), Self::MathSequence(b))           => a.as_ref() == b.as_ref(),
+            (Self::MathIdent(a),    Self::MathIdent(b))              => a == b,
+            (Self::MathText(a),     Self::MathText(b))               => a == b,
+            (Self::MathFrac { num: na, den: da },
+             Self::MathFrac { num: nb, den: db })                    => na == nb && da == db,
+            (Self::MathAttach { base: ba, sub: sa, sup: pa },
+             Self::MathAttach { base: bb, sub: sb, sup: pb })        => ba == bb && sa == sb && pa == pb,
+            (Self::MathRoot { index: ia, radicand: ra },
+             Self::MathRoot { index: ib, radicand: rb })             => ia == ib && ra == rb,
             _ => false,
         }
     }
@@ -271,6 +341,82 @@ mod tests {
             Content::link("https://typst.app", Content::text("Typst")).plain_text(),
             "Typst",
         );
+    }
+
+    // ── Passo 34 — variantes matemáticas ─────────────────────────────────────
+
+    #[test]
+    fn content_equation_inline_plain_text() {
+        let eq = Content::Equation {
+            body:  Box::new(Content::MathIdent("x".into())),
+            block: false,
+        };
+        assert_eq!(eq.plain_text(), "x");
+    }
+
+    #[test]
+    fn content_equation_block_plain_text() {
+        let eq = Content::Equation {
+            body:  Box::new(Content::MathIdent("x".into())),
+            block: true,
+        };
+        assert_eq!(eq.plain_text(), "\nx\n");
+    }
+
+    #[test]
+    fn content_math_frac_plain_text() {
+        let frac = Content::MathFrac {
+            num: Box::new(Content::MathIdent("a".into())),
+            den: Box::new(Content::MathIdent("b".into())),
+        };
+        assert_eq!(frac.plain_text(), "(a)/(b)");
+    }
+
+    #[test]
+    fn content_math_attach_plain_text() {
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathIdent("x".into())),
+            sub:  None,
+            sup:  Some(Box::new(Content::MathText("2".into()))),
+        };
+        assert_eq!(attach.plain_text(), "x^2");
+    }
+
+    #[test]
+    fn content_math_root_quadrada() {
+        let root = Content::MathRoot {
+            index:    None,
+            radicand: Box::new(Content::MathIdent("x".into())),
+        };
+        assert_eq!(root.plain_text(), "sqrt(x)");
+    }
+
+    #[test]
+    fn content_math_root_cubica() {
+        let root = Content::MathRoot {
+            index:    Some(Box::new(Content::MathText("3".into()))),
+            radicand: Box::new(Content::MathIdent("x".into())),
+        };
+        assert_eq!(root.plain_text(), "root(3, x)");
+    }
+
+    #[test]
+    fn content_math_sequence_plain_text() {
+        let seq = Content::MathSequence(Arc::from(vec![
+            Content::MathIdent("x".into()),
+            Content::MathText("+".into()),
+            Content::MathIdent("y".into()),
+        ].into_boxed_slice()));
+        assert_eq!(seq.plain_text(), "x+y");
+    }
+
+    #[test]
+    fn content_math_partialeq() {
+        let a = Content::MathIdent("x".into());
+        let b = Content::MathIdent("x".into());
+        let c = Content::MathIdent("y".into());
+        assert_eq!(a, b);
+        assert_ne!(a, c);
     }
 
     // ── Passo 26 — Content::Sequence com Arc (ADR-0026 revisão) ─────────────

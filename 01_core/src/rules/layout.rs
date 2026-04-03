@@ -198,6 +198,38 @@ impl<M: FontMetrics> Layouter<M> {
                 // DEBT: sublinhado e cor de link — requer FrameItem::Decoration (futuro)
                 self.layout_content(body);
             }
+
+            // ── Matemática (Passo 34) — placeholder até Passo 36 ────────────
+            Content::Equation { body, block } => {
+                // Placeholder: renderizar como texto plano até o motor de equações
+                // (Passo 36+) tratar correctamente (DEBT-8).
+                let text = body.plain_text();
+                if *block {
+                    if self.cursor_x > MARGIN { self.flush_line(); }
+                    for word in format!("[{}]", text).split_whitespace() {
+                        self.layout_word(word);
+                    }
+                    self.flush_line();
+                } else {
+                    for word in text.split_whitespace() {
+                        self.layout_word(word);
+                    }
+                }
+            }
+
+            Content::MathSequence(_)
+            | Content::MathIdent(_)
+            | Content::MathText(_)
+            | Content::MathFrac { .. }
+            | Content::MathAttach { .. }
+            | Content::MathRoot { .. } => {
+                // Nós matemáticos internos — normalmente não aparecem directamente
+                // no layout fora de Content::Equation. Se aparecerem, renderizar como texto.
+                let text = content.plain_text();
+                for word in text.split_whitespace() {
+                    self.layout_word(word);
+                }
+            }
         }
     }
 

@@ -137,3 +137,29 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 
 **Ficheiros alterados**: `entities/style_chain.rs` (novo), `entities/mod.rs`,
 `entities/content.rs`, `rules/eval.rs`, `rules/layout.rs`
+
+
+---
+
+## DEBT-8 — Motor de equações não implementado — INTENCIONAL
+
+**Estado**: Pendente — Passo 36+. Registado no Passo 34.
+
+**Descrição**: `Content::Equation` e variantes matemáticas (`MathSequence`, `MathIdent`,
+`MathText`, `MathFrac`, `MathAttach`, `MathRoot`) estão definidas (Passo 34). O eval produz
+a estrutura correcta via `eval_math_content` / `eval_math_expr`. O layout renderiza como texto
+plano placeholder. O motor real de equações (layout tipográfico, fontes matemáticas, MathML)
+começa no Passo 36 conforme ADR-0032. `eval_math_content` é um stub que já extrai base, sub
+e sup de `MathAttach` correctamente via `attach.bottom()` / `attach.top()`.
+
+**Comportamento actual**: equações block renderizam como `[texto plano]`; inline como texto plano.
+Não é erro — é placeholder documentado.
+
+**Estrutura de MathAttach no AST** (para Passo 36):
+- `attach.base()` → `Expr<'a>` — a base
+- `attach.bottom()` → `Option<Expr<'a>>` — subscript (depois de `_`)
+- `attach.top()` → `Option<Expr<'a>>` — superscript (depois de `^`)
+- `attach.primes()` → `Option<MathPrimes<'a>>` — primes (`a'`)
+
+**Ficheiros a alterar no Passo 36+**: `rules/layout.rs`, `rules/eval.rs`,
+`entities/content.rs` (possível extensão de variantes matemáticas), `03_infra/src/export.rs`

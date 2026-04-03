@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/infra.md
 //! @prompt-hash ab5728d1
 //! @layer L3
-//! @updated 2026-04-03
+//! @updated 2026-04-03 (Passo 34)
 
 /// Testes de integração: pipeline completo via SystemWorld real.
 ///
@@ -145,6 +145,31 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
+    }
+
+    #[test]
+    fn pipeline_equacao_inline_gera_pdf() {
+        let (world, _dir) = world_from_str("A equação $x^2$ é famosa.");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty());
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pipeline_equacao_block_gera_pdf() {
+        let (world, _dir) = world_from_str("$ E = m c^2 $");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty());
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
     }
 
     #[test]
