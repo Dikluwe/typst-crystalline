@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/layout.md
 //! @prompt-hash 019e6489
 //! @layer L1
-//! @updated 2026-03-28
+//! @updated 2026-04-03
 
 use ecow::EcoString;
 
@@ -90,14 +90,13 @@ impl<M: FontMetrics> Layouter<M> {
             Content::Empty => {}
 
             Content::Text(text, node_style) => {
-                // Ler o estilo do nó (Passo 30): capturado em eval via #set text().
-                // Merge com self.style (contexto de traversal Strong/Emph/Heading):
-                // - bold/italic: OR — qualquer dos dois pode activar
-                // - size: o nó tem prioridade se diferir do default (11pt);
-                //   self.style tem prioridade quando vem de heading (maior que base).
+                // Estilo resolvido em eval via #set text() e scoping de blocos (Passo 33).
+                // bold/italic: node_style já é correcto — eval captura o estilo activo no
+                // momento da produção, incluindo bold/italic de Strong/Emph/Heading.
+                // size: self.style tem prioridade quando vem de heading (maior que base).
                 let effective = TextStyle {
-                    bold:   self.style.bold || node_style.bold,
-                    italic: self.style.italic || node_style.italic,
+                    bold:   node_style.bold,
+                    italic: node_style.italic,
                     size:   if self.style.size > self.font_size_pt {
                         self.style.size   // heading ou outro override de contexto
                     } else {
@@ -380,7 +379,11 @@ mod tests {
 
     #[test]
     fn strong_produz_bold_style() {
-        let doc = layout(&Content::strong(Content::text("Bold")));
+        // Após Passo 33: node_style deve ter bold=true (capturado em eval via Strong).
+        // Construção directa usa TextStyle::bold para simular o que eval produziria.
+        let doc = layout(&Content::strong(
+            Content::Text("Bold".into(), TextStyle::bold(Pt(11.0)))
+        ));
         let bold = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .any(|i| matches!(i, FrameItem::Text { style, .. } if style.bold));
@@ -389,7 +392,11 @@ mod tests {
 
     #[test]
     fn emph_produz_italic_style() {
-        let doc = layout(&Content::emph(Content::text("Italic")));
+        // Após Passo 33: node_style deve ter italic=true (capturado em eval via Emph).
+        // Construção directa usa TextStyle::italic para simular o que eval produziria.
+        let doc = layout(&Content::emph(
+            Content::Text("Italic".into(), TextStyle::italic(Pt(11.0)))
+        ));
         let italic = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .any(|i| matches!(i, FrameItem::Text { style, .. } if style.italic));

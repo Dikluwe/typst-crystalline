@@ -1,3 +1,68 @@
+## DEBT-2 — Closures eager vs lazy capture — PARCIALMENTE RESOLVIDO
+
+### Resolvido no Passo 31
+
+- `ClosureRepr::captured` mudou de `IndexMap<String, Value>` (clone eager O(N)) para `Arc<Scope>`
+- Captura no momento da definição: snapshot O(N) uma única vez, depois partilhado em O(1)
+- `apply_closure` usa `Scopes::with_parent(Arc::clone(&captured))` — lookup sem clone dos valores
+- `eval_let` trata `LetBindingKind::Closure`: sintaxe `#let fib(n) = ...` agora funciona
+- `Expr::Closure` arm lê `closure_expr.name()` — nome propagado correctamente para recursão
+
+### Divergência residual
+
+- Semântica de captura: ainda eager (snapshot). `#let x=1; #let f()=x; #let x=2; f()` retorna `1`
+  (snapshot), não `2` (lazy). O original via `comemo` retornaria `2`.
+  **Confirmado no Passo 31**: o snapshot é uma cópia independente do scope, não uma referência
+  partilhada. Divergência semântica documentada com o original. Não bloqueante.
+- A integração com `comemo` para tracking semântico real aguarda `TrackedWorld` real.
+- Registado como sub-DEBT se cenários avançados de shadowing forem encontrados nos testes de paridade.
+
+### Pendente
+
+- Integração com `comemo` para tracking semântico real
+- Testes de paridade com o original para cenários avançados de shadowing
+
+---
+
+## DEBT-6 — eval_for_test coverage blind spot — RESOLVIDO
+
+### Registado e resolvido no Passo 32
+
+**Problema**: `eval_for_test` usa `MockWorld` — um mundo artificial que não passa pelo mecanismo
+de tracking real (`TrackedWorld`). Os testes de L1 nunca exercitavam o caminho de código de produção.
+
+**Resolvido no Passo 32**:
+- Testes de integração em `03_infra/src/integration_tests.rs`
+- Pipeline completo exercitado: `SystemWorld` → `eval` → `layout` → `export_pdf`
+- `eval()` pública confirmada como genérica sobre `TrackedWorld`
+- `eval_for_test` mantida para testes unitários rápidos de L1
+
+**Cobertura adicionada**:
+- `pipeline_texto_simples`: eval + layout via SystemWorld
+- `pipeline_export_pdf_helvetica`: export com fallback Helvetica
+- `pipeline_export_pdf_com_fonte_real`: export com fonte do sistema (ou fallback)
+- `pipeline_com_set_text_bold`: StyleChain via pipeline real
+- `pipeline_com_closures`: closures via pipeline real
+- `pipeline_eval_retorna_err_em_sintaxe_invalida`: robustez a input inválido
+
+---
+
+## DEBT-7 — Merge bold em layout — RESOLVIDO
+
+**Registado no Passo 32. Resolvido no Passo 33.**
+
+**Resolução**:
+- Save/restore de `ctx.styles` em `Expr::CodeBlock` (`#{ }`)
+- Save/restore de `ctx.styles` em `Expr::ContentBlock` (`[ ]`)
+- Save/restore de `ctx.styles` em `apply_closure` (body de closures)
+- Merge `bold || node_style.bold` e `italic || node_style.italic` removidos de `layout.rs`
+- `#set text(bold: false)` dentro de um bloco agora reverte correctamente ao sair do bloco
+- `node_style` capturado em eval já inclui o estilo correcto de Strong/Emph/Heading
+
+**Ficheiros alterados**: `rules/eval.rs`, `rules/layout.rs`
+
+---
+
 # Dívida de instrumentação — ADR-0006
 
 Os seguintes pontos de timing foram removidos para manter L1 puro.

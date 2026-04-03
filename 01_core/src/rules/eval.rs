@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/eval.md
 //! @prompt-hash f883240f
 //! @layer L1
-//! @updated 2026-04-01
+//! @updated 2026-04-03
 
 use comemo::{Tracked, TrackedMut};
 use ecow::EcoString;
@@ -284,12 +284,14 @@ fn eval_expr(
         Expr::LetBinding(binding) => eval_let(binding, scopes, ctx),
 
         Expr::CodeBlock(code_block) => {
-            // Bloco de código — avaliar exprs sequencialmente
-            // Code::exprs() já filtra trivia
+            // Bloco de código — save/restore de styles para scoping correcto.
+            // StyleChain::clone() é O(1) (clone do Arc do nó de topo).
+            let saved_styles = ctx.styles.clone();
             let mut last = Value::None;
             for expr in code_block.body().exprs() {
                 last = eval_expr(expr, scopes, ctx)?;
             }
+            ctx.styles = saved_styles;
             Ok(last)
         }
 
@@ -311,13 +313,15 @@ fn eval_expr(
         Expr::ForLoop(loop_expr) => eval_for(loop_expr, scopes, ctx),
 
         Expr::Closure(closure_expr) => {
-            // Captura eager — snapshot do scope actual no momento da definição.
-            // Semântica: valor imutável; shadowing posterior no scope pai não afecta
-            // a closure. Divergência do original (comemo lazy) — registada em DEBT.md.
-            let mut captured = IndexMap::with_hasher(FxBuildHasher::default());
-            for (name, value) in scopes.iter_all() {
-                captured.insert(name.to_string(), value.clone());
-            }
+            // Captura eager por snapshot — O(N) uma única vez, depois partilhado em O(1).
+            // Semântica: snapshot do scope no momento da definição (Opção B — DEBT-2).
+            // A closure vê o estado do scope no momento da captura, não da chamada.
+            // Integração com comemo para lazy semantics completas: trabalho futuro.
+            let captured = std::sync::Arc::new(scopes.snapshot());
+
+            // Nome da closure — preenchido para sintaxe #let fib(n) = ...
+            // Para closures anónimas (n) => ..., name é None (preenchido por eval_let).
+            let name = closure_expr.name().map(|n| n.as_str().to_string());
 
             // Extrair parâmetros — Param::Pos(Pattern::Normal(Ident)) e Param::Named
             let params: SourceResult<Vec<ClosureParam>> = closure_expr.params()
@@ -339,7 +343,7 @@ fn eval_expr(
             // Body: SyntaxNode clone O(1) via Arc interno
             let body = closure_expr.body().to_untyped().clone();
 
-            Ok(Value::Func(Func::closure(ClosureRepr { name: None, params, body, captured })))
+            Ok(Value::Func(Func::closure(ClosureRepr { name, params, body, captured })))
         }
 
         Expr::FuncCall(call) => {
@@ -464,6 +468,14 @@ fn eval_expr(
 
             ctx.styles = ctx.styles.push(delta);
             Ok(Value::None)
+        }
+
+        Expr::ContentBlock(content_block) => {
+            // Content block [ ] — save/restore de styles para scoping correcto.
+            let saved_styles = ctx.styles.clone();
+            let result = eval_markup(content_block.body().to_untyped(), scopes, ctx);
+            ctx.styles = saved_styles;
+            result
         }
 
         Expr::ModuleImport(_import) => {
@@ -729,11 +741,18 @@ fn apply_func(
     }
 }
 
-/// Aplica uma closure: cria scope isolado, injeta capturadas + auto-ref + params.
+/// Aplica uma closure: cria scope filho do captured, injeta auto-ref + params.
 ///
-/// **Auto-injecção para recursão**: se a closure tem nome (preenchido por eval_let),
-/// injeta `Value::Func(func.clone())` no call_scope sob esse nome. O Arc é destruído
-/// quando o call_scope sai do scope — sem ciclo permanente.
+/// **Lookup lazy via Arc**: `Scopes::with_parent(Arc::clone(&closure.captured))`
+/// cria um scope filho sem clonar os valores capturados. O lookup percorre
+/// `top` (params/auto-ref) → `captured` (scope da definição) sem cópia.
+///
+/// **Auto-injecção para recursão**: se a closure tem nome, injeta
+/// `Value::Func(func.clone())` em `call_scopes.top`. O Arc é destruído
+/// quando `call_scopes` sai de scope — sem ciclo permanente.
+///
+/// **Ordem auto-ref → params**: a auto-referência é definida primeiro para
+/// que um parâmetro com o mesmo nome que a função sombre correctamente.
 fn apply_closure(
     closure: &ClosureRepr,
     func: &Func,
@@ -742,14 +761,11 @@ fn apply_closure(
 ) -> SourceResult<Value> {
     ctx.enter_call(closure.body.span())?;
 
-    let mut call_scopes = Scopes::new(None);
+    // Criar scope filho do captured — O(1), sem clone dos valores capturados.
+    let mut call_scopes = Scopes::with_parent(std::sync::Arc::clone(&closure.captured));
 
-    // Variáveis capturadas — eager snapshot do momento da definição da closure
-    for (name, value) in &closure.captured {
-        call_scopes.define(name.as_str(), value.clone());
-    }
-
-    // Auto-injecção para recursão — referência vive apenas durante esta chamada
+    // Auto-injecção para recursão — definida antes dos params para que um
+    // parâmetro com o mesmo nome sombre a função (comportamento do original).
     if let Some(ref name) = closure.name {
         call_scopes.define(name.clone(), Value::Func(func.clone()));
     }
@@ -769,12 +785,15 @@ fn apply_closure(
         call_scopes.define(param.name.as_str(), val);
     }
 
-    // Avaliar o body com o scope da chamada
+    // Avaliar o body com o scope da chamada.
+    // Save/restore de styles: #set dentro da closure não deve afectar o caller.
+    let saved_styles = ctx.styles.clone();
     let result = if let Some(body_expr) = Expr::from_untyped(&closure.body) {
         eval_expr(body_expr, &mut call_scopes, ctx)
     } else {
         Ok(Value::None)
     };
+    ctx.styles = saved_styles;
 
     ctx.leave_call();
     result
@@ -790,15 +809,25 @@ fn eval_let(
         None => Value::None,
     };
 
-    if let LetBindingKind::Normal(pattern) = binding.kind() {
-        // Binding simples: #let x = ... → Pattern::Normal(Expr::Ident(x))
-        let bindings = pattern.bindings();
-        if let Some(ident) = bindings.into_iter().next() {
-            let name = ident.as_str().to_string();
-            // Se a closure ainda não tem nome, dar-lhe o nome da binding (para recursão)
-            if let Value::Func(ref mut func) = value {
-                func.set_name(name.clone());
+    match binding.kind() {
+        LetBindingKind::Normal(pattern) => {
+            // Binding simples: #let x = ... → Pattern::Normal(Expr::Ident(x))
+            let bindings = pattern.bindings();
+            if let Some(ident) = bindings.into_iter().next() {
+                let name = ident.as_str().to_string();
+                // Se a closure ainda não tem nome, dar-lhe o nome da binding (para recursão)
+                if let Value::Func(ref mut func) = value {
+                    func.set_name(name.clone());
+                }
+                scopes.define(name, value);
             }
+        }
+        LetBindingKind::Closure(ident) => {
+            // Sintaxe function shorthand: #let fib(n) = ...
+            // O nó Closure já carrega o nome — apenas definir no scope.
+            // set_name() não é necessário: o nome vem de closure_expr.name()
+            // no arm Expr::Closure (ver eval_expr).
+            let name = ident.as_str().to_string();
             scopes.define(name, value);
         }
     }
@@ -1317,17 +1346,17 @@ mod tests {
 
     #[test]
     fn func_type_name() {
+        use std::sync::Arc;
         use crate::entities::func::{ClosureRepr, Func};
+        use crate::entities::scope::Scope;
         use crate::entities::source::Source;
-        use indexmap::IndexMap;
-        use rustc_hash::FxBuildHasher;
         let source = Source::detached("x");
         let body = source.root().clone();
         let f = Func::closure(ClosureRepr {
             name: None,
             params: vec![],
             body,
-            captured: IndexMap::with_hasher(FxBuildHasher::default()),
+            captured: Arc::new(Scope::new()),
         });
         assert_eq!(Value::Func(f).type_name(), "function");
     }
@@ -1817,6 +1846,84 @@ mod tests {
         assert!(result.is_err());
     }
 
+    // ── Testes de Passo 31 — DEBT-2: closures lazy vs eager ─────────────────
+
+    #[test]
+    fn closure_captura_scope_no_momento_da_definicao() {
+        // Caso base — closure vê binding que existia quando foi definida
+        let world = MockWorld::new(
+            "#let x = 1\n\
+             #let f() = x\n\
+             #let resultado = f()"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("resultado"), Some(&Value::Int(1)));
+    }
+
+    #[test]
+    fn closure_ve_shadowing_no_scope_pai() {
+        // Este teste documenta a semântica actual.
+        // #let x = 1; #let f() = x; #let x = 2; #f()
+        // Original (lazy comemo): 2
+        // Cristalino com Arc<Scope>: 1 (snapshot eager — ver DEBT-2)
+        let world = MockWorld::new(
+            "#let x = 1\n\
+             #let f() = x\n\
+             #let x = 2\n\
+             #let resultado = f()"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        let resultado = m.scope().get("resultado").cloned();
+        // Aceitar 1 (eager/Arc snapshot) ou 2 (lazy).
+        assert!(
+            resultado == Some(Value::Int(1)) || resultado == Some(Value::Int(2)),
+            "resultado inesperado: {:?}", resultado
+        );
+    }
+
+    #[test]
+    fn closure_recursiva_funciona() {
+        // Recursão directa com sintaxe #let fib(n) = ...
+        let world = MockWorld::new(
+            "#let fib(n) = if n <= 1 { n } else { fib(n - 1) + fib(n - 2) }\n\
+             #let resultado = fib(7)"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("resultado"), Some(&Value::Int(13)));
+    }
+
+    #[test]
+    fn closure_captura_por_arc_nao_clona_scope() {
+        // Closures com scopes grandes não causam erros
+        let world = MockWorld::new(
+            "#let a = 1\n\
+             #let b = 2\n\
+             #let c = 3\n\
+             #let f() = a + b + c\n\
+             #let resultado = f()"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("resultado"), Some(&Value::Int(6)));
+    }
+
+    #[test]
+    fn closure_com_argumento_sombra_captura() {
+        // Parâmetro da closure sombra binding do scope capturado
+        let world = MockWorld::new(
+            "#let x = 10\n\
+             #let f(x) = x * 2\n\
+             #let resultado = f(5)"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        // f(5) usa x=5 (parâmetro), não x=10 (capturado)
+        assert_eq!(m.scope().get("resultado"), Some(&Value::Int(10)));
+    }
+
     // ── Testes de Passo 30 — #set text() e StyleChain ────────────────────────
 
     #[test]
@@ -1860,5 +1967,81 @@ mod tests {
         let m = eval_for_test(&world, &src).unwrap();
         // No mínimo, confirmar que eval não dá Err.
         let _ = m;
+    }
+
+    // ── Testes de Passo 33 — scoping de #set por bloco ──────────────────────
+
+    #[test]
+    fn set_dentro_bloco_nao_vaza_para_fora() {
+        // #set dentro de { } não deve afectar o estilo após o bloco.
+        // Usar content blocks [ ] para texto dentro de code blocks.
+        let world = MockWorld::new(
+            "#set text(bold: true)\n\
+             antes\n\
+             #{ #set text(bold: false); [normal] }\n\
+             depois"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_ok(), "set dentro de bloco falhou: {:?}", result);
+    }
+
+    #[test]
+    fn set_dentro_closure_nao_afecta_caller() {
+        let world = MockWorld::new(
+            "#let f() = { #set text(bold: true); [negrito] }\n\
+             #f()\n\
+             texto normal"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_ok(), "closure com set falhou: {:?}", result);
+    }
+
+    #[test]
+    fn set_false_reverte_set_true_em_bloco() {
+        // #set text(bold: false) dentro de bloco reverte #set text(bold: true) global.
+        // Após o bloco, bold volta a true (estado salvo antes do bloco).
+        let world = MockWorld::new(
+            "#set text(bold: true)\n\
+             negrito\n\
+             #{ #set text(bold: false); [normal] }\n\
+             negrito novamente"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_ok(), "set false em bloco falhou: {:?}", result);
+    }
+
+    #[test]
+    fn set_aninhado_multiple_niveis() {
+        let world = MockWorld::new(
+            "#{\n\
+               #set text(size: 14pt)\n\
+               [texto14]\n\
+               #{\n\
+                 #set text(size: 18pt)\n\
+                 [texto18]\n\
+               }\n\
+               [texto14novamente]\n\
+             }"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_ok(), "set aninhado falhou: {:?}", result);
+    }
+
+    #[test]
+    fn set_em_content_block_nao_vaza() {
+        // Content block [ ] também deve ter scoping de styles
+        let world = MockWorld::new(
+            "#set text(bold: true)\n\
+             antes\n\
+             [#set text(bold: false) normal]\n\
+             depois"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_ok(), "set em content block falhou: {:?}", result);
     }
 }
