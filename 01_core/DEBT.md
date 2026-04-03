@@ -141,19 +141,27 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 
 ---
 
-## DEBT-8 — Motor de equações não implementado — INTENCIONAL
+## DEBT-8 — Motor de equações — PARCIALMENTE RESOLVIDO
 
-**Estado**: Pendente — Passo 36+. Registado no Passo 34.
+**Parcialmente resolvido no Passo 36**. Registado no Passo 34.
 
-**Descrição**: `Content::Equation` e variantes matemáticas (`MathSequence`, `MathIdent`,
-`MathText`, `MathFrac`, `MathAttach`, `MathRoot`) estão definidas (Passo 34). O eval produz
-a estrutura correcta via `eval_math_content` / `eval_math_expr`. O layout renderiza como texto
-plano placeholder. O motor real de equações (layout tipográfico, fontes matemáticas, MathML)
-começa no Passo 36 conforme ADR-0032. `eval_math_content` é um stub que já extrai base, sub
-e sup de `MathAttach` correctamente via `attach.bottom()` / `attach.top()`.
+**Resolvido no Passo 36**:
+- `MathLayouter` criado em `rules/math/layout.rs` (L1 puro)
+- `MathIdent` e `MathText` → `FrameItem::Text` (sem placeholder)
+- `MathFrac`, `MathAttach`, `MathRoot` → texto plano sem `[...]`
+- Placeholder `[equação]` removido do layouter principal
+- `Content::Equation` delega ao `MathLayouter` para inline e block
 
-**Comportamento actual**: equações block renderizam como `[texto plano]`; inline como texto plano.
-Não é erro — é placeholder documentado.
+**Ainda pendente**:
+- Espaçamento matemático correcto (kern entre símbolos)
+- Fontes OpenType MATH (tabelas MATH, variantes de tamanho)
+- Layout tipográfico de `MathFrac` (numerador sobre denominador)
+- Layout tipográfico de `MathAttach` (sup elevado, sub baixado)
+- Layout tipográfico de `MathRoot` (radical com extensão)
+- `MathDelimited`, `MathPrimes`, `MathAlignPoint`, `MathShorthand`
+
+**Comportamento actual**: equações renderizam como texto plano contínuo.
+`x^2` → `x^2` no PDF. Não há mais `[...]`.
 
 **Estrutura de MathAttach no AST** (para Passo 36):
 - `attach.base()` → `Expr<'a>` — a base

@@ -7,6 +7,7 @@
 pub mod eval;
 pub mod layout;
 pub mod lexer;
+pub mod math;
 pub mod parse;
 pub mod scopes;
 pub mod stdlib;

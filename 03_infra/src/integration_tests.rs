@@ -148,6 +148,40 @@ mod integration {
     }
 
     #[test]
+    fn pipeline_equacao_inline_sem_placeholder() {
+        // Após Passo 36: MathLayouter processa sem placeholder [...]
+        let (world, _dir) = world_from_str("$x + y$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty());
+        // Confirmar ausência de "[" nos itens de texto
+        for page in &doc.pages {
+            for item in &page.items {
+                if let typst_core::entities::layout_types::FrameItem::Text { text, .. } = item {
+                    assert!(!text.starts_with('['),
+                        "equação não deve produzir '[': {}", text);
+                }
+            }
+        }
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pipeline_equacao_com_frac_sem_panic() {
+        let (world, _dir) = world_from_str("$ frac(a, b) $");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
     fn pipeline_equacao_inline_gera_pdf() {
         let (world, _dir) = world_from_str("A equação $x^2$ é famosa.");
         let source = world.source(world.main()).unwrap();
