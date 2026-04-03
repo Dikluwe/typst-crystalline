@@ -152,6 +152,14 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 - Placeholder `[equação]` removido do layouter principal
 - `Content::Equation` delega ao `MathLayouter` para inline e block
 
+**Resolvido no Passo 39**:
+- `rules/math/symbols.rs` com `ident_to_unicode`, `shorthand_to_unicode`,
+  `is_math_function`, `is_single_letter_var`
+- `Expr::MathIdent` em `eval_math_expr`: símbolo conhecido → `Content::MathText(unicode)`
+- `MathShorthand::get()` no AST já retorna o char Unicode — sem alteração necessária
+- Variáveis de uma letra → `TextStyle { italic: true }` em `MathLayouter::layout_node`
+- Funções (sin, cos, lim, etc.) → `TextStyle { italic: false }`
+
 **Resolvido no Passo 38**:
 - `FrameItem::Line { start, end, thickness }` adicionado a `layout_types.rs`
 - `layout_frac` emite `FrameItem::Line` para a linha horizontal entre num/den
@@ -172,11 +180,18 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 - Integração em `layout.rs` usa `y: offset_y + pos.y` para
   posicionamento vertical correcto
 
+**Resolvido no Passo 40**:
+- `sqrt(x)` como função nativa em `eval_math_expr` → `Content::MathRoot { index: None }`
+- `root(n, x)` como função nativa → `Content::MathRoot { index: Some(n) }`
+- Validação de aridade: `sqrt()` e `sqrt(x,y)` retornam `Err`; `root(3)` retorna `Err`
+- `MathLayouter::layout_root`: símbolo `√`, overline (`FrameItem::Line`), radicando posicionado à direita
+- `offset_item` helper adicionado em `math/layout.rs`
+- `sqrt` e `root` adicionados a `is_math_function` (renderizados sem itálico)
+
 **Ainda pendente**:
 - Kern matemático entre símbolos
 - Fontes OpenType MATH (tabelas MATH, variantes de tamanho)
-- Layout tipográfico de `MathRoot` (radical com extensão)
-- `MathDelimited`, `MathPrimes`, `MathAlignPoint`, `MathShorthand`
+- `MathPrimes`, `MathAlignPoint`
 - Baseline correcta em relação ao x-height da fonte
 
 ---

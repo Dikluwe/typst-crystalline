@@ -11,6 +11,7 @@ use crate::entities::{
     layout_types::{FrameItem, Point, Pt, TextStyle},
 };
 use crate::rules::layout::FontMetrics;
+use super::symbols;
 
 /// Caixa tipográfica de um nó matemático.
 /// Todas as medidas são em pontos, relativas à baseline da equação.
@@ -56,6 +57,22 @@ impl MathBox {
     }
 }
 
+/// Desloca um `FrameItem` por `(dx, dy)`.
+fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
+    match item {
+        FrameItem::Text { pos, text, style } => FrameItem::Text {
+            pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
+            text,
+            style,
+        },
+        FrameItem::Line { start, end, thickness } => FrameItem::Line {
+            start: Point { x: Pt(start.x.val() + dx.val()), y: Pt(start.y.val() + dy.val()) },
+            end:   Point { x: Pt(end.x.val()   + dx.val()), y: Pt(end.y.val()   + dy.val()) },
+            thickness,
+        },
+    }
+}
+
 /// Motor de layout matemático — stateless.
 ///
 /// Recebe `Content` matemático e produz um `Vec<FrameItem>` com posições
@@ -91,7 +108,19 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// Percorre a árvore de Content matemático recursivamente, produzindo um `MathBox`.
     fn layout_node(&self, content: &Content, style: &TextStyle) -> MathBox {
         match content {
-            Content::MathIdent(text) | Content::MathText(text) => {
+            Content::MathIdent(name) => {
+                // Variáveis de uma letra → itálico; funções conhecidas → não-itálico
+                let is_var  = symbols::is_single_letter_var(name)
+                              && symbols::ident_to_unicode(name).is_none();
+                let is_func = symbols::is_math_function(name);
+                let math_style = if is_var && !is_func {
+                    TextStyle { italic: true, ..*style }
+                } else {
+                    TextStyle { italic: false, ..*style }
+                };
+                self.layout_text_node(name, &math_style)
+            }
+            Content::MathText(text) => {
                 self.layout_text_node(text, style)
             }
 
@@ -107,10 +136,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 self.layout_attach(base, sub.as_deref(), sup.as_deref(), style)
             }
 
-            Content::MathRoot { index: _, radicand } => {
-                let inner  = self.layout_node(radicand, style);
-                let prefix = self.layout_text_node(&EcoString::from("√"), style);
-                self.hconcat(vec![prefix, inner])
+            Content::MathRoot { index, radicand } => {
+                self.layout_root(index.as_deref(), radicand, style)
             }
 
             other => {
@@ -292,6 +319,71 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         }
 
         MathBox { width: x, ascent, descent, items }
+    }
+
+    /// Layout de raiz quadrada / n-ésima.
+    ///
+    /// Componentes: símbolo `√`, overline sobre o radicando, radicando à direita,
+    /// índice opcional posicionado acima e à esquerda do símbolo radical.
+    fn layout_root(
+        &self,
+        index:    Option<&Content>,
+        radicand: &Content,
+        style:    &TextStyle,
+    ) -> MathBox {
+        // 1. Layout do radicando
+        let rad_box = self.layout_node(radicand, style);
+
+        // 2. Símbolo √ com métricas do texto base
+        let radical_text: EcoString = "√".into();
+        let radical_box = self.layout_text_node(&radical_text, style);
+        let radical_width = radical_box.width;
+
+        // 3. Geometria da overline
+        let line_thickness = style.size.val() * 0.04;
+        let gap            = style.size.val() * 0.10;
+
+        // 4. Dimensões totais
+        //    ascent cobre: ascent do radicando + gap + espessura da linha
+        let total_ascent  = rad_box.ascent + gap + line_thickness;
+        let total_descent = rad_box.descent;
+        let total_width   = radical_width + rad_box.width;
+
+        let mut items = Vec::new();
+
+        // 5a. Símbolo √ — deslocar para baixo para que a sua baseline alinhe
+        //     com a baseline principal (total_ascent em coordenadas locais)
+        let sym_dy = total_ascent - radical_box.ascent;
+        for item in radical_box.items {
+            items.push(offset_item(item, Pt(0.0), Pt(sym_dy)));
+        }
+
+        // 5b. Overline — linha horizontal no topo do radicando
+        let overline_y = gap + line_thickness / 2.0;
+        items.push(FrameItem::Line {
+            start:     Point { x: Pt(radical_width),                    y: Pt(overline_y) },
+            end:       Point { x: Pt(radical_width + rad_box.width),    y: Pt(overline_y) },
+            thickness: line_thickness,
+        });
+
+        // 5c. Radicando — à direita do símbolo, deslocado abaixo da overline
+        let rad_offset_y = gap + line_thickness;
+        for item in rad_box.items {
+            items.push(offset_item(item, Pt(radical_width), Pt(rad_offset_y)));
+        }
+
+        // 6. Índice opcional (para root(n, x))
+        if let Some(idx_content) = index {
+            let script_style = TextStyle { size: style.size * 0.65, ..*style };
+            let idx_box = self.layout_node(idx_content, &script_style);
+            // Posicionar acima e à esquerda do símbolo: x=20% da largura do radical, y=0 (topo)
+            let idx_x = radical_width * 0.2;
+            for item in idx_box.items {
+                items.push(offset_item(item, Pt(idx_x), Pt(0.0)));
+            }
+        }
+
+        MathBox { width: total_width, ascent: total_ascent, descent: total_descent, items }
     }
 }
 
@@ -498,5 +590,97 @@ mod tests {
         // sub deve estar abaixo da base (y maior)
         assert!(ys[1] > ys[0],
             "sub (y={}) deve estar abaixo da base (y={})", ys[1], ys[0]);
+    }
+
+    // ── Testes do Passo 40 — layout_root ─────────────────────────────────
+
+    #[test]
+    fn layout_root_contem_radical_e_radicando() {
+        let ml = MathLayouter::new(&FixedMetrics);
+        let root = Content::MathRoot {
+            index:    None,
+            radicand: Box::new(Content::MathIdent("x".into())),
+        };
+        let items = ml.layout_equation(&root, &default_style());
+        // Deve conter pelo menos o símbolo √ e o radicando "x"
+        let texts: Vec<_> = items.iter().filter_map(|i| {
+            if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+        }).collect();
+        assert!(texts.iter().any(|t| t.contains('√')), "deve conter √: {:?}", texts);
+        assert!(texts.iter().any(|t| t.contains('x')), "deve conter x: {:?}", texts);
+    }
+
+    #[test]
+    fn layout_root_tem_overline() {
+        let ml = MathLayouter::new(&FixedMetrics);
+        let root = Content::MathRoot {
+            index:    None,
+            radicand: Box::new(Content::MathIdent("x".into())),
+        };
+        let items = ml.layout_equation(&root, &default_style());
+        let has_line = items.iter().any(|i| matches!(i, FrameItem::Line { .. }));
+        assert!(has_line, "sqrt deve gerar FrameItem::Line para overline");
+    }
+
+    #[test]
+    fn layout_root_overline_horizontal() {
+        let ml = MathLayouter::new(&FixedMetrics);
+        let root = Content::MathRoot {
+            index:    None,
+            radicand: Box::new(Content::MathIdent("x".into())),
+        };
+        let items = ml.layout_equation(&root, &default_style());
+        for item in &items {
+            if let FrameItem::Line { start, end, .. } = item {
+                assert_eq!(start.y.val(), end.y.val(), "overline deve ser horizontal");
+                assert!(end.x.val() > start.x.val(), "overline deve ter largura > 0");
+            }
+        }
+    }
+
+    #[test]
+    fn layout_root_com_indice_contem_indice() {
+        let ml = MathLayouter::new(&FixedMetrics);
+        let root = Content::MathRoot {
+            index:    Some(Box::new(Content::MathText("3".into()))),
+            radicand: Box::new(Content::MathIdent("x".into())),
+        };
+        let items = ml.layout_equation(&root, &default_style());
+        let texts: Vec<_> = items.iter().filter_map(|i| {
+            if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+        }).collect();
+        assert!(texts.iter().any(|t| t.contains('3')), "root(3,x) deve conter '3': {:?}", texts);
+        assert!(texts.iter().any(|t| t.contains('√')), "root(3,x) deve conter √: {:?}", texts);
+        assert!(texts.iter().any(|t| t.contains('x')), "root(3,x) deve conter x: {:?}", texts);
+    }
+
+    #[test]
+    fn offset_item_desloca_text() {
+        let item = FrameItem::Text {
+            pos:   Point { x: Pt(1.0), y: Pt(2.0) },
+            text:  "a".into(),
+            style: TextStyle::regular(Pt(12.0)),
+        };
+        let shifted = offset_item(item, Pt(3.0), Pt(4.0));
+        if let FrameItem::Text { pos, .. } = shifted {
+            assert_eq!(pos.x.val(), 4.0);
+            assert_eq!(pos.y.val(), 6.0);
+        } else { panic!("deve ser Text"); }
+    }
+
+    #[test]
+    fn offset_item_desloca_line() {
+        let item = FrameItem::Line {
+            start:     Point { x: Pt(0.0), y: Pt(0.0) },
+            end:       Point { x: Pt(10.0), y: Pt(0.0) },
+            thickness: 0.5,
+        };
+        let shifted = offset_item(item, Pt(5.0), Pt(2.0));
+        if let FrameItem::Line { start, end, .. } = shifted {
+            assert_eq!(start.x.val(), 5.0);
+            assert_eq!(start.y.val(), 2.0);
+            assert_eq!(end.x.val(), 15.0);
+            assert_eq!(end.y.val(), 2.0);
+        } else { panic!("deve ser Line"); }
     }
 }
