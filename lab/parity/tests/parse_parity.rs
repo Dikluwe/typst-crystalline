@@ -87,6 +87,19 @@ fn assert_paridade_code(input: &str) {
 #[test] fn destructuring() { assert_paridade_code("let (a, b) = (1, 2)"); }
 #[test] fn context_expr()  { assert_paridade("#context text.lang"); }
 
+// ── Matemática (Passo 34) ────────────────────────────────────────────────────
+
+#[test] fn parity_equation_inline_simples()  { assert_paridade("$x$"); }
+#[test] fn parity_equation_block_simples()   { assert_paridade("$ x^2 $"); }
+#[test] fn parity_equation_frac()            { assert_paridade("$ frac(a, b) $"); }
+#[test] fn parity_equation_attach_sup()      { assert_paridade("$ x^2 $"); }
+#[test] fn parity_equation_attach_sub()      { assert_paridade("$ x_i $"); }
+#[test] fn parity_equation_attach_sub_sup()  { assert_paridade("$ x_i^2 $"); }
+#[test] fn parity_equation_root()            { assert_paridade("$ sqrt(x) $"); }
+#[test] fn parity_equation_complexa()        { assert_paridade("$ sum_(i=0)^n x_i^2 $"); }
+#[test] fn parity_equacao_inline_em_texto()  { assert_paridade("O valor de $x^2 + y^2$ é positivo."); }
+#[test] fn parity_equacao_com_texto_literal(){ assert_paridade("$ \"resultado\" = x $"); }
+
 // ── Corpus de ficheiros ───────────────────────────────────────────────────────
 
 fn corpus_dir() -> std::path::PathBuf {

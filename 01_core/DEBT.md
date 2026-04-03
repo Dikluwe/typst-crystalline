@@ -163,3 +163,18 @@ Não é erro — é placeholder documentado.
 
 **Ficheiros a alterar no Passo 36+**: `rules/layout.rs`, `rules/eval.rs`,
 `entities/content.rs` (possível extensão de variantes matemáticas), `03_infra/src/export.rs`
+
+---
+
+## DEBT-9 — Cobertura de paridade — tracking contínuo
+
+**Estado**: Baseline estabelecido no Passo 35. Sem divergências no corpus actual.
+
+**Descrição**: O parity_runner testa 50 inputs (40 markup/code/math gerais + 10 math
+específicos do Passo 34). Todos passam. À medida que o motor de equações e novas
+funcionalidades forem implementadas, adicionar casos de paridade correspondentes.
+
+**Quando expandir**: A cada passo que adicione novo SyntaxKind ou altere semântica do parser.
+
+**Referência**: `lab/parity/tests/parse_parity.rs`, baseline em
+`00_nucleo/materialization/parity-baseline-passo-35.md`
