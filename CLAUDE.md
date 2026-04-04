@@ -5,23 +5,25 @@ Para decisões específicas: **ler os ADRs em `00_nucleo/adr/`**.
 
 ---
 
-## ⚠️ Restrição de leitura — pasta de materialização
+## ⚠️ Restrição de leitura — pastas de materialização e context
 
 ```
 00_nucleo/materialization/
+00_nucleo/context/
 ```
 
-**Não ler esta pasta por iniciativa própria.**
+**Não ler estas pastas por iniciativa própria.**
 
 - Só aceder quando explicitamente indicado com o path completo
-- Nunca varrer ou listar o conteúdo desta pasta
+- Nunca varrer ou listar o conteúdo destas pastas
 - Nunca inferir o que fazer a partir do nome dos ficheiros
-- Se uma tarefa parece relacionada com materialização mas não
+- Se uma tarefa parece relacionada com materialização ou contexto mas não
   referencia um ficheiro explícito: **perguntar antes de agir**
 
 Motivo: os ficheiros de materialização são instruções sequenciais
-com ordem e momento específicos. Lê-los fora de contexto quebra
-o estado do projecto.
+com ordem e momento específicos. Os ficheiros de contexto contêm análises
+e estados históricos. Lê-los fora de contexto quebra o estado do projecto
+e pode gerar alucinações baseadas em discussões passadas.
 
 ---
 
