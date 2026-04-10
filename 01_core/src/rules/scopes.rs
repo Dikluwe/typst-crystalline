@@ -83,11 +83,11 @@ impl<'a> Scopes<'a> {
 
     /// Sai do âmbito actual: restaura o âmbito anterior. Retorna o âmbito saído.
     pub fn exit(&mut self) -> Scope {
-        let old_top = std::mem::replace(
+        
+        std::mem::replace(
             &mut self.top,
             self.scopes.pop().unwrap_or_default(),
-        );
-        old_top
+        )
     }
 
     /// Define um binding no âmbito activo (`top`).

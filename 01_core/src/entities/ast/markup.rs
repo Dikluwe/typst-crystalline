@@ -6,7 +6,6 @@
 
 use std::num::NonZeroUsize;
 
-use crate::entities::ast::AstNode;
 use crate::node;
 use crate::entities::ast::expr::Expr;
 use crate::entities::syntax_kind::SyntaxKind;
@@ -224,6 +223,7 @@ node! {
 }
 
 impl RawDelim<'_> {
+    #[allow(dead_code)] // usado na análise de raw delimiters — migração futura
     fn len(self) -> usize {
         self.0.text_str().len()
     }
@@ -360,15 +360,15 @@ impl<'a> ContentBlock<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::entities::ast::AstNode;
     use crate::entities::source::Source;
-    use crate::entities::syntax_kind::SyntaxKind;
 
     #[test]
     fn strong_body_accessible() {
         let src = Source::detached("*bold*");
         let strong = src.root()
             .children()
-            .find_map(|n| Strong::from_untyped(n));
+            .find_map(Strong::from_untyped);
         assert!(strong.is_some());
         let _ = strong.unwrap().body();
     }
@@ -378,7 +378,7 @@ mod tests {
         let src = Source::detached("= Heading");
         let heading = src.root()
             .children()
-            .find_map(|n| Heading::from_untyped(n));
+            .find_map(Heading::from_untyped);
         assert!(heading.is_some());
         let depth = heading.unwrap().depth();
         assert_eq!(depth.get(), 1);
@@ -389,7 +389,7 @@ mod tests {
         let src = Source::detached("hello");
         let text = src.root()
             .children()
-            .find_map(|n| Text::from_untyped(n));
+            .find_map(Text::from_untyped);
         assert!(text.is_some());
         assert_eq!(text.unwrap().get(), "hello");
     }

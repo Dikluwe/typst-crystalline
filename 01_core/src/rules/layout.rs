@@ -8,7 +8,9 @@ use ecow::EcoString;
 
 use crate::entities::{
     content::Content,
+    glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
     layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle},
+    math_constants::MathConstants,
 };
 use crate::rules::math;
 
@@ -28,6 +30,49 @@ pub trait FontMetrics: Send + Sync {
     /// - `ascender`: distância da baseline ao topo das maiúsculas.
     /// - `line_height`: distância total entre duas baselines consecutivas.
     fn vertical_metrics(&self, size: Pt) -> (Pt, Pt);
+
+    /// Constantes da tabela OpenType MATH, se disponível.
+    ///
+    /// Default: `MathConstants::fallback()` para fontes sem tabela MATH.
+    fn math_constants(&self) -> MathConstants {
+        MathConstants::fallback()
+    }
+
+    /// Variantes de tamanho vertical para um glifo extensível.
+    ///
+    /// Retorna as variantes ordenadas por tamanho crescente (design units).
+    /// Default: sem variantes — fallback para glifo base.
+    fn vertical_glyph_variants(&self, c: char) -> GlyphVariants {
+        let _ = c;
+        GlyphVariants::default()
+    }
+
+    /// Mapeamento reverso: glyph_id → char Unicode.
+    ///
+    /// Necessário para emitir glifos variantes como `FrameItem::Text`.
+    /// Default: None — usar glifo base.
+    fn glyph_to_char(&self, glyph_id: u16) -> Option<char> {
+        let _ = glyph_id;
+        None
+    }
+
+    /// Montagem por partes para um glifo extensível.
+    ///
+    /// Retorna as peças ordenadas bottom→top para montagem vertical.
+    /// Default: sem assembly — fallback para variante máxima disponível.
+    fn vertical_glyph_assembly(&self, c: char) -> GlyphAssembly {
+        let _ = c;
+        GlyphAssembly::default()
+    }
+
+    /// Kern matemático por quadrante para um glifo.
+    ///
+    /// `c` é o caractere base cujos scripts vão ser posicionados.
+    /// Default: sem kern — todos os quadrantes vazios (espaçamento rectilíneo).
+    fn math_kern(&self, c: char) -> MathGlyphKern {
+        let _ = c;
+        MathGlyphKern::default()
+    }
 }
 
 /// Métricas fixas monoespaçadas — para layout sem FontBook real.
@@ -205,9 +250,8 @@ impl<M: FontMetrics> Layouter<M> {
                 let math_layouter = math::layout::MathLayouter::new(&self.metrics);
                 let math_items    = math_layouter.layout_equation(body, &self.style);
 
-                if *block {
-                    if self.cursor_x > MARGIN { self.flush_line(); }
-                }
+                if *block
+                    && self.cursor_x > MARGIN { self.flush_line(); }
 
                 // Integrar items matemáticos no frame actual.
                 // pos.x e pos.y são relativos à origem da equação —
@@ -223,7 +267,7 @@ impl<M: FontMetrics> Layouter<M> {
                             };
                             let advance = self.metrics.advance(&text, style.size);
                             self.current_line.push(FrameItem::Text { pos: abs_pos, text, style });
-                            self.cursor_x = self.cursor_x + advance;
+                            self.cursor_x += advance;
                         }
                         FrameItem::Line { start, end, thickness } => {
                             let abs_start = Point { x: offset_x + start.x, y: offset_y + start.y };
@@ -231,6 +275,16 @@ impl<M: FontMetrics> Layouter<M> {
                             self.current_line.push(FrameItem::Line {
                                 start: abs_start, end: abs_end, thickness,
                             });
+                        }
+                        FrameItem::Glyph { pos, glyph_id, x_advance, size } => {
+                            let abs_pos = Point {
+                                x: offset_x + pos.x,
+                                y: offset_y + pos.y,
+                            };
+                            self.current_line.push(FrameItem::Glyph {
+                                pos: abs_pos, glyph_id, x_advance, size,
+                            });
+                            self.cursor_x += x_advance;
                         }
                     }
                 }
@@ -243,7 +297,8 @@ impl<M: FontMetrics> Layouter<M> {
             | Content::MathText(_)
             | Content::MathFrac { .. }
             | Content::MathAttach { .. }
-            | Content::MathRoot { .. } => {
+            | Content::MathRoot { .. }
+            | Content::MathDelimited { .. } => {
                 // Nós matemáticos internos — normalmente não aparecem directamente
                 // no layout fora de Content::Equation. Se aparecerem, renderizar como texto.
                 let text = content.plain_text();

@@ -225,6 +225,8 @@ pub(crate) fn calc_pow(args: &[Value]) -> SourceResult<Value> {
         [base, exp] => {
             let b = coerce_to_f64(base, "calc.pow() base")?;
             let e = coerce_to_f64(exp,  "calc.pow() expoente")?;
+            // DEBT: migrar para libm::pow quando libm for dependência do workspace (ADR-0018)
+            #[allow(clippy::disallowed_methods)]
             guard_float(b.powf(e))
         }
         _ => err(format!("calc.pow() requer 2 argumentos, recebeu {}", args.len())),
@@ -403,6 +405,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::approx_constant)] // 3.14 é valor literal de teste, não aproximação de PI
     fn native_str_de_float() {
         assert_eq!(native_str(&[Value::Float(3.14)]).unwrap(), Value::Str("3.14".into()));
     }
@@ -451,6 +454,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::approx_constant)] // 3.14 é valor literal de teste, não aproximação de PI
     fn native_float_de_str() {
         assert_eq!(native_float(&[Value::Str("3.14".into())]).unwrap(), Value::Float(3.14));
         assert!(native_float(&[Value::Str("abc".into())]).is_err());
@@ -466,6 +470,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::approx_constant)] // 3.14 é valor literal de teste, não aproximação de PI
     fn calc_abs_float() {
         assert_eq!(calc_abs(&[Value::Float(-3.14)]).unwrap(), Value::Float(3.14));
     }

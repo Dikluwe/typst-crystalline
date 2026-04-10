@@ -9,7 +9,7 @@ use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
-use crate::contracts::world::TrackedWorld;
+use crate::contracts::world::World;
 use crate::entities::args::Args;
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
@@ -47,11 +47,13 @@ use crate::rules::scopes::Scopes;
 ///   < 20 elementos. Vec com pesquisa linear é mais rápido neste regime
 ///   porque os dados ficam contíguos em memória (cache-friendly).
 pub(crate) struct EvalContext<'w> {
-    pub world: Tracked<'w, dyn TrackedWorld + 'w>,
+    #[allow(dead_code)] // usado quando `import` for implementado (Passo futuro)
+    pub world: &'w dyn World,
     pub depth: usize,
     pub max_call_depth: usize,
     pub loop_iterations: usize,
     pub max_loop_iterations: usize,
+    #[allow(dead_code)] // usado por enter_import — implementação de import futura
     pub import_stack: Vec<FileId>,
     /// Cadeia de estilos activa durante eval.
     /// Actualizada por `#set text(...)` rules. Capturada em `Content::Text`
@@ -60,7 +62,7 @@ pub(crate) struct EvalContext<'w> {
 }
 
 impl<'w> EvalContext<'w> {
-    pub fn new(world: Tracked<'w, dyn TrackedWorld + 'w>) -> Self {
+    pub fn new(world: &'w dyn World) -> Self {
         Self {
             world,
             depth: 0,
@@ -109,6 +111,7 @@ impl<'w> EvalContext<'w> {
     /// Tenta entrar na avaliação de um ficheiro via import.
     /// Retorna Err se o ficheiro já está na pilha de importação (ciclo detectado).
     /// Retorna um guard que remove o FileId da pilha quando largado.
+    #[allow(dead_code)] // usado quando import completo for implementado
     pub fn enter_import(
         &mut self,
         id: FileId,
@@ -154,6 +157,7 @@ impl<'w> EvalContext<'w> {
 /// acessível enquanto o guard está vivo — necessário para que os chamadores
 /// possam chamar `enter_import` novamente (detecção de ciclos) sem conflito
 /// de borrowing. Padrão idêntico ao de `std::sync::MutexGuard`.
+#[allow(dead_code)] // usada por enter_import — implementação de import futura
 pub(crate) struct ImportGuard {
     /// Ponteiro para `EvalContext::import_stack`. Válido enquanto o
     /// EvalContext que criou este guard estiver vivo.
@@ -188,10 +192,10 @@ impl Drop for ImportGuard {
 /// Fronteira deliberada: `_ => Ok(Value::None)` para Content, Styles (ADR-0017).
 ///
 /// **Invariante**: não importa nada de `03_infra`. Acesso ao world
-/// sempre via `TrackedWorld` (L1).
+/// sempre via `World` (L1).
 pub fn eval(
     _routines: &Routines,
-    world: Tracked<dyn TrackedWorld + '_>,
+    world: &dyn World,
     _traced: Tracked<Traced>,
     _sink: TrackedMut<Sink>,
     _route: Tracked<Route>,
@@ -247,7 +251,7 @@ fn eval_markup(
                         Value::Content(c) => parts.push(c),
                         Value::Str(s)     => {
                             let style = TextStyle::from(&ctx.styles);
-                            parts.push(Content::Text(s.into(), style));
+                            parts.push(Content::Text(s, style));
                         }
                         Value::None       => {}
                         _                 => {}
@@ -888,12 +892,15 @@ fn eval_math_expr(
         }
         Expr::Math(inner) => eval_math_content(scopes, ctx, inner),
 
-        // MathDelimited: inclui os delimitadores como MathText (Passo 38)
+        // MathDelimited: preservar estrutura para layout extensível (Passo 42)
         Expr::MathDelimited(delim) => {
-            let open  = eval_math_expr(scopes, ctx, delim.open())?;
-            let body  = eval_math_content(scopes, ctx, delim.body())?;
-            let close = eval_math_expr(scopes, ctx, delim.close())?;
-            Ok(Content::MathSequence(vec![open, body, close].into()))
+            let body = eval_math_content(scopes, ctx, delim.body())?;
+            // Extrair o char delimitador do expr (MathText ou MathIdent com 1 char)
+            let open_str  = delim.open().to_untyped().text();
+            let close_str = delim.close().to_untyped().text();
+            let open  = open_str.as_str().chars().next().unwrap_or('(');
+            let close = close_str.as_str().chars().next().unwrap_or(')');
+            Ok(Content::MathDelimited { open, body: Box::new(body), close })
         }
 
         // frac() e outras funções nativas de math (Passo 38)
@@ -1013,7 +1020,7 @@ fn make_stdlib() -> Scope {
 }
 
 #[cfg(test)]
-pub(crate) fn eval_for_test<W: TrackedWorld>(
+pub(crate) fn eval_for_test<W: World>(
     world: &W,
     source: &Source,
 ) -> SourceResult<Module> {
@@ -1023,25 +1030,21 @@ pub(crate) fn eval_for_test<W: TrackedWorld>(
     let mut sink = Sink::new();
     let route    = Route::new();
 
-    // Coerce &W → &dyn TrackedWorld para obter Tracked<dyn TrackedWorld>
-    // #[comemo::track] em TrackedWorld gera impl Track for dyn TrackedWorld
-    let dyn_world: &dyn TrackedWorld = world;
-    eval(&routines, dyn_world.track(), traced.track(), sink.track_mut(), route.track(), source)
+    eval(&routines, world, traced.track(), sink.track_mut(), route.track(), source)
 }
 
 /// Função de teste que permite customizar os limites de profundidade de chamada e iterações.
 /// Usada para testar o comportamento dos limites sem depender de valores hardcoded.
 #[cfg(test)]
-pub(crate) fn eval_for_test_with_limits<W: TrackedWorld>(
+pub(crate) fn eval_for_test_with_limits<W: World>(
     world: &W,
     source: &Source,
     max_loop_iterations: usize,
     max_call_depth: usize,
 ) -> SourceResult<Module> {
-    use comemo::Track;
+    
 
-    let dyn_world: &dyn TrackedWorld = world;
-    let mut ctx = EvalContext::new(dyn_world.track());
+    let mut ctx = EvalContext::new(world);
     ctx.max_loop_iterations = max_loop_iterations;
     ctx.max_call_depth = max_call_depth;
 
@@ -1622,7 +1625,6 @@ mod tests {
 
     #[test]
     fn pipeline_completo_texto_simples() {
-        use crate::entities::content::Content;
         use crate::rules::layout::layout;
 
         let world = MockWorld::new("Hello world");
@@ -1931,11 +1933,8 @@ mod tests {
 
     #[test]
     fn enter_import_sem_ciclo_passa() {
-        use comemo::Track;
-
         let world = MockWorld::new("");
-        let dyn_world: &dyn TrackedWorld = &world;
-        let mut ctx = EvalContext::new(dyn_world.track());
+        let mut ctx = EvalContext::new(&world);
         let id_a = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
         let span = Span::detached();
 
@@ -1947,11 +1946,8 @@ mod tests {
 
     #[test]
     fn enter_import_ciclo_retorna_err() {
-        use comemo::Track;
-
         let world = MockWorld::new("");
-        let dyn_world: &dyn TrackedWorld = &world;
-        let mut ctx = EvalContext::new(dyn_world.track());
+        let mut ctx = EvalContext::new(&world);
         let id_a = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
         let span = Span::detached();
 
@@ -1966,11 +1962,8 @@ mod tests {
 
     #[test]
     fn guard_remove_id_mesmo_em_err() {
-        use comemo::Track;
-
         let world = MockWorld::new("");
-        let dyn_world: &dyn TrackedWorld = &world;
-        let mut ctx = EvalContext::new(dyn_world.track());
+        let mut ctx = EvalContext::new(&world);
         let id_a = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
         let span = Span::detached();
 
@@ -2165,7 +2158,7 @@ mod tests {
 
     #[test]
     fn eval_e_layout_equation_sem_colchetes() {
-        use crate::rules::layout::{layout, FixedMetrics};
+        use crate::rules::layout::layout;
         let world = MockWorld::new("$x$");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();

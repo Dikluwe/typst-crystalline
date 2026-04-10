@@ -299,6 +299,18 @@ impl Debug for Scanner<'_> {
 pub trait Pattern<T>: sealed::Sealed<T> {}
 
 mod sealed {
+    /// Implementadores devem garantir que `matches` retorna um `len` que:
+    ///   - É in-bounds em relação ao slice de bytes da string, ou seja `len <= string.len()`.
+    ///   - Aponta para uma fronteira de codepoint UTF-8 válida.
+    ///
+    /// Violar estes invariantes causa comportamento indefinido nos métodos do `Scanner`
+    /// que usam `get_unchecked` com base no valor retornado.
+    ///
+    /// # Safety
+    ///
+    /// O método `matches` deve retornar `Some(len)` somente quando `len` está
+    /// in-bounds e aponta para uma fronteira UTF-8, ou `None` se o padrão
+    /// não corresponde. Implementações incorrectas são **unsound**.
     pub unsafe trait Sealed<T> {
         /// Se a string começa com o padrão, retorna `Some(len)` com o
         /// comprimento em bytes do match. Para segurança, `len` deve estar
@@ -316,7 +328,7 @@ unsafe impl sealed::Sealed<()> for char {
     fn matches(&mut self, string: &str) -> Option<usize> {
         let mut buf = [0; 4];
         let needle = &*self.encode_utf8(&mut buf);
-        string.starts_with(needle).then(|| needle.len())
+        string.starts_with(needle).then_some(needle.len())
     }
 
     #[cold]
@@ -329,7 +341,7 @@ impl Pattern<()> for &str {}
 unsafe impl sealed::Sealed<()> for &str {
     #[inline]
     fn matches(&mut self, string: &str) -> Option<usize> {
-        string.starts_with(&*self).then(|| self.len())
+        string.starts_with(*self).then_some(self.len())
     }
 
     #[cold]
@@ -343,7 +355,7 @@ unsafe impl sealed::Sealed<()> for &[char] {
     #[inline]
     fn matches(&mut self, string: &str) -> Option<usize> {
         let next = string.chars().next()?;
-        self.iter().any(|&c| c == next).then(|| next.len_utf8())
+        self.contains(&next).then(|| next.len_utf8())
     }
 
     #[cold]
@@ -451,16 +463,16 @@ mod tests {
         let mut s = Scanner::new("");
         s.jump(10);
         assert_eq!(s.cursor(), 0);
-        assert_eq!(s.done(), true);
+        assert!(s.done());
         assert_eq!(s.before(), "");
         assert_eq!(s.after(), "");
         assert_eq!(s.from(0), "");
         assert_eq!(s.from(10), "");
         assert_eq!(s.to(10), "");
         assert_eq!(s.get(10..20), "");
-        assert_eq!(s.at(""), true);
-        assert_eq!(s.at('a'), false);
-        assert_eq!(s.at(|_| true), false);
+        assert!(s.at(""));
+        assert!(!s.at('a'));
+        assert!(!s.at(|_| true));
         assert_eq!(s.scout(-1), None);
         assert_eq!(s.scout(1), None);
         assert_eq!(s.locate(-1), 0);
@@ -468,8 +480,8 @@ mod tests {
         assert_eq!(s.locate(1), 0);
         assert_eq!(s.eat(), None);
         assert_eq!(s.uneat(), None);
-        assert_eq!(s.eat_if(""), true);
-        assert_eq!(s.eat_if('a'), false);
+        assert!(s.eat_if(""));
+        assert!(!s.eat_if('a'));
         assert_eq!(s.eat_while(""), "");
         assert_eq!(s.eat_while('a'), "");
         assert_eq!(s.eat_until(""), "");
@@ -497,16 +509,16 @@ mod tests {
     #[test]
     fn done_and_peek() {
         let mut s = Scanner::new("äbc");
-        assert_eq!(s.done(), false);
+        assert!(!s.done());
         assert_eq!(s.peek(), Some('ä'));
         s.eat();
-        assert_eq!(s.done(), false);
+        assert!(!s.done());
         assert_eq!(s.peek(), Some('b'));
         s.eat();
-        assert_eq!(s.done(), false);
+        assert!(!s.done());
         assert_eq!(s.peek(), Some('c'));
         s.eat();
-        assert_eq!(s.done(), true);
+        assert!(s.done());
         assert_eq!(s.peek(), None);
     }
 
@@ -518,7 +530,7 @@ mod tests {
         assert!(s.at("Ђ"));
         assert!(s.at("Ђ1"));
         assert!(s.at(char::is_alphabetic));
-        assert!(!s.at(&['b', 'c']));
+        assert!(!s.at(['b', 'c']));
         assert!(!s.at("a13"));
         assert!(!s.at(char::is_numeric));
         s.eat();
@@ -562,8 +574,8 @@ mod tests {
     #[test]
     fn conditional_and_looping() {
         let mut s = Scanner::new("abc123def33");
-        assert_eq!(s.eat_if('b'), false);
-        assert_eq!(s.eat_if('a'), true);
+        assert!(!s.eat_if('b'));
+        assert!(s.eat_if('a'));
         assert_eq!(s.eat_while(['a', 'b', 'c']), "bc");
         assert_eq!(s.eat_while(char::is_numeric), "123");
         assert_eq!(s.eat_until(char::is_numeric), "def");
@@ -576,7 +588,7 @@ mod tests {
         assert_eq!(s.eat_whitespace(), "");
         assert_eq!(s.eat_while(char::is_alphabetic), "ሙም");
         assert_eq!(s.eat_whitespace(), "  \n  ");
-        assert_eq!(s.eat_if('b'), true);
+        assert!(s.eat_if('b'));
         assert_eq!(s.eat_whitespace(), "\t");
         assert_eq!(s.eat_while(char::is_alphabetic), "ቂ");
     }

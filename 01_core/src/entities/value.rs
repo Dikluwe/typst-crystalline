@@ -184,6 +184,7 @@ mod tests {
     use ecow::EcoString;
 
     #[test]
+    #[allow(clippy::approx_constant)] // 3.14 é valor literal de teste, não aproximação de PI
     fn type_names() {
         assert_eq!(Value::None.type_name(), "none");
         assert_eq!(Value::Bool(true).type_name(), "bool");
@@ -193,6 +194,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::approx_constant)] // 3.14 é valor literal de teste, não aproximação de PI
     fn cast_float_aceita_int() {
         assert_eq!(Value::Int(3).cast_float(), Some(3.0));
         assert_eq!(Value::Float(3.14).cast_float(), Some(3.14));
@@ -200,6 +202,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::approx_constant)] // 3.14 é valor literal de teste, não aproximação de PI
     fn from_primitivos() {
         assert_eq!(Value::from(true), Value::Bool(true));
         assert_eq!(Value::from(42i64), Value::Int(42));

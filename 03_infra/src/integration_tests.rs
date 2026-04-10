@@ -15,7 +15,7 @@ mod integration {
     use std::path::{Path, PathBuf};
 
     use comemo::Track;
-    use typst_core::contracts::world::TrackedWorld;
+    use typst_core::contracts::world::World;
     use typst_core::entities::module::Module;
     use typst_core::entities::source::Source;
     use typst_core::entities::source_result::SourceResult;
@@ -67,15 +67,24 @@ mod integration {
         let traced   = Traced::new();
         let mut sink = Sink::new();
         let route    = Route::new();
-        let dyn_world: &dyn TrackedWorld = world;
         eval(
             &routines,
-            dyn_world.track(),
+            world,
             traced.track(),
             sink.track_mut(),
             route.track(),
             source,
         )
+    }
+
+    /// Pipeline completo → bytes PDF (caminho Helvetica sem fonte real).
+    fn compile_to_pdf(src: &str) -> Vec<u8> {
+        let (world, _dir) = world_from_str(src);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        export_pdf(&doc)
     }
 
     // ── Testes de integração ──────────────────────────────────────────────
@@ -343,5 +352,233 @@ mod integration {
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    // ── Passo 41 — MathConstants via tabela OpenType MATH ────────────────
+
+    // ── Passo 42 — GlyphVariants e MathDelimited ─────────────────────────
+
+    #[test]
+    fn pipeline_delimited_parenteses_gera_pdf() {
+        let (world, _dir) = world_from_str("$(x + y)$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty());
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pipeline_delimited_colchetes_gera_pdf() {
+        let (world, _dir) = world_from_str("$[a, b]$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty());
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_delimited_com_frac() {
+        // Fracção dentro de parênteses — delimitadores devem adaptar-se à altura
+        let (world, _dir) = world_from_str("$(frac(a, b))$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pdf_sqrt_expressao_alta() {
+        // sqrt de fracção — radical deve adaptar-se à altura
+        let (world, _dir) = world_from_str("$sqrt(frac(a, b))$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    // ── Passo 44 — AxisHeight e MathKernInfo ─────────────────────────────
+
+    #[test]
+    fn pdf_frac_inline_nao_vazio() {
+        // Fracção inline com AxisHeight activo — deve produzir PDF válido
+        let (world, _dir) = world_from_str("Valor: $frac(1, 2)$.");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pdf_attach_sup_sub_nao_vazio() {
+        // Sup+sub com kern (kern=0 com FixedMetrics) — sem panic
+        let (world, _dir) = world_from_str("$x^2 + y_i$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pdf_delimitadores_com_axis_height() {
+        // Delimitadores após AxisHeight — PDF não vazio
+        let (world, _dir) = world_from_str("$(frac(a, b))$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pdf_sqrt_com_axis_height() {
+        // sqrt após AxisHeight — PDF não vazio
+        let (world, _dir) = world_from_str("$sqrt(frac(a, b))$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    // ── Passo 43 — FrameItem::Glyph e GlyphAssembly ─────────────────────
+
+    #[test]
+    fn pdf_com_delimitadores_nao_vazio() {
+        // Pipeline com delimitadores — PDF deve ser não-vazio e válido
+        let (world, _dir) = world_from_str("$(x + y)$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pdf_com_sqrt_frac_nao_vazio() {
+        // sqrt de fracção — sem panic, PDF válido
+        let (world, _dir) = world_from_str("$sqrt(frac(a, b))$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pdf_com_delimitadores_contem_bt_et() {
+        // Delimitadores produzem BT/ET no PDF (texto ou glifo directo)
+        let (world, _dir) = world_from_str("$(a)$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+        assert!(pdf_str.contains("BT") && pdf_str.contains("ET"),
+            "PDF deve conter operadores BT/ET para texto ou glifo");
+    }
+
+    // ── Passo 41 — MathConstants via tabela OpenType MATH ────────────────
+
+    #[test]
+    fn pdf_frac_com_constants() {
+        // Pipeline completo — confirmar que não panic após refactoring
+        let (world, _dir) = world_from_str("$frac(a, b)$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pdf_sqrt_com_constants() {
+        let (world, _dir) = world_from_str("$sqrt(x)$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pdf_attach_com_constants() {
+        let (world, _dir) = world_from_str("$x^2_i$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    // ── Passo 45 — DEBT-9: ToUnicode para FrameItem::Glyph ───────────────
+
+    #[test]
+    fn pdf_delimitadores_nao_vazio_passo45() {
+        // Regressão: pipeline com delimitadores continua a produzir PDF válido
+        let pdf = compile_to_pdf("$(x + y)$");
+        assert!(!pdf.is_empty());
+        assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn pdf_valido_apos_passo45() {
+        // Regressão geral: PDF estruturalmente válido após Passo 45
+        let pdf = compile_to_pdf("$frac(a, b)$");
+        assert!(!pdf.is_empty());
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("xref") && s.contains("%%EOF"));
+    }
+
+    #[test]
+    #[ignore = "requer fonte com tabela MATH em tests/fixtures/stix-two-math.otf"]
+    fn pdf_tounicode_contem_mapeamento_de_delimitador() {
+        // Com fonte MATH real, ToUnicode deve mapear '(' e ')' incluindo variantes.
+        // U+0028 = '(', U+0029 = ')'
+        let data = std::fs::read(
+            concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/stix-two-math.otf")
+        ).expect("fixture necessária");
+        let (world, _dir) = world_from_str("$(frac(a, b))$");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = crate::export::export_pdf_with_font(&doc, &data);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("<0028>"), "CMap deve ter U+0028 para parêntese de abertura");
+        assert!(s.contains("<0029>"), "CMap deve ter U+0029 para parêntese de fecho");
     }
 }

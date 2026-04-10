@@ -10,7 +10,6 @@ pub mod code;
 pub mod expr;
 
 use crate::entities::span::Span;
-use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::SyntaxNode;
 
 /// A typed AST node.

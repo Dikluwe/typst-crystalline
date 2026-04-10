@@ -4,10 +4,12 @@
 //! @layer L3
 //! @updated 2026-03-29
 
-use std::collections::HashMap;
+use std::collections::{BTreeSet, HashMap};
 
 use ttf_parser::Face;
 use typst_core::entities::layout_types::{Frame, FrameItem, PagedDocument};
+
+use crate::font_metrics::build_math_glyph_reverse_map;
 
 /// Serializa um `PagedDocument` para bytes PDF-1.7.
 ///
@@ -114,8 +116,21 @@ impl PdfBuilder {
         let font_stream_id     = font_id + 3;
         let to_unicode_id      = font_id + 4;
 
-        let chars    = collect_codepoints(doc);
-        let mappings = map_chars_to_glyphs(face, &chars);
+        let chars = collect_codepoints(doc);
+        let mut mappings = map_chars_to_glyphs(face, &chars);
+
+        // Passo 45 — DEBT-9: adicionar glifos variantes (FrameItem::Glyph) ao ToUnicode.
+        // O dicionário reverso mapeia glyph_id → char base para caracteres extensíveis.
+        let glyph_reverse = build_math_glyph_reverse_map(face);
+        let existing_gids: BTreeSet<u16> = mappings.iter().map(|(_, gid)| *gid).collect();
+        for gid in collect_glyph_ids(doc) {
+            if !existing_gids.contains(&gid) {
+                if let Some(&c) = glyph_reverse.get(&gid) {
+                    mappings.push((c, gid));
+                }
+            }
+        }
+
         let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
         let widths = widths_array(face, &mappings);
 
@@ -262,6 +277,9 @@ fn build_page_stream_type1(page: &Frame) -> Vec<u8> {
                     thickness, x1, y1, x2, y2
                 ));
             }
+            // FrameItem::Glyph não tem suporte no caminho Helvetica (sem fonte TrueType).
+            // Ignorado silenciosamente — o delimitador simplesmente não aparece.
+            FrameItem::Glyph { .. } => {}
         }
     }
 
@@ -297,6 +315,19 @@ fn collect_codepoints(doc: &PagedDocument) -> Vec<char> {
         }
     }
     seen.into_iter().collect()
+}
+
+/// Coleciona todos os glyph IDs distintos usados em `FrameItem::Glyph` no documento.
+fn collect_glyph_ids(doc: &PagedDocument) -> BTreeSet<u16> {
+    let mut ids = BTreeSet::new();
+    for page in &doc.pages {
+        for item in &page.items {
+            if let FrameItem::Glyph { glyph_id, .. } = item {
+                ids.insert(*glyph_id);
+            }
+        }
+    }
+    ids
 }
 
 /// Para um conjunto de chars, retorna Vec<(char, glyph_id)>.
@@ -387,6 +418,15 @@ fn build_page_stream_cidfont(page: &Frame, char_to_gid: &HashMap<char, u16>) -> 
                 ops.push_str(&format!(
                     "q {:.3} w {:.1} {:.1} m {:.1} {:.1} l S Q\n",
                     thickness, x1, y1, x2, y2
+                ));
+            }
+            // Glifo variante de tamanho matemático — emitir directamente por ID (Identity-H).
+            // Passo 45: glyph_id incluído no ToUnicode via build_math_glyph_reverse_map.
+            FrameItem::Glyph { pos, glyph_id, size, .. } => {
+                let pdf_y = page_height - pos.y.val();
+                ops.push_str(&format!(
+                    "BT\n/F1 {:.1} Tf\n{:.1} {:.1} Td\n<{:04X}> Tj\nET\n",
+                    size.val(), pos.x.val(), pdf_y, glyph_id
                 ));
             }
         }
@@ -582,5 +622,44 @@ mod tests {
         let map = HashMap::new();
         let hex = text_to_hex_string("X", &map);
         assert_eq!(hex, "<0000>", "char sem mapeamento → glyph ID 0");
+    }
+
+    // ── Passo 45 — DEBT-9: ToUnicode para FrameItem::Glyph ──────────────────
+
+    #[test]
+    fn collect_glyph_ids_de_documento_vazio() {
+        use typst_core::entities::layout_types::PagedDocument;
+        let doc = PagedDocument::new(vec![]);
+        let ids = collect_glyph_ids(&doc);
+        assert!(ids.is_empty());
+    }
+
+    #[test]
+    fn collect_glyph_ids_retorna_ids_unicos() {
+        use typst_core::entities::layout_types::{Frame, PagedDocument, Point, Pt, Size};
+        let mut frame = Frame::new(Size { width: Pt(595.0), height: Pt(842.0) });
+        frame.items.push(FrameItem::Glyph {
+            pos: Point::ZERO, glyph_id: 42, x_advance: Pt(10.0), size: Pt(12.0),
+        });
+        frame.items.push(FrameItem::Glyph {
+            pos: Point::ZERO, glyph_id: 42, x_advance: Pt(10.0), size: Pt(12.0), // dup
+        });
+        frame.items.push(FrameItem::Glyph {
+            pos: Point::ZERO, glyph_id: 99, x_advance: Pt(10.0), size: Pt(12.0),
+        });
+        let doc = PagedDocument::new(vec![frame]);
+        let ids = collect_glyph_ids(&doc);
+        assert!(ids.contains(&42u16));
+        assert!(ids.contains(&99u16));
+        assert_eq!(ids.len(), 2, "sem duplicados");
+    }
+
+    #[test]
+    fn to_unicode_cmap_inclui_glifo_variante() {
+        // Glyph ID 0x00A2 → '(' (U+0028)
+        let mappings = vec![('(', 0x00A2u16)];
+        let cmap = to_unicode_cmap(&mappings);
+        let s = String::from_utf8(cmap).unwrap();
+        assert!(s.contains("<00A2> <0028>"), "CMap deve ter entrada glyph→Unicode: {s}");
     }
 }
