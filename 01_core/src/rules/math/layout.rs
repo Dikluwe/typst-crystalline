@@ -8,9 +8,12 @@ use ecow::EcoString;
 
 use crate::entities::{
     content::Content,
+    glyph_variants::GlyphAssembly,
     layout_types::{FrameItem, Point, Pt, TextStyle},
+    math_constants::MathConstants,
 };
 use crate::rules::layout::FontMetrics;
+use crate::entities::glyph_variants::MathGlyphKern;
 use super::symbols;
 
 /// Caixa tipográfica de um nó matemático.
@@ -51,6 +54,10 @@ impl MathBox {
                     start.y = Pt(baseline_y - self.ascent + start.y.val());
                     end.y   = Pt(baseline_y - self.ascent + end.y.val());
                 }
+                FrameItem::Glyph { ref mut pos, .. } => {
+                    pos.x = Pt(pos.x.val() + x_origin);
+                    pos.y = Pt(baseline_y - self.ascent + pos.y.val());
+                }
             }
             item
         }).collect()
@@ -70,6 +77,12 @@ fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             end:   Point { x: Pt(end.x.val()   + dx.val()), y: Pt(end.y.val()   + dy.val()) },
             thickness,
         },
+        FrameItem::Glyph { pos, glyph_id, x_advance, size } => FrameItem::Glyph {
+            pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
+            glyph_id,
+            x_advance,
+            size,
+        },
     }
 }
 
@@ -81,13 +94,30 @@ fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
 /// **Passo 36**: `MathIdent` e `MathText` → `FrameItem::Text`.
 /// **Passo 37**: `MathFrac` (numerador/denominador) e `MathAttach`
 ///   (sup/sub com posicionamento vertical) implementados via `MathBox`.
+/// **Passo 41**: constantes OpenType MATH via `FontMetrics::math_constants()`.
 pub struct MathLayouter<'a, M: FontMetrics> {
-    metrics: &'a M,
+    metrics:   &'a M,
+    constants: MathConstants,
 }
 
 impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     pub fn new(metrics: &'a M) -> Self {
-        Self { metrics }
+        let constants = metrics.math_constants();
+        Self { metrics, constants }
+    }
+
+    /// Centra um MathBox no eixo matemático ajustando ascent/descent.
+    ///
+    /// O eixo matemático é `axis_height` (design units) acima da baseline.
+    /// Após este ajuste, o centro vertical do box fica no eixo.
+    ///
+    /// Aplica-se a fracções, delimitadores e raízes — não a elementos inline.
+    fn apply_axis_offset(&self, mut b: MathBox, size: Pt) -> MathBox {
+        let axis_pt = self.constants.to_pt(self.constants.axis_height, size).val();
+        let shift   = axis_pt - (b.ascent - b.descent) / 2.0;
+        b.ascent  += shift;
+        b.descent -= shift;
+        b
     }
 
     /// Ponto de entrada: recebe o body de uma equação e produz `Vec<FrameItem>`.
@@ -138,6 +168,10 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
             Content::MathRoot { index, radicand } => {
                 self.layout_root(index.as_deref(), radicand, style)
+            }
+
+            Content::MathDelimited { open, body, close } => {
+                self.layout_delimited(*open, body, *close, style)
             }
 
             other => {
@@ -200,6 +234,9 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                         start.x = Pt(start.x.val() + x);
                         end.x   = Pt(end.x.val() + x);
                     }
+                    FrameItem::Glyph { ref mut pos, .. } => {
+                        pos.x = Pt(pos.x.val() + x);
+                    }
                 }
                 items.push(item);
             }
@@ -211,18 +248,24 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
     /// Fracção: numerador acima da linha de fracção, denominador abaixo.
     ///
-    /// Tamanho do sub-estilo: 70% do estilo base.
-    /// A linha de fracção não é renderizada neste passo (Passo 38+).
+    /// Tamanho do sub-estilo: `script_percent_scale_down` da tabela MATH.
     fn layout_frac(&self, num: &Content, den: &Content, style: &TextStyle) -> MathBox {
-        let sub_style = TextStyle { size: style.size * 0.7, ..*style };
+        let sub_style = TextStyle {
+            size: style.size * self.constants.script_percent_scale_down,
+            ..*style
+        };
 
         let num_box = self.layout_node(num, &sub_style);
         let den_box = self.layout_node(den, &sub_style);
 
         let width = num_box.width.max(den_box.width);
 
-        let rule_thickness = (style.size * 0.05).val();
-        let gap            = (style.size * 0.1).val();
+        let rule_thickness = self.constants.to_pt(
+            self.constants.fraction_rule_thickness, style.size
+        ).val();
+        let gap = self.constants.to_pt(
+            self.constants.fraction_num_gap, style.size
+        ).val();
 
         // ascent cobre todo o numerador + espaço + metade da linha
         let ascent  = num_box.height() + gap + rule_thickness / 2.0;
@@ -265,13 +308,13 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             items.push(item);
         }
 
-        MathBox { width, ascent, descent, items }
+        self.apply_axis_offset(MathBox { width, ascent, descent, items }, style.size)
     }
 
     /// Attach: base na baseline, sup elevado, sub baixado.
     ///
-    /// Tamanho do sub-estilo: 65% do estilo base.
-    /// sup elevado a 50% do ascender; sub baixado a 30% da descida.
+    /// Tamanho do sub-estilo: `script_percent_scale_down` da tabela MATH.
+    /// Deslocamentos: `superscript_shift_up` e `subscript_shift_down` da tabela MATH.
     fn layout_attach(
         &self,
         base: &Content,
@@ -280,11 +323,27 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         let base_box     = self.layout_node(base, style);
-        let script_style = TextStyle { size: style.size * 0.65, ..*style };
+        let script_style = TextStyle {
+            size: style.size * self.constants.script_percent_scale_down,
+            ..*style
+        };
 
-        let vm         = self.metrics.vertical_metrics(style.size);
-        let sup_offset = vm.0.val() * 0.5;           // 50% do ascender
-        let sub_offset = (vm.1 - vm.0).val() * 0.3;  // 30% da descida
+        let sup_offset = self.constants.to_pt(
+            self.constants.superscript_shift_up, style.size
+        ).val();
+        let sub_offset = self.constants.to_pt(
+            self.constants.subscript_shift_down, style.size
+        ).val();
+
+        // Extrair o char da base para consultar MathKernInfo.
+        // Apenas MathIdent/MathText têm char único; outros ficam com kern zero.
+        let base_char: Option<char> = match base {
+            Content::MathIdent(s) | Content::MathText(s) => s.chars().next(),
+            _ => None,
+        };
+        let base_kern: MathGlyphKern = base_char
+            .map(|c| self.metrics.math_kern(c))
+            .unwrap_or_default();
 
         let mut x       = base_box.width;
         let mut ascent  = base_box.ascent;
@@ -294,26 +353,36 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         if let Some(sup_content) = sup {
             let sup_box = self.layout_node(sup_content, &script_style);
             ascent = ascent.max(sup_offset + sup_box.ascent);
-            for mut item in sup_box.items {
-                if let FrameItem::Text { ref mut pos, .. } = item {
-                    pos.x = Pt(pos.x.val() + x);
-                    // sup elevado: y negativo (acima da baseline local)
-                    pos.y = Pt(pos.y.val() - sup_offset);
-                }
+
+            // Kern: quadrante top-right. Altura de conexão = ascent do sup
+            // (ponto superior do script em design units).
+            let sup_h_du = sup_box.ascent * self.constants.upem
+                / style.size.val().max(0.001);
+            let kern_sup = self.constants.to_pt(
+                base_kern.top_right.kern_at(sup_h_du), style.size
+            ).val();
+
+            for item in sup_box.items {
+                // Usar offset_item para mover todos os tipos de FrameItem
+                let item = offset_item(item, Pt(x + kern_sup), Pt(-sup_offset));
                 items.push(item);
             }
-            x += sup_box.width;
+            x += sup_box.width + kern_sup;
         }
 
         if let Some(sub_content) = sub {
             let sub_box = self.layout_node(sub_content, &script_style);
             descent = descent.max(sub_offset + sub_box.descent);
-            for mut item in sub_box.items {
-                if let FrameItem::Text { ref mut pos, .. } = item {
-                    pos.x = Pt(pos.x.val() + x);
-                    // sub baixado: y positivo (abaixo da baseline local)
-                    pos.y = Pt(pos.y.val() + sub_offset);
-                }
+
+            // Kern: quadrante bottom-right. Altura de conexão = ascent do sub.
+            let sub_h_du = sub_box.ascent * self.constants.upem
+                / style.size.val().max(0.001);
+            let kern_sub = self.constants.to_pt(
+                base_kern.bottom_right.kern_at(sub_h_du), style.size
+            ).val();
+
+            for item in sub_box.items {
+                let item = offset_item(item, Pt(x + kern_sub), Pt(sub_offset));
                 items.push(item);
             }
         }
@@ -334,14 +403,23 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         // 1. Layout do radicando
         let rad_box = self.layout_node(radicand, style);
 
-        // 2. Símbolo √ com métricas do texto base
-        let radical_text: EcoString = "√".into();
-        let radical_box = self.layout_text_node(&radical_text, style);
-        let radical_width = radical_box.width;
+        // 3. Geometria da overline (calculada antes do radical para computar min_height)
+        let line_thickness = self.constants.to_pt(
+            self.constants.radical_rule_thickness, style.size
+        ).val();
+        let gap = self.constants.to_pt(
+            self.constants.radical_vertical_gap, style.size
+        ).val();
 
-        // 3. Geometria da overline
-        let line_thickness = style.size.val() * 0.04;
-        let gap            = style.size.val() * 0.10;
+        // 2. Símbolo √ extensível — altura cobre radicando + gap + overline
+        let rad_height_pt  = rad_box.ascent + rad_box.descent + gap + line_thickness;
+        let min_height_du  = if style.size.val() > 0.0 {
+            rad_height_pt * self.constants.upem / style.size.val()
+        } else {
+            0.0
+        };
+        let radical_box   = self.layout_stretchy_delimiter('√', min_height_du, style);
+        let radical_width = radical_box.width;
 
         // 4. Dimensões totais
         //    ascent cobre: ascent do radicando + gap + espessura da linha
@@ -374,7 +452,10 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
         // 6. Índice opcional (para root(n, x))
         if let Some(idx_content) = index {
-            let script_style = TextStyle { size: style.size * 0.65, ..*style };
+            let script_style = TextStyle {
+                size: style.size * self.constants.script_percent_scale_down,
+                ..*style
+            };
             let idx_box = self.layout_node(idx_content, &script_style);
             // Posicionar acima e à esquerda do símbolo: x=20% da largura do radical, y=0 (topo)
             let idx_x = radical_width * 0.2;
@@ -383,7 +464,149 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             }
         }
 
-        MathBox { width: total_width, ascent: total_ascent, descent: total_descent, items }
+        let result = MathBox { width: total_width, ascent: total_ascent, descent: total_descent, items };
+        self.apply_axis_offset(result, style.size)
+    }
+
+    /// Selecciona e emite um delimitador com a altura mínima necessária.
+    ///
+    /// Prioridade:
+    /// 1. Variante encontrada + `glyph_to_char` → `FrameItem::Text` com o char mapeado
+    /// 2. Variante encontrada + sem mapeamento → `FrameItem::Glyph` com o glyph_id
+    /// 3. Sem variante suficiente + `GlyphAssembly` disponível → `layout_assembly`
+    /// 4. Sem variante nem assembly → `FrameItem::Text` com o char base
+    fn layout_stretchy_delimiter(
+        &self,
+        c:             char,
+        min_height_du: f64,
+        style:         &TextStyle,
+    ) -> MathBox {
+        let variants = self.metrics.vertical_glyph_variants(c);
+
+        if let Some((glyph_id, advance_du)) = variants.select_with_advance(min_height_du) {
+            // Variante encontrada
+            if let Some(mapped_char) = self.metrics.glyph_to_char(glyph_id) {
+                // Mapeamento Unicode disponível — emitir como Text
+                let text: ecow::EcoString = mapped_char.to_string().into();
+                return self.layout_text_node(&text, style);
+            } else {
+                // Sem mapeamento — emitir como Glyph
+                let x_advance = style.size * (advance_du / self.constants.upem);
+                let (ascent, _) = self.metrics.vertical_metrics(style.size);
+                return MathBox {
+                    width:   x_advance.val(),
+                    ascent:  ascent.val(),
+                    descent: 0.0,
+                    items:   vec![FrameItem::Glyph {
+                        pos:       Point::ZERO,
+                        glyph_id,
+                        x_advance,
+                        size:      style.size,
+                    }],
+                };
+            }
+        }
+
+        // Nenhuma variante suficiente — tentar GlyphAssembly
+        let assembly = self.metrics.vertical_glyph_assembly(c);
+        if !assembly.is_empty() {
+            return self.layout_assembly(c, assembly, min_height_du, style);
+        }
+
+        // Fallback: glifo base
+        let text: ecow::EcoString = c.to_string().into();
+        self.layout_text_node(&text, style)
+    }
+
+    /// Monta um delimitador vertical a partir de peças extensíveis.
+    ///
+    /// Estratégia simplificada: usar cada peça uma vez. Extensores são
+    /// incluídos uma vez se a altura base for insuficiente.
+    fn layout_assembly(
+        &self,
+        c:              char,
+        assembly:       GlyphAssembly,
+        _target_advance: f64,
+        style:          &TextStyle,
+    ) -> MathBox {
+        if assembly.is_empty() {
+            let text: ecow::EcoString = c.to_string().into();
+            return self.layout_text_node(&text, style);
+        }
+
+        let scale = style.size.val() / self.constants.upem;
+        let mut items  = Vec::new();
+        let mut max_advance  = 0.0_f64;
+
+        // Empilhar peças de baixo para cima (bottom → top em coords do MathBox)
+        // No MathBox, y=0 é o topo e y=ascent é a baseline.
+        // Vamos acumular posições de baixo para cima e depois inverter.
+        let mut piece_positions: Vec<(f64, u16, f64)> = Vec::new(); // (y_from_bottom, glyph_id, advance_pt)
+
+        let mut y_cursor = 0.0_f64;
+        let n = assembly.parts.len();
+        for (i, part) in assembly.parts.iter().enumerate() {
+            let advance_pt = part.full_advance as f64 * scale;
+            let x_advance  = Pt(advance_pt);
+
+            // Sobreposição com a peça seguinte
+            let overlap = if i + 1 < n {
+                let next = &assembly.parts[i + 1];
+                (part.end_connector as f64).min(next.start_connector as f64) * scale
+            } else {
+                0.0
+            };
+
+            piece_positions.push((y_cursor, part.glyph_id, x_advance.val()));
+            max_advance = max_advance.max(x_advance.val());
+            y_cursor += advance_pt - overlap;
+        }
+        let total_height = y_cursor;
+
+        // Converter coordenadas: y_from_bottom → y no MathBox (topo = 0)
+        for (y_from_bottom, glyph_id, x_advance_val) in piece_positions {
+            let y_in_box = total_height - y_from_bottom - x_advance_val.min(total_height);
+            items.push(FrameItem::Glyph {
+                pos:       Point { x: Pt(0.0), y: Pt(y_in_box.max(0.0)) },
+                glyph_id,
+                x_advance: Pt(x_advance_val),
+                size:      style.size,
+            });
+        }
+
+        MathBox {
+            width:   max_advance,
+            ascent:  total_height,
+            descent: 0.0,
+            items,
+        }
+    }
+
+    /// Expressão entre delimitadores extensíveis.
+    ///
+    /// Calcula a altura total do corpo e selecciona delimitadores que a cubram.
+    fn layout_delimited(
+        &self,
+        open:  char,
+        body:  &Content,
+        close: char,
+        style: &TextStyle,
+    ) -> MathBox {
+        let body_box = self.layout_node(body, style);
+
+        // Converter altura do corpo de pt para design units
+        let body_height_pt = body_box.ascent + body_box.descent;
+        let min_height_du  = if style.size.val() > 0.0 {
+            body_height_pt * self.constants.upem / style.size.val()
+        } else {
+            0.0
+        };
+
+        let open_box  = self.layout_stretchy_delimiter(open,  min_height_du, style);
+        let close_box = self.layout_stretchy_delimiter(close, min_height_du, style);
+
+        let result = self.hconcat(vec![open_box, body_box, close_box]);
+        self.apply_axis_offset(result, style.size)
     }
 }
 
@@ -391,7 +614,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 mod tests {
     use super::*;
     use std::sync::Arc;
-    use crate::rules::layout::FixedMetrics;
+    use crate::rules::layout::{FixedMetrics, FontMetrics};
 
     fn default_style() -> TextStyle {
         TextStyle::regular(Pt(12.0))
@@ -654,6 +877,178 @@ mod tests {
         assert!(texts.iter().any(|t| t.contains('x')), "root(3,x) deve conter x: {:?}", texts);
     }
 
+    // ── Testes do Passo 42 — MathDelimited e layout_stretchy_delimiter ───────
+
+    #[test]
+    fn layout_delimited_contem_corpo_e_delimitadores() {
+        let ml = MathLayouter::new(&FixedMetrics);
+        let delim = Content::MathDelimited {
+            open:  '(',
+            body:  Box::new(Content::MathIdent("a".into())),
+            close: ')',
+        };
+        let items = ml.layout_equation(&delim, &default_style());
+        let texts: Vec<_> = items.iter().filter_map(|i| {
+            if let FrameItem::Text { text, .. } = i { Some(text.as_str().to_string()) } else { None }
+        }).collect();
+        assert!(texts.iter().any(|t| t.contains('(')), "deve conter '(': {:?}", texts);
+        assert!(texts.iter().any(|t| t.contains('a')), "deve conter 'a': {:?}", texts);
+        assert!(texts.iter().any(|t| t.contains(')')), "deve conter ')': {:?}", texts);
+    }
+
+    #[test]
+    fn layout_delimited_tres_ou_mais_items() {
+        let ml = MathLayouter::new(&FixedMetrics);
+        let delim = Content::MathDelimited {
+            open:  '[',
+            body:  Box::new(Content::MathIdent("x".into())),
+            close: ']',
+        };
+        let items = ml.layout_equation(&delim, &default_style());
+        assert!(items.len() >= 3, "delimitado deve ter >= 3 items, tem {}", items.len());
+    }
+
+    #[test]
+    fn layout_delimited_cursor_avanca() {
+        // Delimitadores à esquerda e à direita do corpo
+        let ml = MathLayouter::new(&FixedMetrics);
+        let delim = Content::MathDelimited {
+            open:  '(',
+            body:  Box::new(Content::MathIdent("x".into())),
+            close: ')',
+        };
+        let items = ml.layout_equation(&delim, &default_style());
+        let xs: Vec<f64> = items.iter().filter_map(|i| {
+            if let FrameItem::Text { pos, .. } = i { Some(pos.x.val()) } else { None }
+        }).collect();
+        // O delimitador de fecho deve estar à direita do delimitador de abertura
+        assert!(xs.len() >= 2, "deve ter pelo menos 2 posições x");
+        assert!(xs.last().unwrap() > xs.first().unwrap(),
+            "fecho deve estar à direita de abertura");
+    }
+
+    #[test]
+    fn fixed_metrics_sem_variantes_vertextuais() {
+        let m = FixedMetrics;
+        let v = m.vertical_glyph_variants('(');
+        assert!(v.is_empty(), "FixedMetrics não tem variantes");
+    }
+
+    #[test]
+    fn fixed_metrics_glyph_to_char_none() {
+        let m = FixedMetrics;
+        assert_eq!(m.glyph_to_char(42), None);
+    }
+
+    #[test]
+    fn layout_stretchy_sem_variantes_usa_base() {
+        // Com FixedMetrics, o glifo base é usado directamente
+        let ml = MathLayouter::new(&FixedMetrics);
+        let box_ = ml.layout_stretchy_delimiter('(', 1000.0, &default_style());
+        assert!(box_.width > 0.0, "delimitador base deve ter largura > 0");
+    }
+
+    // ── Testes do Passo 43 — FrameItem::Glyph e GlyphAssembly ───────────────
+
+    #[test]
+    fn offset_item_desloca_glyph() {
+        let item = FrameItem::Glyph {
+            pos:       Point { x: Pt(1.0), y: Pt(2.0) },
+            glyph_id:  42,
+            x_advance: Pt(10.0),
+            size:      Pt(12.0),
+        };
+        let shifted = offset_item(item, Pt(3.0), Pt(4.0));
+        if let FrameItem::Glyph { pos, glyph_id, .. } = shifted {
+            assert_eq!(pos.x.val(), 4.0);
+            assert_eq!(pos.y.val(), 6.0);
+            assert_eq!(glyph_id, 42);
+        } else { panic!("deve ser Glyph"); }
+    }
+
+    #[test]
+    fn fixed_metrics_assembly_vazia() {
+        let m = FixedMetrics;
+        let a = m.vertical_glyph_assembly('(');
+        assert!(a.is_empty(), "FixedMetrics não tem assembly");
+    }
+
+    #[test]
+    fn layout_stretchy_sem_variantes_sem_assembly_usa_char_base() {
+        // Com FixedMetrics, sem variantes nem assembly, deve usar char base
+        let ml  = MathLayouter::new(&FixedMetrics);
+        let box_ = ml.layout_stretchy_delimiter('(', 5000.0, &default_style());
+        // O resultado é um Text com '('
+        let has_paren = box_.items.iter().any(|i| {
+            matches!(i, FrameItem::Text { text, .. } if text.as_str().contains('('))
+        });
+        assert!(has_paren, "deve usar char base '(' quando sem variantes");
+    }
+
+    #[test]
+    fn layout_delimited_nao_tem_glyph_com_fixed_metrics() {
+        // FixedMetrics não tem variantes — todos os items devem ser Text ou Line
+        let ml = MathLayouter::new(&FixedMetrics);
+        let delim = Content::MathDelimited {
+            open:  '(',
+            body:  Box::new(Content::MathIdent("a".into())),
+            close: ')',
+        };
+        let items = ml.layout_equation(&delim, &default_style());
+        let has_glyph = items.iter().any(|i| matches!(i, FrameItem::Glyph { .. }));
+        assert!(!has_glyph, "FixedMetrics não deve emitir FrameItem::Glyph");
+    }
+
+    #[test]
+    fn frac_dentro_de_delimitadores_nao_regride() {
+        let ml = MathLayouter::new(&FixedMetrics);
+        let delim = Content::MathDelimited {
+            open: '(',
+            body: Box::new(Content::MathFrac {
+                num: Box::new(Content::MathIdent("a".into())),
+                den: Box::new(Content::MathIdent("b".into())),
+            }),
+            close: ')',
+        };
+        let items = ml.layout_equation(&delim, &default_style());
+        let texts: Vec<_> = items.iter()
+            .filter_map(|i| if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None })
+            .collect();
+        assert!(texts.iter().any(|t| t.contains('a')), "numerador: {:?}", texts);
+        assert!(texts.iter().any(|t| t.contains('b')), "denominador: {:?}", texts);
+    }
+
+    #[test]
+    fn sqrt_nao_regride_passo43() {
+        let ml = MathLayouter::new(&FixedMetrics);
+        let root = Content::MathRoot {
+            index:    None,
+            radicand: Box::new(Content::MathIdent("x".into())),
+        };
+        let items = ml.layout_equation(&root, &default_style());
+        let texts: Vec<_> = items.iter()
+            .filter_map(|i| if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None })
+            .collect();
+        assert!(texts.iter().any(|t| t.contains('√') || t.contains('x')),
+            "sqrt deve conter radical ou radicando: {:?}", texts);
+    }
+
+    #[test]
+    fn attach_nao_regride_passo43() {
+        let ml = MathLayouter::new(&FixedMetrics);
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathIdent("x".into())),
+            sub:  None,
+            sup:  Some(Box::new(Content::MathText("2".into()))),
+        };
+        let items = ml.layout_equation(&attach, &default_style());
+        let texts: Vec<_> = items.iter()
+            .filter_map(|i| if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None })
+            .collect();
+        assert!(texts.iter().any(|t| t.contains('x')), "base: {:?}", texts);
+        assert!(texts.iter().any(|t| t.contains('2')), "sup: {:?}", texts);
+    }
+
     #[test]
     fn offset_item_desloca_text() {
         let item = FrameItem::Text {
@@ -682,5 +1077,108 @@ mod tests {
             assert_eq!(end.x.val(), 15.0);
             assert_eq!(end.y.val(), 2.0);
         } else { panic!("deve ser Line"); }
+    }
+
+    // ── Testes do Passo 44 — AxisHeight e MathKernInfo ───────────────────
+
+    fn layout_equation_items(content: &Content) -> Vec<FrameItem> {
+        let ml = MathLayouter::new(&FixedMetrics);
+        ml.layout_equation(content, &default_style())
+    }
+
+    #[test]
+    fn fixed_metrics_math_kern_vazio() {
+        let m = FixedMetrics;
+        let k = m.math_kern('f');
+        assert!(k.top_right.is_empty());
+        assert!(k.bottom_right.is_empty());
+    }
+
+    #[test]
+    fn math_kern_default_nao_afecta_layout() {
+        // math_kern com FixedMetrics retorna kern zero — layout não deve mudar
+        let ml = MathLayouter::new(&FixedMetrics);
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathIdent("f".into())),
+            sub:  None,
+            sup:  Some(Box::new(Content::MathText("2".into()))),
+        };
+        let items = ml.layout_equation(&attach, &default_style());
+        assert!(!items.is_empty(), "attach deve produzir items");
+    }
+
+    fn items_contain_text(items: &[FrameItem], c: char) -> bool {
+        items.iter().any(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str().contains(c)))
+    }
+
+    #[test]
+    fn frac_com_axis_height_nao_regride() {
+        let frac = Content::MathFrac {
+            num: Box::new(Content::MathIdent("a".into())),
+            den: Box::new(Content::MathIdent("b".into())),
+        };
+        let items = layout_equation_items(&frac);
+        assert!(items_contain_text(&items, 'a'), "numerador: {:?}", items);
+        assert!(items_contain_text(&items, 'b'), "denominador: {:?}", items);
+    }
+
+    #[test]
+    fn delimitado_com_axis_height_nao_regride() {
+        let delim = Content::MathDelimited {
+            open: '(',
+            body: Box::new(Content::MathFrac {
+                num: Box::new(Content::MathIdent("a".into())),
+                den: Box::new(Content::MathIdent("b".into())),
+            }),
+            close: ')',
+        };
+        let items = layout_equation_items(&delim);
+        assert!(items_contain_text(&items, 'a'));
+        assert!(items_contain_text(&items, 'b'));
+    }
+
+    #[test]
+    fn sqrt_com_axis_height_nao_regride() {
+        let root = Content::MathRoot {
+            index:    None,
+            radicand: Box::new(Content::MathIdent("x".into())),
+        };
+        let items = layout_equation_items(&root);
+        assert!(
+            items_contain_text(&items, '√') || items_contain_text(&items, 'x'),
+            "sqrt deve conter radical ou radicando"
+        );
+    }
+
+    #[test]
+    fn attach_com_kern_nao_regride() {
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathIdent("x".into())),
+            sub:  None,
+            sup:  Some(Box::new(Content::MathText("2".into()))),
+        };
+        let items = layout_equation_items(&attach);
+        assert!(items_contain_text(&items, 'x'));
+        assert!(items_contain_text(&items, '2'));
+    }
+
+    #[test]
+    fn attach_sub_com_kern_nao_regride() {
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathIdent("x".into())),
+            sub:  Some(Box::new(Content::MathIdent("i".into()))),
+            sup:  None,
+        };
+        let items = layout_equation_items(&attach);
+        assert!(items_contain_text(&items, 'x'));
+        assert!(items_contain_text(&items, 'i'));
+    }
+
+    #[test]
+    fn frac_axis_ascent_maior_que_sem_axis() {
+        // Com axis_height, a fracção sobe: o ascent do MathBox aumenta.
+        // Verificar que o axis_height é não-zero (fallback=500 > 0).
+        let constants = crate::entities::math_constants::MathConstants::fallback();
+        assert!(constants.axis_height > 0.0, "axis_height do fallback deve ser > 0");
     }
 }

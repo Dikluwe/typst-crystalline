@@ -112,6 +112,22 @@ pub enum FrameItem {
         end:       Point,
         thickness: f64,
     },
+    /// Glifo renderizado directamente por ID, sem mapeamento Unicode.
+    ///
+    /// Usado para variantes de tamanho matemático onde `glyph_to_char`
+    /// retorna `None`. O export PDF escreve o ID como `<XXXX> Tj`.
+    ///
+    /// `pos`: posição final do glifo (coordenadas de página), calculada
+    ///        pelo `MathLayouter` antes de emitir este item.
+    /// `glyph_id`: índice do glifo na fonte (índice CIDFont, Identity-H).
+    /// `x_advance`: largura horizontal do glifo em pt.
+    /// `size`: corpo tipográfico em pt.
+    Glyph {
+        pos:       Point,
+        glyph_id:  u16,
+        x_advance: Pt,
+        size:      Pt,
+    },
 }
 
 /// Canvas de uma página — colecção de itens com posições absolutas.
@@ -140,6 +156,7 @@ impl Frame {
             .filter_map(|i| match i {
                 FrameItem::Text { text, .. } => Some(text.as_str()),
                 FrameItem::Line { .. }       => None,
+                FrameItem::Glyph { .. }      => None,
             })
             .collect::<Vec<_>>()
             .join(" ")
@@ -418,7 +435,7 @@ mod tests {
     }
 
     #[test]
-    fn angle_partialEq_e_exacto() {
+    fn angle_partial_eq_e_exacto() {
         let a1 = Angle::deg(180.0);
         let a2 = Angle::deg(180.0);
         assert_eq!(a1, a2);

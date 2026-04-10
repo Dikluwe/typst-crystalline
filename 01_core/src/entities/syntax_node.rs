@@ -278,6 +278,7 @@ impl SyntaxNode {
     /// Replaces a range of children with a replacement.
     ///
     /// May have mutated the children if it returns `Err(_)`.
+    #[allow(dead_code)] // usado por reparse_block/reparse_markup — migração incremental
     pub(crate) fn replace_children(
         &mut self,
         range: Range<usize>,
@@ -290,6 +291,7 @@ impl SyntaxNode {
     }
 
     /// Update this node after changes were made to one of its children.
+    #[allow(dead_code)] // usado por replace_children — migração incremental
     pub(crate) fn update_parent(
         &mut self,
         prev_len: usize,
@@ -308,6 +310,7 @@ impl SyntaxNode {
     }
 
     /// The upper bound of assigned numbers in this subtree.
+    #[allow(dead_code)] // usado por replace_children internamente
     pub(crate) fn upper(&self) -> u64 {
         match &self.0 {
             NodeKind::Leaf(leaf) => leaf.span.number() + 1,

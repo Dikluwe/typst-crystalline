@@ -47,7 +47,7 @@ pub struct Scope {
 impl Scope {
     pub fn new() -> Self {
         Self {
-            map: IndexMap::with_hasher(FxBuildHasher::default()),
+            map: IndexMap::with_hasher(FxBuildHasher),
         }
     }
 

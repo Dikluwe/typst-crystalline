@@ -95,6 +95,16 @@ pub enum Content {
         radicand: Box<Content>,
     },
 
+    /// Expressão entre delimitadores (`(...)`, `[...]`, `{...}`).
+    /// `open`/`close` são os caracteres delimitadores.
+    /// Mantida como variante própria para que o layout possa
+    /// seleccionar variantes de tamanho (Passo 42).
+    MathDelimited {
+        open:  char,
+        body:  Box<Content>,
+        close: char,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
@@ -189,6 +199,9 @@ impl Content {
                 None    => format!("sqrt({})", radicand.plain_text()),
                 Some(i) => format!("root({}, {})", i.plain_text(), radicand.plain_text()),
             },
+            Self::MathDelimited { open, body, close } => {
+                format!("{}{}{}", open, body.plain_text(), close)
+            }
         }
     }
 }
@@ -221,6 +234,8 @@ impl PartialEq for Content {
              Self::MathAttach { base: bb, sub: sb, sup: pb })        => ba == bb && sa == sb && pa == pb,
             (Self::MathRoot { index: ia, radicand: ra },
              Self::MathRoot { index: ib, radicand: rb })             => ia == ib && ra == rb,
+            (Self::MathDelimited { open: oa, body: ba, close: ca },
+             Self::MathDelimited { open: ob, body: bb, close: cb })  => oa == ob && ba == bb && ca == cb,
             _ => false,
         }
     }

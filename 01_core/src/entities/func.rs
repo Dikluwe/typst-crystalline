@@ -80,11 +80,9 @@ impl Func {
     /// Se a closure já foi clonada (Arc partilhado), não muta — a referência
     /// recursiva não é necessária se a closure já foi capturada noutro sítio.
     pub fn set_name(&mut self, name: String) {
-        if let Some(inner) = Arc::get_mut(&mut self.0) {
-            if let FuncRepr::Closure(ref mut c) = inner {
-                if c.name.is_none() {
-                    c.name = Some(name);
-                }
+        if let Some(FuncRepr::Closure(ref mut c)) = Arc::get_mut(&mut self.0) {
+            if c.name.is_none() {
+                c.name = Some(name);
             }
         }
     }

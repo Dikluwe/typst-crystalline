@@ -71,6 +71,7 @@ fn markup_exprs(p: &mut Parser, mut at_start: bool, stop_set: SyntaxSet) {
 }
 
 /// Reparses a subsection of markup incrementally.
+#[allow(dead_code)] // API de reparse incremental — migração futura
 pub(super) fn reparse_markup(
     text: &str,
     range: Range<usize>,
@@ -780,6 +781,7 @@ fn code_primary(p: &mut Parser, atomic: bool) {
 }
 
 /// Reparses a full content or code block.
+#[allow(dead_code)] // API de reparse incremental — migração futura
 pub(super) fn reparse_block(text: &str, range: Range<usize>) -> Option<SyntaxNode> {
     let mut p = Parser::new(text, range.start, SyntaxMode::Code);
     assert!(p.at(SyntaxKind::LeftBracket) || p.at(SyntaxKind::LeftBrace));
@@ -1748,6 +1750,7 @@ impl<'s> Parser<'s> {
     }
 
     /// The offset into `text` of the previous token's end.
+    #[allow(dead_code)] // usado por reparse_block — migração incremental futura
     fn prev_end(&self) -> usize {
         self.token.prev_end
     }

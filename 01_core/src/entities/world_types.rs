@@ -31,6 +31,12 @@ impl Font {
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub struct Library(());
 
+impl Default for Library {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Library {
     pub fn new() -> Self { Self(()) }
 }

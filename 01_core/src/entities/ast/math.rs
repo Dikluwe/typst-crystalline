@@ -4,7 +4,6 @@
 //! @layer L1
 //! @updated 2026-03-26
 
-use crate::entities::ast::AstNode;
 use crate::node;
 use crate::entities::ast::expr::Expr;
 use crate::entities::syntax_kind::SyntaxKind;
@@ -264,7 +263,7 @@ impl<'a> MathRoot<'a> {
         match self.0.children().next().map(|node| node.text_str()) {
             Some("∜") => Some(4),
             Some("∛") => Some(3),
-            Some("√") | _ => Option::None,
+            _ => Option::None,
         }
     }
 
@@ -277,6 +276,7 @@ impl<'a> MathRoot<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::entities::ast::AstNode;
     use crate::entities::source::Source;
 
     #[test]

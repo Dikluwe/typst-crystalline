@@ -130,8 +130,8 @@ mod tests {
     #[test]
     fn style_chain_defaults() {
         let chain = StyleChain::default_chain();
-        assert_eq!(chain.bold(),   false);
-        assert_eq!(chain.italic(), false);
+        assert!(!chain.bold());
+        assert!(!chain.italic());
         assert_eq!(chain.size(),   11.0);
     }
 
@@ -139,8 +139,8 @@ mod tests {
     fn style_chain_push_herda() {
         let base  = StyleChain::default_chain();
         let child = base.push(StyleDelta { bold: Some(true), italic: None, size: None });
-        assert_eq!(child.bold(),   true);
-        assert_eq!(child.italic(), false);  // herdado
+        assert!(child.bold());
+        assert!(!child.italic());  // herdado
         assert_eq!(child.size(),   11.0);   // herdado
     }
 
@@ -150,8 +150,8 @@ mod tests {
         let mid   = base.push(StyleDelta { bold: Some(true), italic: None, size: None });
         let child = mid.push(StyleDelta { bold: None, italic: None, size: Some(14.0) });
         // bold herdado de mid, size de child, italic do root
-        assert_eq!(child.bold(),   true);
-        assert_eq!(child.italic(), false);
+        assert!(child.bold());
+        assert!(!child.italic());
         assert_eq!(child.size(),   14.0);
     }
 
@@ -160,7 +160,7 @@ mod tests {
         let base  = StyleChain::default_chain();
         let chain = base.push(StyleDelta { bold: Some(true), italic: None, size: None });
         let clone = chain.clone();
-        assert_eq!(clone.bold(), true);
+        assert!(clone.bold());
         // Clone correcto — mesmo que O(1) não seja verificável directamente
     }
 
@@ -169,16 +169,16 @@ mod tests {
         let chain = StyleChain::default_chain()
             .push(StyleDelta { bold: Some(true), italic: None, size: Some(14.0) });
         let ts = TextStyle::from(&chain);
-        assert_eq!(ts.bold,         true);
-        assert_eq!(ts.italic,       false);
+        assert!(ts.bold);
+        assert!(!ts.italic);
         assert_eq!(ts.size.val(),   14.0);
     }
 
     #[test]
     fn empty_chain_usa_defaults() {
         let chain = StyleChain::empty();
-        assert_eq!(chain.bold(),   false);
-        assert_eq!(chain.italic(), false);
+        assert!(!chain.bold());
+        assert!(!chain.italic());
         assert_eq!(chain.size(),   11.0);
     }
 }

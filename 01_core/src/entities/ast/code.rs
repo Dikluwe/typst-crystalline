@@ -7,7 +7,6 @@
 use std::path::Path;
 use std::str::FromStr;
 
-use crate::entities::ast::AstNode;
 use crate::node;
 use crate::entities::ast::expr::{Expr, Ident, Pattern, Args};
 use crate::entities::package_spec::PackageSpec;
@@ -35,7 +34,7 @@ impl<'a> LetBindingKind<'a> {
 
 impl<'a> LetBinding<'a> {
     pub fn kind(self) -> LetBindingKind<'a> {
-        use crate::entities::ast::expr::{Closure, Pattern};
+        use crate::entities::ast::expr::Pattern;
         match self.0.cast_first() {
             Pattern::Normal(Expr::Closure(closure)) => {
                 LetBindingKind::Closure(closure.name().expect("closure should have name"))
@@ -273,8 +272,8 @@ impl<'a> FuncReturn<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entities::source::Source;
-    use crate::entities::syntax_kind::SyntaxKind;
+    use crate::entities::ast::AstNode;
+    
 
     #[test]
     fn bare_import_error_dynamic() {

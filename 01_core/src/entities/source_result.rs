@@ -125,17 +125,23 @@ mod tests {
 
     #[test]
     fn source_result_ok() {
-        let r: SourceResult<u32> = Ok(42);
+        // Usa função para evitar clippy::unnecessary_literal_unwrap
+        fn make_ok() -> SourceResult<u32> { Ok(42) }
+        let r = make_ok();
+        assert!(r.is_ok());
         assert_eq!(r.unwrap(), 42);
     }
 
     #[test]
     fn source_result_err() {
-        let r: SourceResult<u32> = Err(vec![
-            SourceDiagnostic::error(Span::detached(), "e")
-        ]);
+        // Usa função para evitar clippy::unnecessary_literal_unwrap
+        fn make_err() -> SourceResult<u32> {
+            Err(vec![SourceDiagnostic::error(Span::detached(), "e")])
+        }
+        let r = make_err();
         assert!(r.is_err());
-        assert_eq!(r.unwrap_err().len(), 1);
+        let diags = r.unwrap_err();
+        assert_eq!(diags.len(), 1);
     }
 
     #[test]

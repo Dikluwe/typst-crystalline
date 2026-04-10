@@ -6,7 +6,7 @@
 
 use crate::entities::ast::AstNode;
 use crate::entities::ast::markup::{
-    Markup, Strong, Emph, Raw, Link, Label, Ref, Heading, ListItem, EnumItem,
+    Strong, Emph, Raw, Link, Label, Ref, Heading, ListItem, EnumItem,
     TermItem, ContentBlock, Space, Linebreak, Parbreak, Escape, Shorthand,
     SmartQuote, Text,
 };
@@ -808,7 +808,7 @@ mod tests {
         let src = Source::detached("hello");
         let expr = src.root()
             .children()
-            .find_map(|n| Expr::from_untyped(n));
+            .find_map(Expr::from_untyped);
         assert!(matches!(expr, Some(Expr::Text(_))));
     }
 
@@ -827,7 +827,7 @@ mod tests {
     fn str_get_simple_no_escapes() {
         // Contrato correcto — `"hello"` without escapes returns `hello`
         // Requires parse() to emit Str nodes — validate via parsing source
-        let src = Source::detached(r#"#let x = "hello""#);
+        let _src = Source::detached(r#"#let x = "hello""#);
         // Just verify that Str type exists and compiles
         let _ = Str::from_untyped;
     }
