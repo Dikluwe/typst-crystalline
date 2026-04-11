@@ -169,6 +169,10 @@ impl FontMetrics for FontBookMetrics<'_> {
                         c.script_percent_scale_down() as f64 / 100.0,
                     script_script_percent_scale_down:
                         c.script_script_percent_scale_down() as f64 / 100.0,
+                    upper_limit_gap_min:
+                        c.upper_limit_gap_min().value as f64,
+                    lower_limit_gap_min:
+                        c.lower_limit_gap_min().value as f64,
                 },
                 None => MathConstants::fallback(),
             },

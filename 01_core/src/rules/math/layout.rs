@@ -342,7 +342,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             self.constants.subscript_shift_down, style.size
         ).val();
 
-        // Extrair o char da base para consultar MathKernInfo.
+        // Extrair o char da base para consultar MathKernInfo e detectar operador grande.
         // Apenas MathIdent/MathText têm char único; outros ficam com kern zero.
         let base_char: Option<char> = match base {
             Content::MathIdent(s) | Content::MathText(s) => s.chars().next(),
@@ -351,6 +351,15 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let base_kern: MathGlyphKern = base_char
             .map(|c| self.metrics.math_kern(c))
             .unwrap_or_default();
+
+        // Passo 49 — detectar operador grande ou função de limite.
+        let is_limits = match base {
+            Content::MathIdent(s) | Content::MathText(s) => {
+                let ch = s.chars().next().unwrap_or('\0');
+                symbols::is_large_operator(ch) || symbols::is_limit_function(s.as_str())
+            }
+            _ => false,
+        };
 
         // ── Passo 3a/3b/3c — Coluna esquerda (pre-scripts) ──────────────
         // Layout dos left-scripts para obter larguras.
@@ -374,9 +383,14 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             tl_w.max(bl_w)
         };
 
+        // Salvar métricas da base antes de consumir base_box.items.
+        let base_ascent  = base_box.ascent;
+        let base_descent = base_box.descent;
+        let base_width   = base_box.width;
+
         // ── Construção dos items ──────────────────────────────────────────
-        let mut ascent  = base_box.ascent;
-        let mut descent = base_box.descent;
+        let mut ascent  = base_ascent;
+        let mut descent = base_descent;
         let mut items   = Vec::new();
 
         // Posicionar tl (pre-superscript): alinhado à direita da coluna esquerda,
@@ -399,48 +413,104 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             }
         }
 
-        // Base: posicionada em x = left_col_width.
-        for item in base_box.items {
-            items.push(offset_item(item, Pt(left_col_width), Pt(0.0)));
-        }
-
-        // Right-scripts (sub/sup): partem de left_col_width + base_width.
-        let mut x = left_col_width + base_box.width;
-
-        if let Some(sup_content) = sup {
-            let sup_box = self.layout_node(sup_content, &script_style);
-            ascent = ascent.max(sup_offset + sup_box.ascent);
-
-            // Kern: quadrante top-right. Altura de conexão = ascent do sup.
-            let sup_h_du = sup_box.ascent * self.constants.upem
-                / style.size.val().max(0.001);
-            let kern_sup = self.constants.to_pt(
-                base_kern.top_right.kern_at(sup_h_du), style.size
+        if is_limits {
+            // ── Passo 49 — Empilhamento vertical para operadores grandes ──────
+            //
+            // sup fica centrado ACIMA da base, separado por upper_limit_gap_min.
+            // sub fica centrado ABAIXO da base, separado por lower_limit_gap_min.
+            let upper_gap = self.constants.to_pt(
+                self.constants.upper_limit_gap_min, style.size
+            ).val();
+            let lower_gap = self.constants.to_pt(
+                self.constants.lower_limit_gap_min, style.size
             ).val();
 
-            for item in sup_box.items {
-                items.push(offset_item(item, Pt(x + kern_sup), Pt(-sup_offset)));
+            let sup_box_opt = sup.map(|c| self.layout_node(c, &script_style));
+            let sub_box_opt = sub.map(|c| self.layout_node(c, &script_style));
+
+            // Largura máxima dos três elementos para centrar em X.
+            let max_content_w = [
+                base_width,
+                sup_box_opt.as_ref().map(|b| b.width).unwrap_or(0.0),
+                sub_box_opt.as_ref().map(|b| b.width).unwrap_or(0.0),
+            ].iter().cloned().fold(0.0f64, f64::max);
+
+            let total_w = left_col_width + max_content_w;
+
+            // Base centrada.
+            let x_base = left_col_width + (max_content_w - base_width) / 2.0;
+            for item in base_box.items {
+                items.push(offset_item(item, Pt(x_base), Pt(0.0)));
             }
-            x += sup_box.width + kern_sup;
-        }
 
-        if let Some(sub_content) = sub {
-            let sub_box = self.layout_node(sub_content, &script_style);
-            descent = descent.max(sub_offset + sub_box.descent);
-
-            // Kern: quadrante bottom-right. Altura de conexão = ascent do sub.
-            let sub_h_du = sub_box.ascent * self.constants.upem
-                / style.size.val().max(0.001);
-            let kern_sub = self.constants.to_pt(
-                base_kern.bottom_right.kern_at(sub_h_du), style.size
-            ).val();
-
-            for item in sub_box.items {
-                items.push(offset_item(item, Pt(x + kern_sub), Pt(sub_offset)));
+            // Limite superior: bottom do sup fica upper_gap acima do top da base.
+            // y_sup = -(base_ascent + upper_gap + sup.descent)
+            if let Some(sb) = sup_box_opt {
+                let y_sup = -(base_ascent + upper_gap + sb.descent);
+                let x_sup = left_col_width + (max_content_w - sb.width) / 2.0;
+                ascent = ascent.max(base_ascent + upper_gap + sb.descent + sb.ascent);
+                for item in sb.items {
+                    items.push(offset_item(item, Pt(x_sup), Pt(y_sup)));
+                }
             }
-        }
 
-        MathBox { width: x, ascent, descent, items }
+            // Limite inferior: top do sub fica lower_gap abaixo do bottom da base.
+            // y_sub = base_descent + lower_gap + sub.ascent
+            if let Some(sb) = sub_box_opt {
+                let y_sub = base_descent + lower_gap + sb.ascent;
+                let x_sub = left_col_width + (max_content_w - sb.width) / 2.0;
+                descent = descent.max(base_descent + lower_gap + sb.ascent + sb.descent);
+                for item in sb.items {
+                    items.push(offset_item(item, Pt(x_sub), Pt(y_sub)));
+                }
+            }
+
+            MathBox { width: total_w, ascent, descent, items }
+        } else {
+            // ── Right-scripts (sub/sup à direita — layout horizontal) ────────
+            // Base: posicionada em x = left_col_width.
+            for item in base_box.items {
+                items.push(offset_item(item, Pt(left_col_width), Pt(0.0)));
+            }
+
+            // Right-scripts partem de left_col_width + base_width.
+            let mut x = left_col_width + base_width;
+
+            if let Some(sup_content) = sup {
+                let sup_box = self.layout_node(sup_content, &script_style);
+                ascent = ascent.max(sup_offset + sup_box.ascent);
+
+                // Kern: quadrante top-right. Altura de conexão = ascent do sup.
+                let sup_h_du = sup_box.ascent * self.constants.upem
+                    / style.size.val().max(0.001);
+                let kern_sup = self.constants.to_pt(
+                    base_kern.top_right.kern_at(sup_h_du), style.size
+                ).val();
+
+                for item in sup_box.items {
+                    items.push(offset_item(item, Pt(x + kern_sup), Pt(-sup_offset)));
+                }
+                x += sup_box.width + kern_sup;
+            }
+
+            if let Some(sub_content) = sub {
+                let sub_box = self.layout_node(sub_content, &script_style);
+                descent = descent.max(sub_offset + sub_box.descent);
+
+                // Kern: quadrante bottom-right. Altura de conexão = ascent do sub.
+                let sub_h_du = sub_box.ascent * self.constants.upem
+                    / style.size.val().max(0.001);
+                let kern_sub = self.constants.to_pt(
+                    base_kern.bottom_right.kern_at(sub_h_du), style.size
+                ).val();
+
+                for item in sub_box.items {
+                    items.push(offset_item(item, Pt(x + kern_sub), Pt(sub_offset)));
+                }
+            }
+
+            MathBox { width: x, ascent, descent, items }
+        }
     }
 
     /// Layout de raiz quadrada / n-ésima.

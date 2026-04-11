@@ -760,4 +760,82 @@ mod tests {
             );
         }
     }
+
+    // ── Passo 49 — Limites verticais em operadores grandes ───────────────────
+
+    #[cfg(test)]
+    mod tests_limits {
+        use super::*;
+
+        #[test]
+        fn layout_sum_com_limites_contem_conteudo() {
+            let doc = layout_test("$sum_(i=0)^n$");
+            let text = doc.plain_text();
+            assert!(
+                text.contains('∑') || text.contains('i') || text.contains('n'),
+                "operador ou limites ausentes: {}", text
+            );
+        }
+
+        #[test]
+        fn layout_sum_sem_limites_nao_regride() {
+            let doc = layout_test("$sum$");
+            let text = doc.plain_text();
+            assert!(text.contains('∑'), "somatório: {}", text);
+        }
+
+        #[test]
+        fn layout_attach_normal_nao_regride() {
+            let doc = layout_test("$x^2$");
+            let text = doc.plain_text();
+            assert!(text.contains('x'));
+            assert!(text.contains('2'));
+        }
+
+        #[test]
+        fn layout_integral_com_limites_nao_panica() {
+            let doc = layout_test("$integral_(0)^1$");
+            assert!(!doc.pages.is_empty());
+        }
+
+        #[test]
+        fn layout_prod_com_limites_nao_panica() {
+            let doc = layout_test("$product_(k=1)^n$");
+            assert!(!doc.pages.is_empty());
+        }
+
+        #[test]
+        fn layout_lim_com_subscript_nao_panica() {
+            let doc = layout_test("$lim_(x -> 0)$");
+            assert!(!doc.pages.is_empty());
+        }
+
+        #[test]
+        fn sum_limites_empilhados_verticalmente() {
+            // Com vertical stacking, o limite superior está bem acima da base
+            // (base_ascent + gap ≈ 9.6 + 1.2 = 10.8pt acima baseline).
+            // Com right-script horizontal, o sup está apenas sup_offset ≈ 4.34pt acima.
+            // Verificar que pelo menos um item está > 10pt acima do cursor_y (≈ 75.6 após Passo 48).
+            // cursor_y - axis_pt ≈ 75.6. Item mais alto deve estar < 65.0 (mais de 10pt acima).
+            let doc = layout_test("$sum_(i=0)^n$");
+            let all_y: Vec<f64> = doc.pages.iter()
+                .flat_map(|p| p.items.iter())
+                .filter_map(|i| match i {
+                    FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                    FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
+                    _ => None,
+                })
+                .collect();
+            assert!(!all_y.is_empty(), "deve ter items");
+            let min_y = all_y.iter().cloned().fold(f64::INFINITY, f64::min);
+            // Com vertical stacking: sup offset ≈ -(9.6 + 1.2 + 3.36) = -14.16 below cursor_y (≈75.6)
+            // → item y ≈ 75.6 - 14.16 = 61.4 < 65.0
+            // Com horizontal: sup_offset ≈ 4.34 → item y ≈ 75.6 - 4.34 = 71.3 > 65.0
+            assert!(
+                min_y < 65.0,
+                "limites de ∑ devem estar empilhados verticalmente (min_y={:.1} < 65.0)",
+                min_y
+            );
+        }
+    }
 }
