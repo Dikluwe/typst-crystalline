@@ -696,4 +696,32 @@ mod integration {
         let pdf = compile_to_pdf("$x^2 + y_i$");
         assert!(!pdf.is_empty());
     }
+
+    // ── Passo 50 — Diferenciação inline/bloco ────────────────────────────────
+
+    #[test]
+    fn pdf_sum_inline_no_texto_nao_vazio() {
+        let pdf = compile_to_pdf("Soma $sum_(i=0)^n x_i$ no texto.");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_sum_inline_contem_bt_et() {
+        let pdf = compile_to_pdf("$sum_(i=0)^n$");
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("BT"));
+        assert!(s.contains("ET"));
+    }
+
+    #[test]
+    fn pdf_lim_inline_nao_vazio() {
+        let pdf = compile_to_pdf("O limite $lim_(x -> 0) f(x)$ existe.");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_sum_block_nao_vazio() {
+        let pdf = compile_to_pdf("$ sum_(i=0)^n x_i $");
+        assert!(!pdf.is_empty());
+    }
 }
