@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/math.md
 //! @prompt-hash 8be87568
 //! @layer L1
-//! @updated 2026-04-03
+//! @updated 2026-04-11
 
 use ecow::EcoString;
 
@@ -84,6 +84,56 @@ fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             size,
         },
     }
+}
+
+/// Verifica se uma sequência de nós matemáticos precisa de layout em grelha.
+///
+/// Retorna `true` se houver pelo menos um `MathAlignPoint` ou `Linebreak`.
+/// Se `false`, o layout linear existente é usado sem custo adicional.
+fn needs_grid_layout(nodes: &[Content]) -> bool {
+    nodes.iter().any(|c| matches!(c, Content::MathAlignPoint | Content::Linebreak))
+}
+
+/// Particiona uma sequência flat em linhas e colunas.
+///
+/// Retorna `Vec<Vec<Vec<Content>>>`:
+///   - dim 0: linhas (separadas por `Linebreak`)
+///   - dim 1: colunas (separadas por `MathAlignPoint`)
+///   - dim 2: items da célula
+///
+/// Células e linhas finais vazias são removidas.
+fn partition_grid(nodes: &[Content]) -> Vec<Vec<Vec<Content>>> {
+    let mut lines: Vec<Vec<Vec<Content>>> = vec![vec![vec![]]];
+
+    for node in nodes {
+        match node {
+            Content::Linebreak => {
+                lines.push(vec![vec![]]);
+            }
+            Content::MathAlignPoint => {
+                lines.last_mut().unwrap().push(vec![]);
+            }
+            other => {
+                lines.last_mut().unwrap()
+                     .last_mut().unwrap()
+                     .push(other.clone());
+            }
+        }
+    }
+
+    // Remover células finais vazias em cada linha
+    for line in &mut lines {
+        while line.last().map(|c| c.is_empty()).unwrap_or(false) {
+            line.pop();
+        }
+    }
+
+    // Remover linhas finais completamente vazias
+    while lines.last().map(|l| l.is_empty()).unwrap_or(false) {
+        lines.pop();
+    }
+
+    lines
 }
 
 /// Motor de layout matemático — stateless.
@@ -217,10 +267,118 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     }
 
     fn layout_sequence(&self, nodes: &[Content], style: &TextStyle) -> MathBox {
-        let boxes: Vec<MathBox> = nodes.iter()
-            .map(|n| self.layout_node(n, style))
+        if self.block && needs_grid_layout(nodes) {
+            self.layout_grid(nodes, style)
+        } else {
+            let boxes: Vec<MathBox> = nodes.iter()
+                .filter(|n| !matches!(n, Content::MathAlignPoint | Content::Linebreak))
+                .map(|n| self.layout_node(n, style))
+                .collect();
+            self.hconcat(boxes)
+        }
+    }
+
+    /// Layout em grelha 2D para equações com `&` e `\\`.
+    ///
+    /// Duas passagens:
+    ///   1. Mede todas as células para calcular largura máxima por coluna.
+    ///   2. Posiciona com essas larguras fixas.
+    ///
+    /// Regra de alinhamento Typst:
+    ///   - Colunas 0-based pares (0, 2, …) → alinha à direita.
+    ///   - Colunas 0-based ímpares (1, 3, …) → alinha à esquerda.
+    fn layout_grid(&self, nodes: &[Content], style: &TextStyle) -> MathBox {
+        let grid = partition_grid(nodes);
+        let n_cols = grid.iter().map(|row| row.len()).max().unwrap_or(0);
+        if n_cols == 0 {
+            return MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items: vec![] };
+        }
+
+        // ── Passagem 1: medir todas as células ────────────────────────────
+        let grid_boxes: Vec<Vec<MathBox>> = grid.iter()
+            .map(|row| row.iter().map(|cell| self.layout_sequence(cell, style)).collect())
             .collect();
-        self.hconcat(boxes)
+
+        let mut col_widths = vec![0.0_f64; n_cols];
+        for row in &grid_boxes {
+            for (col_idx, cell_box) in row.iter().enumerate() {
+                col_widths[col_idx] = col_widths[col_idx].max(cell_box.width);
+            }
+        }
+
+        // ── Passagem 2: posicionar células ────────────────────────────────
+        let mut all_items: Vec<FrameItem> = Vec::new();
+        // dy acumulado: deslocamento da baseline da linha actual
+        // relativo à baseline da linha 0 (= baseline da equação toda).
+        let mut baseline_offset = 0.0_f64;
+        let total_width: f64 = col_widths.iter().sum();
+
+        // Ascent total = ascent da linha 0
+        let total_ascent = grid_boxes.first()
+            .map(|row| row.iter().map(|b| b.ascent).fold(0.0, f64::max))
+            .unwrap_or(0.0);
+        let mut total_descent = grid_boxes.first()
+            .map(|row| row.iter().map(|b| b.descent).fold(0.0, f64::max))
+            .unwrap_or(0.0);
+
+        for (row_idx, row) in grid_boxes.iter().enumerate() {
+            let row_ascent  = row.iter().map(|b| b.ascent).fold(0.0, f64::max);
+            let row_descent = row.iter().map(|b| b.descent).fold(0.0, f64::max);
+
+            let mut cursor_x = 0.0_f64;
+            for (col_idx, cell_box) in row.iter().enumerate() {
+                let col_w = if col_idx < n_cols { col_widths[col_idx] } else { 0.0 };
+
+                // Alinhamento interno da célula
+                let cell_x = if col_idx % 2 == 0 {
+                    // Col par (0-based): alinha à direita dentro da coluna
+                    cursor_x + (col_w - cell_box.width)
+                } else {
+                    // Col ímpar: alinha à esquerda
+                    cursor_x
+                };
+
+                // dy: os items do cell_box têm y=0 no topo do box.
+                // A baseline do cell_box está a y=cell_box.ascent (no box local).
+                // No box global, a baseline da linha row_idx está a baseline_offset
+                // abaixo da baseline da linha 0 (y=0 no box global é o topo do row0).
+                // Items devem ser deslocados de baseline_offset - row_ascent
+                // para que o topo do row apareça na posição correcta.
+                let dy = baseline_offset - row_ascent;
+
+                for item in cell_box.items.clone() {
+                    all_items.push(offset_item(item, Pt(cell_x), Pt(dy)));
+                }
+
+                cursor_x += col_w;
+            }
+
+            // Acumular descent para linhas seguintes
+            if row_idx == 0 {
+                // baseline_offset permanece 0 para linha 0
+            } else {
+                // Já foi avançado antes desta linha
+            }
+
+            // Avançar baseline para próxima linha
+            if row_idx + 1 < grid_boxes.len() {
+                let line_gap = style.size.val() * 0.2;
+                let advance = row_descent + line_gap + {
+                    let next_row = &grid_boxes[row_idx + 1];
+                    next_row.iter().map(|b| b.ascent).fold(0.0, f64::max)
+                };
+                baseline_offset += advance;
+                total_descent += row_descent + line_gap
+                    + grid_boxes[row_idx + 1].iter().map(|b| b.ascent + b.descent).fold(0.0, f64::max);
+            }
+        }
+
+        MathBox {
+            width:   total_width,
+            ascent:  total_ascent,
+            descent: total_descent,
+            items:   all_items,
+        }
     }
 
     /// Concatenação horizontal: posiciona MathBoxes lado a lado.
