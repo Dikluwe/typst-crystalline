@@ -3,6 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
+
 - `01_core/src/entities/value.rs` — enum com 11 variantes actuais e ~20 comentadas
 - `01_core/src/rules/stdlib.rs` — `native_type`, `native_len`, `native_range`
 - `01_core/src/rules/eval.rs` — `eval_expr`, `eval_binary_op`
@@ -166,7 +167,7 @@ grep -rn "-> Length\|-> Color\|-> Ratio\|-> Angle" \
 
 ## Tarefa 2 — Decisão de representação (ADR-0028)
 
-```
+```text
 ADR-0028 — Representação simplificada dos tipos tipográficos em Value
 Data: 2026-03-29
 Status: Accepted
@@ -476,7 +477,7 @@ fn angle_deg_rad_usa_approx() {
 }
 
 #[test]
-fn angle_partialEq_e_exacto() {
+fn angle_partial_eq_e_exacto() {
     // PartialEq em produção é exacto — dois Angle::deg(180.0) são iguais
     // porque produzem o mesmo f64 de radianos.
     let a1 = Angle::deg(180.0);
@@ -621,6 +622,7 @@ grep "^approx" 01_core/Cargo.toml \
 ```
 
 Critérios de conclusão:
+
 - ADR-0028 registada ✓
 - `assert_approx_eq!` apenas em `#[cfg(test)]` (nunca em produção) ✓
 - `PartialEq` em `Angle`, `Ratio`, `Length`, `Color` é `derive` exacto ✓
@@ -645,12 +647,14 @@ Critérios de conclusão:
 ## Ao terminar, reportar
 
 **Do diagnóstico:**
+
 - Estrutura real de `Length` no original — newtype, enum, ou struct com campos `em` + `abs`?
 - Se `Color` no original é enum ou struct com discriminante interno
 - Se `Angle` usa radianos ou graus internamente no original
 - Quais funções nativas de cor/comprimento o original expõe e quais ficam para Passos 26–27
 
 **Da implementação:**
+
 - Se `approx` foi adicionado como dev-dependency ou se foi criada a macro local
 - Se `Angle::deg(180.0 + 1e-15) != Angle::deg(180.0)` — documentar o comportamento IEEE 754 real
 - Se a soma mista `Pt + Em` produziu `Err` com as unidades na mensagem
