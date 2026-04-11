@@ -247,7 +247,7 @@ impl<M: FontMetrics> Layouter<M> {
 
             // ── Matemática (Passo 37) — delegação ao MathLayouter ───────────
             Content::Equation { body, block } => {
-                let math_layouter = math::layout::MathLayouter::new(&self.metrics);
+                let math_layouter = math::layout::MathLayouter::new(&self.metrics, *block);
                 let math_items    = math_layouter.layout_equation(body, &self.style);
 
                 if *block
@@ -811,12 +811,42 @@ mod tests {
         }
 
         #[test]
-        fn sum_limites_empilhados_verticalmente() {
-            // Com vertical stacking, o limite superior está bem acima da base
-            // (base_ascent + gap ≈ 9.6 + 1.2 = 10.8pt acima baseline).
-            // Com right-script horizontal, o sup está apenas sup_offset ≈ 4.34pt acima.
-            // Verificar que pelo menos um item está > 10pt acima do cursor_y (≈ 75.6 após Passo 48).
-            // cursor_y - axis_pt ≈ 75.6. Item mais alto deve estar < 65.0 (mais de 10pt acima).
+        fn sum_block_limites_empilhados_verticalmente() {
+            // Passo 50: bloco "$ ... $" (espaços dentro) → block=true → empilhamento vertical.
+            // offset_y = cursor_y = 81.6 (bloco não ajusta baseline).
+            // y_sup = -(base_ascent + upper_gap + sup.descent) = -(9.6 + 1.2 + 3.36) = -14.16
+            // Final y ≈ 81.6 - 14.16 = 67.4 < 70.0 (vs inline right-scripts ≈ 71.3)
+            let doc = layout_test("$ sum_(i=0)^n $");
+            let all_y: Vec<f64> = doc.pages.iter()
+                .flat_map(|p| p.items.iter())
+                .filter_map(|i| match i {
+                    FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                    FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
+                    _ => None,
+                })
+                .collect();
+            assert!(!all_y.is_empty(), "deve ter items");
+            let min_y = all_y.iter().cloned().fold(f64::INFINITY, f64::min);
+            assert!(
+                min_y < 70.0,
+                "bloco: limites de ∑ devem estar empilhados verticalmente (min_y={:.1} < 70.0)",
+                min_y
+            );
+        }
+    }
+
+    // ── Passo 50 — Diferenciação inline/bloco ────────────────────────────────
+
+    #[cfg(test)]
+    mod tests_limits_context {
+        use super::*;
+
+        #[test]
+        fn sum_inline_usa_right_scripts() {
+            // Passo 50: inline "$...$" → block=false → right-scripts (sub/sup à direita).
+            // offset_y = cursor_y - axis_pt = 81.6 - 6.0 = 75.6 (inline ajusta baseline).
+            // Com right-scripts: sup_offset ≈ 4.34pt → item y ≈ 75.6 - 4.34 = 71.3 ≥ 70.0
+            // Com vertical stacking (antes): min_y ≈ 61.4 < 70.0 (falha antes da implementação)
             let doc = layout_test("$sum_(i=0)^n$");
             let all_y: Vec<f64> = doc.pages.iter()
                 .flat_map(|p| p.items.iter())
@@ -828,13 +858,61 @@ mod tests {
                 .collect();
             assert!(!all_y.is_empty(), "deve ter items");
             let min_y = all_y.iter().cloned().fold(f64::INFINITY, f64::min);
-            // Com vertical stacking: sup offset ≈ -(9.6 + 1.2 + 3.36) = -14.16 below cursor_y (≈75.6)
-            // → item y ≈ 75.6 - 14.16 = 61.4 < 65.0
-            // Com horizontal: sup_offset ≈ 4.34 → item y ≈ 75.6 - 4.34 = 71.3 > 65.0
             assert!(
-                min_y < 65.0,
-                "limites de ∑ devem estar empilhados verticalmente (min_y={:.1} < 65.0)",
+                min_y >= 70.0,
+                "inline: ∑ deve usar right-scripts (min_y={:.1} >= 70.0)",
                 min_y
+            );
+        }
+
+        #[test]
+        fn sum_inline_contem_conteudo() {
+            let doc = layout_test("$sum_(i=0)^n$");
+            let text = doc.plain_text();
+            assert!(
+                text.contains('∑') || text.contains('i') || text.contains('n'),
+                "conteúdo ausente: {}", text
+            );
+        }
+
+        #[test]
+        fn sum_inline_gera_pagina() {
+            let doc = layout_test("$sum_(i=0)^n x_i$");
+            assert!(!doc.pages.is_empty());
+            assert!(!doc.pages[0].items.is_empty());
+        }
+
+        #[test]
+        fn lim_inline_contem_conteudo() {
+            let doc = layout_test("$lim_(x -> 0) f(x)$");
+            let text = doc.plain_text();
+            assert!(text.contains('f') || text.contains('x'),
+                "conteúdo ausente: {}", text);
+        }
+
+        #[test]
+        fn attach_normal_inline_nao_regride() {
+            let doc = layout_test("$x^2$");
+            let text = doc.plain_text();
+            assert!(text.contains('x'));
+            assert!(text.contains('2'));
+        }
+
+        #[test]
+        fn attach_normal_com_sub_inline_nao_regride() {
+            let doc = layout_test("$x_i$");
+            let text = doc.plain_text();
+            assert!(text.contains('x'));
+            assert!(text.contains('i'));
+        }
+
+        #[test]
+        fn sum_block_contem_conteudo() {
+            let doc = layout_test("$ sum_(i=0)^n $");
+            let text = doc.plain_text();
+            assert!(
+                text.contains('∑') || text.contains('i') || text.contains('n'),
+                "conteúdo ausente em block: {}", text
             );
         }
     }

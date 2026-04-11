@@ -98,12 +98,15 @@ fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
 pub struct MathLayouter<'a, M: FontMetrics> {
     metrics:   &'a M,
     constants: MathConstants,
+    /// True se a equação é de bloco (display mode); false se inline.
+    /// Controla se operadores grandes usam limites verticais (Passo 50).
+    block: bool,
 }
 
 impl<'a, M: FontMetrics> MathLayouter<'a, M> {
-    pub fn new(metrics: &'a M) -> Self {
+    pub fn new(metrics: &'a M, block: bool) -> Self {
         let constants = metrics.math_constants();
-        Self { metrics, constants }
+        Self { metrics, constants, block }
     }
 
     /// Centra um MathBox no eixo matemático ajustando ascent/descent.
@@ -352,8 +355,9 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             .map(|c| self.metrics.math_kern(c))
             .unwrap_or_default();
 
-        // Passo 49 — detectar operador grande ou função de limite.
-        let is_limits = match base {
+        // Passo 49/50 — empilhamento vertical apenas em bloco (display mode).
+        // Inline: sub/sup à direita para não expandir a linha de texto.
+        let is_limits = self.block && match base {
             Content::MathIdent(s) | Content::MathText(s) => {
                 let ch = s.chars().next().unwrap_or('\0');
                 symbols::is_large_operator(ch) || symbols::is_limit_function(s.as_str())
@@ -751,7 +755,7 @@ mod tests {
 
     #[test]
     fn math_layouter_math_ident_produz_items_nao_vazios() {
-        let ml    = MathLayouter::new(&FixedMetrics);
+        let ml    = MathLayouter::new(&FixedMetrics, true);
         let items = ml.layout_equation(
             &Content::MathIdent("x".into()),
             &default_style(),
@@ -761,7 +765,7 @@ mod tests {
 
     #[test]
     fn math_layouter_math_text_produz_items_nao_vazios() {
-        let ml    = MathLayouter::new(&FixedMetrics);
+        let ml    = MathLayouter::new(&FixedMetrics, true);
         let items = ml.layout_equation(
             &Content::MathText("sin".into()),
             &default_style(),
@@ -771,7 +775,7 @@ mod tests {
 
     #[test]
     fn math_layouter_sequence_produz_multiplos_items() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let seq = Content::MathSequence(
             Arc::from(vec![
                 Content::MathIdent("x".into()),
@@ -785,7 +789,7 @@ mod tests {
 
     #[test]
     fn math_layouter_frac_sem_placeholder_colchetes() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let frac = Content::MathFrac {
             num: Box::new(Content::MathIdent("a".into())),
             den: Box::new(Content::MathIdent("b".into())),
@@ -802,7 +806,7 @@ mod tests {
 
     #[test]
     fn math_layouter_cursor_avanca_horizontalmente() {
-        let ml    = MathLayouter::new(&FixedMetrics);
+        let ml    = MathLayouter::new(&FixedMetrics, true);
         let items = ml.layout_equation(
             &Content::MathSequence(Arc::from(vec![
                 Content::MathIdent("a".into()),
@@ -820,7 +824,7 @@ mod tests {
 
     #[test]
     fn math_layouter_math_attach_sem_colchetes() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let attach = Content::MathAttach {
             base: Box::new(Content::MathIdent("x".into())),
             tl:   None,
@@ -840,7 +844,7 @@ mod tests {
 
     #[test]
     fn math_frac_tem_dois_ou_mais_items() {
-        let ml   = MathLayouter::new(&FixedMetrics);
+        let ml   = MathLayouter::new(&FixedMetrics, true);
         let frac = Content::MathFrac {
             num: Box::new(Content::MathIdent("a".into())),
             den: Box::new(Content::MathIdent("b".into())),
@@ -851,7 +855,7 @@ mod tests {
 
     #[test]
     fn math_frac_numerador_acima_denominador() {
-        let ml   = MathLayouter::new(&FixedMetrics);
+        let ml   = MathLayouter::new(&FixedMetrics, true);
         let frac = Content::MathFrac {
             num: Box::new(Content::MathIdent("a".into())),
             den: Box::new(Content::MathIdent("b".into())),
@@ -870,7 +874,7 @@ mod tests {
 
     #[test]
     fn math_attach_sup_elevado() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let attach = Content::MathAttach {
             base: Box::new(Content::MathIdent("x".into())),
             tl:   None,
@@ -893,7 +897,7 @@ mod tests {
 
     #[test]
     fn math_frac_tem_item_linha() {
-        let ml   = MathLayouter::new(&FixedMetrics);
+        let ml   = MathLayouter::new(&FixedMetrics, true);
         let frac = Content::MathFrac {
             num: Box::new(Content::MathIdent("a".into())),
             den: Box::new(Content::MathIdent("b".into())),
@@ -905,7 +909,7 @@ mod tests {
 
     #[test]
     fn math_frac_linha_horizontal() {
-        let ml   = MathLayouter::new(&FixedMetrics);
+        let ml   = MathLayouter::new(&FixedMetrics, true);
         let frac = Content::MathFrac {
             num: Box::new(Content::MathIdent("a".into())),
             den: Box::new(Content::MathIdent("b".into())),
@@ -923,7 +927,7 @@ mod tests {
 
     #[test]
     fn math_attach_sub_baixado() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let attach = Content::MathAttach {
             base: Box::new(Content::MathIdent("x".into())),
             tl:   None,
@@ -948,7 +952,7 @@ mod tests {
 
     #[test]
     fn layout_root_contem_radical_e_radicando() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let root = Content::MathRoot {
             index:    None,
             radicand: Box::new(Content::MathIdent("x".into())),
@@ -964,7 +968,7 @@ mod tests {
 
     #[test]
     fn layout_root_tem_overline() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let root = Content::MathRoot {
             index:    None,
             radicand: Box::new(Content::MathIdent("x".into())),
@@ -976,7 +980,7 @@ mod tests {
 
     #[test]
     fn layout_root_overline_horizontal() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let root = Content::MathRoot {
             index:    None,
             radicand: Box::new(Content::MathIdent("x".into())),
@@ -992,7 +996,7 @@ mod tests {
 
     #[test]
     fn layout_root_com_indice_contem_indice() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let root = Content::MathRoot {
             index:    Some(Box::new(Content::MathText("3".into()))),
             radicand: Box::new(Content::MathIdent("x".into())),
@@ -1010,7 +1014,7 @@ mod tests {
 
     #[test]
     fn layout_delimited_contem_corpo_e_delimitadores() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let delim = Content::MathDelimited {
             open:  '(',
             body:  Box::new(Content::MathIdent("a".into())),
@@ -1027,7 +1031,7 @@ mod tests {
 
     #[test]
     fn layout_delimited_tres_ou_mais_items() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let delim = Content::MathDelimited {
             open:  '[',
             body:  Box::new(Content::MathIdent("x".into())),
@@ -1040,7 +1044,7 @@ mod tests {
     #[test]
     fn layout_delimited_cursor_avanca() {
         // Delimitadores à esquerda e à direita do corpo
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let delim = Content::MathDelimited {
             open:  '(',
             body:  Box::new(Content::MathIdent("x".into())),
@@ -1072,7 +1076,7 @@ mod tests {
     #[test]
     fn layout_stretchy_sem_variantes_usa_base() {
         // Com FixedMetrics, o glifo base é usado directamente
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let box_ = ml.layout_stretchy_delimiter('(', 1000.0, &default_style());
         assert!(box_.width > 0.0, "delimitador base deve ter largura > 0");
     }
@@ -1105,7 +1109,7 @@ mod tests {
     #[test]
     fn layout_stretchy_sem_variantes_sem_assembly_usa_char_base() {
         // Com FixedMetrics, sem variantes nem assembly, deve usar char base
-        let ml  = MathLayouter::new(&FixedMetrics);
+        let ml  = MathLayouter::new(&FixedMetrics, true);
         let box_ = ml.layout_stretchy_delimiter('(', 5000.0, &default_style());
         // O resultado é um Text com '('
         let has_paren = box_.items.iter().any(|i| {
@@ -1117,7 +1121,7 @@ mod tests {
     #[test]
     fn layout_delimited_nao_tem_glyph_com_fixed_metrics() {
         // FixedMetrics não tem variantes — todos os items devem ser Text ou Line
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let delim = Content::MathDelimited {
             open:  '(',
             body:  Box::new(Content::MathIdent("a".into())),
@@ -1130,7 +1134,7 @@ mod tests {
 
     #[test]
     fn frac_dentro_de_delimitadores_nao_regride() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let delim = Content::MathDelimited {
             open: '(',
             body: Box::new(Content::MathFrac {
@@ -1149,7 +1153,7 @@ mod tests {
 
     #[test]
     fn sqrt_nao_regride_passo43() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let root = Content::MathRoot {
             index:    None,
             radicand: Box::new(Content::MathIdent("x".into())),
@@ -1164,7 +1168,7 @@ mod tests {
 
     #[test]
     fn attach_nao_regride_passo43() {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let attach = Content::MathAttach {
             base: Box::new(Content::MathIdent("x".into())),
             tl:   None,
@@ -1213,7 +1217,7 @@ mod tests {
     // ── Testes do Passo 44 — AxisHeight e MathKernInfo ───────────────────
 
     fn layout_equation_items(content: &Content) -> Vec<FrameItem> {
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         ml.layout_equation(content, &default_style())
     }
 
@@ -1228,7 +1232,7 @@ mod tests {
     #[test]
     fn math_kern_default_nao_afecta_layout() {
         // math_kern com FixedMetrics retorna kern zero — layout não deve mudar
-        let ml = MathLayouter::new(&FixedMetrics);
+        let ml = MathLayouter::new(&FixedMetrics, true);
         let attach = Content::MathAttach {
             base: Box::new(Content::MathIdent("f".into())),
             tl:   None,
