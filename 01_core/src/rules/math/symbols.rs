@@ -151,6 +151,26 @@ pub fn is_single_letter_var(name: &str) -> bool {
         && name.chars().next().map(|c| c.is_ascii_alphabetic()).unwrap_or(false)
 }
 
+/// Retorna true se o caractere é um operador grande que deve receber
+/// limites (sup/sub) empilhados verticalmente em vez de à direita.
+pub fn is_large_operator(c: char) -> bool {
+    matches!(c,
+        // Somatório, produto, coproduto
+        '∑' | '∏' | '∐' |
+        // União, intersecção e variantes
+        '⋃' | '⋂' | '⨄' | '⨅' | '⨆' |
+        // Integrais
+        '∫' | '∬' | '∭' | '∮' | '∯' | '∰' |
+        // Outros operadores grandes comuns
+        '⨁' | '⨂' | '⨀' | '⋀' | '⋁'
+    )
+}
+
+/// Retorna true se o texto base de um MathIdent aceita limites verticais.
+pub fn is_limit_function(s: &str) -> bool {
+    matches!(s, "lim" | "max" | "min" | "sup" | "inf" | "limsup" | "liminf")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -216,5 +236,59 @@ mod tests {
     #[test]
     fn digit_nao_e_variavel() {
         assert!(!is_single_letter_var("1"));
+    }
+
+    // ── Passo 49 ─────────────────────────────────────────────────────────────
+
+    #[test]
+    fn is_large_operator_reconhece_sum() {
+        assert!(is_large_operator('∑'));
+    }
+
+    #[test]
+    fn is_large_operator_reconhece_prod() {
+        assert!(is_large_operator('∏'));
+    }
+
+    #[test]
+    fn is_large_operator_reconhece_integral() {
+        assert!(is_large_operator('∫'));
+    }
+
+    #[test]
+    fn is_large_operator_nao_reconhece_x() {
+        assert!(!is_large_operator('x'));
+    }
+
+    #[test]
+    fn is_large_operator_nao_reconhece_plus() {
+        assert!(!is_large_operator('+'));
+    }
+
+    #[test]
+    fn is_limit_function_reconhece_lim() {
+        assert!(is_limit_function("lim"));
+    }
+
+    #[test]
+    fn is_limit_function_reconhece_max_min() {
+        assert!(is_limit_function("max"));
+        assert!(is_limit_function("min"));
+    }
+
+    #[test]
+    fn is_limit_function_reconhece_limsup_liminf() {
+        assert!(is_limit_function("limsup"));
+        assert!(is_limit_function("liminf"));
+    }
+
+    #[test]
+    fn is_limit_function_nao_reconhece_sin() {
+        assert!(!is_limit_function("sin"));
+    }
+
+    #[test]
+    fn is_limit_function_nao_reconhece_x() {
+        assert!(!is_limit_function("x"));
     }
 }

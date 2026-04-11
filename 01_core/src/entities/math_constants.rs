@@ -51,6 +51,14 @@ pub struct MathConstants {
     /// Percentagem para script-script (sup de sup).
     /// Tipicamente 50–60%. Armazenado como 0.0–1.0.
     pub script_script_percent_scale_down: f64,
+
+    // ── Limites de operadores grandes ────────────────────
+    /// Espaço mínimo entre a base e o limite superior (design units).
+    /// Fallback: 100.0 (≈ 0.1 × upem típico de 1000).
+    pub upper_limit_gap_min: f64,
+    /// Espaço mínimo entre a base e o limite inferior (design units).
+    /// Fallback: 100.0
+    pub lower_limit_gap_min: f64,
 }
 
 impl MathConstants {
@@ -71,6 +79,8 @@ impl MathConstants {
             axis_height:                        500.0,
             script_percent_scale_down:           0.7,
             script_script_percent_scale_down:    0.5,
+            upper_limit_gap_min:               100.0,
+            lower_limit_gap_min:               100.0,
         }
     }
 

@@ -664,4 +664,36 @@ mod integration {
         let pdf = compile_to_pdf("$sqrt(x)$");
         assert!(!pdf.is_empty());
     }
+
+    // ── Passo 49 — Limites verticais em operadores grandes ───────────────────
+
+    #[test]
+    fn pdf_sum_com_limites_nao_vazio() {
+        let pdf = compile_to_pdf("$sum_(i=0)^n x_i$");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_prod_com_limites_nao_vazio() {
+        let pdf = compile_to_pdf("$product_(k=1)^n a_k$");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_lim_com_limite_nao_vazio() {
+        let pdf = compile_to_pdf("$lim_(x -> 0) f(x)$");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_integral_com_limites_nao_vazio() {
+        let pdf = compile_to_pdf("$integral_(0)^1 f(x)$");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_attach_normal_nao_regride() {
+        let pdf = compile_to_pdf("$x^2 + y_i$");
+        assert!(!pdf.is_empty());
+    }
 }
