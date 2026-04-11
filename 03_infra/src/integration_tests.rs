@@ -608,4 +608,32 @@ mod integration {
         assert!(s.contains("BT"), "PDF deve conter BT");
         assert!(s.contains("ET"), "PDF deve conter ET");
     }
+
+    // ── Testes do Passo 47 — MathPrimes ──────────────────────────────────
+
+    #[test]
+    fn pdf_prime_simples_nao_vazio() {
+        let pdf = compile_to_pdf("$x'$");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_double_prime_nao_vazio() {
+        let pdf = compile_to_pdf("$f''(x)$");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_prime_com_sup_nao_vazio() {
+        let pdf = compile_to_pdf("$x'^2$");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_prime_contem_bt_et() {
+        let pdf = compile_to_pdf("$x'$");
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("BT"), "PDF deve conter BT");
+        assert!(s.contains("ET"), "PDF deve conter ET");
+    }
 }

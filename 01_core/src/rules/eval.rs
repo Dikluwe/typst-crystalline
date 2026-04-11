@@ -882,7 +882,36 @@ fn eval_math_expr(
                 .map(|e| eval_math_expr(scopes, ctx, e))
                 .transpose()?
                 .map(Box::new);
-            Ok(Content::MathAttach { base: Box::new(base), tl: None, bl: None, sub, sup })
+
+            // Primes (′ ″ ‴ ⁗) — convertidos para superscript.
+            // MathPrimes::count() retorna o número de apóstrofos usando o comprimento em bytes.
+            let prime_count = attach.primes()
+                .map(|p| p.count())
+                .unwrap_or(0);
+            let prime_char: Option<Content> = if prime_count == 0 {
+                None
+            } else {
+                let s: EcoString = match prime_count {
+                    1 => "′".into(),          // U+2032
+                    2 => "″".into(),          // U+2033
+                    3 => "‴".into(),          // U+2034
+                    4 => "⁗".into(),          // U+2057
+                    n => "′".repeat(n).into(), // U+2032 × n para n > 4
+                };
+                Some(Content::MathText(s))
+            };
+
+            // Merge prime com sup existente: primes primeiro, depois o sup original.
+            let sup_final: Option<Box<Content>> = match (prime_char, sup) {
+                (Some(p), None)    => Some(Box::new(p)),
+                (None,    Some(s)) => Some(s),
+                (Some(p), Some(s)) => Some(Box::new(Content::MathSequence(
+                    std::sync::Arc::from(vec![p, *s])
+                ))),
+                (None,    None)    => None,
+            };
+
+            Ok(Content::MathAttach { base: Box::new(base), tl: None, bl: None, sub, sup: sup_final })
         }
         Expr::MathRoot(root) => {
             // root.index() retorna Option<u8> — converter para Content::MathText se presente
@@ -2419,5 +2448,77 @@ mod tests {
         let src = World::source(&world, World::main(&world)).unwrap();
         let result = eval_for_test(&world, &src);
         assert!(result.is_ok(), "set em content block falhou: {:?}", result);
+    }
+
+    // ── Testes do Passo 47 — MathPrimes ─────────────────────────────────────
+
+    /// Avalia uma expressão Typst e devolve o plain_text() do Content resultante.
+    fn eval_plain_text(src: &str) -> String {
+        let world = MockWorld::new(src);
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source)
+            .expect("eval não deve falhar");
+        module.content()
+            .map(|c| c.plain_text())
+            .unwrap_or_default()
+    }
+
+    #[test]
+    fn prime_simples_produz_unicode() {
+        // $x'$ → sup contém ′ (U+2032)
+        let text = eval_plain_text("$x'$");
+        assert!(text.contains('x'), "base ausente: {:?}", text);
+        assert!(text.contains('′'), "prime U+2032 ausente: {:?}", text);
+    }
+
+    #[test]
+    fn double_prime_produz_unicode() {
+        // $x''$ → sup contém ″ (U+2033)
+        let text = eval_plain_text("$x''$");
+        assert!(text.contains('x'));
+        assert!(text.contains('″'), "double prime U+2033 ausente: {:?}", text);
+    }
+
+    #[test]
+    fn triple_prime_produz_unicode() {
+        // $f'''$ → sup contém ‴ (U+2034)
+        let text = eval_plain_text("$f'''$");
+        assert!(text.contains('f'));
+        assert!(text.contains('‴'), "triple prime U+2034 ausente: {:?}", text);
+    }
+
+    #[test]
+    fn quad_prime_produz_unicode() {
+        // $x''''$ → sup contém ⁗ (U+2057)
+        let text = eval_plain_text("$x''''$");
+        assert!(text.contains('x'));
+        assert!(text.contains('⁗'), "quad prime U+2057 ausente: {:?}", text);
+    }
+
+    #[test]
+    fn prime_com_sup_faz_merge() {
+        // $x'^2$ — prime e superscript coexistem: sup = MathSequence([′, 2])
+        let text = eval_plain_text("$x'^2$");
+        assert!(text.contains('x'));
+        assert!(text.contains('′'), "prime ausente: {:?}", text);
+        assert!(text.contains('2'), "sup ausente: {:?}", text);
+    }
+
+    #[test]
+    fn prime_com_sub_nao_interfere() {
+        // $x'_i$ — prime não interfere com subscript
+        let text = eval_plain_text("$x'_i$");
+        assert!(text.contains('x'));
+        assert!(text.contains('′'));
+        assert!(text.contains('i'));
+    }
+
+    #[test]
+    fn sem_prime_nao_regride() {
+        // Regressão: $x^2_i$ sem primes não muda
+        let text = eval_plain_text("$x^2_i$");
+        assert!(text.contains('x'));
+        assert!(text.contains('2'));
+        assert!(text.contains('i'));
     }
 }
