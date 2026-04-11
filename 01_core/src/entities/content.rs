@@ -80,12 +80,15 @@ pub enum Content {
         den: Box<Content>,
     },
 
-    /// Base com índice e/ou expoente (`x_1^2`).
-    /// `sub` = índice (subscript), `sup` = expoente (superscript).
+    /// Base com índice e/ou expoente (`x_1^2`, `{}^{14}_6 C`).
+    /// `tl`/`bl` = pre-scripts à esquerda (Passo 46).
+    /// `sub`/`sup` = scripts à direita.
     MathAttach {
         base: Box<Content>,
-        sub:  Option<Box<Content>>,
-        sup:  Option<Box<Content>>,
+        tl:   Option<Box<Content>>, // top-left (pre-superscript)
+        bl:   Option<Box<Content>>, // bottom-left (pre-subscript)
+        sub:  Option<Box<Content>>, // bottom-right (subscript)
+        sup:  Option<Box<Content>>, // top-right (superscript)
     },
 
     /// Raiz matemática (`√x`, `∛x`, `∜x`).
@@ -189,8 +192,11 @@ impl Content {
             Self::MathFrac { num, den } => {
                 format!("({})/({})", num.plain_text(), den.plain_text())
             }
-            Self::MathAttach { base, sub, sup } => {
-                let mut s = base.plain_text();
+            Self::MathAttach { base, tl, bl, sub, sup } => {
+                let mut s = String::new();
+                if let Some(tl) = tl { s.push_str(&format!("^{}", tl.plain_text())); }
+                if let Some(bl) = bl { s.push_str(&format!("_{}", bl.plain_text())); }
+                s.push_str(&base.plain_text());
                 if let Some(sub) = sub { s.push_str(&format!("_{}", sub.plain_text())); }
                 if let Some(sup) = sup { s.push_str(&format!("^{}", sup.plain_text())); }
                 s
@@ -230,8 +236,9 @@ impl PartialEq for Content {
             (Self::MathText(a),     Self::MathText(b))               => a == b,
             (Self::MathFrac { num: na, den: da },
              Self::MathFrac { num: nb, den: db })                    => na == nb && da == db,
-            (Self::MathAttach { base: ba, sub: sa, sup: pa },
-             Self::MathAttach { base: bb, sub: sb, sup: pb })        => ba == bb && sa == sb && pa == pb,
+            (Self::MathAttach { base: ba, tl: tla, bl: bla, sub: sa, sup: pa },
+             Self::MathAttach { base: bb, tl: tlb, bl: blb, sub: sb, sup: pb })
+                => ba == bb && tla == tlb && bla == blb && sa == sb && pa == pb,
             (Self::MathRoot { index: ia, radicand: ra },
              Self::MathRoot { index: ib, radicand: rb })             => ia == ib && ra == rb,
             (Self::MathDelimited { open: oa, body: ba, close: ca },
@@ -391,6 +398,8 @@ mod tests {
     fn content_math_attach_plain_text() {
         let attach = Content::MathAttach {
             base: Box::new(Content::MathIdent("x".into())),
+            tl:   None,
+            bl:   None,
             sub:  None,
             sup:  Some(Box::new(Content::MathText("2".into()))),
         };

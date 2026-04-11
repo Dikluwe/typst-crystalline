@@ -882,7 +882,7 @@ fn eval_math_expr(
                 .map(|e| eval_math_expr(scopes, ctx, e))
                 .transpose()?
                 .map(Box::new);
-            Ok(Content::MathAttach { base: Box::new(base), sub, sup })
+            Ok(Content::MathAttach { base: Box::new(base), tl: None, bl: None, sub, sup })
         }
         Expr::MathRoot(root) => {
             // root.index() retorna Option<u8> — converter para Content::MathText se presente
