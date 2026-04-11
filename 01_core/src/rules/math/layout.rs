@@ -362,7 +362,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
             // Avançar baseline para próxima linha
             if row_idx + 1 < grid_boxes.len() {
-                let line_gap = style.size.val() * 0.2;
+                let line_gap = self.constants.to_pt(self.constants.math_leading, style.size).val();
                 let advance = row_descent + line_gap + {
                     let next_row = &grid_boxes[row_idx + 1];
                     next_row.iter().map(|b| b.ascent).fold(0.0, f64::max)
