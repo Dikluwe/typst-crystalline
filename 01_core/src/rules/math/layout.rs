@@ -162,8 +162,13 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 self.layout_frac(num, den, style)
             }
 
-            Content::MathAttach { base, sub, sup } => {
-                self.layout_attach(base, sub.as_deref(), sup.as_deref(), style)
+            Content::MathAttach { base, tl, bl, sub, sup } => {
+                self.layout_attach(
+                    base,
+                    tl.as_deref(), bl.as_deref(),
+                    sub.as_deref(), sup.as_deref(),
+                    style,
+                )
             }
 
             Content::MathRoot { index, radicand } => {
@@ -318,6 +323,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     fn layout_attach(
         &self,
         base: &Content,
+        tl:   Option<&Content>,
+        bl:   Option<&Content>,
         sub:  Option<&Content>,
         sup:  Option<&Content>,
         style: &TextStyle,
@@ -345,17 +352,66 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             .map(|c| self.metrics.math_kern(c))
             .unwrap_or_default();
 
-        let mut x       = base_box.width;
+        // ── Passo 3a/3b/3c — Coluna esquerda (pre-scripts) ──────────────
+        // Layout dos left-scripts para obter larguras.
+        let tl_box = tl.map(|c| self.layout_node(c, &script_style));
+        let bl_box = bl.map(|c| self.layout_node(c, &script_style));
+
+        // Kern dos quadrantes esquerdos (com FixedMetrics é sempre zero).
+        let tl_kern = if let Some(ref tb) = tl_box {
+            let h_du = tb.descent * self.constants.upem / style.size.val().max(0.001);
+            self.constants.to_pt(base_kern.top_left.kern_at(h_du), style.size).val()
+        } else { 0.0 };
+        let bl_kern = if let Some(ref bb) = bl_box {
+            let h_du = bb.ascent * self.constants.upem / style.size.val().max(0.001);
+            self.constants.to_pt(base_kern.bottom_left.kern_at(h_du), style.size).val()
+        } else { 0.0 };
+
+        // Largura da coluna esquerda: max das larguras com respectivo kern.
+        let left_col_width = {
+            let tl_w = tl_box.as_ref().map(|b| b.width + tl_kern.abs()).unwrap_or(0.0);
+            let bl_w = bl_box.as_ref().map(|b| b.width + bl_kern.abs()).unwrap_or(0.0);
+            tl_w.max(bl_w)
+        };
+
+        // ── Construção dos items ──────────────────────────────────────────
         let mut ascent  = base_box.ascent;
         let mut descent = base_box.descent;
-        let mut items   = base_box.items;
+        let mut items   = Vec::new();
+
+        // Posicionar tl (pre-superscript): alinhado à direita da coluna esquerda,
+        // elevado pelo sup_offset acima da baseline da base.
+        if let Some(tb) = tl_box {
+            ascent = ascent.max(sup_offset + tb.ascent);
+            let x_tl = left_col_width - tb.width - tl_kern;
+            for item in tb.items {
+                items.push(offset_item(item, Pt(x_tl), Pt(-sup_offset)));
+            }
+        }
+
+        // Posicionar bl (pre-subscript): alinhado à direita da coluna esquerda,
+        // baixado pelo sub_offset abaixo da baseline da base.
+        if let Some(bb) = bl_box {
+            descent = descent.max(sub_offset + bb.descent);
+            let x_bl = left_col_width - bb.width - bl_kern;
+            for item in bb.items {
+                items.push(offset_item(item, Pt(x_bl), Pt(sub_offset)));
+            }
+        }
+
+        // Base: posicionada em x = left_col_width.
+        for item in base_box.items {
+            items.push(offset_item(item, Pt(left_col_width), Pt(0.0)));
+        }
+
+        // Right-scripts (sub/sup): partem de left_col_width + base_width.
+        let mut x = left_col_width + base_box.width;
 
         if let Some(sup_content) = sup {
             let sup_box = self.layout_node(sup_content, &script_style);
             ascent = ascent.max(sup_offset + sup_box.ascent);
 
-            // Kern: quadrante top-right. Altura de conexão = ascent do sup
-            // (ponto superior do script em design units).
+            // Kern: quadrante top-right. Altura de conexão = ascent do sup.
             let sup_h_du = sup_box.ascent * self.constants.upem
                 / style.size.val().max(0.001);
             let kern_sup = self.constants.to_pt(
@@ -363,9 +419,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             ).val();
 
             for item in sup_box.items {
-                // Usar offset_item para mover todos os tipos de FrameItem
-                let item = offset_item(item, Pt(x + kern_sup), Pt(-sup_offset));
-                items.push(item);
+                items.push(offset_item(item, Pt(x + kern_sup), Pt(-sup_offset)));
             }
             x += sup_box.width + kern_sup;
         }
@@ -382,8 +436,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             ).val();
 
             for item in sub_box.items {
-                let item = offset_item(item, Pt(x + kern_sub), Pt(sub_offset));
-                items.push(item);
+                items.push(offset_item(item, Pt(x + kern_sub), Pt(sub_offset)));
             }
         }
 
@@ -700,6 +753,8 @@ mod tests {
         let ml = MathLayouter::new(&FixedMetrics);
         let attach = Content::MathAttach {
             base: Box::new(Content::MathIdent("x".into())),
+            tl:   None,
+            bl:   None,
             sub:  None,
             sup:  Some(Box::new(Content::MathText("2".into()))),
         };
@@ -748,6 +803,8 @@ mod tests {
         let ml = MathLayouter::new(&FixedMetrics);
         let attach = Content::MathAttach {
             base: Box::new(Content::MathIdent("x".into())),
+            tl:   None,
+            bl:   None,
             sub:  None,
             sup:  Some(Box::new(Content::MathIdent("2".into()))),
         };
@@ -799,6 +856,8 @@ mod tests {
         let ml = MathLayouter::new(&FixedMetrics);
         let attach = Content::MathAttach {
             base: Box::new(Content::MathIdent("x".into())),
+            tl:   None,
+            bl:   None,
             sub:  Some(Box::new(Content::MathIdent("i".into()))),
             sup:  None,
         };
@@ -1038,6 +1097,8 @@ mod tests {
         let ml = MathLayouter::new(&FixedMetrics);
         let attach = Content::MathAttach {
             base: Box::new(Content::MathIdent("x".into())),
+            tl:   None,
+            bl:   None,
             sub:  None,
             sup:  Some(Box::new(Content::MathText("2".into()))),
         };
@@ -1100,6 +1161,8 @@ mod tests {
         let ml = MathLayouter::new(&FixedMetrics);
         let attach = Content::MathAttach {
             base: Box::new(Content::MathIdent("f".into())),
+            tl:   None,
+            bl:   None,
             sub:  None,
             sup:  Some(Box::new(Content::MathText("2".into()))),
         };
@@ -1154,6 +1217,8 @@ mod tests {
     fn attach_com_kern_nao_regride() {
         let attach = Content::MathAttach {
             base: Box::new(Content::MathIdent("x".into())),
+            tl:   None,
+            bl:   None,
             sub:  None,
             sup:  Some(Box::new(Content::MathText("2".into()))),
         };
@@ -1166,6 +1231,8 @@ mod tests {
     fn attach_sub_com_kern_nao_regride() {
         let attach = Content::MathAttach {
             base: Box::new(Content::MathIdent("x".into())),
+            tl:   None,
+            bl:   None,
             sub:  Some(Box::new(Content::MathIdent("i".into()))),
             sup:  None,
         };
@@ -1180,5 +1247,109 @@ mod tests {
         // Verificar que o axis_height é não-zero (fallback=500 > 0).
         let constants = crate::entities::math_constants::MathConstants::fallback();
         assert!(constants.axis_height > 0.0, "axis_height do fallback deve ser > 0");
+    }
+
+    // ── Testes do Passo 46 — Pre-scripts (tl/bl) ─────────────────────────
+
+    #[test]
+    fn attach_sem_left_scripts_nao_regride() {
+        // Regressão: MathAttach sem tl/bl comporta-se como antes
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathIdent("x".into())),
+            tl:   None,
+            bl:   None,
+            sub:  None,
+            sup:  Some(Box::new(Content::MathText("2".into()))),
+        };
+        let items = layout_equation_items(&attach);
+        assert!(items_contain_text(&items, 'x'), "base ausente: {:?}", items);
+        assert!(items_contain_text(&items, '2'), "sup ausente: {:?}", items);
+    }
+
+    #[test]
+    fn attach_left_sup_contem_base_e_script() {
+        // Pre-superscript: conteúdo do script e da base presentes
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathIdent("x".into())),
+            tl:   Some(Box::new(Content::MathText("2".into()))),
+            bl:   None,
+            sub:  None,
+            sup:  None,
+        };
+        let items = layout_equation_items(&attach);
+        assert!(items_contain_text(&items, '2'), "pre-sup ausente: {:?}", items);
+        assert!(items_contain_text(&items, 'x'), "base ausente: {:?}", items);
+    }
+
+    #[test]
+    fn attach_left_sub_contem_base_e_script() {
+        // Pre-subscript
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathIdent("x".into())),
+            tl:   None,
+            bl:   Some(Box::new(Content::MathText("1".into()))),
+            sub:  None,
+            sup:  None,
+        };
+        let items = layout_equation_items(&attach);
+        assert!(items_contain_text(&items, '1'), "pre-sub ausente: {:?}", items);
+        assert!(items_contain_text(&items, 'x'), "base ausente: {:?}", items);
+    }
+
+    #[test]
+    fn attach_left_e_right_juntos() {
+        // Scripts nos dois lados simultaneamente
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathIdent("x".into())),
+            tl:   Some(Box::new(Content::MathText("2".into()))),
+            bl:   Some(Box::new(Content::MathText("1".into()))),
+            sub:  Some(Box::new(Content::MathText("3".into()))),
+            sup:  Some(Box::new(Content::MathText("4".into()))),
+        };
+        let items = layout_equation_items(&attach);
+        assert!(items_contain_text(&items, '1'), "bl ausente");
+        assert!(items_contain_text(&items, '2'), "tl ausente");
+        assert!(items_contain_text(&items, 'x'), "base ausente");
+        assert!(items_contain_text(&items, '3'), "sub ausente");
+        assert!(items_contain_text(&items, '4'), "sup ausente");
+    }
+
+    #[test]
+    fn attach_left_sup_base_deslocada_para_direita() {
+        // Com tl presente, a base deve aparecer a uma posição x maior do que zero
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathIdent("x".into())),
+            tl:   Some(Box::new(Content::MathText("2".into()))),
+            bl:   None,
+            sub:  None,
+            sup:  None,
+        };
+        let items = layout_equation_items(&attach);
+        // Encontrar a posição x do glifo "x" (base)
+        let base_xs: Vec<f64> = items.iter()
+            .filter_map(|i| {
+                if let FrameItem::Text { pos, text, .. } = i {
+                    if text.contains('x') { Some(pos.x.val()) } else { None }
+                } else { None }
+            })
+            .collect();
+        assert!(!base_xs.is_empty(), "base deve estar presente");
+        assert!(base_xs.iter().any(|&x| x > 0.0),
+            "base deve estar deslocada para direita quando há tl; xs={:?}", base_xs);
+    }
+
+    #[test]
+    fn attach_sem_base_explicita_usa_empty() {
+        // Base vazia: não deve panicar
+        let attach = Content::MathAttach {
+            base: Box::new(Content::Empty),
+            tl:   Some(Box::new(Content::MathText("14".into()))),
+            bl:   None,
+            sub:  None,
+            sup:  None,
+        };
+        let items = layout_equation_items(&attach);
+        // Não deve panicar; items pode estar vazio mas o programa não crasha
+        let _ = items;
     }
 }

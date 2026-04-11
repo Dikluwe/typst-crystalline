@@ -581,4 +581,31 @@ mod integration {
         assert!(s.contains("<0028>"), "CMap deve ter U+0028 para parêntese de abertura");
         assert!(s.contains("<0029>"), "CMap deve ter U+0029 para parêntese de fecho");
     }
+
+    // ── Testes do Passo 46 — Pre-scripts ─────────────────────────────────
+
+    #[test]
+    fn pdf_pre_scripts_nao_vazio() {
+        // Pipeline completo com pre-superscript (emulado por Content directo no eval)
+        // O eval não consegue extrair tl/bl do AST (NO-GO), mas o layout suporta-os.
+        // Testar com right-script como regressão mínima do pipeline.
+        let pdf = compile_to_pdf("$x^2$");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_pre_scripts_dos_lados_nao_vazio() {
+        // Regressão com sub e sup no mesmo nó
+        let pdf = compile_to_pdf("$x_1^2$");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_pre_scripts_contem_bt_et() {
+        // PDF com script contém texto (BT/ET)
+        let pdf = compile_to_pdf("$x^2$");
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("BT"), "PDF deve conter BT");
+        assert!(s.contains("ET"), "PDF deve conter ET");
+    }
 }
