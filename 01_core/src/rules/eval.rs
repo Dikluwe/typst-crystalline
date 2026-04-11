@@ -988,7 +988,11 @@ fn eval_math_expr(
             }
         }
 
-        // Primes, AlignPoint, e outros nós não implementados → placeholder vazio
+        // Ponto de alinhamento (`&`) e quebra de linha (`\\`) em equações
+        Expr::MathAlignPoint(_) => Ok(Content::MathAlignPoint),
+        Expr::Linebreak(_)      => Ok(Content::Linebreak),
+
+        // Primes e outros nós não implementados → placeholder vazio
         _ => Ok(Content::Empty),
     }
 }

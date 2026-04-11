@@ -108,6 +108,14 @@ pub enum Content {
         close: char,
     },
 
+    /// Ponto de alinhamento em equações matemáticas (`&`).
+    /// Separa colunas no layout de grelha (Passo 51).
+    MathAlignPoint,
+
+    /// Quebra de linha em contexto matemático (`\\`).
+    /// Separa linhas no layout de grelha (Passo 51).
+    Linebreak,
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
@@ -208,6 +216,8 @@ impl Content {
             Self::MathDelimited { open, body, close } => {
                 format!("{}{}{}", open, body.plain_text(), close)
             }
+            Self::MathAlignPoint => String::new(),
+            Self::Linebreak      => "\n".to_string(),
         }
     }
 }
@@ -243,6 +253,8 @@ impl PartialEq for Content {
              Self::MathRoot { index: ib, radicand: rb })             => ia == ib && ra == rb,
             (Self::MathDelimited { open: oa, body: ba, close: ca },
              Self::MathDelimited { open: ob, body: bb, close: cb })  => oa == ob && ba == bb && ca == cb,
+            (Self::MathAlignPoint, Self::MathAlignPoint)             => true,
+            (Self::Linebreak,      Self::Linebreak)                  => true,
             _ => false,
         }
     }

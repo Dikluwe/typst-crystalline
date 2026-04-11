@@ -724,4 +724,38 @@ mod integration {
         let pdf = compile_to_pdf("$ sum_(i=0)^n x_i $");
         assert!(!pdf.is_empty());
     }
+
+    // ── Passo 51 — MathAlignPoint ──────────────────────────────────────────
+
+    #[test]
+    fn pdf_align_duas_linhas_nao_vazio() {
+        let pdf = compile_to_pdf("$ a &= b + c \\ alpha &= x $");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_align_linha_unica_nao_vazio() {
+        let pdf = compile_to_pdf("$ a &= b $");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_align_com_frac_nao_vazio() {
+        let pdf = compile_to_pdf("$ frac(1,2) &= x \\ y &= z $");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_align_contem_bt_et() {
+        let pdf = compile_to_pdf("$ a &= b \\ c &= d $");
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("BT"));
+        assert!(s.contains("ET"));
+    }
+
+    #[test]
+    fn pdf_sem_align_nao_regride() {
+        let pdf = compile_to_pdf("$ x^2 + y_i $");
+        assert!(!pdf.is_empty());
+    }
 }

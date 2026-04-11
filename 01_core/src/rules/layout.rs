@@ -315,6 +315,9 @@ impl<M: FontMetrics> Layouter<M> {
                     self.layout_word(word);
                 }
             }
+
+            // Marcadores estruturais de equações — ignorados fora de contexto matemático.
+            Content::MathAlignPoint | Content::Linebreak => {}
         }
     }
 
@@ -913,6 +916,91 @@ mod tests {
             assert!(
                 text.contains('∑') || text.contains('i') || text.contains('n'),
                 "conteúdo ausente em block: {}", text
+            );
+        }
+    }
+
+    // ── Passo 51 — MathAlignPoint ─────────────────────────────────────────
+    #[cfg(test)]
+    mod tests_align {
+        use super::*;
+
+        #[test]
+        fn align_simples_contem_conteudo() {
+            // $ a &= b \\ c &= d $ — dois lados de duas linhas presentes
+            let doc = layout_test("$ a &= b \\ c &= d $");
+            let text = doc.plain_text();
+            assert!(text.contains('a'), "a ausente: {}", text);
+            assert!(text.contains('b'), "b ausente: {}", text);
+            assert!(text.contains('c'), "c ausente: {}", text);
+            assert!(text.contains('d'), "d ausente: {}", text);
+        }
+
+        #[test]
+        fn align_duas_linhas_tem_ys_distintos() {
+            // Após implementação de grid, itens de linha 0 e linha 1
+            // devem ter Y distintos no frame.
+            let doc = layout_test("$ a &= b \\ c &= d $");
+            assert!(!doc.pages.is_empty());
+            let mut ys: Vec<i64> = doc.pages[0].items.iter()
+                .filter_map(|item| match item {
+                    crate::entities::layout_types::FrameItem::Text { pos, .. } =>
+                        Some((pos.y.val() * 100.0).round() as i64),
+                    crate::entities::layout_types::FrameItem::Glyph { pos, .. } =>
+                        Some((pos.y.val() * 100.0).round() as i64),
+                    _ => None,
+                })
+                .collect();
+            ys.sort_unstable();
+            ys.dedup();
+            assert!(ys.len() >= 2,
+                "esperava >= 2 Y distintos (2 linhas), encontrei {:?}", ys);
+        }
+
+        #[test]
+        fn align_sem_ampersand_nao_regride() {
+            let doc = layout_test("$ x + 1 $");
+            let text = doc.plain_text();
+            assert!(text.contains('x'));
+            assert!(text.contains('1'));
+        }
+
+        #[test]
+        fn align_com_frac_nao_panica() {
+            let doc = layout_test("$ frac(a, b) &= c \\ d &= e $");
+            assert!(!doc.pages.is_empty());
+        }
+
+        #[test]
+        fn align_linha_unica_com_ampersand() {
+            let doc = layout_test("$ a &= b $");
+            let text = doc.plain_text();
+            assert!(text.contains('a'));
+            assert!(text.contains('b'));
+        }
+
+        #[test]
+        fn align_inline_nao_usa_grelha() {
+            // inline: & ignorado, não deve panicar
+            let doc = layout_test("$a &= b$");
+            assert!(!doc.pages.is_empty());
+        }
+
+        #[test]
+        fn frac_nao_regride() {
+            let doc = layout_test("$ frac(1, 2) $");
+            let text = doc.plain_text();
+            assert!(text.contains('1'));
+            assert!(text.contains('2'));
+        }
+
+        #[test]
+        fn sum_com_limites_nao_regride() {
+            let doc = layout_test("$ sum_(i=0)^n $");
+            let text = doc.plain_text();
+            assert!(
+                text.contains('∑') || text.contains('i') || text.contains('n'),
+                "sum: {}", text
             );
         }
     }
