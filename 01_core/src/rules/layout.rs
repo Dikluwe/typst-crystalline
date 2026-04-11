@@ -257,7 +257,16 @@ impl<M: FontMetrics> Layouter<M> {
                 // pos.x e pos.y são relativos à origem da equação —
                 // pos.y inclui deslocamento vertical (sup/sub, frac).
                 let offset_x = self.cursor_x;
-                let offset_y = self.cursor_y;
+                // Equações inline: deslocar para cima por axis_pt de modo a que o
+                // eixo matemático (axis_height acima da baseline) coincida com o
+                // baseline do texto circundante (Passo 48).
+                let axis_pt = if *block {
+                    Pt(0.0)
+                } else {
+                    let c = self.metrics.math_constants();
+                    c.to_pt(c.axis_height, self.style.size)
+                };
+                let offset_y = self.cursor_y - axis_pt;
                 for item in math_items {
                     match item {
                         FrameItem::Text { pos, text, style } => {
@@ -631,5 +640,124 @@ mod tests {
             })
             .collect();
         assert!(sizes.len() > 1, "Raw deve ter tamanho diferente do texto normal");
+    }
+
+    // ── Passo 48 — Baselines em equações inline ──────────────────────────────
+
+    fn layout_test(src: &str) -> PagedDocument {
+        use crate::{
+            contracts::world::World,
+            entities::{
+                file_id::FileId,
+                font_book::FontBook,
+                source::Source,
+                world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+            },
+            rules::eval::eval_for_test,
+        };
+        use std::num::NonZeroU16;
+
+        struct MockWorld {
+            library: Library,
+            book:    FontBook,
+            source:  Source,
+        }
+
+        impl MockWorld {
+            fn new(text: &str) -> Self {
+                let id = FileId::from_raw(NonZeroU16::new(1).unwrap());
+                Self {
+                    library: Library::new(),
+                    book:    FontBook::new(),
+                    source:  Source::new(id, text.to_string()),
+                }
+            }
+        }
+
+        impl World for MockWorld {
+            fn library(&self) -> &Library  { &self.library }
+            fn book(&self)    -> &FontBook { &self.book }
+            fn main(&self)    -> FileId    { self.source.id() }
+            fn source(&self, _: FileId) -> FileResult<Source> { Ok(self.source.clone()) }
+            fn file(&self, _: FileId)    -> FileResult<Bytes>   { Err(FileError::NotFound) }
+            fn font(&self, _: usize)     -> Option<Font>        { None }
+            fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        }
+
+        let world = MockWorld::new(src);
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        layout(content)
+    }
+
+    #[cfg(test)]
+    mod tests_inline_baseline {
+        use super::*;
+
+        #[test]
+        fn equacao_inline_nao_regride_conteudo() {
+            let doc = layout_test("$frac(1, 2)$");
+            let text = doc.plain_text();
+            assert!(text.contains('1'), "numerador: {}", text);
+            assert!(text.contains('2'), "denominador: {}", text);
+        }
+
+        #[test]
+        fn equacao_inline_simples_nao_regride() {
+            let doc = layout_test("$x + 1$");
+            let text = doc.plain_text();
+            assert!(text.contains('x'));
+            assert!(text.contains('1'));
+        }
+
+        #[test]
+        fn equacao_inline_com_attach_nao_regride() {
+            let doc = layout_test("$x^2$");
+            let text = doc.plain_text();
+            assert!(text.contains('x'));
+            assert!(text.contains('2'));
+        }
+
+        #[test]
+        fn equacao_inline_com_prime_nao_regride() {
+            let doc = layout_test("$x'$");
+            let text = doc.plain_text();
+            assert!(text.contains('x'));
+            assert!(text.contains('′'));
+        }
+
+        #[test]
+        fn pagina_nao_vazia_com_equacao_inline() {
+            let doc = layout_test("$frac(1, 2)$");
+            assert!(!doc.pages.is_empty());
+            assert!(!doc.pages[0].items.is_empty());
+        }
+
+        #[test]
+        fn equacao_inline_sobe_em_relacao_ao_baseline() {
+            // Com o ajuste de baseline, os items da equação inline estão acima
+            // do cursor_y (offset_y < cursor_y). Com FixedMetrics, axis_height=500
+            // e upem=1000, axis_pt = 0.5 * font_size = 6.0pt.
+            // Verificamos que pelo menos um item tem y < cursor_y inicial (≈81.6pt).
+            let doc = layout_test("$x$");
+            let all_y: Vec<f64> = doc.pages.iter()
+                .flat_map(|p| p.items.iter())
+                .filter_map(|i| match i {
+                    FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                    FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
+                    _ => None,
+                })
+                .collect();
+            assert!(!all_y.is_empty(), "deve ter items");
+            // cursor_y inicial ≈ MARGIN(72) + ascender(9.6) = 81.6
+            // Com axis_pt ≈ 6.0, offset_y ≈ 75.6 < 81.6
+            let min_y = all_y.iter().cloned().fold(f64::INFINITY, f64::min);
+            assert!(
+                min_y < 81.6,
+                "equacao inline deve estar acima do baseline ({:.1} < 81.6)",
+                min_y
+            );
+        }
     }
 }

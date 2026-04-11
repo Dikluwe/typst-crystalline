@@ -636,4 +636,32 @@ mod integration {
         assert!(s.contains("BT"), "PDF deve conter BT");
         assert!(s.contains("ET"), "PDF deve conter ET");
     }
+
+    // ── Passo 48 — Baselines em equações inline ──────────────────────────────
+
+    #[test]
+    fn pdf_equacao_inline_frac_nao_vazio() {
+        let pdf = compile_to_pdf("$frac(1, 2)$");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_equacao_inline_com_texto_nao_vazio() {
+        let pdf = compile_to_pdf("Valor: $frac(1, 2)$ calculado.");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_equacao_inline_contem_bt_et() {
+        let pdf = compile_to_pdf("$x^2 + 1$");
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("BT"));
+        assert!(s.contains("ET"));
+    }
+
+    #[test]
+    fn pdf_equacao_inline_com_sqrt_nao_vazio() {
+        let pdf = compile_to_pdf("$sqrt(x)$");
+        assert!(!pdf.is_empty());
+    }
 }
