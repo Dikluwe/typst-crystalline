@@ -758,4 +758,21 @@ mod integration {
         let pdf = compile_to_pdf("$ x^2 + y_i $");
         assert!(!pdf.is_empty());
     }
+
+    // ── Passo 52 — math_leading via MathConstants ─────────────────────────
+
+    #[test]
+    fn pdf_math_grid_leading_gera_pdf() {
+        // Grid com math_leading lido da constante MATH (ou fallback 20%)
+        let pdf = compile_to_pdf("$ a &= b \\ c &= d $");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pdf_math_grid_leading_contem_bt_et() {
+        let pdf = compile_to_pdf("$ a &= b \\ c &= d $");
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("BT"), "BT ausente");
+        assert!(s.contains("ET"), "ET ausente");
+    }
 }

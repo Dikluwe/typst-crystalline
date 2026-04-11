@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/entities/math_constants.md
 //! @prompt-hash dba58f18
 //! @layer L1
-//! @updated 2026-04-10
+//! @updated 2026-04-11
 
 use crate::entities::layout_types::Pt;
 
@@ -59,6 +59,11 @@ pub struct MathConstants {
     /// Espaço mínimo entre a base e o limite inferior (design units).
     /// Fallback: 100.0
     pub lower_limit_gap_min: f64,
+
+    // ── Espaçamento inter-linhas (Passo 52) ──────────────
+    /// Gap entre linhas de equações alinhadas (design units).
+    /// OpenType MATH: MathLeading. Fallback: 20% de upem.
+    pub math_leading: f64,
 }
 
 impl MathConstants {
@@ -81,6 +86,7 @@ impl MathConstants {
             script_script_percent_scale_down:    0.5,
             upper_limit_gap_min:               100.0,
             lower_limit_gap_min:               100.0,
+            math_leading:                      upem * 0.2,  // 200.0 para upem=1000
         }
     }
 
@@ -143,5 +149,33 @@ mod tests {
         assert!((c.upem - 1000.0).abs() < 0.001);
         assert!(c.fraction_rule_thickness > 0.0);
         assert!(c.script_percent_scale_down > 0.0);
+    }
+
+    // ── Passo 52 — math_leading ───────────────────────────────────────────
+
+    #[test]
+    fn math_leading_fallback_e_positivo() {
+        let c = MathConstants::fallback();
+        // Fallback = 20% de upem = 200.0
+        assert!(c.math_leading > 0.0,
+            "math_leading deve ser positivo, foi {}", c.math_leading);
+    }
+
+    #[test]
+    fn math_leading_fallback_e_20_pct_upem() {
+        let c = MathConstants::fallback();
+        let esperado = c.upem * 0.2;
+        assert!((c.math_leading - esperado).abs() < 0.001,
+            "esperava {} (20% de upem={}), obteve {}",
+            esperado, c.upem, c.math_leading);
+    }
+
+    #[test]
+    fn math_leading_to_pt_proporcional() {
+        let c = MathConstants::fallback(); // upem=1000, math_leading=200
+        let pt = c.to_pt(c.math_leading, Pt(10.0));
+        // 10.0 * (200.0 / 1000.0) = 2.0
+        assert!((pt.val() - 2.0).abs() < 0.001,
+            "esperava 2.0pt, obteve {}pt", pt.val());
     }
 }

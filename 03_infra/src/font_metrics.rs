@@ -173,6 +173,8 @@ impl FontMetrics for FontBookMetrics<'_> {
                         c.upper_limit_gap_min().value as f64,
                     lower_limit_gap_min:
                         c.lower_limit_gap_min().value as f64,
+                    math_leading:
+                        c.math_leading().value as f64,
                 },
                 None => MathConstants::fallback(),
             },
