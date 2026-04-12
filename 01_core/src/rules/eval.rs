@@ -13,6 +13,7 @@ use crate::contracts::world::World;
 use crate::entities::args::Args;
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
+use crate::entities::counter_state::CounterAction;
 use crate::entities::label::Label;
 use crate::entities::ast::code::{Conditional, ForLoop, LetBinding, LetBindingKind, WhileLoop};
 use crate::entities::ast::expr::{Arg, ArrayItem, BinOp, Expr, Param, Pattern, UnOp};
@@ -377,6 +378,15 @@ fn eval_expr(
         }
 
         Expr::FuncCall(call) => {
+            // Intercepção de `counter(key).method(...)` antes de avaliar o callee.
+            // Anatomia AST: FuncCall { callee: FieldAccess { target: FuncCall(counter, [key]), field: method } }
+            if let Expr::FieldAccess(access) = call.callee() {
+                if let Some(counter_key) = extract_counter_key(access.target()) {
+                    let method_name = access.field().as_str().to_string();
+                    return eval_counter_method(&counter_key, &method_name, call.args(), scopes, ctx);
+                }
+            }
+
             let callee = eval_expr(call.callee(), scopes, ctx)?;
             let args = eval_args(call.args(), scopes, ctx)?;
 
@@ -1182,6 +1192,73 @@ fn make_stdlib() -> Scope {
     scope.define("float", Value::Func(Func::native("float", native_float)));
     scope.define("calc",  make_calc_module());
     scope
+}
+
+// ── Auxiliares para intercepção de counter(...).method() ──────────────────
+
+/// Extrai o nome do contador de uma expressão `counter(key)`.
+/// Retorna `None` se a expressão não for uma chamada a `counter`.
+fn extract_counter_key(expr: Expr<'_>) -> Option<String> {
+    let call = match expr {
+        Expr::FuncCall(c) => c,
+        _ => return None,
+    };
+    // Verificar que o callee é o identificador "counter"
+    let callee_name = match call.callee() {
+        Expr::Ident(id) => id.as_str().to_string(),
+        _ => return None,
+    };
+    if callee_name != "counter" { return None; }
+
+    // Extrair o primeiro argumento posicional como chave string
+    let first_arg = call.args().items().next()?;
+    match first_arg {
+        Arg::Pos(Expr::Ident(id)) => Some(id.as_str().to_string()),
+        Arg::Pos(Expr::Str(s))    => Some(s.get().to_string()),
+        _ => None,
+    }
+}
+
+/// Avalia um método de contador: step(), update(), get(), display().
+fn eval_counter_method<'a>(
+    key:    &str,
+    method: &str,
+    args:   crate::entities::ast::expr::Args<'a>,
+    scopes: &mut Scopes<'_>,
+    ctx:    &mut EvalContext<'_>,
+) -> SourceResult<Value> {
+    match method {
+        "step" => Ok(Value::Content(Content::CounterUpdate {
+            key:    key.to_string(),
+            action: CounterAction::Step,
+        })),
+
+        "update" => {
+            // Extrair o valor numérico do primeiro argumento.
+            // Defensivo: se o argumento não for Int, usar 0 silenciosamente.
+            let val = args.items().next()
+                .and_then(|arg| match arg {
+                    Arg::Pos(expr) => {
+                        if let Ok(Value::Int(n)) = eval_expr(expr, scopes, ctx) {
+                            Some(n.max(0) as usize)
+                        } else {
+                            None
+                        }
+                    }
+                    _ => None,
+                })
+                .unwrap_or(0);
+            Ok(Value::Content(Content::CounterUpdate {
+                key:    key.to_string(),
+                action: CounterAction::Update(val),
+            }))
+        }
+
+        // get(), display() e outros — fallback até motor de introspecção completo
+        _ => Ok(Value::Content(Content::CounterDisplay {
+            kind: key.to_string(),
+        })),
+    }
 }
 
 #[cfg(test)]
@@ -2693,6 +2770,48 @@ mod tests {
         assert!(
             matches!(&content, Content::Ref { target: Label(s) } if s == "meu_label"),
             "esperado Ref(meu_label), obtido: {:?}", content
+        );
+    }
+
+    // ── Testes de Passo 58 — counter(...).method() ────────────────────────
+
+    #[test]
+    fn eval_counter_step_gera_counter_update() {
+        let world = MockWorld::new("#counter(\"equation\").step()");
+        let src = world.source(world.main()).unwrap();
+        assert!(eval_for_test(&world, &src).is_ok());
+    }
+
+    #[test]
+    fn eval_counter_update_gera_counter_update_com_valor() {
+        let world = MockWorld::new("#counter(\"fig\").update(3)");
+        let src = world.source(world.main()).unwrap();
+        assert!(eval_for_test(&world, &src).is_ok());
+    }
+
+    #[test]
+    fn eval_counter_step_string_key_gera_content() {
+        let world = MockWorld::new("#counter(\"equation\").step()");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve ter content");
+        assert!(
+            matches!(&content, Content::CounterUpdate { key, action: CounterAction::Step }
+                     if key == "equation"),
+            "esperado CounterUpdate(equation, Step), obtido: {:?}", content
+        );
+    }
+
+    #[test]
+    fn eval_counter_ident_key_heading_step() {
+        let world = MockWorld::new("#counter(heading).step()");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve ter content");
+        assert!(
+            matches!(&content, Content::CounterUpdate { key, action: CounterAction::Step }
+                     if key == "heading"),
+            "esperado CounterUpdate(heading, Step), obtido: {:?}", content
         );
     }
 }

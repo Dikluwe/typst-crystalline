@@ -843,4 +843,18 @@ mod integration {
         // "1." deve aparecer no stream do PDF como prefixo do primeiro heading
         assert!(pdf_str.contains("1."), "H1 deve ter prefixo numérico no PDF");
     }
+
+    // ── Passo 58 — Contadores Genéricos ───────────────────────────────────
+
+    #[test]
+    fn pipeline_counter_step_nao_quebra_pdf() {
+        let pdf = compile_to_pdf("#counter(\"equation\").step()");
+        assert!(!pdf.is_empty(), "PDF não deve estar vazio");
+    }
+
+    #[test]
+    fn pipeline_counter_update_nao_quebra_pdf() {
+        let pdf = compile_to_pdf("#counter(\"fig\").update(3)");
+        assert!(!pdf.is_empty());
+    }
 }

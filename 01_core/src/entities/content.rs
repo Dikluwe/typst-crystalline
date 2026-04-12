@@ -8,6 +8,7 @@ use std::sync::Arc;
 
 use ecow::EcoString;
 
+use crate::entities::counter_state::CounterAction;
 use crate::entities::label::Label;
 use crate::entities::layout_types::{Pt, TextStyle};
 
@@ -160,8 +161,16 @@ pub enum Content {
     /// O Layouter resolve o valor no momento do layout (single-pass).
     /// DEBT-10: single-pass não suporta referências para a frente.
     CounterDisplay {
-        /// Tipo de contador: "heading" por agora; "figure", "equation" em passos futuros.
+        /// Tipo de contador: "heading", "figure", "equation", ou chave arbitrária.
         kind: String,
+    },
+
+    /// Instrução de modificação de um contador (Passo 58).
+    /// Produzida por `counter(key).step()` / `counter(key).update(n)`.
+    /// O Layouter consome esta variante actualizando `CounterState`.
+    CounterUpdate {
+        key:    String,
+        action: CounterAction,
     },
 
     // Variantes futuras — NÃO implementar sem ADR:
@@ -281,6 +290,7 @@ impl Content {
             Self::Ref { target }          => format!("@{}", target.0),
             Self::SetHeadingNumbering { .. } => String::new(),
             Self::CounterDisplay { .. }      => String::new(),
+            Self::CounterUpdate { .. }       => String::new(),
         }
     }
 }
@@ -327,6 +337,7 @@ impl PartialEq for Content {
             (Self::Ref { target: ta }, Self::Ref { target: tb })     => ta == tb,
             (Self::SetHeadingNumbering { active: a }, Self::SetHeadingNumbering { active: b }) => a == b,
             (Self::CounterDisplay { kind: a }, Self::CounterDisplay { kind: b }) => a == b,
+            (Self::CounterUpdate { key: ka, action: aa }, Self::CounterUpdate { key: kb, action: ab }) => ka == kb && aa == ab,
             _ => false,
         }
     }
