@@ -146,6 +146,24 @@ pub enum Content {
         target: Label,
     },
 
+    // ── Introspecção / Contadores (Passo 57) ────────────────────────────────
+
+    /// Activa ou desactiva a numeração automática de headings.
+    /// Produzida por `#set heading(numbering: "1.1")` em eval.
+    /// O Layouter consome esta variante actualizando `CounterState`.
+    /// DEBT-10: substituir por StyleChain quando o motor de introspecção
+    /// completo for implementado.
+    SetHeadingNumbering { active: bool },
+
+    /// Valor actual de um contador no ponto de inserção.
+    /// Produzida por `counter(heading).get()` / `counter(heading).display()`.
+    /// O Layouter resolve o valor no momento do layout (single-pass).
+    /// DEBT-10: single-pass não suporta referências para a frente.
+    CounterDisplay {
+        /// Tipo de contador: "heading" por agora; "figure", "equation" em passos futuros.
+        kind: String,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
@@ -261,6 +279,8 @@ impl Content {
             }
             Self::Labelled { target, .. } => target.plain_text(),
             Self::Ref { target }          => format!("@{}", target.0),
+            Self::SetHeadingNumbering { .. } => String::new(),
+            Self::CounterDisplay { .. }      => String::new(),
         }
     }
 }
@@ -305,6 +325,8 @@ impl PartialEq for Content {
             (Self::Labelled { target: ta, label: la },
              Self::Labelled { target: tb, label: lb })               => ta == tb && la == lb,
             (Self::Ref { target: ta }, Self::Ref { target: tb })     => ta == tb,
+            (Self::SetHeadingNumbering { active: a }, Self::SetHeadingNumbering { active: b }) => a == b,
+            (Self::CounterDisplay { kind: a }, Self::CounterDisplay { kind: b }) => a == b,
             _ => false,
         }
     }

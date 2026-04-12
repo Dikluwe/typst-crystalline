@@ -8,6 +8,7 @@ use ecow::EcoString;
 
 use crate::entities::{
     content::Content,
+    counter_state::CounterState,
     glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
     layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle},
     math_constants::MathConstants,
@@ -113,6 +114,7 @@ pub struct Layouter<M: FontMetrics> {
     cursor_x:     Pt,
     cursor_y:     Pt,      // posição da baseline actual
     current_line: Vec<FrameItem>,
+    pub counter:  CounterState,
 }
 
 impl<M: FontMetrics> Layouter<M> {
@@ -128,6 +130,7 @@ impl<M: FontMetrics> Layouter<M> {
             cursor_x:     MARGIN,
             cursor_y:     MARGIN + ascender,
             current_line: Vec::new(),
+            counter:      CounterState::new(),
         }
     }
 
@@ -185,13 +188,40 @@ impl<M: FontMetrics> Layouter<M> {
             }
 
             Content::Heading { level, body } => {
+                self.counter.step_heading(*level as usize);
+
                 let heading_size = self.font_size_pt * heading_scale(*level);
                 let prev = self.style;
                 self.style = TextStyle { bold: true, italic: false, size: heading_size };
                 if self.cursor_x > MARGIN { self.flush_line(); }
+
+                // Prefixo numérico — apenas se numbering estiver activo
+                if self.counter.heading_numbering {
+                    if let Some(num_str) = self.counter.format_heading() {
+                        let prefix = Content::text(format!("{}. ", num_str));
+                        self.layout_content(&prefix);
+                    }
+                }
+
                 self.layout_content(body);
                 self.flush_line();
                 self.style = prev;
+            }
+
+            Content::SetHeadingNumbering { active } => {
+                self.counter.heading_numbering = *active;
+                // Não desenha nada — apenas actualiza o estado do layouter.
+            }
+
+            Content::CounterDisplay { kind } => {
+                let text = if kind == "heading" {
+                    self.counter.format_heading()
+                        .unwrap_or_else(|| "0".to_string())
+                } else {
+                    format!("counter({})", kind)
+                };
+                let display = Content::text(text);
+                self.layout_content(&display);
             }
 
             Content::Raw { text, block, .. } => {
@@ -403,6 +433,17 @@ fn heading_scale(level: u8) -> f64 {
 /// Para métricas de fonte reais: `03_infra::layout::layout_with_font()`.
 pub fn layout(content: &Content) -> PagedDocument {
     let mut l = Layouter::new(FixedMetrics, DEFAULT_FONT_SIZE);
+    l.layout_content(content);
+    l.finish()
+}
+
+/// Layout com estado de contadores pré-inicializado.
+///
+/// Permite injectar um `CounterState` inicial para testes — por exemplo,
+/// para activar `heading_numbering` sem passar por `#set heading(numbering:)`.
+pub fn layout_with_state(content: &Content, state: CounterState) -> PagedDocument {
+    let mut l = Layouter::new(FixedMetrics, DEFAULT_FONT_SIZE);
+    l.counter = state;
     l.layout_content(content);
     l.finish()
 }
@@ -1090,5 +1131,63 @@ mod tests {
             assert!(text.contains('a'));
             assert!(text.contains('d'));
         }
+    }
+
+    // ── Testes de CounterState e numeração de headings (Passo 57) ─────────
+
+    #[test]
+    fn layout_heading_sem_numbering_nao_tem_prefixo() {
+        // Por defeito, heading_numbering é false — não deve aparecer "1."
+        let doc = layout(&Content::heading(1, Content::text("Intro")));
+        let text = doc.plain_text();
+        assert!(!text.contains("1."), "sem numbering activo, não deve haver prefixo numérico");
+        assert!(text.contains("Intro"));
+    }
+
+    #[test]
+    fn layout_heading_com_numbering_tem_prefixo() {
+        use crate::entities::counter_state::CounterState;
+        use crate::rules::layout::layout_with_state;
+
+        let mut state = CounterState::new();
+        state.heading_numbering = true;
+        let content = Content::Sequence(vec![
+            Content::heading(1, Content::text("Intro")),
+            Content::heading(2, Content::text("Motivação")),
+            Content::heading(1, Content::text("Conclusão")),
+        ].into());
+        let doc = layout_with_state(&content, state);
+        let text = doc.plain_text();
+        assert!(text.contains("1."), "H1 deve ter prefixo '1.'");
+        assert!(text.contains("1.1"), "H2 deve ter prefixo '1.1'");
+        assert!(text.contains("2."), "segundo H1 deve ter prefixo '2.'");
+    }
+
+    #[test]
+    fn layout_set_heading_numbering_activa_contador() {
+        // SetHeadingNumbering activado via Content::SetHeadingNumbering + headings
+        let content = Content::Sequence(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::heading(1, Content::text("Intro")),
+            Content::heading(2, Content::text("Sub")),
+        ].into());
+        let doc = layout(&content);
+        let text = doc.plain_text();
+        assert!(text.contains("1."), "H1 deve ter prefixo '1.'");
+        assert!(text.contains("1.1"), "H2 deve ter prefixo '1.1'");
+    }
+
+    #[test]
+    fn layout_counter_display_heading_retorna_estado_actual() {
+        let content = Content::Sequence(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::heading(1, Content::text("Intro")),
+            Content::CounterDisplay { kind: "heading".to_string() },
+        ].into());
+        let doc = layout(&content);
+        let text = doc.plain_text();
+        // CounterDisplay de heading após H1 deve mostrar "1"
+        // (o heading já avançou o contador antes de CounterDisplay ser processado)
+        assert!(text.contains('1'));
     }
 }
