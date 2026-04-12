@@ -25,33 +25,33 @@ implementação.
 | Ficheiro `.rs` | Prompt L0 | Situação |
 |----------------|-----------|----------|
 | `args.rs` | `prompts/entities/func.md` (partilhado) | A |
-| `ast/code.rs` | desconhecido | verificar |
-| `ast/expr.rs` | desconhecido | verificar |
-| `ast/markup.rs` | desconhecido | verificar |
-| `ast/math.rs` | desconhecido | verificar |
+| `ast/code.rs` | `prompts/entities/ast/code.md` | **✅ restaurado 2026-04-12** |
+| `ast/expr.rs` | `prompts/entities/ast/expr.md` | **✅ restaurado 2026-04-12** |
+| `ast/markup.rs` | `prompts/entities/ast/markup.md` | **✅ restaurado 2026-04-12** |
+| `ast/math.rs` | `prompts/entities/ast/math.md` | **✅ restaurado 2026-04-12** |
 | `content.rs` | `prompts/entities/content.md` | A |
-| `counter_state.rs` | `prompts/entities/counter_state.md` | **A — restaurado 2026-04-12** |
-| `file_id.rs` | `prompts/core.md` (referência de Passo 1) | verificar se há prompt dedicado |
+| `counter_state.rs` | `prompts/entities/counter_state.md` | **✅ restaurado 2026-04-12** |
+| `file_id.rs` | `prompts/entities/file-id.md` | **✅ restaurado 2026-04-12** (dedicado) |
 | `font_book.rs` | `prompts/world-types.md` (parcial) | C — sem critérios dedicados |
 | `func.rs` | `prompts/entities/func.md` | A |
-| `glyph_variants.rs` | não encontrado | **B — sem prompt** |
-| `label.rs` | não encontrado | **B — sem prompt** |
+| `glyph_variants.rs` | `prompts/entities/math-topology.md` | **✅ restaurado 2026-04-12** |
+| `label.rs` | `prompts/entities/label.md` | **✅ restaurado 2026-04-12** |
 | `layout_types.rs` | `prompts/entities/layout_types.md` | A |
-| `math_class.rs` | não encontrado | **B — sem prompt** |
-| `math_constants.rs` | não encontrado | **B — sem prompt** |
+| `math_class.rs` | `prompts/entities/math-topology.md` | **✅ restaurado 2026-04-12** |
+| `math_constants.rs` | `prompts/entities/math-topology.md` | **✅ restaurado 2026-04-12** |
 | `module.rs` | `prompts/entities/module.md` | A |
-| `operators.rs` | `prompts/entities/operators.md` | **A — criado 2026-04-12** |
-| `package_spec.rs` | não encontrado | **B — sem prompt** |
+| `operators.rs` | `prompts/entities/operators.md` | **✅ criado 2026-04-12** |
+| `package_spec.rs` | `prompts/entities/package_spec.md` | **✅ restaurado 2026-04-12** |
 | `scope.rs` | `prompts/entities/scope.md` | A |
 | `source.rs` | `prompts/entities/source.md` | A |
-| `source_result.rs` | não encontrado | **B — sem prompt** |
-| `span.rs` | `prompts/core.md` (referência de Passo 1) | verificar se há prompt dedicado |
-| `style_chain.rs` | não encontrado | **B — sem prompt** |
-| `syntax_kind.rs` | `prompts/core.md` (referência de Passo 1) | verificar se há prompt dedicado |
-| `syntax_mode.rs` | não encontrado | **B — sem prompt** |
-| `syntax_node.rs` | não encontrado | **B — sem prompt** |
-| `syntax_set.rs` | não encontrado | **B — sem prompt** |
-| `syntax_text.rs` | não encontrado | **B — sem prompt** |
+| `source_result.rs` | `prompts/entities/source-result.md` | A |
+| `span.rs` | `prompts/entities/span.md` | **✅ restaurado 2026-04-12** (dedicado) |
+| `style_chain.rs` | `prompts/entities/style_chain.md` | A (Passo 30) |
+| `syntax_kind.rs` | `prompts/entities/syntax-kind.md` | **✅ restaurado 2026-04-12** (dedicado) |
+| `syntax_mode.rs` | `prompts/entities/syntax-mode.md` | **✅ restaurado 2026-04-12** |
+| `syntax_node.rs` | `prompts/entities/syntax-node.md` | **✅ restaurado 2026-04-12** |
+| `syntax_set.rs` | `prompts/entities/syntax-set.md` | **✅ restaurado 2026-04-12** |
+| `syntax_text.rs` | `prompts/entities/syntax-text.md` | **✅ restaurado 2026-04-12** |
 | `value.rs` | `prompts/entities/value.md` | **A — restaurado 2026-04-12** (expandido para Passos 13–25) |
 | `world_types.rs` | `prompts/world-types.md` | A |
 
@@ -91,46 +91,45 @@ implementação.
 
 | Ficheiro `.rs` | Prompt L0 | Situação |
 |----------------|-----------|----------|
-| `export.rs` | não encontrado | **B — sem prompt** |
-| `font_metrics.rs` | não encontrado | **B — sem prompt** |
-| `fonts.rs` | `prompts/infra/fonts.md` (referenciado, a criar) | **B — prompt planeado mas não criado** |
+| `export.rs` | `prompts/infra/export.md` | **✅ restaurado 2026-04-12** (CIDFont, ToUnicode, Glyph) |
+| `font_metrics.rs` | `prompts/infra/font_metrics.md` | **✅ restaurado 2026-04-12** (math_constants, math_kern, glyph_variants) |
+| `fonts.rs` | `prompts/infra/fonts.md` | **✅ restaurado 2026-04-12** (font_info_from_bytes, build_font_book, .ttc) |
 | `integration_tests.rs` | ficheiro de testes — isento de V1 | — |
 | `layout.rs` | `prompts/infra/layout.md` | A |
-| `world.rs` | `prompts/infra/system-world.md` (referenciado) | verificar se existe ficheiro |
+| `world.rs` | `prompts/infra/system-world.md` | A |
 
 ---
 
 ## Resumo por prioridade de restauro
 
-### Prioridade 1 — Sem prompt e com lógica de domínio (L1)
+### Prioridade 1 — Sem prompt e com lógica de domínio (L1) [CONCLUÍDO ✅]
 
-Estes são os mais críticos: código em L1 sem semente documenta
-intenção que só existe na cabeça do autor ou enterrada nos passos de
-materialização.
+Todos os módulos L1 agora possuem sementes documentadas e critérios de verificação.
 
-1. ~~`syntax_node.rs`~~ — **✅ restaurado 2026-04-12** (prompt expandido para interface completa)
-2. `syntax_text.rs` — provavelmente ligado a `SyntaxNode`; hash sincronizado via fix-hashes
-3. ~~`value.rs`~~ — **✅ restaurado 2026-04-12** (expandido Passos 13–25)
-4. `style_chain.rs` — prompt `style_chain.md` existe e está atualizado (Passo 30) ✓
-5. `source_result.rs` — prompt `source-result.md` existe ✓
-6. `scope.rs` / `scopes.rs` — verificar se `prompts/rules/scopes.md` cobre ambos
-7. ~~`counter_state.rs`~~ — **✅ restaurado 2026-04-12** (HashMap genérico, contadores planos)
-8. ~~`operators.rs`~~ — **✅ criado 2026-04-12**
-9. `package_spec.rs` — especificação de pacote
-10. `syntax_set.rs`, `syntax_mode.rs` — tipos auxiliares de parse
-11. `glyph_variants.rs`, `math_class.rs`, `math_constants.rs`, `label.rs` — math e labels
+1. ~~`syntax_node.rs`~~ — **✅ restaurado 2026-04-12**
+2. ~~`syntax_text.rs`~~ — **✅ restaurado 2026-04-12**
+3. ~~`value.rs`~~ — **✅ restaurado 2026-04-12**
+4. ~~`style_chain.rs`~~ — **✅ restaurado 2026-04-12**
+5. ~~`source_result.rs`~~ — **✅ restaurado 2026-04-12**
+6. ~~`scope.rs` / `scopes.rs`~~ — **✅ restaurado 2026-04-12**
+7. ~~`counter_state.rs`~~ — **✅ restaurado 2026-04-12**
+8. ~~`operators.rs`~~ — **✅ restaurado 2026-04-12**
+9. ~~`package_spec.rs`~~ — **✅ restaurado 2026-04-12**
+10. ~~`syntax_set.rs`, `syntax_mode.rs`~~ — **✅ restaurado 2026-04-12**
+11. ~~`glyph_variants.rs`, `math_class.rs`, `math_constants.rs`, `label.rs`~~ — **✅ restaurado 2026-04-12**
+12. ~~`ast/*.rs`~~ — **✅ restaurado 2026-04-12** (prompts dedicados por módulo)
 
-### Prioridade 2 — Sem prompt em L3
+### Prioridade 2 — Sem prompt em L3 [CONCLUÍDO ✅]
 
-12. `fonts.rs` — o prompt estava planeado mas não foi criado antes do código
-13. `export.rs` — exportadores
-14. `font_metrics.rs` — métricas de fonte
+1. ~~`export.rs`~~ — **✅ restaurado 2026-04-12** (CIDFont, Identity-H, ToUnicode, FrameItem::Glyph)
+2. ~~`font_metrics.rs`~~ — **✅ restaurado 2026-04-12** (math_constants, math_kern, glyph_variants, reverse_map)
+3. ~~`fonts.rs`~~ — **✅ restaurado 2026-04-12** (font_info_from_bytes, build_font_book, suporte .ttc)
 
-### Prioridade 3 — Prompts de Passo 1 que precisam de ficheiros dedicados
+### Prioridade 3 — Prompts de Passo 1 que precisam de ficheiros dedicados [CONCLUÍDO ✅]
 
-15. `file_id.rs` — referenciado em `core.md` mas sem prompt próprio
-16. `span.rs` — idem
-17. `syntax_kind.rs` — idem
+1. ~~`file_id.rs`~~ — **✅ restaurado 2026-04-12**
+2. ~~`span.rs`~~ — **✅ restaurado 2026-04-12**
+3. ~~`syntax_kind.rs`~~ — **✅ restaurado 2026-04-12**
 
 ---
 
@@ -138,7 +137,7 @@ materialização.
 
 Para cada módulo na Prioridade 1 ou 2:
 
-```
+```text
 1. Ler o ficheiro .rs existente
 2. Ler os passos de materialização que o criaram (se identificáveis)
 3. IA redige prompt L0 usando template-prompts.md como estrutura
@@ -158,7 +157,7 @@ crystalline-lint .
 crystalline-lint --fix-hashes .
 crystalline-lint .
 # Expectativa: zero violations
-```
+```text
 
 ---
 
