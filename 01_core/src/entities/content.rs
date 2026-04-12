@@ -8,6 +8,7 @@ use std::sync::Arc;
 
 use ecow::EcoString;
 
+use crate::entities::label::Label;
 use crate::entities::layout_types::{Pt, TextStyle};
 
 /// Conteúdo declarativo produzido por `eval()`.
@@ -116,6 +117,35 @@ pub enum Content {
     /// Separa linhas no layout de grelha (Passo 51).
     Linebreak,
 
+    /// Matriz matemática produzida pela função `mat(...)`.
+    /// `rows`: lista de linhas, cada linha é uma lista de células.
+    /// `delim`: par de delimitadores (`('(', ')')` por defeito).
+    MathMatrix {
+        rows:  Vec<Vec<Content>>,
+        delim: (char, char),
+    },
+
+    /// Função definida por ramos, produzida pela função `cases(...)`.
+    /// `rows`: lista de ramos; cada ramo é um array de células (separadas por `&`).
+    /// Delimitador esquerdo `{`; sem delimitador direito.
+    MathCases {
+        rows: Vec<Vec<Content>>,
+    },
+
+    /// Nó com etiqueta semântica (Passo 56).
+    /// A `Label` é metainformação pura — não tem presença visual.
+    /// Produzida por `= Título <label>` ou `#figure(...) <label>`.
+    Labelled {
+        target: Box<Content>,
+        label:  Label,
+    },
+
+    /// Referência cruzada (Passo 56).
+    /// Enquanto não existe motor de introspecção, renderiza literalmente `@nome`.
+    Ref {
+        target: Label,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
@@ -169,6 +199,7 @@ impl Content {
         match self {
             Self::Empty => true,
             Self::Sequence(v) => v.is_empty(),
+            Self::Labelled { target, .. } => target.is_empty(),
             _ => false,
         }
     }
@@ -218,6 +249,18 @@ impl Content {
             }
             Self::MathAlignPoint => String::new(),
             Self::Linebreak      => "\n".to_string(),
+            Self::MathMatrix { rows, .. } => {
+                rows.iter().map(|row| {
+                    row.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(", ")
+                }).collect::<Vec<_>>().join("; ")
+            }
+            Self::MathCases { rows } => {
+                rows.iter().map(|row| {
+                    row.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" & ")
+                }).collect::<Vec<_>>().join(", ")
+            }
+            Self::Labelled { target, .. } => target.plain_text(),
+            Self::Ref { target }          => format!("@{}", target.0),
         }
     }
 }
@@ -255,6 +298,13 @@ impl PartialEq for Content {
              Self::MathDelimited { open: ob, body: bb, close: cb })  => oa == ob && ba == bb && ca == cb,
             (Self::MathAlignPoint, Self::MathAlignPoint)             => true,
             (Self::Linebreak,      Self::Linebreak)                  => true,
+            (Self::MathMatrix { rows: ra, delim: da },
+             Self::MathMatrix { rows: rb, delim: db })               => ra == rb && da == db,
+            (Self::MathCases { rows: ra },
+             Self::MathCases { rows: rb })                           => ra == rb,
+            (Self::Labelled { target: ta, label: la },
+             Self::Labelled { target: tb, label: lb })               => ta == tb && la == lb,
+            (Self::Ref { target: ta }, Self::Ref { target: tb })     => ta == tb,
             _ => false,
         }
     }

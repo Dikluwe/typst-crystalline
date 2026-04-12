@@ -775,4 +775,45 @@ mod integration {
         assert!(s.contains("BT"), "BT ausente");
         assert!(s.contains("ET"), "ET ausente");
     }
+
+    // ── Passo 54 — Matrizes matemáticas ─────────────────────────────────
+
+    #[test]
+    fn pipeline_math_matrix_gera_pdf() {
+        let (world, _dir) = world_from_str("$ mat(1, 2; 3, 4) $");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+    }
+
+    // ── Passo 55 — Vectores e Casos ──────────────────────────────────────
+
+    #[test]
+    fn pipeline_math_vec_gera_pdf() {
+        let pdf = compile_to_pdf("$ vec(1, 2, 3) $");
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pipeline_math_cases_gera_pdf() {
+        let pdf = compile_to_pdf("$ cases(1, 0) $");
+        assert!(!pdf.is_empty());
+    }
+
+    // ── Passo 56 — Labels e Referências ──────────────────────────────────
+
+    #[test]
+    fn pipeline_introspeccao_labels_refs_gera_pdf() {
+        let pdf = compile_to_pdf("= Introdução <intro>\nIsto é uma referência: @intro");
+        assert!(!pdf.is_empty(), "PDF não deve estar vazio");
+        // Verificar que o fallback "@intro" sobreviveu ao pipeline como texto.
+        let pdf_str = String::from_utf8_lossy(&pdf);
+        assert!(
+            pdf_str.contains("intro"),
+            "PDF deve conter o texto de fallback com 'intro'"
+        );
+    }
 }

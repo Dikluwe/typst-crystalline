@@ -307,7 +307,9 @@ impl<M: FontMetrics> Layouter<M> {
             | Content::MathFrac { .. }
             | Content::MathAttach { .. }
             | Content::MathRoot { .. }
-            | Content::MathDelimited { .. } => {
+            | Content::MathDelimited { .. }
+            | Content::MathMatrix { .. }
+            | Content::MathCases { .. } => {
                 // Nós matemáticos internos — normalmente não aparecem directamente
                 // no layout fora de Content::Equation. Se aparecerem, renderizar como texto.
                 let text = content.plain_text();
@@ -318,6 +320,17 @@ impl<M: FontMetrics> Layouter<M> {
 
             // Marcadores estruturais de equações — ignorados fora de contexto matemático.
             Content::MathAlignPoint | Content::Linebreak => {}
+
+            // Passo 56 — Label é metainformação pura: atravessa para o nó filho.
+            Content::Labelled { target, .. } => self.layout_content(target),
+
+            // Passo 56 — Ref: fallback visual literal até motor de introspecção.
+            Content::Ref { target } => {
+                let text = format!("@{}", target.0);
+                for word in text.split_whitespace() {
+                    self.layout_word(word);
+                }
+            }
         }
     }
 
@@ -1002,6 +1015,80 @@ mod tests {
                 text.contains('∑') || text.contains('i') || text.contains('n'),
                 "sum: {}", text
             );
+        }
+
+        // ── Passo 54 — Matrizes matemáticas ─────────────────────────────────
+
+        #[test]
+        fn matrix_2x2_nao_vazio() {
+            let doc = layout_test("$ mat(a, b; c, d) $");
+            let text = doc.plain_text();
+            assert!(text.contains('a'), "a ausente: {}", text);
+            assert!(text.contains('d'), "d ausente: {}", text);
+        }
+
+        #[test]
+        fn matrix_1x1_nao_panica() {
+            let doc = layout_test("$ mat(x) $");
+            assert!(!doc.pages.is_empty());
+        }
+
+        #[test]
+        fn matrix_linha_unica_nao_panica() {
+            let doc = layout_test("$ mat(1, 2, 3) $");
+            assert!(!doc.pages.is_empty());
+        }
+
+        #[test]
+        fn align_grid_nao_regride_apos_matrix() {
+            let doc = layout_test("$ a &= b \\ c &= d $");
+            let text = doc.plain_text();
+            assert!(text.contains('a'));
+            assert!(text.contains('d'));
+        }
+
+        // ── Passo 55 — Vectores e Casos ──────────────────────────────────────
+
+        #[test]
+        fn vec_tres_elementos_nao_vazio() {
+            let doc = layout_test("$ vec(1, 2, 3) $");
+            let text = doc.plain_text();
+            assert!(text.contains('1'));
+            assert!(text.contains('3'));
+        }
+
+        #[test]
+        fn vec_elemento_unico_nao_panica() {
+            let doc = layout_test("$ vec(x) $");
+            assert!(!doc.pages.is_empty());
+        }
+
+        #[test]
+        fn cases_dois_ramos_nao_vazio() {
+            let doc = layout_test("$ cases(1, 0) $");
+            assert!(!doc.pages.is_empty());
+        }
+
+        #[test]
+        fn cases_nao_panica_com_align_point() {
+            let doc = layout_test("$ cases(x &, 0 &) $");
+            assert!(!doc.pages.is_empty());
+        }
+
+        #[test]
+        fn mat_nao_regride_apos_vec_cases() {
+            let doc = layout_test("$ mat(1, 2; 3, 4) $");
+            let text = doc.plain_text();
+            assert!(text.contains('1'));
+            assert!(text.contains('4'));
+        }
+
+        #[test]
+        fn align_grid_nao_regride_apos_passo55() {
+            let doc = layout_test("$ a &= b \\ c &= d $");
+            let text = doc.plain_text();
+            assert!(text.contains('a'));
+            assert!(text.contains('d'));
         }
     }
 }

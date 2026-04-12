@@ -13,8 +13,10 @@ use crate::contracts::world::World;
 use crate::entities::args::Args;
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
+use crate::entities::label::Label;
 use crate::entities::ast::code::{Conditional, ForLoop, LetBinding, LetBindingKind, WhileLoop};
-use crate::entities::ast::expr::{Arg, BinOp, Expr, Param, Pattern, UnOp};
+use crate::entities::ast::expr::{Arg, ArrayItem, BinOp, Expr, Param, Pattern, UnOp};
+use crate::entities::ast::markup::Label as AstLabel;
 use crate::entities::ast::math::{Math, MathTextKind};
 use crate::entities::file_id::FileId;
 use crate::entities::layout_types::TextStyle;
@@ -245,6 +247,29 @@ fn eval_markup(
             }
             SyntaxKind::Space | SyntaxKind::Parbreak => parts.push(Content::Space),
             k if k.is_trivia() => continue,
+            // Passo 56 — associação retroactiva: <label> envolve o nó precedente.
+            // O parser expõe <label> como nó irmão (não filho) do nó anterior.
+            // Entre o nó alvo e a label pode haver Space — salta-os para encontrar
+            // o elemento real, re-insere-os a seguir ao Labelled.
+            SyntaxKind::Label => {
+                if let Some(label_ast) = child.cast::<AstLabel<'_>>() {
+                    let name = label_ast.get().to_string();
+                    // Recolher espaços finais para re-inserir após o Labelled.
+                    let mut trailing: Vec<Content> = Vec::new();
+                    while matches!(parts.last(), Some(Content::Space) | Some(Content::Empty)) {
+                        trailing.push(parts.pop().unwrap());
+                    }
+                    if let Some(last) = parts.pop() {
+                        parts.push(Content::Labelled {
+                            target: Box::new(last),
+                            label:  Label(name),
+                        });
+                        trailing.reverse();
+                        parts.extend(trailing);
+                    }
+                    // Se parts estiver vazio após remover espaços, ignorar.
+                }
+            }
             _ => {
                 if let Some(expr) = Expr::from_untyped(child) {
                     match eval_expr(expr, scopes, ctx)? {
@@ -514,6 +539,16 @@ fn eval_expr(
                 "include não implementado nesta versão do cristalino",
             )])
         }
+
+        // Passo 56 — referência cruzada: @nome → Content::Ref placeholder.
+        Expr::Ref(ref_node) => {
+            let name = ref_node.target().to_string();
+            Ok(Value::Content(Content::Ref { target: Label(name) }))
+        }
+
+        // Passo 56 — label em contexto de código (raro); a associação retroactiva
+        // acontece em eval_markup via SyntaxKind::Label. Aqui apenas ignoramos.
+        Expr::Label(_) => Ok(Value::None),
 
         // Fronteira deliberada — requer tipos não migrados (Content, Styles, etc.)
         _ => Ok(Value::None),
@@ -983,6 +1018,86 @@ fn eval_math_expr(
                     let radicand = eval_math_expr(scopes, ctx, args[1])?;
                     Ok(Content::MathRoot { index: Some(Box::new(index)), radicand: Box::new(radicand) })
                 }
+                // vec(...) — vector coluna (Passo 55): cada arg torna-se uma linha de uma célula.
+                // Os args são planos (sem `;`), por isso não há Arrays intermediários.
+                "vec" => {
+                    let pos_args: Vec<Expr<'_>> = call.args().items()
+                        .filter_map(|a| match a { Arg::Pos(e) => Some(e), _ => None })
+                        .collect();
+                    let mut rows: Vec<Vec<Content>> = Vec::new();
+                    for expr in pos_args {
+                        let cell = eval_math_expr(scopes, ctx, expr)?;
+                        rows.push(vec![cell]);
+                    }
+                    Ok(Content::MathMatrix { rows, delim: ('(', ')') })
+                }
+
+                // cases(...) — função por ramos (Passo 55): args separados por vírgula.
+                // `&` dentro de cada arg produz MathAlignPoint que parte as células.
+                "cases" => {
+                    let pos_args: Vec<Expr<'_>> = call.args().items()
+                        .filter_map(|a| match a { Arg::Pos(e) => Some(e), _ => None })
+                        .collect();
+                    let mut rows: Vec<Vec<Content>> = Vec::new();
+                    for expr in pos_args {
+                        let content = eval_math_expr(scopes, ctx, expr)?;
+                        let cells = match &content {
+                            Content::MathSequence(items) => {
+                                let mut cols: Vec<Vec<Content>> = vec![vec![]];
+                                for item in items.iter() {
+                                    match item {
+                                        Content::MathAlignPoint => cols.push(vec![]),
+                                        other => cols.last_mut().unwrap().push(other.clone()),
+                                    }
+                                }
+                                cols.retain(|c| !c.is_empty());
+                                cols.into_iter()
+                                    .map(|c| Content::MathSequence(c.into()))
+                                    .collect::<Vec<Content>>()
+                            }
+                            _ => vec![content],
+                        };
+                        rows.push(cells);
+                    }
+                    Ok(Content::MathCases { rows })
+                }
+
+                // mat(...) — matriz matemática (Passo 54)
+                // O parser converte `;` em Arrays: cada Arg::Pos(Expr::Array(...)) é uma linha.
+                // Sem `;`: todos os args são células de uma única linha.
+                "mat" => {
+                    let pos_args: Vec<Expr<'_>> = call.args().items()
+                        .filter_map(|a| match a { Arg::Pos(e) => Some(e), _ => None })
+                        .collect();
+                    let has_row_arrays = pos_args.first()
+                        .map(|e| matches!(e, Expr::Array(_)))
+                        .unwrap_or(false);
+                    let mut rows: Vec<Vec<Content>> = Vec::new();
+                    if has_row_arrays {
+                        for arg in &pos_args {
+                            let mut row = Vec::new();
+                            match arg {
+                                Expr::Array(arr) => {
+                                    for item in arr.items() {
+                                        if let ArrayItem::Pos(e) = item {
+                                            row.push(eval_math_expr(scopes, ctx, e)?);
+                                        }
+                                    }
+                                }
+                                other => row.push(eval_math_expr(scopes, ctx, *other)?),
+                            }
+                            rows.push(row);
+                        }
+                    } else {
+                        let mut row = Vec::new();
+                        for e in &pos_args {
+                            row.push(eval_math_expr(scopes, ctx, *e)?);
+                        }
+                        if !row.is_empty() { rows.push(row); }
+                    }
+                    Ok(Content::MathMatrix { rows, delim: ('(', ')') })
+                }
+
                 // Outros nomes: tratar como MathIdent (sin, cos, lim, …)
                 _ => Ok(Content::MathIdent(name.into())),
             }
@@ -2524,5 +2639,43 @@ mod tests {
         assert!(text.contains('x'));
         assert!(text.contains('2'));
         assert!(text.contains('i'));
+    }
+
+    // ── Testes do Passo 56 — Labels e Referências ────────────────────────────
+
+    #[test]
+    fn eval_label_anexa_ao_bloco_anterior() {
+        use crate::entities::label::Label;
+        let world = MockWorld::new("= Título <meu_label>");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve ter content");
+        // O markup pode envolver o Labelled numa Sequence com espaços residuais.
+        // Procurar o nó Labelled directamente ou dentro da Sequence.
+        let labelled = match &content {
+            Content::Labelled { .. } => &content,
+            Content::Sequence(items) => items.iter()
+                .find(|c| matches!(c, Content::Labelled { .. }))
+                .expect("nenhum Labelled encontrado na Sequence"),
+            _ => panic!("esperado Labelled ou Sequence, obtido: {:?}", content),
+        };
+        assert!(
+            matches!(labelled, Content::Labelled { target, label: Label(s) }
+                if matches!(target.as_ref(), Content::Heading { .. }) && s == "meu_label"),
+            "esperado Labelled(Heading), obtido: {:?}", labelled
+        );
+    }
+
+    #[test]
+    fn eval_ref_gera_content_ref() {
+        use crate::entities::label::Label;
+        let world = MockWorld::new("@meu_label");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve ter content");
+        assert!(
+            matches!(&content, Content::Ref { target: Label(s) } if s == "meu_label"),
+            "esperado Ref(meu_label), obtido: {:?}", content
+        );
     }
 }

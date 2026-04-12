@@ -145,6 +145,16 @@ fn partition_grid(nodes: &[Content]) -> Vec<Vec<Vec<Content>>> {
 /// **Passo 37**: `MathFrac` (numerador/denominador) e `MathAttach`
 ///   (sup/sub com posicionamento vertical) implementados via `MathBox`.
 /// **Passo 41**: constantes OpenType MATH via `FontMetrics::math_constants()`.
+/// Política de alinhamento horizontal das células numa grelha matemática.
+enum GridAlign {
+    /// `MathAlignPoint` (`&`): colunas pares à direita, ímpares à esquerda.
+    Alternating,
+    /// `MathMatrix` (`mat`): todas as células centradas na sua coluna.
+    Center,
+    /// `MathCases` (`cases`): todas as colunas alinhadas à esquerda.
+    Left,
+}
+
 pub struct MathLayouter<'a, M: FontMetrics> {
     metrics:   &'a M,
     constants: MathConstants,
@@ -232,6 +242,14 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 self.layout_delimited(*open, body, *close, style)
             }
 
+            Content::MathMatrix { rows, delim } => {
+                self.layout_matrix(rows, *delim, style)
+            }
+
+            Content::MathCases { rows } => {
+                self.layout_cases(rows, style)
+            }
+
             other => {
                 let text: EcoString = other.plain_text().into();
                 if text.trim().is_empty() {
@@ -278,25 +296,26 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         }
     }
 
-    /// Layout em grelha 2D para equações com `&` e `\\`.
+    /// Grelha 2D generalizada — usada por `layout_grid` e `MathMatrix`.
     ///
     /// Duas passagens:
-    ///   1. Mede todas as células para calcular largura máxima por coluna.
-    ///   2. Posiciona com essas larguras fixas.
-    ///
-    /// Regra de alinhamento Typst:
-    ///   - Colunas 0-based pares (0, 2, …) → alinha à direita.
-    ///   - Colunas 0-based ímpares (1, 3, …) → alinha à esquerda.
-    fn layout_grid(&self, nodes: &[Content], style: &TextStyle) -> MathBox {
-        let grid = partition_grid(nodes);
-        let n_cols = grid.iter().map(|row| row.len()).max().unwrap_or(0);
+    ///   1. Mede todas as células → largura máxima por coluna.
+    ///   2. Posiciona com essas larguras + `column_gap` entre colunas.
+    fn layout_grid_rows(
+        &self,
+        rows:       &[Vec<Content>],
+        align:      GridAlign,
+        column_gap: Pt,
+        style:      &TextStyle,
+    ) -> MathBox {
+        let n_cols = rows.iter().map(|row| row.len()).max().unwrap_or(0);
         if n_cols == 0 {
             return MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items: vec![] };
         }
 
         // ── Passagem 1: medir todas as células ────────────────────────────
-        let grid_boxes: Vec<Vec<MathBox>> = grid.iter()
-            .map(|row| row.iter().map(|cell| self.layout_sequence(cell, style)).collect())
+        let grid_boxes: Vec<Vec<MathBox>> = rows.iter()
+            .map(|row| row.iter().map(|cell| self.layout_node(cell, style)).collect())
             .collect();
 
         let mut col_widths = vec![0.0_f64; n_cols];
@@ -308,12 +327,11 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
         // ── Passagem 2: posicionar células ────────────────────────────────
         let mut all_items: Vec<FrameItem> = Vec::new();
-        // dy acumulado: deslocamento da baseline da linha actual
-        // relativo à baseline da linha 0 (= baseline da equação toda).
         let mut baseline_offset = 0.0_f64;
-        let total_width: f64 = col_widths.iter().sum();
+        let gap = column_gap.val();
+        let n_gaps = n_cols.saturating_sub(1) as f64;
+        let total_width: f64 = col_widths.iter().sum::<f64>() + n_gaps * gap;
 
-        // Ascent total = ascent da linha 0
         let total_ascent = grid_boxes.first()
             .map(|row| row.iter().map(|b| b.ascent).fold(0.0, f64::max))
             .unwrap_or(0.0);
@@ -329,38 +347,25 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             for (col_idx, cell_box) in row.iter().enumerate() {
                 let col_w = if col_idx < n_cols { col_widths[col_idx] } else { 0.0 };
 
-                // Alinhamento interno da célula
-                let cell_x = if col_idx % 2 == 0 {
-                    // Col par (0-based): alinha à direita dentro da coluna
-                    cursor_x + (col_w - cell_box.width)
-                } else {
-                    // Col ímpar: alinha à esquerda
-                    cursor_x
+                let cell_x = match align {
+                    GridAlign::Alternating => if col_idx % 2 == 0 {
+                        cursor_x + (col_w - cell_box.width)   // par: à direita
+                    } else {
+                        cursor_x                               // ímpar: à esquerda
+                    },
+                    GridAlign::Center => cursor_x + (col_w - cell_box.width) / 2.0,
+                    GridAlign::Left   => cursor_x,
                 };
 
-                // dy: os items do cell_box têm y=0 no topo do box.
-                // A baseline do cell_box está a y=cell_box.ascent (no box local).
-                // No box global, a baseline da linha row_idx está a baseline_offset
-                // abaixo da baseline da linha 0 (y=0 no box global é o topo do row0).
-                // Items devem ser deslocados de baseline_offset - row_ascent
-                // para que o topo do row apareça na posição correcta.
                 let dy = baseline_offset - row_ascent;
-
                 for item in cell_box.items.clone() {
                     all_items.push(offset_item(item, Pt(cell_x), Pt(dy)));
                 }
 
                 cursor_x += col_w;
+                if col_idx + 1 < n_cols { cursor_x += gap; }
             }
 
-            // Acumular descent para linhas seguintes
-            if row_idx == 0 {
-                // baseline_offset permanece 0 para linha 0
-            } else {
-                // Já foi avançado antes desta linha
-            }
-
-            // Avançar baseline para próxima linha
             if row_idx + 1 < grid_boxes.len() {
                 let line_gap = self.constants.to_pt(self.constants.math_leading, style.size).val();
                 let advance = row_descent + line_gap + {
@@ -379,6 +384,21 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             descent: total_descent,
             items:   all_items,
         }
+    }
+
+    /// Layout em grelha 2D para equações com `&` e `\\`.
+    ///
+    /// Chama `layout_grid_rows` com alinhamento alternado (colunas pares à
+    /// direita, ímpares à esquerda) e sem espaço entre colunas.
+    fn layout_grid(&self, nodes: &[Content], style: &TextStyle) -> MathBox {
+        let grid = partition_grid(nodes);
+        // Cada célula é Vec<Content> — envolver em MathSequence para layout_node.
+        let rows: Vec<Vec<Content>> = grid.into_iter()
+            .map(|row| row.into_iter()
+                .map(|cell_nodes| Content::MathSequence(cell_nodes.into()))
+                .collect())
+            .collect();
+        self.layout_grid_rows(&rows, GridAlign::Alternating, Pt(0.0), style)
     }
 
     /// Concatenação horizontal: posiciona MathBoxes lado a lado.
@@ -528,7 +548,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let tl_box = tl.map(|c| self.layout_node(c, &script_style));
         let bl_box = bl.map(|c| self.layout_node(c, &script_style));
 
-        // Kern dos quadrantes esquerdos (com FixedMetrics é sempre zero).
+        // Kern dos quadrantes esquerdos — cada script avalia o kern no ponto de
+        // contacto com a base: tl pelo seu descent (parte inferior), bl pelo ascent.
         let tl_kern = if let Some(ref tb) = tl_box {
             let h_du = tb.descent * self.constants.upem / style.size.val().max(0.001);
             self.constants.to_pt(base_kern.top_left.kern_at(h_du), style.size).val()
@@ -538,12 +559,13 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             self.constants.to_pt(base_kern.bottom_left.kern_at(h_du), style.size).val()
         } else { 0.0 };
 
-        // Largura da coluna esquerda: max das larguras com respectivo kern.
-        let left_col_width = {
-            let tl_w = tl_box.as_ref().map(|b| b.width + tl_kern.abs()).unwrap_or(0.0);
-            let bl_w = bl_box.as_ref().map(|b| b.width + bl_kern.abs()).unwrap_or(0.0);
-            tl_w.max(bl_w)
-        };
+        // Passo 53 — Kern diferenciado por quadrante esquerdo.
+        // Cada left-script tem o seu próprio afastamento (push = largura + kern).
+        // kern negativo = aproximação da base (sem .abs() — geometria correcta).
+        // base_offset_x = max dos dois pushes; scripts independentes em x.
+        let tl_push = tl_box.as_ref().map(|b| b.width + tl_kern).unwrap_or(0.0);
+        let bl_push = bl_box.as_ref().map(|b| b.width + bl_kern).unwrap_or(0.0);
+        let base_offset_x = tl_push.max(bl_push);
 
         // Salvar métricas da base antes de consumir base_box.items.
         let base_ascent  = base_box.ascent;
@@ -559,17 +581,16 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         // elevado pelo sup_offset acima da baseline da base.
         if let Some(tb) = tl_box {
             ascent = ascent.max(sup_offset + tb.ascent);
-            let x_tl = left_col_width - tb.width - tl_kern;
+            let x_tl = base_offset_x - tl_push;
             for item in tb.items {
                 items.push(offset_item(item, Pt(x_tl), Pt(-sup_offset)));
             }
         }
 
-        // Posicionar bl (pre-subscript): alinhado à direita da coluna esquerda,
-        // baixado pelo sub_offset abaixo da baseline da base.
+        // Posicionar bl (pre-subscript): aproxima-se da base com kern independente.
         if let Some(bb) = bl_box {
             descent = descent.max(sub_offset + bb.descent);
-            let x_bl = left_col_width - bb.width - bl_kern;
+            let x_bl = base_offset_x - bl_push;
             for item in bb.items {
                 items.push(offset_item(item, Pt(x_bl), Pt(sub_offset)));
             }
@@ -597,10 +618,10 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 sub_box_opt.as_ref().map(|b| b.width).unwrap_or(0.0),
             ].iter().cloned().fold(0.0f64, f64::max);
 
-            let total_w = left_col_width + max_content_w;
+            let total_w = base_offset_x + max_content_w;
 
             // Base centrada.
-            let x_base = left_col_width + (max_content_w - base_width) / 2.0;
+            let x_base = base_offset_x + (max_content_w - base_width) / 2.0;
             for item in base_box.items {
                 items.push(offset_item(item, Pt(x_base), Pt(0.0)));
             }
@@ -609,7 +630,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             // y_sup = -(base_ascent + upper_gap + sup.descent)
             if let Some(sb) = sup_box_opt {
                 let y_sup = -(base_ascent + upper_gap + sb.descent);
-                let x_sup = left_col_width + (max_content_w - sb.width) / 2.0;
+                let x_sup = base_offset_x + (max_content_w - sb.width) / 2.0;
                 ascent = ascent.max(base_ascent + upper_gap + sb.descent + sb.ascent);
                 for item in sb.items {
                     items.push(offset_item(item, Pt(x_sup), Pt(y_sup)));
@@ -620,7 +641,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             // y_sub = base_descent + lower_gap + sub.ascent
             if let Some(sb) = sub_box_opt {
                 let y_sub = base_descent + lower_gap + sb.ascent;
-                let x_sub = left_col_width + (max_content_w - sb.width) / 2.0;
+                let x_sub = base_offset_x + (max_content_w - sb.width) / 2.0;
                 descent = descent.max(base_descent + lower_gap + sb.ascent + sb.descent);
                 for item in sb.items {
                     items.push(offset_item(item, Pt(x_sub), Pt(y_sub)));
@@ -630,13 +651,13 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             MathBox { width: total_w, ascent, descent, items }
         } else {
             // ── Right-scripts (sub/sup à direita — layout horizontal) ────────
-            // Base: posicionada em x = left_col_width.
+            // Base: posicionada em x = base_offset_x.
             for item in base_box.items {
-                items.push(offset_item(item, Pt(left_col_width), Pt(0.0)));
+                items.push(offset_item(item, Pt(base_offset_x), Pt(0.0)));
             }
 
-            // Right-scripts partem de left_col_width + base_width.
-            let mut x = left_col_width + base_width;
+            // Right-scripts partem de base_offset_x + base_width.
+            let mut x = base_offset_x + base_width;
 
             if let Some(sup_content) = sup {
                 let sup_box = self.layout_node(sup_content, &script_style);
@@ -870,6 +891,106 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// Expressão entre delimitadores extensíveis.
     ///
     /// Calcula a altura total do corpo e selecciona delimitadores que a cubram.
+    /// Layout de matriz matemática (`mat(...)`).
+    ///
+    /// Passos:
+    /// 1. Grelha centrada via `layout_grid_rows` com `column_gap = 0.5em`.
+    /// 2. Delimitadores extensíveis cobrindo a altura total da grelha.
+    /// 3. Padding de `0.1em` entre delimitadores e grelha.
+    /// 4. `apply_axis_offset` para alinhar no eixo matemático.
+    fn layout_matrix(
+        &self,
+        rows:  &[Vec<Content>],
+        delim: (char, char),
+        style: &TextStyle,
+    ) -> MathBox {
+        let col_gap   = style.size * 0.5;
+        let grid_box  = self.layout_grid_rows(rows, GridAlign::Center, col_gap, style);
+
+        // Converter altura da grelha de Pt para Design Units para layout_stretchy_delimiter.
+        let grid_height_pt = grid_box.ascent + grid_box.descent;
+        let min_height_du  = if style.size.val() > 0.0 {
+            grid_height_pt * self.constants.upem / style.size.val()
+        } else {
+            0.0
+        };
+
+        let left_box  = self.layout_stretchy_delimiter(delim.0, min_height_du, style);
+        let right_box = self.layout_stretchy_delimiter(delim.1, min_height_du, style);
+
+        // Composição horizontal com padding entre delimitadores e grelha.
+        let padding = style.size * 0.1;
+        let mut items: Vec<FrameItem> = Vec::new();
+        let mut x = Pt(0.0);
+
+        for item in left_box.items.iter() {
+            items.push(offset_item(item.clone(), x, Pt(0.0)));
+        }
+        x = x + Pt(left_box.width) + padding;
+
+        for item in grid_box.items.iter() {
+            items.push(offset_item(item.clone(), x, Pt(0.0)));
+        }
+        x = x + Pt(grid_box.width) + padding;
+
+        for item in right_box.items.iter() {
+            items.push(offset_item(item.clone(), x, Pt(0.0)));
+        }
+        let total_width = (x + Pt(right_box.width)).val();
+
+        let result = MathBox {
+            width:   total_width,
+            ascent:  grid_box.ascent,
+            descent: grid_box.descent,
+            items,
+        };
+        self.apply_axis_offset(result, style.size)
+    }
+
+    /// Layout de função definida por ramos (`cases(...)`).
+    ///
+    /// Grelha alinhada à esquerda com `{` extensível à esquerda.
+    /// Sem delimitador direito.
+    fn layout_cases(
+        &self,
+        rows:  &[Vec<Content>],
+        style: &TextStyle,
+    ) -> MathBox {
+        let col_gap  = style.size * 0.5;
+        let grid_box = self.layout_grid_rows(rows, GridAlign::Left, col_gap, style);
+
+        let grid_height_pt = grid_box.ascent + grid_box.descent;
+        let min_height_du  = if style.size.val() > 0.0 {
+            grid_height_pt * self.constants.upem / style.size.val()
+        } else {
+            0.0
+        };
+
+        let left_box = self.layout_stretchy_delimiter('{', min_height_du, style);
+        let padding  = style.size * 0.1;
+
+        let mut items: Vec<FrameItem> = Vec::new();
+        let mut x = Pt(0.0);
+
+        for item in left_box.items.into_iter() {
+            items.push(offset_item(item, x, Pt(0.0)));
+        }
+        x = x + Pt(left_box.width) + padding;
+
+        for item in grid_box.items.into_iter() {
+            items.push(offset_item(item, x, Pt(0.0)));
+        }
+        let total_width = (x + Pt(grid_box.width)).val();
+
+        let result = MathBox {
+            width:   total_width,
+            ascent:  grid_box.ascent,
+            descent: grid_box.descent,
+            items,
+        };
+        self.apply_axis_offset(result, style.size)
+    }
+
     fn layout_delimited(
         &self,
         open:  char,
@@ -1583,5 +1704,70 @@ mod tests {
         let items = layout_equation_items(&attach);
         // Não deve panicar; items pode estar vazio mas o programa não crasha
         let _ = items;
+    }
+
+    // ── Testes do Passo 53 — Kern diferenciado para left-scripts ─────────
+
+    #[test]
+    fn left_scripts_tem_posicoes_x_independentes() {
+        // tl e bl em simultâneo — lógica de kern independente não deve panicar.
+        // Com FixedMetrics os kerns são zero, por isso tl_x == bl_x é esperado.
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathIdent("A".into())),
+            tl:   Some(Box::new(Content::MathText("x".into()))),
+            bl:   Some(Box::new(Content::MathText("y".into()))),
+            sub:  None,
+            sup:  None,
+        };
+        let items = layout_equation_items(&attach);
+        assert!(!items.is_empty(), "deve produzir items com tl e bl");
+        assert!(items_contain_text(&items, 'x'), "tl ausente");
+        assert!(items_contain_text(&items, 'y'), "bl ausente");
+        assert!(items_contain_text(&items, 'A'), "base ausente");
+    }
+
+    #[test]
+    fn left_scripts_sem_bl_nao_panica() {
+        // Apenas tl presente — bl_push é zero, base_offset_x = tl_push.
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathIdent("A".into())),
+            tl:   Some(Box::new(Content::MathText("x".into()))),
+            bl:   None,
+            sub:  None,
+            sup:  None,
+        };
+        let items = layout_equation_items(&attach);
+        assert!(!items.is_empty());
+        assert!(items_contain_text(&items, 'x'), "tl ausente");
+    }
+
+    #[test]
+    fn left_scripts_sem_tl_nao_panica() {
+        // Apenas bl presente — tl_push é zero, base_offset_x = bl_push.
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathIdent("A".into())),
+            tl:   None,
+            bl:   Some(Box::new(Content::MathText("y".into()))),
+            sub:  None,
+            sup:  None,
+        };
+        let items = layout_equation_items(&attach);
+        assert!(!items.is_empty());
+        assert!(items_contain_text(&items, 'y'), "bl ausente");
+    }
+
+    #[test]
+    fn left_scripts_passo46_nao_regride() {
+        // Regressão Passo 46: _0^n ∑ — operador grande com left-scripts.
+        let attach = Content::MathAttach {
+            base: Box::new(Content::MathText("∑".into())),
+            tl:   Some(Box::new(Content::MathText("n".into()))),
+            bl:   Some(Box::new(Content::MathText("0".into()))),
+            sub:  None,
+            sup:  None,
+        };
+        let items = layout_equation_items(&attach);
+        assert!(items_contain_text(&items, 'n') || items_contain_text(&items, '0'),
+            "scripts ausentes: {:?}", items);
     }
 }
