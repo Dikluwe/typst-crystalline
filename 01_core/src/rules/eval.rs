@@ -469,6 +469,23 @@ fn eval_expr(
             // Outros targets (par, page, etc.) são ignorados silenciosamente por agora.
             let target = set.target().to_untyped().text_str().to_owned();
 
+            if target == "heading" {
+                // #set heading(numbering: "1.1") — activa numeração automática.
+                // Outros argumentos de heading ignorados por agora (DEBT-10).
+                let active = set.args().items().any(|arg| {
+                    if let Arg::Named(named) = arg {
+                        if named.name().as_str() == "numbering" {
+                            // Defensivo: só String activa a numeração.
+                            // Closures, none, ou outros tipos → ignorar.
+                            let val = eval_expr(named.expr(), scopes, ctx).unwrap_or(Value::None);
+                            return matches!(val, Value::Str(_));
+                        }
+                    }
+                    false
+                });
+                return Ok(Value::Content(Content::SetHeadingNumbering { active }));
+            }
+
             if target != "text" {
                 return Ok(Value::None);
             }

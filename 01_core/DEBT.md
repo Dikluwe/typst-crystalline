@@ -196,6 +196,33 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 
 ---
 
+## DEBT-10 — Contadores em duas passagens — PENDENTE
+
+**Registado no Passo 57.**
+
+**Situação actual**: `CounterState` resolve contadores numa única passagem. Sufficiente
+para numeração sequencial de headings (`1`, `1.1`, `2`). Não suporta referências para
+a frente (ex: `@intro` resolver para `"Secção 1"` antes do heading aparecer no documento).
+
+**Divergência do original**: O Typst original usa `comemo` e duas passagens de layout
+para resolver contadores com referências para a frente. `CounterDisplay` actualmente
+emite o valor do contador no momento do layout, não o valor final após todas as passagens.
+
+**Como resolver**:
+1. Primeira passagem: recolher todos os `Content::Heading` e calcular o mapa completo
+   `Label → número de secção`.
+2. Segunda passagem: `CounterDisplay` e `Ref` consultam o mapa para resolver valores.
+3. Integrar com `TrackedWorld` e `comemo` para tracking semântico real.
+
+**Ficheiros envolvidos**:
+- `01_core/src/entities/counter_state.rs` — adicionar mapa de labels
+- `01_core/src/rules/layout.rs` — duas passagens em `layout()` / `layout_with_state()`
+
+**Não bloqueante**: numeração sequencial de headings funciona. Referências para a frente
+são o único cenário não coberto.
+
+---
+
 ## DEBT-9 — Cobertura de paridade — tracking contínuo
 
 **Estado**: Baseline estabelecido no Passo 35. Sem divergências no corpus actual.

@@ -22,6 +22,7 @@ pub mod source_result;
 pub mod scope;
 pub mod args;
 pub mod content;
+pub mod counter_state;
 pub mod label;
 pub mod func;
 pub mod glyph_variants;

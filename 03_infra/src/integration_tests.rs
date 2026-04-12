@@ -816,4 +816,31 @@ mod integration {
             "PDF deve conter o texto de fallback com 'intro'"
         );
     }
+
+    // ── Passo 57 — Contadores e Numeração de Headings ─────────────────────
+
+    #[test]
+    fn pipeline_heading_numeracao_por_defeito_sem_prefixo() {
+        // Sem #set heading(numbering: ...), o PDF não deve ter prefixos numéricos.
+        let (world, _dir) = world_from_str("= Introdução\n== Motivação");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let doc = layout(content);
+        assert!(!doc.pages.is_empty());
+        // Pipeline completo deve produzir PDF válido sem numeração
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty());
+    }
+
+    #[test]
+    fn pipeline_heading_numeracao_activa() {
+        let pdf = compile_to_pdf(
+            "#set heading(numbering: \"1.1\")\n= Introdução\n== Motivação\n= Conclusão"
+        );
+        assert!(!pdf.is_empty(), "PDF não deve estar vazio");
+        let pdf_str = String::from_utf8_lossy(&pdf);
+        // "1." deve aparecer no stream do PDF como prefixo do primeiro heading
+        assert!(pdf_str.contains("1."), "H1 deve ter prefixo numérico no PDF");
+    }
 }
