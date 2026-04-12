@@ -8,7 +8,7 @@ use ecow::EcoString;
 
 use crate::entities::{
     content::Content,
-    counter_state::CounterState,
+    counter_state::{CounterAction, CounterState},
     glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
     layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle},
     math_constants::MathConstants,
@@ -188,7 +188,7 @@ impl<M: FontMetrics> Layouter<M> {
             }
 
             Content::Heading { level, body } => {
-                self.counter.step_heading(*level as usize);
+                self.counter.step_hierarchical("heading", *level as usize);
 
                 let heading_size = self.font_size_pt * heading_scale(*level);
                 let prev = self.style;
@@ -196,8 +196,8 @@ impl<M: FontMetrics> Layouter<M> {
                 if self.cursor_x > MARGIN { self.flush_line(); }
 
                 // Prefixo numérico — apenas se numbering estiver activo
-                if self.counter.heading_numbering {
-                    if let Some(num_str) = self.counter.format_heading() {
+                if self.counter.is_numbering_active("heading") {
+                    if let Some(num_str) = self.counter.format_hierarchical("heading") {
                         let prefix = Content::text(format!("{}. ", num_str));
                         self.layout_content(&prefix);
                     }
@@ -209,16 +209,34 @@ impl<M: FontMetrics> Layouter<M> {
             }
 
             Content::SetHeadingNumbering { active } => {
-                self.counter.heading_numbering = *active;
+                self.counter.numbering_active.insert("heading".to_string(), *active);
                 // Não desenha nada — apenas actualiza o estado do layouter.
             }
 
+            Content::CounterUpdate { key, action } => {
+                match action {
+                    CounterAction::Step => {
+                        if key == "heading" {
+                            // step sem nível explícito avança o nível 1
+                            self.counter.step_hierarchical("heading", 1);
+                        } else {
+                            self.counter.step_flat(key);
+                        }
+                    }
+                    CounterAction::Update(val) => {
+                        self.counter.update_flat(key, *val);
+                    }
+                }
+                // Não produz items visuais.
+            }
+
             Content::CounterDisplay { kind } => {
-                let text = if kind == "heading" {
-                    self.counter.format_heading()
+                let text = if self.counter.format_hierarchical(kind).is_some() {
+                    self.counter.format_hierarchical(kind)
                         .unwrap_or_else(|| "0".to_string())
                 } else {
-                    format!("counter({})", kind)
+                    let flat = self.counter.get_flat(kind);
+                    flat.to_string()
                 };
                 let display = Content::text(text);
                 self.layout_content(&display);
@@ -440,7 +458,7 @@ pub fn layout(content: &Content) -> PagedDocument {
 /// Layout com estado de contadores pré-inicializado.
 ///
 /// Permite injectar um `CounterState` inicial para testes — por exemplo,
-/// para activar `heading_numbering` sem passar por `#set heading(numbering:)`.
+/// para activar numeração de headings sem passar por `#set heading(numbering:)`.
 pub fn layout_with_state(content: &Content, state: CounterState) -> PagedDocument {
     let mut l = Layouter::new(FixedMetrics, DEFAULT_FONT_SIZE);
     l.counter = state;
@@ -1133,11 +1151,11 @@ mod tests {
         }
     }
 
-    // ── Testes de CounterState e numeração de headings (Passo 57) ─────────
+    // ── Testes de CounterState e numeração de headings (Passo 57/58) ──────
 
     #[test]
     fn layout_heading_sem_numbering_nao_tem_prefixo() {
-        // Por defeito, heading_numbering é false — não deve aparecer "1."
+        // Por defeito, numbering_active está vazio — não deve aparecer "1."
         let doc = layout(&Content::heading(1, Content::text("Intro")));
         let text = doc.plain_text();
         assert!(!text.contains("1."), "sem numbering activo, não deve haver prefixo numérico");
@@ -1150,7 +1168,7 @@ mod tests {
         use crate::rules::layout::layout_with_state;
 
         let mut state = CounterState::new();
-        state.heading_numbering = true;
+        state.numbering_active.insert("heading".to_string(), true);
         let content = Content::Sequence(vec![
             Content::heading(1, Content::text("Intro")),
             Content::heading(2, Content::text("Motivação")),
@@ -1189,5 +1207,38 @@ mod tests {
         // CounterDisplay de heading após H1 deve mostrar "1"
         // (o heading já avançou o contador antes de CounterDisplay ser processado)
         assert!(text.contains('1'));
+    }
+
+    // ── Testes de CounterUpdate (Passo 58) ────────────────────────────────
+
+    #[test]
+    fn counter_update_nao_produz_items_visuais() {
+        use crate::entities::counter_state::{CounterAction, CounterState};
+        use crate::rules::layout::layout_with_state;
+
+        let content = Content::CounterUpdate {
+            key:    "equation".to_string(),
+            action: CounterAction::Update(5),
+        };
+        let doc = layout_with_state(&content, CounterState::new());
+        let total_items: usize = doc.pages.iter().map(|p| p.items.len()).sum();
+        assert_eq!(total_items, 0, "CounterUpdate não deve gerar items visuais");
+    }
+
+    #[test]
+    fn counter_update_seguido_de_display_mostra_valor_correcto() {
+        use crate::entities::counter_state::{CounterAction, CounterState};
+        use crate::rules::layout::layout_with_state;
+
+        let content = Content::Sequence(vec![
+            Content::CounterUpdate {
+                key:    "equation".to_string(),
+                action: CounterAction::Update(5),
+            },
+            Content::CounterDisplay { kind: "equation".to_string() },
+        ].into());
+        let doc = layout_with_state(&content, CounterState::new());
+        assert!(doc.plain_text().contains('5'),
+            "CounterDisplay deve mostrar '5' após Update(5): {:?}", doc.plain_text());
     }
 }
