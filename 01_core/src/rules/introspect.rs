@@ -39,6 +39,28 @@ fn walk(content: &Content, state: &mut CounterState) {
 
         Content::Heading { level, body } => {
             state.step_hierarchical("heading", *level as usize);
+
+            // Gerar label automática única para que a TOC possa referenciar este título.
+            state.auto_label_counter += 1;
+            let auto_label = crate::entities::label::Label(
+                format!("auto-toc-{}", state.auto_label_counter)
+            );
+
+            // Registar prefixo se a numeração estiver activa.
+            // Se inactiva, inserir string vazia — o braço Ref resolverá para ""
+            // em vez de usar o fallback "@auto-toc-N".
+            let resolved_text = if state.is_numbering_active("heading") {
+                state.format_hierarchical("heading")
+                    .map(|prefix| format!("Secção {}", prefix))
+                    .unwrap_or_default()
+            } else {
+                String::new()
+            };
+            state.resolved_labels.insert(auto_label.clone(), resolved_text);
+
+            // Guardar para a TOC: clonar o body preserva formatação.
+            state.headings_for_toc.push((auto_label, *body.clone(), *level as usize));
+
             walk(body, state);
         }
 
@@ -47,6 +69,18 @@ fn walk(content: &Content, state: &mut CounterState) {
                 state.step_flat("equation");
             }
             walk(body, state);
+        }
+
+        Content::Figure { body, caption } => {
+            // Avançar o contador apenas se a figura tiver legenda — figuras sem caption
+            // não consomem um número da sequência (evita "Figura 1", [gap], "Figura 3").
+            if state.is_numbering_active("figure") && caption.is_some() {
+                state.step_flat("figure");
+            }
+            walk(body, state);
+            if let Some(cap) = caption {
+                walk(cap, state);
+            }
         }
 
         Content::Labelled { target, label } => {
@@ -60,6 +94,14 @@ fn walk(content: &Content, state: &mut CounterState) {
                 Content::Equation { block, .. } if *block => {
                     let n = state.get_flat("equation");
                     if n > 0 { Some(format!("Equação ({})", n)) } else { None }
+                }
+                Content::Figure { caption, .. } => {
+                    let n = state.get_flat("figure");
+                    if n > 0 && state.is_numbering_active("figure") && caption.is_some() {
+                        Some(format!("Figura {}", n))
+                    } else {
+                        Some(String::new())
+                    }
                 }
                 _ => None,
             };
@@ -109,7 +151,8 @@ fn walk(content: &Content, state: &mut CounterState) {
         | Content::MathMatrix { .. }
         | Content::MathCases { .. }
         | Content::MathAlignPoint
-        | Content::Linebreak => {}
+        | Content::Linebreak
+        | Content::Outline => {}
     }
 }
 
@@ -188,6 +231,143 @@ mod tests {
         let content = Content::SetHeadingNumbering { active: true };
         let state = introspect(&content);
         assert!(state.is_numbering_active("heading"));
+    }
+
+    // ── Testes de Passo 61 — TOC ─────────────────────────────────────────
+
+    #[test]
+    fn introspect_cataloga_headings_para_toc() {
+        let content = Content::Sequence(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::heading(1, Content::text("Introdução")),
+            Content::heading(2, Content::text("Motivação")),
+            Content::heading(1, Content::text("Conclusão")),
+        ].into());
+
+        let state = introspect(&content);
+        assert_eq!(state.headings_for_toc.len(), 3);
+
+        let (_, title_0, level_0) = &state.headings_for_toc[0];
+        assert_eq!(title_0.plain_text(), "Introdução");
+        assert_eq!(*level_0, 1);
+
+        let (_, _, level_1) = &state.headings_for_toc[1];
+        assert_eq!(*level_1, 2);
+    }
+
+    #[test]
+    fn introspect_gera_labels_automaticas_unicas() {
+        let content = Content::Sequence(vec![
+            Content::heading(1, Content::text("A")),
+            Content::heading(1, Content::text("B")),
+        ].into());
+
+        let state = introspect(&content);
+        let label_a = &state.headings_for_toc[0].0;
+        let label_b = &state.headings_for_toc[1].0;
+        assert_ne!(label_a, label_b, "labels automáticas devem ser únicas");
+
+        // As labels devem estar em resolved_labels
+        assert!(state.resolved_labels.contains_key(label_a));
+        assert!(state.resolved_labels.contains_key(label_b));
+    }
+
+    #[test]
+    fn introspect_heading_sem_numbering_insere_string_vazia_em_resolved_labels() {
+        // Sem numeração activa, resolved_labels deve conter "" (não "@auto-toc-N").
+        let content = Content::heading(1, Content::text("Título"));
+        let state = introspect(&content);
+        assert_eq!(state.headings_for_toc.len(), 1);
+        let (label, _, _) = &state.headings_for_toc[0];
+        assert_eq!(
+            state.resolved_labels.get(label).map(|s| s.as_str()),
+            Some(""),
+            "heading sem numeração deve ter string vazia em resolved_labels"
+        );
+    }
+
+    // ── Testes de Passo 62 — Figuras ─────────────────────────────────────
+
+    #[test]
+    fn introspect_resolve_label_de_figura() {
+        let content = Content::Sequence(
+            vec![Content::Labelled {
+                label:  Label("fig1".to_string()),
+                target: Box::new(Content::Figure {
+                    body:    Box::new(Content::text("Um gráfico")),
+                    caption: Some(Box::new(Content::text("Evolução"))),
+                }),
+            }]
+            .into(),
+        );
+
+        let state = introspect(&content);
+        assert_eq!(
+            state.resolved_labels.get(&Label("fig1".to_string())).map(|s| s.as_str()),
+            Some("Figura 1"),
+            "label de figura deve resolver para 'Figura 1'"
+        );
+    }
+
+    #[test]
+    fn introspect_duas_figuras_contadores_independentes() {
+        let content = Content::Sequence(
+            vec![
+                Content::Labelled {
+                    label:  Label("f1".to_string()),
+                    target: Box::new(Content::Figure {
+                        body:    Box::new(Content::text("A")),
+                        caption: Some(Box::new(Content::text("Legenda A"))),
+                    }),
+                },
+                Content::Labelled {
+                    label:  Label("f2".to_string()),
+                    target: Box::new(Content::Figure {
+                        body:    Box::new(Content::text("B")),
+                        caption: Some(Box::new(Content::text("Legenda B"))),
+                    }),
+                },
+            ]
+            .into(),
+        );
+
+        let state = introspect(&content);
+        assert_eq!(
+            state.resolved_labels.get(&Label("f1".to_string())).map(|s| s.as_str()),
+            Some("Figura 1")
+        );
+        assert_eq!(
+            state.resolved_labels.get(&Label("f2".to_string())).map(|s| s.as_str()),
+            Some("Figura 2")
+        );
+    }
+
+    #[test]
+    fn introspect_figura_sem_caption_nao_incrementa_contador() {
+        let content = Content::Sequence(
+            vec![
+                Content::Figure {
+                    body:    Box::new(Content::text("Diagrama")),
+                    caption: None,
+                },
+                Content::Labelled {
+                    label:  Label("f2".to_string()),
+                    target: Box::new(Content::Figure {
+                        body:    Box::new(Content::text("B")),
+                        caption: Some(Box::new(Content::text("Legenda"))),
+                    }),
+                },
+            ]
+            .into(),
+        );
+
+        let state = introspect(&content);
+        // Figura sem caption não consome contador — a segunda figura numerada é "Figura 1"
+        assert_eq!(
+            state.resolved_labels.get(&Label("f2".to_string())).map(|s| s.as_str()),
+            Some("Figura 1"),
+            "figura sem caption não deve consumir o contador"
+        );
     }
 
     #[test]

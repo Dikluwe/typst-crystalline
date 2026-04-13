@@ -173,6 +173,18 @@ pub enum Content {
         action: CounterAction,
     },
 
+    /// Marcador para a Tabela de Conteúdos (Passo 61).
+    /// O layouter substitui este nó pela lista de títulos do documento.
+    Outline,
+
+    /// Elemento com numeração própria e legenda opcional (Passo 62).
+    /// Contador plano independente ("figure") — paridade com Typst original.
+    /// DEBT-15: campo `kind` hardcoded como "figure" — ver DEBT.md.
+    Figure {
+        body:    Box<Content>,
+        caption: Option<Box<Content>>,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
@@ -227,6 +239,9 @@ impl Content {
             Self::Empty => true,
             Self::Sequence(v) => v.is_empty(),
             Self::Labelled { target, .. } => target.is_empty(),
+            // Figura: não está vazia se tiver body OU caption com conteúdo.
+            Self::Figure { body, caption } =>
+                body.is_empty() && caption.as_ref().map_or(true, |c| c.is_empty()),
             _ => false,
         }
     }
@@ -291,6 +306,19 @@ impl Content {
             Self::SetHeadingNumbering { .. } => String::new(),
             Self::CounterDisplay { .. }      => String::new(),
             Self::CounterUpdate { .. }       => String::new(),
+            Self::Outline                    => String::new(),
+            Self::Figure { body, caption } => {
+                let body_text = body.plain_text();
+                let cap_text  = caption.as_ref()
+                    .map(|c| c.plain_text())
+                    .unwrap_or_default();
+                match (body_text.is_empty(), cap_text.is_empty()) {
+                    (false, false) => format!("{} {}", body_text, cap_text),
+                    (false, true)  => body_text,
+                    (true,  false) => cap_text,
+                    (true,  true)  => String::new(),
+                }
+            }
         }
     }
 }
@@ -338,6 +366,9 @@ impl PartialEq for Content {
             (Self::SetHeadingNumbering { active: a }, Self::SetHeadingNumbering { active: b }) => a == b,
             (Self::CounterDisplay { kind: a }, Self::CounterDisplay { kind: b }) => a == b,
             (Self::CounterUpdate { key: ka, action: aa }, Self::CounterUpdate { key: kb, action: ab }) => ka == kb && aa == ab,
+            (Self::Outline, Self::Outline) => true,
+            (Self::Figure { body: ba, caption: ca }, Self::Figure { body: bb, caption: cb }) =>
+                ba == bb && ca == cb,
             _ => false,
         }
     }

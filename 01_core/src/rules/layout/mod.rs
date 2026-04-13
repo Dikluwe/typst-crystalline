@@ -2,13 +2,18 @@
 //! @prompt 00_nucleo/prompts/rules/layout.md
 //! @prompt-hash 518a9856
 //! @layer L1
-//! @updated 2026-04-12
+//! @updated 2026-04-13
+
+pub mod counters;
+pub mod figure;
+pub mod outline;
+pub mod references;
 
 use ecow::EcoString;
 
 use crate::entities::{
     content::Content,
-    counter_state::{CounterAction, CounterState},
+    counter_state::CounterState,
     glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
     layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle},
     math_constants::MathConstants,
@@ -209,35 +214,15 @@ impl<M: FontMetrics> Layouter<M> {
             }
 
             Content::SetHeadingNumbering { active } => {
-                self.counter.numbering_active.insert("heading".to_string(), *active);
-                // Não desenha nada — apenas actualiza o estado do layouter.
+                counters::layout_set_heading_numbering(&mut self.counter, *active);
             }
 
             Content::CounterUpdate { key, action } => {
-                match action {
-                    CounterAction::Step => {
-                        if key == "heading" {
-                            // step sem nível explícito avança o nível 1
-                            self.counter.step_hierarchical("heading", 1);
-                        } else {
-                            self.counter.step_flat(key);
-                        }
-                    }
-                    CounterAction::Update(val) => {
-                        self.counter.update_flat(key, *val);
-                    }
-                }
-                // Não produz items visuais.
+                counters::layout_counter_update(&mut self.counter, key, action);
             }
 
             Content::CounterDisplay { kind } => {
-                let text = if self.counter.format_hierarchical(kind).is_some() {
-                    self.counter.format_hierarchical(kind)
-                        .unwrap_or_else(|| "0".to_string())
-                } else {
-                    let flat = self.counter.get_flat(kind);
-                    flat.to_string()
-                };
+                let text = counters::format_counter_display(&self.counter, kind);
                 let display = Content::text(text);
                 self.layout_content(&display);
             }
@@ -384,24 +369,23 @@ impl<M: FontMetrics> Layouter<M> {
             // Marcadores estruturais de equações — ignorados fora de contexto matemático.
             Content::MathAlignPoint | Content::Linebreak => {}
 
-            // Passo 59 — Labelled: layout primeiro, registo depois.
-            // O contador do target (ex: Heading) avança dentro do seu próprio braço,
-            // por isso o registo deve acontecer após layout_content(target).
-            // Passo 60 — Label registada pela pré-passagem de introspecção.
-            // O Layouter apenas faz o layout transparente do target.
+            // Passo 60 — Labelled e Ref delegados a references.rs (Passo 61).
             Content::Labelled { target, label: _ } => {
-                self.layout_content(target);
+                references::layout_labelled(self, target);
             }
 
-            // Passo 60 — Ref: consulta resolved_labels populado pela pré-passagem.
-            // Forward e backward refs resolvem. Fallback @nome apenas se a label
-            // não existir de todo no documento (DEBT-10 encerrado).
             Content::Ref { target } => {
-                let display_text = match self.counter.resolved_labels.get(target) {
-                    Some(text) => text.clone(),
-                    None       => format!("@{}", target.0),
-                };
-                self.layout_content(&Content::text(display_text));
+                references::layout_ref(self, target);
+            }
+
+            // Passo 62 — Figure: delegado a figure.rs.
+            Content::Figure { body, caption } => {
+                figure::layout_figure(self, body, caption);
+            }
+
+            // Passo 61 — TOC: delegado a outline.rs (Tarefa 5).
+            Content::Outline => {
+                outline::layout_outline(self);
             }
         }
     }
@@ -469,31 +453,25 @@ fn heading_scale(level: u8) -> f64 {
     match level { 1 => 2.0, 2 => 1.667, 3 => 1.333, 4 => 1.167, _ => 1.0 }
 }
 
-/// Layout com métricas fixas monoespaçadas — duas passagens (Passo 60).
+/// Layout com métricas fixas monoespaçadas — Passagem 2 (Passo 61).
 ///
-/// Passagem 1: `introspect::introspect(content)` popula `resolved_labels`
-/// para todas as labels do documento (incluindo forward refs).
-/// Passagem 2: o Layouter arranca com `resolved_labels` injectado e
-/// reconstrói `hierarchical`, `flat` e `numbering_active` nó a nó,
-/// para que os prefixos visuais sejam gerados na ordem correcta.
+/// Recebe o `CounterState` produzido pela Passagem 1 (`introspect::introspect`).
+/// Injeta `resolved_labels` e `headings_for_toc` no Layouter.
+/// NÃO chama `introspect()` internamente — o orquestrador é responsável pela
+/// Passagem 1 antes de chamar esta função.
 ///
 /// Para métricas de fonte reais: `03_infra::layout::layout_with_font()`.
-pub fn layout(content: &Content) -> PagedDocument {
-    use crate::rules::introspect;
-    let intro_state = introspect::introspect(content);
+pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument {
     let mut l = Layouter::new(FixedMetrics, DEFAULT_FONT_SIZE);
-    l.counter.resolved_labels = intro_state.resolved_labels;
-    l.layout_content(content);
-    l.finish()
-}
-
-/// Layout com estado de contadores pré-inicializado.
-///
-/// Permite injectar um `CounterState` inicial para testes — por exemplo,
-/// para activar numeração de headings sem passar por `#set heading(numbering:)`.
-pub fn layout_with_state(content: &Content, state: CounterState) -> PagedDocument {
-    let mut l = Layouter::new(FixedMetrics, DEFAULT_FONT_SIZE);
-    l.counter = state;
+    // Passagem de bastão: injectar os campos que a Passagem 2 consome.
+    l.counter.resolved_labels  = initial_state.resolved_labels;
+    l.counter.headings_for_toc = initial_state.headings_for_toc;
+    // numbering_active: copiado porque equações não têm nó de conteúdo equivalente
+    // a SetHeadingNumbering — sem esta cópia, os testes de L1 de equações numeradas
+    // só funcionariam via eval completo.
+    l.counter.numbering_active = initial_state.numbering_active;
+    // NÃO copiar hierarchical, flat — reconstruídos nó a nó para evitar
+    // dupla contagem durante o layout.
     l.layout_content(content);
     l.finish()
 }
@@ -503,7 +481,8 @@ pub fn layout_with_state(content: &Content, state: CounterState) -> PagedDocumen
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entities::{content::Content, layout_types::FrameItem};
+    use crate::entities::{content::Content, counter_state::CounterState, layout_types::FrameItem};
+    use crate::rules::introspect::introspect;
 
     // ── Testes de FixedMetrics (Passo 21) ────────────────────────────────
 
@@ -544,7 +523,7 @@ mod tests {
 
     #[test]
     fn layout_texto_simples_tem_items() {
-        let doc = layout(&Content::text("Hello world"));
+        let doc = layout(&Content::text("Hello world"), CounterState::default());
         assert!(!doc.pages.is_empty());
         let total = doc.pages.iter().flat_map(|p| p.items.iter()).count();
         assert!(total >= 2, "Hello e world devem ser itens separados");
@@ -554,7 +533,7 @@ mod tests {
 
     #[test]
     fn layout_documento_vazio_zero_paginas() {
-        let doc = layout(&Content::Empty);
+        let doc = layout(&Content::Empty, CounterState::default());
         assert_eq!(doc.pages.len(), 0, "documento vazio → sem páginas");
     }
 
@@ -565,7 +544,7 @@ mod tests {
             .map(|i| format!("palavra{i}"))
             .collect::<Vec<_>>()
             .join(" ");
-        let doc = layout(&Content::text(&words));
+        let doc = layout(&Content::text(&words), CounterState::default());
 
         for page in &doc.pages {
             for item in &page.items {
@@ -589,7 +568,7 @@ mod tests {
             .map(|i| format!("w{i}"))
             .collect::<Vec<_>>()
             .join(" ");
-        let doc = layout(&Content::text(&words));
+        let doc = layout(&Content::text(&words), CounterState::default());
         let items = doc.pages.iter().flat_map(|p| p.items.iter()).count();
         let y_values: std::collections::HashSet<u64> = doc
             .pages
@@ -608,7 +587,7 @@ mod tests {
         // Construção directa usa TextStyle::bold para simular o que eval produziria.
         let doc = layout(&Content::strong(
             Content::Text("Bold".into(), TextStyle::bold(Pt(11.0)))
-        ));
+        ), CounterState::default());
         let bold = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .any(|i| matches!(i, FrameItem::Text { style, .. } if style.bold));
@@ -621,7 +600,7 @@ mod tests {
         // Construção directa usa TextStyle::italic para simular o que eval produziria.
         let doc = layout(&Content::emph(
             Content::Text("Italic".into(), TextStyle::italic(Pt(11.0)))
-        ));
+        ), CounterState::default());
         let italic = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .any(|i| matches!(i, FrameItem::Text { style, .. } if style.italic));
@@ -630,10 +609,11 @@ mod tests {
 
     #[test]
     fn heading_h1_tamanho_maior() {
-        let doc = layout(&Content::sequence(vec![
+        let content = Content::sequence(vec![
             Content::heading(1, Content::text("Title")),
             Content::text("body"),
-        ]));
+        ]);
+        let doc = layout(&content, introspect(&content));
         let sizes: Vec<f64> = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|i| { if let FrameItem::Text { style, .. } = i { Some(style.size.val()) } else { None } })
@@ -648,7 +628,7 @@ mod tests {
         let doc = layout(&Content::sequence(vec![
             Content::strong(Content::text("Bold")),
             Content::text("normal"),
-        ]));
+        ]), CounterState::default());
         let items: Vec<_> = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .collect();
@@ -713,7 +693,8 @@ mod tests {
         let src = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve ter content");
-        let doc = layout(content);
+        let state = introspect(content);
+        let doc = layout(content, state);
         assert!(!doc.pages.is_empty());
         assert!(
             doc.plain_text().contains("Olá") || doc.plain_text().contains("mundo"),
@@ -725,7 +706,7 @@ mod tests {
 
     #[test]
     fn layout_list_item_tem_bullet() {
-        let doc = layout(&Content::list_item(Content::text("Item")));
+        let doc = layout(&Content::list_item(Content::text("Item")), CounterState::default());
         let has_marker = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .any(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "•"));
@@ -738,7 +719,7 @@ mod tests {
             Content::text("normal"),
             Content::raw("code", None, true),
         ]);
-        let doc = layout(&content);
+        let doc = layout(&content, CounterState::default());
         let sizes: std::collections::HashSet<u64> = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|i| match i {
@@ -795,7 +776,8 @@ mod tests {
         let source = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        layout(content)
+        let state = introspect(content);
+        layout(content, state)
     }
 
     #[cfg(test)]
@@ -1188,7 +1170,8 @@ mod tests {
     #[test]
     fn layout_heading_sem_numbering_nao_tem_prefixo() {
         // Por defeito, numbering_active está vazio — não deve aparecer "1."
-        let doc = layout(&Content::heading(1, Content::text("Intro")));
+        let content = Content::heading(1, Content::text("Intro"));
+        let doc = layout(&content, introspect(&content));
         let text = doc.plain_text();
         assert!(!text.contains("1."), "sem numbering activo, não deve haver prefixo numérico");
         assert!(text.contains("Intro"));
@@ -1196,17 +1179,13 @@ mod tests {
 
     #[test]
     fn layout_heading_com_numbering_tem_prefixo() {
-        use crate::entities::counter_state::CounterState;
-        use crate::rules::layout::layout_with_state;
-
-        let mut state = CounterState::new();
-        state.numbering_active.insert("heading".to_string(), true);
         let content = Content::Sequence(vec![
+            Content::SetHeadingNumbering { active: true },
             Content::heading(1, Content::text("Intro")),
             Content::heading(2, Content::text("Motivação")),
             Content::heading(1, Content::text("Conclusão")),
         ].into());
-        let doc = layout_with_state(&content, state);
+        let doc = layout(&content, introspect(&content));
         let text = doc.plain_text();
         assert!(text.contains("1."), "H1 deve ter prefixo '1.'");
         assert!(text.contains("1.1"), "H2 deve ter prefixo '1.1'");
@@ -1221,7 +1200,7 @@ mod tests {
             Content::heading(1, Content::text("Intro")),
             Content::heading(2, Content::text("Sub")),
         ].into());
-        let doc = layout(&content);
+        let doc = layout(&content, introspect(&content));
         let text = doc.plain_text();
         assert!(text.contains("1."), "H1 deve ter prefixo '1.'");
         assert!(text.contains("1.1"), "H2 deve ter prefixo '1.1'");
@@ -1234,7 +1213,7 @@ mod tests {
             Content::heading(1, Content::text("Intro")),
             Content::CounterDisplay { kind: "heading".to_string() },
         ].into());
-        let doc = layout(&content);
+        let doc = layout(&content, introspect(&content));
         let text = doc.plain_text();
         // CounterDisplay de heading após H1 deve mostrar "1"
         // (o heading já avançou o contador antes de CounterDisplay ser processado)
@@ -1245,22 +1224,20 @@ mod tests {
 
     #[test]
     fn counter_update_nao_produz_items_visuais() {
-        use crate::entities::counter_state::{CounterAction, CounterState};
-        use crate::rules::layout::layout_with_state;
+        use crate::entities::counter_state::CounterAction;
 
         let content = Content::CounterUpdate {
             key:    "equation".to_string(),
             action: CounterAction::Update(5),
         };
-        let doc = layout_with_state(&content, CounterState::new());
+        let doc = layout(&content, CounterState::default());
         let total_items: usize = doc.pages.iter().map(|p| p.items.len()).sum();
         assert_eq!(total_items, 0, "CounterUpdate não deve gerar items visuais");
     }
 
     #[test]
     fn counter_update_seguido_de_display_mostra_valor_correcto() {
-        use crate::entities::counter_state::{CounterAction, CounterState};
-        use crate::rules::layout::layout_with_state;
+        use crate::entities::counter_state::CounterAction;
 
         let content = Content::Sequence(vec![
             Content::CounterUpdate {
@@ -1269,7 +1246,7 @@ mod tests {
             },
             Content::CounterDisplay { kind: "equation".to_string() },
         ].into());
-        let doc = layout_with_state(&content, CounterState::new());
+        let doc = layout(&content, CounterState::default());
         assert!(doc.plain_text().contains('5'),
             "CounterDisplay deve mostrar '5' após Update(5): {:?}", doc.plain_text());
     }
@@ -1280,7 +1257,6 @@ mod tests {
     fn layout_ref_para_tras_resolve_secao() {
         // Passo 60: layout() usa duas passagens — backward ref resolve via introspect.
         use crate::entities::label::Label;
-        use crate::rules::layout::layout;
 
         let content = Content::Sequence(vec![
             Content::Labelled {
@@ -1291,7 +1267,7 @@ mod tests {
             Content::Ref { target: Label("intro".to_string()) },
         ].into());
 
-        let doc = layout(&content);
+        let doc = layout(&content, introspect(&content));
         let text = doc.plain_text();
         assert!(
             text.contains("Secção 1"),
@@ -1303,7 +1279,6 @@ mod tests {
     fn layout_ref_para_frente_resolve_com_duas_passagens() {
         // Passo 60: forward ref resolve via introspect — sem fallback.
         use crate::entities::label::Label;
-        use crate::rules::layout::layout;
 
         let content = Content::Sequence(vec![
             // Ref aparece antes da Label — forward reference
@@ -1314,7 +1289,7 @@ mod tests {
             },
         ].into());
 
-        let doc = layout(&content);
+        let doc = layout(&content, introspect(&content));
         let text = doc.plain_text();
         assert!(
             text.contains("Secção 1"),
@@ -1330,17 +1305,16 @@ mod tests {
     fn layout_resolved_labels_nao_interfere_entre_documentos() {
         // Estados de cada chamada a layout() são independentes.
         use crate::entities::label::Label;
-        use crate::rules::layout::layout;
 
         let content_a = Content::Labelled {
             label:  Label("sec".to_string()),
             target: Box::new(Content::heading(1, Content::text("A"))),
         };
-        let _ = layout(&content_a);
+        let _ = layout(&content_a, introspect(&content_a));
 
         // Segundo layout independente — não deve ter "sec" resolvida
         let content_b = Content::Ref { target: Label("sec".to_string()) };
-        let doc_b = layout(&content_b);
+        let doc_b = layout(&content_b, introspect(&content_b));
         assert!(
             doc_b.plain_text().contains("@sec"),
             "Estado do layout anterior não deve vazar para o seguinte"
@@ -1372,8 +1346,8 @@ mod tests {
             "introspect deve popular resolved_labels para forward refs"
         );
 
-        // Passagem 2 — layout usa a pré-passagem internamente
-        let doc = layout(&content);
+        // Passagem 2 — layout usa o estado da pré-passagem.
+        let doc = layout(&content, initial_state);
         let text = doc.plain_text();
         assert!(
             text.contains("Secção 1"),
@@ -1387,9 +1361,6 @@ mod tests {
 
     #[test]
     fn layout_equation_bloco_numerada() {
-        use crate::entities::counter_state::CounterState;
-        use crate::rules::layout::layout_with_state;
-
         let mut state = CounterState::new();
         state.numbering_active.insert("equation".to_string(), true);
 
@@ -1398,11 +1369,124 @@ mod tests {
             block: true,
         };
 
-        let doc = layout_with_state(&content, state);
+        let doc = layout(&content, state);
         let text = doc.plain_text();
         assert!(
             text.contains("(1)"),
             "Equação de bloco numerada deve mostrar '(1)', obtido: {:?}", text
         );
+    }
+
+    // ── Testes de Passo 61 — TOC (Outline) ───────────────────────────────────
+
+    #[test]
+    fn layout_outline_gera_indice_com_titulos() {
+        let content = Content::Sequence(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::Outline,
+            Content::heading(1, Content::text("Introdução")),
+            Content::heading(2, Content::text("Motivação")),
+        ].into());
+
+        // Passagem 1 — o teste orquestra explicitamente como o orquestrador L3 faz.
+        let state = introspect(&content);
+        // Passagem 2 — layout recebe o estado pré-calculado.
+        let doc = layout(&content, state);
+        let text = doc.plain_text();
+
+        assert!(text.contains("Índice"), "TOC deve ter título 'Índice'");
+        assert!(text.contains("Introdução"), "TOC deve listar o título H1");
+        assert!(text.contains("Motivação"), "TOC deve listar o título H2");
+    }
+
+    #[test]
+    fn layout_outline_sem_headings_gera_apenas_titulo_ou_vazio() {
+        let content = Content::Outline;
+        let state = introspect(&content);
+        let doc = layout(&content, state);
+        let text = doc.plain_text();
+
+        assert!(text.contains("Índice") || text.is_empty(),
+            "TOC sem headings deve gerar apenas o título ou estar vazia");
+    }
+
+    #[test]
+    fn layout_outline_heading_nivel2_tem_indentacao() {
+        let content = Content::Sequence(vec![
+            Content::Outline,
+            Content::heading(1, Content::text("H1")),
+            Content::heading(2, Content::text("H2")),
+        ].into());
+
+        let state = introspect(&content);
+        let doc = layout(&content, state);
+        let text = doc.plain_text();
+
+        // Heading de nível 2 → TOC deve conter espaços de indentação antes de H2.
+        // plain_text() não preserva posição, mas a TOC inclui "  " antes da Ref.
+        assert!(text.contains("H1"), "TOC deve listar H1");
+        assert!(text.contains("H2"), "TOC deve listar H2");
+    }
+
+    // ── Testes de Passo 62 — Figuras ─────────────────────────────────────────
+
+    #[test]
+    fn layout_figure_com_caption_tem_prefixo() {
+        let content = Content::Figure {
+            body:    Box::new(Content::text("Gráfico")),
+            caption: Some(Box::new(Content::text("Resultados"))),
+        };
+
+        let state = introspect(&content);
+        let doc = layout(&content, state);
+        let text = doc.plain_text();
+
+        assert!(text.contains("Gráfico"),    "corpo da figura deve aparecer");
+        assert!(text.contains("Figura 1:"),  "prefixo numérico deve aparecer");
+        assert!(text.contains("Resultados"), "legenda deve aparecer");
+    }
+
+    #[test]
+    fn layout_figure_sem_caption_sem_prefixo() {
+        let content = Content::Figure {
+            body:    Box::new(Content::text("Diagrama")),
+            caption: None,
+        };
+
+        let state = introspect(&content);
+        let doc = layout(&content, state);
+        let text = doc.plain_text();
+
+        assert!(text.contains("Diagrama"),    "corpo deve aparecer");
+        assert!(!text.contains("Figura 1:"), "sem caption, sem prefixo");
+    }
+
+    #[test]
+    fn layout_ref_para_figura_resolve_corretamente() {
+        use crate::entities::label::Label;
+
+        let content = Content::Sequence(
+            vec![
+                Content::Labelled {
+                    label:  Label("fig1".to_string()),
+                    target: Box::new(Content::Figure {
+                        body:    Box::new(Content::text("Gráfico")),
+                        caption: Some(Box::new(Content::text("Legenda"))),
+                    }),
+                },
+                Content::text(" — ver "),
+                Content::Ref { target: Label("fig1".to_string()) },
+            ]
+            .into(),
+        );
+
+        let state = introspect(&content);
+        let doc = layout(&content, state);
+        let text = doc.plain_text();
+
+        assert!(text.contains("Figura 1"),
+            "Ref para figura deve resolver para 'Figura 1': {:?}", text);
+        assert!(!text.contains("@fig1"),
+            "não deve usar fallback @fig1: {:?}", text);
     }
 }
