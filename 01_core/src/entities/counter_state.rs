@@ -6,7 +6,7 @@
 
 use std::collections::HashMap;
 
-use crate::entities::label::Label;
+use crate::entities::{content::Content, label::Label};
 
 /// Instrução de modificação de um contador.
 #[derive(Debug, Clone, PartialEq)]
@@ -37,12 +37,27 @@ pub struct CounterState {
     pub numbering_active: HashMap<String, bool>,
     /// Mapa de labels para o texto resolvido na passagem actual.
     /// Chave: Label; Valor: texto formatado (ex: "Secção 1.1", "Equação (2)").
-    /// DEBT-10: apenas referências para trás são resolvidas.
     pub resolved_labels: HashMap<Label, String>,
+    /// Títulos catalogados para a TOC (Passo 61).
+    /// Tupla: (label automática, corpo do título como Content, nível).
+    /// Guardar Content em vez de String preserva formatação (negrito,
+    /// itálico, equações inline) na TOC — `plain_text()` destruiria isso.
+    pub headings_for_toc: Vec<(Label, Content, usize)>,
+    /// Contador interno para gerar labels únicas para cada heading.
+    /// Não representa numeração de secções — é apenas um gerador de IDs.
+    pub auto_label_counter: usize,
 }
 
 impl CounterState {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        let mut s = Self::default();
+        // Figuras são numeradas por defeito — paridade com o Typst original.
+        // O método is_numbering_active() não conhece esta regra; o construtor sim.
+        // DEBT-14: sem SetRule para `#set figure(numbering: none)`, o utilizador
+        // não pode desactivar a numeração de figuras.
+        s.numbering_active.insert("figure".to_string(), true);
+        s
+    }
 
     /// Verifica se a numeração está activa para uma chave.
     pub fn is_numbering_active(&self, key: &str) -> bool {

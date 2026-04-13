@@ -6,7 +6,7 @@
 
 use typst_core::{
     entities::{content::Content, layout_types::PagedDocument},
-    rules::layout::Layouter,
+    rules::{introspect::introspect, layout::Layouter},
 };
 
 use crate::font_metrics::FontBookMetrics;
@@ -25,7 +25,8 @@ pub fn layout_with_font(
         l.layout_content(content);
         l.finish()
     } else {
-        typst_core::rules::layout::layout(content)
+        let state = introspect(content);
+        typst_core::rules::layout::layout(content, state)
     }
 }
 

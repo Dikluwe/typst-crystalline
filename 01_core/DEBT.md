@@ -198,48 +198,38 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 
 ## DEBT-10 — Contadores em duas passagens — RESOLVIDO
 
-**Registado no Passo 57. Resolvido no Passo 60.**
+**Registado no Passo 57. Encerrado no Passo 62.**
 
-**Resolução**:
+**Resolução (Passagens 1 e 2)**:
 - `01_core/src/rules/introspect.rs` criado: pré-passagem analítica que percorre
   `Content` sem alocações visuais, popula `resolved_labels: HashMap<Label, String>`.
-- `layout()` executa automaticamente `introspect(content)` antes do layout físico
-  e injeta apenas `resolved_labels` no Layouter. Contadores hierárquicos, planos
-  e flags de numeração são reconstruídos nó a nó durante o layout físico.
+- `layout()` recebe `CounterState` externo — o orquestrador chama `introspect` primeiro.
 - Forward refs (`@conclusao` antes do heading `= Conclusão <conclusao>`) resolvem.
-- Backward refs continuam a funcionar (regressão confirmada por testes).
-
-**Auto-numeração de `Figure` (parcial)**: `Content::Figure` não existe ainda.
-A auto-numeração de Figure continua pendente — ver DEBT-11 e Passos 60+.
+- Backward refs continuam a funcionar.
+- `Content::Figure` implementado no Passo 62: introspecção rastreia figuras na
+  Passagem 1, Layouter desenha blocos numerados na Passagem 2.
 
 **Ficheiros criados/alterados**:
 - `01_core/src/rules/introspect.rs` (novo)
-- `01_core/src/entities/counter_state.rs` — `resolved_labels: HashMap<Label, String>`
-- `01_core/src/rules/layout.rs` — `layout()` com pré-passagem; braço `Labelled` simplificado
+- `01_core/src/entities/counter_state.rs` — `resolved_labels`, `headings_for_toc`, `auto_label_counter`
+- `01_core/src/rules/layout/mod.rs` — `layout()` com estado externo
+- `01_core/src/rules/layout/figure.rs` — braço `Content::Figure` (Passo 62)
 
 ---
 
 ---
 
-## DEBT-11 — Decomposição de `layout.rs` — PENDENTE
+## DEBT-11 — Decomposição de `layout.rs` — RESOLVIDO
 
-**Registado no Passo 60.**
+**Registado no Passo 60. Resolvido no Passo 61.**
 
-**Situação actual**: `layout.rs` acumula responsabilidades distintas:
-- Geometria visual (word-wrap, paginação, baseline)
-- Resolução de referências (braço `Ref`)
-- Auto-numeração (braços `Equation`, `Heading`)
-- Orquestração das duas passagens (`layout()` chama `introspect()`)
-
-A criação de `introspect.rs` (Passo 60) é o primeiro passo da decomposição.
-
-**Próximos passos**:
-- Extrair `rules/layout/references.rs`: braço `Ref` e lógica de `resolved_labels`.
-- Extrair `rules/layout/counters.rs`: braços de numeração automática.
-- `layout.rs` fica como orquestrador: chama `introspect`, delega aos submódulos.
-- L0 de cada submódulo substitui as secções correspondentes de `layout.md`.
-
-**Não bloqueante**: `layout.rs` funciona correctamente. Decomposição é refactoring.
+**Resolução**:
+- `layout.rs` (1408 linhas) convertido em `layout/mod.rs` (orquestrador).
+- `rules/layout/counters.rs`: braços `SetHeadingNumbering`, `CounterUpdate`, `CounterDisplay`.
+- `rules/layout/references.rs`: braços `Ref` e `Labelled`.
+- `rules/layout/outline.rs`: braço `Content::Outline` (TOC).
+- L0 criados: `layout_counters.md`, `layout_references.md`, `layout_outline.md`.
+- `layout()` passa a receber `CounterState` externo — o orquestrador chama `introspect` primeiro.
 
 ---
 
@@ -255,3 +245,63 @@ funcionalidades forem implementadas, adicionar casos de paridade correspondentes
 
 **Referência**: `lab/parity/tests/parse_parity.rs`, baseline em
 `00_nucleo/materialization/parity-baseline-passo-35.md`
+
+---
+
+## DEBT-12 — Números de página na TOC — PENDENTE
+
+**Registado no Passo 61.**
+
+A TOC (`Content::Outline`) lista numeração lógica das secções (ex: "Secção 1.1")
+mas não números de página. A paginação real só é conhecida após o layout físico,
+o que exige uma terceira passagem ou retorno de dados do layout para a introspecção
+— arquitectura para passos futuros.
+
+**Próximos passos**: implementar passagem 3 que lê `cursor_y` e `page_count` do
+Layouter após `layout_content`, mapeia headings para páginas, e retorna essa
+informação para ser injectada na TOC.
+
+---
+
+## DEBT-14 — SetRule para `#set figure(numbering: ...)` — PENDENTE
+
+**Registado no Passo 62.**
+
+A numeração de figuras está activa por defeito (`CounterState::new()` insere
+`"figure" = true`). O utilizador não consegue desactivá-la com
+`#set figure(numbering: none)` até que o braço de SetRule para "figure" seja
+adicionado ao `eval.rs`, produzindo um nó equivalente a `SetHeadingNumbering`.
+Quando implementado, figuras sem numeração cujas labels forem referenciadas
+mostrarão o fallback `@label` (comportamento intencional — ver braço `Labelled`
+em `introspect.rs`).
+
+---
+
+## DEBT-15 — Campo `kind` hardcoded em `Content::Figure` — PENDENTE
+
+**Registado no Passo 62.**
+
+A chave `"figure"` está hardcoded em `step_flat("figure")` tanto na introspecção
+como no layout. No Typst original, `#figure` aceita um argumento `kind`
+(ex: `image`, `table`, `code`), e cada kind tem contador próprio —
+"Tabela 1" e "Figura 1" são independentes. Com a implementação actual, tabelas
+e gráficos partilham o mesmo contador.
+
+**Resolução futura**: adicionar campo `kind: String` (default `"figure"`) a
+`Content::Figure` e usar `step_flat(&kind)` em vez da string fixa.
+
+---
+
+## DEBT-13 — Efeitos colaterais duplicados na TOC — PENDENTE
+
+**Registado no Passo 61.**
+
+O `outline.rs` injeta clones do `Content` dos títulos na sequência da TOC.
+Se um título contiver `CounterUpdate` ou `CounterDisplay` (ex: `= Capítulo
+#counter("cap").step()`), esses nós são avaliados duas vezes pelo Layouter
+— uma na TOC e outra no título real — causando avanço duplo de contadores.
+
+**Mitigação actual**: os testes deste passo não usam contadores dentro de headings.
+
+**Resolução futura**: mecanismo de "congelamento" de AST que neutraliza efeitos
+colaterais em clones de renderização estática.
