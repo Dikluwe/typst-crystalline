@@ -1,4 +1,5 @@
 # Prompt L0 — layout
+Hash do Código: 3cb6ac8a
 
 ## Módulo
 `01_core/src/rules/layout.rs`

@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/syntax_set`
+Hash do Código: 133ed610
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/syntax_set.rs`

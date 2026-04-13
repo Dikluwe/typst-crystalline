@@ -1,4 +1,5 @@
 # Prompt L0 — layout_types
+Hash do Código: 772b1444
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`

@@ -1,4 +1,5 @@
 # Prompt L0 — layout (infra)
+Hash do Código: 4972feff
 
 ## Módulo
 `03_infra/src/layout.rs`

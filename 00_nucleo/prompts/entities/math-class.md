@@ -1,4 +1,5 @@
 # Prompt L0 — `math_class` entity
+Hash do Código: 971493de
 
 **Camada**: L1
 **Ficheiro**: `01_core/src/entities/math_class.rs`

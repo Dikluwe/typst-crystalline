@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/syntax_kind`
+Hash do Código: e7bddc00
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/syntax_kind.rs`

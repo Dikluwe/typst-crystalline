@@ -1,4 +1,5 @@
 # Prompt L0 — entities/source_result
+Hash do Código: f3af0101
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/source_result.rs`

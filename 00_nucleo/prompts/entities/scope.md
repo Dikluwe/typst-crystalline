@@ -1,4 +1,5 @@
 # Prompt L0 — entities/scope
+Hash do Código: 2edd57f7
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/scope.rs`

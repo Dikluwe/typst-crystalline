@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/counter_state`
+Hash do Código: 571059fd
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/counter_state.rs`

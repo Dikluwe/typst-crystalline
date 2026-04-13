@@ -1,4 +1,5 @@
 # Prompt L0 — `rules/math/symbols` — Resolução de Símbolos Matemáticos
+Hash do Código: 7f1f084a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/math/symbols.rs`

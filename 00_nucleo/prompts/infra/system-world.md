@@ -1,4 +1,5 @@
 # Prompt L0 — infra/system-world
+Hash do Código: 14c5e00e
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`

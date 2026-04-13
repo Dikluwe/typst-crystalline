@@ -1,4 +1,5 @@
 # Prompt L0 — `scanner` (motor de travessia de string)
+Hash do Código: 3c633cde
 
 **Camada**: L1
 **Ficheiro**: `01_core/src/rules/lexer/scanner.rs`

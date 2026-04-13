@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/ast/code`
+Hash do Código: 328e2718
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/ast/code.rs`

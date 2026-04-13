@@ -1,4 +1,5 @@
 # Prompt: MathConstants — Constantes OpenType MATH
+Hash do Código: 73380d77
 
 ## Módulo
 

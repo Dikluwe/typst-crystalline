@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/file_id`
+Hash do Código: cfa67d59
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/file_id.rs`
