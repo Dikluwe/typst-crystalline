@@ -241,7 +241,7 @@ impl Content {
             Self::Labelled { target, .. } => target.is_empty(),
             // Figura: não está vazia se tiver body OU caption com conteúdo.
             Self::Figure { body, caption } =>
-                body.is_empty() && caption.as_ref().map_or(true, |c| c.is_empty()),
+                body.is_empty() && caption.as_ref().is_none_or(|c| c.is_empty()),
             _ => false,
         }
     }

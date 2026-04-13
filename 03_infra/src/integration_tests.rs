@@ -79,15 +79,31 @@ mod integration {
         )
     }
 
-    /// Pipeline completo → bytes PDF (caminho Helvetica sem fonte real).
+    /// Pipeline completo → bytes PDF em 3 passagens (Passo 63, DEBT-12).
+    ///
+    /// Passagem 1 (introspecção): `introspect()` resolve labels e headings_for_toc.
+    /// Passagem 2 (draft): `layout()` regista label_pages. TOC sem números de página.
+    /// Passagem 3 (final): `layout()` com label_pages injectado. TOC com páginas reais.
     fn compile_to_pdf(src: &str) -> Vec<u8> {
         let (world, _dir) = world_from_str(src);
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
-        let doc = layout(content, state);
-        export_pdf(&doc)
+
+        // ── Passagem 1 — Introspecção ─────────────────────────────────────
+        let intro_state = introspect(content);
+
+        // ── Passagem 2 — Layout Draft ─────────────────────────────────────
+        // Gera posições reais das páginas. TOC não tem números de página ainda.
+        let draft_doc = layout(content, intro_state.clone());
+
+        // ── Passagem 3 — Layout Final ─────────────────────────────────────
+        // Injeta o mapa de páginas produzido na Passagem 2 para a TOC.
+        let mut final_state = intro_state;
+        final_state.label_pages = draft_doc.extracted_label_pages;
+        let final_doc = layout(content, final_state);
+
+        export_pdf(&final_doc)
     }
 
     // ── Testes de integração ──────────────────────────────────────────────
@@ -969,5 +985,34 @@ mod integration {
             "#figure(\n  [Conteúdo],\n  caption: [Legenda simples]\n)"
         );
         assert!(!pdf.is_empty());
+    }
+
+    // ── Passo 63 — TOC com números de página (3 passagens) ───────────────
+
+    #[test]
+    fn pipeline_toc_com_paginas_nao_causa_panico() {
+        // A 3ª passagem não deve causar panic mesmo que a TOC seja maior
+        // com os números de página (caso de degradação DEBT-17).
+        let pdf = compile_to_pdf(
+            "#set heading(numbering: \"1.\")\n\
+             #outline()\n\
+             = Introdução\n\
+             == Motivação\n\
+             = Conclusão"
+        );
+        assert!(!pdf.is_empty(), "PDF com TOC paginada não deve estar vazio");
+    }
+
+    #[test]
+    fn pipeline_toc_tres_passagens_produz_pdf_valido() {
+        // Verificar que as 3 passagens produzem um PDF não vazio com headings.
+        let pdf = compile_to_pdf(
+            "#outline()\n\
+             = Primeira Secção\n\
+             Conteúdo aqui.\n\
+             = Segunda Secção\n\
+             Mais conteúdo."
+        );
+        assert!(!pdf.is_empty(), "PDF com TOC em 3 passagens não deve estar vazio");
     }
 }

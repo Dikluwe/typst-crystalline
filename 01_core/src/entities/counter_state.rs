@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/counter_state.md
-//! @prompt-hash 96f3d946
+//! @prompt-hash 4b8e4f02
 //! @layer L1
-//! @updated 2026-04-12
+//! @updated 2026-04-13
 
 use std::collections::HashMap;
 
@@ -46,6 +46,13 @@ pub struct CounterState {
     /// Contador interno para gerar labels únicas para cada heading.
     /// Não representa numeração de secções — é apenas um gerador de IDs.
     pub auto_label_counter: usize,
+    /// Mapa de labels para o número de página onde aterraram (Passo 63).
+    /// Populado por `layout_labelled` na Passagem 2 (draft).
+    /// Injectado na Passagem 3 (final) para a TOC exibir páginas reais.
+    pub label_pages: HashMap<Label, usize>,
+    /// Modo read-only: bloqueia step_* e update_* (Passo 63, DEBT-13).
+    /// Activado em `outline.rs` durante a renderização de clones de AST na TOC.
+    pub is_readonly: bool,
 }
 
 impl CounterState {
@@ -72,6 +79,7 @@ impl CounterState {
     /// - `[1, 1]` + 1 → `[2]`
     /// - `[1, 2]` + 2 → `[1, 3]`
     pub fn step_hierarchical(&mut self, key: &str, level: usize) {
+        if self.is_readonly { return; }
         let level = level.max(1);
         let counter = self.hierarchical.entry(key.to_string()).or_default();
         counter.truncate(level);
@@ -95,11 +103,13 @@ impl CounterState {
 
     /// Avança um contador plano em 1.
     pub fn step_flat(&mut self, key: &str) {
+        if self.is_readonly { return; }
         *self.flat.entry(key.to_string()).or_insert(0) += 1;
     }
 
     /// Força um contador plano para um valor específico.
     pub fn update_flat(&mut self, key: &str, value: usize) {
+        if self.is_readonly { return; }
         self.flat.insert(key.to_string(), value);
     }
 
@@ -201,5 +211,56 @@ mod tests {
         s.step_flat("figure");
         assert_eq!(s.get_flat("equation"), 2);
         assert_eq!(s.get_flat("figure"),   1);
+    }
+
+    // ── Testes de read-only do Passo 63 (DEBT-13) ───────────────────────
+
+    #[test]
+    fn counter_state_readonly_bloqueia_step_flat() {
+        let mut s = CounterState::new();
+        s.is_readonly = true;
+        s.step_flat("equation");
+        assert_eq!(s.get_flat("equation"), 0,
+            "step_flat não deve avançar em modo read-only");
+    }
+
+    #[test]
+    fn counter_state_readonly_permite_leitura() {
+        let mut s = CounterState::new();
+        s.step_flat("equation");  // avança antes de activar read-only
+        s.is_readonly = true;
+        assert_eq!(s.get_flat("equation"), 1,
+            "get_flat deve funcionar mesmo em modo read-only");
+    }
+
+    #[test]
+    fn counter_state_readonly_bloqueia_step_hierarchical() {
+        let mut s = CounterState::new();
+        s.is_readonly = true;
+        s.step_hierarchical("heading", 1);
+        assert_eq!(s.format_hierarchical("heading"), None,
+            "step_hierarchical não deve avançar em modo read-only");
+    }
+
+    #[test]
+    fn counter_state_readonly_bloqueia_update_flat() {
+        let mut s = CounterState::new();
+        s.step_flat("figure");   // valor = 1
+        s.is_readonly = true;
+        s.update_flat("figure", 99);
+        assert_eq!(s.get_flat("figure"), 1,
+            "update_flat não deve mudar valor em modo read-only");
+    }
+
+    #[test]
+    fn counter_state_readonly_desactivado_apos_restauro() {
+        let mut s = CounterState::new();
+        s.is_readonly = true;
+        s.step_flat("equation");
+        assert_eq!(s.get_flat("equation"), 0);
+        s.is_readonly = false;
+        s.step_flat("equation");
+        assert_eq!(s.get_flat("equation"), 1,
+            "step_flat deve avançar após desactivar read-only");
     }
 }

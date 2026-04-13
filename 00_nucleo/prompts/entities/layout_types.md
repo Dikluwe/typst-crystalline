@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 772b1444
+Hash do Código: f8cb85d6
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -32,6 +32,9 @@ Canvas de uma página. `plain_text()` para verificação em testes.
 
 ### `PagedDocument`
 Resultado de `layout()`. `plain_text()` concatena páginas com `"\n"`.
+Campo `extracted_label_pages: HashMap<Label, usize>` expõe o mapa de páginas
+gerado por `layout_labelled` durante a passagem. Inicializado vazio em `new()`.
+Populado por `Layouter::finish()` — sem alterar a assinatura de `layout()`.
 
 ## Critérios de verificação
 - `Pt(10.0) + Pt(5.0) == Pt(15.0)`

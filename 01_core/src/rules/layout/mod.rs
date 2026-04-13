@@ -370,8 +370,9 @@ impl<M: FontMetrics> Layouter<M> {
             Content::MathAlignPoint | Content::Linebreak => {}
 
             // Passo 60 — Labelled e Ref delegados a references.rs (Passo 61).
-            Content::Labelled { target, label: _ } => {
-                references::layout_labelled(self, target);
+            // Passo 63 — label passada para registo de página.
+            Content::Labelled { target, label } => {
+                references::layout_labelled(self, target, label);
             }
 
             Content::Ref { target } => {
@@ -436,6 +437,15 @@ impl<M: FontMetrics> Layouter<M> {
         self.cursor_y = MARGIN + ascender;
     }
 
+    /// Número da página actual (1-indexed).
+    ///
+    /// Abordagem A: `self.pages.len() + 1` — a página actual ainda não foi
+    /// finalizada (não foi empurrada para `self.pages`), por isso a contagem
+    /// de páginas finalizadas + 1 dá o número da página em curso.
+    pub(super) fn current_page_number(&self) -> usize {
+        self.pages.len() + 1
+    }
+
     pub fn finish(mut self) -> PagedDocument {
         for item in self.current_line.drain(..) {
             self.current.push(item);
@@ -443,7 +453,10 @@ impl<M: FontMetrics> Layouter<M> {
         if !self.current.items.is_empty() {
             self.pages.push(self.current);
         }
-        PagedDocument::new(self.pages)
+        let mut doc = PagedDocument::new(self.pages);
+        // Expor o mapa de páginas sem mudar a assinatura de layout() (Passo 63).
+        doc.extracted_label_pages = self.counter.label_pages;
+        doc
     }
 }
 
@@ -463,13 +476,16 @@ fn heading_scale(level: u8) -> f64 {
 /// Para métricas de fonte reais: `03_infra::layout::layout_with_font()`.
 pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument {
     let mut l = Layouter::new(FixedMetrics, DEFAULT_FONT_SIZE);
-    // Passagem de bastão: injectar os campos que a Passagem 2 consome.
+    // Passagem de bastão: injectar os campos que a Passagem 2/3 consome.
     l.counter.resolved_labels  = initial_state.resolved_labels;
     l.counter.headings_for_toc = initial_state.headings_for_toc;
     // numbering_active: copiado porque equações não têm nó de conteúdo equivalente
     // a SetHeadingNumbering — sem esta cópia, os testes de L1 de equações numeradas
     // só funcionariam via eval completo.
     l.counter.numbering_active = initial_state.numbering_active;
+    // label_pages: injectado da Passagem 2 para a Passagem 3 (Passo 63, DEBT-12).
+    // Na Passagem 2 (draft) estará vazio; na Passagem 3 (final) terá os dados reais.
+    l.counter.label_pages = initial_state.label_pages;
     // NÃO copiar hierarchical, flat — reconstruídos nó a nó para evitar
     // dupla contagem durante o layout.
     l.layout_content(content);
@@ -1488,5 +1504,88 @@ mod tests {
             "Ref para figura deve resolver para 'Figura 1': {:?}", text);
         assert!(!text.contains("@fig1"),
             "não deve usar fallback @fig1: {:?}", text);
+    }
+
+    // ── Testes de Passo 63 — Mapa de páginas e motor de congelamento ─────────
+
+    #[test]
+    fn layout_regista_pagina_de_label() {
+        use crate::entities::label::Label;
+
+        let content = Content::Sequence(vec![
+            Content::Labelled {
+                label:  Label("sec1".to_string()),
+                target: Box::new(Content::heading(1, Content::text("Introdução"))),
+            },
+        ].into());
+
+        let state = introspect(&content);
+        let doc = layout(&content, state);
+
+        assert!(
+            doc.extracted_label_pages.contains_key(&Label("sec1".to_string())),
+            "extracted_label_pages deve conter a label processada"
+        );
+    }
+
+    #[test]
+    fn layout_pagina_de_label_e_um_indexed() {
+        use crate::entities::label::Label;
+
+        let content = Content::Labelled {
+            label:  Label("top".to_string()),
+            target: Box::new(Content::text("No topo")),
+        };
+
+        let state = introspect(&content);
+        let doc = layout(&content, state);
+
+        let page = doc.extracted_label_pages.get(&Label("top".to_string()))
+            .copied()
+            .unwrap_or(0);
+        assert_eq!(page, 1, "label no início do documento deve estar na página 1");
+    }
+
+    #[test]
+    fn layout_toc_com_readonly_nao_duplica_contadores() {
+        // Heading com CounterUpdate embebido — sem is_readonly, o contador avançaria
+        // duas vezes (uma no heading real, outra no clone da TOC).
+        // Com is_readonly, a renderização da TOC é neutra em relação aos contadores.
+        use crate::entities::counter_state::CounterAction;
+
+        let body_with_counter_update = Content::Sequence(vec![
+            Content::text("Secção"),
+            Content::CounterUpdate {
+                key:    "equation".to_string(),
+                action: CounterAction::Step,
+            },
+        ].into());
+
+        let content = Content::Sequence(vec![
+            Content::Outline,
+            Content::heading(1, body_with_counter_update),
+            Content::CounterDisplay { kind: "equation".to_string() },
+        ].into());
+
+        let state = introspect(&content);
+        let doc = layout(&content, state);
+        let text = doc.plain_text();
+
+        // Sem is_readonly: CounterUpdate dispararia 2× → display mostraria "2".
+        // Com is_readonly: CounterUpdate na TOC é bloqueado → display mostra "1".
+        assert!(
+            text.contains('1') && !text.contains('2'),
+            "CounterUpdate na TOC não deve duplicar: {:?}", text
+        );
+    }
+
+    #[test]
+    fn layout_extracted_label_pages_preenchido_apos_layout() {
+        // extracted_label_pages é sempre populado após layout, mesmo sem labels.
+        let content = Content::text("Texto sem labels");
+        let doc = layout(&content, CounterState::default());
+        // Deve existir o campo (pode estar vazio)
+        assert!(doc.extracted_label_pages.is_empty(),
+            "sem labels, extracted_label_pages deve estar vazio");
     }
 }

@@ -248,18 +248,18 @@ funcionalidades forem implementadas, adicionar casos de paridade correspondentes
 
 ---
 
-## DEBT-12 — Números de página na TOC — PENDENTE
+## DEBT-12 — Números de página na TOC — RESOLVIDO (Passo 63)
 
-**Registado no Passo 61.**
+**Registado no Passo 61. Resolvido no Passo 63.**
 
-A TOC (`Content::Outline`) lista numeração lógica das secções (ex: "Secção 1.1")
-mas não números de página. A paginação real só é conhecida após o layout físico,
-o que exige uma terceira passagem ou retorno de dados do layout para a introspecção
-— arquitectura para passos futuros.
+**Resolução**: orquestração em 3 passagens no `compile_to_pdf` de L3:
+- Passagem 1 (introspecção): `introspect()` popula `resolved_labels` e `headings_for_toc`.
+- Passagem 2 (draft): `layout()` regista `label_pages` via `layout_labelled` e expõe-o em
+  `PagedDocument::extracted_label_pages`. A TOC ainda não tem números de página.
+- Passagem 3 (final): `layout()` com `initial_state.label_pages` preenchido; a TOC lê
+  os números reais de `label_pages` para cada linha.
 
-**Próximos passos**: implementar passagem 3 que lê `cursor_y` e `page_count` do
-Layouter após `layout_content`, mapeia headings para páginas, e retorna essa
-informação para ser injectada na TOC.
+**Limitação residual**: registada como DEBT-17 (fixpoint da TOC).
 
 ---
 
@@ -292,16 +292,62 @@ e gráficos partilham o mesmo contador.
 
 ---
 
-## DEBT-13 — Efeitos colaterais duplicados na TOC — PENDENTE
+## DEBT-13 — Efeitos colaterais duplicados na TOC — RESOLVIDO (mitigado, Passo 63)
 
-**Registado no Passo 61.**
+**Registado no Passo 61. Mitigado no Passo 63.**
 
-O `outline.rs` injeta clones do `Content` dos títulos na sequência da TOC.
-Se um título contiver `CounterUpdate` ou `CounterDisplay` (ex: `= Capítulo
-#counter("cap").step()`), esses nós são avaliados duas vezes pelo Layouter
-— uma na TOC e outra no título real — causando avanço duplo de contadores.
+**Mitigação**: flag `CounterState::is_readonly` activa durante a renderização de cada
+linha da TOC em `outline.rs`. Enquanto `is_readonly = true`, os métodos
+`step_flat`, `step_hierarchical` e `update_flat` são no-ops — `CounterUpdate` embebido
+nos clones de heading não avança os contadores.
 
-**Mitigação actual**: os testes deste passo não usam contadores dentro de headings.
+**Limitação residual**: `CounterDisplay` ainda lê estado incorrecto na TOC (lê valores
+do momento em que a TOC é renderizada, não do momento do heading real). Registado
+como DEBT-18 (perda de contexto temporal em AST clonado na TOC).
 
-**Resolução futura**: mecanismo de "congelamento" de AST que neutraliza efeitos
-colaterais em clones de renderização estática.
+---
+
+## DEBT-16 — Acoplamento do Avaliador à Stdlib — PENDENTE
+
+**Registado no Passo 62.**
+
+A função `figure()` foi implementada como interceptador em `eval.rs` porque
+`NativeFunc` não suporta argumentos nomeados (só aceita `&[Value]`). Cada
+interceptador adicionado ao avaliador aumenta o acoplamento e degrada o ciclo
+de avaliação. Resolução: refactorizar `NativeFunc` para suportar
+`(args: &[Value], named: &IndexMap<EcoString, Value>)` e remover todos os
+interceptadores do `eval.rs`.
+
+---
+
+## DEBT-17 — Fixpoint da TOC — PENDENTE
+
+**Registado no Passo 63.**
+
+A orquestração de 3 passagens é suficiente para a maioria dos documentos, mas
+não é correcta em geral: se os números de página na TOC (Passagem 3) aumentarem
+a altura da TOC ao ponto de empurrar secções para a página seguinte, os números
+ficarão errados. O Typst original resolve com iteração até convergência (fixpoint).
+Resolução futura: substituir as 3 passagens fixas por um loop que corre até que
+`label_pages` não mude entre iterações.
+
+---
+
+## DEBT-18 — Perda de Contexto Temporal em AST Clonado na TOC — PENDENTE
+
+**Registado no Passo 63.**
+
+O modo `is_readonly` bloqueia mutações de contadores durante a renderização da
+TOC, mas não resolve o problema das leituras (`CounterDisplay`). Exemplo: o
+utilizador escreve `= Capítulo #counter("cap").display()`. Na página 5, o
+contador vale 3 e o título renderiza "Capítulo 3". Na TOC (página 1), o
+Layouter avalia o `CounterDisplay` com o contador ainda em 0, e lista
+"Capítulo 0 .............. pág. 5".
+
+Causa raiz: ao clonar o AST puro para a TOC, o nó é arrancado do seu contexto
+temporal. O `is_readonly` impede que a TOC estrague o futuro, mas não permite
+que a TOC "veja" o futuro.
+
+Resolução futura: na Passagem 2 (draft), transformar os títulos em geometria
+estática resolvida (texto + formatação, sem nós de estado dinâmico) antes de
+passar para `headings_for_toc`.

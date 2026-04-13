@@ -1,10 +1,10 @@
 # Prompt L0 — `entities/counter_state`
-Hash do Código: 571059fd
+Hash do Código: 70125601
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/counter_state.rs`
 **Criado em**: 2026-04-02 (Passo 57)
-**Atualizado em**: 2026-04-12 (Passo 58 — adição de contadores planos e `CounterAction`)
+**Atualizado em**: 2026-04-13 (Passo 63 — `label_pages`, `is_readonly`, motor de congelamento)
 **ADRs relevantes**: nenhum ADR dedicado; parte integrante do motor de introspecção (Passos 57–58)
 
 ---
@@ -66,6 +66,14 @@ pub struct CounterState {
     flat: HashMap<String, usize>,
     /// Flags de numeração activa por chave.
     pub numbering_active: HashMap<String, bool>,
+    /// Mapa de labels para o número de página onde aterraram.
+    /// Populado por `layout_labelled` na Passagem 2 (draft).
+    /// Injectado no estado da Passagem 3 (final) para a TOC mostrar páginas reais.
+    pub label_pages: HashMap<Label, usize>,
+    /// Modo read-only: bloqueia mutações de contadores (step_*, update_*).
+    /// Activado durante a renderização de clones de AST na TOC (DEBT-13)
+    /// para evitar que CounterUpdate dispare duas vezes.
+    pub is_readonly: bool,
 }
 ```
 
@@ -95,6 +103,21 @@ impl CounterState {
     pub fn update_flat(&mut self, key: &str, value: usize)
     pub fn get_flat(&self, key: &str) -> usize
 }
+```
+
+### Regra de read-only
+
+`step_hierarchical`, `step_flat` e `update_flat` verificam `self.is_readonly`
+no início e retornam imediatamente sem efeito se `true`. As leituras
+(`format_hierarchical`, `get_flat`, `is_numbering_active`, `resolved_labels`,
+`label_pages`) não são afectadas.
+
+```rust
+pub fn step_flat(&mut self, key: &str) {
+    if self.is_readonly { return; }
+    // ... lógica existente ...
+}
+```
 ```
 
 ### Regras de negócio de `step_hierarchical(key, level)`
