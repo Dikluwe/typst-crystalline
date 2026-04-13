@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 68ad205d
+//! @prompt-hash 518a9856
 //! @layer L1
-//! @updated 2026-04-03
+//! @updated 2026-04-12
 
 use ecow::EcoString;
 
@@ -295,6 +295,13 @@ impl<M: FontMetrics> Layouter<M> {
 
             // ── Matemática (Passo 37) — delegação ao MathLayouter ───────────
             Content::Equation { body, block } => {
+                // Auto-numeração: equações de bloco numeradas avançam o contador antes de
+                // desenhar (Passo 59). O número (N) é acrescentado depois da equação.
+                let is_numbered = *block && self.counter.is_numbering_active("equation");
+                if is_numbered {
+                    self.counter.step_flat("equation");
+                }
+
                 let math_layouter = math::layout::MathLayouter::new(&self.metrics, *block);
                 let math_items    = math_layouter.layout_equation(body, &self.style);
 
@@ -347,6 +354,14 @@ impl<M: FontMetrics> Layouter<M> {
                 }
 
                 if *block { self.flush_line(); }
+
+                // Acrescentar número da equação inline após o flush (Passo 59).
+                // DEBT: alinhamento à direita real requer largura de página — por agora inline.
+                if is_numbered {
+                    let n = self.counter.get_flat("equation");
+                    self.layout_content(&Content::text(format!("({})", n)));
+                    self.flush_line();
+                }
             }
 
             Content::MathSequence(_)
@@ -369,15 +384,24 @@ impl<M: FontMetrics> Layouter<M> {
             // Marcadores estruturais de equações — ignorados fora de contexto matemático.
             Content::MathAlignPoint | Content::Linebreak => {}
 
-            // Passo 56 — Label é metainformação pura: atravessa para o nó filho.
-            Content::Labelled { target, .. } => self.layout_content(target),
+            // Passo 59 — Labelled: layout primeiro, registo depois.
+            // O contador do target (ex: Heading) avança dentro do seu próprio braço,
+            // por isso o registo deve acontecer após layout_content(target).
+            // Passo 60 — Label registada pela pré-passagem de introspecção.
+            // O Layouter apenas faz o layout transparente do target.
+            Content::Labelled { target, label: _ } => {
+                self.layout_content(target);
+            }
 
-            // Passo 56 — Ref: fallback visual literal até motor de introspecção.
+            // Passo 60 — Ref: consulta resolved_labels populado pela pré-passagem.
+            // Forward e backward refs resolvem. Fallback @nome apenas se a label
+            // não existir de todo no documento (DEBT-10 encerrado).
             Content::Ref { target } => {
-                let text = format!("@{}", target.0);
-                for word in text.split_whitespace() {
-                    self.layout_word(word);
-                }
+                let display_text = match self.counter.resolved_labels.get(target) {
+                    Some(text) => text.clone(),
+                    None       => format!("@{}", target.0),
+                };
+                self.layout_content(&Content::text(display_text));
             }
         }
     }
@@ -445,12 +469,20 @@ fn heading_scale(level: u8) -> f64 {
     match level { 1 => 2.0, 2 => 1.667, 3 => 1.333, 4 => 1.167, _ => 1.0 }
 }
 
-/// Layout com métricas fixas monoespaçadas.
+/// Layout com métricas fixas monoespaçadas — duas passagens (Passo 60).
 ///
-/// Geometricamente correcto (margens respeitadas, word-wrap, baseline correcta).
+/// Passagem 1: `introspect::introspect(content)` popula `resolved_labels`
+/// para todas as labels do documento (incluindo forward refs).
+/// Passagem 2: o Layouter arranca com `resolved_labels` injectado e
+/// reconstrói `hierarchical`, `flat` e `numbering_active` nó a nó,
+/// para que os prefixos visuais sejam gerados na ordem correcta.
+///
 /// Para métricas de fonte reais: `03_infra::layout::layout_with_font()`.
 pub fn layout(content: &Content) -> PagedDocument {
+    use crate::rules::introspect;
+    let intro_state = introspect::introspect(content);
     let mut l = Layouter::new(FixedMetrics, DEFAULT_FONT_SIZE);
+    l.counter.resolved_labels = intro_state.resolved_labels;
     l.layout_content(content);
     l.finish()
 }
@@ -1240,5 +1272,137 @@ mod tests {
         let doc = layout_with_state(&content, CounterState::new());
         assert!(doc.plain_text().contains('5'),
             "CounterDisplay deve mostrar '5' após Update(5): {:?}", doc.plain_text());
+    }
+
+    // ── Testes de resolução de referências (Passo 59 / Passo 60) ────────────
+
+    #[test]
+    fn layout_ref_para_tras_resolve_secao() {
+        // Passo 60: layout() usa duas passagens — backward ref resolve via introspect.
+        use crate::entities::label::Label;
+        use crate::rules::layout::layout;
+
+        let content = Content::Sequence(vec![
+            Content::Labelled {
+                label:  Label("intro".to_string()),
+                target: Box::new(Content::heading(1, Content::text("Introdução"))),
+            },
+            Content::text("Como vimos em"),
+            Content::Ref { target: Label("intro".to_string()) },
+        ].into());
+
+        let doc = layout(&content);
+        let text = doc.plain_text();
+        assert!(
+            text.contains("Secção 1"),
+            "Ref para trás deve resolver para 'Secção 1' via duas passagens, obtido: {:?}", text
+        );
+    }
+
+    #[test]
+    fn layout_ref_para_frente_resolve_com_duas_passagens() {
+        // Passo 60: forward ref resolve via introspect — sem fallback.
+        use crate::entities::label::Label;
+        use crate::rules::layout::layout;
+
+        let content = Content::Sequence(vec![
+            // Ref aparece antes da Label — forward reference
+            Content::Ref { target: Label("conclusao".to_string()) },
+            Content::Labelled {
+                label:  Label("conclusao".to_string()),
+                target: Box::new(Content::heading(1, Content::text("Conclusão"))),
+            },
+        ].into());
+
+        let doc = layout(&content);
+        let text = doc.plain_text();
+        assert!(
+            text.contains("Secção 1"),
+            "Forward ref deve resolver para 'Secção 1' com duas passagens, obtido: {:?}", text
+        );
+        assert!(
+            !text.contains("@conclusao"),
+            "Forward ref não deve usar fallback com duas passagens, obtido: {:?}", text
+        );
+    }
+
+    #[test]
+    fn layout_resolved_labels_nao_interfere_entre_documentos() {
+        // Estados de cada chamada a layout() são independentes.
+        use crate::entities::label::Label;
+        use crate::rules::layout::layout;
+
+        let content_a = Content::Labelled {
+            label:  Label("sec".to_string()),
+            target: Box::new(Content::heading(1, Content::text("A"))),
+        };
+        let _ = layout(&content_a);
+
+        // Segundo layout independente — não deve ter "sec" resolvida
+        let content_b = Content::Ref { target: Label("sec".to_string()) };
+        let doc_b = layout(&content_b);
+        assert!(
+            doc_b.plain_text().contains("@sec"),
+            "Estado do layout anterior não deve vazar para o seguinte"
+        );
+    }
+
+    // ── Testes de duas passagens (Passo 60) ──────────────────────────────────
+
+    #[test]
+    fn pipeline_duas_passagens_resolve_forward_ref() {
+        use crate::entities::label::Label;
+        use crate::rules::{introspect::introspect, layout::layout};
+
+        let content = Content::Sequence(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::text("Ver a"),
+            Content::Ref { target: Label("conclusao".to_string()) },
+            Content::text("."),
+            Content::Labelled {
+                label:  Label("conclusao".to_string()),
+                target: Box::new(Content::heading(1, Content::text("Conclusão"))),
+            },
+        ].into());
+
+        // Passagem 1 — verificar que introspect resolve forward ref
+        let initial_state = introspect(&content);
+        assert!(
+            initial_state.resolved_labels.contains_key(&Label("conclusao".to_string())),
+            "introspect deve popular resolved_labels para forward refs"
+        );
+
+        // Passagem 2 — layout usa a pré-passagem internamente
+        let doc = layout(&content);
+        let text = doc.plain_text();
+        assert!(
+            text.contains("Secção 1"),
+            "forward ref deve resolver para 'Secção 1': {:?}", text
+        );
+        assert!(
+            !text.contains("@conclusao"),
+            "não deve usar fallback com duas passagens: {:?}", text
+        );
+    }
+
+    #[test]
+    fn layout_equation_bloco_numerada() {
+        use crate::entities::counter_state::CounterState;
+        use crate::rules::layout::layout_with_state;
+
+        let mut state = CounterState::new();
+        state.numbering_active.insert("equation".to_string(), true);
+
+        let content = Content::Equation {
+            body:  Box::new(Content::MathIdent("E".into())),
+            block: true,
+        };
+
+        let doc = layout_with_state(&content, state);
+        let text = doc.plain_text();
+        assert!(
+            text.contains("(1)"),
+            "Equação de bloco numerada deve mostrar '(1)', obtido: {:?}", text
+        );
     }
 }

@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 3cb6ac8a
+Hash do Código: 41f76748
 
 ## Módulo
 `01_core/src/rules/layout.rs`
@@ -46,3 +46,34 @@ API pública — usa `FixedMetrics::new(12.0)`.
 - 100 palavras → todos os items dentro dos limites da página (x<595, y<842)
 - 50 palavras → múltiplas linhas (y_values.len() > 1)
 - Pipeline parse→eval→layout sem crash
+
+## Secção: Referências e Contadores Automáticos (Passo 59)
+
+### Resolução Single-Pass
+O Layouter executa numa única passagem. O `CounterState` acumula
+`resolved_labels: HashMap<Label, String>` à medida que avança.
+
+- **Labelled**: não tem presença visual. Side-effect: insere no dicionário
+  o texto formatado do contador actual (ex: `Label("intro") → "Secção 1.1"`).
+  O registo acontece **depois** de `layout_content(target)` para garantir que
+  o contador do alvo (ex: Heading) já avançou antes de ser lido.
+- **Ref**: consulta o dicionário. Encontrou → desenha o texto resolvido.
+  Não encontrou → fallback literal `@nome` (DEBT-10: referências para a frente).
+
+### Auto-numeração
+- `Equation { block: true, .. }`: se `numbering_active["equation"]` for
+  verdadeiro, avança `step_flat("equation")` antes de desenhar e adiciona
+  o número formatado `(N)` à direita da equação.
+- `Figure`: variante não existe em `Content` — auto-numeração de Figure
+  registada em DEBT-10, será adicionada nos Passos 60+.
+
+### Limitação conhecida (DEBT-10)
+Referências para a frente (a label aparece depois da Ref no documento)
+não são resolvidas nesta passagem — exigem o motor de introspecção de
+duas passagens (Passos 60+).
+
+### Critérios adicionais de verificação (Passo 59)
+- `Labelled(Heading, label)` → `resolved_labels` contém a chave após layout.
+- `Ref(label)` para trás → plain_text contém o texto resolvido.
+- `Ref(label)` para a frente → plain_text contém `@nome` (não panic).
+- `Equation { block: true }` numerada → número aparece no documento.

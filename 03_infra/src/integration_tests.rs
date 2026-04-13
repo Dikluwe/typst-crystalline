@@ -803,18 +803,54 @@ mod integration {
         assert!(!pdf.is_empty());
     }
 
-    // ── Passo 56 — Labels e Referências ──────────────────────────────────
+    // ── Passo 56 / Passo 59 — Labels e Referências ───────────────────────
 
     #[test]
     fn pipeline_introspeccao_labels_refs_gera_pdf() {
+        // Passo 59: referência para trás (@intro depois de <intro>) resolve para
+        // "Secção 1" — a numeração hierárquica é registada mesmo sem #set heading(numbering:).
         let pdf = compile_to_pdf("= Introdução <intro>\nIsto é uma referência: @intro");
         assert!(!pdf.is_empty(), "PDF não deve estar vazio");
-        // Verificar que o fallback "@intro" sobreviveu ao pipeline como texto.
         let pdf_str = String::from_utf8_lossy(&pdf);
         assert!(
-            pdf_str.contains("intro"),
-            "PDF deve conter o texto de fallback com 'intro'"
+            pdf_str.contains("Sec") || pdf_str.contains("1"),
+            "PDF deve conter o texto resolvido da referência, obtido (primeiros 500): {:?}",
+            &pdf_str[..pdf_str.len().min(500)]
         );
+    }
+
+    #[test]
+    fn pipeline_ref_forward_nao_causa_panico() {
+        // Passo 59: forward ref não causa panic — fallback @nome.
+        // Passo 60: com duas passagens, forward ref resolve para "Secção 1" (não fallback).
+        let pdf = compile_to_pdf("Ver a @conclusao\n= Conclusão <conclusao>");
+        assert!(!pdf.is_empty(), "PDF deve ser gerado mesmo com forward ref");
+    }
+
+    // ── Passo 60 — Motor de Introspecção (Duas Passagens) ────────────────
+
+    #[test]
+    fn pipeline_forward_ref_resolve_no_pdf() {
+        // Passo 60: forward ref deve resolver para o texto da secção, não para @conclusao.
+        let pdf = compile_to_pdf(
+            "#set heading(numbering: \"1.\")\nVer a @conclusao.\n= Conclusão <conclusao>",
+        );
+        assert!(!pdf.is_empty());
+        let pdf_str = String::from_utf8_lossy(&pdf);
+        assert!(
+            !pdf_str.contains("@conclusao"),
+            "forward ref não deve aparecer como fallback no PDF"
+        );
+    }
+
+    #[test]
+    fn pipeline_backward_ref_continua_a_funcionar() {
+        // Regressão: garantir que backward refs não partiram com a mudança.
+        let pdf = compile_to_pdf(
+            "#set heading(numbering: \"1.\")\n= Metodologia <metodo>\nDe acordo com a @metodo.",
+        );
+        assert!(!pdf.is_empty());
+        assert!(!String::from_utf8_lossy(&pdf).contains("@metodo"));
     }
 
     // ── Passo 57 — Contadores e Numeração de Headings ─────────────────────

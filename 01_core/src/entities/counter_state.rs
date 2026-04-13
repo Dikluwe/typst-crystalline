@@ -6,6 +6,8 @@
 
 use std::collections::HashMap;
 
+use crate::entities::label::Label;
+
 /// Instrução de modificação de um contador.
 #[derive(Debug, Clone, PartialEq)]
 pub enum CounterAction {
@@ -33,6 +35,10 @@ pub struct CounterState {
     flat: HashMap<String, usize>,
     /// Flags de numeração activa por chave.
     pub numbering_active: HashMap<String, bool>,
+    /// Mapa de labels para o texto resolvido na passagem actual.
+    /// Chave: Label; Valor: texto formatado (ex: "Secção 1.1", "Equação (2)").
+    /// DEBT-10: apenas referências para trás são resolvidas.
+    pub resolved_labels: HashMap<Label, String>,
 }
 
 impl CounterState {

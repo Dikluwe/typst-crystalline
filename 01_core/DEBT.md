@@ -196,30 +196,50 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 
 ---
 
-## DEBT-10 — Contadores em duas passagens — PENDENTE
+## DEBT-10 — Contadores em duas passagens — RESOLVIDO
 
-**Registado no Passo 57.**
+**Registado no Passo 57. Resolvido no Passo 60.**
 
-**Situação actual**: `CounterState` resolve contadores numa única passagem. Sufficiente
-para numeração sequencial de headings (`1`, `1.1`, `2`). Não suporta referências para
-a frente (ex: `@intro` resolver para `"Secção 1"` antes do heading aparecer no documento).
+**Resolução**:
+- `01_core/src/rules/introspect.rs` criado: pré-passagem analítica que percorre
+  `Content` sem alocações visuais, popula `resolved_labels: HashMap<Label, String>`.
+- `layout()` executa automaticamente `introspect(content)` antes do layout físico
+  e injeta apenas `resolved_labels` no Layouter. Contadores hierárquicos, planos
+  e flags de numeração são reconstruídos nó a nó durante o layout físico.
+- Forward refs (`@conclusao` antes do heading `= Conclusão <conclusao>`) resolvem.
+- Backward refs continuam a funcionar (regressão confirmada por testes).
 
-**Divergência do original**: O Typst original usa `comemo` e duas passagens de layout
-para resolver contadores com referências para a frente. `CounterDisplay` actualmente
-emite o valor do contador no momento do layout, não o valor final após todas as passagens.
+**Auto-numeração de `Figure` (parcial)**: `Content::Figure` não existe ainda.
+A auto-numeração de Figure continua pendente — ver DEBT-11 e Passos 60+.
 
-**Como resolver**:
-1. Primeira passagem: recolher todos os `Content::Heading` e calcular o mapa completo
-   `Label → número de secção`.
-2. Segunda passagem: `CounterDisplay` e `Ref` consultam o mapa para resolver valores.
-3. Integrar com `TrackedWorld` e `comemo` para tracking semântico real.
+**Ficheiros criados/alterados**:
+- `01_core/src/rules/introspect.rs` (novo)
+- `01_core/src/entities/counter_state.rs` — `resolved_labels: HashMap<Label, String>`
+- `01_core/src/rules/layout.rs` — `layout()` com pré-passagem; braço `Labelled` simplificado
 
-**Ficheiros envolvidos**:
-- `01_core/src/entities/counter_state.rs` — adicionar mapa de labels
-- `01_core/src/rules/layout.rs` — duas passagens em `layout()` / `layout_with_state()`
+---
 
-**Não bloqueante**: numeração sequencial de headings funciona. Referências para a frente
-são o único cenário não coberto.
+---
+
+## DEBT-11 — Decomposição de `layout.rs` — PENDENTE
+
+**Registado no Passo 60.**
+
+**Situação actual**: `layout.rs` acumula responsabilidades distintas:
+- Geometria visual (word-wrap, paginação, baseline)
+- Resolução de referências (braço `Ref`)
+- Auto-numeração (braços `Equation`, `Heading`)
+- Orquestração das duas passagens (`layout()` chama `introspect()`)
+
+A criação de `introspect.rs` (Passo 60) é o primeiro passo da decomposição.
+
+**Próximos passos**:
+- Extrair `rules/layout/references.rs`: braço `Ref` e lógica de `resolved_labels`.
+- Extrair `rules/layout/counters.rs`: braços de numeração automática.
+- `layout.rs` fica como orquestrador: chama `introspect`, delega aos submódulos.
+- L0 de cada submódulo substitui as secções correspondentes de `layout.md`.
+
+**Não bloqueante**: `layout.rs` funciona correctamente. Decomposição é refactoring.
 
 ---
 
