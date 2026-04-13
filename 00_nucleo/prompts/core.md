@@ -1,4 +1,5 @@
 # Core — typst-core (L1)
+Hash do Código: 51a9e58f
 
 Crate de domínio puro do compilador Typst cristalino.
 

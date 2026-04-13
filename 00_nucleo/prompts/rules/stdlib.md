@@ -1,4 +1,5 @@
 # Prompt L0 — `rules/stdlib` — Biblioteca Padrão Intrínseca
+Hash do Código: 238955cb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib.rs`

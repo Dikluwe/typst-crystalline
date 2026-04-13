@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/ast` (módulo base)
+Hash do Código: 41eaa946
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/ast/mod.rs`

@@ -1,4 +1,5 @@
 # Prompt L0 — motor de equações
+Hash do Código: d76fb51b
 
 ## Módulo
 `01_core/src/rules/math/`

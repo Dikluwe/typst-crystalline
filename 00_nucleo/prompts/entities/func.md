@@ -1,4 +1,5 @@
 # Prompt L0 — entities/func e entities/args
+Hash do Código: a7ea5b1b
 
 **Camada**: L1
 **Ficheiros alvo**: `01_core/src/entities/func.rs`, `01_core/src/entities/args.rs`

@@ -1,4 +1,5 @@
 # World e TrackedWorld — contratos de ambiente de compilação
+Hash do Código: 2ac41a7f
 
 **Camada**: L1 — contracts
 **Criado em**: 2026-03-22

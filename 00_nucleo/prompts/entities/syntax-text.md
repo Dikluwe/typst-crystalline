@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/syntax_text`
+Hash do Código: 8a032a0b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/syntax_text.rs`

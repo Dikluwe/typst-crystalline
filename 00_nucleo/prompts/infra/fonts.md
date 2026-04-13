@@ -1,4 +1,5 @@
 # Prompt L0 — `infra/fonts` — Gestão e Carregamento de Fontes
+Hash do Código: 5dbd4471
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/fonts.rs`

@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/label`
+Hash do Código: 1326bd57
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/label.rs`

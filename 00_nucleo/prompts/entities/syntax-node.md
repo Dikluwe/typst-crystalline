@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/syntax-node`
+Hash do Código: 5ebed19c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/syntax_node.rs`

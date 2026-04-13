@@ -1,4 +1,5 @@
 # Prompt L0 — entities/module
+Hash do Código: dcdb6481
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/module.rs`

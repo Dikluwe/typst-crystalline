@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/args` — Gestão de Argumentos de Função
+Hash do Código: 58f41a7a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/args.rs`

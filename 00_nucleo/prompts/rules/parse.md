@@ -1,4 +1,5 @@
 # Prompt L0 — `parse` (parser e lexer do Typst)
+Hash do Código: 6e8f311a
 
 **Camada**: L1
 **Ficheiros**:

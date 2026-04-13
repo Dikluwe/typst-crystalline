@@ -1,4 +1,5 @@
 # world_types — stubs opacos para contratos de World
+Hash do Código: f6c26f3d
 
 **Camada**: L1 — entities
 **Criado em**: 2026-03-22

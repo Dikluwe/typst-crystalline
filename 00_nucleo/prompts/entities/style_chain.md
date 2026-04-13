@@ -1,4 +1,5 @@
 # Prompt L0 — StyleChain
+Hash do Código: fd072f10
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`

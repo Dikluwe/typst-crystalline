@@ -1,4 +1,5 @@
 # Prompt L0 — `rules/lexer/mod` — Motor de Tokenização (Lexer)
+Hash do Código: 52c0f705
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/lexer/mod.rs`

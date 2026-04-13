@@ -1,4 +1,5 @@
 # Prompt L0 — entities/font-book
+Hash do Código: f5594453
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/font_book.rs`

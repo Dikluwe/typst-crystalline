@@ -1,4 +1,5 @@
 # Prompt L0 — `infra/export` — Exportador Físico de Documentos
+Hash do Código: e9d71975
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export.rs`
