@@ -1,5 +1,5 @@
 # L0 — Layout: Tabela de Conteúdos
-Hash do Código: fd2dc66f
+Hash do Código: 48bf5672
 
 ## Módulo
 `01_core/src/rules/layout/outline.rs`
@@ -10,13 +10,19 @@ Encapsula o braço `Content::Outline`. Lê `headings_for_toc` do
 
 ## Regras de negócio
 - Não faz introspecção — apenas consome `headings_for_toc` já populado.
-- Gera um `Content::Sequence` com um heading de nível 1 ("Índice") e
-  uma linha por título, indentada pelo nível.
-- Cada linha usa `Content::Ref` apontando para a label automática gerada
-  pela introspecção — o texto resolvido já estará em `resolved_labels`.
-- Não calcula números de página (DEBT-12).
+- Desenha um heading de nível 1 ("Índice") fora do modo read-only.
+- Para cada entrada, lê `counter.label_pages.get(&label)` antes de activar
+  `is_readonly` para evitar borrow duplo.
+- Activa `counter.is_readonly = true` antes de `layout_content` e restaura
+  a `false` depois — bloqueia CounterUpdate/step durante o clone (DEBT-13).
+- Número de página: `"  N"` se disponível em `label_pages`; string vazia na
+  Passagem 2 (draft). Acrescentado ao fim da linha.
+- Não calcula números de página por si — lê-os do `label_pages` injectado.
+  DEBT-12 resolvido via orquestração em 3 passagens em L3.
 
 ## Critérios de verificação
 - Documento com 3 headings → TOC tem 3 linhas após o "Índice".
 - Heading de nível 2 → linha indentada (contém espaços de indentação).
 - Ausência de headings → TOC exibe apenas o título "Índice".
+- `is_readonly = true` durante layout de cada linha → CounterUpdate no clone
+  não avança contadores.

@@ -1,10 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 700426ad
+//! @prompt-hash 64087f31
 //! @layer L1
-//! @updated 2026-03-28
+//! @updated 2026-04-13
+
+use std::collections::HashMap;
 
 use ecow::EcoString;
+
+use crate::entities::label::Label;
 
 // ── Coordenadas e medidas ──────────────────────────────────────────────────
 
@@ -172,11 +176,15 @@ impl Frame {
 #[derive(Debug, Clone)]
 pub struct PagedDocument {
     pub pages: Vec<Frame>,
+    /// Mapa de labels para o número de página onde aterraram (Passo 63).
+    /// Populado por `Layouter::finish()` após cada passagem de layout.
+    /// Vazio por defeito — só tem dados após `layout()` com labels no documento.
+    pub extracted_label_pages: HashMap<Label, usize>,
 }
 
 impl PagedDocument {
     pub fn new(pages: Vec<Frame>) -> Self {
-        Self { pages }
+        Self { pages, extracted_label_pages: HashMap::new() }
     }
 
     pub fn is_empty(&self) -> bool {
