@@ -394,35 +394,6 @@ fn eval_expr(
                 }
             }
 
-            // Intercepção de `figure(body, caption: ...)` — produz Content::Figure (Passo 62).
-            // NativeFunc não suporta named args, por isso trata-se aqui antes de apply_func.
-            if let Expr::Ident(ident) = call.callee() {
-                if ident.as_str() == "figure" {
-                    let args = eval_args(call.args(), scopes, ctx)?;
-                    // Argumento posicional: body (obrigatório)
-                    let body = match args.items.first() {
-                        Some(Value::Content(c)) => c.clone(),
-                        Some(Value::Str(s))     => Content::text(s.as_str()),
-                        Some(_)                 => Content::Empty,
-                        None => return Err(vec![SourceDiagnostic::error(
-                            call.callee().span(),
-                            "figure() requer um argumento posicional (body)".to_string(),
-                        )]),
-                    };
-                    // Argumento nomeado: caption (opcional)
-                    let caption = args.named.get("caption").and_then(|v| match v {
-                        Value::Content(c) => Some(Box::new(c.clone())),
-                        Value::Str(s)     => Some(Box::new(Content::text(s.as_str()))),
-                        Value::None       => None,
-                        _                 => None,
-                    });
-                    return Ok(Value::Content(Content::Figure {
-                        body:    Box::new(body),
-                        caption,
-                    }));
-                }
-            }
-
             let callee = eval_expr(call.callee(), scopes, ctx)?;
             let args = eval_args(call.args(), scopes, ctx)?;
 
@@ -855,7 +826,7 @@ fn apply_func(
 ) -> SourceResult<Value> {
     match func.repr() {
         FuncRepr::Closure(closure) => apply_closure(closure, &func, args, ctx),
-        FuncRepr::Native(native)   => (native.call)(&args.items),
+        FuncRepr::Native(native)   => (native.call)(&args),
     }
 }
 
@@ -1211,22 +1182,26 @@ fn eval_let(
     Ok(Value::None)
 }
 
-/// Constrói a stdlib: `type`, `len`, `range`, `rgb`, `luma`, `str`, `int`, `float`, `calc`.
+/// Constrói a stdlib: `type`, `len`, `range`, `rgb`, `luma`, `str`, `int`, `float`, `figure`, `calc`.
+///
+/// Passo 64 (DEBT-16): `native_figure` migrada do interceptador em eval.rs para cá.
+/// O avaliador deixa de conhecer o nome "figure" — desacoplamento total.
 fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
-        make_calc_module, native_float, native_int, native_len,
+        make_calc_module, native_figure, native_float, native_int, native_len,
         native_luma, native_range, native_rgb, native_str, native_type,
     };
     let mut scope = Scope::new();
-    scope.define("type",  Value::Func(Func::native("type",  native_type)));
-    scope.define("len",   Value::Func(Func::native("len",   native_len)));
-    scope.define("range", Value::Func(Func::native("range", native_range)));
-    scope.define("rgb",   Value::Func(Func::native("rgb",   native_rgb)));
-    scope.define("luma",  Value::Func(Func::native("luma",  native_luma)));
-    scope.define("str",   Value::Func(Func::native("str",   native_str)));
-    scope.define("int",   Value::Func(Func::native("int",   native_int)));
-    scope.define("float", Value::Func(Func::native("float", native_float)));
-    scope.define("calc",  make_calc_module());
+    scope.define("type",   Value::Func(Func::native("type",   native_type)));
+    scope.define("len",    Value::Func(Func::native("len",    native_len)));
+    scope.define("range",  Value::Func(Func::native("range",  native_range)));
+    scope.define("rgb",    Value::Func(Func::native("rgb",    native_rgb)));
+    scope.define("luma",   Value::Func(Func::native("luma",   native_luma)));
+    scope.define("str",    Value::Func(Func::native("str",    native_str)));
+    scope.define("int",    Value::Func(Func::native("int",    native_int)));
+    scope.define("float",  Value::Func(Func::native("float",  native_float)));
+    scope.define("figure", Value::Func(Func::native("figure", native_figure)));
+    scope.define("calc",   make_calc_module());
     scope
 }
 
@@ -2857,5 +2832,57 @@ mod tests {
                      if key == "heading"),
             "esperado CounterUpdate(heading, Step), obtido: {:?}", content
         );
+    }
+
+    // ── Passo 64 — Named args via NativeFunc (DEBT-16) ───────────────────────
+
+    #[test]
+    fn eval_named_arg_passado_para_func_nativa() {
+        // Verificar que named args chegam à função via o novo mecanismo,
+        // não via interceptador. figure() é o caso de teste canónico.
+        let world = MockWorld::new("#figure([Conteúdo], caption: [Legenda])");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve ter content");
+        assert!(matches!(content, Content::Figure { caption: Some(_), .. }),
+            "figure() com caption deve produzir Content::Figure com caption: {:?}", content);
+    }
+
+    #[test]
+    fn eval_figure_sem_interceptador_em_eval_rs() {
+        // Smoke test: figure() agora vive em stdlib.rs — o pipeline completo
+        // deve funcionar sem o interceptador hardcoded.
+        let world = MockWorld::new("#figure([A], caption: [B])");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().unwrap();
+        assert!(matches!(content, Content::Figure { .. }));
+    }
+
+    #[test]
+    fn eval_named_arg_desconhecido_retorna_erro_semantico() {
+        // expect_no_named() em stdlib.rs garante rigor: named args não
+        // esperados devem retornar Err, não ser engolidos silenciosamente.
+        // type() é uma função existente que não aceita named args.
+        let world = MockWorld::new("#type(\"texto\", arg_invalido: true)");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "named arg desconhecido deve retornar Err");
+        let err = result.unwrap_err();
+        assert!(
+            err[0].message.contains("inesperado") || err[0].message.contains("unexpected"),
+            "mensagem deve mencionar argumento inesperado: {:?}", err[0].message
+        );
+    }
+
+    #[test]
+    fn eval_figure_sem_caption_via_stdlib() {
+        // figure() sem caption deve produzir Content::Figure com caption: None.
+        let world = MockWorld::new("#figure([Diagrama])");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().unwrap();
+        assert!(matches!(content, Content::Figure { caption: None, .. }),
+            "figure() sem caption deve ter caption None: {:?}", content);
     }
 }

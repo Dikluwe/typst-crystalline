@@ -151,8 +151,12 @@ fn walk(content: &Content, state: &mut CounterState) {
         | Content::MathMatrix { .. }
         | Content::MathCases { .. }
         | Content::MathAlignPoint
-        | Content::Linebreak
-        | Content::Outline => {}
+        | Content::Linebreak => {}
+
+        Content::Outline => {
+            state.has_outline = true;
+            // Outline não altera contadores — apenas sinaliza que o fixpoint é necessário.
+        }
     }
 }
 
@@ -161,7 +165,7 @@ mod tests {
     use super::*;
     use crate::entities::{
         content::Content,
-        counter_state::{CounterAction, CounterState},
+        counter_state::CounterAction,
         label::Label,
     };
 

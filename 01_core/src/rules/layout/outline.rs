@@ -30,9 +30,9 @@ pub(super) fn layout_outline<M: FontMetrics>(layouter: &mut Layouter<M>) {
         let indent = "  ".repeat(level.saturating_sub(1));
 
         // Ler página ANTES de activar is_readonly — evita borrow duplo.
-        // Na Passagem 2 (draft), label_pages está vazio → string vazia.
-        // Na Passagem 3 (final), label_pages tem os dados → "  N".
-        let page_num = layouter.counter.label_pages.get(&label)
+        // Na iteração 0, known_page_numbers está vazio → string vazia.
+        // Nas iterações seguintes, known_page_numbers tem os dados → "  N".
+        let page_num = layouter.counter.known_page_numbers.get(&label)
             .map(|p| format!("  {}", p))
             .unwrap_or_default();
 

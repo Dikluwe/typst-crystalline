@@ -47,9 +47,17 @@ pub struct CounterState {
     /// Não representa numeração de secções — é apenas um gerador de IDs.
     pub auto_label_counter: usize,
     /// Mapa de labels para o número de página onde aterraram (Passo 63).
-    /// Populado por `layout_labelled` na Passagem 2 (draft).
-    /// Injectado na Passagem 3 (final) para a TOC exibir páginas reais.
+    /// Populado por `layout_labelled` (escrita por `references.rs`).
+    /// Começa vazio em cada iteração via `Layouter::new()`.
     pub label_pages: HashMap<Label, usize>,
+    /// Mapa de páginas da iteração anterior — lido por `outline.rs` (Passo 65).
+    /// Separação leitura/escrita: `references.rs` escreve em `label_pages`;
+    /// `outline.rs` lê de `known_page_numbers`. Injectado pelo fixpoint em `layout()`.
+    pub known_page_numbers: HashMap<Label, usize>,
+    /// Verdadeiro se o documento contém pelo menos um nó `Content::Outline` (Passo 65).
+    /// Determina se o fixpoint de páginas é necessário.
+    /// Populado pela introspecção — não pela contagem de títulos.
+    pub has_outline: bool,
     /// Modo read-only: bloqueia step_* e update_* (Passo 63, DEBT-13).
     /// Activado em `outline.rs` durante a renderização de clones de AST na TOC.
     pub is_readonly: bool,

@@ -20,7 +20,6 @@ mod integration {
     use typst_core::entities::source::Source;
     use typst_core::entities::source_result::SourceResult;
     use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
-    use typst_core::entities::counter_state::CounterState;
     use typst_core::rules::eval::eval;
     use typst_core::rules::introspect::introspect;
     use typst_core::rules::layout::layout;
@@ -79,31 +78,25 @@ mod integration {
         )
     }
 
-    /// Pipeline completo → bytes PDF em 3 passagens (Passo 63, DEBT-12).
+    /// Pipeline completo → bytes PDF (Passo 65).
     ///
-    /// Passagem 1 (introspecção): `introspect()` resolve labels e headings_for_toc.
-    /// Passagem 2 (draft): `layout()` regista label_pages. TOC sem números de página.
-    /// Passagem 3 (final): `layout()` com label_pages injectado. TOC com páginas reais.
+    /// Passagem 1 (introspecção): `introspect()` resolve labels, headings_for_toc
+    /// e sinaliza `has_outline`.
+    /// Passagem 2+ (fixpoint interno a L1): `layout()` converge o mapa de páginas
+    /// da TOC internamente. O orquestrador L3 é agora linear.
     fn compile_to_pdf(src: &str) -> Vec<u8> {
         let (world, _dir) = world_from_str(src);
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
 
-        // ── Passagem 1 — Introspecção ─────────────────────────────────────
+        // ── Introspecção ──────────────────────────────────────────────────
         let intro_state = introspect(content);
 
-        // ── Passagem 2 — Layout Draft ─────────────────────────────────────
-        // Gera posições reais das páginas. TOC não tem números de página ainda.
-        let draft_doc = layout(content, intro_state.clone());
+        // ── Layout (fixpoint acontece internamente em L1) ─────────────────
+        let doc = layout(content, intro_state);
 
-        // ── Passagem 3 — Layout Final ─────────────────────────────────────
-        // Injeta o mapa de páginas produzido na Passagem 2 para a TOC.
-        let mut final_state = intro_state;
-        final_state.label_pages = draft_doc.extracted_label_pages;
-        let final_doc = layout(content, final_state);
-
-        export_pdf(&final_doc)
+        export_pdf(&doc)
     }
 
     // ── Testes de integração ──────────────────────────────────────────────
@@ -983,6 +976,31 @@ mod integration {
     fn pipeline_figure_sem_ref_nao_causa_panico() {
         let pdf = compile_to_pdf(
             "#figure(\n  [Conteúdo],\n  caption: [Legenda simples]\n)"
+        );
+        assert!(!pdf.is_empty());
+    }
+
+    // ── Passo 65 — Pipeline simplificado (fixpoint em L1) ────────────────
+
+    #[test]
+    fn pipeline_toc_paginada_pipeline_linear() {
+        // Confirmar que o pipeline L3 é agora linear (sem passagens manuais)
+        // e que a TOC não causa panic.
+        let pdf = compile_to_pdf(
+            "#set heading(numbering: \"1.\")\n\
+             #outline()\n\
+             = Introdução\n\
+             = Conclusão"
+        );
+        assert!(!pdf.is_empty(), "PDF com TOC paginada não deve estar vazio");
+    }
+
+    #[test]
+    fn pipeline_sem_toc_nao_regrediu() {
+        // Regressão: documentos sem TOC não devem ser afectados pelo fixpoint.
+        let pdf = compile_to_pdf(
+            "= Introdução\n\
+             Texto simples sem índice."
         );
         assert!(!pdf.is_empty());
     }
