@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/stdlib` — Biblioteca Padrão Intrínseca
-Hash do Código: 238955cb
+Hash do Código: 57bc1096
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib.rs`
@@ -21,11 +21,14 @@ inicialização do compilador.
 - `eval.rs`: sabe como avaliar `Expr::LetBinding`, loops, condicionais → produz `Value`
 - `stdlib.rs`: sabe o que `abs(-5)` retorna → implementa as funções que `eval` *chama*
 
-A convenção de assinatura de todas as funções nativas é:
+A convenção de assinatura de todas as funções nativas é (Passo 64, DEBT-16):
 ```rust
-fn native_X(args: &[Value]) -> SourceResult<Value>
+fn native_X(args: &Args) -> SourceResult<Value>
 ```
+Aceita positional (`args.items`) e named args (`args.named`).
 Sem moves de `Args`, sem world, sem Span real — testável directamente, sem eval.
+Funções que não aceitam named args chamam `expect_no_named(&args.named)?` no início.
+`native_figure` migrada de `eval.rs` para `stdlib.rs` — `eval.rs` não conhece "figure".
 
 ---
 

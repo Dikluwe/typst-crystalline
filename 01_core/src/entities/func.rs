@@ -2,10 +2,11 @@
 //! @prompt 00_nucleo/prompts/entities/func.md
 //! @prompt-hash ca7f5c18
 //! @layer L1
-//! @updated 2026-04-02
+//! @updated 2026-04-13
 
 use std::sync::Arc;
 
+use crate::entities::args::Args;
 use crate::entities::scope::Scope;
 use crate::entities::source_result::SourceResult;
 use crate::entities::syntax_node::SyntaxNode;
@@ -50,12 +51,13 @@ pub struct ClosureParam {
     pub default: Option<Value>,
 }
 
-/// Função nativa implementada em Rust com interface `&[Value]`.
+/// Função nativa implementada em Rust com interface `&Args` (Passo 64).
 ///
-/// Padrão de bridge: sem moves, testável directamente sem world/eval.
+/// Aceita args posicionais e nomeados. Elimina o interceptador de `figure`
+/// em eval.rs (DEBT-16) — funções com named args passam a residir em stdlib.rs.
 pub struct NativeFunc {
     pub name: &'static str,
-    pub call: fn(&[Value]) -> SourceResult<Value>,
+    pub call: fn(&Args) -> SourceResult<Value>,
 }
 
 impl Func {
@@ -64,8 +66,8 @@ impl Func {
         Self(Arc::new(FuncRepr::Closure(repr)))
     }
 
-    /// Constrói uma Func nativa com um function pointer `fn(&[Value]) -> SourceResult<Value>`.
-    pub fn native(name: &'static str, call: fn(&[Value]) -> SourceResult<Value>) -> Self {
+    /// Constrói uma Func nativa com um function pointer `fn(&Args) -> SourceResult<Value>`.
+    pub fn native(name: &'static str, call: fn(&Args) -> SourceResult<Value>) -> Self {
         Self(Arc::new(FuncRepr::Native(NativeFunc { name, call })))
     }
 
@@ -168,7 +170,7 @@ mod tests {
 
     #[test]
     fn native_func_debug_nao_panicar() {
-        let f = Func::native("type", |_| Ok(Value::None));
+        let f = Func::native("type", |_args| Ok(Value::None));
         assert_eq!(format!("{:?}", f), "<function>");
     }
 }

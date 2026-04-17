@@ -466,30 +466,74 @@ fn heading_scale(level: u8) -> f64 {
     match level { 1 => 2.0, 2 => 1.667, 3 => 1.333, 4 => 1.167, _ => 1.0 }
 }
 
-/// Layout com métricas fixas monoespaçadas — Passagem 2 (Passo 61).
+/// Layout com convergência de fixpoint (Passo 65).
 ///
-/// Recebe o `CounterState` produzido pela Passagem 1 (`introspect::introspect`).
-/// Injeta `resolved_labels` e `headings_for_toc` no Layouter.
-/// NÃO chama `introspect()` internamente — o orquestrador é responsável pela
-/// Passagem 1 antes de chamar esta função.
+/// Recebe o `CounterState` produzido por `introspect::introspect`.
+/// Se o documento não contiver `Content::Outline` (`has_outline = false`),
+/// corre uma única passagem — o fixpoint de páginas só serve a TOC.
+/// Caso contrário, itera até convergência (máximo 5 vezes).
 ///
 /// Para métricas de fonte reais: `03_infra::layout::layout_with_font()`.
 pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument {
-    let mut l = Layouter::new(FixedMetrics, DEFAULT_FONT_SIZE);
-    // Passagem de bastão: injectar os campos que a Passagem 2/3 consome.
-    l.counter.resolved_labels  = initial_state.resolved_labels;
-    l.counter.headings_for_toc = initial_state.headings_for_toc;
-    // numbering_active: copiado porque equações não têm nó de conteúdo equivalente
-    // a SetHeadingNumbering — sem esta cópia, os testes de L1 de equações numeradas
-    // só funcionariam via eval completo.
-    l.counter.numbering_active = initial_state.numbering_active;
-    // label_pages: injectado da Passagem 2 para a Passagem 3 (Passo 63, DEBT-12).
-    // Na Passagem 2 (draft) estará vazio; na Passagem 3 (final) terá os dados reais.
-    l.counter.label_pages = initial_state.label_pages;
-    // NÃO copiar hierarchical, flat — reconstruídos nó a nó para evitar
-    // dupla contagem durante o layout.
-    l.layout_content(content);
-    l.finish()
+    use std::collections::HashMap;
+    use crate::entities::label::Label;
+
+    // ── Short-circuit: sem TOC, não há necessidade de fixpoint ──────────────
+    // A condição correcta é `has_outline`, não `headings_for_toc.is_empty()`.
+    // Um documento com títulos mas sem #outline() não precisa do ciclo.
+    if !initial_state.has_outline {
+        let mut l = Layouter::new(FixedMetrics, DEFAULT_FONT_SIZE);
+        l.counter.resolved_labels  = initial_state.resolved_labels;
+        l.counter.headings_for_toc = initial_state.headings_for_toc;
+        // numbering_active: copiado porque equações não têm nó equivalente
+        // a SetHeadingNumbering — sem esta cópia, testes de L1 de equações
+        // numeradas só funcionariam via eval completo.
+        l.counter.numbering_active = initial_state.numbering_active;
+        // NÃO copiar label_pages — começa vazio via Layouter::new().
+        // NÃO copiar hierarchical, flat — reconstruídos nó a nó.
+        l.layout_content(content);
+        return l.finish();
+    }
+
+    // ── Fixpoint: documentos com TOC ────────────────────────────────────────
+    const MAX_ITERATIONS: usize = 5;
+
+    // Mapa de páginas da iteração anterior — lido por `outline.rs`.
+    // NÃO é o mesmo campo onde `references.rs` escreve durante o layout.
+    // Separação leitura/escrita: Layouter lê de `known_page_numbers` e
+    // escreve em `label_pages` (que começa vazio em cada iteração via Layouter::new()).
+    let mut known_page_numbers: HashMap<Label, usize> = HashMap::new();
+    let mut final_doc: Option<PagedDocument> = None;
+
+    for _ in 0..MAX_ITERATIONS {
+        let mut l = Layouter::new(FixedMetrics, DEFAULT_FONT_SIZE);
+
+        // Estado base da introspecção — copiado em cada iteração.
+        l.counter.resolved_labels  = initial_state.resolved_labels.clone();
+        l.counter.headings_for_toc = initial_state.headings_for_toc.clone();
+        l.counter.numbering_active = initial_state.numbering_active.clone();
+
+        // Injectar páginas da iteração anterior para leitura pelo outline.rs.
+        // label_pages (onde references.rs escreve) começa vazio via Layouter::new().
+        l.counter.known_page_numbers = known_page_numbers.clone();
+
+        l.layout_content(content);
+        let doc = l.finish();
+
+        // Convergência: mapa de páginas gerado == mapa da iteração anterior?
+        if doc.extracted_label_pages == known_page_numbers {
+            return doc;
+        }
+
+        // Actualizar para a próxima iteração.
+        known_page_numbers = doc.extracted_label_pages.clone();
+        final_doc = Some(doc);
+    }
+
+    // Limite atingido sem convergência (DEBT-17: caso patológico).
+    // Retornar o documento da última iteração — melhor esforço.
+    // Sem `log::` em L1 — não existe ADR que o autorize.
+    final_doc.expect("layout: deve produzir pelo menos um documento")
 }
 
 // ── Testes ─────────────────────────────────────────────────────────────────
@@ -1587,5 +1631,66 @@ mod tests {
         // Deve existir o campo (pode estar vazio)
         assert!(doc.extracted_label_pages.is_empty(),
             "sem labels, extracted_label_pages deve estar vazio");
+    }
+
+    // ── Testes de Passo 65 — Convergência de fixpoint ────────────────────────
+
+    #[test]
+    fn layout_converge_sem_ciclo_infinito() {
+        let content = Content::Sequence(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::Outline,
+            Content::heading(1, Content::text("Capítulo 1")),
+            Content::heading(2, Content::text("Secção 1.1")),
+        ].into());
+
+        let state = introspect(&content);
+        // Se o fixpoint tiver defeito, entra em loop até MAX_ITERATIONS.
+        // Não deve panic.
+        let doc = layout(&content, state);
+
+        let text = doc.plain_text();
+        assert!(text.contains("Capítulo 1"), "título deve aparecer: {:?}", text);
+        assert!(text.contains("Índice") || text.contains("ndice"),
+            "TOC deve aparecer: {:?}", text);
+    }
+
+    #[test]
+    fn layout_documento_sem_toc_usa_curto_circuito() {
+        // Documento COM títulos mas SEM #outline(). O vetor headings_for_toc
+        // terá entradas, mas has_outline é false — o short-circuit evita o loop.
+        // Prova que a condição correcta é has_outline, não headings_for_toc.is_empty().
+        let content = Content::Sequence(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::heading(1, Content::text("Introdução")),
+            Content::heading(2, Content::text("Motivação")),
+            Content::text("Texto sem índice."),
+        ].into());
+
+        let state = introspect(&content);
+        assert!(!state.has_outline, "sem Outline no documento, has_outline deve ser false");
+
+        let doc = layout(&content, state);
+        assert!(!doc.pages.is_empty(), "documento deve ter páginas");
+    }
+
+    #[test]
+    fn layout_com_labels_produz_extracted_label_pages() {
+        use crate::entities::label::Label;
+
+        let content = Content::Sequence(vec![
+            Content::Labelled {
+                label:  Label("sec1".to_string()),
+                target: Box::new(Content::heading(1, Content::text("Secção"))),
+            },
+        ].into());
+
+        let state = introspect(&content);
+        let doc = layout(&content, state);
+
+        assert!(
+            doc.extracted_label_pages.contains_key(&Label("sec1".to_string())),
+            "extracted_label_pages deve conter a label após convergência"
+        );
     }
 }

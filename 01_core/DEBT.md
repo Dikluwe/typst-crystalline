@@ -307,29 +307,37 @@ como DEBT-18 (perda de contexto temporal em AST clonado na TOC).
 
 ---
 
-## DEBT-16 — Acoplamento do Avaliador à Stdlib — PENDENTE
+## DEBT-16 — Acoplamento do Avaliador à Stdlib — RESOLVIDO (Passo 64)
 
-**Registado no Passo 62.**
+**Registado no Passo 62. Resolvido no Passo 64.**
 
-A função `figure()` foi implementada como interceptador em `eval.rs` porque
-`NativeFunc` não suporta argumentos nomeados (só aceita `&[Value]`). Cada
-interceptador adicionado ao avaliador aumenta o acoplamento e degrada o ciclo
-de avaliação. Resolução: refactorizar `NativeFunc` para suportar
-`(args: &[Value], named: &IndexMap<EcoString, Value>)` e remover todos os
-interceptadores do `eval.rs`.
+**Resolução**:
+- `NativeFunc.call` mudou de `fn(&[Value])` para `fn(&Args)` — aceita positional e named args.
+- `apply_func` passa `&args` directamente: `(native.call)(&args)`.
+- Função auxiliar `expect_no_named()` adicionada em `stdlib.rs` — funções que não aceitam
+  named args retornam `Err` semântico (não silencioso).
+- `native_figure` migrada do interceptador hardcoded em `eval.rs` para `stdlib.rs`.
+  `eval.rs` não contém nenhuma referência ao nome "figure".
+- Cascata de 17 funções actualizadas (8 stdlib + 9 calc).
+- Testes de `stdlib.rs` actualizados para usar `Args::positional(...)` em vez de `&[Value]`.
 
 ---
 
-## DEBT-17 — Fixpoint da TOC — PENDENTE
+## DEBT-17 — Fixpoint da TOC — RESOLVIDO (Passo 65)
 
-**Registado no Passo 63.**
+**Registado no Passo 63. Resolvido no Passo 65.**
 
-A orquestração de 3 passagens é suficiente para a maioria dos documentos, mas
-não é correcta em geral: se os números de página na TOC (Passagem 3) aumentarem
-a altura da TOC ao ponto de empurrar secções para a página seguinte, os números
-ficarão errados. O Typst original resolve com iteração até convergência (fixpoint).
-Resolução futura: substituir as 3 passagens fixas por um loop que corre até que
-`label_pages` não mude entre iterações.
+**Resolução**: o algoritmo de fixpoint foi movido para dentro de `layout()` em L1.
+O ciclo corre até que `extracted_label_pages` não mude entre iterações (máximo 5).
+O orquestrador L3 (`compile_to_pdf`) voltou a ser linear:
+`introspect()` → `layout()` → `export_pdf()`.
+
+**Separação leitura/escrita**: `CounterState` tem dois campos distintos:
+- `label_pages`: escrito por `references.rs` em cada iteração (começa vazio via `Layouter::new()`).
+- `known_page_numbers`: lido por `outline.rs`, injectado pelo fixpoint com o mapa da iteração anterior.
+
+`CounterState::has_outline`: sinalizado por `introspect()` na presença de `Content::Outline`.
+Sem `has_outline`, `layout()` usa short-circuit de passagem única (sem fixpoint).
 
 ---
 
