@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 7fdfa5f0
+Hash do Código: e6b6f0af
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -61,6 +61,53 @@ impl Content {
 - `Text(s)` → `s.to_string()`
 - `Space` → `" "`
 - `Sequence(v)` → concatenação recursiva
+
+## Método `map_content` (Passo 69 — DEBT-19)
+
+Percorre a árvore AST de baixo para cima (bottom-up), aplicando uma closure
+a cada nó após processar os seus filhos.
+
+```rust
+pub fn map_content<F>(&self, transform: &mut F) -> SourceResult<Self>
+where
+    F: FnMut(&Content) -> SourceResult<Option<Content>>;
+```
+
+Semântica:
+- `transform` retorna `Some(new_content)` → substituir; o novo nó NÃO é reavaliado.
+- `transform` retorna `None` → manter o nó processado (com filhos já transformados).
+- O `match` lista explicitamente containers (recursão) e terminais (clone). Sem `_ =>`.
+
+Containers (recursão bottom-up): `Sequence`, `Strong`, `Emph`, `Heading`,
+`ListItem`, `EnumItem`, `Link`, `Labelled`, `Figure`, `Equation`, `MathSequence`,
+`MathFrac`, `MathAttach`, `MathRoot`, `MathDelimited`, `MathMatrix`, `MathCases`.
+
+Terminais (clone directo): `Text`, `Space`, `Empty`, `Linebreak`, `Outline`,
+`Raw`, `Ref`, `SetHeadingNumbering`, `CounterUpdate`, `CounterDisplay`,
+`MathAlignPoint`, `MathIdent`, `MathText`.
+
+## Variante `Content::Image` (Passo 71 — DEBT-24)
+
+```rust
+Image {
+    path:   String,
+    data:   std::sync::Arc<Vec<u8>>,
+    width:  Option<Box<Value>>,   // Box quebra ciclo Content→Value→Content
+    height: Option<Box<Value>>,
+},
+```
+
+Terminal — sem filhos Content. `Arc<Vec<u8>>` partilhado: clones do AST não copiam bytes.
+- `plain_text` → `""`
+- `is_empty` → `false`
+- `map_content` → terminal: `clone()`
+- `map_text` → terminal: `clone()`
+- Layouter: placeholder 100×100 pt (DEBT-24b).
+
+## Método `get_field` (Passo 68)
+
+Acesso a campos de elementos estruturados — usado pelas show rules.
+Suporta `.body` e `.level` em `Heading`, `.body` em `Figure`.
 
 ## Critérios de verificação
 - `Content::text("hello").plain_text() == "hello"`

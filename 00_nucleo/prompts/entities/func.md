@@ -1,5 +1,5 @@
 # Prompt L0 — entities/func e entities/args
-Hash do Código: a7ea5b1b
+Hash do Código: 42a416a7
 
 **Camada**: L1
 **Ficheiros alvo**: `01_core/src/entities/func.rs`, `01_core/src/entities/args.rs`
@@ -21,7 +21,7 @@ pub struct Func(Arc<FuncRepr>);
 
 pub(crate) enum FuncRepr {
     Closure(ClosureRepr),
-    // Native — variante futura, ADR-0016
+    Native(NativeFunc),
 }
 
 pub struct ClosureRepr {
@@ -33,6 +33,14 @@ pub struct ClosureRepr {
 pub struct ClosureParam {
     pub name:    String,
     pub default: Option<Value>,
+}
+
+/// Função nativa implementada em Rust (Passo 71 — DEBT-24).
+/// `call` recebe `ctx` para aceder ao `World` (ex: ler ficheiros para native_image).
+/// Funções sem I/O ignoram `_ctx`.
+pub struct NativeFunc {
+    pub name: &'static str,
+    pub call: fn(&mut crate::rules::eval::EvalContext<'_>, &Args) -> SourceResult<Value>,
 }
 ```
 

@@ -6,15 +6,19 @@
 
 pub mod counters;
 pub mod figure;
+pub mod image;
 pub mod outline;
 pub mod references;
 
 use ecow::EcoString;
 
+use std::sync::Arc;
+
 use crate::entities::{
     content::Content,
     counter_state::CounterState,
     glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
+    image_sizer::{ImageSizer, NullImageSizer},
     layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle},
     math_constants::MathConstants,
 };
@@ -110,8 +114,9 @@ const MARGIN: Pt = Pt(72.0);  // 1 inch
 /// Consome `Content` e produz `PagedDocument`.
 /// `font_size` é campo do Layouter — as métricas recebem-no por chamada
 /// para suportar tamanhos mistos (rich text).
-pub struct Layouter<M: FontMetrics> {
+pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     metrics:      M,
+    sizer:        S,
     font_size_pt: Pt,      // tamanho de fonte base — não muda com rich text
     style:        TextStyle,
     pages:        Vec<Frame>,
@@ -122,12 +127,13 @@ pub struct Layouter<M: FontMetrics> {
     pub counter:  CounterState,
 }
 
-impl<M: FontMetrics> Layouter<M> {
-    pub fn new(metrics: M, font_size: f64) -> Self {
+impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
+    pub fn new(metrics: M, sizer: S, font_size: f64) -> Self {
         let size = Pt(font_size);
         let (ascender, _) = metrics.vertical_metrics(size);
         Self {
             metrics,
+            sizer,
             font_size_pt: size,
             style:        TextStyle::regular(size),
             pages:        Vec::new(),
@@ -325,6 +331,7 @@ impl<M: FontMetrics> Layouter<M> {
                                 start: abs_start, end: abs_end, thickness,
                             });
                         }
+                        FrameItem::Image { .. } => {}  // imagens não ocorrem em math inline
                         FrameItem::Glyph { pos, glyph_id, x_advance, size } => {
                             let abs_pos = Point {
                                 x: offset_x + pos.x,
@@ -387,6 +394,46 @@ impl<M: FontMetrics> Layouter<M> {
             // Passo 61 — TOC: delegado a outline.rs (Tarefa 5).
             Content::Outline => {
                 outline::layout_outline(self);
+            }
+
+            Content::Image { data, width, height, .. } => {
+                let dims = image::calculate_dimensions(
+                    data,
+                    width.as_deref(),
+                    height.as_deref(),
+                    &self.sizer,
+                );
+
+                // Garantir linha limpa antes da imagem (bloco).
+                self.flush_line();
+
+                // Verificar se a imagem cabe na página actual.
+                if self.cursor_y.0 + dims.height_pt > Size::a4().height.0 - MARGIN.0 {
+                    self.new_page();
+                }
+
+                // pos.y é o TOPO da bounding box — não o baseline de texto.
+                // O exportador calcula pdf_y = page_height - pos.y - height.
+                let pos = Point { x: MARGIN, y: self.cursor_y };
+
+                // DEBT-28: segunda leitura do cabeçalho — redundante mas de custo mínimo.
+                // Necessário para /Width e /Height intrínsecos no dicionário XObject do PDF.
+                let (intrinsic_w, intrinsic_h) = self.sizer.size(data).unwrap_or((100, 100));
+
+                self.current.push(FrameItem::Image {
+                    pos,
+                    data:             Arc::clone(data),
+                    width:            Pt(dims.width_pt),
+                    height:           Pt(dims.height_pt),
+                    intrinsic_width:  intrinsic_w,
+                    intrinsic_height: intrinsic_h,
+                });
+
+                self.cursor_y += Pt(dims.height_pt);
+
+                if self.cursor_y > Size::a4().height - MARGIN {
+                    self.new_page();
+                }
             }
         }
     }
@@ -482,7 +529,7 @@ pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument {
     // A condição correcta é `has_outline`, não `headings_for_toc.is_empty()`.
     // Um documento com títulos mas sem #outline() não precisa do ciclo.
     if !initial_state.has_outline {
-        let mut l = Layouter::new(FixedMetrics, DEFAULT_FONT_SIZE);
+        let mut l = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
         l.counter.resolved_labels  = initial_state.resolved_labels;
         l.counter.headings_for_toc = initial_state.headings_for_toc;
         // numbering_active: copiado porque equações não têm nó equivalente
@@ -506,7 +553,7 @@ pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument {
     let mut final_doc: Option<PagedDocument> = None;
 
     for _ in 0..MAX_ITERATIONS {
-        let mut l = Layouter::new(FixedMetrics, DEFAULT_FONT_SIZE);
+        let mut l = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
 
         // Estado base da introspecção — copiado em cada iteração.
         l.counter.resolved_labels  = initial_state.resolved_labels.clone();
@@ -574,7 +621,7 @@ mod tests {
 
     #[test]
     fn layouter_baseline_dentro_da_pagina() {
-        let l = Layouter::new(FixedMetrics, 12.0);
+        let l = Layouter::new(FixedMetrics, NullImageSizer, 12.0);
         assert!(l.cursor_y.val() > 0.0);
         assert!(l.cursor_y.val() < 842.0);
     }
@@ -1692,5 +1739,41 @@ mod tests {
             doc.extracted_label_pages.contains_key(&Label("sec1".to_string())),
             "extracted_label_pages deve conter a label após convergência"
         );
+    }
+
+    // ── Testes de imagem (Passo 73) ──────────────────────────────────────────
+
+    #[test]
+    fn layout_image_gera_frameitem() {
+        // JPEG magic bytes — NullImageSizer retorna None → fallback 100×100 pt.
+        let jpeg_magic = vec![0xFF, 0xD8, 0xFF, 0x00u8];
+
+        let content = Content::Image {
+            path:   "teste.jpg".to_string(),
+            data:   std::sync::Arc::new(jpeg_magic),
+            width:  None,
+            height: None,
+        };
+
+        let state = introspect(&content);
+        let doc   = layout(&content, state);
+
+        assert!(!doc.pages.is_empty(), "documento deve ter pelo menos uma página");
+
+        let has_image = doc.pages[0].items.iter().any(|item| {
+            matches!(item, FrameItem::Image { .. })
+        });
+        assert!(has_image, "layouter deve emitir FrameItem::Image");
+    }
+
+    #[test]
+    fn frameitem_image_deduplica_por_ponteiro() {
+        use std::sync::Arc;
+        // Clones do mesmo Arc devem ter o mesmo ponteiro — base da deduplicação no exportador.
+        let data = Arc::new(vec![0xFF, 0xD8, 0xFF, 0x00u8]);
+        let ptr1 = Arc::as_ptr(&data) as usize;
+        let clone = Arc::clone(&data);
+        let ptr2 = Arc::as_ptr(&clone) as usize;
+        assert_eq!(ptr1, ptr2, "clones do mesmo Arc devem ter o mesmo ponteiro");
     }
 }

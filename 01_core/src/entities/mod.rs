@@ -28,6 +28,8 @@ pub mod func;
 pub mod glyph_variants;
 pub mod layout_types;
 pub mod math_constants;
+pub mod show;
 pub mod style_chain;
+pub mod image_sizer;
 pub mod value;
 pub mod world_types;

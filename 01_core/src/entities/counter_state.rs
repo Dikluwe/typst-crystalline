@@ -125,6 +125,18 @@ impl CounterState {
     pub fn get_flat(&self, key: &str) -> usize {
         self.flat.get(key).copied().unwrap_or(0)
     }
+
+    /// Converte o valor actual de um contador para texto (Passo 66, DEBT-18).
+    ///
+    /// Centraliza a lógica de leitura aqui para que `introspect.rs`
+    /// e `layout/counters.rs` a possam usar sem criar dependências cruzadas.
+    pub fn display_value(&self, kind: &str) -> String {
+        if self.hierarchical.contains_key(kind) {
+            self.format_hierarchical(kind).unwrap_or_else(|| "0".to_string())
+        } else {
+            self.get_flat(kind).to_string()
+        }
+    }
 }
 
 #[cfg(test)]

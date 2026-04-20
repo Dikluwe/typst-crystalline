@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash b44e6a56
+//! @prompt-hash 85fae9b9
 //! @layer L1
 //! @updated 2026-04-03
 
@@ -185,6 +185,19 @@ pub enum Content {
         caption: Option<Box<Content>>,
     },
 
+    /// Imagem carregada do disco (Passo 71, DEBT-24).
+    ///
+    /// `data: Arc<Vec<u8>>` — clones partilham a mesma alocação sem copiar bytes.
+    /// `width`/`height` usam `Box<Value>` para quebrar o ciclo de tipos
+    /// `Content → Value → Content` (sem Box seria recursão infinita).
+    /// O layouter usa placeholder 100×100 pt até o Passo 72 (DEBT-24b).
+    Image {
+        path:   String,
+        data:   Arc<Vec<u8>>,
+        width:  Option<Box<crate::entities::value::Value>>,
+        height: Option<Box<crate::entities::value::Value>>,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
@@ -319,6 +332,7 @@ impl Content {
                     (true,  true)  => String::new(),
                 }
             }
+            Self::Image { .. } => String::new(),
         }
     }
 }
@@ -369,7 +383,213 @@ impl PartialEq for Content {
             (Self::Outline, Self::Outline) => true,
             (Self::Figure { body: ba, caption: ca }, Self::Figure { body: bb, caption: cb }) =>
                 ba == bb && ca == cb,
+            (Self::Image { path: pa, data: da, width: wa, height: ha },
+             Self::Image { path: pb, data: db, width: wb, height: hb }) =>
+                pa == pb && da == db && wa.as_deref() == wb.as_deref() && ha.as_deref() == hb.as_deref(),
             _ => false,
+        }
+    }
+}
+
+impl Content {
+    /// Acesso a campos de elementos estruturados — usado pelas show rules (Passo 68).
+    ///
+    /// Ex: `it.body` onde `it` é um `Content::Heading` retorna `Some(Value::Content(body))`.
+    /// Retorna `None` para campos inexistentes ou variantes sem campos nomeados.
+    pub fn get_field(&self, field: &str) -> Option<crate::entities::value::Value> {
+        use crate::entities::value::Value;
+        match (self, field) {
+            (Content::Heading { body, .. },  "body")  => Some(Value::Content(*body.clone())),
+            (Content::Heading { level, .. }, "level") => Some(Value::Int(*level as i64)),
+            (Content::Figure  { body, .. },  "body")  => Some(Value::Content(*body.clone())),
+            _ => None,
+        }
+    }
+
+    /// Percorre a árvore bottom-up, aplicando `transform` a cada nó após processar os filhos.
+    ///
+    /// `transform` retorna `Some(new)` → substituir (sem reentrada no novo nó).
+    /// `transform` retorna `None` → manter o nó processado (com filhos já transformados).
+    ///
+    /// O `match` lista explicitamente todos os containers e terminais — sem `_ =>`.
+    /// Containers com `Box<Content>` ou `Vec<Content>` recursam; terminais clonam directamente.
+    pub fn map_content<F>(&self, transform: &mut F) -> crate::entities::source_result::SourceResult<Self>
+    where
+        F: FnMut(&Content) -> crate::entities::source_result::SourceResult<Option<Content>>,
+    {
+        // Passo 1: processar os filhos (bottom-up) para obter o nó com filhos transformados.
+        let processed = match self {
+            // ── Containers: propagar recursivamente ─────────────────────────
+            Content::Sequence(seq) => {
+                let new_seq: crate::entities::source_result::SourceResult<Vec<Content>> =
+                    seq.iter().map(|c| c.map_content(transform)).collect();
+                Content::Sequence(Arc::from(new_seq?))
+            },
+            Content::Strong(body) => Content::Strong(Box::new(body.map_content(transform)?)),
+            Content::Emph(body)   => Content::Emph(Box::new(body.map_content(transform)?)),
+            Content::Heading { level, body } => Content::Heading {
+                level: *level,
+                body:  Box::new(body.map_content(transform)?),
+            },
+            Content::ListItem(body) => Content::ListItem(Box::new(body.map_content(transform)?)),
+            Content::EnumItem { number, body } => Content::EnumItem {
+                number: *number,
+                body:   Box::new(body.map_content(transform)?),
+            },
+            Content::Link { url, body } => Content::Link {
+                url:  url.clone(),
+                body: Box::new(body.map_content(transform)?),
+            },
+            Content::Labelled { target, label } => Content::Labelled {
+                target: Box::new(target.map_content(transform)?),
+                label:  label.clone(),
+            },
+            Content::Figure { body, caption } => Content::Figure {
+                body:    Box::new(body.map_content(transform)?),
+                caption: caption.as_ref()
+                    .map(|c| c.map_content(transform))
+                    .transpose()?
+                    .map(Box::new),
+            },
+            // Content::Equation tem body: Box<Content> → container.
+            Content::Equation { body, block } => Content::Equation {
+                body:  Box::new(body.map_content(transform)?),
+                block: *block,
+            },
+            Content::MathSequence(seq) => {
+                let new_seq: crate::entities::source_result::SourceResult<Vec<Content>> =
+                    seq.iter().map(|c| c.map_content(transform)).collect();
+                Content::MathSequence(Arc::from(new_seq?))
+            },
+            Content::MathFrac { num, den } => Content::MathFrac {
+                num: Box::new(num.map_content(transform)?),
+                den: Box::new(den.map_content(transform)?),
+            },
+            Content::MathAttach { base, tl, bl, sub, sup } => Content::MathAttach {
+                base: Box::new(base.map_content(transform)?),
+                tl:   tl.as_ref().map(|c| c.map_content(transform)).transpose()?.map(Box::new),
+                bl:   bl.as_ref().map(|c| c.map_content(transform)).transpose()?.map(Box::new),
+                sub:  sub.as_ref().map(|c| c.map_content(transform)).transpose()?.map(Box::new),
+                sup:  sup.as_ref().map(|c| c.map_content(transform)).transpose()?.map(Box::new),
+            },
+            Content::MathRoot { index, radicand } => Content::MathRoot {
+                index:    index.as_ref().map(|c| c.map_content(transform)).transpose()?.map(Box::new),
+                radicand: Box::new(radicand.map_content(transform)?),
+            },
+            Content::MathDelimited { open, body, close } => Content::MathDelimited {
+                open:  *open,
+                body:  Box::new(body.map_content(transform)?),
+                close: *close,
+            },
+            Content::MathMatrix { rows, delim } => {
+                let new_rows: crate::entities::source_result::SourceResult<Vec<Vec<Content>>> =
+                    rows.iter()
+                        .map(|row| row.iter().map(|c| c.map_content(transform)).collect())
+                        .collect();
+                Content::MathMatrix { rows: new_rows?, delim: *delim }
+            },
+            Content::MathCases { rows } => {
+                let new_rows: crate::entities::source_result::SourceResult<Vec<Vec<Content>>> =
+                    rows.iter()
+                        .map(|row| row.iter().map(|c| c.map_content(transform)).collect())
+                        .collect();
+                Content::MathCases { rows: new_rows? }
+            },
+
+            // ── Terminais: clonar directamente ──────────────────────────────
+            // Listados explicitamente — variantes novas não passam em silêncio.
+            Content::Text(_, _)
+            | Content::Space
+            | Content::Empty
+            | Content::Linebreak
+            | Content::Outline
+            | Content::Raw { .. }
+            | Content::Ref { .. }
+            | Content::SetHeadingNumbering { .. }
+            | Content::CounterUpdate { .. }
+            | Content::CounterDisplay { .. }
+            | Content::MathAlignPoint
+            | Content::MathIdent(_)
+            | Content::MathText(_)
+            | Content::Image { .. } => self.clone(),
+        };
+
+        // Passo 2: aplicar a transformação ao nó já processado.
+        match transform(&processed)? {
+            Some(new_content) => Ok(new_content),
+            None              => Ok(processed),
+        }
+    }
+
+    /// Aplica uma função de transformação a todos os nós `Content::Text`,
+    /// preservando a estrutura da árvore (Passo 67).
+    ///
+    /// O uso de `&mut F` permite que a closure carregue estado entre chamadas
+    /// (ex: um contador de substituições restantes), o que é necessário para
+    /// que `replace(count: N)` funcione correctamente através de múltiplos nós.
+    pub fn map_text<F>(&self, transform: &mut F) -> Self
+    where
+        F: FnMut(&str) -> String,
+    {
+        match self {
+            // O caso alvo: aplicar a transformação preservando o estilo.
+            Content::Text(s, style) => Content::Text(transform(s.as_str()).into(), *style),
+
+            // ── Containers com filhos (propagação recursiva) ──────────────
+            // Cada variante listada explicitamente — sem `_ =>` ou `other =>`.
+            Content::Sequence(seq) => {
+                Content::Sequence(
+                    seq.iter().map(|c| c.map_text(transform)).collect::<Vec<_>>().into()
+                )
+            }
+            Content::Heading { level, body } => Content::Heading {
+                level: *level,
+                body:  Box::new(body.map_text(transform)),
+            },
+            Content::Strong(body) => Content::Strong(Box::new(body.map_text(transform))),
+            Content::Emph(body)   => Content::Emph(Box::new(body.map_text(transform))),
+            Content::Labelled { target, label } => Content::Labelled {
+                target: Box::new(target.map_text(transform)),
+                label:  label.clone(),
+            },
+            Content::Figure { body, caption } => Content::Figure {
+                body:    Box::new(body.map_text(transform)),
+                caption: caption.as_ref().map(|c| Box::new(c.map_text(transform))),
+            },
+            Content::ListItem(body) => Content::ListItem(Box::new(body.map_text(transform))),
+            Content::EnumItem { number, body } => Content::EnumItem {
+                number: *number,
+                body:   Box::new(body.map_text(transform)),
+            },
+            Content::Link { url, body } => Content::Link {
+                url:  url.clone(),
+                body: Box::new(body.map_text(transform)),
+            },
+
+            // ── Terminais — clonar directamente ──────────────────────────
+            // Nós matemáticos e estruturais sem markup Text — não contêm
+            // Content::Text, portanto clonar em bloco é correcto e seguro.
+            Content::Empty
+            | Content::Space
+            | Content::Linebreak
+            | Content::Outline
+            | Content::Raw { .. }
+            | Content::Ref { .. }
+            | Content::SetHeadingNumbering { .. }
+            | Content::CounterUpdate { .. }
+            | Content::CounterDisplay { .. }
+            | Content::MathAlignPoint
+            | Content::MathIdent(_)
+            | Content::MathText(_)
+            | Content::Equation { .. }
+            | Content::MathSequence(_)
+            | Content::MathFrac { .. }
+            | Content::MathAttach { .. }
+            | Content::MathRoot { .. }
+            | Content::MathDelimited { .. }
+            | Content::MathMatrix { .. }
+            | Content::MathCases { .. }
+            | Content::Image { .. } => self.clone(),
         }
     }
 }
@@ -596,5 +816,102 @@ mod tests {
         let s1 = Content::sequence(vec![Content::text("a")]);
         let s2 = Content::sequence(vec![Content::text("b")]);
         assert_ne!(s1, s2);
+    }
+
+    // ── Passo 67 — map_text ───────────────────────────────────────────────────
+
+    #[test]
+    fn map_text_transforma_texto_simples() {
+        let content = Content::text("hello");
+        let result = content.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(result, Content::text("HELLO"));
+    }
+
+    #[test]
+    fn map_text_desce_em_strong() {
+        let content = Content::Strong(Box::new(Content::text("hello")));
+        let result = content.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(result, Content::Strong(Box::new(Content::text("HELLO"))));
+    }
+
+    #[test]
+    fn map_text_preserva_terminais_sem_texto() {
+        let content = Content::Space;
+        let result = content.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(result, Content::Space);
+    }
+
+    #[test]
+    fn map_text_closure_com_estado_entre_nos() {
+        // Validar que o estado da closure (FnMut) persiste entre nós distintos.
+        let content = Content::Sequence(vec![
+            Content::text("a"),
+            Content::Strong(Box::new(Content::text("a"))),
+            Content::text("a"),
+        ].into());
+        let mut count = 0usize;
+        content.map_text(&mut |s| {
+            count += 1;
+            s.to_string()
+        });
+        assert_eq!(count, 3, "A closure deve ser chamada uma vez por nó Text");
+    }
+
+    // ── map_content (Passo 69 — DEBT-19) ─────────────────────────────────────
+
+    #[test]
+    fn map_content_substitui_heading_em_sequence() {
+        let content = Content::Sequence(Arc::from(vec![
+            Content::text("Antes"),
+            Content::heading(1, Content::text("Titulo")),
+            Content::text("Depois"),
+        ]));
+
+        let result = content.map_content(&mut |node| {
+            if matches!(node, Content::Heading { .. }) {
+                Ok(Some(Content::text("SUBSTITUIDO")))
+            } else {
+                Ok(None)
+            }
+        }).unwrap();
+
+        assert_eq!(result.plain_text(), "AntesSUBSTITUIDODepois");
+    }
+
+    #[test]
+    fn map_content_bottom_up_pai_ve_filhos_transformados() {
+        let content = Content::Strong(Box::new(Content::text("original")));
+
+        let result = content.map_content(&mut |node| {
+            match node {
+                Content::Text(s, _) => Ok(Some(Content::text(s.to_uppercase()))),
+                Content::Strong(body) => {
+                    let text = body.plain_text();
+                    assert_eq!(text, "ORIGINAL",
+                        "Strong deve receber filho já transformado: {:?}", text);
+                    Ok(None)
+                },
+                _ => Ok(None),
+            }
+        }).unwrap();
+
+        assert_eq!(result.plain_text(), "ORIGINAL");
+    }
+
+    #[test]
+    fn map_content_nao_reavaliar_no_substituido() {
+        let content = Content::heading(1, Content::text("X"));
+        let mut call_count = 0usize;
+
+        content.map_content(&mut |node| {
+            if matches!(node, Content::Heading { .. }) {
+                call_count += 1;
+                Ok(Some(Content::text("substituido")))
+            } else {
+                Ok(None)
+            }
+        }).unwrap();
+
+        assert_eq!(call_count, 1, "Heading deve ser processado exactamente uma vez");
     }
 }

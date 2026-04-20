@@ -208,6 +208,13 @@ impl World for SystemWorld {
         self.font_slots.get(index)?.get()
     }
 
+    fn read_bytes(&self, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+        let full_path = self.root.join(path);
+        std::fs::read(&full_path)
+            .map(|bytes| std::sync::Arc::new(bytes))
+            .map_err(|e| format!("erro ao ler '{}': {}", path, e))
+    }
+
     fn today(&self, offset: Option<i64>) -> Option<Datetime> {
         use time::OffsetDateTime;
         let now = OffsetDateTime::now_utc();

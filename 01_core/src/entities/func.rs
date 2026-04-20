@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/func.md
-//! @prompt-hash ca7f5c18
+//! @prompt-hash 2e530d45
 //! @layer L1
 //! @updated 2026-04-13
 
@@ -51,13 +51,13 @@ pub struct ClosureParam {
     pub default: Option<Value>,
 }
 
-/// Função nativa implementada em Rust com interface `&Args` (Passo 64).
+/// Função nativa implementada em Rust (Passo 71 — DEBT-24).
 ///
-/// Aceita args posicionais e nomeados. Elimina o interceptador de `figure`
-/// em eval.rs (DEBT-16) — funções com named args passam a residir em stdlib.rs.
+/// Recebe `&mut EvalContext` para aceder ao World (ex: leitura de ficheiros).
+/// Funções sem I/O usam `_ctx` (prefixo underscore suprime warning).
 pub struct NativeFunc {
     pub name: &'static str,
-    pub call: fn(&Args) -> SourceResult<Value>,
+    pub call: fn(&mut crate::rules::eval::EvalContext<'_>, &Args) -> SourceResult<Value>,
 }
 
 impl Func {
@@ -66,14 +66,28 @@ impl Func {
         Self(Arc::new(FuncRepr::Closure(repr)))
     }
 
-    /// Constrói uma Func nativa com um function pointer `fn(&Args) -> SourceResult<Value>`.
-    pub fn native(name: &'static str, call: fn(&Args) -> SourceResult<Value>) -> Self {
+    /// Constrói uma Func nativa com um function pointer que recebe `EvalContext`.
+    pub fn native(
+        name: &'static str,
+        call: fn(&mut crate::rules::eval::EvalContext<'_>, &Args) -> SourceResult<Value>,
+    ) -> Self {
         Self(Arc::new(FuncRepr::Native(NativeFunc { name, call })))
     }
 
     /// Acesso à representação interna (restrito a crate).
     pub(crate) fn repr(&self) -> &FuncRepr {
         &self.0
+    }
+
+    /// Retorna o nome da função — `Some(name)` para nativas e closures nomeadas.
+    ///
+    /// Usado pelo motor de show rules para identificar o NodeKind (DEBT-21:
+    /// identificação por string — falha com aliasing e closures anónimas).
+    pub fn name(&self) -> Option<&str> {
+        match self.0.as_ref() {
+            FuncRepr::Closure(c) => c.name.as_deref(),
+            FuncRepr::Native(n)  => Some(n.name),
+        }
     }
 
     /// Define o nome da closure para recursão.
@@ -170,7 +184,7 @@ mod tests {
 
     #[test]
     fn native_func_debug_nao_panicar() {
-        let f = Func::native("type", |_args| Ok(Value::None));
+        let f = Func::native("type", |_ctx, _args| Ok(Value::None));
         assert_eq!(format!("{:?}", f), "<function>");
     }
 }

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/stdlib` — Biblioteca Padrão Intrínseca
-Hash do Código: 57bc1096
+Hash do Código: 6e6c49e4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib.rs`
@@ -21,14 +21,20 @@ inicialização do compilador.
 - `eval.rs`: sabe como avaliar `Expr::LetBinding`, loops, condicionais → produz `Value`
 - `stdlib.rs`: sabe o que `abs(-5)` retorna → implementa as funções que `eval` *chama*
 
-A convenção de assinatura de todas as funções nativas é (Passo 64, DEBT-16):
+A convenção de assinatura de todas as funções nativas é (Passo 71 — DEBT-24):
 ```rust
-fn native_X(args: &Args) -> SourceResult<Value>
+fn native_X(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value>
 ```
+Funções sem I/O usam `_ctx` (prefixo underscore suprime o warning).
+`native_image` usa `ctx.world.read_bytes(path)` para aceder ao ficheiro.
 Aceita positional (`args.items`) e named args (`args.named`).
-Sem moves de `Args`, sem world, sem Span real — testável directamente, sem eval.
 Funções que não aceitam named args chamam `expect_no_named(&args.named)?` no início.
-`native_figure` migrada de `eval.rs` para `stdlib.rs` — `eval.rs` não conhece "figure".
+
+### Imagens (Passo 71)
+
+| Função | Assinatura Typst | Implementação |
+|--------|-----------------|---------------|
+| `native_image` | `image(path, width?, height?)` | lê bytes via `ctx.world.read_bytes(path)`, cria `Content::Image` |
 
 ---
 

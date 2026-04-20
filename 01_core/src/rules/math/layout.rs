@@ -58,6 +58,7 @@ impl MathBox {
                     pos.x = Pt(pos.x.val() + x_origin);
                     pos.y = Pt(baseline_y - self.ascent + pos.y.val());
                 }
+                FrameItem::Image { .. } => {}  // imagens não ocorrem em contexto math
             }
             item
         }).collect()
@@ -83,6 +84,15 @@ fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             x_advance,
             size,
         },
+        FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height } =>
+            FrameItem::Image {
+                pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
+                data,
+                width,
+                height,
+                intrinsic_width,
+                intrinsic_height,
+            },
     }
 }
 
@@ -423,6 +433,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     FrameItem::Glyph { ref mut pos, .. } => {
                         pos.x = Pt(pos.x.val() + x);
                     }
+                    FrameItem::Image { .. } => {}  // imagens não ocorrem em contexto math
                 }
                 items.push(item);
             }

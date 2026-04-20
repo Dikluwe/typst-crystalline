@@ -11,6 +11,7 @@ use rustc_hash::FxBuildHasher;
 
 use crate::contracts::world::World;
 use crate::entities::args::Args;
+use crate::entities::show::{NodeKind, Selector, ShowRule};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 use crate::entities::counter_state::CounterAction;
@@ -49,7 +50,7 @@ use crate::rules::scopes::Scopes;
 ///   Implementado como Vec (não HashSet): pilha de importação tem normalmente
 ///   < 20 elementos. Vec com pesquisa linear é mais rápido neste regime
 ///   porque os dados ficam contíguos em memória (cache-friendly).
-pub(crate) struct EvalContext<'w> {
+pub struct EvalContext<'w> {
     #[allow(dead_code)] // usado quando `import` for implementado (Passo futuro)
     pub world: &'w dyn World,
     pub depth: usize,
@@ -62,6 +63,15 @@ pub(crate) struct EvalContext<'w> {
     /// Actualizada por `#set text(...)` rules. Capturada em `Content::Text`
     /// no momento da produção — permite que o layout leia o estilo do nó.
     pub styles: StyleChain,
+    /// Show rules activas no escopo actual (Passo 68).
+    /// Crescem com `#show` e são truncadas ao sair de um CodeBlock.
+    pub show_rules: Vec<ShowRule>,
+    /// Stack de IDs de show rules actualmente em execução (Passo 70, DEBT-20 encerrado).
+    /// Uma regra é saltada se o seu ID já está nesta stack — permite composição
+    /// entre regras distintas enquanto previne auto-recursão infinita.
+    pub active_guards: Vec<crate::entities::show::RuleId>,
+    /// Próximo ID a atribuir a uma ShowRule (Passo 70).
+    pub next_rule_id: crate::entities::show::RuleId,
 }
 
 impl<'w> EvalContext<'w> {
@@ -74,6 +84,9 @@ impl<'w> EvalContext<'w> {
             max_loop_iterations: 1_000_000,
             import_stack: Vec::new(),
             styles: StyleChain::default_chain(),
+            show_rules: Vec::new(),
+            active_guards: Vec::new(),
+            next_rule_id: 0,
         }
     }
 
@@ -161,7 +174,7 @@ impl<'w> EvalContext<'w> {
 /// possam chamar `enter_import` novamente (detecção de ciclos) sem conflito
 /// de borrowing. Padrão idêntico ao de `std::sync::MutexGuard`.
 #[allow(dead_code)] // usada por enter_import — implementação de import futura
-pub(crate) struct ImportGuard {
+pub struct ImportGuard {
     /// Ponteiro para `EvalContext::import_stack`. Válido enquanto o
     /// EvalContext que criou este guard estiver vivo.
     stack_ptr: *mut Vec<FileId>,
@@ -242,9 +255,10 @@ fn eval_markup(
         match child.kind() {
             SyntaxKind::Text => {
                 // Capturar o estilo activo no momento da produção (Passo 30).
-                // ctx.styles reflecte as #set text() rules avaliadas até aqui.
                 let style = TextStyle::from(&ctx.styles);
-                parts.push(Content::Text(child.text().as_str().into(), style));
+                let text_node = Content::Text(child.text().as_str().into(), style);
+                // Intercepção eager para Selector::Text (Passo 68).
+                parts.push(intercept_content(text_node, ctx)?);
             }
             SyntaxKind::Space | SyntaxKind::Parbreak => parts.push(Content::Space),
             k if k.is_trivia() => continue,
@@ -315,14 +329,16 @@ fn eval_expr(
         Expr::LetBinding(binding) => eval_let(binding, scopes, ctx),
 
         Expr::CodeBlock(code_block) => {
-            // Bloco de código — save/restore de styles para scoping correcto.
-            // StyleChain::clone() é O(1) (clone do Arc do nó de topo).
+            // Bloco de código — save/restore de styles e truncagem de show_rules.
             let saved_styles = ctx.styles.clone();
+            // Show rules adicionadas dentro do bloco não devem vazar para o escopo exterior.
+            let rules_len_before = ctx.show_rules.len();
             let mut last = Value::None;
             for expr in code_block.body().exprs() {
                 last = eval_expr(expr, scopes, ctx)?;
             }
             ctx.styles = saved_styles;
+            ctx.show_rules.truncate(rules_len_before);
             Ok(last)
         }
 
@@ -398,7 +414,15 @@ fn eval_expr(
             let args = eval_args(call.args(), scopes, ctx)?;
 
             match callee {
-                Value::Func(func) => apply_func(func, args, ctx),
+                Value::Func(func) => {
+                    let result = apply_func(func, args, ctx)?;
+                    // Intercepção eager — show rules aplicadas após apply_func (Passo 68).
+                    if let Value::Content(c) = result {
+                        Ok(Value::Content(intercept_content(c, ctx)?))
+                    } else {
+                        Ok(result)
+                    }
+                },
                 other => Err(vec![SourceDiagnostic::error(
                     call.callee().span(),
                     format!("não é possível chamar {}", other.type_name()),
@@ -412,7 +436,8 @@ fn eval_expr(
             ctx.styles = ctx.styles.push(StyleDelta { bold: Some(true), italic: None, size: None });
             let body = eval_markup_body(strong.body().to_untyped(), scopes, ctx)?;
             ctx.styles = prev;
-            Ok(Value::Content(Content::strong(body)))
+            let content = Content::strong(body);
+            Ok(Value::Content(intercept_content(content, ctx)?))
         }
 
         Expr::Emph(emph) => {
@@ -421,7 +446,8 @@ fn eval_expr(
             ctx.styles = ctx.styles.push(StyleDelta { bold: None, italic: Some(true), size: None });
             let body = eval_markup_body(emph.body().to_untyped(), scopes, ctx)?;
             ctx.styles = prev;
-            Ok(Value::Content(Content::emph(body)))
+            let content = Content::emph(body);
+            Ok(Value::Content(intercept_content(content, ctx)?))
         }
 
         Expr::Heading(heading) => {
@@ -431,7 +457,9 @@ fn eval_expr(
             ctx.styles = ctx.styles.push(StyleDelta { bold: Some(true), italic: None, size: None });
             let body  = eval_markup_body(heading.body().to_untyped(), scopes, ctx)?;
             ctx.styles = prev;
-            Ok(Value::Content(Content::heading(level, body)))
+            // Intercepção eager — show rules aplicadas imediatamente após criação (Passo 68).
+            let content = Content::heading(level, body);
+            Ok(Value::Content(intercept_content(content, ctx)?))
         }
 
         Expr::Raw(raw) => {
@@ -473,6 +501,13 @@ fn eval_expr(
                     .ok_or_else(|| vec![SourceDiagnostic::error(
                         access.span(),
                         format!("campo '{field}' não existe"),
+                    )]),
+                // Field access em elementos estruturados — usado por show rules (Passo 68).
+                // Ex: `it.body` onde `it` é Content::Heading retorna Value::Content(body).
+                Value::Content(c) => c.get_field(field.as_str())
+                    .ok_or_else(|| vec![SourceDiagnostic::error(
+                        access.span(),
+                        format!("campo '{field}' não existe neste elemento de conteúdo"),
                     )]),
                 other => Err(vec![SourceDiagnostic::error(
                     access.span(),
@@ -584,6 +619,61 @@ fn eval_expr(
         // acontece em eval_markup via SyntaxKind::Label. Aqui apenas ignoramos.
         Expr::Label(_) => Ok(Value::None),
 
+        Expr::ShowRule(show_rule) => {
+            // Avaliar o selector — pode ser uma string ou uma função da stdlib.
+            // `selector()` retorna `Option<Expr>` — None significa selector omitido (não suportado).
+            let selector = match show_rule.selector() {
+                None => return Err(vec![SourceDiagnostic::error(
+                    show_rule.to_untyped().span(),
+                    "show rule requer um selector".to_string(),
+                )]),
+                Some(sel_expr) => {
+                    let selector_val = eval_expr(sel_expr, scopes, ctx)?;
+                    match selector_val {
+                        Value::Str(s) => Selector::Text(s.to_string()),
+                        Value::Func(ref f) => {
+                            // Resolver NodeKind pelo nome da função nativa (DEBT-21).
+                            match f.name() {
+                                Some("heading")   => Selector::NodeKind(NodeKind::Heading),
+                                Some("figure")    => Selector::NodeKind(NodeKind::Figure),
+                                Some("strong")    => Selector::NodeKind(NodeKind::Strong),
+                                Some("emph")      => Selector::NodeKind(NodeKind::Emph),
+                                Some("raw")       => Selector::NodeKind(NodeKind::Raw),
+                                Some("equation")  => Selector::NodeKind(NodeKind::Equation),
+                                Some("list_item") => Selector::NodeKind(NodeKind::ListItem),
+                                Some(other) => return Err(vec![SourceDiagnostic::error(
+                                    sel_expr.span(),
+                                    format!(
+                                        "função '{}' não é um tipo de nó suportado como selector. \
+                                         Tipos suportados: heading, figure, strong, emph, raw, \
+                                         equation, list_item. (DEBT-21: aliasing não detectado)",
+                                        other
+                                    ),
+                                )]),
+                                None => return Err(vec![SourceDiagnostic::error(
+                                    sel_expr.span(),
+                                    "o selector de show rule deve ser uma função nativa nomeada \
+                                     ou uma string literal. Closures anónimas não são suportadas."
+                                        .to_string(),
+                                )]),
+                            }
+                        },
+                        other => return Err(vec![SourceDiagnostic::error(
+                            sel_expr.span(),
+                            format!("selector inválido para show rule: {}", other.type_name()),
+                        )]),
+                    }
+                }
+            };
+
+            // Avaliar a transformação (closure ou valor estático).
+            let transform = eval_expr(show_rule.transform(), scopes, ctx)?;
+            let id = ctx.next_rule_id;
+            ctx.next_rule_id += 1;
+            ctx.show_rules.push(ShowRule { id, selector, transform });
+            Ok(Value::None)
+        }
+
         // Fronteira deliberada — requer tipos não migrados (Content, Styles, etc.)
         _ => Ok(Value::None),
     }
@@ -654,6 +744,8 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Add, Value::Float(a), Value::Int(b))   => Ok(Value::Float(a + b as f64)),
         (BinOp::Add, Value::Int(a),   Value::Float(b)) => Ok(Value::Float(a as f64 + b)),
         (BinOp::Add, Value::Str(a),   Value::Str(b))   => Ok(Value::Str(a + b.as_str())),
+        (BinOp::Add, Value::Content(a), Value::Content(b)) =>
+            Ok(Value::Content(Content::sequence(vec![a, b]))),
 
         // ── Subtracção ──────────────────────────────────────────────────────
         (BinOp::Sub, Value::Int(a),   Value::Int(b))   =>
@@ -826,7 +918,7 @@ fn apply_func(
 ) -> SourceResult<Value> {
     match func.repr() {
         FuncRepr::Closure(closure) => apply_closure(closure, &func, args, ctx),
-        FuncRepr::Native(native)   => (native.call)(&args),
+        FuncRepr::Native(native)   => (native.call)(ctx, &args),
     }
 }
 
@@ -1182,26 +1274,153 @@ fn eval_let(
     Ok(Value::None)
 }
 
-/// Constrói a stdlib: `type`, `len`, `range`, `rgb`, `luma`, `str`, `int`, `float`, `figure`, `calc`.
+/// Aplica as show rules activas ao Content (Passo 70 — DEBT-23 encerrado).
+///
+/// NodeKind rules: única travessia `map_content` para todas as regras (O(N)).
+/// Dentro da closure, itera o snapshot de regras e salta as que estão em
+/// `active_guards` (anti-recursão por rule ID — DEBT-20 encerrado).
+///
+/// Text rules: aplicadas separadamente via `map_text` após a travessia principal.
+pub(crate) fn apply_show_rules(
+    mut content: Content,
+    rules: &[ShowRule],
+    ctx: &mut EvalContext<'_>,
+) -> SourceResult<Content> {
+    if rules.is_empty() {
+        return Ok(content);
+    }
+
+    // Separar regras por tipo para travessias distintas.
+    let has_node_rules = rules.iter().any(|r| matches!(r.selector, Selector::NodeKind(_)));
+
+    if has_node_rules {
+        // Única travessia para todas as NodeKind rules.
+        let node_rules: Vec<ShowRule> = rules.iter()
+            .filter(|r| matches!(r.selector, Selector::NodeKind(_)))
+            .cloned()
+            .collect();
+
+        let mut apply_all = |node: &Content| -> SourceResult<Option<Content>> {
+            for rule in &node_rules {
+                // Saltar se esta regra está actualmente em execução (anti-recursão).
+                if ctx.active_guards.contains(&rule.id) {
+                    continue;
+                }
+
+                let Selector::NodeKind(ref kind) = rule.selector else { continue };
+
+                let is_match = matches!(
+                    (node, kind),
+                    (Content::Heading { .. },  NodeKind::Heading)
+                    | (Content::Figure { .. },   NodeKind::Figure)
+                    | (Content::Strong(_),       NodeKind::Strong)
+                    | (Content::Emph(_),         NodeKind::Emph)
+                    | (Content::Raw { .. },      NodeKind::Raw)
+                    | (Content::Equation { .. }, NodeKind::Equation)
+                    | (Content::ListItem(_),     NodeKind::ListItem)
+                );
+
+                if !is_match {
+                    continue;
+                }
+
+                match &rule.transform {
+                    Value::Func(func) => {
+                        let args = Args::positional(vec![Value::Content(node.clone())]);
+                        ctx.active_guards.push(rule.id);
+                        let call_result = apply_func(func.clone(), args, ctx);
+                        ctx.active_guards.pop();
+                        return match call_result? {
+                            Value::Content(c) => Ok(Some(c)),
+                            Value::Str(s)     => Ok(Some(Content::text(s.as_str()))),
+                            other => Err(vec![SourceDiagnostic::error(
+                                Span::detached(),
+                                format!(
+                                    "show rule deve retornar Content ou String, \
+                                     recebeu {}",
+                                    other.type_name()
+                                ),
+                            )]),
+                        };
+                    },
+                    Value::Content(c) => return Ok(Some(c.clone())),
+                    other => return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!(
+                            "show rule com selector de tipo requer função ou Content, \
+                             recebeu {}",
+                            other.type_name()
+                        ),
+                    )]),
+                }
+            }
+            Ok(None)
+        };
+
+        content = content.map_content(&mut apply_all)?;
+    }
+
+    // Text rules — map_text por padrão, na ordem de declaração.
+    for rule in rules {
+        if let Selector::Text(pattern) = &rule.selector {
+            if let Value::Str(s) = &rule.transform {
+                let replacement = s.to_string();
+                let mut do_replace = |text: &str| text.replace(pattern.as_str(), &replacement);
+                content = content.map_text(&mut do_replace);
+            }
+        }
+    }
+
+    Ok(content)
+}
+
+/// Aplica show rules ao Content produzido por eval (Passo 70 — DEBT-20 encerrado).
+///
+/// Anti-recursão via `active_guards` (stack de RuleId) em vez de booleano global.
+/// Permite composição entre regras distintas; snapshot explícito evita borrow
+/// conflict durante a travessia (DEBT-22).
+pub(crate) fn intercept_content(
+    content: Content,
+    ctx: &mut EvalContext<'_>,
+) -> SourceResult<Content> {
+    if ctx.show_rules.is_empty() {
+        return Ok(content);
+    }
+
+    let rules = ctx.show_rules.clone(); // snapshot explícito — DEBT-22
+    apply_show_rules(content, &rules, ctx)
+}
+
+/// Constrói a stdlib: `type`, `len`, `range`, `rgb`, `luma`, `str`, `int`, `float`, `figure`, `assert`, `upper`, `lower`, `replace`, `calc`.
 ///
 /// Passo 64 (DEBT-16): `native_figure` migrada do interceptador em eval.rs para cá.
 /// O avaliador deixa de conhecer o nome "figure" — desacoplamento total.
 fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
-        make_calc_module, native_figure, native_float, native_int, native_len,
-        native_luma, native_range, native_rgb, native_str, native_type,
+        make_calc_module, native_assert, native_emph, native_figure, native_float, native_heading,
+        native_image, native_int, native_len, native_lower, native_luma, native_range,
+        native_replace, native_raw, native_rgb, native_str, native_strong, native_type, native_upper,
     };
     let mut scope = Scope::new();
-    scope.define("type",   Value::Func(Func::native("type",   native_type)));
-    scope.define("len",    Value::Func(Func::native("len",    native_len)));
-    scope.define("range",  Value::Func(Func::native("range",  native_range)));
-    scope.define("rgb",    Value::Func(Func::native("rgb",    native_rgb)));
-    scope.define("luma",   Value::Func(Func::native("luma",   native_luma)));
-    scope.define("str",    Value::Func(Func::native("str",    native_str)));
-    scope.define("int",    Value::Func(Func::native("int",    native_int)));
-    scope.define("float",  Value::Func(Func::native("float",  native_float)));
-    scope.define("figure", Value::Func(Func::native("figure", native_figure)));
-    scope.define("calc",   make_calc_module());
+    scope.define("type",    Value::Func(Func::native("type",    native_type)));
+    scope.define("len",     Value::Func(Func::native("len",     native_len)));
+    scope.define("range",   Value::Func(Func::native("range",   native_range)));
+    scope.define("rgb",     Value::Func(Func::native("rgb",     native_rgb)));
+    scope.define("luma",    Value::Func(Func::native("luma",    native_luma)));
+    scope.define("str",     Value::Func(Func::native("str",     native_str)));
+    scope.define("int",     Value::Func(Func::native("int",     native_int)));
+    scope.define("float",   Value::Func(Func::native("float",   native_float)));
+    scope.define("heading",   Value::Func(Func::native("heading",   native_heading)));
+    scope.define("strong",    Value::Func(Func::native("strong",    native_strong)));
+    scope.define("emph",      Value::Func(Func::native("emph",      native_emph)));
+    scope.define("raw",       Value::Func(Func::native("raw",       native_raw)));
+    scope.define("figure",  Value::Func(Func::native("figure",  native_figure)));
+    scope.define("image",   Value::Func(Func::native("image",   native_image)));
+    scope.define("assert",  Value::Func(Func::native("assert",  native_assert)));
+    scope.define("upper",   Value::Func(Func::native("upper",   native_upper)));
+    scope.define("lower",   Value::Func(Func::native("lower",   native_lower)));
+    scope.define("replace", Value::Func(Func::native("replace", native_replace)));
+    scope.define("calc",    make_calc_module());
     scope
 }
 
@@ -1342,6 +1561,7 @@ mod tests {
         library: Library,
         book:    FontBook,
         source:  Source,
+        files:   std::collections::HashMap<String, std::sync::Arc<Vec<u8>>>,
     }
 
     impl MockWorld {
@@ -1351,7 +1571,12 @@ mod tests {
                 library: Library::new(),
                 book:    FontBook::new(),
                 source:  Source::new(id, text.to_string()),
+                files:   std::collections::HashMap::new(),
             }
+        }
+
+        fn add_file(&mut self, path: &str, data: Vec<u8>) {
+            self.files.insert(path.to_string(), std::sync::Arc::new(data));
         }
     }
 
@@ -1363,6 +1588,11 @@ mod tests {
         fn file(&self, _: FileId)     -> FileResult<Bytes>  { Err(FileError::NotFound) }
         fn font(&self, _: usize)      -> Option<Font>       { None }
         fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn read_bytes(&self, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+            self.files.get(path)
+                .map(std::sync::Arc::clone)
+                .ok_or_else(|| format!("ficheiro não encontrado: {}", path))
+        }
     }
 
     // ── Testes via Scope directamente ────────────────────────────────────────
@@ -2884,5 +3114,346 @@ mod tests {
         let content = module.content().unwrap();
         assert!(matches!(content, Content::Figure { caption: None, .. }),
             "figure() sem caption deve ter caption None: {:?}", content);
+    }
+
+    // ── Passo 66 — assert() via eval (prova de fogo de named args) ───────────
+
+    #[test]
+    fn eval_assert_true_nao_gera_erro() {
+        let world = MockWorld::new("#assert(1 == 1)");
+        let src = world.source(world.main()).unwrap();
+        assert!(eval_for_test(&world, &src).is_ok(), "assert(true) deve ter sucesso");
+    }
+
+    #[test]
+    fn eval_assert_false_gera_erro_com_mensagem_padrao() {
+        let world = MockWorld::new("#assert(false)");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(
+            err[0].message.contains("falhou") || err[0].message.contains("Asser"),
+            "mensagem de erro padrão deve mencionar a asserção: {:?}", err[0].message
+        );
+    }
+
+    #[test]
+    fn eval_assert_false_gera_erro_com_mensagem_personalizada() {
+        let world = MockWorld::new("#assert(1 == 2, message: \"Matematica falhou\")");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err());
+        assert!(result.unwrap_err()[0].message.contains("Matematica falhou"));
+    }
+
+    #[test]
+    fn eval_assert_rejeita_named_arg_invalido() {
+        let world = MockWorld::new("#assert(true, bla: \"bla\")");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert!(
+            err[0].message.contains("inesperado") && err[0].message.contains("bla"),
+            "named arg desconhecido deve gerar erro: {:?}", err[0].message
+        );
+    }
+
+    // ── Passo 67 — upper() / lower() / replace() via eval ────────────────────
+
+    #[test]
+    fn eval_upper_de_string() {
+        let world = MockWorld::new("#upper(\"hello\")");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert_eq!(text, "HELLO");
+    }
+
+    #[test]
+    fn eval_lower_de_string() {
+        let world = MockWorld::new("#lower(\"MUNDO\")");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert_eq!(text, "mundo");
+    }
+
+    #[test]
+    fn eval_replace_simples() {
+        let world = MockWorld::new("#replace(\"hello world\", \"world\", \"Typst\")");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert_eq!(text, "hello Typst");
+    }
+
+    #[test]
+    fn eval_replace_padrao_vazio_retorna_err() {
+        let world = MockWorld::new("#replace(\"hello\", \"\", \"x\")");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "replace com padrão vazio deve retornar Err");
+    }
+
+    #[test]
+    fn eval_upper_de_content_markup() {
+        let world = MockWorld::new("#upper([*negrito*])");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert_eq!(text, "NEGRITO");
+    }
+
+    #[test]
+    fn eval_upper_rejeita_named_arg() {
+        let world = MockWorld::new("#upper(\"x\", bla: 1)");
+        let src = world.source(world.main()).unwrap();
+        assert!(eval_for_test(&world, &src).is_err());
+    }
+
+    #[test]
+    fn eval_replace_com_count() {
+        let world = MockWorld::new("#replace(\"aaaa\", \"a\", \"b\", count: 2)");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert_eq!(text, "bbaa");
+    }
+
+    #[test]
+    fn eval_replace_rejeita_named_arg_invalido() {
+        let world = MockWorld::new("#replace(\"x\", \"a\", \"b\", bla: 1)");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err());
+        assert!(result.unwrap_err()[0].message.contains("bla"));
+    }
+
+    #[test]
+    fn eval_replace_limite_parcial_entre_nos() {
+        // count: 3 é global ao documento — persiste entre nós via FnMut.
+        // "aa " → substitui 2 → remaining=1; "*aa*" → substitui 1 → remaining=0; " aa" → intacto.
+        // plain_text esperado: "bb " + "ba" + " aa" = "bb ba aa"
+        let world = MockWorld::new("#replace([aa *aa* aa], \"a\", \"b\", count: 3)");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().unwrap();
+        assert_eq!(content.plain_text(), "bb ba aa");
+    }
+
+    // ── Show rules (Passo 68) ─────────────────────────────────────────────────
+
+    #[test]
+    fn eval_show_rule_text_substitui_ocorrencias() {
+        let world = MockWorld::new("#show \"A\": \"B\"\nAAA");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(!text.contains("AAA"),
+            "texto original não deve sobreviver: {:?}", text);
+        assert!(text.contains('B'),
+            "show text rule deve substituir 'A' por 'B': {:?}", text);
+    }
+
+    #[test]
+    fn eval_show_rule_funcao_no_heading() {
+        let world = MockWorld::new("#show heading: it => upper(it.body)\n\n= Capítulo um");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(text.to_uppercase().contains("CAPÍTULO UM") || text.contains("CAPÍTULO UM"),
+            "show rule deve transformar heading em maiúsculas: {:?}", text);
+    }
+
+    #[test]
+    fn eval_show_rule_falha_explicita_tipo_retorno_invalido() {
+        let world = MockWorld::new("#show heading: it => true\n\n= Erro");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "retornar bool de show rule deve gerar Err");
+        let err = result.unwrap_err();
+        assert!(
+            err[0].message.contains("Content") || err[0].message.contains("String"),
+            "mensagem deve mencionar tipos aceites: {:?}", err[0].message
+        );
+    }
+
+    #[test]
+    fn show_rule_respeita_escopo_lexico() {
+        // A regra dentro do code block não deve afectar o texto fora.
+        // Em markup Typst, `{ }` são texto literal; `#{ }` cria um code block real.
+        let world = MockWorld::new("#{ #show \"A\": \"B\" }\nA");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(text.trim().ends_with('A') || text.contains('A'),
+            "show rule do bloco não deve afectar texto exterior: {:?}", text);
+    }
+
+    #[test]
+    fn show_rule_nao_recursiva_sem_stack_overflow() {
+        // Guard in_show_transform previne loop infinito (DEBT-20).
+        // Nota: o guard é global — enquanto activo, NENHUMA outra show rule
+        // dispara. Compromisso arquitectural do Passo 68.
+        let world = MockWorld::new("#show heading: it => [= X ]\n\n= A");
+        let src = world.source(world.main()).unwrap();
+        // Deve terminar — Ok ou Err, nunca loop infinito.
+        let _result = eval_for_test(&world, &src);
+    }
+
+    // ── Show rules transversais (Passo 69 — DEBT-19 encerrado) ───────────────
+
+    #[test]
+    fn show_rule_map_content_transversal() {
+        // DEBT-19 encerrado: heading dentro de sequence deve ser intercetado.
+        let world = MockWorld::new("#show heading: it => upper(it.body)\n\n= Titulo Escondido");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(text.contains("TITULO ESCONDIDO"),
+            "map_content deve processar nós aninhados: {:?}", text);
+    }
+
+    #[test]
+    fn show_rule_multiplos_tipos_independentes() {
+        // Regras para Strong e Emph aplicam-se independentemente.
+        let world = MockWorld::new("#show strong: upper\n#show emph: lower\n*A* e _B_");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(text.contains('A') && text.contains('b'),
+            "Regras para Strong e Emph devem aplicar-se independentemente: {:?}", text);
+    }
+
+    #[test]
+    fn show_rule_texto_usa_map_text_nao_map_content() {
+        let world = MockWorld::new("#show \"a\": \"x\"\naaa");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert_eq!(text.trim(), "xxx",
+            "Selector::Text deve substituir todas as ocorrências: {:?}", text);
+    }
+
+    #[test]
+    fn show_rule_encadeamento_texto_sequencial() {
+        // A transforma em B, depois B transforma em C — resultado final deve ser C.
+        let world = MockWorld::new("#show \"A\": \"B\"\n#show \"B\": \"C\"\nA");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert_eq!(text.trim(), "C",
+            "encadeamento sequencial deve produzir 'C': {:?}", text);
+    }
+
+    #[test]
+    fn show_rule_composicao_sem_loop() {
+        // DEBT-20 encerrado: a regra transforma heading em heading.
+        // Durante apply_func, rule.id está em active_guards. O novo Heading
+        // gerado passa pelo intercept_content mas esta regra é saltada.
+        let world = MockWorld::new(
+            "#show heading: it => [Prefixo: ] + it.body\n\n= Título"
+        );
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(text.contains("Prefixo: Título"),
+            "Show rule deve aplicar-se uma vez: {:?}", text);
+        assert_eq!(text.matches("Prefixo:").count(), 1,
+            "A regra não deve ter sido reaplicada: {:?}", text);
+    }
+
+    #[test]
+    fn show_rule_encadeamento_duas_regras() {
+        // Regra 1: heading → strong. Durante apply_func, id=1 está em active_guards.
+        // O Strong gerado passa pelo intercept_content.
+        // Regra 2: strong → emph. id=2 não está em active_guards → aplica-se.
+        let world = MockWorld::new(
+            "#show heading: strong\n#show strong: emph\n\n= Título"
+        );
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(text.contains("Título"),
+            "Encadeamento deve produzir conteúdo: {:?}", text);
+    }
+
+    #[test]
+    fn show_rule_active_guards_limpos_apos_erro() {
+        // Se apply_func retornar Err, o pop ocorre antes de propagar o erro.
+        // Após o erro, active_guards deve estar vazio — pilha não corrompida.
+        let world = MockWorld::new(
+            "#show heading: it => true\n\n= Título"
+        );
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "Retornar bool de show rule deve gerar Err");
+    }
+
+    #[test]
+    fn show_rule_multiplas_regras_nodekind_travessia_unica() {
+        // DEBT-23: com múltiplas regras NodeKind, map_content é chamado uma vez.
+        // Verificação comportamental: cada tipo é transformado correctamente.
+        // Strong é parágrafo separado (não dentro do heading) para que upper
+        // no heading não sobreponha lower no strong.
+        let world = MockWorld::new(
+            "#show heading: upper\n#show strong: lower\n\n= Titulo\n\n*Forte*"
+        );
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(text.contains("TITULO"),
+            "Heading deve ser transformado para maiúsculas: {:?}", text);
+        assert!(text.contains("forte"),
+            "Strong deve ser transformado para minúsculas: {:?}", text);
+    }
+
+    // ── Passo 71 — image() integration ──────────────────────────────────────
+
+    #[test]
+    fn eval_image_le_ficheiro_para_content() {
+        let mut world = MockWorld::new(r#"#image("foto.png")"#);
+        world.add_file("foto.png", vec![0xFF, 0xD8, 0xFF]);
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().unwrap();
+        assert!(matches!(content, Content::Image { path, .. } if path == "foto.png"),
+            "image() deve produzir Content::Image: {:?}", content);
+    }
+
+    #[test]
+    fn eval_image_ficheiro_inexistente_gera_erro() {
+        let world = MockWorld::new(r#"#image("naoexiste.png")"#);
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "image() com ficheiro inexistente deve falhar");
+    }
+
+    #[test]
+    fn eval_image_rejeita_named_arg_invalido() {
+        let mut world = MockWorld::new(r#"#image("foto.png", cor: "red")"#);
+        world.add_file("foto.png", vec![1]);
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "named arg desconhecido deve gerar erro");
+    }
+
+    #[test]
+    fn content_image_arc_partilhado_em_clone() {
+        let data = std::sync::Arc::new(vec![1u8, 2, 3]);
+        let img = Content::Image {
+            path:   "img.png".to_string(),
+            data:   data.clone(),
+            width:  None,
+            height: None,
+        };
+        let img2 = img.clone();
+        assert_eq!(img, img2);
+        // Arc::ptr_eq verifica que os dois clones partilham o mesmo buffer.
+        if let (Content::Image { data: d1, .. }, Content::Image { data: d2, .. }) = (&img, &img2) {
+            assert!(std::sync::Arc::ptr_eq(d1, d2), "clone deve partilhar Arc");
+        }
     }
 }

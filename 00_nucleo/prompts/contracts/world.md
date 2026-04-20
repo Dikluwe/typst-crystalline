@@ -1,5 +1,5 @@
 # Prompt L0 — `contracts/world` — O Contrato Supremo do Sistema
-Hash do Código: 26db355c
+Hash do Código: 4b66b77a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/contracts/world.rs`
@@ -46,6 +46,13 @@ pub trait World: Send + Sync {
 
     /// Obter o conteúdo binário de um ficheiro (ex: imagens, fontes .ttf).
     fn file(&self, id: FileId) -> FileResult<Bytes>;
+
+    /// Ler ficheiro binário por caminho relativo à raiz do projecto (Passo 71).
+    /// Retorna Arc<Vec<u8>> partilhado — clone O(1) no AST.
+    /// Implementação por omissão retorna Err — MockWorlds mínimos não precisam de I/O.
+    fn read_bytes(&self, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+        Err(format!("leitura de ficheiro por caminho não suportada: {}", path))
+    }
 
     /// Obter uma fonte (bytes + metadados) pelo índice no FontBook.
     /// None se o índice está fora dos limites.

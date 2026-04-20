@@ -6,15 +6,15 @@
 
 use crate::entities::content::Content;
 
-use super::{FontMetrics, Layouter};
+use super::{FontMetrics, ImageSizer, Layouter};
 
 /// Renderiza uma figura com legenda opcional.
 ///
 /// A dupla contagem é intencional: a introspecção conta na Passagem 1 para
 /// resolver labels; o Layouter conta aqui na Passagem 2 para gerar os prefixos
 /// visuais iterativamente na ordem correcta.
-pub(super) fn layout_figure<M: FontMetrics>(
-    layouter: &mut Layouter<M>,
+pub(super) fn layout_figure<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
     body:     &Content,
     caption:  &Option<Box<Content>>,
 ) {
