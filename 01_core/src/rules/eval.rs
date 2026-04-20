@@ -728,6 +728,24 @@ fn eval_expr(
             Ok(Value::None)
         }
 
+        // Passo 76 — literais numéricos com unidade (ex: 100pt, 1.5em).
+        Expr::Numeric(num) => {
+            use crate::entities::ast::expr::Unit;
+            use crate::entities::layout_types::{Abs, Angle, Length, Ratio};
+            let (value, unit) = num.get();
+            match unit {
+                Unit::Pt      => Ok(Value::Length(Length { abs: Abs(value),            em: 0.0 })),
+                Unit::Mm      => Ok(Value::Length(Length { abs: Abs(value * 2.8346),   em: 0.0 })),
+                Unit::Cm      => Ok(Value::Length(Length { abs: Abs(value * 28.346),   em: 0.0 })),
+                Unit::In      => Ok(Value::Length(Length { abs: Abs(value * 72.0),     em: 0.0 })),
+                Unit::Em      => Ok(Value::Length(Length { abs: Abs(0.0),              em: value })),
+                Unit::Deg     => Ok(Value::Angle(Angle::deg(value))),
+                Unit::Rad     => Ok(Value::Angle(Angle::rad(value))),
+                Unit::Percent => Ok(Value::Ratio(Ratio::from_percent(value))),
+                Unit::Fr      => Ok(Value::Float(value)), // fracção — sem tipo dedicado em L1
+            }
+        }
+
         // Fronteira deliberada — requer tipos não migrados (Content, Styles, etc.)
         _ => Ok(Value::None),
     }
@@ -1452,8 +1470,9 @@ pub(crate) fn intercept_content(
 fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
         make_calc_module, native_assert, native_emph, native_figure, native_float, native_heading,
-        native_image, native_int, native_len, native_lower, native_luma, native_range,
-        native_replace, native_raw, native_rgb, native_str, native_strong, native_type, native_upper,
+        native_image, native_int, native_len, native_line, native_lower, native_luma, native_range,
+        native_rect, native_replace, native_raw, native_rgb, native_str, native_strong,
+        native_type, native_upper,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -1470,6 +1489,8 @@ fn make_stdlib() -> Scope {
     scope.define("raw",       Value::Func(Func::native("raw",       native_raw)));
     scope.define("figure",  Value::Func(Func::native("figure",  native_figure)));
     scope.define("image",   Value::Func(Func::native("image",   native_image)));
+    scope.define("rect",    Value::Func(Func::native("rect",    native_rect)));
+    scope.define("line",    Value::Func(Func::native("line",    native_line)));
     scope.define("assert",  Value::Func(Func::native("assert",  native_assert)));
     scope.define("upper",   Value::Func(Func::native("upper",   native_upper)));
     scope.define("lower",   Value::Func(Func::native("lower",   native_lower)));

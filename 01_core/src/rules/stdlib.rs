@@ -15,9 +15,10 @@ use rustc_hash::FxBuildHasher;
 
 use crate::entities::args::Args;
 use crate::entities::content::Content;
+use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::func::Func;
-use crate::entities::layout_types::Length;
+use crate::entities::layout_types::{Color, Length};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -669,6 +670,106 @@ pub fn native_image(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
     Ok(Value::Content(Content::Image { path, data: PtrEqArc(data), width, height }))
 }
 
+// ── Primitivas geométricas (Passo 76) ────────────────────────────────────────
+
+/// Converte um `Value` em `Color`.
+///
+/// Suporta nomes de cor conhecidos (`Value::Str`) e `Value::Color` directo.
+/// Valores hex (`#rrggbb`) ficam para passo futuro — o parser real de cores
+/// Typst requer um lexer dedicado.
+fn parse_color(val: &Value) -> Option<Color> {
+    match val {
+        Value::Color(c) => Some(*c),
+        Value::Str(s) => match s.as_str() {
+            "red"   => Some(Color::rgb(255, 0,   0)),
+            "green" => Some(Color::rgb(0,   128, 0)),
+            "blue"  => Some(Color::rgb(0,   0,   255)),
+            "black" => Some(Color::rgb(0,   0,   0)),
+            "white" => Some(Color::rgb(255, 255, 255)),
+            _       => None,
+        },
+        _ => None,
+    }
+}
+
+/// `rect(width?, height?, fill?, stroke?)` → `Content::Shape { kind: Rect, ... }`.
+///
+/// Fallback determinístico: sem `fill` nem `stroke` → stroke preta de 1pt.
+/// Este é o único local onde este fallback existe — nem o layouter nem o
+/// exportador têm permissão para inventar cores ou espessuras.
+pub fn native_rect(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+    for key in args.named.keys() {
+        if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("argumento nomeado inesperado em rect(): '{}'", key),
+            )]);
+        }
+    }
+
+    let width  = args.named.get("width").cloned().map(Box::new);
+    let height = args.named.get("height").cloned().map(Box::new);
+    let fill   = args.named.get("fill").and_then(parse_color);
+
+    let parsed_stroke: Option<Stroke> = args.named.get("stroke")
+        .and_then(parse_color)
+        .map(|c| Stroke { paint: c, thickness: 1.0 });
+
+    // Fallback determinístico: sem fill nem stroke → stroke preta de 1pt.
+    let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
+        Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 })
+    } else {
+        parsed_stroke
+    };
+
+    Ok(Value::Content(Content::Shape {
+        kind:   ShapeKind::Rect,
+        width,
+        height,
+        fill,
+        stroke: final_stroke,
+    }))
+}
+
+/// `line(dx?, dy?, stroke?)` → `Content::Shape { kind: Line, ... }`.
+///
+/// `dx`/`dy`: Float ou Length em pt. Omitidos → 0.0 (linha degenerada, válida).
+/// Stroke preta por omissão — linhas não têm fill.
+pub fn native_line(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+    for key in args.named.keys() {
+        if !["dx", "dy", "stroke"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("argumento nomeado inesperado em line(): '{}'", key),
+            )]);
+        }
+    }
+
+    fn extract_pt(val: &Value) -> f64 {
+        match val {
+            Value::Float(f) => *f,
+            Value::Int(i)   => *i as f64,
+            Value::Length(l) => l.abs.to_pt(),
+            _ => 0.0,
+        }
+    }
+
+    let dx = args.named.get("dx").map(extract_pt).unwrap_or(0.0);
+    let dy = args.named.get("dy").map(extract_pt).unwrap_or(0.0);
+
+    let stroke_color = args.named.get("stroke")
+        .and_then(parse_color)
+        .unwrap_or(Color::rgb(0, 0, 0)); // preto por omissão
+
+    Ok(Value::Content(Content::Shape {
+        kind:   ShapeKind::Line { dx, dy },
+        width:  None,
+        height: None,
+        fill:   None,
+        stroke: Some(Stroke { paint: stroke_color, thickness: 1.0 }),
+    }))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1092,5 +1193,65 @@ mod tests {
         null_ctx!(ctx);
         let args = pn(vec![Value::Str("foto.png".into())], "cor", Value::Str("red".into()));
         assert!(native_image(&mut ctx, &args).is_err());
+    }
+
+    // ── Passo 76 — primitivas geométricas ────────────────────────────────────
+
+    #[test]
+    fn rect_sem_cores_tem_stroke_preta_1pt() {
+        // #rect() sem fill nem stroke → stroke preta de 1pt.
+        // Confirma que a stdlib é o único local onde este fallback existe.
+        null_ctx!(ctx);
+        let result = native_rect(&mut ctx, &p(vec![])).unwrap();
+        if let Value::Content(Content::Shape { fill, stroke, .. }) = result {
+            assert!(fill.is_none(), "rect sem fill deve ter fill: None");
+            let s = stroke.expect("rect sem cores deve ter stroke de fallback");
+            assert_eq!(s.paint, Color::rgb(0, 0, 0), "stroke de fallback deve ser preta");
+            assert_eq!(s.thickness, 1.0, "espessura de fallback deve ser 1pt");
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn rect_com_fill_nao_tem_stroke_fallback() {
+        null_ctx!(ctx);
+        let mut args = Args::positional(vec![]);
+        args.named.insert("fill".into(), Value::Str("red".into()));
+        let result = native_rect(&mut ctx, &args).unwrap();
+        if let Value::Content(Content::Shape { fill, stroke, .. }) = result {
+            assert!(fill.is_some(), "fill red deve estar presente");
+            assert!(stroke.is_none(), "sem stroke explícito e com fill → stroke deve ser None");
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn line_tem_kind_line_e_stroke_preta_por_omissao() {
+        use crate::entities::geometry::ShapeKind;
+        null_ctx!(ctx);
+        let mut args = Args::positional(vec![]);
+        args.named.insert("dx".into(), Value::Float(100.0));
+        args.named.insert("dy".into(), Value::Float(50.0));
+        let result = native_line(&mut ctx, &args).unwrap();
+        if let Value::Content(Content::Shape { kind, fill, stroke, .. }) = result {
+            assert!(matches!(kind, ShapeKind::Line { dx, dy } if dx == 100.0 && dy == 50.0));
+            assert!(fill.is_none(), "linha não tem fill");
+            assert!(stroke.is_some(), "linha tem stroke por omissão");
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn parse_color_nomes_conhecidos() {
+        assert_eq!(parse_color(&Value::Str("red".into())),   Some(Color::rgb(255, 0, 0)));
+        assert_eq!(parse_color(&Value::Str("green".into())), Some(Color::rgb(0, 128, 0)));
+        assert_eq!(parse_color(&Value::Str("blue".into())),  Some(Color::rgb(0, 0, 255)));
+        assert_eq!(parse_color(&Value::Str("black".into())), Some(Color::rgb(0, 0, 0)));
+        assert_eq!(parse_color(&Value::Str("white".into())), Some(Color::rgb(255, 255, 255)));
+        assert_eq!(parse_color(&Value::Str("purple".into())), None);
+        assert_eq!(parse_color(&Value::Int(42)), None);
     }
 }

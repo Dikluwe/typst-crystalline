@@ -1171,4 +1171,99 @@ mod integration {
         assert!(result.is_ok(),
             "current_file não restaurado após #include: {:?}", result.err());
     }
+
+    // ── Passo 76 — primitivas geométricas ────────────────────────────────────
+
+    #[test]
+    fn rect_ordem_operadores_pdf() {
+        // #rect(fill: "red", stroke: "black") deve produzir:
+        // q → rg (fill) → RG (stroke) → w → re (path) → B (paint) → Q
+        let (world, _dir) = world_from_str(
+            "#rect(width: 100pt, height: 50pt, fill: \"red\", stroke: \"black\")"
+        );
+        let source = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+        let pdf     = export_pdf(&doc);
+
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert!(pdf_str.contains("q\n"),   "PDF deve ter push state (q)");
+        assert!(pdf_str.contains(" rg\n"), "PDF deve ter operador de fill (rg)");
+        assert!(pdf_str.contains(" RG\n"), "PDF deve ter operador de stroke (RG)");
+        assert!(pdf_str.contains(" w\n"),  "PDF deve ter operador de espessura (w)");
+        assert!(pdf_str.contains(" re\n"), "PDF deve ter operador de rectângulo (re)");
+        assert!(pdf_str.contains("B\n"),   "PDF deve ter paint operator B (fill+stroke)");
+        assert!(pdf_str.contains("Q\n"),   "PDF deve ter pop state (Q)");
+
+        // Verificar a ordem relativa.
+        let pos_q         = pdf_str.find("q\n").unwrap();
+        let pos_rg        = pdf_str.find(" rg\n").unwrap();
+        let pos_rg_upper  = pdf_str.find(" RG\n").unwrap();
+        let pos_re        = pdf_str.find(" re\n").unwrap();
+        let pos_b         = pdf_str.find("B\n").unwrap();
+        let pos_q_close   = pdf_str.rfind("Q\n").unwrap();
+
+        assert!(pos_q        < pos_rg,        "q deve preceder rg");
+        assert!(pos_rg       < pos_rg_upper,  "rg (fill) deve preceder RG (stroke)");
+        assert!(pos_rg_upper < pos_re,         "RG deve preceder re");
+        assert!(pos_re       < pos_b,          "re deve preceder B");
+        assert!(pos_b        < pos_q_close,    "B deve preceder Q final");
+    }
+
+    #[test]
+    fn line_coordenada_y_fim_inferior_ao_inicio() {
+        // #line(dy: 50pt) — dy positivo = desce no layout.
+        // No espaço PDF (Y cresce para cima), end_y < start_y.
+        let (world, _dir) = world_from_str(
+            "#line(dx: 100pt, dy: 50pt)"
+        );
+        let source = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+        let pdf     = export_pdf(&doc);
+
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert!(pdf_str.contains(" m\n"), "PDF deve conter operador m");
+        assert!(pdf_str.contains(" l\n"), "PDF deve conter operador l");
+
+        // Extrair Y do operador m (ponto inicial) e l (ponto final).
+        fn extrair_y_antes_op(s: &str, op: &str) -> f64 {
+            s.split(op).next()
+                .and_then(|antes| antes.split_whitespace().last())
+                .and_then(|tok| tok.parse::<f64>().ok())
+                .unwrap_or(0.0)
+        }
+
+        let m_y = extrair_y_antes_op(&pdf_str, " m\n");
+        let l_y = extrair_y_antes_op(&pdf_str, " l\n");
+
+        assert!(l_y < m_y,
+            "Y do ponto final ({}) deve ser inferior ao Y do início ({}) — \
+             dy positivo desce no layout, subtrai no PDF",
+            l_y, m_y);
+    }
+
+    #[test]
+    fn rect_sem_cores_gera_stroke_no_pdf() {
+        // #rect() sem fill nem stroke → fallback de stroke preta.
+        // O PDF deve conter S (stroke only), RG, w.
+        let (world, _dir) = world_from_str("#rect(width: 50pt, height: 30pt)");
+        let source = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+        let pdf     = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert!(pdf_str.contains(" RG\n"), "PDF deve ter stroke RG");
+        assert!(pdf_str.contains(" re\n"), "PDF deve ter rectângulo re");
+        assert!(pdf_str.contains("S\n"),   "PDF deve ter paint operator S (stroke only)");
+    }
 }

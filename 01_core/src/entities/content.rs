@@ -9,8 +9,9 @@ use std::sync::Arc;
 use ecow::EcoString;
 
 use crate::entities::counter_state::CounterAction;
+use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
-use crate::entities::layout_types::{Pt, TextStyle};
+use crate::entities::layout_types::{Color, Pt, TextStyle};
 use crate::entities::ptr_eq_arc::PtrEqArc;
 
 /// Conteúdo declarativo produzido por `eval()`.
@@ -210,6 +211,19 @@ pub enum Content {
         height: Option<Box<crate::entities::value::Value>>,
     },
 
+    /// Forma geométrica primitiva (Passo 76).
+    ///
+    /// `width`/`height`: dimensões opcionais no AST — o layouter resolve os valores
+    /// finais e emite `FrameItem::Shape` com `f64` concretos.
+    /// `fill`/`stroke` resolvidos na stdlib — nunca por resolver no layouter.
+    Shape {
+        kind:   ShapeKind,
+        width:  Option<Box<crate::entities::value::Value>>,
+        height: Option<Box<crate::entities::value::Value>>,
+        fill:   Option<Color>,
+        stroke: Option<Stroke>,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
@@ -346,6 +360,7 @@ impl Content {
             }
             Self::SetFigureNumbering { .. } => String::new(),
             Self::Image { .. } => String::new(),
+            Self::Shape { .. } => String::new(),
         }
     }
 }
@@ -401,6 +416,10 @@ impl PartialEq for Content {
             (Self::Image { path: pa, data: da, width: wa, height: ha },
              Self::Image { path: pb, data: db, width: wb, height: hb }) =>
                 pa == pb && da == db && wa.as_deref() == wb.as_deref() && ha.as_deref() == hb.as_deref(),
+            (Self::Shape { kind: ka, width: wa, height: ha, fill: fa, stroke: sa },
+             Self::Shape { kind: kb, width: wb, height: hb, fill: fb, stroke: sb }) =>
+                ka == kb && wa.as_deref() == wb.as_deref() && ha.as_deref() == hb.as_deref()
+                    && fa == fb && sa == sb,
             _ => false,
         }
     }
@@ -529,7 +548,8 @@ impl Content {
             | Content::MathAlignPoint
             | Content::MathIdent(_)
             | Content::MathText(_)
-            | Content::Image { .. } => self.clone(),
+            | Content::Image { .. }
+            | Content::Shape { .. } => self.clone(),
         };
 
         // Passo 2: aplicar a transformação ao nó já processado.
@@ -610,7 +630,8 @@ impl Content {
             | Content::MathDelimited { .. }
             | Content::MathMatrix { .. }
             | Content::MathCases { .. }
-            | Content::Image { .. } => self.clone(),
+            | Content::Image { .. }
+            | Content::Shape { .. } => self.clone(),
         }
     }
 }

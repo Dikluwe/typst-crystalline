@@ -465,6 +465,25 @@ para que `native_image` construa um caminho absoluto.
 
 ---
 
+## DEBT-30 — Suporte a clipping paths (clip: true) — EM ABERTO (Passo 76)
+
+Contentores com `clip: true` requerem o operador `W` (clipping path) e a sequência
+`W n` antes de desenhar o conteúdo interno. O PDF mantém um clipping path activo
+por estado gráfico (`q`/`Q`), portanto `clip: true` exige um push/pop de estado
+adicional. Resolução: passo futuro de layout de contentores.
+
+---
+
+## DEBT-31 — Transformações afins (rotate, scale) em nós — EM ABERTO (Passo 76)
+
+Rotação e escala requerem a matriz `cm` com valores não-identidade:
+`[cos -sin sin cos tx ty]` para rotação. A bounding box de um nó rodado não é
+um rectângulo alinhado aos eixos — o layouter precisaria de calcular o
+bounding box transformado. `Ellipse` usa rectângulo placeholder no exportador.
+Resolução: passo futuro de transformações.
+
+---
+
 ## DEBT-26 — PartialEq O(N) sobre Arc<Vec<u8>> em Content::Image — ENCERRADO ✓ (Passo 74)
 
 A implementação manual de `PartialEq` para `Content::Image` compara `data`
