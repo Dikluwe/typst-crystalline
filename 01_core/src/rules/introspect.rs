@@ -96,7 +96,8 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
         | Content::MathDelimited { .. }
         | Content::MathMatrix { .. }
         | Content::MathCases { .. }
-        | Content::Image { .. } => content.clone(),
+        | Content::Image { .. }
+        | Content::Shape { .. } => content.clone(),
     }
 }
 
@@ -251,7 +252,8 @@ fn walk(content: &Content, state: &mut CounterState) {
         | Content::MathCases { .. }
         | Content::MathAlignPoint
         | Content::Linebreak
-        | Content::Image { .. } => {}
+        | Content::Image { .. }
+        | Content::Shape { .. } => {}
 
         Content::Outline => {
             state.has_outline = true;

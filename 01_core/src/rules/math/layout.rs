@@ -58,7 +58,8 @@ impl MathBox {
                     pos.x = Pt(pos.x.val() + x_origin);
                     pos.y = Pt(baseline_y - self.ascent + pos.y.val());
                 }
-                FrameItem::Image { .. } => {}  // imagens não ocorrem em contexto math
+                FrameItem::Image { .. } => {}   // imagens não ocorrem em contexto math
+                FrameItem::Shape { .. } => {}   // formas não ocorrem em contexto math
             }
             item
         }).collect()
@@ -92,6 +93,15 @@ fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
                 height,
                 intrinsic_width,
                 intrinsic_height,
+            },
+        FrameItem::Shape { pos, kind, width, height, fill, stroke } =>
+            FrameItem::Shape {
+                pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
+                kind,
+                width,
+                height,
+                fill,
+                stroke,
             },
     }
 }
@@ -433,7 +443,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     FrameItem::Glyph { ref mut pos, .. } => {
                         pos.x = Pt(pos.x.val() + x);
                     }
-                    FrameItem::Image { .. } => {}  // imagens não ocorrem em contexto math
+                    FrameItem::Image { .. } => {}   // imagens não ocorrem em contexto math
+                    FrameItem::Shape { .. } => {}   // formas não ocorrem em contexto math
                 }
                 items.push(item);
             }

@@ -17,6 +17,7 @@ use std::sync::Arc;
 use crate::entities::{
     content::Content,
     counter_state::CounterState,
+    geometry::ShapeKind,
     glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
     image_sizer::{ImageSizer, NullImageSizer},
     layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle},
@@ -339,7 +340,8 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                                 start: abs_start, end: abs_end, thickness,
                             });
                         }
-                        FrameItem::Image { .. } => {}  // imagens não ocorrem em math inline
+                        FrameItem::Image { .. } => {}   // imagens não ocorrem em math inline
+                        FrameItem::Shape { .. } => {}   // formas não ocorrem em math inline
                         FrameItem::Glyph { pos, glyph_id, x_advance, size } => {
                             let abs_pos = Point {
                                 x: offset_x + pos.x,
@@ -416,6 +418,35 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             // Passo 61 — TOC: delegado a outline.rs (Tarefa 5).
             Content::Outline => {
                 outline::layout_outline(self);
+            }
+
+            Content::Shape { kind, width, height, fill, stroke } => {
+                let available_w = Size::a4().width.0 - MARGIN.0 * 2.0;
+                let (resolved_w, resolved_h) = match kind {
+                    ShapeKind::Rect | ShapeKind::Ellipse => {
+                        let w = resolve_pt(width.as_deref(), available_w);
+                        let h = resolve_pt(height.as_deref(), 0.0);
+                        (w, h)
+                    }
+                    ShapeKind::Line { dx, dy } => (dx.abs(), dy.abs()),
+                };
+
+                if self.cursor_y.0 + resolved_h > Size::a4().height.0 - MARGIN.0 {
+                    self.new_page();
+                }
+                self.flush_line();
+
+                let pos = Point { x: self.cursor_x, y: self.cursor_y };
+                self.current.push(FrameItem::Shape {
+                    pos,
+                    kind:   kind.clone(),
+                    width:  resolved_w,
+                    height: resolved_h,
+                    fill:   *fill,
+                    stroke: stroke.clone(),
+                });
+
+                self.cursor_y += Pt(resolved_h);
             }
 
             Content::Image { data, width, height, .. } => {
@@ -530,10 +561,26 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
     }
 }
 
-// ── API pública ────────────────────────────────────────────────────────────
+// ── Auxiliares ────────────────────────────────────────────────────────────
 
 fn heading_scale(level: u8) -> f64 {
     match level { 1 => 2.0, 2 => 1.667, 3 => 1.333, 4 => 1.167, _ => 1.0 }
+}
+
+/// Extrai o valor em pontos de um `Option<&Value>`, com fallback.
+///
+/// Suporta `Value::Length` (abs em pt), `Value::Float`, `Value::Int`.
+/// `Value::Auto` e `None` → `fallback`.
+fn resolve_pt(val: Option<&crate::entities::value::Value>, fallback: f64) -> f64 {
+    use crate::entities::value::Value;
+    match val {
+        None => fallback,
+        Some(Value::Length(l)) => l.abs.to_pt(),
+        Some(Value::Float(f))  => *f,
+        Some(Value::Int(i))    => *i as f64,
+        Some(Value::Auto)      => fallback,
+        Some(_)                => fallback,
+    }
 }
 
 /// Layout com convergência de fixpoint (Passo 65).

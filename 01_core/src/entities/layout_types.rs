@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 use ecow::EcoString;
 
+use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
 
 // ── Coordenadas e medidas ──────────────────────────────────────────────────
@@ -151,6 +152,19 @@ pub enum FrameItem {
         intrinsic_width:  u32,
         intrinsic_height: u32,
     },
+    /// Forma geométrica com dimensões resolvidas em pontos (Passo 76).
+    ///
+    /// Todos os campos são concretos — sem `Option<Value>`.
+    /// `pos`: canto superior esquerdo da bounding box.
+    /// O exportador calcula `pdf_y = page_height - pos.y - height` (inversão de eixo Y).
+    Shape {
+        pos:    Point,
+        kind:   ShapeKind,
+        width:  f64,
+        height: f64,
+        fill:   Option<Color>,
+        stroke: Option<Stroke>,
+    },
 }
 
 /// Canvas de uma página — colecção de itens com posições absolutas.
@@ -181,6 +195,7 @@ impl Frame {
                 FrameItem::Line { .. }       => None,
                 FrameItem::Glyph { .. }      => None,
                 FrameItem::Image { .. }      => None,
+                FrameItem::Shape { .. }      => None,
             })
             .collect::<Vec<_>>()
             .join(" ")

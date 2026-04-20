@@ -640,6 +640,61 @@ fn build_page_stream_type1(
                     ));
                 }
             }
+            FrameItem::Shape { pos, kind, width, height, fill, stroke } => {
+                use typst_core::entities::geometry::ShapeKind;
+                // Inverter eixo Y: layout tem Y crescente para baixo; PDF crescente para cima.
+                // pdf_y é o canto inferior esquerdo da bounding box no espaço PDF.
+                let pdf_y = page_height - pos.y.val() - height;
+
+                // Ordem obrigatória: push state → cores → path → paint operator → pop state.
+                ops.push_str("q\n");
+
+                // Cor de preenchimento (rg — RGB para fills).
+                // Alpha ignorado: transparência vectorial requer ca/CA (PDF 1.4), adiado.
+                if let Some(c) = fill {
+                    let (r, g, b, _) = c.to_rgba_f32();
+                    ops.push_str(&format!("{:.3} {:.3} {:.3} rg\n", r, g, b));
+                }
+
+                // Cor e espessura do contorno (RG + w).
+                if let Some(s) = stroke {
+                    let (r, g, b, _) = s.paint.to_rgba_f32();
+                    ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, s.thickness));
+                }
+
+                // Path — depende do tipo de forma.
+                match kind {
+                    ShapeKind::Rect => {
+                        // Operador re: x y width height re — rectângulo como sub-path fechado.
+                        ops.push_str(&format!("{:.2} {:.2} {:.2} {:.2} re\n",
+                            pos.x.val(), pdf_y, width, height));
+                    }
+                    ShapeKind::Ellipse => {
+                        // TODO: substituir por aproximação Bézier real (DEBT-31).
+                        // Placeholder: rectângulo para manter PDF válido.
+                        ops.push_str(&format!("{:.2} {:.2} {:.2} {:.2} re\n",
+                            pos.x.val(), pdf_y, width, height));
+                    }
+                    ShapeKind::Line { dx, dy } => {
+                        // start_y: Y do ponto de início no espaço PDF.
+                        // dy positivo = desce no layout → subtrai no PDF (eixos opostos).
+                        let start_y = page_height - pos.y.val();
+                        let end_y   = page_height - (pos.y.val() + dy);
+                        ops.push_str(&format!("{:.2} {:.2} m\n", pos.x.val(), start_y));
+                        ops.push_str(&format!("{:.2} {:.2} l\n", pos.x.val() + dx, end_y));
+                    }
+                }
+
+                // Paint operator (fill/stroke/ambos).
+                match (fill.is_some(), stroke.is_some()) {
+                    (true,  true)  => ops.push_str("B\n"),
+                    (true,  false) => ops.push_str("f\n"),
+                    (false, true)  => ops.push_str("S\n"),
+                    (false, false) => {}
+                }
+
+                ops.push_str("Q\n");
+            }
         }
     }
 
@@ -806,6 +861,45 @@ fn build_page_stream_cidfont(
                         img_refs[idx].name
                     ));
                 }
+            }
+            FrameItem::Shape { pos, kind, width, height, fill, stroke } => {
+                use typst_core::entities::geometry::ShapeKind;
+                let pdf_y = page_height - pos.y.val() - height;
+
+                ops.push_str("q\n");
+                if let Some(c) = fill {
+                    let (r, g, b, _) = c.to_rgba_f32();
+                    ops.push_str(&format!("{:.3} {:.3} {:.3} rg\n", r, g, b));
+                }
+                if let Some(s) = stroke {
+                    let (r, g, b, _) = s.paint.to_rgba_f32();
+                    ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, s.thickness));
+                }
+                match kind {
+                    ShapeKind::Rect => {
+                        ops.push_str(&format!("{:.2} {:.2} {:.2} {:.2} re\n",
+                            pos.x.val(), pdf_y, width, height));
+                    }
+                    ShapeKind::Ellipse => {
+                        // TODO: substituir por aproximação Bézier real (DEBT-31).
+                        ops.push_str(&format!("{:.2} {:.2} {:.2} {:.2} re\n",
+                            pos.x.val(), pdf_y, width, height));
+                    }
+                    ShapeKind::Line { dx, dy } => {
+                        let start_y = page_height - pos.y.val();
+                        // dy positivo = desce no layout → subtrai no PDF (eixos opostos).
+                        let end_y   = page_height - (pos.y.val() + dy);
+                        ops.push_str(&format!("{:.2} {:.2} m\n", pos.x.val(), start_y));
+                        ops.push_str(&format!("{:.2} {:.2} l\n", pos.x.val() + dx, end_y));
+                    }
+                }
+                match (fill.is_some(), stroke.is_some()) {
+                    (true,  true)  => ops.push_str("B\n"),
+                    (true,  false) => ops.push_str("f\n"),
+                    (false, true)  => ops.push_str("S\n"),
+                    (false, false) => {}
+                }
+                ops.push_str("Q\n");
             }
         }
     }
