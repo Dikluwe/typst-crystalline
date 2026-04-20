@@ -1,10 +1,10 @@
 # Prompt L0 — `infra/export` — Exportador Físico de Documentos
-Hash do Código: e9d71975
+Hash do Código: 99ae3678
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export.rs`
 **Criado em**: 2026-03-29 (Passo 21)
-**Atualizado em**: 2026-04-12 (restauro — expandido com CIDFont/Identity-H, FrameItem::Glyph, ToUnicode, ADR-0027)
+**Atualizado em**: 2026-04-19 (Passo 73 — FrameItem::Image, XObject JPEG, deduplicação por Arc::as_ptr)
 **ADRs relevantes**: ADR-0027 (CIDFont + Identity-H para Unicode completo)
 
 ---
@@ -12,10 +12,28 @@ Hash do Código: e9d71975
 ## Contexto e Objetivo
 
 O L1 produz um `PagedDocument` — uma árvore de instruções de desenho com
-coordenadas puras (`FrameItem::Text`, `FrameItem::Line`, `FrameItem::Glyph`).
+coordenadas puras (`FrameItem::Text`, `FrameItem::Line`, `FrameItem::Glyph`,
+`FrameItem::Image`).
 **Este módulo** (L3) converte essa geometria pura em bytes estruturados de
 PDF-1.7, sem `crates` externas de PDF — geração manual de objectos, xref e
 trailer.
+
+### Suporte a Imagens (Passo 73)
+
+`FrameItem::Image` é emitido pelo layouter quando `Content::Image` é processado.
+O exportador suporta apenas **JPEG** neste passo (magic bytes `0xFF 0xD8 0xFF`),
+usando `/Filter /DCTDecode` — os bytes crus são embutidos sem recodificação.
+
+**Deduplicação:** a mesma imagem pode aparecer várias vezes no documento.
+O mapa `image_resources: HashMap<usize, ImageResource>` usa `Arc::as_ptr(data) as usize`
+como chave — seguro porque `PagedDocument` mantém todos os Arcs vivos durante
+`export_pdf`, impedindo reutilização de endereços.
+
+**DEBT-27:** PNG requer descodificação completa (canal alpha → /SMask).
+Ignorado silenciosamente neste passo — o espaço está reservado no layout.
+
+**DEBT-29:** assume `DeviceRGB` para todos os JPEGs. JPEG Grayscale/CMYK
+detectados pelo Passo 74 via marcadores SOF0/SOF2.
 
 ### Fronteira de Arquitectura
 

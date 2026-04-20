@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/contracts/world.md
-//! @prompt-hash 80c1c90d
+//! @prompt-hash dc500c05
 //! @layer L1
 //! @updated 2026-03-22
 
@@ -32,6 +32,14 @@ pub trait World: Send + Sync {
 
     /// Obter o conteúdo binário de um ficheiro pelo seu id.
     fn file(&self, id: FileId) -> FileResult<Bytes>;
+
+    /// Ler ficheiro binário por caminho relativo à raiz do projecto (Passo 71).
+    /// Retorna `Arc<Vec<u8>>` partilhado — clones do AST não copiam os bytes.
+    /// Implementação por omissão: retorna Err — MockWorlds que não precisam de
+    /// I/O não necessitam de implementar este método.
+    fn read_bytes(&self, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+        Err(format!("leitura de ficheiro por caminho não suportada: {}", path))
+    }
 
     /// Obter uma fonte pelo índice no `FontBook`.
     fn font(&self, index: usize) -> Option<Font>;

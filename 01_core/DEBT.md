@@ -341,21 +341,133 @@ Sem `has_outline`, `layout()` usa short-circuit de passagem única (sem fixpoint
 
 ---
 
-## DEBT-18 — Perda de Contexto Temporal em AST Clonado na TOC — PENDENTE
+## DEBT-18 — Perda de Contexto Temporal em AST Clonado na TOC — RESOLVIDO (Passo 66)
 
-**Registado no Passo 63.**
+**Registado no Passo 63. Resolvido no Passo 66.**
 
-O modo `is_readonly` bloqueia mutações de contadores durante a renderização da
-TOC, mas não resolve o problema das leituras (`CounterDisplay`). Exemplo: o
-utilizador escreve `= Capítulo #counter("cap").display()`. Na página 5, o
-contador vale 3 e o título renderiza "Capítulo 3". Na TOC (página 1), o
-Layouter avalia o `CounterDisplay` com o contador ainda em 0, e lista
-"Capítulo 0 .............. pág. 5".
+**Resolução**: materialização de AST na Passagem 1 (Introspecção).
+A função `materialize_time(content, state)` em `introspect.rs` percorre o AST do
+body de cada título e substitui cada `CounterDisplay` pelo seu valor em texto
+estático (`Content::Text`) usando o `CounterState` actual naquele momento exacto.
 
-Causa raiz: ao clonar o AST puro para a TOC, o nó é arrancado do seu contexto
-temporal. O `is_readonly` impede que a TOC estrague o futuro, mas não permite
-que a TOC "veja" o futuro.
+`headings_for_toc.push` passou de `*body.clone()` para `materialize_time(body, state)`.
 
-Resolução futura: na Passagem 2 (draft), transformar os títulos em geometria
-estática resolvida (texto + formatação, sem nós de estado dinâmico) antes de
-passar para `headings_for_toc`.
+`CounterState::display_value(kind)` centraliza a lógica de leitura (hierárquico
+vs plano) usada por `materialize_time` e por `layout/counters.rs`.
+
+---
+
+## DEBT-23 — Travessia múltipla em apply_show_rules (Passo 69)
+
+`apply_show_rules` percorre a árvore uma vez por `ShowRule` activa: O(R×N)
+com R regras e N nós. Resolução: `map_content` chamado uma única vez, com
+todas as regras testadas por nó dentro da closure. Requer mudança de
+assinatura de `map_content` para aceitar uma lista de regras em vez de uma
+closure genérica.
+
+---
+
+## DEBT-19 — Avaliação superficial de NodeKind — **ENCERRADO (Passo 69)**
+
+`map_content` bottom-up implementado em `content.rs`. `apply_show_rules`
+reescrito para usar `map_content` em seletores de nó — a árvore inteira
+é percorrida. `NodeKind` expandido com Strong, Emph, Raw, Equation, ListItem.
+`intercept_content` adicionado a `Expr::Strong` e `Expr::Emph` além de
+`Expr::Heading` e `Expr::FuncCall`.
+
+Substituição Texto→Content via Func/Content continua a gerar Err explícito.
+
+---
+
+## DEBT-20 — Guard anti-recursão booleano global — **ENCERRADO (Passo 70)** ✓
+
+Substituído por `active_guards: Vec<RuleId>` no `EvalContext`. Pilha de
+regras activas permite composição de regras sem stack overflow — a regra
+cujo ID está na pilha é saltada, outras regras continuam a actuar.
+
+---
+
+## DEBT-21 — Resolução de NodeKind por string — **MITIGADO (Passo 70)**
+
+`Func::name()` continua a ser usado. Aliasing não é detectado. Resolução
+completa por ponteiro adiada (requer Rust >= 1.85 para `fn_addr_eq` estável).
+Mensagens de erro melhoradas para closures anónimas (None → Err explícito).
+
+---
+
+## DEBT-22 — Clone de show_rules por nó (Passo 68)
+
+`ctx.show_rules.clone()` em `intercept_content` é O(N) por cada nó de
+conteúdo gerado. Em documentos grandes com muitas regras, o custo acumula.
+Resolução: usar `Rc<[ShowRule]>` ou indexação para partilhar a lista sem
+copiar, separando o estado de mutação da leitura.
+
+---
+
+## DEBT-23 — Travessia múltipla O(R×N) — **ENCERRADO (Passo 70)** ✓
+
+`apply_show_rules` chama `map_content` uma única vez para todas as regras
+`NodeKind`. Dentro da closure bottom-up, todas as regras activas são testadas
+por nó antes de prosseguir — custo reduzido de O(R×N) para O(N).
+
+---
+
+## DEBT-24b — Dimensões reais de imagem — ENCERRADO (Passo 72) ✓
+
+Placeholder 100×100 substituído por leitura real de dimensões via trait
+`ImageSizer` injectado no layouter. L3 implementa com `imagesize`;
+L1 mantém-se puro (zero dependências externas adicionais).
+
+---
+
+## DEBT-24c — FrameItem::Image e export PDF — ENCERRADO (Passo 73) ✓
+
+`FrameItem::Image` adicionado ao layouter e ao exportador PDF. JPEG embutido
+com `/DCTDecode`. Deduplicação por `Arc::as_ptr`. Espaço reservado no layout
+e imagem emitida no PDF para ficheiros JPEG.
+
+---
+
+## DEBT-27 — Suporte a transparência PNG no exportador PDF (Passo 73)
+
+PDF não suporta ficheiros PNG crus. PNG requer descodificação de píxeis
+(canal RGBA separado para /SMask de transparência) antes de ser embutido.
+Prova de conceito do Passo 73 usa apenas JPEG (/DCTDecode).
+Resolução: Passo 74 adiciona `crate image` a L3 para descodificar PNG
+em RGBA plano e passar ao gerador de PDF.
+
+---
+
+## DEBT-28 — Dupla leitura de cabeçalho de imagem no layouter (Passo 73)
+
+`calculate_dimensions` e `sizer.size()` lêem o cabeçalho da imagem separadamente.
+O custo é mínimo (imagesize lê apenas o cabeçalho, não os píxeis), mas é
+redundante. Resolução futura: `calculate_dimensions` retorna `ImageDimensions`
+com `intrinsic_width`, `intrinsic_height` — eliminando a segunda chamada.
+
+---
+
+## DEBT-29 — Detecção de ColorSpace para JPEGs crus (Passo 73)
+
+O exportador assume `DeviceRGB` para todos os JPEGs. JPEGs Grayscale (1 canal)
+ou CMYK (4 canais) com ColorSpace errado produzem lixo visual ou rejeição pelo
+leitor PDF. Resolução: Passo 74 lê o marcador SOF0/SOF2 do cabeçalho JPEG para
+determinar o número de canais e escolher `DeviceRGB`, `DeviceGray` ou `DeviceCMYK`.
+
+---
+
+## DEBT-25 — Resolução de caminhos relativos em stdlib (Passo 71)
+
+`native_image` passa o caminho ao `World::read_bytes` tal como fornecido pelo
+utilizador (relativo à raiz do projecto). Não há resolução relativa ao ficheiro
+fonte activo. Resolução: `EvalContext` deve expor o path do ficheiro corrente
+para que `native_image` construa um caminho absoluto.
+
+---
+
+## DEBT-26 — PartialEq O(N) sobre Arc<Vec<u8>> em Content::Image (Passo 71)
+
+A implementação manual de `PartialEq` para `Content::Image` compara `data`
+por valor (`da == db`), o que é O(N) nos bytes da imagem. Em contextos de
+teste ou deduplicação frequente, usar `Arc::ptr_eq` primeiro e cair para
+comparação por valor apenas se os ponteiros diferirem.

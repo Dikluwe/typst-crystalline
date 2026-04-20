@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 64087f31
+//! @prompt-hash af36c701
 //! @layer L1
 //! @updated 2026-04-13
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use ecow::EcoString;
 
@@ -132,6 +133,24 @@ pub enum FrameItem {
         x_advance: Pt,
         size:      Pt,
     },
+    /// Imagem a desenhar na página.
+    ///
+    /// `pos`: canto superior esquerdo em coordenadas de página (pt).
+    ///        NOTA: para imagens, pos.y é o TOPO da bounding box — não o baseline de texto.
+    ///        O exportador calcula pdf_y = page_height - pos.y - height (inversão de eixo Y).
+    /// `data`: bytes raw da imagem (JPEG, PNG, etc.) — Arc para zero-copy.
+    /// `width`, `height`: dimensões físicas no documento (pt) — tamanho de layout.
+    /// `intrinsic_width`, `intrinsic_height`: dimensões reais em píxeis, lidas do
+    ///   cabeçalho da imagem. Obrigatórias para o dicionário XObject no PDF —
+    ///   /Width e /Height intrínsecos ≠ tamanho de layout na página.
+    Image {
+        pos:              Point,
+        data:             Arc<Vec<u8>>,
+        width:            Pt,
+        height:           Pt,
+        intrinsic_width:  u32,
+        intrinsic_height: u32,
+    },
 }
 
 /// Canvas de uma página — colecção de itens com posições absolutas.
@@ -161,6 +180,7 @@ impl Frame {
                 FrameItem::Text { text, .. } => Some(text.as_str()),
                 FrameItem::Line { .. }       => None,
                 FrameItem::Glyph { .. }      => None,
+                FrameItem::Image { .. }      => None,
             })
             .collect::<Vec<_>>()
             .join(" ")

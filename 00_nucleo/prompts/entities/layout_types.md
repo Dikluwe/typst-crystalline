@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: f8cb85d6
+Hash do Código: 0e2ebf9a
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -25,7 +25,17 @@ Newtype f64 para pontos tipográficos. `Pt + Pt` OK; `Pt + f64` NÃO implementad
 Coordenada 2D e tamanho 2D em `Pt`.
 
 ### `FrameItem`
-Variante inicial: `Text { pos, text, font_size }`. Futuras: Shape, Image.
+Variantes: `Text { pos, text, style }`, `Line { start, end, thickness }`,
+`Glyph { pos, glyph_id, x_advance, size }`, `Image { pos, data, width, height, intrinsic_width, intrinsic_height }`.
+
+`Image`: representa uma imagem a renderizar na página.
+- `pos`: canto superior esquerdo em coordenadas de página (pt).
+- `data: Arc<Vec<u8>>`: bytes raw da imagem — zero-copy via Arc.
+- `width`, `height`: dimensões físicas no documento (pt) — tamanho de layout.
+- `intrinsic_width`, `intrinsic_height`: dimensões reais em píxeis — obrigatórias
+  para o dicionário XObject PDF (/Width, /Height intrínsecos ≠ tamanho de layout).
+
+`plain_text()` ignora `Image`, `Line`, `Glyph` — retorna apenas texto.
 
 ### `Frame`
 Canvas de uma página. `plain_text()` para verificação em testes.

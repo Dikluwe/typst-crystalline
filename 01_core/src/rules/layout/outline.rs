@@ -6,7 +6,7 @@
 
 use crate::entities::content::Content;
 
-use super::{FontMetrics, Layouter};
+use super::{FontMetrics, ImageSizer, Layouter};
 
 /// Gera a Tabela de Conteúdos visual.
 ///
@@ -19,7 +19,7 @@ use super::{FontMetrics, Layouter};
 /// Números de página (DEBT-12): lidos de `label_pages` se disponíveis.
 /// Na Passagem 2 (draft) estará vazio — TOC sem números.
 /// Na Passagem 3 (final) terá os dados reais — TOC com páginas correctas.
-pub(super) fn layout_outline<M: FontMetrics>(layouter: &mut Layouter<M>) {
+pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>) {
     // Clonar o vector antes do loop para evitar borrow duplo de `layouter`.
     let entries: Vec<_> = layouter.counter.headings_for_toc.clone();
 

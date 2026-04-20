@@ -24,6 +24,79 @@ pub fn introspect(content: &Content) -> CounterState {
     state
 }
 
+/// "Congela" o AST substituindo nós dependentes de contexto (como CounterDisplay)
+/// pelos seus valores em texto estático no momento exacto da introspecção (Passo 66, DEBT-18).
+///
+/// Resolve DEBT-18: sem esta função, a TOC mostraria os valores dos contadores
+/// no início do documento, não o valor que cada contador tinha quando o título ocorreu.
+///
+/// Dois braços explícitos — sem wildcard para manter verificação de exaustividade:
+/// - Containers: propagam recursivamente.
+/// - Terminais: clonados directamente.
+fn materialize_time(content: &Content, state: &CounterState) -> Content {
+    match content {
+        // O caso crítico: substituir o nó dinâmico pelo valor actual do contador.
+        Content::CounterDisplay { kind } => {
+            Content::text(state.display_value(kind))
+        }
+
+        // ── Containers com filhos (propagação recursiva) ──────────────────
+        Content::Sequence(seq) => {
+            Content::Sequence(
+                seq.iter().map(|c| materialize_time(c, state)).collect::<Vec<_>>().into()
+            )
+        }
+        Content::Strong(body) => Content::Strong(Box::new(materialize_time(body, state))),
+        Content::Emph(body)   => Content::Emph(Box::new(materialize_time(body, state))),
+        Content::Heading { level, body } => Content::Heading {
+            level: *level,
+            body:  Box::new(materialize_time(body, state)),
+        },
+        Content::ListItem(body) => Content::ListItem(Box::new(materialize_time(body, state))),
+        Content::EnumItem { number, body } => Content::EnumItem {
+            number: *number,
+            body:   Box::new(materialize_time(body, state)),
+        },
+        Content::Link { url, body } => Content::Link {
+            url:  url.clone(),
+            body: Box::new(materialize_time(body, state)),
+        },
+        Content::Labelled { target, label } => Content::Labelled {
+            target: Box::new(materialize_time(target, state)),
+            label:  label.clone(),
+        },
+        Content::Figure { body, caption } => Content::Figure {
+            body:    Box::new(materialize_time(body, state)),
+            caption: caption.as_ref().map(|c| Box::new(materialize_time(c, state))),
+        },
+
+        // ── Terminais — clonar directamente ──────────────────────────────
+        // Nós matemáticos (Equation e subtipos) não podem conter CounterDisplay
+        // em markup válido — clonados em bloco sem recursão.
+        Content::Empty
+        | Content::Text(_, _)
+        | Content::Space
+        | Content::Raw { .. }
+        | Content::Ref { .. }
+        | Content::SetHeadingNumbering { .. }
+        | Content::CounterUpdate { .. }
+        | Content::Outline
+        | Content::Linebreak
+        | Content::MathAlignPoint
+        | Content::MathIdent(_)
+        | Content::MathText(_)
+        | Content::Equation { .. }
+        | Content::MathSequence(_)
+        | Content::MathFrac { .. }
+        | Content::MathAttach { .. }
+        | Content::MathRoot { .. }
+        | Content::MathDelimited { .. }
+        | Content::MathMatrix { .. }
+        | Content::MathCases { .. }
+        | Content::Image { .. } => content.clone(),
+    }
+}
+
 /// Percurso recursivo sem efeitos visuais.
 ///
 /// Replica exactamente os side-effects de estado que o Layouter produz,
@@ -58,8 +131,10 @@ fn walk(content: &Content, state: &mut CounterState) {
             };
             state.resolved_labels.insert(auto_label.clone(), resolved_text);
 
-            // Guardar para a TOC: clonar o body preserva formatação.
-            state.headings_for_toc.push((auto_label, *body.clone(), *level as usize));
+            // Guardar para a TOC: congelar o AST substitui CounterDisplay
+            // pelo valor actual (DEBT-18 resolvido via materialize_time).
+            let frozen_body = materialize_time(body, state);
+            state.headings_for_toc.push((auto_label, frozen_body, *level as usize));
 
             walk(body, state);
         }
@@ -151,7 +226,8 @@ fn walk(content: &Content, state: &mut CounterState) {
         | Content::MathMatrix { .. }
         | Content::MathCases { .. }
         | Content::MathAlignPoint
-        | Content::Linebreak => {}
+        | Content::Linebreak
+        | Content::Image { .. } => {}
 
         Content::Outline => {
             state.has_outline = true;
@@ -393,5 +469,89 @@ mod tests {
             state.resolved_labels.contains_key(&Label("sec".to_string())),
             "backward ref deve também estar em resolved_labels"
         );
+    }
+
+    // ── Testes de Passo 66 — Materialização temporal (DEBT-18) ───────────────
+
+    #[test]
+    fn materialize_time_substitui_counter_display() {
+        use crate::entities::counter_state::CounterState;
+
+        let mut state = CounterState::new();
+        state.update_flat("fig", 42);
+
+        let dynamic_ast = Content::Sequence(
+            vec![
+                Content::text("Figura "),
+                Content::CounterDisplay { kind: "fig".to_string() },
+            ]
+            .into(),
+        );
+
+        let frozen = materialize_time(&dynamic_ast, &state);
+
+        let expected = Content::Sequence(
+            vec![
+                Content::text("Figura "),
+                Content::text("42"),
+            ]
+            .into(),
+        );
+
+        assert_eq!(frozen, expected,
+            "CounterDisplay deve ser materializado em Text com o valor do contador");
+    }
+
+    #[test]
+    fn materialize_time_preserva_terminais() {
+        use crate::entities::counter_state::CounterState;
+
+        let state = CounterState::new();
+
+        // Nós terminais sem CounterDisplay devem ser clonados sem alteração.
+        let content = Content::Sequence(
+            vec![
+                Content::text("Texto estático"),
+                Content::Strong(Box::new(Content::text("Negrito"))),
+            ]
+            .into(),
+        );
+
+        let frozen = materialize_time(&content, &state);
+        assert_eq!(frozen, content, "Terminais sem CounterDisplay não devem ser alterados");
+    }
+
+    #[test]
+    fn introspect_headings_for_toc_congelados() {
+        // Simular: = Figura #counter("fig").display()
+        // O CounterDisplay no título deve ser substituído pelo valor no momento
+        // da introspecção — não pelo valor quando a TOC for renderizada.
+        let content = Content::Sequence(
+            vec![
+                Content::SetHeadingNumbering { active: true },
+                Content::CounterUpdate {
+                    key:    "fig".to_string(),
+                    action: CounterAction::Update(7),
+                },
+                Content::heading(1, Content::Sequence(
+                    vec![
+                        Content::text("Figura "),
+                        Content::CounterDisplay { kind: "fig".to_string() },
+                    ]
+                    .into(),
+                )),
+            ]
+            .into(),
+        );
+
+        let state = introspect(&content);
+        assert_eq!(state.headings_for_toc.len(), 1);
+
+        let (_, frozen_body, _) = &state.headings_for_toc[0];
+        let text = frozen_body.plain_text();
+        // O body congelado deve conter "7" (valor no momento da introspecção),
+        // não "0" (valor no início do documento quando a TOC é renderizada).
+        assert!(text.contains("7"),
+            "CounterDisplay no título deve ser congelado com o valor correcto: {:?}", text);
     }
 }

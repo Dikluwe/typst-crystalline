@@ -10,6 +10,7 @@ use typst_core::{
 };
 
 use crate::font_metrics::FontBookMetrics;
+use crate::image_sizer::ImageSizeImageSizer;
 
 /// Layout com métricas de fonte reais.
 ///
@@ -21,7 +22,7 @@ pub fn layout_with_font(
     font_size: f64,
 ) -> PagedDocument {
     if let Some(metrics) = FontBookMetrics::from_bytes(font_data) {
-        let mut l = Layouter::new(metrics, font_size);
+        let mut l = Layouter::new(metrics, ImageSizeImageSizer, font_size);
         l.layout_content(content);
         l.finish()
     } else {

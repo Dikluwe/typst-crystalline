@@ -34,11 +34,8 @@ pub(super) fn layout_counter_update(
 }
 
 /// Braço `CounterDisplay` — lê o estado actual e retorna texto formatado.
+/// Delega em `CounterState::display_value` (Passo 66).
 pub(super) fn format_counter_display(counter: &CounterState, kind: &str) -> String {
-    if counter.format_hierarchical(kind).is_some() {
-        counter.format_hierarchical(kind).unwrap_or_else(|| "0".to_string())
-    } else {
-        counter.get_flat(kind).to_string()
-    }
+    counter.display_value(kind)
 }
 

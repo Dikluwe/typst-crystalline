@@ -6,15 +6,15 @@
 
 use crate::entities::{content::Content, label::Label};
 
-use super::{FontMetrics, Layouter};
+use super::{FontMetrics, ImageSizer, Layouter};
 
 /// Braço `Labelled` — layout transparente do target com registo de página.
 ///
 /// O layout do target ocorre primeiro porque o target pode forçar uma quebra
 /// de página. O registo da página acontece **depois** — o elemento já aterrou
 /// na sua página final (Passo 63, DEBT-12).
-pub(super) fn layout_labelled<M: FontMetrics>(
-    layouter: &mut Layouter<M>,
+pub(super) fn layout_labelled<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
     target:   &Content,
     label:    &Label,
 ) {
@@ -30,7 +30,7 @@ pub(super) fn layout_labelled<M: FontMetrics>(
 
 /// Braço `Ref` — consulta `resolved_labels` populado pela introspecção.
 /// Forward e backward refs resolvem. Fallback `@nome` se a label não existir.
-pub(super) fn layout_ref<M: FontMetrics>(layouter: &mut Layouter<M>, target: &Label) {
+pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>, target: &Label) {
     let display_text = match layouter.counter.resolved_labels.get(target) {
         Some(text) => text.clone(),
         None       => format!("@{}", target.0),

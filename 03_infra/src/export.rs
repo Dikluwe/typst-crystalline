@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export.md
-//! @prompt-hash f70da194
+//! @prompt-hash 8edd13ad
 //! @layer L3
 //! @updated 2026-03-29
 
 use std::collections::{BTreeSet, HashMap};
+use std::sync::Arc;
 
 use ttf_parser::Face;
 use typst_core::entities::layout_types::{Frame, FrameItem, PagedDocument};
@@ -24,6 +25,120 @@ pub fn export_pdf(doc: &PagedDocument) -> Vec<u8> {
 /// `font_data`: bytes brutos de um ficheiro `.ttf`/`.otf`.
 pub fn export_pdf_with_font(doc: &PagedDocument, font_data: &[u8]) -> Vec<u8> {
     PdfBuilder::new().build(doc, Some(font_data))
+}
+
+// ── Suporte a imagens ──────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum ImageFormat {
+    Jpeg,
+    Png,
+    Unknown,
+}
+
+fn detect_format(data: &[u8]) -> ImageFormat {
+    if data.starts_with(&[0xFF, 0xD8, 0xFF]) {
+        ImageFormat::Jpeg
+    } else if data.starts_with(&[0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A]) {
+        ImageFormat::Png
+    } else {
+        ImageFormat::Unknown
+    }
+}
+
+struct ImageResource {
+    arc_ptr:          usize,
+    data:             Arc<Vec<u8>>,
+    obj_id:           usize,
+    name:             String,
+    intrinsic_width:  u32,
+    intrinsic_height: u32,
+}
+
+/// Varre o documento e recolhe recursos de imagem únicos (JPEG apenas).
+///
+/// A deduplicação usa `Arc::as_ptr(data) as usize` como chave.
+/// Seguro porque `PagedDocument` mantém todos os Arcs vivos durante `export_pdf`,
+/// impedindo que o alocador reutilize os mesmos endereços.
+fn scan_jpeg_images(doc: &PagedDocument, first_id: usize) -> Vec<ImageResource> {
+    let mut seen: HashMap<usize, usize> = HashMap::new(); // arc_ptr → índice em resources
+    let mut resources: Vec<ImageResource> = Vec::new();
+    let mut counter = 1usize;
+
+    for page in &doc.pages {
+        for item in &page.items {
+            if let FrameItem::Image { data, intrinsic_width, intrinsic_height, .. } = item {
+                if detect_format(data) != ImageFormat::Jpeg {
+                    continue; // DEBT-27: PNG ignorado neste passo
+                }
+                let ptr = Arc::as_ptr(data) as usize;
+                if !seen.contains_key(&ptr) {
+                    seen.insert(ptr, resources.len());
+                    resources.push(ImageResource {
+                        arc_ptr:          ptr,
+                        data:             Arc::clone(data),
+                        obj_id:           first_id + resources.len(),
+                        name:             format!("Im{counter}"),
+                        intrinsic_width:  *intrinsic_width,
+                        intrinsic_height: *intrinsic_height,
+                    });
+                    counter += 1;
+                }
+            }
+        }
+    }
+    resources
+}
+
+/// Constrói o fragmento `/XObject << /Im1 X 0 R ... >>` para os recursos de página.
+/// Retorna string vazia se não houver imagens JPEG na página.
+fn xobject_resources_for_page(
+    page:       &Frame,
+    img_by_ptr: &HashMap<usize, usize>,
+    resources:  &[ImageResource],
+) -> String {
+    let mut names: Vec<&str> = Vec::new();
+    let mut seen_names: BTreeSet<&str> = BTreeSet::new();
+    for item in &page.items {
+        if let FrameItem::Image { data, .. } = item {
+            let ptr = Arc::as_ptr(data) as usize;
+            if let Some(&idx) = img_by_ptr.get(&ptr) {
+                let name = resources[idx].name.as_str();
+                if seen_names.insert(name) {
+                    names.push(name);
+                }
+            }
+        }
+    }
+    if names.is_empty() {
+        return String::new();
+    }
+    let entries: String = names.iter()
+        .map(|name| {
+            let idx = img_by_ptr[&{
+                // encontrar ptr para este name — scan reverso
+                resources.iter().find(|r| r.name.as_str() == *name).unwrap().arc_ptr
+            }];
+            format!("/{name} {} 0 R", resources[idx].obj_id)
+        })
+        .collect::<Vec<_>>()
+        .join(" ");
+    format!("/XObject << {entries} >>")
+}
+
+/// Constrói o stream XObject para um JPEG.
+fn build_jpeg_xobject(data: &[u8], intrinsic_width: u32, intrinsic_height: u32) -> Vec<u8> {
+    let len = data.len();
+    let header = format!(
+        "<< /Type /XObject /Subtype /Image \
+           /Width {intrinsic_width} /Height {intrinsic_height} \
+           /ColorSpace /DeviceRGB /BitsPerComponent 8 \
+           /Filter /DCTDecode /Length {len} >>\nstream\n"
+    );
+    let mut obj = header.into_bytes();
+    obj.extend_from_slice(data);
+    obj.extend_from_slice(b"\nendstream");
+    obj
 }
 
 // ── Builder ────────────────────────────────────────────────────────────────
@@ -61,6 +176,13 @@ impl PdfBuilder {
         let font_f1      = first_stream + n;
         let font_f2      = font_f1 + 1;
         let font_f3      = font_f2 + 1;
+        let first_img_id = font_f3 + 1;
+
+        let img_resources = scan_jpeg_images(doc, first_img_id);
+        let img_by_ptr: HashMap<usize, usize> = img_resources.iter()
+            .enumerate()
+            .map(|(i, r)| (r.arc_ptr, i))
+            .collect();
 
         self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
 
@@ -75,18 +197,19 @@ impl PdfBuilder {
             let w = page.size.width.val();
             let h = page.size.height.val();
 
+            let xobj_res = xobject_resources_for_page(page, &img_by_ptr, &img_resources);
+            let resources_str = format!(
+                "/Font << /F1 {font_f1} 0 R /F2 {font_f2} 0 R /F3 {font_f3} 0 R >> {xobj_res}"
+            );
+
             self.add(page_id, format!(
                 "<< /Type /Page /Parent 2 0 R \
                    /MediaBox [0 0 {w:.1} {h:.1}] \
                    /Contents {stream_id} 0 R \
-                   /Resources << /Font << \
-                     /F1 {font_f1} 0 R \
-                     /F2 {font_f2} 0 R \
-                     /F3 {font_f3} 0 R \
-                   >> >> >>"
+                   /Resources << {resources_str} >> >>"
             ));
 
-            let stream_bytes = build_page_stream_type1(page);
+            let stream_bytes = build_page_stream_type1(page, &img_by_ptr, &img_resources);
             let len = stream_bytes.len();
             let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
             obj.extend_from_slice(&stream_bytes);
@@ -100,6 +223,10 @@ impl PdfBuilder {
                             /Encoding /WinAnsiEncoding >>".into());
         self.add(font_f3, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique \
                             /Encoding /WinAnsiEncoding >>".into());
+
+        for r in &img_resources {
+            self.add_bytes(r.obj_id, build_jpeg_xobject(&r.data, r.intrinsic_width, r.intrinsic_height));
+        }
 
         self.serialize()
     }
@@ -115,6 +242,7 @@ impl PdfBuilder {
         let font_descriptor_id = font_id + 2;
         let font_stream_id     = font_id + 3;
         let to_unicode_id      = font_id + 4;
+        let first_img_id       = to_unicode_id + 1;
 
         let chars = collect_codepoints(doc);
         let mut mappings = map_chars_to_glyphs(face, &chars);
@@ -134,6 +262,12 @@ impl PdfBuilder {
         let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
         let widths = widths_array(face, &mappings);
 
+        let img_resources = scan_jpeg_images(doc, first_img_id);
+        let img_by_ptr: HashMap<usize, usize> = img_resources.iter()
+            .enumerate()
+            .map(|(i, r)| (r.arc_ptr, i))
+            .collect();
+
         self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
 
         let kids = (first_page..first_page + n)
@@ -147,14 +281,17 @@ impl PdfBuilder {
             let w = page.size.width.val();
             let h = page.size.height.val();
 
+            let xobj_res = xobject_resources_for_page(page, &img_by_ptr, &img_resources);
+            let resources_str = format!("/Font << /F1 {font_id} 0 R >> {xobj_res}");
+
             self.add(page_id, format!(
                 "<< /Type /Page /Parent 2 0 R \
                    /MediaBox [0 0 {w:.1} {h:.1}] \
                    /Contents {stream_id} 0 R \
-                   /Resources << /Font << /F1 {font_id} 0 R >> >> >>"
+                   /Resources << {resources_str} >> >>"
             ));
 
-            let stream_bytes = build_page_stream_cidfont(page, &char_to_gid);
+            let stream_bytes = build_page_stream_cidfont(page, &char_to_gid, &img_by_ptr, &img_resources);
             let len = stream_bytes.len();
             let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
             obj.extend_from_slice(&stream_bytes);
@@ -206,6 +343,10 @@ impl PdfBuilder {
         cmap_obj.extend_from_slice(b"\nendstream");
         self.add_bytes(to_unicode_id, cmap_obj);
 
+        for r in &img_resources {
+            self.add_bytes(r.obj_id, build_jpeg_xobject(&r.data, r.intrinsic_width, r.intrinsic_height));
+        }
+
         self.serialize()
     }
 
@@ -244,7 +385,11 @@ impl PdfBuilder {
 
 // ── Helpers — caminho Helvetica ────────────────────────────────────────────
 
-fn build_page_stream_type1(page: &Frame) -> Vec<u8> {
+fn build_page_stream_type1(
+    page:       &Frame,
+    img_by_ptr: &HashMap<usize, usize>,
+    resources:  &[ImageResource],
+) -> Vec<u8> {
     let mut ops = String::new();
     let page_height = page.size.height.val();
 
@@ -280,6 +425,19 @@ fn build_page_stream_type1(page: &Frame) -> Vec<u8> {
             // FrameItem::Glyph não tem suporte no caminho Helvetica (sem fonte TrueType).
             // Ignorado silenciosamente — o delimitador simplesmente não aparece.
             FrameItem::Glyph { .. } => {}
+            FrameItem::Image { pos, data, width, height, .. } => {
+                let ptr = Arc::as_ptr(data) as usize;
+                if let Some(&idx) = img_by_ptr.get(&ptr) {
+                    // pos.y é o TOPO da imagem → canto inferior esquerdo no espaço PDF.
+                    let pdf_y = page_height - pos.y.val() - height.val();
+                    ops.push_str(&format!(
+                        "q\n{:.3} 0 0 {:.3} {:.3} {:.3} cm\n/{} Do\nQ\n",
+                        width.val(), height.val(), pos.x.val(), pdf_y,
+                        resources[idx].name
+                    ));
+                }
+                // DEBT-27: PNG e Unknown ignorados — espaço reservado no layout, sem output PDF.
+            }
         }
     }
 
@@ -312,6 +470,7 @@ fn collect_codepoints(doc: &PagedDocument) -> Vec<char> {
                     seen.insert(c);
                 }
             }
+            // Image, Line, Glyph não contribuem com codepoints de texto.
         }
     }
     seen.into_iter().collect()
@@ -392,7 +551,12 @@ fn text_to_hex_string(text: &str, char_to_gid: &HashMap<char, u16>) -> String {
     hex
 }
 
-fn build_page_stream_cidfont(page: &Frame, char_to_gid: &HashMap<char, u16>) -> Vec<u8> {
+fn build_page_stream_cidfont(
+    page:       &Frame,
+    char_to_gid: &HashMap<char, u16>,
+    img_by_ptr: &HashMap<usize, usize>,
+    resources:  &[ImageResource],
+) -> Vec<u8> {
     let mut ops = String::new();
     let page_height = page.size.height.val();
 
@@ -428,6 +592,19 @@ fn build_page_stream_cidfont(page: &Frame, char_to_gid: &HashMap<char, u16>) -> 
                     "BT\n/F1 {:.1} Tf\n{:.1} {:.1} Td\n<{:04X}> Tj\nET\n",
                     size.val(), pos.x.val(), pdf_y, glyph_id
                 ));
+            }
+            FrameItem::Image { pos, data, width, height, .. } => {
+                let ptr = Arc::as_ptr(data) as usize;
+                if let Some(&idx) = img_by_ptr.get(&ptr) {
+                    // pos.y é o TOPO da imagem → canto inferior esquerdo no espaço PDF.
+                    let pdf_y = page_height - pos.y.val() - height.val();
+                    ops.push_str(&format!(
+                        "q\n{:.3} 0 0 {:.3} {:.3} {:.3} cm\n/{} Do\nQ\n",
+                        width.val(), height.val(), pos.x.val(), pdf_y,
+                        resources[idx].name
+                    ));
+                }
+                // DEBT-27: PNG e Unknown ignorados — espaço reservado no layout, sem output PDF.
             }
         }
     }
@@ -661,5 +838,115 @@ mod tests {
         let cmap = to_unicode_cmap(&mappings);
         let s = String::from_utf8(cmap).unwrap();
         assert!(s.contains("<00A2> <0028>"), "CMap deve ter entrada glyph→Unicode: {s}");
+    }
+
+    // ── Testes de imagem (Passo 73) ───────────────────────────────────────────
+
+    #[test]
+    fn detect_format_jpeg() {
+        assert_eq!(detect_format(&[0xFF, 0xD8, 0xFF, 0xE0]), ImageFormat::Jpeg);
+        assert_eq!(detect_format(&[0xFF, 0xD8, 0xFF, 0x00]), ImageFormat::Jpeg);
+    }
+
+    #[test]
+    fn detect_format_png() {
+        assert_eq!(
+            detect_format(&[0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A, 0x00]),
+            ImageFormat::Png,
+        );
+    }
+
+    #[test]
+    fn detect_format_unknown() {
+        assert_eq!(detect_format(&[0x00, 0x01, 0x02]), ImageFormat::Unknown);
+        assert_eq!(detect_format(&[]), ImageFormat::Unknown);
+    }
+
+    #[test]
+    fn pipeline_jpeg_gera_pdf_com_xobject() {
+        use std::sync::Arc;
+        use typst_core::entities::layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size};
+
+        // JPEG mínimo com magic numbers correctos — 4 bytes suficientes para detect_format.
+        let jpeg_bytes = Arc::new(vec![0xFF, 0xD8, 0xFF, 0xE0u8]);
+
+        let mut frame = Frame::new(Size::a4());
+        frame.push(FrameItem::Image {
+            pos:              Point { x: Pt(72.0), y: Pt(100.0) },
+            data:             Arc::clone(&jpeg_bytes),
+            width:            Pt(100.0),
+            height:           Pt(75.0),
+            intrinsic_width:  400,
+            intrinsic_height: 300,
+        });
+        let doc = PagedDocument::new(vec![frame]);
+        let pdf = export_pdf(&doc);
+
+        assert!(!pdf.is_empty(), "export_pdf deve produzir bytes");
+        assert!(pdf.starts_with(b"%PDF-1.7"), "deve ser PDF válido");
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("/XObject"), "deve ter /XObject nos recursos");
+        assert!(s.contains("/DCTDecode"), "deve ter /DCTDecode para JPEG");
+        assert!(s.contains("/Im1"), "deve referenciar Im1");
+        assert!(s.contains("Do"), "deve ter operador Do para imagem");
+    }
+
+    #[test]
+    fn pipeline_png_ignorado_sem_xobject() {
+        use std::sync::Arc;
+        use typst_core::entities::layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size};
+
+        // PNG magic bytes — deve ser ignorado (DEBT-27)
+        let png_bytes = Arc::new(vec![0x89u8, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A]);
+
+        let mut frame = Frame::new(Size::a4());
+        frame.push(FrameItem::Image {
+            pos:              Point { x: Pt(72.0), y: Pt(100.0) },
+            data:             Arc::clone(&png_bytes),
+            width:            Pt(100.0),
+            height:           Pt(100.0),
+            intrinsic_width:  200,
+            intrinsic_height: 200,
+        });
+        let doc = PagedDocument::new(vec![frame]);
+        let pdf = export_pdf(&doc);
+
+        assert!(pdf.starts_with(b"%PDF-1.7"), "PDF deve ser válido mesmo com PNG ignorado");
+        // PNG não deve gerar XObject — DEBT-27
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(!s.contains("/DCTDecode"), "PNG não usa DCTDecode");
+    }
+
+    #[test]
+    fn jpeg_deduplicado_por_arc_ptr() {
+        use std::sync::Arc;
+        use typst_core::entities::layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size};
+
+        let jpeg_bytes = Arc::new(vec![0xFF, 0xD8, 0xFF, 0xE0u8]);
+
+        // Mesma imagem duas vezes na mesma página — deve gerar apenas um XObject.
+        let mut frame = Frame::new(Size::a4());
+        frame.push(FrameItem::Image {
+            pos: Point { x: Pt(72.0), y: Pt(72.0) },
+            data: Arc::clone(&jpeg_bytes),
+            width: Pt(100.0), height: Pt(75.0),
+            intrinsic_width: 400, intrinsic_height: 300,
+        });
+        frame.push(FrameItem::Image {
+            pos: Point { x: Pt(72.0), y: Pt(200.0) },
+            data: Arc::clone(&jpeg_bytes),
+            width: Pt(50.0), height: Pt(37.0),
+            intrinsic_width: 400, intrinsic_height: 300,
+        });
+        let doc = PagedDocument::new(vec![frame]);
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+
+        // "Im1 Do" deve aparecer duas vezes (dois usos)
+        let uses = s.matches("/Im1 Do").count();
+        assert_eq!(uses, 2, "Im1 deve ser usado duas vezes mas definido uma vez");
+        // Só um XObject com DCTDecode
+        let dct_count = s.matches("/DCTDecode").count();
+        assert_eq!(dct_count, 1, "deve haver apenas um XObject JPEG (deduplicado)");
     }
 }
