@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/layout.md
 //! @prompt-hash 518a9856
 //! @layer L1
-//! @updated 2026-04-13
+//! @updated 2026-04-20
 
 pub mod counters;
 pub mod figure;
@@ -125,6 +125,9 @@ pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     cursor_y:     Pt,      // posição da baseline actual
     current_line: Vec<FrameItem>,
     pub counter:  CounterState,
+    /// Índice de progresso por kind para figuras (Passo 75, DEBT-14).
+    /// kind → número de figuras já dispostas. Reiniciado por invocação de layout().
+    figure_progress: std::collections::HashMap<String, usize>,
 }
 
 impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
@@ -141,7 +144,8 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             cursor_x:     MARGIN,
             cursor_y:     MARGIN + ascender,
             current_line: Vec::new(),
-            counter:      CounterState::new(),
+            counter:         CounterState::new(),
+            figure_progress: std::collections::HashMap::new(),
         }
     }
 
@@ -221,6 +225,10 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
             Content::SetHeadingNumbering { active } => {
                 counters::layout_set_heading_numbering(&mut self.counter, *active);
+            }
+
+            Content::SetFigureNumbering { .. } => {
+                // No-op: numeração baked-in em cada nó Figure (Passo 75, DEBT-14).
             }
 
             Content::CounterUpdate { key, action } => {
@@ -386,9 +394,23 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 references::layout_ref(self, target);
             }
 
-            // Passo 62 — Figure: delegado a figure.rs.
-            Content::Figure { body, caption } => {
-                figure::layout_figure(self, body, caption);
+            // Passo 62/75 — Figure: delegado a figure.rs com kind/numbering (DEBT-14/15).
+            Content::Figure { body, caption, kind, numbering } => {
+                // Calcular o prefixo de numeração antes de chamar layout_figure.
+                let caption_prefix: Option<String> = if let Some(_pattern) = numbering {
+                    let progress = self.figure_progress.entry(kind.clone()).or_insert(0);
+                    let idx = *progress;
+                    *progress += 1;
+                    let figure_number = self.counter.figure_numbers
+                        .get(kind.as_str())
+                        .and_then(|v| v.get(idx))
+                        .copied()
+                        .unwrap_or(idx + 1);
+                    Some(format!("Figura {}: ", figure_number))
+                } else {
+                    None
+                };
+                figure::layout_figure(self, body, caption, caption_prefix);
             }
 
             // Passo 61 — TOC: delegado a outline.rs (Tarefa 5).
@@ -398,7 +420,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
             Content::Image { data, width, height, .. } => {
                 let dims = image::calculate_dimensions(
-                    data,
+                    &data.0,  // &[u8] via PtrEqArc → Arc → deref
                     width.as_deref(),
                     height.as_deref(),
                     &self.sizer,
@@ -416,13 +438,14 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 // O exportador calcula pdf_y = page_height - pos.y - height.
                 let pos = Point { x: MARGIN, y: self.cursor_y };
 
-                // DEBT-28: segunda leitura do cabeçalho — redundante mas de custo mínimo.
-                // Necessário para /Width e /Height intrínsecos no dicionário XObject do PDF.
-                let (intrinsic_w, intrinsic_h) = self.sizer.size(data).unwrap_or((100, 100));
+                // DEBT-28 encerrado: intrinsic_width/height vêm de calculate_dimensions.
+                // A segunda chamada a self.sizer.size() foi eliminada.
+                let intrinsic_w = dims.intrinsic_width.unwrap_or(100);
+                let intrinsic_h = dims.intrinsic_height.unwrap_or(100);
 
                 self.current.push(FrameItem::Image {
                     pos,
-                    data:             Arc::clone(data),
+                    data:             Arc::clone(&data.0), // .0 acede ao Arc interno de PtrEqArc
                     width:            Pt(dims.width_pt),
                     height:           Pt(dims.height_pt),
                     intrinsic_width:  intrinsic_w,
@@ -1540,8 +1563,10 @@ mod tests {
     #[test]
     fn layout_figure_com_caption_tem_prefixo() {
         let content = Content::Figure {
-            body:    Box::new(Content::text("Gráfico")),
-            caption: Some(Box::new(Content::text("Resultados"))),
+            body:      Box::new(Content::text("Gráfico")),
+            caption:   Some(Box::new(Content::text("Resultados"))),
+            kind:      "image".to_string(),
+            numbering: Some("1".to_string()),
         };
 
         let state = introspect(&content);
@@ -1556,8 +1581,10 @@ mod tests {
     #[test]
     fn layout_figure_sem_caption_sem_prefixo() {
         let content = Content::Figure {
-            body:    Box::new(Content::text("Diagrama")),
-            caption: None,
+            body:      Box::new(Content::text("Diagrama")),
+            caption:   None,
+            kind:      "image".to_string(),
+            numbering: Some("1".to_string()),
         };
 
         let state = introspect(&content);
@@ -1577,8 +1604,10 @@ mod tests {
                 Content::Labelled {
                     label:  Label("fig1".to_string()),
                     target: Box::new(Content::Figure {
-                        body:    Box::new(Content::text("Gráfico")),
-                        caption: Some(Box::new(Content::text("Legenda"))),
+                        body:      Box::new(Content::text("Gráfico")),
+                        caption:   Some(Box::new(Content::text("Legenda"))),
+                        kind:      "image".to_string(),
+                        numbering: Some("1".to_string()),
                     }),
                 },
                 Content::text(" — ver "),
@@ -1750,7 +1779,7 @@ mod tests {
 
         let content = Content::Image {
             path:   "teste.jpg".to_string(),
-            data:   std::sync::Arc::new(jpeg_magic),
+            data:   crate::entities::ptr_eq_arc::PtrEqArc(std::sync::Arc::new(jpeg_magic)),
             width:  None,
             height: None,
         };

@@ -263,7 +263,7 @@ funcionalidades forem implementadas, adicionar casos de paridade correspondentes
 
 ---
 
-## DEBT-14 — SetRule para `#set figure(numbering: ...)` — PENDENTE
+## DEBT-14 — SetRule para `#set figure(numbering: ...)` — ENCERRADO ✓ (Passo 75)
 
 **Registado no Passo 62.**
 
@@ -277,7 +277,7 @@ em `introspect.rs`).
 
 ---
 
-## DEBT-15 — Campo `kind` hardcoded em `Content::Figure` — PENDENTE
+## DEBT-15 — Campo `kind` hardcoded em `Content::Figure` — ENCERRADO ✓ (Passo 75)
 
 **Registado no Passo 62.**
 
@@ -428,7 +428,7 @@ e imagem emitida no PDF para ficheiros JPEG.
 
 ---
 
-## DEBT-27 — Suporte a transparência PNG no exportador PDF (Passo 73)
+## DEBT-27 — Suporte a transparência PNG no exportador PDF — ENCERRADO ✓ (Passo 74)
 
 PDF não suporta ficheiros PNG crus. PNG requer descodificação de píxeis
 (canal RGBA separado para /SMask de transparência) antes de ser embutido.
@@ -438,7 +438,7 @@ em RGBA plano e passar ao gerador de PDF.
 
 ---
 
-## DEBT-28 — Dupla leitura de cabeçalho de imagem no layouter (Passo 73)
+## DEBT-28 — Dupla leitura de cabeçalho de imagem no layouter — ENCERRADO ✓ (Passo 74)
 
 `calculate_dimensions` e `sizer.size()` lêem o cabeçalho da imagem separadamente.
 O custo é mínimo (imagesize lê apenas o cabeçalho, não os píxeis), mas é
@@ -447,7 +447,7 @@ com `intrinsic_width`, `intrinsic_height` — eliminando a segunda chamada.
 
 ---
 
-## DEBT-29 — Detecção de ColorSpace para JPEGs crus (Passo 73)
+## DEBT-29 — Detecção de ColorSpace para JPEGs crus — ENCERRADO ✓ (Passo 74)
 
 O exportador assume `DeviceRGB` para todos os JPEGs. JPEGs Grayscale (1 canal)
 ou CMYK (4 canais) com ColorSpace errado produzem lixo visual ou rejeição pelo
@@ -456,7 +456,7 @@ determinar o número de canais e escolher `DeviceRGB`, `DeviceGray` ou `DeviceCM
 
 ---
 
-## DEBT-25 — Resolução de caminhos relativos em stdlib (Passo 71)
+## DEBT-25 — Resolução de caminhos relativos em stdlib (Passo 71) — ENCERRADO ✓ (Passo 75)
 
 `native_image` passa o caminho ao `World::read_bytes` tal como fornecido pelo
 utilizador (relativo à raiz do projecto). Não há resolução relativa ao ficheiro
@@ -465,7 +465,7 @@ para que `native_image` construa um caminho absoluto.
 
 ---
 
-## DEBT-26 — PartialEq O(N) sobre Arc<Vec<u8>> em Content::Image (Passo 71)
+## DEBT-26 — PartialEq O(N) sobre Arc<Vec<u8>> em Content::Image — ENCERRADO ✓ (Passo 74)
 
 A implementação manual de `PartialEq` para `Content::Image` compara `data`
 por valor (`da == db`), o que é O(N) nos bytes da imagem. Em contextos de

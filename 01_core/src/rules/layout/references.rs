@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/layout_references.md
 //! @prompt-hash 0226beef
 //! @layer L1
-//! @updated 2026-04-13
+//! @updated 2026-04-20
 
 use crate::entities::{content::Content, label::Label};
 
@@ -28,9 +28,14 @@ pub(super) fn layout_labelled<M: FontMetrics, S: ImageSizer>(
     layouter.counter.label_pages.insert(label.clone(), page);
 }
 
-/// Braço `Ref` — consulta `resolved_labels` populado pela introspecção.
+/// Braço `Ref` — consulta contadores de figura e `resolved_labels` populados pela introspecção.
 /// Forward e backward refs resolvem. Fallback `@nome` se a label não existir.
 pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>, target: &Label) {
+    // Labels de figuras numeradas resolvem primeiro (Passo 75, DEBT-14).
+    if let Some(&fig_num) = layouter.counter.figure_label_numbers.get(target) {
+        layouter.layout_content(&Content::text(format!("Figura {}", fig_num)));
+        return;
+    }
     let display_text = match layouter.counter.resolved_labels.get(target) {
         Some(text) => text.clone(),
         None       => format!("@{}", target.0),

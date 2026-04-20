@@ -2,10 +2,14 @@
 //! @prompt 00_nucleo/prompts/infra/export.md
 //! @prompt-hash 8edd13ad
 //! @layer L3
-//! @updated 2026-03-29
+//! @updated 2026-04-20
 
 use std::collections::{BTreeSet, HashMap};
+use std::io::Write;
 use std::sync::Arc;
+
+use flate2::Compression;
+use flate2::write::ZlibEncoder;
 
 use ttf_parser::Face;
 use typst_core::entities::layout_types::{Frame, FrameItem, PagedDocument};
@@ -46,97 +50,287 @@ fn detect_format(data: &[u8]) -> ImageFormat {
     }
 }
 
-struct ImageResource {
-    arc_ptr:          usize,
-    data:             Arc<Vec<u8>>,
-    obj_id:           usize,
-    name:             String,
-    intrinsic_width:  u32,
-    intrinsic_height: u32,
+/// Lê o marcador SOF0 (0xC0) ou SOF2 (0xC2) do cabeçalho JPEG para determinar
+/// o ColorSpace correcto para o dicionário do XObject (DEBT-29).
+///
+/// Um JPEG com ColorSpace errado produz lixo visual (Grayscale renderizado como
+/// RGB monocromático) ou é recusado por alguns leitores PDF (CMYK).
+/// O fallback "/DeviceRGB" cobre a maioria dos JPEGs de câmara.
+fn jpeg_color_space(data: &[u8]) -> &'static str {
+    let mut i = 2usize; // saltar SOI (FF D8)
+    while i + 3 < data.len() {
+        if data[i] != 0xFF {
+            break;
+        }
+        let marker = data[i + 1];
+        let len = u16::from_be_bytes([data[i + 2], data[i + 3]]) as usize;
+
+        if marker == 0xC0 || marker == 0xC2 {
+            // SOF: offset i+9 é o número de componentes de cor
+            if i + 9 < data.len() {
+                return match data[i + 9] {
+                    1 => "/DeviceGray",
+                    3 => "/DeviceRGB",
+                    4 => "/DeviceCMYK",
+                    _ => "/DeviceRGB",
+                };
+            }
+            break;
+        }
+
+        // SOS (0xDA) inicia os dados comprimidos — parar antes de entrar neles.
+        if marker == 0xDA {
+            break;
+        }
+
+        if len < 2 { break; }
+        i += 2 + len;
+    }
+    "/DeviceRGB"
 }
 
-/// Varre o documento e recolhe recursos de imagem únicos (JPEG apenas).
+/// Dados de imagem PNG prontos para emissão como XObject(s) num PDF.
+pub struct PdfImagePayload {
+    pub width:                 u32,
+    pub height:                u32,
+    /// "/DeviceRGB" ou "/DeviceGray" — determinado pelos dados da imagem.
+    pub color_space:           &'static str,
+    /// Canal de cor comprimido com Zlib (/FlateDecode).
+    pub rgb_data_compressed:   Vec<u8>,
+    /// Canal alpha comprimido com Zlib, se a imagem tiver transparência não trivial.
+    /// `None` se opaca ou sem canal alpha.
+    pub alpha_data_compressed: Option<Vec<u8>>,
+}
+
+fn compress_zlib(data: &[u8]) -> Result<Vec<u8>, String> {
+    let mut enc = ZlibEncoder::new(Vec::new(), Compression::default());
+    enc.write_all(data).map_err(|e| e.to_string())?;
+    enc.finish().map_err(|e| e.to_string())
+}
+
+/// Descodifica um PNG e prepara os dados para emissão como XObject(s) num PDF.
 ///
-/// A deduplicação usa `Arc::as_ptr(data) as usize` como chave.
-/// Seguro porque `PagedDocument` mantém todos os Arcs vivos durante `export_pdf`,
-/// impedindo que o alocador reutilize os mesmos endereços.
-fn scan_jpeg_images(doc: &PagedDocument, first_id: usize) -> Vec<ImageResource> {
-    let mut seen: HashMap<usize, usize> = HashMap::new(); // arc_ptr → índice em resources
-    let mut resources: Vec<ImageResource> = Vec::new();
-    let mut counter = 1usize;
+/// **Sem alpha**: converte para RGB8, comprime os bytes planos com Zlib.
+/// **Com alpha**: separa os canais RGB e A, comprime ambos separadamente.
+///   Se o canal A for totalmente opaco (todos 255), descarta-o — um /SMask
+///   com alpha uniforme não tem efeito visual e aumenta o PDF desnecessariamente.
+pub fn process_png_for_pdf(raw_data: &[u8]) -> Result<PdfImagePayload, String> {
+    let img = image::load_from_memory(raw_data)
+        .map_err(|e| format!("Falha ao descodificar imagem: {}", e))?;
+
+    let width  = img.width();
+    let height = img.height();
+
+    if !img.color().has_alpha() {
+        return Ok(PdfImagePayload {
+            width,
+            height,
+            color_space:           "/DeviceRGB",
+            rgb_data_compressed:   compress_zlib(img.to_rgb8().as_raw())?,
+            alpha_data_compressed: None,
+        });
+    }
+
+    let rgba = img.to_rgba8();
+    let mut rgb_buf   = Vec::with_capacity((width * height * 3) as usize);
+    let mut alpha_buf = Vec::with_capacity((width * height) as usize);
+
+    for pixel in rgba.pixels() {
+        rgb_buf.push(pixel[0]);
+        rgb_buf.push(pixel[1]);
+        rgb_buf.push(pixel[2]);
+        alpha_buf.push(pixel[3]);
+    }
+
+    let alpha_compressed = if alpha_buf.iter().all(|&a| a == 255) {
+        None // totalmente opaco — /SMask redundante
+    } else {
+        Some(compress_zlib(&alpha_buf)?)
+    };
+
+    Ok(PdfImagePayload {
+        width,
+        height,
+        color_space:           "/DeviceRGB",
+        rgb_data_compressed:   compress_zlib(&rgb_buf)?,
+        alpha_data_compressed: alpha_compressed,
+    })
+}
+
+/// Metadados de imagem para resource dict e page streams.
+struct ImageRef {
+    main_obj_id: usize,
+    name:        String,
+}
+
+/// Dados para emissão de XObjects no PDF.
+enum ImageXObject {
+    Jpeg {
+        data:        Arc<Vec<u8>>,
+        main_obj_id: usize,
+        iw:          u32,
+        ih:          u32,
+    },
+    Png {
+        payload:      PdfImagePayload,
+        main_obj_id:  usize,
+        smask_obj_id: Option<usize>,
+    },
+}
+
+/// Varre o documento e pré-processa todas as imagens únicas (JPEG e PNG).
+///
+/// A deduplicação usa `Arc::as_ptr(data) as usize` como chave — seguro porque
+/// `PagedDocument` mantém todos os Arcs vivos durante `export_pdf`, impedindo
+/// que o alocador reutilize os mesmos endereços.
+///
+/// Retorna `(refs, ptr_to_idx, xobjects)`:
+/// - `refs`: metadados name/obj_id por imagem (para resource dict e page stream)
+/// - `ptr_to_idx`: `arc_ptr → índice em refs`
+/// - `xobjects`: dados para emissão de XObjects (na mesma ordem que refs)
+fn scan_all_images(
+    doc:      &PagedDocument,
+    first_id: usize,
+) -> (Vec<ImageRef>, HashMap<usize, usize>, Vec<ImageXObject>) {
+    let mut ptr_to_idx: HashMap<usize, usize> = HashMap::new();
+    let mut refs:       Vec<ImageRef>      = Vec::new();
+    let mut xobjects:   Vec<ImageXObject>  = Vec::new();
+    let mut next_id  = first_id;
+    let mut counter  = 1usize;
 
     for page in &doc.pages {
         for item in &page.items {
             if let FrameItem::Image { data, intrinsic_width, intrinsic_height, .. } = item {
-                if detect_format(data) != ImageFormat::Jpeg {
-                    continue; // DEBT-27: PNG ignorado neste passo
-                }
                 let ptr = Arc::as_ptr(data) as usize;
-                if !seen.contains_key(&ptr) {
-                    seen.insert(ptr, resources.len());
-                    resources.push(ImageResource {
-                        arc_ptr:          ptr,
-                        data:             Arc::clone(data),
-                        obj_id:           first_id + resources.len(),
-                        name:             format!("Im{counter}"),
-                        intrinsic_width:  *intrinsic_width,
-                        intrinsic_height: *intrinsic_height,
-                    });
-                    counter += 1;
+                if ptr_to_idx.contains_key(&ptr) {
+                    continue;
+                }
+                let idx = refs.len();
+                let name = format!("Im{counter}");
+                counter += 1;
+
+                match detect_format(data) {
+                    ImageFormat::Jpeg => {
+                        let main_id = next_id;
+                        next_id += 1;
+                        refs.push(ImageRef { main_obj_id: main_id, name });
+                        xobjects.push(ImageXObject::Jpeg {
+                            data:        Arc::clone(data),
+                            main_obj_id: main_id,
+                            iw:          *intrinsic_width,
+                            ih:          *intrinsic_height,
+                        });
+                        ptr_to_idx.insert(ptr, idx);
+                    }
+                    ImageFormat::Png => {
+                        match process_png_for_pdf(data) {
+                            Ok(payload) => {
+                                // Alocar ID do /SMask antes do ID principal para que smask
+                                // apareça primeiro no ficheiro PDF (xref em ordem crescente).
+                                let smask_id = if payload.alpha_data_compressed.is_some() {
+                                    let id = next_id;
+                                    next_id += 1;
+                                    Some(id)
+                                } else {
+                                    None
+                                };
+                                let main_id = next_id;
+                                next_id += 1;
+                                refs.push(ImageRef { main_obj_id: main_id, name });
+                                xobjects.push(ImageXObject::Png { payload, main_obj_id: main_id, smask_obj_id: smask_id });
+                                ptr_to_idx.insert(ptr, idx);
+                            }
+                            Err(e) => {
+                                eprintln!("PNG inválido — imagem omitida: {}", e);
+                                // Não inserir em ptr_to_idx — imagem ignorada nas páginas.
+                            }
+                        }
+                    }
+                    ImageFormat::Unknown => {
+                        eprintln!("Formato de imagem desconhecido — imagem omitida");
+                    }
                 }
             }
         }
     }
-    resources
+    (refs, ptr_to_idx, xobjects)
 }
 
 /// Constrói o fragmento `/XObject << /Im1 X 0 R ... >>` para os recursos de página.
-/// Retorna string vazia se não houver imagens JPEG na página.
+/// Retorna string vazia se não houver imagens na página.
 fn xobject_resources_for_page(
     page:       &Frame,
-    img_by_ptr: &HashMap<usize, usize>,
-    resources:  &[ImageResource],
+    ptr_to_idx: &HashMap<usize, usize>,
+    refs:       &[ImageRef],
 ) -> String {
-    let mut names: Vec<&str> = Vec::new();
-    let mut seen_names: BTreeSet<&str> = BTreeSet::new();
+    let mut entries: Vec<String> = Vec::new();
+    let mut seen: BTreeSet<usize> = Default::default();
     for item in &page.items {
         if let FrameItem::Image { data, .. } = item {
             let ptr = Arc::as_ptr(data) as usize;
-            if let Some(&idx) = img_by_ptr.get(&ptr) {
-                let name = resources[idx].name.as_str();
-                if seen_names.insert(name) {
-                    names.push(name);
+            if let Some(&idx) = ptr_to_idx.get(&ptr) {
+                if seen.insert(idx) {
+                    let r = &refs[idx];
+                    entries.push(format!("/{} {} 0 R", r.name, r.main_obj_id));
                 }
             }
         }
     }
-    if names.is_empty() {
+    if entries.is_empty() {
         return String::new();
     }
-    let entries: String = names.iter()
-        .map(|name| {
-            let idx = img_by_ptr[&{
-                // encontrar ptr para este name — scan reverso
-                resources.iter().find(|r| r.name.as_str() == *name).unwrap().arc_ptr
-            }];
-            format!("/{name} {} 0 R", resources[idx].obj_id)
-        })
-        .collect::<Vec<_>>()
-        .join(" ");
-    format!("/XObject << {entries} >>")
+    format!("/XObject << {} >>", entries.join(" "))
 }
 
-/// Constrói o stream XObject para um JPEG.
-fn build_jpeg_xobject(data: &[u8], intrinsic_width: u32, intrinsic_height: u32) -> Vec<u8> {
+/// Stream XObject para um JPEG (raw bytes com /DCTDecode).
+fn build_jpeg_xobject(data: &[u8], iw: u32, ih: u32, color_space: &str) -> Vec<u8> {
     let len = data.len();
     let header = format!(
         "<< /Type /XObject /Subtype /Image \
-           /Width {intrinsic_width} /Height {intrinsic_height} \
-           /ColorSpace /DeviceRGB /BitsPerComponent 8 \
+           /Width {iw} /Height {ih} \
+           /ColorSpace {color_space} /BitsPerComponent 8 \
            /Filter /DCTDecode /Length {len} >>\nstream\n"
     );
     let mut obj = header.into_bytes();
     obj.extend_from_slice(data);
+    obj.extend_from_slice(b"\nendstream");
+    obj
+}
+
+/// Stream XObject para o canal alpha de um PNG (/DeviceGray, /FlateDecode).
+fn build_png_smask_xobject(w: u32, h: u32, alpha_compressed: &[u8]) -> Vec<u8> {
+    let len = alpha_compressed.len();
+    let header = format!(
+        "<< /Type /XObject /Subtype /Image \
+           /Width {w} /Height {h} \
+           /ColorSpace /DeviceGray /BitsPerComponent 8 \
+           /Filter /FlateDecode /Length {len} >>\nstream\n"
+    );
+    let mut obj = header.into_bytes();
+    obj.extend_from_slice(alpha_compressed);
+    obj.extend_from_slice(b"\nendstream");
+    obj
+}
+
+/// Stream XObject para o canal RGB de um PNG (/DeviceRGB, /FlateDecode).
+/// Referencia o /SMask pelo seu ID se a imagem tiver transparência.
+fn build_png_rgb_xobject(payload: &PdfImagePayload, smask_obj_id: Option<usize>) -> Vec<u8> {
+    let len = payload.rgb_data_compressed.len();
+    let smask_entry = match smask_obj_id {
+        Some(id) => format!("/SMask {id} 0 R "),
+        None     => String::new(),
+    };
+    let header = format!(
+        "<< /Type /XObject /Subtype /Image \
+           /Width {w} /Height {h} \
+           /ColorSpace {cs} /BitsPerComponent 8 \
+           {smask_entry}/Filter /FlateDecode /Length {len} >>\nstream\n",
+        w  = payload.width,
+        h  = payload.height,
+        cs = payload.color_space,
+    );
+    let mut obj = header.into_bytes();
+    obj.extend_from_slice(&payload.rgb_data_compressed);
     obj.extend_from_slice(b"\nendstream");
     obj
 }
@@ -178,11 +372,7 @@ impl PdfBuilder {
         let font_f3      = font_f2 + 1;
         let first_img_id = font_f3 + 1;
 
-        let img_resources = scan_jpeg_images(doc, first_img_id);
-        let img_by_ptr: HashMap<usize, usize> = img_resources.iter()
-            .enumerate()
-            .map(|(i, r)| (r.arc_ptr, i))
-            .collect();
+        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
 
         self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
 
@@ -197,7 +387,7 @@ impl PdfBuilder {
             let w = page.size.width.val();
             let h = page.size.height.val();
 
-            let xobj_res = xobject_resources_for_page(page, &img_by_ptr, &img_resources);
+            let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
             let resources_str = format!(
                 "/Font << /F1 {font_f1} 0 R /F2 {font_f2} 0 R /F3 {font_f3} 0 R >> {xobj_res}"
             );
@@ -209,7 +399,7 @@ impl PdfBuilder {
                    /Resources << {resources_str} >> >>"
             ));
 
-            let stream_bytes = build_page_stream_type1(page, &img_by_ptr, &img_resources);
+            let stream_bytes = build_page_stream_type1(page, &ptr_to_idx, &img_refs);
             let len = stream_bytes.len();
             let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
             obj.extend_from_slice(&stream_bytes);
@@ -224,10 +414,7 @@ impl PdfBuilder {
         self.add(font_f3, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique \
                             /Encoding /WinAnsiEncoding >>".into());
 
-        for r in &img_resources {
-            self.add_bytes(r.obj_id, build_jpeg_xobject(&r.data, r.intrinsic_width, r.intrinsic_height));
-        }
-
+        self.emit_image_xobjects(img_xobjects);
         self.serialize()
     }
 
@@ -262,11 +449,7 @@ impl PdfBuilder {
         let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
         let widths = widths_array(face, &mappings);
 
-        let img_resources = scan_jpeg_images(doc, first_img_id);
-        let img_by_ptr: HashMap<usize, usize> = img_resources.iter()
-            .enumerate()
-            .map(|(i, r)| (r.arc_ptr, i))
-            .collect();
+        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
 
         self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
 
@@ -281,7 +464,7 @@ impl PdfBuilder {
             let w = page.size.width.val();
             let h = page.size.height.val();
 
-            let xobj_res = xobject_resources_for_page(page, &img_by_ptr, &img_resources);
+            let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
             let resources_str = format!("/Font << /F1 {font_id} 0 R >> {xobj_res}");
 
             self.add(page_id, format!(
@@ -291,7 +474,7 @@ impl PdfBuilder {
                    /Resources << {resources_str} >> >>"
             ));
 
-            let stream_bytes = build_page_stream_cidfont(page, &char_to_gid, &img_by_ptr, &img_resources);
+            let stream_bytes = build_page_stream_cidfont(page, &char_to_gid, &ptr_to_idx, &img_refs);
             let len = stream_bytes.len();
             let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
             obj.extend_from_slice(&stream_bytes);
@@ -343,11 +526,31 @@ impl PdfBuilder {
         cmap_obj.extend_from_slice(b"\nendstream");
         self.add_bytes(to_unicode_id, cmap_obj);
 
-        for r in &img_resources {
-            self.add_bytes(r.obj_id, build_jpeg_xobject(&r.data, r.intrinsic_width, r.intrinsic_height));
-        }
-
+        self.emit_image_xobjects(img_xobjects);
         self.serialize()
+    }
+
+    /// Emite todos os XObjects de imagem pré-processados para o builder.
+    ///
+    /// Para PNG com alpha: emite /SMask (canal alpha) antes do XObject principal
+    /// (canal RGB), para que o SMask apareça antes no ficheiro PDF — o dicionário
+    /// do XObject principal referencia o ID do SMask por forward reference.
+    fn emit_image_xobjects(&mut self, xobjects: Vec<ImageXObject>) {
+        for xobj in xobjects {
+            match xobj {
+                ImageXObject::Jpeg { data, main_obj_id, iw, ih } => {
+                    let cs = jpeg_color_space(&data);
+                    self.add_bytes(main_obj_id, build_jpeg_xobject(&data, iw, ih, cs));
+                }
+                ImageXObject::Png { payload, main_obj_id, smask_obj_id } => {
+                    // Emitir /SMask antes do XObject principal.
+                    if let (Some(smask_id), Some(alpha)) = (smask_obj_id, &payload.alpha_data_compressed) {
+                        self.add_bytes(smask_id, build_png_smask_xobject(payload.width, payload.height, alpha));
+                    }
+                    self.add_bytes(main_obj_id, build_png_rgb_xobject(&payload, smask_obj_id));
+                }
+            }
+        }
     }
 
     fn serialize(self) -> Vec<u8> {
@@ -387,8 +590,8 @@ impl PdfBuilder {
 
 fn build_page_stream_type1(
     page:       &Frame,
-    img_by_ptr: &HashMap<usize, usize>,
-    resources:  &[ImageResource],
+    ptr_to_idx: &HashMap<usize, usize>,
+    img_refs:   &[ImageRef],
 ) -> Vec<u8> {
     let mut ops = String::new();
     let page_height = page.size.height.val();
@@ -427,16 +630,15 @@ fn build_page_stream_type1(
             FrameItem::Glyph { .. } => {}
             FrameItem::Image { pos, data, width, height, .. } => {
                 let ptr = Arc::as_ptr(data) as usize;
-                if let Some(&idx) = img_by_ptr.get(&ptr) {
+                if let Some(&idx) = ptr_to_idx.get(&ptr) {
                     // pos.y é o TOPO da imagem → canto inferior esquerdo no espaço PDF.
                     let pdf_y = page_height - pos.y.val() - height.val();
                     ops.push_str(&format!(
                         "q\n{:.3} 0 0 {:.3} {:.3} {:.3} cm\n/{} Do\nQ\n",
                         width.val(), height.val(), pos.x.val(), pdf_y,
-                        resources[idx].name
+                        img_refs[idx].name
                     ));
                 }
-                // DEBT-27: PNG e Unknown ignorados — espaço reservado no layout, sem output PDF.
             }
         }
     }
@@ -552,10 +754,10 @@ fn text_to_hex_string(text: &str, char_to_gid: &HashMap<char, u16>) -> String {
 }
 
 fn build_page_stream_cidfont(
-    page:       &Frame,
+    page:        &Frame,
     char_to_gid: &HashMap<char, u16>,
-    img_by_ptr: &HashMap<usize, usize>,
-    resources:  &[ImageResource],
+    ptr_to_idx:  &HashMap<usize, usize>,
+    img_refs:    &[ImageRef],
 ) -> Vec<u8> {
     let mut ops = String::new();
     let page_height = page.size.height.val();
@@ -595,16 +797,15 @@ fn build_page_stream_cidfont(
             }
             FrameItem::Image { pos, data, width, height, .. } => {
                 let ptr = Arc::as_ptr(data) as usize;
-                if let Some(&idx) = img_by_ptr.get(&ptr) {
+                if let Some(&idx) = ptr_to_idx.get(&ptr) {
                     // pos.y é o TOPO da imagem → canto inferior esquerdo no espaço PDF.
                     let pdf_y = page_height - pos.y.val() - height.val();
                     ops.push_str(&format!(
                         "q\n{:.3} 0 0 {:.3} {:.3} {:.3} cm\n/{} Do\nQ\n",
                         width.val(), height.val(), pos.x.val(), pdf_y,
-                        resources[idx].name
+                        img_refs[idx].name
                     ));
                 }
-                // DEBT-27: PNG e Unknown ignorados — espaço reservado no layout, sem output PDF.
             }
         }
     }
@@ -892,11 +1093,12 @@ mod tests {
     }
 
     #[test]
-    fn pipeline_png_ignorado_sem_xobject() {
+    fn pipeline_png_invalido_ignorado_graciosamente() {
         use std::sync::Arc;
         use typst_core::entities::layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size};
 
-        // PNG magic bytes — deve ser ignorado (DEBT-27)
+        // PNG com apenas magic bytes — processo_png_for_pdf falha, imagem omitida.
+        // O PDF deve continuar válido (sem corrupção).
         let png_bytes = Arc::new(vec![0x89u8, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A]);
 
         let mut frame = Frame::new(Size::a4());
@@ -911,10 +1113,111 @@ mod tests {
         let doc = PagedDocument::new(vec![frame]);
         let pdf = export_pdf(&doc);
 
-        assert!(pdf.starts_with(b"%PDF-1.7"), "PDF deve ser válido mesmo com PNG ignorado");
-        // PNG não deve gerar XObject — DEBT-27
+        assert!(pdf.starts_with(b"%PDF-1.7"), "PDF deve ser válido mesmo com PNG inválido");
         let s = String::from_utf8_lossy(&pdf);
-        assert!(!s.contains("/DCTDecode"), "PNG não usa DCTDecode");
+        // PNG inválido não deve gerar XObject DCTDecode nem FlateDecode
+        assert!(!s.contains("/DCTDecode"),   "PNG inválido não usa DCTDecode");
+        assert!(!s.contains("/FlateDecode"), "PNG inválido não gera XObject");
+    }
+
+    // ── Testes de imagem (Passo 74) ───────────────────────────────────────────
+
+    #[test]
+    fn jpeg_color_space_grayscale() {
+        // Cabeçalho JPEG mínimo com SOF0 e 1 canal (Grayscale).
+        let jpeg = vec![
+            0xFF, 0xD8,       // SOI
+            0xFF, 0xC0,       // SOF0
+            0x00, 0x0B,       // length = 11
+            0x08,             // precision = 8 bits
+            0x00, 0x01,       // height = 1
+            0x00, 0x01,       // width = 1
+            0x01,             // components = 1 → DeviceGray
+        ];
+        assert_eq!(jpeg_color_space(&jpeg), "/DeviceGray");
+    }
+
+    #[test]
+    fn jpeg_color_space_rgb() {
+        let jpeg = vec![
+            0xFF, 0xD8,
+            0xFF, 0xC0,
+            0x00, 0x0B,
+            0x08,
+            0x00, 0x01, 0x00, 0x01,
+            0x03, // components = 3 → DeviceRGB
+        ];
+        assert_eq!(jpeg_color_space(&jpeg), "/DeviceRGB");
+    }
+
+    #[test]
+    fn jpeg_color_space_fallback_rgb() {
+        // Sem marcador SOF0/SOF2 — fallback DeviceRGB.
+        let jpeg = vec![0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x04];
+        assert_eq!(jpeg_color_space(&jpeg), "/DeviceRGB");
+    }
+
+    #[test]
+    fn process_png_for_pdf_opaco_sem_alpha() {
+        use image::{ImageBuffer, Rgb};
+        // Gerar PNG RGB 1×1 sem canal alpha.
+        let img: ImageBuffer<Rgb<u8>, _> = ImageBuffer::from_raw(1, 1, vec![255u8, 0, 0]).unwrap();
+        let mut buf = Vec::new();
+        img.write_to(&mut std::io::Cursor::new(&mut buf), image::ImageFormat::Png).unwrap();
+
+        let payload = process_png_for_pdf(&buf).expect("deve processar PNG RGB");
+        assert_eq!(payload.width,  1);
+        assert_eq!(payload.height, 1);
+        assert!(payload.alpha_data_compressed.is_none(), "PNG opaco não deve ter alpha");
+        assert!(!payload.rgb_data_compressed.is_empty());
+    }
+
+    #[test]
+    fn process_png_for_pdf_transparente_gera_alpha() {
+        use image::{ImageBuffer, Rgba};
+        // PNG RGBA 1×1 com pixel semi-transparente.
+        let img: ImageBuffer<Rgba<u8>, _> = ImageBuffer::from_raw(1, 1, vec![255u8, 0, 0, 128]).unwrap();
+        let mut buf = Vec::new();
+        img.write_to(&mut std::io::Cursor::new(&mut buf), image::ImageFormat::Png).unwrap();
+
+        let payload = process_png_for_pdf(&buf).expect("deve processar PNG RGBA");
+        assert!(payload.alpha_data_compressed.is_some(), "PNG com transparência deve ter alpha");
+    }
+
+    #[test]
+    fn process_png_for_pdf_opaco_total_sem_smask() {
+        use image::{ImageBuffer, Rgba};
+        // PNG RGBA 1×1 totalmente opaco — alpha 255 deve ser descartado.
+        let img: ImageBuffer<Rgba<u8>, _> = ImageBuffer::from_raw(1, 1, vec![100u8, 150, 200, 255]).unwrap();
+        let mut buf = Vec::new();
+        img.write_to(&mut std::io::Cursor::new(&mut buf), image::ImageFormat::Png).unwrap();
+
+        let payload = process_png_for_pdf(&buf).expect("deve processar PNG RGBA opaco");
+        assert!(payload.alpha_data_compressed.is_none(), "alpha 255 uniforme deve ser descartado");
+    }
+
+    #[test]
+    fn pipeline_jpeg_usa_jpeg_color_space() {
+        use std::sync::Arc;
+        use typst_core::entities::layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size};
+
+        // JPEG com SOF0 e 3 canais — deve ter /DeviceRGB no XObject.
+        let mut jpeg = vec![0xFF, 0xD8u8, 0xFF, 0xC0, 0x00, 0x0B, 0x08, 0x00, 0x01, 0x00, 0x01, 0x03];
+        // Adicionar marcador EOI para que o JPEG seja "válido" o suficiente para o exporter.
+        jpeg.extend_from_slice(&[0xFF, 0xD9]);
+        let data = Arc::new(jpeg);
+
+        let mut frame = Frame::new(Size::a4());
+        frame.push(FrameItem::Image {
+            pos: Point { x: Pt(72.0), y: Pt(100.0) },
+            data: Arc::clone(&data),
+            width: Pt(100.0), height: Pt(75.0),
+            intrinsic_width: 1, intrinsic_height: 1,
+        });
+        let doc = PagedDocument::new(vec![frame]);
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("/DeviceRGB"), "JPEG 3 canais deve usar /DeviceRGB");
     }
 
     #[test]

@@ -31,5 +31,6 @@ pub mod math_constants;
 pub mod show;
 pub mod style_chain;
 pub mod image_sizer;
+pub mod ptr_eq_arc;
 pub mod value;
 pub mod world_types;

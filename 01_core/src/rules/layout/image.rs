@@ -13,8 +13,13 @@ const PX_TO_PT: f64 = 0.75;
 
 /// Dimensões finais de uma imagem para o layouter, em pontos.
 pub struct ImageDimensions {
-    pub width_pt:  f64,
-    pub height_pt: f64,
+    pub width_pt:         f64,
+    pub height_pt:        f64,
+    /// Dimensões reais em píxeis, lidas do cabeçalho da imagem via sizer.
+    /// `None` se o sizer retornou `None` (formato desconhecido — fallback usado).
+    /// Retornadas para evitar uma segunda chamada a `sizer.size()` no layouter (DEBT-28).
+    pub intrinsic_width:  Option<u32>,
+    pub intrinsic_height: Option<u32>,
 }
 
 /// Calcula as dimensões finais de uma imagem.
@@ -31,7 +36,9 @@ pub fn calculate_dimensions(
     user_height: Option<&Value>,
     sizer:       &dyn ImageSizer,
 ) -> ImageDimensions {
-    let (intrinsic_w_pt, intrinsic_h_pt) = match sizer.size(data) {
+    let intrinsic = sizer.size(data); // única leitura do cabeçalho (DEBT-28)
+
+    let (intrinsic_w_pt, intrinsic_h_pt) = match intrinsic {
         Some((pw, ph)) => (pw as f64 * PX_TO_PT, ph as f64 * PX_TO_PT),
         None           => (100.0, 100.0),
     };
@@ -52,7 +59,12 @@ pub fn calculate_dimensions(
         (None, None)       => (intrinsic_w_pt, intrinsic_h_pt),
     };
 
-    ImageDimensions { width_pt, height_pt }
+    ImageDimensions {
+        width_pt,
+        height_pt,
+        intrinsic_width:  intrinsic.map(|(w, _)| w),
+        intrinsic_height: intrinsic.map(|(_, h)| h),
+    }
 }
 
 fn extract_pt(val: &Value) -> Option<f64> {
@@ -124,5 +136,27 @@ mod tests {
         let dims = calculate_dimensions(&[], Some(&w), Some(&h), &MockSizer);
         assert_eq!(dims.width_pt, 50.0);
         assert_eq!(dims.height_pt, 50.0);
+    }
+
+    #[test]
+    fn calculate_dimensions_retorna_intrinsic() {
+        // NullImageSizer retorna None — campos intrinsic devem ser None.
+        let dims = calculate_dimensions(
+            &[0xFF, 0xD8, 0xFF, 0x00],
+            None,
+            None,
+            &NullImageSizer,
+        );
+        assert_eq!(dims.intrinsic_width,  None);
+        assert_eq!(dims.intrinsic_height, None);
+
+        // Sizer com dimensões reais — campos devem ser preenchidos.
+        struct FixedSizer;
+        impl ImageSizer for FixedSizer {
+            fn size(&self, _data: &[u8]) -> Option<(u32, u32)> { Some((800, 600)) }
+        }
+        let dims2 = calculate_dimensions(&[], None, None, &FixedSizer);
+        assert_eq!(dims2.intrinsic_width,  Some(800));
+        assert_eq!(dims2.intrinsic_height, Some(600));
     }
 }

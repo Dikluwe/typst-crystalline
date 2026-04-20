@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/entities/content.md
 //! @prompt-hash 85fae9b9
 //! @layer L1
-//! @updated 2026-04-03
+//! @updated 2026-04-20
 
 use std::sync::Arc;
 
@@ -11,6 +11,7 @@ use ecow::EcoString;
 use crate::entities::counter_state::CounterAction;
 use crate::entities::label::Label;
 use crate::entities::layout_types::{Pt, TextStyle};
+use crate::entities::ptr_eq_arc::PtrEqArc;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -177,23 +178,34 @@ pub enum Content {
     /// O layouter substitui este nó pela lista de títulos do documento.
     Outline,
 
-    /// Elemento com numeração própria e legenda opcional (Passo 62).
-    /// Contador plano independente ("figure") — paridade com Typst original.
-    /// DEBT-15: campo `kind` hardcoded como "figure" — ver DEBT.md.
+    /// Elemento com numeração própria e legenda opcional (Passo 62, DEBT-15 Passo 75).
+    /// `kind` discrimina o contador: "image", "table", "raw", etc.
+    /// `numbering` baked-in em eval via `#set figure(numbering: "1")` (DEBT-14).
     Figure {
-        body:    Box<Content>,
-        caption: Option<Box<Content>>,
+        body:      Box<Content>,
+        caption:   Option<Box<Content>>,
+        /// Tipo da figura — discriminador para contadores independentes.
+        /// Padrão: "image". Outros valores: "table", "raw".
+        kind:      String,
+        /// Padrão de numeração activo no momento da produção via `#set figure(numbering:)`.
+        /// None → sem numeração; Some("1") → numeração arábica.
+        numbering: Option<String>,
     },
+
+    /// Activa a numeração automática de figuras a partir deste ponto (Passo 75).
+    /// Produzida por `#set figure(numbering: "1")` em eval.
+    /// Padrão idêntico a `SetHeadingNumbering` (Passo 57).
+    SetFigureNumbering { pattern: String },
 
     /// Imagem carregada do disco (Passo 71, DEBT-24).
     ///
-    /// `data: Arc<Vec<u8>>` — clones partilham a mesma alocação sem copiar bytes.
+    /// `data: PtrEqArc<Vec<u8>>` — clones partilham a mesma alocação (O(1) clone)
+    /// e PartialEq compara por ponteiro em vez de por valor (DEBT-26).
     /// `width`/`height` usam `Box<Value>` para quebrar o ciclo de tipos
     /// `Content → Value → Content` (sem Box seria recursão infinita).
-    /// O layouter usa placeholder 100×100 pt até o Passo 72 (DEBT-24b).
     Image {
         path:   String,
-        data:   Arc<Vec<u8>>,
+        data:   PtrEqArc<Vec<u8>>,
         width:  Option<Box<crate::entities::value::Value>>,
         height: Option<Box<crate::entities::value::Value>>,
     },
@@ -253,7 +265,7 @@ impl Content {
             Self::Sequence(v) => v.is_empty(),
             Self::Labelled { target, .. } => target.is_empty(),
             // Figura: não está vazia se tiver body OU caption com conteúdo.
-            Self::Figure { body, caption } =>
+            Self::Figure { body, caption, .. } =>
                 body.is_empty() && caption.as_ref().is_none_or(|c| c.is_empty()),
             _ => false,
         }
@@ -320,7 +332,7 @@ impl Content {
             Self::CounterDisplay { .. }      => String::new(),
             Self::CounterUpdate { .. }       => String::new(),
             Self::Outline                    => String::new(),
-            Self::Figure { body, caption } => {
+            Self::Figure { body, caption, .. } => {
                 let body_text = body.plain_text();
                 let cap_text  = caption.as_ref()
                     .map(|c| c.plain_text())
@@ -332,6 +344,7 @@ impl Content {
                     (true,  true)  => String::new(),
                 }
             }
+            Self::SetFigureNumbering { .. } => String::new(),
             Self::Image { .. } => String::new(),
         }
     }
@@ -381,8 +394,10 @@ impl PartialEq for Content {
             (Self::CounterDisplay { kind: a }, Self::CounterDisplay { kind: b }) => a == b,
             (Self::CounterUpdate { key: ka, action: aa }, Self::CounterUpdate { key: kb, action: ab }) => ka == kb && aa == ab,
             (Self::Outline, Self::Outline) => true,
-            (Self::Figure { body: ba, caption: ca }, Self::Figure { body: bb, caption: cb }) =>
-                ba == bb && ca == cb,
+            (Self::Figure { body: ba, caption: ca, kind: ka, numbering: na },
+             Self::Figure { body: bb, caption: cb, kind: kb, numbering: nb }) =>
+                ba == bb && ca == cb && ka == kb && na == nb,
+            (Self::SetFigureNumbering { pattern: a }, Self::SetFigureNumbering { pattern: b }) => a == b,
             (Self::Image { path: pa, data: da, width: wa, height: ha },
              Self::Image { path: pb, data: db, width: wb, height: hb }) =>
                 pa == pb && da == db && wa.as_deref() == wb.as_deref() && ha.as_deref() == hb.as_deref(),
@@ -444,12 +459,14 @@ impl Content {
                 target: Box::new(target.map_content(transform)?),
                 label:  label.clone(),
             },
-            Content::Figure { body, caption } => Content::Figure {
-                body:    Box::new(body.map_content(transform)?),
-                caption: caption.as_ref()
+            Content::Figure { body, caption, kind, numbering } => Content::Figure {
+                body:      Box::new(body.map_content(transform)?),
+                caption:   caption.as_ref()
                     .map(|c| c.map_content(transform))
                     .transpose()?
                     .map(Box::new),
+                kind:      kind.clone(),
+                numbering: numbering.clone(),
             },
             // Content::Equation tem body: Box<Content> → container.
             Content::Equation { body, block } => Content::Equation {
@@ -506,6 +523,7 @@ impl Content {
             | Content::Raw { .. }
             | Content::Ref { .. }
             | Content::SetHeadingNumbering { .. }
+            | Content::SetFigureNumbering { .. }
             | Content::CounterUpdate { .. }
             | Content::CounterDisplay { .. }
             | Content::MathAlignPoint
@@ -552,9 +570,11 @@ impl Content {
                 target: Box::new(target.map_text(transform)),
                 label:  label.clone(),
             },
-            Content::Figure { body, caption } => Content::Figure {
-                body:    Box::new(body.map_text(transform)),
-                caption: caption.as_ref().map(|c| Box::new(c.map_text(transform))),
+            Content::Figure { body, caption, kind, numbering } => Content::Figure {
+                body:      Box::new(body.map_text(transform)),
+                caption:   caption.as_ref().map(|c| Box::new(c.map_text(transform))),
+                kind:      kind.clone(),
+                numbering: numbering.clone(),
             },
             Content::ListItem(body) => Content::ListItem(Box::new(body.map_text(transform))),
             Content::EnumItem { number, body } => Content::EnumItem {
@@ -576,6 +596,7 @@ impl Content {
             | Content::Raw { .. }
             | Content::Ref { .. }
             | Content::SetHeadingNumbering { .. }
+            | Content::SetFigureNumbering { .. }
             | Content::CounterUpdate { .. }
             | Content::CounterDisplay { .. }
             | Content::MathAlignPoint

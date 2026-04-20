@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/entities/counter_state.md
 //! @prompt-hash 4b8e4f02
 //! @layer L1
-//! @updated 2026-04-13
+//! @updated 2026-04-20
 
 use std::collections::HashMap;
 
@@ -61,17 +61,21 @@ pub struct CounterState {
     /// Modo read-only: bloqueia step_* e update_* (Passo 63, DEBT-13).
     /// Activado em `outline.rs` durante a renderização de clones de AST na TOC.
     pub is_readonly: bool,
+    /// Números pré-calculados por kind para figuras numeradas (Passo 75, DEBT-14/15).
+    /// Chave: kind (ex: "image", "table"); Valor: lista de números 1-based em ordem de aparecimento.
+    /// Populado pela introspecção; lido pelo layouter via índice de progresso.
+    pub figure_numbers: HashMap<String, Vec<usize>>,
+    /// Mapa de label → número da figura (Passo 75, DEBT-14).
+    /// Populado pela introspecção quando `Content::Labelled` envolve uma figura numerada.
+    pub figure_label_numbers: HashMap<Label, usize>,
+    /// Contadores locais por kind — auxiliar interno da introspecção (Passo 75).
+    /// Não exposto ao layouter; apenas `figure_numbers` é consumido externamente.
+    pub local_figure_counters: HashMap<String, usize>,
 }
 
 impl CounterState {
     pub fn new() -> Self {
-        let mut s = Self::default();
-        // Figuras são numeradas por defeito — paridade com o Typst original.
-        // O método is_numbering_active() não conhece esta regra; o construtor sim.
-        // DEBT-14: sem SetRule para `#set figure(numbering: none)`, o utilizador
-        // não pode desactivar a numeração de figuras.
-        s.numbering_active.insert("figure".to_string(), true);
-        s
+        Self::default()
     }
 
     /// Verifica se a numeração está activa para uma chave.
