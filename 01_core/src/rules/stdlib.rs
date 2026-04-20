@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
 //! @prompt-hash f6cc2443
 //! @layer L1
-//! @updated 2026-04-13
+//! @updated 2026-04-20
 
 //! Stdlib nativa mínima — Passo 17.
 //!
@@ -15,6 +15,7 @@ use rustc_hash::FxBuildHasher;
 
 use crate::entities::args::Args;
 use crate::entities::content::Content;
+use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::func::Func;
 use crate::entities::layout_types::Length;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -586,7 +587,7 @@ pub fn native_heading(_ctx: &mut EvalContext<'_>, _args: &Args) -> SourceResult<
 ///
 /// - `body`: argumento posicional obrigatório.
 /// - `caption:`: argumento nomeado opcional; `none` → sem legenda.
-pub fn native_figure(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_figure(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
     // Argumento posicional: body (obrigatório)
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
@@ -607,9 +608,20 @@ pub fn native_figure(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Va
         other             => Some(Box::new(Content::text(other.type_name()))),
     });
 
+    // Argumento nomeado: kind (Passo 75, DEBT-15).
+    let kind = args.named.get("kind")
+        .and_then(|v| if let Value::Str(s) = v { Some(s.to_string()) } else { None })
+        .unwrap_or_else(|| "image".to_string());
+
+    // Numeração capturada do contexto (Passo 75, DEBT-14).
+    // Reflecte o estado activo de `#set figure(numbering: ...)` no momento da chamada.
+    let numbering = ctx.figure_numbering.clone();
+
     Ok(Value::Content(Content::Figure {
-        body:    Box::new(body),
+        body: Box::new(body),
         caption,
+        kind,
+        numbering,
     }))
 }
 
@@ -643,7 +655,7 @@ pub fn native_image(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
         )]),
     };
 
-    let data = match ctx.world.read_bytes(&path) {
+    let data = match ctx.world.read_bytes(ctx.current_file, &path) {
         Ok(arc) => arc,
         Err(msg) => return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -651,10 +663,10 @@ pub fn native_image(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
         )]),
     };
 
-    let width  = args.named.get("width".into()).cloned().map(Box::new);
-    let height = args.named.get("height".into()).cloned().map(Box::new);
+    let width  = args.named.get("width").cloned().map(Box::new);
+    let height = args.named.get("height").cloned().map(Box::new);
 
-    Ok(Value::Content(Content::Image { path, data, width, height }))
+    Ok(Value::Content(Content::Image { path, data: PtrEqArc(data), width, height }))
 }
 
 #[cfg(test)]
@@ -694,7 +706,7 @@ mod tests {
         fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
         fn font(&self, _: usize) -> Option<Font> { None }
         fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
-        fn read_bytes(&self, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
             self.files.get(path)
                 .map(std::sync::Arc::clone)
                 .ok_or_else(|| format!("ficheiro não encontrado: {}", path))
@@ -705,7 +717,10 @@ mod tests {
     macro_rules! null_ctx {
         ($ctx:ident) => {
             let _world = NullWorld::default();
-            let mut $ctx = EvalContext::new(&_world);
+            let _dummy_id = crate::entities::file_id::FileId::from_raw(
+                std::num::NonZeroU16::new(1).unwrap()
+            );
+            let mut $ctx = EvalContext::new(&_world, _dummy_id);
         }
     }
 
@@ -1058,7 +1073,8 @@ mod tests {
     fn native_image_retorna_content_image() {
         let mut world = NullWorld::default();
         world.files.insert("foto.png".to_string(), std::sync::Arc::new(vec![1, 2, 3]));
-        let mut ctx = EvalContext::new(&world);
+        let dummy_id = crate::entities::file_id::FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let mut ctx = EvalContext::new(&world, dummy_id);
         let args = p(vec![Value::Str("foto.png".into())]);
         let result = native_image(&mut ctx, &args).unwrap();
         assert!(matches!(result, Value::Content(Content::Image { .. })));

@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/eval.md
 //! @prompt-hash 19073424
 //! @layer L1
-//! @updated 2026-04-03
+//! @updated 2026-04-20
 
 use comemo::{Tracked, TrackedMut};
 use ecow::EcoString;
@@ -72,10 +72,18 @@ pub struct EvalContext<'w> {
     pub active_guards: Vec<crate::entities::show::RuleId>,
     /// Próximo ID a atribuir a uma ShowRule (Passo 70).
     pub next_rule_id: crate::entities::show::RuleId,
+    /// FileId do ficheiro Typst actualmente em avaliação (Passo 75, DEBT-25).
+    /// Usado por `World::read_bytes` para resolver caminhos relativos ao ficheiro fonte.
+    /// Actualizado ao entrar num `#include` e restaurado ao sair.
+    pub current_file: FileId,
+    /// Padrão de numeração activo para figuras (Passo 75, DEBT-14).
+    /// Definido por `#set figure(numbering: "1")` e capturado em `native_figure`.
+    /// `None` → figuras sem numeração automática.
+    pub figure_numbering: Option<String>,
 }
 
 impl<'w> EvalContext<'w> {
-    pub fn new(world: &'w dyn World) -> Self {
+    pub fn new(world: &'w dyn World, current_file: FileId) -> Self {
         Self {
             world,
             depth: 0,
@@ -87,6 +95,8 @@ impl<'w> EvalContext<'w> {
             show_rules: Vec::new(),
             active_guards: Vec::new(),
             next_rule_id: 0,
+            current_file,
+            figure_numbering: None,
         }
     }
 
@@ -219,7 +229,7 @@ pub fn eval(
 ) -> SourceResult<Module> {
     let root = source.root();
 
-    let mut ctx = EvalContext::new(world);
+    let mut ctx = EvalContext::new(world, source.id());
 
     let mut scopes = Scopes::new(None);
     // Stdlib como scope base — type, len, range visíveis em todo o documento
@@ -538,6 +548,28 @@ fn eval_expr(
                 return Ok(Value::Content(Content::SetHeadingNumbering { active }));
             }
 
+            if target == "figure" {
+                // #set figure(numbering: "1") — activa numeração automática de figuras (Passo 75, DEBT-14).
+                // Padrão idêntico a SetHeadingNumbering: emite nó AST e actualiza ctx.
+                let mut new_numbering = ctx.figure_numbering.clone();
+                for arg in set.args().items() {
+                    if let Arg::Named(named) = arg {
+                        if named.name().as_str() == "numbering" {
+                            let val = eval_expr(named.expr(), scopes, ctx).unwrap_or(Value::None);
+                            new_numbering = match val {
+                                Value::Str(s) => Some(s.to_string()),
+                                Value::None   => None,
+                                _             => new_numbering.clone(),
+                            };
+                        }
+                    }
+                }
+                ctx.figure_numbering = new_numbering.clone();
+                return Ok(Value::Content(Content::SetFigureNumbering {
+                    pattern: new_numbering.unwrap_or_default(),
+                }));
+            }
+
             if target != "text" {
                 return Ok(Value::None);
             }
@@ -602,11 +634,33 @@ fn eval_expr(
             )])
         }
 
-        Expr::ModuleInclude(_include) => {
-            Err(vec![SourceDiagnostic::error(
-                _include.span(),
-                "include não implementado nesta versão do cristalino",
-            )])
+        Expr::ModuleInclude(include) => {
+            // Avaliar a expressão do caminho (normalmente uma string literal).
+            let path_val = eval_expr(include.source(), scopes, ctx)?;
+            let path = match path_val {
+                Value::Str(s) => s.to_string(),
+                other => return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("include: caminho deve ser string, recebeu {}", other.type_name()),
+                )]),
+            };
+
+            // Carregar o ficheiro incluído com resolução relativa ao ficheiro actual.
+            let source = ctx.world.include_source(ctx.current_file, &path)
+                .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+
+            // Detectar ciclos de importação.
+            let _guard = ctx.enter_import(source.id(), Span::detached())?;
+
+            // Salvar e actualizar current_file; restaurar ao regressar.
+            let saved_file = ctx.current_file;
+            ctx.current_file = source.id();
+
+            let result = eval_markup(source.root(), scopes, ctx)?;
+
+            ctx.current_file = saved_file;
+            // _guard é largado aqui, removendo o FileId da pilha de importação.
+            Ok(result)
         }
 
         // Passo 56 — referência cruzada: @nome → Content::Ref placeholder.
@@ -1516,7 +1570,7 @@ pub(crate) fn eval_for_test_with_limits<W: World>(
 ) -> SourceResult<Module> {
     
 
-    let mut ctx = EvalContext::new(world);
+    let mut ctx = EvalContext::new(world, source.id());
     ctx.max_loop_iterations = max_loop_iterations;
     ctx.max_call_depth = max_call_depth;
 
@@ -1588,7 +1642,7 @@ mod tests {
         fn file(&self, _: FileId)     -> FileResult<Bytes>  { Err(FileError::NotFound) }
         fn font(&self, _: usize)      -> Option<Font>       { None }
         fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
-        fn read_bytes(&self, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
             self.files.get(path)
                 .map(std::sync::Arc::clone)
                 .ok_or_else(|| format!("ficheiro não encontrado: {}", path))
@@ -2419,7 +2473,7 @@ mod tests {
     #[test]
     fn enter_import_sem_ciclo_passa() {
         let world = MockWorld::new("");
-        let mut ctx = EvalContext::new(&world);
+        let mut ctx = EvalContext::new(&world, FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()));
         let id_a = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
         let span = Span::detached();
 
@@ -2432,7 +2486,7 @@ mod tests {
     #[test]
     fn enter_import_ciclo_retorna_err() {
         let world = MockWorld::new("");
-        let mut ctx = EvalContext::new(&world);
+        let mut ctx = EvalContext::new(&world, FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()));
         let id_a = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
         let span = Span::detached();
 
@@ -2448,7 +2502,7 @@ mod tests {
     #[test]
     fn guard_remove_id_mesmo_em_err() {
         let world = MockWorld::new("");
-        let mut ctx = EvalContext::new(&world);
+        let mut ctx = EvalContext::new(&world, FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()));
         let id_a = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
         let span = Span::detached();
 
@@ -3442,18 +3496,19 @@ mod tests {
 
     #[test]
     fn content_image_arc_partilhado_em_clone() {
+        use crate::entities::ptr_eq_arc::PtrEqArc;
         let data = std::sync::Arc::new(vec![1u8, 2, 3]);
         let img = Content::Image {
             path:   "img.png".to_string(),
-            data:   data.clone(),
+            data:   PtrEqArc(data.clone()),
             width:  None,
             height: None,
         };
         let img2 = img.clone();
         assert_eq!(img, img2);
-        // Arc::ptr_eq verifica que os dois clones partilham o mesmo buffer.
+        // PtrEqArc::PartialEq compara por ponteiro — clone do mesmo Arc é igual (O(1)).
         if let (Content::Image { data: d1, .. }, Content::Image { data: d2, .. }) = (&img, &img2) {
-            assert!(std::sync::Arc::ptr_eq(d1, d2), "clone deve partilhar Arc");
+            assert!(std::sync::Arc::ptr_eq(&d1.0, &d2.0), "clone deve partilhar Arc");
         }
     }
 }

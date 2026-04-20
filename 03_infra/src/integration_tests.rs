@@ -26,6 +26,7 @@ mod integration {
 
     use crate::export::export_pdf;
     use crate::world::SystemWorld;
+    use image::ImageFormat;
 
     // ── Utilitário: diretório temporário sem dependência externa ─────────
 
@@ -1032,5 +1033,142 @@ mod integration {
              Mais conteúdo."
         );
         assert!(!pdf.is_empty(), "PDF com TOC em 3 passagens não deve estar vazio");
+    }
+
+    // ── Testes de imagem PNG (Passo 74) ───────────────────────────────────────
+
+    /// Gera PNG em memória e escreve no diretório temporário.
+    fn write_png_rgba(dir: &Path, name: &str, pixels: Vec<u8>, w: u32, h: u32) {
+        use image::{ImageBuffer, Rgba};
+        let img: ImageBuffer<Rgba<u8>, _> = ImageBuffer::from_raw(w, h, pixels).unwrap();
+        let mut buf = Vec::new();
+        img.write_to(&mut std::io::Cursor::new(&mut buf), image::ImageFormat::Png).unwrap();
+        std::fs::write(dir.join(name), &buf).unwrap();
+    }
+
+    #[test]
+    fn pipeline_png_transparente_gera_smask() {
+        let dir = tempdir();
+
+        // PNG 2×2 com píxeis semi-transparentes.
+        write_png_rgba(
+            dir.path(), "alpha.png",
+            vec![
+                255, 0,   0,   128, // vermelho semi-transparente
+                0,   255, 0,   255, // verde opaco
+                0,   0,   255, 0,   // azul transparente
+                255, 255, 0,   255, // amarelo opaco
+            ],
+            2, 2,
+        );
+
+        std::fs::write(dir.path().join("main.typ"), "#image(\"alpha.png\")").unwrap();
+        let world  = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state  = introspect(content);
+        let doc    = layout(content, state);
+        let pdf    = export_pdf(&doc);
+        let s      = String::from_utf8_lossy(&pdf);
+
+        assert!(!pdf.is_empty(), "export_pdf deve produzir bytes");
+        assert!(s.contains("/Filter /FlateDecode"), "PNG deve usar /FlateDecode");
+        assert!(s.contains("/SMask"),               "PNG com transparência deve emitir /SMask");
+        assert!(s.contains("/ColorSpace /DeviceGray"), "XObject alpha usa /DeviceGray");
+        assert!(s.contains("/ColorSpace /DeviceRGB"),  "XObject RGB usa /DeviceRGB");
+    }
+
+    #[test]
+    fn pipeline_png_opaco_sem_smask() {
+        let dir = tempdir();
+
+        // PNG 1×1 totalmente opaco.
+        write_png_rgba(dir.path(), "opaco.png", vec![100u8, 150, 200, 255], 1, 1);
+
+        std::fs::write(dir.path().join("main.typ"), "#image(\"opaco.png\")").unwrap();
+        let world  = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state  = introspect(content);
+        let doc    = layout(content, state);
+        let pdf    = export_pdf(&doc);
+        let s      = String::from_utf8_lossy(&pdf);
+
+        assert!(!s.contains("/SMask"), "PNG totalmente opaco não deve emitir /SMask");
+        assert!(s.contains("/Filter /FlateDecode"), "PNG opaco ainda usa /FlateDecode");
+    }
+
+    // ── Testes de Passo 75 — caminhos relativos e figuras numeradas ──────────
+
+    #[test]
+    fn pipeline_figura_numerada_prefixo_no_pdf() {
+        let dir = tempdir();
+        // JPEG mínimo válido (magic bytes suficientes para a detecção de formato)
+        std::fs::write(dir.path().join("foto.jpg"), &[0xFF_u8, 0xD8, 0xFF, 0xE0]).unwrap();
+        std::fs::write(
+            dir.path().join("main.typ"),
+            "#set figure(numbering: \"1\")\n#figure(image(\"foto.jpg\"), caption: [A foto])",
+        ).unwrap();
+
+        let world  = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state  = introspect(content);
+
+        let image_nums = state.figure_numbers.get("image").cloned().unwrap_or_default();
+        assert_eq!(image_nums, vec![1],
+            "Uma figura de imagem deve produzir figure_numbers[\"image\"] = [1]");
+
+        let doc = layout(content, state);
+        let pdf = export_pdf(&doc);
+        assert!(!pdf.is_empty(), "PDF não pode estar vazio");
+    }
+
+    #[test]
+    fn image_resolve_caminho_relativo() {
+        let dir = tempdir();
+        std::fs::create_dir(dir.path().join("capitulo1")).unwrap();
+        std::fs::write(
+            dir.path().join("capitulo1/foto.jpg"),
+            &[0xFF_u8, 0xD8, 0xFF, 0xE0],
+        ).unwrap();
+        std::fs::write(
+            dir.path().join("capitulo1/intro.typ"),
+            "#image(\"foto.jpg\")",
+        ).unwrap();
+        std::fs::write(
+            dir.path().join("main.typ"),
+            "#include \"capitulo1/intro.typ\"",
+        ).unwrap();
+
+        let world  = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let source = world.source(world.main()).unwrap();
+        let result = do_eval(&world, &source);
+        assert!(result.is_ok(), "Avaliador falhou ao resolver caminho relativo: {:?}", result.err());
+    }
+
+    #[test]
+    fn current_file_restaurado_apos_include() {
+        let dir = tempdir();
+        std::fs::create_dir(dir.path().join("capitulo1")).unwrap();
+        std::fs::write(dir.path().join("capa.jpg"),           &[0xFF_u8, 0xD8, 0xFF, 0xE0]).unwrap();
+        std::fs::write(dir.path().join("capitulo1/foto.jpg"), &[0xFF_u8, 0xD8, 0xFF, 0xE0]).unwrap();
+        std::fs::write(
+            dir.path().join("capitulo1/intro.typ"),
+            "#image(\"foto.jpg\")",
+        ).unwrap();
+        std::fs::write(
+            dir.path().join("main.typ"),
+            "#image(\"capa.jpg\")\n#include \"capitulo1/intro.typ\"\n#image(\"capa.jpg\")",
+        ).unwrap();
+
+        let world  = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let source = world.source(world.main()).unwrap();
+        let result = do_eval(&world, &source);
+        assert!(result.is_ok(),
+            "current_file não restaurado após #include: {:?}", result.err());
     }
 }

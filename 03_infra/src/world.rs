@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/infra/system-world.md
 //! @prompt-hash 662ca2dc
 //! @layer L3
-//! @updated 2026-03-26
+//! @updated 2026-04-20
 
 use std::collections::HashMap;
 use std::num::NonZeroU16;
@@ -170,6 +170,15 @@ impl SystemWorld {
     pub fn root(&self) -> &Path {
         &self.root
     }
+
+    /// Directório do ficheiro identificado por `id`.
+    /// Retorna a raiz se o FileId não estiver registado.
+    fn directory_of(&self, id: FileId) -> PathBuf {
+        self.slots.lock().unwrap()
+            .get(&id)
+            .and_then(|s| s.path.parent().map(|p| p.to_path_buf()))
+            .unwrap_or_else(|| self.root.clone())
+    }
 }
 
 impl World for SystemWorld {
@@ -208,11 +217,19 @@ impl World for SystemWorld {
         self.font_slots.get(index)?.get()
     }
 
-    fn read_bytes(&self, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
-        let full_path = self.root.join(path);
+    fn read_bytes(&self, current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+        let base_dir = self.directory_of(current_file);
+        let full_path = base_dir.join(path);
         std::fs::read(&full_path)
-            .map(|bytes| std::sync::Arc::new(bytes))
+            .map(std::sync::Arc::new)
             .map_err(|e| format!("erro ao ler '{}': {}", path, e))
+    }
+
+    fn include_source(&self, current_file: FileId, path: &str) -> Result<typst_core::entities::source::Source, String> {
+        let base_dir = self.directory_of(current_file);
+        let abs_path = base_dir.join(path);
+        let id = self.register_file(abs_path.clone());
+        self.source(id).map_err(|_| format!("include: ficheiro não encontrado: {}", abs_path.display()))
     }
 
     fn today(&self, offset: Option<i64>) -> Option<Datetime> {

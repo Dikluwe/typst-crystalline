@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/contracts/world.md
 //! @prompt-hash dc500c05
 //! @layer L1
-//! @updated 2026-03-22
+//! @updated 2026-04-20
 
 use crate::entities::file_id::FileId;
 use crate::entities::source::Source;
@@ -33,12 +33,22 @@ pub trait World: Send + Sync {
     /// Obter o conteúdo binário de um ficheiro pelo seu id.
     fn file(&self, id: FileId) -> FileResult<Bytes>;
 
-    /// Ler ficheiro binário por caminho relativo à raiz do projecto (Passo 71).
+    /// Ler ficheiro binário por caminho relativo ao ficheiro actual (Passo 75, DEBT-25).
+    /// `current_file`: FileId do ficheiro em avaliação — base para resolução relativa.
     /// Retorna `Arc<Vec<u8>>` partilhado — clones do AST não copiam os bytes.
     /// Implementação por omissão: retorna Err — MockWorlds que não precisam de
     /// I/O não necessitam de implementar este método.
-    fn read_bytes(&self, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+    fn read_bytes(&self, current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+        let _ = current_file;
         Err(format!("leitura de ficheiro por caminho não suportada: {}", path))
+    }
+
+    /// Carregar um ficheiro Typst incluído via `#include` (Passo 75, DEBT-25).
+    /// Resolve `path` relativamente ao directório do ficheiro `current_file`.
+    /// Implementação por omissão: retorna Err — MockWorlds sem filesystem.
+    fn include_source(&self, current_file: FileId, path: &str) -> Result<Source, String> {
+        let _ = current_file;
+        Err(format!("include não suportado nesta implementação de World: {}", path))
     }
 
     /// Obter uma fonte pelo índice no `FontBook`.

@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/introspect.md
 //! @prompt-hash bc989be4
 //! @layer L1
-//! @updated 2026-04-12
+//! @updated 2026-04-20
 
 use crate::entities::{
     content::Content,
@@ -65,9 +65,11 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
             target: Box::new(materialize_time(target, state)),
             label:  label.clone(),
         },
-        Content::Figure { body, caption } => Content::Figure {
-            body:    Box::new(materialize_time(body, state)),
-            caption: caption.as_ref().map(|c| Box::new(materialize_time(c, state))),
+        Content::Figure { body, caption, kind, numbering } => Content::Figure {
+            body:      Box::new(materialize_time(body, state)),
+            caption:   caption.as_ref().map(|c| Box::new(materialize_time(c, state))),
+            kind:      kind.clone(),
+            numbering: numbering.clone(),
         },
 
         // ── Terminais — clonar directamente ──────────────────────────────
@@ -79,6 +81,7 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
         | Content::Raw { .. }
         | Content::Ref { .. }
         | Content::SetHeadingNumbering { .. }
+        | Content::SetFigureNumbering { .. }
         | Content::CounterUpdate { .. }
         | Content::Outline
         | Content::Linebreak
@@ -146,11 +149,19 @@ fn walk(content: &Content, state: &mut CounterState) {
             walk(body, state);
         }
 
-        Content::Figure { body, caption } => {
-            // Avançar o contador apenas se a figura tiver legenda — figuras sem caption
-            // não consomem um número da sequência (evita "Figura 1", [gap], "Figura 3").
-            if state.is_numbering_active("figure") && caption.is_some() {
-                state.step_flat("figure");
+        Content::Figure { body, caption, kind, numbering } => {
+            // Avançar o contador apenas se a figura tiver numeração activa e legenda —
+            // figuras sem caption não consomem número (evita "Figura 1", [gap], "Figura 3").
+            if numbering.is_some() && caption.is_some() {
+                let counter = state.local_figure_counters
+                    .entry(kind.clone())
+                    .or_insert(0);
+                *counter += 1;
+                let figure_number = *counter;
+                state.figure_numbers
+                    .entry(kind.clone())
+                    .or_default()
+                    .push(figure_number);
             }
             walk(body, state);
             if let Some(cap) = caption {
@@ -170,9 +181,18 @@ fn walk(content: &Content, state: &mut CounterState) {
                     let n = state.get_flat("equation");
                     if n > 0 { Some(format!("Equação ({})", n)) } else { None }
                 }
-                Content::Figure { caption, .. } => {
-                    let n = state.get_flat("figure");
-                    if n > 0 && state.is_numbering_active("figure") && caption.is_some() {
+                Content::Figure { kind, numbering, caption, .. } => {
+                    let n = if numbering.is_some() && caption.is_some() {
+                        state.figure_numbers
+                            .get(kind.as_str())
+                            .and_then(|v| v.last())
+                            .copied()
+                            .unwrap_or(0)
+                    } else {
+                        0
+                    };
+                    if n > 0 {
+                        state.figure_label_numbers.insert(label.clone(), n);
                         Some(format!("Figura {}", n))
                     } else {
                         Some(String::new())
@@ -207,6 +227,10 @@ fn walk(content: &Content, state: &mut CounterState) {
 
         // Terminais e nós sem efeito em contadores — cobertos explicitamente
         // para que o compilador detecte variantes em falta (sem wildcard silencioso).
+        Content::SetFigureNumbering { .. } => {
+            // No-op: a numeração está baked-in em cada nó Figure (capturada em eval).
+        }
+
         Content::Empty
         | Content::Text(_, _)
         | Content::Space
@@ -374,8 +398,10 @@ mod tests {
             vec![Content::Labelled {
                 label:  Label("fig1".to_string()),
                 target: Box::new(Content::Figure {
-                    body:    Box::new(Content::text("Um gráfico")),
-                    caption: Some(Box::new(Content::text("Evolução"))),
+                    body:      Box::new(Content::text("Um gráfico")),
+                    caption:   Some(Box::new(Content::text("Evolução"))),
+                    kind:      "image".to_string(),
+                    numbering: Some("1".to_string()),
                 }),
             }]
             .into(),
@@ -396,15 +422,19 @@ mod tests {
                 Content::Labelled {
                     label:  Label("f1".to_string()),
                     target: Box::new(Content::Figure {
-                        body:    Box::new(Content::text("A")),
-                        caption: Some(Box::new(Content::text("Legenda A"))),
+                        body:      Box::new(Content::text("A")),
+                        caption:   Some(Box::new(Content::text("Legenda A"))),
+                        kind:      "image".to_string(),
+                        numbering: Some("1".to_string()),
                     }),
                 },
                 Content::Labelled {
                     label:  Label("f2".to_string()),
                     target: Box::new(Content::Figure {
-                        body:    Box::new(Content::text("B")),
-                        caption: Some(Box::new(Content::text("Legenda B"))),
+                        body:      Box::new(Content::text("B")),
+                        caption:   Some(Box::new(Content::text("Legenda B"))),
+                        kind:      "image".to_string(),
+                        numbering: Some("1".to_string()),
                     }),
                 },
             ]
@@ -427,14 +457,18 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::Figure {
-                    body:    Box::new(Content::text("Diagrama")),
-                    caption: None,
+                    body:      Box::new(Content::text("Diagrama")),
+                    caption:   None,
+                    kind:      "image".to_string(),
+                    numbering: Some("1".to_string()),
                 },
                 Content::Labelled {
                     label:  Label("f2".to_string()),
                     target: Box::new(Content::Figure {
-                        body:    Box::new(Content::text("B")),
-                        caption: Some(Box::new(Content::text("Legenda"))),
+                        body:      Box::new(Content::text("B")),
+                        caption:   Some(Box::new(Content::text("Legenda"))),
+                        kind:      "image".to_string(),
+                        numbering: Some("1".to_string()),
                     }),
                 },
             ]
@@ -553,5 +587,57 @@ mod tests {
         // não "0" (valor no início do documento quando a TOC é renderizada).
         assert!(text.contains("7"),
             "CounterDisplay no título deve ser congelado com o valor correcto: {:?}", text);
+    }
+
+    // ── Testes de Passo 75 — figure_numbers por kind (DEBT-14/15) ───────────
+
+    #[test]
+    fn figure_tem_kind_e_numbering() {
+        let fig = Content::Figure {
+            body:      Box::new(Content::text("corpo")),
+            caption:   Some(Box::new(Content::text("legenda"))),
+            kind:      "image".to_string(),
+            numbering: Some("1".to_string()),
+        };
+        if let Content::Figure { kind, numbering, .. } = fig {
+            assert_eq!(kind, "image");
+            assert_eq!(numbering, Some("1".to_string()));
+        } else {
+            panic!("Variante inesperada");
+        }
+    }
+
+    #[test]
+    fn figuras_kind_diferente_contadores_independentes() {
+        let doc = Content::Sequence(vec![
+            Content::Figure {
+                body:      Box::new(Content::text("img1")),
+                caption:   Some(Box::new(Content::text("cap1"))),
+                kind:      "image".to_string(),
+                numbering: Some("1".to_string()),
+            },
+            Content::Figure {
+                body:      Box::new(Content::text("tab1")),
+                caption:   Some(Box::new(Content::text("cap2"))),
+                kind:      "table".to_string(),
+                numbering: Some("1".to_string()),
+            },
+            Content::Figure {
+                body:      Box::new(Content::text("img2")),
+                caption:   Some(Box::new(Content::text("cap3"))),
+                kind:      "image".to_string(),
+                numbering: Some("1".to_string()),
+            },
+        ].into());
+
+        let state = introspect(&doc);
+
+        let image_nums = state.figure_numbers.get("image").cloned().unwrap_or_default();
+        let table_nums = state.figure_numbers.get("table").cloned().unwrap_or_default();
+
+        assert_eq!(image_nums, vec![1, 2],
+            "Duas figuras de kind 'image' devem produzir [1, 2]");
+        assert_eq!(table_nums, vec![1],
+            "Uma figura de kind 'table' deve produzir [1] independentemente");
     }
 }
