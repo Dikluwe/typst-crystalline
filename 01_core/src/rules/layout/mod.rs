@@ -126,6 +126,12 @@ pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     current_items:   Vec<FrameItem>,
     cursor_x:        Pt,
     cursor_y:        Pt,      // posição da baseline actual
+    /// Origem horizontal da linha actual (Passo 81.5).
+    ///
+    /// Normalmente `Pt(page_config.margin)`. Em sub-layouts de células de
+    /// Grid, toma o valor de `cell_x` para que `flush_line()` reinicie o
+    /// cursor à origem da célula em vez da margem da página.
+    line_start_x:    Pt,
     current_line:    Vec<FrameItem>,
     pub counter:     CounterState,
     /// Índice de progresso por kind para figuras (Passo 75, DEBT-14).
@@ -148,6 +154,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             current_items: Vec::new(),
             cursor_x:     Pt(cfg.margin),
             cursor_y:     Pt(cfg.margin) + ascender,
+            line_start_x: Pt(cfg.margin),
             current_line: Vec::new(),
             counter:         CounterState::new(),
             figure_progress: std::collections::HashMap::new(),
@@ -660,9 +667,10 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                         self.flush_line();
                         self.new_page();
                     }
-                    self.page_config = new_config;
-                    self.cursor_x    = Pt(self.page_config.margin);
-                    self.cursor_y    = Pt(self.page_config.margin);
+                    self.page_config  = new_config;
+                    self.cursor_x     = Pt(self.page_config.margin);
+                    self.cursor_y     = Pt(self.page_config.margin);
+                    self.line_start_x = Pt(self.page_config.margin);
                     // DEBT-35b: se available_width() vier a ter cache, invalidar aqui.
                 }
             }
@@ -739,7 +747,9 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
         // Avançar pela line_height do tamanho base (não do heading)
         let (_, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
         self.cursor_y += line_height;
-        self.cursor_x  = Pt(self.page_config.margin);
+        // Reiniciar ao início da linha actual — margem da página, ou cell_x
+        // se estivermos dentro de um sub-layout de Grid (Passo 81.5).
+        self.cursor_x  = self.line_start_x;
 
         if self.cursor_y.0 > self.page_config.height - self.page_config.margin {
             self.new_page();
@@ -754,6 +764,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
         };
         self.pages.push(page);
         self.cursor_x = Pt(self.page_config.margin);
+        self.line_start_x = Pt(self.page_config.margin);
         let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
         self.cursor_y = Pt(self.page_config.margin) + ascender;
     }
@@ -852,13 +863,18 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
         _cell_width: f64,
     ) -> (f64, Vec<FrameItem>) {
         // Salvar estado.
-        let saved_items = std::mem::take(&mut self.current_items);
-        let saved_line  = std::mem::take(&mut self.current_line);
-        let saved_x     = self.cursor_x;
-        let saved_y     = self.cursor_y;
+        let saved_items        = std::mem::take(&mut self.current_items);
+        let saved_line         = std::mem::take(&mut self.current_line);
+        let saved_x            = self.cursor_x;
+        let saved_y            = self.cursor_y;
+        let saved_line_start_x = self.line_start_x;
 
         // Inicializar cursor local — x = cell_x, y = ascender (como o layout principal).
-        self.cursor_x = Pt(cell_x);
+        // `line_start_x = cell_x` garante que `flush_line()` dentro da célula
+        // (chamado por Shape, word-wrap, etc.) reinicia o cursor à coluna
+        // da célula, não à margem global da página (Passo 81.5).
+        self.cursor_x     = Pt(cell_x);
+        self.line_start_x = Pt(cell_x);
         let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
         self.cursor_y = ascender;
         let start_y = self.cursor_y.0;
@@ -874,10 +890,11 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
         let cell_height = (end_y - start_y).max(0.0);
 
         // Recuperar items do sub-frame e restaurar estado.
-        let cell_items    = std::mem::replace(&mut self.current_items, saved_items);
-        self.cursor_x     = saved_x;
-        self.cursor_y     = saved_y;
-        self.current_line = saved_line;
+        let cell_items      = std::mem::replace(&mut self.current_items, saved_items);
+        self.cursor_x       = saved_x;
+        self.cursor_y       = saved_y;
+        self.line_start_x   = saved_line_start_x;
+        self.current_line   = saved_line;
 
         (cell_height, cell_items)
     }
