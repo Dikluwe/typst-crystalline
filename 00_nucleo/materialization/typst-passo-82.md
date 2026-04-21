@@ -54,12 +54,23 @@ grep -n "cast_string\|as_str\|String" \
 grep -A 5 "fn flush_line" 01_core/src/rules/layout/mod.rs | head -8
 ```
 
-Reportar o output completo antes de continuar. O diagnóstico 2 é crítico:
-se `layout_sub_frame_with_width` inicia o cursor interno em `(margin, margin)`
-e retorna itens com esse offset, `target_x + item_pos.x.0` soma a margem
-duas vezes. O ideal é que sub-frames retornem itens ancorados em `(0, 0)`.
-Se não for o caso, o cálculo de `target_x` tem de compensar subtraindo o
-offset inicial do sub-frame.
+Reportar o output completo antes de continuar. O diagnóstico 2 é um gate
+obrigatório para a Tarefa 5 — não avançar sem o seu resultado.
+
+**Se sub-frame retorna itens com origem `(0, 0)`:** o código da Tarefa 5
+está correcto tal como está.
+
+**Se sub-frame retorna itens com origem `(margin, margin)`:** subtrair o
+offset no loop de transferência de itens em `Content::Align` e
+`Content::Place`:
+
+```rust
+x: Pt(target_x + item_pos.x.0 - sub_frame_origin_x),
+y: Pt(target_y + item_pos.y.0 - sub_frame_origin_y),
+```
+
+onde `sub_frame_origin_x` e `sub_frame_origin_y` são os valores iniciais
+do cursor interno do sub-frame (confirmar com o output do diagnóstico 2).
 
 ---
 

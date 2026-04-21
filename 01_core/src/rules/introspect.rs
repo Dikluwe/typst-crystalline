@@ -108,6 +108,16 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
             rows:    rows.clone(),
             cells:   cells.iter().map(|c| materialize_time(c, state)).collect(),
         },
+        Content::Align { alignment, body } => Content::Align {
+            alignment: *alignment,
+            body:      Box::new(materialize_time(body, state)),
+        },
+        Content::Place { alignment, dx, dy, body } => Content::Place {
+            alignment: *alignment,
+            dx:        *dx,
+            dy:        *dy,
+            body:      Box::new(materialize_time(body, state)),
+        },
     }
 }
 
@@ -271,6 +281,10 @@ fn walk(content: &Content, state: &mut CounterState) {
         Content::Grid { cells, .. } => {
             for cell in cells { walk(cell, state); }
         }
+
+        Content::Align { body, .. } => walk(body, state),
+
+        Content::Place { body, .. } => walk(body, state),
 
         Content::Outline => {
             state.has_outline = true;

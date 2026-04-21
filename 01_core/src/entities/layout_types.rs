@@ -186,6 +186,58 @@ pub enum FrameItem {
     },
 }
 
+// ── Alinhamento (Passo 82) ─────────────────────────────────────────────────
+
+/// Alinhamento horizontal.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum HAlign {
+    Left,
+    Center,
+    Right,
+}
+
+/// Alinhamento vertical.
+///
+/// `Horizon` é o termo interno do Typst para centro vertical.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum VAlign {
+    Top,
+    Horizon,
+    Bottom,
+}
+
+/// Alinhamento 2D composto por componentes horizontal e vertical opcionais.
+///
+/// Ambos `None` equivale a `Left + Top` (comportamento por omissão).
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct Align2D {
+    pub h: Option<HAlign>,
+    pub v: Option<VAlign>,
+}
+
+impl Align2D {
+    /// Parse de uma string composta por partes separadas por '-'.
+    ///
+    /// Exemplos: "center", "top-right", "bottom", "horizon".
+    /// Partes não reconhecidas são ignoradas silenciosamente (DEBT-36:
+    /// quando o parser suportar `Value::Align`, substituir este método).
+    pub fn from_string(s: &str) -> Self {
+        let mut align = Align2D::default();
+        for part in s.split('-') {
+            match part {
+                "left"    => align.h = Some(HAlign::Left),
+                "center"  => align.h = Some(HAlign::Center),
+                "right"   => align.h = Some(HAlign::Right),
+                "top"     => align.v = Some(VAlign::Top),
+                "horizon" => align.v = Some(VAlign::Horizon),
+                "bottom"  => align.v = Some(VAlign::Bottom),
+                _         => {},
+            }
+        }
+        align
+    }
+}
+
 // ── TrackSizing ───────────────────────────────────────────────────────────
 
 /// Dimensionamento de uma coluna ou linha de grid (Passo 80).
@@ -735,6 +787,31 @@ mod tests {
             "Quadrado 100×100 rodado 45° deve ter largura ≈ {:.2}, obteve {:.4}", diagonal, new_w);
         assert!((new_h - diagonal).abs() < 0.01,
             "Quadrado 100×100 rodado 45° deve ter altura ≈ {:.2}, obteve {:.4}", diagonal, new_h);
+    }
+
+    // ── Passo 82 — Align2D ─────────────────────────────────────────────────
+
+    #[test]
+    fn align2d_from_string_parse_correcto() {
+        let a = Align2D::from_string("top-right");
+        assert_eq!(a.h, Some(HAlign::Right));
+        assert_eq!(a.v, Some(VAlign::Top));
+
+        let b = Align2D::from_string("center");
+        assert_eq!(b.h, Some(HAlign::Center));
+        assert_eq!(b.v, None);
+
+        let c = Align2D::from_string("bottom");
+        assert_eq!(c.h, None);
+        assert_eq!(c.v, Some(VAlign::Bottom));
+
+        let d = Align2D::from_string("horizon");
+        assert_eq!(d.v, Some(VAlign::Horizon));
+
+        // String inválida: nenhum campo deve ser preenchido.
+        let e = Align2D::from_string("invalid");
+        assert_eq!(e.h, None);
+        assert_eq!(e.v, None);
     }
 
     #[test]

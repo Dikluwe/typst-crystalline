@@ -11,7 +11,7 @@ use ecow::EcoString;
 use crate::entities::counter_state::CounterAction;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
-use crate::entities::layout_types::{Color, Pt, TextStyle, TrackSizing, TransformMatrix};
+use crate::entities::layout_types::{Align2D, Color, Pt, TextStyle, TrackSizing, TransformMatrix};
 use crate::entities::ptr_eq_arc::PtrEqArc;
 
 /// Conteúdo declarativo produzido por `eval()`.
@@ -253,6 +253,24 @@ pub enum Content {
         margin: Option<f64>,
     },
 
+    /// Altera a posição do conteúdo dentro do espaço disponível no fluxo (Passo 82).
+    /// O cursor avança após o bloco — o espaço é consumido normalmente.
+    Align {
+        alignment: Align2D,
+        body:      Box<Content>,
+    },
+
+    /// Posiciona o conteúdo de forma absoluta na página sem consumir espaço (Passo 82).
+    /// O cursor não avança. Usado para cabeçalhos, rodapés e marcas de água.
+    ///
+    /// DEBT-37: ancora às margens da página, não ao contentor pai.
+    Place {
+        alignment: Align2D,
+        dx:        f64,
+        dy:        f64,
+        body:      Box<Content>,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
@@ -396,6 +414,8 @@ impl Content {
                 cells.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ")
             }
             Self::SetPage { .. } => String::new(),
+            Self::Align { body, .. } => body.plain_text(),
+            Self::Place { body, .. } => body.plain_text(),
         }
     }
 }
@@ -463,6 +483,11 @@ impl PartialEq for Content {
             (Self::SetPage { width: wa, height: ha, margin: ma },
              Self::SetPage { width: wb, height: hb, margin: mb }) =>
                 wa == wb && ha == hb && ma == mb,
+            (Self::Align { alignment: aa, body: ba },
+             Self::Align { alignment: ab, body: bb }) => aa == ab && ba == bb,
+            (Self::Place { alignment: aa, dx: dxa, dy: dya, body: ba },
+             Self::Place { alignment: ab, dx: dxb, dy: dyb, body: bb }) =>
+                aa == ab && dxa == dxb && dya == dyb && ba == bb,
             _ => false,
         }
     }
@@ -603,6 +628,16 @@ impl Content {
                     cells.iter().map(|c| c.map_content(transform)).collect();
                 Content::Grid { columns: columns.clone(), rows: rows.clone(), cells: new_cells? }
             },
+            Content::Align { alignment, body } => Content::Align {
+                alignment: *alignment,
+                body:      Box::new(body.map_content(transform)?),
+            },
+            Content::Place { alignment, dx, dy, body } => Content::Place {
+                alignment: *alignment,
+                dx:        *dx,
+                dy:        *dy,
+                body:      Box::new(body.map_content(transform)?),
+            },
         };
 
         // Passo 2: aplicar a transformação ao nó já processado.
@@ -694,6 +729,16 @@ impl Content {
                 columns: columns.clone(),
                 rows:    rows.clone(),
                 cells:   cells.iter().map(|c| c.map_text(transform)).collect(),
+            },
+            Content::Align { alignment, body } => Content::Align {
+                alignment: *alignment,
+                body:      Box::new(body.map_text(transform)),
+            },
+            Content::Place { alignment, dx, dy, body } => Content::Place {
+                alignment: *alignment,
+                dx:        *dx,
+                dy:        *dy,
+                body:      Box::new(body.map_text(transform)),
             },
         }
     }

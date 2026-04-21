@@ -1515,12 +1515,12 @@ pub(crate) fn intercept_content(
 /// O avaliador deixa de conhecer o nome "figure" — desacoplamento total.
 fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
-        make_calc_module, native_assert, native_circle, native_ellipse, native_emph,
-        native_figure, native_float, native_grid, native_heading,
+        make_calc_module, native_align, native_assert, native_circle, native_ellipse,
+        native_emph, native_figure, native_float, native_grid, native_heading,
         native_image, native_int, native_len, native_line,
-        native_lower, native_luma, native_move, native_page, native_polygon, native_range,
-        native_rect, native_replace, native_raw, native_rgb, native_rotate, native_scale,
-        native_str, native_strong, native_type, native_upper,
+        native_lower, native_luma, native_move, native_page, native_place, native_polygon,
+        native_range, native_rect, native_replace, native_raw, native_rgb, native_rotate,
+        native_scale, native_str, native_strong, native_type, native_upper,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -1547,6 +1547,8 @@ fn make_stdlib() -> Scope {
     scope.define("move",    Value::Func(Func::native("move",    native_move)));
     scope.define("rotate",  Value::Func(Func::native("rotate",  native_rotate)));
     scope.define("scale",   Value::Func(Func::native("scale",   native_scale)));
+    scope.define("align",   Value::Func(Func::native("align",   native_align)));
+    scope.define("place",   Value::Func(Func::native("place",   native_place)));
     scope.define("assert",  Value::Func(Func::native("assert",  native_assert)));
     scope.define("upper",   Value::Func(Func::native("upper",   native_upper)));
     scope.define("lower",   Value::Func(Func::native("lower",   native_lower)));
