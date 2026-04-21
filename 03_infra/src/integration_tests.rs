@@ -1821,4 +1821,112 @@ mod integration {
             x_place
         );
     }
+
+    // ── Passo 83 — Grid: rows e alinhamento vertical ────────────────────
+
+    #[test]
+    fn grid_rows_fixed_coordenadas_y_correctas() {
+        // grid(columns: 1, rows: (50pt, 100pt)) com 3 items.
+        // Linha 0: 50pt. Linha 1: 100pt. Linha 2: 50pt (ciclo 2 % 2 = 0).
+        // Grid começa em cursor_y = margin = 20pt.
+        // - Item 0 (linha 0) em y = 20pt.
+        // - Item 1 (linha 1) em y = 20 + 50 = 70pt.
+        // - Item 2 (linha 2) em y = 70 + 100 = 170pt.
+        let src = "\
+#set page(width: 400pt, height: 400pt, margin: 20pt)
+#grid(columns: 1, rows: (50pt, 100pt),
+  rect(width: 100pt, height: 10pt),
+  rect(width: 100pt, height: 10pt),
+  rect(width: 100pt, height: 10pt),
+)
+";
+        let (world, _dir) = world_from_str(src);
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        let items = &doc.pages[0].items;
+        assert_eq!(items.len(), 3, "Deve haver 3 FrameItems (um por célula)");
+
+        let y0 = frame_item_pos(&items[0]).y.0;
+        let y1 = frame_item_pos(&items[1]).y.0;
+        let y2 = frame_item_pos(&items[2]).y.0;
+
+        assert!(
+            (y1 - (y0 + 50.0)).abs() < 0.5,
+            "Item 1 deve estar em y = y0 + 50 (altura da linha 0), obteve y1={:.1} (y0={:.1})",
+            y1, y0
+        );
+        assert!(
+            (y2 - (y1 + 100.0)).abs() < 0.5,
+            "Item 2 deve estar em y = y1 + 100 (altura da linha 1), obteve y2={:.1} (y1={:.1})",
+            y2, y1
+        );
+    }
+
+    #[test]
+    fn grid_valign_bottom_ancora_ao_limite_inferior_da_celula() {
+        // grid(columns: 1, rows: (100pt)) com #align("bottom", rect(height: 20pt)).
+        // Altura da célula: 100pt. Conteúdo: 20pt.
+        // VAlign::Bottom → cell_top + (cell_h - content_h) = cell_top + 80.
+        // cell_top = margin = 20pt → rect em y = 100pt.
+        let src = "\
+#set page(width: 400pt, height: 400pt, margin: 20pt)
+#grid(columns: 1, rows: (100pt),
+  align(\"bottom\", rect(width: 80pt, height: 20pt)),
+)
+";
+        let (world, _dir) = world_from_str(src);
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        let items = &doc.pages[0].items;
+        assert!(!items.is_empty(), "Deve haver pelo menos um item");
+
+        let rect_y = frame_item_pos(&items[0]).y.0;
+        assert!(
+            (rect_y - 100.0).abs() < 0.5,
+            "Rect com valign bottom deve estar em y=100pt (cell_top 20 + 80 offset), obteve y={:.1}",
+            rect_y
+        );
+    }
+
+    #[test]
+    fn grid_rows_auto_e_fraction_coexistem() {
+        // grid(columns: 1, rows: (auto, 1fr)) com rects de 40pt e 10pt.
+        // Página 400pt, margin 20pt → available_height = 360pt.
+        // Linha 0 (auto): 40pt. Linha 1 (1fr): 360 - 40 = 320pt.
+        // Item 0 em y = 20pt. Item 1 em y = 20 + 40 = 60pt (com célula 320pt,
+        // mas VAlign default = Top → ancora ao topo da célula).
+        let src = "\
+#set page(width: 400pt, height: 400pt, margin: 20pt)
+#grid(columns: 1, rows: (auto, 1fr),
+  rect(width: 100pt, height: 40pt),
+  rect(width: 100pt, height: 10pt),
+)
+";
+        let (world, _dir) = world_from_str(src);
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        let items = &doc.pages[0].items;
+        assert_eq!(items.len(), 2);
+
+        let y0 = frame_item_pos(&items[0]).y.0;
+        let y1 = frame_item_pos(&items[1]).y.0;
+
+        assert!(
+            (y1 - (y0 + 40.0)).abs() < 0.5,
+            "Item 1 deve estar em y = y0 + 40 (altura da linha auto), obteve y1={:.1} (y0={:.1})",
+            y1, y0
+        );
+    }
 }

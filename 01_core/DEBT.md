@@ -523,17 +523,19 @@ comparação por valor apenas se os ponteiros diferirem.
 
 ---
 
-## DEBT-34b — Parâmetro rows em Content::Grid ignorado — EM ABERTO (Passo 80)
+## DEBT-34b — Parâmetro rows em Content::Grid ignorado — **ENCERRADO (Passo 83)** ✓
 
-O campo `rows` de `Content::Grid` é armazenado no AST mas ignorado pelo layouter.
-Todas as linhas operam como Auto. Resolução: passo futuro de layout de grid
-com rows explícitos.
+`Content::Grid` passa a respeitar `rows: Vec<TrackSizing>`. O motor de layout
+implementa três passagens (Fixed → Auto → Fraction) espelhando a resolução de
+colunas, com indexação cíclica `N % rows.len()` e decisão de paginação antes da
+fase Fraction (evita alturas `fr` "fósseis" da página anterior).
 
-## DEBT-34c — Alinhamento vertical de células no Grid — EM ABERTO (Passo 80)
+## DEBT-34c — Alinhamento vertical de células no Grid — **ENCERRADO (Passo 83)** ✓
 
-As células assumem top-alignment. Alinhamento vertical (baseline, center, bottom)
-requer calcular a altura máxima da linha antes de posicionar os itens.
-Resolução: passo futuro.
+`cell_height` é agora passado como `available_h` a `resolve_alignment` para
+items dentro de células (campo `cell_available_h: Option<f64>` no Layouter).
+`VAlign::Bottom` ancora ao limite inferior da célula e `VAlign::Horizon` centra
+verticalmente.
 
 ## DEBT-34d — Auto não encolhe antes de matar fr — EM ABERTO (Passo 80)
 
@@ -565,3 +567,13 @@ Resolução: quando o parser suportar `Value::Align` com composição, substitui
 `Content::Place` ancora às margens absolutas da página. O Typst suporta
 `place` relativo ao bloco pai (ex: dentro de um grid, `place` ancora na célula).
 Resolução: passar a área de âncora como parâmetro ao processar `Place`.
+
+## DEBT-38 — Cache de sub-frames no Grid Auto — EM ABERTO (Passo 83)
+
+A resolução de altura de linhas Auto chama `layout_sub_frame_with_width` para
+medir a altura intrínseca de cada item, descartando os FrameItems produzidos.
+Quando a célula é emitida no documento, a mesma função é chamada de novo para o
+mesmo item com a mesma largura, duplicando o trabalho de layout em todas as
+células Auto.
+Resolução: cache de `(Content*, width) → (height, Vec<FrameItem>)` válido
+dentro da resolução de um Grid. Reutilizar o resultado da medição na emissão.
