@@ -82,6 +82,7 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
         | Content::Ref { .. }
         | Content::SetHeadingNumbering { .. }
         | Content::SetFigureNumbering { .. }
+        | Content::SetPage { .. }
         | Content::CounterUpdate { .. }
         | Content::Outline
         | Content::Linebreak
@@ -262,6 +263,7 @@ fn walk(content: &Content, state: &mut CounterState) {
         | Content::MathAlignPoint
         | Content::Linebreak
         | Content::Image { .. }
+        | Content::SetPage { .. }
         | Content::Shape { .. } => {}
 
         Content::Transform { body, .. } => walk(body, state),

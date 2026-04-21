@@ -545,3 +545,10 @@ max-content para Auto, com negociação entre Auto e fr.
 
 Células que ocupam múltiplas colunas ou linhas requerem um algoritmo de
 placement diferente. Resolução: passo futuro.
+
+## DEBT-35b — Invalidação de cache de available_width após SetPage — EM ABERTO (Passo 81)
+
+Se alguma função guardar available_width em cache como campo do Layouter,
+esse cache tem de ser invalidado no processamento de Content::SetPage.
+Actualmente available_width() é calculado em tempo real sem cache —
+este DEBT documenta o risco caso um cache venha a ser adicionado.

@@ -12,7 +12,7 @@ use flate2::Compression;
 use flate2::write::ZlibEncoder;
 
 use ttf_parser::Face;
-use typst_core::entities::layout_types::{Frame, FrameItem, PagedDocument};
+use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
 
 use crate::font_metrics::build_math_glyph_reverse_map;
 
@@ -259,7 +259,7 @@ fn scan_all_images(
 /// Constrói o fragmento `/XObject << /Im1 X 0 R ... >>` para os recursos de página.
 /// Retorna string vazia se não houver imagens na página.
 fn xobject_resources_for_page(
-    page:       &Frame,
+    page:       &Page,
     ptr_to_idx: &HashMap<usize, usize>,
     refs:       &[ImageRef],
 ) -> String {
@@ -384,8 +384,8 @@ impl PdfBuilder {
         for (i, page) in doc.pages.iter().enumerate() {
             let page_id   = first_page + i;
             let stream_id = first_stream + i;
-            let w = page.size.width.val();
-            let h = page.size.height.val();
+            let w = page.width;
+            let h = page.height;
 
             let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
             let resources_str = format!(
@@ -394,7 +394,7 @@ impl PdfBuilder {
 
             self.add(page_id, format!(
                 "<< /Type /Page /Parent 2 0 R \
-                   /MediaBox [0 0 {w:.1} {h:.1}] \
+                   /MediaBox [0 0 {w:.2} {h:.2}] \
                    /Contents {stream_id} 0 R \
                    /Resources << {resources_str} >> >>"
             ));
@@ -461,15 +461,15 @@ impl PdfBuilder {
         for (i, page) in doc.pages.iter().enumerate() {
             let page_id   = first_page + i;
             let stream_id = first_stream + i;
-            let w = page.size.width.val();
-            let h = page.size.height.val();
+            let w = page.width;
+            let h = page.height;
 
             let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
             let resources_str = format!("/Font << /F1 {font_id} 0 R >> {xobj_res}");
 
             self.add(page_id, format!(
                 "<< /Type /Page /Parent 2 0 R \
-                   /MediaBox [0 0 {w:.1} {h:.1}] \
+                   /MediaBox [0 0 {w:.2} {h:.2}] \
                    /Contents {stream_id} 0 R \
                    /Resources << {resources_str} >> >>"
             ));
@@ -589,12 +589,12 @@ impl PdfBuilder {
 // ── Helpers — caminho Helvetica ────────────────────────────────────────────
 
 fn build_page_stream_type1(
-    page:       &Frame,
+    page:       &Page,
     ptr_to_idx: &HashMap<usize, usize>,
     img_refs:   &[ImageRef],
 ) -> Vec<u8> {
     let mut ops = String::new();
-    let page_height = page.size.height.val();
+    let page_height = page.height;
 
     for item in &page.items {
         match item {
@@ -1008,13 +1008,13 @@ fn text_to_hex_string(text: &str, char_to_gid: &HashMap<char, u16>) -> String {
 }
 
 fn build_page_stream_cidfont(
-    page:        &Frame,
+    page:        &Page,
     char_to_gid: &HashMap<char, u16>,
     ptr_to_idx:  &HashMap<usize, usize>,
     img_refs:    &[ImageRef],
 ) -> Vec<u8> {
     let mut ops = String::new();
-    let page_height = page.size.height.val();
+    let page_height = page.height;
 
     for item in &page.items {
         match item {
@@ -1238,20 +1238,22 @@ mod tests {
     #[test]
     fn inversao_eixo_y_texto_no_topo() {
         use typst_core::entities::layout_types::{
-            Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle,
+            FrameItem, Page, PagedDocument, Point, Pt, TextStyle,
         };
-        let mut frame = Frame::new(Size::a4());
-        frame.push(FrameItem::Text {
-            pos:   Point { x: Pt(72.0), y: Pt(84.0) },
-            text:  "Top".into(),
-            style: TextStyle::regular(Pt(12.0)),
-        });
-        let doc = PagedDocument::new(vec![frame]);
+        let page = Page {
+            width: 595.28, height: 841.89,
+            items: vec![FrameItem::Text {
+                pos:   Point { x: Pt(72.0), y: Pt(84.0) },
+                text:  "Top".into(),
+                style: TextStyle::regular(Pt(12.0)),
+            }],
+        };
+        let doc = PagedDocument::new(vec![page]);
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
-        // y_pdf = 842 - 84 = 758
-        assert!(s.contains("758.0") || s.contains("758"),
-            "y_pdf deve ser 842-84=758: {}", &s[..s.len().min(500)]);
+        // y_pdf = 841.89 - 84 = 757.89
+        assert!(s.contains("757.89") || s.contains("757.9"),
+            "y_pdf deve ser 841.89-84=757.89: {}", &s[..s.len().min(500)]);
     }
 
     #[test]
@@ -1259,8 +1261,8 @@ mod tests {
         let doc = layout(&Content::text("Test"), CounterState::default());
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
-        assert!(s.contains("595") && s.contains("842"),
-            "MediaBox deve ter dimensões A4 (595x842 pt)");
+        assert!(s.contains("595.28") && s.contains("841.89"),
+            "MediaBox deve ter dimensões A4 (595.28x841.89 pt)");
     }
 
     // ── Passo 24 — DEBT-5: Unicode PDF ──────────────────────────────────────
@@ -1370,18 +1372,22 @@ mod tests {
 
     #[test]
     fn collect_glyph_ids_retorna_ids_unicos() {
-        use typst_core::entities::layout_types::{Frame, PagedDocument, Point, Pt, Size};
-        let mut frame = Frame::new(Size { width: Pt(595.0), height: Pt(842.0) });
-        frame.items.push(FrameItem::Glyph {
-            pos: Point::ZERO, glyph_id: 42, x_advance: Pt(10.0), size: Pt(12.0),
-        });
-        frame.items.push(FrameItem::Glyph {
-            pos: Point::ZERO, glyph_id: 42, x_advance: Pt(10.0), size: Pt(12.0), // dup
-        });
-        frame.items.push(FrameItem::Glyph {
-            pos: Point::ZERO, glyph_id: 99, x_advance: Pt(10.0), size: Pt(12.0),
-        });
-        let doc = PagedDocument::new(vec![frame]);
+        use typst_core::entities::layout_types::{Page, PagedDocument, Point, Pt};
+        let page = Page {
+            width: 595.28, height: 841.89,
+            items: vec![
+                FrameItem::Glyph {
+                    pos: Point::ZERO, glyph_id: 42, x_advance: Pt(10.0), size: Pt(12.0),
+                },
+                FrameItem::Glyph {
+                    pos: Point::ZERO, glyph_id: 42, x_advance: Pt(10.0), size: Pt(12.0), // dup
+                },
+                FrameItem::Glyph {
+                    pos: Point::ZERO, glyph_id: 99, x_advance: Pt(10.0), size: Pt(12.0),
+                },
+            ],
+        };
+        let doc = PagedDocument::new(vec![page]);
         let ids = collect_glyph_ids(&doc);
         assert!(ids.contains(&42u16));
         assert!(ids.contains(&99u16));
@@ -1422,21 +1428,23 @@ mod tests {
     #[test]
     fn pipeline_jpeg_gera_pdf_com_xobject() {
         use std::sync::Arc;
-        use typst_core::entities::layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size};
+        use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt};
 
         // JPEG mínimo com magic numbers correctos — 4 bytes suficientes para detect_format.
         let jpeg_bytes = Arc::new(vec![0xFF, 0xD8, 0xFF, 0xE0u8]);
 
-        let mut frame = Frame::new(Size::a4());
-        frame.push(FrameItem::Image {
-            pos:              Point { x: Pt(72.0), y: Pt(100.0) },
-            data:             Arc::clone(&jpeg_bytes),
-            width:            Pt(100.0),
-            height:           Pt(75.0),
-            intrinsic_width:  400,
-            intrinsic_height: 300,
-        });
-        let doc = PagedDocument::new(vec![frame]);
+        let page = Page {
+            width: 595.28, height: 841.89,
+            items: vec![FrameItem::Image {
+                pos:              Point { x: Pt(72.0), y: Pt(100.0) },
+                data:             Arc::clone(&jpeg_bytes),
+                width:            Pt(100.0),
+                height:           Pt(75.0),
+                intrinsic_width:  400,
+                intrinsic_height: 300,
+            }],
+        };
+        let doc = PagedDocument::new(vec![page]);
         let pdf = export_pdf(&doc);
 
         assert!(!pdf.is_empty(), "export_pdf deve produzir bytes");
@@ -1451,22 +1459,24 @@ mod tests {
     #[test]
     fn pipeline_png_invalido_ignorado_graciosamente() {
         use std::sync::Arc;
-        use typst_core::entities::layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size};
+        use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt};
 
         // PNG com apenas magic bytes — processo_png_for_pdf falha, imagem omitida.
         // O PDF deve continuar válido (sem corrupção).
         let png_bytes = Arc::new(vec![0x89u8, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A]);
 
-        let mut frame = Frame::new(Size::a4());
-        frame.push(FrameItem::Image {
-            pos:              Point { x: Pt(72.0), y: Pt(100.0) },
-            data:             Arc::clone(&png_bytes),
-            width:            Pt(100.0),
-            height:           Pt(100.0),
-            intrinsic_width:  200,
-            intrinsic_height: 200,
-        });
-        let doc = PagedDocument::new(vec![frame]);
+        let page = Page {
+            width: 595.28, height: 841.89,
+            items: vec![FrameItem::Image {
+                pos:              Point { x: Pt(72.0), y: Pt(100.0) },
+                data:             Arc::clone(&png_bytes),
+                width:            Pt(100.0),
+                height:           Pt(100.0),
+                intrinsic_width:  200,
+                intrinsic_height: 200,
+            }],
+        };
+        let doc = PagedDocument::new(vec![page]);
         let pdf = export_pdf(&doc);
 
         assert!(pdf.starts_with(b"%PDF-1.7"), "PDF deve ser válido mesmo com PNG inválido");
@@ -1555,7 +1565,7 @@ mod tests {
     #[test]
     fn pipeline_jpeg_usa_jpeg_color_space() {
         use std::sync::Arc;
-        use typst_core::entities::layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size};
+        use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt};
 
         // JPEG com SOF0 e 3 canais — deve ter /DeviceRGB no XObject.
         let mut jpeg = vec![0xFF, 0xD8u8, 0xFF, 0xC0, 0x00, 0x0B, 0x08, 0x00, 0x01, 0x00, 0x01, 0x03];
@@ -1563,14 +1573,16 @@ mod tests {
         jpeg.extend_from_slice(&[0xFF, 0xD9]);
         let data = Arc::new(jpeg);
 
-        let mut frame = Frame::new(Size::a4());
-        frame.push(FrameItem::Image {
-            pos: Point { x: Pt(72.0), y: Pt(100.0) },
-            data: Arc::clone(&data),
-            width: Pt(100.0), height: Pt(75.0),
-            intrinsic_width: 1, intrinsic_height: 1,
-        });
-        let doc = PagedDocument::new(vec![frame]);
+        let page = Page {
+            width: 595.28, height: 841.89,
+            items: vec![FrameItem::Image {
+                pos: Point { x: Pt(72.0), y: Pt(100.0) },
+                data: Arc::clone(&data),
+                width: Pt(100.0), height: Pt(75.0),
+                intrinsic_width: 1, intrinsic_height: 1,
+            }],
+        };
+        let doc = PagedDocument::new(vec![page]);
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("/DeviceRGB"), "JPEG 3 canais deve usar /DeviceRGB");
@@ -1579,25 +1591,29 @@ mod tests {
     #[test]
     fn jpeg_deduplicado_por_arc_ptr() {
         use std::sync::Arc;
-        use typst_core::entities::layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size};
+        use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt};
 
         let jpeg_bytes = Arc::new(vec![0xFF, 0xD8, 0xFF, 0xE0u8]);
 
         // Mesma imagem duas vezes na mesma página — deve gerar apenas um XObject.
-        let mut frame = Frame::new(Size::a4());
-        frame.push(FrameItem::Image {
-            pos: Point { x: Pt(72.0), y: Pt(72.0) },
-            data: Arc::clone(&jpeg_bytes),
-            width: Pt(100.0), height: Pt(75.0),
-            intrinsic_width: 400, intrinsic_height: 300,
-        });
-        frame.push(FrameItem::Image {
-            pos: Point { x: Pt(72.0), y: Pt(200.0) },
-            data: Arc::clone(&jpeg_bytes),
-            width: Pt(50.0), height: Pt(37.0),
-            intrinsic_width: 400, intrinsic_height: 300,
-        });
-        let doc = PagedDocument::new(vec![frame]);
+        let page = Page {
+            width: 595.28, height: 841.89,
+            items: vec![
+                FrameItem::Image {
+                    pos: Point { x: Pt(72.0), y: Pt(72.0) },
+                    data: Arc::clone(&jpeg_bytes),
+                    width: Pt(100.0), height: Pt(75.0),
+                    intrinsic_width: 400, intrinsic_height: 300,
+                },
+                FrameItem::Image {
+                    pos: Point { x: Pt(72.0), y: Pt(200.0) },
+                    data: Arc::clone(&jpeg_bytes),
+                    width: Pt(50.0), height: Pt(37.0),
+                    intrinsic_width: 400, intrinsic_height: 300,
+                },
+            ],
+        };
+        let doc = PagedDocument::new(vec![page]);
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
 
@@ -1611,9 +1627,9 @@ mod tests {
 
     #[test]
     fn export_path_com_cubicto_emite_operador_c() {
-        use typst_core::entities::geometry::{PathItem, ShapeKind, Stroke};
+        use typst_core::entities::geometry::{PathItem, ShapeKind};
         use typst_core::entities::layout_types::{
-            Color, Frame, FrameItem, PagedDocument, Point, Pt, Size,
+            Color, FrameItem, Page, PagedDocument, Point, Pt,
         };
 
         let path = vec![
@@ -1626,16 +1642,18 @@ mod tests {
             PathItem::ClosePath,
         ];
 
-        let mut frame = Frame::new(Size::a4());
-        frame.push(FrameItem::Shape {
-            pos:    Point { x: Pt(72.0), y: Pt(72.0) },
-            kind:   ShapeKind::Path(path),
-            width:  20.0,
-            height: 20.0,
-            fill:   Some(Color::rgb(255, 0, 0)),
-            stroke: None,
-        });
-        let doc = PagedDocument::new(vec![frame]);
+        let page = Page {
+            width: 595.28, height: 841.89,
+            items: vec![FrameItem::Shape {
+                pos:    Point { x: Pt(72.0), y: Pt(72.0) },
+                kind:   ShapeKind::Path(path),
+                width:  20.0,
+                height: 20.0,
+                fill:   Some(Color::rgb(255, 0, 0)),
+                stroke: None,
+            }],
+        };
+        let doc = PagedDocument::new(vec![page]);
         let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
@@ -1649,7 +1667,7 @@ mod tests {
     fn export_group_com_clip_mask_emite_w_n_na_ordem_correcta() {
         use typst_core::entities::geometry::ShapeKind;
         use typst_core::entities::layout_types::{
-            Color, Frame, FrameItem, PagedDocument, Point, Pt, Size, TransformMatrix,
+            Color, FrameItem, Page, PagedDocument, Point, Pt, TransformMatrix,
         };
 
         let child = FrameItem::Shape {
@@ -1661,16 +1679,18 @@ mod tests {
             stroke: None,
         };
 
-        let mut frame = Frame::new(Size::a4());
-        frame.push(FrameItem::Group {
-            pos:          Point { x: Pt(100.0), y: Pt(100.0) },
-            matrix:       TransformMatrix { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0 },
-            clip_mask:    Some(ShapeKind::Rect),
-            inner_width:  50.0,
-            inner_height: 50.0,
-            items:        vec![child],
-        });
-        let doc = PagedDocument::new(vec![frame]);
+        let page = Page {
+            width: 595.28, height: 841.89,
+            items: vec![FrameItem::Group {
+                pos:          Point { x: Pt(100.0), y: Pt(100.0) },
+                matrix:       TransformMatrix { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0 },
+                clip_mask:    Some(ShapeKind::Rect),
+                inner_width:  50.0,
+                inner_height: 50.0,
+                items:        vec![child],
+            }],
+        };
+        let doc = PagedDocument::new(vec![page]);
         let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 

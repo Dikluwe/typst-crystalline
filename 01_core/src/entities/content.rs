@@ -242,6 +242,17 @@ pub enum Content {
         cells:   Vec<Content>,
     },
 
+    /// Altera a configuração da página a partir deste ponto do documento (Passo 81).
+    ///
+    /// Se existir conteúdo na página actual, força uma quebra de página antes
+    /// de aplicar a nova configuração. Se a página actual estiver vazia, aplica
+    /// directamente sem quebra.
+    SetPage {
+        width:  Option<f64>,
+        height: Option<f64>,
+        margin: Option<f64>,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
@@ -384,6 +395,7 @@ impl Content {
             Self::Grid { cells, .. } => {
                 cells.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ")
             }
+            Self::SetPage { .. } => String::new(),
         }
     }
 }
@@ -448,6 +460,9 @@ impl PartialEq for Content {
             (Self::Grid { columns: ca, rows: ra, cells: xa },
              Self::Grid { columns: cb, rows: rb, cells: xb }) =>
                 ca == cb && ra == rb && xa == xb,
+            (Self::SetPage { width: wa, height: ha, margin: ma },
+             Self::SetPage { width: wb, height: hb, margin: mb }) =>
+                wa == wb && ha == hb && ma == mb,
             _ => false,
         }
     }
@@ -571,6 +586,7 @@ impl Content {
             | Content::Ref { .. }
             | Content::SetHeadingNumbering { .. }
             | Content::SetFigureNumbering { .. }
+            | Content::SetPage { .. }
             | Content::CounterUpdate { .. }
             | Content::CounterDisplay { .. }
             | Content::MathAlignPoint
@@ -654,6 +670,7 @@ impl Content {
             | Content::Ref { .. }
             | Content::SetHeadingNumbering { .. }
             | Content::SetFigureNumbering { .. }
+            | Content::SetPage { .. }
             | Content::CounterUpdate { .. }
             | Content::CounterDisplay { .. }
             | Content::MathAlignPoint

@@ -1035,6 +1035,33 @@ pub fn native_grid(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
     Ok(Value::Content(Content::Grid { columns, rows, cells }))
 }
 
+/// `#set page(width: w, height: h, margin: m)` — configura as dimensões da página (Passo 81).
+pub fn native_page(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+    fn extract_pt(val: &Value) -> Option<f64> {
+        match val {
+            Value::Length(l) => Some(l.abs.to_pt()),
+            Value::Float(f)  => Some(*f),
+            Value::Int(i)    => Some(*i as f64),
+            _                => None,
+        }
+    }
+
+    for key in args.named.keys() {
+        if !["width", "height", "margin"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("argumento nomeado inesperado em page(): '{}'", key),
+            )]);
+        }
+    }
+
+    let width  = args.named.get("width") .and_then(extract_pt);
+    let height = args.named.get("height").and_then(extract_pt);
+    let margin = args.named.get("margin").and_then(extract_pt);
+
+    Ok(Value::Content(Content::SetPage { width, height, margin }))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

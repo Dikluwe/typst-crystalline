@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/layout.md
 //! @prompt-hash 518a9856
 //! @layer L1
-//! @updated 2026-04-20
+//! @updated 2026-04-21
 
 pub mod counters;
 pub mod figure;
@@ -20,7 +20,7 @@ use crate::entities::{
     geometry::ShapeKind,
     glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
     image_sizer::{ImageSizer, NullImageSizer},
-    layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle, TrackSizing, TransformMatrix},
+    layout_types::{FrameItem, Page, PageConfig, PagedDocument, Point, Pt, TextStyle, TrackSizing, TransformMatrix},
     math_constants::MathConstants,
 };
 use crate::rules::math;
@@ -106,7 +106,6 @@ impl FontMetrics for FixedMetrics {
 // ── Constantes de página ───────────────────────────────────────────────────
 
 const DEFAULT_FONT_SIZE: f64 = 12.0;
-const MARGIN: Pt = Pt(72.0);  // 1 inch
 
 // ── Layouter ──────────────────────────────────────────────────────────────
 
@@ -118,14 +117,17 @@ const MARGIN: Pt = Pt(72.0);  // 1 inch
 pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     metrics:      M,
     sizer:        S,
-    font_size_pt: Pt,      // tamanho de fonte base — não muda com rich text
+    font_size_pt: Pt,
     style:        TextStyle,
-    pages:        Vec<Frame>,
-    current:      Frame,
-    cursor_x:     Pt,
-    cursor_y:     Pt,      // posição da baseline actual
-    current_line: Vec<FrameItem>,
-    pub counter:  CounterState,
+    /// Configuração da página activa. Mutável via Content::SetPage (Passo 81).
+    pub page_config: PageConfig,
+    pages:           Vec<Page>,
+    /// Items acumulados na página actual (ainda não fechada).
+    current_items:   Vec<FrameItem>,
+    cursor_x:        Pt,
+    cursor_y:        Pt,      // posição da baseline actual
+    current_line:    Vec<FrameItem>,
+    pub counter:     CounterState,
     /// Índice de progresso por kind para figuras (Passo 75, DEBT-14).
     /// kind → número de figuras já dispostas. Reiniciado por invocação de layout().
     figure_progress: std::collections::HashMap<String, usize>,
@@ -133,6 +135,7 @@ pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
 
 impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
     pub fn new(metrics: M, sizer: S, font_size: f64) -> Self {
+        let cfg = PageConfig::default();
         let size = Pt(font_size);
         let (ascender, _) = metrics.vertical_metrics(size);
         Self {
@@ -140,14 +143,35 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             sizer,
             font_size_pt: size,
             style:        TextStyle::regular(size),
+            page_config:  cfg.clone(),
             pages:        Vec::new(),
-            current:      Frame::new(Size::a4()),
-            cursor_x:     MARGIN,
-            cursor_y:     MARGIN + ascender,
+            current_items: Vec::new(),
+            cursor_x:     Pt(cfg.margin),
+            cursor_y:     Pt(cfg.margin) + ascender,
             current_line: Vec::new(),
             counter:         CounterState::new(),
             figure_progress: std::collections::HashMap::new(),
         }
+    }
+
+    /// Largura disponível para conteúdo (exclui margens dos dois lados).
+    fn available_width(&self) -> f64 {
+        f64::max(0.0, self.page_config.width - 2.0 * self.page_config.margin)
+    }
+
+    /// Altura disponível para conteúdo (exclui margens topo e base).
+    #[allow(dead_code)]
+    fn available_height(&self) -> f64 {
+        f64::max(0.0, self.page_config.height - 2.0 * self.page_config.margin)
+    }
+
+    /// Fonte de verdade estrutural: a página actual não tem nenhum item visual.
+    ///
+    /// Verifica tanto `current_items` (linhas já fechadas) como `current_line`
+    /// (items ainda pendentes de flush) — uma linha não fechada ainda constitui
+    /// conteúdo visível na página.
+    fn current_page_is_empty(&self) -> bool {
+        self.current_items.is_empty() && self.current_line.is_empty()
     }
 
     pub fn layout_content(&mut self, content: &Content) {
@@ -178,7 +202,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
             Content::Space => {
                 self.cursor_x += self.space_width();
-                if self.cursor_x > Size::a4().width - MARGIN {
+                if self.cursor_x.0 > self.page_config.width - self.page_config.margin {
                     self.flush_line();
                 }
             }
@@ -209,7 +233,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 let heading_size = self.font_size_pt * heading_scale(*level);
                 let prev = self.style;
                 self.style = TextStyle { bold: true, italic: false, size: heading_size };
-                if self.cursor_x > MARGIN { self.flush_line(); }
+                if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
 
                 // Prefixo numérico — apenas se numbering estiver activo
                 if self.counter.is_numbering_active("heading") {
@@ -248,8 +272,8 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 // DEBT: seleccionar fonte monospace real quando FontBook tiver uma
                 self.style = TextStyle { bold: false, italic: false, size: self.font_size_pt * 0.9 };
                 if *block {
-                    if self.cursor_x > MARGIN { self.flush_line(); }
-                    self.cursor_x = MARGIN + self.font_size_pt;
+                    if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                    self.cursor_x = Pt(self.page_config.margin) + self.font_size_pt;
                 }
                 for word in text.split_whitespace() { self.layout_word(word); }
                 if *block { self.flush_line(); }
@@ -257,35 +281,35 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             }
 
             Content::ListItem(body) => {
-                if self.cursor_x > MARGIN { self.flush_line(); }
-                // Bullet: "•" é Unicode U+2022 — aparece como ? no PDF até DEBT-5
-                // usar "-" ASCII como fallback para o PDF actual
+                if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                let margin_pt = Pt(self.page_config.margin);
                 self.current_line.push(FrameItem::Text {
-                    pos:   Point { x: MARGIN, y: self.cursor_y },
+                    pos:   Point { x: margin_pt, y: self.cursor_y },
                     text:  "•".into(),  // U+2022 — suportado com CIDFont (DEBT-5 pago)
                     style: self.style,
                 });
-                self.cursor_x = MARGIN + self.font_size_pt * 1.5;
+                self.cursor_x = margin_pt + self.font_size_pt * 1.5;
                 self.layout_content(body);
                 self.flush_line();
-                self.cursor_x = MARGIN;
+                self.cursor_x = margin_pt;
             }
 
             Content::EnumItem { number, body } => {
-                if self.cursor_x > MARGIN { self.flush_line(); }
+                if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                let margin_pt = Pt(self.page_config.margin);
                 let label: EcoString = match number {
                     Some(n) => format!("{}.", n).into(),
                     None    => "-".into(),
                 };
                 self.current_line.push(FrameItem::Text {
-                    pos:   Point { x: MARGIN, y: self.cursor_y },
+                    pos:   Point { x: margin_pt, y: self.cursor_y },
                     text:  label,
                     style: self.style,
                 });
-                self.cursor_x = MARGIN + self.font_size_pt * 2.0;
+                self.cursor_x = margin_pt + self.font_size_pt * 2.0;
                 self.layout_content(body);
                 self.flush_line();
-                self.cursor_x = MARGIN;
+                self.cursor_x = margin_pt;
             }
 
             Content::Link { body, .. } => {
@@ -306,7 +330,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 let math_items    = math_layouter.layout_equation(body, &self.style);
 
                 if *block
-                    && self.cursor_x > MARGIN { self.flush_line(); }
+                    && self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
 
                 // Integrar items matemáticos no frame actual.
                 // pos.x e pos.y são relativos à origem da equação —
@@ -422,7 +446,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             }
 
             Content::Shape { kind, width, height, fill, stroke } => {
-                let available_w = Size::a4().width.0 - MARGIN.0 * 2.0;
+                let available_w = self.available_width();
                 let (resolved_w, resolved_h) = match kind {
                     ShapeKind::Rect | ShapeKind::Ellipse | ShapeKind::Path(_) => {
                         let w = resolve_pt(width.as_deref(), available_w);
@@ -432,13 +456,13 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     ShapeKind::Line { dx, dy } => (dx.abs(), dy.abs()),
                 };
 
-                if self.cursor_y.0 + resolved_h > Size::a4().height.0 - MARGIN.0 {
+                if self.cursor_y.0 + resolved_h > self.page_config.height - self.page_config.margin {
                     self.new_page();
                 }
                 self.flush_line();
 
                 let pos = Point { x: self.cursor_x, y: self.cursor_y };
-                self.current.push(FrameItem::Shape {
+                self.current_items.push(FrameItem::Shape {
                     pos,
                     kind:   kind.clone(),
                     width:  resolved_w,
@@ -451,7 +475,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             }
 
             Content::Transform { matrix, body } => {
-                let (orig_w, orig_h) = measure_content(body);
+                let (orig_w, orig_h) = measure_content(body, self.available_width());
 
                 // Projectar os quatro cantos da AABB original através da matriz.
                 let corners = [
@@ -468,7 +492,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 let _new_w = max_x - min_x;
                 let new_h = max_y - min_y;
 
-                if self.cursor_y.0 + new_h > Size::a4().height.0 - MARGIN.0 {
+                if self.cursor_y.0 + new_h > self.page_config.height - self.page_config.margin {
                     self.new_page();
                 }
                 self.flush_line();
@@ -480,9 +504,10 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 let align        = TransformMatrix::translate(-min_x, -min_y);
                 let final_matrix = align.concat(matrix);
 
-                let sub_items = collect_sub_items(body);
+                let available_w  = self.available_width();
+                let sub_items    = collect_sub_items(body, available_w);
 
-                self.current.push(FrameItem::Group {
+                self.current_items.push(FrameItem::Group {
                     pos,
                     matrix:       final_matrix,
                     clip_mask:    None,
@@ -496,7 +521,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
             Content::Grid { columns, rows: _, cells } => {
                 // rows ignorado — DEBT-34b.
-                let available_width = Size::a4().width.0 - MARGIN.0 * 2.0;
+                let available_width = self.available_width();
 
                 let cols = if columns.is_empty() {
                     vec![TrackSizing::Auto]
@@ -552,7 +577,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 // Calcular posição X inicial de cada coluna.
                 let mut col_starts = vec![0.0_f64; num_cols];
                 {
-                    let mut x = MARGIN.0;
+                    let mut x = self.page_config.margin;
                     for i in 0..num_cols {
                         col_starts[i] = x;
                         x += resolved_widths[i];
@@ -583,6 +608,12 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     self.cursor_y = saved_cursor_y;
 
                     // Transferir items com posições absolutas.
+                    //
+                    // O sub-layout usa `cell_x` como cursor inicial, por isso `lx` é
+                    // já a coordenada absoluta na página para items na primeira linha
+                    // da célula. Apenas a coordenada vertical precisa de ser rebaseada
+                    // para `row_start_y`.
+                    let _ = cell_x;
                     let local_start_y = {
                         let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
                         ascender.0
@@ -590,11 +621,11 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     for item in cell_items {
                         let (lx, ly) = item_pos(&item);
                         let abs_pos = Point {
-                            x: Pt(cell_x + (lx - MARGIN.0)),
+                            x: Pt(lx),
                             y: Pt(row_start_y + (ly - local_start_y)),
                         };
                         let translated = translate_frame_item(item, abs_pos.x, abs_pos.y);
-                        self.current.push(translated);
+                        self.current_items.push(translated);
                     }
 
                     row_max_h = row_max_h.max(cell_h);
@@ -603,7 +634,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     if current_col >= num_cols {
                         current_col = 0;
                         self.cursor_y = Pt(row_start_y + row_max_h);
-                        if self.cursor_y.0 > Size::a4().height.0 - MARGIN.0 {
+                        if self.cursor_y.0 > self.page_config.height - self.page_config.margin {
                             self.new_page();
                             row_start_y = self.cursor_y.0;
                         }
@@ -613,6 +644,26 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 // Linha incompleta no fim.
                 if current_col > 0 {
                     self.cursor_y = Pt(row_start_y + row_max_h);
+                }
+            }
+
+            Content::SetPage { width, height, margin } => {
+                let mut new_config = self.page_config.clone();
+                let mut changed    = false;
+
+                if let Some(w) = width  { new_config.width  = *w; changed = true; }
+                if let Some(h) = height { new_config.height = *h; changed = true; }
+                if let Some(m) = margin { new_config.margin = *m; changed = true; }
+
+                if changed {
+                    if !self.current_page_is_empty() {
+                        self.flush_line();
+                        self.new_page();
+                    }
+                    self.page_config = new_config;
+                    self.cursor_x    = Pt(self.page_config.margin);
+                    self.cursor_y    = Pt(self.page_config.margin);
+                    // DEBT-35b: se available_width() vier a ter cache, invalidar aqui.
                 }
             }
 
@@ -628,20 +679,20 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.flush_line();
 
                 // Verificar se a imagem cabe na página actual.
-                if self.cursor_y.0 + dims.height_pt > Size::a4().height.0 - MARGIN.0 {
+                if self.cursor_y.0 + dims.height_pt > self.page_config.height - self.page_config.margin {
                     self.new_page();
                 }
 
                 // pos.y é o TOPO da bounding box — não o baseline de texto.
                 // O exportador calcula pdf_y = page_height - pos.y - height.
-                let pos = Point { x: MARGIN, y: self.cursor_y };
+                let pos = Point { x: Pt(self.page_config.margin), y: self.cursor_y };
 
                 // DEBT-28 encerrado: intrinsic_width/height vêm de calculate_dimensions.
                 // A segunda chamada a self.sizer.size() foi eliminada.
                 let intrinsic_w = dims.intrinsic_width.unwrap_or(100);
                 let intrinsic_h = dims.intrinsic_height.unwrap_or(100);
 
-                self.current.push(FrameItem::Image {
+                self.current_items.push(FrameItem::Image {
                     pos,
                     data:             Arc::clone(&data.0), // .0 acede ao Arc interno de PtrEqArc
                     width:            Pt(dims.width_pt),
@@ -652,7 +703,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
                 self.cursor_y += Pt(dims.height_pt);
 
-                if self.cursor_y > Size::a4().height - MARGIN {
+                if self.cursor_y.0 > self.page_config.height - self.page_config.margin {
                     self.new_page();
                 }
             }
@@ -669,7 +720,8 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
     fn layout_word(&mut self, word: &str) {
         let w = self.word_width(word);
-        if self.cursor_x + w > Size::a4().width - MARGIN && self.cursor_x > MARGIN {
+        let right_margin = self.page_config.width - self.page_config.margin;
+        if self.cursor_x.0 + w.0 > right_margin && self.cursor_x.0 > self.page_config.margin {
             self.flush_line();
         }
         self.current_line.push(FrameItem::Text {
@@ -682,27 +734,28 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
     fn flush_line(&mut self) {
         for item in self.current_line.drain(..) {
-            self.current.push(item);
+            self.current_items.push(item);
         }
         // Avançar pela line_height do tamanho base (não do heading)
         let (_, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
         self.cursor_y += line_height;
-        self.cursor_x  = MARGIN;
+        self.cursor_x  = Pt(self.page_config.margin);
 
-        if self.cursor_y > Size::a4().height - MARGIN {
+        if self.cursor_y.0 > self.page_config.height - self.page_config.margin {
             self.new_page();
         }
     }
 
     fn new_page(&mut self) {
-        for item in self.current_line.drain(..) {
-            self.current.push(item);
-        }
-        let finished = std::mem::replace(&mut self.current, Frame::new(Size::a4()));
-        self.pages.push(finished);
-        self.cursor_x = MARGIN;
+        let page = Page {
+            width:  self.page_config.width,
+            height: self.page_config.height,
+            items:  std::mem::take(&mut self.current_items),
+        };
+        self.pages.push(page);
+        self.cursor_x = Pt(self.page_config.margin);
         let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
-        self.cursor_y = MARGIN + ascender;
+        self.cursor_y = Pt(self.page_config.margin) + ascender;
     }
 
     /// Número da página actual (1-indexed).
@@ -716,10 +769,15 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
     pub fn finish(mut self) -> PagedDocument {
         for item in self.current_line.drain(..) {
-            self.current.push(item);
+            self.current_items.push(item);
         }
-        if !self.current.items.is_empty() {
-            self.pages.push(self.current);
+        if !self.current_items.is_empty() {
+            let page = Page {
+                width:  self.page_config.width,
+                height: self.page_config.height,
+                items:  self.current_items,
+            };
+            self.pages.push(page);
         }
         let mut doc = PagedDocument::new(self.pages);
         // Expor o mapa de páginas sem mudar a assinatura de layout() (Passo 63).
@@ -794,10 +852,10 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
         _cell_width: f64,
     ) -> (f64, Vec<FrameItem>) {
         // Salvar estado.
-        let saved_current = std::mem::replace(&mut self.current, Frame::new(Size::a4()));
-        let saved_line    = std::mem::take(&mut self.current_line);
-        let saved_x       = self.cursor_x;
-        let saved_y       = self.cursor_y;
+        let saved_items = std::mem::take(&mut self.current_items);
+        let saved_line  = std::mem::take(&mut self.current_line);
+        let saved_x     = self.cursor_x;
+        let saved_y     = self.cursor_y;
 
         // Inicializar cursor local — x = cell_x, y = ascender (como o layout principal).
         self.cursor_x = Pt(cell_x);
@@ -809,19 +867,19 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
         // Flush de itens pendentes sem avançar linha (evitar double advance).
         for item in self.current_line.drain(..) {
-            self.current.push(item);
+            self.current_items.push(item);
         }
 
-        let end_y      = self.cursor_y.0;
+        let end_y       = self.cursor_y.0;
         let cell_height = (end_y - start_y).max(0.0);
 
-        // Recuperar frame temporário e restaurar estado.
-        let cell_frame = std::mem::replace(&mut self.current, saved_current);
-        self.cursor_x      = saved_x;
-        self.cursor_y      = saved_y;
-        self.current_line  = saved_line;
+        // Recuperar items do sub-frame e restaurar estado.
+        let cell_items    = std::mem::replace(&mut self.current_items, saved_items);
+        self.cursor_x     = saved_x;
+        self.cursor_y     = saved_y;
+        self.current_line = saved_line;
 
-        (cell_height, cell_frame.items)
+        (cell_height, cell_items)
     }
 }
 
@@ -888,10 +946,9 @@ fn resolve_pt(val: Option<&crate::entities::value::Value>, fallback: f64) -> f64
 ///
 /// Suficiente para calcular a AABB de `Content::Transform`. Para conteúdo complexo
 /// (texto multi-linha, equações), retorna (0, 0) como approximação conservadora.
-fn measure_content(content: &Content) -> (f64, f64) {
+fn measure_content(content: &Content, available_w: f64) -> (f64, f64) {
     match content {
         Content::Shape { kind, width, height, .. } => {
-            let available_w = Size::a4().width.0 - MARGIN.0 * 2.0;
             match kind {
                 ShapeKind::Rect | ShapeKind::Ellipse | ShapeKind::Path(_) => (
                     resolve_pt(width.as_deref(), available_w),
@@ -904,7 +961,7 @@ fn measure_content(content: &Content) -> (f64, f64) {
             let mut max_w = 0.0_f64;
             let mut total_h = 0.0_f64;
             for part in seq.iter() {
-                let (w, h) = measure_content(part);
+                let (w, h) = measure_content(part, available_w);
                 max_w = max_w.max(w);
                 total_h += h;
             }
@@ -917,16 +974,15 @@ fn measure_content(content: &Content) -> (f64, f64) {
 /// Recolhe `FrameItem`s do conteúdo em coordenadas locais (Y-down, origem (0,0)).
 ///
 /// Usado por `Content::Transform` para construir `FrameItem::Group.items`.
-fn collect_sub_items(content: &Content) -> Vec<FrameItem> {
+fn collect_sub_items(content: &Content, available_w: f64) -> Vec<FrameItem> {
     let mut items = Vec::new();
-    collect_items_at(content, &mut items, Pt(0.0), Pt(0.0));
+    collect_items_at(content, &mut items, Pt(0.0), Pt(0.0), available_w);
     items
 }
 
-fn collect_items_at(content: &Content, items: &mut Vec<FrameItem>, x: Pt, y: Pt) {
+fn collect_items_at(content: &Content, items: &mut Vec<FrameItem>, x: Pt, y: Pt, available_w: f64) {
     match content {
         Content::Shape { kind, width, height, fill, stroke } => {
-            let available_w = Size::a4().width.0 - MARGIN.0 * 2.0;
             let (w, h) = match kind {
                 ShapeKind::Rect | ShapeKind::Ellipse | ShapeKind::Path(_) => (
                     resolve_pt(width.as_deref(), available_w),
@@ -945,7 +1001,7 @@ fn collect_items_at(content: &Content, items: &mut Vec<FrameItem>, x: Pt, y: Pt)
         }
         Content::Sequence(seq) => {
             for part in seq.iter() {
-                collect_items_at(part, items, x, y);
+                collect_items_at(part, items, x, y, available_w);
             }
         }
         _ => {}
@@ -2236,7 +2292,8 @@ mod tests {
         use crate::entities::layout_types::TrackSizing;
         use crate::entities::geometry::ShapeKind;
 
-        let available = Size::a4().width.0 - MARGIN.0 * 2.0; // 451pt
+        let cfg = crate::entities::layout_types::PageConfig::default();
+        let available = cfg.width - 2.0 * cfg.margin; // 595.28 - 2*70.87 = 453.54pt
         let cols = vec![
             TrackSizing::Fixed(50.0),
             TrackSizing::Auto,
@@ -2294,7 +2351,8 @@ mod tests {
         // Não deve entrar em pânico. resolved_widths[2] deve ser 0.0 ou positivo.
         use crate::entities::layout_types::TrackSizing;
 
-        let available = Size::a4().width.0 - MARGIN.0 * 2.0;
+        let cfg = crate::entities::layout_types::PageConfig::default();
+        let available = cfg.width - 2.0 * cfg.margin;
         let cols = vec![
             TrackSizing::Fixed(50.0),
             TrackSizing::Auto,
@@ -2383,7 +2441,8 @@ mod tests {
         // Uma coluna Auto com conteúdo não deve exceder available_width.
         use crate::entities::layout_types::TrackSizing;
 
-        let available = Size::a4().width.0 - MARGIN.0 * 2.0;
+        let cfg = crate::entities::layout_types::PageConfig::default();
+        let available = cfg.width - 2.0 * cfg.margin;
         let cols = vec![TrackSizing::Auto];
         let cell  = Content::text("Palavra muito longa que poderia exceder a página se nao houver limite");
         let layouter = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
