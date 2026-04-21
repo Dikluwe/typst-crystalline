@@ -18,7 +18,7 @@ use crate::entities::content::Content;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::func::Func;
-use crate::entities::layout_types::{Color, Length};
+use crate::entities::layout_types::{Color, Length, TransformMatrix};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -731,6 +731,93 @@ pub fn native_rect(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
     }))
 }
 
+/// `ellipse(width?, height?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, ... }`.
+///
+/// Mesmo padrão de fallback que `native_rect`.
+pub fn native_ellipse(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+    for key in args.named.keys() {
+        if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("argumento nomeado inesperado em ellipse(): '{}'", key),
+            )]);
+        }
+    }
+
+    let width  = args.named.get("width").cloned().map(Box::new);
+    let height = args.named.get("height").cloned().map(Box::new);
+    let fill   = args.named.get("fill").and_then(parse_color);
+
+    let parsed_stroke: Option<Stroke> = args.named.get("stroke")
+        .and_then(parse_color)
+        .map(|c| Stroke { paint: c, thickness: 1.0 });
+
+    let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
+        Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 })
+    } else {
+        parsed_stroke
+    };
+
+    Ok(Value::Content(Content::Shape {
+        kind: ShapeKind::Ellipse,
+        width,
+        height,
+        fill,
+        stroke: final_stroke,
+    }))
+}
+
+/// `circle(radius?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, width==height }`.
+///
+/// `radius` em pt. Converte para `width = height = radius * 2`.
+pub fn native_circle(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+    for key in args.named.keys() {
+        if !["radius", "fill", "stroke"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("argumento nomeado inesperado em circle(): '{}'", key),
+            )]);
+        }
+    }
+
+    fn extract_pt(val: &Value) -> f64 {
+        match val {
+            Value::Float(f)  => *f,
+            Value::Int(i)    => *i as f64,
+            Value::Length(l) => l.abs.to_pt(),
+            _ => 0.0,
+        }
+    }
+
+    let (width, height) = match args.named.get("radius") {
+        Some(r) => {
+            let diameter = Value::Float(extract_pt(r) * 2.0);
+            (Some(Box::new(diameter.clone())), Some(Box::new(diameter)))
+        }
+        None => (None, None),
+    };
+
+    let fill = args.named.get("fill").and_then(parse_color);
+
+    let parsed_stroke: Option<Stroke> = args.named.get("stroke")
+        .and_then(parse_color)
+        .map(|c| Stroke { paint: c, thickness: 1.0 });
+
+    let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
+        Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 })
+    } else {
+        parsed_stroke
+    };
+
+    Ok(Value::Content(Content::Shape {
+        kind: ShapeKind::Ellipse,
+        width,
+        height,
+        fill,
+        stroke: final_stroke,
+    }))
+}
+
 /// `line(dx?, dy?, stroke?)` → `Content::Shape { kind: Line, ... }`.
 ///
 /// `dx`/`dy`: Float ou Length em pt. Omitidos → 0.0 (linha degenerada, válida).
@@ -767,6 +854,77 @@ pub fn native_line(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
         height: None,
         fill:   None,
         stroke: Some(Stroke { paint: stroke_color, thickness: 1.0 }),
+    }))
+}
+
+/// `move(dx?, dy?, body)` → `Content::Transform { matrix: translate(dx, dy), body }`.
+pub fn native_move(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+    fn extract_pt(val: &Value) -> f64 {
+        match val {
+            Value::Float(f)  => *f,
+            Value::Int(i)    => *i as f64,
+            Value::Length(l) => l.abs.to_pt(),
+            _ => 0.0,
+        }
+    }
+    let dx = args.named.get("dx").map(extract_pt).unwrap_or(0.0);
+    let dy = args.named.get("dy").map(extract_pt).unwrap_or(0.0);
+    let body = args.items.iter()
+        .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
+        .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
+            "move() exige um corpo de conteúdo".to_string())])?;
+    Ok(Value::Content(Content::Transform {
+        matrix: TransformMatrix::translate(dx, dy),
+        body:   Box::new(body),
+    }))
+}
+
+/// `rotate(angle, body)` → `Content::Transform { matrix: rotate(rad), body }`.
+///
+/// `angle` pode ser `Value::Angle` (graus→radianos via `to_rad()`) ou `Value::Float` (radianos).
+pub fn native_rotate(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+    let angle_rad = match args.named.get("angle") {
+        Some(Value::Angle(a)) => a.to_rad(),
+        Some(Value::Float(f)) => *f,
+        _ => {
+            // Fallback: primeiro arg posicional que seja Angle ou Float.
+            match args.items.iter().find(|v| matches!(v, Value::Angle(_) | Value::Float(_))) {
+                Some(Value::Angle(a)) => a.to_rad(),
+                Some(Value::Float(f)) => *f,
+                _ => 0.0,
+            }
+        }
+    };
+    let body = args.items.iter()
+        .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
+        .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
+            "rotate() exige um corpo de conteúdo".to_string())])?;
+    Ok(Value::Content(Content::Transform {
+        matrix: TransformMatrix::rotate(angle_rad),
+        body:   Box::new(body),
+    }))
+}
+
+/// `scale(x?, y?, body)` → `Content::Transform { matrix: scale(sx, sy), body }`.
+///
+/// `x` e `y` são factores de escala (Float ou Int). Se `y` omitido, escala uniforme.
+pub fn native_scale(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+    fn extract_factor(val: &Value) -> f64 {
+        match val {
+            Value::Float(f) => *f,
+            Value::Int(i)   => *i as f64,
+            _               => 1.0,
+        }
+    }
+    let sx = args.named.get("x").map(extract_factor).unwrap_or(1.0);
+    let sy = args.named.get("y").map(extract_factor).unwrap_or(sx);
+    let body = args.items.iter()
+        .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
+        .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
+            "scale() exige um corpo de conteúdo".to_string())])?;
+    Ok(Value::Content(Content::Transform {
+        matrix: TransformMatrix::scale(sx, sy),
+        body:   Box::new(body),
     }))
 }
 

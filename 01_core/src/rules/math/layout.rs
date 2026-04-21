@@ -60,6 +60,7 @@ impl MathBox {
                 }
                 FrameItem::Image { .. } => {}   // imagens não ocorrem em contexto math
                 FrameItem::Shape { .. } => {}   // formas não ocorrem em contexto math
+                FrameItem::Group { .. } => {}   // grupos não ocorrem em contexto math
             }
             item
         }).collect()
@@ -102,6 +103,12 @@ fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
                 height,
                 fill,
                 stroke,
+            },
+        FrameItem::Group { pos, matrix, items } =>
+            FrameItem::Group {
+                pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
+                matrix,
+                items,
             },
     }
 }
@@ -445,6 +452,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     }
                     FrameItem::Image { .. } => {}   // imagens não ocorrem em contexto math
                     FrameItem::Shape { .. } => {}   // formas não ocorrem em contexto math
+                    FrameItem::Group { .. } => {}   // grupos não ocorrem em contexto math
                 }
                 items.push(item);
             }

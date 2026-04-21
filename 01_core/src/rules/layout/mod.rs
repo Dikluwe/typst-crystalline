@@ -20,7 +20,7 @@ use crate::entities::{
     geometry::ShapeKind,
     glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
     image_sizer::{ImageSizer, NullImageSizer},
-    layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle},
+    layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle, TransformMatrix},
     math_constants::MathConstants,
 };
 use crate::rules::math;
@@ -342,6 +342,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                         }
                         FrameItem::Image { .. } => {}   // imagens não ocorrem em math inline
                         FrameItem::Shape { .. } => {}   // formas não ocorrem em math inline
+                        FrameItem::Group { .. } => {}   // grupos não ocorrem em math inline
                         FrameItem::Glyph { pos, glyph_id, x_advance, size } => {
                             let abs_pos = Point {
                                 x: offset_x + pos.x,
@@ -447,6 +448,47 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 });
 
                 self.cursor_y += Pt(resolved_h);
+            }
+
+            Content::Transform { matrix, body } => {
+                let (orig_w, orig_h) = measure_content(body);
+
+                // Projectar os quatro cantos da AABB original através da matriz.
+                let corners = [
+                    matrix.apply(0.0, 0.0),
+                    matrix.apply(orig_w, 0.0),
+                    matrix.apply(0.0, orig_h),
+                    matrix.apply(orig_w, orig_h),
+                ];
+                let min_x = corners.iter().map(|(x, _)| *x).fold(f64::INFINITY,     f64::min);
+                let max_x = corners.iter().map(|(x, _)| *x).fold(f64::NEG_INFINITY, f64::max);
+                let min_y = corners.iter().map(|(_, y)| *y).fold(f64::INFINITY,     f64::min);
+                let max_y = corners.iter().map(|(_, y)| *y).fold(f64::NEG_INFINITY, f64::max);
+
+                let _new_w = max_x - min_x;
+                let new_h = max_y - min_y;
+
+                if self.cursor_y.0 + new_h > Size::a4().height.0 - MARGIN.0 {
+                    self.new_page();
+                }
+                self.flush_line();
+
+                let pos = Point { x: self.cursor_x, y: self.cursor_y };
+
+                // Compensação de origem negativa: garante que o canto mais à esquerda/acima
+                // da forma transformada coincide com pos.
+                let align        = TransformMatrix::translate(-min_x, -min_y);
+                let final_matrix = align.concat(matrix);
+
+                let sub_items = collect_sub_items(body);
+
+                self.current.push(FrameItem::Group {
+                    pos,
+                    matrix: final_matrix,
+                    items:  sub_items,
+                });
+
+                self.cursor_y += Pt(new_h);
             }
 
             Content::Image { data, width, height, .. } => {
@@ -580,6 +622,74 @@ fn resolve_pt(val: Option<&crate::entities::value::Value>, fallback: f64) -> f64
         Some(Value::Int(i))    => *i as f64,
         Some(Value::Auto)      => fallback,
         Some(_)                => fallback,
+    }
+}
+
+/// Estima as dimensões (width, height) de conteúdo sem correr o layouter completo.
+///
+/// Suficiente para calcular a AABB de `Content::Transform`. Para conteúdo complexo
+/// (texto multi-linha, equações), retorna (0, 0) como approximação conservadora.
+fn measure_content(content: &Content) -> (f64, f64) {
+    match content {
+        Content::Shape { kind, width, height, .. } => {
+            let available_w = Size::a4().width.0 - MARGIN.0 * 2.0;
+            match kind {
+                ShapeKind::Rect | ShapeKind::Ellipse => (
+                    resolve_pt(width.as_deref(), available_w),
+                    resolve_pt(height.as_deref(), 0.0),
+                ),
+                ShapeKind::Line { dx, dy } => (dx.abs(), dy.abs()),
+            }
+        }
+        Content::Sequence(seq) => {
+            let mut max_w = 0.0_f64;
+            let mut total_h = 0.0_f64;
+            for part in seq.iter() {
+                let (w, h) = measure_content(part);
+                max_w = max_w.max(w);
+                total_h += h;
+            }
+            (max_w, total_h)
+        }
+        _ => (0.0, 0.0),
+    }
+}
+
+/// Recolhe `FrameItem`s do conteúdo em coordenadas locais (Y-down, origem (0,0)).
+///
+/// Usado por `Content::Transform` para construir `FrameItem::Group.items`.
+fn collect_sub_items(content: &Content) -> Vec<FrameItem> {
+    let mut items = Vec::new();
+    collect_items_at(content, &mut items, Pt(0.0), Pt(0.0));
+    items
+}
+
+fn collect_items_at(content: &Content, items: &mut Vec<FrameItem>, x: Pt, y: Pt) {
+    match content {
+        Content::Shape { kind, width, height, fill, stroke } => {
+            let available_w = Size::a4().width.0 - MARGIN.0 * 2.0;
+            let (w, h) = match kind {
+                ShapeKind::Rect | ShapeKind::Ellipse => (
+                    resolve_pt(width.as_deref(), available_w),
+                    resolve_pt(height.as_deref(), 0.0),
+                ),
+                ShapeKind::Line { dx, dy } => (dx.abs(), dy.abs()),
+            };
+            items.push(FrameItem::Shape {
+                pos: Point { x, y },
+                kind: kind.clone(),
+                width: w,
+                height: h,
+                fill: *fill,
+                stroke: stroke.clone(),
+            });
+        }
+        Content::Sequence(seq) => {
+            for part in seq.iter() {
+                collect_items_at(part, items, x, y);
+            }
+        }
+        _ => {}
     }
 }
 

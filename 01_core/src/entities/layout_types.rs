@@ -165,6 +165,17 @@ pub enum FrameItem {
         fill:   Option<Color>,
         stroke: Option<Stroke>,
     },
+    /// Grupo com transformação afim aplicada (Passo 78).
+    ///
+    /// O exportador emite q → cm → itens filhos em espaço local → Q.
+    /// `pos`: posição do grupo na página (espaço global).
+    /// `matrix`: transformação afim com compensação de origem negativa.
+    /// `items`: itens em espaço local (Y-down, origem em (0,0)).
+    Group {
+        pos:    Point,
+        matrix: TransformMatrix,
+        items:  Vec<FrameItem>,
+    },
 }
 
 /// Canvas de uma página — colecção de itens com posições absolutas.
@@ -196,6 +207,7 @@ impl Frame {
                 FrameItem::Glyph { .. }      => None,
                 FrameItem::Image { .. }      => None,
                 FrameItem::Shape { .. }      => None,
+                FrameItem::Group { .. }      => None,
             })
             .collect::<Vec<_>>()
             .join(" ")
@@ -233,6 +245,72 @@ impl PagedDocument {
             .map(|p| p.plain_text())
             .collect::<Vec<_>>()
             .join("\n")
+    }
+}
+
+// ── Transformações afins (Passo 78) ──────────────────────────────────────────
+
+/// Matriz de transformação afim 2D: [a, b, c, d, tx, ty].
+///
+/// Representa a transformação:
+///   x' = a*x + c*y + tx
+///   y' = b*x + d*y + ty
+///
+/// Esta convenção segue o formato do operador `cm` do PDF.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TransformMatrix {
+    pub a: f64, pub b: f64,
+    pub c: f64, pub d: f64,
+    pub tx: f64, pub ty: f64,
+}
+
+impl Default for TransformMatrix {
+    fn default() -> Self { Self::identity() }
+}
+
+impl TransformMatrix {
+    pub fn identity() -> Self {
+        Self { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0 }
+    }
+
+    pub fn translate(dx: f64, dy: f64) -> Self {
+        Self { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: dx, ty: dy }
+    }
+
+    pub fn scale(sx: f64, sy: f64) -> Self {
+        Self { a: sx, b: 0.0, c: 0.0, d: sy, tx: 0.0, ty: 0.0 }
+    }
+
+    /// Rotação em radianos no sistema Y-down do layouter.
+    ///   x' =  cos*x - sin*y
+    ///   y' =  sin*x + cos*y
+    pub fn rotate(radians: f64) -> Self {
+        let cos = radians.cos();
+        let sin = radians.sin();
+        Self { a: cos, b: sin, c: -sin, d: cos, tx: 0.0, ty: 0.0 }
+    }
+
+    /// Compõe `other` primeiro, depois `self`.
+    ///
+    /// `rotate.concat(translate)` aplica translate primeiro, depois rotate.
+    /// Composição não é comutativa.
+    pub fn concat(&self, other: &Self) -> Self {
+        Self {
+            a:  self.a * other.a  + self.c * other.b,
+            b:  self.b * other.a  + self.d * other.b,
+            c:  self.a * other.c  + self.c * other.d,
+            d:  self.b * other.c  + self.d * other.d,
+            tx: self.a * other.tx + self.c * other.ty + self.tx,
+            ty: self.b * other.tx + self.d * other.ty + self.ty,
+        }
+    }
+
+    /// Aplica a matriz a um ponto 2D.
+    pub fn apply(&self, x: f64, y: f64) -> (f64, f64) {
+        (
+            self.a * x + self.c * y + self.tx,
+            self.b * x + self.d * y + self.ty,
+        )
     }
 }
 
@@ -536,5 +614,61 @@ mod tests {
         assert_eq!(Abs::pt(3.0) + Abs::pt(4.0), Abs::pt(7.0));
         assert_eq!(-Abs::pt(2.0), Abs::pt(-2.0));
         assert!(Abs::ZERO.is_zero());
+    }
+
+    // ── Passo 78 — TransformMatrix ────────────────────────────────────────
+
+    #[test]
+    fn transform_matrix_rotacao_90_graus_quadrado_mantem_dimensoes() {
+        let matrix = TransformMatrix::rotate(std::f64::consts::FRAC_PI_2);
+        let corners = [
+            matrix.apply(0.0,   0.0),
+            matrix.apply(100.0, 0.0),
+            matrix.apply(0.0,   100.0),
+            matrix.apply(100.0, 100.0),
+        ];
+        let min_x = corners.iter().map(|(x, _)| *x).fold(f64::INFINITY,     f64::min);
+        let max_x = corners.iter().map(|(x, _)| *x).fold(f64::NEG_INFINITY, f64::max);
+        let min_y = corners.iter().map(|(_, y)| *y).fold(f64::INFINITY,     f64::min);
+        let max_y = corners.iter().map(|(_, y)| *y).fold(f64::NEG_INFINITY, f64::max);
+        let new_w = max_x - min_x;
+        let new_h = max_y - min_y;
+        assert!((new_w - 100.0).abs() < 0.001,
+            "Quadrado 100×100 rodado 90° deve ter largura 100, obteve {}", new_w);
+        assert!((new_h - 100.0).abs() < 0.001,
+            "Quadrado 100×100 rodado 90° deve ter altura 100, obteve {}", new_h);
+    }
+
+    #[test]
+    fn transform_matrix_rotacao_45_graus_aumenta_bounding_box() {
+        let matrix = TransformMatrix::rotate(std::f64::consts::FRAC_PI_4);
+        let corners = [
+            matrix.apply(0.0,   0.0),
+            matrix.apply(100.0, 0.0),
+            matrix.apply(0.0,   100.0),
+            matrix.apply(100.0, 100.0),
+        ];
+        let min_x = corners.iter().map(|(x, _)| *x).fold(f64::INFINITY,     f64::min);
+        let max_x = corners.iter().map(|(x, _)| *x).fold(f64::NEG_INFINITY, f64::max);
+        let min_y = corners.iter().map(|(_, y)| *y).fold(f64::INFINITY,     f64::min);
+        let max_y = corners.iter().map(|(_, y)| *y).fold(f64::NEG_INFINITY, f64::max);
+        let new_w = max_x - min_x;
+        let new_h = max_y - min_y;
+        let diagonal = 100.0_f64 * std::f64::consts::SQRT_2;
+        assert!((new_w - diagonal).abs() < 0.01,
+            "Quadrado 100×100 rodado 45° deve ter largura ≈ {:.2}, obteve {:.4}", diagonal, new_w);
+        assert!((new_h - diagonal).abs() < 0.01,
+            "Quadrado 100×100 rodado 45° deve ter altura ≈ {:.2}, obteve {:.4}", diagonal, new_h);
+    }
+
+    #[test]
+    fn transform_matrix_concat_ordem_correta() {
+        let translate = TransformMatrix::translate(10.0, 0.0);
+        let rotate90  = TransformMatrix::rotate(std::f64::consts::FRAC_PI_2);
+        // rotate90.concat(translate): aplica translate primeiro, depois rotate90
+        let composed = rotate90.concat(&translate);
+        let (rx, ry) = composed.apply(0.0, 0.0);
+        assert!((rx - 0.0).abs() < 0.001, "x esperado 0.0, obteve {}", rx);
+        assert!((ry - 10.0).abs() < 0.001, "y esperado 10.0, obteve {}", ry);
     }
 }

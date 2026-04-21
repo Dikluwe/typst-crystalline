@@ -98,6 +98,10 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
         | Content::MathCases { .. }
         | Content::Image { .. }
         | Content::Shape { .. } => content.clone(),
+        Content::Transform { matrix, body } => Content::Transform {
+            matrix: *matrix,
+            body:   Box::new(materialize_time(body, state)),
+        },
     }
 }
 
@@ -254,6 +258,8 @@ fn walk(content: &Content, state: &mut CounterState) {
         | Content::Linebreak
         | Content::Image { .. }
         | Content::Shape { .. } => {}
+
+        Content::Transform { body, .. } => walk(body, state),
 
         Content::Outline => {
             state.has_outline = true;
