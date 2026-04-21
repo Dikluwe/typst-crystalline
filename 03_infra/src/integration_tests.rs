@@ -1483,4 +1483,222 @@ mod integration {
         assert!(pdf_str.contains("[0 0 200.00 600.00]"),
             "Segunda página deve ter MediaBox 200×600pt");
     }
+
+    // ── Passo 81.5 — Stress de composição geométrica (Grid × Transform × SetPage) ──
+    //
+    // Divergência documentada face ao prompt:
+    // - O prompt pede `#transform(translate(5pt, 10pt))[A]`, mas a stdlib
+    //   actual expõe `move(dx, dy)` (sem `transform`/`translate` como funções
+    //   nomeadas). Usamos `#move(dx: 5pt, dy: 10pt)[...]` — produz o mesmo
+    //   `Content::Transform { matrix: translate(dx, dy), body }`.
+    // - `FrameItem` embute `pos` em cada variante (não é uma tupla
+    //   `(Point, FrameItem)`). Os testes adaptam a extracção.
+    // - `collect_sub_items` só captura `Shape`/`Sequence` em coordenadas
+    //   locais — texto dentro de `Transform` não aparece nos sub_items.
+    //   Por isso, usamos `#rect` como marcador dentro da `move(...)`.
+
+    fn stress_81_5_source() -> &'static str {
+        "\
+         Texto introdutório na primeira página.\n\
+         \n\
+         #set page(width: 400pt, height: 300pt, margin: 20pt)\n\
+         \n\
+         #grid(\n\
+           columns: (1fr, 2fr),\n\
+           [#move(dx: 5pt, dy: 10pt)[#rect(width: 15pt, height: 15pt)]],\n\
+           [Texto na célula que deve caber em 240pt de largura.],\n\
+           [#rect(width: 100pt, height: 50pt)],\n\
+           [#rect(width: 80pt, height: 30pt)],\n\
+         )\n\
+         \n\
+         #set page(width: 200pt, height: 200pt, margin: 5pt)\n\
+         \n\
+         Fim.\n"
+    }
+
+    fn compilar_stress_81_5() -> typst_core::entities::layout_types::PagedDocument {
+        let (world, _dir) = world_from_str(stress_81_5_source());
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        layout(content, state)
+    }
+
+    /// Extrai a posição primária de qualquer `FrameItem`.
+    fn frame_item_pos(item: &typst_core::entities::layout_types::FrameItem)
+        -> typst_core::entities::layout_types::Point
+    {
+        use typst_core::entities::layout_types::FrameItem;
+        match item {
+            FrameItem::Text  { pos, .. } => *pos,
+            FrameItem::Line  { start, .. } => *start,
+            FrameItem::Glyph { pos, .. } => *pos,
+            FrameItem::Image { pos, .. } => *pos,
+            FrameItem::Shape { pos, .. } => *pos,
+            FrameItem::Group { pos, .. } => *pos,
+        }
+    }
+
+    // Fase 1 — Invariantes de estado (macro)
+    #[test]
+    fn stress_81_5_tres_paginas_com_snapshots_correctos() {
+        let doc = compilar_stress_81_5();
+
+        assert_eq!(doc.pages.len(), 3,
+            "SetPage deve criar exactamente 2 quebras de página (3 snapshots)");
+
+        // Página 1: A4 padrão (595.28 × 841.89).
+        assert!((doc.pages[0].width  - 595.28).abs() < 0.01,
+            "Página 1 deve preservar A4 width (595.28pt), obteve {}",
+            doc.pages[0].width);
+        assert!((doc.pages[0].height - 841.89).abs() < 0.01,
+            "Página 1 deve preservar A4 height (841.89pt), obteve {}",
+            doc.pages[0].height);
+
+        // Página 2: 400×300pt.
+        assert!((doc.pages[1].width  - 400.0).abs() < 0.01);
+        assert!((doc.pages[1].height - 300.0).abs() < 0.01);
+
+        // Página 3: 200×200pt.
+        assert!((doc.pages[2].width  - 200.0).abs() < 0.01);
+        assert!((doc.pages[2].height - 200.0).abs() < 0.01);
+    }
+
+    // Fase 2 — Grid usa available_width da página activa (não A4)
+    #[test]
+    fn stress_81_5_grid_usa_available_width_da_pagina_activa() {
+        use typst_core::entities::layout_types::FrameItem;
+        let doc = compilar_stress_81_5();
+        let items = &doc.pages[1].items;
+
+        // available_width da página 2 = 400 - 2*20 = 360pt; total_fr = 3.
+        // Col 0 (1fr) = 120pt começando em x=20.
+        // Col 1 (2fr) = 240pt começando em x=140.
+        //
+        // O rect(100×50) está na célula (linha 1, col 0) → x ≈ 20.
+        // O rect(80×30) está na célula (linha 1, col 1) → x ≈ 140.
+        //
+        // Se o Grid usasse A4 available_width (595.28 - 141.74 ≈ 453.54),
+        // col 1 estaria em x ≈ 70.87 + 151.18 ≈ 222 — inconsistente com 140.
+
+        let shape_positions: Vec<(f64, f64, f64, f64)> = items.iter()
+            .filter_map(|it| match it {
+                FrameItem::Shape { pos, width, height, .. } =>
+                    Some((pos.x.0, pos.y.0, *width, *height)),
+                _ => None,
+            })
+            .collect();
+
+        // Deve existir um rect de 100×50 no col 0 da segunda linha.
+        let rect_100 = shape_positions.iter()
+            .find(|(_, _, w, h)| (*w - 100.0).abs() < 0.1 && (*h - 50.0).abs() < 0.1)
+            .expect("rect(100×50) deve existir como FrameItem::Shape na página 2");
+        assert!((rect_100.0 - 20.0).abs() < 0.5,
+            "rect(100×50) deve estar em col 0 (x ≈ 20pt na página 400/20), obteve x={}",
+            rect_100.0);
+
+        // Deve existir um rect de 80×30 no col 1 da segunda linha.
+        let rect_80 = shape_positions.iter()
+            .find(|(_, _, w, h)| (*w - 80.0).abs() < 0.1 && (*h - 30.0).abs() < 0.1)
+            .expect("rect(80×30) deve existir como FrameItem::Shape na página 2");
+        assert!((rect_80.0 - 140.0).abs() < 0.5,
+            "rect(80×30) deve estar em col 1 (x ≈ 140pt = margin + 1fr_width), obteve x={}",
+            rect_80.0);
+    }
+
+    // Fase 3 — Row height avança cursor correctamente
+    #[test]
+    fn stress_81_5_row_height_e_maximo_da_linha() {
+        use typst_core::entities::layout_types::FrameItem;
+        let doc = compilar_stress_81_5();
+        let items = &doc.pages[1].items;
+
+        let rect_50 = items.iter()
+            .find_map(|it| match it {
+                FrameItem::Shape { pos, height, .. } if (*height - 50.0).abs() < 0.1
+                    => Some(*pos),
+                _ => None,
+            })
+            .expect("rect(100×50) deve existir na página 2");
+
+        // Os items da linha 0 incluem o FrameItem::Group (move + rect) e texto
+        // da célula (0,1). A linha 1 (onde estão os rects 100 e 80) deve estar
+        // visualmente abaixo.
+        let first_row_y_max: f64 = items.iter()
+            .filter_map(|it| match it {
+                // Excluir shapes da linha 1 (100×50 e 80×30) — procuramos só
+                // items da linha 0.
+                FrameItem::Shape { height, .. }
+                    if (*height - 50.0).abs() < 0.1 || (*height - 30.0).abs() < 0.1 => None,
+                other => Some(frame_item_pos(other).y.0),
+            })
+            .fold(f64::NEG_INFINITY, f64::max);
+
+        assert!(rect_50.y.0 >= first_row_y_max,
+            "Linha 1 do grid deve estar ao nível ou abaixo da linha 0. \
+             rect_50 y={}, first_row_y_max={}",
+            rect_50.y.0, first_row_y_max);
+    }
+
+    // Fase 4 — Anti-regressão: nenhum item excede os limites físicos da página 2
+    #[test]
+    fn stress_81_5_nenhum_item_excede_limites_da_pagina_2() {
+        use typst_core::entities::layout_types::FrameItem;
+        let doc = compilar_stress_81_5();
+        let items = &doc.pages[1].items;
+
+        for item in items {
+            let pos = frame_item_pos(item);
+            assert!(pos.x.0 <= 400.0,
+                "Item {:?} excede largura da página 2 (400pt): x={}",
+                item, pos.x.0);
+            assert!(pos.y.0 <= 300.0,
+                "Item {:?} excede altura da página 2 (300pt): y={}. \
+                 Possível causa: inversão Y ou new_page usou 841.89pt (A4) em vez de 300pt.",
+                item, pos.y.0);
+
+            // Verificar recursivamente itens dentro de Groups (Transforms).
+            if let FrameItem::Group { pos: group_pos, items: sub_items, .. } = item {
+                for sub in sub_items {
+                    let sub_pos = frame_item_pos(sub);
+                    let abs_x = group_pos.x.0 + sub_pos.x.0;
+                    let abs_y = group_pos.y.0 + sub_pos.y.0;
+                    assert!(abs_x <= 400.0,
+                        "Item transformado excede largura da página 2: abs_x={}", abs_x);
+                    assert!(abs_y <= 300.0,
+                        "Item transformado excede altura da página 2: abs_y={}. \
+                         Possível causa: Transform usou page_height global em vez de snapshot.",
+                        abs_y);
+                }
+            }
+        }
+    }
+
+    // Fase 5 — PDF tem três MediaBox distintos e correctos
+    #[test]
+    fn stress_81_5_pdf_tem_tres_mediabox_distintos() {
+        let doc = compilar_stress_81_5();
+        let pdf = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert!(pdf_str.contains("[0 0 595.28 841.89]"),
+            "PDF: página 1 deve ter MediaBox A4");
+        assert!(pdf_str.contains("[0 0 400.00 300.00]"),
+            "PDF: página 2 deve ter MediaBox 400×300pt");
+        assert!(pdf_str.contains("[0 0 200.00 200.00]"),
+            "PDF: página 3 deve ter MediaBox 200×200pt");
+
+        // Nenhum MediaBox híbrido — sinal de vazamento catastrófico de dimensão.
+        assert!(!pdf_str.contains("[0 0 400.00 841.89]"),
+            "PDF: MediaBox híbrido detectado — height da página 2 vazou para A4");
+        assert!(!pdf_str.contains("[0 0 595.28 300.00]"),
+            "PDF: MediaBox híbrido detectado — width da página 2 ficou em A4");
+        assert!(!pdf_str.contains("[0 0 200.00 841.89]"),
+            "PDF: MediaBox híbrido detectado — height da página 3 vazou para A4");
+
+        let count = pdf_str.matches("/MediaBox").count();
+        assert_eq!(count, 3,
+            "PDF deve ter exactamente 3 /MediaBox, encontrou {}", count);
+    }
 }
