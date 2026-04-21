@@ -325,6 +325,7 @@ fn eval_expr(
         Expr::Str(node)   => Ok(Value::Str(EcoString::from(node.get()))),
         Expr::Bool(node)  => Ok(Value::Bool(node.get())),
         Expr::None(_)     => Ok(Value::None),
+        Expr::Auto(_)     => Ok(Value::Auto),
 
         Expr::Ident(ident) => {
             let name = ident.as_str();
@@ -768,6 +769,11 @@ fn eval_expr(
             }
             Ok(Value::Array(items))
         }
+
+        // `(expr)` — parêntese de agrupamento. Expressão única dentro de
+        // parênteses avalia para o valor da expressão. Passo 83.
+        // (Um tuplo com um elemento requer a vírgula trailing: `(x,)`.)
+        Expr::Parenthesized(paren) => eval_expr(paren.expr(), scopes, ctx),
 
         // Passo 76 — literais numéricos com unidade (ex: 100pt, 1.5em).
         Expr::Numeric(num) => {

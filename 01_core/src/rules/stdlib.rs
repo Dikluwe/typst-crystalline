@@ -1078,6 +1078,8 @@ fn parse_track_sizing(val: &Value) -> Option<TrackSizing> {
 fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
     match val {
         Some(Value::Array(arr)) => arr.iter().filter_map(parse_track_sizing).collect(),
+        // `grid(rows: 3)` ou `grid(columns: 3)` → 3 tracks Auto (Passo 83).
+        Some(Value::Int(n)) if *n > 0 => vec![TrackSizing::Auto; *n as usize],
         Some(v) => parse_track_sizing(v).into_iter().collect(),
         None    => vec![],
     }
@@ -1093,8 +1095,16 @@ pub fn native_grid(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
             )]);
         }
     }
-    let columns = extract_tracks(args.named.get("columns"));
-    let rows    = extract_tracks(args.named.get("rows"));
+    let mut columns = extract_tracks(args.named.get("columns"));
+    let mut rows    = extract_tracks(args.named.get("rows"));
+    // Defaults Passo 83 — `rows` omitido ou tuplo vazio → uma linha Auto repetida
+    // para todas as linhas geradas pelo número de cells. Idem para columns.
+    if columns.is_empty() {
+        columns = vec![TrackSizing::Auto];
+    }
+    if rows.is_empty() {
+        rows = vec![TrackSizing::Auto];
+    }
     let cells: Vec<Content> = args.items.iter()
         .filter_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
         .collect();

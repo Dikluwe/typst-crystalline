@@ -146,6 +146,14 @@ pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Definido como true por `layout_sub_frame_with_width` e restaurado
     /// ao regressar ao contexto pai.
     is_height_unconstrained: bool,
+    /// Altura conhecida da célula de Grid em curso. Passo 83.
+    ///
+    /// Quando `Some(h)`, `Content::Align` usa `h` como `available_h` em
+    /// `resolve_alignment` — `VAlign::Bottom` ancora ao limite inferior
+    /// da célula e `VAlign::Horizon` centra verticalmente. Sobrepõe-se a
+    /// `is_height_unconstrained`. Salvo e restaurado por célula no braço
+    /// `Content::Grid`. `None` no fluxo normal da página.
+    cell_available_h: Option<f64>,
 }
 
 impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
@@ -168,6 +176,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             counter:         CounterState::new(),
             figure_progress: std::collections::HashMap::new(),
             is_height_unconstrained: false,
+            cell_available_h:        None,
         }
     }
 
@@ -576,54 +585,61 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.cursor_y += Pt(new_h);
             }
 
-            Content::Grid { columns, rows: _, cells } => {
-                // rows ignorado — DEBT-34b.
+            Content::Grid { columns, rows, cells } => {
                 let available_width = self.available_width();
 
-                let cols = if columns.is_empty() {
+                // Guarda Passo 83 — colunas vazias caem em [Auto].
+                let cols: Vec<TrackSizing> = if columns.is_empty() {
                     vec![TrackSizing::Auto]
                 } else {
                     columns.clone()
                 };
                 let num_cols = cols.len();
 
-                // Pré-agrupamento: associar células às colunas para medir Auto.
+                // Guarda Passo 83 — rows vazias caem em [Auto] para evitar
+                // panic por divisão por zero em N % rows.len() quando o AST
+                // é construído manualmente (testes que ignoram a stdlib).
+                let row_tracks: Vec<TrackSizing> = if rows.is_empty() {
+                    vec![TrackSizing::Auto]
+                } else {
+                    rows.clone()
+                };
+
+                // ── Resolução de larguras (Passo 80, inalterado) ──────
                 let mut cols_cells: Vec<Vec<usize>> = vec![vec![]; num_cols];
                 for (idx, _) in cells.iter().enumerate() {
                     cols_cells[idx % num_cols].push(idx);
                 }
 
-                // Fase 1: resolver Fixed e Auto.
                 let mut resolved_widths = vec![0.0_f64; num_cols];
-                let mut total_fixed     = 0.0_f64;
-                let mut total_fr        = 0.0_f64;
+                let mut total_fixed_w   = 0.0_f64;
+                let mut total_fr_w      = 0.0_f64;
 
                 for (i, sizing) in cols.iter().enumerate() {
                     match sizing {
                         TrackSizing::Fixed(w) => {
                             resolved_widths[i] = *w;
-                            total_fixed += *w;
+                            total_fixed_w     += *w;
                         }
                         TrackSizing::Auto => {
-                            let safe = (available_width - total_fixed).max(0.0);
+                            let safe = (available_width - total_fixed_w).max(0.0);
                             let mut max_w = 0.0_f64;
                             for &ci in &cols_cells[i] {
                                 let (w, _) = self.measure_content_constrained(&cells[ci], safe);
                                 max_w = max_w.max(w);
                             }
                             resolved_widths[i] = max_w;
-                            total_fixed += max_w;
+                            total_fixed_w     += max_w;
                         }
                         TrackSizing::Fraction(fr) => {
-                            total_fr += fr;
+                            total_fr_w += fr;
                         }
                     }
                 }
 
-                // Fase 2: distribuir fracções.
-                let remaining = (available_width - total_fixed).max(0.0);
-                if total_fr > 0.0 {
-                    let per_fr = remaining / total_fr;
+                let remaining_w = (available_width - total_fixed_w).max(0.0);
+                if total_fr_w > 0.0 {
+                    let per_fr = remaining_w / total_fr_w;
                     for (i, sizing) in cols.iter().enumerate() {
                         if let TrackSizing::Fraction(fr) = sizing {
                             resolved_widths[i] = fr * per_fr;
@@ -631,7 +647,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     }
                 }
 
-                // Calcular posição X inicial de cada coluna.
+                // X de cada coluna.
                 let mut col_starts = vec![0.0_f64; num_cols];
                 {
                     let mut x = self.page_config.margin;
@@ -641,66 +657,138 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     }
                 }
 
-                // Fase 3: layout das células.
-                self.flush_line();
+                // ── Particionar items em linhas ──────────────────────
+                let rows_of_items: Vec<&[Content]> = cells.chunks(num_cols).collect();
+                let num_rows_produced = rows_of_items.len();
 
-                let mut current_col    = 0usize;
-                let mut row_start_y    = self.cursor_y.0;
-                let mut row_max_h      = 0.0_f64;
+                // ── Resolução de alturas (Passo 83): 3 passagens ─────
+                // Fase 1 — Fixed e Auto numa travessia. Auto mede via
+                // layout_sub_frame_with_width (DEBT-38: medição descartada).
+                let mut row_heights: Vec<f64> = vec![0.0; num_rows_produced];
+                let mut total_fixed_and_auto: f64 = 0.0;
+                let mut fraction_indices: Vec<(usize, f64)> = Vec::new();
 
-                for cell in cells {
-                    if current_col == 0 {
-                        row_start_y = self.cursor_y.0;
-                        row_max_h   = 0.0;
-                    }
-
-                    let cell_w = resolved_widths[current_col];
-                    let cell_x = col_starts[current_col];
-
-                    // Layout isolado: salvar estado, correr layout, restaurar.
-                    let saved_cursor_x = self.cursor_x;
-                    let saved_cursor_y = self.cursor_y;
-                    let (cell_h, cell_items) = self.layout_sub_frame_with_width(cell, cell_x, cell_w);
-                    self.cursor_x = saved_cursor_x;
-                    self.cursor_y = saved_cursor_y;
-
-                    // Transferir items com posições absolutas.
-                    //
-                    // O sub-layout usa `cell_x` como cursor inicial, por isso `lx` é
-                    // já a coordenada absoluta na página para items na primeira linha
-                    // da célula. Apenas a coordenada vertical precisa de ser rebaseada
-                    // para `row_start_y`.
-                    let _ = cell_x;
-                    let local_start_y = {
-                        let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
-                        ascender.0
-                    };
-                    for item in cell_items {
-                        let (lx, ly) = item_pos(&item);
-                        let abs_pos = Point {
-                            x: Pt(lx),
-                            y: Pt(row_start_y + (ly - local_start_y)),
-                        };
-                        let translated = translate_frame_item(item, abs_pos.x, abs_pos.y);
-                        self.current_items.push(translated);
-                    }
-
-                    row_max_h = row_max_h.max(cell_h);
-                    current_col += 1;
-
-                    if current_col >= num_cols {
-                        current_col = 0;
-                        self.cursor_y = Pt(row_start_y + row_max_h);
-                        if self.cursor_y.0 > self.page_config.height - self.page_config.margin {
-                            self.new_page();
-                            row_start_y = self.cursor_y.0;
+                for (row_idx, row_items) in rows_of_items.iter().enumerate() {
+                    let track = &row_tracks[row_idx % row_tracks.len()];
+                    match track {
+                        TrackSizing::Fixed(pt) => {
+                            row_heights[row_idx] = *pt;
+                            total_fixed_and_auto += *pt;
+                        }
+                        TrackSizing::Auto => {
+                            let mut max_h = 0.0_f64;
+                            for (col_idx, item) in row_items.iter().enumerate() {
+                                if col_idx >= num_cols { break; }
+                                let cell_w = resolved_widths[col_idx];
+                                let cell_x = col_starts[col_idx];
+                                let (sub_h, _sub_items) =
+                                    self.layout_sub_frame_with_width(item, cell_x, cell_w);
+                                if sub_h > max_h {
+                                    max_h = sub_h;
+                                }
+                            }
+                            row_heights[row_idx] = max_h;
+                            total_fixed_and_auto += max_h;
+                        }
+                        TrackSizing::Fraction(fr) => {
+                            fraction_indices.push((row_idx, *fr));
                         }
                     }
                 }
 
-                // Linha incompleta no fim.
-                if current_col > 0 {
-                    self.cursor_y = Pt(row_start_y + row_max_h);
+                // Garantir linha limpa antes do Grid.
+                self.flush_line();
+
+                // Fase 1.5 — paginação ANTES da fase 2 de Fraction.
+                // Se Fixed+Auto não cabe no resto da página actual mas cabe
+                // numa página vazia, quebrar agora — assim cursor_y fica
+                // estabilizado e a fase 2 calcula `fr` com o available_below
+                // correcto. Se o Grid é maior que uma página inteira, aceita
+                // overflow (não chama new_page() em loop).
+                let space_left = f64::max(0.0, self.page_bottom_limit() - self.cursor_y.0);
+                if total_fixed_and_auto > space_left {
+                    let page_usable_height = self.page_config.height - 2.0 * self.page_config.margin;
+                    if total_fixed_and_auto <= page_usable_height {
+                        self.new_page();
+                    }
+                }
+
+                // Fase 2 — resolver Fraction com cursor_y estabilizado.
+                if !fraction_indices.is_empty() {
+                    let grid_top_y = self.cursor_y.0;
+                    let available_below = f64::max(0.0, self.page_bottom_limit() - grid_top_y);
+                    if total_fixed_and_auto > available_below {
+                        // Caso patológico residual (Grid > página inteira):
+                        // não distribuir espaço negativo, atribuir 0pt aos fr.
+                        for (row_idx, _fr) in &fraction_indices {
+                            row_heights[*row_idx] = 0.0;
+                        }
+                    } else {
+                        let remaining_v = available_below - total_fixed_and_auto;
+                        let total_fr: f64 = fraction_indices.iter().map(|(_, fr)| fr).sum();
+                        if total_fr > 0.0 {
+                            for (row_idx, fr) in &fraction_indices {
+                                row_heights[*row_idx] = remaining_v * (fr / total_fr);
+                            }
+                        }
+                    }
+                }
+
+                // ── Emissão de células linha a linha ──────────────────
+                let local_start_y = {
+                    let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
+                    ascender.0
+                };
+
+                for (row_idx, row_items) in rows_of_items.iter().enumerate() {
+                    let row_h = row_heights[row_idx];
+
+                    // Quebra durante a emissão se a linha individual não cabe
+                    // (caso conservador: começar a linha no topo da página seguinte).
+                    // Se a linha for maior que uma página inteira, aceitar overflow.
+                    if self.cursor_y.0 + row_h > self.page_bottom_limit() {
+                        let page_usable_height = self.page_config.height - 2.0 * self.page_config.margin;
+                        if row_h <= page_usable_height {
+                            self.new_page();
+                        }
+                    }
+
+                    let row_start_y = self.cursor_y.0;
+
+                    for (col_idx, cell) in row_items.iter().enumerate() {
+                        if col_idx >= num_cols { break; }
+                        let cell_w = resolved_widths[col_idx];
+                        let cell_x = col_starts[col_idx];
+
+                        // Definir o contexto de altura da célula para
+                        // Content::Align dentro deste sub-layout (Passo 83).
+                        let saved_cell_h = self.cell_available_h;
+                        self.cell_available_h = Some(row_h);
+
+                        let saved_cursor_x = self.cursor_x;
+                        let saved_cursor_y = self.cursor_y;
+                        let (_cell_h, cell_items) =
+                            self.layout_sub_frame_with_width(cell, cell_x, cell_w);
+                        self.cursor_x = saved_cursor_x;
+                        self.cursor_y = saved_cursor_y;
+
+                        self.cell_available_h = saved_cell_h;
+
+                        // Transferir items com posições absolutas (Y rebaseado
+                        // a row_start_y, compensando o ascender_local).
+                        for item in cell_items {
+                            let (lx, ly) = item_pos(&item);
+                            let abs_pos = Point {
+                                x: Pt(lx),
+                                y: Pt(row_start_y + (ly - local_start_y)),
+                            };
+                            let translated = translate_frame_item(item, abs_pos.x, abs_pos.y);
+                            self.current_items.push(translated);
+                        }
+                    }
+
+                    // Avançar cursor para o fim da linha (altura conhecida).
+                    self.cursor_y = Pt(row_start_y + row_h);
                 }
             }
 
@@ -791,20 +879,21 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     self.new_page();
                 }
 
-                // Em contexto sem altura delimitada, VAlign::Bottom e VAlign::Horizon
-                // decaem para Top — is_height_unconstrained foi restaurado, mas o
-                // sub_frame propagou-o para o cálculo. Aqui consulta-se o estado do
-                // contexto pai (que é o que importa para decidir se há "fundo").
-                let effective_v = if self.is_height_unconstrained {
-                    None
+                // Selecção de remaining_h e VAlign efectivo (Passo 83).
+                //
+                // Prioridade: cell_available_h > is_height_unconstrained > página.
+                // Dentro de uma célula de Grid (`cell_available_h = Some(h)`), a
+                // altura é conhecida — Bottom e Horizon ancoram à célula.
+                // No fluxo livre (sub_frame sem cell), Bottom/Horizon decaem
+                // para Top (sem "fundo" para ancorar).
+                // No fluxo normal da página, usar o espaço restante até à margem.
+                let (remaining_h, effective_v) = if let Some(cell_h) = self.cell_available_h {
+                    (cell_h, alignment.v)
+                } else if self.is_height_unconstrained {
+                    (sub_h, None)
                 } else {
-                    alignment.v
-                };
-
-                let remaining_h = if self.is_height_unconstrained {
-                    sub_h
-                } else {
-                    f64::max(0.0, self.page_bottom_limit() - self.cursor_y.0)
+                    let space = f64::max(0.0, self.page_bottom_limit() - self.cursor_y.0);
+                    (space, alignment.v)
                 };
 
                 let effective_align = Align2D {
@@ -833,9 +922,17 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     self.current_items.push(translate_frame_item(item, new_x, new_y));
                 }
 
-                // Avançar cursor Y. VAlign::Horizon/Bottom consomem o resto da página.
-                match effective_v {
-                    Some(VAlign::Horizon) | Some(VAlign::Bottom) => {
+                // Avançar cursor Y.
+                //
+                // Dentro de uma célula (cell_available_h = Some), o avanço é
+                // governado pelo Grid (que repõe cursor_y após emitir cada
+                // linha). Manter o cursor próximo do conteúdo (target_y + sub_h)
+                // permite que conteúdo subsequente da mesma célula siga abaixo
+                // sem saltar para o fundo.
+                //
+                // No fluxo de página, VAlign::Horizon/Bottom consomem o resto.
+                match (self.cell_available_h.is_some(), effective_v) {
+                    (false, Some(VAlign::Horizon)) | (false, Some(VAlign::Bottom)) => {
                         self.cursor_y = Pt(self.page_bottom_limit());
                     }
                     _ => {
@@ -907,15 +1004,21 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
     }
 
     fn flush_line(&mut self) {
+        // Avançar cursor_y apenas se havia items pendentes na linha actual
+        // (Passo 83). Caso contrário, flush_line é um no-op semanticamente
+        // — evita acumular line_height em cascata quando Shape/Image/Heading
+        // chamam flush_line por segurança antes do seu próprio push.
+        let had_items = !self.current_line.is_empty();
         for item in self.current_line.drain(..) {
             self.current_items.push(item);
         }
-        // Avançar pela line_height do tamanho base (não do heading)
-        let (_, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
-        self.cursor_y += line_height;
+        if had_items {
+            let (_, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
+            self.cursor_y += line_height;
+        }
         // Reiniciar ao início da linha actual — margem da página, ou cell_x
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).
-        self.cursor_x  = self.line_start_x;
+        self.cursor_x = self.line_start_x;
 
         if self.cursor_y.0 > self.page_config.height - self.page_config.margin {
             self.new_page();
