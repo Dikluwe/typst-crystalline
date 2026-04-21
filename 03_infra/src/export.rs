@@ -670,18 +670,46 @@ fn build_page_stream_type1(
                             pos.x.val(), pdf_y, width, height));
                     }
                     ShapeKind::Ellipse => {
-                        // TODO: substituir por aproximação Bézier real (DEBT-31).
-                        // Placeholder: rectângulo para manter PDF válido.
-                        ops.push_str(&format!("{:.2} {:.2} {:.2} {:.2} re\n",
-                            pos.x.val(), pdf_y, width, height));
+                        // κ = 4*(√2−1)/3 ≈ 0.5523: minimiza erro de arredondamento para qualquer raio.
+                        const KAPPA: f64 = 0.552_284_749_831;
+                        let cx = pos.x.val() + width  / 2.0;
+                        let cy = pdf_y       + height / 2.0;
+                        let rx = width  / 2.0;
+                        let ry = height / 2.0;
+                        let ox = rx * KAPPA;
+                        let oy = ry * KAPPA;
+                        // Mover para o topo da elipse.
+                        ops.push_str(&format!("{:.3} {:.3} m\n", cx, cy + ry));
+                        // 1º quadrante: topo → direita
+                        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                            cx + ox, cy + ry, cx + rx, cy + oy, cx + rx, cy));
+                        // 4º quadrante: direita → base
+                        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                            cx + rx, cy - oy, cx + ox, cy - ry, cx, cy - ry));
+                        // 3º quadrante: base → esquerda
+                        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                            cx - ox, cy - ry, cx - rx, cy - oy, cx - rx, cy));
+                        // 2º quadrante: esquerda → topo (fecha a elipse)
+                        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                            cx - rx, cy + oy, cx - ox, cy + ry, cx, cy + ry));
                     }
                     ShapeKind::Line { dx, dy } => {
-                        // start_y: Y do ponto de início no espaço PDF.
-                        // dy positivo = desce no layout → subtrai no PDF (eixos opostos).
-                        let start_y = page_height - pos.y.val();
-                        let end_y   = page_height - (pos.y.val() + dy);
-                        ops.push_str(&format!("{:.2} {:.2} m\n", pos.x.val(), start_y));
-                        ops.push_str(&format!("{:.2} {:.2} l\n", pos.x.val() + dx, end_y));
+                        // pdf_y é o canto inferior esquerdo da bounding box (já calculado acima).
+                        // width e height são os valores absolutos do layouter (dx.abs(), dy.abs()).
+                        // dx > 0: início à esquerda, fim à direita da caixa.
+                        // dx < 0: início à direita, fim à esquerda da caixa.
+                        let start_offset_x = if *dx < 0.0 { *width }  else { 0.0 };
+                        let end_offset_x   = if *dx < 0.0 { 0.0 }     else { *width };
+                        // dy > 0: desce no layout → início no topo PDF (pdf_y + height), fim na base (pdf_y).
+                        // dy < 0: sobe no layout  → início na base PDF (pdf_y), fim no topo (pdf_y + height).
+                        let start_offset_y = if *dy > 0.0 { *height } else { 0.0 };
+                        let end_offset_y   = if *dy > 0.0 { 0.0 }     else { *height };
+                        let start_x = pos.x.val() + start_offset_x;
+                        let start_y = pdf_y        + start_offset_y;
+                        let end_x   = pos.x.val() + end_offset_x;
+                        let end_y   = pdf_y        + end_offset_y;
+                        ops.push_str(&format!("{:.3} {:.3} m\n", start_x, start_y));
+                        ops.push_str(&format!("{:.3} {:.3} l\n", end_x,   end_y));
                     }
                 }
 
@@ -695,10 +723,96 @@ fn build_page_stream_type1(
 
                 ops.push_str("Q\n");
             }
+            FrameItem::Group { pos, matrix, items } => {
+                // pdf_y: topo do grupo na página em coordenadas PDF (Y-up).
+                let pdf_y = page_height - pos.y.val();
+
+                // O layouter usa Y-down; o PDF usa Y-up.
+                // Os componentes de cisalhamento b e c são invertidos para corrigir a paridade.
+                ops.push_str("q\n");
+                ops.push_str(&format!(
+                    "{:.4} {:.4} {:.4} {:.4} {:.4} {:.4} cm\n",
+                    matrix.a,
+                    -matrix.b,
+                    -matrix.c,
+                    matrix.d,
+                    pos.x.val() + matrix.tx,
+                    pdf_y       - matrix.ty,
+                ));
+                for child in items {
+                    draw_item_local(&mut ops, child);
+                }
+                ops.push_str("Q\n");
+            }
         }
     }
 
     ops.into_bytes()
+}
+
+/// Desenha um `FrameItem` em espaço LOCAL (após `cm`).
+///
+/// Diferença de `draw_item_global`: não subtrai `page_height` — a matriz `cm`
+/// já aplicou a transformação e a inversão Y. Os filhos usam `pos.y.0` directamente.
+fn draw_item_local(ops: &mut String, item: &FrameItem) {
+    use typst_core::entities::geometry::ShapeKind;
+    use typst_core::entities::layout_types::FrameItem;
+    match item {
+        FrameItem::Shape { pos, kind, width, height, fill, stroke } => {
+            let local_y = pos.y.0;
+            ops.push_str("q\n");
+            if let Some(c) = fill {
+                let (r, g, b, _) = c.to_rgba_f32();
+                ops.push_str(&format!("{:.3} {:.3} {:.3} rg\n", r, g, b));
+            }
+            if let Some(s) = stroke {
+                let (r, g, b, _) = s.paint.to_rgba_f32();
+                ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, s.thickness));
+            }
+            match kind {
+                ShapeKind::Rect => {
+                    ops.push_str(&format!("{:.2} {:.2} {:.2} {:.2} re\n",
+                        pos.x.0, local_y, width, height));
+                }
+                ShapeKind::Ellipse => {
+                    const KAPPA: f64 = 0.552_284_749_831;
+                    let cx = pos.x.0 + width  / 2.0;
+                    let cy = local_y  + height / 2.0;
+                    let rx = width  / 2.0;
+                    let ry = height / 2.0;
+                    let ox = rx * KAPPA;
+                    let oy = ry * KAPPA;
+                    ops.push_str(&format!("{:.3} {:.3} m\n", cx, cy + ry));
+                    ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                        cx + ox, cy + ry, cx + rx, cy + oy, cx + rx, cy));
+                    ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                        cx + rx, cy - oy, cx + ox, cy - ry, cx, cy - ry));
+                    ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                        cx - ox, cy - ry, cx - rx, cy - oy, cx - rx, cy));
+                    ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                        cx - rx, cy + oy, cx - ox, cy + ry, cx, cy + ry));
+                }
+                ShapeKind::Line { dx, dy } => {
+                    let start_offset_x = if *dx < 0.0 { *width }  else { 0.0 };
+                    let end_offset_x   = if *dx < 0.0 { 0.0 }     else { *width };
+                    let start_offset_y = if *dy > 0.0 { *height } else { 0.0 };
+                    let end_offset_y   = if *dy > 0.0 { 0.0 }     else { *height };
+                    ops.push_str(&format!("{:.3} {:.3} m\n",
+                        pos.x.0 + start_offset_x, local_y + start_offset_y));
+                    ops.push_str(&format!("{:.3} {:.3} l\n",
+                        pos.x.0 + end_offset_x, local_y + end_offset_y));
+                }
+            }
+            match (fill.is_some(), stroke.is_some()) {
+                (true,  true)  => ops.push_str("B\n"),
+                (true,  false) => ops.push_str("f\n"),
+                (false, true)  => ops.push_str("S\n"),
+                (false, false) => {}
+            }
+            ops.push_str("Q\n");
+        }
+        _ => {}  // Texto e outros tipos em grupos: adiado para passo futuro.
+    }
 }
 
 fn escape_pdf_string(text: &str) -> String {
@@ -881,16 +995,34 @@ fn build_page_stream_cidfont(
                             pos.x.val(), pdf_y, width, height));
                     }
                     ShapeKind::Ellipse => {
-                        // TODO: substituir por aproximação Bézier real (DEBT-31).
-                        ops.push_str(&format!("{:.2} {:.2} {:.2} {:.2} re\n",
-                            pos.x.val(), pdf_y, width, height));
+                        const KAPPA: f64 = 0.552_284_749_831;
+                        let cx = pos.x.val() + width  / 2.0;
+                        let cy = pdf_y       + height / 2.0;
+                        let rx = width  / 2.0;
+                        let ry = height / 2.0;
+                        let ox = rx * KAPPA;
+                        let oy = ry * KAPPA;
+                        ops.push_str(&format!("{:.3} {:.3} m\n", cx, cy + ry));
+                        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                            cx + ox, cy + ry, cx + rx, cy + oy, cx + rx, cy));
+                        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                            cx + rx, cy - oy, cx + ox, cy - ry, cx, cy - ry));
+                        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                            cx - ox, cy - ry, cx - rx, cy - oy, cx - rx, cy));
+                        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                            cx - rx, cy + oy, cx - ox, cy + ry, cx, cy + ry));
                     }
                     ShapeKind::Line { dx, dy } => {
-                        let start_y = page_height - pos.y.val();
-                        // dy positivo = desce no layout → subtrai no PDF (eixos opostos).
-                        let end_y   = page_height - (pos.y.val() + dy);
-                        ops.push_str(&format!("{:.2} {:.2} m\n", pos.x.val(), start_y));
-                        ops.push_str(&format!("{:.2} {:.2} l\n", pos.x.val() + dx, end_y));
+                        let start_offset_x = if *dx < 0.0 { *width }  else { 0.0 };
+                        let end_offset_x   = if *dx < 0.0 { 0.0 }     else { *width };
+                        let start_offset_y = if *dy > 0.0 { *height } else { 0.0 };
+                        let end_offset_y   = if *dy > 0.0 { 0.0 }     else { *height };
+                        let start_x = pos.x.val() + start_offset_x;
+                        let start_y = pdf_y        + start_offset_y;
+                        let end_x   = pos.x.val() + end_offset_x;
+                        let end_y   = pdf_y        + end_offset_y;
+                        ops.push_str(&format!("{:.3} {:.3} m\n", start_x, start_y));
+                        ops.push_str(&format!("{:.3} {:.3} l\n", end_x,   end_y));
                     }
                 }
                 match (fill.is_some(), stroke.is_some()) {
@@ -898,6 +1030,23 @@ fn build_page_stream_cidfont(
                     (true,  false) => ops.push_str("f\n"),
                     (false, true)  => ops.push_str("S\n"),
                     (false, false) => {}
+                }
+                ops.push_str("Q\n");
+            }
+            FrameItem::Group { pos, matrix, items } => {
+                let pdf_y = page_height - pos.y.val();
+                ops.push_str("q\n");
+                ops.push_str(&format!(
+                    "{:.4} {:.4} {:.4} {:.4} {:.4} {:.4} cm\n",
+                    matrix.a,
+                    -matrix.b,
+                    -matrix.c,
+                    matrix.d,
+                    pos.x.val() + matrix.tx,
+                    pdf_y       - matrix.ty,
+                ));
+                for child in items {
+                    draw_item_local(&mut ops, child);
                 }
                 ops.push_str("Q\n");
             }

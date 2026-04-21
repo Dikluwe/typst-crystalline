@@ -1266,4 +1266,106 @@ mod integration {
         assert!(pdf_str.contains(" re\n"), "PDF deve ter rectângulo re");
         assert!(pdf_str.contains("S\n"),   "PDF deve ter paint operator S (stroke only)");
     }
+
+    // ── Passo 77 — Bézier, elipses e deltas negativos ───────────────────────
+
+    #[test]
+    fn export_line_com_delta_negativo_respeita_bounding_box() {
+        // #line(dx: -50pt, dy: -30pt) — linha para a esquerda e para cima.
+        // Com dx < 0, o ponto 'm' deve ter X maior que o ponto 'l' (end_x < start_x).
+        let (world, _dir) = world_from_str("#line(dx: -50pt, dy: -30pt)");
+        let source = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+        let pdf     = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert!(pdf_str.contains(" m\n"), "PDF deve conter operador m");
+        assert!(pdf_str.contains(" l\n"), "PDF deve conter operador l");
+
+        fn extrair_x_antes_op(s: &str, op: &str) -> f64 {
+            // O operador tem formato "X Y op" — extrair o penúltimo token.
+            s.split(op).next()
+                .and_then(|antes| {
+                    let toks: Vec<&str> = antes.split_whitespace().collect();
+                    toks.iter().rev().nth(1).and_then(|t| t.parse::<f64>().ok())
+                })
+                .unwrap_or(0.0)
+        }
+
+        let m_x = extrair_x_antes_op(&pdf_str, " m\n");
+        let l_x = extrair_x_antes_op(&pdf_str, " l\n");
+
+        assert!(l_x < m_x,
+            "Linha com dx negativo deve terminar à esquerda do início: \
+             end_x ({}) deve ser menor que start_x ({})", l_x, m_x);
+    }
+
+    #[test]
+    fn export_ellipse_emite_quatro_operadores_bezier() {
+        let (world, _dir) = world_from_str(
+            "#ellipse(width: 80pt, height: 40pt, fill: \"blue\")"
+        );
+        let source = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+        let pdf     = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert_eq!(
+            pdf_str.matches(" c\n").count(), 4,
+            "Elipse deve ser desenhada com exactamente 4 operadores Bézier 'c'"
+        );
+        assert!(pdf_str.contains(" m\n"), "Elipse deve ter um ponto inicial 'm'");
+        assert!(!pdf_str.contains(" re\n"),
+            "Elipse não deve emitir operador re — placeholder foi substituído");
+    }
+
+    // ── Passo 78 — transformações afins ─────────────────────────────────────
+
+    #[test]
+    fn pdf_export_emite_q_cm_q_para_transformacoes() {
+        let (world, _dir) = world_from_str(
+            "#rotate(90deg, rect(width: 100pt, height: 100pt, fill: \"red\"))"
+        );
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+        let pdf     = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert!(pdf_str.contains("q\n"),   "Falta guardar o estado gráfico (q)");
+        assert!(pdf_str.contains(" cm\n"), "Falta a matriz de transformação (cm)");
+        assert!(pdf_str.contains("Q\n"),   "Falta restaurar o estado gráfico (Q)");
+
+        let pos_q       = pdf_str.find("q\n").unwrap();
+        let pos_cm      = pdf_str.find(" cm\n").unwrap();
+        let pos_q_close = pdf_str.rfind("Q\n").unwrap();
+
+        assert!(pos_q  < pos_cm,       "q deve preceder cm");
+        assert!(pos_cm < pos_q_close,  "cm deve preceder Q");
+    }
+
+    #[test]
+    fn export_circle_emite_quatro_operadores_bezier() {
+        let (world, _dir) = world_from_str("#circle(radius: 20pt)");
+        let source = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+        let pdf     = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert_eq!(
+            pdf_str.matches(" c\n").count(), 4,
+            "Circle deve ser desenhado com exactamente 4 operadores Bézier 'c'"
+        );
+    }
 }

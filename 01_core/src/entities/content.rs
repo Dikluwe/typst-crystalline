@@ -11,7 +11,7 @@ use ecow::EcoString;
 use crate::entities::counter_state::CounterAction;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
-use crate::entities::layout_types::{Color, Pt, TextStyle};
+use crate::entities::layout_types::{Color, Pt, TextStyle, TransformMatrix};
 use crate::entities::ptr_eq_arc::PtrEqArc;
 
 /// Conteúdo declarativo produzido por `eval()`.
@@ -224,6 +224,15 @@ pub enum Content {
         stroke: Option<Stroke>,
     },
 
+    /// Aplica uma transformação afim ao conteúdo interno (Passo 78).
+    ///
+    /// O layouter calcula a AABB do conteúdo transformado e reserva o espaço
+    /// correcto na página. O exportador emite q → cm → conteúdo → Q.
+    Transform {
+        matrix: TransformMatrix,
+        body:   Box<Content>,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
@@ -361,6 +370,7 @@ impl Content {
             Self::SetFigureNumbering { .. } => String::new(),
             Self::Image { .. } => String::new(),
             Self::Shape { .. } => String::new(),
+            Self::Transform { body, .. } => body.plain_text(),
         }
     }
 }
@@ -420,6 +430,8 @@ impl PartialEq for Content {
              Self::Shape { kind: kb, width: wb, height: hb, fill: fb, stroke: sb }) =>
                 ka == kb && wa.as_deref() == wb.as_deref() && ha.as_deref() == hb.as_deref()
                     && fa == fb && sa == sb,
+            (Self::Transform { matrix: ma, body: ba }, Self::Transform { matrix: mb, body: bb }) =>
+                ma == mb && ba == bb,
             _ => false,
         }
     }
@@ -550,6 +562,10 @@ impl Content {
             | Content::MathText(_)
             | Content::Image { .. }
             | Content::Shape { .. } => self.clone(),
+            Content::Transform { matrix, body } => Content::Transform {
+                matrix: *matrix,
+                body:   Box::new(body.map_content(transform)?),
+            },
         };
 
         // Passo 2: aplicar a transformação ao nó já processado.
@@ -632,6 +648,10 @@ impl Content {
             | Content::MathCases { .. }
             | Content::Image { .. }
             | Content::Shape { .. } => self.clone(),
+            Content::Transform { matrix, body } => Content::Transform {
+                matrix: *matrix,
+                body:   Box::new(body.map_text(transform)),
+            },
         }
     }
 }

@@ -465,6 +465,14 @@ para que `native_image` construa um caminho absoluto.
 
 ---
 
+## DEBT-32 — Alinhamento da bounding box para linhas com deltas negativos — ENCERRADO ✓ (Passo 77)
+
+O exportador desenhava a linha a partir de `pos.x` sem considerar o sinal de `dx`/`dy`.
+Se `dx < 0`, a linha saía para a esquerda da bounding box. A correcção mapeia
+início/fim dentro da bounding box com base no sinal dos deltas.
+
+---
+
 ## DEBT-30 — Suporte a clipping paths (clip: true) — EM ABERTO (Passo 76)
 
 Contentores com `clip: true` requerem o operador `W` (clipping path) e a sequência
@@ -474,7 +482,7 @@ adicional. Resolução: passo futuro de layout de contentores.
 
 ---
 
-## DEBT-31 — Transformações afins (rotate, scale) em nós — EM ABERTO (Passo 76)
+## DEBT-31 — Transformações afins (rotate, scale) em nós — ENCERRADO ✓ (Passo 78)
 
 Rotação e escala requerem a matriz `cm` com valores não-identidade:
 `[cos -sin sin cos tx ty]` para rotação. A bounding box de um nó rodado não é
