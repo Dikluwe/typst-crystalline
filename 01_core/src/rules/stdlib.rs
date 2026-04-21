@@ -18,7 +18,7 @@ use crate::entities::content::Content;
 use crate::entities::geometry::{PathItem, ShapeKind, Stroke};
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::func::Func;
-use crate::entities::layout_types::{Color, Length, Point, Pt, TrackSizing, TransformMatrix};
+use crate::entities::layout_types::{Align2D, Color, Length, Point, Pt, TrackSizing, TransformMatrix};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -993,6 +993,72 @@ pub fn native_scale(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Val
     Ok(Value::Content(Content::Transform {
         matrix: TransformMatrix::scale(sx, sy),
         body:   Box::new(body),
+    }))
+}
+
+// ── Align / Place (Passo 82) ────────────────────────────────────────────────
+
+/// `align(alignment, body)` → `Content::Align`.
+///
+/// `alignment` é uma string como `"center"` ou `"top-right"` (DEBT-36).
+/// `body` é o primeiro argumento posicional do tipo Content.
+pub fn native_align(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+
+    let position_str = args.items.iter()
+        .find_map(|v| if let Value::Str(s) = v { Some(s.to_string()) } else { None })
+        .unwrap_or_else(|| "left".to_string());
+
+    let body = args.items.iter()
+        .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
+        .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
+            "align() exige um bloco de conteúdo".to_string())])?;
+
+    Ok(Value::Content(Content::Align {
+        alignment: Align2D::from_string(&position_str),
+        body:      Box::new(body),
+    }))
+}
+
+/// `place(alignment, dx?, dy?, body)` → `Content::Place`.
+///
+/// `dx`/`dy` em pt deslocam o conteúdo a partir da posição alinhada.
+pub fn native_place(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+    for key in args.named.keys() {
+        if !["dx", "dy"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("argumento nomeado inesperado em place(): '{}'", key),
+            )]);
+        }
+    }
+
+    fn extract_pt(val: &Value) -> f64 {
+        match val {
+            Value::Float(f)  => *f,
+            Value::Int(i)    => *i as f64,
+            Value::Length(l) => l.abs.to_pt(),
+            _ => 0.0,
+        }
+    }
+
+    let position_str = args.items.iter()
+        .find_map(|v| if let Value::Str(s) = v { Some(s.to_string()) } else { None })
+        .unwrap_or_else(|| "top-left".to_string());
+
+    let dx = args.named.get("dx").map(extract_pt).unwrap_or(0.0);
+    let dy = args.named.get("dy").map(extract_pt).unwrap_or(0.0);
+
+    let body = args.items.iter()
+        .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
+        .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
+            "place() exige um bloco de conteúdo".to_string())])?;
+
+    Ok(Value::Content(Content::Place {
+        alignment: Align2D::from_string(&position_str),
+        dx,
+        dy,
+        body: Box::new(body),
     }))
 }
 

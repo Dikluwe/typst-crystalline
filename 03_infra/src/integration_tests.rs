@@ -1701,4 +1701,124 @@ mod integration {
         assert_eq!(count, 3,
             "PDF deve ter exactamente 3 /MediaBox, encontrou {}", count);
     }
+
+    // ── Passo 82 — Align e Place ─────────────────────────────────────────
+
+    #[test]
+    fn align_center_reposiciona_no_eixo_x() {
+        // Página 400pt de largura, margem 20pt → available_width = 360pt.
+        // Rectângulo de 100pt centrado: target_x = 20 + (360 - 100) / 2 = 150pt.
+        let src = "\
+#set page(width: 400pt, height: 400pt, margin: 20pt)
+#align(\"center\", rect(width: 100pt, height: 20pt))
+";
+        let (world, _dir) = world_from_str(src);
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        let items = &doc.pages[0].items;
+        assert!(!items.is_empty(), "Deve haver pelo menos um item");
+
+        let rect_x = frame_item_pos(&items[0]).x.0;
+        assert!(
+            (rect_x - 150.0).abs() < 0.5,
+            "Rectângulo centrado deve estar em x=150pt, obteve x={:.1}", rect_x
+        );
+    }
+
+    #[test]
+    fn align_right_ancora_a_margem_direita() {
+        // Página 400pt, margem 20pt → available_width = 360pt.
+        // Rectângulo 80pt: target_x = 20 + (360 - 80) = 300pt.
+        let src = "\
+#set page(width: 400pt, height: 400pt, margin: 20pt)
+#align(\"right\", rect(width: 80pt, height: 20pt))
+";
+        let (world, _dir) = world_from_str(src);
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        let rect_x = frame_item_pos(&doc.pages[0].items[0]).x.0;
+        assert!(
+            (rect_x - 300.0).abs() < 0.5,
+            "Rectângulo direita deve estar em x=300pt, obteve x={:.1}", rect_x
+        );
+    }
+
+    #[test]
+    fn place_nao_altera_cursor_y() {
+        // Propriedade a validar: o cursor vertical não avança por causa de Place.
+        // Estratégia: comparar dois documentos idênticos — um sem Place, outro
+        // com Place intercalado. Os rectângulos de fluxo devem ficar em Y
+        // idênticos nos dois casos. Isto evita assumir uma fórmula para o
+        // line_height injectado pelo flush_line de cada Shape.
+        let src_sem_place = "\
+#set page(width: 400pt, height: 400pt, margin: 20pt)
+#rect(width: 100pt, height: 50pt)
+#rect(width: 100pt, height: 30pt)
+";
+        let src_com_place = "\
+#set page(width: 400pt, height: 400pt, margin: 20pt)
+#rect(width: 100pt, height: 50pt)
+#place(\"bottom-right\", rect(width: 60pt, height: 20pt))
+#rect(width: 100pt, height: 30pt)
+";
+
+        let layout_doc = |src: &str| {
+            let (world, _dir) = world_from_str(src);
+            let source  = world.source(world.main()).unwrap();
+            let module  = do_eval(&world, &source).unwrap();
+            let content = module.content().expect("deve ter content");
+            let state   = introspect(content);
+            layout(content, state)
+        };
+
+        let doc_sem   = layout_doc(src_sem_place);
+        let doc_com   = layout_doc(src_com_place);
+
+        let items_sem = &doc_sem.pages[0].items;
+        let items_com = &doc_com.pages[0].items;
+
+        assert_eq!(items_sem.len(), 2, "Doc sem place deve ter 2 rectângulos");
+        assert_eq!(items_com.len(), 3, "Doc com place deve ter 3 FrameItems (2 rect + 1 place)");
+
+        // Rect 1 nas duas versões — mesmo Y.
+        let y0_sem = frame_item_pos(&items_sem[0]).y.0;
+        let y0_com = frame_item_pos(&items_com[0]).y.0;
+        assert!(
+            (y0_sem - y0_com).abs() < 0.5,
+            "Rect 1 deve estar no mesmo Y com e sem place ({} vs {})",
+            y0_sem, y0_com
+        );
+
+        // Rect 3 (com place) vs Rect 2 (sem place) — mesmo Y → Place não avançou cursor.
+        let y_final_sem = frame_item_pos(&items_sem[1]).y.0;
+        let y_final_com = frame_item_pos(&items_com[2]).y.0;
+        assert!(
+            (y_final_sem - y_final_com).abs() < 0.5,
+            "O rectângulo após place deve estar no mesmo Y que sem place \
+             ({} sem place, {} com place) — Place consumiu fluxo",
+            y_final_sem, y_final_com
+        );
+
+        // E o item Place (items_com[1]) deve estar na zona de baixo-direita da página.
+        let y_place = frame_item_pos(&items_com[1]).y.0;
+        let x_place = frame_item_pos(&items_com[1]).x.0;
+        assert!(
+            y_place > 300.0,
+            "Place(bottom-right) deve estar na zona inferior (y > 300pt), obteve y={:.1}",
+            y_place
+        );
+        assert!(
+            x_place > 250.0,
+            "Place(bottom-right) deve estar na zona direita (x > 250pt), obteve x={:.1}",
+            x_place
+        );
+    }
 }

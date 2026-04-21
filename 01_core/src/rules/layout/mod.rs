@@ -20,7 +20,8 @@ use crate::entities::{
     geometry::ShapeKind,
     glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
     image_sizer::{ImageSizer, NullImageSizer},
-    layout_types::{FrameItem, Page, PageConfig, PagedDocument, Point, Pt, TextStyle, TrackSizing, TransformMatrix},
+    layout_types::{Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument, Point, Pt,
+        TextStyle, TrackSizing, TransformMatrix, VAlign},
     math_constants::MathConstants,
 };
 use crate::rules::math;
@@ -137,6 +138,14 @@ pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Índice de progresso por kind para figuras (Passo 75, DEBT-14).
     /// kind → número de figuras já dispostas. Reiniciado por invocação de layout().
     figure_progress: std::collections::HashMap<String, usize>,
+    /// Indica que o contexto de layout actual não tem altura delimitada
+    /// (ex: célula de grid Auto, box sem height explícito). Passo 82.
+    ///
+    /// Quando true, `VAlign::Bottom` e `VAlign::Horizon` em `Content::Align`
+    /// decaem para `VAlign::Top` — não existe "fundo" para ancorar.
+    /// Definido como true por `layout_sub_frame_with_width` e restaurado
+    /// ao regressar ao contexto pai.
+    is_height_unconstrained: bool,
 }
 
 impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
@@ -158,6 +167,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             current_line: Vec::new(),
             counter:         CounterState::new(),
             figure_progress: std::collections::HashMap::new(),
+            is_height_unconstrained: false,
         }
     }
 
@@ -170,6 +180,46 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
     #[allow(dead_code)]
     fn available_height(&self) -> f64 {
         f64::max(0.0, self.page_config.height - 2.0 * self.page_config.margin)
+    }
+
+    /// Limite inferior da página em pontos (`height - margin`). Passo 82.
+    ///
+    /// Usar este método em vez de `page_config.height - page_config.margin`
+    /// inline — evita confundir com `available_height()` (que subtrai 2×margin).
+    fn page_bottom_limit(&self) -> f64 {
+        self.page_config.height - self.page_config.margin
+    }
+
+    /// Calcula a coordenada `(x, y)` do canto superior esquerdo de um item
+    /// dado o alinhamento, as dimensões do conteúdo, e a área disponível.
+    /// Passo 82.
+    ///
+    /// `origin_x` e `origin_y` definem o canto superior esquerdo da área
+    /// de referência (`line_start_x` para Align; `line_start_x`/`margin` para Place).
+    #[allow(clippy::too_many_arguments)]
+    fn resolve_alignment(
+        &self,
+        align:       Align2D,
+        content_w:   f64,
+        content_h:   f64,
+        available_w: f64,
+        available_h: f64,
+        origin_x:    f64,
+        origin_y:    f64,
+    ) -> (f64, f64) {
+        let x = match align.h.unwrap_or(HAlign::Left) {
+            HAlign::Left   => origin_x,
+            HAlign::Center => origin_x + (available_w - content_w) / 2.0,
+            HAlign::Right  => origin_x + (available_w - content_w),
+        };
+
+        let y = match align.v.unwrap_or(VAlign::Top) {
+            VAlign::Top     => origin_y,
+            VAlign::Horizon => origin_y + (available_h - content_h) / 2.0,
+            VAlign::Bottom  => origin_y + (available_h - content_h),
+        };
+
+        (x, y)
     }
 
     /// Fonte de verdade estrutural: a página actual não tem nenhum item visual.
@@ -715,6 +765,122 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     self.new_page();
                 }
             }
+
+            Content::Align { alignment, body } => {
+                // Garantir que não há texto inline pendente antes de posicionar o bloco.
+                // flush_line usa line_start_x (Passo 81.5).
+                self.flush_line();
+
+                let avail_w = self.available_width();
+
+                // Layoutar o corpo num sub-frame — cell_x=0 para que items internos
+                // comecem em x=0. O sub_frame activa is_height_unconstrained=true
+                // e restaura ao terminar.
+                let (sub_h, sub_items) = self.layout_sub_frame_with_width(body, 0.0, avail_w);
+
+                // Origem vertical local do sub-frame (ascender). Necessária para
+                // rebaser as coordenadas Y ao colocar no frame pai.
+                let (ascender_local, _) = self.metrics.vertical_metrics(self.font_size_pt);
+                let sub_origin_y        = ascender_local.0;
+
+                // Largura do conteúdo — medida independente para centrar/alinhar.
+                let (content_w, _) = measure_content(body, avail_w);
+
+                // Verificar quebra de página com a altura do sub-frame.
+                if self.cursor_y.0 + sub_h > self.page_bottom_limit() {
+                    self.new_page();
+                }
+
+                // Em contexto sem altura delimitada, VAlign::Bottom e VAlign::Horizon
+                // decaem para Top — is_height_unconstrained foi restaurado, mas o
+                // sub_frame propagou-o para o cálculo. Aqui consulta-se o estado do
+                // contexto pai (que é o que importa para decidir se há "fundo").
+                let effective_v = if self.is_height_unconstrained {
+                    None
+                } else {
+                    alignment.v
+                };
+
+                let remaining_h = if self.is_height_unconstrained {
+                    sub_h
+                } else {
+                    f64::max(0.0, self.page_bottom_limit() - self.cursor_y.0)
+                };
+
+                let effective_align = Align2D {
+                    h: alignment.h,
+                    v: effective_v,
+                };
+
+                // origin_x = line_start_x (não page_config.margin). Dentro de uma
+                // célula de grid, line_start_x é cell_x, não a margem da página.
+                let (target_x, target_y) = self.resolve_alignment(
+                    effective_align,
+                    content_w,
+                    sub_h,
+                    avail_w,
+                    remaining_h,
+                    self.line_start_x.0,
+                    self.cursor_y.0,
+                );
+
+                // Transferir items: sub_origin_x = 0 (passámos cell_x=0);
+                // sub_origin_y = ascender_local (compensar a origem vertical).
+                for item in sub_items {
+                    let (ix, iy) = item_pos(&item);
+                    let new_x = Pt(target_x + ix);
+                    let new_y = Pt(target_y + iy - sub_origin_y);
+                    self.current_items.push(translate_frame_item(item, new_x, new_y));
+                }
+
+                // Avançar cursor Y. VAlign::Horizon/Bottom consomem o resto da página.
+                match effective_v {
+                    Some(VAlign::Horizon) | Some(VAlign::Bottom) => {
+                        self.cursor_y = Pt(self.page_bottom_limit());
+                    }
+                    _ => {
+                        self.cursor_y = Pt(target_y + sub_h);
+                    }
+                }
+            }
+
+            Content::Place { alignment, dx, dy, body } => {
+                // Place NÃO chama flush_line e NÃO modifica cursor_x nem cursor_y.
+                let avail_w = self.available_width();
+                let avail_h = self.available_height();
+
+                let (sub_h, sub_items) = self.layout_sub_frame_with_width(body, 0.0, avail_w);
+
+                let (ascender_local, _) = self.metrics.vertical_metrics(self.font_size_pt);
+                let sub_origin_y        = ascender_local.0;
+
+                let (content_w, _) = measure_content(body, avail_w);
+
+                // origin_x = line_start_x (mitigação parcial de DEBT-37): dentro
+                // de uma coluna de grid, Place vincula-se à coluna.
+                // origin_y ancora à margem da página (DEBT-37: ideal seria ancorar
+                // ao contentor pai).
+                let (base_x, base_y) = self.resolve_alignment(
+                    *alignment,
+                    content_w,
+                    sub_h,
+                    avail_w,
+                    avail_h,
+                    self.line_start_x.0,
+                    self.page_config.margin,
+                );
+
+                let target_x = base_x + dx;
+                let target_y = base_y + dy;
+
+                for item in sub_items {
+                    let (ix, iy) = item_pos(&item);
+                    let new_x = Pt(target_x + ix);
+                    let new_y = Pt(target_y + iy - sub_origin_y);
+                    self.current_items.push(translate_frame_item(item, new_x, new_y));
+                }
+                // cursor_y e cursor_x ficam intocados — Place não consome espaço.
+            }
         }
     }
 
@@ -863,11 +1029,12 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
         _cell_width: f64,
     ) -> (f64, Vec<FrameItem>) {
         // Salvar estado.
-        let saved_items        = std::mem::take(&mut self.current_items);
-        let saved_line         = std::mem::take(&mut self.current_line);
-        let saved_x            = self.cursor_x;
-        let saved_y            = self.cursor_y;
-        let saved_line_start_x = self.line_start_x;
+        let saved_items         = std::mem::take(&mut self.current_items);
+        let saved_line          = std::mem::take(&mut self.current_line);
+        let saved_x             = self.cursor_x;
+        let saved_y             = self.cursor_y;
+        let saved_line_start_x  = self.line_start_x;
+        let saved_unconstrained = self.is_height_unconstrained;
 
         // Inicializar cursor local — x = cell_x, y = ascender (como o layout principal).
         // `line_start_x = cell_x` garante que `flush_line()` dentro da célula
@@ -878,6 +1045,10 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
         let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
         self.cursor_y = ascender;
         let start_y = self.cursor_y.0;
+
+        // Contexto sem altura delimitada — Content::Align decai VAlign::Bottom
+        // e VAlign::Horizon para Top (não há "fundo" para ancorar). Passo 82.
+        self.is_height_unconstrained = true;
 
         self.layout_content(content);
 
@@ -891,10 +1062,11 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
         // Recuperar items do sub-frame e restaurar estado.
         let cell_items      = std::mem::replace(&mut self.current_items, saved_items);
-        self.cursor_x       = saved_x;
-        self.cursor_y       = saved_y;
-        self.line_start_x   = saved_line_start_x;
-        self.current_line   = saved_line;
+        self.cursor_x                = saved_x;
+        self.cursor_y                = saved_y;
+        self.line_start_x            = saved_line_start_x;
+        self.current_line            = saved_line;
+        self.is_height_unconstrained = saved_unconstrained;
 
         (cell_height, cell_items)
     }

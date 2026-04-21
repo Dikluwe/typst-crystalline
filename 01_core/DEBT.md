@@ -552,3 +552,16 @@ Se alguma função guardar available_width em cache como campo do Layouter,
 esse cache tem de ser invalidado no processamento de Content::SetPage.
 Actualmente available_width() é calculado em tempo real sem cache —
 este DEBT documenta o risco caso um cache venha a ser adicionado.
+
+## DEBT-36 — Operadores simbólicos de alinhamento (center + bottom) — EM ABERTO (Passo 82)
+
+`align` e `place` aceitam strings (`"center"`, `"top-right"`) porque o parser
+ainda não suporta operadores de composição simbólica como `center + bottom`.
+Resolução: quando o parser suportar `Value::Align` com composição, substituir
+`Align2D::from_string` pelo parse directo da variante.
+
+## DEBT-37 — Place relativo ao contentor pai — EM ABERTO (Passo 82)
+
+`Content::Place` ancora às margens absolutas da página. O Typst suporta
+`place` relativo ao bloco pai (ex: dentro de um grid, `place` ancora na célula).
+Resolução: passar a área de âncora como parâmetro ao processar `Place`.
