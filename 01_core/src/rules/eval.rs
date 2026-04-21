@@ -548,6 +548,35 @@ fn eval_expr(
                 return Ok(Value::Content(Content::SetHeadingNumbering { active }));
             }
 
+            if target == "page" {
+                // #set page(width: .., height: .., margin: ..) — Passo 81.
+                // Valores ausentes ficam None e preservam o valor actual em layout.
+                fn extract_pt(val: &Value) -> Option<f64> {
+                    match val {
+                        Value::Length(l) => Some(l.abs.to_pt()),
+                        Value::Float(f)  => Some(*f),
+                        Value::Int(i)    => Some(*i as f64),
+                        _                => None,
+                    }
+                }
+                let mut width  = None;
+                let mut height = None;
+                let mut margin = None;
+                for arg in set.args().items() {
+                    if let Arg::Named(named) = arg {
+                        let key = named.name().as_str();
+                        let val = eval_expr(named.expr(), scopes, ctx).unwrap_or(Value::None);
+                        match key {
+                            "width"  => width  = extract_pt(&val),
+                            "height" => height = extract_pt(&val),
+                            "margin" => margin = extract_pt(&val),
+                            _        => {}
+                        }
+                    }
+                }
+                return Ok(Value::Content(Content::SetPage { width, height, margin }));
+            }
+
             if target == "figure" {
                 // #set figure(numbering: "1") — activa numeração automática de figuras (Passo 75, DEBT-14).
                 // Padrão idêntico a SetHeadingNumbering: emite nó AST e actualiza ctx.
@@ -726,6 +755,18 @@ fn eval_expr(
             ctx.next_rule_id += 1;
             ctx.show_rules.push(ShowRule { id, selector, transform });
             Ok(Value::None)
+        }
+
+        // Passo 81 — array literal `(1fr, 1fr)` / `(10pt, auto, 1fr)`.
+        // Necessário para o argumento `columns` de `grid()`.
+        Expr::Array(arr) => {
+            let mut items = Vec::new();
+            for item in arr.items() {
+                if let ArrayItem::Pos(expr) = item {
+                    items.push(eval_expr(expr, scopes, ctx)?);
+                }
+            }
+            Ok(Value::Array(items))
         }
 
         // Passo 76 — literais numéricos com unidade (ex: 100pt, 1.5em).
@@ -1477,7 +1518,7 @@ fn make_stdlib() -> Scope {
         make_calc_module, native_assert, native_circle, native_ellipse, native_emph,
         native_figure, native_float, native_grid, native_heading,
         native_image, native_int, native_len, native_line,
-        native_lower, native_luma, native_move, native_polygon, native_range,
+        native_lower, native_luma, native_move, native_page, native_polygon, native_range,
         native_rect, native_replace, native_raw, native_rgb, native_rotate, native_scale,
         native_str, native_strong, native_type, native_upper,
     };
@@ -1502,6 +1543,7 @@ fn make_stdlib() -> Scope {
     scope.define("line",    Value::Func(Func::native("line",    native_line)));
     scope.define("polygon", Value::Func(Func::native("polygon", native_polygon)));
     scope.define("grid",    Value::Func(Func::native("grid",    native_grid)));
+    scope.define("page",    Value::Func(Func::native("page",    native_page)));
     scope.define("move",    Value::Func(Func::native("move",    native_move)));
     scope.define("rotate",  Value::Func(Func::native("rotate",  native_rotate)));
     scope.define("scale",   Value::Func(Func::native("scale",   native_scale)));

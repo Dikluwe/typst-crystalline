@@ -200,6 +200,56 @@ pub enum TrackSizing {
     Fraction(f64),
 }
 
+// ── PageConfig e Page ─────────────────────────────────────────────────────
+
+/// Configuração da página activa no layouter (Passo 81).
+///
+/// Mutável durante o layout — Content::SetPage altera estes valores.
+/// As páginas já fechadas têm os seus próprios snapshots de width/height.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PageConfig {
+    pub width:  f64, // em pontos
+    pub height: f64, // em pontos
+    pub margin: f64, // margem uniforme em pontos
+}
+
+impl Default for PageConfig {
+    fn default() -> Self {
+        Self {
+            width:  595.28, // A4 portrait
+            height: 841.89, // A4 portrait
+            margin:  70.87, // ≈ 2.5 cm
+        }
+    }
+}
+
+/// Página fechada — snapshot imutável das dimensões e items visuais (Passo 81).
+///
+/// `width` e `height` são capturados de `PageConfig` no momento do fecho da página.
+/// Duas páginas consecutivas podem ter dimensões distintas.
+#[derive(Debug, Clone)]
+pub struct Page {
+    /// Largura da página no momento em que foi fechada.
+    pub width:  f64,
+    /// Altura da página no momento em que foi fechada.
+    pub height: f64,
+    pub items:  Vec<FrameItem>,
+}
+
+impl Page {
+    /// Extrai texto plano — para verificação em testes.
+    pub fn plain_text(&self) -> String {
+        self.items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, .. } => Some(text.as_str()),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
+}
+
 /// Canvas de uma página — colecção de itens com posições absolutas.
 ///
 /// Divergência: original usa `Arc<LazyHash<Vec<(Point, FrameItem)>>>`.
@@ -241,10 +291,10 @@ impl Frame {
 /// Documento paginado — resultado de `layout()`.
 ///
 /// Divergência: original tem `EcoVec<Page>` + `DocumentInfo` + `Arc<PagedIntrospector>`.
-/// Cristalino usa `Vec<Frame>` — stub até Passo 20+.
+/// Cristalino usa `Vec<Page>` com snapshots imutáveis de dimensão (Passo 81).
 #[derive(Debug, Clone)]
 pub struct PagedDocument {
-    pub pages: Vec<Frame>,
+    pub pages: Vec<Page>,
     /// Mapa de labels para o número de página onde aterraram (Passo 63).
     /// Populado por `Layouter::finish()` após cada passagem de layout.
     /// Vazio por defeito — só tem dados após `layout()` com labels no documento.
@@ -252,7 +302,7 @@ pub struct PagedDocument {
 }
 
 impl PagedDocument {
-    pub fn new(pages: Vec<Frame>) -> Self {
+    pub fn new(pages: Vec<Page>) -> Self {
         Self { pages, extracted_label_pages: HashMap::new() }
     }
 
@@ -526,11 +576,15 @@ mod tests {
     #[test]
     fn paged_document_plain_text() {
         let style = TextStyle::regular(Pt(12.0));
-        let mut f1 = Frame::new(Size::a4());
-        f1.push(FrameItem::Text { pos: Point::ZERO, text: "page1".into(), style });
-        let mut f2 = Frame::new(Size::a4());
-        f2.push(FrameItem::Text { pos: Point::ZERO, text: "page2".into(), style });
-        let doc = PagedDocument::new(vec![f1, f2]);
+        let p1 = Page {
+            width: 595.28, height: 841.89,
+            items: vec![FrameItem::Text { pos: Point::ZERO, text: "page1".into(), style }],
+        };
+        let p2 = Page {
+            width: 595.28, height: 841.89,
+            items: vec![FrameItem::Text { pos: Point::ZERO, text: "page2".into(), style }],
+        };
+        let doc = PagedDocument::new(vec![p1, p2]);
         assert_eq!(doc.plain_text(), "page1\npage2");
     }
 

@@ -1368,4 +1368,119 @@ mod integration {
             "Circle deve ser desenhado com exactamente 4 operadores Bézier 'c'"
         );
     }
+
+    // ── Passo 81 — Configuração dinâmica de página via #set page ────────────
+
+    #[test]
+    fn set_page_forca_quebra_com_conteudo() {
+        let (world, _dir) = world_from_str(
+            "Primeira linha\n\
+             #set page(width: 200pt, height: 200pt, margin: 10pt)\n\
+             Segunda página\n"
+        );
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        assert_eq!(doc.pages.len(), 2,
+            "SetPage com conteúdo deve criar 2 páginas");
+        assert!(doc.pages[0].height > 800.0,
+            "Primeira página deve ser A4 (height > 800pt)");
+        assert!((doc.pages[1].height - 200.0).abs() < 0.01,
+            "Segunda página deve ter height = 200pt do SetPage");
+    }
+
+    #[test]
+    fn set_page_no_topo_nao_quebra() {
+        let (world, _dir) = world_from_str(
+            "#set page(width: 300pt, height: 400pt)\n\
+             Conteúdo único\n"
+        );
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        assert_eq!(doc.pages.len(), 1,
+            "SetPage sem conteúdo anterior não deve criar página extra");
+        assert!((doc.pages[0].width  - 300.0).abs() < 0.01);
+        assert!((doc.pages[0].height - 400.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn multiplas_mudancas_de_pagina_preservam_snapshots() {
+        let (world, _dir) = world_from_str(
+            "P1\n\
+             #set page(width: 200pt, height: 200pt)\n\
+             P2\n\
+             #set page(width: 100pt, height: 300pt)\n\
+             P3\n"
+        );
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        assert_eq!(doc.pages.len(), 3);
+        assert!(doc.pages[0].width > 500.0, "Página 1 deve ser A4");
+        assert!((doc.pages[1].width  - 200.0).abs() < 0.01);
+        assert!((doc.pages[1].height - 200.0).abs() < 0.01);
+        assert!((doc.pages[2].width  - 100.0).abs() < 0.01);
+        assert!((doc.pages[2].height - 300.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn grid_respeita_page_config_dinamico() {
+        let (world, _dir) = world_from_str(
+            "#set page(width: 400pt, height: 400pt, margin: 20pt)\n\
+             #grid(columns: (1fr, 1fr), [A], [B])\n"
+        );
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        // available_width = 400 - 2*20 = 360pt; cada 1fr = 180pt.
+        // O segundo item (célula B) deve começar em margin + 180 = 200pt.
+        assert_eq!(doc.pages.len(), 1);
+        let second_item_x = doc.pages[0].items
+            .iter()
+            .filter_map(|item| match item {
+                typst_core::entities::layout_types::FrameItem::Text { pos, .. }
+                    if pos.x.0 > 150.0 => Some(pos.x.0),
+                _ => None,
+            })
+            .next();
+        assert!(
+            second_item_x.map(|x| (x - 200.0).abs() < 2.0).unwrap_or(false),
+            "Segundo item do grid deve estar em x ≈ 200pt, obteve {:?}",
+            second_item_x,
+        );
+    }
+
+    #[test]
+    fn pdf_mediabox_diferente_por_pagina() {
+        let (world, _dir) = world_from_str(
+            "A\n\
+             #set page(width: 200pt, height: 600pt)\n\
+             B\n"
+        );
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+        let pdf     = export_pdf(&doc);
+
+        let pdf_str = String::from_utf8_lossy(&pdf);
+        assert!(pdf_str.contains("[0 0 595.28 841.89]"),
+            "Primeira página deve ter MediaBox A4");
+        assert!(pdf_str.contains("[0 0 200.00 600.00]"),
+            "Segunda página deve ter MediaBox 200×600pt");
+    }
 }
