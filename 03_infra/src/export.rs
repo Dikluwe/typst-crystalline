@@ -711,6 +711,30 @@ fn build_page_stream_type1(
                         ops.push_str(&format!("{:.3} {:.3} m\n", start_x, start_y));
                         ops.push_str(&format!("{:.3} {:.3} l\n", end_x,   end_y));
                     }
+                    ShapeKind::Path(items) => {
+                        use typst_core::entities::geometry::PathItem;
+                        for item in items {
+                            match item {
+                                PathItem::MoveTo(p) => ops.push_str(&format!(
+                                    "{:.2} {:.2} m\n",
+                                    pos.x.val() + p.x.0,
+                                    page_height - (pos.y.val() + p.y.0),
+                                )),
+                                PathItem::LineTo(p) => ops.push_str(&format!(
+                                    "{:.2} {:.2} l\n",
+                                    pos.x.val() + p.x.0,
+                                    page_height - (pos.y.val() + p.y.0),
+                                )),
+                                PathItem::CubicTo(p1, p2, p3) => ops.push_str(&format!(
+                                    "{:.2} {:.2} {:.2} {:.2} {:.2} {:.2} c\n",
+                                    pos.x.val() + p1.x.0, page_height - (pos.y.val() + p1.y.0),
+                                    pos.x.val() + p2.x.0, page_height - (pos.y.val() + p2.y.0),
+                                    pos.x.val() + p3.x.0, page_height - (pos.y.val() + p3.y.0),
+                                )),
+                                PathItem::ClosePath => ops.push_str("h\n"),
+                            }
+                        }
+                    }
                 }
 
                 // Paint operator (fill/stroke/ambos).
@@ -723,7 +747,7 @@ fn build_page_stream_type1(
 
                 ops.push_str("Q\n");
             }
-            FrameItem::Group { pos, matrix, items } => {
+            FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } => {
                 // pdf_y: topo do grupo na página em coordenadas PDF (Y-up).
                 let pdf_y = page_height - pos.y.val();
 
@@ -739,6 +763,14 @@ fn build_page_stream_type1(
                     pos.x.val() + matrix.tx,
                     pdf_y       - matrix.ty,
                 ));
+
+                // Clipping path no espaço LOCAL: após cm, antes dos filhos.
+                // W = definir clipping path; n = fechar sem pintar.
+                if let Some(mask) = clip_mask {
+                    emit_shape_path_local(&mut ops, mask, *inner_width, *inner_height);
+                    ops.push_str("W n\n");
+                }
+
                 for child in items {
                     draw_item_local(&mut ops, child);
                 }
@@ -748,6 +780,37 @@ fn build_page_stream_type1(
     }
 
     ops.into_bytes()
+}
+
+/// Emite os operadores de path de uma forma no espaço LOCAL de um Group.
+///
+/// NÃO usa page_height. A matriz `cm` já inverteu o eixo Y.
+/// Chamada para emitir clip_mask antes de `W n`.
+fn emit_shape_path_local(ops: &mut String, kind: &typst_core::entities::geometry::ShapeKind, width: f64, height: f64) {
+    use typst_core::entities::geometry::{PathItem, ShapeKind};
+    match kind {
+        ShapeKind::Rect => {
+            ops.push_str(&format!("0.00 {:.2} {:.2} {:.2} re\n", -height, width, height));
+        }
+        ShapeKind::Path(items) => {
+            for item in items {
+                match item {
+                    PathItem::MoveTo(p) => ops.push_str(&format!(
+                        "{:.2} {:.2} m\n", p.x.0, -p.y.0,
+                    )),
+                    PathItem::LineTo(p) => ops.push_str(&format!(
+                        "{:.2} {:.2} l\n", p.x.0, -p.y.0,
+                    )),
+                    PathItem::CubicTo(p1, p2, p3) => ops.push_str(&format!(
+                        "{:.2} {:.2} {:.2} {:.2} {:.2} {:.2} c\n",
+                        p1.x.0, -p1.y.0, p2.x.0, -p2.y.0, p3.x.0, -p3.y.0,
+                    )),
+                    PathItem::ClosePath => ops.push_str("h\n"),
+                }
+            }
+        }
+        _ => {}
+    }
 }
 
 /// Desenha um `FrameItem` em espaço LOCAL (após `cm`).
@@ -801,6 +864,28 @@ fn draw_item_local(ops: &mut String, item: &FrameItem) {
                         pos.x.0 + start_offset_x, local_y + start_offset_y));
                     ops.push_str(&format!("{:.3} {:.3} l\n",
                         pos.x.0 + end_offset_x, local_y + end_offset_y));
+                }
+                ShapeKind::Path(items) => {
+                    use typst_core::entities::geometry::PathItem;
+                    for item in items {
+                        match item {
+                            PathItem::MoveTo(p) => ops.push_str(&format!(
+                                "{:.2} {:.2} m\n",
+                                pos.x.0 + p.x.0, -(local_y + p.y.0),
+                            )),
+                            PathItem::LineTo(p) => ops.push_str(&format!(
+                                "{:.2} {:.2} l\n",
+                                pos.x.0 + p.x.0, -(local_y + p.y.0),
+                            )),
+                            PathItem::CubicTo(p1, p2, p3) => ops.push_str(&format!(
+                                "{:.2} {:.2} {:.2} {:.2} {:.2} {:.2} c\n",
+                                pos.x.0 + p1.x.0, -(local_y + p1.y.0),
+                                pos.x.0 + p2.x.0, -(local_y + p2.y.0),
+                                pos.x.0 + p3.x.0, -(local_y + p3.y.0),
+                            )),
+                            PathItem::ClosePath => ops.push_str("h\n"),
+                        }
+                    }
                 }
             }
             match (fill.is_some(), stroke.is_some()) {
@@ -1024,6 +1109,30 @@ fn build_page_stream_cidfont(
                         ops.push_str(&format!("{:.3} {:.3} m\n", start_x, start_y));
                         ops.push_str(&format!("{:.3} {:.3} l\n", end_x,   end_y));
                     }
+                    ShapeKind::Path(items) => {
+                        use typst_core::entities::geometry::PathItem;
+                        for item in items {
+                            match item {
+                                PathItem::MoveTo(p) => ops.push_str(&format!(
+                                    "{:.2} {:.2} m\n",
+                                    pos.x.val() + p.x.0,
+                                    page_height - (pos.y.val() + p.y.0),
+                                )),
+                                PathItem::LineTo(p) => ops.push_str(&format!(
+                                    "{:.2} {:.2} l\n",
+                                    pos.x.val() + p.x.0,
+                                    page_height - (pos.y.val() + p.y.0),
+                                )),
+                                PathItem::CubicTo(p1, p2, p3) => ops.push_str(&format!(
+                                    "{:.2} {:.2} {:.2} {:.2} {:.2} {:.2} c\n",
+                                    pos.x.val() + p1.x.0, page_height - (pos.y.val() + p1.y.0),
+                                    pos.x.val() + p2.x.0, page_height - (pos.y.val() + p2.y.0),
+                                    pos.x.val() + p3.x.0, page_height - (pos.y.val() + p3.y.0),
+                                )),
+                                PathItem::ClosePath => ops.push_str("h\n"),
+                            }
+                        }
+                    }
                 }
                 match (fill.is_some(), stroke.is_some()) {
                     (true,  true)  => ops.push_str("B\n"),
@@ -1033,7 +1142,7 @@ fn build_page_stream_cidfont(
                 }
                 ops.push_str("Q\n");
             }
-            FrameItem::Group { pos, matrix, items } => {
+            FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } => {
                 let pdf_y = page_height - pos.y.val();
                 ops.push_str("q\n");
                 ops.push_str(&format!(
@@ -1045,6 +1154,10 @@ fn build_page_stream_cidfont(
                     pos.x.val() + matrix.tx,
                     pdf_y       - matrix.ty,
                 ));
+                if let Some(mask) = clip_mask {
+                    emit_shape_path_local(&mut ops, mask, *inner_width, *inner_height);
+                    ops.push_str("W n\n");
+                }
                 for child in items {
                     draw_item_local(&mut ops, child);
                 }
@@ -1494,5 +1607,84 @@ mod tests {
         // Só um XObject com DCTDecode
         let dct_count = s.matches("/DCTDecode").count();
         assert_eq!(dct_count, 1, "deve haver apenas um XObject JPEG (deduplicado)");
+    }
+
+    #[test]
+    fn export_path_com_cubicto_emite_operador_c() {
+        use typst_core::entities::geometry::{PathItem, ShapeKind, Stroke};
+        use typst_core::entities::layout_types::{
+            Color, Frame, FrameItem, PagedDocument, Point, Pt, Size,
+        };
+
+        let path = vec![
+            PathItem::MoveTo(Point { x: Pt(0.0),  y: Pt(0.0)  }),
+            PathItem::CubicTo(
+                Point { x: Pt(10.0), y: Pt(0.0)  },
+                Point { x: Pt(20.0), y: Pt(10.0) },
+                Point { x: Pt(20.0), y: Pt(20.0) },
+            ),
+            PathItem::ClosePath,
+        ];
+
+        let mut frame = Frame::new(Size::a4());
+        frame.push(FrameItem::Shape {
+            pos:    Point { x: Pt(72.0), y: Pt(72.0) },
+            kind:   ShapeKind::Path(path),
+            width:  20.0,
+            height: 20.0,
+            fill:   Some(Color::rgb(255, 0, 0)),
+            stroke: None,
+        });
+        let doc = PagedDocument::new(vec![frame]);
+        let pdf = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert!(pdf_str.contains(" c\n"),
+            "CubicTo deve emitir operador Bézier 'c' no PDF");
+        assert!(pdf_str.contains("h\n"),
+            "ClosePath deve emitir operador 'h' no PDF");
+    }
+
+    #[test]
+    fn export_group_com_clip_mask_emite_w_n_na_ordem_correcta() {
+        use typst_core::entities::geometry::ShapeKind;
+        use typst_core::entities::layout_types::{
+            Color, Frame, FrameItem, PagedDocument, Point, Pt, Size, TransformMatrix,
+        };
+
+        let child = FrameItem::Shape {
+            pos:    Point { x: Pt(0.0), y: Pt(0.0) },
+            kind:   ShapeKind::Rect,
+            width:  50.0,
+            height: 50.0,
+            fill:   Some(Color::rgb(0, 0, 255)),
+            stroke: None,
+        };
+
+        let mut frame = Frame::new(Size::a4());
+        frame.push(FrameItem::Group {
+            pos:          Point { x: Pt(100.0), y: Pt(100.0) },
+            matrix:       TransformMatrix { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0 },
+            clip_mask:    Some(ShapeKind::Rect),
+            inner_width:  50.0,
+            inner_height: 50.0,
+            items:        vec![child],
+        });
+        let doc = PagedDocument::new(vec![frame]);
+        let pdf = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert!(pdf_str.contains("W n\n"), "Deve conter operador de clip W n");
+
+        let pos_cm   = pdf_str.find(" cm\n").expect("Deve conter matriz cm");
+        let pos_clip = pdf_str.find("W n\n").expect("Deve conter W n");
+        // Usar a cor de preenchimento do filho como marcador do início do desenho do filho.
+        // O clip mask é um caminho sem fill/stroke (W n), o filho tem rg antes do re.
+        let pos_child = pdf_str.find("rg\n").expect("Deve conter cor de preenchimento do filho");
+        let pos_q     = pdf_str.rfind("Q\n").unwrap();
+
+        assert!(pos_cm   < pos_clip,  "cm deve preceder W n");
+        assert!(pos_clip < pos_child, "W n deve preceder o desenho dos filhos");
+        assert!(pos_child < pos_q,    "filhos devem ser desenhados antes de Q");
     }
 }

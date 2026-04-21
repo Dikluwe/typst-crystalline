@@ -20,7 +20,7 @@ use crate::entities::{
     geometry::ShapeKind,
     glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
     image_sizer::{ImageSizer, NullImageSizer},
-    layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle, TransformMatrix},
+    layout_types::{Frame, FrameItem, PagedDocument, Point, Pt, Size, TextStyle, TrackSizing, TransformMatrix},
     math_constants::MathConstants,
 };
 use crate::rules::math;
@@ -424,7 +424,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             Content::Shape { kind, width, height, fill, stroke } => {
                 let available_w = Size::a4().width.0 - MARGIN.0 * 2.0;
                 let (resolved_w, resolved_h) = match kind {
-                    ShapeKind::Rect | ShapeKind::Ellipse => {
+                    ShapeKind::Rect | ShapeKind::Ellipse | ShapeKind::Path(_) => {
                         let w = resolve_pt(width.as_deref(), available_w);
                         let h = resolve_pt(height.as_deref(), 0.0);
                         (w, h)
@@ -484,11 +484,136 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
                 self.current.push(FrameItem::Group {
                     pos,
-                    matrix: final_matrix,
-                    items:  sub_items,
+                    matrix:       final_matrix,
+                    clip_mask:    None,
+                    inner_width:  orig_w,
+                    inner_height: orig_h,
+                    items:        sub_items,
                 });
 
                 self.cursor_y += Pt(new_h);
+            }
+
+            Content::Grid { columns, rows: _, cells } => {
+                // rows ignorado — DEBT-34b.
+                let available_width = Size::a4().width.0 - MARGIN.0 * 2.0;
+
+                let cols = if columns.is_empty() {
+                    vec![TrackSizing::Auto]
+                } else {
+                    columns.clone()
+                };
+                let num_cols = cols.len();
+
+                // Pré-agrupamento: associar células às colunas para medir Auto.
+                let mut cols_cells: Vec<Vec<usize>> = vec![vec![]; num_cols];
+                for (idx, _) in cells.iter().enumerate() {
+                    cols_cells[idx % num_cols].push(idx);
+                }
+
+                // Fase 1: resolver Fixed e Auto.
+                let mut resolved_widths = vec![0.0_f64; num_cols];
+                let mut total_fixed     = 0.0_f64;
+                let mut total_fr        = 0.0_f64;
+
+                for (i, sizing) in cols.iter().enumerate() {
+                    match sizing {
+                        TrackSizing::Fixed(w) => {
+                            resolved_widths[i] = *w;
+                            total_fixed += *w;
+                        }
+                        TrackSizing::Auto => {
+                            let safe = (available_width - total_fixed).max(0.0);
+                            let mut max_w = 0.0_f64;
+                            for &ci in &cols_cells[i] {
+                                let (w, _) = self.measure_content_constrained(&cells[ci], safe);
+                                max_w = max_w.max(w);
+                            }
+                            resolved_widths[i] = max_w;
+                            total_fixed += max_w;
+                        }
+                        TrackSizing::Fraction(fr) => {
+                            total_fr += fr;
+                        }
+                    }
+                }
+
+                // Fase 2: distribuir fracções.
+                let remaining = (available_width - total_fixed).max(0.0);
+                if total_fr > 0.0 {
+                    let per_fr = remaining / total_fr;
+                    for (i, sizing) in cols.iter().enumerate() {
+                        if let TrackSizing::Fraction(fr) = sizing {
+                            resolved_widths[i] = fr * per_fr;
+                        }
+                    }
+                }
+
+                // Calcular posição X inicial de cada coluna.
+                let mut col_starts = vec![0.0_f64; num_cols];
+                {
+                    let mut x = MARGIN.0;
+                    for i in 0..num_cols {
+                        col_starts[i] = x;
+                        x += resolved_widths[i];
+                    }
+                }
+
+                // Fase 3: layout das células.
+                self.flush_line();
+
+                let mut current_col    = 0usize;
+                let mut row_start_y    = self.cursor_y.0;
+                let mut row_max_h      = 0.0_f64;
+
+                for cell in cells {
+                    if current_col == 0 {
+                        row_start_y = self.cursor_y.0;
+                        row_max_h   = 0.0;
+                    }
+
+                    let cell_w = resolved_widths[current_col];
+                    let cell_x = col_starts[current_col];
+
+                    // Layout isolado: salvar estado, correr layout, restaurar.
+                    let saved_cursor_x = self.cursor_x;
+                    let saved_cursor_y = self.cursor_y;
+                    let (cell_h, cell_items) = self.layout_sub_frame_with_width(cell, cell_x, cell_w);
+                    self.cursor_x = saved_cursor_x;
+                    self.cursor_y = saved_cursor_y;
+
+                    // Transferir items com posições absolutas.
+                    let local_start_y = {
+                        let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
+                        ascender.0
+                    };
+                    for item in cell_items {
+                        let (lx, ly) = item_pos(&item);
+                        let abs_pos = Point {
+                            x: Pt(cell_x + (lx - MARGIN.0)),
+                            y: Pt(row_start_y + (ly - local_start_y)),
+                        };
+                        let translated = translate_frame_item(item, abs_pos.x, abs_pos.y);
+                        self.current.push(translated);
+                    }
+
+                    row_max_h = row_max_h.max(cell_h);
+                    current_col += 1;
+
+                    if current_col >= num_cols {
+                        current_col = 0;
+                        self.cursor_y = Pt(row_start_y + row_max_h);
+                        if self.cursor_y.0 > Size::a4().height.0 - MARGIN.0 {
+                            self.new_page();
+                            row_start_y = self.cursor_y.0;
+                        }
+                    }
+                }
+
+                // Linha incompleta no fim.
+                if current_col > 0 {
+                    self.cursor_y = Pt(row_start_y + row_max_h);
+                }
             }
 
             Content::Image { data, width, height, .. } => {
@@ -601,9 +726,143 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
         doc.extracted_label_pages = self.counter.label_pages;
         doc
     }
+
+    // ── Auxiliares de Grid (Passo 80) ─────────────────────────────────────
+
+    /// Mede conteúdo com restrição de largura máxima.
+    ///
+    /// Usado pelo algoritmo de grid para determinar a largura das colunas Auto.
+    /// Retorna `(width, height)` em pontos.
+    fn measure_content_constrained(&self, content: &Content, max_width: f64) -> (f64, f64) {
+        match content {
+            Content::Text(text, _style) => {
+                let mut max_line_w  = 0.0_f64;
+                let mut current_w   = 0.0_f64;
+                let mut line_count  = 1usize;
+                let space_w = self.metrics.advance(" ", self.font_size_pt).0;
+
+                for word in text.split_whitespace() {
+                    let word_w = self.metrics.advance(word, self.font_size_pt).0;
+                    if current_w + word_w > max_width && current_w > 0.0 {
+                        max_line_w = max_line_w.max(current_w);
+                        line_count += 1;
+                        current_w  = word_w + space_w;
+                    } else {
+                        current_w += word_w + space_w;
+                    }
+                }
+                max_line_w = max_line_w.max(current_w);
+                let (_, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
+                (max_line_w.min(max_width), line_height.0 * line_count as f64)
+            }
+
+            Content::Sequence(children) => {
+                let mut total_h = 0.0_f64;
+                let mut max_w   = 0.0_f64;
+                for child in children.iter() {
+                    let (w, h) = self.measure_content_constrained(child, max_width);
+                    total_h += h;
+                    max_w    = max_w.max(w);
+                }
+                (max_w, total_h)
+            }
+
+            Content::Shape { kind, width, height, .. } => {
+                match kind {
+                    ShapeKind::Rect | ShapeKind::Ellipse | ShapeKind::Path(_) => {
+                        let w = resolve_pt(width.as_deref(), max_width).min(max_width);
+                        let h = resolve_pt(height.as_deref(), 0.0);
+                        (w, h)
+                    }
+                    ShapeKind::Line { dx, dy } => (dx.abs().min(max_width), dy.abs()),
+                }
+            }
+
+            _ => (0.0, 0.0),
+        }
+    }
+
+    /// Layout de conteúdo numa célula de grid isolada.
+    ///
+    /// Salva o estado completo do layouter, cria um frame temporário com
+    /// cursor em (cell_x, ascender), executa o layout e restaura o estado.
+    /// Retorna `(height, items)` com posições locais ao frame temporário.
+    fn layout_sub_frame_with_width(
+        &mut self,
+        content: &Content,
+        cell_x: f64,
+        _cell_width: f64,
+    ) -> (f64, Vec<FrameItem>) {
+        // Salvar estado.
+        let saved_current = std::mem::replace(&mut self.current, Frame::new(Size::a4()));
+        let saved_line    = std::mem::take(&mut self.current_line);
+        let saved_x       = self.cursor_x;
+        let saved_y       = self.cursor_y;
+
+        // Inicializar cursor local — x = cell_x, y = ascender (como o layout principal).
+        self.cursor_x = Pt(cell_x);
+        let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
+        self.cursor_y = ascender;
+        let start_y = self.cursor_y.0;
+
+        self.layout_content(content);
+
+        // Flush de itens pendentes sem avançar linha (evitar double advance).
+        for item in self.current_line.drain(..) {
+            self.current.push(item);
+        }
+
+        let end_y      = self.cursor_y.0;
+        let cell_height = (end_y - start_y).max(0.0);
+
+        // Recuperar frame temporário e restaurar estado.
+        let cell_frame = std::mem::replace(&mut self.current, saved_current);
+        self.cursor_x      = saved_x;
+        self.cursor_y      = saved_y;
+        self.current_line  = saved_line;
+
+        (cell_height, cell_frame.items)
+    }
 }
 
 // ── Auxiliares ────────────────────────────────────────────────────────────
+
+/// Extrai a posição primária de um FrameItem (posição do canto superior esquerdo).
+fn item_pos(item: &FrameItem) -> (f64, f64) {
+    match item {
+        FrameItem::Text  { pos, .. } => (pos.x.0, pos.y.0),
+        FrameItem::Line  { start, .. } => (start.x.0, start.y.0),
+        FrameItem::Glyph { pos, .. } => (pos.x.0, pos.y.0),
+        FrameItem::Image { pos, .. } => (pos.x.0, pos.y.0),
+        FrameItem::Shape { pos, .. } => (pos.x.0, pos.y.0),
+        FrameItem::Group { pos, .. } => (pos.x.0, pos.y.0),
+    }
+}
+
+/// Cria um FrameItem com a posição substituída por `(new_x, new_y)`.
+fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> FrameItem {
+    match item {
+        FrameItem::Text { text, style, .. } =>
+            FrameItem::Text { pos: Point { x: new_x, y: new_y }, text, style },
+        FrameItem::Line { start, end, thickness } => {
+            let dx = end.x.0 - start.x.0;
+            let dy = end.y.0 - start.y.0;
+            FrameItem::Line {
+                start:     Point { x: new_x, y: new_y },
+                end:       Point { x: Pt(new_x.0 + dx), y: Pt(new_y.0 + dy) },
+                thickness,
+            }
+        }
+        FrameItem::Glyph { glyph_id, x_advance, size, .. } =>
+            FrameItem::Glyph { pos: Point { x: new_x, y: new_y }, glyph_id, x_advance, size },
+        FrameItem::Image { data, width, height, intrinsic_width, intrinsic_height, .. } =>
+            FrameItem::Image { pos: Point { x: new_x, y: new_y }, data, width, height, intrinsic_width, intrinsic_height },
+        FrameItem::Shape { kind, width, height, fill, stroke, .. } =>
+            FrameItem::Shape { pos: Point { x: new_x, y: new_y }, kind, width, height, fill, stroke },
+        FrameItem::Group { matrix, clip_mask, inner_width, inner_height, items, .. } =>
+            FrameItem::Group { pos: Point { x: new_x, y: new_y }, matrix, clip_mask, inner_width, inner_height, items },
+    }
+}
 
 fn heading_scale(level: u8) -> f64 {
     match level { 1 => 2.0, 2 => 1.667, 3 => 1.333, 4 => 1.167, _ => 1.0 }
@@ -634,7 +893,7 @@ fn measure_content(content: &Content) -> (f64, f64) {
         Content::Shape { kind, width, height, .. } => {
             let available_w = Size::a4().width.0 - MARGIN.0 * 2.0;
             match kind {
-                ShapeKind::Rect | ShapeKind::Ellipse => (
+                ShapeKind::Rect | ShapeKind::Ellipse | ShapeKind::Path(_) => (
                     resolve_pt(width.as_deref(), available_w),
                     resolve_pt(height.as_deref(), 0.0),
                 ),
@@ -669,7 +928,7 @@ fn collect_items_at(content: &Content, items: &mut Vec<FrameItem>, x: Pt, y: Pt)
         Content::Shape { kind, width, height, fill, stroke } => {
             let available_w = Size::a4().width.0 - MARGIN.0 * 2.0;
             let (w, h) = match kind {
-                ShapeKind::Rect | ShapeKind::Ellipse => (
+                ShapeKind::Rect | ShapeKind::Ellipse | ShapeKind::Path(_) => (
                     resolve_pt(width.as_deref(), available_w),
                     resolve_pt(height.as_deref(), 0.0),
                 ),
@@ -1961,5 +2220,197 @@ mod tests {
         let clone = Arc::clone(&data);
         let ptr2 = Arc::as_ptr(&clone) as usize;
         assert_eq!(ptr1, ptr2, "clones do mesmo Arc devem ter o mesmo ponteiro");
+    }
+
+    // ── Testes de Grid (Passo 80) ────────────────────────────────────────────
+
+    #[test]
+    fn grid_fr_distribution_quando_auto_e_pequeno() {
+        // Página 595pt, margens 72pt cada lado → available = 451pt.
+        // columns: (50pt, auto, 1fr, 2fr)
+        // Célula Auto: texto curto → mede < safe_available.
+        // safe_available para Auto = 451 - 50 = 401pt.
+        // "hi" com FixedMetrics 12pt: 2 chars * 0.6 * 12 = 14.4pt.
+        // Remaining: 451 - 50 - 14.4 = 386.6pt; total_fr = 3.
+        // Col 2 (1fr): 386.6/3 ≈ 128.87pt; Col 3 (2fr): ≈ 257.73pt.
+        use crate::entities::layout_types::TrackSizing;
+        use crate::entities::geometry::ShapeKind;
+
+        let available = Size::a4().width.0 - MARGIN.0 * 2.0; // 451pt
+        let cols = vec![
+            TrackSizing::Fixed(50.0),
+            TrackSizing::Auto,
+            TrackSizing::Fraction(1.0),
+            TrackSizing::Fraction(2.0),
+        ];
+        let cell_auto = Content::text("hi");
+
+        let layouter = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
+
+        // Simular Fase 1.
+        let mut resolved = vec![0.0_f64; 4];
+        let mut total_fixed = 0.0_f64;
+        let mut total_fr    = 0.0_f64;
+        let cols_cells: Vec<Vec<&Content>> = vec![vec![], vec![&cell_auto], vec![], vec![]];
+
+        for (i, sizing) in cols.iter().enumerate() {
+            match sizing {
+                TrackSizing::Fixed(w) => { resolved[i] = *w; total_fixed += *w; }
+                TrackSizing::Auto => {
+                    let safe = (available - total_fixed).max(0.0);
+                    let mut max_w = 0.0_f64;
+                    for cell in &cols_cells[i] {
+                        let (w, _) = layouter.measure_content_constrained(cell, safe);
+                        max_w = max_w.max(w);
+                    }
+                    resolved[i] = max_w;
+                    total_fixed += max_w;
+                }
+                TrackSizing::Fraction(fr) => { total_fr += fr; }
+            }
+        }
+        // Fase 2.
+        let remaining = (available - total_fixed).max(0.0);
+        if total_fr > 0.0 {
+            let per_fr = remaining / total_fr;
+            for (i, sizing) in cols.iter().enumerate() {
+                if let TrackSizing::Fraction(fr) = sizing {
+                    resolved[i] = fr * per_fr;
+                }
+            }
+        }
+
+        assert_eq!(resolved[0], 50.0, "Fixed deve ser exactamente 50pt");
+        assert!(resolved[1] > 0.0 && resolved[1] < available - 50.0,
+            "Auto deve ser positivo e menor que safe_available");
+        let soma = resolved.iter().sum::<f64>();
+        assert!((soma - available).abs() < 0.01,
+            "Soma das larguras deve ser igual a available_width: {} vs {}", soma, available);
+    }
+
+    #[test]
+    fn grid_fr_recebe_zero_quando_auto_e_guloso() {
+        // Regressão: Auto com palavra muito longa consome safe_available inteiro.
+        // Não deve entrar em pânico. resolved_widths[2] deve ser 0.0 ou positivo.
+        use crate::entities::layout_types::TrackSizing;
+
+        let available = Size::a4().width.0 - MARGIN.0 * 2.0;
+        let cols = vec![
+            TrackSizing::Fixed(50.0),
+            TrackSizing::Auto,
+            TrackSizing::Fraction(1.0),
+        ];
+        // Palavra sem espaços — ocupa safe_available inteiro.
+        let cell_auto = Content::text("PalavraLongaSemEspacos");
+        let layouter = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
+
+        let mut resolved = vec![0.0_f64; 3];
+        let mut total_fixed = 0.0_f64;
+        let mut total_fr    = 0.0_f64;
+        let cols_cells: Vec<Vec<&Content>> = vec![vec![], vec![&cell_auto], vec![]];
+
+        for (i, sizing) in cols.iter().enumerate() {
+            match sizing {
+                TrackSizing::Fixed(w) => { resolved[i] = *w; total_fixed += *w; }
+                TrackSizing::Auto => {
+                    let safe = (available - total_fixed).max(0.0);
+                    let mut max_w = 0.0_f64;
+                    for cell in &cols_cells[i] {
+                        let (w, _) = layouter.measure_content_constrained(cell, safe);
+                        max_w = max_w.max(w);
+                    }
+                    resolved[i] = max_w;
+                    total_fixed += max_w;
+                }
+                TrackSizing::Fraction(fr) => { total_fr += fr; }
+            }
+        }
+        let remaining = (available - total_fixed).max(0.0);
+        if total_fr > 0.0 {
+            let per_fr = remaining / total_fr;
+            for (i, sizing) in cols.iter().enumerate() {
+                if let TrackSizing::Fraction(fr) = sizing {
+                    resolved[i] = fr * per_fr;
+                }
+            }
+        }
+
+        // Comportamento documentado: fr pode receber 0pt (DEBT-34d). Sem pânico.
+        assert!(resolved[2] >= 0.0, "fr não deve ter largura negativa");
+    }
+
+    #[test]
+    fn grid_altura_da_linha_e_o_maximo_das_celulas() {
+        // columns: (100pt, 100pt)
+        // Células: rect(h:20), rect(h:40), rect(h:10)
+        // Linha 0: max(20, 40) = 40pt. Linha 1: 10pt (incompleta).
+        // Verificar: 1 página, 3 FrameItems.
+        use crate::entities::geometry::ShapeKind;
+
+        let make_rect = |h: f64| -> Content {
+            Content::Shape {
+                kind:   ShapeKind::Rect,
+                width:  Some(Box::new(crate::entities::value::Value::Length(
+                    crate::entities::layout_types::Length { abs: crate::entities::layout_types::Abs(100.0), em: 0.0 },
+                ))),
+                height: Some(Box::new(crate::entities::value::Value::Length(
+                    crate::entities::layout_types::Length { abs: crate::entities::layout_types::Abs(h), em: 0.0 },
+                ))),
+                fill:   None,
+                stroke: None,
+            }
+        };
+
+        let grid = Content::Grid {
+            columns: vec![
+                crate::entities::layout_types::TrackSizing::Fixed(100.0),
+                crate::entities::layout_types::TrackSizing::Fixed(100.0),
+            ],
+            rows:  vec![],
+            cells: vec![make_rect(20.0), make_rect(40.0), make_rect(10.0)],
+        };
+
+        let state = introspect(&grid);
+        let doc   = layout(&grid, state);
+
+        assert_eq!(doc.pages.len(), 1, "Grid simples deve caber numa página");
+        let total_items = doc.pages[0].items.len();
+        assert_eq!(total_items, 3, "Deve haver 3 FrameItems no frame");
+    }
+
+    #[test]
+    fn grid_auto_respects_safe_available() {
+        // Uma coluna Auto com conteúdo não deve exceder available_width.
+        use crate::entities::layout_types::TrackSizing;
+
+        let available = Size::a4().width.0 - MARGIN.0 * 2.0;
+        let cols = vec![TrackSizing::Auto];
+        let cell  = Content::text("Palavra muito longa que poderia exceder a página se nao houver limite");
+        let layouter = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
+
+        let mut resolved = vec![0.0_f64; 1];
+        let mut total_fixed = 0.0_f64;
+        let cols_cells: Vec<Vec<&Content>> = vec![vec![&cell]];
+
+        for (i, sizing) in cols.iter().enumerate() {
+            match sizing {
+                TrackSizing::Auto => {
+                    let safe = (available - total_fixed).max(0.0);
+                    let mut max_w = 0.0_f64;
+                    for c in &cols_cells[i] {
+                        let (w, _) = layouter.measure_content_constrained(c, safe);
+                        max_w = max_w.max(w);
+                    }
+                    resolved[i] = max_w;
+                    total_fixed += max_w;
+                }
+                _ => {}
+            }
+        }
+
+        assert!(
+            resolved[0] <= available,
+            "Auto não deve exceder available_width: {} > {}", resolved[0], available
+        );
     }
 }

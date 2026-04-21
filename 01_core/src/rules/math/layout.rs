@@ -104,10 +104,13 @@ fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
                 fill,
                 stroke,
             },
-        FrameItem::Group { pos, matrix, items } =>
+        FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } =>
             FrameItem::Group {
                 pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
                 matrix,
+                clip_mask,
+                inner_width,
+                inner_height,
                 items,
             },
     }
