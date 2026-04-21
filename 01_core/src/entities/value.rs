@@ -57,11 +57,12 @@ pub enum Value {
     Angle(crate::entities::layout_types::Angle),
     /// Cor tipográfica. Ver ADR-0028.
     Color(crate::entities::layout_types::Color),
+    /// Fracção para dimensionamento relativo (ex: 1fr, 2.5fr). Passo 80.
+    Fraction(f64),
 
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
-    // Variantes futuras (~14 restantes após Passo 25):
+    // Variantes futuras (~13 restantes após Passo 80):
     // Relative(Relative),       // comprimento relativo
-    // Fraction(Fraction),       // fracção de espaço disponível
     // Gradient(Gradient),       // gradiente
     // Tiling(Tiling),           // padrão de azulejos
     // Symbol(Symbol),           // símbolo Unicode
@@ -91,11 +92,12 @@ impl Value {
             Self::Datetime(_)=> "datetime",
             Self::Func(_)    => "function",
             Self::Content(_) => "content",
-            Self::Auto       => "auto",
-            Self::Length(_)  => "length",
-            Self::Ratio(_)   => "ratio",
-            Self::Angle(_)   => "angle",
-            Self::Color(_)   => "color",
+            Self::Auto         => "auto",
+            Self::Length(_)    => "length",
+            Self::Ratio(_)     => "ratio",
+            Self::Angle(_)     => "angle",
+            Self::Color(_)     => "color",
+            Self::Fraction(_)  => "fraction",
         }
     }
 

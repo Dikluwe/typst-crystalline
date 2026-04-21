@@ -11,7 +11,7 @@ use ecow::EcoString;
 use crate::entities::counter_state::CounterAction;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
-use crate::entities::layout_types::{Color, Pt, TextStyle, TransformMatrix};
+use crate::entities::layout_types::{Color, Pt, TextStyle, TrackSizing, TransformMatrix};
 use crate::entities::ptr_eq_arc::PtrEqArc;
 
 /// Conteúdo declarativo produzido por `eval()`.
@@ -233,6 +233,15 @@ pub enum Content {
         body:   Box<Content>,
     },
 
+    /// Grid de colunas com células posicionadas por ordem de leitura (Passo 80).
+    ///
+    /// `rows` é armazenado no AST mas ignorado pelo layouter (DEBT-34b).
+    Grid {
+        columns: Vec<TrackSizing>,
+        rows:    Vec<TrackSizing>, // DEBT-34b: ignorado — todas as linhas são Auto
+        cells:   Vec<Content>,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
@@ -290,6 +299,7 @@ impl Content {
             // Figura: não está vazia se tiver body OU caption com conteúdo.
             Self::Figure { body, caption, .. } =>
                 body.is_empty() && caption.as_ref().is_none_or(|c| c.is_empty()),
+            Self::Grid { cells, .. } => cells.is_empty(),
             _ => false,
         }
     }
@@ -371,6 +381,9 @@ impl Content {
             Self::Image { .. } => String::new(),
             Self::Shape { .. } => String::new(),
             Self::Transform { body, .. } => body.plain_text(),
+            Self::Grid { cells, .. } => {
+                cells.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ")
+            }
         }
     }
 }
@@ -432,6 +445,9 @@ impl PartialEq for Content {
                     && fa == fb && sa == sb,
             (Self::Transform { matrix: ma, body: ba }, Self::Transform { matrix: mb, body: bb }) =>
                 ma == mb && ba == bb,
+            (Self::Grid { columns: ca, rows: ra, cells: xa },
+             Self::Grid { columns: cb, rows: rb, cells: xb }) =>
+                ca == cb && ra == rb && xa == xb,
             _ => false,
         }
     }
@@ -566,6 +582,11 @@ impl Content {
                 matrix: *matrix,
                 body:   Box::new(body.map_content(transform)?),
             },
+            Content::Grid { columns, rows, cells } => {
+                let new_cells: crate::entities::source_result::SourceResult<Vec<Content>> =
+                    cells.iter().map(|c| c.map_content(transform)).collect();
+                Content::Grid { columns: columns.clone(), rows: rows.clone(), cells: new_cells? }
+            },
         };
 
         // Passo 2: aplicar a transformação ao nó já processado.
@@ -651,6 +672,11 @@ impl Content {
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
                 body:   Box::new(body.map_text(transform)),
+            },
+            Content::Grid { columns, rows, cells } => Content::Grid {
+                columns: columns.clone(),
+                rows:    rows.clone(),
+                cells:   cells.iter().map(|c| c.map_text(transform)).collect(),
             },
         }
     }

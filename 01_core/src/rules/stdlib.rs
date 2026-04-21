@@ -15,10 +15,10 @@ use rustc_hash::FxBuildHasher;
 
 use crate::entities::args::Args;
 use crate::entities::content::Content;
-use crate::entities::geometry::{ShapeKind, Stroke};
+use crate::entities::geometry::{PathItem, ShapeKind, Stroke};
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::func::Func;
-use crate::entities::layout_types::{Color, Length, TransformMatrix};
+use crate::entities::layout_types::{Color, Length, Point, Pt, TrackSizing, TransformMatrix};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -857,6 +857,74 @@ pub fn native_line(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
     }))
 }
 
+/// Extrai um par de coordenadas (x, y) de um `Value::Array` com dois elementos numéricos.
+fn extract_coordinate(val: &Value) -> Option<(f64, f64)> {
+    match val {
+        Value::Array(arr) if arr.len() == 2 => {
+            let x = arr[0].cast_float()?;
+            let y = arr[1].cast_float()?;
+            Some((x, y))
+        }
+        _ => None,
+    }
+}
+
+/// `polygon(pt1, pt2, ...; fill?, stroke?)` → `Content::Shape { kind: Path, ... }`.
+///
+/// Cada argumento posicional é um array `[x, y]` em pontos tipográficos.
+/// A bounding box é calculada pelos pontos de controlo (DEBT-33).
+pub fn native_polygon(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+    let mut path_items: Vec<PathItem> = Vec::new();
+    let mut min_x = f64::INFINITY;
+    let mut max_x = f64::NEG_INFINITY;
+    let mut min_y = f64::INFINITY;
+    let mut max_y = f64::NEG_INFINITY;
+
+    for (i, val) in args.items.iter().enumerate() {
+        let (x, y) = extract_coordinate(val)
+            .ok_or_else(|| vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("polygon(): argumento {} não é uma coordenada válida", i),
+            )])?;
+
+        if i == 0 {
+            path_items.push(PathItem::MoveTo(Point { x: Pt(x), y: Pt(y) }));
+        } else {
+            path_items.push(PathItem::LineTo(Point { x: Pt(x), y: Pt(y) }));
+        }
+
+        min_x = min_x.min(x);
+        max_x = max_x.max(x);
+        min_y = min_y.min(y);
+        max_y = max_y.max(y);
+    }
+
+    if path_items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "polygon() requer pelo menos um ponto".to_string(),
+        )]);
+    }
+
+    path_items.push(PathItem::ClosePath);
+
+    let fill   = args.named.get("fill").and_then(parse_color);
+    let stroke = args.named.get("stroke").and_then(|v| {
+        parse_color(v).map(|c| Stroke { paint: c, thickness: 1.0 })
+    });
+
+    let width  = if max_x > min_x { Some(Box::new(Value::Float(max_x - min_x))) } else { None };
+    let height = if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
+
+    Ok(Value::Content(Content::Shape {
+        kind: ShapeKind::Path(path_items),
+        width,
+        height,
+        fill,
+        stroke,
+    }))
+}
+
 /// `move(dx?, dy?, body)` → `Content::Transform { matrix: translate(dx, dy), body }`.
 pub fn native_move(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
     fn extract_pt(val: &Value) -> f64 {
@@ -926,6 +994,45 @@ pub fn native_scale(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Val
         matrix: TransformMatrix::scale(sx, sy),
         body:   Box::new(body),
     }))
+}
+
+// ── Grid (Passo 80) ────────────────────────────────────────────────────────
+
+fn parse_track_sizing(val: &Value) -> Option<TrackSizing> {
+    match val {
+        Value::Float(f)    => Some(TrackSizing::Fixed(*f)),
+        Value::Length(l)   => Some(TrackSizing::Fixed(l.abs.to_pt())),
+        Value::Fraction(fr) => Some(TrackSizing::Fraction(*fr)),
+        Value::Auto        => Some(TrackSizing::Auto),
+        Value::Str(s) if s.as_str() == "auto" => Some(TrackSizing::Auto),
+        _ => None,
+    }
+}
+
+fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
+    match val {
+        Some(Value::Array(arr)) => arr.iter().filter_map(parse_track_sizing).collect(),
+        Some(v) => parse_track_sizing(v).into_iter().collect(),
+        None    => vec![],
+    }
+}
+
+/// `grid(columns?, rows?, ...cells)` → `Content::Grid`.
+pub fn native_grid(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+    for key in args.named.keys() {
+        if !["columns", "rows"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("argumento nomeado inesperado em grid(): '{}'", key),
+            )]);
+        }
+    }
+    let columns = extract_tracks(args.named.get("columns"));
+    let rows    = extract_tracks(args.named.get("rows"));
+    let cells: Vec<Content> = args.items.iter()
+        .filter_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
+        .collect();
+    Ok(Value::Content(Content::Grid { columns, rows, cells }))
 }
 
 #[cfg(test)]
@@ -1399,6 +1506,56 @@ mod tests {
             assert!(stroke.is_some(), "linha tem stroke por omissão");
         } else {
             panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn polygon_sem_pontos_gera_erro() {
+        null_ctx!(ctx);
+        let args = Args::positional(vec![]);
+        let result = native_polygon(&mut ctx, &args);
+        assert!(result.is_err(), "polygon() sem pontos deve retornar Err");
+        let msg = result.unwrap_err();
+        let msg_str = format!("{:?}", msg);
+        assert!(msg_str.contains("pelo menos um ponto"),
+            "Mensagem de erro deve mencionar 'pelo menos um ponto', obteve: {}", msg_str);
+    }
+
+    #[test]
+    fn polygon_com_um_ponto_gera_moveto_e_closepath() {
+        use crate::entities::geometry::{PathItem, ShapeKind};
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![Value::Float(10.0), Value::Float(20.0)]),
+        ]);
+        let result = native_polygon(&mut ctx, &args).unwrap();
+        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = result {
+            assert_eq!(items.len(), 2, "Um ponto deve gerar MoveTo + ClosePath");
+            assert!(matches!(items[0], PathItem::MoveTo(_)), "Primeiro item deve ser MoveTo");
+            assert!(matches!(items[1], PathItem::ClosePath), "Último item deve ser ClosePath");
+        } else {
+            panic!("Esperado Content::Shape com ShapeKind::Path");
+        }
+    }
+
+    #[test]
+    fn polygon_triangulo_gera_moveto_lineto_lineto_closepath() {
+        use crate::entities::geometry::{PathItem, ShapeKind};
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![Value::Float(0.0),  Value::Float(0.0)]),
+            Value::Array(vec![Value::Float(50.0), Value::Float(0.0)]),
+            Value::Array(vec![Value::Float(25.0), Value::Float(50.0)]),
+        ]);
+        let result = native_polygon(&mut ctx, &args).unwrap();
+        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = result {
+            assert_eq!(items.len(), 4); // MoveTo + 2×LineTo + ClosePath
+            assert!(matches!(items[0], PathItem::MoveTo(_)));
+            assert!(matches!(items[1], PathItem::LineTo(_)));
+            assert!(matches!(items[2], PathItem::LineTo(_)));
+            assert!(matches!(items[3], PathItem::ClosePath));
+        } else {
+            panic!("Esperado Content::Shape com ShapeKind::Path");
         }
     }
 

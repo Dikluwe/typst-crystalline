@@ -742,7 +742,7 @@ fn eval_expr(
                 Unit::Deg     => Ok(Value::Angle(Angle::deg(value))),
                 Unit::Rad     => Ok(Value::Angle(Angle::rad(value))),
                 Unit::Percent => Ok(Value::Ratio(Ratio::from_percent(value))),
-                Unit::Fr      => Ok(Value::Float(value)), // fracção — sem tipo dedicado em L1
+                Unit::Fr      => Ok(Value::Fraction(value)),
             }
         }
 
@@ -1475,9 +1475,9 @@ pub(crate) fn intercept_content(
 fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
         make_calc_module, native_assert, native_circle, native_ellipse, native_emph,
-        native_figure, native_float, native_heading,
+        native_figure, native_float, native_grid, native_heading,
         native_image, native_int, native_len, native_line,
-        native_lower, native_luma, native_move, native_range,
+        native_lower, native_luma, native_move, native_polygon, native_range,
         native_rect, native_replace, native_raw, native_rgb, native_rotate, native_scale,
         native_str, native_strong, native_type, native_upper,
     };
@@ -1500,6 +1500,8 @@ fn make_stdlib() -> Scope {
     scope.define("ellipse", Value::Func(Func::native("ellipse", native_ellipse)));
     scope.define("circle",  Value::Func(Func::native("circle",  native_circle)));
     scope.define("line",    Value::Func(Func::native("line",    native_line)));
+    scope.define("polygon", Value::Func(Func::native("polygon", native_polygon)));
+    scope.define("grid",    Value::Func(Func::native("grid",    native_grid)));
     scope.define("move",    Value::Func(Func::native("move",    native_move)));
     scope.define("rotate",  Value::Func(Func::native("rotate",  native_rotate)));
     scope.define("scale",   Value::Func(Func::native("scale",   native_scale)));

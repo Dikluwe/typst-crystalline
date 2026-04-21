@@ -167,15 +167,37 @@ pub enum FrameItem {
     },
     /// Grupo com transformação afim aplicada (Passo 78).
     ///
-    /// O exportador emite q → cm → itens filhos em espaço local → Q.
+    /// O exportador emite q → cm → [W n se clip_mask] → itens filhos → Q.
     /// `pos`: posição do grupo na página (espaço global).
     /// `matrix`: transformação afim com compensação de origem negativa.
+    /// `clip_mask`: forma que restringe o desenho à sua área interna (DEBT-30).
+    ///   Se Some, o exportador emite o path da máscara seguido de `W n` no
+    ///   espaço local (após `cm`). Se None, sem recorte.
+    /// `inner_width`, `inner_height`: dimensões do conteúdo antes da transformação.
+    ///   Necessárias para clip_mask do tipo Rect no espaço local.
     /// `items`: itens em espaço local (Y-down, origem em (0,0)).
     Group {
-        pos:    Point,
-        matrix: TransformMatrix,
-        items:  Vec<FrameItem>,
+        pos:          Point,
+        matrix:       TransformMatrix,
+        clip_mask:    Option<ShapeKind>,
+        inner_width:  f64,
+        inner_height: f64,
+        items:        Vec<FrameItem>,
     },
+}
+
+// ── TrackSizing ───────────────────────────────────────────────────────────
+
+/// Dimensionamento de uma coluna ou linha de grid (Passo 80).
+#[derive(Debug, Clone, PartialEq)]
+pub enum TrackSizing {
+    /// Largura absoluta em pontos.
+    Fixed(f64),
+    /// Ajusta-se ao conteúdo mais largo da coluna, limitado por safe_available.
+    Auto,
+    /// Fracção do espaço restante após Fixed e Auto.
+    /// Pode receber 0pt se Fixed + Auto esgotarem o espaço disponível (DEBT-34d).
+    Fraction(f64),
 }
 
 /// Canvas de uma página — colecção de itens com posições absolutas.

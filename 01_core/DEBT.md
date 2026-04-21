@@ -32,12 +32,14 @@
 de tracking real (`TrackedWorld`). Os testes de L1 nunca exercitavam o caminho de código de produção.
 
 **Resolvido no Passo 32**:
+
 - Testes de integração em `03_infra/src/integration_tests.rs`
 - Pipeline completo exercitado: `SystemWorld` → `eval` → `layout` → `export_pdf`
 - `eval()` pública confirmada como genérica sobre `TrackedWorld`
 - `eval_for_test` mantida para testes unitários rápidos de L1
 
 **Cobertura adicionada**:
+
 - `pipeline_texto_simples`: eval + layout via SystemWorld
 - `pipeline_export_pdf_helvetica`: export com fallback Helvetica
 - `pipeline_export_pdf_com_fonte_real`: export com fonte do sistema (ou fallback)
@@ -52,6 +54,7 @@ de tracking real (`TrackedWorld`). Os testes de L1 nunca exercitavam o caminho d
 **Registado no Passo 32. Resolvido no Passo 33.**
 
 **Resolução**:
+
 - Save/restore de `ctx.styles` em `Expr::CodeBlock` (`#{ }`)
 - Save/restore de `ctx.styles` em `Expr::ContentBlock` (`[ ]`)
 - Save/restore de `ctx.styles` em `apply_closure` (body de closures)
@@ -138,7 +141,6 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 **Ficheiros alterados**: `entities/style_chain.rs` (novo), `entities/mod.rs`,
 `entities/content.rs`, `rules/eval.rs`, `rules/layout.rs`
 
-
 ---
 
 ## DEBT-8 — Motor de equações — PARCIALMENTE RESOLVIDO
@@ -146,6 +148,7 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 **Parcialmente resolvido no Passo 37**. Registado no Passo 34.
 
 **Resolvido no Passo 36**:
+
 - `MathLayouter` criado em `rules/math/layout.rs` (L1 puro)
 - `MathIdent` e `MathText` → `FrameItem::Text` (sem placeholder)
 - `MathFrac`, `MathAttach`, `MathRoot` → texto plano sem `[...]`
@@ -153,6 +156,7 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 - `Content::Equation` delega ao `MathLayouter` para inline e block
 
 **Resolvido no Passo 39**:
+
 - `rules/math/symbols.rs` com `ident_to_unicode`, `shorthand_to_unicode`,
   `is_math_function`, `is_single_letter_var`
 - `Expr::MathIdent` em `eval_math_expr`: símbolo conhecido → `Content::MathText(unicode)`
@@ -161,6 +165,7 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 - Funções (sin, cos, lim, etc.) → `TextStyle { italic: false }`
 
 **Resolvido no Passo 38**:
+
 - `FrameItem::Line { start, end, thickness }` adicionado a `layout_types.rs`
 - `layout_frac` emite `FrameItem::Line` para a linha horizontal entre num/den
 - `MathBox::place()` e `hconcat()` propagam offsets para `FrameItem::Line`
@@ -169,6 +174,7 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 - `MathDelimited` em `eval_math_expr` inclui `open` e `close` como `MathText`
 
 **Resolvido no Passo 37**:
+
 - `MathBox { width, ascent, descent, items }` como unidade de layout
 - `MathFrac`: numerador acima da baseline, denominador abaixo,
   tamanho 70% do texto base. Sem linha de fracção (Passo 38+)
@@ -181,6 +187,7 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
   posicionamento vertical correcto
 
 **Resolvido no Passo 40**:
+
 - `sqrt(x)` como função nativa em `eval_math_expr` → `Content::MathRoot { index: None }`
 - `root(n, x)` como função nativa → `Content::MathRoot { index: Some(n) }`
 - Validação de aridade: `sqrt()` e `sqrt(x,y)` retornam `Err`; `root(3)` retorna `Err`
@@ -189,6 +196,7 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 - `sqrt` e `root` adicionados a `is_math_function` (renderizados sem itálico)
 
 **Ainda pendente**:
+
 - Kern matemático entre símbolos
 - Fontes OpenType MATH (tabelas MATH, variantes de tamanho)
 - `MathPrimes`, `MathAlignPoint`
@@ -201,6 +209,7 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 **Registado no Passo 57. Encerrado no Passo 62.**
 
 **Resolução (Passagens 1 e 2)**:
+
 - `01_core/src/rules/introspect.rs` criado: pré-passagem analítica que percorre
   `Content` sem alocações visuais, popula `resolved_labels: HashMap<Label, String>`.
 - `layout()` recebe `CounterState` externo — o orquestrador chama `introspect` primeiro.
@@ -210,6 +219,7 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
   Passagem 1, Layouter desenha blocos numerados na Passagem 2.
 
 **Ficheiros criados/alterados**:
+
 - `01_core/src/rules/introspect.rs` (novo)
 - `01_core/src/entities/counter_state.rs` — `resolved_labels`, `headings_for_toc`, `auto_label_counter`
 - `01_core/src/rules/layout/mod.rs` — `layout()` com estado externo
@@ -224,6 +234,7 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 **Registado no Passo 60. Resolvido no Passo 61.**
 
 **Resolução**:
+
 - `layout.rs` (1408 linhas) convertido em `layout/mod.rs` (orquestrador).
 - `rules/layout/counters.rs`: braços `SetHeadingNumbering`, `CounterUpdate`, `CounterDisplay`.
 - `rules/layout/references.rs`: braços `Ref` e `Labelled`.
@@ -253,6 +264,7 @@ funcionalidades forem implementadas, adicionar casos de paridade correspondentes
 **Registado no Passo 61. Resolvido no Passo 63.**
 
 **Resolução**: orquestração em 3 passagens no `compile_to_pdf` de L3:
+
 - Passagem 1 (introspecção): `introspect()` popula `resolved_labels` e `headings_for_toc`.
 - Passagem 2 (draft): `layout()` regista `label_pages` via `layout_labelled` e expõe-o em
   `PagedDocument::extracted_label_pages`. A TOC ainda não tem números de página.
@@ -312,6 +324,7 @@ como DEBT-18 (perda de contexto temporal em AST clonado na TOC).
 **Registado no Passo 62. Resolvido no Passo 64.**
 
 **Resolução**:
+
 - `NativeFunc.call` mudou de `fn(&[Value])` para `fn(&Args)` — aceita positional e named args.
 - `apply_func` passa `&args` directamente: `(native.call)(&args)`.
 - Função auxiliar `expect_no_named()` adicionada em `stdlib.rs` — funções que não aceitam
@@ -333,6 +346,7 @@ O orquestrador L3 (`compile_to_pdf`) voltou a ser linear:
 `introspect()` → `layout()` → `export_pdf()`.
 
 **Separação leitura/escrita**: `CounterState` tem dois campos distintos:
+
 - `label_pages`: escrito por `references.rs` em cada iteração (começa vazio via `Layouter::new()`).
 - `known_page_numbers`: lido por `outline.rs`, injectado pelo fixpoint com o mapa da iteração anterior.
 
@@ -412,7 +426,7 @@ por nó antes de prosseguir — custo reduzido de O(R×N) para O(N).
 
 ---
 
-## DEBT-24b — Dimensões reais de imagem — ENCERRADO (Passo 72) ✓
+## DEBT-24b — Dimensões reais de imagem — **ENCERRADO (Passo 72)** ✓
 
 Placeholder 100×100 substituído por leitura real de dimensões via trait
 `ImageSizer` injectado no layouter. L3 implementa com `imagesize`;
@@ -420,7 +434,7 @@ L1 mantém-se puro (zero dependências externas adicionais).
 
 ---
 
-## DEBT-24c — FrameItem::Image e export PDF — ENCERRADO (Passo 73) ✓
+## DEBT-24c — FrameItem::Image e export PDF — **ENCERRADO (Passo 73)** ✓
 
 `FrameItem::Image` adicionado ao layouter e ao exportador PDF. JPEG embutido
 com `/DCTDecode`. Deduplicação por `Arc::as_ptr`. Espaço reservado no layout
@@ -428,7 +442,7 @@ e imagem emitida no PDF para ficheiros JPEG.
 
 ---
 
-## DEBT-27 — Suporte a transparência PNG no exportador PDF — ENCERRADO ✓ (Passo 74)
+## DEBT-27 — Suporte a transparência PNG no exportador PDF — **ENCERRADO (Passo 74)** ✓
 
 PDF não suporta ficheiros PNG crus. PNG requer descodificação de píxeis
 (canal RGBA separado para /SMask de transparência) antes de ser embutido.
@@ -438,7 +452,7 @@ em RGBA plano e passar ao gerador de PDF.
 
 ---
 
-## DEBT-28 — Dupla leitura de cabeçalho de imagem no layouter — ENCERRADO ✓ (Passo 74)
+## DEBT-28 — Dupla leitura de cabeçalho de imagem no layouter — **ENCERRADO (Passo 74)** ✓
 
 `calculate_dimensions` e `sizer.size()` lêem o cabeçalho da imagem separadamente.
 O custo é mínimo (imagesize lê apenas o cabeçalho, não os píxeis), mas é
@@ -447,7 +461,7 @@ com `intrinsic_width`, `intrinsic_height` — eliminando a segunda chamada.
 
 ---
 
-## DEBT-29 — Detecção de ColorSpace para JPEGs crus — ENCERRADO ✓ (Passo 74)
+## DEBT-29 — Detecção de ColorSpace para JPEGs crus — **ENCERRADO (Passo 74)** ✓
 
 O exportador assume `DeviceRGB` para todos os JPEGs. JPEGs Grayscale (1 canal)
 ou CMYK (4 canais) com ColorSpace errado produzem lixo visual ou rejeição pelo
@@ -456,7 +470,7 @@ determinar o número de canais e escolher `DeviceRGB`, `DeviceGray` ou `DeviceCM
 
 ---
 
-## DEBT-25 — Resolução de caminhos relativos em stdlib (Passo 71) — ENCERRADO ✓ (Passo 75)
+## DEBT-25 — Resolução de caminhos relativos em stdlib (Passo 71) — **ENCERRADO (Passo 75)** ✓
 
 `native_image` passa o caminho ao `World::read_bytes` tal como fornecido pelo
 utilizador (relativo à raiz do projecto). Não há resolução relativa ao ficheiro
@@ -465,7 +479,7 @@ para que `native_image` construa um caminho absoluto.
 
 ---
 
-## DEBT-32 — Alinhamento da bounding box para linhas com deltas negativos — ENCERRADO ✓ (Passo 77)
+## DEBT-32 — Alinhamento da bounding box para linhas com deltas negativos — **ENCERRADO (Passo 77)** ✓
 
 O exportador desenhava a linha a partir de `pos.x` sem considerar o sinal de `dx`/`dy`.
 Se `dx < 0`, a linha saía para a esquerda da bounding box. A correcção mapeia
@@ -473,16 +487,24 @@ início/fim dentro da bounding box com base no sinal dos deltas.
 
 ---
 
-## DEBT-30 — Suporte a clipping paths (clip: true) — EM ABERTO (Passo 76)
+## DEBT-30 — Suporte a clipping paths (clip: true) — ENCERRADO ✓ (Passo 79)
 
 Contentores com `clip: true` requerem o operador `W` (clipping path) e a sequência
 `W n` antes de desenhar o conteúdo interno. O PDF mantém um clipping path activo
 por estado gráfico (`q`/`Q`), portanto `clip: true` exige um push/pop de estado
-adicional. Resolução: passo futuro de layout de contentores.
+adicional. Campo `clip_mask: Option<ShapeKind>` adicionado a `FrameItem::Group`.
+O exportador emite `W n` no espaço local do Group, após a matriz `cm`.
+
+## DEBT-33 — Bounding Box de curvas Bézier (Passo 79) — EM ABERTO
+
+A bounding box de `ShapeKind::Path` é calculada verificando o min/max dos pontos
+de controlo. Para `CubicTo`, a curva real pode ultrapassar a caixa delimitadora
+dos pontos de controlo, causando vazamento visual subtil. Resolução futura:
+cálculo analítico dos extremos da curva paramétrica B(t) para obter a AABB exacta.
 
 ---
 
-## DEBT-31 — Transformações afins (rotate, scale) em nós — ENCERRADO ✓ (Passo 78)
+## DEBT-31 — Transformações afins (rotate, scale) em nós — **ENCERRADO (Passo 78)** ✓
 
 Rotação e escala requerem a matriz `cm` com valores não-identidade:
 `[cos -sin sin cos tx ty]` para rotação. A bounding box de um nó rodado não é
@@ -492,9 +514,34 @@ Resolução: passo futuro de transformações.
 
 ---
 
-## DEBT-26 — PartialEq O(N) sobre Arc<Vec<u8>> em Content::Image — ENCERRADO ✓ (Passo 74)
+## DEBT-26 — PartialEq O(N) sobre Arc<Vec<u8>> em Content::Image — **ENCERRADO (Passo 74)** ✓
 
 A implementação manual de `PartialEq` para `Content::Image` compara `data`
 por valor (`da == db`), o que é O(N) nos bytes da imagem. Em contextos de
 teste ou deduplicação frequente, usar `Arc::ptr_eq` primeiro e cair para
 comparação por valor apenas se os ponteiros diferirem.
+
+---
+
+## DEBT-34b — Parâmetro rows em Content::Grid ignorado — EM ABERTO (Passo 80)
+
+O campo `rows` de `Content::Grid` é armazenado no AST mas ignorado pelo layouter.
+Todas as linhas operam como Auto. Resolução: passo futuro de layout de grid
+com rows explícitos.
+
+## DEBT-34c — Alinhamento vertical de células no Grid — EM ABERTO (Passo 80)
+
+As células assumem top-alignment. Alinhamento vertical (baseline, center, bottom)
+requer calcular a altura máxima da linha antes de posicionar os itens.
+Resolução: passo futuro.
+
+## DEBT-34d — Auto não encolhe antes de matar fr — EM ABERTO (Passo 80)
+
+Um Auto guloso (célula com texto longo) pode consumir todo o `safe_available`,
+deixando 0pt para as colunas fr. Resolução futura: implementar min-content e
+max-content para Auto, com negociação entre Auto e fr.
+
+## DEBT-34e — colspan e rowspan — EM ABERTO (Passo 80)
+
+Células que ocupam múltiplas colunas ou linhas requerem um algoritmo de
+placement diferente. Resolução: passo futuro.
