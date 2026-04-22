@@ -1,6 +1,6 @@
 # ⚖️ ADR-0031: Early hashing em Source — complementa ADR-0016
 
-**Status**: `ACCEPTED`
+**Status**: `IMPLEMENTADO`
 **Data**: 2026-03-29
 **Complementa**: ADR-0016 (remoção de LazyHash de L1)
 

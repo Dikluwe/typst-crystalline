@@ -1,6 +1,6 @@
 # ⚖️ ADR-0030: Gestão eficiente de RAM é domínio de L1 — alinhamento filosófico
 
-**Status**: `ACCEPTED`
+**Status**: `EM VIGOR`
 **Data**: 2026-03-29
 **Corrige (não revoga)**: ADR-0004 (justificativa sobre performance), ADR-0015 (remoção de ecow do parser)
 
@@ -111,7 +111,7 @@ Esta ADR estabelece duas regras que derivam desta distinção:
    valor precisa de ser replicado para múltiplos donos sem
    duplicar bytes, usar `Arc::clone` explicitamente. Exemplos no
    código actual: `Source` contém `Arc<str>` (ADR-0031),
-   `Content::Sequence(Arc<[Content]>)` (ADR-0026-revisao),
+   `Content::Sequence(Arc<[Content]>)` (ADR-0026-R1),
    `Arc<[ShowRule]>` em `EvalContext` (Passo 84.4 / DEBT-22).
 
 **Observação sobre detecção**: a distinção entre clone profundo e
@@ -120,7 +120,7 @@ Esta ADR estabelece duas regras que derivam desta distinção:
 e passos de materialização devem verificar que campos em hot-path
 têm tipos que tornam `clone` O(1), não O(n).
 
-**Relação com ADR-0026-revisao**: a decisão de usar `Arc<[Content]>`
+**Relação com ADR-0026-R1**: a decisão de usar `Arc<[Content]>`
 em `Content::Sequence` é instância directa desta regra.
 
 **Relação com DEBT-22** (encerrado no Passo 84.4): a conversão de

@@ -1,6 +1,8 @@
 # ⚖️ ADR-0003: comemo e Hierarquia de Contenção — Coexistência
 
-**Status**: `IDEIA — não implementar ainda`
+**Status**: `IDEIA`
+**Nota**: direcção registada para consideração futura; não
+materializar em L1 sem reavaliação prévia.
 **Data**: 2026-03-22
 **Contexto**: migração Typst → Arquitetura Cristalina
 

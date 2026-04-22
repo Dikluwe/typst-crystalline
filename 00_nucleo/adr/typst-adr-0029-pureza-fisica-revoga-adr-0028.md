@@ -1,8 +1,8 @@
 # ⚖️ ADR-0029: Definição física de pureza em L1 — revoga ADR-0028
 
-**Status**: `ACCEPTED`
-**Data**: 2026-03-29
+**Status**: `EM VIGOR`
 **Revoga**: ADR-0028 (Representação Simplificada dos Tipos Tipográficos)
+**Data**: 2026-03-29
 
 ---
 

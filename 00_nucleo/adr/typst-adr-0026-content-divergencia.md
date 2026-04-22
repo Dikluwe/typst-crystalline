@@ -1,6 +1,11 @@
 # ⚖️ ADR-0026: Content cristalino — divergência intencional do original
 
 **Status**: `IMPLEMENTADO`
+**Revisto por**: ADR-0026-R1
+**Nota**: decisão original continua em vigor (Content como enum
+em L1). ADR-0026-R1 refina a forma interna de `Content::Sequence`
+para `Arc<[Content]>` — ver esse ADR para detalhes da
+implementação corrente.
 **Data**: 2026-03-27
 
 ---

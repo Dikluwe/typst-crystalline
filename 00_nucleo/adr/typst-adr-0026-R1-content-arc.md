@@ -1,8 +1,8 @@
 # ⚖️ ADR-0026 (Revisão): Content cristalino — actualização de ADR-0026
 
-**Status**: `UPDATED`
+**Status**: `IMPLEMENTADO`
+**Revê**: ADR-0026
 **Data**: 2026-03-29
-**Actualiza**: ADR-0026 (Content cristalino — divergência intencional do original)
 **Motivação**: ADR-0029 (pureza física) e ADR-0030 (performance é domínio)
 
 ---
