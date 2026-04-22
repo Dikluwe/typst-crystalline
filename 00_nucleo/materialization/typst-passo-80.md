@@ -9,7 +9,7 @@ Ler antes de começar:
 - `01_core/src/entities/content.rs` — Onde `Content::Grid` será adicionado.
 - `01_core/src/rules/layout/mod.rs` — Onde o algoritmo de resolução de
   colunas vive. Confirmar se `measure_content` já existe e com que assinatura.
-- `01_core/DEBT.md` — Confirmar que DEBT-30 está encerrado e DEBT-33 em aberto.
+- `00_nucleo/DEBT.md` — Confirmar que DEBT-30 está encerrado e DEBT-33 em aberto.
 
 Pré-condição: `cargo test` — ~721 L1 + ~147 L3, zero violations. Passo 79
 concluído. Clipping paths, polígonos e caminhos livres funcionam.
@@ -524,7 +524,7 @@ Critérios de conclusão:
 - [ ] Fase 3: posições das células são absolutas (saved_x + item_pos.x).
   `current_row_max_h` avança apenas no fim da linha.
 - [ ] Linha incompleta no fim do grid avança `cursor_y` por `current_row_max_h`.
-- [ ] DEBT-34b, 34c, 34d, 34e registados em `01_core/DEBT.md`.
+- [ ] DEBT-34b, 34c, 34d, 34e registados em `00_nucleo/DEBT.md`.
 - [ ] Teste `grid_altura_da_linha_e_o_maximo_das_celulas` passa.
 - [ ] Teste `grid_fr_recebe_zero_quando_auto_e_guloso` não entra em pânico.
 - [ ] Zero violações no linter e no clippy.

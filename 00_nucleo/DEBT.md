@@ -1,3 +1,53 @@
+# Inventário de dívida técnica
+
+> Reorganização aplicada no Passo 83.5: três secções — abertos, encerrados,
+> instrumentação. Texto de cada entrada preservado tal como estava antes da
+> reorganização. Numeração descontínua é intencional (DEBT-4, DEBT-5 nunca
+> existiram; DEBT-24a, DEBT-34a idem).
+
+---
+
+## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
+
+## DEBT-1 — StyleChain — PARCIALMENTE RESOLVIDO
+
+### Resolvido no Passo 30
+
+- **`StyleChain`** implementada em `entities/style_chain.rs` (L1)
+- **`StyleDelta { bold, italic, size }`** como delta de herança
+- **`#set text(bold:, italic:, size:)`** avaliado em `eval_expr` (Expr::SetRule)
+- **`EvalContext::styles: StyleChain`** — cadeia activa durante eval
+- **`TextStyle::from(&StyleChain)`** — bridge para layout/export actuais
+- **`Content::Text(EcoString, TextStyle)`** — estilo capturado em eval
+- **Strong/Emph/Heading** em eval: push/pop de estilos correcto
+
+### Divergência intencional
+
+- `#set` é global ao eval (não tem scoping por bloco) — DEBT menor
+- Apenas `text` como target suportado — outros targets ignorados silenciosamente
+- StyleChain não integrada com `#show` rules (Passo futuro)
+- Layout usa merge de node_style + self.style para compatibilidade com testes directos
+
+### Pendente
+
+- Propriedades adicionais (fill, font-family, weight numérico, etc.)
+- Paridade total com o sistema de styles do original
+- Remover os wrappers Content::Strong/Emph do layout quando eval os tiver totalmente substituído
+
+**Ficheiros alterados**: `entities/style_chain.rs` (novo), `entities/mod.rs`,
+`entities/content.rs`, `rules/eval.rs`, `rules/layout.rs`
+
+### Nota — actualização no Passo 84.1
+
+Duas pendências originais ("Scoping de `#set` por bloco" e "`#show` rules")
+foram riscadas por terem sido resolvidas implicitamente por outros DEBTs
+(DEBT-7 e DEBT-19/20 respectivamente). A auditoria do Passo 83.5
+confirmou a presença do código correspondente em `eval.rs`. As
+pendências remanescentes (propriedades adicionais, paridade, wrappers)
+continuam em aberto.
+
+---
+
 ## DEBT-2 — Closures eager vs lazy capture — PARCIALMENTE RESOLVIDO
 
 ### Resolvido no Passo 31
@@ -21,125 +71,6 @@
 
 - Integração com `comemo` para tracking semântico real
 - Testes de paridade com o original para cenários avançados de shadowing
-
----
-
-## DEBT-6 — eval_for_test coverage blind spot — RESOLVIDO
-
-### Registado e resolvido no Passo 32
-
-**Problema**: `eval_for_test` usa `MockWorld` — um mundo artificial que não passa pelo mecanismo
-de tracking real (`TrackedWorld`). Os testes de L1 nunca exercitavam o caminho de código de produção.
-
-**Resolvido no Passo 32**:
-
-- Testes de integração em `03_infra/src/integration_tests.rs`
-- Pipeline completo exercitado: `SystemWorld` → `eval` → `layout` → `export_pdf`
-- `eval()` pública confirmada como genérica sobre `TrackedWorld`
-- `eval_for_test` mantida para testes unitários rápidos de L1
-
-**Cobertura adicionada**:
-
-- `pipeline_texto_simples`: eval + layout via SystemWorld
-- `pipeline_export_pdf_helvetica`: export com fallback Helvetica
-- `pipeline_export_pdf_com_fonte_real`: export com fonte do sistema (ou fallback)
-- `pipeline_com_set_text_bold`: StyleChain via pipeline real
-- `pipeline_com_closures`: closures via pipeline real
-- `pipeline_eval_retorna_err_em_sintaxe_invalida`: robustez a input inválido
-
----
-
-## DEBT-7 — Merge bold em layout — RESOLVIDO
-
-**Registado no Passo 32. Resolvido no Passo 33.**
-
-**Resolução**:
-
-- Save/restore de `ctx.styles` em `Expr::CodeBlock` (`#{ }`)
-- Save/restore de `ctx.styles` em `Expr::ContentBlock` (`[ ]`)
-- Save/restore de `ctx.styles` em `apply_closure` (body de closures)
-- Merge `bold || node_style.bold` e `italic || node_style.italic` removidos de `layout.rs`
-- `#set text(bold: false)` dentro de um bloco agora reverte correctamente ao sair do bloco
-- `node_style` capturado em eval já inclui o estilo correcto de Strong/Emph/Heading
-
-**Ficheiros alterados**: `rules/eval.rs`, `rules/layout.rs`
-
----
-
-# Dívida de instrumentação — ADR-0006
-
-Os seguintes pontos de timing foram removidos para manter L1 puro.
-Religação prevista no Passo 10 (isolamento de comemo/infra).
-
-| Função       | Nome do scope original |
-|--------------|------------------------|
-| parse()      | "parse"                |
-| parse_code() | "parse-code"           |
-| parse_math() | "parse-math"           |
-
-## Como religar no Passo 10
-
-Localizar todos os `// ADR-0006: timing removed — ver 01_core/DEBT.md`
-em `01_core/src/rules/parse.rs` e substituir `timing_scope!("...")` por
-o mecanismo de telemetria escolhido (trait injectável ou outro).
-
-Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
-
-## DEBT-3 — Safety rails hardcoded — RESOLVIDO (estrutura)
-
-### Resolvido no Passo 28
-
-- **`while` limit**: 10.000 → 1.000.000, via `EvalContext::tick_loop()`
-- **`MAX_CALL_DEPTH`**: 200 → 250, via `EvalContext::check_call_depth()`
-- **Limites documentados em `EvalContext`**: não mais magia inline
-- **Métodos de verificação**: `check_call_depth()` e `tick_loop()` implementados
-- **Limite global de loop**: contador acumulado ao longo de toda eval, não por loop
-
-### Resolvido no Passo 29
-
-- **Detecção de ciclos de importação**: `EvalContext::enter_import()` + `ImportGuard`
-- **`import_stack: Vec<FileId>`**: rastreamento de ficheiros em avaliação
-- **`ModuleImport` e `ModuleInclude`**: retornam Err limpo (não panic)
-
-### Pendente (não é DEBT — é feature futura)
-
-- **Implementação de `import` completo**: Passo 33+
-- **Integração com `comemo`**: tracking semântico real (aguarda TrackedWorld real)
-
-### Ficheiros alterados
-
-- `01_core/src/rules/eval.rs`: `EvalContext` (max_call_depth 250, import_stack), `ImportGuard`, `ModuleImport`/`ModuleInclude` handling
-- `01_core/src/rules/eval.rs`: testes novos de import_stack e ModuleImport/Include
-
-## DEBT-1 — StyleChain — PARCIALMENTE RESOLVIDO
-
-### Resolvido no Passo 30
-
-- **`StyleChain`** implementada em `entities/style_chain.rs` (L1)
-- **`StyleDelta { bold, italic, size }`** como delta de herança
-- **`#set text(bold:, italic:, size:)`** avaliado em `eval_expr` (Expr::SetRule)
-- **`EvalContext::styles: StyleChain`** — cadeia activa durante eval
-- **`TextStyle::from(&StyleChain)`** — bridge para layout/export actuais
-- **`Content::Text(EcoString, TextStyle)`** — estilo capturado em eval
-- **Strong/Emph/Heading** em eval: push/pop de estilos correcto
-
-### Divergência intencional
-
-- `#set` é global ao eval (não tem scoping por bloco) — DEBT menor
-- Apenas `text` como target suportado — outros targets ignorados silenciosamente
-- StyleChain não integrada com `#show` rules (Passo futuro)
-- Layout usa merge de node_style + self.style para compatibilidade com testes directos
-
-### Pendente
-
-- Scoping de `#set` por bloco `{ }`
-- Propriedades adicionais (fill, font-family, weight numérico, etc.)
-- `#show` rules
-- Paridade total com o sistema de styles do original
-- Remover os wrappers Content::Strong/Emph do layout quando eval os tiver totalmente substituído
-
-**Ficheiros alterados**: `entities/style_chain.rs` (novo), `entities/mod.rs`,
-`entities/content.rs`, `rules/eval.rs`, `rules/layout.rs`
 
 ---
 
@@ -199,8 +130,186 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 
 - Kern matemático entre símbolos
 - Fontes OpenType MATH (tabelas MATH, variantes de tamanho)
-- `MathPrimes`, `MathAlignPoint`
+- `MathPrimes` (parseado e evaluado em `eval.rs`, sem lógica de kern/posição no layouter)
 - Baseline correcta em relação ao x-height da fonte
+
+### Nota — actualização no Passo 84.1
+
+`MathAlignPoint` foi removido da lista de pendências — verificação no
+Passo 83.5 confirmou implementação completa em `math/layout.rs`,
+`eval.rs` e `layout/mod.rs`. A entrada de `MathPrimes` foi clarificada
+para indicar o estado parcial (parseado mas sem lógica de layout
+dedicada).
+
+---
+
+## DEBT-9 — Cobertura de paridade — tracking contínuo
+
+**Estado**: Baseline estabelecido no Passo 35. Sem divergências no corpus actual.
+
+**Descrição**: O parity_runner testa 50 inputs (40 markup/code/math gerais + 10 math
+específicos do Passo 34). Todos passam. À medida que o motor de equações e novas
+funcionalidades forem implementadas, adicionar casos de paridade correspondentes.
+
+**Quando expandir**: A cada passo que adicione novo SyntaxKind ou altere semântica do parser.
+
+**Referência**: `lab/parity/tests/parse_parity.rs`, baseline em
+`00_nucleo/materialization/parity-baseline-passo-35.md`
+
+---
+
+## DEBT-21 — Resolução de NodeKind por string — **MITIGADO (Passo 70), desbloqueado (Passo 84.1)**
+
+`Func::name()` continua a ser usado. Aliasing não é detectado. Resolução
+completa por ponteiro (`fn_addr_eq`) está agora disponível — a toolchain
+do projecto usa Rust 1.92 (verificado no Passo 83.5). A mitigação pode
+ser substituída por resolução definitiva num passo de código dedicado
+(candidato FÁCIL para o Passo 84.3).
+
+Mensagens de erro melhoradas para closures anónimas (None → Err explícito).
+
+---
+
+## DEBT-22 — Clone de show_rules por nó (Passo 68)
+
+`ctx.show_rules.clone()` em `intercept_content` é O(N) por cada nó de
+conteúdo gerado. Em documentos grandes com muitas regras, o custo acumula.
+Resolução: usar `Rc<[ShowRule]>` ou indexação para partilhar a lista sem
+copiar, separando o estado de mutação da leitura.
+
+---
+
+## DEBT-33 — Bounding Box de curvas Bézier (Passo 79) — EM ABERTO
+
+A bounding box de `ShapeKind::Path` é calculada verificando o min/max dos pontos
+de controlo. Para `CubicTo`, a curva real pode ultrapassar a caixa delimitadora
+dos pontos de controlo, causando vazamento visual subtil. Resolução futura:
+cálculo analítico dos extremos da curva paramétrica B(t) para obter a AABB exacta.
+
+---
+
+## DEBT-34d — Auto não encolhe antes de matar fr — EM ABERTO (Passo 80)
+
+Um Auto guloso (célula com texto longo) pode consumir todo o `safe_available`,
+deixando 0pt para as colunas fr. Resolução futura: implementar min-content e
+max-content para Auto, com negociação entre Auto e fr.
+
+---
+
+## DEBT-34e — colspan e rowspan — EM ABERTO (Passo 80)
+
+Células que ocupam múltiplas colunas ou linhas requerem um algoritmo de
+placement diferente. Resolução: passo futuro.
+
+---
+
+## DEBT-35b — Invalidação de cache de available_width após SetPage — EM ABERTO (Passo 81)
+
+Se alguma função guardar available_width em cache como campo do Layouter,
+esse cache tem de ser invalidado no processamento de Content::SetPage.
+Actualmente available_width() é calculado em tempo real sem cache —
+este DEBT documenta o risco caso um cache venha a ser adicionado.
+
+---
+
+## DEBT-36 — Operadores simbólicos de alinhamento (center + bottom) — EM ABERTO (Passo 82)
+
+`align` e `place` aceitam strings (`"center"`, `"top-right"`) porque o parser
+ainda não suporta operadores de composição simbólica como `center + bottom`.
+Resolução: quando o parser suportar `Value::Align` com composição, substituir
+`Align2D::from_string` pelo parse directo da variante.
+
+---
+
+## DEBT-37 — Place relativo ao contentor pai — EM ABERTO (Passo 82)
+
+`Content::Place` ancora às margens absolutas da página. O Typst suporta
+`place` relativo ao bloco pai (ex: dentro de um grid, `place` ancora na célula).
+Resolução: passar a área de âncora como parâmetro ao processar `Place`.
+
+---
+
+## DEBT-38 — Cache de sub-frames no Grid Auto — EM ABERTO (Passo 83)
+
+A resolução de altura de linhas Auto chama `layout_sub_frame_with_width` para
+medir a altura intrínseca de cada item, descartando os FrameItems produzidos.
+Quando a célula é emitida no documento, a mesma função é chamada de novo para o
+mesmo item com a mesma largura, duplicando o trabalho de layout em todas as
+células Auto.
+Resolução: cache de `(Content*, width) → (height, Vec<FrameItem>)` válido
+dentro da resolução de um Grid. Reutilizar o resultado da medição na emissão.
+
+---
+
+## Secção 2 — DEBTs encerrados
+
+## DEBT-3 — Safety rails hardcoded — RESOLVIDO (estrutura)
+
+### Resolvido no Passo 28
+
+- **`while` limit**: 10.000 → 1.000.000, via `EvalContext::tick_loop()`
+- **`MAX_CALL_DEPTH`**: 200 → 250, via `EvalContext::check_call_depth()`
+- **Limites documentados em `EvalContext`**: não mais magia inline
+- **Métodos de verificação**: `check_call_depth()` e `tick_loop()` implementados
+- **Limite global de loop**: contador acumulado ao longo de toda eval, não por loop
+
+### Resolvido no Passo 29
+
+- **Detecção de ciclos de importação**: `EvalContext::enter_import()` + `ImportGuard`
+- **`import_stack: Vec<FileId>`**: rastreamento de ficheiros em avaliação
+- **`ModuleImport` e `ModuleInclude`**: retornam Err limpo (não panic)
+
+### Pendente (não é DEBT — é feature futura)
+
+- **Implementação de `import` completo**: Passo 33+
+- **Integração com `comemo`**: tracking semântico real (aguarda TrackedWorld real)
+
+### Ficheiros alterados
+
+- `01_core/src/rules/eval.rs`: `EvalContext` (max_call_depth 250, import_stack), `ImportGuard`, `ModuleImport`/`ModuleInclude` handling
+- `01_core/src/rules/eval.rs`: testes novos de import_stack e ModuleImport/Include
+
+---
+
+## DEBT-6 — eval_for_test coverage blind spot — RESOLVIDO
+
+### Registado e resolvido no Passo 32
+
+**Problema**: `eval_for_test` usa `MockWorld` — um mundo artificial que não passa pelo mecanismo
+de tracking real (`TrackedWorld`). Os testes de L1 nunca exercitavam o caminho de código de produção.
+
+**Resolvido no Passo 32**:
+
+- Testes de integração em `03_infra/src/integration_tests.rs`
+- Pipeline completo exercitado: `SystemWorld` → `eval` → `layout` → `export_pdf`
+- `eval()` pública confirmada como genérica sobre `TrackedWorld`
+- `eval_for_test` mantida para testes unitários rápidos de L1
+
+**Cobertura adicionada**:
+
+- `pipeline_texto_simples`: eval + layout via SystemWorld
+- `pipeline_export_pdf_helvetica`: export com fallback Helvetica
+- `pipeline_export_pdf_com_fonte_real`: export com fonte do sistema (ou fallback)
+- `pipeline_com_set_text_bold`: StyleChain via pipeline real
+- `pipeline_com_closures`: closures via pipeline real
+- `pipeline_eval_retorna_err_em_sintaxe_invalida`: robustez a input inválido
+
+---
+
+## DEBT-7 — Merge bold em layout — RESOLVIDO
+
+**Registado no Passo 32. Resolvido no Passo 33.**
+
+**Resolução**:
+
+- Save/restore de `ctx.styles` em `Expr::CodeBlock` (`#{ }`)
+- Save/restore de `ctx.styles` em `Expr::ContentBlock` (`[ ]`)
+- Save/restore de `ctx.styles` em `apply_closure` (body de closures)
+- Merge `bold || node_style.bold` e `italic || node_style.italic` removidos de `layout.rs`
+- `#set text(bold: false)` dentro de um bloco agora reverte correctamente ao sair do bloco
+- `node_style` capturado em eval já inclui o estilo correcto de Strong/Emph/Heading
+
+**Ficheiros alterados**: `rules/eval.rs`, `rules/layout.rs`
 
 ---
 
@@ -227,8 +336,6 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 
 ---
 
----
-
 ## DEBT-11 — Decomposição de `layout.rs` — RESOLVIDO
 
 **Registado no Passo 60. Resolvido no Passo 61.**
@@ -241,21 +348,6 @@ Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`
 - `rules/layout/outline.rs`: braço `Content::Outline` (TOC).
 - L0 criados: `layout_counters.md`, `layout_references.md`, `layout_outline.md`.
 - `layout()` passa a receber `CounterState` externo — o orquestrador chama `introspect` primeiro.
-
----
-
-## DEBT-9 — Cobertura de paridade — tracking contínuo
-
-**Estado**: Baseline estabelecido no Passo 35. Sem divergências no corpus actual.
-
-**Descrição**: O parity_runner testa 50 inputs (40 markup/code/math gerais + 10 math
-específicos do Passo 34). Todos passam. À medida que o motor de equações e novas
-funcionalidades forem implementadas, adicionar casos de paridade correspondentes.
-
-**Quando expandir**: A cada passo que adicione novo SyntaxKind ou altere semântica do parser.
-
-**Referência**: `lab/parity/tests/parse_parity.rs`, baseline em
-`00_nucleo/materialization/parity-baseline-passo-35.md`
 
 ---
 
@@ -272,6 +364,21 @@ funcionalidades forem implementadas, adicionar casos de paridade correspondentes
   os números reais de `label_pages` para cada linha.
 
 **Limitação residual**: registada como DEBT-17 (fixpoint da TOC).
+
+---
+
+## DEBT-13 — Efeitos colaterais duplicados na TOC — RESOLVIDO (mitigado, Passo 63)
+
+**Registado no Passo 61. Mitigado no Passo 63.**
+
+**Mitigação**: flag `CounterState::is_readonly` activa durante a renderização de cada
+linha da TOC em `outline.rs`. Enquanto `is_readonly = true`, os métodos
+`step_flat`, `step_hierarchical` e `update_flat` são no-ops — `CounterUpdate` embebido
+nos clones de heading não avança os contadores.
+
+**Limitação residual**: `CounterDisplay` ainda lê estado incorrecto na TOC (lê valores
+do momento em que a TOC é renderizada, não do momento do heading real). Registado
+como DEBT-18 (perda de contexto temporal em AST clonado na TOC).
 
 ---
 
@@ -301,21 +408,6 @@ e gráficos partilham o mesmo contador.
 
 **Resolução futura**: adicionar campo `kind: String` (default `"figure"`) a
 `Content::Figure` e usar `step_flat(&kind)` em vez da string fixa.
-
----
-
-## DEBT-13 — Efeitos colaterais duplicados na TOC — RESOLVIDO (mitigado, Passo 63)
-
-**Registado no Passo 61. Mitigado no Passo 63.**
-
-**Mitigação**: flag `CounterState::is_readonly` activa durante a renderização de cada
-linha da TOC em `outline.rs`. Enquanto `is_readonly = true`, os métodos
-`step_flat`, `step_hierarchical` e `update_flat` são no-ops — `CounterUpdate` embebido
-nos clones de heading não avança os contadores.
-
-**Limitação residual**: `CounterDisplay` ainda lê estado incorrecto na TOC (lê valores
-do momento em que a TOC é renderizada, não do momento do heading real). Registado
-como DEBT-18 (perda de contexto temporal em AST clonado na TOC).
 
 ---
 
@@ -371,16 +463,6 @@ vs plano) usada por `materialize_time` e por `layout/counters.rs`.
 
 ---
 
-## DEBT-23 — Travessia múltipla em apply_show_rules (Passo 69)
-
-`apply_show_rules` percorre a árvore uma vez por `ShowRule` activa: O(R×N)
-com R regras e N nós. Resolução: `map_content` chamado uma única vez, com
-todas as regras testadas por nó dentro da closure. Requer mudança de
-assinatura de `map_content` para aceitar uma lista de regras em vez de uma
-closure genérica.
-
----
-
 ## DEBT-19 — Avaliação superficial de NodeKind — **ENCERRADO (Passo 69)**
 
 `map_content` bottom-up implementado em `content.rs`. `apply_show_rules`
@@ -401,28 +483,20 @@ cujo ID está na pilha é saltada, outras regras continuam a actuar.
 
 ---
 
-## DEBT-21 — Resolução de NodeKind por string — **MITIGADO (Passo 70)**
+## DEBT-23 — Travessia múltipla em apply_show_rules — **ENCERRADO (Passo 70)** ✓
 
-`Func::name()` continua a ser usado. Aliasing não é detectado. Resolução
-completa por ponteiro adiada (requer Rust >= 1.85 para `fn_addr_eq` estável).
-Mensagens de erro melhoradas para closures anónimas (None → Err explícito).
+**Registado no Passo 69.**
 
----
+`apply_show_rules` percorria a árvore uma vez por `ShowRule` activa: O(R×N)
+com R regras e N nós. Resolução planeada: `map_content` chamado uma única
+vez com todas as regras testadas por nó dentro da closure, implicando
+mudança de assinatura de `map_content` para aceitar uma lista de regras em
+vez de uma closure genérica.
 
-## DEBT-22 — Clone de show_rules por nó (Passo 68)
-
-`ctx.show_rules.clone()` em `intercept_content` é O(N) por cada nó de
-conteúdo gerado. Em documentos grandes com muitas regras, o custo acumula.
-Resolução: usar `Rc<[ShowRule]>` ou indexação para partilhar a lista sem
-copiar, separando o estado de mutação da leitura.
-
----
-
-## DEBT-23 — Travessia múltipla O(R×N) — **ENCERRADO (Passo 70)** ✓
-
-`apply_show_rules` chama `map_content` uma única vez para todas as regras
-`NodeKind`. Dentro da closure bottom-up, todas as regras activas são testadas
-por nó antes de prosseguir — custo reduzido de O(R×N) para O(N).
+**Resolvido no Passo 70.** `apply_show_rules` chama `map_content` uma
+única vez para todas as regras `NodeKind`. Dentro da closure bottom-up,
+todas as regras activas são testadas por nó antes de prosseguir — custo
+reduzido de O(R×N) para O(N).
 
 ---
 
@@ -439,6 +513,24 @@ L1 mantém-se puro (zero dependências externas adicionais).
 `FrameItem::Image` adicionado ao layouter e ao exportador PDF. JPEG embutido
 com `/DCTDecode`. Deduplicação por `Arc::as_ptr`. Espaço reservado no layout
 e imagem emitida no PDF para ficheiros JPEG.
+
+---
+
+## DEBT-25 — Resolução de caminhos relativos em stdlib (Passo 71) — **ENCERRADO (Passo 75)** ✓
+
+`native_image` passa o caminho ao `World::read_bytes` tal como fornecido pelo
+utilizador (relativo à raiz do projecto). Não há resolução relativa ao ficheiro
+fonte activo. Resolução: `EvalContext` deve expor o path do ficheiro corrente
+para que `native_image` construa um caminho absoluto.
+
+---
+
+## DEBT-26 — PartialEq O(N) sobre Arc<Vec<u8>> em Content::Image — **ENCERRADO (Passo 74)** ✓
+
+A implementação manual de `PartialEq` para `Content::Image` compara `data`
+por valor (`da == db`), o que é O(N) nos bytes da imagem. Em contextos de
+teste ou deduplicação frequente, usar `Arc::ptr_eq` primeiro e cair para
+comparação por valor apenas se os ponteiros diferirem.
 
 ---
 
@@ -470,23 +562,6 @@ determinar o número de canais e escolher `DeviceRGB`, `DeviceGray` ou `DeviceCM
 
 ---
 
-## DEBT-25 — Resolução de caminhos relativos em stdlib (Passo 71) — **ENCERRADO (Passo 75)** ✓
-
-`native_image` passa o caminho ao `World::read_bytes` tal como fornecido pelo
-utilizador (relativo à raiz do projecto). Não há resolução relativa ao ficheiro
-fonte activo. Resolução: `EvalContext` deve expor o path do ficheiro corrente
-para que `native_image` construa um caminho absoluto.
-
----
-
-## DEBT-32 — Alinhamento da bounding box para linhas com deltas negativos — **ENCERRADO (Passo 77)** ✓
-
-O exportador desenhava a linha a partir de `pos.x` sem considerar o sinal de `dx`/`dy`.
-Se `dx < 0`, a linha saía para a esquerda da bounding box. A correcção mapeia
-início/fim dentro da bounding box com base no sinal dos deltas.
-
----
-
 ## DEBT-30 — Suporte a clipping paths (clip: true) — ENCERRADO ✓ (Passo 79)
 
 Contentores com `clip: true` requerem o operador `W` (clipping path) e a sequência
@@ -494,13 +569,6 @@ Contentores com `clip: true` requerem o operador `W` (clipping path) e a sequên
 por estado gráfico (`q`/`Q`), portanto `clip: true` exige um push/pop de estado
 adicional. Campo `clip_mask: Option<ShapeKind>` adicionado a `FrameItem::Group`.
 O exportador emite `W n` no espaço local do Group, após a matriz `cm`.
-
-## DEBT-33 — Bounding Box de curvas Bézier (Passo 79) — EM ABERTO
-
-A bounding box de `ShapeKind::Path` é calculada verificando o min/max dos pontos
-de controlo. Para `CubicTo`, a curva real pode ultrapassar a caixa delimitadora
-dos pontos de controlo, causando vazamento visual subtil. Resolução futura:
-cálculo analítico dos extremos da curva paramétrica B(t) para obter a AABB exacta.
 
 ---
 
@@ -514,12 +582,11 @@ Resolução: passo futuro de transformações.
 
 ---
 
-## DEBT-26 — PartialEq O(N) sobre Arc<Vec<u8>> em Content::Image — **ENCERRADO (Passo 74)** ✓
+## DEBT-32 — Alinhamento da bounding box para linhas com deltas negativos — **ENCERRADO (Passo 77)** ✓
 
-A implementação manual de `PartialEq` para `Content::Image` compara `data`
-por valor (`da == db`), o que é O(N) nos bytes da imagem. Em contextos de
-teste ou deduplicação frequente, usar `Arc::ptr_eq` primeiro e cair para
-comparação por valor apenas se os ponteiros diferirem.
+O exportador desenhava a linha a partir de `pos.x` sem considerar o sinal de `dx`/`dy`.
+Se `dx < 0`, a linha saía para a esquerda da bounding box. A correcção mapeia
+início/fim dentro da bounding box com base no sinal dos deltas.
 
 ---
 
@@ -530,6 +597,8 @@ implementa três passagens (Fixed → Auto → Fraction) espelhando a resoluçã
 colunas, com indexação cíclica `N % rows.len()` e decisão de paginação antes da
 fase Fraction (evita alturas `fr` "fósseis" da página anterior).
 
+---
+
 ## DEBT-34c — Alinhamento vertical de células no Grid — **ENCERRADO (Passo 83)** ✓
 
 `cell_height` é agora passado como `available_h` a `resolve_alignment` para
@@ -537,43 +606,25 @@ items dentro de células (campo `cell_available_h: Option<f64>` no Layouter).
 `VAlign::Bottom` ancora ao limite inferior da célula e `VAlign::Horizon` centra
 verticalmente.
 
-## DEBT-34d — Auto não encolhe antes de matar fr — EM ABERTO (Passo 80)
+---
 
-Um Auto guloso (célula com texto longo) pode consumir todo o `safe_available`,
-deixando 0pt para as colunas fr. Resolução futura: implementar min-content e
-max-content para Auto, com negociação entre Auto e fr.
+## Secção 3 — Dívida de instrumentação
 
-## DEBT-34e — colspan e rowspan — EM ABERTO (Passo 80)
+# Dívida de instrumentação — ADR-0006
 
-Células que ocupam múltiplas colunas ou linhas requerem um algoritmo de
-placement diferente. Resolução: passo futuro.
+Os seguintes pontos de timing foram removidos para manter L1 puro.
+Religação prevista no Passo 10 (isolamento de comemo/infra).
 
-## DEBT-35b — Invalidação de cache de available_width após SetPage — EM ABERTO (Passo 81)
+| Função       | Nome do scope original |
+|--------------|------------------------|
+| parse()      | "parse"                |
+| parse_code() | "parse-code"           |
+| parse_math() | "parse-math"           |
 
-Se alguma função guardar available_width em cache como campo do Layouter,
-esse cache tem de ser invalidado no processamento de Content::SetPage.
-Actualmente available_width() é calculado em tempo real sem cache —
-este DEBT documenta o risco caso um cache venha a ser adicionado.
+## Como religar no Passo 10
 
-## DEBT-36 — Operadores simbólicos de alinhamento (center + bottom) — EM ABERTO (Passo 82)
+Localizar todos os `// ADR-0006: timing removed — ver 00_nucleo/DEBT.md`
+em `01_core/src/rules/parse.rs` e substituir `timing_scope!("...")` por
+o mecanismo de telemetria escolhido (trait injectável ou outro).
 
-`align` e `place` aceitam strings (`"center"`, `"top-right"`) porque o parser
-ainda não suporta operadores de composição simbólica como `center + bottom`.
-Resolução: quando o parser suportar `Value::Align` com composição, substituir
-`Align2D::from_string` pelo parse directo da variante.
-
-## DEBT-37 — Place relativo ao contentor pai — EM ABERTO (Passo 82)
-
-`Content::Place` ancora às margens absolutas da página. O Typst suporta
-`place` relativo ao bloco pai (ex: dentro de um grid, `place` ancora na célula).
-Resolução: passar a área de âncora como parâmetro ao processar `Place`.
-
-## DEBT-38 — Cache de sub-frames no Grid Auto — EM ABERTO (Passo 83)
-
-A resolução de altura de linhas Auto chama `layout_sub_frame_with_width` para
-medir a altura intrínseca de cada item, descartando os FrameItems produzidos.
-Quando a célula é emitida no documento, a mesma função é chamada de novo para o
-mesmo item com a mesma largura, duplicando o trabalho de layout em todas as
-células Auto.
-Resolução: cache de `(Content*, width) → (height, Vec<FrameItem>)` válido
-dentro da resolução de um Grid. Reutilizar o resultado da medição na emissão.
+Ver: `00_nucleo/adr/typst-adr-0006-typst-timing.md`

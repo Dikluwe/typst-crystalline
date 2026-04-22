@@ -1,17 +1,17 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/utils.md
-//! @prompt-hash 8db68749
+//! @prompt-hash 113e0000
 //! @layer L1
 //! @updated 2026-03-23
 
 /// Ponto de instrumentação sem implementação.
 /// ADR-0006: substituição de `typst_timing::TimingScope`.
 /// Religação prevista no Passo 10 (isolamento de comemo/infra).
-/// Ver: `01_core/DEBT.md`
+/// Ver: `00_nucleo/DEBT.md`
 #[allow(unused_macros)]
 macro_rules! timing_scope {
     ($name:expr) => {
-        // ADR-0006: timing removed — ver 01_core/DEBT.md
+        // ADR-0006: timing removed — ver 00_nucleo/DEBT.md
         ()
     };
 }

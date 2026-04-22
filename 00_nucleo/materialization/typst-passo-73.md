@@ -57,7 +57,7 @@ externas de imagesize. Se viver em L3, a Tarefa 3 vai para L3 e pode usar
 
 ## Tarefa 0 — Actualizar DEBT.md
 
-Antes de qualquer código, registar em `01_core/DEBT.md`:
+Antes de qualquer código, registar em `00_nucleo/DEBT.md`:
 
 ```markdown
 ### DEBT-29 — Detecção de ColorSpace para JPEGs crus (Passo 73)
@@ -431,7 +431,7 @@ Critérios de conclusão:
 - [ ] Inversão do eixo Y documentada e correcta (imagem no topo aparece no topo).
 - [ ] `pos.y` no layouter é o TOPO da bounding box — não o baseline de texto.
   Comentário no código confirma este invariante.
-- [ ] DEBT-24c marcado como **encerrado** em `01_core/DEBT.md`.
+- [ ] DEBT-24c marcado como **encerrado** em `00_nucleo/DEBT.md`.
 - [ ] DEBT-27 registado em `DEBT.md` antes de qualquer código.
 - [ ] Teste `layout_image_gera_frameitem` passa.
 - [ ] Teste `pipeline_jpeg_gera_pdf_sem_panic` passa.

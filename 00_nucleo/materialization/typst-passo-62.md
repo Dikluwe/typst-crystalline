@@ -122,7 +122,7 @@ Se algum código usar `CounterState::default()` em vez de `CounterState::new()`,
 as figuras não serão numeradas — esse é o comportamento correcto para um estado
 não inicializado. O construtor `new()` é o ponto de entrada canónico.
 
-Registar DEBT-14 em `01_core/DEBT.md`:
+Registar DEBT-14 em `00_nucleo/DEBT.md`:
 
 ```markdown
 ### DEBT-14 — SetRule para figure(numbering: ...) (Passo 62)
@@ -252,7 +252,7 @@ Correr `cargo test` — deve compilar sem warnings de exaustividade.
 
 ## Tarefa 4 — Introspecção das Figuras (L1)
 
-Registar DEBT-15 em `01_core/DEBT.md` antes de continuar:
+Registar DEBT-15 em `00_nucleo/DEBT.md` antes de continuar:
 
 ```markdown
 ### DEBT-15 — Campo `kind` em Content::Figure (Passo 62)
@@ -612,7 +612,7 @@ Critérios de conclusão:
 - [ ] `layout/figure.rs` criado com `pub(super)`.
 - [ ] `pub mod figure;` declarado em `layout/mod.rs`.
 - [ ] Dupla contagem documentada como intencional no código.
-- [ ] DEBT-10 marcado como **encerrado** em `01_core/DEBT.md`.
+- [ ] DEBT-10 marcado como **encerrado** em `00_nucleo/DEBT.md`.
 - [ ] Zero violações no linter e no clippy.
 
 ---

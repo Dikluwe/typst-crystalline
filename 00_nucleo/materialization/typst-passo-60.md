@@ -541,8 +541,8 @@ Critérios de conclusão:
   `resolved_labels` (agora feita pela introspecção).
 - [ ] Forward refs resolvem no teste L1 de duas passagens.
 - [ ] Testes de regressão para backward refs continuam a passar.
-- [ ] DEBT-10 marcado como encerrado em `01_core/DEBT.md`.
-- [ ] DEBT-11 anotado em `01_core/DEBT.md` com a nota de que `introspect.rs`
+- [ ] DEBT-10 marcado como encerrado em `00_nucleo/DEBT.md`.
+- [ ] DEBT-11 anotado em `00_nucleo/DEBT.md` com a nota de que `introspect.rs`
   é o primeiro passo da decomposição de `layout.rs`.
 - [ ] Zero violações no linter e no clippy.
 

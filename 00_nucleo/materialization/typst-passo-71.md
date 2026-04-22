@@ -466,8 +466,8 @@ Critérios de conclusão:
 - [ ] `Content::Image` tem quatro campos: `path`, `data`, `width: Option<Value>`,
   `height: Option<Value>`. Braços `{ .. }` nos métodos terminais continuam válidos.
 - [ ] `native_image` extrai `width` e `height` de `args.named` e guarda-os no nó.
-- [ ] DEBT-25 registado em `01_core/DEBT.md` (resolução de caminhos relativos).
-- [ ] DEBT-26 registado em `01_core/DEBT.md` (`PartialEq` exaustivo em `Arc`).
+- [ ] DEBT-25 registado em `00_nucleo/DEBT.md` (resolução de caminhos relativos).
+- [ ] DEBT-26 registado em `00_nucleo/DEBT.md` (`PartialEq` exaustivo em `Arc`).
 - [ ] Zero violações no linter e no clippy.
 
 ---

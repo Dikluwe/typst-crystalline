@@ -614,7 +614,7 @@ crystalline-lint .
 # ✓ No violations found
 
 # Confirmar que DEBT-4 está encerrado
-grep "DEBT-4" 01_core/DEBT.md && echo "VERIFICAR" || echo "OK — DEBT-4 removido"
+grep "DEBT-4" 00_nucleo/DEBT.md && echo "VERIFICAR" || echo "OK — DEBT-4 removido"
 ```
 
 Critérios de conclusão:

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/parse.md
-//! @prompt-hash 662e68ed
+//! @prompt-hash 8191e20b
 //! @layer L1
 //! @updated 2026-03-23
 
@@ -24,7 +24,7 @@ const MAX_DEPTH: u32 = 256;
 
 /// Parses a source file as top-level markup.
 pub fn parse(text: &str) -> SyntaxNode {
-    // ADR-0006: timing removed — ver 01_core/DEBT.md
+    // ADR-0006: timing removed — ver 00_nucleo/DEBT.md
     let mut p = Parser::new(text, 0, SyntaxMode::Markup);
     markup_exprs(&mut p, true, syntax_set!(End));
     p.finish_into(SyntaxKind::Markup)
@@ -32,7 +32,7 @@ pub fn parse(text: &str) -> SyntaxNode {
 
 /// Parses top-level code.
 pub fn parse_code(text: &str) -> SyntaxNode {
-    // ADR-0006: timing removed — ver 01_core/DEBT.md
+    // ADR-0006: timing removed — ver 00_nucleo/DEBT.md
     let mut p = Parser::new(text, 0, SyntaxMode::Code);
     code_exprs(&mut p, syntax_set!(End));
     p.finish_into(SyntaxKind::Code)
@@ -40,7 +40,7 @@ pub fn parse_code(text: &str) -> SyntaxNode {
 
 /// Parses top-level math.
 pub fn parse_math(text: &str) -> SyntaxNode {
-    // ADR-0006: timing removed — ver 01_core/DEBT.md
+    // ADR-0006: timing removed — ver 00_nucleo/DEBT.md
     let mut p = Parser::new(text, 0, SyntaxMode::Math);
     math_exprs(&mut p, syntax_set!(End));
     p.finish_into(SyntaxKind::Math)

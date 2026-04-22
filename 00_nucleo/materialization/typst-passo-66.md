@@ -425,7 +425,7 @@ Critérios de conclusão:
 - [ ] `assert` registada no scope da stdlib.
 - [ ] `assert(true)` não gera erro; `assert(false, message: "...")` gera erro
   com a mensagem correcta.
-- [ ] DEBT-18 marcado como **encerrado** em `01_core/DEBT.md`.
+- [ ] DEBT-18 marcado como **encerrado** em `00_nucleo/DEBT.md`.
 - [ ] Zero violações no linter e no clippy.
 
 ---

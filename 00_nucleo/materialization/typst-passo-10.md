@@ -401,7 +401,7 @@ pública, critérios de verificação e decisão de arquitectura.
 
 ### Se Opção B (fica em L3)
 
-Documentar em `01_core/DEBT.md`:
+Documentar em `00_nucleo/DEBT.md`:
 ```markdown
 ## FontBook real — bloqueado por dependências em L3
 FontInfo em `typst-library/src/text/font/book.rs` usa tipos de

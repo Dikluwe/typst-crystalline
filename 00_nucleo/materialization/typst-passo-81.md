@@ -10,7 +10,7 @@ Ler antes de começar:
   constantes hardcoded de dimensão de página (`MARGIN`, `SIZE_A4`, ou equivalente).
 - `03_infra/src/export.rs` — Onde o exportador usa uma `page_height` global
   que tem de passar a usar `page.height` por iteração.
-- `01_core/DEBT.md` — Confirmar estado dos DEBTs activos.
+- `00_nucleo/DEBT.md` — Confirmar estado dos DEBTs activos.
 
 Pré-condição: `cargo test` — ~721 L1 + ~147 L3, zero violations.
 Grid (`Content::Grid`) implementado no Passo 80.

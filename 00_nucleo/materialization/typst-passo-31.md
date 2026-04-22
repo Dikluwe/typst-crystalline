@@ -20,7 +20,7 @@ grep -n "bold.*||\||| .*bold\|merge\|node_style" \
   01_core/src/rules/layout.rs
 
 # Confirmar DEBT-2 em DEBT.md
-grep -A 10 "DEBT-2" 01_core/DEBT.md
+grep -A 10 "DEBT-2" 00_nucleo/DEBT.md
 ```
 
 **Parar se qualquer pré-condição falhar.**

@@ -8,7 +8,7 @@
 **Verificação antes de começar**:
 ```bash
 # Confirmar DEBT-7 em DEBT.md
-grep -A 8 "DEBT-7" 01_core/DEBT.md
+grep -A 8 "DEBT-7" 00_nucleo/DEBT.md
 
 # Confirmar estado actual do merge em layout.rs
 grep -n "bold.*||\|||.*bold\|node_style\|merge" \

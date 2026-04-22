@@ -7,7 +7,7 @@ Ler antes de começar:
   definidas. `native_ellipse` e `native_circle` serão adicionadas aqui.
 - `03_infra/src/export.rs` — Onde o braço `ShapeKind::Line` será corrigido
   e o braço `ShapeKind::Ellipse` substituirá o placeholder com Bézier real.
-- `01_core/DEBT.md` — Confirmar que DEBT-32 está registado e que DEBT-30/31
+- `00_nucleo/DEBT.md` — Confirmar que DEBT-32 está registado e que DEBT-30/31
   estão em aberto.
 
 Pré-condição: `cargo test` — 721 L1 + 147 L3, zero violations.
@@ -381,7 +381,7 @@ Critérios de conclusão:
 - [ ] Braço `ShapeKind::Ellipse` substituído pela aproximação Bézier com
   `KAPPA = 0.552284749831` e quatro operadores `c`.
 - [ ] O placeholder `re` do Passo 76 foi removido do braço `Ellipse`.
-- [ ] DEBT-32 marcado como **ENCERRADO ✓** em `01_core/DEBT.md`.
+- [ ] DEBT-32 marcado como **ENCERRADO ✓** em `00_nucleo/DEBT.md`.
 - [ ] Teste `export_line_com_delta_negativo_respeita_bounding_box` passa.
 - [ ] Teste `export_ellipse_emite_quatro_operadores_bezier` passa.
 - [ ] Teste `export_circle_emite_quatro_operadores_bezier` passa.

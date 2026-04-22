@@ -461,7 +461,7 @@ matemático permanecem completamente cegos ao `Layouter`.
 
 ## Tarefa 6 — Testes
 
-**Registo de DEBT-13 em `01_core/DEBT.md` antes dos testes:**
+**Registo de DEBT-13 em `00_nucleo/DEBT.md` antes dos testes:**
 
 ```markdown
 ### DEBT-13 — Efeitos colaterais duplicados na TOC (Passo 61)
