@@ -81,12 +81,33 @@ impl Func {
 
     /// Retorna o nome da função — `Some(name)` para nativas e closures nomeadas.
     ///
-    /// Usado pelo motor de show rules para identificar o NodeKind (DEBT-21:
-    /// identificação por string — falha com aliasing e closures anónimas).
+    /// Apenas para apresentação (mensagens de erro, debug). A identidade
+    /// para selectors é resolvida por `native_fn_addr()` desde o Passo 84.3
+    /// (encerra DEBT-21).
     pub fn name(&self) -> Option<&str> {
         match self.0.as_ref() {
             FuncRepr::Closure(c) => c.name.as_deref(),
             FuncRepr::Native(n)  => Some(n.name),
+        }
+    }
+
+    /// Endereço da função nativa subjacente como identidade opaca.
+    ///
+    /// Retorna `Some(fn_ptr)` apenas para `FuncRepr::Native`. Closures
+    /// retornam `None` — function pointers de closures não são estáveis
+    /// nem comparáveis em Rust, pelo que não servem para selectors.
+    ///
+    /// Usado pelo motor de show rules (Passo 84.3) para resolver o
+    /// `NodeKind` correspondente a uma função nativa via `fn_addr_eq`,
+    /// substituindo a comparação por nome (DEBT-21).
+    ///
+    /// Safe: `fn(...)` é function pointer, não `*const c_void`.
+    pub fn native_fn_addr(&self)
+        -> Option<fn(&mut crate::rules::eval::EvalContext<'_>, &Args) -> SourceResult<Value>>
+    {
+        match self.0.as_ref() {
+            FuncRepr::Native(n)  => Some(n.call),
+            FuncRepr::Closure(_) => None,
         }
     }
 
