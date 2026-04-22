@@ -19,22 +19,6 @@ verifica que retorna `false` — mas isso diverge do oráculo.
 
 ---
 
-## Diagnóstico obrigatório
-
-```bash
-# Confirmar a semântica exacta do original para Eq com tipos mistos
-grep -n "Int.*Float\|Float.*Int\|Eq\|eq.*value" \
-  lab/typst-original/crates/typst-library/src/foundations/ops.rs \
-  | head -30
-
-# Como PartialEq está implementado no Value original (manual ou derive?)
-grep -n "PartialEq\|fn eq\b" \
-  lab/typst-original/crates/typst-library/src/foundations/value.rs \
-  | head -15
-```
-
----
-
 ## Decisão (após diagnóstico)
 
 ### Opção A — implementar PartialEq manual em Value (paridade total)
@@ -114,6 +98,10 @@ que não querem semântica Typst.
 ---
 
 ## Referências
+
+**Diagnóstico prévio**: ver
+`00_nucleo/diagnosticos/diagnostico-adr-0025-int-eq-float.md` —
+verificações executadas antes desta decisão.
 
 - Passo 14 — descoberta do desvio de PartialEq
 - `lab/typst-original/.../foundations/ops.rs:296` — semântica de divisão

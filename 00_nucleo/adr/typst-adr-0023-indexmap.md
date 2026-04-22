@@ -20,28 +20,6 @@ autorização existente.
 
 ---
 
-## Diagnóstico obrigatório antes de decidir
-
-```bash
-# Dependências externas de scope.rs
-grep "^use\|^extern" \
-  lab/typst-original/crates/typst-library/src/foundations/scope.rs \
-  | grep -v "crate::\|super::\|std::" | head -20
-
-# Confirmar que IndexMap usa FxBuildHasher
-grep -n "IndexMap\|FxBuildHasher\|rustc_hash" \
-  lab/typst-original/crates/typst-library/src/foundations/scope.rs \
-  | head -10
-
-# Versão de indexmap usada no original
-grep "indexmap" lab/typst-original/Cargo.toml
-grep "indexmap" lab/typst-original/crates/typst-library/Cargo.toml
-```
-
-**Reportar output antes de continuar.**
-
----
-
 ## Análise de pureza
 
 | Propriedade | Estado |
@@ -105,6 +83,10 @@ pacotes comuns no ecossistema Rust.
 ---
 
 ## Referências
+
+**Diagnóstico prévio**: ver
+`00_nucleo/diagnosticos/diagnostico-adr-0023-indexmap.md` —
+verificações executadas antes desta decisão.
 
 - ADR-0018 — `rustc_hash` em L1 (hasher usado por IndexMap em Scope)
 - ADR-0016 — adiamento de eval() e estratégia typst-library

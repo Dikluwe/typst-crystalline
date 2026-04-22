@@ -22,37 +22,6 @@ Se usam tipos de `ttf_parser` directamente, fica em L3.
 
 ---
 
-## Diagnóstico obrigatório antes de qualquer código
-
-```bash
-# Estrutura de FontBook e FontInfo
-grep -n "^pub struct\|^pub enum\|^pub fn\|^impl " \
-  lab/typst-original/crates/typst-library/src/text/font/book.rs \
-  | head -40
-
-# Campos de FontInfo — são primitivos?
-grep -A 30 "pub struct FontInfo" \
-  lab/typst-original/crates/typst-library/src/text/font/book.rs
-
-# Dependências externas de book.rs
-grep "^use\|^extern" \
-  lab/typst-original/crates/typst-library/src/text/font/book.rs \
-  | grep -v "crate::\|super::\|std::" | head -20
-
-# Como FontBook é construído a partir de uma face ttf_parser
-grep -n "push\|insert\|from_face\|ttf_parser\|Face" \
-  lab/typst-original/crates/typst-library/src/text/font/book.rs \
-  | head -20
-
-# Métodos de pesquisa usados pelo engine
-grep -rn "\.book()\.\|FontBook::\|select_font\|select_fallback" \
-  lab/typst-original/crates/typst-library/src/text/ | head -30
-```
-
-**Reportar output antes de continuar.**
-
----
-
 ## Decisão (após diagnóstico)
 
 ### Opção A — FontBook e FontInfo como tipos de domínio em L1
@@ -124,6 +93,10 @@ a extracção de `FontInfo` é um passo adicional sobre dados disponíveis.
 ---
 
 ## Referências
+
+**Diagnóstico prévio**: ver
+`00_nucleo/diagnosticos/diagnostico-adr-0022-fontbook.md` —
+verificações executadas antes desta decisão.
 
 - ADR-0019 — `ttf-parser` e `rustybuzz` em L3
 - Passo 8 — `FontSlot` e `discover_fonts` em `03_infra/src/fonts.rs`
