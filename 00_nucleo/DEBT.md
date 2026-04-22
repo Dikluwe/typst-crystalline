@@ -217,45 +217,6 @@ Não é candidato a resolução até surgir evidência empírica de problema
 
 ---
 
-## DEBT-40 — `ImportGuard::drop` com raw pointer — EM ABERTO (Passo 84.8a)
-
-`01_core/src/rules/eval.rs:235` tem `unsafe { (*self.stack_ptr).retain(...) }`
-no `Drop for ImportGuard`. O raw pointer é usado porque a vida do
-`EvalContext` não é expressível como lifetime do guard (RAII com
-scope de função).
-
-ADR-0032 estabelece que `unsafe` em L1 é eliminado por defeito;
-este caso tem custo de eliminação zero a baixo. Resolução fica
-para passo dedicado que escolha entre as opções abaixo.
-
-### Opções de resolução (sugestões, não obrigatórias)
-
-1. **`Rc<RefCell<Vec<FileId>>>`** no `EvalContext` + clone no
-   guard. Custo: uma alocação `Rc` + borrow check runtime.
-2. **Eliminar o guard**. Push/pop manual em torno da chamada
-   recursiva. Perde-se RAII — se erro acontece entre push e pop,
-   `pop` não corre. Aceitável se o `EvalContext` é descartado em
-   erro.
-3. **Índice + verificação com `len()`**. Guardar posição no
-   stack em vez de ponteiro; comparar com `len()` no drop para
-   confirmar que é o topo; pop se sim, erro ou no-op se não.
-   Sem custo de performance, sem `unsafe`, mas perde a garantia
-   estrutural de que o guard corresponde à sua entrada.
-
-### Critério de conclusão
-
-- Nenhuma ocorrência de `unsafe` em `eval.rs` relacionada com
-  `ImportGuard`.
-- Testes de `import_stack` (detecção de ciclos) continuam a passar.
-- ADR específico escrito se a resolução introduzir decisão
-  arquitectural não prevista.
-
-### Dependências
-
-Nenhuma. Pode ser atacado quando o utilizador decidir.
-
----
-
 ## DEBT-42 — `get_unchecked` no scanner — EM ABERTO (Passo 84.8a, bloqueado)
 
 `01_core/src/rules/lexer/scanner.rs` tem 7 ocorrências de
@@ -984,6 +945,64 @@ Nenhuma. Refactor trivial, pronto para atacar.
 **Resolvido no Passo 85.** Padrão "sealed via private module"
 aplicado. Zero `unsafe` associadas a Sealed em `scanner.rs`.
 Get_unchecked permanece (DEBT-42, bloqueado por benchmark).
+
+---
+
+## DEBT-40 — `ImportGuard::drop` com raw pointer — **ENCERRADO (Passo 90)** ✓
+
+`01_core/src/rules/eval.rs:235` tem `unsafe { (*self.stack_ptr).retain(...) }`
+no `Drop for ImportGuard`. O raw pointer é usado porque a vida do
+`EvalContext` não é expressível como lifetime do guard (RAII com
+scope de função).
+
+ADR-0032 estabelece que `unsafe` em L1 é eliminado por defeito;
+este caso tem custo de eliminação zero a baixo. Resolução fica
+para passo dedicado que escolha entre as opções abaixo.
+
+### Opções de resolução (sugestões, não obrigatórias)
+
+1. **`Rc<RefCell<Vec<FileId>>>`** no `EvalContext` + clone no
+   guard. Custo: uma alocação `Rc` + borrow check runtime.
+2. **Eliminar o guard**. Push/pop manual em torno da chamada
+   recursiva. Perde-se RAII — se erro acontece entre push e pop,
+   `pop` não corre. Aceitável se o `EvalContext` é descartado em
+   erro.
+3. **Índice + verificação com `len()`**. Guardar posição no
+   stack em vez de ponteiro; comparar com `len()` no drop para
+   confirmar que é o topo; pop se sim, erro ou no-op se não.
+   Sem custo de performance, sem `unsafe`, mas perde a garantia
+   estrutural de que o guard corresponde à sua entrada.
+
+### Critério de conclusão
+
+- Nenhuma ocorrência de `unsafe` em `eval.rs` relacionada com
+  `ImportGuard`.
+- Testes de `import_stack` (detecção de ciclos) continuam a passar.
+- ADR específico escrito se a resolução introduzir decisão
+  arquitectural não prevista.
+
+### Dependências
+
+Nenhuma. Pode ser atacado quando o utilizador decidir.
+
+**Resolvido no Passo 90.** `ImportGuard`, `impl Drop for ImportGuard`
+e o bloco `unsafe { (*stack_ptr).retain(...) }` foram removidos.
+`EvalContext.import_stack` substituído por `EvalContext.route:
+Vec<FileId>` com API segura `with_route_id(id, span, f)` que empurra
+antes e retira após a closure (incluindo em `Err`). Simultaneamente:
+(i) fecha a divergência estrutural face ao vanilla (ADR-0033) ao
+materializar `Route<'a>` em `01_core/src/entities/world_types.rs`
+com a forma canónica (`outer: Option<Tracked<'a, Self>>`, `id`,
+`len`, `upper: AtomicUsize`, `#[comemo::track]` em `contains`/`within`,
+`check_*_depth` para as 4 categorias); (ii) elimina o último
+`unsafe` de `eval.rs` (ADR-0032). A escolha entre as opções acima
+foi variante (2) — eliminar o guard, push/pop explícito — porque
+`EvalContext` em cristalino é mutado em vez de recriado por
+recursão (Classe A do plano do Passo 90). Teste E2E
+`import_cycle_detectado_retorna_err_sem_panic` valida, via API
+pública de `eval`, que um ciclo `main → other → main` retorna
+`Err` sem panic. O `scanner.rs` continua a ser o único `unsafe`
+em L1 (DEBT-42, bloqueado por infra de benchmark).
 
 ---
 

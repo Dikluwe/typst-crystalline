@@ -47,11 +47,12 @@ use crate::rules::scopes::Scopes;
 ///   local por loop permite "loop-bombing" (milhares de loops pequenos que
 ///   colectivamente travam o motor). Counter global impede isso: 1.000.000
 ///   iterações falham em segundos independentemente da distribuição.
-/// - `import_stack`: rastreamento de ficheiros em avaliação via import.
-///   Detecta ciclos (A → B → A) antes que causem stack overflow.
-///   Implementado como Vec (não HashSet): pilha de importação tem normalmente
-///   < 20 elementos. Vec com pesquisa linear é mais rápido neste regime
-///   porque os dados ficam contíguos em memória (cache-friendly).
+/// - `route`: cadeia de ficheiros actualmente em avaliação — projecção
+///   plana do `Route<'a>` do vanilla (ADR-0033). Inicializa-se com o
+///   ficheiro principal pré-empurrado para que `#include "main"` no
+///   próprio `main` seja detectado como ciclo já na primeira recursão.
+///   Substitui o `import_stack` + `ImportGuard` que o Passo 90 removeu
+///   junto com o último `unsafe` de `eval.rs` (DEBT-40).
 pub struct EvalContext<'w> {
     #[allow(dead_code)] // usado quando `import` for implementado (Passo futuro)
     pub world: &'w dyn World,
@@ -59,8 +60,9 @@ pub struct EvalContext<'w> {
     pub max_call_depth: usize,
     pub loop_iterations: usize,
     pub max_loop_iterations: usize,
-    #[allow(dead_code)] // usado por enter_import — implementação de import futura
-    pub import_stack: Vec<FileId>,
+    /// Cadeia de `FileId` actualmente em avaliação. Ver docstring do
+    /// tipo para semântica.
+    pub route: Vec<FileId>,
     /// Cadeia de estilos activa durante eval.
     /// Actualizada por `#set text(...)` rules. Capturada em `Content::Text`
     /// no momento da produção — permite que o layout leia o estilo do nó.
@@ -97,7 +99,10 @@ impl<'w> EvalContext<'w> {
             max_call_depth: 250,
             loop_iterations: 0,
             max_loop_iterations: 1_000_000,
-            import_stack: Vec::new(),
+            // Pré-push do ficheiro principal: detecta ciclo `main` → `main`
+            // já na primeira recursão (paridade com `Route::root().with_id`
+            // do vanilla).
+            route: vec![current_file],
             styles: StyleChain::default_chain(),
             show_rules: Arc::from([]),
             active_guards: Vec::new(),
@@ -162,34 +167,47 @@ impl<'w> EvalContext<'w> {
         }
     }
 
-    /// Tenta entrar na avaliação de um ficheiro via import.
-    /// Retorna Err se o ficheiro já está na pilha de importação (ciclo detectado).
-    /// Retorna um guard que remove o FileId da pilha quando largado.
-    #[allow(dead_code)] // usado quando import completo for implementado
-    pub fn enter_import(
+    /// Verifica se `id` já está na rota (cadeia de `FileId` em avaliação).
+    ///
+    /// Paridade conceptual com `Route::contains` do vanilla (ADR-0033):
+    /// ambos devolvem `true` quando o `id` consta de algum segmento
+    /// activo. O cristalino usa uma projecção plana (`Vec<FileId>`)
+    /// porque `EvalContext` é mutado em vez de recriado por recursão
+    /// (ver comentário do campo `route`).
+    pub fn route_contains(&self, id: FileId) -> bool {
+        self.route.contains(&id)
+    }
+
+    /// Executa `f` com `id` empurrado para a rota. Devolve `Err` se o
+    /// `id` já está na cadeia (ciclo detectado) — nesse caso `f` não é
+    /// invocado.
+    ///
+    /// Substitui o par `enter_import`/`ImportGuard` que dependia de
+    /// `unsafe { *mut Vec<FileId> }` no `Drop` (DEBT-40). O pop acontece
+    /// sempre após `f` — incluindo em `Err` — sem `unsafe`.
+    pub fn with_route_id<T, F>(
         &mut self,
         id: FileId,
         span: Span,
-    ) -> SourceResult<ImportGuard> {
-        if self.import_stack.contains(&id) {
+        f: F,
+    ) -> SourceResult<T>
+    where
+        F: FnOnce(&mut Self) -> SourceResult<T>,
+    {
+        if self.route_contains(id) {
             return Err(vec![SourceDiagnostic::error(
                 span,
                 format!(
                     "ciclo de importação detectado: ficheiro {:?} já está \
-                     na pilha de importação activa",
+                     na cadeia de avaliação activa",
                     id
                 ),
             )]);
         }
-        self.import_stack.push(id);
-        Ok(ImportGuard {
-            // SAFETY: stack_ptr aponta para self.import_stack, que vive pelo
-            // menos enquanto o guard viver — enter_import só é chamado num
-            // EvalContext que sobrevive ao guard. Usamos raw pointer (não &mut)
-            // para que ctx permaneça acessível durante ciclos de detecção.
-            stack_ptr: &mut self.import_stack as *mut _,
-            id,
-        })
+        self.route.push(id);
+        let result = f(self);
+        self.route.pop();
+        result
     }
 
     /// Entra numa chamada de função — retorna Err se profundidade excedida.
@@ -201,40 +219,6 @@ impl<'w> EvalContext<'w> {
 
     pub fn leave_call(&mut self) {
         self.depth = self.depth.saturating_sub(1);
-    }
-}
-
-/// Guard RAII que remove o FileId da pilha de importação quando largado.
-/// Garante que a pilha fica limpa mesmo em caso de Err durante a avaliação.
-///
-/// Usa raw pointer (não `&mut EvalContext`) para que o EvalContext permaneça
-/// acessível enquanto o guard está vivo — necessário para que os chamadores
-/// possam chamar `enter_import` novamente (detecção de ciclos) sem conflito
-/// de borrowing. Padrão idêntico ao de `std::sync::MutexGuard`.
-#[allow(dead_code)] // usada por enter_import — implementação de import futura
-pub struct ImportGuard {
-    /// Ponteiro para `EvalContext::import_stack`. Válido enquanto o
-    /// EvalContext que criou este guard estiver vivo.
-    stack_ptr: *mut Vec<FileId>,
-    id: FileId,
-}
-
-impl std::fmt::Debug for ImportGuard {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ImportGuard").field("id", &self.id).finish_non_exhaustive()
-    }
-}
-
-impl Drop for ImportGuard {
-    fn drop(&mut self) {
-        // SAFETY: stack_ptr é válido — o EvalContext sobrevive ao guard
-        // por contrato de enter_import.
-        // Vec::retain remove todos os elementos que não satisfazem o predicado.
-        // Como cada FileId aparece no máximo uma vez na pilha (enter_import verifica),
-        // isto remove exactamente o elemento desejado.
-        unsafe {
-            (*self.stack_ptr).retain(|file_id| file_id != &self.id);
-        }
     }
 }
 
@@ -707,18 +691,16 @@ fn eval_expr(
             let source = ctx.world.include_source(ctx.current_file, &path)
                 .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
 
-            // Detectar ciclos de importação.
-            let _guard = ctx.enter_import(source.id(), Span::detached())?;
-
-            // Salvar e actualizar current_file; restaurar ao regressar.
-            let saved_file = ctx.current_file;
-            ctx.current_file = source.id();
-
-            let result = eval_markup(source.root(), scopes, ctx)?;
-
-            ctx.current_file = saved_file;
-            // _guard é largado aqui, removendo o FileId da pilha de importação.
-            Ok(result)
+            let src_id = source.id();
+            // Detectar ciclos via `Route::contains` conceptual (ADR-0033).
+            // `with_route_id` empurra e retira `src_id` da rota, sem `unsafe`.
+            ctx.with_route_id(src_id, Span::detached(), |ctx| {
+                let saved_file = ctx.current_file;
+                ctx.current_file = src_id;
+                let result = eval_markup(source.root(), scopes, ctx);
+                ctx.current_file = saved_file;
+                result
+            })
         }
 
         // Passo 56 — referência cruzada: @nome → Content::Ref placeholder.
@@ -1719,7 +1701,7 @@ pub(crate) fn eval_for_test<W: World>(
     let routines = Routines::new();
     let traced   = Traced::default();
     let mut sink = Sink::new();
-    let route    = Route::new();
+    let route    = Route::root();
 
     eval(&routines, world, traced.track(), sink.track_mut(), route.track(), source)
 }
@@ -2679,31 +2661,42 @@ mod tests {
         assert!(!err.is_empty());
     }
 
-    // ── Testes de import_stack — detecção de ciclos de importação ──────────────
+    // ── Testes de with_route_id — detecção de ciclos (Passo 90) ────────────────
+
+    // Usamos IDs distintos do main (99 vs 1) porque desde o Passo 90 o
+    // `EvalContext::new` pré-empurra o `main` na rota — paridade com o
+    // `Route::root().with_id` do vanilla. Comportamento observável
+    // preservado: entrar num id que está na rota é ciclo.
 
     #[test]
-    fn enter_import_sem_ciclo_passa() {
+    fn with_route_id_sem_ciclo_passa() {
+        let main = FileId::from_raw(NonZeroU16::new(99).unwrap());
         let world = MockWorld::new("");
-        let mut ctx = EvalContext::new(&world, FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()));
-        let id_a = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let mut ctx = EvalContext::new(&world, main);
+        let id_a = FileId::from_raw(NonZeroU16::new(1).unwrap());
         let span = Span::detached();
 
-        let guard = ctx.enter_import(id_a, span).unwrap();
-        assert!(ctx.import_stack.contains(&id_a));
-        drop(guard);
-        assert!(!ctx.import_stack.contains(&id_a));
+        let result: SourceResult<u32> = ctx.with_route_id(id_a, span, |ctx| {
+            assert!(ctx.route_contains(id_a), "id empurrado durante f");
+            Ok(42)
+        });
+        assert_eq!(result.ok(), Some(42));
+        assert!(!ctx.route_contains(id_a), "id removido após f");
+        assert!(ctx.route_contains(main), "main permanece na rota");
     }
 
     #[test]
-    fn enter_import_ciclo_retorna_err() {
+    fn with_route_id_ciclo_retorna_err() {
+        let main = FileId::from_raw(NonZeroU16::new(99).unwrap());
         let world = MockWorld::new("");
-        let mut ctx = EvalContext::new(&world, FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()));
-        let id_a = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let mut ctx = EvalContext::new(&world, main);
+        let id_a = FileId::from_raw(NonZeroU16::new(1).unwrap());
         let span = Span::detached();
 
-        let _guard = ctx.enter_import(id_a, span).unwrap();
-        // Tentar entrar no mesmo id — deve falhar
-        let result = ctx.enter_import(id_a, span);
+        // Entramos em id_a e, dentro da closure, tentamos re-entrar — ciclo.
+        let result: SourceResult<()> = ctx.with_route_id(id_a, span, |ctx| {
+            ctx.with_route_id(id_a, span, |_| Ok(()))
+        });
         assert!(result.is_err());
         let err = result.unwrap_err();
         assert!(err[0].message.contains("ciclo"),
@@ -2711,19 +2704,82 @@ mod tests {
     }
 
     #[test]
-    fn guard_remove_id_mesmo_em_err() {
+    fn with_route_id_pop_mesmo_em_err() {
+        let main = FileId::from_raw(NonZeroU16::new(99).unwrap());
         let world = MockWorld::new("");
-        let mut ctx = EvalContext::new(&world, FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()));
-        let id_a = FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
+        let mut ctx = EvalContext::new(&world, main);
+        let id_a = FileId::from_raw(NonZeroU16::new(1).unwrap());
         let span = Span::detached();
 
-        {
-            let _guard = ctx.enter_import(id_a, span).unwrap();
-            // guard largado aqui
+        // f devolve Err — o id deve ser retirado da rota na mesma (sem `unsafe`).
+        let result: SourceResult<()> = ctx.with_route_id(id_a, span, |_| {
+            Err(vec![SourceDiagnostic::error(span, "erro simulado")])
+        });
+        assert!(result.is_err());
+        assert!(!ctx.route_contains(id_a), "id removido mesmo em Err");
+
+        // Podemos re-entrar sem falsa detecção de ciclo.
+        let ok: SourceResult<()> = ctx.with_route_id(id_a, span, |_| Ok(()));
+        assert!(ok.is_ok());
+    }
+
+    // ── E2E: ciclo de imports detectado via API pública de eval (Passo 90) ─────
+
+    /// Mock com 2 sources que se incluem mutuamente — força um ciclo real
+    /// através da API pública `eval()`, sem depender do campo `route`.
+    struct CyclicMockWorld {
+        library: Library,
+        book:    FontBook,
+        main:    Source,
+        other:   Source,
+    }
+
+    impl CyclicMockWorld {
+        fn new() -> Self {
+            let main_id  = FileId::from_raw(NonZeroU16::new(1).unwrap());
+            let other_id = FileId::from_raw(NonZeroU16::new(2).unwrap());
+            Self {
+                library: Library::new(),
+                book:    FontBook::new(),
+                main:    Source::new(main_id,  "#include \"other.typ\"".to_string()),
+                other:   Source::new(other_id, "#include \"main.typ\"".to_string()),
+            }
         }
-        // Após drop, deve ser possível entrar de novo (sem ciclo)
-        let result = ctx.enter_import(id_a, span);
-        assert!(result.is_ok());
+    }
+
+    impl World for CyclicMockWorld {
+        fn library(&self) -> &Library  { &self.library }
+        fn book(&self)    -> &FontBook { &self.book }
+        fn main(&self)    -> FileId    { self.main.id() }
+        fn source(&self, id: FileId) -> FileResult<Source> {
+            if id == self.main.id() { Ok(self.main.clone()) }
+            else if id == self.other.id() { Ok(self.other.clone()) }
+            else { Err(FileError::NotFound) }
+        }
+        fn file(&self, _: FileId)     -> FileResult<Bytes>  { Err(FileError::NotFound) }
+        fn font(&self, _: usize)      -> Option<Font>       { None }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn include_source(&self, current_file: FileId, path: &str) -> Result<Source, String> {
+            match (current_file == self.main.id(), path) {
+                (true,  "other.typ") => Ok(self.other.clone()),
+                (false, "main.typ")  => Ok(self.main.clone()),
+                _ => Err(format!("ficheiro não encontrado: {}", path)),
+            }
+        }
+    }
+
+    #[test]
+    fn import_cycle_detectado_retorna_err_sem_panic() {
+        // main.typ inclui other.typ que inclui main.typ — ciclo.
+        // Teste independente do mecanismo interno: usa a API pública de eval.
+        let world = CyclicMockWorld::new();
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "ciclo de imports deve ser detectado como Err, não Ok nem panic");
+        let err = result.unwrap_err();
+        assert!(err.iter().any(|d| d.message.contains("ciclo")),
+            "pelo menos um diagnóstico deve mencionar 'ciclo'; recebido: {:?}",
+            err.iter().map(|d| &d.message).collect::<Vec<_>>());
     }
 
     // ── ModuleImport retorna Err limpo (não panic) ─────────────────────────────
