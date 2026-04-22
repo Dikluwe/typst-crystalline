@@ -88,9 +88,9 @@ representação fiel ao vanilla — não uma simplificação.
 
 ### Regra de execução para tipos tipográficos em L1
 
-Ao materializar `Length`, `Abs`, `Rel`, `Angle`, `Ratio`, `Color`,
-e tipos similares em L1, seguir a arquitectura de memória do Typst
-vanilla sem simplificações de conveniência:
+Ao materializar tipos tipográficos do Typst vanilla em L1, seguir
+a arquitectura de memória do original sem simplificações de
+conveniência:
 
 1. **Diagnosticar primeiro**: verificar a estrutura real no original
    antes de definir o tipo em L1.
@@ -109,6 +109,77 @@ vanilla sem simplificações de conveniência:
    - Qual o custo semântico da simplificação
    - Qual o critério de revisão (não "quando StyleChain existir"
      de forma vaga, mas um passo específico)
+
+### Enumeração dos tipos tipográficos vanilla a que esta regra se aplica
+
+Tipos identificados no diagnóstico do Passo 84.8c sobre
+`lab/typst-original/crates/typst-library/src/{layout,visualize}/`:
+
+**Dimensão / quantidade:**
+
+- `Length` (estrutura combinada `abs: Abs + em: f64` no vanilla)
+- `Abs` (componente absoluta de comprimento)
+- `Em` (componente relativa ao font-size)
+- `Rel<T>` (combinação `Length + Ratio`)
+- `Ratio` (percentagem normalizada)
+- `Fr` (Fraction, `1fr`, `2.5fr`)
+
+**Ângulo:**
+
+- `Angle`
+
+**Alinhamento:**
+
+- `Alignment` (no vanilla, enum tagged `H | V | Both`)
+- `HAlignment` (Start, Left, Center, Right, End)
+- `VAlignment` (Top, Horizon, Bottom)
+
+**Direcção / eixo:**
+
+- `Dir` (LTR, RTL, TTB, BTT)
+- `Axis` (Horizontal, Vertical)
+
+**Cor / visual:**
+
+- `Color`
+- `ColorSpace`
+- `Gradient` (Linear / Radial / Conic)
+- `Paint` (enum `Color | Gradient | Tiling`)
+- `Stroke<T>`
+- `Tiling` (Pattern em versões anteriores do vanilla)
+
+Esta enumeração lista os tipos tipográficos reconhecidos no Typst
+vanilla no momento desta ADR, independentemente de estarem ou não
+materializados em L1. A arquitectura cristalina mantém paridade
+de tipos com o vanilla — cada tipo aparece em L1 com forma
+eventualmente divergente (ex: `Align2D` em cristalino vs
+`Alignment` em vanilla) mas com semântica observável idêntica.
+
+Tipos futuros que o Typst vanilla venha a adicionar seguirão a
+mesma arquitectura e serão adicionados a esta enumeração conforme
+identificados em novos ADRs de materialização.
+
+**Tipos não-tipográficos excluídos desta enumeração**, ainda que
+apareçam em `lab/typst-original/crates/typst-library/src/`:
+
+- Containers genéricos (`Sides<T>`, `Axes<T>`, `Corners<T>`,
+  `Smart<T>`, `OneOrMultiple<T>`) — matéria estrutural reutilizada
+  por vários tipos.
+- Tipos do DSL não tipográficos (`Func`, `Content`, `Module`,
+  `Array`, `Dict`, `Bytes`, `Str`, `Label`, `Symbol`).
+- Tipos com ADR próprio (`Datetime` → ADR-0021).
+- Tipos efémeros de implementação interna (`Frame`, `FrameItem`,
+  `Region`, `Fragment`, `Paper`, `Margin`).
+- Elementos AST (`*Elem`: `PlaceElem`, `BoxElem`, etc.) — são
+  contentores de conteúdo, não valores tipográficos.
+- Variantes especializadas internas de alinhamento (`OuterHAlignment`,
+  `OuterVAlignment`, `SpecificAlignment<H,V>`, `FixedAlignment`) —
+  cobertas indirectamente pela entrada `Alignment`.
+- Sub-componentes de tipos compostos (`Cmyk`, `WeightedColor`,
+  `RatioComponent`, `GradientStop`, `DashPattern`, `LineCap`,
+  `LineJoin`, `FillRule`, etc.) — internos a `Color`/`Gradient`/`Stroke`.
+- Tipos de conversão / casting (`ToAbs`, `ToFloat`, `Num`, `DecNum`,
+  `AngleLike`, `CastInfo`).
 
 ### Sobre o código do Passo 25
 

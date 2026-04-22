@@ -83,6 +83,52 @@ eval() clona repetidamente.
 
 ---
 
+## Clone profundo vs `Arc::clone`
+
+A palavra `clone` em Rust é polissémica. Duas semânticas distintas
+partilham o mesmo nome de método:
+
+- **`Vec<T>::clone()`** (e clones de structs que contêm `Vec<T>`,
+  `HashMap<K, V>`, `String`, etc.) — **cópia profunda de bytes**.
+  Custo O(n) sobre o tamanho do dado. Cada clone aloca memória
+  nova e duplica os conteúdos.
+
+- **`Arc<T>::clone()`** (e clones de structs que só contêm `Arc<T>`,
+  `Rc<T>`, `EcoString` que internamente usa refcounting) —
+  **incremento de um contador atómico**. Custo O(1) independente
+  do tamanho do dado. Nenhuma memória nova é alocada; o dado
+  apontado é partilhado.
+
+Esta ADR estabelece duas regras que derivam desta distinção:
+
+1. **Proibido no hot path de L1**: `Vec<T>::clone()`, `String::clone()`,
+   `HashMap<K, V>::clone()` e qualquer clone profundo semelhante.
+   Se um campo tem semântica de "partilha" (múltiplos donos,
+   imutável após criação), o tipo do campo deve ser `Arc<T>`,
+   `Arc<[T]>`, `Arc<str>` ou `EcoString`.
+
+2. **Obrigatório em L1 quando partilha é semântica**: quando um
+   valor precisa de ser replicado para múltiplos donos sem
+   duplicar bytes, usar `Arc::clone` explicitamente. Exemplos no
+   código actual: `Source` contém `Arc<str>` (ADR-0031),
+   `Content::Sequence(Arc<[Content]>)` (ADR-0026-revisao),
+   `Arc<[ShowRule]>` em `EvalContext` (Passo 84.4 / DEBT-22).
+
+**Observação sobre detecção**: a distinção entre clone profundo e
+`Arc::clone` não é visível no código — ambos se escrevem
+`x.clone()`. O critério é o **tipo de `x`**. Revisões de código
+e passos de materialização devem verificar que campos em hot-path
+têm tipos que tornam `clone` O(1), não O(n).
+
+**Relação com ADR-0026-revisao**: a decisão de usar `Arc<[Content]>`
+em `Content::Sequence` é instância directa desta regra.
+
+**Relação com DEBT-22** (encerrado no Passo 84.4): a conversão de
+`Vec<ShowRule>` para `Arc<[ShowRule]>` é instância directa desta
+regra.
+
+---
+
 ## Regra de execução
 
 Ao decidir entre uma estrutura de dados simples e uma estrutura de alta

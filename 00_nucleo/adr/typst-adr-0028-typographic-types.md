@@ -1,7 +1,8 @@
 # ADR-0028 — Representação simplificada dos tipos tipográficos em Value
 
-**Data:** 2026-03-29
-**Status:** Accepted
+**Status**: `REVOGADO`
+**Revogado por**: ADR-0029
+**Data**: 2026-03-29
 
 ## Contexto
 

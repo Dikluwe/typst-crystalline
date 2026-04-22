@@ -1,6 +1,10 @@
 # ⚖️ ADR-0001: Estratégia de Migração do Typst para a Arquitetura Cristalina
 
-**Status**: `PROPOSTO`
+**Status**: `IMPLEMENTADO`
+**Opção escolhida**: C (comemo em `[l1_allowed_external]`, Passo 4)
+**Nota**: Opção B (isolamento em L3) continua em aberto como
+direcção futura, não registada como DEBT por não ter plano de
+execução.
 **Data**: 2026-03-22
 **Repositório**: fork de https://github.com/typst/typst
 
