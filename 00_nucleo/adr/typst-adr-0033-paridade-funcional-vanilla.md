@@ -1,6 +1,6 @@
 # ⚖️ ADR-0033: Paridade funcional com vanilla como invariante arquitectural
 
-**Status**: `ACCEPTED`
+**Status**: `EM VIGOR`
 **Data**: 2026-04-22
 
 ---
@@ -101,7 +101,7 @@ combinam-se nos dois campos).
 diferente. O enum vanilla tem ~18 variantes discriminadas; o struct
 cristalino tem dois campos de enum mais pequenos.
 
-### Exemplo 2 — ADR-0026 / ADR-0026-revisao: Content
+### Exemplo 2 — ADR-0026 / ADR-0026-R1: Content
 
 **Vanilla**: `Content` é tipo opaco com vtable interna (trait
 `NativeElement`). Elementos são structs distintos implementando
@@ -159,7 +159,7 @@ ao utilizador — é detalhe de implementação.
   (hashing, caching, `Arc::clone`) são permitidas porque a
   paridade é sobre output, não sobre ciclos de CPU.
 
-- **ADR-0026** e **ADR-0026-revisao** (Content): exemplo concreto
+- **ADR-0026** e **ADR-0026-R1** (Content): exemplo concreto
   de divergência estrutural permitida.
 
 - **ADR-0034** (diagnóstico de tipos vanilla): complementar — o
@@ -231,7 +231,7 @@ e é relevante para esta regra.
 - ADR-0029 — Pureza física em L1
 - ADR-0030 — Performance é domínio de L1 (inclui secção Clone
   profundo vs Arc::clone)
-- ADR-0026 + ADR-0026-revisao — Content como enum (exemplo 2)
+- ADR-0026 + ADR-0026-R1 — Content como enum (exemplo 2)
 - ADR-0034 — Diagnóstico obrigatório para tipos vanilla
   (complementar)
 - Passo 84.5 — Materialização de Alignment como Align2D (exemplo 1)
