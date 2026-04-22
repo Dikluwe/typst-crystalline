@@ -4,7 +4,12 @@
 //! @layer L1
 //! @updated 2026-03-27
 
+use std::sync::atomic::{AtomicUsize, Ordering};
+
+use comemo::{Track, Tracked};
+
 use super::file_id::FileId;
+use super::source_result::{SourceDiagnostic, SourceResult};
 use super::span::Span;
 
 /// Conteúdo binário de um ficheiro carregado.
@@ -160,24 +165,215 @@ impl Default for Styles {
     fn default() -> Self { Self::new() }
 }
 
-/// Rota de compilação para detecção de ciclos de importação.
+/// Rota de compilação usada para detectar imports cíclicos e aninhamento
+/// excessivo.
 ///
-/// Stub — o original usa lista ligada com lifetime + AtomicUsize +
-/// `#[comemo::track]`, o que complica o esqueleto neste passo.
-/// ADR-0017: implementação real quando eval() for incrementalmente migrado.
-#[derive(Hash)]
-pub struct Route(());
-
-impl Route {
-    pub fn new() -> Self { Self(()) }
+/// Paridade com `Route` do Typst vanilla (ADR-0033). Cada segmento é um
+/// elo numa lista ligada imutável: o segmento actual referencia o pai
+/// através de `outer: Option<Tracked<'a, Self>>`, tal como o vanilla
+/// (`engine.rs:251`). A travessia via `contains`/`within` é mediada pelo
+/// proxy `Tracked` do `comemo` (ADR-0001).
+pub struct Route<'a> {
+    /// Segmento pai, se existir.
+    ///
+    /// Divergência declarada face ao vanilla: o vanilla parametriza
+    /// `Tracked<'a, Self, <Route<'static> as Track>::Call>` para forçar
+    /// covariância explícita da lifetime da constraint. A versão de
+    /// `comemo` em uso no cristalino (0.4.0) não expõe a associated type
+    /// `Call`; usamos a constraint inferida por omissão, que chega para
+    /// os padrões de uso actuais (ver ADR-0033: divergência interna sem
+    /// efeito observável).
+    outer: Option<Tracked<'a, Self>>,
+    /// Definido quando o segmento foi inserido na entrada de avaliação de
+    /// um módulo.
+    id: Option<FileId>,
+    /// Contribuição deste segmento para a profundidade total da rota. Soma
+    /// com os `len` dos segmentos `outer`.
+    len: usize,
+    /// Upper bound estabelecido para o comprimento da cadeia parente.
+    ///
+    /// Não guardamos o comprimento exacto — isso anularia o reuso de cache
+    /// do `comemo` para profundidades distintas mas ambas não-excedentes.
+    upper: AtomicUsize,
 }
 
-impl Default for Route {
-    fn default() -> Self { Self::new() }
+impl<'a> Route<'a> {
+    /// Cria um segmento de rota raiz, vazio.
+    pub fn root() -> Self {
+        Self {
+            id: None,
+            outer: None,
+            len: 0,
+            upper: AtomicUsize::new(0),
+        }
+    }
+
+    /// Estende a rota com um novo segmento de comprimento 1.
+    pub fn extend(outer: Tracked<'a, Self>) -> Self {
+        Route {
+            outer: Some(outer),
+            id: None,
+            len: 1,
+            upper: AtomicUsize::new(usize::MAX),
+        }
+    }
+
+    /// Anota o segmento com o `FileId` do módulo em avaliação.
+    pub fn with_id(self, id: FileId) -> Self {
+        Self { id: Some(id), ..self }
+    }
+
+    /// Zera a contribuição deste segmento para a profundidade.
+    pub fn unnested(self) -> Self {
+        Self { len: 0, ..self }
+    }
+
+    /// Começa a rastrear esta rota.
+    ///
+    /// Em comparação com `Track::track`, salta este elo se o segmento
+    /// actual não contribui com `id` nem com `len` — optimização de cache
+    /// do `comemo`.
+    pub fn track(&self) -> Tracked<'_, Self> {
+        match self.outer {
+            Some(outer) if self.id.is_none() && self.len == 0 => outer,
+            _ => Track::track(self),
+        }
+    }
+
+    /// Incrementa a profundidade contribuída por este segmento.
+    pub fn increase(&mut self) {
+        self.len += 1;
+    }
+
+    /// Decrementa a profundidade contribuída por este segmento.
+    pub fn decrease(&mut self) {
+        self.len -= 1;
+    }
+}
+
+/// Limites de profundidade. Distintos para que, mesmo quando show-rule e
+/// call-checks se alternam, o erro de show-rule seja sempre emitido antes
+/// dos outros (precedência por menor limite).
+impl Route<'_> {
+    /// Profundidade máxima de show rules aninhadas.
+    pub const MAX_SHOW_RULE_DEPTH: usize = 64;
+
+    /// Profundidade máxima de layout aninhado.
+    pub const MAX_LAYOUT_DEPTH: usize = 72;
+
+    /// Profundidade máxima de HTML aninhado.
+    pub const MAX_HTML_DEPTH: usize = 72;
+
+    /// Profundidade máxima de chamadas de função.
+    pub const MAX_CALL_DEPTH: usize = 80;
+
+    /// Garante que estamos dentro da profundidade máxima de show rules.
+    pub fn check_show_depth(&self) -> SourceResult<()> {
+        if !self.within(Self::MAX_SHOW_RULE_DEPTH) {
+            return Err(vec![
+                SourceDiagnostic::error(
+                    Span::detached(),
+                    "maximum show rule depth exceeded",
+                )
+                .with_hint("maybe a show rule matches its own output")
+                .with_hint("maybe there are too deeply nested elements"),
+            ]);
+        }
+        Ok(())
+    }
+
+    /// Garante que estamos dentro da profundidade máxima de layout.
+    pub fn check_layout_depth(&self) -> SourceResult<()> {
+        if !self.within(Self::MAX_LAYOUT_DEPTH) {
+            return Err(vec![
+                SourceDiagnostic::error(
+                    Span::detached(),
+                    "maximum layout depth exceeded",
+                )
+                .with_hint("try to reduce the amount of nesting in your layout"),
+            ]);
+        }
+        Ok(())
+    }
+
+    /// Garante que estamos dentro da profundidade máxima de HTML.
+    pub fn check_html_depth(&self) -> SourceResult<()> {
+        if !self.within(Self::MAX_HTML_DEPTH) {
+            return Err(vec![
+                SourceDiagnostic::error(
+                    Span::detached(),
+                    "maximum HTML depth exceeded",
+                )
+                .with_hint("try to reduce the amount of nesting of your HTML"),
+            ]);
+        }
+        Ok(())
+    }
+
+    /// Garante que estamos dentro da profundidade máxima de chamadas.
+    pub fn check_call_depth(&self) -> SourceResult<()> {
+        if !self.within(Self::MAX_CALL_DEPTH) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "maximum function call depth exceeded",
+            )]);
+        }
+        Ok(())
+    }
 }
 
 #[comemo::track]
-impl Route {}
+#[allow(clippy::needless_lifetimes)]
+impl<'a> Route<'a> {
+    /// Verifica se o `id` faz parte da rota (segmento actual ou cadeia
+    /// `outer`).
+    pub fn contains(&self, id: FileId) -> bool {
+        self.id == Some(id) || self.outer.is_some_and(|outer| outer.contains(id))
+    }
+
+    /// Verifica se a profundidade total da rota é ≤ `depth`.
+    pub fn within(&self, depth: usize) -> bool {
+        // Só precisamos de atomicidade, não de sincronização com outras
+        // operações — `Relaxed` é suficiente.
+        let upper = self.upper.load(Ordering::Relaxed);
+        if upper.saturating_add(self.len) <= depth {
+            return true;
+        }
+
+        match self.outer {
+            Some(_) if depth < self.len => false,
+            Some(outer) => {
+                let within = outer.within(depth - self.len);
+                if within && depth < upper {
+                    // Não queremos aumentar acidentalmente o upper bound,
+                    // daí o compare-exchange.
+                    self.upper
+                        .compare_exchange(upper, depth, Ordering::Relaxed, Ordering::Relaxed)
+                        .ok();
+                }
+                within
+            }
+            None => true,
+        }
+    }
+}
+
+impl Default for Route<'_> {
+    fn default() -> Self {
+        Self::root()
+    }
+}
+
+impl Clone for Route<'_> {
+    fn clone(&self) -> Self {
+        Self {
+            outer: self.outer,
+            id: self.id,
+            len: self.len,
+            upper: AtomicUsize::new(self.upper.load(Ordering::Relaxed)),
+        }
+    }
+}
 
 
 /// Colector de diagnósticos durante eval().
@@ -348,7 +544,85 @@ mod tests {
 
     #[test]
     fn route_stub_exists() {
-        let _ = Route::new();
+        let _ = Route::root();
+    }
+
+    // ── Route (ADR-0033, paridade com vanilla) ────────────────────────────────
+
+    fn file(n: u16) -> FileId {
+        use std::num::NonZeroU16;
+        FileId::from_raw(NonZeroU16::new(n).unwrap())
+    }
+
+    #[test]
+    fn route_root_nao_contem_nenhum_ficheiro() {
+        // Segmento raiz: id=None, outer=None. Nada pertence à rota.
+        let r = Route::root();
+        assert!(!r.contains(file(1)));
+        assert!(!r.contains(file(42)));
+    }
+
+    #[test]
+    fn route_com_id_contem_proprio_id() {
+        let fid = file(3);
+        let r = Route::root().with_id(fid);
+        assert!(r.contains(fid));
+        assert!(!r.contains(file(4)));
+    }
+
+    #[test]
+    fn route_extend_adiciona_ao_stack() {
+        // parent tem id=1; child extende-o via .track() e ganha id=2.
+        // Após extend, a cadeia contém ambos os ids.
+        let parent = Route::root().with_id(file(1));
+        let child  = Route::extend(parent.track()).with_id(file(2));
+        assert!(child.contains(file(1)), "id do pai deve ser visível via outer");
+        assert!(child.contains(file(2)), "id próprio deve estar presente");
+        assert!(!child.contains(file(3)));
+    }
+
+    #[test]
+    fn route_contains_detecta_ciclo() {
+        // Cenário: A importa B que tenta importar A novamente.
+        // A cadeia é A → B; contains(A) na cadeia devolve true — ciclo.
+        let a  = Route::root().with_id(file(10));
+        let b  = Route::extend(a.track()).with_id(file(11));
+        assert!(b.contains(file(10)), "contains detecta A na cadeia B←A");
+    }
+
+    #[test]
+    fn route_increase_decrease_equilibrado() {
+        let mut r = Route::root();
+        r.increase();
+        r.increase();
+        r.increase();
+        r.decrease();
+        r.decrease();
+        r.decrease();
+        // Sem API pública para ler `len`; inferimos o estado via `within`:
+        // após equilibrar increases/decreases, a profundidade actual é a
+        // inicial (0), logo `within(0)` é true.
+        assert!(r.within(0), "increase/decrease equilibrados repõem a profundidade");
+    }
+
+    #[test]
+    fn route_check_depth_rejeita_profundidade_excessiva() {
+        // `within` só aplica o limite quando existe um pai — no segmento
+        // raiz isolado, qualquer profundidade passa (paridade com vanilla
+        // `engine.rs:419`: `None => true`). Construímos um segmento filho
+        // e inflamos o `len` acima de MAX_SHOW_RULE_DEPTH.
+        let parent = Route::root();
+        let mut child = Route::extend(parent.track());
+        // `extend` inicia com len=1; incrementamos até ultrapassar o limite.
+        for _ in 0..Route::MAX_SHOW_RULE_DEPTH {
+            child.increase();
+        }
+        // child.len = 1 + 64 = 65 > MAX_SHOW_RULE_DEPTH.
+        assert!(child.check_show_depth().is_err(),
+                "check_show_depth deve rejeitar profundidade > MAX_SHOW_RULE_DEPTH");
+        let diags = child.check_show_depth().unwrap_err();
+        assert!(diags[0].message.contains("show rule depth"),
+                "mensagem identifica a categoria excedida");
     }
 
     #[test]

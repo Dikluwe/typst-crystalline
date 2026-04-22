@@ -68,7 +68,7 @@ mod integration {
         let routines = Routines::new();
         let traced   = Traced::default();
         let mut sink = Sink::new();
-        let route    = Route::new();
+        let route    = Route::root();
         eval(
             &routines,
             world,
