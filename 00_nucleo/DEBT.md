@@ -229,16 +229,6 @@ Resolução: passar a área de âncora como parâmetro ao processar `Place`.
 
 ---
 
-## DEBT-38 — Cache de sub-frames no Grid Auto — EM ABERTO (Passo 83)
-
-A resolução de altura de linhas Auto chama `layout_sub_frame_with_width` para
-medir a altura intrínseca de cada item, descartando os FrameItems produzidos.
-Quando a célula é emitida no documento, a mesma função é chamada de novo para o
-mesmo item com a mesma largura, duplicando o trabalho de layout em todas as
-células Auto.
-Resolução: cache de `(Content*, width) → (height, Vec<FrameItem>)` válido
-dentro da resolução de um Grid. Reutilizar o resultado da medição na emissão.
-
 ---
 
 ## Secção 2 — DEBTs encerrados
@@ -605,6 +595,28 @@ fase Fraction (evita alturas `fr` "fósseis" da página anterior).
 items dentro de células (campo `cell_available_h: Option<f64>` no Layouter).
 `VAlign::Bottom` ancora ao limite inferior da célula e `VAlign::Horizon` centra
 verticalmente.
+
+---
+
+## DEBT-38 — Cache de sub-frames no Grid Auto — **ENCERRADO (Passo 84.2)** ✓
+
+**Registado no Passo 83.**
+
+A resolução de altura de linhas Auto chamava `layout_sub_frame_with_width`
+para medir a altura intrínseca de cada item, descartando os FrameItems
+produzidos. Quando a célula era emitida no documento, a mesma função
+era chamada de novo para o mesmo item com a mesma largura, duplicando
+o trabalho de layout em todas as células Auto.
+
+**Resolvido no Passo 84.2.** Cache local `HashMap<usize, (f64, Vec<FrameItem>)>`
+no braço `Content::Grid`, populado na fase de medição Auto e consumido
+(via `remove`) na fase de emissão. Chave: `row_idx * num_cols + col_idx`.
+Cache sai de escopo no fim do braço — sem invalidação manual.
+
+Não usa `ptr::addr_of` nem cast de ponteiro (`unsafe` excluído pela
+convenção cristalina). Não usa `Arc<[FrameItem]>` no valor (transferência
+única do cache para o frame, sem partilha). `std::collections::HashMap`
+é permitida em L1 por ADR-0029 (pureza física — RAM é domínio, não I/O).
 
 ---
 

@@ -663,10 +663,19 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
                 // ── Resolução de alturas (Passo 83): 3 passagens ─────
                 // Fase 1 — Fixed e Auto numa travessia. Auto mede via
-                // layout_sub_frame_with_width (DEBT-38: medição descartada).
+                // layout_sub_frame_with_width.
+                //
+                // Cache local Passo 84.2 (encerra DEBT-38):
+                // a fase Auto guarda (sub_h, sub_items) por célula; a fase de
+                // emissão consome (via remove) em vez de relayoutar. Chave:
+                // row_idx * num_cols + col_idx. Sai de escopo no fim do braço,
+                // sem invalidação manual; cada Grid (incluindo aninhados) tem
+                // o seu próprio cache.
                 let mut row_heights: Vec<f64> = vec![0.0; num_rows_produced];
                 let mut total_fixed_and_auto: f64 = 0.0;
                 let mut fraction_indices: Vec<(usize, f64)> = Vec::new();
+                let mut cell_cache: std::collections::HashMap<usize, (f64, Vec<FrameItem>)> =
+                    std::collections::HashMap::new();
 
                 for (row_idx, row_items) in rows_of_items.iter().enumerate() {
                     let track = &row_tracks[row_idx % row_tracks.len()];
@@ -681,8 +690,12 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                                 if col_idx >= num_cols { break; }
                                 let cell_w = resolved_widths[col_idx];
                                 let cell_x = col_starts[col_idx];
-                                let (sub_h, _sub_items) =
+                                let (sub_h, sub_items) =
                                     self.layout_sub_frame_with_width(item, cell_x, cell_w);
+                                // Passo 84.2 (DEBT-38): guardar para a fase
+                                // de emissão. Chave estável dentro do braço.
+                                let cell_idx = row_idx * num_cols + col_idx;
+                                cell_cache.insert(cell_idx, (sub_h, sub_items));
                                 if sub_h > max_h {
                                     max_h = sub_h;
                                 }
@@ -765,10 +778,18 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                         let saved_cell_h = self.cell_available_h;
                         self.cell_available_h = Some(row_h);
 
+                        // Passo 84.2 (DEBT-38): consumir resultado da fase
+                        // Auto se já foi medido. `remove` em vez de `get`
+                        // transfere o Vec sem clonar — cada célula é emitida
+                        // exactamente uma vez. Cache miss em linhas Fixed/
+                        // Fraction cai silenciosamente para a chamada original.
+                        let cell_idx = row_idx * num_cols + col_idx;
                         let saved_cursor_x = self.cursor_x;
                         let saved_cursor_y = self.cursor_y;
-                        let (_cell_h, cell_items) =
-                            self.layout_sub_frame_with_width(cell, cell_x, cell_w);
+                        let (_cell_h, cell_items) = match cell_cache.remove(&cell_idx) {
+                            Some(cached) => cached,
+                            None => self.layout_sub_frame_with_width(cell, cell_x, cell_w),
+                        };
                         self.cursor_x = saved_cursor_x;
                         self.cursor_y = saved_cursor_y;
 

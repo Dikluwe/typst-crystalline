@@ -1929,4 +1929,50 @@ mod integration {
             y1, y0
         );
     }
+
+    // ── Passo 84.2 — DEBT-38: cache de sub-frames Auto ──────────────────
+
+    #[test]
+    fn grid_auto_com_multiplas_celulas_reutiliza_cache() {
+        // Grid 2x2 com todas as linhas Auto. Cada célula tem altura distinta.
+        // Linha 0: rects de 30pt e 50pt → altura da linha = 50pt.
+        // Linha 1: rects de 20pt e 40pt → altura da linha = 40pt.
+        //
+        // - Item 0 (linha 0, col 0, 30pt) em y = 20pt (margem).
+        // - Item 1 (linha 0, col 1, 50pt) em y = 20pt.
+        // - Item 2 (linha 1, col 0, 20pt) em y = 20 + 50 = 70pt.
+        // - Item 3 (linha 1, col 1, 40pt) em y = 70pt.
+        //
+        // O teste é black-box: não inspecciona o cache directamente.
+        // Garantia: trocas entre `cell_idx` da fase 1 e da fase de emissão
+        // produziriam coordenadas cruzadas — este teste falharia.
+        let src = "\
+#set page(width: 400pt, height: 400pt, margin: 20pt)
+#grid(columns: 2,
+  rect(width: 100pt, height: 30pt),
+  rect(width: 100pt, height: 50pt),
+  rect(width: 100pt, height: 20pt),
+  rect(width: 100pt, height: 40pt),
+)
+";
+        let (world, _dir) = world_from_str(src);
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        let items = &doc.pages[0].items;
+        assert_eq!(items.len(), 4, "Deve haver 4 FrameItems, obteve {}", items.len());
+
+        let y0 = frame_item_pos(&items[0]).y.0;
+        let y1 = frame_item_pos(&items[1]).y.0;
+        let y2 = frame_item_pos(&items[2]).y.0;
+        let y3 = frame_item_pos(&items[3]).y.0;
+
+        assert!((y0 - 20.0).abs() < 0.5, "Item 0 em y=20, obteve {:.1}", y0);
+        assert!((y1 - 20.0).abs() < 0.5, "Item 1 em y=20, obteve {:.1}", y1);
+        assert!((y2 - 70.0).abs() < 0.5, "Item 2 em y=70, obteve {:.1}", y2);
+        assert!((y3 - 70.0).abs() < 0.5, "Item 3 em y=70, obteve {:.1}", y3);
+    }
 }
