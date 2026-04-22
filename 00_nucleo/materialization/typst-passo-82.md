@@ -10,7 +10,7 @@ Ler antes de começar:
   81.5). Confirmar que o campo existe.
 - `01_core/src/rules/stdlib.rs` — Onde `native_align` e `native_place` serão
   adicionadas.
-- `01_core/DEBT.md` — Confirmar estado dos DEBTs activos.
+- `00_nucleo/DEBT.md` — Confirmar estado dos DEBTs activos.
 
 Pré-condição: `cargo test` — 894 testes (731 L1 + 163 L3), zero violations.
 Passo 81.5 concluído. `flush_line` usa `line_start_x` para o ponto de
@@ -598,7 +598,7 @@ Critérios de conclusão:
   mitigação de DEBT-37: Place vincula-se à coluna, não à margem da página.
 - [ ] `Content::Place` não chama `flush_line()`, não modifica `cursor_x`
   nem `cursor_y`.
-- [ ] DEBT-36 e DEBT-37 registados em `01_core/DEBT.md`.
+- [ ] DEBT-36 e DEBT-37 registados em `00_nucleo/DEBT.md`.
 - [ ] Teste `align_center_reposiciona_no_eixo_x` passa.
 - [ ] Teste `align_right_ancora_a_margem_direita` passa.
 - [ ] Teste `place_nao_altera_cursor_y` passa.

@@ -372,7 +372,7 @@ crystalline-lint .
 # ✓ No violations found
 
 # Verificar DEBT.md tem a entrada StyleChain
-grep -l "StyleChain" 01_core/DEBT.md && echo "OK" || echo "FALTA"
+grep -l "StyleChain" 00_nucleo/DEBT.md && echo "OK" || echo "FALTA"
 ```
 
 Critérios de conclusão:

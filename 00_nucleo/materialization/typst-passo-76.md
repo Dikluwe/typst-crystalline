@@ -9,7 +9,7 @@ Ler antes de começar:
   estrutura de `FrameItem` e como `pos` (posição) é armazenada.
 - `03_infra/src/export.rs` — Serializador manual de PDF. Confirmar os
   operadores actuais no `page_stream` (ex: `q`, `cm`, `Do`, `Q`).
-- `01_core/DEBT.md` — Confirmar que DEBT-25, DEBT-14, DEBT-15 estão
+- `00_nucleo/DEBT.md` — Confirmar que DEBT-25, DEBT-14, DEBT-15 estão
   encerrados e que DEBT-30/31 ainda não existem.
 
 Pré-condição: `cargo test` — ~700+ testes a passar. Passos 71–75 concluídos.
@@ -82,7 +82,7 @@ usa o segundo padrão — confirmar antes de codificar.
 
 ## Tarefa 0 — Actualizar DEBT.md
 
-Antes de qualquer código, registar em `01_core/DEBT.md`:
+Antes de qualquer código, registar em `00_nucleo/DEBT.md`:
 
 ```markdown
 ### DEBT-30 — Suporte a clipping paths (clip: true) — EM ABERTO (Passo 76)
@@ -622,7 +622,7 @@ Critérios de conclusão:
   `TODO` a apontar DEBT-31.
 - [ ] Linha: `end_y = page_height - (pos.y.0 + dy)` com comentário
   `// dy positivo = desce no layout → subtrai no PDF`.
-- [ ] DEBT-30, DEBT-31, e DEBT-32 registados em `01_core/DEBT.md`.
+- [ ] DEBT-30, DEBT-31, e DEBT-32 registados em `00_nucleo/DEBT.md`.
   DEBT-32 descreve o problema de bounding box para linhas com deltas negativos.
 - [ ] Teste `rect_sem_cores_tem_stroke_preta_1pt` passa.
 - [ ] Teste `line_coordenada_y_fim_inferior_ao_inicio` passa.

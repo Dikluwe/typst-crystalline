@@ -1,5 +1,5 @@
 # Prompt L0 — `utils` (utilitários internos de L1)
-Hash do Código: a3eac746
+Hash do Código: b233a30e
 
 **Camada**: L1
 **Ficheiro**: `01_core/src/utils.rs`
@@ -15,7 +15,7 @@ pertencem a nenhuma entidade específica. Contém dois utilitários inlinados
 de `typst_utils` (crate upstream do Typst):
 
 1. **`timing_scope!`** — macro no-op que substitui `typst_timing::TimingScope`
-   (ADR-0006). Os pontos de instrumentação estão registados em `01_core/DEBT.md`.
+   (ADR-0006). Os pontos de instrumentação estão registados em `00_nucleo/DEBT.md`.
    Religação prevista no Passo 10.
 
 2. **`defer`** — função RAII que executa uma closure ao sair do scope
@@ -62,4 +62,4 @@ pub(crate) fn defer<T, F: FnOnce(&mut T)>(
 - `DeferHandle` e `defer` são `pub(crate)` — não fazem parte da API pública de L1.
 - Quando ADR-0006 for religado no Passo 10, substituir `timing_scope!` pelo
   mecanismo de telemetria escolhido em cada local marcado com
-  `// ADR-0006: timing removed — ver 01_core/DEBT.md`.
+  `// ADR-0006: timing removed — ver 00_nucleo/DEBT.md`.

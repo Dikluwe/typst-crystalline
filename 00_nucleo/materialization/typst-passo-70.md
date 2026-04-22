@@ -75,7 +75,7 @@ forma coordenada — uma remoção parcial não compila.
 
 ## Tarefa 0 — Actualizar DEBT.md
 
-Antes de qualquer código, adicionar em `01_core/DEBT.md`:
+Antes de qualquer código, adicionar em `00_nucleo/DEBT.md`:
 
 ```markdown
 ### DEBT-20 — Guard anti-recursão booleano global — ENCERRADO (Passo 70) ✓
@@ -426,9 +426,9 @@ Critérios de conclusão:
 - [ ] Teste `show_rule_composicao_sem_loop` passa sem stack overflow.
 - [ ] Teste `show_rule_encadeamento_duas_regras` passa.
 - [ ] Teste `show_rule_active_guards_limpos_apos_erro` passa.
-- [ ] DEBT-20 marcado como **encerrado** em `01_core/DEBT.md`.
-- [ ] DEBT-21 marcado como **mitigado** em `01_core/DEBT.md`.
-- [ ] DEBT-23 marcado como **encerrado** em `01_core/DEBT.md`.
+- [ ] DEBT-20 marcado como **encerrado** em `00_nucleo/DEBT.md`.
+- [ ] DEBT-21 marcado como **mitigado** em `00_nucleo/DEBT.md`.
+- [ ] DEBT-23 marcado como **encerrado** em `00_nucleo/DEBT.md`.
 - [ ] Zero violações no linter e no clippy.
 
 ---

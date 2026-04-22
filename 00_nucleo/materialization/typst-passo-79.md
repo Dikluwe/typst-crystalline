@@ -9,7 +9,7 @@ Ler antes de começar:
   campo `clip_mask`.
 - `03_infra/src/export.rs` — Onde `emit_shape_path` será dividido em
   `_global` e `_local`, e o operador `W n` será introduzido.
-- `01_core/DEBT.md` — Confirmar que DEBT-30 está registado e DEBT-31
+- `00_nucleo/DEBT.md` — Confirmar que DEBT-30 está registado e DEBT-31
   encerrado.
 
 Pré-condição: `cargo test` — ~721 L1 + ~147 L3, zero violations.
@@ -513,8 +513,8 @@ Critérios de conclusão:
 - [ ] `CubicTo` emitido como `c` em ambas as funções de emissão.
 - [ ] Braço `FrameItem::Group` segue a ordem `q → cm → W n (se clip) → filhos → Q`.
 - [ ] `W n` é emitido apenas quando `clip_mask` é `Some`.
-- [ ] DEBT-30 marcado como **ENCERRADO ✓** em `01_core/DEBT.md`.
-- [ ] DEBT-33 registado em `01_core/DEBT.md`.
+- [ ] DEBT-30 marcado como **ENCERRADO ✓** em `00_nucleo/DEBT.md`.
+- [ ] DEBT-33 registado em `00_nucleo/DEBT.md`.
 - [ ] Teste `polygon_sem_pontos_gera_erro` passa.
 - [ ] Teste `polygon_com_um_ponto_gera_moveto_e_closepath` passa.
 - [ ] Teste `export_path_com_cubicto_emite_operador_c` passa.

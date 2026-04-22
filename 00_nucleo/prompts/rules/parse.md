@@ -1,5 +1,5 @@
 # Prompt L0 — `parse` (parser e lexer do Typst)
-Hash do Código: 6e8f311a
+Hash do Código: bee22bd6
 
 **Camada**: L1
 **Ficheiros**:
@@ -115,7 +115,7 @@ pub fn parse_math(text: &str) -> SyntaxNode;
 
 - `parse()` é função pura — sem I/O, sem estado global, determinística
 - `timing_scope!("parse")` é um no-op (ADR-0006); pontos de religação
-  em `01_core/DEBT.md`
+  em `00_nucleo/DEBT.md`
 - Os pontos de timing originais eram: `"parse"`, `"parse code"`, `"parse math"`
 - Reparsing incremental (`reparse_*`) não é exposto na interface pública de L1
 - `ast::Expr::Ident`/`ast::Expr::Str` substituídos por `node.kind()` directo

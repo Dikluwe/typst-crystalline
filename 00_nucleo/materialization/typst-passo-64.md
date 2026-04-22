@@ -365,7 +365,7 @@ Critérios de conclusão:
 - [ ] `apply_func` passa `&args` para funções nativas.
 - [ ] Zero referências a `"figure"` em `eval.rs` (excepto comentários).
 - [ ] Testes L3 de `figure` continuam a passar.
-- [ ] DEBT-16 marcado como **encerrado** em `01_core/DEBT.md`.
+- [ ] DEBT-16 marcado como **encerrado** em `00_nucleo/DEBT.md`.
 - [ ] Zero violações no linter e no clippy.
 
 ---

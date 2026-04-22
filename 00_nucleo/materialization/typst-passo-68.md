@@ -115,7 +115,7 @@ git add 00_nucleo/prompts/entities/show.md
 crystalline-lint --fix-hashes .
 ```
 
-Registar os seguintes DEBTs em `01_core/DEBT.md` antes de escrever qualquer código:
+Registar os seguintes DEBTs em `00_nucleo/DEBT.md` antes de escrever qualquer código:
 
 ```markdown
 ### DEBT-19 — Avaliação superficial de NodeKind (Passo 68)
@@ -563,7 +563,7 @@ Critérios de conclusão:
 - [ ] `eval_block` trunca `show_rules` ao sair.
 - [ ] Teste de escopo léxico passa.
 - [ ] Teste anti-recursão termina sem panic.
-- [ ] DEBT-19, DEBT-20, DEBT-21 e DEBT-22 registados em `01_core/DEBT.md`
+- [ ] DEBT-19, DEBT-20, DEBT-21 e DEBT-22 registados em `00_nucleo/DEBT.md`
   antes de qualquer código.
 - [ ] Zero violações no linter e no clippy.
 

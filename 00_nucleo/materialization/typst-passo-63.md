@@ -71,7 +71,7 @@ registo em `references.rs` precisa de inferir a página a partir de
 
 ## Tarefa 1 — Registo de DEBT-16 e DEBT-17 (L0)
 
-Registar em `01_core/DEBT.md` antes de qualquer código:
+Registar em `00_nucleo/DEBT.md` antes de qualquer código:
 
 ```markdown
 ### DEBT-16 — Acoplamento do Avaliador à Stdlib (Passo 62)
@@ -417,7 +417,7 @@ crystalline-lint .
 ```
 
 Critérios de conclusão:
-- [ ] DEBT-16, DEBT-17 e DEBT-18 registados em `01_core/DEBT.md` antes de qualquer código.
+- [ ] DEBT-16, DEBT-17 e DEBT-18 registados em `00_nucleo/DEBT.md` antes de qualquer código.
 - [ ] `is_readonly: bool` adicionado ao `CounterState`.
 - [ ] `step_hierarchical`, `step_flat`, `update_flat` respeitam `is_readonly`.
 - [ ] `outline.rs` activa `is_readonly` antes de construir cada linha da TOC
@@ -429,8 +429,8 @@ Critérios de conclusão:
   (sem alterar a assinatura de `layout()`).
 - [ ] `layout()` copia `l.counter.label_pages` para `doc.extracted_label_pages` antes de retornar.
 - [ ] Orquestrador em L3 usa 3 passagens: introspecção → draft → final.
-- [ ] DEBT-12 marcado como **encerrado** em `01_core/DEBT.md`.
-- [ ] DEBT-13 marcado como **encerrado** (mitigado) em `01_core/DEBT.md`.
+- [ ] DEBT-12 marcado como **encerrado** em `00_nucleo/DEBT.md`.
+- [ ] DEBT-13 marcado como **encerrado** (mitigado) em `00_nucleo/DEBT.md`.
 - [ ] Zero violações no linter e no clippy.
 
 ---

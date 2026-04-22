@@ -12,7 +12,7 @@ Ler antes de começar:
 - `01_core/src/rules/layout/mod.rs` (ou ficheiro anexo do Grid) — Onde o
   motor de layout itera sobre os items e calcula X/Y das células. Ponto de
   inserção das três passagens de altura (Fixed/Auto/Fraction).
-- `01_core/DEBT.md` — DEBT-34b e DEBT-34c serão encerrados.
+- `00_nucleo/DEBT.md` — DEBT-34b e DEBT-34c serão encerrados.
 
 Pré-condição: `cargo test` — 898 testes (732 L1 + 166 L3, 1 ignorado
 pré-existente), zero violations. Passo 82 concluído. `resolve_alignment`
@@ -647,9 +647,9 @@ Critérios de conclusão:
 - [ ] Compensação de `sub_origin_y` aplicada no loop de transferência de
   items — `VAlign::Bottom` não acumula o ascender_local.
 - [ ] DEBT-34b e DEBT-34c movidos para a secção de encerrados em
-  `01_core/DEBT.md`.
+  `00_nucleo/DEBT.md`.
 - [ ] DEBT-38 (cache de sub-frames no Grid Auto) aberta em
-  `01_core/DEBT.md`. Resolução adiada — não implementar cache neste passo.
+  `00_nucleo/DEBT.md`. Resolução adiada — não implementar cache neste passo.
 - [ ] Teste `grid_rows_fixed_coordenadas_y_correctas` passa.
 - [ ] Teste `grid_valign_bottom_ancora_ao_limite_inferior_da_celula` passa.
 - [ ] Teste `grid_rows_auto_e_fraction_coexistem` passa (ou está comentado

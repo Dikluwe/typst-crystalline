@@ -8,7 +8,7 @@ Ler antes de começar:
 - `03_infra/Cargo.toml` — Onde `image` e `flate2` vão ser injectados.
 - `01_core/src/rules/layout/frame.rs` — Confirmar os cinco campos de
   `FrameItem::Image` introduzidos no Passo 73.
-- `01_core/DEBT.md` — Confirmar que DEBT-27, DEBT-28, DEBT-29 estão registados
+- `00_nucleo/DEBT.md` — Confirmar que DEBT-27, DEBT-28, DEBT-29 estão registados
   e DEBT-24c está encerrado.
 
 Pré-condição: `cargo test` — ~706 L1 + ~126 L3, zero violations.
@@ -78,7 +78,7 @@ antes de avançar.
 ## Tarefa 0 — Actualizar DEBT.md
 
 Antes de qualquer código, marcar os débitos que este passo vai fechar como
-`EM CURSO` em `01_core/DEBT.md`, para que o estado seja visível durante
+`EM CURSO` em `00_nucleo/DEBT.md`, para que o estado seja visível durante
 a implementação:
 
 ```markdown
@@ -790,7 +790,7 @@ Critérios de conclusão:
 - [ ] PNG corrompido ou formato desconhecido omite a imagem silenciosamente sem corromper o PDF.
 - [ ] Deduplicação por `Arc::as_ptr` continua a funcionar para PNG — um PNG repetido 10 vezes gera um único XObject.
 - [ ] Comentário no exportador explica por que `Arc::as_ptr` é seguro durante `export_pdf`.
-- [ ] DEBT-26, DEBT-27, DEBT-28, DEBT-29 marcados como **ENCERRADO ✓** em `01_core/DEBT.md`.
+- [ ] DEBT-26, DEBT-27, DEBT-28, DEBT-29 marcados como **ENCERRADO ✓** em `00_nucleo/DEBT.md`.
 - [ ] Teste `ptr_eq_arc_compara_por_ponteiro` passa.
 - [ ] Teste `calculate_dimensions_retorna_intrinsic` passa.
 - [ ] Teste `jpeg_color_space_grayscale` passa.

@@ -3,7 +3,7 @@
 ## Estado actual antes de começar
 
 Ler antes de começar:
-- `01_core/DEBT.md` — Localização actual do ficheiro (incorrecta). Ver
+- `00_nucleo/DEBT.md` — Localização actual do ficheiro (incorrecta). Ver
   Tarefa de movimentação abaixo.
 - `00_nucleo/` — Directório onde `DEBT.md` deveria estar. Confirmar
   estrutura antes de mover.
@@ -39,22 +39,22 @@ reorganização do `DEBT.md` (Tarefas 1 e 2).
 
 ## Tarefa 1 — Movimentação do ficheiro
 
-Mover `01_core/DEBT.md` para `00_nucleo/DEBT.md`.
+Mover `00_nucleo/DEBT.md` para `00_nucleo/DEBT.md`.
 
 Procurar e actualizar todas as referências ao caminho antigo:
 
 ```bash
-# Ocorrências de "01_core/DEBT.md" no repositório.
-grep -rn "01_core/DEBT.md" . --include="*.md" --include="*.rs" --include="*.toml"
+# Ocorrências de "00_nucleo/DEBT.md" no repositório.
+grep -rn "00_nucleo/DEBT.md" . --include="*.md" --include="*.rs" --include="*.toml"
 ```
 
 Actualizar cada referência para `00_nucleo/DEBT.md`. Incluir:
-- Comentários em código-fonte (`// ver 01_core/DEBT.md`).
+- Comentários em código-fonte (`// ver 00_nucleo/DEBT.md`).
 - Ficheiros de ADR em `00_nucleo/adr/`.
 - `typst-migracao-estado.md` e outros ficheiros de estado.
 - READMEs e documentação auxiliar.
 
-Depois da movimentação, confirmar que `grep -rn "01_core/DEBT.md"` retorna
+Depois da movimentação, confirmar que `grep -rn "00_nucleo/DEBT.md"` retorna
 zero resultados.
 
 ---
@@ -325,7 +325,7 @@ estrutura:
 
 ## 1. Movimentação e reorganização
 
-- Ficheiro movido: 01_core/DEBT.md → 00_nucleo/DEBT.md
+- Ficheiro movido: 00_nucleo/DEBT.md → 00_nucleo/DEBT.md
 - Referências actualizadas: [lista de ficheiros tocados, sem diff
   completo — só caminhos]
 - Reorganização: [confirmar que Secção 1 / Secção 2 / Secção 3 foram
@@ -390,7 +390,7 @@ os comandos.
 
 - [ ] `DEBT.md` movido de `01_core/` para `00_nucleo/`.
 - [ ] Todas as referências ao caminho antigo actualizadas (`grep -rn
-  "01_core/DEBT.md"` retorna zero).
+  "00_nucleo/DEBT.md"` retorna zero).
 - [ ] Ficheiro reorganizado nas três secções (abertos / encerrados /
   instrumentação) sem alterar o texto de nenhuma entrada.
 - [ ] Cada DEBT da lista da Tarefa 3 foi auditado com um comando de

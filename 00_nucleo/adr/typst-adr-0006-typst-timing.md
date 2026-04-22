@@ -46,9 +46,9 @@ pub(crate) use timing_scope;
 ```
 
 Cada local onde `TimingScope` era criado recebe um comentário
-`// ADR-0006: timing removed — ver 01_core/DEBT.md`.
+`// ADR-0006: timing removed — ver 00_nucleo/DEBT.md`.
 
-Um ficheiro `01_core/DEBT.md` regista os três pontos de
+Um ficheiro `00_nucleo/DEBT.md` regista os três pontos de
 instrumentação perdidos:
 
 ```markdown

@@ -321,7 +321,7 @@ Critérios de conclusão:
 - [ ] O ciclo compara `doc.extracted_label_pages == known_page_numbers`.
 - [ ] Sem `log::` em L1 — limite atingido retorna documento de melhor esforço.
 - [ ] Testes L3 do Passo 63 (TOC paginada) continuam a passar.
-- [ ] DEBT-17 marcado como **encerrado** em `01_core/DEBT.md`.
+- [ ] DEBT-17 marcado como **encerrado** em `00_nucleo/DEBT.md`.
 - [ ] Zero violações no linter e no clippy.
 
 ---

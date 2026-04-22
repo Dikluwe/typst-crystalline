@@ -561,11 +561,11 @@ Critérios de conclusão:
   invocam `map_content`.
 - [ ] `Content::text()` usado como construtor em `apply_show_rules` — nunca
   `Content::Text()` directamente.
-- [ ] DEBT-23 registado em `01_core/DEBT.md` antes de qualquer código.
+- [ ] DEBT-23 registado em `00_nucleo/DEBT.md` antes de qualquer código.
 - [ ] Funções sentinela `strong`, `emph`, `raw` registadas na stdlib.
 - [ ] Testes `map_content_substitui_heading_em_sequence` e
   `show_rule_map_content_transversal` passam.
-- [ ] DEBT-19 marcado como **encerrado** em `01_core/DEBT.md`.
+- [ ] DEBT-19 marcado como **encerrado** em `00_nucleo/DEBT.md`.
 - [ ] Zero violações no linter e no clippy.
 
 ---

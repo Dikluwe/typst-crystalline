@@ -11,7 +11,7 @@ Ler antes de começar:
   como expõe o valor em radianos (diagnóstico 1).
 - `03_infra/src/export.rs` — Onde o operador `cm` será introduzido e o
   desenho será dividido em `draw_item_global` / `draw_item_local`.
-- `01_core/DEBT.md` — Confirmar que DEBT-31 está registado.
+- `00_nucleo/DEBT.md` — Confirmar que DEBT-31 está registado.
 
 Pré-condição: `cargo test` — 721 L1 + 147 L3, zero violations. DEBT-31
 registado. Elipses e linhas com deltas negativos a funcionar (Passo 77).
@@ -528,7 +528,7 @@ Critérios de conclusão:
   `draw_item_local` não subtrai `page_height`.
 - [ ] Braço `FrameItem::Group` emite `q → cm → filhos (local) → Q`.
 - [ ] Os componentes `b` e `c` da matriz `cm` são invertidos no exportador.
-- [ ] DEBT-31 marcado como **ENCERRADO ✓** em `01_core/DEBT.md`.
+- [ ] DEBT-31 marcado como **ENCERRADO ✓** em `00_nucleo/DEBT.md`.
 - [ ] Teste `transform_matrix_rotacao_90_graus_quadrado_mantem_dimensoes` passa.
 - [ ] Teste `transform_matrix_rotacao_45_graus_aumenta_bounding_box` passa.
 - [ ] Teste `transform_matrix_concat_ordem_correta` passa.

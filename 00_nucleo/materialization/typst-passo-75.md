@@ -13,7 +13,7 @@ Ler antes de começar:
 - `01_core/src/rules/layout/figure.rs` — Como o layouter processa figuras.
 - `01_core/src/entities/counter_state.rs` — Como `CounterState` regista e
   lê contadores. Confirmar o padrão estabelecido nos Passos 57–60.
-- `01_core/DEBT.md` — Confirmar que DEBT-25, DEBT-14, DEBT-15 estão
+- `00_nucleo/DEBT.md` — Confirmar que DEBT-25, DEBT-14, DEBT-15 estão
   registados e DEBT-26/27/28/29 estão encerrados.
 
 Pré-condição: `cargo test` — ~706 L1 + ~126 L3, zero violations.
@@ -688,7 +688,7 @@ Critérios de conclusão:
   referência de página. Labels de figuras numeradas produzem "Figure N".
 - [ ] Figuras de `kind` diferentes têm listas `figure_numbers` independentes
   — confirmado pelo teste `figuras_kind_diferente_contadores_independentes`.
-- [ ] DEBT-25, DEBT-14, DEBT-15 marcados como **ENCERRADO ✓** em `01_core/DEBT.md`.
+- [ ] DEBT-25, DEBT-14, DEBT-15 marcados como **ENCERRADO ✓** em `00_nucleo/DEBT.md`.
 - [ ] Teste `image_resolve_caminho_relativo` passa.
 - [ ] Teste `current_file_restaurado_apos_include` passa.
 - [ ] Teste `figure_tem_kind_e_numbering` passa.

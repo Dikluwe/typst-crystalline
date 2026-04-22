@@ -456,7 +456,7 @@ Critérios de conclusão:
 - [ ] Braço `Content::Heading` chama `step_heading` antes de desenhar.
 - [ ] Prefixo numérico aparece apenas quando `heading_numbering == true`.
 - [ ] `Content::CounterDisplay` adicionado ao enum e tratado no layouter.
-- [ ] DEBT-10 registado em `01_core/DEBT.md`.
+- [ ] DEBT-10 registado em `00_nucleo/DEBT.md`.
 - [ ] Zero violações no linter e no clippy.
 
 ---

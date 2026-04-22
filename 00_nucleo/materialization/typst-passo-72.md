@@ -476,8 +476,8 @@ Critérios de conclusão:
 - [ ] Todos os testes existentes do layouter actualizados com `&NullImageSizer`
   — nenhum contorna o parâmetro com `PhantomData` ou `_`.
 - [ ] Braço `Content::Image` no layouter usa `calculate_dimensions`.
-- [ ] DEBT-24b marcado como **encerrado** em `01_core/DEBT.md`.
-- [ ] DEBT-24c registado em `01_core/DEBT.md`.
+- [ ] DEBT-24b marcado como **encerrado** em `00_nucleo/DEBT.md`.
+- [ ] DEBT-24c registado em `00_nucleo/DEBT.md`.
 - [ ] Testes L1 de aspect ratio passam sem `imagesize`.
 - [ ] Teste L3 com bytes PNG reais passa.
 - [ ] Zero violações no linter e no clippy.

@@ -8,7 +8,7 @@
 **Verificação antes de começar**:
 ```bash
 # Confirmar DEBT-6 em DEBT.md
-grep -A 8 "DEBT-6" 01_core/DEBT.md
+grep -A 8 "DEBT-6" 00_nucleo/DEBT.md
 
 # Confirmar estrutura actual de eval_for_test
 grep -n "eval_for_test\|fn eval_for_test\|MockWorld" \
@@ -16,7 +16,7 @@ grep -n "eval_for_test\|fn eval_for_test\|MockWorld" \
 
 # Confirmar que o merge bold || node_style.bold está registado como DEBT
 grep -n "bold.*merge\|merge.*bold\|node_style.*bold\|DEBT.*bold\|scoping.*set" \
-  01_core/DEBT.md
+  00_nucleo/DEBT.md
 # Se não aparecer, registar antes de continuar (ver Tarefa 0)
 
 # Confirmar que #let f(n) = ... funciona (sintaxe do Passo 31)
