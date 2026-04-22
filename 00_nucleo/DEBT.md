@@ -352,73 +352,6 @@ de infraestrutura, não de domínio.
 
 ---
 
-## DEBT-44 — `EvalContext` não usa estruturalmente `Route<'a>` — EM ABERTO (Passo 91)
-
-O Passo 90 materializou `Route<'a>` em
-`01_core/src/entities/world_types.rs` com paridade estrutural
-completa face ao vanilla (`outer: Option<Tracked<'a, Self>>`,
-linked list imutável, `#[comemo::track]` em `contains`/`within`).
-
-No entanto, `EvalContext` (em `01_core/src/rules/eval.rs`) não usa
-`Route<'a>` estruturalmente. Mantém campo `pub route: Vec<FileId>`
-como projecção plana — uma lista linear que imita a cadeia mas não
-é a estrutura vanilla. A API `with_route_id(id, span, f)` substitui
-o `ImportGuard` antigo com push/pop explícito sobre este `Vec`, sem
-`unsafe`.
-
-### O que o Passo 90 resolveu
-
-- `unsafe` em `ImportGuard::drop` eliminado (ADR-0032 avança).
-- `Route<'a>` existe como tipo em L1 para uso futuro.
-- DEBT-40 encerrado (o `unsafe` era o seu critério de fecho).
-
-### O que o Passo 90 não resolveu
-
-- Divergência estrutural face ao vanilla: o `eval` do vanilla
-  propaga `Route<'a>` por valor entre frames (linked list imutável);
-  o cristalino propaga estado partilhado num `Vec` dentro de
-  `EvalContext`.
-- `Tracked<'a, Route>` não é usado como parâmetro de funções
-  memoizadas, mesmo quando a infraestrutura `comemo` já está
-  disponível.
-
-### Razão do adiamento
-
-Opção escolhida no Passo 90 por decisão pragmática: integrar
-`Route<'a>` estruturalmente exigiria refactor transversal de ~12
-funções `eval_*` (parâmetro `route: &Route<'_>` ou campo
-`route: Route<'a>` no `EvalContext<'w>`). Benefício observável
-limitado enquanto `Expr::ModuleImport` e `Engine<'a>` continuam
-stubs. A decisão preservou o valor principal (fechar `unsafe`,
-fechar DEBT-40) e adiou o valor estrutural.
-
-### Critério de conclusão
-
-- [ ] `EvalContext.route: Vec<FileId>` eliminado.
-- [ ] Mecanismo de detecção de ciclo usa `Route<'a>` directamente
-      (campo no contexto se Classe A do Passo 90, ou parâmetro em
-      funções relevantes se Classe B).
-- [ ] API pública do eval não muda (comportamento observável
-      preservado — ADR-0033).
-- [ ] Teste E2E `import_cycle_detectado_retorna_err_sem_panic`
-      continua a passar sem alteração.
-- [ ] Nenhum novo `unsafe` introduzido.
-
-### Dependências
-
-Nenhuma técnica. Passo dedicado quando priorizado. O Passo 90 deixou
-o cenário preparado: `Route<'a>` existe e tem API funcional; falta
-apenas ligá-lo ao `EvalContext`.
-
-### Nota sobre escopo
-
-A integração estrutural, quando atacada, pode revelar que o escopo
-real é maior do que ~12 funções — por exemplo, se o `Engine<'a>`
-for materializado simultaneamente. Nesse caso, este DEBT pode
-dividir-se em sub-DEBTs.
-
----
-
 ## DEBT-45 — Métodos `check_*_depth` de `Route<'a>` não chamados pelo eval — EM ABERTO (Passo 91)
 
 O Passo 90 materializou `Route<'a>` com 4 métodos de verificação de
@@ -1133,6 +1066,110 @@ recursão (Classe A do plano do Passo 90). Teste E2E
 pública de `eval`, que um ciclo `main → other → main` retorna
 `Err` sem panic. O `scanner.rs` continua a ser o único `unsafe`
 em L1 (DEBT-42, bloqueado por infra de benchmark).
+
+---
+
+## DEBT-44 — `EvalContext` não usa estruturalmente `Route<'a>` — **ENCERRADO (Passo 92)** ✓
+
+O Passo 90 materializou `Route<'a>` em
+`01_core/src/entities/world_types.rs` com paridade estrutural
+completa face ao vanilla (`outer: Option<Tracked<'a, Self>>`,
+linked list imutável, `#[comemo::track]` em `contains`/`within`).
+
+No entanto, `EvalContext` (em `01_core/src/rules/eval.rs`) não usa
+`Route<'a>` estruturalmente. Mantém campo `pub route: Vec<FileId>`
+como projecção plana — uma lista linear que imita a cadeia mas não
+é a estrutura vanilla. A API `with_route_id(id, span, f)` substitui
+o `ImportGuard` antigo com push/pop explícito sobre este `Vec`, sem
+`unsafe`.
+
+### O que o Passo 90 resolveu
+
+- `unsafe` em `ImportGuard::drop` eliminado (ADR-0032 avança).
+- `Route<'a>` existe como tipo em L1 para uso futuro.
+- DEBT-40 encerrado (o `unsafe` era o seu critério de fecho).
+
+### O que o Passo 90 não resolveu
+
+- Divergência estrutural face ao vanilla: o `eval` do vanilla
+  propaga `Route<'a>` por valor entre frames (linked list imutável);
+  o cristalino propaga estado partilhado num `Vec` dentro de
+  `EvalContext`.
+- `Tracked<'a, Route>` não é usado como parâmetro de funções
+  memoizadas, mesmo quando a infraestrutura `comemo` já está
+  disponível.
+
+### Razão do adiamento
+
+Opção escolhida no Passo 90 por decisão pragmática: integrar
+`Route<'a>` estruturalmente exigiria refactor transversal de ~12
+funções `eval_*` (parâmetro `route: &Route<'_>` ou campo
+`route: Route<'a>` no `EvalContext<'w>`). Benefício observável
+limitado enquanto `Expr::ModuleImport` e `Engine<'a>` continuam
+stubs. A decisão preservou o valor principal (fechar `unsafe`,
+fechar DEBT-40) e adiou o valor estrutural.
+
+### Critério de conclusão
+
+- [x] `EvalContext.route: Vec<FileId>` eliminado.
+- [x] Mecanismo de detecção de ciclo usa `Route<'a>` directamente
+      (parâmetro `route: Tracked<'r, Route<'r>>` nas 10 funções
+      `eval_*`/`apply_*`/`intercept_*` que participam na recursão).
+- [x] API pública do eval não muda (comportamento observável
+      preservado — ADR-0033).
+- [x] Teste E2E `import_cycle_detectado_retorna_err_sem_panic`
+      continua a passar sem alteração.
+- [x] Nenhum novo `unsafe` introduzido.
+
+### Dependências
+
+Nenhuma técnica. Passo dedicado quando priorizado. O Passo 90 deixou
+o cenário preparado: `Route<'a>` existe e tem API funcional; falta
+apenas ligá-lo ao `EvalContext`.
+
+### Nota sobre escopo
+
+A integração estrutural, quando atacada, pode revelar que o escopo
+real é maior do que ~12 funções — por exemplo, se o `Engine<'a>`
+for materializado simultaneamente. Nesse caso, este DEBT pode
+dividir-se em sub-DEBTs.
+
+**Resolvido no Passo 92.** Primeira aplicação concreta da ADR-0036
+(atomização progressiva). Mudanças efectivas:
+
+1. `EvalContext.route: Vec<FileId>`, `route_contains`, `with_route_id`
+   e o pré-push de `current_file` em `EvalContext::new` foram
+   removidos. `EvalContext` deixa de carregar estado de
+   detecção-de-ciclo.
+2. As 10 funções que participam na recursão
+   (`eval`, `eval_markup`, `eval_expr`, `eval_markup_body`,
+   `eval_args`, `eval_conditional`, `eval_while`, `eval_for`,
+   `eval_let`, `eval_counter_method`) ganham parâmetro
+   `route: Tracked<'r, Route<'r>>` (lifetime nomeada `'r` devido
+   à invariância de `Route<'_>`). `apply_func`, `apply_closure`,
+   `apply_show_rules` e `intercept_content` ganham o mesmo
+   parâmetro por propagação.
+3. `eval_math_content`/`eval_math_expr` permanecem inalteradas
+   (tier 3 — não têm caminho a `Expr::ModuleInclude`).
+4. `world_types.rs::Route::outer` passou a parametrizar
+   explicitamente a `Constraint` via
+   `Tracked<'a, Self, <Route<'static> as Validate>::Constraint>`
+   — pattern documentado pelo `comemo 0.4.0` para habilitar
+   covariância em cadeias `Tracked`. Sem isto o encadeamento
+   recursivo de `Route::extend` não compilava (erro de
+   invariância).
+5. `Expr::ModuleInclude` verifica ciclos via `route.contains(id)`
+   real e cria frame filho via `Route::extend(route).with_id(id)`,
+   passando `child_route.track()` à chamada recursiva — paridade
+   directa com `typst-eval/src/import.rs:232` do vanilla.
+6. Os 3 testes `with_route_id_*` do Passo 90 foram removidos
+   (testavam o mecanismo intermédio que desapareceu). O teste
+   E2E `import_cycle_detectado_retorna_err_sem_panic` passa sem
+   alteração — valida apenas comportamento observável. Contagem
+   L1: 744 (747 − 3).
+
+DEBT-45 (`check_*_depth` não chamados) continua em aberto;
+Passo 93 ligá-los-á agora que `route` está propagado.
 
 ---
 
