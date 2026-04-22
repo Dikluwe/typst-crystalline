@@ -4,6 +4,9 @@
 //! @layer L1
 //! @updated 2026-03-27
 
+use super::file_id::FileId;
+use super::span::Span;
+
 /// Conteúdo binário de um ficheiro carregado.
 /// Interior provisório — pode mudar de `Vec<u8>` para o tipo real no Passo 5.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -113,23 +116,33 @@ impl Default for Routines {
     fn default() -> Self { Self::new() }
 }
 
-/// Estado de rastreio de execução para o debugger/profiler do Typst.
+/// Rastreia o span sob inspecção para diagnósticos ricos.
 ///
-/// Stub no-op. No original: `Option<Span>` com `#[comemo::track]`.
-/// ADR-0006: instrumentação removida de L1 — religação futura.
-#[derive(Hash)]
-pub struct Traced(());
+/// Paridade com `Traced` do Typst vanilla (ADR-0033). `Default` corresponde
+/// a "não rastrear nada"; `new(span)` embrulha um span a rastrear.
+#[derive(Default)]
+pub struct Traced(Option<Span>);
 
 impl Traced {
-    pub fn new() -> Self { Self(()) }
-}
-
-impl Default for Traced {
-    fn default() -> Self { Self::new() }
+    /// Embrulha um `Span` a rastrear.
+    ///
+    /// Para não rastrear nada, usar `Traced::default()`.
+    pub fn new(traced: Span) -> Self {
+        Self(Some(traced))
+    }
 }
 
 #[comemo::track]
-impl Traced {}
+impl Traced {
+    /// Devolve o span rastreado _se_ pertence ao ficheiro dado, `None`
+    /// caso contrário.
+    ///
+    /// Filtrar por ficheiro garante que só resultados da fonte com o span
+    /// rastreado são invalidados pelo `comemo`.
+    pub fn get(&self, id: FileId) -> Option<Span> {
+        if self.0.and_then(Span::id) == Some(id) { self.0 } else { None }
+    }
+}
 
 
 /// Sistema de propriedades encadeadas do Typst.
@@ -292,7 +305,40 @@ mod tests {
 
     #[test]
     fn traced_stub_exists() {
-        let _ = Traced::new();
+        let _ = Traced::default();
+    }
+
+    // ── Traced (ADR-0033, paridade com vanilla) ───────────────────────────────
+
+    #[test]
+    fn traced_default_retorna_none() {
+        // Default = "não rastrear nada": get devolve None para qualquer FileId.
+        use std::num::NonZeroU16;
+        let id = FileId::from_raw(NonZeroU16::new(7).unwrap());
+        assert_eq!(Traced::default().get(id), None);
+    }
+
+    #[test]
+    fn traced_com_span_preserva_valor() {
+        use std::num::NonZeroU16;
+        let file  = FileId::from_raw(NonZeroU16::new(3).unwrap());
+        let other = FileId::from_raw(NonZeroU16::new(4).unwrap());
+        let span  = Span::from_number(file, 42).unwrap();
+
+        let t = Traced::new(span);
+        // get(mesmo ficheiro) devolve o span rastreado.
+        assert_eq!(t.get(file),  Some(span));
+        // get(ficheiro diferente) devolve None — filtro por FileId.
+        assert_eq!(t.get(other), None);
+    }
+
+    #[test]
+    fn traced_integra_com_comemo_track() {
+        // `#[comemo::track]` gera `.track()` que devolve `Tracked<'_, Traced>`.
+        // O teste é compile-time: a chamada abaixo só compila se o trait existe.
+        use comemo::Track;
+        let t = Traced::default();
+        let _tracked: comemo::Tracked<'_, Traced> = t.track();
     }
 
     #[test]

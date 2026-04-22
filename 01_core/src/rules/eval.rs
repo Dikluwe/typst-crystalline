@@ -1717,7 +1717,7 @@ pub(crate) fn eval_for_test<W: World>(
 ) -> SourceResult<Module> {
     use comemo::Track;
     let routines = Routines::new();
-    let traced   = Traced::new();
+    let traced   = Traced::default();
     let mut sink = Sink::new();
     let route    = Route::new();
 

@@ -66,7 +66,7 @@ mod integration {
     /// Chama `eval()` com o boilerplate de comemo — mesmo padrão de eval_for_test.
     fn do_eval(world: &SystemWorld, source: &Source) -> SourceResult<Module> {
         let routines = Routines::new();
-        let traced   = Traced::new();
+        let traced   = Traced::default();
         let mut sink = Sink::new();
         let route    = Route::new();
         eval(
