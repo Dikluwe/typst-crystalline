@@ -311,6 +311,86 @@ Uma de duas:
 
 ---
 
+## DEBT-43 — Linter: whitelist crate-level em vez de type-level — EM ABERTO (Passo 89)
+
+O `crystalline.toml` usa whitelist crate-level para externos
+autorizados em L1 (secção `[l1_allowed_external]`). Isto significa
+que, se uma crate tem ao menos um tipo autorizado por ADR, **qualquer**
+tipo dessa crate passa o linter — mesmo tipos cujo uso não foi
+autorizado.
+
+Exemplo concreto identificado no Passo 87:
+
+- ADR-0024 autorizou `ecow::EcoString` para `Value::Str` (pontual).
+- ADR-0035 autoriza `ecow::EcoVec` (Passo 89) mas **não** `ecow::EcoMap`,
+  `ecow::EcoArc` ou outros tipos da crate.
+- `use ecow::EcoMap` passaria hoje o linter sem reportar violação,
+  porque o nome `ecow` consta do array autorizado.
+
+A disciplina de respeitar o escopo dos ADRs type-específicos é humana
+(revisão de código), não automática. Este DEBT regista o gap. O
+enforcement arquitectural continua efectivo via revisão manual e pela
+cultura de materialização precedida por ADR + diagnóstico
+(ADR-0033/0034), mas fica explícito que o guardião automático é
+incompleto.
+
+### Proposta de resolução
+
+Estender o formato do `crystalline.toml` para aceitar whitelisting
+por tipo:
+
+```toml
+[l1_allowed_external.ecow]
+types = ["EcoString", "EcoVec"]
+```
+
+Em vez do actual `ecow` estar apenas listado no array de crates
+autorizadas sem granularidade.
+
+**Escopo em dois repositórios**:
+
+1. **`crystalline-lint` (projecto separado, guardião arquitectural)**
+   — alterar o parser da configuração e a lógica de verificação para
+   ler e aplicar o novo formato type-level. Sem esta alteração, o
+   novo formato no `crystalline.toml` é ignorado pelo binário actual.
+
+2. **Typst cristalino (este repositório)** — migrar o
+   `crystalline.toml` para o novo formato, crate por crate, partindo
+   das autorizações já estabelecidas pelos ADRs (0010-0013 para
+   crates unicode, 0018 para `rustc_hash`, 0023 para `indexmap`,
+   0024 para `EcoString`, 0035 para `EcoVec`).
+
+O trabalho no `crystalline-lint` é pré-requisito do trabalho neste
+repositório — o `.toml` só tem efeito depois de o binário saber
+interpretá-lo.
+
+### Dependências
+
+- Trabalho no repositório `crystalline-lint`: alteração do parser de
+  configuração e da lógica de verificação. Passo dedicado nesse
+  projecto, não neste.
+- Após o `crystalline-lint` aceitar type-level whitelisting: passo
+  neste repositório para migrar `crystalline.toml` para o novo
+  formato e adicionar teste de violação negativa (tipo da mesma
+  crate não listado deve ser reportado).
+
+### Nota sobre escopo
+
+Este DEBT **não** afecta correcção funcional do código Typst. Afecta
+apenas enforcement automático de decisões arquitecturais. É trabalho
+de infraestrutura, não de domínio.
+
+### Critério de conclusão
+
+- [ ] `crystalline.toml` aceita whitelist type-level para externos.
+- [ ] Pelo menos uma crate (sugestão: `ecow`) migrada para o novo
+      formato.
+- [ ] Tipo não autorizado dessa crate é reportado como violação em
+      teste do `crystalline-lint`.
+- [ ] Documentação actualizada no README do `crystalline-lint`.
+
+---
+
 ## Secção 2 — DEBTs encerrados
 
 ## DEBT-3 — Safety rails hardcoded — RESOLVIDO (estrutura)

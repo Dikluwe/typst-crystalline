@@ -1,7 +1,7 @@
 # Índice de ADRs do Typst Cristalino
 
 Este documento é o índice canónico dos Architectural Decision
-Records (ADRs) do projecto **Typst Cristalino**. Lista os 35 ADRs
+Records (ADRs) do projecto **Typst Cristalino**. Lista os 36 ADRs
 em vigor, as meta-regras que governam o projecto, o vocabulário
 canónico de status, cadeias de revogação e revisão, e convenções
 estruturais.
@@ -60,7 +60,7 @@ todos com backticks:
 |-------|-----------|----------|
 | `PROPOSTO` | Decisão tomada mas ainda não em vigor nem implementada | ADR-0005, 0006, 0008-0015 |
 | `IDEIA` | Direcção a considerar, pode não vir a ser implementada | ADR-0002, 0003 |
-| `EM VIGOR` | Regra ou política arquitectural aceite e activa | ADR-0018, 0029, 0030, 0032, 0033, 0034 |
+| `EM VIGOR` | Regra ou política arquitectural aceite e activa | ADR-0018, 0029, 0030, 0032, 0033, 0034, 0035 |
 | `IMPLEMENTADO` | Decisão técnica concreta materializada em código | ADR-0001, 0004, 0016, 0017, 0019, 0021-0027, 0026-R1, 0031 |
 | `REVOGADO` | Superseded por ADR posterior com número novo | ADR-0007, 0028 |
 | `ADIADO` | Decisão tomada com implementação diferida por prazo ou condição | ADR-0020 |
@@ -112,15 +112,16 @@ que corresponde a mudança específica no código.
 | 0032 | Política de `unsafe` em L1 | `EM VIGOR` |
 | 0033 | Paridade funcional vanilla | `EM VIGOR` |
 | 0034 | Diagnóstico obrigatório para tipos vanilla | `EM VIGOR` |
+| 0035 | `ecow::EcoVec` autorizado em L1 | `EM VIGOR` |
 
-**Total**: 35 ADRs (34 números únicos; ADR-0026 tem variante -R1
+**Total**: 36 ADRs (35 números únicos; ADR-0026 tem variante -R1
 por revisão).
 
 ### Distribuição de status
 
 - `PROPOSTO`: 13 ADRs (decisões em aberto).
 - `IDEIA`: 2 ADRs.
-- `EM VIGOR`: 6 ADRs (regras/políticas activas).
+- `EM VIGOR`: 7 ADRs (regras/políticas activas).
 - `IMPLEMENTADO`: 12 ADRs (decisões materializadas).
 - `REVOGADO`: 2 ADRs.
 - `ADIADO`: 1 ADR.
