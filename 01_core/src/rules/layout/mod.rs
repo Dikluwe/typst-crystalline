@@ -20,8 +20,8 @@ use crate::entities::{
     geometry::ShapeKind,
     glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
     image_sizer::{ImageSizer, NullImageSizer},
-    layout_types::{Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument, Point, Pt,
-        TextStyle, TrackSizing, TransformMatrix, VAlign},
+    layout_types::{Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument, PlaceScope,
+        Point, Pt, TextStyle, TrackSizing, TransformMatrix, VAlign},
     math_constants::MathConstants,
 };
 use crate::rules::math;
@@ -154,6 +154,15 @@ pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// `is_height_unconstrained`. Salvo e restaurado por célula no braço
     /// `Content::Grid`. `None` no fluxo normal da página.
     cell_available_h: Option<f64>,
+    /// Coordenadas X/Y do canto superior esquerdo da célula activa e
+    /// largura da célula. Passo 84.6 (encerra DEBT-37).
+    ///
+    /// Quando todos `Some` em conjunto com `cell_available_h`,
+    /// `Content::Place { scope: Column, .. }` ancora à célula.
+    /// Salvos e restaurados por célula no braço `Content::Grid`.
+    cell_origin_x: Option<f64>,
+    cell_origin_y: Option<f64>,
+    cell_origin_w: Option<f64>,
 }
 
 impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
@@ -177,6 +186,9 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             figure_progress: std::collections::HashMap::new(),
             is_height_unconstrained: false,
             cell_available_h:        None,
+            cell_origin_x:           None,
+            cell_origin_y:           None,
+            cell_origin_w:           None,
         }
     }
 
@@ -773,10 +785,16 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                         let cell_w = resolved_widths[col_idx];
                         let cell_x = col_starts[col_idx];
 
-                        // Definir o contexto de altura da célula para
-                        // Content::Align dentro deste sub-layout (Passo 83).
-                        let saved_cell_h = self.cell_available_h;
+                        // Definir o contexto de altura/origem da célula para
+                        // Content::Align (Passo 83) e Content::Place (Passo 84.6).
+                        let saved_cell_h  = self.cell_available_h;
+                        let saved_cell_ox = self.cell_origin_x;
+                        let saved_cell_oy = self.cell_origin_y;
+                        let saved_cell_ow = self.cell_origin_w;
                         self.cell_available_h = Some(row_h);
+                        self.cell_origin_x    = Some(cell_x);
+                        self.cell_origin_y    = Some(row_start_y);
+                        self.cell_origin_w    = Some(cell_w);
 
                         // Passo 84.2 (DEBT-38): consumir resultado da fase
                         // Auto se já foi medido. `remove` em vez de `get`
@@ -794,6 +812,9 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                         self.cursor_y = saved_cursor_y;
 
                         self.cell_available_h = saved_cell_h;
+                        self.cell_origin_x    = saved_cell_ox;
+                        self.cell_origin_y    = saved_cell_oy;
+                        self.cell_origin_w    = saved_cell_ow;
 
                         // Transferir items com posições absolutas (Y rebaseado
                         // a row_start_y, compensando o ascender_local).
@@ -962,39 +983,78 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 }
             }
 
-            Content::Place { alignment, dx, dy, body } => {
+            Content::Place { alignment, dx, dy, scope, body } => {
                 // Place NÃO chama flush_line e NÃO modifica cursor_x nem cursor_y.
-                let avail_w = self.available_width();
-                let avail_h = self.available_height();
+                let avail_w_page = self.available_width();
+                let avail_h_page = self.available_height();
 
-                let (sub_h, sub_items) = self.layout_sub_frame_with_width(body, 0.0, avail_w);
+                let (sub_h, sub_items) = self.layout_sub_frame_with_width(body, 0.0, avail_w_page);
 
                 let (ascender_local, _) = self.metrics.vertical_metrics(self.font_size_pt);
                 let sub_origin_y        = ascender_local.0;
 
-                let (content_w, _) = measure_content(body, avail_w);
+                let (content_w, _) = measure_content(body, avail_w_page);
 
-                // origin_x = line_start_x (mitigação parcial de DEBT-37): dentro
-                // de uma coluna de grid, Place vincula-se à coluna.
-                // origin_y ancora à margem da página (DEBT-37: ideal seria ancorar
-                // ao contentor pai).
+                // Passo 84.6 (encerra DEBT-37): seleccionar área de ancoragem
+                // segundo `scope`.
+                // - PlaceScope::Column (default): se estamos dentro de uma
+                //   célula de Grid (cell_origin_* + cell_available_h todos
+                //   Some), ancorar à célula. Caso contrário cair para a página.
+                // - PlaceScope::Parent: ancorar sempre à página, mesmo dentro
+                //   de Grid (paridade com vanilla — `parent` "spans columns").
+                let (origin_x, origin_y, avail_w, avail_h) = match scope {
+                    PlaceScope::Column => match (
+                        self.cell_origin_x,
+                        self.cell_origin_y,
+                        self.cell_origin_w,
+                        self.cell_available_h,
+                    ) {
+                        (Some(cx), Some(cy), Some(cw), Some(ch)) => (cx, cy, cw, ch),
+                        _ => (
+                            self.line_start_x.0,
+                            self.page_config.margin,
+                            avail_w_page,
+                            avail_h_page,
+                        ),
+                    },
+                    PlaceScope::Parent => (
+                        self.page_config.margin,
+                        self.page_config.margin,
+                        avail_w_page,
+                        avail_h_page,
+                    ),
+                };
+
                 let (base_x, base_y) = self.resolve_alignment(
                     *alignment,
                     content_w,
                     sub_h,
                     avail_w,
                     avail_h,
-                    self.line_start_x.0,
-                    self.page_config.margin,
+                    origin_x,
+                    origin_y,
                 );
 
                 let target_x = base_x + dx;
                 let target_y = base_y + dy;
 
+                // Compensação Y para o caso de estarmos dentro de um sub_frame
+                // de célula de Grid (Passo 84.6). O sub_frame da célula faz
+                // `abs_y = row_start_y + (item.y - ascender_local)` ao transferir
+                // items. Como `target_y` aqui já é coord absoluta-na-página
+                // (origin_y é cell_origin_y para Column-em-célula ou page_margin
+                // para Parent), subtrair `cell_origin_y` em vez de `sub_origin_y`
+                // anula a translação que o Grid vai aplicar:
+                //   final = row_start_y + (target_y + iy - cell_origin_y - ascender)
+                //         = target_y + iy - sub_origin_y  (porque row_start_y == cell_origin_y).
+                // Quando NÃO estamos em sub_frame de célula, Place push directo
+                // no frame da página: padrão Passo 82 (subtrair sub_origin_y).
+                let y_offset = self.cell_origin_y.unwrap_or(sub_origin_y);
+
                 for item in sub_items {
                     let (ix, iy) = item_pos(&item);
                     let new_x = Pt(target_x + ix);
-                    let new_y = Pt(target_y + iy - sub_origin_y);
+                    let new_y = Pt(target_y + iy - y_offset);
                     self.current_items.push(translate_frame_item(item, new_x, new_y));
                 }
                 // cursor_y e cursor_x ficam intocados — Place não consome espaço.

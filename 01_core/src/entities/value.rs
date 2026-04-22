@@ -60,6 +60,12 @@ pub enum Value {
     /// Fracção para dimensionamento relativo (ex: 1fr, 2.5fr). Passo 80.
     Fraction(f64),
 
+    // ── Variantes Passo 84.5 (encerra DEBT-36) ──────────────────────────────
+    /// Alinhamento 2D — `left`, `center`, `right`, `top`, `horizon`, `bottom`
+    /// e composições simbólicas (ex: `center + bottom`).
+    /// `Align2D` é `Copy` (8 bytes) — sem `Arc`.
+    Align(crate::entities::layout_types::Align2D),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
     // Variantes futuras (~13 restantes após Passo 80):
     // Relative(Relative),       // comprimento relativo
@@ -98,6 +104,7 @@ impl Value {
             Self::Angle(_)     => "angle",
             Self::Color(_)     => "color",
             Self::Fraction(_)  => "fraction",
+            Self::Align(_)     => "alignment",
         }
     }
 
@@ -138,6 +145,11 @@ impl Value {
     /// Converte para Dict, se for Dict.
     pub fn cast_dict(&self) -> Option<&IndexMap<EcoString, Value, FxBuildHasher>> {
         match self { Self::Dict(d) => Some(d), _ => None }
+    }
+
+    /// Converte para `Align2D`, se for `Align`. Passo 84.5.
+    pub fn cast_align(&self) -> Option<crate::entities::layout_types::Align2D> {
+        match self { Self::Align(a) => Some(*a), _ => None }
     }
 }
 

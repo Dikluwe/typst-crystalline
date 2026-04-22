@@ -4,6 +4,8 @@
 //! @layer L1
 //! @updated 2026-04-20
 
+use std::sync::Arc;
+
 use comemo::{Tracked, TrackedMut};
 use ecow::EcoString;
 use indexmap::IndexMap;
@@ -65,7 +67,12 @@ pub struct EvalContext<'w> {
     pub styles: StyleChain,
     /// Show rules activas no escopo actual (Passo 68).
     /// Crescem com `#show` e são truncadas ao sair de um CodeBlock.
-    pub show_rules: Vec<ShowRule>,
+    ///
+    /// `Arc<[ShowRule]>` (Passo 84.4, encerra DEBT-22): clone é O(1) por
+    /// nó AST visitado em `intercept_content`. Push e truncate-back
+    /// reconstroem o slice (O(n)) — caminhos frios face ao clone do hot path.
+    /// Padrão consistente com `Content::Sequence` (ADR-0026 revisão).
+    pub show_rules: Arc<[ShowRule]>,
     /// Stack de IDs de show rules actualmente em execução (Passo 70, DEBT-20 encerrado).
     /// Uma regra é saltada se o seu ID já está nesta stack — permite composição
     /// entre regras distintas enquanto previne auto-recursão infinita.
@@ -92,11 +99,32 @@ impl<'w> EvalContext<'w> {
             max_loop_iterations: 1_000_000,
             import_stack: Vec::new(),
             styles: StyleChain::default_chain(),
-            show_rules: Vec::new(),
+            show_rules: Arc::from([]),
             active_guards: Vec::new(),
             next_rule_id: 0,
             current_file,
             figure_numbering: None,
+        }
+    }
+
+    /// Adiciona uma show rule reconstruindo o `Arc<[ShowRule]>` (Passo 84.4).
+    ///
+    /// Custo O(n) — caminho frio (uma vez por `#show` do utilizador).
+    /// O hot path é o clone em `intercept_show_rules`, agora O(1) via Arc.
+    pub fn push_show_rule(&mut self, rule: ShowRule) {
+        let mut rules = self.show_rules.to_vec();
+        rules.push(rule);
+        self.show_rules = Arc::from(rules);
+    }
+
+    /// Trunca a lista de show rules ao tamanho `len` (Passo 84.4).
+    ///
+    /// Reconstrói o slice se houver redução. Usado ao sair de
+    /// `Expr::CodeBlock`/`Expr::ContentBlock` para repor o estado anterior
+    /// — substitui o `Vec::truncate` directo (que `Arc<[T]>` não suporta).
+    pub fn truncate_show_rules(&mut self, len: usize) {
+        if len < self.show_rules.len() {
+            self.show_rules = Arc::from(&self.show_rules[..len]);
         }
     }
 
@@ -349,7 +377,7 @@ fn eval_expr(
                 last = eval_expr(expr, scopes, ctx)?;
             }
             ctx.styles = saved_styles;
-            ctx.show_rules.truncate(rules_len_before);
+            ctx.truncate_show_rules(rules_len_before);
             Ok(last)
         }
 
@@ -769,7 +797,7 @@ fn eval_expr(
             let transform = eval_expr(show_rule.transform(), scopes, ctx)?;
             let id = ctx.next_rule_id;
             ctx.next_rule_id += 1;
-            ctx.show_rules.push(ShowRule { id, selector, transform });
+            ctx.push_show_rule(ShowRule { id, selector, transform });
             Ok(Value::None)
         }
 
@@ -942,6 +970,28 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
             Ok(Value::Ratio(crate::entities::layout_types::Ratio(r.get() * n as f64))),
         (BinOp::Mul, Value::Int(n), Value::Ratio(r)) =>
             Ok(Value::Ratio(crate::entities::layout_types::Ratio(n as f64 * r.get()))),
+
+        // ── Alinhamento (Passo 84.5, encerra DEBT-36) ────────────────────────
+        // `center + bottom` → Align2D { h: Center, v: Bottom }.
+        // Erro em conflito (semântica vanilla — não sobrescrita silenciosa):
+        // dois H, dois V, ou qualquer combinação que tente sobrepor o mesmo
+        // eixo retorna `Err`.
+        (BinOp::Add, Value::Align(a), Value::Align(b)) => {
+            let h_conflict = a.h.is_some() && b.h.is_some();
+            let v_conflict = a.v.is_some() && b.v.is_some();
+            if h_conflict && v_conflict {
+                Err("cannot add two 2D alignments".to_string())
+            } else if h_conflict {
+                Err("cannot add two horizontal alignments".to_string())
+            } else if v_conflict {
+                Err("cannot add two vertical alignments".to_string())
+            } else {
+                Ok(Value::Align(crate::entities::layout_types::Align2D {
+                    h: a.h.or(b.h),
+                    v: a.v.or(b.v),
+                }))
+            }
+        }
 
         // ── Fronteira — tipos não migrados ou combinações inválidas ──────────
         (op, lhs, rhs) => Err(format!(
@@ -1526,7 +1576,11 @@ pub(crate) fn intercept_content(
         return Ok(content);
     }
 
-    let rules = ctx.show_rules.clone(); // snapshot explícito — DEBT-22
+    // Passo 84.4 (encerra DEBT-22): snapshot Arc::clone — O(1) refcount.
+    // O slice partilhado é seguro contra mutações concorrentes porque
+    // Rust aborta antes de chegar a `apply_show_rules` se o `&mut ctx` for
+    // usado para reatribuir `ctx.show_rules` no meio (borrow checker).
+    let rules = Arc::clone(&ctx.show_rules);
     apply_show_rules(content, &rules, ctx)
 }
 
@@ -1575,6 +1629,17 @@ fn make_stdlib() -> Scope {
     scope.define("lower",   Value::Func(Func::native("lower",   native_lower)));
     scope.define("replace", Value::Func(Func::native("replace", native_replace)));
     scope.define("calc",    make_calc_module());
+
+    // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).
+    // Sintaxe preferida: `align(center, ...)`, `align(center + bottom, ...)`.
+    use crate::entities::layout_types::{Align2D, HAlign, VAlign};
+    scope.define("left",    Value::Align(Align2D { h: Some(HAlign::Left),    v: None }));
+    scope.define("center",  Value::Align(Align2D { h: Some(HAlign::Center),  v: None }));
+    scope.define("right",   Value::Align(Align2D { h: Some(HAlign::Right),   v: None }));
+    scope.define("top",     Value::Align(Align2D { h: None, v: Some(VAlign::Top) }));
+    scope.define("horizon", Value::Align(Align2D { h: None, v: Some(VAlign::Horizon) }));
+    scope.define("bottom",  Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) }));
+
     scope
 }
 
@@ -2405,6 +2470,52 @@ mod tests {
         } else {
             panic!("esperado Value::Length");
         }
+    }
+
+    // ── Passo 84.5 — Value::Align + composição via `+` (DEBT-36) ─────────
+
+    #[test]
+    fn align_plus_combina_eixos_distintos() {
+        // `center + bottom` deve combinar HAlign::Center + VAlign::Bottom.
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign};
+        let center = Value::Align(Align2D { h: Some(HAlign::Center), v: None });
+        let bottom = Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) });
+        let r = eval_binary_op(BinOp::Add, center, bottom).expect("eixos distintos: ok");
+        let combined = match r {
+            Value::Align(a) => a,
+            _ => panic!("esperado Value::Align"),
+        };
+        assert_eq!(combined.h, Some(HAlign::Center));
+        assert_eq!(combined.v, Some(VAlign::Bottom));
+    }
+
+    #[test]
+    fn align_plus_eixo_horizontal_repetido_falha() {
+        // Semântica vanilla: `center + right` é erro, não sobrescrita.
+        // (Confirmado no diagnóstico do Passo 84.5 — vanilla bail!.)
+        use crate::entities::layout_types::{Align2D, HAlign};
+        let center = Value::Align(Align2D { h: Some(HAlign::Center), v: None });
+        let right  = Value::Align(Align2D { h: Some(HAlign::Right),  v: None });
+        let r = eval_binary_op(BinOp::Add, center, right);
+        assert!(r.is_err(), "dois H devem dar Err: {:?}", r);
+        assert!(
+            r.unwrap_err().contains("horizontal"),
+            "mensagem deve mencionar 'horizontal'"
+        );
+    }
+
+    #[test]
+    fn align_plus_eixo_vertical_repetido_falha() {
+        // Semântica vanilla: `top + bottom` é erro.
+        use crate::entities::layout_types::{Align2D, VAlign};
+        let top    = Value::Align(Align2D { h: None, v: Some(VAlign::Top) });
+        let bottom = Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) });
+        let r = eval_binary_op(BinOp::Add, top, bottom);
+        assert!(r.is_err(), "dois V devem dar Err: {:?}", r);
+        assert!(
+            r.unwrap_err().contains("vertical"),
+            "mensagem deve mencionar 'vertical'"
+        );
     }
 
     #[test]

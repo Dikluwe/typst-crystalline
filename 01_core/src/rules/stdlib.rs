@@ -1000,14 +1000,14 @@ pub fn native_scale(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Val
 
 /// `align(alignment, body)` → `Content::Align`.
 ///
-/// `alignment` é uma string como `"center"` ou `"top-right"` (DEBT-36).
+/// `alignment` aceita `Value::Align` (sintaxe preferida pós-Passo 84.5,
+/// ex: `align(center + bottom, ...)`) ou `Value::Str` (sintaxe legacy,
+/// ex: `align("center", ...)`) — ver DEBT-36 (encerrado).
 /// `body` é o primeiro argumento posicional do tipo Content.
 pub fn native_align(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
 
-    let position_str = args.items.iter()
-        .find_map(|v| if let Value::Str(s) = v { Some(s.to_string()) } else { None })
-        .unwrap_or_else(|| "left".to_string());
+    let alignment = extract_alignment(args, Align2D::default());
 
     let body = args.items.iter()
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
@@ -1015,17 +1015,20 @@ pub fn native_align(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Val
             "align() exige um bloco de conteúdo".to_string())])?;
 
     Ok(Value::Content(Content::Align {
-        alignment: Align2D::from_string(&position_str),
-        body:      Box::new(body),
+        alignment,
+        body: Box::new(body),
     }))
 }
 
-/// `place(alignment, dx?, dy?, body)` → `Content::Place`.
+/// `place(alignment, dx?, dy?, scope?, body)` → `Content::Place`.
 ///
 /// `dx`/`dy` em pt deslocam o conteúdo a partir da posição alinhada.
+/// `scope` (Passo 84.6, encerra DEBT-37): `"column"` (default — ancora à
+/// célula activa de Grid, ou à página fora de Grid) ou `"parent"` (ancora
+/// sempre à página). Aceita string ou omissão.
 pub fn native_place(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
     for key in args.named.keys() {
-        if !["dx", "dy"].contains(&key.as_str()) {
+        if !["dx", "dy", "scope"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("argumento nomeado inesperado em place(): '{}'", key),
@@ -1042,12 +1045,31 @@ pub fn native_place(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Val
         }
     }
 
-    let position_str = args.items.iter()
-        .find_map(|v| if let Value::Str(s) = v { Some(s.to_string()) } else { None })
-        .unwrap_or_else(|| "top-left".to_string());
+    // Default "top-left" para Place, "left" (default Align2D) para Align.
+    let alignment = extract_alignment(
+        args,
+        Align2D { h: Some(crate::entities::layout_types::HAlign::Left),
+                  v: Some(crate::entities::layout_types::VAlign::Top) },
+    );
 
     let dx = args.named.get("dx").map(extract_pt).unwrap_or(0.0);
     let dy = args.named.get("dy").map(extract_pt).unwrap_or(0.0);
+
+    let scope = match args.named.get("scope") {
+        Some(Value::Str(s)) => match s.as_str() {
+            "column" => crate::entities::layout_types::PlaceScope::Column,
+            "parent" => crate::entities::layout_types::PlaceScope::Parent,
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("place(): scope deve ser \"column\" ou \"parent\", recebeu \"{}\"", other),
+            )]),
+        },
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("place(): scope deve ser string, recebeu {}", other.type_name()),
+        )]),
+        None => crate::entities::layout_types::PlaceScope::default(),
+    };
 
     let body = args.items.iter()
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
@@ -1055,11 +1077,25 @@ pub fn native_place(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Val
             "place() exige um bloco de conteúdo".to_string())])?;
 
     Ok(Value::Content(Content::Place {
-        alignment: Align2D::from_string(&position_str),
+        alignment,
         dx,
         dy,
+        scope,
         body: Box::new(body),
     }))
+}
+
+/// Helper Passo 84.5: extrai alinhamento do primeiro argumento posicional
+/// que case com `Value::Align` ou `Value::Str`. Sintaxe preferida `Value::Align`,
+/// sintaxe legacy via `Align2D::from_string`. Caso nenhum case, retorna `default`.
+fn extract_alignment(args: &Args, default: Align2D) -> Align2D {
+    args.items.iter()
+        .find_map(|v| match v {
+            Value::Align(a) => Some(*a),
+            Value::Str(s)   => Some(Align2D::from_string(s.as_str())),
+            _ => None,
+        })
+        .unwrap_or(default)
 }
 
 // ── Grid (Passo 80) ────────────────────────────────────────────────────────

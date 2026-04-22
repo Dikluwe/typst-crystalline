@@ -112,10 +112,11 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
             alignment: *alignment,
             body:      Box::new(materialize_time(body, state)),
         },
-        Content::Place { alignment, dx, dy, body } => Content::Place {
+        Content::Place { alignment, dx, dy, scope, body } => Content::Place {
             alignment: *alignment,
             dx:        *dx,
             dy:        *dy,
+            scope:     *scope,
             body:      Box::new(materialize_time(body, state)),
         },
     }
