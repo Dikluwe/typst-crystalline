@@ -256,54 +256,6 @@ Nenhuma. Pode ser atacado quando o utilizador decidir.
 
 ---
 
-## DEBT-41 — Sealed traits no scanner usam `unsafe trait` — EM ABERTO (Passo 84.8a)
-
-`01_core/src/rules/lexer/scanner.rs` tem 6 `unsafe impl Sealed<T>`
-usando o padrão sealed-trait clássico da stdlib Rust. A palavra
-`unsafe` aqui é mecanismo de encapsulamento (impedir
-implementações externas), não indicação de memória não-segura.
-
-ADR-0032 estabelece que `unsafe` em L1 é eliminado por defeito;
-este caso tem custo zero — é refactor mecânico para o padrão
-"sealed via private module".
-
-### Proposta de resolução
-
-Substituir:
-
-```rust
-pub unsafe trait Sealed<T> { ... }
-unsafe impl Sealed<char> for ... { ... }
-```
-
-Por:
-
-```rust
-mod sealed {
-    pub trait Sealed<T> { ... }
-}
-
-pub trait Pattern: sealed::Sealed<char> { ... }
-impl sealed::Sealed<char> for ... { ... }
-```
-
-Verificar que nenhum consumer externo das traits do scanner
-depende da assinatura `unsafe trait` (uso em bounds genéricos
-deveria continuar a funcionar).
-
-### Critério de conclusão
-
-- Zero ocorrências de `unsafe` associadas ao padrão Sealed em
-  `scanner.rs`.
-- Testes do scanner continuam a passar sem alteração.
-- Nenhum impacto visível na API pública de `01_core/src/rules/lexer/`.
-
-### Dependências
-
-Nenhuma. Refactor trivial, pronto para atacar.
-
----
-
 ## DEBT-42 — `get_unchecked` no scanner — EM ABERTO (Passo 84.8a, bloqueado)
 
 `01_core/src/rules/lexer/scanner.rs` tem 7 ocorrências de
@@ -900,6 +852,58 @@ Não usa `ptr::addr_of` nem cast de ponteiro (`unsafe` excluído pela
 convenção cristalina). Não usa `Arc<[FrameItem]>` no valor (transferência
 única do cache para o frame, sem partilha). `std::collections::HashMap`
 é permitida em L1 por ADR-0029 (pureza física — RAM é domínio, não I/O).
+
+---
+
+## DEBT-41 — Sealed traits no scanner usam `unsafe trait` — **ENCERRADO (Passo 85)** ✓
+
+`01_core/src/rules/lexer/scanner.rs` tem 6 `unsafe impl Sealed<T>`
+usando o padrão sealed-trait clássico da stdlib Rust. A palavra
+`unsafe` aqui é mecanismo de encapsulamento (impedir
+implementações externas), não indicação de memória não-segura.
+
+ADR-0032 estabelece que `unsafe` em L1 é eliminado por defeito;
+este caso tem custo zero — é refactor mecânico para o padrão
+"sealed via private module".
+
+### Proposta de resolução
+
+Substituir:
+
+```rust
+pub unsafe trait Sealed<T> { ... }
+unsafe impl Sealed<char> for ... { ... }
+```
+
+Por:
+
+```rust
+mod sealed {
+    pub trait Sealed<T> { ... }
+}
+
+pub trait Pattern: sealed::Sealed<char> { ... }
+impl sealed::Sealed<char> for ... { ... }
+```
+
+Verificar que nenhum consumer externo das traits do scanner
+depende da assinatura `unsafe trait` (uso em bounds genéricos
+deveria continuar a funcionar).
+
+### Critério de conclusão
+
+- Zero ocorrências de `unsafe` associadas ao padrão Sealed em
+  `scanner.rs`.
+- Testes do scanner continuam a passar sem alteração.
+- Nenhum impacto visível na API pública de `01_core/src/rules/lexer/`.
+
+### Dependências
+
+Nenhuma. Refactor trivial, pronto para atacar.
+
+**Resolvido no Passo 85.** Padrão "sealed via private module"
+aplicado. Zero `unsafe` associadas a Sealed em `scanner.rs`.
+Get_unchecked permanece (DEBT-42, bloqueado por benchmark).
 
 ---
 

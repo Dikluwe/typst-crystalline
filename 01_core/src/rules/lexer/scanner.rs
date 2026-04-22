@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/rules/scanner.md
 //! @prompt-hash 15dea850
 //! @layer L1
-//! @updated 2026-03-23
+//! @updated 2026-04-22
 //!
 //! String scanner para o lexer do Typst.
 //! Inlinado de `unscanny` (Apache-2.0) — ADR-0014.
@@ -299,19 +299,25 @@ impl Debug for Scanner<'_> {
 pub trait Pattern<T>: sealed::Sealed<T> {}
 
 mod sealed {
+    /// Trait privado de selamento para `Pattern`.
+    ///
+    /// O selamento é garantido pela privacidade do módulo `sealed`: tipos
+    /// externos ao ficheiro `scanner.rs` não podem nomear `sealed::Sealed`
+    /// e portanto não podem implementá-lo. O trait é parte do contrato
+    /// interno entre `Scanner` e os impls de `Pattern` definidos abaixo.
+    ///
+    /// # Invariante de implementação
+    ///
     /// Implementadores devem garantir que `matches` retorna um `len` que:
-    ///   - É in-bounds em relação ao slice de bytes da string, ou seja `len <= string.len()`.
+    ///   - É in-bounds em relação ao slice de bytes da string
+    ///     (`len <= string.len()`).
     ///   - Aponta para uma fronteira de codepoint UTF-8 válida.
     ///
-    /// Violar estes invariantes causa comportamento indefinido nos métodos do `Scanner`
-    /// que usam `get_unchecked` com base no valor retornado.
-    ///
-    /// # Safety
-    ///
-    /// O método `matches` deve retornar `Some(len)` somente quando `len` está
-    /// in-bounds e aponta para uma fronteira UTF-8, ou `None` se o padrão
-    /// não corresponde. Implementações incorrectas são **unsound**.
-    pub unsafe trait Sealed<T> {
+    /// Violar estes invariantes causa comportamento indefinido nos
+    /// métodos do `Scanner` que usam `get_unchecked` com base no valor
+    /// retornado. Como o trait é privado, este invariante é mantido pela
+    /// disciplina dos impls neste ficheiro — não pelo compilador.
+    pub trait Sealed<T> {
         /// Se a string começa com o padrão, retorna `Some(len)` com o
         /// comprimento em bytes do match. Para segurança, `len` deve estar
         /// in-bounds e apontar para uma fronteira UTF-8.
@@ -323,7 +329,7 @@ mod sealed {
 }
 
 impl Pattern<()> for char {}
-unsafe impl sealed::Sealed<()> for char {
+impl sealed::Sealed<()> for char {
     #[inline]
     fn matches(&mut self, string: &str) -> Option<usize> {
         let mut buf = [0; 4];
@@ -338,7 +344,7 @@ unsafe impl sealed::Sealed<()> for char {
 }
 
 impl Pattern<()> for &str {}
-unsafe impl sealed::Sealed<()> for &str {
+impl sealed::Sealed<()> for &str {
     #[inline]
     fn matches(&mut self, string: &str) -> Option<usize> {
         string.starts_with(*self).then_some(self.len())
@@ -351,7 +357,7 @@ unsafe impl sealed::Sealed<()> for &str {
 }
 
 impl Pattern<()> for &[char] {}
-unsafe impl sealed::Sealed<()> for &[char] {
+impl sealed::Sealed<()> for &[char] {
     #[inline]
     fn matches(&mut self, string: &str) -> Option<usize> {
         let next = string.chars().next()?;
@@ -383,7 +389,7 @@ unsafe impl sealed::Sealed<()> for &[char] {
 }
 
 impl<const N: usize> Pattern<()> for [char; N] {}
-unsafe impl<const N: usize> sealed::Sealed<()> for [char; N] {
+impl<const N: usize> sealed::Sealed<()> for [char; N] {
     #[inline]
     fn matches(&mut self, string: &str) -> Option<usize> {
         self.as_slice().matches(string)
@@ -396,7 +402,7 @@ unsafe impl<const N: usize> sealed::Sealed<()> for [char; N] {
 }
 
 impl<const N: usize> Pattern<()> for &[char; N] {}
-unsafe impl<const N: usize> sealed::Sealed<()> for &[char; N] {
+impl<const N: usize> sealed::Sealed<()> for &[char; N] {
     #[inline]
     fn matches(&mut self, string: &str) -> Option<usize> {
         self.as_slice().matches(string)
@@ -409,7 +415,7 @@ unsafe impl<const N: usize> sealed::Sealed<()> for &[char; N] {
 }
 
 impl<F> Pattern<char> for F where F: FnMut(char) -> bool {}
-unsafe impl<F> sealed::Sealed<char> for F
+impl<F> sealed::Sealed<char> for F
 where
     F: FnMut(char) -> bool,
 {
@@ -425,7 +431,7 @@ where
 }
 
 impl<F> Pattern<&char> for F where F: FnMut(&char) -> bool {}
-unsafe impl<F> sealed::Sealed<&char> for F
+impl<F> sealed::Sealed<&char> for F
 where
     F: FnMut(&char) -> bool,
 {
