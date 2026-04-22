@@ -6,7 +6,7 @@
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use comemo::{Track, Tracked};
+use comemo::{Track, Tracked, Validate};
 
 use super::file_id::FileId;
 use super::source_result::{SourceDiagnostic, SourceResult};
@@ -176,14 +176,14 @@ impl Default for Styles {
 pub struct Route<'a> {
     /// Segmento pai, se existir.
     ///
-    /// Divergência declarada face ao vanilla: o vanilla parametriza
-    /// `Tracked<'a, Self, <Route<'static> as Track>::Call>` para forçar
-    /// covariância explícita da lifetime da constraint. A versão de
-    /// `comemo` em uso no cristalino (0.4.0) não expõe a associated type
-    /// `Call`; usamos a constraint inferida por omissão, que chega para
-    /// os padrões de uso actuais (ver ADR-0033: divergência interna sem
-    /// efeito observável).
-    outer: Option<Tracked<'a, Self>>,
+    /// Parametrizamos a `Constraint` via `Route<'static>` — pattern
+    /// documentado na docstring do `comemo::Tracked` para habilitar
+    /// covariância em cadeias `Tracked<'a, Self>`. Sem este override
+    /// o `Tracked` seria invariante em `T` e o encadeamento recursivo
+    /// de `Route::extend` não compilaria. Equivale ao truque do
+    /// vanilla com `<Route<'static> as Track>::Call`, adaptado à API
+    /// de `comemo 0.4.0`.
+    outer: Option<Tracked<'a, Self, <Route<'static> as Validate>::Constraint>>,
     /// Definido quando o segmento foi inserido na entrada de avaliação de
     /// um módulo.
     id: Option<FileId>,
