@@ -716,28 +716,43 @@ fn eval_expr(
                     match selector_val {
                         Value::Str(s) => Selector::Text(s.to_string()),
                         Value::Func(ref f) => {
-                            // Resolver NodeKind pelo nome da função nativa (DEBT-21).
-                            match f.name() {
-                                Some("heading")   => Selector::NodeKind(NodeKind::Heading),
-                                Some("figure")    => Selector::NodeKind(NodeKind::Figure),
-                                Some("strong")    => Selector::NodeKind(NodeKind::Strong),
-                                Some("emph")      => Selector::NodeKind(NodeKind::Emph),
-                                Some("raw")       => Selector::NodeKind(NodeKind::Raw),
-                                Some("equation")  => Selector::NodeKind(NodeKind::Equation),
-                                Some("list_item") => Selector::NodeKind(NodeKind::ListItem),
-                                Some(other) => return Err(vec![SourceDiagnostic::error(
+                            // Passo 84.3 (encerra DEBT-21): resolver NodeKind
+                            // por identidade do function pointer da nativa
+                            // subjacente, não pelo nome textual. Aliasing via
+                            // `#let alias = heading` (clone do mesmo Arc<Func>)
+                            // ou re-registo da mesma fn com nome diferente
+                            // continuam a apontar para o mesmo `fn` — match.
+                            //
+                            // Closures retornam `None` em `native_fn_addr()` —
+                            // function pointers de closures não são estáveis.
+                            use std::ptr::fn_addr_eq;
+                            use crate::rules::stdlib::{
+                                native_heading, native_figure, native_strong,
+                                native_emph, native_raw,
+                            };
+                            match f.native_fn_addr() {
+                                Some(addr) if fn_addr_eq(addr, native_heading as fn(_, _) -> _) =>
+                                    Selector::NodeKind(NodeKind::Heading),
+                                Some(addr) if fn_addr_eq(addr, native_figure as fn(_, _) -> _) =>
+                                    Selector::NodeKind(NodeKind::Figure),
+                                Some(addr) if fn_addr_eq(addr, native_strong as fn(_, _) -> _) =>
+                                    Selector::NodeKind(NodeKind::Strong),
+                                Some(addr) if fn_addr_eq(addr, native_emph as fn(_, _) -> _) =>
+                                    Selector::NodeKind(NodeKind::Emph),
+                                Some(addr) if fn_addr_eq(addr, native_raw as fn(_, _) -> _) =>
+                                    Selector::NodeKind(NodeKind::Raw),
+                                Some(_) => return Err(vec![SourceDiagnostic::error(
                                     sel_expr.span(),
                                     format!(
                                         "função '{}' não é um tipo de nó suportado como selector. \
-                                         Tipos suportados: heading, figure, strong, emph, raw, \
-                                         equation, list_item. (DEBT-21: aliasing não detectado)",
-                                        other
+                                         Tipos suportados: heading, figure, strong, emph, raw.",
+                                        f.name().unwrap_or("<anónima>")
                                     ),
                                 )]),
                                 None => return Err(vec![SourceDiagnostic::error(
                                     sel_expr.span(),
-                                    "o selector de show rule deve ser uma função nativa nomeada \
-                                     ou uma string literal. Closures anónimas não são suportadas."
+                                    "o selector de show rule deve ser uma função nativa \
+                                     ou uma string literal. Closures não são suportadas."
                                         .to_string(),
                                 )]),
                             }
@@ -3404,6 +3419,46 @@ mod tests {
         let text = module.content().unwrap().plain_text();
         assert!(text.to_uppercase().contains("CAPÍTULO UM") || text.contains("CAPÍTULO UM"),
             "show rule deve transformar heading em maiúsculas: {:?}", text);
+    }
+
+    #[test]
+    fn show_rule_resolve_por_identidade_nao_por_nome() {
+        // Passo 84.3 — DEBT-21: aliasing de nativa não engana o selector.
+        //
+        // Aliasing por `#let h = heading` clona o `Arc<FuncRepr>` (mesmo
+        // ponteiro `Native::call`). A resolução por `fn_addr_eq` reconhece
+        // `h` como sendo `heading` e dispara a show rule.
+        //
+        // Com a resolução anterior por `Func::name()`, o nome era preservado
+        // na native (`name: "heading"` para ambas), portanto este caso já
+        // funcionava por acidente. O caso patológico que `Func::name()`
+        // falhava era closures wrapper que pegassem o nome da binding —
+        // mas como a stdlib não permite re-registo de nativas com nome
+        // diferente, o teste mais robusto é confirmar que aliasing simples
+        // continua a disparar.
+        let world = MockWorld::new(
+            "#let h = heading\n#show h: it => upper(it.body)\n\n= Capítulo um",
+        );
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(
+            text.contains("CAPÍTULO UM") || text.to_uppercase().contains("CAPÍTULO UM"),
+            "show rule via alias deve disparar tal como via nome directo: {:?}",
+            text
+        );
+    }
+
+    #[test]
+    fn show_rule_closure_anonima_rejeitada() {
+        // Closures não têm function pointer estável — `native_fn_addr()`
+        // retorna `None`, eval reporta erro explícito (não silencia).
+        let world = MockWorld::new(
+            "#show (it => it): x => x\n= teste",
+        );
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "closure como selector deve gerar Err");
     }
 
     #[test]

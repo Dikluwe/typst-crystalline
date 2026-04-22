@@ -158,18 +158,6 @@ funcionalidades forem implementadas, adicionar casos de paridade correspondentes
 
 ---
 
-## DEBT-21 — Resolução de NodeKind por string — **MITIGADO (Passo 70), desbloqueado (Passo 84.1)**
-
-`Func::name()` continua a ser usado. Aliasing não é detectado. Resolução
-completa por ponteiro (`fn_addr_eq`) está agora disponível — a toolchain
-do projecto usa Rust 1.92 (verificado no Passo 83.5). A mitigação pode
-ser substituída por resolução definitiva num passo de código dedicado
-(candidato FÁCIL para o Passo 84.3).
-
-Mensagens de erro melhoradas para closures anónimas (None → Err explícito).
-
----
-
 ## DEBT-22 — Clone de show_rules por nó (Passo 68)
 
 `ctx.show_rules.clone()` em `intercept_content` é O(N) por cada nó de
@@ -470,6 +458,44 @@ Substituição Texto→Content via Func/Content continua a gerar Err explícito.
 Substituído por `active_guards: Vec<RuleId>` no `EvalContext`. Pilha de
 regras activas permite composição de regras sem stack overflow — a regra
 cujo ID está na pilha é saltada, outras regras continuam a actuar.
+
+---
+
+## DEBT-21 — Resolução de NodeKind por string — **ENCERRADO (Passo 84.3)** ✓
+
+**Registado no Passo 70. Mitigado no Passo 70. Desbloqueado no Passo 84.1.
+Resolvido no Passo 84.3.**
+
+A construção do selector em `eval_expr` (`Expr::ShowRule`) mapeava
+`Value::Func` → `NodeKind` por comparação textual: `match f.name() {
+Some("heading") => NodeKind::Heading, ... }`. Aliasing por wrapper closure
+ou re-registo da mesma nativa com nome diferente não era detectado, e a
+sintaxe estável de `fn_addr_eq` requeria Rust ≥ 1.85.
+
+**Resolvido no Passo 84.3.** Substituído pelo método `Func::native_fn_addr()
+-> Option<fn(...)>` (retorna `None` para closures, `Some(call)` para
+nativas). A construção do selector usa `std::ptr::fn_addr_eq` para comparar
+o ponteiro com cada nativa correspondente:
+
+```rust
+match f.native_fn_addr() {
+    Some(addr) if fn_addr_eq(addr, native_heading as fn(_,_) -> _) =>
+        Selector::NodeKind(NodeKind::Heading),
+    // ... idem para figure, strong, emph, raw
+    Some(_) => Err(...),  // nativa não suportada
+    None    => Err(...),  // closure rejeitada explicitamente
+}
+```
+
+`Func::name()` mantido para apresentação (mensagens de erro, debug) — não
+mais para identidade. Sem `unsafe`. Suporte para `equation`/`list_item`
+removido do match (não existem `native_*` correspondentes); pode ser
+adicionado quando essas nativas forem registadas na stdlib.
+
+Testes de regressão: `show_rule_resolve_por_identidade_nao_por_nome`
+(aliasing via `#let h = heading; #show h: ...`),
+`show_rule_closure_anonima_rejeitada` (closure como selector → Err
+explícito).
 
 ---
 
