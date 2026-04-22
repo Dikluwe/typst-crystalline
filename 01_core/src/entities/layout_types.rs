@@ -218,9 +218,14 @@ pub struct Align2D {
 impl Align2D {
     /// Parse de uma string composta por partes separadas por '-'.
     ///
-    /// Exemplos: "center", "top-right", "bottom", "horizon".
-    /// Partes não reconhecidas são ignoradas silenciosamente (DEBT-36:
-    /// quando o parser suportar `Value::Align`, substituir este método).
+    /// Exemplos: `"center"`, `"top-right"`, `"bottom"`, `"horizon"`.
+    /// Partes não reconhecidas são ignoradas silenciosamente.
+    ///
+    /// Sintaxe legacy preservada após o Passo 84.5 (DEBT-36 encerrado).
+    /// A sintaxe preferida é a composição simbólica via `Value::Align`:
+    /// `align(center + bottom, ...)` em vez de `align("center-bottom", ...)`.
+    /// Continua a ser usada como fallback em `native_align` e `native_place`
+    /// quando o utilizador passa string literal.
     pub fn from_string(s: &str) -> Self {
         let mut align = Align2D::default();
         for part in s.split('-') {
@@ -236,6 +241,24 @@ impl Align2D {
         }
         align
     }
+}
+
+/// Escopo de ancoragem de `Content::Place` (Passo 84.6, encerra DEBT-37).
+///
+/// Espelha `PlacementScope` do vanilla:
+/// - `Column` (default): ancora ao "current container" — célula de Grid
+///   activa, ou página se não houver Grid no contexto.
+/// - `Parent`: ancora à página inteira mesmo dentro de Grid.
+///
+/// **Divergência vs vanilla:** o vanilla restringe `Parent` a `float: true`
+/// e devolve erro caso contrário. O cristalino não tem `float` implementado,
+/// pelo que `Parent` é aceite sempre — efeito visual: ancora à página sem
+/// layout flutuante.
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub enum PlaceScope {
+    #[default]
+    Column,
+    Parent,
 }
 
 // ── TrackSizing ───────────────────────────────────────────────────────────

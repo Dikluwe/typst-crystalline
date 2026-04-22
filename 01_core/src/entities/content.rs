@@ -11,7 +11,7 @@ use ecow::EcoString;
 use crate::entities::counter_state::CounterAction;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
-use crate::entities::layout_types::{Align2D, Color, Pt, TextStyle, TrackSizing, TransformMatrix};
+use crate::entities::layout_types::{Align2D, Color, PlaceScope, Pt, TextStyle, TrackSizing, TransformMatrix};
 use crate::entities::ptr_eq_arc::PtrEqArc;
 
 /// Conteúdo declarativo produzido por `eval()`.
@@ -263,11 +263,14 @@ pub enum Content {
     /// Posiciona o conteúdo de forma absoluta na página sem consumir espaço (Passo 82).
     /// O cursor não avança. Usado para cabeçalhos, rodapés e marcas de água.
     ///
-    /// DEBT-37: ancora às margens da página, não ao contentor pai.
+    /// `scope` (Passo 84.6, encerra DEBT-37): `PlaceScope::Column` (default)
+    /// ancora ao contentor activo (célula de Grid se houver, página caso
+    /// contrário); `PlaceScope::Parent` ancora à página independentemente.
     Place {
         alignment: Align2D,
         dx:        f64,
         dy:        f64,
+        scope:     PlaceScope,
         body:      Box<Content>,
     },
 
@@ -485,9 +488,9 @@ impl PartialEq for Content {
                 wa == wb && ha == hb && ma == mb,
             (Self::Align { alignment: aa, body: ba },
              Self::Align { alignment: ab, body: bb }) => aa == ab && ba == bb,
-            (Self::Place { alignment: aa, dx: dxa, dy: dya, body: ba },
-             Self::Place { alignment: ab, dx: dxb, dy: dyb, body: bb }) =>
-                aa == ab && dxa == dxb && dya == dyb && ba == bb,
+            (Self::Place { alignment: aa, dx: dxa, dy: dya, scope: sa, body: ba },
+             Self::Place { alignment: ab, dx: dxb, dy: dyb, scope: sb, body: bb }) =>
+                aa == ab && dxa == dxb && dya == dyb && sa == sb && ba == bb,
             _ => false,
         }
     }
@@ -632,10 +635,11 @@ impl Content {
                 alignment: *alignment,
                 body:      Box::new(body.map_content(transform)?),
             },
-            Content::Place { alignment, dx, dy, body } => Content::Place {
+            Content::Place { alignment, dx, dy, scope, body } => Content::Place {
                 alignment: *alignment,
                 dx:        *dx,
                 dy:        *dy,
+                scope:     *scope,
                 body:      Box::new(body.map_content(transform)?),
             },
         };
@@ -734,10 +738,11 @@ impl Content {
                 alignment: *alignment,
                 body:      Box::new(body.map_text(transform)),
             },
-            Content::Place { alignment, dx, dy, body } => Content::Place {
+            Content::Place { alignment, dx, dy, scope, body } => Content::Place {
                 alignment: *alignment,
                 dx:        *dx,
                 dy:        *dy,
+                scope:     *scope,
                 body:      Box::new(body.map_text(transform)),
             },
         }

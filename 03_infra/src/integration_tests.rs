@@ -1975,4 +1975,150 @@ mod integration {
         assert!((y2 - 70.0).abs() < 0.5, "Item 2 em y=70, obteve {:.1}", y2);
         assert!((y3 - 70.0).abs() < 0.5, "Item 3 em y=70, obteve {:.1}", y3);
     }
+
+    // ── Passo 84.5 — DEBT-36: constantes simbólicas + composição ────────
+
+    #[test]
+    fn align_aceita_constante_simbolica() {
+        // Sintaxe nova `align(center, ...)` — sem string, usando a constante
+        // top-level `center` registada como Value::Align em make_stdlib().
+        // Mesmo efeito visual do Passo 82: rect 100pt centrado em x=150
+        // (margem 20 + (360 - 100)/2 = 150).
+        let src = "\
+#set page(width: 400pt, height: 400pt, margin: 20pt)
+#align(center, rect(width: 100pt, height: 20pt))
+";
+        let (world, _dir) = world_from_str(src);
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        let items = &doc.pages[0].items;
+        assert!(!items.is_empty(), "Deve haver pelo menos um item");
+
+        let rect_x = frame_item_pos(&items[0]).x.0;
+        assert!(
+            (rect_x - 150.0).abs() < 0.5,
+            "Rectângulo centrado via constante 'center' deve estar em x=150pt, obteve x={:.1}",
+            rect_x
+        );
+    }
+
+    #[test]
+    fn align_aceita_composicao_via_plus() {
+        // `center + bottom` combina HAlign::Center + VAlign::Bottom.
+        // Rect 100pt centrado horizontalmente: x = 150pt.
+        // VAlign::Bottom no fluxo livre da página consome o resto vertical
+        // → o cursor avança até page_bottom_limit. Validar X pelo menos.
+        let src = "\
+#set page(width: 400pt, height: 400pt, margin: 20pt)
+#align(center + bottom, rect(width: 100pt, height: 20pt))
+";
+        let (world, _dir) = world_from_str(src);
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        let items = &doc.pages[0].items;
+        assert!(!items.is_empty(), "Deve haver pelo menos um item");
+
+        let rect_x = frame_item_pos(&items[0]).x.0;
+        let rect_y = frame_item_pos(&items[0]).y.0;
+        assert!(
+            (rect_x - 150.0).abs() < 0.5,
+            "Rectângulo `center + bottom` deve estar em x=150pt, obteve x={:.1}",
+            rect_x
+        );
+        // VAlign::Bottom: rect deve estar na metade inferior da página
+        // (page_bottom_limit = 380pt, rect altura ~20pt → y > 200pt).
+        assert!(
+            rect_y > 200.0,
+            "Rectângulo com VAlign::Bottom deve estar na metade inferior (y>200), obteve y={:.1}",
+            rect_y
+        );
+    }
+
+    // ── Passo 84.6 — DEBT-37: place ancora à célula com scope=Column ────
+
+    #[test]
+    fn place_dentro_de_grid_ancora_a_celula() {
+        // Grid com 1 coluna fixa de 200pt e 1 linha fixa de 100pt.
+        // Célula em (margem=20, margem=20), tamanho 200×100.
+        // place("bottom-right", rect 30×20) → ancora ao canto inferior-direito
+        // da CÉLULA (não da página).
+        // - x esperado: cell_x + cell_w - rect_w = 20 + 200 - 30 = 190.
+        // - y esperado: cell_y + cell_h - rect_h = 20 + 100 - 20 = 100.
+        //
+        // Pré P84.6 (apenas mitigação parcial DEBT-37): X = line_start_x
+        // dentro da célula = 20 + (200-30) = 190 (já correcto via P81.5);
+        // Y = 380 - 20 = 360 (canto inferior da PÁGINA, errado).
+        // Pós P84.6: Y = 100 (canto inferior da célula, correcto).
+        let src = "\
+#set page(width: 400pt, height: 400pt, margin: 20pt)
+#grid(columns: (200pt,), rows: (100pt,),
+  place(\"bottom-right\", rect(width: 30pt, height: 20pt)),
+)
+";
+        let (world, _dir) = world_from_str(src);
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        let items = &doc.pages[0].items;
+        assert!(!items.is_empty(), "Deve haver pelo menos um item");
+
+        let rect_x = frame_item_pos(&items[0]).x.0;
+        let rect_y = frame_item_pos(&items[0]).y.0;
+        assert!(
+            (rect_x - 190.0).abs() < 0.5,
+            "Place na célula deve ter x=190 (cell_x 20 + 200 - 30), obteve x={:.1}",
+            rect_x
+        );
+        assert!(
+            (rect_y - 100.0).abs() < 0.5,
+            "Place na célula com scope=Column deve ter y=100 (cell_y 20 + 100 - 20), obteve y={:.1}",
+            rect_y
+        );
+    }
+
+    #[test]
+    fn place_dentro_de_grid_com_scope_parent_ancora_a_pagina() {
+        // Mesma estrutura do teste anterior, mas scope="parent" → ancora à página.
+        // - x esperado: page_margin + (avail_w - rect_w) = 20 + (360 - 30) = 350.
+        // - y esperado: page_margin + (avail_h - rect_h) = 20 + (360 - 20) = 360.
+        let src = "\
+#set page(width: 400pt, height: 400pt, margin: 20pt)
+#grid(columns: (200pt,), rows: (100pt,),
+  place(\"bottom-right\", scope: \"parent\", rect(width: 30pt, height: 20pt)),
+)
+";
+        let (world, _dir) = world_from_str(src);
+        let source  = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content, state);
+
+        let items = &doc.pages[0].items;
+        assert!(!items.is_empty(), "Deve haver pelo menos um item");
+
+        let rect_x = frame_item_pos(&items[0]).x.0;
+        let rect_y = frame_item_pos(&items[0]).y.0;
+        assert!(
+            (rect_x - 350.0).abs() < 0.5,
+            "Place scope=parent deve ter x=350 (margem + avail - rect), obteve x={:.1}",
+            rect_x
+        );
+        assert!(
+            (rect_y - 360.0).abs() < 0.5,
+            "Place scope=parent deve ter y=360 (margem + avail - rect), obteve y={:.1}",
+            rect_y
+        );
+    }
 }

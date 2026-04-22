@@ -158,15 +158,6 @@ funcionalidades forem implementadas, adicionar casos de paridade correspondentes
 
 ---
 
-## DEBT-22 — Clone de show_rules por nó (Passo 68)
-
-`ctx.show_rules.clone()` em `intercept_content` é O(N) por cada nó de
-conteúdo gerado. Em documentos grandes com muitas regras, o custo acumula.
-Resolução: usar `Rc<[ShowRule]>` ou indexação para partilhar a lista sem
-copiar, separando o estado de mutação da leitura.
-
----
-
 ## DEBT-33 — Bounding Box de curvas Bézier (Passo 79) — EM ABERTO
 
 A bounding box de `ShapeKind::Path` é calculada verificando o min/max dos pontos
@@ -200,22 +191,29 @@ este DEBT documenta o risco caso um cache venha a ser adicionado.
 
 ---
 
-## DEBT-36 — Operadores simbólicos de alinhamento (center + bottom) — EM ABERTO (Passo 82)
+## DEBT-39 — `active_guards` com push/pop frequente — EM ABERTO (Passo 84.4)
 
-`align` e `place` aceitam strings (`"center"`, `"top-right"`) porque o parser
-ainda não suporta operadores de composição simbólica como `center + bottom`.
-Resolução: quando o parser suportar `Value::Align` com composição, substituir
-`Align2D::from_string` pelo parse directo da variante.
+Diagnóstico do Passo 84.4 revelou que `EvalContext.active_guards`
+(`Vec<RuleId>`) tem padrão push/pop por entrada/saída de cada show rule
+em `apply_show_rules`, **sem clones**. Difere de `show_rules` (resolvido
+no 84.4 via `Arc<[ShowRule]>`) — `Arc<[RuleId]>` aqui forçaria
+reconstrução O(n) por push e por pop, regressão face ao push/pop O(1) do
+`Vec` actual.
 
----
+Padrão actual (eval.rs):
+- `ctx.active_guards.push(rule.id)` antes de `apply_func`.
+- `ctx.active_guards.pop()` imediatamente após.
+- `ctx.active_guards.contains(&rule.id)` na decisão de saltar regra.
 
-## DEBT-37 — Place relativo ao contentor pai — EM ABERTO (Passo 82)
+Soluções candidatas para revisão futura:
+- Manter `Vec<RuleId>` — aceitar custo zero do clone (nenhum existe) e
+  push/pop O(1) como o melhor compromisso. Encerrar este DEBT como
+  "registado para clarificar que não é regressão face a 84.4".
+- Estrutura persistente (`im::Vector`, `rpds::List`) — push/pop O(1)
+  imutável, mas introduz dependência externa não justificada hoje.
 
-`Content::Place` ancora às margens absolutas da página. O Typst suporta
-`place` relativo ao bloco pai (ex: dentro de um grid, `place` ancora na célula).
-Resolução: passar a área de âncora como parâmetro ao processar `Place`.
-
----
+Não é candidato a resolução até surgir evidência empírica de problema
+(ex: composição profunda de show rules a degradar em documentos reais).
 
 ---
 
@@ -499,6 +497,41 @@ explícito).
 
 ---
 
+## DEBT-22 — Clone de show_rules por nó — **ENCERRADO (Passo 84.4)** ✓
+
+**Registado no Passo 68. Resolvido no Passo 84.4.**
+
+`ctx.show_rules` migrada de `Vec<ShowRule>` para `Arc<[ShowRule]>` em
+`EvalContext`. O clone em `intercept_content` (uma vez por nó AST visitado)
+deixa de ser O(N) sobre os bytes da lista e passa a ser O(1) — só incrementa
+o refcount do `Arc`. `Arc::clone(&ctx.show_rules)` substitui `clone()` no
+hot path para sinalizar a intenção explicitamente.
+
+Push (`#show` do utilizador) e truncate-back (saída de `Expr::CodeBlock`)
+reconstroem o slice e ficam O(N), mas são caminhos frios — ordens de
+magnitude menos frequentes que o clone do hot path.
+
+Helpers em `EvalContext`:
+- `push_show_rule(&mut self, ShowRule)` — encapsula a reconstrução por push.
+- `truncate_show_rules(&mut self, len: usize)` — substitui `Vec::truncate`
+  (`Arc<[T]>` não tem método equivalente). Reconstrói via `Arc::from(&[..len])`.
+
+API de leitura inalterada: `Arc<[T]>` deriva `Deref<Target=[T]>`, portanto
+`iter()`, `len()`, `is_empty()`, indexação e referência (`&rules`) continuam
+a funcionar. `apply_show_rules(content, &rules, ctx)` aceita `&[ShowRule]`
+sem alteração.
+
+Padrão consistente com ADR-0026 revisão (`Arc<[Content]>` em
+`Content::Sequence`). Novos campos com perfil semelhante (lista imutável
+após construção, partilhada entre clones frequentes) devem seguir o mesmo
+padrão.
+
+`active_guards: Vec<RuleId>` ficou intencionalmente fora deste passo —
+push/pop frequente sem clone é o caso onde `Arc<[T]>` regrediria em vez
+de melhorar. Registado em DEBT-39 (Secção 1).
+
+---
+
 ## DEBT-23 — Travessia múltipla em apply_show_rules — **ENCERRADO (Passo 70)** ✓
 
 **Registado no Passo 69.**
@@ -621,6 +654,88 @@ fase Fraction (evita alturas `fr` "fósseis" da página anterior).
 items dentro de células (campo `cell_available_h: Option<f64>` no Layouter).
 `VAlign::Bottom` ancora ao limite inferior da célula e `VAlign::Horizon` centra
 verticalmente.
+
+---
+
+## DEBT-36 — Operadores simbólicos de alinhamento — **ENCERRADO (Passo 84.5)** ✓
+
+**Registado no Passo 82. Resolvido no Passo 84.5.**
+
+`Value::Align(Align2D)` adicionado ao enum `Value`. Constantes top-level
+`left`, `center`, `right`, `top`, `horizon`, `bottom` registadas em
+`make_stdlib()` como valores de `Align2D`. `eval_binary_op` trata
+`BinOp::Add` entre dois `Value::Align` com **semântica vanilla**: combina
+componentes de eixos distintos (`center + bottom` → Both) e devolve `Err`
+em conflito de eixo (`center + right` → erro "cannot add two horizontal
+alignments"). Esta semântica diverge da sugestão original do passo
+("`b.h.or(a.h)` com sobrescrita") em favor da fidelidade ao vanilla,
+conforme autorizado pelo enunciado.
+
+Sintaxe preferida: `align(center + bottom, ...)`, `place(top + right, ...)`.
+
+Sintaxe legacy `align("center", ...)` preservada — `Align2D::from_string`
+continua a ser usada como fallback em `native_align` e `native_place` via
+helper `extract_alignment(args, default)`. Remoção da sintaxe legacy e dos
+4 testes L3 que ainda a usam fica para passo dedicado posterior.
+
+Divergência estrutural não tratada: `Align2D` é struct + Option (permite
+`(None, None)` "vazio"), enquanto vanilla `Alignment` é enum tagged
+`{ H | V | Both }` (não permite vazio). Conversão para enum tagged está
+fora do escopo deste passo.
+
+Testes de regressão: `align_plus_combina_eixos_distintos`,
+`align_plus_eixo_horizontal_repetido_falha`, `align_plus_eixo_vertical_repetido_falha`
+(L1, unitários sobre `eval_binary_op`); `align_aceita_constante_simbolica`
+e `align_aceita_composicao_via_plus` (L3, pipeline real).
+
+---
+
+## DEBT-37 — Place relativo ao contentor pai — **ENCERRADO (Passo 84.6)** ✓
+
+**Registado no Passo 82. Resolvido no Passo 84.6.**
+
+A descrição original do DEBT estava parcialmente incorrecta: o eixo X de
+`Content::Place` já ancorava à coluna desde o Passo 81.5 (via
+`line_start_x`); só o eixo Y era absoluto à margem da página.
+
+**Diagnóstico (Passo 84.6):** o vanilla tem `enum PlacementScope { Column
+(default), Parent }`. `Column` ancora ao "current container" (`regions.base()`)
+— célula activa quando dentro de Grid; `Parent` ancora à página
+("spans columns") e é restrito a `float: true`.
+
+**Resolvido no Passo 84.6 (cenário A do enunciado):**
+
+- `PlaceScope { Column (default), Parent }` adicionado em `layout_types.rs`.
+- Campo `scope: PlaceScope` adicionado a `Content::Place`. Cascata em
+  `PartialEq`, `map_content`, `map_text`, `introspect::materialize_time`.
+- Layouter recebeu 3 campos novos: `cell_origin_x`, `cell_origin_y`,
+  `cell_origin_w` (`Option<f64>`), em paralelo ao `cell_available_h` do
+  Passo 83. Save/restore por célula no braço Grid.
+- Braço `Content::Place` selecciona área de ancoragem por scope: Column
+  com cell_* todos Some → célula; Column sem cell_* (fora de Grid) →
+  página; Parent → sempre página.
+- Compensação Y para evitar dupla translação no sub_frame de célula:
+  quando `cell_origin_y.is_some()`, subtrai `cell_origin_y` em vez de
+  `sub_origin_y` ao transferir items — anula a translação posterior do
+  Grid (`row_start_y + (item.y - ascender_local)`).
+- `native_place` aceita argumento nomeado `scope: "column" | "parent"`;
+  default `Column`. String inválida → erro explícito.
+
+**Divergência face ao vanilla a documentar:** o vanilla restringe `Parent`
+a `float: true` (erro caso contrário, `collect.rs:309`). O cristalino não
+tem `float` implementado — `Parent` é aceite incondicionalmente, com
+efeito visual de ancoragem à página sem layout flutuante. Quando `float`
+for adicionado, repor a restrição.
+
+Sintaxe: `place("bottom-right", scope: "parent", rect(...))`.
+Sintaxe legacy `place("bottom-right", ...)` continua a funcionar (default
+Column → ancora à célula se dentro de Grid, à página caso contrário).
+
+Testes de regressão: `place_dentro_de_grid_ancora_a_celula` (Column dentro
+de Grid → coords da célula), `place_dentro_de_grid_com_scope_parent_ancora_a_pagina`
+(Parent dentro de Grid → coords da página). `place_nao_altera_cursor_y`
+(P82) continua a passar — place fora de Grid ancora à página por default
+Column (cell_* todos None → fallback para página).
 
 ---
 
