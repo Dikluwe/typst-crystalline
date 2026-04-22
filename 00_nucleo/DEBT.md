@@ -352,6 +352,136 @@ de infraestrutura, não de domínio.
 
 ---
 
+## DEBT-44 — `EvalContext` não usa estruturalmente `Route<'a>` — EM ABERTO (Passo 91)
+
+O Passo 90 materializou `Route<'a>` em
+`01_core/src/entities/world_types.rs` com paridade estrutural
+completa face ao vanilla (`outer: Option<Tracked<'a, Self>>`,
+linked list imutável, `#[comemo::track]` em `contains`/`within`).
+
+No entanto, `EvalContext` (em `01_core/src/rules/eval.rs`) não usa
+`Route<'a>` estruturalmente. Mantém campo `pub route: Vec<FileId>`
+como projecção plana — uma lista linear que imita a cadeia mas não
+é a estrutura vanilla. A API `with_route_id(id, span, f)` substitui
+o `ImportGuard` antigo com push/pop explícito sobre este `Vec`, sem
+`unsafe`.
+
+### O que o Passo 90 resolveu
+
+- `unsafe` em `ImportGuard::drop` eliminado (ADR-0032 avança).
+- `Route<'a>` existe como tipo em L1 para uso futuro.
+- DEBT-40 encerrado (o `unsafe` era o seu critério de fecho).
+
+### O que o Passo 90 não resolveu
+
+- Divergência estrutural face ao vanilla: o `eval` do vanilla
+  propaga `Route<'a>` por valor entre frames (linked list imutável);
+  o cristalino propaga estado partilhado num `Vec` dentro de
+  `EvalContext`.
+- `Tracked<'a, Route>` não é usado como parâmetro de funções
+  memoizadas, mesmo quando a infraestrutura `comemo` já está
+  disponível.
+
+### Razão do adiamento
+
+Opção escolhida no Passo 90 por decisão pragmática: integrar
+`Route<'a>` estruturalmente exigiria refactor transversal de ~12
+funções `eval_*` (parâmetro `route: &Route<'_>` ou campo
+`route: Route<'a>` no `EvalContext<'w>`). Benefício observável
+limitado enquanto `Expr::ModuleImport` e `Engine<'a>` continuam
+stubs. A decisão preservou o valor principal (fechar `unsafe`,
+fechar DEBT-40) e adiou o valor estrutural.
+
+### Critério de conclusão
+
+- [ ] `EvalContext.route: Vec<FileId>` eliminado.
+- [ ] Mecanismo de detecção de ciclo usa `Route<'a>` directamente
+      (campo no contexto se Classe A do Passo 90, ou parâmetro em
+      funções relevantes se Classe B).
+- [ ] API pública do eval não muda (comportamento observável
+      preservado — ADR-0033).
+- [ ] Teste E2E `import_cycle_detectado_retorna_err_sem_panic`
+      continua a passar sem alteração.
+- [ ] Nenhum novo `unsafe` introduzido.
+
+### Dependências
+
+Nenhuma técnica. Passo dedicado quando priorizado. O Passo 90 deixou
+o cenário preparado: `Route<'a>` existe e tem API funcional; falta
+apenas ligá-lo ao `EvalContext`.
+
+### Nota sobre escopo
+
+A integração estrutural, quando atacada, pode revelar que o escopo
+real é maior do que ~12 funções — por exemplo, se o `Engine<'a>`
+for materializado simultaneamente. Nesse caso, este DEBT pode
+dividir-se em sub-DEBTs.
+
+---
+
+## DEBT-45 — Métodos `check_*_depth` de `Route<'a>` não chamados pelo eval — EM ABERTO (Passo 91)
+
+O Passo 90 materializou `Route<'a>` com 4 métodos de verificação de
+profundidade:
+
+- `check_call_depth` (limite `MAX_CALL_DEPTH = 80`)
+- `check_show_depth` (limite `MAX_SHOW_RULE_DEPTH = 64`)
+- `check_layout_depth` (limite `MAX_LAYOUT_DEPTH = 72`)
+- `check_html_depth` (limite `MAX_HTML_DEPTH = 72`)
+
+Paridade estrutural com vanilla (ADR-0033). Mas apenas
+`check_call_depth` tem equivalente chamado no cristalino actual —
+via `EvalContext::check_call_depth()` da era pré-Route, independente
+do `Route<'a>`.
+
+Os 3 restantes são **código não executado**:
+
+- `check_show_depth` — seria chamado em `apply_show_rules` ou
+  equivalente; actualmente não chamado.
+- `check_layout_depth` — seria chamado no braço de layout recursivo;
+  actualmente não chamado.
+- `check_html_depth` — seria chamado no pipeline HTML (que não
+  existe no cristalino ainda).
+
+### Impacto
+
+- Zero impacto funcional imediato — os métodos existem mas não são
+  invocados; nenhuma profundidade é verificada onde não era
+  verificada antes.
+- Impacto latente: bugs de recursão infinita em show rules ou
+  layout não são capturados pelo limite declarado em `Route`. O
+  cristalino continua vulnerável aos mesmos stack overflows que o
+  limite do vanilla evita.
+
+### Critério de conclusão
+
+- [ ] `check_show_depth` chamado no ponto correspondente em
+      `rules/eval.rs` ou `rules/show.rs`, consistente com o vanilla.
+- [ ] `check_layout_depth` chamado no ponto correspondente em
+      `rules/layout/`, consistente com o vanilla.
+- [ ] `check_html_depth` chamado quando o pipeline HTML existir
+      (não antes — aguarda materialização do pipeline).
+- [ ] `EvalContext::check_call_depth` antigo pode ser removido ou
+      re-encaminhado para `Route::check_call_depth` — decisão adiada
+      para o passo que atacar este DEBT.
+- [ ] Testes que exercitam cada limite passam sem alteração da
+      asserção (comportamento observável preservado).
+
+### Dependências
+
+- DEBT-44 preferencialmente resolvido antes — faz mais sentido
+  `EvalContext` usar `Route<'a>` estruturalmente antes dos `check_*`
+  serem integrados. Resolver DEBT-45 sem DEBT-44 é possível mas cria
+  dependência artificial sobre o mecanismo antigo.
+
+### Nota sobre escopo
+
+`check_html_depth` só é accionável quando o pipeline HTML for
+materializado. Este DEBT pode ser parcialmente pago (3 limites
+integrados) e manter o quarto aberto até então.
+
+---
+
 ## Secção 2 — DEBTs encerrados
 
 ## DEBT-3 — Safety rails hardcoded — RESOLVIDO (estrutura)
