@@ -1,6 +1,7 @@
 # ⚖️ ADR-0007: Substituição de `rustc_hash` por `std::collections`
 
-**Status**: `PROPOSTO`
+**Status**: `REVOGADO`
+**Revogado por**: ADR-0018
 **Data**: 2026-03-23
 
 ---

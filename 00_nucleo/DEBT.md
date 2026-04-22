@@ -217,6 +217,148 @@ Não é candidato a resolução até surgir evidência empírica de problema
 
 ---
 
+## DEBT-40 — `ImportGuard::drop` com raw pointer — EM ABERTO (Passo 84.8a)
+
+`01_core/src/rules/eval.rs:235` tem `unsafe { (*self.stack_ptr).retain(...) }`
+no `Drop for ImportGuard`. O raw pointer é usado porque a vida do
+`EvalContext` não é expressível como lifetime do guard (RAII com
+scope de função).
+
+ADR-0032 estabelece que `unsafe` em L1 é eliminado por defeito;
+este caso tem custo de eliminação zero a baixo. Resolução fica
+para passo dedicado que escolha entre as opções abaixo.
+
+### Opções de resolução (sugestões, não obrigatórias)
+
+1. **`Rc<RefCell<Vec<FileId>>>`** no `EvalContext` + clone no
+   guard. Custo: uma alocação `Rc` + borrow check runtime.
+2. **Eliminar o guard**. Push/pop manual em torno da chamada
+   recursiva. Perde-se RAII — se erro acontece entre push e pop,
+   `pop` não corre. Aceitável se o `EvalContext` é descartado em
+   erro.
+3. **Índice + verificação com `len()`**. Guardar posição no
+   stack em vez de ponteiro; comparar com `len()` no drop para
+   confirmar que é o topo; pop se sim, erro ou no-op se não.
+   Sem custo de performance, sem `unsafe`, mas perde a garantia
+   estrutural de que o guard corresponde à sua entrada.
+
+### Critério de conclusão
+
+- Nenhuma ocorrência de `unsafe` em `eval.rs` relacionada com
+  `ImportGuard`.
+- Testes de `import_stack` (detecção de ciclos) continuam a passar.
+- ADR específico escrito se a resolução introduzir decisão
+  arquitectural não prevista.
+
+### Dependências
+
+Nenhuma. Pode ser atacado quando o utilizador decidir.
+
+---
+
+## DEBT-41 — Sealed traits no scanner usam `unsafe trait` — EM ABERTO (Passo 84.8a)
+
+`01_core/src/rules/lexer/scanner.rs` tem 6 `unsafe impl Sealed<T>`
+usando o padrão sealed-trait clássico da stdlib Rust. A palavra
+`unsafe` aqui é mecanismo de encapsulamento (impedir
+implementações externas), não indicação de memória não-segura.
+
+ADR-0032 estabelece que `unsafe` em L1 é eliminado por defeito;
+este caso tem custo zero — é refactor mecânico para o padrão
+"sealed via private module".
+
+### Proposta de resolução
+
+Substituir:
+
+```rust
+pub unsafe trait Sealed<T> { ... }
+unsafe impl Sealed<char> for ... { ... }
+```
+
+Por:
+
+```rust
+mod sealed {
+    pub trait Sealed<T> { ... }
+}
+
+pub trait Pattern: sealed::Sealed<char> { ... }
+impl sealed::Sealed<char> for ... { ... }
+```
+
+Verificar que nenhum consumer externo das traits do scanner
+depende da assinatura `unsafe trait` (uso em bounds genéricos
+deveria continuar a funcionar).
+
+### Critério de conclusão
+
+- Zero ocorrências de `unsafe` associadas ao padrão Sealed em
+  `scanner.rs`.
+- Testes do scanner continuam a passar sem alteração.
+- Nenhum impacto visível na API pública de `01_core/src/rules/lexer/`.
+
+### Dependências
+
+Nenhuma. Refactor trivial, pronto para atacar.
+
+---
+
+## DEBT-42 — `get_unchecked` no scanner — EM ABERTO (Passo 84.8a, bloqueado)
+
+`01_core/src/rules/lexer/scanner.rs` tem 7 ocorrências de
+`unsafe { self.string.get_unchecked(start..end) }`. Herdado de
+`unscanny` via ADR-0014.
+
+ADR-0032 estabelece que `unsafe` em L1 é eliminado por defeito, com
+excepção permitida permanentemente apenas se benchmark
+reprodutível demonstrar regressão inaceitável ao eliminar o
+`unsafe`, e se um ADR específico registar o número concreto.
+
+### Bloqueio
+
+Este DEBT depende de **infra de benchmarking reprodutível no
+projecto**, que ainda não existe. Sem a infra, não é possível
+aplicar o critério da ADR-0032 de forma honesta.
+
+### Plano de resolução
+
+1. **Pré-requisito**: criar infra de benchmark para lex e parse.
+   Pode ser `criterion` crate (já usada na comunidade Rust) ou
+   alternativa. ADR específico se a decisão sobre qual biblioteca
+   envolver dependências novas em L1 ou se o benchmark vive fora
+   de L1.
+
+2. **Medição baseline**: com `get_unchecked` tal como está actual.
+   Executar benchmark sobre conjunto de documentos representativos
+   (documentos simples, documentos com muito texto, documentos
+   matemáticos).
+
+3. **Refactor experimental em branch**: substituir `get_unchecked`
+   por `&self.string[start..end]` e medir.
+
+4. **Decisão**:
+   - Se regressão < 5% no tempo total de lex: eliminar `unsafe`,
+     fechar DEBT.
+   - Se regressão entre 5% e 20%: decisão do utilizador com base
+     em contexto (documentos alvo, uso do Typst).
+   - Se regressão > 20%: manter `unsafe` no scanner como excepção
+     permanente, escrever ADR específico citando a medida.
+
+### Critério de conclusão
+
+Uma de duas:
+- Zero ocorrências de `unsafe { get_unchecked(...) }` em `scanner.rs`.
+- ADR específico escrito que autoriza permanência do `unsafe` com
+  número concreto de regressão medida.
+
+### Dependências
+
+- Infra de benchmark — trabalho próprio, não coberto por este
+  bloco de passos.
+
+---
+
 ## Secção 2 — DEBTs encerrados
 
 ## DEBT-3 — Safety rails hardcoded — RESOLVIDO (estrutura)
