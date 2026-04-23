@@ -715,76 +715,83 @@ este DEBT.
 
 ---
 
-## DEBT-49 — Propriedades de `#set` não suportadas silenciadas — EM ABERTO (Passo 102)
+## Secção 2 — DEBTs encerrados
 
-Aberto pelo Passo 102 (ADR-0040).
+## DEBT-49 — Propriedades de `#set` não suportadas silenciadas — ENCERRADO (Passo 107) ✓
 
-### Contexto
+Aberto pelo Passo 102 (ADR-0040). **Encerrado no Passo 107** (5ª
+aplicação da ADR-0036; canal Sink consumido via `TrackedMut`).
 
-`eval_set_rule` em `01_core/src/rules/eval/rules.rs` processa `#set
-text(...)` com um catálogo fechado de propriedades: `bold`,
-`italic`, `size`, `fill` (adicionado no Passo 102). Qualquer outra
-propriedade cai num `_ => { }` e é silenciosamente ignorada.
+### Contexto original
 
-Exemplos de directivas que o utilizador pode escrever sem
-feedback de erro:
+`eval_set_rule` em `01_core/src/rules/eval/rules.rs` processava
+`#set text(...)` com um catálogo fechado (`bold`, `italic`, `size`,
+`fill` desde 102). Qualquer outra propriedade caía num `_ => { }`
+silencioso. O target `par`, `align`, etc. também era ignorado.
 
-- `#set text(font: "Helvetica")` — ignorado.
-- `#set text(lang: "en")` — ignorado.
-- `#set text(weight: "bold")` — ignorado (hoje só aceita
-  `weight: true` via `bold:` alias — e nem isso é suportado).
-- `#set par(leading: 1em)` — o target `par` inteiro é ignorado.
+### Encerramento (Passo 107)
 
-### Razão do adiamento
+Decisão: propagar `sink: &mut TrackedMut<'_, Sink>` (gate 107.A.3
+disparou: `&mut Sink` não é obtível de `TrackedMut<Sink>` sem perder
+tracking comemo; corrigida a forma de `&mut Sink` para
+`&mut TrackedMut<'_, Sink>`). `warn_note` estendido para aceitar
+hint (Passo 107) mantendo compatibilidade com ADR-0043.
 
-O linter do projecto não tem `Sink` materializado (é stub em L1).
-Sem canal de warnings estruturado, emitir feedback a tempo de
-eval exige expandir a API ou usar `stderr` — ambos violam
-princípios do cristalino (L1 sem I/O).
+Mudanças aplicadas:
 
-### Critério de conclusão
+- [x] `Sink` materializado (Passo 104, ADR-0042).
+- [x] **5ª aplicação ADR-0036**: `&mut TrackedMut<'_, Sink>` adicionado
+      como 10º parâmetro às funções `eval_*` (K+P=24 funções, D=4
+      níveis; dentro do gate ≤40/≤6).
+- [x] **Site A**: target desconhecido em `#set` (`par`, `align`, …)
+      emite warning via `unsupported_target_warn` + `sink.warn_note`
+      antes de retornar `Ok(Value::None)`.
+- [x] **Site B**: propriedade desconhecida em `#set text` emite warning
+      via `unsupported_property_warn` + `sink.warn_note` (referência
+      ADR-0040 no hint).
+- [x] `warn_note` estendido com `hint: &str` (convenção `""` = sem
+      hint) para preservar hints através do canal tracked.
+- [x] 6 novos testes L3 (`debt49_*`): font/lang/multiple/regressão
+      com propriedades suportadas/target desconhecido/spans distintos.
+- [x] `cargo test --workspace`: L1 **803** (inalterado), L3 **184**
+      (+6). Zero regressões.
+- [x] `crystalline-lint`: zero violations.
 
-- [x] `Sink` materializado como tipo concreto em L1 — **Passo 104**
-      (ADR-0042). `entities/sink.rs` com API real
-      (`warn`/`is_empty`/`into_diagnostics`) e dedup por
-      `(span, message)` via `FxHashSet`.
-- [ ] `eval_set_rule` passa `Sink` como parâmetro (ADR-0036 aplicada
-      de novo).
-- [ ] Propriedades não suportadas emitem `Warn` em vez de silêncio.
-- [ ] Testes unitários confirmam o warning.
+### Formato das mensagens (audit trail)
 
-### Dependências
+Helper partilhado em `rules/eval/rules.rs`:
 
-~~Depende de materialização de `Sink`. Fora do escopo até lá.~~
-Sink materializado no Passo 104. A dependência agora é a
-propagação de `sink: &mut Sink` pelas funções `eval_*` (quinta
-aplicação da ADR-0036) — trabalho de passo dedicado ao DEBT-49
-completo. Spec do Passo 104 gatilhou a decisão de não migrar
-consumer no passo de fundação.
+```rust
+fn unsupported_property_warn(target, field) -> (msg, hint) {
+    msg  = "{target}: propriedade '{field}' ainda não suportada"
+    hint = "ver ADR-0040 para propriedades cobertas por set {target}"
+}
 
-### Actualização Passo 104
+fn unsupported_target_warn(target) -> (msg, hint) {
+    msg  = "set: target '{target}' ainda não suportado"
+    hint = "targets suportados: heading, page, figure, text"
+}
+```
 
-- Sink real existe (8 testes unitários passam; dedup funcional).
-- Stub `Sink(())` removido de `world_types.rs`; `Sink` vive em
-  `entities/sink.rs` e é re-exportado para preservar o path
-  histórico `entities::world_types::Sink`.
-- ADR-0042 `EM VIGOR`.
-- DEBT-51 aberto para a lacuna warnings → L3.
-- Migração dos consumidores silenciados (este DEBT) permanece
-  pendente — agora com destino real e arquitectura clara.
+### Lacunas residuais (trabalho futuro, não bloqueiam DEBT-49)
 
-### Nota sobre `text.weight` como string
-
-O vanilla aceita `#set text(weight: "bold" | "regular" | 100 | 200 | ...)`.
-O cristalino hoje só aceita `bold: Value::Bool`. Mapeamento string→bool
-ou inteiro→bool é trabalho separado; registar como sub-item deste
-DEBT quando o suporte for activado.
+- **`text.weight` como string/int**: o vanilla aceita
+  `#set text(weight: "bold" | "regular" | 100 | 200 | ...)`.
+  O cristalino hoje só aceita `bold: Value::Bool`. Mapeamento
+  string→bool ou int→bool é trabalho separado. Hoje emite o warning
+  "propriedade 'weight' ainda não suportada" — correcto para o
+  utilizador.
+- **Silenciamentos fora do âmbito estrito**: DEBT-10 (argumentos
+  extras de `#set heading`), wildcards deliberados em `eval_markup` /
+  `eval_expr` (`_ => Ok(Value::None)`), defensivos (`bindings.rs:114`)
+  continuam silenciosos por design. Não são DEBT-49.
+- **Parâmetros em `eval_*`**: 10 params + ctx é visualmente pesado.
+  Registado como evidência empírica para `Engine<'a>` futuro
+  (trabalho de passo dedicado quando `Introspection` materializar).
 
 ---
 
 
-
-## Secção 2 — DEBTs encerrados
 
 ## DEBT-51 — Warnings do `Sink` não chegam ao caller L3/CLI — ENCERRADO (Passo 106) ✓
 

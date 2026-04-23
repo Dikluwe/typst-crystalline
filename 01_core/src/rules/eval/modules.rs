@@ -10,7 +10,7 @@
 
 use std::sync::Arc;
 
-use comemo::Tracked;
+use comemo::{Tracked, TrackedMut};
 
 use crate::entities::ast::code::{ModuleImport, ModuleInclude};
 use crate::entities::file_id::FileId;
@@ -20,7 +20,7 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
-use crate::entities::world_types::Route;
+use crate::entities::world_types::{Route, Sink};
 use crate::rules::scopes::Scopes;
 
 use super::{eval_expr, eval_markup, EvalContext};
@@ -43,11 +43,12 @@ pub(super) fn eval_module_include<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Value> {
     // Avaliar a expressão do caminho (normalmente uma string literal).
-    let path_val = eval_expr(include.source(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
+    let path_val = eval_expr(include.source(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
     let path = match path_val {
         Value::Str(s) => s.to_string(),
         other => return Err(vec![SourceDiagnostic::error(
@@ -85,5 +86,5 @@ figure_numbering: &mut Option<String>,
     // save/set/restore: se `eval_markup` retornasse `Err`, o restore não
     // corria e o campo ficava corrompido.
     let child_current_file = src_id;
-    eval_markup(source.root(), scopes, ctx, child_route.track(), styles, show_rules, active_guards, child_current_file, figure_numbering)
+    eval_markup(source.root(), scopes, ctx, child_route.track(), styles, show_rules, active_guards, child_current_file, figure_numbering, sink)
 }

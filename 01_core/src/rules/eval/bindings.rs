@@ -9,7 +9,7 @@
 
 use std::sync::Arc;
 
-use comemo::Tracked;
+use comemo::{Tracked, TrackedMut};
 
 use crate::entities::ast::code::{LetBinding, LetBindingKind};
 use crate::entities::file_id::FileId;
@@ -20,7 +20,7 @@ use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::source_result::SourceResult;
 use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
-use crate::entities::world_types::Route;
+use crate::entities::world_types::{Route, Sink};
 use crate::rules::scopes::Scopes;
 
 use super::{eval_expr, EvalContext};
@@ -33,11 +33,12 @@ pub(super) fn eval_let<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Value> {
     let mut value = match binding.init() {
-        Some(init) => eval_expr(init, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?,
+        Some(init) => eval_expr(init, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?,
         None => Value::None,
     };
 
@@ -100,8 +101,9 @@ pub(super) fn eval_counter_method<'a, 'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Value> {
     match method {
         "step" => Ok(Value::Content(Content::CounterUpdate {
@@ -115,7 +117,7 @@ figure_numbering: &mut Option<String>,
             let val = args.items().next()
                 .and_then(|arg| match arg {
                     Arg::Pos(expr) => {
-                        if let Ok(Value::Int(n)) = eval_expr(expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering) {
+                        if let Ok(Value::Int(n)) = eval_expr(expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink) {
                             Some(n.max(0) as usize)
                         } else {
                             None
@@ -147,13 +149,14 @@ pub(super) fn eval_field_access<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Value> {
     use crate::entities::ast::AstNode;
     use crate::entities::source_result::SourceDiagnostic;
 
-    let target = eval_expr(access.target(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
+    let target = eval_expr(access.target(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
     let field  = access.field().as_str().to_string();
     match target {
         Value::Dict(d) => d.get(field.as_str())

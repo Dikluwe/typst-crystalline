@@ -9,7 +9,7 @@
 
 use std::sync::Arc;
 
-use comemo::Tracked;
+use comemo::{Tracked, TrackedMut};
 
 use crate::entities::ast::code::{Conditional, ForLoop, WhileLoop};
 use crate::entities::file_id::FileId;
@@ -18,7 +18,7 @@ use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
-use crate::entities::world_types::Route;
+use crate::entities::world_types::{Route, Sink};
 use crate::rules::scopes::Scopes;
 
 use super::{eval_expr, EvalContext};
@@ -31,14 +31,15 @@ pub(super) fn eval_conditional<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Value> {
-    let condition = eval_expr(cond.condition(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
+    let condition = eval_expr(cond.condition(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
     match condition {
-        Value::Bool(true) => eval_expr(cond.if_body(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering),
+        Value::Bool(true) => eval_expr(cond.if_body(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
         Value::Bool(false) => match cond.else_body() {
-            Some(else_body) => eval_expr(else_body, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering),
+            Some(else_body) => eval_expr(else_body, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
             None            => Ok(Value::None),
         },
         other => Err(vec![SourceDiagnostic::error(
@@ -56,16 +57,17 @@ pub(super) fn eval_while<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Value> {
     loop {
-        let cond = eval_expr(loop_expr.condition(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
+        let cond = eval_expr(loop_expr.condition(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
         match cond {
             Value::Bool(true) => {
                 ctx.tick_loop(loop_expr.span())?;
                 scopes.enter();
-                eval_expr(loop_expr.body(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
+                eval_expr(loop_expr.body(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
                 scopes.exit();
             }
             Value::Bool(false) => break,
@@ -86,10 +88,11 @@ pub(super) fn eval_for<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Value> {
-    let iterable = eval_expr(loop_expr.iterable(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
+    let iterable = eval_expr(loop_expr.iterable(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
     match iterable {
         Value::Array(items) => {
             let bindings = loop_expr.pattern().bindings();
@@ -100,7 +103,7 @@ figure_numbering: &mut Option<String>,
                 ctx.tick_loop(loop_expr.span())?;
                 scopes.enter();
                 scopes.define(name.as_str(), item);
-                eval_expr(loop_expr.body(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
+                eval_expr(loop_expr.body(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
                 scopes.exit();
             }
             Ok(Value::None)

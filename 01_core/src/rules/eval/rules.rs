@@ -9,7 +9,7 @@
 
 use std::sync::Arc;
 
-use comemo::Tracked;
+use comemo::{Tracked, TrackedMut};
 
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
@@ -22,10 +22,28 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::style_chain::{StyleChain, StyleDelta};
 use crate::entities::value::Value;
-use crate::entities::world_types::{check_show_depth as route_check_show_depth, Route};
+use crate::entities::world_types::{check_show_depth as route_check_show_depth, Route, Sink};
 use crate::rules::scopes::Scopes;
 
 use super::{closures, eval_expr, EvalContext};
+
+/// Helper partilhado para construir warning de propriedade não suportada
+/// em `#set` (Passo 107, encerra DEBT-49). Formato consistente para o
+/// utilizador final; referencia ADR-0040 como catálogo vivo.
+fn unsupported_property_warn(target: &str, field: &str) -> (String, String) {
+    (
+        format!("{target}: propriedade '{field}' ainda não suportada"),
+        format!("ver ADR-0040 para propriedades cobertas por set {target}"),
+    )
+}
+
+/// Helper para warning de `#set` com target desconhecido (Passo 107).
+fn unsupported_target_warn(target: &str) -> (String, String) {
+    (
+        format!("set: target '{target}' ainda não suportado"),
+        "targets suportados: heading, page, figure, text".to_string(),
+    )
+}
 
 /// Aplica as show rules activas ao Content (Passo 70 — DEBT-23 encerrado).
 ///
@@ -42,8 +60,9 @@ pub(crate) fn apply_show_rules<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Content> {
     if rules.is_empty() {
         return Ok(content);
@@ -101,7 +120,7 @@ figure_numbering: &mut Option<String>,
                     Value::Func(func) => {
                         let args = Args::positional(vec![Value::Content(node.clone())]);
                         active_guards.push(rule.id);
-                        let call_result = closures::apply_func(func.clone(), args, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering);
+                        let call_result = closures::apply_func(func.clone(), args, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink);
                         active_guards.pop();
                         return match call_result? {
                             Value::Content(c) => Ok(Some(c)),
@@ -159,8 +178,9 @@ pub(crate) fn intercept_content<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Content> {
     if show_rules.is_empty() {
         return Ok(content);
@@ -171,7 +191,7 @@ figure_numbering: &mut Option<String>,
     // `show_rules` (parâmetro `&mut`) pode ser reatribuído por nested
     // `#show` rules sem interferência durante a travessia.
     let rules = Arc::clone(show_rules);
-    apply_show_rules(content, &rules, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)
+    apply_show_rules(content, &rules, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)
 }
 
 // ── Dispatcher arms: SetRule / ShowRule (Passo 96.2, ADR-0037 Regra 4) ────
@@ -184,12 +204,15 @@ pub(super) fn eval_set_rule<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Value> {
     // Extrair target — deve ser um Ident (ex: "text").
-    // Outros targets (par, page, etc.) são ignorados silenciosamente por agora.
+    // Targets suportados: heading, page, figure, text. Outros emitem
+    // warning via Sink (Passo 107, encerra DEBT-49).
     let target = set.target().to_untyped().text_str().to_owned();
+    let target_span = set.target().to_untyped().span();
 
     if target == "heading" {
         // #set heading(numbering: "1.1") — activa numeração automática.
@@ -199,7 +222,7 @@ figure_numbering: &mut Option<String>,
                 if named.name().as_str() == "numbering" {
                     // Defensivo: só String activa a numeração.
                     // Closures, none, ou outros tipos → ignorar.
-                    let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering).unwrap_or(Value::None);
+                    let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink).unwrap_or(Value::None);
                     return matches!(val, Value::Str(_));
                 }
             }
@@ -225,7 +248,7 @@ figure_numbering: &mut Option<String>,
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 let key = named.name().as_str();
-                let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering).unwrap_or(Value::None);
+                let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink).unwrap_or(Value::None);
                 match key {
                     "width"  => width  = extract_pt(&val),
                     "height" => height = extract_pt(&val),
@@ -245,7 +268,7 @@ figure_numbering: &mut Option<String>,
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 if named.name().as_str() == "numbering" {
-                    let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering).unwrap_or(Value::None);
+                    let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink).unwrap_or(Value::None);
                     new_numbering = match val {
                         Value::Str(s) => Some(s.to_string()),
                         Value::None   => None,
@@ -261,6 +284,8 @@ figure_numbering: &mut Option<String>,
     }
 
     if target != "text" {
+        let (msg, hint) = unsupported_target_warn(&target);
+        sink.warn_note(target_span, &msg, &hint);
         return Ok(Value::None);
     }
 
@@ -269,7 +294,7 @@ figure_numbering: &mut Option<String>,
     for arg in set.args().items() {
         if let Arg::Named(named) = arg {
             let key = named.name().as_str().to_owned();
-            let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
+            let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
             match key.as_str() {
                 "bold" => {
                     if let Value::Bool(b) = val { delta.bold = Some(b); }
@@ -291,9 +316,12 @@ figure_numbering: &mut Option<String>,
                     }
                 }
                 _ => {
-                    // DEBT: propriedades de #set text não suportadas (font, lang,
-                    // weight como string, etc.) são silenciosamente ignoradas.
-                    // Substituir por warning quando `Sink` materializar.
+                    // Passo 107 (encerra DEBT-49): propriedades não suportadas
+                    // de `#set text(...)` emitem warning via Sink em vez de
+                    // serem silenciadas. O span do argumento permite ao
+                    // utilizador localizar a propriedade exacta.
+                    let (msg, hint) = unsupported_property_warn("text", &key);
+                    sink.warn_note(named.name().to_untyped().span(), &msg, &hint);
                 }
             }
         }
@@ -312,8 +340,9 @@ pub(super) fn eval_show_rule<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Value> {
     // Avaliar o selector — pode ser uma string ou uma função da stdlib.
     // `selector()` retorna `Option<Expr>` — None significa selector omitido (não suportado).
@@ -323,7 +352,7 @@ figure_numbering: &mut Option<String>,
             "show rule requer um selector".to_string(),
         )]),
         Some(sel_expr) => {
-            let selector_val = eval_expr(sel_expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
+            let selector_val = eval_expr(sel_expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
             match selector_val {
                 Value::Str(s) => Selector::Text(s.to_string()),
                 Value::Func(ref f) => {
@@ -377,7 +406,7 @@ figure_numbering: &mut Option<String>,
     };
 
     // Avaliar a transformação (closure ou valor estático).
-    let transform = eval_expr(show_rule.transform(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
+    let transform = eval_expr(show_rule.transform(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
     let id = ctx.next_rule_id;
     ctx.next_rule_id += 1;
     // Reconstruir o slice com a nova regra (atomização Passo 95:
