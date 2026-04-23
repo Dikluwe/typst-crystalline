@@ -180,14 +180,18 @@ impl StyleChain {
     }
 }
 
-/// Conversão para `TextStyle` plano — bridge para layout e export actuais
-/// enquanto a migração completa para StyleChain não está feita.
+/// Conversão para `TextStyle` plano — **ponto único de resolução**
+/// (ADR-0039, Passo 100). O Layouter mantém `StyleChain` como
+/// source-of-truth; `From<&StyleChain>` achata em `TextStyle` quando
+/// emite um `FrameItem::Text`.
 impl From<&StyleChain> for TextStyle {
     fn from(chain: &StyleChain) -> Self {
         TextStyle {
-            bold:   chain.bold(),
-            italic: chain.italic(),
-            size:   Pt(chain.size()),
+            bold:          chain.bold(),
+            italic:        chain.italic(),
+            size:          Pt(chain.size()),
+            fill:          chain.fill(),
+            heading_level: chain.heading_level(),
         }
     }
 }
