@@ -14,6 +14,7 @@ use comemo::Tracked;
 use ecow::EcoString;
 
 use crate::entities::ast::AstNode;
+use crate::entities::file_id::FileId;
 use crate::entities::ast::markup;
 use crate::entities::content::Content;
 use crate::entities::layout_types::TextStyle;
@@ -34,13 +35,15 @@ pub(super) fn eval_strong<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Value> {
     // Capturar bold no estilo activo para que os Text filhos carreguem bold=true.
     // Atomização Passo 94: styles local ao corpo, não muta o caller.
-    let mut local_styles = styles.push(StyleDelta { bold: Some(true), italic: None, size: None });
-    let body = eval_markup_body(strong.body().to_untyped(), scopes, ctx, route, &mut local_styles, show_rules, active_guards)?;
+    let mut local_styles = styles.push(StyleDelta { bold: Some(true), italic: None, size: None , ..StyleDelta::empty() });
+    let body = eval_markup_body(strong.body().to_untyped(), scopes, ctx, route, &mut local_styles, show_rules, active_guards, current_file, figure_numbering)?;
     let content = Content::strong(body);
-    Ok(Value::Content(rules::intercept_content(content, ctx, route, styles, show_rules, active_guards)?))
+    Ok(Value::Content(rules::intercept_content(content, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?))
 }
 
 pub(super) fn eval_emph<'r>(
@@ -51,12 +54,14 @@ pub(super) fn eval_emph<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Value> {
     // Capturar italic no estilo activo para que os Text filhos carreguem italic=true.
-    let mut local_styles = styles.push(StyleDelta { bold: None, italic: Some(true), size: None });
-    let body = eval_markup_body(emph.body().to_untyped(), scopes, ctx, route, &mut local_styles, show_rules, active_guards)?;
+    let mut local_styles = styles.push(StyleDelta { bold: None, italic: Some(true), size: None , ..StyleDelta::empty() });
+    let body = eval_markup_body(emph.body().to_untyped(), scopes, ctx, route, &mut local_styles, show_rules, active_guards, current_file, figure_numbering)?;
     let content = Content::emph(body);
-    Ok(Value::Content(rules::intercept_content(content, ctx, route, styles, show_rules, active_guards)?))
+    Ok(Value::Content(rules::intercept_content(content, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?))
 }
 
 pub(super) fn eval_heading<'r>(
@@ -67,14 +72,16 @@ pub(super) fn eval_heading<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Value> {
     let level = heading.depth().get() as u8;
     // Capturar bold no estilo para que os Text filhos do heading carreguem bold=true.
-    let mut local_styles = styles.push(StyleDelta { bold: Some(true), italic: None, size: None });
-    let body  = eval_markup_body(heading.body().to_untyped(), scopes, ctx, route, &mut local_styles, show_rules, active_guards)?;
+    let mut local_styles = styles.push(StyleDelta { bold: Some(true), italic: None, size: None , ..StyleDelta::empty() });
+    let body  = eval_markup_body(heading.body().to_untyped(), scopes, ctx, route, &mut local_styles, show_rules, active_guards, current_file, figure_numbering)?;
     // Intercepção eager — show rules aplicadas imediatamente após criação (Passo 68).
     let content = Content::heading(level, body);
-    Ok(Value::Content(rules::intercept_content(content, ctx, route, styles, show_rules, active_guards)?))
+    Ok(Value::Content(rules::intercept_content(content, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?))
 }
 
 pub(super) fn eval_raw(raw: markup::Raw<'_>) -> SourceResult<Value> {
@@ -104,8 +111,10 @@ pub(super) fn eval_list_item<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Value> {
-    let body = eval_markup_body(item.body().to_untyped(), scopes, ctx, route, styles, show_rules, active_guards)?;
+    let body = eval_markup_body(item.body().to_untyped(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
     Ok(Value::Content(Content::list_item(body)))
 }
 
@@ -117,8 +126,10 @@ pub(super) fn eval_enum_item<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Value> {
     let number = item.number().map(|n| n as u32);
-    let body   = eval_markup_body(item.body().to_untyped(), scopes, ctx, route, styles, show_rules, active_guards)?;
+    let body   = eval_markup_body(item.body().to_untyped(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
     Ok(Value::Content(Content::enum_item(number, body)))
 }

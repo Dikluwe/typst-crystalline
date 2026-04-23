@@ -8,6 +8,7 @@
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
 use super::expect_no_named;
+use crate::entities::file_id::FileId;
 
 use crate::entities::args::Args;
 use crate::entities::content::Content;
@@ -25,7 +26,7 @@ use crate::rules::eval::EvalContext;
 /// ex: `align(center + bottom, ...)`) ou `Value::Str` (sintaxe legacy,
 /// ex: `align("center", ...)`) — ver DEBT-36 (encerrado).
 /// `body` é o primeiro argumento posicional do tipo Content.
-pub fn native_align(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_align(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
 
     let alignment = extract_alignment(args, Align2D::default());
@@ -47,7 +48,7 @@ pub fn native_align(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Val
 /// `scope` (Passo 84.6, encerra DEBT-37): `"column"` (default — ancora à
 /// célula activa de Grid, ou à página fora de Grid) ou `"parent"` (ancora
 /// sempre à página). Aceita string ou omissão.
-pub fn native_place(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_place(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["dx", "dy", "scope"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -109,7 +110,7 @@ pub fn native_place(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Val
 /// Helper Passo 84.5: extrai alinhamento do primeiro argumento posicional
 /// que case com `Value::Align` ou `Value::Str`. Sintaxe preferida `Value::Align`,
 /// sintaxe legacy via `Align2D::from_string`. Caso nenhum case, retorna `default`.
-pub(super) fn extract_alignment(args: &Args, default: Align2D) -> Align2D {
+fn extract_alignment(args: &Args, default: Align2D) -> Align2D {
     args.items.iter()
         .find_map(|v| match v {
             Value::Align(a) => Some(*a),
@@ -121,7 +122,7 @@ pub(super) fn extract_alignment(args: &Args, default: Align2D) -> Align2D {
 
 // ── Grid (Passo 80) ────────────────────────────────────────────────────────
 
-pub(super) fn parse_track_sizing(val: &Value) -> Option<TrackSizing> {
+fn parse_track_sizing(val: &Value) -> Option<TrackSizing> {
     match val {
         Value::Float(f)    => Some(TrackSizing::Fixed(*f)),
         Value::Length(l)   => Some(TrackSizing::Fixed(l.abs.to_pt())),
@@ -132,7 +133,7 @@ pub(super) fn parse_track_sizing(val: &Value) -> Option<TrackSizing> {
     }
 }
 
-pub(super) fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
+fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
     match val {
         Some(Value::Array(arr)) => arr.iter().filter_map(parse_track_sizing).collect(),
         // `grid(rows: 3)` ou `grid(columns: 3)` → 3 tracks Auto (Passo 83).
@@ -143,7 +144,7 @@ pub(super) fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
 }
 
 /// `grid(columns?, rows?, ...cells)` → `Content::Grid`.
-pub fn native_grid(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_grid(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["columns", "rows"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -169,7 +170,7 @@ pub fn native_grid(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
 }
 
 /// `#set page(width: w, height: h, margin: m)` — configura as dimensões da página (Passo 81).
-pub fn native_page(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_page(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     fn extract_pt(val: &Value) -> Option<f64> {
         match val {
             Value::Length(l) => Some(l.abs.to_pt()),

@@ -12,6 +12,7 @@ use std::sync::Arc;
 use comemo::Tracked;
 
 use crate::entities::args::Args;
+use crate::entities::file_id::FileId;
 use crate::entities::ast::AstNode;
 use crate::entities::ast::code::{SetRule, ShowRule as ShowRuleNode};
 use crate::entities::ast::expr::Arg;
@@ -41,6 +42,8 @@ pub(crate) fn apply_show_rules<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Content> {
     if rules.is_empty() {
         return Ok(content);
@@ -89,7 +92,7 @@ pub(crate) fn apply_show_rules<'r>(
                     Value::Func(func) => {
                         let args = Args::positional(vec![Value::Content(node.clone())]);
                         active_guards.push(rule.id);
-                        let call_result = closures::apply_func(func.clone(), args, ctx, route, styles, show_rules, active_guards);
+                        let call_result = closures::apply_func(func.clone(), args, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering);
                         active_guards.pop();
                         return match call_result? {
                             Value::Content(c) => Ok(Some(c)),
@@ -147,6 +150,8 @@ pub(crate) fn intercept_content<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Content> {
     if show_rules.is_empty() {
         return Ok(content);
@@ -157,7 +162,7 @@ pub(crate) fn intercept_content<'r>(
     // `show_rules` (parâmetro `&mut`) pode ser reatribuído por nested
     // `#show` rules sem interferência durante a travessia.
     let rules = Arc::clone(show_rules);
-    apply_show_rules(content, &rules, ctx, route, styles, show_rules, active_guards)
+    apply_show_rules(content, &rules, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)
 }
 
 // ── Dispatcher arms: SetRule / ShowRule (Passo 96.2, ADR-0037 Regra 4) ────
@@ -170,6 +175,8 @@ pub(super) fn eval_set_rule<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Value> {
     // Extrair target — deve ser um Ident (ex: "text").
     // Outros targets (par, page, etc.) são ignorados silenciosamente por agora.
@@ -183,7 +190,7 @@ pub(super) fn eval_set_rule<'r>(
                 if named.name().as_str() == "numbering" {
                     // Defensivo: só String activa a numeração.
                     // Closures, none, ou outros tipos → ignorar.
-                    let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards).unwrap_or(Value::None);
+                    let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering).unwrap_or(Value::None);
                     return matches!(val, Value::Str(_));
                 }
             }
@@ -209,7 +216,7 @@ pub(super) fn eval_set_rule<'r>(
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 let key = named.name().as_str();
-                let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards).unwrap_or(Value::None);
+                let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering).unwrap_or(Value::None);
                 match key {
                     "width"  => width  = extract_pt(&val),
                     "height" => height = extract_pt(&val),
@@ -223,12 +230,13 @@ pub(super) fn eval_set_rule<'r>(
 
     if target == "figure" {
         // #set figure(numbering: "1") — activa numeração automática de figuras (Passo 75, DEBT-14).
-        // Padrão idêntico a SetHeadingNumbering: emite nó AST e actualiza ctx.
-        let mut new_numbering = ctx.figure_numbering.clone();
+        // Passo 98 (ADR-0036): `figure_numbering` deixou de ser campo do ctx;
+        // passou a ser `&mut Option<String>` propagado como parâmetro.
+        let mut new_numbering = figure_numbering.clone();
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 if named.name().as_str() == "numbering" {
-                    let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards).unwrap_or(Value::None);
+                    let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering).unwrap_or(Value::None);
                     new_numbering = match val {
                         Value::Str(s) => Some(s.to_string()),
                         Value::None   => None,
@@ -237,7 +245,7 @@ pub(super) fn eval_set_rule<'r>(
                 }
             }
         }
-        ctx.figure_numbering = new_numbering.clone();
+        *figure_numbering = new_numbering.clone();
         return Ok(Value::Content(Content::SetFigureNumbering {
             pattern: new_numbering.unwrap_or_default(),
         }));
@@ -252,7 +260,7 @@ pub(super) fn eval_set_rule<'r>(
     for arg in set.args().items() {
         if let Arg::Named(named) = arg {
             let key = named.name().as_str().to_owned();
-            let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards)?;
+            let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
             match key.as_str() {
                 "bold" => {
                     if let Value::Bool(b) = val { delta.bold = Some(b); }
@@ -283,6 +291,8 @@ pub(super) fn eval_show_rule<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Value> {
     // Avaliar o selector — pode ser uma string ou uma função da stdlib.
     // `selector()` retorna `Option<Expr>` — None significa selector omitido (não suportado).
@@ -292,7 +302,7 @@ pub(super) fn eval_show_rule<'r>(
             "show rule requer um selector".to_string(),
         )]),
         Some(sel_expr) => {
-            let selector_val = eval_expr(sel_expr, scopes, ctx, route, styles, show_rules, active_guards)?;
+            let selector_val = eval_expr(sel_expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
             match selector_val {
                 Value::Str(s) => Selector::Text(s.to_string()),
                 Value::Func(ref f) => {
@@ -311,15 +321,15 @@ pub(super) fn eval_show_rule<'r>(
                         native_emph, native_raw,
                     };
                     match f.native_fn_addr() {
-                        Some(addr) if fn_addr_eq(addr, native_heading as fn(_, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Heading),
-                        Some(addr) if fn_addr_eq(addr, native_figure as fn(_, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Figure),
-                        Some(addr) if fn_addr_eq(addr, native_strong as fn(_, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_strong as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Strong),
-                        Some(addr) if fn_addr_eq(addr, native_emph as fn(_, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_emph as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Emph),
-                        Some(addr) if fn_addr_eq(addr, native_raw as fn(_, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_raw as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Raw),
                         Some(_) => return Err(vec![SourceDiagnostic::error(
                             sel_expr.span(),
@@ -346,7 +356,7 @@ pub(super) fn eval_show_rule<'r>(
     };
 
     // Avaliar a transformação (closure ou valor estático).
-    let transform = eval_expr(show_rule.transform(), scopes, ctx, route, styles, show_rules, active_guards)?;
+    let transform = eval_expr(show_rule.transform(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
     let id = ctx.next_rule_id;
     ctx.next_rule_id += 1;
     // Reconstruir o slice com a nova regra (atomização Passo 95:

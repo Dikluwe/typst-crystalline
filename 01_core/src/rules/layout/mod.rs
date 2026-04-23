@@ -546,6 +546,14 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             Content::Place { alignment, dx, dy, scope, body } => {
                 self.layout_place(*alignment, *dx, *dy, *scope, body);
             }
+
+            // Passo 99 (ADR-0038): `Content::Styled` é fundação para `#set`/`#show`.
+            // Ainda não activa no Layouter — trata o body como conteúdo simples
+            // e ignora os estilos (bridge via TextStyle permanece até passo
+            // dedicado de activação; ver DEBT-Style sucessor em DEBT.md).
+            Content::Styled(body, _styles) => {
+                self.layout_content(body);
+            }
         }
     }
     pub fn finish(mut self) -> PagedDocument {

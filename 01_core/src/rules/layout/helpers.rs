@@ -109,7 +109,7 @@ pub(super) fn collect_sub_items(content: &Content, available_w: f64) -> Vec<Fram
     items
 }
 
-pub(super) fn collect_items_at(content: &Content, items: &mut Vec<FrameItem>, x: Pt, y: Pt, available_w: f64) {
+fn collect_items_at(content: &Content, items: &mut Vec<FrameItem>, x: Pt, y: Pt, available_w: f64) {
     match content {
         Content::Shape { kind, width, height, fill, stroke } => {
             let (w, h) = match kind {

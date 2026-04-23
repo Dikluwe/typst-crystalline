@@ -162,7 +162,7 @@ pub(super) fn code_expr_prec(p: &mut Parser, atomic: bool, min_prec: u8) {
 /// Parses an primary in a code expression. These are the atoms that unary and
 /// binary operations, functions calls, and field accesses start with / are
 /// composed of.
-pub(super) fn code_primary(p: &mut Parser, atomic: bool) {
+fn code_primary(p: &mut Parser, atomic: bool) {
     let m = p.marker();
     match p.current() {
         SyntaxKind::Ident => {
@@ -241,7 +241,7 @@ pub(super) fn block(p: &mut Parser) {
 }
 
 /// Parses a code block: `{ let x = 1; x + 2 }`.
-pub(super) fn code_block(p: &mut Parser) {
+fn code_block(p: &mut Parser) {
     let m = p.marker();
     p.enter_modes(SyntaxMode::Code, AtNewline::Continue, |p| {
         p.assert(SyntaxKind::LeftBrace);

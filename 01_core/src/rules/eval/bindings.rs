@@ -12,6 +12,7 @@ use std::sync::Arc;
 use comemo::Tracked;
 
 use crate::entities::ast::code::{LetBinding, LetBindingKind};
+use crate::entities::file_id::FileId;
 use crate::entities::ast::expr::{Arg, Expr};
 use crate::entities::content::Content;
 use crate::entities::counter_state::CounterAction;
@@ -32,9 +33,11 @@ pub(super) fn eval_let<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Value> {
     let mut value = match binding.init() {
-        Some(init) => eval_expr(init, scopes, ctx, route, styles, show_rules, active_guards)?,
+        Some(init) => eval_expr(init, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?,
         None => Value::None,
     };
 
@@ -97,6 +100,8 @@ pub(super) fn eval_counter_method<'a, 'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Value> {
     match method {
         "step" => Ok(Value::Content(Content::CounterUpdate {
@@ -110,7 +115,7 @@ pub(super) fn eval_counter_method<'a, 'r>(
             let val = args.items().next()
                 .and_then(|arg| match arg {
                     Arg::Pos(expr) => {
-                        if let Ok(Value::Int(n)) = eval_expr(expr, scopes, ctx, route, styles, show_rules, active_guards) {
+                        if let Ok(Value::Int(n)) = eval_expr(expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering) {
                             Some(n.max(0) as usize)
                         } else {
                             None
@@ -142,11 +147,13 @@ pub(super) fn eval_field_access<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Value> {
     use crate::entities::ast::AstNode;
     use crate::entities::source_result::SourceDiagnostic;
 
-    let target = eval_expr(access.target(), scopes, ctx, route, styles, show_rules, active_guards)?;
+    let target = eval_expr(access.target(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
     let field  = access.field().as_str().to_string();
     match target {
         Value::Dict(d) => d.get(field.as_str())

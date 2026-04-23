@@ -246,7 +246,7 @@ impl ScannerExt for Scanner<'_> {
 
 /// Whether a character will become a [`SyntaxKind::Space`] token.
 #[inline]
-pub(super) fn is_space(character: char, mode: SyntaxMode) -> bool {
+fn is_space(character: char, mode: SyntaxMode) -> bool {
     match mode {
         SyntaxMode::Markup => matches!(character, ' ' | '\t') || is_newline(character),
         _ => character.is_whitespace(),
@@ -326,7 +326,7 @@ pub fn split_newlines(text: &str) -> Vec<&str> {
 }
 
 /// Count the number of newlines in text.
-pub(super) fn count_newlines(text: &str) -> usize {
+fn count_newlines(text: &str) -> usize {
     let mut newlines = 0;
     let mut s = Scanner::new(text);
     while let Some(c) = s.eat() {

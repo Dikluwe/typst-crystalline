@@ -46,7 +46,7 @@ pub(super) fn markup_exprs(p: &mut Parser, mut at_start: bool, stop_set: SyntaxS
 
 /// Reparses a subsection of markup incrementally.
 #[allow(dead_code)] // API de reparse incremental — migração futura
-pub(super) fn reparse_markup(
+fn reparse_markup(
     text: &str,
     range: Range<usize>,
     at_start: &mut bool,
@@ -69,7 +69,7 @@ pub(super) fn reparse_markup(
 /// Parses a single markup expression. This includes markup elements like text,
 /// headings, strong/emph, lists/enums, etc. This is also the entry point for
 /// parsing math equations and embedded code expressions.
-pub(super) fn markup_expr(p: &mut Parser, at_start: bool, nesting: &mut usize) {
+fn markup_expr(p: &mut Parser, at_start: bool, nesting: &mut usize) {
     let Some(p) = &mut p.increase_depth() else { return };
 
     match p.current() {
@@ -119,7 +119,7 @@ pub(super) fn markup_expr(p: &mut Parser, at_start: bool, nesting: &mut usize) {
 }
 
 /// Parses strong content: `*Strong*`.
-pub(super) fn strong(p: &mut Parser) {
+fn strong(p: &mut Parser) {
     p.with_nl_mode(AtNewline::StopParBreak, |p| {
         let m = p.marker();
         p.assert(SyntaxKind::Star);
@@ -151,7 +151,7 @@ pub(super) fn heading(p: &mut Parser) {
 }
 
 /// Parses an item in a bullet list: `- ...`.
-pub(super) fn list_item(p: &mut Parser) {
+fn list_item(p: &mut Parser) {
     p.with_nl_mode(AtNewline::RequireColumn(p.current_column()), |p| {
         let m = p.marker();
         p.assert(SyntaxKind::ListMarker);
@@ -161,7 +161,7 @@ pub(super) fn list_item(p: &mut Parser) {
 }
 
 /// Parses an item in an enumeration (numbered list): `+ ...` or `1. ...`.
-pub(super) fn enum_item(p: &mut Parser) {
+fn enum_item(p: &mut Parser) {
     p.with_nl_mode(AtNewline::RequireColumn(p.current_column()), |p| {
         let m = p.marker();
         p.assert(SyntaxKind::EnumMarker);
@@ -171,7 +171,7 @@ pub(super) fn enum_item(p: &mut Parser) {
 }
 
 /// Parses an item in a term list: `/ Term: Details`.
-pub(super) fn term_item(p: &mut Parser) {
+fn term_item(p: &mut Parser) {
     p.with_nl_mode(AtNewline::RequireColumn(p.current_column()), |p| {
         let m = p.marker();
         p.with_nl_mode(AtNewline::Stop, |p| {

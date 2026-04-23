@@ -21,7 +21,7 @@ use crate::syntax_set;
 use crate::utils::defer;
 
 // Picked by gut feeling.
-pub(super) const MAX_DEPTH: u32 = 256;
+const MAX_DEPTH: u32 = 256;
 
 /// Manages parsing a stream of tokens into a tree of [`SyntaxNode`]s.
 ///
@@ -57,6 +57,15 @@ pub(super) const MAX_DEPTH: u32 = 256;
 /// current expression. If so, the parser temporarily changes `token`'s kind to
 /// a fake [`SyntaxKind::End`]. When the parser exits the mode the original
 /// `SyntaxKind` is restored.
+//
+// Regra 3 (ADR-0037): os campos `pub(super)` abaixo (`text`, `lexer`, `token`,
+// `balanced`, `nodes`, `memo`, `depth`) são acedidos por todos os submódulos
+// de `parse/` — cada passagem do parser lê/escreve `token.node`, faz `nodes.push`,
+// testa `balanced`, e consulta `lexer.cursor()` dezenas de vezes. Criar
+// getter/setter por cada acesso triplicaria a linha count sem preservar
+// invariante adicional. Bulk replace do Passo 96.4 validado no Passo 97
+// (auditoria DEBT-47): cada campo referenciado em pelo menos 2 submódulos.
+// `nl_mode` foi privatizado (acesso só via `with_nl_mode`).
 pub(super) struct Parser<'s> {
     /// The source text shared with the lexer.
     pub(super) text: &'s str,
@@ -65,7 +74,7 @@ pub(super) struct Parser<'s> {
     /// defining our current Typst mode.
     pub(super) lexer: Lexer<'s>,
     /// The newline mode: whether to insert a temporary end at newlines.
-    pub(super) nl_mode: AtNewline,
+    nl_mode: AtNewline,
     /// The current token under inspection, not yet present in `nodes`. This
     /// acts like a single item of lookahead for the parser.
     ///
@@ -95,9 +104,9 @@ pub(super) struct Token {
     /// onto the end of `nodes`.
     pub(super) node: SyntaxNode,
     /// The number of preceding trivia before this token.
-    pub(super) n_trivia: usize,
+    n_trivia: usize,
     /// Whether this token's preceding trivia contained a newline.
-    pub(super) newline: Option<Newline>,
+    newline: Option<Newline>,
     /// The index into `text` of the start of our current token (the end is
     /// stored as the lexer's cursor).
     pub(super) start: usize,
@@ -109,9 +118,9 @@ pub(super) struct Token {
 #[derive(Debug, Copy, Clone)]
 pub(super) struct Newline {
     /// The column of the start of the next token in its line.
-    pub(super) column: Option<usize>,
+    column: Option<usize>,
     /// Whether any of our newlines were paragraph breaks.
-    pub(super) parbreak: bool,
+    parbreak: bool,
 }
 
 /// How to proceed with parsing when at a newline.
@@ -133,7 +142,7 @@ pub(super) enum AtNewline {
 
 impl AtNewline {
     /// Whether to stop at a newline or continue based on the current context.
-    pub(super) fn stop_at(self, Newline { column, parbreak }: Newline, kind: SyntaxKind) -> bool {
+    fn stop_at(self, Newline { column, parbreak }: Newline, kind: SyntaxKind) -> bool {
         #[allow(clippy::match_like_matches_macro)]
         match self {
             AtNewline::Continue => false,
@@ -265,7 +274,7 @@ impl<'s> Parser<'s> {
     }
 
     /// The offset into `text` of the current token's end.
-    pub(super) fn current_end(&self) -> usize {
+    fn current_end(&self) -> usize {
         self.lexer.cursor()
     }
 
@@ -355,7 +364,7 @@ impl<'s> Parser<'s> {
     /// a new [error node](`SyntaxNode::error`) with the given message. This is
     /// an easy interface for creating a syntax error _after_ having parsed its
     /// children.
-    pub(super) fn wrap_error(&mut self, from: Marker, message: impl Into<String>) {
+    fn wrap_error(&mut self, from: Marker, message: impl Into<String>) {
         let to = self.before_trivia().0;
         let from = from.0.min(to);
         let mut s = String::new();
@@ -416,7 +425,7 @@ impl<'s> Parser<'s> {
     ///
     /// This is not a method on `self` because we need a valid token before we
     /// can initialize the parser.
-    pub(super) fn lex(nodes: &mut Vec<SyntaxNode>, lexer: &mut Lexer, nl_mode: AtNewline) -> Token {
+    fn lex(nodes: &mut Vec<SyntaxNode>, lexer: &mut Lexer, nl_mode: AtNewline) -> Token {
         let prev_end = lexer.cursor();
         let mut start = prev_end;
         let (mut kind, mut node) = lexer.next();
@@ -459,11 +468,11 @@ impl<'s> Parser<'s> {
 pub(super) struct MemoArena {
     /// A single arena of previously parsed nodes (to reduce allocations).
     /// Memoized ranges refer to unique sections of the arena.
-    pub(super) arena: Vec<SyntaxNode>,
+    arena: Vec<SyntaxNode>,
     /// A map from the parser's current position to a range of previously parsed
     /// nodes in the arena and a checkpoint of the parser's state. These allow
     /// us to reset the parser to avoid parsing the same location again.
-    pub(super) memo_map: FxHashMap<MemoKey, (Range<usize>, PartialState)>,
+    memo_map: FxHashMap<MemoKey, (Range<usize>, PartialState)>,
 }
 
 /// A type alias for the memo key so it doesn't get confused with other usizes.
@@ -481,8 +490,8 @@ pub(super) struct Checkpoint {
 /// the nodes vector).
 #[derive(Clone)]
 pub(super) struct PartialState {
-    pub(super) cursor: usize,
-    pub(super) lex_mode: SyntaxMode,
+    cursor: usize,
+    lex_mode: SyntaxMode,
     pub(super) token: Token,
 }
 
@@ -523,7 +532,7 @@ impl Parser<'_> {
     }
 
     /// Restore parts of the checkpoint excluding the nodes vector.
-    pub(super) fn restore_partial(&mut self, state: PartialState) {
+    fn restore_partial(&mut self, state: PartialState) {
         self.lexer.jump(state.cursor);
         self.lexer.set_mode(state.lex_mode);
         self.token = state.token;
@@ -576,7 +585,7 @@ impl Parser<'_> {
     }
 
     /// Whether the last non-trivia node is an error.
-    pub(super) fn after_error(&mut self) -> bool {
+    fn after_error(&mut self) -> bool {
         let m = self.before_trivia();
         m.0 > 0 && self.nodes[m.0 - 1].kind().is_error()
     }
@@ -606,7 +615,7 @@ impl Parser<'_> {
     }
 
     /// Remove trailing errors with zero length.
-    pub(super) fn trim_errors(&mut self) {
+    fn trim_errors(&mut self) {
         let Marker(end) = self.before_trivia();
         let mut start = end;
         while start > 0
@@ -649,7 +658,7 @@ impl Parser<'_> {
     }
 
     /// Generate an error for an exceeded maximum depth check.
-    pub(super) fn depth_check_error(&mut self, stop_set: Option<SyntaxSet>) {
+    fn depth_check_error(&mut self, stop_set: Option<SyntaxSet>) {
         let m = self.marker();
 
         let mut balance: usize = 0;

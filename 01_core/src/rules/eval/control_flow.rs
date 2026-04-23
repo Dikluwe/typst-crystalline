@@ -12,6 +12,7 @@ use std::sync::Arc;
 use comemo::Tracked;
 
 use crate::entities::ast::code::{Conditional, ForLoop, WhileLoop};
+use crate::entities::file_id::FileId;
 use crate::entities::ast::AstNode;
 use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -30,12 +31,14 @@ pub(super) fn eval_conditional<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Value> {
-    let condition = eval_expr(cond.condition(), scopes, ctx, route, styles, show_rules, active_guards)?;
+    let condition = eval_expr(cond.condition(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
     match condition {
-        Value::Bool(true) => eval_expr(cond.if_body(), scopes, ctx, route, styles, show_rules, active_guards),
+        Value::Bool(true) => eval_expr(cond.if_body(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering),
         Value::Bool(false) => match cond.else_body() {
-            Some(else_body) => eval_expr(else_body, scopes, ctx, route, styles, show_rules, active_guards),
+            Some(else_body) => eval_expr(else_body, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering),
             None            => Ok(Value::None),
         },
         other => Err(vec![SourceDiagnostic::error(
@@ -53,14 +56,16 @@ pub(super) fn eval_while<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Value> {
     loop {
-        let cond = eval_expr(loop_expr.condition(), scopes, ctx, route, styles, show_rules, active_guards)?;
+        let cond = eval_expr(loop_expr.condition(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
         match cond {
             Value::Bool(true) => {
                 ctx.tick_loop(loop_expr.span())?;
                 scopes.enter();
-                eval_expr(loop_expr.body(), scopes, ctx, route, styles, show_rules, active_guards)?;
+                eval_expr(loop_expr.body(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
                 scopes.exit();
             }
             Value::Bool(false) => break,
@@ -81,8 +86,10 @@ pub(super) fn eval_for<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
+current_file: FileId,
+figure_numbering: &mut Option<String>,
 ) -> SourceResult<Value> {
-    let iterable = eval_expr(loop_expr.iterable(), scopes, ctx, route, styles, show_rules, active_guards)?;
+    let iterable = eval_expr(loop_expr.iterable(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
     match iterable {
         Value::Array(items) => {
             let bindings = loop_expr.pattern().bindings();
@@ -93,7 +100,7 @@ pub(super) fn eval_for<'r>(
                 ctx.tick_loop(loop_expr.span())?;
                 scopes.enter();
                 scopes.define(name.as_str(), item);
-                eval_expr(loop_expr.body(), scopes, ctx, route, styles, show_rules, active_guards)?;
+                eval_expr(loop_expr.body(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
                 scopes.exit();
             }
             Ok(Value::None)

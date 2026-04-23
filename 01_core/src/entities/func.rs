@@ -7,6 +7,7 @@
 use std::sync::Arc;
 
 use crate::entities::args::Args;
+use crate::entities::file_id::FileId;
 use crate::entities::scope::Scope;
 use crate::entities::source_result::SourceResult;
 use crate::entities::syntax_node::SyntaxNode;
@@ -55,9 +56,19 @@ pub struct ClosureParam {
 ///
 /// Recebe `&mut EvalContext` para aceder ao World (ex: leitura de ficheiros).
 /// Funções sem I/O usam `_ctx` (prefixo underscore suprime warning).
+///
+/// Passo 98 (ADR-0036 Regra 1): os campos `current_file` e `figure_numbering`
+/// saíram do `EvalContext` e passaram a parâmetros explícitos do ABI.
+/// `current_file: FileId` (Copy, cheap) e `figure_numbering: Option<&str>`
+/// (read-only). Funções que não os usam prefixam com `_`.
 pub struct NativeFunc {
     pub name: &'static str,
-    pub call: fn(&mut crate::rules::eval::EvalContext<'_>, &Args) -> SourceResult<Value>,
+    pub call: fn(
+        &mut crate::rules::eval::EvalContext<'_>,
+        &Args,
+        FileId,
+        Option<&str>,
+    ) -> SourceResult<Value>,
 }
 
 impl Func {
@@ -69,7 +80,12 @@ impl Func {
     /// Constrói uma Func nativa com um function pointer que recebe `EvalContext`.
     pub fn native(
         name: &'static str,
-        call: fn(&mut crate::rules::eval::EvalContext<'_>, &Args) -> SourceResult<Value>,
+        call: fn(
+            &mut crate::rules::eval::EvalContext<'_>,
+            &Args,
+            FileId,
+            Option<&str>,
+        ) -> SourceResult<Value>,
     ) -> Self {
         Self(Arc::new(FuncRepr::Native(NativeFunc { name, call })))
     }
@@ -103,7 +119,12 @@ impl Func {
     ///
     /// Safe: `fn(...)` é function pointer, não `*const c_void`.
     pub fn native_fn_addr(&self)
-        -> Option<fn(&mut crate::rules::eval::EvalContext<'_>, &Args) -> SourceResult<Value>>
+        -> Option<fn(
+            &mut crate::rules::eval::EvalContext<'_>,
+            &Args,
+            FileId,
+            Option<&str>,
+        ) -> SourceResult<Value>>
     {
         match self.0.as_ref() {
             FuncRepr::Native(n)  => Some(n.call),
@@ -205,7 +226,7 @@ mod tests {
 
     #[test]
     fn native_func_debug_nao_panicar() {
-        let f = Func::native("type", |_ctx, _args| Ok(Value::None));
+        let f = Func::native("type", |_ctx, _args, _cf, _fn| Ok(Value::None));
         assert_eq!(format!("{:?}", f), "<function>");
     }
 }

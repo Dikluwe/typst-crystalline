@@ -47,13 +47,13 @@ pub(super) fn math_exprs(p: &mut Parser, stop_set: SyntaxSet) -> usize {
 
 /// Parses a single math expression: This includes math elements like
 /// attachment, fractions, roots, and embedded code expressions.
-pub(super) fn math_expr(p: &mut Parser) {
+fn math_expr(p: &mut Parser) {
     math_expr_prec(p, 0, syntax_set!())
 }
 
 /// Parses a math expression with at least the given precedence, possibly
 /// chaining with another operator by returning early.
-pub(super) fn math_expr_prec(p: &mut Parser, min_prec: u8, stop_set: SyntaxSet) {
+fn math_expr_prec(p: &mut Parser, min_prec: u8, stop_set: SyntaxSet) {
     let Some(p) = &mut p.increase_depth() else { return };
 
     let m = p.marker();
@@ -188,7 +188,7 @@ const MATH_FUNC_PREC: u8 = 2;
 const MATH_ROOT_PREC: u8 = 2;
 
 /// Precedence and wrapper kinds for infix and postfix math operators.
-pub(super) fn math_op(
+fn math_op(
     kind: SyntaxKind,
     had_trivia: bool,
 ) -> Option<(SyntaxKind, Option<Assoc>, u8)> {
@@ -205,7 +205,7 @@ pub(super) fn math_op(
 
 /// Whether text counts as alphabetic in math. For the `Text` and `MathText`
 /// kinds, this causes them to group with parens as an implicit function call.
-pub(super) fn is_math_alphabetic(text: &str) -> bool {
+fn is_math_alphabetic(text: &str) -> bool {
     if let Some((0, c)) = text.char_indices().next_back() {
         // Just a single character.
         c.is_alphabetic() || default_math_class(c) == Some(MathClass::Alphabetic)
@@ -219,7 +219,7 @@ pub(super) fn is_math_alphabetic(text: &str) -> bool {
 ///
 /// The lexer produces `{Left,Right}{Brace,Paren}` for delimiters, and it's our
 /// job to convert them back to `MathText` or `MathShorthand` before eating.
-pub(super) fn math_delimited(p: &mut Parser) {
+fn math_delimited(p: &mut Parser) {
     let m = p.marker();
     if p.current_text() == "[|" {
         p.convert_and_eat(SyntaxKind::MathShorthand);
@@ -244,7 +244,7 @@ pub(super) fn math_delimited(p: &mut Parser) {
 
 /// Remove one set of parentheses (if any) from a previously parsed expression
 /// by converting to non-expression SyntaxKinds.
-pub(super) fn math_unparen(p: &mut Parser, m: Marker) {
+fn math_unparen(p: &mut Parser, m: Marker) {
     let Some(node) = p.nodes.get_mut(m.0) else { return };
     if node.kind() != SyntaxKind::MathDelimited {
         return;
@@ -261,7 +261,7 @@ pub(super) fn math_unparen(p: &mut Parser, m: Marker) {
 }
 
 /// Parse an argument list in math: `(a, b; c, d; size: #50%)`.
-pub(super) fn math_args(p: &mut Parser) {
+fn math_args(p: &mut Parser) {
     let m = p.marker();
     p.assert(SyntaxKind::LeftParen);
 
@@ -310,7 +310,7 @@ pub(super) fn math_args(p: &mut Parser) {
 /// Parses a single argument in a math argument list.
 ///
 /// Returns whether the parsed argument was positional or not.
-pub(super) fn math_arg<'s>(p: &mut Parser<'s>, seen: &mut FxHashSet<&'s str>) -> bool {
+fn math_arg<'s>(p: &mut Parser<'s>, seen: &mut FxHashSet<&'s str>) -> bool {
     let m = p.marker();
     let start = p.current_start();
 

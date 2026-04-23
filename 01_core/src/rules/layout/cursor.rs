@@ -16,7 +16,7 @@ use crate::entities::{
 use super::metrics::FontMetrics;
 
 impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S> {
-    pub(super) fn word_width(&self, word: &str) -> Pt {
+    fn word_width(&self, word: &str) -> Pt {
         self.metrics.advance(word, self.style.size)
     }
 

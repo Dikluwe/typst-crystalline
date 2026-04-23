@@ -8,6 +8,7 @@
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
 use super::{err, expect_no_named};
+use crate::entities::file_id::FileId;
 
 use crate::entities::args::Args;
 use crate::entities::source_result::SourceResult;
@@ -17,7 +18,7 @@ use crate::rules::eval::EvalContext;
 // ── `upper()` / `lower()` / `replace()` — motor map_text (Passo 67) ─────────
 
 /// `upper(str | content)` → texto em maiúsculas.
-pub fn native_upper(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_upper(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(s)] => Ok(Value::Str(s.to_uppercase())),
@@ -31,7 +32,7 @@ pub fn native_upper(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Val
 }
 
 /// `lower(str | content)` → texto em minúsculas.
-pub fn native_lower(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_lower(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(s)] => Ok(Value::Str(s.to_lowercase())),
@@ -47,7 +48,7 @@ pub fn native_lower(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Val
 /// `replace(fonte, padrão, substituição, count: N)` → string ou content com substituição.
 ///
 /// `count` é global ao documento: persiste entre nós de texto via `FnMut`.
-pub fn native_replace(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_replace(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     // Validar named args: apenas "count" é aceite.
     for key in args.named.keys() {
         if key.as_str() != "count" {

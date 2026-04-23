@@ -8,6 +8,7 @@
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
 use ecow::EcoString;
+use crate::entities::file_id::FileId;
 
 use super::expect_no_named;
 
@@ -21,7 +22,7 @@ use crate::rules::eval::EvalContext;
 // ── Sentinelas e construtores de nós estruturais (Passo 69) ─────────────────
 
 /// `strong(body)` — cria `Content::Strong` ou serve como selector em show rules.
-pub fn native_strong(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_strong(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
@@ -36,7 +37,7 @@ pub fn native_strong(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Va
 }
 
 /// `emph(body)` — cria `Content::Emph` ou serve como selector em show rules.
-pub fn native_emph(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_emph(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
@@ -52,7 +53,7 @@ pub fn native_emph(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
 
 /// `raw(text)` — cria `Content::Raw` ou serve como selector em show rules.
 /// Aceita apenas string — não faz sentido semântico aceitar Content aqui.
-pub fn native_raw(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_raw(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let text: EcoString = match args.items.first() {
         Some(Value::Str(s)) => s.clone(),
@@ -72,7 +73,7 @@ pub fn native_raw(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value
 ///
 /// A criação real de headings usa a sintaxe de markup `= Título`.
 /// Chamar `heading()` directamente retorna Err (DEBT-21).
-pub fn native_heading(_ctx: &mut EvalContext<'_>, _args: &Args) -> SourceResult<Value> {
+pub fn native_heading(_ctx: &mut EvalContext<'_>, _args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     Err(vec![SourceDiagnostic::error(
         Span::detached(),
         "heading() como função directa não suportada; use a sintaxe de markup `= Título`"

@@ -134,7 +134,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
 ///
 /// Retorna `true` se houver pelo menos um `MathAlignPoint` ou `Linebreak`.
 /// Se `false`, o layout linear existente é usado sem custo adicional.
-pub(super) fn needs_grid_layout(nodes: &[Content]) -> bool {
+fn needs_grid_layout(nodes: &[Content]) -> bool {
     nodes.iter().any(|c| matches!(c, Content::MathAlignPoint | Content::Linebreak))
 }
 
@@ -146,7 +146,7 @@ pub(super) fn needs_grid_layout(nodes: &[Content]) -> bool {
 ///   - dim 2: items da célula
 ///
 /// Células e linhas finais vazias são removidas.
-pub(super) fn partition_grid(nodes: &[Content]) -> Vec<Vec<Vec<Content>>> {
+fn partition_grid(nodes: &[Content]) -> Vec<Vec<Vec<Content>>> {
     let mut lines: Vec<Vec<Vec<Content>>> = vec![vec![vec![]]];
 
     for node in nodes {
@@ -199,6 +199,12 @@ pub(super) enum GridAlign {
     Left,
 }
 
+// Regra 3 (ADR-0037): os campos `pub(super)` abaixo são lidos por quase
+// todos os submódulos (`attach`, `root`, `frac`, `matrix`, `cases`, `stretchy`,
+// `assembly`, `delimited`). `metrics` é o acesso ao trait `FontMetrics`,
+// `constants` cachea as constantes OpenType MATH da fonte activa, `block`
+// controla display vs inline. São dados passivos — getters triplicariam
+// acessos sem invariante. Validado no Passo 97 (DEBT-47).
 pub struct MathLayouter<'a, M: FontMetrics> {
     pub(super) metrics:   &'a M,
     pub(super) constants: MathConstants,
@@ -328,7 +334,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         }
     }
 
-    pub(super) fn layout_sequence(&self, nodes: &[Content], style: &TextStyle) -> MathBox {
+    fn layout_sequence(&self, nodes: &[Content], style: &TextStyle) -> MathBox {
         if self.block && needs_grid_layout(nodes) {
             self.layout_grid(nodes, style)
         } else {
@@ -434,7 +440,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     ///
     /// Chama `layout_grid_rows` com alinhamento alternado (colunas pares à
     /// direita, ímpares à esquerda) e sem espaço entre colunas.
-    pub(super) fn layout_grid(&self, nodes: &[Content], style: &TextStyle) -> MathBox {
+    fn layout_grid(&self, nodes: &[Content], style: &TextStyle) -> MathBox {
         let grid = partition_grid(nodes);
         // Cada célula é Vec<Content> — envolver em MathSequence para layout_node.
         let rows: Vec<Vec<Content>> = grid.into_iter()

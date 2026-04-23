@@ -8,6 +8,7 @@
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
 use crate::entities::args::Args;
+use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -19,7 +20,7 @@ use crate::rules::eval::EvalContext;
 ///
 /// Primeira função com named arg documentado (não apenas tolerado).
 /// Prova de que o mecanismo de named args (DEBT-16) funciona de ponta a ponta.
-pub fn native_assert(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_assert(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     // Validar named args: apenas "message" é aceite.
     for key in args.named.keys() {
         if key.as_str() != "message" {

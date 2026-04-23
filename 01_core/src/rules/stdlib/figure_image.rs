@@ -8,6 +8,7 @@
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
 use crate::entities::args::Args;
+use crate::entities::file_id::FileId;
 use crate::entities::content::Content;
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::span::Span;
@@ -22,7 +23,8 @@ use crate::rules::eval::EvalContext;
 ///
 /// - `body`: argumento posicional obrigatório.
 /// - `caption:`: argumento nomeado opcional; `none` → sem legenda.
-pub fn native_figure(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_figure(ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let _ = ctx;
     // Argumento posicional: body (obrigatório)
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
@@ -50,7 +52,7 @@ pub fn native_figure(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Val
 
     // Numeração capturada do contexto (Passo 75, DEBT-14).
     // Reflecte o estado activo de `#set figure(numbering: ...)` no momento da chamada.
-    let numbering = ctx.figure_numbering.clone();
+    let numbering = figure_numbering.map(str::to_string);
 
     Ok(Value::Content(Content::Figure {
         body: Box::new(body),
@@ -67,7 +69,7 @@ pub fn native_figure(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Val
 /// Lê os bytes do ficheiro através de `ctx.world.read_bytes(path)`.
 /// `width` e `height` são preservados no AST para o Passo 72 (dimensões reais).
 /// O layouter usa placeholder 100×100 pt neste passo (DEBT-24b).
-pub fn native_image(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_image(ctx: &mut EvalContext<'_>, args: &Args, current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     // Validar named args: apenas "width" e "height" são aceites.
     for key in args.named.keys() {
         if key.as_str() != "width" && key.as_str() != "height" {
@@ -90,7 +92,7 @@ pub fn native_image(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
         )]),
     };
 
-    let data = match ctx.world.read_bytes(ctx.current_file, &path) {
+    let data = match ctx.world.read_bytes(current_file, &path) {
         Ok(arc) => arc,
         Err(msg) => return Err(vec![SourceDiagnostic::error(
             Span::detached(),
