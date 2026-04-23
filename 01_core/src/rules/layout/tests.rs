@@ -1663,3 +1663,139 @@ mod tests_set_rule_integration {
             "'normal' não deve ter bold: {:?}", items);
     }
 }
+
+// ── Passo 103.D: Integração `#show` end-to-end ────────────────────────────
+
+#[cfg(test)]
+mod tests_show_rule_integration {
+    use super::*;
+    use crate::{
+        contracts::world::World,
+        entities::{
+            file_id::FileId,
+            font_book::FontBook,
+            layout_types::FrameItem,
+            source::Source,
+            world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+        },
+        rules::eval::eval_for_test,
+    };
+    use std::num::NonZeroU16;
+
+    struct MockWorld {
+        library: Library,
+        book:    FontBook,
+        source:  Source,
+    }
+
+    impl MockWorld {
+        fn new(text: &str) -> Self {
+            let id = FileId::from_raw(NonZeroU16::new(1).unwrap());
+            Self {
+                library: Library::new(),
+                book:    FontBook::new(),
+                source:  Source::new(id, text.to_string()),
+            }
+        }
+    }
+
+    impl World for MockWorld {
+        fn library(&self) -> &Library  { &self.library }
+        fn book(&self)    -> &FontBook { &self.book }
+        fn main(&self)    -> FileId    { self.source.id() }
+        fn source(&self, _: FileId) -> FileResult<Source> { Ok(self.source.clone()) }
+        fn file(&self, _: FileId)    -> FileResult<Bytes>   { Err(FileError::NotFound) }
+        fn font(&self, _: usize)     -> Option<Font>        { None }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+    }
+
+    fn layout_typst(source: &str) -> PagedDocument {
+        let world = MockWorld::new(source);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("content");
+        let state = introspect(content);
+        layout(content, state)
+    }
+
+    fn plain_text(doc: &PagedDocument) -> String {
+        doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.to_string()),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+            .join(" ")
+    }
+
+    /// `#show heading: it => upper(it.body)` transforma headings em UPPERCASE.
+    /// Valida end-to-end: parse → eval → apply_show_rules → Content → layout → FrameItem.
+    #[test]
+    fn show_heading_transforma_em_uppercase() {
+        let doc = layout_typst("#show heading: it => upper(it.body)\n\n= Intro");
+        let text = plain_text(&doc);
+        assert!(text.contains("INTRO"),
+            "esperado 'INTRO' no output após show heading upper: {:?}", text);
+    }
+
+    /// `#show strong: it => upper(it.body)` transforma `*bold*` em UPPERCASE.
+    #[test]
+    fn show_strong_transforma() {
+        let doc = layout_typst("#show strong: upper\n*alvo*");
+        let text = plain_text(&doc);
+        assert!(text.contains("ALVO"),
+            "esperado 'ALVO' após show strong upper: {:?}", text);
+    }
+
+    /// `#show emph: it => lower(it.body)` transforma `_italic_` em lowercase.
+    #[test]
+    fn show_emph_transforma() {
+        let doc = layout_typst("#show emph: lower\n_TIPO_");
+        let text = plain_text(&doc);
+        assert!(text.contains("tipo"),
+            "esperado 'tipo' após show emph lower: {:?}", text);
+    }
+
+    /// Regressão: sem `#show`, `*bold*` continua bold; `= heading` continua
+    /// heading. Confirma que os show rules não interferem quando ausentes.
+    #[test]
+    fn regressao_sem_show_mantem_comportamento() {
+        let doc = layout_typst("*bold* and _italic_");
+        let items: Vec<_> = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|i| match i {
+                FrameItem::Text { text, style, .. } =>
+                    Some((text.to_string(), style.bold, style.italic)),
+                _ => None,
+            })
+            .collect();
+        // Deve existir pelo menos um item com bold e outro com italic.
+        assert!(items.iter().any(|(t, b, _)| t == "bold" && *b),
+            "esperado 'bold' com style.bold=true: {:?}", items);
+        assert!(items.iter().any(|(t, _, i)| t == "italic" && *i),
+            "esperado 'italic' com style.italic=true: {:?}", items);
+    }
+
+    /// **Documenta dívida latente (DEBT-50)**: `#show strong` apanha `Content::Styled`
+    /// com `Style::Bold(true)`. Hoje, `#set text(bold: true)` **não** produz
+    /// `Content::Styled` (bake-in em `Content::Text`), portanto a dívida está
+    /// **adormecida** — o selector Strong NÃO apanha texto afectado por #set text.
+    /// Este teste garante esse comportamento actual; se um passo futuro migrar
+    /// `#set text` para wrapping, este teste falha e o DEBT-50 torna-se accionável.
+    #[test]
+    fn debt_50_show_strong_nao_apanha_set_text_bold_porque_bake_in() {
+        let doc = layout_typst("#show strong: it => [HIT]\n#set text(bold: true)\ntexto");
+        let text = plain_text(&doc);
+        // `#set text(bold: true)` produz `Content::Text("texto", { bold: true })`,
+        // NÃO `Content::Styled(.., [Bold(true)])`. O selector strong só casa
+        // `Content::Styled`, portanto NÃO dispara.
+        // Esperado: "texto" sem "HIT".
+        assert!(!text.contains("HIT"),
+            "DEBT-50: enquanto `#set text` usar bake-in, selector Strong NÃO deve \
+             disparar por `#set text(bold: true)`. Se este teste falhar, o Passo \
+             que migrou `#set text` para wrapping deve activar DEBT-50: {:?}", text);
+        assert!(text.contains("texto"),
+            "'texto' deve aparecer no output: {:?}", text);
+    }
+}
