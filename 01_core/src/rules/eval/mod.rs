@@ -151,11 +151,21 @@ pub fn eval(
     _routines: &Routines,
     world: &dyn World,
     _traced: Tracked<Traced>,
-    _sink: TrackedMut<Sink>,
+    mut sink: TrackedMut<Sink>,
     _route: Tracked<Route>,
     source: &Source,
 ) -> SourceResult<Module> {
     let root = source.root();
+
+    // Passo 106 (ADR-0043): canal de warnings activo. Pilot: emitir nota
+    // quando o ficheiro fonte está vazio. Prova de vida do canal — o
+    // caller lê `sink.into_diagnostics()` após este retorno.
+    if source.text().is_empty() {
+        sink.warn_note(
+            crate::entities::span::Span::detached(),
+            "ficheiro vazio: sem conteúdo",
+        );
+    }
 
     let mut ctx = EvalContext::new(world);
 

@@ -782,57 +782,61 @@ DEBT quando o suporte for activado.
 
 ---
 
-## DEBT-51 — Warnings do `Sink` não chegam ao caller L3/CLI — EM ABERTO (Passo 104)
-
-Aberto pelo Passo 104 (ADR-0042). Lacuna estrutural na
-integração entre L1 e L3.
-
-### Contexto
-
-Passo 104 materializou `Sink` em L1 com API
-`warn/is_empty/into_diagnostics`. `eval()` recebe
-`_sink: TrackedMut<Sink>` desde o Passo 12 — mas o
-`TrackedMut<Sink>` é:
-
-1. Criado pelo caller (L3 / CLI / tests).
-2. Passado por `eval()`.
-3. Nunca lido de volta.
-
-### Consequência
-
-Mesmo quando consumidores forem migrados (DEBT-49 a avançar),
-os warnings acumulam no `Sink` mas **não têm caminho para o
-utilizador**. O CLI (03_infra / 04_wiring) não chama
-`into_diagnostics` nem sabe que o Sink foi populado.
-
-### Critério de conclusão
-
-- [ ] Decidir o canal de saída:
-   1. **Return: `(Module, Vec<SourceDiagnostic>)`** — `eval` retorna
-      tuplo; caller lê warnings após sucesso. Requer alterar a
-      assinatura pública do `eval`.
-   2. **`TrackedMut<Sink>` lido pelo caller** — caller mantém
-      `let mut sink = Sink::new(); eval(..., sink.track_mut(), ...);
-      let warnings = sink.into_diagnostics();`. Não altera a
-      assinatura.
-- [ ] Implementar o canal escolhido.
-- [ ] L3/CLI chama `into_diagnostics` após cada compilação.
-- [ ] Warnings chegam ao utilizador (stderr, painel do editor, etc.)
-  — formato de apresentação decidido em passo separado.
-- [ ] Teste de integração L1→L3 confirma que warnings emitidos em
-  L1 aparecem no caller.
-
-### Dependências
-
-- Preferência: opção 2 (caller-managed Sink) — preserva a
-  assinatura actual de `eval` e alinha com o padrão comemo.
-- Bloqueia o valor prático do DEBT-49 — migrar consumidores só é
-  útil quando os warnings chegam a alguém.
-
----
 
 
 ## Secção 2 — DEBTs encerrados
+
+## DEBT-51 — Warnings do `Sink` não chegam ao caller L3/CLI — ENCERRADO (Passo 106) ✓
+
+Aberto pelo Passo 104 (ADR-0042). **Encerrado no Passo 106** (ADR-0043).
+
+### Contexto
+
+Passo 104 materializou `Sink` em L1 mas os warnings acumulavam sem
+caminho para o caller. `TrackedMut<Sink>` em `eval()` nunca era
+lido.
+
+### Encerramento (Passo 106)
+
+Decisão: **Opção 2 — TrackedMut caller-managed** (assinatura de
+`eval()` preservada; caller constrói `Sink`, passa
+`sink.track_mut()`, e lê `sink.into_diagnostics()` após retorno).
+
+Mudanças aplicadas:
+
+- [x] Canal decidido (opção 2) e registado em ADR-0043.
+- [x] Método tracked `Sink::warn_note(span, &str)` adicionado ao
+      bloco `#[comemo::track] impl Sink` para permitir emissão via
+      `TrackedMut<Sink>` sem propagação interna.
+- [x] `Sink` ganhou `#[derive(Clone)]` (requisito de comemo para
+      tracked mutations).
+- [x] `eval()` emite micro-piloto: `sink.warn_note(...,
+      "ficheiro vazio: sem conteúdo")` quando `source.text().is_empty()`.
+- [x] `03_infra/integration_tests.rs` ganhou `do_eval_with_sink` que
+      drena `sink.into_diagnostics()` após retorno, e
+      `drain_warnings_to_stderr` com formato mínimo
+      `"warning: <Span-debug> <message>"`.
+- [x] 4 testes L3 integrados:
+      `sink_canal_emite_warning_para_ficheiro_vazio`,
+      `sink_canal_vazio_quando_sem_trigger`,
+      `sink_canal_formato_minimo`,
+      `sink_canal_cada_run_tem_proprio_sink`.
+- [x] `cargo test --workspace`: L1 inalterado (803), L3 **178** (+4).
+- [x] `crystalline-lint`: zero violations.
+- [x] ADR-0043 `EM VIGOR`.
+
+### Lacunas residuais (trabalho futuro, não bloqueiam DEBT-51)
+
+- **Formato rico**: `Span` imprime-se como `Span(N)` opaco. Resolver
+  para linha/coluna via `Source` é trabalho de passo dedicado.
+- **CLI real**: `04_wiring/src/main.rs` continua stub. Quando uma
+  CLI com argumentos for materializada, o padrão `do_eval_with_sink`
+  + `drain_warnings_to_stderr` serve de referência directa.
+- **DEBT-49 valor prático**: agora que o canal existe, migrar os
+  sítios silenciados em `eval_set_rule` traz benefício imediato.
+  DEBT-49 continua aberto mas desbloqueado.
+
+---
 
 ## DEBT-48 — Substituir `TextStyle` plano por `StyleChain` no Layouter e export — ENCERRADO (Passo 100) ✓
 
