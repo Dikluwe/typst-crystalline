@@ -538,8 +538,22 @@ uma posição:
       156 linhas (só entry points + declarações de submódulos
       + testes); nenhum submódulo excede 800 linhas. L1 tests:
       746 → 748 (+2 smoke tests em parser.rs para satisfazer V2).
-- [ ] `stdlib.rs` reestruturado por módulo da stdlib (text,
-      layout, math, calc, etc.). (Passo 96.5)
+- [x] `stdlib.rs` reestruturado por módulo da stdlib (text,
+      layout, math, calc, etc.). **Passo 96.5 concluído** —
+      9 submódulos criados: `foundations` (~188 linhas: type,
+      len, rgb, luma, range, str, int, float), `calc` (~194:
+      make_calc_module + 9 calc_*), `text` (~104: upper, lower,
+      replace), `assert` (~60), `structural` (~84: strong, emph,
+      raw, heading), `figure_image` (~105), `shapes` (~272:
+      parse_color + rect/ellipse/circle/line/polygon), `transforms`
+      (~87: move/rotate/scale), `layout` (~197: align/place/grid/
+      page). `mod.rs` ficou em ~617 linhas (helpers `err`/
+      `expect_no_named` + `mod` + `pub use` re-exports + tests).
+      Re-exports de `pub use crate::rules::stdlib::<submod>::*`
+      preservam os paths consumidos por `make_stdlib` em
+      `eval/mod.rs` — zero alterações em eval. L1 tests: 748 → 748
+      (comportamento idêntico). Nenhum submódulo acima de 800
+      linhas.
 - [ ] `layout/mod.rs` reestruturado (orquestração, medição,
       emissão, sub-frames). (Passo 96.6)
 - [ ] `math/layout.rs` reestruturado ou marcado como excepção
