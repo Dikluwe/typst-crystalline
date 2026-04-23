@@ -9,20 +9,18 @@
 
 use std::sync::Arc;
 
-use comemo::{Tracked, TrackedMut};
-
 use crate::entities::args::Args;
-use crate::entities::file_id::FileId;
 use crate::entities::ast::AstNode;
 use crate::entities::ast::code::{SetRule, ShowRule as ShowRuleNode};
 use crate::entities::ast::expr::Arg;
 use crate::entities::content::Content;
-use crate::entities::show::{NodeKind, RuleId, Selector, ShowRule};
+use crate::entities::engine::Engine;
+use crate::entities::show::{NodeKind, Selector, ShowRule};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
-use crate::entities::style_chain::{StyleChain, StyleDelta};
+use crate::entities::style_chain::StyleDelta;
 use crate::entities::value::Value;
-use crate::entities::world_types::{check_show_depth as route_check_show_depth, Route, Sink};
+use crate::entities::world_types::check_show_depth as route_check_show_depth;
 use crate::rules::scopes::Scopes;
 
 use super::{closures, eval_expr, EvalContext};
@@ -52,17 +50,11 @@ fn unsupported_target_warn(target: &str) -> (String, String) {
 /// `active_guards` (anti-recursão por rule ID — DEBT-20 encerrado).
 ///
 /// Text rules: aplicadas separadamente via `map_text` após a travessia principal.
-pub(crate) fn apply_show_rules<'r>(
+pub(crate) fn apply_show_rules(
     mut content: Content,
     rules: &[ShowRule],
-    ctx: &mut EvalContext<'_>,
-    route: Tracked<'r, Route<'r>>,
-    styles: &mut StyleChain,
-    show_rules: &mut Arc<[ShowRule]>,
-    active_guards: &mut Vec<RuleId>,
-    current_file: FileId,
-    figure_numbering: &mut Option<String>,
-    sink: &mut TrackedMut<'_, Sink>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
     if rules.is_empty() {
         return Ok(content);
@@ -71,7 +63,7 @@ pub(crate) fn apply_show_rules<'r>(
     // Limite de aninhamento vanilla (MAX_SHOW_RULE_DEPTH = 64) —
     // paridade com `typst-realize/src/lib.rs:402` (ADR-0033).
     // Pago parcial do DEBT-45 no Passo 93.
-    route_check_show_depth(route)?;
+    route_check_show_depth(engine.route)?;
 
     // Separar regras por tipo para travessias distintas.
     let has_node_rules = rules.iter().any(|r| matches!(r.selector, Selector::NodeKind(_)));
@@ -86,7 +78,7 @@ pub(crate) fn apply_show_rules<'r>(
         let mut apply_all = |node: &Content| -> SourceResult<Option<Content>> {
             for rule in &node_rules {
                 // Saltar se esta regra está actualmente em execução (anti-recursão).
-                if active_guards.contains(&rule.id) {
+                if engine.active_guards.contains(&rule.id) {
                     continue;
                 }
 
@@ -119,9 +111,9 @@ pub(crate) fn apply_show_rules<'r>(
                 match &rule.transform {
                     Value::Func(func) => {
                         let args = Args::positional(vec![Value::Content(node.clone())]);
-                        active_guards.push(rule.id);
-                        let call_result = closures::apply_func(func.clone(), args, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink);
-                        active_guards.pop();
+                        engine.active_guards.push(rule.id);
+                        let call_result = closures::apply_func(func.clone(), args, ctx, engine);
+                        engine.active_guards.pop();
                         return match call_result? {
                             Value::Content(c) => Ok(Some(c)),
                             Value::Str(s)     => Ok(Some(Content::text(s.as_str()))),
@@ -171,42 +163,30 @@ pub(crate) fn apply_show_rules<'r>(
 /// Anti-recursão via `active_guards` (stack de RuleId) em vez de booleano global.
 /// Permite composição entre regras distintas; snapshot explícito evita borrow
 /// conflict durante a travessia (DEBT-22).
-pub(crate) fn intercept_content<'r>(
+pub(crate) fn intercept_content(
     content: Content,
-    ctx: &mut EvalContext<'_>,
-    route: Tracked<'r, Route<'r>>,
-    styles: &mut StyleChain,
-    show_rules: &mut Arc<[ShowRule]>,
-    active_guards: &mut Vec<RuleId>,
-    current_file: FileId,
-    figure_numbering: &mut Option<String>,
-    sink: &mut TrackedMut<'_, Sink>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
-    if show_rules.is_empty() {
+    if engine.show_rules.is_empty() {
         return Ok(content);
     }
 
     // Passo 84.4 (encerra DEBT-22): snapshot Arc::clone — O(1) refcount.
     // O slice partilhado permite iterar sobre uma cópia estável enquanto
-    // `show_rules` (parâmetro `&mut`) pode ser reatribuído por nested
-    // `#show` rules sem interferência durante a travessia.
-    let rules = Arc::clone(show_rules);
-    apply_show_rules(content, &rules, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)
+    // `engine.show_rules` pode ser reatribuído por nested `#show` rules
+    // sem interferência durante a travessia.
+    let rules = Arc::clone(&*engine.show_rules);
+    apply_show_rules(content, &rules, ctx, engine)
 }
 
 // ── Dispatcher arms: SetRule / ShowRule (Passo 96.2, ADR-0037 Regra 4) ────
 
-pub(super) fn eval_set_rule<'r>(
+pub(super) fn eval_set_rule(
     set: SetRule<'_>,
     scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext<'_>,
-    route: Tracked<'r, Route<'r>>,
-    styles: &mut StyleChain,
-    show_rules: &mut Arc<[ShowRule]>,
-    active_guards: &mut Vec<RuleId>,
-    current_file: FileId,
-    figure_numbering: &mut Option<String>,
-    sink: &mut TrackedMut<'_, Sink>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     // Extrair target — deve ser um Ident (ex: "text").
     // Targets suportados: heading, page, figure, text. Outros emitem
@@ -222,7 +202,7 @@ pub(super) fn eval_set_rule<'r>(
                 if named.name().as_str() == "numbering" {
                     // Defensivo: só String activa a numeração.
                     // Closures, none, ou outros tipos → ignorar.
-                    let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink).unwrap_or(Value::None);
+                    let val = eval_expr(named.expr(), scopes, ctx, engine).unwrap_or(Value::None);
                     return matches!(val, Value::Str(_));
                 }
             }
@@ -248,7 +228,7 @@ pub(super) fn eval_set_rule<'r>(
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 let key = named.name().as_str();
-                let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink).unwrap_or(Value::None);
+                let val = eval_expr(named.expr(), scopes, ctx, engine).unwrap_or(Value::None);
                 match key {
                     "width"  => width  = extract_pt(&val),
                     "height" => height = extract_pt(&val),
@@ -262,13 +242,12 @@ pub(super) fn eval_set_rule<'r>(
 
     if target == "figure" {
         // #set figure(numbering: "1") — activa numeração automática de figuras (Passo 75, DEBT-14).
-        // Passo 98 (ADR-0036): `figure_numbering` deixou de ser campo do ctx;
-        // passou a ser `&mut Option<String>` propagado como parâmetro.
-        let mut new_numbering = figure_numbering.clone();
+        // Passo 109 (ADR-0044): `figure_numbering` agora é campo de `Engine`.
+        let mut new_numbering = engine.figure_numbering.clone();
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 if named.name().as_str() == "numbering" {
-                    let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink).unwrap_or(Value::None);
+                    let val = eval_expr(named.expr(), scopes, ctx, engine).unwrap_or(Value::None);
                     new_numbering = match val {
                         Value::Str(s) => Some(s.to_string()),
                         Value::None   => None,
@@ -277,7 +256,7 @@ pub(super) fn eval_set_rule<'r>(
                 }
             }
         }
-        *figure_numbering = new_numbering.clone();
+        *engine.figure_numbering = new_numbering.clone();
         return Ok(Value::Content(Content::SetFigureNumbering {
             pattern: new_numbering.unwrap_or_default(),
         }));
@@ -285,7 +264,7 @@ pub(super) fn eval_set_rule<'r>(
 
     if target != "text" {
         let (msg, hint) = unsupported_target_warn(&target);
-        sink.warn_note(target_span, &msg, &hint);
+        engine.sink.warn_note(target_span, &msg, &hint);
         return Ok(Value::None);
     }
 
@@ -294,7 +273,7 @@ pub(super) fn eval_set_rule<'r>(
     for arg in set.args().items() {
         if let Arg::Named(named) = arg {
             let key = named.name().as_str().to_owned();
-            let val = eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
+            let val = eval_expr(named.expr(), scopes, ctx, engine)?;
             match key.as_str() {
                 "bold" => {
                     if let Value::Bool(b) = val { delta.bold = Some(b); }
@@ -321,28 +300,22 @@ pub(super) fn eval_set_rule<'r>(
                     // serem silenciadas. O span do argumento permite ao
                     // utilizador localizar a propriedade exacta.
                     let (msg, hint) = unsupported_property_warn("text", &key);
-                    sink.warn_note(named.name().to_untyped().span(), &msg, &hint);
+                    engine.sink.warn_note(named.name().to_untyped().span(), &msg, &hint);
                 }
             }
         }
     }
 
-    // Mutação persistente do styles propagado (Passo 94).
-    *styles = styles.push(delta);
+    // Mutação persistente do styles propagado (Passo 94; agora via Engine).
+    *engine.styles = engine.styles.push(delta);
     Ok(Value::None)
 }
 
-pub(super) fn eval_show_rule<'r>(
+pub(super) fn eval_show_rule(
     show_rule: ShowRuleNode<'_>,
     scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext<'_>,
-    route: Tracked<'r, Route<'r>>,
-    styles: &mut StyleChain,
-    show_rules: &mut Arc<[ShowRule]>,
-    active_guards: &mut Vec<RuleId>,
-    current_file: FileId,
-    figure_numbering: &mut Option<String>,
-    sink: &mut TrackedMut<'_, Sink>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     // Avaliar o selector — pode ser uma string ou uma função da stdlib.
     // `selector()` retorna `Option<Expr>` — None significa selector omitido (não suportado).
@@ -352,7 +325,7 @@ pub(super) fn eval_show_rule<'r>(
             "show rule requer um selector".to_string(),
         )]),
         Some(sel_expr) => {
-            let selector_val = eval_expr(sel_expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
+            let selector_val = eval_expr(sel_expr, scopes, ctx, engine)?;
             match selector_val {
                 Value::Str(s) => Selector::Text(s.to_string()),
                 Value::Func(ref f) => {
@@ -371,15 +344,15 @@ pub(super) fn eval_show_rule<'r>(
                         native_emph, native_raw,
                     };
                     match f.native_fn_addr() {
-                        Some(addr) if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_heading as fn(_, _, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Heading),
-                        Some(addr) if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_figure as fn(_, _, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Figure),
-                        Some(addr) if fn_addr_eq(addr, native_strong as fn(_, _, _, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_strong as fn(_, _, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Strong),
-                        Some(addr) if fn_addr_eq(addr, native_emph as fn(_, _, _, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_emph as fn(_, _, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Emph),
-                        Some(addr) if fn_addr_eq(addr, native_raw as fn(_, _, _, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_raw as fn(_, _, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Raw),
                         Some(_) => return Err(vec![SourceDiagnostic::error(
                             sel_expr.span(),
@@ -406,13 +379,13 @@ pub(super) fn eval_show_rule<'r>(
     };
 
     // Avaliar a transformação (closure ou valor estático).
-    let transform = eval_expr(show_rule.transform(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
+    let transform = eval_expr(show_rule.transform(), scopes, ctx, engine)?;
     let id = ctx.next_rule_id;
     ctx.next_rule_id += 1;
-    // Reconstruir o slice com a nova regra (atomização Passo 95:
-    // `show_rules` é parâmetro; mutação local ao bloco via `&mut`).
-    let mut rules = show_rules.to_vec();
+    // Reconstruir o slice com a nova regra (Passo 95 + 109: show_rules
+    // é campo do Engine, mutação local via &mut).
+    let mut rules = engine.show_rules.to_vec();
     rules.push(ShowRule { id, selector, transform });
-    *show_rules = Arc::from(rules);
+    *engine.show_rules = Arc::from(rules);
     Ok(Value::None)
 }

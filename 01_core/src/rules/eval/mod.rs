@@ -20,6 +20,7 @@ use comemo::{Tracked, TrackedMut};
 use ecow::EcoString;
 
 use crate::contracts::world::World;
+use crate::entities::engine::Engine;
 use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
@@ -30,7 +31,6 @@ use crate::entities::ast::expr::{ArrayItem, Expr};
 #[cfg(test)]
 use crate::entities::ast::expr::{BinOp, UnOp};
 use crate::entities::ast::markup::Label as AstLabel;
-use crate::entities::file_id::FileId;
 use crate::entities::layout_types::TextStyle;
 use crate::entities::style_chain::StyleChain;
 use crate::entities::syntax_kind::SyntaxKind;
@@ -83,11 +83,7 @@ mod modules;
 /// (`let mut local_styles = styles.clone()` ou `styles.push(delta)`),
 /// eliminando o antigo par save/restore sobre um campo partilhado.
 /// Segunda aplicação concreta da ADR-0036.
-pub struct EvalContext<'w> {
-    // ADR-0036 Regra 4: handle externo (`dyn World`) — fonte de I/O do eval,
-    // sempre accessível em qualquer etapa sem fluxo de threading.
-    #[allow(dead_code)] // usado quando `import` for implementado (Passo futuro)
-    pub world: &'w dyn World,
+pub struct EvalContext {
     // ADR-0036 Regra 4: contador monotónico global — limite de segurança
     // anti-loop-bombing, independente do fluxo de controlo.
     pub loop_iterations: usize,
@@ -98,21 +94,20 @@ pub struct EvalContext<'w> {
     // — gera valores únicos durante a sessão de eval, não depende de fluxo.
     //
     // Ficaram fora do contexto em passos anteriores (todos como parâmetros
-    // explícitos das funções `eval_*`):
+    // explícitos das funções `eval_*`, agora agregados em `Engine<'a>` no
+    // Passo 109, ADR-0044):
+    // - `world` (Passo 109) — `&'a dyn World` em `Engine`.
     // - `route` (Passo 92) — `Tracked<'r, Route<'r>>`.
     // - `styles` (Passo 94) — `&mut StyleChain`.
-    // - `show_rules` + `active_guards` (Passo 95) — `&mut Arc<[ShowRule]>` e
-    //   `&mut Vec<RuleId>`.
-    // - `current_file` + `figure_numbering` (Passo 98) — `FileId` e
-    //   `&mut Option<String>` parâmetros; o ABI de NativeFunc recebe-os como
-    //   argumentos (`Option<&str>` read-only para figure_numbering).
+    // - `show_rules` + `active_guards` (Passo 95).
+    // - `current_file` + `figure_numbering` (Passo 98).
+    // - `sink` (Passo 107).
     pub next_rule_id: crate::entities::show::RuleId,
 }
 
-impl<'w> EvalContext<'w> {
-    pub fn new(world: &'w dyn World) -> Self {
+impl EvalContext {
+    pub fn new() -> Self {
         Self {
-            world,
             loop_iterations: 0,
             max_loop_iterations: 1_000_000,
             next_rule_id: 0,
@@ -168,30 +163,14 @@ pub fn eval(
         );
     }
 
-    let mut ctx = EvalContext::new(world);
+    let mut ctx = EvalContext::new();
 
     // Route raiz com o FileId do ficheiro principal — primeira aplicação da
-    // ADR-0036 (atomização progressiva, Passo 92): `Route<'a>` propagado por
-    // `Tracked<'_, Route>` (covariante) entre frames em vez de `Vec<FileId>`
-    // partilhado no contexto.
+    // ADR-0036 (Passo 92), agora campo do Engine (ADR-0044, Passo 109).
     let route = Route::root().with_id(source.id());
-
-    // Segunda aplicação da ADR-0036 (Passo 94): `StyleChain` local ao
-    // entry-point, propagado como `&mut StyleChain` às funções `eval_*`.
-    // Eliminou o campo `styles` de `EvalContext` e o par save/restore.
     let mut styles = StyleChain::default_chain();
-
-    // Terceira aplicação da ADR-0036 (Passo 95): `show_rules` (via
-    // `&mut Arc<[ShowRule]>`) e `active_guards` (via `&mut Vec<RuleId>`)
-    // também extraídos do contexto. Cada bloco cria cópias locais que
-    // isolam mutações (`#show` e anti-recursão de show rules).
     let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
     let mut active_guards: Vec<RuleId> = Vec::new();
-
-    // Quarta aplicação da ADR-0036 (Passo 98, fecha ADR-0036 para EvalContext):
-    // `current_file` (Passo 75) propagado como `FileId` (Copy, cheap) e
-    // `figure_numbering` (Passo 75, DEBT-14) como `&mut Option<String>`.
-    // Native functions recebem os mesmos valores via ABI alargado.
     let current_file = source.id();
     let mut figure_numbering: Option<String> = None;
 
@@ -203,17 +182,27 @@ pub fn eval(
     }
     scopes.enter();  // âmbito do módulo
 
+    // ADR-0044 (Passo 109): agregar os 8 campos num `Engine<'_>` e passar
+    // `&mut engine` às funções internas em vez de 8 parâmetros individuais.
+    // Reborrow do `sink` encurta o lifetime inner do `TrackedMut` ao da
+    // stack frame local, permitindo que `Engine<'a>` tenha um único `'a`.
+    let mut local_sink = TrackedMut::reborrow_mut(&mut sink);
+    let mut engine = Engine {
+        world,
+        route: route.track(),
+        styles: &mut styles,
+        show_rules: &mut show_rules,
+        active_guards: &mut active_guards,
+        current_file,
+        figure_numbering: &mut figure_numbering,
+        sink: &mut local_sink,
+    };
+
     let content_val = eval_markup(
         root,
         &mut scopes,
         &mut ctx,
-        route.track(),
-        &mut styles,
-        &mut show_rules,
-        &mut active_guards,
-        current_file,
-        &mut figure_numbering,
-        &mut sink,
+        &mut engine,
     )?;
 
     let module_scope = scopes.exit();
@@ -229,17 +218,11 @@ pub fn eval(
     Ok(module)
 }
 
-fn eval_markup<'r>(
+fn eval_markup(
     node: &SyntaxNode,
     scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext<'_>,
-    route: Tracked<'r, Route<'r>>,
-    styles: &mut StyleChain,
-    show_rules: &mut Arc<[ShowRule]>,
-    active_guards: &mut Vec<RuleId>,
-    current_file: FileId,
-    figure_numbering: &mut Option<String>,
-    sink: &mut TrackedMut<'_, Sink>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let mut parts: Vec<Content> = Vec::new();
 
@@ -247,10 +230,10 @@ fn eval_markup<'r>(
         match child.kind() {
             SyntaxKind::Text => {
                 // Capturar o estilo activo no momento da produção (Passo 30).
-                let style = TextStyle::from(&*styles);
+                let style = TextStyle::from(&*engine.styles);
                 let text_node = Content::Text(child.text().as_str().into(), style);
                 // Intercepção eager para Selector::Text (Passo 68).
-                parts.push(rules::intercept_content(text_node, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?);
+                parts.push(rules::intercept_content(text_node, ctx, engine)?);
             }
             SyntaxKind::Space | SyntaxKind::Parbreak => parts.push(Content::Space),
             k if k.is_trivia() => continue,
@@ -279,10 +262,10 @@ fn eval_markup<'r>(
             }
             _ => {
                 if let Some(expr) = Expr::from_untyped(child) {
-                    match eval_expr(expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)? {
+                    match eval_expr(expr, scopes, ctx, engine)? {
                         Value::Content(c) => parts.push(c),
                         Value::Str(s)     => {
-                            let style = TextStyle::from(&*styles);
+                            let style = TextStyle::from(&*engine.styles);
                             parts.push(Content::Text(s, style));
                         }
                         Value::None       => {}
@@ -296,17 +279,11 @@ fn eval_markup<'r>(
     Ok(Value::Content(Content::sequence(parts)))
 }
 
-fn eval_expr<'r>(
+fn eval_expr(
     expr: Expr<'_>,
     scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext<'_>,
-    route: Tracked<'r, Route<'r>>,
-    styles: &mut StyleChain,
-    show_rules: &mut Arc<[ShowRule]>,
-    active_guards: &mut Vec<RuleId>,
-    current_file: FileId,
-    figure_numbering: &mut Option<String>,
-    sink: &mut TrackedMut<'_, Sink>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     match expr {
         Expr::Int(node)   => Ok(Value::Int(node.get())),
@@ -326,57 +303,83 @@ fn eval_expr<'r>(
                 )])
         }
 
-        Expr::LetBinding(binding) => bindings::eval_let(binding, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
+        Expr::LetBinding(binding) => bindings::eval_let(binding, scopes, ctx, engine),
 
         Expr::CodeBlock(code_block) => {
             // Bloco de código — styles e show_rules locais (atomização
             // Passos 94 e 95). `#set`/`#show` dentro do bloco mutam as
-            // cópias locais mas não afectam o chamador.
-            let mut local_styles = styles.clone();
-            let mut local_show_rules = Arc::clone(show_rules);
+            // cópias locais mas não afectam o chamador. Engine
+            // reconstruído localmente (ADR-0044, Passo 109).
+            let mut local_styles = engine.styles.clone();
+            let mut local_show_rules = Arc::clone(engine.show_rules);
+            let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
             let mut last = Value::None;
-            for expr in code_block.body().exprs() {
-                last = eval_expr(expr, scopes, ctx, route, &mut local_styles, &mut local_show_rules, active_guards, current_file, figure_numbering, sink)?;
+            {
+                let mut local_engine = Engine {
+                    world: engine.world,
+                    route: engine.route,
+                    styles: &mut local_styles,
+                    show_rules: &mut local_show_rules,
+                    active_guards: &mut *engine.active_guards,
+                    current_file: engine.current_file,
+                    figure_numbering: &mut *engine.figure_numbering,
+                    sink: &mut local_sink,
+                };
+                for expr in code_block.body().exprs() {
+                    last = eval_expr(expr, scopes, ctx, &mut local_engine)?;
+                }
             }
             Ok(last)
         }
 
         Expr::Binary(binary) => {
-            let lhs = eval_expr(binary.lhs(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
-            let rhs = eval_expr(binary.rhs(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
+            let lhs = eval_expr(binary.lhs(), scopes, ctx, engine)?;
+            let rhs = eval_expr(binary.rhs(), scopes, ctx, engine)?;
             operators::eval_binary_op(binary.op(), lhs, rhs)
                 .map_err(|msg| vec![SourceDiagnostic::error(binary.span(), msg)])
         }
 
         Expr::Unary(unary) => {
-            let operand = eval_expr(unary.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
+            let operand = eval_expr(unary.expr(), scopes, ctx, engine)?;
             operators::eval_unary_op(unary.op(), operand)
                 .map_err(|msg| vec![SourceDiagnostic::error(unary.span(), msg)])
         }
 
-        Expr::Conditional(cond) => control_flow::eval_conditional(cond, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
-        Expr::WhileLoop(loop_expr) => control_flow::eval_while(loop_expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
-        Expr::ForLoop(loop_expr) => control_flow::eval_for(loop_expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
+        Expr::Conditional(cond) => control_flow::eval_conditional(cond, scopes, ctx, engine),
+        Expr::WhileLoop(loop_expr) => control_flow::eval_while(loop_expr, scopes, ctx, engine),
+        Expr::ForLoop(loop_expr) => control_flow::eval_for(loop_expr, scopes, ctx, engine),
 
-        Expr::Closure(c)  => closures::eval_closure_expr(c, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
-        Expr::FuncCall(c) => closures::eval_func_call(c, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
+        Expr::Closure(c)  => closures::eval_closure_expr(c, scopes, ctx, engine),
+        Expr::FuncCall(c) => closures::eval_func_call(c, scopes, ctx, engine),
 
-        Expr::Strong(s)   => markup::eval_strong(s, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
-        Expr::Emph(e)     => markup::eval_emph(e, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
-        Expr::Heading(h)  => markup::eval_heading(h, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
+        Expr::Strong(s)   => markup::eval_strong(s, scopes, ctx, engine),
+        Expr::Emph(e)     => markup::eval_emph(e, scopes, ctx, engine),
+        Expr::Heading(h)  => markup::eval_heading(h, scopes, ctx, engine),
         Expr::Raw(r)      => markup::eval_raw(r),
-        Expr::Link(l)     => markup::eval_link(l, styles),
-        Expr::ListItem(i) => markup::eval_list_item(i, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
-        Expr::EnumItem(i) => markup::eval_enum_item(i, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
+        Expr::Link(l)     => markup::eval_link(l, &*engine.styles),
+        Expr::ListItem(i) => markup::eval_list_item(i, scopes, ctx, engine),
+        Expr::EnumItem(i) => markup::eval_enum_item(i, scopes, ctx, engine),
 
-        Expr::FieldAccess(a) => bindings::eval_field_access(a, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
+        Expr::FieldAccess(a) => bindings::eval_field_access(a, scopes, ctx, engine),
 
-        Expr::SetRule(s)  => rules::eval_set_rule(s, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
+        Expr::SetRule(s)  => rules::eval_set_rule(s, scopes, ctx, engine),
 
         Expr::ContentBlock(content_block) => {
-            // Content block [ ] — styles locais ao bloco (atomização Passo 94).
-            let mut local_styles = styles.clone();
-            eval_markup(content_block.body().to_untyped(), scopes, ctx, route, &mut local_styles, show_rules, active_guards, current_file, figure_numbering, sink)
+            // Content block [ ] — styles locais ao bloco. Engine
+            // reconstruído localmente (ADR-0044, Passo 109).
+            let mut local_styles = engine.styles.clone();
+            let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
+            let mut local_engine = Engine {
+                world: engine.world,
+                route: engine.route,
+                styles: &mut local_styles,
+                show_rules: &mut *engine.show_rules,
+                active_guards: &mut *engine.active_guards,
+                current_file: engine.current_file,
+                figure_numbering: &mut *engine.figure_numbering,
+                sink: &mut local_sink,
+            };
+            eval_markup(content_block.body().to_untyped(), scopes, ctx, &mut local_engine)
         }
 
         Expr::Equation(eq) => {
@@ -395,7 +398,7 @@ fn eval_expr<'r>(
         }
 
         Expr::ModuleImport(i)  => modules::eval_module_import(i),
-        Expr::ModuleInclude(i) => modules::eval_module_include(i, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
+        Expr::ModuleInclude(i) => modules::eval_module_include(i, scopes, ctx, engine),
 
         // Passo 56 — referência cruzada: @nome → Content::Ref placeholder.
         Expr::Ref(ref_node) => {
@@ -407,7 +410,7 @@ fn eval_expr<'r>(
         // acontece em eval_markup via SyntaxKind::Label. Aqui apenas ignoramos.
         Expr::Label(_) => Ok(Value::None),
 
-        Expr::ShowRule(s) => rules::eval_show_rule(s, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
+        Expr::ShowRule(s) => rules::eval_show_rule(s, scopes, ctx, engine),
 
         // Passo 81 — array literal `(1fr, 1fr)` / `(10pt, auto, 1fr)`.
         // Necessário para o argumento `columns` de `grid()`.
@@ -415,7 +418,7 @@ fn eval_expr<'r>(
             let mut items = Vec::new();
             for item in arr.items() {
                 if let ArrayItem::Pos(expr) = item {
-                    items.push(eval_expr(expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?);
+                    items.push(eval_expr(expr, scopes, ctx, engine)?);
                 }
             }
             Ok(Value::Array(items))
@@ -424,7 +427,7 @@ fn eval_expr<'r>(
         // `(expr)` — parêntese de agrupamento. Expressão única dentro de
         // parênteses avalia para o valor da expressão. Passo 83.
         // (Um tuplo com um elemento requer a vírgula trailing: `(x,)`.)
-        Expr::Parenthesized(paren) => eval_expr(paren.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
+        Expr::Parenthesized(paren) => eval_expr(paren.expr(), scopes, ctx, engine),
 
         // Passo 76 — literais numéricos com unidade (ex: 100pt, 1.5em).
         Expr::Numeric(num) => {
@@ -450,19 +453,13 @@ fn eval_expr<'r>(
 }
 
 /// Avalia o corpo de um nó de markup como Content.
-fn eval_markup_body<'r>(
+fn eval_markup_body(
     node: &SyntaxNode,
     scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext<'_>,
-    route: Tracked<'r, Route<'r>>,
-    styles: &mut StyleChain,
-    show_rules: &mut Arc<[ShowRule]>,
-    active_guards: &mut Vec<RuleId>,
-    current_file: FileId,
-    figure_numbering: &mut Option<String>,
-    sink: &mut TrackedMut<'_, Sink>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Content> {
-    match eval_markup(node, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)? {
+    match eval_markup(node, scopes, ctx, engine)? {
         Value::Content(c) => Ok(c),
         _                 => Ok(Content::Empty),
     }

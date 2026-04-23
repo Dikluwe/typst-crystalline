@@ -2,43 +2,31 @@
 //! @prompt 00_nucleo/prompts/rules/eval.md
 //! @prompt-hash 19073424
 //! @layer L1
-//! @updated 2026-04-22
+//! @updated 2026-04-23
 //!
 //! Bindings: `#let`, e métodos de counter. Extraído de `eval.rs` no Passo 96.1
-//! conforme ADR-0037 (coesão por domínio).
-
-use std::sync::Arc;
-
-use comemo::{Tracked, TrackedMut};
+//! conforme ADR-0037 (coesão por domínio). Assinaturas simplificadas no
+//! Passo 109 (ADR-0044) via `Engine<'_>`.
 
 use crate::entities::ast::code::{LetBinding, LetBindingKind};
-use crate::entities::file_id::FileId;
 use crate::entities::ast::expr::{Arg, Expr};
 use crate::entities::content::Content;
 use crate::entities::counter_state::CounterAction;
-use crate::entities::show::{RuleId, ShowRule};
+use crate::entities::engine::Engine;
 use crate::entities::source_result::SourceResult;
-use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
-use crate::entities::world_types::{Route, Sink};
 use crate::rules::scopes::Scopes;
 
 use super::{eval_expr, EvalContext};
 
-pub(super) fn eval_let<'r>(
+pub(super) fn eval_let(
     binding: LetBinding<'_>,
     scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext<'_>,
-    route: Tracked<'r, Route<'r>>,
-    styles: &mut StyleChain,
-    show_rules: &mut Arc<[ShowRule]>,
-    active_guards: &mut Vec<RuleId>,
-    current_file: FileId,
-    figure_numbering: &mut Option<String>,
-    sink: &mut TrackedMut<'_, Sink>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let mut value = match binding.init() {
-        Some(init) => eval_expr(init, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?,
+        Some(init) => eval_expr(init, scopes, ctx, engine)?,
         None => Value::None,
     };
 
@@ -91,19 +79,13 @@ pub(super) fn extract_counter_key(expr: Expr<'_>) -> Option<String> {
 }
 
 /// Avalia um método de contador: step(), update(), get(), display().
-pub(super) fn eval_counter_method<'a, 'r>(
+pub(super) fn eval_counter_method<'a>(
     key:    &str,
     method: &str,
     args:   crate::entities::ast::expr::Args<'a>,
     scopes: &mut Scopes<'_>,
-    ctx:    &mut EvalContext<'_>,
-    route:  Tracked<'r, Route<'r>>,
-    styles: &mut StyleChain,
-    show_rules: &mut Arc<[ShowRule]>,
-    active_guards: &mut Vec<RuleId>,
-    current_file: FileId,
-    figure_numbering: &mut Option<String>,
-    sink: &mut TrackedMut<'_, Sink>,
+    ctx:    &mut EvalContext,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     match method {
         "step" => Ok(Value::Content(Content::CounterUpdate {
@@ -117,7 +99,7 @@ pub(super) fn eval_counter_method<'a, 'r>(
             let val = args.items().next()
                 .and_then(|arg| match arg {
                     Arg::Pos(expr) => {
-                        if let Ok(Value::Int(n)) = eval_expr(expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink) {
+                        if let Ok(Value::Int(n)) = eval_expr(expr, scopes, ctx, engine) {
                             Some(n.max(0) as usize)
                         } else {
                             None
@@ -141,22 +123,16 @@ pub(super) fn eval_counter_method<'a, 'r>(
 
 // ── Dispatcher arms: FieldAccess (Passo 96.2, ADR-0037 Regra 4) ───────────
 
-pub(super) fn eval_field_access<'r>(
+pub(super) fn eval_field_access(
     access: crate::entities::ast::expr::FieldAccess<'_>,
     scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext<'_>,
-    route: Tracked<'r, Route<'r>>,
-    styles: &mut StyleChain,
-    show_rules: &mut Arc<[ShowRule]>,
-    active_guards: &mut Vec<RuleId>,
-    current_file: FileId,
-    figure_numbering: &mut Option<String>,
-    sink: &mut TrackedMut<'_, Sink>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     use crate::entities::ast::AstNode;
     use crate::entities::source_result::SourceDiagnostic;
 
-    let target = eval_expr(access.target(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
+    let target = eval_expr(access.target(), scopes, ctx, engine)?;
     let field  = access.field().as_str().to_string();
     match target {
         Value::Dict(d) => d.get(field.as_str())

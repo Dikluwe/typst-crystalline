@@ -42,7 +42,7 @@ pub fn make_calc_module() -> Value {
     Value::Dict(dict)
 }
 
-pub(crate) fn calc_abs(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_abs(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]   => Ok(Value::Int(i.saturating_abs())),
@@ -52,7 +52,7 @@ pub(crate) fn calc_abs(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: F
     }
 }
 
-pub(crate) fn calc_pow(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_pow(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(base), Value::Int(exp)] => {
@@ -72,7 +72,7 @@ pub(crate) fn calc_pow(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: F
     }
 }
 
-pub(crate) fn calc_sqrt(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_sqrt(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
@@ -86,7 +86,7 @@ pub(crate) fn calc_sqrt(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: 
     }
 }
 
-pub(crate) fn calc_floor(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_floor(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]   => Ok(Value::Int(*i)),
@@ -96,7 +96,7 @@ pub(crate) fn calc_floor(_ctx: &mut EvalContext<'_>, args: &Args, _current_file:
     }
 }
 
-pub(crate) fn calc_ceil(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_ceil(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]   => Ok(Value::Int(*i)),
@@ -106,7 +106,7 @@ pub(crate) fn calc_ceil(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: 
     }
 }
 
-pub(crate) fn calc_round(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_round(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]   => Ok(Value::Int(*i)),
@@ -116,7 +116,7 @@ pub(crate) fn calc_round(_ctx: &mut EvalContext<'_>, args: &Args, _current_file:
     }
 }
 
-pub(crate) fn calc_min(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_min(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     if args.items.is_empty() {
         return err("calc.min() requer pelo menos 1 argumento");
@@ -136,7 +136,7 @@ pub(crate) fn calc_min(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: F
     Ok(result)
 }
 
-pub(crate) fn calc_max(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_max(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     if args.items.is_empty() {
         return err("calc.max() requer pelo menos 1 argumento");
@@ -156,7 +156,7 @@ pub(crate) fn calc_max(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: F
     Ok(result)
 }
 
-pub(crate) fn calc_clamp(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_clamp(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(v), Value::Int(lo), Value::Int(hi)] =>

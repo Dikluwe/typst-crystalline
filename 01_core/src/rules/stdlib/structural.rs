@@ -23,7 +23,7 @@ use crate::rules::eval::EvalContext;
 
 /// `strong(body)` — emite `Content::Styled([Bold(true)], body)`
 /// (Passo 101) ou serve como selector em show rules.
-pub fn native_strong(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_strong(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
@@ -39,7 +39,7 @@ pub fn native_strong(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: Fil
 
 /// `emph(body)` — emite `Content::Styled([Italic(true)], body)`
 /// (Passo 101) ou serve como selector em show rules.
-pub fn native_emph(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_emph(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
@@ -55,7 +55,7 @@ pub fn native_emph(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileI
 
 /// `raw(text)` — cria `Content::Raw` ou serve como selector em show rules.
 /// Aceita apenas string — não faz sentido semântico aceitar Content aqui.
-pub fn native_raw(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_raw(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let text: EcoString = match args.items.first() {
         Some(Value::Str(s)) => s.clone(),
@@ -75,7 +75,7 @@ pub fn native_raw(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId
 ///
 /// A criação real de headings usa a sintaxe de markup `= Título`.
 /// Chamar `heading()` directamente retorna Err (DEBT-21).
-pub fn native_heading(_ctx: &mut EvalContext<'_>, _args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_heading(_ctx: &mut EvalContext, _args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     Err(vec![SourceDiagnostic::error(
         Span::detached(),
         "heading() como função directa não suportada; use a sintaxe de markup `= Título`"

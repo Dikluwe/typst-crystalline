@@ -20,7 +20,7 @@ use crate::rules::eval::EvalContext;
 ///
 /// Primeira função com named arg documentado (não apenas tolerado).
 /// Prova de que o mecanismo de named args (DEBT-16) funciona de ponta a ponta.
-pub fn native_assert(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_assert(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     // Validar named args: apenas "message" é aceite.
     for key in args.named.keys() {
         if key.as_str() != "message" {
