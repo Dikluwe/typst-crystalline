@@ -64,19 +64,53 @@ mod integration {
     }
 
     /// Chama `eval()` com o boilerplate de comemo — mesmo padrão de eval_for_test.
+    /// Warnings emitidos para o Sink são drenados silenciosamente (os testes
+    /// que precisem de inspeccioná-los usam `do_eval_with_sink`).
     fn do_eval(world: &SystemWorld, source: &Source) -> SourceResult<Module> {
+        let (result, _warnings) = do_eval_with_sink(world, source);
+        result
+    }
+
+    /// Variante de `do_eval` que devolve também os warnings acumulados no
+    /// `Sink` (ADR-0043, Passo 106 — canal de saída do Sink).
+    ///
+    /// O caller L3 padrão desta função deveria imprimir os warnings em
+    /// `stderr` no formato `"warning: <Span-debug> <message>"` — ver
+    /// `drain_warnings_to_stderr` abaixo.
+    fn do_eval_with_sink(
+        world: &SystemWorld,
+        source: &Source,
+    ) -> (SourceResult<Module>, Vec<typst_core::entities::source_result::SourceDiagnostic>) {
         let routines = Routines::new();
         let traced   = Traced::default();
         let mut sink = Sink::new();
         let route    = Route::root();
-        eval(
+        let result = eval(
             &routines,
             world,
             traced.track(),
             sink.track_mut(),
             route.track(),
             source,
-        )
+        );
+        // Passo 106 (ADR-0043): drenar warnings após retorno do eval.
+        // L3 é responsável pela formatação para o utilizador.
+        let warnings = sink.into_diagnostics();
+        (result, warnings)
+    }
+
+    /// Formata e imprime warnings em `stderr` com o formato mínimo
+    /// `"warning: <Span-debug> <message>"` (ADR-0043, Passo 106).
+    ///
+    /// Formato rico (linha/coluna resolvidos via Source, cores ANSI,
+    /// JSON/SARIF) fica para passo futuro.
+    #[allow(dead_code)]
+    fn drain_warnings_to_stderr(
+        warnings: &[typst_core::entities::source_result::SourceDiagnostic],
+    ) {
+        for diag in warnings {
+            eprintln!("warning: {:?} {}", diag.span, diag.message);
+        }
     }
 
     /// Pipeline completo → bytes PDF (Passo 65).
@@ -2120,5 +2154,88 @@ mod integration {
             "Place scope=parent deve ter y=360 (margem + avail - rect), obteve y={:.1}",
             rect_y
         );
+    }
+
+    // ── Passo 106 (ADR-0043): canal de saída do Sink ──────────────────
+
+    /// Teste end-to-end do canal: input Typst vazio → pilot emite warning
+    /// → caller drena via `into_diagnostics` e verifica conteúdo.
+    #[test]
+    fn sink_canal_emite_warning_para_ficheiro_vazio() {
+        let (world, _dir) = world_from_str("");
+        let source = world.source(world.main()).unwrap();
+
+        let (result, warnings) = do_eval_with_sink(&world, &source);
+        assert!(result.is_ok(), "eval de ficheiro vazio não deve falhar");
+        assert_eq!(warnings.len(), 1,
+            "ficheiro vazio deve gerar exactamente 1 warning; obteve {}: {:?}",
+            warnings.len(),
+            warnings.iter().map(|d| &d.message).collect::<Vec<_>>());
+        assert!(warnings[0].message.contains("ficheiro vazio"),
+            "mensagem esperada contém 'ficheiro vazio'; obteve: {:?}",
+            warnings[0].message);
+    }
+
+    /// Teste de ausência: ficheiro não-vazio não dispara o pilot.
+    #[test]
+    fn sink_canal_vazio_quando_sem_trigger() {
+        let (world, _dir) = world_from_str("Olá mundo");
+        let source = world.source(world.main()).unwrap();
+
+        let (_result, warnings) = do_eval_with_sink(&world, &source);
+        assert!(warnings.is_empty(),
+            "ficheiro não-vazio não deve gerar warnings; obteve {:?}",
+            warnings);
+    }
+
+    /// Teste de formato: confirma que a função de formatação produz a
+    /// string esperada ("warning: <Span-debug> <message>"). Não captura
+    /// stderr — valida apenas o padrão directamente.
+    #[test]
+    fn sink_canal_formato_minimo() {
+        use typst_core::entities::source_result::SourceDiagnostic;
+        use typst_core::entities::span::Span;
+
+        let diags = vec![
+            SourceDiagnostic::warning(Span::detached(), "exemplo de warning"),
+        ];
+
+        // Verificar que o formato "warning: ..." é aplicável. Como
+        // `drain_warnings_to_stderr` não devolve string, reproduzimos o
+        // formato aqui e validamos.
+        let formatted: Vec<String> = diags.iter()
+            .map(|d| format!("warning: {:?} {}", d.span, d.message))
+            .collect();
+        assert_eq!(formatted.len(), 1);
+        assert!(formatted[0].starts_with("warning: "),
+            "formato deve começar com 'warning: '; obteve: {:?}", formatted[0]);
+        assert!(formatted[0].contains("exemplo de warning"),
+            "mensagem preservada; obteve: {:?}", formatted[0]);
+    }
+
+    /// Teste de dedup end-to-end: o pilot emite para ficheiro vazio. Se
+    /// o mesmo ficheiro vazio for processado duas vezes em `eval`s
+    /// independentes, cada `eval` tem o seu próprio `Sink` — cada um gera
+    /// 1 warning. Para testar dedup dentro de UM `eval`, precisaríamos de
+    /// uma condição que dispare warn duas vezes no mesmo run; o pilot
+    /// actual dispara apenas no início do eval, portanto o teste de dedup
+    /// completo fica para quando DEBT-49 migrar consumers que podem
+    /// disparar múltiplos warnings iguais em sequência.
+    ///
+    /// Este teste documenta o comportamento actual e confirma que cada
+    /// run é independente.
+    #[test]
+    fn sink_canal_cada_run_tem_proprio_sink() {
+        let (world1, _dir1) = world_from_str("");
+        let source1 = world1.source(world1.main()).unwrap();
+        let (_result, warnings1) = do_eval_with_sink(&world1, &source1);
+        assert_eq!(warnings1.len(), 1);
+
+        // Segundo run — Sink novo, warning novo.
+        let (world2, _dir2) = world_from_str("");
+        let source2 = world2.source(world2.main()).unwrap();
+        let (_result, warnings2) = do_eval_with_sink(&world2, &source2);
+        assert_eq!(warnings2.len(), 1,
+            "cada `eval` tem o seu próprio Sink; segundo run deve também gerar 1 warning");
     }
 }

@@ -25,6 +25,13 @@ use crate::entities::span::Span;
 ///
 /// Dedup: duas warnings com o mesmo `(span, message)` contam como
 /// uma. `severity`, `hints` e `trace` não participam na chave.
+///
+/// `Clone` derivado para satisfazer o contrato de `#[comemo::track]`
+/// (Passo 106, ADR-0043) — comemo precisa de clonar o estado
+/// interno para rollback de chamadas tracked. Clone é O(n) no número
+/// de diagnósticos acumulados; aceitável porque o número total por
+/// eval é baixo (dedup garante).
+#[derive(Clone)]
 pub struct Sink {
     diagnostics: Vec<SourceDiagnostic>,
     seen: FxHashSet<(Span, String)>,
@@ -39,6 +46,13 @@ impl Sink {
     /// Adiciona um `SourceDiagnostic` se ainda não foi visto. Dedup
     /// por `(span, message)` — idempotente para chamadas repetidas.
     pub fn warn(&mut self, diag: SourceDiagnostic) {
+        self.record(diag);
+    }
+
+    /// Implementação partilhada entre a API não-tracked (`warn`) e o
+    /// método tracked (`warn` em `#[comemo::track] impl Sink`) — garante
+    /// dedup consistente (ADR-0043, Passo 106).
+    pub(crate) fn record(&mut self, diag: SourceDiagnostic) {
         let key = (diag.span, diag.message.clone());
         if self.seen.insert(key) {
             self.diagnostics.push(diag);

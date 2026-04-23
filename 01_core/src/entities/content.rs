@@ -249,10 +249,11 @@ pub enum Content {
 
     /// Grid de colunas com células posicionadas por ordem de leitura (Passo 80).
     ///
-    /// `rows` é armazenado no AST mas ignorado pelo layouter (DEBT-34b).
+    /// `rows` é consumido pelo layouter desde o Passo 83 (DEBT-34b encerrado).
+    /// Comentário obsoleto removido na auditoria do Passo 105.
     Grid {
         columns: Vec<TrackSizing>,
-        rows:    Vec<TrackSizing>, // DEBT-34b: ignorado — todas as linhas são Auto
+        rows:    Vec<TrackSizing>,
         cells:   Vec<Content>,
     },
 

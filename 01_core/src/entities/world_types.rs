@@ -388,14 +388,33 @@ impl Clone for Route<'_> {
 // assinatura `eval(_sink: TrackedMut<Sink>)`.
 pub use crate::entities::sink::Sink;
 
-// Bloco tracked vazio continua aqui — `TrackedMut<Sink>` na
-// assinatura do `eval` depende deste `#[comemo::track]`. Os métodos
-// reais (`warn`, `into_diagnostics`, ...) vivem num `impl Sink`
-// não-tracked em `sink.rs`. Integração comemo adiada até
-// `SourceDiagnostic` ser Hash-able ou até um wrapper tracked ser
-// decidido (ADR-0042).
+// Bloco tracked — canal de warnings via `TrackedMut<Sink>` (ADR-0043,
+// Passo 106). `warn` delega para a API não-tracked em `sink.rs` para
+// preservar dedup. Args `Span` (Hash+Copy) e `&str` (Hash) são
+// compatíveis com comemo tracking; `SourceDiagnostic` completo (com
+// hints/trace) continua a exigir a API não-tracked via `&mut Sink`.
 #[comemo::track]
-impl Sink {}
+impl Sink {
+    /// Emite warning via canal tracked (ADR-0043, Passo 106). Usado
+    /// pelo `eval()` e por futuros consumidores que apenas têm
+    /// `TrackedMut<Sink>` (sem acesso a `&mut Sink` directo).
+    ///
+    /// Args minimalistas (`span`, `message`) compatíveis com comemo
+    /// tracking. Para warnings com hints/severity explícitos, usar a
+    /// API não-tracked `Sink::warn(diag: SourceDiagnostic)` via
+    /// `&mut Sink` directo.
+    pub fn warn_note(
+        &mut self,
+        span: crate::entities::span::Span,
+        message: &str,
+    ) {
+        let diag = crate::entities::source_result::SourceDiagnostic::warning(
+            span,
+            message.to_string(),
+        );
+        self.record(diag);
+    }
+}
 
 
 /// Contexto central de compilação.
