@@ -9,7 +9,7 @@
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
 
-## DEBT-1 — StyleChain — PARCIALMENTE RESOLVIDO
+## DEBT-1 — StyleChain — PARCIALMENTE RESOLVIDO (estrutura paga em Passo 100)
 
 ### Resolvido no Passo 30
 
@@ -116,6 +116,37 @@ adiadas (bloqueadas por tipos não materializados — ver ADR-0038).
 (Passo 99)** — a fundação está materializada. Activação no eval
 (`#set`/`#show` a consumir `Content::Styled`) e substituição de
 `TextStyle` (DEBT-48) são trabalho futuro.
+
+### Actualização Passo 100 — activação de `Content::Styled` no Layouter
+
+DEBT-48 encerrado no Passo 100 (ADR-0039):
+
+- [x] `Layouter` ganhou `chain: StyleChain` como source-of-truth do
+      estilo activo; `self.style: TextStyle` passa a ser cache da
+      vista resolvida via `TextStyle::from(&self.chain)`.
+- [x] `Content::Styled` activo: `push_styles`/restore sobre
+      `self.chain`, sincroniza `self.style`. Deixou de ser
+      transparente (Passo 99 era a versão COEX inactiva).
+- [x] `TextStyle` estendido com `fill` + `heading_level` (alinha com
+      enum `Style` do Passo 99).
+- [x] `Content::Text` arm: merge correcto entre `node_style` (do
+      eval) e `self.style` (da cadeia) — propriedades activas na
+      cadeia sobrepõem o node_style; propriedades passivas herdam.
+- [x] 3 testes de integração em `layout/tests/tests_styled_integration`
+      confirmam Bold+Size aplicados, aninhamento top-wins, e
+      não-vazamento após save/restore.
+- [x] ADR-0039 promovida a `EM VIGOR`.
+
+**Dívida estrutural do `StyleChain` / `TextStyle` paga**. DEBT-1
+permanece como **PARCIALMENTE RESOLVIDO** porque ainda faltam:
+
+- [ ] Activar `#set`/`#show` no `eval_markup` a produzir
+      `Content::Styled`. Este passo é **independente** do Passo 100 —
+      o pipeline Layouter→export já aceita o contrato.
+- [ ] Remover wrappers `Content::Strong`/`Emph` do layout quando
+      `eval` os substituir por `Content::Styled([Style::Bold(true)])`.
+- [ ] Propriedades adicionais (`text.font`, `text.lang`, `par.leading`)
+      — bloqueadas por tipos não materializados (ADR-0038).
 
 ---
 
@@ -506,7 +537,10 @@ pipeline HTML existir.
 
 ---
 
-## DEBT-48 — Substituir `TextStyle` plano por `StyleChain` no Layouter e export — EM ABERTO (Passo 99)
+
+## Secção 2 — DEBTs encerrados
+
+## DEBT-48 — Substituir `TextStyle` plano por `StyleChain` no Layouter e export — ENCERRADO (Passo 100) ✓
 
 Aberto pelo Passo 99 como consequência directa da decisão **COEX**
 registada em ADR-0038.
@@ -574,9 +608,45 @@ em ponto único" — ou via método `StyleChain::size()`, ou via
 pré-resolução antes do push para o frame. A segunda é preferível
 porque evita leitura recursiva durante render.
 
----
+### Encerramento (Passo 100)
 
-## Secção 2 — DEBTs encerrados
+Decisão tomada: **SR (Struct Resolvido)**, registada em ADR-0039.
+`TextStyle` preservado como nome (reduz ripple em tests legacy) mas
+redefinido como "vista achatada de uma `StyleChain`" — o struct agora
+inclui `fill: Option<Color>` e `heading_level: Option<u8>` para
+alinhar com o enum `Style` do ADR-0038.
+
+Mudanças aplicadas:
+
+- [x] `TextStyle` estendido com `fill` + `heading_level` (Default
+      automático via `#[derive(Default)]`).
+- [x] `Layouter` ganhou campo `chain: StyleChain` como source-of-truth,
+      com `style: TextStyle` como cache da vista resolvida.
+- [x] `From<&StyleChain> for TextStyle` preenche todos os 5 campos —
+      ponto único de resolução.
+- [x] `Content::Styled` activo no Layouter: `push_styles`/restore
+      sobre `self.chain`, sincroniza `self.style` via `TextStyle::from`.
+- [x] `Content::Text` arm merge: propriedades activas na chain
+      (`bold/italic==true`, ou `size > base`) sobrepõem o `node_style`
+      do eval; caso contrário o node_style prevalece.
+- [x] Construtores `TextStyle { ... }` literais actualizados com
+      `..TextStyle::default()` — transformação Regex mecânica.
+- [x] `FrameItem::Text.style: TextStyle` continua a ser consumido por
+      `export.rs` sem alterações.
+- [x] 3 testes novos em `layout/tests/tests_styled_integration`:
+      aplicação de Bold+Size, aninhamento top-wins, não-vazamento
+      após save/restore.
+- [x] `cargo test --workspace`: 780 → **783 L1** (+3), 174 L3 + 6
+      ignorados inalterados.
+- [x] `crystalline-lint`: zero violations.
+- [x] ADR-0039 promovida a `EM VIGOR`.
+
+**Dívida residual**: nenhuma estrutural relativa a `TextStyle`. A
+activação de `#set`/`#show` no `eval_markup` para produzir
+`Content::Styled` é trabalho futuro (separado — o pipeline
+Layouter→export já aceita o enum).
+
+---
 
 ## DEBT-46 — Ficheiros de L1 com coesão baixa por tamanho excessivo — ENCERRADO (Passo 96.10) ✓
 

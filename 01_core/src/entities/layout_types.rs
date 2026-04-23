@@ -29,7 +29,7 @@ use crate::entities::label::Label;
 ///
 /// Não implementa `Add<f64>` — escalares brutos requerem `Pt(valor)` explícito.
 /// Isto previne misturar coordenadas com índices ou contagens.
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Default)]
 pub struct Pt(pub f64);
 
 impl Pt {
@@ -93,17 +93,34 @@ impl Size {
 ///
 /// DEBT: deve ser substituído por StyleChain (lista ligada de deltas)
 /// antes de implementar `#set text(...)`. Ver DEBT.md.
-#[derive(Debug, Clone, Copy, PartialEq)]
+/// Estilo resolvido — vista achatada do resultado de
+/// `From<&StyleChain>` (ADR-0039, Passo 100). Os campos `fill` e
+/// `heading_level` são forward-compat (ADR-0038) e por omissão `None`.
+///
+/// Semântica: é **o resultado** de resolver uma `StyleChain`, não a
+/// cadeia em si. Consumido por `FrameItem::Text.style` e por
+/// `export.rs` em L3.
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct TextStyle {
-    pub bold:   bool,
-    pub italic: bool,
-    pub size:   Pt,
+    pub bold:          bool,
+    pub italic:        bool,
+    pub size:          Pt,
+    /// Cor de preenchimento — ADR-0038/0039 forward-compat.
+    pub fill:          Option<Color>,
+    /// Nível de heading — ADR-0038/0039 forward-compat.
+    pub heading_level: Option<u8>,
 }
 
 impl TextStyle {
-    pub fn regular(size: Pt) -> Self { Self { bold: false, italic: false, size } }
-    pub fn bold(size: Pt)    -> Self { Self { bold: true,  italic: false, size } }
-    pub fn italic(size: Pt)  -> Self { Self { bold: false, italic: true,  size } }
+    pub fn regular(size: Pt) -> Self {
+        Self { bold: false, italic: false, size, ..Self::default() }
+    }
+    pub fn bold(size: Pt) -> Self {
+        Self { bold: true,  italic: false, size, ..Self::default() }
+    }
+    pub fn italic(size: Pt) -> Self {
+        Self { bold: false, italic: true,  size, ..Self::default() }
+    }
 }
 
 // ── Frame e FrameItem ──────────────────────────────────────────────────────

@@ -21,6 +21,7 @@ use crate::entities::{
     image_sizer::{ImageSizer, NullImageSizer},
     layout_types::{Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument,
         Point, Pt, TextStyle, TransformMatrix, VAlign},
+    style_chain::StyleChain,
 };
 
 // FontMetrics / FixedMetrics extraídos para metrics.rs (Passo 96.7, ADR-0037).
@@ -64,7 +65,16 @@ pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) metrics:      M,
     sizer:                   S,
     pub(super) font_size_pt: Pt,
+    /// Estilo activo resolvido — vista achatada de `self.chain` cacheada
+    /// para evitar resolver em cada leitura de `.size` no hot path do layout.
+    /// Mantido sincronizado com `self.chain` por cada push/pop (Passo 100,
+    /// ADR-0039).
     pub(super) style:        TextStyle,
+    /// Cadeia de estilos activa — source-of-truth do estilo (Passo 100,
+    /// ADR-0039). `Content::Styled` faz push; o save/restore de Strong/
+    /// Emph/Heading/Text também passa por esta cadeia. `self.style` é a
+    /// vista achatada (cache) que o layout consulta directamente.
+    pub(super) chain:        StyleChain,
     /// Configuração da página activa. Mutável via Content::SetPage (Passo 81).
     pub page_config: PageConfig,
     pub(super) pages:        Vec<Page>,
@@ -120,6 +130,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             sizer,
             font_size_pt: size,
             style:        TextStyle::regular(size),
+            chain:        StyleChain::default_chain(),
             page_config:  cfg.clone(),
             pages:        Vec::new(),
             current_items: Vec::new(),
@@ -202,18 +213,25 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             Content::Empty => {}
 
             Content::Text(text, node_style) => {
-                // Estilo resolvido em eval via #set text() e scoping de blocos (Passo 33).
-                // bold/italic: node_style já é correcto — eval captura o estilo activo no
-                // momento da produção, incluindo bold/italic de Strong/Emph/Heading.
-                // size: self.style tem prioridade quando vem de heading (maior que base).
+                // Estilo resolvido: merge de node_style (produzido pelo eval) com
+                // self.style (cache da chain, actualizada por Content::Styled no
+                // Passo 100, ADR-0039).
+                //
+                // Regra: qualquer propriedade "activa" na chain (`true` para
+                // Bold/Italic, ou size > base) tem prioridade sobre o node_style.
+                // Esta regra preserva a semântica histórica (heading > base) e
+                // adiciona a semântica nova: `Content::Styled([Bold(true)], body)`
+                // envolvendo um Text sem bold torna-o bold.
                 let effective = TextStyle {
-                    bold:   node_style.bold,
-                    italic: node_style.italic,
+                    bold:   node_style.bold   || self.style.bold,
+                    italic: node_style.italic || self.style.italic,
                     size:   if self.style.size > self.font_size_pt {
-                        self.style.size   // heading ou outro override de contexto
+                        self.style.size   // heading ou Content::Styled aumentou
                     } else {
                         node_style.size   // #set text(size:) capturado em eval
                     },
+                    fill:          self.style.fill.or(node_style.fill),
+                    heading_level: self.style.heading_level.or(node_style.heading_level),
                 };
                 let prev_style = self.style;
                 self.style = effective;
@@ -255,7 +273,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
                 let heading_size = self.font_size_pt * heading_scale(*level);
                 let prev = self.style;
-                self.style = TextStyle { bold: true, italic: false, size: heading_size };
+                self.style = TextStyle { bold: true, italic: false, size: heading_size, ..TextStyle::default() };
                 if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
 
                 // Prefixo numérico — apenas se numbering estiver activo
@@ -293,7 +311,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 let prev = self.style;
                 // Raw: tamanho 90%, sem bold/italic
                 // DEBT: seleccionar fonte monospace real quando FontBook tiver uma
-                self.style = TextStyle { bold: false, italic: false, size: self.font_size_pt * 0.9 };
+                self.style = TextStyle { bold: false, italic: false, size: self.font_size_pt * 0.9, ..TextStyle::default() };
                 if *block {
                     if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
                     self.cursor_x = Pt(self.page_config.margin) + self.font_size_pt;
@@ -547,12 +565,20 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.layout_place(*alignment, *dx, *dy, *scope, body);
             }
 
-            // Passo 99 (ADR-0038): `Content::Styled` é fundação para `#set`/`#show`.
-            // Ainda não activa no Layouter — trata o body como conteúdo simples
-            // e ignora os estilos (bridge via TextStyle permanece até passo
-            // dedicado de activação; ver DEBT-Style sucessor em DEBT.md).
-            Content::Styled(body, _styles) => {
+            // Passo 100 (ADR-0039): `Content::Styled` activa push/pop na
+            // `chain` interna. A vista achatada `self.style` é
+            // re-sincronizada a partir da cadeia após push e depois do pop.
+            // Save/restore via variável local — o `self.chain` do chamador
+            // permanece íntegro se `layout_content` retornar via early
+            // return (padrão Passo 98).
+            Content::Styled(body, styles) => {
+                let prev_chain = self.chain.clone();  // O(1) Arc::clone
+                let prev_style = self.style;
+                self.chain = self.chain.push_styles(styles);
+                self.style = TextStyle::from(&self.chain);
                 self.layout_content(body);
+                self.chain = prev_chain;
+                self.style = prev_style;
             }
         }
     }

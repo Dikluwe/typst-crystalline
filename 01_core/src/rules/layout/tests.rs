@@ -1404,3 +1404,106 @@ fn grid_auto_respects_safe_available() {
         "Auto não deve exceder available_width: {} > {}", resolved[0], available
     );
 }
+
+// ── Passo 100.D: Integração Content::Styled → Layouter ───────────────────
+
+#[cfg(test)]
+mod tests_styled_integration {
+    use super::*;
+    use crate::entities::content::Content;
+    use crate::entities::layout_types::{FrameItem, Pt};
+    use crate::entities::style::{Style, Styles};
+
+    /// Retira todos os `FrameItem::Text` do documento (qualquer página).
+    fn collect_text_items(doc: &PagedDocument) -> Vec<&FrameItem> {
+        doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item, FrameItem::Text { .. }))
+            .collect()
+    }
+
+    /// Constrói `Content::Styled` directamente e verifica que o Layouter
+    /// processa os estilos via push/pop na cadeia (Passo 100, ADR-0039).
+    /// O teste de integração conceptual do Passo 99 (`style_chain.rs`)
+    /// validou a API; aqui validamos a activação end-to-end.
+    #[test]
+    fn styled_basico_aplica_bold_e_size() {
+        let hello = Content::text("hello");
+        let styled = Content::Styled(
+            Box::new(hello),
+            Styles::from_iter([Style::Bold(true), Style::Size(Pt(18.0))]),
+        );
+
+        let doc = layout(&styled, CounterState::new());
+        let texts = collect_text_items(&doc);
+        assert!(!texts.is_empty(), "esperado pelo menos 1 FrameItem::Text");
+
+        for item in texts {
+            if let FrameItem::Text { style, .. } = item {
+                assert!(style.bold, "Bold deve estar activo: {:?}", style);
+                assert_eq!(style.size, Pt(18.0),
+                    "Size deve ser 18pt após push_styles");
+            }
+        }
+    }
+
+    /// Styled aninhado — o delta mais próximo do texto (inner) ganha
+    /// (top-wins, paridade vanilla, ADR-0033).
+    #[test]
+    fn styled_aninhado_inner_ganha_sobre_outer() {
+        let inner = Content::Styled(
+            Box::new(Content::text("hi")),
+            Styles::from_iter([Style::Italic(true)]),
+        );
+        let outer = Content::Styled(
+            Box::new(inner),
+            Styles::from_iter([Style::Bold(true), Style::Italic(false)]),
+        );
+
+        let doc = layout(&outer, CounterState::new());
+        let texts = collect_text_items(&doc);
+        assert!(!texts.is_empty());
+
+        for item in texts {
+            if let FrameItem::Text { style, .. } = item {
+                // Outer define Bold(true); inner não o toca → bold=true herdado.
+                assert!(style.bold, "bold de outer deve herdar: {:?}", style);
+                // Inner define Italic(true) e está mais próximo do texto —
+                // sobrepõe Italic(false) do outer.
+                assert!(style.italic, "italic de inner deve ganhar: {:?}", style);
+            }
+        }
+    }
+
+    /// Styled preserva o estilo do chamador após retorno — save/restore
+    /// correcto (Passo 100, ADR-0039).
+    #[test]
+    fn styled_nao_vaza_para_texto_subsequente() {
+        use std::sync::Arc;
+        let styled = Content::Styled(
+            Box::new(Content::text("STYLED")),
+            Styles::from_iter([Style::Bold(true)]),
+        );
+        let plain = Content::text("plain");
+        let seq = Content::Sequence(Arc::from(vec![styled, Content::Space, plain]));
+
+        let doc = layout(&seq, CounterState::new());
+        let texts = collect_text_items(&doc);
+
+        // Encontrar o item do texto "STYLED" e do texto "plain".
+        let styled_item = texts.iter().find(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "STYLED"));
+        let plain_item  = texts.iter().find(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "plain"));
+
+        assert!(styled_item.is_some());
+        assert!(plain_item.is_some());
+
+        if let Some(FrameItem::Text { style, .. }) = styled_item {
+            assert!(style.bold, "STYLED deve ser bold");
+        }
+        if let Some(FrameItem::Text { style, .. }) = plain_item {
+            assert!(!style.bold,
+                "'plain' após Styled não deve herdar bold — save/restore falhou: {:?}",
+                style);
+        }
+    }
+}
