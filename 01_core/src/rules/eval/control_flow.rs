@@ -2,44 +2,32 @@
 //! @prompt 00_nucleo/prompts/rules/eval.md
 //! @prompt-hash 19073424
 //! @layer L1
-//! @updated 2026-04-22
+//! @updated 2026-04-23
 //!
 //! Controlo de fluxo: `if`/`else`, `while`, `for`. Extraído de `eval.rs` no
-//! Passo 96.1 conforme ADR-0037 (coesão por domínio).
-
-use std::sync::Arc;
-
-use comemo::{Tracked, TrackedMut};
+//! Passo 96.1 conforme ADR-0037 (coesão por domínio). Assinaturas
+//! simplificadas no Passo 109 (ADR-0044) via `Engine<'_>`.
 
 use crate::entities::ast::code::{Conditional, ForLoop, WhileLoop};
-use crate::entities::file_id::FileId;
 use crate::entities::ast::AstNode;
-use crate::entities::show::{RuleId, ShowRule};
+use crate::entities::engine::Engine;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
-use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
-use crate::entities::world_types::{Route, Sink};
 use crate::rules::scopes::Scopes;
 
 use super::{eval_expr, EvalContext};
 
-pub(super) fn eval_conditional<'r>(
+pub(super) fn eval_conditional(
     cond: Conditional<'_>,
     scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext<'_>,
-    route: Tracked<'r, Route<'r>>,
-    styles: &mut StyleChain,
-    show_rules: &mut Arc<[ShowRule]>,
-    active_guards: &mut Vec<RuleId>,
-    current_file: FileId,
-    figure_numbering: &mut Option<String>,
-    sink: &mut TrackedMut<'_, Sink>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
-    let condition = eval_expr(cond.condition(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
+    let condition = eval_expr(cond.condition(), scopes, ctx, engine)?;
     match condition {
-        Value::Bool(true) => eval_expr(cond.if_body(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
+        Value::Bool(true) => eval_expr(cond.if_body(), scopes, ctx, engine),
         Value::Bool(false) => match cond.else_body() {
-            Some(else_body) => eval_expr(else_body, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
+            Some(else_body) => eval_expr(else_body, scopes, ctx, engine),
             None            => Ok(Value::None),
         },
         other => Err(vec![SourceDiagnostic::error(
@@ -49,25 +37,19 @@ pub(super) fn eval_conditional<'r>(
     }
 }
 
-pub(super) fn eval_while<'r>(
+pub(super) fn eval_while(
     loop_expr: WhileLoop<'_>,
     scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext<'_>,
-    route: Tracked<'r, Route<'r>>,
-    styles: &mut StyleChain,
-    show_rules: &mut Arc<[ShowRule]>,
-    active_guards: &mut Vec<RuleId>,
-    current_file: FileId,
-    figure_numbering: &mut Option<String>,
-    sink: &mut TrackedMut<'_, Sink>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     loop {
-        let cond = eval_expr(loop_expr.condition(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
+        let cond = eval_expr(loop_expr.condition(), scopes, ctx, engine)?;
         match cond {
             Value::Bool(true) => {
                 ctx.tick_loop(loop_expr.span())?;
                 scopes.enter();
-                eval_expr(loop_expr.body(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
+                eval_expr(loop_expr.body(), scopes, ctx, engine)?;
                 scopes.exit();
             }
             Value::Bool(false) => break,
@@ -80,19 +62,13 @@ pub(super) fn eval_while<'r>(
     Ok(Value::None)
 }
 
-pub(super) fn eval_for<'r>(
+pub(super) fn eval_for(
     loop_expr: ForLoop<'_>,
     scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext<'_>,
-    route: Tracked<'r, Route<'r>>,
-    styles: &mut StyleChain,
-    show_rules: &mut Arc<[ShowRule]>,
-    active_guards: &mut Vec<RuleId>,
-    current_file: FileId,
-    figure_numbering: &mut Option<String>,
-    sink: &mut TrackedMut<'_, Sink>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
-    let iterable = eval_expr(loop_expr.iterable(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
+    let iterable = eval_expr(loop_expr.iterable(), scopes, ctx, engine)?;
     match iterable {
         Value::Array(items) => {
             let bindings = loop_expr.pattern().bindings();
@@ -103,7 +79,7 @@ pub(super) fn eval_for<'r>(
                 ctx.tick_loop(loop_expr.span())?;
                 scopes.enter();
                 scopes.define(name.as_str(), item);
-                eval_expr(loop_expr.body(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
+                eval_expr(loop_expr.body(), scopes, ctx, engine)?;
                 scopes.exit();
             }
             Ok(Value::None)

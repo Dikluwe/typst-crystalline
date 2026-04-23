@@ -23,7 +23,7 @@ use crate::rules::eval::EvalContext;
 ///
 /// - `body`: argumento posicional obrigatório.
 /// - `caption:`: argumento nomeado opcional; `none` → sem legenda.
-pub fn native_figure(ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_figure(ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, figure_numbering: Option<&str>) -> SourceResult<Value> {
     let _ = ctx;
     // Argumento posicional: body (obrigatório)
     let body = match args.items.first() {
@@ -66,10 +66,11 @@ pub fn native_figure(ctx: &mut EvalContext<'_>, args: &Args, _current_file: File
 
 /// `image(path, width?, height?)` → `Content::Image`.
 ///
-/// Lê os bytes do ficheiro através de `ctx.world.read_bytes(path)`.
+/// Lê os bytes do ficheiro através de `world.read_bytes(path)` (Passo 109:
+/// `world` passou do `EvalContext` para o ABI directo, ADR-0044).
 /// `width` e `height` são preservados no AST para o Passo 72 (dimensões reais).
 /// O layouter usa placeholder 100×100 pt neste passo (DEBT-24b).
-pub fn native_image(ctx: &mut EvalContext<'_>, args: &Args, current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_image(_ctx: &mut EvalContext, args: &Args, world: &dyn crate::contracts::world::World, current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     // Validar named args: apenas "width" e "height" são aceites.
     for key in args.named.keys() {
         if key.as_str() != "width" && key.as_str() != "height" {
@@ -92,7 +93,7 @@ pub fn native_image(ctx: &mut EvalContext<'_>, args: &Args, current_file: FileId
         )]),
     };
 
-    let data = match ctx.world.read_bytes(current_file, &path) {
+    let data = match world.read_bytes(current_file, &path) {
         Ok(arc) => arc,
         Err(msg) => return Err(vec![SourceDiagnostic::error(
             Span::detached(),

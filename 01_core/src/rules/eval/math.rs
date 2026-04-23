@@ -24,7 +24,7 @@ use super::EvalContext;
 /// renderização. O motor real (Passo 36+) substitui esta função com layout tipográfico.
 pub(super) fn eval_math_content(
     scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext<'_>,
+    ctx: &mut EvalContext,
     math: Math<'_>,
 ) -> SourceResult<Content> {
     let mut nodes: Vec<Content> = Vec::new();
@@ -44,7 +44,7 @@ pub(super) fn eval_math_content(
 /// Avalia um nó de expressão em modo matemático.
 fn eval_math_expr(
     scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext<'_>,
+    ctx: &mut EvalContext,
     expr: Expr<'_>,
 ) -> SourceResult<Content> {
     match expr {

@@ -26,7 +26,7 @@ use crate::rules::eval::EvalContext;
 /// ex: `align(center + bottom, ...)`) ou `Value::Str` (sintaxe legacy,
 /// ex: `align("center", ...)`) — ver DEBT-36 (encerrado).
 /// `body` é o primeiro argumento posicional do tipo Content.
-pub fn native_align(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_align(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
 
     let alignment = extract_alignment(args, Align2D::default());
@@ -48,7 +48,7 @@ pub fn native_align(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: File
 /// `scope` (Passo 84.6, encerra DEBT-37): `"column"` (default — ancora à
 /// célula activa de Grid, ou à página fora de Grid) ou `"parent"` (ancora
 /// sempre à página). Aceita string ou omissão.
-pub fn native_place(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["dx", "dy", "scope"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -144,7 +144,7 @@ fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
 }
 
 /// `grid(columns?, rows?, ...cells)` → `Content::Grid`.
-pub fn native_grid(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["columns", "rows"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -170,7 +170,7 @@ pub fn native_grid(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileI
 }
 
 /// `#set page(width: w, height: h, margin: m)` — configura as dimensões da página (Passo 81).
-pub fn native_page(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_page(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     fn extract_pt(val: &Value) -> Option<f64> {
         match val {
             Value::Length(l) => Some(l.abs.to_pt()),

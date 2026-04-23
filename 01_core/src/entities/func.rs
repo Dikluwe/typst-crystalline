@@ -54,18 +54,20 @@ pub struct ClosureParam {
 
 /// Função nativa implementada em Rust (Passo 71 — DEBT-24).
 ///
-/// Recebe `&mut EvalContext` para aceder ao World (ex: leitura de ficheiros).
-/// Funções sem I/O usam `_ctx` (prefixo underscore suprime warning).
+/// Recebe `&dyn World` para aceder a I/O (ex: leitura de ficheiros).
+/// Funções sem I/O usam `_world` (prefixo underscore suprime warning).
 ///
-/// Passo 98 (ADR-0036 Regra 1): os campos `current_file` e `figure_numbering`
-/// saíram do `EvalContext` e passaram a parâmetros explícitos do ABI.
-/// `current_file: FileId` (Copy, cheap) e `figure_numbering: Option<&str>`
-/// (read-only). Funções que não os usam prefixam com `_`.
+/// Passo 98 (ADR-0036 Regra 1): `current_file` e `figure_numbering`
+/// passaram a parâmetros explícitos do ABI.
+/// Passo 109 (ADR-0044): `world` deixou de estar em `EvalContext` (agora em
+/// `Engine`); para manter native functions desacopladas do `Engine`, o
+/// `world` entra directamente no ABI como parâmetro extra.
 pub struct NativeFunc {
     pub name: &'static str,
     pub call: fn(
-        &mut crate::rules::eval::EvalContext<'_>,
+        &mut crate::rules::eval::EvalContext,
         &Args,
+        &dyn crate::contracts::world::World,
         FileId,
         Option<&str>,
     ) -> SourceResult<Value>,
@@ -77,12 +79,14 @@ impl Func {
         Self(Arc::new(FuncRepr::Closure(repr)))
     }
 
-    /// Constrói uma Func nativa com um function pointer que recebe `EvalContext`.
+    /// Constrói uma Func nativa com um function pointer que recebe
+    /// `EvalContext`, `World`, `FileId`, `figure_numbering`.
     pub fn native(
         name: &'static str,
         call: fn(
-            &mut crate::rules::eval::EvalContext<'_>,
+            &mut crate::rules::eval::EvalContext,
             &Args,
+            &dyn crate::contracts::world::World,
             FileId,
             Option<&str>,
         ) -> SourceResult<Value>,
@@ -120,8 +124,9 @@ impl Func {
     /// Safe: `fn(...)` é function pointer, não `*const c_void`.
     pub fn native_fn_addr(&self)
         -> Option<fn(
-            &mut crate::rules::eval::EvalContext<'_>,
+            &mut crate::rules::eval::EvalContext,
             &Args,
+            &dyn crate::contracts::world::World,
             FileId,
             Option<&str>,
         ) -> SourceResult<Value>>
@@ -226,7 +231,7 @@ mod tests {
 
     #[test]
     fn native_func_debug_nao_panicar() {
-        let f = Func::native("type", |_ctx, _args, _cf, _fn| Ok(Value::None));
+        let f = Func::native("type", |_ctx, _args, _world, _cf, _fn| Ok(Value::None));
         assert_eq!(format!("{:?}", f), "<function>");
     }
 }

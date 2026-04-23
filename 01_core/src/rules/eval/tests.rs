@@ -40,7 +40,7 @@ pub(crate) fn eval_for_test_with_limits<W: World>(
     source: &Source,
     max_loop_iterations: usize,
 ) -> SourceResult<Module> {
-    let mut ctx = EvalContext::new(world);
+    let mut ctx = EvalContext::new();
     ctx.max_loop_iterations = max_loop_iterations;
 
     let route = Route::root().with_id(source.id());
@@ -60,17 +60,22 @@ pub(crate) fn eval_for_test_with_limits<W: World>(
     }
     scopes.enter();
 
+    let mut engine = Engine {
+        world,
+        route: route.track(),
+        styles: &mut styles,
+        show_rules: &mut show_rules,
+        active_guards: &mut active_guards,
+        current_file,
+        figure_numbering: &mut figure_numbering,
+        sink: &mut sink,
+    };
+
     let content_val = eval_markup(
         root,
         &mut scopes,
         &mut ctx,
-        route.track(),
-        &mut styles,
-        &mut show_rules,
-        &mut active_guards,
-        current_file,
-        &mut figure_numbering,
-        &mut sink,
+        &mut engine,
     )?;
 
     let module_scope = scopes.exit();
