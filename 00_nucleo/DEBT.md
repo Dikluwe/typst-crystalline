@@ -495,8 +495,8 @@ avaliação, misturando markup, matemática, closures, imports,
 regras show/set e controlo de fluxo.
 
 Este DEBT documenta o inventário concreto da reestruturação
-necessária pela ADR-0037 (`PROPOSTO` após Passo 96; `EM VIGOR`
-esperada após Passo 96.2).
+necessária pela ADR-0037 (`EM VIGOR` desde Passo 96.3 após
+validação empírica nos Passos 96.1–96.2).
 
 ### Motivação
 
@@ -511,32 +511,39 @@ A ADR-0037 complementa a ADR-0036 ao orientar decomposição
 
 ### Critério de conclusão
 
-Cada ficheiro listado tem checkbox próprio:
+Renumeração aplicada no Passo 96.3 após introdução do 96.2
+(delegação dos armos) que deslocou os sub-passos seguintes em
+uma posição:
 
 - [x] `eval.rs` reestruturado em submódulos por domínio (math,
-      operators, control_flow, closures, bindings, rules, tests).
-      Nenhum submódulo > 800 linhas ou cada excepção tem
-      justificativa Regra 6 no topo. (Passo 96.1) **Concluído.**
-      Ver reporte do Passo 96.1 para detalhes dos tamanhos finais
-      (mod.rs ~868 linhas marca-se como excepção Regra 6 por ser
-      dispatcher central + EvalContext; tests.rs ~2090 linhas é
-      cfg(test) gated e E2E cross-cutting, também excepção).
-- [ ] ADR-0037 promovida de `PROPOSTO` para `EM VIGOR` ou
-      ajustada conforme fricção encontrada. (Passo 96.2)
+      operators, control_flow, closures, bindings, rules,
+      markup, modules, tests). **Passo 96.1 concluído** — 7
+      submódulos criados inicialmente (math/operators/
+      control_flow/closures/bindings/rules), mais tests.rs em
+      ficheiro separado. `markup.rs` e `modules.rs` adicionados
+      no Passo 96.2.
+- [x] Delegação completa dos armos longos do dispatcher
+      `eval_expr`. **Passo 96.2 concluído** — `mod.rs` caiu
+      para 520 linhas, dispatcher compacto com armos de 1 linha
+      para casos de domínio; excepção Regra 6 removida do
+      `mod.rs`. `tests.rs` mantém nota Regra 6 (cfg(test) gated).
+- [x] ADR-0037 promovida de `PROPOSTO` para `EM VIGOR` com 4
+      ajustes (A/B/C/D) validados empiricamente nos Passos
+      96.1–96.2. **Passo 96.3 concluído neste passo.**
 - [ ] `parse.rs` reestruturado por tipo de nó (markup, code,
-      math, rules). (Passo 96.3)
+      math, rules). (Passo 96.4)
 - [ ] `stdlib.rs` reestruturado por módulo da stdlib (text,
-      layout, math, calc, etc.). (Passo 96.4)
+      layout, math, calc, etc.). (Passo 96.5)
 - [ ] `layout/mod.rs` reestruturado (orquestração, medição,
-      emissão, sub-frames). (Passo 96.5)
+      emissão, sub-frames). (Passo 96.6)
 - [ ] `math/layout.rs` reestruturado ou marcado como excepção
-      Regra 6. (Passo 96.6)
-- [ ] `lexer/mod.rs` reestruturado ou marcado como excepção
       Regra 6. (Passo 96.7)
+- [ ] `lexer/mod.rs` reestruturado ou marcado como excepção
+      Regra 6. (Passo 96.8)
 - [ ] Verificação final: `find 01_core/src -name "*.rs" | xargs wc -l |
       sort -rn | head -10` mostra ficheiros acima de 800 linhas
-      só com excepções Regra 6 documentadas. (Passo 96.8 ou
-      encerramento implícito em 96.7)
+      só com excepções Regra 6 documentadas. (Passo 96.9 ou
+      encerramento implícito em 96.8)
 
 ### Dependências
 
