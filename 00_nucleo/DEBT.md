@@ -578,8 +578,26 @@ uma posição:
       bloco-comentário no topo da struct. Zero regressão
       funcional: 748 → 753 L1 tests (+5 smoke V2). Zero
       violations.
-- [ ] `math/layout.rs` reestruturado ou marcado como excepção
-      Regra 6. (Passo 96.8)
+- [x] `math/layout.rs` reestruturado ou marcado como excepção
+      Regra 6. **Passo 96.8 concluído** — `git mv` de `math/layout.rs`
+      para `math/layout/mod.rs`; 8 submódulos novos extraídos
+      por método pesado de `MathLayouter`: `attach` (221 linhas),
+      `root` (98), `frac` (87), `matrix` (74), `cases` (65),
+      `stretchy` (64), `assembly` (82), `delimited` (48);
+      `tests.rs` (761 linhas, Regra 6 cfg(test) gated). `mod.rs`
+      ficou em 484 linhas (`MathBox` + helpers livres `offset_item`/
+      `needs_grid_layout`/`partition_grid` + `MathLayouter` com
+      métodos de coord: new, apply_axis_offset, layout_equation,
+      layout_node, layout_text_node, layout_sequence,
+      layout_grid_rows, layout_grid, hconcat). Visibilidade:
+      **18 métodos `pub(super) fn` vs 7 campos `pub(super)`**
+      (rácio 2.6:1), em linha com Regra 3. Campos `pub(super)`
+      documentados em bloco-comentário da struct `MathBox` (4
+      campos) + struct `MathLayouter` (3 campos). Bug descoberto
+      durante extracção: contagem naïve de `{`/`}` em Python
+      não distingue char literal `'{'` de delimitador — resolvido
+      separando `layout_delimited` manualmente. Zero regressão:
+      753 → 761 L1 tests (+8 smoke V2). Zero violations.
 - [ ] `lexer/mod.rs` reestruturado ou marcado como excepção
       Regra 6. (Passo 96.9)
 - [ ] Verificação final: `find 01_core/src -name "*.rs" | xargs wc -l |
