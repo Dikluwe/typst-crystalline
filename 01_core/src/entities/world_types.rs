@@ -266,60 +266,66 @@ impl Route<'_> {
 
     /// Profundidade máxima de chamadas de função.
     pub const MAX_CALL_DEPTH: usize = 80;
+}
 
-    /// Garante que estamos dentro da profundidade máxima de show rules.
-    pub fn check_show_depth(&self) -> SourceResult<()> {
-        if !self.within(Self::MAX_SHOW_RULE_DEPTH) {
-            return Err(vec![
-                SourceDiagnostic::error(
-                    Span::detached(),
-                    "maximum show rule depth exceeded",
-                )
-                .with_hint("maybe a show rule matches its own output")
-                .with_hint("maybe there are too deeply nested elements"),
-            ]);
-        }
-        Ok(())
-    }
-
-    /// Garante que estamos dentro da profundidade máxima de layout.
-    pub fn check_layout_depth(&self) -> SourceResult<()> {
-        if !self.within(Self::MAX_LAYOUT_DEPTH) {
-            return Err(vec![
-                SourceDiagnostic::error(
-                    Span::detached(),
-                    "maximum layout depth exceeded",
-                )
-                .with_hint("try to reduce the amount of nesting in your layout"),
-            ]);
-        }
-        Ok(())
-    }
-
-    /// Garante que estamos dentro da profundidade máxima de HTML.
-    pub fn check_html_depth(&self) -> SourceResult<()> {
-        if !self.within(Self::MAX_HTML_DEPTH) {
-            return Err(vec![
-                SourceDiagnostic::error(
-                    Span::detached(),
-                    "maximum HTML depth exceeded",
-                )
-                .with_hint("try to reduce the amount of nesting of your HTML"),
-            ]);
-        }
-        Ok(())
-    }
-
-    /// Garante que estamos dentro da profundidade máxima de chamadas.
-    pub fn check_call_depth(&self) -> SourceResult<()> {
-        if !self.within(Self::MAX_CALL_DEPTH) {
-            return Err(vec![SourceDiagnostic::error(
+/// Verifica o limite de show rules a partir de um proxy `Tracked<Route>`.
+///
+/// Os `check_*_depth` do vanilla são métodos sobre `&Route`; no cristalino,
+/// as funções do eval só têm acesso a `Tracked<'r, Route<'r>>` (o Route é
+/// propagado covariante, ADR-0036). Como `Tracked` só expõe métodos do
+/// bloco `#[comemo::track]`, estas verificações são funções livres que
+/// usam `within` (tracked) e constroem o diagnóstico externamente.
+pub fn check_show_depth(route: Tracked<'_, Route<'_>>) -> SourceResult<()> {
+    if !route.within(Route::MAX_SHOW_RULE_DEPTH) {
+        return Err(vec![
+            SourceDiagnostic::error(
                 Span::detached(),
-                "maximum function call depth exceeded",
-            )]);
-        }
-        Ok(())
+                "maximum show rule depth exceeded",
+            )
+            .with_hint("maybe a show rule matches its own output")
+            .with_hint("maybe there are too deeply nested elements"),
+        ]);
     }
+    Ok(())
+}
+
+/// Verifica o limite de layout — paridade com `typst-layout/src/flow/mod.rs:143`.
+pub fn check_layout_depth(route: Tracked<'_, Route<'_>>) -> SourceResult<()> {
+    if !route.within(Route::MAX_LAYOUT_DEPTH) {
+        return Err(vec![
+            SourceDiagnostic::error(
+                Span::detached(),
+                "maximum layout depth exceeded",
+            )
+            .with_hint("try to reduce the amount of nesting in your layout"),
+        ]);
+    }
+    Ok(())
+}
+
+/// Verifica o limite de HTML — paridade com `typst-html/src/fragment.rs:66`.
+pub fn check_html_depth(route: Tracked<'_, Route<'_>>) -> SourceResult<()> {
+    if !route.within(Route::MAX_HTML_DEPTH) {
+        return Err(vec![
+            SourceDiagnostic::error(
+                Span::detached(),
+                "maximum HTML depth exceeded",
+            )
+            .with_hint("try to reduce the amount of nesting of your HTML"),
+        ]);
+    }
+    Ok(())
+}
+
+/// Verifica o limite de chamadas — paridade com `typst-eval/src/call.rs:33`.
+pub fn check_call_depth(route: Tracked<'_, Route<'_>>) -> SourceResult<()> {
+    if !route.within(Route::MAX_CALL_DEPTH) {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "maximum function call depth exceeded",
+        )]);
+    }
+    Ok(())
 }
 
 #[comemo::track]
@@ -618,11 +624,43 @@ mod tests {
             child.increase();
         }
         // child.len = 1 + 64 = 65 > MAX_SHOW_RULE_DEPTH.
-        assert!(child.check_show_depth().is_err(),
+        // `check_show_depth` é função livre desde Passo 93 — recebe
+        // `Tracked<Route>` porque o eval só tem acesso à Route por proxy.
+        assert!(check_show_depth(child.track()).is_err(),
                 "check_show_depth deve rejeitar profundidade > MAX_SHOW_RULE_DEPTH");
-        let diags = child.check_show_depth().unwrap_err();
+        let diags = check_show_depth(child.track()).unwrap_err();
         assert!(diags[0].message.contains("show rule depth"),
                 "mensagem identifica a categoria excedida");
+    }
+
+    // ── check_*_depth free functions (Passo 93, DEBT-45 parcial) ──────────────
+
+    #[test]
+    fn check_call_depth_rejeita_chain_excessiva() {
+        // Paridade com `typst-eval/src/call.rs:33`: MAX_CALL_DEPTH = 80.
+        // Inflamos o len de um segmento filho acima do limite.
+        let parent = Route::root();
+        let mut child = Route::extend(parent.track());
+        for _ in 0..Route::MAX_CALL_DEPTH {
+            child.increase();
+        }
+        // child.len = 1 + 80 = 81 > MAX_CALL_DEPTH.
+        assert!(check_call_depth(child.track()).is_err(),
+                "check_call_depth deve rejeitar profundidade > MAX_CALL_DEPTH");
+        let diags = check_call_depth(child.track()).unwrap_err();
+        assert!(diags[0].message.contains("function call depth"),
+                "mensagem identifica a categoria excedida");
+    }
+
+    #[test]
+    fn check_funcoes_livres_aceitam_route_raiz() {
+        // Smoke test: todas as 4 funções livres aceitam root().track()
+        // e devolvem Ok — root isolado nunca excede limite (outer=None).
+        let r = Route::root();
+        assert!(check_show_depth(r.track()).is_ok());
+        assert!(check_layout_depth(r.track()).is_ok());
+        assert!(check_html_depth(r.track()).is_ok());
+        assert!(check_call_depth(r.track()).is_ok());
     }
 
     #[test]

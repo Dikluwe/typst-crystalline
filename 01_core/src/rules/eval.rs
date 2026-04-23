@@ -34,31 +34,36 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::syntax_node::SyntaxNode;
 use crate::entities::value::Value;
-use crate::entities::world_types::{Route, Routines, Sink, Traced};
+use crate::entities::world_types::{
+    check_call_depth as route_check_call_depth,
+    check_show_depth as route_check_show_depth,
+    Route, Routines, Sink, Traced,
+};
 use crate::rules::scopes::Scopes;
 
 /// Contexto de execução partilhado durante eval().
 ///
-/// Limites de segurança para prevenir loops infinitos e recursão profunda:
-/// - `max_call_depth`: profundidade máxima de chamadas. Rust faz stack
-///   overflow antes de ~500 frames em modo debug. 250 é defensivo sem ser
-///   arbitrário. O original suporta 1.000 via comemo com stack separada.
+/// Limite de segurança para prevenir loops infinitos:
 /// - `max_loop_iterations`: limite total global de iterações. Um contador
 ///   local por loop permite "loop-bombing" (milhares de loops pequenos que
 ///   colectivamente travam o motor). Counter global impede isso: 1.000.000
 ///   iterações falham em segundos independentemente da distribuição.
 ///
+/// A profundidade de chamadas **não** é verificada aqui — é verificada pelo
+/// `Route<'a>` através de `route.check_call_depth()` em `apply_closure`
+/// (Passo 93, ADR-0033 paridade com vanilla, `MAX_CALL_DEPTH = 80`). O
+/// campo antigo `depth`/`max_call_depth`/`enter_call`/`leave_call` foi
+/// removido (DEBT-45 parcialmente pago).
+///
 /// A rota de compilação (`Route<'a>`) **não** é campo do contexto — é
-/// passada como parâmetro `route: &Route<'_>` às funções `eval_*` que
-/// participam na recursão. Paridade estrutural com o vanilla e primeira
-/// aplicação concreta da ADR-0036 (atomização progressiva, Passo 92). O
-/// campo `route: Vec<FileId>` + API `with_route_id` do Passo 90 foram
-/// eliminados aqui (DEBT-44 fechado).
+/// passada como parâmetro `route: Tracked<'r, Route<'r>>` às funções
+/// `eval_*` que participam na recursão. Paridade estrutural com o vanilla
+/// e primeira aplicação concreta da ADR-0036 (atomização progressiva,
+/// Passo 92). O campo `route: Vec<FileId>` + API `with_route_id` do Passo
+/// 90 foram eliminados no Passo 92 (DEBT-44 fechado).
 pub struct EvalContext<'w> {
     #[allow(dead_code)] // usado quando `import` for implementado (Passo futuro)
     pub world: &'w dyn World,
-    pub depth: usize,
-    pub max_call_depth: usize,
     pub loop_iterations: usize,
     pub max_loop_iterations: usize,
     /// Cadeia de estilos activa durante eval.
@@ -93,8 +98,6 @@ impl<'w> EvalContext<'w> {
     pub fn new(world: &'w dyn World, current_file: FileId) -> Self {
         Self {
             world,
-            depth: 0,
-            max_call_depth: 250,
             loop_iterations: 0,
             max_loop_iterations: 1_000_000,
             styles: StyleChain::default_chain(),
@@ -127,23 +130,6 @@ impl<'w> EvalContext<'w> {
         }
     }
 
-    /// Verifica se a profundidade máxima foi atingida.
-    /// Retorna Err se a profundidade >= max_call_depth.
-    pub fn check_call_depth(&self, span: Span) -> SourceResult<()> {
-        if self.depth >= self.max_call_depth {
-            Err(vec![SourceDiagnostic::error(
-                span,
-                format!(
-                    "profundidade máxima de chamadas atingida ({}) — \
-                     possível recursão infinita",
-                    self.max_call_depth
-                ),
-            )])
-        } else {
-            Ok(())
-        }
-    }
-
     /// Incrementa o contador de iterações e retorna Err se o limite foi atingido.
     pub fn tick_loop(&mut self, span: Span) -> SourceResult<()> {
         self.loop_iterations += 1;
@@ -161,16 +147,6 @@ impl<'w> EvalContext<'w> {
         }
     }
 
-    /// Entra numa chamada de função — retorna Err se profundidade excedida.
-    pub fn enter_call(&mut self, span: Span) -> SourceResult<()> {
-        self.check_call_depth(span)?;
-        self.depth += 1;
-        Ok(())
-    }
-
-    pub fn leave_call(&mut self) {
-        self.depth = self.depth.saturating_sub(1);
-    }
 }
 
 /// Avalia um ficheiro Typst e retorna o módulo resultante.
@@ -1090,7 +1066,11 @@ fn apply_closure<'r>(
     ctx: &mut EvalContext<'_>,
     route: Tracked<'r, Route<'r>>,
 ) -> SourceResult<Value> {
-    ctx.enter_call(closure.body.span())?;
+    // Limite de chamadas vanilla (MAX_CALL_DEPTH = 80) — paridade com
+    // `typst-eval/src/call.rs:33` (ADR-0033). Pago parcial do DEBT-45
+    // no Passo 93. Substitui `EvalContext::check_call_depth` antigo
+    // (Opção 2 do plano).
+    route_check_call_depth(route)?;
 
     // Criar scope filho do captured — O(1), sem clone dos valores capturados.
     let mut call_scopes = Scopes::with_parent(std::sync::Arc::clone(&closure.captured));
@@ -1116,17 +1096,21 @@ fn apply_closure<'r>(
         call_scopes.define(param.name.as_str(), val);
     }
 
+    // Frame de chamada: novo segmento `Route::extend(route)` com `len: 1`.
+    // Paridade com `typst-eval/src/call.rs` do vanilla, que reconstrói o
+    // Engine com `route: Route::extend(route)` para cada chamada.
+    let child_route = Route::extend(route);
+
     // Avaliar o body com o scope da chamada.
     // Save/restore de styles: #set dentro da closure não deve afectar o caller.
     let saved_styles = ctx.styles.clone();
     let result = if let Some(body_expr) = Expr::from_untyped(&closure.body) {
-        eval_expr(body_expr, &mut call_scopes, ctx, route)
+        eval_expr(body_expr, &mut call_scopes, ctx, child_route.track())
     } else {
         Ok(Value::None)
     };
     ctx.styles = saved_styles;
 
-    ctx.leave_call();
     result
 }
 
@@ -1442,6 +1426,11 @@ pub(crate) fn apply_show_rules<'r>(
         return Ok(content);
     }
 
+    // Limite de aninhamento vanilla (MAX_SHOW_RULE_DEPTH = 64) —
+    // paridade com `typst-realize/src/lib.rs:402` (ADR-0033).
+    // Pago parcial do DEBT-45 no Passo 93.
+    route_check_show_depth(route)?;
+
     // Separar regras por tipo para travessias distintas.
     let has_node_rules = rules.iter().any(|r| matches!(r.selector, Selector::NodeKind(_)));
 
@@ -1689,20 +1678,19 @@ pub(crate) fn eval_for_test<W: World>(
     eval(&routines, world, traced.track(), sink.track_mut(), route.track(), source)
 }
 
-/// Função de teste que permite customizar os limites de profundidade de chamada e iterações.
-/// Usada para testar o comportamento dos limites sem depender de valores hardcoded.
+/// Função de teste que permite customizar o limite de iterações de loop.
+///
+/// A profundidade de chamadas é verificada por `Route::check_call_depth`
+/// (MAX_CALL_DEPTH = 80) e não é configurável — tests que exercitam
+/// recursão infinita trigueam esse limite sem override.
 #[cfg(test)]
 pub(crate) fn eval_for_test_with_limits<W: World>(
     world: &W,
     source: &Source,
     max_loop_iterations: usize,
-    max_call_depth: usize,
 ) -> SourceResult<Module> {
-    
-
     let mut ctx = EvalContext::new(world, source.id());
     ctx.max_loop_iterations = max_loop_iterations;
-    ctx.max_call_depth = max_call_depth;
 
     let route = Route::root().with_id(source.id());
     let root = source.root();
@@ -2225,7 +2213,7 @@ mod tests {
              #let r = inf(0)"
         );
         let src = World::source(&world, World::main(&world)).unwrap();
-        let result = eval_for_test_with_limits(&world, &src, 1_000_000, 50);
+        let result = eval_for_test_with_limits(&world, &src, 1_000_000);
         assert!(result.is_err(), "recursão infinita deve Err, não crash");
         let msg = &result.unwrap_err()[0].message;
         assert!(
@@ -2575,7 +2563,7 @@ mod tests {
         // Esperamos Err com mensagem de "cannot apply Assign" porque não suportamos assignment.
         // Este teste é mais sobre verificar que o loop contagem funciona sem Err de limite.
         // Simplificar: apenas verificar que o while loop com muitas iterações falha com limite reduzido
-        let result = eval_for_test_with_limits(&world, &src, 100, 250);
+        let result = eval_for_test_with_limits(&world, &src, 100);
         assert!(result.is_err(), "100 iterações com limite 100 deve retornar Err");
     }
 
@@ -2584,7 +2572,7 @@ mod tests {
         // Loop infinito com limite reduzido para teste rápido
         let world = MockWorld::new("#while true { }");
         let src = World::source(&world, World::main(&world)).unwrap();
-        let result = eval_for_test_with_limits(&world, &src, 1_000, 250);
+        let result = eval_for_test_with_limits(&world, &src, 1_000);
         assert!(result.is_err(), "while infinito deve retornar Err");
         let err = result.unwrap_err();
         assert!(!err.is_empty());
@@ -2606,7 +2594,7 @@ mod tests {
              #let _ = f(0)"
         );
         let src = World::source(&world, World::main(&world)).unwrap();
-        let result = eval_for_test_with_limits(&world, &src, 1_000_000, 50);
+        let result = eval_for_test_with_limits(&world, &src, 1_000_000);
         assert!(result.is_err(), "recursão infinita deve retornar Err");
         let err = result.unwrap_err();
         assert!(!err.is_empty());

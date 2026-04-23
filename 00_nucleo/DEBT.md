@@ -388,16 +388,16 @@ Os 3 restantes são **código não executado**:
 
 ### Critério de conclusão
 
-- [ ] `check_show_depth` chamado no ponto correspondente em
+- [x] `check_show_depth` chamado no ponto correspondente em
       `rules/eval.rs` ou `rules/show.rs`, consistente com o vanilla.
 - [ ] `check_layout_depth` chamado no ponto correspondente em
       `rules/layout/`, consistente com o vanilla.
 - [ ] `check_html_depth` chamado quando o pipeline HTML existir
       (não antes — aguarda materialização do pipeline).
-- [ ] `EvalContext::check_call_depth` antigo pode ser removido ou
+- [x] `EvalContext::check_call_depth` antigo pode ser removido ou
       re-encaminhado para `Route::check_call_depth` — decisão adiada
       para o passo que atacar este DEBT.
-- [ ] Testes que exercitam cada limite passam sem alteração da
+- [x] Testes que exercitam cada limite passam sem alteração da
       asserção (comportamento observável preservado).
 
 ### Dependências
@@ -412,6 +412,52 @@ Os 3 restantes são **código não executado**:
 `check_html_depth` só é accionável quando o pipeline HTML for
 materializado. Este DEBT pode ser parcialmente pago (3 limites
 integrados) e manter o quarto aberto até então.
+
+### Estado actual (após Passo 93)
+
+**Parcialmente pago.** 2 dos 4 `check_*_depth` integrados, 1 adiado,
+1 pendente do HTML:
+
+- [x] `check_show_depth` — chamado em `apply_show_rules`
+  (`01_core/src/rules/eval.rs:1428`), antes de processar as regras.
+  Paridade com `typst-realize/src/lib.rs:402` do vanilla.
+- [ ] `check_layout_depth` — **adiado**. A pipeline de layout do
+  cristalino (`01_core/src/rules/layout/mod.rs::layout`) opera
+  sobre `Content` já avaliado, sem receber `Route<'a>`. Propagar
+  `route` para o `Layouter` é refactor análogo ao do Passo 92 mas
+  num submódulo diferente; encaixa melhor no passo que
+  materializar `Engine<'a>` (que alinha `route` + layout num só
+  contexto). Fica para passo dedicado.
+- [x] `check_call_depth` — chamado em `apply_closure`
+  (`01_core/src/rules/eval.rs:1069`), antes de bindar parâmetros.
+  Paridade com `typst-eval/src/call.rs:33`. **Opção 2** aplicada:
+  `EvalContext::check_call_depth`, `enter_call`, `leave_call`, e
+  os campos `depth`/`max_call_depth` foram **removidos**. Além
+  disso, o helper `eval_for_test_with_limits` perdeu o parâmetro
+  `max_call_depth` (4 call-sites actualizados); os testes de
+  recursão continuam a passar porque Route's 80 > 50 do limite
+  antigo — a assertion `is_err()` + mensagem `"depth"` cobre
+  ambos os mecanismos.
+- [ ] `check_html_depth` — pendente. Integração só é possível
+  quando o pipeline HTML for materializado (trabalho futuro).
+
+Mais: por motivos de arquitectura do `comemo 0.4.0`, os 4
+`check_*_depth` foram refactorados de **métodos** `Route::check_*`
+para **funções livres** `world_types::check_*(Tracked<Route>)`.
+Razão: `Tracked<T>` só expõe métodos do bloco `#[comemo::track]`
+e as verificações precisam de construir `SourceDiagnostic` (tipo
+não-memoizável). As funções livres delegam a lógica ao `within`
+(que é tracked) e constroem o diagnóstico externamente.
+
+Passo 93 adicionou também o diagnóstico
+`00_nucleo/diagnosticos/diagnostico-constraint-tracked-recursivo-passo-93.md`
+(Tarefa A) a documentar o padrão
+`<T<'static> as Validate>::Constraint` descoberto no Passo 92.
+
+Encerramento completo do DEBT-45 fica para quando
+`check_layout_depth` for integrado (Passo próprio ou parte da
+materialização do `Engine<'a>`) e `check_html_depth` quando o
+pipeline HTML existir.
 
 ---
 
