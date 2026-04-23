@@ -473,7 +473,81 @@ pipeline HTML existir.
 
 ---
 
-## DEBT-46 — Ficheiros de L1 com coesão baixa por tamanho excessivo — EM ABERTO (Passo 96)
+## DEBT-47 — Auditoria de visibilidade dos `pub(super)` aplicados nos Passos 96.1–96.5 — EM ABERTO (Passo 96.6)
+
+Os Passos 96.1, 96.2, 96.4 e 96.5 reestruturaram quatro
+ficheiros grandes (`eval.rs`, `parse.rs`, `stdlib.rs`) em
+submódulos conforme ADR-0037. Durante a extracção, visibilidade
+de fields e métodos foi elevada para `pub(super)` em muitos
+casos — alguns por bulk replace Python (reportado no Passo
+96.4 para o `Parser` struct), outros por replace manual.
+
+A ADR-0037 Regra 3 (clarificada no Passo 96.6) estabelece
+preferência por:
+- Manter privado quando possível.
+- Métodos `pub(super)` sobre campos `pub(super)`.
+- `pub(in path)` para escopo explícito quando aplicável.
+
+Este DEBT documenta a necessidade de auditoria retroactiva:
+verificar cada `pub(super)` introduzido nos Passos 96.1–96.5 e
+restringir onde possível sem perder funcionalidade.
+
+### Escopo
+
+Submódulos a auditar:
+
+- `01_core/src/rules/eval/` (Passos 96.1 e 96.2):
+  - `mod.rs`, `markup.rs`, `math.rs`, `modules.rs`, `rules.rs`,
+    `closures.rs`, `control_flow.rs`, `bindings.rs`,
+    `operators.rs`, `tests.rs`.
+- `01_core/src/rules/parse/` (Passo 96.4):
+  - `mod.rs`, `parser.rs`, `math.rs`, `markup.rs`, `code.rs`,
+    `rules.rs`, `patterns.rs`.
+- `01_core/src/rules/stdlib/` (Passo 96.5):
+  - `mod.rs` e 9 submódulos.
+
+### Critério de conclusão
+
+- [ ] Inventário de todos os `pub(super)` nos submódulos
+      listados (provavelmente via grep + análise).
+- [ ] Classificação de cada ocorrência:
+  - Necessária (submódulo realmente precisa).
+  - Elevável (podia ser `pub(in path)` mais estrito).
+  - Removível (submódulo não usa — restos de bulk replace).
+  - Convertível a método (campo `pub(super)` que devia ser
+    método).
+- [ ] Aplicação das mudanças sem regressão:
+  - Campos `pub(super)` convertíveis → métodos.
+  - Campos/métodos elevados → restritos.
+  - Residuais de bulk replace → removidos.
+- [ ] `cargo test` preservado.
+- [ ] `crystalline-lint` → zero violations.
+
+### Dependências
+
+Este DEBT **não é atacado** até DEBT-46 encerrar. Razão:
+fazer auditoria de visibilidade em ficheiros que ainda estão
+a ser reestruturados é sobreposição de trabalho. Depois do
+DEBT-46 encerrar (Passos 96.7, 96.8, 96.9, 96.10), todos os
+submódulos estarão na sua forma final e a auditoria é estável.
+
+Os Passos 96.7 em diante **seguem** a Regra 3 actualizada
+(não introduzem `pub(super)` desnecessário). O DEBT-47 cobre
+apenas o trabalho retroactivo dos passos anteriores.
+
+### Nota sobre escopo do Passo 96.5
+
+O Passo 96.5 já aplicou visibilidade mais criteriosa que os
+Passos 96.1–96.4 (o reporte não menciona bulk replace). Na
+auditoria, pode revelar-se que o 96.5 não tem dívida
+significativa de visibilidade. Nesse caso, o DEBT-47 é pago
+mais rápido nos submódulos relevantes.
+
+---
+
+## Secção 2 — DEBTs encerrados
+
+## DEBT-46 — Ficheiros de L1 com coesão baixa por tamanho excessivo — ENCERRADO (Passo 96.10) ✓
 
 Seis ficheiros em `01_core/src/` excedem 1000 linhas e misturam
 responsabilidades de domínios distintos. A análise realizada antes
@@ -598,12 +672,27 @@ uma posição:
       não distingue char literal `'{'` de delimitador — resolvido
       separando `layout_delimited` manualmente. Zero regressão:
       753 → 761 L1 tests (+8 smoke V2). Zero violations.
-- [ ] `lexer/mod.rs` reestruturado ou marcado como excepção
-      Regra 6. (Passo 96.9)
-- [ ] Verificação final: `find 01_core/src -name "*.rs" | xargs wc -l |
-      sort -rn | head -10` mostra ficheiros acima de 800 linhas
-      só com excepções Regra 6 documentadas. (Passo 96.10 ou
-      encerramento implícito em 96.9)
+- [x] `lexer/mod.rs` reestruturado ou marcado como excepção
+      Regra 6. **Passo 96.9 concluído — Via A (decomposição)** —
+      o lexer tinha clusters claros por modo sintáctico
+      (`impl Lexer<'_>` separado para markup, math, code).
+      Extracção: `markup.rs` (419 linhas — markup/backslash/raw/
+      link/numbering/ref_marker/label/text/in_word/space_or_end),
+      `math.rs` (219 linhas — math/math_ident_or_field/
+      maybe_dot_ident/math_text/maybe_math_named_arg/
+      maybe_math_spread_arg), `code.rs` (257 linhas — code/
+      invalid_char_in_code/ident/number/string). `mod.rs` caiu
+      de 1250 → 468 linhas (struct Lexer + accessors + error/
+      hint + dispatcher `next()` + whitespace/shebang/comments
+      + ScannerExt trait + char-class free helpers + tests).
+      Visibilidade: **16 métodos `pub(super) fn` vs 4 campos
+      `pub(super)`** (rácio 4:1 — o melhor dos 96.7/96.8/96.9).
+      Campos `pub(super)` documentados em bloco-comentário da
+      struct Lexer. Zero regressão: 761 → 764 L1 tests (+3
+      smoke V2). Zero violations.
+- [x] Verificação final: nenhum ficheiro em `01_core/src/`
+      acima de 800 linhas sem justificativa Regra 6 documentada
+      no topo. **Passo 96.10 concluído neste passo.**
 
 ### Dependências
 
@@ -628,81 +717,99 @@ descobertas durante a execução, registar como **excepção Regra 6**
 em vez de deixar como dívida pendente. A Regra 6 existe
 precisamente para estes casos.
 
+### Resultados finais (após Passo 96.10)
+
+Trabalho completo da ADR-0037 Regra 2 aplicada a ficheiros
+grandes de `01_core/src/rules/`.
+
+**Antes** (inventário do Passo 96):
+
+| Ficheiro | Linhas |
+|----------|--------|
+| `rules/eval.rs` | 3780 |
+| `rules/layout/mod.rs` | 2848 |
+| `rules/parse.rs` | 2255 |
+| `rules/math/layout.rs` | 1806 |
+| `rules/stdlib.rs` | 1711 |
+| `rules/lexer/mod.rs` | 1250 |
+
+Total: 13 650 linhas em 6 ficheiros acima de 1000.
+
+**Depois** (após Passos 96.1–96.9):
+
+| Estrutura original | Resultado |
+|--------------------|-----------|
+| `eval.rs` (3780) | `eval/mod.rs` (520) + 9 submódulos + `tests.rs` (2100) |
+| `layout/mod.rs` (2848) | `layout/mod.rs` (755) + 6 submódulos + `tests.rs` (1399) |
+| `parse.rs` (2255) | `parse/mod.rs` (156) + 6 submódulos |
+| `math/layout.rs` (1806) | `math/layout/mod.rs` (484) + 8 submódulos + `tests.rs` (761) |
+| `stdlib.rs` (1711) | `stdlib/mod.rs` (617) + 9 submódulos |
+| `lexer/mod.rs` (1250) | `lexer/mod.rs` (463) + 3 submódulos |
+
+**Ficheiros ainda acima de 800 linhas em `01_core/src/`**:
+
+| Ficheiro | Linhas | Tipo | Justificativa |
+|----------|-------:|------|---------------|
+| `rules/eval/tests.rs` | 2100 | Testes E2E | Regra 5 + Regra 6 (cfg(test) gated, cobertura cross-domain) |
+| `rules/layout/tests.rs` | 1399 | Testes E2E | Regra 5 + Regra 6 (idem, documentado no topo) |
+| `entities/syntax_node.rs` | 1095 | Entidade estrutural | Regra 6 — árvore sintáctica fundamental, impls coesos |
+| `entities/content.rs` | 1072 | Entidade fundamental | Regra 6 — enum central do domínio visual |
+| `entities/layout_types.rs` | 850 | Vocabulário geométrico | Regra 6 — tipos coesos com impls cruzados |
+| `entities/ast/expr.rs` | 845 | AST tipado | Regra 6 — ~50 variantes enum com impls `AstNode` |
+
+Todos com justificativa Regra 6 documentada no topo (adicionadas
+no Passo 96.10 onde faltavam).
+
+**Contagem de testes**:
+
+- Antes (Passo 96): 746 L1.
+- Depois (Passo 96.10): **764 L1** (+18 smoke tests V2 obrigatórios
+  dos submódulos novos, distribuídos: +2 parse, +5 layout, +8 math,
+  +3 lexer).
+- L3: 174 (inalterado).
+- Ignorados: 6 (inalterado).
+
+**Visibilidade** (somatório dos Passos 96.7/96.8/96.9, primeira
+aplicação sistemática da nota Regra 3 introduzida no Passo 96.6):
+
+| Passo | Alvo | Métodos `pub(super)` | Campos `pub(super)` | Rácio |
+|-------|------|---------------------:|--------------------:|------:|
+| 96.7 | `layout/` | 30 | 14 | 2.1 |
+| 96.8 | `math/layout/` | 18 | 7 | 2.6 |
+| 96.9 | `lexer/` | 16 | 4 | 4.0 |
+
+Rácio aumenta à medida que a nota Regra 3 foi internalizada —
+o lexer (último passo) teve a menor proporção de `pub(super)`
+em campos. Tendência saudável.
+
+**ADR-0037 validada empiricamente**. A Regra 2 (limite
+orientativo de 800 linhas) e a Regra 6 (excepções documentadas)
+funcionaram como esperado em 7 aplicações consecutivas
+(eval, parse, stdlib, layout, math/layout, lexer, entidades).
+
+**Dívida residual registada**:
+
+- **DEBT-47** (auditoria de visibilidade dos `pub(super)`
+  introduzidos) aberto no Passo 96.6 — pronto para ataque agora
+  que todos os submódulos estão estáveis.
+- **+18 smoke tests V2** no total — obrigatórios pelo linter,
+  zero valor funcional. Podem ser revistos no futuro se a
+  política do linter mudar.
+
+**Lições**:
+
+- Extractor naïve baseado em contagem de `{`/`}` não distingue
+  char literal `'{'` de delimitador de bloco (bug encontrado no
+  Passo 96.8). Para futuros refactorings grandes, sanitizar
+  char literals antes ou usar parser AST.
+- Padrão de re-export `pub use crate::rules::X::submod::Y` em
+  `mod.rs` evita V14 (ADR-0037 Ajuste B) e é preferível a
+  `pub use self::submod::Y`.
+- Nota Regra 3 do Passo 96.6 reduziu bulk replace de
+  `pub(super)` — rácio métodos/campos melhorou monotonicamente
+  de 2.1 → 2.6 → 4.0 nos 3 passos subsequentes.
+
 ---
-
-## DEBT-47 — Auditoria de visibilidade dos `pub(super)` aplicados nos Passos 96.1–96.5 — EM ABERTO (Passo 96.6)
-
-Os Passos 96.1, 96.2, 96.4 e 96.5 reestruturaram quatro
-ficheiros grandes (`eval.rs`, `parse.rs`, `stdlib.rs`) em
-submódulos conforme ADR-0037. Durante a extracção, visibilidade
-de fields e métodos foi elevada para `pub(super)` em muitos
-casos — alguns por bulk replace Python (reportado no Passo
-96.4 para o `Parser` struct), outros por replace manual.
-
-A ADR-0037 Regra 3 (clarificada no Passo 96.6) estabelece
-preferência por:
-- Manter privado quando possível.
-- Métodos `pub(super)` sobre campos `pub(super)`.
-- `pub(in path)` para escopo explícito quando aplicável.
-
-Este DEBT documenta a necessidade de auditoria retroactiva:
-verificar cada `pub(super)` introduzido nos Passos 96.1–96.5 e
-restringir onde possível sem perder funcionalidade.
-
-### Escopo
-
-Submódulos a auditar:
-
-- `01_core/src/rules/eval/` (Passos 96.1 e 96.2):
-  - `mod.rs`, `markup.rs`, `math.rs`, `modules.rs`, `rules.rs`,
-    `closures.rs`, `control_flow.rs`, `bindings.rs`,
-    `operators.rs`, `tests.rs`.
-- `01_core/src/rules/parse/` (Passo 96.4):
-  - `mod.rs`, `parser.rs`, `math.rs`, `markup.rs`, `code.rs`,
-    `rules.rs`, `patterns.rs`.
-- `01_core/src/rules/stdlib/` (Passo 96.5):
-  - `mod.rs` e 9 submódulos.
-
-### Critério de conclusão
-
-- [ ] Inventário de todos os `pub(super)` nos submódulos
-      listados (provavelmente via grep + análise).
-- [ ] Classificação de cada ocorrência:
-  - Necessária (submódulo realmente precisa).
-  - Elevável (podia ser `pub(in path)` mais estrito).
-  - Removível (submódulo não usa — restos de bulk replace).
-  - Convertível a método (campo `pub(super)` que devia ser
-    método).
-- [ ] Aplicação das mudanças sem regressão:
-  - Campos `pub(super)` convertíveis → métodos.
-  - Campos/métodos elevados → restritos.
-  - Residuais de bulk replace → removidos.
-- [ ] `cargo test` preservado.
-- [ ] `crystalline-lint` → zero violations.
-
-### Dependências
-
-Este DEBT **não é atacado** até DEBT-46 encerrar. Razão:
-fazer auditoria de visibilidade em ficheiros que ainda estão
-a ser reestruturados é sobreposição de trabalho. Depois do
-DEBT-46 encerrar (Passos 96.7, 96.8, 96.9, 96.10), todos os
-submódulos estarão na sua forma final e a auditoria é estável.
-
-Os Passos 96.7 em diante **seguem** a Regra 3 actualizada
-(não introduzem `pub(super)` desnecessário). O DEBT-47 cobre
-apenas o trabalho retroactivo dos passos anteriores.
-
-### Nota sobre escopo do Passo 96.5
-
-O Passo 96.5 já aplicou visibilidade mais criteriosa que os
-Passos 96.1–96.4 (o reporte não menciona bulk replace). Na
-auditoria, pode revelar-se que o 96.5 não tem dívida
-significativa de visibilidade. Nesse caso, o DEBT-47 é pago
-mais rápido nos submódulos relevantes.
-
----
-
-## Secção 2 — DEBTs encerrados
 
 ## DEBT-3 — Safety rails hardcoded — RESOLVIDO (estrutura)
 
