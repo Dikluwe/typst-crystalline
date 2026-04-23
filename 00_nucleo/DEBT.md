@@ -147,6 +147,48 @@ adiadas (bloqueadas por tipos não materializados — ver ADR-0038).
 no eval; propriedades adicionais bloqueadas). A tarefa "remover
 wrappers Strong/Emph do layout" foi paga.
 
+### Actualização Passo 102 — `#set text(...)` validado + `fill` activado
+
+O Passo 102 (ADR-0040) formalizou a activação de `#set` no eval:
+
+- [x] `#set text(bold/italic/size)` já activo desde Passo 30 via
+      arquitectura bake-in (`StyleDelta` empilhado em `*styles`;
+      `TextStyle::from(&*styles)` capturado em cada `Content::Text`).
+      Validado end-to-end por 6 novos testes em
+      `tests_set_rule_integration`:
+      `set_text_size_propaga_ao_frame`,
+      `set_text_bold_propaga_ao_frame`,
+      `set_text_italic_propaga_ao_frame`,
+      `set_text_bold_afecta_conteudo_seguinte_nao_anterior`,
+      `set_combinado_com_emph_sintactico`,
+      `bold_syntax_sem_set_continua_a_funcionar`.
+- [x] **`#set text(fill: color)` activado no Passo 102** — `StyleDelta.fill`
+      capturado a partir de `Value::Color`; propaga a
+      `TextStyle.fill` (adicionado no Passo 100) via
+      `TextStyle::from(&StyleChain)`. Teste unitário
+      `eval_set_text_fill_passo_102` confirma parse + eval sem erro.
+- [x] ADR-0040 `EM VIGOR`.
+- [x] `cargo test --workspace`: 783 → **790 L1** (+7; +6 integração,
+      +1 unitário fill).
+- [x] `crystalline-lint`: zero violations.
+
+**Decisão arquitectural registada na ADR-0040**: manter bake-in como
+arquitectura principal para `#set text`. Refactorização para
+wrapping via `Content::Styled` adiada para quando `Introspection`
+materializar e `Content::Heading` colapsar. Dívida estrutural, não
+funcional.
+
+**DEBT-1 pendências restantes**: 2 de 3 permanecem.
+
+1. `#set` está activo. Falta **`#show`** activar. Dívida latente
+   do show rule selector (relatório Passo 101) fica para passo
+   dedicado — espera-se que a activação de `#show` exponha essa
+   dívida e obrigue a refactorização do selector.
+2. **Propriedades adicionais** (`text.font`, `text.lang`,
+   `par.leading`, `text.weight` como string) — bloqueadas por
+   tipos não materializados. Adiado para passos quando Font/Lang/
+   Par entrarem em L1.
+
 ### Actualização Passo 100 — activação de `Content::Styled` no Layouter
 
 DEBT-48 encerrado no Passo 100 (ADR-0039):
@@ -564,6 +606,55 @@ Encerramento completo do DEBT-45 fica para quando
 `check_layout_depth` for integrado (Passo próprio ou parte da
 materialização do `Engine<'a>`) e `check_html_depth` quando o
 pipeline HTML existir.
+
+---
+
+## DEBT-49 — Propriedades de `#set` não suportadas silenciadas — EM ABERTO (Passo 102)
+
+Aberto pelo Passo 102 (ADR-0040).
+
+### Contexto
+
+`eval_set_rule` em `01_core/src/rules/eval/rules.rs` processa `#set
+text(...)` com um catálogo fechado de propriedades: `bold`,
+`italic`, `size`, `fill` (adicionado no Passo 102). Qualquer outra
+propriedade cai num `_ => { }` e é silenciosamente ignorada.
+
+Exemplos de directivas que o utilizador pode escrever sem
+feedback de erro:
+
+- `#set text(font: "Helvetica")` — ignorado.
+- `#set text(lang: "en")` — ignorado.
+- `#set text(weight: "bold")` — ignorado (hoje só aceita
+  `weight: true` via `bold:` alias — e nem isso é suportado).
+- `#set par(leading: 1em)` — o target `par` inteiro é ignorado.
+
+### Razão do adiamento
+
+O linter do projecto não tem `Sink` materializado (é stub em L1).
+Sem canal de warnings estruturado, emitir feedback a tempo de
+eval exige expandir a API ou usar `stderr` — ambos violam
+princípios do cristalino (L1 sem I/O).
+
+### Critério de conclusão
+
+- [ ] `Sink` materializado como tipo concreto em L1 ou L3 (passo
+      dedicado).
+- [ ] `eval_set_rule` passa `Sink` como parâmetro (ADR-0036 aplicada
+      de novo).
+- [ ] Propriedades não suportadas emitem `Warn` em vez de silêncio.
+- [ ] Testes unitários confirmam o warning.
+
+### Dependências
+
+Depende de materialização de `Sink`. Fora do escopo até lá.
+
+### Nota sobre `text.weight` como string
+
+O vanilla aceita `#set text(weight: "bold" | "regular" | 100 | 200 | ...)`.
+O cristalino hoje só aceita `bold: Value::Bool`. Mapeamento string→bool
+ou inteiro→bool é trabalho separado; registar como sub-item deste
+DEBT quando o suporte for activado.
 
 ---
 
