@@ -42,7 +42,7 @@ pub(super) fn eval_math_content(
 }
 
 /// Avalia um nó de expressão em modo matemático.
-pub(super) fn eval_math_expr(
+fn eval_math_expr(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext<'_>,
     expr: Expr<'_>,

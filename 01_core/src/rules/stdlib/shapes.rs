@@ -8,6 +8,7 @@
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
 use crate::entities::args::Args;
+use crate::entities::file_id::FileId;
 use crate::entities::content::Content;
 use crate::entities::geometry::{PathItem, ShapeKind, Stroke};
 use crate::entities::layout_types::{Color, Point, Pt};
@@ -43,7 +44,7 @@ pub(super) fn parse_color(val: &Value) -> Option<Color> {
 /// Fallback determinístico: sem `fill` nem `stroke` → stroke preta de 1pt.
 /// Este é o único local onde este fallback existe — nem o layouter nem o
 /// exportador têm permissão para inventar cores ou espessuras.
-pub fn native_rect(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_rect(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -80,7 +81,7 @@ pub fn native_rect(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
 /// `ellipse(width?, height?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, ... }`.
 ///
 /// Mesmo padrão de fallback que `native_rect`.
-pub fn native_ellipse(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_ellipse(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -116,7 +117,7 @@ pub fn native_ellipse(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<V
 /// `circle(radius?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, width==height }`.
 ///
 /// `radius` em pt. Converte para `width = height = radius * 2`.
-pub fn native_circle(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_circle(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["radius", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -168,7 +169,7 @@ pub fn native_circle(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Va
 ///
 /// `dx`/`dy`: Float ou Length em pt. Omitidos → 0.0 (linha degenerada, válida).
 /// Stroke preta por omissão — linhas não têm fill.
-pub fn native_line(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_line(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["dx", "dy", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -204,7 +205,7 @@ pub fn native_line(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
 }
 
 /// Extrai um par de coordenadas (x, y) de um `Value::Array` com dois elementos numéricos.
-pub(super) fn extract_coordinate(val: &Value) -> Option<(f64, f64)> {
+fn extract_coordinate(val: &Value) -> Option<(f64, f64)> {
     match val {
         Value::Array(arr) if arr.len() == 2 => {
             let x = arr[0].cast_float()?;
@@ -219,7 +220,7 @@ pub(super) fn extract_coordinate(val: &Value) -> Option<(f64, f64)> {
 ///
 /// Cada argumento posicional é um array `[x, y]` em pontos tipográficos.
 /// A bounding box é calculada pelos pontos de controlo (DEBT-33).
-pub fn native_polygon(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_polygon(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     let mut path_items: Vec<PathItem> = Vec::new();
     let mut min_x = f64::INFINITY;
     let mut max_x = f64::NEG_INFINITY;

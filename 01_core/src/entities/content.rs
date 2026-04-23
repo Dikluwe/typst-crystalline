@@ -282,8 +282,17 @@ pub enum Content {
         body:      Box<Content>,
     },
 
+    /// Conteúdo estilizado — aplica um delta `Styles` ao corpo (Passo 99,
+    /// ADR-0038).
+    ///
+    /// Fundação tipada para `#set`/`#show`. Ainda **não** é consumida pelo
+    /// Layouter actual — é construída em testes de integração e pelo
+    /// pipeline futuro quando o eval activar estilos. Acessores por
+    /// `StyleChain::push_styles` garantem que o delta é aplicado na
+    /// resolução.
+    Styled(Box<Content>, crate::entities::style::Styles),
+
     // Variantes futuras — NÃO implementar sem ADR:
-    // Styled(Box<Content>, StyleChain),          // requer StyleChain — Passo 30+
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
 }
 
@@ -427,6 +436,7 @@ impl Content {
             Self::SetPage { .. } => String::new(),
             Self::Align { body, .. } => body.plain_text(),
             Self::Place { body, .. } => body.plain_text(),
+            Self::Styled(body, _) => body.plain_text(),
         }
     }
 }
@@ -499,6 +509,7 @@ impl PartialEq for Content {
             (Self::Place { alignment: aa, dx: dxa, dy: dya, scope: sa, body: ba },
              Self::Place { alignment: ab, dx: dxb, dy: dyb, scope: sb, body: bb }) =>
                 aa == ab && dxa == dxb && dya == dyb && sa == sb && ba == bb,
+            (Self::Styled(ba, sa), Self::Styled(bb, sb)) => ba == bb && sa == sb,
             _ => false,
         }
     }
@@ -650,6 +661,10 @@ impl Content {
                 scope:     *scope,
                 body:      Box::new(body.map_content(transform)?),
             },
+            Content::Styled(body, styles) => Content::Styled(
+                Box::new(body.map_content(transform)?),
+                styles.clone(),
+            ),
         };
 
         // Passo 2: aplicar a transformação ao nó já processado.
@@ -753,6 +768,10 @@ impl Content {
                 scope:     *scope,
                 body:      Box::new(body.map_text(transform)),
             },
+            Content::Styled(body, styles) => Content::Styled(
+                Box::new(body.map_text(transform)),
+                styles.clone(),
+            ),
         }
     }
 }
@@ -1076,5 +1095,50 @@ mod tests {
         }).unwrap();
 
         assert_eq!(call_count, 1, "Heading deve ser processado exactamente uma vez");
+    }
+
+    // ── Passo 99 (ADR-0038): Content::Styled ─────────────────────────────
+
+    use crate::entities::style::{Style, Styles};
+
+    #[test]
+    fn styled_plain_text_transparente() {
+        let inner = Content::text("hello");
+        let styles = Styles::from_iter([Style::Bold(true), Style::Size(Pt(18.0))]);
+        let styled = Content::Styled(Box::new(inner), styles);
+        assert_eq!(styled.plain_text(), "hello");
+    }
+
+    #[test]
+    fn styled_partial_eq() {
+        let s1 = Content::Styled(
+            Box::new(Content::text("x")),
+            Styles::from_iter([Style::Bold(true)]),
+        );
+        let s2 = Content::Styled(
+            Box::new(Content::text("x")),
+            Styles::from_iter([Style::Bold(true)]),
+        );
+        let s3 = Content::Styled(
+            Box::new(Content::text("x")),
+            Styles::from_iter([Style::Bold(false)]),
+        );
+        assert_eq!(s1, s2);
+        assert_ne!(s1, s3);
+    }
+
+    #[test]
+    fn styled_preserva_estilos_em_map_text() {
+        let inner = Content::text("abc");
+        let styles = Styles::from_iter([Style::Italic(true)]);
+        let styled = Content::Styled(Box::new(inner), styles.clone());
+        let transformed = styled.map_text(&mut |s: &str| s.to_uppercase());
+        match transformed {
+            Content::Styled(body, st) => {
+                assert_eq!(body.plain_text(), "ABC");
+                assert_eq!(st, styles);
+            }
+            other => panic!("esperado Content::Styled, obteve {:?}", other),
+        }
     }
 }

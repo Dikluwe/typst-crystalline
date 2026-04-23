@@ -173,7 +173,7 @@ pub(super) fn module_import(p: &mut Parser) {
 }
 
 /// Parses items to import from a module: `a, b, c`.
-pub(super) fn import_items(p: &mut Parser) {
+fn import_items(p: &mut Parser) {
     let m = p.marker();
     while !p.current().is_terminator() {
         let item_marker = p.marker();

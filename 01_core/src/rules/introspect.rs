@@ -119,6 +119,13 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
             scope:     *scope,
             body:      Box::new(materialize_time(body, state)),
         },
+
+        // Passo 99 (ADR-0038): `Styled` é transparente para materialização de
+        // contadores — o body é processado e os estilos preservados.
+        Content::Styled(body, styles) => Content::Styled(
+            Box::new(materialize_time(body, state)),
+            styles.clone(),
+        ),
     }
 }
 
@@ -286,6 +293,9 @@ fn walk(content: &Content, state: &mut CounterState) {
         Content::Align { body, .. } => walk(body, state),
 
         Content::Place { body, .. } => walk(body, state),
+
+        // Passo 99 (ADR-0038): `Styled` é transparente — desce no body.
+        Content::Styled(body, _) => walk(body, state),
 
         Content::Outline => {
             state.has_outline = true;

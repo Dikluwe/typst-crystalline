@@ -8,6 +8,7 @@
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
 use ecow::EcoString;
+use crate::entities::file_id::FileId;
 
 use super::{err, expect_no_named};
 
@@ -19,7 +20,7 @@ use crate::entities::value::Value;
 use crate::rules::eval::EvalContext;
 
 /// `type(v)` → nome do tipo como string Typst.
-pub fn native_type(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_type(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => Ok(Value::Str(v.type_name().into())),
@@ -28,7 +29,7 @@ pub fn native_type(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
 }
 
 /// `len(v)` → comprimento de Str, Array ou Dict.
-pub fn native_len(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_len(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(s)]   => Ok(Value::Int(s.chars().count() as i64)),
@@ -43,7 +44,7 @@ pub fn native_len(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value
 ///
 /// Args em Int 0–255. Quatro args incluem canal alpha.
 /// Fora de 0–255 → Err.
-pub fn native_rgb(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_rgb(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn check(v: i64, name: &str) -> SourceResult<u8> {
@@ -68,7 +69,7 @@ pub fn native_rgb(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value
 }
 
 /// `luma(l)` → Color::Rgb { r: l, g: l, b: l } (escala de cinzentos).
-pub fn native_luma(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_luma(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
@@ -84,7 +85,7 @@ pub fn native_luma(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Valu
 }
 
 /// `range(n)` → Array de 0..n; `range(start, end)` → Array de start..end.
-pub fn native_range(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_range(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(n)] => {
@@ -108,7 +109,7 @@ pub fn native_range(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Val
 // ── Funções de conversão de tipo (Passo 27) ─────────────────────────────────
 
 /// `str(v)` → representação textual do valor.
-pub fn native_str(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_str(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
@@ -132,13 +133,13 @@ pub fn native_str(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value
 }
 
 /// Formata f64 de forma compacta — sem trailing zeros desnecessários.
-pub(super) fn format_float(f: f64) -> String {
+fn format_float(f: f64) -> String {
     let s = format!("{}", f);
     if s.contains('.') || s.contains('e') { s } else { format!("{s}.0") }
 }
 
 /// Formata Length como string (ex: "12pt", "1.5em", "6pt + 1em").
-pub(super) fn format_length(l: &Length) -> String {
+fn format_length(l: &Length) -> String {
     let abs = l.abs.to_pt();
     let em  = l.em;
     match (abs == 0.0, em == 0.0) {
@@ -151,7 +152,7 @@ pub(super) fn format_length(l: &Length) -> String {
 
 /// `int(v)` → inteiro. Aceita Int, Str (decimal), Bool.
 /// Float → Err (semântica vanilla: Float não é `ToInt`).
-pub fn native_int(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_int(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]    => Ok(Value::Int(*i)),
@@ -171,7 +172,7 @@ pub fn native_int(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value
 }
 
 /// `float(v)` → float. Aceita Float, Int (coerção), Str.
-pub fn native_float(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub fn native_float(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Float(f)] => Ok(Value::Float(*f)),

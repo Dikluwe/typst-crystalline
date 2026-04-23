@@ -87,7 +87,7 @@ pub(super) fn expr_with_paren(p: &mut Parser, atomic: bool) {
 /// - a parenthesized expression: `(1 + 2)`, or
 /// - an array: `(1, "hi", 12cm)`, or
 /// - a dictionary: `(thickness: 3pt, dash: "solid")`.
-pub(super) fn parenthesized_or_array_or_dict(p: &mut Parser) -> SyntaxKind {
+fn parenthesized_or_array_or_dict(p: &mut Parser) -> SyntaxKind {
     let mut state = GroupState {
         count: 0,
         maybe_just_parens: true,
@@ -158,7 +158,7 @@ pub(super) struct GroupState {
 }
 
 /// Parses a single item in an array or dictionary.
-pub(super) fn array_or_dict_item(p: &mut Parser, state: &mut GroupState) {
+fn array_or_dict_item(p: &mut Parser, state: &mut GroupState) {
     let m = p.marker();
 
     if p.eat_if(SyntaxKind::Dots) {
@@ -206,7 +206,7 @@ pub(super) fn array_or_dict_item(p: &mut Parser, state: &mut GroupState) {
 }
 
 /// Extract a dictionary key from a node, if it is an identifier or string.
-pub(super) fn node_key(node: &SyntaxNode) -> Option<String> {
+fn node_key(node: &SyntaxNode) -> Option<String> {
     match node.kind() {
         SyntaxKind::Ident | SyntaxKind::Str => Some(node.text().as_str().to_string()),
         _ => None,
@@ -254,7 +254,7 @@ pub(super) fn args(p: &mut Parser) {
 }
 
 /// Parses a single argument in an argument list.
-pub(super) fn arg<'s>(p: &mut Parser<'s>, seen: &mut FxHashSet<&'s str>) {
+fn arg<'s>(p: &mut Parser<'s>, seen: &mut FxHashSet<&'s str>) {
     let m = p.marker();
 
     // Parses a spread argument: `..args`.
@@ -313,7 +313,7 @@ pub(super) fn params(p: &mut Parser) {
 }
 
 /// Parses a single parameter in a parameter list.
-pub(super) fn param<'s>(p: &mut Parser<'s>, seen: &mut FxHashSet<&'s str>, sink: &mut bool) {
+fn param<'s>(p: &mut Parser<'s>, seen: &mut FxHashSet<&'s str>, sink: &mut bool) {
     let m = p.marker();
 
     // Parses argument sink: `..sink`.
@@ -361,7 +361,7 @@ pub(super) fn pattern<'s>(
 }
 
 /// Parses a destructuring pattern or just a parenthesized pattern.
-pub(super) fn destructuring_or_parenthesized<'s>(
+fn destructuring_or_parenthesized<'s>(
     p: &mut Parser<'s>,
     reassignment: bool,
     seen: &mut FxHashSet<&'s str>,
@@ -399,7 +399,7 @@ pub(super) fn destructuring_or_parenthesized<'s>(
 }
 
 /// Parses an item in a destructuring pattern.
-pub(super) fn destructuring_item<'s>(
+fn destructuring_item<'s>(
     p: &mut Parser<'s>,
     reassignment: bool,
     seen: &mut FxHashSet<&'s str>,
@@ -446,7 +446,7 @@ pub(super) fn destructuring_item<'s>(
 
 /// Parses a leaf in a pattern - either an identifier or an expression
 /// depending on whether it's a binding or reassignment pattern.
-pub(super) fn pattern_leaf<'s>(
+fn pattern_leaf<'s>(
     p: &mut Parser<'s>,
     reassignment: bool,
     seen: &mut FxHashSet<&'s str>,

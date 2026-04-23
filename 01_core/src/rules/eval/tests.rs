@@ -40,13 +40,15 @@ pub(crate) fn eval_for_test_with_limits<W: World>(
     source: &Source,
     max_loop_iterations: usize,
 ) -> SourceResult<Module> {
-    let mut ctx = EvalContext::new(world, source.id());
+    let mut ctx = EvalContext::new(world);
     ctx.max_loop_iterations = max_loop_iterations;
 
     let route = Route::root().with_id(source.id());
     let mut styles = StyleChain::default_chain();
     let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
     let mut active_guards: Vec<RuleId> = Vec::new();
+    let current_file = source.id();
+    let mut figure_numbering: Option<String> = None;
     let root = source.root();
     let mut scopes = Scopes::new(None);
     let stdlib = make_stdlib();
@@ -63,6 +65,8 @@ pub(crate) fn eval_for_test_with_limits<W: World>(
         &mut styles,
         &mut show_rules,
         &mut active_guards,
+        current_file,
+        &mut figure_numbering,
     )?;
 
     let module_scope = scopes.exit();

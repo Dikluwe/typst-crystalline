@@ -8,6 +8,7 @@
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
 use ecow::EcoString;
+use crate::entities::file_id::FileId;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
@@ -41,7 +42,7 @@ pub fn make_calc_module() -> Value {
     Value::Dict(dict)
 }
 
-pub(crate) fn calc_abs(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub(crate) fn calc_abs(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]   => Ok(Value::Int(i.saturating_abs())),
@@ -51,7 +52,7 @@ pub(crate) fn calc_abs(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<
     }
 }
 
-pub(crate) fn calc_pow(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub(crate) fn calc_pow(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(base), Value::Int(exp)] => {
@@ -71,7 +72,7 @@ pub(crate) fn calc_pow(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<
     }
 }
 
-pub(crate) fn calc_sqrt(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub(crate) fn calc_sqrt(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
@@ -85,7 +86,7 @@ pub(crate) fn calc_sqrt(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult
     }
 }
 
-pub(crate) fn calc_floor(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub(crate) fn calc_floor(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]   => Ok(Value::Int(*i)),
@@ -95,7 +96,7 @@ pub(crate) fn calc_floor(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResul
     }
 }
 
-pub(crate) fn calc_ceil(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub(crate) fn calc_ceil(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]   => Ok(Value::Int(*i)),
@@ -105,7 +106,7 @@ pub(crate) fn calc_ceil(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult
     }
 }
 
-pub(crate) fn calc_round(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub(crate) fn calc_round(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]   => Ok(Value::Int(*i)),
@@ -115,7 +116,7 @@ pub(crate) fn calc_round(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResul
     }
 }
 
-pub(crate) fn calc_min(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub(crate) fn calc_min(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     if args.items.is_empty() {
         return err("calc.min() requer pelo menos 1 argumento");
@@ -135,7 +136,7 @@ pub(crate) fn calc_min(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<
     Ok(result)
 }
 
-pub(crate) fn calc_max(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub(crate) fn calc_max(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     if args.items.is_empty() {
         return err("calc.max() requer pelo menos 1 argumento");
@@ -155,7 +156,7 @@ pub(crate) fn calc_max(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<
     Ok(result)
 }
 
-pub(crate) fn calc_clamp(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<Value> {
+pub(crate) fn calc_clamp(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(v), Value::Int(lo), Value::Int(hi)] =>
@@ -173,7 +174,7 @@ pub(crate) fn calc_clamp(_ctx: &mut EvalContext<'_>, args: &Args) -> SourceResul
     }
 }
 
-pub(super) fn coerce_to_f64(v: &Value, ctx: &str) -> SourceResult<f64> {
+fn coerce_to_f64(v: &Value, ctx: &str) -> SourceResult<f64> {
     match v {
         Value::Int(i)   => Ok(*i as f64),
         Value::Float(f) => Ok(*f),
@@ -184,7 +185,7 @@ pub(super) fn coerce_to_f64(v: &Value, ctx: &str) -> SourceResult<f64> {
     }
 }
 
-pub(super) fn guard_float(f: f64) -> SourceResult<Value> {
+fn guard_float(f: f64) -> SourceResult<Value> {
     if f.is_nan()           { err("resultado não é um número (NaN)") }
     else if f.is_infinite() { err("resultado é infinito") }
     else                    { Ok(Value::Float(f)) }

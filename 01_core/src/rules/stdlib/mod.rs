@@ -131,37 +131,44 @@ mod tests {
             let _dummy_id = crate::entities::file_id::FileId::from_raw(
                 std::num::NonZeroU16::new(1).unwrap()
             );
-            let mut $ctx = EvalContext::new(&_world, _dummy_id);
+            let mut $ctx = EvalContext::new(&_world);
         }
+    }
+
+    /// Helper: `FileId` dummy para tests que não fazem I/O.
+    fn test_file_id() -> crate::entities::file_id::FileId {
+        crate::entities::file_id::FileId::from_raw(
+            std::num::NonZeroU16::new(1).unwrap()
+        )
     }
 
     #[test]
     fn native_type_directo() {
         null_ctx!(ctx);
-        assert_eq!(native_type(&mut ctx, &p(vec![Value::Int(1)])).unwrap(),     Value::Str("int".into()));
-        assert_eq!(native_type(&mut ctx, &p(vec![Value::Bool(true)])).unwrap(), Value::Str("bool".into()));
-        assert_eq!(native_type(&mut ctx, &p(vec![Value::None])).unwrap(),       Value::Str("none".into()));
-        assert!(native_type(&mut ctx, &p(vec![])).is_err());
-        assert!(native_type(&mut ctx, &p(vec![Value::Int(1), Value::Int(2)])).is_err());
+        assert_eq!(native_type(&mut ctx, &p(vec![Value::Int(1)]), test_file_id(), None).unwrap(),     Value::Str("int".into()));
+        assert_eq!(native_type(&mut ctx, &p(vec![Value::Bool(true)]), test_file_id(), None).unwrap(), Value::Str("bool".into()));
+        assert_eq!(native_type(&mut ctx, &p(vec![Value::None]), test_file_id(), None).unwrap(),       Value::Str("none".into()));
+        assert!(native_type(&mut ctx, &p(vec![]), test_file_id(), None).is_err());
+        assert!(native_type(&mut ctx, &p(vec![Value::Int(1), Value::Int(2)]), test_file_id(), None).is_err());
     }
 
     #[test]
     fn native_type_named_arg_retorna_err() {
         null_ctx!(ctx);
         let args = pn(vec![Value::Int(1)], "extra", Value::Bool(true));
-        assert!(native_type(&mut ctx, &args).is_err(), "named arg inesperado deve retornar Err");
+        assert!(native_type(&mut ctx, &args, test_file_id(), None).is_err(), "named arg inesperado deve retornar Err");
     }
 
     #[test]
     fn native_len_directo() {
         null_ctx!(ctx);
-        assert_eq!(native_len(&mut ctx, &p(vec![Value::Str("abc".into())])).unwrap(), Value::Int(3));
+        assert_eq!(native_len(&mut ctx, &p(vec![Value::Str("abc".into())]), test_file_id(), None).unwrap(), Value::Int(3));
         assert_eq!(
-            native_len(&mut ctx, &p(vec![Value::Array(vec![Value::Int(1), Value::Int(2)])])).unwrap(),
+            native_len(&mut ctx, &p(vec![Value::Array(vec![Value::Int(1), Value::Int(2)])]), test_file_id(), None).unwrap(),
             Value::Int(2)
         );
-        assert!(native_len(&mut ctx, &p(vec![Value::Int(1)])).is_err());
-        assert!(native_len(&mut ctx, &p(vec![])).is_err());
+        assert!(native_len(&mut ctx, &p(vec![Value::Int(1)]), test_file_id(), None).is_err());
+        assert!(native_len(&mut ctx, &p(vec![]), test_file_id(), None).is_err());
     }
 
     // ── Passo 25 — rgb/luma ──────────────────────────────────────────────────
@@ -170,7 +177,7 @@ mod tests {
     fn stdlib_rgb_tres_args() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Color;
-        let r = native_rgb(&mut ctx, &p(vec![Value::Int(255), Value::Int(0), Value::Int(128)])).unwrap();
+        let r = native_rgb(&mut ctx, &p(vec![Value::Int(255), Value::Int(0), Value::Int(128)]), test_file_id(), None).unwrap();
         assert_eq!(r, Value::Color(Color::rgb(255, 0, 128)));
     }
 
@@ -178,21 +185,21 @@ mod tests {
     fn stdlib_rgb_quatro_args() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Color;
-        let r = native_rgb(&mut ctx, &p(vec![Value::Int(255), Value::Int(0), Value::Int(0), Value::Int(200)])).unwrap();
+        let r = native_rgb(&mut ctx, &p(vec![Value::Int(255), Value::Int(0), Value::Int(0), Value::Int(200)]), test_file_id(), None).unwrap();
         assert_eq!(r, Value::Color(Color::rgba(255, 0, 0, 200)));
     }
 
     #[test]
     fn stdlib_rgb_out_of_range() {
         null_ctx!(ctx);
-        assert!(native_rgb(&mut ctx, &p(vec![Value::Int(300), Value::Int(0), Value::Int(0)])).is_err());
+        assert!(native_rgb(&mut ctx, &p(vec![Value::Int(300), Value::Int(0), Value::Int(0)]), test_file_id(), None).is_err());
     }
 
     #[test]
     fn stdlib_luma() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Color;
-        let r = native_luma(&mut ctx, &p(vec![Value::Int(128)])).unwrap();
+        let r = native_luma(&mut ctx, &p(vec![Value::Int(128)]), test_file_id(), None).unwrap();
         assert_eq!(r, Value::Color(Color::rgb(128, 128, 128)));
     }
 
@@ -201,73 +208,73 @@ mod tests {
     #[test]
     fn native_str_de_int() {
         null_ctx!(ctx);
-        assert_eq!(native_str(&mut ctx, &p(vec![Value::Int(42)])).unwrap(), Value::Str("42".into()));
+        assert_eq!(native_str(&mut ctx, &p(vec![Value::Int(42)]), test_file_id(), None).unwrap(), Value::Str("42".into()));
     }
 
     #[test]
     #[allow(clippy::approx_constant)] // 3.14 é valor literal de teste, não aproximação de PI
     fn native_str_de_float() {
         null_ctx!(ctx);
-        assert_eq!(native_str(&mut ctx, &p(vec![Value::Float(3.14)])).unwrap(), Value::Str("3.14".into()));
+        assert_eq!(native_str(&mut ctx, &p(vec![Value::Float(3.14)]), test_file_id(), None).unwrap(), Value::Str("3.14".into()));
     }
 
     #[test]
     fn native_str_de_bool() {
         null_ctx!(ctx);
-        assert_eq!(native_str(&mut ctx, &p(vec![Value::Bool(true)])).unwrap(),  Value::Str("true".into()));
-        assert_eq!(native_str(&mut ctx, &p(vec![Value::Bool(false)])).unwrap(), Value::Str("false".into()));
+        assert_eq!(native_str(&mut ctx, &p(vec![Value::Bool(true)]), test_file_id(), None).unwrap(),  Value::Str("true".into()));
+        assert_eq!(native_str(&mut ctx, &p(vec![Value::Bool(false)]), test_file_id(), None).unwrap(), Value::Str("false".into()));
     }
 
     #[test]
     fn native_str_identity() {
         null_ctx!(ctx);
-        assert_eq!(native_str(&mut ctx, &p(vec![Value::Str("hello".into())])).unwrap(), Value::Str("hello".into()));
+        assert_eq!(native_str(&mut ctx, &p(vec![Value::Str("hello".into())]), test_file_id(), None).unwrap(), Value::Str("hello".into()));
     }
 
     #[test]
     fn native_str_de_none() {
         null_ctx!(ctx);
-        assert_eq!(native_str(&mut ctx, &p(vec![Value::None])).unwrap(), Value::Str("none".into()));
+        assert_eq!(native_str(&mut ctx, &p(vec![Value::None]), test_file_id(), None).unwrap(), Value::Str("none".into()));
     }
 
     #[test]
     fn native_int_de_int() {
         null_ctx!(ctx);
-        assert_eq!(native_int(&mut ctx, &p(vec![Value::Int(42)])).unwrap(), Value::Int(42));
+        assert_eq!(native_int(&mut ctx, &p(vec![Value::Int(42)]), test_file_id(), None).unwrap(), Value::Int(42));
     }
 
     #[test]
     fn native_int_de_str() {
         null_ctx!(ctx);
-        assert_eq!(native_int(&mut ctx, &p(vec![Value::Str("42".into())])).unwrap(), Value::Int(42));
-        assert!(native_int(&mut ctx, &p(vec![Value::Str("abc".into())])).is_err());
+        assert_eq!(native_int(&mut ctx, &p(vec![Value::Str("42".into())]), test_file_id(), None).unwrap(), Value::Int(42));
+        assert!(native_int(&mut ctx, &p(vec![Value::Str("abc".into())]), test_file_id(), None).is_err());
     }
 
     #[test]
     fn native_int_de_bool() {
         null_ctx!(ctx);
-        assert_eq!(native_int(&mut ctx, &p(vec![Value::Bool(true)])).unwrap(),  Value::Int(1));
-        assert_eq!(native_int(&mut ctx, &p(vec![Value::Bool(false)])).unwrap(), Value::Int(0));
+        assert_eq!(native_int(&mut ctx, &p(vec![Value::Bool(true)]), test_file_id(), None).unwrap(),  Value::Int(1));
+        assert_eq!(native_int(&mut ctx, &p(vec![Value::Bool(false)]), test_file_id(), None).unwrap(), Value::Int(0));
     }
 
     #[test]
     fn native_int_float_retorna_err() {
         null_ctx!(ctx);
-        assert!(native_int(&mut ctx, &p(vec![Value::Float(3.7)])).is_err());
+        assert!(native_int(&mut ctx, &p(vec![Value::Float(3.7)]), test_file_id(), None).is_err());
     }
 
     #[test]
     fn native_float_de_int() {
         null_ctx!(ctx);
-        assert_eq!(native_float(&mut ctx, &p(vec![Value::Int(3)])).unwrap(), Value::Float(3.0));
+        assert_eq!(native_float(&mut ctx, &p(vec![Value::Int(3)]), test_file_id(), None).unwrap(), Value::Float(3.0));
     }
 
     #[test]
     #[allow(clippy::approx_constant)] // 3.14 é valor literal de teste, não aproximação de PI
     fn native_float_de_str() {
         null_ctx!(ctx);
-        assert_eq!(native_float(&mut ctx, &p(vec![Value::Str("3.14".into())])).unwrap(), Value::Float(3.14));
-        assert!(native_float(&mut ctx, &p(vec![Value::Str("abc".into())])).is_err());
+        assert_eq!(native_float(&mut ctx, &p(vec![Value::Str("3.14".into())]), test_file_id(), None).unwrap(), Value::Float(3.14));
+        assert!(native_float(&mut ctx, &p(vec![Value::Str("abc".into())]), test_file_id(), None).is_err());
     }
 
     // ── Passo 27 — calc ──────────────────────────────────────────────────────
@@ -275,98 +282,98 @@ mod tests {
     #[test]
     fn calc_abs_int() {
         null_ctx!(ctx);
-        assert_eq!(calc_abs(&mut ctx, &p(vec![Value::Int(-5)])).unwrap(), Value::Int(5));
-        assert_eq!(calc_abs(&mut ctx, &p(vec![Value::Int(5)])).unwrap(),  Value::Int(5));
-        assert_eq!(calc_abs(&mut ctx, &p(vec![Value::Int(0)])).unwrap(),  Value::Int(0));
+        assert_eq!(calc_abs(&mut ctx, &p(vec![Value::Int(-5)]), test_file_id(), None).unwrap(), Value::Int(5));
+        assert_eq!(calc_abs(&mut ctx, &p(vec![Value::Int(5)]), test_file_id(), None).unwrap(),  Value::Int(5));
+        assert_eq!(calc_abs(&mut ctx, &p(vec![Value::Int(0)]), test_file_id(), None).unwrap(),  Value::Int(0));
     }
 
     #[test]
     #[allow(clippy::approx_constant)] // 3.14 é valor literal de teste, não aproximação de PI
     fn calc_abs_float() {
         null_ctx!(ctx);
-        assert_eq!(calc_abs(&mut ctx, &p(vec![Value::Float(-3.14)])).unwrap(), Value::Float(3.14));
+        assert_eq!(calc_abs(&mut ctx, &p(vec![Value::Float(-3.14)]), test_file_id(), None).unwrap(), Value::Float(3.14));
     }
 
     #[test]
     fn calc_pow_int() {
         null_ctx!(ctx);
-        assert_eq!(calc_pow(&mut ctx, &p(vec![Value::Int(2), Value::Int(10)])).unwrap(), Value::Int(1024));
-        assert_eq!(calc_pow(&mut ctx, &p(vec![Value::Int(2), Value::Int(0)])).unwrap(),  Value::Int(1));
+        assert_eq!(calc_pow(&mut ctx, &p(vec![Value::Int(2), Value::Int(10)]), test_file_id(), None).unwrap(), Value::Int(1024));
+        assert_eq!(calc_pow(&mut ctx, &p(vec![Value::Int(2), Value::Int(0)]), test_file_id(), None).unwrap(),  Value::Int(1));
     }
 
     #[test]
     fn calc_pow_float() {
         null_ctx!(ctx);
-        let r = calc_pow(&mut ctx, &p(vec![Value::Float(2.0), Value::Float(0.5)])).unwrap();
+        let r = calc_pow(&mut ctx, &p(vec![Value::Float(2.0), Value::Float(0.5)]), test_file_id(), None).unwrap();
         assert!(matches!(r, Value::Float(f) if (f - std::f64::consts::SQRT_2).abs() < 1e-10));
     }
 
     #[test]
     fn calc_pow_negativo_retorna_err() {
         null_ctx!(ctx);
-        assert!(calc_pow(&mut ctx, &p(vec![Value::Int(2), Value::Int(-1)])).is_err());
+        assert!(calc_pow(&mut ctx, &p(vec![Value::Int(2), Value::Int(-1)]), test_file_id(), None).is_err());
     }
 
     #[test]
     fn calc_sqrt_positivo() {
         null_ctx!(ctx);
-        assert_eq!(calc_sqrt(&mut ctx, &p(vec![Value::Float(4.0)])).unwrap(), Value::Float(2.0));
-        assert_eq!(calc_sqrt(&mut ctx, &p(vec![Value::Int(4)])).unwrap(),     Value::Float(2.0));
+        assert_eq!(calc_sqrt(&mut ctx, &p(vec![Value::Float(4.0)]), test_file_id(), None).unwrap(), Value::Float(2.0));
+        assert_eq!(calc_sqrt(&mut ctx, &p(vec![Value::Int(4)]), test_file_id(), None).unwrap(),     Value::Float(2.0));
     }
 
     #[test]
     fn calc_sqrt_negativo_retorna_err() {
         null_ctx!(ctx);
-        assert!(calc_sqrt(&mut ctx, &p(vec![Value::Float(-1.0)])).is_err());
+        assert!(calc_sqrt(&mut ctx, &p(vec![Value::Float(-1.0)]), test_file_id(), None).is_err());
     }
 
     #[test]
     fn calc_floor_ceil_round() {
         null_ctx!(ctx);
-        assert_eq!(calc_floor(&mut ctx, &p(vec![Value::Float(3.7)])).unwrap(), Value::Int(3));
-        assert_eq!(calc_ceil(&mut ctx, &p(vec![Value::Float(3.2)])).unwrap(),  Value::Int(4));
-        assert_eq!(calc_round(&mut ctx, &p(vec![Value::Float(3.5)])).unwrap(), Value::Int(4));
-        assert_eq!(calc_round(&mut ctx, &p(vec![Value::Float(3.4)])).unwrap(), Value::Int(3));
+        assert_eq!(calc_floor(&mut ctx, &p(vec![Value::Float(3.7)]), test_file_id(), None).unwrap(), Value::Int(3));
+        assert_eq!(calc_ceil(&mut ctx, &p(vec![Value::Float(3.2)]), test_file_id(), None).unwrap(),  Value::Int(4));
+        assert_eq!(calc_round(&mut ctx, &p(vec![Value::Float(3.5)]), test_file_id(), None).unwrap(), Value::Int(4));
+        assert_eq!(calc_round(&mut ctx, &p(vec![Value::Float(3.4)]), test_file_id(), None).unwrap(), Value::Int(3));
     }
 
     #[test]
     fn calc_min_max_int() {
         null_ctx!(ctx);
-        assert_eq!(calc_min(&mut ctx, &p(vec![Value::Int(3), Value::Int(1), Value::Int(2)])).unwrap(), Value::Int(1));
-        assert_eq!(calc_max(&mut ctx, &p(vec![Value::Int(3), Value::Int(1), Value::Int(2)])).unwrap(), Value::Int(3));
+        assert_eq!(calc_min(&mut ctx, &p(vec![Value::Int(3), Value::Int(1), Value::Int(2)]), test_file_id(), None).unwrap(), Value::Int(1));
+        assert_eq!(calc_max(&mut ctx, &p(vec![Value::Int(3), Value::Int(1), Value::Int(2)]), test_file_id(), None).unwrap(), Value::Int(3));
     }
 
     #[test]
     fn calc_min_vazio_retorna_err() {
         null_ctx!(ctx);
-        assert!(calc_min(&mut ctx, &p(vec![])).is_err());
-        assert!(calc_max(&mut ctx, &p(vec![])).is_err());
+        assert!(calc_min(&mut ctx, &p(vec![]), test_file_id(), None).is_err());
+        assert!(calc_max(&mut ctx, &p(vec![]), test_file_id(), None).is_err());
     }
 
     #[test]
     fn calc_clamp_int() {
         null_ctx!(ctx);
-        assert_eq!(calc_clamp(&mut ctx, &p(vec![Value::Int(5),  Value::Int(0), Value::Int(10)])).unwrap(), Value::Int(5));
-        assert_eq!(calc_clamp(&mut ctx, &p(vec![Value::Int(-5), Value::Int(0), Value::Int(10)])).unwrap(), Value::Int(0));
-        assert_eq!(calc_clamp(&mut ctx, &p(vec![Value::Int(15), Value::Int(0), Value::Int(10)])).unwrap(), Value::Int(10));
+        assert_eq!(calc_clamp(&mut ctx, &p(vec![Value::Int(5),  Value::Int(0), Value::Int(10)]), test_file_id(), None).unwrap(), Value::Int(5));
+        assert_eq!(calc_clamp(&mut ctx, &p(vec![Value::Int(-5), Value::Int(0), Value::Int(10)]), test_file_id(), None).unwrap(), Value::Int(0));
+        assert_eq!(calc_clamp(&mut ctx, &p(vec![Value::Int(15), Value::Int(0), Value::Int(10)]), test_file_id(), None).unwrap(), Value::Int(10));
     }
 
     #[test]
     fn calc_clamp_min_maior_max_retorna_err() {
         null_ctx!(ctx);
-        assert!(calc_clamp(&mut ctx, &p(vec![Value::Float(5.0), Value::Float(10.0), Value::Float(0.0)])).is_err());
+        assert!(calc_clamp(&mut ctx, &p(vec![Value::Float(5.0), Value::Float(10.0), Value::Float(0.0)]), test_file_id(), None).is_err());
     }
 
     #[test]
     fn native_range_directo() {
         null_ctx!(ctx);
-        assert_eq!(native_range(&mut ctx, &p(vec![Value::Int(3)])).unwrap(),
+        assert_eq!(native_range(&mut ctx, &p(vec![Value::Int(3)]), test_file_id(), None).unwrap(),
                    Value::Array(vec![Value::Int(0), Value::Int(1), Value::Int(2)]));
-        assert_eq!(native_range(&mut ctx, &p(vec![Value::Int(2), Value::Int(5)])).unwrap(),
+        assert_eq!(native_range(&mut ctx, &p(vec![Value::Int(2), Value::Int(5)]), test_file_id(), None).unwrap(),
                    Value::Array(vec![Value::Int(2), Value::Int(3), Value::Int(4)]));
-        assert_eq!(native_range(&mut ctx, &p(vec![Value::Int(3), Value::Int(3)])).unwrap(),
+        assert_eq!(native_range(&mut ctx, &p(vec![Value::Int(3), Value::Int(3)]), test_file_id(), None).unwrap(),
                    Value::Array(vec![]));
-        assert!(native_range(&mut ctx, &p(vec![Value::Int(-1)])).is_err());
+        assert!(native_range(&mut ctx, &p(vec![Value::Int(-1)]), test_file_id(), None).is_err());
     }
 
     // ── Passo 64 — native_figure (DEBT-16) ──────────────────────────────────
@@ -382,7 +389,7 @@ mod tests {
             "caption",
             Value::Content(caption_content),
         );
-        let result = native_figure(&mut ctx, &args).unwrap();
+        let result = native_figure(&mut ctx, &args, test_file_id(), None).unwrap();
         assert!(matches!(result, Value::Content(Content::Figure { caption: Some(_), .. })),
             "figure com caption deve ter Some(caption): {:?}", result);
     }
@@ -393,7 +400,7 @@ mod tests {
         use crate::entities::content::Content;
         let body_content = Content::text("Diagrama");
         let args = p(vec![Value::Content(body_content)]);
-        let result = native_figure(&mut ctx, &args).unwrap();
+        let result = native_figure(&mut ctx, &args, test_file_id(), None).unwrap();
         assert!(matches!(result, Value::Content(Content::Figure { caption: None, .. })),
             "figure sem caption deve ter None: {:?}", result);
     }
@@ -405,7 +412,7 @@ mod tests {
         // caption: none → ausência de legenda
         let body_content = Content::text("Corpo");
         let args = pn(vec![Value::Content(body_content)], "caption", Value::None);
-        let result = native_figure(&mut ctx, &args).unwrap();
+        let result = native_figure(&mut ctx, &args, test_file_id(), None).unwrap();
         assert!(matches!(result, Value::Content(Content::Figure { caption: None, .. })),
             "figure com caption: none deve ter caption None");
     }
@@ -414,7 +421,7 @@ mod tests {
     fn native_figure_sem_body_retorna_err() {
         null_ctx!(ctx);
         let args = p(vec![]);
-        assert!(native_figure(&mut ctx, &args).is_err(), "figure sem body deve retornar Err");
+        assert!(native_figure(&mut ctx, &args, test_file_id(), None).is_err(), "figure sem body deve retornar Err");
     }
 
     #[test]
@@ -439,14 +446,14 @@ mod tests {
     fn native_assert_true_nao_gera_erro() {
         null_ctx!(ctx);
         let args = p(vec![Value::Bool(true)]);
-        assert!(native_assert(&mut ctx, &args).is_ok(), "assert(true) deve ter sucesso");
+        assert!(native_assert(&mut ctx, &args, test_file_id(), None).is_ok(), "assert(true) deve ter sucesso");
     }
 
     #[test]
     fn native_assert_false_gera_erro_com_mensagem_padrao() {
         null_ctx!(ctx);
         let args = p(vec![Value::Bool(false)]);
-        let result = native_assert(&mut ctx, &args);
+        let result = native_assert(&mut ctx, &args, test_file_id(), None);
         assert!(result.is_err());
         let err = result.unwrap_err();
         assert!(
@@ -460,7 +467,7 @@ mod tests {
         null_ctx!(ctx);
         // Mensagem sem acentos para evitar problemas de codificação em CI.
         let args = pn(vec![Value::Bool(false)], "message", Value::Str("Matematica falhou".into()));
-        let result = native_assert(&mut ctx, &args);
+        let result = native_assert(&mut ctx, &args, test_file_id(), None);
         assert!(result.is_err());
         assert!(result.unwrap_err()[0].message.contains("Matematica falhou"));
     }
@@ -469,7 +476,7 @@ mod tests {
     fn native_assert_rejeita_named_arg_invalido() {
         null_ctx!(ctx);
         let args = pn(vec![Value::Bool(true)], "bla", Value::Str("bla".into()));
-        let result = native_assert(&mut ctx, &args);
+        let result = native_assert(&mut ctx, &args, test_file_id(), None);
         assert!(result.is_err());
         let err = result.unwrap_err();
         assert!(
@@ -485,9 +492,9 @@ mod tests {
         let mut world = NullWorld::default();
         world.files.insert("foto.png".to_string(), std::sync::Arc::new(vec![1, 2, 3]));
         let dummy_id = crate::entities::file_id::FileId::from_raw(std::num::NonZeroU16::new(1).unwrap());
-        let mut ctx = EvalContext::new(&world, dummy_id);
+        let mut ctx = EvalContext::new(&world);
         let args = p(vec![Value::Str("foto.png".into())]);
-        let result = native_image(&mut ctx, &args).unwrap();
+        let result = native_image(&mut ctx, &args, test_file_id(), None).unwrap();
         assert!(matches!(result, Value::Content(Content::Image { .. })));
     }
 
@@ -495,14 +502,14 @@ mod tests {
     fn native_image_ficheiro_inexistente_gera_erro() {
         null_ctx!(ctx);
         let args = p(vec![Value::Str("naoexiste.png".into())]);
-        assert!(native_image(&mut ctx, &args).is_err());
+        assert!(native_image(&mut ctx, &args, test_file_id(), None).is_err());
     }
 
     #[test]
     fn native_image_rejeita_named_arg_invalido() {
         null_ctx!(ctx);
         let args = pn(vec![Value::Str("foto.png".into())], "cor", Value::Str("red".into()));
-        assert!(native_image(&mut ctx, &args).is_err());
+        assert!(native_image(&mut ctx, &args, test_file_id(), None).is_err());
     }
 
     // ── Passo 76 — primitivas geométricas ────────────────────────────────────
@@ -512,7 +519,7 @@ mod tests {
         // #rect() sem fill nem stroke → stroke preta de 1pt.
         // Confirma que a stdlib é o único local onde este fallback existe.
         null_ctx!(ctx);
-        let result = native_rect(&mut ctx, &p(vec![])).unwrap();
+        let result = native_rect(&mut ctx, &p(vec![]), test_file_id(), None).unwrap();
         if let Value::Content(Content::Shape { fill, stroke, .. }) = result {
             assert!(fill.is_none(), "rect sem fill deve ter fill: None");
             let s = stroke.expect("rect sem cores deve ter stroke de fallback");
@@ -528,7 +535,7 @@ mod tests {
         null_ctx!(ctx);
         let mut args = Args::positional(vec![]);
         args.named.insert("fill".into(), Value::Str("red".into()));
-        let result = native_rect(&mut ctx, &args).unwrap();
+        let result = native_rect(&mut ctx, &args, test_file_id(), None).unwrap();
         if let Value::Content(Content::Shape { fill, stroke, .. }) = result {
             assert!(fill.is_some(), "fill red deve estar presente");
             assert!(stroke.is_none(), "sem stroke explícito e com fill → stroke deve ser None");
@@ -544,7 +551,7 @@ mod tests {
         let mut args = Args::positional(vec![]);
         args.named.insert("dx".into(), Value::Float(100.0));
         args.named.insert("dy".into(), Value::Float(50.0));
-        let result = native_line(&mut ctx, &args).unwrap();
+        let result = native_line(&mut ctx, &args, test_file_id(), None).unwrap();
         if let Value::Content(Content::Shape { kind, fill, stroke, .. }) = result {
             assert!(matches!(kind, ShapeKind::Line { dx, dy } if dx == 100.0 && dy == 50.0));
             assert!(fill.is_none(), "linha não tem fill");
@@ -558,7 +565,7 @@ mod tests {
     fn polygon_sem_pontos_gera_erro() {
         null_ctx!(ctx);
         let args = Args::positional(vec![]);
-        let result = native_polygon(&mut ctx, &args);
+        let result = native_polygon(&mut ctx, &args, test_file_id(), None);
         assert!(result.is_err(), "polygon() sem pontos deve retornar Err");
         let msg = result.unwrap_err();
         let msg_str = format!("{:?}", msg);
@@ -573,7 +580,7 @@ mod tests {
         let args = Args::positional(vec![
             Value::Array(vec![Value::Float(10.0), Value::Float(20.0)]),
         ]);
-        let result = native_polygon(&mut ctx, &args).unwrap();
+        let result = native_polygon(&mut ctx, &args, test_file_id(), None).unwrap();
         if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = result {
             assert_eq!(items.len(), 2, "Um ponto deve gerar MoveTo + ClosePath");
             assert!(matches!(items[0], PathItem::MoveTo(_)), "Primeiro item deve ser MoveTo");
@@ -592,7 +599,7 @@ mod tests {
             Value::Array(vec![Value::Float(50.0), Value::Float(0.0)]),
             Value::Array(vec![Value::Float(25.0), Value::Float(50.0)]),
         ]);
-        let result = native_polygon(&mut ctx, &args).unwrap();
+        let result = native_polygon(&mut ctx, &args, test_file_id(), None).unwrap();
         if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = result {
             assert_eq!(items.len(), 4); // MoveTo + 2×LineTo + ClosePath
             assert!(matches!(items[0], PathItem::MoveTo(_)));

@@ -84,6 +84,39 @@ legítimas. DEBT-1 permanece na Secção 1 — o trabalho residual
 (propriedades, paridade, wrappers) não foi resolvido por
 atomização.
 
+### Actualização Passo 99 — fundação tipada `Style`/`Styles`/`Content::Styled`
+
+Passo 99 (ADR-0038) materializou a fundação em L1:
+
+- [x] **Enum `Style`** em `entities/style.rs` com 5 variantes:
+  `Bold`, `Italic`, `Size`, `Fill`, `HeadingLevel`. Superconjunto
+  preparado para futuro (`Fill` e `HeadingLevel` forward-compat).
+- [x] **Struct `Styles(Vec<Style>)`** — colecção de deltas tipados.
+- [x] **`StyleChain::push_styles(&Styles)`** — entrada tipada; projecta
+  as variantes conhecidas no `StyleDelta` interno.
+- [x] **`StyleChain::fill()`/`heading_level()`** — accessors forward-compat
+  para as variantes novas.
+- [x] **`Content::Styled(Box<Content>, Styles)`** — nova variante
+  cobrindo `plain_text`, `is_empty`, `map_text`, `map_content`,
+  `PartialEq` e todos os sítios de `match` exaustivo (incluindo
+  `introspect::materialize_time`, `introspect::walk`,
+  `layout_content` — que é transparente no Passo 99).
+- [x] **Teste de integração conceptual**: `Content::Styled` → `Styles`
+  → `StyleChain::push_styles` → resolução top-wins (paridade vanilla).
+- [x] **ADR-0038 `EM VIGOR`** — "Sistema de estilos em L1".
+- [x] **Decisão COEX** registada: `TextStyle` plano permanece como
+  "vista achatada para o Layouter actual" — 70+ sítios de consumo
+  tornam SUB impraticável num único passo. Novo DEBT-48 aberto.
+
+**Propriedades adicionais**: parcialmente pagas. `Fill` e
+`HeadingLevel` no enum; outras (`font`, `lang`, `leading`) continuam
+adiadas (bloqueadas por tipos não materializados — ver ADR-0038).
+
+**Estado**: `DEBT-1` marcado agora como **PARCIALMENTE RESOLVIDO
+(Passo 99)** — a fundação está materializada. Activação no eval
+(`#set`/`#show` a consumir `Content::Styled`) e substituição de
+`TextStyle` (DEBT-48) são trabalho futuro.
+
 ---
 
 ## DEBT-2 — Closures eager vs lazy capture — PARCIALMENTE RESOLVIDO
@@ -473,75 +506,73 @@ pipeline HTML existir.
 
 ---
 
-## DEBT-47 — Auditoria de visibilidade dos `pub(super)` aplicados nos Passos 96.1–96.5 — EM ABERTO (Passo 96.6)
+## DEBT-48 — Substituir `TextStyle` plano por `StyleChain` no Layouter e export — EM ABERTO (Passo 99)
 
-Os Passos 96.1, 96.2, 96.4 e 96.5 reestruturaram quatro
-ficheiros grandes (`eval.rs`, `parse.rs`, `stdlib.rs`) em
-submódulos conforme ADR-0037. Durante a extracção, visibilidade
-de fields e métodos foi elevada para `pub(super)` em muitos
-casos — alguns por bulk replace Python (reportado no Passo
-96.4 para o `Parser` struct), outros por replace manual.
+Aberto pelo Passo 99 como consequência directa da decisão **COEX**
+registada em ADR-0038.
 
-A ADR-0037 Regra 3 (clarificada no Passo 96.6) estabelece
-preferência por:
-- Manter privado quando possível.
-- Métodos `pub(super)` sobre campos `pub(super)`.
-- `pub(in path)` para escopo explícito quando aplicável.
+### Contexto
 
-Este DEBT documenta a necessidade de auditoria retroactiva:
-verificar cada `pub(super)` introduzido nos Passos 96.1–96.5 e
-restringir onde possível sem perder funcionalidade.
+Passo 99 (ADR-0038) materializou a fundação `Style`/`Styles`/`StyleChain`
+e a variante `Content::Styled`. O inventário 99.A contou **70 sítios**
+de `TextStyle` em `01_core/` + `03_infra/`:
+
+- ~15 sítios de construção (`TextStyle { ... }` ou `TextStyle::regular/bold/italic`).
+- ~55 sítios de consumo (`.bold`, `.italic`, `.size`).
+- ~10 testes que dependem da estrutura exacta.
+
+Critério da spec (≥15 consumo → COEX). 55 ≫ 15, logo a substituição
+completa fica fora do Passo 99.
+
+A decisão COEX mantém `TextStyle` em `entities/layout_types.rs` como
+"vista achatada para o Layouter actual", com `From<&StyleChain>` como
+ponte. `Content::Styled` usa `Styles`, não `TextStyle`.
 
 ### Escopo
 
-Submódulos a auditar:
+Substituir `TextStyle` por `StyleChain` em:
 
-- `01_core/src/rules/eval/` (Passos 96.1 e 96.2):
-  - `mod.rs`, `markup.rs`, `math.rs`, `modules.rs`, `rules.rs`,
-    `closures.rs`, `control_flow.rs`, `bindings.rs`,
-    `operators.rs`, `tests.rs`.
-- `01_core/src/rules/parse/` (Passo 96.4):
-  - `mod.rs`, `parser.rs`, `math.rs`, `markup.rs`, `code.rs`,
-    `rules.rs`, `patterns.rs`.
-- `01_core/src/rules/stdlib/` (Passo 96.5):
-  - `mod.rs` e 9 submódulos.
+1. `FrameItem::Text { style: TextStyle, .. }` em `layout_types.rs` —
+   passar a `StyleChain<'static>` ou equivalente que não bloqueie
+   `FrameItem` em lifetimes. Decisão de tipo fica para este DEBT
+   resolver; pode exigir uma forma `OwnedStyleChain` sem referências
+   ou um wrapper `Arc<StyleNode>`.
+2. Todos os consumidores de `FrameItem::Text.style` em
+   `03_infra/src/export.rs` e testes de frame.
+3. `TextStyle::regular/bold/italic` constructors → substituição por
+   `StyleChain::default_chain().push_styles(...)` em testes.
+4. Todos os sítios do Layouter que hoje fazem `let prev = self.style;`
+   → substituir por `StyleChain` push/pop ou por propagação via
+   parâmetro (análogo à Opção do Passo 94).
 
 ### Critério de conclusão
 
-- [ ] Inventário de todos os `pub(super)` nos submódulos
-      listados (provavelmente via grep + análise).
-- [ ] Classificação de cada ocorrência:
-  - Necessária (submódulo realmente precisa).
-  - Elevável (podia ser `pub(in path)` mais estrito).
-  - Removível (submódulo não usa — restos de bulk replace).
-  - Convertível a método (campo `pub(super)` que devia ser
-    método).
-- [ ] Aplicação das mudanças sem regressão:
-  - Campos `pub(super)` convertíveis → métodos.
-  - Campos/métodos elevados → restritos.
-  - Residuais de bulk replace → removidos.
-- [ ] `cargo test` preservado.
-- [ ] `crystalline-lint` → zero violations.
+- [ ] `TextStyle` removido de `entities/layout_types.rs` ou marcado
+      como "interno à ponte" se `FrameItem::Text` ainda precisa de
+      uma vista achatada para export.
+- [ ] `FrameItem::Text` usa `StyleChain` (ou equivalente owned) como
+      tipo do campo `style`.
+- [ ] Zero `TextStyle { bold:, italic:, size: }` literals em `01_core/src/`.
+- [ ] `cargo test --workspace` passa.
+- [ ] `crystalline-lint` zero violations.
 
 ### Dependências
 
-Este DEBT **não é atacado** até DEBT-46 encerrar. Razão:
-fazer auditoria de visibilidade em ficheiros que ainda estão
-a ser reestruturados é sobreposição de trabalho. Depois do
-DEBT-46 encerrar (Passos 96.7, 96.8, 96.9, 96.10), todos os
-submódulos estarão na sua forma final e a auditoria é estável.
+- **Não é atacado** antes do Passo 99.D/E consolidar. Este DEBT
+  pressupõe a fundação do Passo 99 materializada e estável.
+- Pode coexistir com activação de `#set`/`#show` no eval
+  (independente).
+- Pode co-beneficiar de materialização de `Engine<'a>` se a forma
+  owned de `StyleChain` naturalmente viver nesse agregador.
 
-Os Passos 96.7 em diante **seguem** a Regra 3 actualizada
-(não introduzem `pub(super)` desnecessário). O DEBT-47 cobre
-apenas o trabalho retroactivo dos passos anteriores.
+### Nota sobre `TextStyle::size` em `FrameItem::Text`
 
-### Nota sobre escopo do Passo 96.5
-
-O Passo 96.5 já aplicou visibilidade mais criteriosa que os
-Passos 96.1–96.4 (o reporte não menciona bulk replace). Na
-auditoria, pode revelar-se que o 96.5 não tem dívida
-significativa de visibilidade. Nesse caso, o DEBT-47 é pago
-mais rápido nos submódulos relevantes.
+A optimização de rendering do export PDF depende hoje de ler
+directamente `style.size` para o "Tf" do PDF. Qualquer substituição
+por `StyleChain` tem de manter a semântica de "obter tamanho resolvido
+em ponto único" — ou via método `StyleChain::size()`, ou via
+pré-resolução antes do push para o frame. A segunda é preferível
+porque evita leitura recursiva durante render.
 
 ---
 
@@ -808,6 +839,79 @@ funcionaram como esperado em 7 aplicações consecutivas
 - Nota Regra 3 do Passo 96.6 reduziu bulk replace de
   `pub(super)` — rácio métodos/campos melhorou monotonicamente
   de 2.1 → 2.6 → 4.0 nos 3 passos subsequentes.
+
+---
+
+## DEBT-47 — Auditoria de visibilidade dos `pub(super)` aplicados nos Passos 96.1–96.5 — ENCERRADO (Passo 97) ✓
+
+Os Passos 96.1, 96.2, 96.4 e 96.5 reestruturaram quatro
+ficheiros grandes (`eval.rs`, `parse.rs`, `stdlib.rs`) em
+submódulos conforme ADR-0037. Durante a extracção, visibilidade
+de fields e métodos foi elevada para `pub(super)` em muitos
+casos — alguns por bulk replace Python (reportado no Passo
+96.4 para o `Parser` struct), outros por replace manual.
+
+A ADR-0037 Regra 3 (clarificada no Passo 96.6) estabelece
+preferência por:
+- Manter privado quando possível.
+- Métodos `pub(super)` sobre campos `pub(super)`.
+- `pub(in path)` para escopo explícito quando aplicável.
+
+### Escopo auditado
+
+Todos os submódulos de `01_core/src/rules/`:
+
+- `eval/`, `parse/`, `stdlib/`, `layout/`, `math/layout/`, `lexer/`.
+
+### Critério de conclusão
+
+- [x] Inventário de todos os `pub(super)` em
+      `00_nucleo/diagnosticos/inventario-pub-super-passo-97.md`
+      (269 itens encontrados).
+- [x] Classificação R1/R2/R3/R4 por item — automática por grep +
+      revisão manual dos falsos positivos.
+- [x] Aplicação das mudanças sem regressão: 66 reduções R3
+      aplicadas (com 6 reversões por leakage via inferência de
+      tipo); bloco-comentário Regra 3 adicionado a `Parser` e
+      `MathLayouter` (os outros 2 structs grandes — `Layouter`,
+      `Lexer`, `MathBox` — já tinham do passo original).
+- [x] `cargo test` preservado: **764 L1 + 174 L3 + 6 ignorados**.
+- [x] `crystalline-lint` → **zero violations**.
+
+### Resultado final (Passo 97)
+
+| Módulo | Antes (96.10) | Depois (97) | Δ |
+|--------|-------------:|------------:|--:|
+| `parse` | 135 | 93 | −42 |
+| `layout` | 46 | 44 | −2 |
+| `math` | 29 | 26 | −3 |
+| `eval` | 24 | 23 | −1 |
+| `lexer` | 24 | 22 | −2 |
+| `stdlib` | 11 | 3 | −8 |
+| **Total** | **269** | **211** | **−58 (−22%)** |
+
+Redução concentrada em `parse/` (parser.rs do bulk replace 96.4)
+e em `stdlib/` (privados residuais que não eram usados entre
+submódulos).
+
+Rácio métodos:campos por módulo após auditoria:
+
+| Módulo | fn | field | rácio |
+|--------|---:|------:|------:|
+| `parse` | 69 | 14 | 4.9 |
+| `layout` | 28 | 14 | 2.0 |
+| `math` | 14 | 7 | 2.0 |
+| `eval` | 23 | 0 | ∞ |
+| `lexer` | 14 | 4 | 3.5 |
+| `stdlib` | 3 | 0 | ∞ |
+
+Relatório completo em `00_nucleo/materialization/typst-passo-97-relatorio.md`.
+
+### Dívida residual
+
+Nenhuma relativa a visibilidade. Permanece apenas a dívida dos
++18 smoke tests V2 (registada na secção de encerramento do
+DEBT-46, Passo 96.10).
 
 ---
 
