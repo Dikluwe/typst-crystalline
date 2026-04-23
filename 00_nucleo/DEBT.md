@@ -117,6 +117,36 @@ adiadas (bloqueadas por tipos não materializados — ver ADR-0038).
 (`#set`/`#show` a consumir `Content::Styled`) e substituição de
 `TextStyle` (DEBT-48) são trabalho futuro.
 
+### Actualização Passo 101 — remover wrappers `Content::Strong`/`Emph`
+
+- [x] `Content::Strong(Box<Content>)` e `Content::Emph(Box<Content>)`
+      **removidos do enum** `Content`.
+- [x] `Content::strong(body)` e `Content::emph(body)` redefinidos como
+      construtores que emitem `Content::Styled(body,
+      Styles::from_iter([Style::Bold(true)]))` (ou Italic). API pública
+      preservada; zero ripple para consumidores.
+- [x] Layouter, `introspect::materialize_time`/`walk`, `PartialEq`,
+      `map_content`, `map_text`: arms dedicados removidos. Comportamento
+      coberto pelo arm `Content::Styled` (adicionado no Passo 100).
+- [x] `eval/rules.rs` show selector: `show strong: it => ...` passa a
+      casar `Content::Styled` que contenha `Style::Bold(true)`;
+      análogo para `show emph`. Paridade funcional preservada.
+- [x] stdlib `native_strong`/`native_emph` emitem
+      `Content::strong(body)`/`Content::emph(body)` (que por sua vez
+      emitem `Content::Styled`).
+- [x] Tests `entities/content.rs` actualizados: `matches!(c,
+      Content::Strong(_))` → `Content::Styled(_, _)`; construção via
+      factory preservada.
+- [x] `cargo test --workspace`: 783 → **783 L1** (inalterado;
+      consolidação puramente estrutural).
+- [x] `crystalline-lint`: zero violations.
+- [x] Paridade funcional: `Hello *bold* and _italic_` produz output
+      idêntico ao pós-Passo 100.
+
+**DEBT-1 pendências restantes**: 2 de 3 (activação de `#set`/`#show`
+no eval; propriedades adicionais bloqueadas). A tarefa "remover
+wrappers Strong/Emph do layout" foi paga.
+
 ### Actualização Passo 100 — activação de `Content::Styled` no Layouter
 
 DEBT-48 encerrado no Passo 100 (ADR-0039):

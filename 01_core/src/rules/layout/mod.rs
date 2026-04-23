@@ -254,19 +254,11 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 }
             }
 
-            Content::Strong(body) => {
-                let prev = self.style;
-                self.style = TextStyle::bold(self.font_size_pt);
-                self.layout_content(body);
-                self.style = prev;
-            }
-
-            Content::Emph(body) => {
-                let prev = self.style;
-                self.style = TextStyle::italic(self.font_size_pt);
-                self.layout_content(body);
-                self.style = prev;
-            }
+            // Passo 101: `Content::Strong` e `Content::Emph` removidos do enum.
+            // `*bold*` e `_italic_` produzem `Content::Styled([Bold(true)/Italic(true)], body)`
+            // no `eval_markup` (ou via `Content::strong/emph` construtores
+            // redefinidos). O arm `Content::Styled` (introduzido no Passo 100)
+            // cobre ambos os casos via push/pop na `chain`.
 
             Content::Heading { level, body } => {
                 self.counter.step_hierarchical("heading", *level as usize);

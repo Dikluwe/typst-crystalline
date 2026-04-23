@@ -46,8 +46,9 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
                 seq.iter().map(|c| materialize_time(c, state)).collect::<Vec<_>>().into()
             )
         }
-        Content::Strong(body) => Content::Strong(Box::new(materialize_time(body, state))),
-        Content::Emph(body)   => Content::Emph(Box::new(materialize_time(body, state))),
+        // Passo 101: `Content::Strong` e `Content::Emph` removidos.
+        // O arm `Content::Styled` abaixo cobre ambos (propaga recursivamente
+        // preservando os estilos).
         Content::Heading { level, body } => Content::Heading {
             level: *level,
             body:  Box::new(materialize_time(body, state)),
@@ -251,8 +252,9 @@ fn walk(content: &Content, state: &mut CounterState) {
             }
         },
 
-        // Nós com filhos que podem conter Labels — percorrer recursivamente.
-        Content::Strong(body) | Content::Emph(body) => walk(body, state),
+        // Passo 101: `Content::Strong`/`Content::Emph` removidos; o caso
+        // equivalente de filhos com Labels/contadores dentro de um bloco
+        // estilizado está agora coberto pelo arm `Content::Styled` abaixo.
 
         // Terminais e nós sem efeito em contadores — cobertos explicitamente
         // para que o compilador detecte variantes em falta (sem wildcard silencioso).
@@ -590,7 +592,7 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::text("Texto estático"),
-                Content::Strong(Box::new(Content::text("Negrito"))),
+                Content::strong(Content::text("Negrito")),
             ]
             .into(),
         );
