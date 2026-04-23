@@ -61,15 +61,18 @@ use crate::rules::scopes::Scopes;
 /// e primeira aplicação concreta da ADR-0036 (atomização progressiva,
 /// Passo 92). O campo `route: Vec<FileId>` + API `with_route_id` do Passo
 /// 90 foram eliminados no Passo 92 (DEBT-44 fechado).
+///
+/// A cadeia de estilos (`StyleChain`) **também não** é campo do contexto
+/// desde o Passo 94 — propaga-se como `&mut StyleChain` nas funções
+/// `eval_*`. Cada bloco de scoping (`CodeBlock`, `ContentBlock`,
+/// `Strong`/`Emph`/`Heading`, corpo de closure) cria uma cópia local,
+/// eliminando o antigo par `let saved = ctx.styles.clone(); ... ctx.styles = saved`.
+/// Segunda aplicação concreta da ADR-0036.
 pub struct EvalContext<'w> {
     #[allow(dead_code)] // usado quando `import` for implementado (Passo futuro)
     pub world: &'w dyn World,
     pub loop_iterations: usize,
     pub max_loop_iterations: usize,
-    /// Cadeia de estilos activa durante eval.
-    /// Actualizada por `#set text(...)` rules. Capturada em `Content::Text`
-    /// no momento da produção — permite que o layout leia o estilo do nó.
-    pub styles: StyleChain,
     /// Show rules activas no escopo actual (Passo 68).
     /// Crescem com `#show` e são truncadas ao sair de um CodeBlock.
     ///
@@ -100,7 +103,6 @@ impl<'w> EvalContext<'w> {
             world,
             loop_iterations: 0,
             max_loop_iterations: 1_000_000,
-            styles: StyleChain::default_chain(),
             show_rules: Arc::from([]),
             active_guards: Vec::new(),
             next_rule_id: 0,
@@ -176,6 +178,11 @@ pub fn eval(
     // partilhado no contexto.
     let route = Route::root().with_id(source.id());
 
+    // Segunda aplicação da ADR-0036 (Passo 94): `StyleChain` local ao
+    // entry-point, propagado como `&mut StyleChain` às funções `eval_*`.
+    // Eliminou o campo `styles` de `EvalContext` e o par save/restore.
+    let mut styles = StyleChain::default_chain();
+
     let mut scopes = Scopes::new(None);
     // Stdlib como scope base — type, len, range visíveis em todo o documento
     let stdlib = make_stdlib();
@@ -184,7 +191,7 @@ pub fn eval(
     }
     scopes.enter();  // âmbito do módulo
 
-    let content_val = eval_markup(root, &mut scopes, &mut ctx, route.track())?;
+    let content_val = eval_markup(root, &mut scopes, &mut ctx, route.track(), &mut styles)?;
 
     let module_scope = scopes.exit();
     let content = match content_val {
@@ -204,6 +211,7 @@ fn eval_markup<'r>(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext<'_>,
     route: Tracked<'r, Route<'r>>,
+    styles: &mut StyleChain,
 ) -> SourceResult<Value> {
     let mut parts: Vec<Content> = Vec::new();
 
@@ -211,10 +219,10 @@ fn eval_markup<'r>(
         match child.kind() {
             SyntaxKind::Text => {
                 // Capturar o estilo activo no momento da produção (Passo 30).
-                let style = TextStyle::from(&ctx.styles);
+                let style = TextStyle::from(&*styles);
                 let text_node = Content::Text(child.text().as_str().into(), style);
                 // Intercepção eager para Selector::Text (Passo 68).
-                parts.push(intercept_content(text_node, ctx, route)?);
+                parts.push(intercept_content(text_node, ctx, route, styles)?);
             }
             SyntaxKind::Space | SyntaxKind::Parbreak => parts.push(Content::Space),
             k if k.is_trivia() => continue,
@@ -243,10 +251,10 @@ fn eval_markup<'r>(
             }
             _ => {
                 if let Some(expr) = Expr::from_untyped(child) {
-                    match eval_expr(expr, scopes, ctx, route)? {
+                    match eval_expr(expr, scopes, ctx, route, styles)? {
                         Value::Content(c) => parts.push(c),
                         Value::Str(s)     => {
-                            let style = TextStyle::from(&ctx.styles);
+                            let style = TextStyle::from(&*styles);
                             parts.push(Content::Text(s, style));
                         }
                         Value::None       => {}
@@ -265,6 +273,7 @@ fn eval_expr<'r>(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext<'_>,
     route: Tracked<'r, Route<'r>>,
+    styles: &mut StyleChain,
 ) -> SourceResult<Value> {
     match expr {
         Expr::Int(node)   => Ok(Value::Int(node.get())),
@@ -284,38 +293,39 @@ fn eval_expr<'r>(
                 )])
         }
 
-        Expr::LetBinding(binding) => eval_let(binding, scopes, ctx, route),
+        Expr::LetBinding(binding) => eval_let(binding, scopes, ctx, route, styles),
 
         Expr::CodeBlock(code_block) => {
-            // Bloco de código — save/restore de styles e truncagem de show_rules.
-            let saved_styles = ctx.styles.clone();
+            // Bloco de código — styles locais (atomização Passo 94) e
+            // truncagem de show_rules. `#set` dentro do bloco muta
+            // `local_styles` mas não a `styles` do chamador.
+            let mut local_styles = styles.clone();
             // Show rules adicionadas dentro do bloco não devem vazar para o escopo exterior.
             let rules_len_before = ctx.show_rules.len();
             let mut last = Value::None;
             for expr in code_block.body().exprs() {
-                last = eval_expr(expr, scopes, ctx, route)?;
+                last = eval_expr(expr, scopes, ctx, route, &mut local_styles)?;
             }
-            ctx.styles = saved_styles;
             ctx.truncate_show_rules(rules_len_before);
             Ok(last)
         }
 
         Expr::Binary(binary) => {
-            let lhs = eval_expr(binary.lhs(), scopes, ctx, route)?;
-            let rhs = eval_expr(binary.rhs(), scopes, ctx, route)?;
+            let lhs = eval_expr(binary.lhs(), scopes, ctx, route, styles)?;
+            let rhs = eval_expr(binary.rhs(), scopes, ctx, route, styles)?;
             eval_binary_op(binary.op(), lhs, rhs)
                 .map_err(|msg| vec![SourceDiagnostic::error(binary.span(), msg)])
         }
 
         Expr::Unary(unary) => {
-            let operand = eval_expr(unary.expr(), scopes, ctx, route)?;
+            let operand = eval_expr(unary.expr(), scopes, ctx, route, styles)?;
             eval_unary_op(unary.op(), operand)
                 .map_err(|msg| vec![SourceDiagnostic::error(unary.span(), msg)])
         }
 
-        Expr::Conditional(cond) => eval_conditional(cond, scopes, ctx, route),
-        Expr::WhileLoop(loop_expr) => eval_while(loop_expr, scopes, ctx, route),
-        Expr::ForLoop(loop_expr) => eval_for(loop_expr, scopes, ctx, route),
+        Expr::Conditional(cond) => eval_conditional(cond, scopes, ctx, route, styles),
+        Expr::WhileLoop(loop_expr) => eval_while(loop_expr, scopes, ctx, route, styles),
+        Expr::ForLoop(loop_expr) => eval_for(loop_expr, scopes, ctx, route, styles),
 
         Expr::Closure(closure_expr) => {
             // Captura eager por snapshot — O(N) uma única vez, depois partilhado em O(1).
@@ -337,7 +347,7 @@ fn eval_expr<'r>(
                     }
                     Param::Named(named) => {
                         let name = named.name().as_str().to_string();
-                        Some(eval_expr(named.expr(), scopes, ctx, route)
+                        Some(eval_expr(named.expr(), scopes, ctx, route, styles)
                             .map(|v| ClosureParam { name, default: Some(v) }))
                     }
                     _ => None,  // Spread, Placeholder, Destructuring — adiado
@@ -357,7 +367,7 @@ fn eval_expr<'r>(
             if let Expr::FieldAccess(access) = call.callee() {
                 if let Some(counter_key) = extract_counter_key(access.target()) {
                     let method_name = access.field().as_str().to_string();
-                    return eval_counter_method(&counter_key, &method_name, call.args(), scopes, ctx, route);
+                    return eval_counter_method(&counter_key, &method_name, call.args(), scopes, ctx, route, styles);
                 }
             }
 
@@ -368,15 +378,15 @@ fn eval_expr<'r>(
                 }
             }
 
-            let callee = eval_expr(call.callee(), scopes, ctx, route)?;
-            let args = eval_args(call.args(), scopes, ctx, route)?;
+            let callee = eval_expr(call.callee(), scopes, ctx, route, styles)?;
+            let args = eval_args(call.args(), scopes, ctx, route, styles)?;
 
             match callee {
                 Value::Func(func) => {
-                    let result = apply_func(func, args, ctx, route)?;
+                    let result = apply_func(func, args, ctx, route, styles)?;
                     // Intercepção eager — show rules aplicadas após apply_func (Passo 68).
                     if let Value::Content(c) = result {
-                        Ok(Value::Content(intercept_content(c, ctx, route)?))
+                        Ok(Value::Content(intercept_content(c, ctx, route, styles)?))
                     } else {
                         Ok(result)
                     }
@@ -390,34 +400,29 @@ fn eval_expr<'r>(
 
         Expr::Strong(strong) => {
             // Capturar bold no estilo activo para que os Text filhos carreguem bold=true.
-            let prev = ctx.styles.clone();
-            ctx.styles = ctx.styles.push(StyleDelta { bold: Some(true), italic: None, size: None });
-            let body = eval_markup_body(strong.body().to_untyped(), scopes, ctx, route)?;
-            ctx.styles = prev;
+            // Atomização Passo 94: styles local ao corpo, não muta o caller.
+            let mut local_styles = styles.push(StyleDelta { bold: Some(true), italic: None, size: None });
+            let body = eval_markup_body(strong.body().to_untyped(), scopes, ctx, route, &mut local_styles)?;
             let content = Content::strong(body);
-            Ok(Value::Content(intercept_content(content, ctx, route)?))
+            Ok(Value::Content(intercept_content(content, ctx, route, styles)?))
         }
 
         Expr::Emph(emph) => {
             // Capturar italic no estilo activo para que os Text filhos carreguem italic=true.
-            let prev = ctx.styles.clone();
-            ctx.styles = ctx.styles.push(StyleDelta { bold: None, italic: Some(true), size: None });
-            let body = eval_markup_body(emph.body().to_untyped(), scopes, ctx, route)?;
-            ctx.styles = prev;
+            let mut local_styles = styles.push(StyleDelta { bold: None, italic: Some(true), size: None });
+            let body = eval_markup_body(emph.body().to_untyped(), scopes, ctx, route, &mut local_styles)?;
             let content = Content::emph(body);
-            Ok(Value::Content(intercept_content(content, ctx, route)?))
+            Ok(Value::Content(intercept_content(content, ctx, route, styles)?))
         }
 
         Expr::Heading(heading) => {
             let level = heading.depth().get() as u8;
             // Capturar bold no estilo para que os Text filhos do heading carreguem bold=true.
-            let prev = ctx.styles.clone();
-            ctx.styles = ctx.styles.push(StyleDelta { bold: Some(true), italic: None, size: None });
-            let body  = eval_markup_body(heading.body().to_untyped(), scopes, ctx, route)?;
-            ctx.styles = prev;
+            let mut local_styles = styles.push(StyleDelta { bold: Some(true), italic: None, size: None });
+            let body  = eval_markup_body(heading.body().to_untyped(), scopes, ctx, route, &mut local_styles)?;
             // Intercepção eager — show rules aplicadas imediatamente após criação (Passo 68).
             let content = Content::heading(level, body);
-            Ok(Value::Content(intercept_content(content, ctx, route)?))
+            Ok(Value::Content(intercept_content(content, ctx, route, styles)?))
         }
 
         Expr::Raw(raw) => {
@@ -435,23 +440,23 @@ fn eval_expr<'r>(
 
         Expr::Link(link) => {
             let url = link.get().to_string();
-            let style = TextStyle::from(&ctx.styles);
+            let style = TextStyle::from(&*styles);
             Ok(Value::Content(Content::link(url.clone(), Content::Text(url.into(), style))))
         }
 
         Expr::ListItem(item) => {
-            let body = eval_markup_body(item.body().to_untyped(), scopes, ctx, route)?;
+            let body = eval_markup_body(item.body().to_untyped(), scopes, ctx, route, styles)?;
             Ok(Value::Content(Content::list_item(body)))
         }
 
         Expr::EnumItem(item) => {
             let number = item.number().map(|n| n as u32);
-            let body   = eval_markup_body(item.body().to_untyped(), scopes, ctx, route)?;
+            let body   = eval_markup_body(item.body().to_untyped(), scopes, ctx, route, styles)?;
             Ok(Value::Content(Content::enum_item(number, body)))
         }
 
         Expr::FieldAccess(access) => {
-            let target = eval_expr(access.target(), scopes, ctx, route)?;
+            let target = eval_expr(access.target(), scopes, ctx, route, styles)?;
             let field  = access.field().as_str().to_string();
             match target {
                 Value::Dict(d) => d.get(field.as_str())
@@ -487,7 +492,7 @@ fn eval_expr<'r>(
                         if named.name().as_str() == "numbering" {
                             // Defensivo: só String activa a numeração.
                             // Closures, none, ou outros tipos → ignorar.
-                            let val = eval_expr(named.expr(), scopes, ctx, route).unwrap_or(Value::None);
+                            let val = eval_expr(named.expr(), scopes, ctx, route, styles).unwrap_or(Value::None);
                             return matches!(val, Value::Str(_));
                         }
                     }
@@ -513,7 +518,7 @@ fn eval_expr<'r>(
                 for arg in set.args().items() {
                     if let Arg::Named(named) = arg {
                         let key = named.name().as_str();
-                        let val = eval_expr(named.expr(), scopes, ctx, route).unwrap_or(Value::None);
+                        let val = eval_expr(named.expr(), scopes, ctx, route, styles).unwrap_or(Value::None);
                         match key {
                             "width"  => width  = extract_pt(&val),
                             "height" => height = extract_pt(&val),
@@ -532,7 +537,7 @@ fn eval_expr<'r>(
                 for arg in set.args().items() {
                     if let Arg::Named(named) = arg {
                         if named.name().as_str() == "numbering" {
-                            let val = eval_expr(named.expr(), scopes, ctx, route).unwrap_or(Value::None);
+                            let val = eval_expr(named.expr(), scopes, ctx, route, styles).unwrap_or(Value::None);
                             new_numbering = match val {
                                 Value::Str(s) => Some(s.to_string()),
                                 Value::None   => None,
@@ -556,7 +561,7 @@ fn eval_expr<'r>(
             for arg in set.args().items() {
                 if let Arg::Named(named) = arg {
                     let key = named.name().as_str().to_owned();
-                    let val = eval_expr(named.expr(), scopes, ctx, route)?;
+                    let val = eval_expr(named.expr(), scopes, ctx, route, styles)?;
                     match key.as_str() {
                         "bold" => {
                             if let Value::Bool(b) = val { delta.bold = Some(b); }
@@ -574,16 +579,15 @@ fn eval_expr<'r>(
                 }
             }
 
-            ctx.styles = ctx.styles.push(delta);
+            // Mutação persistente do styles propagado (Passo 94).
+            *styles = styles.push(delta);
             Ok(Value::None)
         }
 
         Expr::ContentBlock(content_block) => {
-            // Content block [ ] — save/restore de styles para scoping correcto.
-            let saved_styles = ctx.styles.clone();
-            let result = eval_markup(content_block.body().to_untyped(), scopes, ctx, route);
-            ctx.styles = saved_styles;
-            result
+            // Content block [ ] — styles locais ao bloco (atomização Passo 94).
+            let mut local_styles = styles.clone();
+            eval_markup(content_block.body().to_untyped(), scopes, ctx, route, &mut local_styles)
         }
 
         Expr::Equation(eq) => {
@@ -613,7 +617,7 @@ fn eval_expr<'r>(
 
         Expr::ModuleInclude(include) => {
             // Avaliar a expressão do caminho (normalmente uma string literal).
-            let path_val = eval_expr(include.source(), scopes, ctx, route)?;
+            let path_val = eval_expr(include.source(), scopes, ctx, route, styles)?;
             let path = match path_val {
                 Value::Str(s) => s.to_string(),
                 other => return Err(vec![SourceDiagnostic::error(
@@ -646,7 +650,7 @@ fn eval_expr<'r>(
 
             let saved_file = ctx.current_file;
             ctx.current_file = src_id;
-            let result = eval_markup(source.root(), scopes, ctx, child_route.track());
+            let result = eval_markup(source.root(), scopes, ctx, child_route.track(), styles);
             ctx.current_file = saved_file;
             result
         }
@@ -670,7 +674,7 @@ fn eval_expr<'r>(
                     "show rule requer um selector".to_string(),
                 )]),
                 Some(sel_expr) => {
-                    let selector_val = eval_expr(sel_expr, scopes, ctx, route)?;
+                    let selector_val = eval_expr(sel_expr, scopes, ctx, route, styles)?;
                     match selector_val {
                         Value::Str(s) => Selector::Text(s.to_string()),
                         Value::Func(ref f) => {
@@ -724,7 +728,7 @@ fn eval_expr<'r>(
             };
 
             // Avaliar a transformação (closure ou valor estático).
-            let transform = eval_expr(show_rule.transform(), scopes, ctx, route)?;
+            let transform = eval_expr(show_rule.transform(), scopes, ctx, route, styles)?;
             let id = ctx.next_rule_id;
             ctx.next_rule_id += 1;
             ctx.push_show_rule(ShowRule { id, selector, transform });
@@ -737,7 +741,7 @@ fn eval_expr<'r>(
             let mut items = Vec::new();
             for item in arr.items() {
                 if let ArrayItem::Pos(expr) = item {
-                    items.push(eval_expr(expr, scopes, ctx, route)?);
+                    items.push(eval_expr(expr, scopes, ctx, route, styles)?);
                 }
             }
             Ok(Value::Array(items))
@@ -746,7 +750,7 @@ fn eval_expr<'r>(
         // `(expr)` — parêntese de agrupamento. Expressão única dentro de
         // parênteses avalia para o valor da expressão. Passo 83.
         // (Um tuplo com um elemento requer a vírgula trailing: `(x,)`.)
-        Expr::Parenthesized(paren) => eval_expr(paren.expr(), scopes, ctx, route),
+        Expr::Parenthesized(paren) => eval_expr(paren.expr(), scopes, ctx, route, styles),
 
         // Passo 76 — literais numéricos com unidade (ex: 100pt, 1.5em).
         Expr::Numeric(num) => {
@@ -777,8 +781,9 @@ fn eval_markup_body<'r>(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext<'_>,
     route: Tracked<'r, Route<'r>>,
+    styles: &mut StyleChain,
 ) -> SourceResult<Content> {
-    match eval_markup(node, scopes, ctx, route)? {
+    match eval_markup(node, scopes, ctx, route, styles)? {
         Value::Content(c) => Ok(c),
         _                 => Ok(Content::Empty),
     }
@@ -793,16 +798,17 @@ fn eval_args<'r>(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext<'_>,
     route: Tracked<'r, Route<'r>>,
+    styles: &mut StyleChain,
 ) -> SourceResult<Args> {
     let mut items = Vec::new();
     let mut named: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
     for arg in args_node.items() {
         match arg {
-            Arg::Pos(expr) => items.push(eval_expr(expr, scopes, ctx, route)?),
+            Arg::Pos(expr) => items.push(eval_expr(expr, scopes, ctx, route, styles)?),
             Arg::Named(name_expr) => {
                 named.insert(
                     name_expr.name().as_str().into(),
-                    eval_expr(name_expr.expr(), scopes, ctx, route)?,
+                    eval_expr(name_expr.expr(), scopes, ctx, route, styles)?,
                 );
             }
             Arg::Spread(_) => {}  // fronteira deliberada
@@ -962,12 +968,13 @@ fn eval_conditional<'r>(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext<'_>,
     route: Tracked<'r, Route<'r>>,
+    styles: &mut StyleChain,
 ) -> SourceResult<Value> {
-    let condition = eval_expr(cond.condition(), scopes, ctx, route)?;
+    let condition = eval_expr(cond.condition(), scopes, ctx, route, styles)?;
     match condition {
-        Value::Bool(true) => eval_expr(cond.if_body(), scopes, ctx, route),
+        Value::Bool(true) => eval_expr(cond.if_body(), scopes, ctx, route, styles),
         Value::Bool(false) => match cond.else_body() {
-            Some(else_body) => eval_expr(else_body, scopes, ctx, route),
+            Some(else_body) => eval_expr(else_body, scopes, ctx, route, styles),
             None            => Ok(Value::None),
         },
         other => Err(vec![SourceDiagnostic::error(
@@ -982,14 +989,15 @@ fn eval_while<'r>(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext<'_>,
     route: Tracked<'r, Route<'r>>,
+    styles: &mut StyleChain,
 ) -> SourceResult<Value> {
     loop {
-        let cond = eval_expr(loop_expr.condition(), scopes, ctx, route)?;
+        let cond = eval_expr(loop_expr.condition(), scopes, ctx, route, styles)?;
         match cond {
             Value::Bool(true) => {
                 ctx.tick_loop(loop_expr.span())?;
                 scopes.enter();
-                eval_expr(loop_expr.body(), scopes, ctx, route)?;
+                eval_expr(loop_expr.body(), scopes, ctx, route, styles)?;
                 scopes.exit();
             }
             Value::Bool(false) => break,
@@ -1007,8 +1015,9 @@ fn eval_for<'r>(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext<'_>,
     route: Tracked<'r, Route<'r>>,
+    styles: &mut StyleChain,
 ) -> SourceResult<Value> {
-    let iterable = eval_expr(loop_expr.iterable(), scopes, ctx, route)?;
+    let iterable = eval_expr(loop_expr.iterable(), scopes, ctx, route, styles)?;
     match iterable {
         Value::Array(items) => {
             let bindings = loop_expr.pattern().bindings();
@@ -1019,7 +1028,7 @@ fn eval_for<'r>(
                 ctx.tick_loop(loop_expr.span())?;
                 scopes.enter();
                 scopes.define(name.as_str(), item);
-                eval_expr(loop_expr.body(), scopes, ctx, route)?;
+                eval_expr(loop_expr.body(), scopes, ctx, route, styles)?;
                 scopes.exit();
             }
             Ok(Value::None)
@@ -1040,9 +1049,10 @@ fn apply_func<'r>(
     args: Args,
     ctx: &mut EvalContext<'_>,
     route: Tracked<'r, Route<'r>>,
+    styles: &mut StyleChain,
 ) -> SourceResult<Value> {
     match func.repr() {
-        FuncRepr::Closure(closure) => apply_closure(closure, &func, args, ctx, route),
+        FuncRepr::Closure(closure) => apply_closure(closure, &func, args, ctx, route, styles),
         FuncRepr::Native(native)   => (native.call)(ctx, &args),
     }
 }
@@ -1065,6 +1075,7 @@ fn apply_closure<'r>(
     args: Args,
     ctx: &mut EvalContext<'_>,
     route: Tracked<'r, Route<'r>>,
+    styles: &mut StyleChain,
 ) -> SourceResult<Value> {
     // Limite de chamadas vanilla (MAX_CALL_DEPTH = 80) — paridade com
     // `typst-eval/src/call.rs:33` (ADR-0033). Pago parcial do DEBT-45
@@ -1102,16 +1113,15 @@ fn apply_closure<'r>(
     let child_route = Route::extend(route);
 
     // Avaliar o body com o scope da chamada.
-    // Save/restore de styles: #set dentro da closure não deve afectar o caller.
-    let saved_styles = ctx.styles.clone();
-    let result = if let Some(body_expr) = Expr::from_untyped(&closure.body) {
-        eval_expr(body_expr, &mut call_scopes, ctx, child_route.track())
+    // Atomização Passo 94: styles local — `#set` dentro da closure muta
+    // `local_styles` e não a `styles` do caller (substitui o antigo
+    // save/restore sobre `ctx.styles`).
+    let mut local_styles = styles.clone();
+    if let Some(body_expr) = Expr::from_untyped(&closure.body) {
+        eval_expr(body_expr, &mut call_scopes, ctx, child_route.track(), &mut local_styles)
     } else {
         Ok(Value::None)
-    };
-    ctx.styles = saved_styles;
-
-    result
+    }
 }
 
 /// Avalia o corpo de uma equação matemática — produz `Content` a partir de `Math<'_>`.
@@ -1377,9 +1387,10 @@ fn eval_let<'r>(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext<'_>,
     route: Tracked<'r, Route<'r>>,
+    styles: &mut StyleChain,
 ) -> SourceResult<Value> {
     let mut value = match binding.init() {
-        Some(init) => eval_expr(init, scopes, ctx, route)?,
+        Some(init) => eval_expr(init, scopes, ctx, route, styles)?,
         None => Value::None,
     };
 
@@ -1421,6 +1432,7 @@ pub(crate) fn apply_show_rules<'r>(
     rules: &[ShowRule],
     ctx: &mut EvalContext<'_>,
     route: Tracked<'r, Route<'r>>,
+    styles: &mut StyleChain,
 ) -> SourceResult<Content> {
     if rules.is_empty() {
         return Ok(content);
@@ -1469,7 +1481,7 @@ pub(crate) fn apply_show_rules<'r>(
                     Value::Func(func) => {
                         let args = Args::positional(vec![Value::Content(node.clone())]);
                         ctx.active_guards.push(rule.id);
-                        let call_result = apply_func(func.clone(), args, ctx, route);
+                        let call_result = apply_func(func.clone(), args, ctx, route, styles);
                         ctx.active_guards.pop();
                         return match call_result? {
                             Value::Content(c) => Ok(Some(c)),
@@ -1524,6 +1536,7 @@ pub(crate) fn intercept_content<'r>(
     content: Content,
     ctx: &mut EvalContext<'_>,
     route: Tracked<'r, Route<'r>>,
+    styles: &mut StyleChain,
 ) -> SourceResult<Content> {
     if ctx.show_rules.is_empty() {
         return Ok(content);
@@ -1534,7 +1547,7 @@ pub(crate) fn intercept_content<'r>(
     // Rust aborta antes de chegar a `apply_show_rules` se o `&mut ctx` for
     // usado para reatribuir `ctx.show_rules` no meio (borrow checker).
     let rules = Arc::clone(&ctx.show_rules);
-    apply_show_rules(content, &rules, ctx, route)
+    apply_show_rules(content, &rules, ctx, route, styles)
 }
 
 /// Constrói a stdlib: `type`, `len`, `range`, `rgb`, `luma`, `str`, `int`, `float`, `figure`, `assert`, `upper`, `lower`, `replace`, `calc`.
@@ -1629,6 +1642,7 @@ fn eval_counter_method<'a, 'r>(
     scopes: &mut Scopes<'_>,
     ctx:    &mut EvalContext<'_>,
     route:  Tracked<'r, Route<'r>>,
+    styles: &mut StyleChain,
 ) -> SourceResult<Value> {
     match method {
         "step" => Ok(Value::Content(Content::CounterUpdate {
@@ -1642,7 +1656,7 @@ fn eval_counter_method<'a, 'r>(
             let val = args.items().next()
                 .and_then(|arg| match arg {
                     Arg::Pos(expr) => {
-                        if let Ok(Value::Int(n)) = eval_expr(expr, scopes, ctx, route) {
+                        if let Ok(Value::Int(n)) = eval_expr(expr, scopes, ctx, route, styles) {
                             Some(n.max(0) as usize)
                         } else {
                             None
@@ -1693,6 +1707,7 @@ pub(crate) fn eval_for_test_with_limits<W: World>(
     ctx.max_loop_iterations = max_loop_iterations;
 
     let route = Route::root().with_id(source.id());
+    let mut styles = StyleChain::default_chain();
     let root = source.root();
     let mut scopes = Scopes::new(None);
     let stdlib = make_stdlib();
@@ -1701,7 +1716,7 @@ pub(crate) fn eval_for_test_with_limits<W: World>(
     }
     scopes.enter();
 
-    let content_val = eval_markup(root, &mut scopes, &mut ctx, route.track())?;
+    let content_val = eval_markup(root, &mut scopes, &mut ctx, route.track(), &mut styles)?;
 
     let module_scope = scopes.exit();
     let content = match content_val {
