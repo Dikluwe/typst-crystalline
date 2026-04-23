@@ -2,7 +2,15 @@
 //! @prompt 00_nucleo/prompts/entities/content.md
 //! @prompt-hash 85fae9b9
 //! @layer L1
-//! @updated 2026-04-20
+//! @updated 2026-04-23
+//!
+//! Excepção Regra 6 da ADR-0037: o enum `Content` é a entidade
+//! fundamental do domínio visual — representa toda a árvore de
+//! conteúdo do documento (markup, math, grid, figure, shape,
+//! transform, align, place, etc.). Dividir por variante destruiria
+//! a fonte única da verdade estrutural e forçaria consumidores
+//! (eval, layout) a re-assemblar o enum via re-exports. ~1070 linhas
+//! aceitas como custo de coesão por domínio.
 
 use std::sync::Arc;
 

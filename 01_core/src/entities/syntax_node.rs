@@ -2,7 +2,14 @@
 //! @prompt 00_nucleo/prompts/entities/syntax-node.md
 //! @prompt-hash 90523fde
 //! @layer L1
-//! @updated 2026-03-22
+//! @updated 2026-04-23
+//!
+//! Excepção Regra 6 da ADR-0037: `SyntaxNode` é a árvore sintáctica
+//! fundamental (inner enum + impls de navegação/edição/construção).
+//! A estrutura é naturalmente densa — dividir `impl SyntaxNode` por
+//! tema (leaves, inner, errors, construção) fragmentaria a sua API
+//! sem ganho de invariante. ~1090 linhas aceitas como custo de
+//! coesão estrutural.
 
 use std::fmt::{self, Debug, Display, Formatter};
 use std::ops::Range;

@@ -2,7 +2,17 @@
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
 //! @prompt-hash af36c701
 //! @layer L1
-//! @updated 2026-04-13
+//! @updated 2026-04-23
+//!
+//! Excepção Regra 6 da ADR-0037: agrega tipos geométricos e
+//! estruturais fundamentais do layout (`Pt`, `Point`, `FrameItem`,
+//! `Page`, `PageConfig`, `PagedDocument`, `TextStyle`, `Color`,
+//! `Length`, `TrackSizing`, `Align2D`, `HAlign`/`VAlign`, `PlaceScope`,
+//! `TransformMatrix`). Estes tipos têm muitas operações e conversões
+//! próximas; separá-los por ficheiro destruiria a visibilidade mútua
+//! (impls cruzadas) e multiplicaria imports nos consumidores sem
+//! ganho. ~850 linhas aceitas como custo de coesão do vocabulário
+//! geométrico.
 
 use std::collections::HashMap;
 use std::sync::Arc;

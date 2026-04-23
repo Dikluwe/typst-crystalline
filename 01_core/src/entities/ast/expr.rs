@@ -2,7 +2,15 @@
 //! @prompt 00_nucleo/prompts/entities/ast/expr.md
 //! @prompt-hash 73a185a6
 //! @layer L1
-//! @updated 2026-03-26
+//! @updated 2026-04-23
+//!
+//! Excepção Regra 6 da ADR-0037: `Expr` é o enum central da árvore
+//! sintáctica tipada (~50 variantes abrangendo markup, math, code,
+//! patterns). Cada variante é um wrapper sobre `SyntaxNode` com impl
+//! `AstNode` próprio — dividir por domínio fragmentaria o `match` do
+//! dispatcher e forçaria consumidores (parse, eval) a re-assemblar
+//! o enum. ~845 linhas aceitas como custo de coesão do vocabulário
+//! sintáctico tipado.
 
 use crate::entities::ast::AstNode;
 use crate::entities::ast::markup::{

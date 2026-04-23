@@ -6,6 +6,13 @@
 //!
 //! Testes de layout — extraídos de `layout/mod.rs` no Passo 96.7
 //! conforme ADR-0037.
+//!
+//! Excepção Regra 6 da ADR-0037: ficheiro só de testes (gated por
+//! `#[cfg(test)]` a partir do `mod.rs`). Testes de layout cruzam
+//! domínios por natureza (um único documento exercita texto, math,
+//! grid, place, align, transform simultaneamente); distribuí-los por
+//! cluster produziria duplicação ou perda de cobertura E2E. Tamanho
+//! actual ~1400 linhas aceite sob Regra 5 + Regra 6 combinadas.
 
 use super::*;
 use crate::entities::{content::Content, counter_state::CounterState, layout_types::FrameItem};
