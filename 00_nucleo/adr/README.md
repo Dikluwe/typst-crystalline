@@ -55,6 +55,12 @@ por outros ADRs:
    Primeiro pagamento concreto: DEBT-44 (integração estrutural
    do `Route<'a>`).
 
+8. **Coesão por domínio** — ADR-0037. Ficheiros em L1 agrupam
+   código por domínio conceptual ou técnico. Limite orientativo
+   de 800 linhas; excepções Regra 6 documentadas no topo do
+   ficheiro. Primeira aplicação concreta: Passos 96.1–96.2
+   (reestruturação do `eval.rs`). Trabalho restante: DEBT-46.
+
 ---
 
 ## Vocabulário canónico de status
@@ -66,7 +72,7 @@ todos com backticks:
 |-------|-----------|----------|
 | `PROPOSTO` | Decisão tomada mas ainda não em vigor nem implementada | ADR-0005, 0006, 0008-0015 |
 | `IDEIA` | Direcção a considerar, pode não vir a ser implementada | ADR-0002, 0003 |
-| `EM VIGOR` | Regra ou política arquitectural aceite e activa | ADR-0018, 0029, 0030, 0032, 0033, 0034, 0035, 0036 |
+| `EM VIGOR` | Regra ou política arquitectural aceite e activa | ADR-0018, 0029, 0030, 0032, 0033, 0034, 0035, 0036, 0037 |
 | `IMPLEMENTADO` | Decisão técnica concreta materializada em código | ADR-0001, 0004, 0016, 0017, 0019, 0021-0027, 0026-R1, 0031 |
 | `REVOGADO` | Superseded por ADR posterior com número novo | ADR-0007, 0028 |
 | `ADIADO` | Decisão tomada com implementação diferida por prazo ou condição | ADR-0020 |
@@ -120,16 +126,16 @@ que corresponde a mudança específica no código.
 | 0034 | Diagnóstico obrigatório para tipos vanilla | `EM VIGOR` |
 | 0035 | `ecow::EcoVec` autorizado em L1 | `EM VIGOR` |
 | 0036 | Atomização progressiva — estado partilhado como dívida | `EM VIGOR` |
-| 0037 | Coesão por domínio — ficheiros limitados a uma responsabilidade clara | `PROPOSTO` |
+| 0037 | Coesão por domínio — ficheiros limitados a uma responsabilidade clara | `EM VIGOR` |
 
 **Total**: 38 ADRs (37 números únicos; ADR-0026 tem variante -R1
 por revisão).
 
 ### Distribuição de status
 
-- `PROPOSTO`: 14 ADRs (decisões em aberto).
+- `PROPOSTO`: 13 ADRs (decisões em aberto).
 - `IDEIA`: 2 ADRs.
-- `EM VIGOR`: 8 ADRs (regras/políticas activas).
+- `EM VIGOR`: 9 ADRs (regras/políticas activas).
 - `IMPLEMENTADO`: 12 ADRs (decisões materializadas).
 - `REVOGADO`: 2 ADRs.
 - `ADIADO`: 1 ADR.

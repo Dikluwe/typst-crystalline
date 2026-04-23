@@ -1,7 +1,7 @@
 # ⚖️ ADR-0037: Coesão por domínio — ficheiros limitados a uma responsabilidade clara
 
-**Status**: `PROPOSTO`
-**Data**: 2026-04-22
+**Status**: `EM VIGOR`
+**Data**: 2026-04-22 (`PROPOSTO`) / 2026-04-22 (`EM VIGOR` após validação nos Passos 96.1–96.2)
 
 ---
 
@@ -70,6 +70,23 @@ envolve avaliação de expressões matemáticas. Um ficheiro
 `eval/parte_1.rs` não satisfaz — é divisão por tamanho, não por
 domínio.
 
+**Coesão não implica isolamento** (nota adicionada no Passo 96.3,
+Ajuste D). Submódulos coesos por domínio podem — e frequentemente
+devem — referenciar-se mutuamente via `super::X::func()` quando a
+semântica o justifica. Exemplos observados no Passo 96.2:
+
+- `closures::eval_func_call` consulta `bindings::eval_counter_method`
+  para tratar chamadas a métodos de contador (ex: `counter(x).step()`).
+- `rules::eval_set_rule` chama `super::eval_expr` para avaliar os
+  argumentos do `#set`.
+- `markup::eval_strong`/`eval_emph`/`eval_heading` chamam
+  `rules::intercept_content` para aplicar show rules ao Content
+  produzido.
+
+A divisão por domínio facilita navegação e manutenção; não cria
+silos fechados. Cruzamentos entre submódulos são expectáveis e
+saudáveis quando reflectem dependências semânticas reais.
+
 ### Regra 2 — Limite orientativo de 800 linhas
 
 Ficheiros com mais de 800 linhas são **candidatos a decomposição**.
@@ -106,40 +123,81 @@ O `mod.rs` é o único a ter API pública para o resto do projecto.
 Submódulos são `pub(super)` ou `pub(crate)` conforme a visibilidade
 necessária.
 
+**Paths entre submódulos** (clarificação adicionada no Passo 96.3,
+Ajuste B). Submódulos acedem a funções de outros submódulos via
+path relativo `super::X::func()` (sobem ao `mod.rs` do módulo pai
+e descem ao submódulo destino). Paths absolutos
+(`crate::rules::eval::X::func`) reservam-se para casos onde o
+caminho relativo é confuso — por exemplo, `tests.rs` que acede a
+funções de vários submódulos distintos.
+
+Nota técnica: o linter V14 (`ForbiddenImport`) aceita `super::`
+como path relativo padrão. Evitar `self::` — o linter V14 em
+vigor no projecto trata-o como identificador externo e reporta
+como violação.
+
 ### Regra 4 — Dispatchers pequenos
 
 Funções que fazem `match` exaustivo sobre um enum grande
-(dispatchers) devem **delegar** imediatamente a funções
-especializadas em cada submódulo:
+(dispatchers) devem **delegar** armos com lógica substancial a
+funções especializadas em cada submódulo. Armos triviais
+(construtores simples, literais, valores constantes) permanecem
+inline.
+
+**Revisão Passo 96.3 (Ajuste A)** — critério operacional,
+validado empiricamente no Passo 96.2:
+
+- **1–3 linhas**: inline.
+- **4–7 linhas**: decisão caso a caso com base em coesão
+  semântica (a lógica pertence claramente a um submódulo? →
+  extrai; é glue code específico do dispatcher? → inline).
+- **> 7 linhas**: extrai para submódulo.
+
+Exemplos aceitáveis inline:
 
 ```rust
-// eval/mod.rs
-pub(crate) fn eval_expr(
-    ctx: &mut EvalContext,
-    /* ... */
-    expr: &Expr,
-) -> SourceResult<Value> {
-    match expr {
-        // Delegação imediata; cada armo é uma linha:
-        Expr::Math(m) => eval_math::eval_math(ctx, /* ... */, m),
-        Expr::Strong(s) | Expr::Emph(s) | Expr::Heading(s) =>
-            eval_markup::eval_markup_node(ctx, /* ... */, s),
-        Expr::Show(r) | Expr::Set(r) =>
-            eval_rules::eval_rule(ctx, /* ... */, r),
-        // ... etc.
-    }
-}
+Expr::Int(n)   => Ok(Value::Int(n.get())),
+Expr::Bool(b)  => Ok(Value::Bool(b.get())),
+Expr::Ident(id) => resolve_ident(id, scopes),
+_              => Ok(Value::None),  // fallback trivial
 ```
 
-O dispatcher tem uma linha por armo. A lógica real vive no
-submódulo correspondente.
+Exemplos que devem delegar:
+
+```rust
+// eval/mod.rs — dispatcher compacto
+Expr::Strong(s)   => markup::eval_strong(s, scopes, ctx, route, styles, /* ... */),
+Expr::SetRule(r)  => rules::eval_set_rule(r, scopes, ctx, route, styles, /* ... */),
+Expr::FuncCall(c) => closures::eval_func_call(c, scopes, ctx, route, styles, /* ... */),
+```
+
+Armos que introduzem scoping cross-cutting (`CodeBlock`,
+`ContentBlock` que criam `local_styles`/`local_show_rules`) podem
+permanecer inline no dispatcher mesmo se excederem 3 linhas —
+não pertencem a cluster específico. Esta é uma interpretação da
+regra "decisão caso a caso" (faixa 4-7 linhas) e foi observada
+e aceite no Passo 96.2.
 
 ### Regra 5 — Testes seguem o domínio
 
-Testes unitários ficam no mesmo ficheiro que a lógica que testam
-(`#[cfg(test)] mod tests` no fim do ficheiro) ou num submódulo
-de testes paralelo (`eval/math/tests.rs`). Não em ficheiro
-monolítico de testes que cruza domínios.
+Testes unitários ficam preferencialmente no mesmo ficheiro que a
+lógica que testam (`#[cfg(test)] mod tests` no fim do ficheiro)
+ou num submódulo de testes paralelo (`eval/math/tests.rs`).
+
+**Revisão Passo 96.3 (Ajuste C)** — excepção aceite para testes
+E2E e testes transversais que exercitam múltiplos domínios: estes
+podem viver em ficheiro `tests.rs` dedicado no mesmo módulo,
+mesmo que exceda o limite da Regra 2. Esta é **excepção natural
+reconhecida pela própria Regra 5** — não requer marca Regra 6.
+
+Observado no Passo 96.1: o `eval/tests.rs` tem ~2100 linhas e
+contém tests que cruzam markup+math+control_flow+rules+closures
+via programas Typst completos. Decompor por cluster produziria
+duplicação ou perda de cobertura.
+
+O princípio operativo: testes coesos com o domínio testado são
+preferidos; testes cross-cutting por natureza não se forçam a
+decomposição artificial.
 
 ### Regra 6 — Excepções permitidas
 
@@ -240,39 +298,55 @@ ficheiros** (coesão por domínio). São complementares:
 
 ## Plano de aplicação
 
-Ordem sugerida para pagar DEBT-46 (sub-passos do Passo 96),
-organizada por complexidade crescente:
+Ordem final dos sub-passos que pagam DEBT-46 (reformulada no
+Passo 96.3 após introdução do 96.2):
 
-1. **`eval.rs`** (Passo 96.1) — decomposição central, valida
-   a ADR.
-2. **Revisão da ADR** (Passo 96.2) — promover a `EM VIGOR` ou
-   ajustar com base em fricções encontradas no Passo 96.1.
-3. **`parse.rs`** (Passo 96.3) — divisão mais mecânica, clusters
-   claros (markup, code, math, rules).
-4. **`stdlib.rs`** (Passo 96.4) — um ficheiro por módulo da
+1. **`eval.rs`** (Passo 96.1) — decomposição central em
+   submódulos por domínio. **Concluído.**
+2. **Delegação dos armos** (Passo 96.2) — dispatcher compacto;
+   completa a aplicação da Regra 4. **Concluído.**
+3. **Promoção da ADR com ajustes** (Passo 96.3) — `PROPOSTO` →
+   `EM VIGOR`, 4 ajustes (A/B/C/D) validados empiricamente.
+   **Concluído neste passo.**
+4. **`parse.rs`** (Passo 96.4) — divisão por tipo de nó
+   (markup, code, math, rules).
+5. **`stdlib.rs`** (Passo 96.5) — um ficheiro por módulo da
    stdlib.
-5. **`layout/mod.rs`** (Passo 96.5) — `Layouter<M, S>` com muitos
-   métodos; divisão mais técnica.
-6. **`math/layout.rs`** (Passo 96.6) — divisão final.
-7. **`lexer/mod.rs`** (Passo 96.7) — se ainda for problemático
-   após reanálise (algumas excepções da Regra 6 podem aplicar-se).
-8. **Encerramento do DEBT-46** (Passo 96.8) — verificação final,
-   contagem de ficheiros > 800 linhas, fecha DEBT se objectivos
-   atingidos.
+6. **`layout/mod.rs`** (Passo 96.6) — `Layouter<M, S>` com
+   muitos métodos; divisão mais técnica.
+7. **`math/layout.rs`** (Passo 96.7) — divisão final.
+8. **`lexer/mod.rs`** (Passo 96.8) — se ainda for problemático
+   após reanálise (algumas excepções da Regra 6 podem
+   aplicar-se).
+9. **Encerramento do DEBT-46** (Passo 96.9, ou fecho implícito
+   em 96.8) — verificação final, contagem de ficheiros > 800
+   linhas sem excepção Regra 6 documentada, fecha DEBT.
 
 ---
 
-## Status `PROPOSTO` vs `EM VIGOR`
+## Nota histórica
 
-Esta ADR começa como `PROPOSTO` porque as regras são
-**conjecturais**. Serão validadas pelo Passo 96.1 (primeira
-aplicação). Se a reestruturação do `eval.rs` ocorrer sem ajustes
-significativos, promove-se a `EM VIGOR` no Passo 96.2. Se
-houver fricções — ex: uma regra revelar-se impraticável — o
-Passo 96.2 ajusta o texto antes de promover.
+Esta ADR começou como `PROPOSTO` (2026-04-22) e foi validada
+empiricamente nos Passos 96.1 (reestruturação do `eval.rs`) e
+96.2 (completar delegação dos armos). Promovida a `EM VIGOR` no
+Passo 96.3 com 4 ajustes:
+
+- **Ajuste A** — Regra 4 revista com critério operacional (faixas
+  1-3 / 4-7 / >7 linhas) e aceitação explícita de armos inline
+  com scoping cross-cutting.
+- **Ajuste B** — Regra 3 clarificada sobre paths entre
+  submódulos (`super::` preferido sobre `self::` devido a
+  interacção com V14 do linter).
+- **Ajuste C** — Regra 5 clarificada com excepção natural para
+  testes E2E cross-cutting (não requer marca Regra 6).
+- **Ajuste D** — Regra 1 complementada com nota "coesão não
+  implica isolamento": cruzamentos entre submódulos via
+  `super::X::func()` são expectáveis e saudáveis.
 
 Esta é a primeira ADR do projecto a usar `PROPOSTO` com plano
-explícito de promoção pós-validação.
+explícito de promoção pós-validação — o padrão pode ser
+replicado em ADRs futuras que queiram ser testadas antes de
+ficarem em vigor.
 
 ---
 
