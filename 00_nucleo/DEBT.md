@@ -189,6 +189,34 @@ funcional.
    tipos não materializados. Adiado para passos quando Font/Lang/
    Par entrarem em L1.
 
+### Actualização Passo 103 — `#show heading/strong/emph` validado
+
+Inventário 103.A revelou que `#show` **já estava activo desde o Passo 70**
+(DEBT-23 encerrado) para selectores `Text` e `NodeKind` (heading,
+strong, emph, raw, figure, equation, list). O Passo 101 actualizou
+o match de Strong/Emph para usar `Content::Styled` + `Style::Bold/Italic(true)`.
+
+- [x] Validação end-to-end com 5 testes de integração em
+      `rules/layout/tests.rs::tests_show_rule_integration`:
+      `show_heading_transforma_em_uppercase`, `show_strong_transforma`,
+      `show_emph_transforma`, `regressao_sem_show_mantem_comportamento`,
+      `debt_50_show_strong_nao_apanha_set_text_bold_porque_bake_in`.
+- [x] ADR-0041 `EM VIGOR` documentando catálogo, limites e dívida.
+- [x] DEBT-50 aberto para dívida latente (quando `#set text` migrar
+      de bake-in para wrapping, o selector Strong apanha false
+      positives).
+- [x] `cargo test --workspace`: 790 → **795 L1** (+5).
+- [x] `crystalline-lint`: zero violations.
+
+**DEBT-1 pendências restantes após Passo 103**: 1 de 3.
+
+1. ~~Activar `#show`~~ — concluído (heading, strong, emph). Selectores
+   remanescentes (where, catch-all, regex, label) fora do escopo do
+   DEBT-1 — ficam como extensão futura, não como dívida estrutural.
+2. **Propriedades adicionais** (`text.font`, `text.lang`,
+   `par.leading`, `text.weight` como string) — bloqueadas por
+   tipos não materializados.
+
 ### Actualização Passo 100 — activação de `Content::Styled` no Layouter
 
 DEBT-48 encerrado no Passo 100 (ADR-0039):
@@ -609,6 +637,84 @@ pipeline HTML existir.
 
 ---
 
+## DEBT-50 — Show selector Strong/Emph não distingue origem (dívida latente) — EM ABERTO (Passo 103)
+
+Aberto pelo Passo 103 (ADR-0041). Dívida **latente** — não activa
+no estado actual do cristalino.
+
+### Contexto
+
+Depois do Passo 101 (`Content::Strong`/`Content::Emph` removidos,
+consolidados em `Content::Styled(body, [Style::Bold/Italic(true)])`),
+o show rule selector para `NodeKind::Strong` e `NodeKind::Emph` casa
+qualquer `Content::Styled` com `Style::Bold(true)` ou
+`Style::Italic(true)`:
+
+```rust
+// rules/eval/rules.rs:80
+let is_bold_styled = matches!(node, Content::Styled(_, ss)
+    if ss.iter().any(|s| matches!(s, Style::Bold(true))));
+```
+
+**Hoje**, este selector é preciso porque:
+
+- `*bold*` → `Content::strong(body)` → `Content::Styled([Bold(true)], body)`.
+- `#set text(bold: true); texto` → `StyleDelta` empilhado em `*styles`
+  → `Content::Text(texto, TextStyle { bold: true, .. })` — **bake-in**,
+  sem `Content::Styled` wrapping.
+
+Portanto, `#show strong: it => [HIT]` só dispara para `*bold*`, não
+para `#set text(bold: true)`. Paridade com vanilla preservada.
+
+### Quando a dívida se manifesta
+
+Se/quando `#set text(bold: true)` for refactorizado para produzir
+`Content::Styled([Bold(true)], following_content)` em vez de
+bake-in (ver discussão ADR-0040 e nota no ADR-0041), o selector
+`NodeKind::Strong` começará a apanhar também `#set text`:
+
+```typst
+#show strong: it => [HIT]
+#set text(bold: true)
+texto
+```
+
+Neste cenário:
+
+- **Vanilla**: "texto" em bold, sem "HIT".
+- **Cristalino pós-migração**: "HIT" aparece porque selector casa
+  qualquer `Content::Styled` com Bold.
+
+Divergência de paridade (ADR-0033) aceitável no Passo 103, mas
+inaceitável quando a migração for feita.
+
+### Teste que documenta
+
+`layout/tests.rs::tests_show_rule_integration::debt_50_show_strong_nao_apanha_set_text_bold_porque_bake_in`
+— assert que HIT **não** aparece. Se o passo futuro migrar bake-in
+para wrapping, este teste falha. A falha é o sinal para activar
+este DEBT.
+
+### Critério de conclusão
+
+- [ ] Mecanismo escolhido para distinguir origem:
+   1. **Flag no enum `Style`**: `Style::Bold { value: bool, from_strong: bool }`.
+   2. **Marcador no `Content::Styled`**: `Content::Styled(body, styles, origin: Option<ElementKind>)`.
+   3. **Selector rigoroso**: casa apenas `Styles` com exactamente
+      `[Style::Bold(true)]` (sem outros estilos).
+- [ ] Mecanismo implementado.
+- [ ] Teste `debt_50_...` actualizado para assert paridade vanilla
+      (HIT não aparece mesmo com wrapping).
+- [ ] Paridade funcional com vanilla confirmada.
+
+### Dependências
+
+- **Não é accionável hoje** — a dívida é latente.
+- Torna-se accionável quando `#set text(bold/italic: true)` deixar
+  de usar bake-in.
+
+---
+
 ## DEBT-49 — Propriedades de `#set` não suportadas silenciadas — EM ABERTO (Passo 102)
 
 Aberto pelo Passo 102 (ADR-0040).
@@ -638,8 +744,10 @@ princípios do cristalino (L1 sem I/O).
 
 ### Critério de conclusão
 
-- [ ] `Sink` materializado como tipo concreto em L1 ou L3 (passo
-      dedicado).
+- [x] `Sink` materializado como tipo concreto em L1 — **Passo 104**
+      (ADR-0042). `entities/sink.rs` com API real
+      (`warn`/`is_empty`/`into_diagnostics`) e dedup por
+      `(span, message)` via `FxHashSet`.
 - [ ] `eval_set_rule` passa `Sink` como parâmetro (ADR-0036 aplicada
       de novo).
 - [ ] Propriedades não suportadas emitem `Warn` em vez de silêncio.
@@ -647,7 +755,23 @@ princípios do cristalino (L1 sem I/O).
 
 ### Dependências
 
-Depende de materialização de `Sink`. Fora do escopo até lá.
+~~Depende de materialização de `Sink`. Fora do escopo até lá.~~
+Sink materializado no Passo 104. A dependência agora é a
+propagação de `sink: &mut Sink` pelas funções `eval_*` (quinta
+aplicação da ADR-0036) — trabalho de passo dedicado ao DEBT-49
+completo. Spec do Passo 104 gatilhou a decisão de não migrar
+consumer no passo de fundação.
+
+### Actualização Passo 104
+
+- Sink real existe (8 testes unitários passam; dedup funcional).
+- Stub `Sink(())` removido de `world_types.rs`; `Sink` vive em
+  `entities/sink.rs` e é re-exportado para preservar o path
+  histórico `entities::world_types::Sink`.
+- ADR-0042 `EM VIGOR`.
+- DEBT-51 aberto para a lacuna warnings → L3.
+- Migração dos consumidores silenciados (este DEBT) permanece
+  pendente — agora com destino real e arquitectura clara.
 
 ### Nota sobre `text.weight` como string
 
@@ -655,6 +779,55 @@ O vanilla aceita `#set text(weight: "bold" | "regular" | 100 | 200 | ...)`.
 O cristalino hoje só aceita `bold: Value::Bool`. Mapeamento string→bool
 ou inteiro→bool é trabalho separado; registar como sub-item deste
 DEBT quando o suporte for activado.
+
+---
+
+## DEBT-51 — Warnings do `Sink` não chegam ao caller L3/CLI — EM ABERTO (Passo 104)
+
+Aberto pelo Passo 104 (ADR-0042). Lacuna estrutural na
+integração entre L1 e L3.
+
+### Contexto
+
+Passo 104 materializou `Sink` em L1 com API
+`warn/is_empty/into_diagnostics`. `eval()` recebe
+`_sink: TrackedMut<Sink>` desde o Passo 12 — mas o
+`TrackedMut<Sink>` é:
+
+1. Criado pelo caller (L3 / CLI / tests).
+2. Passado por `eval()`.
+3. Nunca lido de volta.
+
+### Consequência
+
+Mesmo quando consumidores forem migrados (DEBT-49 a avançar),
+os warnings acumulam no `Sink` mas **não têm caminho para o
+utilizador**. O CLI (03_infra / 04_wiring) não chama
+`into_diagnostics` nem sabe que o Sink foi populado.
+
+### Critério de conclusão
+
+- [ ] Decidir o canal de saída:
+   1. **Return: `(Module, Vec<SourceDiagnostic>)`** — `eval` retorna
+      tuplo; caller lê warnings após sucesso. Requer alterar a
+      assinatura pública do `eval`.
+   2. **`TrackedMut<Sink>` lido pelo caller** — caller mantém
+      `let mut sink = Sink::new(); eval(..., sink.track_mut(), ...);
+      let warnings = sink.into_diagnostics();`. Não altera a
+      assinatura.
+- [ ] Implementar o canal escolhido.
+- [ ] L3/CLI chama `into_diagnostics` após cada compilação.
+- [ ] Warnings chegam ao utilizador (stderr, painel do editor, etc.)
+  — formato de apresentação decidido em passo separado.
+- [ ] Teste de integração L1→L3 confirma que warnings emitidos em
+  L1 aparecem no caller.
+
+### Dependências
+
+- Preferência: opção 2 (caller-managed Sink) — preserva a
+  assinatura actual de `eval` e alinha com o padrão comemo.
+- Bloqueia o valor prático do DEBT-49 — migrar consumidores só é
+  útil quando os warnings chegam a alguém.
 
 ---
 

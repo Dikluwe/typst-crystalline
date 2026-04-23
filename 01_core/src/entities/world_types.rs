@@ -382,21 +382,18 @@ impl Clone for Route<'_> {
 }
 
 
-/// Colector de diagnósticos durante eval().
-///
-/// Stub — o original usa EcoVec (ecow), Introspection, Value, Styles.
-/// ADR-0017: implementação real quando esses tipos migrarem.
-#[derive(Hash)]
-pub struct Sink(());
+// `Sink` materializado no Passo 104 (ADR-0042) — ver
+// `01_core/src/entities/sink.rs`. Re-exportado aqui para preservar
+// o path histórico `entities::world_types::Sink` usado pela
+// assinatura `eval(_sink: TrackedMut<Sink>)`.
+pub use crate::entities::sink::Sink;
 
-impl Sink {
-    pub fn new() -> Self { Self(()) }
-}
-
-impl Default for Sink {
-    fn default() -> Self { Self::new() }
-}
-
+// Bloco tracked vazio continua aqui — `TrackedMut<Sink>` na
+// assinatura do `eval` depende deste `#[comemo::track]`. Os métodos
+// reais (`warn`, `into_diagnostics`, ...) vivem num `impl Sink`
+// não-tracked em `sink.rs`. Integração comemo adiada até
+// `SourceDiagnostic` ser Hash-able ou até um wrapper tracked ser
+// decidido (ADR-0042).
 #[comemo::track]
 impl Sink {}
 
