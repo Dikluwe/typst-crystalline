@@ -389,29 +389,36 @@ impl Clone for Route<'_> {
 pub use crate::entities::sink::Sink;
 
 // Bloco tracked — canal de warnings via `TrackedMut<Sink>` (ADR-0043,
-// Passo 106). `warn` delega para a API não-tracked em `sink.rs` para
-// preservar dedup. Args `Span` (Hash+Copy) e `&str` (Hash) são
-// compatíveis com comemo tracking; `SourceDiagnostic` completo (com
-// hints/trace) continua a exigir a API não-tracked via `&mut Sink`.
+// Passo 106; estendido no 107 para incluir hint). `warn_note` delega
+// para a API não-tracked em `sink.rs` para preservar dedup. Args `Span`
+// (Hash+Copy) e `&str` (Hash) são compatíveis com comemo tracking;
+// convenção: `hint == ""` significa "sem hint" (evita `Option<&str>`
+// que o macro `#[comemo::track]` não aceita por falta de elisão). A API
+// `Sink::warn(diag)` não-tracked permanece disponível para callers com
+// `&mut Sink` directo.
 #[comemo::track]
 impl Sink {
-    /// Emite warning via canal tracked (ADR-0043, Passo 106). Usado
-    /// pelo `eval()` e por futuros consumidores que apenas têm
-    /// `TrackedMut<Sink>` (sem acesso a `&mut Sink` directo).
+    /// Emite warning via canal tracked (ADR-0043, Passo 106; extensão
+    /// Passo 107: parâmetro `hint`). Usado pelo `eval()` e pelas
+    /// funções internas `eval_*` que só têm `&mut TrackedMut<Sink>`
+    /// (`&mut Sink` não é obtível de `TrackedMut` sem perder tracking).
     ///
-    /// Args minimalistas (`span`, `message`) compatíveis com comemo
-    /// tracking. Para warnings com hints/severity explícitos, usar a
-    /// API não-tracked `Sink::warn(diag: SourceDiagnostic)` via
-    /// `&mut Sink` directo.
+    /// Convenção: `hint == ""` = sem hint. Para warnings complexos
+    /// (múltiplos hints, severity custom, trace), usar a API não-tracked
+    /// `Sink::warn(diag)` via `&mut Sink` directo.
     pub fn warn_note(
         &mut self,
         span: crate::entities::span::Span,
         message: &str,
+        hint: &str,
     ) {
-        let diag = crate::entities::source_result::SourceDiagnostic::warning(
+        let mut diag = crate::entities::source_result::SourceDiagnostic::warning(
             span,
             message.to_string(),
         );
+        if !hint.is_empty() {
+            diag = diag.with_hint(hint.to_string());
+        }
         self.record(diag);
     }
 }

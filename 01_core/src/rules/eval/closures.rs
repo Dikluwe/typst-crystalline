@@ -9,7 +9,7 @@
 
 use std::sync::Arc;
 
-use comemo::Tracked;
+use comemo::{Tracked, TrackedMut};
 use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
@@ -25,7 +25,7 @@ use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::source_result::SourceResult;
 use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
-use crate::entities::world_types::{check_call_depth as route_check_call_depth, Route};
+use crate::entities::world_types::{check_call_depth as route_check_call_depth, Route, Sink};
 use crate::rules::scopes::Scopes;
 
 use super::{eval_expr, EvalContext};
@@ -42,18 +42,19 @@ pub(super) fn eval_args<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Args> {
     let mut items = Vec::new();
     let mut named: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
     for arg in args_node.items() {
         match arg {
-            Arg::Pos(expr) => items.push(eval_expr(expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?),
+            Arg::Pos(expr) => items.push(eval_expr(expr, scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?),
             Arg::Named(name_expr) => {
                 named.insert(
                     name_expr.name().as_str().into(),
-                    eval_expr(name_expr.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?,
+                    eval_expr(name_expr.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?,
                 );
             }
             Arg::Spread(_) => {}  // fronteira deliberada
@@ -71,11 +72,12 @@ pub(crate) fn apply_func<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Value> {
     match func.repr() {
-        FuncRepr::Closure(closure) => apply_closure(closure, &func, args, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering),
+        FuncRepr::Closure(closure) => apply_closure(closure, &func, args, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink),
         FuncRepr::Native(native)   => (native.call)(ctx, &args, current_file, figure_numbering.as_deref()),
     }
 }
@@ -101,8 +103,9 @@ pub(super) fn apply_closure<'r>(
     styles: &mut StyleChain,
     show_rules: &mut Arc<[ShowRule]>,
     active_guards: &mut Vec<RuleId>,
-current_file: FileId,
-figure_numbering: &mut Option<String>,
+    current_file: FileId,
+    figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> SourceResult<Value> {
     // Limite de chamadas vanilla (MAX_CALL_DEPTH = 80) — paridade com
     // `typst-eval/src/call.rs:33` (ADR-0033). Pago parcial do DEBT-45
@@ -145,7 +148,7 @@ figure_numbering: &mut Option<String>,
     // par save/restore sobre um campo partilhado do contexto).
     let mut local_styles = styles.clone();
     if let Some(body_expr) = Expr::from_untyped(&closure.body) {
-        eval_expr(body_expr, &mut call_scopes, ctx, child_route.track(), &mut local_styles, show_rules, active_guards, current_file, figure_numbering)
+        eval_expr(body_expr, &mut call_scopes, ctx, child_route.track(), &mut local_styles, show_rules, active_guards, current_file, figure_numbering, sink)
     } else {
         Ok(Value::None)
     }
@@ -163,6 +166,7 @@ pub(super) fn eval_closure_expr<'r>(
     active_guards: &mut Vec<crate::entities::show::RuleId>,
     current_file: FileId,
     figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> crate::entities::source_result::SourceResult<Value> {
     // Captura eager por snapshot — O(N) uma única vez, depois partilhado em O(1).
     // Semântica: snapshot do scope no momento da definição (Opção B — DEBT-2).
@@ -183,7 +187,7 @@ pub(super) fn eval_closure_expr<'r>(
             }
             Param::Named(named) => {
                 let name = named.name().as_str().to_string();
-                Some(eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)
+                Some(eval_expr(named.expr(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)
                     .map(|v| ClosureParam { name, default: Some(v) }))
             }
             _ => None,  // Spread, Placeholder, Destructuring — adiado
@@ -207,6 +211,7 @@ pub(super) fn eval_func_call<'r>(
     active_guards: &mut Vec<crate::entities::show::RuleId>,
     current_file: FileId,
     figure_numbering: &mut Option<String>,
+    sink: &mut TrackedMut<'_, Sink>,
 ) -> crate::entities::source_result::SourceResult<Value> {
     use super::{bindings, rules};
 
@@ -215,7 +220,7 @@ pub(super) fn eval_func_call<'r>(
     if let Expr::FieldAccess(access) = call.callee() {
         if let Some(counter_key) = bindings::extract_counter_key(access.target()) {
             let method_name = access.field().as_str().to_string();
-            return bindings::eval_counter_method(&counter_key, &method_name, call.args(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering);
+            return bindings::eval_counter_method(&counter_key, &method_name, call.args(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink);
         }
     }
 
@@ -226,15 +231,15 @@ pub(super) fn eval_func_call<'r>(
         }
     }
 
-    let callee = eval_expr(call.callee(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
-    let args = eval_args(call.args(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
+    let callee = eval_expr(call.callee(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
+    let args = eval_args(call.args(), scopes, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
 
     match callee {
         Value::Func(func) => {
-            let result = apply_func(func, args, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?;
+            let result = apply_func(func, args, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?;
             // Intercepção eager — show rules aplicadas após apply_func (Passo 68).
             if let Value::Content(c) = result {
-                Ok(Value::Content(rules::intercept_content(c, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering)?))
+                Ok(Value::Content(rules::intercept_content(c, ctx, route, styles, show_rules, active_guards, current_file, figure_numbering, sink)?))
             } else {
                 Ok(result)
             }

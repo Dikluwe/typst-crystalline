@@ -49,6 +49,9 @@ pub(crate) fn eval_for_test_with_limits<W: World>(
     let mut active_guards: Vec<RuleId> = Vec::new();
     let current_file = source.id();
     let mut figure_numbering: Option<String> = None;
+    use comemo::Track;
+    let mut sink_local = Sink::new();
+    let mut sink = sink_local.track_mut();
     let root = source.root();
     let mut scopes = Scopes::new(None);
     let stdlib = make_stdlib();
@@ -67,6 +70,7 @@ pub(crate) fn eval_for_test_with_limits<W: World>(
         &mut active_guards,
         current_file,
         &mut figure_numbering,
+        &mut sink,
     )?;
 
     let module_scope = scopes.exit();
