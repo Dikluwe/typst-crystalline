@@ -530,8 +530,14 @@ uma posição:
 - [x] ADR-0037 promovida de `PROPOSTO` para `EM VIGOR` com 4
       ajustes (A/B/C/D) validados empiricamente nos Passos
       96.1–96.2. **Passo 96.3 concluído neste passo.**
-- [ ] `parse.rs` reestruturado por tipo de nó (markup, code,
-      math, rules). (Passo 96.4)
+- [x] `parse.rs` reestruturado por tipo de nó (markup, code,
+      math, rules). **Passo 96.4 concluído** — 7 submódulos
+      criados: `parser` (Parser struct + tipos de apoio, 700
+      linhas), `math` (~377), `markup` (~205), `code` (~263),
+      `rules` (~235), `patterns` (~485); `mod.rs` caiu para
+      156 linhas (só entry points + declarações de submódulos
+      + testes); nenhum submódulo excede 800 linhas. L1 tests:
+      746 → 748 (+2 smoke tests em parser.rs para satisfazer V2).
 - [ ] `stdlib.rs` reestruturado por módulo da stdlib (text,
       layout, math, calc, etc.). (Passo 96.5)
 - [ ] `layout/mod.rs` reestruturado (orquestração, medição,
