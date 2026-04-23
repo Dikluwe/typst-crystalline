@@ -21,7 +21,8 @@ use crate::rules::eval::EvalContext;
 
 // ── Sentinelas e construtores de nós estruturais (Passo 69) ─────────────────
 
-/// `strong(body)` — cria `Content::Strong` ou serve como selector em show rules.
+/// `strong(body)` — emite `Content::Styled([Bold(true)], body)`
+/// (Passo 101) ou serve como selector em show rules.
 pub fn native_strong(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let body = match args.items.first() {
@@ -33,10 +34,11 @@ pub fn native_strong(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: Fil
         )]),
         None => Content::Empty,
     };
-    Ok(Value::Content(Content::Strong(Box::new(body))))
+    Ok(Value::Content(Content::strong(body)))
 }
 
-/// `emph(body)` — cria `Content::Emph` ou serve como selector em show rules.
+/// `emph(body)` — emite `Content::Styled([Italic(true)], body)`
+/// (Passo 101) ou serve como selector em show rules.
 pub fn native_emph(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let body = match args.items.first() {
@@ -48,7 +50,7 @@ pub fn native_emph(_ctx: &mut EvalContext<'_>, args: &Args, _current_file: FileI
         )]),
         None => Content::Empty,
     };
-    Ok(Value::Content(Content::Emph(Box::new(body))))
+    Ok(Value::Content(Content::emph(body)))
 }
 
 /// `raw(text)` — cria `Content::Raw` ou serve como selector em show rules.

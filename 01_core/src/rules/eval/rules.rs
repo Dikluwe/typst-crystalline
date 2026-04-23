@@ -73,16 +73,25 @@ figure_numbering: &mut Option<String>,
 
                 let Selector::NodeKind(ref kind) = rule.selector else { continue };
 
+                // Passo 101: `Content::Strong`/`Content::Emph` removidos do enum.
+                // `show strong: it => ...` e `show emph: it => ...` passam a
+                // casar `Content::Styled` que contenha `Style::Bold(true)` ou
+                // `Style::Italic(true)` respectivamente.
+                use crate::entities::style::Style;
+                let is_bold_styled = matches!(node, Content::Styled(_, ss)
+                    if ss.iter().any(|s| matches!(s, Style::Bold(true))));
+                let is_italic_styled = matches!(node, Content::Styled(_, ss)
+                    if ss.iter().any(|s| matches!(s, Style::Italic(true))));
+
                 let is_match = matches!(
                     (node, kind),
                     (Content::Heading { .. },  NodeKind::Heading)
                     | (Content::Figure { .. },   NodeKind::Figure)
-                    | (Content::Strong(_),       NodeKind::Strong)
-                    | (Content::Emph(_),         NodeKind::Emph)
                     | (Content::Raw { .. },      NodeKind::Raw)
                     | (Content::Equation { .. }, NodeKind::Equation)
                     | (Content::ListItem(_),     NodeKind::ListItem)
-                );
+                ) || (matches!(kind, NodeKind::Strong) && is_bold_styled)
+                  || (matches!(kind, NodeKind::Emph)   && is_italic_styled);
 
                 if !is_match {
                     continue;

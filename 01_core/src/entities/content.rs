@@ -46,12 +46,18 @@ pub enum Content {
     /// Sequência de elementos — clone O(1) via Arc (ADR-0026 revisão).
     Sequence(Arc<[Content]>),
 
-    // ── Rich text (Passo 22) ─────────────────────────────────────────────
-    /// Conteúdo em negrito (`*Strong*`).
-    Strong(Box<Content>),
-    /// Conteúdo em itálico (`_Emph_`).
-    Emph(Box<Content>),
+    // ── Rich text (Passo 22, consolidado no Passo 101) ───────────────────
+    // `Content::Strong` e `Content::Emph` removidos no Passo 101
+    // (ADR-0038/0039): `*bold*` e `_italic_` passam a emitir
+    // `Content::Styled(body, Styles::from_iter([Style::Bold(true) | Italic(true)]))`.
+    // Os construtores `Content::strong(body)` e `Content::emph(body)` foram
+    // redefinidos para preservar a API pública.
     /// Cabeçalho com nível 1–6 (`= Heading`).
+    ///
+    /// Permanece como variante dedicada: tem semântica adicional
+    /// (`level` para introspecção, contadores hierárquicos). Futuro
+    /// colapso em `Content::Styled` depende da materialização de
+    /// `Introspection` — passo separado.
     Heading { level: u8, body: Box<Content> },
 
     // ── Passo 23 ────────────────────────────────────────────────────────────
@@ -314,8 +320,20 @@ impl Content {
     /// - 0 partes → `Empty`
     /// - 1 parte → desembrulha (evita `Sequence([x])`)
     /// - n > 1 → `Sequence(parts)`
-    pub fn strong(body: Content) -> Self { Self::Strong(Box::new(body)) }
-    pub fn emph(body: Content)   -> Self { Self::Emph(Box::new(body)) }
+    /// Negrito — produz `Content::Styled([Style::Bold(true)], body)`
+    /// (Passo 101, ADR-0038/0039). A variante `Content::Strong` foi
+    /// removida do enum; os callers continuam a usar este construtor.
+    pub fn strong(body: Content) -> Self {
+        use crate::entities::style::{Style, Styles};
+        Self::Styled(Box::new(body), Styles::from_iter([Style::Bold(true)]))
+    }
+
+    /// Itálico — produz `Content::Styled([Style::Italic(true)], body)`
+    /// (Passo 101, ADR-0038/0039).
+    pub fn emph(body: Content) -> Self {
+        use crate::entities::style::{Style, Styles};
+        Self::Styled(Box::new(body), Styles::from_iter([Style::Italic(true)]))
+    }
     pub fn heading(level: u8, body: Content) -> Self {
         Self::Heading { level: level.clamp(1, 6), body: Box::new(body) }
     }
@@ -360,8 +378,8 @@ impl Content {
             Self::Text(s, _)            => s.to_string(),
             Self::Space              => " ".to_string(),
             Self::Sequence(v)        => v.iter().map(|c| c.plain_text()).collect(),
-            Self::Strong(c)          => c.plain_text(),
-            Self::Emph(c)            => c.plain_text(),
+            // Passo 101: Content::Strong/Emph removidos — cobertos por
+            // Content::Styled(body, _) => body.plain_text() no fim do match.
             Self::Heading { body, .. } => body.plain_text(),
             Self::Raw { text, .. }   => text.to_string(),
             Self::ListItem(c)        => format!("• {}", c.plain_text()),
@@ -448,8 +466,7 @@ impl PartialEq for Content {
             (Self::Text(a, sa),          Self::Text(b, sb))          => a == b && sa == sb,
             (Self::Space,                Self::Space)                => true,
             (Self::Sequence(a),          Self::Sequence(b))          => a.as_ref() == b.as_ref(),
-            (Self::Strong(a),            Self::Strong(b))            => a == b,
-            (Self::Emph(a),              Self::Emph(b))              => a == b,
+            // Passo 101: Content::Strong/Emph removidos — Content::Styled cobre.
             (Self::Heading { level: la, body: ba }, Self::Heading { level: lb, body: bb }) => la == lb && ba == bb,
             (Self::Raw { text: ta, lang: la, block: ba },
              Self::Raw { text: tb, lang: lb, block: bb })            => ta == tb && la == lb && ba == bb,
@@ -549,8 +566,8 @@ impl Content {
                     seq.iter().map(|c| c.map_content(transform)).collect();
                 Content::Sequence(Arc::from(new_seq?))
             },
-            Content::Strong(body) => Content::Strong(Box::new(body.map_content(transform)?)),
-            Content::Emph(body)   => Content::Emph(Box::new(body.map_content(transform)?)),
+            // Passo 101: Content::Strong/Emph removidos — cobertos pelo
+            // arm Content::Styled abaixo (que já propaga transform recursivamente).
             Content::Heading { level, body } => Content::Heading {
                 level: *level,
                 body:  Box::new(body.map_content(transform)?),
@@ -699,8 +716,8 @@ impl Content {
                 level: *level,
                 body:  Box::new(body.map_text(transform)),
             },
-            Content::Strong(body) => Content::Strong(Box::new(body.map_text(transform))),
-            Content::Emph(body)   => Content::Emph(Box::new(body.map_text(transform))),
+            // Passo 101: Content::Strong/Emph removidos — cobertos pelo
+            // arm Content::Styled abaixo (map_text recursivo).
             Content::Labelled { target, label } => Content::Labelled {
                 target: Box::new(target.map_text(transform)),
                 label:  label.clone(),
@@ -1011,9 +1028,10 @@ mod tests {
 
     #[test]
     fn map_text_desce_em_strong() {
-        let content = Content::Strong(Box::new(Content::text("hello")));
+        // Passo 101: `Content::strong(..)` produz `Content::Styled(.., [Bold])`.
+        let content = Content::strong(Content::text("hello"));
         let result = content.map_text(&mut |s| s.to_uppercase());
-        assert_eq!(result, Content::Strong(Box::new(Content::text("HELLO"))));
+        assert_eq!(result, Content::strong(Content::text("HELLO")));
     }
 
     #[test]
@@ -1028,7 +1046,7 @@ mod tests {
         // Validar que o estado da closure (FnMut) persiste entre nós distintos.
         let content = Content::Sequence(vec![
             Content::text("a"),
-            Content::Strong(Box::new(Content::text("a"))),
+            Content::strong(Content::text("a")),
             Content::text("a"),
         ].into());
         let mut count = 0usize;
@@ -1062,15 +1080,16 @@ mod tests {
 
     #[test]
     fn map_content_bottom_up_pai_ve_filhos_transformados() {
-        let content = Content::Strong(Box::new(Content::text("original")));
+        // Passo 101: `Content::strong` passou a `Content::Styled([Bold], body)`.
+        let content = Content::strong(Content::text("original"));
 
         let result = content.map_content(&mut |node| {
             match node {
                 Content::Text(s, _) => Ok(Some(Content::text(s.to_uppercase()))),
-                Content::Strong(body) => {
+                Content::Styled(body, _) => {
                     let text = body.plain_text();
                     assert_eq!(text, "ORIGINAL",
-                        "Strong deve receber filho já transformado: {:?}", text);
+                        "Styled([Bold]) deve receber filho já transformado: {:?}", text);
                     Ok(None)
                 },
                 _ => Ok(None),
