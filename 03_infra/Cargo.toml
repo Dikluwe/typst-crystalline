@@ -10,14 +10,13 @@ repository.workspace = true
 [dependencies]
 typst-core = { path = "../01_core" }
 thiserror  = { workspace = true }
+# comemo: eval() tracking. Promovido de [dev-dependencies] a
+# [dependencies] no Passo 113 (ADR-0046) quando `pipeline.rs` expôs
+# `eval_to_module_with_sink` como API pública consumível pelo 04_wiring.
+comemo     = { workspace = true }
 ttf-parser  = { workspace = true }  # ADR-0019 — parsing de fontes
 rustybuzz   = { workspace = true }  # ADR-0019 — shaping de texto
 time        = { workspace = true }  # ADR-0021 — today() em SystemWorld
 imagesize   = "0.12"                # leitura de cabeçalho de imagem — L3 apenas
 image       = { version = "0.24", default-features = false, features = ["png", "jpeg"] }
 flate2      = "1.0"                 # compressão Zlib para PNG /FlateDecode
-
-[dev-dependencies]
-# comemo: necessário para chamar eval() nos testes de integração (DEBT-6, Passo 32).
-# Só em dev-dependencies — não entra em produção.
-comemo = { workspace = true }

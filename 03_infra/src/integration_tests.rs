@@ -14,13 +14,10 @@
 mod integration {
     use std::path::{Path, PathBuf};
 
-    use comemo::Track;
     use typst_core::contracts::world::World;
     use typst_core::entities::module::Module;
     use typst_core::entities::source::Source;
     use typst_core::entities::source_result::SourceResult;
-    use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
-    use typst_core::rules::eval::eval;
     use typst_core::rules::introspect::introspect;
     use typst_core::rules::layout::layout;
 
@@ -63,93 +60,18 @@ mod integration {
         (world, dir)
     }
 
-    /// Chama `eval()` com o boilerplate de comemo — mesmo padrão de eval_for_test.
-    /// Warnings emitidos para o Sink são drenados silenciosamente (os testes
-    /// que precisem de inspeccioná-los usam `do_eval_with_sink`).
+    // Helpers promovidos para API pública em 03_infra (Passo 113, ADR-0046):
+    //   `pipeline::eval_to_module_with_sink`
+    //   `diagnostic_format::{format_diagnostic, drain_diagnostics_to_stderr}`
+    // Os testes abaixo consomem directamente as versões `pub`.
+    use crate::pipeline::eval_to_module_with_sink as do_eval_with_sink;
+    use crate::diagnostic_format::format_diagnostic;
+
+    /// Wrapper fino sobre `eval_to_module_with_sink` para testes que só
+    /// precisam do `SourceResult<Module>`, descartando warnings.
     fn do_eval(world: &SystemWorld, source: &Source) -> SourceResult<Module> {
         let (result, _warnings) = do_eval_with_sink(world, source);
         result
-    }
-
-    /// Variante de `do_eval` que devolve também os warnings acumulados no
-    /// `Sink` (ADR-0043, Passo 106 — canal de saída do Sink).
-    ///
-    /// O caller L3 padrão desta função deveria imprimir os warnings em
-    /// `stderr` via `drain_diagnostics_to_stderr` (Passo 111, ADR-0045)
-    /// com formato gcc/clang (`path:linha:coluna: severity: mensagem`).
-    fn do_eval_with_sink(
-        world: &SystemWorld,
-        source: &Source,
-    ) -> (SourceResult<Module>, Vec<typst_core::entities::source_result::SourceDiagnostic>) {
-        let routines = Routines::new();
-        let traced   = Traced::default();
-        let mut sink = Sink::new();
-        let route    = Route::root();
-        let result = eval(
-            &routines,
-            world,
-            traced.track(),
-            sink.track_mut(),
-            route.track(),
-            source,
-        );
-        // Passo 106 (ADR-0043): drenar warnings após retorno do eval.
-        // L3 é responsável pela formatação para o utilizador.
-        let warnings = sink.into_diagnostics();
-        (result, warnings)
-    }
-
-    /// Formata um `SourceDiagnostic` em texto simples gcc/clang-compatível
-    /// (Passo 111, ADR-0045).
-    ///
-    /// Formato principal:
-    /// ```text
-    /// <path>:<linha>:<coluna>: <severity>: <message>
-    ///   hint: <hint 1>
-    ///   hint: <hint 2>
-    /// ```
-    ///
-    /// Spans detached ou cross-file caem em `<path>:<detached>:`.
-    /// Termina com `\n` final.
-    #[allow(dead_code)]
-    fn format_diagnostic(
-        diag: &typst_core::entities::source_result::SourceDiagnostic,
-        source: &Source,
-        source_path: &str,
-    ) -> String {
-        use typst_core::entities::source_result::Severity;
-
-        let severity = match diag.severity {
-            Severity::Error   => "error",
-            Severity::Warning => "warning",
-        };
-
-        let location = match source.span_to_line_col(diag.span) {
-            Some((line, col)) => format!("{}:{}:{}", source_path, line, col),
-            None              => format!("{}:<detached>", source_path),
-        };
-
-        let mut out = format!("{}: {}: {}\n", location, severity, diag.message);
-        for hint in &diag.hints {
-            out.push_str(&format!("  hint: {}\n", hint));
-        }
-        out
-    }
-
-    /// Dreno para stderr com formato rico (Passo 111 substitui o Passo 106).
-    ///
-    /// Cobre warnings e errors — nome muda de `drain_warnings_*` para
-    /// `drain_diagnostics_*` porque o formatter é uniforme
-    /// (diferencia apenas pela severity).
-    #[allow(dead_code)]
-    fn drain_diagnostics_to_stderr(
-        diagnostics: &[typst_core::entities::source_result::SourceDiagnostic],
-        source: &Source,
-        source_path: &str,
-    ) {
-        for diag in diagnostics {
-            eprint!("{}", format_diagnostic(diag, source, source_path));
-        }
     }
 
     /// Pipeline completo → bytes PDF (Passo 65).

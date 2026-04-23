@@ -4,11 +4,13 @@
 //! @layer L3
 //! @updated 2026-03-26
 
+pub mod diagnostic_format;
 pub mod export;
 pub mod font_metrics;
 pub mod fonts;
 pub mod image_sizer;
 pub mod layout;
+pub mod pipeline;
 pub mod world;
 
 #[cfg(test)]
