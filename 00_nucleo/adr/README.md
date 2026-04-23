@@ -1,7 +1,7 @@
 # Índice de ADRs do Typst Cristalino
 
 Este documento é o índice canónico dos Architectural Decision
-Records (ADRs) do projecto **Typst Cristalino**. Lista os 37 ADRs
+Records (ADRs) do projecto **Typst Cristalino**. Lista os 38 ADRs
 em vigor, as meta-regras que governam o projecto, o vocabulário
 canónico de status, cadeias de revogação e revisão, e convenções
 estruturais.
@@ -120,13 +120,14 @@ que corresponde a mudança específica no código.
 | 0034 | Diagnóstico obrigatório para tipos vanilla | `EM VIGOR` |
 | 0035 | `ecow::EcoVec` autorizado em L1 | `EM VIGOR` |
 | 0036 | Atomização progressiva — estado partilhado como dívida | `EM VIGOR` |
+| 0037 | Coesão por domínio — ficheiros limitados a uma responsabilidade clara | `PROPOSTO` |
 
-**Total**: 37 ADRs (36 números únicos; ADR-0026 tem variante -R1
+**Total**: 38 ADRs (37 números únicos; ADR-0026 tem variante -R1
 por revisão).
 
 ### Distribuição de status
 
-- `PROPOSTO`: 13 ADRs (decisões em aberto).
+- `PROPOSTO`: 14 ADRs (decisões em aberto).
 - `IDEIA`: 2 ADRs.
 - `EM VIGOR`: 8 ADRs (regras/políticas activas).
 - `IMPLEMENTADO`: 12 ADRs (decisões materializadas).
