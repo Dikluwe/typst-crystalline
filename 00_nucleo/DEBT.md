@@ -554,16 +554,38 @@ uma posição:
       `eval/mod.rs` — zero alterações em eval. L1 tests: 748 → 748
       (comportamento idêntico). Nenhum submódulo acima de 800
       linhas.
-- [ ] `layout/mod.rs` reestruturado (orquestração, medição,
-      emissão, sub-frames). (Passo 96.6)
+- [x] Nota de visibilidade na Regra 3 da ADR-0037 e abertura
+      do DEBT-47. **Passo 96.6 concluído** — sub-passo de
+      governança (sem alteração de código). Adendo à Regra 3
+      com 6 pontos de preferência e anti-padrão sobre
+      `pub(super)`. DEBT-47 aberto para auditoria retroactiva
+      dos Passos 96.1–96.5 após DEBT-46 encerrar.
+- [x] `layout/mod.rs` reestruturado (orquestração, medição,
+      emissão, sub-frames). **Passo 96.7 concluído** — 5
+      submódulos novos criados: `metrics` (FontMetrics trait
+      + FixedMetrics, 90 linhas), `grid` (braço Content::Grid,
+      272 linhas), `placement` (Content::Align + Content::Place,
+      201 linhas), `equation` (Content::Equation, 102 linhas),
+      `cursor` (word/space/layout_word/flush_line/new_page,
+      93 linhas), `helpers` (item_pos/translate_frame_item/
+      measure_content/collect_sub_items, 138 linhas); `tests`
+      movido para ficheiro próprio (1399 linhas, Regra 6
+      cfg(test)-gated). `mod.rs` caiu de 2848 → 756 linhas
+      (inclui struct Layouter + entry points + layout_content
+      dispatcher). Visibilidade: 30 métodos `pub(super)` vs
+      14 campos `pub(super)` — métodos dominam (2:1) conforme
+      Regra 3 actualizada; campos `pub(super)` documentados em
+      bloco-comentário no topo da struct. Zero regressão
+      funcional: 748 → 753 L1 tests (+5 smoke V2). Zero
+      violations.
 - [ ] `math/layout.rs` reestruturado ou marcado como excepção
-      Regra 6. (Passo 96.7)
-- [ ] `lexer/mod.rs` reestruturado ou marcado como excepção
       Regra 6. (Passo 96.8)
+- [ ] `lexer/mod.rs` reestruturado ou marcado como excepção
+      Regra 6. (Passo 96.9)
 - [ ] Verificação final: `find 01_core/src -name "*.rs" | xargs wc -l |
       sort -rn | head -10` mostra ficheiros acima de 800 linhas
-      só com excepções Regra 6 documentadas. (Passo 96.9 ou
-      encerramento implícito em 96.8)
+      só com excepções Regra 6 documentadas. (Passo 96.10 ou
+      encerramento implícito em 96.9)
 
 ### Dependências
 
@@ -587,6 +609,78 @@ Se um dos ficheiros resistir à decomposição por razões técnicas
 descobertas durante a execução, registar como **excepção Regra 6**
 em vez de deixar como dívida pendente. A Regra 6 existe
 precisamente para estes casos.
+
+---
+
+## DEBT-47 — Auditoria de visibilidade dos `pub(super)` aplicados nos Passos 96.1–96.5 — EM ABERTO (Passo 96.6)
+
+Os Passos 96.1, 96.2, 96.4 e 96.5 reestruturaram quatro
+ficheiros grandes (`eval.rs`, `parse.rs`, `stdlib.rs`) em
+submódulos conforme ADR-0037. Durante a extracção, visibilidade
+de fields e métodos foi elevada para `pub(super)` em muitos
+casos — alguns por bulk replace Python (reportado no Passo
+96.4 para o `Parser` struct), outros por replace manual.
+
+A ADR-0037 Regra 3 (clarificada no Passo 96.6) estabelece
+preferência por:
+- Manter privado quando possível.
+- Métodos `pub(super)` sobre campos `pub(super)`.
+- `pub(in path)` para escopo explícito quando aplicável.
+
+Este DEBT documenta a necessidade de auditoria retroactiva:
+verificar cada `pub(super)` introduzido nos Passos 96.1–96.5 e
+restringir onde possível sem perder funcionalidade.
+
+### Escopo
+
+Submódulos a auditar:
+
+- `01_core/src/rules/eval/` (Passos 96.1 e 96.2):
+  - `mod.rs`, `markup.rs`, `math.rs`, `modules.rs`, `rules.rs`,
+    `closures.rs`, `control_flow.rs`, `bindings.rs`,
+    `operators.rs`, `tests.rs`.
+- `01_core/src/rules/parse/` (Passo 96.4):
+  - `mod.rs`, `parser.rs`, `math.rs`, `markup.rs`, `code.rs`,
+    `rules.rs`, `patterns.rs`.
+- `01_core/src/rules/stdlib/` (Passo 96.5):
+  - `mod.rs` e 9 submódulos.
+
+### Critério de conclusão
+
+- [ ] Inventário de todos os `pub(super)` nos submódulos
+      listados (provavelmente via grep + análise).
+- [ ] Classificação de cada ocorrência:
+  - Necessária (submódulo realmente precisa).
+  - Elevável (podia ser `pub(in path)` mais estrito).
+  - Removível (submódulo não usa — restos de bulk replace).
+  - Convertível a método (campo `pub(super)` que devia ser
+    método).
+- [ ] Aplicação das mudanças sem regressão:
+  - Campos `pub(super)` convertíveis → métodos.
+  - Campos/métodos elevados → restritos.
+  - Residuais de bulk replace → removidos.
+- [ ] `cargo test` preservado.
+- [ ] `crystalline-lint` → zero violations.
+
+### Dependências
+
+Este DEBT **não é atacado** até DEBT-46 encerrar. Razão:
+fazer auditoria de visibilidade em ficheiros que ainda estão
+a ser reestruturados é sobreposição de trabalho. Depois do
+DEBT-46 encerrar (Passos 96.7, 96.8, 96.9, 96.10), todos os
+submódulos estarão na sua forma final e a auditoria é estável.
+
+Os Passos 96.7 em diante **seguem** a Regra 3 actualizada
+(não introduzem `pub(super)` desnecessário). O DEBT-47 cobre
+apenas o trabalho retroactivo dos passos anteriores.
+
+### Nota sobre escopo do Passo 96.5
+
+O Passo 96.5 já aplicou visibilidade mais criteriosa que os
+Passos 96.1–96.4 (o reporte não menciona bulk replace). Na
+auditoria, pode revelar-se que o 96.5 não tem dívida
+significativa de visibilidade. Nesse caso, o DEBT-47 é pago
+mais rápido nos submódulos relevantes.
 
 ---
 
