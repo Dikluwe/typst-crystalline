@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: ae61905a
+Hash do Código: fd812420
 
 ## Módulo
 `04_wiring/src/main.rs`
