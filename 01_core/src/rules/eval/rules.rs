@@ -282,7 +282,19 @@ figure_numbering: &mut Option<String>,
                         delta.size = Some(l.abs.to_pt());
                     }
                 }
-                _ => { /* propriedade desconhecida — ignorar */ }
+                "fill" => {
+                    // Passo 102 (ADR-0040): activar `#set text(fill: color)`.
+                    // Captura `Value::Color` em `StyleDelta.fill`; propaga para
+                    // `TextStyle.fill` via `TextStyle::from(&StyleChain)`.
+                    if let Value::Color(c) = val {
+                        delta.fill = Some(c);
+                    }
+                }
+                _ => {
+                    // DEBT: propriedades de #set text não suportadas (font, lang,
+                    // weight como string, etc.) são silenciosamente ignoradas.
+                    // Substituir por warning quando `Sink` materializar.
+                }
             }
         }
     }

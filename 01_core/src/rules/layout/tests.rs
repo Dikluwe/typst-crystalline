@@ -1507,3 +1507,159 @@ mod tests_styled_integration {
         }
     }
 }
+
+// ── Passo 102.D: Integração `#set text(...)` end-to-end ──────────────────
+
+#[cfg(test)]
+mod tests_set_rule_integration {
+    use super::*;
+    use crate::{
+        contracts::world::World,
+        entities::{
+            file_id::FileId,
+            font_book::FontBook,
+            layout_types::{FrameItem, Pt},
+            source::Source,
+            world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+        },
+        rules::eval::eval_for_test,
+    };
+    use std::num::NonZeroU16;
+
+    struct MockWorld {
+        library: Library,
+        book:    FontBook,
+        source:  Source,
+    }
+
+    impl MockWorld {
+        fn new(text: &str) -> Self {
+            let id = FileId::from_raw(NonZeroU16::new(1).unwrap());
+            Self {
+                library: Library::new(),
+                book:    FontBook::new(),
+                source:  Source::new(id, text.to_string()),
+            }
+        }
+    }
+
+    impl World for MockWorld {
+        fn library(&self) -> &Library  { &self.library }
+        fn book(&self)    -> &FontBook { &self.book }
+        fn main(&self)    -> FileId    { self.source.id() }
+        fn source(&self, _: FileId) -> FileResult<Source> { Ok(self.source.clone()) }
+        fn file(&self, _: FileId)    -> FileResult<Bytes>   { Err(FileError::NotFound) }
+        fn font(&self, _: usize)     -> Option<Font>        { None }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+    }
+
+    fn layout_typst(source: &str) -> PagedDocument {
+        let world = MockWorld::new(source);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("content");
+        let state = introspect(content);
+        layout(content, state)
+    }
+
+    fn text_items(doc: &PagedDocument) -> Vec<(String, crate::entities::layout_types::TextStyle)> {
+        doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, style, .. } => Some((text.to_string(), *style)),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// `#set text(size: 18pt)` altera `FrameItem::Text.style.size`
+    /// end-to-end (Parse → eval → layout → FrameItem).
+    #[test]
+    fn set_text_size_propaga_ao_frame() {
+        let doc = layout_typst("#set text(size: 18pt)\nHello");
+        let items = text_items(&doc);
+        assert!(!items.is_empty(), "esperado pelo menos um Text item");
+        for (text, style) in &items {
+            assert_eq!(style.size, Pt(18.0),
+                "text='{}' deve ter size=18pt; obtido {:?}", text, style.size);
+        }
+    }
+
+    /// `#set text(bold: true)` produz bold em todo o texto seguinte.
+    #[test]
+    fn set_text_bold_propaga_ao_frame() {
+        let doc = layout_typst("#set text(bold: true)\nHello");
+        let items = text_items(&doc);
+        assert!(!items.is_empty());
+        for (text, style) in &items {
+            assert!(style.bold, "text='{}' deve ter bold=true; style={:?}", text, style);
+        }
+    }
+
+    /// `#set text(italic: true)` produz italic em todo o texto seguinte.
+    #[test]
+    fn set_text_italic_propaga_ao_frame() {
+        let doc = layout_typst("#set text(italic: true)\nHello");
+        let items = text_items(&doc);
+        assert!(!items.is_empty());
+        for (text, style) in &items {
+            assert!(style.italic, "text='{}' deve ter italic=true; style={:?}", text, style);
+        }
+    }
+
+    /// `#set` antes do texto afecta só o conteúdo seguinte. "antes" deve ficar
+    /// sem bold; "depois" com bold. (Validação que `#set` não afecta texto
+    /// anterior ao directive.)
+    #[test]
+    fn set_text_bold_afecta_conteudo_seguinte_nao_anterior() {
+        let doc = layout_typst("antes\n#set text(bold: true)\ndepois");
+        let items = text_items(&doc);
+        let antes = items.iter().find(|(t, _)| t == "antes");
+        let depois = items.iter().find(|(t, _)| t == "depois");
+
+        assert!(antes.is_some(), "'antes' deve aparecer; items: {:?}",
+            items.iter().map(|(t, _)| t).collect::<Vec<_>>());
+        assert!(depois.is_some(), "'depois' deve aparecer; items: {:?}",
+            items.iter().map(|(t, _)| t).collect::<Vec<_>>());
+        if let Some((_, s)) = antes {
+            assert!(!s.bold, "'antes' não deve ter bold: {:?}", s);
+        }
+        if let Some((_, s)) = depois {
+            assert!(s.bold, "'depois' deve ter bold: {:?}", s);
+        }
+    }
+
+    /// `#set text(bold: true)` combinado com `*texto*` — ambos produzem bold.
+    /// Regressão: `*bold*` continua a funcionar após `#set` (Passo 101 preserva).
+    #[test]
+    fn set_combinado_com_emph_sintactico() {
+        let doc = layout_typst("#set text(bold: true)\n_italic_ normal");
+        let items = text_items(&doc);
+        assert!(!items.is_empty());
+        // Todos os items devem ter bold=true (vindo do #set).
+        // Os items do `_italic_` têm italic=true adicionalmente.
+        let has_italic = items.iter().any(|(_, s)| s.italic);
+        let all_bold   = items.iter().all(|(_, s)| s.bold);
+        assert!(all_bold,
+            "todos os items devem ter bold=true após #set: {:?}",
+            items.iter().map(|(t, s)| (t.as_str(), s.bold, s.italic)).collect::<Vec<_>>());
+        assert!(has_italic,
+            "pelo menos 1 item deve ter italic (do `_italic_`): {:?}",
+            items.iter().map(|(t, s)| (t.as_str(), s.bold, s.italic)).collect::<Vec<_>>());
+    }
+
+    /// Regressão: `*bold*` sem `#set` continua a produzir bold (Passo 101).
+    /// Valida que a remoção de `Content::Strong` e `#set` + `*bold*`
+    /// coexistem sem interferência.
+    #[test]
+    fn bold_syntax_sem_set_continua_a_funcionar() {
+        let doc = layout_typst("*importante* normal");
+        let items = text_items(&doc);
+        let importante = items.iter().find(|(t, _)| t == "importante");
+        let normal = items.iter().find(|(t, _)| t == "normal");
+        assert!(importante.map(|(_, s)| s.bold).unwrap_or(false),
+            "'importante' deve ter bold: {:?}", items);
+        assert!(!normal.map(|(_, s)| s.bold).unwrap_or(true),
+            "'normal' não deve ter bold: {:?}", items);
+    }
+}

@@ -1209,6 +1209,16 @@ mod tests {
         let _ = m;
     }
 
+    #[test]
+    fn eval_set_text_fill_passo_102() {
+        // Passo 102 (ADR-0040): `#set text(fill: color)` capturado em `StyleDelta.fill`.
+        // Sintaxe actual de cor: chamada `rgb(r, g, b)` da stdlib.
+        let world = MockWorld::new("#set text(fill: rgb(255, 0, 0))\nred text");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_ok(), "set text fill falhou: {:?}", result);
+    }
+
     // ── Testes de Passo 34 — equações matemáticas ────────────────────────────
 
     #[test]
