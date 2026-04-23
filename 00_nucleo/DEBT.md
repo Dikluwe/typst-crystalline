@@ -17,13 +17,20 @@
 - **`StyleDelta { bold, italic, size }`** como delta de herança
 - **`#set text(bold:, italic:, size:)`** avaliado em `eval_expr` (Expr::SetRule)
 - **`EvalContext::styles: StyleChain`** — cadeia activa durante eval
+  (~~removido no Passo 94: agora propagado como `&mut StyleChain`
+  parâmetro; ver secção "Actualização Passo 95" abaixo~~)
 - **`TextStyle::from(&StyleChain)`** — bridge para layout/export actuais
 - **`Content::Text(EcoString, TextStyle)`** — estilo capturado em eval
 - **Strong/Emph/Heading** em eval: push/pop de estilos correcto
 
 ### Divergência intencional
 
-- `#set` é global ao eval (não tem scoping por bloco) — DEBT menor
+- ~~`#set` é global ao eval (não tem scoping por bloco) — DEBT menor~~
+  **Desactualizada (Passo 95).** O scoping por bloco foi adicionado no
+  Passo 33 via save/restore em `CodeBlock`/`ContentBlock`, e
+  reafirmado arquitectonicamente no Passo 94 (atomização de `styles`
+  como parâmetro: cada bloco cria `local_styles` próprio; isolamento
+  por construção).
 - Apenas `text` como target suportado — outros targets ignorados silenciosamente
 - StyleChain não integrada com `#show` rules (Passo futuro)
 - Layout usa merge de node_style + self.style para compatibilidade com testes directos
@@ -45,6 +52,37 @@ foram riscadas por terem sido resolvidas implicitamente por outros DEBTs
 confirmou a presença do código correspondente em `eval.rs`. As
 pendências remanescentes (propriedades adicionais, paridade, wrappers)
 continuam em aberto.
+
+### Actualização Passo 95 — revisão à luz da atomização do Passo 94
+
+Tarefa A do Passo 95 classifica as pendências do DEBT-1:
+
+- [x] **Scoping de `#set` por bloco** — resolvido pelo Passo 33
+  (save/restore) e **reforçado pelo Passo 94** (atomização de
+  `styles` como `&mut StyleChain` parâmetro; cada bloco constrói
+  `local_styles` por construção — scoping torna-se intrínseco em
+  vez de depender de save/restore manual sobre um campo partilhado).
+- [x] **Arquitectura partilhada do `styles`** (implícita no item
+  "`EvalContext::styles: StyleChain`" da lista de Passo 30) —
+  resolvida no Passo 94 via extracção como parâmetro (ADR-0036
+  segunda aplicação).
+- [ ] **Propriedades adicionais** (fill, font-family, weight
+  numérico, etc.) — **continua em aberto**. Ortogonal à
+  atomização; exige extensão do `StyleDelta` e do `TextStyle`
+  para novos campos.
+- [ ] **Paridade total com o sistema de styles do original** —
+  **continua em aberto**. Inclui o item anterior mais integração
+  com show rules (DEBT-19/20), constant folding, etc.
+- [ ] **Remover wrappers `Content::Strong/Emph` do layout** —
+  **continua em aberto, sem mudança de natureza**. A atomização
+  do eval não toca em layout; a decisão arquitectural permanece
+  igual ao que era antes do Passo 94.
+
+Sumário: 2 pendências implicitamente resolvidas pela atomização
+(já não exigem trabalho específico); 3 pendências permanecem
+legítimas. DEBT-1 permanece na Secção 1 — o trabalho residual
+(propriedades, paridade, wrappers) não foi resolvido por
+atomização.
 
 ---
 
@@ -188,32 +226,6 @@ Se alguma função guardar available_width em cache como campo do Layouter,
 esse cache tem de ser invalidado no processamento de Content::SetPage.
 Actualmente available_width() é calculado em tempo real sem cache —
 este DEBT documenta o risco caso um cache venha a ser adicionado.
-
----
-
-## DEBT-39 — `active_guards` com push/pop frequente — EM ABERTO (Passo 84.4)
-
-Diagnóstico do Passo 84.4 revelou que `EvalContext.active_guards`
-(`Vec<RuleId>`) tem padrão push/pop por entrada/saída de cada show rule
-em `apply_show_rules`, **sem clones**. Difere de `show_rules` (resolvido
-no 84.4 via `Arc<[ShowRule]>`) — `Arc<[RuleId]>` aqui forçaria
-reconstrução O(n) por push e por pop, regressão face ao push/pop O(1) do
-`Vec` actual.
-
-Padrão actual (eval.rs):
-- `ctx.active_guards.push(rule.id)` antes de `apply_func`.
-- `ctx.active_guards.pop()` imediatamente após.
-- `ctx.active_guards.contains(&rule.id)` na decisão de saltar regra.
-
-Soluções candidatas para revisão futura:
-- Manter `Vec<RuleId>` — aceitar custo zero do clone (nenhum existe) e
-  push/pop O(1) como o melhor compromisso. Encerrar este DEBT como
-  "registado para clarificar que não é regressão face a 84.4".
-- Estrutura persistente (`im::Vector`, `rpds::List`) — push/pop O(1)
-  imutável, mas introduz dependência externa não justificada hoje.
-
-Não é candidato a resolução até surgir evidência empírica de problema
-(ex: composição profunda de show rules a degradar em documentos reais).
 
 ---
 
@@ -458,6 +470,96 @@ Encerramento completo do DEBT-45 fica para quando
 `check_layout_depth` for integrado (Passo próprio ou parte da
 materialização do `Engine<'a>`) e `check_html_depth` quando o
 pipeline HTML existir.
+
+---
+
+## DEBT-46 — Ficheiros de L1 com coesão baixa por tamanho excessivo — EM ABERTO (Passo 96)
+
+Seis ficheiros em `01_core/src/` excedem 1000 linhas e misturam
+responsabilidades de domínios distintos. A análise realizada antes
+do Passo 96 revelou:
+
+| Linhas | Ficheiro |
+|--------|----------|
+| 3780 | `01_core/src/rules/eval.rs` |
+| 2848 | `01_core/src/rules/layout/mod.rs` |
+| 2255 | `01_core/src/rules/parse.rs` |
+| 1806 | `01_core/src/rules/math/layout.rs` |
+| 1711 | `01_core/src/rules/stdlib.rs` |
+| 1250 | `01_core/src/rules/lexer/mod.rs` |
+
+Total: 13.650 linhas em seis ficheiros. O `eval.rs` sozinho tem
+368 ocorrências de padrões `match` sobre `Expr::`, `SyntaxKind::`
+e `Value::` — é um dispatcher central para toda a lógica de
+avaliação, misturando markup, matemática, closures, imports,
+regras show/set e controlo de fluxo.
+
+Este DEBT documenta o inventário concreto da reestruturação
+necessária pela ADR-0037 (`PROPOSTO` após Passo 96; `EM VIGOR`
+esperada após Passo 96.2).
+
+### Motivação
+
+A ADR-0036 (atomização progressiva) reduziu acoplamento dentro
+de funções (Passos 92–95) mas não reduziu tamanho dos ficheiros.
+O `eval.rs` diminuiu parcialmente após as extracções de `route`,
+`styles`, `show_rules`, `active_guards`, mas continua acima de
+3700 linhas.
+
+A ADR-0037 complementa a ADR-0036 ao orientar decomposição
+**entre ficheiros**, não só dentro de funções.
+
+### Critério de conclusão
+
+Cada ficheiro listado tem checkbox próprio:
+
+- [x] `eval.rs` reestruturado em submódulos por domínio (math,
+      operators, control_flow, closures, bindings, rules, tests).
+      Nenhum submódulo > 800 linhas ou cada excepção tem
+      justificativa Regra 6 no topo. (Passo 96.1) **Concluído.**
+      Ver reporte do Passo 96.1 para detalhes dos tamanhos finais
+      (mod.rs ~868 linhas marca-se como excepção Regra 6 por ser
+      dispatcher central + EvalContext; tests.rs ~2090 linhas é
+      cfg(test) gated e E2E cross-cutting, também excepção).
+- [ ] ADR-0037 promovida de `PROPOSTO` para `EM VIGOR` ou
+      ajustada conforme fricção encontrada. (Passo 96.2)
+- [ ] `parse.rs` reestruturado por tipo de nó (markup, code,
+      math, rules). (Passo 96.3)
+- [ ] `stdlib.rs` reestruturado por módulo da stdlib (text,
+      layout, math, calc, etc.). (Passo 96.4)
+- [ ] `layout/mod.rs` reestruturado (orquestração, medição,
+      emissão, sub-frames). (Passo 96.5)
+- [ ] `math/layout.rs` reestruturado ou marcado como excepção
+      Regra 6. (Passo 96.6)
+- [ ] `lexer/mod.rs` reestruturado ou marcado como excepção
+      Regra 6. (Passo 96.7)
+- [ ] Verificação final: `find 01_core/src -name "*.rs" | xargs wc -l |
+      sort -rn | head -10` mostra ficheiros acima de 800 linhas
+      só com excepções Regra 6 documentadas. (Passo 96.8 ou
+      encerramento implícito em 96.7)
+
+### Dependências
+
+Nenhuma técnica. O trabalho é mecânico (movimentação de código
+por domínio), não requer decisões arquitecturais adicionais.
+
+### Nota sobre escopo
+
+O DEBT aplica-se apenas a `01_core/src/`. Ficheiros em `02_shell/`,
+`03_infra/`, `04_wiring/` não estão no escopo — se excederem o
+limite, abrir DEBT específico por camada.
+
+### Nota sobre encerramento
+
+Este DEBT fecha quando os 7 ficheiros listados tiverem sido
+tratados (reestruturados ou marcados como excepção). Encerramento
+parcial não é aceitável — a coerência do princípio ADR-0037
+requer aplicação consistente.
+
+Se um dos ficheiros resistir à decomposição por razões técnicas
+descobertas durante a execução, registar como **excepção Regra 6**
+em vez de deixar como dívida pendente. A Regra 6 existe
+precisamente para estes casos.
 
 ---
 
@@ -1216,6 +1318,50 @@ dividir-se em sub-DEBTs.
 
 DEBT-45 (`check_*_depth` não chamados) continua em aberto;
 Passo 93 ligá-los-á agora que `route` está propagado.
+
+---
+
+## DEBT-39 — `active_guards` com push/pop frequente — **ENCERRADO (Passo 95)** ✓
+
+Diagnóstico do Passo 84.4 revelou que `EvalContext.active_guards`
+(`Vec<RuleId>`) tem padrão push/pop por entrada/saída de cada show rule
+em `apply_show_rules`, **sem clones**. Difere de `show_rules` (resolvido
+no 84.4 via `Arc<[ShowRule]>`) — `Arc<[RuleId]>` aqui forçaria
+reconstrução O(n) por push e por pop, regressão face ao push/pop O(1) do
+`Vec` actual.
+
+Padrão actual (eval.rs):
+- `ctx.active_guards.push(rule.id)` antes de `apply_func`.
+- `ctx.active_guards.pop()` imediatamente após.
+- `ctx.active_guards.contains(&rule.id)` na decisão de saltar regra.
+
+Soluções candidatas para revisão futura:
+- Manter `Vec<RuleId>` — aceitar custo zero do clone (nenhum existe) e
+  push/pop O(1) como o melhor compromisso. Encerrar este DEBT como
+  "registado para clarificar que não é regressão face a 84.4".
+- Estrutura persistente (`im::Vector`, `rpds::List`) — push/pop O(1)
+  imutável, mas introduz dependência externa não justificada hoje.
+
+Não é candidato a resolução até surgir evidência empírica de problema
+(ex: composição profunda de show rules a degradar em documentos reais).
+
+**Resolvido no Passo 95 (Tarefa C, Opção 1).** `active_guards` deixou
+de ser campo de `EvalContext` e passou a ser parâmetro
+`active_guards: &mut Vec<RuleId>` propagado pelas mesmas 13 funções
+que já recebem `route`/`styles`/`show_rules` desde a série de
+atomização da ADR-0036 (Passos 92/94/95).
+
+A **preocupação de performance** original do DEBT (não regredir para
+`Arc<[RuleId]>`) mantém-se respeitada: o tipo continua `Vec<RuleId>`;
+push/pop continuam O(1); zero clones por iteração. A mudança é
+**exclusivamente de ownership**, não de representação.
+
+Razão da decisão (Opção 1 em vez de Opção 2 "excepção da Regra 4"):
+o DEBT-39 documentava preferência de TIPO (`Vec` sobre `Arc<[T]>`),
+não preferência de LOCALIZAÇÃO (campo vs. parâmetro). A ADR-0036
+trata da segunda dimensão. Extrair como parâmetro mantendo o tipo é
+a solução que satisfaz ambas as restrições — o que o DEBT protege
+(O(1) push/pop) é independente de onde o `Vec` vive.
 
 ---
 
