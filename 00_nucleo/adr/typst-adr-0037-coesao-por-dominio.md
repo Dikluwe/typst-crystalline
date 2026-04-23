@@ -136,6 +136,52 @@ como path relativo padrão. Evitar `self::` — o linter V14 em
 vigor no projecto trata-o como identificador externo e reporta
 como violação.
 
+**Visibilidade preferida** (clarificação adicionada no Passo 96.6).
+Ao extrair código para submódulos, a preferência é a seguinte ordem:
+
+1. **Manter privado**. Se nenhum submódulo precisa de acesso
+   directo, manter sem modificador de visibilidade. Acesso
+   indirecto via métodos públicos já existentes.
+
+2. **Métodos `pub(super)` em vez de campos `pub(super)`**. Se
+   submódulos precisam de operar sobre uma struct, preferir
+   expor **comportamento** (métodos) em vez de **estado**
+   (campos). Métodos `pub(super) fn advance(&mut self)` são
+   preferíveis a campo `pub(super) pos: usize`. Isto preserva
+   invariantes da struct.
+
+3. **`pub(in path)` para escopo explícito**. Quando o escopo
+   exacto é conhecido, declará-lo directamente:
+
+   ```rust
+   pub(in crate::rules::parse) fn helper(...) { ... }
+   ```
+
+   É equivalente a `pub(super)` em certos casos mas auto-documenta
+   a intenção.
+
+4. **`pub(super)` em campos apenas quando necessário**. Se
+   métodos não resolvem (ex: campo que múltiplos submódulos
+   precisam de ler **e** escrever, sem semântica que justifique
+   método específico), usar `pub(super)`. Registar em comentário
+   no código a razão.
+
+5. **`pub(crate)` apenas quando consumido fora do módulo
+   actual**. Se o item é consumido por outro módulo da crate
+   (ex: `eval/closures.rs` precisa de função de `stdlib::calc`),
+   `pub(crate)` é apropriado. Se só submódulos do mesmo módulo
+   consomem, `pub(super)` ou `pub(in path)` são mais estritos.
+
+6. **`pub` (público) apenas para API verdadeiramente exposta ao
+   exterior**. Funções consumidas por outras crates do workspace
+   ou pelo wiring.
+
+**Anti-padrão**: `pub(super)` aplicado a todos os campos e
+métodos de uma struct por conveniência (ex: bulk replace
+durante reestruturação). Isto destrói invariantes e aumenta
+superfície de refactor. Se uma reestruturação encontra-se
+nesta situação, abrir DEBT dedicado a auditar e restringir.
+
 ### Regra 4 — Dispatchers pequenos
 
 Funções que fazem `match` exaustivo sobre um enum grande
