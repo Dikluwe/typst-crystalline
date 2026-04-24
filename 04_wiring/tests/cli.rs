@@ -429,3 +429,195 @@ fn cli_root_explicito() {
 
     cleanup(&[&input, &output]);
 }
+
+// ── Passo 124 — Testes de disciplina CLI ─────────────────────────────
+//
+// Materializam invariantes estruturais (ADR-0046, ADR-0045) que
+// antes só existiam como convenção. Zero código de produção tocado.
+
+/// stdout vazio em compilação bem-sucedida (ADR-0046): tudo em
+/// stderr; stdout reservado para bytes (PDF vai para ficheiro).
+#[test]
+fn disciplina_stdout_vazio_em_sucesso() {
+    let input = temp_typ("disc_stdout_ok", "Olá");
+    let output = temp_pdf("disc_stdout_ok");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    assert_eq!(result.status.code(), Some(0));
+    assert!(
+        result.stdout.is_empty(),
+        "stdout deve estar vazio; got {:?}",
+        String::from_utf8_lossy(&result.stdout)
+    );
+
+    cleanup(&[&input, &output]);
+}
+
+/// stdout vazio também em erro — diagnóstico não escapa para stdout.
+#[test]
+fn disciplina_stdout_vazio_em_erro() {
+    let input = temp_typ("disc_stdout_err", "#variavel_desconhecida");
+    let output = temp_pdf("disc_stdout_err");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    assert_eq!(result.status.code(), Some(1));
+    assert!(
+        result.stdout.is_empty(),
+        "stdout deve estar vazio mesmo em erro; got {:?}",
+        String::from_utf8_lossy(&result.stdout)
+    );
+
+    cleanup(&[&input, &output]);
+}
+
+/// PDF começa com o magic header `%PDF-`.
+#[test]
+fn disciplina_pdf_magic_header() {
+    let input = temp_typ("disc_magic", "Olá");
+    let output = temp_pdf("disc_magic");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+    assert_eq!(result.status.code(), Some(0));
+
+    let bytes = fs::read(&output).expect("ler PDF");
+    assert!(
+        bytes.starts_with(b"%PDF-"),
+        "PDF deve começar com '%PDF-'; primeiros bytes: {:?}",
+        &bytes[..bytes.len().min(8)]
+    );
+
+    cleanup(&[&input, &output]);
+}
+
+/// PDF termina com o trailer `%%EOF` (dentro dos últimos 16 bytes,
+/// tolerando newline final).
+#[test]
+fn disciplina_pdf_trailer_eof() {
+    let input = temp_typ("disc_eof", "Olá");
+    let output = temp_pdf("disc_eof");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+    assert_eq!(result.status.code(), Some(0));
+
+    let bytes = fs::read(&output).expect("ler PDF");
+    let tail_len = 16.min(bytes.len());
+    let tail = &bytes[bytes.len() - tail_len..];
+    assert!(
+        tail.windows(5).any(|w| w == b"%%EOF"),
+        "PDF deve conter '%%EOF' perto do fim; tail: {:?}",
+        tail
+    );
+
+    cleanup(&[&input, &output]);
+}
+
+/// Compilação limpa (sem warnings nem errors) não emite nada em
+/// stderr. Reforça cli_sucesso_sem_warnings com assertion total.
+#[test]
+fn disciplina_stderr_vazio_em_compilacao_limpa() {
+    let input = temp_typ("disc_clean", "= Título\n\nTexto.");
+    let output = temp_pdf("disc_clean");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(0));
+    assert!(
+        stderr.is_empty(),
+        "stderr deve estar vazio em compilação limpa; got {:?}",
+        stderr
+    );
+
+    cleanup(&[&input, &output]);
+}
+
+/// Exit 0 implica PDF escrito e não-vazio.
+#[test]
+fn disciplina_exit_zero_implica_pdf_nao_vazio() {
+    let input = temp_typ("disc_nonempty", "Olá");
+    let output = temp_pdf("disc_nonempty");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    assert_eq!(result.status.code(), Some(0));
+    assert!(output.exists());
+
+    let size = fs::metadata(&output).expect("metadata").len();
+    assert!(size > 0, "PDF deve ter conteúdo; tamanho: {}", size);
+
+    cleanup(&[&input, &output]);
+}
+
+/// Ordem: warnings aparecem antes de errors no stderr (ADR-0045).
+/// Input misto = `#set text(font: "X")` (warning ADR-0040) +
+/// `#variavel_desconhecida` (erro de eval).
+#[test]
+fn disciplina_warnings_antes_de_errors() {
+    let input = temp_typ(
+        "disc_order",
+        "#set text(font: \"X\")\n#variavel_desconhecida",
+    );
+    let output = temp_pdf("disc_order");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(1),
+        "esperava exit 1 em erro de eval; stderr:\n{}", stderr);
+
+    let warning_pos = stderr.find("warning:");
+    let error_pos   = stderr.find("error:");
+
+    match (warning_pos, error_pos) {
+        (Some(w), Some(e)) => assert!(
+            w < e,
+            "warning: deve aparecer antes de error:; stderr:\n{}",
+            stderr
+        ),
+        (None, _) => panic!(
+            "esperava warning no input misto; stderr:\n{}", stderr),
+        (_, None) => panic!(
+            "esperava error no input misto; stderr:\n{}", stderr),
+    }
+
+    cleanup(&[&input, &output]);
+}
