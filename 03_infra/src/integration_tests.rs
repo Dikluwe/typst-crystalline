@@ -2199,16 +2199,20 @@ mod integration {
             warnings[0].hints[0]);
     }
 
-    /// Propriedade `lang` análoga — deve também emitir warning específico.
+    /// Propriedade `alignment` análoga — deve também emitir warning
+    /// específico.
+    ///
+    /// Passo 130 (DEBT-1 subset): `lang` passou a ser capturado —
+    /// canary rotou para `alignment` (ainda desconhecida).
     #[test]
-    fn debt49_set_text_lang_emite_warning() {
-        let (world, _dir) = world_from_str(r#"#set text(lang: "pt")"#);
+    fn debt49_set_text_alignment_emite_warning() {
+        let (world, _dir) = world_from_str(r#"#set text(alignment: "center")"#);
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
         assert_eq!(warnings.len(), 1);
-        assert!(warnings[0].message.contains("'lang'"),
-            "mensagem deve identificar 'lang'; obteve: {:?}",
+        assert!(warnings[0].message.contains("'alignment'"),
+            "mensagem deve identificar 'alignment'; obteve: {:?}",
             warnings[0].message);
     }
 
@@ -2217,24 +2221,26 @@ mod integration {
     /// diferem.
     ///
     /// Passo 126 (DEBT-1 subset): `weight` passou a ser capturado como
-    /// `u16` — já não emite warning. Lista reduzida para `font` + `lang`.
+    /// `u16` — já não emite warning.
+    /// Passo 130 (DEBT-1 subset): `lang` passou a ser capturado — trio
+    /// rotou para `font/alignment/stroke`.
     #[test]
     fn debt49_set_text_multiplas_propriedades_desconhecidas() {
-        let (world, _dir) = world_from_str(r#"#set text(font: "A", lang: "pt", stroke: 1pt)"#);
+        let (world, _dir) = world_from_str(r#"#set text(font: "A", alignment: "center", stroke: 1pt)"#);
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
         assert_eq!(warnings.len(), 3,
-            "esperado 3 warnings (font, lang, stroke); obteve {}: {:?}",
+            "esperado 3 warnings (font, alignment, stroke); obteve {}: {:?}",
             warnings.len(),
             warnings.iter().map(|d| &d.message).collect::<Vec<_>>());
         let joined = warnings.iter()
             .map(|d| d.message.clone())
             .collect::<Vec<_>>()
             .join("\n");
-        assert!(joined.contains("'font'"),   "faltou 'font': {}",   joined);
-        assert!(joined.contains("'lang'"),   "faltou 'lang': {}",   joined);
-        assert!(joined.contains("'stroke'"), "faltou 'stroke': {}", joined);
+        assert!(joined.contains("'font'"),      "faltou 'font': {}",      joined);
+        assert!(joined.contains("'alignment'"), "faltou 'alignment': {}", joined);
+        assert!(joined.contains("'stroke'"),    "faltou 'stroke': {}",    joined);
     }
 
     /// Propriedades suportadas de `#set text(...)` (bold, italic, size,
