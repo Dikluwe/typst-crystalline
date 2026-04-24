@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 829e140c
+Hash do Código: fc3f1808
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -13,6 +13,9 @@ Materializado no Passo 117 (ADR-0049) depois de os Passos 113–116
 terem colocado CLI incorrectamente em L3 e L4.
 Passo 120 (ADR-0051) adicionou flag `-o/--output` com default
 derivado — primeira flag funcional.
+Passo 121 (ADR-0051) adicionou flag `--root DIR` com fallback
+`input.parent() → "."` — segunda flag funcional aplicando o mesmo
+pattern.
 
 ## Contrato
 
@@ -33,6 +36,7 @@ pub enum ColorWhen { Auto, Always, Never }
 pub struct RunIntent {
     pub input: PathBuf,
     pub output: PathBuf,
+    pub root: PathBuf,
     pub colored: bool,
 }
 ```
@@ -71,6 +75,17 @@ Ordem de precedência (ADR-0051):
 2. `output` positional (se presente).
 3. Default derivado: `input.with_extension("pdf")`.
 
+### `resolve_root_with(root, input) -> PathBuf` — API pública
+
+Função **pura** (sem I/O; não verifica existência). Testável
+directamente.
+
+Ordem de precedência (Passo 121, ADR-0051, alinhada com vanilla
+typst-cli):
+1. Flag `--root` explícita vence.
+2. `input.parent()` se não vazio.
+3. Default `"."` (cwd).
+
 ### `Args` — struct privada (clap)
 
 ```rust
@@ -81,6 +96,8 @@ struct Args {
     output: Option<PathBuf>,           // positional opcional
     #[arg(short = 'o', long = "output", value_name = "FILE")]
     output_flag: Option<PathBuf>,      // sinónimo via flag
+    #[arg(long = "root", value_name = "DIR")]
+    root: Option<PathBuf>,             // project root (Passo 121)
     #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
     color: ColorWhen,
 }
@@ -94,7 +111,7 @@ Help mostra `-o, --output`.
 
 ## Testes
 
-12 testes unitários em `#[cfg(test)] mod tests`:
+15 testes unitários em `#[cfg(test)] mod tests`:
 
 **`resolve_colored_with`** (6 testes):
 - `resolve_colored_never_e_false`
@@ -112,9 +129,14 @@ Help mostra `-o, --output`.
 - `resolve_output_default_com_path_completo`
 - `resolve_output_default_sem_extensao_adiciona_pdf`
 
+**`resolve_root_with`** (3 testes):
+- `resolve_root_flag_vence_parent`
+- `resolve_root_sem_flag_usa_parent_do_input`
+- `resolve_root_sem_flag_e_sem_parent_usa_dot`
+
 ## Evolução
 
-Futuros flags (`--root`, `--font-path`, `--format`, subcomandos)
-entram **aqui** — não em L3 nem L4. `RunIntent` ganha campos
-conforme necessário. Padrão estabelecido pelos Passos 117 e 120
+Futuros flags (`--font-path`, `--format`, subcomandos) entram
+**aqui** — não em L3 nem L4. `RunIntent` ganha campos conforme
+necessário. Padrão estabelecido pelos Passos 117, 120 e 121
 (ADR-0051).

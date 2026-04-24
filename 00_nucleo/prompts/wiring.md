@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: fd812420
+Hash do Código: 57736bc7
 
 ## Módulo
 `04_wiring/src/main.rs`
@@ -16,30 +16,33 @@ Passos relevantes:
 - **Passo 117** (ADR-0049): CLI movida para L2; L4 é composição pura.
 - **Passo 119** (ADR-0050): formatter completamente em L2; drain
   inline em L4 (helper local `drain_to_stderr`).
+- **Passo 120** (ADR-0051): `-o/--output` + default derivado em L2.
+- **Passo 121** (ADR-0051): `--root` em L2; L4 consome `intent.root`
+  directamente (sem `input.parent()` local).
 
 ## Contrato
 
-### Uso (inalterado desde Passo 116)
+### Uso
 
 ```bash
-typst <INPUT> <OUTPUT> [--color=auto|always|never]
+typst <INPUT> [OUTPUT] [-o FILE] [--root DIR] [--color=auto|always|never]
 typst --help
 typst --version
 ```
 
 ### Pipeline
 
-1. `typst_shell::cli::parse()` → `RunIntent { input, output, colored }`.
-2. `root = input.parent()`, `main_path = input.file_name()`.
-3. `SystemWorld::new(root, main_path)` → `World`. Falha → exit 2.
+1. `typst_shell::cli::parse()` → `RunIntent { input, output, root, colored }`.
+2. `main_path = input.file_name()` — falha → exit 2.
+3. `SystemWorld::new(&root, &main_path)` → `World`. Falha → exit 2.
 4. `world.source(world.main())` → `Source`.
 5. `compile_to_pdf_bytes(&world, &source)` (L3):
    - `eval` → `Module` + warnings.
    - `introspect` → `CounterState`.
    - `layout` → `PagedDocument`.
    - `export_pdf` → `Vec<u8>`.
-6. `drain_diagnostics_to_stderr(&warnings, &source, path, colored)`
-   — propaga `colored` do RunIntent.
+6. `drain_to_stderr(&warnings, &source, path, colored)` — propaga
+   `colored` do RunIntent.
 7. Em sucesso: `fs::write(output, pdf_bytes)`. Exit 0.
 8. Em erro de eval: drena errors com mesmo `colored`. Exit 1.
 
@@ -75,10 +78,13 @@ do `RunIntent`. Tudo em stderr; stdout nunca usado.
 
 ## Escopo futuro
 
-Fora dos passos 113–117:
+Fora dos passos 113–121:
 
 - Subcomandos (entram em L2).
-- Flags funcionais (`--root`, `--font-path`, `-o`, etc.) — entram
+- Flags funcionais (`--font-path`, `--format`, etc.) — entram
   em `Args` de L2, reflectem em `RunIntent`.
 - JSON / SARIF — formatters em L3 ou L2.
 - Outros exports (PNG, SVG, HTML).
+- Virtualização de imports (resolução real contra `root`) — hoje
+  `SystemWorld` ignora `root` para imports e usa `directory_of(
+  current_file)`.
