@@ -188,6 +188,60 @@ impl StyleChain {
         self.resolve_f64(|d| d.size).unwrap_or(11.0)
     }
 
+    // Passo 136 (Fase A — DEBT-52): resolvers para propriedades
+    // novas de `StyleDelta`. Forward-compat; consumer futuro em
+    // layout usa via `TextStyle::from(&StyleChain)`.
+
+    /// Resolve `weight` percorrendo a cadeia.
+    pub fn weight(&self) -> Option<u16> {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.weight { return Some(v); }
+            node = n.parent.as_deref();
+        }
+        None
+    }
+
+    /// Resolve `tracking` (Length inteiro, preservando abs+em).
+    pub fn tracking(&self) -> Option<crate::entities::layout_types::Length> {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.tracking { return Some(v); }
+            node = n.parent.as_deref();
+        }
+        None
+    }
+
+    /// Resolve `leading` (Length inteiro).
+    pub fn leading(&self) -> Option<crate::entities::layout_types::Length> {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.leading { return Some(v); }
+            node = n.parent.as_deref();
+        }
+        None
+    }
+
+    /// Resolve `lang` (código BCP 47 validado).
+    pub fn lang(&self) -> Option<crate::entities::lang::Lang> {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.lang { return Some(v); }
+            node = n.parent.as_deref();
+        }
+        None
+    }
+
+    /// Resolve `font` (FontList — não-Copy, clona). Top-wins.
+    pub fn font(&self) -> Option<crate::entities::font_list::FontList> {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = &n.delta.font { return Some(v.clone()); }
+            node = n.parent.as_deref();
+        }
+        None
+    }
+
     fn resolve_bool(&self, f: impl Fn(&StyleDelta) -> Option<bool>) -> Option<bool> {
         let mut node = self.0.as_deref();
         while let Some(n) = node {
@@ -223,6 +277,14 @@ impl From<&StyleChain> for TextStyle {
             size:          Pt(chain.size()),
             fill:          chain.fill(),
             heading_level: chain.heading_level(),
+            // Passo 136 (Fase A — DEBT-52): propagação via
+            // `StyleChain::resolve_*`. Inertes em layout até
+            // Fase B/C adicionar consumers.
+            weight:        chain.weight(),
+            tracking:      chain.tracking(),
+            leading:       chain.leading(),
+            lang:          chain.lang(),
+            font:          chain.font(),
         }
     }
 }
@@ -276,6 +338,56 @@ mod tests {
         assert!(ts.bold);
         assert!(!ts.italic);
         assert_eq!(ts.size.val(),   14.0);
+    }
+
+    // ── Passo 136 (Fase A — DEBT-52): propagação dos 5 campos novos.
+    // Testa via `TextStyle::from(&chain)` construindo `StyleChain`
+    // directamente — mais preciso que pipeline completo e mais rápido.
+
+    #[test]
+    fn text_style_from_chain_propaga_weight_passo_136() {
+        let chain = StyleChain::default_chain()
+            .push(StyleDelta { weight: Some(700), ..StyleDelta::empty() });
+        let ts = TextStyle::from(&chain);
+        assert_eq!(ts.weight, Some(700));
+    }
+
+    #[test]
+    fn text_style_from_chain_propaga_tracking_passo_136() {
+        use crate::entities::layout_types::Length;
+        let chain = StyleChain::default_chain()
+            .push(StyleDelta { tracking: Some(Length::pt(0.5)), ..StyleDelta::empty() });
+        let ts = TextStyle::from(&chain);
+        assert_eq!(ts.tracking, Some(Length::pt(0.5)));
+    }
+
+    #[test]
+    fn text_style_from_chain_propaga_leading_passo_136() {
+        use crate::entities::layout_types::Length;
+        let chain = StyleChain::default_chain()
+            .push(StyleDelta { leading: Some(Length::em(0.65)), ..StyleDelta::empty() });
+        let ts = TextStyle::from(&chain);
+        assert_eq!(ts.leading, Some(Length::em(0.65)));
+    }
+
+    #[test]
+    fn text_style_from_chain_propaga_lang_passo_136() {
+        use crate::entities::lang::Lang;
+        let chain = StyleChain::default_chain()
+            .push(StyleDelta { lang: Some(Lang::ENGLISH), ..StyleDelta::empty() });
+        let ts = TextStyle::from(&chain);
+        assert_eq!(ts.lang, Some(Lang::ENGLISH));
+    }
+
+    #[test]
+    fn text_style_from_chain_propaga_font_passo_136() {
+        use crate::entities::font_list::FontList;
+        use ecow::EcoString;
+        let fl = FontList::single(EcoString::from("Arial"));
+        let chain = StyleChain::default_chain()
+            .push(StyleDelta { font: Some(fl.clone()), ..StyleDelta::empty() });
+        let ts = TextStyle::from(&chain);
+        assert_eq!(ts.font, Some(fl));
     }
 
     #[test]

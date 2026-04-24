@@ -704,7 +704,7 @@ impl Content {
     {
         match self {
             // O caso alvo: aplicar a transformação preservando o estilo.
-            Content::Text(s, style) => Content::Text(transform(s.as_str()).into(), *style),
+            Content::Text(s, style) => Content::Text(transform(s.as_str()).into(), style.clone()),
 
             // ── Containers com filhos (propagação recursiva) ──────────────
             // Cada variante listada explicitamente — sem `_ =>` ou `other =>`.

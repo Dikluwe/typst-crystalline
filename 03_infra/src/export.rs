@@ -610,8 +610,21 @@ fn build_page_stream_type1(
                     (false, false) => "F1",  // Helvetica
                 };
 
+                // Passo 137 (Fase B.1 DEBT-52): PDF `Tc` operator
+                // adiciona character spacing a cada glyph dentro
+                // do `Tj`. Resolvido contra `size` para Pt.
+                // Omitido se tracking ausente ou zero.
+                let tracking_pt = style.tracking
+                    .map(|t| t.resolve_pt(style.size.val()))
+                    .unwrap_or(0.0);
+                let tc_op = if tracking_pt.abs() > f64::EPSILON {
+                    format!("{:.2} Tc\n", tracking_pt)
+                } else {
+                    String::new()
+                };
+
                 ops.push_str(&format!(
-                    "BT\n/{font_ref} {:.1} Tf\n{:.1} {:.1} Td\n({safe}) Tj\nET\n",
+                    "BT\n/{font_ref} {:.1} Tf\n{tc_op}{:.1} {:.1} Td\n({safe}) Tj\nET\n",
                     style.size.val(), pos.x.val(), pdf_y
                 ));
             }
