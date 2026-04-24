@@ -11,6 +11,11 @@
 > (DEBT-43, DEBT-42, subset de DEBT-1). Desde Passo 105: 3 DEBTs
 > encerrados (DEBT-45/49/51). Detalhe em
 > [`diagnosticos/auditoria-debts-passo-125.md`](diagnosticos/auditoria-debts-passo-125.md).
+>
+> **Passo 135 (2026-04-24)**: abriu **DEBT-52** como rastreador de
+> consumer integral de `StyleDelta` em layout — pré-requisito para
+> fecho de DEBT-1 por ADR-0054. Total abertos: **11 → 12**. Detalhe
+> em [`diagnosticos/diagnostico-shaping-passo-135.md`](diagnosticos/diagnostico-shaping-passo-135.md).
 
 ---
 
@@ -610,6 +615,90 @@ este DEBT.
 - **Não é accionável hoje** — a dívida é latente.
 - Torna-se accionável quando `#set text(bold/italic: true)` deixar
   de usar bake-in.
+
+---
+
+## DEBT-52 — Consumer integral de `StyleDelta` em layout — EM ABERTO (Passo 135)
+
+**Aberto em**: Passo 135 (2026-04-24).
+**Relacionado com**: DEBT-1 (fecho depende deste), ADR-0033
+(paridade, reinterpretada por ADR-0054), ADR-0053 (`font` dict
+deferido).
+
+### Contexto
+
+Passos 126–134 capturaram a lista canónica DEBT-1 em
+`StyleDelta`: `weight`, `tracking`, `leading`, `lang`, `font`.
+5 destes 5 campos são **inertes** — layout actual usa
+`TextStyle` plano (5 campos: bold, italic, size, fill,
+heading_level) que não os cobre. `#set text(weight: 700)` é
+capturado mas o PDF é idêntico a sem o `#set`.
+
+ADR-0033 (paridade funcional) lido literal exige output
+observacional equivalente ao vanilla. ADR-0054 (criada em
+Passo 135) formaliza que **DEBT-1 não fecha enquanto consumers
+não existirem**.
+
+### Gaps identificados (diagnóstico 135)
+
+Ver
+`00_nucleo/diagnosticos/diagnostico-shaping-passo-135.md`
+secção 3.1 para tabela detalhada.
+
+Resumo por dificuldade:
+- **XS (2)**: estender `TextStyle` (fase A).
+- **S (3)**: tracking, leading, weight-faux-bold (fase B).
+- **M (4-5)**: font string, font array, hyphenation,
+  embedding PDF fonts (fase C).
+- **L (1)**: lang shaping features via rustybuzz.
+- **XL (1)**: shaping engine completo (rustybuzz integrado).
+
+### Âmbito
+
+- [ ] **Fase A**: estender `TextStyle` + `From<&StyleChain>`.
+- [ ] Consumer `tracking`.
+- [ ] Consumer `leading`.
+- [ ] Consumer `weight` (faux-bold PDF + selecção variante).
+- [ ] Consumer `font` string (nome via `FontBook::select`).
+- [ ] Consumer `font` array (fallback chain).
+- [ ] Consumer `lang` hyphenation (requer crate).
+- [ ] **Fase D opcional**: ADR-0054bis autorizar `regex` +
+      `Covers` concreto para font dict.
+- [ ] **Fase E opcional**: rustybuzz integration para shaping
+      features + script-aware (escopo XL; possivelmente série
+      dedicada fora deste DEBT).
+
+### Dependências
+
+- **`FontBook::select`** em L1 — já existe (`font_book.rs`).
+- **PDF font embedding em L3** — hoje Helvetica hardcoded
+  (F1/F2/F3). Requer infra (font loader + subsetting).
+- **Crate `regex`** — não autorizada em L1. Bloqueia dict
+  form de font (ADR-0054bis futura).
+- **Crate hifenização** (ex: `hyphenation`) — bloqueia lang
+  consumer.
+
+### Roadmap estimado
+
+**4-8 passos** para paridade observável razoável
+(fase A + B + C). **Fase D/E** se escopo ampliar.
+
+Ponto de entrada: Passo 136 (fase A, XS).
+
+### Critério de conclusão
+
+- [ ] Cada campo inerte identificado tem consumer activo OU
+      é explicitamente marcado como "scope-out" com ADR de
+      suporte.
+- [ ] Output PDF observacionalmente equivalente ao vanilla
+      para inputs de teste documentados.
+- [ ] DEBT-1 pode fechar.
+
+### Nota estratégica
+
+DEBT-52 é **rastreador**, não trabalho. Fecha quando todos os
+gaps forem atacados ou explicitamente scope-out. Cada linha
+`- [ ]` acima corresponde a um ou mais passos futuros.
 
 ---
 
