@@ -1,6 +1,6 @@
 # ⚖️ ADR-0055: Font consumer via pipeline CIDFont existente
 
-**Status**: `PROPOSTO`
+**Status**: `IMPLEMENTADO`
 **Data**: 2026-04-24
 **Autor**: Humano + IA
 **Diagnóstico prévio**:
@@ -165,3 +165,30 @@ Após **140B + 141**. Gap 7 + 8 podem ficar documentados como
   `build_cidfont` para subset.
 - **DEBT-53** (shaping): rustybuzz integration — escopo XL.
 - **ADR-0019 R1**: revisão de status quando shaping chegar.
+
+## Materialização
+
+- **Passo 140B** (2026-04-24) — wiring single-font (decisão 3).
+  `compile_to_pdf_bytes` despacha para `export_pdf_with_font`
+  quando a primeira família encontrada no `PagedDocument` resolve
+  via `FontBook::select` + `world.font(index)`. Fallback Helvetica
+  preservado quando nenhuma família resolve. Gap 5 de DEBT-52
+  fechado.
+- **Passo 141** (2026-04-24) — array fallback chain (decisão 4).
+  `resolve_font` itera `font_list.as_slice()` em ordem; primeira
+  família a completar `select` + `world.font` vence. Cenário
+  patológico (índice stale) não curto-circuita — continua a
+  tentar famílias seguintes. Gap 6 de DEBT-52 fechado. **Paridade
+  básica da ADR completa.**
+
+Decisões 5 (multi-font per document — Passo 142 opcional),
+6 (lang hyphenation — Passo 143 opcional, gap 7 DEBT-52) e
+7 (rustybuzz / shaping — DEBT-53 candidato XL) permanecem
+scope-out conforme definido originalmente. Não bloqueiam o
+fecho desta ADR.
+
+Selecção variant-aware (font-file "Bold"/"Italic" dedicado)
+permanece como limitação conhecida — `FontVariant::default()`
+é usada em `resolve_font`, e `weight`/`style` continuam a ser
+renderizados via faux-bold do Passo 139. **ADR-0055bis** é o
+candidato natural se paridade avançada for priorizada.

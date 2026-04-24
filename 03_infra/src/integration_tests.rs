@@ -2485,4 +2485,47 @@ mod integration {
         assert_eq!(n_type0, 1,
             "MVP single-font: exactamente 1 Type0 — encontrados {}", n_type0);
     }
+
+    // ── Passo 141 — Array fallback chain (DEBT-52 gap 6) ────────────────
+    //
+    // Verifica que `resolve_font` itera todas as famílias da
+    // `FontList` e usa a primeira que resolve. Documento com
+    // `font: ("FontQueNaoExiste", "<família-real>")` deve embutir
+    // a segunda família como CIDFont — a primeira é silenciosamente
+    // saltada (não há fallback Helvetica enquanto restarem famílias
+    // por tentar).
+
+    #[test]
+    fn font_wiring_array_fallback_primeira_falha_segunda_vence() {
+        let Some(slots) = discover_any_system_fonts() else {
+            eprintln!("[skip] font_wiring_array_fallback_primeira_falha_segunda_vence: \
+                       sem fonts no sistema");
+            return;
+        };
+        let book = build_font_book(&slots);
+        let Some(family) = first_family(&book) else {
+            eprintln!("[skip] FontBook vazio");
+            return;
+        };
+
+        // Primeira família é deliberadamente inexistente; segunda
+        // resolve no FontBook → CIDFont embutida.
+        let src = format!(
+            "#set text(font: (\"FontQueNaoExiste\", \"{}\"))\nOlá",
+            family
+        );
+        let (world, _dir) = world_with_fonts(&src, slots);
+        let source = world.source(world.main()).unwrap();
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let pdf = result.expect("compilação deve ter sucesso");
+
+        assert_eq!(&pdf[..5], b"%PDF-");
+        let blob = String::from_utf8_lossy(&pdf);
+        assert!(blob.contains("CrystallineFont"),
+            "PDF deve embutir a segunda família como CIDFont quando \
+             a primeira não resolve");
+        assert!(!blob.contains("/BaseFont /Helvetica"),
+            "fallback Helvetica não deve estar presente — segunda \
+             família resolveu");
+    }
 }

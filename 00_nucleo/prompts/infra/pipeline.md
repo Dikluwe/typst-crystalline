@@ -40,21 +40,32 @@ pub fn compile_to_pdf_bytes(
 ```
 
 - Pipeline `eval → introspect → layout → (dispatch export)`.
-- Dispatch font-aware (Passo 140B, ADR-0055):
+- Dispatch font-aware (Passos 140B + 141, ADR-0055
+  `IMPLEMENTADO`):
   - Procura o primeiro `TextStyle.font` (`FontList`) não-`None`
     no `PagedDocument` (itens `FrameItem::Text` e `Group`
     recursivos).
-  - Tenta resolver a primeira família via
-    `world.book().select(name, &FontVariant::default())` → índice.
-  - Se o índice resolve e `world.font(index)` retorna `Some(Font)`,
-    invoca `export_pdf_with_font(&doc, font.as_slice())`.
-  - Caso contrário (sem `font` no documento, família não conhecida
-    pelo `FontBook`, ou slot vazio), fallback `export_pdf(&doc)`
-    (Helvetica Type1).
-- **MVP single-font per document** (ADR-0055 decisão 3): apenas
-  a primeira font encontrada é usada; spans subsequentes com font
-  diferente são silenciosamente ignorados. Fallback chain array
-  (ADR-0055 decisão 4) é Passo 141.
+  - **Itera todas as famílias** da `FontList` em ordem; para
+    cada uma, tenta
+    `world.book().select(name, &FontVariant::default())` → índice
+    e depois `world.font(index)` → bytes. **Primeira família a
+    completar ambos os passos vence** (semântica vanilla
+    "primeira-que-resolve").
+  - Se alguma família resolve, invoca `export_pdf_with_font(&doc,
+    font.as_slice())`.
+  - Caso contrário (sem `font` no documento, ou nenhuma família
+    da lista conhecida pelo `FontBook`, ou todos os slots vazios),
+    fallback `export_pdf(&doc)` (Helvetica Type1).
+- **Single-font per document** (ADR-0055 decisão 3): a primeira
+  `FontList` encontrada no `PagedDocument` é usada para o
+  documento inteiro; spans subsequentes com `FontList` diferente
+  são silenciosamente ignorados. Multi-font per document (ADR-0055
+  decisão 5) é Passo 142 opcional.
+- **Array fallback chain** (ADR-0055 decisão 4) materializada
+  no Passo 141: dentro de uma `FontList`, todas as famílias são
+  tentadas até resolver. Cenário patológico (`select` devolve
+  `Some` mas `world.font` devolve `None` — índice stale) **não**
+  curto-circuita: continua a tentar as famílias seguintes.
 - Selecção usa `FontVariant::default()` (regular, normal, normal
   stretch). `weight`/`style` no documento continuam a ser
   renderizados via faux-bold/faux-italic (Passo 139) — selecção
@@ -64,7 +75,7 @@ pub fn compile_to_pdf_bytes(
 - Módulo sem `content` (AST puramente executivo) produz
   `Ok(Vec::new())` — não é erro.
 
-## Helpers privados de dispatch (Passo 140B)
+## Helpers privados de dispatch (Passos 140B + 141)
 
 ```rust
 fn first_font_from_doc(doc: &PagedDocument) -> Option<FontList>;
@@ -75,17 +86,27 @@ fn resolve_font(
 ) -> Option<Vec<u8>>;
 ```
 
-- `first_font_from_doc`: itera `doc.pages → items` recursivamente
-  (atravessa `FrameItem::Group`) e devolve o primeiro
-  `TextStyle.font` com `Some(FontList)`. `None` se nenhum item
-  tem font definida.
-- `resolve_font`: pega na primeira família de `font_list`,
-  consulta `font_book.select(name, &FontVariant::default())`;
-  se match, devolve `Some(world.font(index)?.as_slice().to_vec())`.
-  Apenas a primeira família é tentada — array fallback é Passo
-  141.
+- `first_font_from_doc` (Passo 140B): itera `doc.pages → items`
+  recursivamente (atravessa `FrameItem::Group`) e devolve o
+  primeiro `TextStyle.font` com `Some(FontList)`. `None` se
+  nenhum item tem font definida.
+- `resolve_font` (Passo 141): itera `font_list.as_slice()` em
+  ordem. Para cada família, consulta
+  `font_book.select(name, &FontVariant::default())`; se devolve
+  `Some(index)`, chama `world.font(index)`; se devolve
+  `Some(font)`, devolve os bytes. **Primeira família a completar
+  ambos os passos vence**. Se nenhuma completa, devolve `None`
+  (pipeline cai em fallback Helvetica). Cenário patológico
+  (índice stale: `select` devolve `Some` mas `world.font` devolve
+  `None`) **continua** a tentar famílias seguintes — não
+  curto-circuita. Paridade com vanilla: semântica
+  "primeira-que-resolve" do `#set text(font: (...))`.
 - Ambas as funções são privadas ao módulo e cobertas por testes
   unitários em `#[cfg(test)] mod tests`.
+
+Array fallback materializado no Passo 141. Multi-font per
+document (Passo 142, opcional) e variant-aware (ADR-0055bis,
+candidata) permanecem fora do escopo actual.
 
 ## Integração com ADR-0045
 
