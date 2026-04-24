@@ -1481,6 +1481,78 @@ mod tests {
         );
     }
 
+    /// Passo 130 (DEBT-1 subset): `lang` capturado como `EcoString` raw
+    /// (sem validação BCP 47). Zero warning.
+    #[test]
+    fn eval_set_text_lang_passo_130() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(lang: \"pt\")\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().all(|d| !d.message.contains("'lang'")),
+            "lang não deve emitir warning; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// Passo 130: valores BCP 47 compostos (region, script) aceites
+    /// literalmente — `"en-GB"`, `"zh-Hant"`. Documenta que cristalino
+    /// não valida; consumer futuro normaliza.
+    #[test]
+    fn eval_set_text_lang_bcp47_composto_passo_130() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(lang: \"en-GB\")\nHello");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().all(|d| !d.message.contains("'lang'")),
+            "lang composto não deve emitir warning; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// Passo 130: canary DEBT-50 preservado em quinta iteração do pattern.
+    #[test]
+    fn eval_set_text_font_canary_passo_130() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(font: \"X\")\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().any(|d| d.message.contains("'font'")),
+            "font ainda deve emitir warning (canary); diagnostics: {:?}",
+            diags
+        );
+    }
+
     // ── Testes de Passo 34 — equações matemáticas ────────────────────────────
 
     #[test]

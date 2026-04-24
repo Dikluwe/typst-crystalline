@@ -331,6 +331,15 @@ pub(super) fn eval_set_rule(
                         delta.leading = Some(l);
                     }
                 }
+                "lang" => {
+                    // Passo 130 (DEBT-1 subset): captura código BCP 47 raw
+                    // como `EcoString`. Sem validação — vanilla tem tipo
+                    // `Lang` dedicado; cristalino captura e defere
+                    // normalização para consumer futuro. Inerte em layout.
+                    if let Value::Str(s) = val {
+                        delta.lang = Some(s);
+                    }
+                }
                 _ => {
                     // Passo 107 (encerra DEBT-49): propriedades não suportadas
                     // de `#set text(...)` emitem warning via Sink em vez de
