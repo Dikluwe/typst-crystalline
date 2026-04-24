@@ -177,3 +177,53 @@ fn cli_sucesso_sem_warnings() {
 
     cleanup(&[&input, &output]);
 }
+
+/// Passo 120 (ADR-0051): output positional é opcional; default
+/// derivado é `input.with_extension("pdf")`. Teste verifica que
+/// `typst input.typ` (sem output) cria `input.pdf`.
+#[test]
+fn cli_output_omitido_deriva_de_input() {
+    let input = temp_typ("default_out", "Texto.");
+    let expected_output = input.with_extension("pdf");
+    // Garantir que o output derivado não existe antes.
+    let _ = fs::remove_file(&expected_output);
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        // Nenhum output!
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(0),
+        "exit code esperado 0; stderr:\n{}", stderr);
+    assert!(expected_output.exists(),
+        "PDF derivado deve existir em {}", expected_output.display());
+
+    cleanup(&[&input, &expected_output]);
+}
+
+/// Passo 120 (ADR-0051): `-o` flag funciona. Teste verifica que
+/// `typst input.typ -o custom.pdf` cria custom.pdf.
+#[test]
+fn cli_output_via_flag_o() {
+    let input = temp_typ("flag_o", "Texto.");
+    let output = temp_pdf("flag_o_out");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(0),
+        "exit code esperado 0; stderr:\n{}", stderr);
+    assert!(output.exists(),
+        "PDF deve existir em {}", output.display());
+
+    cleanup(&[&input, &output]);
+}
