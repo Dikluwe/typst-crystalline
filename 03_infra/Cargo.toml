@@ -14,6 +14,10 @@ thiserror  = { workspace = true }
 # [dependencies] no Passo 113 (ADR-0046) quando `pipeline.rs` expôs
 # `eval_to_module_with_sink` como API pública consumível pelo 04_wiring.
 comemo     = { workspace = true }
+# clap: derive de `ValueEnum` para `ColorWhen` em diagnostic_format
+# (Passo 116, ADR-0048). L4 não pode criar tipos (regra V12) — o enum
+# vive em L3 para ser reutilizável por L4 via clap derive directo.
+clap       = { workspace = true }
 ttf-parser  = { workspace = true }  # ADR-0019 — parsing de fontes
 rustybuzz   = { workspace = true }  # ADR-0019 — shaping de texto
 time        = { workspace = true }  # ADR-0021 — today() em SystemWorld
