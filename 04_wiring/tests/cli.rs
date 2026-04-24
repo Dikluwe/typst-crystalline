@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash d6d21da3
+//! @prompt-hash 63faaf24
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -222,6 +222,91 @@ fn cli_output_via_flag_o() {
 
     assert_eq!(result.status.code(), Some(0),
         "exit code esperado 0; stderr:\n{}", stderr);
+    assert!(output.exists(),
+        "PDF deve existir em {}", output.display());
+
+    cleanup(&[&input, &output]);
+}
+
+/// Passo 122 (ADR-0051): `--font-path DIR` flag funciona.
+///
+/// Passa `--font-path` para um directório que existe (temp_dir do
+/// sistema) — sem fontes dentro, mas discover_fonts tolera. Binário
+/// compila sem erro.
+#[test]
+fn cli_font_path_explicito() {
+    let input = temp_typ("fontpath", "Olá");
+    let output = temp_pdf("fontpath_out");
+    let fontdir = env::temp_dir();
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("--font-path")
+        .arg(&fontdir)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(0),
+        "exit code esperado 0; stderr:\n{}", stderr);
+    assert!(output.exists(),
+        "PDF deve existir em {}", output.display());
+
+    cleanup(&[&input, &output]);
+}
+
+/// Passo 122 (ADR-0051): `--font-path` repetível via `ArgAction::Append`.
+#[test]
+fn cli_font_path_repetivel() {
+    let input = temp_typ("fontpath_multi", "Olá");
+    let output = temp_pdf("fontpath_multi_out");
+    let dir1 = env::temp_dir();
+    let dir2 = env::temp_dir();
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("--font-path")
+        .arg(&dir1)
+        .arg("--font-path")
+        .arg(&dir2)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(0),
+        "exit code esperado 0; stderr:\n{}", stderr);
+    assert!(output.exists(),
+        "PDF deve existir em {}", output.display());
+
+    cleanup(&[&input, &output]);
+}
+
+/// Passo 122 (ADR-0051): path inválido em `--font-path` é silent-skip
+/// pela função L3 `discover_fonts` — binário não falha.
+#[test]
+fn cli_font_path_inexistente_nao_falha() {
+    let input = temp_typ("fp_invalid", "Olá");
+    let output = temp_pdf("fp_invalid_out");
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("--font-path")
+        .arg("/path/que/nao/existe/xyz")
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(0),
+        "exit code esperado 0 (silent skip); stderr:\n{}", stderr);
     assert!(output.exists(),
         "PDF deve existir em {}", output.display());
 

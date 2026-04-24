@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: fc3f1808
+Hash do Código: 22d2d690
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -16,6 +16,9 @@ derivado — primeira flag funcional.
 Passo 121 (ADR-0051) adicionou flag `--root DIR` com fallback
 `input.parent() → "."` — segunda flag funcional aplicando o mesmo
 pattern.
+Passo 122 (ADR-0051) adicionou flag `--font-path DIR` (repetível
+via `ArgAction::Append`) com passagem directa `Vec<PathBuf>` para
+L4 — terceira flag; fecha o preview original da ADR-0051.
 
 ## Contrato
 
@@ -37,6 +40,7 @@ pub struct RunIntent {
     pub input: PathBuf,
     pub output: PathBuf,
     pub root: PathBuf,
+    pub font_paths: Vec<PathBuf>,
     pub colored: bool,
 }
 ```
@@ -98,6 +102,9 @@ struct Args {
     output_flag: Option<PathBuf>,      // sinónimo via flag
     #[arg(long = "root", value_name = "DIR")]
     root: Option<PathBuf>,             // project root (Passo 121)
+    #[arg(long = "font-path", value_name = "DIR",
+          action = clap::ArgAction::Append)]
+    font_paths: Vec<PathBuf>,          // repetível (Passo 122)
     #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
     color: ColorWhen,
 }
@@ -136,7 +143,19 @@ Help mostra `-o, --output`.
 
 ## Evolução
 
-Futuros flags (`--font-path`, `--format`, subcomandos) entram
-**aqui** — não em L3 nem L4. `RunIntent` ganha campos conforme
-necessário. Padrão estabelecido pelos Passos 117, 120 e 121
-(ADR-0051).
+O preview original de ADR-0051 fica fechado no Passo 122 (-o,
+--root, --font-path). Futuros flags (`--format`, `--ignore-system-fonts`,
+env vars, subcomandos) entram **aqui** — não em L3 nem L4.
+`RunIntent` ganha campos conforme necessário. Padrão estabelecido
+pelos Passos 117, 120, 121 e 122 (ADR-0051).
+
+## Nota sobre `font_paths` (Passo 122)
+
+- **`ArgAction::Append`** (não `value_delimiter`): divergência
+  deliberada vs vanilla (que usa `:`/`;` separador). UX moderna:
+  `--font-path /a --font-path /b`. Documentado em `--help`.
+- **Passagem directa** para L4 sem helper `resolve_font_paths_with`:
+  lógica é `args.font_paths` move. P6 de ADR-0051 é sobre
+  testabilidade; passagem directa não precisa de helper.
+- **I/O em L3**: L2 não descobre fontes. `discover_fonts(&paths)`
+  vive em `typst_infra::fonts`; L4 compõe.
