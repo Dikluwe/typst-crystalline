@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash 167b28fd
+//! @prompt-hash 95774a12
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -13,8 +13,7 @@
 
 use std::sync::Arc;
 
-use ecow::EcoString;
-
+use crate::entities::lang::Lang;
 use crate::entities::layout_types::{Pt, TextStyle};
 use crate::entities::style::{Style, Styles};
 
@@ -49,10 +48,12 @@ pub struct StyleDelta {
     /// por conveniência temporária — migra para `eval_set_par` quando
     /// este for activado. Inerte em layout.
     pub leading: Option<crate::entities::layout_types::Length>,
-    /// Código de língua (Passo 130, DEBT-1 subset). BCP 47 como raw
-    /// string — vanilla usa tipo `Lang` com validação; cristalino
-    /// captura sem validar, consumer futuro normaliza. Inerte em layout.
-    pub lang: Option<EcoString>,
+    /// Identificador de língua (ISO 639-1/2/3). `None` = herdado.
+    /// Capturado inicialmente como `EcoString` raw no Passo 130;
+    /// materializado como tipo semântico `Lang` no Passo 131B
+    /// (ADR-0052) com validação e erro hard — paridade ADR-0033.
+    /// Inerte em layout (consumer futuro: shaping, hyphenation).
+    pub lang: Option<Lang>,
 }
 
 impl StyleDelta {

@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: 2e160811
+Hash do Código: 51188f9c
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -25,7 +25,7 @@ pub struct StyleDelta {
     pub weight:   Option<u16>,      // Passo 126 (DEBT-1 subset) — inerte
     pub tracking: Option<Length>,   // Passo 127 (DEBT-1 subset) — inerte; preserva abs+em
     pub leading:  Option<Length>,   // Passo 128 (DEBT-1 subset) — capturado em text; migra p/ par quando activado
-    pub lang:     Option<EcoString>, // Passo 130 (DEBT-1 subset) — BCP 47 raw, sem validação
+    pub lang:     Option<Lang>,     // Passo 131B (ADR-0052) — tipo semântico com validação e erro hard
 }
 
 pub struct StyleChain(Option<Arc<StyleNode>>);

@@ -9,6 +9,8 @@
 
 use std::sync::Arc;
 
+use std::str::FromStr;
+
 use crate::entities::args::Args;
 use crate::entities::ast::AstNode;
 use crate::entities::ast::code::{SetRule, ShowRule as ShowRuleNode};
@@ -16,6 +18,7 @@ use crate::entities::ast::expr::Arg;
 use crate::entities::content::Content;
 use crate::entities::engine::Engine;
 use crate::entities::font_book::FontWeight;
+use crate::entities::lang::Lang;
 use crate::entities::show::{NodeKind, Selector, ShowRule};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
@@ -332,12 +335,21 @@ pub(super) fn eval_set_rule(
                     }
                 }
                 "lang" => {
-                    // Passo 130 (DEBT-1 subset): captura código BCP 47 raw
-                    // como `EcoString`. Sem validação — vanilla tem tipo
-                    // `Lang` dedicado; cristalino captura e defere
-                    // normalização para consumer futuro. Inerte em layout.
+                    // Passo 130 → 131B (ADR-0052): `lang` migrado de
+                    // `EcoString` raw para tipo semântico `Lang` com
+                    // validação e erro hard em inválido (paridade
+                    // ADR-0033). Primeiro arm em `eval_set_rule` a
+                    // emitir `Err` dentro do loop de argumentos.
                     if let Value::Str(s) = val {
-                        delta.lang = Some(s);
+                        match Lang::from_str(&s) {
+                            Ok(lang) => delta.lang = Some(lang),
+                            Err(msg) => {
+                                return Err(vec![SourceDiagnostic::error(
+                                    named.expr().span(),
+                                    msg.to_string(),
+                                )]);
+                            }
+                        }
                     }
                 }
                 _ => {

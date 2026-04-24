@@ -290,3 +290,25 @@ cristalino também não (teste assertions confirmam
 case-sensitive e alias-free).
 
 **Canary DEBT-50 preservado**: quarta iteração consecutiva.
+
+---
+
+### Nota Passo 131B — `lang` não segue pattern DEBT-1 XS
+
+**Data**: 2026-04-24. Refactor por paridade ADR-0033.
+
+Campo `StyleDelta.lang` foi materializado como `Option<Lang>`
+(tipo semântico L1) para obter paridade com vanilla. Arm
+`"lang"` em `eval_set_text` valida via `Lang::from_str` e emite
+`Err` hard em inválido (`SourceResult::Err` aborta
+`eval_set_rule`).
+
+Esta mudança **não é variante do pattern DEBT-1 XS**
+(documentado nas notas Passos 126/127/129) — é refactor por
+razões de paridade. Ver **ADR-0052** para contexto
+arquitectural completo + diagnóstico 131A.
+
+Futuras propriedades com necessidade análoga de paridade
+semântica (validação + erro hard) seguem padrão do 131B:
+diagnóstico obrigatório (ADR-0034) → ADR dedicada →
+materialização. Não agregar neste ADR-0038.
