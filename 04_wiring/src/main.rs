@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash c664c9b2
+//! @prompt-hash d6d21da3
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -18,13 +18,15 @@
 //! - Passo 117 (ADR-0049): CLI movida para L2; L4 é composição pura.
 //! - Passo 119 (ADR-0050): formatter completamente em L2; drain
 //!   inline em L4 (helper local `drain_to_stderr`).
+//! - Passo 121 (ADR-0051): `--root` resolvido em L2; L4 apenas consome
+//!   `intent.root` — sem cálculo local de parent.
 //!
 //! Exit codes:
 //! - 0: sucesso.
 //! - 1: erro de compilação (eval).
 //! - 2: erro de I/O ou argumentos (clap, via L2).
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process::ExitCode;
 
 use typst_core::contracts::world::World;
@@ -36,13 +38,7 @@ use typst_shell::cli::{self, RunIntent};
 use typst_shell::diagnostic::format_diagnostic;
 
 fn main() -> ExitCode {
-    let RunIntent { input, output, colored } = cli::parse();
-
-    let root = input
-        .parent()
-        .filter(|p| !p.as_os_str().is_empty())
-        .map(Path::to_path_buf)
-        .unwrap_or_else(|| PathBuf::from("."));
+    let RunIntent { input, output, root, colored } = cli::parse();
 
     let main_path = match input.file_name() {
         Some(name) => PathBuf::from(name),

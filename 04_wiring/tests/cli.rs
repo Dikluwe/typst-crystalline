@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash c664c9b2
+//! @prompt-hash d6d21da3
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -222,6 +222,38 @@ fn cli_output_via_flag_o() {
 
     assert_eq!(result.status.code(), Some(0),
         "exit code esperado 0; stderr:\n{}", stderr);
+    assert!(output.exists(),
+        "PDF deve existir em {}", output.display());
+
+    cleanup(&[&input, &output]);
+}
+
+/// Passo 121 (ADR-0051): `--root DIR` flag funciona.
+///
+/// Estratégia: passar `--root <parent(input)>` explicitamente e
+/// apenas o file_name como input. SystemWorld resolve main como
+/// `root.join(file_name)`. `-o` path absoluto para evitar default
+/// derivado cair no directório do file_name.
+#[test]
+fn cli_root_explicito() {
+    let input = temp_typ("root_explicit", "= Root test\n\nOk.");
+    let root = input.parent().expect("tempdir tem parent").to_path_buf();
+    let file_name = input.file_name().expect("temp_typ cria file_name").to_os_string();
+    let output = temp_pdf("root_explicit_out");
+
+    let result = Command::new(BIN)
+        .arg(&file_name)
+        .arg("--root")
+        .arg(&root)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(0),
+        "exit code esperado 0 com --root explícito; stderr:\n{}", stderr);
     assert!(output.exists(),
         "PDF deve existir em {}", output.display());
 

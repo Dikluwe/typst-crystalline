@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash eb1d1de8
+//! @prompt-hash 230eff87
 //! @layer L2
 //! @updated 2026-04-23
 //!
@@ -19,7 +19,7 @@
 //!   função pura (decisão de precedência flag > NO_COLOR > isatty).
 
 use std::io::IsTerminal;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use clap::Parser;
 
@@ -42,6 +42,7 @@ pub enum ColorWhen {
 // Passo 117 (ADR-0049): `Args` vive em L2.
 // Passo 120 (ADR-0051): `output` opcional + `-o/--output` sinónimo
 // + default derivado (`input.with_extension("pdf")`).
+// Passo 121 (ADR-0051): + `--root DIR` (fallback para input.parent()).
 #[derive(Parser, Debug)]
 #[command(
     name = "typst",
@@ -61,6 +62,12 @@ struct Args {
     #[arg(short = 'o', long = "output", value_name = "FILE")]
     output_flag: Option<PathBuf>,
 
+    /// Project root directory. Used to locate the main file and
+    /// (in future) virtualize imports. Defaults to the parent
+    /// directory of `input`, or `.` if input has no parent.
+    #[arg(long = "root", value_name = "DIR")]
+    root: Option<PathBuf>,
+
     /// When to use coloured diagnostics.
     #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
     color: ColorWhen,
@@ -74,6 +81,7 @@ struct Args {
 pub struct RunIntent {
     pub input: PathBuf,
     pub output: PathBuf,
+    pub root: PathBuf,
     pub colored: bool,
 }
 
@@ -81,14 +89,16 @@ pub struct RunIntent {
 ///
 /// Em erro de argumentos, `Args::parse()` (clap) imprime mensagem
 /// em stderr e termina o processo com exit 2. Em sucesso, devolve
-/// `RunIntent` com `output` + `colored` já resolvidos.
+/// `RunIntent` com `output`, `root` e `colored` já resolvidos.
 pub fn parse() -> RunIntent {
     let args = Args::parse();
     let colored = resolve_colored(&args.color);
     let output = resolve_output_with(&args.input, args.output.as_ref(), args.output_flag.as_ref());
+    let root = resolve_root_with(args.root.as_ref(), &args.input);
     RunIntent {
         input: args.input,
         output,
+        root,
         colored,
     }
 }
@@ -108,6 +118,28 @@ pub fn resolve_output_with(
         .cloned()
         .or_else(|| output.cloned())
         .unwrap_or_else(|| input.with_extension("pdf"))
+}
+
+/// Decisão pura de resolução do root directory (Passo 121, ADR-0051).
+///
+/// Ordem de precedência (alinhada com vanilla typst-cli):
+/// 1. `--root` flag explícita vence.
+/// 2. `input.parent()` se não vazio.
+/// 3. Default `"."` (cwd).
+///
+/// Função pura — não verifica se o path existe (I/O é L3/L4).
+pub fn resolve_root_with(
+    root: Option<&PathBuf>,
+    input: &Path,
+) -> PathBuf {
+    root.cloned()
+        .or_else(|| {
+            input
+                .parent()
+                .map(Path::to_path_buf)
+                .filter(|p| !p.as_os_str().is_empty())
+        })
+        .unwrap_or_else(|| PathBuf::from("."))
 }
 
 /// Wrapper em torno de `resolve_colored_with` que lê env e tty.
@@ -227,5 +259,31 @@ mod tests {
         let input = PathBuf::from("noext");
         let out = resolve_output_with(&input, None, None);
         assert_eq!(out, PathBuf::from("noext.pdf"));
+    }
+
+    // ── resolve_root_with (pura — Passo 121, ADR-0051) ─────────────────
+
+    #[test]
+    fn resolve_root_flag_vence_parent() {
+        let input = PathBuf::from("/tmp/sub/file.typ");
+        let flag = PathBuf::from("/custom/root");
+        let out = resolve_root_with(Some(&flag), &input);
+        assert_eq!(out, PathBuf::from("/custom/root"));
+    }
+
+    #[test]
+    fn resolve_root_sem_flag_usa_parent_do_input() {
+        let input = PathBuf::from("/tmp/sub/file.typ");
+        let out = resolve_root_with(None, &input);
+        assert_eq!(out, PathBuf::from("/tmp/sub"));
+    }
+
+    #[test]
+    fn resolve_root_sem_flag_e_sem_parent_usa_dot() {
+        // Input sem directório — `Path::parent()` devolve `Some("")`.
+        // Filter rejeita vazio; fallback é `.`.
+        let input = PathBuf::from("file.typ");
+        let out = resolve_root_with(None, &input);
+        assert_eq!(out, PathBuf::from("."));
     }
 }
