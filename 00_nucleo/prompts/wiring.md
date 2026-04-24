@@ -6,13 +6,18 @@ Hash do Código: fd812420
 
 ## Propósito
 
-CLI mínima do compilador cristalino (Passo 113, ADR-0046;
-argparsing migrado para `clap` no Passo 115, ADR-0047;
-cores ANSI no Passo 116, ADR-0048).
+**Composição pura** do compilador cristalino. L4 consome `RunIntent`
+de L2 (`typst_shell::cli::parse()`) e orquestra o pipeline L3.
+
+Passos relevantes:
+- **Passo 113** (ADR-0046): CLI mínima.
+- **Passo 115** (ADR-0047): `clap` argparsing.
+- **Passo 116** (ADR-0048): cores ANSI.
+- **Passo 117** (ADR-0049): CLI movida para L2; L4 é composição pura.
 
 ## Contrato
 
-### Uso
+### Uso (inalterado desde Passo 116)
 
 ```bash
 typst <INPUT> <OUTPUT> [--color=auto|always|never]
@@ -20,94 +25,57 @@ typst --help
 typst --version
 ```
 
-Positional. 2 argumentos obrigatórios. `--help`, `--version` e
-`--color` via `clap` derive.
-
 ### Pipeline
 
-1. `Args::parse()` (clap) → `(input, output, color)` ou imprime
-   erro e sai (exit 2).
-2. `colored = resolve_colored(&args.color)` — decisão via
-   função pura (flag > `NO_COLOR` > isatty).
-3. `root = input.parent()`, `main_path = input.file_name()`.
-4. `SystemWorld::new(root, main_path)` → `World`. Falha → exit 2.
-5. `world.source(world.main())` → `Source`.
-6. `compile_to_pdf_bytes(&world, &source)` (L3):
+1. `typst_shell::cli::parse()` → `RunIntent { input, output, colored }`.
+2. `root = input.parent()`, `main_path = input.file_name()`.
+3. `SystemWorld::new(root, main_path)` → `World`. Falha → exit 2.
+4. `world.source(world.main())` → `Source`.
+5. `compile_to_pdf_bytes(&world, &source)` (L3):
    - `eval` → `Module` + warnings.
    - `introspect` → `CounterState`.
    - `layout` → `PagedDocument`.
    - `export_pdf` → `Vec<u8>`.
-7. `drain_diagnostics_to_stderr(&warnings, &source, path, colored)`
-   (ADR-0045, cores ADR-0048). Warnings primeiro (convenção
-   gcc/clang).
-8. Em sucesso: `fs::write(output, pdf_bytes)`. Exit 0.
-9. Em erro de eval: `drain_diagnostics_to_stderr(&errors, ..., colored)`.
-   Exit 1.
+6. `drain_diagnostics_to_stderr(&warnings, &source, path, colored)`
+   — propaga `colored` do RunIntent.
+7. Em sucesso: `fs::write(output, pdf_bytes)`. Exit 0.
+8. Em erro de eval: drena errors com mesmo `colored`. Exit 1.
 
 ### Exit codes
 
 - **0** — sucesso (PDF escrito).
 - **1** — erro de compilação (eval gerou errors).
-- **2** — argumentos inválidos (clap decide mensagem e exit) ou
-  erro de I/O (`SystemWorld::new`, `fs::write`).
+- **2** — argumentos inválidos (via clap em L2) ou erro de I/O.
 
-### Diagnósticos (stderr)
+### Diagnósticos
 
-Formato gcc/clang via ADR-0045 + cores ADR-0048:
+Formato gcc/clang (ADR-0045); cores ANSI (ADR-0048) via `colored`
+do `RunIntent`. Tudo em stderr; stdout nunca usado.
 
-```text
-input.typ:3:11: warning: text: propriedade 'font' ainda não suportada
-  hint: ver ADR-0040 para propriedades cobertas por set text
-```
+## Separação de camadas (ADR-0049)
 
-Com `colored = true`: path em dim, severity em
-vermelho/amarelo bold, message em bold, hint em ciano bold.
+- **L2** (`02_shell`): `clap`, `Args`, `ColorWhen`, `resolve_colored_with`,
+  `RunIntent`, `parse()`.
+- **L3** (`03_infra`): `format_diagnostic(colored: bool)`,
+  `drain_diagnostics_to_stderr`, pipeline.
+- **L4** (`04_wiring`): `main()` **thin** (~75 linhas incluindo
+  header + tratamento de erros I/O). Zero deps directas em `clap`;
+  cria tipos? Não — só `PathBuf` locais.
 
-Mensagens de args errados (clap) também em stderr. Nenhum output
-em stdout.
+### Guardas
 
-### `--color`
-
-```
---color=auto    (default) Cores se stderr é terminal e NO_COLOR ausente.
---color=always  Cores sempre activas (mesmo em pipe).
---color=never   Cores sempre desactivadas.
-```
-
-Ordem de precedência:
-1. Flag explícita vence tudo.
-2. `NO_COLOR` env var (quando flag é `Auto`) desactiva.
-3. `isatty(stderr)` (quando flag é `Auto` e `NO_COLOR` ausente)
-   decide.
-
-Lógica em `resolve_colored_with(choice, no_color_present, is_tty)`
-— função pura testável.
+- **V12 do linter**: L4 não cria tipos. Satisfeito — nenhum struct,
+  enum ou trait definido em `main.rs`.
+- **`clap` não importado em L4**: `use clap::Parser` **não** aparece.
+  Se aparecer em passo futuro, é sinal de que lógica escapou para
+  cá e deve migrar para L2.
 
 ## Escopo futuro
 
-Explicitamente fora dos passos 113–116:
+Fora dos passos 113–117:
 
-- Subcomandos (`watch`, `query`, `init`, `eval`, `fonts`, …).
-- Flags funcionais (`--root`, `--font-path`, `--format`,
-  `-o/--output`, `-` stdin/stdout, `--verbose`, `--quiet`).
-- JSON / SARIF diagnostics.
+- Subcomandos (entram em L2).
+- Flags funcionais (`--root`, `--font-path`, `-o`, etc.) — entram
+  em `Args` de L2, reflectem em `RunIntent`.
+- JSON / SARIF — formatters em L3 ou L2.
 - Outros exports (PNG, SVG, HTML).
-- `sys.inputs`.
-- Paleta ANSI customizável ou themes.
-- Windows legacy ANSI compatibility.
-
-## Argparsing — `clap` derive (Passo 115, ADR-0047)
-
-```rust
-#[derive(Parser, Debug)]
-#[command(name = "typst", version, about = "Typst compiler (crystalline)")]
-struct Args {
-    input:  PathBuf,
-    output: PathBuf,
-    #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
-    color:  ColorWhen,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
-enum ColorWhen { Auto, Always, Never }
-```

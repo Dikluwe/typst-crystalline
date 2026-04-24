@@ -1,10 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/diagnostic_format.md
-//! @prompt-hash 38db9eb0
+//! @prompt-hash 4f63b661
 //! @layer L3
 //! @updated 2026-04-23
 //!
-//! Formato rico de diagnósticos (ADR-0045, Passo 111).
+//! Formato rico de diagnósticos (ADR-0045, Passo 111; cores ADR-0048,
+//! Passo 116).
 //!
 //! Produz saída gcc/clang-compatível:
 //!
@@ -14,11 +15,14 @@
 //!   hint: hint 2
 //! ```
 //!
-//! Passo 116 (ADR-0048): ganho parâmetro `colored: bool`. Quando
-//! `true`, aplica escapes ANSI (vermelho/amarelo bold para
-//! severity, dim para path, bold para message, ciano bold para
-//! hint). A decisão de quando colorir é delegada a L4
-//! (`resolve_colored` com precedência flag > NO_COLOR > isatty).
+//! Parâmetro `colored: bool`: quando `true`, aplica escapes ANSI
+//! (vermelho/amarelo bold para severity, dim para path, bold para
+//! message, ciano bold para hint). A decisão de quando colorir
+//! é delegada a L2 (`typst_shell::cli::resolve_colored_with` — ADR-0049).
+//!
+//! Passo 117 (ADR-0049) removeu `ColorWhen`, `resolve_colored_with`
+//! e testes relacionados deste módulo para L2. Razão: L3 é I/O puro,
+//! não conhece argparsing nem env vars.
 
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::{Severity, SourceDiagnostic};
@@ -31,45 +35,6 @@ const ANSI_CYAN_BOLD:   &str = "\x1b[1;36m";
 const ANSI_DIM:         &str = "\x1b[2m";
 const ANSI_BOLD:        &str = "\x1b[1m";
 const ANSI_RESET:       &str = "\x1b[0m";
-
-// ── Controlo de coloração (Passo 116, ADR-0048) ──────────────────────────
-
-/// Modo de coloração para diagnostics. Exposto por L3 (e não por L4)
-/// porque L4 compõe mas não cria tipos (regra V12 do linter); L4
-/// importa directamente via `typst_infra::diagnostic_format::ColorWhen`.
-///
-/// `clap::ValueEnum` derive permite consumo directo com
-/// `#[arg(value_enum, default_value_t = ColorWhen::Auto)]` em L4.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
-pub enum ColorWhen {
-    /// Cores activas se stderr é terminal e `NO_COLOR` ausente.
-    Auto,
-    /// Cores sempre activas, mesmo em pipe.
-    Always,
-    /// Cores sempre desactivadas.
-    Never,
-}
-
-/// Decisão pura de coloração — testável sem env mutation (ADR-0048).
-///
-/// Ordem de precedência:
-/// 1. Flag explícita (`Always` / `Never`) vence tudo.
-/// 2. Em `Auto`, `NO_COLOR` desactiva.
-/// 3. Em `Auto` sem `NO_COLOR`, decide `is_tty`.
-///
-/// L4 envolve esta função com a leitura real de env e tty — ver
-/// `04_wiring/src/main.rs::resolve_colored`.
-pub fn resolve_colored_with(
-    choice: &ColorWhen,
-    no_color_present: bool,
-    is_tty: bool,
-) -> bool {
-    match choice {
-        ColorWhen::Never  => false,
-        ColorWhen::Always => true,
-        ColorWhen::Auto   => !no_color_present && is_tty,
-    }
-}
 
 /// Formata um `SourceDiagnostic` em texto simples gcc/clang-compatível.
 ///
@@ -255,43 +220,6 @@ mod tests {
         assert!(out.contains("<detached>"), "detached presente; got: {:?}", out);
     }
 
-    // ── resolve_colored_with (pura — Passo 116, ADR-0048) ───────────────
-
-    #[test]
-    fn resolve_colored_never_e_false() {
-        assert_eq!(resolve_colored_with(&ColorWhen::Never, false, false), false);
-        assert_eq!(resolve_colored_with(&ColorWhen::Never, true,  false), false);
-        assert_eq!(resolve_colored_with(&ColorWhen::Never, false, true),  false);
-        assert_eq!(resolve_colored_with(&ColorWhen::Never, true,  true),  false);
-    }
-
-    #[test]
-    fn resolve_colored_always_e_true() {
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, false, false), true);
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, true,  false), true);
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, false, true),  true);
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, true,  true),  true);
-    }
-
-    #[test]
-    fn resolve_colored_auto_sem_tty_e_false() {
-        assert_eq!(resolve_colored_with(&ColorWhen::Auto, false, false), false);
-    }
-
-    #[test]
-    fn resolve_colored_auto_com_tty_e_sem_no_color_e_true() {
-        assert_eq!(resolve_colored_with(&ColorWhen::Auto, false, true), true);
-    }
-
-    #[test]
-    fn resolve_colored_auto_com_no_color_e_false() {
-        assert_eq!(resolve_colored_with(&ColorWhen::Auto, true, true),  false);
-        assert_eq!(resolve_colored_with(&ColorWhen::Auto, true, false), false);
-    }
-
-    #[test]
-    fn resolve_colored_always_vence_no_color() {
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, true, false), true);
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, true, true),  true);
-    }
+    // Testes `resolve_colored_*` movidos para L2
+    // (`02_shell/src/cli.rs`) no Passo 117 (ADR-0049).
 }

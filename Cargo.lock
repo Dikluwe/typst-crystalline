@@ -585,7 +585,6 @@ dependencies = [
 name = "typst-infra"
 version = "0.1.0"
 dependencies = [
- "clap",
  "comemo",
  "flate2",
  "image",
@@ -602,6 +601,7 @@ name = "typst-shell"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "clap",
  "typst-core",
 ]
 
@@ -610,7 +610,6 @@ name = "typst-wiring"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "clap",
  "typst-core",
  "typst-infra",
  "typst-shell",

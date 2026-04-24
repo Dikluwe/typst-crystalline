@@ -10,3 +10,7 @@ repository.workspace = true
 [dependencies]
 typst-core = { path = "../01_core" }
 anyhow     = { workspace = true }
+# clap: argparsing da CLI. L2 é a camada "shell" (interface com
+# utilizador) conforme definição fundacional; clap vive aqui,
+# não em L3 (I/O) nem L4 (composição). ADR-0049, Passo 117.
+clap       = { workspace = true }

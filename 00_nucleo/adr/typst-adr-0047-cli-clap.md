@@ -1,6 +1,9 @@
 # ADR-0047 — Argparsing com `clap` na CLI
 
 **Estado**: EM VIGOR (Passo 115.E, 2026-04-23)
+**Nota Passo 117 (ADR-0049)**: camada corrigida — `clap` consumido
+em L2 (`02_shell/`), não em L4. Decisões funcionais deste ADR
+(clap 4, derive, version automático) mantêm-se.
 **Data**: 2026-04-23
 **Autor**: Passo 115
 **Revoga**: nenhuma.
