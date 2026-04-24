@@ -1193,8 +1193,10 @@ mod tests {
 
     #[test]
     fn eval_set_target_desconhecido_ignora() {
-        // #set par() não está implementado — deve ser ignorado, não dar Err
-        let world = MockWorld::new("#set par(leading: 1em)");
+        // Passo 133: `par` passou a ser known target; input migra
+        // para `list` (continua unknown) — o teste asserta que
+        // `#set target_desconhecido(...)` não dá Err.
+        let world = MockWorld::new("#set list(indent: 1em)");
         let src = World::source(&world, World::main(&world)).unwrap();
         let result = eval_for_test(&world, &src);
         assert!(result.is_ok(), "set target desconhecido deve ser ignorado: {:?}", result);
@@ -1304,13 +1306,13 @@ mod tests {
         );
     }
 
-    /// Passo 128 — verifica que `#set par(leading: ...)` ainda emite
-    /// warning de **target** desconhecido. Documenta que divergência
-    /// vanilla é temporária: sintaxe canónica ainda não é suportada
-    /// directamente, mas `#set text(leading: ...)` é aceite como
-    /// atalho inerte.
+    /// Passo 133 (**INVERTIDO** de `eval_set_par_leading_ainda_emite_warning_target_passo_128`):
+    /// `par` passou a ser known target em `eval_set_rule`. Sem arms
+    /// concretos ainda (134 adiciona `leading`), todas as propriedades
+    /// caem no fallback e emitem warning de **propriedade** (não de
+    /// target). Documentação executável do estado pós-133.
     #[test]
-    fn eval_set_par_leading_ainda_emite_warning_target_passo_128() {
+    fn eval_set_par_known_target_sem_arms_passo_133() {
         use comemo::Track;
         let world = MockWorld::new("#set par(leading: 10pt)");
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -1324,10 +1326,18 @@ mod tests {
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
+        // Warning é sobre PROPRIEDADE 'leading', não sobre target 'par'.
         assert!(
-            diags.iter().any(|d| d.message.contains("'par'")
-                                && d.message.contains("target")),
-            "target par deve emitir warning; diagnostics: {:?}", diags);
+            diags.iter().any(|d|
+                d.message.contains("par:") && d.message.contains("'leading'")
+            ),
+            "par deve emitir warning de propriedade leading; diagnostics: {:?}",
+            diags);
+        // `par` NÃO deve aparecer como target não suportado.
+        assert!(
+            diags.iter().all(|d| !d.message.contains("target 'par'")),
+            "par não deve aparecer como target unknown; diagnostics: {:?}",
+            diags);
     }
 
     /// Passo 129 (DEBT-1 subset): 9 nomes simbólicos canónicos
