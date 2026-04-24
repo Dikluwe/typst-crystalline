@@ -41,10 +41,11 @@ fn unsupported_property_warn(target: &str, field: &str) -> (String, String) {
 }
 
 /// Helper para warning de `#set` com target desconhecido (Passo 107).
+/// Lista actualizada em Passo 133 para incluir `par` (activado).
 fn unsupported_target_warn(target: &str) -> (String, String) {
     (
         format!("set: target '{target}' ainda não suportado"),
-        "targets suportados: heading, page, figure, text".to_string(),
+        "targets suportados: heading, page, figure, text, par".to_string(),
     )
 }
 
@@ -265,6 +266,27 @@ pub(super) fn eval_set_rule(
         return Ok(Value::Content(Content::SetFigureNumbering {
             pattern: new_numbering.unwrap_or_default(),
         }));
+    }
+
+    if target == "par" {
+        // Passo 133: target `par` activado sem arms concretos.
+        // Propriedades de `#set par(...)` caem no fallback e emitem
+        // warning de propriedade (em vez de warning de target). Arms
+        // são adicionados em passos seguintes — 134 migra `leading`
+        // de `text` para `par`; outros (justify, first-line-indent,
+        // etc.) entram on-demand.
+        for arg in set.args().items() {
+            if let Arg::Named(named) = arg {
+                let key = named.name().as_str().to_owned();
+                let (msg, hint) = unsupported_property_warn("par", &key);
+                engine.sink.warn_note(
+                    named.name().to_untyped().span(),
+                    &msg,
+                    &hint,
+                );
+            }
+        }
+        return Ok(Value::None);
     }
 
     if target != "text" {
