@@ -294,6 +294,18 @@ pub(super) fn eval_set_rule(
                         delta.fill = Some(c);
                     }
                 }
+                "weight" => {
+                    // Passo 126 (ADR-0038 anotada, DEBT-1 subset): captura
+                    // raw `u16` de `#set text(weight: N)`. Tipo errado ou
+                    // fora do range `u16` é silenciosamente ignorado
+                    // (mesmo padrão dos outros arms). Inerte em layout —
+                    // consumo é trabalho futuro.
+                    if let Value::Int(n) = val {
+                        if let Ok(w) = u16::try_from(n) {
+                            delta.weight = Some(w);
+                        }
+                    }
+                }
                 _ => {
                     // Passo 107 (encerra DEBT-49): propriedades não suportadas
                     // de `#set text(...)` emitem warning via Sink em vez de

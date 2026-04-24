@@ -185,3 +185,38 @@ em 99.E.
 - `00_nucleo/materialization/typst-passo-99.md`
 - `lab/typst-original/crates/typst-library/src/foundations/styles.rs` —
   referência para a regra top-wins (`StyleChain::get`).
+
+---
+
+### Nota Passo 126 — `weight` como primeira propriedade numérica
+
+**Data**: 2026-04-24. DEBT-1 subset pago.
+
+`StyleDelta.weight: Option<u16>` adicionado para capturar
+`#set text(weight: 700)` sem warning.
+
+**Pattern estabelecido**: propriedades de `text` podem ser
+adicionadas uma a uma como `Option<T>` em `StyleDelta`, com
+captura em `eval_set_text`. Não exige materialização de tipos
+Font/Lang/Par adjacentes, nem entrada no enum `Style` (bake-in
+usa `StyleChain::push(delta)`, não `push_styles(&Styles)`).
+
+**Forma simbólica** (`"bold"`, `"regular"`, mapeamento para
+números do OpenType) fica para passo dedicado. Este passo
+cobre só `weight: 700` numérico.
+
+**Efeito de layout**: **nenhum**. `StyleDelta.weight` é
+capturado mas inerte. Pipeline de layout hoje não consome
+weight (sem selecção de variante de fonte, sem faux-bold).
+Primeira aplicação que consumir `weight` materializa o path
+pertinente (resolver em `StyleChain`, exposição via
+`TextStyle`, consumer em `layout` ou `export`).
+
+**Canary DEBT-50 preservado**: `#set text(font: "X")` continua
+a emitir warning. Teste `eval_set_text_font_canary_passo_126`
+garante.
+
+**Range**: aceita qualquer `u16` (cast silencioso de `Value::Int`
+via `u16::try_from`). CSS/OpenType definem 0-1000 mas validação
+fica para o consumer. Out-of-range é silenciosamente ignorado
+(coerente com outros arms de tipo errado).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash 4f9f20b5
+//! @prompt-hash f8528894
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -22,6 +22,9 @@ use crate::entities::style::{Style, Styles};
 /// Passo 99 (ADR-0038): adicionados `fill` e `heading_level` para suportar
 /// as variantes forward-compat do enum `Style`. Os accessors antigos
 /// (`bold()`, `italic()`, `size()`) continuam a ignorar estes campos.
+/// Passo 126 (ADR-0038 anotada): `weight` adicionado como primeira
+/// propriedade numérica; capturado por `#set text(weight: N)` mas
+/// ainda não consumido por layout (inerte).
 #[derive(Debug, Clone, PartialEq)]
 pub struct StyleDelta {
     pub bold:   Option<bool>,
@@ -32,6 +35,9 @@ pub struct StyleDelta {
     /// Nível de heading quando aplicado via `#set heading(level: N)` futuro
     /// (Passo 99, ADR-0038, forward-compat).
     pub heading_level: Option<u8>,
+    /// Peso da fonte (Passo 126, ADR-0038). Valor raw `u16` (CSS/OpenType
+    /// 0-1000). Capturado pelo eval mas ainda inerte em layout.
+    pub weight: Option<u16>,
 }
 
 impl StyleDelta {
@@ -39,6 +45,7 @@ impl StyleDelta {
         Self {
             bold: None, italic: None, size: None,
             fill: None, heading_level: None,
+            weight: None,
         }
     }
 }
