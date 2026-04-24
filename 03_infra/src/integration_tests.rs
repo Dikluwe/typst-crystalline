@@ -62,10 +62,10 @@ mod integration {
 
     // Helpers promovidos para API pública em 03_infra (Passo 113, ADR-0046):
     //   `pipeline::eval_to_module_with_sink`
-    //   `diagnostic_format::{format_diagnostic, drain_diagnostics_to_stderr}`
-    // Os testes abaixo consomem directamente as versões `pub`.
+    // Formatter migrou para L2 no Passo 119 (ADR-0050); L3 já não
+    // importa nem testa `format_diagnostic` — testes unit em
+    // `typst_shell::diagnostic` cobrem esse caminho.
     use crate::pipeline::eval_to_module_with_sink as do_eval_with_sink;
-    use crate::diagnostic_format::format_diagnostic;
 
     /// Wrapper fino sobre `eval_to_module_with_sink` para testes que só
     /// precisam do `SourceResult<Module>`, descartando warnings.
@@ -2149,20 +2149,8 @@ mod integration {
             warnings);
     }
 
-    /// Teste de formato: confirma que `format_diagnostic` produz a string
-    /// gcc/clang esperada (Passo 111, ADR-0045 — substitui formato mínimo).
-    #[test]
-    fn sink_canal_formato_minimo() {
-        use typst_core::entities::source_result::SourceDiagnostic;
-        use typst_core::entities::span::Span;
-
-        let src = Source::detached("exemplo\n");
-        let diag = SourceDiagnostic::warning(Span::detached(), "exemplo de warning");
-
-        let out = format_diagnostic(&diag, &src, "input.typ", false);
-        // Detached span → formato com `<detached>` na posição.
-        assert_eq!(out, "input.typ:<detached>: warning: exemplo de warning\n");
-    }
+    // `sink_canal_formato_minimo` removido no Passo 119 (ADR-0050):
+    // duplicado literal de `typst_shell::diagnostic::tests::formato_warning_detached_sem_cores`.
 
     /// Teste de dedup end-to-end: o pilot emite para ficheiro vazio. Se
     /// o mesmo ficheiro vazio for processado duas vezes em `eval`s
@@ -2306,101 +2294,11 @@ mod integration {
              dedup real validado em tests unitários de Sink");
     }
 
-    // ── Passo 111 (ADR-0045): formato rico de diagnósticos ─────────────
-
-    /// Warning com hint emitido via DEBT-49 → formatado no padrão
-    /// gcc/clang. Verifica presença de `path:linha:coluna`, `warning:`,
-    /// mensagem e hint indentado.
-    #[test]
-    fn format_diagnostic_warning_com_ficheiro_linha_coluna() {
-        let (world, _dir) = world_from_str(r#"#set text(font: "Arial")"#);
-        let source = world.source(world.main()).unwrap();
-        let (_result, warnings) = do_eval_with_sink(&world, &source);
-        assert_eq!(warnings.len(), 1);
-
-        let out = format_diagnostic(&warnings[0], &source, "input.typ", false);
-
-        // Primeira linha: "input.typ:1:N: warning: <msg>"
-        assert!(out.starts_with("input.typ:1:"),
-            "linha 1 esperada; obteve: {out:?}");
-        assert!(out.contains(": warning: "),
-            "severity 'warning' esperada; obteve: {out:?}");
-        assert!(out.contains("'font'"),
-            "mensagem deve referir 'font'; obteve: {out:?}");
-        // Hint indentado com 2 espaços.
-        assert!(out.contains("\n  hint: "),
-            "hint indentado esperado; obteve: {out:?}");
-        assert!(out.contains("ADR-0040"),
-            "hint deve referir ADR-0040; obteve: {out:?}");
-    }
-
-    /// Warning com múltiplos hints — cada um numa linha própria
-    /// indentada com 2 espaços, ordem preservada.
-    #[test]
-    fn format_diagnostic_com_multiplos_hints() {
-        use typst_core::entities::source_result::SourceDiagnostic;
-        use typst_core::entities::span::Span;
-
-        let src = Source::detached("x");
-        let diag = SourceDiagnostic::warning(Span::detached(), "m")
-            .with_hint("primeiro")
-            .with_hint("segundo");
-
-        let out = format_diagnostic(&diag, &src, "in.typ", false);
-        let lines: Vec<&str> = out.lines().collect();
-        assert_eq!(lines.len(), 3,
-            "1 linha principal + 2 linhas de hints; obteve: {out:?}");
-        assert_eq!(lines[0], "in.typ:<detached>: warning: m");
-        assert_eq!(lines[1], "  hint: primeiro");
-        assert_eq!(lines[2], "  hint: segundo");
-    }
-
-    /// Error vs warning partilham o mesmo formatter — só muda a severity.
-    #[test]
-    fn format_diagnostic_error_uniforme() {
-        use typst_core::entities::source_result::SourceDiagnostic;
-        use typst_core::entities::span::Span;
-
-        let src = Source::detached("x");
-        let err = SourceDiagnostic::error(Span::detached(), "falha");
-        let out = format_diagnostic(&err, &src, "in.typ", false);
-        assert_eq!(out, "in.typ:<detached>: error: falha\n",
-            "error usa 'error:' em vez de 'warning:'");
-    }
-
-    /// Span de ficheiro vazio (Sink pilot do Passo 106) → formato
-    /// `path:<detached>` — o pilot usa `Span::detached()`.
-    #[test]
-    fn format_diagnostic_span_detached_usa_fallback() {
-        let (world, _dir) = world_from_str("");
-        let source = world.source(world.main()).unwrap();
-        let (_result, warnings) = do_eval_with_sink(&world, &source);
-        assert_eq!(warnings.len(), 1);
-
-        let out = format_diagnostic(&warnings[0], &source, "input.typ", false);
-        assert!(out.starts_with("input.typ:<detached>: warning: "),
-            "span detached → fallback `<detached>`; obteve: {out:?}");
-        assert!(out.contains("ficheiro vazio"),
-            "mensagem preservada; obteve: {out:?}");
-    }
-
-    /// Pipeline completo DEBT-49 → formato rico multi-linha no output.
-    #[test]
-    fn format_diagnostic_pipeline_debt49() {
-        let (world, _dir) = world_from_str(r#"#set text(font: "X")"#);
-        let source = world.source(world.main()).unwrap();
-        let (_result, warnings) = do_eval_with_sink(&world, &source);
-        assert_eq!(warnings.len(), 1);
-
-        let out = format_diagnostic(&warnings[0], &source, "input.typ", false);
-        // Verificar estrutura: 2 linhas (principal + 1 hint).
-        let lines: Vec<&str> = out.lines().collect();
-        assert_eq!(lines.len(), 2, "principal + 1 hint; obteve: {out:?}");
-        assert!(lines[0].starts_with("input.typ:1:"),
-            "linha 1 do ficheiro; obteve: {:?}", lines[0]);
-        assert!(lines[0].contains("warning:"),
-            "severity warning; obteve: {:?}", lines[0]);
-        assert!(lines[1].starts_with("  hint: "),
-            "hint indentado; obteve: {:?}", lines[1]);
-    }
+    // ── Passo 119 (ADR-0050) ────────────────────────────────────────────
+    //
+    // 5 testes `format_diagnostic_*` removidos: duplicados das L2 unit
+    // tests (`typst_shell::diagnostic::tests::formato_*`) e dos
+    // `debt49_*` / `sink_canal_*` já existentes que asseveram
+    // `SourceDiagnostic.message` e `.hints` directamente. Cobertura
+    // preservada sem duplicação.
 }

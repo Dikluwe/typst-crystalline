@@ -1,6 +1,11 @@
 # ADR-0049 — CLI vive em L2 (correcção de ADRs 0046/0047/0048)
 
 **Estado**: EM VIGOR (Passo 117.E, 2026-04-23)
+**Nota Passo 119 (ADR-0050)**: migração completada.
+`format_diagnostic` + paleta ANSI movidos para L2
+(`02_shell/src/diagnostic.rs`); `drain_diagnostics_to_stderr`
+eliminado (inline em L4 como helper local). L3 perde
+`diagnostic_format.rs` completamente.
 **Data**: 2026-04-23
 **Autor**: Passo 117
 **Revoga**: nenhuma (correcção parcial, não revogação total).

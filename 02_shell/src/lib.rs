@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell.md
-//! @prompt-hash 400f6755
+//! @prompt-hash 3b6afeab
 //! @layer L2
 //! @updated 2026-04-23
 //!
@@ -10,3 +10,4 @@
 //! em L3 e L4.
 
 pub mod cli;
+pub mod diagnostic;
