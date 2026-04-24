@@ -58,12 +58,32 @@ impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S> {
         // — evita acumular line_height em cascata quando Shape/Image/Heading
         // chamam flush_line por segurança antes do seu próprio push.
         let had_items = !self.current_line.is_empty();
+
+        // Passo 138 (Fase B.2 DEBT-52): consumer leading.
+        // `self.style` pode ter sido restaurado ao outer scope antes de
+        // flush_line ser chamado (ver arm Content::Text em layout/mod.rs
+        // que faz `self.style = prev_style` após layout_word). Em vez
+        // disso, peek no último FrameItem::Text da current_line — o seu
+        // `.style.leading` é o valor efectivo do baseline.
+        //
+        // Fórmula (opt soma): `line_height = default + user_leading`.
+        let line_leading_pt = self.current_line
+            .iter()
+            .rev()
+            .find_map(|item| match item {
+                crate::entities::layout_types::FrameItem::Text { style, .. } => {
+                    style.leading.map(|l| l.resolve_pt(self.font_size_pt.val()))
+                }
+                _ => None,
+            })
+            .unwrap_or(0.0);
+
         for item in self.current_line.drain(..) {
             self.current_items.push(item);
         }
         if had_items {
             let (_, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
-            self.cursor_y += line_height;
+            self.cursor_y += line_height + Pt(line_leading_pt);
         }
         // Reiniciar ao início da linha actual — margem da página, ou cell_x
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).

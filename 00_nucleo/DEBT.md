@@ -663,7 +663,11 @@ Resumo por dificuldade:
       `word_width` acresce `(n-1) × tracking_pt`; export emite
       PDF `Tc` operator. **Primeiro efeito visível** desde
       Passo 102 (fill).
-- [ ] Consumer `leading`.
+- [x] Consumer `leading`. **Resolvido no Passo 138** —
+      `flush_line` soma `leading_pt` ao `line_height` default.
+      Semântica "opt soma" (divergência subtil vanilla
+      documentada). Exporter inalterado — frame carrega y
+      correcto.
 - [ ] Consumer `weight` (faux-bold PDF + selecção variante).
 - [ ] Consumer `font` string (nome via `FontBook::select`).
 - [ ] Consumer `font` array (fallback chain).
