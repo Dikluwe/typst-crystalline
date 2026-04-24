@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: fd072f10
+Hash do Código: 183b0878
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -20,6 +20,9 @@ pub struct StyleDelta {
     pub bold:   Option<bool>,
     pub italic: Option<bool>,
     pub size:   Option<f64>,   // pontos tipográficos
+    pub fill:   Option<Color>, // Passo 99 (ADR-0038)
+    pub heading_level: Option<u8>,  // Passo 99 (ADR-0038) forward-compat
+    pub weight: Option<u16>,   // Passo 126 (DEBT-1 subset) — inerte
 }
 
 pub struct StyleChain(Option<Arc<StyleNode>>);

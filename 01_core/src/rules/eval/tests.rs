@@ -1228,6 +1228,55 @@ mod tests {
         assert!(result.is_ok(), "set text fill falhou: {:?}", result);
     }
 
+    /// Passo 126 (ADR-0038 anotada, DEBT-1 subset): `weight` capturado
+    /// como `u16` sem warning. Helper inline replica `eval_for_test`
+    /// expondo `sink.into_diagnostics()`.
+    #[test]
+    fn eval_set_text_weight_passo_126() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(weight: 700)\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().all(|d| !d.message.contains("'weight'")),
+            "weight não deve emitir warning; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// Passo 126: canary DEBT-50 preservado — `font` ainda emite warning.
+    /// Zero risco de falso-negativo no test L4 `cli_sucesso_com_warning`.
+    #[test]
+    fn eval_set_text_font_canary_passo_126() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(font: \"X\")\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().any(|d| d.message.contains("'font'")),
+            "font ainda deve emitir warning (canary); diagnostics: {:?}",
+            diags
+        );
+    }
+
     // ── Testes de Passo 34 — equações matemáticas ────────────────────────────
 
     #[test]

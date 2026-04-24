@@ -2215,23 +2215,26 @@ mod integration {
     /// Múltiplas propriedades desconhecidas num único `#set text(...)` —
     /// N warnings distintos (uma por propriedade), pois spans + messages
     /// diferem.
+    ///
+    /// Passo 126 (DEBT-1 subset): `weight` passou a ser capturado como
+    /// `u16` — já não emite warning. Lista reduzida para `font` + `lang`.
     #[test]
     fn debt49_set_text_multiplas_propriedades_desconhecidas() {
-        let (world, _dir) = world_from_str(r#"#set text(font: "A", lang: "pt", weight: 700)"#);
+        let (world, _dir) = world_from_str(r#"#set text(font: "A", lang: "pt", stroke: 1pt)"#);
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
         assert_eq!(warnings.len(), 3,
-            "esperado 3 warnings (font, lang, weight); obteve {}: {:?}",
+            "esperado 3 warnings (font, lang, stroke); obteve {}: {:?}",
             warnings.len(),
             warnings.iter().map(|d| &d.message).collect::<Vec<_>>());
         let joined = warnings.iter()
             .map(|d| d.message.clone())
             .collect::<Vec<_>>()
             .join("\n");
-        assert!(joined.contains("'font'"), "faltou 'font': {}", joined);
-        assert!(joined.contains("'lang'"), "faltou 'lang': {}", joined);
-        assert!(joined.contains("'weight'"), "faltou 'weight': {}", joined);
+        assert!(joined.contains("'font'"),   "faltou 'font': {}",   joined);
+        assert!(joined.contains("'lang'"),   "faltou 'lang': {}",   joined);
+        assert!(joined.contains("'stroke'"), "faltou 'stroke': {}", joined);
     }
 
     /// Propriedades suportadas de `#set text(...)` (bold, italic, size,
