@@ -585,6 +585,7 @@ dependencies = [
 name = "typst-infra"
 version = "0.1.0"
 dependencies = [
+ "clap",
  "comemo",
  "flate2",
  "image",

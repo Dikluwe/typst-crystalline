@@ -2159,7 +2159,7 @@ mod integration {
         let src = Source::detached("exemplo\n");
         let diag = SourceDiagnostic::warning(Span::detached(), "exemplo de warning");
 
-        let out = format_diagnostic(&diag, &src, "input.typ");
+        let out = format_diagnostic(&diag, &src, "input.typ", false);
         // Detached span → formato com `<detached>` na posição.
         assert_eq!(out, "input.typ:<detached>: warning: exemplo de warning\n");
     }
@@ -2318,7 +2318,7 @@ mod integration {
         let (_result, warnings) = do_eval_with_sink(&world, &source);
         assert_eq!(warnings.len(), 1);
 
-        let out = format_diagnostic(&warnings[0], &source, "input.typ");
+        let out = format_diagnostic(&warnings[0], &source, "input.typ", false);
 
         // Primeira linha: "input.typ:1:N: warning: <msg>"
         assert!(out.starts_with("input.typ:1:"),
@@ -2346,7 +2346,7 @@ mod integration {
             .with_hint("primeiro")
             .with_hint("segundo");
 
-        let out = format_diagnostic(&diag, &src, "in.typ");
+        let out = format_diagnostic(&diag, &src, "in.typ", false);
         let lines: Vec<&str> = out.lines().collect();
         assert_eq!(lines.len(), 3,
             "1 linha principal + 2 linhas de hints; obteve: {out:?}");
@@ -2363,7 +2363,7 @@ mod integration {
 
         let src = Source::detached("x");
         let err = SourceDiagnostic::error(Span::detached(), "falha");
-        let out = format_diagnostic(&err, &src, "in.typ");
+        let out = format_diagnostic(&err, &src, "in.typ", false);
         assert_eq!(out, "in.typ:<detached>: error: falha\n",
             "error usa 'error:' em vez de 'warning:'");
     }
@@ -2377,7 +2377,7 @@ mod integration {
         let (_result, warnings) = do_eval_with_sink(&world, &source);
         assert_eq!(warnings.len(), 1);
 
-        let out = format_diagnostic(&warnings[0], &source, "input.typ");
+        let out = format_diagnostic(&warnings[0], &source, "input.typ", false);
         assert!(out.starts_with("input.typ:<detached>: warning: "),
             "span detached → fallback `<detached>`; obteve: {out:?}");
         assert!(out.contains("ficheiro vazio"),
@@ -2392,7 +2392,7 @@ mod integration {
         let (_result, warnings) = do_eval_with_sink(&world, &source);
         assert_eq!(warnings.len(), 1);
 
-        let out = format_diagnostic(&warnings[0], &source, "input.typ");
+        let out = format_diagnostic(&warnings[0], &source, "input.typ", false);
         // Verificar estrutura: 2 linhas (principal + 1 hint).
         let lines: Vec<&str> = out.lines().collect();
         assert_eq!(lines.len(), 2, "principal + 1 hint; obteve: {out:?}");

@@ -1,5 +1,5 @@
 # Diagnostic Format — L3 formatter
-Hash do Código: b35dd41e
+Hash do Código: ec37341f
 
 ## Módulo
 `03_infra/src/diagnostic_format.rs`

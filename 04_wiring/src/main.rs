@@ -1,15 +1,16 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash daf27284
+//! @prompt-hash 8bb0c702
 //! @layer L4
 //! @updated 2026-04-23
 //!
 //! CLI mínima do compilador cristalino (Passo 113, ADR-0046;
-//! argparsing migrado para `clap` no Passo 115, ADR-0047).
+//! argparsing migrado para `clap` no Passo 115, ADR-0047;
+//! cores ANSI no Passo 116, ADR-0048).
 //!
 //! Uso:
 //! ```text
-//! typst <INPUT> <OUTPUT>
+//! typst <INPUT> <OUTPUT> [--color=auto|always|never]
 //! typst --help
 //! typst --version
 //! ```
@@ -18,24 +19,30 @@
 //! `introspect` → `layout` → `export_pdf` → escrita de bytes.
 //! Warnings e errors formatados via ADR-0045
 //! (`path:linha:coluna: severity: mensagem`) e emitidos em stderr.
+//! Cores ANSI aplicadas conforme `--color` + `NO_COLOR` + isatty
+//! (ADR-0048).
 //!
 //! Exit codes:
 //! - 0: sucesso (PDF escrito).
 //! - 1: erro de compilação (eval falhou ou gerou errors).
 //! - 2: erro de argumentos (clap) ou I/O.
 
+use std::io::IsTerminal;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use clap::Parser;
 
 use typst_core::contracts::world::World;
-use typst_infra::diagnostic_format::drain_diagnostics_to_stderr;
+use typst_infra::diagnostic_format::{
+    drain_diagnostics_to_stderr, resolve_colored_with, ColorWhen,
+};
 use typst_infra::pipeline::compile_to_pdf_bytes;
 use typst_infra::world::SystemWorld;
 
-// Escopo (a) do Passo 115 — mínimo: positional `input output`.
-// `--help` e `--version` vêm gratuitos do derive.
+// Passo 115 escopo (a): positional `input output`.
+// Passo 116 (ADR-0048): + `--color=auto|always|never`.
+// `ColorWhen` vive em L3 (regra V12: L4 não cria tipos).
 #[derive(Parser, Debug)]
 #[command(
     name = "typst",
@@ -47,12 +54,25 @@ struct Args {
     input: PathBuf,
     /// Output PDF file.
     output: PathBuf,
+    /// When to use coloured diagnostics.
+    #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
+    color: ColorWhen,
+}
+
+/// Wrapper em torno de `resolve_colored_with` (L3) que lê env e tty.
+fn resolve_colored(choice: &ColorWhen) -> bool {
+    resolve_colored_with(
+        choice,
+        std::env::var_os("NO_COLOR").is_some(),
+        std::io::stderr().is_terminal(),
+    )
 }
 
 fn main() -> ExitCode {
     let args = Args::parse();
     let input = args.input;
     let output = args.output;
+    let colored = resolve_colored(&args.color);
 
     // Raiz do projecto: directório do input (ou "." se input é bare).
     let root = input
@@ -92,7 +112,7 @@ fn main() -> ExitCode {
     let (result, warnings) = compile_to_pdf_bytes(&world, &source);
 
     // Warnings primeiro — consistência com convenção gcc/clang.
-    drain_diagnostics_to_stderr(&warnings, &source, &source_path);
+    drain_diagnostics_to_stderr(&warnings, &source, &source_path, colored);
 
     match result {
         Ok(pdf_bytes) => {
@@ -103,8 +123,14 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         Err(errors) => {
-            drain_diagnostics_to_stderr(&errors, &source, &source_path);
+            drain_diagnostics_to_stderr(&errors, &source, &source_path, colored);
             ExitCode::from(1)
         }
     }
 }
+
+// Testes de `resolve_colored_with` vivem em L3
+// (`03_infra/src/diagnostic_format.rs`) porque a função pura vive lá.
+// L4 só compõe leitura real de env/tty — não testado unitariamente
+// (pipe em `cargo test` faz `is_terminal` = false; comportamento
+// observável coberto por `04_wiring/tests/cli.rs`).
