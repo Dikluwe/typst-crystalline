@@ -313,6 +313,91 @@ fn cli_font_path_inexistente_nao_falha() {
     cleanup(&[&input, &output]);
 }
 
+/// Passo 123 (ADR-0051): `TYPST_ROOT` env var preenche `--root`
+/// quando flag não é passada.
+#[test]
+fn cli_env_typst_root() {
+    let input = temp_typ("env_root", "Olá");
+    let root = input.parent().expect("tempdir tem parent").to_path_buf();
+    let file_name = input.file_name().expect("file_name").to_os_string();
+    let output = temp_pdf("env_root_out");
+
+    let result = Command::new(BIN)
+        .env("TYPST_ROOT", &root)
+        .arg(&file_name)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(0),
+        "exit code esperado 0; stderr:\n{}", stderr);
+    assert!(output.exists(),
+        "PDF deve existir em {}", output.display());
+
+    cleanup(&[&input, &output]);
+}
+
+/// Passo 123 (ADR-0051): precedência clap — flag `--root` vence
+/// env `TYPST_ROOT`.
+#[test]
+fn cli_flag_root_vence_env() {
+    let input = temp_typ("root_prec", "Olá");
+    let flag_root = input.parent().expect("tempdir").to_path_buf();
+    let file_name = input.file_name().expect("file_name").to_os_string();
+    let output = temp_pdf("root_prec_out");
+
+    let result = Command::new(BIN)
+        // env aponta para path inválido — se vencer, `SystemWorld::new` falha.
+        .env("TYPST_ROOT", "/path/inexistente/xyz")
+        .arg(&file_name)
+        .arg("--root")
+        .arg(&flag_root)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(0),
+        "flag deve vencer env; stderr:\n{}", stderr);
+    assert!(output.exists(),
+        "PDF deve existir em {}", output.display());
+
+    cleanup(&[&input, &output]);
+}
+
+/// Passo 123 (ADR-0051): `TYPST_FONT_PATHS` com delimiter de
+/// sistema (`:` Unix / `;` Windows) expande em múltiplos paths.
+#[test]
+fn cli_env_typst_font_paths_delimiter() {
+    let input = temp_typ("env_fonts", "Olá");
+    let output = temp_pdf("env_fonts_out");
+    let dir = env::temp_dir().display().to_string();
+    let sep: char = if cfg!(windows) { ';' } else { ':' };
+    let env_value = format!("{}{}{}", &dir, sep, &dir);
+
+    let result = Command::new(BIN)
+        .env("TYPST_FONT_PATHS", &env_value)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(result.status.code(), Some(0),
+        "exit code esperado 0; stderr:\n{}", stderr);
+    assert!(output.exists(),
+        "PDF deve existir em {}", output.display());
+
+    cleanup(&[&input, &output]);
+}
+
 /// Passo 121 (ADR-0051): `--root DIR` flag funciona.
 ///
 /// Estratégia: passar `--root <parent(input)>` explicitamente e
