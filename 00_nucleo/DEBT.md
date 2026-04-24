@@ -5,6 +5,13 @@
 > reorganização. Numeração descontínua é intencional (DEBT-4, DEBT-5 nunca
 > existiram; DEBT-24a, DEBT-34a idem).
 
+> **Auditoria Passo 125 (2026-04-24)**: 11 DEBTs abertos revistos
+> com grep empírico em L1. **Todos confirmados M** (manter).
+> Zero fechos triviais; 3 candidatos de fecho dedicado identificados
+> (DEBT-43, DEBT-42, subset de DEBT-1). Desde Passo 105: 3 DEBTs
+> encerrados (DEBT-45/49/51). Detalhe em
+> [`diagnosticos/auditoria-debts-passo-125.md`](diagnosticos/auditoria-debts-passo-125.md).
+
 ---
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
