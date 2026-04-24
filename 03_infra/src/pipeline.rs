@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 367f8790
+//! @prompt-hash 00e4ebd3
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -124,9 +124,18 @@ fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
     None
 }
 
-/// Resolve a primeira família de `font_list` contra `font_book`
-/// e carrega os bytes via `world.font(index)`. Apenas a primeira
-/// família é tentada — array fallback chain é Passo 141.
+/// Itera `font_list.as_slice()` em ordem. Para cada família,
+/// consulta `font_book.select(name, &FontVariant::default())`;
+/// se devolve `Some(index)`, chama `world.font(index)`; primeira
+/// família que completa ambos os passos vence. Se nenhuma
+/// completa, devolve `None` (pipeline cai em fallback Helvetica).
+///
+/// Paridade com vanilla: semântica "primeira-que-resolve" do
+/// `#set text(font: (...))` (Passo 141).
+///
+/// Cenário patológico (índice stale: `select` devolve `Some` mas
+/// `world.font` devolve `None`) **continua** a tentar as famílias
+/// seguintes — não curto-circuita.
 ///
 /// Selecção usa `FontVariant::default()` (regular). Weight/style
 /// continuam a ser renderizados por faux-bold (Passo 139).
@@ -135,11 +144,15 @@ fn resolve_font(
     font_book: &FontBook,
     world:     &dyn World,
 ) -> Option<Vec<u8>> {
-    let first   = font_list.as_slice().first()?;
     let variant = FontVariant::default();
-    let index   = font_book.select(&first.name, &variant)?;
-    let font    = world.font(index)?;
-    Some(font.as_slice().to_vec())
+    for family in font_list.as_slice() {
+        if let Some(index) = font_book.select(&family.name, &variant) {
+            if let Some(font) = world.font(index) {
+                return Some(font.as_slice().to_vec());
+            }
+        }
+    }
+    None
 }
 
 #[cfg(test)]
@@ -217,7 +230,7 @@ mod tests {
 
     use ecow::EcoString;
     use typst_core::entities::font_book::{FontFlags, FontInfo, FontStretch, FontStyle, FontWeight};
-    use typst_core::entities::font_list::FontList;
+    use typst_core::entities::font_list::{FontFamily, FontList};
     use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt, TextStyle};
 
     fn text_item_with_font(font: Option<FontList>) -> FrameItem {
@@ -345,5 +358,76 @@ mod tests {
         };
         let fl = font_list("Qualquer");
         assert!(resolve_font(&fl, world.book(), &world).is_none());
+    }
+
+    // ── Passo 141: array fallback chain ───────────────────────────────
+
+    fn font_list_multi(names: &[&str]) -> FontList {
+        let families = names.iter()
+            .map(|n| FontFamily::new(EcoString::from(*n)))
+            .collect();
+        FontList::new(families).expect("lista não-vazia")
+    }
+
+    #[test]
+    fn resolve_font_lista_match_indice_0() {
+        let mut book = FontBook::new();
+        book.push(font_info("A"));
+        let bytes_a = vec![0xAA, 0xAA];
+        let world = FontMockWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(bytes_a.clone()))],
+        };
+        let fl = font_list_multi(&["A", "B", "C"]);
+        let got = resolve_font(&fl, world.book(), &world).expect("deve resolver");
+        assert_eq!(got, bytes_a, "primeira família vence quando existe");
+    }
+
+    #[test]
+    fn resolve_font_lista_match_indice_1() {
+        // FontBook só tem "B"; "X" não resolve, "B" sim.
+        let mut book = FontBook::new();
+        book.push(font_info("B"));
+        let bytes_b = vec![0xBB, 0xBB];
+        let world = FontMockWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(bytes_b.clone()))],
+        };
+        let fl = font_list_multi(&["X", "B", "C"]);
+        let got = resolve_font(&fl, world.book(), &world).expect("deve resolver via B");
+        assert_eq!(got, bytes_b, "segunda família vence quando primeira falha");
+    }
+
+    #[test]
+    fn resolve_font_lista_match_indice_2() {
+        // FontBook só tem "C"; "X" e "Y" não resolvem.
+        let mut book = FontBook::new();
+        book.push(font_info("C"));
+        let bytes_c = vec![0xCC, 0xCC];
+        let world = FontMockWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(bytes_c.clone()))],
+        };
+        let fl = font_list_multi(&["X", "Y", "C"]);
+        let got = resolve_font(&fl, world.book(), &world).expect("deve resolver via C");
+        assert_eq!(got, bytes_c, "terceira família vence quando duas primeiras falham");
+    }
+
+    #[test]
+    fn resolve_font_lista_sem_match_devolve_none() {
+        // FontBook só tem "Outra"; nenhuma família da lista resolve.
+        let mut book = FontBook::new();
+        book.push(font_info("Outra"));
+        let world = FontMockWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(vec![0xFF]))],
+        };
+        let fl = font_list_multi(&["X", "Y", "Z"]);
+        assert!(resolve_font(&fl, world.book(), &world).is_none(),
+            "nenhuma família resolve → fallback Helvetica via None");
     }
 }

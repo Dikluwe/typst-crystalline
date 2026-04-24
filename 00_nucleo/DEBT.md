@@ -684,7 +684,15 @@ Resumo por dificuldade:
       Selecção variant-aware (font-file "Bold"/"Italic" dedicado)
       é limitação aceite — faux-bold do Passo 139 continua a ser
       o caminho para `weight: 700`. **Início da Fase C.**
-- [ ] Consumer `font` array (fallback chain).
+- [x] Consumer `font` array (fallback chain).
+      **Resolvido no Passo 141** — `resolve_font` itera
+      `font_list.as_slice()`; primeira família que `FontBook::select`
+      resolve **e** `world.font(index)` devolve `Some` vence.
+      Semântica vanilla directa para `#set text(font: ("A", "B",
+      "C"))`. Cenário patológico (índice stale) continua a tentar
+      famílias seguintes — não curto-circuita. ADR-0055 transita
+      a `IMPLEMENTADO` (par 140B+141 completa a paridade básica).
+      **Fase C básica completa.**
 - [ ] Consumer `lang` hyphenation (requer crate).
 - [ ] **Fase D opcional**: ADR-0054bis autorizar `regex` +
       `Covers` concreto para font dict.
