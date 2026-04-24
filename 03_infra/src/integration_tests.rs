@@ -2173,21 +2173,26 @@ mod integration {
 
     // ── Passo 107 (encerra DEBT-49): warnings reais de #set ────────────
 
-    /// Propriedade `font` em `#set text(...)` não está implementada —
-    /// emite warning com mensagem específica (Passo 107).
+    /// Propriedade `hyphenate` em `#set text(...)` não está
+    /// implementada — emite warning com mensagem específica.
+    ///
+    /// Passo 132B (ADR-0053): canary DEBT-50 migrou de `font`
+    /// para `hyphenate` porque `font` passou a ser capturado
+    /// via `FontList`. Teste renomeado de
+    /// `debt49_set_text_font_emite_warning`.
     #[test]
-    fn debt49_set_text_font_emite_warning() {
-        let (world, _dir) = world_from_str(r#"#set text(font: "Arial")"#);
+    fn debt49_set_text_hyphenate_emite_warning() {
+        let (world, _dir) = world_from_str(r#"#set text(hyphenate: true)"#);
         let source = world.source(world.main()).unwrap();
 
         let (result, warnings) = do_eval_with_sink(&world, &source);
         assert!(result.is_ok(), "eval não deve falhar; Sink absorve o desconhecido");
         assert_eq!(warnings.len(), 1,
-            "esperado 1 warning para propriedade 'font'; obteve {}: {:?}",
+            "esperado 1 warning para propriedade 'hyphenate'; obteve {}: {:?}",
             warnings.len(),
             warnings.iter().map(|d| &d.message).collect::<Vec<_>>());
-        assert!(warnings[0].message.contains("'font'"),
-            "mensagem deve identificar a propriedade 'font'; obteve: {:?}",
+        assert!(warnings[0].message.contains("'hyphenate'"),
+            "mensagem deve identificar a propriedade 'hyphenate'; obteve: {:?}",
             warnings[0].message);
         assert!(warnings[0].message.contains("text"),
             "mensagem deve identificar o target 'text'; obteve: {:?}",
@@ -2224,21 +2229,23 @@ mod integration {
     /// `u16` — já não emite warning.
     /// Passo 130 (DEBT-1 subset): `lang` passou a ser capturado — trio
     /// rotou para `font/alignment/stroke`.
+    /// Passo 132B (ADR-0053): `font` passou a ser capturado — trio
+    /// rotou para `hyphenate/alignment/stroke`.
     #[test]
     fn debt49_set_text_multiplas_propriedades_desconhecidas() {
-        let (world, _dir) = world_from_str(r#"#set text(font: "A", alignment: "center", stroke: 1pt)"#);
+        let (world, _dir) = world_from_str(r#"#set text(hyphenate: true, alignment: "center", stroke: 1pt)"#);
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
         assert_eq!(warnings.len(), 3,
-            "esperado 3 warnings (font, alignment, stroke); obteve {}: {:?}",
+            "esperado 3 warnings (hyphenate, alignment, stroke); obteve {}: {:?}",
             warnings.len(),
             warnings.iter().map(|d| &d.message).collect::<Vec<_>>());
         let joined = warnings.iter()
             .map(|d| d.message.clone())
             .collect::<Vec<_>>()
             .join("\n");
-        assert!(joined.contains("'font'"),      "faltou 'font': {}",      joined);
+        assert!(joined.contains("'hyphenate'"), "faltou 'hyphenate': {}", joined);
         assert!(joined.contains("'alignment'"), "faltou 'alignment': {}", joined);
         assert!(joined.contains("'stroke'"),    "faltou 'stroke': {}",    joined);
     }
@@ -2280,11 +2287,15 @@ mod integration {
 
     /// Dedup real: mesma propriedade desconhecida em dois `#set` idênticos
     /// deve produzir apenas 1 warning (mesmos span+message).
+    ///
+    /// Passo 132B (ADR-0053): canary DEBT-50 migrou de `font` para
+    /// `hyphenate` — teste rotado do input `font: "A"` para
+    /// `hyphenate: true`.
     #[test]
     fn debt49_dedup_warnings_identicos() {
-        // Dois `#set text(font: "X")` no mesmo ficheiro. Os spans são
-        // diferentes (linha 1 vs linha 2), por isso dedup não aplica aqui —
-        // spans distintos contam como warnings distintos.
+        // Dois `#set text(hyphenate: true)` no mesmo ficheiro. Os spans
+        // são diferentes (linha 1 vs linha 2), por isso dedup não aplica
+        // aqui — spans distintos contam como warnings distintos.
         //
         // Para testar dedup de verdade, precisaríamos de um sítio que
         // dispara DEBT-49 repetidamente com o MESMO span + message, o que
@@ -2292,14 +2303,14 @@ mod integration {
         // parsed uma vez por eval). O mecanismo existe no Sink, mas validá-lo
         // requer chamada artificial à API; ver `sink.rs#tests`.
         let (world, _dir) = world_from_str(
-            "#set text(font: \"A\")\n#set text(font: \"A\")"
+            "#set text(hyphenate: true)\n#set text(hyphenate: true)"
         );
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
         // Dois spans distintos → 2 warnings (não deduplicados).
         assert_eq!(warnings.len(), 2,
-            "#set text(font) repetido em 2 linhas distintas → 2 warnings (spans diferem); \
+            "#set text(hyphenate) repetido em 2 linhas distintas → 2 warnings (spans diferem); \
              dedup real validado em tests unitários de Sink");
     }
 

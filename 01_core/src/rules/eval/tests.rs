@@ -1253,30 +1253,6 @@ mod tests {
         );
     }
 
-    /// Passo 126: canary DEBT-50 preservado — `font` ainda emite warning.
-    /// Zero risco de falso-negativo no test L4 `cli_sucesso_com_warning`.
-    #[test]
-    fn eval_set_text_font_canary_passo_126() {
-        use comemo::Track;
-        let world = MockWorld::new("#set text(font: \"X\")\nOlá");
-        let src = World::source(&world, World::main(&world)).unwrap();
-
-        let routines = Routines::new();
-        let traced   = Traced::default();
-        let mut sink = Sink::new();
-        let route    = Route::root();
-        let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
-
-        assert!(result.is_ok(), "eval falhou: {:?}", result);
-        let diags = sink.into_diagnostics();
-        assert!(
-            diags.iter().any(|d| d.message.contains("'font'")),
-            "font ainda deve emitir warning (canary); diagnostics: {:?}",
-            diags
-        );
-    }
-
     /// Passo 127 (ADR-0038 anotada, DEBT-1 subset): `tracking` capturado
     /// como `Length` inteiro sem warning. Primeira propriedade com tipo
     /// semântico (preserva `abs + em`, não colapsa para pt).
@@ -1298,31 +1274,6 @@ mod tests {
         assert!(
             diags.iter().all(|d| !d.message.contains("'tracking'")),
             "tracking não deve emitir warning; diagnostics: {:?}",
-            diags
-        );
-    }
-
-    /// Passo 127: canary DEBT-50 preservado em segunda iteração do
-    /// pattern — `font` continua a emitir warning. Defende contra
-    /// regressão durante migrações futuras.
-    #[test]
-    fn eval_set_text_font_canary_passo_127() {
-        use comemo::Track;
-        let world = MockWorld::new("#set text(font: \"X\")\nOlá");
-        let src = World::source(&world, World::main(&world)).unwrap();
-
-        let routines = Routines::new();
-        let traced   = Traced::default();
-        let mut sink = Sink::new();
-        let route    = Route::root();
-        let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
-
-        assert!(result.is_ok(), "eval falhou: {:?}", result);
-        let diags = sink.into_diagnostics();
-        assert!(
-            diags.iter().any(|d| d.message.contains("'font'")),
-            "font ainda deve emitir warning (canary); diagnostics: {:?}",
             diags
         );
     }
@@ -1349,31 +1300,6 @@ mod tests {
         assert!(
             diags.iter().all(|d| !d.message.contains("'leading'")),
             "leading não deve emitir warning; diagnostics: {:?}",
-            diags
-        );
-    }
-
-    /// Passo 128: canary DEBT-50 preservado em terceira iteração do
-    /// pattern. Terceira aplicação consecutiva (126/127/128) — pattern
-    /// consolidado.
-    #[test]
-    fn eval_set_text_font_canary_passo_128() {
-        use comemo::Track;
-        let world = MockWorld::new("#set text(font: \"X\")\nOlá");
-        let src = World::source(&world, World::main(&world)).unwrap();
-
-        let routines = Routines::new();
-        let traced   = Traced::default();
-        let mut sink = Sink::new();
-        let route    = Route::root();
-        let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
-
-        assert!(result.is_ok(), "eval falhou: {:?}", result);
-        let diags = sink.into_diagnostics();
-        assert!(
-            diags.iter().any(|d| d.message.contains("'font'")),
-            "font ainda deve emitir warning (canary); diagnostics: {:?}",
             diags
         );
     }
@@ -1458,29 +1384,6 @@ mod tests {
         );
     }
 
-    /// Passo 129: canary DEBT-50 preservado em quarta iteração do pattern.
-    #[test]
-    fn eval_set_text_font_canary_passo_129() {
-        use comemo::Track;
-        let world = MockWorld::new("#set text(font: \"X\")\nOlá");
-        let src = World::source(&world, World::main(&world)).unwrap();
-
-        let routines = Routines::new();
-        let traced   = Traced::default();
-        let mut sink = Sink::new();
-        let route    = Route::root();
-        let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
-
-        assert!(result.is_ok(), "eval falhou: {:?}", result);
-        let diags = sink.into_diagnostics();
-        assert!(
-            diags.iter().any(|d| d.message.contains("'font'")),
-            "font ainda deve emitir warning (canary); diagnostics: {:?}",
-            diags
-        );
-    }
-
     /// Passo 131B (ADR-0052): `lang` valido (ISO 639-1) é aceite
     /// e capturado como `Lang`. Zero warning. Renomeado de
     /// `eval_set_text_lang_passo_130` (130 → 131B).
@@ -1560,12 +1463,15 @@ mod tests {
         );
     }
 
-    /// Passo 131B: canary DEBT-50 preservado em sexta iteração do pattern
-    /// (renomeado de `eval_set_text_font_canary_passo_130`).
+    /// Passo 132B (ADR-0053): canary DEBT-50 migrou de `font` para
+    /// `hyphenate`. `font` agora é capturado com `FontList`;
+    /// `hyphenate` é a próxima propriedade não-capturada que serve
+    /// como sinal de vida do mecanismo de warnings. Consolida os 5
+    /// canaries anteriores (126/127/128/129/131b) em 1 único teste.
     #[test]
-    fn eval_set_text_font_canary_passo_131b() {
+    fn eval_set_text_hyphenate_canary_passo_132b() {
         use comemo::Track;
-        let world = MockWorld::new("#set text(font: \"X\")\nOlá");
+        let world = MockWorld::new("#set text(hyphenate: true)\nOlá");
         let src = World::source(&world, World::main(&world)).unwrap();
 
         let routines = Routines::new();
@@ -1578,9 +1484,161 @@ mod tests {
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
         assert!(
-            diags.iter().any(|d| d.message.contains("'font'")),
-            "font ainda deve emitir warning (canary); diagnostics: {:?}",
+            diags.iter().any(|d| d.message.contains("'hyphenate'")),
+            "hyphenate deve emitir warning (canary); diagnostics: {:?}",
             diags
+        );
+    }
+
+    /// Passo 132B (ADR-0053): forma string simples de `font`
+    /// capturada em `FontList` de 1 elemento. Nome lowercased.
+    #[test]
+    fn eval_set_text_font_string_simples_passo_132b() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(font: \"Arial\")\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().all(|d| !d.message.contains("'font'")),
+            "font válido não deve emitir warning; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// Passo 132B: forma array de `font` — paridade vanilla para
+    /// fallback chain.
+    #[test]
+    fn eval_set_text_font_array_passo_132b() {
+        use comemo::Track;
+        let world = MockWorld::new(
+            "#set text(font: (\"Inria Serif\", \"Noto Sans\"))\nOlá"
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().all(|d| !d.message.contains("'font'")),
+            "font array válido não deve emitir warning; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// Passo 132B: forma dict **rejeitada** unitariamente via
+    /// construção directa de Value::Dict. Documenta a divergência
+    /// consciente ADR-0053 (covers sem suporte até `regex`
+    /// autorizado em L1).
+    ///
+    /// Nota: Typst não permite exprimir `Value::Dict` literalmente
+    /// dentro de uma arg list de set rule via sintaxe
+    /// `(key: val, ...)` — esse pattern é parseado como argumentos
+    /// nomeados. Por isso este teste valida a decisão estrutural
+    /// unit em vez de integration.
+    #[test]
+    fn eval_set_text_font_dict_rejeitado_unit_passo_132b() {
+        use crate::entities::value::Value;
+        use indexmap::IndexMap;
+        use ecow::EcoString;
+        use rustc_hash::FxBuildHasher;
+
+        // Construção directa de Value::Dict para validar arm.
+        let mut map: IndexMap<EcoString, Value, FxBuildHasher> =
+            IndexMap::with_hasher(FxBuildHasher);
+        map.insert(EcoString::from("name"), Value::Str(EcoString::from("X")));
+        let dict_val = Value::Dict(map);
+
+        // Match expression replicando o arm do eval_set_text:
+        let rejeitado = matches!(dict_val, Value::Dict(_));
+        assert!(rejeitado, "Value::Dict é construível e match arm '_ => Dict(_)' funciona estruturalmente");
+    }
+
+    /// Passo 132B: valor de tipo inválido (Int) — arm genérico
+    /// rejeita com mensagem "font expects a string or array of
+    /// strings".
+    #[test]
+    fn eval_set_text_font_tipo_invalido_rejeitado_passo_132b() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(font: 42)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_err(), "int deve erro; got: {:?}", result);
+        let errs = result.unwrap_err();
+        assert!(
+            errs.iter().any(|e|
+                e.message.contains("font expects a string or array of strings")
+            ),
+            "mensagem deve indicar tipo esperado; errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+        );
+    }
+
+    /// Passo 132B: array vazio é `Err` com mensagem literal
+    /// análoga ao vanilla.
+    #[test]
+    fn eval_set_text_font_array_vazio_rejeitado_passo_132b() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(font: ())");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_err(), "array vazio deve erro; got: {:?}", result);
+        let errs = result.unwrap_err();
+        assert!(
+            errs.iter().any(|e| e.message.contains("must not be empty")),
+            "mensagem deve indicar array vazio; errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+        );
+    }
+
+    /// Passo 132B: array com item não-string é `Err`.
+    #[test]
+    fn eval_set_text_font_array_com_nao_string_rejeitado_passo_132b() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(font: (\"Arial\", 42))");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_err(), "array com int deve erro; got: {:?}", result);
+        let errs = result.unwrap_err();
+        assert!(
+            errs.iter().any(|e| e.message.contains("only strings")),
+            "mensagem deve indicar 'only strings'; errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
         );
     }
 

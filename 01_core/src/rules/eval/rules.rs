@@ -18,6 +18,7 @@ use crate::entities::ast::expr::Arg;
 use crate::entities::content::Content;
 use crate::entities::engine::Engine;
 use crate::entities::font_book::FontWeight;
+use crate::entities::font_list::{FontFamily, FontList};
 use crate::entities::lang::Lang;
 use crate::entities::show::{NodeKind, Selector, ShowRule};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -349,6 +350,53 @@ pub(super) fn eval_set_rule(
                                     msg.to_string(),
                                 )]);
                             }
+                        }
+                    }
+                }
+                "font" => {
+                    // Passo 132B (ADR-0053): `font` materializado como
+                    // `FontList` agregador. Paridade parcial: string +
+                    // array aceites; dict rejeitado (covers sem suporte
+                    // até `regex` ser autorizado em L1). Erro hard em
+                    // inválido (padrão 131B).
+                    let span = named.expr().span();
+                    match val {
+                        Value::Str(s) => {
+                            delta.font = Some(FontList::single(s));
+                        }
+                        Value::Array(arr) => {
+                            let mut families = Vec::with_capacity(arr.len());
+                            for item in arr.iter() {
+                                if let Value::Str(s) = item {
+                                    families.push(FontFamily::new(s.clone()));
+                                } else {
+                                    return Err(vec![SourceDiagnostic::error(
+                                        span,
+                                        "font array must contain only strings".to_string(),
+                                    )]);
+                                }
+                            }
+                            match FontList::new(families) {
+                                Some(list) => delta.font = Some(list),
+                                None => {
+                                    return Err(vec![SourceDiagnostic::error(
+                                        span,
+                                        "font array must not be empty".to_string(),
+                                    )]);
+                                }
+                            }
+                        }
+                        Value::Dict(_) => {
+                            return Err(vec![SourceDiagnostic::error(
+                                span,
+                                "dict form of font not yet supported — use string or array of strings".to_string(),
+                            )]);
+                        }
+                        _ => {
+                            return Err(vec![SourceDiagnostic::error(
+                                span,
+                                "font expects a string or array of strings".to_string(),
+                            )]);
                         }
                     }
                 }

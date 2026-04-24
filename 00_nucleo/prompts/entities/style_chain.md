@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: 51188f9c
+Hash do Código: bda71ca6
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -19,13 +19,14 @@ com herança: um nó filho herda todas as propriedades não definidas do pai.
 pub struct StyleDelta {
     pub bold:   Option<bool>,
     pub italic: Option<bool>,
-    pub size:   Option<f64>,   // pontos tipográficos
-    pub fill:   Option<Color>, // Passo 99 (ADR-0038)
-    pub heading_level: Option<u8>,  // Passo 99 (ADR-0038) forward-compat
-    pub weight:   Option<u16>,      // Passo 126 (DEBT-1 subset) — inerte
-    pub tracking: Option<Length>,   // Passo 127 (DEBT-1 subset) — inerte; preserva abs+em
-    pub leading:  Option<Length>,   // Passo 128 (DEBT-1 subset) — capturado em text; migra p/ par quando activado
-    pub lang:     Option<Lang>,     // Passo 131B (ADR-0052) — tipo semântico com validação e erro hard
+    pub size:   Option<f64>,       // pontos tipográficos
+    pub fill:   Option<Color>,     // Passo 99 (ADR-0038)
+    pub heading_level: Option<u8>, // Passo 99 (ADR-0038) forward-compat
+    pub weight:   Option<u16>,     // Passo 126 — inerte
+    pub tracking: Option<Length>,  // Passo 127 — inerte; preserva abs+em
+    pub leading:  Option<Length>,  // Passo 128 — capturado em text; migra p/ par
+    pub lang:     Option<Lang>,    // Passo 131B (ADR-0052) — tipo semântico validado
+    pub font:     Option<FontList>,// Passo 132B (ADR-0053) — tipo agregador; covers deferido
 }
 
 pub struct StyleChain(Option<Arc<StyleNode>>);
