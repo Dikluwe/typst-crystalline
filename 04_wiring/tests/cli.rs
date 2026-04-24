@@ -62,7 +62,9 @@ fn cleanup(paths: &[&PathBuf]) {
 
 #[test]
 fn cli_sucesso_com_warning() {
-    let input = temp_typ("warn", "#set text(font: \"Arial\")\n\nOlá");
+    // Passo 132B (ADR-0053): canary migrou de `font` para `hyphenate`
+    // porque `font` passou a ser capturado via `FontList`.
+    let input = temp_typ("warn", "#set text(hyphenate: true)\n\nOlá");
     let output = temp_pdf("warn");
 
     let result = Command::new(BIN)
@@ -79,8 +81,8 @@ fn cli_sucesso_com_warning() {
     assert!(output.exists(), "PDF deve existir em {}", output.display());
     assert!(stderr.contains("warning:"),
         "stderr deve conter 'warning:'; got:\n{}", stderr);
-    assert!(stderr.contains("font"),
-        "stderr deve mencionar 'font'; got:\n{}", stderr);
+    assert!(stderr.contains("hyphenate"),
+        "stderr deve mencionar 'hyphenate'; got:\n{}", stderr);
 
     cleanup(&[&input, &output]);
 }
@@ -582,13 +584,16 @@ fn disciplina_exit_zero_implica_pdf_nao_vazio() {
 }
 
 /// Ordem: warnings aparecem antes de errors no stderr (ADR-0045).
-/// Input misto = `#set text(font: "X")` (warning ADR-0040) +
+/// Input misto = `#set text(hyphenate: true)` (warning ADR-0040) +
 /// `#variavel_desconhecida` (erro de eval).
+///
+/// Passo 132B (ADR-0053): canary migrou de `font` para `hyphenate`
+/// porque `font` passou a ser capturado via `FontList`.
 #[test]
 fn disciplina_warnings_antes_de_errors() {
     let input = temp_typ(
         "disc_order",
-        "#set text(font: \"X\")\n#variavel_desconhecida",
+        "#set text(hyphenate: true)\n#variavel_desconhecida",
     );
     let output = temp_pdf("disc_order");
 

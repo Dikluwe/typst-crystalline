@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash 95774a12
+//! @prompt-hash 412bb696
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -13,6 +13,7 @@
 
 use std::sync::Arc;
 
+use crate::entities::font_list::FontList;
 use crate::entities::lang::Lang;
 use crate::entities::layout_types::{Pt, TextStyle};
 use crate::entities::style::{Style, Styles};
@@ -54,6 +55,12 @@ pub struct StyleDelta {
     /// (ADR-0052) com validação e erro hard — paridade ADR-0033.
     /// Inerte em layout (consumer futuro: shaping, hyphenation).
     pub lang: Option<Lang>,
+    /// Lista priorizada de famílias de fonte. `None` = herdado.
+    /// Materializado no Passo 132B (ADR-0053) com paridade
+    /// parcial: string e array capturadas, dict rejeitada
+    /// (covers sem suporte até `regex` ser autorizado em L1).
+    /// Inerte em layout (consumer futuro: shaping, lookup).
+    pub font: Option<FontList>,
 }
 
 impl StyleDelta {
@@ -62,7 +69,7 @@ impl StyleDelta {
             bold: None, italic: None, size: None,
             fill: None, heading_level: None,
             weight: None, tracking: None, leading: None,
-            lang: None,
+            lang: None, font: None,
         }
     }
 }

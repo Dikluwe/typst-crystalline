@@ -312,3 +312,33 @@ Futuras propriedades com necessidade análoga de paridade
 semântica (validação + erro hard) seguem padrão do 131B:
 diagnóstico obrigatório (ADR-0034) → ADR dedicada →
 materialização. Não agregar neste ADR-0038.
+
+---
+
+### Nota Passo 132B — `font` como tipo composto agregador
+
+**Data**: 2026-04-24. Segunda aplicação do padrão 131A/B.
+
+Campo `StyleDelta.font` materializado como `Option<FontList>`
+— **primeiro tipo agregador em L1** (contém `FontFamily` que
+contém `Option<Covers>`). Precedentes 0052/131B foram tipos
+folha (`Lang` não agrega).
+
+**Paridade ADR-0033 parcial**: 2 de 3 forms vanilla capturadas
+(string, array); **dict rejeitada explicitamente** com erro
+hard por ausência de `regex` autorizado em L1. ADR-0053 absorve
+contexto + alternativas + plano de evolução.
+
+**`Covers` como enum inabitado** (`enum Covers {}` sem
+variantes): forma estrutural reservada para futuro sem custo
+de código activo. `Option<Covers>` só pode ser `None` por
+construção — compatibilidade forward garantida para adição
+futura de variantes concretas.
+
+Canary DEBT-50 migrou de `font` para `hyphenate` em 10 testes
+(5 L1 consolidados em 1 + 3 L3 + 2 L4). Pool DEBT-49 L3:
+`font/alignment/stroke` → `hyphenate/alignment/stroke`.
+
+Futuras materializações de tipos agregadores (`Stroke`,
+`Spacing`, etc.) seguem padrão "diagnóstico + ADR dedicada"
+estabelecido pelos 131/132.
