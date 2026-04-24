@@ -6,22 +6,26 @@ Hash do Código: fd812420
 
 ## Propósito
 
-CLI mínima do compilador cristalino (Passo 113, ADR-0046).
+CLI mínima do compilador cristalino (Passo 113, ADR-0046;
+argparsing migrado para `clap` no Passo 115, ADR-0047).
 
 ## Contrato
 
 ### Uso
 
 ```bash
-typst <input.typ> <output.pdf>
+typst <INPUT> <OUTPUT>
+typst --help
+typst --version
 ```
 
-Positional. 2 argumentos obrigatórios. Sem flags.
+Positional. 2 argumentos obrigatórios. `--help` e `--version`
+gratuitos via `clap` derive.
 
 ### Pipeline
 
-1. `parse_args(&argv)` → `(input: PathBuf, output: PathBuf)` ou
-   imprime usage e sai (exit 2).
+1. `Args::parse()` (clap) → `(input: PathBuf, output: PathBuf)` ou
+   imprime erro e sai (exit 2).
 2. `root = input.parent()`, `main_path = input.file_name()`.
 3. `SystemWorld::new(root, main_path)` → `World`. Falha → exit 2.
 4. `world.source(world.main())` → `Source`.
@@ -40,8 +44,8 @@ Positional. 2 argumentos obrigatórios. Sem flags.
 
 - **0** — sucesso (PDF escrito).
 - **1** — erro de compilação (eval gerou errors).
-- **2** — argumentos inválidos ou erro de I/O (SystemWorld::new,
-  fs::write).
+- **2** — argumentos inválidos (clap decide mensagem e exit) ou
+  erro de I/O (`SystemWorld::new`, `fs::write`).
 
 ### Diagnósticos (stderr)
 
@@ -52,22 +56,41 @@ input.typ:3:11: warning: text: propriedade 'font' ainda não suportada
   hint: ver ADR-0040 para propriedades cobertas por set text
 ```
 
-Nenhum output em stdout. PDF é escrito directamente para ficheiro.
+Mensagens de args errados (clap) também em stderr. Nenhum output
+em stdout. PDF é escrito directamente para ficheiro.
 
 ## Escopo futuro
 
-Explicitamente fora deste passo (ADR-0046):
+Explicitamente fora deste passo (ADR-0046 e ADR-0047):
 
 - Subcomandos (`watch`, `query`, `init`, `eval`, `fonts`, …).
-- Flags (`--root`, `--font-path`, `--format`, `--output`, `-`).
+- Flags funcionais (`--root`, `--font-path`, `--format`,
+  `-o/--output`, `-` stdin/stdout).
 - Cores ANSI, JSON, SARIF.
 - Outros exports (PNG, SVG, HTML).
 - `sys.inputs`.
-- `argparsing` declarativo (clap) — candidato quando flags forem
-  adicionadas.
+- Features extra de `clap` (`env`, `wrap_help`, `string`).
 
-## Argparsing — manual
+## Argparsing — `clap` derive (Passo 115, ADR-0047)
 
-`std::env::args()` + `match` sobre `&args[..]`. Motivo: `clap`
-não está em `[workspace.dependencies]` hoje. Migração para clap
-fica para passo que adicione flags (ver ADR-0046).
+```rust
+#[derive(Parser, Debug)]
+#[command(name = "typst", version, about = "Typst compiler (crystalline)")]
+struct Args {
+    /// Input .typ file.
+    input: PathBuf,
+    /// Output PDF file.
+    output: PathBuf,
+}
+
+fn main() -> ExitCode {
+    let args = Args::parse();
+    // ...
+}
+```
+
+`version` = `true` lê `version` do `Cargo.toml`
+(`version.workspace = true` → `"0.1.0"`).
+
+`Args::parse()` em erro de args emite mensagem em stderr e sai
+com exit 2 automaticamente — sem handling manual necessário.

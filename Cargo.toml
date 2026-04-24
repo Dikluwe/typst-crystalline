@@ -26,6 +26,7 @@ time        = { version = "0.3", features = ["macros"] }  # ADR-0021 — aritmé
 indexmap    = { version = "2", features = [] }            # ADR-0023 — ordem de inserção em Scope
 ecow      = "0.2"   # L3 apenas — fronteira; não entra em L1 (ADR-0004 Opção C)
 anyhow    = "1"
+clap      = { version = "4", features = ["derive"] }  # ADR-0047 — argparsing da CLI em 04_wiring
 # grupo Unicode — ADR-0010 a ADR-0013
 unicode-ident        = "1"
 unicode-math-class   = "0.1"
