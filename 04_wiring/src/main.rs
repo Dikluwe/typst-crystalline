@@ -1,14 +1,17 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 7f811bc9
+//! @prompt-hash daf27284
 //! @layer L4
 //! @updated 2026-04-23
 //!
-//! CLI mínima do compilador cristalino (Passo 113, ADR-0046).
+//! CLI mínima do compilador cristalino (Passo 113, ADR-0046;
+//! argparsing migrado para `clap` no Passo 115, ADR-0047).
 //!
 //! Uso:
 //! ```text
-//! typst <input.typ> <output.pdf>
+//! typst <INPUT> <OUTPUT>
+//! typst --help
+//! typst --version
 //! ```
 //!
 //! Pipeline: `SystemWorld::new` → `eval_to_module_with_sink` →
@@ -19,26 +22,37 @@
 //! Exit codes:
 //! - 0: sucesso (PDF escrito).
 //! - 1: erro de compilação (eval falhou ou gerou errors).
-//! - 2: erro de argumentos ou I/O.
+//! - 2: erro de argumentos (clap) ou I/O.
 
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
+
+use clap::Parser;
 
 use typst_core::contracts::world::World;
 use typst_infra::diagnostic_format::drain_diagnostics_to_stderr;
 use typst_infra::pipeline::compile_to_pdf_bytes;
 use typst_infra::world::SystemWorld;
 
-fn main() -> ExitCode {
-    let args: Vec<String> = std::env::args().collect();
+// Escopo (a) do Passo 115 — mínimo: positional `input output`.
+// `--help` e `--version` vêm gratuitos do derive.
+#[derive(Parser, Debug)]
+#[command(
+    name = "typst",
+    version,
+    about = "Typst compiler (crystalline)"
+)]
+struct Args {
+    /// Input .typ file.
+    input: PathBuf,
+    /// Output PDF file.
+    output: PathBuf,
+}
 
-    let (input, output) = match parse_args(&args) {
-        Some(pair) => pair,
-        None => {
-            eprintln!("Usage: typst <input.typ> <output.pdf>");
-            return ExitCode::from(2);
-        }
-    };
+fn main() -> ExitCode {
+    let args = Args::parse();
+    let input = args.input;
+    let output = args.output;
 
     // Raiz do projecto: directório do input (ou "." se input é bare).
     let root = input
@@ -92,16 +106,5 @@ fn main() -> ExitCode {
             drain_diagnostics_to_stderr(&errors, &source, &source_path);
             ExitCode::from(1)
         }
-    }
-}
-
-/// Parse positional args: `<bin> <input> <output>`.
-///
-/// Sem flags, sem subcomandos — se o utilizador passar qualquer
-/// outra forma, devolve `None` e o caller imprime usage.
-fn parse_args(args: &[String]) -> Option<(PathBuf, PathBuf)> {
-    match args {
-        [_bin, input, output] => Some((PathBuf::from(input), PathBuf::from(output))),
-        _ => None,
     }
 }

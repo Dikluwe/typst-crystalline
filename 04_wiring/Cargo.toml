@@ -16,3 +16,4 @@ typst-core  = { path = "../01_core" }
 typst-shell = { path = "../02_shell" }
 typst-infra = { path = "../03_infra" }
 anyhow      = { workspace = true }
+clap        = { workspace = true }  # ADR-0047 — derive parser (Passo 115)
