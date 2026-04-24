@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash d6d21da3
+//! @prompt-hash 63faaf24
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -20,6 +20,8 @@
 //!   inline em L4 (helper local `drain_to_stderr`).
 //! - Passo 121 (ADR-0051): `--root` resolvido em L2; L4 apenas consome
 //!   `intent.root` — sem cálculo local de parent.
+//! - Passo 122 (ADR-0051): `--font-path` (repetível) resolvido em L2;
+//!   L4 invoca `discover_fonts` + `.with_fonts(...)`.
 //!
 //! Exit codes:
 //! - 0: sucesso.
@@ -32,13 +34,14 @@ use std::process::ExitCode;
 use typst_core::contracts::world::World;
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::SourceDiagnostic;
+use typst_infra::fonts::discover_fonts;
 use typst_infra::pipeline::compile_to_pdf_bytes;
 use typst_infra::world::SystemWorld;
 use typst_shell::cli::{self, RunIntent};
 use typst_shell::diagnostic::format_diagnostic;
 
 fn main() -> ExitCode {
-    let RunIntent { input, output, root, colored } = cli::parse();
+    let RunIntent { input, output, root, font_paths, colored } = cli::parse();
 
     let main_path = match input.file_name() {
         Some(name) => PathBuf::from(name),
@@ -48,8 +51,10 @@ fn main() -> ExitCode {
         }
     };
 
+    let font_slots = discover_fonts(&font_paths);
+
     let world = match SystemWorld::new(&root, &main_path) {
-        Ok(w) => w,
+        Ok(w) => w.with_fonts(font_slots),
         Err(e) => {
             eprintln!("error: {}", e);
             return ExitCode::from(2);

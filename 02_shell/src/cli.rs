@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 230eff87
+//! @prompt-hash 3041d1e3
 //! @layer L2
 //! @updated 2026-04-23
 //!
@@ -12,8 +12,8 @@
 //!
 //! Exposições públicas:
 //! - `ColorWhen` — enum do modo de coloração (clap `ValueEnum`).
-//! - `RunIntent` — struct pura com `input`, `output`, `colored`;
-//!   produto de `parse()` consumido por L4.
+//! - `RunIntent` — struct pura com `input`, `output`, `root`,
+//!   `font_paths`, `colored`; produto de `parse()` consumido por L4.
 //! - `parse() -> RunIntent` — ponto de entrada da CLI.
 //! - `resolve_colored_with(choice, no_color, is_tty) -> bool` —
 //!   função pura (decisão de precedência flag > NO_COLOR > isatty).
@@ -43,6 +43,7 @@ pub enum ColorWhen {
 // Passo 120 (ADR-0051): `output` opcional + `-o/--output` sinónimo
 // + default derivado (`input.with_extension("pdf")`).
 // Passo 121 (ADR-0051): + `--root DIR` (fallback para input.parent()).
+// Passo 122 (ADR-0051): + `--font-path DIR` (repetível; raw para L3).
 #[derive(Parser, Debug)]
 #[command(
     name = "typst",
@@ -68,6 +69,15 @@ struct Args {
     #[arg(long = "root", value_name = "DIR")]
     root: Option<PathBuf>,
 
+    /// Additional directories to search for fonts. May be repeated.
+    /// Invalid paths are silently skipped by the font discoverer.
+    #[arg(
+        long = "font-path",
+        value_name = "DIR",
+        action = clap::ArgAction::Append,
+    )]
+    font_paths: Vec<PathBuf>,
+
     /// When to use coloured diagnostics.
     #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
     color: ColorWhen,
@@ -82,6 +92,7 @@ pub struct RunIntent {
     pub input: PathBuf,
     pub output: PathBuf,
     pub root: PathBuf,
+    pub font_paths: Vec<PathBuf>,
     pub colored: bool,
 }
 
@@ -99,6 +110,7 @@ pub fn parse() -> RunIntent {
         input: args.input,
         output,
         root,
+        font_paths: args.font_paths,
         colored,
     }
 }
