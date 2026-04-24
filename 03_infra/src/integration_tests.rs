@@ -2324,4 +2324,165 @@ mod integration {
     // `debt49_*` / `sink_canal_*` já existentes que asseveram
     // `SourceDiagnostic.message` e `.hints` directamente. Cobertura
     // preservada sem duplicação.
+
+    // ── Passo 140B — Wiring single-font (DEBT-52 gap 5) ─────────────────
+    //
+    // Testes end-to-end do dispatch font-aware em `compile_to_pdf_bytes`:
+    // documento com `#set text(font: "X")` cuja família resolve em
+    // `world.book()` produz PDF com CIDFont (`/CrystallineFont`).
+    // Família não resolvida ou ausência de `#set` cai no fallback
+    // Helvetica.
+    //
+    // Tests 1 e 4 dependem de fonts no sistema — degradam graciosamente
+    // (early return com `eprintln!`) quando o ambiente não tem TTFs nos
+    // candidatos canónicos. Fixture dedicado (`tests/fixtures/fonts/`)
+    // é decisão futura; o spec do 140B autoriza-o mas não obriga.
+
+    use crate::fonts::{build_font_book, discover_fonts, FontSlot};
+    use crate::pipeline::compile_to_pdf_bytes;
+    use typst_core::entities::font_book::FontBook;
+
+    /// Probe de directórios canónicos de fonts. Devolve `None` se
+    /// nenhum candidato existe — chamadores devem `return` cedo
+    /// e marcar o teste como skipped via `eprintln!`.
+    fn discover_any_system_fonts() -> Option<Vec<FontSlot>> {
+        let candidates: &[&str] = &[
+            "/usr/share/fonts/truetype/dejavu",
+            "/usr/share/fonts/truetype/liberation",
+            "/usr/share/fonts/dejavu",
+            "/usr/share/fonts/TTF",
+            "/Library/Fonts",
+            "/System/Library/Fonts",
+        ];
+        for c in candidates {
+            let p = PathBuf::from(c);
+            if p.is_dir() {
+                let slots = discover_fonts(&[p]);
+                if !slots.is_empty() {
+                    return Some(slots);
+                }
+            }
+        }
+        None
+    }
+
+    fn first_family(book: &FontBook) -> Option<String> {
+        book.infos().first().map(|i| i.family.clone())
+    }
+
+    fn second_distinct_family(book: &FontBook, first: &str) -> Option<String> {
+        book.infos().iter()
+            .map(|i| i.family.clone())
+            .find(|f| !f.eq_ignore_ascii_case(first))
+    }
+
+    /// Compõe um `SystemWorld` com `src` em `main.typ` e fontes
+    /// fornecidas via `with_fonts`.
+    fn world_with_fonts(src: &str, slots: Vec<FontSlot>) -> (SystemWorld, TempDir) {
+        let dir = tempdir();
+        std::fs::write(dir.path().join("main.typ"), src).unwrap();
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap()
+            .with_fonts(slots);
+        (world, dir)
+    }
+
+    #[test]
+    fn font_wiring_set_text_font_existente_embute_cidfont() {
+        let Some(slots) = discover_any_system_fonts() else {
+            eprintln!("[skip] font_wiring_set_text_font_existente_embute_cidfont: \
+                       nenhum directório de fonts canónico encontrado");
+            return;
+        };
+        let book = build_font_book(&slots);
+        let Some(family) = first_family(&book) else {
+            eprintln!("[skip] FontBook vazio após build_font_book");
+            return;
+        };
+
+        let src = format!("#set text(font: \"{}\")\nOlá", family);
+        let (world, _dir) = world_with_fonts(&src, slots);
+        let source = world.source(world.main()).unwrap();
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let pdf = result.expect("compilação deve ter sucesso");
+
+        assert_eq!(&pdf[..5], b"%PDF-", "header PDF esperado");
+        let blob = String::from_utf8_lossy(&pdf);
+        assert!(blob.contains("CrystallineFont"),
+            "PDF deve conter marker CIDFont (`CrystallineFont`) quando \
+             `#set text(font: \"{}\")` resolve em FontBook", family);
+    }
+
+    #[test]
+    fn font_wiring_set_text_font_inexistente_fallback_helvetica() {
+        let src = "#set text(font: \"FontQueNaoExiste\")\nOlá";
+        let (world, _dir) = world_from_str(src);
+        let source = world.source(world.main()).unwrap();
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let pdf = result.expect("compilação deve ter sucesso");
+
+        assert_eq!(&pdf[..5], b"%PDF-");
+        let blob = String::from_utf8_lossy(&pdf);
+        assert!(!blob.contains("CrystallineFont"),
+            "PDF não deve conter marker CIDFont — família não existe");
+        assert!(blob.contains("Helvetica"),
+            "fallback Helvetica deve estar presente");
+    }
+
+    #[test]
+    fn font_wiring_sem_set_text_font_usa_helvetica() {
+        let src = "Olá mundo";
+        let (world, _dir) = world_from_str(src);
+        let source = world.source(world.main()).unwrap();
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let pdf = result.expect("compilação deve ter sucesso");
+
+        assert_eq!(&pdf[..5], b"%PDF-");
+        let blob = String::from_utf8_lossy(&pdf);
+        assert!(!blob.contains("CrystallineFont"),
+            "documento sem `#set text(font:)` cai no fallback Helvetica");
+        assert!(blob.contains("Helvetica"),
+            "fallback Helvetica deve estar presente");
+    }
+
+    #[test]
+    fn font_wiring_segunda_font_diferente_primeira_vence() {
+        let Some(slots) = discover_any_system_fonts() else {
+            eprintln!("[skip] font_wiring_segunda_font_diferente_primeira_vence: \
+                       sem fonts no sistema");
+            return;
+        };
+        let book = build_font_book(&slots);
+        let Some(first) = first_family(&book) else {
+            eprintln!("[skip] FontBook vazio");
+            return;
+        };
+        let Some(second) = second_distinct_family(&book, &first) else {
+            eprintln!("[skip] sistema só tem uma família — teste exige duas distintas");
+            return;
+        };
+
+        // Dois `#set text(font:)` consecutivos. MVP single-font: a
+        // primeira família encontrada na iteração do `PagedDocument`
+        // é a que vai para `export_pdf_with_font`; a segunda é
+        // silenciosamente ignorada (ADR-0055 decisão 3).
+        let src = format!(
+            "#set text(font: \"{}\")\nOlá\n\n#set text(font: \"{}\")\nAdeus",
+            first, second
+        );
+        let (world, _dir) = world_with_fonts(&src, slots);
+        let source = world.source(world.main()).unwrap();
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let pdf = result.expect("compilação deve ter sucesso");
+
+        assert_eq!(&pdf[..5], b"%PDF-");
+        let blob = String::from_utf8_lossy(&pdf);
+        // Verificação MVP: documento com duas fonts distintas produz
+        // exactamente UM Type0 (single-font per document). Detectar
+        // múltiplos Type0 indicaria multi-font (Passo 142 futuro).
+        assert!(blob.contains("CrystallineFont"),
+            "PDF deve embutir a primeira família como CIDFont");
+        let n_type0 = blob.matches("/Subtype /Type0").count();
+        assert_eq!(n_type0, 1,
+            "MVP single-font: exactamente 1 Type0 — encontrados {}", n_type0);
+    }
 }

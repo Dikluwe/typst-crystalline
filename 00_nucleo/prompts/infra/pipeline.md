@@ -39,14 +39,53 @@ pub fn compile_to_pdf_bytes(
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>);
 ```
 
-- Pipeline `eval → introspect → layout → export_pdf`.
-- Usa `export_pdf` (sem fonte custom, Helvetica Type1). Para
-  output com fonte real, caller compõe manualmente via
-  `eval_to_module_with_sink` + `export_pdf_with_font`.
+- Pipeline `eval → introspect → layout → (dispatch export)`.
+- Dispatch font-aware (Passo 140B, ADR-0055):
+  - Procura o primeiro `TextStyle.font` (`FontList`) não-`None`
+    no `PagedDocument` (itens `FrameItem::Text` e `Group`
+    recursivos).
+  - Tenta resolver a primeira família via
+    `world.book().select(name, &FontVariant::default())` → índice.
+  - Se o índice resolve e `world.font(index)` retorna `Some(Font)`,
+    invoca `export_pdf_with_font(&doc, font.as_slice())`.
+  - Caso contrário (sem `font` no documento, família não conhecida
+    pelo `FontBook`, ou slot vazio), fallback `export_pdf(&doc)`
+    (Helvetica Type1).
+- **MVP single-font per document** (ADR-0055 decisão 3): apenas
+  a primeira font encontrada é usada; spans subsequentes com font
+  diferente são silenciosamente ignorados. Fallback chain array
+  (ADR-0055 decisão 4) é Passo 141.
+- Selecção usa `FontVariant::default()` (regular, normal, normal
+  stretch). `weight`/`style` no documento continuam a ser
+  renderizados via faux-bold/faux-italic (Passo 139) — selecção
+  variant-aware é candidato ADR-0055bis.
 - Warnings sempre devolvidos (mesmo em erro) — caller decide se
   os imprime.
 - Módulo sem `content` (AST puramente executivo) produz
   `Ok(Vec::new())` — não é erro.
+
+## Helpers privados de dispatch (Passo 140B)
+
+```rust
+fn first_font_from_doc(doc: &PagedDocument) -> Option<FontList>;
+fn resolve_font(
+    font_list: &FontList,
+    font_book: &FontBook,
+    world:     &dyn World,
+) -> Option<Vec<u8>>;
+```
+
+- `first_font_from_doc`: itera `doc.pages → items` recursivamente
+  (atravessa `FrameItem::Group`) e devolve o primeiro
+  `TextStyle.font` com `Some(FontList)`. `None` se nenhum item
+  tem font definida.
+- `resolve_font`: pega na primeira família de `font_list`,
+  consulta `font_book.select(name, &FontVariant::default())`;
+  se match, devolve `Some(world.font(index)?.as_slice().to_vec())`.
+  Apenas a primeira família é tentada — array fallback é Passo
+  141.
+- Ambas as funções são privadas ao módulo e cobertas por testes
+  unitários em `#[cfg(test)] mod tests`.
 
 ## Integração com ADR-0045
 

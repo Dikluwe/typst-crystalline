@@ -586,6 +586,7 @@ name = "typst-infra"
 version = "0.1.0"
 dependencies = [
  "comemo",
+ "ecow",
  "flate2",
  "image",
  "imagesize",
