@@ -1404,6 +1404,83 @@ mod tests {
             "target par deve emitir warning; diagnostics: {:?}", diags);
     }
 
+    /// Passo 129 (DEBT-1 subset): 9 nomes simbólicos canónicos
+    /// aceitos em `#set text(weight: "..."")`. Zero warning.
+    #[test]
+    fn eval_set_text_weight_simbolico_passo_129() {
+        use comemo::Track;
+        for nome in ["thin", "extralight", "light", "regular", "medium",
+                     "semibold", "bold", "extrabold", "black"] {
+            let src_text = format!("#set text(weight: \"{}\")\nOlá", nome);
+            let world = MockWorld::new(&src_text);
+            let src = World::source(&world, World::main(&world)).unwrap();
+
+            let routines = Routines::new();
+            let traced   = Traced::default();
+            let mut sink = Sink::new();
+            let route    = Route::root();
+            let result   = eval(&routines, &world, traced.track(),
+                                sink.track_mut(), route.track(), &src);
+
+            assert!(result.is_ok(),
+                "eval falhou para nome '{}': {:?}", nome, result);
+            let diags = sink.into_diagnostics();
+            assert!(
+                diags.iter().all(|d| !d.message.contains("'weight'")),
+                "nome simbólico '{}' não deve emitir warning; got: {:?}",
+                nome, diags
+            );
+        }
+    }
+
+    /// Passo 129: nome simbólico desconhecido é capturado silenciosamente
+    /// (`delta.weight` fica `None`; sem warning). Coerente com pattern
+    /// DEBT-1 XS de tipo errado nos outros arms.
+    #[test]
+    fn eval_set_text_weight_simbolico_desconhecido_silent_passo_129() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(weight: \"arcoiris\")\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().all(|d| !d.message.contains("'weight'")),
+            "nome desconhecido deve ser silent (sem warning 'weight'); got: {:?}",
+            diags
+        );
+    }
+
+    /// Passo 129: canary DEBT-50 preservado em quarta iteração do pattern.
+    #[test]
+    fn eval_set_text_font_canary_passo_129() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(font: \"X\")\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().any(|d| d.message.contains("'font'")),
+            "font ainda deve emitir warning (canary); diagnostics: {:?}",
+            diags
+        );
+    }
+
     // ── Testes de Passo 34 — equações matemáticas ────────────────────────────
 
     #[test]

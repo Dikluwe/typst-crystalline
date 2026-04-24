@@ -250,3 +250,43 @@ iteração do pattern.
 **Efeito de layout**: **nenhum** (inerte). Layout não consome
 `tracking` hoje. Consumer futuro integra em `layout_text`
 via offset inter-glyph.
+
+---
+
+### Nota Passo 129 — `weight` simbólico via helper em tipo semântico L1
+
+**Data**: 2026-04-24. DEBT-1 subset (quarta aplicação do pattern).
+
+Arm `"weight"` em `eval_set_text` estendido para aceitar
+`Value::Str` com os 9 nomes canónicos do Typst vanilla
+(`thin/extralight/light/regular/medium/semibold/bold/extrabold/black`).
+Conversão feita por **helper em tipo semântico L1**:
+
+```rust
+impl FontWeight {
+    pub fn from_name(name: &str) -> Option<Self> { ... }
+}
+```
+
+Em `entities/font_book.rs` onde `FontWeight(u16)` + 9 constantes
+já viviam. Arm delega ao helper e extrai `u16` via `to_number()`.
+`StyleDelta.weight` permanece `Option<u16>` (decisão 126).
+
+**Pattern variante registado**: "helper simbólico em tipo
+semântico L1". Aplicável a futuras propriedades simbólicas
+(`font-stretch`, `style`, etc.) — adicionar método
+`from_name(&str) -> Option<Self>` ao tipo L1 existente, delegar
+no arm do eval.
+
+**Divergência vanilla** (nome inválido):
+- Vanilla: erro de cast com mensagem listing valid options.
+- Cristalino: silent skip (coerente pattern DEBT-1 XS).
+Categoria ADR-0033: semântica; aceite temporalmente; teste
+`eval_set_text_weight_simbolico_desconhecido_silent_passo_129`
+documenta.
+
+**Sem aliases**: vanilla não tem `"normal"` → `"regular"`;
+cristalino também não (teste assertions confirmam
+case-sensitive e alias-free).
+
+**Canary DEBT-50 preservado**: quarta iteração consecutiva.
