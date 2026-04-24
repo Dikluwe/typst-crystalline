@@ -314,6 +314,15 @@ pub(super) fn eval_set_rule(
                         delta.tracking = Some(l);
                     }
                 }
+                "leading" => {
+                    // Passo 128 (DEBT-1 subset): captura `Length` inteiro.
+                    // Vanilla coloca `leading` em `par`, não em `text` —
+                    // captura aqui é temporária (UX útil + inerte). Migra
+                    // para `eval_set_par` quando esse target for activado.
+                    if let Value::Length(l) = val {
+                        delta.leading = Some(l);
+                    }
+                }
                 _ => {
                     // Passo 107 (encerra DEBT-49): propriedades não suportadas
                     // de `#set text(...)` emitem warning via Sink em vez de

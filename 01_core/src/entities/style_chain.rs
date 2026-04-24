@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash 3c5d4277
+//! @prompt-hash 647ac837
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -42,6 +42,11 @@ pub struct StyleDelta {
     /// `Length` inteiro (`abs + em`); resolve para pt quando consumer
     /// conhecer font-size. Inerte em layout.
     pub tracking: Option<crate::entities::layout_types::Length>,
+    /// Espaço entre linhas (Passo 128, DEBT-1 subset). Em vanilla é
+    /// propriedade de `par` (não de `text`); capturado em `#set text`
+    /// por conveniência temporária — migra para `eval_set_par` quando
+    /// este for activado. Inerte em layout.
+    pub leading: Option<crate::entities::layout_types::Length>,
 }
 
 impl StyleDelta {
@@ -49,7 +54,7 @@ impl StyleDelta {
         Self {
             bold: None, italic: None, size: None,
             fill: None, heading_level: None,
-            weight: None, tracking: None,
+            weight: None, tracking: None, leading: None,
         }
     }
 }

@@ -1327,6 +1327,83 @@ mod tests {
         );
     }
 
+    /// Passo 128 (DEBT-1 subset): `leading` capturado como `Length`
+    /// inteiro em `#set text(...)`. Divergência vanilla aceite e
+    /// documentada (vanilla coloca em `par`); migra quando
+    /// `eval_set_par` for activado.
+    #[test]
+    fn eval_set_text_leading_passo_128() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(leading: 0.65em)\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().all(|d| !d.message.contains("'leading'")),
+            "leading não deve emitir warning; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// Passo 128: canary DEBT-50 preservado em terceira iteração do
+    /// pattern. Terceira aplicação consecutiva (126/127/128) — pattern
+    /// consolidado.
+    #[test]
+    fn eval_set_text_font_canary_passo_128() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(font: \"X\")\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().any(|d| d.message.contains("'font'")),
+            "font ainda deve emitir warning (canary); diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// Passo 128 — verifica que `#set par(leading: ...)` ainda emite
+    /// warning de **target** desconhecido. Documenta que divergência
+    /// vanilla é temporária: sintaxe canónica ainda não é suportada
+    /// directamente, mas `#set text(leading: ...)` é aceite como
+    /// atalho inerte.
+    #[test]
+    fn eval_set_par_leading_ainda_emite_warning_target_passo_128() {
+        use comemo::Track;
+        let world = MockWorld::new("#set par(leading: 10pt)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().any(|d| d.message.contains("'par'")
+                                && d.message.contains("target")),
+            "target par deve emitir warning; diagnostics: {:?}", diags);
+    }
+
     // ── Testes de Passo 34 — equações matemáticas ────────────────────────────
 
     #[test]
