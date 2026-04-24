@@ -133,6 +133,20 @@ impl TextStyle {
     pub fn italic(size: Pt) -> Self {
         Self { bold: false, italic: true,  size, ..Self::default() }
     }
+
+    /// Passo 139 (Fase B.3 DEBT-52): computa stroke width para
+    /// faux-bold baseado em `weight` + `size`. Weight <= 400
+    /// devolve 0 (sem stroke — sem efeito visível).
+    ///
+    /// Fórmula: `((weight - 400) / 300).max(0) × size × k`.
+    /// `k` é coeficiente de calibração (typical: 0.04).
+    ///
+    /// Weight absent (`None`) é tratado como 400 (regular).
+    pub fn faux_bold_stroke_pt(&self, k: f64) -> f64 {
+        let w = self.weight.unwrap_or(400);
+        let factor = ((w as f64 - 400.0) / 300.0).max(0.0);
+        factor * self.size.val() * k
+    }
 }
 
 // ── Frame e FrameItem ──────────────────────────────────────────────────────
@@ -707,6 +721,73 @@ mod tests {
         let doc = PagedDocument::new(vec![]);
         assert!(doc.is_empty());
         assert_eq!(doc.plain_text(), "");
+    }
+
+    // ── Passo 139 (Fase B.3 DEBT-52): faux_bold_stroke_pt ───────────────
+
+    #[test]
+    fn text_style_faux_bold_400_zero_passo_139() {
+        let style = TextStyle {
+            weight: Some(400),
+            size: Pt(11.0),
+            ..Default::default()
+        };
+        // Weight 400 é regular — factor = 0, stroke = 0.
+        assert_eq!(style.faux_bold_stroke_pt(0.04), 0.0);
+    }
+
+    #[test]
+    fn text_style_faux_bold_700_positivo_passo_139() {
+        let style = TextStyle {
+            weight: Some(700),
+            size: Pt(11.0),
+            ..Default::default()
+        };
+        // Weight 700 = factor 1.0. Stroke = 1.0 × 11.0 × 0.04 = 0.44.
+        let stroke = style.faux_bold_stroke_pt(0.04);
+        assert!((stroke - 0.44).abs() < 0.001,
+            "stroke para weight 700 @ 11pt deve ser 0.44; got {}", stroke);
+    }
+
+    #[test]
+    fn text_style_faux_bold_100_clamp_zero_passo_139() {
+        // Weights abaixo de 400 (thin/extralight/light) → factor
+        // negativo → clamp a 0. Aceite como limitação faux-bold.
+        let style = TextStyle {
+            weight: Some(100),
+            size: Pt(11.0),
+            ..Default::default()
+        };
+        assert_eq!(style.faux_bold_stroke_pt(0.04), 0.0);
+    }
+
+    #[test]
+    fn text_style_faux_bold_escala_com_size_passo_139() {
+        // Size dobra → stroke dobra (proporção visual mantida).
+        let s11 = TextStyle {
+            weight: Some(700), size: Pt(11.0), ..Default::default()
+        }.faux_bold_stroke_pt(0.04);
+        let s22 = TextStyle {
+            weight: Some(700), size: Pt(22.0), ..Default::default()
+        }.faux_bold_stroke_pt(0.04);
+        assert!((s22 - 2.0 * s11).abs() < 0.001,
+            "size 22pt deve dar 2× stroke de size 11pt; s11={}, s22={}", s11, s22);
+    }
+
+    #[test]
+    fn text_style_faux_bold_none_weight_tratado_como_400_passo_139() {
+        // `weight = None` tratado como 400 → stroke 0.
+        // Equivalente a `Some(400)`.
+        let none = TextStyle {
+            weight: None, size: Pt(11.0), ..Default::default()
+        };
+        let four = TextStyle {
+            weight: Some(400), size: Pt(11.0), ..Default::default()
+        };
+        assert_eq!(
+            none.faux_bold_stroke_pt(0.04),
+            four.faux_bold_stroke_pt(0.04)
+        );
     }
 
     // ── Passo 25 — tipos tipográficos (ADR-0028) ─────────────────────────────

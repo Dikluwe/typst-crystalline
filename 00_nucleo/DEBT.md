@@ -668,7 +668,11 @@ Resumo por dificuldade:
       Semântica "opt soma" (divergência subtil vanilla
       documentada). Exporter inalterado — frame carrega y
       correcto.
-- [ ] Consumer `weight` (faux-bold PDF + selecção variante).
+- [x] Consumer `weight` faux-bold. **Resolvido no Passo 139** —
+      `TextStyle::faux_bold_stroke_pt` + exporter emit `2 Tr`
+      + `{stroke} w` wrapped em `q/Q`. K=0.04 calibração
+      inicial. Aproximação visual até font embedding real.
+      **Fase B completa**.
 - [ ] Consumer `font` string (nome via `FontBook::select`).
 - [ ] Consumer `font` array (fallback chain).
 - [ ] Consumer `lang` hyphenation (requer crate).

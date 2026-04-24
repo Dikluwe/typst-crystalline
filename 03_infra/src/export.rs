@@ -623,8 +623,25 @@ fn build_page_stream_type1(
                     String::new()
                 };
 
+                // Passo 139 (Fase B.3 DEBT-52): faux-bold via PDF
+                // `2 Tr` (fill + stroke) + `{stroke_pt} w`. Estratégia
+                // de aproximação até font embedding real (Fase C).
+                // Wrapped em `q/Q` porque `w` é graphics state — não
+                // pode atravessar para Lines seguintes.
+                const FAUX_BOLD_K: f64 = 0.04;
+                let stroke_pt = style.faux_bold_stroke_pt(FAUX_BOLD_K);
+                let (q_open, q_close, bold_ops) = if stroke_pt > f64::EPSILON {
+                    (
+                        "q\n",
+                        "Q\n",
+                        format!("2 Tr\n{:.3} w\n", stroke_pt),
+                    )
+                } else {
+                    ("", "", String::new())
+                };
+
                 ops.push_str(&format!(
-                    "BT\n/{font_ref} {:.1} Tf\n{tc_op}{:.1} {:.1} Td\n({safe}) Tj\nET\n",
+                    "{q_open}BT\n/{font_ref} {:.1} Tf\n{tc_op}{bold_ops}{:.1} {:.1} Td\n({safe}) Tj\nET\n{q_close}",
                     style.size.val(), pos.x.val(), pdf_y
                 ));
             }
