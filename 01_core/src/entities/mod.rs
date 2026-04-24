@@ -26,6 +26,7 @@ pub mod counter_state;
 pub mod engine;
 pub mod label;
 pub mod func;
+pub mod lang;
 pub mod glyph_variants;
 pub mod layout_types;
 pub mod math_constants;

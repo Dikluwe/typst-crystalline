@@ -1481,10 +1481,11 @@ mod tests {
         );
     }
 
-    /// Passo 130 (DEBT-1 subset): `lang` capturado como `EcoString` raw
-    /// (sem validação BCP 47). Zero warning.
+    /// Passo 131B (ADR-0052): `lang` valido (ISO 639-1) é aceite
+    /// e capturado como `Lang`. Zero warning. Renomeado de
+    /// `eval_set_text_lang_passo_130` (130 → 131B).
     #[test]
-    fn eval_set_text_lang_passo_130() {
+    fn eval_set_text_lang_valido_passo_131b() {
         use comemo::Track;
         let world = MockWorld::new("#set text(lang: \"pt\")\nOlá");
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -1500,16 +1501,17 @@ mod tests {
         let diags = sink.into_diagnostics();
         assert!(
             diags.iter().all(|d| !d.message.contains("'lang'")),
-            "lang não deve emitir warning; diagnostics: {:?}",
+            "lang válido não deve emitir warning; diagnostics: {:?}",
             diags
         );
     }
 
-    /// Passo 130: valores BCP 47 compostos (region, script) aceites
-    /// literalmente — `"en-GB"`, `"zh-Hant"`. Documenta que cristalino
-    /// não valida; consumer futuro normaliza.
+    /// Passo 131B (ADR-0052, invertido de 130): valores compostos
+    /// BCP 47 como `"en-GB"` deixam de ser silent — agora erram
+    /// hard com a mensagem literal do vanilla (paridade ADR-0033).
+    /// Documenta a breaking semantic change face ao Passo 130.
     #[test]
-    fn eval_set_text_lang_bcp47_composto_passo_130() {
+    fn eval_set_text_lang_composto_emite_erro_passo_131b() {
         use comemo::Track;
         let world = MockWorld::new("#set text(lang: \"en-GB\")\nHello");
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -1521,18 +1523,47 @@ mod tests {
         let result   = eval(&routines, &world, traced.track(),
                             sink.track_mut(), route.track(), &src);
 
-        assert!(result.is_ok(), "eval falhou: {:?}", result);
-        let diags = sink.into_diagnostics();
+        assert!(result.is_err(), "lang composto deve emitir erro; got: {:?}", result);
+        let errs = result.unwrap_err();
         assert!(
-            diags.iter().all(|d| !d.message.contains("'lang'")),
-            "lang composto não deve emitir warning; diagnostics: {:?}",
-            diags
+            errs.iter().any(|e|
+                e.message.contains("expected two or three letter language code")
+            ),
+            "mensagem deve ser literal vanilla; errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
         );
     }
 
-    /// Passo 130: canary DEBT-50 preservado em quinta iteração do pattern.
+    /// Passo 131B: valor totalmente inválido (4 letras, não ASCII, etc.)
+    /// emite erro hard com mensagem literal vanilla.
     #[test]
-    fn eval_set_text_font_canary_passo_130() {
+    fn eval_set_text_lang_invalido_emite_erro_hard_passo_131b() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(lang: \"xxxx\")\nTexto");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_err(), "lang inválido deve emitir erro; got: {:?}", result);
+        let errs = result.unwrap_err();
+        assert!(
+            errs.iter().any(|e|
+                e.message.contains("expected two or three letter language code")
+            ),
+            "mensagem deve ser literal vanilla; errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+        );
+    }
+
+    /// Passo 131B: canary DEBT-50 preservado em sexta iteração do pattern
+    /// (renomeado de `eval_set_text_font_canary_passo_130`).
+    #[test]
+    fn eval_set_text_font_canary_passo_131b() {
         use comemo::Track;
         let world = MockWorld::new("#set text(font: \"X\")\nOlá");
         let src = World::source(&world, World::main(&world)).unwrap();
