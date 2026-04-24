@@ -23,3 +23,10 @@ time        = { workspace = true }  # ADR-0021 — today() em SystemWorld
 imagesize   = "0.12"                # leitura de cabeçalho de imagem — L3 apenas
 image       = { version = "0.24", default-features = false, features = ["png", "jpeg"] }
 flate2      = "1.0"                 # compressão Zlib para PNG /FlateDecode
+
+[dev-dependencies]
+# `EcoString` em testes do dispatch font-aware (Passo 140B): tests
+# constroem `FontList::single(EcoString::from(...))`. `ecow` já é
+# dep transitiva via `typst-core`; promovida a dev-dep explícita
+# por ser usada no #[cfg(test)] de `pipeline.rs`.
+ecow = { workspace = true }

@@ -673,7 +673,17 @@ Resumo por dificuldade:
       + `{stroke} w` wrapped em `q/Q`. K=0.04 calibração
       inicial. Aproximação visual até font embedding real.
       **Fase B completa**.
-- [ ] Consumer `font` string (nome via `FontBook::select`).
+- [x] Consumer `font` string (nome via `FontBook::select`).
+      **Resolvido no Passo 140B** — `compile_to_pdf_bytes`
+      passou a despachar para `export_pdf_with_font` quando
+      `first_font_from_doc(&doc)` + `resolve_font(...)` produzem
+      bytes (`FontBook::select` com `FontVariant::default()`).
+      MVP single-font per document: a primeira família encontrada
+      no `PagedDocument` vence; spans subsequentes com font
+      diferente são silenciosamente ignorados (ADR-0055 decisão 3).
+      Selecção variant-aware (font-file "Bold"/"Italic" dedicado)
+      é limitação aceite — faux-bold do Passo 139 continua a ser
+      o caminho para `weight: 700`. **Início da Fase C.**
 - [ ] Consumer `font` array (fallback chain).
 - [ ] Consumer `lang` hyphenation (requer crate).
 - [ ] **Fase D opcional**: ADR-0054bis autorizar `regex` +
