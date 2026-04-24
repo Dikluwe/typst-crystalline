@@ -1,5 +1,5 @@
 # Prompt L0 — entities/font-book
-Hash do Código: f5594453
+Hash do Código: 7916774f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/font_book.rs`
@@ -19,6 +19,13 @@ A extracção de `FontInfo` a partir de bytes fica em `03_infra/src/fonts.rs`.
 ```rust
 pub enum FontStyle { Normal, Italic, Oblique }
 pub struct FontWeight(pub u16);   // 100–900 CSS
+impl FontWeight {
+    pub const THIN|EXTRALIGHT|LIGHT|REGULAR|MEDIUM|SEMIBOLD|BOLD|EXTRABOLD|BLACK: Self;
+    pub fn from_number(weight: u16) -> Self;   // clamp 100-900
+    pub fn from_name(name: &str) -> Option<Self>;  // Passo 129 — 9 canónicos
+    pub fn to_number(self) -> u16;
+    pub fn distance(self, other: Self) -> u16;
+}
 pub struct FontStretch(pub u16);  // 500–2000 (NORMAL=1000)
 pub struct FontVariant { pub style, pub weight, pub stretch }
 pub struct FontFlags { pub monospace: bool, pub serif: bool }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/font-book.md
-//! @prompt-hash d6b26f5c
+//! @prompt-hash 03e8b583
 //! @layer L1
 //! @updated 2026-03-27
 
@@ -45,6 +45,24 @@ impl FontWeight {
     /// Cria FontWeight a partir de número, clampando para [100, 900].
     pub fn from_number(weight: u16) -> Self {
         Self(weight.clamp(100, 900))
+    }
+
+    /// Mapeia nome simbólico (9 canónicos do Typst vanilla) para
+    /// `FontWeight`. Devolve `None` para qualquer outro nome
+    /// (Passo 129, DEBT-1 subset).
+    pub fn from_name(name: &str) -> Option<Self> {
+        match name {
+            "thin"       => Some(Self::THIN),
+            "extralight" => Some(Self::EXTRALIGHT),
+            "light"      => Some(Self::LIGHT),
+            "regular"    => Some(Self::REGULAR),
+            "medium"     => Some(Self::MEDIUM),
+            "semibold"   => Some(Self::SEMIBOLD),
+            "bold"       => Some(Self::BOLD),
+            "extrabold"  => Some(Self::EXTRABOLD),
+            "black"      => Some(Self::BLACK),
+            _            => None,
+        }
     }
 
     /// O número CSS entre 100 e 900.
@@ -211,6 +229,27 @@ mod tests {
             },
             flags: FontFlags::default(),
         }
+    }
+
+    #[test]
+    fn font_weight_from_name_nomes_canonicos_passo_129() {
+        assert_eq!(FontWeight::from_name("thin"),       Some(FontWeight::THIN));
+        assert_eq!(FontWeight::from_name("extralight"), Some(FontWeight::EXTRALIGHT));
+        assert_eq!(FontWeight::from_name("light"),      Some(FontWeight::LIGHT));
+        assert_eq!(FontWeight::from_name("regular"),    Some(FontWeight::REGULAR));
+        assert_eq!(FontWeight::from_name("medium"),     Some(FontWeight::MEDIUM));
+        assert_eq!(FontWeight::from_name("semibold"),   Some(FontWeight::SEMIBOLD));
+        assert_eq!(FontWeight::from_name("bold"),       Some(FontWeight::BOLD));
+        assert_eq!(FontWeight::from_name("extrabold"),  Some(FontWeight::EXTRABOLD));
+        assert_eq!(FontWeight::from_name("black"),      Some(FontWeight::BLACK));
+    }
+
+    #[test]
+    fn font_weight_from_name_desconhecido_e_none_passo_129() {
+        assert_eq!(FontWeight::from_name("arcoiris"), None);
+        assert_eq!(FontWeight::from_name(""),          None);
+        assert_eq!(FontWeight::from_name("Bold"),      None); // case-sensitive
+        assert_eq!(FontWeight::from_name("normal"),    None); // sem alias de "regular"
     }
 
     #[test]

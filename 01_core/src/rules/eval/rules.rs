@@ -15,6 +15,7 @@ use crate::entities::ast::code::{SetRule, ShowRule as ShowRuleNode};
 use crate::entities::ast::expr::Arg;
 use crate::entities::content::Content;
 use crate::entities::engine::Engine;
+use crate::entities::font_book::FontWeight;
 use crate::entities::show::{NodeKind, Selector, ShowRule};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
@@ -300,9 +301,16 @@ pub(super) fn eval_set_rule(
                     // fora do range `u16` é silenciosamente ignorado
                     // (mesmo padrão dos outros arms). Inerte em layout —
                     // consumo é trabalho futuro.
+                    // Passo 129: também aceita nomes simbólicos (9
+                    // canónicos via `FontWeight::from_name`). Nome
+                    // desconhecido → silent skip.
                     if let Value::Int(n) = val {
                         if let Ok(w) = u16::try_from(n) {
                             delta.weight = Some(w);
+                        }
+                    } else if let Value::Str(s) = val {
+                        if let Some(fw) = FontWeight::from_name(s.as_str()) {
+                            delta.weight = Some(fw.to_number());
                         }
                     }
                 }
