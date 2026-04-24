@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 22d2d690
+Hash do Código: 1a747482
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -19,6 +19,10 @@ pattern.
 Passo 122 (ADR-0051) adicionou flag `--font-path DIR` (repetível
 via `ArgAction::Append`) com passagem directa `Vec<PathBuf>` para
 L4 — terceira flag; fecha o preview original da ADR-0051.
+Passo 123 (ADR-0051) adiciona env vars `TYPST_ROOT` e
+`TYPST_FONT_PATHS` + `value_delimiter = ENV_PATH_SEP` em
+`--font-path` (feature `env` do clap). Precedência: flag > env >
+default.
 
 ## Contrato
 
@@ -100,11 +104,12 @@ struct Args {
     output: Option<PathBuf>,           // positional opcional
     #[arg(short = 'o', long = "output", value_name = "FILE")]
     output_flag: Option<PathBuf>,      // sinónimo via flag
-    #[arg(long = "root", value_name = "DIR")]
-    root: Option<PathBuf>,             // project root (Passo 121)
-    #[arg(long = "font-path", value_name = "DIR",
+    #[arg(long = "root", env = "TYPST_ROOT", value_name = "DIR")]
+    root: Option<PathBuf>,             // project root (121); env em 123
+    #[arg(long = "font-path", env = "TYPST_FONT_PATHS", value_name = "DIR",
+          value_delimiter = ENV_PATH_SEP,
           action = clap::ArgAction::Append)]
-    font_paths: Vec<PathBuf>,          // repetível (Passo 122)
+    font_paths: Vec<PathBuf>,          // repetível (122); env+delim em 123
     #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
     color: ColorWhen,
 }
@@ -149,13 +154,31 @@ env vars, subcomandos) entram **aqui** — não em L3 nem L4.
 `RunIntent` ganha campos conforme necessário. Padrão estabelecido
 pelos Passos 117, 120, 121 e 122 (ADR-0051).
 
-## Nota sobre `font_paths` (Passo 122)
+## Nota sobre `font_paths` (Passo 122 + 123)
 
-- **`ArgAction::Append`** (não `value_delimiter`): divergência
-  deliberada vs vanilla (que usa `:`/`;` separador). UX moderna:
-  `--font-path /a --font-path /b`. Documentado em `--help`.
+- **`ArgAction::Append` + `value_delimiter = ENV_PATH_SEP`**
+  combinados: `--font-path /a --font-path /b` e
+  `TYPST_FONT_PATHS=/a:/b` ambos produzem `[/a, /b]`.
 - **Passagem directa** para L4 sem helper `resolve_font_paths_with`:
   lógica é `args.font_paths` move. P6 de ADR-0051 é sobre
   testabilidade; passagem directa não precisa de helper.
 - **I/O em L3**: L2 não descobre fontes. `discover_fonts(&paths)`
   vive em `typst_infra::fonts`; L4 compõe.
+
+## Env vars (Passo 123)
+
+| Flag | Env var | Precedência |
+|------|---------|-------------|
+| `--root` | `TYPST_ROOT` | flag > env > default (`input.parent()`) |
+| `--font-path` | `TYPST_FONT_PATHS` | flag > env > default (`Vec::new()`) |
+
+- Feature `env` do clap activa em `Cargo.toml`.
+- `--help` mostra `[env: TYPST_ROOT=]` e `[env: TYPST_FONT_PATHS=]`
+  automaticamente.
+- `ENV_PATH_SEP: char = if cfg!(windows) { ';' } else { ':' }`
+  (const privado em `cli.rs`, vanilla-style).
+- Flag explícita substitui env **inteiramente** (não concatena);
+  comportamento clap standard.
+- `resolve_root_with` e passagem directa de `font_paths`
+  **não mudam** — clap preenche `args.root` / `args.font_paths`
+  transparentemente, quer da flag quer do env.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 3041d1e3
+//! @prompt-hash f7783fcc
 //! @layer L2
 //! @updated 2026-04-23
 //!
@@ -23,6 +23,12 @@ use std::path::{Path, PathBuf};
 
 use clap::Parser;
 
+/// Separador de paths em env vars estilo `PATH` (Passo 123).
+///
+/// Alinhado com vanilla typst-cli: `':'` em Unix, `';'` em Windows.
+/// Usado por `--font-path` para suportar `TYPST_FONT_PATHS=/a:/b`.
+const ENV_PATH_SEP: char = if cfg!(windows) { ';' } else { ':' };
+
 /// Modo de coloração para diagnostics (ADR-0048).
 ///
 /// Enum dedicada a *diagnóstico do compilador*; não confundir com
@@ -44,6 +50,8 @@ pub enum ColorWhen {
 // + default derivado (`input.with_extension("pdf")`).
 // Passo 121 (ADR-0051): + `--root DIR` (fallback para input.parent()).
 // Passo 122 (ADR-0051): + `--font-path DIR` (repetível; raw para L3).
+// Passo 123 (ADR-0051): env vars TYPST_ROOT + TYPST_FONT_PATHS;
+// `--font-path` ganha `value_delimiter = ENV_PATH_SEP`.
 #[derive(Parser, Debug)]
 #[command(
     name = "typst",
@@ -66,14 +74,18 @@ struct Args {
     /// Project root directory. Used to locate the main file and
     /// (in future) virtualize imports. Defaults to the parent
     /// directory of `input`, or `.` if input has no parent.
-    #[arg(long = "root", value_name = "DIR")]
+    #[arg(long = "root", env = "TYPST_ROOT", value_name = "DIR")]
     root: Option<PathBuf>,
 
     /// Additional directories to search for fonts. May be repeated.
+    /// Also accepts a single value with `:` (Unix) / `;` (Windows)
+    /// as separator, e.g. via `TYPST_FONT_PATHS=/a:/b`.
     /// Invalid paths are silently skipped by the font discoverer.
     #[arg(
         long = "font-path",
+        env = "TYPST_FONT_PATHS",
         value_name = "DIR",
+        value_delimiter = ENV_PATH_SEP,
         action = clap::ArgAction::Append,
     )]
     font_paths: Vec<PathBuf>,
