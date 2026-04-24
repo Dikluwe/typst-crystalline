@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 8bb0c702
+//! @prompt-hash a2b00a19
 //! @layer L4
 //! @updated 2026-04-23
 //!

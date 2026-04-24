@@ -1,80 +1,39 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 8bb0c702
+//! @prompt-hash a2b00a19
 //! @layer L4
 //! @updated 2026-04-23
 //!
-//! CLI mínima do compilador cristalino (Passo 113, ADR-0046;
-//! argparsing migrado para `clap` no Passo 115, ADR-0047;
-//! cores ANSI no Passo 116, ADR-0048).
+//! CLI mínima do compilador cristalino — composição thin.
 //!
-//! Uso:
-//! ```text
-//! typst <INPUT> <OUTPUT> [--color=auto|always|never]
-//! typst --help
-//! typst --version
-//! ```
+//! L4 apenas orquestra: `cli::parse()` em L2 → pipeline em L3 →
+//! escrita de output. Toda a lógica de args/cores/flags vive em L2
+//! (`typst_shell::cli`); toda a lógica de compilação vive em L3
+//! (`typst_infra::pipeline`).
 //!
-//! Pipeline: `SystemWorld::new` → `eval_to_module_with_sink` →
-//! `introspect` → `layout` → `export_pdf` → escrita de bytes.
-//! Warnings e errors formatados via ADR-0045
-//! (`path:linha:coluna: severity: mensagem`) e emitidos em stderr.
-//! Cores ANSI aplicadas conforme `--color` + `NO_COLOR` + isatty
-//! (ADR-0048).
+//! Passos relevantes:
+//! - Passo 113 (ADR-0046): CLI mínima.
+//! - Passo 115 (ADR-0047): `clap` argparsing.
+//! - Passo 116 (ADR-0048): cores ANSI.
+//! - Passo 117 (ADR-0049): CLI movida para L2; L4 é composição pura.
 //!
 //! Exit codes:
-//! - 0: sucesso (PDF escrito).
-//! - 1: erro de compilação (eval falhou ou gerou errors).
-//! - 2: erro de argumentos (clap) ou I/O.
+//! - 0: sucesso.
+//! - 1: erro de compilação (eval).
+//! - 2: erro de I/O ou argumentos (clap, via L2).
 
-use std::io::IsTerminal;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
-use clap::Parser;
-
 use typst_core::contracts::world::World;
-use typst_infra::diagnostic_format::{
-    drain_diagnostics_to_stderr, resolve_colored_with, ColorWhen,
-};
+use typst_infra::diagnostic_format::drain_diagnostics_to_stderr;
 use typst_infra::pipeline::compile_to_pdf_bytes;
 use typst_infra::world::SystemWorld;
-
-// Passo 115 escopo (a): positional `input output`.
-// Passo 116 (ADR-0048): + `--color=auto|always|never`.
-// `ColorWhen` vive em L3 (regra V12: L4 não cria tipos).
-#[derive(Parser, Debug)]
-#[command(
-    name = "typst",
-    version,
-    about = "Typst compiler (crystalline)"
-)]
-struct Args {
-    /// Input .typ file.
-    input: PathBuf,
-    /// Output PDF file.
-    output: PathBuf,
-    /// When to use coloured diagnostics.
-    #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
-    color: ColorWhen,
-}
-
-/// Wrapper em torno de `resolve_colored_with` (L3) que lê env e tty.
-fn resolve_colored(choice: &ColorWhen) -> bool {
-    resolve_colored_with(
-        choice,
-        std::env::var_os("NO_COLOR").is_some(),
-        std::io::stderr().is_terminal(),
-    )
-}
+use typst_shell::cli::{self, RunIntent};
 
 fn main() -> ExitCode {
-    let args = Args::parse();
-    let input = args.input;
-    let output = args.output;
-    let colored = resolve_colored(&args.color);
+    let RunIntent { input, output, colored } = cli::parse();
 
-    // Raiz do projecto: directório do input (ou "." se input é bare).
     let root = input
         .parent()
         .filter(|p| !p.as_os_str().is_empty())
@@ -105,13 +64,9 @@ fn main() -> ExitCode {
         }
     };
 
-    // Path do source para mensagens de diagnóstico (ADR-0045).
     let source_path = input.display().to_string();
 
-    // Pipeline: eval → introspect → layout → export_pdf.
     let (result, warnings) = compile_to_pdf_bytes(&world, &source);
-
-    // Warnings primeiro — consistência com convenção gcc/clang.
     drain_diagnostics_to_stderr(&warnings, &source, &source_path, colored);
 
     match result {
@@ -128,9 +83,3 @@ fn main() -> ExitCode {
         }
     }
 }
-
-// Testes de `resolve_colored_with` vivem em L3
-// (`03_infra/src/diagnostic_format.rs`) porque a função pura vive lá.
-// L4 só compõe leitura real de env/tty — não testado unitariamente
-// (pipe em `cargo test` faz `is_terminal` = false; comportamento
-// observável coberto por `04_wiring/tests/cli.rs`).

@@ -16,4 +16,6 @@ typst-core  = { path = "../01_core" }
 typst-shell = { path = "../02_shell" }
 typst-infra = { path = "../03_infra" }
 anyhow      = { workspace = true }
-clap        = { workspace = true }  # ADR-0047 — derive parser (Passo 115)
+# `clap` foi removido no Passo 117 (ADR-0049): CLI vive agora em L2
+# (`02_shell/src/cli.rs`). L4 é composição pura — chama
+# `typst_shell::cli::parse()` e orquestra o pipeline.

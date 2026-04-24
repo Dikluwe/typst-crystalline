@@ -1,6 +1,11 @@
 # ADR-0048 — Cores ANSI nos diagnósticos (L3 formata com `bool`, L4 decide)
 
 **Estado**: EM VIGOR (Passo 116.E, 2026-04-23)
+**Nota Passo 117 (ADR-0049)**: camada corrigida — `ColorWhen` e
+`resolve_colored_with` vivem agora em L2 (`02_shell/src/cli.rs`),
+não em L3. L3 mantém apenas `format_diagnostic(colored: bool)` +
+paleta ANSI. Decisões funcionais deste ADR (paleta, precedência
+flag > NO_COLOR > isatty) mantêm-se.
 **Data**: 2026-04-23
 **Autor**: Passo 116
 **Revoga**: nenhuma.
