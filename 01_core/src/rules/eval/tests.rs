@@ -1277,6 +1277,56 @@ mod tests {
         );
     }
 
+    /// Passo 127 (ADR-0038 anotada, DEBT-1 subset): `tracking` capturado
+    /// como `Length` inteiro sem warning. Primeira propriedade com tipo
+    /// semântico (preserva `abs + em`, não colapsa para pt).
+    #[test]
+    fn eval_set_text_tracking_passo_127() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(tracking: 0.5pt)\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().all(|d| !d.message.contains("'tracking'")),
+            "tracking não deve emitir warning; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// Passo 127: canary DEBT-50 preservado em segunda iteração do
+    /// pattern — `font` continua a emitir warning. Defende contra
+    /// regressão durante migrações futuras.
+    #[test]
+    fn eval_set_text_font_canary_passo_127() {
+        use comemo::Track;
+        let world = MockWorld::new("#set text(font: \"X\")\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().any(|d| d.message.contains("'font'")),
+            "font ainda deve emitir warning (canary); diagnostics: {:?}",
+            diags
+        );
+    }
+
     // ── Testes de Passo 34 — equações matemáticas ────────────────────────────
 
     #[test]

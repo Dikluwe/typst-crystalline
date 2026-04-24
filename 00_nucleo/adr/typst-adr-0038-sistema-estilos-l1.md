@@ -220,3 +220,33 @@ garante.
 via `u16::try_from`). CSS/OpenType definem 0-1000 mas validação
 fica para o consumer. Out-of-range é silenciosamente ignorado
 (coerente com outros arms de tipo errado).
+
+---
+
+### Nota Passo 127 — `tracking` como primeira propriedade com tipo semântico
+
+**Data**: 2026-04-24. DEBT-1 subset (segunda propriedade numérica).
+
+`StyleDelta.tracking: Option<Length>` adicionado para capturar
+`#set text(tracking: 0.5pt)` (ou `0.1em`, ou `1pt + 0.05em`)
+sem warning.
+
+**Extensão do pattern do Passo 126**: propriedades podem usar
+**tipo semântico** de L1 (`Length`), não apenas primitivos.
+Preserva-se o valor inteiro — `Length { abs, em }` sobrevive
+sem colapsar para pt. Quando consumer existir, `resolve_pt(
+font_size)` dá o valor final.
+
+**Contraste com `size`** (legado): `size` colapsa para
+`Option<f64>` via `l.abs.to_pt()`, perdendo componente `em`.
+Este passo **não** replica essa perda — futuras propriedades
+novas devem preferir `Option<Length>` para preservar
+precisão.
+
+**Canary DEBT-50 preservado**: teste
+`eval_set_text_font_canary_passo_127` garante em nova
+iteração do pattern.
+
+**Efeito de layout**: **nenhum** (inerte). Layout não consome
+`tracking` hoje. Consumer futuro integra em `layout_text`
+via offset inter-glyph.

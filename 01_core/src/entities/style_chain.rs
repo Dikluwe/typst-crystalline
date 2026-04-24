@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash f8528894
+//! @prompt-hash 3c5d4277
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -38,6 +38,10 @@ pub struct StyleDelta {
     /// Peso da fonte (Passo 126, ADR-0038). Valor raw `u16` (CSS/OpenType
     /// 0-1000). Capturado pelo eval mas ainda inerte em layout.
     pub weight: Option<u16>,
+    /// Espaçamento adicional entre glyphs (Passo 127, ADR-0038). Preserva
+    /// `Length` inteiro (`abs + em`); resolve para pt quando consumer
+    /// conhecer font-size. Inerte em layout.
+    pub tracking: Option<crate::entities::layout_types::Length>,
 }
 
 impl StyleDelta {
@@ -45,7 +49,7 @@ impl StyleDelta {
         Self {
             bold: None, italic: None, size: None,
             fill: None, heading_level: None,
-            weight: None,
+            weight: None, tracking: None,
         }
     }
 }
