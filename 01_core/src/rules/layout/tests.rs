@@ -1762,6 +1762,104 @@ mod tests_set_rule_integration {
             "tracking não deve afectar gap entre palavras de 1 char; diff={}",
             dif);
     }
+
+    // ── Passo 138 (Fase B.2 DEBT-52): consumer leading ───────────────────
+    //
+    // Helper local: extrai `pos.x` + `pos.y` de cada FrameItem::Text.
+    fn text_items_with_xy(
+        doc: &PagedDocument
+    ) -> Vec<(String, crate::entities::layout_types::TextStyle, f64, f64)> {
+        doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, style, pos } => {
+                    Some((text.to_string(), style.clone(), pos.x.val(), pos.y.val()))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// `#set par(leading: X)` afasta linhas. Cristalino não tem
+    /// `Content::Parbreak` — line break vem de heading (que chama
+    /// flush_line) ou wrap.
+    ///
+    /// Fórmula escolhida (opt soma): `line_height = default + leading_pt`.
+    /// Input com heading força flush_line entre linhas.
+    #[test]
+    fn layout_leading_afecta_posicao_linha_seguinte_passo_138() {
+        // heading com `=` no início da linha + \n para forçar line break.
+        let sem = layout_typst("= Título\nlinha2");
+        let com = layout_typst(
+            "#set par(leading: 20pt)\n= Título\nlinha2"
+        );
+
+        let sem_items = text_items_with_xy(&sem);
+        let com_items = text_items_with_xy(&com);
+
+        // "linha2" aparece após o heading — flush_line(s) intermédios.
+        let l2_sem = sem_items.iter().find(|(t, _, _, _)| t == "linha2");
+        let l2_com = com_items.iter().find(|(t, _, _, _)| t == "linha2");
+
+        assert!(l2_sem.is_some(), "linha2 deve aparecer sem leading; items: {:?}",
+            sem_items.iter().map(|(t, _, _, _)| t).collect::<Vec<_>>());
+        assert!(l2_com.is_some(), "linha2 deve aparecer com leading; items: {:?}",
+            com_items.iter().map(|(t, _, _, _)| t).collect::<Vec<_>>());
+
+        let y_sem = l2_sem.unwrap().3;
+        let y_com = l2_com.unwrap().3;
+
+        // Frame coord: y cresce para baixo. Com leading positivo, linha
+        // após heading está mais abaixo (y maior).
+        assert!(y_com > y_sem,
+            "linha2 deve ter y maior com leading; sem={}, com={}",
+            y_sem, y_com);
+    }
+
+    /// Leading não afecta documento de 1 linha (leading = inter-line;
+    /// sem linha 2, não há onde aplicar).
+    #[test]
+    fn layout_leading_nao_afecta_documento_uma_linha_passo_138() {
+        let sem = layout_typst("uma linha");
+        let com = layout_typst(
+            "#set par(leading: 10pt)\numa linha"
+        );
+
+        let sem_items = text_items_with_xy(&sem);
+        let com_items = text_items_with_xy(&com);
+
+        // Primeiro item de cada (primeira word): y idêntico porque
+        // leading só afecta linhas 2+.
+        let primeiro_sem = &sem_items[0];
+        let primeiro_com = &com_items[0];
+
+        assert!((primeiro_sem.3 - primeiro_com.3).abs() < 0.01,
+            "primeira linha: y deve ser igual sem vs com leading; sem={}, com={}",
+            primeiro_sem.3, primeiro_com.3);
+    }
+
+    /// Regressão: leading = 0pt comporta-se igual a sem set.
+    /// Valida fórmula soma (default + leading; 0 leading = default).
+    #[test]
+    fn layout_leading_zero_preserva_comportamento_base_passo_138() {
+        let sem = layout_typst("= Título\nlinha2");
+        let com = layout_typst(
+            "#set par(leading: 0pt)\n= Título\nlinha2"
+        );
+
+        let sem_items = text_items_with_xy(&sem);
+        let com_items = text_items_with_xy(&com);
+
+        assert_eq!(sem_items.len(), com_items.len(),
+            "mesmo número de items; sem: {}, com: {}",
+            sem_items.len(), com_items.len());
+
+        for (s, c) in sem_items.iter().zip(com_items.iter()) {
+            assert!((s.3 - c.3).abs() < 0.01,
+                "leading 0pt deve ser igual a sem set; item '{}': sem.y={}, com.y={}",
+                s.0, s.3, c.3);
+        }
+    }
 }
 
 // ── Passo 103.D: Integração `#show` end-to-end ────────────────────────────
