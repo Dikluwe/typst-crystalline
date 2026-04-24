@@ -1,13 +1,18 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/infra/diagnostic_format.md
-//! @prompt-hash 4f63b661
-//! @layer L3
+//! @prompt 00_nucleo/prompts/shell/diagnostic.md
+//! @prompt-hash 8f708d2b
+//! @layer L2
 //! @updated 2026-04-23
 //!
-//! Formato rico de diagnósticos (ADR-0045, Passo 111; cores ADR-0048,
-//! Passo 116).
+//! Formatter de diagnósticos para saída em terminal (Passo 119,
+//! ADR-0050 — completa migração iniciada no Passo 117/ADR-0049).
 //!
-//! Produz saída gcc/clang-compatível:
+//! Migrado de `03_infra/src/diagnostic_format.rs`. Razão: decidir
+//! o formato user-facing (palavras "warning:", cores ANSI,
+//! indentação de hints) é concern de apresentação — pertence a
+//! L2 (shell). L3 mantém-se I/O puro.
+//!
+//! Formato gcc/clang-compatível (ADR-0045):
 //!
 //! ```text
 //! path:linha:coluna: severity: message
@@ -15,19 +20,14 @@
 //!   hint: hint 2
 //! ```
 //!
-//! Parâmetro `colored: bool`: quando `true`, aplica escapes ANSI
-//! (vermelho/amarelo bold para severity, dim para path, bold para
-//! message, ciano bold para hint). A decisão de quando colorir
-//! é delegada a L2 (`typst_shell::cli::resolve_colored_with` — ADR-0049).
-//!
-//! Passo 117 (ADR-0049) removeu `ColorWhen`, `resolve_colored_with`
-//! e testes relacionados deste módulo para L2. Razão: L3 é I/O puro,
-//! não conhece argparsing nem env vars.
+//! Parâmetro `colored: bool` (ADR-0048): quando `true`, aplica
+//! escapes ANSI. Decisão de quando colorir é tomada pelo caller
+//! em L2 via `cli::resolve_colored_with`.
 
 use typst_core::entities::source::Source;
 use typst_core::entities::source_result::{Severity, SourceDiagnostic};
 
-// ── Paleta ANSI (Passo 116, ADR-0048) ────────────────────────────────────
+// ── Paleta ANSI (Passo 116, ADR-0048; migrada Passo 119, ADR-0050) ──────
 
 const ANSI_RED_BOLD:    &str = "\x1b[1;31m";
 const ANSI_YELLOW_BOLD: &str = "\x1b[1;33m";
@@ -36,13 +36,13 @@ const ANSI_DIM:         &str = "\x1b[2m";
 const ANSI_BOLD:        &str = "\x1b[1m";
 const ANSI_RESET:       &str = "\x1b[0m";
 
-/// Formata um `SourceDiagnostic` em texto simples gcc/clang-compatível.
+/// Formata um `SourceDiagnostic` em texto gcc/clang-compatível.
 ///
 /// Termina com `\n` final. Hints indentados com 2 espaços.
 /// Spans detached ou cross-file caem em `<path>:<detached>:`.
 ///
-/// `colored = false` produz output idêntico ao Passo 111 (ADR-0045).
-/// `colored = true` aplica ANSI escapes da paleta (ADR-0048).
+/// `colored = false` produz output simples (formato Passo 111, ADR-0045).
+/// `colored = true` aplica ANSI escapes (paleta ADR-0048).
 pub fn format_diagnostic(
     diag: &SourceDiagnostic,
     source: &Source,
@@ -85,21 +85,6 @@ pub fn format_diagnostic(
     }
 
     out
-}
-
-/// Dreno para stderr — cobre warnings e errors uniformemente
-/// (ADR-0045). Nome reflecte a uniformidade.
-///
-/// `colored` propagado a cada `format_diagnostic` (ADR-0048).
-pub fn drain_diagnostics_to_stderr(
-    diagnostics: &[SourceDiagnostic],
-    source: &Source,
-    source_path: &str,
-    colored: bool,
-) {
-    for diag in diagnostics {
-        eprint!("{}", format_diagnostic(diag, source, source_path, colored));
-    }
 }
 
 #[cfg(test)]
@@ -191,10 +176,7 @@ mod tests {
         let out = format_diagnostic(&d, &src, "in.typ", true);
 
         // Cada abertura ANSI (exceptuando RESET) deve ter pelo menos
-        // um RESET subsequente — avaliação qualitativa:
-        // contar abrir vs fechar é difícil porque o ESC de RESET aparece
-        // múltiplas vezes; confiar em que o número de RESETS iguala ou
-        // excede o número de aberturas coloridas.
+        // um RESET subsequente.
         let opens = out.matches(ANSI_RED_BOLD).count()
             + out.matches(ANSI_YELLOW_BOLD).count()
             + out.matches(ANSI_CYAN_BOLD).count()
@@ -219,7 +201,4 @@ mod tests {
         assert!(out.contains("file.typ"), "path presente; got: {:?}", out);
         assert!(out.contains("<detached>"), "detached presente; got: {:?}", out);
     }
-
-    // Testes `resolve_colored_*` movidos para L2
-    // (`02_shell/src/cli.rs`) no Passo 117 (ADR-0049).
 }

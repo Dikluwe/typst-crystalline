@@ -14,6 +14,8 @@ Passos relevantes:
 - **Passo 115** (ADR-0047): `clap` argparsing.
 - **Passo 116** (ADR-0048): cores ANSI.
 - **Passo 117** (ADR-0049): CLI movida para L2; L4 é composição pura.
+- **Passo 119** (ADR-0050): formatter completamente em L2; drain
+  inline em L4 (helper local `drain_to_stderr`).
 
 ## Contrato
 
@@ -52,15 +54,16 @@ typst --version
 Formato gcc/clang (ADR-0045); cores ANSI (ADR-0048) via `colored`
 do `RunIntent`. Tudo em stderr; stdout nunca usado.
 
-## Separação de camadas (ADR-0049)
+## Separação de camadas (ADR-0049 + ADR-0050)
 
 - **L2** (`02_shell`): `clap`, `Args`, `ColorWhen`, `resolve_colored_with`,
-  `RunIntent`, `parse()`.
-- **L3** (`03_infra`): `format_diagnostic(colored: bool)`,
-  `drain_diagnostics_to_stderr`, pipeline.
-- **L4** (`04_wiring`): `main()` **thin** (~75 linhas incluindo
-  header + tratamento de erros I/O). Zero deps directas em `clap`;
-  cria tipos? Não — só `PathBuf` locais.
+  `RunIntent`, `parse()`, `format_diagnostic`, paleta ANSI.
+- **L3** (`03_infra`): pipeline, `SystemWorld`, export. Sem formatação
+  user-facing (removida no Passo 119).
+- **L4** (`04_wiring`): `main()` **thin**. Helper local
+  `drain_to_stderr` (5 linhas) que aplica `format_diagnostic` +
+  `eprint!`. Zero deps directas em `clap`; cria tipos? Não — só
+  `PathBuf` locais e a função helper.
 
 ### Guardas
 
