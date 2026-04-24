@@ -128,3 +128,27 @@ com campos tipados sem alterar a interface de `World`.
 - ADR-0020 — fontdb (descoberta automática, adiada)
 - `ttf-parser`: https://github.com/RazrFalcon/ttf-parser
 - `rustybuzz`: https://github.com/nickel-lang/rustybuzz
+
+---
+
+## Nota factual — Passo 140A (2026-04-24)
+
+**Estado empírico revisto**:
+
+- ✅ **`ttf-parser`**: **integralmente implementado**. Usado em
+  `03_infra/src/font_metrics.rs` (Face parsing + metrics
+  extraction) e `03_infra/src/fonts.rs` (discover_fonts +
+  FontSlot validation).
+- ⚠️ **`rustybuzz`**: **declarado** em `Cargo.toml` workspace +
+  `03_infra/Cargo.toml` mas **sem uso real** no código.
+  Shaping OpenType não implementado — layout actual usa
+  `metrics.advance` simples (proxy 0.6 × size × chars).
+
+**Acção**: nota factual aqui; **sem revogação**. ADR-0019
+permanece válida como intenção (ttf + rustybuzz são as crates
+escolhidas para o domínio font); `rustybuzz` real integration
+fica como candidato **DEBT-53** futuro (fora de DEBT-1 per
+ADR-0054).
+
+Ver diagnóstico `diagnostico-font-infra-passo-140a.md` secção
+5 para detalhe completo.
