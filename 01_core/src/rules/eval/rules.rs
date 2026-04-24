@@ -306,6 +306,14 @@ pub(super) fn eval_set_rule(
                         }
                     }
                 }
+                "tracking" => {
+                    // Passo 127 (ADR-0038 anotada, DEBT-1 subset): captura
+                    // `Length` inteiro (`abs + em`). Não colapsa para pt —
+                    // consumer resolve com `font-size` quando existir.
+                    if let Value::Length(l) = val {
+                        delta.tracking = Some(l);
+                    }
+                }
                 _ => {
                     // Passo 107 (encerra DEBT-49): propriedades não suportadas
                     // de `#set text(...)` emitem warning via Sink em vez de
