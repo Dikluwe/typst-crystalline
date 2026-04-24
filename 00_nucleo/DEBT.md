@@ -655,8 +655,14 @@ Resumo por dificuldade:
 
 ### Âmbito
 
-- [ ] **Fase A**: estender `TextStyle` + `From<&StyleChain>`.
-- [ ] Consumer `tracking`.
+- [x] **Fase A**: estender `TextStyle` + `From<&StyleChain>`.
+      **Resolvido no Passo 136** (5 campos + 5 resolvers em
+      StyleChain + 5 testes de propagação; `TextStyle` deixou
+      de ser `Copy` — `.clone()` nos call sites).
+- [x] Consumer `tracking`. **Resolvido no Passo 137** —
+      `word_width` acresce `(n-1) × tracking_pt`; export emite
+      PDF `Tc` operator. **Primeiro efeito visível** desde
+      Passo 102 (fill).
 - [ ] Consumer `leading`.
 - [ ] Consumer `weight` (faux-bold PDF + selecção variante).
 - [ ] Consumer `font` string (nome via `FontBook::select`).

@@ -20,7 +20,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     pub(super) fn layout_frac(&self, num: &Content, den: &Content, style: &TextStyle) -> MathBox {
         let sub_style = TextStyle {
             size: style.size * self.constants.script_percent_scale_down,
-            ..*style
+            ..style.clone()
         };
 
         let num_box = self.layout_node(num, &sub_style);

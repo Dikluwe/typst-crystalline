@@ -16,8 +16,22 @@ use crate::entities::{
 use super::metrics::FontMetrics;
 
 impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S> {
+    /// Largura de uma palavra em Pt, incluindo tracking entre glyphs
+    /// (Passo 137, fase B.1 DEBT-52).
+    ///
+    /// Se `TextStyle.tracking` é `Some(length)`, acrescenta
+    /// `(n - 1) × tracking_pt` onde n é o número de codepoints —
+    /// paridade vanilla (entre pares de glyphs, não depois do último).
     fn word_width(&self, word: &str) -> Pt {
-        self.metrics.advance(word, self.style.size)
+        let base = self.metrics.advance(word, self.style.size);
+        let tracking_extra = self.style.tracking
+            .map(|t| {
+                let tracking_pt = t.resolve_pt(self.style.size.val());
+                let n = word.chars().count();
+                tracking_pt * n.saturating_sub(1) as f64
+            })
+            .unwrap_or(0.0);
+        Pt(base.val() + tracking_extra)
     }
 
     pub(super) fn space_width(&self) -> Pt {
@@ -33,7 +47,7 @@ impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S> {
         self.current_line.push(FrameItem::Text {
             pos:   Point { x: self.cursor_x, y: self.cursor_y },
             text:  word.into(),
-            style: self.style,
+            style: self.style.clone(),
         });
         self.cursor_x += w + self.space_width();
     }

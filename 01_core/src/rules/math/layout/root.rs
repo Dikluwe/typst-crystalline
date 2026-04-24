@@ -76,7 +76,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         if let Some(idx_content) = index {
             let script_style = TextStyle {
                 size: style.size * self.constants.script_percent_scale_down,
-                ..*style
+                ..style.clone()
             };
             let idx_box = self.layout_node(idx_content, &script_style);
             // Posicionar acima e à esquerda do símbolo: x=20% da largura do radical, y=0 (topo)

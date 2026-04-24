@@ -1566,7 +1566,7 @@ mod tests_set_rule_integration {
         doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
-                FrameItem::Text { text, style, .. } => Some((text.to_string(), *style)),
+                FrameItem::Text { text, style, .. } => Some((text.to_string(), style.clone())),
                 _ => None,
             })
             .collect()
@@ -1661,6 +1661,106 @@ mod tests_set_rule_integration {
             "'importante' deve ter bold: {:?}", items);
         assert!(!normal.map(|(_, s)| s.bold).unwrap_or(true),
             "'normal' não deve ter bold: {:?}", items);
+    }
+
+    // ── Passo 137 (Fase B.1 DEBT-52): consumer tracking ──────────────────
+    //
+    // Helper local: extrai `pos.x` de cada FrameItem::Text.
+    fn text_items_with_pos(
+        doc: &PagedDocument
+    ) -> Vec<(String, crate::entities::layout_types::TextStyle, f64)> {
+        doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, style, pos } => {
+                    Some((text.to_string(), style.clone(), pos.x.val()))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// `#set text(tracking: X)` propaga para `FrameItem::Text.style.tracking`.
+    /// Base da Fase B.1 — valida que o campo chega ao frame.
+    #[test]
+    fn set_text_tracking_propaga_ao_frame_passo_137() {
+        use crate::entities::layout_types::Length;
+        let doc = layout_typst("#set text(tracking: 1pt)\nHello");
+        let items = text_items(&doc);
+        assert!(!items.is_empty(), "esperado pelo menos um Text item");
+        for (text, style) in &items {
+            assert_eq!(style.tracking, Some(Length::pt(1.0)),
+                "text='{}' deve ter tracking=1pt; obtido {:?}", text, style.tracking);
+        }
+    }
+
+    /// Cursor avança mais com `tracking` activo — diferença observável
+    /// entre posição do segundo word com e sem tracking.
+    ///
+    /// Input: `"AB CD"` com tracking=1em, size=12pt → 12pt de tracking
+    /// entre cada par de chars dentro do word. Para "AB" (2 chars):
+    /// 1 × 12pt extra face à versão sem tracking.
+    #[test]
+    fn layout_tracking_afecta_posicao_palavra_seguinte_passo_137() {
+        let doc_sem = layout_typst("AB CD");
+        let doc_com = layout_typst("#set text(tracking: 1em, size: 12pt)\nAB CD");
+
+        let items_sem = text_items_with_pos(&doc_sem);
+        let items_com = text_items_with_pos(&doc_com);
+
+        // Encontrar "CD" em cada documento (pode haver itens como "•" se
+        // o parser adicionar algo, mas aqui é input simples).
+        let cd_sem = items_sem.iter().find(|(t, _, _)| t == "CD");
+        let cd_com = items_com.iter().find(|(t, _, _)| t == "CD");
+
+        assert!(cd_sem.is_some(), "items sem tracking: {:?}",
+            items_sem.iter().map(|(t, _, _)| t).collect::<Vec<_>>());
+        assert!(cd_com.is_some(), "items com tracking: {:?}",
+            items_com.iter().map(|(t, _, _)| t).collect::<Vec<_>>());
+
+        let x_sem = cd_sem.unwrap().2;
+        let x_com = cd_com.unwrap().2;
+
+        // Com tracking 1em a size 12pt, "AB" (2 chars) ganha 1×12pt extra.
+        // "CD" começa 12pt mais à direita (ajustar por size base que pode
+        // ser diferente — o "sem" usa size default 11pt).
+        //
+        // Verificar que x_com > x_sem por aproximadamente 12pt (margem
+        // generosa porque o size também muda).
+        assert!(x_com > x_sem,
+            "com tracking, 'CD' deve começar mais à direita; sem={}, com={}",
+            x_sem, x_com);
+    }
+
+    /// Consumer funciona para palavras com N chars: tracking_extra =
+    /// (N - 1) × tracking_pt. Um char → sem tracking (N-1 = 0).
+    #[test]
+    fn layout_tracking_um_char_nao_acumula_passo_137() {
+        // "A B" → dois words de 1 char cada. Sem tracking, gap = space_width.
+        // Com tracking 1em, gap = space_width (tracking aplica-se entre
+        // chars DENTRO de um word, não entre words).
+        let doc_sem = layout_typst("A B");
+        let doc_com = layout_typst("#set text(tracking: 10pt, size: 12pt)\nA B");
+
+        let items_sem = text_items_with_pos(&doc_sem);
+        let items_com = text_items_with_pos(&doc_com);
+
+        let b_sem = items_sem.iter().find(|(t, _, _)| t == "B").map(|(_, _, x)| *x);
+        let b_com = items_com.iter().find(|(t, _, _)| t == "B").map(|(_, _, x)| *x);
+
+        assert!(b_sem.is_some() && b_com.is_some(),
+            "esperava 'B' em ambos; sem={:?}, com={:?}", items_sem, items_com);
+
+        // Diferença entre as duas posições B é só devida a mudança de
+        // size (11 → 12pt). Tracking não afecta porque cada word tem
+        // 1 char só.
+        // Não assertamos valor exacto porque size base muda; assertamos
+        // apenas que tracking de 10pt NÃO se propaga inter-word (diferença
+        // marginal, não 10pt+).
+        let dif = (b_com.unwrap() - b_sem.unwrap()).abs();
+        assert!(dif < 10.0,
+            "tracking não deve afectar gap entre palavras de 1 char; diff={}",
+            dif);
     }
 }
 

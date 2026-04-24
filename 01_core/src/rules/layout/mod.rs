@@ -232,8 +232,15 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     },
                     fill:          self.style.fill.or(node_style.fill),
                     heading_level: self.style.heading_level.or(node_style.heading_level),
+                    // Passo 136 (Fase A — DEBT-52): propagação top-wins.
+                    // self.style (chain) tem prioridade sobre node_style (eval).
+                    weight:        self.style.weight.or(node_style.weight),
+                    tracking:      self.style.tracking.or(node_style.tracking),
+                    leading:       self.style.leading.or(node_style.leading),
+                    lang:          self.style.lang.or(node_style.lang.clone()),
+                    font:          self.style.font.clone().or_else(|| node_style.font.clone()),
                 };
-                let prev_style = self.style;
+                let prev_style = self.style.clone();
                 self.style = effective;
                 for word in text.split_whitespace() {
                     self.layout_word(word);
@@ -264,7 +271,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.counter.step_hierarchical("heading", *level as usize);
 
                 let heading_size = self.font_size_pt * heading_scale(*level);
-                let prev = self.style;
+                let prev = self.style.clone();
                 self.style = TextStyle { bold: true, italic: false, size: heading_size, ..TextStyle::default() };
                 if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
 
@@ -300,7 +307,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             }
 
             Content::Raw { text, block, .. } => {
-                let prev = self.style;
+                let prev = self.style.clone();
                 // Raw: tamanho 90%, sem bold/italic
                 // DEBT: seleccionar fonte monospace real quando FontBook tiver uma
                 self.style = TextStyle { bold: false, italic: false, size: self.font_size_pt * 0.9, ..TextStyle::default() };
@@ -319,7 +326,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.current_line.push(FrameItem::Text {
                     pos:   Point { x: margin_pt, y: self.cursor_y },
                     text:  "•".into(),  // U+2022 — suportado com CIDFont (DEBT-5 pago)
-                    style: self.style,
+                    style: self.style.clone(),
                 });
                 self.cursor_x = margin_pt + self.font_size_pt * 1.5;
                 self.layout_content(body);
@@ -337,7 +344,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.current_line.push(FrameItem::Text {
                     pos:   Point { x: margin_pt, y: self.cursor_y },
                     text:  label,
-                    style: self.style,
+                    style: self.style.clone(),
                 });
                 self.cursor_x = margin_pt + self.font_size_pt * 2.0;
                 self.layout_content(body);
@@ -565,7 +572,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             // return (padrão Passo 98).
             Content::Styled(body, styles) => {
                 let prev_chain = self.chain.clone();  // O(1) Arc::clone
-                let prev_style = self.style;
+                let prev_style = self.style.clone();
                 self.chain = self.chain.push_styles(styles);
                 self.style = TextStyle::from(&self.chain);
                 self.layout_content(body);

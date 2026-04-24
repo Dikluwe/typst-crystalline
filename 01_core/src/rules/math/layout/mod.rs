@@ -257,9 +257,9 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                               && symbols::ident_to_unicode(name).is_none();
                 let is_func = symbols::is_math_function(name);
                 let math_style = if is_var && !is_func {
-                    TextStyle { italic: true, ..*style }
+                    TextStyle { italic: true, ..style.clone() }
                 } else {
-                    TextStyle { italic: false, ..*style }
+                    TextStyle { italic: false, ..style.clone() }
                 };
                 self.layout_text_node(name, &math_style)
             }
@@ -329,7 +329,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             items: vec![FrameItem::Text {
                 pos:   Point { x: Pt(0.0), y: Pt(0.0) },
                 text:  text.clone(),
-                style: *style,
+                style: style.clone(),
             }],
         }
     }

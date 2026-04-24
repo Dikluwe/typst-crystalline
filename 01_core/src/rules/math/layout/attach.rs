@@ -30,7 +30,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let base_box     = self.layout_node(base, style);
         let script_style = TextStyle {
             size: style.size * self.constants.script_percent_scale_down,
-            ..*style
+            ..style.clone()
         };
 
         let sup_offset = self.constants.to_pt(

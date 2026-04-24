@@ -100,7 +100,11 @@ impl Size {
 /// Semântica: é **o resultado** de resolver uma `StyleChain`, não a
 /// cadeia em si. Consumido por `FrameItem::Text.style` e por
 /// `export.rs` em L3.
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
+/// Passo 136 (Fase A de DEBT-52, ADR-0054): `TextStyle` estendido
+/// com 5 campos propagados de `StyleDelta`. Remoção de `Copy`
+/// porque `FontList` contém `Vec<FontFamily>`; call sites usam
+/// `.clone()` explícito. Consumers em fase B/C do roadmap.
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct TextStyle {
     pub bold:          bool,
     pub italic:        bool,
@@ -109,6 +113,14 @@ pub struct TextStyle {
     pub fill:          Option<Color>,
     /// Nível de heading — ADR-0038/0039 forward-compat.
     pub heading_level: Option<u8>,
+
+    // Passo 136 (Fase A — DEBT-52). Propagados de `StyleDelta`
+    // mas sem consumer em layout ainda. Fases B/C resolvem.
+    pub weight:        Option<u16>,
+    pub tracking:      Option<crate::entities::layout_types::Length>,
+    pub leading:       Option<crate::entities::layout_types::Length>,
+    pub lang:          Option<crate::entities::lang::Lang>,
+    pub font:          Option<crate::entities::font_list::FontList>,
 }
 
 impl TextStyle {
@@ -670,7 +682,7 @@ mod tests {
     fn frame_plain_text() {
         let style = TextStyle::regular(Pt(12.0));
         let mut f = Frame::new(Size::a4());
-        f.push(FrameItem::Text { pos: Point::ZERO, text: "Hello".into(), style });
+        f.push(FrameItem::Text { pos: Point::ZERO, text: "Hello".into(), style: style.clone() });
         f.push(FrameItem::Text { pos: Point { x: Pt(50.0), y: Pt::ZERO }, text: "world".into(), style });
         assert_eq!(f.plain_text(), "Hello world");
     }
@@ -680,7 +692,7 @@ mod tests {
         let style = TextStyle::regular(Pt(12.0));
         let p1 = Page {
             width: 595.28, height: 841.89,
-            items: vec![FrameItem::Text { pos: Point::ZERO, text: "page1".into(), style }],
+            items: vec![FrameItem::Text { pos: Point::ZERO, text: "page1".into(), style: style.clone() }],
         };
         let p2 = Page {
             width: 595.28, height: 841.89,
