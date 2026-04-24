@@ -1280,12 +1280,13 @@ mod tests {
         );
     }
 
-    /// Passo 128 (DEBT-1 subset): `leading` capturado como `Length`
-    /// inteiro em `#set text(...)`. Divergência vanilla aceite e
-    /// documentada (vanilla coloca em `par`); migra quando
-    /// `eval_set_par` for activado.
+    /// Passo 134 (**INVERTIDO** de `eval_set_text_leading_passo_128`):
+    /// `leading` foi migrado de `text` para `par` (ADR-0033 paridade
+    /// vanilla). `#set text(leading: ...)` passa a emitir warning de
+    /// propriedade não suportada em text — divergência temporal do
+    /// 128 fechada.
     #[test]
-    fn eval_set_text_leading_passo_128() {
+    fn eval_set_text_leading_emite_warning_passo_134() {
         use comemo::Track;
         let world = MockWorld::new("#set text(leading: 0.65em)\nOlá");
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -1299,22 +1300,23 @@ mod tests {
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
+        // Warning agora existe — `leading` não é propriedade de text.
         assert!(
-            diags.iter().all(|d| !d.message.contains("'leading'")),
-            "leading não deve emitir warning; diagnostics: {:?}",
+            diags.iter().any(|d|
+                d.message.contains("text:") && d.message.contains("'leading'")
+            ),
+            "text deve emitir warning de propriedade leading; diagnostics: {:?}",
             diags
         );
     }
 
-    /// Passo 133 (**INVERTIDO** de `eval_set_par_leading_ainda_emite_warning_target_passo_128`):
-    /// `par` passou a ser known target em `eval_set_rule`. Sem arms
-    /// concretos ainda (134 adiciona `leading`), todas as propriedades
-    /// caem no fallback e emitem warning de **propriedade** (não de
-    /// target). Documentação executável do estado pós-133.
+    /// Passo 134 (DEBT-1): captura positiva de `leading` em contexto
+    /// canonicamente correcto (`par`). Completa migração do 128 →
+    /// paridade vanilla obtida.
     #[test]
-    fn eval_set_par_known_target_sem_arms_passo_133() {
+    fn eval_set_par_leading_captura_passo_134() {
         use comemo::Track;
-        let world = MockWorld::new("#set par(leading: 10pt)");
+        let world = MockWorld::new("#set par(leading: 0.65em)\nOlá");
         let src = World::source(&world, World::main(&world)).unwrap();
 
         let routines = Routines::new();
@@ -1326,12 +1328,39 @@ mod tests {
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
-        // Warning é sobre PROPRIEDADE 'leading', não sobre target 'par'.
+        // Sem warning para 'leading' — captura é silent em par.
+        assert!(
+            diags.iter().all(|d| !d.message.contains("'leading'")),
+            "par deve capturar leading sem warning; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// Passo 133 + 134: `par` é known target em `eval_set_rule`, com
+    /// `leading` capturado (adicionado em 134). Outras propriedades
+    /// (ex: `justify`) caem no fallback e emitem warning de
+    /// **propriedade** (não de target). Documentação executável.
+    #[test]
+    fn eval_set_par_known_target_com_leading_passo_134() {
+        use comemo::Track;
+        let world = MockWorld::new("#set par(justify: true)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced   = Traced::default();
+        let mut sink = Sink::new();
+        let route    = Route::root();
+        let result   = eval(&routines, &world, traced.track(),
+                            sink.track_mut(), route.track(), &src);
+
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        // Warning é sobre PROPRIEDADE 'justify', não sobre target 'par'.
         assert!(
             diags.iter().any(|d|
-                d.message.contains("par:") && d.message.contains("'leading'")
+                d.message.contains("par:") && d.message.contains("'justify'")
             ),
-            "par deve emitir warning de propriedade leading; diagnostics: {:?}",
+            "par deve emitir warning de propriedade justify; diagnostics: {:?}",
             diags);
         // `par` NÃO deve aparecer como target não suportado.
         assert!(
