@@ -32,12 +32,22 @@ use super::{closures, eval_expr, EvalContext};
 
 /// Helper partilhado para construir warning de propriedade não suportada
 /// em `#set` (Passo 107, encerra DEBT-49). Formato consistente para o
-/// utilizador final; referencia ADR-0040 como catálogo vivo.
-fn unsupported_property_warn(target: &str, field: &str) -> (String, String) {
-    (
-        format!("{target}: propriedade '{field}' ainda não suportada"),
-        format!("ver ADR-0040 para propriedades cobertas por set {target}"),
-    )
+/// utilizador final.
+///
+/// Passo 134: parâmetro `adr_ref` opcional — `Some("0040")` referencia
+/// catálogo vivo (set text); `None` produz hint genérico (set par, até
+/// ADR dedicada existir).
+fn unsupported_property_warn(
+    target: &str,
+    field: &str,
+    adr_ref: Option<&str>,
+) -> (String, String) {
+    let msg = format!("{target}: propriedade '{field}' ainda não suportada");
+    let hint = match adr_ref {
+        Some(adr) => format!("ver ADR-{adr} para propriedades cobertas por set {target}"),
+        None      => format!("propriedades de set {target} ainda não são capturadas"),
+    };
+    (msg, hint)
 }
 
 /// Helper para warning de `#set` com target desconhecido (Passo 107).
@@ -270,22 +280,38 @@ pub(super) fn eval_set_rule(
 
     if target == "par" {
         // Passo 133: target `par` activado sem arms concretos.
-        // Propriedades de `#set par(...)` caem no fallback e emitem
-        // warning de propriedade (em vez de warning de target). Arms
-        // são adicionados em passos seguintes — 134 migra `leading`
-        // de `text` para `par`; outros (justify, first-line-indent,
-        // etc.) entram on-demand.
+        // Passo 134: arm `leading` migrado de `text` para `par`
+        // (paridade ADR-0033; resolve divergência temporal do 128).
+        // Outras propriedades (justify, first-line-indent, etc.)
+        // continuam no fallback até serem activadas on-demand.
+        let mut delta = StyleDelta::empty();
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 let key = named.name().as_str().to_owned();
-                let (msg, hint) = unsupported_property_warn("par", &key);
-                engine.sink.warn_note(
-                    named.name().to_untyped().span(),
-                    &msg,
-                    &hint,
-                );
+                let val = eval_expr(named.expr(), scopes, ctx, engine)?;
+                match key.as_str() {
+                    "leading" => {
+                        // Migrado do bloco text em 134. Preserva
+                        // `Length { abs + em }`; consumer futuro
+                        // resolve com font-size.
+                        if let Value::Length(l) = val {
+                            delta.leading = Some(l);
+                        }
+                    }
+                    _ => {
+                        let (msg, hint) = unsupported_property_warn(
+                            "par", &key, None,
+                        );
+                        engine.sink.warn_note(
+                            named.name().to_untyped().span(),
+                            &msg,
+                            &hint,
+                        );
+                    }
+                }
             }
         }
+        *engine.styles = engine.styles.push(delta);
         return Ok(Value::None);
     }
 
@@ -346,15 +372,6 @@ pub(super) fn eval_set_rule(
                     // consumer resolve com `font-size` quando existir.
                     if let Value::Length(l) = val {
                         delta.tracking = Some(l);
-                    }
-                }
-                "leading" => {
-                    // Passo 128 (DEBT-1 subset): captura `Length` inteiro.
-                    // Vanilla coloca `leading` em `par`, não em `text` —
-                    // captura aqui é temporária (UX útil + inerte). Migra
-                    // para `eval_set_par` quando esse target for activado.
-                    if let Value::Length(l) = val {
-                        delta.leading = Some(l);
                     }
                 }
                 "lang" => {
@@ -427,7 +444,7 @@ pub(super) fn eval_set_rule(
                     // de `#set text(...)` emitem warning via Sink em vez de
                     // serem silenciadas. O span do argumento permite ao
                     // utilizador localizar a propriedade exacta.
-                    let (msg, hint) = unsupported_property_warn("text", &key);
+                    let (msg, hint) = unsupported_property_warn("text", &key, Some("0040"));
                     engine.sink.warn_note(named.name().to_untyped().span(), &msg, &hint);
                 }
             }
