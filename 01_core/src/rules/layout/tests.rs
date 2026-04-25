@@ -2115,4 +2115,108 @@ mod tests_show_rule_integration {
             "v(30pt) deve empurrar B abaixo de A em pelo menos 30pt: \
              pos_a_y={pos_a_y:.2} pos_b_y={pos_b_y:.2}");
     }
+
+    // ── Passo 156E (ADR-0061 Fase 1, sub-passo 3) — pagebreak manual ───────
+
+    /// Helper: extrai texto plano da primeira página que contém certa
+    /// string. Devolve o índice de página (1-indexed) onde foi encontrado.
+    fn page_index_containing(doc: &crate::entities::layout_types::PagedDocument, needle: &str) -> Option<usize> {
+        for (i, page) in doc.pages.iter().enumerate() {
+            for item in page.items.iter() {
+                if let FrameItem::Text { text, .. } = item {
+                    if text.contains(needle) {
+                        return Some(i + 1);  // 1-indexed
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    /// Pagebreak default força commit da página actual; conteúdo seguinte
+    /// vai para nova página.
+    #[test]
+    fn layout_pagebreak_forca_nova_pagina() {
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::pagebreak(false, None),
+            Content::text("B"),
+        ]));
+        let doc = layout(&doc_content, CounterState::default());
+        // Esperamos pelo menos 2 páginas (A na primeira, B na segunda).
+        assert!(doc.pages.len() >= 2,
+            "esperado >= 2 páginas após pagebreak, obtive {}", doc.pages.len());
+        let page_a = page_index_containing(&doc, "A").expect("A não encontrado");
+        let page_b = page_index_containing(&doc, "B").expect("B não encontrado");
+        assert!(page_b > page_a,
+            "B deve estar em página posterior a A: A→p{} B→p{}", page_a, page_b);
+    }
+
+    /// `pagebreak(to: even)` quando próxima página seria ímpar (p2 par,
+    /// portanto p3 ímpar) deve inserir página vazia para forçar próxima
+    /// para par. Setup: A (p1) → pagebreak(to:even) → próxima seria p2
+    /// (par), portanto bate sem inserção. Teste é "no extra inserted when
+    /// already matches".
+    #[test]
+    fn layout_pagebreak_to_even_quando_ja_par_nao_insere_extra() {
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::pagebreak(false, Some(crate::entities::parity::Parity::Even)),
+            Content::text("B"),
+        ]));
+        let doc = layout(&doc_content, CounterState::default());
+        // A em p1 (ímpar); pagebreak commits p1, próxima seria p2 (par).
+        // Even matches → sem inserção extra. B em p2.
+        let page_a = page_index_containing(&doc, "A").expect("A não encontrado");
+        let page_b = page_index_containing(&doc, "B").expect("B não encontrado");
+        assert_eq!(page_a, 1);
+        assert_eq!(page_b, 2,
+            "B deve estar na p2 (par; sem inserção extra): obtive p{}", page_b);
+    }
+
+    /// `pagebreak(to: odd)` quando próxima página seria par (p2) deve
+    /// inserir página vazia para forçar próxima para ímpar (p3).
+    /// Setup: A (p1) → pagebreak(to:odd) → próxima seria p2 (par);
+    /// inserir vazia → B em p3.
+    #[test]
+    fn layout_pagebreak_to_odd_insere_vazia_se_proxima_seria_par() {
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::pagebreak(false, Some(crate::entities::parity::Parity::Odd)),
+            Content::text("B"),
+        ]));
+        let doc = layout(&doc_content, CounterState::default());
+        let page_a = page_index_containing(&doc, "A").expect("A não encontrado");
+        let page_b = page_index_containing(&doc, "B").expect("B não encontrado");
+        assert_eq!(page_a, 1);
+        assert_eq!(page_b, 3,
+            "B deve estar na p3 (ímpar; vazia inserida na p2): obtive p{}", page_b);
+        assert!(doc.pages.len() >= 3,
+            "esperado >= 3 páginas (A em p1, vazia em p2, B em p3)");
+    }
+
+    /// `pagebreak(to: even)` quando próxima seria ímpar (p3) deve inserir
+    /// página vazia. Setup: A → pagebreak(to:odd) garante B em p3 → mais
+    /// pagebreak(to:even) força ajuste para p4 (par).
+    #[test]
+    fn layout_pagebreak_to_even_insere_vazia_se_proxima_seria_impar() {
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::text("A"),                                                       // p1
+            Content::pagebreak(false, Some(crate::entities::parity::Parity::Odd)),    // → próxima p3
+            Content::text("B"),                                                       // p3
+            Content::pagebreak(false, Some(crate::entities::parity::Parity::Even)),   // → próxima p4 (já par)
+            Content::text("C"),                                                       // p4
+        ]));
+        let doc = layout(&doc_content, CounterState::default());
+        let page_a = page_index_containing(&doc, "A").expect("A não encontrado");
+        let page_b = page_index_containing(&doc, "B").expect("B não encontrado");
+        let page_c = page_index_containing(&doc, "C").expect("C não encontrado");
+        assert_eq!(page_a, 1);
+        assert_eq!(page_b, 3);
+        assert_eq!(page_c, 4, "C deve estar na p4 (par): obtive p{}", page_c);
+    }
 }

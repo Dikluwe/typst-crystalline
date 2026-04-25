@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 7ffe1236
+Hash do Código: 3bf4e63d
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -446,3 +446,97 @@ primitives são structurais (afectam cursor, não rendem texto),
 não estilo visual. Coerente com vanilla `HElem`/`VElem` serem
 `#[elem]` proper. Coerente com modelo dos sub-passos
 anteriores (terms, divider, quote, pad, hide).
+
+## Variant `Content::Pagebreak` — Passo 156E (ADR-0061 Fase 1, sub-passo 3)
+
+Terceira aplicação consecutiva de ADR-0061. Materializa
+quebra de página manual, análoga a vanilla `PagebreakElem`
+em `lab/typst-original/crates/typst-library/src/layout/page.rs`.
+
+### `Content::Pagebreak { weak, to }`
+
+```rust
+Pagebreak {
+    weak: bool,
+    to:   Option<Parity>,
+}
+```
+
+**Atributos** (declarados em stdlib `pagebreak(weak: false,
+to: ?)`):
+- `weak: bool` — armazenado mas comportamento de collapse
+  adiado (consistente com P156D HSpace/VSpace).
+- `to: Option<Parity>` — `None` == Auto (sem ajuste);
+  `Some(Even)`/`Some(Odd)` força próxima página à paridade.
+
+**Tipo `Parity`** novo em `01_core/src/entities/parity.rs`
+(Even/Odd com método `matches(page_number)`); ver
+`prompts/entities/parity.md`.
+
+**Comportamento `is_empty` / `plain_text` / `map_*`**:
+- `is_empty` — sempre **`false`** (event observável mesmo
+  sem body; cf. Divider em P154B).
+- `plain_text` — `String::new()` (event sem texto).
+- `map_content` / `map_text` — terminal (clone directo);
+  Pagebreak é leaf sem body.
+
+**Renderização (layouter)**:
+- Reusa `Layouter::new_page` (definido em `cursor.rs:128`)
+  que commits `current_items` numa nova `Page`, push para
+  `pages`, e reseta cursor.
+- Sequência: `flush_line` (se houver linha em curso) →
+  `new_page()` → se `to: Some(parity)`, verifica
+  `pages.len() + 1` (próxima página) e insere segunda
+  `new_page()` se paridade não bate.
+- Página inserida usa `page_config` actual (mesmas dimensões;
+  sem header/footer porque Page actual não os tem).
+- `weak` ignorado neste passo.
+
+**Validação em `native_pagebreak`**:
+- Sem argumentos posicionais (rejeitado com erro hard).
+- Named args válidos: `weak` (Bool), `to` (Str
+  `"even"`/`"odd"`). Outros named args rejeitados.
+- `weak` deve ser Bool; tipo errado → erro hard.
+- `to` deve ser Str `"even"` ou `"odd"`; outro valor → erro
+  hard (helper `extract_parity`). `to: None` (omitido)
+  produz `Option::None`.
+
+### Construtores
+
+- Stdlib: `#pagebreak(weak: false, to: ?)`.
+- Construtor Rust: `Content::pagebreak(weak, to)`.
+
+### Limitações conscientes (P156E)
+
+- `weak` collapse semantic não implementado (consistente
+  P156D). Vanilla colapsa weak adjacentes; cristalino
+  mantém ambos.
+- Página vazia inserida para ajustar paridade não tem
+  cabeçalho/rodapé (porque `Page` cristalino não os tem).
+  Refino futuro com Page rico (Fase 3 ADR-0061).
+- `to` aceita só string em stdlib (vanilla aceita
+  `Symbol::even` sem aspas). Refino se priorizado.
+- Pagebreak no início absoluto do documento cria página 1
+  vazia + conteúdo na página 2; aceitável (case patológico
+  raro).
+- Sem show rules `#show pagebreak: ...` neste passo.
+
+### Decisão arquitectural confirmada (per ADR-0061 Decisão 4)
+
+Variant novo (não `Content::Styled`, não `Style::PageBreak`).
+Rationale: pagebreak é "event" estrutural com semantic única
+(força flush + verifica paridade) que excede styling. Coerente
+com vanilla `PagebreakElem` ser `#[elem]` proper. Coerente
+com modelo dos sub-passos anteriores.
+
+### Tipo `Parity` (infraestrutura paralela)
+
+`Parity { Even, Odd }` foi criado neste passo como
+infraestrutura genérica reusável, análoga ao `Sides<T>`
+criado em P156C. Vive em `01_core/src/entities/parity.rs`.
+Reuso futuro previsível em refino Page rico (paridade per
+header/footer).
+
+Vanilla usa `Smart<Parity>` (Auto/Custom); cristalino
+simplifica para `Option<Parity>` (`None` == Auto). Sem
+perda funcional; ganho em clareza idiomática Rust.

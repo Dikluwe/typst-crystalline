@@ -49,7 +49,7 @@ pub use crate::rules::stdlib::shapes::{
 pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale};
 pub use crate::rules::stdlib::layout::{
     native_align, native_grid, native_h, native_hide, native_pad, native_page,
-    native_place, native_v,
+    native_pagebreak, native_place, native_v,
 };
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
@@ -932,5 +932,119 @@ mod tests {
         null_ctx!(ctx);
         let r = native_v(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
         assert!(r.is_err(), "v() sem amount deve retornar Err");
+    }
+
+    // ── Passo 156E (ADR-0061 Fase 1, sub-passo 3) — pagebreak manual ───────
+
+    #[test]
+    fn native_pagebreak_defaults() {
+        null_ctx!(ctx);
+        let r = native_pagebreak(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pagebreak { weak, to }) = r {
+            assert!(!weak);
+            assert_eq!(to, None);
+        } else {
+            panic!("esperado Content::Pagebreak");
+        }
+    }
+
+    #[test]
+    fn native_pagebreak_com_weak_true() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("weak".into(), Value::Bool(true));
+        let r = native_pagebreak(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pagebreak { weak, .. }) = r {
+            assert!(weak);
+        } else {
+            panic!("esperado Content::Pagebreak");
+        }
+    }
+
+    #[test]
+    fn native_pagebreak_com_to_even() {
+        null_ctx!(ctx);
+        use crate::entities::parity::Parity;
+        let mut args = p(vec![]);
+        args.named.insert("to".into(), Value::Str("even".into()));
+        let r = native_pagebreak(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pagebreak { to, .. }) = r {
+            assert_eq!(to, Some(Parity::Even));
+        } else {
+            panic!("esperado Content::Pagebreak");
+        }
+    }
+
+    #[test]
+    fn native_pagebreak_com_to_odd() {
+        null_ctx!(ctx);
+        use crate::entities::parity::Parity;
+        let mut args = p(vec![]);
+        args.named.insert("to".into(), Value::Str("odd".into()));
+        let r = native_pagebreak(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pagebreak { to, .. }) = r {
+            assert_eq!(to, Some(Parity::Odd));
+        } else {
+            panic!("esperado Content::Pagebreak");
+        }
+    }
+
+    #[test]
+    fn native_pagebreak_combina_weak_e_to() {
+        null_ctx!(ctx);
+        use crate::entities::parity::Parity;
+        let mut args = p(vec![]);
+        args.named.insert("weak".into(), Value::Bool(true));
+        args.named.insert("to".into(), Value::Str("even".into()));
+        let r = native_pagebreak(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pagebreak { weak, to }) = r {
+            assert!(weak);
+            assert_eq!(to, Some(Parity::Even));
+        } else {
+            panic!("esperado Content::Pagebreak");
+        }
+    }
+
+    #[test]
+    fn native_pagebreak_rejeita_to_invalido() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("to".into(), Value::Str("middle".into()));
+        let r = native_pagebreak(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "pagebreak(to: \"middle\") deve retornar Err");
+    }
+
+    #[test]
+    fn native_pagebreak_rejeita_to_nao_string() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("to".into(), Value::Int(2));
+        let r = native_pagebreak(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "pagebreak(to:) com tipo errado deve retornar Err");
+    }
+
+    #[test]
+    fn native_pagebreak_rejeita_named_arg_desconhecido() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("strange".into(), Value::Bool(false));
+        let r = native_pagebreak(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named arg desconhecido em pagebreak() deve retornar Err");
+    }
+
+    #[test]
+    fn native_pagebreak_rejeita_argumento_posicional() {
+        null_ctx!(ctx);
+        let r = native_pagebreak(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "pagebreak() não aceita argumentos posicionais");
+    }
+
+    #[test]
+    fn native_pagebreak_rejeita_weak_nao_bool() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("weak".into(), Value::Int(1));
+        let r = native_pagebreak(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "weak não-Bool deve retornar Err");
     }
 }

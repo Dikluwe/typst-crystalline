@@ -487,6 +487,36 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 156E — Layout Fase 1 sub-passo 3: pagebreak manual**
+  (terceira aplicação consecutiva de **ADR-0061**; **halfway
+  point Fase 1** atingido — 50% cobertura Layout). Substantivo
+  S+ agregado: `Content::Pagebreak { weak: bool, to:
+  Option<Parity> }` adicionado ao enum (47 → 48 variants);
+  tipo `Parity { Even, Odd }` novo em
+  `01_core/src/entities/parity.rs` (infraestrutura genérica
+  análoga a `Sides<T>` de P156C; reuso futuro previsível em
+  refino Page rico); stdlib `#pagebreak(weak: false, to: ?)`
+  (sem posicionais; `to` aceita `"even"`/`"odd"` via helper
+  `extract_parity`; named arg desconhecido + weak não-bool
+  + posicional + `to` inválido rejeitados). Cobertura
+  exaustiva de arms em `Content` (is_empty `false`, plain_text
+  vazio, PartialEq 2-fields, map_* terminais), `introspect.rs`
+  (no-op), `layout/mod.rs::layout_content` (flush_line + reusa
+  `Layouter::new_page` de `cursor.rs:128`; se `to: Some(parity)`
+  não bate `pages.len()+1`, insere `new_page()` extra para
+  ajustar paridade). Layouter scope-outs declarados: `weak`
+  collapse adiado (atributo armazenado); página vazia inserida
+  não tem header/footer (Page actual não tem); `to` aceita só
+  string em stdlib (não Symbol). Tests: 1192 → **1214**
+  (+22 = 3 unit parity + 5 unit content + 10 stdlib + 4
+  layout E2E). Cobertura Layout: 44% → **50%** (8/18 → 9/18);
+  total user-facing: 56% → **57%**. **ADR-0061 mantém-se
+  `PROPOSTO`** (anotação cumulativa após Fase 1 completa).
+  README ADRs: total e distribuição inalterados (61 ADRs;
+  PROPOSTO 11). L0 `entities/parity.md` criado; secção
+  pagebreak adicionada a `entities/content.md`; hashes
+  propagados (`content.rs` → `b632e841`, `parity.rs` →
+  `af8490cb`).
 - **Passo 156D — Layout Fase 1 sub-passo 2: h + v spacing**
   (segunda aplicação consecutiva de **ADR-0061**, modelo
   granular confirmado). Substantivo S agregado:

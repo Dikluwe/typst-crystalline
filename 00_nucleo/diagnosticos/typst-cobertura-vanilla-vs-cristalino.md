@@ -140,7 +140,7 @@ primitives e `skew`). Detalhe em
 | `columns(n)` | layout/columns.rs | `ausente` | — | Fase 3 ADR-0061; **DEBT-56** (column flow L+) |
 | `grid(columns, ...)` | layout/grid | `parcial` ⁵ | Passos 82–84.6 | reclassificado em P156B (era `implementado⁺`); sem `gutter`, `align`, `stroke`, `fill`, `inset`, `header`, `footer`, `colspan`/`rowspan`. DEBT-34d/e abertos |
 | `stack(spacing, ...)` | layout/stack.rs | `ausente` | — | Fase 2 ADR-0061 |
-| `pagebreak()` (manual) | layout/page.rs | `ausente` ⁵ | Passo 81 (implícito) | reclassificado em P156B (era `parcial`); manual `pagebreak()` ausente; só implícito por overflow + `Content::SetPage`. Fase 1 ADR-0061 (P156C) |
+| `pagebreak()` (manual) | layout/page.rs | `implementado` ¹⁰ | Passo 156E (ADR-0061 Fase 1 sub-passo 3) | `Content::Pagebreak { weak, to: Option<Parity> }` + stdlib `#pagebreak(weak: false, to: ?)`; `to:"even"`/`"odd"` insere página vazia se necessário; `weak` collapse defere; tipo `Parity` novo em `entities/parity.rs` |
 | `colbreak()` | layout/columns.rs | `ausente` | — | depende de columns; Fase 3 ADR-0061; DEBT-56 |
 | `rotate(angle, body)` | layout/transform.rs | `implementado` | Passo 78 | `Content::Transform` |
 | `scale(amount, body)` | idem | `implementado` | Passo 78 | |
@@ -425,12 +425,12 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | `#let`/`#set`/`#show`/import | 7 | 1 | 4 | 1 | 0 | 13 |
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
-| Layout ⁵ ⁶ ⁸ | 8 | 0 | 3 | 7 | 0 | 18 |
+| Layout ⁵ ⁶ ⁸ ¹⁰ | 9 | 0 | 3 | 6 | 0 | 18 |
 | Model (structural) ¹ ² ³ | 6 | 4 | 5 | 7 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection | 1 | 0 | 0 | 5 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ ⁸ | **58** | **21** | **22** | **38** | **2** | **141** |
+| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ | **59** | **21** | **22** | **37** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -483,11 +483,21 @@ ajustada: 56/21/22/40/2=141 → **58/21/22/38/2=141** (+2
 implementado, −2 ausente). ADR-0061 continua `PROPOSTO`
 (anotação cumulativa após Fase 1 completa).
 
-**Cobertura user-facing total** (impl + impl⁺) pós-P156D:
-(58 + 21) / 141 = **56%**
+¹⁰ — Ajuste P156E (materialização Layout Fase 1 sub-passo 3):
+`pagebreak` manual transita `ausente → implementado` (terceira
+aplicação consecutiva de ADR-0061; **50% Layout atingido**).
+Contagem Layout: 8/0/3/7/0=18 → **9/0/3/6/0=18**. Cobertura
+Layout (impl + impl⁺): 8/18=44% → **9/18=50%**. Contagem
+user-facing total ajustada: 58/21/22/38/2=141 →
+**59/21/22/37/2=141** (+1 implementado, −1 ausente). Tipo
+`Parity` novo em `entities/parity.rs` (infraestrutura).
+ADR-0061 continua `PROPOSTO`.
+
+**Cobertura user-facing total** (impl + impl⁺) pós-P156E:
+(59 + 21) / 141 = **57%**
 (antes de P154A: 54%; após P154B: 55%; após P155: ~55-56%;
-após P156B: ~53%; após P156C: ~55%; após P156D: **~56%**
-— Layout 33% → 44%).
+após P156B: ~53%; após P156C: ~55%; após P156D: ~56%; após
+P156E: **~57%** — Layout 44% → 50% — halfway point Fase 1).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -495,8 +505,8 @@ após P156B: ~53%; após P156C: ~55%; após P156D: **~56%**
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
 | `Value` variants | 18 | 2 | 2 | 9 | 0 | 31 |
-| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ | 35 | 9 | 3 | 0 | 0 | 47 |
-| `Content` variants (vanilla extra ausentes) | — | — | — | ~7 | — | ~7 |
+| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ | 36 | 9 | 3 | 0 | 0 | 48 |
+| `Content` variants (vanilla extra ausentes) | — | — | — | ~6 | — | ~6 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
@@ -519,6 +529,12 @@ completa).
 ⁹ — Ajuste P156D: 45 → 47 (+`HSpace`, +`VSpace`). Vanilla
 extra ausentes desce de ~9 para ~7 (h e v saem do conjunto
 não-capturado). Segunda aplicação consecutiva de ADR-0061;
+ADR-0061 mantém-se `PROPOSTO`.
+
+¹¹ — Ajuste P156E: 47 → 48 (+`Pagebreak`). Vanilla extra
+ausentes desce de ~7 para ~6 (pagebreak sai do conjunto
+não-capturado). Terceira aplicação consecutiva de ADR-0061;
+**halfway point Fase 1 atingido** (50% cobertura Layout).
 ADR-0061 mantém-se `PROPOSTO`.
 
 **Cobertura arquitectural total**: (67 + 13) / 106 = **75-76%**
@@ -588,6 +604,15 @@ encerradas por ADRs (0026, 0028→0029, 0036, etc.).
    `columns`/`colbreak`, `skew`) prosseguem nos sub-passos
    seguintes (P156E pagebreak; Fase 2 block+box+stack; Fase 3
    columns+repeat+skew).
+   **Refinamento P156E** (materialização Fase 1 sub-passo 3;
+   **halfway point Fase 1**): `Content::Pagebreak { weak, to:
+   Option<Parity> }` adicionado (47 → 48 variants); stdlib
+   `#pagebreak(weak: false, to: ?)`. Tipo `Parity` (Even/Odd)
+   novo em `entities/parity.rs`. Cobertura Layout (impl +
+   impl⁺): 44% → **50%** (8/18 → 9/18) — meio caminho para
+   72% target. Restantes 6 entradas ausentes (`box`, `block`,
+   `stack`, `repeat`, `columns`/`colbreak`, `skew`) prosseguem
+   em Fase 2 (block+box+stack) e Fase 3 (columns+repeat+skew).
    Isto é **escopo XL agregado** se priorizado.
    **Refinamento P154A** (diagnóstico Model): para a sub-categoria Model especificamente, breakdown
    detalhado em [`diagnostico-model-passo-154a.md`](diagnostico-model-passo-154a.md). 6 entradas Model

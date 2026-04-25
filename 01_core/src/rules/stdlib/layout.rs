@@ -13,6 +13,7 @@ use crate::entities::file_id::FileId;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::layout_types::{Abs, Align2D, Length, TrackSizing};
+use crate::entities::parity::Parity;
 use crate::entities::sides::Sides;
 use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -384,5 +385,63 @@ pub fn native_h(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contrac
 pub fn native_v(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     let (amount, weak) = build_spacing(args, "v", &["weak"])?;
     Ok(Value::Content(Content::VSpace { amount, weak }))
+}
+
+// ── Passo 156E (ADR-0061 Fase 1 sub-passo 3) — pagebreak manual ──────────────
+
+/// Coage `Value::Str` para `Parity` (`"even"` / `"odd"`).
+/// Outros tipos ou strings → erro hard.
+fn extract_parity(value: &Value) -> SourceResult<Parity> {
+    match value {
+        Value::Str(s) => match s.as_str() {
+            "even" => Ok(Parity::Even),
+            "odd"  => Ok(Parity::Odd),
+            other  => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("pagebreak(to:) deve ser \"even\" ou \"odd\", recebeu \"{}\"", other),
+            )]),
+        },
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("pagebreak(to:) deve ser string, recebeu {}", other.type_name()),
+        )]),
+    }
+}
+
+/// `pagebreak(weak: false, to: ?)` → `Content::Pagebreak`.
+///
+/// Sem argumentos posicionais. `weak` armazenado mas comportamento de
+/// collapse adiado (perfil ADR-0054 graded; consistente com P156D).
+/// `to` aceita string `"even"` ou `"odd"`; ausente → `None` (sem
+/// ajuste de paridade).
+pub fn native_pagebreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    if !args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "pagebreak() não aceita argumentos posicionais".to_string(),
+        )]);
+    }
+
+    let mut weak: bool = false;
+    let mut to:   Option<Parity> = None;
+
+    for (key, value) in args.named.iter() {
+        match key.as_str() {
+            "weak" => match value {
+                Value::Bool(b) => weak = *b,
+                other => return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("pagebreak(weak:) espera bool, recebeu {}", other.type_name()),
+                )]),
+            },
+            "to" => to = Some(extract_parity(value)?),
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("pagebreak(): argumento nomeado inesperado '{}'", other),
+            )]),
+        }
+    }
+
+    Ok(Value::Content(Content::Pagebreak { weak, to }))
 }
 
