@@ -12,7 +12,8 @@ use crate::entities::file_id::FileId;
 
 use crate::entities::args::Args;
 use crate::entities::content::Content;
-use crate::entities::layout_types::{Align2D, TrackSizing};
+use crate::entities::layout_types::{Abs, Align2D, Length, TrackSizing};
+use crate::entities::sides::Sides;
 use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
@@ -194,5 +195,115 @@ pub fn native_page(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     let margin = args.named.get("margin").and_then(extract_pt);
 
     Ok(Value::Content(Content::SetPage { width, height, margin }))
+}
+
+// ── Passo 156C (ADR-0061 Fase 1 sub-passo 1) — pad + hide ───────────────────
+
+/// Coage `Value` para `Length`. Aceita `Length`, `Float` (interpretado em pt),
+/// `Int` (idem). Retorna `None` para outros tipos.
+fn extract_length(val: &Value) -> Option<Length> {
+    match val {
+        Value::Length(l) => Some(*l),
+        Value::Float(f)  => Some(Length { abs: Abs(*f),         em: 0.0 }),
+        Value::Int(i)    => Some(Length { abs: Abs(*i as f64),  em: 0.0 }),
+        _                => None,
+    }
+}
+
+/// `pad(body, left: ?, right: ?, top: ?, bottom: ?, x: ?, y: ?, rest: ?)`
+/// → `Content::Pad`.
+///
+/// Resolve a precedência vanilla: específico (`left`/`right`/`top`/`bottom`) >
+/// eixo (`x` cobre left+right; `y` cobre top+bottom) > `rest` (cobre os
+/// quatro lados). Lados não especificados ficam a zero.
+///
+/// `body` posicional obrigatório (Content ou Str).
+/// Padding negativo rejeitado por agora (perfil ADR-0054 graded; vanilla
+/// aceita-o mas a semântica em cristalino fica para passo posterior).
+pub fn native_pad(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("pad() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "pad() exige body como argumento posicional".to_string(),
+        )]),
+    };
+
+    let mut left:   Option<Length> = None;
+    let mut right:  Option<Length> = None;
+    let mut top:    Option<Length> = None;
+    let mut bottom: Option<Length> = None;
+    let mut x_axis: Option<Length> = None;
+    let mut y_axis: Option<Length> = None;
+    let mut rest:   Option<Length> = None;
+
+    for (key, value) in args.named.iter() {
+        let len = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("pad({}:) espera length, recebeu {}", key, value.type_name()),
+        )])?;
+        match key.as_str() {
+            "left"   => left   = Some(len),
+            "right"  => right  = Some(len),
+            "top"    => top    = Some(len),
+            "bottom" => bottom = Some(len),
+            "x"      => x_axis = Some(len),
+            "y"      => y_axis = Some(len),
+            "rest"   => rest   = Some(len),
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("pad(): argumento nomeado inesperado '{}'", other),
+            )]),
+        }
+    }
+
+    // Precedência: específico > eixo > rest. Para cada lado, escolhe o
+    // valor mais específico declarado.
+    let resolved_left   = left  .or(x_axis).or(rest).unwrap_or(Length::ZERO);
+    let resolved_right  = right .or(x_axis).or(rest).unwrap_or(Length::ZERO);
+    let resolved_top    = top   .or(y_axis).or(rest).unwrap_or(Length::ZERO);
+    let resolved_bottom = bottom.or(y_axis).or(rest).unwrap_or(Length::ZERO);
+
+    // Validação: padding negativo rejeitado (perfil ADR-0054 graded).
+    // Vanilla aceita; cristalino diverge intencionalmente neste passo
+    // (margens negativas adiadas para passo dedicado quando layout
+    // overflow tiver semântica clara).
+    for (label, len) in [("left", resolved_left), ("right", resolved_right),
+                         ("top", resolved_top),   ("bottom", resolved_bottom)] {
+        if len.abs.0 < 0.0 || len.em < 0.0 {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("pad({}:): padding negativo não suportado neste passo (P156C)", label),
+            )]);
+        }
+    }
+
+    Ok(Value::Content(Content::Pad {
+        body:    Box::new(body),
+        padding: Sides::new(resolved_left, resolved_top, resolved_right, resolved_bottom),
+    }))
+}
+
+/// `hide(body)` → `Content::Hide`. Sem argumentos nomeados.
+pub fn native_hide(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("hide() espera content ou string, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "hide() exige body como argumento posicional".to_string(),
+        )]),
+    };
+    Ok(Value::Content(Content::Hide { body: Box::new(body) }))
 }
 

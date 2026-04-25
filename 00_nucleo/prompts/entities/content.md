@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 0f5177f7
+Hash do Código: 82b6aa27
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -232,3 +232,120 @@ Content::Quote {
   produz `Content::Quote` (esse fica reservado para `#quote()`
   estrutural). Decisão pragmática: cristalino's lexer já é
   per-character, e refactor para parear `"..."` excederia escopo P155.
+
+## Variants `Content::Pad` + `Content::Hide` — Passo 156C (ADR-0061 Fase 1, sub-passo 1)
+
+Primeira aplicação concreta da ADR-0061 (Layout Fase X
+roadmap). Materializam dois containers simples user-facing:
+`pad()` (margens internas) e `hide()` (placeholder
+layout-aware). Análogos a vanilla `PadElem`/`HideElem` em
+`lab/typst-original/crates/typst-library/src/layout/{pad,hide}.rs`.
+
+### `Content::Pad { body, padding }`
+
+```rust
+Pad {
+    body:    Box<Content>,
+    padding: Sides<Length>,
+}
+```
+
+**Atributos** (declarados em stdlib `pad()`, resolvidos antes
+de criar o variant):
+- `left` / `right` / `top` / `bottom` — específico por lado.
+- `x` (cobre `left` + `right`) — atalho horizontal.
+- `y` (cobre `top` + `bottom`) — atalho vertical.
+- `rest` — fallback para qualquer lado não declarado.
+
+**Precedência** (resolvida em `native_pad`): específico > eixo
+> rest. Lados não declarados em qualquer nível ficam a
+`Length::ZERO`.
+
+**Comportamento `is_empty` / `plain_text` / `map_*`**:
+- `is_empty` — proxy para `body.is_empty()`.
+- `plain_text` — recurse no body (transparente).
+- `map_content` / `map_text` — recurse no body; padding
+  preservado como `Copy`.
+
+**Renderização (layouter)**:
+- `top` adicionado ao `cursor_y` antes do body.
+- `left` adicionado ao `cursor_x` (e a `line_start_x` para
+  que `flush_line` reinicie indentado).
+- Body é layouted com cursor ajustado.
+- Após body, `flush_line` força fim de linha pendente; `bottom`
+  é adicionado a `cursor_y`; `cursor_x` e `line_start_x`
+  restaurados.
+- **`right` é scope-out neste passo** (perfil ADR-0054 graded):
+  o Layouter actual não tem mecânica de "largura útil" por arm
+  — width-aware wrap vive em `flush_line`/`layout_word` que
+  consultam `page_config.width`. Aceitar como aproximação;
+  refino quando refactor de Layouter para multi-region acontecer
+  (DEBT-56 + Fase 3 Layout).
+
+**Validação em `native_pad`**:
+- Padding negativo é rejeitado com erro hard (perfil ADR-0054
+  graded). Vanilla aceita-o (margens "negativas" produzem overlap);
+  cristalino diverge intencionalmente até que layout overflow
+  semantic esteja clara.
+- Named args desconhecidos rejeitados (paridade com `assert`,
+  `align`, `place` etc.).
+- Body posicional obrigatório (Content ou Str).
+
+### `Content::Hide { body }`
+
+```rust
+Hide {
+    body: Box<Content>,
+}
+```
+
+**Atributos**: apenas `body`. Sem named args.
+
+**Comportamento `is_empty` / `plain_text` / `map_*`**:
+- `is_empty` — proxy para `body.is_empty()`.
+- `plain_text` — `String::new()` (não rende; texto plano vazio).
+- `map_content` / `map_text` — recurse no body (transformações
+  internas aplicam-se mesmo que o body não seja renderizado;
+  permite que pipelines de pré-processamento funcionem).
+
+**Renderização (layouter)**:
+- Drena `current_items` e `current_line` para buffers
+  temporários.
+- Layouter executa o body normalmente (cursor avança).
+- Items gerados pelo body são descartados (substituídos pelos
+  buffers salvos).
+- Resultado: zero `FrameItem`s emitidos, mas `cursor_x`/
+  `cursor_y` preservam o avanço.
+
+**Comportamento em introspect** (`materialize_time` + `walk`):
+- Ambos descem no body. Hide preserva semantic de "presence":
+  labels, contadores e refs dentro de `hide(...)` continuam a
+  resolver. Apenas a renderização é suprimida.
+
+### Construtores
+
+- Stdlib: `#pad(body, left: ?, right: ?, top: ?, bottom: ?,
+  x: ?, y: ?, rest: ?)` e `#hide(body)`.
+- Construtores Rust: `Content::pad(body, padding)` e
+  `Content::hide(body)`.
+
+### Limitações conscientes (P156C)
+
+- Sem show rules `#show pad: ...` ou `#show hide: ...` neste
+  passo. Adiados a passo agregado futuro (análogo a P154B/P155
+  para terms/divider/quote).
+- `right` padding **scope-out** em layout — ver acima. Refino
+  com refactor multi-region.
+- Padding negativo **scope-out** (rejeitado com erro). Refino
+  quando layout overflow semantic clara existir.
+- `Content::Pad` e `Content::Hide` aninhados são suportados
+  (cobertura recursiva em todos os arms); padding aninhado é
+  cumulativo, hide aninhado é idempotente.
+
+### Decisão arquitectural confirmada (per ADR-0061 Decisão 4)
+
+Variants novos (não `Content::Styled`). Rationale: ambos têm
+semantic estrutural (composição + cursor advance) que excede
+styling visual. Coerente com vanilla `PadElem`/`HideElem`
+serem `#[elem]` proper. Coerente com modelo ADR-0060 Fase 1
+para terms/divider/quote.

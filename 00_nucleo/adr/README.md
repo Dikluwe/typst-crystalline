@@ -1,11 +1,20 @@
 # Índice de ADRs do Typst Cristalino
 
 Este documento é o índice canónico dos Architectural Decision
-Records (ADRs) do projecto **Typst Cristalino**. Lista os 60 ADRs
-em vigor (59 números únicos; ADR-0026 tem variante -R1 por
+Records (ADRs) do projecto **Typst Cristalino**. Lista os 61 ADRs
+em vigor (60 números únicos; ADR-0026 tem variante -R1 por
 revisão), as meta-regras que governam o projecto, o vocabulário
 canónico de status, cadeias de revogação e revisão, e convenções
 estruturais.
+
+**Reservas de números** (sem ficheiro criado, mas comprometidos):
+- **ADR-0062** — autorização da crate `hayagriva` para
+  bibliography + cite. Reserva originalmente em ADR-0061;
+  deslocada para ADR-0062 em P156B (que reocupou ADR-0061 para
+  Layout roadmap). Consumida quando DEBT-55 fechar (P159).
+- **ADR-0063** — reservada para outra crate específica se
+  surgir (e.g. column flow algorithm pode usar este número se
+  ADR dedicada for criada quando DEBT-56 for materializado).
 
 Para ADRs do projecto `crystalline-lint` (guardião arquitectural
 deste projecto), consultar o repositório separado desse projecto
@@ -165,15 +174,16 @@ que corresponde a mudança específica no código.
 | 0057 | Lang hyphenation em L1 via crate `hypher` | `IMPLEMENTADO` |
 | 0058 | Tipo simplificado — `type()` devolve `Value::Str` | `EM VIGOR` |
 | 0059 | `Args` como tipo separado, não-variant de `Value` | `EM VIGOR` |
-| 0060 | Model (structural) roadmap — Fase 1 + 2 + 3 | `IMPLEMENTADO` (Fase 1 fechada em P155; Fase 2/3 prosseguem em P156+) |
+| 0060 | Model (structural) roadmap — Fase 1 + 2 + 3 | `IMPLEMENTADO` (Fase 1 fechada em P155; Fase 2/3 prosseguem em **P157+** após renumeração registada em P156B) |
+| 0061 | Layout Fase X — page model + multi-column + footnote area roadmap | `PROPOSTO` (P156B; reocupou número antes reservado para hayagriva — passou para ADR-0062) |
 
-**Total**: 60 ADRs (59 números únicos; ADR-0026 tem variante -R1
+**Total**: 61 ADRs (60 números únicos; ADR-0026 tem variante -R1
 por revisão).
 
 ### Distribuição de status
 
-- `PROPOSTO`: 10 ADRs (decisões em aberto: 0005, 0006,
-  0008–0015).
+- `PROPOSTO`: **11** ADRs (decisões em aberto: 0005, 0006,
+  0008–0015, **0061**).
 - `IDEIA`: 2 ADRs (0002, 0003).
 - `EM VIGOR`: 26 ADRs (regras/políticas activas; 0018, 0029,
   0030, 0032–0051, 0054, 0058, 0059).
@@ -477,6 +487,58 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 156C — Layout Fase 1 sub-passo 1: pad + hide**
+  (primeira aplicação concreta de **ADR-0061**). Substantivo
+  S agregado: `Content::Pad { body, padding: Sides<Length> }`
+  e `Content::Hide { body }` adicionados ao enum
+  (43 → 45 variants); `Sides<T>` genérico criado em
+  `01_core/src/entities/sides.rs` (reusable por `PageConfig`
+  refino futuro, `Block`, `Box`); stdlib `#pad(body, left:?,
+  right:?, top:?, bottom:?, x:?, y:?, rest:?)` (precedência
+  específico>eixo>rest; padding negativo rejeitado per perfil
+  ADR-0054 graded) e `#hide(body)`. Cobertura exaustiva de
+  arms em `Content` (is_empty, plain_text, PartialEq,
+  map_content, map_text), `introspect.rs` (materialize_time,
+  walk), `layout/mod.rs` (layout_content, measure_content_constrained).
+  Layouter: pad reserva top/left + flush + bottom; right é
+  scope-out (refino com refactor multi-region — DEBT-56 + Fase
+  3); hide drena items para buffer e descarta após body
+  (preserva avanço de cursor). Tests: 1145 → **1172**
+  (+27 = 8 unit content + 4 unit sides + 13 stdlib + 2 layout
+  E2E). Cobertura Layout: 22% → **33%** (4/18 → 6/18); total
+  user-facing: 53% → **55%**. **ADR-0061 mantém-se `PROPOSTO`**
+  (anotação cumulativa após Fase 1 completa, per decisão humana
+  2026-04-25). README ADRs: total e distribuição inalterados
+  (61 ADRs; PROPOSTO 11). L0 `entities/sides.md` criado;
+  `entities/content.md` ganha secção pad+hide; hashes
+  propagados (`content.rs` → `daf00164`, `sides.rs` → `c47b14e6`).
+- **Passo 156A — Historiograma do projecto**. Passo
+  L0-puro / administrativo (sétima aplicação do padrão
+  diagnóstico-primeiro). Zero ADRs criadas. Output material:
+  `00_nucleo/diagnosticos/historiograma-passos.md` (linha
+  temporal + padrões + análise + conclusões metodológicas dos
+  155+ passos) +
+  `00_nucleo/diagnosticos/ideias-projecto-blueprint-tool.md`
+  (ferramenta automática esboçada, não-comprometida).
+  Confirmou empiricamente padrão diagnóstico-primeiro com
+  retorno alto (6/6 aplicações descobriram informação
+  relevante).
+- **Passo 156B — Diagnóstico Layout (Fase X)**. Oitava
+  aplicação do padrão diagnóstico-primeiro; primeira a categoria
+  Layout. **ADR-0061 criada** em status `PROPOSTO` (Layout
+  roadmap — page model + multi-column + footnote area).
+  **Reocupação**: ADR-0061 estava reservada para `hayagriva`
+  (per blueprint pré-P156A); reocupada por Layout. **Reserva
+  hayagriva passa para ADR-0062** (sem ficheiro criado).
+  **Renumeração de Fase 2 Model** (anotada em ADR-0060):
+  P156→P157 table, P157→P158 figure-kinds, P158→P159
+  bibliography. **DEBT-56 aberto** (column flow Fase 3 Layout
+  L+; refactor multi-region do Layouter exigido). DEBT-55
+  actualizada para reflectir P159 + ADR-0062. Cobertura Layout
+  recalculada empiricamente: 38% declarado → **22% implementado
+  puro** (4/18; +2 entradas adicionadas — `h`/`v` e `skew`).
+  Distribuição ADRs: `PROPOSTO` 10→11; `IMPLEMENTADO` 19→19;
+  total 60→61. Sem código tocado.
 - **Passo 155 — Fase 1 Model fechada (sub-passo 2: quote +
   smart-quotes)**. Segunda e última materialização da Fase 1
   do roadmap ADR-0060: `Content::Quote { body, attribution,

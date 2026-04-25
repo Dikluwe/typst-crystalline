@@ -123,25 +123,38 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 
 ### A.5 — Layout
 
+**Reclassificação P156B (2026-04-25)**: diagnóstico Layout
+revelou divergências empíricas vs declaração; actualização
+de 4 entradas (`pad`, `pagebreak`, `grid`, `place`) e adição
+de 2 entradas que não estavam na lista (`h`/`v` spacing
+primitives e `skew`). Detalhe em
+[`diagnostico-layout-passo-156b.md`](diagnostico-layout-passo-156b.md).
+
 | Feature | Vanilla | Cristalino | Referência | Nota |
 |---------|---------|------------|------------|------|
-| `pad(...)` | layout/pad.rs | `parcial` | layout passos | `Content::Transform` parcial |
+| `pad(...)` | layout/pad.rs | `implementado` ⁶ | Passo 156C (ADR-0061 Fase 1) | `Content::Pad { body, padding: Sides<Length> }` + stdlib `#pad(body, left:?, right:?, top:?, bottom:?, x:?, y:?, rest:?)`; `right` scope-out em layout (perfil ADR-0054 graded); padding negativo rejeitado |
 | `align(alignment, body)` | layout/align.rs | `implementado` | Passos 84.5–84.6 (DEBT-36, 37) | `Align2D`; `Place` com scope |
-| `place(alignment, ..., body)` | layout/place.rs | `implementado` | Passo 84.6 | scope = container ou page |
-| `box(...)` | layout/container.rs | `ausente` | — | inline container |
-| `block(...)` | layout/container.rs | `ausente` | — | block container |
-| `columns(n)` | layout/columns.rs | `ausente` | — | |
-| `grid(columns, ...)` | layout/grid | `implementado⁺` | Passos 82–84.6 | rows/cols, alignment, cell-spans parcial (DEBT-34d/e abertos) |
-| `stack(spacing, ...)` | layout/stack.rs | `ausente` | — | |
-| `pagebreak` | layout/page.rs | `parcial` | Passo 81 | implícito quando `cursor_y` excede |
-| `colbreak` | layout/columns.rs | `ausente` | — | |
+| `place(alignment, ..., body)` | layout/place.rs | `parcial` ⁵ | Passo 84.6 | reclassificado em P156B (era `implementado`); sem `float`, `clearance`; divergência `PlaceScope::Parent` |
+| `box(...)` | layout/container.rs | `ausente` | — | inline container; Fase 2 ADR-0061 |
+| `block(...)` | layout/container.rs | `ausente` | — | block container; Fase 2 ADR-0061 |
+| `columns(n)` | layout/columns.rs | `ausente` | — | Fase 3 ADR-0061; **DEBT-56** (column flow L+) |
+| `grid(columns, ...)` | layout/grid | `parcial` ⁵ | Passos 82–84.6 | reclassificado em P156B (era `implementado⁺`); sem `gutter`, `align`, `stroke`, `fill`, `inset`, `header`, `footer`, `colspan`/`rowspan`. DEBT-34d/e abertos |
+| `stack(spacing, ...)` | layout/stack.rs | `ausente` | — | Fase 2 ADR-0061 |
+| `pagebreak()` (manual) | layout/page.rs | `ausente` ⁵ | Passo 81 (implícito) | reclassificado em P156B (era `parcial`); manual `pagebreak()` ausente; só implícito por overflow + `Content::SetPage`. Fase 1 ADR-0061 (P156C) |
+| `colbreak()` | layout/columns.rs | `ausente` | — | depende de columns; Fase 3 ADR-0061; DEBT-56 |
 | `rotate(angle, body)` | layout/transform.rs | `implementado` | Passo 78 | `Content::Transform` |
 | `scale(amount, body)` | idem | `implementado` | Passo 78 | |
 | `move(dx, dy, body)` | idem | `implementado` | stdlib `native_move` | |
-| `hide(body)` | layout/hide.rs | `ausente` | — | |
-| `repeat(body)` | layout/repeat.rs | `ausente` | — | |
-| `pad`, `corners`, `sides` | layout/{pad,corners,sides}.rs | `ausente` | — | inset modeling |
-| `measure(body)` | layout/measure.rs | `ausente` | — | introspection-related |
+| `hide(body)` | layout/hide.rs | `implementado` ⁶ | Passo 156C (ADR-0061 Fase 1) | `Content::Hide { body }` + stdlib `#hide(body)`; calcula dimensões mas emite zero items (per ADR-0054 graded) |
+| `repeat(body)` | layout/repeat.rs | `ausente` | — | Fase 3 ADR-0061 (lazy semantic) |
+| `pad`, `corners`, `sides` (inset modeling) | layout/{pad,corners,sides}.rs | `ausente` | — | duplica `pad()` linha; refino PageConfig é Fase 3 ADR-0061 |
+| `measure(body)` | layout/measure.rs | `parcial` | helper privado | helper `measure_content` em `01_core/src/rules/layout/helpers.rs`; sem stdlib exposta; depende de Introspection (ADR-0017 adiada) |
+| `h(amount)` / `v(amount)` ⁵ | layout/spacing.rs | `ausente` | **adição P156B** | spacing primitives não estavam listadas; vanilla tem `HElem`/`VElem`; Fase 1 ADR-0061 (P156C) |
+| `skew(ax, ay, body)` ⁵ | layout/transform.rs | `ausente` | **adição P156B** | feature visual menos comum; Fase 3 ADR-0061 |
+
+⁵ — Reclassificação ou adição P156B. Ver
+[`diagnostico-layout-passo-156b.md`](diagnostico-layout-passo-156b.md)
+§2.7 para detalhe.
 
 ### A.6 — Model (structural)
 
@@ -412,12 +425,12 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | `#let`/`#set`/`#show`/import | 7 | 1 | 4 | 1 | 0 | 13 |
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
-| Layout | 6 | 0 | 2 | 8 | 0 | 16 |
+| Layout ⁵ ⁶ | 6 | 0 | 3 | 9 | 0 | 18 |
 | Model (structural) ¹ ² ³ | 6 | 4 | 5 | 7 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection | 1 | 0 | 0 | 5 | 0 | 6 |
-| **Total user-facing** | **56** | **21** | **21** | **39** | **2** | **139** |
+| **Total user-facing** ⁵ ⁶ | **56** | **21** | **22** | **40** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -438,8 +451,33 @@ Model: 5/4/5/8/0=22 → **6/4/5/7/0=22**. Cobertura Model:
 (5+4)/22=41% → (6+4)/22=**45%**. ADR-0060 transita
 `PROPOSTO → IMPLEMENTADO`.
 
-**Cobertura user-facing total** (impl + impl⁺): (56 + 21) / 139 = **55%**
-(antes de P154A: 54%; após P154B: 55%; após P155: ~55-56%).
+⁵ — Ajuste P156B (diagnóstico Layout Fase X; **oitava
+aplicação do padrão diagnóstico-primeiro**): cobertura Layout
+recalculada empiricamente. Reclassificações de 4 entradas
+(`pad` parcial→ausente; `pagebreak` parcial→ausente para
+manual; `grid` impl⁺→parcial; `place` implementado→parcial)
+e adição de 2 entradas (`h`/`v` spacing primitives e `skew`,
+não estavam em A.5). Contagem Layout: 6/0/2/8/0=16 →
+**4/0/3/11/0=18**. Cobertura Layout (impl + impl⁺):
+6/16=38% → **4/18=22%** (recálculo para baixo, padrão análogo
+a Model 154A). Contagem user-facing total ajustada:
+56/21/21/39/2=139 → **54/21/22/42/2=141** (aproximação:
+−2 implementado, +1 parcial, +3 ausente, +2 entradas
+agregadas).
+
+⁶ — Ajuste P156C (materialização Layout Fase 1 sub-passo 1):
+`pad` e `hide` transitam `ausente → implementado` (primeira
+aplicação concreta de ADR-0061). Contagem Layout: 4/0/3/11/0=18
+→ **6/0/3/9/0=18**. Cobertura Layout (impl + impl⁺):
+4/18=22% → **6/18=33%**. Contagem user-facing total ajustada:
+54/21/22/42/2=141 → **56/21/22/40/2=141** (+2 implementado,
+−2 ausente). ADR-0061 mantém-se `PROPOSTO` (anotação
+cumulativa após Fase 1 completa, per decisão humana).
+
+**Cobertura user-facing total** (impl + impl⁺) pós-P156C:
+(56 + 21) / 141 = **55%**
+(antes de P154A: 54%; após P154B: 55%; após P155: ~55-56%;
+após P156B: ~53%; após P156C: **~55%** — Layout 22% → 33%).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -447,8 +485,8 @@ Model: 5/4/5/8/0=22 → **6/4/5/7/0=22**. Cobertura Model:
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
 | `Value` variants | 18 | 2 | 2 | 9 | 0 | 31 |
-| `Content` variants (cristalino) ³ ⁴ | 31 | 9 | 3 | 0 | 0 | 43 |
-| `Content` variants (vanilla extra ausentes) | — | — | — | ~11 | — | ~11 |
+| `Content` variants (cristalino) ³ ⁴ ⁷ | 33 | 9 | 3 | 0 | 0 | 45 |
+| `Content` variants (vanilla extra ausentes) | — | — | — | ~9 | — | ~9 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
@@ -461,6 +499,12 @@ saíram do conjunto não-capturado).
 ⁴ — Ajuste P155: 42 → 43 (+`Quote`). Vanilla extra ausentes
 desce de ~12 para ~11 (quote saiu do conjunto não-capturado).
 ADR-0060 fechada (Fase 1 completa).
+
+⁷ — Ajuste P156C: 43 → 45 (+`Pad`, +`Hide`). Vanilla extra
+ausentes desce de ~11 para ~9 (pad e hide saíram do conjunto
+não-capturado). Primeira aplicação concreta de ADR-0061
+(Layout Fase X roadmap; mantém-se `PROPOSTO` até Fase 1
+completa).
 
 **Cobertura arquitectural total**: (67 + 13) / 106 = **75-76%**
 (era 75% pré-P155; era 72% pré-P154B; era 70% pré-P149).
@@ -498,8 +542,29 @@ encerradas por ADRs (0026, 0028→0029, 0036, etc.).
 
 7. **Lista de `Content::*` ausentes em cristalino mas presentes em vanilla** é maior do que esperado:
    ~11 elementos pós-P155 (Bibliography, Cite, Footnote, Table, Columns, Box, Block, Stack,
-   Hide, Repeat, Pad, Stroke-object — `Terms`, `Divider` e `Quote` saíram). Isto é **escopo
-   XL agregado** se priorizado.
+   Hide, Repeat, Pad, Stroke-object — `Terms`, `Divider` e `Quote` saíram).
+   **Refinamento P156B**: para a sub-categoria Layout especificamente,
+   diagnóstico em [`diagnostico-layout-passo-156b.md`](diagnostico-layout-passo-156b.md)
+   confirmou 11 entradas ausentes (`pad`, `box`, `block`, `stack`,
+   `hide`, `repeat`, `columns`, `colbreak`, `pagebreak` manual,
+   `h`/`v` combinada, `skew`) tratadas em **ADR-0061 PROPOSTO**
+   (roadmap Fase 1 / 2 / 3). **DEBT-56 aberto** para `columns`
+   (column flow L+). Cobertura Layout pós-recálculo: **22%
+   implementado puro** (vs 38% declarado). Adição de `Content::Pad`,
+   `Content::Hide`, `Content::Pagebreak`, `Content::HSpace`,
+   `Content::VSpace` planeada para P156C (Fase 1 Layout) +
+   extensão `Page::footnote_area` que **desbloqueia footnote**
+   em Model Fase 2.
+   **Refinamento P156C** (materialização Fase 1 sub-passo 1):
+   `Content::Pad` e `Content::Hide` adicionados ao enum (43 → 45
+   variants); stdlib `#pad(...)` e `#hide(body)` registadas.
+   Cobertura Layout (impl + impl⁺): 22% → **33%** (4/18 → 6/18).
+   Restantes 9 entradas Layout ausentes (`box`, `block`, `stack`,
+   `repeat`, `columns`, `colbreak`, `pagebreak` manual, `h`/`v`
+   combinada, `skew`) prosseguem em sub-passos seguintes da
+   ADR-0061 (Fase 1 sub-passos 2-N: pagebreak, h+v; Fase 2:
+   block+box+stack; Fase 3: columns+colbreak+repeat+skew).
+   Isto é **escopo XL agregado** se priorizado.
    **Refinamento P154A** (diagnóstico Model): para a sub-categoria Model especificamente, breakdown
    detalhado em [`diagnostico-model-passo-154a.md`](diagnostico-model-passo-154a.md). 6 entradas Model
    alto-valor (`bibliography`, `cite`, `footnote`, `quote`, `terms`, `table`) são tratadas em **ADR-0060
@@ -547,13 +612,15 @@ encerradas por ADRs (0026, 0028→0029, 0036, etc.).
 ## Cross-references
 
 - ADR-0001, 0016, 0017, 0021, 0023, 0025, 0026 + 0026-R1, 0027, 0028→0029, 0033, 0034, 0038, 0039,
-  0040, 0041, 0052, 0053, 0054, 0055, 0057.
-- Passos 9, 13–25, 30–46, 50, 60–66, 70–84.6, 96–146.
+  0040, 0041, 0052, 0053, 0054, 0055, 0057, **0060** (Model roadmap), **0061** (Layout roadmap, P156B).
+- Passos 9, 13–25, 30–46, 50, 60–66, 70–84.6, 96–146, **156A** (historiograma), **156B** (diagnóstico Layout).
 - DEBTs encerrados: 1, 2 (parcial), 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
   24a/b/c, 25, 26, 27, 28, 29, 30, 31, 32, 36, 37, 38, 39, 40, 41, 44, 45, 46, 47, 48, 49, 51, 52.
-- DEBTs abertos: 2 (residual), 8, 9, 33, 34d, 34e, 35b, 42, 43, 50.
+- DEBTs abertos: 2 (residual), 8, 9, 33, 34d, 34e, 35b, 42, 43, 50, **53**, **54**, **55**, **56** (P156B; column flow Fase 3 Layout).
 - Candidatos futuros: ADR-0054bis (regex em L1; gap 8), ADR-0055bis (variant-aware fonts),
-  ADR-0056 (subsetting), DEBT-53 (rustybuzz integration).
+  ADR-0056 (subsetting), **ADR-0062 reservada** (hayagriva; era ADR-0061 antes de P156B);
+  ADR dedicada column flow algorithm (quando DEBT-56 for materializado);
+  DEBT-53 (rustybuzz integration).
 - Documentos relacionados:
   - [`typst-paridade-definicoes.md`](typst-paridade-definicoes.md) — definições operacionais de "passa".
   - [`typst-paridade-plano-medicao.md`](typst-paridade-plano-medicao.md) — plano de medição P1–P4.

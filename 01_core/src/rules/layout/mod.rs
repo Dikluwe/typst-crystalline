@@ -627,6 +627,49 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.cursor_x = margin_pt;
             }
 
+            // ── Passo 156C (ADR-0061 Fase 1, sub-passo 1) — pad + hide ──
+            Content::Pad { body, padding } => {
+                // Resolve padding em pt no font_size_pt activo.
+                // `right` é scope-out neste passo: o Layouter actual não
+                // tem mecânica de "largura útil" por arm — width-aware
+                // wrap vive em `flush_line`/`layout_word` que consultam
+                // `page_config.width`. Aceitar perfil ADR-0054 graded:
+                // pad reduz horizontalmente (left+top) e avança
+                // verticalmente (bottom) consistentemente.
+                let font = self.font_size_pt.val();
+                let left   = padding.left.resolve_pt(font);
+                let top    = padding.top.resolve_pt(font);
+                let bottom = padding.bottom.resolve_pt(font);
+
+                if self.cursor_x.0 > self.line_start_x.0 {
+                    self.flush_line();
+                }
+                self.cursor_y += Pt(top);
+
+                let saved_line_start = self.line_start_x;
+                self.line_start_x = saved_line_start + Pt(left);
+                self.cursor_x     = self.line_start_x;
+
+                self.layout_content(body);
+                self.flush_line();
+
+                self.cursor_y += Pt(bottom);
+                self.line_start_x = saved_line_start;
+                self.cursor_x     = saved_line_start;
+            }
+
+            Content::Hide { body } => {
+                // Calcula o avanço sem emitir items (per ADR-0054 graded).
+                // Drena items pré-existentes para um buffer temporário,
+                // executa o body, e descarta os items gerados — mantém
+                // apenas o avanço de cursor.
+                let saved_items = std::mem::take(&mut self.current_items);
+                let saved_line  = std::mem::take(&mut self.current_line);
+                self.layout_content(body);
+                self.current_items = saved_items;
+                self.current_line  = saved_line;
+            }
+
             // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────
             Content::Quote { body, attribution, block, quotes } => {
                 use crate::rules::lang::quotes::{DEFAULT_QUOTES, localize_quotes};
@@ -741,6 +784,21 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     }
                     ShapeKind::Line { dx, dy } => (dx.abs().min(max_width), dy.abs()),
                 }
+            }
+
+            // Passo 156C: Pad / Hide para grid measurement.
+            Content::Pad { body, padding } => {
+                let font  = self.font_size_pt.val();
+                let left   = padding.left.resolve_pt(font);
+                let right  = padding.right.resolve_pt(font);
+                let top    = padding.top.resolve_pt(font);
+                let bottom = padding.bottom.resolve_pt(font);
+                let constrained = (max_width - left - right).max(0.0);
+                let (w, h) = self.measure_content_constrained(body, constrained);
+                (w + left + right, h + top + bottom)
+            }
+            Content::Hide { body } => {
+                self.measure_content_constrained(body, max_width)
             }
 
             _ => (0.0, 0.0),

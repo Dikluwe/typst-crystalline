@@ -54,6 +54,19 @@
 > a criar em passo dedicado). **ADR-0060 PROPOSTO** (roadmap
 > Fase 1 / 2 / 3 — passos 154B/155/156/157/158+).
 > Total abertos: **12 → 13**.
+>
+> **Passo 156B (2026-04-25)**: diagnóstico Layout (Fase X) —
+> oitava aplicação do padrão diagnóstico-primeiro; primeira
+> a categoria Layout. Cobertura empírica recalculada de 38%
+> declarado para **22% implementado puro** (4/18); 11 entradas
+> ausentes; +2 entradas adicionadas (`h`/`v` e `skew` não
+> estavam no §A.5 do inventário 148). **DEBT-56 aberto**
+> (column flow Fase 3 Layout L+; refactor multi-region do
+> Layouter exigido; ADR dedicada futura). **ADR-0061 criada
+> em PROPOSTO** (Layout roadmap). **Renumeração de Fase 2
+> Model**: P156→P157, P157→P158, P158→P159; reserva
+> hayagriva passa de ADR-0061 para **ADR-0062**. DEBT-55
+> actualizada. Total abertos: **13 → 14**.
 
 ---
 
@@ -337,13 +350,123 @@ de infraestrutura, não de domínio.
 
 ---
 
-## DEBT-55 — Bibliography + Cite (XL; pré-condição ADR-0061 hayagriva) — EM ABERTO (Passo 154A)
+## DEBT-56 — Column flow Fase 3 Layout (L+; refactor multi-region do Layouter) — EM ABERTO (Passo 156B)
+
+**Aberto em**: Passo 156B (2026-04-25) durante diagnóstico
+Layout (Fase X).
+**Bloqueia**: Fase 3 do roadmap Layout (ADR-0061) — `columns()`
+e `colbreak()` ficam ausentes até ser materializado.
+**Bloqueado por**: nada técnico imediato; **decisão humana
+de priorizar Fase 3 Layout**. ADR dedicada (column flow
+algorithm) a criar quando materializado.
+
+### Contexto
+
+Diagnóstico Layout (P156B) classificou `columns()` como **L+**
+— escopo significativamente maior que outras features Layout
+porque exige refactor profundo do Layouter:
+
+- Vanilla implementa multi-column como `Regions` com width
+  reduzida (`width / count - gutter`), iterando colunas como
+  páginas sequenciais (in-tree em
+  `lab/typst-original/crates/typst-layout/src/flow/`, ~3000
+  linhas).
+- Cristalino actual escreve directo em `current_items` da
+  página (sem abstração `Region`/`Regions`); não suporta
+  multi-region iteration.
+- Refactor mínimo: introduzir abstracção `Region`-like e fazer
+  Layouter consumir uma sequência de regions; column flow vira
+  caso especial de regions reduzidas.
+
+Vanilla **não faz balanceamento** de altura de colunas (pelo
+comentário do source); cristalino pode adoptar mesma simplificação.
+
+### Diferença face ao vanilla
+
+Vanilla: `ColumnsElem { count, gutter, body }` em
+`lab/typst-original/crates/typst-library/src/layout/columns.rs`
+(declarativo, 103 linhas) + algoritmo em
+`lab/typst-original/crates/typst-layout/src/flow/`.
+
+Cristalino: zero — sem `Content::Columns`, sem
+`Content::Colbreak`, sem multi-region no Layouter.
+
+### Pré-requisitos
+
+1. **ADR dedicada** column flow algorithm (autorização da
+   abordagem multi-region; análoga a ADR-0044 Engine que
+   inverteu parcialmente ADR-0036 sem revogar).
+2. **Refactor `Layouter`** — introduzir
+   `Region`/`Regions`-like abstraction.
+3. **`Content::Columns { count, gutter, body }`** + variant
+   `Content::Colbreak { weak: bool }`.
+4. **`native_columns` + `native_colbreak`** em stdlib.
+5. **Layouter consumer** — reduzir width, iterar colunas como
+   páginas dentro do flow.
+6. **Compatibilidade com page break** — colbreak precedência
+   vs pagebreak; testes de mistura.
+
+### Plano
+
+Materializar em **passo dedicado** (escopo L+; ~5-8h):
+
+- [ ] ADR dedicada column flow algorithm (PROPOSTO).
+- [ ] Refactor minimal `Layouter` para multi-region.
+- [ ] `Content::Columns` + `Content::Colbreak` variants.
+- [ ] `native_columns` + `native_colbreak` em stdlib.
+- [ ] Consumer no Layouter.
+- [ ] 5-10 testes (single-column unchanged; 2-col / 3-col
+  texto curto; column overflow; colbreak; mistura com
+  pagebreak; mistura com `#set page`).
+- [ ] Inventário 148 reclassifica `columns` e `colbreak`
+  de `ausente` para `implementado` (perfil graded — sem
+  balanceamento).
+- [ ] ADR de column flow transita PROPOSTO → IMPLEMENTADO.
+- [ ] DEBT-56 fecha.
+
+### Critério de fecho
+
+- [ ] ADR column flow `IMPLEMENTADO`.
+- [ ] `columns()` + `colbreak()` materializados em cristalino
+  (sem balanceamento, paridade vanilla).
+- [ ] Tests verdes; lint zero.
+- [ ] Inventário 148 actualizado.
+- [ ] ADR-0061 (Layout roadmap) Fase 3 marca columns/colbreak
+  como completos.
+
+### Notas
+
+- **Não bloqueia Fase 1 Layout** (P156C — page model footnote
+  area + pad + hide + pagebreak + h + v) nem **Fase 2 Layout**
+  (block + box + stack). Pode ser materializado em paralelo
+  com Fase 2 ou após.
+- **Não bloqueia Fase 2 Model** (P157 table + P158 figure-kinds
+  + P159 bibliography) — features Model são independentes do
+  column flow.
+- **`measure(body)` e `layout(callback)`** continuam dependentes
+  de ADR-0017 (Introspection runtime), não desta DEBT.
+- **Refactor Layouter** é candidato natural a ser feito em duas
+  fases: (a) introduzir `Region`/`Regions` mantendo
+  comportamento single-column; (b) consumir multi-column.
+  Cada fase pode ser passo independente.
+- **Sem novas crates externas** — column flow é trabalho L1
+  puro com tipos existentes (per §5 do diagnóstico P156B).
+
+---
+
+## DEBT-55 — Bibliography + Cite (XL; pré-condição ADR-0062 hayagriva) — EM ABERTO (Passo 154A; renumerada por Passo 156B)
 
 **Aberto em**: Passo 154A (2026-04-25) durante diagnóstico
 Model.
-**Bloqueado por**: **ADR-0061** (autorização da crate
+**Actualizado em**: Passo 156B (2026-04-25) — renumeração da
+reserva ADR (era ADR-0061 → agora ADR-0062) e do passo de
+materialização (era P158 → agora P159) por reocupação de
+ADR-0061 por Layout roadmap em P156B.
+**Bloqueado por**: **ADR-0062** (autorização da crate
 `hayagriva`, ainda não criada — referência condicional em
-ADR-0060).
+ADR-0060 anotada). Era ADR-0061 antes da reocupação por
+Layout em P156B; reserva hayagriva foi deslocada para
+ADR-0062 sem alteração de conteúdo.
 
 ### Contexto
 
@@ -371,7 +494,8 @@ sem `native_bibliography` nem `native_cite` em stdlib.
 
 ### Pré-requisitos
 
-1. **ADR-0061** — autorização `hayagriva` em L1 ou L3.
+1. **ADR-0062** (renumerada de ADR-0061 em P156B) —
+   autorização `hayagriva` em L1 ou L3.
    Precedentes: ADR-0024 (ecow), ADR-0023 (indexmap),
    ADR-0057 (hypher). Crate 0.9.1 já em cache local
    (probe P152). Localização L1 vs L3 a decidir conforme
@@ -387,8 +511,10 @@ sem `native_bibliography` nem `native_cite` em stdlib.
 ### Plano
 
 Materializar em **passo dedicado** (escopo XL; ~5-8h):
+**Passo 159** (renumerado de P158 em P156B).
 
-- [ ] ADR-0061 criada (autorização hayagriva).
+- [ ] **ADR-0062** criada (autorização hayagriva; era ADR-0061
+  antes da reocupação por Layout em P156B).
 - [ ] `Cargo.toml` + `crystalline.toml` configurados.
 - [ ] `Content::Bibliography {...}` + `Content::Cite {key,
   supplement, form}` variants.
@@ -401,7 +527,8 @@ Materializar em **passo dedicado** (escopo XL; ~5-8h):
 
 ### Critério de fecho
 
-- [ ] ADR-0061 `IMPLEMENTADO`.
+- [ ] **ADR-0062** `IMPLEMENTADO` (era ADR-0061 antes da
+  renumeração em P156B).
 - [ ] `bibliography` + `cite` materializados em cristalino.
 - [ ] Tests verdes; lint zero.
 - [ ] Inventário 148 actualizado.
@@ -409,16 +536,21 @@ Materializar em **passo dedicado** (escopo XL; ~5-8h):
 ### Notas
 
 - **Não bloqueia Fase 1 do roadmap Model** (P154B = terms +
-  divider; P155 = quote; P156 = table foundations; P157 =
-  figure kinds). Pode ser materializado em paralelo com
-  Fase 1 ou após.
+  divider; P155 = quote; **P157** = table foundations;
+  **P158** = figure kinds; renumerados de P156/P157 em P156B).
+  Pode ser materializado em paralelo com Fase 1 ou após.
 - **Escopo cumulativo**: bibliography sem cite é
   semi-utilizável; cite sem bibliography não tem como
   resolver. Recomenda-se materializar **ambos** num único
   passo dedicado.
 - **Pré-condição P154A coberta**: probe de hayagriva
-  confirmou cache + versão match (ADR-0061 não exige fetch
-  online).
+  confirmou cache + versão match (**ADR-0062** não exige fetch
+  online; era ADR-0061 antes da renumeração).
+- **Renumeração P156B**: ADR-0061 reocupada para Layout
+  roadmap em P156B; reserva hayagriva deslocada para
+  ADR-0062 (sem ficheiro criado; documentado no README ADRs).
+  Conteúdo material desta DEBT inalterado — apenas referências
+  numéricas actualizadas.
 
 ---
 

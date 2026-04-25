@@ -118,6 +118,16 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
         | Content::Image { .. }
         | Content::Divider
         | Content::Shape { .. } => content.clone(),
+        // Passo 156C (ADR-0061 Fase 1) — pad / hide containers.
+        // Materialize_time desce no body para resolver counters dentro;
+        // padding e o invariante "hide" preservam-se.
+        Content::Pad { body, padding } => Content::Pad {
+            body:    Box::new(materialize_time(body, state)),
+            padding: *padding,
+        },
+        Content::Hide { body } => Content::Hide {
+            body: Box::new(materialize_time(body, state)),
+        },
         Content::Transform { matrix, body } => Content::Transform {
             matrix: *matrix,
             body:   Box::new(materialize_time(body, state)),
@@ -332,6 +342,13 @@ fn walk(content: &Content, state: &mut CounterState) {
         Content::Align { body, .. } => walk(body, state),
 
         Content::Place { body, .. } => walk(body, state),
+
+        // Passo 156C (ADR-0061 Fase 1) — pad / hide são containers
+        // estruturais; descer no body para que counters/labels dentro sejam
+        // processados. `Hide` mesmo "ocultando visualmente" mantém a
+        // semântica de presence (label/ref dentro de hide ainda resolvem).
+        Content::Pad  { body, .. } => walk(body, state),
+        Content::Hide { body }     => walk(body, state),
 
         // Passo 99 (ADR-0038): `Styled` é transparente — desce no body.
         Content::Styled(body, _) => walk(body, state),

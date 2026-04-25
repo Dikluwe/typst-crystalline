@@ -514,8 +514,8 @@ fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
         make_calc_module, native_align, native_assert, native_circle, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_heading,
-        native_image, native_int, native_len, native_line,
-        native_lower, native_luma, native_move, native_page, native_place, native_polygon,
+        native_hide, native_image, native_int, native_len, native_line,
+        native_lower, native_luma, native_move, native_pad, native_page, native_place, native_polygon,
         native_quote, native_range, native_rect, native_replace, native_raw, native_rgb, native_rotate,
         native_scale, native_str, native_strong, native_terms, native_type, native_upper,
     };
@@ -555,6 +555,9 @@ fn make_stdlib() -> Scope {
     scope.define("divider", Value::Func(Func::native("divider", native_divider)));
     // Passo 155 (ADR-0060 Fase 1, sub-passo 2): quote.
     scope.define("quote",   Value::Func(Func::native("quote",   native_quote)));
+    // Passo 156C (ADR-0061 Fase 1, sub-passo 1): pad + hide.
+    scope.define("pad",     Value::Func(Func::native("pad",     native_pad)));
+    scope.define("hide",    Value::Func(Func::native("hide",    native_hide)));
     scope.define("calc",    make_calc_module());
 
     // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).

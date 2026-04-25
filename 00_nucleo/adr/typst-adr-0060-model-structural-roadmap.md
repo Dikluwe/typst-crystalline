@@ -2,7 +2,8 @@
 
 **Status**: `IMPLEMENTADO` (Fase 1 fechada; Fase 2 e Fase 3 prosseguem
 como roadmap planeado e aplicam-se em passos subsequentes —
-P156/157/158).
+**P157/158/159** após renumeração registada em P156B; ver anotação
+abaixo).
 **Validado**: Passo 154A — diagnóstico; Passo 154B — sub-passo 1
 (terms + divider); **Passo 155 — sub-passo 2 (quote); Fase 1 fechada**.
 **Data**: 2026-04-25
@@ -29,6 +30,31 @@ contexto de código (ex: `#let s = "..."`) continua a ser
 Cobertura Model 41% → ~45%; arquitectural Content 75% → ~77%.
 Plano Fase 2 (P156/157/158 — table foundations, figure kinds,
 bibliography+cite com ADR-0061) inalterado.
+
+**Anotação Passo 156B (2026-04-25)** — **renumeração de Fase 2**:
+P156A foi consumido pelo historiograma (passo administrativo);
+P156B é o diagnóstico Layout (este passo de origem da anotação).
+Consequentemente Fase 2 Model desloca-se uma posição:
+
+| Antes (ADR-0060 original) | Depois (pós-P156B) |
+|---------------------------|---------------------|
+| P156 = Model table foundations | **P157** |
+| P157 = Model figure-kinds | **P158** |
+| P158 = Model bibliography (XL) | **P159** |
+| ADR-0061 = autorização hayagriva | **ADR-0062** |
+
+ADR-0061 foi **reocupada** por P156B para roadmap Layout
+(`typst-adr-0061-layout-fase-x-roadmap.md`, status `PROPOSTO`).
+`hayagriva` passa a reserva ADR-0062 (sem ficheiro criado;
+documentado em README ADRs e DEBT-55). Decisão 2 desta ADR-0060
+(Fase 2 — `Content::Bibliography` + `Content::Cite` com
+autorização `hayagriva`) lê-se agora "ADR-0062 + Passo 159"
+em vez de "ADR-0061 + Passo 158". DEBT-55 actualizada em P156B.
+
+Bloqueio adicional documentado em P156B: **`footnote()` (Decisão 2
+desta ADR-0060) requer page model com footnote area** — desbloqueado
+pela Fase 1 do roadmap Layout (ADR-0061 nova, Decisão 1 + Decisão 5;
+Passo 156C).
 
 ---
 
@@ -74,9 +100,10 @@ ADR-0060 propõe **3 fases** com prioridades explícitas:
   `Content::Divider` (S agregado).
 - **Passo 155** — `Content::Quote` com atributos
   `attribution`, `block` (M).
-- **Passo 156** — `Content::Table` foundations: variant nova
-  + sub-elementos `TableCell`, `TableHeader`, `TableFooter`
-  (M+; reaproveita `Content::Grid` parcial para layout).
+- **Passo 157** (renumerado de P156 em P156B) —
+  `Content::Table` foundations: variant nova + sub-elementos
+  `TableCell`, `TableHeader`, `TableFooter` (M+; reaproveita
+  `Content::Grid` parcial para layout).
 
 Cobertura post-Fase 1: ~50% (8/22 → 11-12/22).
 
@@ -84,15 +111,18 @@ Cobertura post-Fase 1: ~50% (8/22 → 11-12/22).
 
 3 sub-passos:
 
-- **Passo 157** — `figure` kinds extension (depende de
-  Passo 156 para figure-table; M).
-- **ADR-0061 + Passo 158** — `Content::Bibliography` +
-  `Content::Cite` com autorização `hayagriva`. ADR-0061
-  documenta autorização (precedente ADR-0024 ecow,
-  ADR-0023 indexmap, ADR-0057 hypher). Crate `hayagriva
-  0.9.1` já em cache local (per P152).
-- **Passo dedicado footnote** — `Content::Footnote` quando
-  Layout Fase X (page-model footnote area) for priorizado.
+- **Passo 158** (renumerado de P157 em P156B) — `figure` kinds
+  extension (depende de Passo 157 para figure-table; M).
+- **ADR-0062 + Passo 159** (renumerados de ADR-0061+P158 em P156B)
+  — `Content::Bibliography` + `Content::Cite` com autorização
+  `hayagriva`. ADR-0062 documenta autorização (precedente
+  ADR-0024 ecow, ADR-0023 indexmap, ADR-0057 hypher). Crate
+  `hayagriva 0.9.1` já em cache local (per P152). **Nota**:
+  ADR-0061 foi reocupada por P156B para roadmap Layout; reserva
+  hayagriva passou para ADR-0062.
+- **Passo dedicado footnote** — `Content::Footnote` desbloqueado
+  por Fase 1 Layout (ADR-0061 nova; Passo 156C). Page model
+  ganha `footnote_area` minimalista.
 
 Cobertura post-Fase 2: ~68% (11-12/22 → 15-16/22).
 
@@ -181,10 +211,10 @@ humana posterior).
 |-------|--------|----------|-----------------|
 | 154B | S | terms, divider | — |
 | 155 | M | quote | — |
-| 156 | M+ | table foundations | — |
-| 157 | M | figure kinds | — |
-| ADR-0061 + 158 | XL | bibliography + cite | ADR-0061 |
-| (futuro) | M-L | footnote | — (depende Layout Fase X) |
+| 157 (renumerado de 156 em P156B) | M+ | table foundations | — |
+| 158 (renumerado de 157 em P156B) | M | figure kinds | — |
+| ADR-0062 + 159 (renumerados em P156B) | XL | bibliography + cite | ADR-0062 (era ADR-0061 antes da reocupação por Layout em P156B) |
+| (futuro pós-156C) | M-L | footnote | — (Layout Fase 1 ADR-0061 desbloqueia) |
 | (Fase 3) | S | asset | — |
 | (Fase 3) | divergência | document, title | — |
 
@@ -207,8 +237,13 @@ sem necessidade de re-abertura desta ADR.
 - **ADR-0037** — coesão por domínio.
 - **ADR-0038** — `Content::Styled` para styling estrutural.
 - **ADR-0054** — perfil observacional graded.
-- **DEBT-55** (P154A) — bibliography + cite XL com plano
-  ADR-0061.
+- **DEBT-55** (P154A; actualizada por P156B) — bibliography
+  + cite XL com plano **ADR-0062 + Passo 159** (era ADR-0061
+  + Passo 158 antes da renumeração).
+- **ADR-0061** (P156B) — Layout Fase X roadmap; reocupou o
+  número antes reservado para hayagriva.
+- **DEBT-56** (P156B) — Column flow Fase 3 Layout L+; aberto
+  por P156B.
 - **DEBT-34d / DEBT-34e** — grid cell layouting (Passo 80);
   trabalho similar mas distinto de `Content::Table`.
 - **Inventário 148** (`typst-cobertura-vanilla-vs-cristalino.md`)
