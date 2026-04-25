@@ -1,8 +1,8 @@
 # Índice de ADRs do Typst Cristalino
 
 Este documento é o índice canónico dos Architectural Decision
-Records (ADRs) do projecto **Typst Cristalino**. Lista os 57 ADRs
-em vigor (56 números únicos; ADR-0026 tem variante -R1 por
+Records (ADRs) do projecto **Typst Cristalino**. Lista os 59 ADRs
+em vigor (58 números únicos; ADR-0026 tem variante -R1 por
 revisão), as meta-regras que governam o projecto, o vocabulário
 canónico de status, cadeias de revogação e revisão, e convenções
 estruturais.
@@ -163,8 +163,10 @@ que corresponde a mudança específica no código.
 | 0054 | Critério de fecho de DEBT-1 inclui consumo integral | `EM VIGOR` |
 | 0055 | Font consumer via pipeline CIDFont existente | `IMPLEMENTADO` |
 | 0057 | Lang hyphenation em L1 via crate `hypher` | `IMPLEMENTADO` |
+| 0058 | Tipo simplificado — `type()` devolve `Value::Str` | `EM VIGOR` |
+| 0059 | `Args` como tipo separado, não-variant de `Value` | `EM VIGOR` |
 
-**Total**: 57 ADRs (56 números únicos; ADR-0026 tem variante -R1
+**Total**: 59 ADRs (58 números únicos; ADR-0026 tem variante -R1
 por revisão).
 
 ### Distribuição de status
@@ -172,8 +174,8 @@ por revisão).
 - `PROPOSTO`: 10 ADRs (decisões em aberto: 0005, 0006,
   0008–0015).
 - `IDEIA`: 2 ADRs (0002, 0003).
-- `EM VIGOR`: 24 ADRs (regras/políticas activas; 0018, 0029,
-  0030, 0032–0051, 0054).
+- `EM VIGOR`: 26 ADRs (regras/políticas activas; 0018, 0029,
+  0030, 0032–0051, 0054, 0058, 0059).
 - `IMPLEMENTADO`: 18 ADRs (decisões materializadas; 0001, 0004,
   0016, 0017, 0019, 0021–0027, 0026-R1, 0031, 0052, 0053, 0055,
   0057).
@@ -410,3 +412,27 @@ P84.8g.
   `font_wiring_segunda_font_diferente_ambas_embebidas` com
   assertion ajustada de 1 → 2 `/Subtype /Type0` (regressão
   deliberada do MVP 140B documentada).
+- **Passos 147–148 — Série paridade (actualização + inventário)**.
+  P147 actualizou documentos de paridade (`typst-paridade-*.md`)
+  para reflectir o estado de 2026-04-24 pós-P146 (estavam
+  ~127 passos desactualizados). P148 produziu **inventário
+  factual de cobertura vanilla vs cristalino** em
+  `diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`
+  (~138 user-facing + ~105 arquitectural; 5 classes:
+  implementado/implementado⁺/parcial/ausente/scope-out).
+  Cobertura declarada: 54% user-facing; 70% arquitectural
+  (pré-149). Reformulação da série paridade: inventário
+  antes de medição.
+- **Passo 149 — Arqueologia e formalização de divergências
+  `Value::Type` e `Value::Args`**. Inventário 148 §7
+  sinalizou 2 divergências não-formalizadas. Arqueologia em
+  `diagnosticos/divergencias-value-passo-149.md` localizou
+  Passos materializadores (13 e 16) e razões (ADR-0017 +
+  ADR-0036 espírito). Classificação: **ADR-0058** (`type()`
+  devolve `Value::Str`, não `Value::Type(Type)` rico) e
+  **ADR-0059** (`Args` como tipo separado em
+  `entities/args.rs`, passado como `&Args` às nativas, não
+  variant de `Value`). Zero DEBTs novos; zero código tocado.
+  Inventário 148 actualizado: Tabela B reclassificou
+  `Value::Type` e `Value::Args` de `parcial` para
+  `implementado⁺`. Cobertura arquitectural pós-149: 72%.

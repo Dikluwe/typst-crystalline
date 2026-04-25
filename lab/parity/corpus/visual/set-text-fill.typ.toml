@@ -1,0 +1,3 @@
+features = ["set", "text.fill", "rgb"]
+modo_p3 = "text_content"
+notes = "Fill activo desde Passo 102. Uso de rgb(...) literal porque constantes de cor por nome (red, blue) não estão na stdlib cristalina."

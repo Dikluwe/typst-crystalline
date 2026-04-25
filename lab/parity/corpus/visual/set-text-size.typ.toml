@@ -1,0 +1,3 @@
+features = ["set", "text.size"]
+modo_p3 = "text_content"
+notes = "Size activo desde Passo 30."

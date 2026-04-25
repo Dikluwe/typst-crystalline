@@ -156,6 +156,29 @@ Tudo o de `structural` mais: cada `pos` tem `|crist.x - orig.x| <= absolute_pt` 
 
 Tolerância sugerida inicial: `absolute_pt = 5.0`. Ajustar empiricamente.
 
+#### Classe `experimental` (introduzida no Passo 150)
+
+Nomenclatura nova para modos cuja **implementação está
+materializada** mas que **não contam para a % agregada** porque
+divergem estruturalmente face ao vanilla por razões
+arquitecturais conhecidas e aceites.
+
+**Aplicação a `geometric`**: cristalino usa `FixedMetrics`
+(~0.6×size por char, monoespaçado) enquanto vanilla usa
+`FontBookMetrics` via `ttf-parser` (proporcional). As posições
+absolutas divergem por construção; tolerâncias `5pt` ou `10pt`
+não cobrem a divergência. Marcar `geometric` como
+**experimental** exprime esta realidade: mede-se o gap
+(números brutos `max_dx`/`max_dy`/`mean_dx`/`mean_dy`) mas
+**não conta** para a "%".
+
+Modo `experimental` devolve **números brutos** para calibração
+futura. Promoção para `production` é decisão de passo dedicado
+quando calibração for priorizada.
+
+ADR-0054 (perfil observacional graded) cobre: divergência
+geométrica é **estrutural**, não defeito.
+
 ### Critério de "passa"
 
 Configurável por ficheiro. Os ficheiros do corpus declaram o modo esperado nos seus metadados:

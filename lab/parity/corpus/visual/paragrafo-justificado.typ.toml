@@ -1,0 +1,3 @@
+features = ["set", "text.lang", "hyphenation"]
+modo_p3 = "text_content"
+notes = "Hyphenation activa desde Passo 144 (ADR-0057, crate hypher)."

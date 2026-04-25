@@ -249,8 +249,8 @@ Tipos do Rust em `01_core/src/entities/` versus `lab/typst-original/crates/typst
 | `Array` | foundations/array.rs | `implementado` | Passo 15 | |
 | `Dict` | foundations/dict.rs | `implementado` | Passo 23 (ADR-0023 indexmap) | |
 | `Func` | foundations/func.rs | `implementado` | Passo 16 | Arc<FuncRepr> |
-| `Args` | foundations/args.rs | `parcial` | tipo separado | `Args` em entities; não Value variant |
-| `Type` | foundations/ty.rs | `parcial` | string-based | `type()` devolve string, não Value::Type |
+| `Args` | foundations/args.rs | `implementado⁺` | Passo 16; **ADR-0059** (P149) | divergência intencional: `Args` é struct separada em `entities/args.rs`, passada como `&Args` às nativas. Não-variant de `Value`. |
+| `Type` | foundations/ty.rs | `implementado⁺` | Passo 13-14; **ADR-0058** (P149) | divergência intencional: `type(x)` devolve `Value::Str(type_name)` em vez de `Value::Type(Type)` rico. `type(x) == "int"` funciona; `type(x) == int` não. |
 | `Module` | foundations/module.rs | `implementado` | Passo 17 | Arc<ModuleInner> |
 | `Dyn` (Dynamic) | foundations/value.rs | `ausente` | — | escape hatch raramente usado |
 | `Align` (extra cristalino) | — | `implementado` | Passo 84.5 (DEBT-36) | divergência intencional: `Value::Align` simplifica resolução |
@@ -421,15 +421,18 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
-| `Value` variants | 18 | 0 | 4 | 9 | 0 | 31 |
+| `Value` variants | 18 | 2 | 2 | 9 | 0 | 31 |
 | `Content` variants (cristalino) | 27 | 9 | 3 | 0 | 0 | 39 |
 | `Content` variants (vanilla extra ausentes) | — | — | — | ~14 | — | ~14 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
-| **Total arquitectural** | **63** | **11** | **7** | **23** | **1** | **105** |
+| **Total arquitectural** | **63** | **13** | **5** | **23** | **1** | **105** |
 
-**Cobertura arquitectural total**: (63 + 11) / 105 = **70%**.
+**Cobertura arquitectural total**: (63 + 13) / 105 = **72%**
+(era 70% pré-Passo 149; `Value::Type` e `Value::Args`
+reclassificadas de `parcial` para `implementado⁺` após
+formalização por ADR-0058 e ADR-0059).
 **Nota**: variants extra cristalino (`Value::Align`, `Content::Styled`) são **divergências intencionais**
 favoráveis — cristalino tem features que vanilla não (em forma de Value); contadas como `implementado` porque
 encerradas por ADRs (0026, 0028→0029, 0036, etc.).
@@ -438,11 +441,14 @@ encerradas por ADRs (0026, 0028→0029, 0036, etc.).
 
 ## Top divergências surpreendentes
 
-1. **`Value::Type` é parcial em cristalino** (string-based) enquanto vanilla tem `Type` como tipo dedicado.
-   ADR-0025 cobre `Int == Float` mas não documenta esta divergência. Candidato a clarificação futura.
+1. **`Value::Type` é `implementado⁺` em cristalino** (`type()` devolve `Value::Str(type_name)`, não
+   `Value::Type(Type)` rico do vanilla). **Formalizado por ADR-0058** (Passo 149). `type(x) == "int"`
+   funciona; `type(x) == int` (vanilla idiom) não funciona. Aceite dentro do perfil observacional
+   graded de ADR-0054.
 
-2. **`Value::Args` não é variant** em cristalino — `Args` é tipo separado em `entities/args.rs` que é
-   passado para funções nativas. Divergência arquitectural não-documentada via ADR.
+2. **`Value::Args` não é variant** em cristalino — `Args` é struct separada em `entities/args.rs`
+   passada como `&Args` às funções nativas. **Formalizado por ADR-0059** (Passo 149). Alinhado com
+   ADR-0036 (atomização progressiva).
 
 3. **`Content::Heading` com show rules**: ADR-0041 declara "implementado" mas alguns atributos do vanilla
    `HeadingElem` (numbering style, supplement, outline-position) são parciais. Spec actual de

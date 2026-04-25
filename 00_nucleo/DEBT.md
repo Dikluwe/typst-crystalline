@@ -24,6 +24,12 @@
 > (rastreador cumpriu a função; gaps 7 e 8 ficam como candidatos
 > futuros não-DEBT). Total abertos: **12 → 10**. Relatório formal
 > em [`relatorios/fecho-debt-1-passo-142.md`](relatorios/fecho-debt-1-passo-142.md).
+>
+> **Passo 150 (2026-04-25)**: aberto **DEBT-53** durante
+> materialização da primeira matriz agregada de paridade
+> (`lab/parity/`). Infraestrutura entregue (FrameDTO + report +
+> tests + corpus expandido); integração do pipeline vanilla
+> ficou pendente. Total abertos: **10 → 11**.
 
 ---
 
@@ -304,6 +310,96 @@ de infraestrutura, não de domínio.
 - [ ] Tipo não autorizado dessa crate é reportado como violação em
       teste do `crystalline-lint`.
 - [ ] Documentação actualizada no README do `crystalline-lint`.
+
+---
+
+## DEBT-53 — Integração de pipeline vanilla em `lab/parity` para medição P3 — EM ABERTO (Passo 150)
+
+**Aberto em**: Passo 150 (2026-04-25) durante materialização da
+primeira matriz agregada de paridade.
+**Relacionado com**: ADR-0033 (paridade funcional), ADR-0054
+(perfil observacional graded), inventário 148, série paridade.
+
+### Contexto
+
+Passo 150 entregou a infraestrutura de medição P3:
+`lab/parity/src/frame_dto.rs` + `lab/parity/src/report.rs` +
+`lab/parity/tests/layout_parity.rs` + corpus expandido
+(`lab/parity/corpus/visual/` com 9 ficheiros) + primeiro
+relatório `lab/parity/reports/latest.md`.
+
+A matriz produzida nesta iteração é **cristalino-only
+baseline**: 19/19 ficheiros do corpus compilam em cristalino
+sem panic. Colunas `text_content`, `structural`, `geometric`
+ficam `N/A` porque a comparação contra vanilla **ainda não
+está integrada**.
+
+### Diferença face ao vanilla
+
+Para activar a comparação, é necessário:
+
+1. **World adapter**: vanilla tem `typst_library::World` trait
+   com assinatura distinta de cristalino
+   `typst_core::contracts::world::World`. Implementar
+   adapter ou setup duplo para cada ficheiro do corpus.
+2. **Vanilla compile pipeline**: invocar
+   `typst::compile::<typst_layout::PagedDocument>(world)`
+   (vanilla) em paralelo a `eval_to_module_with_sink` +
+   `layout` (cristalino).
+3. **`FrameDTO::from_vanilla`**: actualmente stub
+   (`from_vanilla_stub` devolve `FrameDTO` vazio).
+   Materializar conversão real a partir de
+   `typst_layout::PagedDocument` (vanilla).
+4. **Setup de fonts para vanilla**: vanilla espera fonts
+   embebidas via crate ou descobertas no sistema; setup
+   diferente do `SystemWorld::with_fonts` cristalino.
+5. **Matrix population**: actualizar
+   `tests/layout_parity.rs` para chamar ambos os pipelines,
+   invocar `crist_dto.compare(&vanilla_dto, t)` e popular as
+   colunas que estão `N/A`.
+
+### Razão pela escolha actual
+
+Spec do Passo 150 §"O que pode sair errado" autoriza pausar
+se vanilla integration for inviável: "Se a versão do vanilla
+em `lab/typst-original/` não expõe `PagedDocument` no
+namespace esperado, ajustar importação. **Se inviável,
+registar e pausar — pode exigir análise da estrutura do
+`lab/typst-original/`**."
+
+A complexidade do World adapter + setup duplo de fonts
+justifica passo dedicado. Passo 150 entregou infraestrutura
++ corpus + matriz baseline; integração vanilla é trabalho
+posterior.
+
+### Plano
+
+Materializar em passo dedicado (escopo M-L). Estimativa:
+~150-300 linhas de código novo:
+
+- World adapter / setup duplo (~50-80 linhas).
+- `FrameDTO::from_vanilla` (~40-60 linhas).
+- `tests/layout_parity.rs` actualizado para invocar ambos
+  (~30-50 linhas).
+- Possível refactor do harness para tolerar diferenças de
+  setup entre os dois pipelines.
+- Calibração inicial das tolerâncias `geometric` (números
+  brutos do baseline).
+
+Output esperado: matriz pós-vanilla com `text_content`,
+`structural`, `geometric` populados; números reais sobre
+quantos ficheiros do corpus passam cada modo.
+
+### Critério de fecho
+
+- [ ] `from_vanilla` materializado em `frame_dto.rs`.
+- [ ] Vanilla pipeline integrado em `tests/layout_parity.rs`.
+- [ ] Matriz populada com números reais (substitui `N/A`).
+- [ ] Relatório `latest.md` actualizado com resultados.
+- [ ] `geometric` (experimental) calibrado com primeiras
+  observações.
+- [ ] Numeração do passo dedicado escolhida (provável 150A
+  diagnóstico + 150B materialização, ou 153 directo).
 
 ---
 
