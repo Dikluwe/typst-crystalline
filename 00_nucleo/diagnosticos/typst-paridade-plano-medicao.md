@@ -364,24 +364,33 @@ pipeline já chega lá; teste end-to-end existe via
    move-se para **DEBT-53** (vanilla World adapter + setup
    duplo). Cristalino-only baseline: 19/19 ficheiros do
    corpus compilam sem panic.
-4. **Passo 151+** — Implementar P2 (`value_dto.rs` +
-   `tests/eval_parity.rs`) quando expansão do corpus
-   `semantic/` for priorizada. `eval()` já suporta as
-   features que faltavam à data do documento original
-   (Passo 17 já foi; `#set`/`#show` activos).
-5. **Passo 152+** — Implementar P4 Opção B (textual) com
-   `pdf_compare.rs` + `tests/export_parity.rs`. `export_pdf()`
-   está estável desde Passo 22+; multi-font (Passo 146).
-   Opção A (visual) quando dependências CI
-   (`pdftoppm`/`mupdf`) forem decididas.
-6. **Decisão sobre corpus**: oficial vs próprio vs ambos.
+4. **Passo 151** — Tentativa de fechar DEBT-53 revelou
+   pré-condição não-satisfeita: vanilla workspace está em
+   quarentena (`Cargo.toml.original`); integração requer ~12
+   path-deps internas + ~30 externas. **DEBT-54 aberto**
+   ("Setup vanilla `typst` workspace em `lab/parity` —
+   pré-condição de DEBT-53"); DEBT-53 fica **bloqueado por
+   DEBT-54**. Zero código novo neste passo; abertura
+   formal de sub-DEBT + actualização de DEBT-53 com plano
+   específico.
+5. **Passo 152+** — Implementar P2 (`value_dto.rs` +
+   `tests/eval_parity.rs`). Pode ser materializado **antes**
+   de DEBT-54 fechar com mesma estratégia cristalino-only
+   baseline (matriz com `N/A` na coluna vanilla).
+6. **Passo 153+** — Implementar P4 Opção B (textual) com
+   `pdf_compare.rs` + `tests/export_parity.rs`.
+7. **Passo dedicado para DEBT-54**: setup vanilla
+   workspace; após fechar, novo passo materializa vanilla
+   integration em `lab/parity`, destranca DEBT-53.
+8. **Decisão sobre corpus**: oficial vs próprio vs ambos.
    Documentar em ADR separada se a decisão for não-trivial.
    Recomendação preliminar: mix (ambos), **com filtro por
-   features do inventário 148 (pós-149)**. Alvo: durante
-   Passo 150 ou imediatamente antes.
+   features do inventário 148 (pós-149)**.
 
 A partir do **Passo 150**, o utilizador passa a ter o número
-que pediu — em formato de **matriz**, não de percentual único,
-**com denominador honesto** (subset declarado pelo cristalino,
-não totalidade do vanilla; 2 divergências arqueológicas
-formalizadas no Passo 149).
+que pediu em **forma de matriz** — coluna "Compila
+(cristalino)" com números reais (19/19); colunas vanilla com
+`N/A` até DEBT-54 + DEBT-53 fecharem. **Resposta substantiva
+à pergunta original** dependerá da prioridade relativa entre
+P2 (eval) cristalino-baseline vs vanilla integration via
+DEBT-54.

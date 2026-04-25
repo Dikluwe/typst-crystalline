@@ -30,6 +30,13 @@
 > (`lab/parity/`). Infraestrutura entregue (FrameDTO + report +
 > tests + corpus expandido); integração do pipeline vanilla
 > ficou pendente. Total abertos: **10 → 11**.
+>
+> **Passo 151 (2026-04-25)**: aberto **DEBT-54** ao tentar
+> fechar DEBT-53. Investigação revelou que setup vanilla
+> workspace é pré-condição não-trivial (~12 path-deps + ~30
+> externas via `lab/Cargo.toml`). DEBT-53 fica bloqueado por
+> DEBT-54; materialização efectiva passa a passo posterior.
+> Total abertos: **11 → 12**.
 
 ---
 
@@ -313,10 +320,112 @@ de infraestrutura, não de domínio.
 
 ---
 
-## DEBT-53 — Integração de pipeline vanilla em `lab/parity` para medição P3 — EM ABERTO (Passo 150)
+## DEBT-54 — Setup vanilla `typst` workspace em `lab/parity` (pré-condição de DEBT-53) — EM ABERTO (Passo 151)
+
+**Aberto em**: Passo 151 (2026-04-25) durante tentativa de
+fechar DEBT-53.
+**Bloqueia**: DEBT-53 (vanilla integration P3 em `lab/parity`).
+
+### Contexto
+
+Passo 151 foi enunciado para fechar DEBT-53 (integrar pipeline
+vanilla em `lab/parity` para popular matriz P3 com números
+reais). Investigação empírica em 151.1 revelou que o passo de
+"setup vanilla compila" é **maior que o estimado** e
+ramifica-se em sub-trabalho próprio. O spec do P151 §"O que
+pode sair errado" autoriza pausar e abrir DEBT-54.
+
+### Obstáculo concreto
+
+**Vanilla `typst-original/` está em `lab/typst-original/`** com
+o workspace **desactivado** (`Cargo.toml.original`, não
+`Cargo.toml`). O workspace virtual `lab/Cargo.toml` actualmente
+intercepta apenas `typst-syntax` + transitivas mínimas
+(`typst-utils`, `typst-timing`).
+
+Para fechar DEBT-53 (integrar `typst::compile<PagedDocument>`),
+é necessário adicionar **toda a cadeia do compilador vanilla**
+ao `lab/Cargo.toml` workspace:
+
+1. **Crates internas vanilla** (~12, todas via path-dep para
+   `lab/typst-original/crates/`):
+   - `typst`, `typst-eval`, `typst-html`, `typst-layout`,
+     `typst-library`, `typst-macros`, `typst-pdf`,
+     `typst-realize`, `typst-render`, `typst-svg`,
+     `typst-bundle`, `typst-assets` (se existir).
+
+2. **Crates externas** (~30+ a especificar como
+   `[workspace.dependencies]`):
+   - `comemo`, `kurbo`, `rustybuzz`, `bumpalo`, `az`,
+     `codex`, `either`, `hypher` (já há crystalline),
+     `memchr`, `smallvec`, `unicode-bidi`,
+     `icu_properties`, `icu_provider`,
+     `icu_provider_adapters`, `icu_provider_blob`,
+     `icu_segmenter`, `regex` (provável), `fontdb`,
+     `hayagriva`, `serde_json` (já há), `toml` (já há),
+     `oxipng` (vanilla PDF), `flate2` (já há crystalline),
+     `siphasher` (já há), `palette`, …
+
+3. **Verificação preliminar do cargo cache**
+   (`~/.cargo/registry/cache/`): maioria das `icu_*`, `comemo`,
+   `kurbo`, etc. estão em cache; mas algumas (`codex`,
+   `hayagriva`, `oxipng`) podem estar ausentes — exigem fetch
+   online.
+
+4. **Versões**: vanilla declara `rust-version = "1.89"`,
+   `edition = "2024"`. Confirmar toolchain local suporta.
+
+5. **Conflito de versões transitivas**: cristalino usa
+   `ttf-parser = "0.25"`; vanilla pode usar versão diferente.
+   Cargo unifica mas pode produzir incompatibilidades subtis.
+
+### Plano
+
+Materializar em passo dedicado (escopo M-L; ~3-6h):
+
+- [ ] **Inventário completo** das deps externas vanilla via
+  análise estática de todos os `Cargo.toml` em
+  `lab/typst-original/crates/*/Cargo.toml`.
+- [ ] **Tabela de cobertura `~/.cargo/registry/cache/`**:
+  identificar deps em cache vs ausentes.
+- [ ] **Estratégia de network**: ou activar fetch online, ou
+  vendoring local.
+- [ ] **`lab/Cargo.toml` actualizado** com todos os
+  workspace.dependencies necessários.
+- [ ] **Smoke test**: `cargo build -p typst-layout` (vanilla)
+  no `lab/` workspace sem erros.
+- [ ] **DEBT-53 destrancado** para materialização
+  propriamente dita após DEBT-54 fechar.
+
+### Critério de fecho
+
+- [ ] `cargo build -p typst-layout` (vanilla) corre sem erros
+  em `lab/`.
+- [ ] `lab/Cargo.toml` documenta todos os deps adicionados com
+  versões finais.
+- [ ] DEBT-53 destrancado (passa a ter pré-condição satisfeita).
+
+### Notas
+
+- **Sem trabalho em código cristalino**: DEBT-54 é integralmente
+  sobre `lab/Cargo.toml` + cache de cargo + verificação de
+  build vanilla.
+- **Não bloqueia P152+ (P2 = `value_dto.rs`)**: P2 pode ser
+  materializado **antes** de DEBT-54 com mesma estratégia
+  cristalino-only baseline. DEBT-53 e DEBT-54 ficam em
+  paralelo até serem priorizados.
+- **Passo 151 entrega** (mesmo sem fechar DEBT-53):
+  materialização desta análise + abertura formal de DEBT-54
+  + actualização de DEBT-53 com referência cruzada.
+
+---
+
+## DEBT-53 — Integração de pipeline vanilla em `lab/parity` para medição P3 — EM ABERTO (Passo 150; bloqueado por DEBT-54 desde Passo 151)
 
 **Aberto em**: Passo 150 (2026-04-25) durante materialização da
 primeira matriz agregada de paridade.
+**Bloqueado por**: DEBT-54 (Passo 151) — setup vanilla
+workspace é pré-condição.
 **Relacionado com**: ADR-0033 (paridade funcional), ADR-0054
 (perfil observacional graded), inventário 148, série paridade.
 
@@ -398,8 +507,23 @@ quantos ficheiros do corpus passam cada modo.
 - [ ] Relatório `latest.md` actualizado com resultados.
 - [ ] `geometric` (experimental) calibrado com primeiras
   observações.
-- [ ] Numeração do passo dedicado escolhida (provável 150A
-  diagnóstico + 150B materialização, ou 153 directo).
+- [ ] Numeração do passo dedicado escolhida (provável 153
+  directo após DEBT-54 fechar).
+
+### Actualização Passo 151
+
+Tentativa de fechar DEBT-53 detectou que o setup vanilla
+workspace é pré-condição não satisfeita: `lab/typst-original/`
+está em quarentena (`Cargo.toml.original` desactivado);
+`lab/Cargo.toml` virtual workspace só intercepta
+`typst-syntax` + `typst-utils` + `typst-timing`. Adicionar
+`typst::compile<PagedDocument>` requer ~12 crates internas
+vanilla + ~30 externas como path-deps/workspace deps.
+
+**DEBT-54 aberto** com plano específico (ver entrada acima
+nesta secção). DEBT-53 permanece **EM ABERTO** com nota de
+bloqueio. Materialização efectiva sairá de passo dedicado
+posterior, **após DEBT-54 fechar**.
 
 ---
 
