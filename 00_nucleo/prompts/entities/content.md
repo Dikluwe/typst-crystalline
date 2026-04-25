@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 82b6aa27
+Hash do Código: 7ffe1236
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -349,3 +349,100 @@ semantic estrutural (composição + cursor advance) que excede
 styling visual. Coerente com vanilla `PadElem`/`HideElem`
 serem `#[elem]` proper. Coerente com modelo ADR-0060 Fase 1
 para terms/divider/quote.
+
+## Variants `Content::HSpace` + `Content::VSpace` — Passo 156D (ADR-0061 Fase 1, sub-passo 2)
+
+Segunda aplicação consecutiva de ADR-0061. Materializam
+spacing primitives horizontal e vertical, análogos a vanilla
+`HElem`/`VElem` em
+`lab/typst-original/crates/typst-library/src/layout/spacing.rs`.
+
+### `Content::HSpace { amount, weak }`
+
+```rust
+HSpace {
+    amount: Length,
+    weak:   bool,
+}
+```
+
+**Atributos** (declarados em stdlib `h(amount, weak: false)`):
+- `amount` — Length posicional obrigatório.
+- `weak: bool` — armazenado mas comportamento de collapse
+  adiado (perfil ADR-0054 graded). Refino futuro se priorizado.
+
+**Comportamento `is_empty` / `plain_text` / `map_*`**:
+- `is_empty` — `amount.is_zero()` (consistente com Sequence
+  vazia).
+- `plain_text` — `String::new()` (não rende texto).
+- `map_content` / `map_text` — terminal (clone directo); leaf
+  sem body.
+
+**Renderização (layouter)**:
+- Resolve `amount` em pt via `Length::resolve_pt(font_size_pt)`.
+- Avança `self.cursor_x` por esse valor.
+- `weak` ignorado neste passo.
+
+**Validação em `native_h`**:
+- Aceita `Length`, `Float` (interpretado em pt), `Int` (idem).
+- `amount` negativo rejeitado (perfil ADR-0054 graded; vanilla
+  aceita-o).
+- Named arg desconhecido rejeitado.
+- `weak` deve ser `Bool` (tipo errado → erro hard).
+
+### `Content::VSpace { amount, weak }`
+
+```rust
+VSpace {
+    amount: Length,
+    weak:   bool,
+}
+```
+
+**Atributos**: idênticos a `HSpace`.
+
+**Comportamento `is_empty` / `plain_text` / `map_*`**: idênticos
+a `HSpace`.
+
+**Renderização (layouter)**:
+- Resolve `amount` em pt.
+- Se `cursor_x > line_start_x`, força `flush_line` (termina
+  linha em curso para evitar texto meio-render).
+- Avança `self.cursor_y` pelo valor resolvido.
+
+**Validação em `native_v`**: idêntica a `native_h` (lógica
+partilhada via helper `build_spacing` em `stdlib/layout.rs`).
+
+### Construtores
+
+- Stdlib: `#h(amount, weak: false)` e `#v(amount, weak: false)`.
+- Construtores Rust: `Content::h_space(amount, weak)` e
+  `Content::v_space(amount, weak)` (naming `_space` evita
+  conflito com identificadores curtos `h`/`v` em scope Rust).
+
+### Limitações conscientes (P156D)
+
+- `amount` aceita apenas `Length` neste passo. Vanilla aceita
+  `Fraction` (ex: `h(1fr)`) — refino futuro per ADR-0061 §6.3.
+- `weak` armazenado mas semantic de collapse não implementada.
+  Vanilla colapsa weak adjacentes; cristalino mantém ambos
+  (over-spacing aceitável per ADR-0054 graded). Se priorizado,
+  abrir DEBT.
+- `amount` negativo rejeitado com erro. Vanilla aceita-o
+  (gera overlap). Refino quando layout overflow semantic
+  clara existir.
+- `h` no fim de linha não força wrap; cursor.x apenas avança
+  (pode exceder largura da página). Refino com refactor
+  multi-region (DEBT-56 + Fase 3).
+- `v` no início de página/coluna não colapsa contra margem
+  (vanilla colapsa). Avanço simples de cursor.y.
+- Sem show rules `#show h: ...` ou `#show v: ...` neste passo
+  (consistente com adiamento P154B/P155/P156C).
+
+### Decisão arquitectural confirmada (per ADR-0061 Decisão 4)
+
+Variants novos (não `Content::Styled`). Rationale: spacing
+primitives são structurais (afectam cursor, não rendem texto),
+não estilo visual. Coerente com vanilla `HElem`/`VElem` serem
+`#[elem]` proper. Coerente com modelo dos sub-passos
+anteriores (terms, divider, quote, pad, hide).

@@ -307,3 +307,82 @@ pub fn native_hide(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     Ok(Value::Content(Content::Hide { body: Box::new(body) }))
 }
 
+// ── Passo 156D (ADR-0061 Fase 1 sub-passo 2) — h + v spacing ─────────────────
+
+/// Resolve `weak: bool` em named args (ou default false). Erro hard se
+/// tipo não-bool.
+fn extract_weak(args: &Args, fn_name: &str) -> SourceResult<bool> {
+    match args.named.get("weak") {
+        Some(Value::Bool(b)) => Ok(*b),
+        Some(other) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{}(weak:) espera bool, recebeu {}", fn_name, other.type_name()),
+        )]),
+        None => Ok(false),
+    }
+}
+
+/// Lógica partilhada por `native_h` e `native_v`:
+/// extrai `amount` (Length, posicional obrigatório), valida não-negativo,
+/// resolve `weak`. Aceita Length, Float (interpretado em pt) ou Int (idem)
+/// per `extract_length`.
+fn build_spacing(
+    args: &Args,
+    fn_name: &str,
+    valid_named: &[&str],
+) -> SourceResult<(Length, bool)> {
+    // amount posicional obrigatório
+    let amount = match args.items.first() {
+        Some(v) => extract_length(v).ok_or_else(|| vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{}() espera amount como length, recebeu {}", fn_name, v.type_name()),
+        )])?,
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{}() exige amount como argumento posicional", fn_name),
+        )]),
+    };
+
+    // Validação: amount negativo rejeitado per perfil ADR-0054 graded
+    // (vanilla aceita-o; cristalino diverge intencionalmente neste passo).
+    if amount.abs.0 < 0.0 || amount.em < 0.0 {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{}(): amount negativo não suportado neste passo (P156D)", fn_name),
+        )]);
+    }
+
+    // Validação: rejeitar named args desconhecidos.
+    for key in args.named.keys() {
+        if !valid_named.contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("{}(): argumento nomeado inesperado '{}'", fn_name, key),
+            )]);
+        }
+    }
+
+    let weak = extract_weak(args, fn_name)?;
+
+    Ok((amount, weak))
+}
+
+/// `h(amount, weak: false)` → `Content::HSpace`.
+///
+/// `amount` Length posicional obrigatório. `weak` armazenado mas
+/// comportamento de collapse adiado neste passo (perfil ADR-0054 graded).
+/// Vanilla aceita `Fraction` para amount; cristalino só `Length` neste
+/// passo (refino futuro per ADR-0061 §6.3).
+pub fn native_h(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let (amount, weak) = build_spacing(args, "h", &["weak"])?;
+    Ok(Value::Content(Content::HSpace { amount, weak }))
+}
+
+/// `v(amount, weak: false)` → `Content::VSpace`.
+///
+/// Análogo a `native_h`, produz spacing primitive vertical.
+pub fn native_v(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let (amount, weak) = build_spacing(args, "v", &["weak"])?;
+    Ok(Value::Content(Content::VSpace { amount, weak }))
+}
+

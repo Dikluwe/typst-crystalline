@@ -487,6 +487,33 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 156D — Layout Fase 1 sub-passo 2: h + v spacing**
+  (segunda aplicação consecutiva de **ADR-0061**, modelo
+  granular confirmado). Substantivo S agregado:
+  `Content::HSpace { amount: Length, weak: bool }` e
+  `Content::VSpace { ... }` adicionados ao enum (45 → 47
+  variants); stdlib `#h(amount, weak: false)` e
+  `#v(amount, weak: false)` (amount aceita Length/Float-pt/
+  Int-pt; amount negativo rejeitado per perfil ADR-0054
+  graded; named arg desconhecido + weak não-bool rejeitados;
+  Fraction scope-out per ADR-0061 §6.3). Cobertura exaustiva
+  de arms em `Content` (is_empty proxy zero, plain_text
+  vazio, PartialEq 2-fields, map_content/map_text terminais),
+  `introspect.rs` (no-op em walk; preserve em
+  materialize_time), `layout/mod.rs` (HSpace avança cursor.x;
+  VSpace força flush_line + avança cursor.y). Layouter
+  scope-outs declarados: `weak` collapse adiado (atributo
+  armazenado mas semantic não implementada); h fora-de-largura
+  não força wrap; v no início de página não colapsa contra
+  margem. Helper `build_spacing` partilhado por h/v evita
+  duplicação. Tests: 1172 → **1192** (+20 = 7 unit content +
+  11 stdlib + 2 layout E2E). Cobertura Layout: 33% → **44%**
+  (6/18 → 8/18); total user-facing: 55% → **56%**.
+  **ADR-0061 mantém-se `PROPOSTO`** (anotação cumulativa após
+  Fase 1 completa, per decisão humana). README ADRs: total e
+  distribuição inalterados (61 ADRs; PROPOSTO 11). L0
+  `entities/content.md` ganha secção HSpace+VSpace; hash
+  propagado (`content.rs` → `4a7e0a99`).
 - **Passo 156C — Layout Fase 1 sub-passo 1: pad + hide**
   (primeira aplicação concreta de **ADR-0061**). Substantivo
   S agregado: `Content::Pad { body, padding: Sides<Length> }`

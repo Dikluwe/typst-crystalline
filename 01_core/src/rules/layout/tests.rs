@@ -2054,4 +2054,65 @@ mod tests_show_rule_integration {
         assert_eq!(text_items, 0,
             "Content::Hide não deve emitir nenhum FrameItem::Text");
     }
+
+    // ── Passo 156D (ADR-0061 Fase 1, sub-passo 2) — h + v spacing ─────────
+
+    /// `Content::HSpace` avança `cursor.x` mas não emite items próprios.
+    /// Verificamos via posição X de texto subsequente: com HSpace antes,
+    /// o segundo texto fica deslocado para a direita.
+    #[test]
+    fn layout_hspace_avanca_cursor_x() {
+        use crate::entities::layout_types::Length;
+        use std::sync::Arc;
+        // Sequência: "A" + h(50pt) + "B".
+        let with_space = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::h_space(Length::pt(50.0), false),
+            Content::text("B"),
+        ]));
+        let doc = layout(&with_space, CounterState::default());
+        let texts: Vec<_> = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. } => Some((pos.x.val(), text.to_string())),
+                _ => None,
+            })
+            .collect();
+        let pos_a = texts.iter().find(|(_, t)| t == "A").map(|(x, _)| *x).unwrap();
+        let pos_b = texts.iter().find(|(_, t)| t == "B").map(|(x, _)| *x).unwrap();
+        // B deve estar à direita de A com pelo menos ~50pt de afastamento
+        // adicional vs apenas a largura do glifo "A" + space natural.
+        // Verificamos um threshold conservador.
+        assert!(pos_b - pos_a > 50.0,
+            "h(50pt) deve afastar B de A em pelo menos 50pt: pos_a={pos_a:.2} pos_b={pos_b:.2}");
+    }
+
+    /// `Content::VSpace` força `flush_line` antes de avançar `cursor.y`.
+    /// Verificamos via posição Y de texto subsequente: com VSpace de 30pt,
+    /// segundo texto fica abaixo do primeiro com pelo menos ~30pt extra.
+    #[test]
+    fn layout_vspace_avanca_cursor_y() {
+        use crate::entities::layout_types::Length;
+        use std::sync::Arc;
+        let with_space = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::v_space(Length::pt(30.0), false),
+            Content::text("B"),
+        ]));
+        let doc = layout(&with_space, CounterState::default());
+        let texts: Vec<_> = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. } => Some((pos.y.val(), text.to_string())),
+                _ => None,
+            })
+            .collect();
+        let pos_a_y = texts.iter().find(|(_, t)| t == "A").map(|(y, _)| *y).unwrap();
+        let pos_b_y = texts.iter().find(|(_, t)| t == "B").map(|(y, _)| *y).unwrap();
+        // B deve estar abaixo de A com pelo menos ~30pt extra (mais
+        // line_height que o flush adiciona).
+        assert!(pos_b_y - pos_a_y > 30.0,
+            "v(30pt) deve empurrar B abaixo de A em pelo menos 30pt: \
+             pos_a_y={pos_a_y:.2} pos_b_y={pos_b_y:.2}");
+    }
 }

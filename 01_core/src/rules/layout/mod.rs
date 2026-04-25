@@ -670,6 +670,23 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.current_line  = saved_line;
             }
 
+            // ── Passo 156D (ADR-0061 Fase 1, sub-passo 2) — h + v spacing ──
+            // `weak` armazenado mas comportamento de collapse adiado
+            // (perfil ADR-0054 graded). Refino futuro se necessário.
+            Content::HSpace { amount, weak: _ } => {
+                let pt = amount.resolve_pt(self.font_size_pt.val());
+                self.cursor_x += Pt(pt);
+            }
+            Content::VSpace { amount, weak: _ } => {
+                let pt = amount.resolve_pt(self.font_size_pt.val());
+                // Termina linha em curso se houver content pendente — caso
+                // contrário texto na linha actual fica meio-render.
+                if self.cursor_x.0 > self.line_start_x.0 {
+                    self.flush_line();
+                }
+                self.cursor_y += Pt(pt);
+            }
+
             // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────
             Content::Quote { body, attribution, block, quotes } => {
                 use crate::rules::lang::quotes::{DEFAULT_QUOTES, localize_quotes};
@@ -799,6 +816,14 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             }
             Content::Hide { body } => {
                 self.measure_content_constrained(body, max_width)
+            }
+
+            // Passo 156D: HSpace/VSpace dimensões para grid measurement.
+            Content::HSpace { amount, .. } => {
+                (amount.resolve_pt(self.font_size_pt.val()), 0.0)
+            }
+            Content::VSpace { amount, .. } => {
+                (0.0, amount.resolve_pt(self.font_size_pt.val()))
             }
 
             _ => (0.0, 0.0),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash daf00164
+//! @prompt-hash 4a7e0a99
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -355,6 +355,28 @@ pub enum Content {
         body: Box<Content>,
     },
 
+    // ── Passo 156D (ADR-0061 Fase 1 sub-passo 2) — h + v spacing ─────────
+    /// Spacing primitive horizontal (vanilla `HElem`).
+    ///
+    /// `amount` em `Length`; `weak` armazenado mas comportamento de
+    /// collapse adiado (perfil ADR-0054 graded). Layouter avança
+    /// `cursor_x` por `amount`. Vanilla aceita `Fraction`; cristalino
+    /// só aceita `Length` neste passo (ADR-0061 §6.3 refino futuro).
+    HSpace {
+        amount: Length,
+        weak:   bool,
+    },
+
+    /// Spacing primitive vertical (vanilla `VElem`).
+    ///
+    /// Análogo a `HSpace` mas em eixo Y. Layouter força `flush_line`
+    /// antes de avançar `cursor_y` (caso contrário texto na linha
+    /// actual fica meio-render).
+    VSpace {
+        amount: Length,
+        weak:   bool,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
 }
@@ -416,6 +438,16 @@ impl Content {
         Self::Hide { body: Box::new(body) }
     }
 
+    /// `h(amount, weak)` — Passo 156D (ADR-0061 Fase 1 sub-passo 2).
+    pub fn h_space(amount: Length, weak: bool) -> Self {
+        Self::HSpace { amount, weak }
+    }
+
+    /// `v(amount, weak)` — Passo 156D (ADR-0061 Fase 1 sub-passo 2).
+    pub fn v_space(amount: Length, weak: bool) -> Self {
+        Self::VSpace { amount, weak }
+    }
+
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,
@@ -446,6 +478,9 @@ impl Content {
             // Passo 156C (ADR-0061 Fase 1): Pad/Hide vazios se o body for.
             Self::Pad  { body, .. } => body.is_empty(),
             Self::Hide { body }     => body.is_empty(),
+            // Passo 156D: HSpace/VSpace vazios se amount for zero.
+            Self::HSpace { amount, .. } => amount.is_zero(),
+            Self::VSpace { amount, .. } => amount.is_zero(),
             _ => false,
         }
     }
@@ -553,6 +588,8 @@ impl Content {
             // body sem alterar texto). Hide produz string vazia (não rende).
             Self::Pad  { body, .. } => body.plain_text(),
             Self::Hide { .. }       => String::new(),
+            // Passo 156D: HSpace/VSpace são spacing primitives sem texto.
+            Self::HSpace { .. } | Self::VSpace { .. } => String::new(),
             Self::Quote { body, attribution, quotes, .. } => {
                 let body_txt = body.plain_text();
                 let with_quotes = if *quotes {
@@ -650,6 +687,11 @@ impl PartialEq for Content {
             (Self::Pad  { body: ba, padding: pa },
              Self::Pad  { body: bb, padding: pb }) => ba == bb && pa == pb,
             (Self::Hide { body: ba }, Self::Hide { body: bb }) => ba == bb,
+            // Passo 156D — HSpace / VSpace.
+            (Self::HSpace { amount: aa, weak: wa },
+             Self::HSpace { amount: ab, weak: wb }) => aa == ab && wa == wb,
+            (Self::VSpace { amount: aa, weak: wa },
+             Self::VSpace { amount: ab, weak: wb }) => aa == ab && wa == wb,
             _ => false,
         }
     }
@@ -797,6 +839,7 @@ impl Content {
 
             // ── Terminais: clonar directamente ──────────────────────────────
             // Listados explicitamente — variantes novas não passam em silêncio.
+            // Passo 156D: HSpace/VSpace são leaves (sem body), terminais.
             Content::Text(_, _)
             | Content::Space
             | Content::Empty
@@ -814,6 +857,8 @@ impl Content {
             | Content::MathText(_)
             | Content::Image { .. }
             | Content::Divider
+            | Content::HSpace { .. }
+            | Content::VSpace { .. }
             | Content::Shape { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
@@ -924,6 +969,7 @@ impl Content {
             // ── Terminais — clonar directamente ──────────────────────────
             // Nós matemáticos e estruturais sem markup Text — não contêm
             // Content::Text, portanto clonar em bloco é correcto e seguro.
+            // Passo 156D: HSpace/VSpace são leaves (sem body), terminais.
             Content::Empty
             | Content::Space
             | Content::Linebreak
@@ -948,6 +994,8 @@ impl Content {
             | Content::MathCases { .. }
             | Content::Image { .. }
             | Content::Divider
+            | Content::HSpace { .. }
+            | Content::VSpace { .. }
             | Content::Shape { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
@@ -1618,5 +1666,94 @@ mod tests {
         } else {
             panic!("esperado Content::Hide após map_text");
         }
+    }
+
+    // ── Passo 156D (ADR-0061 Fase 1, sub-passo 2) — h + v spacing ─────────
+
+    #[test]
+    fn hspace_constructor() {
+        use crate::entities::layout_types::Length;
+        let h = Content::h_space(Length::pt(12.0), false);
+        if let Content::HSpace { amount, weak } = h {
+            assert_eq!(amount, Length::pt(12.0));
+            assert!(!weak);
+        } else {
+            panic!("esperado Content::HSpace");
+        }
+    }
+
+    #[test]
+    fn vspace_constructor() {
+        use crate::entities::layout_types::Length;
+        let v = Content::v_space(Length::pt(8.0), true);
+        if let Content::VSpace { amount, weak } = v {
+            assert_eq!(amount, Length::pt(8.0));
+            assert!(weak);
+        } else {
+            panic!("esperado Content::VSpace");
+        }
+    }
+
+    #[test]
+    fn hspace_e_vspace_is_empty_se_amount_zero() {
+        use crate::entities::layout_types::Length;
+        // Amount zero → considerado vazio (consistente com Sequence vazia).
+        let h_zero = Content::h_space(Length::ZERO, false);
+        let v_zero = Content::v_space(Length::ZERO, false);
+        assert!(h_zero.is_empty());
+        assert!(v_zero.is_empty());
+        // Amount não-zero → não vazio.
+        let h_nonzero = Content::h_space(Length::pt(1.0), false);
+        let v_nonzero = Content::v_space(Length::pt(1.0), false);
+        assert!(!h_nonzero.is_empty());
+        assert!(!v_nonzero.is_empty());
+    }
+
+    #[test]
+    fn hspace_e_vspace_plain_text_vazio() {
+        use crate::entities::layout_types::Length;
+        let h = Content::h_space(Length::pt(5.0), false);
+        let v = Content::v_space(Length::pt(5.0), false);
+        // Spacing primitives não rendem texto.
+        assert_eq!(h.plain_text(), "");
+        assert_eq!(v.plain_text(), "");
+    }
+
+    #[test]
+    fn hspace_partial_eq() {
+        use crate::entities::layout_types::Length;
+        let a = Content::h_space(Length::pt(3.0), false);
+        let b = Content::h_space(Length::pt(3.0), false);
+        let c = Content::h_space(Length::pt(3.0), true);   // weak diferente
+        let d = Content::h_space(Length::pt(4.0), false);  // amount diferente
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+        assert_ne!(a, d);
+    }
+
+    #[test]
+    fn vspace_partial_eq() {
+        use crate::entities::layout_types::Length;
+        let a = Content::v_space(Length::pt(3.0), false);
+        let b = Content::v_space(Length::pt(3.0), false);
+        let c = Content::v_space(Length::pt(3.0), true);
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+        // VSpace e HSpace com mesmos campos NÃO são iguais (variantes
+        // diferentes).
+        let h = Content::h_space(Length::pt(3.0), false);
+        assert_ne!(a, h);
+    }
+
+    #[test]
+    fn hspace_e_vspace_map_text_preserva() {
+        use crate::entities::layout_types::Length;
+        // Spacing primitives são leaves — map_text não muda nada.
+        let h = Content::h_space(Length::pt(7.0), false);
+        let v = Content::v_space(Length::pt(7.0), true);
+        let h_mapped = h.map_text(&mut |s| s.to_uppercase());
+        let v_mapped = v.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(h, h_mapped);
+        assert_eq!(v, v_mapped);
     }
 }

@@ -48,7 +48,8 @@ pub use crate::rules::stdlib::shapes::{
 };
 pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale};
 pub use crate::rules::stdlib::layout::{
-    native_align, native_grid, native_hide, native_pad, native_page, native_place,
+    native_align, native_grid, native_h, native_hide, native_pad, native_page,
+    native_place, native_v,
 };
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
@@ -802,5 +803,134 @@ mod tests {
         null_ctx!(ctx);
         let result = native_hide(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
         assert!(result.is_err(), "hide() sem body deve retornar Err");
+    }
+
+    // ── Passo 156D (ADR-0061 Fase 1, sub-passo 2) — h + v spacing ──────────
+
+    #[test]
+    fn native_h_aceita_length() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let args = p(vec![Value::Length(Length::pt(12.0))]);
+        let r = native_h(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::HSpace { amount, weak }) = r {
+            assert_eq!(amount, Length::pt(12.0));
+            assert!(!weak); // default
+        } else {
+            panic!("esperado Content::HSpace");
+        }
+    }
+
+    #[test]
+    fn native_h_aceita_int_e_float_como_pt() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        // Int interpretado em pt.
+        let r = native_h(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::HSpace { amount, .. }) = r {
+            assert_eq!(amount, Length::pt(5.0));
+        } else {
+            panic!("esperado Content::HSpace");
+        }
+        // Float interpretado em pt.
+        let r = native_h(&mut ctx, &p(vec![Value::Float(2.5)]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::HSpace { amount, .. }) = r {
+            assert_eq!(amount, Length::pt(2.5));
+        } else {
+            panic!("esperado Content::HSpace");
+        }
+    }
+
+    #[test]
+    fn native_h_aceita_weak_true() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Length(Length::pt(3.0))]);
+        args.named.insert("weak".into(), Value::Bool(true));
+        let r = native_h(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::HSpace { weak, .. }) = r {
+            assert!(weak);
+        } else {
+            panic!("esperado Content::HSpace");
+        }
+    }
+
+    #[test]
+    fn native_h_aceita_amount_zero() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let r = native_h(&mut ctx, &p(vec![Value::Length(Length::ZERO)]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::HSpace { amount, .. }) = r {
+            assert_eq!(amount, Length::ZERO);
+        } else {
+            panic!("esperado Content::HSpace");
+        }
+    }
+
+    #[test]
+    fn native_h_rejeita_amount_negativo() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let r = native_h(&mut ctx, &p(vec![Value::Length(Length::pt(-1.0))]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "amount negativo deve retornar Err em P156D");
+    }
+
+    #[test]
+    fn native_h_rejeita_named_arg_desconhecido() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Length(Length::pt(1.0))]);
+        args.named.insert("attached".into(), Value::Bool(true));
+        let r = native_h(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named arg desconhecido em h() deve retornar Err");
+    }
+
+    #[test]
+    fn native_h_rejeita_weak_nao_bool() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Length(Length::pt(1.0))]);
+        args.named.insert("weak".into(), Value::Int(1)); // tipo errado
+        let r = native_h(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "weak não-bool deve retornar Err");
+    }
+
+    #[test]
+    fn native_h_sem_amount_retorna_err() {
+        null_ctx!(ctx);
+        let r = native_h(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "h() sem amount deve retornar Err");
+    }
+
+    #[test]
+    fn native_v_aceita_length_e_weak() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        // Caso composto: amount + weak; cobre paths principais de native_v
+        // (que partilha lógica com native_h via build_spacing).
+        let mut args = p(vec![Value::Length(Length::pt(15.0))]);
+        args.named.insert("weak".into(), Value::Bool(true));
+        let r = native_v(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::VSpace { amount, weak }) = r {
+            assert_eq!(amount, Length::pt(15.0));
+            assert!(weak);
+        } else {
+            panic!("esperado Content::VSpace");
+        }
+    }
+
+    #[test]
+    fn native_v_rejeita_amount_negativo() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let r = native_v(&mut ctx, &p(vec![Value::Length(Length::pt(-2.0))]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "amount negativo deve retornar Err em P156D");
+    }
+
+    #[test]
+    fn native_v_sem_amount_retorna_err() {
+        null_ctx!(ctx);
+        let r = native_v(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "v() sem amount deve retornar Err");
     }
 }
