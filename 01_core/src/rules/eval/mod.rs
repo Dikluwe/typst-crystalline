@@ -517,7 +517,7 @@ fn make_stdlib() -> Scope {
         native_hide, native_image, native_int, native_len, native_line,
         native_lower, native_luma, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon,
         native_quote, native_range, native_rect, native_replace, native_raw, native_rgb, native_rotate,
-        native_scale, native_str, native_strong, native_terms, native_type, native_upper, native_v,
+        native_scale, native_skew, native_str, native_strong, native_terms, native_type, native_upper, native_v,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -544,6 +544,8 @@ fn make_stdlib() -> Scope {
     scope.define("move",    Value::Func(Func::native("move",    native_move)));
     scope.define("rotate",  Value::Func(Func::native("rotate",  native_rotate)));
     scope.define("scale",   Value::Func(Func::native("scale",   native_scale)));
+    // Passo 156F (ADR-0061 Fase 1, sub-passo 4): skew via matriz unificada.
+    scope.define("skew",    Value::Func(Func::native("skew",    native_skew)));
     scope.define("align",   Value::Func(Func::native("align",   native_align)));
     scope.define("place",   Value::Func(Func::native("place",   native_place)));
     scope.define("assert",  Value::Func(Func::native("assert",  native_assert)));

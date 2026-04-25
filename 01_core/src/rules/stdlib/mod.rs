@@ -46,7 +46,7 @@ pub use crate::rules::stdlib::figure_image::{native_figure, native_image};
 pub use crate::rules::stdlib::shapes::{
     native_circle, native_ellipse, native_line, native_polygon, native_rect,
 };
-pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale};
+pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale, native_skew};
 pub use crate::rules::stdlib::layout::{
     native_align, native_grid, native_h, native_hide, native_pad, native_page,
     native_pagebreak, native_place, native_v,
@@ -1046,5 +1046,176 @@ mod tests {
         args.named.insert("weak".into(), Value::Int(1));
         let r = native_pagebreak(&mut ctx, &args, &null_world(), test_file_id(), None);
         assert!(r.is_err(), "weak não-Bool deve retornar Err");
+    }
+
+    // ── Passo 156F (ADR-0061 Fase 1, sub-passo 4) — skew ─────────────────
+
+    #[test]
+    fn native_skew_defaults_produz_identidade() {
+        // Sem ax nem ay, skew produz matriz identidade.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::TransformMatrix;
+        let body = Content::text("body");
+        let r = native_skew(&mut ctx, &p(vec![Value::Content(body)]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Transform { matrix, .. }) = r {
+            assert_eq!(matrix, TransformMatrix::identity());
+        } else {
+            panic!("esperado Content::Transform");
+        }
+    }
+
+    #[test]
+    fn native_skew_com_ax_angle() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Angle;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("ax".into(), Value::Angle(Angle::deg(30.0)));
+        let r = native_skew(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Transform { matrix, .. }) = r {
+            // c = tan(30°) ≈ 0.5774; a = 1; b = 0; d = 1.
+            assert!((matrix.a - 1.0).abs() < 1e-9);
+            assert!((matrix.b - 0.0).abs() < 1e-9);
+            assert!((matrix.c - 0.5774).abs() < 0.001, "c esperado tan(30°), obteve {}", matrix.c);
+            assert!((matrix.d - 1.0).abs() < 1e-9);
+        } else {
+            panic!("esperado Content::Transform");
+        }
+    }
+
+    #[test]
+    fn native_skew_com_ay_angle() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Angle;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("ay".into(), Value::Angle(Angle::deg(30.0)));
+        let r = native_skew(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Transform { matrix, .. }) = r {
+            // b = tan(30°) ≈ 0.5774; c = 0.
+            assert!((matrix.b - 0.5774).abs() < 0.001, "b esperado tan(30°), obteve {}", matrix.b);
+            assert!((matrix.c - 0.0).abs() < 1e-9);
+        } else {
+            panic!("esperado Content::Transform");
+        }
+    }
+
+    #[test]
+    fn native_skew_combina_ax_e_ay() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Angle;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("ax".into(), Value::Angle(Angle::deg(15.0)));
+        args.named.insert("ay".into(), Value::Angle(Angle::deg(45.0)));
+        let r = native_skew(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Transform { matrix, .. }) = r {
+            assert!((matrix.c - 15.0_f64.to_radians().tan()).abs() < 1e-9);
+            assert!((matrix.b - 1.0).abs() < 1e-9, "tan(45°) ≈ 1.0; obteve {}", matrix.b);
+        } else {
+            panic!("esperado Content::Transform");
+        }
+    }
+
+    #[test]
+    fn native_skew_aceita_float_radianos() {
+        // Consistente com native_rotate: float é radianos directos.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::TransformMatrix;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("ax".into(), Value::Float(0.0));
+        let r = native_skew(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Transform { matrix, .. }) = r {
+            // tan(0) = 0 → identidade.
+            assert_eq!(matrix, TransformMatrix::identity());
+        } else {
+            panic!("esperado Content::Transform");
+        }
+    }
+
+    #[test]
+    fn native_skew_rejeita_named_arg_desconhecido() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Angle;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("origin".into(), Value::Str("center".into()));
+        let r = native_skew(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "origin scope-out — named arg desconhecido em P156F");
+        let _ = Angle::deg(0.0); // suprime warning de import não usado se ramo skip
+    }
+
+    #[test]
+    fn native_skew_rejeita_ax_proximo_de_pi_meio() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        // 89.999° → ax_rad ≈ π/2 - 1.7e-5; abaixo do threshold (π/2 - 1e-3).
+        // Mas usemos exactamente 90°: tan diverge.
+        args.named.insert("ax".into(), Value::Float(std::f64::consts::FRAC_PI_2));
+        let r = native_skew(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "skew(ax: π/2) deve retornar Err (tan diverge)");
+    }
+
+    #[test]
+    fn native_skew_rejeita_ax_nao_angle_nem_float() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("ax".into(), Value::Str("30deg".into()));
+        let r = native_skew(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "skew(ax:) com tipo errado deve retornar Err");
+    }
+
+    #[test]
+    fn native_skew_sem_body_retorna_err() {
+        null_ctx!(ctx);
+        let r = native_skew(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "skew() sem body deve retornar Err");
+    }
+
+    // ── Passo 156F regression tests: move/rotate/scale ainda funcionam ──
+
+    #[test]
+    fn native_move_continua_a_produzir_transform_apos_p156f() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::TransformMatrix;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("dx".into(), Value::Float(10.0));
+        args.named.insert("dy".into(), Value::Float(5.0));
+        let r = native_move(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Transform { matrix, .. }) = r {
+            assert_eq!(matrix, TransformMatrix::translate(10.0, 5.0));
+        } else {
+            panic!("regressão: native_move deveria produzir Content::Transform");
+        }
+    }
+
+    #[test]
+    fn native_rotate_continua_a_produzir_transform_apos_p156f() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::{Angle, TransformMatrix};
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("angle".into(), Value::Angle(Angle::deg(90.0)));
+        let r = native_rotate(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Transform { matrix, .. }) = r {
+            // Comparação de matriz aproximada (rotate usa cos/sin).
+            let expected = TransformMatrix::rotate(std::f64::consts::FRAC_PI_2);
+            assert!((matrix.a - expected.a).abs() < 1e-9);
+            assert!((matrix.b - expected.b).abs() < 1e-9);
+            assert!((matrix.c - expected.c).abs() < 1e-9);
+            assert!((matrix.d - expected.d).abs() < 1e-9);
+        } else {
+            panic!("regressão: native_rotate deveria produzir Content::Transform");
+        }
+    }
+
+    #[test]
+    fn native_scale_continua_a_produzir_transform_apos_p156f() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::TransformMatrix;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("x".into(), Value::Float(2.0));
+        let r = native_scale(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Transform { matrix, .. }) = r {
+            // x: 2.0; y default = sx = 2.0.
+            assert_eq!(matrix, TransformMatrix::scale(2.0, 2.0));
+        } else {
+            panic!("regressão: native_scale deveria produzir Content::Transform");
+        }
     }
 }

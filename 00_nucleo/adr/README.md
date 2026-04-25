@@ -487,6 +487,36 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 156F — Layout Fase 1 sub-passo 4: skew via TransformMatrix**
+  (quarta aplicação consecutiva de **ADR-0061**; **divergência
+  consciente da spec** baseada em descoberta empírica). Substantivo
+  S agregado: spec propunha refactor com `enum TransformKind
+  { Move, Rotate, Scale, Skew }` para "unificar" os 4 elementos
+  vanilla, mas inventário 156F.1 revelou que `Content::Transform
+  { body, matrix: TransformMatrix }` **já era unificado** via
+  matriz cm desde P78. Decisão deste passo: adicionar apenas
+  método estático `TransformMatrix::skew(ax_rad, ay_rad)` em
+  `entities/layout_types.rs` (forma da matriz cm:
+  `{a:1, b:tan(ay), c:tan(ax), d:1, tx:0, ty:0}`) + `native_skew`
+  em `stdlib/transforms.rs` (ao lado de move/rotate/scale,
+  coesão por domínio). **Zero refactor de variant** — `Content`
+  enum mantém 48 variants inalterado. **Risco de regressão zero**
+  (puramente aditivo). Validação: ângulos com magnitude ≥
+  `π/2 - 1e-3` rejeitados (tan diverge); aceita `Angle` ou
+  `Float` (radianos directos, consistente com `native_rotate`);
+  named arg desconhecido rejeitado; `origin` scope-out (alinhado
+  com move/rotate/scale actuais). Tests: 1214 → **1230** (+16 =
+  4 unit TransformMatrix::skew + 9 stdlib native_skew + 3
+  regression de move/rotate/scale). Cobertura Layout: 50% →
+  **56%** (9/18 → 10/18); total user-facing mantém 57%
+  (arredondamento; 60 vs 59 implementado). **ADR-0061 mantém-se
+  `PROPOSTO`** (anotação cumulativa após Fase 1 completa). README
+  ADRs: total e distribuição inalterados (61 ADRs; PROPOSTO 11).
+  Secção skew adicionada a `entities/content.md` documentando
+  divergência da spec; hash propagado (`content.rs` → `4321258d`).
+  **Hipótese granular reforçada**: P156F era teste de risco de
+  regressão (primeiro passo modificador esperado); inventário
+  empírico simplificou para puramente aditivo, eliminando o risco.
 - **Passo 156E — Layout Fase 1 sub-passo 3: pagebreak manual**
   (terceira aplicação consecutiva de **ADR-0061**; **halfway
   point Fase 1** atingido — 50% cobertura Layout). Substantivo

@@ -540,3 +540,73 @@ header/footer).
 Vanilla usa `Smart<Parity>` (Auto/Custom); cristalino
 simplifica para `Option<Parity>` (`None` == Auto). Sem
 perda funcional; ganho em clareza idiomática Rust.
+
+## Skew via `TransformMatrix::skew` — Passo 156F (ADR-0061 Fase 1, sub-passo 4)
+
+Quarta aplicação consecutiva de ADR-0061. Materializa
+`skew(body, ax: ?, ay: ?)` análogo a vanilla `SkewElem`.
+
+### Divergência face à spec do P156F
+
+A spec do P156F propôs introduzir `enum TransformKind
+{ Move, Rotate, Scale, Skew }` para "unificar" os 4
+elementos vanilla num só variant `Content::Transform`.
+**Inventário em 156F.1 revelou que essa unificação já
+existia desde P78** — `Content::Transform { body, matrix:
+TransformMatrix }` reusa a matriz cm (PDF) para todos os
+4 tipos. `TransformKind` enum seria redundante.
+
+**Decisão deste passo**: skew adicionado como método
+estático novo `TransformMatrix::skew(ax_rad, ay_rad)` em
+`entities/layout_types.rs`, análogo a `translate`,
+`rotate`, `scale` já existentes. Zero refactor de
+variant; zero mudança em consumers. **Risco de regressão
+zero** (puramente aditivo).
+
+### `TransformMatrix::skew(ax_rad, ay_rad)`
+
+Forma da matriz cm:
+```
+| 1        tan(ax)   0 |
+| tan(ay)  1         0 |
+| 0        0         1 |
+```
+
+Aplicada a `(x, y)`:
+- `x' = x + tan(ax) * y`
+- `y' = tan(ay) * x + y`
+
+### Stdlib `#skew(body, ax: ?, ay: ?)`
+
+Implementado em `01_core/src/rules/stdlib/transforms.rs`
+ao lado de `native_move`/`native_rotate`/`native_scale`
+(coesão por domínio per ADR-0037). Atributos:
+- `ax: Angle` — distorção horizontal (default 0).
+- `ay: Angle` — distorção vertical (default 0).
+- `body` posicional obrigatório.
+- Aceita também `Float` em radianos (consistente com
+  `native_rotate`).
+
+**Validação**:
+- Ângulos com magnitude ≥ `π/2 - 1e-3` rad (~89.94°)
+  rejeitados (tan diverge); erro hard.
+- Named args desconhecidos rejeitados (consistente
+  pad/h/v/pagebreak).
+- `origin` (ponto de pivot) **scope-out** — análogo a
+  rotate/scale actuais que também não têm origin
+  (refino futuro per ADR-0061 §6.3).
+
+### Limitações conscientes (P156F)
+
+- `origin` não suportado (alinhado com move/rotate/scale).
+- Ângulos extremos rejeitados em vez de saturar (decisão
+  de erro explícito vs comportamento indefinido).
+- `Smart<Angle>` da vanilla simplificado para `Option`
+  implícito (default 0 quando ausente).
+
+### Decisão arquitectural confirmada
+
+Sem TransformKind enum (per inventário 156F.1).
+Arquitectura matriz cm já era a unificação correcta. P156F
+**adiciona método ao tipo existente** em vez de refactorar
+struct — padrão "menor mudança suficiente".
