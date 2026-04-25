@@ -1,8 +1,9 @@
 # Índice de ADRs do Typst Cristalino
 
 Este documento é o índice canónico dos Architectural Decision
-Records (ADRs) do projecto **Typst Cristalino**. Lista os 38 ADRs
-em vigor, as meta-regras que governam o projecto, o vocabulário
+Records (ADRs) do projecto **Typst Cristalino**. Lista os 56 ADRs
+em vigor (55 números únicos; ADR-0026 tem variante -R1 por
+revisão), as meta-regras que governam o projecto, o vocabulário
 canónico de status, cadeias de revogação e revisão, e convenções
 estruturais.
 
@@ -60,6 +61,22 @@ por outros ADRs:
    de 800 linhas; excepções Regra 6 documentadas no topo do
    ficheiro. Primeira aplicação concreta: Passos 96.1–96.2
    (reestruturação do `eval.rs`). Trabalho restante: DEBT-46.
+
+9. **Sistema de estilos em L1** — ADR-0038. Toda a representação
+   de estilo no domínio passa por `Style` (enum tipado de
+   variantes — `Bold`, `Italic`, `Size`, `Fill`, `HeadingLevel`,
+   etc.), `Styles(Vec<Style>)` e `StyleChain` (lista ligada
+   imutável de deltas). `TextStyle` plano permanece como vista
+   achatada para o Layouter (decisão COEX). Materializado nos
+   Passos 99–102; estendido pelo DEBT-52 (Passos 136–141).
+
+10. **Critério de fecho integral de DEBTs** — ADR-0054.
+    Captura sem consumer não basta para fechar dívida estrutural.
+    Aplicável a DEBT-1 explicitamente; precedente para futuros
+    DEBTs fundamentais. Adopta o **perfil observacional graded**:
+    paridade visível (tamanho, cor, peso, espaçamento) sem
+    garantia de shaping features. Cumprida no Passo 142 (DEBT-1
+    + DEBT-52 fechados).
 
 ---
 
@@ -127,18 +144,54 @@ que corresponde a mudança específica no código.
 | 0035 | `ecow::EcoVec` autorizado em L1 | `EM VIGOR` |
 | 0036 | Atomização progressiva — estado partilhado como dívida | `EM VIGOR` |
 | 0037 | Coesão por domínio — ficheiros limitados a uma responsabilidade clara | `EM VIGOR` |
+| 0038 | Sistema de estilos em L1 (`Style`, `Styles`, `StyleChain`) | `EM VIGOR` ¹ |
+| 0039 | Forma de estilo no `FrameItem::Text` | `EM VIGOR` ¹ |
+| 0040 | Activação de `#set` em eval | `EM VIGOR` ¹ |
+| 0041 | Activação de `#show` — heading, strong, emph | `EM VIGOR` ¹ |
+| 0042 | `Sink` materializado em L1 | `EM VIGOR` ¹ |
+| 0043 | Canal de saída do `Sink` (TrackedMut + L3) | `EM VIGOR` ¹ |
+| 0044 | `Engine<'a>` agregador em L1 | `EM VIGOR` ² |
+| 0045 | Formato de diagnósticos (resolução L1, formatação L3) | `EM VIGOR` ² |
+| 0046 | CLI mínima (compile com diagnostics) | `EM VIGOR` ² |
+| 0047 | Argparsing com `clap` na CLI | `EM VIGOR` ² |
+| 0048 | Cores ANSI nos diagnósticos | `EM VIGOR` ² |
+| 0049 | CLI vive em L2 (correcção de 0046/0047/0048) | `EM VIGOR` ² |
+| 0050 | Formatter de diagnósticos em L2 (completa 0049) | `EM VIGOR` ² |
+| 0051 | Flags funcionais em L2 — pattern e `-o` | `EM VIGOR` ² |
+| 0052 | Lang como tipo semântico em L1 | `IMPLEMENTADO` |
+| 0053 | Font como tipo composto em L1 | `IMPLEMENTADO` |
+| 0054 | Critério de fecho de DEBT-1 inclui consumo integral | `EM VIGOR` |
+| 0055 | Font consumer via pipeline CIDFont existente | `IMPLEMENTADO` |
 
-**Total**: 38 ADRs (37 números únicos; ADR-0026 tem variante -R1
+**Notas de irregularidade no cabeçalho (Passo 143)** — não
+afectam o status canónico mas indicam dívida documental
+candidata a passo de uniformização futura:
+
+- **¹** ADR-0038 a 0043 declaram o status no formato
+  `**Status**: EM VIGOR (Passo NN.E) — validado empiricamente
+  com NNN testes`, sem backticks no valor canónico.
+- **²** ADR-0044 a 0051 usam `**Estado**:` em vez de
+  `**Status**:` — vocabulário antigo (pré-P84.8g) preservado
+  no cabeçalho. Status canónico inferido por leitura
+  conservadora (`EM VIGOR` sempre presente como prefixo).
+
+Detalhe completo no relatório do passo:
+[`materialization/typst-passo-143-relatorio.md`](../materialization/typst-passo-143-relatorio.md).
+
+**Total**: 56 ADRs (55 números únicos; ADR-0026 tem variante -R1
 por revisão).
 
 ### Distribuição de status
 
-- `PROPOSTO`: 13 ADRs (decisões em aberto).
-- `IDEIA`: 2 ADRs.
-- `EM VIGOR`: 9 ADRs (regras/políticas activas).
-- `IMPLEMENTADO`: 12 ADRs (decisões materializadas).
-- `REVOGADO`: 2 ADRs.
-- `ADIADO`: 1 ADR.
+- `PROPOSTO`: 10 ADRs (decisões em aberto: 0005, 0006,
+  0008–0015).
+- `IDEIA`: 2 ADRs (0002, 0003).
+- `EM VIGOR`: 24 ADRs (regras/políticas activas; 0018, 0029,
+  0030, 0032–0051, 0054).
+- `IMPLEMENTADO`: 17 ADRs (decisões materializadas; 0001, 0004,
+  0016, 0017, 0019, 0021–0027, 0026-R1, 0031, 0052, 0053, 0055).
+- `REVOGADO`: 2 ADRs (0007, 0028).
+- `ADIADO`: 1 ADR (0020).
 
 ---
 
@@ -278,3 +331,55 @@ P84.8g.
   status.
 - **P84.8h** — Este README criado. Canonização residual em
   ADR-0002 e ADR-0003.
+- **Passos 99–103 — Fundação de styles tipados em L1**.
+  ADR-0038 (Sistema de estilos: `Style`/`Styles`/`StyleChain`),
+  ADR-0039 (forma de estilo no `FrameItem::Text`), ADR-0040
+  (activação de `#set`), ADR-0041 (activação de `#show` para
+  heading/strong/emph). Materializaram a fundação de DEBT-1
+  fase A. DEBT-48 encerrado no Passo 100.
+- **Passos 104–111 — Engine, Sink, formato de diagnósticos**.
+  ADR-0042 (`Sink` materializado em L1), ADR-0043 (canal de
+  saída do `Sink` via `TrackedMut`), ADR-0044 (`Engine<'a>`
+  como agregador), ADR-0045 (diagnósticos resolvidos em L1,
+  formatados em L3). Saída do escopo "MockWorld + helpers".
+- **Passos 113–120 — Ciclo de vida da CLI**. ADR-0046 (CLI
+  mínima em L4), ADR-0047 (argparsing com `clap`), ADR-0048
+  (cores ANSI), ADR-0049 (correcção: CLI vive em L2),
+  ADR-0050 (formatter em L2), ADR-0051 (flags funcionais com
+  `-o` como pattern). Reorganização final convergiu para L2
+  como home da CLI.
+- **Passos 131B/132B — Tipos semânticos `Lang` e `FontList`**.
+  ADR-0052 (Lang com validação ISO + erro hard) e ADR-0053
+  (FontList com paridade parcial: string + array; dict
+  deferido por ausência de `regex` em L1). Captura completa do
+  `StyleDelta` canónico.
+- **Passo 135 — Diagnóstico de shaping; ADR-0054**. Diagnóstico
+  detectou que captura sem consumer não cumpre paridade.
+  ADR-0054 redefiniu critério de fecho de DEBT-1 (perfil
+  observacional graded). DEBT-52 aberto como rastreador.
+- **Passos 136–139 — DEBT-52 Fases A e B**. Consumer
+  `tracking` (137), `leading` (138), `weight` faux-bold (139).
+  `TextStyle` estendido (136). Primeiro efeito visível desde
+  o Passo 102 (`fill`).
+- **Passo 140A — Diagnóstico font infra; ADR-0055 `PROPOSTO`;
+  ADR-0019 anotada**. Inventário revelou infra CIDFont
+  embedding pronta. ADR-0055 propõe consumer integral via
+  pipeline existente. ADR-0019 ganhou nota factual sobre
+  `rustybuzz` declarado-sem-uso (não revogação).
+- **Passos 140B + 141 — DEBT-52 Fase C básica**. ADR-0055
+  materializada (single-font no Passo 140B; array fallback no
+  Passo 141 → ADR-0055 transitou para `IMPLEMENTADO`). Gaps 5
+  e 6 do DEBT-52 fechados.
+- **Passo 142 — Fecho formal de DEBT-1**. ADR-0054 cumprida:
+  9 de 10 campos de `StyleDelta` com consumer activo; `lang`
+  em scope-out por perfil observacional graded. DEBT-1 e
+  DEBT-52 movidos para Secção 2 do `DEBT.md`. Relatório formal
+  em `relatorios/fecho-debt-1-passo-142.md`.
+- **Passo 143 — Correcção empírica deste README**. Inventário
+  empírico do directório (56 ADRs) revelou gap de 18 ADRs em
+  falta na tabela "Estado por ADR" desde P84.8h. Adicionadas
+  meta-regras 9 e 10 (ADR-0038 e ADR-0054). Anomalias de
+  formato no cabeçalho de ADRs 0038–0051 (Status sem
+  backticks ou `**Estado**:` em vez de `**Status**:`)
+  registadas como dívida documental no relatório do passo;
+  status canónico inferido por leitura conservadora.
