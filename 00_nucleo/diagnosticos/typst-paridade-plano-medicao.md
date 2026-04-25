@@ -330,33 +330,47 @@ pipeline já chega lá; teste end-to-end existe via
 
 ## 9 — Próximas acções concretas
 
-Pós-Passo 147 (este — actualização documental). A ordem
-permanece a do documento original; apenas as condições
-temporais foram actualizadas para o estado real de
-2026-04-24.
+> **Reformulação no Passo 148 (2026-04-24)**: a ordem do
+> documento original foi alterada — **inventário de cobertura
+> precede medição**. Sem inventário do que cristalino afirma
+> cobrir, qualquer matriz de paridade compara contra
+> denominador errado (vanilla total ≈ 0% paridade absoluta).
+> Inventário em
+> [`typst-cobertura-vanilla-vs-cristalino.md`](typst-cobertura-vanilla-vs-cristalino.md)
+> foi produzido neste passo 148.
 
-1. **Passo 148** — Implementar `frame_dto.rs` com
+1. **Passo 148** — **Inventário de cobertura vanilla vs
+   cristalino** (passo de diagnóstico, completo). Reformulação
+   da série: paridade só é mensurável após inventário.
+   Documento em
+   `00_nucleo/diagnosticos/typst-cobertura-vanilla-vs-cristalino.md`
+   classifica ~138 features user-facing + ~105 itens
+   arquitecturais nas 5 classes (`implementado` /
+   `implementado⁺` / `parcial` / `ausente` / `scope-out`).
+2. **Passo 149** — Implementar `frame_dto.rs` com
    `LayoutTolerance` e modo `text_content=true`. Adicionar
-   `tests/layout_parity.rs` com o corpus actual (11
-   ficheiros; todos devem passar em conteúdo dado que
-   `eval` + `layout` cristalinos estão estáveis). Gerar
-   primeiro relatório agregado em
+   `tests/layout_parity.rs` com **corpus filtrado pelo
+   subconjunto "implementado" + "implementado⁺" + "parcial"**
+   do inventário 148. Gerar primeiro relatório agregado em
    `lab/parity/reports/latest.md` — **número-base** que o
    utilizador pediu.
-2. **Passo 149+** — Implementar P2 (`value_dto.rs` +
+3. **Passo 150+** — Implementar P2 (`value_dto.rs` +
    `tests/eval_parity.rs`) quando expansão do corpus
    `semantic/` for priorizada. `eval()` já suporta as
    features que faltavam à data do documento original
    (Passo 17 já foi; `#set`/`#show` activos).
-3. **Passo 150+** — Implementar P4 Opção B (textual) com
+4. **Passo 151+** — Implementar P4 Opção B (textual) com
    `pdf_compare.rs` + `tests/export_parity.rs`. `export_pdf()`
    está estável desde Passo 22+; multi-font (Passo 146).
    Opção A (visual) quando dependências CI
    (`pdftoppm`/`mupdf`) forem decididas.
-4. **Decisão sobre corpus**: oficial vs próprio vs ambos.
+5. **Decisão sobre corpus**: oficial vs próprio vs ambos.
    Documentar em ADR separada se a decisão for não-trivial.
-   Recomendação preliminar: mix (ambos), com filtro por
-   features. Alvo: durante Passo 148 ou imediatamente antes.
+   Recomendação preliminar: mix (ambos), **com filtro por
+   features do inventário 148**. Alvo: durante Passo 149 ou
+   imediatamente antes.
 
-A partir do **Passo 148**, o utilizador passa a ter o número
-que pediu — em formato de **matriz**, não de percentual único.
+A partir do **Passo 149**, o utilizador passa a ter o número
+que pediu — em formato de **matriz**, não de percentual único,
+**com denominador honesto** (subset declarado pelo cristalino,
+não totalidade do vanilla).
