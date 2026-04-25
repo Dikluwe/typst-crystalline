@@ -674,6 +674,27 @@ B (Passos 137–139) e C básica (Passos 140B + 141) do trabalho
 exigido por ADR-0054 para fecho de DEBT-1. Histórico preservado
 abaixo.
 
+### Actualização Passo 144 — Consumer `lang` hyphenation (gap 7)
+
+- [x] Gap 7 (lang hyphenation) materializado pós-fecho de
+  DEBT-1. **ADR-0057** autoriza crate `hypher` em L1
+  (`[l1_allowed_external]`) — pure-data, no_std, zero deps,
+  padrões TeX embebidos em compile-time. Helper puro
+  `01_core/src/rules/layout/hyphenation.rs::hyphenate(word, &lang)`
+  invocado pelo `layout_word` quando palavra não cabe e
+  `style.lang` é `Some(lang)`. Algoritmo greedy: maior prefixo
+  com hífen literal `-` que cabe no espaço disponível vence;
+  resto recursa. Política silent skip para idiomas não
+  suportados (ISO 3-letras; código fora do hyph-utf8) e
+  documentos sem `lang`. **Não reabre** DEBT-1 nem DEBT-52:
+  ADR-0054 declarou gap 7 opcional; este passo reduz superfície
+  de scope-out por priorização tipográfica, sem contradizer o
+  perfil observacional graded. `lang` muda de scope-out total
+  para **parcialmente consumido** — hyphenation activo;
+  shaping features (rustybuzz) continuam ausentes (DEBT-53
+  candidato XL futuro). Contagem de DEBTs abertos: **inalterada
+  (10)**.
+
 ---
 
 ### (Histórico) Estado pré-fecho — DEBT-52 — EM ABERTO (Passo 135)

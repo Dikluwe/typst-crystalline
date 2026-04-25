@@ -2528,4 +2528,86 @@ mod integration {
             "fallback Helvetica não deve estar presente — segunda \
              família resolveu");
     }
+
+    // ── Passo 144 — Lang hyphenation (gap 7 DEBT-52, ADR-0057) ──────────
+    //
+    // Verifica end-to-end que `compile_to_pdf_bytes` emite FrameItems
+    // com hífen literal quando `#set text(lang: "<código>")` está
+    // presente e palavra longa não cabe na linha. Testes inspeccionam
+    // o `PagedDocument` directamente (tickets `FrameItem::Text` cujo
+    // `text` termina em `-`).
+
+    fn build_doc(src: &str) -> typst_core::entities::layout_types::PagedDocument {
+        let (world, _dir) = world_from_str(src);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state = introspect(content);
+        layout(content, state)
+    }
+
+    fn count_hyphenated_words(
+        doc: &typst_core::entities::layout_types::PagedDocument,
+    ) -> usize {
+        doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|i| match i {
+                typst_core::entities::layout_types::FrameItem::Text { text, .. } =>
+                    Some(text.as_str()),
+                _ => None,
+            })
+            .filter(|t| t.ends_with('-') && t.chars().count() > 1)
+            .count()
+    }
+
+    #[test]
+    fn lang_hyphenation_en_palavra_longa_quebra_com_hifen() {
+        // Coluna muito estreita (100pt − 2×10pt margem = 80pt;
+        // ~11 chars a 12pt com FixedMetrics 0.6×size) força quebra
+        // de palavras longas como "extraordinary".
+        let src = "#set page(width: 100pt, height: 400pt, margin: 10pt)\n\
+                   #set text(lang: \"en\")\n\
+                   The extraordinary characteristics of this remarkable phenomenon.";
+        let doc = build_doc(src);
+        let n = count_hyphenated_words(&doc);
+        assert!(n >= 1,
+            "documento com `lang: \"en\"` em coluna estreita deve produzir \
+             pelo menos 1 palavra com hífen de quebra; encontradas {}", n);
+    }
+
+    #[test]
+    fn lang_hyphenation_pt_palavra_longa_quebra_com_hifen() {
+        let src = "#set page(width: 100pt, height: 400pt, margin: 10pt)\n\
+                   #set text(lang: \"pt\")\n\
+                   As características extraordinárias deste fenómeno notável.";
+        let doc = build_doc(src);
+        let n = count_hyphenated_words(&doc);
+        assert!(n >= 1,
+            "documento com `lang: \"pt\"` em coluna estreita deve produzir \
+             pelo menos 1 palavra com hífen de quebra; encontradas {}", n);
+    }
+
+    #[test]
+    fn lang_hyphenation_sem_set_lang_comportamento_inalterado() {
+        // Sem `#set text(lang:)`: hyphenation não dispara — palavras
+        // que não cabem migram inteiras para a linha seguinte (pré-144).
+        let src = "#set page(width: 100pt, height: 400pt, margin: 10pt)\n\
+                   The extraordinary characteristics of this remarkable phenomenon.";
+        let doc = build_doc(src);
+        assert_eq!(count_hyphenated_words(&doc), 0,
+            "documento sem `#set text(lang:)` não deve produzir hífenes \
+             de quebra (regressão pré-144 preservada)");
+    }
+
+    #[test]
+    fn lang_hyphenation_idioma_sem_padroes_silent_skip() {
+        // Código ISO improvável (não suportado pelo `hypher`) →
+        // silent skip; sem hífenes; sem warning; sem erro.
+        let src = "#set page(width: 100pt, height: 400pt, margin: 10pt)\n\
+                   #set text(lang: \"xx\")\n\
+                   The extraordinary characteristics of this remarkable phenomenon.";
+        let doc = build_doc(src);
+        assert_eq!(count_hyphenated_words(&doc), 0,
+            "idioma sem padrões TeX → silent skip; sem hífenes inseridos");
+    }
 }

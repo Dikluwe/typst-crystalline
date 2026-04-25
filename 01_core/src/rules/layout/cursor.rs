@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 518a9856
+//! @prompt-hash a78b0adc
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -42,6 +42,37 @@ impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S> {
         let w = self.word_width(word);
         let right_margin = self.page_config.width - self.page_config.margin;
         if self.cursor_x.0 + w.0 > right_margin && self.cursor_x.0 > self.page_config.margin {
+            // Passo 144 (ADR-0057): tentar hyphenation antes do
+            // flush. Se `style.lang` define um idioma e `hypher`
+            // produz pontos de quebra, escolher o maior prefixo
+            // (com hífen literal) que cabe no espaço disponível;
+            // emitir prefixo, fazer flush, e recursar com o resto.
+            // Sem `lang` ou sem ponto de quebra que caiba: cai no
+            // fallback `flush_line` original (palavra inteira para
+            // linha seguinte — comportamento pré-144).
+            if let Some(lang) = self.style.lang {
+                let break_points = super::hyphenation::hyphenate(word, &lang);
+                if !break_points.is_empty() {
+                    let available = right_margin - self.cursor_x.0;
+                    for &point in break_points.iter().rev() {
+                        let prefix: String = word.chars().take(point).collect();
+                        let prefix_with_hyphen = format!("{}-", prefix);
+                        let pw = self.word_width(&prefix_with_hyphen);
+                        if pw.0 <= available {
+                            self.current_line.push(FrameItem::Text {
+                                pos:   Point { x: self.cursor_x, y: self.cursor_y },
+                                text:  prefix_with_hyphen.into(),
+                                style: self.style.clone(),
+                            });
+                            self.cursor_x += pw;
+                            self.flush_line();
+                            let rest: String = word.chars().skip(point).collect();
+                            self.layout_word(&rest);
+                            return;
+                        }
+                    }
+                }
+            }
             self.flush_line();
         }
         self.current_line.push(FrameItem::Text {

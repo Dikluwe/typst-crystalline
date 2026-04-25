@@ -32,3 +32,4 @@ unicode-ident        = "1"
 unicode-math-class   = "0.1"
 unicode-script       = "0.5"
 unicode-segmentation = "1"
+hypher               = "0.1"   # ADR-0057 — hyphenation patterns embebidos (no_std, zero deps)
