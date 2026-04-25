@@ -373,16 +373,26 @@ pipeline já chega lá; teste end-to-end existe via
    DEBT-54**. Zero código novo neste passo; abertura
    formal de sub-DEBT + actualização de DEBT-53 com plano
    específico.
-5. **Passo 152+** — Implementar P2 (`value_dto.rs` +
-   `tests/eval_parity.rs`). Pode ser materializado **antes**
-   de DEBT-54 fechar com mesma estratégia cristalino-only
-   baseline (matriz com `N/A` na coluna vanilla).
-6. **Passo 153+** — Implementar P4 Opção B (textual) com
+5. **Passo 152** — Refino administrativo do plano DEBT-54
+   (probe online + risco de versões + critério expandido).
+   Probe revelou `codex`/`hayagriva`/`oxipng` todos em cache;
+   conflito `comemo` 0.4 vs 0.5 contornável. Saldo DEBTs
+   inalterado.
+6. **Passo 153** — **Implementado**: P2 cristalino-only
+   baseline. `lab/parity/src/value_dto.rs` + `tests/eval_parity.rs`
+   + corpus `lab/parity/corpus/semantic/` (10 ficheiros) +
+   matriz P2 integrada em `latest.md` ao lado de P3.
+   10/10 ficheiros eval ok. `value_equality` vs vanilla =
+   `N/A` (DEBT-54). Diagnósticos canários
+   `tipo-inspeccao.typ` (ADR-0058) e `closure-aplicada.typ`
+   (ADR-0059) revelarão divergências quando vanilla integrar.
+7. **Passo 154+** — Implementar P4 Opção B (textual) com
    `pdf_compare.rs` + `tests/export_parity.rs`.
-7. **Passo dedicado para DEBT-54**: setup vanilla
+8. **Passo dedicado para DEBT-54**: setup vanilla
    workspace; após fechar, novo passo materializa vanilla
-   integration em `lab/parity`, destranca DEBT-53.
-8. **Decisão sobre corpus**: oficial vs próprio vs ambos.
+   integration em `lab/parity`, destranca DEBT-53 (popula
+   colunas vanilla na matriz P2 + P3).
+9. **Decisão sobre corpus**: oficial vs próprio vs ambos.
    Documentar em ADR separada se a decisão for não-trivial.
    Recomendação preliminar: mix (ambos), **com filtro por
    features do inventário 148 (pós-149)**.

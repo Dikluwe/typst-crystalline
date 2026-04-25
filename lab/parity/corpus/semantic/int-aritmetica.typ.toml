@@ -1,0 +1,3 @@
+features = ["let", "int", "ops"]
+modo_p2 = "value_equality"
+notes = "Aritmética inteira simples; resultado esperado Int(5)."

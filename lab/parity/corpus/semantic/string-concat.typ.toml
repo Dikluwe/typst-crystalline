@@ -1,0 +1,3 @@
+features = ["let", "str", "ops"]
+modo_p2 = "value_equality"
+notes = "Concatenação de strings; resultado esperado Str(\"ab\")."

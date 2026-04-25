@@ -1,0 +1,9 @@
+features = ["let", "stdlib", "type"]
+modo_p2 = "value_equality"
+diagnostic_for = "ADR-0058"
+notes = """
+**Diagnóstico canário ADR-0058**: cristalino devolve Value::Str("integer")
+via native_type; vanilla devolverá Value::Type(Type) rico. Esta divergência
+ficará visível quando DEBT-54 + DEBT-53 fecharem e from_vanilla mapear o
+tipo nativo.
+"""

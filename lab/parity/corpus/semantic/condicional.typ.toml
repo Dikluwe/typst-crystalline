@@ -1,0 +1,3 @@
+features = ["let", "if", "ops", "str"]
+modo_p2 = "value_equality"
+notes = "Condicional retornando Str; valida control flow + comparação."
