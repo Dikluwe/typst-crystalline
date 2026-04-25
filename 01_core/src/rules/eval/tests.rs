@@ -2621,4 +2621,119 @@ mod tests {
         assert!(eval_for_test(&world, &src).is_err(),
             "divider() com argumentos posicionais deve retornar Err");
     }
+
+    // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote via eval ────────
+
+    fn find_quote(c: &Content) -> Option<&Content> {
+        match c {
+            Content::Quote { .. } => Some(c),
+            Content::Sequence(seq) => seq.iter().find_map(find_quote),
+            _ => None,
+        }
+    }
+
+    #[test]
+    fn eval_quote_construtor_typst_lang() {
+        let world = MockWorld::new(r#"#quote([texto citado])"#);
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve ter content");
+        let q = find_quote(&content).expect("esperado Content::Quote");
+        match q {
+            Content::Quote { attribution, block, quotes, .. } => {
+                assert!(attribution.is_none(), "attribution default = None");
+                assert!(!block, "block default = false");
+                assert!(*quotes, "quotes default = true");
+            }
+            _ => panic!("esperado Content::Quote, obteve {:?}", q),
+        }
+    }
+
+    #[test]
+    fn eval_quote_com_attribution_typst_lang() {
+        let world = MockWorld::new(r#"#quote([Errare humanum est], attribution: [Seneca])"#);
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve ter content");
+        let q = find_quote(&content).expect("esperado Content::Quote");
+        match q {
+            Content::Quote { attribution: Some(a), .. } => {
+                assert_eq!(a.plain_text(), "Seneca");
+            }
+            _ => panic!("esperado Content::Quote com attribution: {:?}", q),
+        }
+    }
+
+    #[test]
+    fn eval_quote_block_true_typst_lang() {
+        let world = MockWorld::new(r#"#quote([conteudo], block: true)"#);
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve ter content");
+        let q = find_quote(&content).expect("esperado Content::Quote");
+        match q {
+            Content::Quote { block, .. } => assert!(*block),
+            _ => panic!("esperado Content::Quote, obteve {:?}", q),
+        }
+    }
+
+    #[test]
+    fn eval_quote_quotes_false_typst_lang() {
+        let world = MockWorld::new(r#"#quote([x], quotes: false)"#);
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve ter content");
+        let q = find_quote(&content).expect("esperado Content::Quote");
+        match q {
+            Content::Quote { quotes, .. } => assert!(!quotes),
+            _ => panic!("esperado Content::Quote, obteve {:?}", q),
+        }
+    }
+
+    #[test]
+    fn eval_quote_arg_invalido_retorna_err() {
+        let world = MockWorld::new(r#"#quote([x], cor: "red")"#);
+        let src = world.source(world.main()).unwrap();
+        assert!(eval_for_test(&world, &src).is_err(),
+            "quote() com named arg desconhecido deve retornar Err");
+    }
+
+    #[test]
+    fn eval_quote_sem_body_retorna_err() {
+        let world = MockWorld::new(r#"#quote()"#);
+        let src = world.source(world.main()).unwrap();
+        assert!(eval_for_test(&world, &src).is_err(),
+            "quote() sem body deve retornar Err");
+    }
+
+    // ── Smart-quotes via markup `"..."` (Passo 155) ──────────────────────
+
+    #[test]
+    fn eval_markup_smart_quotes_default_ascii() {
+        // Sem text.lang activo: aspas ASCII (`"`).
+        let world = MockWorld::new(r#""hello""#);
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let plain = module.content().unwrap().plain_text();
+        assert!(plain.contains("hello"), "texto preservado: {:?}", plain);
+        // Default DEFAULT_QUOTES = ("\"", "\"") — caracter ASCII.
+        assert!(plain.starts_with('"') || plain.contains('"'),
+            "deve conter aspa ASCII: {:?}", plain);
+    }
+
+    #[test]
+    fn eval_markup_aspas_em_codigo_continua_string_literal_regression() {
+        // **Crítico**: regression test. `"..."` em #let deve continuar a ser
+        // Value::Str, não Content::Quote.
+        let world = MockWorld::new(r#"#let s = "hello""#);
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let s = module.scope().get("s");
+        assert!(matches!(s, Some(Value::Str(_))),
+            "string literal em código deve ser Value::Str, obtive {:?}", s);
+        if let Some(Value::Str(text)) = s {
+            assert_eq!(text.as_str(), "hello",
+                "valor da string literal preservado");
+        }
+    }
 }

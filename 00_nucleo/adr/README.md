@@ -165,21 +165,21 @@ que corresponde a mudança específica no código.
 | 0057 | Lang hyphenation em L1 via crate `hypher` | `IMPLEMENTADO` |
 | 0058 | Tipo simplificado — `type()` devolve `Value::Str` | `EM VIGOR` |
 | 0059 | `Args` como tipo separado, não-variant de `Value` | `EM VIGOR` |
-| 0060 | Model (structural) roadmap — Fase 1 + 2 + 3 | `PROPOSTO` |
+| 0060 | Model (structural) roadmap — Fase 1 + 2 + 3 | `IMPLEMENTADO` (Fase 1 fechada em P155; Fase 2/3 prosseguem em P156+) |
 
 **Total**: 60 ADRs (59 números únicos; ADR-0026 tem variante -R1
 por revisão).
 
 ### Distribuição de status
 
-- `PROPOSTO`: 11 ADRs (decisões em aberto: 0005, 0006,
-  0008–0015, 0060).
+- `PROPOSTO`: 10 ADRs (decisões em aberto: 0005, 0006,
+  0008–0015).
 - `IDEIA`: 2 ADRs (0002, 0003).
 - `EM VIGOR`: 26 ADRs (regras/políticas activas; 0018, 0029,
   0030, 0032–0051, 0054, 0058, 0059).
-- `IMPLEMENTADO`: 18 ADRs (decisões materializadas; 0001, 0004,
+- `IMPLEMENTADO`: 19 ADRs (decisões materializadas; 0001, 0004,
   0016, 0017, 0019, 0021–0027, 0026-R1, 0031, 0052, 0053, 0055,
-  0057).
+  0057, **0060**).
 - `REVOGADO`: 2 ADRs (0007, 0028).
 - `ADIADO`: 1 ADR (0020).
 
@@ -477,3 +477,41 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 155 — Fase 1 Model fechada (sub-passo 2: quote +
+  smart-quotes)**. Segunda e última materialização da Fase 1
+  do roadmap ADR-0060: `Content::Quote { body, attribution,
+  block, quotes }` (4 atributos vanilla `QuoteElem`) adicionado
+  ao enum (42 → 43 variants); `native_quote` registado em
+  `make_stdlib` (`#quote(body, attribution: ?, block: ?,
+  quotes: ?)`). **Módulo novo `01_core/src/rules/lang/quotes.rs`**
+  expondo `localize_quotes(lang) → (open, close)` para 6 idiomas
+  (`pt`/`en`/`de`/`fr`/`es`/`it`) + default ASCII (precedente
+  `localize_*(lang)` para futuras features lang-aware; ADR-0057
+  hyphenation continua em `rules/layout/`). `eval_markup`
+  actualizado para tratar `SyntaxKind::SmartQuote` via alternância
+  open/close por sequência markup, emitindo glyph localizado
+  como `Content::Text`. **Distinção contextual code vs markup
+  preservada** (regression test obrigatório:
+  `eval_markup_aspas_em_codigo_continua_string_literal_regression`
+  — `"..."` em código continua a ser `Value::Str`). Cobertura
+  exaustiva de arms (~7 sítios L1: `plain_text`, `is_empty`,
+  `PartialEq::eq`, `map_content`, `map_text` em
+  `entities/content.rs`; `materialize_time`, `walk` em
+  `rules/introspect.rs`; `layout_content` em
+  `rules/layout/mod.rs` — block + inline + smart-quote insertion).
+  **ADR-0060 transita `PROPOSTO → IMPLEMENTADO`** (Fase 1
+  fechada). Distribuição ADRs: `PROPOSTO` 11→10, `IMPLEMENTADO`
+  18→19. Inventário 148 actualizado: Tabela A Model 5/4/5/8/0
+  → 6/4/5/7/0 (cobertura **41% → 45%**); Tabela B Content
+  42 → 43 variants; vanilla extra ausentes ~12 → ~11.
+  L0 prompts: `entities/content.md` ganhou secção Quote;
+  novo `prompts/rules/lang.md` regista smart-quotes mecanismo.
+  Hashes propagados via `--fix-hashes`: `content.rs`
+  `43745b5d → 8413bb8d`; novos `lang/mod.rs` e `lang/quotes.rs`
+  partilham `4426dbc0`. Sem ADR nova; sem DEBT tocado.
+  Tests: 1123 → 1145 (+22 = 7 lang/quotes + 7 unit content +
+  8 eval/parse). Cobertura crista do enum Content
+  pós-P155: 31/43 = 72% (mais 9 implementado⁺ + 3 parcial).
+  Próxima fase (Fase 2): P156 = table foundations; P157 =
+  figure kinds; ADR-0061 + P158 = bibliography + cite (XL,
+  bloqueado por DEBT-55).

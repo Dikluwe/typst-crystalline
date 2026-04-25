@@ -155,7 +155,7 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `list(items)` (function form) | model/list.rs | `parcial` | sintaxe parcial | sem function form completa |
 | `enum(items)` | model/enum.rs | `parcial` | idem | |
 | `terms(...)` | model/terms.rs | `implementado` | Passo 154B | `Content::Terms` + `Content::TermItem`; named args via `#terms(key: [desc])`; sem atributos vanilla (tight/separator/indent/hanging-indent) — extensíveis sem breaking change |
-| `quote(...)` | model/quote.rs | `ausente` | — | Fase 1 (Passo 155) |
+| `quote(...)` | model/quote.rs | `implementado` | Passo 155 | `Content::Quote` com 4 attrs; smart-quotes lang-aware (6 idiomas + default ASCII) via `rules/lang/quotes.rs`; markup `"..."` produz aspas localizadas via alternância open/close (não pareadas como bloco) |
 | `cite(key)` | model/cite.rs | `ausente` | — | requer bibliography |
 | `bibliography(path)` | model/bibliography.rs | `ausente` | — | escopo XL: CSL parsing |
 | `link(dest, body)` | model/link.rs | `parcial` | Passo 23 | `Content::Link` capturado; sem render visual |
@@ -302,7 +302,8 @@ Nota: ADR-0026 + 0026-R1 declaram **divergência intencional**. Cristalino usa e
 | `Divider` | DividerElem | `implementado` | Passo 154B | singleton; layouter emite linha 0.5pt |
 | `Terms {items}` | TermsElem | `implementado` | Passo 154B | sem atributos vanilla (tight/sep/indent) |
 | `TermItem {term, description}` | TermItemElem | `implementado` | Passo 154B | par item; standalone permitido |
-| **Vanilla-only (ausentes)**: BibliographyElem, CiteElem, FootnoteElem, QuoteElem, TableElem, ColumnsElem, BoxElem, BlockElem, StackElem, HideElem, RepeatElem, PadElem, MoveElem (function só), GradientElem, TilingElem, StrokeElem (object form), … | — | `ausente` (cada) | — | escopo crescente |
+| `Quote {body, attribution, block, quotes}` | QuoteElem | `implementado` | Passo 155 | 4 atributos materializados; smart-quotes lang-aware via `rules/lang/quotes.rs` |
+| **Vanilla-only (ausentes)**: BibliographyElem, CiteElem, FootnoteElem, TableElem, ColumnsElem, BoxElem, BlockElem, StackElem, HideElem, RepeatElem, PadElem, MoveElem (function só), GradientElem, TilingElem, StrokeElem (object form), … | — | `ausente` (cada) | — | escopo crescente |
 
 ### B.3 — `Style` enum
 
@@ -412,11 +413,11 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
 | Layout | 6 | 0 | 2 | 8 | 0 | 16 |
-| Model (structural) ¹ ² | 5 | 4 | 5 | 8 | 0 | 22 |
+| Model (structural) ¹ ² ³ | 6 | 4 | 5 | 7 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection | 1 | 0 | 0 | 5 | 0 | 6 |
-| **Total user-facing** | **55** | **21** | **21** | **40** | **2** | **139** |
+| **Total user-facing** | **56** | **21** | **21** | **39** | **2** | **139** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -430,10 +431,15 @@ de `implementado` para `implementado⁺` (tem ressalvas em
 `terms` e `divider` transitam `ausente → implementado`.
 Contagem Model: 3/4/5/10/0=22 → 5/4/5/8/0=22.
 Cobertura Model: (3+4)/22=32% → (5+4)/22=**41%**.
-Próximo passo (P155 = `quote`) eleva para ~45%.
 
-**Cobertura user-facing total** (impl + impl⁺): (55 + 21) / 139 = **55%**
-(antes de P154A: 54%; após P154B: 55%).
+³ — Ajuste P155 (materialização Fase 1 sub-passo 2; **fecha
+Fase 1**): `quote` transita `ausente → implementado`. Contagem
+Model: 5/4/5/8/0=22 → **6/4/5/7/0=22**. Cobertura Model:
+(5+4)/22=41% → (6+4)/22=**45%**. ADR-0060 transita
+`PROPOSTO → IMPLEMENTADO`.
+
+**Cobertura user-facing total** (impl + impl⁺): (56 + 21) / 139 = **55%**
+(antes de P154A: 54%; após P154B: 55%; após P155: ~55-56%).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -441,21 +447,23 @@ Próximo passo (P155 = `quote`) eleva para ~45%.
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
 | `Value` variants | 18 | 2 | 2 | 9 | 0 | 31 |
-| `Content` variants (cristalino) ³ | 30 | 9 | 3 | 0 | 0 | 42 |
-| `Content` variants (vanilla extra ausentes) | — | — | — | ~12 | — | ~12 |
+| `Content` variants (cristalino) ³ ⁴ | 31 | 9 | 3 | 0 | 0 | 43 |
+| `Content` variants (vanilla extra ausentes) | — | — | — | ~11 | — | ~11 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
-| **Total arquitectural** | **66** | **13** | **5** | **21** | **1** | **106** |
+| **Total arquitectural** | **67** | **13** | **5** | **20** | **1** | **106** |
 
 ³ — Ajuste P154B: 39 → 42 (+`Divider`, +`Terms`, +`TermItem`).
 Vanilla extra ausentes desce de ~14 para ~12 (terms + divider
 saíram do conjunto não-capturado).
 
-**Cobertura arquitectural total**: (66 + 13) / 106 = **75%**
-(era 72% pré-P154B; era 70% pré-Passo 149; `Value::Type` e
-`Value::Args` reclassificadas de `parcial` para `implementado⁺`
-após formalização por ADR-0058 e ADR-0059).
+⁴ — Ajuste P155: 42 → 43 (+`Quote`). Vanilla extra ausentes
+desce de ~12 para ~11 (quote saiu do conjunto não-capturado).
+ADR-0060 fechada (Fase 1 completa).
+
+**Cobertura arquitectural total**: (67 + 13) / 106 = **75-76%**
+(era 75% pré-P155; era 72% pré-P154B; era 70% pré-P149).
 **Nota**: variants extra cristalino (`Value::Align`, `Content::Styled`) são **divergências intencionais**
 favoráveis — cristalino tem features que vanilla não (em forma de Value); contadas como `implementado` porque
 encerradas por ADRs (0026, 0028→0029, 0036, etc.).
@@ -489,8 +497,8 @@ encerradas por ADRs (0026, 0028→0029, 0036, etc.).
    adicional. Aceite dentro de ADR-0033 perfil graded.
 
 7. **Lista de `Content::*` ausentes em cristalino mas presentes em vanilla** é maior do que esperado:
-   ~12 elementos pós-P154B (Bibliography, Cite, Footnote, Quote, Table, Columns, Box, Block, Stack,
-   Hide, Repeat, Pad, Stroke-object — `Terms` e `Divider` saíram após Passo 154B). Isto é **escopo
+   ~11 elementos pós-P155 (Bibliography, Cite, Footnote, Table, Columns, Box, Block, Stack,
+   Hide, Repeat, Pad, Stroke-object — `Terms`, `Divider` e `Quote` saíram). Isto é **escopo
    XL agregado** se priorizado.
    **Refinamento P154A** (diagnóstico Model): para a sub-categoria Model especificamente, breakdown
    detalhado em [`diagnostico-model-passo-154a.md`](diagnostico-model-passo-154a.md). 6 entradas Model
@@ -501,6 +509,9 @@ encerradas por ADRs (0026, 0028→0029, 0036, etc.).
    **Refinamento P154B** (materialização): `terms` + `divider` transitam para `implementado`;
    contagem Model é 5/4/5/8/0=22; cobertura Model **32-36% → 41%** (10/22 entradas implementadas
    ou parciais).
+   **Refinamento P155** (materialização Fase 1 sub-passo 2; **fecha Fase 1**): `quote` transita
+   para `implementado`; contagem Model é 6/4/5/7/0=22; cobertura Model **41% → 45%** (11/22).
+   ADR-0060 transita `PROPOSTO → IMPLEMENTADO`.
 
 8. **Math layout aproximado (`implementado⁺`)** vs vanilla strict — cristalino tem `MathMatrix`,
    `MathFrac`, `MathRoot`, `MathDelimited`, etc., mas posicionamento exacto requer métricas de font math

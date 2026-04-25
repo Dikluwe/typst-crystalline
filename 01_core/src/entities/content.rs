@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 43745b5d
+//! @prompt-hash 8413bb8d
 //! @layer L1
-//! @updated 2026-04-24
+//! @updated 2026-04-25
 //!
 //! Excepção Regra 6 da ADR-0037: o enum `Content` é a entidade
 //! fundamental do domínio visual — representa toda a árvore de
@@ -313,6 +313,24 @@ pub enum Content {
     /// surgir standalone (e.g. show rules futuras).
     TermItem { term: Box<Content>, description: Box<Content> },
 
+    // ── Citação estrutural (Passo 155, ADR-0060 Fase 1, sub-passo 2) ────
+    /// Citação estrutural com 4 atributos (vanilla `QuoteElem`).
+    ///
+    /// - `body`: conteúdo citado.
+    /// - `attribution`: autor/fonte opcional.
+    /// - `block`: `true` = parágrafo dedicado; `false` = inline.
+    /// - `quotes`: `true` = aspas locale-apropriadas em torno do body.
+    ///
+    /// Smart-quotes resolvidas no layouter via
+    /// `crate::rules::lang::quotes::localize_quotes(lang)` consultando
+    /// `text.lang` activo (per ADR-0057).
+    Quote {
+        body:        Box<Content>,
+        attribution: Option<Box<Content>>,
+        block:       bool,
+        quotes:      bool,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
 }
@@ -389,6 +407,8 @@ impl Content {
             Self::Terms { items } => items.is_empty(),
             Self::TermItem { term, description } =>
                 term.is_empty() && description.is_empty(),
+            // Passo 155: Quote vazio se body for vazio.
+            Self::Quote { body, .. } => body.is_empty(),
             _ => false,
         }
     }
@@ -489,6 +509,21 @@ impl Content {
                 term.plain_text(),
                 description.plain_text(),
             ),
+            // Passo 155: Quote em texto plain usa ASCII fallback (sem
+            // smart-quotes — interaction com lang só vive no layouter).
+            // Com attribution: `"body" — attribution`; sem: `"body"`.
+            Self::Quote { body, attribution, quotes, .. } => {
+                let body_txt = body.plain_text();
+                let with_quotes = if *quotes {
+                    format!("\"{}\"", body_txt)
+                } else {
+                    body_txt
+                };
+                match attribution {
+                    Some(a) => format!("{} — {}", with_quotes, a.plain_text()),
+                    None    => with_quotes,
+                }
+            }
         }
     }
 }
@@ -566,6 +601,10 @@ impl PartialEq for Content {
             (Self::Terms { items: a },     Self::Terms { items: b })     => a == b,
             (Self::TermItem { term: ta, description: da },
              Self::TermItem { term: tb, description: db })               => ta == tb && da == db,
+            // Passo 155 — Quote.
+            (Self::Quote { body: ba, attribution: aa, block: ka, quotes: qa },
+             Self::Quote { body: bb, attribution: ab, block: kb, quotes: qb }) =>
+                ba == bb && aa == ab && ka == kb && qa == qb,
             _ => false,
         }
     }
@@ -689,6 +728,18 @@ impl Content {
                 description: Box::new(description.map_content(transform)?),
             },
 
+            // Passo 155: Quote container — recurse em body e attribution;
+            // block e quotes são primitivos.
+            Content::Quote { body, attribution, block, quotes } => Content::Quote {
+                body:        Box::new(body.map_content(transform)?),
+                attribution: attribution.as_ref()
+                    .map(|c| c.map_content(transform))
+                    .transpose()?
+                    .map(Box::new),
+                block:       *block,
+                quotes:      *quotes,
+            },
+
             // ── Terminais: clonar directamente ──────────────────────────────
             // Listados explicitamente — variantes novas não passam em silêncio.
             Content::Text(_, _)
@@ -796,6 +847,14 @@ impl Content {
             Content::TermItem { term, description } => Content::TermItem {
                 term:        Box::new(term.map_text(transform)),
                 description: Box::new(description.map_text(transform)),
+            },
+
+            // Passo 155: Quote container — recurse em body e attribution.
+            Content::Quote { body, attribution, block, quotes } => Content::Quote {
+                body:        Box::new(body.map_text(transform)),
+                attribution: attribution.as_ref().map(|c| Box::new(c.map_text(transform))),
+                block:       *block,
+                quotes:      *quotes,
             },
 
             // ── Terminais — clonar directamente ──────────────────────────
@@ -1300,5 +1359,100 @@ mod tests {
         assert_eq!(mk(), mk());
         assert_ne!(mk(), Content::Divider);
         assert_eq!(Content::Divider, Content::Divider);
+    }
+
+    // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ─────────────────
+
+    #[test]
+    fn quote_constructor_devolve_variant_correcto() {
+        let q = Content::Quote {
+            body:        Box::new(Content::text("hello")),
+            attribution: None,
+            block:       false,
+            quotes:      true,
+        };
+        assert!(matches!(q, Content::Quote { .. }));
+        assert!(!q.is_empty());
+    }
+
+    #[test]
+    fn quote_plain_text_sem_attribution() {
+        let q = Content::Quote {
+            body:        Box::new(Content::text("hello")),
+            attribution: None,
+            block:       false,
+            quotes:      true,
+        };
+        assert_eq!(q.plain_text(), "\"hello\"");
+    }
+
+    #[test]
+    fn quote_plain_text_com_attribution() {
+        let q = Content::Quote {
+            body:        Box::new(Content::text("Errare humanum est")),
+            attribution: Some(Box::new(Content::text("Seneca"))),
+            block:       true,
+            quotes:      true,
+        };
+        assert_eq!(q.plain_text(), "\"Errare humanum est\" — Seneca");
+    }
+
+    #[test]
+    fn quote_plain_text_quotes_false_omite_aspas() {
+        let q = Content::Quote {
+            body:        Box::new(Content::text("texto")),
+            attribution: None,
+            block:       false,
+            quotes:      false,
+        };
+        assert_eq!(q.plain_text(), "texto");
+    }
+
+    #[test]
+    fn quote_is_empty_proxy_para_body() {
+        let empty = Content::Quote {
+            body:        Box::new(Content::Empty),
+            attribution: None,
+            block:       false,
+            quotes:      true,
+        };
+        assert!(empty.is_empty());
+        let nonempty = Content::Quote {
+            body:        Box::new(Content::text("x")),
+            attribution: None,
+            block:       false,
+            quotes:      true,
+        };
+        assert!(!nonempty.is_empty());
+    }
+
+    #[test]
+    fn quote_map_text_recurse_em_body_e_attribution() {
+        let q = Content::Quote {
+            body:        Box::new(Content::text("hello")),
+            attribution: Some(Box::new(Content::text("seneca"))),
+            block:       true,
+            quotes:      true,
+        };
+        let upper = q.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(upper.plain_text(), "\"HELLO\" — SENECA");
+    }
+
+    #[test]
+    fn quote_partial_eq() {
+        let mk = || Content::Quote {
+            body:        Box::new(Content::text("x")),
+            attribution: None,
+            block:       false,
+            quotes:      true,
+        };
+        assert_eq!(mk(), mk());
+        let other = Content::Quote {
+            body:        Box::new(Content::text("x")),
+            attribution: None,
+            block:       true,        // diferente
+            quotes:      true,
+        };
+        assert_ne!(mk(), other);
     }
 }

@@ -6,6 +6,7 @@
 
 pub mod eval;
 pub mod introspect;
+pub mod lang;
 pub mod layout;
 pub mod lexer;
 pub mod math;

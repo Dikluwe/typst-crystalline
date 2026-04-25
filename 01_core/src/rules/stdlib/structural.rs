@@ -129,5 +129,70 @@ pub fn native_terms(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     Ok(Value::Content(Content::Terms { items }))
 }
 
+// ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────────────────
+
+/// `quote(body, attribution: ?, block: false, quotes: true)` — emite
+/// `Content::Quote`. Body posicional obrigatório (content ou string);
+/// outros argumentos via named.
+pub fn native_quote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("quote() espera content ou string, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "quote() exige body como argumento posicional".to_string(),
+        )]),
+    };
+
+    let mut attribution: Option<Content> = None;
+    let mut block:       bool = false;
+    let mut quotes:      bool = true;
+
+    for (key, value) in args.named.iter() {
+        match key.as_str() {
+            "attribution" => {
+                attribution = match value {
+                    Value::Content(c) => Some(c.clone()),
+                    Value::Str(s)     => Some(Content::text(s.as_str())),
+                    Value::None       => None,
+                    other => return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("quote(attribution:) espera content/string/none, recebeu {}", other.type_name()),
+                    )]),
+                };
+            }
+            "block" => match value {
+                Value::Bool(b) => block = *b,
+                other => return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("quote(block:) espera bool, recebeu {}", other.type_name()),
+                )]),
+            },
+            "quotes" => match value {
+                Value::Bool(b) => quotes = *b,
+                other => return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("quote(quotes:) espera bool, recebeu {}", other.type_name()),
+                )]),
+            },
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("quote(): argumento nomeado inesperado '{}'", other),
+            )]),
+        }
+    }
+
+    Ok(Value::Content(Content::Quote {
+        body:        Box::new(body),
+        attribution: attribution.map(Box::new),
+        block,
+        quotes,
+    }))
+}
+
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────
 

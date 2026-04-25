@@ -225,6 +225,14 @@ fn eval_markup(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let mut parts: Vec<Content> = Vec::new();
+    // Passo 155: estado de alternância para SmartQuote em markup.
+    // Cristalino usa o lexer vanilla (1 char = 1 token); o eval emite
+    // a aspa localizada open/close conforme alternância par/ímpar dentro
+    // da sequência markup. Aspas duplas e simples têm contadores
+    // independentes. Aspas simples ainda usam ASCII (aspas secundárias
+    // scope-out per spec P155).
+    let mut double_open = true; // true = próximo `"` é open
+    let mut single_open = true;
 
     for child in node.children() {
         match child.kind() {
@@ -234,6 +242,31 @@ fn eval_markup(
                 let text_node = Content::Text(child.text().as_str().into(), style);
                 // Intercepção eager para Selector::Text (Passo 68).
                 parts.push(rules::intercept_content(text_node, ctx, engine)?);
+            }
+            // Passo 155 — SmartQuote: emite glyph localizado consoante
+            // open/close (alternância) e `text.lang` activo.
+            SyntaxKind::SmartQuote => {
+                let raw = child.text();
+                let is_double = raw.as_str() == "\"";
+                let style = TextStyle::from(&*engine.styles);
+                let lang = engine.styles.lang();
+                let (open, close) = match &lang {
+                    Some(l) => crate::rules::lang::quotes::localize_quotes(l),
+                    None    => crate::rules::lang::quotes::DEFAULT_QUOTES,
+                };
+                let glyph: &str = if is_double {
+                    let g = if double_open { open } else { close };
+                    double_open = !double_open;
+                    g
+                } else {
+                    // Aspas simples — scope-out smart-apostrophes neste passo.
+                    // Apenas alternância de estado (manter consistente
+                    // com o lado duplo); glyph emitido é sempre ASCII `'`.
+                    single_open = !single_open;
+                    "'"
+                };
+                let quote_node = Content::Text(glyph.into(), style);
+                parts.push(rules::intercept_content(quote_node, ctx, engine)?);
             }
             SyntaxKind::Space | SyntaxKind::Parbreak => parts.push(Content::Space),
             k if k.is_trivia() => continue,
@@ -483,7 +516,7 @@ fn make_stdlib() -> Scope {
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_heading,
         native_image, native_int, native_len, native_line,
         native_lower, native_luma, native_move, native_page, native_place, native_polygon,
-        native_range, native_rect, native_replace, native_raw, native_rgb, native_rotate,
+        native_quote, native_range, native_rect, native_replace, native_raw, native_rgb, native_rotate,
         native_scale, native_str, native_strong, native_terms, native_type, native_upper,
     };
     let mut scope = Scope::new();
@@ -520,6 +553,8 @@ fn make_stdlib() -> Scope {
     // Passo 154B (ADR-0060 Fase 1): terms + divider.
     scope.define("terms",   Value::Func(Func::native("terms",   native_terms)));
     scope.define("divider", Value::Func(Func::native("divider", native_divider)));
+    // Passo 155 (ADR-0060 Fase 1, sub-passo 2): quote.
+    scope.define("quote",   Value::Func(Func::native("quote",   native_quote)));
     scope.define("calc",    make_calc_module());
 
     // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).

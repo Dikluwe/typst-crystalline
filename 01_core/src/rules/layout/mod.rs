@@ -626,6 +626,52 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.flush_line();
                 self.cursor_x = margin_pt;
             }
+
+            // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────
+            Content::Quote { body, attribution, block, quotes } => {
+                use crate::rules::lang::quotes::{DEFAULT_QUOTES, localize_quotes};
+                let lang = self.chain.lang();
+                let (open, close) = if *quotes {
+                    match &lang {
+                        Some(l) => localize_quotes(l),
+                        None    => DEFAULT_QUOTES,
+                    }
+                } else {
+                    ("", "")
+                };
+                if *block {
+                    if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                    let margin_pt = Pt(self.page_config.margin);
+                    self.cursor_x = margin_pt + self.font_size_pt * 1.5;
+                    if !open.is_empty() {
+                        self.layout_content(&Content::text(open));
+                    }
+                    self.layout_content(body);
+                    if !close.is_empty() {
+                        self.layout_content(&Content::text(close));
+                    }
+                    if let Some(a) = attribution {
+                        self.flush_line();
+                        self.cursor_x = margin_pt + self.font_size_pt * 1.5;
+                        self.layout_content(&Content::text("— "));
+                        self.layout_content(a);
+                    }
+                    self.flush_line();
+                    self.cursor_x = margin_pt;
+                } else {
+                    if !open.is_empty() {
+                        self.layout_content(&Content::text(open));
+                    }
+                    self.layout_content(body);
+                    if !close.is_empty() {
+                        self.layout_content(&Content::text(close));
+                    }
+                    if let Some(a) = attribution {
+                        self.layout_content(&Content::text(" — "));
+                        self.layout_content(a);
+                    }
+                }
+            }
         }
     }
     pub fn finish(mut self) -> PagedDocument {
