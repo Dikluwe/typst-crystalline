@@ -37,6 +37,15 @@
 > externas via `lab/Cargo.toml`). DEBT-53 fica bloqueado por
 > DEBT-54; materialização efectiva passa a passo posterior.
 > Total abertos: **11 → 12**.
+>
+> **Passo 152 (2026-04-25)**: refino administrativo do plano
+> DEBT-54 (probe online dos 3 crates flagged + risco de
+> versões + critério expandido em 3 níveis). Probe revelou
+> `codex`/`hayagriva`/`oxipng` **todos em cache local**
+> (estimativa P151 desactualizada); identificado conflito
+> material em `comemo` (cristalino 0.4 vs vanilla 0.5,
+> cargo aceita duplicação). Saldo de DEBTs **inalterado**
+> (12).
 
 ---
 
@@ -410,13 +419,115 @@ Materializar em passo dedicado (escopo M-L; ~3-6h):
 - **Sem trabalho em código cristalino**: DEBT-54 é integralmente
   sobre `lab/Cargo.toml` + cache de cargo + verificação de
   build vanilla.
-- **Não bloqueia P152+ (P2 = `value_dto.rs`)**: P2 pode ser
+- **Não bloqueia P153 (P2 = `value_dto.rs`)**: P2 pode ser
   materializado **antes** de DEBT-54 com mesma estratégia
   cristalino-only baseline. DEBT-53 e DEBT-54 ficam em
   paralelo até serem priorizados.
 - **Passo 151 entrega** (mesmo sem fechar DEBT-53):
   materialização desta análise + abertura formal de DEBT-54
   + actualização de DEBT-53 com referência cruzada.
+
+### Actualização Passo 152 — Refino administrativo
+
+Adicionado em P152: **probe online dos 3 crates** identificados
+em P151 §2.4 como "provavelmente ausentes"; **risco identificado**
+de conflitos de versão; **critério de fecho expandido em 3
+níveis**. Sem alteração de número, data de abertura ou saldo
+DEBTs.
+
+#### §3 — Probe online (resultado P152)
+
+Verificação de `~/.cargo/registry/cache/` + comparação com
+versões esperadas pelo workspace vanilla
+(`lab/typst-original/Cargo.toml.original`):
+
+| Crate | Estado em probe | Versão cached | Versão esperada vanilla | Conclusão |
+|-------|-----------------|---------------|-------------------------|-----------|
+| `codex` | ✓ cached | 0.2.0 | `"0.2.0"` | Match exacto |
+| `hayagriva` | ✓ cached | 0.9.1 | `"0.9.1"` | Match exacto |
+| `oxipng` | ✓ cached | 9.1.3 | `^9.0` (com features) | Satisfaz semver |
+
+**Conclusão**: **todas as 3 crates resolvem do cache local**.
+Estimativa P151 ("provavelmente ausentes; exigem fetch online")
+**desactualizada**: probe revela cache hits completos.
+DEBT-54 fica significativamente menos arriscado do que
+estimado.
+
+#### §4 — Risco: conflitos de versão entre cristalino e vanilla
+
+Verificação empírica das 4 crates partilhadas (cristalino
+`Cargo.toml` workspace.dependencies vs vanilla
+`Cargo.toml.original` workspace.dependencies):
+
+| Crate | Cristalino | Vanilla | Cargo unifica? | Risco |
+|-------|-----------|---------|----------------|-------|
+| `ttf-parser` | `"0.25"` | `"0.25.0"` | Sim — mesma 0.25.x | **Nenhum** |
+| `comemo` | `"0.4"` | `"0.5.1"` | **Não** — major 0.4 ≠ 0.5 (semver 0.x) | **Alto** |
+| `ecow` | `"0.2"` | `"0.2.6"` (com `serde`) | Sim — features adicionais; cargo unifica | **Nenhum** |
+| `rustc-hash` | `"2"` | `"2.1"` | Sim — mesma 2.x | **Nenhum** |
+
+**Surpresa material**: `comemo` está em **major 0.4** (cristalino
+desde ADR-0001) e **major 0.5** (vanilla actual). Em semver
+0.x, 0.4.* e 0.5.* são tratadas como **incompatíveis**. Cargo
+**não unifica** — cria duas versões paralelas no grafo de deps.
+
+**Análise técnica**:
+- `typst-core` (cristalino) → `comemo 0.4`.
+- `typst-library` (vanilla) + transitivas → `comemo 0.5`.
+- Cargo aceita as duas no mesmo grafo (versões resolvidas
+  como crates distintos a nível de hash).
+- Em `lab/parity/tests/layout_parity.rs`, ambos os pipelines
+  vivem lado-a-lado mas não trocam tipos `comemo::Tracked` —
+  cada pipeline usa o seu `comemo` internamente.
+- **Compilação não falha**, apenas duplica a crate `comemo`
+  no binário de tests (~50KB; aceitável).
+
+**Estratégia se conflito surgir noutro crate**:
+
+1. **Verificar se cargo unifica** automaticamente (semver
+   compatível). Maioria dos casos resolve aqui.
+2. **Se major divergente** (como `comemo`): cargo usa duas
+   versões; aceitar duplicação (custo: binário maior).
+3. **Se incompatibilidade ABI** (raro): `[patch.crates-io]`
+   em `lab/Cargo.toml` força versão única — pode degradar
+   um dos pipelines. **Última alternativa**.
+4. **Caso extremo**: feature flag por target (`#[cfg(...)]`).
+   **Custo alto**; abrir DEBT dedicado.
+
+#### §5 — Critério de fecho expandido (3 níveis)
+
+DEBT-54 fecha quando os 3 níveis estão cumpridos:
+
+1. **Mínimo** — `cd lab && cargo build -p typst-layout` corre
+   sem erros. Garante que vanilla `typst-layout` resolve as
+   suas deps via `lab/Cargo.toml` actualizado.
+2. **Suficiente** — `cd lab && cargo build -p typst` (compilador
+   inteiro vanilla) corre sem erros. Garante que toda a
+   cadeia até `typst::compile<PagedDocument>` é resolvível.
+3. **Executável** — test simples em
+   `lab/parity/tests/vanilla_smoke.rs` que invoca
+   `typst::compile(world)` para um source trivial (e.g.
+   `Hello`) e devolve `PagedDocument` sem panic.
+
+**Fecho parcial aceitável** (níveis 1 ou 1+2 mas não 3):
+apenas se o passo de materialização identificar bloqueio
+justificado e abrir **DEBT-55** para o nível pendente. Caso
+contrário, fecho exige todos os 3 níveis.
+
+#### §6 — Conclusão pós-refino
+
+DEBT-54 mais bem caracterizado:
+
+- **Cache local cobre as 3 crates "missing"** identificadas
+  em P151 — escopo de fetch é mais reduzido que o estimado.
+- **Conflito de versão em `comemo`** identificado mas
+  contornável (cargo aceita duas versões em paralelo).
+- **Critério de fecho** mais granular permite fecho parcial
+  com plano explícito (DEBT-55 condicional).
+
+Estimativa actualizada: **escopo M** (3-4h) em vez de **M-L
+(3-6h)** que P151 indicava. Materialização (passo dedicado
+posterior) tem alvo mais claro.
 
 ---
 
