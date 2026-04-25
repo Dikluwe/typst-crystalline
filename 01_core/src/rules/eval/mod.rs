@@ -513,11 +513,11 @@ fn eval_markup_body(
 fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
         make_calc_module, native_align, native_assert, native_circle, native_divider,
-        native_ellipse, native_emph, native_figure, native_float, native_grid, native_heading,
+        native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
         native_lower, native_luma, native_move, native_pad, native_page, native_place, native_polygon,
         native_quote, native_range, native_rect, native_replace, native_raw, native_rgb, native_rotate,
-        native_scale, native_str, native_strong, native_terms, native_type, native_upper,
+        native_scale, native_str, native_strong, native_terms, native_type, native_upper, native_v,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -558,6 +558,9 @@ fn make_stdlib() -> Scope {
     // Passo 156C (ADR-0061 Fase 1, sub-passo 1): pad + hide.
     scope.define("pad",     Value::Func(Func::native("pad",     native_pad)));
     scope.define("hide",    Value::Func(Func::native("hide",    native_hide)));
+    // Passo 156D (ADR-0061 Fase 1, sub-passo 2): h + v spacing.
+    scope.define("h",       Value::Func(Func::native("h",       native_h)));
+    scope.define("v",       Value::Func(Func::native("v",       native_v)));
     scope.define("calc",    make_calc_module());
 
     // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).

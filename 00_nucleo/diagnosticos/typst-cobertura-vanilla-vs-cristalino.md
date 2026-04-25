@@ -149,7 +149,7 @@ primitives e `skew`). Detalhe em
 | `repeat(body)` | layout/repeat.rs | `ausente` | — | Fase 3 ADR-0061 (lazy semantic) |
 | `pad`, `corners`, `sides` (inset modeling) | layout/{pad,corners,sides}.rs | `ausente` | — | duplica `pad()` linha; refino PageConfig é Fase 3 ADR-0061 |
 | `measure(body)` | layout/measure.rs | `parcial` | helper privado | helper `measure_content` em `01_core/src/rules/layout/helpers.rs`; sem stdlib exposta; depende de Introspection (ADR-0017 adiada) |
-| `h(amount)` / `v(amount)` ⁵ | layout/spacing.rs | `ausente` | **adição P156B** | spacing primitives não estavam listadas; vanilla tem `HElem`/`VElem`; Fase 1 ADR-0061 (P156C) |
+| `h(amount)` / `v(amount)` ⁵ | layout/spacing.rs | `implementado` ⁸ | Passo 156D (ADR-0061 Fase 1 sub-passo 2) | `Content::HSpace` + `Content::VSpace` com `amount: Length, weak: bool`; stdlib `#h(amount, weak: false)` + `#v(...)`; `weak` armazenado mas collapse defere; amount `Fraction` scope-out (refino futuro per ADR-0061 §6.3) |
 | `skew(ax, ay, body)` ⁵ | layout/transform.rs | `ausente` | **adição P156B** | feature visual menos comum; Fase 3 ADR-0061 |
 
 ⁵ — Reclassificação ou adição P156B. Ver
@@ -425,12 +425,12 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | `#let`/`#set`/`#show`/import | 7 | 1 | 4 | 1 | 0 | 13 |
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
-| Layout ⁵ ⁶ | 6 | 0 | 3 | 9 | 0 | 18 |
+| Layout ⁵ ⁶ ⁸ | 8 | 0 | 3 | 7 | 0 | 18 |
 | Model (structural) ¹ ² ³ | 6 | 4 | 5 | 7 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection | 1 | 0 | 0 | 5 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ | **56** | **21** | **22** | **40** | **2** | **141** |
+| **Total user-facing** ⁵ ⁶ ⁸ | **58** | **21** | **22** | **38** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -474,10 +474,20 @@ aplicação concreta de ADR-0061). Contagem Layout: 4/0/3/11/0=18
 −2 ausente). ADR-0061 mantém-se `PROPOSTO` (anotação
 cumulativa após Fase 1 completa, per decisão humana).
 
-**Cobertura user-facing total** (impl + impl⁺) pós-P156C:
-(56 + 21) / 141 = **55%**
+⁸ — Ajuste P156D (materialização Layout Fase 1 sub-passo 2):
+`h` e `v` spacing primitives transitam `ausente → implementado`
+(segunda aplicação consecutiva de ADR-0061). Contagem Layout:
+6/0/3/9/0=18 → **8/0/3/7/0=18**. Cobertura Layout (impl +
+impl⁺): 6/18=33% → **8/18=44%**. Contagem user-facing total
+ajustada: 56/21/22/40/2=141 → **58/21/22/38/2=141** (+2
+implementado, −2 ausente). ADR-0061 continua `PROPOSTO`
+(anotação cumulativa após Fase 1 completa).
+
+**Cobertura user-facing total** (impl + impl⁺) pós-P156D:
+(58 + 21) / 141 = **56%**
 (antes de P154A: 54%; após P154B: 55%; após P155: ~55-56%;
-após P156B: ~53%; após P156C: **~55%** — Layout 22% → 33%).
+após P156B: ~53%; após P156C: ~55%; após P156D: **~56%**
+— Layout 33% → 44%).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -485,8 +495,8 @@ após P156B: ~53%; após P156C: **~55%** — Layout 22% → 33%).
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
 | `Value` variants | 18 | 2 | 2 | 9 | 0 | 31 |
-| `Content` variants (cristalino) ³ ⁴ ⁷ | 33 | 9 | 3 | 0 | 0 | 45 |
-| `Content` variants (vanilla extra ausentes) | — | — | — | ~9 | — | ~9 |
+| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ | 35 | 9 | 3 | 0 | 0 | 47 |
+| `Content` variants (vanilla extra ausentes) | — | — | — | ~7 | — | ~7 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
@@ -505,6 +515,11 @@ ausentes desce de ~11 para ~9 (pad e hide saíram do conjunto
 não-capturado). Primeira aplicação concreta de ADR-0061
 (Layout Fase X roadmap; mantém-se `PROPOSTO` até Fase 1
 completa).
+
+⁹ — Ajuste P156D: 45 → 47 (+`HSpace`, +`VSpace`). Vanilla
+extra ausentes desce de ~9 para ~7 (h e v saem do conjunto
+não-capturado). Segunda aplicação consecutiva de ADR-0061;
+ADR-0061 mantém-se `PROPOSTO`.
 
 **Cobertura arquitectural total**: (67 + 13) / 106 = **75-76%**
 (era 75% pré-P155; era 72% pré-P154B; era 70% pré-P149).
@@ -564,6 +579,15 @@ encerradas por ADRs (0026, 0028→0029, 0036, etc.).
    combinada, `skew`) prosseguem em sub-passos seguintes da
    ADR-0061 (Fase 1 sub-passos 2-N: pagebreak, h+v; Fase 2:
    block+box+stack; Fase 3: columns+colbreak+repeat+skew).
+   **Refinamento P156D** (materialização Fase 1 sub-passo 2):
+   `Content::HSpace` e `Content::VSpace` adicionados (45 → 47
+   variants); stdlib `#h(amount, weak: false)` e `#v(amount,
+   weak: false)` registadas. Cobertura Layout (impl + impl⁺):
+   33% → **44%** (6/18 → 8/18). Restantes 7 entradas ausentes
+   (`pagebreak` manual, `box`, `block`, `stack`, `repeat`,
+   `columns`/`colbreak`, `skew`) prosseguem nos sub-passos
+   seguintes (P156E pagebreak; Fase 2 block+box+stack; Fase 3
+   columns+repeat+skew).
    Isto é **escopo XL agregado** se priorizado.
    **Refinamento P154A** (diagnóstico Model): para a sub-categoria Model especificamente, breakdown
    detalhado em [`diagnostico-model-passo-154a.md`](diagnostico-model-passo-154a.md). 6 entradas Model
