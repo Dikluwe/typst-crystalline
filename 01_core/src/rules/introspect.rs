@@ -120,6 +120,8 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
         // Passo 156D (ADR-0061 Fase 1 sub-passo 2) — h/v spacing leaves.
         | Content::HSpace { .. }
         | Content::VSpace { .. }
+        // Passo 156E (ADR-0061 Fase 1 sub-passo 3) — pagebreak leaf.
+        | Content::Pagebreak { .. }
         | Content::Shape { .. } => content.clone(),
         // Passo 156C (ADR-0061 Fase 1) — pad / hide containers.
         // Materialize_time desce no body para resolver counters dentro;
@@ -319,6 +321,8 @@ fn walk(content: &Content, state: &mut CounterState) {
         // Passo 156D — h/v spacing leaves; sem effect em counters.
         | Content::HSpace { .. }
         | Content::VSpace { .. }
+        // Passo 156E — pagebreak leaf; sem effect em counters.
+        | Content::Pagebreak { .. }
         | Content::Shape { .. } => {}
 
         // Passo 154B — Terms / TermItem: descem em items para que filhos

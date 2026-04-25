@@ -687,6 +687,28 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.cursor_y += Pt(pt);
             }
 
+            // ── Passo 156E (ADR-0061 Fase 1, sub-passo 3) — pagebreak ──
+            // `weak` armazenado mas collapse defere (consistente P156D).
+            // Layouter reusa `new_page` (cursor.rs:128) que commits items
+            // actuais a Page e reseta cursor.
+            Content::Pagebreak { weak: _, to } => {
+                // 1. Termina linha em curso (caso contrário fica meio-render).
+                if self.cursor_x.0 > self.line_start_x.0 {
+                    self.flush_line();
+                }
+                // 2. Força nova página (mesmo se actual está vazia — vanilla
+                //    pagebreak() é "event" sempre observável).
+                self.new_page();
+                // 3. Se `to` exige paridade específica, verifica; se não bate,
+                //    insere página vazia adicional para ajustar.
+                if let Some(parity) = to {
+                    let next_page_number = self.pages.len() + 1;
+                    if !parity.matches(next_page_number) {
+                        self.new_page();
+                    }
+                }
+            }
+
             // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────
             Content::Quote { body, attribution, block, quotes } => {
                 use crate::rules::lang::quotes::{DEFAULT_QUOTES, localize_quotes};
@@ -825,6 +847,10 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             Content::VSpace { amount, .. } => {
                 (0.0, amount.resolve_pt(self.font_size_pt.val()))
             }
+
+            // Passo 156E: Pagebreak é event sem dimensões dentro de cell.
+            // Em grid measurement, ignora-se (não consome largura/altura).
+            Content::Pagebreak { .. } => (0.0, 0.0),
 
             _ => (0.0, 0.0),
         }

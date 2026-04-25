@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 4a7e0a99
+//! @prompt-hash b632e841
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -20,6 +20,7 @@ use crate::entities::counter_state::CounterAction;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
 use crate::entities::layout_types::{Align2D, Color, Length, PlaceScope, Pt, TextStyle, TrackSizing, TransformMatrix};
+use crate::entities::parity::Parity;
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::sides::Sides;
 
@@ -377,6 +378,19 @@ pub enum Content {
         weak:   bool,
     },
 
+    // ── Passo 156E (ADR-0061 Fase 1 sub-passo 3) — pagebreak manual ──────
+    /// Quebra de página manual (vanilla `PagebreakElem`).
+    ///
+    /// `weak` armazenado mas comportamento de collapse adiado
+    /// (perfil ADR-0054 graded; consistente com P156D HSpace/VSpace).
+    /// `to: Some(parity)` força a próxima página a ter paridade
+    /// especificada — Layouter insere página vazia se necessário.
+    /// `to: None` == Auto (sem ajuste).
+    Pagebreak {
+        weak: bool,
+        to:   Option<Parity>,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
 }
@@ -448,6 +462,11 @@ impl Content {
         Self::VSpace { amount, weak }
     }
 
+    /// `pagebreak(weak, to)` — Passo 156E (ADR-0061 Fase 1 sub-passo 3).
+    pub fn pagebreak(weak: bool, to: Option<Parity>) -> Self {
+        Self::Pagebreak { weak, to }
+    }
+
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,
@@ -481,6 +500,9 @@ impl Content {
             // Passo 156D: HSpace/VSpace vazios se amount for zero.
             Self::HSpace { amount, .. } => amount.is_zero(),
             Self::VSpace { amount, .. } => amount.is_zero(),
+            // Passo 156E: Pagebreak nunca é vazio (event com efeito
+            // mesmo sem body; cf. Divider em P154B).
+            Self::Pagebreak { .. } => false,
             _ => false,
         }
     }
@@ -590,6 +612,8 @@ impl Content {
             Self::Hide { .. }       => String::new(),
             // Passo 156D: HSpace/VSpace são spacing primitives sem texto.
             Self::HSpace { .. } | Self::VSpace { .. } => String::new(),
+            // Passo 156E: Pagebreak é event sem texto.
+            Self::Pagebreak { .. } => String::new(),
             Self::Quote { body, attribution, quotes, .. } => {
                 let body_txt = body.plain_text();
                 let with_quotes = if *quotes {
@@ -692,6 +716,9 @@ impl PartialEq for Content {
              Self::HSpace { amount: ab, weak: wb }) => aa == ab && wa == wb,
             (Self::VSpace { amount: aa, weak: wa },
              Self::VSpace { amount: ab, weak: wb }) => aa == ab && wa == wb,
+            // Passo 156E — Pagebreak.
+            (Self::Pagebreak { weak: wa, to: ta },
+             Self::Pagebreak { weak: wb, to: tb }) => wa == wb && ta == tb,
             _ => false,
         }
     }
@@ -840,6 +867,7 @@ impl Content {
             // ── Terminais: clonar directamente ──────────────────────────────
             // Listados explicitamente — variantes novas não passam em silêncio.
             // Passo 156D: HSpace/VSpace são leaves (sem body), terminais.
+            // Passo 156E: Pagebreak é leaf (event sem body), terminal.
             Content::Text(_, _)
             | Content::Space
             | Content::Empty
@@ -859,6 +887,7 @@ impl Content {
             | Content::Divider
             | Content::HSpace { .. }
             | Content::VSpace { .. }
+            | Content::Pagebreak { .. }
             | Content::Shape { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
@@ -970,6 +999,7 @@ impl Content {
             // Nós matemáticos e estruturais sem markup Text — não contêm
             // Content::Text, portanto clonar em bloco é correcto e seguro.
             // Passo 156D: HSpace/VSpace são leaves (sem body), terminais.
+            // Passo 156E: Pagebreak é leaf (event sem body), terminal.
             Content::Empty
             | Content::Space
             | Content::Linebreak
@@ -996,6 +1026,7 @@ impl Content {
             | Content::Divider
             | Content::HSpace { .. }
             | Content::VSpace { .. }
+            | Content::Pagebreak { .. }
             | Content::Shape { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
@@ -1755,5 +1786,63 @@ mod tests {
         let v_mapped = v.map_text(&mut |s| s.to_uppercase());
         assert_eq!(h, h_mapped);
         assert_eq!(v, v_mapped);
+    }
+
+    // ── Passo 156E (ADR-0061 Fase 1, sub-passo 3) — pagebreak ─────────────
+
+    #[test]
+    fn pagebreak_constructor() {
+        use crate::entities::parity::Parity;
+        let p = Content::pagebreak(false, None);
+        if let Content::Pagebreak { weak, to } = p {
+            assert!(!weak);
+            assert_eq!(to, None);
+        } else {
+            panic!("esperado Content::Pagebreak");
+        }
+        let p2 = Content::pagebreak(true, Some(Parity::Even));
+        if let Content::Pagebreak { weak, to } = p2 {
+            assert!(weak);
+            assert_eq!(to, Some(Parity::Even));
+        } else {
+            panic!("esperado Content::Pagebreak");
+        }
+    }
+
+    #[test]
+    fn pagebreak_is_empty_returns_false() {
+        // Pagebreak é event observável mesmo "vazio" — análogo a Divider.
+        let p = Content::pagebreak(false, None);
+        assert!(!p.is_empty(),
+            "Content::Pagebreak nunca é considerado vazio (event com efeito)");
+    }
+
+    #[test]
+    fn pagebreak_plain_text_vazio() {
+        let p = Content::pagebreak(false, None);
+        assert_eq!(p.plain_text(), "");
+    }
+
+    #[test]
+    fn pagebreak_partial_eq() {
+        use crate::entities::parity::Parity;
+        let a = Content::pagebreak(false, None);
+        let b = Content::pagebreak(false, None);
+        let c = Content::pagebreak(true,  None);                   // weak diferente
+        let d = Content::pagebreak(false, Some(Parity::Even));     // to diferente
+        let e = Content::pagebreak(false, Some(Parity::Odd));      // to diferente
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+        assert_ne!(a, d);
+        assert_ne!(d, e);
+    }
+
+    #[test]
+    fn pagebreak_map_text_preserva() {
+        use crate::entities::parity::Parity;
+        let p = Content::pagebreak(true, Some(Parity::Even));
+        // Pagebreak é leaf — map_text não tem effect.
+        let p_mapped = p.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(p, p_mapped);
     }
 }
