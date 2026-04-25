@@ -1,6 +1,7 @@
-# ADR-0038 — Sistema de estilos em L1 (`Style`, `Styles`, `StyleChain`)
+# ⚖️ ADR-0038: Sistema de estilos em L1 (`Style`, `Styles`, `StyleChain`)
 
-**Status**: EM VIGOR (Passo 99.E) — validado empiricamente com 780 testes a passar e zero violations no linter.
+**Status**: `EM VIGOR`
+**Validado**: Passo 99.E — 780 testes; zero violations.
 **Data**: 2026-04-23
 **Autor**: Humano + IA
 **Passo associado**: 99

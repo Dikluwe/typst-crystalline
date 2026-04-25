@@ -1,4 +1,4 @@
-# ADR-0028 — Representação simplificada dos tipos tipográficos em Value
+# ⚖️ ADR-0028: Representação simplificada dos tipos tipográficos em Value
 
 **Status**: `REVOGADO`
 **Revogado por**: ADR-0029

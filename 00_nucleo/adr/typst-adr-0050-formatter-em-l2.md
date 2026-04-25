@@ -1,11 +1,12 @@
-# ADR-0050 — Formatter de diagnósticos em L2 (completa ADR-0049)
+# ⚖️ ADR-0050: Formatter de diagnósticos em L2 (completa ADR-0049)
 
-**Estado**: EM VIGOR (Passo 119.E, 2026-04-23)
-**Data**: 2026-04-23
-**Autor**: Passo 119
+**Status**: `EM VIGOR`
 **Completa**: ADR-0049 (CLI em L2) — ADR-0049 ganha nota
 "completada por ADR-0050 no Passo 119".
 **Não revoga**: nenhuma.
+**Validado**: Passo 119.E.
+**Data**: 2026-04-23
+**Autor**: Passo 119
 
 ---
 

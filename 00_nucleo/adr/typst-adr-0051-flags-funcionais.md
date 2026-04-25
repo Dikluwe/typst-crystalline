@@ -1,10 +1,11 @@
-# ADR-0051 — Flags funcionais em L2 — pattern e primeira flag (`-o`)
+# ⚖️ ADR-0051: Flags funcionais em L2 — pattern e primeira flag (`-o`)
 
-**Estado**: EM VIGOR (Passo 120.E, 2026-04-23)
-**Data**: 2026-04-23
-**Autor**: Passo 120
+**Status**: `EM VIGOR`
 **Complementa**: ADR-0047 (clap), ADR-0049 (CLI em L2),
 ADR-0050 (formatter em L2).
+**Validado**: Passo 120.E.
+**Data**: 2026-04-23
+**Autor**: Passo 120
 **Abrangente**: estabelece **pattern** para flags funcionais
 futuras (`-o`, `--root`, `--font-path`, …), executando só `-o`
 neste passo.

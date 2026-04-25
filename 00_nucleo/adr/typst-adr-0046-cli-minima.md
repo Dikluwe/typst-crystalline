@@ -1,12 +1,13 @@
-# ADR-0046 — CLI mínima em L4 (compile com diagnostics)
+# ⚖️ ADR-0046: CLI mínima em L4 (compile com diagnostics)
 
-**Estado**: EM VIGOR (Passo 113.E, 2026-04-23)
+**Status**: `EM VIGOR`
+**Revoga**: nenhuma.
 **Nota Passo 117 (ADR-0049)**: camada corrigida — CLI vive agora
 em L2 (`02_shell/`), não em L4. Decisões funcionais deste ADR
 (pipeline, exit codes, stderr/stdout discipline) mantêm-se.
+**Validado**: Passo 113.E.
 **Data**: 2026-04-23
 **Autor**: Passo 113
-**Revoga**: nenhuma.
 **Complementa**: ADR-0043 (canal Sink → L3), ADR-0045 (formato
 de diagnósticos), ADR-0017 (L4 como composição).
 

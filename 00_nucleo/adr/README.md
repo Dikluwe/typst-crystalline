@@ -144,39 +144,24 @@ que corresponde a mudança específica no código.
 | 0035 | `ecow::EcoVec` autorizado em L1 | `EM VIGOR` |
 | 0036 | Atomização progressiva — estado partilhado como dívida | `EM VIGOR` |
 | 0037 | Coesão por domínio — ficheiros limitados a uma responsabilidade clara | `EM VIGOR` |
-| 0038 | Sistema de estilos em L1 (`Style`, `Styles`, `StyleChain`) | `EM VIGOR` ¹ |
-| 0039 | Forma de estilo no `FrameItem::Text` | `EM VIGOR` ¹ |
-| 0040 | Activação de `#set` em eval | `EM VIGOR` ¹ |
-| 0041 | Activação de `#show` — heading, strong, emph | `EM VIGOR` ¹ |
-| 0042 | `Sink` materializado em L1 | `EM VIGOR` ¹ |
-| 0043 | Canal de saída do `Sink` (TrackedMut + L3) | `EM VIGOR` ¹ |
-| 0044 | `Engine<'a>` agregador em L1 | `EM VIGOR` ² |
-| 0045 | Formato de diagnósticos (resolução L1, formatação L3) | `EM VIGOR` ² |
-| 0046 | CLI mínima (compile com diagnostics) | `EM VIGOR` ² |
-| 0047 | Argparsing com `clap` na CLI | `EM VIGOR` ² |
-| 0048 | Cores ANSI nos diagnósticos | `EM VIGOR` ² |
-| 0049 | CLI vive em L2 (correcção de 0046/0047/0048) | `EM VIGOR` ² |
-| 0050 | Formatter de diagnósticos em L2 (completa 0049) | `EM VIGOR` ² |
-| 0051 | Flags funcionais em L2 — pattern e `-o` | `EM VIGOR` ² |
+| 0038 | Sistema de estilos em L1 (`Style`, `Styles`, `StyleChain`) | `EM VIGOR` |
+| 0039 | Forma de estilo no `FrameItem::Text` | `EM VIGOR` |
+| 0040 | Activação de `#set` em eval | `EM VIGOR` |
+| 0041 | Activação de `#show` — heading, strong, emph | `EM VIGOR` |
+| 0042 | `Sink` materializado em L1 | `EM VIGOR` |
+| 0043 | Canal de saída do `Sink` (TrackedMut + L3) | `EM VIGOR` |
+| 0044 | `Engine<'a>` agregador em L1 | `EM VIGOR` |
+| 0045 | Formato de diagnósticos (resolução L1, formatação L3) | `EM VIGOR` |
+| 0046 | CLI mínima (compile com diagnostics) | `EM VIGOR` |
+| 0047 | Argparsing com `clap` na CLI | `EM VIGOR` |
+| 0048 | Cores ANSI nos diagnósticos | `EM VIGOR` |
+| 0049 | CLI vive em L2 (correcção de 0046/0047/0048) | `EM VIGOR` |
+| 0050 | Formatter de diagnósticos em L2 (completa 0049) | `EM VIGOR` |
+| 0051 | Flags funcionais em L2 — pattern e `-o` | `EM VIGOR` |
 | 0052 | Lang como tipo semântico em L1 | `IMPLEMENTADO` |
 | 0053 | Font como tipo composto em L1 | `IMPLEMENTADO` |
 | 0054 | Critério de fecho de DEBT-1 inclui consumo integral | `EM VIGOR` |
 | 0055 | Font consumer via pipeline CIDFont existente | `IMPLEMENTADO` |
-
-**Notas de irregularidade no cabeçalho (Passo 143)** — não
-afectam o status canónico mas indicam dívida documental
-candidata a passo de uniformização futura:
-
-- **¹** ADR-0038 a 0043 declaram o status no formato
-  `**Status**: EM VIGOR (Passo NN.E) — validado empiricamente
-  com NNN testes`, sem backticks no valor canónico.
-- **²** ADR-0044 a 0051 usam `**Estado**:` em vez de
-  `**Status**:` — vocabulário antigo (pré-P84.8g) preservado
-  no cabeçalho. Status canónico inferido por leitura
-  conservadora (`EM VIGOR` sempre presente como prefixo).
-
-Detalhe completo no relatório do passo:
-[`materialization/typst-passo-143-relatorio.md`](../materialization/typst-passo-143-relatorio.md).
 
 **Total**: 56 ADRs (55 números únicos; ADR-0026 tem variante -R1
 por revisão).
@@ -383,3 +368,12 @@ P84.8g.
   backticks ou `**Estado**:` em vez de `**Status**:`)
   registadas como dívida documental no relatório do passo;
   status canónico inferido por leitura conservadora.
+- **Passo 145 — Uniformização de cabeçalhos dos ADRs 0038–0051**
+  (análogo P84.8g, que cobriu 0001–0037). Em 14 ADRs:
+  `**Estado**:` → `**Status**:`; valor com backticks
+  (`` `EM VIGOR` ``); informação de validação preservada
+  numa nova linha `**Validado**:`. Símbolo `⚖️` e separador
+  `:` adicionados aos títulos de 17 ADRs (0017, 0027, 0028
+  e 0038–0051). Conteúdo material dos ADRs intacto. Notas
+  `¹`/`²` da tabela "Estado por ADR" removidas (a
+  irregularidade que sinalizavam ficou resolvida).
