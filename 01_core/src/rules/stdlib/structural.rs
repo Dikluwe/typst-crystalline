@@ -83,5 +83,51 @@ pub fn native_heading(_ctx: &mut EvalContext, _args: &Args, _world: &dyn crate::
     )])
 }
 
+// ── Passo 154B (ADR-0060 Fase 1) — terms + divider ──────────────────────────
+
+/// `divider()` — emite `Content::Divider` (separador horizontal).
+/// Não aceita argumentos.
+pub fn native_divider(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    super::expect_no_named(&args.named)?;
+    if !args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "divider() não aceita argumentos posicionais".to_string(),
+        )]);
+    }
+    Ok(Value::Content(Content::Divider))
+}
+
+/// `terms(named: descrição, ...)` — emite `Content::Terms` com pares
+/// (chave nomeada, valor descrição). A ordem dos argumentos nomeados é
+/// preservada (IndexMap). Aceita `Value::Content` ou `Value::Str` como
+/// descrição. Posicionais não suportados (forma chave: descrição).
+pub fn native_terms(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    if !args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "terms() espera argumentos nomeados na forma `chave: descrição`".to_string(),
+        )]);
+    }
+    let mut items = Vec::with_capacity(args.named.len());
+    for (key, value) in args.named.iter() {
+        let term = Content::text(key.as_str());
+        let description = match value {
+            Value::Content(c) => c.clone(),
+            Value::Str(s)     => Content::text(s.as_str()),
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("terms(): descrição de '{}' deve ser content ou string, recebeu {}",
+                    key, other.type_name()),
+            )]),
+        };
+        items.push(Content::TermItem {
+            term:        Box::new(term),
+            description: Box::new(description),
+        });
+    }
+    Ok(Value::Content(Content::Terms { items }))
+}
+
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────
 

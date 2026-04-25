@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 85fae9b9
+//! @prompt-hash 43745b5d
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-04-24
 //!
 //! Excepção Regra 6 da ADR-0037: o enum `Content` é a entidade
 //! fundamental do domínio visual — representa toda a árvore de
@@ -299,6 +299,20 @@ pub enum Content {
     /// resolução.
     Styled(Box<Content>, crate::entities::style::Styles),
 
+    // ── Estruturas de listas (Passo 154B, ADR-0060 Fase 1) ──────────────
+    /// Separador horizontal estrutural (`#divider()`).
+    /// Singleton sem dados; layouter emite linha horizontal.
+    Divider,
+
+    /// Lista de pares termo-descrição (`#terms(...)`) — Passo 154B.
+    /// Cada item é tipicamente `Content::TermItem`.
+    Terms { items: Vec<Content> },
+
+    /// Par individual termo-descrição (Passo 154B).
+    /// Aparece tipicamente dentro de `Content::Terms`, mas pode também
+    /// surgir standalone (e.g. show rules futuras).
+    TermItem { term: Box<Content>, description: Box<Content> },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
 }
@@ -368,6 +382,13 @@ impl Content {
             Self::Figure { body, caption, .. } =>
                 body.is_empty() && caption.as_ref().is_none_or(|c| c.is_empty()),
             Self::Grid { cells, .. } => cells.is_empty(),
+            // Passo 154B: Divider é singleton estrutural, nunca vazio.
+            // Terms vazio (sem items) é considerado vazio; TermItem vazio
+            // se ambos os lados forem vazios.
+            Self::Divider => false,
+            Self::Terms { items } => items.is_empty(),
+            Self::TermItem { term, description } =>
+                term.is_empty() && description.is_empty(),
             _ => false,
         }
     }
@@ -456,6 +477,18 @@ impl Content {
             Self::Align { body, .. } => body.plain_text(),
             Self::Place { body, .. } => body.plain_text(),
             Self::Styled(body, _) => body.plain_text(),
+            // Passo 154B: Divider é structural sem texto; Terms concatena
+            // pares por linha; TermItem produz "term: description".
+            Self::Divider => String::new(),
+            Self::Terms { items } => items.iter()
+                .map(|t| t.plain_text())
+                .collect::<Vec<_>>()
+                .join("\n"),
+            Self::TermItem { term, description } => format!(
+                "{}: {}",
+                term.plain_text(),
+                description.plain_text(),
+            ),
         }
     }
 }
@@ -528,6 +561,11 @@ impl PartialEq for Content {
              Self::Place { alignment: ab, dx: dxb, dy: dyb, scope: sb, body: bb }) =>
                 aa == ab && dxa == dxb && dya == dyb && sa == sb && ba == bb,
             (Self::Styled(ba, sa), Self::Styled(bb, sb)) => ba == bb && sa == sb,
+            // Passo 154B — terms + divider.
+            (Self::Divider, Self::Divider) => true,
+            (Self::Terms { items: a },     Self::Terms { items: b })     => a == b,
+            (Self::TermItem { term: ta, description: da },
+             Self::TermItem { term: tb, description: db })               => ta == tb && da == db,
             _ => false,
         }
     }
@@ -640,6 +678,17 @@ impl Content {
                 Content::MathCases { rows: new_rows? }
             },
 
+            // Passo 154B: Terms recurse em items; TermItem recurse em par.
+            Content::Terms { items } => {
+                let new_items: crate::entities::source_result::SourceResult<Vec<Content>> =
+                    items.iter().map(|c| c.map_content(transform)).collect();
+                Content::Terms { items: new_items? }
+            },
+            Content::TermItem { term, description } => Content::TermItem {
+                term:        Box::new(term.map_content(transform)?),
+                description: Box::new(description.map_content(transform)?),
+            },
+
             // ── Terminais: clonar directamente ──────────────────────────────
             // Listados explicitamente — variantes novas não passam em silêncio.
             Content::Text(_, _)
@@ -658,6 +707,7 @@ impl Content {
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::Image { .. }
+            | Content::Divider
             | Content::Shape { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
@@ -739,6 +789,15 @@ impl Content {
                 body: Box::new(body.map_text(transform)),
             },
 
+            // Passo 154B: Terms recurse em items; TermItem recurse em par.
+            Content::Terms { items } => Content::Terms {
+                items: items.iter().map(|c| c.map_text(transform)).collect(),
+            },
+            Content::TermItem { term, description } => Content::TermItem {
+                term:        Box::new(term.map_text(transform)),
+                description: Box::new(description.map_text(transform)),
+            },
+
             // ── Terminais — clonar directamente ──────────────────────────
             // Nós matemáticos e estruturais sem markup Text — não contêm
             // Content::Text, portanto clonar em bloco é correcto e seguro.
@@ -765,6 +824,7 @@ impl Content {
             | Content::MathMatrix { .. }
             | Content::MathCases { .. }
             | Content::Image { .. }
+            | Content::Divider
             | Content::Shape { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
@@ -1160,5 +1220,85 @@ mod tests {
             }
             other => panic!("esperado Content::Styled, obteve {:?}", other),
         }
+    }
+
+    // ── Passo 154B (ADR-0060 Fase 1) — terms + divider ────────────────────
+
+    #[test]
+    fn divider_constructor_devolve_variant_correcto() {
+        let c = Content::Divider;
+        assert!(matches!(c, Content::Divider));
+        // Divider é singleton estrutural: nunca empty.
+        assert!(!c.is_empty());
+    }
+
+    #[test]
+    fn divider_plain_text_devolve_vazio() {
+        assert_eq!(Content::Divider.plain_text(), "");
+    }
+
+    #[test]
+    fn terms_constructor_devolve_variant_correcto() {
+        let t = Content::Terms {
+            items: vec![Content::TermItem {
+                term:        Box::new(Content::text("a")),
+                description: Box::new(Content::text("b")),
+            }],
+        };
+        assert!(matches!(t, Content::Terms { .. }));
+        assert!(!t.is_empty());
+        // Terms vazio é considerado empty.
+        assert!(Content::Terms { items: vec![] }.is_empty());
+    }
+
+    #[test]
+    fn terms_plain_text_concatena_pares() {
+        let t = Content::Terms {
+            items: vec![
+                Content::TermItem {
+                    term:        Box::new(Content::text("Apple")),
+                    description: Box::new(Content::text("fruit")),
+                },
+                Content::TermItem {
+                    term:        Box::new(Content::text("Banana")),
+                    description: Box::new(Content::text("yellow")),
+                },
+            ],
+        };
+        assert_eq!(t.plain_text(), "Apple: fruit\nBanana: yellow");
+    }
+
+    #[test]
+    fn term_item_plain_text() {
+        let t = Content::TermItem {
+            term:        Box::new(Content::text("key")),
+            description: Box::new(Content::text("value")),
+        };
+        assert_eq!(t.plain_text(), "key: value");
+    }
+
+    #[test]
+    fn terms_map_text_recurse() {
+        let t = Content::Terms {
+            items: vec![Content::TermItem {
+                term:        Box::new(Content::text("apple")),
+                description: Box::new(Content::text("fruit")),
+            }],
+        };
+        let upper = t.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(upper.plain_text(), "APPLE: FRUIT");
+    }
+
+    #[test]
+    fn terms_partial_eq() {
+        let mk = || Content::Terms {
+            items: vec![Content::TermItem {
+                term:        Box::new(Content::text("k")),
+                description: Box::new(Content::text("v")),
+            }],
+        };
+        assert_eq!(mk(), mk());
+        assert_ne!(mk(), Content::Divider);
+        assert_eq!(Content::Divider, Content::Divider);
     }
 }

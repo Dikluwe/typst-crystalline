@@ -582,6 +582,50 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.chain = prev_chain;
                 self.style = prev_style;
             }
+
+            // ── Passo 154B (ADR-0060 Fase 1) — terms + divider ──────────────
+            Content::Divider => {
+                use crate::entities::geometry::Stroke;
+                use crate::entities::layout_types::Color;
+                if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                let margin   = self.page_config.margin;
+                let width_pt = self.page_config.width - 2.0 * margin;
+                self.current_items.push(FrameItem::Shape {
+                    pos:    Point { x: Pt(margin), y: self.cursor_y },
+                    kind:   ShapeKind::Line { dx: width_pt, dy: 0.0 },
+                    width:  width_pt,
+                    height: 0.5,
+                    fill:   None,
+                    stroke: Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 0.5 }),
+                });
+                self.cursor_y += self.font_size_pt * 0.6;
+            }
+
+            Content::Terms { items } => {
+                if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                for item in items {
+                    self.layout_content(item);
+                }
+            }
+
+            Content::TermItem { term, description } => {
+                if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                let margin_pt = Pt(self.page_config.margin);
+                self.cursor_x = margin_pt + self.font_size_pt * 1.5;
+                // O termo aparece em negrito — convenção de listas de definições.
+                let prev_chain = self.chain.clone();
+                let prev_style = self.style.clone();
+                use crate::entities::style::{Style, Styles};
+                self.chain = self.chain.push_styles(&Styles::from_iter([Style::Bold(true)]));
+                self.style = TextStyle::from(&self.chain);
+                self.layout_content(term);
+                self.chain = prev_chain;
+                self.style = prev_style;
+                self.layout_content(&Content::text(": "));
+                self.layout_content(description);
+                self.flush_line();
+                self.cursor_x = margin_pt;
+            }
         }
     }
     pub fn finish(mut self) -> PagedDocument {

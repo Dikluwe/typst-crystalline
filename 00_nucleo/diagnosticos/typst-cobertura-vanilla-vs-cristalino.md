@@ -154,8 +154,8 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `table(columns, ...)` | model/table.rs | `ausente` | — | escopo grande; DEBT-34 family parcial em grid |
 | `list(items)` (function form) | model/list.rs | `parcial` | sintaxe parcial | sem function form completa |
 | `enum(items)` | model/enum.rs | `parcial` | idem | |
-| `terms(...)` | model/terms.rs | `ausente` | — | |
-| `quote(...)` | model/quote.rs | `ausente` | — | |
+| `terms(...)` | model/terms.rs | `implementado` | Passo 154B | `Content::Terms` + `Content::TermItem`; named args via `#terms(key: [desc])`; sem atributos vanilla (tight/separator/indent/hanging-indent) — extensíveis sem breaking change |
+| `quote(...)` | model/quote.rs | `ausente` | — | Fase 1 (Passo 155) |
 | `cite(key)` | model/cite.rs | `ausente` | — | requer bibliography |
 | `bibliography(path)` | model/bibliography.rs | `ausente` | — | escopo XL: CSL parsing |
 | `link(dest, body)` | model/link.rs | `parcial` | Passo 23 | `Content::Link` capturado; sem render visual |
@@ -163,7 +163,8 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `ref(target)` | model/reference.rs | `implementado⁺` | Passos 63–66 | `Content::Ref` com forward-resolve |
 | `numbering(pattern, ...)` | model/numbering.rs | `implementado⁺` | Passos 75, 99 | numéricas/letras/romanas |
 | `document(...)` | model/document.rs | `ausente` | — | document metadata wrapper |
-| `divider`, `asset`, `title` | model/{divider,asset,title}.rs | `ausente` | — | |
+| `divider` | model/divider.rs | `implementado` | Passo 154B | `Content::Divider` singleton; layouter emite `FrameItem::Shape::Line` 0.5pt |
+| `asset`, `title` | model/{asset,title}.rs | `ausente` | — | Fase 3 ADR-0060 |
 | `par` (paragraph element) | model/par.rs | `parcial` | Passo 138 | `leading` activo; sem `Content::Par` |
 
 ### A.7 — Visualize
@@ -298,7 +299,10 @@ Nota: ADR-0026 + 0026-R1 declaram **divergência intencional**. Cristalino usa e
 | `Align {...}` | AlignElem | `implementado` | Passo 84.5 | |
 | `Place {...}` | PlaceElem | `implementado` | Passo 84.6 | |
 | `Styled(Box<Content>, Styles)` | (vtable + show rules) | `implementado` | Passos 99–101 (ADR-0038/0039) | divergência ADR-0026 |
-| **Vanilla-only (ausentes)**: BibliographyElem, CiteElem, FootnoteElem, QuoteElem, TermsElem, TableElem, ColumnsElem, BoxElem, BlockElem, StackElem, HideElem, RepeatElem, PadElem, MoveElem (function só), GradientElem, TilingElem, StrokeElem (object form), … | — | `ausente` (cada) | — | escopo crescente |
+| `Divider` | DividerElem | `implementado` | Passo 154B | singleton; layouter emite linha 0.5pt |
+| `Terms {items}` | TermsElem | `implementado` | Passo 154B | sem atributos vanilla (tight/sep/indent) |
+| `TermItem {term, description}` | TermItemElem | `implementado` | Passo 154B | par item; standalone permitido |
+| **Vanilla-only (ausentes)**: BibliographyElem, CiteElem, FootnoteElem, QuoteElem, TableElem, ColumnsElem, BoxElem, BlockElem, StackElem, HideElem, RepeatElem, PadElem, MoveElem (function só), GradientElem, TilingElem, StrokeElem (object form), … | — | `ausente` (cada) | — | escopo crescente |
 
 ### B.3 — `Style` enum
 
@@ -408,13 +412,28 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
 | Layout | 6 | 0 | 2 | 8 | 0 | 16 |
-| Model (structural) | 4 | 4 | 5 | 8 | 0 | 21 |
+| Model (structural) ¹ ² | 5 | 4 | 5 | 8 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection | 1 | 0 | 0 | 5 | 0 | 6 |
-| **Total user-facing** | **54** | **21** | **21** | **40** | **2** | **138** |
+| **Total user-facing** | **55** | **21** | **21** | **40** | **2** | **139** |
 
-**Cobertura user-facing total** (impl + impl⁺): (54 + 21) / 138 = **54%**.
+¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
+revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
+contagem por sub-elementos: caption isolado de figure,
+divider/asset/title individualizados). `Heading` reclassificado
+de `implementado` para `implementado⁺` (tem ressalvas em
+`numbering` e `outlined`). Ver
+[`diagnostico-model-passo-154a.md`](diagnostico-model-passo-154a.md).
+
+² — Ajuste P154B (materialização Fase 1 sub-passo 1):
+`terms` e `divider` transitam `ausente → implementado`.
+Contagem Model: 3/4/5/10/0=22 → 5/4/5/8/0=22.
+Cobertura Model: (3+4)/22=32% → (5+4)/22=**41%**.
+Próximo passo (P155 = `quote`) eleva para ~45%.
+
+**Cobertura user-facing total** (impl + impl⁺): (55 + 21) / 139 = **55%**
+(antes de P154A: 54%; após P154B: 55%).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -422,17 +441,21 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
 | `Value` variants | 18 | 2 | 2 | 9 | 0 | 31 |
-| `Content` variants (cristalino) | 27 | 9 | 3 | 0 | 0 | 39 |
-| `Content` variants (vanilla extra ausentes) | — | — | — | ~14 | — | ~14 |
+| `Content` variants (cristalino) ³ | 30 | 9 | 3 | 0 | 0 | 42 |
+| `Content` variants (vanilla extra ausentes) | — | — | — | ~12 | — | ~12 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
-| **Total arquitectural** | **63** | **13** | **5** | **23** | **1** | **105** |
+| **Total arquitectural** | **66** | **13** | **5** | **21** | **1** | **106** |
 
-**Cobertura arquitectural total**: (63 + 13) / 105 = **72%**
-(era 70% pré-Passo 149; `Value::Type` e `Value::Args`
-reclassificadas de `parcial` para `implementado⁺` após
-formalização por ADR-0058 e ADR-0059).
+³ — Ajuste P154B: 39 → 42 (+`Divider`, +`Terms`, +`TermItem`).
+Vanilla extra ausentes desce de ~14 para ~12 (terms + divider
+saíram do conjunto não-capturado).
+
+**Cobertura arquitectural total**: (66 + 13) / 106 = **75%**
+(era 72% pré-P154B; era 70% pré-Passo 149; `Value::Type` e
+`Value::Args` reclassificadas de `parcial` para `implementado⁺`
+após formalização por ADR-0058 e ADR-0059).
 **Nota**: variants extra cristalino (`Value::Align`, `Content::Styled`) são **divergências intencionais**
 favoráveis — cristalino tem features que vanilla não (em forma de Value); contadas como `implementado` porque
 encerradas por ADRs (0026, 0028→0029, 0036, etc.).
@@ -466,8 +489,18 @@ encerradas por ADRs (0026, 0028→0029, 0036, etc.).
    adicional. Aceite dentro de ADR-0033 perfil graded.
 
 7. **Lista de `Content::*` ausentes em cristalino mas presentes em vanilla** é maior do que esperado:
-   ~14 elementos (Bibliography, Cite, Footnote, Quote, Terms, Table, Columns, Box, Block, Stack,
-   Hide, Repeat, Pad, Stroke-object). Isto é **escopo XL agregado** se priorizado.
+   ~12 elementos pós-P154B (Bibliography, Cite, Footnote, Quote, Table, Columns, Box, Block, Stack,
+   Hide, Repeat, Pad, Stroke-object — `Terms` e `Divider` saíram após Passo 154B). Isto é **escopo
+   XL agregado** se priorizado.
+   **Refinamento P154A** (diagnóstico Model): para a sub-categoria Model especificamente, breakdown
+   detalhado em [`diagnostico-model-passo-154a.md`](diagnostico-model-passo-154a.md). 6 entradas Model
+   alto-valor (`bibliography`, `cite`, `footnote`, `quote`, `terms`, `table`) são tratadas em **ADR-0060
+   PROPOSTO** (roadmap Fase 1+2+3); `bibliography`+`cite` ficam em **DEBT-55** (XL; bloqueado por
+   ADR-0061 a criar). Recálculo Model: cobertura empírica **32-36%** (vs 38% declarado aqui), 22
+   entradas (vs 21 declarados); ajuste integrado neste documento na Tabela A linha "Model".
+   **Refinamento P154B** (materialização): `terms` + `divider` transitam para `implementado`;
+   contagem Model é 5/4/5/8/0=22; cobertura Model **32-36% → 41%** (10/22 entradas implementadas
+   ou parciais).
 
 8. **Math layout aproximado (`implementado⁺`)** vs vanilla strict — cristalino tem `MathMatrix`,
    `MathFrac`, `MathRoot`, `MathDelimited`, etc., mas posicionamento exacto requer métricas de font math

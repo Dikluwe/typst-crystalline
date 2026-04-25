@@ -2573,4 +2573,52 @@ mod tests {
             assert!(std::sync::Arc::ptr_eq(&d1.0, &d2.0), "clone deve partilhar Arc");
         }
     }
+
+    // ── Passo 154B (ADR-0060 Fase 1) — terms + divider via eval ──────────────
+
+    #[test]
+    fn eval_divider_construtor_typst_lang() {
+        let world = MockWorld::new("#divider()");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve ter content");
+        // O conteúdo do módulo pode ser Divider directo ou Sequence([Divider]).
+        let is_divider = matches!(&content, Content::Divider)
+            || matches!(&content, Content::Sequence(s) if s.iter().any(|c| matches!(c, Content::Divider)));
+        assert!(is_divider, "esperado Content::Divider, obteve {:?}", content);
+    }
+
+    #[test]
+    fn eval_terms_construtor_typst_lang() {
+        let world = MockWorld::new(r#"#terms(apple: [fruit], banana: [yellow])"#);
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().expect("deve ter content");
+        // Procurar Content::Terms na árvore (pode estar wrapped em Sequence).
+        let extracted = match &content {
+            Content::Terms { items } => Some(items.clone()),
+            Content::Sequence(s) => s.iter().find_map(|c| match c {
+                Content::Terms { items } => Some(items.clone()),
+                _ => None,
+            }),
+            _ => None,
+        };
+        let items = extracted.expect("esperado Content::Terms");
+        assert_eq!(items.len(), 2, "esperado 2 items, obtido {}", items.len());
+        // Verificar que cada item é um TermItem com par term/description.
+        assert!(items.iter().all(|i| matches!(i, Content::TermItem { .. })),
+            "todos os items devem ser TermItem: {:?}", items);
+        // O texto plano deve conter "apple: fruit" e "banana: yellow".
+        let pt = Content::Terms { items }.plain_text();
+        assert!(pt.contains("apple: fruit"), "plain_text falta apple: {:?}", pt);
+        assert!(pt.contains("banana: yellow"), "plain_text falta banana: {:?}", pt);
+    }
+
+    #[test]
+    fn eval_divider_rejeita_args() {
+        let world = MockWorld::new(r#"#divider(1)"#);
+        let src = world.source(world.main()).unwrap();
+        assert!(eval_for_test(&world, &src).is_err(),
+            "divider() com argumentos posicionais deve retornar Err");
+    }
 }

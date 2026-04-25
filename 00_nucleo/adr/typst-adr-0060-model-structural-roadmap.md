@@ -1,0 +1,197 @@
+# ⚖️ ADR-0060: Model (structural) roadmap — Fase 1 + Fase 2 + Fase 3
+
+**Status**: `PROPOSTO`
+**Validado**: Passo 154A — diagnóstico (`diagnostico-model-passo-154a.md`).
+**Data**: 2026-04-25
+**Autor**: Humano + IA
+**Diagnóstico prévio**:
+[`00_nucleo/diagnosticos/diagnostico-model-passo-154a.md`](../diagnosticos/diagnostico-model-passo-154a.md)
+
+**Anotação Passo 154B (2026-04-24)**: primeiro sub-passo da Fase 1
+materializado — `Content::Divider`, `Content::Terms`,
+`Content::TermItem` adicionados ao enum `Content`; `native_terms`
+e `native_divider` registadas em `make_stdlib`. Sem ADR nova.
+Status permanece `PROPOSTO` — Fase 1 fecha após Passo 155 (`quote`).
+
+---
+
+## Contexto
+
+Inventário 148 §A.6 declara categoria Model (structural) com
+**21 entradas** e cobertura 38% (impl + impl⁺). P154A
+investigou empiricamente: contagem real = **22 entradas**;
+cobertura empírica = **32-36%** (revisão para baixo).
+
+Decomposição empírica (P154A §2):
+
+- 3-4 `implementado` (heading, emph, strong, outline).
+- 4 `implementado⁺` (figure, ref, numbering, heading com
+  ressalva).
+- 5 `parcial` (link, list, enum, par, caption inline).
+- **10 `ausente`** (bibliography, cite, footnote, quote,
+  terms, table, document, divider, asset, title).
+
+Top divergência 7 do inventário 148 ("~14 elementos `Content::*`
+vanilla ausentes") agrega Model + Layout + Visualize. Para
+Model especificamente, 6 dessas entradas são alto valor:
+`bibliography`, `cite`, `footnote`, `quote`, `terms`,
+`table`. Restantes (`document`, `divider`, `asset`, `title`)
+são baixo valor ou divergência intencional.
+
+`Content::Styled` (ADR-0026 perfil) é **inadequado** para
+Model structural — estas features têm semântica que excede
+styling.
+
+ADR-0017 (estratégia typst-library) declarou progressão
+gradual; este roadmap operacionaliza a continuação.
+
+## Decisão
+
+ADR-0060 propõe **3 fases** com prioridades explícitas:
+
+### Decisão 1 — Fase 1 (S+M; sem novas crates)
+
+3 sub-passos:
+
+- **Passo 154B** — `Content::Terms` + `Content::TermItem` +
+  `Content::Divider` (S agregado).
+- **Passo 155** — `Content::Quote` com atributos
+  `attribution`, `block` (M).
+- **Passo 156** — `Content::Table` foundations: variant nova
+  + sub-elementos `TableCell`, `TableHeader`, `TableFooter`
+  (M+; reaproveita `Content::Grid` parcial para layout).
+
+Cobertura post-Fase 1: ~50% (8/22 → 11-12/22).
+
+### Decisão 2 — Fase 2 (com ADR de autorização)
+
+3 sub-passos:
+
+- **Passo 157** — `figure` kinds extension (depende de
+  Passo 156 para figure-table; M).
+- **ADR-0061 + Passo 158** — `Content::Bibliography` +
+  `Content::Cite` com autorização `hayagriva`. ADR-0061
+  documenta autorização (precedente ADR-0024 ecow,
+  ADR-0023 indexmap, ADR-0057 hypher). Crate `hayagriva
+  0.9.1` já em cache local (per P152).
+- **Passo dedicado footnote** — `Content::Footnote` quando
+  Layout Fase X (page-model footnote area) for priorizado.
+
+Cobertura post-Fase 2: ~68% (11-12/22 → 15-16/22).
+
+### Decisão 3 — Fase 3 (condicional / divergência intencional)
+
+- **`asset`**: alt-text + scaling sobre `Image`. Acessibilidade.
+- **`document`**: divergência intencional cristalino emite
+  metadata em export PDF directamente; sem wrapper Content.
+- **`title`**: depende de `document`; mesma divergência.
+
+Cobertura potencial: ~77-82% (com restantes em scope-out
+declarado).
+
+### Decisão 4 — `Content::Styled` vs variant novo
+
+Para cada feature Fase 1/2: **variant novo** no `Content`
+enum.
+
+Razão: Model structural tem semântica que excede styling
+(numbering, attribution, cells, citations). `Content::Styled`
+(ADR-0026 perfil) cobre apenas estilos visuais simples.
+Todas as Fase 1/2 features exigem variants dedicados.
+
+### Decisão 5 — Relação com `lab/parity` corpus
+
+Cada sub-passo Fase 1/2 deve **adicionar 1-3 ficheiros** ao
+corpus `lab/parity/corpus/visual/` ou `corpus/markup/`
+exercitando a feature nova. Suite layout_parity (P150)
+detecta automaticamente; matriz P3 cresce.
+
+Quando vanilla integration fechar (DEBT-53 + DEBT-54), as
+mesmas features ganham comparação real.
+
+## Alternativas consideradas
+
+| Alternativa | Prós | Contras |
+|-------------|------|---------|
+| **Fases 1+2+3 ranqueadas** ✓ | Materialização gradual; cobertura predictível; ADRs por trabalho específico | Trabalho longo (5+ passos) |
+| Atacar tudo num passo XL | Único output | Risco alto; mistura concerns; dificil revisão |
+| Adiar Model completo até DEBT-53 + DEBT-54 fechar | Foco na série paridade primeiro | Cobertura observacional cristalino-only fica fraca; impede eval real do gap |
+| Apenas Fase 1 com ADR limitada | Mínimo risco | Não responde a "trabalho real necessário" |
+| ADR única para todas as fases (sem 0061) | Menos ADRs | `hayagriva` exige autorização explícita conforme precedente |
+
+**Escolha**: 3 fases com Fase 2 ganhando ADR-0061 dedicada
+para `hayagriva`. Fase 3 condicional sem ADR (decisão
+humana posterior).
+
+## Consequências
+
+### Positivas
+
+- **Roadmap explícito** para sair de cobertura Model 32%
+  para ~68% sem comprometer ADR-0017 (estratégia gradual).
+- **Cada sub-passo tem escopo S/M definido** (excepto
+  bibliography Fase 2 = XL com ADR-0061).
+- **Corpus paridade cresce automaticamente** com cada
+  sub-passo (Decisão 5).
+- **Footnote desacoplado** da Fase 1 — não bloqueia features
+  simples.
+- **`hayagriva` em cache** (probe P152): risco de fetch
+  reduzido.
+
+### Negativas
+
+- **5-7 sub-passos entre P154B e P158+** — investimento
+  significativo de tempo.
+- **Fase 3 condicional**: documentos com `#document(...)`
+  ou `#title(...)` continuam não-suportados. Aceitável
+  conforme inventário 148 e ADR-0033 perfil graded.
+- **`hayagriva` em L1**: precedente ADR-0024 (ecow) +
+  ADR-0057 (hypher) cobrem; ADR-0061 invocará.
+
+### Neutras
+
+- Inventário 148 ganha referências cruzadas para ADR-0060
+  (per Decisão 5 + actualização P154A).
+- `Content` enum cresce: 38 variants → ~46 variants
+  pós-Fase 2. ADR-0026-R1 (`Arc<[T]>` em `Sequence`) cobre
+  performance de clone.
+
+## Plano de materialização
+
+5 passos no caminho crítico (Fase 1 + Fase 2):
+
+| Passo | Escopo | Features | ADR adicional? |
+|-------|--------|----------|-----------------|
+| 154B | S | terms, divider | — |
+| 155 | M | quote | — |
+| 156 | M+ | table foundations | — |
+| 157 | M | figure kinds | — |
+| ADR-0061 + 158 | XL | bibliography + cite | ADR-0061 |
+| (futuro) | M-L | footnote | — (depende Layout Fase X) |
+| (Fase 3) | S | asset | — |
+| (Fase 3) | divergência | document, title | — |
+
+**ADR-0060 transita PROPOSTO → IMPLEMENTADO** quando
+Fase 1 + Fase 2 + ADR-0061 concluírem.
+
+## Referências
+
+- **ADR-0017** — estratégia typst-library gradual.
+- **ADR-0026** + **ADR-0026-R1** — `Content` enum fechado
+  com `Arc<[T]>` para sequences.
+- **ADR-0033** — paridade funcional para cada feature
+  materializada.
+- **ADR-0034** — diagnóstico obrigatório (cumprido por
+  P154A).
+- **ADR-0036** — atomização progressiva.
+- **ADR-0037** — coesão por domínio.
+- **ADR-0038** — `Content::Styled` para styling estrutural.
+- **ADR-0054** — perfil observacional graded.
+- **DEBT-55** (P154A) — bibliography + cite XL com plano
+  ADR-0061.
+- **DEBT-34d / DEBT-34e** — grid cell layouting (Passo 80);
+  trabalho similar mas distinto de `Content::Table`.
+- **Inventário 148** (`typst-cobertura-vanilla-vs-cristalino.md`)
+  — Tabela A linha "Model"; §7 entrada 7.
+- **Diagnóstico 154A** (`diagnostico-model-passo-154a.md`)
+  — Tabelas §2, §3, §6, §7 com plano detalhado.

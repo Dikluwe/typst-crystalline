@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: e6b6f0af
+Hash do Código: a4244268
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -116,3 +116,54 @@ Suporta `.body` e `.level` em `Heading`, `.body` em `Figure`.
 - `Content::sequence(vec![Content::text("a")]) == Content::text("a")` (desembrulha)
 - `Content::sequence(vec![Content::text("a"), Content::Space, Content::text("b")]).plain_text() == "a b"`
 - `Content::Empty` e `Content::Space` — clone e PartialEq funcionam
+
+## Variantes estruturais — Passo 154B (ADR-0060 Fase 1)
+
+Materializadas em P154B como primeira sub-fase da Fase 1 do roadmap
+ADR-0060. **Sem ADR nova** — apenas adições ao enum.
+
+### `Content::Divider`
+
+Singleton estrutural sem dados. Representa um separador horizontal.
+
+- `plain_text()` → `""` (sem texto; representação visual é distinta).
+- `is_empty()` → `false` (singleton estrutural conta como conteúdo).
+- `map_content` / `map_text` → terminal (clone directo).
+- Layouter: emite `FrameItem::Shape::Line` à largura do conteúdo,
+  espessura 0.5pt, traço preto.
+
+### `Content::Terms { items: Vec<Content> }`
+
+Lista de pares termo-descrição. Tipicamente `items` é uma sequência
+de `Content::TermItem`. A ordem é preservada.
+
+- `plain_text()` → `items.iter().map(plain_text).join("\n")`.
+- `is_empty()` → `items.is_empty()`.
+- `map_content` / `map_text` → container; recurse em cada item.
+- Layouter: itera items, layout sequencial.
+
+### `Content::TermItem { term: Box<Content>, description: Box<Content> }`
+
+Par individual term/description. Surge tipicamente dentro de `Terms`,
+mas pode também aparecer standalone (e.g. show rules futuras).
+
+- `plain_text()` → `format!("{}: {}", term.plain_text(), description.plain_text())`.
+- `is_empty()` → `term.is_empty() && description.is_empty()`.
+- `map_content` / `map_text` → container; recurse em term e description.
+- Layouter: term em negrito + ": " + description, com indent 1.5em.
+
+### Stdlib funcs (Passo 154B)
+
+- `terms(named: descrição, ...)` em Typst-lang produz `Content::Terms`.
+  Aceita só argumentos nomeados; descrição pode ser content ou string.
+  Forma: `#terms(apple: [fruit], banana: [yellow])`.
+- `divider()` produz `Content::Divider`. Sem argumentos.
+
+### Limitações conscientes (P154B)
+
+- Sem syntax markup nova (`/ term: desc` ou `---`) — trabalho de parser
+  diferido a passo separado.
+- Sem atributos vanilla `tight`/`separator`/`indent`/`hanging-indent`
+  para `terms` — extensíveis sem breaking change (passar a
+  `Terms { items, tight, ... }`).
+- Sem show rules `#show terms: ...` neste passo.

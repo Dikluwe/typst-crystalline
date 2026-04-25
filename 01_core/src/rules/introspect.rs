@@ -73,6 +73,15 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
             numbering: numbering.clone(),
         },
 
+        // Passo 154B: Terms recurse em items; TermItem recurse em par.
+        Content::Terms { items } => Content::Terms {
+            items: items.iter().map(|c| materialize_time(c, state)).collect(),
+        },
+        Content::TermItem { term, description } => Content::TermItem {
+            term:        Box::new(materialize_time(term, state)),
+            description: Box::new(materialize_time(description, state)),
+        },
+
         // ── Terminais — clonar directamente ──────────────────────────────
         // Nós matemáticos (Equation e subtipos) não podem conter CounterDisplay
         // em markup válido — clonados em bloco sem recursão.
@@ -99,6 +108,7 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
         | Content::MathMatrix { .. }
         | Content::MathCases { .. }
         | Content::Image { .. }
+        | Content::Divider
         | Content::Shape { .. } => content.clone(),
         Content::Transform { matrix, body } => Content::Transform {
             matrix: *matrix,
@@ -284,7 +294,18 @@ fn walk(content: &Content, state: &mut CounterState) {
         | Content::Linebreak
         | Content::Image { .. }
         | Content::SetPage { .. }
+        | Content::Divider
         | Content::Shape { .. } => {}
+
+        // Passo 154B — Terms / TermItem: descem em items para que filhos
+        // com contadores ou labels sejam processados.
+        Content::Terms { items } => {
+            for item in items { walk(item, state); }
+        }
+        Content::TermItem { term, description } => {
+            walk(term, state);
+            walk(description, state);
+        }
 
         Content::Transform { body, .. } => walk(body, state),
 
