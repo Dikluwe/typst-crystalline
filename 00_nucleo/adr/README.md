@@ -392,3 +392,21 @@ P84.8g.
   estava reservado para hyphenation desde os relatórios 142
   e 143; 145 (uniformização documental) precedeu por
   priorização operacional. Sem conflito.
+- **Passo 146 — Multi-font per document**. Materialização
+  voluntária da decisão 5 de ADR-0055 (declarada opcional na
+  própria ADR; relatório 142 §9 listava como candidata
+  futura). `collect_fonts_from_doc` + `resolve_fonts` (silent
+  drop) + `export_pdf_multifont` (resource dict `/F1..N`
+  apontando para `/CrystallineFont1..N`). Cada
+  `FrameItem::Text` selecciona `/F{i+1}` por match
+  estrutural contra a sua `style.font`. Single-font
+  preservado por dispatch (`[(_, b)] => export_pdf_with_font`
+  mantém o caminho 140B/141). ADR-0055 **anotada
+  pós-IMPLEMENTADO** (modelo ADR-0019 + 140A); status
+  inalterado. Numeração 146 (não 142A) registada no
+  relatório do passo. Test do 140B
+  `font_wiring_segunda_font_diferente_primeira_vence`
+  renomeado para
+  `font_wiring_segunda_font_diferente_ambas_embebidas` com
+  assertion ajustada de 1 → 2 `/Subtype /Type0` (regressão
+  deliberada do MVP 140B documentada).

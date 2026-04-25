@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 00e4ebd3
+//! @prompt-hash 1b030acd
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -26,7 +26,7 @@ use typst_core::rules::eval::eval;
 use typst_core::rules::introspect::introspect;
 use typst_core::rules::layout::layout;
 
-use crate::export::{export_pdf, export_pdf_with_font};
+use crate::export::{export_pdf, export_pdf_multifont, export_pdf_with_font};
 
 /// Avalia `source` contra `world` e devolve `(Module, warnings)`.
 ///
@@ -81,18 +81,80 @@ pub fn compile_to_pdf_bytes(
     };
     let state = introspect(content);
     let doc   = layout(content, state);
-    let pdf   = match first_font_from_doc(&doc)
-        .and_then(|fl| resolve_font(&fl, world.book(), world))
-    {
-        Some(bytes) => export_pdf_with_font(&doc, &bytes),
-        None        => export_pdf(&doc),
+    // Passo 146 (ADR-0055 decisão 5): dispatch multi-font.
+    // 0 fonts resolvidos → fallback Helvetica.
+    // 1 font resolvido → preserva caminho single-font do 140B/141.
+    // 2+ fonts resolvidos → multi-font (resource dict com /F1..N).
+    let font_lists = collect_fonts_from_doc(&doc);
+    let resolved = resolve_fonts(&font_lists, world.book(), world);
+    let pdf = match resolved.as_slice() {
+        []         => export_pdf(&doc),
+        [(_, b)]   => export_pdf_with_font(&doc, b),
+        many       => export_pdf_multifont(&doc, many),
     };
     (Ok(pdf), warnings)
 }
 
 /// Itera `doc.pages → items` recursivamente (atravessa `Group`)
+/// e devolve **todas** as `FontList` distintas em ordem de
+/// primeira ocorrência (Passo 146, ADR-0055 decisão 5).
+///
+/// Deduplicação por igualdade estrutural via `Vec::contains`.
+/// Complexidade O(N²) em N = fonts distintas; aceite porque N é
+/// tipicamente pequeno (<10) em documentos reais.
+fn collect_fonts_from_doc(doc: &PagedDocument) -> Vec<FontList> {
+    let mut seen: Vec<FontList> = Vec::new();
+    for page in &doc.pages {
+        collect_fonts_in_items(&page.items, &mut seen);
+    }
+    seen
+}
+
+fn collect_fonts_in_items(items: &[FrameItem], seen: &mut Vec<FontList>) {
+    for item in items {
+        match item {
+            FrameItem::Text { style, .. } => {
+                if let Some(fl) = &style.font {
+                    if !seen.contains(fl) {
+                        seen.push(fl.clone());
+                    }
+                }
+            }
+            FrameItem::Group { items, .. } => {
+                collect_fonts_in_items(items, seen);
+            }
+            FrameItem::Line  { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => {}
+        }
+    }
+}
+
+/// Map-filter de `resolve_font` (Passo 141) sobre uma lista de
+/// `FontList`. Devolve `(FontList, bytes)` para preservar a
+/// associação entre input style e output embed (Passo 146).
+///
+/// Silent drop quando `resolve_font` devolve `None` — consistente
+/// com a política de fallback de fonts (140B/141).
+fn resolve_fonts(
+    font_lists: &[FontList],
+    font_book:  &FontBook,
+    world:      &dyn World,
+) -> Vec<(FontList, Vec<u8>)> {
+    font_lists.iter()
+        .filter_map(|fl| {
+            resolve_font(fl, font_book, world).map(|bytes| (fl.clone(), bytes))
+        })
+        .collect()
+}
+
+/// Itera `doc.pages → items` recursivamente (atravessa `Group`)
 /// e devolve o primeiro `TextStyle.font` com `Some(FontList)`.
-/// MVP single-font: primeira vence (ADR-0055 decisão 3).
+/// Preservada do Passo 140B (MVP single-font: primeira vence —
+/// ADR-0055 decisão 3) para tests directos do helper. O dispatch
+/// principal usa `collect_fonts_from_doc` (Passo 146).
+#[allow(dead_code)]
 fn first_font_from_doc(doc: &PagedDocument) -> Option<FontList> {
     for page in &doc.pages {
         if let Some(fl) = first_font_in_items(&page.items) {
@@ -102,6 +164,7 @@ fn first_font_from_doc(doc: &PagedDocument) -> Option<FontList> {
     None
 }
 
+#[allow(dead_code)]
 fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
     for item in items {
         match item {
@@ -429,5 +492,109 @@ mod tests {
         let fl = font_list_multi(&["X", "Y", "Z"]);
         assert!(resolve_font(&fl, world.book(), &world).is_none(),
             "nenhuma família resolve → fallback Helvetica via None");
+    }
+
+    // ── Passo 146: multi-font per document ────────────────────────────
+
+    #[test]
+    fn collect_fonts_from_doc_documento_vazio_devolve_vazio() {
+        let doc = PagedDocument::new(vec![]);
+        assert!(collect_fonts_from_doc(&doc).is_empty());
+    }
+
+    #[test]
+    fn collect_fonts_from_doc_uma_font_devolve_unitario() {
+        let doc = PagedDocument::new(vec![
+            page_with(vec![text_item_with_font(Some(font_list("Inria")))]),
+        ]);
+        let collected = collect_fonts_from_doc(&doc);
+        assert_eq!(collected.len(), 1);
+        assert_eq!(collected[0].as_slice()[0].name, "inria");
+    }
+
+    #[test]
+    fn collect_fonts_from_doc_duas_distintas_devolve_par_em_ordem() {
+        let doc = PagedDocument::new(vec![
+            page_with(vec![
+                text_item_with_font(Some(font_list("Primeira"))),
+                text_item_with_font(Some(font_list("Segunda"))),
+            ]),
+        ]);
+        let collected = collect_fonts_from_doc(&doc);
+        assert_eq!(collected.len(), 2);
+        assert_eq!(collected[0].as_slice()[0].name, "primeira");
+        assert_eq!(collected[1].as_slice()[0].name, "segunda");
+    }
+
+    #[test]
+    fn collect_fonts_from_doc_duas_iguais_dispersas_dedup() {
+        // "A" e "B" intercalados em duas páginas: dedup deve produzir
+        // [A, B] em ordem de primeira ocorrência.
+        let doc = PagedDocument::new(vec![
+            page_with(vec![
+                text_item_with_font(Some(font_list("A"))),
+                text_item_with_font(Some(font_list("B"))),
+            ]),
+            page_with(vec![
+                text_item_with_font(Some(font_list("A"))),
+                text_item_with_font(Some(font_list("B"))),
+            ]),
+        ]);
+        let collected = collect_fonts_from_doc(&doc);
+        assert_eq!(collected.len(), 2,
+            "dedup estrutural: A e B aparecem cada um uma vez no resultado");
+        assert_eq!(collected[0].as_slice()[0].name, "a");
+        assert_eq!(collected[1].as_slice()[0].name, "b");
+    }
+
+    // resolve_fonts (plural)
+
+    #[test]
+    fn resolve_fonts_todos_resolvem() {
+        let mut book = FontBook::new();
+        book.push(font_info("A"));
+        book.push(font_info("B"));
+        let world = FontMockWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![
+                Some(Font::from_data(vec![0xAA])),
+                Some(Font::from_data(vec![0xBB])),
+            ],
+        };
+        let inputs = vec![font_list("A"), font_list("B")];
+        let out = resolve_fonts(&inputs, world.book(), &world);
+        assert_eq!(out.len(), 2);
+        assert_eq!(out[0].1, vec![0xAA]);
+        assert_eq!(out[1].1, vec![0xBB]);
+    }
+
+    #[test]
+    fn resolve_fonts_alguns_nao_resolvem_filtrados() {
+        // FontBook só tem "A"; "B" não resolve → filtrado silenciosamente.
+        let mut book = FontBook::new();
+        book.push(font_info("A"));
+        let world = FontMockWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(vec![0xAA]))],
+        };
+        let inputs = vec![font_list("A"), font_list("B")];
+        let out = resolve_fonts(&inputs, world.book(), &world);
+        assert_eq!(out.len(), 1, "B silenciosamente filtrado");
+        assert_eq!(out[0].1, vec![0xAA]);
+    }
+
+    #[test]
+    fn resolve_fonts_nenhum_resolve_devolve_vazio() {
+        let mut book = FontBook::new();
+        book.push(font_info("Outra"));
+        let world = FontMockWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(vec![0]))],
+        };
+        let inputs = vec![font_list("X"), font_list("Y")];
+        assert!(resolve_fonts(&inputs, world.book(), &world).is_empty());
     }
 }

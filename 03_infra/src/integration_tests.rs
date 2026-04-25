@@ -2445,9 +2445,15 @@ mod integration {
     }
 
     #[test]
-    fn font_wiring_segunda_font_diferente_primeira_vence() {
+    fn font_wiring_segunda_font_diferente_ambas_embebidas() {
+        // Renomeado e ajustado no Passo 146 (multi-font per document
+        // — ADR-0055 decisão 5 materializada). Pré-146 este teste
+        // afirmava `exactly 1 /Subtype /Type0` (MVP single-font);
+        // pós-146 ambas as fonts são embebidas e o assert reflecte
+        // a regressão deliberada do MVP. Documentado no relatório
+        // do Passo 146.
         let Some(slots) = discover_any_system_fonts() else {
-            eprintln!("[skip] font_wiring_segunda_font_diferente_primeira_vence: \
+            eprintln!("[skip] font_wiring_segunda_font_diferente_ambas_embebidas: \
                        sem fonts no sistema");
             return;
         };
@@ -2461,10 +2467,6 @@ mod integration {
             return;
         };
 
-        // Dois `#set text(font:)` consecutivos. MVP single-font: a
-        // primeira família encontrada na iteração do `PagedDocument`
-        // é a que vai para `export_pdf_with_font`; a segunda é
-        // silenciosamente ignorada (ADR-0055 decisão 3).
         let src = format!(
             "#set text(font: \"{}\")\nOlá\n\n#set text(font: \"{}\")\nAdeus",
             first, second
@@ -2476,14 +2478,12 @@ mod integration {
 
         assert_eq!(&pdf[..5], b"%PDF-");
         let blob = String::from_utf8_lossy(&pdf);
-        // Verificação MVP: documento com duas fonts distintas produz
-        // exactamente UM Type0 (single-font per document). Detectar
-        // múltiplos Type0 indicaria multi-font (Passo 142 futuro).
         assert!(blob.contains("CrystallineFont"),
-            "PDF deve embutir a primeira família como CIDFont");
+            "PDF deve embutir pelo menos uma das famílias como CIDFont");
         let n_type0 = blob.matches("/Subtype /Type0").count();
-        assert_eq!(n_type0, 1,
-            "MVP single-font: exactamente 1 Type0 — encontrados {}", n_type0);
+        assert_eq!(n_type0, 2,
+            "Pós-146 multi-font: exactamente 2 Type0 esperados (uma \
+             por família distinta) — encontrados {}", n_type0);
     }
 
     // ── Passo 141 — Array fallback chain (DEBT-52 gap 6) ────────────────
@@ -2597,6 +2597,77 @@ mod integration {
         assert_eq!(count_hyphenated_words(&doc), 0,
             "documento sem `#set text(lang:)` não deve produzir hífenes \
              de quebra (regressão pré-144 preservada)");
+    }
+
+    // ── Passo 146 — Multi-font per document (ADR-0055 decisão 5) ────────
+
+    #[test]
+    fn font_wiring_multifont_uma_resolve_outra_falla_silent_drop() {
+        // Doc com 3 spans: 2 fonts disponíveis + 1 inexistente. PDF
+        // embute 2 (silent drop da inexistente). Spans da inexistente
+        // caem em /F1 (font 0) por consistência multi-font.
+        let Some(slots) = discover_any_system_fonts() else {
+            eprintln!("[skip] sem fonts no sistema");
+            return;
+        };
+        let book = build_font_book(&slots);
+        let Some(first) = first_family(&book) else {
+            eprintln!("[skip] FontBook vazio");
+            return;
+        };
+        let Some(second) = second_distinct_family(&book, &first) else {
+            eprintln!("[skip] precisa duas famílias distintas");
+            return;
+        };
+
+        let src = format!(
+            "#set text(font: \"{}\")\nA\n\n#set text(font: \"{}\")\nB\n\n\
+             #set text(font: \"FontInexistenteZZZ\")\nC",
+            first, second
+        );
+        let (world, _dir) = world_with_fonts(&src, slots);
+        let source = world.source(world.main()).unwrap();
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let pdf = result.expect("compilação");
+        assert_eq!(&pdf[..5], b"%PDF-");
+        let blob = String::from_utf8_lossy(&pdf);
+        let n_type0 = blob.matches("/Subtype /Type0").count();
+        assert_eq!(n_type0, 2,
+            "3 fonts no doc; 1 não resolve → 2 Type0 embebidas; \
+             encontradas {}", n_type0);
+    }
+
+    #[test]
+    fn font_wiring_multifont_regressao_single_font_inalterado() {
+        // Documento com UMA única font (single-font path) deve
+        // continuar a produzir 1 Type0 — regressão do caminho do
+        // 140B/141 preservada por `compile_to_pdf_bytes` matching
+        // `[(_, b)] => export_pdf_with_font(...)`.
+        let Some(slots) = discover_any_system_fonts() else {
+            eprintln!("[skip] sem fonts");
+            return;
+        };
+        let book = build_font_book(&slots);
+        let Some(family) = first_family(&book) else {
+            eprintln!("[skip]");
+            return;
+        };
+        let src = format!("#set text(font: \"{}\")\nOlá", family);
+        let (world, _dir) = world_with_fonts(&src, slots);
+        let source = world.source(world.main()).unwrap();
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let pdf = result.expect("compilação");
+        let blob = String::from_utf8_lossy(&pdf);
+        let n_type0 = blob.matches("/Subtype /Type0").count();
+        assert_eq!(n_type0, 1,
+            "single-font deve continuar a produzir 1 Type0 (caminho \
+             export_pdf_with_font preservado); encontradas {}", n_type0);
+        // Nome canónico do single-font path = "/CrystallineFont"
+        // (sem sufixo numérico). Multi-font path usaria "CrystallineFont1".
+        assert!(blob.contains("/BaseFont /CrystallineFont\n")
+                 || blob.contains("/BaseFont /CrystallineFont "),
+            "single-font path usa nome canónico /CrystallineFont \
+             (não /CrystallineFont1)");
     }
 
     #[test]
