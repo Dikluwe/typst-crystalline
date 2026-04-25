@@ -479,12 +479,12 @@ fn eval_markup_body(
 /// O avaliador deixa de conhecer o nome "figure" — desacoplamento total.
 fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
-        make_calc_module, native_align, native_assert, native_circle, native_ellipse,
-        native_emph, native_figure, native_float, native_grid, native_heading,
+        make_calc_module, native_align, native_assert, native_circle, native_divider,
+        native_ellipse, native_emph, native_figure, native_float, native_grid, native_heading,
         native_image, native_int, native_len, native_line,
         native_lower, native_luma, native_move, native_page, native_place, native_polygon,
         native_range, native_rect, native_replace, native_raw, native_rgb, native_rotate,
-        native_scale, native_str, native_strong, native_type, native_upper,
+        native_scale, native_str, native_strong, native_terms, native_type, native_upper,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -517,6 +517,9 @@ fn make_stdlib() -> Scope {
     scope.define("upper",   Value::Func(Func::native("upper",   native_upper)));
     scope.define("lower",   Value::Func(Func::native("lower",   native_lower)));
     scope.define("replace", Value::Func(Func::native("replace", native_replace)));
+    // Passo 154B (ADR-0060 Fase 1): terms + divider.
+    scope.define("terms",   Value::Func(Func::native("terms",   native_terms)));
+    scope.define("divider", Value::Func(Func::native("divider", native_divider)));
     scope.define("calc",    make_calc_module());
 
     // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).

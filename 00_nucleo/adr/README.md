@@ -1,8 +1,8 @@
 # Índice de ADRs do Typst Cristalino
 
 Este documento é o índice canónico dos Architectural Decision
-Records (ADRs) do projecto **Typst Cristalino**. Lista os 59 ADRs
-em vigor (58 números únicos; ADR-0026 tem variante -R1 por
+Records (ADRs) do projecto **Typst Cristalino**. Lista os 60 ADRs
+em vigor (59 números únicos; ADR-0026 tem variante -R1 por
 revisão), as meta-regras que governam o projecto, o vocabulário
 canónico de status, cadeias de revogação e revisão, e convenções
 estruturais.
@@ -165,14 +165,15 @@ que corresponde a mudança específica no código.
 | 0057 | Lang hyphenation em L1 via crate `hypher` | `IMPLEMENTADO` |
 | 0058 | Tipo simplificado — `type()` devolve `Value::Str` | `EM VIGOR` |
 | 0059 | `Args` como tipo separado, não-variant de `Value` | `EM VIGOR` |
+| 0060 | Model (structural) roadmap — Fase 1 + 2 + 3 | `PROPOSTO` |
 
-**Total**: 59 ADRs (58 números únicos; ADR-0026 tem variante -R1
+**Total**: 60 ADRs (59 números únicos; ADR-0026 tem variante -R1
 por revisão).
 
 ### Distribuição de status
 
-- `PROPOSTO`: 10 ADRs (decisões em aberto: 0005, 0006,
-  0008–0015).
+- `PROPOSTO`: 11 ADRs (decisões em aberto: 0005, 0006,
+  0008–0015, 0060).
 - `IDEIA`: 2 ADRs (0002, 0003).
 - `EM VIGOR`: 26 ADRs (regras/políticas activas; 0018, 0029,
   0030, 0032–0051, 0054, 0058, 0059).
@@ -436,3 +437,43 @@ P84.8g.
   Inventário 148 actualizado: Tabela B reclassificou
   `Value::Type` e `Value::Args` de `parcial` para
   `implementado⁺`. Cobertura arquitectural pós-149: 72%.
+- **Passo 154A — Diagnóstico Model + ADR-0060 PROPOSTO**.
+  Quinto exemplo do padrão diagnóstico-primeiro
+  (131A/132A/140A/148/154A); primeira aplicação a categoria
+  user-facing ampla. Inventário detalhado dos 22 elementos
+  Model em `lab/typst-original/.../typst-library/src/model/`
+  revelou cobertura empírica **32-36%** (revisão para baixo
+  do 38% declarado). Cristalino tem 7-8 materializados, 5
+  parciais, 10 ausentes. **ADR-0060 PROPOSTO** com roadmap
+  Fase 1 (terms/divider/quote — passos 154B/155), Fase 2
+  (table foundations/figure kinds/bibliography+cite —
+  passos 156/157/158), Fase 3 (asset/document/title —
+  condicional). **DEBT-55 aberto** para
+  `bibliography`+`cite` (XL; bloqueado por ADR-0061 a
+  criar para autorizar `hayagriva`). Inventário 148
+  actualizado (Tabela A linha "Model" recontada para 22
+  entradas; cobertura user-facing total 54% → 53%). Série
+  paridade fica suspensa em P153 enquanto Fase 1 do roadmap
+  Model arranca.
+- **Passo 154B — Fase 1 Model (sub-passo 1: terms + divider)**.
+  Primeira materialização do roadmap ADR-0060: `Content::Divider`,
+  `Content::Terms { items: Vec<Content> }`, `Content::TermItem
+  { term, description }` adicionados ao enum (39 → 42 variants);
+  `native_terms` e `native_divider` registadas em `make_stdlib`
+  (forma `#terms(key: [desc], ...)` e `#divider()`). Cobertura
+  exaustiva de arms `match` em ~7 sítios L1 (`plain_text`,
+  `is_empty`, `PartialEq::eq`, `map_content`, `map_text` em
+  `entities/content.rs`; `materialize_time`, `walk` em
+  `rules/introspect.rs`; `layout_content` em `rules/layout/mod.rs`).
+  L0 prompt `entities/content.md` ganhou secção dedicada;
+  hash propagado via `--fix-hashes` (`85fae9b9` →
+  `43745b5d`). ADR-0060 anotada com nota de progresso —
+  **status `PROPOSTO` preservado** (Fase 1 fecha após P155
+  = `quote`). Inventário 148 actualizado: Tabela A Model
+  3/4/5/10/0 → 5/4/5/8/0 (cobertura **32-36% → 41%**);
+  Tabela B Content cristalino 39 → 42 variants; vanilla
+  extra ausentes ~14 → ~12. Sem ADR nova; sem DEBT criado
+  ou fechado; sem regressão em 1113 → 1123 testes
+  (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
+  diagnóstico-primeiro (P154A) → materialização (P154B)
+  replica precedentes 131A→131B, 132A→132B, 140A→140B.

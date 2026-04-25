@@ -46,6 +46,14 @@
 > material em `comemo` (cristalino 0.4 vs vanilla 0.5,
 > cargo aceita duplicação). Saldo de DEBTs **inalterado**
 > (12).
+>
+> **Passo 154A (2026-04-25)**: diagnóstico Model
+> (structural). Cobertura empírica revisada de 38% → 32-36%
+> (10 ausentes / 22 entradas). **DEBT-55 aberto**
+> (bibliography + cite XL; bloqueado por ADR-0061 hayagriva
+> a criar em passo dedicado). **ADR-0060 PROPOSTO** (roadmap
+> Fase 1 / 2 / 3 — passos 154B/155/156/157/158+).
+> Total abertos: **12 → 13**.
 
 ---
 
@@ -326,6 +334,91 @@ de infraestrutura, não de domínio.
 - [ ] Tipo não autorizado dessa crate é reportado como violação em
       teste do `crystalline-lint`.
 - [ ] Documentação actualizada no README do `crystalline-lint`.
+
+---
+
+## DEBT-55 — Bibliography + Cite (XL; pré-condição ADR-0061 hayagriva) — EM ABERTO (Passo 154A)
+
+**Aberto em**: Passo 154A (2026-04-25) durante diagnóstico
+Model.
+**Bloqueado por**: **ADR-0061** (autorização da crate
+`hayagriva`, ainda não criada — referência condicional em
+ADR-0060).
+
+### Contexto
+
+Diagnóstico Model (P154A) classificou `bibliography` + `cite`
+como **XL** — escopo significativamente maior que outras
+features Model:
+
+- Vanilla integra `hayagriva` (CSL parser + style engine +
+  reference database) profundamente.
+- `BibliographyEntryElem` modela cada referência de forma
+  estruturada.
+- `CiteElem` invoca CSL para formatar citação consoante
+  estilo configurado.
+
+Cristalino actualmente **não suporta** nenhuma. Inventário
+148 §A.6 lista ambas como `ausente`.
+
+### Diferença face ao vanilla
+
+Vanilla: `BibliographyElem` + `CiteElem` em
+`lab/typst-original/crates/typst-library/src/model/{bibliography,cite}.rs`.
+
+Cristalino: `Content` enum sem variants `Bibliography`/`Cite`;
+sem `native_bibliography` nem `native_cite` em stdlib.
+
+### Pré-requisitos
+
+1. **ADR-0061** — autorização `hayagriva` em L1 ou L3.
+   Precedentes: ADR-0024 (ecow), ADR-0023 (indexmap),
+   ADR-0057 (hypher). Crate 0.9.1 já em cache local
+   (probe P152). Localização L1 vs L3 a decidir conforme
+   API real (CSL parser puxa I/O ou aceita strings em
+   memória?).
+2. **`Content::Bibliography` + `Content::Cite`** variants
+   novas (per ADR-0026 perfil).
+3. **`native_bibliography` + `native_cite`** em stdlib.
+4. **Pipeline introspect** consume `Cite` + `Bibliography`
+   para resolução cruzada (similar a `Ref`).
+5. **Render layout** para ambos.
+
+### Plano
+
+Materializar em **passo dedicado** (escopo XL; ~5-8h):
+
+- [ ] ADR-0061 criada (autorização hayagriva).
+- [ ] `Cargo.toml` + `crystalline.toml` configurados.
+- [ ] `Content::Bibliography {...}` + `Content::Cite {key,
+  supplement, form}` variants.
+- [ ] `native_bibliography` + `native_cite` em stdlib.
+- [ ] Pipeline introspect com resolução cruzada.
+- [ ] Render layout para ambos.
+- [ ] 5-10 testes; corpus paridade ganha 2-3 ficheiros.
+- [ ] Inventário 148 reclassifica ambas de `ausente` para
+  `implementado⁺` (perfil graded).
+
+### Critério de fecho
+
+- [ ] ADR-0061 `IMPLEMENTADO`.
+- [ ] `bibliography` + `cite` materializados em cristalino.
+- [ ] Tests verdes; lint zero.
+- [ ] Inventário 148 actualizado.
+
+### Notas
+
+- **Não bloqueia Fase 1 do roadmap Model** (P154B = terms +
+  divider; P155 = quote; P156 = table foundations; P157 =
+  figure kinds). Pode ser materializado em paralelo com
+  Fase 1 ou após.
+- **Escopo cumulativo**: bibliography sem cite é
+  semi-utilizável; cite sem bibliography não tem como
+  resolver. Recomenda-se materializar **ambos** num único
+  passo dedicado.
+- **Pré-condição P154A coberta**: probe de hayagriva
+  confirmou cache + versão match (ADR-0061 não exige fetch
+  online).
 
 ---
 

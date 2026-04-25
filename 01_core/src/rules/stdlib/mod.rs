@@ -40,7 +40,7 @@ pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::text::{native_lower, native_replace, native_upper};
 pub use crate::rules::stdlib::assert::native_assert;
 pub use crate::rules::stdlib::structural::{
-    native_emph, native_heading, native_raw, native_strong,
+    native_divider, native_emph, native_heading, native_raw, native_strong, native_terms,
 };
 pub use crate::rules::stdlib::figure_image::{native_figure, native_image};
 pub use crate::rules::stdlib::shapes::{
