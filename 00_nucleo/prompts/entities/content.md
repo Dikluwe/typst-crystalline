@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: a4244268
+Hash do Código: 0f5177f7
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -167,3 +167,68 @@ mas pode também aparecer standalone (e.g. show rules futuras).
   para `terms` — extensíveis sem breaking change (passar a
   `Terms { items, tight, ... }`).
 - Sem show rules `#show terms: ...` neste passo.
+
+## Variant `Content::Quote` — Passo 155 (ADR-0060 Fase 1, sub-passo 2)
+
+Materializado em P155 como segunda sub-fase da Fase 1; **fecha
+ADR-0060** (`PROPOSTO → IMPLEMENTADO`).
+
+```rust
+Content::Quote {
+    body:        Box<Content>,
+    attribution: Option<Box<Content>>,
+    block:       bool,
+    quotes:      bool,
+}
+```
+
+**Atributos**:
+- `body` — conteúdo citado.
+- `attribution` — autor/fonte opcional.
+- `block: true` → parágrafo dedicado, indent + spacing; `block: false`
+  → inline no parágrafo circundante.
+- `quotes: true` → aspas locale-apropriadas via
+  `crate::rules::lang::quotes::localize_quotes(lang)` em torno do body.
+
+**Comportamento `plain_text`**:
+- Sem smart-quotes: usa `"` ASCII fallback (texto plano não interage com lang).
+- Com attribution: `"body" — attribution`.
+- Sem attribution: `"body"`.
+- Se `quotes: false`: aspas omitidas.
+
+**Renderização (layouter)**:
+- Smart-quotes via `text.lang` activo (per ADR-0057).
+- `block: true`: indent 1.5em à esquerda; attribution em linha separada
+  prefixada por "— ".
+- `block: false`: inline; attribution prefixada por " — ".
+
+**Construtores**:
+- Stdlib: `#quote(body, attribution: ?, block: false, quotes: true)`.
+- Markup: `"..."` em `Mode::Markup` produz aspas localizadas
+  open/close por alternância (NÃO produz `Content::Quote`; produz
+  `Content::Text(glyph)`). Cristalino usa o lexer vanilla
+  (1 char = 1 SmartQuote token). `Content::Quote` é exclusivamente
+  para construções estruturais via `#quote(...)`.
+
+**Tabela de smart-quotes** (per `rules/lang/quotes.rs`):
+| Lang | Open | Close |
+|------|------|-------|
+| `pt` | `«` | `»` |
+| `en` | `"` (U+201C) | `"` (U+201D) |
+| `de` | `„` | `"` (U+201C) |
+| `fr` | `« ` (NBSP) | ` »` (NBSP) |
+| `es` | `«` | `»` |
+| `it` | `«` | `»` |
+| (default) | `"` ASCII | `"` ASCII |
+
+### Limitações conscientes (P155)
+
+- Sem show rules `#show quote: ...` neste passo.
+- Sem aspas secundárias (`'...'`) em markup — produz `'` ASCII.
+- Sem smart-apostrophes (`don't` → `don't`).
+- Aspas aninhadas em markup não suportadas (alternância simples
+  open/close).
+- Markup `"..."` produz `Content::Text` com glyph localizado; **não**
+  produz `Content::Quote` (esse fica reservado para `#quote()`
+  estrutural). Decisão pragmática: cristalino's lexer já é
+  per-character, e refactor para parear `"..."` excederia escopo P155.

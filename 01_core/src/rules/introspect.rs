@@ -82,6 +82,14 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
             description: Box::new(materialize_time(description, state)),
         },
 
+        // Passo 155: Quote — recurse em body e attribution.
+        Content::Quote { body, attribution, block, quotes } => Content::Quote {
+            body:        Box::new(materialize_time(body, state)),
+            attribution: attribution.as_ref().map(|c| Box::new(materialize_time(c, state))),
+            block:       *block,
+            quotes:      *quotes,
+        },
+
         // ── Terminais — clonar directamente ──────────────────────────────
         // Nós matemáticos (Equation e subtipos) não podem conter CounterDisplay
         // em markup válido — clonados em bloco sem recursão.
@@ -305,6 +313,14 @@ fn walk(content: &Content, state: &mut CounterState) {
         Content::TermItem { term, description } => {
             walk(term, state);
             walk(description, state);
+        }
+
+        // Passo 155 — Quote: walk em body + attribution.
+        Content::Quote { body, attribution, .. } => {
+            walk(body, state);
+            if let Some(a) = attribution {
+                walk(a, state);
+            }
         }
 
         Content::Transform { body, .. } => walk(body, state),

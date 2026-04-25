@@ -1,7 +1,10 @@
 # ⚖️ ADR-0060: Model (structural) roadmap — Fase 1 + Fase 2 + Fase 3
 
-**Status**: `PROPOSTO`
-**Validado**: Passo 154A — diagnóstico (`diagnostico-model-passo-154a.md`).
+**Status**: `IMPLEMENTADO` (Fase 1 fechada; Fase 2 e Fase 3 prosseguem
+como roadmap planeado e aplicam-se em passos subsequentes —
+P156/157/158).
+**Validado**: Passo 154A — diagnóstico; Passo 154B — sub-passo 1
+(terms + divider); **Passo 155 — sub-passo 2 (quote); Fase 1 fechada**.
 **Data**: 2026-04-25
 **Autor**: Humano + IA
 **Diagnóstico prévio**:
@@ -11,7 +14,21 @@
 materializado — `Content::Divider`, `Content::Terms`,
 `Content::TermItem` adicionados ao enum `Content`; `native_terms`
 e `native_divider` registadas em `make_stdlib`. Sem ADR nova.
-Status permanece `PROPOSTO` — Fase 1 fecha após Passo 155 (`quote`).
+Status permaneceu `PROPOSTO` aguardando Passo 155.
+
+**Anotação Passo 155 (2026-04-25)**: segundo sub-passo da Fase 1
+materializado — `Content::Quote { body, attribution, block, quotes }`
+adicionado ao enum; `native_quote` registada em `make_stdlib`;
+módulo novo `01_core/src/rules/lang/quotes.rs` com
+`localize_quotes(lang)` cobrindo 6 idiomas (`pt`/`en`/`de`/`fr`/`es`/`it`)
++ default ASCII; `eval_markup` actualizado para tratar
+`SyntaxKind::SmartQuote` (alternância open/close por sequência markup
+emitindo glyph localizado). Regression test garante que `"..."` em
+contexto de código (ex: `#let s = "..."`) continua a ser
+`Value::Str`. **Fase 1 fechada**. Status `PROPOSTO → IMPLEMENTADO`.
+Cobertura Model 41% → ~45%; arquitectural Content 75% → ~77%.
+Plano Fase 2 (P156/157/158 — table foundations, figure kinds,
+bibliography+cite com ADR-0061) inalterado.
 
 ---
 
@@ -171,8 +188,11 @@ humana posterior).
 | (Fase 3) | S | asset | — |
 | (Fase 3) | divergência | document, title | — |
 
-**ADR-0060 transita PROPOSTO → IMPLEMENTADO** quando
-Fase 1 + Fase 2 + ADR-0061 concluírem.
+**ADR-0060 transitou `PROPOSTO → IMPLEMENTADO`** em Passo 155
+ao fechar a Fase 1 (terms + divider em P154B; quote em P155).
+A Fase 2 (table/figure-kinds/bibliography) e a Fase 3
+(asset/document/title) prosseguem como planeado em P156–P158+
+sem necessidade de re-abertura desta ADR.
 
 ## Referências
 
