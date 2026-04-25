@@ -1,0 +1,3 @@
+features = ["let", "bool"]
+modo_p2 = "value_equality"
+notes = "Caso trivial; valida pipeline eval cristalino + extracção do scope."

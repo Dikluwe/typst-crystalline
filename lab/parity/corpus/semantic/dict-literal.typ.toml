@@ -1,0 +1,3 @@
+features = ["let", "dict"]
+modo_p2 = "value_equality"
+notes = "Dict literal preservando ordem de inserção (IndexMap em cristalino, ADR-0023)."

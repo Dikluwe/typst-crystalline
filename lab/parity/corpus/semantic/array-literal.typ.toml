@@ -1,0 +1,3 @@
+features = ["let", "array"]
+modo_p2 = "value_equality"
+notes = "Array literal de 3 ints."

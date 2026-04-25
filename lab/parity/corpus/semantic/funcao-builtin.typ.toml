@@ -1,0 +1,3 @@
+features = ["let", "stdlib", "len"]
+modo_p2 = "value_equality"
+notes = "Chamada a função nativa `len`; resultado esperado Int(3)."

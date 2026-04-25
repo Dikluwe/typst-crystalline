@@ -1,0 +1,3 @@
+features = ["let", "float", "ops"]
+modo_p2 = "value_equality"
+notes = "Divisão float; resultado esperado Float(2.5). Uso de literais .0 explícitos para evitar coerção Int."

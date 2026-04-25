@@ -1,0 +1,8 @@
+features = ["let", "closure", "function-call"]
+modo_p2 = "value_equality"
+diagnostic_for = "ADR-0059"
+notes = """
+**Diagnóstico canário ADR-0059**: closure cristalina recebe Args como
+parâmetro &Args (não embrulhado em Value::Args). Resultado esperado Int(15).
+Test indirectamente exerce ADR-0059 via passagem de argumentos posicionais.
+"""
