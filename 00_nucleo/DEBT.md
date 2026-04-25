@@ -16,251 +16,18 @@
 > consumer integral de `StyleDelta` em layout — pré-requisito para
 > fecho de DEBT-1 por ADR-0054. Total abertos: **11 → 12**. Detalhe
 > em [`diagnosticos/diagnostico-shaping-passo-135.md`](diagnosticos/diagnostico-shaping-passo-135.md).
+>
+> **Passo 142 (2026-04-24)**: fecho formal de **DEBT-1** após
+> cumprimento dos critérios de ADR-0054 (consumer activo em 9/10
+> campos de `StyleDelta`; `lang` em scope-out por perfil
+> observacional graded). **DEBT-52** encerrado simultaneamente
+> (rastreador cumpriu a função; gaps 7 e 8 ficam como candidatos
+> futuros não-DEBT). Total abertos: **12 → 10**. Relatório formal
+> em [`relatorios/fecho-debt-1-passo-142.md`](relatorios/fecho-debt-1-passo-142.md).
 
 ---
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
-
-## DEBT-1 — StyleChain — PARCIALMENTE RESOLVIDO (estrutura paga em Passo 100)
-
-### Resolvido no Passo 30
-
-- **`StyleChain`** implementada em `entities/style_chain.rs` (L1)
-- **`StyleDelta { bold, italic, size }`** como delta de herança
-- **`#set text(bold:, italic:, size:)`** avaliado em `eval_expr` (Expr::SetRule)
-- **`EvalContext::styles: StyleChain`** — cadeia activa durante eval
-  (~~removido no Passo 94: agora propagado como `&mut StyleChain`
-  parâmetro; ver secção "Actualização Passo 95" abaixo~~)
-- **`TextStyle::from(&StyleChain)`** — bridge para layout/export actuais
-- **`Content::Text(EcoString, TextStyle)`** — estilo capturado em eval
-- **Strong/Emph/Heading** em eval: push/pop de estilos correcto
-
-### Divergência intencional
-
-- ~~`#set` é global ao eval (não tem scoping por bloco) — DEBT menor~~
-  **Desactualizada (Passo 95).** O scoping por bloco foi adicionado no
-  Passo 33 via save/restore em `CodeBlock`/`ContentBlock`, e
-  reafirmado arquitectonicamente no Passo 94 (atomização de `styles`
-  como parâmetro: cada bloco cria `local_styles` próprio; isolamento
-  por construção).
-- Apenas `text` como target suportado — outros targets ignorados silenciosamente
-- StyleChain não integrada com `#show` rules (Passo futuro)
-- Layout usa merge de node_style + self.style para compatibilidade com testes directos
-
-### Pendente
-
-- Propriedades adicionais (fill, font-family, weight numérico, etc.)
-- Paridade total com o sistema de styles do original
-- Remover os wrappers Content::Strong/Emph do layout quando eval os tiver totalmente substituído
-
-**Ficheiros alterados**: `entities/style_chain.rs` (novo), `entities/mod.rs`,
-`entities/content.rs`, `rules/eval.rs`, `rules/layout.rs`
-
-### Nota — actualização no Passo 84.1
-
-Duas pendências originais ("Scoping de `#set` por bloco" e "`#show` rules")
-foram riscadas por terem sido resolvidas implicitamente por outros DEBTs
-(DEBT-7 e DEBT-19/20 respectivamente). A auditoria do Passo 83.5
-confirmou a presença do código correspondente em `eval.rs`. As
-pendências remanescentes (propriedades adicionais, paridade, wrappers)
-continuam em aberto.
-
-### Actualização Passo 95 — revisão à luz da atomização do Passo 94
-
-Tarefa A do Passo 95 classifica as pendências do DEBT-1:
-
-- [x] **Scoping de `#set` por bloco** — resolvido pelo Passo 33
-  (save/restore) e **reforçado pelo Passo 94** (atomização de
-  `styles` como `&mut StyleChain` parâmetro; cada bloco constrói
-  `local_styles` por construção — scoping torna-se intrínseco em
-  vez de depender de save/restore manual sobre um campo partilhado).
-- [x] **Arquitectura partilhada do `styles`** (implícita no item
-  "`EvalContext::styles: StyleChain`" da lista de Passo 30) —
-  resolvida no Passo 94 via extracção como parâmetro (ADR-0036
-  segunda aplicação).
-- [ ] **Propriedades adicionais** (fill, font-family, weight
-  numérico, etc.) — **continua em aberto**. Ortogonal à
-  atomização; exige extensão do `StyleDelta` e do `TextStyle`
-  para novos campos.
-- [ ] **Paridade total com o sistema de styles do original** —
-  **continua em aberto**. Inclui o item anterior mais integração
-  com show rules (DEBT-19/20), constant folding, etc.
-- [ ] **Remover wrappers `Content::Strong/Emph` do layout** —
-  **continua em aberto, sem mudança de natureza**. A atomização
-  do eval não toca em layout; a decisão arquitectural permanece
-  igual ao que era antes do Passo 94.
-
-Sumário: 2 pendências implicitamente resolvidas pela atomização
-(já não exigem trabalho específico); 3 pendências permanecem
-legítimas. DEBT-1 permanece na Secção 1 — o trabalho residual
-(propriedades, paridade, wrappers) não foi resolvido por
-atomização.
-
-### Actualização Passo 99 — fundação tipada `Style`/`Styles`/`Content::Styled`
-
-Passo 99 (ADR-0038) materializou a fundação em L1:
-
-- [x] **Enum `Style`** em `entities/style.rs` com 5 variantes:
-  `Bold`, `Italic`, `Size`, `Fill`, `HeadingLevel`. Superconjunto
-  preparado para futuro (`Fill` e `HeadingLevel` forward-compat).
-- [x] **Struct `Styles(Vec<Style>)`** — colecção de deltas tipados.
-- [x] **`StyleChain::push_styles(&Styles)`** — entrada tipada; projecta
-  as variantes conhecidas no `StyleDelta` interno.
-- [x] **`StyleChain::fill()`/`heading_level()`** — accessors forward-compat
-  para as variantes novas.
-- [x] **`Content::Styled(Box<Content>, Styles)`** — nova variante
-  cobrindo `plain_text`, `is_empty`, `map_text`, `map_content`,
-  `PartialEq` e todos os sítios de `match` exaustivo (incluindo
-  `introspect::materialize_time`, `introspect::walk`,
-  `layout_content` — que é transparente no Passo 99).
-- [x] **Teste de integração conceptual**: `Content::Styled` → `Styles`
-  → `StyleChain::push_styles` → resolução top-wins (paridade vanilla).
-- [x] **ADR-0038 `EM VIGOR`** — "Sistema de estilos em L1".
-- [x] **Decisão COEX** registada: `TextStyle` plano permanece como
-  "vista achatada para o Layouter actual" — 70+ sítios de consumo
-  tornam SUB impraticável num único passo. Novo DEBT-48 aberto.
-
-**Propriedades adicionais**: parcialmente pagas. `Fill` e
-`HeadingLevel` no enum; outras (`font`, `lang`, `leading`) continuam
-adiadas (bloqueadas por tipos não materializados — ver ADR-0038).
-
-**Estado**: `DEBT-1` marcado agora como **PARCIALMENTE RESOLVIDO
-(Passo 99)** — a fundação está materializada. Activação no eval
-(`#set`/`#show` a consumir `Content::Styled`) e substituição de
-`TextStyle` (DEBT-48) são trabalho futuro.
-
-### Actualização Passo 101 — remover wrappers `Content::Strong`/`Emph`
-
-- [x] `Content::Strong(Box<Content>)` e `Content::Emph(Box<Content>)`
-      **removidos do enum** `Content`.
-- [x] `Content::strong(body)` e `Content::emph(body)` redefinidos como
-      construtores que emitem `Content::Styled(body,
-      Styles::from_iter([Style::Bold(true)]))` (ou Italic). API pública
-      preservada; zero ripple para consumidores.
-- [x] Layouter, `introspect::materialize_time`/`walk`, `PartialEq`,
-      `map_content`, `map_text`: arms dedicados removidos. Comportamento
-      coberto pelo arm `Content::Styled` (adicionado no Passo 100).
-- [x] `eval/rules.rs` show selector: `show strong: it => ...` passa a
-      casar `Content::Styled` que contenha `Style::Bold(true)`;
-      análogo para `show emph`. Paridade funcional preservada.
-- [x] stdlib `native_strong`/`native_emph` emitem
-      `Content::strong(body)`/`Content::emph(body)` (que por sua vez
-      emitem `Content::Styled`).
-- [x] Tests `entities/content.rs` actualizados: `matches!(c,
-      Content::Strong(_))` → `Content::Styled(_, _)`; construção via
-      factory preservada.
-- [x] `cargo test --workspace`: 783 → **783 L1** (inalterado;
-      consolidação puramente estrutural).
-- [x] `crystalline-lint`: zero violations.
-- [x] Paridade funcional: `Hello *bold* and _italic_` produz output
-      idêntico ao pós-Passo 100.
-
-**DEBT-1 pendências restantes**: 2 de 3 (activação de `#set`/`#show`
-no eval; propriedades adicionais bloqueadas). A tarefa "remover
-wrappers Strong/Emph do layout" foi paga.
-
-### Actualização Passo 102 — `#set text(...)` validado + `fill` activado
-
-O Passo 102 (ADR-0040) formalizou a activação de `#set` no eval:
-
-- [x] `#set text(bold/italic/size)` já activo desde Passo 30 via
-      arquitectura bake-in (`StyleDelta` empilhado em `*styles`;
-      `TextStyle::from(&*styles)` capturado em cada `Content::Text`).
-      Validado end-to-end por 6 novos testes em
-      `tests_set_rule_integration`:
-      `set_text_size_propaga_ao_frame`,
-      `set_text_bold_propaga_ao_frame`,
-      `set_text_italic_propaga_ao_frame`,
-      `set_text_bold_afecta_conteudo_seguinte_nao_anterior`,
-      `set_combinado_com_emph_sintactico`,
-      `bold_syntax_sem_set_continua_a_funcionar`.
-- [x] **`#set text(fill: color)` activado no Passo 102** — `StyleDelta.fill`
-      capturado a partir de `Value::Color`; propaga a
-      `TextStyle.fill` (adicionado no Passo 100) via
-      `TextStyle::from(&StyleChain)`. Teste unitário
-      `eval_set_text_fill_passo_102` confirma parse + eval sem erro.
-- [x] ADR-0040 `EM VIGOR`.
-- [x] `cargo test --workspace`: 783 → **790 L1** (+7; +6 integração,
-      +1 unitário fill).
-- [x] `crystalline-lint`: zero violations.
-
-**Decisão arquitectural registada na ADR-0040**: manter bake-in como
-arquitectura principal para `#set text`. Refactorização para
-wrapping via `Content::Styled` adiada para quando `Introspection`
-materializar e `Content::Heading` colapsar. Dívida estrutural, não
-funcional.
-
-**DEBT-1 pendências restantes**: 2 de 3 permanecem.
-
-1. `#set` está activo. Falta **`#show`** activar. Dívida latente
-   do show rule selector (relatório Passo 101) fica para passo
-   dedicado — espera-se que a activação de `#show` exponha essa
-   dívida e obrigue a refactorização do selector.
-2. **Propriedades adicionais** (`text.font`, `text.lang`,
-   `par.leading`, `text.weight` como string) — bloqueadas por
-   tipos não materializados. Adiado para passos quando Font/Lang/
-   Par entrarem em L1.
-
-### Actualização Passo 103 — `#show heading/strong/emph` validado
-
-Inventário 103.A revelou que `#show` **já estava activo desde o Passo 70**
-(DEBT-23 encerrado) para selectores `Text` e `NodeKind` (heading,
-strong, emph, raw, figure, equation, list). O Passo 101 actualizou
-o match de Strong/Emph para usar `Content::Styled` + `Style::Bold/Italic(true)`.
-
-- [x] Validação end-to-end com 5 testes de integração em
-      `rules/layout/tests.rs::tests_show_rule_integration`:
-      `show_heading_transforma_em_uppercase`, `show_strong_transforma`,
-      `show_emph_transforma`, `regressao_sem_show_mantem_comportamento`,
-      `debt_50_show_strong_nao_apanha_set_text_bold_porque_bake_in`.
-- [x] ADR-0041 `EM VIGOR` documentando catálogo, limites e dívida.
-- [x] DEBT-50 aberto para dívida latente (quando `#set text` migrar
-      de bake-in para wrapping, o selector Strong apanha false
-      positives).
-- [x] `cargo test --workspace`: 790 → **795 L1** (+5).
-- [x] `crystalline-lint`: zero violations.
-
-**DEBT-1 pendências restantes após Passo 103**: 1 de 3.
-
-1. ~~Activar `#show`~~ — concluído (heading, strong, emph). Selectores
-   remanescentes (where, catch-all, regex, label) fora do escopo do
-   DEBT-1 — ficam como extensão futura, não como dívida estrutural.
-2. **Propriedades adicionais** (`text.font`, `text.lang`,
-   `par.leading`, `text.weight` como string) — bloqueadas por
-   tipos não materializados.
-
-### Actualização Passo 100 — activação de `Content::Styled` no Layouter
-
-DEBT-48 encerrado no Passo 100 (ADR-0039):
-
-- [x] `Layouter` ganhou `chain: StyleChain` como source-of-truth do
-      estilo activo; `self.style: TextStyle` passa a ser cache da
-      vista resolvida via `TextStyle::from(&self.chain)`.
-- [x] `Content::Styled` activo: `push_styles`/restore sobre
-      `self.chain`, sincroniza `self.style`. Deixou de ser
-      transparente (Passo 99 era a versão COEX inactiva).
-- [x] `TextStyle` estendido com `fill` + `heading_level` (alinha com
-      enum `Style` do Passo 99).
-- [x] `Content::Text` arm: merge correcto entre `node_style` (do
-      eval) e `self.style` (da cadeia) — propriedades activas na
-      cadeia sobrepõem o node_style; propriedades passivas herdam.
-- [x] 3 testes de integração em `layout/tests/tests_styled_integration`
-      confirmam Bold+Size aplicados, aninhamento top-wins, e
-      não-vazamento após save/restore.
-- [x] ADR-0039 promovida a `EM VIGOR`.
-
-**Dívida estrutural do `StyleChain` / `TextStyle` paga**. DEBT-1
-permanece como **PARCIALMENTE RESOLVIDO** porque ainda faltam:
-
-- [ ] Activar `#set`/`#show` no `eval_markup` a produzir
-      `Content::Styled`. Este passo é **independente** do Passo 100 —
-      o pipeline Layouter→export já aceita o contrato.
-- [ ] Remover wrappers `Content::Strong`/`Emph` do layout quando
-      `eval` os substituir por `Content::Styled([Style::Bold(true)])`.
-- [ ] Propriedades adicionais (`text.font`, `text.lang`, `par.leading`)
-      — bloqueadas por tipos não materializados (ADR-0038).
-
----
 
 ## DEBT-2 — Closures eager vs lazy capture — PARCIALMENTE RESOLVIDO
 
@@ -618,14 +385,305 @@ este DEBT.
 
 ---
 
-## DEBT-52 — Consumer integral de `StyleDelta` em layout — EM ABERTO (Passo 135)
+## Secção 2 — DEBTs encerrados
+
+## DEBT-1 — StyleChain — ENCERRADO (Passo 142) ✓
+
+**Fechado em**: 2026-04-24.
+**Relatório formal**:
+[`relatorios/fecho-debt-1-passo-142.md`](relatorios/fecho-debt-1-passo-142.md).
+**Cumprimento**: ADR-0054 (critérios 1, 2, 3 satisfeitos).
+
+Histórico preservado abaixo na forma em que vivia antes do
+fecho. Actualizações de Passos 30, 33, 83.5, 84.1, 94, 95, 99,
+100, 101, 102, 103 ficam intactas; as entradas das Fases B
+(137/138/139) e C (140B/141) estão registadas em DEBT-52
+(imediatamente abaixo nesta secção).
+
+---
+
+### (Histórico) Estado pré-fecho — DEBT-1 — PARCIALMENTE RESOLVIDO (estrutura paga em Passo 100)
+
+#### Resolvido no Passo 30
+
+- **`StyleChain`** implementada em `entities/style_chain.rs` (L1)
+- **`StyleDelta { bold, italic, size }`** como delta de herança
+- **`#set text(bold:, italic:, size:)`** avaliado em `eval_expr` (Expr::SetRule)
+- **`EvalContext::styles: StyleChain`** — cadeia activa durante eval
+  (~~removido no Passo 94: agora propagado como `&mut StyleChain`
+  parâmetro; ver secção "Actualização Passo 95" abaixo~~)
+- **`TextStyle::from(&StyleChain)`** — bridge para layout/export actuais
+- **`Content::Text(EcoString, TextStyle)`** — estilo capturado em eval
+- **Strong/Emph/Heading** em eval: push/pop de estilos correcto
+
+#### Divergência intencional
+
+- ~~`#set` é global ao eval (não tem scoping por bloco) — DEBT menor~~
+  **Desactualizada (Passo 95).** O scoping por bloco foi adicionado no
+  Passo 33 via save/restore em `CodeBlock`/`ContentBlock`, e
+  reafirmado arquitectonicamente no Passo 94 (atomização de `styles`
+  como parâmetro: cada bloco cria `local_styles` próprio; isolamento
+  por construção).
+- Apenas `text` como target suportado — outros targets ignorados silenciosamente
+- StyleChain não integrada com `#show` rules (Passo futuro)
+- Layout usa merge de node_style + self.style para compatibilidade com testes directos
+
+#### Pendente
+
+- Propriedades adicionais (fill, font-family, weight numérico, etc.)
+- Paridade total com o sistema de styles do original
+- Remover os wrappers Content::Strong/Emph do layout quando eval os tiver totalmente substituído
+
+**Ficheiros alterados**: `entities/style_chain.rs` (novo), `entities/mod.rs`,
+`entities/content.rs`, `rules/eval.rs`, `rules/layout.rs`
+
+#### Nota — actualização no Passo 84.1
+
+Duas pendências originais ("Scoping de `#set` por bloco" e "`#show` rules")
+foram riscadas por terem sido resolvidas implicitamente por outros DEBTs
+(DEBT-7 e DEBT-19/20 respectivamente). A auditoria do Passo 83.5
+confirmou a presença do código correspondente em `eval.rs`. As
+pendências remanescentes (propriedades adicionais, paridade, wrappers)
+continuam em aberto.
+
+#### Actualização Passo 95 — revisão à luz da atomização do Passo 94
+
+Tarefa A do Passo 95 classifica as pendências do DEBT-1:
+
+- [x] **Scoping de `#set` por bloco** — resolvido pelo Passo 33
+  (save/restore) e **reforçado pelo Passo 94** (atomização de
+  `styles` como `&mut StyleChain` parâmetro; cada bloco constrói
+  `local_styles` por construção — scoping torna-se intrínseco em
+  vez de depender de save/restore manual sobre um campo partilhado).
+- [x] **Arquitectura partilhada do `styles`** (implícita no item
+  "`EvalContext::styles: StyleChain`" da lista de Passo 30) —
+  resolvida no Passo 94 via extracção como parâmetro (ADR-0036
+  segunda aplicação).
+- [ ] **Propriedades adicionais** (fill, font-family, weight
+  numérico, etc.) — **continua em aberto**. Ortogonal à
+  atomização; exige extensão do `StyleDelta` e do `TextStyle`
+  para novos campos.
+- [ ] **Paridade total com o sistema de styles do original** —
+  **continua em aberto**. Inclui o item anterior mais integração
+  com show rules (DEBT-19/20), constant folding, etc.
+- [ ] **Remover wrappers `Content::Strong/Emph` do layout** —
+  **continua em aberto, sem mudança de natureza**. A atomização
+  do eval não toca em layout; a decisão arquitectural permanece
+  igual ao que era antes do Passo 94.
+
+Sumário: 2 pendências implicitamente resolvidas pela atomização
+(já não exigem trabalho específico); 3 pendências permanecem
+legítimas. DEBT-1 permanece na Secção 1 — o trabalho residual
+(propriedades, paridade, wrappers) não foi resolvido por
+atomização.
+
+#### Actualização Passo 99 — fundação tipada `Style`/`Styles`/`Content::Styled`
+
+Passo 99 (ADR-0038) materializou a fundação em L1:
+
+- [x] **Enum `Style`** em `entities/style.rs` com 5 variantes:
+  `Bold`, `Italic`, `Size`, `Fill`, `HeadingLevel`. Superconjunto
+  preparado para futuro (`Fill` e `HeadingLevel` forward-compat).
+- [x] **Struct `Styles(Vec<Style>)`** — colecção de deltas tipados.
+- [x] **`StyleChain::push_styles(&Styles)`** — entrada tipada; projecta
+  as variantes conhecidas no `StyleDelta` interno.
+- [x] **`StyleChain::fill()`/`heading_level()`** — accessors forward-compat
+  para as variantes novas.
+- [x] **`Content::Styled(Box<Content>, Styles)`** — nova variante
+  cobrindo `plain_text`, `is_empty`, `map_text`, `map_content`,
+  `PartialEq` e todos os sítios de `match` exaustivo (incluindo
+  `introspect::materialize_time`, `introspect::walk`,
+  `layout_content` — que é transparente no Passo 99).
+- [x] **Teste de integração conceptual**: `Content::Styled` → `Styles`
+  → `StyleChain::push_styles` → resolução top-wins (paridade vanilla).
+- [x] **ADR-0038 `EM VIGOR`** — "Sistema de estilos em L1".
+- [x] **Decisão COEX** registada: `TextStyle` plano permanece como
+  "vista achatada para o Layouter actual" — 70+ sítios de consumo
+  tornam SUB impraticável num único passo. Novo DEBT-48 aberto.
+
+**Propriedades adicionais**: parcialmente pagas. `Fill` e
+`HeadingLevel` no enum; outras (`font`, `lang`, `leading`) continuam
+adiadas (bloqueadas por tipos não materializados — ver ADR-0038).
+
+**Estado**: `DEBT-1` marcado agora como **PARCIALMENTE RESOLVIDO
+(Passo 99)** — a fundação está materializada. Activação no eval
+(`#set`/`#show` a consumir `Content::Styled`) e substituição de
+`TextStyle` (DEBT-48) são trabalho futuro.
+
+#### Actualização Passo 101 — remover wrappers `Content::Strong`/`Emph`
+
+- [x] `Content::Strong(Box<Content>)` e `Content::Emph(Box<Content>)`
+      **removidos do enum** `Content`.
+- [x] `Content::strong(body)` e `Content::emph(body)` redefinidos como
+      construtores que emitem `Content::Styled(body,
+      Styles::from_iter([Style::Bold(true)]))` (ou Italic). API pública
+      preservada; zero ripple para consumidores.
+- [x] Layouter, `introspect::materialize_time`/`walk`, `PartialEq`,
+      `map_content`, `map_text`: arms dedicados removidos. Comportamento
+      coberto pelo arm `Content::Styled` (adicionado no Passo 100).
+- [x] `eval/rules.rs` show selector: `show strong: it => ...` passa a
+      casar `Content::Styled` que contenha `Style::Bold(true)`;
+      análogo para `show emph`. Paridade funcional preservada.
+- [x] stdlib `native_strong`/`native_emph` emitem
+      `Content::strong(body)`/`Content::emph(body)` (que por sua vez
+      emitem `Content::Styled`).
+- [x] Tests `entities/content.rs` actualizados: `matches!(c,
+      Content::Strong(_))` → `Content::Styled(_, _)`; construção via
+      factory preservada.
+- [x] `cargo test --workspace`: 783 → **783 L1** (inalterado;
+      consolidação puramente estrutural).
+- [x] `crystalline-lint`: zero violations.
+- [x] Paridade funcional: `Hello *bold* and _italic_` produz output
+      idêntico ao pós-Passo 100.
+
+**DEBT-1 pendências restantes**: 2 de 3 (activação de `#set`/`#show`
+no eval; propriedades adicionais bloqueadas). A tarefa "remover
+wrappers Strong/Emph do layout" foi paga.
+
+#### Actualização Passo 102 — `#set text(...)` validado + `fill` activado
+
+O Passo 102 (ADR-0040) formalizou a activação de `#set` no eval:
+
+- [x] `#set text(bold/italic/size)` já activo desde Passo 30 via
+      arquitectura bake-in (`StyleDelta` empilhado em `*styles`;
+      `TextStyle::from(&*styles)` capturado em cada `Content::Text`).
+      Validado end-to-end por 6 novos testes em
+      `tests_set_rule_integration`:
+      `set_text_size_propaga_ao_frame`,
+      `set_text_bold_propaga_ao_frame`,
+      `set_text_italic_propaga_ao_frame`,
+      `set_text_bold_afecta_conteudo_seguinte_nao_anterior`,
+      `set_combinado_com_emph_sintactico`,
+      `bold_syntax_sem_set_continua_a_funcionar`.
+- [x] **`#set text(fill: color)` activado no Passo 102** — `StyleDelta.fill`
+      capturado a partir de `Value::Color`; propaga a
+      `TextStyle.fill` (adicionado no Passo 100) via
+      `TextStyle::from(&StyleChain)`. Teste unitário
+      `eval_set_text_fill_passo_102` confirma parse + eval sem erro.
+- [x] ADR-0040 `EM VIGOR`.
+- [x] `cargo test --workspace`: 783 → **790 L1** (+7; +6 integração,
+      +1 unitário fill).
+- [x] `crystalline-lint`: zero violations.
+
+**Decisão arquitectural registada na ADR-0040**: manter bake-in como
+arquitectura principal para `#set text`. Refactorização para
+wrapping via `Content::Styled` adiada para quando `Introspection`
+materializar e `Content::Heading` colapsar. Dívida estrutural, não
+funcional.
+
+**DEBT-1 pendências restantes**: 2 de 3 permanecem.
+
+1. `#set` está activo. Falta **`#show`** activar. Dívida latente
+   do show rule selector (relatório Passo 101) fica para passo
+   dedicado — espera-se que a activação de `#show` exponha essa
+   dívida e obrigue a refactorização do selector.
+2. **Propriedades adicionais** (`text.font`, `text.lang`,
+   `par.leading`, `text.weight` como string) — bloqueadas por
+   tipos não materializados. Adiado para passos quando Font/Lang/
+   Par entrarem em L1.
+
+#### Actualização Passo 103 — `#show heading/strong/emph` validado
+
+Inventário 103.A revelou que `#show` **já estava activo desde o Passo 70**
+(DEBT-23 encerrado) para selectores `Text` e `NodeKind` (heading,
+strong, emph, raw, figure, equation, list). O Passo 101 actualizou
+o match de Strong/Emph para usar `Content::Styled` + `Style::Bold/Italic(true)`.
+
+- [x] Validação end-to-end com 5 testes de integração em
+      `rules/layout/tests.rs::tests_show_rule_integration`:
+      `show_heading_transforma_em_uppercase`, `show_strong_transforma`,
+      `show_emph_transforma`, `regressao_sem_show_mantem_comportamento`,
+      `debt_50_show_strong_nao_apanha_set_text_bold_porque_bake_in`.
+- [x] ADR-0041 `EM VIGOR` documentando catálogo, limites e dívida.
+- [x] DEBT-50 aberto para dívida latente (quando `#set text` migrar
+      de bake-in para wrapping, o selector Strong apanha false
+      positives).
+- [x] `cargo test --workspace`: 790 → **795 L1** (+5).
+- [x] `crystalline-lint`: zero violations.
+
+**DEBT-1 pendências restantes após Passo 103**: 1 de 3.
+
+1. ~~Activar `#show`~~ — concluído (heading, strong, emph). Selectores
+   remanescentes (where, catch-all, regex, label) fora do escopo do
+   DEBT-1 — ficam como extensão futura, não como dívida estrutural.
+2. **Propriedades adicionais** (`text.font`, `text.lang`,
+   `par.leading`, `text.weight` como string) — bloqueadas por
+   tipos não materializados.
+
+#### Actualização Passo 100 — activação de `Content::Styled` no Layouter
+
+DEBT-48 encerrado no Passo 100 (ADR-0039):
+
+- [x] `Layouter` ganhou `chain: StyleChain` como source-of-truth do
+      estilo activo; `self.style: TextStyle` passa a ser cache da
+      vista resolvida via `TextStyle::from(&self.chain)`.
+- [x] `Content::Styled` activo: `push_styles`/restore sobre
+      `self.chain`, sincroniza `self.style`. Deixou de ser
+      transparente (Passo 99 era a versão COEX inactiva).
+- [x] `TextStyle` estendido com `fill` + `heading_level` (alinha com
+      enum `Style` do Passo 99).
+- [x] `Content::Text` arm: merge correcto entre `node_style` (do
+      eval) e `self.style` (da cadeia) — propriedades activas na
+      cadeia sobrepõem o node_style; propriedades passivas herdam.
+- [x] 3 testes de integração em `layout/tests/tests_styled_integration`
+      confirmam Bold+Size aplicados, aninhamento top-wins, e
+      não-vazamento após save/restore.
+- [x] ADR-0039 promovida a `EM VIGOR`.
+
+**Dívida estrutural do `StyleChain` / `TextStyle` paga**. DEBT-1
+permanece como **PARCIALMENTE RESOLVIDO** porque ainda faltam:
+
+- [ ] Activar `#set`/`#show` no `eval_markup` a produzir
+      `Content::Styled`. Este passo é **independente** do Passo 100 —
+      o pipeline Layouter→export já aceita o contrato.
+- [ ] Remover wrappers `Content::Strong`/`Emph` do layout quando
+      `eval` os substituir por `Content::Styled([Style::Bold(true)])`.
+- [ ] Propriedades adicionais (`text.font`, `text.lang`, `par.leading`)
+      — bloqueadas por tipos não materializados (ADR-0038).
+
+---
+
+### Fecho — Passo 142
+
+- [x] Critérios de ADR-0054 cumpridos (transcritos no
+      relatório §2).
+- [x] 9 dos 10 campos de `StyleDelta` com consumer activo
+      (relatório §3).
+- [x] `lang` em scope-out justificado pelo perfil
+      observacional graded de ADR-0054 (relatório §4).
+- [x] DEBT-52 (rastreador) encerrado simultaneamente.
+- [x] Limitações conhecidas preservadas como candidatos
+      futuros (não DEBTs): variant-aware (ADR-0055bis),
+      multi-font per document (Passo 142A), subsetting
+      (ADR-0056), shaping rustybuzz (DEBT-53), fixture de
+      fonts em CI.
+
+---
+
+## DEBT-52 — Consumer integral de `StyleDelta` em layout — ENCERRADO (Passo 142) ✓
+
+**Fechado em**: 2026-04-24 (simultaneamente com DEBT-1).
+**Relatório formal**:
+[`relatorios/fecho-debt-1-passo-142.md`](relatorios/fecho-debt-1-passo-142.md).
+**Gaps fechados**: 6/8. Os gaps 7 (lang hyphenation) e 8
+(font dict) são opcionais segundo ADR-0054 e permanecem como
+candidatos futuros, sem reabertura como DEBTs novos.
+
+Rastreador cumpriu a sua função: guiou as Fases A (Passo 136),
+B (Passos 137–139) e C básica (Passos 140B + 141) do trabalho
+exigido por ADR-0054 para fecho de DEBT-1. Histórico preservado
+abaixo.
+
+---
+
+### (Histórico) Estado pré-fecho — DEBT-52 — EM ABERTO (Passo 135)
 
 **Aberto em**: Passo 135 (2026-04-24).
 **Relacionado com**: DEBT-1 (fecho depende deste), ADR-0033
 (paridade, reinterpretada por ADR-0054), ADR-0053 (`font` dict
 deferido).
 
-### Contexto
+#### Contexto
 
 Passos 126–134 capturaram a lista canónica DEBT-1 em
 `StyleDelta`: `weight`, `tracking`, `leading`, `lang`, `font`.
@@ -639,7 +697,7 @@ observacional equivalente ao vanilla. ADR-0054 (criada em
 Passo 135) formaliza que **DEBT-1 não fecha enquanto consumers
 não existirem**.
 
-### Gaps identificados (diagnóstico 135)
+#### Gaps identificados (diagnóstico 135)
 
 Ver
 `00_nucleo/diagnosticos/diagnostico-shaping-passo-135.md`
@@ -653,7 +711,7 @@ Resumo por dificuldade:
 - **L (1)**: lang shaping features via rustybuzz.
 - **XL (1)**: shaping engine completo (rustybuzz integrado).
 
-### Âmbito
+#### Âmbito
 
 - [x] **Fase A**: estender `TextStyle` + `From<&StyleChain>`.
       **Resolvido no Passo 136** (5 campos + 5 resolvers em
@@ -700,7 +758,7 @@ Resumo por dificuldade:
       features + script-aware (escopo XL; possivelmente série
       dedicada fora deste DEBT).
 
-### Dependências
+#### Dependências
 
 - **`FontBook::select`** em L1 — já existe (`font_book.rs`).
 - **PDF font embedding em L3** — hoje Helvetica hardcoded
@@ -710,14 +768,14 @@ Resumo por dificuldade:
 - **Crate hifenização** (ex: `hyphenation`) — bloqueia lang
   consumer.
 
-### Roadmap estimado
+#### Roadmap estimado
 
 **4-8 passos** para paridade observável razoável
 (fase A + B + C). **Fase D/E** se escopo ampliar.
 
 Ponto de entrada: Passo 136 (fase A, XS).
 
-### Critério de conclusão
+#### Critério de conclusão
 
 - [ ] Cada campo inerte identificado tem consumer activo OU
       é explicitamente marcado como "scope-out" com ADR de
@@ -726,15 +784,13 @@ Ponto de entrada: Passo 136 (fase A, XS).
       para inputs de teste documentados.
 - [ ] DEBT-1 pode fechar.
 
-### Nota estratégica
+#### Nota estratégica
 
 DEBT-52 é **rastreador**, não trabalho. Fecha quando todos os
 gaps forem atacados ou explicitamente scope-out. Cada linha
 `- [ ]` acima corresponde a um ou mais passos futuros.
 
 ---
-
-## Secção 2 — DEBTs encerrados
 
 ## DEBT-45 — Métodos `check_*_depth` de `Route<'a>` não chamados pelo eval — ENCERRADO (Passo 110) ✓
 
