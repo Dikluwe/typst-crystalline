@@ -674,6 +674,24 @@ B (Passos 137–139) e C básica (Passos 140B + 141) do trabalho
 exigido por ADR-0054 para fecho de DEBT-1. Histórico preservado
 abaixo.
 
+### Actualização Passo 146 — Multi-font per document (decisão 5)
+
+- [x] Decisão 5 de ADR-0055 (multi-font per document)
+  materializada pós-fecho de DEBT-1. Pipeline acrescenta
+  `collect_fonts_from_doc` + `resolve_fonts` em
+  `03_infra/src/pipeline.rs`; `export_pdf_multifont` +
+  `build_multifont` + `build_page_stream_multifont` em
+  `03_infra/src/export.rs`. Documento com N fonts distintas
+  produz PDF com N `/Subtype /Type0` (uma por família).
+  Single-font preservado por dispatch (`[(_, b)] =>
+  export_pdf_with_font(...)` mantém o caminho 140B/141
+  com nome canónico `/CrystallineFont`). **ADR-0055 anotada**
+  (modelo ADR-0019 + 140A); status permanece
+  `IMPLEMENTADO`; sem revisão. **DEBT-52 não reabre**:
+  consistente com perfil observacional graded de ADR-0054 e
+  com o padrão estabelecido no Passo 144 (gap 7). Contagem
+  de DEBTs abertos: **inalterada (10)**.
+
 ### Actualização Passo 144 — Consumer `lang` hyphenation (gap 7)
 
 - [x] Gap 7 (lang hyphenation) materializado pós-fecho de

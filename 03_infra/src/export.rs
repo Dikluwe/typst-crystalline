@@ -12,6 +12,7 @@ use flate2::Compression;
 use flate2::write::ZlibEncoder;
 
 use ttf_parser::Face;
+use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
 
 use crate::font_metrics::build_math_glyph_reverse_map;
@@ -29,6 +30,34 @@ pub fn export_pdf(doc: &PagedDocument) -> Vec<u8> {
 /// `font_data`: bytes brutos de um ficheiro `.ttf`/`.otf`.
 pub fn export_pdf_with_font(doc: &PagedDocument, font_data: &[u8]) -> Vec<u8> {
     PdfBuilder::new().build(doc, Some(font_data))
+}
+
+/// Serializa com **N** fontes TrueType embebidas — multi-font per
+/// document (Passo 146, ADR-0055 decisão 5). Cada `FrameItem::Text`
+/// emite com a entrada `/F{i+1}` cuja `FontList` casa com
+/// `style.font`; spans com `style.font == None` ou sem match
+/// caem em `/F1` (font 0) por consistência com o caminho
+/// single-font (todos os spans usam o mesmo embedding em
+/// `export_pdf_with_font`).
+///
+/// Se nenhuma das fontes parsear como TTF/OTF válida, fallback
+/// para `export_pdf` (Helvetica). Single-font (`fonts.len() == 1`)
+/// é caso particular válido.
+pub fn export_pdf_multifont(
+    doc:   &PagedDocument,
+    fonts: &[(FontList, Vec<u8>)],
+) -> Vec<u8> {
+    if fonts.is_empty() {
+        return PdfBuilder::new().build(doc, None);
+    }
+    let faces: Vec<Face<'_>> = fonts.iter()
+        .filter_map(|(_, data)| Face::parse(data, 0).ok())
+        .collect();
+    if faces.len() != fonts.len() {
+        // Algum bytes não parseou — fallback Helvetica.
+        return PdfBuilder::new().build(doc, None);
+    }
+    PdfBuilder::new().build_multifont(doc, fonts, &faces)
 }
 
 // ── Suporte a imagens ──────────────────────────────────────────────────────
@@ -525,6 +554,149 @@ impl PdfBuilder {
         cmap_obj.extend_from_slice(&cmap);
         cmap_obj.extend_from_slice(b"\nendstream");
         self.add_bytes(to_unicode_id, cmap_obj);
+
+        self.emit_image_xobjects(img_xobjects);
+        self.serialize()
+    }
+
+    // ── Caminho Multi-font (Passo 146, ADR-0055 decisão 5) ───────────────────
+
+    fn build_multifont(
+        mut self,
+        doc:   &PagedDocument,
+        fonts: &[(FontList, Vec<u8>)],
+        faces: &[Face<'_>],
+    ) -> Vec<u8> {
+        let n_pages = doc.pages.len().max(1);
+        let n_fonts = fonts.len();
+        let first_page   = 3usize;
+        let first_stream = first_page + n_pages;
+        // Cada font ocupa 5 IDs consecutivos: type0, cidfont, descriptor,
+        // font_stream, to_unicode. Type0 é o "/Fn" referenciado no resource.
+        let fonts_start  = first_stream + n_pages;
+        let first_img_id = fonts_start + 5 * n_fonts;
+
+        // Codepoints + glyph mappings por font. Cada font tem o seu
+        // mapping (chars partilhados; gids específicos da face).
+        let chars = collect_codepoints(doc);
+        let glyph_ids = collect_glyph_ids(doc);
+        let mut per_font_mappings: Vec<Vec<(char, u16)>> = Vec::with_capacity(n_fonts);
+        let mut per_font_char_to_gid: Vec<HashMap<char, u16>> = Vec::with_capacity(n_fonts);
+        let mut per_font_widths: Vec<String> = Vec::with_capacity(n_fonts);
+        for face in faces {
+            let mut mappings = map_chars_to_glyphs(face, &chars);
+            // Adicionar glifos variantes de tamanho matemático
+            // (Passo 45, DEBT-9) — mesmo tratamento que `build_cidfont`.
+            let glyph_reverse = build_math_glyph_reverse_map(face);
+            let existing_gids: BTreeSet<u16> = mappings.iter().map(|(_, gid)| *gid).collect();
+            for &gid in &glyph_ids {
+                if !existing_gids.contains(&gid) {
+                    if let Some(&c) = glyph_reverse.get(&gid) {
+                        mappings.push((c, gid));
+                    }
+                }
+            }
+            let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
+            let widths = widths_array(face, &mappings);
+            per_font_mappings.push(mappings);
+            per_font_char_to_gid.push(char_to_gid);
+            per_font_widths.push(widths);
+        }
+
+        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
+
+        self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
+
+        let kids = (first_page..first_page + n_pages)
+            .map(|i| format!("{i} 0 R"))
+            .collect::<Vec<_>>().join(" ");
+        self.add(2, format!("<< /Type /Pages /Kids [{kids}] /Count {n_pages} >>"));
+
+        for (i, page) in doc.pages.iter().enumerate() {
+            let page_id   = first_page + i;
+            let stream_id = first_stream + i;
+            let w = page.width;
+            let h = page.height;
+
+            let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
+            let font_entries = (0..n_fonts).map(|fi| {
+                let type0_id = fonts_start + 5 * fi;
+                format!("/F{} {} 0 R", fi + 1, type0_id)
+            }).collect::<Vec<_>>().join(" ");
+            let resources_str = format!("/Font << {font_entries} >> {xobj_res}");
+
+            self.add(page_id, format!(
+                "<< /Type /Page /Parent 2 0 R \
+                   /MediaBox [0 0 {w:.2} {h:.2}] \
+                   /Contents {stream_id} 0 R \
+                   /Resources << {resources_str} >> >>"
+            ));
+
+            let stream_bytes = build_page_stream_multifont(
+                page, fonts, &per_font_char_to_gid, &ptr_to_idx, &img_refs,
+            );
+            let len = stream_bytes.len();
+            let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
+            obj.extend_from_slice(&stream_bytes);
+            obj.extend_from_slice(b"\nendstream");
+            self.add_bytes(stream_id, obj);
+        }
+
+        // Emit objectos por font (5 cada).
+        for (fi, ((_, font_data), _face)) in fonts.iter().zip(faces.iter()).enumerate() {
+            let type0_id      = fonts_start + 5 * fi;
+            let cidfont_id    = type0_id + 1;
+            let descriptor_id = type0_id + 2;
+            let stream_id     = type0_id + 3;
+            let to_unicode_id = type0_id + 4;
+            let name = format!("CrystallineFont{}", fi + 1);
+            let widths = &per_font_widths[fi];
+            let mappings = &per_font_mappings[fi];
+
+            // Type0
+            self.add(type0_id, format!(
+                "<< /Type /Font /Subtype /Type0 /BaseFont /{name} \
+                   /Encoding /Identity-H \
+                   /DescendantFonts [{cidfont_id} 0 R] \
+                   /ToUnicode {to_unicode_id} 0 R >>"
+            ));
+
+            // CIDFont
+            self.add(cidfont_id, format!(
+                "<< /Type /Font /Subtype /CIDFontType2 /BaseFont /{name} \
+                   /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> \
+                   /FontDescriptor {descriptor_id} 0 R \
+                   /DW 500 \
+                   /W [{widths}] >>"
+            ));
+
+            // FontDescriptor
+            self.add(descriptor_id, format!(
+                "<< /Type /FontDescriptor /FontName /{name} \
+                   /Flags 32 \
+                   /FontBBox [-1000 -200 2000 900] \
+                   /ItalicAngle 0 /Ascent 800 /Descent -200 \
+                   /CapHeight 700 /StemV 80 \
+                   /FontFile2 {stream_id} 0 R >>"
+            ));
+
+            // FontFile2 stream — fonte completa, sem subsetting (ADR-0027).
+            let font_len = font_data.len();
+            let mut font_stream = format!(
+                "<< /Length {font_len} /Subtype /CIDFontType2 >>\nstream\n"
+            ).into_bytes();
+            font_stream.extend_from_slice(font_data);
+            font_stream.extend_from_slice(b"\nendstream");
+            self.add_bytes(stream_id, font_stream);
+
+            // ToUnicode CMap
+            let cmap = to_unicode_cmap(mappings);
+            let cmap_len = cmap.len();
+            let mut cmap_obj = format!("<< /Length {cmap_len} >>\nstream\n").into_bytes();
+            cmap_obj.extend_from_slice(&cmap);
+            cmap_obj.extend_from_slice(b"\nendstream");
+            self.add_bytes(to_unicode_id, cmap_obj);
+        }
 
         self.emit_image_xobjects(img_xobjects);
         self.serialize()
@@ -1083,6 +1255,184 @@ fn build_page_stream_cidfont(
                 let ptr = Arc::as_ptr(data) as usize;
                 if let Some(&idx) = ptr_to_idx.get(&ptr) {
                     // pos.y é o TOPO da imagem → canto inferior esquerdo no espaço PDF.
+                    let pdf_y = page_height - pos.y.val() - height.val();
+                    ops.push_str(&format!(
+                        "q\n{:.3} 0 0 {:.3} {:.3} {:.3} cm\n/{} Do\nQ\n",
+                        width.val(), height.val(), pos.x.val(), pdf_y,
+                        img_refs[idx].name
+                    ));
+                }
+            }
+            FrameItem::Shape { pos, kind, width, height, fill, stroke } => {
+                use typst_core::entities::geometry::ShapeKind;
+                let pdf_y = page_height - pos.y.val() - height;
+
+                ops.push_str("q\n");
+                if let Some(c) = fill {
+                    let (r, g, b, _) = c.to_rgba_f32();
+                    ops.push_str(&format!("{:.3} {:.3} {:.3} rg\n", r, g, b));
+                }
+                if let Some(s) = stroke {
+                    let (r, g, b, _) = s.paint.to_rgba_f32();
+                    ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, s.thickness));
+                }
+                match kind {
+                    ShapeKind::Rect => {
+                        ops.push_str(&format!("{:.2} {:.2} {:.2} {:.2} re\n",
+                            pos.x.val(), pdf_y, width, height));
+                    }
+                    ShapeKind::Ellipse => {
+                        const KAPPA: f64 = 0.552_284_749_831;
+                        let cx = pos.x.val() + width  / 2.0;
+                        let cy = pdf_y       + height / 2.0;
+                        let rx = width  / 2.0;
+                        let ry = height / 2.0;
+                        let ox = rx * KAPPA;
+                        let oy = ry * KAPPA;
+                        ops.push_str(&format!("{:.3} {:.3} m\n", cx, cy + ry));
+                        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                            cx + ox, cy + ry, cx + rx, cy + oy, cx + rx, cy));
+                        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                            cx + rx, cy - oy, cx + ox, cy - ry, cx, cy - ry));
+                        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                            cx - ox, cy - ry, cx - rx, cy - oy, cx - rx, cy));
+                        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+                            cx - rx, cy + oy, cx - ox, cy + ry, cx, cy + ry));
+                    }
+                    ShapeKind::Line { dx, dy } => {
+                        let start_offset_x = if *dx < 0.0 { *width }  else { 0.0 };
+                        let end_offset_x   = if *dx < 0.0 { 0.0 }     else { *width };
+                        let start_offset_y = if *dy > 0.0 { *height } else { 0.0 };
+                        let end_offset_y   = if *dy > 0.0 { 0.0 }     else { *height };
+                        let start_x = pos.x.val() + start_offset_x;
+                        let start_y = pdf_y        + start_offset_y;
+                        let end_x   = pos.x.val() + end_offset_x;
+                        let end_y   = pdf_y        + end_offset_y;
+                        ops.push_str(&format!("{:.3} {:.3} m\n", start_x, start_y));
+                        ops.push_str(&format!("{:.3} {:.3} l\n", end_x,   end_y));
+                    }
+                    ShapeKind::Path(items) => {
+                        use typst_core::entities::geometry::PathItem;
+                        for item in items {
+                            match item {
+                                PathItem::MoveTo(p) => ops.push_str(&format!(
+                                    "{:.2} {:.2} m\n",
+                                    pos.x.val() + p.x.0,
+                                    page_height - (pos.y.val() + p.y.0),
+                                )),
+                                PathItem::LineTo(p) => ops.push_str(&format!(
+                                    "{:.2} {:.2} l\n",
+                                    pos.x.val() + p.x.0,
+                                    page_height - (pos.y.val() + p.y.0),
+                                )),
+                                PathItem::CubicTo(p1, p2, p3) => ops.push_str(&format!(
+                                    "{:.2} {:.2} {:.2} {:.2} {:.2} {:.2} c\n",
+                                    pos.x.val() + p1.x.0, page_height - (pos.y.val() + p1.y.0),
+                                    pos.x.val() + p2.x.0, page_height - (pos.y.val() + p2.y.0),
+                                    pos.x.val() + p3.x.0, page_height - (pos.y.val() + p3.y.0),
+                                )),
+                                PathItem::ClosePath => ops.push_str("h\n"),
+                            }
+                        }
+                    }
+                }
+                match (fill.is_some(), stroke.is_some()) {
+                    (true,  true)  => ops.push_str("B\n"),
+                    (true,  false) => ops.push_str("f\n"),
+                    (false, true)  => ops.push_str("S\n"),
+                    (false, false) => {}
+                }
+                ops.push_str("Q\n");
+            }
+            FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } => {
+                let pdf_y = page_height - pos.y.val();
+                ops.push_str("q\n");
+                ops.push_str(&format!(
+                    "{:.4} {:.4} {:.4} {:.4} {:.4} {:.4} cm\n",
+                    matrix.a,
+                    -matrix.b,
+                    -matrix.c,
+                    matrix.d,
+                    pos.x.val() + matrix.tx,
+                    pdf_y       - matrix.ty,
+                ));
+                if let Some(mask) = clip_mask {
+                    emit_shape_path_local(&mut ops, mask, *inner_width, *inner_height);
+                    ops.push_str("W n\n");
+                }
+                for child in items {
+                    draw_item_local(&mut ops, child);
+                }
+                ops.push_str("Q\n");
+            }
+        }
+    }
+
+    ops.into_bytes()
+}
+
+// ── Helpers — caminho Multi-font (Passo 146) ───────────────────────────────
+
+/// Page stream para multi-font. Difere de `build_page_stream_cidfont`
+/// apenas no arm `FrameItem::Text`: escolhe `/F{i+1}` consoante
+/// `style.font` casa com uma das `FontList`s embebidas. Quando
+/// `style.font` é `None` ou não há match, usa `/F1` (font 0) por
+/// consistência com o caminho single-font (todos os spans usam o
+/// mesmo embedding em `build_cidfont`).
+///
+/// Restantes arms (`Line`, `Glyph`, `Image`, `Shape`, `Group`)
+/// são idênticos aos de `build_page_stream_cidfont`. Glyph emite
+/// sempre em `/F1` (variantes matemáticas — única font tipicamente
+/// usada para math).
+fn build_page_stream_multifont(
+    page:                 &Page,
+    fonts:                &[(FontList, Vec<u8>)],
+    per_font_char_to_gid: &[HashMap<char, u16>],
+    ptr_to_idx:           &HashMap<usize, usize>,
+    img_refs:             &[ImageRef],
+) -> Vec<u8> {
+    let mut ops = String::new();
+    let page_height = page.height;
+
+    for item in &page.items {
+        match item {
+            FrameItem::Text { pos, text, style } => {
+                if text.is_empty() { continue; }
+
+                // Match style.font contra fonts embebidas. Default: 0.
+                let fi = style.font.as_ref()
+                    .and_then(|fl| fonts.iter().position(|(stored, _)| stored == fl))
+                    .unwrap_or(0);
+
+                let pdf_y   = page_height - pos.y.val();
+                let hex_str = text_to_hex_string(text.as_str(), &per_font_char_to_gid[fi]);
+
+                ops.push_str(&format!(
+                    "BT\n/F{} {:.1} Tf\n{:.1} {:.1} Td\n{hex_str} Tj\nET\n",
+                    fi + 1, style.size.val(), pos.x.val(), pdf_y
+                ));
+            }
+            FrameItem::Line { start, end, thickness } => {
+                let x1 = start.x.val();
+                let y1 = page_height - start.y.val();
+                let x2 = end.x.val();
+                let y2 = page_height - end.y.val();
+                ops.push_str(&format!(
+                    "q {:.3} w {:.1} {:.1} m {:.1} {:.1} l S Q\n",
+                    thickness, x1, y1, x2, y2
+                ));
+            }
+            FrameItem::Glyph { pos, glyph_id, size, .. } => {
+                // Variantes matemáticas: emitir em /F1.
+                let pdf_y = page_height - pos.y.val();
+                ops.push_str(&format!(
+                    "BT\n/F1 {:.1} Tf\n{:.1} {:.1} Td\n<{:04X}> Tj\nET\n",
+                    size.val(), pos.x.val(), pdf_y, glyph_id
+                ));
+            }
+            FrameItem::Image { pos, data, width, height, .. } => {
+                let ptr = Arc::as_ptr(data) as usize;
+                if let Some(&idx) = ptr_to_idx.get(&ptr) {
                     let pdf_y = page_height - pos.y.val() - height.val();
                     ops.push_str(&format!(
                         "q\n{:.3} 0 0 {:.3} {:.3} {:.3} cm\n/{} Do\nQ\n",

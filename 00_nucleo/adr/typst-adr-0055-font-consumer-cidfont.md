@@ -5,6 +5,11 @@
 **Autor**: Humano + IA
 **Diagnóstico prévio**:
 [`00_nucleo/diagnosticos/diagnostico-font-infra-passo-140a.md`](../diagnosticos/diagnostico-font-infra-passo-140a.md)
+**Anotação Passo 146**: decisão 5 (multi-font per document)
+materializada — ver
+[`00_nucleo/materialization/typst-passo-146-relatorio.md`](../materialization/typst-passo-146-relatorio.md).
+Modelo análogo a ADR-0019 + nota factual de 140A: anotação
+factual sem revisão; status permanece `IMPLEMENTADO`.
 
 ---
 
@@ -180,12 +185,30 @@ Após **140B + 141**. Gap 7 + 8 podem ficar documentados como
   patológico (índice stale) não curto-circuita — continua a
   tentar famílias seguintes. Gap 6 de DEBT-52 fechado. **Paridade
   básica da ADR completa.**
+- **Passo 146** (2026-04-24) — multi-font per document
+  (decisão 5). `collect_fonts_from_doc` itera o documento
+  inteiro e devolve todas as `FontList` distintas em ordem
+  de primeira ocorrência (dedup estrutural via `Vec::contains`).
+  `resolve_fonts` map-filter de `resolve_font` (silent drop
+  para entries que não resolvem). `export_pdf_multifont`
+  constrói resource dict com N entradas `/F1..N` apontando
+  para `/CrystallineFont1..N`; cada `FrameItem::Text`
+  selecciona `/F{i+1}` por match estrutural contra a sua
+  `style.font` (default font 0 quando `style.font` é `None`
+  ou não casa). Single-font preserva caminho
+  `export_pdf_with_font` por dispatch
+  `compile_to_pdf_bytes`. **Anotação pós-IMPLEMENTADO sem
+  revisão de status** (modelo ADR-0019 + 140A).
 
-Decisões 5 (multi-font per document — Passo 142 opcional),
-6 (lang hyphenation — Passo 143 opcional, gap 7 DEBT-52) e
-7 (rustybuzz / shaping — DEBT-53 candidato XL) permanecem
-scope-out conforme definido originalmente. Não bloqueiam o
-fecho desta ADR.
+Decisão 5 (multi-font per document) materializada
+voluntariamente no Passo 146 — extensão pós-fecho de DEBT-1
+sem invalidar perfil observacional graded de ADR-0054.
+Decisão 6 (lang hyphenation) materializada em parte por
+Passo 144 (gap 7 DEBT-52, ADR-0057); shaping features
+remanescentes (ligatures, kern, bidi via rustybuzz)
+permanecem em DEBT-53 candidato XL. Decisão 7 (rustybuzz
+integration) permanece scope-out conforme definido
+originalmente. Não bloqueiam o fecho desta ADR.
 
 Selecção variant-aware (font-file "Bold"/"Italic" dedicado)
 permanece como limitação conhecida — `FontVariant::default()`

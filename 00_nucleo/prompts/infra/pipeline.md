@@ -40,32 +40,38 @@ pub fn compile_to_pdf_bytes(
 ```
 
 - Pipeline `eval → introspect → layout → (dispatch export)`.
-- Dispatch font-aware (Passos 140B + 141, ADR-0055
-  `IMPLEMENTADO`):
-  - Procura o primeiro `TextStyle.font` (`FontList`) não-`None`
-    no `PagedDocument` (itens `FrameItem::Text` e `Group`
-    recursivos).
-  - **Itera todas as famílias** da `FontList` em ordem; para
-    cada uma, tenta
-    `world.book().select(name, &FontVariant::default())` → índice
-    e depois `world.font(index)` → bytes. **Primeira família a
-    completar ambos os passos vence** (semântica vanilla
-    "primeira-que-resolve").
-  - Se alguma família resolve, invoca `export_pdf_with_font(&doc,
-    font.as_slice())`.
-  - Caso contrário (sem `font` no documento, ou nenhuma família
-    da lista conhecida pelo `FontBook`, ou todos os slots vazios),
-    fallback `export_pdf(&doc)` (Helvetica Type1).
-- **Single-font per document** (ADR-0055 decisão 3): a primeira
-  `FontList` encontrada no `PagedDocument` é usada para o
-  documento inteiro; spans subsequentes com `FontList` diferente
-  são silenciosamente ignorados. Multi-font per document (ADR-0055
-  decisão 5) é Passo 142 opcional.
-- **Array fallback chain** (ADR-0055 decisão 4) materializada
-  no Passo 141: dentro de uma `FontList`, todas as famílias são
-  tentadas até resolver. Cenário patológico (`select` devolve
-  `Some` mas `world.font` devolve `None` — índice stale) **não**
-  curto-circuita: continua a tentar as famílias seguintes.
+- Dispatch font-aware multi-font (Passos 140B + 141 + 146,
+  ADR-0055 `IMPLEMENTADO`; decisão 5 anotada por 146):
+  - **Colecciona** todas as `FontList` distintas no
+    `PagedDocument` em ordem de primeira ocorrência (atravessa
+    `FrameItem::Text` e `FrameItem::Group` recursivamente).
+    Dedup estrutural via `Vec::contains` (O(N²); N tipicamente
+    pequeno).
+  - Para cada `FontList`, **itera todas as famílias** em ordem
+    (Passo 141): consulta
+    `world.book().select(name, &FontVariant::default())` →
+    índice, depois `world.font(index)` → bytes. **Primeira
+    família a completar ambos os passos vence**. Cenário
+    patológico (índice stale) não curto-circuita.
+  - Filtra entries que não resolvem (silent drop).
+  - Dispatch:
+    - `[]` (vec vazio) → `export_pdf(&doc)` (fallback
+      Helvetica Type1).
+    - `[(_, bytes)]` (uma única) →
+      `export_pdf_with_font(&doc, &bytes)` (caminho preservado
+      do 140B/141 — output `/CrystallineFont` único).
+    - `many` (2+) → `export_pdf_multifont(&doc, many)` —
+      resource dict `/F1..N` com `/CrystallineFont1..N`; cada
+      `FrameItem::Text` selecciona `/F{i+1}` por match
+      estrutural contra a sua `style.font` (default `/F1`
+      quando `style.font` é `None` ou não casa).
+- **Multi-font per document** (ADR-0055 decisão 5,
+  materializada no Passo 146): N fonts distintas → N
+  `/Subtype /Type0` no PDF. Single-font como caso particular
+  (preservado por dispatch).
+- **Array fallback chain** (ADR-0055 decisão 4, Passo 141):
+  dentro de uma `FontList`, todas as famílias são tentadas
+  até resolver.
 - Selecção usa `FontVariant::default()` (regular, normal, normal
   stretch). `weight`/`style` no documento continuam a ser
   renderizados via faux-bold/faux-italic (Passo 139) — selecção
@@ -75,38 +81,52 @@ pub fn compile_to_pdf_bytes(
 - Módulo sem `content` (AST puramente executivo) produz
   `Ok(Vec::new())` — não é erro.
 
-## Helpers privados de dispatch (Passos 140B + 141)
+## Helpers privados de dispatch (Passos 140B + 141 + 146)
 
 ```rust
-fn first_font_from_doc(doc: &PagedDocument) -> Option<FontList>;
+fn collect_fonts_from_doc(doc: &PagedDocument) -> Vec<FontList>;
 fn resolve_font(
     font_list: &FontList,
     font_book: &FontBook,
     world:     &dyn World,
 ) -> Option<Vec<u8>>;
+fn resolve_fonts(
+    font_lists: &[FontList],
+    font_book:  &FontBook,
+    world:      &dyn World,
+) -> Vec<(FontList, Vec<u8>)>;
+
+// Helper preservado do 140B (test-only no pipeline.rs):
+#[allow(dead_code)]
+fn first_font_from_doc(doc: &PagedDocument) -> Option<FontList>;
 ```
 
-- `first_font_from_doc` (Passo 140B): itera `doc.pages → items`
-  recursivamente (atravessa `FrameItem::Group`) e devolve o
-  primeiro `TextStyle.font` com `Some(FontList)`. `None` se
-  nenhum item tem font definida.
+- `collect_fonts_from_doc` (Passo 146): itera `doc.pages →
+  items` recursivamente (atravessa `FrameItem::Group`) e
+  devolve **todas** as `FontList` distintas em ordem de
+  primeira ocorrência. Dedup estrutural via `Vec::contains`.
 - `resolve_font` (Passo 141): itera `font_list.as_slice()` em
   ordem. Para cada família, consulta
   `font_book.select(name, &FontVariant::default())`; se devolve
   `Some(index)`, chama `world.font(index)`; se devolve
   `Some(font)`, devolve os bytes. **Primeira família a completar
-  ambos os passos vence**. Se nenhuma completa, devolve `None`
-  (pipeline cai em fallback Helvetica). Cenário patológico
-  (índice stale: `select` devolve `Some` mas `world.font` devolve
-  `None`) **continua** a tentar famílias seguintes — não
-  curto-circuita. Paridade com vanilla: semântica
-  "primeira-que-resolve" do `#set text(font: (...))`.
-- Ambas as funções são privadas ao módulo e cobertas por testes
-  unitários em `#[cfg(test)] mod tests`.
+  ambos os passos vence**. Cenário patológico (índice stale)
+  não curto-circuita.
+- `resolve_fonts` (Passo 146): map-filter de `resolve_font`
+  sobre `&[FontList]`. Devolve `(FontList, bytes)` por entrada
+  resolvida (silent drop para entries que não resolvem;
+  consistente com 140B).
+- `first_font_from_doc` (Passo 140B, **preservado em
+  `#[allow(dead_code)]`**): historicamente o entry-point do MVP
+  single-font (devolvia primeira `FontList`). Substituído pelo
+  dispatch multi-font no Passo 146; permanece como referência
+  e para os testes unitários do 140B continuarem activos.
+- Funções privadas ao módulo e cobertas por testes unitários
+  em `#[cfg(test)] mod tests`.
 
-Array fallback materializado no Passo 141. Multi-font per
-document (Passo 142, opcional) e variant-aware (ADR-0055bis,
-candidata) permanecem fora do escopo actual.
+Multi-font materializada no Passo 146 (ADR-0055 decisão 5
+anotada). Variant-aware (ADR-0055bis, candidata) e subsetting
+(ADR-0056, candidata) permanecem fora do escopo actual.
 
 ## Integração com ADR-0045
 
