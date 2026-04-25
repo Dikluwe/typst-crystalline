@@ -150,7 +150,7 @@ primitives e `skew`). Detalhe em
 | `pad`, `corners`, `sides` (inset modeling) | layout/{pad,corners,sides}.rs | `ausente` | — | duplica `pad()` linha; refino PageConfig é Fase 3 ADR-0061 |
 | `measure(body)` | layout/measure.rs | `parcial` | helper privado | helper `measure_content` em `01_core/src/rules/layout/helpers.rs`; sem stdlib exposta; depende de Introspection (ADR-0017 adiada) |
 | `h(amount)` / `v(amount)` ⁵ | layout/spacing.rs | `implementado` ⁸ | Passo 156D (ADR-0061 Fase 1 sub-passo 2) | `Content::HSpace` + `Content::VSpace` com `amount: Length, weak: bool`; stdlib `#h(amount, weak: false)` + `#v(...)`; `weak` armazenado mas collapse defere; amount `Fraction` scope-out (refino futuro per ADR-0061 §6.3) |
-| `skew(ax, ay, body)` ⁵ | layout/transform.rs | `ausente` | **adição P156B** | feature visual menos comum; Fase 3 ADR-0061 |
+| `skew(ax, ay, body)` ⁵ | layout/transform.rs | `implementado` ¹² | Passo 156F (ADR-0061 Fase 1 sub-passo 4) | `TransformMatrix::skew(ax_rad, ay_rad)` novo + `native_skew` reusa `Content::Transform { matrix }` existente desde P78; **sem refactor** (matriz cm já unificava); ângulos próximos de ±π/2 rejeitados; `origin` scope-out |
 
 ⁵ — Reclassificação ou adição P156B. Ver
 [`diagnostico-layout-passo-156b.md`](diagnostico-layout-passo-156b.md)
@@ -425,12 +425,12 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | `#let`/`#set`/`#show`/import | 7 | 1 | 4 | 1 | 0 | 13 |
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
-| Layout ⁵ ⁶ ⁸ ¹⁰ | 9 | 0 | 3 | 6 | 0 | 18 |
+| Layout ⁵ ⁶ ⁸ ¹⁰ ¹² | 10 | 0 | 3 | 5 | 0 | 18 |
 | Model (structural) ¹ ² ³ | 6 | 4 | 5 | 7 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection | 1 | 0 | 0 | 5 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ | **59** | **21** | **22** | **37** | **2** | **141** |
+| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² | **60** | **21** | **22** | **36** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -493,11 +493,31 @@ user-facing total ajustada: 58/21/22/38/2=141 →
 `Parity` novo em `entities/parity.rs` (infraestrutura).
 ADR-0061 continua `PROPOSTO`.
 
-**Cobertura user-facing total** (impl + impl⁺) pós-P156E:
-(59 + 21) / 141 = **57%**
+¹² — Ajuste P156F (materialização Layout Fase 1 sub-passo 4):
+`skew` transita `ausente → implementado` (quarta aplicação
+consecutiva de ADR-0061). **Decisão de divergência da spec**:
+inventário em 156F.1 revelou que `Content::Transform { body,
+matrix: TransformMatrix }` já era unificado via matriz cm
+desde P78 (move/rotate/scale partilham mesma struct). Spec
+propunha refactor com `TransformKind` enum, mas seria
+redundante. P156F adiciona apenas método estático
+`TransformMatrix::skew(ax, ay)` + `native_skew` em
+`stdlib/transforms.rs`; **zero refactor**, **zero risco de
+regressão** (puramente aditivo). Contagem Layout:
+9/0/3/6/0=18 → **10/0/3/5/0=18**. Cobertura Layout (impl +
+impl⁺): 9/18=50% → **10/18=56%**. Contagem user-facing total
+ajustada: 59/21/22/37/2=141 → **60/21/22/36/2=141** (+1
+implementado, −1 ausente). Tabela B Content variants
+inalterado (48; sem nova variant). ADR-0061 continua
+`PROPOSTO`.
+
+**Cobertura user-facing total** (impl + impl⁺) pós-P156F:
+(60 + 21) / 141 = **57%**
 (antes de P154A: 54%; após P154B: 55%; após P155: ~55-56%;
 após P156B: ~53%; após P156C: ~55%; após P156D: ~56%; após
-P156E: **~57%** — Layout 44% → 50% — halfway point Fase 1).
+P156E: ~57% — halfway point Fase 1; após P156F:
+**~57%** — Layout 50% → 56%; arredondamento total mantém
+57%; Layout sub-percent crescendo).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -613,6 +633,16 @@ encerradas por ADRs (0026, 0028→0029, 0036, etc.).
    72% target. Restantes 6 entradas ausentes (`box`, `block`,
    `stack`, `repeat`, `columns`/`colbreak`, `skew`) prosseguem
    em Fase 2 (block+box+stack) e Fase 3 (columns+repeat+skew).
+   **Refinamento P156F** (materialização Fase 1 sub-passo 4):
+   `skew` transita `ausente → implementado` via método novo
+   `TransformMatrix::skew(ax, ay)` + `native_skew` em
+   `stdlib/transforms.rs`; **divergência da spec**: TransformKind
+   enum não criado porque arquitectura matriz cm já unificava
+   (descoberta empírica em 156F.1). Tabela B Content variants
+   inalterado (48; refactor zero). Cobertura Layout (impl +
+   impl⁺): 50% → **56%** (9/18 → 10/18). Restantes 5 entradas
+   ausentes (`box`, `block`, `stack`, `repeat`,
+   `columns`/`colbreak`) prosseguem em Fase 2 e Fase 3.
    Isto é **escopo XL agregado** se priorizado.
    **Refinamento P154A** (diagnóstico Model): para a sub-categoria Model especificamente, breakdown
    detalhado em [`diagnostico-model-passo-154a.md`](diagnostico-model-passo-154a.md). 6 entradas Model

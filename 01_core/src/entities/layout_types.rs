@@ -490,6 +490,19 @@ impl TransformMatrix {
         Self { a: cos, b: sin, c: -sin, d: cos, tx: 0.0, ty: 0.0 }
     }
 
+    /// Distorção (skew) em radianos. Passo 156F (ADR-0061 Fase 1, sub-passo 4).
+    ///
+    /// `ax` distorce horizontalmente; `ay` distorce verticalmente.
+    /// Análogo a vanilla `SkewElem`. Forma da matriz:
+    ///   x' = x + tan(ax) * y
+    ///   y' = tan(ay) * x + y
+    ///
+    /// Ângulos extremos próximos de π/2 produzem `tan` infinito; o caller
+    /// deve validar (per `native_skew` em `stdlib/transforms.rs`).
+    pub fn skew(ax_rad: f64, ay_rad: f64) -> Self {
+        Self { a: 1.0, b: ay_rad.tan(), c: ax_rad.tan(), d: 1.0, tx: 0.0, ty: 0.0 }
+    }
+
     /// Compõe `other` primeiro, depois `self`.
     ///
     /// `rotate.concat(translate)` aplica translate primeiro, depois rotate.
@@ -966,5 +979,44 @@ mod tests {
         let (rx, ry) = composed.apply(0.0, 0.0);
         assert!((rx - 0.0).abs() < 0.001, "x esperado 0.0, obteve {}", rx);
         assert!((ry - 10.0).abs() < 0.001, "y esperado 10.0, obteve {}", ry);
+    }
+
+    // ── Passo 156F (ADR-0061 Fase 1, sub-passo 4) — TransformMatrix::skew ──
+
+    #[test]
+    fn transform_matrix_skew_zero_e_identidade() {
+        // skew(0, 0) deve produzir matriz identidade.
+        let m = TransformMatrix::skew(0.0, 0.0);
+        assert_eq!(m, TransformMatrix::identity());
+    }
+
+    #[test]
+    fn transform_matrix_skew_ax_distorce_horizontal() {
+        // skew(45°, 0) — ponto (0, 1) deve ser deslocado horizontalmente
+        // por tan(45°) = 1.0; y inalterado.
+        let ax = std::f64::consts::FRAC_PI_4; // 45°
+        let m = TransformMatrix::skew(ax, 0.0);
+        let (x, y) = m.apply(0.0, 1.0);
+        assert!((x - 1.0).abs() < 0.001, "x esperado 1.0 (tan(45°)), obteve {}", x);
+        assert!((y - 1.0).abs() < 0.001, "y esperado inalterado 1.0, obteve {}", y);
+    }
+
+    #[test]
+    fn transform_matrix_skew_ay_distorce_vertical() {
+        // skew(0, 45°) — ponto (1, 0) deve ter y deslocado por tan(45°).
+        let ay = std::f64::consts::FRAC_PI_4;
+        let m = TransformMatrix::skew(0.0, ay);
+        let (x, y) = m.apply(1.0, 0.0);
+        assert!((x - 1.0).abs() < 0.001, "x esperado inalterado 1.0, obteve {}", x);
+        assert!((y - 1.0).abs() < 0.001, "y esperado 1.0 (tan(45°)), obteve {}", y);
+    }
+
+    #[test]
+    fn transform_matrix_skew_origin_zero_zero_imutavel() {
+        // O ponto (0,0) é fixo sob skew (sem origin shift).
+        let m = TransformMatrix::skew(0.5, 0.3);
+        let (x, y) = m.apply(0.0, 0.0);
+        assert_eq!(x, 0.0);
+        assert_eq!(y, 0.0);
     }
 }
