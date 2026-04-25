@@ -1,8 +1,7 @@
-# ADR-0043 — Canal de saída do `Sink` — `TrackedMut` no caller, formatação em L3
+# ⚖️ ADR-0043: Canal de saída do `Sink` — `TrackedMut` no caller, formatação em L3
 
-**Status**: EM VIGOR (Passo 106.E) — validado empiricamente com 4
-testes L3 integrados a passar (canal end-to-end, ausência, formato
-mínimo, sinks independentes por run), zero violations.
+**Status**: `EM VIGOR`
+**Validado**: Passo 106.E — 4 testes L3 integrados (canal end-to-end, ausência, formato mínimo, sinks independentes); zero violations.
 **Data**: 2026-04-23
 **Autor**: Humano + IA
 **Passo associado**: 106

@@ -1,9 +1,10 @@
-# ADR-0045 — Formato de diagnósticos: resolução em L1, formatação em L3
+# ⚖️ ADR-0045: Formato de diagnósticos: resolução em L1, formatação em L3
 
-**Estado**: EM VIGOR (Passo 111.E, 2026-04-23)
+**Status**: `EM VIGOR`
+**Revoga**: nenhuma.
+**Validado**: Passo 111.E.
 **Data**: 2026-04-23
 **Autor**: Passo 111
-**Revoga**: nenhuma.
 **Complementa**: ADR-0033 (paridade funcional), ADR-0043 (canal
 Sink → L3 com L1 data-only).
 

@@ -1,9 +1,10 @@
-# ADR-0044 — `Engine<'a>` como agregador de estado de eval em L1
+# ⚖️ ADR-0044: `Engine<'a>` como agregador de estado de eval em L1
 
-**Estado**: EM VIGOR (Passo 109.E, 2026-04-23)
+**Status**: `EM VIGOR`
+**Revoga**: nenhuma — complementa ADR-0036.
+**Validado**: Passo 109.E.
 **Data**: 2026-04-23
 **Autor**: Passo 109
-**Revoga**: nenhuma — complementa ADR-0036.
 **Relacionadas**: ADR-0036 (atomização progressiva), ADR-0037
 (coesão por domínio), ADR-0042 (Sink materializado), ADR-0043
 (canal Sink→L3).
