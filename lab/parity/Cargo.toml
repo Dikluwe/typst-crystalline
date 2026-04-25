@@ -14,5 +14,6 @@ typst-core   = { path = "../../01_core" }
 [dev-dependencies]
 typst-syntax      = { path = "../typst-original/crates/typst-syntax" }
 typst-core        = { path = "../../01_core" }
+typst-infra       = { path = "../../03_infra" }   # Passo 150 — SystemWorld + compile_to_pdf_bytes para layout_parity
 pretty_assertions = "1"
 walkdir           = "2"

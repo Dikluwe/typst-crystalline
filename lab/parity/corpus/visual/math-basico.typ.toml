@@ -1,0 +1,3 @@
+features = ["math", "math.attach"]
+modo_p3 = "text_content"
+notes = "Math inline com superscripts; layout `implementado⁺` pelo perfil graded (ADR-0054)."

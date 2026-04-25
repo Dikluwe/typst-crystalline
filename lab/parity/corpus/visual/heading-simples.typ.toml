@@ -1,0 +1,3 @@
+features = ["heading", "text"]
+modo_p3 = "text_content"
+notes = "Heading nível 1 + parágrafo simples."

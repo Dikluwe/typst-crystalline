@@ -347,30 +347,41 @@ pipeline já chega lá; teste end-to-end existe via
    classifica ~138 features user-facing + ~105 itens
    arquitecturais nas 5 classes (`implementado` /
    `implementado⁺` / `parcial` / `ausente` / `scope-out`).
-2. **Passo 149** — Implementar `frame_dto.rs` com
-   `LayoutTolerance` e modo `text_content=true`. Adicionar
-   `tests/layout_parity.rs` com **corpus filtrado pelo
-   subconjunto "implementado" + "implementado⁺" + "parcial"**
-   do inventário 148. Gerar primeiro relatório agregado em
-   `lab/parity/reports/latest.md` — **número-base** que o
-   utilizador pediu.
-3. **Passo 150+** — Implementar P2 (`value_dto.rs` +
+2. **Passo 149** — **Arqueologia + formalização** de
+   `Value::Type` e `Value::Args` (divergências sinalizadas no
+   inventário 148 §7). Produziu `divergencias-value-passo-149.md`
+   + `ADR-0058` + `ADR-0059`. Zero código tocado; zero DEBTs
+   abertos; inventário 148 actualizado (cobertura
+   arquitectural 70% → 72%).
+3. **Passo 150** — **Implementado**: `frame_dto.rs` +
+   `report.rs` + `tests/layout_parity.rs` + corpus expandido
+   (`lab/parity/corpus/visual/` com 9 ficheiros novos) +
+   primeiro relatório `lab/parity/reports/latest.md`. Matriz
+   P3 materializada com modo `geometric` marcado
+   `experimental` (classe nova, P150). **Vanilla integration**
+   ficou pendente: as colunas `text_content` / `structural` /
+   `geometric` ficam `N/A` na matriz baseline; integração
+   move-se para **DEBT-53** (vanilla World adapter + setup
+   duplo). Cristalino-only baseline: 19/19 ficheiros do
+   corpus compilam sem panic.
+4. **Passo 151+** — Implementar P2 (`value_dto.rs` +
    `tests/eval_parity.rs`) quando expansão do corpus
    `semantic/` for priorizada. `eval()` já suporta as
    features que faltavam à data do documento original
    (Passo 17 já foi; `#set`/`#show` activos).
-4. **Passo 151+** — Implementar P4 Opção B (textual) com
+5. **Passo 152+** — Implementar P4 Opção B (textual) com
    `pdf_compare.rs` + `tests/export_parity.rs`. `export_pdf()`
    está estável desde Passo 22+; multi-font (Passo 146).
    Opção A (visual) quando dependências CI
    (`pdftoppm`/`mupdf`) forem decididas.
-5. **Decisão sobre corpus**: oficial vs próprio vs ambos.
+6. **Decisão sobre corpus**: oficial vs próprio vs ambos.
    Documentar em ADR separada se a decisão for não-trivial.
    Recomendação preliminar: mix (ambos), **com filtro por
-   features do inventário 148**. Alvo: durante Passo 149 ou
-   imediatamente antes.
+   features do inventário 148 (pós-149)**. Alvo: durante
+   Passo 150 ou imediatamente antes.
 
-A partir do **Passo 149**, o utilizador passa a ter o número
+A partir do **Passo 150**, o utilizador passa a ter o número
 que pediu — em formato de **matriz**, não de percentual único,
 **com denominador honesto** (subset declarado pelo cristalino,
-não totalidade do vanilla).
+não totalidade do vanilla; 2 divergências arqueológicas
+formalizadas no Passo 149).
