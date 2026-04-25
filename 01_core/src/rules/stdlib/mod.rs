@@ -47,7 +47,9 @@ pub use crate::rules::stdlib::shapes::{
     native_circle, native_ellipse, native_line, native_polygon, native_rect,
 };
 pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale};
-pub use crate::rules::stdlib::layout::{native_align, native_grid, native_page, native_place};
+pub use crate::rules::stdlib::layout::{
+    native_align, native_grid, native_hide, native_pad, native_page, native_place,
+};
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
 
@@ -623,5 +625,182 @@ mod tests {
         assert_eq!(parse_color(&Value::Str("white".into())), Some(Color::rgb(255, 255, 255)));
         assert_eq!(parse_color(&Value::Str("purple".into())), None);
         assert_eq!(parse_color(&Value::Int(42)), None);
+    }
+
+    // ── Passo 156C (ADR-0061 Fase 1, sub-passo 1) — pad + hide ─────────────
+
+    #[test]
+    fn native_pad_defaults_padding_zero() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let body = Content::text("body");
+        let args = p(vec![Value::Content(body)]);
+        let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pad { body, padding }) = result {
+            assert_eq!(body.plain_text(), "body");
+            assert_eq!(padding.left,   Length::ZERO);
+            assert_eq!(padding.right,  Length::ZERO);
+            assert_eq!(padding.top,    Length::ZERO);
+            assert_eq!(padding.bottom, Length::ZERO);
+        } else {
+            panic!("esperado Content::Pad");
+        }
+    }
+
+    #[test]
+    fn native_pad_lados_individuais() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("left".into(),   Value::Length(Length::pt(1.0)));
+        args.named.insert("right".into(),  Value::Length(Length::pt(2.0)));
+        args.named.insert("top".into(),    Value::Length(Length::pt(3.0)));
+        args.named.insert("bottom".into(), Value::Length(Length::pt(4.0)));
+        let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pad { padding, .. }) = result {
+            assert_eq!(padding.left,   Length::pt(1.0));
+            assert_eq!(padding.right,  Length::pt(2.0));
+            assert_eq!(padding.top,    Length::pt(3.0));
+            assert_eq!(padding.bottom, Length::pt(4.0));
+        } else {
+            panic!("esperado Content::Pad");
+        }
+    }
+
+    #[test]
+    fn native_pad_atalhos_x_e_y() {
+        // x cobre left+right; y cobre top+bottom.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("x".into(), Value::Length(Length::pt(5.0)));
+        args.named.insert("y".into(), Value::Length(Length::pt(7.0)));
+        let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pad { padding, .. }) = result {
+            assert_eq!(padding.left,   Length::pt(5.0));
+            assert_eq!(padding.right,  Length::pt(5.0));
+            assert_eq!(padding.top,    Length::pt(7.0));
+            assert_eq!(padding.bottom, Length::pt(7.0));
+        } else {
+            panic!("esperado Content::Pad");
+        }
+    }
+
+    #[test]
+    fn native_pad_atalho_rest() {
+        // rest cobre todos os 4 lados.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("rest".into(), Value::Length(Length::pt(8.0)));
+        let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pad { padding, .. }) = result {
+            assert_eq!(padding.left,   Length::pt(8.0));
+            assert_eq!(padding.right,  Length::pt(8.0));
+            assert_eq!(padding.top,    Length::pt(8.0));
+            assert_eq!(padding.bottom, Length::pt(8.0));
+        } else {
+            panic!("esperado Content::Pad");
+        }
+    }
+
+    #[test]
+    fn native_pad_precedencia_especifico_eixo_rest() {
+        // left explícito sobrepõe-se a x; x sobrepõe-se a rest.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("left".into(), Value::Length(Length::pt(1.0)));
+        args.named.insert("x".into(),    Value::Length(Length::pt(2.0)));
+        args.named.insert("rest".into(), Value::Length(Length::pt(3.0)));
+        let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pad { padding, .. }) = result {
+            // left vence (específico)
+            assert_eq!(padding.left,   Length::pt(1.0));
+            // right cai para x (eixo)
+            assert_eq!(padding.right,  Length::pt(2.0));
+            // top cai para rest (não há y nem específico)
+            assert_eq!(padding.top,    Length::pt(3.0));
+            assert_eq!(padding.bottom, Length::pt(3.0));
+        } else {
+            panic!("esperado Content::Pad");
+        }
+    }
+
+    #[test]
+    fn native_pad_rejeita_padding_negativo() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("left".into(), Value::Length(Length::pt(-1.0)));
+        let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(result.is_err(), "padding negativo deve retornar Err em P156C");
+    }
+
+    #[test]
+    fn native_pad_rejeita_named_arg_desconhecido() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("strange".into(), Value::Length(Length::pt(1.0)));
+        let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(result.is_err(), "named arg desconhecido em pad() deve retornar Err");
+    }
+
+    #[test]
+    fn native_pad_aceita_int_e_float_como_pt() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("rest".into(), Value::Float(2.5));
+        let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pad { padding, .. }) = r {
+            assert_eq!(padding.left, Length::pt(2.5));
+        } else {
+            panic!("esperado Content::Pad");
+        }
+    }
+
+    #[test]
+    fn native_pad_sem_body_retorna_err() {
+        null_ctx!(ctx);
+        let result = native_pad(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(result.is_err(), "pad() sem body deve retornar Err");
+    }
+
+    #[test]
+    fn native_hide_envolve_body() {
+        null_ctx!(ctx);
+        let body = Content::text("invisivel");
+        let args = p(vec![Value::Content(body)]);
+        let result = native_hide(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Hide { body }) = result {
+            assert_eq!(body.plain_text(), "invisivel");
+        } else {
+            panic!("esperado Content::Hide");
+        }
+    }
+
+    #[test]
+    fn native_hide_aceita_string() {
+        null_ctx!(ctx);
+        let args = p(vec![Value::Str("placeholder".into())]);
+        let result = native_hide(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(result, Value::Content(Content::Hide { .. })));
+    }
+
+    #[test]
+    fn native_hide_rejeita_named_arg() {
+        null_ctx!(ctx);
+        let args = pn(vec![Value::Content(Content::text("x"))], "weak", Value::Bool(true));
+        let result = native_hide(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(result.is_err(), "hide() não aceita named args (P156C)");
+    }
+
+    #[test]
+    fn native_hide_sem_body_retorna_err() {
+        null_ctx!(ctx);
+        let result = native_hide(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(result.is_err(), "hide() sem body deve retornar Err");
     }
 }

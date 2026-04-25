@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 8413bb8d
+//! @prompt-hash daf00164
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -19,8 +19,9 @@ use ecow::EcoString;
 use crate::entities::counter_state::CounterAction;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
-use crate::entities::layout_types::{Align2D, Color, PlaceScope, Pt, TextStyle, TrackSizing, TransformMatrix};
+use crate::entities::layout_types::{Align2D, Color, Length, PlaceScope, Pt, TextStyle, TrackSizing, TransformMatrix};
 use crate::entities::ptr_eq_arc::PtrEqArc;
+use crate::entities::sides::Sides;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -331,6 +332,29 @@ pub enum Content {
         quotes:      bool,
     },
 
+    // ── Passo 156C (ADR-0061 Fase 1 sub-passo 1) — pad + hide ───────────
+    /// Container que aplica padding ao body durante layout.
+    ///
+    /// `padding` em quatro lados (`Sides<Length>`); resolvido em pt no
+    /// Layouter via `Length::resolve_pt(font_size)`. Vanilla
+    /// `PadElem` em `lab/typst-original/.../layout/pad.rs`.
+    /// Atributos de stdlib (`left`/`right`/`top`/`bottom`/`x`/`y`/`rest`)
+    /// resolvidos em `native_pad` antes de chegar a este variant.
+    Pad {
+        body:    Box<Content>,
+        padding: Sides<Length>,
+    },
+
+    /// Container que calcula dimensões mas não emite items visuais.
+    ///
+    /// Útil para placeholders e equilíbrio. Vanilla `HideElem` em
+    /// `lab/typst-original/.../layout/hide.rs`. Cristalino preserva o
+    /// avanço de cursor (consistente com vanilla "layout-aware mas não
+    /// rende").
+    Hide {
+        body: Box<Content>,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
 }
@@ -382,6 +406,16 @@ impl Content {
         Self::Link { url: url.into(), body: Box::new(body) }
     }
 
+    /// `pad(body, padding)` — Passo 156C (ADR-0061 Fase 1).
+    pub fn pad(body: Content, padding: Sides<Length>) -> Self {
+        Self::Pad { body: Box::new(body), padding }
+    }
+
+    /// `hide(body)` — Passo 156C (ADR-0061 Fase 1).
+    pub fn hide(body: Content) -> Self {
+        Self::Hide { body: Box::new(body) }
+    }
+
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,
@@ -409,6 +443,9 @@ impl Content {
                 term.is_empty() && description.is_empty(),
             // Passo 155: Quote vazio se body for vazio.
             Self::Quote { body, .. } => body.is_empty(),
+            // Passo 156C (ADR-0061 Fase 1): Pad/Hide vazios se o body for.
+            Self::Pad  { body, .. } => body.is_empty(),
+            Self::Hide { body }     => body.is_empty(),
             _ => false,
         }
     }
@@ -512,6 +549,10 @@ impl Content {
             // Passo 155: Quote em texto plain usa ASCII fallback (sem
             // smart-quotes — interaction com lang só vive no layouter).
             // Com attribution: `"body" — attribution`; sem: `"body"`.
+            // Passo 156C: Pad é transparente para texto plano (recurse no
+            // body sem alterar texto). Hide produz string vazia (não rende).
+            Self::Pad  { body, .. } => body.plain_text(),
+            Self::Hide { .. }       => String::new(),
             Self::Quote { body, attribution, quotes, .. } => {
                 let body_txt = body.plain_text();
                 let with_quotes = if *quotes {
@@ -605,6 +646,10 @@ impl PartialEq for Content {
             (Self::Quote { body: ba, attribution: aa, block: ka, quotes: qa },
              Self::Quote { body: bb, attribution: ab, block: kb, quotes: qb }) =>
                 ba == bb && aa == ab && ka == kb && qa == qb,
+            // Passo 156C — Pad / Hide.
+            (Self::Pad  { body: ba, padding: pa },
+             Self::Pad  { body: bb, padding: pb }) => ba == bb && pa == pb,
+            (Self::Hide { body: ba }, Self::Hide { body: bb }) => ba == bb,
             _ => false,
         }
     }
@@ -740,6 +785,16 @@ impl Content {
                 quotes:      *quotes,
             },
 
+            // Passo 156C: Pad / Hide containers — recurse em body, padding
+            // é Copy primitivo.
+            Content::Pad { body, padding } => Content::Pad {
+                body:    Box::new(body.map_content(transform)?),
+                padding: *padding,
+            },
+            Content::Hide { body } => Content::Hide {
+                body: Box::new(body.map_content(transform)?),
+            },
+
             // ── Terminais: clonar directamente ──────────────────────────────
             // Listados explicitamente — variantes novas não passam em silêncio.
             Content::Text(_, _)
@@ -855,6 +910,15 @@ impl Content {
                 attribution: attribution.as_ref().map(|c| Box::new(c.map_text(transform))),
                 block:       *block,
                 quotes:      *quotes,
+            },
+
+            // Passo 156C: Pad / Hide containers — recurse em body.
+            Content::Pad { body, padding } => Content::Pad {
+                body:    Box::new(body.map_text(transform)),
+                padding: *padding,
+            },
+            Content::Hide { body } => Content::Hide {
+                body: Box::new(body.map_text(transform)),
             },
 
             // ── Terminais — clonar directamente ──────────────────────────
@@ -1454,5 +1518,105 @@ mod tests {
             quotes:      true,
         };
         assert_ne!(mk(), other);
+    }
+
+    // ── Passo 156C (ADR-0061 Fase 1, sub-passo 1) — pad + hide ────────────
+
+    #[test]
+    fn pad_constructor_envolve_body() {
+        use crate::entities::sides::Sides;
+        use crate::entities::layout_types::Length;
+        let p = Content::pad(Content::text("x"), Sides::uniform(Length::pt(10.0)));
+        if let Content::Pad { body, padding } = &p {
+            assert_eq!(body.plain_text(), "x");
+            assert_eq!(padding.left, Length::pt(10.0));
+            assert_eq!(padding.right, Length::pt(10.0));
+            assert_eq!(padding.top, Length::pt(10.0));
+            assert_eq!(padding.bottom, Length::pt(10.0));
+        } else {
+            panic!("esperado Content::Pad");
+        }
+    }
+
+    #[test]
+    fn hide_constructor_envolve_body() {
+        let h = Content::hide(Content::text("placeholder"));
+        if let Content::Hide { body } = &h {
+            assert_eq!(body.plain_text(), "placeholder");
+        } else {
+            panic!("esperado Content::Hide");
+        }
+    }
+
+    #[test]
+    fn pad_e_hide_is_empty_proxy_para_body() {
+        use crate::entities::sides::Sides;
+        use crate::entities::layout_types::Length;
+        // Pad/Hide com body Empty são considerados vazios.
+        let pad_empty  = Content::pad(Content::Empty, Sides::uniform(Length::pt(5.0)));
+        let hide_empty = Content::hide(Content::Empty);
+        assert!(pad_empty.is_empty());
+        assert!(hide_empty.is_empty());
+        // Com body com texto, não vazios.
+        let pad_text  = Content::pad(Content::text("a"), Sides::uniform(Length::ZERO));
+        let hide_text = Content::hide(Content::text("a"));
+        assert!(!pad_text.is_empty());
+        assert!(!hide_text.is_empty());
+    }
+
+    #[test]
+    fn pad_plain_text_recurse_no_body() {
+        use crate::entities::sides::Sides;
+        use crate::entities::layout_types::Length;
+        let p = Content::pad(Content::text("hello"), Sides::uniform(Length::pt(2.0)));
+        assert_eq!(p.plain_text(), "hello");
+    }
+
+    #[test]
+    fn hide_plain_text_e_string_vazia() {
+        // Hide é layout-aware mas não rende — plain_text vazio.
+        let h = Content::hide(Content::text("invisivel"));
+        assert_eq!(h.plain_text(), "");
+    }
+
+    #[test]
+    fn pad_partial_eq() {
+        use crate::entities::sides::Sides;
+        use crate::entities::layout_types::Length;
+        let mk = || Content::pad(Content::text("x"), Sides::uniform(Length::pt(3.0)));
+        assert_eq!(mk(), mk());
+        // Padding diferente → diferente.
+        let other = Content::pad(
+            Content::text("x"),
+            Sides::new(Length::pt(3.0), Length::pt(3.0), Length::pt(3.0), Length::pt(5.0)),
+        );
+        assert_ne!(mk(), other);
+    }
+
+    #[test]
+    fn hide_partial_eq() {
+        let a = Content::hide(Content::text("x"));
+        let b = Content::hide(Content::text("x"));
+        let c = Content::hide(Content::text("y"));
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+    }
+
+    #[test]
+    fn pad_e_hide_map_text_recurse_no_body() {
+        use crate::entities::sides::Sides;
+        use crate::entities::layout_types::Length;
+        let pad  = Content::pad(Content::text("hello"), Sides::uniform(Length::pt(1.0)));
+        let hide = Content::hide(Content::text("hello"));
+        let pad_upper  = pad.map_text(&mut |s| s.to_uppercase());
+        let hide_upper = hide.map_text(&mut |s| s.to_uppercase());
+        // Pad expõe via plain_text (recurse); Hide oculta plain_text mas
+        // o body interno foi transformado — verificamos isso desembrulhando.
+        assert_eq!(pad_upper.plain_text(), "HELLO");
+        if let Content::Hide { body } = &hide_upper {
+            assert_eq!(body.plain_text(), "HELLO");
+        } else {
+            panic!("esperado Content::Hide após map_text");
+        }
     }
 }

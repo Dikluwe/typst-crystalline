@@ -1996,4 +1996,62 @@ mod tests_show_rule_integration {
         assert!(text.contains("texto"),
             "'texto' deve aparecer no output: {:?}", text);
     }
+
+    // ── Passo 156C (ADR-0061 Fase 1, sub-passo 1) — pad + hide ─────────────
+
+    /// `Content::Pad` reserva top + left ao layout do body e avança bottom no
+    /// fim. Verificamos que existe espaço vertical adicional comparado ao
+    /// body sem pad.
+    #[test]
+    fn layout_pad_avanca_cursor_bottom_e_top() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+
+        // Documento sem pad como baseline.
+        let baseline = layout(&Content::text("hello"), CounterState::default());
+        let baseline_y_max: f64 = baseline.pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                _ => None,
+            })
+            .fold(0.0_f64, |acc, y| acc.max(y));
+
+        // Mesmo body envolvido em Pad com top=20pt, bottom=20pt.
+        let padded = Content::pad(
+            Content::text("hello"),
+            Sides::new(Length::ZERO, Length::pt(20.0), Length::ZERO, Length::pt(20.0)),
+        );
+        let with_pad = layout(&padded, CounterState::default());
+        let pad_y_max: f64 = with_pad.pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                _ => None,
+            })
+            .fold(0.0_f64, |acc, y| acc.max(y));
+
+        // Pad com top=20 deve empurrar o texto para baixo na página.
+        assert!(pad_y_max > baseline_y_max,
+            "esperado que Content::Pad com top=20pt empurre o texto para baixo: \
+             baseline_y_max={baseline_y_max:.2} pad_y_max={pad_y_max:.2}");
+    }
+
+    /// `Content::Hide` calcula dimensões mas não emite items visuais.
+    /// Verificamos que zero items textuais são produzidos pelo body
+    /// envolvido em Hide.
+    #[test]
+    fn layout_hide_emite_zero_text_items() {
+        let hidden = Content::hide(Content::text("invisivel"));
+        let doc = layout(&hidden, CounterState::default());
+        let text_items = doc.pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item, FrameItem::Text { .. }))
+            .count();
+        assert_eq!(text_items, 0,
+            "Content::Hide não deve emitir nenhum FrameItem::Text");
+    }
 }
