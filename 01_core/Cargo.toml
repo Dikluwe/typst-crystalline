@@ -19,3 +19,4 @@ unicode-segmentation = { workspace = true }
 time                 = { workspace = true }  # ADR-0021 — Datetime real
 indexmap             = { workspace = true }  # ADR-0023 — Scope com ordem de inserção
 ecow                 = { workspace = true }  # ADR-0024 — EcoString em Value::Str
+hypher               = { workspace = true }  # ADR-0057 — hyphenation patterns no_std, zero deps

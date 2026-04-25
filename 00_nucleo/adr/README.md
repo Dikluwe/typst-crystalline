@@ -1,8 +1,8 @@
 # Índice de ADRs do Typst Cristalino
 
 Este documento é o índice canónico dos Architectural Decision
-Records (ADRs) do projecto **Typst Cristalino**. Lista os 56 ADRs
-em vigor (55 números únicos; ADR-0026 tem variante -R1 por
+Records (ADRs) do projecto **Typst Cristalino**. Lista os 57 ADRs
+em vigor (56 números únicos; ADR-0026 tem variante -R1 por
 revisão), as meta-regras que governam o projecto, o vocabulário
 canónico de status, cadeias de revogação e revisão, e convenções
 estruturais.
@@ -162,8 +162,9 @@ que corresponde a mudança específica no código.
 | 0053 | Font como tipo composto em L1 | `IMPLEMENTADO` |
 | 0054 | Critério de fecho de DEBT-1 inclui consumo integral | `EM VIGOR` |
 | 0055 | Font consumer via pipeline CIDFont existente | `IMPLEMENTADO` |
+| 0057 | Lang hyphenation em L1 via crate `hypher` | `IMPLEMENTADO` |
 
-**Total**: 56 ADRs (55 números únicos; ADR-0026 tem variante -R1
+**Total**: 57 ADRs (56 números únicos; ADR-0026 tem variante -R1
 por revisão).
 
 ### Distribuição de status
@@ -173,8 +174,9 @@ por revisão).
 - `IDEIA`: 2 ADRs (0002, 0003).
 - `EM VIGOR`: 24 ADRs (regras/políticas activas; 0018, 0029,
   0030, 0032–0051, 0054).
-- `IMPLEMENTADO`: 17 ADRs (decisões materializadas; 0001, 0004,
-  0016, 0017, 0019, 0021–0027, 0026-R1, 0031, 0052, 0053, 0055).
+- `IMPLEMENTADO`: 18 ADRs (decisões materializadas; 0001, 0004,
+  0016, 0017, 0019, 0021–0027, 0026-R1, 0031, 0052, 0053, 0055,
+  0057).
 - `REVOGADO`: 2 ADRs (0007, 0028).
 - `ADIADO`: 1 ADR (0020).
 
@@ -377,3 +379,16 @@ P84.8g.
   e 0038–0051). Conteúdo material dos ADRs intacto. Notas
   `¹`/`²` da tabela "Estado por ADR" removidas (a
   irregularidade que sinalizavam ficou resolvida).
+- **Passo 144 — Lang hyphenation** (gap 7 do DEBT-52
+  reaberto pós-fecho voluntariamente). **ADR-0057** autoriza
+  crate `hypher` em L1 (pure-data, no_std, zero deps).
+  Consumer integrado no algoritmo greedy de quebra de linha:
+  quando palavra não cabe e `style.lang` é `Some(lang)`,
+  tenta-se quebra com hífen literal antes do flush. `lang`
+  muda de scope-out total para parcialmente consumido —
+  hyphenation activo; shaping (rustybuzz) continua ausente.
+  Reduz superfície de scope-out de ADR-0054 sem invalidar o
+  perfil observacional graded. Numeração 144 vs 145: 144
+  estava reservado para hyphenation desde os relatórios 142
+  e 143; 145 (uniformização documental) precedeu por
+  priorização operacional. Sem conflito.

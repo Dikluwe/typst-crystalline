@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 518a9856
+//! @prompt-hash a78b0adc
 //! @layer L1
 //! @updated 2026-04-21
 
@@ -42,6 +42,9 @@ use crate::rules::layout::helpers::{
 
 // Gestão de cursor: word/space, layout_word, flush_line, new_page.
 mod cursor;
+
+// Hyphenation puro (Passo 144, ADR-0057): wrap sobre `hypher`.
+mod hyphenation;
 
 // ── Constantes de página ───────────────────────────────────────────────────
 
