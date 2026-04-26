@@ -1,8 +1,8 @@
 # Índice de ADRs do Typst Cristalino
 
 Este documento é o índice canónico dos Architectural Decision
-Records (ADRs) do projecto **Typst Cristalino**. Lista os 61 ADRs
-em vigor (60 números únicos; ADR-0026 tem variante -R1 por
+Records (ADRs) do projecto **Typst Cristalino**. Lista os 63 ADRs
+em vigor (62 números únicos; ADR-0026 tem variante -R1 por
 revisão), as meta-regras que governam o projecto, o vocabulário
 canónico de status, cadeias de revogação e revisão, e convenções
 estruturais.
@@ -86,6 +86,22 @@ por outros ADRs:
     paridade visível (tamanho, cor, peso, espaçamento) sem
     garantia de shaping features. Cumprida no Passo 142 (DEBT-1
     + DEBT-52 fechados).
+
+11. **Tradução `Smart<T>` vanilla → `Option<T>`/default** —
+    ADR-0064. Quatro casos canónicos (A: `Smart<T>` contextual
+    → `Option<T>`; B: `Smart<T>` literal fixo → `T` directo
+    com `Default`; C: campo `T` com default não-`Default` →
+    `Option<T>`; D: `bool` com default não-`false` → `bool`
+    directo). N=6 aplicações empíricas em P156D/E/G/H/I/J;
+    formaliza padrão emergente da série Layout P156C-J.
+
+12. **Inventariar primeiro — sub-passo `.1`** — ADR-0065.
+    Generaliza ADR-0034: passos com decisão arquitectural
+    não-trivial têm sub-passo `.1` dedicado a inventário
+    pré-decisão. Critério "não-trivial" cobre naming, escolha
+    de tipo, expansão de variant, atravessamento de camadas,
+    scope, divergência da spec. N=5 aplicações empíricas em
+    P156C/D/G/H/J; zero reformulações mid-passo.
 
 ---
 
@@ -176,8 +192,10 @@ que corresponde a mudança específica no código.
 | 0059 | `Args` como tipo separado, não-variant de `Value` | `EM VIGOR` |
 | 0060 | Model (structural) roadmap — Fase 1 + 2 + 3 | `IMPLEMENTADO` (Fase 1 fechada em P155; Fase 2/3 prosseguem em **P157+** após renumeração registada em P156B) |
 | 0061 | Layout Fase X — page model + multi-column + footnote area roadmap | `PROPOSTO` (P156B; reocupou número antes reservado para hayagriva — passou para ADR-0062) |
+| 0064 | Tradução `Smart<T>` vanilla → `Option<T>`/default | `EM VIGOR` (P156K; formaliza padrão N=6 da série P156C-J) |
+| 0065 | Inventariar primeiro — sub-passo `.1` para decisão arquitectural não-trivial | `EM VIGOR` (P156K; estende ADR-0034; padrão N=5 da série P156C-J) |
 
-**Total**: 61 ADRs (60 números únicos; ADR-0026 tem variante -R1
+**Total**: 63 ADRs (62 números únicos; ADR-0026 tem variante -R1
 por revisão).
 
 ### Distribuição de status
@@ -185,8 +203,8 @@ por revisão).
 - `PROPOSTO`: **11** ADRs (decisões em aberto: 0005, 0006,
   0008–0015, **0061**).
 - `IDEIA`: 2 ADRs (0002, 0003).
-- `EM VIGOR`: 26 ADRs (regras/políticas activas; 0018, 0029,
-  0030, 0032–0051, 0054, 0058, 0059).
+- `EM VIGOR`: **28** ADRs (regras/políticas activas; 0018, 0029,
+  0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**).
 - `IMPLEMENTADO`: 19 ADRs (decisões materializadas; 0001, 0004,
   0016, 0017, 0019, 0021–0027, 0026-R1, 0031, 0052, 0053, 0055,
   0057, **0060**).
@@ -487,6 +505,27 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 156K — ADRs meta formalizando padrões consolidados
+  da série P156C-J** (passo arquitectural meta; **não materializa
+  código**). Dois ADRs novos `EM VIGOR`: **ADR-0064** (Tradução
+  `Smart<T>` → `Option<T>`/default — formaliza padrão N=6 com
+  4 casos canónicos A/B/C/D; documenta subpadrão emergente
+  `extract_length` reuso N=6) e **ADR-0065** (Inventariar
+  primeiro — sub-passo `.1` para decisão arquitectural
+  não-trivial; estende ADR-0034 generalizando para naming /
+  tipo / variant / camadas / scope / divergência da spec; padrão
+  N=5 com critério "default = inventariar"). Auto-aplicação:
+  P156K cumpre o próprio padrão a ser formalizado (sub-passo
+  .1 dedicado ao inventário do estado dos ADRs antes de redigir
+  os novos). Numeração escolhida: 0064 + 0065 (consecutivos;
+  0062 reservada hayagriva, 0063 reservada column flow).
+  Contagens: total 61 → **63** ADRs; EM VIGOR 26 → **28**.
+  Reservas ADR-0062/ADR-0063 inalteradas. Sem alteração de
+  código (`crystalline-lint` zero violations; sem hash a
+  propagar). **Benefício**: sessões futuras citam ADRs
+  explicitamente em vez de re-justificar empiricamente cada
+  passo — reduz overhead de enunciados e garante rastreabilidade
+  formal dos padrões consolidados.
 - **Passo 156J — Layout Fase 3 sub-passo 1: repeat (primeira
   Fase 3)** (oitava aplicação consecutiva de **ADR-0061**;
   **activa caminho 1** dos 3 documentados em §"Aplicações
