@@ -132,7 +132,7 @@ primitives e `skew`). Detalhe em
 
 | Feature | Vanilla | Cristalino | Referência | Nota |
 |---------|---------|------------|------------|------|
-| `pad(...)` | layout/pad.rs | `implementado` ⁶ | Passo 156C (ADR-0061 Fase 1) | `Content::Pad { body, padding: Sides<Length> }` + stdlib `#pad(body, left:?, right:?, top:?, bottom:?, x:?, y:?, rest:?)`; `right` scope-out em layout (perfil ADR-0054 graded); padding negativo rejeitado |
+| `pad(...)` | layout/pad.rs | `implementado⁺` ⁶ ²¹ | Passos 156C + 156L (refino sides individualizadas) | `Content::Pad { body, sides: Sides<Option<Length>> }` + stdlib `#pad(body, left:?, right:?, top:?, bottom:?, x:?, y:?, rest:?)`; **P156L refino**: cada side passa a `Option<Length>` per ADR-0064 Caso C (None ↔ default zero resolvido em uso); helper `extract_sides_lengths` privado; `right` continua scope-out em layout (perfil ADR-0054 graded); padding negativo rejeitado |
 | `align(alignment, body)` | layout/align.rs | `implementado` | Passos 84.5–84.6 (DEBT-36, 37) | `Align2D`; `Place` com scope |
 | `place(alignment, ..., body)` | layout/place.rs | `parcial` ⁵ | Passo 84.6 | reclassificado em P156B (era `implementado`); sem `float`, `clearance`; divergência `PlaceScope::Parent` |
 | `box(...)` | layout/container.rs | `implementado` ¹⁵ | Passo 156H (ADR-0061 Fase 2 sub-passo 2) | `Content::Boxed { body, width, height, inset, baseline }` + stdlib `#box(body, width: ?, height: ?, inset: ?, baseline: ?)`; container inline (não força flush_line); 6 atributos vanilla scope-out (outset/fill/stroke/radius/clip/stroke-overhang); width/height/baseline armazenados mas semantic real adiada |
@@ -425,12 +425,12 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | `#let`/`#set`/`#show`/import | 7 | 1 | 4 | 1 | 0 | 13 |
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
-| Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ | 14 | 0 | 3 | 1 | 0 | 18 |
+| Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ | 13 | 1 | 3 | 1 | 0 | 18 |
 | Model (structural) ¹ ² ³ | 6 | 4 | 5 | 7 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection | 1 | 0 | 0 | 5 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ | **64** | **21** | **22** | **32** | **2** | **141** |
+| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ | **63** | **22** | **22** | **32** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -562,14 +562,17 @@ ajustada: 60/21/22/36/2=141 → **61/21/22/35/2=141** (+1
 implementado, −1 ausente). Tabela B Content variants:
 **48 → 49** (+`Block`). ADR-0061 continua `PROPOSTO`.
 
-**Cobertura user-facing total** (impl + impl⁺) pós-P156J:
-(64 + 21) / 141 = **60%** (≈60.3%)
+**Cobertura user-facing total** (impl + impl⁺) pós-P156L:
+(63 + 22) / 141 = **60%** (≈60.3%; quantitativamente inalterada
+vs P156J — refino, não adição)
 (antes de P154A: 54%; após P154B: 55%; após P155: ~55-56%;
 após P156B: ~53%; após P156C: ~55%; após P156D: ~56%; após
 P156E: ~57%; após P156F: ~57%; após P156G: ~58%; após P156H:
 ~59%; após P156I: ~60% — Layout 67% → 72%, target Fase 1+2
-atingido; **após P156J: ~60.3%** — Layout 72% → 78%, primeira
-Fase 3).
+atingido; após P156J: ~60.3% — Layout 72% → 78%, primeira
+Fase 3; **após P156L: ~60.3% (inalterada)** — refino qualitativo
+de `pad` per ADR-0064 Caso C; pad transita `implementado →
+implementado⁺`).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -666,6 +669,34 @@ conjunto não-capturado). Oitava aplicação consecutiva de
 ADR-0061; **primeira Fase 3**. Restantes ~2 ausentes
 (Bibliography/Cite, Footnote, Table, Columns, Stroke-object —
 variando por classificação). ADR-0061 mantém-se `PROPOSTO`.
+
+²¹ — Ajuste P156L (refino sides individualizadas; **primeira
+aplicação concreta de ADR-0065 critério #3** — expansão de
+variant existente; **segunda aplicação concreta de ADR-0064
+Caso C**). `pad` transita `implementado → implementado⁺`
+(refino de variant existente; cobertura quantitativa
+inalterada). Variant `Pad { body, padding: Sides<Length> }`
+refactorado para `Pad { body, sides: Sides<Option<Length>> }`
+— cada side `None ↔ default zero` resolvido em momento de uso
+no Layouter. **Divergência da spec do passo P156L §"Verificação"
+#5** detectada e documentada em diagnóstico §6.1: spec assumia
+`pad` como `parcial` (factualmente `implementado` desde P156C);
+cobertura **não passa para 84%** como spec previa. Em vez disso,
+pad ganha sufixo ⁺ indicando refino além do mínimo (consistente
+com `figure` em ADR-0041). Helper `extract_sides_lengths`
+privado adicionado a `stdlib/layout.rs`. `extract_length`
+reusado **N=7** vezes consecutivas (P156C/D/G/H/I/J/L). Tipo
+`Sides<T>` reusado segunda vez concreta (P156C origin; P156L
+nova materialização). Contagem Layout: 14/0/3/1/0=18 →
+**13/1/3/1/0=18** (uma entrada move-se de implementado puro
+para implementado⁺). Cobertura `(impl + impl⁺)`: 14/18 =
+**78%** (inalterada quantitativamente). Total user-facing:
+64/21/22/32/2=141 → **63/22/22/32/2=141** (uma entrada move-se
+de implementado para implementado⁺). Tabela B Content: 52
+(inalterada — refino, não adição). ADR-0061 mantém-se
+`PROPOSTO`. **Padrões consolidados**: ADR-0064 N=7 implícito;
+ADR-0065 N=6 implícito; reuso `Sides<T>` N=2; reuso
+`extract_length` N=7.
 
 **Cobertura arquitectural total**: (68 + 13) / 106 = **76-77%**
 (era 75-76% pós-P156I; era 75% pré-P155; era 72% pré-P154B;

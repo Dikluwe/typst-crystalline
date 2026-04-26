@@ -627,9 +627,10 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.cursor_x = margin_pt;
             }
 
-            // ── Passo 156C (ADR-0061 Fase 1, sub-passo 1) — pad + hide ──
-            Content::Pad { body, padding } => {
-                // Resolve padding em pt no font_size_pt activo.
+            // ── Passo 156C / 156L (ADR-0061 Fase 1 + Fase 3 refino) — pad + hide ──
+            Content::Pad { body, sides } => {
+                // P156L: cada side é Option<Length>; None ↔ default
+                // vanilla zero (resolvido aqui em vez de em native_pad).
                 // `right` é scope-out neste passo: o Layouter actual não
                 // tem mecânica de "largura útil" por arm — width-aware
                 // wrap vive em `flush_line`/`layout_word` que consultam
@@ -637,9 +638,9 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 // pad reduz horizontalmente (left+top) e avança
                 // verticalmente (bottom) consistentemente.
                 let font = self.font_size_pt.val();
-                let left   = padding.left.resolve_pt(font);
-                let top    = padding.top.resolve_pt(font);
-                let bottom = padding.bottom.resolve_pt(font);
+                let left   = sides.left  .map_or(0.0, |l| l.resolve_pt(font));
+                let top    = sides.top   .map_or(0.0, |l| l.resolve_pt(font));
+                let bottom = sides.bottom.map_or(0.0, |l| l.resolve_pt(font));
 
                 if self.cursor_x.0 > self.line_start_x.0 {
                     self.flush_line();
@@ -999,13 +1000,14 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 }
             }
 
-            // Passo 156C: Pad / Hide para grid measurement.
-            Content::Pad { body, padding } => {
+            // Passo 156C / 156L: Pad / Hide para grid measurement.
+            // P156L: cada side é Option<Length>; None ↔ zero.
+            Content::Pad { body, sides } => {
                 let font  = self.font_size_pt.val();
-                let left   = padding.left.resolve_pt(font);
-                let right  = padding.right.resolve_pt(font);
-                let top    = padding.top.resolve_pt(font);
-                let bottom = padding.bottom.resolve_pt(font);
+                let left   = sides.left  .map_or(0.0, |l| l.resolve_pt(font));
+                let right  = sides.right .map_or(0.0, |l| l.resolve_pt(font));
+                let top    = sides.top   .map_or(0.0, |l| l.resolve_pt(font));
+                let bottom = sides.bottom.map_or(0.0, |l| l.resolve_pt(font));
                 let constrained = (max_width - left - right).max(0.0);
                 let (w, h) = self.measure_content_constrained(body, constrained);
                 (w + left + right, h + top + bottom)

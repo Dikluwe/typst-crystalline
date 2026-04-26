@@ -628,21 +628,22 @@ mod tests {
         assert_eq!(parse_color(&Value::Int(42)), None);
     }
 
-    // ── Passo 156C (ADR-0061 Fase 1, sub-passo 1) — pad + hide ─────────────
+    // ── Passo 156C / 156L (ADR-0061 Fase 1 + Fase 3 refino) — pad + hide ──
 
     #[test]
-    fn native_pad_defaults_padding_zero() {
+    fn native_pad_defaults_sides_none() {
+        // P156L: sem named args → todos os sides são None (per
+        // ADR-0064 Caso C; None ↔ default vanilla zero resolvido em uso).
         null_ctx!(ctx);
-        use crate::entities::layout_types::Length;
         let body = Content::text("body");
         let args = p(vec![Value::Content(body)]);
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { body, padding }) = result {
+        if let Value::Content(Content::Pad { body, sides }) = result {
             assert_eq!(body.plain_text(), "body");
-            assert_eq!(padding.left,   Length::ZERO);
-            assert_eq!(padding.right,  Length::ZERO);
-            assert_eq!(padding.top,    Length::ZERO);
-            assert_eq!(padding.bottom, Length::ZERO);
+            assert_eq!(sides.left,   None);
+            assert_eq!(sides.right,  None);
+            assert_eq!(sides.top,    None);
+            assert_eq!(sides.bottom, None);
         } else {
             panic!("esperado Content::Pad");
         }
@@ -658,11 +659,11 @@ mod tests {
         args.named.insert("top".into(),    Value::Length(Length::pt(3.0)));
         args.named.insert("bottom".into(), Value::Length(Length::pt(4.0)));
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { padding, .. }) = result {
-            assert_eq!(padding.left,   Length::pt(1.0));
-            assert_eq!(padding.right,  Length::pt(2.0));
-            assert_eq!(padding.top,    Length::pt(3.0));
-            assert_eq!(padding.bottom, Length::pt(4.0));
+        if let Value::Content(Content::Pad { sides, .. }) = result {
+            assert_eq!(sides.left,   Some(Length::pt(1.0)));
+            assert_eq!(sides.right,  Some(Length::pt(2.0)));
+            assert_eq!(sides.top,    Some(Length::pt(3.0)));
+            assert_eq!(sides.bottom, Some(Length::pt(4.0)));
         } else {
             panic!("esperado Content::Pad");
         }
@@ -677,11 +678,11 @@ mod tests {
         args.named.insert("x".into(), Value::Length(Length::pt(5.0)));
         args.named.insert("y".into(), Value::Length(Length::pt(7.0)));
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { padding, .. }) = result {
-            assert_eq!(padding.left,   Length::pt(5.0));
-            assert_eq!(padding.right,  Length::pt(5.0));
-            assert_eq!(padding.top,    Length::pt(7.0));
-            assert_eq!(padding.bottom, Length::pt(7.0));
+        if let Value::Content(Content::Pad { sides, .. }) = result {
+            assert_eq!(sides.left,   Some(Length::pt(5.0)));
+            assert_eq!(sides.right,  Some(Length::pt(5.0)));
+            assert_eq!(sides.top,    Some(Length::pt(7.0)));
+            assert_eq!(sides.bottom, Some(Length::pt(7.0)));
         } else {
             panic!("esperado Content::Pad");
         }
@@ -695,11 +696,11 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("rest".into(), Value::Length(Length::pt(8.0)));
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { padding, .. }) = result {
-            assert_eq!(padding.left,   Length::pt(8.0));
-            assert_eq!(padding.right,  Length::pt(8.0));
-            assert_eq!(padding.top,    Length::pt(8.0));
-            assert_eq!(padding.bottom, Length::pt(8.0));
+        if let Value::Content(Content::Pad { sides, .. }) = result {
+            assert_eq!(sides.left,   Some(Length::pt(8.0)));
+            assert_eq!(sides.right,  Some(Length::pt(8.0)));
+            assert_eq!(sides.top,    Some(Length::pt(8.0)));
+            assert_eq!(sides.bottom, Some(Length::pt(8.0)));
         } else {
             panic!("esperado Content::Pad");
         }
@@ -715,14 +716,14 @@ mod tests {
         args.named.insert("x".into(),    Value::Length(Length::pt(2.0)));
         args.named.insert("rest".into(), Value::Length(Length::pt(3.0)));
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { padding, .. }) = result {
+        if let Value::Content(Content::Pad { sides, .. }) = result {
             // left vence (específico)
-            assert_eq!(padding.left,   Length::pt(1.0));
+            assert_eq!(sides.left,   Some(Length::pt(1.0)));
             // right cai para x (eixo)
-            assert_eq!(padding.right,  Length::pt(2.0));
+            assert_eq!(sides.right,  Some(Length::pt(2.0)));
             // top cai para rest (não há y nem específico)
-            assert_eq!(padding.top,    Length::pt(3.0));
-            assert_eq!(padding.bottom, Length::pt(3.0));
+            assert_eq!(sides.top,    Some(Length::pt(3.0)));
+            assert_eq!(sides.bottom, Some(Length::pt(3.0)));
         } else {
             panic!("esperado Content::Pad");
         }
@@ -735,7 +736,7 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("left".into(), Value::Length(Length::pt(-1.0)));
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None);
-        assert!(result.is_err(), "padding negativo deve retornar Err em P156C");
+        assert!(result.is_err(), "padding negativo deve retornar Err em P156C/L");
     }
 
     #[test]
@@ -755,8 +756,90 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("rest".into(), Value::Float(2.5));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { padding, .. }) = r {
-            assert_eq!(padding.left, Length::pt(2.5));
+        if let Value::Content(Content::Pad { sides, .. }) = r {
+            assert_eq!(sides.left, Some(Length::pt(2.5)));
+        } else {
+            panic!("esperado Content::Pad");
+        }
+    }
+
+    // ── P156L: tests novos para refino sides individualizadas ────────────
+
+    #[test]
+    fn native_pad_p156l_apenas_um_lado_outros_none() {
+        // P156L: declarar só `top` deixa os outros 3 sides como None
+        // (distinção semântica vs P156C onde ficavam Length::ZERO).
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("top".into(), Value::Length(Length::pt(7.0)));
+        let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pad { sides, .. }) = r {
+            assert_eq!(sides.top,    Some(Length::pt(7.0)));
+            assert_eq!(sides.left,   None);
+            assert_eq!(sides.right,  None);
+            assert_eq!(sides.bottom, None);
+        } else {
+            panic!("esperado Content::Pad");
+        }
+    }
+
+    #[test]
+    fn native_pad_p156l_some_zero_distinct_from_none() {
+        // P156L: declarar `left: 0pt` produz Some(zero), distinto de
+        // não declarar (None). Per ADR-0064 Caso C distinção semântica.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("left".into(), Value::Length(Length::ZERO));
+        let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pad { sides, .. }) = r {
+            assert_eq!(sides.left,  Some(Length::ZERO),
+                "left explicitamente declarado a zero é Some(ZERO), não None");
+            assert_eq!(sides.right, None,
+                "right não declarado é None, não Some(ZERO)");
+        } else {
+            panic!("esperado Content::Pad");
+        }
+    }
+
+    #[test]
+    fn native_pad_p156l_x_axis_apenas() {
+        // Atalho `x` declara left+right; top/bottom ficam None.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("x".into(), Value::Length(Length::pt(4.0)));
+        let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pad { sides, .. }) = r {
+            assert_eq!(sides.left,   Some(Length::pt(4.0)));
+            assert_eq!(sides.right,  Some(Length::pt(4.0)));
+            assert_eq!(sides.top,    None);
+            assert_eq!(sides.bottom, None);
+        } else {
+            panic!("esperado Content::Pad");
+        }
+    }
+
+    #[test]
+    fn native_pad_p156l_top_overrides_y_overrides_rest() {
+        // Cadeia de precedência: top > y > rest. Decorações:
+        // top=10, y=20, rest=30 → top=10 (especifico), bottom=20 (eixo).
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("top".into(),  Value::Length(Length::pt(10.0)));
+        args.named.insert("y".into(),    Value::Length(Length::pt(20.0)));
+        args.named.insert("rest".into(), Value::Length(Length::pt(30.0)));
+        let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Pad { sides, .. }) = r {
+            assert_eq!(sides.top,    Some(Length::pt(10.0)),
+                "top específico vence y e rest");
+            assert_eq!(sides.bottom, Some(Length::pt(20.0)),
+                "bottom cai para y (sem específico)");
+            assert_eq!(sides.left,   Some(Length::pt(30.0)),
+                "left cai para rest (sem específico nem x)");
+            assert_eq!(sides.right,  Some(Length::pt(30.0)));
         } else {
             panic!("esperado Content::Pad");
         }

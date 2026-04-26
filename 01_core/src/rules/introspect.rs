@@ -126,9 +126,9 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
         // Passo 156C (ADR-0061 Fase 1) — pad / hide containers.
         // Materialize_time desce no body para resolver counters dentro;
         // padding e o invariante "hide" preservam-se.
-        Content::Pad { body, padding } => Content::Pad {
-            body:    Box::new(materialize_time(body, state)),
-            padding: *padding,
+        Content::Pad { body, sides } => Content::Pad {
+            body:  Box::new(materialize_time(body, state)),
+            sides: *sides,
         },
         Content::Hide { body } => Content::Hide {
             body: Box::new(materialize_time(body, state)),
