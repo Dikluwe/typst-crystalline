@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 4321258d
+//! @prompt-hash 5702d2e3
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -391,6 +391,34 @@ pub enum Content {
         to:   Option<Parity>,
     },
 
+    // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block container ───────
+    /// Container block — vanilla `BlockElem`.
+    ///
+    /// Forma minimalista per ADR-0054 graded. Atributos Fase 1
+    /// (P156G): `body`, `width`, `height`, `inset`, `breakable`.
+    /// Scope-out (refino futuro): `outset`, `fill`, `stroke`, `radius`,
+    /// `clip`, `spacing`, `above`/`below`, `sticky`.
+    ///
+    /// Decisão arquitectural P156G.2: variant rico (Opção A) em vez de
+    /// `Content::Styled`. Rationale: Block é container de layout (width/
+    /// height/inset/breakable) — vocabulário diferente do `Style` enum
+    /// que cobre propriedades de texto (Bold/Italic/Size/Fill/HeadingLevel).
+    /// Coerente com `Content::Pad` (P156C) que também tem fields explícitos
+    /// para padding.
+    Block {
+        body:      Box<Content>,
+        /// Largura explícita; `None` == auto (largura disponível).
+        width:     Option<Length>,
+        /// Altura explícita; `None` == auto (calcular do body).
+        height:    Option<Length>,
+        /// Margem interna em quatro lados.
+        inset:     Sides<Length>,
+        /// `true` = pode quebrar entre páginas; `false` = atómico
+        /// (semantic adiada per ADR-0054 graded; armazenado mas
+        /// layouter não impede quebra ainda).
+        breakable: bool,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
 }
@@ -467,6 +495,19 @@ impl Content {
         Self::Pagebreak { weak, to }
     }
 
+    /// `block(body, width, height, inset, breakable)` — Passo 156G
+    /// (ADR-0061 Fase 2 sub-passo 1). Construtor com defaults sensatos
+    /// (None/zero/true) para uso programático.
+    pub fn block(
+        body:      Content,
+        width:     Option<Length>,
+        height:    Option<Length>,
+        inset:     Sides<Length>,
+        breakable: bool,
+    ) -> Self {
+        Self::Block { body: Box::new(body), width, height, inset, breakable }
+    }
+
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,
@@ -503,6 +544,10 @@ impl Content {
             // Passo 156E: Pagebreak nunca é vazio (event com efeito
             // mesmo sem body; cf. Divider em P154B).
             Self::Pagebreak { .. } => false,
+            // Passo 156G: Block é vazio se o body for (atributos de
+            // dimensão/inset não fazem o container deixar de ser vazio
+            // semanticamente — análogo a Pad em P156C).
+            Self::Block { body, .. } => body.is_empty(),
             _ => false,
         }
     }
@@ -614,6 +659,9 @@ impl Content {
             Self::HSpace { .. } | Self::VSpace { .. } => String::new(),
             // Passo 156E: Pagebreak é event sem texto.
             Self::Pagebreak { .. } => String::new(),
+            // Passo 156G: Block é transparente para texto plano (recurse
+            // no body; análogo a Pad em P156C).
+            Self::Block { body, .. } => body.plain_text(),
             Self::Quote { body, attribution, quotes, .. } => {
                 let body_txt = body.plain_text();
                 let with_quotes = if *quotes {
@@ -719,6 +767,10 @@ impl PartialEq for Content {
             // Passo 156E — Pagebreak.
             (Self::Pagebreak { weak: wa, to: ta },
              Self::Pagebreak { weak: wb, to: tb }) => wa == wb && ta == tb,
+            // Passo 156G — Block.
+            (Self::Block { body: ba, width: wa, height: ha, inset: ia, breakable: ka },
+             Self::Block { body: bb, width: wb, height: hb, inset: ib, breakable: kb }) =>
+                ba == bb && wa == wb && ha == hb && ia == ib && ka == kb,
             _ => false,
         }
     }
@@ -864,6 +916,16 @@ impl Content {
                 body: Box::new(body.map_content(transform)?),
             },
 
+            // Passo 156G: Block container — recurse em body; atributos
+            // são Copy primitivos (Option<Length>, Sides<Length>, bool).
+            Content::Block { body, width, height, inset, breakable } => Content::Block {
+                body:      Box::new(body.map_content(transform)?),
+                width:     *width,
+                height:    *height,
+                inset:     *inset,
+                breakable: *breakable,
+            },
+
             // ── Terminais: clonar directamente ──────────────────────────────
             // Listados explicitamente — variantes novas não passam em silêncio.
             // Passo 156D: HSpace/VSpace são leaves (sem body), terminais.
@@ -993,6 +1055,15 @@ impl Content {
             },
             Content::Hide { body } => Content::Hide {
                 body: Box::new(body.map_text(transform)),
+            },
+
+            // Passo 156G: Block container — recurse em body.
+            Content::Block { body, width, height, inset, breakable } => Content::Block {
+                body:      Box::new(body.map_text(transform)),
+                width:     *width,
+                height:    *height,
+                inset:     *inset,
+                breakable: *breakable,
             },
 
             // ── Terminais — clonar directamente ──────────────────────────
@@ -1844,5 +1915,137 @@ mod tests {
         // Pagebreak é leaf — map_text não tem effect.
         let p_mapped = p.map_text(&mut |s| s.to_uppercase());
         assert_eq!(p, p_mapped);
+    }
+
+    // ── Passo 156G (ADR-0061 Fase 2, sub-passo 1) — block container ───────
+
+    #[test]
+    fn block_constructor_default_field_values() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        let b = Content::block(
+            Content::text("body"),
+            None, None,
+            Sides::uniform(Length::ZERO),
+            true,
+        );
+        if let Content::Block { body, width, height, inset, breakable } = &b {
+            assert_eq!(body.plain_text(), "body");
+            assert_eq!(*width,  None);
+            assert_eq!(*height, None);
+            assert_eq!(inset.left, Length::ZERO);
+            assert!(*breakable);
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn block_with_explicit_width_height_inset() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        let b = Content::block(
+            Content::text("x"),
+            Some(Length::pt(100.0)),
+            Some(Length::pt(50.0)),
+            Sides::uniform(Length::pt(8.0)),
+            false,
+        );
+        if let Content::Block { width, height, inset, breakable, .. } = &b {
+            assert_eq!(*width,  Some(Length::pt(100.0)));
+            assert_eq!(*height, Some(Length::pt(50.0)));
+            assert_eq!(inset.left, Length::pt(8.0));
+            assert!(!*breakable);
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn block_is_empty_proxy_para_body() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        // Block com body Empty é vazio (atributos não-nulos não mudam isso).
+        let b_empty = Content::block(
+            Content::Empty,
+            Some(Length::pt(100.0)),
+            None,
+            Sides::uniform(Length::pt(5.0)),
+            true,
+        );
+        assert!(b_empty.is_empty());
+        // Com texto, não vazio.
+        let b_text = Content::block(
+            Content::text("a"),
+            None, None,
+            Sides::uniform(Length::ZERO),
+            true,
+        );
+        assert!(!b_text.is_empty());
+    }
+
+    #[test]
+    fn block_plain_text_recurse_no_body() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        let b = Content::block(
+            Content::text("hello"),
+            None, None,
+            Sides::uniform(Length::pt(2.0)),
+            true,
+        );
+        assert_eq!(b.plain_text(), "hello");
+    }
+
+    #[test]
+    fn block_partial_eq() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        let mk = || Content::block(
+            Content::text("x"),
+            Some(Length::pt(50.0)),
+            None,
+            Sides::uniform(Length::pt(3.0)),
+            true,
+        );
+        assert_eq!(mk(), mk());
+        // Width diferente → diferente.
+        let other_width = Content::block(
+            Content::text("x"),
+            Some(Length::pt(60.0)),
+            None,
+            Sides::uniform(Length::pt(3.0)),
+            true,
+        );
+        assert_ne!(mk(), other_width);
+        // breakable diferente → diferente.
+        let other_breakable = Content::block(
+            Content::text("x"),
+            Some(Length::pt(50.0)),
+            None,
+            Sides::uniform(Length::pt(3.0)),
+            false,
+        );
+        assert_ne!(mk(), other_breakable);
+    }
+
+    #[test]
+    fn block_map_text_recurse_no_body() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        let b = Content::block(
+            Content::text("hello"),
+            None, None,
+            Sides::uniform(Length::pt(1.0)),
+            true,
+        );
+        let upper = b.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(upper.plain_text(), "HELLO");
+        // Atributos preservados após map_text.
+        if let Content::Block { inset, .. } = upper {
+            assert_eq!(inset.left, Length::pt(1.0));
+        } else {
+            panic!("esperado Content::Block após map_text");
+        }
     }
 }

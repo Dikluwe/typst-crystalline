@@ -48,8 +48,8 @@ pub use crate::rules::stdlib::shapes::{
 };
 pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale, native_skew};
 pub use crate::rules::stdlib::layout::{
-    native_align, native_grid, native_h, native_hide, native_pad, native_page,
-    native_pagebreak, native_place, native_v,
+    native_align, native_block, native_grid, native_h, native_hide, native_pad,
+    native_page, native_pagebreak, native_place, native_v,
 };
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
@@ -1217,5 +1217,173 @@ mod tests {
         } else {
             panic!("regressão: native_scale deveria produzir Content::Transform");
         }
+    }
+
+    // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block ──────────────────
+
+    #[test]
+    fn native_block_defaults_sem_args_named() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let r = native_block(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { body, width, height, inset, breakable }) = r {
+            assert_eq!(body.plain_text(), "body");
+            assert_eq!(width,  None);
+            assert_eq!(height, None);
+            assert_eq!(inset.left, Length::ZERO);
+            assert!(breakable, "default breakable é true");
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn native_block_sem_body_aceita_empty() {
+        // Vanilla aceita block() sem body; cristalino igualmente
+        // (Content::Empty como fallback).
+        null_ctx!(ctx);
+        let r = native_block(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { body, .. }) = r {
+            assert!(body.is_empty());
+        } else {
+            panic!("esperado Content::Block com body Empty");
+        }
+    }
+
+    #[test]
+    fn native_block_com_width_length() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("width".into(), Value::Length(Length::pt(100.0)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { width, .. }) = r {
+            assert_eq!(width, Some(Length::pt(100.0)));
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn native_block_com_height_int_pt() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("height".into(), Value::Int(50));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { height, .. }) = r {
+            assert_eq!(height, Some(Length::pt(50.0)));
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn native_block_com_inset_uniforme() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("inset".into(), Value::Length(Length::pt(8.0)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { inset, .. }) = r {
+            assert_eq!(inset.left,   Length::pt(8.0));
+            assert_eq!(inset.right,  Length::pt(8.0));
+            assert_eq!(inset.top,    Length::pt(8.0));
+            assert_eq!(inset.bottom, Length::pt(8.0));
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn native_block_com_breakable_false() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("breakable".into(), Value::Bool(false));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { breakable, .. }) = r {
+            assert!(!breakable);
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn native_block_combina_atributos() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("width".into(),  Value::Length(Length::pt(200.0)));
+        args.named.insert("height".into(), Value::Length(Length::pt(80.0)));
+        args.named.insert("inset".into(),  Value::Length(Length::pt(4.0)));
+        args.named.insert("breakable".into(), Value::Bool(false));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { width, height, inset, breakable, .. }) = r {
+            assert_eq!(width,  Some(Length::pt(200.0)));
+            assert_eq!(height, Some(Length::pt(80.0)));
+            assert_eq!(inset.top, Length::pt(4.0));
+            assert!(!breakable);
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn native_block_rejeita_named_arg_avancado() {
+        // Atributos avançados (fill, stroke, radius, clip, ...) scope-out
+        // per ADR-0054 graded; rejeitar com erro hard até refino futuro.
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("fill".into(), Value::Str("red".into()));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "fill é scope-out em P156G; deve retornar Err");
+    }
+
+    #[test]
+    fn native_block_rejeita_width_negativo() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("width".into(), Value::Length(Length::pt(-10.0)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "width negativo deve retornar Err em P156G");
+    }
+
+    #[test]
+    fn native_block_rejeita_inset_negativo() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("inset".into(), Value::Length(Length::pt(-2.0)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "inset negativo deve retornar Err em P156G");
+    }
+
+    #[test]
+    fn native_block_rejeita_breakable_nao_bool() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("breakable".into(), Value::Int(1));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "breakable não-Bool deve retornar Err");
+    }
+
+    // Regression test: outros containers (Pad/Hide) continuam a funcionar
+    // após adicionar Block (cobertura arms exaustiva foi correctamente
+    // adicionada em todos os 9 sítios).
+    #[test]
+    fn native_pad_e_hide_continuam_a_funcionar_apos_p156g() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        // Pad regression
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("rest".into(), Value::Length(Length::pt(5.0)));
+        let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Pad { .. })),
+            "regressão: native_pad deveria produzir Content::Pad");
+        // Hide regression
+        let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Hide { .. })),
+            "regressão: native_hide deveria produzir Content::Hide");
     }
 }

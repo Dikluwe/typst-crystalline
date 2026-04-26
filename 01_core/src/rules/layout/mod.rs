@@ -687,6 +687,71 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.cursor_y += Pt(pt);
             }
 
+            // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block container ──
+            // Container que ocupa nova "linha lógica" (força flush_line se
+            // houver conteúdo pendente), aplica inset (análogo a Pad),
+            // reserva altura mínima se `height: Some(h)`, e respeita a
+            // largura disponível através do mecanismo `line_start_x`/
+            // `flush_line` existente.
+            //
+            // `breakable` armazenado mas semantic real (impedir quebra
+            // mid-block) defere — exigiria refactor multi-region (per
+            // DEBT-56). Per ADR-0054 graded.
+            //
+            // `width` actualmente reduz a largura útil temporariamente
+            // (cursor.x começa em line_start_x + offset). `width: None`
+            // == auto (largura completa).
+            Content::Block { body, width, height, inset, breakable: _ } => {
+                let font = self.font_size_pt.val();
+                let inset_left   = inset.left.resolve_pt(font);
+                let inset_top    = inset.top.resolve_pt(font);
+                let inset_bottom = inset.bottom.resolve_pt(font);
+                // inset.right é scope-out (mesma razão que Pad.right
+                // em P156C — refino com refactor multi-region).
+
+                // 1. Termina linha em curso.
+                if self.cursor_x.0 > self.line_start_x.0 {
+                    self.flush_line();
+                }
+
+                // 2. Captura cursor.y para verificar height mínimo no fim.
+                let start_y = self.cursor_y.0;
+
+                // 3. Aplica inset top.
+                self.cursor_y += Pt(inset_top);
+
+                // 4. Aplica inset left (e width se especificado).
+                let saved_line_start = self.line_start_x;
+                self.line_start_x = saved_line_start + Pt(inset_left);
+                self.cursor_x     = self.line_start_x;
+
+                // Se width especificado, comportamento simplificado: o body
+                // é layouted normalmente. Hard-limiting da largura exigiria
+                // refactor do Layouter para multi-region. Aceitar per
+                // ADR-0054 graded; documentar como scope-out parcial.
+                let _ = width; // armazenado mas não consumido neste passo
+
+                // 5. Layout do body.
+                self.layout_content(body);
+                self.flush_line();
+
+                // 6. Aplica inset bottom.
+                self.cursor_y += Pt(inset_bottom);
+
+                // 7. Se height: Some(h), garantir que avançámos pelo menos h.
+                if let Some(h) = height {
+                    let h_pt = h.resolve_pt(font);
+                    let consumed = self.cursor_y.0 - start_y;
+                    if consumed < h_pt {
+                        self.cursor_y += Pt(h_pt - consumed);
+                    }
+                }
+
+                // 8. Restaura line_start_x.
+                self.line_start_x = saved_line_start;
+                self.cursor_x     = saved_line_start;
+            }
+
             // ── Passo 156E (ADR-0061 Fase 1, sub-passo 3) — pagebreak ──
             // `weak` armazenado mas collapse defere (consistente P156D).
             // Layouter reusa `new_page` (cursor.rs:128) que commits items
@@ -851,6 +916,29 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             // Passo 156E: Pagebreak é event sem dimensões dentro de cell.
             // Em grid measurement, ignora-se (não consome largura/altura).
             Content::Pagebreak { .. } => (0.0, 0.0),
+
+            // Passo 156G: Block dimensões para grid measurement.
+            // Inset adiciona aos lados; height: Some(h) força mínimo;
+            // width: Some(w) prefere essa largura mas constrained por max.
+            Content::Block { body, width, height, inset, breakable: _ } => {
+                let font = self.font_size_pt.val();
+                let inset_l = inset.left.resolve_pt(font);
+                let inset_r = inset.right.resolve_pt(font);
+                let inset_t = inset.top.resolve_pt(font);
+                let inset_b = inset.bottom.resolve_pt(font);
+                let body_max = match width {
+                    Some(w) => w.resolve_pt(font).min(max_width - inset_l - inset_r),
+                    None    => (max_width - inset_l - inset_r).max(0.0),
+                };
+                let (bw, bh) = self.measure_content_constrained(body, body_max);
+                let total_w = bw + inset_l + inset_r;
+                let body_h_with_inset = bh + inset_t + inset_b;
+                let total_h = match height {
+                    Some(h) => h.resolve_pt(font).max(body_h_with_inset),
+                    None    => body_h_with_inset,
+                };
+                (total_w, total_h)
+            }
 
             _ => (0.0, 0.0),
         }
