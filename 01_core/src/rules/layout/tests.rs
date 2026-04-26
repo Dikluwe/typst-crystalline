@@ -2239,6 +2239,90 @@ mod tests_show_rule_integration {
             "C deve estar abaixo de body: body={pos_body_y:.2} c={pos_c_y:.2}");
     }
 
+    // ── Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container ──
+
+    /// `Content::Boxed` (box) é INLINE: não força flush_line. Verificamos
+    /// que texto antes + box + texto depois ficam todos na mesma linha
+    /// (mesma posição Y).
+    #[test]
+    fn layout_box_mantem_inline_nao_forca_flush() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::boxed(
+                Content::text("M"),
+                None, None,
+                Sides::uniform(Length::ZERO),
+                Length::ZERO,
+            ),
+            Content::text("B"),
+        ]));
+        let doc = layout(&doc_content, CounterState::default());
+        let texts: Vec<_> = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. } => Some((pos.y.val(), text.to_string())),
+                _ => None,
+            })
+            .collect();
+        let pos_a_y = texts.iter().find(|(_, t)| t == "A").map(|(y, _)| *y).unwrap();
+        let pos_m_y = texts.iter().find(|(_, t)| t == "M").map(|(y, _)| *y).unwrap();
+        let pos_b_y = texts.iter().find(|(_, t)| t == "B").map(|(y, _)| *y).unwrap();
+        assert!((pos_a_y - pos_m_y).abs() < 0.001,
+            "A e M devem estar na mesma linha (box é inline): a={pos_a_y:.2} m={pos_m_y:.2}");
+        assert!((pos_m_y - pos_b_y).abs() < 0.001,
+            "M e B devem estar na mesma linha: m={pos_m_y:.2} b={pos_b_y:.2}");
+    }
+
+    /// `Content::Boxed` com `inset.left` aplica avanço extra de cursor.x
+    /// antes do body. Verificamos via posição X de body com vs sem inset.
+    #[test]
+    fn layout_box_inset_left_aplica_avanco_horizontal() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        use std::sync::Arc;
+
+        let no_inset = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::boxed(
+                Content::text("M"),
+                None, None,
+                Sides::uniform(Length::ZERO),
+                Length::ZERO,
+            ),
+        ]));
+        let doc1 = layout(&no_inset, CounterState::default());
+        let pos_m1: f64 = doc1.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "M" => Some(pos.x.val()),
+                _ => None,
+            })
+            .next().unwrap();
+
+        let with_inset = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::boxed(
+                Content::text("M"),
+                None, None,
+                Sides::uniform(Length::pt(20.0)),
+                Length::ZERO,
+            ),
+        ]));
+        let doc2 = layout(&with_inset, CounterState::default());
+        let pos_m2: f64 = doc2.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "M" => Some(pos.x.val()),
+                _ => None,
+            })
+            .next().unwrap();
+
+        assert!(pos_m2 - pos_m1 >= 20.0,
+            "box com inset=20pt deve empurrar M em pelo menos 20pt: \
+             m1={pos_m1:.2} m2={pos_m2:.2}");
+    }
+
     /// `Content::Block` com `height: Some(h)` força avanço mínimo
     /// vertical mesmo se body for pequeno.
     #[test]

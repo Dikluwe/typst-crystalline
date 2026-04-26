@@ -487,6 +487,41 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 156H — Layout Fase 2 sub-passo 2: box inline container**
+  (sexta aplicação consecutiva de **ADR-0061**; segunda
+  Fase 2). Substantivo M agregado: **decisão arquitectural
+  reusada** de P156G (variant rico) sem nova decisão.
+  `Content::Boxed { body, width: Option<Length>, height:
+  Option<Length>, inset: Sides<Length>, baseline: Length }`
+  adicionado ao enum (49 → 50 variants); naming `Boxed`
+  evita conflito com `std::boxed::Box`; stdlib expõe
+  `#box(body, width: ?, height: ?, inset: ?, baseline: ?)`
+  (paridade vanilla). **Distinção material face a Block
+  (P156G)**: posicionamento **inline** (não força flush_line);
+  atributo único `baseline` (vs `breakable`); largura default
+  content-based (vs full page). 6 atributos vanilla scope-out
+  (outset, fill, stroke, radius, clip, stroke-overhang) per
+  ADR-0054 graded — rejeitados com erro hard. Cobertura
+  exaustiva de arms em `Content` (5 fields), `introspect.rs`
+  (recurse body), `layout/mod.rs::layout_content` (apenas
+  inset.left + body + inset.right como avanço cursor.x;
+  width/height/baseline/inset.top/bottom armazenados mas
+  semantic real adiada — cursor.rs sem mecânica baseline
+  mid-linha; refactor multi-region exigido per DEBT-56) +
+  `measure_content_constrained` (dimensões correctas com
+  todos os atributos). Validação: width/height/inset
+  negativos rejeitados; **baseline negativo aceito** (semantic
+  legítima — move para cima). Tests: 1250 → **1271** (+21 =
+  6 unit Boxed + 13 stdlib + 2 layout E2E + regression
+  Block/Pad/Hide). Cobertura Layout: 61% → **67%** (11/18 →
+  12/18); total user-facing: 58% → **59%**. **ADR-0061
+  mantém-se `PROPOSTO`** (anotação cumulativa após Fase 1+2
+  completas). README ADRs: total e distribuição inalterados
+  (61 ADRs; PROPOSTO 11). Secção Boxed adicionada a
+  `entities/content.md`; hash propagado (`content.rs` →
+  `5bb6e3d2`). **Padrão emergente Fase 2 confirmado**:
+  reaplicação directa do template Block reduziu custo de
+  pensamento; P156I (stack) provavelmente segue mesmo modelo.
 - **Passo 156G — Layout Fase 2 sub-passo 1: block container**
   (quinta aplicação consecutiva de **ADR-0061**; **primeira
   aplicação Fase 2** — containers ricos). Substantivo M+

@@ -135,7 +135,7 @@ primitives e `skew`). Detalhe em
 | `pad(...)` | layout/pad.rs | `implementado` ⁶ | Passo 156C (ADR-0061 Fase 1) | `Content::Pad { body, padding: Sides<Length> }` + stdlib `#pad(body, left:?, right:?, top:?, bottom:?, x:?, y:?, rest:?)`; `right` scope-out em layout (perfil ADR-0054 graded); padding negativo rejeitado |
 | `align(alignment, body)` | layout/align.rs | `implementado` | Passos 84.5–84.6 (DEBT-36, 37) | `Align2D`; `Place` com scope |
 | `place(alignment, ..., body)` | layout/place.rs | `parcial` ⁵ | Passo 84.6 | reclassificado em P156B (era `implementado`); sem `float`, `clearance`; divergência `PlaceScope::Parent` |
-| `box(...)` | layout/container.rs | `ausente` | — | inline container; Fase 2 ADR-0061 |
+| `box(...)` | layout/container.rs | `implementado` ¹⁵ | Passo 156H (ADR-0061 Fase 2 sub-passo 2) | `Content::Boxed { body, width, height, inset, baseline }` + stdlib `#box(body, width: ?, height: ?, inset: ?, baseline: ?)`; container inline (não força flush_line); 6 atributos vanilla scope-out (outset/fill/stroke/radius/clip/stroke-overhang); width/height/baseline armazenados mas semantic real adiada |
 | `block(...)` | layout/container.rs | `implementado` ¹³ | Passo 156G (ADR-0061 Fase 2 sub-passo 1) | `Content::Block { body, width, height, inset, breakable }` + stdlib `#block(body, width: ?, height: ?, inset: ?, breakable: true)`; subset Fase 1 per ADR-0054 graded; 9 atributos vanilla scope-out (outset/fill/stroke/radius/clip/spacing/above/below/sticky) |
 | `columns(n)` | layout/columns.rs | `ausente` | — | Fase 3 ADR-0061; **DEBT-56** (column flow L+) |
 | `grid(columns, ...)` | layout/grid | `parcial` ⁵ | Passos 82–84.6 | reclassificado em P156B (era `implementado⁺`); sem `gutter`, `align`, `stroke`, `fill`, `inset`, `header`, `footer`, `colspan`/`rowspan`. DEBT-34d/e abertos |
@@ -425,12 +425,12 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | `#let`/`#set`/`#show`/import | 7 | 1 | 4 | 1 | 0 | 13 |
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
-| Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ | 11 | 0 | 3 | 4 | 0 | 18 |
+| Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ | 12 | 0 | 3 | 3 | 0 | 18 |
 | Model (structural) ¹ ² ³ | 6 | 4 | 5 | 7 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection | 1 | 0 | 0 | 5 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ | **61** | **21** | **22** | **35** | **2** | **141** |
+| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ | **62** | **21** | **22** | **34** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -511,6 +511,21 @@ implementado, −1 ausente). Tabela B Content variants
 inalterado (48; sem nova variant). ADR-0061 continua
 `PROPOSTO`.
 
+¹⁵ — Ajuste P156H (materialização Layout Fase 2 sub-passo 2):
+`box` transita `ausente → implementado` (sexta aplicação
+consecutiva de ADR-0061; segunda Fase 2). **Decisão
+arquitectural reusada de P156G** (variant rico) sem nova
+decisão. `Content::Boxed { body, width, height, inset,
+baseline }` adicionado; stdlib `#box(...)`. Distinção
+material face a Block: posicionamento **inline** (não força
+flush_line); atributo único `baseline` (vs `breakable`).
+Naming `Boxed` em Rust evita conflito com `std::boxed::Box`.
+6 atributos vanilla scope-out (outset, fill, stroke, radius,
+clip, stroke-overhang). Contagem Layout: 11/0/3/4/0=18 →
+**12/0/3/3/0=18**. Cobertura Layout: 11/18=61% → **12/18=67%**.
+Total user-facing: 61/21/22/35/2=141 → **62/21/22/34/2=141**.
+Tabela B Content: **49 → 50**. ADR-0061 mantém-se `PROPOSTO`.
+
 ¹³ — Ajuste P156G (materialização Layout Fase 2 sub-passo 1;
 **primeira aplicação Fase 2** — containers ricos): `block`
 transita `ausente → implementado` (quinta aplicação consecutiva
@@ -528,12 +543,12 @@ ajustada: 60/21/22/36/2=141 → **61/21/22/35/2=141** (+1
 implementado, −1 ausente). Tabela B Content variants:
 **48 → 49** (+`Block`). ADR-0061 continua `PROPOSTO`.
 
-**Cobertura user-facing total** (impl + impl⁺) pós-P156G:
-(61 + 21) / 141 = **58%**
+**Cobertura user-facing total** (impl + impl⁺) pós-P156H:
+(62 + 21) / 141 = **59%**
 (antes de P154A: 54%; após P154B: 55%; após P155: ~55-56%;
 após P156B: ~53%; após P156C: ~55%; após P156D: ~56%; após
-P156E: ~57% — halfway point Fase 1; após P156F: ~57%; após
-P156G: **~58%** — Layout 56% → 61%, primeira aplicação Fase 2).
+P156E: ~57%; após P156F: ~57%; após P156G: ~58%; após P156H:
+**~59%** — Layout 61% → 67%, segunda aplicação Fase 2).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -541,8 +556,8 @@ P156G: **~58%** — Layout 56% → 61%, primeira aplicação Fase 2).
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
 | `Value` variants | 18 | 2 | 2 | 9 | 0 | 31 |
-| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ | 37 | 9 | 3 | 0 | 0 | 49 |
-| `Content` variants (vanilla extra ausentes) | — | — | — | ~5 | — | ~5 |
+| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ | 38 | 9 | 3 | 0 | 0 | 50 |
+| `Content` variants (vanilla extra ausentes) | — | — | — | ~4 | — | ~4 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
@@ -579,6 +594,13 @@ Quinta aplicação consecutiva de ADR-0061; **primeira aplicação
 Fase 2** (containers ricos). Decisão arquitectural variant
 rico (Opção A modificada) sobre Style cascade per inventário
 156G.1. ADR-0061 mantém-se `PROPOSTO`.
+
+¹⁶ — Ajuste P156H: 49 → 50 (+`Boxed`). Vanilla extra ausentes
+desce de ~5 para ~4 (box sai do conjunto não-capturado). Sexta
+aplicação consecutiva de ADR-0061; segunda Fase 2. Naming
+`Boxed` em Rust evita conflito com `std::boxed::Box`; stdlib
+`#box(...)` (paridade vanilla). Decisão arquitectural reusada
+de P156G. ADR-0061 mantém-se `PROPOSTO`.
 
 **Cobertura arquitectural total**: (67 + 13) / 106 = **75-76%**
 (era 75% pré-P155; era 72% pré-P154B; era 70% pré-P149).
@@ -677,6 +699,18 @@ encerradas por ADRs (0026, 0028→0029, 0036, etc.).
    entradas ausentes (`box`, `stack`, `repeat`,
    `columns`/`colbreak`) prosseguem em Fase 2 sub-passos
    restantes (P156H box; P156I stack) e Fase 3 (repeat,
+   columns).
+   **Refinamento P156H** (materialização Fase 2 sub-passo 2):
+   `Content::Boxed { body, width, height, inset, baseline }`
+   adicionado (49 → 50 variants); stdlib `#box(...)`. Decisão
+   arquitectural reusada de P156G (variant rico) sem nova
+   decisão. Distinção material face a Block: **inline** (não
+   força flush_line); atributo único `baseline`. 6 atributos
+   vanilla scope-out (outset, fill, stroke, radius, clip,
+   stroke-overhang). Cobertura Layout (impl + impl⁺): 61% →
+   **67%** (11/18 → 12/18). Restantes 3 entradas ausentes
+   (`stack`, `repeat`, `columns`/`colbreak`) prosseguem em
+   P156I (stack — Fase 2 último sub-passo) e Fase 3 (repeat,
    columns).
    Isto é **escopo XL agregado** se priorizado.
    **Refinamento P154A** (diagnóstico Model): para a sub-categoria Model especificamente, breakdown

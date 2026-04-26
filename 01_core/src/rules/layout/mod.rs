@@ -687,6 +687,39 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.cursor_y += Pt(pt);
             }
 
+            // ── Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container ──
+            // Container INLINE: NÃO força flush_line. Aplica inset.left
+            // + body + inset.right como avanço de cursor.x na linha
+            // actual. width/height/baseline armazenados mas semantic real
+            // adiada per ADR-0054 graded (consistente com Block):
+            //   - `width`: limitar largura útil exigiria refactor
+            //     multi-region (DEBT-56).
+            //   - `height` em contexto inline alteraria line_height —
+            //     refino futuro.
+            //   - `baseline` exige offset vertical mid-linha — não
+            //     suportado por cursor.rs actual.
+            // `inset.top`/`inset.bottom` em contexto inline são complexos;
+            // armazenados mas não aplicados (refino futuro).
+            Content::Boxed { body, width, height, inset, baseline } => {
+                let font = self.font_size_pt.val();
+                let inset_left  = inset.left.resolve_pt(font);
+                let inset_right = inset.right.resolve_pt(font);
+
+                // Box é INLINE: avança cursor.x apenas (sem flush_line).
+                // Aplica inset_left antes do body.
+                self.cursor_x += Pt(inset_left);
+
+                // Layout do body in-place na linha actual.
+                let _ = width;    // armazenado; refino futuro
+                let _ = height;   // armazenado; refino futuro
+                let _ = baseline; // armazenado; refino futuro
+
+                self.layout_content(body);
+
+                // Aplica inset_right após body.
+                self.cursor_x += Pt(inset_right);
+            }
+
             // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block container ──
             // Container que ocupa nova "linha lógica" (força flush_line se
             // houver conteúdo pendente), aplica inset (análogo a Pad),
@@ -916,6 +949,29 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             // Passo 156E: Pagebreak é event sem dimensões dentro de cell.
             // Em grid measurement, ignora-se (não consome largura/altura).
             Content::Pagebreak { .. } => (0.0, 0.0),
+
+            // Passo 156H: Boxed (Box inline) dimensões para grid
+            // measurement. Análogo a Block (mesma lógica width/height/
+            // inset; baseline ignorado em medição).
+            Content::Boxed { body, width, height, inset, baseline: _ } => {
+                let font = self.font_size_pt.val();
+                let inset_l = inset.left.resolve_pt(font);
+                let inset_r = inset.right.resolve_pt(font);
+                let inset_t = inset.top.resolve_pt(font);
+                let inset_b = inset.bottom.resolve_pt(font);
+                let body_max = match width {
+                    Some(w) => w.resolve_pt(font).min(max_width - inset_l - inset_r),
+                    None    => (max_width - inset_l - inset_r).max(0.0),
+                };
+                let (bw, bh) = self.measure_content_constrained(body, body_max);
+                let total_w = bw + inset_l + inset_r;
+                let body_h_with_inset = bh + inset_t + inset_b;
+                let total_h = match height {
+                    Some(h) => h.resolve_pt(font).max(body_h_with_inset),
+                    None    => body_h_with_inset,
+                };
+                (total_w, total_h)
+            }
 
             // Passo 156G: Block dimensões para grid measurement.
             // Inset adiciona aos lados; height: Some(h) força mínimo;

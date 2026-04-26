@@ -509,6 +509,103 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     }))
 }
 
+// ── Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container ─────────
+
+/// `box(body, width: ?, height: ?, inset: ?, baseline: ?)` →
+/// `Content::Boxed`.
+///
+/// **Atributos** (subset Fase 2 per ADR-0054 graded; padrão variant
+/// rico reusado de `block` em P156G):
+/// - `body` posicional opcional (Content ou Str; ausente → Empty).
+/// - `width: Length`/`Float`/`Int` (em pt). Ausente == content-based.
+/// - `height` análogo. Ausente == auto.
+/// - `inset: Length` uniforme (refino futuro para Sides via dict).
+/// - `baseline: Length` ajuste vertical (default zero).
+///
+/// **Scope-out** (refino futuro): outset, fill, stroke, radius, clip,
+/// stroke-overhang.
+///
+/// Distinção material face a `block`: posicionamento **inline** vs
+/// structural.
+pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("box() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
+        )]),
+        None => Content::Empty,  // body opcional (vanilla aceita)
+    };
+
+    let mut width:    Option<Length> = None;
+    let mut height:   Option<Length> = None;
+    let mut inset_uniform: Option<Length> = None;
+    let mut baseline: Length = Length::ZERO;
+
+    for (key, value) in args.named.iter() {
+        match key.as_str() {
+            "width" => {
+                width = Some(extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("box(width:) espera length, recebeu {}", value.type_name()),
+                )])?);
+            }
+            "height" => {
+                height = Some(extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("box(height:) espera length, recebeu {}", value.type_name()),
+                )])?);
+            }
+            "inset" => {
+                inset_uniform = Some(extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("box(inset:) espera length uniforme, recebeu {}", value.type_name()),
+                )])?);
+            }
+            "baseline" => {
+                baseline = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("box(baseline:) espera length, recebeu {}", value.type_name()),
+                )])?;
+            }
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("box(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
+            )]),
+        }
+    }
+
+    // Validação: width/height/inset negativos rejeitados (consistente
+    // com block em P156G; baseline negativo ACEITE — move para cima).
+    for (label, len) in [("width", width), ("height", height)].iter().filter_map(|(l, opt)| opt.map(|len| (*l, len))).collect::<Vec<_>>() {
+        if len.abs.0 < 0.0 || len.em < 0.0 {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("box({}:): valor negativo não suportado neste passo (P156H)", label),
+            )]);
+        }
+    }
+    if let Some(i) = inset_uniform {
+        if i.abs.0 < 0.0 || i.em < 0.0 {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "box(inset:): valor negativo não suportado neste passo (P156H)".to_string(),
+            )]);
+        }
+    }
+
+    let inset = match inset_uniform {
+        Some(l) => Sides::uniform(l),
+        None    => Sides::uniform(Length::ZERO),
+    };
+
+    Ok(Value::Content(Content::Boxed {
+        body: Box::new(body),
+        width, height, inset, baseline,
+    }))
+}
+
 /// `pagebreak(weak: false, to: ?)` → `Content::Pagebreak`.
 ///
 /// Sem argumentos posicionais. `weak` armazenado mas comportamento de
