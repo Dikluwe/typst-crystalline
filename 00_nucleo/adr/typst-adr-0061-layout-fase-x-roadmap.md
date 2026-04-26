@@ -299,7 +299,7 @@ da Fase 1 Model em P155).
 
 ---
 
-## Aplicações cumulativas (pós-P156L)
+## Aplicações cumulativas (pós-P157)
 
 ADR-0061 PROPOSTO em P156B (2026-04-25). **Fase 1+2
 materializadas em sequência granular P156C-I** (7 passos
@@ -320,16 +320,21 @@ de ADR-0065 critério #3):
 | P156I | stack | +5%  | 67% → 72% (target Fase 1+2) | +25 |
 | P156J | repeat | +6%  | 72% → 78% (Fase 3 sub-passo 1) | +19 |
 | P156K | (meta — ADRs 0064+0065) | — | — (sem código) | 0 |
-| **P156L** | **pad refino sides** | **0%** | **78% (refino qualitativo)** | **+4** |
+| P156L | pad refino sides | 0% | 78% (refino qualitativo) | +4 |
+| **P157** | **(diagnóstico Model Fase 2 — table foundations)** | — | — (sem código; passo documental) | **0** |
 
 **Total**: +56 pontos percentuais Layout em 9 passos
-consecutivos de materialização (22% → 78%; P156K não conta para
-o slope por ser meta). Target Fase 1+2 atingido em P156I;
-P156J ultrapassa target ao iniciar Fase 3. **P156L é refino
-qualitativo de variant existente** — primeira aplicação concreta
-de ADR-0065 critério #3 (expansão de variant). **+174 tests**
-acumulados (1145 → 1319 lib+integ+diagnostic). **Zero
-reformulações mid-passo** em N=9 aplicações de materialização.
+consecutivos de materialização (22% → 78%; P156K e P157 não
+contam para o slope por serem meta/diagnóstico). Target Fase 1+2
+atingido em P156I; P156J ultrapassa target ao iniciar Fase 3.
+P156L é refino qualitativo de variant existente — primeira
+aplicação concreta de ADR-0065 critério #3 (expansão de variant).
+**P157 é diagnóstico precedendo materialização Model Fase 2** —
+primeira aplicação concreta de ADR-0065 critério #5 (scope).
+**+174 tests** acumulados (1145 → 1319 lib+integ+diagnostic).
+**Zero reformulações mid-passo** em N=9 aplicações de
+materialização. Cobertura Layout inalterada por P157 (escopo
+Model, não Layout).
 
 ### Tipos novos infraestruturais
 
@@ -374,11 +379,14 @@ reformulações mid-passo** em N=9 aplicações de materialização.
    critérios; P156L é primeira aplicação concreta do critério #3).
 
 2. **"Inventariar primeiro" pré-decisão arquitectural**:
-   **N=6** aplicações (P156F defensivo; P156G deliberado;
+   **N=7** aplicações (P156F defensivo; P156G deliberado;
    P156H curto; P156I curto focado; P156J curto focado;
-   **P156L expansão variant existente — primeira aplicação
-   concreta do critério #3 de ADR-0065**). **Formalizado em
-   ADR-0065** (P156K).
+   P156L expansão variant existente — primeira aplicação
+   concreta do critério #3 de ADR-0065; **P157 scope determinado
+   por inventário — primeira aplicação concreta do critério #5
+   de ADR-0065** com auto-validação cumulativa). **Formalizado
+   em ADR-0065** (P156K); **agora N=7 com 2 critérios estendidos
+   validados empiricamente** (#3 em P156L; #5 em P157).
 
 3. **"Smart<T> → Option<T> ou default"**: **N=7** aplicações
    (P156E Parity; P156F angles; P156G Block.width; P156H
@@ -387,9 +395,10 @@ reformulações mid-passo** em N=9 aplicações de materialização.
    do Caso C**). **Formalizado em ADR-0064** (P156K) com 4
    casos canónicos A/B/C/D.
 
-4. **"§análise de risco no relatório"**: **N=6** aplicações
-   (P156F/G/H/I/J/K + **L com peso real** — primeiro refactor
-   real após série aditiva). Cobertura sistemática do risco.
+4. **"§análise de risco no relatório"**: **N=7** aplicações
+   (P156F/G/H/I/J/K + L com peso real — primeiro refactor
+   real após série aditiva; **+ P157 com risco baixo
+   diagnóstico**). Cobertura sistemática do risco.
 
 5. **"Reuso de template containers"**: **N=4** aplicações
    (Block → Boxed → Stack → Repeat). Padrão "variant rico
@@ -411,25 +420,28 @@ reformulações mid-passo** em N=9 aplicações de materialização.
    `Sides<Length>`; P156L refino — `Sides<Option<Length>>`).
    Tipo genérico paga investimento de design ao segundo uso.
 
-### Estado pós-P156L
+### Estado pós-P157
 
 - **Cobertura Layout**: **78%** (13 implementado puro + 1
-  implementado⁺ = 14/18). Target ADR-0061 (72%) **continua
-  ultrapassado**; P156L é refino qualitativo sem ganho
-  quantitativo.
-- **Restantes 3 entradas** pendentes (P156L removeu pad do
-  conjunto refinável):
+  implementado⁺ = 14/18). Inalterada por P157 (escopo Model,
+  não Layout). Target ADR-0061 (72%) **continua ultrapassado**.
+- **Restantes 3 entradas Layout** pendentes (mesmo subset
+  pós-P156L):
   - `columns`/`colbreak` (Fase 3 condicional — DEBT-56
     column flow L+ aberto em P156B).
-  - `place` parcial — refino column scope (parcialmente
-    implementado em P84.6).
+  - `place` parcial — refino column scope.
   - `measure` parcial — depende ADR-0017 Introspection
     runtime adiada.
-- **Total user-facing**: ~60.3% (era 53% pré-P156C).
-- **Zero novos DEBTs** em toda a série P156C-L (10 passos
-  total: 9 materialização + 1 meta).
+- **Cobertura Model**: ~45% pós-P155 (Fase 1 fechada — terms,
+  divider, quote). **P157 prepara P157A** (primeiro sub-passo
+  Fase 2 Model) com diagnóstico estruturado em
+  `00_nucleo/diagnosticos/diagnostico-model-fase-2-passo-157.md`.
+- **Total user-facing**: ~60.3% (era 53% pré-P156C; inalterada
+  por P157).
+- **Zero novos DEBTs** em toda a série P156C-L + P157 (11
+  passos total: 9 materialização + 2 meta/diagnóstico).
 - **Footnote area** scope-out per decisão humana
-  2026-04-25 (não incluído na Fase 1+2 nem em P156J/L).
+  2026-04-25 (não incluído na Fase 1+2 nem em P156J/L/P157).
 
 ### Status
 
