@@ -685,6 +685,78 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     }))
 }
 
+// ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ──────────────────────
+
+/// `repeat(body, gap: ?, justify: true)` → `Content::Repeat`.
+///
+/// **Primeira aplicação Fase 3** declarada em ADR-0061. Caso de uso
+/// primário: TOC dot leaders `#box(width: 1fr, repeat[.])`.
+///
+/// **Atributos** (paridade vanilla `RepeatElem`):
+/// - `body` posicional obrigatório (Content ou Str).
+/// - `gap: Length`/`Float`/`Int` (em pt). Ausente == zero (padrão
+///   Smart→Option N=6 da série).
+/// - `justify: bool`. Default **`true`** (paridade vanilla;
+///   distribuição de espaço residual diferida per ADR-0054).
+///
+/// **Limitação aceite (perfil ADR-0054 graded)**: o algoritmo de
+/// runtime que calcula `floor(available / (body_width + gap))`
+/// está diferido — Layouter executa single-render do body
+/// (suficiente para paridade estrutural, exhaustive pattern-match
+/// e walk de counters/labels dentro do body).
+pub fn native_repeat(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("repeat() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "repeat() exige body como argumento posicional".to_string(),
+        )]),
+    };
+
+    let mut gap:     Option<Length> = None;
+    let mut justify: bool = true;  // default vanilla
+
+    for (key, value) in args.named.iter() {
+        match key.as_str() {
+            "gap" => {
+                let len = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("repeat(gap:) espera length, recebeu {}", value.type_name()),
+                )])?;
+                if len.abs.0 < 0.0 || len.em < 0.0 {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "repeat(gap:): valor negativo não suportado neste passo (P156J)".to_string(),
+                    )]);
+                }
+                gap = Some(len);
+            }
+            "justify" => match value {
+                Value::Bool(b) => justify = *b,
+                other => return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("repeat(justify:) espera bool, recebeu {}", other.type_name()),
+                )]),
+            },
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("repeat(): argumento nomeado inesperado '{}'", other),
+            )]),
+        }
+    }
+
+    Ok(Value::Content(Content::Repeat {
+        body: Box::new(body),
+        gap,
+        justify,
+    }))
+}
+
 /// `pagebreak(weak: false, to: ?)` → `Content::Pagebreak`.
 ///
 /// Sem argumentos posicionais. `weak` armazenado mas comportamento de

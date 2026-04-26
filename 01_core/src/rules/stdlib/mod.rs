@@ -49,7 +49,7 @@ pub use crate::rules::stdlib::shapes::{
 pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale, native_skew};
 pub use crate::rules::stdlib::layout::{
     native_align, native_block, native_box, native_grid, native_h, native_hide,
-    native_pad, native_page, native_pagebreak, native_place, native_stack, native_v,
+    native_pad, native_page, native_pagebreak, native_place, native_repeat, native_stack, native_v,
 };
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
@@ -1736,6 +1736,157 @@ mod tests {
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         assert!(matches!(r, Value::Content(Content::Block { .. })));
         // Box (Boxed)
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("baseline".into(), Value::Length(Length::pt(2.0)));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Boxed { .. })));
+        // Pad
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("rest".into(), Value::Length(Length::pt(2.0)));
+        let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Pad { .. })));
+        // Hide
+        let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Hide { .. })));
+    }
+
+    // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ────────────────
+
+    #[test]
+    fn native_repeat_defaults_gap_none_justify_true() {
+        null_ctx!(ctx);
+        let r = native_repeat(&mut ctx, &p(vec![Value::Content(Content::text("."))]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Repeat { body, gap, justify }) = r {
+            assert_eq!(body.plain_text(), ".");
+            assert_eq!(gap, None);
+            assert!(justify, "default justify == true (paridade vanilla)");
+        } else {
+            panic!("esperado Content::Repeat");
+        }
+    }
+
+    #[test]
+    fn native_repeat_aceita_str_como_body() {
+        null_ctx!(ctx);
+        let r = native_repeat(&mut ctx, &p(vec![Value::Str(".".into())]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Repeat { body, .. }) = r {
+            assert_eq!(body.plain_text(), ".");
+        } else {
+            panic!("esperado Content::Repeat");
+        }
+    }
+
+    #[test]
+    fn native_repeat_com_gap_length() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("."))]);
+        args.named.insert("gap".into(), Value::Length(Length::pt(5.0)));
+        let r = native_repeat(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Repeat { gap, .. }) = r {
+            assert_eq!(gap, Some(Length::pt(5.0)));
+        } else {
+            panic!("esperado Content::Repeat");
+        }
+    }
+
+    #[test]
+    fn native_repeat_com_justify_false() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("."))]);
+        args.named.insert("justify".into(), Value::Bool(false));
+        let r = native_repeat(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Repeat { justify, .. }) = r {
+            assert!(!justify);
+        } else {
+            panic!("esperado Content::Repeat");
+        }
+    }
+
+    #[test]
+    fn native_repeat_combina_gap_e_justify() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("o"))]);
+        args.named.insert("gap".into(), Value::Length(Length::pt(2.0)));
+        args.named.insert("justify".into(), Value::Bool(false));
+        let r = native_repeat(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Repeat { body, gap, justify }) = r {
+            assert_eq!(body.plain_text(), "o");
+            assert_eq!(gap, Some(Length::pt(2.0)));
+            assert!(!justify);
+        } else {
+            panic!("esperado Content::Repeat");
+        }
+    }
+
+    #[test]
+    fn native_repeat_rejeita_sem_body() {
+        null_ctx!(ctx);
+        let r = native_repeat(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "repeat() sem body deve retornar Err");
+    }
+
+    #[test]
+    fn native_repeat_rejeita_body_int() {
+        null_ctx!(ctx);
+        let r = native_repeat(&mut ctx, &p(vec![Value::Int(42)]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "repeat() com body Int deve retornar Err");
+    }
+
+    #[test]
+    fn native_repeat_rejeita_gap_negativo() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("."))]);
+        args.named.insert("gap".into(), Value::Length(Length::pt(-1.0)));
+        let r = native_repeat(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "gap negativo deve retornar Err");
+    }
+
+    #[test]
+    fn native_repeat_rejeita_gap_nao_length() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("."))]);
+        args.named.insert("gap".into(), Value::Str("x".into()));
+        let r = native_repeat(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "gap não-length deve retornar Err");
+    }
+
+    #[test]
+    fn native_repeat_rejeita_justify_nao_bool() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("."))]);
+        args.named.insert("justify".into(), Value::Int(1));
+        let r = native_repeat(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "justify não-bool deve retornar Err");
+    }
+
+    #[test]
+    fn native_repeat_rejeita_named_arg_desconhecido() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("."))]);
+        args.named.insert("count".into(), Value::Int(3));
+        let r = native_repeat(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named arg desconhecido em repeat() deve retornar Err");
+    }
+
+    // P156J regression: Stack + Block + Boxed + Pad + Hide continuam a
+    // funcionar após adicionar Repeat (cobertura arms feita em 9 sítios).
+    #[test]
+    fn native_stack_block_box_pad_hide_continuam_a_funcionar_apos_p156j() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        // Stack
+        let args = p(vec![Value::Content(Content::text("a"))]);
+        let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Stack { .. })));
+        // Block
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("width".into(), Value::Length(Length::pt(50.0)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Block { .. })));
+        // Box
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("baseline".into(), Value::Length(Length::pt(2.0)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();

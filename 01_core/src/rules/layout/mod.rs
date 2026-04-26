@@ -841,6 +841,26 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.cursor_x     = saved_line_start;
             }
 
+            // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ──
+            // **Primeira aplicação Fase 3**. Variant + paridade
+            // estrutural (single-render do body no contexto actual).
+            // Algoritmo dinâmico de quantidade-para-encher (vanilla
+            // calcula floor(available / (body_width + gap))) está
+            // diferido per ADR-0054 graded — exige refactor inline-
+            // region não disponível no Layouter actual (mesma razão
+            // que `Block.width`/`Boxed.width` em P156G/H).
+            //
+            // `gap` armazenado mas não emite spacing entre cópias
+            // (só uma cópia neste passo). `justify` armazenado mas
+            // sem distribuição de espaço residual (idem).
+            Content::Repeat { body, gap: _, justify: _ } => {
+                // Layout single-render: emite o body uma vez no
+                // contexto actual. Suficiente para paridade estrutural
+                // (variant disponível em todo o pipeline) e para que
+                // counters/labels dentro do body resolvam via walk.
+                self.layout_content(body);
+            }
+
             // ── Passo 156E (ADR-0061 Fase 1, sub-passo 3) — pagebreak ──
             // `weak` armazenado mas collapse defere (consistente P156D).
             // Layouter reusa `new_page` (cursor.rs:128) que commits items
@@ -1059,6 +1079,14 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     None    => body_h_with_inset,
                 };
                 (total_w, total_h)
+            }
+
+            // Passo 156J: Repeat dimensões para grid measurement.
+            // Single-render do body (consistente com layout_content
+            // arm). Algoritmo dinâmico de quantidade defere per
+            // ADR-0054 graded.
+            Content::Repeat { body, .. } => {
+                self.measure_content_constrained(body, max_width)
             }
 
             // Passo 156G: Block dimensões para grid measurement.

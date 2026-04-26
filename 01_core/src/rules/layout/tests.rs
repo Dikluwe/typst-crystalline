@@ -2464,6 +2464,45 @@ mod tests_show_rule_integration {
             "block com height=100pt deve empurrar B mais para baixo do que sem height: \
              b1={pos_b1:.2} b2={pos_b2:.2}");
     }
+    // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ─────────────────
+
+    /// `Content::Repeat` renderiza body single-render no contexto actual
+    /// (paridade estrutural; algoritmo dinâmico defere per ADR-0054).
+    #[test]
+    fn layout_repeat_renderiza_body_no_contexto_actual() {
+        let r = Content::repeat(Content::text("X"), None, true);
+        let doc = layout(&r, CounterState::default());
+        // Body deve aparecer pelo menos uma vez (single-render).
+        let count_x = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "X"))
+            .count();
+        assert!(count_x >= 1, "repeat[X] deve emitir pelo menos um Text 'X'");
+    }
+
+    /// Counters/labels dentro do body de repeat resolvem via walk
+    /// (single-walk em P156J; sem multiplicação de state).
+    #[test]
+    fn layout_repeat_counters_dentro_do_body_resolvem() {
+        use std::sync::Arc;
+        // Heading dentro de repeat deve ser numerado uma vez (paridade
+        // vanilla — repeat é runtime-only para paridade visual; counter
+        // só conta uma vez no walk).
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::repeat(
+                Content::Heading {
+                    level: 1,
+                    body:  Box::new(Content::text("Title")),
+                },
+                None,
+                true,
+            ),
+        ]));
+        let doc = layout(&doc_content, introspect(&doc_content));
+        // Render mínimo sem panic; body Title presente.
+        assert!(doc.plain_text().contains("Title"),
+            "heading dentro de repeat deve renderizar: doc='{}'", doc.plain_text());
+    }
+
     /// `pagebreak(to: even)` quando próxima seria ímpar (p3) deve inserir
     /// página vazia. Setup: A → pagebreak(to:odd) garante B em p3 → mais
     /// pagebreak(to:even) força ajuste para p4 (par).

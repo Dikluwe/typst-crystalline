@@ -163,6 +163,13 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
                 spacing:  *spacing,
             }
         },
+        // Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat.
+        // Análogo a Block: descer no body; preservar atributos.
+        Content::Repeat { body, gap, justify } => Content::Repeat {
+            body:    Box::new(materialize_time(body, state)),
+            gap:     *gap,
+            justify: *justify,
+        },
         Content::Transform { matrix, body } => Content::Transform {
             matrix: *matrix,
             body:   Box::new(materialize_time(body, state)),
@@ -403,6 +410,12 @@ fn walk(content: &Content, state: &mut CounterState) {
                 walk(c, state);
             }
         },
+
+        // Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat container.
+        // Walk no body uma vez (counters/labels dentro de body
+        // resolvem; semântica de repetição é runtime-only e não
+        // multiplica state — vanilla repeat também só conta uma vez).
+        Content::Repeat { body, .. } => walk(body, state),
 
         // Passo 99 (ADR-0038): `Styled` é transparente — desce no body.
         Content::Styled(body, _) => walk(body, state),

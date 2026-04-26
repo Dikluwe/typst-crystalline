@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 274b9cf7
+Hash do Código: e4d7b3d1
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -948,3 +948,98 @@ P156I aplica novamente o padrão simplificador:
 
 **N=5 aplicações** — patamar empírico forte. Candidato a
 registo formal em ADR meta futuro.
+
+---
+
+## Variant `Content::Repeat` — Passo 156J (ADR-0061 Fase 3, sub-passo 1; **primeira Fase 3**)
+
+P156J adiciona **um variant** ao enum `Content` cobrindo
+repetição de body para preencher espaço, análoga a vanilla
+`RepeatElem`. **Primeira aplicação Fase 3** (ADR-0061; activa
+caminho 1 — materializar Fase 3).
+
+**Decisão arquitectural reusada de P156G/H/I**: variant rico
+(Opção A) — atributos `gap` e `justify` são propriedades
+específicas de repetição; `Style` enum cobre só propriedades
+de texto. Coerente com Block/Boxed/Stack.
+
+### `Content::Repeat { body, gap, justify }`
+
+```rust
+Repeat {
+    body:    Box<Content>,
+    /// Espaço entre cópias; `None` == zero (padrão Smart→Option N=6).
+    gap:     Option<Length>,
+    /// `true` == distribuir espaço residual aumentando gap real.
+    /// Default vanilla `true`. Distribuição real adiada per
+    /// ADR-0054 graded.
+    justify: bool,
+}
+```
+
+**Atributos** (paridade vanilla):
+- `body`: conteúdo a repetir (obrigatório).
+- `gap: Option<Length>`: espaço entre cópias; `None` == zero.
+- `justify: bool`: default vanilla `true` (paridade).
+
+### Stdlib `repeat`
+
+`#repeat[.]` ou `#repeat(body, gap: ?, justify: ?)`. Processado
+por `native_repeat` em `stdlib/layout.rs`. Helper `extract_length`
+reusado para `gap` (sexta aplicação consecutiva — N=6).
+
+### Layout per ADR-0054 graded (paridade estrutural)
+
+P156J implementa **paridade estrutural** (variant + stdlib +
+medição estática + layout single-render). Algoritmo dinâmico
+de quantidade-para-encher (`floor(available / (body_width +
+gap))`) está diferido — exige refactor inline-region não
+disponível no Layouter actual (mesma razão que `Block.width` /
+`Boxed.width` em P156G/H).
+
+**Layout actual**: emite o body uma vez no contexto actual.
+**Walk**: percorre o body uma vez (counters/labels resolvem;
+sem multiplicação de state — vanilla também só conta uma vez).
+
+### `is_empty` / `plain_text` / `map_*`
+
+- `is_empty()`: proxy via body (consistente com Block/Boxed).
+- `plain_text()`: recurse no body sem multiplicar (paridade
+  não visível em texto plano).
+- `PartialEq`: cobre todos os fields (body, gap, justify).
+- `map_content` / `map_text`: recurse no body; preserva
+  gap/justify (Copy primitivos).
+
+### Limitações conscientes (P156J)
+
+- Algoritmo dinâmico de "quantidade-para-encher" diferido per
+  ADR-0054 graded. Single-render é aproximação aceite.
+- `justify: true` armazenado mas distribuição real adiada.
+- Erro vanilla "infinite content" (se largura disponível for
+  unbounded) não implementado — requer detecção de fr context
+  no Layouter.
+
+### Padrão emergente "Smart<T> → Option<T> ou default" — N=6
+
+P156J aplica o padrão simplificador pela sexta vez consecutiva:
+- P156E `Smart<Parity>` → `Option<Parity>`.
+- P156F angles default 0 (em vez de Smart).
+- P156G/H `Smart<Rel<Length>>` para width → `Option<Length>`.
+- P156I `Smart<Rel<Length>>` para spacing → `Option<Length>`.
+- **P156J `Length` (default zero vanilla) → `Option<Length>`
+  para `gap`; `bool` directo para `justify` (default vanilla
+  `true`).**
+
+**N=6 aplicações** — patamar empírico forte e crescente.
+Promoção a ADR meta segue como candidato P156K-meta documentado
+em ADR-0061 §"Aplicações cumulativas".
+
+### Helper `extract_length` reuso N=6
+
+`extract_length` em `stdlib/layout.rs` foi reusado em P156C
+(pad), P156D (h+v), P156G (block.width/height/inset), P156H
+(box.width/height/inset/baseline), P156I (stack.spacing) e
+agora **P156J (repeat.gap)**. Sexta aplicação consecutiva —
+emergiu como vocabulário canónico para coerção de Length em
+named args. Promoção a helper público em release futuro
+(refactor scope-out).

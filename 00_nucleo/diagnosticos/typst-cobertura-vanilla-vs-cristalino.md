@@ -146,7 +146,7 @@ primitives e `skew`). Detalhe em
 | `scale(amount, body)` | idem | `implementado` | Passo 78 | |
 | `move(dx, dy, body)` | idem | `implementado` | stdlib `native_move` | |
 | `hide(body)` | layout/hide.rs | `implementado` ⁶ | Passo 156C (ADR-0061 Fase 1) | `Content::Hide { body }` + stdlib `#hide(body)`; calcula dimensões mas emite zero items (per ADR-0054 graded) |
-| `repeat(body)` | layout/repeat.rs | `ausente` | — | Fase 3 ADR-0061 (lazy semantic) |
+| `repeat(body)` | layout/repeat.rs | `implementado` ¹⁹ | Passo 156J (ADR-0061 Fase 3 sub-passo 1; **primeira Fase 3**) | `Content::Repeat { body, gap: Option<Length>, justify: bool }` + stdlib `#repeat(body, gap: ?, justify: true)`; default `justify == true` (paridade vanilla); algoritmo dinâmico de quantidade-para-encher diferido per ADR-0054 graded (Layouter executa single-render — paridade estrutural suficiente para counters/labels descenderem) |
 | `pad`, `corners`, `sides` (inset modeling) | layout/{pad,corners,sides}.rs | `ausente` | — | duplica `pad()` linha; refino PageConfig é Fase 3 ADR-0061 |
 | `measure(body)` | layout/measure.rs | `parcial` | helper privado | helper `measure_content` em `01_core/src/rules/layout/helpers.rs`; sem stdlib exposta; depende de Introspection (ADR-0017 adiada) |
 | `h(amount)` / `v(amount)` ⁵ | layout/spacing.rs | `implementado` ⁸ | Passo 156D (ADR-0061 Fase 1 sub-passo 2) | `Content::HSpace` + `Content::VSpace` com `amount: Length, weak: bool`; stdlib `#h(amount, weak: false)` + `#v(...)`; `weak` armazenado mas collapse defere; amount `Fraction` scope-out (refino futuro per ADR-0061 §6.3) |
@@ -391,7 +391,7 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 | `stack(...)` | `Content::Stack` ausente | escopo M |
 | `colbreak` | sem layout column-aware | depende de columns |
 | `pagebreak` (explicit) | implícito via layout overflow; sem `Content::PageBreak` | escopo XS |
-| `repeat(body)` | `Content::Repeat` ausente | escopo M |
+| ~~`repeat(body)`~~ | resolvido P156J (`Content::Repeat`) | — |
 | `hide(body)` | `Content::Hide` ausente | escopo XS |
 | `measure(body)` | introspection runtime ausente | depende de ADR-0017 |
 | `square(...)` | `ShapeKind::Square` ausente; trivially derivable de Rect com width=height | escopo XS |
@@ -425,12 +425,12 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | `#let`/`#set`/`#show`/import | 7 | 1 | 4 | 1 | 0 | 13 |
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
-| Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ | 13 | 0 | 3 | 2 | 0 | 18 |
+| Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ | 14 | 0 | 3 | 1 | 0 | 18 |
 | Model (structural) ¹ ² ³ | 6 | 4 | 5 | 7 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection | 1 | 0 | 0 | 5 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ | **63** | **21** | **22** | **33** | **2** | **141** |
+| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ | **64** | **21** | **22** | **32** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -562,13 +562,14 @@ ajustada: 60/21/22/36/2=141 → **61/21/22/35/2=141** (+1
 implementado, −1 ausente). Tabela B Content variants:
 **48 → 49** (+`Block`). ADR-0061 continua `PROPOSTO`.
 
-**Cobertura user-facing total** (impl + impl⁺) pós-P156I:
-(63 + 21) / 141 = **60%**
+**Cobertura user-facing total** (impl + impl⁺) pós-P156J:
+(64 + 21) / 141 = **60%** (≈60.3%)
 (antes de P154A: 54%; após P154B: 55%; após P155: ~55-56%;
 após P156B: ~53%; após P156C: ~55%; após P156D: ~56%; após
 P156E: ~57%; após P156F: ~57%; após P156G: ~58%; após P156H:
-~59%; **após P156I: ~60%** — Layout 67% → 72%, **target
-atingido; Fase 1+2 completa**).
+~59%; após P156I: ~60% — Layout 67% → 72%, target Fase 1+2
+atingido; **após P156J: ~60.3%** — Layout 72% → 78%, primeira
+Fase 3).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -576,12 +577,12 @@ atingido; Fase 1+2 completa**).
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
 | `Value` variants | 18 | 2 | 2 | 9 | 0 | 31 |
-| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ | 39 | 9 | 3 | 0 | 0 | 51 |
-| `Content` variants (vanilla extra ausentes) | — | — | — | ~3 | — | ~3 |
+| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ ²⁰ | 40 | 9 | 3 | 0 | 0 | 52 |
+| `Content` variants (vanilla extra ausentes) | — | — | — | ~2 | — | ~2 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
-| **Total arquitectural** | **67** | **13** | **5** | **20** | **1** | **106** |
+| **Total arquitectural** | **68** | **13** | **5** | **19** | **1** | **106** |
 
 ³ — Ajuste P154B: 39 → 42 (+`Divider`, +`Terms`, +`TermItem`).
 Vanilla extra ausentes desce de ~14 para ~12 (terms + divider
@@ -632,8 +633,43 @@ Layout 67% → **72% (target atingido)**. ADR-0061 mantém-se
 `PROPOSTO` (Fase 3 pendente); anotação cumulativa Fase 1+2
 adicionada à ADR sem promoção formal.
 
-**Cobertura arquitectural total**: (67 + 13) / 106 = **75-76%**
-(era 75% pré-P155; era 72% pré-P154B; era 70% pré-P149).
+¹⁹ — Ajuste P156J (materialização Layout Fase 3 sub-passo 1;
+**primeira aplicação Fase 3**): `repeat` transita `ausente →
+implementado` (oitava aplicação consecutiva de ADR-0061;
+**activa caminho 1** dos 3 documentados em §"Aplicações
+cumulativas"). Decisão arquitectural reusada de P156G/H/I
+(variant rico). `Content::Repeat { body, gap: Option<Length>,
+justify: bool }` adicionado. Default `justify == true`
+(paridade vanilla — divergência intencional do default Rust
+`bool::default() == false`). **Limitação aceite per ADR-0054
+graded**: algoritmo dinâmico de "quantidade-para-encher"
+(vanilla calcula `floor(available / (body_width + gap))`)
+diferido — Layouter executa single-render. Suficiente para
+paridade estrutural (variant disponível em todo o pipeline,
+counters/labels descem via walk). Helper `extract_length`
+reusado **N=6** vezes consecutivas (P156C/D/G/H/I/J) — emergiu
+como vocabulário canónico para coerção Length em named args
+(subpadrão dentro de "reuso de template containers" N=3).
+Padrão Smart→Option/default atinge **N=6** aplicações
+consecutivas (P156D weak; P156E to; P156G/H width; P156I
+spacing; **P156J gap**). Contagem Layout: 13/0/3/2/0=18 →
+**14/0/3/1/0=18**. Cobertura Layout: 13/18=72% → **14/18=78%**.
+Total user-facing: 63/21/22/33/2=141 → **64/21/22/32/2=141**.
+Tabela B Content: **51 → 52**. ADR-0061 mantém-se `PROPOSTO`
+(restante Fase 3: columns/colbreak — DEBT-56 column flow);
+**anotação cumulativa P156J adicionada em §Aplicações
+cumulativas** (sem promoção formal).
+
+²⁰ — Ajuste P156J (Tabela B): 51 → **52** (+`Repeat`).
+Vanilla extra ausentes desce de ~3 para ~2 (repeat sai do
+conjunto não-capturado). Oitava aplicação consecutiva de
+ADR-0061; **primeira Fase 3**. Restantes ~2 ausentes
+(Bibliography/Cite, Footnote, Table, Columns, Stroke-object —
+variando por classificação). ADR-0061 mantém-se `PROPOSTO`.
+
+**Cobertura arquitectural total**: (68 + 13) / 106 = **76-77%**
+(era 75-76% pós-P156I; era 75% pré-P155; era 72% pré-P154B;
+era 70% pré-P149).
 **Nota**: variants extra cristalino (`Value::Align`, `Content::Styled`) são **divergências intencionais**
 favoráveis — cristalino tem features que vanilla não (em forma de Value); contadas como `implementado` porque
 encerradas por ADRs (0026, 0028→0029, 0036, etc.).
@@ -752,6 +788,19 @@ encerradas por ADRs (0026, 0028→0029, 0036, etc.).
    impl⁺): 67% → **72%** (12/18 → 13/18). Restantes 2 entradas
    ausentes (`repeat`, `columns`/`colbreak`) prosseguem em
    Fase 3 condicional (DEBT-56 column flow).
+   **Refinamento P156J** (materialização Fase 3 sub-passo 1;
+   **primeira aplicação Fase 3**): `repeat` transita `ausente
+   → implementado`. `Content::Repeat { body, gap: Option<Length>,
+   justify: bool }` adicionado (51 → 52 variants); stdlib
+   `#repeat(body, gap: ?, justify: true)`. Default `justify ==
+   true` (paridade vanilla). Decisão arquitectural reusada de
+   P156G/H/I (variant rico). Algoritmo dinâmico de quantidade-
+   para-encher diferido per ADR-0054 graded — Layouter executa
+   single-render. Helper `extract_length` reusado N=6 vezes
+   consecutivas; padrão Smart→Option/default atinge **N=6**.
+   Cobertura Layout (impl + impl⁺): 72% → **78%** (13/18 →
+   14/18). Restante 1 entrada ausente (`columns`/`colbreak`)
+   bloqueada por DEBT-56 (column flow L+).
    Isto é **escopo XL agregado** se priorizado.
    **Refinamento P154A** (diagnóstico Model): para a sub-categoria Model especificamente, breakdown
    detalhado em [`diagnostico-model-passo-154a.md`](diagnostico-model-passo-154a.md). 6 entradas Model
