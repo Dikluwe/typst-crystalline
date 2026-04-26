@@ -151,6 +151,18 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
             inset:    *inset,
             baseline: *baseline,
         },
+        // Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo.
+        // Materialize_time em cada child; preservar dir/spacing.
+        Content::Stack { children, dir, spacing } => {
+            let new_children: Vec<Content> = children.iter()
+                .map(|c| materialize_time(c, state))
+                .collect();
+            Content::Stack {
+                children: std::sync::Arc::from(new_children),
+                dir:      *dir,
+                spacing:  *spacing,
+            }
+        },
         Content::Transform { matrix, body } => Content::Transform {
             matrix: *matrix,
             body:   Box::new(materialize_time(body, state)),
@@ -383,6 +395,14 @@ fn walk(content: &Content, state: &mut CounterState) {
 
         // Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container.
         Content::Boxed { body, .. } => walk(body, state),
+
+        // Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo.
+        // Walk em cada child em ordem (counters/labels resolvem).
+        Content::Stack { children, .. } => {
+            for c in children.iter() {
+                walk(c, state);
+            }
+        },
 
         // Passo 99 (ADR-0038): `Styled` é transparente — desce no body.
         Content::Styled(body, _) => walk(body, state),

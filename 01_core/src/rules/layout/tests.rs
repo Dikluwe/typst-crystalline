@@ -2323,6 +2323,98 @@ mod tests_show_rule_integration {
              m1={pos_m1:.2} m2={pos_m2:.2}");
     }
 
+    // ── Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo ──────
+
+    /// `Content::Stack` TTB empilha children verticalmente: B abaixo de A.
+    #[test]
+    fn layout_stack_ttb_empilha_verticalmente() {
+        use crate::entities::dir::Dir;
+        let s = Content::stack(
+            vec![Content::text("A"), Content::text("B")],
+            Dir::TTB,
+            None,
+        );
+        let doc = layout(&s, CounterState::default());
+        let texts: Vec<_> = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. } => Some((pos.y.val(), text.to_string())),
+                _ => None,
+            })
+            .collect();
+        let pos_a_y = texts.iter().find(|(_, t)| t == "A").map(|(y, _)| *y).unwrap();
+        let pos_b_y = texts.iter().find(|(_, t)| t == "B").map(|(y, _)| *y).unwrap();
+        assert!(pos_b_y > pos_a_y,
+            "stack TTB deve colocar B abaixo de A: a={pos_a_y:.2} b={pos_b_y:.2}");
+    }
+
+    /// `Content::Stack` LTR empilha children inline: B à direita de A,
+    /// na mesma linha.
+    #[test]
+    fn layout_stack_ltr_empilha_horizontalmente() {
+        use crate::entities::dir::Dir;
+        let s = Content::stack(
+            vec![Content::text("A"), Content::text("B")],
+            Dir::LTR,
+            None,
+        );
+        let doc = layout(&s, CounterState::default());
+        let texts: Vec<_> = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. } =>
+                    Some((pos.x.val(), pos.y.val(), text.to_string())),
+                _ => None,
+            })
+            .collect();
+        let (a_x, a_y) = texts.iter().find(|(_, _, t)| t == "A")
+            .map(|(x, y, _)| (*x, *y)).unwrap();
+        let (b_x, b_y) = texts.iter().find(|(_, _, t)| t == "B")
+            .map(|(x, y, _)| (*x, *y)).unwrap();
+        // Mesma linha (Y igual).
+        assert!((a_y - b_y).abs() < 0.001,
+            "stack LTR deve manter A e B na mesma linha: a_y={a_y:.2} b_y={b_y:.2}");
+        // B à direita de A.
+        assert!(b_x > a_x,
+            "stack LTR deve colocar B à direita de A: a_x={a_x:.2} b_x={b_x:.2}");
+    }
+
+    /// `Content::Stack` TTB com spacing força avanço vertical extra
+    /// entre children.
+    #[test]
+    fn layout_stack_spacing_avanca_cursor_entre_children() {
+        use crate::entities::dir::Dir;
+        use crate::entities::layout_types::Length;
+
+        // Doc 1: stack sem spacing.
+        let s_no_space = Content::stack(
+            vec![Content::text("A"), Content::text("B")],
+            Dir::TTB, None,
+        );
+        let doc1 = layout(&s_no_space, CounterState::default());
+        let pos_b1: f64 = doc1.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "B" => Some(pos.y.val()),
+                _ => None,
+            }).next().unwrap();
+
+        // Doc 2: stack com spacing 30pt.
+        let s_with_space = Content::stack(
+            vec![Content::text("A"), Content::text("B")],
+            Dir::TTB,
+            Some(Length::pt(30.0)),
+        );
+        let doc2 = layout(&s_with_space, CounterState::default());
+        let pos_b2: f64 = doc2.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "B" => Some(pos.y.val()),
+                _ => None,
+            }).next().unwrap();
+
+        // B em doc2 deve estar pelo menos 30pt mais abaixo (spacing).
+        assert!(pos_b2 - pos_b1 >= 30.0,
+            "stack TTB com spacing=30pt deve empurrar B em pelo menos 30pt: \
+             b1={pos_b1:.2} b2={pos_b2:.2}");
+    }
+
     /// `Content::Block` com `height: Some(h)` força avanço mínimo
     /// vertical mesmo se body for pequeno.
     #[test]

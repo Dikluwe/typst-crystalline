@@ -296,3 +296,109 @@ da Fase 1 Model em P155).
 - **Historiograma P156A** (`historiograma-passos.md`) — §4.1
   evidência 6/6 do padrão diagnóstico-primeiro que motivou
   esta aplicação a Layout.
+
+---
+
+## Aplicações cumulativas (pós-P156I)
+
+ADR-0061 PROPOSTO em P156B (2026-04-25). **Fase 1+2
+materializadas em sequência granular P156C-I** (7 passos
+consecutivos, 2026-04-25 a 2026-04-26):
+
+| Passo | Feature(s) | Slope | Cobertura cumulativa | Tests Δ |
+|-------|-----------|------:|---------------------:|--------:|
+| P156C | pad + hide | +11% | 22% → 33% | +27 |
+| P156D | h + v | +11% | 33% → 44% | +20 |
+| P156E | pagebreak | +6%  | 44% → 50% | +22 |
+| P156F | skew | +6%  | 50% → 56% | +16 |
+| P156G | block | +5%  | 56% → 61% | +20 |
+| P156H | box | +6%  | 61% → 67% | +21 |
+| **P156I** | **stack** | +5%  | **67% → 72%** (target) | **+25** |
+
+**Total**: +50 pontos percentuais Layout em 7 passos
+consecutivos (22% → 72% = target Fase 1+2 atingido).
+**+151 tests** acumulados (1145 → 1296).
+**Zero reformulações mid-passo** em N=7 aplicações.
+
+### Tipos novos infraestruturais
+
+- `Sides<T>` (P156C) — para padding/inset/margem.
+- `Parity` (P156E) — para pagebreak `to:`.
+- `TransformMatrix::skew` (P156F) — método novo em tipo
+  existente.
+- `Dir` (P156I) — para stack direcção.
+
+### Variants `Content` adicionados
+
+- `Pad`, `Hide` (P156C).
+- `HSpace`, `VSpace` (P156D).
+- `Pagebreak` (P156E).
+- (P156F: zero — método em TransformMatrix existente).
+- `Block` (P156G).
+- `Boxed` (P156H — naming evita conflito std::Box).
+- `Stack` (P156I).
+
+**Total: 8 variants novos + 1 método novo em tipo existente.**
+Variant count Content: 43 → 51 (+8).
+
+### Stdlib funcs adicionadas
+
+`pad`, `hide`, `h`, `v`, `pagebreak`, `skew`, `block`, `box`,
+`stack` = **9 funcs novas** (32 → 41).
+
+### Padrões metodológicos consolidados
+
+1. **Granularidade 1-2 features/passo**: N=7 aplicações
+   consecutivas sem reformulação. Hipótese da decisão humana
+   2026-04-25 empiricamente confirmada.
+
+2. **"Inventariar primeiro" pré-decisão arquitectural**:
+   N=4 aplicações (P156F defensivo; P156G deliberado;
+   P156H curto; P156I curto focado). Padrão consolidado
+   como mecanismo de redução de risco.
+
+3. **"Smart<T> → Option<T> ou default"**: N=5 aplicações
+   (P156E Parity; P156F angles; P156G Block.width; P156H
+   Box.width; P156I Stack.spacing + Dir.default). **Patamar
+   empírico forte** — candidato a registo formal em ADR
+   meta futuro.
+
+4. **"§análise de risco no relatório"**: N=4 aplicações
+   (P156F/G/H/I). Cobertura sistemática do risco.
+
+5. **"Reuso de template containers"**: N=3 aplicações
+   (Block → Boxed → Stack). Padrão "variant rico para
+   containers cujos atributos não são propriedades de
+   texto" estabelecido em P156G e reaplicado sem nova
+   decisão arquitectural em P156H/I.
+
+6. **"Antecipar especificidades técnicas"**: N=2-3
+   aplicações (Boxed naming P156H; Vec/Arc<[T]> arms P156I).
+
+### Estado pós-P156I
+
+- **Cobertura Layout**: **72%** (13/18 implementado puro).
+  **Target ADR-0061 atingido**.
+- **Restantes 5 entradas** pendentes (Fase 3 ou condicionais):
+  - `repeat` (Fase 3, baixo valor — TOC dot leaders).
+  - `columns`/`colbreak` (Fase 3 condicional — DEBT-56
+    column flow L+ aberto em P156B).
+  - `measure` (parcial; depende ADR-0017 Introspection
+    runtime adiada).
+- **Total user-facing**: 60% (era 53% pré-P156C).
+- **Zero novos DEBTs** em toda a série P156C-I.
+- **Footnote area** scope-out per decisão humana
+  2026-04-25 (não incluído na Fase 1+2 actual).
+
+### Status
+
+**`PROPOSTO`** mantido. Promoção a `IMPLEMENTADO` requer
+**uma** das seguintes:
+1. Fase 3 materializada (columns + repeat).
+2. Decisão humana de scope-out formal de Fase 3 (com
+   anotação que ADR-0061 fica "fase mínima cumprida; Fase 3
+   adiada por DEBT-56").
+3. Inclusão de footnote area + actualização do scope da ADR.
+
+Decisão diferida para sessão posterior. Anotação cumulativa
+acima preserva o contexto histórico para retomada futura.

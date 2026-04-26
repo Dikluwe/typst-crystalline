@@ -12,6 +12,7 @@ use crate::entities::file_id::FileId;
 
 use crate::entities::args::Args;
 use crate::entities::content::Content;
+use crate::entities::dir::Dir;
 use crate::entities::layout_types::{Abs, Align2D, Length, TrackSizing};
 use crate::entities::parity::Parity;
 use crate::entities::sides::Sides;
@@ -506,6 +507,84 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         height,
         inset,
         breakable,
+    }))
+}
+
+// ── Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo ────────────
+
+/// Coage `Value::Str` para `Dir` (`"ltr"`/`"rtl"`/`"ttb"`/`"btt"`).
+fn extract_dir(value: &Value) -> SourceResult<Dir> {
+    match value {
+        Value::Str(s) => match s.as_str() {
+            "ltr" => Ok(Dir::LTR),
+            "rtl" => Ok(Dir::RTL),
+            "ttb" => Ok(Dir::TTB),
+            "btt" => Ok(Dir::BTT),
+            other => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("stack(dir:) deve ser \"ltr\"/\"rtl\"/\"ttb\"/\"btt\", recebeu \"{}\"", other),
+            )]),
+        },
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("stack(dir:) deve ser string, recebeu {}", other.type_name()),
+        )]),
+    }
+}
+
+/// `stack(dir: "ttb", spacing: ?, ..children)` → `Content::Stack`.
+///
+/// **Atributos** (Fase 2 per ADR-0054 graded; **último sub-passo Fase 2**;
+/// atinge target 72% Layout):
+/// - `children` variádicos posicionais (Content ou Str).
+/// - `dir: Str` (`"ltr"`/`"rtl"`/`"ttb"`/`"btt"`); default `"ttb"`.
+/// - `spacing: Length`; default `None` (zero).
+///
+/// Sem atributos vanilla scope-out (vanilla stack tem apenas estes 3).
+pub fn native_stack(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let mut dir: Dir = Dir::default();  // TTB
+    let mut spacing: Option<Length> = None;
+
+    for (key, value) in args.named.iter() {
+        match key.as_str() {
+            "dir"     => dir = extract_dir(value)?,
+            "spacing" => {
+                let len = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("stack(spacing:) espera length, recebeu {}", value.type_name()),
+                )])?;
+                if len.abs.0 < 0.0 || len.em < 0.0 {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "stack(spacing:): valor negativo não suportado neste passo (P156I)".to_string(),
+                    )]);
+                }
+                spacing = Some(len);
+            }
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("stack(): argumento nomeado inesperado '{}'", other),
+            )]),
+        }
+    }
+
+    // Children variádicos: iterar args.items, aceitar Content ou Str.
+    let mut children: Vec<Content> = Vec::with_capacity(args.items.len());
+    for v in args.items.iter() {
+        match v {
+            Value::Content(c) => children.push(c.clone()),
+            Value::Str(s)     => children.push(Content::text(s.as_str())),
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("stack(): children devem ser content ou string, recebeu {}", other.type_name()),
+            )]),
+        }
+    }
+
+    Ok(Value::Content(Content::Stack {
+        children: std::sync::Arc::from(children),
+        dir,
+        spacing,
     }))
 }
 

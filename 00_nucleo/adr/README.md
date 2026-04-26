@@ -487,6 +487,52 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 156I — Layout Fase 2 sub-passo 3: stack compositivo
+  (último Fase 2; atinge target 72%)** (sétima aplicação
+  consecutiva de **ADR-0061**; **fechamento de série
+  P156C-I**). Substantivo M agregado: **decisão arquitectural
+  reusada** de P156G/H (variant rico) com adaptação para
+  `Arc<[Content]>` (clone O(1) per ADR-0026 revisão,
+  consistente com `Sequence`/`MathSequence`).
+  `Content::Stack { children: Arc<[Content]>, dir: Dir,
+  spacing: Option<Length> }` adicionado ao enum (50 → 51
+  variants); **tipo `Dir` novo** em `01_core/src/entities/dir.rs`
+  (4 direcções LTR/RTL/TTB/BTT; análogo a `Parity` P156E e
+  `Sides<T>` P156C — infraestrutura genérica reusável); stdlib
+  expõe `#stack(dir: ?, spacing: ?, ..children)` (children
+  variádicos posicionais; helper `extract_dir` para parsing
+  de string). **Decisão local 156I.2** (per inventário 156I.1):
+  spacing implementado real (trivial via cursor advance per
+  pattern P156D HSpace/VSpace). Cobertura exaustiva de arms
+  em `Content` (3 fields adaptados para Vec), `introspect.rs`
+  (recurse em cada child), `layout/mod.rs::layout_content`
+  (4 direcções: TTB/BTT empilham verticalmente com
+  `cursor_y += spacing`; LTR/RTL inline com `cursor_x +=
+  spacing`; BTT/RTL implementadas como reverse iteration per
+  ADR-0054 graded) + `measure_content_constrained` (sum
+  heights + (n-1)*spacing para vertical; sum widths para
+  horizontal). Validação: `dir` rejeita strings inválidas;
+  spacing negativo rejeitado; named arg desconhecido
+  rejeitado; children não-Content/Str rejeitados (estricto).
+  Sem atributos vanilla scope-out (vanilla stack tem só
+  estes 3). Tests: 1271 → **1296** (+25 = 4 unit Dir + 6 unit
+  Stack + 12 stdlib + 3 layout E2E). Cobertura Layout:
+  67% → **72%** (12/18 → 13/18) — **target ADR-0061
+  atingido**; total user-facing: 59% → **60%**. **ADR-0061
+  ganha §"Aplicações cumulativas"** documentando a sequência
+  P156C-I com slope cumulativo, padrões metodológicos
+  consolidados (granularidade N=7; inventariar primeiro
+  N=4; Smart→Option N=5; reuso template N=3),
+  variants/stdlib funcs adicionados, e estado pós-target.
+  **Status `PROPOSTO` mantido** — promoção a `IMPLEMENTADO`
+  requer Fase 3 (columns DEBT-56) ou decisão humana de
+  scope-out formal. README ADRs: total e distribuição
+  inalterados (61 ADRs; PROPOSTO 11). Secção Stack adicionada
+  a `entities/content.md`; L0 `entities/dir.md` criado.
+  Hashes propagados (`content.rs` → `b9ca52c4`, `dir.rs` →
+  `657f9389`). **Fechamento de série granular P156C-I:
+  +151 tests acumulados; +50 pontos percentuais Layout;
+  zero reformulações em N=7 aplicações consecutivas.**
 - **Passo 156H — Layout Fase 2 sub-passo 2: box inline container**
   (sexta aplicação consecutiva de **ADR-0061**; segunda
   Fase 2). Substantivo M agregado: **decisão arquitectural

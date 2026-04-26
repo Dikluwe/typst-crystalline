@@ -687,6 +687,62 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.cursor_y += Pt(pt);
             }
 
+            // ── Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo ──
+            // **Último sub-passo Fase 2 (atinge target 72% Layout)**.
+            // Container compositivo: itera children + spacing + dir.
+            // Structural (força flush_line antes; cada child em "linha"
+            // própria para TTB/BTT; inline para LTR/RTL).
+            //
+            // Implementação simples per ADR-0054 graded: BTT/RTL
+            // implementadas como reverse iteration (children[len-1..0])
+            // — geometricamente similar a TTB/LTR mas com order
+            // visualmente invertido. Refino futuro pode aplicar
+            // posicionamento absoluto reverso real (sob forma de
+            // FrameItem positioning).
+            Content::Stack { children, dir, spacing } => {
+                let font = self.font_size_pt.val();
+                let space_pt = spacing.map_or(0.0, |l| l.resolve_pt(font));
+
+                // Stack é STRUCTURAL: força flush_line antes.
+                if self.cursor_x.0 > self.line_start_x.0 {
+                    self.flush_line();
+                }
+
+                let n = children.len();
+                if n == 0 { return; }
+
+                // Iteração base — forward para LTR/TTB, reverse para
+                // RTL/BTT (per ADR-0054 graded; geometria reverse real
+                // adiada para refino futuro).
+                let iter: Box<dyn Iterator<Item = (usize, &Content)>> = if dir.is_reverse() {
+                    Box::new(children.iter().rev().enumerate())
+                } else {
+                    Box::new(children.iter().enumerate())
+                };
+
+                if dir.is_vertical() {
+                    // TTB/BTT: layout cada child em "linha" própria;
+                    // spacing entre via cursor_y advance.
+                    for (i, child) in iter {
+                        if i > 0 && space_pt > 0.0 {
+                            self.cursor_y += Pt(space_pt);
+                        }
+                        self.layout_content(child);
+                        self.flush_line();
+                    }
+                } else {
+                    // LTR/RTL: layout inline; spacing entre via
+                    // cursor_x advance.
+                    for (i, child) in iter {
+                        if i > 0 && space_pt > 0.0 {
+                            self.cursor_x += Pt(space_pt);
+                        }
+                        self.layout_content(child);
+                    }
+                    self.flush_line();
+                }
+            }
+
             // ── Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container ──
             // Container INLINE: NÃO força flush_line. Aplica inset.left
             // + body + inset.right como avanço de cursor.x na linha
@@ -949,6 +1005,38 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             // Passo 156E: Pagebreak é event sem dimensões dentro de cell.
             // Em grid measurement, ignora-se (não consome largura/altura).
             Content::Pagebreak { .. } => (0.0, 0.0),
+
+            // Passo 156I: Stack dimensões para grid measurement.
+            // TTB/BTT: max widths; sum heights + (n-1) * spacing.
+            // LTR/RTL: sum widths + (n-1) * spacing; max heights.
+            Content::Stack { children, dir, spacing } => {
+                let font = self.font_size_pt.val();
+                let space_pt = spacing.map_or(0.0, |l| l.resolve_pt(font));
+                let n = children.len();
+                if n == 0 { return (0.0, 0.0); }
+
+                if dir.is_vertical() {
+                    let mut max_w = 0.0_f64;
+                    let mut sum_h = 0.0_f64;
+                    for child in children.iter() {
+                        let (w, h) = self.measure_content_constrained(child, max_width);
+                        max_w = max_w.max(w);
+                        sum_h += h;
+                    }
+                    let total_h = sum_h + ((n - 1) as f64) * space_pt;
+                    (max_w, total_h)
+                } else {
+                    let mut sum_w = 0.0_f64;
+                    let mut max_h = 0.0_f64;
+                    for child in children.iter() {
+                        let (w, h) = self.measure_content_constrained(child, max_width);
+                        sum_w += w;
+                        max_h = max_h.max(h);
+                    }
+                    let total_w = sum_w + ((n - 1) as f64) * space_pt;
+                    (total_w, max_h)
+                }
+            }
 
             // Passo 156H: Boxed (Box inline) dimensões para grid
             // measurement. Análogo a Block (mesma lógica width/height/
