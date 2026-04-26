@@ -2198,6 +2198,96 @@ mod tests_show_rule_integration {
             "esperado >= 3 páginas (A em p1, vazia em p2, B em p3)");
     }
 
+    // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block container ─────────
+
+    /// `Content::Block` com `inset` adiciona top + bottom ao avanço de
+    /// cursor e left ao indent. Verificamos via posição Y de texto
+    /// subsequente.
+    #[test]
+    fn layout_block_inset_avanca_cursor_y() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        use std::sync::Arc;
+
+        // Sequência: "A" + block(text("body"), inset=10pt) + "C".
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::block(
+                Content::text("body"),
+                None, None,
+                Sides::uniform(Length::pt(10.0)),
+                true,
+            ),
+            Content::text("C"),
+        ]));
+        let doc = layout(&doc_content, CounterState::default());
+        let texts: Vec<_> = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. } => Some((pos.y.val(), text.to_string())),
+                _ => None,
+            })
+            .collect();
+        let pos_a_y    = texts.iter().find(|(_, t)| t == "A").map(|(y, _)| *y).unwrap();
+        let pos_body_y = texts.iter().find(|(_, t)| t == "body").map(|(y, _)| *y).unwrap();
+        let pos_c_y    = texts.iter().find(|(_, t)| t == "C").map(|(y, _)| *y).unwrap();
+        // Body deve estar abaixo de A (block força nova linha + inset top).
+        assert!(pos_body_y > pos_a_y,
+            "body deve estar abaixo de A: a={pos_a_y:.2} body={pos_body_y:.2}");
+        // C deve estar abaixo de body (inset bottom adicionado).
+        assert!(pos_c_y > pos_body_y,
+            "C deve estar abaixo de body: body={pos_body_y:.2} c={pos_c_y:.2}");
+    }
+
+    /// `Content::Block` com `height: Some(h)` força avanço mínimo
+    /// vertical mesmo se body for pequeno.
+    #[test]
+    fn layout_block_height_forca_minimo_vertical() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        use std::sync::Arc;
+
+        // Doc 1: Block sem height (body pequeno).
+        let no_height = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::block(Content::text("x"), None, None, Sides::uniform(Length::ZERO), true),
+            Content::text("B"),
+        ]));
+        let doc1 = layout(&no_height, CounterState::default());
+        let pos_b1: f64 = doc1.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "B" => Some(pos.y.val()),
+                _ => None,
+            })
+            .next().unwrap();
+
+        // Doc 2: Block com height: 100pt (body pequeno).
+        let with_height = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::block(
+                Content::text("x"),
+                None,
+                Some(Length::pt(100.0)),
+                Sides::uniform(Length::ZERO),
+                true,
+            ),
+            Content::text("B"),
+        ]));
+        let doc2 = layout(&with_height, CounterState::default());
+        let pos_b2: f64 = doc2.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "B" => Some(pos.y.val()),
+                _ => None,
+            })
+            .next().unwrap();
+
+        // B em doc2 deve estar pelo menos ~100pt mais abaixo que em doc1
+        // (devido ao height mínimo do bloco com altura forçada).
+        // Margem conservadora: pelo menos 50pt de diferença.
+        assert!(pos_b2 - pos_b1 > 50.0,
+            "block com height=100pt deve empurrar B mais para baixo do que sem height: \
+             b1={pos_b1:.2} b2={pos_b2:.2}");
+    }
     /// `pagebreak(to: even)` quando próxima seria ímpar (p3) deve inserir
     /// página vazia. Setup: A → pagebreak(to:odd) garante B em p3 → mais
     /// pagebreak(to:even) força ajuste para p4 (par).

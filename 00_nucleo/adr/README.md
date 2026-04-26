@@ -487,6 +487,42 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 156G — Layout Fase 2 sub-passo 1: block container**
+  (quinta aplicação consecutiva de **ADR-0061**; **primeira
+  aplicação Fase 2** — containers ricos). Substantivo M+
+  agregado: **decisão arquitectural** em 156G.2 escolheu
+  **variant rico** (Opção A modificada) sobre Style cascade
+  per inventário 156G.1 — `Style` enum cobre só propriedades
+  de texto (Bold/Italic/Size/Fill/HeadingLevel), vocabulário
+  não-encaixa para width/height/inset/breakable de container.
+  `Content::Block { body, width: Option<Length>, height:
+  Option<Length>, inset: Sides<Length>, breakable: bool }`
+  adicionado ao enum (48 → 49 variants); stdlib `#block(body,
+  width: ?, height: ?, inset: ?, breakable: true)` (subset
+  Fase 1 per ADR-0054 graded; **9 atributos vanilla scope-out**:
+  outset, fill, stroke, radius, clip, spacing, above/below,
+  sticky — todos rejeitados com erro hard até refino futuro).
+  Cobertura exaustiva de arms em `Content` (5 fields),
+  `introspect.rs` (recurse body), `layout/mod.rs::layout_content`
+  (force flush_line + inset top + offset line_start_x para
+  body + flush_line final + inset bottom + height mínimo
+  forçado se Some) + `measure_content_constrained` (dimensões
+  para grid). Layouter scope-outs: `inset.right` (mesma razão
+  Pad em P156C — refino multi-region); `width` armazenado mas
+  não impõe limite real (refino multi-region); `breakable: false`
+  semantic real adiada. Tests: 1230 → **1250** (+20 = 6 unit
+  Block + 12 stdlib + 2 layout E2E + regression Pad/Hide).
+  Cobertura Layout: 56% → **61%** (10/18 → 11/18); total
+  user-facing: 57% → **58%**. **ADR-0061 mantém-se `PROPOSTO`**
+  (anotação cumulativa após Fase 1+2 completas, per decisão
+  humana). README ADRs: total e distribuição inalterados
+  (61 ADRs; PROPOSTO 11). Secção Block adicionada a
+  `entities/content.md` documentando decisão arquitectural;
+  hash propagado (`content.rs` → `5702d2e3`). **Padrão
+  emergente Fase 2**: containers ricos preferem variants
+  explícitos quando atributos não são propriedades de texto;
+  Box (P156H) e Stack (P156I) provavelmente seguem mesmo
+  modelo.
 - **Passo 156F — Layout Fase 1 sub-passo 4: skew via TransformMatrix**
   (quarta aplicação consecutiva de **ADR-0061**; **divergência
   consciente da spec** baseada em descoberta empírica). Substantivo

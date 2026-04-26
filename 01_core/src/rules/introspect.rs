@@ -133,6 +133,15 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
         Content::Hide { body } => Content::Hide {
             body: Box::new(materialize_time(body, state)),
         },
+        // Passo 156G (ADR-0061 Fase 2) — block container.
+        // Análogo a Pad: descer no body; preservar atributos.
+        Content::Block { body, width, height, inset, breakable } => Content::Block {
+            body:      Box::new(materialize_time(body, state)),
+            width:     *width,
+            height:    *height,
+            inset:     *inset,
+            breakable: *breakable,
+        },
         Content::Transform { matrix, body } => Content::Transform {
             matrix: *matrix,
             body:   Box::new(materialize_time(body, state)),
@@ -359,6 +368,9 @@ fn walk(content: &Content, state: &mut CounterState) {
         // semântica de presence (label/ref dentro de hide ainda resolvem).
         Content::Pad  { body, .. } => walk(body, state),
         Content::Hide { body }     => walk(body, state),
+
+        // Passo 156G (ADR-0061 Fase 2) — block container; descer no body.
+        Content::Block { body, .. } => walk(body, state),
 
         // Passo 99 (ADR-0038): `Styled` é transparente — desce no body.
         Content::Styled(body, _) => walk(body, state),

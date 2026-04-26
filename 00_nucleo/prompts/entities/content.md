@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 3bf4e63d
+Hash do Código: 75b73a1d
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -610,3 +610,125 @@ Sem TransformKind enum (per inventário 156F.1).
 Arquitectura matriz cm já era a unificação correcta. P156F
 **adiciona método ao tipo existente** em vez de refactorar
 struct — padrão "menor mudança suficiente".
+
+## Variant `Content::Block` — Passo 156G (ADR-0061 Fase 2, sub-passo 1)
+
+Quinta aplicação consecutiva de ADR-0061; **primeira de
+Fase 2** (containers ricos). Materializa
+`block(body, width: ?, height: ?, inset: ?, breakable: true)`
+análogo a vanilla `BlockElem`.
+
+### Decisão arquitectural escolhida (Opção A modificada)
+
+Per inventário 156G.1 + análise comparativa 156G.2:
+**variant rico `Content::Block { body, width, height, inset,
+breakable }`** em vez de Style cascade.
+
+**Rationale**:
+- `Style` enum cobre só **propriedades de texto** (Bold,
+  Italic, Size, Fill, HeadingLevel) — vocabulário não-encaixa
+  com width/height/inset/breakable que são **propriedades de
+  container**.
+- Coerente com `Content::Pad` (P156C) que também tem fields
+  explícitos para padding (também propriedade de container).
+- Reusa pattern emergente: containers com fields explícitos
+  para atributos não-Style.
+
+### `Content::Block { body, width, height, inset, breakable }`
+
+```rust
+Block {
+    body:      Box<Content>,
+    width:     Option<Length>,
+    height:    Option<Length>,
+    inset:     Sides<Length>,
+    breakable: bool,
+}
+```
+
+**Atributos** (subset Fase 1 per ADR-0054 graded; declarados
+em stdlib `block(body, ...)`):
+- `body` posicional opcional (Content ou Str; ausente →
+  Empty).
+- `width: Length` — largura explícita; default `None` (auto).
+- `height: Length` — altura explícita; default `None` (auto).
+- `inset: Length` — margem interna uniforme nos 4 lados
+  (refino futuro: Sides completo via dict); default zero.
+- `breakable: bool` — `true` permite quebra entre páginas;
+  `false` é "atómico"; default `true`. **Semantic real
+  adiada** — armazenado mas layouter não impede quebra ainda.
+
+**Atributos scope-out** (refino futuro per ADR-0054 graded):
+`outset`, `fill`, `stroke`, `radius`, `clip`, `spacing`,
+`above`/`below`, `sticky`. **Rejeitados em `native_block`**
+com erro hard até refino futuro.
+
+**Comportamento `is_empty` / `plain_text` / `map_*`**:
+- `is_empty` — proxy para `body.is_empty()` (atributos não
+  fazem container deixar de ser vazio).
+- `plain_text` — recurse no body (transparente).
+- `map_content` / `map_text` — recurse no body; atributos
+  preservados como Copy.
+
+**Renderização (layouter)**:
+- `flush_line` se houver conteúdo pendente (block ocupa
+  nova "linha lógica").
+- Aplica `inset.top` (avança cursor.y).
+- Aplica `inset.left` (offset de `line_start_x`/cursor.x).
+- Layout do body com cursor ajustado.
+- `flush_line` no fim.
+- Aplica `inset.bottom` (avança cursor.y).
+- Se `height: Some(h)`, garante avanço mínimo de h vertical
+  (caso body + inset_top + inset_bottom seja menor).
+- Restaura `line_start_x`/cursor.x.
+- `inset.right` é scope-out (Layouter actual sem largura
+  útil por arm; refino com refactor multi-region per
+  DEBT-56).
+- `width` armazenado mas não consumido em layout actual
+  (largura limitada por flush_line/word_wrap globais).
+  Per ADR-0054 graded; refino futuro.
+
+**Validação em `native_block`**:
+- Width/height/inset negativos rejeitados (consistente com
+  pad em P156C).
+- Named arg desconhecido rejeitado com mensagem explicativa
+  (incluindo lista de scope-outs).
+- `breakable` deve ser Bool.
+- Inset aceita `Length` uniforme apenas (refino futuro para
+  dict).
+
+### Construtores
+
+- Stdlib: `#block(body, width: ?, height: ?, inset: ?,
+  breakable: ?)`.
+- Construtor Rust: `Content::block(body, width, height,
+  inset, breakable)`.
+
+### Limitações conscientes (P156G)
+
+- **9 atributos vanilla scope-out** (outset, fill, stroke,
+  radius, clip, spacing, above, below, sticky) — refino
+  futuro per ADR-0054 graded.
+- `inset` aceita Length uniforme apenas. Vanilla aceita
+  dict ou número. Refino futuro.
+- `width` armazenado mas não impõe limite real (Layouter
+  actual sem mecânica de largura útil por arm).
+- `breakable: false` armazenado mas semantic real defere
+  (refactor multi-region exigido).
+- `inset.right` scope-out em layout (mesma razão que
+  `Pad.right` em P156C).
+- Sem show rules `#show block: ...` neste passo.
+- Block aninhado: suportado estruturalmente; insets
+  cumulativos via cursor advance.
+
+### Decisão arquitectural confirmada (per ADR-0061 Decisão 4)
+
+Variant rico (não Styled). Coerente com:
+- vanilla `BlockElem` ser `#[elem]` proper.
+- `Content::Pad` (P156C) que usa fields explícitos.
+- Princípio "container com atributos não-style usa variant".
+
+**Padrão emergente Fase 2**: containers ricos preferem
+variants explícitos quando atributos não são propriedades
+de texto. Box (P156H) e Stack (P156I) provavelmente seguem
+mesmo modelo.
