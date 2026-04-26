@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash b9ca52c4
+//! @prompt-hash ec58d849
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -471,6 +471,30 @@ pub enum Content {
         breakable: bool,
     },
 
+    // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ────────────────
+    /// Repetição de body para preencher espaço (vanilla `RepeatElem`).
+    /// **Primeira aplicação Fase 3** declarada em ADR-0061.
+    ///
+    /// Caso de uso primário: TOC dot leaders `#box(width: 1fr,
+    /// repeat[.])`. Em vanilla, o algoritmo de runtime calcula
+    /// quantidade-para-encher dinamicamente; em cristalino, P156J
+    /// implementa **paridade estrutural** (variant + stdlib + medição
+    /// estática + layout single-render) per ADR-0054 graded —
+    /// algoritmo dinâmico diferido para refino futuro (mesmo critério
+    /// aceite em P156G/H/I para containers complexos).
+    ///
+    /// **Atributos** (paridade vanilla; total 3 fields):
+    /// - `body`: conteúdo a repetir (obrigatório).
+    /// - `gap: Option<Length>`: espaço entre cópias; `None` == zero
+    ///   (padrão Smart→Option N=6 da série P156D-I).
+    /// - `justify: bool`: default `true` (paridade vanilla;
+    ///   distribuição de espaço residual diferida per ADR-0054).
+    Repeat {
+        body:    Box<Content>,
+        gap:     Option<Length>,
+        justify: bool,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
 }
@@ -584,6 +608,18 @@ impl Content {
         Self::Stack { children: children.into(), dir, spacing }
     }
 
+    /// `repeat(body, gap, justify)` — Passo 156J (ADR-0061 Fase 3
+    /// sub-passo 1). **Primeira Fase 3**. Default `justify == true`
+    /// (paridade vanilla); algoritmo dinâmico de quantidade-para-encher
+    /// diferido per ADR-0054 graded.
+    pub fn repeat(
+        body:    Content,
+        gap:     Option<Length>,
+        justify: bool,
+    ) -> Self {
+        Self::Repeat { body: Box::new(body), gap, justify }
+    }
+
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,
@@ -630,6 +666,9 @@ impl Content {
             // (consistente com Sequence; stack vazio é semanticamente
             // sem conteúdo).
             Self::Stack { children, .. } => children.iter().all(|c| c.is_empty()),
+            // Passo 156J: Repeat é vazio se body for (atributos não
+            // tornam o container não-vazio — análogo a Block/Boxed).
+            Self::Repeat { body, .. } => body.is_empty(),
             _ => false,
         }
     }
@@ -749,6 +788,10 @@ impl Content {
             // Passo 156I: Stack concatena plain_text de children
             // (análogo a Sequence; preserva ordem).
             Self::Stack { children, .. } => children.iter().map(|c| c.plain_text()).collect(),
+            // Passo 156J: Repeat é transparente para texto plano —
+            // recurse no body sem multiplicar (paridade não visível em
+            // texto plano; semântica de repetição é runtime-only).
+            Self::Repeat { body, .. } => body.plain_text(),
             Self::Quote { body, attribution, quotes, .. } => {
                 let body_txt = body.plain_text();
                 let with_quotes = if *quotes {
@@ -866,6 +909,10 @@ impl PartialEq for Content {
             (Self::Stack { children: ca, dir: da, spacing: sa },
              Self::Stack { children: cb, dir: db, spacing: sb }) =>
                 ca.as_ref() == cb.as_ref() && da == db && sa == sb,
+            // Passo 156J — Repeat.
+            (Self::Repeat { body: ba, gap: ga, justify: ja },
+             Self::Repeat { body: bb, gap: gb, justify: jb }) =>
+                ba == bb && ga == gb && ja == jb,
             _ => false,
         }
     }
@@ -1042,6 +1089,14 @@ impl Content {
                 }
             },
 
+            // Passo 156J: Repeat container — recurse em body; gap e
+            // justify são Copy primitivos (Option<Length>, bool).
+            Content::Repeat { body, gap, justify } => Content::Repeat {
+                body:    Box::new(body.map_content(transform)?),
+                gap:     *gap,
+                justify: *justify,
+            },
+
             // ── Terminais: clonar directamente ──────────────────────────────
             // Listados explicitamente — variantes novas não passam em silêncio.
             // Passo 156D: HSpace/VSpace são leaves (sem body), terminais.
@@ -1196,6 +1251,13 @@ impl Content {
                 children: children.iter().map(|c| c.map_text(transform)).collect::<Vec<_>>().into(),
                 dir:      *dir,
                 spacing:  *spacing,
+            },
+
+            // Passo 156J: Repeat container — map_text no body.
+            Content::Repeat { body, gap, justify } => Content::Repeat {
+                body:    Box::new(body.map_text(transform)),
+                gap:     *gap,
+                justify: *justify,
             },
 
             // ── Terminais — clonar directamente ──────────────────────────
@@ -2420,6 +2482,101 @@ mod tests {
             assert_eq!(dir, Dir::TTB);
         } else {
             panic!("esperado Content::Stack após map_text");
+        }
+    }
+
+    // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — Repeat ────────────────
+
+    #[test]
+    fn repeat_constructor_default_gap_justify() {
+        let r = Content::repeat(Content::text("."), None, true);
+        if let Content::Repeat { body, gap, justify } = &r {
+            assert_eq!(body.plain_text(), ".");
+            assert_eq!(*gap, None);
+            assert!(*justify);
+        } else {
+            panic!("esperado Content::Repeat");
+        }
+    }
+
+    #[test]
+    fn repeat_constructor_explicit_gap_justify_false() {
+        use crate::entities::layout_types::Length;
+        let r = Content::repeat(Content::text("a"), Some(Length::pt(2.0)), false);
+        if let Content::Repeat { gap, justify, .. } = &r {
+            assert_eq!(*gap, Some(Length::pt(2.0)));
+            assert!(!*justify);
+        } else {
+            panic!("esperado Content::Repeat");
+        }
+    }
+
+    #[test]
+    fn repeat_is_empty_proxy_via_body() {
+        // Body Empty → repeat é vazio (atributos não tornam não-vazio).
+        let r_empty = Content::repeat(Content::Empty, None, true);
+        assert!(r_empty.is_empty());
+        // Body com texto → não vazio.
+        let r_dot = Content::repeat(Content::text("."), None, true);
+        assert!(!r_dot.is_empty());
+    }
+
+    #[test]
+    fn repeat_plain_text_recurse_no_body() {
+        // Plain text recurse sem multiplicar — paridade não visível em
+        // texto plano (semântica de repetição é runtime-only).
+        let r = Content::repeat(Content::text("xy"), None, true);
+        assert_eq!(r.plain_text(), "xy");
+    }
+
+    #[test]
+    fn repeat_partial_eq_cobre_todos_os_fields() {
+        use crate::entities::layout_types::Length;
+        let mk = || Content::repeat(
+            Content::text("."),
+            Some(Length::pt(3.0)),
+            true,
+        );
+        assert_eq!(mk(), mk());
+        // Body diferente → diferente.
+        let other_body = Content::repeat(
+            Content::text("o"),
+            Some(Length::pt(3.0)),
+            true,
+        );
+        assert_ne!(mk(), other_body);
+        // Gap diferente → diferente.
+        let other_gap = Content::repeat(
+            Content::text("."),
+            None,
+            true,
+        );
+        assert_ne!(mk(), other_gap);
+        // Justify diferente → diferente.
+        let other_justify = Content::repeat(
+            Content::text("."),
+            Some(Length::pt(3.0)),
+            false,
+        );
+        assert_ne!(mk(), other_justify);
+    }
+
+    #[test]
+    fn repeat_map_text_recurse_no_body() {
+        use crate::entities::layout_types::Length;
+        let r = Content::repeat(
+            Content::text("hello"),
+            Some(Length::pt(2.0)),
+            false,
+        );
+        let upper = r.map_text(&mut |t| t.to_uppercase());
+        assert_eq!(upper.plain_text(), "HELLO");
+        // Atributos preservados.
+        if let Content::Repeat { gap, justify, .. } = upper {
+            assert_eq!(gap, Some(Length::pt(2.0)));
+            assert!(!justify);
+        } else {
+            panic!("esperado Content::Repeat após map_text");
         }
     }
 }

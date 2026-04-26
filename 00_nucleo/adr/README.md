@@ -487,6 +487,54 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 156J — Layout Fase 3 sub-passo 1: repeat (primeira
+  Fase 3)** (oitava aplicação consecutiva de **ADR-0061**;
+  **activa caminho 1** dos 3 documentados em §"Aplicações
+  cumulativas"). Substantivo M: **decisão arquitectural
+  reusada** de P156G/H/I (variant rico) sem nova decisão.
+  `Content::Repeat { body, gap: Option<Length>, justify:
+  bool }` adicionado ao enum (51 → 52 variants); stdlib
+  expõe `#repeat(body, gap: ?, justify: true)` (paridade
+  vanilla — default `justify == true` é divergência intencional
+  do default Rust `bool::default() == false`). **Limitação
+  aceite per ADR-0054 graded**: algoritmo dinâmico de
+  "quantidade-para-encher" (vanilla calcula `floor(available
+  / (body_width + gap))`) diferido — Layouter executa
+  single-render do body; suficiente para paridade estrutural
+  (variant disponível em todo o pipeline; counters/labels
+  descem via walk; medição estática via measure_content).
+  Cobertura exaustiva de arms em `Content` (3 fields adaptados),
+  `introspect.rs` (materialize_time + walk recurse no body),
+  `layout/mod.rs` (single-render em layout_content; recurse em
+  measure_content_constrained). Validação: gap negativo
+  rejeitado; gap não-length rejeitado; justify não-bool
+  rejeitado; named arg desconhecido rejeitado; body posicional
+  obrigatório (Content ou Str). **Helper `extract_length`
+  reusado N=6** vezes consecutivas (P156C/D/G/H/I/J) — emergiu
+  como vocabulário canónico (subpadrão dentro de "reuso de
+  template containers" N=4). **Padrão Smart→Option/default
+  atinge N=6** aplicações consecutivas (P156D weak; P156E to;
+  P156G/H width; P156I spacing; P156J gap) — patamar empírico
+  reforçado, candidato a ADR meta P156K-meta. Tests:
+  1296 → **1315** (+19 = 6 unit Repeat + 11 stdlib + 2 layout
+  E2E + regression Stack/Block/Box/Pad/Hide). Cobertura Layout:
+  72% → **78%** (13/18 → 14/18) — **target ADR-0061
+  ultrapassado**; total user-facing: 60% → **~60.3%**.
+  **ADR-0061 §"Aplicações cumulativas" actualizada** para
+  pós-P156J: tabela slope cumulativo (8 passos), padrões N
+  incrementados (Granularidade N=8, Inventariar N=5,
+  Smart→Option N=6, §análise risco N=5, Reuso template N=4),
+  estado pós-P156J (4 entradas restantes — columns/colbreak
+  bloqueadas por DEBT-56, refinos pad/place/measure).
+  **Status `PROPOSTO` mantido** — caminho 1 50% concluído
+  (1/2 features Fase 3); promoção a `IMPLEMENTADO` continua
+  diferida (decisão humana sobre columns/colbreak ou scope-out
+  formal). README ADRs: total e distribuição inalterados
+  (61 ADRs; PROPOSTO 11). Secção Repeat adicionada a
+  `entities/content.md`. Hash propagado (`content.rs` →
+  `ec58d849`). **Fase 3 iniciada: +19 tests; +6 pontos
+  percentuais Layout; zero reformulações em N=8 aplicações
+  consecutivas.**
 - **Passo 156I — Layout Fase 2 sub-passo 3: stack compositivo
   (último Fase 2; atinge target 72%)** (sétima aplicação
   consecutiva de **ADR-0061**; **fechamento de série

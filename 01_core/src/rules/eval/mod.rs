@@ -516,7 +516,7 @@ fn make_stdlib() -> Scope {
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
         native_lower, native_luma, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon,
-        native_quote, native_range, native_rect, native_replace, native_raw, native_rgb, native_rotate,
+        native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_scale, native_skew, native_stack, native_str, native_strong, native_terms, native_type, native_upper, native_v,
     };
     let mut scope = Scope::new();
@@ -572,6 +572,10 @@ fn make_stdlib() -> Scope {
     // Passo 156I (ADR-0061 Fase 2 sub-passo 3): stack compositivo.
     // **Último sub-passo Fase 2; atinge target 72% Layout.**
     scope.define("stack",   Value::Func(Func::native("stack",   native_stack)));
+    // Passo 156J (ADR-0061 Fase 3 sub-passo 1): repeat (paridade
+    // estrutural; algoritmo dinâmico diferido per ADR-0054 graded).
+    // **Primeira aplicação Fase 3.**
+    scope.define("repeat",  Value::Func(Func::native("repeat",  native_repeat)));
     scope.define("calc",    make_calc_module());
 
     // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).
