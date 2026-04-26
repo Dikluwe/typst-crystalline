@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 75b73a1d
+Hash do Código: 53661eb1
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -732,3 +732,104 @@ Variant rico (não Styled). Coerente com:
 variants explícitos quando atributos não são propriedades
 de texto. Box (P156H) e Stack (P156I) provavelmente seguem
 mesmo modelo.
+
+## Variant `Content::Boxed` (box inline) — Passo 156H (ADR-0061 Fase 2, sub-passo 2)
+
+Sexta aplicação consecutiva de ADR-0061; **segunda Fase 2**.
+Materializa `box(body, width: ?, height: ?, inset: ?,
+baseline: ?)` análogo a vanilla `BoxElem`.
+
+### Decisão arquitectural reusada (Opção A modificada de P156G)
+
+Padrão **variant rico** estabelecido em P156G aplicado
+directamente — sem nova decisão arquitectural. P156G §15.5
+recomendou explicitamente esta reaplicação.
+
+### `Content::Boxed { body, width, height, inset, baseline }`
+
+```rust
+Boxed {
+    body:     Box<Content>,
+    width:    Option<Length>,
+    height:   Option<Length>,
+    inset:    Sides<Length>,
+    baseline: Length,
+}
+```
+
+**Naming**: variant Rust é `Boxed` (não `Box`) para evitar
+ambiguidade com `std::boxed::Box`; stdlib expõe `#box(...)`
+(paridade vanilla); construtor Rust: `Content::boxed(...)`.
+
+**Atributos** (subset Fase 2 per ADR-0054 graded):
+- `body` posicional opcional (Content ou Str; ausente → Empty).
+- `width: Length` — explícita; default `None` (content-based).
+- `height: Length` — explícita; default `None` (auto).
+- `inset: Length` — uniforme nos 4 lados; default zero.
+- `baseline: Length` — ajuste vertical; default zero;
+  **negativo aceito** (move para cima).
+
+**Atributos scope-out** (refino futuro per ADR-0054 graded):
+`outset`, `fill`, `stroke`, `radius`, `clip`, `stroke-overhang`.
+**Rejeitados em `native_box`** com erro hard.
+
+### Distinção material face a `Block` (P156G)
+
+| Aspecto | Block | Boxed (Box) |
+|---------|-------|-------------|
+| Posicionamento | structural (força flush_line) | **inline** (sem flush) |
+| Largura default | full page width | content-based |
+| Atributo único | `breakable: bool` | `baseline: Length` |
+| Layouter | flush + inset_top + offset_left + body + flush + inset_bottom + height_min | append inline + inset_left + body + inset_right (top/bottom/baseline scope-out em layout actual) |
+
+**Comportamento `is_empty` / `plain_text` / `map_*`**:
+Análogo a `Block` (proxy body; recurse).
+
+**Renderização (layouter)**:
+- **NÃO força flush_line** (box é inline).
+- Aplica `inset.left` como avanço de cursor.x.
+- Layout body in-place na linha actual.
+- Aplica `inset.right` como avanço de cursor.x final.
+- `width`/`height`/`baseline` armazenados mas semantic real
+  adiada per ADR-0054 graded:
+  - `width`: limitar largura útil em contexto inline exigiria
+    refactor multi-region (DEBT-56).
+  - `height` em contexto inline alteraria line_height —
+    refino futuro.
+  - `baseline` exige offset vertical mid-linha — não
+    suportado por cursor.rs actual.
+- `inset.top`/`inset.bottom` em contexto inline são
+  complexos; armazenados mas não aplicados (refino futuro).
+
+**Validação em `native_box`**:
+- Width/height/inset negativos rejeitados (consistente Block).
+- **Baseline negativo aceito** (semantic legítima — move
+  box para cima).
+- Named arg desconhecido rejeitado.
+
+### Construtores
+
+- Stdlib: `#box(body, width: ?, height: ?, inset: ?,
+  baseline: ?)`.
+- Construtor Rust: `Content::boxed(body, width, height,
+  inset, baseline)`.
+
+### Limitações conscientes (P156H)
+
+- 6 atributos vanilla scope-out (outset, fill, stroke,
+  radius, clip, stroke-overhang). Refino futuro.
+- `inset` aceita Length uniforme apenas (refino futuro
+  para dict).
+- `width`/`height` armazenados mas não impõem limite real
+  (refino multi-region per DEBT-56).
+- `baseline` armazenado mas semantic real adiada (cursor.rs
+  actual sem mecânica de offset mid-linha).
+- `inset.top`/`inset.bottom` armazenados mas não aplicados
+  em layout inline (alterariam line_height).
+- Sem show rules `#show box: ...` neste passo.
+
+### Padrão emergente Fase 2 (reaplicação confirma)
+
+P156G estabeleceu padrão "variant rico para containers"; P156H
+reaplica directamente sem nova decisão arquitectural. **Padrão
+consolidado**: P156I (stack) provavelmente segue mesmo modelo.

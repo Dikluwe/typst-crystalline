@@ -512,7 +512,7 @@ fn eval_markup_body(
 /// O avaliador deixa de conhecer o nome "figure" — desacoplamento total.
 fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
-        make_calc_module, native_align, native_assert, native_block, native_circle, native_divider,
+        make_calc_module, native_align, native_assert, native_block, native_box, native_circle, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
         native_lower, native_luma, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon,
@@ -567,6 +567,8 @@ fn make_stdlib() -> Scope {
     scope.define("pagebreak", Value::Func(Func::native("pagebreak", native_pagebreak)));
     // Passo 156G (ADR-0061 Fase 2 sub-passo 1): block container.
     scope.define("block",   Value::Func(Func::native("block",   native_block)));
+    // Passo 156H (ADR-0061 Fase 2 sub-passo 2): box inline container.
+    scope.define("box",     Value::Func(Func::native("box",     native_box)));
     scope.define("calc",    make_calc_module());
 
     // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).

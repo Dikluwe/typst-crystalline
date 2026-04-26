@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 5702d2e3
+//! @prompt-hash 5bb6e3d2
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -391,6 +391,38 @@ pub enum Content {
         to:   Option<Parity>,
     },
 
+    // ── Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container ──
+    /// Container inline — vanilla `BoxElem`.
+    ///
+    /// Distinção material face a `Block` (P156G): **posicionamento
+    /// inline** (não força flush_line). Atributos comuns com Block:
+    /// `body`, `width`, `height`, `inset`. Atributo único: `baseline`.
+    ///
+    /// Decisão arquitectural P156H: variant rico (Opção A) reusada do
+    /// padrão estabelecido em P156G — containers ricos preferem
+    /// variants explícitos quando atributos não são propriedades de
+    /// texto.
+    ///
+    /// Atributos vanilla scope-out per ADR-0054 graded: `outset`,
+    /// `fill`, `stroke`, `radius`, `clip`, `stroke-overhang`.
+    ///
+    /// Naming: variant Rust é `Boxed` (não `Box`) para evitar confusão
+    /// com `std::boxed::Box`; stdlib expõe `#box(...)` (paridade
+    /// vanilla). Construtor Rust: `Content::boxed(...)`.
+    Boxed {
+        body:     Box<Content>,
+        /// Largura explícita; `None` == content-based.
+        width:    Option<Length>,
+        /// Altura explícita; `None` == auto.
+        height:   Option<Length>,
+        /// Margem interna em quatro lados.
+        inset:    Sides<Length>,
+        /// Ajuste vertical da baseline; positivo move para baixo.
+        /// Semantic real adiada se layouter actual não suporta
+        /// (consistente com `breakable: false` em Block).
+        baseline: Length,
+    },
+
     // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block container ───────
     /// Container block — vanilla `BlockElem`.
     ///
@@ -508,6 +540,19 @@ impl Content {
         Self::Block { body: Box::new(body), width, height, inset, breakable }
     }
 
+    /// `box(body, width, height, inset, baseline)` — Passo 156H
+    /// (ADR-0061 Fase 2 sub-passo 2). Naming `boxed` evita conflito com
+    /// `std::boxed::Box`; stdlib expõe `#box(...)` (paridade vanilla).
+    pub fn boxed(
+        body:     Content,
+        width:    Option<Length>,
+        height:   Option<Length>,
+        inset:    Sides<Length>,
+        baseline: Length,
+    ) -> Self {
+        Self::Boxed { body: Box::new(body), width, height, inset, baseline }
+    }
+
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,
@@ -548,6 +593,8 @@ impl Content {
             // dimensão/inset não fazem o container deixar de ser vazio
             // semanticamente — análogo a Pad em P156C).
             Self::Block { body, .. } => body.is_empty(),
+            // Passo 156H: Boxed (Box inline) — proxy análogo a Block.
+            Self::Boxed { body, .. } => body.is_empty(),
             _ => false,
         }
     }
@@ -662,6 +709,8 @@ impl Content {
             // Passo 156G: Block é transparente para texto plano (recurse
             // no body; análogo a Pad em P156C).
             Self::Block { body, .. } => body.plain_text(),
+            // Passo 156H: Boxed (Box) — análogo a Block.
+            Self::Boxed { body, .. } => body.plain_text(),
             Self::Quote { body, attribution, quotes, .. } => {
                 let body_txt = body.plain_text();
                 let with_quotes = if *quotes {
@@ -770,6 +819,10 @@ impl PartialEq for Content {
             // Passo 156G — Block.
             (Self::Block { body: ba, width: wa, height: ha, inset: ia, breakable: ka },
              Self::Block { body: bb, width: wb, height: hb, inset: ib, breakable: kb }) =>
+                ba == bb && wa == wb && ha == hb && ia == ib && ka == kb,
+            // Passo 156H — Boxed.
+            (Self::Boxed { body: ba, width: wa, height: ha, inset: ia, baseline: ka },
+             Self::Boxed { body: bb, width: wb, height: hb, inset: ib, baseline: kb }) =>
                 ba == bb && wa == wb && ha == hb && ia == ib && ka == kb,
             _ => false,
         }
@@ -926,6 +979,15 @@ impl Content {
                 breakable: *breakable,
             },
 
+            // Passo 156H: Boxed (Box inline) — recurse análogo a Block.
+            Content::Boxed { body, width, height, inset, baseline } => Content::Boxed {
+                body:     Box::new(body.map_content(transform)?),
+                width:    *width,
+                height:   *height,
+                inset:    *inset,
+                baseline: *baseline,
+            },
+
             // ── Terminais: clonar directamente ──────────────────────────────
             // Listados explicitamente — variantes novas não passam em silêncio.
             // Passo 156D: HSpace/VSpace são leaves (sem body), terminais.
@@ -1064,6 +1126,15 @@ impl Content {
                 height:    *height,
                 inset:     *inset,
                 breakable: *breakable,
+            },
+
+            // Passo 156H: Boxed (Box inline) — recurse análogo a Block.
+            Content::Boxed { body, width, height, inset, baseline } => Content::Boxed {
+                body:     Box::new(body.map_text(transform)),
+                width:    *width,
+                height:   *height,
+                inset:    *inset,
+                baseline: *baseline,
             },
 
             // ── Terminais — clonar directamente ──────────────────────────
@@ -2046,6 +2117,128 @@ mod tests {
             assert_eq!(inset.left, Length::pt(1.0));
         } else {
             panic!("esperado Content::Block após map_text");
+        }
+    }
+
+    // ── Passo 156H (ADR-0061 Fase 2, sub-passo 2) — box inline container ──
+
+    #[test]
+    fn boxed_constructor_default() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        let b = Content::boxed(
+            Content::text("body"),
+            None, None,
+            Sides::uniform(Length::ZERO),
+            Length::ZERO,
+        );
+        if let Content::Boxed { body, width, height, inset, baseline } = &b {
+            assert_eq!(body.plain_text(), "body");
+            assert_eq!(*width,  None);
+            assert_eq!(*height, None);
+            assert_eq!(inset.left,  Length::ZERO);
+            assert_eq!(*baseline, Length::ZERO);
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn boxed_constructor_explicit_atributos() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        let b = Content::boxed(
+            Content::text("x"),
+            Some(Length::pt(60.0)),
+            Some(Length::pt(20.0)),
+            Sides::uniform(Length::pt(2.0)),
+            Length::pt(-3.0),  // baseline negativo aceito
+        );
+        if let Content::Boxed { width, height, inset, baseline, .. } = &b {
+            assert_eq!(*width,  Some(Length::pt(60.0)));
+            assert_eq!(*height, Some(Length::pt(20.0)));
+            assert_eq!(inset.right, Length::pt(2.0));
+            assert_eq!(*baseline, Length::pt(-3.0));
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn boxed_is_empty_proxy_para_body() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        let empty = Content::boxed(
+            Content::Empty,
+            Some(Length::pt(50.0)),
+            None,
+            Sides::uniform(Length::pt(5.0)),
+            Length::ZERO,
+        );
+        assert!(empty.is_empty());
+        let nonempty = Content::boxed(
+            Content::text("a"),
+            None, None,
+            Sides::uniform(Length::ZERO),
+            Length::ZERO,
+        );
+        assert!(!nonempty.is_empty());
+    }
+
+    #[test]
+    fn boxed_plain_text_recurse_no_body() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        let b = Content::boxed(
+            Content::text("hello"),
+            None, None,
+            Sides::uniform(Length::pt(1.0)),
+            Length::ZERO,
+        );
+        assert_eq!(b.plain_text(), "hello");
+    }
+
+    #[test]
+    fn boxed_partial_eq() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        let mk = || Content::boxed(
+            Content::text("x"),
+            Some(Length::pt(40.0)),
+            None,
+            Sides::uniform(Length::pt(1.0)),
+            Length::pt(2.0),
+        );
+        assert_eq!(mk(), mk());
+        // baseline diferente → diferente.
+        let other_baseline = Content::boxed(
+            Content::text("x"),
+            Some(Length::pt(40.0)),
+            None,
+            Sides::uniform(Length::pt(1.0)),
+            Length::pt(5.0),
+        );
+        assert_ne!(mk(), other_baseline);
+    }
+
+    #[test]
+    fn boxed_map_text_recurse_no_body() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::sides::Sides;
+        let b = Content::boxed(
+            Content::text("hello"),
+            None, None,
+            Sides::uniform(Length::pt(1.0)),
+            Length::pt(2.0),
+        );
+        let upper = b.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(upper.plain_text(), "HELLO");
+        // Atributos preservados.
+        if let Content::Boxed { baseline, inset, .. } = upper {
+            assert_eq!(baseline, Length::pt(2.0));
+            assert_eq!(inset.left, Length::pt(1.0));
+        } else {
+            panic!("esperado Content::Boxed após map_text");
         }
     }
 }

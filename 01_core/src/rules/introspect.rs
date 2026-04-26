@@ -142,6 +142,15 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
             inset:     *inset,
             breakable: *breakable,
         },
+        // Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container.
+        // Análogo a Block; preservar atributos.
+        Content::Boxed { body, width, height, inset, baseline } => Content::Boxed {
+            body:     Box::new(materialize_time(body, state)),
+            width:    *width,
+            height:   *height,
+            inset:    *inset,
+            baseline: *baseline,
+        },
         Content::Transform { matrix, body } => Content::Transform {
             matrix: *matrix,
             body:   Box::new(materialize_time(body, state)),
@@ -371,6 +380,9 @@ fn walk(content: &Content, state: &mut CounterState) {
 
         // Passo 156G (ADR-0061 Fase 2) — block container; descer no body.
         Content::Block { body, .. } => walk(body, state),
+
+        // Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container.
+        Content::Boxed { body, .. } => walk(body, state),
 
         // Passo 99 (ADR-0038): `Styled` é transparente — desce no body.
         Content::Styled(body, _) => walk(body, state),

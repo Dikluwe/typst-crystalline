@@ -48,8 +48,8 @@ pub use crate::rules::stdlib::shapes::{
 };
 pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale, native_skew};
 pub use crate::rules::stdlib::layout::{
-    native_align, native_block, native_grid, native_h, native_hide, native_pad,
-    native_page, native_pagebreak, native_place, native_v,
+    native_align, native_block, native_box, native_grid, native_h, native_hide,
+    native_pad, native_page, native_pagebreak, native_place, native_v,
 };
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
@@ -1375,6 +1375,193 @@ mod tests {
     fn native_pad_e_hide_continuam_a_funcionar_apos_p156g() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
+        // Pad regression
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("rest".into(), Value::Length(Length::pt(5.0)));
+        let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Pad { .. })),
+            "regressão: native_pad deveria produzir Content::Pad");
+        // Hide regression
+        let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Hide { .. })),
+            "regressão: native_hide deveria produzir Content::Hide");
+    }
+
+    // ── Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box ────────────────────
+
+    #[test]
+    fn native_box_defaults_sem_args_named() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let r = native_box(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { body, width, height, inset, baseline }) = r {
+            assert_eq!(body.plain_text(), "body");
+            assert_eq!(width,  None);
+            assert_eq!(height, None);
+            assert_eq!(inset.left, Length::ZERO);
+            assert_eq!(baseline, Length::ZERO);
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn native_box_sem_body_aceita_empty() {
+        null_ctx!(ctx);
+        let r = native_box(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { body, .. }) = r {
+            assert!(body.is_empty());
+        } else {
+            panic!("esperado Content::Boxed com body Empty");
+        }
+    }
+
+    #[test]
+    fn native_box_com_width_length() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("width".into(), Value::Length(Length::pt(80.0)));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { width, .. }) = r {
+            assert_eq!(width, Some(Length::pt(80.0)));
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn native_box_com_height_int_pt() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("height".into(), Value::Int(20));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { height, .. }) = r {
+            assert_eq!(height, Some(Length::pt(20.0)));
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn native_box_com_inset_uniforme() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("inset".into(), Value::Length(Length::pt(4.0)));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { inset, .. }) = r {
+            assert_eq!(inset.left,   Length::pt(4.0));
+            assert_eq!(inset.right,  Length::pt(4.0));
+            assert_eq!(inset.top,    Length::pt(4.0));
+            assert_eq!(inset.bottom, Length::pt(4.0));
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn native_box_com_baseline() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("baseline".into(), Value::Length(Length::pt(3.0)));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { baseline, .. }) = r {
+            assert_eq!(baseline, Length::pt(3.0));
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn native_box_baseline_negativo_aceito() {
+        // Diferente de width/height/inset: baseline negativo move
+        // box para cima — semantic legítima.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("baseline".into(), Value::Length(Length::pt(-5.0)));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { baseline, .. }) = r {
+            assert_eq!(baseline, Length::pt(-5.0));
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn native_box_combina_atributos() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("width".into(),    Value::Length(Length::pt(100.0)));
+        args.named.insert("height".into(),   Value::Length(Length::pt(30.0)));
+        args.named.insert("inset".into(),    Value::Length(Length::pt(2.0)));
+        args.named.insert("baseline".into(), Value::Length(Length::pt(1.0)));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { width, height, inset, baseline, .. }) = r {
+            assert_eq!(width,  Some(Length::pt(100.0)));
+            assert_eq!(height, Some(Length::pt(30.0)));
+            assert_eq!(inset.top, Length::pt(2.0));
+            assert_eq!(baseline, Length::pt(1.0));
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn native_box_rejeita_atributo_avancado() {
+        // fill/stroke/etc são scope-out per ADR-0054 graded.
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("fill".into(), Value::Str("red".into()));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "fill é scope-out em P156H; deve retornar Err");
+    }
+
+    #[test]
+    fn native_box_rejeita_width_negativo() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("width".into(), Value::Length(Length::pt(-5.0)));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "width negativo deve retornar Err em P156H");
+    }
+
+    #[test]
+    fn native_box_rejeita_inset_negativo() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("inset".into(), Value::Length(Length::pt(-1.0)));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "inset negativo deve retornar Err em P156H");
+    }
+
+    #[test]
+    fn native_box_rejeita_named_arg_desconhecido() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("alignment".into(), Value::Str("center".into()));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named arg desconhecido em box() deve retornar Err");
+    }
+
+    // Regression: containers existentes (Block, Pad, Hide) continuam a
+    // funcionar após adicionar Boxed (cobertura arms feita em 9 sítios).
+    #[test]
+    fn native_block_pad_hide_continuam_a_funcionar_apos_p156h() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        // Block regression
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("inset".into(), Value::Length(Length::pt(3.0)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Block { .. })),
+            "regressão: native_block deveria produzir Content::Block");
         // Pad regression
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("rest".into(), Value::Length(Length::pt(5.0)));
