@@ -505,6 +505,36 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 157 — Diagnóstico Model Fase 2 (table foundations)**
+  (passo arquitectural de diagnóstico; **não materializa código**).
+  **Primeira aplicação concreta de ADR-0065 critério #5**
+  (scope determinado por inventário) — auto-validação cumulativa
+  do ADR meta P156K (P156L já validou critério #3; P157 valida
+  critério #5). Diagnóstico em
+  `00_nucleo/diagnosticos/diagnostico-model-fase-2-passo-157.md`
+  com 5 secções: §1 ADR-0060 lida e resumida (status
+  `IMPLEMENTADO`; Fase 1 fechada P155; subset declarado
+  `Content::Table` + `TableCell` + `TableHeader` + `TableFooter`
+  M+); §2 estado de Model em código (factualmente confirmado:
+  `table` ausente; `grid` parcial mas funcional 272 linhas;
+  `Figure.kind: "table"` slot já existe — preparação P158
+  figure-table); §3 scope determinado (subset máximo M+ rejeitado
+  por violar granularidade N=9; **recomendação: dividir em 3
+  sub-passos M cada — P157A/B/C** preservando granularidade
+  N=10/11/12 com cobertura cumulativa Model análoga a Layout
+  P156C-L); §4 dependências bloqueantes (zero hard; limitações
+  scope-out per ADR-0054 graded em P157B colspan/rowspan via
+  DEBT-34e e P157C repeat real via DEBT-56); §5 esboço de
+  **P157A** (variant `Content::Table` minimal reusando Grid;
+  M; tests esperados ~10-15; granularidade preservada N=10).
+  **Reservas P158/P159/ADR-0062 mantêm-se inalteradas**.
+  Padrões pós-P157: granularidade N=9 (inalterada — P157 é
+  diagnóstico, não materialização); inventariar primeiro N=6
+  → **7** (primeiro critério #5); §análise de risco N=6 → **7**
+  (passo diagnóstico baixo risco); ADR-0064 Caso D ganha
+  patamar N=4/5 implícito (TableHeader/Footer.repeat default
+  true). Total ADRs **63 inalterado**; sem novas crates; sem
+  novos DEBTs; sem alteração de hashes (passo documental).
 - **Passo 156L — Layout Fase 3 sub-passo 2: pad refino sides
   individualizadas** (nona aplicação consecutiva de **ADR-0061**;
   **primeira aplicação concreta de ADR-0065 critério #3** —
