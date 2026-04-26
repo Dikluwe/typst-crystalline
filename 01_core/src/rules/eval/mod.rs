@@ -517,7 +517,7 @@ fn make_stdlib() -> Scope {
         native_hide, native_image, native_int, native_len, native_line,
         native_lower, native_luma, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon,
         native_quote, native_range, native_rect, native_replace, native_raw, native_rgb, native_rotate,
-        native_scale, native_skew, native_str, native_strong, native_terms, native_type, native_upper, native_v,
+        native_scale, native_skew, native_stack, native_str, native_strong, native_terms, native_type, native_upper, native_v,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -569,6 +569,9 @@ fn make_stdlib() -> Scope {
     scope.define("block",   Value::Func(Func::native("block",   native_block)));
     // Passo 156H (ADR-0061 Fase 2 sub-passo 2): box inline container.
     scope.define("box",     Value::Func(Func::native("box",     native_box)));
+    // Passo 156I (ADR-0061 Fase 2 sub-passo 3): stack compositivo.
+    // **Último sub-passo Fase 2; atinge target 72% Layout.**
+    scope.define("stack",   Value::Func(Func::native("stack",   native_stack)));
     scope.define("calc",    make_calc_module());
 
     // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).

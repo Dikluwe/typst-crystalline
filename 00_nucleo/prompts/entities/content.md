@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 53661eb1
+Hash do Código: 274b9cf7
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -833,3 +833,118 @@ Análogo a `Block` (proxy body; recurse).
 P156G estabeleceu padrão "variant rico para containers"; P156H
 reaplica directamente sem nova decisão arquitectural. **Padrão
 consolidado**: P156I (stack) provavelmente segue mesmo modelo.
+
+## Variant `Content::Stack` — Passo 156I (ADR-0061 Fase 2, sub-passo 3; **último Fase 2**)
+
+**Sétima aplicação consecutiva** de ADR-0061; **último
+sub-passo Fase 2**; **atinge target 72% Layout** declarado
+em ADR-0061 §6.2.
+
+### Decisão arquitectural reusada (Opção A modificada de P156G/H)
+
+Padrão variant rico estabelecido em P156G+H aplicado
+directamente. Adaptação para `Arc<[Content]>` (clone O(1)
+per ADR-0026 revisão, consistente com `Sequence`/`MathSequence`).
+
+### `Content::Stack { children, dir, spacing }`
+
+```rust
+Stack {
+    children: Arc<[Content]>,
+    dir:      Dir,
+    spacing:  Option<Length>,
+}
+```
+
+**Atributos**:
+- `children: Arc<[Content]>` — variádicos posicionais (Content
+  ou Str na stdlib).
+- `dir: Dir` — direcção de empilhamento (LTR/RTL/TTB/BTT;
+  default `TTB`). Tipo `Dir` novo em `entities/dir.rs`.
+- `spacing: Option<Length>` — espaço entre children;
+  `None` == zero (consistente com padrão Smart→Option
+  N=5 aplicações).
+
+**Distinção material face a Block/Boxed**:
+
+| Aspecto | Block | Boxed | Stack |
+|---------|-------|-------|-------|
+| Body | único | único | **Vec (Arc<[Content]>)** |
+| Tipo body | `Box<Content>` | `Box<Content>` | `Arc<[Content]>` |
+| Posicionamento | structural | inline | **structural** |
+| Atributos próprios | breakable | baseline | **dir + spacing** |
+
+### Comportamento `is_empty` / `plain_text` / `map_*`
+
+- `is_empty` — `children.iter().all(|c| c.is_empty())`
+  (consistente com `Sequence`).
+- `plain_text` — concatena plain_text de todos os children.
+- `PartialEq::eq` — comparação 3-fields (Arc deep eq).
+- `map_content` / `map_text` — mapear cada child; preservar
+  dir/spacing.
+- `materialize_time` (introspect) — recurse em cada child.
+- `walk` (introspect) — walk em cada child em ordem.
+
+### Renderização (layouter)
+
+- **Structural**: força `flush_line` antes (se necessário).
+- **TTB/BTT**: itera children; cada um em "linha" própria
+  (flush_line após cada); spacing entre via `cursor_y +=
+  Pt(spacing)` antes de cada child (excepto o primeiro).
+- **LTR/RTL**: itera children inline; spacing via `cursor_x
+  += Pt(spacing)` entre cada.
+- **BTT/RTL**: implementadas como reverse iteration
+  (`children.iter().rev()`) — geometricamente similar a
+  TTB/LTR mas com order visualmente invertido. Refino futuro
+  pode aplicar posicionamento absoluto reverso real per
+  ADR-0054 graded.
+
+### Validação em `native_stack`
+
+- `dir` aceita só string `"ltr"`/`"rtl"`/`"ttb"`/`"btt"`
+  (helper `extract_dir`). Outros valores ou tipos rejeitados.
+- `spacing` aceita Length/Float/Int (em pt); negativo
+  rejeitado.
+- Named arg desconhecido rejeitado (sem scope-out adicional;
+  vanilla stack tem apenas estes 3 atributos — lista
+  pequena).
+- Children variádicos: aceita Content ou Str; outros tipos
+  rejeitados (estricto).
+
+### Construtores
+
+- Stdlib: `#stack(dir: ?, spacing: ?, ..children)`.
+- Construtor Rust: `Content::stack(children: Vec<Content>,
+  dir, spacing)` (Vec interno convertido para `Arc<[T]>`
+  via `into()`).
+
+### Limitações conscientes (P156I)
+
+- `BTT`/`RTL` implementadas como reverse iteration em vez de
+  posicionamento absoluto reverso real. Per ADR-0054 graded.
+- Sem alignment per-child (vanilla `StackChild` tem
+  alinhamento opcional). Refino futuro.
+- Sem show rules `#show stack: ...` neste passo.
+- Stack aninhado suportado estruturalmente; não testado E2E.
+
+### Tipo `Dir` (infraestrutura paralela)
+
+`Dir { LTR, RTL, TTB, BTT }` foi criado neste passo como
+infraestrutura genérica reusável, análoga a `Sides<T>`
+(P156C) e `Parity` (P156E). Vive em `01_core/src/entities/dir.rs`.
+Reuso futuro previsível em refino bidi shaping ou
+`Content::Columns { dir, ... }` quando Fase 3 for atacada.
+
+### Padrão emergente "Smart<T> → Option<T> ou default" — N=5
+
+P156I aplica novamente o padrão simplificador:
+- P156E `Smart<Parity>` → `Option<Parity>`.
+- P156F angles default 0 (em vez de Smart).
+- P156G `Smart<Rel<Length>>` para width → `Option<Length>`.
+- P156H idem Box.width.
+- **P156I `Smart<Rel<Length>>` para spacing → `Option<Length>`;
+  `Smart<Dir>` simplificado para `Dir` directo com Default
+  natural (TTB).**
+
+**N=5 aplicações** — patamar empírico forte. Candidato a
+registo formal em ADR meta futuro.

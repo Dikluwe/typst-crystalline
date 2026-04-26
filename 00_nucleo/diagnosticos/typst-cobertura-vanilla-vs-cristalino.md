@@ -139,7 +139,7 @@ primitives e `skew`). Detalhe em
 | `block(...)` | layout/container.rs | `implementado` ¹³ | Passo 156G (ADR-0061 Fase 2 sub-passo 1) | `Content::Block { body, width, height, inset, breakable }` + stdlib `#block(body, width: ?, height: ?, inset: ?, breakable: true)`; subset Fase 1 per ADR-0054 graded; 9 atributos vanilla scope-out (outset/fill/stroke/radius/clip/spacing/above/below/sticky) |
 | `columns(n)` | layout/columns.rs | `ausente` | — | Fase 3 ADR-0061; **DEBT-56** (column flow L+) |
 | `grid(columns, ...)` | layout/grid | `parcial` ⁵ | Passos 82–84.6 | reclassificado em P156B (era `implementado⁺`); sem `gutter`, `align`, `stroke`, `fill`, `inset`, `header`, `footer`, `colspan`/`rowspan`. DEBT-34d/e abertos |
-| `stack(spacing, ...)` | layout/stack.rs | `ausente` | — | Fase 2 ADR-0061 |
+| `stack(spacing, ...)` | layout/stack.rs | `implementado` ¹⁷ | Passo 156I (ADR-0061 Fase 2 sub-passo 3; **último Fase 2; atinge target 72%**) | `Content::Stack { children: Arc<[Content]>, dir: Dir, spacing: Option<Length> }` + stdlib `#stack(dir: ?, spacing: ?, ..children)`; tipo `Dir` novo (LTR/RTL/TTB/BTT); 4 direcções implementadas; spacing real entre children |
 | `pagebreak()` (manual) | layout/page.rs | `implementado` ¹⁰ | Passo 156E (ADR-0061 Fase 1 sub-passo 3) | `Content::Pagebreak { weak, to: Option<Parity> }` + stdlib `#pagebreak(weak: false, to: ?)`; `to:"even"`/`"odd"` insere página vazia se necessário; `weak` collapse defere; tipo `Parity` novo em `entities/parity.rs` |
 | `colbreak()` | layout/columns.rs | `ausente` | — | depende de columns; Fase 3 ADR-0061; DEBT-56 |
 | `rotate(angle, body)` | layout/transform.rs | `implementado` | Passo 78 | `Content::Transform` |
@@ -425,12 +425,12 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | `#let`/`#set`/`#show`/import | 7 | 1 | 4 | 1 | 0 | 13 |
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
-| Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ | 12 | 0 | 3 | 3 | 0 | 18 |
+| Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ | 13 | 0 | 3 | 2 | 0 | 18 |
 | Model (structural) ¹ ² ³ | 6 | 4 | 5 | 7 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection | 1 | 0 | 0 | 5 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ | **62** | **21** | **22** | **34** | **2** | **141** |
+| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ | **63** | **21** | **22** | **33** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -526,6 +526,25 @@ clip, stroke-overhang). Contagem Layout: 11/0/3/4/0=18 →
 Total user-facing: 61/21/22/35/2=141 → **62/21/22/34/2=141**.
 Tabela B Content: **49 → 50**. ADR-0061 mantém-se `PROPOSTO`.
 
+¹⁷ — Ajuste P156I (materialização Layout Fase 2 sub-passo 3;
+**último Fase 2; atinge target 72%**): `stack` transita
+`ausente → implementado` (sétima aplicação consecutiva de
+ADR-0061; **última Fase 2 — fechamento de série P156C-I**).
+Decisão arquitectural reusada de P156G/H (variant rico) com
+adaptação para `Arc<[Content]>` (clone O(1) per ADR-0026
+revisão). `Content::Stack { children: Arc<[Content]>, dir:
+Dir, spacing: Option<Length> }` adicionado. **Tipo `Dir`
+novo** em `entities/dir.rs` (4 direcções LTR/RTL/TTB/BTT).
+Spacing implementado real (trivial via cursor advance per
+inventário 156I.1). Sem atributos vanilla scope-out (vanilla
+stack tem só estes 3). Contagem Layout: 12/0/3/3/0=18 →
+**13/0/3/2/0=18**. Cobertura Layout: 12/18=67% → **13/18=72%
+(target atingido)**. Total user-facing: 62/21/22/34/2=141 →
+**63/21/22/33/2=141**. Tabela B Content: **50 → 51**.
+ADR-0061 mantém-se `PROPOSTO` (Fase 3 pendente — repeat,
+columns/colbreak); **anotação cumulativa Fase 1+2 adicionada
+em ADR-0061 §Aplicações cumulativas** (sem promoção formal).
+
 ¹³ — Ajuste P156G (materialização Layout Fase 2 sub-passo 1;
 **primeira aplicação Fase 2** — containers ricos): `block`
 transita `ausente → implementado` (quinta aplicação consecutiva
@@ -543,12 +562,13 @@ ajustada: 60/21/22/36/2=141 → **61/21/22/35/2=141** (+1
 implementado, −1 ausente). Tabela B Content variants:
 **48 → 49** (+`Block`). ADR-0061 continua `PROPOSTO`.
 
-**Cobertura user-facing total** (impl + impl⁺) pós-P156H:
-(62 + 21) / 141 = **59%**
+**Cobertura user-facing total** (impl + impl⁺) pós-P156I:
+(63 + 21) / 141 = **60%**
 (antes de P154A: 54%; após P154B: 55%; após P155: ~55-56%;
 após P156B: ~53%; após P156C: ~55%; após P156D: ~56%; após
 P156E: ~57%; após P156F: ~57%; após P156G: ~58%; após P156H:
-**~59%** — Layout 61% → 67%, segunda aplicação Fase 2).
+~59%; **após P156I: ~60%** — Layout 67% → 72%, **target
+atingido; Fase 1+2 completa**).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -556,8 +576,8 @@ P156E: ~57%; após P156F: ~57%; após P156G: ~58%; após P156H:
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
 | `Value` variants | 18 | 2 | 2 | 9 | 0 | 31 |
-| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ | 38 | 9 | 3 | 0 | 0 | 50 |
-| `Content` variants (vanilla extra ausentes) | — | — | — | ~4 | — | ~4 |
+| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ | 39 | 9 | 3 | 0 | 0 | 51 |
+| `Content` variants (vanilla extra ausentes) | — | — | — | ~3 | — | ~3 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
@@ -601,6 +621,16 @@ aplicação consecutiva de ADR-0061; segunda Fase 2. Naming
 `Boxed` em Rust evita conflito com `std::boxed::Box`; stdlib
 `#box(...)` (paridade vanilla). Decisão arquitectural reusada
 de P156G. ADR-0061 mantém-se `PROPOSTO`.
+
+¹⁸ — Ajuste P156I: 50 → 51 (+`Stack`). Vanilla extra ausentes
+desce de ~4 para ~3 (stack sai). Sétima aplicação consecutiva
+de ADR-0061; **última Fase 2 — fechamento de série P156C-I**.
+Decisão arquitectural reusada de P156G/H (variant rico) com
+adaptação para `Arc<[Content]>` (clone O(1) per ADR-0026
+revisão). Tipo `Dir` novo em `entities/dir.rs`. Cobertura
+Layout 67% → **72% (target atingido)**. ADR-0061 mantém-se
+`PROPOSTO` (Fase 3 pendente); anotação cumulativa Fase 1+2
+adicionada à ADR sem promoção formal.
 
 **Cobertura arquitectural total**: (67 + 13) / 106 = **75-76%**
 (era 75% pré-P155; era 72% pré-P154B; era 70% pré-P149).
@@ -712,6 +742,16 @@ encerradas por ADRs (0026, 0028→0029, 0036, etc.).
    (`stack`, `repeat`, `columns`/`colbreak`) prosseguem em
    P156I (stack — Fase 2 último sub-passo) e Fase 3 (repeat,
    columns).
+   **Refinamento P156I** (materialização Fase 2 sub-passo 3;
+   **último Fase 2 — fechamento de série P156C-I; atinge
+   target 72%**): `Content::Stack { children: Arc<[Content]>,
+   dir, spacing }` adicionado (50 → 51 variants); stdlib
+   `#stack(dir: ?, spacing: ?, ..children)`. Tipo `Dir` novo
+   (LTR/RTL/TTB/BTT). Decisão arquitectural reusada de P156G/H
+   com adaptação para Vec/Arc. Cobertura Layout (impl +
+   impl⁺): 67% → **72%** (12/18 → 13/18). Restantes 2 entradas
+   ausentes (`repeat`, `columns`/`colbreak`) prosseguem em
+   Fase 3 condicional (DEBT-56 column flow).
    Isto é **escopo XL agregado** se priorizado.
    **Refinamento P154A** (diagnóstico Model): para a sub-categoria Model especificamente, breakdown
    detalhado em [`diagnostico-model-passo-154a.md`](diagnostico-model-passo-154a.md). 6 entradas Model

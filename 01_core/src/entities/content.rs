@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 5bb6e3d2
+//! @prompt-hash b9ca52c4
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -19,6 +19,7 @@ use ecow::EcoString;
 use crate::entities::counter_state::CounterAction;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
+use crate::entities::dir::Dir;
 use crate::entities::layout_types::{Align2D, Color, Length, PlaceScope, Pt, TextStyle, TrackSizing, TransformMatrix};
 use crate::entities::parity::Parity;
 use crate::entities::ptr_eq_arc::PtrEqArc;
@@ -391,6 +392,25 @@ pub enum Content {
         to:   Option<Parity>,
     },
 
+    // ── Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo ──
+    /// Container compositivo — vanilla `StackElem`. **Último sub-passo
+    /// Fase 2; atinge target 72% Layout** declarado em ADR-0061.
+    ///
+    /// Distinção material face a Block/Boxed: **Arc<[Content]>** em vez
+    /// de body único; atributos próprios `dir` (4 direcções) e
+    /// `spacing` entre children.
+    ///
+    /// Decisão arquitectural reusada de P156G/H (variant rico) com
+    /// adaptação para `Arc<[Content]>` (clone O(1) per ADR-0026
+    /// revisão, consistente com `Sequence`/`MathSequence`).
+    Stack {
+        children: Arc<[Content]>,
+        /// Direcção de empilhamento. Default `TTB`.
+        dir:      Dir,
+        /// Espaço entre children (avanço cursor); `None` == zero.
+        spacing:  Option<Length>,
+    },
+
     // ── Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container ──
     /// Container inline — vanilla `BoxElem`.
     ///
@@ -553,6 +573,17 @@ impl Content {
         Self::Boxed { body: Box::new(body), width, height, inset, baseline }
     }
 
+    /// `stack(dir, spacing, ..children)` — Passo 156I (ADR-0061 Fase 2
+    /// sub-passo 3). Atinge target 72% Layout. Aceita Vec<Content> que
+    /// converte para `Arc<[Content]>` (clone O(1) per ADR-0026 revisão).
+    pub fn stack(
+        children: Vec<Content>,
+        dir:      Dir,
+        spacing:  Option<Length>,
+    ) -> Self {
+        Self::Stack { children: children.into(), dir, spacing }
+    }
+
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,
@@ -595,6 +626,10 @@ impl Content {
             Self::Block { body, .. } => body.is_empty(),
             // Passo 156H: Boxed (Box inline) — proxy análogo a Block.
             Self::Boxed { body, .. } => body.is_empty(),
+            // Passo 156I: Stack é vazio se TODOS os children forem vazios
+            // (consistente com Sequence; stack vazio é semanticamente
+            // sem conteúdo).
+            Self::Stack { children, .. } => children.iter().all(|c| c.is_empty()),
             _ => false,
         }
     }
@@ -711,6 +746,9 @@ impl Content {
             Self::Block { body, .. } => body.plain_text(),
             // Passo 156H: Boxed (Box) — análogo a Block.
             Self::Boxed { body, .. } => body.plain_text(),
+            // Passo 156I: Stack concatena plain_text de children
+            // (análogo a Sequence; preserva ordem).
+            Self::Stack { children, .. } => children.iter().map(|c| c.plain_text()).collect(),
             Self::Quote { body, attribution, quotes, .. } => {
                 let body_txt = body.plain_text();
                 let with_quotes = if *quotes {
@@ -824,6 +862,10 @@ impl PartialEq for Content {
             (Self::Boxed { body: ba, width: wa, height: ha, inset: ia, baseline: ka },
              Self::Boxed { body: bb, width: wb, height: hb, inset: ib, baseline: kb }) =>
                 ba == bb && wa == wb && ha == hb && ia == ib && ka == kb,
+            // Passo 156I — Stack (Arc<[Content]> compara por conteúdo).
+            (Self::Stack { children: ca, dir: da, spacing: sa },
+             Self::Stack { children: cb, dir: db, spacing: sb }) =>
+                ca.as_ref() == cb.as_ref() && da == db && sa == sb,
             _ => false,
         }
     }
@@ -988,6 +1030,18 @@ impl Content {
                 baseline: *baseline,
             },
 
+            // Passo 156I: Stack compositivo — mapear cada child;
+            // preservar dir/spacing (Copy primitivos).
+            Content::Stack { children, dir, spacing } => {
+                let new_children: crate::entities::source_result::SourceResult<Vec<Content>> =
+                    children.iter().map(|c| c.map_content(transform)).collect();
+                Content::Stack {
+                    children: Arc::from(new_children?),
+                    dir:      *dir,
+                    spacing:  *spacing,
+                }
+            },
+
             // ── Terminais: clonar directamente ──────────────────────────────
             // Listados explicitamente — variantes novas não passam em silêncio.
             // Passo 156D: HSpace/VSpace são leaves (sem body), terminais.
@@ -1135,6 +1189,13 @@ impl Content {
                 height:   *height,
                 inset:    *inset,
                 baseline: *baseline,
+            },
+
+            // Passo 156I: Stack compositivo — map_text em cada child.
+            Content::Stack { children, dir, spacing } => Content::Stack {
+                children: children.iter().map(|c| c.map_text(transform)).collect::<Vec<_>>().into(),
+                dir:      *dir,
+                spacing:  *spacing,
             },
 
             // ── Terminais — clonar directamente ──────────────────────────
@@ -2239,6 +2300,126 @@ mod tests {
             assert_eq!(inset.left, Length::pt(1.0));
         } else {
             panic!("esperado Content::Boxed após map_text");
+        }
+    }
+
+    // ── Passo 156I (ADR-0061 Fase 2, sub-passo 3) — stack compositivo ──────
+
+    #[test]
+    fn stack_constructor_default() {
+        use crate::entities::dir::Dir;
+        let s = Content::stack(
+            vec![Content::text("a"), Content::text("b")],
+            Dir::default(),
+            None,
+        );
+        if let Content::Stack { children, dir, spacing } = &s {
+            assert_eq!(children.len(), 2);
+            assert_eq!(*dir, Dir::TTB);
+            assert_eq!(*spacing, None);
+        } else {
+            panic!("esperado Content::Stack");
+        }
+    }
+
+    #[test]
+    fn stack_constructor_explicit_dir_spacing() {
+        use crate::entities::dir::Dir;
+        use crate::entities::layout_types::Length;
+        let s = Content::stack(
+            vec![Content::text("x"), Content::text("y")],
+            Dir::LTR,
+            Some(Length::pt(5.0)),
+        );
+        if let Content::Stack { dir, spacing, .. } = &s {
+            assert_eq!(*dir, Dir::LTR);
+            assert_eq!(*spacing, Some(Length::pt(5.0)));
+        } else {
+            panic!("esperado Content::Stack");
+        }
+    }
+
+    #[test]
+    fn stack_is_empty_se_todos_children_vazios() {
+        use crate::entities::dir::Dir;
+        // Children todos Empty → stack é vazio.
+        let s_empty = Content::stack(
+            vec![Content::Empty, Content::Empty],
+            Dir::TTB, None,
+        );
+        assert!(s_empty.is_empty());
+        // Stack sem children → também vazio.
+        let s_zero = Content::stack(vec![], Dir::TTB, None);
+        assert!(s_zero.is_empty());
+        // Algum child com texto → não vazio.
+        let s_nonempty = Content::stack(
+            vec![Content::Empty, Content::text("a")],
+            Dir::TTB, None,
+        );
+        assert!(!s_nonempty.is_empty());
+    }
+
+    #[test]
+    fn stack_plain_text_concatena_children() {
+        use crate::entities::dir::Dir;
+        let s = Content::stack(
+            vec![
+                Content::text("Hello "),
+                Content::text("world"),
+            ],
+            Dir::TTB, None,
+        );
+        // Plain text concatena (consistente com Sequence).
+        assert_eq!(s.plain_text(), "Hello world");
+    }
+
+    #[test]
+    fn stack_partial_eq() {
+        use crate::entities::dir::Dir;
+        use crate::entities::layout_types::Length;
+        let mk = || Content::stack(
+            vec![Content::text("a"), Content::text("b")],
+            Dir::TTB,
+            Some(Length::pt(3.0)),
+        );
+        assert_eq!(mk(), mk());
+        // Dir diferente → diferente.
+        let other_dir = Content::stack(
+            vec![Content::text("a"), Content::text("b")],
+            Dir::LTR,
+            Some(Length::pt(3.0)),
+        );
+        assert_ne!(mk(), other_dir);
+        // Spacing diferente → diferente.
+        let other_spacing = Content::stack(
+            vec![Content::text("a"), Content::text("b")],
+            Dir::TTB,
+            None,
+        );
+        assert_ne!(mk(), other_spacing);
+        // Children diferentes → diferente.
+        let other_children = Content::stack(
+            vec![Content::text("a"), Content::text("c")],
+            Dir::TTB,
+            Some(Length::pt(3.0)),
+        );
+        assert_ne!(mk(), other_children);
+    }
+
+    #[test]
+    fn stack_map_text_recurse_em_cada_child() {
+        use crate::entities::dir::Dir;
+        let s = Content::stack(
+            vec![Content::text("hello"), Content::text("world")],
+            Dir::TTB, None,
+        );
+        let upper = s.map_text(&mut |t| t.to_uppercase());
+        assert_eq!(upper.plain_text(), "HELLOWORLD");
+        // Atributos preservados.
+        if let Content::Stack { dir, .. } = upper {
+            assert_eq!(dir, Dir::TTB);
+        } else {
+            panic!("esperado Content::Stack após map_text");
         }
     }
 }

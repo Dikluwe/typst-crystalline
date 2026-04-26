@@ -49,7 +49,7 @@ pub use crate::rules::stdlib::shapes::{
 pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale, native_skew};
 pub use crate::rules::stdlib::layout::{
     native_align, native_block, native_box, native_grid, native_h, native_hide,
-    native_pad, native_page, native_pagebreak, native_place, native_v,
+    native_pad, native_page, native_pagebreak, native_place, native_stack, native_v,
 };
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
@@ -1550,6 +1550,155 @@ mod tests {
         assert!(r.is_err(), "named arg desconhecido em box() deve retornar Err");
     }
 
+    // ── Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack ─────────────────
+
+    #[test]
+    fn native_stack_defaults_sem_args() {
+        null_ctx!(ctx);
+        use crate::entities::dir::Dir;
+        let r = native_stack(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Stack { children, dir, spacing }) = r {
+            assert!(children.is_empty());
+            assert_eq!(dir, Dir::TTB);  // default
+            assert_eq!(spacing, None);
+        } else {
+            panic!("esperado Content::Stack");
+        }
+    }
+
+    #[test]
+    fn native_stack_aceita_dir_ltr() {
+        null_ctx!(ctx);
+        use crate::entities::dir::Dir;
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("dir".into(), Value::Str("ltr".into()));
+        let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Stack { dir, .. }) = r {
+            assert_eq!(dir, Dir::LTR);
+        } else {
+            panic!("esperado Content::Stack");
+        }
+    }
+
+    #[test]
+    fn native_stack_aceita_todas_4_direcoes() {
+        null_ctx!(ctx);
+        use crate::entities::dir::Dir;
+        for (s, d) in [("ltr", Dir::LTR), ("rtl", Dir::RTL),
+                       ("ttb", Dir::TTB), ("btt", Dir::BTT)] {
+            let mut args = p(vec![]);
+            args.named.insert("dir".into(), Value::Str(s.into()));
+            let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+            if let Value::Content(Content::Stack { dir, .. }) = r {
+                assert_eq!(dir, d, "dir={s}");
+            } else {
+                panic!("esperado Content::Stack para dir={s}");
+            }
+        }
+    }
+
+    #[test]
+    fn native_stack_aceita_spacing() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("spacing".into(), Value::Length(Length::pt(8.0)));
+        let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Stack { spacing, .. }) = r {
+            assert_eq!(spacing, Some(Length::pt(8.0)));
+        } else {
+            panic!("esperado Content::Stack");
+        }
+    }
+
+    #[test]
+    fn native_stack_com_children_variadicos() {
+        null_ctx!(ctx);
+        let args = p(vec![
+            Value::Content(Content::text("a")),
+            Value::Content(Content::text("b")),
+            Value::Content(Content::text("c")),
+        ]);
+        let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Stack { children, .. }) = r {
+            assert_eq!(children.len(), 3);
+            assert_eq!(children[0].plain_text(), "a");
+            assert_eq!(children[1].plain_text(), "b");
+            assert_eq!(children[2].plain_text(), "c");
+        } else {
+            panic!("esperado Content::Stack");
+        }
+    }
+
+    #[test]
+    fn native_stack_aceita_str_como_child() {
+        null_ctx!(ctx);
+        let args = p(vec![Value::Str("hello".into())]);
+        let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Stack { children, .. }) = r {
+            assert_eq!(children.len(), 1);
+            assert_eq!(children[0].plain_text(), "hello");
+        } else {
+            panic!("esperado Content::Stack");
+        }
+    }
+
+    #[test]
+    fn native_stack_rejeita_dir_invalido() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("dir".into(), Value::Str("middle".into()));
+        let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "dir inválido deve retornar Err");
+    }
+
+    #[test]
+    fn native_stack_rejeita_spacing_negativo() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![]);
+        args.named.insert("spacing".into(), Value::Length(Length::pt(-1.0)));
+        let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "spacing negativo deve retornar Err");
+    }
+
+    #[test]
+    fn native_stack_rejeita_named_arg_desconhecido() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("baseline".into(), Value::Bool(true));
+        let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named arg desconhecido em stack() deve retornar Err");
+    }
+
+    #[test]
+    fn native_stack_rejeita_child_nao_content() {
+        null_ctx!(ctx);
+        let r = native_stack(&mut ctx, &p(vec![Value::Int(42)]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "child Int deve retornar Err");
+    }
+
+    #[test]
+    fn native_stack_combina_dir_spacing_children() {
+        null_ctx!(ctx);
+        use crate::entities::dir::Dir;
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![
+            Value::Content(Content::text("a")),
+            Value::Content(Content::text("b")),
+        ]);
+        args.named.insert("dir".into(), Value::Str("ltr".into()));
+        args.named.insert("spacing".into(), Value::Length(Length::pt(4.0)));
+        let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Stack { children, dir, spacing }) = r {
+            assert_eq!(children.len(), 2);
+            assert_eq!(dir, Dir::LTR);
+            assert_eq!(spacing, Some(Length::pt(4.0)));
+        } else {
+            panic!("esperado Content::Stack");
+        }
+    }
+
     // Regression: containers existentes (Block, Pad, Hide) continuam a
     // funcionar após adicionar Boxed (cobertura arms feita em 9 sítios).
     #[test]
@@ -1572,5 +1721,32 @@ mod tests {
         let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
         assert!(matches!(r, Value::Content(Content::Hide { .. })),
             "regressão: native_hide deveria produzir Content::Hide");
+    }
+
+    // P156I regression: Block + Boxed + Pad + Hide continuam a funcionar
+    // após adicionar Stack (cobertura arms feita em 9 sítios mais Vec
+    // adaptation).
+    #[test]
+    fn native_block_box_pad_hide_continuam_a_funcionar_apos_p156i() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        // Block
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("width".into(), Value::Length(Length::pt(50.0)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Block { .. })));
+        // Box (Boxed)
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("baseline".into(), Value::Length(Length::pt(2.0)));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Boxed { .. })));
+        // Pad
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("rest".into(), Value::Length(Length::pt(2.0)));
+        let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Pad { .. })));
+        // Hide
+        let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Content(Content::Hide { .. })));
     }
 }
