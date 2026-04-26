@@ -217,7 +217,9 @@ fn extract_length(val: &Value) -> Option<Length> {
 ///
 /// Resolve a precedência vanilla: específico (`left`/`right`/`top`/`bottom`) >
 /// eixo (`x` cobre left+right; `y` cobre top+bottom) > `rest` (cobre os
-/// quatro lados). Lados não especificados ficam a zero.
+/// quatro lados). Lados não especificados ficam `None` (P156L refino;
+/// per ADR-0064 Caso C — `None` ↔ default vanilla zero, resolvido em
+/// momento de uso no Layouter).
 ///
 /// `body` posicional obrigatório (Content ou Str).
 /// Padding negativo rejeitado por agora (perfil ADR-0054 graded; vanilla
@@ -236,6 +238,26 @@ pub fn native_pad(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         )]),
     };
 
+    let sides = extract_sides_lengths(args, "pad")?;
+
+    Ok(Value::Content(Content::Pad {
+        body: Box::new(body),
+        sides,
+    }))
+}
+
+/// Helper Passo 156L: parse named args left/top/right/bottom + atalhos
+/// x/y/rest, retornando `Sides<Option<Length>>`. Precedência vanilla:
+/// específico > eixo > rest. Lados não declarados ficam `None`.
+///
+/// Pré-decisão (per diagnóstico §5.2): helper privado, não-genérico
+/// (toma `Length` directamente). Promoção a genérico/público diferida
+/// até segundo reuso (padrão N=2 mínimo para promoção).
+///
+/// Validação: cada lado declarado rejeita negativos (perfil ADR-0054
+/// graded — vanilla aceita; cristalino diverge intencionalmente).
+/// Named arg desconhecido rejeitado.
+fn extract_sides_lengths(args: &Args, fn_name: &str) -> SourceResult<Sides<Option<Length>>> {
     let mut left:   Option<Length> = None;
     let mut right:  Option<Length> = None;
     let mut top:    Option<Length> = None;
@@ -247,7 +269,7 @@ pub fn native_pad(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     for (key, value) in args.named.iter() {
         let len = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("pad({}:) espera length, recebeu {}", key, value.type_name()),
+            format!("{}({}:) espera length, recebeu {}", fn_name, key, value.type_name()),
         )])?;
         match key.as_str() {
             "left"   => left   = Some(len),
@@ -259,36 +281,36 @@ pub fn native_pad(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
             "rest"   => rest   = Some(len),
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("pad(): argumento nomeado inesperado '{}'", other),
+                format!("{}(): argumento nomeado inesperado '{}'", fn_name, other),
             )]),
         }
     }
 
-    // Precedência: específico > eixo > rest. Para cada lado, escolhe o
-    // valor mais específico declarado.
-    let resolved_left   = left  .or(x_axis).or(rest).unwrap_or(Length::ZERO);
-    let resolved_right  = right .or(x_axis).or(rest).unwrap_or(Length::ZERO);
-    let resolved_top    = top   .or(y_axis).or(rest).unwrap_or(Length::ZERO);
-    let resolved_bottom = bottom.or(y_axis).or(rest).unwrap_or(Length::ZERO);
+    // Precedência: específico > eixo > rest.
+    let resolved_left   = left  .or(x_axis).or(rest);
+    let resolved_right  = right .or(x_axis).or(rest);
+    let resolved_top    = top   .or(y_axis).or(rest);
+    let resolved_bottom = bottom.or(y_axis).or(rest);
 
-    // Validação: padding negativo rejeitado (perfil ADR-0054 graded).
-    // Vanilla aceita; cristalino diverge intencionalmente neste passo
-    // (margens negativas adiadas para passo dedicado quando layout
-    // overflow tiver semântica clara).
-    for (label, len) in [("left", resolved_left), ("right", resolved_right),
-                         ("top", resolved_top),   ("bottom", resolved_bottom)] {
-        if len.abs.0 < 0.0 || len.em < 0.0 {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("pad({}:): padding negativo não suportado neste passo (P156C)", label),
-            )]);
+    // Validação: rejeitar negativos em qualquer lado declarado.
+    for (label, opt) in [("left", resolved_left), ("right", resolved_right),
+                         ("top",  resolved_top),  ("bottom", resolved_bottom)] {
+        if let Some(len) = opt {
+            if len.abs.0 < 0.0 || len.em < 0.0 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("{}({}:): padding negativo não suportado neste passo (P156C/L)", fn_name, label),
+                )]);
+            }
         }
     }
 
-    Ok(Value::Content(Content::Pad {
-        body:    Box::new(body),
-        padding: Sides::new(resolved_left, resolved_top, resolved_right, resolved_bottom),
-    }))
+    Ok(Sides {
+        left:   resolved_left,
+        top:    resolved_top,
+        right:  resolved_right,
+        bottom: resolved_bottom,
+    })
 }
 
 /// `hide(body)` → `Content::Hide`. Sem argumentos nomeados.

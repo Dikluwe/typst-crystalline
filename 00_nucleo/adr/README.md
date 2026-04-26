@@ -505,6 +505,50 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 156L — Layout Fase 3 sub-passo 2: pad refino sides
+  individualizadas** (nona aplicação consecutiva de **ADR-0061**;
+  **primeira aplicação concreta de ADR-0065 critério #3** —
+  expansão de variant existente; **segunda aplicação concreta de
+  ADR-0064 Caso C** — `Length` default zero → `Option<Length>`).
+  Substantivo M com **refactor real** (primeiro após série
+  aditiva P156C-J; risco médio, não baixo). Variant
+  `Content::Pad { body, padding: Sides<Length> }` refactorado
+  para `Content::Pad { body, sides: Sides<Option<Length>> }` —
+  cada side `None ↔ default vanilla zero` resolvido em momento
+  de uso no Layouter (em vez de em `native_pad`). Field renomeado
+  `padding → sides` para alinhar com naming vanilla. Helper
+  privado novo `extract_sides_lengths` em `stdlib/layout.rs`
+  (não-genérico per pré-decisão; promoção a genérico/público
+  diferida até segundo reuso). Cobertura exaustiva de **12
+  sítios pattern-match estruturais** + adaptação de **7 tests
+  pré-existentes** (1 unit em entities + 6 stdlib + 1 layout
+  E2E). Validação: padding negativo continua rejeitado em qualquer
+  side declarado; named arg desconhecido rejeitado; precedência
+  específico > eixo > rest preservada (paridade vanilla
+  pad.rs:20-24). **Divergência da spec do passo P156L
+  §"Verificação" #5** detectada via inventário ADR-0065:
+  spec assumia pad como `parcial` (factualmente `implementado`
+  desde P156C); cobertura **não passa para 84%** como spec
+  previa — pad ganha sufixo ⁺ (`implementado⁺`) indicando
+  refino qualitativo sem ganho quantitativo. Documentado em
+  diagnóstico §6.1. Tests: 1077 → **1081** typst-core lib
+  (+4 novos: 1 sides individuais, 1 some_zero≠none, 1 x-axis
+  isolado, 1 cadeia precedência); 7 tests pré-existentes
+  adaptados sem mudança de contagem. Cobertura Layout: 78% →
+  **78%** (refino qualitativo: 14/0/3/1=18 → 13/1/3/1=18).
+  **Reusos consolidados**: `extract_length` **N=7**;
+  `Sides<T>` infraestrutura **N=2**; `extract_length` aproxima-se
+  de promoção formal a helper público (refactor escopo XS
+  candidato). **Padrões metodológicos pós-P156L**: granularidade
+  N=9; inventariar primeiro N=6 (primeiro critério #3 de
+  ADR-0065); Smart→Option N=7 (segundo Caso C); §análise risco
+  N=6 (primeiro com peso real, não cerimonial); reuso template
+  containers N=4 (inalterado); reuso `Sides<T>` N=2 (novo
+  subpadrão). **Status `PROPOSTO` mantido**; promoção a
+  `IMPLEMENTADO` continua diferida. Hash inalterado
+  (`crystalline-lint --fix-hashes` reportou "Nothing to fix" —
+  refactor preserva o hash do prompt L0). Reservas ADR-0062/63
+  inalteradas; total ADRs **63** (inalterado).
 - **Passo 156K — ADRs meta formalizando padrões consolidados
   da série P156C-J** (passo arquitectural meta; **não materializa
   código**). Dois ADRs novos `EM VIGOR`: **ADR-0064** (Tradução

@@ -335,16 +335,24 @@ pub enum Content {
     },
 
     // ── Passo 156C (ADR-0061 Fase 1 sub-passo 1) — pad + hide ───────────
+    // ── Passo 156L (ADR-0061 Fase 3 sub-passo 2; refino) — sides
+    //    individualizadas: `padding: Sides<Length>` → `sides:
+    //    Sides<Option<Length>>` per ADR-0064 Caso C (segunda
+    //    aplicação concreta). `None` per lado ↔ default vanilla zero;
+    //    distingue lado declarado vs lado não declarado para futura
+    //    introspecção e show rules.
     /// Container que aplica padding ao body durante layout.
     ///
-    /// `padding` em quatro lados (`Sides<Length>`); resolvido em pt no
-    /// Layouter via `Length::resolve_pt(font_size)`. Vanilla
-    /// `PadElem` em `lab/typst-original/.../layout/pad.rs`.
-    /// Atributos de stdlib (`left`/`right`/`top`/`bottom`/`x`/`y`/`rest`)
-    /// resolvidos em `native_pad` antes de chegar a este variant.
+    /// `sides` em quatro lados (`Sides<Option<Length>>`); cada lado
+    /// `None` ↔ default vanilla zero (resolvido em momento de uso no
+    /// Layouter). Vanilla `PadElem` em
+    /// `lab/typst-original/.../layout/pad.rs`. Atributos de stdlib
+    /// (`left`/`right`/`top`/`bottom`/`x`/`y`/`rest`) resolvidos em
+    /// `native_pad` com precedência específico > eixo > rest antes de
+    /// chegar a este variant.
     Pad {
-        body:    Box<Content>,
-        padding: Sides<Length>,
+        body:  Box<Content>,
+        sides: Sides<Option<Length>>,
     },
 
     /// Container que calcula dimensões mas não emite items visuais.
@@ -546,9 +554,10 @@ impl Content {
         Self::Link { url: url.into(), body: Box::new(body) }
     }
 
-    /// `pad(body, padding)` — Passo 156C (ADR-0061 Fase 1).
-    pub fn pad(body: Content, padding: Sides<Length>) -> Self {
-        Self::Pad { body: Box::new(body), padding }
+    /// `pad(body, sides)` — Passo 156C (ADR-0061 Fase 1) /
+    /// Passo 156L (refino sides individualizadas per ADR-0064 Caso C).
+    pub fn pad(body: Content, sides: Sides<Option<Length>>) -> Self {
+        Self::Pad { body: Box::new(body), sides }
     }
 
     /// `hide(body)` — Passo 156C (ADR-0061 Fase 1).
@@ -885,9 +894,9 @@ impl PartialEq for Content {
             (Self::Quote { body: ba, attribution: aa, block: ka, quotes: qa },
              Self::Quote { body: bb, attribution: ab, block: kb, quotes: qb }) =>
                 ba == bb && aa == ab && ka == kb && qa == qb,
-            // Passo 156C — Pad / Hide.
-            (Self::Pad  { body: ba, padding: pa },
-             Self::Pad  { body: bb, padding: pb }) => ba == bb && pa == pb,
+            // Passo 156C / 156L — Pad / Hide.
+            (Self::Pad  { body: ba, sides: sa },
+             Self::Pad  { body: bb, sides: sb }) => ba == bb && sa == sb,
             (Self::Hide { body: ba }, Self::Hide { body: bb }) => ba == bb,
             // Passo 156D — HSpace / VSpace.
             (Self::HSpace { amount: aa, weak: wa },
@@ -1048,11 +1057,11 @@ impl Content {
                 quotes:      *quotes,
             },
 
-            // Passo 156C: Pad / Hide containers — recurse em body, padding
-            // é Copy primitivo.
-            Content::Pad { body, padding } => Content::Pad {
-                body:    Box::new(body.map_content(transform)?),
-                padding: *padding,
+            // Passo 156C / 156L: Pad / Hide containers — recurse em body;
+            // sides é Copy primitivo (Sides<Option<Length>>).
+            Content::Pad { body, sides } => Content::Pad {
+                body:  Box::new(body.map_content(transform)?),
+                sides: *sides,
             },
             Content::Hide { body } => Content::Hide {
                 body: Box::new(body.map_content(transform)?),
@@ -1219,10 +1228,10 @@ impl Content {
                 quotes:      *quotes,
             },
 
-            // Passo 156C: Pad / Hide containers — recurse em body.
-            Content::Pad { body, padding } => Content::Pad {
-                body:    Box::new(body.map_text(transform)),
-                padding: *padding,
+            // Passo 156C / 156L: Pad / Hide containers — recurse em body.
+            Content::Pad { body, sides } => Content::Pad {
+                body:  Box::new(body.map_text(transform)),
+                sides: *sides,
             },
             Content::Hide { body } => Content::Hide {
                 body: Box::new(body.map_text(transform)),
@@ -1864,19 +1873,20 @@ mod tests {
         assert_ne!(mk(), other);
     }
 
-    // ── Passo 156C (ADR-0061 Fase 1, sub-passo 1) — pad + hide ────────────
+    // ── Passo 156C / 156L (ADR-0061 Fase 1 + Fase 3 refino) — pad + hide ──
 
     #[test]
     fn pad_constructor_envolve_body() {
         use crate::entities::sides::Sides;
         use crate::entities::layout_types::Length;
-        let p = Content::pad(Content::text("x"), Sides::uniform(Length::pt(10.0)));
-        if let Content::Pad { body, padding } = &p {
+        // P156L: cada side é Option<Length>; Some(...) ↔ lado declarado.
+        let p = Content::pad(Content::text("x"), Sides::uniform(Some(Length::pt(10.0))));
+        if let Content::Pad { body, sides } = &p {
             assert_eq!(body.plain_text(), "x");
-            assert_eq!(padding.left, Length::pt(10.0));
-            assert_eq!(padding.right, Length::pt(10.0));
-            assert_eq!(padding.top, Length::pt(10.0));
-            assert_eq!(padding.bottom, Length::pt(10.0));
+            assert_eq!(sides.left,   Some(Length::pt(10.0)));
+            assert_eq!(sides.right,  Some(Length::pt(10.0)));
+            assert_eq!(sides.top,    Some(Length::pt(10.0)));
+            assert_eq!(sides.bottom, Some(Length::pt(10.0)));
         } else {
             panic!("esperado Content::Pad");
         }
@@ -1897,12 +1907,12 @@ mod tests {
         use crate::entities::sides::Sides;
         use crate::entities::layout_types::Length;
         // Pad/Hide com body Empty são considerados vazios.
-        let pad_empty  = Content::pad(Content::Empty, Sides::uniform(Length::pt(5.0)));
+        let pad_empty  = Content::pad(Content::Empty, Sides::uniform(Some(Length::pt(5.0))));
         let hide_empty = Content::hide(Content::Empty);
         assert!(pad_empty.is_empty());
         assert!(hide_empty.is_empty());
         // Com body com texto, não vazios.
-        let pad_text  = Content::pad(Content::text("a"), Sides::uniform(Length::ZERO));
+        let pad_text  = Content::pad(Content::text("a"), Sides::uniform(None));
         let hide_text = Content::hide(Content::text("a"));
         assert!(!pad_text.is_empty());
         assert!(!hide_text.is_empty());
@@ -1912,7 +1922,7 @@ mod tests {
     fn pad_plain_text_recurse_no_body() {
         use crate::entities::sides::Sides;
         use crate::entities::layout_types::Length;
-        let p = Content::pad(Content::text("hello"), Sides::uniform(Length::pt(2.0)));
+        let p = Content::pad(Content::text("hello"), Sides::uniform(Some(Length::pt(2.0))));
         assert_eq!(p.plain_text(), "hello");
     }
 
@@ -1927,14 +1937,26 @@ mod tests {
     fn pad_partial_eq() {
         use crate::entities::sides::Sides;
         use crate::entities::layout_types::Length;
-        let mk = || Content::pad(Content::text("x"), Sides::uniform(Length::pt(3.0)));
+        let mk = || Content::pad(Content::text("x"), Sides::uniform(Some(Length::pt(3.0))));
         assert_eq!(mk(), mk());
-        // Padding diferente → diferente.
+        // Padding diferente → diferente (bottom 5pt em vez de 3pt).
         let other = Content::pad(
             Content::text("x"),
-            Sides::new(Length::pt(3.0), Length::pt(3.0), Length::pt(3.0), Length::pt(5.0)),
+            Sides::new(Some(Length::pt(3.0)), Some(Length::pt(3.0)),
+                       Some(Length::pt(3.0)), Some(Length::pt(5.0))),
         );
         assert_ne!(mk(), other);
+        // P156L: distinção semântica nova — Some(zero) ≠ None.
+        let some_zero = Content::pad(
+            Content::text("x"),
+            Sides::uniform(Some(Length::ZERO)),
+        );
+        let none = Content::pad(
+            Content::text("x"),
+            Sides::uniform(None),
+        );
+        assert_ne!(some_zero, none,
+            "P156L: Some(zero) e None são semanticamente distintos");
     }
 
     #[test]
@@ -1950,7 +1972,7 @@ mod tests {
     fn pad_e_hide_map_text_recurse_no_body() {
         use crate::entities::sides::Sides;
         use crate::entities::layout_types::Length;
-        let pad  = Content::pad(Content::text("hello"), Sides::uniform(Length::pt(1.0)));
+        let pad  = Content::pad(Content::text("hello"), Sides::uniform(Some(Length::pt(1.0))));
         let hide = Content::hide(Content::text("hello"));
         let pad_upper  = pad.map_text(&mut |s| s.to_uppercase());
         let hide_upper = hide.map_text(&mut |s| s.to_uppercase());

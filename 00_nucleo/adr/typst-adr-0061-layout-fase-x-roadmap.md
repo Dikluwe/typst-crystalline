@@ -299,13 +299,15 @@ da Fase 1 Model em P155).
 
 ---
 
-## Aplicações cumulativas (pós-P156J)
+## Aplicações cumulativas (pós-P156L)
 
 ADR-0061 PROPOSTO em P156B (2026-04-25). **Fase 1+2
 materializadas em sequência granular P156C-I** (7 passos
 consecutivos, 2026-04-25 a 2026-04-26). **Fase 3 iniciada em
 P156J** (caminho 1 dos 3 documentados — activado em
-2026-04-26):
+2026-04-26). **Refino Fase 3 em P156L** (sub-passo 2; primeiro
+refactor real após série aditiva, primeira aplicação concreta
+de ADR-0065 critério #3):
 
 | Passo | Feature(s) | Slope | Cobertura cumulativa | Tests Δ |
 |-------|-----------|------:|---------------------:|--------:|
@@ -316,13 +318,18 @@ P156J** (caminho 1 dos 3 documentados — activado em
 | P156G | block | +5%  | 56% → 61% | +20 |
 | P156H | box | +6%  | 61% → 67% | +21 |
 | P156I | stack | +5%  | 67% → 72% (target Fase 1+2) | +25 |
-| **P156J** | **repeat** | +6%  | **72% → 78%** (Fase 3 sub-passo 1) | **+19** |
+| P156J | repeat | +6%  | 72% → 78% (Fase 3 sub-passo 1) | +19 |
+| P156K | (meta — ADRs 0064+0065) | — | — (sem código) | 0 |
+| **P156L** | **pad refino sides** | **0%** | **78% (refino qualitativo)** | **+4** |
 
-**Total**: +56 pontos percentuais Layout em 8 passos
-consecutivos (22% → 78%). Target Fase 1+2 atingido em P156I;
-**P156J ultrapassa target ao iniciar Fase 3**. **+170 tests**
-acumulados (1145 → 1315). **Zero reformulações mid-passo** em
-N=8 aplicações.
+**Total**: +56 pontos percentuais Layout em 9 passos
+consecutivos de materialização (22% → 78%; P156K não conta para
+o slope por ser meta). Target Fase 1+2 atingido em P156I;
+P156J ultrapassa target ao iniciar Fase 3. **P156L é refino
+qualitativo de variant existente** — primeira aplicação concreta
+de ADR-0065 critério #3 (expansão de variant). **+174 tests**
+acumulados (1145 → 1319 lib+integ+diagnostic). **Zero
+reformulações mid-passo** em N=9 aplicações de materialização.
 
 ### Tipos novos infraestruturais
 
@@ -332,9 +339,11 @@ N=8 aplicações.
   existente.
 - `Dir` (P156I) — para stack direcção.
 
-### Variants `Content` adicionados
+### Variants `Content` adicionados ou refinados
 
-- `Pad`, `Hide` (P156C).
+- `Pad`, `Hide` (P156C). **`Pad` refinado P156L**:
+  `padding: Sides<Length>` → `sides: Sides<Option<Length>>`
+  per ADR-0064 Caso C (None ↔ default vanilla zero).
 - `HSpace`, `VSpace` (P156D).
 - `Pagebreak` (P156E).
 - (P156F: zero — método em TransformMatrix existente).
@@ -342,68 +351,85 @@ N=8 aplicações.
 - `Boxed` (P156H — naming evita conflito std::Box).
 - `Stack` (P156I).
 - `Repeat` (P156J — primeira Fase 3).
+- (P156L: zero variants novos — refactor de variant existente).
 
-**Total: 9 variants novos + 1 método novo em tipo existente.**
-Variant count Content: 43 → 52 (+9).
+**Total: 9 variants novos + 1 método novo em tipo existente
++ 1 refino de variant (P156L).** Variant count Content: 43 →
+52 (+9; inalterado em P156L).
 
-### Stdlib funcs adicionadas
+### Stdlib funcs adicionadas ou refinadas
 
-`pad`, `hide`, `h`, `v`, `pagebreak`, `skew`, `block`, `box`,
-`stack`, `repeat` = **10 funcs novas** (32 → 42).
+- `pad`, `hide`, `h`, `v`, `pagebreak`, `skew`, `block`, `box`,
+  `stack`, `repeat` = 10 funcs novas (32 → 42).
+- **P156L**: `pad` ganha helper privado `extract_sides_lengths`;
+  contagem stdlib funcs **inalterada (42)**.
 
 ### Padrões metodológicos consolidados
 
-1. **Granularidade 1-2 features/passo**: **N=8** aplicações
-   consecutivas sem reformulação. Hipótese da decisão humana
-   2026-04-25 empiricamente confirmada e estendida a Fase 3.
+1. **Granularidade 1-2 features/passo**: **N=9** aplicações
+   consecutivas sem reformulação (8 materialização + 1 refino
+   P156L). Hipótese da decisão humana 2026-04-25 empiricamente
+   confirmada e estendida a Fase 3 + refino. **Formalizada
+   parcialmente em ADR-0065** (que cita N=5 com diversidade de
+   critérios; P156L é primeira aplicação concreta do critério #3).
 
 2. **"Inventariar primeiro" pré-decisão arquitectural**:
-   **N=5** aplicações (P156F defensivo; P156G deliberado;
-   P156H curto; P156I curto focado; **P156J curto focado**).
-   Padrão consolidado como mecanismo de redução de risco.
+   **N=6** aplicações (P156F defensivo; P156G deliberado;
+   P156H curto; P156I curto focado; P156J curto focado;
+   **P156L expansão variant existente — primeira aplicação
+   concreta do critério #3 de ADR-0065**). **Formalizado em
+   ADR-0065** (P156K).
 
-3. **"Smart<T> → Option<T> ou default"**: **N=6** aplicações
+3. **"Smart<T> → Option<T> ou default"**: **N=7** aplicações
    (P156E Parity; P156F angles; P156G Block.width; P156H
-   Box.width; P156I Stack.spacing + Dir.default; **P156J
-   Repeat.gap**). **Patamar empírico crescente** — candidato
-   reforçado a registo formal em ADR meta P156K-meta.
+   Box.width; P156I Stack.spacing + Dir.default; P156J
+   Repeat.gap; **P156L Pad sides — segunda aplicação concreta
+   do Caso C**). **Formalizado em ADR-0064** (P156K) com 4
+   casos canónicos A/B/C/D.
 
-4. **"§análise de risco no relatório"**: **N=5** aplicações
-   (P156F/G/H/I/**J**). Cobertura sistemática do risco.
+4. **"§análise de risco no relatório"**: **N=6** aplicações
+   (P156F/G/H/I/J/K + **L com peso real** — primeiro refactor
+   real após série aditiva). Cobertura sistemática do risco.
 
 5. **"Reuso de template containers"**: **N=4** aplicações
-   (Block → Boxed → Stack → **Repeat**). Padrão "variant rico
+   (Block → Boxed → Stack → Repeat). Padrão "variant rico
    para containers cujos atributos não são propriedades de
-   texto" estabelecido em P156G e reaplicado sem nova
-   decisão arquitectural em P156H/I/J.
+   texto" estabelecido em P156G; **P156L não acrescenta** (é
+   refactor não criação).
 
 6. **"Antecipar especificidades técnicas"**: N=2-3
    aplicações (Boxed naming P156H; Vec/Arc<[T]> arms P156I).
 
-7. **"Helper `extract_length` reuso"** (subpadrão dentro de §5):
-   **N=6** aplicações consecutivas (P156C/D/G/H/I/J). Emergiu
-   como vocabulário canónico para coerção Length em named
-   args — promoção a helper público `pub fn extract_length(...)`
-   é candidato a refactor escopo XS.
+7. **"Helper `extract_length` reuso"** (subpadrão dentro de §3
+   ADR-0064 §Implicações): **N=7** aplicações consecutivas
+   (P156C/D/G/H/I/J/**L**). Emergiu como vocabulário canónico
+   para coerção Length em named args — promoção a helper público
+   `pub fn extract_length(...)` é candidato a refactor escopo XS.
 
-### Estado pós-P156J
+8. **"Reuso de infraestrutura `Sides<T>`"** (novo subpadrão
+   P156L): **N=2** aplicações concretas (P156C origin —
+   `Sides<Length>`; P156L refino — `Sides<Option<Length>>`).
+   Tipo genérico paga investimento de design ao segundo uso.
 
-- **Cobertura Layout**: **78%** (14/18 implementado puro).
-  **Target ADR-0061 ultrapassado** (target era 72%; pós-P156J
-  excede em +6pp via Fase 3 sub-passo 1).
-- **Restantes 4 entradas** pendentes (Fase 3 condicional):
+### Estado pós-P156L
+
+- **Cobertura Layout**: **78%** (13 implementado puro + 1
+  implementado⁺ = 14/18). Target ADR-0061 (72%) **continua
+  ultrapassado**; P156L é refino qualitativo sem ganho
+  quantitativo.
+- **Restantes 3 entradas** pendentes (P156L removeu pad do
+  conjunto refinável):
   - `columns`/`colbreak` (Fase 3 condicional — DEBT-56
     column flow L+ aberto em P156B).
-  - `pad` parcial — refino sides individualizadas (refactor
-    Sides<T> via dict).
-  - `place` parcial — refino column scope (já implementado
-    parcialmente em P84.6).
-  - `measure` (parcial; depende ADR-0017 Introspection
-    runtime adiada).
+  - `place` parcial — refino column scope (parcialmente
+    implementado em P84.6).
+  - `measure` parcial — depende ADR-0017 Introspection
+    runtime adiada.
 - **Total user-facing**: ~60.3% (era 53% pré-P156C).
-- **Zero novos DEBTs** em toda a série P156C-J (8 passos).
+- **Zero novos DEBTs** em toda a série P156C-L (10 passos
+  total: 9 materialização + 1 meta).
 - **Footnote area** scope-out per decisão humana
-  2026-04-25 (não incluído na Fase 1+2 nem em P156J).
+  2026-04-25 (não incluído na Fase 1+2 nem em P156J/L).
 
 ### Status
 

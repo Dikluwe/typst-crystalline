@@ -2018,10 +2018,11 @@ mod tests_show_rule_integration {
             })
             .fold(0.0_f64, |acc, y| acc.max(y));
 
-        // Mesmo body envolvido em Pad com top=20pt, bottom=20pt.
+        // Mesmo body envolvido em Pad com top=20pt, bottom=20pt
+        // (P156L: cada side é Option<Length>; Some(...) explícito).
         let padded = Content::pad(
             Content::text("hello"),
-            Sides::new(Length::ZERO, Length::pt(20.0), Length::ZERO, Length::pt(20.0)),
+            Sides::new(None, Some(Length::pt(20.0)), None, Some(Length::pt(20.0))),
         );
         let with_pad = layout(&padded, CounterState::default());
         let pad_y_max: f64 = with_pad.pages
