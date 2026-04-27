@@ -166,6 +166,8 @@ primitives e `skew`). Detalhe em
 | `outline()` | model/outline.rs | `implementado` | Passos 65–66 | TOC via 2-pass introspection |
 | `table(columns, ...)` | model/table.rs | `implementado` ²² | Passo 157A (ADR-0060 Fase 2 sub-passo 1; **primeiro Model Fase 2**) | `Content::Table { columns, rows, children: Vec<Content> }` + stdlib `#table(columns: ?, rows: ?, ..children)`; subset minimal per ADR-0054 graded; layouter delega a `layout_grid` (clone simples; sem modificação de `grid.rs`); 9+ atributos vanilla scope-out (gutter/inset/align/fill/stroke/summary; cells estruturadas P157B; header/footer P157C; HLine/VLine cosmetic) |
 | `table.cell(body, ...)` | model/table.rs | `parcial` ²⁴ | Passo 157B (ADR-0060 Fase 2 sub-passo 2) | `Content::TableCell { body, x: Option<usize>, y: Option<usize>, colspan: Option<usize>, rowspan: Option<usize> }` + stdlib `#table_cell(body, x: ?, y: ?, colspan: ?, rowspan: ?)`; **naming `table_cell` flat** (não vanilla `table.cell` — FieldAccess actual não suporta namespacing de funcs; divergência intencional per ADR-0033); ADR-0064 Caso A para x/y; Caso C para colspan/rowspan; **placement algorítmico diferido em DEBT-34e** — fields armazenados mas ignorados em layout per ADR-0054 graded; 6 atributos vanilla scope-out (align/stroke/fill/inset/breakable + internals) |
+| `table.header(body, ...)` | model/table.rs | `parcial` ²⁶ | Passo 157C (ADR-0060 Fase 2 sub-passo 3 — **fecha table foundations**) | `Content::TableHeader { body, repeat: bool }` + stdlib `#table_header(body, repeat: true)`; **naming `table_header` flat** (paridade decisão P157B); ADR-0064 Caso D para `repeat` (default vanilla `true` — **primeira aplicação Caso D em Model**); algoritmo de repetição em page breaks **diferido em DEBT-56**; `level`/`repeat-rows` scope-out per ADR-0054 graded; divergência aceite per ADR-0033 (`body: Box<Content>` em vez de vanilla `Vec<TableItem>`) |
+| `table.footer(body, ...)` | model/table.rs | `parcial` ²⁶ | Passo 157C (par simétrico de header) | `Content::TableFooter { body, repeat: bool }` + stdlib `#table_footer(body, repeat: true)`; paridade absoluta com TableHeader (mesmos fields; mesma decisão Caso D + DEBT-56) |
 | `list(items)` (function form) | model/list.rs | `parcial` | sintaxe parcial | sem function form completa |
 | `enum(items)` | model/enum.rs | `parcial` | idem | |
 | `terms(...)` | model/terms.rs | `implementado` | Passo 154B | `Content::Terms` + `Content::TermItem`; named args via `#terms(key: [desc])`; sem atributos vanilla (tight/separator/indent/hanging-indent) — extensíveis sem breaking change |
@@ -563,10 +565,11 @@ ajustada: 60/21/22/36/2=141 → **61/21/22/35/2=141** (+1
 implementado, −1 ausente). Tabela B Content variants:
 **48 → 49** (+`Block`). ADR-0061 continua `PROPOSTO`.
 
-**Cobertura user-facing total** (impl + impl⁺) pós-P157B:
-(64 + 22) / 141 = **61%** (≈61.0%; **inalterada** vs P157A
-— `table.cell` é sub-entrada de `table` que não conta na
-agregação Model)
+**Cobertura user-facing total** (impl + impl⁺) pós-P157C:
+(64 + 22) / 141 = **61%** (≈61.0%; **inalterada** vs P157A/B
+— `table.cell`/`table.header`/`table.footer` são sub-entradas
+de `table` que não contam na agregação Model; ganho qualitativo
+via expansão estrutural completa de "table foundations")
 (antes de P154A: 54%; após P154B: 55%; após P155: ~55-56%;
 após P156B: ~53%; após P156C: ~55%; após P156D: ~56%; após
 P156E: ~57%; após P156F: ~57%; após P156G: ~58%; após P156H:
@@ -574,10 +577,14 @@ P156E: ~57%; após P156F: ~57%; após P156G: ~58%; após P156H:
 atingido; após P156J: ~60.3% — Layout 72% → 78%, primeira
 Fase 3; após P156L: ~60.3% (inalterada) — refino qualitativo
 de `pad` per ADR-0064 Caso C; após P157A: ~61.0% — Model
-45% → 50%, primeiro sub-passo Model Fase 2; **após P157B:
-~61.0% (inalterada agregada)** — expansão estrutural de
+45% → 50%, primeiro sub-passo Model Fase 2; após P157B:
+~61.0% (inalterada agregada) — expansão estrutural de
 `table` via `TableCell` sub-entrada; ganho qualitativo;
-ADR-0064 Caso A primeira aplicação Model).
+ADR-0064 Caso A primeira aplicação Model; **após P157C:
+~61.0% (inalterada agregada)** — par simétrico
+TableHeader/TableFooter completa expansão estrutural de
+"table foundations"; ADR-0064 Caso D primeira aplicação Model;
+**saturação cross-domínio cross-caso** A/B/C/D em Layout + Model).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -585,12 +592,12 @@ ADR-0064 Caso A primeira aplicação Model).
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
 | `Value` variants | 18 | 2 | 2 | 9 | 0 | 31 |
-| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ ²⁰ ²³ ²⁵ | 42 | 9 | 3 | 0 | 0 | 54 |
-| `Content` variants (vanilla extra ausentes) | — | — | — | ~1 | — | ~1 |
+| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ ²⁰ ²³ ²⁵ ²⁷ | 44 | 9 | 3 | 0 | 0 | 56 |
+| `Content` variants (vanilla extra ausentes) | — | — | — | 0 | — | 0 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
-| **Total arquitectural** | **70** | **13** | **5** | **17** | **1** | **106** |
+| **Total arquitectural** | **72** | **13** | **5** | **15** | **1** | **106** |
 
 ³ — Ajuste P154B: 39 → 42 (+`Divider`, +`Terms`, +`TermItem`).
 Vanilla extra ausentes desce de ~14 para ~12 (terms + divider
@@ -738,6 +745,41 @@ estrutural). **Patamar empírico ADR-0064**: Caso A N=4
 `stdlib/structural.rs` (combina parse `x`/`y` com min=0 e
 `colspan`/`rowspan` com min=1).
 
+²⁶ — Ajuste P157C (Tabela A.6): 2 novas entradas `table.header`
+e `table.footer` adicionadas como **sub-entradas de `table`**
+(não contam na agregação Model — paridade decisão P157B).
+Estado `parcial`: subset minimal (2 fields cada) materializado
+per ADR-0054 graded; algoritmo de repetição em page breaks
+diferido em **DEBT-56** (`repeat: bool` armazenado mas ignorado).
+**Naming `table_header`/`table_footer` flat** (paridade P157B —
+FieldAccess actual não suporta namespacing de funcs; divergência
+intencional per ADR-0033). **Primeira aplicação concreta de
+ADR-0064 Caso D em domínio Model** (P156D weak / P156G breakable
+/ P156J justify aplicaram-no em Layout). **Saturação cross-domínio
+cross-caso**: após P157C, **todos os 4 casos canónicos** ADR-0064
+(A/B/C/D) têm pelo menos 1 aplicação concreta em Layout E em Model.
+Patamar empírico atinge maturidade. **Divergência aceite per
+ADR-0033**: `body: Box<Content>` em vez de vanilla `Vec<TableItem>`
+para uniformidade com containers cristalinos existentes;
+`level`/`repeat-rows` scope-out per ADR-0054 graded. **Helper
+novo `extract_bool_with_default(args, fn, field, default)`**
+privado em `stdlib/structural.rs` parametrizado (genérico no
+key e no default vs `extract_weak` específico para
+key="weak"/default=false). Contagem agregada Model **inalterada**
+(7/4/5/6/0=22) — sub-entradas qualitativas. Cobertura Model
+permanece **50%**. **"Table foundations" declarado em ADR-0060
+§"Decisão 1" sub-passo 3 fica integralmente fechado** com
+P157A + P157B + P157C (3 sub-passos M cada; granularidade
+preservada N=10/11/12).
+
+²⁷ — Ajuste P157C (Tabela B): 54 → **56** (+`TableHeader` +
+`TableFooter` par simétrico). **Vanilla extra ausentes desce
+de ~1 para 0** — após P157C, todos os variants Content vanilla
+relevantes a "table foundations" estão capturados. Décima
+segunda aplicação consecutiva de materialização. Patamar
+empírico cross-domínio cross-caso ADR-0064 atinge **saturação**:
+todos os 4 casos canónicos validados em Layout E em Model.
+
 ²¹ — Ajuste P156L (refino sides individualizadas; **primeira
 aplicação concreta de ADR-0065 critério #3** — expansão de
 variant existente; **segunda aplicação concreta de ADR-0064
@@ -766,9 +808,12 @@ de implementado para implementado⁺). Tabela B Content: 52
 ADR-0065 N=6 implícito; reuso `Sides<T>` N=2; reuso
 `extract_length` N=7.
 
-**Cobertura arquitectural total**: (70 + 13) / 106 = **78%**
-(era 77-78% pós-P157A; era 76-77% pós-P156L; era 75-76% pós-P156I;
-era 75% pré-P155; era 72% pré-P154B; era 70% pré-P149).
+**Cobertura arquitectural total**: (72 + 13) / 106 = **80%**
+(era 78% pós-P157B; era 77-78% pós-P157A; era 76-77% pós-P156L;
+era 75-76% pós-P156I; era 75% pré-P155; era 72% pré-P154B;
+era 70% pré-P149). **Patamar arquitectural 80% atingido em
+P157C** — fechamento de "table foundations" remove totalmente
+os variants Content vanilla extra ausentes (~1 → 0).
 **Nota**: variants extra cristalino (`Value::Align`, `Content::Styled`) são **divergências intencionais**
 favoráveis — cristalino tem features que vanilla não (em forma de Value); contadas como `implementado` porque
 encerradas por ADRs (0026, 0028→0029, 0036, etc.).

@@ -505,6 +505,82 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 157C — Model Fase 2 sub-passo 3: table header + footer
+  (fecha "table foundations")** (décima segunda aplicação
+  consecutiva de materialização desde início da série granular
+  P156C; **terceiro e último sub-passo Model Fase 2** per
+  ADR-0060 §"Decisão 1" sub-passo 3). **Primeira aplicação
+  concreta de ADR-0064 Caso D em domínio Model** — Casos A/B/C/D
+  agora todos validados em Layout E em Model (**saturação
+  cross-domínio cross-caso atingida**; ADR meta P156K atinge
+  maturidade empírica). Substantivo M com **par simétrico**:
+  variants `Content::TableHeader { body, repeat: bool }` +
+  `Content::TableFooter { body, repeat: bool }` adicionados ao
+  enum (54 → 56 variants; +2 par); stdlib `#table_header(body,
+  repeat: true)` + `#table_footer(body, repeat: true)` em
+  `stdlib/structural.rs` (continuação P157A/B). **Naming
+  `table_header`/`table_footer` flat** (paridade decisão P157B
+  — FieldAccess actual cristalino não suporta namespacing de
+  funcs `Value::Func.subname`). **Tradução ADR-0064 Caso D**:
+  `bool` directo com default `true` (paridade vanilla
+  `#[default(true)]`; divergência intencional do default Rust
+  `bool::default() == false`). **Limitação aceite per ADR-0054
+  graded**: `repeat` armazenado mas **ignorado em layout** —
+  algoritmo de repetição em page breaks diferido em **DEBT-56**
+  (refactor multi-region; column flow + header/footer repeat;
+  permanece aberto). **Divergência aceite per ADR-0033**:
+  `body: Box<Content>` em vez de vanilla `#[variadic] children:
+  Vec<TableItem>` para uniformidade com containers cristalinos
+  existentes; `level: NonZeroU32` (Header hierarquia),
+  `repeat-rows: Smart<usize>` scope-out per ADR-0054 graded.
+  Helper privado novo `extract_bool_with_default(args, fn,
+  field, default: bool)` em `stdlib/structural.rs`
+  parametrizado (N=2 usos imediatos no mesmo passo —
+  TableHeader.repeat + TableFooter.repeat; subpadrão emergente
+  análogo a `extract_usize_or_none_min` em P157B). Distinção
+  vs `extract_weak` (em `stdlib/layout.rs`): genérico no key e
+  no default — preserva separação de domínios per ADR-0037.
+  Cobertura exaustiva de **9 sítios pattern-match estruturais
+  com par simétrico em entradas adjacentes** (paridade
+  visualmente óbvia em todos os arms). Validação simétrica:
+  body required em ambos; repeat=Int rejeitado em ambos; named
+  arg desconhecido rejeitado em ambos; defaults vanilla
+  preservados. Tests: 1115 → **1141** typst-core lib (+26 = 12
+  unit + 8 stdlib + 3 E2E + 1 integrativo Table+Header+Cell+Footer;
+  range esperado +18-23 ultrapassado por par simétrico que
+  duplica naturalmente). **"Table foundations" declarado em
+  ADR-0060 fica integralmente fechado** com P157A + P157B +
+  P157C (3 sub-passos M cada; granularidade preservada
+  N=10/11/12). Cobertura Model agregada **inalterada** (50%);
+  cobertura arquitectural **78% → 80%** (variants Content
+  vanilla extra ausentes desce de ~1 a 0). Total user-facing:
+  **~61.0% (inalterada)** — ganhos qualitativos cumulativos.
+  Tabela B Content variants: 54 → **56**. **ADR-0060 mantém-se
+  `IMPLEMENTADO`** (Fase 1 fechada P155 não muda; Fase 2 fechada
+  P157C; anotação P157C adicionada — promoção a R1 candidata se
+  decisão humana for prioritária). **ADR-0061 mantém-se
+  `PROPOSTO`** (Layout inalterado por P157C). README ADRs:
+  total **63 inalterado**; reservas P158/P159/ADR-0062 mantidas.
+  Hash `content.rs` mantém-se `ec58d849` (`crystalline-lint
+  --fix-hashes` reportou "Nothing to fix"; refactor aditivo).
+  **DEBT-56 permanece aberto** — P157C contribui via storage de
+  `repeat: bool`. **Padrões pós-P157C**: granularidade **N=12**
+  (cross-domínio fortalecido — 3 sub-passos Model consecutivos
+  sem reformulação fecham conjunto coerente); inventariar
+  primeiro N=9 → **10** (P157C reforça critério #6 divergência
+  da spec); Smart→Option N=8 → **9** (Caso D primeiro Model);
+  §análise risco N=9 → **10**; reuso template containers N=4
+  (inalterado); reuso `Sides<T>` N=2 (inalterado); reuso
+  `extract_length` N=7 (inalterado — P157C não usa);
+  `extract_tracks` N=2 (inalterado); `extract_usize_or_none_min`
+  N=4 (inalterado); **novo subpadrão helper privado
+  parametrizado `extract_bool_with_default` N=2 usos no mesmo
+  passo**; **novo subpadrão "par simétrico em pattern-match"
+  N=2 aplicações concretas** (P156D HSpace+VSpace + P157C
+  Header+Footer). **Saturação cross-domínio cross-caso
+  ADR-0064**: 4/4 casos validados em Layout; 3/4 (A,C,D) em
+  Model — Caso B só Layout (candidato futuro Model). **ADR meta
+  P156K atinge maturidade empírica.**
 - **Passo 157B — Model Fase 2 sub-passo 2: table cell**
   (décima primeira aplicação consecutiva de materialização;
   segundo sub-passo Model Fase 2 per ADR-0060 §"Decisão 1"

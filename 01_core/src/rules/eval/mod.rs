@@ -517,7 +517,7 @@ fn make_stdlib() -> Scope {
         native_hide, native_image, native_int, native_len, native_line,
         native_lower, native_luma, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon,
         native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
-        native_scale, native_skew, native_stack, native_str, native_strong, native_table, native_table_cell, native_terms, native_type, native_upper, native_v,
+        native_scale, native_skew, native_stack, native_str, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms, native_type, native_upper, native_v,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -587,6 +587,13 @@ fn make_stdlib() -> Scope {
     // diagnóstico P157B §8 — FieldAccess actual não suporta
     // namespacing de funcs.
     scope.define("table_cell", Value::Func(Func::native("table_cell", native_table_cell)));
+    // Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha "table foundations"):
+    // par simétrico TableHeader/TableFooter. ADR-0064 Caso D para
+    // `repeat: bool` default true (primeira aplicação Caso D em
+    // Model). Algoritmo de repetição em page breaks diferido em
+    // DEBT-56 (refactor multi-region). Naming flat per padrão P157B.
+    scope.define("table_header", Value::Func(Func::native("table_header", native_table_header)));
+    scope.define("table_footer", Value::Func(Func::native("table_footer", native_table_footer)));
     scope.define("calc",    make_calc_module());
 
     // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).

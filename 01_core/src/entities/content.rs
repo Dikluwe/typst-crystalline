@@ -510,6 +510,48 @@ pub enum Content {
         rowspan: Option<usize>,
     },
 
+    // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ──
+    /// Header repetível de Table — vanilla `TableHeader`.
+    /// **Terceiro e último sub-passo Model Fase 2**.
+    ///
+    /// Par simétrico com `TableFooter`. Subset minimal per
+    /// ADR-0054 graded e diagnóstico P157C §1.3:
+    /// 2 fields (body/repeat); fields diferidos: `level: NonZeroU32`
+    /// (hierarquia Header), `repeat-rows: Smart<usize>`, children
+    /// variádicos estruturados.
+    ///
+    /// **Divergência aceite per ADR-0033**: vanilla usa
+    /// `#[variadic] children: Vec<TableItem>`; cristalino usa
+    /// `body: Box<Content>` para uniformidade com containers
+    /// existentes (use Sequence se múltiplos children necessários).
+    ///
+    /// `repeat: bool` ADR-0064 **Caso D** (`bool` directo com
+    /// default `true` paridade vanilla — **primeira aplicação
+    /// Caso D em domínio Model**; P156D weak / P156G breakable /
+    /// P156J justify aplicaram-no em Layout).
+    ///
+    /// Layouter renderiza `body` no contexto actual; **`repeat`
+    /// armazenado mas ignorado** per ADR-0054 graded — algoritmo
+    /// de repetição em page breaks diferido em **DEBT-56**
+    /// (refactor multi-region).
+    TableHeader {
+        body:   Box<Content>,
+        repeat: bool,
+    },
+
+    /// Footer repetível de Table — vanilla `TableFooter`.
+    /// Par simétrico com `TableHeader` (paridade absoluta:
+    /// mesmos fields; `level` vanilla diferido em ambos para
+    /// preservar simetria cristalina).
+    ///
+    /// Mesma divergência `body: Box<Content>` aceite per ADR-0033.
+    /// Mesma decisão `repeat: bool` ADR-0064 Caso D.
+    /// Mesma limitação per ADR-0054 graded (DEBT-56).
+    TableFooter {
+        body:   Box<Content>,
+        repeat: bool,
+    },
+
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table minimal ────────
     /// Container tabular semântico — vanilla `TableElem`.
     /// **Primeiro sub-passo Model Fase 2**.
@@ -711,6 +753,21 @@ impl Content {
         Self::TableCell { body: Box::new(body), x, y, colspan, rowspan }
     }
 
+    /// `table_header(body, repeat)` — Passo 157C (ADR-0060 Fase 2
+    /// sub-passo 3 — **fecha table foundations**). `repeat: bool`
+    /// ADR-0064 Caso D (default `true` paridade vanilla — primeira
+    /// aplicação Caso D em Model). Algoritmo de repetição diferido
+    /// em DEBT-56.
+    pub fn table_header(body: Content, repeat: bool) -> Self {
+        Self::TableHeader { body: Box::new(body), repeat }
+    }
+
+    /// `table_footer(body, repeat)` — par simétrico de `table_header`
+    /// (Passo 157C). Mesma decisão Caso D + DEBT-56.
+    pub fn table_footer(body: Content, repeat: bool) -> Self {
+        Self::TableFooter { body: Box::new(body), repeat }
+    }
+
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,
@@ -737,6 +794,11 @@ impl Content {
             // se body for (atributos x/y/colspan/rowspan não tornam o
             // container não-vazio — paridade Block/Boxed).
             Self::TableCell { body, .. } => body.is_empty(),
+            // Passo 157C (ADR-0060 Fase 2 sub-passo 3): par simétrico
+            // TableHeader/TableFooter vazio se body for (atributo
+            // repeat não torna o container não-vazio — paridade Block/Boxed).
+            Self::TableHeader { body, .. } => body.is_empty(),
+            Self::TableFooter { body, .. } => body.is_empty(),
             // Passo 154B: Divider é singleton estrutural, nunca vazio.
             // Terms vazio (sem items) é considerado vazio; TermItem vazio
             // se ambos os lados forem vazios.
@@ -863,6 +925,13 @@ impl Content {
             // (paridade não visível em texto plano; spans são
             // runtime-only e diferidos em DEBT-34e).
             Self::TableCell { body, .. } => body.plain_text(),
+            // Passo 157C: par simétrico TableHeader/TableFooter
+            // transparente para texto plano — recurse no body sem
+            // multiplicar por repeat (semântica de page-break
+            // repetição não visível em texto plano; diferida em
+            // DEBT-56).
+            Self::TableHeader { body, .. } => body.plain_text(),
+            Self::TableFooter { body, .. } => body.plain_text(),
             Self::SetPage { .. } => String::new(),
             Self::Align { body, .. } => body.plain_text(),
             Self::Place { body, .. } => body.plain_text(),
@@ -985,6 +1054,13 @@ impl PartialEq for Content {
             (Self::TableCell { body: ba, x: xa, y: ya, colspan: csa, rowspan: rsa },
              Self::TableCell { body: bb, x: xb, y: yb, colspan: csb, rowspan: rsb }) =>
                 ba == bb && xa == xb && ya == yb && csa == csb && rsa == rsb,
+            // Passo 157C — par simétrico TableHeader/TableFooter.
+            (Self::TableHeader { body: ba, repeat: ra },
+             Self::TableHeader { body: bb, repeat: rb }) =>
+                ba == bb && ra == rb,
+            (Self::TableFooter { body: ba, repeat: ra },
+             Self::TableFooter { body: bb, repeat: rb }) =>
+                ba == bb && ra == rb,
             (Self::SetPage { width: wa, height: ha, margin: ma },
              Self::SetPage { width: wb, height: hb, margin: mb }) =>
                 wa == wb && ha == hb && ma == mb,
@@ -1264,6 +1340,16 @@ impl Content {
                 colspan: *colspan,
                 rowspan: *rowspan,
             },
+            // Passo 157C: par simétrico TableHeader/TableFooter —
+            // recurse no body; preserva repeat (Copy bool).
+            Content::TableHeader { body, repeat } => Content::TableHeader {
+                body:   Box::new(body.map_content(transform)?),
+                repeat: *repeat,
+            },
+            Content::TableFooter { body, repeat } => Content::TableFooter {
+                body:   Box::new(body.map_content(transform)?),
+                repeat: *repeat,
+            },
             Content::Align { alignment, body } => Content::Align {
                 alignment: *alignment,
                 body:      Box::new(body.map_content(transform)?),
@@ -1448,6 +1534,15 @@ impl Content {
                 y:       *y,
                 colspan: *colspan,
                 rowspan: *rowspan,
+            },
+            // Passo 157C: par simétrico — map_text no body.
+            Content::TableHeader { body, repeat } => Content::TableHeader {
+                body:   Box::new(body.map_text(transform)),
+                repeat: *repeat,
+            },
+            Content::TableFooter { body, repeat } => Content::TableFooter {
+                body:   Box::new(body.map_text(transform)),
+                repeat: *repeat,
             },
             Content::Align { alignment, body } => Content::Align {
                 alignment: *alignment,
@@ -2953,6 +3048,138 @@ mod tests {
             assert_eq!(rowspan, Some(5));
         } else {
             panic!("esperado Content::TableCell após map_text");
+        }
+    }
+
+    // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ──
+    // Par simétrico TableHeader/TableFooter — tests imediatamente
+    // adjacentes para tornar paridade visualmente óbvia.
+
+    #[test]
+    fn table_header_constructor_default_repeat_true() {
+        // P157C ADR-0064 Caso D: default vanilla `repeat=true`.
+        let h = Content::table_header(Content::text("body"), true);
+        if let Content::TableHeader { body, repeat } = &h {
+            assert_eq!(body.plain_text(), "body");
+            assert!(*repeat, "default vanilla repeat=true (Caso D)");
+        } else {
+            panic!("esperado Content::TableHeader");
+        }
+    }
+
+    #[test]
+    fn table_footer_constructor_default_repeat_true() {
+        // Par simétrico — paridade absoluta com TableHeader.
+        let f = Content::table_footer(Content::text("body"), true);
+        if let Content::TableFooter { body, repeat } = &f {
+            assert_eq!(body.plain_text(), "body");
+            assert!(*repeat);
+        } else {
+            panic!("esperado Content::TableFooter");
+        }
+    }
+
+    #[test]
+    fn table_header_repeat_false_explicito() {
+        let h = Content::table_header(Content::text("x"), false);
+        if let Content::TableHeader { repeat, .. } = h {
+            assert!(!repeat);
+        } else {
+            panic!("esperado Content::TableHeader");
+        }
+    }
+
+    #[test]
+    fn table_footer_repeat_false_explicito() {
+        let f = Content::table_footer(Content::text("x"), false);
+        if let Content::TableFooter { repeat, .. } = f {
+            assert!(!repeat);
+        } else {
+            panic!("esperado Content::TableFooter");
+        }
+    }
+
+    #[test]
+    fn table_header_is_empty_proxy_via_body() {
+        let h_empty = Content::table_header(Content::Empty, true);
+        let h_full  = Content::table_header(Content::text("a"), true);
+        assert!(h_empty.is_empty());
+        assert!(!h_full.is_empty());
+    }
+
+    #[test]
+    fn table_footer_is_empty_proxy_via_body() {
+        let f_empty = Content::table_footer(Content::Empty, true);
+        let f_full  = Content::table_footer(Content::text("a"), true);
+        assert!(f_empty.is_empty());
+        assert!(!f_full.is_empty());
+    }
+
+    #[test]
+    fn table_header_plain_text_recurse_no_body() {
+        let h = Content::table_header(Content::text("hi"), true);
+        assert_eq!(h.plain_text(), "hi");
+    }
+
+    #[test]
+    fn table_footer_plain_text_recurse_no_body() {
+        let f = Content::table_footer(Content::text("hi"), true);
+        assert_eq!(f.plain_text(), "hi");
+    }
+
+    #[test]
+    fn table_header_partial_eq() {
+        let mk = || Content::table_header(Content::text("a"), true);
+        assert_eq!(mk(), mk());
+        // body diferente → diferente.
+        let other_body = Content::table_header(Content::text("b"), true);
+        assert_ne!(mk(), other_body);
+        // repeat diferente → diferente.
+        let other_repeat = Content::table_header(Content::text("a"), false);
+        assert_ne!(mk(), other_repeat);
+    }
+
+    #[test]
+    fn table_footer_partial_eq() {
+        let mk = || Content::table_footer(Content::text("a"), true);
+        assert_eq!(mk(), mk());
+        let other_body = Content::table_footer(Content::text("b"), true);
+        assert_ne!(mk(), other_body);
+        let other_repeat = Content::table_footer(Content::text("a"), false);
+        assert_ne!(mk(), other_repeat);
+    }
+
+    #[test]
+    fn table_header_e_footer_sao_variants_distintos() {
+        // Paridade interna absoluta no contrato; mas variants
+        // distintos ao nível do enum (não confundir Header com
+        // Footer mesmo com mesmos fields).
+        let h = Content::table_header(Content::text("a"), true);
+        let f = Content::table_footer(Content::text("a"), true);
+        assert_ne!(h, f, "TableHeader e TableFooter são variants distintos");
+    }
+
+    #[test]
+    fn table_header_map_text_recurse_e_preserva_repeat() {
+        let h = Content::table_header(Content::text("hello"), false);
+        let upper = h.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(upper.plain_text(), "HELLO");
+        if let Content::TableHeader { repeat, .. } = upper {
+            assert!(!repeat, "repeat preservado após map_text");
+        } else {
+            panic!("esperado Content::TableHeader");
+        }
+    }
+
+    #[test]
+    fn table_footer_map_text_recurse_e_preserva_repeat() {
+        let f = Content::table_footer(Content::text("hello"), false);
+        let upper = f.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(upper.plain_text(), "HELLO");
+        if let Content::TableFooter { repeat, .. } = upper {
+            assert!(!repeat);
+        } else {
+            panic!("esperado Content::TableFooter");
         }
     }
 }

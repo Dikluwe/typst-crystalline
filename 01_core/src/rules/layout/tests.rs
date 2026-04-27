@@ -2644,4 +2644,59 @@ mod tests_show_rule_integration {
                 "child '{}' (plain ou table_cell) deve aparecer pelo menos uma vez", label);
         }
     }
+
+    // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ──
+
+    /// `Content::TableHeader` renderiza body uma vez no contexto
+    /// actual (`repeat` ignorado em layout per ADR-0054 graded;
+    /// algoritmo de repetição em page breaks diferido em DEBT-56).
+    #[test]
+    fn layout_table_header_renderiza_body_no_contexto_actual() {
+        let h = Content::table_header(Content::text("HDR"), true);
+        let doc = layout(&h, CounterState::default());
+        let count = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "HDR"))
+            .count();
+        assert_eq!(count, 1,
+            "table_header renderiza body uma vez (single render); repeat ignorado per DEBT-56");
+    }
+
+    /// Par simétrico — paridade absoluta com header.
+    #[test]
+    fn layout_table_footer_renderiza_body_no_contexto_actual() {
+        let f = Content::table_footer(Content::text("FTR"), true);
+        let doc = layout(&f, CounterState::default());
+        let count = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "FTR"))
+            .count();
+        assert_eq!(count, 1,
+            "table_footer renderiza body uma vez (single render); repeat ignorado per DEBT-56");
+    }
+
+    /// Test integrativo — `Content::Table` contendo TableHeader +
+    /// TableCell + TableFooter renderiza os três conteúdos
+    /// (delegação a `layout_grid` linear; ordem semântica diferida).
+    #[test]
+    fn layout_table_com_header_cell_footer_renderiza_tudo() {
+        use crate::entities::layout_types::TrackSizing;
+        let t = Content::table(
+            vec![TrackSizing::Auto, TrackSizing::Auto],
+            vec![],
+            vec![
+                Content::table_header(Content::text("H"), true),
+                Content::text("a"),
+                Content::table_cell(Content::text("b"), None, None, None, None),
+                Content::table_footer(Content::text("F"), true),
+            ],
+        );
+        let doc = layout(&t, CounterState::default());
+        // Os 4 conteúdos (H, a, b, F) devem aparecer pelo menos uma vez.
+        for label in ["H", "a", "b", "F"] {
+            let count = doc.pages.iter().flat_map(|p| p.items.iter())
+                .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == label))
+                .count();
+            assert!(count >= 1,
+                "child '{}' (plain, table_header, table_cell ou table_footer) deve aparecer pelo menos uma vez", label);
+        }
+    }
 }
