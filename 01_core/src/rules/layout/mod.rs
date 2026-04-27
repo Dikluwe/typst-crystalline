@@ -558,11 +558,20 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 // Passo 159C: render placeholder por form com lookup
                 // Bibliography state. Fallback `[key]` quando key não
                 // encontrada — paridade Normal sem entry.
+                // Passo 159F: Normal/None ganha numeração via lookup
+                // state.bib_numbers (Opção C diagnóstico §8.2);
+                // forms diferenciadas (Prose/Author/Year) inalteradas.
                 let resolved_form = form.unwrap_or_default();
                 let entry = self.counter.bib_entries.iter().find(|e| e.key == *key);
                 use crate::entities::citation_form::CitationForm;
                 let text = match (resolved_form, entry) {
-                    (CitationForm::Normal, _)         => format!("[{}]", key),
+                    (CitationForm::Normal, _) => {
+                        // P159F: lookup numbering; fallback `[key]` se key
+                        // não encontrada em state.bib_numbers.
+                        self.counter.bib_numbers.get(key)
+                            .map(|n| format!("[{}]", n))
+                            .unwrap_or_else(|| format!("[{}]", key))
+                    }
                     (CitationForm::Prose,  Some(e))   => format!("{} ({})", e.author, e.year),
                     (CitationForm::Author, Some(e))   => e.author.clone(),
                     (CitationForm::Year,   Some(e))   => e.year.to_string(),
@@ -1294,6 +1303,8 @@ pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument {
         l.counter.numbering_active = initial_state.numbering_active;
         // Passo 159C: bib_entries para lookup Cite.form em layout.
         l.counter.bib_entries      = initial_state.bib_entries;
+        // Passo 159F: bib_numbers para lookup Cite Normal/None em layout.
+        l.counter.bib_numbers      = initial_state.bib_numbers;
         // NÃO copiar label_pages — começa vazio via Layouter::new().
         // NÃO copiar hierarchical, flat — reconstruídos nó a nó.
         l.layout_content(content);
@@ -1319,6 +1330,8 @@ pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument {
         l.counter.numbering_active = initial_state.numbering_active.clone();
         // Passo 159C: bib_entries para lookup Cite.form em layout.
         l.counter.bib_entries      = initial_state.bib_entries.clone();
+        // Passo 159F: bib_numbers para lookup Cite Normal/None em layout.
+        l.counter.bib_numbers      = initial_state.bib_numbers.clone();
 
         // Injectar páginas da iteração anterior para leitura pelo outline.rs.
         // label_pages (onde references.rs escreve) começa vazio via Layouter::new().

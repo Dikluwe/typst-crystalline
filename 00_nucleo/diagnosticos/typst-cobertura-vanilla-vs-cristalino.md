@@ -172,8 +172,8 @@ primitives e `skew`). Detalhe em
 | `enum(items)` | model/enum.rs | `parcial` | idem | |
 | `terms(...)` | model/terms.rs | `implementado` | Passo 154B | `Content::Terms` + `Content::TermItem`; named args via `#terms(key: [desc])`; sem atributos vanilla (tight/separator/indent/hanging-indent) — extensíveis sem breaking change |
 | `quote(...)` | model/quote.rs | `implementado` | Passo 155 | `Content::Quote` com 4 attrs; smart-quotes lang-aware (6 idiomas + default ASCII) via `rules/lang/quotes.rs`; markup `"..."` produz aspas localizadas via alternância open/close (não pareadas como bloco) |
-| `cite(key)` | model/cite.rs | `parcial` ²⁹ ³² | Passo 159A (par acoplado) + P159C (form variants) | `Content::Cite { key: String, supplement: Option<Box<Content>>, form: Option<CitationForm> }` + stdlib `#cite(key, supplement: ?, form: ?)`; **naming `cite` flat**; ADR-0064 Caso A para supplement (P159A) + form (P159C); **placeholder render por form com lookup Bibliography** same-document (Normal=`[key]`/Prose=`Author (Year)`/Author/Year + fallback `[key]`); sem validação cross-reference (ADR-0017 adiada); 1+ atributo vanilla scope-out (style CSL override) |
-| `bibliography(path)` | model/bibliography.rs | `parcial` ²⁹ ³³ | Passo 159A (par acoplado) + P159D (BibEntry fields adicionais) | `Content::Bibliography { entries: Vec<BibEntry>, title: Option<Box<Content>> }` + stdlib `#bibliography(entries, title: ?)`; **input cristalino literal Vec<BibEntry>** (sem hayagriva; ADR-0062 mantém-se reserva sem ficheiro); tipo entity extendido `BibEntry { key, author, title, year, volume, pages, journal, publisher }` em `entities/bib_entry.rs` (4 obrigatórios P159A + 4 opcionais P159D via builder pattern); ADR-0064 Caso A para title; **render extendido APA-like** condicional por field presente; 4+ atributos vanilla scope-out (sources/full/style CSL/lang/region; mais fields universais — url/doi/editor/etc.) |
+| `cite(key)` | model/cite.rs | `parcial` ²⁹ ³² ³⁵ | Passo 159A (par acoplado) + P159C (form variants) + P159F (numbering numérico) | `Content::Cite { key: String, supplement: Option<Box<Content>>, form: Option<CitationForm> }` + stdlib `#cite(key, supplement: ?, form: ?)`; **naming `cite` flat**; ADR-0064 Caso A para supplement (P159A) + form (P159C); **render por form com lookup Bibliography** same-document; **P159F**: form Normal/None ganha numeração numérica `[N]` via `state.bib_numbers` (style numeric simplificado; subpadrão #15 N=3); fallback `[key]` se Bibliography vazia ou key não encontrada; forms Prose/Author/Year inalteradas; sem validação cross-reference (ADR-0017 adiada); 1+ atributo vanilla scope-out (style CSL override) |
+| `bibliography(path)` | model/bibliography.rs | `parcial` ²⁹ ³³ ³⁵ | Passo 159A (par acoplado) + P159D (BibEntry fields adicionais) + P159F (numbering popula bib_numbers) | `Content::Bibliography { entries: Vec<BibEntry>, title: Option<Box<Content>> }` + stdlib `#bibliography(entries, title: ?)`; **input cristalino literal Vec<BibEntry>** (sem hayagriva; ADR-0062 mantém-se reserva sem ficheiro); tipo entity extendido `BibEntry { key, author, title, year, volume, pages, journal, publisher }` em `entities/bib_entry.rs` (4 obrigatórios P159A + 4 opcionais P159D via builder pattern); ADR-0064 Caso A para title; **render extendido APA-like** condicional por field presente; **P159F**: walk popula `state.bib_numbers` (style numeric implícito) consumido por Cite Normal/None lookup; 4+ atributos vanilla scope-out (sources/full/style CSL/lang/region; mais fields universais; styles alphanumeric/author-date/CSL — Bloco B hayagriva) |
 | `link(dest, body)` | model/link.rs | `parcial` | Passo 23 | `Content::Link` capturado; sem render visual |
 | `footnote(body)` | model/footnote.rs | `ausente` | — | |
 | `ref(target)` | model/reference.rs | `implementado⁺` | Passos 63–66 | `Content::Ref` com forward-resolve |
@@ -603,7 +603,10 @@ critério #2 patamar N=2→3; subpadrão "refino tipo entity sem
 alteração Content variant" N=1; **após P158C: ~61.0% (inalterada)**
 — refactor cosmético `Figure.kind: String → Option<String>` per
 ADR-0064 Caso A estrito; patamar Caso A N=6→7; subpadrão
-"refactor de field para Option" N=1 NOVO).
+"refactor de field para Option" N=1 NOVO; **após P159F: ~61.0%
+(inalterada)** — counter local + numbering numérico em Cite
+Normal/None; subpadrão #15 N=2→3 "infraestrutura state lookup";
+**Bloco A esgotado** após este passo).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -868,6 +871,42 @@ estabeleceu; P158A respeita) — supplement automático, show
 selectors `figure.where(kind:)`, refactor `kind: String →
 Option<String>` permanecem candidatos NÃO-reservados.
 
+³⁵ — Ajuste P159F (Tabela A.6 Model): quarto sub-passo
+substantivo Bibliography + Cite — **último candidato Bloco A
+do diagnóstico P159B**. Refino comportamental: counter local
+de bib entries + render numerado em Cite Normal/None. Field
+novo `pub bib_numbers: HashMap<String, u32>` em `CounterState`
+(paridade aditiva infraestrutura state lookup — **subpadrão #15
+cresce N=2 → 3** via `state.lang` P158B + `state.bib_entries`
+P159C + **`state.bib_numbers` P159F**). Walk arm Bibliography
+popula contínuamente (multi-Bibliography preserva primeiro
+número via `or_insert`). Layout arm Cite Normal/None faz
+lookup `state.bib_numbers.get(key)` → `[N]` ou fallback `[key]`
+(regression P159A). Forms diferenciadas (Prose/Author/Year)
+inalteradas — numeração só em Normal/None (decisão diagnóstico
+§10). **Decisão arquitectural-chave Opção C** (Cite.form
+interaction; sem field user-facing) escolhida vs Opção A
+(substituir sempre; rejeitada por quebrar tests P159A/C) e
+Opção B (Bibliography.style field novo; rejeitada por alteração
+estrutural sem ganho proporcional). **Multi-Bibliography
+contínua** (paridade vanilla numeric style; decisão diagnóstico
+§9). **Sem alteração ao variant `Content::Cite` ou
+`Content::Bibliography`**. **Hash `entities/content.rs`
+preservado** `ec58d849` — **décimo quinto passo consecutivo**
+(P156L → P159F via L0-baseline interpretation). Tests +8
+(1214 → 1222; 2 unit counter_state + 6 layout E2E numbering;
+range esperado +10-15 ligeiramente abaixo por helper inline
+trivial). Cobertura Model agregada **inalterada** (~50%) —
+refino comportamental. Cobertura ampla 77% inalterada.
+Cobertura arquitectural **inalterada** 82%. **Marca conceptual**:
+P159F **esgota Bloco A** do diagnóstico P159B (último candidato).
+Pós-P159F, Model puro está saturado per recomendação do
+diagnóstico (~55-60% estimado com 24 entradas parciais).
+**Política "sem novas reservas" preservada** — outras styles
+(alphanumeric, author-date, CSL), `Bibliography.style` field
+user-facing (Opção B refino futuro), numeração independente
+multi-Bibliography permanecem candidatos NÃO-reservados.
+
 ³⁴ — Ajuste P158C (Tabela A.6 Model): quarto sub-passo Model
 figure-kinds — refactor cosmético `kind: String → Option<String>`
 em `Content::Figure` per **ADR-0064 Caso A estrito** (vanilla
@@ -1018,9 +1057,10 @@ ADR-0065 N=6 implícito; reuso `Sides<T>` N=2; reuso
 (era 80% pós-P157C/P158/P158A; era 78% pós-P157B; era 77-78%
 pós-P157A; era 76-77% pós-P156L; era 75-76% pós-P156I; era
 75% pré-P155; era 72% pré-P154B; era 70% pré-P149; **inalterada
-pós-P158B + P159C + P159D + P158C** — refinos
-qualitativos/refactors cosméticos de variants Content existentes
-ou tipos entity ortogonais). **Patamar 82% atingido em P159A** — par acoplado
+pós-P158B + P159C + P159D + P158C + P159F** — refinos
+qualitativos/refactors cosméticos/numbering numérico de variants
+Content existentes ou tipos entity ortogonais; **Bloco A
+diagnóstico P159B esgotado**). **Patamar 82% atingido em P159A** — par acoplado
 Bibliography+Cite minimal adiciona 2 variants Content (56 → 58);
 vanilla extra ausentes mantém 0 (subset minimal cobre todos os
 variants core para Bibliography+Cite).
