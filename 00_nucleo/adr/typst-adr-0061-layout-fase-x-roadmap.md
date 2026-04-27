@@ -334,6 +334,7 @@ de ADR-0065 critério #3):
 | P158B | figure supplement por lang (Model figure-kinds sub-passo 2) | 0% agregado | Layout 78%; Model 50% inalterado (refino qualitativo) | +15 |
 | P159C | cite.form variants (Model bibliography+cite sub-passo 2) | 0% agregado | Layout 78%; Model 50% inalterado (refino estrutural); ADR-0064 Caso A N=5→6 | +15 |
 | P159D | BibEntry fields adicionais (Model bibliography+cite sub-passo 3) | 0% agregado | Layout 78%; Model 50% inalterado (refino tipo entity); ADR-0065 #2 N=2→3 | +8 |
+| P158C | Figure.kind refactor String→Option (Model figure-kinds sub-passo 3) | 0% agregado | Layout 78%; Model 50% inalterado (refactor cosmético); ADR-0064 Caso A N=6→7 | +2 |
 
 **Total**: +56 pontos percentuais Layout em 9 passos consecutivos
 de materialização Layout (22% → 78%); **+5pp Model** em P157A
@@ -364,13 +365,18 @@ Bibliography + Cite — refino de tipo entity `BibEntry` com
 + builder pattern; ADR-0065 critério #2 patamar N=2→3 (terceira
 aplicação isolada concreta — selecção de fields universais);
 subpadrão emergente N=1 "refino de tipo entity sem alteração
-ao variant Content" (precedente novo)**. **+305 tests**
-acumulados (1145 → 1450 lib+integ+diagnostic — +8 em P159D).
-**Zero reformulações mid-passo** em N=17 aplicações de
-materialização (9 Layout + 8 Model). Padrão granular universal
+ao variant Content" (precedente novo)**. **P158C é quarto
+sub-passo Model figure-kinds — refactor cosmético `Figure.kind:
+String → Option<String>` per ADR-0064 Caso A estrito; patamar
+Caso A N=6→7 com primeiro Caso A "estrito" em refactor (não
+em variant aditivo); subpadrão emergente N=1 NOVO "refactor
+de field para Option" (precedente novo)**. **+307 tests**
+acumulados (1145 → 1452 lib+integ+diagnostic — +2 em P158C).
+**Zero reformulações mid-passo** em N=18 aplicações de
+materialização (9 Layout + 9 Model). Padrão granular universal
 cross-domínio confirmado e estendido. Cobertura arquitectural
-mantém **82%** após P159D (refino tipo entity ortogonal ao
-enum Content).
+mantém **82%** após P158C (refactor cosmético sem alteração
+estrutural).
 
 ### Tipos novos infraestruturais
 
@@ -407,13 +413,14 @@ enum Content).
 
 ### Padrões metodológicos consolidados
 
-1. **Granularidade 1-2 features/passo**: **N=17** aplicações
+1. **Granularidade 1-2 features/passo**: **N=18** aplicações
    consecutivas sem reformulação (8 materialização Layout
    + 1 refino Layout P156L + 3 materialização Model
    P157A/B/C + 1 refino Model P158A + 1 par acoplado Model
    P159A + 1 segundo refino Model P158B + 1 refino
-   estrutural Model P159C + **1 refino tipo entity Model
-   P159D**). **Padrão cross-domínio reforçado**
+   estrutural Model P159C + 1 refino tipo entity Model
+   P159D + **1 refactor cosmético Model P158C**). **Padrão
+   cross-domínio reforçado**
    mas **com primeira quebra honestamente registada**: P159A é
    M+ par acoplado (granularidade quebrada N=13 → M+ com
    precedente P156C par lógico pad+hide). Hipótese da decisão
@@ -427,7 +434,7 @@ enum Content).
    P157 é primeira aplicação do critério #5).
 
 2. **"Inventariar primeiro" pré-decisão arquitectural**:
-   **N=19** aplicações (P156F defensivo; P156G deliberado;
+   **N=20** aplicações (P156F defensivo; P156G deliberado;
    P156H curto; P156I curto focado; P156J curto focado;
    P156L expansão variant existente — primeira aplicação
    concreta do critério #3 de ADR-0065; P157 scope determinado
@@ -476,14 +483,19 @@ enum Content).
    selecção de 4 fields universais (volume/pages/journal/
    publisher) vs alternativas (url/doi/editor) — sétima
    aplicação concreta critério #5 + terceira aplicação isolada
-   concreta critério #2 (selecção de fields universais)**).
-   **Formalizado em ADR-0065** (P156K); **agora N=19 com 4
+   concreta critério #2 (selecção de fields universais)**;
+   **P158C inventário Figure.kind refactor com decisão
+   default resolvido em uso (callers via `kind.as_deref()
+   .unwrap_or("image")`) vs default em construção — oitava
+   aplicação concreta critério #5 com diversidade reforçada
+   em refactor cosmético (não em variant aditivo)**).
+   **Formalizado em ADR-0065** (P156K); **agora N=20 com 4
    critérios formalmente validados** (#1 P157A/B + ADR-0062-create
-   administrativo XS; #2 P159A + P159C + **P159D** patamar N=3;
+   administrativo XS; #2 P159A + P159C + P159D patamar N=3;
    #3 P156L; #5 P157 + P157A + P158 + P158A + P158B + P159 +
-   P159B + P159C + **P159D** multi-feature; #6 P157B/C).
+   P159B + P159C + P159D + **P158C** multi-feature; #6 P157B/C).
 
-3. **"Smart<T> → Option<T> ou default"**: **N=11** aplicações
+3. **"Smart<T> → Option<T> ou default"**: **N=12** aplicações
    (P156E Parity; P156F angles; P156G Block.width; P156H
    Box.width; P156I Stack.spacing + Dir.default; P156J
    Repeat.gap; P156L Pad sides — segunda aplicação concreta
@@ -494,14 +506,18 @@ enum Content).
    Bibliography.title + Cite.supplement — Caso A patamar
    cresce N=4 → 5; reforça diversidade cross-domínio**;
    **P159C Cite.form — Caso A patamar cresce N=5 → 6;
-   atinge equilíbrio cross-domínio 50/50 Layout/Model**).
+   atinge equilíbrio cross-domínio 50/50 Layout/Model**;
+   **P158C Figure.kind refactor — Caso A patamar cresce
+   N=6 → 7; primeiro Caso A "estrito" em refactor (não em
+   variant aditivo); distribuição passa de 50/50 para 43/57
+   favorecendo Model**).
    **Formalizado em ADR-0064** (P156K) com 4 casos canónicos
    A/B/C/D.
 
-   **Patamares por caso pós-P159C**:
-   - Caso A: **N=6** (P156G/H/I + P157B + P159A + **P159C**);
-     50% Layout (3) + 50% Model (3) — **equilíbrio
-     cross-domínio atingido**.
+   **Patamares por caso pós-P158C**:
+   - Caso A: **N=7** (P156G/H/I + P157B + P159A + P159C +
+     **P158C**); 43% Layout (3) + 57% Model (4) — **distribuição
+     desloca-se favorecendo Model**.
    - Caso B: N=1 (P156I Dir); 100% Layout (Caso B só Layout
      — candidato futuro Model).
    - Caso C: N=3 (P156I/J + P157B); primeira variação `usize`
@@ -510,10 +526,12 @@ enum Content).
    - **Todos os 4 casos canónicos validados em Layout** ✓.
    - **3/4 casos canónicos validados em Model** (A, C, D);
      Caso B só Layout — candidato futuro.
-   - **Caso A é o caso mais aplicado** (N=6; **equilíbrio
-     cross-domínio**).
+   - **Caso A é o caso mais aplicado** (N=7; **dominância
+     Model 4 vs Layout 3 estabelecida**).
+   - **P158C marca primeiro Caso A "estrito" em refactor**
+     (não em variant aditivo) — subpadrão emergente.
 
-4. **"§análise de risco no relatório"**: **N=19** aplicações
+4. **"§análise de risco no relatório"**: **N=20** aplicações
    (P156F/G/H/I/J/K + L com peso real — primeiro refactor
    real após série aditiva; P157 com risco baixo diagnóstico;
    P157A com risco baixo-médio — primeiro Model Fase 2 com
@@ -562,7 +580,15 @@ enum Content).
    `format_bib_entry` privado em layout para concatenação
    condicional; backwards compat trivial via fields default
    None; hashes content.rs e bib_entry.rs ambos preservados
-   via L0-baseline (13º consecutivo content.rs)**).
+   via L0-baseline (13º consecutivo content.rs)**;
+   **P158C com risco baixo — refactor cosmético `Figure.kind:
+   String → Option<String>` per ADR-0064 Caso A estrito;
+   primeiro Caso A em refactor (não em variant aditivo);
+   subpadrão emergente N=1 NOVO "refactor de field para Option";
+   ~10 sítios callers adaptados via `.as_deref().unwrap_or("image")`;
+   sem alteração observable; backwards compat trivial; hash
+   content.rs preservado L0-baseline 14º consecutivo (lição
+   P159A/C/D internalizada)**).
    Cobertura sistemática do risco.
 
 5. **"Reuso de template containers"**: **N=4** aplicações
@@ -662,19 +688,35 @@ enum Content).
     — preserva hash content.rs sem necessidade de actualizar L0
     do enum". Candidato a formalização N=3-4 mínima.
 
-### Estado pós-P159D
+17. **"Refactor de field para Option"** (subpadrão emergente
+    P158C N=1): aplicação concreta P158C refactor
+    `Content::Figure.kind: String → Option<String>` per ADR-0064
+    Caso A estrito. **Primeiro Caso A em refactor de variant
+    existente** (distinto de variant aditivo com `Option<T>`
+    field — patamar normal Caso A em P156G/H/I + P157B + P159A/C
+    aplicaram em variants novos ou expansões). Subpadrão captura
+    "refactor cosmético de field existente String → Option<T>
+    aplica Caso A estrito; default resolvido em uso por callers
+    (`.as_deref().unwrap_or(default)`); preserva backwards compat
+    via fallback nos callers; preserva hash content.rs via
+    L0-baseline interpretation". Candidato a formalização se
+    outros refactors análogos forem feitos (e.g.
+    `Content::Heading.body: Box<Content> → Option<Box<Content>>`
+    se prioritário).
+
+### Estado pós-P158C
 
 - **Cobertura Layout**: **78%** (inalterada por P157A/B/C +
   P158/P158A/P159/P159A/P159B + ADR-0062-create + P158B + P159C +
-  **P159D** — escopo Model + refino qualitativo + par acoplado +
-  diagnóstico amplo + administrativo XS + segundo refino
-  qualitativo figure + refino estrutural cite + refino tipo
-  entity bib_entry). Target ADR-0061 (72%) **continua
-  ultrapassado**.
+  P159D + **P158C** — escopo Model + refino qualitativo + par
+  acoplado + diagnóstico amplo + administrativo XS + segundo
+  refino qualitativo figure + refino estrutural cite + refino
+  tipo entity bib_entry + refactor cosmético kind→Option). Target
+  ADR-0061 (72%) **continua ultrapassado**.
 - **Cobertura arquitectural**: **82%** (inalterada por P159B +
-  P158B + P159C + **P159D** — refinos qualitativos/estruturais
-  de variants Content existentes ou tipos entity ortogonais;
-  sem variants novos).
+  P158B + P159C + P159D + **P158C** — refinos qualitativos/
+  estruturais/refactors cosméticos de variants Content existentes
+  ou tipos entity ortogonais; sem variants novos).
 - **Tecto Model puro estimado** (P159B §4): cobertura agregada
   ~50% → **~55-60% alcançável** com 5 sub-passos Bloco A
   (supplement figure / cite.form / BibEntry fields / kind
@@ -753,10 +795,20 @@ enum Content).
   Hashes `entities/content.rs` e `entities/bib_entry.rs` ambos
   preservados via L0-baseline interpretation (13º consecutivo
   content.rs).
-- **Restantes Fase 2 Model** (per P159B §5 Bloco A — 2
-  candidatos restantes pós-P159D):
-  - Refactor `kind: String → Option<String>` per ADR-0064 Caso A
-    (P158C — quebra hash content.rs **inevitável**).
+- **P158C (Figure.kind refactor)**: materializado. Field
+  `kind: String → Option<String>` em `Content::Figure` per
+  ADR-0064 Caso A estrito (None ↔ Auto; default `"image"`
+  resolvido em uso por callers via `kind.as_deref().unwrap_or("image")`).
+  Stdlib `native_figure` retorna `Option<String>` directamente;
+  `infer_kind_from_body` (P158A) já retornava Option — sem
+  alteração. Introspect/layout adaptados em ~10 sítios callers.
+  **Sem alteração observable** — backwards compat trivial.
+  Hash `entities/content.rs` preservado `ec58d849` via
+  L0-baseline interpretation (14º consecutivo). Patamar Caso A
+  cresce N=6→7 com **primeiro Caso A "estrito" em refactor**
+  (subpadrão emergente N=1 NOVO #17).
+- **Restantes Fase 2 Model** (per P159B §5 Bloco A — 1
+  candidato restante pós-P158C):
   - Numbering numérico simples Bibliography (P159F — counter local).
 - **Bloco B (hayagriva, NÃO reservados)** P159B §5: ADR-0062
   promovida → CSL parsing + styles APA/IEEE/etc.

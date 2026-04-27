@@ -969,7 +969,7 @@ fn layout_figure_com_caption_tem_prefixo() {
     let content = Content::Figure {
         body:      Box::new(Content::text("Gráfico")),
         caption:   Some(Box::new(Content::text("Resultados"))),
-        kind:      "image".to_string(),
+        kind:      Some("image".to_string()),
         numbering: Some("1".to_string()),
     };
 
@@ -987,7 +987,7 @@ fn layout_figure_sem_caption_sem_prefixo() {
     let content = Content::Figure {
         body:      Box::new(Content::text("Diagrama")),
         caption:   None,
-        kind:      "image".to_string(),
+        kind:      Some("image".to_string()),
         numbering: Some("1".to_string()),
     };
 
@@ -1010,7 +1010,7 @@ fn layout_ref_para_figura_resolve_corretamente() {
                 target: Box::new(Content::Figure {
                     body:      Box::new(Content::text("Gráfico")),
                     caption:   Some(Box::new(Content::text("Legenda"))),
-                    kind:      "image".to_string(),
+                    kind:      Some("image".to_string()),
                     numbering: Some("1".to_string()),
                 }),
             },

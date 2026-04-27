@@ -161,7 +161,7 @@ primitives e `skew`). Detalhe em
 | Feature | Vanilla | Cristalino | Referência | Nota |
 |---------|---------|------------|------------|------|
 | `heading(level, body)` | model/heading.rs | `implementado` | Passos 22, 99, 103 | construtor + show rules |
-| `figure(body, caption, ...)` | model/figure.rs | `implementado⁺` ²⁸ ³¹ | Passos 75 + ADR-0041 + P158A (auto-detecção) + P158B (supplement por lang) | numbering por kind; counters; **P158A**: auto-detecção de `kind` baseada no body; **P158B**: supplement automático localizado por lang (6 langs × 3 kinds via `figure_supplement_for_lang` em `rules/lang/figure_supplement.rs`; fallback PT) |
+| `figure(body, caption, ...)` | model/figure.rs | `implementado⁺` ²⁸ ³¹ ³⁴ | Passos 75 + ADR-0041 + P158A (auto-detecção) + P158B (supplement por lang) + P158C (refactor kind→Option) | numbering por kind; counters; **P158A**: auto-detecção de `kind` baseada no body; **P158B**: supplement automático localizado por lang (6 langs × 3 kinds; fallback PT); **P158C**: refactor `kind: String → Option<String>` per ADR-0064 Caso A estrito (None ↔ Auto; default `"image"` resolvido em uso por callers — patamar Caso A N=6→7) |
 | `caption(...)` | model/figure.rs | `parcial` | dentro de figure | sem element dedicado |
 | `outline()` | model/outline.rs | `implementado` | Passos 65–66 | TOC via 2-pass introspection |
 | `table(columns, ...)` | model/table.rs | `implementado` ²² | Passo 157A (ADR-0060 Fase 2 sub-passo 1; **primeiro Model Fase 2**) | `Content::Table { columns, rows, children: Vec<Content> }` + stdlib `#table(columns: ?, rows: ?, ..children)`; subset minimal per ADR-0054 graded; layouter delega a `layout_grid` (clone simples; sem modificação de `grid.rs`); 9+ atributos vanilla scope-out (gutter/inset/align/fill/stroke/summary; cells estruturadas P157B; header/footer P157C; HLine/VLine cosmetic) |
@@ -600,7 +600,10 @@ N=5 → 6 atingindo equilíbrio cross-domínio 50/50 Layout/Model;
 **após P159D: ~61.0% (inalterada)** — refino de tipo entity
 `BibEntry` adicionando 4 fields universais opcionais; ADR-0065
 critério #2 patamar N=2→3; subpadrão "refino tipo entity sem
-alteração Content variant" N=1).
+alteração Content variant" N=1; **após P158C: ~61.0% (inalterada)**
+— refactor cosmético `Figure.kind: String → Option<String>` per
+ADR-0064 Caso A estrito; patamar Caso A N=6→7; subpadrão
+"refactor de field para Option" N=1 NOVO).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -865,6 +868,36 @@ estabeleceu; P158A respeita) — supplement automático, show
 selectors `figure.where(kind:)`, refactor `kind: String →
 Option<String>` permanecem candidatos NÃO-reservados.
 
+³⁴ — Ajuste P158C (Tabela A.6 Model): quarto sub-passo Model
+figure-kinds — refactor cosmético `kind: String → Option<String>`
+em `Content::Figure` per **ADR-0064 Caso A estrito** (vanilla
+`Smart<Str>` → cristalino `Option<String>`; None ↔ Auto; default
+`"image"` resolvido em uso por callers, não em construção).
+**Patamar Caso A cresce N=6 → 7** com **primeiro Caso A "estrito"
+em refactor** (não em variant aditivo). Distribuição cross-domínio
+desloca-se: 3 Layout (P156G/H/I) + 4 Model (P157B/P159A/C +
+**P158C**) — passa de 50/50 para 43/57 favorecendo Model.
+**Subpadrão emergente N=1 NOVO** "refactor de field para Option"
+(precedente novo — distinto de variant aditivo com Option<T>
+field; aplicação em refactor de tipo existente). ~10 sítios
+callers adaptados (stdlib `native_figure` retorna `Option<String>`
+directamente; introspect/layout fazem `kind.as_deref().unwrap_or("image")`
+em uso). **Sem alteração observable** (output preservado;
+backwards compat trivial). **Hash `entities/content.rs` preservado**
+`ec58d849` — **décimo quarto passo consecutivo** (P156L → P158C
+via L0-baseline interpretation; lição P159A/C/D internalizada —
+preservação é regra default para refactors internos cosméticos).
+Tests +2 (1212 → 1214; 1 novo `figure_kind_auto_explicito_devolve_none` +
+1 novo `introspect_figure_kind_none_resolve_para_image_no_counter`;
+range esperado +2-4). ~5 tests existentes adaptados para
+`kind.as_deref() == Some(...)` em vez de `kind == "..."`. Cobertura
+Model agregada **inalterada** (~50%) — refactor cosmético sem
+mover counts. Cobertura ampla 77% inalterada. Cobertura
+arquitectural **inalterada** 82%. **Política "sem novas reservas"
+preservada** — refactor análogo de outros String fields, helper
+público `kind_or_default`, documentação completa de variants no
+L0 prompt content.md permanecem candidatos NÃO-reservados.
+
 ³³ — Ajuste P159D (Tabela A.6 Model): terceiro sub-passo
 substantivo Bibliography + Cite — refino estrutural de tipo
 entity `BibEntry` adicionando 4 fields opcionais universais
@@ -985,9 +1018,9 @@ ADR-0065 N=6 implícito; reuso `Sides<T>` N=2; reuso
 (era 80% pós-P157C/P158/P158A; era 78% pós-P157B; era 77-78%
 pós-P157A; era 76-77% pós-P156L; era 75-76% pós-P156I; era
 75% pré-P155; era 72% pré-P154B; era 70% pré-P149; **inalterada
-pós-P158B + P159C + P159D** — refinos qualitativos de variants
-Content existentes + refino de tipo entity sem alteração Content).
-**Patamar 82% atingido em P159A** — par acoplado
+pós-P158B + P159C + P159D + P158C** — refinos
+qualitativos/refactors cosméticos de variants Content existentes
+ou tipos entity ortogonais). **Patamar 82% atingido em P159A** — par acoplado
 Bibliography+Cite minimal adiciona 2 variants Content (56 → 58);
 vanilla extra ausentes mantém 0 (subset minimal cobre todos os
 variants core para Bibliography+Cite).

@@ -203,8 +203,11 @@ pub enum Content {
         body:      Box<Content>,
         caption:   Option<Box<Content>>,
         /// Tipo da figura — discriminador para contadores independentes.
-        /// Padrão: "image". Outros valores: "table", "raw".
-        kind:      String,
+        /// Passo 158C (ADR-0064 Caso A estrito): vanilla
+        /// `Smart<Str>` → cristalino `Option<String>` (None ↔ Auto;
+        /// default `"image"` resolvido em uso, não em construção).
+        /// Caller resolve via `kind.as_deref().unwrap_or("image")`.
+        kind:      Option<String>,
         /// Padrão de numeração activo no momento da produção via `#set figure(numbering:)`.
         /// None → sem numeração; Some("1") → numeração arábica.
         numbering: Option<String>,

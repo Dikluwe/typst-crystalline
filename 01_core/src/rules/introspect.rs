@@ -292,13 +292,16 @@ fn walk(content: &Content, state: &mut CounterState) {
             // Avançar o contador apenas se a figura tiver numeração activa e legenda —
             // figuras sem caption não consomem número (evita "Figura 1", [gap], "Figura 3").
             if numbering.is_some() && caption.is_some() {
+                // P158C: kind é Option<String>; resolver default "image"
+                // em uso (não em construção).
+                let kind_key = kind.as_deref().unwrap_or("image").to_string();
                 let counter = state.local_figure_counters
-                    .entry(kind.clone())
+                    .entry(kind_key.clone())
                     .or_insert(0);
                 *counter += 1;
                 let figure_number = *counter;
                 state.figure_numbers
-                    .entry(kind.clone())
+                    .entry(kind_key)
                     .or_default()
                     .push(figure_number);
             }
@@ -321,9 +324,12 @@ fn walk(content: &Content, state: &mut CounterState) {
                     if n > 0 { Some(format!("Equação ({})", n)) } else { None }
                 }
                 Content::Figure { kind, numbering, caption, .. } => {
+                    // P158C: kind é Option<String>; resolver default "image"
+                    // em uso (paridade walk arm acima).
+                    let kind_key = kind.as_deref().unwrap_or("image");
                     let n = if numbering.is_some() && caption.is_some() {
                         state.figure_numbers
-                            .get(kind.as_str())
+                            .get(kind_key)
                             .and_then(|v| v.last())
                             .copied()
                             .unwrap_or(0)
@@ -336,7 +342,7 @@ fn walk(content: &Content, state: &mut CounterState) {
                         // Lang vem de state.lang (None → fallback PT
                         // per diagnóstico P158B §8.2 backwards compat).
                         let supplement = crate::rules::lang::figure_supplement::figure_supplement_for_lang(
-                            kind.as_str(),
+                            kind_key,
                             state.lang.as_ref(),
                         );
                         Some(format!("{} {}", supplement, n))
@@ -641,7 +647,7 @@ mod tests {
                 target: Box::new(Content::Figure {
                     body:      Box::new(Content::text("Um gráfico")),
                     caption:   Some(Box::new(Content::text("Evolução"))),
-                    kind:      "image".to_string(),
+                    kind:      Some("image".to_string()),
                     numbering: Some("1".to_string()),
                 }),
             }]
@@ -665,7 +671,7 @@ mod tests {
                     target: Box::new(Content::Figure {
                         body:      Box::new(Content::text("A")),
                         caption:   Some(Box::new(Content::text("Legenda A"))),
-                        kind:      "image".to_string(),
+                        kind:      Some("image".to_string()),
                         numbering: Some("1".to_string()),
                     }),
                 },
@@ -674,7 +680,7 @@ mod tests {
                     target: Box::new(Content::Figure {
                         body:      Box::new(Content::text("B")),
                         caption:   Some(Box::new(Content::text("Legenda B"))),
-                        kind:      "image".to_string(),
+                        kind:      Some("image".to_string()),
                         numbering: Some("1".to_string()),
                     }),
                 },
@@ -700,7 +706,7 @@ mod tests {
                 Content::Figure {
                     body:      Box::new(Content::text("Diagrama")),
                     caption:   None,
-                    kind:      "image".to_string(),
+                    kind:      Some("image".to_string()),
                     numbering: Some("1".to_string()),
                 },
                 Content::Labelled {
@@ -708,7 +714,7 @@ mod tests {
                     target: Box::new(Content::Figure {
                         body:      Box::new(Content::text("B")),
                         caption:   Some(Box::new(Content::text("Legenda"))),
-                        kind:      "image".to_string(),
+                        kind:      Some("image".to_string()),
                         numbering: Some("1".to_string()),
                     }),
                 },
@@ -837,11 +843,11 @@ mod tests {
         let fig = Content::Figure {
             body:      Box::new(Content::text("corpo")),
             caption:   Some(Box::new(Content::text("legenda"))),
-            kind:      "image".to_string(),
+            kind:      Some("image".to_string()),
             numbering: Some("1".to_string()),
         };
         if let Content::Figure { kind, numbering, .. } = fig {
-            assert_eq!(kind, "image");
+            assert_eq!(kind.as_deref(), Some("image"));
             assert_eq!(numbering, Some("1".to_string()));
         } else {
             panic!("Variante inesperada");
@@ -854,19 +860,19 @@ mod tests {
             Content::Figure {
                 body:      Box::new(Content::text("img1")),
                 caption:   Some(Box::new(Content::text("cap1"))),
-                kind:      "image".to_string(),
+                kind:      Some("image".to_string()),
                 numbering: Some("1".to_string()),
             },
             Content::Figure {
                 body:      Box::new(Content::text("tab1")),
                 caption:   Some(Box::new(Content::text("cap2"))),
-                kind:      "table".to_string(),
+                kind:      Some("table".to_string()),
                 numbering: Some("1".to_string()),
             },
             Content::Figure {
                 body:      Box::new(Content::text("img2")),
                 caption:   Some(Box::new(Content::text("cap3"))),
-                kind:      "image".to_string(),
+                kind:      Some("image".to_string()),
                 numbering: Some("1".to_string()),
             },
         ].into());
@@ -902,7 +908,7 @@ mod tests {
         let figure = Content::Figure {
             body: Box::new(Content::text("body")),
             caption: Some(Box::new(Content::text("caption"))),
-            kind: "image".to_string(),
+            kind: Some("image".to_string()),
             numbering: Some("1".to_string()),
         };
         let labelled = Content::Labelled {
@@ -924,7 +930,7 @@ mod tests {
         let figure = Content::Figure {
             body: Box::new(Content::text("body")),
             caption: Some(Box::new(Content::text("caption"))),
-            kind: "image".to_string(),
+            kind: Some("image".to_string()),
             numbering: Some("1".to_string()),
         };
         let labelled = Content::Labelled {
@@ -945,7 +951,7 @@ mod tests {
         let figure = Content::Figure {
             body: Box::new(Content::text("body")),
             caption: Some(Box::new(Content::text("caption"))),
-            kind: "table".to_string(),
+            kind: Some("table".to_string()),
             numbering: Some("1".to_string()),
         };
         let labelled = Content::Labelled {
@@ -966,7 +972,7 @@ mod tests {
         let figure = Content::Figure {
             body: Box::new(Content::text("body")),
             caption: Some(Box::new(Content::text("caption"))),
-            kind: "raw".to_string(),
+            kind: Some("raw".to_string()),
             numbering: Some("1".to_string()),
         };
         let labelled = Content::Labelled {
@@ -988,7 +994,7 @@ mod tests {
         let figure = Content::Figure {
             body: Box::new(Content::text("body")),
             caption: Some(Box::new(Content::text("caption"))),
-            kind: "image".to_string(),
+            kind: Some("image".to_string()),
             numbering: Some("1".to_string()),
         };
         let labelled = Content::Labelled {
@@ -1011,7 +1017,7 @@ mod tests {
         let figure = Content::Figure {
             body: Box::new(Content::text("body")),
             caption: Some(Box::new(Content::text("caption"))),
-            kind: "custom".to_string(),
+            kind: Some("custom".to_string()),
             numbering: Some("1".to_string()),
         };
         let labelled = Content::Labelled {
@@ -1035,19 +1041,19 @@ mod tests {
             Content::Figure {
                 body: Box::new(Content::text("body1")),
                 caption: Some(Box::new(Content::text("c1"))),
-                kind: "image".to_string(),
+                kind: Some("image".to_string()),
                 numbering: Some("1".to_string()),
             },
             Content::Figure {
                 body: Box::new(Content::text("body2")),
                 caption: Some(Box::new(Content::text("c2"))),
-                kind: "table".to_string(),
+                kind: Some("table".to_string()),
                 numbering: Some("1".to_string()),
             },
             Content::Figure {
                 body: Box::new(Content::text("body3")),
                 caption: Some(Box::new(Content::text("c3"))),
-                kind: "image".to_string(),
+                kind: Some("image".to_string()),
                 numbering: Some("1".to_string()),
             },
         ]));
@@ -1056,5 +1062,40 @@ mod tests {
             vec![1, 2], "image counter independente");
         assert_eq!(state.figure_numbers.get("table").cloned().unwrap_or_default(),
             vec![1], "table counter independente");
+    }
+
+    // ── Passo 158C: Figure.kind = None resolve a "image" em uso ─────────
+
+    #[test]
+    fn introspect_figure_kind_none_resolve_para_image_no_counter() {
+        // P158C: kind=None deve cair no default "image" via fallback
+        // em counter (paridade backwards compat com tests pré-existentes
+        // que usam Some("image".to_string())).
+        let content = Content::Sequence(
+            vec![
+                Content::Labelled {
+                    label:  Label("f_none".to_string()),
+                    target: Box::new(Content::Figure {
+                        body:      Box::new(Content::text("body sem kind explícito")),
+                        caption:   Some(Box::new(Content::text("legenda"))),
+                        kind:      None,  // P158C: novo caso
+                        numbering: Some("1".to_string()),
+                    }),
+                },
+            ]
+            .into(),
+        );
+        let state = introspect(&content);
+        // Counter "image" deve avançar via fallback default.
+        assert_eq!(state.figure_numbers.get("image").cloned().unwrap_or_default(),
+            vec![1],
+            "kind=None deve cair no default 'image' no counter");
+        // Label resolve para "Figura 1" via fallback (PT default em
+        // figure_supplement_for_lang).
+        assert_eq!(
+            state.resolved_labels.get(&Label("f_none".to_string())).map(|s| s.as_str()),
+            Some("Figura 1"),
+            "label de figura kind=None deve resolver via fallback 'image' default"
+        );
     }
 }
