@@ -505,6 +505,56 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 157A — Model Fase 2 sub-passo 1: table minimal**
+  (décima aplicação consecutiva de materialização desde início
+  da série granular P156C; **primeiro sub-passo Model Fase 2**
+  per ADR-0060 §"Decisão 1" sub-passo 3). Substantivo M:
+  variant `Content::Table { columns: Vec<TrackSizing>, rows:
+  Vec<TrackSizing>, children: Vec<Content> }` adicionado ao
+  enum (52 → 53 variants); stdlib `#table(columns: ?, rows: ?,
+  ..children)` em **`stdlib/structural.rs`** (decisão arquitectural
+  P157A: módulo Model existente, não novo `stdlib/model.rs` —
+  per diagnóstico P157A §8). Subset minimal per ADR-0054 graded:
+  3 fields críticos; **9+ atributos vanilla scope-out**
+  (gutter/inset/align/fill/stroke/summary; cells estruturadas
+  P157B; header/footer P157C; HLine/VLine cosmetic). Layouter
+  delega a `layout_grid` clone simples per ADR-0060 §"Decisão 4"
+  (sem modificação de `grid.rs` — confirmado por diff vazio).
+  Helper `extract_tracks` promovido a `pub(super)` para reuso
+  cross-módulo `stdlib/layout.rs` → `stdlib/structural.rs`
+  (N=2; subpadrão emergente análogo a `extract_length` N=7).
+  Cobertura exaustiva de **9 sítios pattern-match estruturais**
+  (paridade P156I Stack / P156J Repeat / P156L Pad). Validação:
+  named arg desconhecido rejeitado com diagnóstico claro;
+  child Int rejeitado; defaults columns/rows omitidos caem em
+  `[Auto]`. Tests: 1081 → **1097** typst-core lib (+16:
+  6 unit Table + 8 stdlib Table + 2 layout E2E incluindo
+  paridade estrutural Table↔Grid). **Decisão arquitectural
+  P157A**: variant dedicado per ADR-0060 §Decisão 4 (não Styled);
+  field `children` (não `cells` como Grid) per nomenclatura
+  vanilla `Vec<TableChild>`. **ADR-0064 NÃO aplicável directamente**
+  (subset minimal sem Smart<T>; futuras aplicações em P157B
+  Caso A para `TableCell.x/y`; P157C Caso D para `repeat`
+  default true). **ADR-0065 critério #1 (naming módulo) +
+  critério #5 (scope) implícitos** em decisão de módulo
+  `stdlib/structural.rs` continuação. Cobertura Model 45% →
+  **50%** (entrada `table` transita `ausente → implementado`;
+  contagem Model 6/4/5/7/0=22 → 7/4/5/6/0=22). Total user-facing:
+  ~60.3% → **~61.0%**. Tabela B Content variants: 52 → **53**.
+  **ADR-0060 mantém-se `IMPLEMENTADO`** (Fase 1 fechada P155
+  não muda; Fase 2 prossegue per roadmap; anotação P157A
+  adicionada). **ADR-0061 mantém-se `PROPOSTO`** (Layout
+  inalterado por P157A). README ADRs: total **63 inalterado**;
+  reservas P158/P159/ADR-0062 mantidas. Hash `content.rs`
+  mantém-se `ec58d849` (`crystalline-lint --fix-hashes`
+  reportou "Nothing to fix"). **Padrões pós-P157A**:
+  granularidade **N=10** (cross-domínio confirmado — Layout
+  P156C-L → Model P157A sem reformulação); inventariar primeiro
+  N=7 → **8**; Smart→Option N=7 (inalterado); §análise risco
+  N=7 → **8**; reuso template containers N=4 (inalterado);
+  reuso `Sides<T>` N=2 (inalterado); **novo subpadrão reuso
+  `extract_tracks` N=2** (análogo a `extract_length` em fase
+  inicial); reuso `extract_length` N=7 (inalterado).
 - **Passo 157 — Diagnóstico Model Fase 2 (table foundations)**
   (passo arquitectural de diagnóstico; **não materializa código**).
   **Primeira aplicação concreta de ADR-0065 critério #5**

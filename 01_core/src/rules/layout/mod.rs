@@ -497,6 +497,15 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.layout_grid(columns, rows, cells);
             }
 
+            // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table ──
+            // **Primeiro sub-passo Model Fase 2**. Delega a `layout_grid`
+            // clone simples per ADR-0060 §"Decisão 4" + diagnóstico
+            // P157A §10. Sem modificação de `grid.rs`. TableCell
+            // estruturado e Header/Footer diferidos para P157B/C.
+            Content::Table { columns, rows, children } => {
+                self.layout_grid(columns, rows, children);
+            }
+
             Content::SetPage { width, height, margin } => {
                 let mut new_config = self.page_config.clone();
                 let mut changed    = false;

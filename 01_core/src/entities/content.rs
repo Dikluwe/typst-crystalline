@@ -479,6 +479,31 @@ pub enum Content {
         breakable: bool,
     },
 
+    // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table minimal ────────
+    /// Container tabular semântico — vanilla `TableElem`.
+    /// **Primeiro sub-passo Model Fase 2**.
+    ///
+    /// Subset minimal per ADR-0054 graded e diagnóstico P157 §3:
+    /// 3 fields críticos (columns/rows/children); ~9 atributos vanilla
+    /// scope-out (gutter/inset/align/fill/stroke/summary; cells
+    /// estruturadas + header/footer diferidos para P157B/C).
+    ///
+    /// Estruturalmente análogo a `Content::Grid` mas semanticamente
+    /// distinto per ADR-0060 §"Decisão 4" (Model structural exige
+    /// variant dedicado; reaproveitamento de Grid vive só no
+    /// algoritmo de layout, não no enum). Field `children` (não `cells`)
+    /// segue nomenclatura vanilla `Vec<TableChild>`; pequena
+    /// divergência intra-cristalino vs `Grid.cells` documentada
+    /// em diagnóstico P157A §3.2.
+    ///
+    /// Layouter delega a `layout_grid` clone simples — sem
+    /// modificação de `grid.rs` per diagnóstico P157A §10.
+    Table {
+        columns:  Vec<TrackSizing>,
+        rows:     Vec<TrackSizing>,
+        children: Vec<Content>,
+    },
+
     // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ────────────────
     /// Repetição de body para preencher espaço (vanilla `RepeatElem`).
     /// **Primeira aplicação Fase 3** declarada em ADR-0061.
@@ -629,6 +654,18 @@ impl Content {
         Self::Repeat { body: Box::new(body), gap, justify }
     }
 
+    /// `table(columns, rows, ..children)` — Passo 157A (ADR-0060
+    /// Fase 2 sub-passo 1; **primeiro sub-passo Model Fase 2**).
+    /// Subset minimal: cells distribuídas como `Content::Grid`;
+    /// TableCell estruturado + Header/Footer diferidos para P157B/C.
+    pub fn table(
+        columns:  Vec<TrackSizing>,
+        rows:     Vec<TrackSizing>,
+        children: Vec<Content>,
+    ) -> Self {
+        Self::Table { columns, rows, children }
+    }
+
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,
@@ -647,6 +684,10 @@ impl Content {
             Self::Figure { body, caption, .. } =>
                 body.is_empty() && caption.as_ref().is_none_or(|c| c.is_empty()),
             Self::Grid { cells, .. } => cells.is_empty(),
+            // Passo 157A (ADR-0060 Fase 2): Table é vazio se children
+            // for vazio (paridade com Grid; cells / children indistintos
+            // semanticamente para is_empty).
+            Self::Table { children, .. } => children.is_empty(),
             // Passo 154B: Divider é singleton estrutural, nunca vazio.
             // Terms vazio (sem items) é considerado vazio; TermItem vazio
             // se ambos os lados forem vazios.
@@ -762,6 +803,12 @@ impl Content {
             Self::Grid { cells, .. } => {
                 cells.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ")
             }
+            // Passo 157A: Table concatena children com space (paridade
+            // com Grid em plain_text — semântica de "células visíveis
+            // em sequência").
+            Self::Table { children, .. } => {
+                children.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ")
+            }
             Self::SetPage { .. } => String::new(),
             Self::Align { body, .. } => body.plain_text(),
             Self::Place { body, .. } => body.plain_text(),
@@ -875,6 +922,10 @@ impl PartialEq for Content {
                 ma == mb && ba == bb,
             (Self::Grid { columns: ca, rows: ra, cells: xa },
              Self::Grid { columns: cb, rows: rb, cells: xb }) =>
+                ca == cb && ra == rb && xa == xb,
+            // Passo 157A — Table.
+            (Self::Table { columns: ca, rows: ra, children: xa },
+             Self::Table { columns: cb, rows: rb, children: xb }) =>
                 ca == cb && ra == rb && xa == xb,
             (Self::SetPage { width: wa, height: ha, margin: ma },
              Self::SetPage { width: wb, height: hb, margin: mb }) =>
@@ -1140,6 +1191,12 @@ impl Content {
                     cells.iter().map(|c| c.map_content(transform)).collect();
                 Content::Grid { columns: columns.clone(), rows: rows.clone(), cells: new_cells? }
             },
+            // Passo 157A: Table — mapear children (paridade Grid).
+            Content::Table { columns, rows, children } => {
+                let new_children: crate::entities::source_result::SourceResult<Vec<Content>> =
+                    children.iter().map(|c| c.map_content(transform)).collect();
+                Content::Table { columns: columns.clone(), rows: rows.clone(), children: new_children? }
+            },
             Content::Align { alignment, body } => Content::Align {
                 alignment: *alignment,
                 body:      Box::new(body.map_content(transform)?),
@@ -1310,6 +1367,12 @@ impl Content {
                 columns: columns.clone(),
                 rows:    rows.clone(),
                 cells:   cells.iter().map(|c| c.map_text(transform)).collect(),
+            },
+            // Passo 157A: Table — map_text em children (paridade Grid).
+            Content::Table { columns, rows, children } => Content::Table {
+                columns:  columns.clone(),
+                rows:     rows.clone(),
+                children: children.iter().map(|c| c.map_text(transform)).collect(),
             },
             Content::Align { alignment, body } => Content::Align {
                 alignment: *alignment,
@@ -2600,5 +2663,104 @@ mod tests {
         } else {
             panic!("esperado Content::Repeat após map_text");
         }
+    }
+
+    // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — Table ─────────────────
+
+    #[test]
+    fn table_constructor_default() {
+        let t = Content::table(vec![], vec![], vec![]);
+        if let Content::Table { columns, rows, children } = &t {
+            assert!(columns.is_empty());
+            assert!(rows.is_empty());
+            assert!(children.is_empty());
+        } else {
+            panic!("esperado Content::Table");
+        }
+    }
+
+    #[test]
+    fn table_constructor_com_tracks_e_children() {
+        use crate::entities::layout_types::TrackSizing;
+        let t = Content::table(
+            vec![TrackSizing::Auto, TrackSizing::Auto],
+            vec![TrackSizing::Auto],
+            vec![Content::text("a"), Content::text("b")],
+        );
+        if let Content::Table { columns, rows, children } = &t {
+            assert_eq!(columns.len(), 2);
+            assert_eq!(rows.len(), 1);
+            assert_eq!(children.len(), 2);
+        } else {
+            panic!("esperado Content::Table");
+        }
+    }
+
+    #[test]
+    fn table_is_empty_proxy_via_children() {
+        use crate::entities::layout_types::TrackSizing;
+        // Children vazios → table vazio (mesmo com tracks declaradas).
+        let t_empty = Content::table(
+            vec![TrackSizing::Auto],
+            vec![TrackSizing::Auto],
+            vec![],
+        );
+        assert!(t_empty.is_empty());
+        // Children com texto → não vazio.
+        let t_full = Content::table(
+            vec![TrackSizing::Auto],
+            vec![TrackSizing::Auto],
+            vec![Content::text("x")],
+        );
+        assert!(!t_full.is_empty());
+    }
+
+    #[test]
+    fn table_plain_text_concatena_children_com_space() {
+        use crate::entities::layout_types::TrackSizing;
+        let t = Content::table(
+            vec![TrackSizing::Auto, TrackSizing::Auto],
+            vec![],
+            vec![Content::text("hello"), Content::text("world")],
+        );
+        // Paridade Grid: join(" ").
+        assert_eq!(t.plain_text(), "hello world");
+    }
+
+    #[test]
+    fn table_partial_eq() {
+        use crate::entities::layout_types::TrackSizing;
+        let mk = || Content::table(
+            vec![TrackSizing::Auto],
+            vec![TrackSizing::Auto],
+            vec![Content::text("a")],
+        );
+        assert_eq!(mk(), mk());
+        // Children diferentes → diferente.
+        let other_children = Content::table(
+            vec![TrackSizing::Auto],
+            vec![TrackSizing::Auto],
+            vec![Content::text("b")],
+        );
+        assert_ne!(mk(), other_children);
+        // Columns diferentes → diferente.
+        let other_columns = Content::table(
+            vec![TrackSizing::Auto, TrackSizing::Auto],
+            vec![TrackSizing::Auto],
+            vec![Content::text("a")],
+        );
+        assert_ne!(mk(), other_columns);
+    }
+
+    #[test]
+    fn table_map_text_recurse_em_children() {
+        use crate::entities::layout_types::TrackSizing;
+        let t = Content::table(
+            vec![TrackSizing::Auto],
+            vec![TrackSizing::Auto],
+            vec![Content::text("hello"), Content::text("world")],
+        );
+        let upper = t.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(upper.plain_text(), "HELLO WORLD");
     }
 }

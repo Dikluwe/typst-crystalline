@@ -179,6 +179,13 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
             rows:    rows.clone(),
             cells:   cells.iter().map(|c| materialize_time(c, state)).collect(),
         },
+        // Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table.
+        // Análogo a Grid: descer em cada child; preservar tracks.
+        Content::Table { columns, rows, children } => Content::Table {
+            columns:  columns.clone(),
+            rows:     rows.clone(),
+            children: children.iter().map(|c| materialize_time(c, state)).collect(),
+        },
         Content::Align { alignment, body } => Content::Align {
             alignment: *alignment,
             body:      Box::new(materialize_time(body, state)),
@@ -384,6 +391,11 @@ fn walk(content: &Content, state: &mut CounterState) {
 
         Content::Grid { cells, .. } => {
             for cell in cells { walk(cell, state); }
+        }
+
+        // Passo 157A — Table (paridade Grid).
+        Content::Table { children, .. } => {
+            for c in children { walk(c, state); }
         }
 
         Content::Align { body, .. } => walk(body, state),

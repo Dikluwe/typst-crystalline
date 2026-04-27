@@ -31,6 +31,26 @@ Cobertura Model 41% → ~45%; arquitectural Content 75% → ~77%.
 Plano Fase 2 (P156/157/158 — table foundations, figure kinds,
 bibliography+cite com ADR-0061) inalterado.
 
+**Anotação Passo 157A (2026-04-26)**: **primeiro sub-passo
+Fase 2 Model materializado** — `Content::Table { columns:
+Vec<TrackSizing>, rows: Vec<TrackSizing>, children: Vec<Content> }`
+adicionado ao enum (52 → 53 variants); `native_table` registada
+em `make_stdlib` em **`stdlib/structural.rs`** (decisão de
+módulo Model existente, não novo `stdlib/model.rs` — per
+diagnóstico P157A §8). Subset minimal per ADR-0054 graded:
+3 fields críticos; ~9 atributos vanilla scope-out; TableCell
+estruturado diferido para **P157B**; TableHeader/Footer
+diferidos para **P157C**. Layouter delega a `layout_grid`
+clone simples per Decisão 4 (sem modificação de `grid.rs`).
+Helper `extract_tracks` promovido a `pub(super)` para reuso
+cross-módulo (N=2; subpadrão emergente). Tests +16
+(1319 → 1335). Cobertura Model 45% → 50% (entrada `table`
+transita `ausente → implementado`). Status `IMPLEMENTADO`
+mantido (Fase 1 fechada P155 não muda; Fase 2 prossegue per
+roadmap). **Padrão cross-domínio confirmado**: granularidade
+N=10 estendida de Layout (P156C-L) a Model (P157A) sem
+reformulação.
+
 **Anotação Passo 156B (2026-04-25)** — **renumeração de Fase 2**:
 P156A foi consumido pelo historiograma (passo administrativo);
 P156B é o diagnóstico Layout (este passo de origem da anotação).

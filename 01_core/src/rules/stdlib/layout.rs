@@ -136,7 +136,11 @@ fn parse_track_sizing(val: &Value) -> Option<TrackSizing> {
     }
 }
 
-fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
+/// `pub(super)` per P157A — reuso N=2 cross-módulo (sibling
+/// `stdlib/structural.rs::native_table`). Subpadrão emergente
+/// análogo a `extract_length` (N=7); promoção a helper público
+/// diferida até atingir N=3-4.
+pub(super) fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
     match val {
         Some(Value::Array(arr)) => arr.iter().filter_map(parse_track_sizing).collect(),
         // `grid(rows: 3)` ou `grid(columns: 3)` → 3 tracks Auto (Passo 83).

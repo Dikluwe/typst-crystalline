@@ -40,7 +40,7 @@ pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::text::{native_lower, native_replace, native_upper};
 pub use crate::rules::stdlib::assert::native_assert;
 pub use crate::rules::stdlib::structural::{
-    native_divider, native_emph, native_heading, native_quote, native_raw, native_strong, native_terms,
+    native_divider, native_emph, native_heading, native_quote, native_raw, native_strong, native_table, native_terms,
 };
 pub use crate::rules::stdlib::figure_image::{native_figure, native_image};
 pub use crate::rules::stdlib::shapes::{
@@ -1982,5 +1982,143 @@ mod tests {
         // Hide
         let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
         assert!(matches!(r, Value::Content(Content::Hide { .. })));
+    }
+
+    // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table ─────────────────
+
+    #[test]
+    fn native_table_defaults_columns_rows_auto() {
+        // P157A: defaults — columns/rows omitidos caem em [Auto]
+        // (paridade com Grid em P83).
+        null_ctx!(ctx);
+        use crate::entities::layout_types::TrackSizing;
+        let r = native_table(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Table { columns, rows, children }) = r {
+            assert_eq!(columns, vec![TrackSizing::Auto]);
+            assert_eq!(rows,    vec![TrackSizing::Auto]);
+            assert!(children.is_empty());
+        } else {
+            panic!("esperado Content::Table");
+        }
+    }
+
+    #[test]
+    fn native_table_columns_int() {
+        // `#table(columns: 3)` → 3 tracks Auto (paridade Grid).
+        null_ctx!(ctx);
+        use crate::entities::layout_types::TrackSizing;
+        let mut args = p(vec![]);
+        args.named.insert("columns".into(), Value::Int(3));
+        let r = native_table(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Table { columns, .. }) = r {
+            assert_eq!(columns, vec![TrackSizing::Auto, TrackSizing::Auto, TrackSizing::Auto]);
+        } else {
+            panic!("esperado Content::Table");
+        }
+    }
+
+    #[test]
+    fn native_table_columns_array_lengths() {
+        // `#table(columns: (10pt, 20pt))` → 2 tracks Fixed.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::{Length, TrackSizing};
+        let mut args = p(vec![]);
+        args.named.insert(
+            "columns".into(),
+            Value::Array(vec![
+                Value::Length(Length::pt(10.0)),
+                Value::Length(Length::pt(20.0)),
+            ]),
+        );
+        let r = native_table(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Table { columns, .. }) = r {
+            assert_eq!(columns.len(), 2);
+            assert!(matches!(columns[0], TrackSizing::Fixed(v) if (v - 10.0).abs() < 1e-6));
+            assert!(matches!(columns[1], TrackSizing::Fixed(v) if (v - 20.0).abs() < 1e-6));
+        } else {
+            panic!("esperado Content::Table");
+        }
+    }
+
+    #[test]
+    fn native_table_children_variadicos() {
+        // `#table(columns: 2)[a][b][c][d]` → 4 children.
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Content(Content::text("a")),
+            Value::Content(Content::text("b")),
+            Value::Content(Content::text("c")),
+            Value::Content(Content::text("d")),
+        ]);
+        args.named.insert("columns".into(), Value::Int(2));
+        let r = native_table(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Table { children, .. }) = r {
+            assert_eq!(children.len(), 4);
+            assert_eq!(children[0].plain_text(), "a");
+            assert_eq!(children[3].plain_text(), "d");
+        } else {
+            panic!("esperado Content::Table");
+        }
+    }
+
+    #[test]
+    fn native_table_aceita_str_como_child() {
+        null_ctx!(ctx);
+        let r = native_table(&mut ctx, &p(vec![Value::Str("hello".into())]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Table { children, .. }) = r {
+            assert_eq!(children.len(), 1);
+            assert_eq!(children[0].plain_text(), "hello");
+        } else {
+            panic!("esperado Content::Table");
+        }
+    }
+
+    #[test]
+    fn native_table_rejeita_named_arg_desconhecido() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![]);
+        args.named.insert("inset".into(), Value::Length(Length::pt(5.0)));
+        let r = native_table(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named arg desconhecido em table() deve retornar Err (atributos avançados scope-out per ADR-0054 graded)");
+    }
+
+    #[test]
+    fn native_table_rejeita_child_int() {
+        null_ctx!(ctx);
+        let r = native_table(&mut ctx, &p(vec![Value::Int(42)]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "child Int em table() deve retornar Err");
+    }
+
+    #[test]
+    fn native_table_paridade_estrutural_com_grid() {
+        // P157A: `table` e `grid` com mesmos args produzem variants
+        // diferentes (semântica distinta) mas estrutura paralela
+        // (mesmas tracks + mesmo número de cells/children).
+        null_ctx!(ctx);
+        let mut g_args = p(vec![
+            Value::Content(Content::text("a")),
+            Value::Content(Content::text("b")),
+        ]);
+        g_args.named.insert("columns".into(), Value::Int(2));
+        let g = native_grid(&mut ctx, &g_args, &null_world(), test_file_id(), None).unwrap();
+
+        let mut t_args = p(vec![
+            Value::Content(Content::text("a")),
+            Value::Content(Content::text("b")),
+        ]);
+        t_args.named.insert("columns".into(), Value::Int(2));
+        let t = native_table(&mut ctx, &t_args, &null_world(), test_file_id(), None).unwrap();
+
+        // Variants diferentes — não são iguais por PartialEq.
+        assert_ne!(g, t);
+        // Mas ambos têm 2 cells/children e 2 columns.
+        if let (Value::Content(Content::Grid { cells: gc, columns: gcols, .. }),
+                Value::Content(Content::Table { children: tc, columns: tcols, .. })) = (g, t) {
+            assert_eq!(gc.len(), tc.len());
+            assert_eq!(gcols.len(), tcols.len());
+        } else {
+            panic!("esperado Grid + Table");
+        }
     }
 }

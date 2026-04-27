@@ -2525,4 +2525,74 @@ mod tests_show_rule_integration {
         assert_eq!(page_b, 3);
         assert_eq!(page_c, 4, "C deve estar na p4 (par): obtive p{}", page_c);
     }
+
+    // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table ──────────────────
+
+    /// `Content::Table` renderiza children como cells em grelha
+    /// (delegação a `layout_grid` per ADR-0060 §"Decisão 4").
+    #[test]
+    fn layout_table_renderiza_children_como_cells() {
+        use crate::entities::layout_types::TrackSizing;
+        let t = Content::table(
+            vec![TrackSizing::Auto, TrackSizing::Auto],
+            vec![],
+            vec![
+                Content::text("a"),
+                Content::text("b"),
+                Content::text("c"),
+                Content::text("d"),
+            ],
+        );
+        let doc = layout(&t, CounterState::default());
+        // Todos os 4 children devem aparecer como FrameItems::Text.
+        for label in ["a", "b", "c", "d"] {
+            let count = doc.pages.iter().flat_map(|p| p.items.iter())
+                .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == label))
+                .count();
+            assert!(count >= 1, "table cell '{}' deve aparecer pelo menos uma vez", label);
+        }
+    }
+
+    /// `Content::Table` e `Content::Grid` com mesmos campos produzem
+    /// o mesmo conjunto de cells observáveis (paridade estrutural por
+    /// delegação a `layout_grid`; sem modificação de `grid.rs`).
+    #[test]
+    fn layout_table_paridade_com_grid_equivalente() {
+        use crate::entities::layout_types::TrackSizing;
+        let columns = vec![TrackSizing::Auto, TrackSizing::Auto];
+        let cells = vec![
+            Content::text("X"),
+            Content::text("Y"),
+        ];
+
+        // Versão Grid.
+        let g = Content::Grid {
+            columns: columns.clone(),
+            rows:    vec![],
+            cells:   cells.clone(),
+        };
+        let doc_g = layout(&g, CounterState::default());
+        let positions_g: Vec<(String, f64, f64)> = doc_g.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, pos, .. } => Some((text.to_string(), pos.x.val(), pos.y.val())),
+                _ => None,
+            })
+            .collect();
+
+        // Versão Table.
+        let t = Content::table(columns, vec![], cells);
+        let doc_t = layout(&t, CounterState::default());
+        let positions_t: Vec<(String, f64, f64)> = doc_t.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, pos, .. } => Some((text.to_string(), pos.x.val(), pos.y.val())),
+                _ => None,
+            })
+            .collect();
+
+        // Posições idênticas (mesma delegação a `layout_grid`).
+        assert_eq!(positions_g, positions_t,
+            "Table e Grid com mesmos campos devem produzir as mesmas posições por delegação");
+    }
 }

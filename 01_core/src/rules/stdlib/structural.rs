@@ -194,5 +194,67 @@ pub fn native_quote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     }))
 }
 
+// ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table minimal ────────────────
+
+/// `table(columns?, rows?, ...children)` → `Content::Table`.
+///
+/// **Primeiro sub-passo Model Fase 2** (ADR-0060). Subset minimal
+/// per diagnóstico P157A §3:
+/// - `columns: Vec<TrackSizing>` (named); default `[Auto]` (cells
+///   numa só coluna).
+/// - `rows: Vec<TrackSizing>` (named); default `[Auto]`.
+/// - `children: Vec<Content>` (variadic posicional).
+///
+/// Cells distribuídas via `idx % num_cols` (algoritmo `layout_grid`
+/// reusado per ADR-0060 §"Decisão 4"; sem modificação de
+/// `grid.rs`).
+///
+/// **Atributos vanilla scope-out** per ADR-0054 graded e diferidos
+/// para passos seguintes:
+/// - `gutter`/`column_gutter`/`row_gutter` (refino XS futuro).
+/// - `inset`/`align`/`fill`/`stroke` (refino M após Block/Box pattern).
+/// - TableCell estruturado (P157B).
+/// - TableHeader/Footer (P157C).
+/// - TableHLine/VLine (cosmetic — não-foundational).
+///
+/// Helper `extract_tracks` reusado de `stdlib/layout.rs` (N=2;
+/// `pub(super)` per P157A — sibling-module access).
+pub fn native_table(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    use crate::rules::stdlib::layout::extract_tracks;
+    use crate::entities::layout_types::TrackSizing;
+
+    for key in args.named.keys() {
+        if !["columns", "rows"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("argumento nomeado inesperado em table(): '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro P157B/C)", key),
+            )]);
+        }
+    }
+    let mut columns = extract_tracks(args.named.get("columns"));
+    let mut rows    = extract_tracks(args.named.get("rows"));
+    // Defaults — `columns`/`rows` omitido cai em `[Auto]` (paridade
+    // com Grid em P83).
+    if columns.is_empty() {
+        columns = vec![TrackSizing::Auto];
+    }
+    if rows.is_empty() {
+        rows = vec![TrackSizing::Auto];
+    }
+    // Children variádicos posicionais (Content ou Str).
+    let mut children: Vec<Content> = Vec::with_capacity(args.items.len());
+    for v in args.items.iter() {
+        match v {
+            Value::Content(c) => children.push(c.clone()),
+            Value::Str(s)     => children.push(Content::text(s.as_str())),
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("table(): children devem ser content ou string, recebeu {}", other.type_name()),
+            )]),
+        }
+    }
+    Ok(Value::Content(Content::Table { columns, rows, children }))
+}
+
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────
 
