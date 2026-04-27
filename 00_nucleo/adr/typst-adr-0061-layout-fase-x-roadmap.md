@@ -336,6 +336,7 @@ de ADR-0065 critério #3):
 | P159D | BibEntry fields adicionais (Model bibliography+cite sub-passo 3) | 0% agregado | Layout 78%; Model 50% inalterado (refino tipo entity); ADR-0065 #2 N=2→3 | +8 |
 | P158C | Figure.kind refactor String→Option (Model figure-kinds sub-passo 3) | 0% agregado | Layout 78%; Model 50% inalterado (refactor cosmético); ADR-0064 Caso A N=6→7 | +2 |
 | P159F | Bibliography numbering numérico (Model bibliography+cite sub-passo 4 — **último Bloco A**) | 0% agregado | Layout 78%; Model 50% inalterado (numbering numérico); subpadrão #15 N=2→3 | +8 |
+| P159E | url + doi em BibEntry (refino família 159 fora Bloco A) | 0% agregado | Layout 78%; Model 50% inalterado (refino tipo entity); subpadrão #16 N=1→2 | +8 |
 
 **Total**: +56 pontos percentuais Layout em 9 passos consecutivos
 de materialização Layout (22% → 78%); **+5pp Model** em P157A
@@ -377,13 +378,17 @@ numérico em Cite Normal/None; field aditivo `state.bib_numbers`
 (subpadrão #15 cresce N=2→3); decisão Opção C (Cite.form
 interaction sem field user-facing); multi-Bibliography contínua;
 **último candidato Bloco A do diagnóstico P159B esgotado**.
-+315 tests** acumulados (1145 → 1460 lib+integ+diagnostic —
-+8 em P159F). **Zero reformulações mid-passo** em N=19
-aplicações de materialização (9 Layout + 10 Model). Padrão
-granular universal cross-domínio confirmado e estendido.
-Cobertura arquitectural mantém **82%** após P159F (refino
-comportamental + extensão infraestrutura state lookup; sem
-alteração estrutural).
+**P159E é primeiro sub-passo família 159 fora Bloco A —
+expansão BibEntry com par natural url+doi (2 fields opcionais
+identificadores digitais); pattern P159D replicado fielmente;
+subpadrão #16 cresce N=1→2 "refino tipo entity sem alteração
+Content"; helper `optional_str` cumulativo N=2→4 atinge limiar
+promoção N=3-4**. **+323 tests** acumulados (1145 → 1468
+lib+integ+diagnostic — +8 em P159E). **Zero reformulações
+mid-passo** em N=20 aplicações de materialização (9 Layout +
+11 Model). Padrão granular universal cross-domínio confirmado
+e estendido. Cobertura arquitectural mantém **82%** após P159E
+(refino tipo entity ortogonal ao enum Content; sem variant novo).
 
 ### Tipos novos infraestruturais
 
@@ -420,14 +425,15 @@ alteração estrutural).
 
 ### Padrões metodológicos consolidados
 
-1. **Granularidade 1-2 features/passo**: **N=19** aplicações
+1. **Granularidade 1-2 features/passo**: **N=20** aplicações
    consecutivas sem reformulação (8 materialização Layout
    + 1 refino Layout P156L + 3 materialização Model
    P157A/B/C + 1 refino Model P158A + 1 par acoplado Model
    P159A + 1 segundo refino Model P158B + 1 refino
    estrutural Model P159C + 1 refino tipo entity Model
-   P159D + 1 refactor cosmético Model P158C + **1 numbering
-   numérico Model P159F**). **Padrão cross-domínio reforçado**
+   P159D + 1 refactor cosmético Model P158C + 1 numbering
+   numérico Model P159F + **1 par identificadores digitais
+   Model P159E**). **Padrão cross-domínio reforçado**
    mas **com primeira quebra honestamente registada**: P159A é
    M+ par acoplado (granularidade quebrada N=13 → M+ com
    precedente P156C par lógico pad+hide). Hipótese da decisão
@@ -441,7 +447,7 @@ alteração estrutural).
    P157 é primeira aplicação do critério #5).
 
 2. **"Inventariar primeiro" pré-decisão arquitectural**:
-   **N=21** aplicações (P156F defensivo; P156G deliberado;
+   **N=22** aplicações (P156F defensivo; P156G deliberado;
    P156H curto; P156I curto focado; P156J curto focado;
    P156L expansão variant existente — primeira aplicação
    concreta do critério #3 de ADR-0065; P157 scope determinado
@@ -501,12 +507,17 @@ alteração estrutural).
    interaction sem field user-facing) + multi-Bibliography
    contínua + interação Cite.form (numeração só Normal/None) —
    nona aplicação concreta critério #5 com decisão multi-critério
-   matriz mais elaborada do passo**).
-   **Formalizado em ADR-0065** (P156K); **agora N=21 com 4
+   matriz mais elaborada do passo**;
+   **P159E inventário par natural url+doi com decisão de ordem
+   layout (Opção C — após `(year).` per paridade APA + backwards
+   compat) + formato (URL plaintext; DOI prefixo `doi:`) —
+   décima aplicação concreta critério #5 com pattern P159D
+   replicado fielmente**).
+   **Formalizado em ADR-0065** (P156K); **agora N=22 com 4
    critérios formalmente validados** (#1 P157A/B + ADR-0062-create
    administrativo XS; #2 P159A + P159C + P159D patamar N=3;
    #3 P156L; #5 P157 + P157A + P158 + P158A + P158B + P159 +
-   P159B + P159C + P159D + P158C + **P159F** multi-feature;
+   P159B + P159C + P159D + P158C + P159F + **P159E** multi-feature;
    #6 P157B/C).
 
 3. **"Smart<T> → Option<T> ou default"**: **N=12** aplicações
@@ -545,7 +556,7 @@ alteração estrutural).
    - **P158C marca primeiro Caso A "estrito" em refactor**
      (não em variant aditivo) — subpadrão emergente.
 
-4. **"§análise de risco no relatório"**: **N=21** aplicações
+4. **"§análise de risco no relatório"**: **N=22** aplicações
    (P156F/G/H/I/J/K + L com peso real — primeiro refactor
    real após série aditiva; P157 com risco baixo diagnóstico;
    P157A com risco baixo-médio — primeiro Model Fase 2 com
@@ -612,7 +623,16 @@ alteração estrutural).
    contínua decidida; numeração só em Normal/None preserva
    forms diferenciadas P159C; hash content.rs preservado
    L0-baseline 15º consecutivo; **último candidato Bloco A
-   esgotado** — marca conceptual importante**).
+   esgotado** — marca conceptual importante**;
+   **P159E com risco baixo — refino tipo entity sem alteração
+   ao variant Content (subpadrão #16 cresce N=1→2 — pattern
+   P159D replicado); helper `optional_str` cumulativo N=2→4
+   atinge limiar promoção; backwards compat trivial via fields
+   default None; decisões cosméticas (ordem layout Opção C +
+   formato URL plaintext + DOI prefixo `doi:`) sem impacto
+   estrutural; hash content.rs preservado L0-baseline 16º
+   consecutivo; **primeiro sub-passo família 159 fora Bloco A**
+   (Bloco A esgotado pós-P159F)**).
    Cobertura sistemática do risco.
 
 5. **"Reuso de template containers"**: **N=4** aplicações
@@ -706,15 +726,19 @@ alteração estrutural).
     XS futuro (NÃO reservado).
 
 16. **"Refino de tipo entity sem alteração ao variant Content"**
-    (subpadrão emergente P159D N=1): aplicação concreta P159D
-    expansão de `BibEntry` struct (4 fields opcionais novos +
-    builder pattern) sem afectar `Content::Bibliography` nem
-    qualquer outro variant Content. Distinção vs P156L (refino
-    de variant Content `Pad`) e P159C (refino de variant Content
-    `Cite`). Subpadrão captura "tipo entity em ficheiro próprio
-    (padrão #14) é refinável independentemente do enum Content
-    — preserva hash content.rs sem necessidade de actualizar L0
-    do enum". Candidato a formalização N=3-4 mínima.
+    (subpadrão emergente P159D N=1 → P159E N=2): aplicações
+    concretas P159D expansão de `BibEntry` struct (4 fields
+    opcionais novos + builder pattern) + **P159E expansão
+    BibEntry (par natural url+doi; 2 fields opcionais novos)**.
+    Sem afectar `Content::Bibliography` nem qualquer outro
+    variant Content. Distinção vs P156L (refino de variant
+    Content `Pad`) e P159C (refino de variant Content `Cite`).
+    Subpadrão captura "tipo entity em ficheiro próprio (padrão
+    #14) é refinável independentemente do enum Content —
+    preserva hash content.rs sem necessidade de actualizar L0
+    do enum". **N=2 atinge meio-caminho do limiar formalização
+    N=3-4**; promoção a ADR meta possível em passo administrativo
+    XS futuro se atingir N=3.
 
 17. **"Refactor de field para Option"** (subpadrão emergente
     P158C N=1): aplicação concreta P158C refactor
@@ -732,23 +756,26 @@ alteração estrutural).
     `Content::Heading.body: Box<Content> → Option<Box<Content>>`
     se prioritário).
 
-### Estado pós-P159F
+### Estado pós-P159E
 
 - **Cobertura Layout**: **78%** (inalterada por P157A/B/C +
   P158/P158A/P159/P159A/P159B + ADR-0062-create + P158B + P159C +
-  P159D + P158C + **P159F** — escopo Model + refino qualitativo +
-  par acoplado + diagnóstico amplo + administrativo XS + segundo
-  refino qualitativo figure + refino estrutural cite + refino
-  tipo entity bib_entry + refactor cosmético kind→Option +
-  numbering numérico bibliography). Target ADR-0061 (72%) **continua
+  P159D + P158C + P159F + **P159E** — escopo Model + refino
+  qualitativo + par acoplado + diagnóstico amplo + administrativo
+  XS + segundo refino qualitativo figure + refino estrutural
+  cite + refino tipo entity bib_entry + refactor cosmético
+  kind→Option + numbering numérico bibliography + par identificadores
+  digitais bib_entry). Target ADR-0061 (72%) **continua
   ultrapassado**.
 - **Cobertura arquitectural**: **82%** (inalterada por P159B +
-  P158B + P159C + P159D + P158C + **P159F** — refinos qualitativos/
-  estruturais/refactors cosméticos/numbering numérico de variants
-  Content existentes ou tipos entity ortogonais; sem variants
-  novos). **Bloco A do diagnóstico P159B esgotado pós-P159F**;
-  tecto Model puro estimado (~55-60%) atingido empiricamente
-  com 24 entradas parciais.
+  P158B + P159C + P159D + P158C + P159F + **P159E** — refinos
+  qualitativos/estruturais/refactors cosméticos/numbering
+  numérico/par identificadores digitais de variants Content
+  existentes ou tipos entity ortogonais; sem variants novos).
+  **Bloco A do diagnóstico P159B esgotado pós-P159F**; **P159E
+  primeiro sub-passo família 159 fora Bloco A**; tecto Model
+  puro estimado (~55-60%) atingido empiricamente com 24 entradas
+  parciais.
 - **Tecto Model puro estimado** (P159B §4): cobertura agregada
   ~50% → **~55-60% alcançável** com 5 sub-passos Bloco A
   (supplement figure / cite.form / BibEntry fields / kind
@@ -856,19 +883,37 @@ alteração estrutural).
   P159B — último candidato. Pós-P159F, Model puro está saturado
   per recomendação do diagnóstico (~55-60% estimado com 24
   entradas parciais).
-- **Bloco A do diagnóstico P159B ESGOTADO** após P159F. Próximas
-  direcções pós-P159F exigem:
+- **P159E (par natural url+doi em BibEntry)**: materializado.
+  **Primeiro sub-passo família 159 fora Bloco A** (esgotado
+  pós-P159F). 2 fields opcionais identificadores digitais
+  (`url`/`doi`) em `BibEntry` per pattern P159D replicado;
+  builder pattern fluente extendido (`with_url`/`with_doi`);
+  helper `optional_str` cumulativo N=2→4 atinge limiar promoção.
+  Layout `format_bib_entry` extendido com Opção C (após
+  `(year).` per paridade APA + backwards compat) — URL plaintext
+  literal; DOI prefixo `doi:`. **Sem alteração ao variant
+  Content**. Hashes `entities/content.rs` e `entities/bib_entry.rs`
+  preservados via L0-baseline (16º consecutivo content.rs).
+  Subpadrão #16 cresce N=1→2 "refino tipo entity sem alteração
+  Content".
+- **Bloco A do diagnóstico P159B ESGOTADO** após P159F.
+  **P159E é primeiro sub-passo família 159 fora Bloco A**.
+  Próximas direcções pós-P159E:
   - **Bloco B (hayagriva)**: ADR-0062 promovida → CSL parsing +
     styles APA/IEEE/etc. (P159G/H/I/J).
   - **Bloco C (cross-módulo)**: refactor multi-region L+
     (DEBT-34e/56) ou Introspection P160.
-  - **Refinos Model fora Bloco A**: mais langs em
-    `figure_supplement_for_lang`; `url`/`doi` em BibEntry; etc.
+  - **Refinos Model fora Bloco A continuação**: restantes fields
+    BibEntry vanilla (`editor`/`series`/`note`/`isbn`/
+    `location`/`organization`); mais langs em
+    `figure_supplement_for_lang`; etc.
   - **Mudança de módulo**: Layout Fase 3 (columns/colbreak).
   - **Passos administrativos XS**: actualizar L0 prompt
     `content.md` mencionando variants Bibliography/Cite/Cite.form;
     promover ADR-0060 a R1; ADR meta saturação ADR-0064;
-    ADR meta subpadrão #15 (state lookup).
+    ADR meta subpadrão #15 (state lookup); promoção
+    `optional_str` a helper público (N=4 cumulativos atingem
+    limiar).
 - **Bloco B (hayagriva, NÃO reservados)** P159B §5: ADR-0062
   promovida → CSL parsing + styles APA/IEEE/etc.
 - **Bloco C (cross-módulo, NÃO materializáveis em Model puro)**

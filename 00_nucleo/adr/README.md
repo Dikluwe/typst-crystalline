@@ -507,6 +507,60 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 159E — `url` + `doi` em `BibEntry` (refino família
+  159 fora Bloco A)** (**primeiro sub-passo família 159 fora
+  Bloco A** do diagnóstico P159B — Bloco A esgotado pós-P159F;
+  **refino estrutural de tipo entity** sem alteração ao variant
+  Content; **subpadrão #16 cresce N=1→2** "refino tipo entity
+  sem alteração Content" — patamar atinge meio-caminho do limiar
+  formalização N=3-4; pattern P159D replicado fielmente).
+  Struct entity `BibEntry` extendido em
+  `01_core/src/entities/bib_entry.rs` com 2 fields opcionais
+  identificadores digitais (`url`/`doi`) — par natural
+  identificado em P159D §9 como candidato a sub-passo M futuro.
+  **Builder pattern fluente** extendido (`with_url`/`with_doi`)
+  paridade P159D. Constructor `new(4 args)` original preservado
+  (backwards compat trivial via fields novos default `None`).
+  Helper `extract_bib_entries` (P159A+P159D) extendido em
+  `01_core/src/rules/stdlib/structural.rs`: helper inline
+  `optional_str` reusado para url/doi — **cumulativo N=2 P159D
+  + N=2 P159E = N=4** (atinge limiar promoção a `pub(super)` ou
+  helper público N=3-4; reavaliação em passo administrativo XS
+  futuro NÃO reservado). Layout `format_bib_entry` extendido em
+  `01_core/src/rules/layout/mod.rs` com concatenação condicional
+  APA-like (**Opção C diagnóstico §8.2**: url/doi após `(year).`
+  per paridade APA + backwards compat — quando ambos `None`,
+  output P159D preservado exactamente). **Formato decidido**
+  diagnóstico §9: URL plaintext literal `https://example.com/paper`;
+  DOI prefixo `doi:10.1234/abc` (paridade APA estilo prose).
+  **Sem alteração ao variant `Content::Bibliography` ou
+  `Content::Cite`**. Hyperlinks NÃO suportados — plaintext
+  simples per ADR-0033 + ADR-0054 graded; depende Layout/PDF
+  infra cross-módulo (Bloco C — NÃO reservado). Tests +8
+  (1222 → 1230; 3 unit bib_entry url/doi + 3 stdlib parse +
+  2 layout E2E formato extendido/regression; range esperado
+  +5-8). Cobertura Model agregada **inalterada** (~50%) —
+  refino tipo entity. Cobertura arquitectural **inalterada** 82%.
+  Hashes `entities/content.rs` e `entities/bib_entry.rs` ambos
+  preservados via L0-baseline interpretation (**16º passo
+  consecutivo content.rs**; bib_entry.rs preservado paridade
+  P159D resultado). Padrões pós-P159E: granularidade N=19 → **20**;
+  inventariar primeiro N=21 → **22** (ADR-0065 critério #5
+  décima aplicação concreta com pattern P159D replicado);
+  §análise de risco N=21 → **22** (P159E baixo risco — refino
+  pattern idêntico a P159D validado); ADR-0064 NÃO directamente
+  aplicável (Optional<String> directo); subpadrão #15
+  (infraestrutura state lookup): N=3 inalterado; **subpadrão
+  #16 (refino tipo entity sem alteração Content): N=1 → 2**
+  (atinge meio-caminho limiar formalização); helper
+  `optional_str` cumulativo N=2 → **4** (atinge limiar promoção);
+  P155 cross-feature N=1 (inalterado); refactor de field para
+  Option N=1 (inalterado).
+  **Política "sem novas reservas" preservada** — restantes fields
+  vanilla (`editor`/`series`/`note`/`isbn`/`location`/`organization`),
+  tipos estruturados, URL/DOI validation, hyperlinks (Bloco C),
+  promoção `optional_str` a helper público permanecem candidatos
+  NÃO-reservados.
 - **Passo 159F — Numbering numérico Bibliography (Model
   bibliography+cite sub-passo 4 — **último candidato Bloco A**)**
   (quarto sub-passo substantivo de Bibliography + Cite após

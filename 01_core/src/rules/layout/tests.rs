@@ -3001,4 +3001,50 @@ mod tests_show_rule_integration {
         assert!(txt.contains("[3]"),
             "third deve obter [3] (numeração contínua multi-Bibliography): doc='{}'", txt);
     }
+
+    // ── Passo 159E — par natural url/doi em BibEntry (E2E) ────────────────
+
+    /// Bibliography com entry incluindo url/doi renderiza formato
+    /// extendido APA-like com URL plaintext + prefixo `doi:`
+    /// (Opção C diagnóstico §8.2; após `(year).`).
+    #[test]
+    fn bibliography_entry_com_url_doi_renderiza_formato_extendido() {
+        use crate::entities::bib_entry::BibEntry;
+        let entry = BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)
+            .with_url("https://example.com/paper")
+            .with_doi("10.1234/abc");
+        let b = Content::bibliography(vec![entry], None);
+        let doc = layout(&b, CounterState::default());
+        let txt = doc.plain_text();
+        // URL plaintext literal deve aparecer.
+        assert!(txt.contains("https://example.com/paper"),
+            "URL plaintext deve aparecer: doc='{}'", txt);
+        // DOI com prefixo `doi:` deve aparecer.
+        assert!(txt.contains("doi:10.1234/abc"),
+            "DOI com prefixo 'doi:' deve aparecer: doc='{}'", txt);
+        // Ordem APA Opção C: url/doi após (year).
+        assert!(txt.contains("(2024)"),
+            "year preserva formato (year): doc='{}'", txt);
+    }
+
+    /// Regression P159D: Bibliography com entry sem url/doi
+    /// renderiza formato P159D original (sem `doi:` no output).
+    #[test]
+    fn bibliography_entry_sem_url_doi_regression_p159d() {
+        use crate::entities::bib_entry::BibEntry;
+        let entry = BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)
+            .with_journal("Nature Communications")
+            .with_volume("12");
+        let b = Content::bibliography(vec![entry], None);
+        let doc = layout(&b, CounterState::default());
+        let txt = doc.plain_text();
+        // P159D fields presentes.
+        assert!(txt.contains("Nature Communications"));
+        assert!(txt.contains("vol. 12"));
+        // Sem url/doi → ausentes do output.
+        assert!(!txt.contains("doi:"),
+            "sem doi → sem 'doi:' no output: doc='{}'", txt);
+        assert!(!txt.contains("https://"),
+            "sem url → sem URL no output: doc='{}'", txt);
+    }
 }

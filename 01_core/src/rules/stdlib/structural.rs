@@ -492,12 +492,15 @@ pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ────────
 
 /// Coage `Value::Array<Value::Dict>` para `Vec<BibEntry>` per
-/// diagnóstico P159A §5 + P159D §5.1. Cada Dict valida 4 fields
-/// obrigatórios (`key`/`author`/`title`/`year`) + 4 opcionais
-/// (`volume`/`pages`/`journal`/`publisher` — Passo 159D).
+/// diagnóstico P159A §5 + P159D §5.1 + P159E §5.1. Cada Dict valida
+/// 4 fields obrigatórios (`key`/`author`/`title`/`year`) + 4
+/// opcionais comuns (`volume`/`pages`/`journal`/`publisher` —
+/// Passo 159D) + 2 opcionais identificadores digitais
+/// (`url`/`doi` — Passo 159E).
 ///
-/// Helper privado P159A extendido em P159D; sem promoção
-/// (N=1; política consistente N=2-3 mínima).
+/// Helper privado P159A extendido em P159D + P159E; sem promoção
+/// (N=1; política consistente N=2-3 mínima — `optional_str` inline
+/// helper N=4 cumulativos atinge limiar).
 ///
 /// **Validações hard**:
 /// - Argumento posicional deve ser `Value::Array`.
@@ -505,8 +508,8 @@ pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 /// - Dict deve ter 4 keys obrigatórias.
 /// - `key`/`author`/`title` devem ser `Value::Str`.
 /// - `year` deve ser `Value::Int` >= 0.
-/// - `volume`/`pages`/`journal`/`publisher` opcionais —
-///   se presentes, devem ser `Value::Str`; ausência aceite.
+/// - `volume`/`pages`/`journal`/`publisher`/`url`/`doi` opcionais
+///   — se presentes, devem ser `Value::Str`; ausência aceite.
 fn extract_bib_entries(val: Option<&Value>) -> SourceResult<Vec<crate::entities::bib_entry::BibEntry>> {
     use crate::entities::bib_entry::BibEntry;
     let arr = match val {
@@ -596,12 +599,18 @@ fn extract_bib_entries(val: Option<&Value>) -> SourceResult<Vec<crate::entities:
         let pages     = optional_str("pages")?;
         let journal   = optional_str("journal")?;
         let publisher = optional_str("publisher")?;
+        // Passo 159E — par natural url/doi (reuso optional_str
+        // inline helper; cumulativo N=2 P159D + N=2 P159E = N=4).
+        let url       = optional_str("url")?;
+        let doi       = optional_str("doi")?;
 
         let mut entry = BibEntry::new(key, author, title, year);
         entry.volume    = volume;
         entry.pages     = pages;
         entry.journal   = journal;
         entry.publisher = publisher;
+        entry.url       = url;
+        entry.doi       = doi;
         entries.push(entry);
     }
     Ok(entries)
