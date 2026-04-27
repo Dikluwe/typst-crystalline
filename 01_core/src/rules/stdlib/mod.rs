@@ -2798,4 +2798,80 @@ mod tests {
         assert!(msg.contains("volume"),
             "mensagem deve mencionar field 'volume': {}", msg);
     }
+
+    // ── Passo 159E — par natural url/doi ────────────────────────────────────
+
+    fn make_bib_dict_with_url_doi(
+        key: &str, author: &str, title: &str, year: i64,
+        url: &str, doi: &str,
+    ) -> Value {
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("key".into(),    Value::Str(key.into()));
+        d.insert("author".into(), Value::Str(author.into()));
+        d.insert("title".into(),  Value::Str(title.into()));
+        d.insert("year".into(),   Value::Int(year));
+        d.insert("url".into(),    Value::Str(url.into()));
+        d.insert("doi".into(),    Value::Str(doi.into()));
+        Value::Dict(d)
+    }
+
+    #[test]
+    fn native_bibliography_parse_url_doi_presentes() {
+        null_ctx!(ctx);
+        let entries_arr = Value::Array(vec![
+            make_bib_dict_with_url_doi(
+                "smith2024", "Smith, J.", "On Crystal Math", 2024,
+                "https://example.com/paper", "10.1234/abc",
+            ),
+        ]);
+        let args = p(vec![entries_arr]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Bibliography { entries, .. }) = r {
+            let e = &entries[0];
+            assert_eq!(e.url.as_deref(), Some("https://example.com/paper"));
+            assert_eq!(e.doi.as_deref(), Some("10.1234/abc"));
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn native_bibliography_parse_sem_url_doi_regression_p159d() {
+        // Regression: dict só com 4 obrigatórios + 4 P159D opcionais
+        // produz entry com url/doi None (output P159D inalterado).
+        null_ctx!(ctx);
+        let args = p(vec![Value::Array(vec![
+            make_bib_dict("smith2024", "Smith, J.", "On Crystal Math", 2024),
+        ])]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Bibliography { entries, .. }) = r {
+            let e = &entries[0];
+            assert!(e.url.is_none());
+            assert!(e.doi.is_none());
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn native_bibliography_url_doi_tipo_errado_rejeitado() {
+        null_ctx!(ctx);
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("key".into(),    Value::Str("k".into()));
+        d.insert("author".into(), Value::Str("A".into()));
+        d.insert("title".into(),  Value::Str("T".into()));
+        d.insert("year".into(),   Value::Int(2024));
+        // doi com tipo errado (Int em vez de Str).
+        d.insert("doi".into(), Value::Int(42));
+        let args = p(vec![Value::Array(vec![Value::Dict(d)])]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "doi com tipo Int deve retornar Err");
+        let msg = r.unwrap_err()[0].message.clone();
+        assert!(msg.contains("doi"),
+            "mensagem deve mencionar field 'doi': {}", msg);
+    }
 }

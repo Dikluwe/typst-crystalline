@@ -9,14 +9,20 @@
 //! ADR-0060 §"Decisão 2" Fase 2 sub-passo 1) como suporte a
 //! `Content::Bibliography { entries: Vec<BibEntry>, ... }`.
 //! Extendido no Passo 159D com 4 fields universais comuns
-//! (volume/pages/journal/publisher) per ADR-0065 critério #2 +
-//! builder pattern (Opção C diagnóstico §8).
+//! (volume/pages/journal/publisher) + builder pattern (Opção C
+//! diagnóstico §8). Extendido no Passo 159E com par natural
+//! url/doi (subpadrão #16 N=1→2 "refino tipo entity sem alteração
+//! ao variant Content").
 //!
 //! Subset minimal extendido per ADR-0054 graded:
 //! - 4 fields obrigatórios (key/author/title/year — P159A).
-//! - 4 fields opcionais (volume/pages/journal/publisher — P159D).
-//! Outros fields vanilla (url/doi/editor/series/note/isbn/location/
-//! etc.) **diferidos** para refinos futuros NÃO reservados.
+//! - 4 fields opcionais comuns (volume/pages/journal/publisher
+//!   — P159D).
+//! - 2 fields opcionais identificadores digitais (url/doi —
+//!   P159E).
+//! Outros fields vanilla (editor/series/note/isbn/location/
+//! organization/etc.) **diferidos** para refinos futuros NÃO
+//! reservados.
 //!
 //! Estilo paralelo ao vanilla `hayagriva::Entry` mas com subset
 //! extremamente reduzido — input cristalino é literal, sem parsing
@@ -38,27 +44,37 @@
 /// - `year`: campo universal; `u32` para anos positivos
 ///   (aceita 0 para "no year").
 ///
-/// **Campos opcionais** (P159D — selecção universal per
+/// **Campos opcionais comuns** (P159D — selecção universal per
 /// ADR-0065 critério #2):
 /// - `volume`: universal em journals/proceedings/livros multi-volume.
 /// - `pages`: universal em qualquer publicação com paginação.
 /// - `journal`: universal em artigos de journal.
 /// - `publisher`: universal em livros/tech reports/manuals.
 ///
+/// **Campos opcionais identificadores digitais** (P159E — par
+/// natural identificado em P159D §9):
+/// - `url`: identificador digital genérico; plaintext literal
+///   (sem URL parsing/validation per ADR-0054 graded).
+/// - `doi`: Digital Object Identifier; plaintext literal com
+///   prefixo `doi:` no render (sem regex validation).
+///
 /// `Clone`/`Debug`/`PartialEq` derivados — entry é dados puros.
-/// Refinos futuros (mais fields, formatação CSL) virão como
-/// métodos ou trait separada.
+/// Refinos futuros (mais fields, formatação CSL, hyperlinks)
+/// virão como métodos ou trait separada.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BibEntry {
     pub key:       String,
     pub author:    String,
     pub title:     String,
     pub year:      u32,
-    // Passo 159D — fields opcionais.
+    // Passo 159D — fields opcionais comuns.
     pub volume:    Option<String>,
     pub pages:     Option<String>,
     pub journal:   Option<String>,
     pub publisher: Option<String>,
+    // Passo 159E — fields opcionais identificadores digitais.
+    pub url:       Option<String>,
+    pub doi:       Option<String>,
 }
 
 impl BibEntry {
@@ -80,6 +96,8 @@ impl BibEntry {
             pages:     None,
             journal:   None,
             publisher: None,
+            url:       None,
+            doi:       None,
         }
     }
 
@@ -107,6 +125,21 @@ impl BibEntry {
     /// Builder fluente — adiciona `publisher`.
     pub fn with_publisher(mut self, pb: impl Into<String>) -> Self {
         self.publisher = Some(pb.into());
+        self
+    }
+
+    // ── Builder pattern P159E (par natural url/doi) ────────────
+
+    /// Builder fluente — adiciona `url` (plaintext literal).
+    pub fn with_url(mut self, u: impl Into<String>) -> Self {
+        self.url = Some(u.into());
+        self
+    }
+
+    /// Builder fluente — adiciona `doi` (plaintext literal;
+    /// render aplica prefixo `doi:` em layout).
+    pub fn with_doi(mut self, d: impl Into<String>) -> Self {
+        self.doi = Some(d.into());
         self
     }
 }
@@ -196,5 +229,51 @@ mod tests {
             .with_journal("J")
             .with_publisher("P");
         assert_ne!(mk(), sem_volume);
+    }
+
+    // ── Passo 159E — par natural url/doi ────────────────────────
+
+    #[test]
+    fn bib_entry_new_default_url_doi_none() {
+        // Backwards compat P159A+P159D: new() com 4 args produz
+        // url/doi default None.
+        let e = BibEntry::new("k", "A", "T", 2024);
+        assert!(e.url.is_none());
+        assert!(e.doi.is_none());
+    }
+
+    #[test]
+    fn bib_entry_builder_url_doi() {
+        let e = BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)
+            .with_url("https://example.com/paper")
+            .with_doi("10.1234/abc");
+        assert_eq!(e.url.as_deref(), Some("https://example.com/paper"));
+        assert_eq!(e.doi.as_deref(), Some("10.1234/abc"));
+        // Outros fields permanecem default None.
+        assert!(e.volume.is_none());
+        assert!(e.pages.is_none());
+    }
+
+    #[test]
+    fn bib_entry_partial_eq_cobre_10_fields() {
+        let mk = || BibEntry::new("k", "A", "T", 2024)
+            .with_volume("1")
+            .with_pages("10-20")
+            .with_journal("J")
+            .with_publisher("P")
+            .with_url("https://x.com")
+            .with_doi("10.1/a");
+        assert_eq!(mk(), mk());
+        // Cada novo field opcional divergente quebra equivalência.
+        assert_ne!(mk(), mk().with_url("https://y.com"));
+        assert_ne!(mk(), mk().with_doi("10.2/b"));
+        // Field opcional ausente vs presente quebra.
+        let sem_url = BibEntry::new("k", "A", "T", 2024)
+            .with_volume("1")
+            .with_pages("10-20")
+            .with_journal("J")
+            .with_publisher("P")
+            .with_doi("10.1/a");
+        assert_ne!(mk(), sem_url);
     }
 }

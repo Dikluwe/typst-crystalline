@@ -1269,13 +1269,18 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 /// Caso contrário, itera até convergência (máximo 5 vezes).
 ///
 /// Para métricas de fonte reais: `03_infra::layout::layout_with_font()`.
-/// Helper privado P159D — formata `BibEntry` para render
-/// Bibliography. Concatenação condicional dos 4 fields opcionais
+/// Helper privado P159D + P159E — formata `BibEntry` para render
+/// Bibliography. Concatenação condicional dos fields opcionais
 /// quando presentes; backwards compat preserva formato P159A
 /// quando todos os opcionais são `None`.
 ///
-/// Ordem APA-like (decisão diagnóstico §10):
-/// `[key] author. title journal vol. volume, pp. pages. publisher (year).`
+/// Ordem APA-like (decisão diagnóstico P159D §10 + P159E §8.2):
+/// `[key] author. title journal vol. volume, pp. pages. publisher (year). url, doi:DDDD.`
+///
+/// **P159E (Opção C)**: url/doi appendados após `(year).` per
+/// paridade APA + backwards compat (sem url/doi → output P159D
+/// preservado exactamente). URL plaintext literal; DOI prefixo
+/// `doi:` (decisão diagnóstico P159E §9).
 fn format_bib_entry(e: &crate::entities::bib_entry::BibEntry) -> String {
     let mut out = format!("[{}] {}. {}", e.key, e.author, e.title);
     if let Some(j)  = &e.journal   { out.push_str(&format!(" {}", j)); }
@@ -1283,6 +1288,13 @@ fn format_bib_entry(e: &crate::entities::bib_entry::BibEntry) -> String {
     if let Some(p)  = &e.pages     { out.push_str(&format!(", pp. {}", p)); }
     if let Some(pb) = &e.publisher { out.push_str(&format!(". {}", pb)); }
     out.push_str(&format!(" ({}).", e.year));
+    // P159E — par natural url/doi após (year). per Opção C.
+    match (&e.url, &e.doi) {
+        (Some(u), Some(d)) => out.push_str(&format!(" {}, doi:{}.", u, d)),
+        (Some(u), None)    => out.push_str(&format!(" {}.", u)),
+        (None,    Some(d)) => out.push_str(&format!(" doi:{}.", d)),
+        (None,    None)    => {}
+    }
     out
 }
 
