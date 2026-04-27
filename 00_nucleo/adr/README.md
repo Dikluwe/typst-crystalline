@@ -505,6 +505,62 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 158A — Model figure-kinds sub-passo 1: auto-detecção
+  de `kind` em `native_figure`** (décima terceira aplicação
+  consecutiva de materialização desde início da série granular
+  P156C; primeiro sub-passo Model figure-kinds per scope decidido
+  em diagnóstico P158 §3.2 — subset minimal). Refino qualitativo
+  de infraestrutura existente (`Content::Figure` e counters por
+  kind já funcionais desde P75/ADR-0041). Substantivo S+ /
+  M-: helper privado novo `infer_kind_from_body(body: &Content)
+  -> Option<String>` em `stdlib/figure_image.rs` (~10 linhas)
+  cobrindo Image/Table/Raw + **recursão limitada a
+  `Content::Sequence`** per decisão P158A §8 (paridade vanilla
+  parcial per ADR-0033 — vanilla usa `query_first_naive`
+  recursivo profundo; cristalino limita a Sequence; outros
+  containers Block/Box/Pad/Styled scope-out per ADR-0054 graded).
+  Modificação trivial em `native_figure` para fallback chain
+  3 níveis: `kind:` explícito > inferência > default `"image"`
+  (precedência absoluta para `kind:` explícito preserva tests
+  pré-existentes). **Sem alteração ao variant `Content::Figure`**
+  (estrutura inalterada; `kind: String` continua directo —
+  refactor para `Option<String>` per ADR-0064 Caso A NÃO
+  reservado per política P158). **Sem alteração a `introspect.rs`
+  ou layout** — counters por kind continuam funcionar inalterados;
+  refino vive só na origem do valor `kind` antes de o passar
+  ao variant. **ADR-0064 NÃO directamente aplicável** em P158A
+  (kind continua String directo); aplicação futura potencial
+  em refactor não reservado. **ADR-0065 critério #1 (naming
+  `infer_kind_from_body`) + critério #5 (scope) implícitos**.
+  Validação: `kind:` explícito vence (precedência absoluta);
+  Image/Table/Raw direct detectam correctamente; Sequence
+  recurse no primeiro child detectável; body Text fallback
+  para `"image"` default. Tests: 1141 → **1147** typst-core
+  lib (+6 = 5 auto-detect por kind + 1 Sequence handling;
+  range esperado +6-8). **Política "sem novas reservas" preservada**
+  (P158 estabeleceu; P158A respeita) — supplement automático
+  por lang, show selectors `figure.where(kind:)`, refactor
+  `kind: String → Option<String>` permanecem candidatos
+  **NÃO-reservados**. Cobertura Model agregada **inalterada**
+  (~50%) — refino qualitativo. Total user-facing: ~61.0%
+  (inalterada). Tabela B Content variants: 56 (inalterada).
+  **ADR-0060 mantém-se `IMPLEMENTADO`** (anotação P158A
+  adicionada). **ADR-0061 mantém-se `PROPOSTO`**. README ADRs:
+  total **63 inalterado**; reservas P159/ADR-0062 mantidas
+  (não reforçadas). **Hash `entities/content.rs` mantém-se
+  `ec58d849`** — **sétimo passo consecutivo** (P156L → P157 →
+  P157A → P157B → P157C → P158 → P158A) sem alteração ao
+  variant Content. Padrão "passos aditivos / refino sem
+  alteração de variant Content" estabilizado. **Padrões
+  pós-P158A**: granularidade **N=13** (cross-domínio fortalecido
+  com refino Model); inventariar primeiro N=11 → **12** (P158A
+  reforça critério #5 com decisão Sequence handling); §análise
+  de risco N=11 → **12** (primeiro passo Model com refino
+  comportamental sem alteração estrutural — risco muito baixo);
+  Smart→Option N=9 (inalterado — não aplicável directamente em
+  P158A); helpers `extract_*` reusos inalterados. **Helper novo
+  `infer_kind_from_body` N=1** (sem candidato a reuso até agora;
+  promoção diferida per política consistente N=3-4).
 - **Passo 158 — Diagnóstico Model figure-kinds**
   (passo arquitectural de diagnóstico; **não materializa código**;
   análogo estrutural a P156B/P156K/P157). **Segunda aplicação

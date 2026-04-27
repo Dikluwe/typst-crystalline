@@ -31,6 +31,30 @@ Cobertura Model 41% → ~45%; arquitectural Content 75% → ~77%.
 Plano Fase 2 (P156/157/158 — table foundations, figure kinds,
 bibliography+cite com ADR-0061) inalterado.
 
+**Anotação Passo 158A (2026-04-27)**: **primeiro sub-passo
+Model figure-kinds materializado** (Fase 2 continuação após
+table foundations fechado P157C). Refino qualitativo de
+`native_figure`: helper privado novo `infer_kind_from_body(body:
+&Content) -> Option<String>` em `stdlib/figure_image.rs` cobrindo
+Image/Table/Raw + recursão limitada a `Content::Sequence`
+(paridade vanilla parcial per ADR-0033 — vanilla usa
+`query_first_naive` recursivo profundo; cristalino limita a
+Sequence per decisão P158A §8). Fallback chain 3 níveis em
+`native_figure`: `kind:` explícito > inferência > default
+`"image"` (precedência absoluta para `kind:` explícito preserva
+tests pré-existentes). **Sem alteração ao variant `Content::Figure`**
+(estrutura inalterada; `kind: String` continua directo).
+**Sem alteração a `introspect.rs` ou layout** (counters por
+kind continuam funcionar inalterados — refino vive só na
+origem do valor `kind`). Tests +6 (1141 → 1147; range esperado
++6-8). Cobertura Model agregada **inalterada** (~50%) — refino
+qualitativo. Hash `entities/content.rs` preservado `ec58d849`
+(sétimo passo consecutivo). Status `IMPLEMENTADO` mantido.
+**Política "sem novas reservas" preservada** (estabelecida em
+P158): supplement automático por lang, show selectors
+`figure.where(kind:)`, refactor `kind: String → Option<String>`
+permanecem candidatos NÃO-reservados.
+
 **Anotação Passo 157C (2026-04-26)**: **terceiro e último
 sub-passo Fase 2 Model — "table foundations" fechado**.
 Par simétrico `Content::TableHeader { body, repeat: bool }` +
