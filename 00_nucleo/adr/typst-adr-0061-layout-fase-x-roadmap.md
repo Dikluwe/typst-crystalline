@@ -299,7 +299,7 @@ da Fase 1 Model em P155).
 
 ---
 
-## Aplicações cumulativas (pós-P159A)
+## Aplicações cumulativas (pós-P159B)
 
 ADR-0061 PROPOSTO em P156B (2026-04-25). **Fase 1+2
 materializadas em sequência granular P156C-I** (7 passos
@@ -328,7 +328,8 @@ de ADR-0065 critério #3):
 | P158 | (diagnóstico Model figure-kinds) | — | — (sem código; passo documental) | 0 |
 | P158A | figure auto-detect (Model figure-kinds sub-passo 1) | 0% agregado | Layout 78%; Model 50% inalterado (refino qualitativo) | +6 |
 | P159 | (diagnóstico Bibliography + Cite) | — | — (sem código; passo documental) | 0 |
-| **P159A** | **Bibliography + Cite par acoplado minimal (Model Fase 2)** | **+arq 80% → 82%** | **Layout 78%; Model agregada 50% inalterada; cite/bib `ausente → parcial`** | **+27** |
+| P159A | Bibliography + Cite par acoplado minimal (Model Fase 2) | +arq 80% → 82% | Layout 78%; Model agregada 50% inalterada; cite/bib `ausente → parcial` | +27 |
+| **P159B** | **(diagnóstico amplo expansão série 159 + tecto Model)** | — | — (sem código; passo documental amplo M-) | **0** |
 
 **Total**: +56 pontos percentuais Layout em 9 passos consecutivos
 de materialização Layout (22% → 78%); **+5pp Model** em P157A
@@ -347,12 +348,12 @@ Fase 2 (table foundations) — primeira aplicação concreta de
 ADR-0065 critério #5. **P158 é diagnóstico precedendo
 materialização Model figure-kinds — segunda aplicação concreta
 do critério #5**. **+267 tests** acumulados (1145 → 1412
-lib+integ+diagnostic; +27 em P159A). **Zero reformulações
-mid-passo** em N=14 aplicações de materialização (9 Layout +
-5 Model). Padrão granular universal cross-domínio confirmado
-e estendido. Cobertura arquitectural cresce **80% → 82%** em
-P159A (par acoplado Bibliography+Cite adiciona 2 variants
-Content; vanilla extra ausentes mantém 0).
+lib+integ+diagnostic; inalterado por P159B documental).
+**Zero reformulações mid-passo** em N=14 aplicações de
+materialização (9 Layout + 5 Model). Padrão granular
+universal cross-domínio confirmado e estendido. Cobertura
+arquitectural mantém **82%** após P159B (passo documental
+amplo).
 
 ### Tipos novos infraestruturais
 
@@ -404,7 +405,7 @@ Content; vanilla extra ausentes mantém 0).
    do critério #3; P157 é primeira aplicação do critério #5).
 
 2. **"Inventariar primeiro" pré-decisão arquitectural**:
-   **N=14** aplicações (P156F defensivo; P156G deliberado;
+   **N=15** aplicações (P156F defensivo; P156G deliberado;
    P156H curto; P156I curto focado; P156J curto focado;
    P156L expansão variant existente — primeira aplicação
    concreta do critério #3 de ADR-0065; P157 scope determinado
@@ -429,13 +430,17 @@ Content; vanilla extra ausentes mantém 0).
    de 3 estruturas (multi-passo / minimal / diferimento) e
    recomendação Estrutura A adaptada — terceira aplicação concreta
    do critério #5 com diversidade cross-feature confirmada;
-   **P159A inventário par acoplado com decisão de tipo entity
+   P159A inventário par acoplado com decisão de tipo entity
    `BibEntry` 4 fields minimais — primeira aplicação isolada
-   concreta de ADR-0065 critério #2 (escolha de tipo)**).
-   **Formalizado em ADR-0065** (P156K); **agora N=14 com 4
-   critérios formalmente validados** (#2 **P159A primeira
-   isolada**; #3 P156L; #5 P157 + P157A + P158 + P158A + P159;
-   #1 P157A/B + #6 P157B/C).
+   concreta de ADR-0065 critério #2 (escolha de tipo);
+   **P159B inventário amplo expansão série 159 + tecto Model
+   — quarta aplicação concreta critério #5 com diversidade
+   ampliada multi-feature** (P157/P158/P159 inventariaram uma
+   feature cada; P159B inventaria todas as expansões pendentes
+   simultaneamente)). **Formalizado em ADR-0065** (P156K);
+   **agora N=15 com 4 critérios formalmente validados** (#2
+   P159A primeira isolada; #3 P156L; #5 P157 + P157A + P158 +
+   P158A + P159 + **P159B multi-feature**; #1 P157A/B + #6 P157B/C).
 
 3. **"Smart<T> → Option<T> ou default"**: **N=10** aplicações
    (P156E Parity; P156F angles; P156G Block.width; P156H
@@ -463,7 +468,7 @@ Content; vanilla extra ausentes mantém 0).
      Caso B só Layout — candidato futuro.
    - **Caso A é o caso mais aplicado** (N=5; cross-domínio).
 
-4. **"§análise de risco no relatório"**: **N=14** aplicações
+4. **"§análise de risco no relatório"**: **N=15** aplicações
    (P156F/G/H/I/J/K + L com peso real — primeiro refactor
    real após série aditiva; P157 com risco baixo diagnóstico;
    P157A com risco baixo-médio — primeiro Model Fase 2 com
@@ -483,7 +488,10 @@ Content; vanilla extra ausentes mantém 0).
    (multi-passo/minimal/diferimento); **P159A com risco médio
    — primeiro M+ par acoplado pós-P156C; tipo entity novo
    `BibEntry` em ficheiro novo; ADR-0065 critério #2 primeira
-   aplicação isolada concreta**).
+   aplicação isolada concreta; **P159B com risco baixo —
+   diagnóstico amplo M-; tecto Model puro estimado +5-10pp
+   alcançável com 5 sub-passos Bloco A; recomendação concreta
+   P158B supplement por lang figure**).
    Cobertura sistemática do risco.
 
 5. **"Reuso de template containers"**: **N=4** aplicações
@@ -541,13 +549,19 @@ Content; vanilla extra ausentes mantém 0).
     formalização se P158/P159 também usarem pares simétricos
     (e.g. `figure.caption`/`figure.numbering` se aplicável).
 
-### Estado pós-P159A
+### Estado pós-P159B
 
 - **Cobertura Layout**: **78%** (inalterada por P157A/B/C +
-  P158/P158A/P159/P159A — escopo Model + refino qualitativo +
-  par acoplado). Target ADR-0061 (72%) **continua ultrapassado**.
-- **Cobertura arquitectural**: 80% → **82%** (par acoplado
-  Bibliography+Cite adiciona 2 variants; 56 → 58).
+  P158/P158A/P159/P159A/P159B — escopo Model + refino
+  qualitativo + par acoplado + diagnóstico amplo). Target
+  ADR-0061 (72%) **continua ultrapassado**.
+- **Cobertura arquitectural**: **82%** (inalterada por P159B
+  documental).
+- **Tecto Model puro estimado** (P159B §4): cobertura agregada
+  ~50% → **~55-60% alcançável** com 5 sub-passos Bloco A
+  (supplement figure / cite.form / BibEntry fields / kind
+  refactor / bib numbering simples). Tecto Model + hayagriva:
+  **~68%** (paridade ADR-0060 declarado).
 - **Cobertura Model agregada**: ~50% (inalterada vs P157A/B —
   TableCell/TableHeader/TableFooter são sub-entradas de table
   que não contam separadamente na agregação). Ganho qualitativo
@@ -580,10 +594,18 @@ Content; vanilla extra ausentes mantém 0).
   cross-reference** — ADR-0017 adiada. ADR-0062 mantém-se
   reserva sem ficheiro. **DEBT-55 contribuído mas NÃO fechado**
   — refinos futuros pendem de hayagriva integration.
-- **Restantes Fase 2 Model**:
-  - Refinos figure-kinds (supplement por lang; NÃO reservado).
-  - Refinos Bibliography+Cite (hayagriva, CSL, form variants,
-    numbering, cross-document refs; NÃO reservados).
+- **Restantes Fase 2 Model** (per P159B §5 Bloco A):
+  - **Recomendação primária P159B §6**: P158B supplement
+    automático por lang em figure (M; reuso padrão P155 quotes).
+  - Cite.form variants (Normal/Prose/Author/Year).
+  - BibEntry fields adicionais (volume/pages/journal/etc.).
+  - Refactor `kind: String → Option<String>` per ADR-0064 Caso A.
+  - Numbering numérico simples Bibliography.
+- **Bloco B (hayagriva, NÃO reservados)** P159B §5: ADR-0062
+  promovida → CSL parsing + styles APA/IEEE/etc.
+- **Bloco C (cross-módulo, NÃO materializáveis em Model puro)**
+  P159B §5: DEBT-34e placement Grid; DEBT-56 multi-region;
+  ADR-0017 cite cross-document forward refs.
 - **Restantes 3 entradas Layout** pendentes (mesmo subset
   pós-P156L; P157A/B/C não tocam):
   - `columns`/`colbreak` (Fase 3 condicional — DEBT-56).
@@ -596,22 +618,20 @@ Content; vanilla extra ausentes mantém 0).
   contribui ao DEBT-56 (storage de repeat). Fechamento de
   ambos fica para refactor dedicado.
 - **Zero novos DEBTs** em toda a série P156C-L + P157 +
-  P157A/B/C + P158 + P158A + P159 + **P159A** (18 passos total:
-  14 materialização + 4 meta/diagnóstico).
+  P157A/B/C + P158 + P158A + P159 + P159A + **P159B** (19
+  passos total: 14 materialização + 5 meta/diagnóstico).
 - **Footnote area** scope-out per decisão humana
   2026-04-25 (não incluído na Fase 1+2 Layout nem em P156J/L/
   P157/P157A/B/C/P158/P158A).
 - **Hash `entities/content.rs` preservado**: `ec58d849`
-  desde P156L — **nono passo consecutivo** (P156L → P157 →
-  P157A → P157B → P157C → P158 → P158A → P159 → **P159A**)
-  sem alteração ao prompt L0 do content. Reinterpretação:
-  o "hash content.rs" no header é hash do prompt L0 (não do
-  ficheiro código); P159A adicionou variants Bibliography+Cite
-  ao código mas o prompt L0 `content.md` permanece inalterado
-  — hash mantém-se. Padrão "estabilidade contrato L0 do
-  content" preserva-se 9 passos consecutivos. Refino futuro
-  pode actualizar prompt L0 com documentação dos novos variants
-  (passo administrativo XS NÃO reservado).
+  desde P156L — **décimo passo consecutivo** (P156L → P157 →
+  P157A → P157B → P157C → P158 → P158A → P159 → P159A →
+  **P159B**) sem alteração ao prompt L0 do content. Padrão
+  "estabilidade contrato L0 do content" continua a fortalecer-se
+  em P159B (passo documental amplo). Refino futuro pode
+  actualizar prompt L0 com documentação dos novos variants
+  Bibliography/Cite (passo administrativo XS NÃO reservado per
+  política P158).
 - **Política nova "sem novas reservas"** (P158): reservas
   pré-existentes (P159 + ADR-0062) respeitadas mas não
   reforçadas; passos seguintes a decidir sequencialmente per
