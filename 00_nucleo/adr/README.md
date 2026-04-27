@@ -505,6 +505,81 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 159A — Bibliography + Cite par acoplado minimal
+  (Model bibliography + cite sub-passo 1)** (décima quarta
+  aplicação consecutiva de materialização desde início da
+  série granular P156C; primeiro sub-passo Bibliography + Cite
+  per scope decidido em diagnóstico P159 §3.5 — Estrutura A
+  adaptada). **Primeira aplicação isolada concreta de ADR-0065
+  critério #2** (escolha de tipo) — decisão de `BibEntry` 4
+  fields minimais (key/author/title/year) é decisão arquitectural-
+  chave registada. **ADR-0064 Caso A patamar cresce N=4 → 5**
+  com diversidade cross-domínio reforçada (60% Layout + 40%
+  Model). Substantivo M+ par funcional acoplado
+  (granularidade quebrada N=13 → M+ honestamente registada com
+  precedente P156C par lógico pad+hide): tipo entity novo
+  `BibEntry { key, author, title, year }` em
+  `01_core/src/entities/bib_entry.rs` (ficheiro novo per padrão
+  P156C `sides.rs`); variants `Content::Bibliography { entries:
+  Vec<BibEntry>, title: Option<Box<Content>> }` + `Content::Cite
+  { key: String, supplement: Option<Box<Content>> }` adicionados
+  ao enum (56 → 58 variants); stdlib `#bibliography(entries,
+  title: ?)` + `#cite(key, supplement: ?)` em
+  `stdlib/structural.rs` (continuação Model per P157A).
+  **Naming `bibliography` e `cite` flat** (paridade decisão
+  P157B). **Helper privado novo `extract_bib_entries`**
+  parseia `Value::Array<Value::Dict>` para `Vec<BibEntry>`
+  com validação hard de 4 fields obrigatórios.
+  **Tradução ADR-0064 Caso A**: `title: Smart<Option<Content>>`
+  vanilla → `Option<Box<Content>>` cristalino; `supplement`
+  similar (Option<Content> vanilla passa directo). **Limitações
+  aceites per ADR-0054 graded**: **sem hayagriva** (input
+  cristalino literal `Vec<BibEntry>`; ADR-0062 mantém-se reserva
+  sem ficheiro); **sem CSL parsing/styles** (placeholder render);
+  **sem form variants** Normal/Prose/etc.; **sem validação
+  cross-reference** `Cite.key ∈ Bibliography.keys` (ADR-0017
+  Introspection runtime adiada — `cite("inexistente")` produz
+  placeholder sem erro); **sem numbering schemes** dinâmicos.
+  Layouter renderiza placeholder: Bibliography como title (se
+  Some) + lista de entries formatadas como
+  `"[{key}] {author}. {title} ({year})."` per linha; Cite
+  como `"[{key}]"` + supplement (se Some). Cobertura exaustiva
+  de **9 sítios pattern-match estruturais** (paridade P157A/B/C/
+  P159A): variants + construtores + is_empty + plain_text +
+  PartialEq + map_content + map_text + materialize_time + walk
+  + layout arms. Validação: bib entry sem field obrigatório
+  rejeitada; year negativo rejeitado; named arg desconhecido
+  rejeitado em ambas funcs (mensagem inclui menção de
+  scope-out per ADR-0054 graded); cite() sem key ou key vazia
+  rejeitada. Tests: 1147 → **1174** typst-core lib (+27 = 11
+  unit + 13 stdlib + 3 E2E layout; range esperado +18-21
+  ultrapassado por par acoplado + tipo entity novo).
+  Cobertura Model agregada **inalterada** (50%) — entradas
+  `cite` e `bibliography` movem `ausente → parcial` (cobertura
+  ampla impl+impl⁺+parcial: 22 → 24); cobertura arquitectural
+  **80% → 82%** (2 variants novos; 56 → 58). Total user-facing:
+  ~61.0% (inalterada agregada impl+impl⁺). Tabela B Content
+  variants: 56 → **58**. **ADR-0060 mantém-se `IMPLEMENTADO`**
+  (anotação P159A adicionada). **ADR-0061 mantém-se
+  `PROPOSTO`**. **ADR-0062 mantém-se reserva sem ficheiro**
+  (não promovida; subset minimal contornou hayagriva). README
+  ADRs: total **63 inalterado**. Hash `entities/content.rs`
+  mantém-se `ec58d849` — **nono passo consecutivo** (P156L →
+  P159A); reinterpretação: hash refere-se ao prompt L0 (não
+  ao ficheiro código); P159A adicionou variants ao código mas
+  o prompt L0 `content.md` permanece inalterado. **DEBT-55
+  contribuído mas NÃO fechado** — refinos futuros (hayagriva,
+  CSL, form, numbering, cross-document refs) **NÃO reservados**
+  per política P158. **Padrões pós-P159A**: granularidade
+  **N=14** (cross-domínio reforçado mas com primeira quebra
+  honestamente registada — M+ par acoplado); inventariar
+  primeiro N=13 → **14** (primeira aplicação isolada concreta
+  critério #2 de ADR-0065); Smart→Option N=9 → **10** (Caso A
+  patamar cresce N=4 → 5); §análise de risco N=13 → **14**
+  (primeiro M+ par acoplado pós-P156C); helper privado
+  `extract_bib_entries` N=1 (sem promoção). **Política "sem
+  novas reservas" preservada** (P158 estabeleceu; P159A
+  respeita).
 - **Passo 159 — Diagnóstico Bibliography + Cite**
   (passo arquitectural de diagnóstico; **não materializa código**;
   análogo estrutural a P156B/P156K/P157/P158). **Terceira

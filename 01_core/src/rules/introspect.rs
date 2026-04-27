@@ -206,6 +206,17 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
             body:   Box::new(materialize_time(body, state)),
             repeat: *repeat,
         },
+        // Passo 159A — par acoplado Bibliography + Cite. Recurse em
+        // title (Bibliography) ou supplement (Cite); preserva
+        // entries/key.
+        Content::Bibliography { entries, title } => Content::Bibliography {
+            entries: entries.clone(),
+            title:   title.as_ref().map(|t| Box::new(materialize_time(t, state))),
+        },
+        Content::Cite { key, supplement } => Content::Cite {
+            key:        key.clone(),
+            supplement: supplement.as_ref().map(|s| Box::new(materialize_time(s, state))),
+        },
         Content::Align { alignment, body } => Content::Align {
             alignment: *alignment,
             body:      Box::new(materialize_time(body, state)),
@@ -425,6 +436,17 @@ fn walk(content: &Content, state: &mut CounterState) {
         // (recurse no body).
         Content::TableHeader { body, .. } => walk(body, state),
         Content::TableFooter { body, .. } => walk(body, state),
+
+        // Passo 159A — Bibliography walk em title; entries são
+        // dados puros (sem Content recursivo) — não walk.
+        // Cite walk em supplement; sem validação cross-reference
+        // (ADR-0017 Introspection runtime adiada).
+        Content::Bibliography { title, .. } => {
+            if let Some(t) = title { walk(t, state); }
+        }
+        Content::Cite { supplement, .. } => {
+            if let Some(s) = supplement { walk(s, state); }
+        }
 
         Content::Align { body, .. } => walk(body, state),
 

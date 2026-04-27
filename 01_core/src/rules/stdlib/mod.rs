@@ -40,7 +40,7 @@ pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::text::{native_lower, native_replace, native_upper};
 pub use crate::rules::stdlib::assert::native_assert;
 pub use crate::rules::stdlib::structural::{
-    native_divider, native_emph, native_heading, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms,
+    native_bibliography, native_cite, native_divider, native_emph, native_heading, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms,
 };
 pub use crate::rules::stdlib::figure_image::{native_figure, native_image};
 pub use crate::rules::stdlib::shapes::{
@@ -2468,5 +2468,145 @@ mod tests {
         args.named.insert("foo".into(), Value::Bool(true));
         let r = native_table_footer(&mut ctx, &args, &null_world(), test_file_id(), None);
         assert!(r.is_err(), "named arg desconhecido em table_footer() deve retornar Err");
+    }
+
+    // ── Passo 159A — Bibliography + Cite par acoplado ────────────────────
+
+    fn make_bib_dict(key: &str, author: &str, title: &str, year: i64) -> Value {
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("key".into(),    Value::Str(key.into()));
+        d.insert("author".into(), Value::Str(author.into()));
+        d.insert("title".into(),  Value::Str(title.into()));
+        d.insert("year".into(),   Value::Int(year));
+        Value::Dict(d)
+    }
+
+    #[test]
+    fn native_bibliography_default_vazia() {
+        // P159A: bibliography() sem args produz Bibliography vazia.
+        null_ctx!(ctx);
+        let r = native_bibliography(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Bibliography { entries, title }) = r {
+            assert!(entries.is_empty());
+            assert!(title.is_none());
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn native_bibliography_com_entries_posicional() {
+        null_ctx!(ctx);
+        let entries_arr = Value::Array(vec![
+            make_bib_dict("smith2024", "Smith, J.", "On Crystal Math", 2024),
+        ]);
+        let args = p(vec![entries_arr]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Bibliography { entries, .. }) = r {
+            assert_eq!(entries.len(), 1);
+            assert_eq!(entries[0].key, "smith2024");
+            assert_eq!(entries[0].author, "Smith, J.");
+            assert_eq!(entries[0].year, 2024);
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn native_bibliography_com_title() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Array(vec![])]);
+        args.named.insert("title".into(), Value::Str("Referências".into()));
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Bibliography { title, .. }) = r {
+            assert_eq!(title.as_ref().map(|t| t.plain_text()).as_deref(), Some("Referências"));
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn native_bibliography_dict_sem_field_obrigatorio_rejeitado() {
+        // P159A: dict sem 'year' (ou outro field obrigatório) → erro hard.
+        null_ctx!(ctx);
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("key".into(),    Value::Str("k".into()));
+        d.insert("author".into(), Value::Str("A".into()));
+        d.insert("title".into(),  Value::Str("T".into()));
+        // year ausente intencionalmente.
+        let args = p(vec![Value::Array(vec![Value::Dict(d)])]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "dict sem 'year' deve retornar Err");
+    }
+
+    #[test]
+    fn native_bibliography_year_negativo_rejeitado() {
+        null_ctx!(ctx);
+        let args = p(vec![Value::Array(vec![
+            make_bib_dict("k", "A", "T", -5),
+        ])]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "year negativo deve retornar Err");
+    }
+
+    #[test]
+    fn native_bibliography_named_arg_desconhecido_rejeitado() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Array(vec![])]);
+        args.named.insert("style".into(), Value::Str("apa".into()));
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "style (scope-out per ADR-0054 graded) deve retornar Err");
+    }
+
+    #[test]
+    fn native_cite_so_key_posicional() {
+        null_ctx!(ctx);
+        let r = native_cite(&mut ctx, &p(vec![Value::Str("smith2024".into())]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Cite { key, supplement }) = r {
+            assert_eq!(key, "smith2024");
+            assert!(supplement.is_none());
+        } else {
+            panic!("esperado Content::Cite");
+        }
+    }
+
+    #[test]
+    fn native_cite_com_supplement() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("smith2024".into())]);
+        args.named.insert("supplement".into(), Value::Str("p. 42".into()));
+        let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Cite { supplement, .. }) = r {
+            assert_eq!(supplement.as_ref().map(|s| s.plain_text()).as_deref(), Some("p. 42"));
+        } else {
+            panic!("esperado Content::Cite");
+        }
+    }
+
+    #[test]
+    fn native_cite_sem_key_rejeitado() {
+        null_ctx!(ctx);
+        let r = native_cite(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "cite() sem key deve retornar Err");
+    }
+
+    #[test]
+    fn native_cite_key_vazia_rejeitada() {
+        null_ctx!(ctx);
+        let r = native_cite(&mut ctx, &p(vec![Value::Str("".into())]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "cite() key vazia deve retornar Err");
+    }
+
+    #[test]
+    fn native_cite_named_arg_desconhecido_rejeitado() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("k".into())]);
+        args.named.insert("form".into(), Value::Str("prose".into()));
+        let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "form (scope-out per ADR-0054 graded) deve retornar Err");
     }
 }

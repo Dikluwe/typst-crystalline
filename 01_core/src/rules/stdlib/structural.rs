@@ -489,5 +489,210 @@ pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
     }))
 }
 
+// ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ────────
+
+/// Coage `Value::Array<Value::Dict>` para `Vec<BibEntry>` per
+/// diagnóstico P159A §5. Cada Dict valida 4 fields obrigatórios
+/// (`key`/`author`/`title`/`year`).
+///
+/// Helper privado P159A; sem promoção (N=1; política consistente
+/// N=2-3 mínima).
+///
+/// **Validações hard**:
+/// - Argumento posicional deve ser `Value::Array`.
+/// - Cada elemento Array deve ser `Value::Dict`.
+/// - Dict deve ter 4 keys obrigatórias.
+/// - `key`/`author`/`title` devem ser `Value::Str`.
+/// - `year` deve ser `Value::Int` >= 0.
+fn extract_bib_entries(val: Option<&Value>) -> SourceResult<Vec<crate::entities::bib_entry::BibEntry>> {
+    use crate::entities::bib_entry::BibEntry;
+    let arr = match val {
+        Some(Value::Array(a)) => a,
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("bibliography(entries:) espera array de dict, recebeu {}", other.type_name()),
+        )]),
+        None => return Ok(Vec::new()),  // entries vazio aceitável
+    };
+
+    let mut entries = Vec::with_capacity(arr.len());
+    for (idx, val) in arr.iter().enumerate() {
+        let dict = match val {
+            Value::Dict(d) => d,
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("bibliography(entries: [{}]) espera dict, recebeu {}", idx, other.type_name()),
+            )]),
+        };
+
+        let key = match dict.get("key") {
+            Some(Value::Str(s)) => s.to_string(),
+            Some(other) => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("bibliography(entries: [{}].key) espera string, recebeu {}", idx, other.type_name()),
+            )]),
+            None => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("bibliography(entries: [{}]) sem field obrigatório 'key'", idx),
+            )]),
+        };
+
+        let author = match dict.get("author") {
+            Some(Value::Str(s)) => s.to_string(),
+            Some(other) => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("bibliography(entries: [{}].author) espera string, recebeu {}", idx, other.type_name()),
+            )]),
+            None => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("bibliography(entries: [{}]) sem field obrigatório 'author'", idx),
+            )]),
+        };
+
+        let title = match dict.get("title") {
+            Some(Value::Str(s)) => s.to_string(),
+            Some(other) => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("bibliography(entries: [{}].title) espera string, recebeu {}", idx, other.type_name()),
+            )]),
+            None => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("bibliography(entries: [{}]) sem field obrigatório 'title'", idx),
+            )]),
+        };
+
+        let year = match dict.get("year") {
+            Some(Value::Int(n)) if *n >= 0 => *n as u32,
+            Some(Value::Int(n)) => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("bibliography(entries: [{}].year) espera int >= 0, recebeu {}", idx, n),
+            )]),
+            Some(other) => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("bibliography(entries: [{}].year) espera int, recebeu {}", idx, other.type_name()),
+            )]),
+            None => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("bibliography(entries: [{}]) sem field obrigatório 'year'", idx),
+            )]),
+        };
+
+        entries.push(BibEntry { key, author, title, year });
+    }
+    Ok(entries)
+}
+
+/// `bibliography(entries: array, title: ?)` → `Content::Bibliography`.
+///
+/// **Primeiro sub-passo Bibliography + Cite Model Fase 2** (par
+/// acoplado com `cite`). Subset minimal per ADR-0054 graded
+/// e diagnóstico P159A §1.
+///
+/// **Naming `bibliography` flat** (sem namespacing — paridade
+/// padrão P157B).
+///
+/// **Atributos**:
+/// - `entries`: `Array<Dict>` posicional ou named; cada Dict
+///   tem keys obrigatórias `key`/`author`/`title`/`year`.
+/// - `title: Content`/`Str` (named); ADR-0064 Caso A
+///   (`Smart<Option<Content>>` vanilla → `Option<Box<Content>>`
+///   cristalino); None ↔ ausente.
+///
+/// **Atributos vanilla scope-out** per ADR-0054 graded:
+/// `sources` (parsing externo), `full`, `style` (CSL), `lang`,
+/// `region`. Refinos futuros NÃO reservados per política P158.
+///
+/// **Limitação per ADR-0054 graded**: input cristalino é
+/// **literal** `Vec<BibEntry>` — sem hayagriva, sem CSL parsing.
+/// Layouter renderiza placeholder `"[{key}] {author}. {title}
+/// ({year})."` per linha.
+pub fn native_bibliography(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    // Validar named args.
+    for key in args.named.keys() {
+        if !["entries", "title"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("bibliography(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro NÃO reservado)", key),
+            )]);
+        }
+    }
+
+    // entries: pode ser posicional (primeiro item) ou named.
+    let entries = if let Some(named) = args.named.get("entries") {
+        extract_bib_entries(Some(named))?
+    } else {
+        // Tenta posicional.
+        extract_bib_entries(args.items.first())?
+    };
+
+    // title: named opcional.
+    let title = args.named.get("title").and_then(|v| match v {
+        Value::Content(c) => Some(Box::new(c.clone())),
+        Value::Str(s)     => Some(Box::new(Content::text(s.as_str()))),
+        Value::None       => None,
+        other             => Some(Box::new(Content::text(other.type_name()))),
+    });
+
+    Ok(Value::Content(Content::Bibliography { entries, title }))
+}
+
+/// `cite(key, supplement: ?)` → `Content::Cite`.
+///
+/// Par com `bibliography` (acoplamento semântico vanilla
+/// inseparável — cite referencia entries de bibliography).
+///
+/// **Naming `cite` flat** (paridade P157B).
+///
+/// **Atributos**:
+/// - `key`: `Str` posicional obrigatório (referência a entry).
+/// - `supplement: Content`/`Str` (named); ADR-0064 Caso A;
+///   None ↔ ausente.
+///
+/// **Atributos vanilla scope-out** per ADR-0054 graded:
+/// `form` (Normal/Prose/etc.), `style` (CSL override). Refinos
+/// futuros NÃO reservados.
+///
+/// **Sem validação cross-reference** `key ∈ Bibliography.keys`
+/// — diferida per ADR-0017 Introspection runtime adiada.
+/// `cite("inexistente")` produz placeholder `[inexistente]`
+/// sem erro.
+pub fn native_cite(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    // key posicional obrigatório.
+    let key = match args.items.first() {
+        Some(Value::Str(s)) if !s.is_empty() => s.to_string(),
+        Some(Value::Str(_)) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "cite() key não pode ser vazia".to_string(),
+        )]),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("cite() espera key como string, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "cite() exige key como argumento posicional".to_string(),
+        )]),
+    };
+
+    // Validar named args.
+    for k in args.named.keys() {
+        if !["supplement"].contains(&k.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("cite(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro NÃO reservado)", k),
+            )]);
+        }
+    }
+
+    let supplement = args.named.get("supplement").and_then(|v| match v {
+        Value::Content(c) => Some(Box::new(c.clone())),
+        Value::Str(s)     => Some(Box::new(Content::text(s.as_str()))),
+        Value::None       => None,
+        other             => Some(Box::new(Content::text(other.type_name()))),
+    });
+
+    Ok(Value::Content(Content::Cite { key, supplement }))
+}
+
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────
 
