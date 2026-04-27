@@ -505,6 +505,58 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 159B — Diagnóstico amplo expansão série 159 + tecto
+  realista Model** (passo arquitectural de diagnóstico amplo;
+  **não materializa código**; análogo estrutural a P156B —
+  diagnóstico Layout amplo). **Quarta aplicação concreta de
+  ADR-0065 critério #5** (scope determinado por inventário)
+  com **diversidade ampliada multi-feature** após P157/P158/
+  P159 (que inventariaram uma feature cada) — auto-validação
+  cumulativa do ADR meta P156K continua a ganhar evidência
+  empírica. Diagnóstico em
+  `00_nucleo/diagnosticos/diagnostico-expansao-159-passo-159b.md`
+  com 6 secções: §1 ADRs/DEBTs por família 159/158/157
+  (DEBT-55 plano 6/10 itens pendentes pós-P159A; ADR-0062
+  reserva sem ficheiro confirmada; ADR-0017 cite cross-document
+  forward refs bloqueado mas walk single-pass viável; DEBT-34e
+  + DEBT-56 cross-módulo); §2 inventário código pendente
+  (campos diferidos vanilla por família — BibEntry adicional
+  fields, Cite.form/style, Bibliography.style/full/lang,
+  supplement automático, table cells refinos); §3 matriz de
+  dependências cruzadas com 5 categorias (Introspection /
+  multi-region / crate externa / ADR pendente / outro módulo);
+  §4 tecto realista Model (cobertura agregada 50% → ~55-60%
+  alcançável com Bloco A 5 sub-passos sem dependência cruzada
+  hard; ~68% pós-resolver hayagriva ADR-0062; difícil estimar
+  pós-cross-módulo); §5 sequência candidata sub-passos com 3
+  blocos: **Bloco A** (5 refinos puramente Model — supplement
+  figure/cite.form/BibEntry fields/kind refactor/bib numbering
+  simples), **Bloco B** (5 refinos com hayagriva — pré-requisito
+  ADR-0062 promovida), **Bloco C** (cross-módulo — DEBT-34e/
+  DEBT-56/ADR-0017/show selectors); §6 recomendação concreta
+  para passo seguinte: **P158B Supplement automático por lang
+  em figure** (M; reuso padrão P155 quotes; hash content.rs
+  preservado; funcionalidade visível "Figura"/"Figure"/
+  "Abbildung"; sem dependência cruzada hard). **Recomendação
+  secundária**: P159D BibEntry fields adicionais (S+; refino
+  struct sem variant). **Recomendação terciária**: criar
+  ADR-0062 PROPOSTO + actualizar L0 prompt content.md (passos
+  administrativos XS). **Decisão crítica registada**: tecto
+  Model puro vs pós-resolver dependências documentado com
+  estimativas em §4 (Bloco A apenas: ~55-60%; +Bloco B
+  hayagriva: ~68%; +Bloco C cross-módulo: difícil). **Política
+  "sem novas reservas"** preservada (P158/A/P159/A/P159B
+  respeitam) — recomendações §5/§6 são para validação humana,
+  não compromissos. Padrões pós-P159B: granularidade N=14
+  (inalterada — diagnóstico); inventariar primeiro N=14 →
+  **15** (quarta aplicação concreta critério #5 com diversidade
+  multi-feature); §análise de risco N=14 → **15** (passo
+  diagnóstico baixo risco; escopo amplo M-). Total ADRs **63
+  inalterado**; sem novas crates; sem novos DEBTs; sem alteração
+  de hashes (passo documental amplo); cobertura Layout/Model/
+  arquitectural inalteradas (78%/50%/82%); hash
+  `entities/content.rs` mantém `ec58d849` — **décimo passo
+  consecutivo** (P156L → P159B).
 - **Passo 159A — Bibliography + Cite par acoplado minimal
   (Model bibliography + cite sub-passo 1)** (décima quarta
   aplicação consecutiva de materialização desde início da
