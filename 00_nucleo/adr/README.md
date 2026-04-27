@@ -507,6 +507,75 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 159F — Numbering numérico Bibliography (Model
+  bibliography+cite sub-passo 4 — **último candidato Bloco A**)**
+  (quarto sub-passo substantivo de Bibliography + Cite após
+  P159A par acoplado + P159C cite.form + P159D BibEntry fields;
+  **refino comportamental** com counter local de bib entries +
+  render numerado em Cite Normal/None; **subpadrão #15
+  cresce N=2→3** "infraestrutura state lookup"; **marca conceptual**:
+  Bloco A do diagnóstico P159B esgotado pós-P159F; tecto Model
+  puro estimado (~55-60%) atingido empiricamente). Field aditivo
+  `pub bib_numbers: HashMap<String, u32>` em
+  `01_core/src/entities/counter_state.rs::CounterState` (paridade
+  aditiva infraestrutura state lookup — Sides P156C → Parity
+  P156E → Dir P156I → BibEntry P159A → CitationForm P159C +
+  state.lang P158B + state.bib_entries P159C +
+  **state.bib_numbers P159F**; patamar #15 atinge limiar de
+  candidato a formalização ADR meta N=3-4). Walk arm
+  `Content::Bibliography` em `rules/introspect.rs` popula
+  contínuamente: `state.bib_numbers.entry(key).or_insert(len + 1)`
+  — multi-Bibliography preserva primeiro número (paridade
+  HashMap; decisão diagnóstico §9 contínua vs independente).
+  Layout arm `Content::Cite { form: Normal/None }` em
+  `rules/layout/mod.rs` faz lookup `state.bib_numbers.get(key)`
+  → `[N]` ou fallback `[key]` (regression P159A). Forms
+  diferenciadas (Prose/Author/Year) inalteradas — numeração só
+  em Normal/None preserva semântica forms (decisão diagnóstico
+  §10). **Decisão arquitectural-chave Opção C** (Cite.form
+  interaction sem field user-facing) escolhida com matriz
+  multi-critério (decisão diagnóstico §8): vs Opção A
+  (substituir sempre; rejeitada por quebrar tests P159A/C);
+  vs Opção B (Bibliography.style field novo; rejeitada por
+  alteração estrutural sem ganho proporcional). Multi-Bibliography
+  contínua (paridade vanilla numeric style). **Sem alteração
+  ao variant `Content::Cite` ou `Content::Bibliography`**.
+  Helper inline trivial — sem helper público novo (promoção
+  diferida N=3-4). Tests +8 (1214 → 1222; 2 unit counter_state
+  bib_numbers + 6 layout E2E numbering — `cite_normal_renderiza_numero_quando_bib_populada`,
+  `cite_normal_fallback_placeholder_quando_bib_vazia`,
+  `cite_normal_multiple_entries_numeradas_em_ordem`,
+  `cite_form_prose_inalterada_com_bib_numerada` (regression
+  P159C), `cite_unknown_key_fallback_placeholder` (regression
+  P159A), `cite_normal_multi_bibliography_continua`; range
+  esperado +10-15 ligeiramente abaixo por helper inline
+  trivial). Cobertura Model agregada **inalterada** (~50%) —
+  refino comportamental. Cobertura arquitectural **inalterada**
+  82%. Hash `entities/content.rs` preservado `ec58d849` —
+  **15º passo consecutivo** (P156L → P159F via L0-baseline
+  interpretation). Padrões pós-P159F: granularidade N=18 → **19**;
+  inventariar primeiro N=20 → **21** (ADR-0065 critério #5
+  nona aplicação concreta com matriz multi-critério Opção A/B/C
+  mais elaborada do passo); §análise de risco N=20 → **21**
+  (P159F baixo-médio risco — refino comportamental + extensão
+  infraestrutura state lookup + decisão arquitectural-chave
+  multi-critério); ADR-0064 NÃO directamente aplicável (Opção C;
+  sem field novo); subpadrão #15 N=2 → **3** (state.lang +
+  state.bib_entries + state.bib_numbers; patamar atinge limiar
+  formalização N=3-4); tipo entity em ficheiro próprio N=5
+  (inalterado); P155 cross-feature N=1 (inalterado); refino
+  tipo entity sem alteração Content N=1 (inalterado); refactor
+  de field para Option N=1 (inalterado).
+  **Política "sem novas reservas" preservada** — outras styles
+  (alphanumeric, author-date, CSL), `Bibliography.style` field
+  user-facing, numeração independente multi-Bibliography
+  permanecem candidatos NÃO-reservados.
+  **Marca conceptual**: Bloco A do diagnóstico P159B esgotado
+  pós-P159F. Próximas direcções exigem Bloco B (hayagriva
+  ADR-0062 promovida), Bloco C (cross-módulo), refinos Model
+  fora do Bloco A original, mudança de módulo (Layout Fase 3
+  columns/colbreak ou Introspection P160), ou passos
+  administrativos XS.
 - **Passo 158C — Refactor `kind: String → Option<String>` em
   `Content::Figure`** (quarto sub-passo Model figure-kinds após
   P158A auto-detect + P158B supplement por lang; **refactor

@@ -458,7 +458,14 @@ fn walk(content: &Content, state: &mut CounterState) {
         // Passo 159C: copia entries para state.bib_entries para
         // lookup posterior por Cite.form. Multi-Bibliography
         // concatena na ordem de aparecimento.
+        // Passo 159F: popula state.bib_numbers contínuamente
+        // (numeração 1-based; multi-Bibliography preserva
+        // primeiro número via or_insert per decisão diagnóstico §9).
         Content::Bibliography { entries, title } => {
+            for entry in entries {
+                let next_num = state.bib_numbers.len() as u32 + 1;
+                state.bib_numbers.entry(entry.key.clone()).or_insert(next_num);
+            }
             state.bib_entries.extend(entries.iter().cloned());
             if let Some(t) = title { walk(t, state); }
         }

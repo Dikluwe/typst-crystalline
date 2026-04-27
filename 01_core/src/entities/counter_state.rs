@@ -85,6 +85,14 @@ pub struct CounterState {
     /// infraestrutural P158B `state.lang`). Multi-Bibliography
     /// concatena na ordem de aparecimento.
     pub bib_entries: Vec<BibEntry>,
+    /// Numeração 1-based de bib entries para style numeric
+    /// (Passo 159F; subpadrão #15 N=3 — paridade aditiva
+    /// `state.lang` P158B + `state.bib_entries` P159C). Populado
+    /// por walk em arm Bibliography contínuamente; multi-Bibliography
+    /// preserva primeiro número via `or_insert`. Lookup por
+    /// `Cite.key` em layout arm Cite Normal/None — fallback `[key]`
+    /// se key não encontrada.
+    pub bib_numbers: HashMap<String, u32>,
 }
 
 impl CounterState {
@@ -300,5 +308,26 @@ mod tests {
         s.step_flat("equation");
         assert_eq!(s.get_flat("equation"), 1,
             "step_flat deve avançar após desactivar read-only");
+    }
+
+    // ── Passo 159F — bib_numbers (subpadrão #15 N=3) ────────────────────
+
+    #[test]
+    fn counter_state_bib_numbers_default_empty() {
+        let s = CounterState::new();
+        assert!(s.bib_numbers.is_empty(),
+            "bib_numbers default empty per Default::default()");
+    }
+
+    #[test]
+    fn counter_state_bib_numbers_insertion_e_lookup() {
+        let mut s = CounterState::new();
+        // Insertion 1-based per padrão walk Bibliography.
+        s.bib_numbers.insert("smith2024".to_string(), 1);
+        s.bib_numbers.insert("doe2023".to_string(),   2);
+        assert_eq!(s.bib_numbers.get("smith2024"), Some(&1));
+        assert_eq!(s.bib_numbers.get("doe2023"),   Some(&2));
+        assert_eq!(s.bib_numbers.get("inexistente"), None,
+            "lookup de key inexistente devolve None — fallback [key] em layout");
     }
 }

@@ -2880,4 +2880,125 @@ mod tests_show_rule_integration {
         assert!(!txt.contains("vol."),  "sem volume → sem 'vol.'");
         assert!(!txt.contains("pp."),   "sem pages → sem 'pp.'");
     }
+
+    // ── Passo 159F — Bibliography numbering numérico (E2E) ────────────────
+
+    /// `Cite` Normal/None com Bibliography populada renderiza
+    /// número `[N]` em vez de placeholder `[key]`.
+    #[test]
+    fn cite_normal_renderiza_numero_quando_bib_populada() {
+        use crate::entities::bib_entry::BibEntry;
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::cite("smith2024", None, None),
+            Content::bibliography(
+                vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
+                None,
+            ),
+        ]));
+        let txt = layout_with_introspect(&doc_content);
+        assert!(txt.contains("[1]"),
+            "Normal/None com Bibliography populada deve renderizar [1]: doc='{}'", txt);
+    }
+
+    /// Regression P159A: Cite sem Bibliography precedente cai
+    /// no fallback `[key]`.
+    #[test]
+    fn cite_normal_fallback_placeholder_quando_bib_vazia() {
+        let c = Content::cite("smith2024", None, None);
+        let txt = layout_with_introspect(&c);
+        assert!(txt.contains("[smith2024]"),
+            "Sem Bibliography → fallback [key] (regression P159A): doc='{}'", txt);
+    }
+
+    /// Multiple entries em Bibliography → cada Cite obtém número
+    /// na ordem de aparecimento.
+    #[test]
+    fn cite_normal_multiple_entries_numeradas_em_ordem() {
+        use crate::entities::bib_entry::BibEntry;
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::cite("first",  None, None),
+            Content::cite("second", None, None),
+            Content::cite("third",  None, None),
+            Content::bibliography(
+                vec![
+                    BibEntry::new("first",  "Author One",   "Paper One",   2021),
+                    BibEntry::new("second", "Author Two",   "Paper Two",   2022),
+                    BibEntry::new("third",  "Author Three", "Paper Three", 2023),
+                ],
+                None,
+            ),
+        ]));
+        let txt = layout_with_introspect(&doc_content);
+        assert!(txt.contains("[1]"), "first → [1]: doc='{}'", txt);
+        assert!(txt.contains("[2]"), "second → [2]");
+        assert!(txt.contains("[3]"), "third → [3]");
+    }
+
+    /// Regression P159C: Cite.form Prose continua a renderizar
+    /// "Author (Year)" mesmo com Bibliography numerada (forms
+    /// diferenciadas inalteradas; numeração só em Normal/None).
+    #[test]
+    fn cite_form_prose_inalterada_com_bib_numerada() {
+        use crate::entities::bib_entry::BibEntry;
+        use crate::entities::citation_form::CitationForm;
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::cite("smith2024", None, Some(CitationForm::Prose)),
+            Content::bibliography(
+                vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
+                None,
+            ),
+        ]));
+        let txt = layout_with_introspect(&doc_content);
+        assert!(txt.contains("Smith, J. (2024)"),
+            "Prose continua a renderizar 'Author (Year)' (regression P159C): doc='{}'", txt);
+    }
+
+    /// Regression P159A: Cite com key não em Bibliography cai no
+    /// fallback `[key]` mesmo com outras keys numeradas.
+    #[test]
+    fn cite_unknown_key_fallback_placeholder() {
+        use crate::entities::bib_entry::BibEntry;
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::cite("inexistente", None, None),
+            Content::bibliography(
+                vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
+                None,
+            ),
+        ]));
+        let txt = layout_with_introspect(&doc_content);
+        assert!(txt.contains("[inexistente]"),
+            "Cite com key não em Bibliography → fallback [key]: doc='{}'", txt);
+    }
+
+    /// Multi-Bibliography: numeração contínua per decisão
+    /// diagnóstico §9 (paridade vanilla).
+    #[test]
+    fn cite_normal_multi_bibliography_continua() {
+        use crate::entities::bib_entry::BibEntry;
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::cite("third", None, None),
+            Content::bibliography(
+                vec![
+                    BibEntry::new("first",  "Author One", "Paper One", 2021),
+                    BibEntry::new("second", "Author Two", "Paper Two", 2022),
+                ],
+                None,
+            ),
+            Content::bibliography(
+                vec![
+                    BibEntry::new("third", "Author Three", "Paper Three", 2023),
+                ],
+                None,
+            ),
+        ]));
+        let txt = layout_with_introspect(&doc_content);
+        // first=[1], second=[2] em Bib1; third=[3] em Bib2 (contínua).
+        assert!(txt.contains("[3]"),
+            "third deve obter [3] (numeração contínua multi-Bibliography): doc='{}'", txt);
+    }
 }
