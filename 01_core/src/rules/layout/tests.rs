@@ -2728,7 +2728,7 @@ mod tests_show_rule_integration {
     /// (se Some) concatenado.
     #[test]
     fn layout_cite_renderiza_placeholder_com_key() {
-        let c = Content::cite("smith2024", None);
+        let c = Content::cite("smith2024", None, None);
         let doc = layout(&c, CounterState::default());
         let txt = doc.plain_text();
         assert!(txt.contains("[smith2024]"),
@@ -2741,7 +2741,7 @@ mod tests_show_rule_integration {
         use crate::entities::bib_entry::BibEntry;
         use std::sync::Arc;
         let doc_content = Content::Sequence(Arc::from(vec![
-            Content::cite("smith2024", None),
+            Content::cite("smith2024", None, None),
             Content::bibliography(
                 vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
                 Some(Content::text("Referências")),
@@ -2753,5 +2753,83 @@ mod tests_show_rule_integration {
         assert!(txt.contains("[smith2024]"), "cite + bibliography ambos devem ter [smith2024]");
         assert!(txt.contains("Referências"), "title da bibliography presente");
         assert!(txt.contains("Smith"),       "author entry presente");
+    }
+
+    // ── Passo 159C — Cite.form variants (E2E) ─────────────────────────────
+
+    /// Helper: corre introspect (para popular bib_entries) seguido
+    /// de layout. Mimica fluxo real eval → introspect → layout.
+    fn layout_with_introspect(c: &Content) -> String {
+        use crate::rules::introspect::introspect;
+        let state = introspect(c);
+        let doc = layout(c, state);
+        doc.plain_text()
+    }
+
+    /// Regression: Cite com form=None continua a renderizar
+    /// placeholder `[key]` (paridade P159A).
+    #[test]
+    fn cite_normal_renderiza_placeholder() {
+        let c = Content::cite("smith2024", None, None);
+        let txt = layout_with_introspect(&c);
+        assert!(txt.contains("[smith2024]"),
+            "Normal/None form deve produzir [key]: doc='{}'", txt);
+    }
+
+    /// `Cite { form: Prose }` com key existente em Bibliography
+    /// renderiza `Author (Year)`.
+    #[test]
+    fn cite_prose_renderiza_author_year_quando_key_existe() {
+        use crate::entities::bib_entry::BibEntry;
+        use crate::entities::citation_form::CitationForm;
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::cite("smith2024", None, Some(CitationForm::Prose)),
+            Content::bibliography(
+                vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
+                None,
+            ),
+        ]));
+        let txt = layout_with_introspect(&doc_content);
+        assert!(txt.contains("Smith, J. (2024)"),
+            "Prose com key existente deve renderizar 'Author (Year)': doc='{}'", txt);
+    }
+
+    /// `Cite { form: Prose }` com key NÃO encontrada cai no
+    /// fallback `[key]`.
+    #[test]
+    fn cite_prose_fallback_placeholder_quando_key_nao_existe() {
+        use crate::entities::citation_form::CitationForm;
+        let c = Content::cite("inexistente", None, Some(CitationForm::Prose));
+        let txt = layout_with_introspect(&c);
+        assert!(txt.contains("[inexistente]"),
+            "Prose sem entry deve cair no fallback [key]: doc='{}'", txt);
+    }
+
+    /// `Cite { form: Author }` renderiza apenas autor;
+    /// `Cite { form: Year }` renderiza apenas ano.
+    #[test]
+    fn cite_author_e_year_renderizam_correctamente() {
+        use crate::entities::bib_entry::BibEntry;
+        use crate::entities::citation_form::CitationForm;
+        use std::sync::Arc;
+        let bib = Content::bibliography(
+            vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
+            None,
+        );
+        // form=Author
+        let c1 = Content::Sequence(Arc::from(vec![
+            Content::cite("smith2024", None, Some(CitationForm::Author)),
+            bib.clone(),
+        ]));
+        let txt1 = layout_with_introspect(&c1);
+        assert!(txt1.contains("Smith, J."), "Author form: 'Smith, J.' deve aparecer: doc='{}'", txt1);
+        // form=Year
+        let c2 = Content::Sequence(Arc::from(vec![
+            Content::cite("smith2024", None, Some(CitationForm::Year)),
+            bib,
+        ]));
+        let txt2 = layout_with_introspect(&c2);
+        assert!(txt2.contains("2024"), "Year form: '2024' deve aparecer: doc='{}'", txt2);
     }
 }

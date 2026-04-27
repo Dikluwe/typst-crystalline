@@ -6,7 +6,7 @@
 
 use std::collections::HashMap;
 
-use crate::entities::{content::Content, label::Label, lang::Lang};
+use crate::entities::{bib_entry::BibEntry, content::Content, label::Label, lang::Lang};
 
 /// Instrução de modificação de um contador.
 #[derive(Debug, Clone, PartialEq)]
@@ -78,6 +78,13 @@ pub struct CounterState {
     /// comportamento lang-aware. Refino futuro pode integrar Style
     /// chain lang resolution (NÃO reservado per política P158).
     pub lang: Option<Lang>,
+    /// Entries bibliográficos coletadas durante introspect walk
+    /// (Passo 159C). Populadas a partir de `Content::Bibliography`
+    /// encontradas no documento. Lookup por `Cite.key` em layout
+    /// para resolver forms `Prose`/`Author`/`Year` (paridade
+    /// infraestrutural P158B `state.lang`). Multi-Bibliography
+    /// concatena na ordem de aparecimento.
+    pub bib_entries: Vec<BibEntry>,
 }
 
 impl CounterState {

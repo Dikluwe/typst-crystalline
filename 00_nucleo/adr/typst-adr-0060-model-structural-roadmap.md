@@ -31,6 +31,47 @@ Cobertura Model 41% → ~45%; arquitectural Content 75% → ~77%.
 Plano Fase 2 (P156/157/158 — table foundations, figure kinds,
 bibliography+cite com ADR-0061) inalterado.
 
+**Anotação Passo 159C (2026-04-27)**: **segundo sub-passo
+substantivo Bibliography + Cite materializado** (Fase 2
+continuação após P159A par acoplado). Refino estrutural-
+comportamental de `cite` adicionando enum
+`CitationForm { Normal, Prose, Author, Year }` em
+`entities/citation_form.rs` (ficheiro novo; **5ª aplicação
+consecutiva** do padrão "tipo entity em ficheiro próprio" —
+Sides P156C → Parity P156E → Dir P156I → BibEntry P159A →
+CitationForm P159C) + field `form: Option<CitationForm>` em
+`Content::Cite` per **ADR-0064 Caso A** (patamar Caso A cresce
+**N=5 → 6 atingindo equilíbrio cross-domínio 50/50 Layout/Model**
+— terceira aplicação Model após P157B/P159A). 13 sítios
+pattern-match Content actualizados (paridade P157A/P159A).
+Helper privado novo `extract_citation_form` em
+`stdlib/structural.rs` (strict matching case-sensitive; 4
+forms válidos; mensagem de erro lista forms aceites). Layout
+placeholder melhorado por form com lookup Bibliography via
+novo field `pub bib_entries: Vec<BibEntry>` em `CounterState`
+(paridade infraestrutural P158B `state.lang`); populado por
+introspect walk; multi-Bibliography concatena na ordem de
+aparecimento. Render: `Normal/None ↔ [key]`; `Prose ↔ Author
+(Year)`; `Author ↔ Author`; `Year ↔ Year`; fallback `[key]`
+quando key não encontrada (paridade Normal sem entry). **Sem
+alteração ao número de variants Content** (estrutura
+inalterada; expansão de field). **Subpadrão emergente N=2**
+"infraestrutura state lookup" (P158B `state.lang` + P159C
+`state.bib_entries`). Tests +15 (1189 → 1204; 8 unit +
+2 cite com form + 6 stdlib parse + 4 layout E2E forms; range
+esperado +12-17). Cobertura Model agregada **inalterada**
+(~50%). Cobertura arquitectural **inalterada** 82%. Hash
+`entities/content.rs` preservado `ec58d849` (**décimo segundo
+passo consecutivo** via L0-baseline interpretation —
+content.md prompt não modificado; refino arquitectural
+documentado via doc-comments + referência cruzada
+citation_form.md). Status `IMPLEMENTADO` mantido. **Política
+"sem novas reservas" preservada** — forms vanilla adicionais
+(Full, CSL-specific), CSL render real (depende hayagriva
+ADR-0062), `style: Str` per-Cite, cross-document refs
+(bloqueado ADR-0017), promoção `extract_citation_form` a
+helper público permanecem candidatos NÃO-reservados.
+
 **Anotação Passo 158B (2026-04-27)**: **segundo sub-passo
 Model figure-kinds materializado** (Fase 2 continuação após
 P158A). Refino qualitativo de `figure` — supplement

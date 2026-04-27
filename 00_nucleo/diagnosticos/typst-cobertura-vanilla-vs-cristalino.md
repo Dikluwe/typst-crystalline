@@ -172,7 +172,7 @@ primitives e `skew`). Detalhe em
 | `enum(items)` | model/enum.rs | `parcial` | idem | |
 | `terms(...)` | model/terms.rs | `implementado` | Passo 154B | `Content::Terms` + `Content::TermItem`; named args via `#terms(key: [desc])`; sem atributos vanilla (tight/separator/indent/hanging-indent) — extensíveis sem breaking change |
 | `quote(...)` | model/quote.rs | `implementado` | Passo 155 | `Content::Quote` com 4 attrs; smart-quotes lang-aware (6 idiomas + default ASCII) via `rules/lang/quotes.rs`; markup `"..."` produz aspas localizadas via alternância open/close (não pareadas como bloco) |
-| `cite(key)` | model/cite.rs | `parcial` ²⁹ | Passo 159A (par acoplado com bibliography) | `Content::Cite { key: String, supplement: Option<Box<Content>> }` + stdlib `#cite(key, supplement: ?)`; **naming `cite` flat**; ADR-0064 Caso A para supplement; **placeholder render** `[key]` per ADR-0033 + ADR-0054 graded; sem validação cross-reference (ADR-0017 adiada); 2+ atributos vanilla scope-out (form Normal/Prose; style CSL override) |
+| `cite(key)` | model/cite.rs | `parcial` ²⁹ ³² | Passo 159A (par acoplado) + P159C (form variants) | `Content::Cite { key: String, supplement: Option<Box<Content>>, form: Option<CitationForm> }` + stdlib `#cite(key, supplement: ?, form: ?)`; **naming `cite` flat**; ADR-0064 Caso A para supplement (P159A) + form (P159C); **placeholder render por form com lookup Bibliography** same-document (Normal=`[key]`/Prose=`Author (Year)`/Author/Year + fallback `[key]`); sem validação cross-reference (ADR-0017 adiada); 1+ atributo vanilla scope-out (style CSL override) |
 | `bibliography(path)` | model/bibliography.rs | `parcial` ²⁹ | Passo 159A (par acoplado com cite) | `Content::Bibliography { entries: Vec<BibEntry>, title: Option<Box<Content>> }` + stdlib `#bibliography(entries, title: ?)`; **input cristalino literal Vec<BibEntry>** (sem hayagriva; ADR-0062 mantém-se reserva sem ficheiro); tipo entity novo `BibEntry { key, author, title, year }` em `entities/bib_entry.rs`; ADR-0064 Caso A para title; **placeholder render** lista `"[{key}] {author}. {title} ({year})."`; 6+ atributos vanilla scope-out (sources/full/style CSL/lang/region) |
 | `link(dest, body)` | model/link.rs | `parcial` | Passo 23 | `Content::Link` capturado; sem render visual |
 | `footnote(body)` | model/footnote.rs | `ausente` | — | |
@@ -593,7 +593,10 @@ inalterada / parcial cresce 22 → 24** — par acoplado
 Bibliography+Cite minimal sem hayagriva; ADR-0064 Caso A
 patamar N=4 → 5; **após P158B: ~61.0% (inalterada)** — segundo
 refino qualitativo consecutivo de `figure` (supplement por lang;
-6 langs × 3 kinds); reuso pattern P155 cross-feature N=1).
+6 langs × 3 kinds); reuso pattern P155 cross-feature N=1;
+**após P159C: ~61.0% (inalterada)** — refino estrutural de
+`cite` adicionando form variants; ADR-0064 Caso A patamar
+N=5 → 6 atingindo equilíbrio cross-domínio 50/50 Layout/Model).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -858,6 +861,36 @@ estabeleceu; P158A respeita) — supplement automático, show
 selectors `figure.where(kind:)`, refactor `kind: String →
 Option<String>` permanecem candidatos NÃO-reservados.
 
+³² — Ajuste P159C (Tabela A.6 Model): segundo sub-passo
+substantivo Bibliography + Cite — refino estrutural-comportamental
+de `cite` adicionando enum `CitationForm { Normal, Prose, Author,
+Year }` em `entities/citation_form.rs` (5ª aplicação consecutiva
+do padrão "tipo entity em ficheiro próprio") + field
+`form: Option<CitationForm>` em `Content::Cite` per ADR-0064
+Caso A (patamar Caso A cresce **N=5 → 6**; equilíbrio
+cross-domínio 50% Layout + 50% Model atingido). 13 sítios
+pattern-match Content actualizados. Helper privado novo
+`extract_citation_form` em stdlib/structural.rs (strict matching
+case-sensitive; 4 forms válidos). Layout placeholder melhorado
+por form com lookup Bibliography via novo field
+`pub bib_entries: Vec<BibEntry>` em `CounterState` (paridade
+infraestrutural P158B `state.lang`); populado por introspect
+walk; multi-Bibliography concatena. Fallback `[key]` quando key
+não encontrada (paridade Normal sem entry). **Hash
+`entities/content.rs` preservado** `ec58d849` — **décimo
+segundo passo consecutivo** (P156L → P159C; L0-baseline
+interpretation: prompt `content.md` não modificado; refino
+arquitectural via doc-comments e referência cruzada citation_form.md).
+Tests +15 (1189 → 1204; 8 unit citation_form + 2 cite com form +
+6 stdlib parse + 4 layout E2E forms incluindo lookup
+Bibliography; range esperado +12-17). Cobertura Model agregada
+**inalterada** (~50%) — refino qualitativo. Cobertura ampla 77%
+inalterada. Cobertura arquitectural **inalterada** 82%.
+**Política "sem novas reservas" preservada** (P158/A/B; P159/A/B
+respeitam) — forms vanilla adicionais (Full, CSL-specific),
+CSL render real, `style: Str` per-Cite, cross-document refs
+permanecem candidatos NÃO-reservados.
+
 ³¹ — Ajuste P158B (Tabela A.6 Model): segundo refino qualitativo
 consecutivo de `figure` — supplement automático localizado por
 lang adicionado em `introspect.rs` linha 334. Helper novo
@@ -915,11 +948,11 @@ ADR-0065 N=6 implícito; reuso `Sides<T>` N=2; reuso
 (era 80% pós-P157C/P158/P158A; era 78% pós-P157B; era 77-78%
 pós-P157A; era 76-77% pós-P156L; era 75-76% pós-P156I; era
 75% pré-P155; era 72% pré-P154B; era 70% pré-P149; **inalterada
-pós-P158B** — refino qualitativo de `figure`). **Patamar
-82% atingido em P159A** — par acoplado Bibliography+Cite
-minimal adiciona 2 variants Content (56 → 58); vanilla extra
-ausentes mantém 0 (subset minimal cobre todos os variants
-core para Bibliography+Cite).
+pós-P158B + P159C** — refinos qualitativos de variants Content
+existentes). **Patamar 82% atingido em P159A** — par acoplado
+Bibliography+Cite minimal adiciona 2 variants Content (56 → 58);
+vanilla extra ausentes mantém 0 (subset minimal cobre todos os
+variants core para Bibliography+Cite).
 **Nota**: variants extra cristalino (`Value::Align`, `Content::Styled`) são **divergências intencionais**
 favoráveis — cristalino tem features que vanilla não (em forma de Value); contadas como `implementado` porque
 encerradas por ADRs (0026, 0028→0029, 0036, etc.).

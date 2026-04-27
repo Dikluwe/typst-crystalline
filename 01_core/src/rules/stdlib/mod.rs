@@ -2566,9 +2566,10 @@ mod tests {
     fn native_cite_so_key_posicional() {
         null_ctx!(ctx);
         let r = native_cite(&mut ctx, &p(vec![Value::Str("smith2024".into())]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Cite { key, supplement }) = r {
+        if let Value::Content(Content::Cite { key, supplement, form }) = r {
             assert_eq!(key, "smith2024");
             assert!(supplement.is_none());
+            assert!(form.is_none());
         } else {
             panic!("esperado Content::Cite");
         }
@@ -2605,8 +2606,91 @@ mod tests {
     fn native_cite_named_arg_desconhecido_rejeitado() {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Str("k".into())]);
-        args.named.insert("form".into(), Value::Str("prose".into()));
+        args.named.insert("style".into(), Value::Str("apa".into()));
         let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None);
-        assert!(r.is_err(), "form (scope-out per ADR-0054 graded) deve retornar Err");
+        assert!(r.is_err(), "style (scope-out per ADR-0054 graded) deve retornar Err");
+    }
+
+    // ── Passo 159C — Cite.form variants ─────────────────────────────────────
+
+    #[test]
+    fn native_cite_form_normal_parse() {
+        use crate::entities::citation_form::CitationForm;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("k".into())]);
+        args.named.insert("form".into(), Value::Str("normal".into()));
+        let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Cite { form, .. }) = r {
+            assert_eq!(form, Some(CitationForm::Normal));
+        } else {
+            panic!("esperado Content::Cite");
+        }
+    }
+
+    #[test]
+    fn native_cite_form_prose_parse() {
+        use crate::entities::citation_form::CitationForm;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("k".into())]);
+        args.named.insert("form".into(), Value::Str("prose".into()));
+        let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Cite { form, .. }) = r {
+            assert_eq!(form, Some(CitationForm::Prose));
+        } else {
+            panic!("esperado Content::Cite");
+        }
+    }
+
+    #[test]
+    fn native_cite_form_author_parse() {
+        use crate::entities::citation_form::CitationForm;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("k".into())]);
+        args.named.insert("form".into(), Value::Str("author".into()));
+        let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Cite { form, .. }) = r {
+            assert_eq!(form, Some(CitationForm::Author));
+        } else {
+            panic!("esperado Content::Cite");
+        }
+    }
+
+    #[test]
+    fn native_cite_form_year_parse() {
+        use crate::entities::citation_form::CitationForm;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("k".into())]);
+        args.named.insert("form".into(), Value::Str("year".into()));
+        let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Cite { form, .. }) = r {
+            assert_eq!(form, Some(CitationForm::Year));
+        } else {
+            panic!("esperado Content::Cite");
+        }
+    }
+
+    #[test]
+    fn native_cite_form_auto_devolve_none() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("k".into())]);
+        args.named.insert("form".into(), Value::Auto);
+        let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Cite { form, .. }) = r {
+            assert!(form.is_none(), "form=auto deve produzir None (resolvido a Normal default em layout)");
+        } else {
+            panic!("esperado Content::Cite");
+        }
+    }
+
+    #[test]
+    fn native_cite_form_invalido_rejeitado() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("k".into())]);
+        args.named.insert("form".into(), Value::Str("xpto".into()));
+        let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "form inválido deve retornar Err");
+        let msg = r.unwrap_err()[0].message.clone();
+        assert!(msg.contains("normal") && msg.contains("prose") && msg.contains("author") && msg.contains("year"),
+            "mensagem deve listar forms válidas: {}", msg);
     }
 }

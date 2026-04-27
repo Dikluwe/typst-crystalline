@@ -213,9 +213,10 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
             entries: entries.clone(),
             title:   title.as_ref().map(|t| Box::new(materialize_time(t, state))),
         },
-        Content::Cite { key, supplement } => Content::Cite {
+        Content::Cite { key, supplement, form } => Content::Cite {
             key:        key.clone(),
             supplement: supplement.as_ref().map(|s| Box::new(materialize_time(s, state))),
+            form:       *form,
         },
         Content::Align { alignment, body } => Content::Align {
             alignment: *alignment,
@@ -448,7 +449,11 @@ fn walk(content: &Content, state: &mut CounterState) {
         // dados puros (sem Content recursivo) — não walk.
         // Cite walk em supplement; sem validação cross-reference
         // (ADR-0017 Introspection runtime adiada).
-        Content::Bibliography { title, .. } => {
+        // Passo 159C: copia entries para state.bib_entries para
+        // lookup posterior por Cite.form. Multi-Bibliography
+        // concatena na ordem de aparecimento.
+        Content::Bibliography { entries, title } => {
+            state.bib_entries.extend(entries.iter().cloned());
             if let Some(t) = title { walk(t, state); }
         }
         Content::Cite { supplement, .. } => {
