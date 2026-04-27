@@ -505,6 +505,63 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 159 — Diagnóstico Bibliography + Cite**
+  (passo arquitectural de diagnóstico; **não materializa código**;
+  análogo estrutural a P156B/P156K/P157/P158). **Terceira
+  aplicação concreta de ADR-0065 critério #5** (scope determinado
+  por inventário) após P157 e P158 — auto-validação cumulativa
+  do ADR meta P156K com diversidade cross-feature confirmada
+  (P157 multi-passo divisão; P158 subset selection; P159 par
+  acoplado). Diagnóstico em
+  `00_nucleo/diagnosticos/diagnostico-bibliography-cite-passo-159.md`
+  com 5 secções: §1 ADRs lidas e resumidas (ADR-0060 declara
+  P159 XL com `hayagriva` autorizada via ADR-0062 reservada
+  mas **NÃO criada como ficheiro**; ADR-0017 Introspection
+  runtime adiada não bloqueia subset minimal — Cite resolve
+  walk single-pass; precedentes ADR-0024/0023/0057 cobrem
+  autorização de crate externa); §2 estado factual em código
+  (Bibliography + Cite **completamente ausentes** — zero
+  matches grep; DEBT-55 documenta plano completo XL com
+  hayagriva; vanilla bibliography.rs 1226 linhas integra
+  hayagriva profundamente — `Bibliography` interno usa
+  `Arc<ManuallyHash<IndexMap<Label, hayagriva::Entry>>>`); §3
+  scope com avaliação de **3 estruturas**: A multi-passo
+  análogo P157 (P159A bibliography + P159B cite + P159C
+  hayagriva); B minimal análogo P158 (par num único M+ sem
+  hayagriva); C diferimento total per ADR-0054 graded;
+  **recomendação Estrutura A adaptada** (par acoplado
+  Bibliography+Cite num único passo M+ sem hayagriva — input
+  cristalino literal Vec<BibEntry>; refinos futuros
+  hayagriva/CSL/form/numbering NÃO reservados); §4 dependências
+  (zero bloqueios hard para subset minimal; hayagriva
+  contornada com input literal; ADR-0017 não bloqueia walk
+  single-pass; ADR-0062 confirmada como reserva sem ficheiro;
+  promoção a IMPLEMENTADO só necessária se P159B+ futuros
+  integrarem hayagriva); §5 esboço de **P159A** (tipo `BibEntry`
+  novo em `entities/bib_entry.rs` + 2 variants Content
+  `Bibliography` + `Cite` + 2 stdlib funcs `native_bibliography`
+  + `native_cite` + layout arms + introspect arms; M+ par
+  funcional acoplado análogo a P156C par lógico pad+hide;
+  granularidade quebrada N=13 → M+ honestamente registada com
+  precedente; tests ~15-20; **quebra esperada padrão
+  "preservação hash content.rs"** após 7-8 passos consecutivos
+  — variants novos serão adicionados ao enum em P159A).
+  **Política "sem novas reservas"** preservada (P158 estabeleceu;
+  P158A respeitou; P159 respeita) — refinos pós-P159A
+  (hayagriva, CSL, form variants, numbering schemes,
+  cross-document forward refs) permanecem candidatos
+  **NÃO-reservados**. Padrões pós-P159: granularidade N=13
+  (inalterada — diagnóstico); inventariar primeiro N=12 →
+  **13** (terceira aplicação concreta critério #5; diversidade
+  cross-feature: table multi-passo + figure subset + bibliography
+  par acoplado); §análise de risco N=12 → **13** (passo
+  diagnóstico baixo risco; XL declarado torna inventário
+  particularmente importante). Total ADRs **63 inalterado**
+  (ADR-0062 continua reserva sem ficheiro); sem novas crates;
+  sem novos DEBTs; sem alteração de hashes (passo documental;
+  `entities/content.rs` mantém `ec58d849` — **oitavo passo
+  consecutivo**); cobertura Layout/Model/arquitectural
+  inalteradas (78%/50%/80%).
 - **Passo 158A — Model figure-kinds sub-passo 1: auto-detecção
   de `kind` em `native_figure`** (décima terceira aplicação
   consecutiva de materialização desde início da série granular
