@@ -31,6 +31,45 @@ Cobertura Model 41% → ~45%; arquitectural Content 75% → ~77%.
 Plano Fase 2 (P156/157/158 — table foundations, figure kinds,
 bibliography+cite com ADR-0061) inalterado.
 
+**Anotação Passo 159A (2026-04-27)**: **par acoplado
+Bibliography + Cite minimal materializado** (Fase 2 continuação
+após figure-kinds P158A). **Estrutura A adaptada** per diagnóstico
+P159 §3.5 — par num único passo M+ sem hayagriva. Tipo entity
+novo `BibEntry { key, author, title, year }` em
+`entities/bib_entry.rs` (4 fields universais; ADR-0065 critério
+#2 escolha de tipo primeira aplicação isolada concreta).
+Variants `Content::Bibliography { entries: Vec<BibEntry>,
+title: Option<Box<Content>> }` + `Content::Cite { key: String,
+supplement: Option<Box<Content>> }` adicionados ao enum (56 →
+58 variants). Stdlib `native_bibliography` + `native_cite`
+em `stdlib/structural.rs` (continuação Model). **Naming
+`bibliography` e `cite` flat** (paridade decisão P157B
+naming flat). **Helper privado novo `extract_bib_entries`**
+parseia `Value::Array<Value::Dict>` para `Vec<BibEntry>` com
+validação hard de 4 fields obrigatórios. **ADR-0064 Caso A**
+aplicado em title (Bibliography) e supplement (Cite) — patamar
+Caso A cresce **N=4 → 5** (P156G/H/I + P157B + P159A; 60% Layout
++ 40% Model). Layouter renderiza placeholder per ADR-0033 +
+ADR-0054 graded — Bibliography como lista
+`"[{key}] {author}. {title} ({year})."` per linha; Cite como
+`"[{key}]"` + supplement. **Sem validação cross-reference**
+`Cite.key ∈ Bibliography.keys` per ADR-0017 Introspection
+runtime adiada. **Sem hayagriva** — input cristalino literal
+`Vec<BibEntry>`; ADR-0062 mantém-se reserva sem ficheiro.
+Tests +27 (1147 → 1174). Cobertura Model agregada **inalterada**
+(50%); cobertura ampla impl+impl⁺+parcial cresce
+(22 → 24 entradas parciais — `cite` e `bibliography` movem
+`ausente → parcial`); cobertura arquitectural **80% → 82%**
+(2 variants novos). Status `IMPLEMENTADO` mantido. **Granularidade
+quebrada honestamente** N=13 → M+ com precedente P156C par
+lógico pad+hide. **DEBT-55 contribuído mas NÃO fechado** —
+refinos futuros (hayagriva integration, CSL, form variants
+Normal/Prose, numbering schemes, cross-document forward refs)
+**NÃO reservados** per política P158. Hash `entities/content.rs`
+mantém-se `ec58d849` (nono passo consecutivo — hash refere-se
+ao prompt L0 que permanece inalterado; refino futuro pode
+actualizar L0 com documentação dos novos variants).
+
 **Anotação Passo 158A (2026-04-27)**: **primeiro sub-passo
 Model figure-kinds materializado** (Fase 2 continuação após
 table foundations fechado P157C). Refino qualitativo de

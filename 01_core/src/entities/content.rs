@@ -510,6 +510,55 @@ pub enum Content {
         rowspan: Option<usize>,
     },
 
+    // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ──
+    /// Lista bibliográfica — vanilla `BibliographyElem`.
+    /// **Primeiro sub-passo Bibliography + Cite Model Fase 2**
+    /// (par acoplado com `Cite`).
+    ///
+    /// Subset minimal per ADR-0054 graded e diagnóstico P159A §1:
+    /// 2 fields críticos (entries/title); 6+ fields vanilla
+    /// scope-out (sources/full/style/lang/region) + acoplamento
+    /// hayagriva diferido per ADR-0062 reserva sem ficheiro.
+    ///
+    /// **Input cristalino literal `Vec<BibEntry>`** — sem
+    /// parsing externo (`.bib`/`.yaml`). Refinos futuros
+    /// (hayagriva, CSL) NÃO reservados per política P158.
+    ///
+    /// `title: Option<Box<Content>>` per ADR-0064 **Caso A**
+    /// (Smart<Option<Content>> vanilla → Option<Box<Content>>
+    /// cristalino). Patamar Caso A cresce N=4 → 5 com P159A.
+    ///
+    /// Layouter renderiza title (se Some) seguido de lista de
+    /// entries formatadas como `"[{key}] {author}. {title}
+    /// ({year})."` per ADR-0033 + ADR-0054 graded — paridade
+    /// vanilla observable mínima.
+    Bibliography {
+        entries: Vec<crate::entities::bib_entry::BibEntry>,
+        title:   Option<Box<Content>>,
+    },
+
+    /// Citação inline — vanilla `CiteElem`.
+    /// Par com `Bibliography` (acoplamento semântico vanilla
+    /// inseparável: cite referencia entries de bibliography).
+    ///
+    /// Subset minimal per ADR-0054 graded:
+    /// 2 fields críticos (key/supplement); 2+ fields vanilla
+    /// scope-out (form Normal/Prose/etc., style override CSL).
+    ///
+    /// `key: String` directo (paridade vanilla `Label` simplificado).
+    /// `supplement: Option<Box<Content>>` per ADR-0064 Caso A
+    /// (page/chapter override).
+    ///
+    /// Layouter renderiza placeholder `"[{key}]"` seguido de
+    /// supplement (se Some) per ADR-0033 + ADR-0054 graded.
+    /// **Sem validação cross-reference** `key ∈ Bibliography.keys`
+    /// — diferida per ADR-0017 Introspection runtime adiada
+    /// (cite cross-document ficaria como TODO).
+    Cite {
+        key:        String,
+        supplement: Option<Box<Content>>,
+    },
+
     // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ──
     /// Header repetível de Table — vanilla `TableHeader`.
     /// **Terceiro e último sub-passo Model Fase 2**.
@@ -768,6 +817,29 @@ impl Content {
         Self::TableFooter { body: Box::new(body), repeat }
     }
 
+    /// `bibliography(entries, title)` — Passo 159A (par acoplado
+    /// com `cite`). Subset minimal per ADR-0054 graded; input
+    /// cristalino literal `Vec<BibEntry>`; sem hayagriva.
+    pub fn bibliography(
+        entries: Vec<crate::entities::bib_entry::BibEntry>,
+        title:   Option<Content>,
+    ) -> Self {
+        Self::Bibliography {
+            entries,
+            title: title.map(Box::new),
+        }
+    }
+
+    /// `cite(key, supplement)` — Passo 159A (par acoplado com
+    /// `bibliography`). Sem validação cross-reference (ADR-0017
+    /// Introspection runtime adiada).
+    pub fn cite(key: impl Into<String>, supplement: Option<Content>) -> Self {
+        Self::Cite {
+            key: key.into(),
+            supplement: supplement.map(Box::new),
+        }
+    }
+
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,
@@ -799,6 +871,13 @@ impl Content {
             // repeat não torna o container não-vazio — paridade Block/Boxed).
             Self::TableHeader { body, .. } => body.is_empty(),
             Self::TableFooter { body, .. } => body.is_empty(),
+            // Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par
+            // acoplado). Bibliography vazio se entries vazias E title
+            // None. Cite nunca vazio (key sempre presente; placeholder
+            // `[key]` é sempre observable).
+            Self::Bibliography { entries, title } =>
+                entries.is_empty() && title.is_none(),
+            Self::Cite { .. } => false,
             // Passo 154B: Divider é singleton estrutural, nunca vazio.
             // Terms vazio (sem items) é considerado vazio; TermItem vazio
             // se ambos os lados forem vazios.
@@ -932,6 +1011,30 @@ impl Content {
             // DEBT-56).
             Self::TableHeader { body, .. } => body.plain_text(),
             Self::TableFooter { body, .. } => body.plain_text(),
+            // Passo 159A: Bibliography concatena title (se Some) +
+            // entries formatadas. Cite emite `"[{key}]"` placeholder
+            // + supplement.
+            Self::Bibliography { entries, title } => {
+                let mut out = String::new();
+                if let Some(t) = title {
+                    out.push_str(&t.plain_text());
+                    out.push('\n');
+                }
+                for e in entries {
+                    out.push_str(&format!(
+                        "[{}] {}. {} ({}).\n",
+                        e.key, e.author, e.title, e.year
+                    ));
+                }
+                out
+            }
+            Self::Cite { key, supplement } => {
+                let mut out = format!("[{}]", key);
+                if let Some(s) = supplement {
+                    out.push_str(&s.plain_text());
+                }
+                out
+            }
             Self::SetPage { .. } => String::new(),
             Self::Align { body, .. } => body.plain_text(),
             Self::Place { body, .. } => body.plain_text(),
@@ -1061,6 +1164,13 @@ impl PartialEq for Content {
             (Self::TableFooter { body: ba, repeat: ra },
              Self::TableFooter { body: bb, repeat: rb }) =>
                 ba == bb && ra == rb,
+            // Passo 159A — par acoplado Bibliography + Cite.
+            (Self::Bibliography { entries: ea, title: ta },
+             Self::Bibliography { entries: eb, title: tb }) =>
+                ea == eb && ta == tb,
+            (Self::Cite { key: ka, supplement: sa },
+             Self::Cite { key: kb, supplement: sb }) =>
+                ka == kb && sa == sb,
             (Self::SetPage { width: wa, height: ha, margin: ma },
              Self::SetPage { width: wb, height: hb, margin: mb }) =>
                 wa == wb && ha == hb && ma == mb,
@@ -1350,6 +1460,23 @@ impl Content {
                 body:   Box::new(body.map_content(transform)?),
                 repeat: *repeat,
             },
+            // Passo 159A: Bibliography recurse em title; preserva
+            // entries (BibEntry é dados puros, sem Content recursivo).
+            // Cite recurse em supplement; preserva key.
+            Content::Bibliography { entries, title } => Content::Bibliography {
+                entries: entries.clone(),
+                title:   title.as_ref()
+                    .map(|t| t.map_content(transform))
+                    .transpose()?
+                    .map(Box::new),
+            },
+            Content::Cite { key, supplement } => Content::Cite {
+                key:        key.clone(),
+                supplement: supplement.as_ref()
+                    .map(|s| s.map_content(transform))
+                    .transpose()?
+                    .map(Box::new),
+            },
             Content::Align { alignment, body } => Content::Align {
                 alignment: *alignment,
                 body:      Box::new(body.map_content(transform)?),
@@ -1543,6 +1670,19 @@ impl Content {
             Content::TableFooter { body, repeat } => Content::TableFooter {
                 body:   Box::new(body.map_text(transform)),
                 repeat: *repeat,
+            },
+            // Passo 159A: Bibliography map_text em title; entries
+            // são dados puros (String fields) — sem map_text recursivo
+            // em entries (mapeamento de strings em fields entities é
+            // out of scope per ADR-0033 paridade observable).
+            Content::Bibliography { entries, title } => Content::Bibliography {
+                entries: entries.clone(),
+                title:   title.as_ref().map(|t| Box::new(t.map_text(transform))),
+            },
+            // Cite map_text em supplement; preserva key (String).
+            Content::Cite { key, supplement } => Content::Cite {
+                key:        key.clone(),
+                supplement: supplement.as_ref().map(|s| Box::new(s.map_text(transform))),
             },
             Content::Align { alignment, body } => Content::Align {
                 alignment: *alignment,
@@ -3181,5 +3321,143 @@ mod tests {
         } else {
             panic!("esperado Content::TableFooter");
         }
+    }
+
+    // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ──
+
+    #[test]
+    fn bibliography_constructor_default_vazia() {
+        let b = Content::bibliography(vec![], None);
+        if let Content::Bibliography { entries, title } = &b {
+            assert!(entries.is_empty());
+            assert!(title.is_none());
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn bibliography_constructor_com_entries_e_title() {
+        use crate::entities::bib_entry::BibEntry;
+        let b = Content::bibliography(
+            vec![BibEntry::new("k1", "A1", "T1", 2024)],
+            Some(Content::text("Referências")),
+        );
+        if let Content::Bibliography { entries, title } = &b {
+            assert_eq!(entries.len(), 1);
+            assert_eq!(entries[0].key, "k1");
+            assert_eq!(title.as_ref().map(|t| t.plain_text()).as_deref(), Some("Referências"));
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn bibliography_is_empty_proxy_via_entries_e_title() {
+        use crate::entities::bib_entry::BibEntry;
+        // Vazia (sem entries, sem title) → empty.
+        let b_empty = Content::bibliography(vec![], None);
+        assert!(b_empty.is_empty());
+        // Só com title → não empty.
+        let b_title = Content::bibliography(vec![], Some(Content::text("R")));
+        assert!(!b_title.is_empty());
+        // Só com entries → não empty.
+        let b_entries = Content::bibliography(
+            vec![BibEntry::new("k", "A", "T", 2024)], None,
+        );
+        assert!(!b_entries.is_empty());
+    }
+
+    #[test]
+    fn bibliography_plain_text_concatena_title_e_entries() {
+        use crate::entities::bib_entry::BibEntry;
+        let b = Content::bibliography(
+            vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
+            Some(Content::text("Referências")),
+        );
+        let txt = b.plain_text();
+        assert!(txt.contains("Referências"), "title presente no plain_text");
+        assert!(txt.contains("[smith2024]"), "key formatada como [key]");
+        assert!(txt.contains("Smith, J."), "author presente");
+        assert!(txt.contains("On Crystal Math"), "title presente");
+        assert!(txt.contains("2024"), "year presente");
+    }
+
+    #[test]
+    fn bibliography_partial_eq_cobre_2_fields() {
+        use crate::entities::bib_entry::BibEntry;
+        let mk = || Content::bibliography(
+            vec![BibEntry::new("k", "A", "T", 2024)],
+            Some(Content::text("R")),
+        );
+        assert_eq!(mk(), mk());
+        // entries diferentes → diferente.
+        let other_entries = Content::bibliography(
+            vec![BibEntry::new("k", "A", "T", 2025)],  // year diferente
+            Some(Content::text("R")),
+        );
+        assert_ne!(mk(), other_entries);
+        // title diferente → diferente.
+        let other_title = Content::bibliography(
+            vec![BibEntry::new("k", "A", "T", 2024)],
+            Some(Content::text("Bibliografia")),
+        );
+        assert_ne!(mk(), other_title);
+    }
+
+    #[test]
+    fn cite_constructor_so_key() {
+        let c = Content::cite("smith2024", None);
+        if let Content::Cite { key, supplement } = &c {
+            assert_eq!(key, "smith2024");
+            assert!(supplement.is_none());
+        } else {
+            panic!("esperado Content::Cite");
+        }
+    }
+
+    #[test]
+    fn cite_constructor_com_supplement() {
+        let c = Content::cite("smith2024", Some(Content::text("p. 42")));
+        if let Content::Cite { key, supplement } = &c {
+            assert_eq!(key, "smith2024");
+            assert_eq!(supplement.as_ref().map(|s| s.plain_text()).as_deref(), Some("p. 42"));
+        } else {
+            panic!("esperado Content::Cite");
+        }
+    }
+
+    #[test]
+    fn cite_is_empty_sempre_false() {
+        // Cite nunca vazio — placeholder [key] sempre observable.
+        let c1 = Content::cite("k", None);
+        let c2 = Content::cite("k", Some(Content::text("p. 1")));
+        assert!(!c1.is_empty());
+        assert!(!c2.is_empty());
+    }
+
+    #[test]
+    fn cite_plain_text_emite_placeholder_com_key() {
+        // Sem supplement.
+        let c1 = Content::cite("smith2024", None);
+        assert_eq!(c1.plain_text(), "[smith2024]");
+        // Com supplement.
+        let c2 = Content::cite("smith2024", Some(Content::text("p. 42")));
+        assert_eq!(c2.plain_text(), "[smith2024]p. 42");
+    }
+
+    #[test]
+    fn cite_partial_eq_cobre_2_fields() {
+        let mk = || Content::cite("k", Some(Content::text("p. 1")));
+        assert_eq!(mk(), mk());
+        // key diferente → diferente.
+        let other_key = Content::cite("k2", Some(Content::text("p. 1")));
+        assert_ne!(mk(), other_key);
+        // supplement diferente → diferente.
+        let other_sup = Content::cite("k", Some(Content::text("p. 99")));
+        assert_ne!(mk(), other_sup);
+        // supplement None vs Some → diferente.
+        let other_none = Content::cite("k", None);
+        assert_ne!(mk(), other_none);
     }
 }

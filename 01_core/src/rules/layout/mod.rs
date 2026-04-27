@@ -533,6 +533,35 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.layout_content(body);
             }
 
+            // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ──
+            // Render placeholder per ADR-0033 + ADR-0054 graded:
+            // Bibliography renderiza title (se Some) + lista de entries
+            // formatadas como `"[{key}] {author}. {title} ({year})."`;
+            // Cite renderiza placeholder `"[{key}]"` + supplement.
+            // Refinos futuros (CSL styles, form variants, hayagriva)
+            // NÃO reservados per política P158.
+            Content::Bibliography { entries, title } => {
+                if let Some(t) = title {
+                    self.layout_content(t);
+                    self.flush_line();
+                }
+                for e in entries {
+                    let line = format!(
+                        "[{}] {}. {} ({}).",
+                        e.key, e.author, e.title, e.year,
+                    );
+                    self.layout_content(&Content::text(line));
+                    self.flush_line();
+                }
+            }
+            Content::Cite { key, supplement } => {
+                let placeholder = format!("[{}]", key);
+                self.layout_content(&Content::text(placeholder));
+                if let Some(s) = supplement {
+                    self.layout_content(s);
+                }
+            }
+
             Content::SetPage { width, height, margin } => {
                 let mut new_config = self.page_config.clone();
                 let mut changed    = false;

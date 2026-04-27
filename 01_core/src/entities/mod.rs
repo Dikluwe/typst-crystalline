@@ -21,6 +21,7 @@ pub mod source;
 pub mod source_result;
 pub mod scope;
 pub mod args;
+pub mod bib_entry;
 pub mod content;
 pub mod dir;
 pub mod parity;

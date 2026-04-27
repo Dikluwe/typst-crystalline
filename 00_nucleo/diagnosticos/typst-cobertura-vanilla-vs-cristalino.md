@@ -172,8 +172,8 @@ primitives e `skew`). Detalhe em
 | `enum(items)` | model/enum.rs | `parcial` | idem | |
 | `terms(...)` | model/terms.rs | `implementado` | Passo 154B | `Content::Terms` + `Content::TermItem`; named args via `#terms(key: [desc])`; sem atributos vanilla (tight/separator/indent/hanging-indent) — extensíveis sem breaking change |
 | `quote(...)` | model/quote.rs | `implementado` | Passo 155 | `Content::Quote` com 4 attrs; smart-quotes lang-aware (6 idiomas + default ASCII) via `rules/lang/quotes.rs`; markup `"..."` produz aspas localizadas via alternância open/close (não pareadas como bloco) |
-| `cite(key)` | model/cite.rs | `ausente` | — | requer bibliography |
-| `bibliography(path)` | model/bibliography.rs | `ausente` | — | escopo XL: CSL parsing |
+| `cite(key)` | model/cite.rs | `parcial` ²⁹ | Passo 159A (par acoplado com bibliography) | `Content::Cite { key: String, supplement: Option<Box<Content>> }` + stdlib `#cite(key, supplement: ?)`; **naming `cite` flat**; ADR-0064 Caso A para supplement; **placeholder render** `[key]` per ADR-0033 + ADR-0054 graded; sem validação cross-reference (ADR-0017 adiada); 2+ atributos vanilla scope-out (form Normal/Prose; style CSL override) |
+| `bibliography(path)` | model/bibliography.rs | `parcial` ²⁹ | Passo 159A (par acoplado com cite) | `Content::Bibliography { entries: Vec<BibEntry>, title: Option<Box<Content>> }` + stdlib `#bibliography(entries, title: ?)`; **input cristalino literal Vec<BibEntry>** (sem hayagriva; ADR-0062 mantém-se reserva sem ficheiro); tipo entity novo `BibEntry { key, author, title, year }` em `entities/bib_entry.rs`; ADR-0064 Caso A para title; **placeholder render** lista `"[{key}] {author}. {title} ({year})."`; 6+ atributos vanilla scope-out (sources/full/style CSL/lang/region) |
 | `link(dest, body)` | model/link.rs | `parcial` | Passo 23 | `Content::Link` capturado; sem render visual |
 | `footnote(body)` | model/footnote.rs | `ausente` | — | |
 | `ref(target)` | model/reference.rs | `implementado⁺` | Passos 63–66 | `Content::Ref` com forward-resolve |
@@ -429,11 +429,11 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
 | Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ | 13 | 1 | 3 | 1 | 0 | 18 |
-| Model (structural) ¹ ² ³ ²² ²⁴ | 7 | 4 | 5 | 6 | 0 | 22 |
+| Model (structural) ¹ ² ³ ²² ²⁴ ²⁹ | 7 | 4 | 7 | 4 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection | 1 | 0 | 0 | 5 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² | **64** | **22** | **22** | **31** | **2** | **141** |
+| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ | **64** | **22** | **24** | **29** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -565,11 +565,13 @@ ajustada: 60/21/22/36/2=141 → **61/21/22/35/2=141** (+1
 implementado, −1 ausente). Tabela B Content variants:
 **48 → 49** (+`Block`). ADR-0061 continua `PROPOSTO`.
 
-**Cobertura user-facing total** (impl + impl⁺) pós-P157C:
-(64 + 22) / 141 = **61%** (≈61.0%; **inalterada** vs P157A/B
-— `table.cell`/`table.header`/`table.footer` são sub-entradas
-de `table` que não contam na agregação Model; ganho qualitativo
-via expansão estrutural completa de "table foundations")
+**Cobertura user-facing total** (impl + impl⁺) pós-P159A:
+(64 + 22) / 141 = **61%** (≈61.0%; **inalterada agregada
+impl+impl⁺** vs P157A/B/C/P158/A; entradas `parcial` cresceram
+22 → 24 com P159A — `cite` e `bibliography` movem `ausente →
+parcial`; ganho qualitativo via 2 entradas saírem de ausente;
+cobertura ampla impl+impl⁺+parcial: (64+22+24)/141 = **77%**
+crescente)
 (antes de P154A: 54%; após P154B: 55%; após P155: ~55-56%;
 após P156B: ~53%; após P156C: ~55%; após P156D: ~56%; após
 P156E: ~57%; após P156F: ~57%; após P156G: ~58%; após P156H:
@@ -580,11 +582,16 @@ de `pad` per ADR-0064 Caso C; após P157A: ~61.0% — Model
 45% → 50%, primeiro sub-passo Model Fase 2; após P157B:
 ~61.0% (inalterada agregada) — expansão estrutural de
 `table` via `TableCell` sub-entrada; ganho qualitativo;
-ADR-0064 Caso A primeira aplicação Model; **após P157C:
-~61.0% (inalterada agregada)** — par simétrico
+ADR-0064 Caso A primeira aplicação Model; após P157C:
+~61.0% (inalterada agregada) — par simétrico
 TableHeader/TableFooter completa expansão estrutural de
 "table foundations"; ADR-0064 Caso D primeira aplicação Model;
-**saturação cross-domínio cross-caso** A/B/C/D em Layout + Model).
+**saturação cross-domínio cross-caso** A/B/C/D em Layout + Model;
+após P158A: ~61.0% (inalterada) — refino qualitativo
+auto-detecção figure-kinds; **após P159A: ~61.0% impl+impl⁺
+inalterada / parcial cresce 22 → 24** — par acoplado
+Bibliography+Cite minimal sem hayagriva; ADR-0064 Caso A
+patamar N=4 → 5).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -592,12 +599,12 @@ TableHeader/TableFooter completa expansão estrutural de
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
 | `Value` variants | 18 | 2 | 2 | 9 | 0 | 31 |
-| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ ²⁰ ²³ ²⁵ ²⁷ | 44 | 9 | 3 | 0 | 0 | 56 |
+| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ ²⁰ ²³ ²⁵ ²⁷ ³⁰ | 46 | 9 | 3 | 0 | 0 | 58 |
 | `Content` variants (vanilla extra ausentes) | — | — | — | 0 | — | 0 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
-| **Total arquitectural** | **72** | **13** | **5** | **15** | **1** | **106** |
+| **Total arquitectural** | **74** | **13** | **5** | **13** | **1** | **106** |
 
 ³ — Ajuste P154B: 39 → 42 (+`Divider`, +`Terms`, +`TermItem`).
 Vanilla extra ausentes desce de ~14 para ~12 (terms + divider
@@ -780,6 +787,53 @@ segunda aplicação consecutiva de materialização. Patamar
 empírico cross-domínio cross-caso ADR-0064 atinge **saturação**:
 todos os 4 casos canónicos validados em Layout E em Model.
 
+²⁹ — Ajuste P159A (Tabela A.6 Model): `cite` e `bibliography`
+transitam ambos `ausente → parcial` per estrutura A adaptada
+do diagnóstico P159 §3.5 (par acoplado num único passo M+ sem
+hayagriva). Subset minimal per ADR-0054 graded:
+- `Content::Bibliography { entries: Vec<BibEntry>, title:
+  Option<Box<Content>> }` + stdlib `#bibliography(entries,
+  title: ?)`. Tipo entity novo `BibEntry { key, author, title,
+  year }` em `entities/bib_entry.rs`. **Input cristalino literal**
+  — sem hayagriva (ADR-0062 mantém-se reserva sem ficheiro);
+  refinos futuros (CSL parsing, form variants, numbering) NÃO
+  reservados per política P158.
+- `Content::Cite { key: String, supplement: Option<Box<Content>> }`
+  + stdlib `#cite(key, supplement: ?)`. **Sem validação
+  cross-reference** `key ∈ entries` per ADR-0017 Introspection
+  runtime adiada — `cite("inexistente")` produz placeholder
+  sem erro.
+**Naming `bibliography` e `cite` flat** (paridade decisão P157B
+naming flat — FieldAccess actual não suporta `Value::Func.subname`).
+**ADR-0064 Caso A** aplicado em title (Bibliography) e
+supplement (Cite) — patamar Caso A cresce **N=4 → 5** com
+P159A (P156G/H/I + P157B + P159A; diversidade cross-domínio
+60% Layout + 40% Model). **ADR-0065 critério #2 (escolha de
+tipo) primeira aplicação isolada concreta** — decisão de
+`BibEntry` 4 fields minimais documentada. Layouter renderiza
+placeholder per ADR-0033 + ADR-0054 graded — Bibliography como
+lista; Cite como `[key]` + supplement. **Granularidade quebrada
+honestamente** N=13 → M+ com precedente P156C par lógico
+pad+hide. Contagem Model: 7/4/5/6/0=22 → **7/4/7/4/0=22**
+(2 entradas movidas `ausente → parcial`). Cobertura Model
+(impl + impl⁺): (7+4)/22 = **50% inalterada**; ganho qualitativo
+via 2 entradas saírem de `ausente`. Total user-facing: 64/22/22/
+31/2=141 → **64/22/24/29/2=141**. **DEBT-55 contribuído mas
+NÃO fechado** — pré-condição hayagriva contornada para subset
+minimal; refinos futuros (hayagriva integration, CSL, form
+variants, cross-document forward refs) **NÃO reservados**.
+Tests +27 (1147 → 1174). **Política "sem novas reservas"
+preservada**.
+
+³⁰ — Ajuste P159A (Tabela B): 56 → **58** (+`Bibliography` +
+`Cite` par acoplado). **Vanilla extra ausentes mantém 0** —
+após P159A, todos os variants Content vanilla relevantes a
+"bibliography + cite" subset minimal estão capturados (refinos
+futuros são extensões de fields, não variants novos). Décima
+quarta aplicação consecutiva de materialização. **Primeiro M+
+par acoplado pós-P156C** (P156C era passo aditivo simétrico;
+P159A é par funcional inseparável).
+
 ²⁸ — Ajuste P158A (Tabela A.6 Model): refino qualitativo de
 `figure` — auto-detecção de `kind` baseada no body adicionada
 em `native_figure` per diagnóstico P158A §3.2. Helper privado
@@ -830,12 +884,14 @@ de implementado para implementado⁺). Tabela B Content: 52
 ADR-0065 N=6 implícito; reuso `Sides<T>` N=2; reuso
 `extract_length` N=7.
 
-**Cobertura arquitectural total**: (72 + 13) / 106 = **80%**
-(era 78% pós-P157B; era 77-78% pós-P157A; era 76-77% pós-P156L;
-era 75-76% pós-P156I; era 75% pré-P155; era 72% pré-P154B;
-era 70% pré-P149). **Patamar arquitectural 80% atingido em
-P157C** — fechamento de "table foundations" remove totalmente
-os variants Content vanilla extra ausentes (~1 → 0).
+**Cobertura arquitectural total**: (74 + 13) / 106 = **82%**
+(era 80% pós-P157C/P158/P158A; era 78% pós-P157B; era 77-78%
+pós-P157A; era 76-77% pós-P156L; era 75-76% pós-P156I; era
+75% pré-P155; era 72% pré-P154B; era 70% pré-P149). **Patamar
+82% atingido em P159A** — par acoplado Bibliography+Cite
+minimal adiciona 2 variants Content (56 → 58); vanilla extra
+ausentes mantém 0 (subset minimal cobre todos os variants
+core para Bibliography+Cite).
 **Nota**: variants extra cristalino (`Value::Align`, `Content::Styled`) são **divergências intencionais**
 favoráveis — cristalino tem features que vanilla não (em forma de Value); contadas como `implementado` porque
 encerradas por ADRs (0026, 0028→0029, 0036, etc.).

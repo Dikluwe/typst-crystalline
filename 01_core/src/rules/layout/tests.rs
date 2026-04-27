@@ -2699,4 +2699,59 @@ mod tests_show_rule_integration {
                 "child '{}' (plain, table_header, table_cell ou table_footer) deve aparecer pelo menos uma vez", label);
         }
     }
+
+    // ── Passo 159A — Bibliography + Cite par acoplado ─────────────────────
+
+    /// `Content::Bibliography` renderiza title (se Some) seguido
+    /// de lista de entries formatadas como
+    /// `"[{key}] {author}. {title} ({year})."` per linha.
+    #[test]
+    fn layout_bibliography_renderiza_entries_como_lista() {
+        use crate::entities::bib_entry::BibEntry;
+        let b = Content::bibliography(
+            vec![
+                BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024),
+                BibEntry::new("doe2023",   "Doe, A.",   "Cosmic Patterns", 2023),
+            ],
+            None,
+        );
+        let doc = layout(&b, CounterState::default());
+        let txt = doc.plain_text();
+        // Ambos os keys devem aparecer no output formatado.
+        assert!(txt.contains("[smith2024]"), "key smith2024 deve aparecer formatada como [key]: doc='{}'", txt);
+        assert!(txt.contains("[doe2023]"),   "key doe2023 deve aparecer formatada como [key]");
+        assert!(txt.contains("Smith"),       "author Smith deve aparecer");
+        assert!(txt.contains("2024"),        "year 2024 deve aparecer");
+    }
+
+    /// `Content::Cite` renderiza placeholder `[key]` com supplement
+    /// (se Some) concatenado.
+    #[test]
+    fn layout_cite_renderiza_placeholder_com_key() {
+        let c = Content::cite("smith2024", None);
+        let doc = layout(&c, CounterState::default());
+        let txt = doc.plain_text();
+        assert!(txt.contains("[smith2024]"),
+            "Cite renderiza placeholder [key]: doc='{}'", txt);
+    }
+
+    /// Bibliography + Cite no mesmo documento — integrativo.
+    #[test]
+    fn layout_bibliography_e_cite_no_mesmo_documento() {
+        use crate::entities::bib_entry::BibEntry;
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::cite("smith2024", None),
+            Content::bibliography(
+                vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
+                Some(Content::text("Referências")),
+            ),
+        ]));
+        let doc = layout(&doc_content, CounterState::default());
+        let txt = doc.plain_text();
+        // Ambos cite e bibliography devem aparecer.
+        assert!(txt.contains("[smith2024]"), "cite + bibliography ambos devem ter [smith2024]");
+        assert!(txt.contains("Referências"), "title da bibliography presente");
+        assert!(txt.contains("Smith"),       "author entry presente");
+    }
 }
