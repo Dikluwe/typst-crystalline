@@ -299,7 +299,7 @@ da Fase 1 Model em P155).
 
 ---
 
-## Aplicações cumulativas (pós-P158A)
+## Aplicações cumulativas (pós-P159)
 
 ADR-0061 PROPOSTO em P156B (2026-04-25). **Fase 1+2
 materializadas em sequência granular P156C-I** (7 passos
@@ -326,7 +326,8 @@ de ADR-0065 critério #3):
 | P157B | table cell (Model Fase 2 sub-passo 2) | 0% agregado | Layout 78% inalterado; Model 50% inalterado (sub-entrada) | +18 |
 | P157C | table header + footer (Model Fase 2 sub-passo 3 — fecha table foundations) | 0% agregado | Layout 78% inalterado; Model 50% inalterado (par sub-entradas); arquitectural 78% → 80% | +26 |
 | P158 | (diagnóstico Model figure-kinds) | — | — (sem código; passo documental) | 0 |
-| **P158A** | **figure auto-detect (Model figure-kinds sub-passo 1)** | **0% agregado** | **Layout 78%; Model 50% inalterado (refino qualitativo)** | **+6** |
+| P158A | figure auto-detect (Model figure-kinds sub-passo 1) | 0% agregado | Layout 78%; Model 50% inalterado (refino qualitativo) | +6 |
+| **P159** | **(diagnóstico Bibliography + Cite)** | — | — (sem código; passo documental) | **0** |
 
 **Total**: +56 pontos percentuais Layout em 9 passos consecutivos
 de materialização Layout (22% → 78%); **+5pp Model** em P157A
@@ -345,11 +346,12 @@ Fase 2 (table foundations) — primeira aplicação concreta de
 ADR-0065 critério #5. **P158 é diagnóstico precedendo
 materialização Model figure-kinds — segunda aplicação concreta
 do critério #5**. **+240 tests** acumulados (1145 → 1385
-lib+integ+diagnostic; +6 em P158A). **Zero reformulações
-mid-passo** em N=13 aplicações de materialização (9 Layout + 4
-Model). Padrão granular universal cross-domínio confirmado e
-estendido. Cobertura arquitectural mantém **80%** após P158/P158A
-(refino qualitativo).
+lib+integ+diagnostic; inalterado por P159 documental).
+**Zero reformulações mid-passo** em N=13 aplicações de
+materialização (9 Layout + 4 Model). Padrão granular universal
+cross-domínio confirmado e estendido. Cobertura arquitectural
+mantém **80%** após P158/P158A/P159 (refino qualitativo +
+documental).
 
 ### Tipos novos infraestruturais
 
@@ -400,7 +402,7 @@ estendido. Cobertura arquitectural mantém **80%** após P158/P158A
    critério #3; P157 é primeira aplicação do critério #5).
 
 2. **"Inventariar primeiro" pré-decisão arquitectural**:
-   **N=12** aplicações (P156F defensivo; P156G deliberado;
+   **N=13** aplicações (P156F defensivo; P156G deliberado;
    P156H curto; P156I curto focado; P156J curto focado;
    P156L expansão variant existente — primeira aplicação
    concreta do critério #3 de ADR-0065; P157 scope determinado
@@ -421,9 +423,13 @@ estendido. Cobertura arquitectural mantém **80%** após P158/P158A
    critério #5 após P157; **P158A inventário figure auto-detect
    com decisão Sequence handling — recursão limitada a Sequence
    per ADR-0033 (paridade vanilla parcial); critério #5 scope
-   reforçado**). **Formalizado em ADR-0065** (P156K); **agora
-   N=12 com 3 critérios formalmente validados** (#3 P156L; #5
-   P157 + P157A + P158 + **P158A**; #1 P157A/B + #6 P157B/C).
+   reforçado; **P159 inventário Bibliography + Cite com avaliação
+   de 3 estruturas (multi-passo / minimal / diferimento) e
+   recomendação Estrutura A adaptada — terceira aplicação concreta
+   do critério #5 com diversidade cross-feature confirmada**).
+   **Formalizado em ADR-0065** (P156K); **agora N=13 com 3
+   critérios formalmente validados** (#3 P156L; #5 P157 + P157A
+   + P158 + P158A + **P159**; #1 P157A/B + #6 P157B/C).
 
 3. **"Smart<T> → Option<T> ou default"**: **N=9** aplicações
    (P156E Parity; P156F angles; P156G Block.width; P156H
@@ -449,7 +455,7 @@ estendido. Cobertura arquitectural mantém **80%** após P158/P158A
    - **3/4 casos canónicos validados em Model** (A, C, D);
      Caso B só Layout — candidato futuro.
 
-4. **"§análise de risco no relatório"**: **N=12** aplicações
+4. **"§análise de risco no relatório"**: **N=13** aplicações
    (P156F/G/H/I/J/K + L com peso real — primeiro refactor
    real após série aditiva; P157 com risco baixo diagnóstico;
    P157A com risco baixo-médio — primeiro Model Fase 2 com
@@ -463,7 +469,10 @@ estendido. Cobertura arquitectural mantém **80%** após P158/P158A
    critério #5; estabelece precedente "sem novas reservas";
    **P158A com risco muito baixo — refino comportamental sem
    alteração estrutural; primeiro passo Model com refino
-   qualitativo**).
+   qualitativo; **P159 com risco baixo — diagnóstico
+   Bibliography+Cite XL declarado; terceira aplicação concreta
+   ADR-0065 critério #5 com avaliação de 3 estruturas
+   (multi-passo/minimal/diferimento)**).
    Cobertura sistemática do risco.
 
 5. **"Reuso de template containers"**: **N=4** aplicações
@@ -521,11 +530,11 @@ estendido. Cobertura arquitectural mantém **80%** após P158/P158A
     formalização se P158/P159 também usarem pares simétricos
     (e.g. `figure.caption`/`figure.numbering` se aplicável).
 
-### Estado pós-P158A
+### Estado pós-P159
 
 - **Cobertura Layout**: **78%** (inalterada por P157A/B/C +
-  P158/P158A — escopo Model + refino qualitativo). Target
-  ADR-0061 (72%) **continua ultrapassado**.
+  P158/P158A/P159 — escopo Model + refino qualitativo +
+  documental). Target ADR-0061 (72%) **continua ultrapassado**.
 - **Cobertura Model agregada**: ~50% (inalterada vs P157A/B —
   TableCell/TableHeader/TableFooter são sub-entradas de table
   que não contam separadamente na agregação). Ganho qualitativo
@@ -545,11 +554,21 @@ estendido. Cobertura arquitectural mantém **80%** após P158/P158A
   vanilla parcial per ADR-0033). Sem alteração a variant
   `Content::Figure` ou layout. Hash `entities/content.rs`
   preservado (sétimo passo consecutivo).
+- **P159 (diagnóstico Bibliography + Cite)**: scope decidido em
+  diagnóstico §3 — **Estrutura A adaptada** (par acoplado
+  Bibliography+Cite num único passo M+ sem hayagriva; input
+  cristalino literal Vec<BibEntry>). Refinos futuros
+  (hayagriva, CSL, form variants, numbering) **NÃO reservados**.
+  ADR-0062 confirmada como **reserva sem ficheiro**; promoção
+  a `IMPLEMENTADO` só necessária se P159B+ futuros integrarem
+  hayagriva.
 - **Restantes Fase 2 Model**:
-  - figure-kinds refinos futuros (supplement por lang;
-    NÃO reservado per política P158).
-  - `Bibliography` + `Cite` (P159 reserva pré-existente; XL;
-    DEBT-55 + ADR-0062 reservada hayagriva).
+  - Bibliography + Cite materialização (P159A; subset minimal
+    par acoplado per diagnóstico P159).
+  - figure-kinds refinos futuros (supplement por lang; NÃO
+    reservado per política P158).
+  - hayagriva integration + CSL (refino futuro pós-P159A; NÃO
+    reservado).
 - **Restantes 3 entradas Layout** pendentes (mesmo subset
   pós-P156L; P157A/B/C não tocam):
   - `columns`/`colbreak` (Fase 3 condicional — DEBT-56).
@@ -562,16 +581,18 @@ estendido. Cobertura arquitectural mantém **80%** após P158/P158A
   contribui ao DEBT-56 (storage de repeat). Fechamento de
   ambos fica para refactor dedicado.
 - **Zero novos DEBTs** em toda a série P156C-L + P157 +
-  P157A/B/C + P158 + **P158A** (16 passos total: 13 materialização
-  + 3 meta/diagnóstico).
+  P157A/B/C + P158 + P158A + **P159** (17 passos total: 13
+  materialização + 4 meta/diagnóstico).
 - **Footnote area** scope-out per decisão humana
   2026-04-25 (não incluído na Fase 1+2 Layout nem em P156J/L/
   P157/P157A/B/C/P158/P158A).
 - **Hash `entities/content.rs` preservado**: `ec58d849`
-  desde P156L — **sétimo passo consecutivo** (P156L → P157 →
-  P157A → P157B → P157C → P158 → P158A) sem alteração ao
-  variant Content. Padrão "passos aditivos / refino sem
-  alteração de variant Content" estabilizado.
+  desde P156L — **oitavo passo consecutivo** (P156L → P157 →
+  P157A → P157B → P157C → P158 → P158A → P159) sem alteração
+  ao variant Content. Padrão "passos aditivos / refino sem
+  alteração de variant Content" continua estabilizado em P159
+  (passo documental). **Esperada quebra em P159A** (variants
+  Bibliography + Cite serão adicionados ao enum).
 - **Política nova "sem novas reservas"** (P158): reservas
   pré-existentes (P159 + ADR-0062) respeitadas mas não
   reforçadas; passos seguintes a decidir sequencialmente per
