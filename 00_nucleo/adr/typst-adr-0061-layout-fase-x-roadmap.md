@@ -299,7 +299,7 @@ da Fase 1 Model em P155).
 
 ---
 
-## Aplicações cumulativas (pós-P157C)
+## Aplicações cumulativas (pós-P158)
 
 ADR-0061 PROPOSTO em P156B (2026-04-25). **Fase 1+2
 materializadas em sequência granular P156C-I** (7 passos
@@ -324,28 +324,31 @@ de ADR-0065 critério #3):
 | P157 | (diagnóstico Model Fase 2 — table foundations) | — | — (sem código; passo documental) | 0 |
 | P157A | table minimal (Model Fase 2 sub-passo 1) | +5% Model | Layout 78% inalterado; Model 45% → 50% | +16 |
 | P157B | table cell (Model Fase 2 sub-passo 2) | 0% agregado | Layout 78% inalterado; Model 50% inalterado (sub-entrada) | +18 |
-| **P157C** | **table header + footer (Model Fase 2 sub-passo 3 — fecha table foundations)** | **0% agregado** | **Layout 78% inalterado; Model 50% inalterado (par sub-entradas); arquitectural 78% → 80%** | **+26** |
+| P157C | table header + footer (Model Fase 2 sub-passo 3 — fecha table foundations) | 0% agregado | Layout 78% inalterado; Model 50% inalterado (par sub-entradas); arquitectural 78% → 80% | +26 |
+| **P158** | **(diagnóstico Model figure-kinds)** | — | — (sem código; passo documental) | **0** |
 
 **Total**: +56 pontos percentuais Layout em 9 passos consecutivos
 de materialização Layout (22% → 78%); **+5pp Model** em P157A
-(primeiro sub-passo Model Fase 2; cross-domínio). P156K e P157
-não contam para o slope (meta/diagnóstico). Target Fase 1+2
-Layout atingido em P156I; P156J ultrapassa target ao iniciar
-Fase 3 Layout; P157A inicia série Model Fase 2 análoga a
-Layout P156C-J/L; P157B continua série Model com sub-entrada
-qualitativa (TableCell); **P157C fecha "table foundations"
-declarado em ADR-0060 com par simétrico TableHeader/TableFooter**
-(ADR-0064 Caso D primeira aplicação Model — atinge **saturação
-cross-domínio cross-caso** A/B/C/D). P156L é refino qualitativo
+(primeiro sub-passo Model Fase 2; cross-domínio). P156K, P157,
+**P158** não contam para o slope (meta/diagnóstico). Target
+Fase 1+2 Layout atingido em P156I; P156J ultrapassa target ao
+iniciar Fase 3 Layout; P157A inicia série Model Fase 2 análoga
+a Layout P156C-J/L; P157B continua série Model com sub-entrada
+qualitativa (TableCell); P157C fecha "table foundations"
+declarado em ADR-0060 com par simétrico TableHeader/TableFooter
+(ADR-0064 Caso D primeira aplicação Model — atinge saturação
+cross-domínio cross-caso A/B/C/D). P156L é refino qualitativo
 de variant existente — primeira aplicação concreta de ADR-0065
 critério #3. P157 é diagnóstico precedendo materialização Model
-Fase 2 — primeira aplicação concreta de ADR-0065 critério #5.
-**+234 tests** acumulados (1145 → 1379 lib+integ+diagnostic).
-**Zero reformulações mid-passo** em N=12 aplicações de
-materialização (9 Layout + 3 Model). Padrão granular
-universal cross-domínio confirmado e estendido. **Cobertura
-arquitectural atinge 80%** com fechamento de "table foundations"
-(variants Content vanilla extra ausentes desce de ~1 a 0).
+Fase 2 (table foundations) — primeira aplicação concreta de
+ADR-0065 critério #5. **P158 é diagnóstico precedendo
+materialização Model figure-kinds — segunda aplicação concreta
+do critério #5**. **+234 tests** acumulados (1145 → 1379
+lib+integ+diagnostic; inalterado por P158). **Zero reformulações
+mid-passo** em N=12 aplicações de materialização (9 Layout + 3
+Model). Padrão granular universal cross-domínio confirmado e
+estendido. Cobertura arquitectural mantém **80%** após P158
+(passo documental).
 
 ### Tipos novos infraestruturais
 
@@ -397,7 +400,7 @@ arquitectural atinge 80%** com fechamento de "table foundations"
    critério #3; P157 é primeira aplicação do critério #5).
 
 2. **"Inventariar primeiro" pré-decisão arquitectural**:
-   **N=10** aplicações (P156F defensivo; P156G deliberado;
+   **N=11** aplicações (P156F defensivo; P156G deliberado;
    P156H curto; P156I curto focado; P156J curto focado;
    P156L expansão variant existente — primeira aplicação
    concreta do critério #3 de ADR-0065; P157 scope determinado
@@ -408,13 +411,16 @@ arquitectural atinge 80%** com fechamento de "table foundations"
    scope; P157B inventário completo TableCell com decisão de
    naming `table_cell` flat vs vanilla `table.cell` por
    limitação cristalina FieldAccess — explícito critério #1
-   naming + #6 divergência da spec da feature vanilla; **P157C
+   naming + #6 divergência da spec da feature vanilla; P157C
    inventário completo par simétrico TableHeader/TableFooter
    com decisão de divergência `body: Box<Content>` vs vanilla
    `Vec<TableItem>` per ADR-0033 — explícito critério #6
-   reforçado**). **Formalizado em ADR-0065** (P156K); **agora
-   N=10 com 3 critérios formalmente validados** (#3 P156L; #5
-   P157 + reforçado P157A; #1 P157A/B + #6 P157B/C).
+   reforçado; **P158 inventário Model figure-kinds com decisão
+   de scope subset minimal (auto-detecção) vs subset máximo
+   (auto-detecção + supplement) — segunda aplicação concreta do
+   critério #5 após P157**). **Formalizado em ADR-0065** (P156K);
+   **agora N=11 com 3 critérios formalmente validados** (#3
+   P156L; #5 P157 + P157A + **P158**; #1 P157A/B + #6 P157B/C).
 
 3. **"Smart<T> → Option<T> ou default"**: **N=9** aplicações
    (P156E Parity; P156F angles; P156G Block.width; P156H
@@ -440,16 +446,19 @@ arquitectural atinge 80%** com fechamento de "table foundations"
    - **3/4 casos canónicos validados em Model** (A, C, D);
      Caso B só Layout — candidato futuro.
 
-4. **"§análise de risco no relatório"**: **N=10** aplicações
+4. **"§análise de risco no relatório"**: **N=11** aplicações
    (P156F/G/H/I/J/K + L com peso real — primeiro refactor
    real após série aditiva; P157 com risco baixo diagnóstico;
    P157A com risco baixo-médio — primeiro Model Fase 2 com
    decisão arquitectural de módulo stdlib; P157B com risco
    baixo-médio — primeira aplicação ADR-0064 Caso A em Model
-   + decisão de naming `table_cell` flat; **P157C com risco
+   + decisão de naming `table_cell` flat; P157C com risco
    baixo — par simétrico aditivo; primeira aplicação ADR-0064
    Caso D em Model + saturação cross-domínio cross-caso
-   atingida**). Cobertura sistemática do risco.
+   atingida; **P158 com risco baixo — diagnóstico Model
+   figure-kinds; segunda aplicação concreta de ADR-0065
+   critério #5; estabelece precedente "sem novas reservas"**).
+   Cobertura sistemática do risco.
 
 5. **"Reuso de template containers"**: **N=4** aplicações
    (Block → Boxed → Stack → Repeat). Padrão "variant rico
@@ -506,10 +515,11 @@ arquitectural atinge 80%** com fechamento de "table foundations"
     formalização se P158/P159 também usarem pares simétricos
     (e.g. `figure.caption`/`figure.numbering` se aplicável).
 
-### Estado pós-P157C
+### Estado pós-P158
 
-- **Cobertura Layout**: **78%** (inalterada por P157A/B/C —
-  escopo Model). Target ADR-0061 (72%) **continua ultrapassado**.
+- **Cobertura Layout**: **78%** (inalterada por P157A/B/C +
+  P158 — escopo Model + documental). Target ADR-0061 (72%)
+  **continua ultrapassado**.
 - **Cobertura Model agregada**: ~50% (inalterada vs P157A/B —
   TableCell/TableHeader/TableFooter são sub-entradas de table
   que não contam separadamente na agregação). Ganho qualitativo
@@ -521,9 +531,17 @@ arquitectural atinge 80%** com fechamento de "table foundations"
   sub-passo 3 fica integralmente fechado** com P157A + P157B +
   P157C (3 sub-passos M cada; granularidade N=10/11/12 sem
   reformulação). Marca conceptual importante.
+- **P158 (diagnóstico figure-kinds)**: scope decidido em
+  diagnóstico §3 — subset minimal **auto-detecção de kind
+  baseada no body** recomendado para P158A (S+/M-; granularidade
+  preservada N=13). Toda a infraestrutura necessária (Image/
+  Table/Raw/Figure + counters) já existe; refactor minimal
+  esperado.
 - **Restantes Fase 2 Model**:
-  - `figure` kinds extension (P158; depende P157).
-  - `Bibliography` + `Cite` (P159; XL; DEBT-55 + ADR-0062).
+  - `figure-kinds` materialização (P158A; subset minimal per
+    diagnóstico P158).
+  - `Bibliography` + `Cite` (P159; XL; DEBT-55 + ADR-0062
+    reservada hayagriva).
 - **Restantes 3 entradas Layout** pendentes (mesmo subset
   pós-P156L; P157A/B/C não tocam):
   - `columns`/`colbreak` (Fase 3 condicional — DEBT-56).
@@ -536,11 +554,15 @@ arquitectural atinge 80%** com fechamento de "table foundations"
   contribui ao DEBT-56 (storage de repeat). Fechamento de
   ambos fica para refactor dedicado.
 - **Zero novos DEBTs** em toda a série P156C-L + P157 +
-  P157A/B/C (14 passos total: 12 materialização + 2 meta/
-  diagnóstico).
+  P157A/B/C + **P158** (15 passos total: 12 materialização +
+  3 meta/diagnóstico).
 - **Footnote area** scope-out per decisão humana
   2026-04-25 (não incluído na Fase 1+2 Layout nem em P156J/L/
-  P157/P157A/B/C).
+  P157/P157A/B/C/P158).
+- **Política nova "sem novas reservas"** (P158): reservas
+  pré-existentes (P159 + ADR-0062) respeitadas mas não
+  reforçadas; passos seguintes a decidir sequencialmente per
+  evidência empírica em vez de pré-comprometimento.
 - **Cadência cross-domínio fortalecida**: padrão granular
   Layout (P156C-L) replicado a Model (P157A/B/C; **3 sub-passos
   Model consecutivos** fecham conjunto coerente). Granularidade
