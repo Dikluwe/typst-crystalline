@@ -507,6 +507,60 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 159D — `BibEntry` fields adicionais (Model
+  bibliography+cite sub-passo 3)** (terceiro sub-passo
+  substantivo de Bibliography + Cite após P159A par acoplado +
+  P159C cite.form; **refino estrutural de tipo entity** sem
+  alteração ao variant Content; **subpadrão emergente N=1**
+  "refino de tipo entity sem alteração ao variant Content";
+  **ADR-0065 critério #2 patamar N=2→3**). Struct entity
+  `BibEntry` extendido em `01_core/src/entities/bib_entry.rs`
+  com 4 fields universais opcionais (`volume`/`pages`/`journal`/
+  `publisher`) per ADR-0065 critério #2 (terceira aplicação
+  isolada concreta — selecção de fields universais; 4 fields
+  escolhidos por universalidade cross-style + cobertura de
+  classes de publicação distintas — journals/papers/books/
+  manuals — vs alternativas `url`/`doi`/`editor` diferidas).
+  **Builder pattern fluente** `with_volume()`/`with_pages()`/
+  `with_journal()`/`with_publisher()` (Opção C diagnóstico §8;
+  legibilidade superior + backwards compat trivial via
+  `new()` original com 4 args preservado). Helper
+  `extract_bib_entries` (P159A) extendido para parsing dos 4
+  fields opcionais com validação tipo `Value::Str` e mensagem
+  mencionando field específico. Helper privado novo
+  `format_bib_entry` em `rules/layout/mod.rs` para concatenação
+  condicional APA-like (`[key] author. title journal vol. volume,
+  pp. pages. publisher (year).`). Backwards compat trivial —
+  fields opcionais default `None` preservam output P159A
+  exactamente. **Sem alteração ao variant `Content::Bibliography`**
+  ou `Content::Cite`. **Decisão arquitectural-chave**: builder
+  pattern (Opção C) vs `new_full(8 args)` (Opção B; rejeitada
+  por verbosidade) vs field assignment directo (Opção A;
+  rejeitada por construtor incompleto). Tests +8 (1204 → 1212;
+  3 unit bib_entry incluindo builder pattern + PartialEq cobre
+  8 fields + backwards compat + 3 stdlib parse + 2 layout E2E
+  entry completa/mínima; range esperado +5-8). Cobertura Model
+  agregada **inalterada** (~50%) — refino qualitativo. Cobertura
+  arquitectural **inalterada** 82%. Hashes `entities/content.rs`
+  e `entities/bib_entry.rs` ambos preservados via L0-baseline
+  interpretation (**13º passo consecutivo content.rs**; spec
+  P159D previa quebra bib_entry.rs mas extensão via doc-comment
+  preserva). Padrões pós-P159D: granularidade N=16 → **17**;
+  inventariar primeiro N=18 → **19** (ADR-0065 critério #5
+  sétima aplicação concreta + critério #2 N=2→**3** terceira
+  aplicação isolada concreta — selecção de fields universais);
+  §análise de risco N=18 → **19** (P159D baixo risco — refino
+  estrutural de tipo entity sem alteração de variant Content
+  + reuso pattern); ADR-0064 NÃO directamente aplicável (fields
+  são `Option<String>` directos sem mapping `Smart<T>`); tipo
+  entity em ficheiro próprio N=5 (inalterado — `BibEntry`
+  expande mas continua em `bib_entry.rs`); infraestrutura
+  state lookup N=2 (inalterado); P155 cross-feature N=1
+  (inalterado); **subpadrão novo #16 N=1** "refino de tipo
+  entity sem alteração ao variant Content" (precedente novo).
+  **Política "sem novas reservas" preservada** — fields
+  restantes vanilla, tipos estruturados, CSL real, estilo
+  configurável permanecem candidatos NÃO-reservados.
 - **Passo 159C — `Cite.form` variants (Model bibliography+cite
   sub-passo 2)** (segundo sub-passo substantivo de Bibliography
   + Cite após P159A par acoplado; **refino estrutural-

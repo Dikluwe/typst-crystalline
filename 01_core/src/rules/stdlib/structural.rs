@@ -492,11 +492,12 @@ pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ────────
 
 /// Coage `Value::Array<Value::Dict>` para `Vec<BibEntry>` per
-/// diagnóstico P159A §5. Cada Dict valida 4 fields obrigatórios
-/// (`key`/`author`/`title`/`year`).
+/// diagnóstico P159A §5 + P159D §5.1. Cada Dict valida 4 fields
+/// obrigatórios (`key`/`author`/`title`/`year`) + 4 opcionais
+/// (`volume`/`pages`/`journal`/`publisher` — Passo 159D).
 ///
-/// Helper privado P159A; sem promoção (N=1; política consistente
-/// N=2-3 mínima).
+/// Helper privado P159A extendido em P159D; sem promoção
+/// (N=1; política consistente N=2-3 mínima).
 ///
 /// **Validações hard**:
 /// - Argumento posicional deve ser `Value::Array`.
@@ -504,6 +505,8 @@ pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 /// - Dict deve ter 4 keys obrigatórias.
 /// - `key`/`author`/`title` devem ser `Value::Str`.
 /// - `year` deve ser `Value::Int` >= 0.
+/// - `volume`/`pages`/`journal`/`publisher` opcionais —
+///   se presentes, devem ser `Value::Str`; ausência aceite.
 fn extract_bib_entries(val: Option<&Value>) -> SourceResult<Vec<crate::entities::bib_entry::BibEntry>> {
     use crate::entities::bib_entry::BibEntry;
     let arr = match val {
@@ -577,7 +580,29 @@ fn extract_bib_entries(val: Option<&Value>) -> SourceResult<Vec<crate::entities:
             )]),
         };
 
-        entries.push(BibEntry { key, author, title, year });
+        // Passo 159D — fields opcionais. Helper inline para
+        // parsing uniforme de field opcional Str.
+        let optional_str = |field: &str| -> SourceResult<Option<String>> {
+            match dict.get(field) {
+                Some(Value::Str(s)) => Ok(Some(s.to_string())),
+                Some(other) => Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("bibliography(entries: [{}].{}) espera string, recebeu {}", idx, field, other.type_name()),
+                )]),
+                None => Ok(None),
+            }
+        };
+        let volume    = optional_str("volume")?;
+        let pages     = optional_str("pages")?;
+        let journal   = optional_str("journal")?;
+        let publisher = optional_str("publisher")?;
+
+        let mut entry = BibEntry::new(key, author, title, year);
+        entry.volume    = volume;
+        entry.pages     = pages;
+        entry.journal   = journal;
+        entry.publisher = publisher;
+        entries.push(entry);
     }
     Ok(entries)
 }
