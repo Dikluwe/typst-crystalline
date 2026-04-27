@@ -505,6 +505,50 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 158 — Diagnóstico Model figure-kinds**
+  (passo arquitectural de diagnóstico; **não materializa código**;
+  análogo estrutural a P156B/P156K/P157). **Segunda aplicação
+  concreta de ADR-0065 critério #5** (scope determinado por
+  inventário) — auto-validação cumulativa do ADR meta P156K
+  (P157 foi a primeira aplicação concreta; P158 reforça padrão).
+  Diagnóstico em
+  `00_nucleo/diagnosticos/diagnostico-model-figure-kinds-passo-158.md`
+  com 5 secções: §1 ADR-0060 sobre figure-kinds (declarado em
+  §"Decisão 2" Fase 2 como "extension" M; sem detalhes concretos
+  na ADR — scope decidido por inventário); §2 estado factual em
+  código (`Content::Figure { body, caption, kind: String,
+  numbering: Option<String> }` já existe completo desde P75/
+  ADR-0041; field `kind: String` arbitrário aceita image/table/
+  raw/custom; counters por kind funcionam em
+  `introspect.rs:279-292`; toda infraestrutura — Image P71, Table
+  P157A, Raw P156C — já existe); §3 scope determinado (3 subsets
+  avaliados — minimal §3.2 auto-detecção apenas + máximo §3.3
+  auto-detecção + supplement + intermédio §3.4; **recomendação
+  subset minimal §3.2 — auto-detecção de kind baseada no body**
+  preservando granularidade N=13); §4 dependências bloqueantes
+  (zero hard; toda infraestrutura existe; ADR-0017 Introspection
+  runtime adiada não bloqueia — counters resolvem em walk
+  single-pass); §5 esboço de **P158A** (helper privado
+  `infer_kind_from_body(body: &Content) -> Option<String>` em
+  `stdlib/figure_image.rs`; modificação trivial de
+  `native_figure` para fallback `kind explícito > infer > "image"`;
+  S+/M-; sem alteração a variant ou layout; tests ~6-8;
+  granularidade preservada N=13). **Política nova "sem novas
+  reservas"** explícita: P158 NÃO cria reservas para passos
+  pós-P158A. Reservas pré-existentes (P159 = bibliography + cite;
+  ADR-0062 = hayagriva) respeitadas mas não reforçadas;
+  candidatos a refino futuro (supplement automático, show
+  selectors `figure.where(kind:)`, refactor `kind: String →
+  Option<String>` per ADR-0064 Caso A) **NÃO reservados** —
+  decisões ficam para sessões futuras com informação acumulada.
+  Padrões pós-P158: granularidade N=12 (inalterada — P158 é
+  diagnóstico, não materialização); inventariar primeiro N=10
+  → **11** (segunda aplicação concreta critério #5); §análise
+  de risco N=10 → **11** (passo diagnóstico baixo risco;
+  estabelece precedente "sem novas reservas"). Total ADRs **63
+  inalterado**; sem novas crates; sem novos DEBTs; sem
+  alteração de hashes (passo documental); cobertura Layout/
+  Model/arquitectural inalteradas (78%/50%/80%).
 - **Passo 157C — Model Fase 2 sub-passo 3: table header + footer
   (fecha "table foundations")** (décima segunda aplicação
   consecutiva de materialização desde início da série granular
