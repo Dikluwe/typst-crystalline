@@ -507,6 +507,53 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 160 — Diagnóstico Introspection (módulo mais fraco
+  17%)** (passo arquitectural de diagnóstico precedendo
+  materialização Introspection; **não materializa código**;
+  **quarto diagnóstico de módulo focado** após P157/P158/P159
+  base; **primeira mudança de módulo cross-domínio Model →
+  Introspection** desde início da série granular P156C;
+  **décima segunda aplicação concreta de ADR-0065 critério #5**
+  com diversidade cross-domínio nova). Diagnóstico em
+  `00_nucleo/diagnosticos/diagnostico-introspection-passo-160.md`
+  com 6 secções: §1 ADRs/DEBTs Introspection (ADR-0017
+  confirmada como reserva sem ficheiro pré-existente; sem DEBT
+  formal — ADR-0017 captura tudo); §2 inventário código actual
+  (`introspect.rs` 1108 linhas + `counter_state.rs` 333 linhas
+  com 14 fields públicos; subpadrão #15 N=3 demonstra single-pass
+  state lookup viável); §3 features Introspection vanilla
+  (3983 LOC totais; 1/13 implementado counter; 1/13 parcial
+  measure; 11/13 ausentes — todas exigem ADR-0017); §4 análise
+  tecto (**tecto puro saturado em ~17%** — counter() já cobre
+  o atingível sem ADR-0017; refinos qualitativos não movem
+  cobertura agregada; tecto pós-ADR-0017 ~50-83%); §5 sequência
+  candidata (**Bloco A VAZIO**; Bloco B 5 candidatos pós-ADR-
+  0017 P160A-E; Bloco C cross-módulo measure/cross-doc); §6
+  recomendação primária **`ADR-0017-create`** XS administrativo
+  paridade `ADR-0062-create` (alternativa Opção C: Layout Fase 3
+  columns/colbreak se prioridade Layout for maior). **Decisão
+  arquitectural-chave §4**: tecto Introspection puro
+  trivialmente saturado por counter() já implementado;
+  refinos qualitativos R1/R2/R3 (state.figure_kinds, state.heading_levels_present,
+  state.equations_count) são infraestrutura sem features
+  observable user-facing — adiamento até prioridade clara
+  razoável. **Sem código alterado** — passo puramente
+  documental. **Hash `entities/content.rs` preservado** `ec58d849`
+  — **18º passo consecutivo** via L0-baseline interpretation
+  (sem alteração esperada de hashes em passo documental).
+  Padrões pós-P160: granularidade N=21 (inalterada — passo
+  diagnóstico); inventariar primeiro N=23 → **24** (ADR-0065
+  critério #5 décima segunda aplicação concreta com diversidade
+  cross-domínio nova); §análise de risco N=23 → **24** (P160
+  baixo risco — diagnóstico documental); subpadrão #15
+  (infraestrutura state lookup) N=3 confirmado como
+  infraestrutura única materializável sem ADR-0017; subpadrões
+  #14/#16/P155 cross-feature/refactor field para Option N
+  inalterados. **Política "sem novas reservas" preservada** —
+  recomendações §6 são para validação humana, não compromissos.
+  ADR-0017 estado factual confirmado (reserva sem ficheiro
+  mantida; promoção a PROPOSTO via XS administrativo
+  recomendada mas sujeita a validação humana).
 - **Passo 159G — `BibEntry` 6 fields restantes (refino família
   159 fora Bloco A)** (**segundo sub-passo família 159 fora
   Bloco A** — Bloco A esgotado pós-P159F; **refino estrutural
