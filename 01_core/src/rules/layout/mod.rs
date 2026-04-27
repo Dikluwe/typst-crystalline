@@ -396,14 +396,17 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             }
 
             // Passo 62/75 — Figure: delegado a figure.rs com kind/numbering (DEBT-14/15).
+            // Passo 158C: kind é Option<String>; resolver default "image"
+            // em uso (paridade introspect.rs walk arm).
             Content::Figure { body, caption, kind, numbering } => {
                 // Calcular o prefixo de numeração antes de chamar layout_figure.
                 let caption_prefix: Option<String> = if let Some(_pattern) = numbering {
-                    let progress = self.figure_progress.entry(kind.clone()).or_insert(0);
+                    let kind_key = kind.as_deref().unwrap_or("image");
+                    let progress = self.figure_progress.entry(kind_key.to_string()).or_insert(0);
                     let idx = *progress;
                     *progress += 1;
                     let figure_number = self.counter.figure_numbers
-                        .get(kind.as_str())
+                        .get(kind_key)
                         .and_then(|v| v.get(idx))
                         .copied()
                         .unwrap_or(idx + 1);

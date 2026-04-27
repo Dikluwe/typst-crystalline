@@ -449,7 +449,7 @@ mod tests {
         let args = p(vec![Value::Content(img)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Figure { kind, .. }) = r {
-            assert_eq!(kind, "image", "auto-detect Image → kind=\"image\"");
+            assert_eq!(kind.as_deref(), Some("image"), "auto-detect Image → kind=Some(\"image\")");
         } else {
             panic!("esperado Content::Figure");
         }
@@ -457,7 +457,7 @@ mod tests {
 
     #[test]
     fn figure_auto_detect_table() {
-        // P158A: figure(table(...)) sem `kind:` → kind="table".
+        // P158A: figure(table(...)) sem `kind:` → kind=Some("table").
         null_ctx!(ctx);
         use crate::entities::content::Content;
         use crate::entities::layout_types::TrackSizing;
@@ -465,7 +465,7 @@ mod tests {
         let args = p(vec![Value::Content(tab)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Figure { kind, .. }) = r {
-            assert_eq!(kind, "table", "auto-detect Table → kind=\"table\"");
+            assert_eq!(kind.as_deref(), Some("table"), "auto-detect Table → kind=Some(\"table\")");
         } else {
             panic!("esperado Content::Figure");
         }
@@ -473,7 +473,7 @@ mod tests {
 
     #[test]
     fn figure_auto_detect_raw() {
-        // P158A: figure(raw(...)) sem `kind:` → kind="raw".
+        // P158A: figure(raw(...)) sem `kind:` → kind=Some("raw").
         null_ctx!(ctx);
         use crate::entities::content::Content;
         let raw = Content::Raw {
@@ -484,7 +484,7 @@ mod tests {
         let args = p(vec![Value::Content(raw)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Figure { kind, .. }) = r {
-            assert_eq!(kind, "raw", "auto-detect Raw → kind=\"raw\"");
+            assert_eq!(kind.as_deref(), Some("raw"), "auto-detect Raw → kind=Some(\"raw\")");
         } else {
             panic!("esperado Content::Figure");
         }
@@ -507,7 +507,7 @@ mod tests {
         let args = pn(vec![Value::Content(img)], "kind", Value::Str("custom-kind".into()));
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Figure { kind, .. }) = r {
-            assert_eq!(kind, "custom-kind",
+            assert_eq!(kind.as_deref(), Some("custom-kind"),
                 "kind explícito vence auto-detecção (precedência absoluta)");
         } else {
             panic!("esperado Content::Figure");
@@ -515,16 +515,41 @@ mod tests {
     }
 
     #[test]
-    fn figure_default_image_quando_body_nao_detectavel() {
-        // P158A: body=Text sem `kind:` → fallback default "image"
-        // (auto-detecção devolve None; default aplica-se).
+    fn figure_kind_auto_explicito_devolve_none() {
+        // P158C: `kind: auto` explícito produz None (paridade
+        // ADR-0064 Caso A: vanilla Auto ↔ cristalino None).
+        null_ctx!(ctx);
+        use crate::entities::content::Content;
+        use crate::entities::ptr_eq_arc::PtrEqArc;
+        use std::sync::Arc;
+        let img = Content::Image {
+            path:   "a.png".into(),
+            data:   PtrEqArc(Arc::new(Vec::new())),
+            width:  None,
+            height: None,
+        };
+        let args = pn(vec![Value::Content(img)], "kind", Value::Auto);
+        let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Figure { kind, .. }) = r {
+            assert!(kind.is_none(),
+                "kind=auto explícito produz None (Caso A); auto-detect ignorado quando explícito");
+        } else {
+            panic!("esperado Content::Figure");
+        }
+    }
+
+    #[test]
+    fn figure_kind_none_quando_body_nao_detectavel() {
+        // P158C: body=Text sem `kind:` → kind=None directo (default
+        // "image" resolvido em uso, não em construção; ADR-0064 Caso A
+        // estrito refactor de String → Option<String>).
         null_ctx!(ctx);
         use crate::entities::content::Content;
         let args = p(vec![Value::Content(Content::text("apenas texto"))]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Figure { kind, .. }) = r {
-            assert_eq!(kind, "image",
-                "body Text sem auto-detect cai no default \"image\"");
+            assert!(kind.is_none(),
+                "body Text sem auto-detect produz kind=None (default 'image' resolvido em uso)");
         } else {
             panic!("esperado Content::Figure");
         }
@@ -553,8 +578,8 @@ mod tests {
         let args = p(vec![Value::Content(seq)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Figure { kind, .. }) = r {
-            assert_eq!(kind, "image",
-                "Sequence com Image dentro auto-detecta \"image\" via recursão");
+            assert_eq!(kind.as_deref(), Some("image"),
+                "Sequence com Image dentro auto-detecta Some(\"image\") via recursão");
         } else {
             panic!("esperado Content::Figure");
         }

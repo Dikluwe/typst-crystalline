@@ -48,7 +48,9 @@ fn infer_kind_from_body(body: &Content) -> Option<String> {
 /// - `caption:`: argumento nomeado opcional; `none` → sem legenda.
 /// - `kind:` (Passo 158A): se ausente, **auto-detectado** do body
 ///   via `infer_kind_from_body` (Image/Table/Raw + Sequence
-///   recursivo); se inferência falha, default `"image"`.
+///   recursivo); se inferência falha, **`None` directo** (default
+///   `"image"` resolvido em uso por callers — Passo 158C ADR-0064
+///   Caso A estrito).
 pub fn native_figure(ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, figure_numbering: Option<&str>) -> SourceResult<Value> {
     let _ = ctx;
     // Argumento posicional: body (obrigatório)
@@ -71,13 +73,17 @@ pub fn native_figure(ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         other             => Some(Box::new(Content::text(other.type_name()))),
     });
 
-    // Argumento nomeado: kind (Passo 75, DEBT-15; Passo 158A
-    // adiciona auto-detecção como fallback intermédio).
-    // Precedência: `kind:` explícito > inferência > default "image".
-    let kind = args.named.get("kind")
-        .and_then(|v| if let Value::Str(s) = v { Some(s.to_string()) } else { None })
-        .or_else(|| infer_kind_from_body(&body))   // P158A
-        .unwrap_or_else(|| "image".to_string());
+    // Argumento nomeado: kind (Passo 75 DEBT-15; P158A auto-detect;
+    // P158C ADR-0064 Caso A estrito — refactor String → Option<String>).
+    // Precedência: `kind:` explícito > inferência > **None** (default
+    // "image" resolvido em uso, não em construção).
+    let kind: Option<String> = args.named.get("kind")
+        .and_then(|v| match v {
+            Value::Str(s)             => Some(Some(s.to_string())),
+            Value::Auto | Value::None => Some(None),
+            _                         => None,  // tipo inválido — cai em fallback
+        })
+        .unwrap_or_else(|| infer_kind_from_body(&body));   // P158A
 
     // Numeração capturada do contexto (Passo 75, DEBT-14).
     // Reflecte o estado activo de `#set figure(numbering: ...)` no momento da chamada.

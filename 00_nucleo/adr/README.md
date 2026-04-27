@@ -507,6 +507,58 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 158C — Refactor `kind: String → Option<String>` em
+  `Content::Figure`** (quarto sub-passo Model figure-kinds após
+  P158A auto-detect + P158B supplement por lang; **refactor
+  cosmético** per ADR-0064 Caso A estrito; **subpadrão emergente
+  N=1 NOVO** "refactor de field para Option" — primeiro Caso A
+  em refactor não em variant aditivo). Field
+  `Content::Figure.kind: String → Option<String>` em
+  `01_core/src/entities/content.rs` (vanilla `Smart<Str>` →
+  cristalino `Option<String>`; None ↔ Auto; default `"image"`
+  resolvido em uso por callers via
+  `kind.as_deref().unwrap_or("image")`, não em construção).
+  **ADR-0064 Caso A patamar N=6 → 7** com primeiro Caso A "estrito"
+  em refactor; distribuição cross-domínio passa de 50/50 para
+  43/57 favorecendo Model (3 Layout + 4 Model). Stdlib
+  `native_figure` (`figure_image.rs`) adaptado para retornar
+  `Option<String>` directamente; `infer_kind_from_body` (P158A)
+  já retornava `Option<String>` — sem alteração. ~10 sítios
+  callers em `introspect.rs` (counters por kind) e
+  `layout/mod.rs` (figure_progress + figure_numbers lookup)
+  adaptados via `kind.as_deref().unwrap_or("image")` em uso.
+  **Sem alteração observable** — backwards compat trivial via
+  fallback nos callers; tests pré-existentes P157A/P158A/B
+  preservados após adaptação de destructuring
+  `Some("image".to_string())` em vez de `"image".to_string()`.
+  **Decisão arquitectural-chave**: default resolvido em uso (não
+  em construção) per Caso A canónico — alternativa
+  ("default em construção") rejeitada por divergir do pattern
+  estabelecido N=6. Tests +2 (1212 → 1214; 1 novo
+  `figure_kind_auto_explicito_devolve_none` + 1 novo
+  `introspect_figure_kind_none_resolve_para_image_no_counter`;
+  range esperado +2-4) + ~5 tests existentes adaptados (asserts
+  `kind.as_deref() == Some(...)` em vez de `kind == "..."`).
+  Cobertura Model agregada **inalterada** (~50%) — refactor
+  cosmético. Cobertura arquitectural **inalterada** 82%. Hash
+  `entities/content.rs` preservado `ec58d849` — **14º passo
+  consecutivo** (P156L → P158C; L0-baseline interpretation;
+  spec previa preservação como regra default — lição P159A/C/D
+  internalizada). Padrões pós-P158C: granularidade N=17 → **18**;
+  inventariar primeiro N=19 → **20** (ADR-0065 critério #5
+  oitava aplicação concreta com diversidade reforçada em refactor
+  cosmético); §análise de risco N=19 → **20** (P158C baixo risco —
+  refactor cosmético com pattern já validado N=6); ADR-0064
+  Caso A N=6 → **7** (primeiro estrito em refactor; distribuição
+  43/57 Layout/Model); tipo entity em ficheiro próprio N=5
+  (inalterado); infraestrutura state lookup N=2 (inalterado);
+  P155 cross-feature N=1 (inalterado); refino tipo entity sem
+  alteração Content N=1 (inalterado); **subpadrão novo #17
+  N=1** "refactor de field para Option" (precedente novo).
+  **Política "sem novas reservas" preservada** — refactor
+  análogo de outros String fields em Content variants, helper
+  público `kind_or_default`, documentação completa de variants
+  no L0 prompt content.md permanecem candidatos NÃO-reservados.
 - **Passo 159D — `BibEntry` fields adicionais (Model
   bibliography+cite sub-passo 3)** (terceiro sub-passo
   substantivo de Bibliography + Cite após P159A par acoplado +

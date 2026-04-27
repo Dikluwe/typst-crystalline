@@ -31,6 +31,48 @@ Cobertura Model 41% → ~45%; arquitectural Content 75% → ~77%.
 Plano Fase 2 (P156/157/158 — table foundations, figure kinds,
 bibliography+cite com ADR-0061) inalterado.
 
+**Anotação Passo 158C (2026-04-27)**: **quarto sub-passo
+Model figure-kinds materializado** (Fase 2 continuação após
+P158A auto-detect + P158B supplement por lang). **Refactor
+cosmético** `Content::Figure.kind: String → Option<String>` per
+**ADR-0064 Caso A estrito** (vanilla `Smart<Str>` → cristalino
+`Option<String>`; None ↔ Auto; default `"image"` resolvido em
+uso por callers, não em construção). **Patamar Caso A cresce
+N=6 → 7** com **primeiro Caso A "estrito" em refactor** (não
+em variant aditivo) — distribuição cross-domínio desloca-se
+de 50/50 para 43/57 favorecendo Model (3 Layout + 4 Model
+após P158C). **Subpadrão emergente N=1 NOVO** "refactor de
+field para Option" — precedente novo distinto de variant
+aditivo com Option<T> field; aplicação em refactor de tipo
+existente; candidato a formalização se outros refactors
+análogos forem feitos (e.g. `Heading.body: Box<Content> →
+Option<Box<Content>>` se prioritário). Stdlib `native_figure`
+adaptado para retornar `Option<String>` directamente em vez
+de `String` com fallback hardcoded; `infer_kind_from_body`
+(P158A) já retornava `Option<String>` — sem alteração.
+~10 sítios callers em `introspect.rs` (counters por kind) e
+`layout/mod.rs` (figure_progress + figure_numbers lookup)
+adaptados via `kind.as_deref().unwrap_or("image")` em uso.
+**Sem alteração observable** (output preservado; backwards
+compat trivial via fallback nos callers; tests pré-existentes
+P157A/P158A/B preservam após adaptação trivial de
+destructuring `Some("...")` em vez de `"..."`). Tests +2
+(1212 → 1214; 1 novo `figure_kind_auto_explicito_devolve_none` +
+1 novo `introspect_figure_kind_none_resolve_para_image_no_counter`;
+range esperado +2-4). ~5 tests existentes adaptados para
+asserts `kind.as_deref() == Some(...)` em vez de `kind ==
+"..."`. Cobertura Model agregada **inalterada** (~50%) —
+refactor cosmético sem mover counts. Cobertura arquitectural
+**inalterada** 82%. Hash `entities/content.rs` preservado
+`ec58d849` (**décimo quarto passo consecutivo** via L0-baseline
+interpretation — lição P159A/C/D internalizada: refactor de
+tipo interno cosmético cabe na regra de preservação).
+Status `IMPLEMENTADO` mantido. **Política "sem novas reservas"
+preservada** — refactor análogo de outros String fields em
+Content variants, helper público `kind_or_default(&Option<String>)`,
+documentação completa de variants no L0 prompt content.md
+permanecem candidatos NÃO-reservados.
+
 **Anotação Passo 159D (2026-04-27)**: **terceiro sub-passo
 substantivo Bibliography + Cite materializado** (Fase 2
 continuação após P159A par acoplado + P159C cite.form).
