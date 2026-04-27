@@ -3047,4 +3047,77 @@ mod tests_show_rule_integration {
         assert!(!txt.contains("https://"),
             "sem url → sem URL no output: doc='{}'", txt);
     }
+
+    // ── Passo 159G — 6 fields restantes comuns hayagriva (E2E) ────────────
+
+    /// Bibliography com entry incluindo todos os 6 fields P159G
+    /// renderiza formato extendido com prefixos correctos
+    /// (`Ed.`, `(`series`)`, `[`note`]`, `isbn:`, `location:`).
+    #[test]
+    fn bibliography_entry_com_p159g_fields_renderiza_formato_extendido() {
+        use crate::entities::bib_entry::BibEntry;
+        let entry = BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)
+            .with_editor("Doe, A.")
+            .with_series("Crystal Studies")
+            .with_note("See Smith 2023")
+            .with_isbn("978-0-1234")
+            .with_location("New York")
+            .with_publisher("ACM");
+        let b = Content::bibliography(vec![entry], None);
+        let doc = layout(&b, CounterState::default());
+        let txt = doc.plain_text();
+        // Editor com prefixo (Ed. ).
+        assert!(txt.contains("(Ed. Doe, A.)"),
+            "editor deve aparecer com prefixo '(Ed. ': doc='{}'", txt);
+        // Series em parêntese.
+        assert!(txt.contains("(Crystal Studies)"),
+            "series deve aparecer entre parênteses: doc='{}'", txt);
+        // Note em brackets.
+        assert!(txt.contains("[See Smith 2023]"),
+            "note deve aparecer entre brackets: doc='{}'", txt);
+        // ISBN com prefixo lowercase.
+        assert!(txt.contains("isbn:978-0-1234"),
+            "isbn deve aparecer com prefixo lowercase 'isbn:': doc='{}'", txt);
+        // Location: publisher.
+        assert!(txt.contains("New York: ACM"),
+            "location: publisher deve aparecer: doc='{}'", txt);
+    }
+
+    /// Regression P159E: Bibliography com entry sem fields P159G
+    /// renderiza formato P159E original (sem `Ed.`/`isbn:`/etc.).
+    #[test]
+    fn bibliography_entry_sem_p159g_fields_regression_p159e() {
+        use crate::entities::bib_entry::BibEntry;
+        let entry = BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)
+            .with_url("https://example.com")
+            .with_doi("10.1/a");
+        let b = Content::bibliography(vec![entry], None);
+        let doc = layout(&b, CounterState::default());
+        let txt = doc.plain_text();
+        // P159E fields preservados.
+        assert!(txt.contains("https://example.com"));
+        assert!(txt.contains("doi:10.1/a"));
+        // Sem fields P159G → ausentes do output.
+        assert!(!txt.contains("Ed."),
+            "sem editor → sem 'Ed.' no output: doc='{}'", txt);
+        assert!(!txt.contains("isbn:"),
+            "sem isbn → sem 'isbn:' no output: doc='{}'", txt);
+        assert!(!txt.contains("[See"),
+            "sem note → sem '[note]' no output: doc='{}'", txt);
+    }
+
+    /// Bibliography com organization sem publisher renderiza
+    /// organization no slot publisher (substitutivo).
+    #[test]
+    fn bibliography_organization_substitui_publisher_quando_publisher_ausente() {
+        use crate::entities::bib_entry::BibEntry;
+        let entry = BibEntry::new("tech2024", "Smith, J.", "Tech Report", 2024)
+            .with_organization("MIT");
+        let b = Content::bibliography(vec![entry], None);
+        let doc = layout(&b, CounterState::default());
+        let txt = doc.plain_text();
+        // Organization aparece no slot publisher.
+        assert!(txt.contains("MIT"),
+            "organization deve aparecer no slot publisher: doc='{}'", txt);
+    }
 }

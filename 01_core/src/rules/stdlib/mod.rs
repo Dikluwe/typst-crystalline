@@ -2874,4 +2874,123 @@ mod tests {
         assert!(msg.contains("doi"),
             "mensagem deve mencionar field 'doi': {}", msg);
     }
+
+    // ── Passo 159G — 6 fields restantes comuns hayagriva ────────────────────
+
+    fn make_bib_dict_full_p159g(
+        key: &str, author: &str, title: &str, year: i64,
+        editor: &str, series: &str, note: &str,
+        isbn: &str, location: &str, organization: &str,
+    ) -> Value {
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("key".into(),          Value::Str(key.into()));
+        d.insert("author".into(),       Value::Str(author.into()));
+        d.insert("title".into(),        Value::Str(title.into()));
+        d.insert("year".into(),         Value::Int(year));
+        d.insert("editor".into(),       Value::Str(editor.into()));
+        d.insert("series".into(),       Value::Str(series.into()));
+        d.insert("note".into(),         Value::Str(note.into()));
+        d.insert("isbn".into(),         Value::Str(isbn.into()));
+        d.insert("location".into(),     Value::Str(location.into()));
+        d.insert("organization".into(), Value::Str(organization.into()));
+        Value::Dict(d)
+    }
+
+    #[test]
+    fn native_bibliography_parse_p159g_fields_presentes() {
+        null_ctx!(ctx);
+        let entries_arr = Value::Array(vec![
+            make_bib_dict_full_p159g(
+                "smith2024", "Smith, J.", "On Crystal Math", 2024,
+                "Doe, A.", "Crystal Studies", "See also Smith 2023",
+                "978-0-1234-5678-9", "New York", "ACM",
+            ),
+        ]);
+        let args = p(vec![entries_arr]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Bibliography { entries, .. }) = r {
+            let e = &entries[0];
+            assert_eq!(e.editor.as_deref(),       Some("Doe, A."));
+            assert_eq!(e.series.as_deref(),       Some("Crystal Studies"));
+            assert_eq!(e.note.as_deref(),         Some("See also Smith 2023"));
+            assert_eq!(e.isbn.as_deref(),         Some("978-0-1234-5678-9"));
+            assert_eq!(e.location.as_deref(),     Some("New York"));
+            assert_eq!(e.organization.as_deref(), Some("ACM"));
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn native_bibliography_parse_subset_p159g_fields() {
+        // Parse com só editor + isbn presentes (3 fields P159G ausentes).
+        null_ctx!(ctx);
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("key".into(),    Value::Str("k".into()));
+        d.insert("author".into(), Value::Str("A".into()));
+        d.insert("title".into(),  Value::Str("T".into()));
+        d.insert("year".into(),   Value::Int(2024));
+        d.insert("editor".into(), Value::Str("Ed1".into()));
+        d.insert("isbn".into(),   Value::Str("978-0-1".into()));
+        let args = p(vec![Value::Array(vec![Value::Dict(d)])]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Bibliography { entries, .. }) = r {
+            let e = &entries[0];
+            assert_eq!(e.editor.as_deref(), Some("Ed1"));
+            assert_eq!(e.isbn.as_deref(),   Some("978-0-1"));
+            // Outros P159G permanecem None.
+            assert!(e.series.is_none());
+            assert!(e.note.is_none());
+            assert!(e.location.is_none());
+            assert!(e.organization.is_none());
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn native_bibliography_parse_sem_p159g_fields_regression_p159e() {
+        // Regression: dict só com 4 obrigatórios + 4 P159D + 2 P159E
+        // produz entry com 6 P159G fields None.
+        null_ctx!(ctx);
+        let args = p(vec![Value::Array(vec![
+            make_bib_dict("smith2024", "Smith, J.", "On Crystal Math", 2024),
+        ])]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Bibliography { entries, .. }) = r {
+            let e = &entries[0];
+            assert!(e.editor.is_none());
+            assert!(e.series.is_none());
+            assert!(e.note.is_none());
+            assert!(e.isbn.is_none());
+            assert!(e.location.is_none());
+            assert!(e.organization.is_none());
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn native_bibliography_isbn_tipo_errado_rejeitado() {
+        null_ctx!(ctx);
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("key".into(),    Value::Str("k".into()));
+        d.insert("author".into(), Value::Str("A".into()));
+        d.insert("title".into(),  Value::Str("T".into()));
+        d.insert("year".into(),   Value::Int(2024));
+        // isbn com tipo errado (Int em vez de Str).
+        d.insert("isbn".into(), Value::Int(978));
+        let args = p(vec![Value::Array(vec![Value::Dict(d)])]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "isbn com tipo Int deve retornar Err");
+        let msg = r.unwrap_err()[0].message.clone();
+        assert!(msg.contains("isbn"),
+            "mensagem deve mencionar field 'isbn': {}", msg);
+    }
 }
