@@ -506,6 +506,18 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.layout_grid(columns, rows, children);
             }
 
+            // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ──
+            // **Segundo sub-passo Model Fase 2**. Renderiza body no
+            // contexto actual (single render). `x`/`y`/colspan/rowspan
+            // **armazenados mas ignorados** per ADR-0054 graded —
+            // algoritmo de placement diferido em DEBT-34e (refactor
+            // dedicado a placement Grid completo). Quando dentro de
+            // `Content::Table`, cell aparece como child linear no
+            // grid distribuído por `idx % num_cols`.
+            Content::TableCell { body, x: _, y: _, colspan: _, rowspan: _ } => {
+                self.layout_content(body);
+            }
+
             Content::SetPage { width, height, margin } => {
                 let mut new_config = self.page_config.clone();
                 let mut changed    = false;

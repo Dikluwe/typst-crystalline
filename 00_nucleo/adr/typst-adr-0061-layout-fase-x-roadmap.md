@@ -299,7 +299,7 @@ da Fase 1 Model em P155).
 
 ---
 
-## Aplicações cumulativas (pós-P157A)
+## Aplicações cumulativas (pós-P157B)
 
 ADR-0061 PROPOSTO em P156B (2026-04-25). **Fase 1+2
 materializadas em sequência granular P156C-I** (7 passos
@@ -322,23 +322,25 @@ de ADR-0065 critério #3):
 | P156K | (meta — ADRs 0064+0065) | — | — (sem código) | 0 |
 | P156L | pad refino sides | 0% | 78% (refino qualitativo) | +4 |
 | P157 | (diagnóstico Model Fase 2 — table foundations) | — | — (sem código; passo documental) | 0 |
-| **P157A** | **table minimal (Model Fase 2 sub-passo 1)** | **+5%** Model | **Layout 78% inalterado; Model 45% → 50%** | **+16** |
+| P157A | table minimal (Model Fase 2 sub-passo 1) | +5% Model | Layout 78% inalterado; Model 45% → 50% | +16 |
+| **P157B** | **table cell (Model Fase 2 sub-passo 2)** | **0% agregado** | **Layout 78% inalterado; Model 50% inalterado (sub-entrada)** | **+18** |
 
 **Total**: +56 pontos percentuais Layout em 9 passos consecutivos
 de materialização Layout (22% → 78%); **+5pp Model** em P157A
 (primeiro sub-passo Model Fase 2; cross-domínio). P156K e P157
 não contam para o slope (meta/diagnóstico). Target Fase 1+2
 Layout atingido em P156I; P156J ultrapassa target ao iniciar
-Fase 3 Layout; **P157A inicia série Model Fase 2 análoga a
-Layout P156C-J/L** (cadência granular cross-domínio confirmada).
-P156L é refino qualitativo de variant existente — primeira
-aplicação concreta de ADR-0065 critério #3 (expansão de variant).
-P157 é diagnóstico precedendo materialização Model Fase 2 —
-primeira aplicação concreta de ADR-0065 critério #5 (scope).
-**+190 tests** acumulados (1145 → 1335 lib+integ+diagnostic).
-**Zero reformulações mid-passo** em N=10 aplicações de
-materialização (9 Layout + 1 Model). Padrão granular
-universal (independente de domínio) confirmado.
+Fase 3 Layout; P157A inicia série Model Fase 2 análoga a
+Layout P156C-J/L; **P157B continua série Model com sub-entrada
+qualitativa** (TableCell expande estruturalmente Table; ADR-0064
+Caso A primeira aplicação Model). P156L é refino qualitativo
+de variant existente — primeira aplicação concreta de ADR-0065
+critério #3. P157 é diagnóstico precedendo materialização Model
+Fase 2 — primeira aplicação concreta de ADR-0065 critério #5.
+**+208 tests** acumulados (1145 → 1353 lib+integ+diagnostic).
+**Zero reformulações mid-passo** em N=11 aplicações de
+materialização (9 Layout + 2 Model). Padrão granular
+universal cross-domínio confirmado e estendido.
 
 ### Tipos novos infraestruturais
 
@@ -375,43 +377,60 @@ universal (independente de domínio) confirmado.
 
 ### Padrões metodológicos consolidados
 
-1. **Granularidade 1-2 features/passo**: **N=10** aplicações
+1. **Granularidade 1-2 features/passo**: **N=11** aplicações
    consecutivas sem reformulação (8 materialização Layout
-   + 1 refino Layout P156L + 1 materialização Model P157A).
-   **Padrão cross-domínio confirmado**: cadência granular
-   independente de Layout vs Model. Hipótese da decisão humana
-   2026-04-25 empiricamente confirmada e estendida a refino +
-   Model Fase 2. **Formalizada parcialmente em ADR-0065** (que
-   cita N=5 com diversidade de critérios; P156L é primeira
-   aplicação concreta do critério #3; P157 é primeira aplicação
-   do critério #5).
+   + 1 refino Layout P156L + 2 materialização Model
+   P157A/B). **Padrão cross-domínio reforçado**: 2 sub-passos
+   Model consecutivos sem reformulação (P157A primeiro Model;
+   P157B segundo Model com expansão estrutural via sub-entrada).
+   Hipótese da decisão humana 2026-04-25 empiricamente
+   confirmada e estendida a refino + Model Fase 2 multi-passo.
+   **Formalizada parcialmente em ADR-0065** (que cita N=5 com
+   diversidade de critérios; P156L é primeira aplicação concreta
+   do critério #3; P157 é primeira aplicação do critério #5).
 
 2. **"Inventariar primeiro" pré-decisão arquitectural**:
-   **N=8** aplicações (P156F defensivo; P156G deliberado;
+   **N=9** aplicações (P156F defensivo; P156G deliberado;
    P156H curto; P156I curto focado; P156J curto focado;
    P156L expansão variant existente — primeira aplicação
    concreta do critério #3 de ADR-0065; P157 scope determinado
    por inventário — primeira aplicação concreta do critério #5
-   de ADR-0065; **P157A inventário completo Model Fase 2 com
+   de ADR-0065; P157A inventário completo Model Fase 2 com
    decisão de módulo `stdlib/structural.rs` continuação vs
    `stdlib/model.rs` novo — implícito critério #1 naming + #5
-   scope**). **Formalizado em ADR-0065** (P156K); **agora N=8
-   com 2 critérios formalmente validados** (#3 P156L; #5 P157
-   + reforçado P157A).
+   scope; **P157B inventário completo TableCell com decisão de
+   naming `table_cell` flat vs vanilla `table.cell` por
+   limitação cristalina FieldAccess — explícito critério #1
+   naming + #6 divergência da spec da feature vanilla**).
+   **Formalizado em ADR-0065** (P156K); **agora N=9 com 3
+   critérios formalmente validados** (#3 P156L; #5 P157 +
+   reforçado P157A; #1 P157A/B + #6 P157B).
 
-3. **"Smart<T> → Option<T> ou default"**: **N=7** aplicações
+3. **"Smart<T> → Option<T> ou default"**: **N=8** aplicações
    (P156E Parity; P156F angles; P156G Block.width; P156H
    Box.width; P156I Stack.spacing + Dir.default; P156J
-   Repeat.gap; **P156L Pad sides — segunda aplicação concreta
-   do Caso C**). **Formalizado em ADR-0064** (P156K) com 4
-   casos canónicos A/B/C/D.
+   Repeat.gap; P156L Pad sides — segunda aplicação concreta
+   do Caso C; **P157B TableCell.x/y/colspan/rowspan — primeira
+   aplicação Caso A em Model + terceira global Caso C com
+   primeira variação `usize`**). **Formalizado em ADR-0064**
+   (P156K) com 4 casos canónicos A/B/C/D.
 
-4. **"§análise de risco no relatório"**: **N=8** aplicações
+   **Patamares por caso pós-P157B**:
+   - Caso A: N=4 (P156G/H/I + **P157B**); diversidade
+     cross-domínio: 75% Layout + 25% Model.
+   - Caso B: N=1 (P156I Dir).
+   - Caso C: N=3 (P156I/J + **P157B**); primeira variação
+     `usize` em P157B (anteriores eram `Length`).
+   - Caso D: N=4-5 (P156D/G/J + impl P157A Header.repeat).
+
+4. **"§análise de risco no relatório"**: **N=9** aplicações
    (P156F/G/H/I/J/K + L com peso real — primeiro refactor
    real após série aditiva; P157 com risco baixo diagnóstico;
-   **P157A com risco baixo-médio — primeiro Model Fase 2 com
-   decisão arquitectural de módulo stdlib**). Cobertura
-   sistemática do risco.
+   P157A com risco baixo-médio — primeiro Model Fase 2 com
+   decisão arquitectural de módulo stdlib; **P157B com risco
+   baixo-médio — primeira aplicação ADR-0064 Caso A em Model
+   + decisão de naming `table_cell` flat vs vanilla `table.cell`**).
+   Cobertura sistemática do risco.
 
 5. **"Reuso de template containers"**: **N=4** aplicações
    (Block → Boxed → Stack → Repeat). Padrão "variant rico
@@ -433,38 +452,53 @@ universal (independente de domínio) confirmado.
    `Sides<Length>`; P156L refino — `Sides<Option<Length>>`).
    Tipo genérico paga investimento de design ao segundo uso.
 
-9. **"Helper `extract_tracks` reuso"** (novo subpadrão P157A):
+9. **"Helper `extract_tracks` reuso"** (subpadrão P157A):
    **N=2** aplicações concretas (P82-83 origin em `native_grid`;
-   **P157A reuso em `native_table`** com promoção a `pub(super)`
+   P157A reuso em `native_table` com promoção a `pub(super)`
    para acesso cross-módulo `stdlib/layout.rs` → `stdlib/structural.rs`).
    Análogo ao subpadrão `extract_length` em fase inicial; promoção
    formal diferida até atingir N=3-4 (mesma política).
 
-### Estado pós-P157A
+10. **"Helper `extract_usize_or_none_min` privado"** (novo
+    subpadrão P157B): **N=4** usos no mesmo passo (`x`, `y`
+    com min=0; `colspan`, `rowspan` com min=1) num único helper
+    parametrizado. Padrão de combinação via param em vez de
+    helpers separados — evita duplicação e reduz superfície
+    pública. Promoção a `pub(super)` ou helper público diferida
+    até reuso noutro passo (e.g. P157C `Header.level`); política
+    consistente N=2-3 mínima.
 
-- **Cobertura Layout**: **78%** (inalterada por P157A — escopo
+### Estado pós-P157B
+
+- **Cobertura Layout**: **78%** (inalterada por P157A/B — escopo
   Model). Target ADR-0061 (72%) **continua ultrapassado**.
-- **Cobertura Model**: ~45% → **~50%** via P157A (primeiro
-  sub-passo Fase 2 — `table` minimal). Restantes Fase 2 Model:
-  - `TableCell` estruturado (P157B; M; tests ~12-18).
+- **Cobertura Model agregada**: ~50% (inalterada vs P157A —
+  TableCell é sub-entrada de table que não conta separadamente
+  na agregação). Ganho qualitativo via expansão estrutural.
+  Restantes Fase 2 Model:
   - `TableHeader` + `TableFooter` (P157C; S+/M; tests ~10-15).
   - `figure` kinds extension (P158; depende P157).
   - `Bibliography` + `Cite` (P159; XL; DEBT-55 + ADR-0062).
 - **Restantes 3 entradas Layout** pendentes (mesmo subset
-  pós-P156L; P157A não toca):
+  pós-P156L; P157A/B não tocam):
   - `columns`/`colbreak` (Fase 3 condicional — DEBT-56).
   - `place` parcial — refino column scope.
   - `measure` parcial — depende ADR-0017 Introspection.
-- **Total user-facing**: ~60.3% → **~61.0%** via P157A
-  (+0.7pp; primeiro ganho Model pós-P155).
-- **Zero novos DEBTs** em toda a série P156C-L + P157 + P157A
-  (12 passos total: 10 materialização + 2 meta/diagnóstico).
+- **Total user-facing**: ~61.0% (inalterada; +0.7pp ganho
+  P157A mantém-se).
+- **DEBT-34e permanece aberto**: P157B contribui para fechamento
+  futuro armazenando os fields necessários ao algoritmo de
+  placement, mas não fecha por si — refactor dedicado fica para
+  passo posterior.
+- **Zero novos DEBTs** em toda a série P156C-L + P157 + P157A/B
+  (13 passos total: 11 materialização + 2 meta/diagnóstico).
 - **Footnote area** scope-out per decisão humana
   2026-04-25 (não incluído na Fase 1+2 Layout nem em P156J/L/
-  P157/P157A).
-- **Cadência cross-domínio confirmada**: padrão granular
-  Layout (P156C-L) replica-se a Model (P157A). Granularidade
-  N=10 sem reformulação.
+  P157/P157A/P157B).
+- **Cadência cross-domínio reforçada**: padrão granular
+  Layout (P156C-L) replicado a Model (P157A/B). Granularidade
+  N=11 sem reformulação. **2 sub-passos Model consecutivos
+  validam padrão Model independente do precedente isolado P157A**.
 
 ### Status
 

@@ -2595,4 +2595,53 @@ mod tests_show_rule_integration {
         assert_eq!(positions_g, positions_t,
             "Table e Grid com mesmos campos devem produzir as mesmas posições por delegação");
     }
+
+    // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ─────────────
+
+    /// `Content::TableCell` renderiza body uma vez (single render).
+    /// Spans (colspan/rowspan) ignorados em layout per ADR-0054
+    /// graded — diferidos em DEBT-34e.
+    #[test]
+    fn layout_table_cell_renderiza_body_no_contexto_actual() {
+        let c = Content::table_cell(
+            Content::text("X"),
+            Some(2), Some(3),
+            Some(99), Some(99),  // spans grandes; ignorados em layout
+        );
+        let doc = layout(&c, CounterState::default());
+        // Body deve aparecer **exactamente uma vez** (sem multiplicar
+        // por colspan/rowspan).
+        let count_x = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "X"))
+            .count();
+        assert_eq!(count_x, 1, "table_cell renderiza body uma vez (single render); colspan/rowspan ignorados em layout per DEBT-34e");
+    }
+
+    /// `Content::TableCell` dentro de `Content::Table` é tratado
+    /// como child linear no grid distribuído por `idx % num_cols`
+    /// (delegação a `layout_grid`).
+    #[test]
+    fn layout_table_cell_dentro_de_table_renderiza_como_cell() {
+        use crate::entities::layout_types::TrackSizing;
+        // Table com 2 columns + 4 children (2 plain + 2 cells).
+        let t = Content::table(
+            vec![TrackSizing::Auto, TrackSizing::Auto],
+            vec![],
+            vec![
+                Content::text("a"),
+                Content::table_cell(Content::text("b"), None, None, None, None),
+                Content::text("c"),
+                Content::table_cell(Content::text("d"), Some(2), Some(0), None, None),
+            ],
+        );
+        let doc = layout(&t, CounterState::default());
+        // Todos os 4 conteúdos devem aparecer como FrameItems.
+        for label in ["a", "b", "c", "d"] {
+            let count = doc.pages.iter().flat_map(|p| p.items.iter())
+                .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == label))
+                .count();
+            assert!(count >= 1,
+                "child '{}' (plain ou table_cell) deve aparecer pelo menos uma vez", label);
+        }
+    }
 }

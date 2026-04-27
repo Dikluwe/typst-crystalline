@@ -479,6 +479,37 @@ pub enum Content {
         breakable: bool,
     },
 
+    // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ───────────
+    /// Cell estruturada de Table — vanilla `TableCell`.
+    /// **Segundo sub-passo Model Fase 2**.
+    ///
+    /// Subset minimal per ADR-0054 graded e diagnóstico P157B §1:
+    /// 5 fields críticos (body/x/y/colspan/rowspan); 6 atributos
+    /// vanilla scope-out (align/stroke/fill/inset/breakable +
+    /// internal fields kind/is_repeated).
+    ///
+    /// Decisões arquitecturais (per diagnóstico P157B):
+    /// - `x`/`y`: ADR-0064 **Caso A** (`Smart<usize>` → `Option<usize>`;
+    ///   None ↔ Auto auto-placement). **Primeira aplicação concreta
+    ///   de Caso A em domínio Model** (P156G/H/I aplicaram-no em
+    ///   Layout).
+    /// - `colspan`/`rowspan`: ADR-0064 **Caso C** (`NonZeroUsize`
+    ///   default 1 → `Option<usize>` com `None` ↔ default 1; zero
+    ///   rejeitado em stdlib). **Primeira variação `usize` do Caso
+    ///   C**; anteriores eram `Length`.
+    ///
+    /// Layouter renderiza `body` no contexto actual; `x`/`y`/colspan/
+    /// rowspan **armazenados mas ignorados** per ADR-0054 graded —
+    /// algoritmo de placement diferido em **DEBT-34e** (refactor
+    /// dedicado a placement Grid completo).
+    TableCell {
+        body:    Box<Content>,
+        x:       Option<usize>,
+        y:       Option<usize>,
+        colspan: Option<usize>,
+        rowspan: Option<usize>,
+    },
+
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table minimal ────────
     /// Container tabular semântico — vanilla `TableElem`.
     /// **Primeiro sub-passo Model Fase 2**.
@@ -666,6 +697,20 @@ impl Content {
         Self::Table { columns, rows, children }
     }
 
+    /// `table_cell(body, x, y, colspan, rowspan)` — Passo 157B
+    /// (ADR-0060 Fase 2 sub-passo 2). `x`/`y` ADR-0064 Caso A;
+    /// `colspan`/`rowspan` Caso C. Placement algorítmico diferido
+    /// em DEBT-34e — fields armazenados mas ignorados em layout.
+    pub fn table_cell(
+        body:    Content,
+        x:       Option<usize>,
+        y:       Option<usize>,
+        colspan: Option<usize>,
+        rowspan: Option<usize>,
+    ) -> Self {
+        Self::TableCell { body: Box::new(body), x, y, colspan, rowspan }
+    }
+
     pub fn sequence(parts: Vec<Content>) -> Self {
         match parts.len() {
             0 => Self::Empty,
@@ -688,6 +733,10 @@ impl Content {
             // for vazio (paridade com Grid; cells / children indistintos
             // semanticamente para is_empty).
             Self::Table { children, .. } => children.is_empty(),
+            // Passo 157B (ADR-0060 Fase 2 sub-passo 2): TableCell vazio
+            // se body for (atributos x/y/colspan/rowspan não tornam o
+            // container não-vazio — paridade Block/Boxed).
+            Self::TableCell { body, .. } => body.is_empty(),
             // Passo 154B: Divider é singleton estrutural, nunca vazio.
             // Terms vazio (sem items) é considerado vazio; TermItem vazio
             // se ambos os lados forem vazios.
@@ -809,6 +858,11 @@ impl Content {
             Self::Table { children, .. } => {
                 children.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ")
             }
+            // Passo 157B: TableCell é transparente para texto plano —
+            // recurse no body sem multiplicar por colspan/rowspan
+            // (paridade não visível em texto plano; spans são
+            // runtime-only e diferidos em DEBT-34e).
+            Self::TableCell { body, .. } => body.plain_text(),
             Self::SetPage { .. } => String::new(),
             Self::Align { body, .. } => body.plain_text(),
             Self::Place { body, .. } => body.plain_text(),
@@ -927,6 +981,10 @@ impl PartialEq for Content {
             (Self::Table { columns: ca, rows: ra, children: xa },
              Self::Table { columns: cb, rows: rb, children: xb }) =>
                 ca == cb && ra == rb && xa == xb,
+            // Passo 157B — TableCell.
+            (Self::TableCell { body: ba, x: xa, y: ya, colspan: csa, rowspan: rsa },
+             Self::TableCell { body: bb, x: xb, y: yb, colspan: csb, rowspan: rsb }) =>
+                ba == bb && xa == xb && ya == yb && csa == csb && rsa == rsb,
             (Self::SetPage { width: wa, height: ha, margin: ma },
              Self::SetPage { width: wb, height: hb, margin: mb }) =>
                 wa == wb && ha == hb && ma == mb,
@@ -1197,6 +1255,15 @@ impl Content {
                     children.iter().map(|c| c.map_content(transform)).collect();
                 Content::Table { columns: columns.clone(), rows: rows.clone(), children: new_children? }
             },
+            // Passo 157B: TableCell — recurse no body; preserva fields
+            // x/y/colspan/rowspan (Copy primitivos Option<usize>).
+            Content::TableCell { body, x, y, colspan, rowspan } => Content::TableCell {
+                body:    Box::new(body.map_content(transform)?),
+                x:       *x,
+                y:       *y,
+                colspan: *colspan,
+                rowspan: *rowspan,
+            },
             Content::Align { alignment, body } => Content::Align {
                 alignment: *alignment,
                 body:      Box::new(body.map_content(transform)?),
@@ -1373,6 +1440,14 @@ impl Content {
                 columns:  columns.clone(),
                 rows:     rows.clone(),
                 children: children.iter().map(|c| c.map_text(transform)).collect(),
+            },
+            // Passo 157B: TableCell — map_text no body; preserva fields.
+            Content::TableCell { body, x, y, colspan, rowspan } => Content::TableCell {
+                body:    Box::new(body.map_text(transform)),
+                x:       *x,
+                y:       *y,
+                colspan: *colspan,
+                rowspan: *rowspan,
             },
             Content::Align { alignment, body } => Content::Align {
                 alignment: *alignment,
@@ -2762,5 +2837,122 @@ mod tests {
         );
         let upper = t.map_text(&mut |s| s.to_uppercase());
         assert_eq!(upper.plain_text(), "HELLO WORLD");
+    }
+
+    // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — TableCell ─────────────
+
+    #[test]
+    fn table_cell_constructor_default_todos_none() {
+        // P157B: defaults — todos os fields x/y/colspan/rowspan None.
+        let c = Content::table_cell(Content::text("body"), None, None, None, None);
+        if let Content::TableCell { body, x, y, colspan, rowspan } = &c {
+            assert_eq!(body.plain_text(), "body");
+            assert_eq!(*x, None);
+            assert_eq!(*y, None);
+            assert_eq!(*colspan, None);
+            assert_eq!(*rowspan, None);
+        } else {
+            panic!("esperado Content::TableCell");
+        }
+    }
+
+    #[test]
+    fn table_cell_constructor_com_x_y() {
+        // P157B: ADR-0064 Caso A — Some(n) ↔ posição explícita.
+        let c = Content::table_cell(
+            Content::text("x"),
+            Some(2), Some(3),
+            None, None,
+        );
+        if let Content::TableCell { x, y, .. } = &c {
+            assert_eq!(*x, Some(2));
+            assert_eq!(*y, Some(3));
+        } else {
+            panic!("esperado Content::TableCell");
+        }
+    }
+
+    #[test]
+    fn table_cell_constructor_com_colspan_rowspan() {
+        // P157B: ADR-0064 Caso C — Some(n) ↔ span explícito.
+        let c = Content::table_cell(
+            Content::text("x"),
+            None, None,
+            Some(2), Some(3),
+        );
+        if let Content::TableCell { colspan, rowspan, .. } = &c {
+            assert_eq!(*colspan, Some(2));
+            assert_eq!(*rowspan, Some(3));
+        } else {
+            panic!("esperado Content::TableCell");
+        }
+    }
+
+    #[test]
+    fn table_cell_is_empty_proxy_via_body() {
+        // Body Empty → cell vazio (atributos não tornam não-vazio).
+        let c_empty = Content::table_cell(Content::Empty, Some(2), Some(3), None, None);
+        assert!(c_empty.is_empty());
+        // Body com texto → não vazio.
+        let c_full = Content::table_cell(Content::text("a"), None, None, None, None);
+        assert!(!c_full.is_empty());
+    }
+
+    #[test]
+    fn table_cell_plain_text_recurse_no_body() {
+        // Plain text recurse sem multiplicar por colspan/rowspan
+        // (paridade não visível em texto plano; spans são runtime
+        // diferidos em DEBT-34e).
+        let c = Content::table_cell(
+            Content::text("xy"),
+            None, None,
+            Some(3), Some(2),
+        );
+        assert_eq!(c.plain_text(), "xy");
+    }
+
+    #[test]
+    fn table_cell_partial_eq_cobre_todos_os_5_fields() {
+        let mk = || Content::table_cell(
+            Content::text("a"),
+            Some(1), Some(2),
+            Some(3), Some(4),
+        );
+        assert_eq!(mk(), mk());
+        // x diferente → diferente.
+        let other_x = Content::table_cell(Content::text("a"), Some(99), Some(2), Some(3), Some(4));
+        assert_ne!(mk(), other_x);
+        // y diferente → diferente.
+        let other_y = Content::table_cell(Content::text("a"), Some(1), Some(99), Some(3), Some(4));
+        assert_ne!(mk(), other_y);
+        // colspan diferente → diferente.
+        let other_cs = Content::table_cell(Content::text("a"), Some(1), Some(2), Some(99), Some(4));
+        assert_ne!(mk(), other_cs);
+        // rowspan diferente → diferente.
+        let other_rs = Content::table_cell(Content::text("a"), Some(1), Some(2), Some(3), Some(99));
+        assert_ne!(mk(), other_rs);
+        // body diferente → diferente.
+        let other_body = Content::table_cell(Content::text("b"), Some(1), Some(2), Some(3), Some(4));
+        assert_ne!(mk(), other_body);
+    }
+
+    #[test]
+    fn table_cell_map_text_recurse_no_body_preserva_fields() {
+        let c = Content::table_cell(
+            Content::text("hello"),
+            Some(2), Some(3),
+            Some(4), Some(5),
+        );
+        let upper = c.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(upper.plain_text(), "HELLO");
+        // Atributos preservados após map_text.
+        if let Content::TableCell { x, y, colspan, rowspan, .. } = upper {
+            assert_eq!(x, Some(2));
+            assert_eq!(y, Some(3));
+            assert_eq!(colspan, Some(4));
+            assert_eq!(rowspan, Some(5));
+        } else {
+            panic!("esperado Content::TableCell após map_text");
+        }
     }
 }
