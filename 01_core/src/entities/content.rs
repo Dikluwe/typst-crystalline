@@ -542,21 +542,28 @@ pub enum Content {
     /// inseparável: cite referencia entries de bibliography).
     ///
     /// Subset minimal per ADR-0054 graded:
-    /// 2 fields críticos (key/supplement); 2+ fields vanilla
-    /// scope-out (form Normal/Prose/etc., style override CSL).
+    /// 3 fields (key/supplement/form); 1+ field vanilla
+    /// scope-out (style override CSL).
     ///
     /// `key: String` directo (paridade vanilla `Label` simplificado).
     /// `supplement: Option<Box<Content>>` per ADR-0064 Caso A
     /// (page/chapter override).
+    /// `form: Option<CitationForm>` per ADR-0064 Caso A (Passo
+    /// 159C; vanilla `Smart<Option<CiteForm>>` → cristalino
+    /// `Option<CitationForm>`; None ↔ Normal default).
     ///
-    /// Layouter renderiza placeholder `"[{key}]"` seguido de
-    /// supplement (se Some) per ADR-0033 + ADR-0054 graded.
+    /// Layouter renderiza per form com lookup Bibliography
+    /// same-document (Passo 159C):
+    /// - `Normal`/None: `[key]` placeholder.
+    /// - `Prose`: `Author (Year)` quando key existe; fallback `[key]`.
+    /// - `Author`/`Year`: campo correspondente; fallback `[key]`.
     /// **Sem validação cross-reference** `key ∈ Bibliography.keys`
-    /// — diferida per ADR-0017 Introspection runtime adiada
-    /// (cite cross-document ficaria como TODO).
+    /// — fallback `[key]` é silencioso; ADR-0017 Introspection
+    /// runtime adiada (cite cross-document ficaria como TODO).
     Cite {
         key:        String,
         supplement: Option<Box<Content>>,
+        form:       Option<crate::entities::citation_form::CitationForm>,
     },
 
     // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ──
@@ -830,13 +837,18 @@ impl Content {
         }
     }
 
-    /// `cite(key, supplement)` — Passo 159A (par acoplado com
-    /// `bibliography`). Sem validação cross-reference (ADR-0017
-    /// Introspection runtime adiada).
-    pub fn cite(key: impl Into<String>, supplement: Option<Content>) -> Self {
+    /// `cite(key, supplement, form)` — Passo 159A (par acoplado com
+    /// `bibliography`) + Passo 159C (form variants). Sem validação
+    /// cross-reference (ADR-0017 Introspection runtime adiada).
+    pub fn cite(
+        key: impl Into<String>,
+        supplement: Option<Content>,
+        form: Option<crate::entities::citation_form::CitationForm>,
+    ) -> Self {
         Self::Cite {
             key: key.into(),
             supplement: supplement.map(Box::new),
+            form,
         }
     }
 
@@ -1028,7 +1040,7 @@ impl Content {
                 }
                 out
             }
-            Self::Cite { key, supplement } => {
+            Self::Cite { key, supplement, form: _ } => {
                 let mut out = format!("[{}]", key);
                 if let Some(s) = supplement {
                     out.push_str(&s.plain_text());
@@ -1168,9 +1180,9 @@ impl PartialEq for Content {
             (Self::Bibliography { entries: ea, title: ta },
              Self::Bibliography { entries: eb, title: tb }) =>
                 ea == eb && ta == tb,
-            (Self::Cite { key: ka, supplement: sa },
-             Self::Cite { key: kb, supplement: sb }) =>
-                ka == kb && sa == sb,
+            (Self::Cite { key: ka, supplement: sa, form: fa },
+             Self::Cite { key: kb, supplement: sb, form: fb }) =>
+                ka == kb && sa == sb && fa == fb,
             (Self::SetPage { width: wa, height: ha, margin: ma },
              Self::SetPage { width: wb, height: hb, margin: mb }) =>
                 wa == wb && ha == hb && ma == mb,
@@ -1470,12 +1482,13 @@ impl Content {
                     .transpose()?
                     .map(Box::new),
             },
-            Content::Cite { key, supplement } => Content::Cite {
+            Content::Cite { key, supplement, form } => Content::Cite {
                 key:        key.clone(),
                 supplement: supplement.as_ref()
                     .map(|s| s.map_content(transform))
                     .transpose()?
                     .map(Box::new),
+                form:       *form,
             },
             Content::Align { alignment, body } => Content::Align {
                 alignment: *alignment,
@@ -1679,10 +1692,11 @@ impl Content {
                 entries: entries.clone(),
                 title:   title.as_ref().map(|t| Box::new(t.map_text(transform))),
             },
-            // Cite map_text em supplement; preserva key (String).
-            Content::Cite { key, supplement } => Content::Cite {
+            // Cite map_text em supplement; preserva key (String) e form.
+            Content::Cite { key, supplement, form } => Content::Cite {
                 key:        key.clone(),
                 supplement: supplement.as_ref().map(|s| Box::new(s.map_text(transform))),
+                form:       *form,
             },
             Content::Align { alignment, body } => Content::Align {
                 alignment: *alignment,
@@ -3407,10 +3421,11 @@ mod tests {
 
     #[test]
     fn cite_constructor_so_key() {
-        let c = Content::cite("smith2024", None);
-        if let Content::Cite { key, supplement } = &c {
+        let c = Content::cite("smith2024", None, None);
+        if let Content::Cite { key, supplement, form } = &c {
             assert_eq!(key, "smith2024");
             assert!(supplement.is_none());
+            assert!(form.is_none());
         } else {
             panic!("esperado Content::Cite");
         }
@@ -3418,10 +3433,11 @@ mod tests {
 
     #[test]
     fn cite_constructor_com_supplement() {
-        let c = Content::cite("smith2024", Some(Content::text("p. 42")));
-        if let Content::Cite { key, supplement } = &c {
+        let c = Content::cite("smith2024", Some(Content::text("p. 42")), None);
+        if let Content::Cite { key, supplement, form } = &c {
             assert_eq!(key, "smith2024");
             assert_eq!(supplement.as_ref().map(|s| s.plain_text()).as_deref(), Some("p. 42"));
+            assert!(form.is_none());
         } else {
             panic!("esperado Content::Cite");
         }
@@ -3430,8 +3446,8 @@ mod tests {
     #[test]
     fn cite_is_empty_sempre_false() {
         // Cite nunca vazio — placeholder [key] sempre observable.
-        let c1 = Content::cite("k", None);
-        let c2 = Content::cite("k", Some(Content::text("p. 1")));
+        let c1 = Content::cite("k", None, None);
+        let c2 = Content::cite("k", Some(Content::text("p. 1")), None);
         assert!(!c1.is_empty());
         assert!(!c2.is_empty());
     }
@@ -3439,25 +3455,52 @@ mod tests {
     #[test]
     fn cite_plain_text_emite_placeholder_com_key() {
         // Sem supplement.
-        let c1 = Content::cite("smith2024", None);
+        let c1 = Content::cite("smith2024", None, None);
         assert_eq!(c1.plain_text(), "[smith2024]");
         // Com supplement.
-        let c2 = Content::cite("smith2024", Some(Content::text("p. 42")));
+        let c2 = Content::cite("smith2024", Some(Content::text("p. 42")), None);
         assert_eq!(c2.plain_text(), "[smith2024]p. 42");
     }
 
     #[test]
-    fn cite_partial_eq_cobre_2_fields() {
-        let mk = || Content::cite("k", Some(Content::text("p. 1")));
+    fn cite_partial_eq_cobre_3_fields() {
+        let mk = || Content::cite("k", Some(Content::text("p. 1")), None);
         assert_eq!(mk(), mk());
         // key diferente → diferente.
-        let other_key = Content::cite("k2", Some(Content::text("p. 1")));
+        let other_key = Content::cite("k2", Some(Content::text("p. 1")), None);
         assert_ne!(mk(), other_key);
         // supplement diferente → diferente.
-        let other_sup = Content::cite("k", Some(Content::text("p. 99")));
+        let other_sup = Content::cite("k", Some(Content::text("p. 99")), None);
         assert_ne!(mk(), other_sup);
         // supplement None vs Some → diferente.
-        let other_none = Content::cite("k", None);
+        let other_none = Content::cite("k", None, None);
+        assert_ne!(mk(), other_none);
+    }
+
+    // ── Passo 159C: Cite.form ──────────────────────────────────────────────
+    use crate::entities::citation_form::CitationForm;
+
+    #[test]
+    fn cite_constructor_com_form() {
+        let c = Content::cite("smith2024", None, Some(CitationForm::Prose));
+        if let Content::Cite { key, supplement, form } = &c {
+            assert_eq!(key, "smith2024");
+            assert!(supplement.is_none());
+            assert_eq!(form, &Some(CitationForm::Prose));
+        } else {
+            panic!("esperado Content::Cite");
+        }
+    }
+
+    #[test]
+    fn cite_partial_eq_cobre_form() {
+        let mk = || Content::cite("k", None, Some(CitationForm::Prose));
+        assert_eq!(mk(), mk());
+        // form diferente → diferente.
+        let other_form = Content::cite("k", None, Some(CitationForm::Author));
+        assert_ne!(mk(), other_form);
+        // form None vs Some → diferente.
+        let other_none = Content::cite("k", None, None);
         assert_ne!(mk(), other_none);
     }
 }

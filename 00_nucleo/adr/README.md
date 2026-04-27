@@ -507,6 +507,59 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 159C — `Cite.form` variants (Model bibliography+cite
+  sub-passo 2)** (segundo sub-passo substantivo de Bibliography
+  + Cite após P159A par acoplado; **refino estrutural-
+  comportamental** de variant existente; **5ª aplicação
+  consecutiva** do padrão "tipo entity em ficheiro próprio";
+  **ADR-0064 Caso A patamar N=5→6 atinge equilíbrio cross-domínio
+  50/50 Layout/Model**). Enum entity novo
+  `CitationForm { Normal, Prose, Author, Year }` em
+  `01_core/src/entities/citation_form.rs` (ficheiro novo;
+  paridade Sides P156C → Parity P156E → Dir P156I → BibEntry
+  P159A). Field `form: Option<CitationForm>` em `Content::Cite`
+  per ADR-0064 Caso A — terceira aplicação Model do Caso A
+  após P157B/P159A. **13 sítios pattern-match Content
+  actualizados** (variant declaration + construtor + is_empty
+  + plain_text + PartialEq + map_content + map_text +
+  introspect.materialize_time/walk + layout arm + 2 stdlib
+  testes + 2 content testes existentes). Helper privado novo
+  `extract_citation_form` em `stdlib/structural.rs` (strict
+  matching case-sensitive; 4 forms válidos; mensagem lista
+  válidos). Field novo `pub bib_entries: Vec<BibEntry>` em
+  `CounterState` para lookup Bibliography (**subpadrão
+  emergente N=2** "infraestrutura state lookup" — P158B
+  `state.lang` + P159C `state.bib_entries`); populado por
+  introspect walk; multi-Bibliography concatena. Layout placeholder
+  melhorado por form: `Normal/None ↔ [key]` (regression P159A);
+  `Prose ↔ Author (Year)`; `Author ↔ Author`; `Year ↔ Year`;
+  fallback `[key]` se key não encontrada. **Decisão arquitectural-
+  chave**: lookup via CounterState (Opção C; reusa infraestrutura
+  P158B) em vez de Layouter field ou second-pass — registada em
+  diagnóstico §9. Sem alteração ao algoritmo cross-document
+  (ADR-0017 bloqueia refs cross-document). L0 prompt novo
+  `00_nucleo/prompts/entities/citation_form.md`. Tests +15
+  (1189 → 1204; 8 unit + 2 cite com form + 6 stdlib parse +
+  4 layout E2E forms; range esperado +12-17). Cobertura Model
+  agregada **inalterada** (~50%) — refino qualitativo. Cobertura
+  arquitectural **inalterada** 82%. Hash `entities/content.rs`
+  preservado `ec58d849` — **décimo segundo passo consecutivo**
+  (P156L → P159C; L0-baseline interpretation: prompt content.md
+  não modificado; spec previa quebra mas interpretação L0 mantém
+  preservação). Padrões pós-P159C: granularidade N=15 → **16**;
+  inventariar primeiro N=17 → **18** (ADR-0065 critério #5
+  sexta aplicação concreta + critério #2 N=2 segunda aplicação
+  isolada concreta); §análise de risco N=17 → **18** (P159C
+  baixo-médio risco — refino estrutural com decisão de tipo
+  enum + lookup arquitectural); ADR-0064 Caso A patamar N=5→6
+  com equilíbrio cross-domínio 50/50; tipo entity em ficheiro
+  próprio N=5; infraestrutura state lookup N=1→2 (subpadrão
+  novo); P155 cross-feature N=1 (inalterado).
+  **Política "sem novas reservas" preservada** — forms vanilla
+  adicionais (Full, CSL-specific), CSL render real (depende
+  hayagriva ADR-0062), `style: Str` per-Cite, cross-document refs
+  (bloqueado ADR-0017), promoção helper a público permanecem
+  candidatos NÃO-reservados.
 - **Passo 158B — Supplement automático por lang em figure
   (Model figure-kinds sub-passo 2)** (refino qualitativo
   consecutivo de `figure` após P158A; **segundo refino

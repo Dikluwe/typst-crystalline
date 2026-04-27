@@ -332,6 +332,7 @@ de ADR-0065 critério #3):
 | P159B | (diagnóstico amplo expansão série 159 + tecto Model) | — | — (sem código; passo documental amplo M-) | 0 |
 | **ADR-0062-create** | **(administrativo XS — formaliza reserva ADR-0062 PROPOSTO)** | — | — (sem código; ADRs total 63 → 64) | **0** |
 | P158B | figure supplement por lang (Model figure-kinds sub-passo 2) | 0% agregado | Layout 78%; Model 50% inalterado (refino qualitativo) | +15 |
+| P159C | cite.form variants (Model bibliography+cite sub-passo 2) | 0% agregado | Layout 78%; Model 50% inalterado (refino estrutural); ADR-0064 Caso A N=5→6 | +15 |
 
 **Total**: +56 pontos percentuais Layout em 9 passos consecutivos
 de materialização Layout (22% → 78%); **+5pp Model** em P157A
@@ -352,12 +353,16 @@ materialização Model figure-kinds — segunda aplicação concreta
 do critério #5**. **P158B é segundo refino qualitativo
 consecutivo de `figure` (supplement por lang) — sub-passo 2 de
 Model figure-kinds; primeiro reuso explícito cross-feature do
-pattern P155 `localize_quotes`**. **+282 tests** acumulados (1145 →
-1427 lib+integ+diagnostic — +15 em P158B). **Zero reformulações
-mid-passo** em N=15 aplicações de materialização (9 Layout +
-6 Model). Padrão granular universal cross-domínio confirmado
-e estendido. Cobertura arquitectural mantém **82%** após P158B
-(refino qualitativo).
+pattern P155 `localize_quotes`**. **P159C é segundo sub-passo
+substantivo de Bibliography + Cite — adiciona enum
+`CitationForm` + field `form` em `Content::Cite`; ADR-0064
+Caso A patamar N=5 → 6 atinge equilíbrio cross-domínio 50/50
+Layout/Model**. **+297 tests** acumulados (1145 → 1442
+lib+integ+diagnostic — +15 em P159C). **Zero reformulações
+mid-passo** em N=16 aplicações de materialização (9 Layout +
+7 Model). Padrão granular universal cross-domínio confirmado
+e estendido. Cobertura arquitectural mantém **82%** após P159C
+(refino estrutural sem +variant via doc-comments).
 
 ### Tipos novos infraestruturais
 
@@ -394,25 +399,26 @@ e estendido. Cobertura arquitectural mantém **82%** após P158B
 
 ### Padrões metodológicos consolidados
 
-1. **Granularidade 1-2 features/passo**: **N=15** aplicações
+1. **Granularidade 1-2 features/passo**: **N=16** aplicações
    consecutivas sem reformulação (8 materialização Layout
    + 1 refino Layout P156L + 3 materialização Model
    P157A/B/C + 1 refino Model P158A + 1 par acoplado Model
-   P159A + **1 segundo refino Model P158B**). **Padrão
-   cross-domínio reforçado** mas **com primeira quebra
-   honestamente registada**: P159A é M+ par acoplado
-   (granularidade quebrada N=13 → M+ com precedente P156C par
-   lógico pad+hide). Hipótese da decisão humana 2026-04-25
-   empiricamente confirmada e estendida a refino Layout +
-   Model Fase 2 multi-passo + refino Model + par acoplado +
-   segundo refino consecutivo de mesmo Model feature (figure
-   P158A→P158B). **Formalizada parcialmente em ADR-0065** (que
-   cita N=5 com diversidade de critérios; P156L é primeira
-   aplicação concreta do critério #3; P157 é primeira aplicação
-   do critério #5).
+   P159A + 1 segundo refino Model P158B + **1 refino
+   estrutural Model P159C**). **Padrão cross-domínio reforçado**
+   mas **com primeira quebra honestamente registada**: P159A é
+   M+ par acoplado (granularidade quebrada N=13 → M+ com
+   precedente P156C par lógico pad+hide). Hipótese da decisão
+   humana 2026-04-25 empiricamente confirmada e estendida a
+   refino Layout + Model Fase 2 multi-passo + refino Model +
+   par acoplado + segundo refino consecutivo de mesmo Model
+   feature (figure P158A→P158B) + refino estrutural de variant
+   existente com tipo entity novo (P159C cite.form). **Formalizada
+   parcialmente em ADR-0065** (que cita N=5 com diversidade de
+   critérios; P156L é primeira aplicação concreta do critério #3;
+   P157 é primeira aplicação do critério #5).
 
 2. **"Inventariar primeiro" pré-decisão arquitectural**:
-   **N=17** aplicações (P156F defensivo; P156G deliberado;
+   **N=18** aplicações (P156F defensivo; P156G deliberado;
    P156H curto; P156I curto focado; P156J curto focado;
    P156L expansão variant existente — primeira aplicação
    concreta do critério #3 de ADR-0065; P157 scope determinado
@@ -450,13 +456,19 @@ e estendido. Cobertura arquitectural mantém **82%** após P158B
    supplement com decisão fallback PT vs EN — quinta aplicação
    concreta critério #5 com diversidade reforçada (lang-aware
    refino) + reuso pattern P155 cross-feature como precedente
-   metodológico**). **Formalizado em ADR-0065** (P156K);
-   **agora N=17 com 4 critérios formalmente validados**
-   (#1 P157A/B + ADR-0062-create administrativo XS; #2 P159A
-   primeira isolada; #3 P156L; #5 P157 + P157A + P158 + P158A
-   + P158B + P159 + P159B multi-feature; #6 P157B/C).
+   metodológico**; **P159C inventário cite.form com decisão
+   lookup via CounterState (Opção C) + reuso pattern P158B
+   `state.lang` para infraestrutura `state.bib_entries` —
+   sexta aplicação concreta critério #5 + segunda aplicação
+   isolada concreta critério #2 (escolha de tipo enum
+   `CitationForm` vs `Option<String>`)**). **Formalizado em
+   ADR-0065** (P156K); **agora N=18 com 4 critérios formalmente
+   validados** (#1 P157A/B + ADR-0062-create administrativo XS;
+   #2 P159A + **P159C** patamar N=2; #3 P156L; #5 P157 + P157A +
+   P158 + P158A + P158B + P159 + P159B + **P159C** multi-feature;
+   #6 P157B/C).
 
-3. **"Smart<T> → Option<T> ou default"**: **N=10** aplicações
+3. **"Smart<T> → Option<T> ou default"**: **N=11** aplicações
    (P156E Parity; P156F angles; P156G Block.width; P156H
    Box.width; P156I Stack.spacing + Dir.default; P156J
    Repeat.gap; P156L Pad sides — segunda aplicação concreta
@@ -465,13 +477,16 @@ e estendido. Cobertura arquitectural mantém **82%** após P158B
    primeira variação `usize`; **P157C TableHeader/TableFooter.repeat
    — primeira aplicação Caso D em Model; **P159A
    Bibliography.title + Cite.supplement — Caso A patamar
-   cresce N=4 → 5; reforça diversidade cross-domínio**).
+   cresce N=4 → 5; reforça diversidade cross-domínio**;
+   **P159C Cite.form — Caso A patamar cresce N=5 → 6;
+   atinge equilíbrio cross-domínio 50/50 Layout/Model**).
    **Formalizado em ADR-0064** (P156K) com 4 casos canónicos
    A/B/C/D.
 
-   **Patamares por caso pós-P159A**:
-   - Caso A: **N=5** (P156G/H/I + P157B + **P159A**); 60%
-     Layout + 40% Model — diversidade cross-domínio reforçada.
+   **Patamares por caso pós-P159C**:
+   - Caso A: **N=6** (P156G/H/I + P157B + P159A + **P159C**);
+     50% Layout (3) + 50% Model (3) — **equilíbrio
+     cross-domínio atingido**.
    - Caso B: N=1 (P156I Dir); 100% Layout (Caso B só Layout
      — candidato futuro Model).
    - Caso C: N=3 (P156I/J + P157B); primeira variação `usize`
@@ -480,9 +495,10 @@ e estendido. Cobertura arquitectural mantém **82%** após P158B
    - **Todos os 4 casos canónicos validados em Layout** ✓.
    - **3/4 casos canónicos validados em Model** (A, C, D);
      Caso B só Layout — candidato futuro.
-   - **Caso A é o caso mais aplicado** (N=5; cross-domínio).
+   - **Caso A é o caso mais aplicado** (N=6; **equilíbrio
+     cross-domínio**).
 
-4. **"§análise de risco no relatório"**: **N=17** aplicações
+4. **"§análise de risco no relatório"**: **N=18** aplicações
    (P156F/G/H/I/J/K + L com peso real — primeiro refactor
    real após série aditiva; P157 com risco baixo diagnóstico;
    P157A com risco baixo-médio — primeiro Model Fase 2 com
@@ -514,7 +530,16 @@ e estendido. Cobertura arquitectural mantém **82%** após P158B
    helper novo `figure_supplement_for_lang` em
    `rules/lang/figure_supplement.rs` paralelo a `quotes.rs`;
    field novo `lang: Option<Lang>` em `CounterState` para lang
-   resolution; fallback PT preserva backwards compat**).
+   resolution; fallback PT preserva backwards compat**;
+   **P159C com risco baixo-médio — refino estrutural de variant
+   existente (Cite); enum entity novo CitationForm em ficheiro
+   próprio (5ª aplicação consecutiva do padrão); ADR-0064 Caso A
+   patamar N=5→6 atingindo equilíbrio cross-domínio 50/50;
+   field novo `bib_entries: Vec<BibEntry>` em CounterState
+   (paridade infraestrutural P158B `state.lang`); 13 sítios
+   pattern-match Content actualizados; **decisão Opção C**
+   lookup via state em vez de Layouter field ou second-pass;
+   hash content.rs preservado (12º consecutivo via L0-baseline)**).
    Cobertura sistemática do risco.
 
 5. **"Reuso de template containers"**: **N=4** aplicações
@@ -585,15 +610,35 @@ e estendido. Cobertura arquitectural mantém **82%** após P158B
     caption supplement futuro; bibliography lang per P159B §4.
     Política consistente N=3-4 mínima para promoção.
 
-### Estado pós-P158B
+14. **"Tipo entity em ficheiro próprio"** (subpadrão emergente
+    P159C — formalmente N=5): aplicações concretas Sides P156C →
+    Parity P156E → Dir P156I → BibEntry P159A → **CitationForm
+    P159C**. Padrão "enum/struct dedicado em ficheiro próprio
+    `entities/<nome>.rs` em vez de inline em content.rs ou
+    bib_entry.rs". 5 aplicações consecutivas sem reformulação.
+    Promoção a subpadrão consolidado per política N=4-5; pode ser
+    formalizado em ADR futura.
+
+15. **"Infraestrutura state lookup"** (subpadrão emergente
+    P159C N=2): aplicações concretas P158B `state.lang:
+    Option<Lang>` (lang resolution) + **P159C `state.bib_entries:
+    Vec<BibEntry>` (cross-reference lookup)**. Padrão "field
+    novo opcional em `CounterState` populado por introspect
+    walk; consumido por layouter via state borrow". Reuso de
+    infraestrutura existente em vez de modificação de signature
+    ou novo Layouter field. Candidato a formalização N=3-4.
+
+### Estado pós-P159C
 
 - **Cobertura Layout**: **78%** (inalterada por P157A/B/C +
-  P158/P158A/P159/P159A/P159B + ADR-0062-create + **P158B** —
-  escopo Model + refino qualitativo + par acoplado + diagnóstico
-  amplo + administrativo XS + segundo refino qualitativo figure).
-  Target ADR-0061 (72%) **continua ultrapassado**.
+  P158/P158A/P159/P159A/P159B + ADR-0062-create + P158B + **P159C**
+  — escopo Model + refino qualitativo + par acoplado + diagnóstico
+  amplo + administrativo XS + segundo refino qualitativo figure +
+  refino estrutural cite). Target ADR-0061 (72%) **continua
+  ultrapassado**.
 - **Cobertura arquitectural**: **82%** (inalterada por P159B +
-  P158B — refino qualitativo de variant Content existente).
+  P158B + **P159C** — refinos qualitativos/estruturais de variants
+  Content existentes; sem variants novos).
 - **Tecto Model puro estimado** (P159B §4): cobertura agregada
   ~50% → **~55-60% alcançável** com 5 sub-passos Bloco A
   (supplement figure / cite.form / BibEntry fields / kind
@@ -644,9 +689,22 @@ e estendido. Cobertura arquitectural mantém **82%** após P158B
   primeiro passo consecutivo** (P156L → P158B). **Reuso
   explícito do padrão P155** `localize_quotes(lang)` —
   primeiro reuso cross-feature (subpadrão emergente N=1).
-- **Restantes Fase 2 Model** (per P159B §5 Bloco A — 4
-  candidatos restantes pós-P158B):
-  - Cite.form variants (Normal/Prose/Author/Year).
+- **P159C (cite.form variants)**: materializado. Enum novo
+  `CitationForm { Normal, Prose, Author, Year }` em
+  `entities/citation_form.rs` (5ª aplicação consecutiva do
+  padrão "tipo entity em ficheiro próprio"). Field
+  `form: Option<CitationForm>` em `Content::Cite` per ADR-0064
+  Caso A (patamar N=5→6 atinge equilíbrio cross-domínio
+  50/50). Helper privado `extract_citation_form` em stdlib
+  (strict matching case-sensitive). Layout placeholder
+  melhorado por form com lookup Bibliography via novo field
+  `pub bib_entries: Vec<BibEntry>` em `CounterState` (paridade
+  infraestrutural P158B `state.lang`); populado por introspect
+  walk. Hash `entities/content.rs` preservado `ec58d849`
+  (12º consecutivo via L0-baseline interpretation — content.md
+  prompt não modificado).
+- **Restantes Fase 2 Model** (per P159B §5 Bloco A — 3
+  candidatos restantes pós-P159C):
   - BibEntry fields adicionais (volume/pages/journal/etc.).
   - Refactor `kind: String → Option<String>` per ADR-0064 Caso A.
   - Numbering numérico simples Bibliography.

@@ -554,9 +554,21 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     self.flush_line();
                 }
             }
-            Content::Cite { key, supplement } => {
-                let placeholder = format!("[{}]", key);
-                self.layout_content(&Content::text(placeholder));
+            Content::Cite { key, supplement, form } => {
+                // Passo 159C: render placeholder por form com lookup
+                // Bibliography state. Fallback `[key]` quando key não
+                // encontrada — paridade Normal sem entry.
+                let resolved_form = form.unwrap_or_default();
+                let entry = self.counter.bib_entries.iter().find(|e| e.key == *key);
+                use crate::entities::citation_form::CitationForm;
+                let text = match (resolved_form, entry) {
+                    (CitationForm::Normal, _)         => format!("[{}]", key),
+                    (CitationForm::Prose,  Some(e))   => format!("{} ({})", e.author, e.year),
+                    (CitationForm::Author, Some(e))   => e.author.clone(),
+                    (CitationForm::Year,   Some(e))   => e.year.to_string(),
+                    (_, None)                         => format!("[{}]", key),
+                };
+                self.layout_content(&Content::text(text));
                 if let Some(s) = supplement {
                     self.layout_content(s);
                 }
@@ -1263,6 +1275,8 @@ pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument {
         // a SetHeadingNumbering — sem esta cópia, testes de L1 de equações
         // numeradas só funcionariam via eval completo.
         l.counter.numbering_active = initial_state.numbering_active;
+        // Passo 159C: bib_entries para lookup Cite.form em layout.
+        l.counter.bib_entries      = initial_state.bib_entries;
         // NÃO copiar label_pages — começa vazio via Layouter::new().
         // NÃO copiar hierarchical, flat — reconstruídos nó a nó.
         l.layout_content(content);
@@ -1286,6 +1300,8 @@ pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument {
         l.counter.resolved_labels  = initial_state.resolved_labels.clone();
         l.counter.headings_for_toc = initial_state.headings_for_toc.clone();
         l.counter.numbering_active = initial_state.numbering_active.clone();
+        // Passo 159C: bib_entries para lookup Cite.form em layout.
+        l.counter.bib_entries      = initial_state.bib_entries.clone();
 
         // Injectar páginas da iteração anterior para leitura pelo outline.rs.
         // label_pages (onde references.rs escreve) começa vazio via Layouter::new().

@@ -636,7 +636,7 @@ pub fn native_bibliography(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
     Ok(Value::Content(Content::Bibliography { entries, title }))
 }
 
-/// `cite(key, supplement: ?)` → `Content::Cite`.
+/// `cite(key, supplement: ?, form: ?)` → `Content::Cite`.
 ///
 /// Par com `bibliography` (acoplamento semântico vanilla
 /// inseparável — cite referencia entries de bibliography).
@@ -647,15 +647,18 @@ pub fn native_bibliography(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 /// - `key`: `Str` posicional obrigatório (referência a entry).
 /// - `supplement: Content`/`Str` (named); ADR-0064 Caso A;
 ///   None ↔ ausente.
+/// - `form: Str` (named); ADR-0064 Caso A (Passo 159C);
+///   `"normal"`/`"prose"`/`"author"`/`"year"` ou `auto`/`none`/
+///   ausente ↔ None (resolvido a Normal default em layout).
 ///
 /// **Atributos vanilla scope-out** per ADR-0054 graded:
-/// `form` (Normal/Prose/etc.), `style` (CSL override). Refinos
-/// futuros NÃO reservados.
+/// `style` (CSL override). Refinos futuros NÃO reservados.
 ///
 /// **Sem validação cross-reference** `key ∈ Bibliography.keys`
 /// — diferida per ADR-0017 Introspection runtime adiada.
 /// `cite("inexistente")` produz placeholder `[inexistente]`
-/// sem erro.
+/// sem erro; forms `Prose`/`Author`/`Year` caem no fallback
+/// `[key]` se key não encontrada.
 pub fn native_cite(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     // key posicional obrigatório.
     let key = match args.items.first() {
@@ -676,7 +679,7 @@ pub fn native_cite(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 
     // Validar named args.
     for k in args.named.keys() {
-        if !["supplement"].contains(&k.as_str()) {
+        if !["supplement", "form"].contains(&k.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("cite(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro NÃO reservado)", k),
@@ -691,7 +694,35 @@ pub fn native_cite(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         other             => Some(Box::new(Content::text(other.type_name()))),
     });
 
-    Ok(Value::Content(Content::Cite { key, supplement }))
+    let form = extract_citation_form(args.named.get("form"))?;
+
+    Ok(Value::Content(Content::Cite { key, supplement, form }))
+}
+
+/// Helper privado P159C — parsing `Value::Str` para
+/// `Option<CitationForm>`. Strict matching (case-sensitive);
+/// `auto`/`none`/ausente → None (resolvido a Normal default em
+/// layout). String inválida rejeitada com mensagem listando forms
+/// válidas.
+fn extract_citation_form(val: Option<&Value>) -> SourceResult<Option<crate::entities::citation_form::CitationForm>> {
+    use crate::entities::citation_form::CitationForm;
+    match val {
+        None | Some(Value::Auto) | Some(Value::None) => Ok(None),
+        Some(Value::Str(s)) => match s.as_str() {
+            "normal" => Ok(Some(CitationForm::Normal)),
+            "prose"  => Ok(Some(CitationForm::Prose)),
+            "author" => Ok(Some(CitationForm::Author)),
+            "year"   => Ok(Some(CitationForm::Year)),
+            other    => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("cite(): form '{}' inválido (válidos: normal, prose, author, year)", other),
+            )]),
+        },
+        Some(other) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("cite(): form espera string, recebeu {}", other.type_name()),
+        )]),
+    }
 }
 
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────
