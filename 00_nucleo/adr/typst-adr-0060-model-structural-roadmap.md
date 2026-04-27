@@ -31,6 +31,33 @@ Cobertura Model 41% → ~45%; arquitectural Content 75% → ~77%.
 Plano Fase 2 (P156/157/158 — table foundations, figure kinds,
 bibliography+cite com ADR-0061) inalterado.
 
+**Anotação Passo 157B (2026-04-26)**: **segundo sub-passo
+Fase 2 Model materializado** — `Content::TableCell { body,
+x: Option<usize>, y: Option<usize>, colspan: Option<usize>,
+rowspan: Option<usize> }` adicionado ao enum (53 → 54 variants);
+`native_table_cell` registada em `make_stdlib` em
+`stdlib/structural.rs` (continuação P157A). **Naming `table_cell`
+flat** (não vanilla `table.cell` — FieldAccess actual não suporta
+namespacing de funcs `Value::Func.subname`; divergência intencional
+documentada per ADR-0033 em diagnóstico P157B §8). **Primeira
+aplicação concreta de ADR-0064 Caso A em domínio Model**
+(`Smart<usize>` → `Option<usize>` para x/y); **terceira aplicação
+global de Caso C** com **primeira variação `usize`**
+(NonZeroUsize default 1 → Option<usize> com None ↔ default 1
+para colspan/rowspan; zero rejeitado em stdlib paridade vanilla).
+Layouter renderiza body no contexto actual; **x/y/colspan/rowspan
+armazenados mas ignorados em layout** per ADR-0054 graded —
+**DEBT-34e permanece aberto** (placement algorítmico Grid
+completo fica para refactor dedicado). Helper privado novo
+`extract_usize_or_none_min(val, fn, field, min)` parametrizado
+(min=0 para x/y; min=1 para colspan/rowspan). Tests +18
+(1335 → 1353). Cobertura Model agregada **inalterada** (50%
+mantém-se — `table.cell` é sub-entrada de `table` per padrão
+P154A; ganho qualitativo via expansão estrutural). Status
+`IMPLEMENTADO` mantido. **Padrão cross-domínio reforçado**:
+2 sub-passos Model consecutivos (P157A/B) sem reformulação;
+N=11 materialização. TableHeader/Footer ficam para **P157C**.
+
 **Anotação Passo 157A (2026-04-26)**: **primeiro sub-passo
 Fase 2 Model materializado** — `Content::Table { columns:
 Vec<TrackSizing>, rows: Vec<TrackSizing>, children: Vec<Content> }`

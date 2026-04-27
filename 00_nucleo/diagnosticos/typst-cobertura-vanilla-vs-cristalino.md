@@ -165,6 +165,7 @@ primitives e `skew`). Detalhe em
 | `caption(...)` | model/figure.rs | `parcial` | dentro de figure | sem element dedicado |
 | `outline()` | model/outline.rs | `implementado` | Passos 65–66 | TOC via 2-pass introspection |
 | `table(columns, ...)` | model/table.rs | `implementado` ²² | Passo 157A (ADR-0060 Fase 2 sub-passo 1; **primeiro Model Fase 2**) | `Content::Table { columns, rows, children: Vec<Content> }` + stdlib `#table(columns: ?, rows: ?, ..children)`; subset minimal per ADR-0054 graded; layouter delega a `layout_grid` (clone simples; sem modificação de `grid.rs`); 9+ atributos vanilla scope-out (gutter/inset/align/fill/stroke/summary; cells estruturadas P157B; header/footer P157C; HLine/VLine cosmetic) |
+| `table.cell(body, ...)` | model/table.rs | `parcial` ²⁴ | Passo 157B (ADR-0060 Fase 2 sub-passo 2) | `Content::TableCell { body, x: Option<usize>, y: Option<usize>, colspan: Option<usize>, rowspan: Option<usize> }` + stdlib `#table_cell(body, x: ?, y: ?, colspan: ?, rowspan: ?)`; **naming `table_cell` flat** (não vanilla `table.cell` — FieldAccess actual não suporta namespacing de funcs; divergência intencional per ADR-0033); ADR-0064 Caso A para x/y; Caso C para colspan/rowspan; **placement algorítmico diferido em DEBT-34e** — fields armazenados mas ignorados em layout per ADR-0054 graded; 6 atributos vanilla scope-out (align/stroke/fill/inset/breakable + internals) |
 | `list(items)` (function form) | model/list.rs | `parcial` | sintaxe parcial | sem function form completa |
 | `enum(items)` | model/enum.rs | `parcial` | idem | |
 | `terms(...)` | model/terms.rs | `implementado` | Passo 154B | `Content::Terms` + `Content::TermItem`; named args via `#terms(key: [desc])`; sem atributos vanilla (tight/separator/indent/hanging-indent) — extensíveis sem breaking change |
@@ -426,7 +427,7 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
 | Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ | 13 | 1 | 3 | 1 | 0 | 18 |
-| Model (structural) ¹ ² ³ ²² | 7 | 4 | 5 | 6 | 0 | 22 |
+| Model (structural) ¹ ² ³ ²² ²⁴ | 7 | 4 | 5 | 6 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection | 1 | 0 | 0 | 5 | 0 | 6 |
@@ -562,18 +563,21 @@ ajustada: 60/21/22/36/2=141 → **61/21/22/35/2=141** (+1
 implementado, −1 ausente). Tabela B Content variants:
 **48 → 49** (+`Block`). ADR-0061 continua `PROPOSTO`.
 
-**Cobertura user-facing total** (impl + impl⁺) pós-P157A:
-(64 + 22) / 141 = **61%** (≈61.0%; +1pp vs P156L via Model
-Fase 2 sub-passo 1)
+**Cobertura user-facing total** (impl + impl⁺) pós-P157B:
+(64 + 22) / 141 = **61%** (≈61.0%; **inalterada** vs P157A
+— `table.cell` é sub-entrada de `table` que não conta na
+agregação Model)
 (antes de P154A: 54%; após P154B: 55%; após P155: ~55-56%;
 após P156B: ~53%; após P156C: ~55%; após P156D: ~56%; após
 P156E: ~57%; após P156F: ~57%; após P156G: ~58%; após P156H:
 ~59%; após P156I: ~60% — Layout 67% → 72%, target Fase 1+2
 atingido; após P156J: ~60.3% — Layout 72% → 78%, primeira
 Fase 3; após P156L: ~60.3% (inalterada) — refino qualitativo
-de `pad` per ADR-0064 Caso C; **após P157A: ~61.0%** —
-Model 45% → 50%, primeiro sub-passo Model Fase 2; `table`
-transita `ausente → implementado`).
+de `pad` per ADR-0064 Caso C; após P157A: ~61.0% — Model
+45% → 50%, primeiro sub-passo Model Fase 2; **após P157B:
+~61.0% (inalterada agregada)** — expansão estrutural de
+`table` via `TableCell` sub-entrada; ganho qualitativo;
+ADR-0064 Caso A primeira aplicação Model).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -581,12 +585,12 @@ transita `ausente → implementado`).
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
 | `Value` variants | 18 | 2 | 2 | 9 | 0 | 31 |
-| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ ²⁰ ²³ | 41 | 9 | 3 | 0 | 0 | 53 |
-| `Content` variants (vanilla extra ausentes) | — | — | — | ~1-2 | — | ~1-2 |
+| `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ ²⁰ ²³ ²⁵ | 42 | 9 | 3 | 0 | 0 | 54 |
+| `Content` variants (vanilla extra ausentes) | — | — | — | ~1 | — | ~1 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
-| **Total arquitectural** | **69** | **13** | **5** | **18** | **1** | **106** |
+| **Total arquitectural** | **70** | **13** | **5** | **17** | **1** | **106** |
 
 ³ — Ajuste P154B: 39 → 42 (+`Divider`, +`Terms`, +`TermItem`).
 Vanilla extra ausentes desce de ~14 para ~12 (terms + divider
@@ -705,6 +709,35 @@ conjunto não-capturado). Décima aplicação consecutiva de
 materialização; **primeiro Model Fase 2**. ADR-0060 Decisão 4
 respeitada (variant dedicado, não Styled).
 
+²⁴ — Ajuste P157B (Tabela A.6): nova entrada `table.cell`
+adicionada como **sub-entrada de `table`** (não conta na
+agregação Model — vanilla também trata como `#[scope]`
+subordinado de `TableElem`). Estado `parcial`: subset minimal
+(5 fields) materializado per ADR-0054 graded; placement
+algorítmico diferido em DEBT-34e (fields x/y/colspan/rowspan
+armazenados mas ignorados em layout). **Naming `table_cell`
+flat** (não vanilla `table.cell` — FieldAccess actual não
+suporta namespacing de funcs; divergência intencional per
+ADR-0033 documentada em diagnóstico P157B §8). **Primeira
+aplicação concreta de ADR-0064 Caso A em domínio Model**
+(P156G/H/I aplicaram-no em Layout); **Caso C terceira aplicação
+global** com **primeira variação `usize`** (anteriores eram
+`Length`). Contagem agregada Model **inalterada** (7/4/5/6/0=22)
+porque sub-entrada não conta separadamente. Cobertura Model
+permanece **50%** (ganho qualitativo via expansão estrutural
+de `table`).
+
+²⁵ — Ajuste P157B (Tabela B): 53 → **54** (+`TableCell`).
+Vanilla extra ausentes desce de ~1-2 para ~1 (TableCell sai
+do conjunto não-capturado). Décima primeira aplicação consecutiva
+de materialização; segundo sub-passo Model Fase 2. ADR-0060
+Decisão 4 respeitada (variant dedicado para sub-elemento
+estrutural). **Patamar empírico ADR-0064**: Caso A N=4
+(primeira aplicação Model); Caso C N=3 (primeira variação
+`usize`). Helper novo `extract_usize_or_none_min` privado em
+`stdlib/structural.rs` (combina parse `x`/`y` com min=0 e
+`colspan`/`rowspan` com min=1).
+
 ²¹ — Ajuste P156L (refino sides individualizadas; **primeira
 aplicação concreta de ADR-0065 critério #3** — expansão de
 variant existente; **segunda aplicação concreta de ADR-0064
@@ -733,9 +766,9 @@ de implementado para implementado⁺). Tabela B Content: 52
 ADR-0065 N=6 implícito; reuso `Sides<T>` N=2; reuso
 `extract_length` N=7.
 
-**Cobertura arquitectural total**: (69 + 13) / 106 = **77-78%**
-(era 76-77% pós-P156L; era 75-76% pós-P156I; era 75% pré-P155;
-era 72% pré-P154B; era 70% pré-P149).
+**Cobertura arquitectural total**: (70 + 13) / 106 = **78%**
+(era 77-78% pós-P157A; era 76-77% pós-P156L; era 75-76% pós-P156I;
+era 75% pré-P155; era 72% pré-P154B; era 70% pré-P149).
 **Nota**: variants extra cristalino (`Value::Align`, `Content::Styled`) são **divergências intencionais**
 favoráveis — cristalino tem features que vanilla não (em forma de Value); contadas como `implementado` porque
 encerradas por ADRs (0026, 0028→0029, 0036, etc.).

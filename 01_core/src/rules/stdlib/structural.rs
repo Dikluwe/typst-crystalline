@@ -256,5 +256,110 @@ pub fn native_table(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     Ok(Value::Content(Content::Table { columns, rows, children }))
 }
 
+// ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ───────────────────
+
+/// Coage `Value` para `Option<usize>` per ADR-0064 Caso A.
+///
+/// `Value::Auto` ou `Value::None` → `None` (None ↔ Auto vanilla).
+/// `Value::Int(n)` com `n >= min as i64` → `Some(n as usize)`.
+/// Outros tipos ou `n < min` → erro hard com diagnóstico claro.
+///
+/// Helper privado P157B; param `min` permite reuso para `x`/`y`
+/// (min=0; auto-placement) e `colspan`/`rowspan` (min=1; paridade
+/// vanilla `NonZeroUsize`).
+fn extract_usize_or_none_min(
+    val: &Value,
+    fn_name: &str,
+    field: &str,
+    min: usize,
+) -> SourceResult<Option<usize>> {
+    match val {
+        Value::Auto => Ok(None),
+        Value::None => Ok(None),
+        Value::Int(n) => {
+            if *n < min as i64 {
+                Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("{}({}:): valor {} < {} (mínimo)", fn_name, field, n, min),
+                )])
+            } else {
+                Ok(Some(*n as usize))
+            }
+        }
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{}({}:) espera int ou auto, recebeu {}", fn_name, field, other.type_name()),
+        )]),
+    }
+}
+
+/// `table_cell(body, x: none, y: none, colspan: none, rowspan: none)` →
+/// `Content::TableCell`.
+///
+/// **Segundo sub-passo Model Fase 2** (ADR-0060). Subset minimal
+/// per diagnóstico P157B §1.
+///
+/// **Naming `table_cell` flat** (não `table.cell` vanilla) per
+/// diagnóstico P157B §8: FieldAccess actual em cristalino não
+/// suporta namespacing de funcs (`Value::Func.subname` não existe).
+/// Divergência intencional documentada per ADR-0033.
+///
+/// **Atributos**:
+/// - `body` posicional obrigatório (Content ou Str).
+/// - `x: usize`/`auto`/`none` (named); ADR-0064 Caso A; `None` ↔
+///   Auto auto-placement.
+/// - `y` análogo.
+/// - `colspan: usize`/`auto`/`none` (named); ADR-0064 Caso C;
+///   `None` ↔ default 1; zero rejeitado (paridade `NonZeroUsize`).
+/// - `rowspan` análogo.
+///
+/// **Atributos vanilla scope-out** (6 fields): `align`/`stroke`/
+/// `fill`/`inset`/`breakable` per cell + internals (`kind`,
+/// `is_repeated`).
+///
+/// **Limitação per ADR-0054 graded**: `x`/`y`/`colspan`/`rowspan`
+/// armazenados mas **ignorados em layout** — algoritmo de placement
+/// diferido em **DEBT-34e**. Layouter renderiza `body` no contexto
+/// actual.
+pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("table_cell() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "table_cell() exige body como argumento posicional".to_string(),
+        )]),
+    };
+
+    let mut x:       Option<usize> = None;
+    let mut y:       Option<usize> = None;
+    let mut colspan: Option<usize> = None;
+    let mut rowspan: Option<usize> = None;
+
+    for (key, value) in args.named.iter() {
+        match key.as_str() {
+            // ADR-0064 Caso A — auto-placement; min=0.
+            "x" => x = extract_usize_or_none_min(value, "table_cell", "x", 0)?,
+            "y" => y = extract_usize_or_none_min(value, "table_cell", "y", 0)?,
+            // ADR-0064 Caso C — span >= 1; min=1 (paridade NonZeroUsize).
+            "colspan" => colspan = extract_usize_or_none_min(value, "table_cell", "colspan", 1)?,
+            "rowspan" => rowspan = extract_usize_or_none_min(value, "table_cell", "rowspan", 1)?,
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("table_cell(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
+            )]),
+        }
+    }
+
+    Ok(Value::Content(Content::TableCell {
+        body: Box::new(body),
+        x, y, colspan, rowspan,
+    }))
+}
+
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────
 

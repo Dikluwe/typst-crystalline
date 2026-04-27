@@ -40,7 +40,7 @@ pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::text::{native_lower, native_replace, native_upper};
 pub use crate::rules::stdlib::assert::native_assert;
 pub use crate::rules::stdlib::structural::{
-    native_divider, native_emph, native_heading, native_quote, native_raw, native_strong, native_table, native_terms,
+    native_divider, native_emph, native_heading, native_quote, native_raw, native_strong, native_table, native_table_cell, native_terms,
 };
 pub use crate::rules::stdlib::figure_image::{native_figure, native_image};
 pub use crate::rules::stdlib::shapes::{
@@ -2120,5 +2120,117 @@ mod tests {
         } else {
             panic!("esperado Grid + Table");
         }
+    }
+
+    // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table_cell ────────────
+
+    #[test]
+    fn native_table_cell_defaults_todos_none() {
+        // P157B: defaults — body required; outros fields None.
+        null_ctx!(ctx);
+        let r = native_table_cell(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::TableCell { body, x, y, colspan, rowspan }) = r {
+            assert_eq!(body.plain_text(), "body");
+            assert_eq!(x, None);
+            assert_eq!(y, None);
+            assert_eq!(colspan, None);
+            assert_eq!(rowspan, None);
+        } else {
+            panic!("esperado Content::TableCell");
+        }
+    }
+
+    #[test]
+    fn native_table_cell_x_y_explicitos() {
+        // ADR-0064 Caso A: Some(n) ↔ posição explícita.
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("x".into(), Value::Int(2));
+        args.named.insert("y".into(), Value::Int(3));
+        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::TableCell { x, y, .. }) = r {
+            assert_eq!(x, Some(2));
+            assert_eq!(y, Some(3));
+        } else {
+            panic!("esperado Content::TableCell");
+        }
+    }
+
+    #[test]
+    fn native_table_cell_x_auto_traduz_a_none() {
+        // P157B ADR-0064 Caso A: Value::Auto → None.
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("x".into(), Value::Auto);
+        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::TableCell { x, .. }) = r {
+            assert_eq!(x, None, "Value::Auto deve traduzir para None per ADR-0064 Caso A");
+        } else {
+            panic!("esperado Content::TableCell");
+        }
+    }
+
+    #[test]
+    fn native_table_cell_colspan_rowspan_explicitos() {
+        // ADR-0064 Caso C: Some(n) ↔ span explícito.
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("colspan".into(), Value::Int(2));
+        args.named.insert("rowspan".into(), Value::Int(3));
+        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::TableCell { colspan, rowspan, .. }) = r {
+            assert_eq!(colspan, Some(2));
+            assert_eq!(rowspan, Some(3));
+        } else {
+            panic!("esperado Content::TableCell");
+        }
+    }
+
+    #[test]
+    fn native_table_cell_colspan_zero_rejeitado() {
+        // P157B: colspan = 0 rejeitado (paridade vanilla NonZeroUsize).
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("colspan".into(), Value::Int(0));
+        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "colspan = 0 deve retornar Err (mínimo 1)");
+    }
+
+    #[test]
+    fn native_table_cell_colspan_negativo_rejeitado() {
+        // P157B: int negativo rejeitado.
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("colspan".into(), Value::Int(-1));
+        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "colspan negativo deve retornar Err");
+    }
+
+    #[test]
+    fn native_table_cell_x_negativo_rejeitado() {
+        // P157B: x negativo rejeitado (mínimo 0; sem ints negativos
+        // mesmo para campos com min=0).
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("x".into(), Value::Int(-1));
+        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "x negativo deve retornar Err");
+    }
+
+    #[test]
+    fn native_table_cell_named_arg_desconhecido_rejeitado() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("inset".into(), Value::Length(Length::pt(5.0)));
+        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named arg desconhecido em table_cell() deve retornar Err");
+    }
+
+    #[test]
+    fn native_table_cell_sem_body_rejeitado() {
+        null_ctx!(ctx);
+        let r = native_table_cell(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "table_cell() sem body deve retornar Err");
     }
 }

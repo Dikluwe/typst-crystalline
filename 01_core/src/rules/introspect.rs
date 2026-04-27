@@ -186,6 +186,16 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
             rows:     rows.clone(),
             children: children.iter().map(|c| materialize_time(c, state)).collect(),
         },
+        // Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell.
+        // Recurse no body; preserva fields x/y/colspan/rowspan
+        // (Copy primitivos).
+        Content::TableCell { body, x, y, colspan, rowspan } => Content::TableCell {
+            body:    Box::new(materialize_time(body, state)),
+            x:       *x,
+            y:       *y,
+            colspan: *colspan,
+            rowspan: *rowspan,
+        },
         Content::Align { alignment, body } => Content::Align {
             alignment: *alignment,
             body:      Box::new(materialize_time(body, state)),
@@ -397,6 +407,9 @@ fn walk(content: &Content, state: &mut CounterState) {
         Content::Table { children, .. } => {
             for c in children { walk(c, state); }
         }
+
+        // Passo 157B — TableCell (recurse no body).
+        Content::TableCell { body, .. } => walk(body, state),
 
         Content::Align { body, .. } => walk(body, state),
 

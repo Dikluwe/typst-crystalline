@@ -505,6 +505,76 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 157B — Model Fase 2 sub-passo 2: table cell**
+  (décima primeira aplicação consecutiva de materialização;
+  segundo sub-passo Model Fase 2 per ADR-0060 §"Decisão 1"
+  sub-passo 3). **Primeira aplicação concreta de ADR-0064
+  Caso A em domínio Model** (P156G/H/I aplicaram-no em Layout);
+  **terceira aplicação global de Caso C** com **primeira variação
+  `usize`** (anteriores eram `Length`). Substantivo M: variant
+  `Content::TableCell { body, x: Option<usize>, y: Option<usize>,
+  colspan: Option<usize>, rowspan: Option<usize> }` adicionado
+  ao enum (53 → 54 variants); stdlib `#table_cell(body, x: ?,
+  y: ?, colspan: ?, rowspan: ?)` em `stdlib/structural.rs`
+  (continuação P157A). **Decisão arquitectural de naming P157B**:
+  `table_cell` flat (snake_case) **divergência intencional vs
+  vanilla `table.cell`** per ADR-0033 — FieldAccess cristalino
+  actual em `bindings.rs:eval_field_access` suporta apenas
+  `Value::Dict.field` e `Value::Content.field` (`get_field`);
+  não suporta `Value::Func.subname` (namespacing de funcs);
+  refactor para `table.cell` exigiria introdução de
+  `Value::Module`/`Value::ScopedFunc` — fora de scope (futuro
+  refactor pode adicionar alias `table.cell` sem breaking
+  change). **Tradução ADR-0064**:
+  - x/y: `Smart<usize>` vanilla → `Option<usize>` (Caso A;
+    None ↔ Auto auto-placement);
+  - colspan/rowspan: `NonZeroUsize` default 1 → `Option<usize>`
+    com `None` ↔ default 1 (Caso C; zero rejeitado em stdlib
+    paridade `NonZeroUsize`).
+  Helper privado novo `extract_usize_or_none_min(val, fn,
+  field, min: usize)` em `stdlib/structural.rs` parametrizado
+  (min=0 para x/y; min=1 para colspan/rowspan) — combina 4 usos
+  num único helper para evitar duplicação. **Limitação aceite
+  per ADR-0054 graded**: `x/y/colspan/rowspan` armazenados mas
+  **ignorados em layout** — algoritmo de placement diferido em
+  **DEBT-34e** (refactor dedicado a placement Grid completo;
+  permanece aberto). 6 atributos vanilla scope-out
+  (align/stroke/fill/inset/breakable + internals
+  kind/is_repeated). Cobertura exaustiva de **9 sítios
+  pattern-match estruturais** (paridade P157A): variant +
+  construtor + is_empty + plain_text + PartialEq + map_content +
+  map_text + materialize_time + walk + layout arm. Validação:
+  colspan/rowspan = 0 rejeitado (paridade NonZeroUsize); int
+  negativo em qualquer field rejeitado; named arg desconhecido
+  rejeitado. Tests: 1097 → **1115** typst-core lib (+18: 7
+  unit TableCell + 9 stdlib + 2 layout E2E incluindo cell
+  dentro de Table). **Auto-validação cross-domínio ADR-0064**:
+  Caso A passa de N=3 (100% Layout) para N=4 (75% Layout +
+  25% Model); Caso C passa de N=2 (Length 100%) para N=3
+  (Length 66% + usize 33%). Cobertura Model agregada
+  **inalterada** (50% — `table.cell` é sub-entrada de `table`
+  per padrão P154A); ganho qualitativo via expansão estrutural.
+  Total user-facing: **~61.0% (inalterada)**. Tabela B Content
+  variants: 53 → **54**. **ADR-0060 mantém-se `IMPLEMENTADO`**
+  (Fase 1 fechada P155 não muda; Fase 2 prossegue per roadmap;
+  anotação P157B adicionada). **ADR-0061 mantém-se `PROPOSTO`**
+  (Layout inalterado por P157B). README ADRs: total **63
+  inalterado**; reservas P158/P159/ADR-0062 mantidas. Hash
+  `content.rs` mantém-se `ec58d849` (`crystalline-lint
+  --fix-hashes` reportou "Nothing to fix"; refactor aditivo).
+  **DEBT-34e permanece aberto** — P157B contribui ao armazenar
+  fields necessários ao algoritmo de placement, mas não fecha.
+  **Padrões pós-P157B**: granularidade **N=11** (cross-domínio
+  reforçado — 2 sub-passos Model consecutivos sem reformulação);
+  inventariar primeiro N=8 → **9** (P157B aplicação concreta
+  critério #1 naming + #6 divergência da spec); Smart→Option
+  N=7 → **8** (Caso A primeiro Model; Caso C primeira variação
+  usize); §análise risco N=8 → **9**; reuso template containers
+  N=4 (inalterado); reuso `Sides<T>` N=2 (inalterado); reuso
+  `extract_tracks` N=2 (inalterado — P157B não usa); **novo
+  subpadrão helper privado parametrizado `extract_usize_or_none_min`
+  N=4 usos no mesmo passo** (combinação via param em vez de
+  duplicação).
 - **Passo 157A — Model Fase 2 sub-passo 1: table minimal**
   (décima aplicação consecutiva de materialização desde início
   da série granular P156C; **primeiro sub-passo Model Fase 2**
