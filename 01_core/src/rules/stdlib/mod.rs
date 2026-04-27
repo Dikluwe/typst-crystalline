@@ -430,6 +430,136 @@ mod tests {
         assert!(native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).is_err(), "figure sem body deve retornar Err");
     }
 
+    // ── Passo 158A — auto-detecção de kind em native_figure ─────────────
+
+    #[test]
+    fn figure_auto_detect_image() {
+        // P158A: figure(image(...)) sem `kind:` → kind="image"
+        // via inferência (não via default).
+        null_ctx!(ctx);
+        use crate::entities::content::Content;
+        use crate::entities::ptr_eq_arc::PtrEqArc;
+        use std::sync::Arc;
+        let img = Content::Image {
+            path:   "a.png".into(),
+            data:   PtrEqArc(Arc::new(Vec::new())),
+            width:  None,
+            height: None,
+        };
+        let args = p(vec![Value::Content(img)]);
+        let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Figure { kind, .. }) = r {
+            assert_eq!(kind, "image", "auto-detect Image → kind=\"image\"");
+        } else {
+            panic!("esperado Content::Figure");
+        }
+    }
+
+    #[test]
+    fn figure_auto_detect_table() {
+        // P158A: figure(table(...)) sem `kind:` → kind="table".
+        null_ctx!(ctx);
+        use crate::entities::content::Content;
+        use crate::entities::layout_types::TrackSizing;
+        let tab = Content::table(vec![TrackSizing::Auto], vec![], vec![]);
+        let args = p(vec![Value::Content(tab)]);
+        let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Figure { kind, .. }) = r {
+            assert_eq!(kind, "table", "auto-detect Table → kind=\"table\"");
+        } else {
+            panic!("esperado Content::Figure");
+        }
+    }
+
+    #[test]
+    fn figure_auto_detect_raw() {
+        // P158A: figure(raw(...)) sem `kind:` → kind="raw".
+        null_ctx!(ctx);
+        use crate::entities::content::Content;
+        let raw = Content::Raw {
+            text:  "fn x() {}".into(),
+            lang:  None,
+            block: false,
+        };
+        let args = p(vec![Value::Content(raw)]);
+        let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Figure { kind, .. }) = r {
+            assert_eq!(kind, "raw", "auto-detect Raw → kind=\"raw\"");
+        } else {
+            panic!("esperado Content::Figure");
+        }
+    }
+
+    #[test]
+    fn figure_kind_explicit_override_auto_detect() {
+        // P158A: `kind:` explícito vence auto-detecção
+        // (precedência absoluta).
+        null_ctx!(ctx);
+        use crate::entities::content::Content;
+        use crate::entities::ptr_eq_arc::PtrEqArc;
+        use std::sync::Arc;
+        let img = Content::Image {
+            path:   "a.png".into(),
+            data:   PtrEqArc(Arc::new(Vec::new())),
+            width:  None,
+            height: None,
+        };
+        let args = pn(vec![Value::Content(img)], "kind", Value::Str("custom-kind".into()));
+        let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Figure { kind, .. }) = r {
+            assert_eq!(kind, "custom-kind",
+                "kind explícito vence auto-detecção (precedência absoluta)");
+        } else {
+            panic!("esperado Content::Figure");
+        }
+    }
+
+    #[test]
+    fn figure_default_image_quando_body_nao_detectavel() {
+        // P158A: body=Text sem `kind:` → fallback default "image"
+        // (auto-detecção devolve None; default aplica-se).
+        null_ctx!(ctx);
+        use crate::entities::content::Content;
+        let args = p(vec![Value::Content(Content::text("apenas texto"))]);
+        let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Figure { kind, .. }) = r {
+            assert_eq!(kind, "image",
+                "body Text sem auto-detect cai no default \"image\"");
+        } else {
+            panic!("esperado Content::Figure");
+        }
+    }
+
+    #[test]
+    fn figure_auto_detect_image_dentro_de_sequence() {
+        // P158A §8: recursão limitada a Sequence — figure([
+        // ..., image(...), ...]) detecta Image via primeiro
+        // child detectável.
+        null_ctx!(ctx);
+        use crate::entities::content::Content;
+        use crate::entities::ptr_eq_arc::PtrEqArc;
+        use std::sync::Arc;
+        let img = Content::Image {
+            path:   "a.png".into(),
+            data:   PtrEqArc(Arc::new(Vec::new())),
+            width:  None,
+            height: None,
+        };
+        // Sequence começa com Text (não detectável) e contém Image.
+        let seq = Content::Sequence(Arc::from(vec![
+            Content::text("legenda"),
+            img,
+        ]));
+        let args = p(vec![Value::Content(seq)]);
+        let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Figure { kind, .. }) = r {
+            assert_eq!(kind, "image",
+                "Sequence com Image dentro auto-detecta \"image\" via recursão");
+        } else {
+            panic!("esperado Content::Figure");
+        }
+    }
+
     #[test]
     fn expect_no_named_retorna_err_com_named_arg() {
         let mut a = p(vec![]);

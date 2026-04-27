@@ -16,6 +16,29 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 use crate::rules::eval::EvalContext;
 
+/// Auto-detecção de `kind` baseada no body — Passo 158A
+/// (Model figure-kinds sub-passo 1).
+///
+/// Inferência: `Image → "image"`, `Table → "table"`, `Raw → "raw"`.
+/// **Recursão limitada a `Content::Sequence`** per diagnóstico
+/// P158A §8 (paridade vanilla parcial; outros containers
+/// scope-out per ADR-0054 graded).
+///
+/// Devolve `None` se nenhum descendant detectável encontrado;
+/// caller aplica default `"image"` em fallback chain.
+fn infer_kind_from_body(body: &Content) -> Option<String> {
+    match body {
+        Content::Image { .. } => Some("image".to_string()),
+        Content::Table { .. } => Some("table".to_string()),
+        Content::Raw   { .. } => Some("raw".to_string()),
+        // Sequence: recurse no primeiro child detectável (paridade
+        // vanilla `query_first_naive` simplificada — limitada a
+        // Sequence per decisão P158A §8).
+        Content::Sequence(seq) => seq.iter().find_map(infer_kind_from_body),
+        _ => None,
+    }
+}
+
 /// `figure(body, caption: content)` → `Content::Figure`.
 ///
 /// Migrada do interceptador em `eval.rs` para `stdlib.rs` — o avaliador deixa
@@ -23,6 +46,9 @@ use crate::rules::eval::EvalContext;
 ///
 /// - `body`: argumento posicional obrigatório.
 /// - `caption:`: argumento nomeado opcional; `none` → sem legenda.
+/// - `kind:` (Passo 158A): se ausente, **auto-detectado** do body
+///   via `infer_kind_from_body` (Image/Table/Raw + Sequence
+///   recursivo); se inferência falha, default `"image"`.
 pub fn native_figure(ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, figure_numbering: Option<&str>) -> SourceResult<Value> {
     let _ = ctx;
     // Argumento posicional: body (obrigatório)
@@ -45,9 +71,12 @@ pub fn native_figure(ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         other             => Some(Box::new(Content::text(other.type_name()))),
     });
 
-    // Argumento nomeado: kind (Passo 75, DEBT-15).
+    // Argumento nomeado: kind (Passo 75, DEBT-15; Passo 158A
+    // adiciona auto-detecção como fallback intermédio).
+    // Precedência: `kind:` explícito > inferência > default "image".
     let kind = args.named.get("kind")
         .and_then(|v| if let Value::Str(s) = v { Some(s.to_string()) } else { None })
+        .or_else(|| infer_kind_from_body(&body))   // P158A
         .unwrap_or_else(|| "image".to_string());
 
     // Numeração capturada do contexto (Passo 75, DEBT-14).

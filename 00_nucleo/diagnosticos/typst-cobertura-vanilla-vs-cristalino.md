@@ -161,7 +161,7 @@ primitives e `skew`). Detalhe em
 | Feature | Vanilla | Cristalino | Referência | Nota |
 |---------|---------|------------|------------|------|
 | `heading(level, body)` | model/heading.rs | `implementado` | Passos 22, 99, 103 | construtor + show rules |
-| `figure(body, caption, ...)` | model/figure.rs | `implementado⁺` | Passos 75, ADR-0041 | numbering por kind; counters |
+| `figure(body, caption, ...)` | model/figure.rs | `implementado⁺` ²⁸ | Passos 75 + ADR-0041 + P158A (refino auto-detecção) | numbering por kind; counters; **P158A**: auto-detecção de `kind` baseada no body (Image/Table/Raw + Sequence recursivo) — `figure(image(...))` activa counter de imagem automaticamente sem `kind:` manual |
 | `caption(...)` | model/figure.rs | `parcial` | dentro de figure | sem element dedicado |
 | `outline()` | model/outline.rs | `implementado` | Passos 65–66 | TOC via 2-pass introspection |
 | `table(columns, ...)` | model/table.rs | `implementado` ²² | Passo 157A (ADR-0060 Fase 2 sub-passo 1; **primeiro Model Fase 2**) | `Content::Table { columns, rows, children: Vec<Content> }` + stdlib `#table(columns: ?, rows: ?, ..children)`; subset minimal per ADR-0054 graded; layouter delega a `layout_grid` (clone simples; sem modificação de `grid.rs`); 9+ atributos vanilla scope-out (gutter/inset/align/fill/stroke/summary; cells estruturadas P157B; header/footer P157C; HLine/VLine cosmetic) |
@@ -779,6 +779,28 @@ relevantes a "table foundations" estão capturados. Décima
 segunda aplicação consecutiva de materialização. Patamar
 empírico cross-domínio cross-caso ADR-0064 atinge **saturação**:
 todos os 4 casos canónicos validados em Layout E em Model.
+
+²⁸ — Ajuste P158A (Tabela A.6 Model): refino qualitativo de
+`figure` — auto-detecção de `kind` baseada no body adicionada
+em `native_figure` per diagnóstico P158A §3.2. Helper privado
+novo `infer_kind_from_body(body) -> Option<String>` em
+`stdlib/figure_image.rs` cobrindo Image/Table/Raw + recursão
+limitada a `Content::Sequence` (paridade vanilla parcial per
+ADR-0033). Fallback chain 3 níveis: `kind:` explícito > inferência
+> default `"image"` (precedência absoluta para `kind:` explícito
+preserva tests pré-existentes). **Sem alteração ao variant
+`Content::Figure`** (estrutura inalterada; `kind: String`
+continua directo). **Sem alteração a `introspect.rs` ou layout**
+(counters por kind continuam funcionar inalterados — refino vive
+só na origem do valor `kind`). **Hash `entities/content.rs`
+preservado** `ec58d849` — sétimo passo consecutivo (P156L →
+P158A) sem alteração ao variant Content. ADR-0064 NÃO directamente
+aplicável (kind continua String). Cobertura Model agregada
+**inalterada** (~50%) — refino qualitativo. Tests +6 (1141 →
+1147). **Política "sem novas reservas"** preservada (P158
+estabeleceu; P158A respeita) — supplement automático, show
+selectors `figure.where(kind:)`, refactor `kind: String →
+Option<String>` permanecem candidatos NÃO-reservados.
 
 ²¹ — Ajuste P156L (refino sides individualizadas; **primeira
 aplicação concreta de ADR-0065 critério #3** — expansão de
