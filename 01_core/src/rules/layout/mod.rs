@@ -1269,32 +1269,56 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 /// Caso contrário, itera até convergência (máximo 5 vezes).
 ///
 /// Para métricas de fonte reais: `03_infra::layout::layout_with_font()`.
-/// Helper privado P159D + P159E — formata `BibEntry` para render
-/// Bibliography. Concatenação condicional dos fields opcionais
-/// quando presentes; backwards compat preserva formato P159A
-/// quando todos os opcionais são `None`.
+/// Helper privado P159D + P159E + P159G — formata `BibEntry`
+/// para render Bibliography. Concatenação condicional dos
+/// fields opcionais quando presentes; backwards compat preserva
+/// formato P159E quando todos os 6 fields P159G são `None`.
 ///
-/// Ordem APA-like (decisão diagnóstico P159D §10 + P159E §8.2):
-/// `[key] author. title journal vol. volume, pp. pages. publisher (year). url, doi:DDDD.`
+/// Ordem APA-like extendida (decisões diagnósticos P159D §10 +
+/// P159E §8.2 + P159G §8.2):
+/// `[key] author. title (Ed. editor) (series) journal vol. volume,`
+/// `pp. pages. location: publisher (year). isbn:XXX url, doi:YYY [note].`
 ///
-/// **P159E (Opção C)**: url/doi appendados após `(year).` per
-/// paridade APA + backwards compat (sem url/doi → output P159D
-/// preservado exactamente). URL plaintext literal; DOI prefixo
-/// `doi:` (decisão diagnóstico P159E §9).
+/// **P159G**: editor/series após title; location antes de
+/// publisher; organization substitutivo a publisher quando
+/// publisher ausente; isbn antes de url/doi; note ao final.
 fn format_bib_entry(e: &crate::entities::bib_entry::BibEntry) -> String {
     let mut out = format!("[{}] {}. {}", e.key, e.author, e.title);
+    // P159G — editor/series após title.
+    if let Some(ed) = &e.editor    { out.push_str(&format!(" (Ed. {})", ed)); }
+    if let Some(se) = &e.series    { out.push_str(&format!(" ({})", se)); }
+    // P159D — journal/volume/pages.
     if let Some(j)  = &e.journal   { out.push_str(&format!(" {}", j)); }
     if let Some(v)  = &e.volume    { out.push_str(&format!(" vol. {}", v)); }
     if let Some(p)  = &e.pages     { out.push_str(&format!(", pp. {}", p)); }
-    if let Some(pb) = &e.publisher { out.push_str(&format!(". {}", pb)); }
+    // P159G — location antes de publisher; organization substitutivo
+    // a publisher quando publisher ausente.
+    let pub_slot: Option<String> = match (&e.publisher, &e.organization) {
+        (Some(pb), _)    => Some(pb.clone()),
+        (None, Some(o))  => Some(o.clone()),
+        (None, None)     => None,
+    };
+    match (&e.location, &pub_slot) {
+        (Some(l), Some(pb)) => out.push_str(&format!(". {}: {}", l, pb)),
+        (Some(l), None)     => out.push_str(&format!(". {}", l)),
+        (None,    Some(pb)) => out.push_str(&format!(". {}", pb)),
+        (None,    None)     => {}
+    }
     out.push_str(&format!(" ({}).", e.year));
+    // P159G — isbn antes de url/doi.
+    if let Some(i)  = &e.isbn      { out.push_str(&format!(" isbn:{}", i)); }
     // P159E — par natural url/doi após (year). per Opção C.
     match (&e.url, &e.doi) {
         (Some(u), Some(d)) => out.push_str(&format!(" {}, doi:{}.", u, d)),
         (Some(u), None)    => out.push_str(&format!(" {}.", u)),
         (None,    Some(d)) => out.push_str(&format!(" doi:{}.", d)),
-        (None,    None)    => {}
+        (None,    None)    => {
+            // Fechar com `.` se isbn presente sem url/doi.
+            if e.isbn.is_some() { out.push('.'); }
+        }
     }
+    // P159G — note ao final.
+    if let Some(n)  = &e.note      { out.push_str(&format!(" [{}]", n)); }
     out
 }
 

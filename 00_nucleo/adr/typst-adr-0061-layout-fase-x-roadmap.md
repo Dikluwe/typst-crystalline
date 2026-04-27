@@ -337,6 +337,7 @@ de ADR-0065 critério #3):
 | P158C | Figure.kind refactor String→Option (Model figure-kinds sub-passo 3) | 0% agregado | Layout 78%; Model 50% inalterado (refactor cosmético); ADR-0064 Caso A N=6→7 | +2 |
 | P159F | Bibliography numbering numérico (Model bibliography+cite sub-passo 4 — **último Bloco A**) | 0% agregado | Layout 78%; Model 50% inalterado (numbering numérico); subpadrão #15 N=2→3 | +8 |
 | P159E | url + doi em BibEntry (refino família 159 fora Bloco A) | 0% agregado | Layout 78%; Model 50% inalterado (refino tipo entity); subpadrão #16 N=1→2 | +8 |
+| P159G | 6 fields restantes em BibEntry (refino família 159 fora Bloco A) | 0% agregado | Layout 78%; Model 50% inalterado (refino tipo entity); **subpadrão #16 N=2→3** atinge limiar formalização | +11 |
 
 **Total**: +56 pontos percentuais Layout em 9 passos consecutivos
 de materialização Layout (22% → 78%); **+5pp Model** em P157A
@@ -383,12 +384,19 @@ expansão BibEntry com par natural url+doi (2 fields opcionais
 identificadores digitais); pattern P159D replicado fielmente;
 subpadrão #16 cresce N=1→2 "refino tipo entity sem alteração
 Content"; helper `optional_str` cumulativo N=2→4 atinge limiar
-promoção N=3-4**. **+323 tests** acumulados (1145 → 1468
-lib+integ+diagnostic — +8 em P159E). **Zero reformulações
-mid-passo** em N=20 aplicações de materialização (9 Layout +
-11 Model). Padrão granular universal cross-domínio confirmado
-e estendido. Cobertura arquitectural mantém **82%** após P159E
-(refino tipo entity ortogonal ao enum Content; sem variant novo).
+promoção N=3-4**. **P159G é segundo sub-passo família 159 fora
+Bloco A — 6 fields restantes mais comuns hayagriva
+(editor/series/note/isbn/location/organization); pattern P159D
+replicado pela terceira vez; **subpadrão #16 cresce N=2→3
+atinge limiar formalização**; helper `optional_str` cumulativo
+N=4→12 largamente acima limiar promoção; BibEntry pós-P159G
+com 16 fields (cobertura ~70-75% hayagriva universais)**.
+**+334 tests** acumulados (1145 → 1479 lib+integ+diagnostic —
++11 em P159G). **Zero reformulações mid-passo** em N=21
+aplicações de materialização (9 Layout + 12 Model). Padrão
+granular universal cross-domínio confirmado e estendido.
+Cobertura arquitectural mantém **82%** após P159G (refino tipo
+entity ortogonal ao enum Content; sem variant novo).
 
 ### Tipos novos infraestruturais
 
@@ -425,15 +433,16 @@ e estendido. Cobertura arquitectural mantém **82%** após P159E
 
 ### Padrões metodológicos consolidados
 
-1. **Granularidade 1-2 features/passo**: **N=20** aplicações
+1. **Granularidade 1-2 features/passo**: **N=21** aplicações
    consecutivas sem reformulação (8 materialização Layout
    + 1 refino Layout P156L + 3 materialização Model
    P157A/B/C + 1 refino Model P158A + 1 par acoplado Model
    P159A + 1 segundo refino Model P158B + 1 refino
    estrutural Model P159C + 1 refino tipo entity Model
    P159D + 1 refactor cosmético Model P158C + 1 numbering
-   numérico Model P159F + **1 par identificadores digitais
-   Model P159E**). **Padrão cross-domínio reforçado**
+   numérico Model P159F + 1 par identificadores digitais
+   Model P159E + **1 6 fields restantes Model P159G**).
+   **Padrão cross-domínio reforçado**
    mas **com primeira quebra honestamente registada**: P159A é
    M+ par acoplado (granularidade quebrada N=13 → M+ com
    precedente P156C par lógico pad+hide). Hipótese da decisão
@@ -447,7 +456,7 @@ e estendido. Cobertura arquitectural mantém **82%** após P159E
    P157 é primeira aplicação do critério #5).
 
 2. **"Inventariar primeiro" pré-decisão arquitectural**:
-   **N=22** aplicações (P156F defensivo; P156G deliberado;
+   **N=23** aplicações (P156F defensivo; P156G deliberado;
    P156H curto; P156I curto focado; P156J curto focado;
    P156L expansão variant existente — primeira aplicação
    concreta do critério #3 de ADR-0065; P157 scope determinado
@@ -512,13 +521,19 @@ e estendido. Cobertura arquitectural mantém **82%** após P159E
    layout (Opção C — após `(year).` per paridade APA + backwards
    compat) + formato (URL plaintext; DOI prefixo `doi:`) —
    décima aplicação concreta critério #5 com pattern P159D
-   replicado fielmente**).
-   **Formalizado em ADR-0065** (P156K); **agora N=22 com 4
+   replicado fielmente**;
+   **P159G inventário 6 fields restantes hayagriva com decisões
+   ordem layout (editor após title, series após title, location
+   antes publisher, organization substitutivo a publisher, isbn
+   antes url/doi, note ao final) + formatos individuais —
+   décima primeira aplicação concreta critério #5 com pattern
+   P159D replicado pela terceira vez**).
+   **Formalizado em ADR-0065** (P156K); **agora N=23 com 4
    critérios formalmente validados** (#1 P157A/B + ADR-0062-create
    administrativo XS; #2 P159A + P159C + P159D patamar N=3;
    #3 P156L; #5 P157 + P157A + P158 + P158A + P158B + P159 +
-   P159B + P159C + P159D + P158C + P159F + **P159E** multi-feature;
-   #6 P157B/C).
+   P159B + P159C + P159D + P158C + P159F + P159E + **P159G**
+   multi-feature; #6 P157B/C).
 
 3. **"Smart<T> → Option<T> ou default"**: **N=12** aplicações
    (P156E Parity; P156F angles; P156G Block.width; P156H
@@ -556,7 +571,7 @@ e estendido. Cobertura arquitectural mantém **82%** após P159E
    - **P158C marca primeiro Caso A "estrito" em refactor**
      (não em variant aditivo) — subpadrão emergente.
 
-4. **"§análise de risco no relatório"**: **N=22** aplicações
+4. **"§análise de risco no relatório"**: **N=23** aplicações
    (P156F/G/H/I/J/K + L com peso real — primeiro refactor
    real após série aditiva; P157 com risco baixo diagnóstico;
    P157A com risco baixo-médio — primeiro Model Fase 2 com
@@ -632,7 +647,18 @@ e estendido. Cobertura arquitectural mantém **82%** após P159E
    formato URL plaintext + DOI prefixo `doi:`) sem impacto
    estrutural; hash content.rs preservado L0-baseline 16º
    consecutivo; **primeiro sub-passo família 159 fora Bloco A**
-   (Bloco A esgotado pós-P159F)**).
+   (Bloco A esgotado pós-P159F)**;
+   **P159G com risco baixo — refino tipo entity sem alteração
+   Content (subpadrão #16 cresce N=2→3 atinge limiar
+   formalização — pattern P159D replicado pela terceira vez);
+   helper `optional_str` cumulativo N=4→12 largamente acima
+   limiar promoção; 6 fields com decisões cosméticas individuais
+   (ordem layout APA-like + 6 formatos: editor `(Ed.)`, series
+   `(...)`, location:publisher, organization substitutivo,
+   isbn lowercase prefix, note brackets) sem impacto estrutural;
+   hash content.rs preservado L0-baseline 17º consecutivo;
+   **segundo sub-passo família 159 fora Bloco A**; BibEntry
+   pós-P159G com 16 fields cobertura ~70-75% hayagriva**).
    Cobertura sistemática do risco.
 
 5. **"Reuso de template containers"**: **N=4** aplicações
@@ -726,19 +752,21 @@ e estendido. Cobertura arquitectural mantém **82%** após P159E
     XS futuro (NÃO reservado).
 
 16. **"Refino de tipo entity sem alteração ao variant Content"**
-    (subpadrão emergente P159D N=1 → P159E N=2): aplicações
-    concretas P159D expansão de `BibEntry` struct (4 fields
-    opcionais novos + builder pattern) + **P159E expansão
-    BibEntry (par natural url+doi; 2 fields opcionais novos)**.
-    Sem afectar `Content::Bibliography` nem qualquer outro
-    variant Content. Distinção vs P156L (refino de variant
-    Content `Pad`) e P159C (refino de variant Content `Cite`).
-    Subpadrão captura "tipo entity em ficheiro próprio (padrão
-    #14) é refinável independentemente do enum Content —
-    preserva hash content.rs sem necessidade de actualizar L0
-    do enum". **N=2 atinge meio-caminho do limiar formalização
-    N=3-4**; promoção a ADR meta possível em passo administrativo
-    XS futuro se atingir N=3.
+    (subpadrão emergente P159D N=1 → P159E N=2 → **P159G N=3**):
+    aplicações concretas P159D expansão de `BibEntry` struct
+    (4 fields opcionais novos + builder pattern) + P159E
+    expansão BibEntry (par natural url+doi; 2 fields opcionais
+    novos) + **P159G expansão BibEntry (6 fields restantes
+    comuns hayagriva — editor/series/note/isbn/location/
+    organization)**. Sem afectar `Content::Bibliography` nem
+    qualquer outro variant Content. Distinção vs P156L (refino
+    de variant Content `Pad`) e P159C (refino de variant Content
+    `Cite`). Subpadrão captura "tipo entity em ficheiro próprio
+    (padrão #14) é refinável independentemente do enum Content
+    — preserva hash content.rs sem necessidade de actualizar
+    L0 do enum". **N=3 atinge limiar formalização N=3-4**;
+    promoção a ADR meta possível em passo administrativo XS
+    futuro NÃO reservado.
 
 17. **"Refactor de field para Option"** (subpadrão emergente
     P158C N=1): aplicação concreta P158C refactor
@@ -756,26 +784,27 @@ e estendido. Cobertura arquitectural mantém **82%** após P159E
     `Content::Heading.body: Box<Content> → Option<Box<Content>>`
     se prioritário).
 
-### Estado pós-P159E
+### Estado pós-P159G
 
 - **Cobertura Layout**: **78%** (inalterada por P157A/B/C +
   P158/P158A/P159/P159A/P159B + ADR-0062-create + P158B + P159C +
-  P159D + P158C + P159F + **P159E** — escopo Model + refino
-  qualitativo + par acoplado + diagnóstico amplo + administrativo
-  XS + segundo refino qualitativo figure + refino estrutural
-  cite + refino tipo entity bib_entry + refactor cosmético
-  kind→Option + numbering numérico bibliography + par identificadores
-  digitais bib_entry). Target ADR-0061 (72%) **continua
-  ultrapassado**.
+  P159D + P158C + P159F + P159E + **P159G** — escopo Model +
+  refinos qualitativos + par acoplado + diagnóstico amplo +
+  administrativo XS + 2º refino figure + refino estrutural cite +
+  refino tipo entity bib_entry + refactor cosmético kind→Option +
+  numbering numérico bibliography + par identificadores digitais
+  bib_entry + 6 fields restantes bib_entry). Target ADR-0061
+  (72%) **continua ultrapassado**.
 - **Cobertura arquitectural**: **82%** (inalterada por P159B +
-  P158B + P159C + P159D + P158C + P159F + **P159E** — refinos
-  qualitativos/estruturais/refactors cosméticos/numbering
-  numérico/par identificadores digitais de variants Content
-  existentes ou tipos entity ortogonais; sem variants novos).
-  **Bloco A do diagnóstico P159B esgotado pós-P159F**; **P159E
-  primeiro sub-passo família 159 fora Bloco A**; tecto Model
-  puro estimado (~55-60%) atingido empiricamente com 24 entradas
-  parciais.
+  P158B + P159C + P159D + P158C + P159F + P159E + **P159G** —
+  refinos qualitativos/estruturais/refactors cosméticos/numbering
+  numérico/par identificadores digitais/6 fields restantes de
+  variants Content existentes ou tipos entity ortogonais; sem
+  variants novos). **Bloco A do diagnóstico P159B esgotado
+  pós-P159F**; **P159E e P159G sub-passos família 159 fora
+  Bloco A**; **BibEntry pós-P159G com 16 fields cobertura
+  ~70-75% hayagriva universais**; tecto Model puro estimado
+  (~55-60%) atingido empiricamente com 24 entradas parciais.
 - **Tecto Model puro estimado** (P159B §4): cobertura agregada
   ~50% → **~55-60% alcançável** com 5 sub-passos Bloco A
   (supplement figure / cite.form / BibEntry fields / kind
@@ -896,6 +925,22 @@ e estendido. Cobertura arquitectural mantém **82%** após P159E
   preservados via L0-baseline (16º consecutivo content.rs).
   Subpadrão #16 cresce N=1→2 "refino tipo entity sem alteração
   Content".
+- **P159G (6 fields restantes em BibEntry)**: materializado.
+  **Segundo sub-passo família 159 fora Bloco A**. 6 fields
+  opcionais restantes mais comuns hayagriva (`editor`/`series`/
+  `note`/`isbn`/`location`/`organization`) em `BibEntry` per
+  pattern P159D replicado pela terceira vez; builder pattern
+  fluente extendido (6 novos `with_*` métodos); helper
+  `optional_str` cumulativo N=4→**12** largamente acima limiar
+  promoção. Layout `format_bib_entry` extendido com decisões
+  diagnóstico §8.2 (ordem: editor após title, series após
+  title, location antes publisher, organization substitutivo,
+  isbn antes url/doi, note ao final) + §9 (6 formatos individuais
+  APA-like). **Sem alteração ao variant Content**. Hashes
+  preservados L0-baseline (17º consecutivo content.rs).
+  **Subpadrão #16 cresce N=2→3 atinge limiar formalização N=3-4**.
+  **BibEntry pós-P159G com 16 fields total** (4 obrigatórios +
+  12 opcionais; cobertura ~70-75% hayagriva universais).
 - **Bloco A do diagnóstico P159B ESGOTADO** após P159F.
   **P159E é primeiro sub-passo família 159 fora Bloco A**.
   Próximas direcções pós-P159E:

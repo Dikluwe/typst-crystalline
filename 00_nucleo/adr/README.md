@@ -507,6 +507,67 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 159G — `BibEntry` 6 fields restantes (refino família
+  159 fora Bloco A)** (**segundo sub-passo família 159 fora
+  Bloco A** — Bloco A esgotado pós-P159F; **refino estrutural
+  de tipo entity** sem alteração ao variant Content; **subpadrão
+  #16 cresce N=2→3 atinge limiar formalização N=3-4** "refino
+  tipo entity sem alteração Content"; **pattern P159D replicado
+  pela terceira vez** — patamar consolida-se). Struct entity
+  `BibEntry` extendido em `01_core/src/entities/bib_entry.rs`
+  com **6 fields opcionais restantes mais comuns hayagriva**
+  (`editor`/`series`/`note`/`isbn`/`location`/`organization`)
+  — listados em P159D §9.3 como diferidos por menor universalidade.
+  **Builder pattern fluente** extendido (6 novos `with_*`
+  métodos paridade P159D/E). Constructor `new(4 args)` original
+  preservado (backwards compat trivial via fields novos default
+  `None`). Helper `extract_bib_entries` (P159A+P159D+P159E)
+  extendido em `01_core/src/rules/stdlib/structural.rs`: helper
+  inline `optional_str` reusado para os 6 fields — **cumulativo
+  N=4 P159D + N=2 P159E + N=6 P159G = N=12 usos** (largamente
+  acima do limiar promoção N=3-4; promoção a `pub(super)` ou
+  helper público diferida em passo administrativo XS futuro NÃO
+  reservado). Layout `format_bib_entry` extendido em
+  `01_core/src/rules/layout/mod.rs` com decisões diagnóstico
+  §8.2 ordem + §9 formatos individuais: editor `(Ed. {editor})`
+  após title; series `({series})` após title; location: antes
+  de publisher; organization substitutivo a publisher quando
+  publisher ausente; isbn antes de url/doi com prefixo lowercase
+  `isbn:` (paridade P159E doi); note ao final entre brackets
+  `[{note}]`. **Sem alteração ao variant `Content::Bibliography`
+  ou `Content::Cite`**. **Decisões cosméticas registadas**:
+  ordem APA-like; formatos individuais paridade APA estilo prose.
+  Tests +11 (1230 → 1241; 4 unit bib_entry P159G + 4 stdlib
+  parse + 3 layout E2E formato extendido/regression/organization
+  substitutivo; range esperado +8-12). Cobertura Model agregada
+  **inalterada** (~50%) — refino tipo entity. Cobertura
+  arquitectural **inalterada** 82%. Hashes `entities/content.rs`
+  e `entities/bib_entry.rs` ambos preservados via L0-baseline
+  interpretation (**17º passo consecutivo content.rs**).
+  **BibEntry pós-P159G: 16 fields total** (4 obrigatórios +
+  12 opcionais; cobertura ~70-75% hayagriva universais).
+  Padrões pós-P159G: granularidade N=20 → **21**; inventariar
+  primeiro N=22 → **23** (ADR-0065 critério #5 décima primeira
+  aplicação concreta com pattern P159D replicado pela terceira
+  vez); §análise de risco N=22 → **23** (P159G baixo risco —
+  refino pattern validado N=2); ADR-0064 NÃO directamente
+  aplicável (Optional<String> directo); subpadrão #15
+  (infraestrutura state lookup) N=3 inalterado; **subpadrão
+  #16 (refino tipo entity sem alteração Content): N=2 → 3
+  atinge limiar formalização N=3-4**; helper `optional_str`
+  cumulativo N=4 → **12** (largamente acima limiar promoção);
+  P155 cross-feature N=1 inalterado; refactor de field para
+  Option N=1 inalterado.
+  **Sequência alfabética identificadores família 159
+  não-monótona**: A → B → C → D → F → E → G (facto histórico
+  registado; preserva slot E para refinos família 159 que
+  surgiram após P158C ocupar identificador alternativo).
+  **Política "sem novas reservas" preservada** — restantes
+  fields vanilla (booktitle/address/chapter/type/institution/
+  etc.), tipos estruturados, ISBN validation, hyperlinks
+  (Bloco C), promoção `optional_str` a helper público, ADR
+  meta subpadrão #16 (N=3 atinge limiar) permanecem candidatos
+  NÃO-reservados.
 - **Passo 159E — `url` + `doi` em `BibEntry` (refino família
   159 fora Bloco A)** (**primeiro sub-passo família 159 fora
   Bloco A** do diagnóstico P159B — Bloco A esgotado pós-P159F;

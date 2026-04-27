@@ -31,6 +31,61 @@ Cobertura Model 41% → ~45%; arquitectural Content 75% → ~77%.
 Plano Fase 2 (P156/157/158 — table foundations, figure kinds,
 bibliography+cite com ADR-0061) inalterado.
 
+**Anotação Passo 159G (2026-04-27)**: **segundo sub-passo
+família 159 fora do Bloco A** do diagnóstico P159B (Bloco A
+esgotado pós-P159F). Refino estrutural de tipo entity `BibEntry`
+adicionando os **6 fields restantes mais comuns hayagriva**
+(`editor`/`series`/`note`/`isbn`/`location`/`organization`) —
+listados em P159D §9.3 como diferidos por menor universalidade.
+**Pattern P159D replicado pela terceira vez** — **subpadrão
+#16 cresce N=2 → 3** "refino de tipo entity sem alteração ao
+variant Content" (P159D BibEntry 4 fields + P159E BibEntry 2
+fields + **P159G BibEntry 6 fields**); patamar **atinge limiar
+formalização N=3-4**; promoção a ADR meta possível em passo
+administrativo XS futuro NÃO reservado. Builder pattern fluente
+extendido em `entities/bib_entry.rs` (6 novos `with_*` métodos:
+`with_editor`/`with_series`/`with_note`/`with_isbn`/
+`with_location`/`with_organization`); constructor `new(4 args)`
+original preservado (backwards compat trivial via fields novos
+default `None`). Helper `extract_bib_entries` (P159A+P159D+P159E)
+extendido em `stdlib/structural.rs`: helper inline `optional_str`
+reusado para os 6 fields — **cumulativo N=4 P159D + N=2 P159E
++ N=6 P159G = N=12 usos** (largamente acima do limiar promoção
+N=3-4). Layout `format_bib_entry` extendido em
+`rules/layout/mod.rs` com concatenação condicional APA-like
+extendida (decisões diagnóstico §8.2 ordem + §9 formatos
+individuais): editor `(Ed. {editor})` após title; series
+`({series})` após title; location: antes de publisher
+(`{location}: {publisher}`); organization substitutivo a
+publisher quando publisher ausente (decisão arbitrária per
+ADR-0054 graded); isbn antes de url/doi com prefixo lowercase
+`isbn:{isbn}` (paridade P159E doi prefix lowercase); note ao
+final entre brackets `[{note}]`. **Sem alteração ao variant
+`Content::Bibliography` ou `Content::Cite`** (estrutura
+inalterada). Tests +11 (1230 → 1241; 4 unit bib_entry P159G +
+4 stdlib parse + 3 layout E2E formato extendido/regression/
+organization substitutivo; range esperado +8-12). Cobertura
+Model agregada **inalterada** (~50%) — refino tipo entity.
+Cobertura arquitectural **inalterada** 82%. Hash
+`entities/content.rs` preservado `ec58d849` (**décimo sétimo
+passo consecutivo** via L0-baseline interpretation). Hash
+`entities/bib_entry.rs` preservado `5a2c0ebd` (paridade P159D+
+P159E resultado — extensão via doc-comment do header não
+modifica prompt L0 `bib_entry.md`). **BibEntry pós-P159G: 16
+fields total** (4 obrigatórios + 12 opcionais; cobertura
+~70-75% hayagriva universais). Status `IMPLEMENTADO` mantido.
+**Sequência alfabética identificadores família 159
+não-monótona**: A → B → C → D → F → E → G (facto histórico
+registado; preserva slot E para refinos família 159 que
+surgiram após P158C ocupar identificador alternativo).
+**Política "sem novas reservas" preservada** — restantes fields
+vanilla (`booktitle`/`address`/`chapter`/`type`/`institution`/
+etc.), tipos estruturados (`Vec<Person>` editor, location codes,
+ISBN validation), CSL real (depende hayagriva ADR-0062),
+hyperlinks (Bloco C), promoção `optional_str` a helper público,
+ADR meta subpadrão #16 (N=3 atinge limiar) permanecem candidatos
+NÃO-reservados.
+
 **Anotação Passo 159E (2026-04-27)**: **primeiro sub-passo
 família 159 fora do Bloco A** do diagnóstico P159B (Bloco A
 esgotado pós-P159F). Refino estrutural de tipo entity `BibEntry`

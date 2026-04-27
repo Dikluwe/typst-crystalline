@@ -492,15 +492,17 @@ pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ────────
 
 /// Coage `Value::Array<Value::Dict>` para `Vec<BibEntry>` per
-/// diagnóstico P159A §5 + P159D §5.1 + P159E §5.1. Cada Dict valida
-/// 4 fields obrigatórios (`key`/`author`/`title`/`year`) + 4
-/// opcionais comuns (`volume`/`pages`/`journal`/`publisher` —
-/// Passo 159D) + 2 opcionais identificadores digitais
-/// (`url`/`doi` — Passo 159E).
+/// diagnóstico P159A §5 + P159D §5.1 + P159E §5.1 + P159G §5.1.
+/// Cada Dict valida 4 fields obrigatórios (`key`/`author`/
+/// `title`/`year`) + 4 opcionais comuns (`volume`/`pages`/
+/// `journal`/`publisher` — Passo 159D) + 2 opcionais identificadores
+/// digitais (`url`/`doi` — Passo 159E) + 6 opcionais restantes
+/// comuns (`editor`/`series`/`note`/`isbn`/`location`/
+/// `organization` — Passo 159G).
 ///
-/// Helper privado P159A extendido em P159D + P159E; sem promoção
-/// (N=1; política consistente N=2-3 mínima — `optional_str` inline
-/// helper N=4 cumulativos atinge limiar).
+/// Helper privado P159A extendido em P159D + P159E + P159G; sem
+/// promoção (N=1; política consistente N=2-3 mínima — `optional_str`
+/// inline helper **N=12 cumulativos** largamente acima limiar).
 ///
 /// **Validações hard**:
 /// - Argumento posicional deve ser `Value::Array`.
@@ -508,8 +510,9 @@ pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 /// - Dict deve ter 4 keys obrigatórias.
 /// - `key`/`author`/`title` devem ser `Value::Str`.
 /// - `year` deve ser `Value::Int` >= 0.
-/// - `volume`/`pages`/`journal`/`publisher`/`url`/`doi` opcionais
-///   — se presentes, devem ser `Value::Str`; ausência aceite.
+/// - 12 opcionais (volume/pages/journal/publisher/url/doi/
+///   editor/series/note/isbn/location/organization) — se
+///   presentes, devem ser `Value::Str`; ausência aceite.
 fn extract_bib_entries(val: Option<&Value>) -> SourceResult<Vec<crate::entities::bib_entry::BibEntry>> {
     use crate::entities::bib_entry::BibEntry;
     let arr = match val {
@@ -603,14 +606,28 @@ fn extract_bib_entries(val: Option<&Value>) -> SourceResult<Vec<crate::entities:
         // inline helper; cumulativo N=2 P159D + N=2 P159E = N=4).
         let url       = optional_str("url")?;
         let doi       = optional_str("doi")?;
+        // Passo 159G — 6 fields restantes comuns hayagriva
+        // (cumulativo N=4 + N=2 + N=6 = N=12 usos do helper).
+        let editor       = optional_str("editor")?;
+        let series       = optional_str("series")?;
+        let note         = optional_str("note")?;
+        let isbn         = optional_str("isbn")?;
+        let location     = optional_str("location")?;
+        let organization = optional_str("organization")?;
 
         let mut entry = BibEntry::new(key, author, title, year);
-        entry.volume    = volume;
-        entry.pages     = pages;
-        entry.journal   = journal;
-        entry.publisher = publisher;
-        entry.url       = url;
-        entry.doi       = doi;
+        entry.volume       = volume;
+        entry.pages        = pages;
+        entry.journal      = journal;
+        entry.publisher    = publisher;
+        entry.url          = url;
+        entry.doi          = doi;
+        entry.editor       = editor;
+        entry.series       = series;
+        entry.note         = note;
+        entry.isbn         = isbn;
+        entry.location     = location;
+        entry.organization = organization;
         entries.push(entry);
     }
     Ok(entries)

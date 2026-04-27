@@ -11,8 +11,11 @@
 //! Extendido no Passo 159D com 4 fields universais comuns
 //! (volume/pages/journal/publisher) + builder pattern (Opção C
 //! diagnóstico §8). Extendido no Passo 159E com par natural
-//! url/doi (subpadrão #16 N=1→2 "refino tipo entity sem alteração
-//! ao variant Content").
+//! url/doi. Extendido no Passo 159G com 6 fields restantes
+//! comuns hayagriva (editor/series/note/isbn/location/
+//! organization) — **subpadrão #16 atinge N=3** "refino tipo
+//! entity sem alteração ao variant Content" (limiar formalização
+//! N=3-4).
 //!
 //! Subset minimal extendido per ADR-0054 graded:
 //! - 4 fields obrigatórios (key/author/title/year — P159A).
@@ -20,9 +23,11 @@
 //!   — P159D).
 //! - 2 fields opcionais identificadores digitais (url/doi —
 //!   P159E).
-//! Outros fields vanilla (editor/series/note/isbn/location/
-//! organization/etc.) **diferidos** para refinos futuros NÃO
-//! reservados.
+//! - 6 fields opcionais restantes (editor/series/note/isbn/
+//!   location/organization — P159G).
+//! Total **16 fields** (cobertura ~70-75% hayagriva universais).
+//! Restantes vanilla (booktitle/address/chapter/type/institution/
+//! etc.) **diferidos** para refinos futuros NÃO reservados.
 //!
 //! Estilo paralelo ao vanilla `hayagriva::Entry` mas com subset
 //! extremamente reduzido — input cristalino é literal, sem parsing
@@ -58,23 +63,41 @@
 /// - `doi`: Digital Object Identifier; plaintext literal com
 ///   prefixo `doi:` no render (sem regex validation).
 ///
+/// **Campos opcionais restantes comuns** (P159G — segunda
+/// metade hayagriva universais):
+/// - `editor`: editor(es) da publicação; render `(Ed. {editor})`.
+/// - `series`: série/colecção; render `({series})`.
+/// - `note`: nota auxiliar; render `[{note}]`.
+/// - `isbn`: ISBN sem validation; render `isbn:{isbn}`.
+/// - `location`: cidade/país; render `{location}: {publisher}`.
+/// - `organization`: instituição publicadora (substitutivo a
+///   publisher quando publisher ausente).
+///
 /// `Clone`/`Debug`/`PartialEq` derivados — entry é dados puros.
-/// Refinos futuros (mais fields, formatação CSL, hyperlinks)
-/// virão como métodos ou trait separada.
+/// Refinos futuros (mais fields, formatação CSL, hyperlinks,
+/// tipos estruturados como `Vec<Person>` editor) virão como
+/// métodos ou trait separada.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BibEntry {
-    pub key:       String,
-    pub author:    String,
-    pub title:     String,
-    pub year:      u32,
+    pub key:          String,
+    pub author:       String,
+    pub title:        String,
+    pub year:         u32,
     // Passo 159D — fields opcionais comuns.
-    pub volume:    Option<String>,
-    pub pages:     Option<String>,
-    pub journal:   Option<String>,
-    pub publisher: Option<String>,
+    pub volume:       Option<String>,
+    pub pages:        Option<String>,
+    pub journal:      Option<String>,
+    pub publisher:    Option<String>,
     // Passo 159E — fields opcionais identificadores digitais.
-    pub url:       Option<String>,
-    pub doi:       Option<String>,
+    pub url:          Option<String>,
+    pub doi:          Option<String>,
+    // Passo 159G — fields opcionais restantes comuns.
+    pub editor:       Option<String>,
+    pub series:       Option<String>,
+    pub note:         Option<String>,
+    pub isbn:         Option<String>,
+    pub location:     Option<String>,
+    pub organization: Option<String>,
 }
 
 impl BibEntry {
@@ -88,16 +111,22 @@ impl BibEntry {
         year:   u32,
     ) -> Self {
         Self {
-            key:       key.into(),
-            author:    author.into(),
-            title:     title.into(),
+            key:          key.into(),
+            author:       author.into(),
+            title:        title.into(),
             year,
-            volume:    None,
-            pages:     None,
-            journal:   None,
-            publisher: None,
-            url:       None,
-            doi:       None,
+            volume:       None,
+            pages:        None,
+            journal:      None,
+            publisher:    None,
+            url:          None,
+            doi:          None,
+            editor:       None,
+            series:       None,
+            note:         None,
+            isbn:         None,
+            location:     None,
+            organization: None,
         }
     }
 
@@ -140,6 +169,47 @@ impl BibEntry {
     /// render aplica prefixo `doi:` em layout).
     pub fn with_doi(mut self, d: impl Into<String>) -> Self {
         self.doi = Some(d.into());
+        self
+    }
+
+    // ── Builder pattern P159G (6 fields restantes comuns) ──────
+
+    /// Builder fluente — adiciona `editor` (render `(Ed. {editor})`).
+    pub fn with_editor(mut self, e: impl Into<String>) -> Self {
+        self.editor = Some(e.into());
+        self
+    }
+
+    /// Builder fluente — adiciona `series` (render `({series})`).
+    pub fn with_series(mut self, s: impl Into<String>) -> Self {
+        self.series = Some(s.into());
+        self
+    }
+
+    /// Builder fluente — adiciona `note` (render `[{note}]`).
+    pub fn with_note(mut self, n: impl Into<String>) -> Self {
+        self.note = Some(n.into());
+        self
+    }
+
+    /// Builder fluente — adiciona `isbn` (render `isbn:{isbn}`;
+    /// sem validation per ADR-0054 graded).
+    pub fn with_isbn(mut self, i: impl Into<String>) -> Self {
+        self.isbn = Some(i.into());
+        self
+    }
+
+    /// Builder fluente — adiciona `location` (render
+    /// `{location}:` antes de publisher).
+    pub fn with_location(mut self, l: impl Into<String>) -> Self {
+        self.location = Some(l.into());
+        self
+    }
+
+    /// Builder fluente — adiciona `organization` (substitutivo
+    /// a publisher quando publisher ausente).
+    pub fn with_organization(mut self, o: impl Into<String>) -> Self {
+        self.organization = Some(o.into());
         self
     }
 }
@@ -275,5 +345,69 @@ mod tests {
             .with_publisher("P")
             .with_doi("10.1/a");
         assert_ne!(mk(), sem_url);
+    }
+
+    // ── Passo 159G — 6 fields restantes comuns hayagriva ────────
+
+    #[test]
+    fn bib_entry_new_default_p159g_fields_none() {
+        // Backwards compat P159A+P159D+P159E: new() com 4 args
+        // produz 6 fields novos default None.
+        let e = BibEntry::new("k", "A", "T", 2024);
+        assert!(e.editor.is_none());
+        assert!(e.series.is_none());
+        assert!(e.note.is_none());
+        assert!(e.isbn.is_none());
+        assert!(e.location.is_none());
+        assert!(e.organization.is_none());
+    }
+
+    #[test]
+    fn bib_entry_builder_p159g_fields() {
+        let e = BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)
+            .with_editor("Doe, A.")
+            .with_series("Crystal Studies")
+            .with_note("See also Smith 2023")
+            .with_isbn("978-0-1234-5678-9")
+            .with_location("New York")
+            .with_organization("ACM");
+        assert_eq!(e.editor.as_deref(),       Some("Doe, A."));
+        assert_eq!(e.series.as_deref(),       Some("Crystal Studies"));
+        assert_eq!(e.note.as_deref(),         Some("See also Smith 2023"));
+        assert_eq!(e.isbn.as_deref(),         Some("978-0-1234-5678-9"));
+        assert_eq!(e.location.as_deref(),     Some("New York"));
+        assert_eq!(e.organization.as_deref(), Some("ACM"));
+    }
+
+    #[test]
+    fn bib_entry_partial_eq_cobre_16_fields() {
+        let mk = || BibEntry::new("k", "A", "T", 2024)
+            .with_volume("1")
+            .with_url("https://x.com")
+            .with_doi("10.1/a")
+            .with_editor("Ed1")
+            .with_series("S1")
+            .with_isbn("978-0-1");
+        assert_eq!(mk(), mk());
+        // Cada novo field opcional divergente quebra equivalência.
+        assert_ne!(mk(), mk().with_editor("Ed2"));
+        assert_ne!(mk(), mk().with_series("S2"));
+        assert_ne!(mk(), mk().with_isbn("978-0-2"));
+    }
+
+    #[test]
+    fn bib_entry_builder_subset_p159g() {
+        // Builder pattern combina subset (só editor + isbn) sem
+        // outros fields P159G.
+        let e = BibEntry::new("k", "A", "T", 2024)
+            .with_editor("Ed1")
+            .with_isbn("978-0-1");
+        assert_eq!(e.editor.as_deref(), Some("Ed1"));
+        assert_eq!(e.isbn.as_deref(),   Some("978-0-1"));
+        // Outros P159G fields permanecem None.
+        assert!(e.series.is_none());
+        assert!(e.note.is_none());
+        assert!(e.location.is_none());
+        assert!(e.organization.is_none());
     }
 }
