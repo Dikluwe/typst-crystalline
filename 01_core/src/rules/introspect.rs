@@ -196,6 +196,16 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
             colspan: *colspan,
             rowspan: *rowspan,
         },
+        // Passo 157C (ADR-0060 Fase 2 sub-passo 3) — par simétrico
+        // TableHeader/TableFooter. Recurse no body; preserva repeat.
+        Content::TableHeader { body, repeat } => Content::TableHeader {
+            body:   Box::new(materialize_time(body, state)),
+            repeat: *repeat,
+        },
+        Content::TableFooter { body, repeat } => Content::TableFooter {
+            body:   Box::new(materialize_time(body, state)),
+            repeat: *repeat,
+        },
         Content::Align { alignment, body } => Content::Align {
             alignment: *alignment,
             body:      Box::new(materialize_time(body, state)),
@@ -410,6 +420,11 @@ fn walk(content: &Content, state: &mut CounterState) {
 
         // Passo 157B — TableCell (recurse no body).
         Content::TableCell { body, .. } => walk(body, state),
+
+        // Passo 157C — par simétrico TableHeader/TableFooter
+        // (recurse no body).
+        Content::TableHeader { body, .. } => walk(body, state),
+        Content::TableFooter { body, .. } => walk(body, state),
 
         Content::Align { body, .. } => walk(body, state),
 

@@ -361,5 +361,133 @@ pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
     }))
 }
 
+// ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ─────
+
+/// Coage `Value` para `bool` com default arbitrário per ADR-0064
+/// Caso D (vanilla `bool` com default não-`false`; cristalino
+/// usa `bool` directo com documentação explícita do default).
+///
+/// `Value::Bool(b)` → `b`.
+/// `Value::None` ou ausência → `default`.
+/// Outros tipos → erro hard com diagnóstico claro.
+///
+/// Helper privado P157C; param `default` permite reuso para
+/// `repeat` (default true) e futuros bool fields com defaults
+/// arbitrários (e.g. P158 figure-kinds).
+///
+/// Distinção vs `extract_weak` (em `stdlib/layout.rs`): este
+/// helper é genérico no `field` e no `default`, enquanto
+/// `extract_weak` é específico para key="weak" default=false.
+/// Helpers separados preservam separação de domínios per
+/// ADR-0037.
+fn extract_bool_with_default(
+    args: &Args,
+    fn_name: &str,
+    field: &str,
+    default: bool,
+) -> SourceResult<bool> {
+    match args.named.get(field) {
+        Some(Value::Bool(b)) => Ok(*b),
+        Some(Value::None)    => Ok(default),
+        Some(other) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{}({}:) espera bool, recebeu {}", fn_name, field, other.type_name()),
+        )]),
+        None => Ok(default),
+    }
+}
+
+/// `table_header(body, repeat: true)` → `Content::TableHeader`.
+///
+/// **Terceiro e último sub-passo Model Fase 2** (ADR-0060 §"Decisão 1"
+/// sub-passo 3 — fecha "table foundations" declarado).
+/// Par simétrico com `native_table_footer`.
+///
+/// **Naming `table_header` flat** (não vanilla `table.header`)
+/// per padrão P157B — FieldAccess actual cristalino não suporta
+/// namespacing de funcs.
+///
+/// **Atributos**:
+/// - `body` posicional obrigatório (Content ou Str).
+/// - `repeat: bool` (named); ADR-0064 Caso D; default `true`
+///   (paridade vanilla — divergência intencional do default Rust
+///   `bool::default() == false`).
+///
+/// **Atributos vanilla scope-out** per ADR-0054 graded:
+/// - `level: NonZeroU32` (hierarquia Header) — refino futuro.
+/// - `repeat-rows: Smart<usize>` — refino futuro.
+/// - Children variádicos estruturados (`Vec<TableItem>`) —
+///   divergência aceite per ADR-0033 (cristalino usa `body`).
+///
+/// **Limitação per ADR-0054 graded**: `repeat` armazenado mas
+/// **ignorado em layout** — algoritmo de repetição em page breaks
+/// diferido em **DEBT-56** (refactor multi-region).
+pub fn native_table_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("table_header() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "table_header() exige body como argumento posicional".to_string(),
+        )]),
+    };
+
+    for key in args.named.keys() {
+        if !["repeat"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("table_header(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", key),
+            )]);
+        }
+    }
+
+    let repeat = extract_bool_with_default(args, "table_header", "repeat", true)?;
+
+    Ok(Value::Content(Content::TableHeader {
+        body: Box::new(body),
+        repeat,
+    }))
+}
+
+/// `table_footer(body, repeat: true)` → `Content::TableFooter`.
+///
+/// Par simétrico com `native_table_header` (P157C). Mesma decisão
+/// arquitectural Caso D + DEBT-56 + naming flat. Implementação
+/// idêntica linha-a-linha excepto naming `header → footer`.
+pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("table_footer() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "table_footer() exige body como argumento posicional".to_string(),
+        )]),
+    };
+
+    for key in args.named.keys() {
+        if !["repeat"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("table_footer(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", key),
+            )]);
+        }
+    }
+
+    let repeat = extract_bool_with_default(args, "table_footer", "repeat", true)?;
+
+    Ok(Value::Content(Content::TableFooter {
+        body: Box::new(body),
+        repeat,
+    }))
+}
+
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────
 

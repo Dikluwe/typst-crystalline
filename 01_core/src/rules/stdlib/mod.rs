@@ -40,7 +40,7 @@ pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::text::{native_lower, native_replace, native_upper};
 pub use crate::rules::stdlib::assert::native_assert;
 pub use crate::rules::stdlib::structural::{
-    native_divider, native_emph, native_heading, native_quote, native_raw, native_strong, native_table, native_table_cell, native_terms,
+    native_divider, native_emph, native_heading, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms,
 };
 pub use crate::rules::stdlib::figure_image::{native_figure, native_image};
 pub use crate::rules::stdlib::shapes::{
@@ -2232,5 +2232,111 @@ mod tests {
         null_ctx!(ctx);
         let r = native_table_cell(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
         assert!(r.is_err(), "table_cell() sem body deve retornar Err");
+    }
+
+    // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ──
+    // Tests simétricos table_header ↔ table_footer (paridade interna
+    // absoluta excepto naming).
+
+    #[test]
+    fn native_table_header_default_repeat_true() {
+        // P157C ADR-0064 Caso D: default vanilla repeat=true.
+        null_ctx!(ctx);
+        let r = native_table_header(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::TableHeader { body, repeat }) = r {
+            assert_eq!(body.plain_text(), "body");
+            assert!(repeat, "default vanilla repeat=true (Caso D)");
+        } else {
+            panic!("esperado Content::TableHeader");
+        }
+    }
+
+    #[test]
+    fn native_table_footer_default_repeat_true() {
+        // Par simétrico — paridade absoluta com header.
+        null_ctx!(ctx);
+        let r = native_table_footer(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::TableFooter { body, repeat }) = r {
+            assert_eq!(body.plain_text(), "body");
+            assert!(repeat);
+        } else {
+            panic!("esperado Content::TableFooter");
+        }
+    }
+
+    #[test]
+    fn native_table_header_repeat_false_explicito() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("repeat".into(), Value::Bool(false));
+        let r = native_table_header(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::TableHeader { repeat, .. }) = r {
+            assert!(!repeat);
+        } else {
+            panic!("esperado Content::TableHeader");
+        }
+    }
+
+    #[test]
+    fn native_table_footer_repeat_false_explicito() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("repeat".into(), Value::Bool(false));
+        let r = native_table_footer(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::TableFooter { repeat, .. }) = r {
+            assert!(!repeat);
+        } else {
+            panic!("esperado Content::TableFooter");
+        }
+    }
+
+    #[test]
+    fn native_table_header_sem_body_rejeitado() {
+        null_ctx!(ctx);
+        let r = native_table_header(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "table_header() sem body deve retornar Err");
+    }
+
+    #[test]
+    fn native_table_footer_sem_body_rejeitado() {
+        null_ctx!(ctx);
+        let r = native_table_footer(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "table_footer() sem body deve retornar Err");
+    }
+
+    #[test]
+    fn native_table_header_repeat_int_rejeitado() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("repeat".into(), Value::Int(1));
+        let r = native_table_header(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "repeat=Int em table_header() deve retornar Err");
+    }
+
+    #[test]
+    fn native_table_footer_repeat_int_rejeitado() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("repeat".into(), Value::Int(1));
+        let r = native_table_footer(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "repeat=Int em table_footer() deve retornar Err");
+    }
+
+    #[test]
+    fn native_table_header_named_arg_desconhecido_rejeitado() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("level".into(), Value::Int(2));
+        let r = native_table_header(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "level (scope-out) em table_header() deve retornar Err");
+    }
+
+    #[test]
+    fn native_table_footer_named_arg_desconhecido_rejeitado() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("foo".into(), Value::Bool(true));
+        let r = native_table_footer(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named arg desconhecido em table_footer() deve retornar Err");
     }
 }

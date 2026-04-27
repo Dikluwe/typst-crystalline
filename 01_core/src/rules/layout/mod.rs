@@ -518,6 +518,21 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.layout_content(body);
             }
 
+            // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ──
+            // **Terceiro e último sub-passo Model Fase 2**. Par simétrico
+            // TableHeader/TableFooter — renderiza body no contexto actual
+            // (single render). `repeat` **armazenado mas ignorado** per
+            // ADR-0054 graded — algoritmo de repetição em page breaks
+            // diferido em DEBT-56 (refactor multi-region; column flow +
+            // header/footer repeat). Quando dentro de `Content::Table`,
+            // header/footer aparecem como children lineares no grid.
+            Content::TableHeader { body, repeat: _ } => {
+                self.layout_content(body);
+            }
+            Content::TableFooter { body, repeat: _ } => {
+                self.layout_content(body);
+            }
+
             Content::SetPage { width, height, margin } => {
                 let mut new_config = self.page_config.clone();
                 let mut changed    = false;

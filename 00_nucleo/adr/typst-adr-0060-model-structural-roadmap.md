@@ -31,6 +31,42 @@ Cobertura Model 41% → ~45%; arquitectural Content 75% → ~77%.
 Plano Fase 2 (P156/157/158 — table foundations, figure kinds,
 bibliography+cite com ADR-0061) inalterado.
 
+**Anotação Passo 157C (2026-04-26)**: **terceiro e último
+sub-passo Fase 2 Model — "table foundations" fechado**.
+Par simétrico `Content::TableHeader { body, repeat: bool }` +
+`Content::TableFooter { body, repeat: bool }` adicionados ao
+enum (54 → 56 variants); `native_table_header` e
+`native_table_footer` registadas em `make_stdlib` em
+`stdlib/structural.rs` (continuação P157A/B). **Naming
+`table_header`/`table_footer` flat** (paridade decisão P157B).
+**Primeira aplicação concreta de ADR-0064 Caso D em domínio
+Model** (`bool` directo com default `true` paridade vanilla;
+P156D weak / P156G breakable / P156J justify aplicaram-no em
+Layout). **Saturação cross-domínio cross-caso ADR-0064**: após
+P157C, todos os 4 casos canónicos A/B/C/D validados em Layout;
+3/4 (A, C, D) validados em Model. Layouter renderiza body
+no contexto actual; **`repeat` armazenado mas ignorado em layout**
+per ADR-0054 graded — **DEBT-56 permanece aberto** (algoritmo
+de repetição em page breaks fica para refactor multi-region).
+**Divergência aceite per ADR-0033**: `body: Box<Content>` em
+vez de vanilla `#[variadic] children: Vec<TableItem>` para
+uniformidade com containers cristalinos existentes; `level`
+(Header) e `repeat-rows` scope-out per ADR-0054 graded. Helper
+privado novo `extract_bool_with_default(args, fn, field, default)`
+parametrizado (genérico no key e no default; distinto de
+`extract_weak` específico por field/default — separação de
+domínios per ADR-0037). Tests +26 (1353 → 1379). Cobertura
+Model agregada **inalterada** (50% mantém-se — sub-entradas
+qualitativas paridade P157B); cobertura arquitectural **78%
+→ 80%** (variants Content vanilla extra ausentes desce de ~1
+a 0). Status `IMPLEMENTADO` mantido. **Padrão cross-domínio
+fortalecido**: 3 sub-passos Model consecutivos sem reformulação;
+**N=12 materialização**. **"Table foundations" integralmente
+materializado** com P157A + P157B + P157C (3 sub-passos M cada;
+granularidade preservada N=10/11/12). Promoção a revisão R1
+da ADR-0060 candidata (passo administrativo XS) se decisão
+humana for prioritária.
+
 **Anotação Passo 157B (2026-04-26)**: **segundo sub-passo
 Fase 2 Model materializado** — `Content::TableCell { body,
 x: Option<usize>, y: Option<usize>, colspan: Option<usize>,
