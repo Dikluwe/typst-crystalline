@@ -517,7 +517,7 @@ fn make_stdlib() -> Scope {
         native_hide, native_image, native_int, native_len, native_line,
         native_lower, native_luma, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon,
         native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
-        native_scale, native_skew, native_stack, native_str, native_strong, native_terms, native_type, native_upper, native_v,
+        native_scale, native_skew, native_stack, native_str, native_strong, native_table, native_terms, native_type, native_upper, native_v,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -576,6 +576,10 @@ fn make_stdlib() -> Scope {
     // estrutural; algoritmo dinâmico diferido per ADR-0054 graded).
     // **Primeira aplicação Fase 3.**
     scope.define("repeat",  Value::Func(Func::native("repeat",  native_repeat)));
+    // Passo 157A (ADR-0060 Fase 2 sub-passo 1): table minimal
+    // (subset 3 fields; reusa layout_grid; TableCell/Header/Footer
+    // diferidos para P157B/C). **Primeiro sub-passo Model Fase 2.**
+    scope.define("table",   Value::Func(Func::native("table",   native_table)));
     scope.define("calc",    make_calc_module());
 
     // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).
