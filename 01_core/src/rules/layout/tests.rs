@@ -2832,4 +2832,52 @@ mod tests_show_rule_integration {
         let txt2 = layout_with_introspect(&c2);
         assert!(txt2.contains("2024"), "Year form: '2024' deve aparecer: doc='{}'", txt2);
     }
+
+    // ── Passo 159D — BibEntry fields opcionais (E2E) ──────────────────────
+
+    /// Bibliography com entry completa renderiza formato extendido
+    /// com todos os 4 fields opcionais presentes (volume/pages/
+    /// journal/publisher).
+    #[test]
+    fn bibliography_entry_completa_renderiza_formato_extendido() {
+        use crate::entities::bib_entry::BibEntry;
+        let entry = BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)
+            .with_journal("Nature Communications")
+            .with_volume("12")
+            .with_pages("1-10")
+            .with_publisher("ACM");
+        let b = Content::bibliography(vec![entry], None);
+        let doc = layout(&b, CounterState::default());
+        let txt = doc.plain_text();
+        // Todos os fields novos devem aparecer no output formatado.
+        assert!(txt.contains("Nature Communications"),
+            "journal deve aparecer: doc='{}'", txt);
+        assert!(txt.contains("vol. 12"),
+            "volume deve aparecer com prefix 'vol.': doc='{}'", txt);
+        assert!(txt.contains("pp. 1-10"),
+            "pages deve aparecer com prefix 'pp.': doc='{}'", txt);
+        assert!(txt.contains("ACM"),
+            "publisher deve aparecer: doc='{}'", txt);
+        assert!(txt.contains("(2024)"),
+            "year preserva formato (year) no final: doc='{}'", txt);
+    }
+
+    /// Regression P159A: Bibliography com entry mínima (só 4
+    /// fields obrigatórios) renderiza formato P159A original.
+    #[test]
+    fn bibliography_entry_minima_regression_p159a() {
+        use crate::entities::bib_entry::BibEntry;
+        let entry = BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024);
+        let b = Content::bibliography(vec![entry], None);
+        let doc = layout(&b, CounterState::default());
+        let txt = doc.plain_text();
+        // Output P159A: "[smith2024] Smith, J.. On Crystal Math (2024)."
+        assert!(txt.contains("[smith2024]"), "key como [key]");
+        assert!(txt.contains("Smith, J."),   "author");
+        assert!(txt.contains("On Crystal Math"), "title");
+        assert!(txt.contains("(2024)"),      "year (year)");
+        // Sem fields novos — ausentes do output.
+        assert!(!txt.contains("vol."),  "sem volume → sem 'vol.'");
+        assert!(!txt.contains("pp."),   "sem pages → sem 'pp.'");
+    }
 }

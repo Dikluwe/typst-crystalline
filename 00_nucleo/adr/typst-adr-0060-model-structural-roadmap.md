@@ -31,6 +31,49 @@ Cobertura Model 41% → ~45%; arquitectural Content 75% → ~77%.
 Plano Fase 2 (P156/157/158 — table foundations, figure kinds,
 bibliography+cite com ADR-0061) inalterado.
 
+**Anotação Passo 159D (2026-04-27)**: **terceiro sub-passo
+substantivo Bibliography + Cite materializado** (Fase 2
+continuação após P159A par acoplado + P159C cite.form).
+**Refino estrutural de tipo entity** `BibEntry` adicionando 4
+fields universais opcionais (`volume`/`pages`/`journal`/
+`publisher`) per **ADR-0065 critério #2** (terceira aplicação
+isolada concreta — selecção de fields universais; patamar
+N=2→3). **Builder pattern fluente** (`with_volume`/`with_pages`/
+`with_journal`/`with_publisher`) escolhido per Opção C
+diagnóstico §8 (legibilidade superior em tests + backwards
+compat trivial via constructor `new()` original com 4 args
+preservado). Helper `extract_bib_entries` (P159A) extendido
+em `stdlib/structural.rs` para parsing dos 4 fields opcionais
+com validação tipo `Value::Str` e mensagem de erro mencionando
+field específico. Helper privado novo `format_bib_entry` em
+`rules/layout/mod.rs` para concatenação condicional APA-like:
+`[key] author. title journal vol. volume, pp. pages. publisher
+(year).`. Backwards compat trivial — fields opcionais default
+`None` preservam exactamente output P159A original. **Sem
+alteração ao variant `Content::Bibliography`** (estrutura
+inalterada; expansão ortogonal de tipo entity). **Sem alteração
+ao variant `Content::Cite`** (P159C inalterado). **Subpadrão
+emergente N=1** "refino de tipo entity sem alteração ao variant
+Content" (precedente novo — distinção vs P156L `Pad` e P159C
+`Cite` que tocaram variants Content; P159D primeiro a refinar
+**tipo entity puro** sem efeito no enum). Tests +8 (1204 →
+1212; 3 unit bib_entry inclui builder pattern + PartialEq cobre
+8 fields + backwards compat new() + 3 stdlib parse + 2 layout
+E2E entry completa/mínima; range esperado +5-8). Cobertura
+Model agregada **inalterada** (~50%). Cobertura arquitectural
+**inalterada** 82%. Hash `entities/content.rs` preservado
+`ec58d849` (**décimo terceiro passo consecutivo** via L0-baseline
+interpretation). Hash `entities/bib_entry.rs` também preservado
+`5a2c0ebd` (L0-baseline — prompt `bib_entry.md` não modificado;
+extensão via doc-comment + referência cruzada ao `BibEntry`
+struct extendido). Status `IMPLEMENTADO` mantido. **Política
+"sem novas reservas" preservada** — fields restantes vanilla
+(`url`/`doi`/`editor`/`series`/`note`/`isbn`/`location`/etc.),
+tipos estruturados (`PageRange`, `JournalRef`), CSL real
+(depende hayagriva ADR-0062), estilo configurável, promoção
+`extract_bib_entries`/`format_bib_entry` a helpers públicos
+permanecem candidatos NÃO-reservados.
+
 **Anotação Passo 159C (2026-04-27)**: **segundo sub-passo
 substantivo Bibliography + Cite materializado** (Fase 2
 continuação após P159A par acoplado). Refino estrutural-

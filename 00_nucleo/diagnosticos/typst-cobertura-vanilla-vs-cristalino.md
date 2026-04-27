@@ -173,7 +173,7 @@ primitives e `skew`). Detalhe em
 | `terms(...)` | model/terms.rs | `implementado` | Passo 154B | `Content::Terms` + `Content::TermItem`; named args via `#terms(key: [desc])`; sem atributos vanilla (tight/separator/indent/hanging-indent) — extensíveis sem breaking change |
 | `quote(...)` | model/quote.rs | `implementado` | Passo 155 | `Content::Quote` com 4 attrs; smart-quotes lang-aware (6 idiomas + default ASCII) via `rules/lang/quotes.rs`; markup `"..."` produz aspas localizadas via alternância open/close (não pareadas como bloco) |
 | `cite(key)` | model/cite.rs | `parcial` ²⁹ ³² | Passo 159A (par acoplado) + P159C (form variants) | `Content::Cite { key: String, supplement: Option<Box<Content>>, form: Option<CitationForm> }` + stdlib `#cite(key, supplement: ?, form: ?)`; **naming `cite` flat**; ADR-0064 Caso A para supplement (P159A) + form (P159C); **placeholder render por form com lookup Bibliography** same-document (Normal=`[key]`/Prose=`Author (Year)`/Author/Year + fallback `[key]`); sem validação cross-reference (ADR-0017 adiada); 1+ atributo vanilla scope-out (style CSL override) |
-| `bibliography(path)` | model/bibliography.rs | `parcial` ²⁹ | Passo 159A (par acoplado com cite) | `Content::Bibliography { entries: Vec<BibEntry>, title: Option<Box<Content>> }` + stdlib `#bibliography(entries, title: ?)`; **input cristalino literal Vec<BibEntry>** (sem hayagriva; ADR-0062 mantém-se reserva sem ficheiro); tipo entity novo `BibEntry { key, author, title, year }` em `entities/bib_entry.rs`; ADR-0064 Caso A para title; **placeholder render** lista `"[{key}] {author}. {title} ({year})."`; 6+ atributos vanilla scope-out (sources/full/style CSL/lang/region) |
+| `bibliography(path)` | model/bibliography.rs | `parcial` ²⁹ ³³ | Passo 159A (par acoplado) + P159D (BibEntry fields adicionais) | `Content::Bibliography { entries: Vec<BibEntry>, title: Option<Box<Content>> }` + stdlib `#bibliography(entries, title: ?)`; **input cristalino literal Vec<BibEntry>** (sem hayagriva; ADR-0062 mantém-se reserva sem ficheiro); tipo entity extendido `BibEntry { key, author, title, year, volume, pages, journal, publisher }` em `entities/bib_entry.rs` (4 obrigatórios P159A + 4 opcionais P159D via builder pattern); ADR-0064 Caso A para title; **render extendido APA-like** condicional por field presente; 4+ atributos vanilla scope-out (sources/full/style CSL/lang/region; mais fields universais — url/doi/editor/etc.) |
 | `link(dest, body)` | model/link.rs | `parcial` | Passo 23 | `Content::Link` capturado; sem render visual |
 | `footnote(body)` | model/footnote.rs | `ausente` | — | |
 | `ref(target)` | model/reference.rs | `implementado⁺` | Passos 63–66 | `Content::Ref` com forward-resolve |
@@ -596,7 +596,11 @@ refino qualitativo consecutivo de `figure` (supplement por lang;
 6 langs × 3 kinds); reuso pattern P155 cross-feature N=1;
 **após P159C: ~61.0% (inalterada)** — refino estrutural de
 `cite` adicionando form variants; ADR-0064 Caso A patamar
-N=5 → 6 atingindo equilíbrio cross-domínio 50/50 Layout/Model).
+N=5 → 6 atingindo equilíbrio cross-domínio 50/50 Layout/Model;
+**após P159D: ~61.0% (inalterada)** — refino de tipo entity
+`BibEntry` adicionando 4 fields universais opcionais; ADR-0065
+critério #2 patamar N=2→3; subpadrão "refino tipo entity sem
+alteração Content variant" N=1).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -861,6 +865,39 @@ estabeleceu; P158A respeita) — supplement automático, show
 selectors `figure.where(kind:)`, refactor `kind: String →
 Option<String>` permanecem candidatos NÃO-reservados.
 
+³³ — Ajuste P159D (Tabela A.6 Model): terceiro sub-passo
+substantivo Bibliography + Cite — refino estrutural de tipo
+entity `BibEntry` adicionando 4 fields opcionais universais
+(`volume`/`pages`/`journal`/`publisher`) per ADR-0065 critério
+#2 (terceira aplicação isolada concreta — selecção de fields
+universais). **Builder pattern** (`with_volume`/`with_pages`/
+etc.) escolhido per Opção C diagnóstico §8 (legibilidade +
+backwards compat trivial). Helper `extract_bib_entries` extendido
+para parsing dos 4 fields opcionais com validação tipo
+`Value::Str`. Helper privado novo `format_bib_entry` em
+`layout/mod.rs` para concatenação condicional APA-like
+(`[key] author. title journal vol. volume, pp. pages. publisher
+(year).`). **Sem alteração ao variant `Content::Bibliography`**
+(estrutura inalterada; expansão de tipo entity ortogonal ao
+enum Content). **Sem alteração ao variant `Content::Cite`**
+(P159C inalterado). **Hash `entities/content.rs` preservado**
+`ec58d849` — **décimo terceiro passo consecutivo** (P156L →
+P159D via L0-baseline interpretation). **Hash `entities/bib_entry.rs`
+também preservado** `5a2c0ebd` (L0-baseline interpretation —
+prompt `bib_entry.md` não modificado; spec previa quebra mas
+extensão via doc-comment). Tests +8 (1204 → 1212; 3 unit
+bib_entry + 3 stdlib parse + 2 layout E2E; range esperado +5-8).
+Cobertura Model agregada **inalterada** (~50%) — refino
+qualitativo. Cobertura ampla 77% inalterada. Cobertura
+arquitectural **inalterada** 82%. **Subpadrão emergente N=1**
+"refino de tipo entity sem alteração ao variant Content"
+(precedente novo — P156L/P159C refinaram variants Content;
+P159D primeiro a refinar tipo entity puro). **Política "sem
+novas reservas" preservada** — fields restantes vanilla
+(url/doi/editor/series/note/isbn/location/etc.), tipos
+estruturados (PageRange), CSL real, estilo configurável
+permanecem candidatos NÃO-reservados.
+
 ³² — Ajuste P159C (Tabela A.6 Model): segundo sub-passo
 substantivo Bibliography + Cite — refino estrutural-comportamental
 de `cite` adicionando enum `CitationForm { Normal, Prose, Author,
@@ -948,8 +985,9 @@ ADR-0065 N=6 implícito; reuso `Sides<T>` N=2; reuso
 (era 80% pós-P157C/P158/P158A; era 78% pós-P157B; era 77-78%
 pós-P157A; era 76-77% pós-P156L; era 75-76% pós-P156I; era
 75% pré-P155; era 72% pré-P154B; era 70% pré-P149; **inalterada
-pós-P158B + P159C** — refinos qualitativos de variants Content
-existentes). **Patamar 82% atingido em P159A** — par acoplado
+pós-P158B + P159C + P159D** — refinos qualitativos de variants
+Content existentes + refino de tipo entity sem alteração Content).
+**Patamar 82% atingido em P159A** — par acoplado
 Bibliography+Cite minimal adiciona 2 variants Content (56 → 58);
 vanilla extra ausentes mantém 0 (subset minimal cobre todos os
 variants core para Bibliography+Cite).

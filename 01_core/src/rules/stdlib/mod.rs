@@ -2693,4 +2693,84 @@ mod tests {
         assert!(msg.contains("normal") && msg.contains("prose") && msg.contains("author") && msg.contains("year"),
             "mensagem deve listar forms válidas: {}", msg);
     }
+
+    // ── Passo 159D — BibEntry fields opcionais ──────────────────────────────
+
+    fn make_bib_dict_full(
+        key: &str, author: &str, title: &str, year: i64,
+        volume: &str, pages: &str, journal: &str, publisher: &str,
+    ) -> Value {
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("key".into(),       Value::Str(key.into()));
+        d.insert("author".into(),    Value::Str(author.into()));
+        d.insert("title".into(),     Value::Str(title.into()));
+        d.insert("year".into(),      Value::Int(year));
+        d.insert("volume".into(),    Value::Str(volume.into()));
+        d.insert("pages".into(),     Value::Str(pages.into()));
+        d.insert("journal".into(),   Value::Str(journal.into()));
+        d.insert("publisher".into(), Value::Str(publisher.into()));
+        Value::Dict(d)
+    }
+
+    #[test]
+    fn native_bibliography_parse_fields_opcionais_presentes() {
+        null_ctx!(ctx);
+        let entries_arr = Value::Array(vec![
+            make_bib_dict_full("smith2024", "Smith, J.", "On Crystal Math", 2024,
+                "12", "1-10", "Nature Communications", "ACM"),
+        ]);
+        let args = p(vec![entries_arr]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Bibliography { entries, .. }) = r {
+            let e = &entries[0];
+            assert_eq!(e.volume.as_deref(),    Some("12"));
+            assert_eq!(e.pages.as_deref(),     Some("1-10"));
+            assert_eq!(e.journal.as_deref(),   Some("Nature Communications"));
+            assert_eq!(e.publisher.as_deref(), Some("ACM"));
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn native_bibliography_parse_sem_fields_opcionais_regression_p159a() {
+        // Regression: dict só com 4 obrigatórios produz entry com fields
+        // opcionais None (output P159A inalterado).
+        null_ctx!(ctx);
+        let args = p(vec![Value::Array(vec![
+            make_bib_dict("smith2024", "Smith, J.", "On Crystal Math", 2024),
+        ])]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Bibliography { entries, .. }) = r {
+            let e = &entries[0];
+            assert!(e.volume.is_none());
+            assert!(e.pages.is_none());
+            assert!(e.journal.is_none());
+            assert!(e.publisher.is_none());
+        } else {
+            panic!("esperado Content::Bibliography");
+        }
+    }
+
+    #[test]
+    fn native_bibliography_field_opcional_tipo_errado_rejeitado() {
+        null_ctx!(ctx);
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("key".into(),    Value::Str("k".into()));
+        d.insert("author".into(), Value::Str("A".into()));
+        d.insert("title".into(),  Value::Str("T".into()));
+        d.insert("year".into(),   Value::Int(2024));
+        // volume com tipo errado (Int em vez de Str).
+        d.insert("volume".into(), Value::Int(42));
+        let args = p(vec![Value::Array(vec![Value::Dict(d)])]);
+        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "volume com tipo Int deve retornar Err");
+        let msg = r.unwrap_err()[0].message.clone();
+        assert!(msg.contains("volume"),
+            "mensagem deve mencionar field 'volume': {}", msg);
+    }
 }

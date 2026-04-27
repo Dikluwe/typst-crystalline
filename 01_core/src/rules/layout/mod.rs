@@ -546,10 +546,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     self.flush_line();
                 }
                 for e in entries {
-                    let line = format!(
-                        "[{}] {}. {} ({}).",
-                        e.key, e.author, e.title, e.year,
-                    );
+                    let line = format_bib_entry(e);
                     self.layout_content(&Content::text(line));
                     self.flush_line();
                 }
@@ -1260,6 +1257,23 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 /// Caso contrário, itera até convergência (máximo 5 vezes).
 ///
 /// Para métricas de fonte reais: `03_infra::layout::layout_with_font()`.
+/// Helper privado P159D — formata `BibEntry` para render
+/// Bibliography. Concatenação condicional dos 4 fields opcionais
+/// quando presentes; backwards compat preserva formato P159A
+/// quando todos os opcionais são `None`.
+///
+/// Ordem APA-like (decisão diagnóstico §10):
+/// `[key] author. title journal vol. volume, pp. pages. publisher (year).`
+fn format_bib_entry(e: &crate::entities::bib_entry::BibEntry) -> String {
+    let mut out = format!("[{}] {}. {}", e.key, e.author, e.title);
+    if let Some(j)  = &e.journal   { out.push_str(&format!(" {}", j)); }
+    if let Some(v)  = &e.volume    { out.push_str(&format!(" vol. {}", v)); }
+    if let Some(p)  = &e.pages     { out.push_str(&format!(", pp. {}", p)); }
+    if let Some(pb) = &e.publisher { out.push_str(&format!(". {}", pb)); }
+    out.push_str(&format!(" ({}).", e.year));
+    out
+}
+
 pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument {
     use std::collections::HashMap;
     use crate::entities::label::Label;
