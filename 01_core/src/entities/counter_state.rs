@@ -6,7 +6,7 @@
 
 use std::collections::HashMap;
 
-use crate::entities::{content::Content, label::Label};
+use crate::entities::{content::Content, label::Label, lang::Lang};
 
 /// Instrução de modificação de um contador.
 #[derive(Debug, Clone, PartialEq)]
@@ -71,6 +71,13 @@ pub struct CounterState {
     /// Contadores locais por kind — auxiliar interno da introspecção (Passo 75).
     /// Não exposto ao layouter; apenas `figure_numbers` é consumido externamente.
     pub local_figure_counters: HashMap<String, usize>,
+    /// Lang activo para resolução de supplements localizados (Passo 158B).
+    /// `None` → fallback PT (paridade backwards compat com tests
+    /// pré-existentes que esperam "Figura"). Caller pode setar
+    /// `state.lang = Some(lang)` antes de passar a `layout()` para
+    /// comportamento lang-aware. Refino futuro pode integrar Style
+    /// chain lang resolution (NÃO reservado per política P158).
+    pub lang: Option<Lang>,
 }
 
 impl CounterState {

@@ -31,6 +31,40 @@ Cobertura Model 41% → ~45%; arquitectural Content 75% → ~77%.
 Plano Fase 2 (P156/157/158 — table foundations, figure kinds,
 bibliography+cite com ADR-0061) inalterado.
 
+**Anotação Passo 158B (2026-04-27)**: **segundo sub-passo
+Model figure-kinds materializado** (Fase 2 continuação após
+P158A). Refino qualitativo de `figure` — supplement
+automático localizado por lang. Helper novo
+`figure_supplement_for_lang(kind: &str, lang: Option<&Lang>)
+-> String` em `rules/lang/figure_supplement.rs` cobrindo
+6 langs (pt/en/de/fr/es/it) × 3 kinds (image/table/raw) =
+18 entradas + fallback PT por kind + capitalização para kind
+desconhecido. Field novo `pub lang: Option<Lang>` em
+`CounterState` para lang resolution (default `None` →
+fallback PT, paridade backwards compat com tests
+pré-existentes que esperam "Figura"). Modificação trivial
+em `introspect.rs` linha 334: `Some(format!("Figura {}", n))`
+→ `Some(format!("{} {}", figure_supplement_for_lang(kind,
+lang), n))`. **Sem alteração ao variant `Content::Figure`**
+(estrutura inalterada). **Reuso explícito do padrão P155**
+`localize_quotes(lang)` em `rules/lang/quotes.rs` —
+**primeiro reuso cross-feature** (quotes → figure supplement);
+estrutura paralela: tabela estática + lookup linear + fallback;
+**subpadrão emergente N=1** "padrão P155 i18n reusado
+cross-feature" (candidato a formalização N=3-4 mínima).
+Tests +15 (1174 → 1189; 8 unit em figure_supplement.rs +
+7 integration em introspect.rs; range esperado +12-15).
+Cobertura Model agregada **inalterada** (~50%) — segundo
+refino qualitativo consecutivo de `figure`. Cobertura
+arquitectural **inalterada** 82% (refino de variant existente).
+Hash `entities/content.rs` preservado `ec58d849` (**décimo
+primeiro passo consecutivo**). Status `IMPLEMENTADO` mantido.
+**Política "sem novas reservas" preservada** (estabelecida
+em P158; respeitada em P158A/B): `supplement: Option<Content>`
+field user-facing, mais langs além de 6 minimais, CSL-aware
+format (depende hayagriva), region-specific supplements
+permanecem candidatos NÃO-reservados.
+
 **Anotação Passo 159A (2026-04-27)**: **par acoplado
 Bibliography + Cite minimal materializado** (Fase 2 continuação
 após figure-kinds P158A). **Estrutura A adaptada** per diagnóstico

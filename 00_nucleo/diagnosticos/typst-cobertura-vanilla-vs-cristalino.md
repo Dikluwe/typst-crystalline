@@ -161,7 +161,7 @@ primitives e `skew`). Detalhe em
 | Feature | Vanilla | Cristalino | Referência | Nota |
 |---------|---------|------------|------------|------|
 | `heading(level, body)` | model/heading.rs | `implementado` | Passos 22, 99, 103 | construtor + show rules |
-| `figure(body, caption, ...)` | model/figure.rs | `implementado⁺` ²⁸ | Passos 75 + ADR-0041 + P158A (refino auto-detecção) | numbering por kind; counters; **P158A**: auto-detecção de `kind` baseada no body (Image/Table/Raw + Sequence recursivo) — `figure(image(...))` activa counter de imagem automaticamente sem `kind:` manual |
+| `figure(body, caption, ...)` | model/figure.rs | `implementado⁺` ²⁸ ³¹ | Passos 75 + ADR-0041 + P158A (auto-detecção) + P158B (supplement por lang) | numbering por kind; counters; **P158A**: auto-detecção de `kind` baseada no body; **P158B**: supplement automático localizado por lang (6 langs × 3 kinds via `figure_supplement_for_lang` em `rules/lang/figure_supplement.rs`; fallback PT) |
 | `caption(...)` | model/figure.rs | `parcial` | dentro de figure | sem element dedicado |
 | `outline()` | model/outline.rs | `implementado` | Passos 65–66 | TOC via 2-pass introspection |
 | `table(columns, ...)` | model/table.rs | `implementado` ²² | Passo 157A (ADR-0060 Fase 2 sub-passo 1; **primeiro Model Fase 2**) | `Content::Table { columns, rows, children: Vec<Content> }` + stdlib `#table(columns: ?, rows: ?, ..children)`; subset minimal per ADR-0054 graded; layouter delega a `layout_grid` (clone simples; sem modificação de `grid.rs`); 9+ atributos vanilla scope-out (gutter/inset/align/fill/stroke/summary; cells estruturadas P157B; header/footer P157C; HLine/VLine cosmetic) |
@@ -591,7 +591,9 @@ após P158A: ~61.0% (inalterada) — refino qualitativo
 auto-detecção figure-kinds; **após P159A: ~61.0% impl+impl⁺
 inalterada / parcial cresce 22 → 24** — par acoplado
 Bibliography+Cite minimal sem hayagriva; ADR-0064 Caso A
-patamar N=4 → 5).
+patamar N=4 → 5; **após P158B: ~61.0% (inalterada)** — segundo
+refino qualitativo consecutivo de `figure` (supplement por lang;
+6 langs × 3 kinds); reuso pattern P155 cross-feature N=1).
 **Itens scope-out**: 2 (font dict via ADR-0054bis; lang shaping via DEBT-53).
 
 ### Tabela B — Arquitectural (contagens)
@@ -856,6 +858,31 @@ estabeleceu; P158A respeita) — supplement automático, show
 selectors `figure.where(kind:)`, refactor `kind: String →
 Option<String>` permanecem candidatos NÃO-reservados.
 
+³¹ — Ajuste P158B (Tabela A.6 Model): segundo refino qualitativo
+consecutivo de `figure` — supplement automático localizado por
+lang adicionado em `introspect.rs` linha 334. Helper novo
+`figure_supplement_for_lang(kind, lang) -> String` em
+`rules/lang/figure_supplement.rs` cobrindo 6 langs (pt/en/de/
+fr/es/it) × 3 kinds (image/table/raw) = 18 entradas + fallback
+PT por kind + capitalização para kind desconhecido. Field novo
+`pub lang: Option<Lang>` em `CounterState` para lang resolution
+(default `None` → fallback PT, paridade backwards compat).
+**Reuso explícito do padrão P155** `localize_quotes(lang)` —
+primeiro reuso cross-feature (quotes → figure supplement);
+**subpadrão emergente N=1** "padrão P155 i18n reusado
+cross-feature". **Sem alteração ao variant `Content::Figure`**
+(estrutura inalterada). **Hash `entities/content.rs` preservado**
+`ec58d849` — **décimo primeiro passo consecutivo** (P156L → P158B)
+sem alteração ao variant Content. ADR-0064 NÃO directamente
+aplicável (kind continua String; lang é Option mas em
+CounterState, não em variant). Cobertura Model agregada
+**inalterada** (~50%) — refino qualitativo. Tests +15 (1174
+→ 1189; 8 unit em figure_supplement.rs + 7 integration em
+introspect.rs). **Política "sem novas reservas"** preservada
+(P158 estabeleceu; P158A/B respeitam) — `supplement: Option<Content>`
+field user-facing, mais langs, CSL-aware format permanecem
+candidatos NÃO-reservados.
+
 ²¹ — Ajuste P156L (refino sides individualizadas; **primeira
 aplicação concreta de ADR-0065 critério #3** — expansão de
 variant existente; **segunda aplicação concreta de ADR-0064
@@ -887,7 +914,8 @@ ADR-0065 N=6 implícito; reuso `Sides<T>` N=2; reuso
 **Cobertura arquitectural total**: (74 + 13) / 106 = **82%**
 (era 80% pós-P157C/P158/P158A; era 78% pós-P157B; era 77-78%
 pós-P157A; era 76-77% pós-P156L; era 75-76% pós-P156I; era
-75% pré-P155; era 72% pré-P154B; era 70% pré-P149). **Patamar
+75% pré-P155; era 72% pré-P154B; era 70% pré-P149; **inalterada
+pós-P158B** — refino qualitativo de `figure`). **Patamar
 82% atingido em P159A** — par acoplado Bibliography+Cite
 minimal adiciona 2 variants Content (56 → 58); vanilla extra
 ausentes mantém 0 (subset minimal cobre todos os variants
