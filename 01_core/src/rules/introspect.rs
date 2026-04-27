@@ -331,7 +331,14 @@ fn walk(content: &Content, state: &mut CounterState) {
                     };
                     if n > 0 {
                         state.figure_label_numbers.insert(label.clone(), n);
-                        Some(format!("Figura {}", n))
+                        // Passo 158B: supplement localizado por lang.
+                        // Lang vem de state.lang (None → fallback PT
+                        // per diagnóstico P158B §8.2 backwards compat).
+                        let supplement = crate::rules::lang::figure_supplement::figure_supplement_for_lang(
+                            kind.as_str(),
+                            state.lang.as_ref(),
+                        );
+                        Some(format!("{} {}", supplement, n))
                     } else {
                         Some(String::new())
                     }
@@ -868,5 +875,181 @@ mod tests {
             "Duas figuras de kind 'image' devem produzir [1, 2]");
         assert_eq!(table_nums, vec![1],
             "Uma figura de kind 'table' deve produzir [1] independentemente");
+    }
+
+    // ── Passo 158B — Supplement automático por lang em figure ────────────
+
+    /// Helper para construir state com lang explícito.
+    fn introspect_with_lang(content: &Content, lang_code: &str) -> CounterState {
+        use std::str::FromStr;
+        use crate::entities::lang::Lang;
+        let mut state = CounterState::new();
+        state.lang = Some(Lang::from_str(lang_code).unwrap());
+        walk(content, &mut state);
+        state
+    }
+
+    #[test]
+    fn figure_label_default_no_lang_set_devolve_pt() {
+        // P158B §8.2: lang None → fallback PT (backwards compat).
+        use crate::entities::label::Label;
+        let label = Label("fig1".to_string());
+        let figure = Content::Figure {
+            body: Box::new(Content::text("body")),
+            caption: Some(Box::new(Content::text("caption"))),
+            kind: "image".to_string(),
+            numbering: Some("1".to_string()),
+        };
+        let labelled = Content::Labelled {
+            target: Box::new(figure),
+            label: label.clone(),
+        };
+        let state = introspect(&labelled);
+        assert_eq!(
+            state.resolved_labels.get(&label).map(String::as_str),
+            Some("Figura 1"),
+            "Default sem lang → PT 'Figura'"
+        );
+    }
+
+    #[test]
+    fn figure_label_lang_pt_image_devolve_figura() {
+        use crate::entities::label::Label;
+        let label = Label("fig1".to_string());
+        let figure = Content::Figure {
+            body: Box::new(Content::text("body")),
+            caption: Some(Box::new(Content::text("caption"))),
+            kind: "image".to_string(),
+            numbering: Some("1".to_string()),
+        };
+        let labelled = Content::Labelled {
+            target: Box::new(figure),
+            label: label.clone(),
+        };
+        let state = introspect_with_lang(&labelled, "pt");
+        assert_eq!(
+            state.resolved_labels.get(&label).map(String::as_str),
+            Some("Figura 1"),
+        );
+    }
+
+    #[test]
+    fn figure_label_lang_en_table_devolve_table() {
+        use crate::entities::label::Label;
+        let label = Label("tab1".to_string());
+        let figure = Content::Figure {
+            body: Box::new(Content::text("body")),
+            caption: Some(Box::new(Content::text("caption"))),
+            kind: "table".to_string(),
+            numbering: Some("1".to_string()),
+        };
+        let labelled = Content::Labelled {
+            target: Box::new(figure),
+            label: label.clone(),
+        };
+        let state = introspect_with_lang(&labelled, "en");
+        assert_eq!(
+            state.resolved_labels.get(&label).map(String::as_str),
+            Some("Table 1"),
+        );
+    }
+
+    #[test]
+    fn figure_label_lang_de_raw_devolve_listing() {
+        use crate::entities::label::Label;
+        let label = Label("lst1".to_string());
+        let figure = Content::Figure {
+            body: Box::new(Content::text("body")),
+            caption: Some(Box::new(Content::text("caption"))),
+            kind: "raw".to_string(),
+            numbering: Some("1".to_string()),
+        };
+        let labelled = Content::Labelled {
+            target: Box::new(figure),
+            label: label.clone(),
+        };
+        let state = introspect_with_lang(&labelled, "de");
+        assert_eq!(
+            state.resolved_labels.get(&label).map(String::as_str),
+            Some("Listing 1"),
+        );
+    }
+
+    #[test]
+    fn figure_label_lang_unknown_fallback_pt() {
+        // P158B §8.2: lang desconhecido (zh) → fallback PT.
+        use crate::entities::label::Label;
+        let label = Label("fig1".to_string());
+        let figure = Content::Figure {
+            body: Box::new(Content::text("body")),
+            caption: Some(Box::new(Content::text("caption"))),
+            kind: "image".to_string(),
+            numbering: Some("1".to_string()),
+        };
+        let labelled = Content::Labelled {
+            target: Box::new(figure),
+            label: label.clone(),
+        };
+        let state = introspect_with_lang(&labelled, "zh");
+        assert_eq!(
+            state.resolved_labels.get(&label).map(String::as_str),
+            Some("Figura 1"),
+            "Lang desconhecido cai no fallback PT"
+        );
+    }
+
+    #[test]
+    fn figure_label_kind_custom_devolve_capitalizado() {
+        // P158B §6: kind desconhecido devolve string capitalizada.
+        use crate::entities::label::Label;
+        let label = Label("custom1".to_string());
+        let figure = Content::Figure {
+            body: Box::new(Content::text("body")),
+            caption: Some(Box::new(Content::text("caption"))),
+            kind: "custom".to_string(),
+            numbering: Some("1".to_string()),
+        };
+        let labelled = Content::Labelled {
+            target: Box::new(figure),
+            label: label.clone(),
+        };
+        let state = introspect_with_lang(&labelled, "en");
+        assert_eq!(
+            state.resolved_labels.get(&label).map(String::as_str),
+            Some("Custom 1"),
+            "Kind desconhecido capitalizado"
+        );
+    }
+
+    #[test]
+    fn figure_counters_independentes_por_kind_continuam_a_funcionar_apos_p158b() {
+        // Regression P157A/P158A: counters por kind continuam
+        // independentes; supplement P158B não interfere.
+        use std::sync::Arc;
+        let content = Content::Sequence(Arc::from(vec![
+            Content::Figure {
+                body: Box::new(Content::text("body1")),
+                caption: Some(Box::new(Content::text("c1"))),
+                kind: "image".to_string(),
+                numbering: Some("1".to_string()),
+            },
+            Content::Figure {
+                body: Box::new(Content::text("body2")),
+                caption: Some(Box::new(Content::text("c2"))),
+                kind: "table".to_string(),
+                numbering: Some("1".to_string()),
+            },
+            Content::Figure {
+                body: Box::new(Content::text("body3")),
+                caption: Some(Box::new(Content::text("c3"))),
+                kind: "image".to_string(),
+                numbering: Some("1".to_string()),
+            },
+        ]));
+        let state = introspect(&content);
+        assert_eq!(state.figure_numbers.get("image").cloned().unwrap_or_default(),
+            vec![1, 2], "image counter independente");
+        assert_eq!(state.figure_numbers.get("table").cloned().unwrap_or_default(),
+            vec![1], "table counter independente");
     }
 }

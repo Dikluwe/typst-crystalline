@@ -299,7 +299,7 @@ da Fase 1 Model em P155).
 
 ---
 
-## Aplicações cumulativas (pós-P159B)
+## Aplicações cumulativas (pós-ADR-0062-create)
 
 ADR-0061 PROPOSTO em P156B (2026-04-25). **Fase 1+2
 materializadas em sequência granular P156C-I** (7 passos
@@ -329,7 +329,9 @@ de ADR-0065 critério #3):
 | P158A | figure auto-detect (Model figure-kinds sub-passo 1) | 0% agregado | Layout 78%; Model 50% inalterado (refino qualitativo) | +6 |
 | P159 | (diagnóstico Bibliography + Cite) | — | — (sem código; passo documental) | 0 |
 | P159A | Bibliography + Cite par acoplado minimal (Model Fase 2) | +arq 80% → 82% | Layout 78%; Model agregada 50% inalterada; cite/bib `ausente → parcial` | +27 |
-| **P159B** | **(diagnóstico amplo expansão série 159 + tecto Model)** | — | — (sem código; passo documental amplo M-) | **0** |
+| P159B | (diagnóstico amplo expansão série 159 + tecto Model) | — | — (sem código; passo documental amplo M-) | 0 |
+| **ADR-0062-create** | **(administrativo XS — formaliza reserva ADR-0062 PROPOSTO)** | — | — (sem código; ADRs total 63 → 64) | **0** |
+| P158B | figure supplement por lang (Model figure-kinds sub-passo 2) | 0% agregado | Layout 78%; Model 50% inalterado (refino qualitativo) | +15 |
 
 **Total**: +56 pontos percentuais Layout em 9 passos consecutivos
 de materialização Layout (22% → 78%); **+5pp Model** em P157A
@@ -347,13 +349,15 @@ critério #3. P157 é diagnóstico precedendo materialização Model
 Fase 2 (table foundations) — primeira aplicação concreta de
 ADR-0065 critério #5. **P158 é diagnóstico precedendo
 materialização Model figure-kinds — segunda aplicação concreta
-do critério #5**. **+267 tests** acumulados (1145 → 1412
-lib+integ+diagnostic; inalterado por P159B documental).
-**Zero reformulações mid-passo** em N=14 aplicações de
-materialização (9 Layout + 5 Model). Padrão granular
-universal cross-domínio confirmado e estendido. Cobertura
-arquitectural mantém **82%** após P159B (passo documental
-amplo).
+do critério #5**. **P158B é segundo refino qualitativo
+consecutivo de `figure` (supplement por lang) — sub-passo 2 de
+Model figure-kinds; primeiro reuso explícito cross-feature do
+pattern P155 `localize_quotes`**. **+282 tests** acumulados (1145 →
+1427 lib+integ+diagnostic — +15 em P158B). **Zero reformulações
+mid-passo** em N=15 aplicações de materialização (9 Layout +
+6 Model). Padrão granular universal cross-domínio confirmado
+e estendido. Cobertura arquitectural mantém **82%** após P158B
+(refino qualitativo).
 
 ### Tipos novos infraestruturais
 
@@ -390,22 +394,25 @@ amplo).
 
 ### Padrões metodológicos consolidados
 
-1. **Granularidade 1-2 features/passo**: **N=14** aplicações
+1. **Granularidade 1-2 features/passo**: **N=15** aplicações
    consecutivas sem reformulação (8 materialização Layout
    + 1 refino Layout P156L + 3 materialização Model
    P157A/B/C + 1 refino Model P158A + 1 par acoplado Model
-   P159A). **Padrão cross-domínio reforçado** mas **com primeira
-   quebra honestamente registada**: P159A é M+ par acoplado
+   P159A + **1 segundo refino Model P158B**). **Padrão
+   cross-domínio reforçado** mas **com primeira quebra
+   honestamente registada**: P159A é M+ par acoplado
    (granularidade quebrada N=13 → M+ com precedente P156C par
    lógico pad+hide). Hipótese da decisão humana 2026-04-25
    empiricamente confirmada e estendida a refino Layout +
-   Model Fase 2 multi-passo + refino Model + par acoplado.
-   **Formalizada parcialmente em ADR-0065** (que cita N=5 com
-   diversidade de critérios; P156L é primeira aplicação concreta
-   do critério #3; P157 é primeira aplicação do critério #5).
+   Model Fase 2 multi-passo + refino Model + par acoplado +
+   segundo refino consecutivo de mesmo Model feature (figure
+   P158A→P158B). **Formalizada parcialmente em ADR-0065** (que
+   cita N=5 com diversidade de critérios; P156L é primeira
+   aplicação concreta do critério #3; P157 é primeira aplicação
+   do critério #5).
 
 2. **"Inventariar primeiro" pré-decisão arquitectural**:
-   **N=15** aplicações (P156F defensivo; P156G deliberado;
+   **N=17** aplicações (P156F defensivo; P156G deliberado;
    P156H curto; P156I curto focado; P156J curto focado;
    P156L expansão variant existente — primeira aplicação
    concreta do critério #3 de ADR-0065; P157 scope determinado
@@ -433,14 +440,21 @@ amplo).
    P159A inventário par acoplado com decisão de tipo entity
    `BibEntry` 4 fields minimais — primeira aplicação isolada
    concreta de ADR-0065 critério #2 (escolha de tipo);
-   **P159B inventário amplo expansão série 159 + tecto Model
+   P159B inventário amplo expansão série 159 + tecto Model
    — quarta aplicação concreta critério #5 com diversidade
-   ampliada multi-feature** (P157/P158/P159 inventariaram uma
-   feature cada; P159B inventaria todas as expansões pendentes
-   simultaneamente)). **Formalizado em ADR-0065** (P156K);
-   **agora N=15 com 4 critérios formalmente validados** (#2
-   P159A primeira isolada; #3 P156L; #5 P157 + P157A + P158 +
-   P158A + P159 + **P159B multi-feature**; #1 P157A/B + #6 P157B/C).
+   ampliada multi-feature; **ADR-0062-create inventário
+   precedentes ADR autorização crate (0023/0024/0057) +
+   convenção naming + estrutura canónica — primeira aplicação
+   isolada concreta de ADR-0065 critério #1 (naming) num
+   passo administrativo XS**; **P158B inventário figure
+   supplement com decisão fallback PT vs EN — quinta aplicação
+   concreta critério #5 com diversidade reforçada (lang-aware
+   refino) + reuso pattern P155 cross-feature como precedente
+   metodológico**). **Formalizado em ADR-0065** (P156K);
+   **agora N=17 com 4 critérios formalmente validados**
+   (#1 P157A/B + ADR-0062-create administrativo XS; #2 P159A
+   primeira isolada; #3 P156L; #5 P157 + P157A + P158 + P158A
+   + P158B + P159 + P159B multi-feature; #6 P157B/C).
 
 3. **"Smart<T> → Option<T> ou default"**: **N=10** aplicações
    (P156E Parity; P156F angles; P156G Block.width; P156H
@@ -468,7 +482,7 @@ amplo).
      Caso B só Layout — candidato futuro.
    - **Caso A é o caso mais aplicado** (N=5; cross-domínio).
 
-4. **"§análise de risco no relatório"**: **N=15** aplicações
+4. **"§análise de risco no relatório"**: **N=17** aplicações
    (P156F/G/H/I/J/K + L com peso real — primeiro refactor
    real após série aditiva; P157 com risco baixo diagnóstico;
    P157A com risco baixo-médio — primeiro Model Fase 2 com
@@ -491,7 +505,16 @@ amplo).
    aplicação isolada concreta; **P159B com risco baixo —
    diagnóstico amplo M-; tecto Model puro estimado +5-10pp
    alcançável com 5 sub-passos Bloco A; recomendação concreta
-   P158B supplement por lang figure**).
+   P158B supplement por lang figure; **ADR-0062-create com
+   risco muito baixo — passo administrativo XS; primeiro do
+   tipo "criar ADR a partir de reserva pré-existente"; sem
+   código alterado**; **P158B com risco muito baixo — segundo
+   refino comportamental consecutivo de figure (P158A→P158B);
+   reuso explícito do padrão P155 `localize_quotes` cross-feature;
+   helper novo `figure_supplement_for_lang` em
+   `rules/lang/figure_supplement.rs` paralelo a `quotes.rs`;
+   field novo `lang: Option<Lang>` em `CounterState` para lang
+   resolution; fallback PT preserva backwards compat**).
    Cobertura sistemática do risco.
 
 5. **"Reuso de template containers"**: **N=4** aplicações
@@ -549,14 +572,28 @@ amplo).
     formalização se P158/P159 também usarem pares simétricos
     (e.g. `figure.caption`/`figure.numbering` se aplicável).
 
-### Estado pós-P159B
+13. **"Padrão P155 i18n reusado cross-feature"** (subpadrão
+    emergente P158B): **N=1** aplicação concreta (P155
+    `localize_quotes(lang)` em `rules/lang/quotes.rs` →
+    P158B `figure_supplement_for_lang(kind, lang)` em
+    `rules/lang/figure_supplement.rs`). Estrutura paralela:
+    tabela estática `&[((key,...), value)]` + lookup linear
+    por exact match + fallback constante. Primeiro reuso
+    explícito cross-feature do pattern P155 (quotes → figure
+    supplement). Candidato a formalização (helper genérico ou
+    macro de tabela i18n) se outro feature reusar — e.g. table
+    caption supplement futuro; bibliography lang per P159B §4.
+    Política consistente N=3-4 mínima para promoção.
+
+### Estado pós-P158B
 
 - **Cobertura Layout**: **78%** (inalterada por P157A/B/C +
-  P158/P158A/P159/P159A/P159B — escopo Model + refino
-  qualitativo + par acoplado + diagnóstico amplo). Target
-  ADR-0061 (72%) **continua ultrapassado**.
-- **Cobertura arquitectural**: **82%** (inalterada por P159B
-  documental).
+  P158/P158A/P159/P159A/P159B + ADR-0062-create + **P158B** —
+  escopo Model + refino qualitativo + par acoplado + diagnóstico
+  amplo + administrativo XS + segundo refino qualitativo figure).
+  Target ADR-0061 (72%) **continua ultrapassado**.
+- **Cobertura arquitectural**: **82%** (inalterada por P159B +
+  P158B — refino qualitativo de variant Content existente).
 - **Tecto Model puro estimado** (P159B §4): cobertura agregada
   ~50% → **~55-60% alcançável** com 5 sub-passos Bloco A
   (supplement figure / cite.form / BibEntry fields / kind
@@ -594,9 +631,21 @@ amplo).
   cross-reference** — ADR-0017 adiada. ADR-0062 mantém-se
   reserva sem ficheiro. **DEBT-55 contribuído mas NÃO fechado**
   — refinos futuros pendem de hayagriva integration.
-- **Restantes Fase 2 Model** (per P159B §5 Bloco A):
-  - **Recomendação primária P159B §6**: P158B supplement
-    automático por lang em figure (M; reuso padrão P155 quotes).
+- **P158B (figure supplement por lang)**: materializado.
+  Helper novo `figure_supplement_for_lang(kind, lang) ->
+  String` em `rules/lang/figure_supplement.rs` cobrindo
+  6 langs × 3 kinds = 18 entradas + fallback PT por kind +
+  capitalização para kind desconhecido. Field novo `pub
+  lang: Option<Lang>` em `CounterState` para lang resolution
+  (default `None` → fallback PT, paridade backwards compat).
+  Modificação trivial em `introspect.rs` linha 334. Sem
+  alteração ao variant `Content::Figure`. Hash
+  `entities/content.rs` preservado **`ec58d849` — décimo
+  primeiro passo consecutivo** (P156L → P158B). **Reuso
+  explícito do padrão P155** `localize_quotes(lang)` —
+  primeiro reuso cross-feature (subpadrão emergente N=1).
+- **Restantes Fase 2 Model** (per P159B §5 Bloco A — 4
+  candidatos restantes pós-P158B):
   - Cite.form variants (Normal/Prose/Author/Year).
   - BibEntry fields adicionais (volume/pages/journal/etc.).
   - Refactor `kind: String → Option<String>` per ADR-0064 Caso A.
@@ -618,20 +667,21 @@ amplo).
   contribui ao DEBT-56 (storage de repeat). Fechamento de
   ambos fica para refactor dedicado.
 - **Zero novos DEBTs** em toda a série P156C-L + P157 +
-  P157A/B/C + P158 + P158A + P159 + P159A + **P159B** (19
-  passos total: 14 materialização + 5 meta/diagnóstico).
+  P157A/B/C + P158 + P158A + P159 + P159A + P159B +
+  **ADR-0062-create** (20 passos total: 14 materialização +
+  5 meta/diagnóstico + 1 administrativo XS).
 - **Footnote area** scope-out per decisão humana
   2026-04-25 (não incluído na Fase 1+2 Layout nem em P156J/L/
   P157/P157A/B/C/P158/P158A).
 - **Hash `entities/content.rs` preservado**: `ec58d849`
-  desde P156L — **décimo passo consecutivo** (P156L → P157 →
-  P157A → P157B → P157C → P158 → P158A → P159 → P159A →
-  **P159B**) sem alteração ao prompt L0 do content. Padrão
-  "estabilidade contrato L0 do content" continua a fortalecer-se
-  em P159B (passo documental amplo). Refino futuro pode
-  actualizar prompt L0 com documentação dos novos variants
-  Bibliography/Cite (passo administrativo XS NÃO reservado per
-  política P158).
+  desde P156L — **décimo primeiro passo consecutivo** (P156L
+  → P157 → P157A → P157B → P157C → P158 → P158A → P159 →
+  P159A → P159B → **ADR-0062-create**) sem alteração ao
+  prompt L0 do content. Padrão "estabilidade contrato L0 do
+  content" continua a fortalecer-se em ADR-0062-create (passo
+  administrativo XS). Refino futuro pode actualizar prompt
+  L0 com documentação dos novos variants Bibliography/Cite
+  (passo administrativo XS NÃO reservado per política P158).
 - **Política nova "sem novas reservas"** (P158): reservas
   pré-existentes (P159 + ADR-0062) respeitadas mas não
   reforçadas; passos seguintes a decidir sequencialmente per

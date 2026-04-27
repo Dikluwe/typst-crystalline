@@ -1,17 +1,18 @@
 # Índice de ADRs do Typst Cristalino
 
 Este documento é o índice canónico dos Architectural Decision
-Records (ADRs) do projecto **Typst Cristalino**. Lista os 63 ADRs
-em vigor (62 números únicos; ADR-0026 tem variante -R1 por
+Records (ADRs) do projecto **Typst Cristalino**. Lista os 64 ADRs
+em vigor (63 números únicos; ADR-0026 tem variante -R1 por
 revisão), as meta-regras que governam o projecto, o vocabulário
 canónico de status, cadeias de revogação e revisão, e convenções
 estruturais.
 
 **Reservas de números** (sem ficheiro criado, mas comprometidos):
-- **ADR-0062** — autorização da crate `hayagriva` para
-  bibliography + cite. Reserva originalmente em ADR-0061;
-  deslocada para ADR-0062 em P156B (que reocupou ADR-0061 para
-  Layout roadmap). Consumida quando DEBT-55 fechar (P159).
+- ~~**ADR-0062**~~ **CONSUMIDA** em passo `ADR-0062-create`
+  (2026-04-27) — ficheiro
+  `typst-adr-0062-hayagriva-bibliography-parsing.md` criado com
+  status `PROPOSTO`. Promoção a `IMPLEMENTADO` ocorre em passo
+  futuro de materialização hayagriva real (P159G ou equivalente).
 - **ADR-0063** — reservada para outra crate específica se
   surgir (e.g. column flow algorithm pode usar este número se
   ADR dedicada for criada quando DEBT-56 for materializado).
@@ -192,16 +193,17 @@ que corresponde a mudança específica no código.
 | 0059 | `Args` como tipo separado, não-variant de `Value` | `EM VIGOR` |
 | 0060 | Model (structural) roadmap — Fase 1 + 2 + 3 | `IMPLEMENTADO` (Fase 1 fechada em P155; Fase 2/3 prosseguem em **P157+** após renumeração registada em P156B) |
 | 0061 | Layout Fase X — page model + multi-column + footnote area roadmap | `PROPOSTO` (P156B; reocupou número antes reservado para hayagriva — passou para ADR-0062) |
+| 0062 | Autorização crate `hayagriva` para bibliography + cite (CSL parsing) | `PROPOSTO` (passo `ADR-0062-create`; promoção a IMPLEMENTADO em passo futuro materialização hayagriva real) |
 | 0064 | Tradução `Smart<T>` vanilla → `Option<T>`/default | `EM VIGOR` (P156K; formaliza padrão N=6 da série P156C-J) |
 | 0065 | Inventariar primeiro — sub-passo `.1` para decisão arquitectural não-trivial | `EM VIGOR` (P156K; estende ADR-0034; padrão N=5 da série P156C-J) |
 
-**Total**: 63 ADRs (62 números únicos; ADR-0026 tem variante -R1
+**Total**: 64 ADRs (63 números únicos; ADR-0026 tem variante -R1
 por revisão).
 
 ### Distribuição de status
 
-- `PROPOSTO`: **11** ADRs (decisões em aberto: 0005, 0006,
-  0008–0015, **0061**).
+- `PROPOSTO`: **12** ADRs (decisões em aberto: 0005, 0006,
+  0008–0015, 0061, **0062**).
 - `IDEIA`: 2 ADRs (0002, 0003).
 - `EM VIGOR`: **28** ADRs (regras/políticas activas; 0018, 0029,
   0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**).
@@ -505,6 +507,94 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 158B — Supplement automático por lang em figure
+  (Model figure-kinds sub-passo 2)** (refino qualitativo
+  consecutivo de `figure` após P158A; **segundo refino
+  consecutivo de mesma feature Model**; **primeiro reuso
+  explícito cross-feature do padrão P155** `localize_quotes`).
+  Helper novo `figure_supplement_for_lang(kind: &str, lang:
+  Option<&Lang>) -> String` em `01_core/src/rules/lang/
+  figure_supplement.rs` (ficheiro novo paralelo a `quotes.rs`)
+  cobrindo 6 langs (pt/en/de/fr/es/it) × 3 kinds (image/table/
+  raw) = 18 entradas + fallback PT por kind + capitalização
+  para kind desconhecido. Field novo `pub lang: Option<Lang>`
+  em `entities/counter_state.rs::CounterState` para lang
+  resolution (default `None` → fallback PT, paridade backwards
+  compat com tests pré-existentes que esperam "Figura").
+  Modificação trivial em `rules/introspect.rs` linha 334:
+  `Some(format!("Figura {}", n))` →
+  `Some(format!("{} {}", figure_supplement_for_lang(kind,
+  lang), n))`. **Sem alteração ao variant `Content::Figure`**
+  (estrutura inalterada). **Decisão arquitectural-chave**:
+  fallback PT (não EN) para preservar backwards compat com
+  tests pré-existentes — registada em diagnóstico P158B §2 +
+  §8.2. **Subpadrão emergente N=1**: "padrão P155 i18n reusado
+  cross-feature" — primeiro reuso (quotes → figure supplement);
+  estrutura paralela tabela estática + lookup linear + fallback;
+  candidato a formalização N=3-4 mínima. Tests +15 (1174 →
+  1189; 8 unit + 7 integration; range esperado +12-15). Cobertura
+  Model agregada **inalterada** (~50%) — segundo refino
+  qualitativo consecutivo. Cobertura arquitectural **inalterada**
+  82%. Hash `entities/content.rs` preservado `ec58d849` —
+  **décimo primeiro passo consecutivo** (P156L → P158B).
+  Padrões pós-P158B: granularidade N=14 → **15**; inventariar
+  primeiro N=16 → **17** (ADR-0065 critério #5 quinta
+  aplicação concreta); §análise de risco N=16 → **17** (P158B
+  muito baixo risco); P155 cross-feature N=1 (subpadrão novo).
+  **Política "sem novas reservas" preservada** — `supplement:
+  Option<Content>` field user-facing, mais langs, CSL-aware
+  format, region-specific supplements permanecem candidatos
+  NÃO-reservados.
+- **Passo `ADR-0062-create` — Criar ADR-0062 PROPOSTO
+  (administrativo XS)** (passo administrativo formaliza reserva
+  pré-existente de ADR-0062 — autorização de crate `hayagriva`
+  para bibliography + cite CSL parsing — como ficheiro ADR
+  concreto com status `PROPOSTO`; **não materializa código**;
+  **não promove a `EM VIGOR` ou `IMPLEMENTADO`** — promoção
+  ocorre em passo futuro de materialização hayagriva real
+  (P159G ou equivalente)). **Subpadrão emergente N=1**: "passo
+  administrativo XS criar ADR PROPOSTO a partir de reserva
+  pré-existente" — primeiro do tipo nesta sessão; candidato
+  a precedente para outras reservas se aplicável (e.g. ADR-0063
+  reservada column flow). Ficheiro novo
+  `00_nucleo/adr/typst-adr-0062-hayagriva-bibliography-parsing.md`
+  com estrutura canónica (Status / Data / Contexto / Análise
+  de pureza / Decisão / Precedentes citáveis / Crate hayagriva
+  informação técnica / Consequências / Alternativas considera-
+  das / Plano de promoção futuro / Referências). **Precedentes
+  citáveis** (autorização crate externa em L1): ADR-0023
+  (`indexmap`); ADR-0024 (`ecow`); ADR-0057 (`hypher`); padrão
+  consolidado de "cada crate externa em L1 tem ADR dedicada
+  com análise de pureza + justificação técnica + critério de
+  promoção". **Justificação técnica primária**: vanilla integra
+  `hayagriva` profundamente em `model/bibliography.rs` (1226
+  linhas); CSL parsing cristalino do zero é trabalho
+  desproporcionado vs reuso de hayagriva existente; hayagriva
+  é mantida pela mesma organização que typst (autoridade
+  máxima). **Alternativas consideradas**: implementar CSL
+  cristalino (rejeitada — desproporcionalidade); manter subset
+  minimal (P159A já implementou — insuficiente para paridade
+  ADR-0060 ~68%); usar outra crate biblatex (rejeitada — menos
+  mainstream). **Plano de promoção futuro**: P159G ou
+  equivalente adiciona Cargo.toml + crystalline.toml; ADR-0062
+  transita PROPOSTO → IMPLEMENTADO. **Política "sem novas
+  reservas" preservada** — passo formaliza reserva pré-existente,
+  não cria nova; reservas pré-existentes (ADR-0017 Introspection
+  runtime) mantêm-se documentadas mas não reforçadas.
+  Padrões pós-ADR-0062-create: granularidade N=14 (inalterada
+  — administrativo); inventariar primeiro N=15 → **16** (ADR-
+  0065 critério #1 naming + critério #5 inventário trivial em
+  passo administrativo); §análise de risco N=15 → **16** (passo
+  administrativo XS muito baixo risco). **Total ADRs 63 → 64**
+  (paridade incremento P156K que adicionou ADR-0064/0065).
+  Distribuição: PROPOSTO 11 → **12** (+0062); EM VIGOR 28
+  inalterado; IMPLEMENTADO 19 inalterado. Hash
+  `entities/content.rs` mantém `ec58d849` — **décimo primeiro
+  passo consecutivo** (P156L → ADR-0062-create) sem alteração
+  ao prompt L0 do content. **Implicação**: Bloco B do
+  diagnóstico P159B agora pode iniciar com referência concreta
+  a ADR-0062 PROPOSTO (em vez de referência a reserva sem
+  ficheiro).
 - **Passo 159B — Diagnóstico amplo expansão série 159 + tecto
   realista Model** (passo arquitectural de diagnóstico amplo;
   **não materializa código**; análogo estrutural a P156B —

@@ -12,3 +12,4 @@
 //! (refactor de unificação adiado a passo separado se priorizado).
 
 pub mod quotes;
+pub mod figure_supplement;
