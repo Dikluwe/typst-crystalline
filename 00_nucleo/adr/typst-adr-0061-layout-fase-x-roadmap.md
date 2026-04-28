@@ -339,6 +339,7 @@ de ADR-0065 critério #3):
 | P159E | url + doi em BibEntry (refino família 159 fora Bloco A) | 0% agregado | Layout 78%; Model 50% inalterado (refino tipo entity); subpadrão #16 N=1→2 | +8 |
 | P159G | 6 fields restantes em BibEntry (refino família 159 fora Bloco A) | 0% agregado | Layout 78%; Model 50% inalterado (refino tipo entity); **subpadrão #16 N=2→3** atinge limiar formalização | +11 |
 | P160 | (diagnóstico Introspection — módulo mais fraco 17%) | — | — (sem código; passo documental; **+ Introspection diagnóstico** primeira mudança cross-domínio) | 0 |
+| **P160A** | **(administrativo XS — criar ADR-0066 PROPOSTO Introspection runtime; resolve confusão de numeração 0017 vs 0066)** | — | — (sem código; ADRs total 64 → 65) | **0** |
 
 **Total**: +56 pontos percentuais Layout em 9 passos consecutivos
 de materialização Layout (22% → 78%); **+5pp Model** em P157A
@@ -399,13 +400,22 @@ inventaria módulo Introspection (módulo mais fraco 17%);
 implementado); recomendação primária **`ADR-0017-create`** XS
 administrativo (paridade `ADR-0062-create`); subpadrão #15
 state lookup N=3 confirmado como infraestrutura única
-materializável sem ADR-0017 promovida**. **+334 tests**
-acumulados (1145 → 1479 lib+integ+diagnostic — inalterado por
-P160 documental). **Zero reformulações mid-passo** em N=21
-aplicações de materialização (9 Layout + 12 Model). Padrão
-granular universal cross-domínio confirmado e estendido.
-Cobertura arquitectural mantém **82%** após P160 (passo
-documental; sem código alterado).
+materializável sem ADR-0017 promovida**. **P160A é segundo
+passo administrativo XS criar ADR PROPOSTO a partir de reserva
+pré-existente — formaliza reserva conceptual "Introspection
+runtime adiada" como ADR-0066 PROPOSTO; resolve confusão de
+numeração (slot 0017 já IMPLEMENTADO para tópico distinto;
+usa próximo disponível 0066); **subpadrão emergente N=1 → 2**
+"passo administrativo XS criar ADR PROPOSTO" atinge meio-caminho
+limiar formalização N=3-4 (ADR-0062-create + P160A); ADRs
+total 64 → 65; PROPOSTO 12 → 13; desbloqueia Bloco B Introspection
+(P160B-F)**. **+334 tests** acumulados (1145 → 1479
+lib+integ+diagnostic — inalterado por P160/P160A documental).
+**Zero reformulações mid-passo** em N=21 aplicações de
+materialização (9 Layout + 12 Model). Padrão granular
+universal cross-domínio confirmado e estendido. Cobertura
+arquitectural mantém **82%** após P160A (passo administrativo;
+sem código alterado).
 
 ### Tipos novos infraestruturais
 
@@ -465,7 +475,7 @@ documental; sem código alterado).
    P157 é primeira aplicação do critério #5).
 
 2. **"Inventariar primeiro" pré-decisão arquitectural**:
-   **N=24** aplicações (P156F defensivo; P156G deliberado;
+   **N=25** aplicações (P156F defensivo; P156G deliberado;
    P156H curto; P156I curto focado; P156J curto focado;
    P156L expansão variant existente — primeira aplicação
    concreta do critério #3 de ADR-0065; P157 scope determinado
@@ -542,13 +552,21 @@ documental; sem código alterado).
    por counter()) + recomendação primária ADR-0017-create
    paridade ADR-0062-create — décima segunda aplicação concreta
    critério #5 com diversidade cross-domínio nova (primeira
-   mudança Model → Introspection)**).
-   **Formalizado em ADR-0065** (P156K); **agora N=24 com 4
+   mudança Model → Introspection)**;
+   **P160A inventário precedentes ADR autorização +
+   convenção naming + estrutura canónica + descoberta crítica
+   de conflito de numeração (slot 0017 já IMPLEMENTADO; resolução
+   usar 0066) — segunda aplicação isolada concreta de ADR-0065
+   critério #1 (naming) num passo administrativo XS (após
+   ADR-0062-create); décima terceira aplicação concreta critério
+   #5**).
+   **Formalizado em ADR-0065** (P156K); **agora N=25 com 4
    critérios formalmente validados** (#1 P157A/B + ADR-0062-create
-   administrativo XS; #2 P159A + P159C + P159D patamar N=3;
-   #3 P156L; #5 P157 + P157A + P158 + P158A + P158B + P159 +
-   P159B + P159C + P159D + P158C + P159F + P159E + P159G +
-   **P160** multi-feature/cross-domínio; #6 P157B/C).
+   + **P160A** administrativos XS patamar N=3; #2 P159A +
+   P159C + P159D patamar N=3; #3 P156L; #5 P157 + P157A + P158
+   + P158A + P158B + P159 + P159B + P159C + P159D + P158C +
+   P159F + P159E + P159G + P160 + **P160A** multi-feature/
+   cross-domínio; #6 P157B/C).
 
 3. **"Smart<T> → Option<T> ou default"**: **N=12** aplicações
    (P156E Parity; P156F angles; P156G Block.width; P156H
@@ -586,7 +604,7 @@ documental; sem código alterado).
    - **P158C marca primeiro Caso A "estrito" em refactor**
      (não em variant aditivo) — subpadrão emergente.
 
-4. **"§análise de risco no relatório"**: **N=24** aplicações
+4. **"§análise de risco no relatório"**: **N=25** aplicações
    (P156F/G/H/I/J/K + L com peso real — primeiro refactor
    real após série aditiva; P157 com risco baixo diagnóstico;
    P157A com risco baixo-médio — primeiro Model Fase 2 com
@@ -681,7 +699,16 @@ documental; sem código alterado).
    XS administrativo paridade ADR-0062-create; sem código
    alterado; sem ADR nova; sem novas reservas; **primeira
    mudança de módulo cross-domínio Model → Introspection**
-   diversidade ADR-0065 critério #5 amplia-se**).
+   diversidade ADR-0065 critério #5 amplia-se**;
+   **P160A com risco muito baixo — passo administrativo XS
+   (paridade ADR-0062-create); descoberta crítica em §1 de
+   conflito de numeração (slot ADR-0017 já IMPLEMENTADO desde
+   2026-03-26 para tópico distinto "adiamento eval()") resolvida
+   por uso do próximo número disponível ADR-0066; nota explícita
+   no ficheiro ADR documenta divergência histórica entre reserva
+   conceptual ("ADR-0017") e ADR concreta (ADR-0066); subpadrão
+   "passo administrativo XS criar ADR PROPOSTO" cresce N=1→2;
+   ADRs total 64→65; PROPOSTO 12→13**).
    Cobertura sistemática do risco.
 
 5. **"Reuso de template containers"**: **N=4** aplicações
