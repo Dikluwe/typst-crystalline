@@ -196,14 +196,15 @@ que corresponde a mudança específica no código.
 | 0062 | Autorização crate `hayagriva` para bibliography + cite (CSL parsing) | `PROPOSTO` (passo `ADR-0062-create`; promoção a IMPLEMENTADO em passo futuro materialização hayagriva real) |
 | 0064 | Tradução `Smart<T>` vanilla → `Option<T>`/default | `EM VIGOR` (P156K; formaliza padrão N=6 da série P156C-J) |
 | 0065 | Inventariar primeiro — sub-passo `.1` para decisão arquitectural não-trivial | `EM VIGOR` (P156K; estende ADR-0034; padrão N=5 da série P156C-J) |
+| 0066 | Introspection runtime — promoção da reserva conceptual (referida historicamente como "ADR-0017 Introspection runtime adiada") a ficheiro PROPOSTO | `PROPOSTO` (passo `P160A`; resolve confusão de numeração — reserva conceptual usava 0017 mas slot 0017 já IMPLEMENTADO para outro tópico; promoção a IMPLEMENTADO em passo futuro materialização Introspection runtime real — P160B subset minimal) |
 
-**Total**: 64 ADRs (63 números únicos; ADR-0026 tem variante -R1
+**Total**: 65 ADRs (64 números únicos; ADR-0026 tem variante -R1
 por revisão).
 
 ### Distribuição de status
 
-- `PROPOSTO`: **12** ADRs (decisões em aberto: 0005, 0006,
-  0008–0015, 0061, **0062**).
+- `PROPOSTO`: **13** ADRs (decisões em aberto: 0005, 0006,
+  0008–0015, 0061, 0062, **0066**).
 - `IDEIA`: 2 ADRs (0002, 0003).
 - `EM VIGOR`: **28** ADRs (regras/políticas activas; 0018, 0029,
   0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**).
@@ -507,6 +508,51 @@ P84.8g.
   (+5 unit content.rs + +3 eval + +2 implícitos). Padrão
   diagnóstico-primeiro (P154A) → materialização (P154B)
   replica precedentes 131A→131B, 132A→132B, 140A→140B.
+- **Passo 160A — Criar ADR-0066 PROPOSTO Introspection runtime
+  (administrativo XS)** (sub-passo administrativo de P160 para
+  formalizar reserva conceptual pré-existente "Introspection
+  runtime adiada" como ficheiro ADR concreto com status
+  `PROPOSTO`; **não materializa código**; **não promove a EM
+  VIGOR ou IMPLEMENTADO** — promoção fica para passo futuro
+  P160B subset minimal materialização real). **Subpadrão
+  emergente N=1 → 2** "passo administrativo XS criar ADR
+  PROPOSTO a partir de reserva pré-existente" — segunda
+  aplicação após `ADR-0062-create` (atinge meio-caminho limiar
+  formalização N=3-4). **Decisão de numeração crítica registada**:
+  reserva conceptual usava "ADR-0017" mas slot 0017 já
+  IMPLEMENTADO desde 2026-03-26 para tópico distinto
+  ("adiamento de eval()"); **resolução: usar próximo número
+  disponível ADR-0066** (slot 0063 reservado conceptualmente
+  para column flow; 0064/0065 já usados; 0066 livre); ficheiro
+  novo `00_nucleo/adr/typst-adr-0066-introspection-runtime-adiada.md`
+  com nota explícita sobre divergência de numeração. Ficheiro
+  estrutura canónica (Status / Data / Nota numeração / Contexto /
+  Decisão / Análise pureza paridade ADR-0029 / Consequências /
+  Alternativas / Plano promoção futuro / Precedentes citáveis /
+  Referências / Próximos passos). **Subset minimal pós-promoção**:
+  state(key, init) M (P160B); metadata(value) S+ (P160C);
+  here()/locate() M (P160D); query(target) M+ (P160E);
+  position(target) S+ (P160F). **Cobertura esperada pós-Bloco B
+  subset minimal**: ~17% → ~50%. **Status PROPOSTO** —
+  autorização arquitectural concedida em princípio mas **não
+  em vigor** até P160B materializa subset minimal. **Sem código
+  alterado**. **Hash `entities/content.rs` preservado** `ec58d849`
+  — **19º passo consecutivo** via L0-baseline interpretation.
+  **Total ADRs 64 → 65** (ADR-0066 adicionada). Distribuição:
+  PROPOSTO 12 → **13** (+0066); EM VIGOR 28 inalterado;
+  IMPLEMENTADO 19 inalterado. Padrões pós-P160A: granularidade
+  N=21 (inalterada — administrativo); inventariar primeiro
+  N=24 → **25** (ADR-0065 critério #1 naming convention +
+  critério #5 inventário trivial em passo administrativo);
+  §análise de risco N=24 → **25** (passo administrativo XS
+  muito baixo risco); subpadrão "passo administrativo XS criar
+  ADR PROPOSTO" N=1 → **2** (atinge meio-caminho limiar
+  formalização). **Política "sem novas reservas" preservada** —
+  passo formaliza reserva conceptual pré-existente, não cria
+  nova; reservas pré-existentes (slot 0063 column flow)
+  mantêm-se documentadas mas não reforçadas. **Implicação**:
+  Bloco B do diagnóstico P160 (5 candidatos P160B-F) agora
+  pode iniciar com referência concreta a ADR-0066 PROPOSTO.
 - **Passo 160 — Diagnóstico Introspection (módulo mais fraco
   17%)** (passo arquitectural de diagnóstico precedendo
   materialização Introspection; **não materializa código**;

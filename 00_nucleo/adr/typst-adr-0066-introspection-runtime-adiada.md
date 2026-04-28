@@ -1,0 +1,293 @@
+# ⚖️ ADR-0066: Introspection runtime — promoção da reserva conceptual a ficheiro PROPOSTO
+
+**Status**: `PROPOSTO`
+**Data**: 2026-04-27
+
+---
+
+## Nota sobre numeração
+
+A reserva conceptual referida cumulativamente como "ADR-0017"
+em relatórios e diagnósticos (P156B inventário 148 §A.9, P159A
+"sem validação cross-reference per ADR-0017", P159B §3 categoria
+A, P160 §1) **NÃO corresponde** ao ADR-0017 actual em ficheiro,
+que cobre **adiamento de `eval()` e estratégia typst-library**
+(IMPLEMENTADO desde 2026-03-26 —
+`typst-adr-0017-adiamento-eval-typst-library.md`).
+
+A reserva "Introspection runtime adiada" foi sempre conceptual,
+sem ficheiro próprio. P160 §1 confirmou empiricamente o estado
+factual. Este ADR usa **número 0066 (próximo disponível)** em
+vez de reocupar 0017 — reocupação seria divergência observable
+do ADR existente já IMPLEMENTADO.
+
+**Slot 0063** está reservada conceptualmente para "outra crate
+específica" (column flow per nota README); preserva-se sem
+ficheiro per política "sem novas reservas".
+
+Referências cruzadas em código/relatórios anteriores que
+mencionam "ADR-0017 Introspection runtime" devem ler-se como
+**ADR-0066** após este passo (P160A). Refactor cumulativo de
+relatórios antigos NÃO é necessário per política — comentários
+históricos preservam-se.
+
+---
+
+## Contexto
+
+Cristalino actual é **single-pass** per **ADR-0033** minimal:
+pipeline `eval` → `introspect` → `layout` → `export_pdf`.
+`introspect.rs` (1108 linhas) executa pré-passagem analítica
+DFS recursiva sobre Content tree, populando counters e
+resolved_labels antes de `layout()` correr.
+
+**Vanilla typst Introspection é fundamentalmente runtime/
+multi-pass**:
+- `counter()` runtime queries (counter values em diferentes
+  posições do documento).
+- `state()` mutable runtime state com chaves arbitrárias.
+- `here()` / `locate()` position-aware computations.
+- `query(target)` runtime introspection (lookup de elementos
+  por tipo/label).
+- `metadata(value)` arbitrary attaching para query subsequente.
+- `position(target)` location-aware (page/column/y-coord).
+- `convergence` fixpoint logic para multi-pass stabilization.
+- `introspector` engine (695 linhas vanilla) que cache states
+  para queries.
+
+**Cobertura cristalina actual** (per P160 §3 + cobertura A.9):
+- 1/13 features implementadas: `counter()` (subset minimal P60-62
+  single-pass).
+- 1/13 parcial: `measure()` (helper privado `measure_content`;
+  sem stdlib expose).
+- 11/13 ausentes: `state`, `here`, `locate`, `query`, `metadata`,
+  `position`, `convergence`, `introspector`, `location`,
+  `locator`, `tag`.
+
+**Cobertura observable A.9**: 1/6 = ~17% (saturada por counter()
+single-pass).
+
+**Subpadrão cristalino emergente** (P158B/P159C/P159F): "infra-
+estrutura state lookup" via fields aditivos em `CounterState`
+populados pelo walk introspect e consumidos pelo layouter.
+Patamar N=3:
+- `state.lang: Option<Lang>` (P158B).
+- `state.bib_entries: Vec<BibEntry>` (P159C).
+- `state.bib_numbers: HashMap<String, u32>` (P159F).
+
+Este subpadrão demonstra **viabilidade single-pass para subset
+de features que NÃO exigem runtime queries genuínas** —
+counters por tipo, lookups cross-element same-document, etc.
+
+**Limitação fundamental**: features observable user-facing além
+de counter() exigem multi-pass ou runtime state mutável.
+P160 §4 confirma empiricamente: tecto Introspection puro
+single-pass está **saturado em ~17%**. Refinos qualitativos
+adicionais (R1/R2/R3 em P160 §5) movem N=3 → 4+ mas não
+cobertura observable.
+
+---
+
+## Decisão
+
+**Promover a reserva conceptual "Introspection runtime adiada"
+a ADR concreta com status PROPOSTO** sob número 0066.
+
+**Subset minimal pós-promoção** (per P160 §6 recomendação Bloco B):
+1. **`state(key, init)` runtime mutable state** (M; P160B
+   primeiro candidato Bloco B).
+2. **`metadata(value)` arbitrary attaching** (S+; P160C).
+3. **`here()` / `locate()` current location** (M; P160D; depende
+   `Location` type novo).
+4. **`query(target)` runtime introspection** (M+; P160E; depende
+   `Location` + query engine).
+5. **`position(target)` location-aware** (S+; P160F; depende P160D).
+
+**Cobertura esperada pós-Bloco B subset minimal**: ~17% → ~50%.
+
+**Status PROPOSTO** — autorização arquitectural concedida em
+princípio mas **não em vigor** até passo de materialização real
+(P160B subset minimal ou equivalente).
+
+**Promoção a `IMPLEMENTADO`** ocorre quando:
+1. Pelo menos uma feature runtime queries genuína materializada
+   (e.g. `state(key, init)` com mutable storage end-to-end).
+2. Pipeline `introspect` extendido com 2-pass ou state queries
+   reais (não apenas state lookup ortogonal subpadrão N=3).
+3. Tests E2E cobrem feature observable user-facing (não apenas
+   infraestrutura internal).
+
+---
+
+## Análise de pureza (paridade ADR-0029)
+
+| Propriedade | Estado | Notas |
+|-------------|--------|-------|
+| Zero I/O | ✓ | Runtime queries operam sobre AST + state em memória; sem disk/network |
+| Zero estado global mutável | ✓ (com nuance) | `state()` é mutable mas escopo do documento; não global ao processo |
+| Determinismo total | ✓ | Same input + same queries = same output |
+| Sem dependência runtime externa | ✓ | Pipeline cristalino |
+| Compatível L1 | ✓ | Sem requisitos de I/O |
+
+**Nuance**: `state()` runtime mutable é mutable mas localizada
+ao document compile run — não viola "zero estado global mutável"
+da ADR-0029 (que se refere a `static mut` cross-process).
+
+---
+
+## Consequências
+
+**Positivas**:
+- Paridade observable significativamente mais ampla com vanilla
+  (Introspection 17% → ~50% pós-Bloco B subset minimal; ~83-100%
+  pós-`measure()` cross-módulo).
+- Desbloqueia features família 159 cross-document (cite refs
+  cross-document) — P159A "sem validação cross-reference"
+  removida.
+- Desbloqueia counters refinados (lookup por tipo, count
+  totals, etc.).
+- Desbloqueia `query()` que é fundamento para muita lógica show
+  rules user-facing.
+
+**Negativas**:
+- Complexidade pipeline aumenta — 2-pass runtime queries vs
+  single-pass actual.
+- Divergência arquitectural vs cristalino single-pass actual.
+  ADR-0033 paridade observable preserva-se mas implementação
+  interna diverge.
+- Superfície de testes cresce significativamente — runtime
+  queries têm semântica complexa (forward refs, fixpoint
+  convergence, etc.).
+- Refactor `introspect.rs` (1108 linhas) significativo.
+
+**Trade-off aceite**: complexidade vs paridade ampla.
+Justifica-se pelo tecto saturado em ~17% sem promoção.
+
+---
+
+## Alternativas consideradas
+
+### Alt A — Manter single-pass com features observable limitadas
+- **Pro**: simplicidade arquitectural; pipeline já estável.
+- **Con**: tecto Introspection saturado em ~17% per P160 §4;
+  Cite cross-document refs permanecem ausentes; `query()` e
+  show rules user-facing limitadas.
+- **Rejeitada**: tecto trivialmente saturado por counter()
+  single-pass; refinos qualitativos (R1/R2/R3) não movem
+  cobertura observable.
+
+### Alt B — Implementar Introspection runtime cristalino sem ADR
+- **Pro**: trabalho directo sem overhead administrativo.
+- **Con**: magnitude da decisão arquitectural exige formalização;
+  ausência de ADR torna decisões ad-hoc difíceis de trace.
+- **Rejeitada**: paridade política ADR-0062-create — reservas
+  pré-existentes são formalizadas antes de materialização real.
+
+### Alt C — Adoptar pipeline vanilla integralmente (multi-pass + comemo)
+- **Pro**: paridade arquitectural máxima.
+- **Con**: desproporcionalidade vs subset minimal cristalino;
+  comemo cache infrastructure significativa; arquitectura L1
+  pura ficaria ameaçada por dependência runtime cache.
+- **Rejeitada**: subset minimal (P160 §6 5 features) é
+  suficiente para destrancar Bloco B; refactor pipeline real
+  pode preservar single-pass para casos comuns + 2-pass apenas
+  para queries runtime.
+
+---
+
+## Plano de promoção futuro
+
+**P160B (próximo passo natural pós-este)**: materializar
+`state(key, init)` runtime mutable state.
+- Tamanho estimado: M.
+- Δ tests esperado: +10-15.
+- Cobertura Δ: +6-8pp Introspection.
+- Pipeline: extender `introspect.rs` para suportar state queries
+  via fixpoint simples (2 iterações se state convergir).
+- Promoção ADR-0066: PROPOSTO → IMPLEMENTADO após P160B
+  materializa.
+
+**Ordem subsequente**: P160C (metadata) → P160D (here/locate) →
+P160E (query) → P160F (position). Cada passo individual M com
+incrementos de cobertura ~3-10pp.
+
+**Bloco C cross-módulo** (após Bloco B saturado): `measure()`
+stdlib expose (depende Layout integration); cross-document refs
+(depende multi-document pipeline).
+
+---
+
+## Precedentes citáveis
+
+### Reservas pré-existentes formalizadas (subpadrão emergente)
+
+**ADR-0062-create** (passo administrativo XS executado pós-P159B):
+formalizou reserva pré-existente "ADR-0062 hayagriva" como
+ficheiro PROPOSTO. Subpadrão "passo administrativo XS criar
+ADR PROPOSTO a partir de reserva pré-existente" emergiu N=1.
+**P160A é segunda aplicação** do subpadrão (N=1 → 2).
+
+### ADRs precedentes de pipeline (cristalino)
+
+- **ADR-0033** Paridade observable — fundamento para divergência
+  single-pass cristalino vs vanilla multi-pass.
+- **ADR-0054** Perfil graded — fundamento para subset minimal
+  Introspection runtime.
+- **ADR-0029** Pureza física — confirma compatibilidade L1.
+- **ADR-0017 (existente)** Adiamento de eval — paridade estrutural
+  histórica de "feature deferida que requer migração faseada".
+
+### Diagnósticos cristalinos relevantes
+
+- **P156B inventário 148** — primeira menção cumulativa
+  "ADR-0017" Introspection (conceptual; não ficheiro).
+- **P159A** — "sem validação cross-reference per ADR-0017"
+  (citação que agora se resolve a ADR-0066).
+- **P159B §3 categoria A** — features bloqueadas por reserva
+  conceptual.
+- **P160 relatório** — diagnóstico Introspection com tecto
+  saturado + recomendação primária `ADR-0017-create` (que com
+  esta resolução de numeração se torna `ADR-0066-create` =
+  este passo).
+
+---
+
+## Referências
+
+- ADR-0017 (existente) — `typst-adr-0017-adiamento-eval-typst-library.md`
+  — IMPLEMENTADO 2026-03-26; cobre tópico distinto.
+- ADR-0029 — Pureza física L1 (revoga ADR-0028).
+- ADR-0033 — Paridade observable.
+- ADR-0034 — Estrutura diagnóstico canónica.
+- ADR-0054 — Perfil graded.
+- ADR-0060 — Model structural roadmap.
+- ADR-0061 — Layout Fase X roadmap.
+- ADR-0062 — Hayagriva bibliography parsing (PROPOSTO; paridade
+  administrativa para este passo).
+- ADR-0065 — Inventariar primeiro (P160 §1 + este passo §1
+  inventário).
+- P156B relatório — inventário 148 com Introspection §A.9.
+- P159 relatório — par acoplado Bibliography + Cite com referência
+  cruzada conceptual.
+- P159B relatório — diagnóstico amplo família 159 com matriz
+  dependências.
+- P160 relatório — diagnóstico Introspection com tecto saturado.
+- P160A (este passo) — formaliza reserva conceptual em ficheiro
+  ADR concreto.
+
+---
+
+## Próximos passos
+
+1. **P160B** (próximo natural; passo de materialização):
+   `state(key, init)` runtime mutable state. M; +10-15 tests;
+   +6-8pp Introspection. Promoção ADR-0066 PROPOSTO → IMPLEMENTADO
+   após este passo materializa.
+
+2. **P160C-F** (sequência Bloco B per P160 §5): metadata, here/
+   locate, query, position. Cada um M; cumulativo +30-40pp
+   Introspection.
+
+3. **Bloco C cross-módulo** (pós-Bloco B): measure stdlib expose;
+   cross-document cite refs. Não materializável em Introspection
+   puro — depende Layout integration ou multi-document pipeline.
