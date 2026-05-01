@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/from_tags.md
-//! @prompt-hash 9254a648
+//! @prompt-hash a55b50db
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -87,6 +87,22 @@ pub fn from_tags(tags: &[Tag]) -> TagIntrospector {
                             .or_default()
                             .push(*loc);
                         intr.metadata.add((**value).clone());
+                    }
+                    // P171 (M9): State init no StateRegistry.
+                    ElementPayload::State { key, init } => {
+                        intr.kind_index
+                            .entry(ElementKind::State)
+                            .or_default()
+                            .push(*loc);
+                        intr.state.init(key.clone(), (**init).clone(), *loc);
+                    }
+                    // P171 (M9): StateUpdate aplica update ao state existente.
+                    ElementPayload::StateUpdate { key, update } => {
+                        intr.kind_index
+                            .entry(ElementKind::StateUpdate)
+                            .or_default()
+                            .push(*loc);
+                        intr.state.apply_update(key.clone(), update.clone(), *loc);
                     }
                 }
             }

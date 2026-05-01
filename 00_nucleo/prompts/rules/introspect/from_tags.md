@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/from_tags`
-Hash do Código: d3c24085
+Hash do Código: 80018900
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/introspect/from_tags.rs`
@@ -34,6 +34,8 @@ Para cada tag:
      - `Figure { counter_update, is_counted, .. }`: kind_index[Figure].push(loc); counters.apply("figure", counter_update). **P168**: se `is_counted == true` E `info.label.is_some()`, indexar em `figure_label_numbers` com número 1-based sequencial.
      - `Citation { .. }`: kind_index[Citation].push(loc); (sem counter_update — Citation não tem campo counter_update).
      - `Metadata { value }`: kind_index[Metadata].push(loc); `metadata.add(*value.clone())` em ordem de aparecimento. **P169 M9**.
+     - `State { key, init }`: kind_index[State].push(loc); `state.init(key.clone(), (**init).clone(), loc)`. **P171 M9**.
+     - `StateUpdate { key, update }`: kind_index[StateUpdate].push(loc); `state.apply_update(key.clone(), update.clone(), loc)`. **P171 M9**.
 - `Tag::End(_, _)`: ignorar em M3. Hash do conteúdo é input para detecção de mudança em M7+ fixpoint.
 
 ---

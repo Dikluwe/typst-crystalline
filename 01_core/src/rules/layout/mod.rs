@@ -228,6 +228,12 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             // querying do utilizador.
             Content::Metadata { .. } => {}
 
+            // P171 (M9): State e StateUpdate são zero-size em layout.
+            // Disponíveis via `Introspector::state_value` /
+            // `state_final_value`.
+            Content::State { .. } => {}
+            Content::StateUpdate { .. } => {}
+
             Content::Text(text, node_style) => {
                 // Estilo resolvido: merge de node_style (produzido pelo eval) com
                 // self.style (cache da chain, actualizada por Content::Styled no

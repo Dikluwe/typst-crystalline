@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_payload.md
-//! @prompt-hash 822be9a0
+//! @prompt-hash 724e8afd
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -73,6 +73,18 @@ pub enum ElementPayload {
     /// `from_tags`; query via `Introspector::query_metadata`.
     Metadata {
         value: Box<crate::entities::value::Value>,
+    },
+
+    /// **P171 (M9 sub-passo 3)** — payload de `state(key, init)`.
+    State {
+        key:  String,
+        init: Box<crate::entities::value::Value>,
+    },
+
+    /// **P171 (M9 sub-passo 3)** — payload de `state.update(key, value)`.
+    StateUpdate {
+        key:    String,
+        update: crate::entities::state_update::StateUpdate,
     },
 }
 

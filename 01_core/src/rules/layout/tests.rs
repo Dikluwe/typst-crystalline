@@ -3285,3 +3285,133 @@ mod p169_metadata_feature {
         assert_eq!(md, &[Value::Int(1), Value::Int(2), Value::Int(3)]);
     }
 }
+
+// ── P171 (M9 sub-passo 3) — Tests E2E para state(key, init) ──────────────
+
+#[cfg(test)]
+mod p171_state_feature {
+    use super::*;
+    use crate::entities::introspector::Introspector;
+    use crate::entities::location::Location;
+    use crate::entities::state_update::StateUpdate;
+    use crate::entities::value::Value;
+    use crate::rules::introspect::introspect_with_introspector;
+
+    #[test]
+    fn state_init_e_acessivel_via_state_value() {
+        // P171 .H.1: state(key, init) sem updates → state_value retorna init.
+        let content = Content::Sequence(
+            vec![
+                Content::State {
+                    key:  "counter".to_string(),
+                    init: Box::new(Value::Int(0)),
+                },
+                Content::heading(1, Content::text("h1")),
+            ]
+            .into(),
+        );
+        let (_, intr) = introspect_with_introspector(&content);
+        // Em qualquer location após o init → init value.
+        assert_eq!(
+            intr.state_final_value("counter"),
+            Some(&Value::Int(0))
+        );
+    }
+
+    #[test]
+    fn state_update_aplica_no_ponto_correcto() {
+        // P171 .H.1: state + heading + state_update + heading
+        // → state_value(loc_pre_update) = init; state_value(loc_post_update) = new.
+        let content = Content::Sequence(
+            vec![
+                Content::State {
+                    key:  "counter".to_string(),
+                    init: Box::new(Value::Int(0)),
+                },
+                Content::heading(1, Content::text("antes")),
+                Content::StateUpdate {
+                    key:    "counter".to_string(),
+                    update: StateUpdate::Set(Box::new(Value::Int(5))),
+                },
+                Content::heading(1, Content::text("depois")),
+            ]
+            .into(),
+        );
+        let (_, intr) = introspect_with_introspector(&content);
+        // Final value: 5 (após o update).
+        assert_eq!(intr.state_final_value("counter"), Some(&Value::Int(5)));
+        // Em location max → 5.
+        assert_eq!(
+            intr.state_value("counter", Location::from_raw(u128::MAX)),
+            Some(&Value::Int(5))
+        );
+    }
+
+    #[test]
+    fn state_e_invisivel_em_layout() {
+        // P171 .H.3: state e state_update são zero-size — output observable
+        // não muda entre `[X][state(...)][state_update(...)][Y]` e `[X][Y]`.
+        let with_state = Content::Sequence(
+            vec![
+                Content::text("X"),
+                Content::State {
+                    key:  "c".to_string(),
+                    init: Box::new(Value::Int(0)),
+                },
+                Content::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Set(Box::new(Value::Int(42))),
+                },
+                Content::text("Y"),
+            ]
+            .into(),
+        );
+        let without_state = Content::Sequence(
+            vec![Content::text("X"), Content::text("Y")].into(),
+        );
+        let doc_with = layout(&with_state, introspect(&with_state));
+        let doc_without = layout(&without_state, introspect(&without_state));
+        assert_eq!(
+            doc_with.plain_text(),
+            doc_without.plain_text(),
+            "state/state_update devem ser invisíveis em layout"
+        );
+    }
+
+    #[test]
+    fn keys_distintas_sao_isoladas() {
+        // P171 .H.4: state("a", _) e state("b", _) não interferem.
+        let content = Content::Sequence(
+            vec![
+                Content::State {
+                    key:  "a".to_string(),
+                    init: Box::new(Value::Int(1)),
+                },
+                Content::State {
+                    key:  "b".to_string(),
+                    init: Box::new(Value::Int(100)),
+                },
+                Content::StateUpdate {
+                    key:    "a".to_string(),
+                    update: StateUpdate::Set(Box::new(Value::Int(2))),
+                },
+            ]
+            .into(),
+        );
+        let (_, intr) = introspect_with_introspector(&content);
+        assert_eq!(intr.state_final_value("a"), Some(&Value::Int(2)));
+        assert_eq!(intr.state_final_value("b"), Some(&Value::Int(100)));
+    }
+
+    #[test]
+    fn state_inexistente_devolve_none() {
+        // P171 .H.2: documento sem state — state_value retorna None.
+        let content = Content::heading(1, Content::text("h"));
+        let (_, intr) = introspect_with_introspector(&content);
+        assert_eq!(intr.state_final_value("counter"), None);
+        assert_eq!(
+            intr.state_value("counter", Location::from_raw(0)),
+            None
+        );
+    }
+}
