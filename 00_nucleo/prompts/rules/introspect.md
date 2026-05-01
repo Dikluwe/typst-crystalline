@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: b988ff3d
+Hash do Código: 6e45b293
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -10,6 +10,7 @@ Hash do Código: b988ff3d
 - 2026-04-30 (P163): este L0 refinado para reflectir P162.
 - 2026-04-30 (P165): `from_tags` constrói `TagIntrospector` em paralelo; resultado descartado em M3.
 - 2026-04-30 (P166 / M4): adicionado entry point `introspect_with_introspector`; `introspect()` passa a ser wrapper que descarta `TagIntrospector`.
+- 2026-04-29 (P173 / M9 sub-passo 5): `introspect_with_introspector` aceita `Engine + EvalContext` opcionais; cascade habilita eval real de `StateUpdate::Func` em `from_tags`. Walk preservado puro.
 
 ## Propósito
 Pré-passagem analítica sobre `Content`. Constrói o `CounterStateLegacy`
@@ -96,42 +97,53 @@ válido por construção (verificado por tests E2E em P163.C.2).
 
 ## Interface pública
 
-Duas funções pub a partir de M4 (P166):
+Duas funções pub a partir de M4 (P166); estendidas em P173 com cascade
+opcional de Engine + EvalContext:
 
 ```rust
 /// Entry point legacy — wrapper que descarta TagIntrospector.
+/// **P173**: Funcs em `state.update(key, fn)` são silenciosamente
+/// ignoradas neste path (sem Engine).
 pub fn introspect(content: &Content) -> CounterStateLegacy;
 
-/// Entry point novo (M4 / P166) — produz state + introspector
-/// num único walk.
+/// Entry point M4 / P166. **P173**: aceita `Engine + EvalContext`
+/// opcionais; ambos `Some` habilitam eval real de `StateUpdate::Func`.
 pub fn introspect_with_introspector(
     content: &Content,
+    engine:  Option<&mut Engine<'_>>,
+    ctx:     Option<&mut EvalContext>,
 ) -> (CounterStateLegacy, TagIntrospector);
 ```
 
-Forma interna (P166):
+Forma interna (P173):
 ```rust
 pub fn introspect(content: &Content) -> CounterStateLegacy {
-    let (state, _introspector) = introspect_with_introspector(content);
+    let (state, _introspector) = introspect_with_introspector(content, None, None);
     state
 }
 
 pub fn introspect_with_introspector(
     content: &Content,
+    engine:  Option<&mut Engine<'_>>,
+    ctx:     Option<&mut EvalContext>,
 ) -> (CounterStateLegacy, TagIntrospector) {
     let mut state = CounterStateLegacy::new();
     let mut locator = Locator::new();
     let mut tags: Vec<Tag> = Vec::new();
     walk(content, &mut state, &mut locator, &mut tags, None);
-    let introspector = self::from_tags::from_tags(&tags);
+    let introspector = self::from_tags::from_tags(&tags, engine, ctx);
     (state, introspector)
 }
 ```
 
 **Walk único**: state + introspector vêm da mesma passagem — não há
-duplicação. `introspect()` é wrapper que descarta o introspector,
-preservando assinatura legada para os ~38 call-sites identificados em
-P166 .A.
+duplicação. **Walk continua puro** — Engine só intervém em
+`from_tags::from_tags` para eval de `StateUpdate::Func`. P163 invariante
+preservado.
+
+`introspect()` é wrapper legacy preservado: passa `None, None`.
+Comportamento defensivo documentado: Funcs em modo legacy ficam
+ignoradas silenciosamente.
 
 Padrão de migração M5+: caller que actualmente faz `let state =
 introspect(&c)` e quer queries via Introspector adopta

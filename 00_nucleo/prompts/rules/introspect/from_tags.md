@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/from_tags`
-Hash do Código: 80018900
+Hash do Código: b6b98327
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/introspect/from_tags.rs`
@@ -18,11 +18,11 @@ Vanilla equivalente: `ElementIntrospectorBuilder` em `lab/typst-original/.../int
 
 ## Restrições Estruturais
 
-- Camada **L1**: função pura, sem efeitos secundários, sem I/O.
-- `pub fn from_tags(tags: &[Tag]) -> TagIntrospector`.
+- Camada **L1**: função sem I/O. **P173**: aceita `Engine + EvalContext` opcionais para eval de `StateUpdate::Func`. Sem Engine, mantém-se pura.
+- `pub fn from_tags(tags: &[Tag], engine: Option<&mut Engine<'_>>, ctx: Option<&mut EvalContext>) -> TagIntrospector`.
 - Match **exaustivo** sobre `ElementPayload` (compilador força revisão quando variant novo for adicionado a `ElementPayload`).
 - Bracketing válido: assume tags já bracketed (`Tag::Start` sempre seguido eventualmente de `Tag::End` correspondente). Comportamento se mal-formado é debug-assert.
-- Determinístico: mesma input produz mesmo output.
+- Determinístico: mesma input produz mesmo output (assumindo Funcs deterministas — vanilla proíbe Funcs com side-effects em state).
 
 ## Lógica
 
@@ -35,7 +35,12 @@ Para cada tag:
      - `Citation { .. }`: kind_index[Citation].push(loc); (sem counter_update — Citation não tem campo counter_update).
      - `Metadata { value }`: kind_index[Metadata].push(loc); `metadata.add(*value.clone())` em ordem de aparecimento. **P169 M9**.
      - `State { key, init }`: kind_index[State].push(loc); `state.init(key.clone(), (**init).clone(), loc)`. **P171 M9**.
-     - `StateUpdate { key, update }`: kind_index[StateUpdate].push(loc); `state.apply_update(key.clone(), update.clone(), loc)`. **P171 M9**.
+     - `StateUpdate { key, update }`: kind_index[StateUpdate].push(loc).
+       - `update == StateUpdate::Set(value)`: `state.update(key, *value, loc)`.
+       - `update == StateUpdate::Func(fn)` **P173 M9**:
+         - Se `engine` e `ctx` ambos `Some`: consultar `state.value_at(key, loc)`; se `Some(curr)`, chamar `apply_func(fn, Args::positional(vec![curr]), ctx, engine)`. Em `Ok(new)`, registar `state.update(key, new, loc)`. Em `Err(_)`, defensive ignore (refino futuro: diagnostics).
+         - Se `engine` ou `ctx` ausente: defensive ignore (Func ignorada, registry inalterado).
+         - Sem init prévio (`value_at == None`): defensive ignore (P171 padrão).
 - `Tag::End(_, _)`: ignorar em M3. Hash do conteúdo é input para detecção de mudança em M7+ fixpoint.
 
 ---
@@ -43,11 +48,19 @@ Para cada tag:
 ## Interface pública
 
 ```rust
+use crate::entities::engine::Engine;
 use crate::entities::introspector::TagIntrospector;
 use crate::entities::tag::Tag;
+use crate::rules::eval::EvalContext;
 
-pub fn from_tags(tags: &[Tag]) -> TagIntrospector;
+pub fn from_tags(
+    tags:   &[Tag],
+    engine: Option<&mut Engine<'_>>,
+    ctx:    Option<&mut EvalContext>,
+) -> TagIntrospector;
 ```
+
+**P173**: assinatura estendida com `Engine` + `EvalContext` opcionais. Quando ambos `Some`, eval real de `StateUpdate::Func` via `apply_func`. Quando algum `None`, comportamento defensivo: `Func` é ignorada (cf. P171 "update sem init é ignorado").
 
 ---
 
@@ -110,3 +123,4 @@ Refino futuro possível: se M5+ precisar de informação contextual (e.g. headin
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-04-30 | P165 sub-passo .E: construtor de TagIntrospector a partir de Vec<Tag> | `from_tags.rs`, `from_tags.md`, `rules/introspect.rs` |
+| 2026-04-29 | P173 sub-passo .B: cascade Engine + EvalContext opcionais; eval real de `StateUpdate::Func` via `apply_func` | `from_tags.rs`, `from_tags.md` |

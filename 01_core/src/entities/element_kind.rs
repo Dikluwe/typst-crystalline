@@ -38,6 +38,21 @@ impl ElementKind {
             ElementKind::StateUpdate => "state_update",
         }
     }
+
+    /// Parse inverso: aceita "heading"/"figure"/"citation"/"metadata"/
+    /// "state"/"state_update". P175 (M9 sub-passo 5) — usado por
+    /// stdlib `query(kind_str)` para construir `Selector::Kind`.
+    pub fn from_name(name: &str) -> Option<Self> {
+        match name {
+            "heading"      => Some(ElementKind::Heading),
+            "figure"       => Some(ElementKind::Figure),
+            "citation"     => Some(ElementKind::Citation),
+            "metadata"     => Some(ElementKind::Metadata),
+            "state"        => Some(ElementKind::State),
+            "state_update" => Some(ElementKind::StateUpdate),
+            _              => None,
+        }
+    }
 }
 
 #[cfg(test)]

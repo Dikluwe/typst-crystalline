@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/from_tags.md
-//! @prompt-hash a55b50db
+//! @prompt-hash 5f7303fd
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -11,10 +11,15 @@
 //! `ElementPayload` para forçar revisão quando variant novo for
 //! adicionado.
 
+use crate::entities::args::Args;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::element_payload::ElementPayload;
+use crate::entities::engine::Engine;
 use crate::entities::introspector::TagIntrospector;
+use crate::entities::state_update::StateUpdate;
 use crate::entities::tag::Tag;
+use crate::rules::eval::closures::apply_func;
+use crate::rules::eval::EvalContext;
 
 /// Constrói `TagIntrospector` a partir da sequência de tags emitida
 /// pelo walk em `rules/introspect.rs::walk` (P162).
@@ -22,7 +27,18 @@ use crate::entities::tag::Tag;
 /// Para cada `Tag::Start`: actualiza sub-stores (label, counter,
 /// kind_index). Para cada `Tag::End`: ignora em M3 (hash será usado
 /// em M7+ para detecção de mudança fixpoint).
-pub fn from_tags(tags: &[Tag]) -> TagIntrospector {
+///
+/// **P173 (M9 sub-passo 5)**: aceita `Engine` e `EvalContext`
+/// opcionais. Quando ambos `Some`, `StateUpdate::Func` é avaliada
+/// via `apply_func(fn, Args::positional(vec![curr_value]), ctx, engine)`.
+/// Quando algum `None`, `Func` é silenciosamente ignorada (defensive,
+/// coerente com P171). API legacy `from_tags(&tags, None, None)`
+/// preservada.
+pub fn from_tags(
+    tags:       &[Tag],
+    mut engine: Option<&mut Engine<'_>>,
+    mut ctx:    Option<&mut EvalContext>,
+) -> TagIntrospector {
     let mut intr = TagIntrospector::empty();
 
     for tag in tags {
@@ -96,13 +112,45 @@ pub fn from_tags(tags: &[Tag]) -> TagIntrospector {
                             .push(*loc);
                         intr.state.init(key.clone(), (**init).clone(), *loc);
                     }
-                    // P171 (M9): StateUpdate aplica update ao state existente.
+                    // P171 (M9) + P173: StateUpdate aplica Set directamente;
+                    // Func é avaliada via apply_func quando Engine+ctx
+                    // estão disponíveis, ou silenciosamente ignorada caso
+                    // contrário.
                     ElementPayload::StateUpdate { key, update } => {
                         intr.kind_index
                             .entry(ElementKind::StateUpdate)
                             .or_default()
                             .push(*loc);
-                        intr.state.apply_update(key.clone(), update.clone(), *loc);
+                        match update {
+                            StateUpdate::Set(value) => {
+                                intr.state.update(key.clone(), (**value).clone(), *loc);
+                            }
+                            StateUpdate::Func(func) => {
+                                if let (Some(eng), Some(c)) =
+                                    (engine.as_deref_mut(), ctx.as_deref_mut())
+                                {
+                                    if let Some(curr) =
+                                        intr.state.value_at(key, *loc).cloned()
+                                    {
+                                        let args = Args::positional(vec![curr]);
+                                        if let Ok(new_value) =
+                                            apply_func(func.clone(), args, c, eng)
+                                        {
+                                            intr.state.update(
+                                                key.clone(),
+                                                new_value,
+                                                *loc,
+                                            );
+                                        }
+                                        // Err: defensive ignore — refino
+                                        // futuro pode propagar via Sink.
+                                    }
+                                    // value_at == None: defensive ignore
+                                    // (P171 padrão "update sem init").
+                                }
+                                // engine/ctx ausentes: defensive ignore.
+                            }
+                        }
                     }
                 }
             }
@@ -155,7 +203,7 @@ mod tests {
 
     #[test]
     fn vazio_produz_introspector_vazio() {
-        let i = from_tags(&[]);
+        let i = from_tags(&[], None, None);
         assert_eq!(i.query_by_kind(ElementKind::Heading), Vec::<Location>::new());
         assert!(i.labels.is_empty());
         assert!(i.counters.is_empty());
@@ -167,7 +215,7 @@ mod tests {
             Tag::Start(loc(1), ElementInfo::new(heading_payload())),
             Tag::End(loc(1), 0xdead),
         ];
-        let i = from_tags(&tags);
+        let i = from_tags(&tags, None, None);
         assert_eq!(i.query_by_kind(ElementKind::Heading), vec![loc(1)]);
         assert_eq!(i.counters.value("heading"), Some(&[1usize][..]));
     }
@@ -181,7 +229,7 @@ mod tests {
             ),
             Tag::End(loc(2), 0),
         ];
-        let i = from_tags(&tags);
+        let i = from_tags(&tags, None, None);
         assert_eq!(i.query_by_label(&lbl("intro")), Some(loc(2)));
     }
 
@@ -195,7 +243,7 @@ mod tests {
             Tag::Start(loc(3), ElementInfo::new(heading_payload())),
             Tag::End(loc(3), 0),
         ];
-        let i = from_tags(&tags);
+        let i = from_tags(&tags, None, None);
         assert_eq!(i.query_by_kind(ElementKind::Heading), vec![loc(1), loc(2), loc(3)]);
         assert_eq!(i.counters.value("heading"), Some(&[3usize][..]));
     }
@@ -210,7 +258,7 @@ mod tests {
             Tag::Start(loc(3), ElementInfo::new(citation_payload("k"))),
             Tag::End(loc(3), 0),
         ];
-        let i = from_tags(&tags);
+        let i = from_tags(&tags, None, None);
         assert_eq!(i.query_by_kind(ElementKind::Heading), vec![loc(1)]);
         assert_eq!(i.query_by_kind(ElementKind::Figure), vec![loc(2)]);
         assert_eq!(i.query_by_kind(ElementKind::Citation), vec![loc(3)]);
@@ -224,7 +272,7 @@ mod tests {
     fn end_tags_sao_ignoradas_em_m3() {
         // Apenas End — sem Start — produz introspector vazio.
         let tags = vec![Tag::End(loc(1), 0xbeef), Tag::End(loc(2), 0xcafe)];
-        let i = from_tags(&tags);
+        let i = from_tags(&tags, None, None);
         assert!(i.kind_index.is_empty());
         assert!(i.labels.is_empty());
         assert!(i.counters.is_empty());
@@ -249,7 +297,7 @@ mod tests {
             ),
             Tag::End(loc(10), 0),
         ];
-        let i = from_tags(&tags);
+        let i = from_tags(&tags, None, None);
         assert_eq!(i.figure_number_for_label(&lbl("fig1")), Some(1));
     }
 
@@ -263,7 +311,7 @@ mod tests {
             ),
             Tag::End(loc(11), 0),
         ];
-        let i = from_tags(&tags);
+        let i = from_tags(&tags, None, None);
         assert_eq!(i.figure_number_for_label(&lbl("nofig")), None);
         // Mas a figura ainda aparece em kind_index (todas as figuras são indexadas).
         assert_eq!(i.query_by_kind(ElementKind::Figure), vec![loc(11)]);
@@ -280,7 +328,7 @@ mod tests {
             Tag::Start(loc(22), ElementInfo::with_label(figure_payload_counted(true), lbl("c"))),
             Tag::End(loc(22), 0),
         ];
-        let i = from_tags(&tags);
+        let i = from_tags(&tags, None, None);
         assert_eq!(i.figure_number_for_label(&lbl("a")), Some(1));
         assert_eq!(i.figure_number_for_label(&lbl("b")), Some(2));
         assert_eq!(i.figure_number_for_label(&lbl("c")), Some(3));
@@ -293,7 +341,7 @@ mod tests {
             Tag::Start(loc(30), ElementInfo::new(figure_payload_counted(true))),
             Tag::End(loc(30), 0),
         ];
-        let i = from_tags(&tags);
+        let i = from_tags(&tags, None, None);
         assert!(i.figure_label_numbers.is_empty());
         // kind_index ainda contém a figura.
         assert_eq!(i.query_by_kind(ElementKind::Figure), vec![loc(30)]);
@@ -314,7 +362,7 @@ mod tests {
             ),
             Tag::End(loc(40), 0),
         ];
-        let i = from_tags(&tags);
+        let i = from_tags(&tags, None, None);
         // Store populado.
         assert_eq!(i.metadata.query(), &[Value::Int(42)]);
         // kind_index recebe Metadata kind.
@@ -348,10 +396,229 @@ mod tests {
             ),
             Tag::End(loc(52), 0),
         ];
-        let i = from_tags(&tags);
+        let i = from_tags(&tags, None, None);
         assert_eq!(
             i.metadata.query(),
             &[Value::Int(1), Value::Int(2), Value::Int(3)]
         );
+    }
+
+    // ── P173 (M9 sub-passo 5) — eval real de StateUpdate::Func ───────────
+
+    use crate::entities::engine::Engine;
+    use crate::entities::func::Func;
+    use crate::entities::sink::Sink;
+    use crate::entities::state_update::StateUpdate;
+    use crate::entities::world_types::{Library, Route};
+    use crate::entities::show::{RuleId, ShowRule};
+    use crate::entities::style_chain::StyleChain;
+    use std::sync::Arc;
+
+    /// MockWorld minimal — paridade com o teste do contracts/world.rs.
+    struct MockWorld {
+        library: Library,
+        book:    crate::entities::font_book::FontBook,
+        main_id: crate::entities::file_id::FileId,
+    }
+
+    impl crate::contracts::world::World for MockWorld {
+        fn library(&self) -> &Library { &self.library }
+        fn book(&self)    -> &crate::entities::font_book::FontBook { &self.book }
+        fn main(&self)    -> crate::entities::file_id::FileId { self.main_id }
+        fn source(&self, _: crate::entities::file_id::FileId)
+            -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        { Err(crate::entities::world_types::FileError::NotFound) }
+        fn file(&self, _: crate::entities::file_id::FileId)
+            -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        { Err(crate::entities::world_types::FileError::NotFound) }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> { None }
+        fn today(&self, _: Option<i64>) -> Option<crate::entities::world_types::Datetime> { None }
+    }
+
+    fn make_world() -> MockWorld {
+        MockWorld {
+            library: Library::new(),
+            book:    crate::entities::font_book::FontBook::new(),
+            main_id: crate::entities::file_id::FileId::from_raw(
+                std::num::NonZeroU16::new(1).unwrap()
+            ),
+        }
+    }
+
+    /// Native `x => x + 1` para Funcs Int.
+    fn add_one_native(
+        _ctx: &mut crate::rules::eval::EvalContext,
+        args: &crate::entities::args::Args,
+        _world: &dyn crate::contracts::world::World,
+        _current_file: crate::entities::file_id::FileId,
+        _figure_numbering: Option<&str>,
+    ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
+        match args.items.first() {
+            Some(crate::entities::value::Value::Int(n)) =>
+                Ok(crate::entities::value::Value::Int(n + 1)),
+            _ => Ok(crate::entities::value::Value::None),
+        }
+    }
+
+    /// Native `x => x * 10` para Funcs Int.
+    fn times_ten_native(
+        _ctx: &mut crate::rules::eval::EvalContext,
+        args: &crate::entities::args::Args,
+        _world: &dyn crate::contracts::world::World,
+        _current_file: crate::entities::file_id::FileId,
+        _figure_numbering: Option<&str>,
+    ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
+        match args.items.first() {
+            Some(crate::entities::value::Value::Int(n)) =>
+                Ok(crate::entities::value::Value::Int(n * 10)),
+            _ => Ok(crate::entities::value::Value::None),
+        }
+    }
+
+    /// Helper que constrói Engine + EvalContext locais e chama a closure.
+    /// Engine não é Send/static, por isso construído inline em cada call.
+    macro_rules! with_engine {
+        ($world:expr, |$engine:ident, $ctx:ident| $body:block) => {{
+            use comemo::Track;
+            let world: &dyn crate::contracts::world::World = $world;
+            let mut $ctx = crate::rules::eval::EvalContext::new();
+            let route = Route::root().with_id(world.main());
+            let mut styles = StyleChain::default_chain();
+            let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+            let mut active_guards: Vec<RuleId> = Vec::new();
+            let current_file = world.main();
+            let mut figure_numbering: Option<String> = None;
+            let mut sink_local = Sink::new();
+            let mut sink = sink_local.track_mut();
+            let mut $engine = Engine {
+                world,
+                route: route.track(),
+                styles: &mut styles,
+                show_rules: &mut show_rules,
+                active_guards: &mut active_guards,
+                current_file,
+                figure_numbering: &mut figure_numbering,
+                sink: &mut sink,
+            };
+            $body
+        }};
+    }
+
+    #[test]
+    fn func_eval_aplica_callback_com_engine() {
+        // P173: state init=0 + Func(add_one) com Engine → final value 1.
+        let f = Func::native("add_one", add_one_native);
+        let tags = vec![
+            Tag::Start(
+                loc(10),
+                ElementInfo::new(ElementPayload::State {
+                    key:  "c".to_string(),
+                    init: Box::new(Value::Int(0)),
+                }),
+            ),
+            Tag::End(loc(10), 0),
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Func(f),
+                }),
+            ),
+            Tag::End(loc(20), 0),
+        ];
+        let world = make_world();
+        let intr = with_engine!(&world, |engine, ctx| {
+            from_tags(&tags, Some(&mut engine), Some(&mut ctx))
+        });
+        assert_eq!(intr.state_final_value("c"), Some(&Value::Int(1)));
+    }
+
+    #[test]
+    fn func_eval_sem_init_e_defensive_ignore() {
+        // P173: Func update sem init prévio → registry inalterado.
+        let f = Func::native("add_one", add_one_native);
+        let tags = vec![
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Func(f),
+                }),
+            ),
+            Tag::End(loc(20), 0),
+        ];
+        let world = make_world();
+        let intr = with_engine!(&world, |engine, ctx| {
+            from_tags(&tags, Some(&mut engine), Some(&mut ctx))
+        });
+        // Sem init → state vazio para "c".
+        assert_eq!(intr.state_final_value("c"), None);
+    }
+
+    #[test]
+    fn func_eval_sem_engine_e_defensive_ignore() {
+        // P173: API legacy `from_tags(_, None, None)` ignora Func e
+        // mantém init.
+        let f = Func::native("add_one", add_one_native);
+        let tags = vec![
+            Tag::Start(
+                loc(10),
+                ElementInfo::new(ElementPayload::State {
+                    key:  "c".to_string(),
+                    init: Box::new(Value::Int(0)),
+                }),
+            ),
+            Tag::End(loc(10), 0),
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Func(f),
+                }),
+            ),
+            Tag::End(loc(20), 0),
+        ];
+        // Sem engine → Func ignorada, state final == init.
+        let intr = from_tags(&tags, None, None);
+        assert_eq!(intr.state_final_value("c"), Some(&Value::Int(0)));
+    }
+
+    #[test]
+    fn func_eval_sequencia_aplica_em_ordem() {
+        // P173: state init=0 → +1 → *10 → final value 10 (não 20:
+        // (0+1)*10).
+        let f1 = Func::native("add_one", add_one_native);
+        let f2 = Func::native("times_ten", times_ten_native);
+        let tags = vec![
+            Tag::Start(
+                loc(10),
+                ElementInfo::new(ElementPayload::State {
+                    key:  "c".to_string(),
+                    init: Box::new(Value::Int(0)),
+                }),
+            ),
+            Tag::End(loc(10), 0),
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Func(f1),
+                }),
+            ),
+            Tag::End(loc(20), 0),
+            Tag::Start(
+                loc(30),
+                ElementInfo::new(ElementPayload::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Func(f2),
+                }),
+            ),
+            Tag::End(loc(30), 0),
+        ];
+        let world = make_world();
+        let intr = with_engine!(&world, |engine, ctx| {
+            from_tags(&tags, Some(&mut engine), Some(&mut ctx))
+        });
+        assert_eq!(intr.state_final_value("c"), Some(&Value::Int(10)));
     }
 }

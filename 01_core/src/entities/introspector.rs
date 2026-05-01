@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash f5187643
+//! @prompt-hash 932588ff
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -19,6 +19,7 @@ use crate::entities::label::Label;
 use crate::entities::label_registry::LabelRegistry;
 use crate::entities::location::Location;
 use crate::entities::metadata_store::MetadataStore;
+use crate::entities::selector::Selector;
 use crate::entities::state_registry::StateRegistry;
 use crate::entities::value::Value;
 
@@ -75,6 +76,12 @@ pub trait Introspector {
     /// **P171 (M9 sub-passo 3)** — valor final do state `key` (último
     /// update aplicado). Equivalente a `state_value(key, last_loc)`.
     fn state_final_value(&self, key: &str) -> Option<&Value>;
+
+    /// **P175 (M9 sub-passo 5)** — query genérica via `Selector`.
+    /// P175 minimal: só `Selector::Kind(kind)`, que delega a
+    /// `query_by_kind`. Variants futuros (`Label`, `And`, `Or`,
+    /// `Where`) ficam para passos dedicados.
+    fn query(&self, selector: &Selector) -> Vec<Location>;
 }
 
 /// Implementação concreta de `Introspector` construída a partir de
@@ -155,6 +162,12 @@ impl Introspector for TagIntrospector {
     fn state_final_value(&self, key: &str) -> Option<&Value> {
         self.state.final_value(key)
     }
+
+    fn query(&self, selector: &Selector) -> Vec<Location> {
+        match selector {
+            Selector::Kind(kind) => self.query_by_kind(*kind),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -220,5 +233,37 @@ mod tests {
         assert_eq!(i.query_by_kind(ElementKind::Heading), vec![loc(1)]);
         assert_eq!(i.query_by_kind(ElementKind::Citation), vec![loc(2)]);
         assert_eq!(i.query_by_kind(ElementKind::Figure), Vec::<Location>::new());
+    }
+
+    // ── P175 (M9 sub-passo 5) — query via Selector ──────────────────────
+
+    #[test]
+    fn query_vazio_devolve_vec_vazio() {
+        let i = TagIntrospector::empty();
+        let result = i.query(&Selector::Kind(ElementKind::Heading));
+        assert_eq!(result, Vec::<Location>::new());
+    }
+
+    #[test]
+    fn query_kind_devolve_locations_em_ordem() {
+        let mut i = TagIntrospector::empty();
+        i.kind_index.entry(ElementKind::Heading).or_default().push(loc(7));
+        i.kind_index.entry(ElementKind::Heading).or_default().push(loc(13));
+        i.kind_index.entry(ElementKind::Heading).or_default().push(loc(20));
+        let result = i.query(&Selector::Kind(ElementKind::Heading));
+        assert_eq!(result, vec![loc(7), loc(13), loc(20)]);
+    }
+
+    #[test]
+    fn query_kind_isola_por_kind() {
+        let mut i = TagIntrospector::empty();
+        i.kind_index.entry(ElementKind::Heading).or_default().push(loc(1));
+        i.kind_index.entry(ElementKind::Figure).or_default().push(loc(2));
+        i.kind_index.entry(ElementKind::Citation).or_default().push(loc(3));
+        assert_eq!(i.query(&Selector::Kind(ElementKind::Heading)), vec![loc(1)]);
+        assert_eq!(i.query(&Selector::Kind(ElementKind::Figure)),  vec![loc(2)]);
+        assert_eq!(i.query(&Selector::Kind(ElementKind::Citation)), vec![loc(3)]);
+        // Outros kinds → vazio.
+        assert!(i.query(&Selector::Kind(ElementKind::Metadata)).is_empty());
     }
 }

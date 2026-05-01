@@ -3155,7 +3155,7 @@ mod p168_figure_ref_migration {
         // P168 .E.1: figure numbered+captioned + ref → layout via novo
         // entry point produz "Figura 1" usando introspector path.
         let content = doc_figure_with_ref("fig1", Some("image".into()), true, true);
-        let (state, intr) = introspect_with_introspector(&content);
+        let (state, intr) = introspect_with_introspector(&content, None, None);
         let doc = layout_with_introspector(&content, state, intr);
         let txt = doc.plain_text();
         assert!(
@@ -3188,7 +3188,7 @@ mod p168_figure_ref_migration {
         let doc_legacy = layout(&content, state_legacy);
         let txt_legacy = doc_legacy.plain_text();
 
-        let (state_new, intr) = introspect_with_introspector(&content);
+        let (state_new, intr) = introspect_with_introspector(&content, None, None);
         let doc_new = layout_with_introspector(&content, state_new, intr);
         let txt_new = doc_new.plain_text();
 
@@ -3204,7 +3204,7 @@ mod p168_figure_ref_migration {
         // numeração — predicado is_counted=false garante que introspector
         // NÃO indexa esta figura como figure_label_number.
         let content = doc_figure_with_ref("fig1", Some("image".into()), false, true);
-        let (_, intr) = introspect_with_introspector(&content);
+        let (_, intr) = introspect_with_introspector(&content, None, None);
         use crate::entities::introspector::Introspector;
         assert_eq!(
             intr.figure_number_for_label(&Label("fig1".to_string())),
@@ -3237,7 +3237,7 @@ mod p169_metadata_feature {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content);
+        let (_, intr) = introspect_with_introspector(&content, None, None);
         let md = intr.query_metadata();
         assert_eq!(md.len(), 1);
         assert_eq!(md[0], Value::Str(EcoString::from("hello")));
@@ -3280,7 +3280,7 @@ mod p169_metadata_feature {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content);
+        let (_, intr) = introspect_with_introspector(&content, None, None);
         let md = intr.query_metadata();
         assert_eq!(md, &[Value::Int(1), Value::Int(2), Value::Int(3)]);
     }
@@ -3310,7 +3310,7 @@ mod p171_state_feature {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content);
+        let (_, intr) = introspect_with_introspector(&content, None, None);
         // Em qualquer location após o init → init value.
         assert_eq!(
             intr.state_final_value("counter"),
@@ -3337,7 +3337,7 @@ mod p171_state_feature {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content);
+        let (_, intr) = introspect_with_introspector(&content, None, None);
         // Final value: 5 (após o update).
         assert_eq!(intr.state_final_value("counter"), Some(&Value::Int(5)));
         // Em location max → 5.
@@ -3398,7 +3398,7 @@ mod p171_state_feature {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content);
+        let (_, intr) = introspect_with_introspector(&content, None, None);
         assert_eq!(intr.state_final_value("a"), Some(&Value::Int(2)));
         assert_eq!(intr.state_final_value("b"), Some(&Value::Int(100)));
     }
@@ -3407,11 +3407,97 @@ mod p171_state_feature {
     fn state_inexistente_devolve_none() {
         // P171 .H.2: documento sem state — state_value retorna None.
         let content = Content::heading(1, Content::text("h"));
-        let (_, intr) = introspect_with_introspector(&content);
+        let (_, intr) = introspect_with_introspector(&content, None, None);
         assert_eq!(intr.state_final_value("counter"), None);
         assert_eq!(
             intr.state_value("counter", Location::from_raw(0)),
             None
         );
+    }
+}
+
+// ── P172 (M9 sub-passo 4) — Tests para Func variant em StateUpdate ──────
+
+#[cfg(test)]
+mod p172_func_callback {
+    use super::*;
+    use crate::entities::func::Func;
+    use crate::entities::introspector::Introspector;
+    use crate::entities::state_update::StateUpdate;
+    use crate::entities::value::Value;
+    use crate::rules::introspect::introspect_with_introspector;
+
+    fn dummy_native(
+        _ctx: &mut crate::rules::eval::EvalContext,
+        _args: &crate::entities::args::Args,
+        _world: &dyn crate::contracts::world::World,
+        _current_file: crate::entities::file_id::FileId,
+        _figure_numbering: Option<&str>,
+    ) -> crate::entities::source_result::SourceResult<Value> {
+        Ok(Value::Int(42))
+    }
+
+    // **P173**: test stub `func_variant_e_silenciosamente_ignorada_em_from_tags`
+    // (P172) removido — codificava invariante incorrecto. Comportamento
+    // legacy (Func ignorada sem Engine) continua válido e está coberto
+    // por `from_tags::tests::func_eval_sem_engine_e_defensive_ignore`.
+    // Eval real coberto por `from_tags::tests::func_eval_aplica_callback_com_engine`.
+
+    #[test]
+    fn func_variant_e_invisivel_em_layout() {
+        // P172: state + state_update_with(Func) continua zero-size.
+        let f = Func::native("dummy", dummy_native);
+        let with_func = Content::Sequence(
+            vec![
+                Content::text("X"),
+                Content::State {
+                    key:  "c".to_string(),
+                    init: Box::new(Value::Int(0)),
+                },
+                Content::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Func(f),
+                },
+                Content::text("Y"),
+            ]
+            .into(),
+        );
+        let without = Content::Sequence(
+            vec![Content::text("X"), Content::text("Y")].into(),
+        );
+        let doc_with = layout(&with_func, introspect(&with_func));
+        let doc_without = layout(&without, introspect(&without));
+        assert_eq!(doc_with.plain_text(), doc_without.plain_text());
+    }
+
+    #[test]
+    fn set_continua_a_funcionar_apos_func_variant() {
+        // P172: regressão — Set variant não foi afectada pela introdução
+        // de Func variant. State com mix de Set e Func: Set é aplicada,
+        // Func é ignorada (stub).
+        let f = Func::native("dummy", dummy_native);
+        let content = Content::Sequence(
+            vec![
+                Content::State {
+                    key:  "c".to_string(),
+                    init: Box::new(Value::Int(0)),
+                },
+                Content::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Set(Box::new(Value::Int(5))),
+                },
+                Content::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Func(f), // ignorada
+                },
+                Content::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Set(Box::new(Value::Int(10))),
+                },
+            ]
+            .into(),
+        );
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+        assert_eq!(intr.state_final_value("c"), Some(&Value::Int(10)));
     }
 }
