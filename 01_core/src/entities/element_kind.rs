@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_kind.md
-//! @prompt-hash 90bffae0
+//! @prompt-hash a807a96a
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -24,6 +24,10 @@ pub enum ElementKind {
     State,
     /// **P171 (M9 sub-passo 3)** — `state.update(key, value)` runtime update.
     StateUpdate,
+    /// **P178** — `Content::Outline` agora locatable; permite
+    /// `query("outline")` retornar count correcto. Fecha lacuna #7
+    /// (`has_outline`).
+    Outline,
 }
 
 impl ElementKind {
@@ -36,12 +40,13 @@ impl ElementKind {
             ElementKind::Metadata    => "metadata",
             ElementKind::State       => "state",
             ElementKind::StateUpdate => "state_update",
+            ElementKind::Outline     => "outline",
         }
     }
 
-    /// Parse inverso: aceita "heading"/"figure"/"citation"/"metadata"/
-    /// "state"/"state_update". P175 (M9 sub-passo 5) — usado por
-    /// stdlib `query(kind_str)` para construir `Selector::Kind`.
+    /// Parse inverso: aceita os nomes textuais dos kinds.
+    /// P175 (M9 sub-passo 5) — usado por stdlib `query(kind_str)`.
+    /// **P178**: `"outline"` adicionado.
     pub fn from_name(name: &str) -> Option<Self> {
         match name {
             "heading"      => Some(ElementKind::Heading),
@@ -50,6 +55,7 @@ impl ElementKind {
             "metadata"     => Some(ElementKind::Metadata),
             "state"        => Some(ElementKind::State),
             "state_update" => Some(ElementKind::StateUpdate),
+            "outline"      => Some(ElementKind::Outline),
             _              => None,
         }
     }
@@ -90,5 +96,24 @@ mod tests {
         assert_eq!(m.get(&ElementKind::Heading).copied(), Some(1));
         assert_eq!(m.get(&ElementKind::Figure).copied(), Some(2));
         assert_eq!(m.get(&ElementKind::Citation).copied(), Some(3));
+    }
+
+    // ── P178 — Outline variant ──────────────────────────────────────────
+
+    #[test]
+    fn outline_existe_e_distinto() {
+        assert_eq!(ElementKind::Outline, ElementKind::Outline);
+        assert_ne!(ElementKind::Outline, ElementKind::Heading);
+        assert_ne!(ElementKind::Outline, ElementKind::Figure);
+    }
+
+    #[test]
+    fn outline_as_str() {
+        assert_eq!(ElementKind::Outline.as_str(), "outline");
+    }
+
+    #[test]
+    fn from_name_outline() {
+        assert_eq!(ElementKind::from_name("outline"), Some(ElementKind::Outline));
     }
 }

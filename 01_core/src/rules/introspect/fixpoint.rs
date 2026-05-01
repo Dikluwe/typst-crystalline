@@ -350,22 +350,265 @@ mod tests {
     }
 
     #[test]
-    fn p175_lacuna_7_outline_kind_ausente() {
-        // Lacuna #7 (`has_outline`): P175 NÃO fecha completamente.
-        // `ElementKind::Outline` não existe; Content::Outline não emite
-        // tag (não é payload-yielder). `query("outline")` via stdlib
-        // retornaria erro de kind não reconhecido.
-        //
-        // Test documenta o estado: `ElementKind::from_name("outline")`
-        // retorna None; lacuna fica parcial até passo dedicado adicionar
-        // ElementKind::Outline + arm em extract_payload.
+    fn p178_lacuna_7_outline_kind_resolvida() {
+        // **P178**: lacuna #7 (`has_outline`) fechada.
+        // `ElementKind::Outline` agora existe; `Content::Outline` é
+        // payload-yielder via P178 cascade. `query("outline")` retorna
+        // count correcto.
         use crate::entities::element_kind::ElementKind;
-        assert!(
-            ElementKind::from_name("outline").is_none(),
-            "P175 documenta: Outline não está em ElementKind ainda"
+        // Outline agora reconhecido.
+        assert_eq!(
+            ElementKind::from_name("outline"),
+            Some(ElementKind::Outline),
         );
-        // Mas queries para kinds existentes funcionam:
+        // Outras kinds continuam a funcionar (regressão).
         assert!(ElementKind::from_name("heading").is_some());
         assert!(ElementKind::from_name("figure").is_some());
+    }
+
+    // ── P176 (M9 sub-passo 6) — counter_final via fixpoint ──────────────
+
+    #[test]
+    fn p176_counter_final_em_doc_estavel_converge() {
+        // E2E: introspect_to_fixpoint sobre 3 headings níveis [1,2,1].
+        // Após convergência, formatted_counter("heading") retorna a
+        // string hierárquica final.
+        use crate::entities::introspector::Introspector;
+
+        let world = make_world();
+        let result = with_engine!(&world, |engine, ctx| {
+            introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, _ctx| {
+                Ok(Content::Sequence(
+                    vec![
+                        Content::heading(1, Content::text("um")),
+                        Content::heading(2, Content::text("dois")),
+                        Content::heading(1, Content::text("tres")),
+                    ]
+                    .into(),
+                ))
+            })
+        });
+        assert!(matches!(result, Ok(_)));
+        let (_, intr) = result.unwrap();
+        // Formatted counter retorna string não-vazia para heading.
+        let formatted = intr.formatted_counter("heading");
+        assert!(formatted.is_some(), "counter heading deve estar populado");
+        let s = formatted.unwrap();
+        assert!(!s.is_empty(), "string formatada não-vazia");
+    }
+
+    #[test]
+    fn p176_counter_final_evolui_entre_iters() {
+        // Closure observa `ctx.introspector.formatted_counter` em cada
+        // iter. Iter 0 vê None (vazio); iter 1 vê string formatada.
+        use crate::entities::introspector::Introspector;
+
+        let world = make_world();
+        let mut observations: Vec<Option<String>> = Vec::new();
+        let result = with_engine!(&world, |engine, ctx| {
+            introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, c| {
+                observations.push(c.introspector.formatted_counter("heading"));
+                Ok(Content::heading(1, Content::text("h")))
+            })
+        });
+        assert!(matches!(result, Ok(_)));
+        assert_eq!(observations.len(), 2);
+        // Iter 0: vazio.
+        assert!(observations[0].is_none());
+        // Iter 1: populado.
+        assert!(observations[1].is_some());
+    }
+
+    #[test]
+    fn p176_counter_final_inexistente_devolve_none() {
+        // Doc sem headings → counter "heading" não populado → None.
+        use crate::entities::introspector::Introspector;
+
+        let world = make_world();
+        let result = with_engine!(&world, |engine, ctx| {
+            introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, _ctx| {
+                Ok(Content::text("just text"))
+            })
+        });
+        assert!(matches!(result, Ok(_)));
+        let (_, intr) = result.unwrap();
+        assert_eq!(intr.formatted_counter("heading"), None);
+    }
+
+    // ── P177 (M9 sub-passo 7) — counter_at via fixpoint ─────────────────
+
+    #[test]
+    fn p177_counter_at_em_doc_estavel() {
+        // E2E: doc com 3 headings, primeiro labelled "intro", terceiro
+        // labelled "subsec". Verifica formatted_counter_at retorna o
+        // valor do counter na Location correspondente.
+        use crate::entities::introspector::Introspector;
+        use crate::entities::label::Label;
+
+        let world = make_world();
+        let result = with_engine!(&world, |engine, ctx| {
+            introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, _ctx| {
+                Ok(Content::Sequence(
+                    vec![
+                        Content::Labelled {
+                            label:  Label("intro".to_string()),
+                            target: Box::new(Content::heading(1, Content::text("um"))),
+                        },
+                        Content::heading(1, Content::text("dois")),
+                        Content::Labelled {
+                            label:  Label("subsec".to_string()),
+                            target: Box::new(Content::heading(2, Content::text("tres"))),
+                        },
+                    ]
+                    .into(),
+                ))
+            })
+        });
+        assert!(matches!(result, Ok(_)));
+        let (_, intr) = result.unwrap();
+
+        // Locations das labels.
+        let loc_intro = intr.query_by_label(&Label("intro".to_string()));
+        let loc_subsec = intr.query_by_label(&Label("subsec".to_string()));
+        assert!(loc_intro.is_some());
+        assert!(loc_subsec.is_some());
+
+        // formatted_counter_at na Location de "intro" → "1" (primeira heading).
+        assert_eq!(
+            intr.formatted_counter_at("heading", loc_intro.unwrap()).as_deref(),
+            Some("1"),
+        );
+        // formatted_counter_at na Location de "subsec" → "2.1" (depois de
+        // 2 headings nivel 1, então sub-secção 2.1).
+        assert_eq!(
+            intr.formatted_counter_at("heading", loc_subsec.unwrap()).as_deref(),
+            Some("2.1"),
+        );
+    }
+
+    #[test]
+    fn p177_counter_at_label_inexistente() {
+        // Doc com 1 heading sem label. query_by_label de label inexistente
+        // → None. formatted_counter_at fica não-aplicado (é OR-and-then).
+        use crate::entities::introspector::Introspector;
+        use crate::entities::label::Label;
+
+        let world = make_world();
+        let result = with_engine!(&world, |engine, ctx| {
+            introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, _ctx| {
+                Ok(Content::heading(1, Content::text("h")))
+            })
+        });
+        assert!(matches!(result, Ok(_)));
+        let (_, intr) = result.unwrap();
+        assert_eq!(intr.query_by_label(&Label("nonexistent".to_string())), None);
+    }
+
+    // ── P178 — Outline cascade (lacuna #7 fechada) ─────────────────────
+
+    #[test]
+    fn p178_outline_locatable_e_indexavel() {
+        // E2E: doc com 1 Outline. Introspector tem kind_index[Outline]
+        // populado.
+        use crate::entities::element_kind::ElementKind;
+        use crate::entities::introspector::Introspector;
+
+        let world = make_world();
+        let result = with_engine!(&world, |engine, ctx| {
+            introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, _ctx| {
+                Ok(Content::Outline)
+            })
+        });
+        assert!(matches!(result, Ok(_)));
+        let (_, intr) = result.unwrap();
+        // Outline indexado.
+        assert_eq!(intr.query_by_kind(ElementKind::Outline).len(), 1);
+    }
+
+    #[test]
+    fn p178_query_outline_doc_sem_outline() {
+        // Doc sem Outline → query("outline") = 0.
+        use crate::entities::element_kind::ElementKind;
+        use crate::entities::introspector::Introspector;
+        use crate::entities::selector::Selector;
+
+        let world = make_world();
+        let result = with_engine!(&world, |engine, ctx| {
+            introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, _ctx| {
+                Ok(Content::heading(1, Content::text("h")))
+            })
+        });
+        assert!(matches!(result, Ok(_)));
+        let (_, intr) = result.unwrap();
+        assert_eq!(intr.query(&Selector::Kind(ElementKind::Outline)).len(), 0);
+    }
+
+    #[test]
+    fn p178_query_outline_doc_com_outline() {
+        // Doc com 1 Outline → query("outline") = 1. Lacuna #7 fechada.
+        use crate::entities::element_kind::ElementKind;
+        use crate::entities::introspector::Introspector;
+        use crate::entities::selector::Selector;
+
+        let world = make_world();
+        let result = with_engine!(&world, |engine, ctx| {
+            introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, _ctx| {
+                Ok(Content::Sequence(
+                    vec![
+                        Content::heading(1, Content::text("intro")),
+                        Content::Outline,
+                        Content::heading(1, Content::text("body")),
+                    ]
+                    .into(),
+                ))
+            })
+        });
+        assert!(matches!(result, Ok(_)));
+        let (_, intr) = result.unwrap();
+        assert_eq!(intr.query(&Selector::Kind(ElementKind::Outline)).len(), 1);
+    }
+
+    // ── P179 (M9 sub-passo 9 — query upgrade) ──────────────────────────
+
+    #[test]
+    fn p179_stdlib_query_retorna_locations_via_fixpoint() {
+        // E2E: introspect_to_fixpoint → ctx.introspector populado;
+        // closure observa via stdlib query e regista resultado tipo
+        // Value::Array(Vec<Value::Location>).
+        use crate::rules::stdlib::native_query;
+
+        let world = make_world();
+        let main_id = crate::contracts::world::World::main(&world);
+        let mut observed: Vec<Value> = Vec::new();
+        let result = with_engine!(&world, |engine, ctx| {
+            introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, c| {
+                // Chamar native_query simula stdlib invocation.
+                let args = Args::positional(vec![Value::Str("heading".into())]);
+                let r = native_query(c, &args, &world, main_id, None)
+                    .expect("native_query não deve falhar");
+                observed.push(r);
+                Ok(Content::Sequence(
+                    vec![
+                        Content::heading(1, Content::text("a")),
+                        Content::heading(1, Content::text("b")),
+                    ]
+                    .into(),
+                ))
+            })
+        });
+        assert!(matches!(result, Ok(_)));
+        // Iter 0: introspector vazio → Array vazio.
+        assert_eq!(observed[0], Value::Array(vec![]));
+        // Iter 1: introspector populado → Array com 2 Value::Location.
+        if let Value::Array(arr) = &observed[1] {
+            assert_eq!(arr.len(), 2);
+            // Cada entry é Value::Location.
+            for v in arr {
+                assert!(matches!(v, Value::Location(_)),
+                    "esperado Value::Location, recebido {:?}", v);
+            }
+        } else {
+            panic!("esperado Value::Array em iter 1, recebido {:?}", observed[1]);
+        }
     }
 }

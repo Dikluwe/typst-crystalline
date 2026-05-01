@@ -86,11 +86,15 @@ Counter-rico via `CounterKey` enum (Page/Selector/Str variants) permanece adiado
 
 **Decisão**: adiar para M9 quando `MetadataStore` for adicionado ou variant `Content::Bibliography` for promovido a payload kind.
 
+**Inventário P180** (`inventario-bib-state.md`): magnitude **S-M** confirmada. Recomendação: implementação directa em P181 via padrão sub-store + locatable kind (replicação de P165/P169/P171/P178 estabelecidos). 10 sub-passos planeados; ~+15-25 tests.
+
 ### Lacuna #7 — `has_outline`
 
 `CounterStateLegacy.has_outline: bool` indica se o documento contém `Content::Outline`. Layouter usa para decidir se fixpoint de páginas é necessário. `TagIntrospector` não rastreia.
 
 **Decisão**: adiar. Caminho provável: `query_by_kind(Outline)` se Outline for promovido a payload kind, OU adicionar bool dedicado a `TagIntrospector` populado em `from_tags`.
+
+**✅ Resolvida em P178**: `ElementKind::Outline` adicionado; `is_locatable(Content::Outline) == true`; `extract_payload` retorna `Some(ElementPayload::Outline)`; `from_tags` indexa em `kind_index[Outline]`. Stdlib `query("outline")` (P175) retorna agora count correcto. Equivalente a `has_outline := query("outline") > 0`. Caminho promovido foi o primeiro (`query_by_kind`), conforme caminho provável documentado.
 
 ---
 
@@ -105,7 +109,7 @@ Counter-rico via `CounterKey` enum (Page/Selector/Str variants) permanece adiado
 | 3 | Body frozen em state vs hash em tags | P163 | Manter — intencional |
 | 4 | `is_numbering_active` / `numbering_active` | P167 | Adiar — M9 ou passo dedicado |
 | 5 | `format_hierarchical` / hierarquia em CounterRegistry | P167 | ✅ **Resolvida em P170** (M9 sub-passo 2) |
-| 6 | `bib_entries` / `bib_numbers` | P167 | Adiar — M9 |
-| 7 | `has_outline` | P167 | Adiar — M9 ou passo dedicado |
+| 6 | `bib_entries` / `bib_numbers` | P167 | **Inventário P180**: magnitude S-M; recomendação implementação directa P181 (sub-store + locatable kind) |
+| 7 | `has_outline` | P167 | ✅ **Resolvida em P178** (cascade `ElementKind::Outline`) |
 
 Sem alteração de código resultante deste documento. Sem ADR nova. Lista é instrumento de referência para passos M5+ que migrem consumers e M9+ que estendam Introspector.

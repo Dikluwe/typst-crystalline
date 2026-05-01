@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_kind`
-Hash do Código: 4dd8a2b5
+Hash do Código: c9b77b3b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_kind.rs`
@@ -38,6 +38,8 @@ pub enum ElementKind {
     State,
     /// **P171 (M9 sub-passo 3)** — `state.update(key, value)` runtime update.
     StateUpdate,
+    /// **P178** — `Content::Outline` indexável; fecha lacuna #7 (`has_outline`).
+    Outline,
 }
 
 impl ElementKind {
@@ -97,3 +99,4 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-04-30 | P161 sub-passo .5: discriminador estreito de elementos para Introspection M1 | `element_kind.rs`, `element_kind.md` |
+| 2026-04-29 | P178: variant `Outline` adicionada; fecha lacuna #7 (`has_outline` via `query("outline")`) | `element_kind.rs`, `element_kind.md` |

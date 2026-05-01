@@ -31,6 +31,9 @@ pub fn is_locatable(content: &Content) -> bool {
         Content::State { .. } => true,
         Content::StateUpdate { .. } => true,
 
+        // ── Locatable em P178 — Outline fecha lacuna #7 ────────────
+        Content::Outline => true,
+
         // ── Não-locatable (53 variants) ──────────────────────────────
         Content::Empty
         | Content::Text(_, _)
@@ -57,7 +60,6 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::SetHeadingNumbering { .. }
         | Content::CounterDisplay { .. }
         | Content::CounterUpdate { .. }
-        | Content::Outline
         | Content::SetFigureNumbering { .. }
         | Content::Image { .. }
         | Content::Shape { .. }

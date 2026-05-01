@@ -320,21 +320,109 @@ pub fn native_state_update_with(
     }
 }
 
-/// `query(kind_str)` — consulta o `Introspector` da iteração de fixpoint
-/// anterior por elementos do kind indicado. P175 (M9 sub-passo 5).
+/// `counter_at(key_str, label_str)` — valor do counter `key` na
+/// `Location` associada à `label_str`. P177 (M9 sub-passo 7).
 ///
-/// **Forma minimal P175**: aceita string como `Selector::Kind` e
-/// retorna `Value::Int(count)` (número de matches). `Value::Location`
-/// não existe ainda — adopção CONTENT-based ou Location-based fica
-/// para refino futuro.
+/// **Forma minimal P177**: retorna `Value::Str` formatado
+/// hierárquicamente (e.g. `"1.2.3"`). Reusa
+/// `Introspector::query_by_label` (P165) +
+/// `Introspector::formatted_counter_at` (P177).
 ///
-/// `kind_str` válidos: `"heading"`, `"figure"`, `"citation"`,
-/// `"metadata"`, `"state"`, `"state_update"`.
+/// Casos de borda (todos retornam `Value::Str("")`):
+/// - Label inexistente.
+/// - Counter sem update prévia à Location do label.
+/// - Counter inexistente.
+pub fn native_counter_at(
+    ctx:                &mut EvalContext,
+    args:               &Args,
+    _world:             &dyn crate::contracts::world::World,
+    _current_file:      FileId,
+    _figure_numbering:  Option<&str>,
+) -> SourceResult<Value> {
+    use crate::entities::introspector::Introspector;
+    use crate::entities::label::Label;
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key), Value::Str(label_str)] => {
+            let label = Label(label_str.to_string());
+            let formatted = ctx
+                .introspector
+                .query_by_label(&label)
+                .and_then(|loc| ctx.introspector.formatted_counter_at(key.as_str(), loc))
+                .unwrap_or_default();
+            Ok(Value::Str(formatted.into()))
+        }
+        [_, other] => err(format!(
+            "counter_at() requer string como segundo argumento (label), recebeu {}",
+            other.type_name()
+        )),
+        [other, _] => err(format!(
+            "counter_at() requer string como primeiro argumento (key), recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "counter_at() requer 2 argumentos (key, label), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// `counter_final(key_str)` — consulta o valor final do counter `key`
+/// no `Introspector` da iteração de fixpoint anterior. P176 (M9
+/// sub-passo 6).
+///
+/// **Forma minimal P176** (Opção β): retorna `Value::Str` com o
+/// formato hierárquico (e.g. `"1.2.3"`) reusando
+/// `Introspector::formatted_counter` (P170). Sem `Value::Counter`
+/// rich type — refino futuro.
 ///
 /// Iteração 0 (sem fixpoint, ou primeira iter de
 /// `introspect_to_fixpoint`): `ctx.introspector` está vazio →
-/// retorna `0`. Iterações seguintes vêem introspector populado pela
-/// iter anterior.
+/// retorna `Value::Str("")`. Iterações seguintes vêem counter
+/// populado pela iter anterior.
+pub fn native_counter_final(
+    ctx:                &mut EvalContext,
+    args:               &Args,
+    _world:             &dyn crate::contracts::world::World,
+    _current_file:      FileId,
+    _figure_numbering:  Option<&str>,
+) -> SourceResult<Value> {
+    use crate::entities::introspector::Introspector;
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key)] => {
+            let formatted = ctx
+                .introspector
+                .formatted_counter(key.as_str())
+                .unwrap_or_default();
+            Ok(Value::Str(formatted.into()))
+        }
+        [other] => err(format!(
+            "counter_final() requer string como argumento, recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "counter_final() requer 1 argumento (key), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// `query(kind_str)` — consulta o `Introspector` da iteração de fixpoint
+/// anterior por elementos do kind indicado.
+///
+/// **P175 (M9 sub-passo 5)**: forma original retornava `Value::Int(count)`.
+/// **P179 upgrade**: retorna `Value::Array(Vec<Value::Location>)` com
+/// as Locations dos elementos matched, em ordem de aparecimento.
+/// Cliente que precise apenas de count usa `len(query("heading"))`.
+///
+/// `kind_str` válidos: `"heading"`, `"figure"`, `"citation"`,
+/// `"metadata"`, `"state"`, `"state_update"`, `"outline"` (P178).
+///
+/// Iteração 0 (sem fixpoint, ou primeira iter de
+/// `introspect_to_fixpoint`): `ctx.introspector` está vazio →
+/// retorna `Value::Array(vec![])`. Iterações seguintes vêem
+/// introspector populado pela iter anterior.
 pub fn native_query(
     ctx:                &mut EvalContext,
     args:               &Args,
@@ -352,12 +440,16 @@ pub fn native_query(
                 Some(kind) => {
                     let selector = Selector::Kind(kind);
                     let locations = ctx.introspector.query(&selector);
-                    Ok(Value::Int(locations.len() as i64))
+                    let values: Vec<Value> = locations
+                        .into_iter()
+                        .map(Value::Location)
+                        .collect();
+                    Ok(Value::Array(values))
                 }
                 None => err(format!(
                     "query(): kind '{}' não reconhecido (válidos: \
                      heading, figure, citation, metadata, state, \
-                     state_update)",
+                     state_update, outline)",
                     kind_str
                 )),
             }

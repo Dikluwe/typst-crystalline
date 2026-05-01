@@ -60,9 +60,12 @@ pub fn from_tags(
                         // Resolve lacuna #5 (format_hierarchical hierárquico).
                         // counter_update é ignorado para Heading — depth é a
                         // fonte autoritativa para hierarquia.
-                        intr.counters.apply_hierarchical(
+                        // P177: variante `_at` regista snapshot na history
+                        // para suportar `value_at(key, location)` (counter.at).
+                        intr.counters.apply_hierarchical_at(
                             "heading".to_string(),
                             *depth as usize,
+                            *loc,
                         );
                     }
                     ElementPayload::Figure { counter_update, is_counted, .. } => {
@@ -70,9 +73,11 @@ pub fn from_tags(
                             .entry(ElementKind::Figure)
                             .or_default()
                             .push(*loc);
-                        intr.counters.apply(
+                        // P177: variante `_at` regista snapshot.
+                        intr.counters.apply_at(
                             "figure".to_string(),
                             counter_update.clone(),
+                            *loc,
                         );
                         // P168 (M5): se figura é numerada+captioned E
                         // tem label associada, indexar em
@@ -111,6 +116,14 @@ pub fn from_tags(
                             .or_default()
                             .push(*loc);
                         intr.state.init(key.clone(), (**init).clone(), *loc);
+                    }
+                    // P178: Outline indexado em kind_index. Sem
+                    // counter/registry adicional — feature minimal.
+                    ElementPayload::Outline => {
+                        intr.kind_index
+                            .entry(ElementKind::Outline)
+                            .or_default()
+                            .push(*loc);
                     }
                     // P171 (M9) + P173: StateUpdate aplica Set directamente;
                     // Func é avaliada via apply_func quando Engine+ctx

@@ -52,6 +52,9 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
             update: update.clone(),
         }),
 
+        // P178 — Outline é unit. Payload também unit. Fecha lacuna #7.
+        Content::Outline => Some(ElementPayload::Outline),
+
         // Todas as outras variantes não são locatable em M1.
         // Adicionar uma variant locatable nova exige edição explícita
         // deste match (compilador não força exaustividade aqui porque
@@ -143,5 +146,12 @@ mod tests {
     fn sequence_e_outras_produzem_none() {
         let seq = Content::Sequence(std::sync::Arc::from(vec![Content::Empty]));
         assert_eq!(extract_payload(&seq), None);
+    }
+
+    #[test]
+    fn outline_produz_some_payload() {
+        // P178: Content::Outline → Some(ElementPayload::Outline).
+        let c = Content::Outline;
+        assert_eq!(extract_payload(&c), Some(ElementPayload::Outline));
     }
 }

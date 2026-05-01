@@ -526,7 +526,7 @@ fn make_stdlib() -> Scope {
         make_calc_module, native_align, native_assert, native_bibliography, native_block, native_box, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
-        native_lower, native_luma, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_update, native_state_update_with,
+        native_counter_at, native_counter_final, native_lower, native_luma, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_update, native_state_update_with,
         native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_scale, native_skew, native_stack, native_str, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms, native_type, native_upper, native_v,
     };
@@ -572,6 +572,14 @@ fn make_stdlib() -> Scope {
     // da iter de fixpoint anterior. Retorna Value::Int(count) — forma
     // minimal sem Value::Location.
     scope.define("query", Value::Func(Func::native("query", native_query)));
+    // P176 (M9 sub-passo 6): counter_final(key) — formato hierárquico
+    // do counter na iter de fixpoint anterior. Reusa
+    // Introspector::formatted_counter (P170). Retorna Value::Str.
+    scope.define("counter_final", Value::Func(Func::native("counter_final", native_counter_final)));
+    // P177 (M9 sub-passo 7): counter_at(key, label) — valor do counter
+    // na Location associada ao label. Reusa query_by_label +
+    // formatted_counter_at. Retorna Value::Str.
+    scope.define("counter_at", Value::Func(Func::native("counter_at", native_counter_at)));
     scope.define("upper",   Value::Func(Func::native("upper",   native_upper)));
     scope.define("lower",   Value::Func(Func::native("lower",   native_lower)));
     scope.define("replace", Value::Func(Func::native("replace", native_replace)));
