@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash 932588ff
+//! @prompt-hash e819668a
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -82,6 +82,11 @@ pub trait Introspector {
     /// `query_by_kind`. Variants futuros (`Label`, `And`, `Or`,
     /// `Where`) ficam para passos dedicados.
     fn query(&self, selector: &Selector) -> Vec<Location>;
+
+    /// **P177 (M9 sub-passo 7)** — formato hierárquico do counter
+    /// na `Location` indicada. `None` se key inexistente ou history
+    /// vazia para `loc <= location`.
+    fn formatted_counter_at(&self, key: &str, location: Location) -> Option<String>;
 }
 
 /// Implementação concreta de `Introspector` construída a partir de
@@ -166,6 +171,15 @@ impl Introspector for TagIntrospector {
     fn query(&self, selector: &Selector) -> Vec<Location> {
         match selector {
             Selector::Kind(kind) => self.query_by_kind(*kind),
+        }
+    }
+
+    fn formatted_counter_at(&self, key: &str, location: Location) -> Option<String> {
+        let counter = self.counters.value_at(key, location)?;
+        if counter.is_empty() {
+            None
+        } else {
+            Some(counter.iter().map(|n| n.to_string()).collect::<Vec<_>>().join("."))
         }
     }
 }
@@ -265,5 +279,35 @@ mod tests {
         assert_eq!(i.query(&Selector::Kind(ElementKind::Citation)), vec![loc(3)]);
         // Outros kinds → vazio.
         assert!(i.query(&Selector::Kind(ElementKind::Metadata)).is_empty());
+    }
+
+    // ── P177 (M9 sub-passo 7) — formatted_counter_at ────────────────────
+
+    #[test]
+    fn formatted_counter_at_em_introspector_vazio_devolve_none() {
+        let i = TagIntrospector::empty();
+        assert_eq!(i.formatted_counter_at("heading", loc(10)), None);
+    }
+
+    #[test]
+    fn formatted_counter_at_devolve_snapshot_correcto() {
+        let mut i = TagIntrospector::empty();
+        // Simular sequência [1, 2, 1] em headings via apply_hierarchical_at.
+        i.counters.apply_hierarchical_at("heading".to_string(), 1, loc(10)); // [1]
+        i.counters.apply_hierarchical_at("heading".to_string(), 2, loc(20)); // [1, 1]
+        i.counters.apply_hierarchical_at("heading".to_string(), 1, loc(30)); // [2]
+
+        assert_eq!(i.formatted_counter_at("heading", loc(10)).as_deref(), Some("1"));
+        assert_eq!(i.formatted_counter_at("heading", loc(20)).as_deref(), Some("1.1"));
+        assert_eq!(i.formatted_counter_at("heading", loc(30)).as_deref(), Some("2"));
+        // Antes de qualquer update.
+        assert_eq!(i.formatted_counter_at("heading", loc(5)), None);
+    }
+
+    #[test]
+    fn formatted_counter_at_key_inexistente_devolve_none() {
+        let mut i = TagIntrospector::empty();
+        i.counters.apply_hierarchical_at("heading".to_string(), 1, loc(10));
+        assert_eq!(i.formatted_counter_at("inexistente", loc(20)), None);
     }
 }

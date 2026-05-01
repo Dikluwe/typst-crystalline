@@ -66,6 +66,12 @@ pub enum Value {
     /// `Align2D` é `Copy` (8 bytes) — sem `Arc`.
     Align(crate::entities::layout_types::Align2D),
 
+    // ── Variantes P179 (M9 sub-passo 9 — query upgrade) ─────────────────────
+    /// **P179** — Location de elemento indexado pelo Introspector.
+    /// `Copy` via `Location` (u128 internal). Usado por stdlib `query`
+    /// que retorna `Value::Array(Vec<Value::Location>)`.
+    Location(crate::entities::location::Location),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
     // Variantes futuras (~13 restantes após Passo 80):
     // Relative(Relative),       // comprimento relativo
@@ -105,6 +111,7 @@ impl Value {
             Self::Color(_)     => "color",
             Self::Fraction(_)  => "fraction",
             Self::Align(_)     => "alignment",
+            Self::Location(_)  => "location",
         }
     }
 

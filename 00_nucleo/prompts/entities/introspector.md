@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: 322924e5
+Hash do Código: d6124434
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`
@@ -73,6 +73,13 @@ pub trait Introspector {
     /// só `Selector::Kind(kind)` que delega a `query_by_kind`. Future
     /// variants (`Label`, `And`, `Or`, `Where`) adiados.
     fn query(&self, selector: &Selector) -> Vec<Location>;
+
+    /// **P177 (M9 sub-passo 7)**: formato hierárquico do counter na
+    /// `Location` indicada. Equivalente a `formatted_counter` (P170)
+    /// mas para um snapshot histórico em vez do estado final. `None`
+    /// se key inexistente, history vazia, ou todas as updates estão
+    /// depois de `location`.
+    fn formatted_counter_at(&self, key: &str, location: Location) -> Option<String>;
 }
 
 #[derive(Debug, Clone, Default)]
@@ -177,3 +184,4 @@ Fan-in baixo: M3 não tem consumers externos ainda.
 |------|--------|-------------------|
 | 2026-04-30 | P165 sub-passo .D: trait + impl concreta para queries sobre tags | `introspector.rs`, `introspector.md` |
 | 2026-04-29 | P175 sub-passo .C: método `query(&Selector) -> Vec<Location>` no trait + impl | `introspector.rs`, `introspector.md` |
+| 2026-04-29 | P177 sub-passo .C: método `formatted_counter_at(key, location) -> Option<String>` no trait + impl | `introspector.rs`, `introspector.md` |

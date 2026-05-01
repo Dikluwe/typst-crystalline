@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_payload.md
-//! @prompt-hash 724e8afd
+//! @prompt-hash f0a2159c
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -86,6 +86,11 @@ pub enum ElementPayload {
         key:    String,
         update: crate::entities::state_update::StateUpdate,
     },
+
+    /// **P178** — payload de `Content::Outline`. Unit variant (Opção α):
+    /// suficiente para `query("outline")` minimal contar locations.
+    /// Refino futuro pode capturar `depth` e `title_hash`.
+    Outline,
 }
 
 impl std::hash::Hash for ElementPayload {
@@ -159,6 +164,16 @@ mod tests {
         let c = ElementPayload::Citation { key: "jones2023".into() };
         assert_eq!(a, b);
         assert_ne!(a, c);
+    }
+
+    #[test]
+    fn outline_e_unit_e_distinto_de_outras() {
+        // P178: Outline é unit variant.
+        let o1 = ElementPayload::Outline;
+        let o2 = ElementPayload::Outline;
+        assert_eq!(o1, o2);
+        // Distinto de outras variants.
+        assert_ne!(o1, ElementPayload::Citation { key: "x".into() });
     }
 
     #[test]

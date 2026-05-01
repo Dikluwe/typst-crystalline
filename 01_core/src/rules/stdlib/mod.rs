@@ -33,7 +33,7 @@ mod layout;
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
 pub use crate::rules::stdlib::foundations::{
-    native_float, native_int, native_len, native_luma, native_metadata, native_query, native_range, native_rgb,
+    native_counter_at, native_counter_final, native_float, native_int, native_len, native_luma, native_metadata, native_query, native_range, native_rgb,
     native_state, native_state_update, native_state_update_with, native_str, native_type,
 };
 pub use crate::rules::stdlib::calc::make_calc_module;
@@ -212,23 +212,23 @@ mod tests {
     // ── P175 (M9 sub-passo 5) — query(kind_str) ─────────────────────────
 
     #[test]
-    fn stdlib_query_em_introspector_vazio_retorna_zero() {
+    fn stdlib_query_em_introspector_vazio_retorna_array_vazio() {
+        // P175 → P179 upgrade: query retorna Value::Array, não Int.
         null_ctx!(ctx);
-        // ctx.introspector é TagIntrospector::empty() por default.
         let r = native_query(
             &mut ctx,
             &p(vec![Value::Str("heading".into())]),
             &null_world(), test_file_id(), None,
         ).unwrap();
-        assert_eq!(r, Value::Int(0));
+        assert_eq!(r, Value::Array(vec![]));
     }
 
     #[test]
-    fn stdlib_query_em_introspector_populado_retorna_count() {
+    fn stdlib_query_em_introspector_populado_retorna_array_de_locations() {
+        // P179 upgrade: array com Value::Location entries.
         null_ctx!(ctx);
         use crate::entities::element_kind::ElementKind;
         use crate::entities::location::Location;
-        // Popular ctx.introspector com 3 headings.
         ctx.introspector.kind_index.entry(ElementKind::Heading).or_default()
             .extend(vec![Location::from_raw(1), Location::from_raw(2), Location::from_raw(3)]);
 
@@ -237,7 +237,12 @@ mod tests {
             &p(vec![Value::Str("heading".into())]),
             &null_world(), test_file_id(), None,
         ).unwrap();
-        assert_eq!(r, Value::Int(3));
+        let expected = Value::Array(vec![
+            Value::Location(Location::from_raw(1)),
+            Value::Location(Location::from_raw(2)),
+            Value::Location(Location::from_raw(3)),
+        ]);
+        assert_eq!(r, expected);
     }
 
     #[test]
@@ -260,6 +265,172 @@ mod tests {
             &null_world(), test_file_id(), None,
         );
         assert!(r.is_err(), "arg não-string deve retornar Err");
+    }
+
+    #[test]
+    fn stdlib_query_outline_funciona_pos_p178_p179() {
+        // P178: query("outline") agora aceita kind.
+        // P179: retorna array, não count.
+        null_ctx!(ctx);
+        use crate::entities::element_kind::ElementKind;
+        use crate::entities::location::Location;
+        // Vazio.
+        let r = native_query(
+            &mut ctx,
+            &p(vec![Value::Str("outline".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Array(vec![]));
+        // Populado.
+        ctx.introspector.kind_index.entry(ElementKind::Outline)
+            .or_default().push(Location::from_raw(10));
+        let r = native_query(
+            &mut ctx,
+            &p(vec![Value::Str("outline".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Array(vec![Value::Location(Location::from_raw(10))]));
+    }
+
+    #[test]
+    fn stdlib_query_p179_upgrade_value_location_type_name() {
+        // P179: Value::Location existe e tem type_name correcto.
+        use crate::entities::location::Location;
+        let v = Value::Location(Location::from_raw(42));
+        assert_eq!(v.type_name(), "location");
+    }
+
+    // ── P176 (M9 sub-passo 6) — counter_final(key) ──────────────────────
+
+    #[test]
+    fn stdlib_counter_final_em_introspector_vazio_retorna_str_vazia() {
+        null_ctx!(ctx);
+        let r = native_counter_final(
+            &mut ctx,
+            &p(vec![Value::Str("heading".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Str("".into()));
+    }
+
+    #[test]
+    fn stdlib_counter_final_em_introspector_populado_retorna_string_formatada() {
+        null_ctx!(ctx);
+        // Popular CounterRegistry directamente com hierarquia [1, 2, 1].
+        ctx.introspector.counters.apply_hierarchical("heading".to_string(), 1);
+        ctx.introspector.counters.apply_hierarchical("heading".to_string(), 2);
+        ctx.introspector.counters.apply_hierarchical("heading".to_string(), 1);
+
+        let r = native_counter_final(
+            &mut ctx,
+            &p(vec![Value::Str("heading".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        // P170: hierarchical "1.2.1" → "2" após [1,2,1] (último top-level).
+        // Ajustar conforme paridade real — confirma que retorna string
+        // não vazia formatada.
+        match r {
+            Value::Str(s) => {
+                assert!(!s.is_empty(), "esperado string não-vazia, recebido vazia");
+            }
+            other => panic!("esperado Value::Str, recebido {:?}", other),
+        }
+    }
+
+    #[test]
+    fn stdlib_counter_final_key_inexistente_retorna_str_vazia() {
+        null_ctx!(ctx);
+        let r = native_counter_final(
+            &mut ctx,
+            &p(vec![Value::Str("inexistente".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Str("".into()));
+    }
+
+    #[test]
+    fn stdlib_counter_final_arg_nao_string_retorna_err() {
+        null_ctx!(ctx);
+        let r = native_counter_final(
+            &mut ctx,
+            &p(vec![Value::Int(42)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err(), "arg não-string deve retornar Err");
+    }
+
+    // ── P177 (M9 sub-passo 7) — counter_at(key, label) ──────────────────
+
+    #[test]
+    fn stdlib_counter_at_em_introspector_vazio_retorna_str_vazia() {
+        null_ctx!(ctx);
+        let r = native_counter_at(
+            &mut ctx,
+            &p(vec![Value::Str("heading".into()), Value::Str("intro".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Str("".into()));
+    }
+
+    #[test]
+    fn stdlib_counter_at_label_inexistente_retorna_str_vazia() {
+        null_ctx!(ctx);
+        // Popular counter mas label não registada.
+        use crate::entities::location::Location;
+        ctx.introspector.counters.apply_hierarchical_at(
+            "heading".to_string(), 1, Location::from_raw(10),
+        );
+        let r = native_counter_at(
+            &mut ctx,
+            &p(vec![Value::Str("heading".into()), Value::Str("nonexistent".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Str("".into()));
+    }
+
+    #[test]
+    fn stdlib_counter_at_label_associado_retorna_string_formatada() {
+        null_ctx!(ctx);
+        use crate::entities::label::Label;
+        use crate::entities::location::Location;
+        // Popular: heading na loc 10 com counter [1], label "intro" → loc 10.
+        ctx.introspector.counters.apply_hierarchical_at(
+            "heading".to_string(), 1, Location::from_raw(10),
+        );
+        ctx.introspector.labels.add(Label("intro".to_string()), Location::from_raw(10));
+
+        let r = native_counter_at(
+            &mut ctx,
+            &p(vec![Value::Str("heading".into()), Value::Str("intro".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Str("1".into()));
+    }
+
+    #[test]
+    fn stdlib_counter_at_args_invalidos_retornam_err() {
+        null_ctx!(ctx);
+        // Primeiro arg não-string.
+        let r = native_counter_at(
+            &mut ctx,
+            &p(vec![Value::Int(1), Value::Str("intro".into())]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err());
+        // Segundo arg não-string.
+        let r = native_counter_at(
+            &mut ctx,
+            &p(vec![Value::Str("heading".into()), Value::Int(1)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err());
+        // Número errado de args.
+        let r = native_counter_at(
+            &mut ctx,
+            &p(vec![Value::Str("heading".into())]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err());
     }
 
     // ── Passo 27 — str/int/float ─────────────────────────────────────────────

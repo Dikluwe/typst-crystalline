@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/counter_registry`
-Hash do Código: 0cecccd2
+Hash do Código: c567fe3a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/counter_registry.rs`
@@ -31,9 +31,13 @@ Vanilla agrega no `ElementIntrospector` indirectamente — counters são queriá
 
 ```rust
 use crate::entities::counter_update::CounterUpdate;
+use crate::entities::location::Location;
 
 #[derive(Debug, Clone, Default)]
-pub struct CounterRegistry { /* HashMap<String, Vec<usize>> interno */ }
+pub struct CounterRegistry {
+    /* HashMap<String, Vec<usize>> — estado actual por key */
+    /* HashMap<String, Vec<(Location, Vec<usize>)>> — history (P177) */
+}
 
 impl CounterRegistry {
     pub fn empty() -> Self;
@@ -44,12 +48,26 @@ impl CounterRegistry {
     /// **P170 (M9 sub-passo 2)** — formato hierárquico "1.2.3".
     pub fn format(&self, key: &str) -> Option<String>;
 
+    /// **P177 (M9 sub-passo 7)** — valor do counter na `Location`
+    /// indicada. Retorna o estado **após** todas as updates com
+    /// `loc <= location`. `None` se não há update prévia.
+    pub fn value_at(&self, key: &str, location: Location) -> Option<&[usize]>;
+
     pub(crate) fn apply(&mut self, key: String, update: CounterUpdate);
 
     /// **P170 (M9 sub-passo 2)** — step hierárquico ao nível indicado.
     /// Paridade com `CounterStateLegacy::step_hierarchical`. Resolve
     /// lacuna #5 (`m1-lacunas-captura.md`).
     pub(crate) fn apply_hierarchical(&mut self, key: String, level: usize);
+
+    /// **P177 (M9 sub-passo 7)** — wrapper sobre `apply` que regista
+    /// também snapshot na `history` para suportar `value_at`.
+    /// Used por `from_tags` em arms `Figure`/`Citation`.
+    pub(crate) fn apply_at(&mut self, key: String, update: CounterUpdate, location: Location);
+
+    /// **P177 (M9 sub-passo 7)** — wrapper sobre `apply_hierarchical`
+    /// que regista snapshot. Used por `from_tags` em arm `Heading`.
+    pub(crate) fn apply_hierarchical_at(&mut self, key: String, level: usize, location: Location);
 }
 ```
 
@@ -70,6 +88,9 @@ impl CounterRegistry {
 - **P170**: `format(key)` retorna `Option<String>` com Vec<usize> joined com "." ("1.2.1"). Forma equivalente a `CounterStateLegacy::format_hierarchical`. Resolve lacuna #5 — CounterRegistry deixa de ser flat em M9.
 
 Hierarquia em M9: counters podem ter múltiplos níveis para Headings (paridade com walk arm `Content::Heading` em `introspect.rs::279`). Counters flat (figure, equation) continuam a usar `apply(_, Step)` que mantém Vec de tamanho 1.
+
+- **P177**: `value_at(key, location)` retorna `Option<&[usize]>` com o valor do counter **após** todas as updates de `key` com `loc <= location`. Implementação via `history` (Vec ordenado por Location, monotonicamente crescente via `Locator`). Retorna `None` se nenhuma update precede `location` ou key inexistente.
+- **P177**: `apply_at(key, update, location)` e `apply_hierarchical_at(key, level, location)` são wrappers sobre `apply`/`apply_hierarchical` que adicionalmente fazem snapshot do estado actual em `history[key]` com a Location indicada. `from_tags` migra para usar `_at` versions; tests existentes em `apply`/`apply_hierarchical` mantêm-se sem location (não populam history).
 
 ---
 
@@ -125,3 +146,4 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-04-30 | P165 sub-passo .C: sub-store de counters por kind para Introspector M3 | `counter_registry.rs`, `counter_registry.md` |
+| 2026-04-29 | P177 sub-passo .B: history field + `value_at` + `apply_at` / `apply_hierarchical_at` | `counter_registry.rs`, `counter_registry.md` |

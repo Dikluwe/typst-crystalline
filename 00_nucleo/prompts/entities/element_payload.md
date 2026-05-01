@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_payload`
-Hash do Código: 6edd1b7e
+Hash do Código: 73291466
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_payload.rs`
@@ -99,6 +99,12 @@ pub enum ElementPayload {
         key:    String,
         update: StateUpdate,
     },
+
+    /// **P178** — payload de `Content::Outline`. Variant unit em P178
+    /// (Opção α): `Content::Outline` é unit, e `query("outline")`
+    /// minimal só precisa contar locations. Refino futuro pode capturar
+    /// `depth: Option<usize>` e `title: hash` para queries mais ricas.
+    Outline,
 }
 ```
 
@@ -168,3 +174,4 @@ Ver `desenho-introspection-fixpoint.md` §2.1 (referenciado em P161; documento a
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-04-30 | P161 sub-passo .7: forma fechada por kind para introspecção M1 | `element_payload.rs`, `element_payload.md` |
+| 2026-04-29 | P178: variant `Outline` unit adicionada para suporte de `query("outline")` | `element_payload.rs`, `element_payload.md` |
