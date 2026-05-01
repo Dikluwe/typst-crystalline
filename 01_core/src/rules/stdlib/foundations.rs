@@ -212,3 +212,67 @@ pub fn native_metadata(
         )),
     }
 }
+
+/// `state(key, init)` — define runtime mutable state. P171 (M9 sub-passo 3).
+///
+/// Vanilla: `state(key, init)` em `introspection/state.rs`. Cristalino
+/// minimal: 2 argumentos posicionais (key: Str, init: Value); produz
+/// `Content::State { key, init: Box<Value> }`. Invisível em layout.
+pub fn native_state(
+    _ctx:                &mut EvalContext,
+    args:                &Args,
+    _world:              &dyn crate::contracts::world::World,
+    _current_file:       FileId,
+    _figure_numbering:   Option<&str>,
+) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key), init] => Ok(Value::Content(
+            crate::entities::content::Content::State {
+                key:  key.to_string(),
+                init: Box::new(init.clone()),
+            },
+        )),
+        [other, _] => err(format!(
+            "state() requer string como primeiro argumento (key), recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "state() requer 2 argumentos (key, init), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// `state_update(key, value)` — actualiza runtime state. P171 (M9 sub-passo 3).
+///
+/// Forma funcional cristalina (vanilla expõe como `state.update(key, fn)`
+/// método; cristalino não suporta methods em values em P171). `value`
+/// é o novo valor (Set variant); callbacks `Func` adiados.
+pub fn native_state_update(
+    _ctx:                &mut EvalContext,
+    args:                &Args,
+    _world:              &dyn crate::contracts::world::World,
+    _current_file:       FileId,
+    _figure_numbering:   Option<&str>,
+) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key), value] => Ok(Value::Content(
+            crate::entities::content::Content::StateUpdate {
+                key:    key.to_string(),
+                update: crate::entities::state_update::StateUpdate::Set(
+                    Box::new(value.clone()),
+                ),
+            },
+        )),
+        [other, _] => err(format!(
+            "state_update() requer string como primeiro argumento (key), recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "state_update() requer 2 argumentos (key, value), recebeu {}",
+            args.items.len()
+        )),
+    }
+}

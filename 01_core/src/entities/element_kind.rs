@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_kind.md
-//! @prompt-hash 3549a171
+//! @prompt-hash 90bffae0
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -20,16 +20,22 @@ pub enum ElementKind {
     /// **P169 (M9 sub-passo 1)** — feature `metadata(value)` vanilla.
     /// Valor opaco embebido para query via `Introspector::query_metadata`.
     Metadata,
+    /// **P171 (M9 sub-passo 3)** — `state(key, init)` runtime state.
+    State,
+    /// **P171 (M9 sub-passo 3)** — `state.update(key, value)` runtime update.
+    StateUpdate,
 }
 
 impl ElementKind {
     /// Forma textual estável (para diagnóstico e debug).
     pub fn as_str(self) -> &'static str {
         match self {
-            ElementKind::Heading  => "heading",
-            ElementKind::Figure   => "figure",
-            ElementKind::Citation => "citation",
-            ElementKind::Metadata => "metadata",
+            ElementKind::Heading     => "heading",
+            ElementKind::Figure      => "figure",
+            ElementKind::Citation    => "citation",
+            ElementKind::Metadata    => "metadata",
+            ElementKind::State       => "state",
+            ElementKind::StateUpdate => "state_update",
         }
     }
 }

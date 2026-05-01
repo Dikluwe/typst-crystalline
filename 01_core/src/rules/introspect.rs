@@ -171,7 +171,10 @@ fn materialize_time(content: &Content, state: &CounterStateLegacy) -> Content {
         | Content::Pagebreak { .. }
         | Content::Shape { .. }
         // P169 (M9): Metadata é terminal — clonar directamente.
-        | Content::Metadata { .. } => content.clone(),
+        | Content::Metadata { .. }
+        // P171 (M9): State e StateUpdate são terminais.
+        | Content::State { .. }
+        | Content::StateUpdate { .. } => content.clone(),
         // Passo 156C (ADR-0061 Fase 1) — pad / hide containers.
         // Materialize_time desce no body para resolver counters dentro;
         // padding e o invariante "hide" preservam-se.
@@ -492,7 +495,11 @@ fn walk(
         // P169 (M9): Metadata é terminal — sem efeito em counters.
         // Tag::Start/End já é emitido no topo de walk via extract_payload
         // (que produz `Some(ElementPayload::Metadata)`).
-        | Content::Metadata { .. } => {}
+        | Content::Metadata { .. }
+        // P171 (M9): State e StateUpdate são terminais. Tag emitido
+        // no topo via extract_payload.
+        | Content::State { .. }
+        | Content::StateUpdate { .. } => {}
 
         // Passo 154B — Terms / TermItem: descem em items para que filhos
         // com contadores ou labels sejam processados.

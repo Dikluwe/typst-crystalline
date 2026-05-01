@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_kind`
-Hash do Código: 1e8df079
+Hash do Código: 4dd8a2b5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_kind.rs`
@@ -34,6 +34,10 @@ pub enum ElementKind {
     Citation,
     /// **P169 (M9 sub-passo 1)** — feature `metadata(value)` vanilla.
     Metadata,
+    /// **P171 (M9 sub-passo 3)** — `state(key, init)` runtime state.
+    State,
+    /// **P171 (M9 sub-passo 3)** — `state.update(key, value)` runtime update.
+    StateUpdate,
 }
 
 impl ElementKind {

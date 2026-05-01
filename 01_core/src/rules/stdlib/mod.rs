@@ -34,7 +34,7 @@ mod layout;
 // por `make_stdlib` em `eval/mod.rs`.
 pub use crate::rules::stdlib::foundations::{
     native_float, native_int, native_len, native_luma, native_metadata, native_range, native_rgb,
-    native_str, native_type,
+    native_state, native_state_update, native_str, native_type,
 };
 pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::text::{native_lower, native_replace, native_upper};

@@ -37,6 +37,8 @@ pub mod element_payload;
 pub mod introspector;
 pub mod label_registry;
 pub mod metadata_store;
+pub mod state_registry;
+pub mod state_update;
 pub mod location;
 pub mod locator;
 pub mod tag;

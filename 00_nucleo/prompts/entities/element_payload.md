@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_payload`
-Hash do Código: c49a4e16
+Hash do Código: 6edd1b7e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_payload.rs`
@@ -83,6 +83,21 @@ pub enum ElementPayload {
     /// Consumer: `MetadataStore` populado por `from_tags`.
     Metadata {
         value: Box<Value>,
+    },
+
+    /// **P171 (M9 sub-passo 3)** — payload de `state(key, init)`.
+    /// Init value para state runtime; populado em `StateRegistry::init`.
+    State {
+        key:  String,
+        init: Box<Value>,
+    },
+
+    /// **P171 (M9 sub-passo 3)** — payload de `state.update(key, value)`.
+    /// Aplicado em `StateRegistry::apply_update`. Apenas Set variant
+    /// em P171; Func adiada.
+    StateUpdate {
+        key:    String,
+        update: StateUpdate,
     },
 }
 ```

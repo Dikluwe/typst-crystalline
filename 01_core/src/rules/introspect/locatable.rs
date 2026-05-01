@@ -27,6 +27,10 @@ pub fn is_locatable(content: &Content) -> bool {
         // ── Locatable em M9 (P169) — Metadata é queriable ──────────
         Content::Metadata { .. } => true,
 
+        // ── Locatable em M9 (P171) — State e StateUpdate ───────────
+        Content::State { .. } => true,
+        Content::StateUpdate { .. } => true,
+
         // ── Não-locatable (53 variants) ──────────────────────────────
         Content::Empty
         | Content::Text(_, _)

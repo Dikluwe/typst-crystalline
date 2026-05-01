@@ -676,6 +676,26 @@ pub enum Content {
         value: Box<crate::entities::value::Value>,
     },
 
+    /// **P171 (M9 sub-passo 3)** — runtime mutable state, init.
+    /// Vanilla `state(key, init)` em `introspection/state.rs`.
+    ///
+    /// Define o valor inicial de um state identificado por `key`.
+    /// Invisível em layout. Consumer: `Introspector::state_value`.
+    State {
+        key:  String,
+        init: Box<crate::entities::value::Value>,
+    },
+
+    /// **P171 (M9 sub-passo 3)** — runtime mutable state, update.
+    /// Vanilla `state.update(key, value)` (Set variant; Func adiada).
+    ///
+    /// Aplica `update` ao state identificado por `key` no ponto onde
+    /// este nó aparece. Invisível em layout.
+    StateUpdate {
+        key:    String,
+        update: crate::entities::state_update::StateUpdate,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
 }
@@ -955,6 +975,9 @@ impl Content {
             // Content::Styled(body, _) => body.plain_text() no fim do match.
             // P169 (M9): Metadata invisível em layout — sem texto plano.
             Self::Metadata { .. }       => String::new(),
+            // P171 (M9): State e StateUpdate invisíveis em layout.
+            Self::State { .. }          => String::new(),
+            Self::StateUpdate { .. }    => String::new(),
             Self::Heading { body, .. } => body.plain_text(),
             Self::Raw { text, .. }   => text.to_string(),
             Self::ListItem(c)        => format!("• {}", c.plain_text()),
@@ -1460,7 +1483,10 @@ impl Content {
             | Content::Pagebreak { .. }
             | Content::Shape { .. }
             // P169 (M9): Metadata é terminal — clonar directamente.
-            | Content::Metadata { .. } => self.clone(),
+            | Content::Metadata { .. }
+            // P171 (M9): State e StateUpdate são terminais.
+            | Content::State { .. }
+            | Content::StateUpdate { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
                 body:   Box::new(body.map_content(transform)?),
@@ -1676,7 +1702,10 @@ impl Content {
             | Content::Pagebreak { .. }
             | Content::Shape { .. }
             // P169 (M9): Metadata é terminal — clonar directamente.
-            | Content::Metadata { .. } => self.clone(),
+            | Content::Metadata { .. }
+            // P171 (M9): State e StateUpdate são terminais.
+            | Content::State { .. }
+            | Content::StateUpdate { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
                 body:   Box::new(body.map_text(transform)),

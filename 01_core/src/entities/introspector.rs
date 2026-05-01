@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash 3192b0fe
+//! @prompt-hash f5187643
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -19,6 +19,7 @@ use crate::entities::label::Label;
 use crate::entities::label_registry::LabelRegistry;
 use crate::entities::location::Location;
 use crate::entities::metadata_store::MetadataStore;
+use crate::entities::state_registry::StateRegistry;
 use crate::entities::value::Value;
 
 /// Interface de consulta sobre elementos indexados pela introspecção.
@@ -65,6 +66,15 @@ pub trait Introspector {
     /// como string ("1.2.3"). Equivalente a
     /// `state.format_hierarchical(key)` legacy. Suporta lacuna #5.
     fn formatted_counter(&self, key: &str) -> Option<String>;
+
+    /// **P171 (M9 sub-passo 3)** — valor do state `key` na Location
+    /// indicada. Aplica updates ordenados até `location` (inclusive).
+    /// Retorna `None` se key não foi inicializada.
+    fn state_value(&self, key: &str, location: Location) -> Option<&Value>;
+
+    /// **P171 (M9 sub-passo 3)** — valor final do state `key` (último
+    /// update aplicado). Equivalente a `state_value(key, last_loc)`.
+    fn state_final_value(&self, key: &str) -> Option<&Value>;
 }
 
 /// Implementação concreta de `Introspector` construída a partir de
@@ -87,6 +97,10 @@ pub struct TagIntrospector {
     /// **P169 (M9 sub-passo 1)** — values embebidos via `metadata(value)`
     /// vanilla. Acumulado por `from_tags` em ordem de aparecimento.
     pub metadata: MetadataStore,
+    /// **P171 (M9 sub-passo 3)** — runtime mutable state.
+    /// `from_tags` popula via arms para `ElementPayload::State` e
+    /// `ElementPayload::StateUpdate`.
+    pub state: StateRegistry,
     // positions: HashMap<Location, Position> — adiado para M5/M9.
 }
 
@@ -132,6 +146,14 @@ impl Introspector for TagIntrospector {
 
     fn formatted_counter(&self, key: &str) -> Option<String> {
         self.counters.format(key)
+    }
+
+    fn state_value(&self, key: &str, location: Location) -> Option<&Value> {
+        self.state.value_at(key, location)
+    }
+
+    fn state_final_value(&self, key: &str) -> Option<&Value> {
+        self.state.final_value(key)
     }
 }
 

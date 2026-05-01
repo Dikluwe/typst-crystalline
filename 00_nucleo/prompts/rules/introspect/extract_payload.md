@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/extract_payload`
-Hash do Código: 2a0d9c0d
+Hash do Código: 743d6d4e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/introspect/extract_payload.rs`
@@ -33,6 +33,8 @@ P162 sub-passo .D introduz a função; consumida em P162 .E pelo walk modificado
 | `Figure { kind: Option<String>, numbering, caption, .. }` | `kind`, `numbering`, `caption` (P168: predicate `is_counted`) | `Figure { kind: kind.clone(), counter_update: CounterUpdate::Step, is_counted: numbering.is_some() && caption.is_some() }` |
 | `Cite { key: String, .. }` | `key` apenas (supplement/form irrelevantes para payload) | `Citation { key: key.clone() }` |
 | `Metadata { value }` | `value` (boxed) | `Metadata { value: value.clone() }` (P169 M9) |
+| `State { key, init }` | `key`, `init` (boxed) | `State { key: key.clone(), init: init.clone() }` (P171 M9) |
+| `StateUpdate { key, update }` | `key`, `update` (enum) | `StateUpdate { key: key.clone(), update: update.clone() }` (P171 M9) |
 | Outras (Text, Sequence, Math*, etc.) | — | `None` |
 
 ---

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: ee0371c4
+Hash do Código: 530c5a98
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`
@@ -60,6 +60,14 @@ pub trait Introspector {
     /// como string. Equivalente a `state.format_hierarchical(key)`.
     /// Resolve lacuna #5.
     fn formatted_counter(&self, key: &str) -> Option<String>;
+
+    /// **P171 (M9 sub-passo 3)**: valor do state `key` na Location
+    /// indicada (aplica updates ordenados até `location`).
+    fn state_value(&self, key: &str, location: Location) -> Option<&Value>;
+
+    /// **P171 (M9 sub-passo 3)**: valor final do state `key` (último
+    /// update aplicado).
+    fn state_final_value(&self, key: &str) -> Option<&Value>;
 }
 
 #[derive(Debug, Clone, Default)]
@@ -73,6 +81,8 @@ pub struct TagIntrospector {
     pub figure_label_numbers:  HashMap<Label, usize>,
     /// **P169 (M9 sub-passo 1)** — values embebidos via `metadata()`.
     pub metadata:              MetadataStore,
+    /// **P171 (M9 sub-passo 3)** — runtime mutable state.
+    pub state:                 StateRegistry,
     // positions: HashMap<Location, Position> — adiado para M5/M9
 }
 

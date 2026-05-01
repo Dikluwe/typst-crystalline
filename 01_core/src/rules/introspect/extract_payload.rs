@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/extract_payload.md
-//! @prompt-hash 7e36884e
+//! @prompt-hash 493cdaed
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -38,6 +38,18 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         // P169 (M9 sub-passo 1) — metadata(value) feature.
         Content::Metadata { value } => Some(ElementPayload::Metadata {
             value: value.clone(),
+        }),
+
+        // P171 (M9 sub-passo 3) — state(key, init) feature.
+        Content::State { key, init } => Some(ElementPayload::State {
+            key:  key.clone(),
+            init: init.clone(),
+        }),
+
+        // P171 (M9 sub-passo 3) — state.update(key, value) feature.
+        Content::StateUpdate { key, update } => Some(ElementPayload::StateUpdate {
+            key:    key.clone(),
+            update: update.clone(),
         }),
 
         // Todas as outras variantes não são locatable em M1.
