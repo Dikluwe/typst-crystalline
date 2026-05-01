@@ -656,7 +656,7 @@ mod tests {
 
     #[test]
     fn pipeline_completo_texto_simples() {
-        use crate::entities::counter_state::CounterState;
+        use crate::entities::counter_state_legacy::CounterStateLegacy;
         use crate::rules::layout::layout;
 
         let world = MockWorld::new("Hello world");
@@ -668,13 +668,13 @@ mod tests {
         assert!(content.plain_text().contains("Hello"));
         assert!(content.plain_text().contains("world"));
 
-        let result = layout(content, CounterState::default());
+        let result = layout(content, CounterStateLegacy::default());
         assert!(!result.plain_text().is_empty());
     }
 
     #[test]
     fn pipeline_interpolacao_variavel() {
-        use crate::entities::counter_state::CounterState;
+        use crate::entities::counter_state_legacy::CounterStateLegacy;
         use crate::rules::layout::layout;
 
         let world = MockWorld::new("#let x = \"Mundo\"\nOlá #x");
@@ -686,7 +686,7 @@ mod tests {
         assert!(text.contains("Olá"), "texto estático deve estar presente: {:?}", text);
         assert!(text.contains("Mundo"), "variável interpolada deve estar presente: {:?}", text);
 
-        let result = layout(content, CounterState::default());
+        let result = layout(content, CounterStateLegacy::default());
         assert!(!result.plain_text().is_empty());
     }
 
@@ -1719,14 +1719,14 @@ mod tests {
 
     #[test]
     fn eval_e_layout_equation_sem_colchetes() {
-        use crate::entities::counter_state::CounterState;
+        use crate::entities::counter_state_legacy::CounterStateLegacy;
         use crate::rules::layout::layout;
         let world = MockWorld::new("$x$");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
         // Verificar que o layout não produz "[" nos FrameItems
         if let Some(content) = m.content() {
-            let doc = layout(content, CounterState::default());
+            let doc = layout(content, CounterStateLegacy::default());
             for page in &doc.pages {
                 for item in &page.items {
                     if let crate::entities::layout_types::FrameItem::Text { text, .. } = item {
@@ -1742,13 +1742,13 @@ mod tests {
 
     #[test]
     fn eval_alpha_produz_unicode() {
-        use crate::entities::counter_state::CounterState;
+        use crate::entities::counter_state_legacy::CounterStateLegacy;
         use crate::rules::layout::layout;
         let world = MockWorld::new("$alpha$");
         let src   = World::source(&world, World::main(&world)).unwrap();
         let m     = eval_for_test(&world, &src).unwrap();
         let content = m.content().expect("módulo deve ter content");
-        let doc = layout(content, CounterState::default());
+        let doc = layout(content, CounterStateLegacy::default());
         // α deve aparecer no texto, não "alpha"
         let plain = doc.plain_text();
         assert!(plain.contains('α'), "α deve estar no output, não 'alpha': {}", plain);
@@ -1782,9 +1782,9 @@ mod tests {
         // Módulo deve ter content (equação não foi silenciada)
         let content = m.content().expect("módulo deve ter content");
         // Plain text do layout deve conter "a" e "b" (não vazio)
-        use crate::entities::counter_state::CounterState;
+        use crate::entities::counter_state_legacy::CounterStateLegacy;
         use crate::rules::layout::layout;
-        let doc = layout(content, CounterState::default());
+        let doc = layout(content, CounterStateLegacy::default());
         assert!(!doc.pages.is_empty(), "frac(a,b) deve produzir pelo menos uma página");
     }
 
@@ -1869,13 +1869,13 @@ mod tests {
 
     #[test]
     fn eval_sqrt_layout_contem_radical() {
-        use crate::entities::counter_state::CounterState;
+        use crate::entities::counter_state_legacy::CounterStateLegacy;
         use crate::rules::layout::layout;
         let world = MockWorld::new("$sqrt(x)$");
         let src   = World::source(&world, World::main(&world)).unwrap();
         let m     = eval_for_test(&world, &src).unwrap();
         let content = m.content().expect("content");
-        let doc = layout(content, CounterState::default());
+        let doc = layout(content, CounterStateLegacy::default());
         let plain = doc.plain_text();
         assert!(plain.contains('√'), "layout de sqrt deve conter √: {}", plain);
         assert!(plain.contains('x'), "layout de sqrt deve conter x: {}", plain);
@@ -1883,14 +1883,14 @@ mod tests {
 
     #[test]
     fn eval_sqrt_layout_tem_overline() {
-        use crate::entities::counter_state::CounterState;
+        use crate::entities::counter_state_legacy::CounterStateLegacy;
         use crate::rules::layout::layout;
         use crate::entities::layout_types::FrameItem;
         let world = MockWorld::new("$sqrt(x)$");
         let src   = World::source(&world, World::main(&world)).unwrap();
         let m     = eval_for_test(&world, &src).unwrap();
         let content = m.content().expect("content");
-        let doc = layout(content, CounterState::default());
+        let doc = layout(content, CounterStateLegacy::default());
         let has_line = doc.pages.iter().any(|p| {
             p.items.iter().any(|i| matches!(i, FrameItem::Line { .. }))
         });
@@ -1899,13 +1899,13 @@ mod tests {
 
     #[test]
     fn eval_root_layout_contem_indice_e_radicando() {
-        use crate::entities::counter_state::CounterState;
+        use crate::entities::counter_state_legacy::CounterStateLegacy;
         use crate::rules::layout::layout;
         let world = MockWorld::new("$root(3, x)$");
         let src   = World::source(&world, World::main(&world)).unwrap();
         let m     = eval_for_test(&world, &src).unwrap();
         let content = m.content().expect("content");
-        let doc = layout(content, CounterState::default());
+        let doc = layout(content, CounterStateLegacy::default());
         let plain = doc.plain_text();
         assert!(plain.contains('3'), "layout de root(3,x) deve conter 3: {}", plain);
         assert!(plain.contains('√'), "layout de root(3,x) deve conter √: {}", plain);

@@ -30,8 +30,22 @@ pub(super) fn layout_labelled<M: FontMetrics, S: ImageSizer>(
 
 /// Braço `Ref` — consulta contadores de figura e `resolved_labels` populados pela introspecção.
 /// Forward e backward refs resolvem. Fallback `@nome` se a label não existir.
+///
+/// **P168 (M5 sub-passo 2)**: figure-ref consulta `Introspector::figure_number_for_label`
+/// PRIMEIRO; se vazio (introspector não populado pelo caller), fallback a
+/// `state.figure_label_numbers` legacy. Migração gradual — quando todos os
+/// callers migrarem para `layout_with_introspector`, fallback torna-se
+/// dead code (M6 elimina). Caso section-ref permanece em legacy
+/// (lacuna #4-#7 documentadas em `m1-lacunas-captura.md`).
 pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>, target: &Label) {
-    // Labels de figuras numeradas resolvem primeiro (Passo 75, DEBT-14).
+    use crate::entities::introspector::Introspector;
+
+    // P168: tentar introspector primeiro (caminho M5+).
+    if let Some(fig_num) = layouter.introspector.figure_number_for_label(target) {
+        layouter.layout_content(&Content::text(format!("Figura {}", fig_num)));
+        return;
+    }
+    // Fallback legacy: caller via `layout()` legacy não populou introspector.
     if let Some(&fig_num) = layouter.counter.figure_label_numbers.get(target) {
         layouter.layout_content(&Content::text(format!("Figura {}", fig_num)));
         return;

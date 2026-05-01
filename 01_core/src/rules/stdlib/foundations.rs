@@ -187,3 +187,28 @@ pub fn native_float(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         _ => err(format!("float() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
+
+/// `metadata(value)` — embeber valor opaco no documento para query
+/// via `Introspector::query_metadata`. P169 (M9 sub-passo 1).
+///
+/// Vanilla: `metadata(value)` em `introspection/metadata.rs`. Cristalino
+/// minimal: 1 argumento posicional; sem named args; produz
+/// `Content::Metadata { value: Box<Value> }` que é zero-size em layout.
+pub fn native_metadata(
+    _ctx:                &mut EvalContext,
+    args:                &Args,
+    _world:              &dyn crate::contracts::world::World,
+    _current_file:       FileId,
+    _figure_numbering:   Option<&str>,
+) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [v] => Ok(Value::Content(crate::entities::content::Content::Metadata {
+            value: Box::new(v.clone()),
+        })),
+        _ => err(format!(
+            "metadata() requer 1 argumento, recebeu {}",
+            args.items.len()
+        )),
+    }
+}

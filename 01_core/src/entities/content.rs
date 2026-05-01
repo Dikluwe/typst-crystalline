@@ -16,7 +16,7 @@ use std::sync::Arc;
 
 use ecow::EcoString;
 
-use crate::entities::counter_state::CounterAction;
+use crate::entities::counter_state_legacy::CounterAction;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
 use crate::entities::dir::Dir;
@@ -170,7 +170,7 @@ pub enum Content {
 
     /// Activa ou desactiva a numeração automática de headings.
     /// Produzida por `#set heading(numbering: "1.1")` em eval.
-    /// O Layouter consome esta variante actualizando `CounterState`.
+    /// O Layouter consome esta variante actualizando `CounterStateLegacy`.
     /// DEBT-10: substituir por StyleChain quando o motor de introspecção
     /// completo for implementado.
     SetHeadingNumbering { active: bool },
@@ -186,7 +186,7 @@ pub enum Content {
 
     /// Instrução de modificação de um contador (Passo 58).
     /// Produzida por `counter(key).step()` / `counter(key).update(n)`.
-    /// O Layouter consome esta variante actualizando `CounterState`.
+    /// O Layouter consome esta variante actualizando `CounterStateLegacy`.
     CounterUpdate {
         key:    String,
         action: CounterAction,
@@ -660,6 +660,22 @@ pub enum Content {
         justify: bool,
     },
 
+    /// **P169 (M9 sub-passo 1)** — Metadata embebido para introspecção.
+    /// Vanilla `metadata(value)` em `introspection/metadata.rs`.
+    ///
+    /// Content invisível em layout (zero-size, sem caixa); o `value`
+    /// fica disponível via `Introspector::query_metadata` para querying
+    /// pelo utilizador. Usado em conjunto com `Content::Labelled` para
+    /// associar metadata a uma label específica.
+    ///
+    /// Walk arm em `introspect.rs` é terminal — não desce em filhos
+    /// (não há) e não muta state. `extract_payload` produz
+    /// `ElementPayload::Metadata { value }`. Layouter arm é no-op
+    /// (zero-size).
+    Metadata {
+        value: Box<crate::entities::value::Value>,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
 }
@@ -937,6 +953,8 @@ impl Content {
             Self::Sequence(v)        => v.iter().map(|c| c.plain_text()).collect(),
             // Passo 101: Content::Strong/Emph removidos — cobertos por
             // Content::Styled(body, _) => body.plain_text() no fim do match.
+            // P169 (M9): Metadata invisível em layout — sem texto plano.
+            Self::Metadata { .. }       => String::new(),
             Self::Heading { body, .. } => body.plain_text(),
             Self::Raw { text, .. }   => text.to_string(),
             Self::ListItem(c)        => format!("• {}", c.plain_text()),
@@ -1440,7 +1458,9 @@ impl Content {
             | Content::HSpace { .. }
             | Content::VSpace { .. }
             | Content::Pagebreak { .. }
-            | Content::Shape { .. } => self.clone(),
+            | Content::Shape { .. }
+            // P169 (M9): Metadata é terminal — clonar directamente.
+            | Content::Metadata { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
                 body:   Box::new(body.map_content(transform)?),
@@ -1654,7 +1674,9 @@ impl Content {
             | Content::HSpace { .. }
             | Content::VSpace { .. }
             | Content::Pagebreak { .. }
-            | Content::Shape { .. } => self.clone(),
+            | Content::Shape { .. }
+            // P169 (M9): Metadata é terminal — clonar directamente.
+            | Content::Metadata { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
                 body:   Box::new(body.map_text(transform)),

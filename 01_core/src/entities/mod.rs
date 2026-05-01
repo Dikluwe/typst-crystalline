@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/entities/mod.md
 //! @prompt-hash a24fe5a6
 //! @layer L1
-//! @updated 2026-03-22
+//! @updated 2026-04-30
 
 pub mod file_id;
 pub mod font_book;
@@ -27,7 +27,19 @@ pub mod content;
 pub mod dir;
 pub mod parity;
 pub mod sides;
-pub mod counter_state;
+pub mod counter_state_legacy;
+pub mod counter_update;
+pub mod counter_registry;
+pub mod content_hash;
+pub mod element_info;
+pub mod element_kind;
+pub mod element_payload;
+pub mod introspector;
+pub mod label_registry;
+pub mod metadata_store;
+pub mod location;
+pub mod locator;
+pub mod tag;
 pub mod engine;
 pub mod label;
 pub mod func;

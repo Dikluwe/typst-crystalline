@@ -1,21 +1,18 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/counter_state.md
-//! @prompt-hash 4b8e4f02
+//! @prompt 00_nucleo/prompts/entities/counter_state_legacy.md
+//! @prompt-hash 702f4cea
 //! @layer L1
-//! @updated 2026-04-20
+//! @updated 2026-04-30
 
 use std::collections::HashMap;
 
 use crate::entities::{bib_entry::BibEntry, content::Content, label::Label, lang::Lang};
 
-/// Instrução de modificação de um contador.
-#[derive(Debug, Clone, PartialEq)]
-pub enum CounterAction {
-    /// Avança o contador em 1 (flat) ou avança o nível (hierárquico).
-    Step,
-    /// Força o contador para o valor indicado.
-    Update(usize),
-}
+// `CounterAction` foi extraído deste ficheiro em P161 sub-passo .6 e
+// renomeado para `CounterUpdate` em `entities/counter_update.rs`.
+// Re-export para manter os call-sites históricos funcionais sem
+// alteração.
+pub use crate::entities::counter_update::CounterUpdate as CounterAction;
 
 /// Estado de contadores que viaja com o Layouter durante uma passagem.
 ///
@@ -27,7 +24,7 @@ pub enum CounterAction {
 /// DEBT-10: Resolver contadores em duas passagens com estado global quando
 /// o motor de introspecção completo for implementado (Passos 60+).
 #[derive(Debug, Clone, Default)]
-pub struct CounterState {
+pub struct CounterStateLegacy {
     /// Contadores hierárquicos (ex: heading).
     /// Chave "heading" → `[1, 2]` representa a secção 1.2.
     hierarchical: HashMap<String, Vec<usize>>,
@@ -95,7 +92,7 @@ pub struct CounterState {
     pub bib_numbers: HashMap<String, u32>,
 }
 
-impl CounterState {
+impl CounterStateLegacy {
     pub fn new() -> Self {
         Self::default()
     }
@@ -173,14 +170,14 @@ mod tests {
 
     #[test]
     fn step_heading_nivel_1_inicial() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.step_hierarchical("heading", 1);
         assert_eq!(s.format_hierarchical("heading"), Some("1".to_string()));
     }
 
     #[test]
     fn step_heading_dois_niveis() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.step_hierarchical("heading", 1);
         s.step_hierarchical("heading", 2);
         assert_eq!(s.format_hierarchical("heading"), Some("1.1".to_string()));
@@ -188,7 +185,7 @@ mod tests {
 
     #[test]
     fn step_heading_nivel_2_apos_nivel_2() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.step_hierarchical("heading", 1);
         s.step_hierarchical("heading", 2);
         s.step_hierarchical("heading", 2);
@@ -197,7 +194,7 @@ mod tests {
 
     #[test]
     fn step_heading_volta_ao_nivel_1() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.step_hierarchical("heading", 1);
         s.step_hierarchical("heading", 2);
         s.step_hierarchical("heading", 1);
@@ -206,7 +203,7 @@ mod tests {
 
     #[test]
     fn step_heading_tres_niveis_sequencia_completa() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.step_hierarchical("heading", 1); // [1]
         s.step_hierarchical("heading", 2); // [1, 1]
         s.step_hierarchical("heading", 3); // [1, 1, 1]
@@ -217,7 +214,7 @@ mod tests {
 
     #[test]
     fn format_heading_vazio_retorna_none() {
-        let s = CounterState::new();
+        let s = CounterStateLegacy::new();
         assert_eq!(s.format_hierarchical("heading"), None);
     }
 
@@ -225,7 +222,7 @@ mod tests {
 
     #[test]
     fn step_flat_incrementa() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.step_flat("equation");
         assert_eq!(s.get_flat("equation"), 1);
         s.step_flat("equation");
@@ -234,7 +231,7 @@ mod tests {
 
     #[test]
     fn update_flat_forca_valor() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.step_flat("figure");
         s.update_flat("figure", 5);
         assert_eq!(s.get_flat("figure"), 5);
@@ -242,7 +239,7 @@ mod tests {
 
     #[test]
     fn step_hierarchical_comportamento_identico_ao_passo_57() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.step_hierarchical("heading", 1); // [1]
         s.step_hierarchical("heading", 2); // [1, 1]
         s.step_hierarchical("heading", 1); // [2]
@@ -251,7 +248,7 @@ mod tests {
 
     #[test]
     fn contadores_independentes_nao_interferem() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.step_flat("equation");
         s.step_flat("equation");
         s.step_flat("figure");
@@ -263,7 +260,7 @@ mod tests {
 
     #[test]
     fn counter_state_readonly_bloqueia_step_flat() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.is_readonly = true;
         s.step_flat("equation");
         assert_eq!(s.get_flat("equation"), 0,
@@ -272,7 +269,7 @@ mod tests {
 
     #[test]
     fn counter_state_readonly_permite_leitura() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.step_flat("equation");  // avança antes de activar read-only
         s.is_readonly = true;
         assert_eq!(s.get_flat("equation"), 1,
@@ -281,7 +278,7 @@ mod tests {
 
     #[test]
     fn counter_state_readonly_bloqueia_step_hierarchical() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.is_readonly = true;
         s.step_hierarchical("heading", 1);
         assert_eq!(s.format_hierarchical("heading"), None,
@@ -290,7 +287,7 @@ mod tests {
 
     #[test]
     fn counter_state_readonly_bloqueia_update_flat() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.step_flat("figure");   // valor = 1
         s.is_readonly = true;
         s.update_flat("figure", 99);
@@ -300,7 +297,7 @@ mod tests {
 
     #[test]
     fn counter_state_readonly_desactivado_apos_restauro() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         s.is_readonly = true;
         s.step_flat("equation");
         assert_eq!(s.get_flat("equation"), 0);
@@ -314,14 +311,14 @@ mod tests {
 
     #[test]
     fn counter_state_bib_numbers_default_empty() {
-        let s = CounterState::new();
+        let s = CounterStateLegacy::new();
         assert!(s.bib_numbers.is_empty(),
             "bib_numbers default empty per Default::default()");
     }
 
     #[test]
     fn counter_state_bib_numbers_insertion_e_lookup() {
-        let mut s = CounterState::new();
+        let mut s = CounterStateLegacy::new();
         // Insertion 1-based per padrão walk Bibliography.
         s.bib_numbers.insert("smith2024".to_string(), 1);
         s.bib_numbers.insert("doe2023".to_string(),   2);

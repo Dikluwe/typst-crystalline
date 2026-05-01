@@ -138,7 +138,7 @@ mod tests {
 
     #[test]
     fn fallback_lang_none_devolve_pt() {
-        // lang None (não setado em CounterState) → PT fallback.
+        // lang None (não setado em CounterStateLegacy) → PT fallback.
         assert_eq!(figure_supplement_for_lang("image", None), "Figura");
         assert_eq!(figure_supplement_for_lang("table", None), "Tabela");
     }
