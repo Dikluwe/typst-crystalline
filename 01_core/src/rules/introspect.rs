@@ -1,27 +1,74 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash bc989be4
+//! @prompt-hash 4d084de6
 //! @layer L1
-//! @updated 2026-04-20
+//! @updated 2026-04-30
+//!
+//! P162 sub-passos .E + .F: walk passa a aceitar `&mut Locator` e
+//! `&mut Vec<Tag>`; emite `Tag::Start` antes da mutação de estado e
+//! `Tag::End` depois da recursão para variantes locatable
+//! (Heading/Figure/Cite). Tags descartadas em M1 — consumidor real
+//! virá em M2/M3. API pública preservada (`introspect()` retorna
+//! `CounterStateLegacy` igual a antes).
+
+pub mod extract_payload;
+pub mod from_tags;
+pub mod locatable;
 
 use crate::entities::{
     content::Content,
-    counter_state::{CounterAction, CounterState},
+    content_hash::hash_content,
+    counter_state_legacy::{CounterAction, CounterStateLegacy},
+    element_info::ElementInfo,
+    label::Label,
+    locator::Locator,
+    tag::Tag,
 };
 
-/// Pré-passagem analítica sobre `Content`.
+use crate::rules::introspect::extract_payload::extract_payload as do_extract_payload;
+
+/// Pré-passagem analítica sobre `Content` — entry point legado.
 ///
 /// Percorre a árvore completa uma vez, avançando contadores e populando
 /// `resolved_labels`, sem realizar nenhum cálculo visual.
 ///
-/// O `CounterState` retornado é injectado no Layouter como estado inicial
+/// O `CounterStateLegacy` retornado é injectado no Layouter como estado inicial
 /// (apenas o campo `resolved_labels`), garantindo que todas as referências —
 /// incluindo para a frente — estão resolvidas antes do primeiro `FrameItem`
 /// ser gerado.
-pub fn introspect(content: &Content) -> CounterState {
-    let mut state = CounterState::new();
-    walk(content, &mut state);
+///
+/// **P166 (M4)**: esta função é agora wrapper sobre
+/// `introspect_with_introspector` — descarta o `TagIntrospector`. Consumers
+/// que precisem do introspector devem chamar `introspect_with_introspector`
+/// directamente. M5 migra primeiro consumer real; M6 elimina este wrapper
+/// + `CounterStateLegacy`.
+pub fn introspect(content: &Content) -> CounterStateLegacy {
+    let (state, _introspector) = introspect_with_introspector(content);
     state
+}
+
+/// Entry point novo (M4 / P166): produz `CounterStateLegacy` E
+/// `TagIntrospector` num único walk. Consumers que precisem do
+/// introspector usam este entry point; consumers legacy continuam a
+/// usar `introspect()`.
+///
+/// **Walk único subjacente**: state + introspector vêm da mesma
+/// passagem — não há duplicação. `introspect()` é wrapper que descarta
+/// o introspector.
+///
+/// Padrão de migração M5+: caller que actualmente faz
+/// `let state = introspect(&c)` e quer queries via Introspector pode
+/// adoptar `let (state, intr) = introspect_with_introspector(&c)` sem
+/// custo adicional.
+pub fn introspect_with_introspector(
+    content: &Content,
+) -> (CounterStateLegacy, crate::entities::introspector::TagIntrospector) {
+    let mut state = CounterStateLegacy::new();
+    let mut locator = Locator::new();
+    let mut tags: Vec<Tag> = Vec::new();
+    walk(content, &mut state, &mut locator, &mut tags, None);
+    let introspector = self::from_tags::from_tags(&tags);
+    (state, introspector)
 }
 
 /// "Congela" o AST substituindo nós dependentes de contexto (como CounterDisplay)
@@ -33,7 +80,7 @@ pub fn introspect(content: &Content) -> CounterState {
 /// Dois braços explícitos — sem wildcard para manter verificação de exaustividade:
 /// - Containers: propagam recursivamente.
 /// - Terminais: clonados directamente.
-fn materialize_time(content: &Content, state: &CounterState) -> Content {
+fn materialize_time(content: &Content, state: &CounterStateLegacy) -> Content {
     match content {
         // O caso crítico: substituir o nó dinâmico pelo valor actual do contador.
         Content::CounterDisplay { kind } => {
@@ -122,7 +169,9 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
         | Content::VSpace { .. }
         // Passo 156E (ADR-0061 Fase 1 sub-passo 3) — pagebreak leaf.
         | Content::Pagebreak { .. }
-        | Content::Shape { .. } => content.clone(),
+        | Content::Shape { .. }
+        // P169 (M9): Metadata é terminal — clonar directamente.
+        | Content::Metadata { .. } => content.clone(),
         // Passo 156C (ADR-0061 Fase 1) — pad / hide containers.
         // Materialize_time desce no body para resolver counters dentro;
         // padding e o invariante "hide" preservam-se.
@@ -244,11 +293,36 @@ fn materialize_time(content: &Content, state: &CounterState) -> Content {
 /// Replica exactamente os side-effects de estado que o Layouter produz,
 /// na mesma ordem de travessia, mas sem aceder a `FontMetrics` nem alocar
 /// `Frame`/`FrameItem`.
-fn walk(content: &Content, state: &mut CounterState) {
+///
+/// **P162 .E**: emite `Tag::Start`/`Tag::End` em paralelo para os 3 kinds
+/// locatable (Heading/Figure/Cite). `label_from_parent` é `Some(label)`
+/// quando este nó é descendente directo de um `Content::Labelled` wrapper;
+/// `None` caso contrário. Tags acumuladas em `tags` são descartadas no
+/// fim do walk em M1 — consumo real virá em M2/M3.
+fn walk(
+    content:           &Content,
+    state:             &mut CounterStateLegacy,
+    locator:           &mut Locator,
+    tags:              &mut Vec<Tag>,
+    label_from_parent: Option<&Label>,
+) {
+    // P162 .E: emissão Tag::Start em paralelo, antes da mutação de estado.
+    let emitted_loc = if let Some(payload) = do_extract_payload(content) {
+        let loc = locator.next();
+        let info = ElementInfo {
+            payload,
+            label: label_from_parent.cloned(),
+        };
+        tags.push(Tag::Start(loc, info));
+        Some(loc)
+    } else {
+        None
+    };
+
     match content {
         Content::Sequence(seq) => {
             for item in seq.iter() {
-                walk(item, state);
+                walk(item, state, locator, tags, None);
             }
         }
 
@@ -278,14 +352,14 @@ fn walk(content: &Content, state: &mut CounterState) {
             let frozen_body = materialize_time(body, state);
             state.headings_for_toc.push((auto_label, frozen_body, *level as usize));
 
-            walk(body, state);
+            walk(body, state, locator, tags, None);
         }
 
         Content::Equation { block, body } => {
             if *block && state.is_numbering_active("equation") {
                 state.step_flat("equation");
             }
-            walk(body, state);
+            walk(body, state, locator, tags, None);
         }
 
         Content::Figure { body, caption, kind, numbering } => {
@@ -305,15 +379,17 @@ fn walk(content: &Content, state: &mut CounterState) {
                     .or_default()
                     .push(figure_number);
             }
-            walk(body, state);
+            walk(body, state, locator, tags, None);
             if let Some(cap) = caption {
-                walk(cap, state);
+                walk(cap, state, locator, tags, None);
             }
         }
 
         Content::Labelled { target, label } => {
             // Walk no target primeiro — garante que o contador já avançou.
-            walk(target, state);
+            // P162 .E: passa `Some(label)` para que o tag emitido pelo
+            // walk recursivo (ex. Heading) inclua a label do wrapper.
+            walk(target, state, locator, tags, Some(label));
 
             let resolved_text = match &**target {
                 Content::Heading { .. } => state
@@ -412,44 +488,48 @@ fn walk(content: &Content, state: &mut CounterState) {
         | Content::VSpace { .. }
         // Passo 156E — pagebreak leaf; sem effect em counters.
         | Content::Pagebreak { .. }
-        | Content::Shape { .. } => {}
+        | Content::Shape { .. }
+        // P169 (M9): Metadata é terminal — sem efeito em counters.
+        // Tag::Start/End já é emitido no topo de walk via extract_payload
+        // (que produz `Some(ElementPayload::Metadata)`).
+        | Content::Metadata { .. } => {}
 
         // Passo 154B — Terms / TermItem: descem em items para que filhos
         // com contadores ou labels sejam processados.
         Content::Terms { items } => {
-            for item in items { walk(item, state); }
+            for item in items { walk(item, state, locator, tags, None); }
         }
         Content::TermItem { term, description } => {
-            walk(term, state);
-            walk(description, state);
+            walk(term, state, locator, tags, None);
+            walk(description, state, locator, tags, None);
         }
 
         // Passo 155 — Quote: walk em body + attribution.
         Content::Quote { body, attribution, .. } => {
-            walk(body, state);
+            walk(body, state, locator, tags, None);
             if let Some(a) = attribution {
-                walk(a, state);
+                walk(a, state, locator, tags, None);
             }
         }
 
-        Content::Transform { body, .. } => walk(body, state),
+        Content::Transform { body, .. } => walk(body, state, locator, tags, None),
 
         Content::Grid { cells, .. } => {
-            for cell in cells { walk(cell, state); }
+            for cell in cells { walk(cell, state, locator, tags, None); }
         }
 
         // Passo 157A — Table (paridade Grid).
         Content::Table { children, .. } => {
-            for c in children { walk(c, state); }
+            for c in children { walk(c, state, locator, tags, None); }
         }
 
         // Passo 157B — TableCell (recurse no body).
-        Content::TableCell { body, .. } => walk(body, state),
+        Content::TableCell { body, .. } => walk(body, state, locator, tags, None),
 
         // Passo 157C — par simétrico TableHeader/TableFooter
         // (recurse no body).
-        Content::TableHeader { body, .. } => walk(body, state),
-        Content::TableFooter { body, .. } => walk(body, state),
+        Content::TableHeader { body, .. } => walk(body, state, locator, tags, None),
+        Content::TableFooter { body, .. } => walk(body, state, locator, tags, None),
 
         // Passo 159A — Bibliography walk em title; entries são
         // dados puros (sem Content recursivo) — não walk.
@@ -467,34 +547,34 @@ fn walk(content: &Content, state: &mut CounterState) {
                 state.bib_numbers.entry(entry.key.clone()).or_insert(next_num);
             }
             state.bib_entries.extend(entries.iter().cloned());
-            if let Some(t) = title { walk(t, state); }
+            if let Some(t) = title { walk(t, state, locator, tags, None); }
         }
         Content::Cite { supplement, .. } => {
-            if let Some(s) = supplement { walk(s, state); }
+            if let Some(s) = supplement { walk(s, state, locator, tags, None); }
         }
 
-        Content::Align { body, .. } => walk(body, state),
+        Content::Align { body, .. } => walk(body, state, locator, tags, None),
 
-        Content::Place { body, .. } => walk(body, state),
+        Content::Place { body, .. } => walk(body, state, locator, tags, None),
 
         // Passo 156C (ADR-0061 Fase 1) — pad / hide são containers
         // estruturais; descer no body para que counters/labels dentro sejam
         // processados. `Hide` mesmo "ocultando visualmente" mantém a
         // semântica de presence (label/ref dentro de hide ainda resolvem).
-        Content::Pad  { body, .. } => walk(body, state),
-        Content::Hide { body }     => walk(body, state),
+        Content::Pad  { body, .. } => walk(body, state, locator, tags, None),
+        Content::Hide { body }     => walk(body, state, locator, tags, None),
 
         // Passo 156G (ADR-0061 Fase 2) — block container; descer no body.
-        Content::Block { body, .. } => walk(body, state),
+        Content::Block { body, .. } => walk(body, state, locator, tags, None),
 
         // Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container.
-        Content::Boxed { body, .. } => walk(body, state),
+        Content::Boxed { body, .. } => walk(body, state, locator, tags, None),
 
         // Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo.
         // Walk em cada child em ordem (counters/labels resolvem).
         Content::Stack { children, .. } => {
             for c in children.iter() {
-                walk(c, state);
+                walk(c, state, locator, tags, None);
             }
         },
 
@@ -502,15 +582,22 @@ fn walk(content: &Content, state: &mut CounterState) {
         // Walk no body uma vez (counters/labels dentro de body
         // resolvem; semântica de repetição é runtime-only e não
         // multiplica state — vanilla repeat também só conta uma vez).
-        Content::Repeat { body, .. } => walk(body, state),
+        Content::Repeat { body, .. } => walk(body, state, locator, tags, None),
 
         // Passo 99 (ADR-0038): `Styled` é transparente — desce no body.
-        Content::Styled(body, _) => walk(body, state),
+        Content::Styled(body, _) => walk(body, state, locator, tags, None),
 
         Content::Outline => {
             state.has_outline = true;
             // Outline não altera contadores — apenas sinaliza que o fixpoint é necessário.
         }
+    }
+
+    // P162 .E: emissão Tag::End após recursão. Usa o mesmo Location
+    // que o Tag::Start emitido no topo, e o hash determinístico do
+    // conteúdo via hash_content.
+    if let Some(loc) = emitted_loc {
+        tags.push(Tag::End(loc, hash_content(content)));
     }
 }
 
@@ -519,8 +606,10 @@ mod tests {
     use super::*;
     use crate::entities::{
         content::Content,
-        counter_state::CounterAction,
+        counter_state_legacy::CounterAction,
+        element_payload::ElementPayload,
         label::Label,
+        location::Location,
     };
 
     #[test]
@@ -763,9 +852,9 @@ mod tests {
 
     #[test]
     fn materialize_time_substitui_counter_display() {
-        use crate::entities::counter_state::CounterState;
+        use crate::entities::counter_state_legacy::CounterStateLegacy;
 
-        let mut state = CounterState::new();
+        let mut state = CounterStateLegacy::new();
         state.update_flat("fig", 42);
 
         let dynamic_ast = Content::Sequence(
@@ -792,9 +881,9 @@ mod tests {
 
     #[test]
     fn materialize_time_preserva_terminais() {
-        use crate::entities::counter_state::CounterState;
+        use crate::entities::counter_state_legacy::CounterStateLegacy;
 
-        let state = CounterState::new();
+        let state = CounterStateLegacy::new();
 
         // Nós terminais sem CounterDisplay devem ser clonados sem alteração.
         let content = Content::Sequence(
@@ -898,12 +987,14 @@ mod tests {
     // ── Passo 158B — Supplement automático por lang em figure ────────────
 
     /// Helper para construir state com lang explícito.
-    fn introspect_with_lang(content: &Content, lang_code: &str) -> CounterState {
+    fn introspect_with_lang(content: &Content, lang_code: &str) -> CounterStateLegacy {
         use std::str::FromStr;
         use crate::entities::lang::Lang;
-        let mut state = CounterState::new();
+        let mut state = CounterStateLegacy::new();
         state.lang = Some(Lang::from_str(lang_code).unwrap());
-        walk(content, &mut state);
+        let mut locator = Locator::new();
+        let mut tags: Vec<Tag> = Vec::new();
+        walk(content, &mut state, &mut locator, &mut tags, None);
         state
     }
 
@@ -1103,6 +1194,586 @@ mod tests {
             state.resolved_labels.get(&Label("f_none".to_string())).map(|s| s.as_str()),
             Some("Figura 1"),
             "label de figura kind=None deve resolver via fallback 'image' default"
+        );
+    }
+
+    // ── P162 .G — Tests do walk com tags em paralelo ─────────────────────
+
+    /// Helper de teste para correr walk e devolver state + tags.
+    fn introspect_with_tags(content: &Content) -> (CounterStateLegacy, Vec<Tag>) {
+        let mut state = CounterStateLegacy::new();
+        let mut locator = Locator::new();
+        let mut tags: Vec<Tag> = Vec::new();
+        walk(content, &mut state, &mut locator, &mut tags, None);
+        (state, tags)
+    }
+
+    #[test]
+    fn walk_emite_start_e_end_para_heading() {
+        let h = Content::heading(1, Content::text("title"));
+        let (_, tags) = introspect_with_tags(&h);
+        assert_eq!(tags.len(), 2, "heading deve emitir Tag::Start + Tag::End");
+        let (start_loc, end_loc) = match (&tags[0], &tags[1]) {
+            (Tag::Start(loc_s, _), Tag::End(loc_e, _)) => (*loc_s, *loc_e),
+            _ => panic!("ordem esperada: Start, End; obtido {tags:?}"),
+        };
+        assert_eq!(start_loc, end_loc, "Location do Start e End devem coincidir");
+    }
+
+    #[test]
+    fn walk_nao_emite_para_text_simples() {
+        let t = Content::text("plain");
+        let (_, tags) = introspect_with_tags(&t);
+        assert!(tags.is_empty(), "text simples não deve emitir tags");
+    }
+
+    #[test]
+    fn walk_aninha_start_end_para_heading_contendo_figure() {
+        // Heading com Figure aninhada no body.
+        let figure = Content::Figure {
+            body:      Box::new(Content::Empty),
+            caption:   Some(Box::new(Content::text("cap"))),
+            kind:      Some("image".into()),
+            numbering: Some("1".into()),
+        };
+        let h = Content::heading(1, figure);
+        let (_, tags) = introspect_with_tags(&h);
+        // Esperado: Start(Heading), Start(Figure), End(Figure), End(Heading) = 4 tags.
+        assert_eq!(tags.len(), 4, "heading-com-figura deve emitir 4 tags, obtido {tags:?}");
+        match (&tags[0], &tags[1], &tags[2], &tags[3]) {
+            (Tag::Start(_, _), Tag::Start(_, _), Tag::End(_, _), Tag::End(_, _)) => {}
+            other => panic!("ordem esperada: Start, Start, End, End; obtido {other:?}"),
+        }
+    }
+
+    #[test]
+    fn walk_emite_tags_em_paralelo_com_state() {
+        // Verifica que tanto state quanto tags são populados.
+        let content = Content::Sequence(
+            vec![
+                Content::SetHeadingNumbering { active: true },
+                Content::heading(1, Content::text("um")),
+                Content::heading(1, Content::text("dois")),
+            ]
+            .into(),
+        );
+        let (state, tags) = introspect_with_tags(&content);
+        // State: contador heading deve estar em "2" após dois headings nivel 1.
+        assert_eq!(state.format_hierarchical("heading").as_deref(), Some("2"),
+            "state deve ter contador heading=2 após dois headings nível 1");
+        // Tags: 2 headings × 2 tags cada = 4.
+        assert_eq!(tags.len(), 4, "deve haver Start+End para cada heading; obtido {tags:?}");
+    }
+
+    #[test]
+    fn walk_label_de_wrapper_chega_ao_payload() {
+        // Content::Labelled { target: Heading } → tag Heading recebe Some(label).
+        let content = Content::Labelled {
+            label:  Label("intro".to_string()),
+            target: Box::new(Content::heading(1, Content::text("Introdução"))),
+        };
+        let (_, tags) = introspect_with_tags(&content);
+        // Esperado: Start(Heading) com label="intro", End(Heading).
+        match &tags[0] {
+            Tag::Start(_, info) => {
+                assert_eq!(
+                    info.label.as_ref().map(|l| l.0.as_str()),
+                    Some("intro"),
+                    "label do wrapper Labelled deve aparecer no ElementInfo do Heading"
+                );
+            }
+            other => panic!("esperado Tag::Start, obtido {other:?}"),
+        }
+    }
+
+    // ── P163 .C — Tests E2E de bracketing ────────────────────────────────
+
+    /// Helper local: constrói Content com headings, figures, citations
+    /// aninhados em diversas profundidades para tests E2E.
+    fn make_content_complexo() -> Content {
+        Content::Sequence(
+            vec![
+                Content::SetHeadingNumbering { active: true },
+                Content::heading(1, Content::text("Capítulo")),
+                Content::Figure {
+                    body:      Box::new(Content::Empty),
+                    caption:   Some(Box::new(Content::text("legenda"))),
+                    kind:      Some("image".into()),
+                    numbering: Some("1".into()),
+                },
+                Content::heading(2, Content::text("Secção")),
+                Content::cite("smith2024", None, None),
+            ]
+            .into(),
+        )
+    }
+
+    #[test]
+    fn walk_e_deterministico() {
+        // P163 .C.1: walk duas vezes sobre o mesmo Content produz
+        // Vec<Tag> idêntico (mesma ordem, mesmas Locations, mesmos hashes).
+        let content = make_content_complexo();
+        let (_, tags1) = introspect_with_tags(&content);
+        let (_, tags2) = introspect_with_tags(&content);
+        assert_eq!(
+            tags1, tags2,
+            "walk não-determinístico: tags1.len={}, tags2.len={}",
+            tags1.len(), tags2.len()
+        );
+    }
+
+    #[test]
+    fn bracketing_valido_em_aninhamento_complexo() {
+        // P163 .C.2: heading ⊃ figure-com-caption-com-text ⊃ heading.
+        // Verificar que cada Start tem o seu End correspondente, sem
+        // overlapping. Headings emitem tags; figures aninhadas no
+        // caption também.
+        let inner_h = Content::heading(2, Content::text("inner"));
+        let figure_with_h = Content::Figure {
+            body:      Box::new(inner_h),
+            caption:   Some(Box::new(Content::text("cap"))),
+            kind:      Some("image".into()),
+            numbering: Some("1".into()),
+        };
+        let outer_h = Content::heading(1, figure_with_h);
+        let (_, tags) = introspect_with_tags(&outer_h);
+
+        let mut stack: Vec<Location> = Vec::new();
+        for tag in &tags {
+            match tag {
+                Tag::Start(loc, _) => stack.push(*loc),
+                Tag::End(loc, _) => {
+                    let top = stack.pop().expect("End sem Start correspondente");
+                    assert_eq!(top, *loc, "End com Location diferente do último Start");
+                }
+            }
+        }
+        assert!(stack.is_empty(), "Start sem End correspondente; stack={stack:?}");
+    }
+
+    #[test]
+    fn bracketing_valido_em_sequencia_plana() {
+        // Caso adicional .C.2: múltiplos headings ao mesmo nível
+        // (não aninhados) — bracketing também válido.
+        let content = Content::Sequence(
+            vec![
+                Content::heading(1, Content::text("um")),
+                Content::heading(1, Content::text("dois")),
+                Content::heading(1, Content::text("três")),
+            ]
+            .into(),
+        );
+        let (_, tags) = introspect_with_tags(&content);
+
+        let mut stack: Vec<Location> = Vec::new();
+        for tag in &tags {
+            match tag {
+                Tag::Start(loc, _) => stack.push(*loc),
+                Tag::End(loc, _) => {
+                    let top = stack.pop().expect("End sem Start correspondente");
+                    assert_eq!(top, *loc);
+                }
+            }
+        }
+        assert!(stack.is_empty());
+        assert_eq!(tags.len(), 6, "3 headings × 2 tags = 6");
+    }
+
+    #[test]
+    fn end_hash_distingue_conteudo() {
+        // P163 .C.3: dois headings com bodies diferentes produzem
+        // Tag::End com u128 distintos.
+        let a = Content::heading(1, Content::text("Título A"));
+        let b = Content::heading(1, Content::text("Título B"));
+        let (_, tags_a) = introspect_with_tags(&a);
+        let (_, tags_b) = introspect_with_tags(&b);
+
+        let end_a = tags_a.iter().find_map(|t| match t {
+            Tag::End(_, h) => Some(*h),
+            _ => None,
+        }).expect("nenhum Tag::End emitido para a");
+        let end_b = tags_b.iter().find_map(|t| match t {
+            Tag::End(_, h) => Some(*h),
+            _ => None,
+        }).expect("nenhum Tag::End emitido para b");
+
+        assert_ne!(
+            end_a, end_b,
+            "Contents distintos produziram mesmo content_hash em Tag::End"
+        );
+    }
+
+    // ── P163 .D — Tests de consistência por kind ─────────────────────────
+
+    #[test]
+    fn headings_capturados_em_paralelo() {
+        // P163 .D.1: walk sobre Content com N headings em níveis
+        // variados. Verificar:
+        //  - número de Tag::Start(_, Heading{..}) bate com input;
+        //  - depth de cada Heading bate com level esperado;
+        //  - state.format_hierarchical("heading") fica no valor
+        //    esperado após todos os headings (verificação cruzada).
+        let levels = vec![1u8, 2, 2, 3];
+        let content = Content::Sequence(
+            std::iter::once(Content::SetHeadingNumbering { active: true })
+                .chain(levels.iter().map(|&l| Content::heading(l, Content::text("h"))))
+                .collect::<Vec<_>>()
+                .into(),
+        );
+        let (state, tags) = introspect_with_tags(&content);
+
+        let captured_levels: Vec<u8> = tags.iter()
+            .filter_map(|t| match t {
+                Tag::Start(_, info) => match &info.payload {
+                    ElementPayload::Heading { depth, .. } => Some(*depth),
+                    _ => None,
+                },
+                _ => None,
+            })
+            .collect();
+
+        assert_eq!(
+            captured_levels, levels,
+            "depth dos heading payloads em tags difere dos levels do input"
+        );
+
+        // Verificação cruzada: state.format_hierarchical("heading")
+        // depois de [1, 2, 2, 3] deve ser "1.1.1.1" — após
+        // step ao nível 1, depois nível 2 (= [1,1]), nível 2 outra
+        // vez (= [1,2]), depois nível 3 (= [1,2,1]).
+        // Na verdade: walk usa step_hierarchical que avança o último
+        // segmento ou empurra um novo nível. Com [1,2,2,3]:
+        //  []     +1 → [1]
+        //  [1]    +2 → [1, 1]
+        //  [1,1]  +2 → [1, 2]
+        //  [1,2]  +3 → [1, 2, 1]
+        // → format = "1.2.1"
+        assert_eq!(
+            state.format_hierarchical("heading").as_deref(),
+            Some("1.2.1"),
+            "format_hierarchical não bate com sequência [1,2,2,3]"
+        );
+    }
+
+    #[test]
+    fn figures_capturadas_em_paralelo() {
+        // P163 .D.2: walk sobre Content com 3 figures (kind variados).
+        let content = Content::Sequence(
+            vec![
+                Content::Figure {
+                    body:      Box::new(Content::Empty),
+                    caption:   Some(Box::new(Content::text("c1"))),
+                    kind:      Some("image".into()),
+                    numbering: Some("1".into()),
+                },
+                Content::Figure {
+                    body:      Box::new(Content::Empty),
+                    caption:   Some(Box::new(Content::text("c2"))),
+                    kind:      Some("table".into()),
+                    numbering: Some("1".into()),
+                },
+                Content::Figure {
+                    body:      Box::new(Content::Empty),
+                    caption:   Some(Box::new(Content::text("c3"))),
+                    kind:      None,
+                    numbering: Some("1".into()),
+                },
+            ]
+            .into(),
+        );
+        let (state, tags) = introspect_with_tags(&content);
+
+        let captured_kinds: Vec<Option<String>> = tags.iter()
+            .filter_map(|t| match t {
+                Tag::Start(_, info) => match &info.payload {
+                    ElementPayload::Figure { kind, .. } => Some(kind.clone()),
+                    _ => None,
+                },
+                _ => None,
+            })
+            .collect();
+
+        assert_eq!(
+            captured_kinds,
+            vec![Some("image".to_string()), Some("table".to_string()), None],
+            "kinds das figures em tags não batem com input"
+        );
+
+        // Verificação cruzada: state.figure_numbers populado por kind.
+        // Walk arm Figure resolve kind=None para "image" (default
+        // P158C). Logo: 2 figures contam para "image" (kind=Some
+        // e kind=None) e 1 para "table".
+        // Tags, em contraste, preservam kind=None literal — divergência
+        // documentada (ver .E lacunas-captura).
+        assert_eq!(
+            state.figure_numbers.get("image").cloned().unwrap_or_default().len(),
+            2,
+            "image figure_numbers count: kind=Some(image) + kind=None"
+        );
+        assert_eq!(
+            state.figure_numbers.get("table").cloned().unwrap_or_default().len(),
+            1,
+            "table figure_numbers count"
+        );
+    }
+
+    #[test]
+    fn citations_capturadas_em_paralelo() {
+        // P163 .D.3: walk sobre Content com 3 citations distintas.
+        let content = Content::Sequence(
+            vec![
+                Content::cite("smith2024", None, None),
+                Content::cite("jones2023", None, None),
+                Content::cite("smith2024", None, None),  // repetida
+            ]
+            .into(),
+        );
+        let (_, tags) = introspect_with_tags(&content);
+
+        let captured_keys: Vec<String> = tags.iter()
+            .filter_map(|t| match t {
+                Tag::Start(_, info) => match &info.payload {
+                    ElementPayload::Citation { key } => Some(key.clone()),
+                    _ => None,
+                },
+                _ => None,
+            })
+            .collect();
+
+        assert_eq!(
+            captured_keys,
+            vec!["smith2024".to_string(), "jones2023".to_string(), "smith2024".to_string()],
+            "keys das citations em tags não batem com input (incluindo repetição)"
+        );
+
+        // Verificação: 3 citations × 2 tags cada = 6 (Start + End por citation).
+        let citation_tags: Vec<&Tag> = tags.iter()
+            .filter(|t| match t {
+                Tag::Start(_, info) => matches!(info.payload, ElementPayload::Citation { .. }),
+                Tag::End(_, _) => true, // End não tem payload mas todos os Ends correspondem a Citations aqui
+            })
+            .collect();
+        assert_eq!(citation_tags.len(), 6, "3 citations × 2 tags = 6, obtido {}", citation_tags.len());
+    }
+
+    // ── P165 .G — Tests E2E paralelo CounterStateLegacy + Introspector ───
+
+    use crate::entities::element_kind::ElementKind;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use crate::rules::introspect::from_tags::from_tags;
+
+    /// Helper de teste para correr walk + construir Introspector em paralelo.
+    fn introspect_with_introspector(content: &Content) -> (CounterStateLegacy, TagIntrospector) {
+        let mut state = CounterStateLegacy::new();
+        let mut locator = Locator::new();
+        let mut tags: Vec<Tag> = Vec::new();
+        walk(content, &mut state, &mut locator, &mut tags, None);
+        let intr = from_tags(&tags);
+        (state, intr)
+    }
+
+    #[test]
+    fn introspector_consistencia_heading() {
+        // P165 .G.1: walk com headings em níveis [1, 2, 2, 3] →
+        // Introspector.kind_index[Heading] tem 4 locations.
+        // CounterStateLegacy.format_hierarchical("heading") confirma
+        // mesma contagem.
+        //
+        // **P170 (M9 sub-passo 2)**: paridade extendida — Introspector
+        // agora também produz "1.2.1" via formatted_counter (resolve
+        // lacuna #5).
+        let levels = vec![1u8, 2, 2, 3];
+        let content = Content::Sequence(
+            std::iter::once(Content::SetHeadingNumbering { active: true })
+                .chain(levels.iter().map(|&l| Content::heading(l, Content::text("h"))))
+                .collect::<Vec<_>>()
+                .into(),
+        );
+        let (state, intr) = introspect_with_introspector(&content);
+        // Introspector tem 4 headings indexados.
+        assert_eq!(intr.query_by_kind(ElementKind::Heading).len(), 4);
+        // CounterStateLegacy tem hierarchical "1.2.1" após [1,2,2,3]
+        // (verificado em P163 .D.1).
+        assert_eq!(
+            state.format_hierarchical("heading").as_deref(),
+            Some("1.2.1")
+        );
+        // P170: Introspector tem mesma string via formatted_counter.
+        assert_eq!(
+            intr.formatted_counter("heading").as_deref(),
+            Some("1.2.1"),
+            "P170: paridade entre legacy.format_hierarchical e \
+             introspector.formatted_counter"
+        );
+    }
+
+    #[test]
+    fn introspector_consistencia_figure() {
+        // P165 .G.2: 3 figures (kind variados) → introspector indexa 3.
+        let content = Content::Sequence(
+            vec![
+                Content::Figure {
+                    body: Box::new(Content::Empty), caption: Some(Box::new(Content::text("c1"))),
+                    kind: Some("image".into()), numbering: Some("1".into()),
+                },
+                Content::Figure {
+                    body: Box::new(Content::Empty), caption: Some(Box::new(Content::text("c2"))),
+                    kind: Some("table".into()), numbering: Some("1".into()),
+                },
+                Content::Figure {
+                    body: Box::new(Content::Empty), caption: Some(Box::new(Content::text("c3"))),
+                    kind: None, numbering: Some("1".into()),
+                },
+            ]
+            .into(),
+        );
+        let (state, intr) = introspect_with_introspector(&content);
+        assert_eq!(intr.query_by_kind(ElementKind::Figure).len(), 3);
+        // CounterStateLegacy resolve kind=None para "image" → image=2, table=1.
+        // Introspector preserva kind literal mas conta as 3 sob ElementKind::Figure.
+        // Divergência conhecida (m1-lacunas-captura.md #1).
+        assert_eq!(state.figure_numbers.get("image").map(|v| v.len()).unwrap_or(0), 2);
+        assert_eq!(state.figure_numbers.get("table").map(|v| v.len()).unwrap_or(0), 1);
+    }
+
+    #[test]
+    fn introspector_consistencia_citation() {
+        // P165 .G.3: 3 citations distintas com keys → introspector indexa 3.
+        let content = Content::Sequence(
+            vec![
+                Content::cite("smith2024", None, None),
+                Content::cite("jones2023", None, None),
+                Content::cite("brown2022", None, None),
+            ]
+            .into(),
+        );
+        let (_, intr) = introspect_with_introspector(&content);
+        let locs = intr.query_by_kind(ElementKind::Citation);
+        assert_eq!(locs.len(), 3);
+    }
+
+    #[test]
+    fn introspector_query_by_label() {
+        // P165 .G.4: walk com Heading labelled → query_by_label retorna location;
+        // mesma location aparece em query_by_kind(Heading).
+        let content = Content::Labelled {
+            label:  Label("intro".to_string()),
+            target: Box::new(Content::heading(1, Content::text("Introdução"))),
+        };
+        let (_, intr) = introspect_with_introspector(&content);
+
+        let by_label = intr.query_by_label(&Label("intro".to_string()));
+        assert!(by_label.is_some(), "label intro deveria ter sido indexada");
+        let by_kind = intr.query_by_kind(ElementKind::Heading);
+        assert_eq!(by_kind.len(), 1);
+        assert_eq!(by_kind.first().copied(), by_label, "location deve coincidir");
+    }
+
+    #[test]
+    fn introspector_query_first_e_query_unique() {
+        // P165 .G.5: walk com 1 Figure → query_first e query_unique retornam Some.
+        // walk com 2 Figures → query_first retorna Some(loc1), query_unique None.
+        let single_figure = Content::Figure {
+            body: Box::new(Content::Empty), caption: Some(Box::new(Content::text("c"))),
+            kind: Some("image".into()), numbering: Some("1".into()),
+        };
+        let (_, intr1) = introspect_with_introspector(&single_figure);
+        assert!(intr1.query_first(ElementKind::Figure).is_some());
+        assert!(intr1.query_unique(ElementKind::Figure).is_some());
+        assert_eq!(
+            intr1.query_first(ElementKind::Figure),
+            intr1.query_unique(ElementKind::Figure)
+        );
+
+        let two_figures = Content::Sequence(
+            vec![
+                Content::Figure {
+                    body: Box::new(Content::Empty), caption: Some(Box::new(Content::text("c1"))),
+                    kind: Some("image".into()), numbering: Some("1".into()),
+                },
+                Content::Figure {
+                    body: Box::new(Content::Empty), caption: Some(Box::new(Content::text("c2"))),
+                    kind: Some("table".into()), numbering: Some("1".into()),
+                },
+            ]
+            .into(),
+        );
+        let (_, intr2) = introspect_with_introspector(&two_figures);
+        let first = intr2.query_first(ElementKind::Figure);
+        assert!(first.is_some(), "query_first deve devolver primeira location");
+        assert_eq!(intr2.query_unique(ElementKind::Figure), None,
+            "query_unique deve devolver None com 2 figures");
+    }
+
+    // ── P166 .C — Tests da exposição pública do TagIntrospector ──────────
+
+    #[test]
+    fn introspect_with_introspector_devolve_par() {
+        // P166 .C.1: novo entry point retorna tuple (state, introspector).
+        // Verificar que introspector tem 1 heading indexado.
+        let content = Content::heading(1, Content::text("título"));
+        let (_, intr) = introspect_with_introspector(&content);
+        assert!(
+            intr.query_first(ElementKind::Heading).is_some(),
+            "introspector exposto deve ter o heading indexado"
+        );
+    }
+
+    #[test]
+    fn introspect_legacy_continua_a_funcionar() {
+        // P166 .C.3 (backward compat): call-site antigo
+        // `let state = introspect(&c)` continua a compilar e funcionar.
+        // Esta é a invariante crítica de M4b — wrapper preserva API.
+        let content = Content::Sequence(
+            vec![
+                Content::SetHeadingNumbering { active: true },
+                Content::heading(1, Content::text("um")),
+                Content::heading(1, Content::text("dois")),
+            ]
+            .into(),
+        );
+        let state = introspect(&content);
+        assert_eq!(
+            state.format_hierarchical("heading").as_deref(),
+            Some("2"),
+            "wrapper introspect() deve produzir mesmo state que antes de M4"
+        );
+    }
+
+    #[test]
+    fn introspect_e_introspect_with_introspector_produzem_mesmo_state() {
+        // P166 .C.2: state retornado pelo wrapper e pelo entry point novo
+        // deve ser idêntico (walk único subjacente; wrapper só descarta
+        // o introspector).
+        let content = Content::Sequence(
+            vec![
+                Content::heading(1, Content::text("a")),
+                Content::heading(2, Content::text("b")),
+                Content::Figure {
+                    body:      Box::new(Content::Empty),
+                    caption:   Some(Box::new(Content::text("cap"))),
+                    kind:      Some("image".into()),
+                    numbering: Some("1".into()),
+                },
+            ]
+            .into(),
+        );
+        let state_legacy = introspect(&content);
+        let (state_new, _) = introspect_with_introspector(&content);
+
+        // Comparação por campos relevantes (CounterStateLegacy não
+        // implementa PartialEq globalmente; comparar via API pública).
+        assert_eq!(
+            state_legacy.format_hierarchical("heading").as_deref(),
+            state_new.format_hierarchical("heading").as_deref(),
+        );
+        assert_eq!(
+            state_legacy.figure_numbers.get("image"),
+            state_new.figure_numbers.get("image"),
+        );
+        assert_eq!(
+            state_legacy.resolved_labels.len(),
+            state_new.resolved_labels.len(),
         );
     }
 }

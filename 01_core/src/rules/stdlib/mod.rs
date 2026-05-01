@@ -33,7 +33,7 @@ mod layout;
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
 pub use crate::rules::stdlib::foundations::{
-    native_float, native_int, native_len, native_luma, native_range, native_rgb,
+    native_float, native_int, native_len, native_luma, native_metadata, native_range, native_rgb,
     native_str, native_type,
 };
 pub use crate::rules::stdlib::calc::make_calc_module;

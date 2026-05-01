@@ -15,7 +15,7 @@
 //! actual ~1400 linhas aceite sob Regra 5 + Regra 6 combinadas.
 
 use super::*;
-use crate::entities::{content::Content, counter_state::CounterState, layout_types::FrameItem};
+use crate::entities::{content::Content, counter_state_legacy::CounterStateLegacy, layout_types::FrameItem};
 use crate::rules::introspect::introspect;
 
 // ── Testes de FixedMetrics (Passo 21) ────────────────────────────────
@@ -57,7 +57,7 @@ fn layouter_baseline_dentro_da_pagina() {
 
 #[test]
 fn layout_texto_simples_tem_items() {
-    let doc = layout(&Content::text("Hello world"), CounterState::default());
+    let doc = layout(&Content::text("Hello world"), CounterStateLegacy::default());
     assert!(!doc.pages.is_empty());
     let total = doc.pages.iter().flat_map(|p| p.items.iter()).count();
     assert!(total >= 2, "Hello e world devem ser itens separados");
@@ -67,7 +67,7 @@ fn layout_texto_simples_tem_items() {
 
 #[test]
 fn layout_documento_vazio_zero_paginas() {
-    let doc = layout(&Content::Empty, CounterState::default());
+    let doc = layout(&Content::Empty, CounterStateLegacy::default());
     assert_eq!(doc.pages.len(), 0, "documento vazio → sem páginas");
 }
 
@@ -78,7 +78,7 @@ fn layout_items_dentro_limites_da_pagina() {
         .map(|i| format!("palavra{i}"))
         .collect::<Vec<_>>()
         .join(" ");
-    let doc = layout(&Content::text(&words), CounterState::default());
+    let doc = layout(&Content::text(&words), CounterStateLegacy::default());
 
     for page in &doc.pages {
         for item in &page.items {
@@ -102,7 +102,7 @@ fn layout_texto_longo_word_wrap() {
         .map(|i| format!("w{i}"))
         .collect::<Vec<_>>()
         .join(" ");
-    let doc = layout(&Content::text(&words), CounterState::default());
+    let doc = layout(&Content::text(&words), CounterStateLegacy::default());
     let items = doc.pages.iter().flat_map(|p| p.items.iter()).count();
     let y_values: std::collections::HashSet<u64> = doc
         .pages
@@ -121,7 +121,7 @@ fn strong_produz_bold_style() {
     // Construção directa usa TextStyle::bold para simular o que eval produziria.
     let doc = layout(&Content::strong(
         Content::Text("Bold".into(), TextStyle::bold(Pt(11.0)))
-    ), CounterState::default());
+    ), CounterStateLegacy::default());
     let bold = doc.pages.iter()
         .flat_map(|p| p.items.iter())
         .any(|i| matches!(i, FrameItem::Text { style, .. } if style.bold));
@@ -134,7 +134,7 @@ fn emph_produz_italic_style() {
     // Construção directa usa TextStyle::italic para simular o que eval produziria.
     let doc = layout(&Content::emph(
         Content::Text("Italic".into(), TextStyle::italic(Pt(11.0)))
-    ), CounterState::default());
+    ), CounterStateLegacy::default());
     let italic = doc.pages.iter()
         .flat_map(|p| p.items.iter())
         .any(|i| matches!(i, FrameItem::Text { style, .. } if style.italic));
@@ -162,7 +162,7 @@ fn estilo_restaurado_apos_strong() {
     let doc = layout(&Content::sequence(vec![
         Content::strong(Content::text("Bold")),
         Content::text("normal"),
-    ]), CounterState::default());
+    ]), CounterStateLegacy::default());
     let items: Vec<_> = doc.pages.iter()
         .flat_map(|p| p.items.iter())
         .collect();
@@ -240,7 +240,7 @@ fn pipeline_parse_eval_layout() {
 
 #[test]
 fn layout_list_item_tem_bullet() {
-    let doc = layout(&Content::list_item(Content::text("Item")), CounterState::default());
+    let doc = layout(&Content::list_item(Content::text("Item")), CounterStateLegacy::default());
     let has_marker = doc.pages.iter()
         .flat_map(|p| p.items.iter())
         .any(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "•"));
@@ -253,7 +253,7 @@ fn layout_raw_block_tamanho_menor() {
         Content::text("normal"),
         Content::raw("code", None, true),
     ]);
-    let doc = layout(&content, CounterState::default());
+    let doc = layout(&content, CounterStateLegacy::default());
     let sizes: std::collections::HashSet<u64> = doc.pages.iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| match i {
@@ -699,7 +699,7 @@ mod tests_align {
     }
 }
 
-// ── Testes de CounterState e numeração de headings (Passo 57/58) ──────
+// ── Testes de CounterStateLegacy e numeração de headings (Passo 57/58) ──────
 
 #[test]
 fn layout_heading_sem_numbering_nao_tem_prefixo() {
@@ -758,20 +758,20 @@ fn layout_counter_display_heading_retorna_estado_actual() {
 
 #[test]
 fn counter_update_nao_produz_items_visuais() {
-    use crate::entities::counter_state::CounterAction;
+    use crate::entities::counter_state_legacy::CounterAction;
 
     let content = Content::CounterUpdate {
         key:    "equation".to_string(),
         action: CounterAction::Update(5),
     };
-    let doc = layout(&content, CounterState::default());
+    let doc = layout(&content, CounterStateLegacy::default());
     let total_items: usize = doc.pages.iter().map(|p| p.items.len()).sum();
     assert_eq!(total_items, 0, "CounterUpdate não deve gerar items visuais");
 }
 
 #[test]
 fn counter_update_seguido_de_display_mostra_valor_correcto() {
-    use crate::entities::counter_state::CounterAction;
+    use crate::entities::counter_state_legacy::CounterAction;
 
     let content = Content::Sequence(vec![
         Content::CounterUpdate {
@@ -780,7 +780,7 @@ fn counter_update_seguido_de_display_mostra_valor_correcto() {
         },
         Content::CounterDisplay { kind: "equation".to_string() },
     ].into());
-    let doc = layout(&content, CounterState::default());
+    let doc = layout(&content, CounterStateLegacy::default());
     assert!(doc.plain_text().contains('5'),
         "CounterDisplay deve mostrar '5' após Update(5): {:?}", doc.plain_text());
 }
@@ -895,7 +895,7 @@ fn pipeline_duas_passagens_resolve_forward_ref() {
 
 #[test]
 fn layout_equation_bloco_numerada() {
-    let mut state = CounterState::new();
+    let mut state = CounterStateLegacy::new();
     state.numbering_active.insert("equation".to_string(), true);
 
     let content = Content::Equation {
@@ -1075,7 +1075,7 @@ fn layout_toc_com_readonly_nao_duplica_contadores() {
     // Heading com CounterUpdate embebido — sem is_readonly, o contador avançaria
     // duas vezes (uma no heading real, outra no clone da TOC).
     // Com is_readonly, a renderização da TOC é neutra em relação aos contadores.
-    use crate::entities::counter_state::CounterAction;
+    use crate::entities::counter_state_legacy::CounterAction;
 
     let body_with_counter_update = Content::Sequence(vec![
         Content::text("Secção"),
@@ -1107,7 +1107,7 @@ fn layout_toc_com_readonly_nao_duplica_contadores() {
 fn layout_extracted_label_pages_preenchido_apos_layout() {
     // extracted_label_pages é sempre populado após layout, mesmo sem labels.
     let content = Content::text("Texto sem labels");
-    let doc = layout(&content, CounterState::default());
+    let doc = layout(&content, CounterStateLegacy::default());
     // Deve existir o campo (pode estar vazio)
     assert!(doc.extracted_label_pages.is_empty(),
         "sem labels, extracted_label_pages deve estar vazio");
@@ -1434,7 +1434,7 @@ mod tests_styled_integration {
             Styles::from_iter([Style::Bold(true), Style::Size(Pt(18.0))]),
         );
 
-        let doc = layout(&styled, CounterState::new());
+        let doc = layout(&styled, CounterStateLegacy::new());
         let texts = collect_text_items(&doc);
         assert!(!texts.is_empty(), "esperado pelo menos 1 FrameItem::Text");
 
@@ -1460,7 +1460,7 @@ mod tests_styled_integration {
             Styles::from_iter([Style::Bold(true), Style::Italic(false)]),
         );
 
-        let doc = layout(&outer, CounterState::new());
+        let doc = layout(&outer, CounterStateLegacy::new());
         let texts = collect_text_items(&doc);
         assert!(!texts.is_empty());
 
@@ -1487,7 +1487,7 @@ mod tests_styled_integration {
         let plain = Content::text("plain");
         let seq = Content::Sequence(Arc::from(vec![styled, Content::Space, plain]));
 
-        let doc = layout(&seq, CounterState::new());
+        let doc = layout(&seq, CounterStateLegacy::new());
         let texts = collect_text_items(&doc);
 
         // Encontrar o item do texto "STYLED" e do texto "plain".
@@ -2008,7 +2008,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
 
         // Documento sem pad como baseline.
-        let baseline = layout(&Content::text("hello"), CounterState::default());
+        let baseline = layout(&Content::text("hello"), CounterStateLegacy::default());
         let baseline_y_max: f64 = baseline.pages
             .iter()
             .flat_map(|p| p.items.iter())
@@ -2024,7 +2024,7 @@ mod tests_show_rule_integration {
             Content::text("hello"),
             Sides::new(None, Some(Length::pt(20.0)), None, Some(Length::pt(20.0))),
         );
-        let with_pad = layout(&padded, CounterState::default());
+        let with_pad = layout(&padded, CounterStateLegacy::default());
         let pad_y_max: f64 = with_pad.pages
             .iter()
             .flat_map(|p| p.items.iter())
@@ -2046,7 +2046,7 @@ mod tests_show_rule_integration {
     #[test]
     fn layout_hide_emite_zero_text_items() {
         let hidden = Content::hide(Content::text("invisivel"));
-        let doc = layout(&hidden, CounterState::default());
+        let doc = layout(&hidden, CounterStateLegacy::default());
         let text_items = doc.pages
             .iter()
             .flat_map(|p| p.items.iter())
@@ -2071,7 +2071,7 @@ mod tests_show_rule_integration {
             Content::h_space(Length::pt(50.0), false),
             Content::text("B"),
         ]));
-        let doc = layout(&with_space, CounterState::default());
+        let doc = layout(&with_space, CounterStateLegacy::default());
         let texts: Vec<_> = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -2100,7 +2100,7 @@ mod tests_show_rule_integration {
             Content::v_space(Length::pt(30.0), false),
             Content::text("B"),
         ]));
-        let doc = layout(&with_space, CounterState::default());
+        let doc = layout(&with_space, CounterStateLegacy::default());
         let texts: Vec<_> = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -2144,7 +2144,7 @@ mod tests_show_rule_integration {
             Content::pagebreak(false, None),
             Content::text("B"),
         ]));
-        let doc = layout(&doc_content, CounterState::default());
+        let doc = layout(&doc_content, CounterStateLegacy::default());
         // Esperamos pelo menos 2 páginas (A na primeira, B na segunda).
         assert!(doc.pages.len() >= 2,
             "esperado >= 2 páginas após pagebreak, obtive {}", doc.pages.len());
@@ -2167,7 +2167,7 @@ mod tests_show_rule_integration {
             Content::pagebreak(false, Some(crate::entities::parity::Parity::Even)),
             Content::text("B"),
         ]));
-        let doc = layout(&doc_content, CounterState::default());
+        let doc = layout(&doc_content, CounterStateLegacy::default());
         // A em p1 (ímpar); pagebreak commits p1, próxima seria p2 (par).
         // Even matches → sem inserção extra. B em p2.
         let page_a = page_index_containing(&doc, "A").expect("A não encontrado");
@@ -2189,7 +2189,7 @@ mod tests_show_rule_integration {
             Content::pagebreak(false, Some(crate::entities::parity::Parity::Odd)),
             Content::text("B"),
         ]));
-        let doc = layout(&doc_content, CounterState::default());
+        let doc = layout(&doc_content, CounterStateLegacy::default());
         let page_a = page_index_containing(&doc, "A").expect("A não encontrado");
         let page_b = page_index_containing(&doc, "B").expect("B não encontrado");
         assert_eq!(page_a, 1);
@@ -2221,7 +2221,7 @@ mod tests_show_rule_integration {
             ),
             Content::text("C"),
         ]));
-        let doc = layout(&doc_content, CounterState::default());
+        let doc = layout(&doc_content, CounterStateLegacy::default());
         let texts: Vec<_> = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -2260,7 +2260,7 @@ mod tests_show_rule_integration {
             ),
             Content::text("B"),
         ]));
-        let doc = layout(&doc_content, CounterState::default());
+        let doc = layout(&doc_content, CounterStateLegacy::default());
         let texts: Vec<_> = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -2294,7 +2294,7 @@ mod tests_show_rule_integration {
                 Length::ZERO,
             ),
         ]));
-        let doc1 = layout(&no_inset, CounterState::default());
+        let doc1 = layout(&no_inset, CounterStateLegacy::default());
         let pos_m1: f64 = doc1.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "M" => Some(pos.x.val()),
@@ -2311,7 +2311,7 @@ mod tests_show_rule_integration {
                 Length::ZERO,
             ),
         ]));
-        let doc2 = layout(&with_inset, CounterState::default());
+        let doc2 = layout(&with_inset, CounterStateLegacy::default());
         let pos_m2: f64 = doc2.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "M" => Some(pos.x.val()),
@@ -2335,7 +2335,7 @@ mod tests_show_rule_integration {
             Dir::TTB,
             None,
         );
-        let doc = layout(&s, CounterState::default());
+        let doc = layout(&s, CounterStateLegacy::default());
         let texts: Vec<_> = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } => Some((pos.y.val(), text.to_string())),
@@ -2358,7 +2358,7 @@ mod tests_show_rule_integration {
             Dir::LTR,
             None,
         );
-        let doc = layout(&s, CounterState::default());
+        let doc = layout(&s, CounterStateLegacy::default());
         let texts: Vec<_> = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } =>
@@ -2390,7 +2390,7 @@ mod tests_show_rule_integration {
             vec![Content::text("A"), Content::text("B")],
             Dir::TTB, None,
         );
-        let doc1 = layout(&s_no_space, CounterState::default());
+        let doc1 = layout(&s_no_space, CounterStateLegacy::default());
         let pos_b1: f64 = doc1.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "B" => Some(pos.y.val()),
@@ -2403,7 +2403,7 @@ mod tests_show_rule_integration {
             Dir::TTB,
             Some(Length::pt(30.0)),
         );
-        let doc2 = layout(&s_with_space, CounterState::default());
+        let doc2 = layout(&s_with_space, CounterStateLegacy::default());
         let pos_b2: f64 = doc2.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "B" => Some(pos.y.val()),
@@ -2430,7 +2430,7 @@ mod tests_show_rule_integration {
             Content::block(Content::text("x"), None, None, Sides::uniform(Length::ZERO), true),
             Content::text("B"),
         ]));
-        let doc1 = layout(&no_height, CounterState::default());
+        let doc1 = layout(&no_height, CounterStateLegacy::default());
         let pos_b1: f64 = doc1.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "B" => Some(pos.y.val()),
@@ -2450,7 +2450,7 @@ mod tests_show_rule_integration {
             ),
             Content::text("B"),
         ]));
-        let doc2 = layout(&with_height, CounterState::default());
+        let doc2 = layout(&with_height, CounterStateLegacy::default());
         let pos_b2: f64 = doc2.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "B" => Some(pos.y.val()),
@@ -2472,7 +2472,7 @@ mod tests_show_rule_integration {
     #[test]
     fn layout_repeat_renderiza_body_no_contexto_actual() {
         let r = Content::repeat(Content::text("X"), None, true);
-        let doc = layout(&r, CounterState::default());
+        let doc = layout(&r, CounterStateLegacy::default());
         // Body deve aparecer pelo menos uma vez (single-render).
         let count_x = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "X"))
@@ -2517,7 +2517,7 @@ mod tests_show_rule_integration {
             Content::pagebreak(false, Some(crate::entities::parity::Parity::Even)),   // → próxima p4 (já par)
             Content::text("C"),                                                       // p4
         ]));
-        let doc = layout(&doc_content, CounterState::default());
+        let doc = layout(&doc_content, CounterStateLegacy::default());
         let page_a = page_index_containing(&doc, "A").expect("A não encontrado");
         let page_b = page_index_containing(&doc, "B").expect("B não encontrado");
         let page_c = page_index_containing(&doc, "C").expect("C não encontrado");
@@ -2543,7 +2543,7 @@ mod tests_show_rule_integration {
                 Content::text("d"),
             ],
         );
-        let doc = layout(&t, CounterState::default());
+        let doc = layout(&t, CounterStateLegacy::default());
         // Todos os 4 children devem aparecer como FrameItems::Text.
         for label in ["a", "b", "c", "d"] {
             let count = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -2571,7 +2571,7 @@ mod tests_show_rule_integration {
             rows:    vec![],
             cells:   cells.clone(),
         };
-        let doc_g = layout(&g, CounterState::default());
+        let doc_g = layout(&g, CounterStateLegacy::default());
         let positions_g: Vec<(String, f64, f64)> = doc_g.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -2582,7 +2582,7 @@ mod tests_show_rule_integration {
 
         // Versão Table.
         let t = Content::table(columns, vec![], cells);
-        let doc_t = layout(&t, CounterState::default());
+        let doc_t = layout(&t, CounterStateLegacy::default());
         let positions_t: Vec<(String, f64, f64)> = doc_t.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -2608,7 +2608,7 @@ mod tests_show_rule_integration {
             Some(2), Some(3),
             Some(99), Some(99),  // spans grandes; ignorados em layout
         );
-        let doc = layout(&c, CounterState::default());
+        let doc = layout(&c, CounterStateLegacy::default());
         // Body deve aparecer **exactamente uma vez** (sem multiplicar
         // por colspan/rowspan).
         let count_x = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -2634,7 +2634,7 @@ mod tests_show_rule_integration {
                 Content::table_cell(Content::text("d"), Some(2), Some(0), None, None),
             ],
         );
-        let doc = layout(&t, CounterState::default());
+        let doc = layout(&t, CounterStateLegacy::default());
         // Todos os 4 conteúdos devem aparecer como FrameItems.
         for label in ["a", "b", "c", "d"] {
             let count = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -2653,7 +2653,7 @@ mod tests_show_rule_integration {
     #[test]
     fn layout_table_header_renderiza_body_no_contexto_actual() {
         let h = Content::table_header(Content::text("HDR"), true);
-        let doc = layout(&h, CounterState::default());
+        let doc = layout(&h, CounterStateLegacy::default());
         let count = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "HDR"))
             .count();
@@ -2665,7 +2665,7 @@ mod tests_show_rule_integration {
     #[test]
     fn layout_table_footer_renderiza_body_no_contexto_actual() {
         let f = Content::table_footer(Content::text("FTR"), true);
-        let doc = layout(&f, CounterState::default());
+        let doc = layout(&f, CounterStateLegacy::default());
         let count = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "FTR"))
             .count();
@@ -2689,7 +2689,7 @@ mod tests_show_rule_integration {
                 Content::table_footer(Content::text("F"), true),
             ],
         );
-        let doc = layout(&t, CounterState::default());
+        let doc = layout(&t, CounterStateLegacy::default());
         // Os 4 conteúdos (H, a, b, F) devem aparecer pelo menos uma vez.
         for label in ["H", "a", "b", "F"] {
             let count = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -2715,7 +2715,7 @@ mod tests_show_rule_integration {
             ],
             None,
         );
-        let doc = layout(&b, CounterState::default());
+        let doc = layout(&b, CounterStateLegacy::default());
         let txt = doc.plain_text();
         // Ambos os keys devem aparecer no output formatado.
         assert!(txt.contains("[smith2024]"), "key smith2024 deve aparecer formatada como [key]: doc='{}'", txt);
@@ -2729,7 +2729,7 @@ mod tests_show_rule_integration {
     #[test]
     fn layout_cite_renderiza_placeholder_com_key() {
         let c = Content::cite("smith2024", None, None);
-        let doc = layout(&c, CounterState::default());
+        let doc = layout(&c, CounterStateLegacy::default());
         let txt = doc.plain_text();
         assert!(txt.contains("[smith2024]"),
             "Cite renderiza placeholder [key]: doc='{}'", txt);
@@ -2747,7 +2747,7 @@ mod tests_show_rule_integration {
                 Some(Content::text("Referências")),
             ),
         ]));
-        let doc = layout(&doc_content, CounterState::default());
+        let doc = layout(&doc_content, CounterStateLegacy::default());
         let txt = doc.plain_text();
         // Ambos cite e bibliography devem aparecer.
         assert!(txt.contains("[smith2024]"), "cite + bibliography ambos devem ter [smith2024]");
@@ -2847,7 +2847,7 @@ mod tests_show_rule_integration {
             .with_pages("1-10")
             .with_publisher("ACM");
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterState::default());
+        let doc = layout(&b, CounterStateLegacy::default());
         let txt = doc.plain_text();
         // Todos os fields novos devem aparecer no output formatado.
         assert!(txt.contains("Nature Communications"),
@@ -2869,7 +2869,7 @@ mod tests_show_rule_integration {
         use crate::entities::bib_entry::BibEntry;
         let entry = BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024);
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterState::default());
+        let doc = layout(&b, CounterStateLegacy::default());
         let txt = doc.plain_text();
         // Output P159A: "[smith2024] Smith, J.. On Crystal Math (2024)."
         assert!(txt.contains("[smith2024]"), "key como [key]");
@@ -3014,7 +3014,7 @@ mod tests_show_rule_integration {
             .with_url("https://example.com/paper")
             .with_doi("10.1234/abc");
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterState::default());
+        let doc = layout(&b, CounterStateLegacy::default());
         let txt = doc.plain_text();
         // URL plaintext literal deve aparecer.
         assert!(txt.contains("https://example.com/paper"),
@@ -3036,7 +3036,7 @@ mod tests_show_rule_integration {
             .with_journal("Nature Communications")
             .with_volume("12");
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterState::default());
+        let doc = layout(&b, CounterStateLegacy::default());
         let txt = doc.plain_text();
         // P159D fields presentes.
         assert!(txt.contains("Nature Communications"));
@@ -3064,7 +3064,7 @@ mod tests_show_rule_integration {
             .with_location("New York")
             .with_publisher("ACM");
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterState::default());
+        let doc = layout(&b, CounterStateLegacy::default());
         let txt = doc.plain_text();
         // Editor com prefixo (Ed. ).
         assert!(txt.contains("(Ed. Doe, A.)"),
@@ -3092,7 +3092,7 @@ mod tests_show_rule_integration {
             .with_url("https://example.com")
             .with_doi("10.1/a");
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterState::default());
+        let doc = layout(&b, CounterStateLegacy::default());
         let txt = doc.plain_text();
         // P159E fields preservados.
         assert!(txt.contains("https://example.com"));
@@ -3114,10 +3114,174 @@ mod tests_show_rule_integration {
         let entry = BibEntry::new("tech2024", "Smith, J.", "Tech Report", 2024)
             .with_organization("MIT");
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterState::default());
+        let doc = layout(&b, CounterStateLegacy::default());
         let txt = doc.plain_text();
         // Organization aparece no slot publisher.
         assert!(txt.contains("MIT"),
             "organization deve aparecer no slot publisher: doc='{}'", txt);
+    }
+}
+
+// ── P168 (M5 sub-passo 2) — Tests de migração figure-ref ─────────────────
+
+#[cfg(test)]
+mod p168_figure_ref_migration {
+    use super::*;
+    use crate::entities::label::Label;
+    use crate::rules::introspect::introspect_with_introspector;
+
+    fn doc_figure_with_ref(label_str: &str, kind: Option<String>, with_caption: bool, with_numbering: bool) -> Content {
+        let figure = Content::Figure {
+            body:      Box::new(Content::text("body")),
+            caption:   if with_caption { Some(Box::new(Content::text("cap"))) } else { None },
+            kind,
+            numbering: if with_numbering { Some("1".into()) } else { None },
+        };
+        Content::Sequence(
+            vec![
+                Content::Labelled {
+                    label:  Label(label_str.to_string()),
+                    target: Box::new(figure),
+                },
+                Content::text("ver "),
+                Content::Ref { target: Label(label_str.to_string()) },
+            ]
+            .into(),
+        )
+    }
+
+    #[test]
+    fn migrated_path_via_layout_with_introspector_renders_figure_ref() {
+        // P168 .E.1: figure numbered+captioned + ref → layout via novo
+        // entry point produz "Figura 1" usando introspector path.
+        let content = doc_figure_with_ref("fig1", Some("image".into()), true, true);
+        let (state, intr) = introspect_with_introspector(&content);
+        let doc = layout_with_introspector(&content, state, intr);
+        let txt = doc.plain_text();
+        assert!(
+            txt.contains("Figura 1"),
+            "ref deve resolver para 'Figura 1' via introspector path; obtido: '{txt}'"
+        );
+    }
+
+    #[test]
+    fn legacy_path_via_layout_continues_to_work() {
+        // P168 .E.3: backward compat — legacy `layout()` ainda resolve
+        // figure-ref via fallback a state.figure_label_numbers.
+        let content = doc_figure_with_ref("fig1", Some("image".into()), true, true);
+        let state = introspect(&content);
+        let doc = layout(&content, state);
+        let txt = doc.plain_text();
+        assert!(
+            txt.contains("Figura 1"),
+            "legacy layout() deve continuar a resolver figure-ref; obtido: '{txt}'"
+        );
+    }
+
+    #[test]
+    fn paridade_pre_post_migracao() {
+        // P168 .E.2: layout() legacy e layout_with_introspector produzem
+        // o mesmo plain_text para o mesmo documento (paridade).
+        let content = doc_figure_with_ref("fig1", Some("image".into()), true, true);
+
+        let state_legacy = introspect(&content);
+        let doc_legacy = layout(&content, state_legacy);
+        let txt_legacy = doc_legacy.plain_text();
+
+        let (state_new, intr) = introspect_with_introspector(&content);
+        let doc_new = layout_with_introspector(&content, state_new, intr);
+        let txt_new = doc_new.plain_text();
+
+        assert_eq!(
+            txt_legacy, txt_new,
+            "paridade quebrada: legacy='{txt_legacy}' new='{txt_new}'"
+        );
+    }
+
+    #[test]
+    fn figura_sem_caption_nao_gera_figure_ref() {
+        // P168 .E (caso bordo): figura sem caption não conta para
+        // numeração — predicado is_counted=false garante que introspector
+        // NÃO indexa esta figura como figure_label_number.
+        let content = doc_figure_with_ref("fig1", Some("image".into()), false, true);
+        let (_, intr) = introspect_with_introspector(&content);
+        use crate::entities::introspector::Introspector;
+        assert_eq!(
+            intr.figure_number_for_label(&Label("fig1".to_string())),
+            None,
+            "figura sem caption não deve aparecer em figure_label_numbers"
+        );
+    }
+}
+
+// ── P169 (M9 sub-passo 1) — Tests E2E para metadata(value) ────────────────
+
+#[cfg(test)]
+mod p169_metadata_feature {
+    use super::*;
+    use crate::entities::value::Value;
+    use crate::rules::introspect::introspect_with_introspector;
+    use crate::entities::introspector::Introspector;
+    use ecow::EcoString;
+
+    #[test]
+    fn metadata_value_acessivel_via_introspector() {
+        // P169 .C: Content::Metadata produz query_metadata populado.
+        let content = Content::Sequence(
+            vec![
+                Content::text("antes"),
+                Content::Metadata {
+                    value: Box::new(Value::Str(EcoString::from("hello"))),
+                },
+                Content::text("depois"),
+            ]
+            .into(),
+        );
+        let (_, intr) = introspect_with_introspector(&content);
+        let md = intr.query_metadata();
+        assert_eq!(md.len(), 1);
+        assert_eq!(md[0], Value::Str(EcoString::from("hello")));
+    }
+
+    #[test]
+    fn metadata_e_invisivel_em_layout() {
+        // P169 .C: metadata é zero-size — output observable não muda
+        // entre `[antes][metadata("X")][depois]` e `[antes][depois]`.
+        let with_metadata = Content::Sequence(
+            vec![
+                Content::text("antes"),
+                Content::Metadata {
+                    value: Box::new(Value::Str(EcoString::from("invisivel"))),
+                },
+                Content::text("depois"),
+            ]
+            .into(),
+        );
+        let without_metadata = Content::Sequence(
+            vec![Content::text("antes"), Content::text("depois")].into(),
+        );
+
+        let doc_with = layout(&with_metadata, introspect(&with_metadata));
+        let doc_without = layout(&without_metadata, introspect(&without_metadata));
+        assert_eq!(
+            doc_with.plain_text(),
+            doc_without.plain_text(),
+            "metadata deve ser invisível — plain_text idêntico"
+        );
+    }
+
+    #[test]
+    fn multiplas_metadatas_preservam_ordem_no_query() {
+        let content = Content::Sequence(
+            vec![
+                Content::Metadata { value: Box::new(Value::Int(1)) },
+                Content::Metadata { value: Box::new(Value::Int(2)) },
+                Content::Metadata { value: Box::new(Value::Int(3)) },
+            ]
+            .into(),
+        );
+        let (_, intr) = introspect_with_introspector(&content);
+        let md = intr.query_metadata();
+        assert_eq!(md, &[Value::Int(1), Value::Int(2), Value::Int(3)]);
     }
 }

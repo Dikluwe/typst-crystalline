@@ -16,7 +16,7 @@ use std::sync::Arc;
 
 use crate::entities::{
     content::Content,
-    counter_state::CounterState,
+    counter_state_legacy::CounterStateLegacy,
     geometry::ShapeKind,
     image_sizer::{ImageSizer, NullImageSizer},
     layout_types::{Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument,
@@ -92,7 +92,13 @@ pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// cursor à origem da célula em vez da margem da página.
     pub(super) line_start_x:  Pt,
     pub(super) current_line:  Vec<FrameItem>,
-    pub counter:              CounterState,
+    pub counter:              CounterStateLegacy,
+    /// P168 (M5 sub-passo 2): introspector populado paralelamente ao
+    /// `counter` legacy. Default `TagIntrospector::empty()` — apenas
+    /// callers via `layout_with_introspector` populam. Consumer actual
+    /// é `references.rs::layout_ref` (figure-ref); outros consumers
+    /// migram em M9+.
+    pub(super) introspector: crate::entities::introspector::TagIntrospector,
     /// Índice de progresso por kind para figuras (Passo 75, DEBT-14).
     /// kind → número de figuras já dispostas. Reiniciado por invocação de layout().
     figure_progress: std::collections::HashMap<String, usize>,
@@ -141,7 +147,8 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             cursor_y:     Pt(cfg.margin) + ascender,
             line_start_x: Pt(cfg.margin),
             current_line: Vec::new(),
-            counter:         CounterState::new(),
+            counter:         CounterStateLegacy::new(),
+            introspector:    crate::entities::introspector::TagIntrospector::empty(),
             figure_progress: std::collections::HashMap::new(),
             is_height_unconstrained: false,
             cell_available_h:        None,
@@ -214,6 +221,12 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
     pub fn layout_content(&mut self, content: &Content) {
         match content {
             Content::Empty => {}
+
+            // P169 (M9): Metadata é zero-size em layout — sem caixa,
+            // sem texto, sem efeito visual. O `value` permanece
+            // disponível via `Introspector::query_metadata` para
+            // querying do utilizador.
+            Content::Metadata { .. } => {}
 
             Content::Text(text, node_style) => {
                 // Estilo resolvido: merge de node_style (produzido pelo eval) com
@@ -1263,7 +1276,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
 
 /// Layout com convergência de fixpoint (Passo 65).
 ///
-/// Recebe o `CounterState` produzido por `introspect::introspect`.
+/// Recebe o `CounterStateLegacy` produzido por `introspect::introspect`.
 /// Se o documento não contiver `Content::Outline` (`has_outline = false`),
 /// corre uma única passagem — o fixpoint de páginas só serve a TOC.
 /// Caso contrário, itera até convergência (máximo 5 vezes).
@@ -1322,7 +1335,32 @@ fn format_bib_entry(e: &crate::entities::bib_entry::BibEntry) -> String {
     out
 }
 
-pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument {
+pub fn layout(content: &Content, initial_state: CounterStateLegacy) -> PagedDocument {
+    // P168 (M5 sub-passo 2): wrapper sobre `layout_with_introspector` com
+    // introspector vazio. Callers legacy continuam a funcionar — `layout_ref`
+    // figure-arm faz fallback a `state.figure_label_numbers` quando
+    // introspector está vazio.
+    layout_with_introspector(
+        content,
+        initial_state,
+        crate::entities::introspector::TagIntrospector::empty(),
+    )
+}
+
+/// Entry point P168 (M5 sub-passo 2): aceita `TagIntrospector` adicional
+/// para que consumers como `references.rs::layout_ref` (figure-ref) possam
+/// usar `query_by_label` em vez de `state.figure_label_numbers` legacy.
+///
+/// Caller típico do M5+:
+/// ```ignore
+/// let (state, intr) = introspect_with_introspector(&content);
+/// let doc = layout_with_introspector(&content, state, intr);
+/// ```
+pub fn layout_with_introspector(
+    content: &Content,
+    initial_state: CounterStateLegacy,
+    introspector: crate::entities::introspector::TagIntrospector,
+) -> PagedDocument {
     use std::collections::HashMap;
     use crate::entities::label::Label;
 
@@ -1331,6 +1369,7 @@ pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument {
     // Um documento com títulos mas sem #outline() não precisa do ciclo.
     if !initial_state.has_outline {
         let mut l = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
+        l.introspector             = introspector;
         l.counter.resolved_labels  = initial_state.resolved_labels;
         l.counter.headings_for_toc = initial_state.headings_for_toc;
         // numbering_active: copiado porque equações não têm nó equivalente
@@ -1361,6 +1400,7 @@ pub fn layout(content: &Content, initial_state: CounterState) -> PagedDocument {
         let mut l = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
 
         // Estado base da introspecção — copiado em cada iteração.
+        l.introspector             = introspector.clone();
         l.counter.resolved_labels  = initial_state.resolved_labels.clone();
         l.counter.headings_for_toc = initial_state.headings_for_toc.clone();
         l.counter.numbering_active = initial_state.numbering_active.clone();

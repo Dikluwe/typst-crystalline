@@ -25,7 +25,7 @@ use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 #[cfg(test)]
-use crate::entities::counter_state::CounterAction;
+use crate::entities::counter_state_legacy::CounterAction;
 use crate::entities::label::Label;
 use crate::entities::ast::expr::{ArrayItem, Expr};
 #[cfg(test)]
@@ -515,7 +515,7 @@ fn make_stdlib() -> Scope {
         make_calc_module, native_align, native_assert, native_bibliography, native_block, native_box, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
-        native_lower, native_luma, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon,
+        native_lower, native_luma, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon,
         native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_scale, native_skew, native_stack, native_str, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms, native_type, native_upper, native_v,
     };
@@ -549,6 +549,8 @@ fn make_stdlib() -> Scope {
     scope.define("align",   Value::Func(Func::native("align",   native_align)));
     scope.define("place",   Value::Func(Func::native("place",   native_place)));
     scope.define("assert",  Value::Func(Func::native("assert",  native_assert)));
+    // P169 (M9 sub-passo 1): metadata(value) — feature Introspection vanilla.
+    scope.define("metadata", Value::Func(Func::native("metadata", native_metadata)));
     scope.define("upper",   Value::Func(Func::native("upper",   native_upper)));
     scope.define("lower",   Value::Func(Func::native("lower",   native_lower)));
     scope.define("replace", Value::Func(Func::native("replace", native_replace)));

@@ -1555,20 +1555,20 @@ fn build_page_stream_multifont(
 mod tests {
     use super::*;
     use typst_core::{
-        entities::{content::Content, counter_state::CounterState},
+        entities::{content::Content, counter_state_legacy::CounterStateLegacy},
         rules::layout::layout,
     };
 
     #[test]
     fn pdf_header_correcto() {
-        let doc = layout(&Content::text("Hello"), CounterState::default());
+        let doc = layout(&Content::text("Hello"), CounterStateLegacy::default());
         let pdf = export_pdf(&doc);
         assert!(pdf.starts_with(b"%PDF-1.7"), "deve começar com %PDF-1.7");
     }
 
     #[test]
     fn pdf_termina_com_eof() {
-        let doc = layout(&Content::text("Test"), CounterState::default());
+        let doc = layout(&Content::text("Test"), CounterStateLegacy::default());
         let pdf = export_pdf(&doc);
         let tail = std::str::from_utf8(&pdf[pdf.len().saturating_sub(20)..]).unwrap_or("");
         assert!(tail.contains("%%EOF"), "deve terminar com %%EOF");
@@ -1576,7 +1576,7 @@ mod tests {
 
     #[test]
     fn pdf_tem_estrutura_valida() {
-        let doc = layout(&Content::text("Test"), CounterState::default());
+        let doc = layout(&Content::text("Test"), CounterStateLegacy::default());
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("xref"),      "deve ter xref");
@@ -1589,7 +1589,7 @@ mod tests {
 
     #[test]
     fn pdf_contem_texto_ascii() {
-        let doc = layout(&Content::text("Hello world"), CounterState::default());
+        let doc = layout(&Content::text("Hello world"), CounterStateLegacy::default());
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("Hello") || s.contains("world"),
@@ -1638,7 +1638,7 @@ mod tests {
 
     #[test]
     fn pdf_mediabox_dimensoes_a4() {
-        let doc = layout(&Content::text("Test"), CounterState::default());
+        let doc = layout(&Content::text("Test"), CounterStateLegacy::default());
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("595.28") && s.contains("841.89"),
@@ -1650,7 +1650,7 @@ mod tests {
     #[test]
     fn unicode_nao_produz_interrogacao() {
         // Modo Helvetica — documenta intenção. Com CIDFont + fonte real, '?' desaparece.
-        let doc = layout(&Content::text("café naïve résumé"), CounterState::default());
+        let doc = layout(&Content::text("café naïve résumé"), CounterStateLegacy::default());
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("xref"), "PDF deve ser estruturalmente válido");
@@ -1665,7 +1665,7 @@ mod tests {
 
     #[test]
     fn texto_ascii_com_cidfont() {
-        let doc = layout(&Content::text("Hello World"), CounterState::default());
+        let doc = layout(&Content::text("Hello World"), CounterStateLegacy::default());
         let pdf = export_pdf(&doc);
         assert!(pdf.starts_with(b"%PDF-1.7"));
         let s = String::from_utf8_lossy(&pdf);
@@ -1675,7 +1675,7 @@ mod tests {
     #[test]
     fn bullet_e_unicode() {
         use typst_core::entities::{content::Content as C2, layout_types::FrameItem};
-        let doc = layout(&C2::list_item(C2::text("item")), CounterState::default());
+        let doc = layout(&C2::list_item(C2::text("item")), CounterStateLegacy::default());
         let has_bullet = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .any(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "•"));
@@ -1693,7 +1693,7 @@ mod tests {
 
     #[test]
     fn collect_codepoints_dedup() {
-        let doc = layout(&Content::text("aaa bbb"), CounterState::default());
+        let doc = layout(&Content::text("aaa bbb"), CounterStateLegacy::default());
         let chars = collect_codepoints(&doc);
         // BTreeSet garante que não há duplicados
         let unique: std::collections::BTreeSet<_> = chars.iter().copied().collect();

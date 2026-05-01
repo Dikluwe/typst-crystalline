@@ -4,18 +4,18 @@
 //! @layer L1
 //! @updated 2026-04-13
 
-use crate::entities::counter_state::{CounterAction, CounterState};
+use crate::entities::counter_state_legacy::{CounterAction, CounterStateLegacy};
 
 /// Braço `SetHeadingNumbering` — activa/desactiva numeração de headings.
 /// Não produz output visual.
-pub(super) fn layout_set_heading_numbering(counter: &mut CounterState, active: bool) {
+pub(super) fn layout_set_heading_numbering(counter: &mut CounterStateLegacy, active: bool) {
     counter.numbering_active.insert("heading".to_string(), active);
 }
 
 /// Braço `CounterUpdate` — avança ou força um contador.
 /// Não produz output visual.
 pub(super) fn layout_counter_update(
-    counter: &mut CounterState,
+    counter: &mut CounterStateLegacy,
     key: &str,
     action: &CounterAction,
 ) {
@@ -34,8 +34,8 @@ pub(super) fn layout_counter_update(
 }
 
 /// Braço `CounterDisplay` — lê o estado actual e retorna texto formatado.
-/// Delega em `CounterState::display_value` (Passo 66).
-pub(super) fn format_counter_display(counter: &CounterState, kind: &str) -> String {
+/// Delega em `CounterStateLegacy::display_value` (Passo 66).
+pub(super) fn format_counter_display(counter: &CounterStateLegacy, kind: &str) -> String {
     counter.display_value(kind)
 }
 
