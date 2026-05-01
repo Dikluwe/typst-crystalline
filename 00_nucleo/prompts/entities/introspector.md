@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: 530c5a98
+Hash do Código: 322924e5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`
@@ -68,6 +68,11 @@ pub trait Introspector {
     /// **P171 (M9 sub-passo 3)**: valor final do state `key` (último
     /// update aplicado).
     fn state_final_value(&self, key: &str) -> Option<&Value>;
+
+    /// **P175 (M9 sub-passo 5)**: queries via `Selector`. P175 minimal —
+    /// só `Selector::Kind(kind)` que delega a `query_by_kind`. Future
+    /// variants (`Label`, `And`, `Or`, `Where`) adiados.
+    fn query(&self, selector: &Selector) -> Vec<Location>;
 }
 
 #[derive(Debug, Clone, Default)]
@@ -171,3 +176,4 @@ Fan-in baixo: M3 não tem consumers externos ainda.
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-04-30 | P165 sub-passo .D: trait + impl concreta para queries sobre tags | `introspector.rs`, `introspector.md` |
+| 2026-04-29 | P175 sub-passo .C: método `query(&Selector) -> Vec<Location>` no trait + impl | `introspector.rs`, `introspector.md` |

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/state_registry.md
-//! @prompt-hash b7e8d5ad
+//! @prompt-hash 9121d8d5
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -21,7 +21,6 @@
 use std::collections::HashMap;
 
 use crate::entities::location::Location;
-use crate::entities::state_update::StateUpdate;
 use crate::entities::value::Value;
 
 /// Sub-store de runtime mutable state para `Introspector`.
@@ -59,14 +58,6 @@ impl StateRegistry {
             history.push((location, value));
         }
         // Se key não existe ainda, ignorar update (sem init prévio).
-    }
-
-    /// Aplica um `StateUpdate` directamente (forma de conveniência
-    /// usada por `from_tags`).
-    pub(crate) fn apply_update(&mut self, key: String, update: StateUpdate, location: Location) {
-        match update {
-            StateUpdate::Set(value) => self.update(key, *value, location),
-        }
     }
 
     /// Devolve o valor do state `key` na `Location` indicada.

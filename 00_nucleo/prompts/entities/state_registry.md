@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/state_registry`
-Hash do Código: f00eb92f
+Hash do Código: d32fc8b7
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/state_registry.rs`
@@ -41,7 +41,6 @@ Alternativas consideradas: `BTreeMap<Location, ...>` (ordenação automática ma
 
 ```rust
 use crate::entities::location::Location;
-use crate::entities::state_update::StateUpdate;
 use crate::entities::value::Value;
 
 #[derive(Debug, Clone, Default)]
@@ -56,9 +55,14 @@ impl StateRegistry {
 
     pub(crate) fn init(&mut self, key: String, init: Value, location: Location);
     pub(crate) fn update(&mut self, key: String, value: Value, location: Location);
-    pub(crate) fn apply_update(&mut self, key: String, update: StateUpdate, location: Location);
 }
 ```
+
+**P173**: o método de conveniência `apply_update(key, StateUpdate, location)`
+foi removido. Razão: `StateUpdate::Func` requer `Engine + EvalContext`
+para eval, que não estão neste sub-store. O match sobre `StateUpdate`
+vive agora em `from_tags::from_tags` onde Engine está disponível;
+`StateRegistry` expõe apenas as primitivas `init` + `update`.
 
 ---
 
@@ -67,9 +71,10 @@ impl StateRegistry {
 - `empty()`: registry vazio.
 - `init(key, init, location)`: regista valor inicial. Apenas a **primeira chamada para cada key** é considerada — segundo init é ignorado (paridade vanilla; multi-init no mesmo doc é inválido mas não panic).
 - `update(key, value, location)`: regista update. **Se key não foi inicializada, update é ignorado** (defensive — vanilla geraria erro mas P171 minimal não erra).
-- `apply_update(key, update, location)`: forma de conveniência para `from_tags` — match sobre `StateUpdate` enum, delega a `update` para `Set` variant.
 - `value_at(key, location)`: encontra último (key-value) pair com `loc <= location` na ordem do Vec; retorna value ou None.
 - `final_value(key)`: retorna o último value registado (init se nenhum update, ou último update aplicado).
+
+**P173**: `apply_update` removido. Match sobre `StateUpdate` (Set vs Func) vive em `from_tags` onde `Engine` está disponível para eval de Func.
 
 ---
 
@@ -132,3 +137,4 @@ Vanilla `state.rs` armazena state via fixpoint comemo. Cristalino simplifica par
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-04-30 | P171: sub-store de runtime mutable state para Introspector M9 | `state_registry.rs`, `state_registry.md` |
+| 2026-04-29 | P173: removido `apply_update` — match Set/Func vive em `from_tags` onde `Engine` está disponível | `state_registry.rs`, `state_registry.md` |

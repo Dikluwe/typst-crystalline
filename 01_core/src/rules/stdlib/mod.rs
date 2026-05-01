@@ -33,8 +33,8 @@ mod layout;
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
 pub use crate::rules::stdlib::foundations::{
-    native_float, native_int, native_len, native_luma, native_metadata, native_range, native_rgb,
-    native_state, native_state_update, native_str, native_type,
+    native_float, native_int, native_len, native_luma, native_metadata, native_query, native_range, native_rgb,
+    native_state, native_state_update, native_state_update_with, native_str, native_type,
 };
 pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::text::{native_lower, native_replace, native_upper};
@@ -207,6 +207,59 @@ mod tests {
         use crate::entities::layout_types::Color;
         let r = native_luma(&mut ctx, &p(vec![Value::Int(128)]), &null_world(), test_file_id(), None).unwrap();
         assert_eq!(r, Value::Color(Color::rgb(128, 128, 128)));
+    }
+
+    // ── P175 (M9 sub-passo 5) — query(kind_str) ─────────────────────────
+
+    #[test]
+    fn stdlib_query_em_introspector_vazio_retorna_zero() {
+        null_ctx!(ctx);
+        // ctx.introspector é TagIntrospector::empty() por default.
+        let r = native_query(
+            &mut ctx,
+            &p(vec![Value::Str("heading".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Int(0));
+    }
+
+    #[test]
+    fn stdlib_query_em_introspector_populado_retorna_count() {
+        null_ctx!(ctx);
+        use crate::entities::element_kind::ElementKind;
+        use crate::entities::location::Location;
+        // Popular ctx.introspector com 3 headings.
+        ctx.introspector.kind_index.entry(ElementKind::Heading).or_default()
+            .extend(vec![Location::from_raw(1), Location::from_raw(2), Location::from_raw(3)]);
+
+        let r = native_query(
+            &mut ctx,
+            &p(vec![Value::Str("heading".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Int(3));
+    }
+
+    #[test]
+    fn stdlib_query_kind_invalido_retorna_err() {
+        null_ctx!(ctx);
+        let r = native_query(
+            &mut ctx,
+            &p(vec![Value::Str("nao_existe".into())]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err(), "kind inválido deve retornar Err");
+    }
+
+    #[test]
+    fn stdlib_query_arg_nao_string_retorna_err() {
+        null_ctx!(ctx);
+        let r = native_query(
+            &mut ctx,
+            &p(vec![Value::Int(42)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err(), "arg não-string deve retornar Err");
     }
 
     // ── Passo 27 — str/int/float ─────────────────────────────────────────────

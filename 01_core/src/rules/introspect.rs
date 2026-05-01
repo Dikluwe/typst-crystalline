@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash 4d084de6
+//! @prompt-hash f2e316e2
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -11,7 +11,9 @@
 //! virá em M2/M3. API pública preservada (`introspect()` retorna
 //! `CounterStateLegacy` igual a antes).
 
+pub mod convergence;
 pub mod extract_payload;
+pub mod fixpoint;
 pub mod from_tags;
 pub mod locatable;
 
@@ -42,8 +44,13 @@ use crate::rules::introspect::extract_payload::extract_payload as do_extract_pay
 /// que precisem do introspector devem chamar `introspect_with_introspector`
 /// directamente. M5 migra primeiro consumer real; M6 elimina este wrapper
 /// + `CounterStateLegacy`.
+///
+/// **P173**: passa `None, None` para `introspect_with_introspector` —
+/// Funcs em `state.update(key, fn)` são silenciosamente ignoradas neste
+/// path legacy (sem Engine disponível). Comportamento defensivo coerente
+/// com P171 ("update sem init é ignorado").
 pub fn introspect(content: &Content) -> CounterStateLegacy {
-    let (state, _introspector) = introspect_with_introspector(content);
+    let (state, _introspector) = introspect_with_introspector(content, None, None);
     state
 }
 
@@ -56,18 +63,27 @@ pub fn introspect(content: &Content) -> CounterStateLegacy {
 /// passagem — não há duplicação. `introspect()` é wrapper que descarta
 /// o introspector.
 ///
+/// **P173 (M9 sub-passo 5)**: aceita `Engine + EvalContext` opcionais.
+/// Quando ambos `Some`, `from_tags` avalia `StateUpdate::Func` via
+/// `apply_func`. Walk em si **NÃO modificado** — continua puro
+/// (P163 invariante preservado). Engine só intervém em `from_tags`
+/// (eval localizada).
+///
 /// Padrão de migração M5+: caller que actualmente faz
 /// `let state = introspect(&c)` e quer queries via Introspector pode
-/// adoptar `let (state, intr) = introspect_with_introspector(&c)` sem
-/// custo adicional.
+/// adoptar `let (state, intr) = introspect_with_introspector(&c, None, None)`
+/// sem custo adicional. Caller que precisa de eval real de Funcs em
+/// state.update passa `Some(&mut engine), Some(&mut ctx)`.
 pub fn introspect_with_introspector(
     content: &Content,
+    engine:  Option<&mut crate::entities::engine::Engine<'_>>,
+    ctx:     Option<&mut crate::rules::eval::EvalContext>,
 ) -> (CounterStateLegacy, crate::entities::introspector::TagIntrospector) {
     let mut state = CounterStateLegacy::new();
     let mut locator = Locator::new();
     let mut tags: Vec<Tag> = Vec::new();
     walk(content, &mut state, &mut locator, &mut tags, None);
-    let introspector = self::from_tags::from_tags(&tags);
+    let introspector = self::from_tags::from_tags(&tags, engine, ctx);
     (state, introspector)
 }
 
@@ -1570,12 +1586,13 @@ mod tests {
     use crate::rules::introspect::from_tags::from_tags;
 
     /// Helper de teste para correr walk + construir Introspector em paralelo.
+    /// **P173**: passa `None, None` — testes locais não exercitam Funcs.
     fn introspect_with_introspector(content: &Content) -> (CounterStateLegacy, TagIntrospector) {
         let mut state = CounterStateLegacy::new();
         let mut locator = Locator::new();
         let mut tags: Vec<Tag> = Vec::new();
         walk(content, &mut state, &mut locator, &mut tags, None);
-        let intr = from_tags(&tags);
+        let intr = from_tags(&tags, None, None);
         (state, intr)
     }
 
@@ -1782,5 +1799,188 @@ mod tests {
             state_legacy.resolved_labels.len(),
             state_new.resolved_labels.len(),
         );
+    }
+
+    // ── P173 (M9 sub-passo 5) — E2E cascade Engine através da API pública ─
+
+    use crate::contracts::world::World as _;
+    use crate::entities::args::Args;
+    use crate::entities::engine::Engine;
+    use crate::entities::file_id::FileId;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::func::Func;
+    use crate::entities::show::{RuleId, ShowRule};
+    use crate::entities::sink::Sink;
+    use crate::entities::state_update::StateUpdate;
+    use crate::entities::style_chain::StyleChain;
+    use crate::entities::value::Value;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library, Route,
+    };
+    use crate::rules::eval::EvalContext;
+    use std::num::NonZeroU16;
+    use std::sync::Arc;
+
+    struct E2EWorld {
+        library: Library,
+        book:    FontBook,
+        main_id: FileId,
+    }
+    impl crate::contracts::world::World for E2EWorld {
+        fn library(&self) -> &Library { &self.library }
+        fn book(&self)    -> &FontBook { &self.book }
+        fn main(&self)    -> FileId { self.main_id }
+        fn source(&self, _: FileId) -> FileResult<crate::entities::source::Source>
+        { Err(FileError::NotFound) }
+        fn file(&self, _: FileId) -> FileResult<Bytes>
+        { Err(FileError::NotFound) }
+        fn font(&self, _: usize) -> Option<Font> { None }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+    }
+    fn make_e2e_world() -> E2EWorld {
+        E2EWorld {
+            library: Library::new(),
+            book:    FontBook::new(),
+            main_id: FileId::from_raw(NonZeroU16::new(1).unwrap()),
+        }
+    }
+    fn add_one_native(
+        _ctx: &mut EvalContext,
+        args: &Args,
+        _world: &dyn crate::contracts::world::World,
+        _current_file: FileId,
+        _figure_numbering: Option<&str>,
+    ) -> crate::entities::source_result::SourceResult<Value> {
+        match args.items.first() {
+            Some(Value::Int(n)) => Ok(Value::Int(n + 1)),
+            _ => Ok(Value::None),
+        }
+    }
+
+    macro_rules! with_engine {
+        ($world:expr, |$engine:ident, $ctx:ident| $body:block) => {{
+            use comemo::Track;
+            let world: &dyn crate::contracts::world::World = $world;
+            let mut $ctx = EvalContext::new();
+            let route = Route::root().with_id(world.main());
+            let mut styles = StyleChain::default_chain();
+            let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+            let mut active_guards: Vec<RuleId> = Vec::new();
+            let current_file = world.main();
+            let mut figure_numbering: Option<String> = None;
+            let mut sink_local = Sink::new();
+            let mut sink = sink_local.track_mut();
+            let mut $engine = Engine {
+                world,
+                route: route.track(),
+                styles: &mut styles,
+                show_rules: &mut show_rules,
+                active_guards: &mut active_guards,
+                current_file,
+                figure_numbering: &mut figure_numbering,
+                sink: &mut sink,
+            };
+            $body
+        }};
+    }
+
+    #[test]
+    fn p173_cascade_engine_via_api_publica() {
+        // E2E: estado de count via API pública. Cascade Engine →
+        // from_tags → apply_func executa Func real.
+        let f = Func::native("add_one", add_one_native);
+        let content = Content::Sequence(
+            vec![
+                Content::State {
+                    key:  "c".to_string(),
+                    init: Box::new(Value::Int(0)),
+                },
+                Content::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Func(f),
+                },
+            ]
+            .into(),
+        );
+        let world = make_e2e_world();
+        let intr = with_engine!(&world, |engine, ctx| {
+            let (_, intr) = super::introspect_with_introspector(
+                &content, Some(&mut engine), Some(&mut ctx),
+            );
+            intr
+        });
+        assert_eq!(intr.state_final_value("c"), Some(&Value::Int(1)));
+    }
+
+    #[test]
+    fn p173_introspect_legacy_ignora_func() {
+        // E2E: API legacy `introspect()` (sem Engine) continua a funcionar.
+        // Funcs em state.update são silenciosamente ignoradas.
+        let f = Func::native("add_one", add_one_native);
+        let content = Content::Sequence(
+            vec![
+                Content::State {
+                    key:  "c".to_string(),
+                    init: Box::new(Value::Int(0)),
+                },
+                Content::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Func(f),
+                },
+            ]
+            .into(),
+        );
+        // Path legacy: walk + from_tags(_, None, None).
+        let (_, intr) = super::introspect_with_introspector(&content, None, None);
+        // Func ignorada → final value continua em init.
+        assert_eq!(intr.state_final_value("c"), Some(&Value::Int(0)));
+    }
+
+    #[test]
+    fn p173_determinismo_func_eval() {
+        // E2E: dois chamadas com Engine produzem mesmo resultado.
+        let f1 = Func::native("add_one", add_one_native);
+        let f2 = Func::native("add_one", add_one_native);
+        let content_a = Content::Sequence(
+            vec![
+                Content::State {
+                    key:  "c".to_string(),
+                    init: Box::new(Value::Int(5)),
+                },
+                Content::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Func(f1),
+                },
+            ]
+            .into(),
+        );
+        let content_b = Content::Sequence(
+            vec![
+                Content::State {
+                    key:  "c".to_string(),
+                    init: Box::new(Value::Int(5)),
+                },
+                Content::StateUpdate {
+                    key:    "c".to_string(),
+                    update: StateUpdate::Func(f2),
+                },
+            ]
+            .into(),
+        );
+        let world = make_e2e_world();
+        let v_a = with_engine!(&world, |engine, ctx| {
+            let (_, intr) = super::introspect_with_introspector(
+                &content_a, Some(&mut engine), Some(&mut ctx),
+            );
+            intr.state_final_value("c").cloned()
+        });
+        let v_b = with_engine!(&world, |engine, ctx| {
+            let (_, intr) = super::introspect_with_introspector(
+                &content_b, Some(&mut engine), Some(&mut ctx),
+            );
+            intr.state_final_value("c").cloned()
+        });
+        assert_eq!(v_a, Some(Value::Int(6)));
+        assert_eq!(v_a, v_b);
     }
 }

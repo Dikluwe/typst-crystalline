@@ -276,3 +276,99 @@ pub fn native_state_update(
         )),
     }
 }
+
+/// `state_update_with(key, fn)` — actualiza runtime state via callback.
+/// P172 (M9 sub-passo 4).
+///
+/// **Stub em P172**: a callback é capturada na variant
+/// `StateUpdate::Func(fn)` mas **NÃO é avaliada** em from_tags
+/// (eval requer `Engine + EvalContext` que não estão disponíveis após
+/// eval — pipeline restructuring deferido para passo dedicado).
+/// Usar este stdlib func em P172 cria uma `StateUpdate::Func` que é
+/// silenciosamente ignorada pelo `StateRegistry::apply_update`. O
+/// state continua a refletir apenas as `Set` updates.
+///
+/// Para uso real, aguardar passo M7+ ou refactor de pipeline que
+/// permita threading de Engine para from_tags.
+pub fn native_state_update_with(
+    _ctx:                &mut EvalContext,
+    args:                &Args,
+    _world:              &dyn crate::contracts::world::World,
+    _current_file:       FileId,
+    _figure_numbering:   Option<&str>,
+) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key), Value::Func(func)] => Ok(Value::Content(
+            crate::entities::content::Content::StateUpdate {
+                key:    key.to_string(),
+                update: crate::entities::state_update::StateUpdate::Func(func.clone()),
+            },
+        )),
+        [_, other] => err(format!(
+            "state_update_with() requer função como segundo argumento, recebeu {}",
+            other.type_name()
+        )),
+        [other, _] => err(format!(
+            "state_update_with() requer string como primeiro argumento (key), recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "state_update_with() requer 2 argumentos (key, fn), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// `query(kind_str)` — consulta o `Introspector` da iteração de fixpoint
+/// anterior por elementos do kind indicado. P175 (M9 sub-passo 5).
+///
+/// **Forma minimal P175**: aceita string como `Selector::Kind` e
+/// retorna `Value::Int(count)` (número de matches). `Value::Location`
+/// não existe ainda — adopção CONTENT-based ou Location-based fica
+/// para refino futuro.
+///
+/// `kind_str` válidos: `"heading"`, `"figure"`, `"citation"`,
+/// `"metadata"`, `"state"`, `"state_update"`.
+///
+/// Iteração 0 (sem fixpoint, ou primeira iter de
+/// `introspect_to_fixpoint`): `ctx.introspector` está vazio →
+/// retorna `0`. Iterações seguintes vêem introspector populado pela
+/// iter anterior.
+pub fn native_query(
+    ctx:                &mut EvalContext,
+    args:               &Args,
+    _world:             &dyn crate::contracts::world::World,
+    _current_file:      FileId,
+    _figure_numbering:  Option<&str>,
+) -> SourceResult<Value> {
+    use crate::entities::element_kind::ElementKind;
+    use crate::entities::introspector::Introspector;
+    use crate::entities::selector::Selector;
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(kind_str)] => {
+            match ElementKind::from_name(kind_str.as_str()) {
+                Some(kind) => {
+                    let selector = Selector::Kind(kind);
+                    let locations = ctx.introspector.query(&selector);
+                    Ok(Value::Int(locations.len() as i64))
+                }
+                None => err(format!(
+                    "query(): kind '{}' não reconhecido (válidos: \
+                     heading, figure, citation, metadata, state, \
+                     state_update)",
+                    kind_str
+                )),
+            }
+        }
+        [other] => err(format!(
+            "query() requer string como argumento, recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "query() requer 1 argumento (kind), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
