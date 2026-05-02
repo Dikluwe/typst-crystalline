@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/from_tags.md
-//! @prompt-hash 5f7303fd
+//! @prompt-hash 75237ba7
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -124,6 +124,28 @@ pub fn from_tags(
                             .entry(ElementKind::Outline)
                             .or_default()
                             .push(*loc);
+                    }
+                    // P181E: indexa em kind_index + popula bib_store
+                    // (cláusulas 2/3 P181A — extend + or_insert).
+                    // Numeração 1-based contínua sobre `numbers_len()`
+                    // do bib_store; replica
+                    // `state.bib_numbers.len() as u32 + 1` em walk arm
+                    // `Content::Bibliography` (introspect.rs:569).
+                    // `numbers_len()` cresce só em keys novas
+                    // (semântica `or_insert`); duplicates não
+                    // incrementam — paridade com walk arm.
+                    ElementPayload::Bibliography { entries } => {
+                        intr.kind_index
+                            .entry(ElementKind::Bibliography)
+                            .or_default()
+                            .push(*loc);
+                        let entries_owned = entries.clone();
+                        for entry in &entries_owned {
+                            let next_num = intr.bib_store.numbers_len() as u32 + 1;
+                            intr.bib_store
+                                .assign_number(entry.key.clone(), next_num);
+                        }
+                        intr.bib_store.add_bibliography(entries_owned);
                     }
                     // P171 (M9) + P173: StateUpdate aplica Set directamente;
                     // Func é avaliada via apply_func quando Engine+ctx
@@ -633,5 +655,98 @@ mod tests {
             from_tags(&tags, Some(&mut engine), Some(&mut ctx))
         });
         assert_eq!(intr.state_final_value("c"), Some(&Value::Int(10)));
+    }
+
+    // ── P181E — Bibliography arm popula BibStore ────────────────────────
+
+    fn bib_entry(key: &str) -> crate::entities::bib_entry::BibEntry {
+        crate::entities::bib_entry::BibEntry {
+            key:          key.to_string(),
+            author:       String::new(),
+            title:        String::new(),
+            year:         0,
+            volume:       None,
+            pages:        None,
+            journal:      None,
+            publisher:    None,
+            url:          None,
+            doi:          None,
+            editor:       None,
+            series:       None,
+            note:         None,
+            isbn:         None,
+            location:     None,
+            organization: None,
+        }
+    }
+
+    #[test]
+    fn bibliography_arm_popula_bib_store() {
+        let tags = vec![
+            Tag::Start(loc(1), ElementInfo::new(ElementPayload::Bibliography {
+                entries: vec![bib_entry("a"), bib_entry("b")],
+            })),
+            Tag::End(loc(1), 0),
+        ];
+        let intr = from_tags(&tags, None, None);
+        assert_eq!(intr.bib_store.len(), 2);
+        assert!(intr.bib_store.entry_for_key("a").is_some());
+        assert!(intr.bib_store.entry_for_key("b").is_some());
+    }
+
+    #[test]
+    fn bibliography_arm_atribui_numeros_em_ordem() {
+        let tags = vec![
+            Tag::Start(loc(1), ElementInfo::new(ElementPayload::Bibliography {
+                entries: vec![
+                    bib_entry("primeiro"),
+                    bib_entry("segundo"),
+                    bib_entry("terceiro"),
+                ],
+            })),
+            Tag::End(loc(1), 0),
+        ];
+        let intr = from_tags(&tags, None, None);
+        assert_eq!(intr.bib_store.number_for_key("primeiro"), Some(1));
+        assert_eq!(intr.bib_store.number_for_key("segundo"),  Some(2));
+        assert_eq!(intr.bib_store.number_for_key("terceiro"), Some(3));
+    }
+
+    #[test]
+    fn bibliography_multi_extend_replica_legacy() {
+        // Cláusula 2 P181A: múltiplas Bibliography concatenam via extend.
+        // Cláusula 3 P181A: numbering preserva primeiro número via or_insert.
+        let tags = vec![
+            Tag::Start(loc(1), ElementInfo::new(ElementPayload::Bibliography {
+                entries: vec![bib_entry("a"), bib_entry("b")],
+            })),
+            Tag::End(loc(1), 0),
+            Tag::Start(loc(2), ElementInfo::new(ElementPayload::Bibliography {
+                entries: vec![bib_entry("c"), bib_entry("d")],
+            })),
+            Tag::End(loc(2), 0),
+        ];
+        let intr = from_tags(&tags, None, None);
+        assert_eq!(intr.bib_store.len(), 4);
+        assert_eq!(intr.bib_store.number_for_key("a"), Some(1));
+        assert_eq!(intr.bib_store.number_for_key("b"), Some(2));
+        assert_eq!(intr.bib_store.number_for_key("c"), Some(3));
+        assert_eq!(intr.bib_store.number_for_key("d"), Some(4));
+    }
+
+    #[test]
+    fn bibliography_arm_popula_kind_index() {
+        let tags = vec![
+            Tag::Start(loc(7), ElementInfo::new(ElementPayload::Bibliography {
+                entries: vec![bib_entry("a")],
+            })),
+            Tag::End(loc(7), 0),
+        ];
+        let intr = from_tags(&tags, None, None);
+        let bib_locations = intr.kind_index
+            .get(&ElementKind::Bibliography)
+            .expect("kind_index Bibliography deve estar populado");
+        assert_eq!(bib_locations.len(), 1);
+        assert_eq!(bib_locations[0], loc(7));
     }
 }

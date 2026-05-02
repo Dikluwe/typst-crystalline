@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_payload`
-Hash do Código: 73291466
+Hash do Código: af47c732
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_payload.rs`
@@ -105,6 +105,18 @@ pub enum ElementPayload {
     /// minimal só precisa contar locations. Refino futuro pode capturar
     /// `depth: Option<usize>` e `title: hash` para queries mais ricas.
     Outline,
+
+    /// **P181C** — payload de `Content::Bibliography`. Carrega
+    /// entries completos (decisão P181A cláusula 2 — captura full por
+    /// simetria com walk arm actual `state.bib_entries.extend(...)`);
+    /// `from_tags` arm Bibliography (P181E pendente) extrai `entries`
+    /// e popula `BibStore` via `add_bibliography(entries) +
+    /// assign_number(key, n)` em loop. `BibEntry` deriva `Debug` —
+    /// `impl Hash` manual de `ElementPayload` via `format!("{:?}", ...)`
+    /// cobre a variant sem alteração de código.
+    Bibliography {
+        entries: Vec<BibEntry>,
+    },
 }
 ```
 
@@ -175,3 +187,4 @@ Ver `desenho-introspection-fixpoint.md` §2.1 (referenciado em P161; documento a
 |------|--------|-------------------|
 | 2026-04-30 | P161 sub-passo .7: forma fechada por kind para introspecção M1 | `element_payload.rs`, `element_payload.md` |
 | 2026-04-29 | P178: variant `Outline` unit adicionada para suporte de `query("outline")` | `element_payload.rs`, `element_payload.md` |
+| 2026-05-01 | P181C: variant `Bibliography { entries: Vec<BibEntry> }` adicionada; suporta P181D (`extract_payload` arm Bibliography) e P181E (`from_tags` popula `BibStore`) | `element_payload.rs`, `element_payload.md` |

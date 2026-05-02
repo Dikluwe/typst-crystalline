@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/extract_payload.md
-//! @prompt-hash 493cdaed
+//! @prompt-hash a30fd785
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -54,6 +54,14 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
 
         // P178 — Outline é unit. Payload também unit. Fecha lacuna #7.
         Content::Outline => Some(ElementPayload::Outline),
+
+        // P181D — Bibliography promovida a locatable (decisão P181A
+        // cláusula 4 = Opção β). Captura entries completos por simetria
+        // com walk arm actual `state.bib_entries.extend(...)`. `title`
+        // ignorado por não ser relevante para introspecção.
+        Content::Bibliography { entries, .. } => Some(ElementPayload::Bibliography {
+            entries: entries.clone(),
+        }),
 
         // Todas as outras variantes não são locatable em M1.
         // Adicionar uma variant locatable nova exige edição explícita
@@ -153,5 +161,77 @@ mod tests {
         // P178: Content::Outline → Some(ElementPayload::Outline).
         let c = Content::Outline;
         assert_eq!(extract_payload(&c), Some(ElementPayload::Outline));
+    }
+
+    // ── P181D — Bibliography arm ────────────────────────────────────────
+
+    fn bib_entry(key: &str) -> crate::entities::bib_entry::BibEntry {
+        crate::entities::bib_entry::BibEntry {
+            key:          key.to_string(),
+            author:       String::new(),
+            title:        String::new(),
+            year:         0,
+            volume:       None,
+            pages:        None,
+            journal:      None,
+            publisher:    None,
+            url:          None,
+            doi:          None,
+            editor:       None,
+            series:       None,
+            note:         None,
+            isbn:         None,
+            location:     None,
+            organization: None,
+        }
+    }
+
+    #[test]
+    fn bibliography_produz_some_payload_com_entries() {
+        let c = Content::Bibliography {
+            entries: vec![bib_entry("smith2024")],
+            title:   None,
+        };
+        match extract_payload(&c) {
+            Some(ElementPayload::Bibliography { entries }) => {
+                assert_eq!(entries.len(), 1);
+                assert_eq!(entries[0].key, "smith2024");
+            }
+            other => panic!("esperado Some(Bibliography), obtido {other:?}"),
+        }
+    }
+
+    #[test]
+    fn bibliography_clona_entries_para_payload() {
+        let c = Content::Bibliography {
+            entries: vec![bib_entry("a"), bib_entry("b"), bib_entry("c")],
+            title:   None,
+        };
+        let payload = extract_payload(&c).expect("bibliography deve produzir Some");
+        if let ElementPayload::Bibliography { entries } = payload {
+            assert_eq!(entries.len(), 3);
+            assert_eq!(entries[0].key, "a");
+            assert_eq!(entries[1].key, "b");
+            assert_eq!(entries[2].key, "c");
+        } else {
+            panic!("variant errado");
+        }
+    }
+
+    #[test]
+    fn bibliography_com_title_continua_a_extrair_apenas_entries() {
+        // P181D ignora `title` — apenas `entries` entra no payload.
+        // Layouter (P181G+) continuará a renderizar `title` via path
+        // separado se necessário.
+        let c = Content::Bibliography {
+            entries: vec![bib_entry("k")],
+            title:   Some(Box::new(Content::Empty)),
+        };
+        match extract_payload(&c) {
+            Some(ElementPayload::Bibliography { entries }) => {
+                assert_eq!(entries.len(), 1);
+            }
+            other => panic!("esperado Some(Bibliography), obtido {other:?}"),
+        }
     }
 }

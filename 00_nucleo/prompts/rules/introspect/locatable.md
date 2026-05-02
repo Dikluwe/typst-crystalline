@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/locatable`
-Hash do Código: 4c41a8b5
+Hash do Código: bdae0a1f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/introspect/locatable.rs`
@@ -29,12 +29,14 @@ Vanilla resolve via marker traits (`Locatable`, `Unqueriable`, `Tagged`); crista
 - **Invariante**: para todo `c: Content`,
   `is_locatable(c) == extract_payload(c).is_some()`.
 
-## Cobertura M1 (P164.A confirmado)
+## Cobertura (P164 baseline; expandido em P169/P171/P178/P181D)
 
-`Content` tem **56 variants**. Distribuição:
+`Content` tem **56 variants**. Distribuição actual:
 
-- **Locatable (4)** → `true`: `Heading`, `Figure`, `Cite`, **`Metadata`** (P169 M9).
-- **Não-locatable (53)** → `false`: todos os outros (Empty, Text, Space, Sequence, Labelled, Ref, SetHeadingNumbering, CounterDisplay, CounterUpdate, Raw, ListItem, EnumItem, Link, Equation, MathSequence, MathIdent, MathText, MathFrac, MathAttach, MathRoot, MathDelimited, MathAlignPoint, Linebreak, MathMatrix, MathCases, Outline, SetFigureNumbering, Image, Shape, Transform, Grid, SetPage, Align, Place, Styled, Divider, Terms, TermItem, Quote, Pad, Hide, HSpace, VSpace, Pagebreak, Stack, Boxed, Block, TableCell, Bibliography, TableHeader, TableFooter, Table, Repeat).
+- **Locatable (8)** → `true`: `Heading`, `Figure`, `Cite`, `Metadata`
+  (P169 M9), `State` + `StateUpdate` (P171 M9), `Outline` (P178),
+  **`Bibliography`** (P181D — fecha lacuna #6 em curso).
+- **Não-locatable (48)** → `false`: todos os outros.
 
 ---
 
@@ -137,3 +139,4 @@ vtable-driven (scope-out cristalino).
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-04-30 | P164: extracção de classificação locatable como função pura — primeiro passo de M2 | `locatable.rs`, `locatable.md`, `rules/introspect.rs` (declaração `pub mod`) |
+| 2026-05-01 | P181D: `Content::Bibliography` move de não-locatable para locatable; suporte ao plano P181 (decisão P181A cláusula 4 = Opção β; lacuna #6) | `locatable.rs`, `locatable.md` |

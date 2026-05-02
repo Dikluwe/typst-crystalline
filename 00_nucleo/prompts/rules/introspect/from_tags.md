@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/from_tags`
-Hash do Código: b6b98327
+Hash do Código: 2f6b31cd
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/introspect/from_tags.rs`
@@ -35,6 +35,8 @@ Para cada tag:
      - `Citation { .. }`: kind_index[Citation].push(loc); (sem counter_update — Citation não tem campo counter_update).
      - `Metadata { value }`: kind_index[Metadata].push(loc); `metadata.add(*value.clone())` em ordem de aparecimento. **P169 M9**.
      - `State { key, init }`: kind_index[State].push(loc); `state.init(key.clone(), (**init).clone(), loc)`. **P171 M9**.
+     - `Outline`: kind_index[Outline].push(loc) — feature minimal P178.
+     - `Bibliography { entries }` **P181E**: kind_index[Bibliography].push(loc); para cada entry em entries, `bib_store.assign_number(entry.key.clone(), bib_store.len() as u32 + 1)` (numeração 1-based contínua, replica `state.bib_numbers.len() + 1` em walk arm); finalmente `bib_store.add_bibliography(entries.clone())` (extend, cláusula 2 P181A). Multi-Bibliography concatena entries e preserva primeiro número via `or_insert` (cláusula 3 P181A — comportamento herdado de `assign_number`).
      - `StateUpdate { key, update }`: kind_index[StateUpdate].push(loc).
        - `update == StateUpdate::Set(value)`: `state.update(key, *value, loc)`.
        - `update == StateUpdate::Func(fn)` **P173 M9**:
@@ -124,3 +126,4 @@ Refino futuro possível: se M5+ precisar de informação contextual (e.g. headin
 |------|--------|-------------------|
 | 2026-04-30 | P165 sub-passo .E: construtor de TagIntrospector a partir de Vec<Tag> | `from_tags.rs`, `from_tags.md`, `rules/introspect.rs` |
 | 2026-04-29 | P173 sub-passo .B: cascade Engine + EvalContext opcionais; eval real de `StateUpdate::Func` via `apply_func` | `from_tags.rs`, `from_tags.md` |
+| 2026-05-01 | P181E sub-passo .E: arm `Bibliography { entries }` substitui no-op (P181C) — popula `kind_index[Bibliography]` + `bib_store` via loop de `assign_number` + `add_bibliography` | `from_tags.rs`, `from_tags.md` |

@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 41f76748
+Hash do Código: 95e8429b
 
 ## Módulo
 `01_core/src/rules/layout.rs`
@@ -107,3 +107,74 @@ duas passagens (Passos 60+).
 - `Ref(label)` para trás → plain_text contém o texto resolvido.
 - `Ref(label)` para a frente → plain_text contém `@nome` (não panic).
 - `Equation { block: true }` numerada → número aparece no documento.
+
+## Secção: Cite-arm consome Introspector (P181G)
+
+Cite-arm de `Content::Cite { key, supplement, form }` em
+`layout/mod.rs:584-597` consulta `Introspector` primeiro
+(`bib_entry_for_key`, `bib_number_for_key`) com fallback
+**substitution-with-fallback** a `self.counter.bib_*` legacy
+(padrão P168 figure-ref):
+
+```rust
+let entry = self.introspector
+    .bib_entry_for_key(key)
+    .or_else(|| self.counter.bib_entries.iter().find(|e| e.key == *key));
+
+let number = self.introspector
+    .bib_number_for_key(key)
+    .or_else(|| self.counter.bib_numbers.get(key).copied());
+```
+
+Comportamento por path:
+- **`layout()` legacy** invoca `layout_with_introspector(_, _,
+  TagIntrospector::empty())` — Introspector vazio, fallback a state
+  legacy serve as 4 cite forms (Normal/Prose/Author/Year). Backward
+  compat preservado.
+- **`layout_with_introspector(content, state, introspector)`** usa
+  Introspector populado por `from_tags` (P181E). State legacy
+  preservado paralelamente durante janela compat.
+
+Paridade `BibStore` ↔ `state.bib_*` garantida por construção
+(P181E §6 — mesma lógica replicada). Output observable inalterado.
+
+Janela compat eliminada em **M6** quando F1 retomar
+(`CounterStateLegacy.bib_entries`/`bib_numbers` removidos +
+copy-sites em `pub fn layout`/`pub fn layout_with_introspector`
+desaparecem + fallback removido).
+
+## Secção: `layout()` legacy injecta Introspector populado (P181H)
+
+Pré-P181H, `layout()` era thin wrapper sobre `layout_with_introspector`
+com `TagIntrospector::empty()` — funcionava porque cite-arm consumia
+`state.bib_*` legacy (populado por walk arm `Content::Bibliography`).
+
+Pós-P181H, walk arm `Content::Bibliography` ficou puro (P163 invariante
+restaurada). `state.bib_*` é vazio em produção. Para preservar
+funcionalidade bib em path `layout()` legacy, `layout()` re-corre
+`introspect_with_introspector(content, None, None)` internamente para
+obter `Introspector` populado; descarta o `state` retornado e usa o
+`initial_state` passado pelo caller (mantém backward compat de
+fields não-bib que walk continua a popular):
+
+```rust
+pub fn layout(content: &Content, initial_state: CounterStateLegacy) -> PagedDocument {
+    let (_, intr) = introspect_with_introspector(content, None, None);
+    layout_with_introspector(content, initial_state, intr)
+}
+```
+
+**Custo**: walk extra (caller já fez 1 walk via `introspect()`).
+Aceitável — bib feature é raramente usada e o custo extra é
+trivial para documentos sem `Content::Bibliography`. Trabalho extra
+é cobrado só quando bib está activa.
+
+**Outros sub-stores do introspector** (figure_label_numbers, metadata,
+state) ficam também populados — `layout()` legacy ganha acesso
+implícito a queries Introspector que outros consumers M5+ podem
+adoptar quando migrarem.
+
+**M6** elimina este re-walk: quando callers adoptarem
+`introspect_with_introspector + layout_with_introspector` directamente,
+`layout()` legacy desaparece (pode passar a wrapper trivial sobre o
+entry point novo, ou ser removido).

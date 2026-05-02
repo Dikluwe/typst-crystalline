@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash a78b0adc
+//! @prompt-hash 81cfe96c
 //! @layer L1
 //! @updated 2026-04-21
 
@@ -580,14 +580,25 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 // Passo 159F: Normal/None ganha numeração via lookup
                 // state.bib_numbers (Opção C diagnóstico §8.2);
                 // forms diferenciadas (Prose/Author/Year) inalteradas.
-                let resolved_form = form.unwrap_or_default();
-                let entry = self.counter.bib_entries.iter().find(|e| e.key == *key);
+                // P181G: substitution-with-fallback (padrão P168).
+                // Consulta Introspector primeiro; fallback a state legacy
+                // durante janela compat (M6 elimina). Paridade
+                // BibStore ↔ state.bib_* garantida por construção
+                // (P181E §6) — output observable preservado.
                 use crate::entities::citation_form::CitationForm;
+                use crate::entities::introspector::Introspector;
+                let resolved_form = form.unwrap_or_default();
+                let entry = self.introspector
+                    .bib_entry_for_key(key)
+                    .or_else(|| self.counter.bib_entries.iter().find(|e| e.key == *key));
                 let text = match (resolved_form, entry) {
                     (CitationForm::Normal, _) => {
                         // P159F: lookup numbering; fallback `[key]` se key
                         // não encontrada em state.bib_numbers.
-                        self.counter.bib_numbers.get(key)
+                        // P181G: Introspector primeiro; state legacy fallback.
+                        self.introspector
+                            .bib_number_for_key(key)
+                            .or_else(|| self.counter.bib_numbers.get(key).copied())
                             .map(|n| format!("[{}]", n))
                             .unwrap_or_else(|| format!("[{}]", key))
                     }
@@ -1342,15 +1353,34 @@ fn format_bib_entry(e: &crate::entities::bib_entry::BibEntry) -> String {
 }
 
 pub fn layout(content: &Content, initial_state: CounterStateLegacy) -> PagedDocument {
-    // P168 (M5 sub-passo 2): wrapper sobre `layout_with_introspector` com
-    // introspector vazio. Callers legacy continuam a funcionar — `layout_ref`
-    // figure-arm faz fallback a `state.figure_label_numbers` quando
-    // introspector está vazio.
-    layout_with_introspector(
+    // P181H: re-corremos `introspect_with_introspector` para obter
+    // Introspector populado com `BibStore`. Necessário porque P181H
+    // tornou walk arm `Content::Bibliography` puro — `state.bib_*`
+    // já não é populado pelo walk do caller (`introspect()`).
+    // Cite-arm consulta Introspector primeiro (P181G); state legacy
+    // só serve fallback quando introspector vazio. Para path
+    // `layout()` legacy continuar a renderizar bib correctamente,
+    // injectamos introspector populado aqui.
+    //
+    // Custo: walk extra (caller já fez 1 walk via `introspect()`).
+    // Aceitável — bib feature é raramente usada e o custo é cobrado
+    // só quando conteúdo tem `Content::Bibliography`. Walk para
+    // documentos sem bib é trivial.
+    //
+    // Outros sub-stores do introspector (figure_label_numbers,
+    // metadata, state) também ficam populados — Layouter pode
+    // consumir via Introspector trait quando outros consumers M5+
+    // forem migrados.
+    //
+    // M6: quando `CounterStateLegacy.bib_*` for eliminado e callers
+    // adoptarem `introspect_with_introspector + layout_with_introspector`
+    // directamente, este re-walk em `layout()` desaparece.
+    let (_, intr) = crate::rules::introspect::introspect_with_introspector(
         content,
-        initial_state,
-        crate::entities::introspector::TagIntrospector::empty(),
-    )
+        None,
+        None,
+    );
+    layout_with_introspector(content, initial_state, intr)
 }
 
 /// Entry point P168 (M5 sub-passo 2): aceita `TagIntrospector` adicional

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash e819668a
+//! @prompt-hash c91f6d5b
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -20,6 +20,8 @@ use crate::entities::label_registry::LabelRegistry;
 use crate::entities::location::Location;
 use crate::entities::metadata_store::MetadataStore;
 use crate::entities::selector::Selector;
+use crate::entities::bib_entry::BibEntry;
+use crate::entities::bib_store::BibStore;
 use crate::entities::state_registry::StateRegistry;
 use crate::entities::value::Value;
 
@@ -87,6 +89,18 @@ pub trait Introspector {
     /// na `Location` indicada. `None` se key inexistente ou history
     /// vazia para `loc <= location`.
     fn formatted_counter_at(&self, key: &str, location: Location) -> Option<String>;
+
+    /// **P181F** — entry bibliográfica por chave. Replica
+    /// `state.bib_entries.iter().find(|e| e.key == *key)` actual em
+    /// `layout/mod.rs:584` (P181G migrará caller). Linear scan sobre
+    /// `BibStore::entries`; `None` se key não existe.
+    fn bib_entry_for_key(&self, key: &str) -> Option<&BibEntry>;
+
+    /// **P181F** — número 1-based associado à chave bibliográfica.
+    /// Replica `state.bib_numbers.get(key).copied()` actual em
+    /// `layout/mod.rs:590`. Lookup O(1) via `BibStore::numbers`;
+    /// `None` se key não existe.
+    fn bib_number_for_key(&self, key: &str) -> Option<u32>;
 }
 
 /// Implementação concreta de `Introspector` construída a partir de
@@ -113,6 +127,12 @@ pub struct TagIntrospector {
     /// `from_tags` popula via arms para `ElementPayload::State` e
     /// `ElementPayload::StateUpdate`.
     pub state: StateRegistry,
+    /// **P181B** — sub-store para entries bibliográficas + numeração
+    /// 1-based. População começa em P181E (`from_tags` arm
+    /// `ElementPayload::Bibliography`); até lá permanece vazio.
+    /// Consumer migrará em P181G (Layouter cite-arm via
+    /// `Introspector::bib_entry_for_key` / `bib_number_for_key`).
+    pub bib_store: BibStore,
     // positions: HashMap<Location, Position> — adiado para M5/M9.
 }
 
@@ -181,6 +201,14 @@ impl Introspector for TagIntrospector {
         } else {
             Some(counter.iter().map(|n| n.to_string()).collect::<Vec<_>>().join("."))
         }
+    }
+
+    fn bib_entry_for_key(&self, key: &str) -> Option<&BibEntry> {
+        self.bib_store.entry_for_key(key)
+    }
+
+    fn bib_number_for_key(&self, key: &str) -> Option<u32> {
+        self.bib_store.number_for_key(key)
     }
 }
 
@@ -309,5 +337,65 @@ mod tests {
         let mut i = TagIntrospector::empty();
         i.counters.apply_hierarchical_at("heading".to_string(), 1, loc(10));
         assert_eq!(i.formatted_counter_at("inexistente", loc(20)), None);
+    }
+
+    // ── P181B — sub-store BibStore field ────────────────────────────────
+
+    #[test]
+    fn empty_inicializa_bib_store_vazio() {
+        let i = TagIntrospector::empty();
+        assert!(i.bib_store.is_empty());
+        assert!(i.bib_store.entries().is_empty());
+        assert_eq!(i.bib_store.entry_for_key("any"), None);
+        assert_eq!(i.bib_store.number_for_key("any"), None);
+    }
+
+    // ── P181F — trait métodos bib_entry_for_key + bib_number_for_key ────
+
+    #[test]
+    fn bib_entry_for_key_em_introspector_vazio_devolve_none() {
+        let i = TagIntrospector::empty();
+        assert_eq!(i.bib_entry_for_key("any"), None);
+    }
+
+    #[test]
+    fn bib_number_for_key_em_introspector_vazio_devolve_none() {
+        let i = TagIntrospector::empty();
+        assert_eq!(i.bib_number_for_key("any"), None);
+    }
+
+    #[test]
+    fn bib_methods_resolvem_apos_populacao_directa_do_sub_store() {
+        // Popula directamente via sub-store (sem chamar from_tags
+        // — esse caminho é coberto em from_tags::tests P181E).
+        // Verifica que os trait methods delegam correctamente.
+        let mut i = TagIntrospector::empty();
+        i.bib_store.add_bibliography(vec![
+            crate::entities::bib_entry::BibEntry {
+                key:          "intro".to_string(),
+                author:       String::new(),
+                title:        String::new(),
+                year:         0,
+                volume:       None,
+                pages:        None,
+                journal:      None,
+                publisher:    None,
+                url:          None,
+                doi:          None,
+                editor:       None,
+                series:       None,
+                note:         None,
+                isbn:         None,
+                location:     None,
+                organization: None,
+            },
+        ]);
+        i.bib_store.assign_number("intro".to_string(), 1);
+
+        assert!(i.bib_entry_for_key("intro").is_some());
+        assert_eq!(i.bib_entry_for_key("intro").unwrap().key, "intro");
+        assert_eq!(i.bib_number_for_key("intro"), Some(1));
+        assert_eq!(i.bib_entry_for_key("nao_existe"), None);
+        assert_eq!(i.bib_number_for_key("nao_existe"), None);
     }
 }

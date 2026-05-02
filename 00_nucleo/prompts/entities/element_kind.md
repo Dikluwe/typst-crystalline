@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_kind`
-Hash do Código: c9b77b3b
+Hash do Código: b07af9bf
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_kind.rs`
@@ -40,6 +40,11 @@ pub enum ElementKind {
     StateUpdate,
     /// **P178** — `Content::Outline` indexável; fecha lacuna #7 (`has_outline`).
     Outline,
+    /// **P181C** — `Content::Bibliography` promovido a locatable em
+    /// P181D. Suporta plano P181 para fechar lacuna #6
+    /// (`bib_entries`/`bib_numbers`); `from_tags` arm correspondente
+    /// é adicionada em P181E e popula `BibStore` (P181B).
+    Bibliography,
 }
 
 impl ElementKind {
@@ -100,3 +105,4 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
 |------|--------|-------------------|
 | 2026-04-30 | P161 sub-passo .5: discriminador estreito de elementos para Introspection M1 | `element_kind.rs`, `element_kind.md` |
 | 2026-04-29 | P178: variant `Outline` adicionada; fecha lacuna #7 (`has_outline` via `query("outline")`) | `element_kind.rs`, `element_kind.md` |
+| 2026-05-01 | P181C: variant `Bibliography` adicionada; suporte ao plano P181 (lacuna #6); `from_name("bibliography")` round-trip | `element_kind.rs`, `element_kind.md` |

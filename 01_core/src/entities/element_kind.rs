@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_kind.md
-//! @prompt-hash a807a96a
+//! @prompt-hash 00427273
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -28,6 +28,11 @@ pub enum ElementKind {
     /// `query("outline")` retornar count correcto. Fecha lacuna #7
     /// (`has_outline`).
     Outline,
+    /// **P181C** — `Content::Bibliography` promovido a locatable em
+    /// P181D (decisão P181A cláusula 4 — Opção β walk puro). `from_tags`
+    /// arm Bibliography (P181E) popula `BibStore`. Suporta plano
+    /// P181 para fechar lacuna #6 (`bib_entries`/`bib_numbers`).
+    Bibliography,
 }
 
 impl ElementKind {
@@ -41,6 +46,7 @@ impl ElementKind {
             ElementKind::State       => "state",
             ElementKind::StateUpdate => "state_update",
             ElementKind::Outline     => "outline",
+            ElementKind::Bibliography => "bibliography",
         }
     }
 
@@ -56,6 +62,7 @@ impl ElementKind {
             "state"        => Some(ElementKind::State),
             "state_update" => Some(ElementKind::StateUpdate),
             "outline"      => Some(ElementKind::Outline),
+            "bibliography" => Some(ElementKind::Bibliography),
             _              => None,
         }
     }
@@ -115,5 +122,29 @@ mod tests {
     #[test]
     fn from_name_outline() {
         assert_eq!(ElementKind::from_name("outline"), Some(ElementKind::Outline));
+    }
+
+    // ── P181C — Bibliography variant ────────────────────────────────────
+
+    #[test]
+    fn bibliography_existe_e_distinto() {
+        let k = ElementKind::Bibliography;
+        assert_eq!(k, ElementKind::Bibliography);
+        assert_ne!(k, ElementKind::Outline);
+        assert_ne!(k, ElementKind::Heading);
+        assert_ne!(k, ElementKind::Citation);
+    }
+
+    #[test]
+    fn bibliography_as_str() {
+        assert_eq!(ElementKind::Bibliography.as_str(), "bibliography");
+    }
+
+    #[test]
+    fn from_name_bibliography() {
+        assert_eq!(
+            ElementKind::from_name("bibliography"),
+            Some(ElementKind::Bibliography),
+        );
     }
 }
