@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/locatable.md
-//! @prompt-hash bcc8a507
+//! @prompt-hash d26cf6ff
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -33,6 +33,12 @@ pub fn is_locatable(content: &Content) -> bool {
 
         // ── Locatable em P178 — Outline fecha lacuna #7 ────────────
         Content::Outline => true,
+
+        // ── Locatable em P181D — Bibliography (decisão P181A
+        // cláusula 4 = Opção β walk puro). `from_tags` arm popula
+        // `BibStore` (P181E pendente). Suporta plano P181 para
+        // fechar lacuna #6.
+        Content::Bibliography { .. } => true,
 
         // ── Não-locatable (53 variants) ──────────────────────────────
         Content::Empty
@@ -82,7 +88,6 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Boxed { .. }
         | Content::Block { .. }
         | Content::TableCell { .. }
-        | Content::Bibliography { .. }
         | Content::TableHeader { .. }
         | Content::TableFooter { .. }
         | Content::Table { .. }
@@ -216,6 +221,19 @@ mod tests {
     fn metadata_e_locatable() {
         let c = Content::Metadata {
             value: Box::new(crate::entities::value::Value::Int(42)),
+        };
+        assert!(is_locatable(&c));
+        // Invariante: extract_payload deve produzir Some.
+        assert!(extract_payload(&c).is_some());
+    }
+
+    // ── P181D — Bibliography locatable ───────────────────────────────────
+
+    #[test]
+    fn bibliography_e_locatable() {
+        let c = Content::Bibliography {
+            entries: vec![],
+            title:   None,
         };
         assert!(is_locatable(&c));
         // Invariante: extract_payload deve produzir Some.

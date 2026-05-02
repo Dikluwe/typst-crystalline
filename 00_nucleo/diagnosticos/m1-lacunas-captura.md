@@ -80,13 +80,30 @@ P167 (M5 sub-passo 1, 2026-04-30) inventariou todos os consumers de `CounterStat
 
 Counter-rico via `CounterKey` enum (Page/Selector/Str variants) permanece adiado — cristalino mantém String key (forma `Str` apenas) por enquanto. Outras variants ficam para passos futuros se algum consumer exigir.
 
-### Lacuna #6 — `bib_entries` / `bib_numbers`
+### Lacuna #6 — `bib_entries` / `bib_numbers` — ✅ **RESOLVIDA em P181**
 
-`CounterStateLegacy` armazena `Vec<BibEntry>` e `HashMap<String, u32>` populados pelo walk arm `Content::Bibliography`. `TagIntrospector` não tem mecanismo equivalente — `extract_payload` em M1 não cobre Bibliography.
+`CounterStateLegacy` armazenava `Vec<BibEntry>` e `HashMap<String, u32>` populados pelo walk arm `Content::Bibliography`. `TagIntrospector` não tinha mecanismo equivalente — `extract_payload` em M1 não cobria Bibliography.
 
-**Decisão**: adiar para M9 quando `MetadataStore` for adicionado ou variant `Content::Bibliography` for promovido a payload kind.
+**Resolução em P181 (sub-passos `.A`–`.I`, `diagnostico-bib-store-passo-181a.md` + relatórios P181B–P181I)**:
 
-**Inventário P180** (`inventario-bib-state.md`): magnitude **S-M** confirmada. Recomendação: implementação directa em P181 via padrão sub-store + locatable kind (replicação de P165/P169/P171/P178 estabelecidos). 10 sub-passos planeados; ~+15-25 tests.
+Mecanismo:
+- **P181B**: sub-store `BibStore` em `01_core/src/entities/bib_store.rs` (`Vec<BibEntry>` + `HashMap<String, u32>`); field `pub bib_store: BibStore` em `TagIntrospector`.
+- **P181C**: `ElementKind::Bibliography` + `ElementPayload::Bibliography { entries: Vec<BibEntry> }` adicionados aos enums discriminadores.
+- **P181D**: `Content::Bibliography` promovida a locatable; `extract_payload` arm produz payload com entries.
+- **P181E**: `from_tags` arm Bibliography popula `BibStore` via `add_bibliography(entries)` + loop de `assign_number(key, numbers_len()+1)`.
+- **P181F**: trait `Introspector` ganha `bib_entry_for_key` + `bib_number_for_key`; impl em `TagIntrospector` delega para `BibStore`.
+- **P181G**: Layouter cite-arm consulta `self.introspector.bib_*_for_key(...)` com fallback a state legacy (padrão substitution-with-fallback P168).
+- **P181H**: walk arm `Content::Bibliography` puro (P163 invariante restaurada para bib); `layout()` legacy re-corre `introspect_with_introspector` internamente para obter Introspector populado.
+- **P181I**: tests E2E codificam invariantes (pipeline completo + walk puro + multi-Bib concat + or_insert + 4 cite forms).
+
+Critérios P181A §2.6 (Opção 3) verificados literalmente:
+1. ✅ `01_core/src/entities/bib_store.rs` existe com `BibStore { entries, numbers }` + 9 métodos.
+2. ✅ `Introspector::bib_entry_for_key` + `bib_number_for_key` no trait + impl `TagIntrospector` delegante; `from_tags` arm Bibliography popula `bib_store`.
+3. ✅ Layouter cite-arm em `mod.rs:591, 599` consulta via `self.introspector.bib_*_for_key(...)` (fallback a state legacy preservado para janela compat).
+
+**Pendências M6**: campos legacy `bib_entries`/`bib_numbers` em `CounterStateLegacy` continuam a existir (vazios em produção pós-P181H); fallback cite-arm preservado como segurança extra; copy-sites em `pub fn layout`/`pub fn layout_with_introspector` preservados; re-walk em `layout()` legacy para construir Introspector. M6 elimina todos quando F1 retomar.
+
+**M9 features**: 10/11 (Bibliography conta após fecho da lacuna #6). Restante: lacuna #4 (`numbering_active`).
 
 ### Lacuna #7 — `has_outline`
 
@@ -109,7 +126,7 @@ Counter-rico via `CounterKey` enum (Page/Selector/Str variants) permanece adiado
 | 3 | Body frozen em state vs hash em tags | P163 | Manter — intencional |
 | 4 | `is_numbering_active` / `numbering_active` | P167 | Adiar — M9 ou passo dedicado |
 | 5 | `format_hierarchical` / hierarquia em CounterRegistry | P167 | ✅ **Resolvida em P170** (M9 sub-passo 2) |
-| 6 | `bib_entries` / `bib_numbers` | P167 | **Inventário P180**: magnitude S-M; recomendação implementação directa P181 (sub-store + locatable kind) |
+| 6 | `bib_entries` / `bib_numbers` | P167 | ✅ **Resolvida em P181** (`bib_store.rs` sub-store + `ElementKind::Bibliography` locatable + `Introspector::bib_*_for_key` + cite-arm migrado + walk puro restaurado; 3 critérios P181A §2.6 verificados; M9: 10/11) |
 | 7 | `has_outline` | P167 | ✅ **Resolvida em P178** (cascade `ElementKind::Outline`) |
 
 Sem alteração de código resultante deste documento. Sem ADR nova. Lista é instrumento de referência para passos M5+ que migrem consumers e M9+ que estendam Introspector.

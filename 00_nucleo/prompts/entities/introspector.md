@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: d6124434
+Hash do Código: 9c591aff
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`
@@ -80,6 +80,19 @@ pub trait Introspector {
     /// se key inexistente, history vazia, ou todas as updates estão
     /// depois de `location`.
     fn formatted_counter_at(&self, key: &str, location: Location) -> Option<String>;
+
+    /// **P181F** — entry bibliográfica por chave. Read-only;
+    /// delega para `BibStore::entry_for_key`. Replica
+    /// `state.bib_entries.iter().find(|e| e.key == *key)` legacy.
+    /// `None` em introspector vazio ou key inexistente.
+    fn bib_entry_for_key(&self, key: &str) -> Option<&BibEntry>;
+
+    /// **P181F** — número 1-based associado à chave bibliográfica.
+    /// Read-only; delega para `BibStore::number_for_key`. Replica
+    /// `state.bib_numbers.get(key).copied()` legacy. Order de
+    /// assignment respeita cláusula 3 P181A — primeiro número de uma
+    /// key persiste em multi-Bibliography (`or_insert`).
+    fn bib_number_for_key(&self, key: &str) -> Option<u32>;
 }
 
 #[derive(Debug, Clone, Default)]
@@ -95,6 +108,11 @@ pub struct TagIntrospector {
     pub metadata:              MetadataStore,
     /// **P171 (M9 sub-passo 3)** — runtime mutable state.
     pub state:                 StateRegistry,
+    /// **P181B** — sub-store para entries bibliográficas + numeração
+    /// 1-based. Vazio em P181B; popula em P181E (`from_tags` arm
+    /// `ElementPayload::Bibliography`); consumer migrará em P181G
+    /// (Layouter cite-arm via trait methods adicionados em P181F).
+    pub bib_store:             BibStore,
     // positions: HashMap<Location, Position> — adiado para M5/M9
 }
 
@@ -185,3 +203,5 @@ Fan-in baixo: M3 não tem consumers externos ainda.
 | 2026-04-30 | P165 sub-passo .D: trait + impl concreta para queries sobre tags | `introspector.rs`, `introspector.md` |
 | 2026-04-29 | P175 sub-passo .C: método `query(&Selector) -> Vec<Location>` no trait + impl | `introspector.rs`, `introspector.md` |
 | 2026-04-29 | P177 sub-passo .C: método `formatted_counter_at(key, location) -> Option<String>` no trait + impl | `introspector.rs`, `introspector.md` |
+| 2026-05-01 | P181B sub-passo .G: field `pub bib_store: BibStore` em `TagIntrospector` (composição visível); população começa em P181E | `introspector.rs`, `introspector.md`, `bib_store.rs`, `bib_store.md` |
+| 2026-05-01 | P181F sub-passo .E: trait estendido com `bib_entry_for_key` + `bib_number_for_key`; impl em `TagIntrospector` delega para `bib_store` | `introspector.rs`, `introspector.md` |

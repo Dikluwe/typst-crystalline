@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash f2e316e2
+//! @prompt-hash 281ed270
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -554,23 +554,20 @@ fn walk(
         Content::TableHeader { body, .. } => walk(body, state, locator, tags, None),
         Content::TableFooter { body, .. } => walk(body, state, locator, tags, None),
 
-        // Passo 159A — Bibliography walk em title; entries são
-        // dados puros (sem Content recursivo) — não walk.
-        // Cite walk em supplement; sem validação cross-reference
-        // (ADR-0017 Introspection runtime adiada).
-        // Passo 159C: copia entries para state.bib_entries para
-        // lookup posterior por Cite.form. Multi-Bibliography
-        // concatena na ordem de aparecimento.
-        // Passo 159F: popula state.bib_numbers contínuamente
-        // (numeração 1-based; multi-Bibliography preserva
-        // primeiro número via or_insert per decisão diagnóstico §9).
-        Content::Bibliography { entries, title } => {
-            for entry in entries {
-                let next_num = state.bib_numbers.len() as u32 + 1;
-                state.bib_numbers.entry(entry.key.clone()).or_insert(next_num);
+        // P181H: walk arm puro (P163 invariante restaurada para bib).
+        // Pré-P181H (P159C/F): walk mutava `state.bib_entries.extend(...)`
+        // e `state.bib_numbers.entry(key).or_insert(...)` directamente.
+        // Pós-P181H: tag emitida no topo via `extract_payload` (P181D);
+        // BibStore populado por `from_tags` arm Bibliography (P181E).
+        // Apenas descida no `title` permanece — `entries` são dados
+        // opacos consumidos pelo `extract_payload` que constrói
+        // `ElementPayload::Bibliography { entries }`. Cite walk em
+        // supplement; sem validação cross-reference (ADR-0017
+        // Introspection runtime adiada).
+        Content::Bibliography { title, .. } => {
+            if let Some(t) = title {
+                walk(t, state, locator, tags, None);
             }
-            state.bib_entries.extend(entries.iter().cloned());
-            if let Some(t) = title { walk(t, state, locator, tags, None); }
         }
         Content::Cite { supplement, .. } => {
             if let Some(s) = supplement { walk(s, state, locator, tags, None); }
@@ -1982,5 +1979,84 @@ mod tests {
         });
         assert_eq!(v_a, Some(Value::Int(6)));
         assert_eq!(v_a, v_b);
+    }
+
+    // ── P181H — Walk arm Bibliography puro (P163 invariante restaurada) ─
+
+    #[test]
+    fn walk_arm_bibliography_nao_muta_state_bib_legacy() {
+        // P181H: walk arm `Content::Bibliography` não muta directamente
+        // `state.bib_entries` ou `state.bib_numbers`. Tag emitida via
+        // extract_payload do topo de walk (P181D); BibStore populado
+        // por from_tags arm (P181E). Walk puro restaurado para bib —
+        // invariante P163 preservada.
+        use crate::entities::bib_entry::BibEntry;
+        use crate::entities::content::Content;
+
+        let content = Content::Bibliography {
+            entries: vec![
+                BibEntry::new("a", "Author A", "Title A", 2024),
+                BibEntry::new("b", "Author B", "Title B", 2025),
+            ],
+            title: None,
+        };
+
+        let mut state = CounterStateLegacy::new();
+        let mut locator = Locator::new();
+        let mut tags: Vec<Tag> = Vec::new();
+        walk(&content, &mut state, &mut locator, &mut tags, None);
+
+        // Walk arm puro: state.bib_* não populado.
+        assert!(state.bib_entries.is_empty(),
+            "P181H walk puro: state.bib_entries deve ficar vazio (era populado por walk arm pré-P181H)");
+        assert!(state.bib_numbers.is_empty(),
+            "P181H walk puro: state.bib_numbers deve ficar vazio (era populado por walk arm pré-P181H)");
+
+        // Tag emitida pelo topo via extract_payload (P181D): existe
+        // exactamente uma Tag::Start de Bibliography.
+        use crate::entities::element_payload::ElementPayload;
+        let bib_tags: Vec<_> = tags.iter().filter(|t| matches!(
+            t,
+            Tag::Start(_, info) if matches!(info.payload, ElementPayload::Bibliography { .. })
+        )).collect();
+        assert_eq!(bib_tags.len(), 1,
+            "tag Bibliography deve ser emitida via extract_payload mesmo com walk puro");
+    }
+
+    #[test]
+    fn walk_arm_bibliography_desce_em_title() {
+        // P181H: walk arm puro continua a descer no `title` (preserva
+        // comportamento legacy para que children dentro de title
+        // sejam visíveis a outros consumers).
+        use crate::entities::bib_entry::BibEntry;
+        use crate::entities::content::Content;
+        use crate::entities::label::Label;
+
+        let titulo = Content::Labelled {
+            target: Box::new(Content::Heading {
+                level: 1,
+                body:  Box::new(Content::Empty),
+            }),
+            label: Label("bib-title".to_string()),
+        };
+
+        let content = Content::Bibliography {
+            entries: vec![BibEntry::new("a", "A", "T", 2024)],
+            title:   Some(Box::new(titulo)),
+        };
+
+        let mut state = CounterStateLegacy::new();
+        let mut locator = Locator::new();
+        let mut tags: Vec<Tag> = Vec::new();
+        walk(&content, &mut state, &mut locator, &mut tags, None);
+
+        // Heading dentro de title produz Tag de Heading.
+        use crate::entities::element_payload::ElementPayload;
+        let heading_tags: Vec<_> = tags.iter().filter(|t| matches!(
+            t,
+            Tag::Start(_, info) if matches!(info.payload, ElementPayload::Heading { .. })
+        )).collect();
+        assert_eq!(heading_tags.len(), 1,
+            "walk deve descer em Bibliography.title — Heading interno deve produzir Tag");
     }
 }

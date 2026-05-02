@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 6e45b293
+Hash do Código: 941ad50a
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -11,6 +11,7 @@ Hash do Código: 6e45b293
 - 2026-04-30 (P165): `from_tags` constrói `TagIntrospector` em paralelo; resultado descartado em M3.
 - 2026-04-30 (P166 / M4): adicionado entry point `introspect_with_introspector`; `introspect()` passa a ser wrapper que descarta `TagIntrospector`.
 - 2026-04-29 (P173 / M9 sub-passo 5): `introspect_with_introspector` aceita `Engine + EvalContext` opcionais; cascade habilita eval real de `StateUpdate::Func` em `from_tags`. Walk preservado puro.
+- 2026-05-01 (P181H): walk arm `Content::Bibliography` restaurado a puro — não muta `state.bib_*` directamente (P163 invariante restaurada para bib). Tag emitida via `extract_payload` (P181D); `BibStore` populado por `from_tags` arm Bibliography (P181E). Walk arm legacy (P159C/F) reduzido a apenas descida em `title`.
 
 ## Propósito
 Pré-passagem analítica sobre `Content`. Constrói o `CounterStateLegacy`

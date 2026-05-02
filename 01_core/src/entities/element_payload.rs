@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_payload.md
-//! @prompt-hash f0a2159c
+//! @prompt-hash f7121de5
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -91,6 +91,17 @@ pub enum ElementPayload {
     /// suficiente para `query("outline")` minimal contar locations.
     /// Refino futuro pode capturar `depth` e `title_hash`.
     Outline,
+
+    /// **P181C** — payload de `Content::Bibliography`. Carrega entries
+    /// completos (decisão P181A cláusula 2 — captura full por simetria
+    /// com walk arm actual `state.bib_entries.extend(...)`). `from_tags`
+    /// arm Bibliography (P181E pendente) extrai `entries` e popula
+    /// `BibStore` via `add_bibliography(entries) + assign_number(key, n)`
+    /// em loop. Hash via Debug (BibEntry deriva Debug; impl manual de
+    /// Hash de ElementPayload cobre).
+    Bibliography {
+        entries: Vec<crate::entities::bib_entry::BibEntry>,
+    },
 }
 
 impl std::hash::Hash for ElementPayload {
@@ -200,6 +211,59 @@ mod tests {
         use std::hash::{Hash, Hasher};
         let a = ElementPayload::Citation { key: "a".into() };
         let b = ElementPayload::Citation { key: "b".into() };
+        let mut h1 = DefaultHasher::new();
+        let mut h2 = DefaultHasher::new();
+        a.hash(&mut h1);
+        b.hash(&mut h2);
+        assert_ne!(h1.finish(), h2.finish());
+    }
+
+    // ── P181C — Bibliography variant ────────────────────────────────────
+
+    fn bib_entry(key: &str) -> crate::entities::bib_entry::BibEntry {
+        crate::entities::bib_entry::BibEntry {
+            key:          key.to_string(),
+            author:       String::new(),
+            title:        String::new(),
+            year:         0,
+            volume:       None,
+            pages:        None,
+            journal:      None,
+            publisher:    None,
+            url:          None,
+            doi:          None,
+            editor:       None,
+            series:       None,
+            note:         None,
+            isbn:         None,
+            location:     None,
+            organization: None,
+        }
+    }
+
+    #[test]
+    fn bibliography_constroi_e_compara() {
+        let entries = vec![bib_entry("smith2024"), bib_entry("jones2023")];
+        let p1 = ElementPayload::Bibliography { entries: entries.clone() };
+        let p2 = ElementPayload::Bibliography { entries };
+        assert_eq!(p1, p2);
+    }
+
+    #[test]
+    fn bibliography_distinto_de_outras_variants() {
+        let bib = ElementPayload::Bibliography { entries: vec![] };
+        let outline = ElementPayload::Outline;
+        let cite = ElementPayload::Citation { key: "x".into() };
+        assert_ne!(bib, outline);
+        assert_ne!(bib, cite);
+    }
+
+    #[test]
+    fn bibliography_hash_diferente_para_entries_distintos() {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        let a = ElementPayload::Bibliography { entries: vec![bib_entry("a")] };
+        let b = ElementPayload::Bibliography { entries: vec![bib_entry("b")] };
         let mut h1 = DefaultHasher::new();
         let mut h2 = DefaultHasher::new();
         a.hash(&mut h1);

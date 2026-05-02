@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash a78b0adc
+//! @prompt-hash 81cfe96c
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -3211,6 +3211,251 @@ mod p168_figure_ref_migration {
             None,
             "figura sem caption não deve aparecer em figure_label_numbers"
         );
+    }
+}
+
+// ── P181G — Tests de migração cite-arm para Introspector ─────────────────
+
+#[cfg(test)]
+mod p181g_cite_arm_migration {
+    use super::*;
+    use crate::entities::bib_entry::BibEntry;
+    use crate::entities::citation_form::CitationForm;
+    use crate::rules::introspect::introspect_with_introspector;
+    use std::sync::Arc;
+
+    fn doc_cite_with_bib(form: Option<CitationForm>) -> Content {
+        Content::Sequence(Arc::from(vec![
+            Content::cite("smith2024", None, form),
+            Content::bibliography(
+                vec![BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024)],
+                None,
+            ),
+        ]))
+    }
+
+    fn render_via_introspector(content: &Content) -> String {
+        let (state, intr) = introspect_with_introspector(content, None, None);
+        let doc = layout_with_introspector(content, state, intr);
+        doc.plain_text()
+    }
+
+    #[test]
+    fn cite_normal_via_introspector_renderiza_numero() {
+        // P181G: cite-arm consulta `Introspector::bib_number_for_key`
+        // primeiro. Documento rendered deve conter "[1]".
+        let content = doc_cite_with_bib(None);
+        let txt = render_via_introspector(&content);
+        assert!(txt.contains("[1]"),
+            "Normal/None via introspector path deve renderizar [1]: doc='{txt}'");
+    }
+
+    #[test]
+    fn cite_prose_via_introspector_renderiza_author_year() {
+        // P181G: cite-arm consulta `Introspector::bib_entry_for_key`
+        // (Prose precisa do entry para autor + ano).
+        let content = doc_cite_with_bib(Some(CitationForm::Prose));
+        let txt = render_via_introspector(&content);
+        assert!(txt.contains("Smith, J. (2024)"),
+            "Prose via introspector path deve renderizar 'Author (Year)': doc='{txt}'");
+    }
+
+    #[test]
+    fn cite_author_via_introspector_renderiza_apenas_author() {
+        let content = doc_cite_with_bib(Some(CitationForm::Author));
+        let txt = render_via_introspector(&content);
+        assert!(txt.contains("Smith, J."),
+            "Author via introspector path deve renderizar autor: doc='{txt}'");
+    }
+
+    #[test]
+    fn cite_year_via_introspector_renderiza_apenas_ano() {
+        let content = doc_cite_with_bib(Some(CitationForm::Year));
+        let txt = render_via_introspector(&content);
+        assert!(txt.contains("2024"),
+            "Year via introspector path deve renderizar ano: doc='{txt}'");
+    }
+
+    #[test]
+    fn paridade_legacy_vs_introspector_para_cite() {
+        // P181G: para os 4 forms, layout() (path legacy via state.bib_*)
+        // e layout_with_introspector() (path Introspector via BibStore)
+        // produzem o mesmo plain_text. Confirma paridade BibStore ↔
+        // state.bib_* garantida por construção em P181E.
+        for form in [None, Some(CitationForm::Prose),
+                     Some(CitationForm::Author), Some(CitationForm::Year)] {
+            let content = doc_cite_with_bib(form);
+
+            let state_legacy = crate::rules::introspect::introspect(&content);
+            let txt_legacy = layout(&content, state_legacy).plain_text();
+
+            let txt_new = render_via_introspector(&content);
+
+            assert_eq!(
+                txt_legacy, txt_new,
+                "paridade quebrada para form {form:?}: legacy='{txt_legacy}' new='{txt_new}'",
+            );
+        }
+    }
+
+    #[test]
+    fn cite_consulta_introspector_quando_state_legacy_vazio() {
+        // P181G diferencial: prova que cite-arm consulta `Introspector`
+        // primeiro (não apenas state legacy). Constrói cenário
+        // contrived: state.bib_* vazio + introspector populado.
+        // Antes de P181G (cite-arm só lia de state) → fallback `[key]`.
+        // Depois de P181G (cite-arm lê de introspector) → `[1]`.
+        use crate::entities::counter_state_legacy::CounterStateLegacy;
+        use crate::entities::introspector::TagIntrospector;
+
+        let content = Content::cite("smith2024", None, None);
+
+        let state_vazio = CounterStateLegacy::default();
+        let mut intr = TagIntrospector::empty();
+        intr.bib_store.add_bibliography(vec![
+            BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024),
+        ]);
+        intr.bib_store.assign_number("smith2024".to_string(), 1);
+
+        let txt = layout_with_introspector(&content, state_vazio, intr).plain_text();
+
+        assert!(
+            txt.contains("[1]"),
+            "cite-arm deve consultar Introspector quando state legacy está vazio: doc='{txt}'",
+        );
+    }
+}
+
+// ── P181I — Tests E2E pipeline completo bib state ────────────────────────
+
+#[cfg(test)]
+mod p181i_e2e_bib {
+    use super::*;
+    use crate::entities::bib_entry::BibEntry;
+    use crate::entities::citation_form::CitationForm;
+    use crate::entities::introspector::Introspector;
+    use crate::rules::introspect::introspect_with_introspector;
+    use std::sync::Arc;
+
+    fn bib(key: &str) -> BibEntry {
+        BibEntry::new(key, "Author", "Title", 2024)
+    }
+
+    #[test]
+    fn pipeline_completo_bib_state_via_layout_legacy() {
+        // P181I: pipeline completo via path `layout()` legacy
+        // (caller pattern actual). Após P181H, este path re-corre
+        // `introspect_with_introspector` internamente.
+        // Bibliography com 2 entries; 2 cites Normal devem renderizar
+        // [1] e [2].
+        let content = Content::Sequence(Arc::from(vec![
+            Content::cite("intro",   None, None),
+            Content::cite("methods", None, None),
+            Content::bibliography(
+                vec![bib("intro"), bib("methods")],
+                None,
+            ),
+        ]));
+
+        let state = crate::rules::introspect::introspect(&content);
+        let txt = layout(&content, state).plain_text();
+
+        assert!(txt.contains("[1]"),
+            "cite intro deve renderizar [1] via pipeline completo: doc='{txt}'");
+        assert!(txt.contains("[2]"),
+            "cite methods deve renderizar [2] via pipeline completo: doc='{txt}'");
+    }
+
+    #[test]
+    fn walk_puro_state_legacy_vazio_em_producao() {
+        // P181I: confirma walk puro restaurado (P181H) — state.bib_*
+        // permanece vazio após walk em produção. BibStore é
+        // populado por from_tags como fonte única.
+        let content = Content::Bibliography {
+            entries: vec![bib("a")],
+            title:   None,
+        };
+
+        let (state, intr) = introspect_with_introspector(&content, None, None);
+
+        // Walk puro: state legacy vazio.
+        assert!(state.bib_entries.is_empty(),
+            "P181H walk puro: state.bib_entries deve ficar vazio em produção");
+        assert!(state.bib_numbers.is_empty(),
+            "P181H walk puro: state.bib_numbers deve ficar vazio em produção");
+
+        // BibStore populado (P181E from_tags arm).
+        assert_eq!(intr.bib_store.len(), 1);
+        assert_eq!(intr.bib_number_for_key("a"), Some(1));
+        assert!(intr.bib_entry_for_key("a").is_some());
+    }
+
+    #[test]
+    fn multi_bibliography_concat_replica_clausula_2_p181a() {
+        // P181I: cláusula 2 P181A — `add_bibliography` faz `extend`.
+        // Multi-Bibliography concatena entries em ordem; numeração
+        // 1-based contínua sobre todas.
+        let content = Content::Sequence(Arc::from(vec![
+            Content::bibliography(vec![bib("a"), bib("b")], None),
+            Content::bibliography(vec![bib("c"), bib("d")], None),
+        ]));
+
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+
+        assert_eq!(intr.bib_store.len(), 4,
+            "multi-Bib concat: 2+2 entries → len 4");
+        assert_eq!(intr.bib_number_for_key("a"), Some(1));
+        assert_eq!(intr.bib_number_for_key("b"), Some(2));
+        assert_eq!(intr.bib_number_for_key("c"), Some(3));
+        assert_eq!(intr.bib_number_for_key("d"), Some(4));
+    }
+
+    #[test]
+    fn or_insert_preserva_primeiro_numero_clausula_3_p181a() {
+        // P181I: cláusula 3 P181A — `assign_number` usa `or_insert`.
+        // Em multi-Bibliography com keys duplicadas, primeiro número
+        // de uma key persiste; key nova continua sequência.
+        let content = Content::Sequence(Arc::from(vec![
+            Content::bibliography(vec![bib("a")], None),
+            Content::bibliography(
+                vec![bib("a"), bib("b")],  // "a" duplicado; "b" novo
+                None,
+            ),
+        ]));
+
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+
+        // "a" preserva número original (1).
+        assert_eq!(intr.bib_number_for_key("a"), Some(1),
+            "or_insert preserva primeiro número para key duplicada");
+        // "b" obtém próximo número (2).
+        assert_eq!(intr.bib_number_for_key("b"), Some(2),
+            "key nova obtém próximo número via numbers_len()+1");
+    }
+
+    #[test]
+    fn cite_4_forms_via_layout_with_introspector() {
+        // P181I: confirma que os 4 cite forms renderizam correctamente
+        // via path `layout_with_introspector` (consumer migrado P181G).
+        let entry = BibEntry::new("smith2024", "Smith, J.", "On Math", 2024);
+
+        for (form, expected_substr) in [
+            (None,                          "[1]"),
+            (Some(CitationForm::Prose),     "Smith, J. (2024)"),
+            (Some(CitationForm::Author),    "Smith, J."),
+            (Some(CitationForm::Year),      "2024"),
+        ] {
+            let content = Content::Sequence(Arc::from(vec![
+                Content::cite("smith2024", None, form),
+                Content::bibliography(vec![entry.clone()], None),
+            ]));
+
+            let (state, intr) = introspect_with_introspector(&content, None, None);
+            let txt = layout_with_introspector(&content, state, intr).plain_text();
+
+            assert!(txt.contains(expected_substr),
+                "form {form:?} deve renderizar '{expected_substr}': doc='{txt}'");
+        }
     }
 }
 
