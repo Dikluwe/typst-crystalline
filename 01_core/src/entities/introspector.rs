@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash c91f6d5b
+//! @prompt-hash 30bd91d8
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -101,6 +101,15 @@ pub trait Introspector {
     /// `layout/mod.rs:590`. Lookup O(1) via `BibStore::numbers`;
     /// `None` se key não existe.
     fn bib_number_for_key(&self, key: &str) -> Option<u32>;
+
+    /// **P182B (M9)** — flag de numeração activa para `key`. Replica
+    /// `CounterStateLegacy::is_numbering_active(key)` legacy via
+    /// `StateRegistry`: delega a `state.final_value(key)` e devolve
+    /// `true` apenas se for `Some(Value::Bool(true))`. Default `false`
+    /// (state ausente, `Bool(false)`, ou variant não-Bool).
+    /// Convenção de chave: `numbering_active:<feature>` (ex.
+    /// `numbering_active:heading`). Resolve lacuna #4 (cf. P182A).
+    fn is_numbering_active(&self, key: &str) -> bool;
 }
 
 /// Implementação concreta de `Introspector` construída a partir de
@@ -209,6 +218,10 @@ impl Introspector for TagIntrospector {
 
     fn bib_number_for_key(&self, key: &str) -> Option<u32> {
         self.bib_store.number_for_key(key)
+    }
+
+    fn is_numbering_active(&self, key: &str) -> bool {
+        matches!(self.state.final_value(key), Some(Value::Bool(true)))
     }
 }
 
@@ -397,5 +410,62 @@ mod tests {
         assert_eq!(i.bib_number_for_key("intro"), Some(1));
         assert_eq!(i.bib_entry_for_key("nao_existe"), None);
         assert_eq!(i.bib_number_for_key("nao_existe"), None);
+    }
+
+    // ── P182B — trait method is_numbering_active ────────────────────────
+
+    #[test]
+    fn is_numbering_active_em_introspector_vazio_devolve_false() {
+        let i = TagIntrospector::empty();
+        assert!(!i.is_numbering_active("numbering_active:heading"));
+        assert!(!i.is_numbering_active("numbering_active:equation"));
+        assert!(!i.is_numbering_active("any"));
+    }
+
+    #[test]
+    fn is_numbering_active_apos_init_bool_true_devolve_true() {
+        let mut i = TagIntrospector::empty();
+        i.state.init(
+            "numbering_active:heading".to_string(),
+            Value::Bool(true),
+            loc(10),
+        );
+        assert!(i.is_numbering_active("numbering_active:heading"));
+    }
+
+    #[test]
+    fn is_numbering_active_keys_distintas_isoladas() {
+        let mut i = TagIntrospector::empty();
+        i.state.init(
+            "numbering_active:heading".to_string(),
+            Value::Bool(true),
+            loc(10),
+        );
+        // Apenas heading está activo; equation não foi inicializado.
+        assert!(i.is_numbering_active("numbering_active:heading"));
+        assert!(!i.is_numbering_active("numbering_active:equation"));
+    }
+
+    #[test]
+    fn is_numbering_active_bool_false_devolve_false() {
+        let mut i = TagIntrospector::empty();
+        i.state.init(
+            "numbering_active:heading".to_string(),
+            Value::Bool(false),
+            loc(10),
+        );
+        assert!(!i.is_numbering_active("numbering_active:heading"));
+    }
+
+    #[test]
+    fn is_numbering_active_value_nao_bool_devolve_false() {
+        let mut i = TagIntrospector::empty();
+        // Variant não-Bool: graceful degradation → false.
+        i.state.init(
+            "numbering_active:heading".to_string(),
+            Value::Int(1),
+            loc(10),
+        );
+        assert!(!i.is_numbering_active("numbering_active:heading"));
     }
 }

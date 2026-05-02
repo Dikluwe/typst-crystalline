@@ -59,13 +59,36 @@ P163 verificou consistência entre as duas representações via tests E2E. Esta 
 
 P167 (M5 sub-passo 1, 2026-04-30) inventariou todos os consumers de `CounterStateLegacy` e mapeou cada field/método contra `TagIntrospector`. Confirmou 4 lacunas adicionais não cobertas pelas 3 originais.
 
-### Lacuna #4 — `is_numbering_active` / `numbering_active`
+### Lacuna #4 — `is_numbering_active` / `numbering_active` — ✅ **RESOLVIDA em P182**
 
-`CounterStateLegacy.numbering_active: HashMap<String, bool>` controla por chave se a numeração está activada (populado pelo walk arm `Content::SetHeadingNumbering`). `TagIntrospector` não captura este estado. Consumer típico: `Layouter` consulta `is_numbering_active("heading")` antes de formatar prefixo de heading.
+`CounterStateLegacy.numbering_active: HashMap<String, bool>` controla por chave se a numeração está activada (populado pelo walk arm `Content::SetHeadingNumbering`). `TagIntrospector` não capturava este estado. Consumer típico: `Layouter` consulta `is_numbering_active("heading")` antes de formatar prefixo de heading.
 
-**Decisão**: adiar para passo dedicado (M9 ou similar) que adicione mecanismo de numbering-active ao Introspector. Possíveis caminhos:
-- Adicionar variant locatable `SetHeadingNumbering` a `ElementPayload`.
-- Adicionar campo `numbering_state: HashMap<String, bool>` a `TagIntrospector` populado por extracção paralela em `from_tags`.
+**Resolução em P182** (2026-05-02; sub-passos `.A`–`.F`; `diagnostico-numbering-active-passo-182a.md` + relatórios P182A/B/C/D/E + consolidado P182F):
+
+Mecanismo:
+- **P182A**: diagnóstico-primeiro fixou 6 cláusulas (mecanismo M1 — reusar `StateRegistry` P171 com chave canónica `numbering_active:heading`; default OFF; 2 consumers Layouter migráveis; API A2 helper `is_numbering_active`; Opção 3 fecho simétrico com lacuna #6).
+- **P182B**: `Introspector::is_numbering_active(&self, key: &str) -> bool` adicionado ao trait + impl `TagIntrospector` delega a `state.final_value(key)` + match `Value::Bool(true)` (default `false`).
+- **P182C**: `Content::SetHeadingNumbering` promovido a locatable; `extract_payload` arm produz `ElementPayload::StateUpdate { key: "numbering_active:heading", update: StateUpdate::Set(Box::new(Value::Bool(active))) }`. Cláusula gate trivial: `from_tags::StateUpdate Set` ganha auto-init na primeira ocorrência (P171 `update` defensivo bloqueava state interno sem `Content::State` antecedente).
+- **P182D**: 2 consumers Layouter migrados via substitution-with-fallback (padrão P168/P181G):
+  - `01_core/src/rules/layout/mod.rs:301` (heading prefix): `self.introspector.is_numbering_active("numbering_active:heading") || self.counter.is_numbering_active("heading")`.
+  - `01_core/src/rules/layout/equation.rs:24` (equation auto-numeração): simétrico para `"numbering_active:equation"`.
+- **P182E**: 5 tests E2E em `mod p182e_e2e_heading_numbering` (pipeline completo via `layout()` legacy + via `layout_with_introspector` directo + re-update + paridade documento complexo + sentinela legacy).
+
+Critérios P182A §3 cláusula 6 (Opção 3) verificados literalmente:
+1. ✅ `Introspector::is_numbering_active(key) -> bool` no trait + impl `TagIntrospector` delegante; `from_tags::StateUpdate` arm `Set` cobre auto-init.
+2. ✅ `extract_payload` arm `Content::SetHeadingNumbering` em `01_core/src/rules/introspect/extract_payload.rs:63` produz payload correcto; `is_locatable(SetHeadingNumbering) == true`.
+3. ✅ Layouter heading-arm em `mod.rs:301` e equation-arm em `equation.rs:24` consultam `self.introspector.is_numbering_active(...)` com fallback legacy preservado.
+
+**Pendências M6**: campo legacy `CounterStateLegacy.numbering_active` continua a existir; walk arm canonical em `introspect.rs:455–457` continua write paralelo; write paralelo em `layout/counters.rs:11–13` continua; copy-sites em `mod.rs:1414, 1442` continuam; leituras intra-walk em `introspect.rs:360, 378` continuam (consomem `state` local; não migráveis para Introspector); fallback `||` activo em ambos consumers Layouter. M6 elimina todos quando F1 retomar.
+
+**Pendência adicional identificada em P182E (decisão 5.2)**: `Introspector::is_numbering_active` usa `state_final_value` (último update aplicado). Para documentos com **re-update** (sequência `SetHeadingNumbering(true)` → H1 → `SetHeadingNumbering(false)` → H2), o caminho activo do bool é o **fallback legacy mutável** durante o layout walk — Introspector sozinho daria "false em ambos headings" (final_value retorna o último). Em M6 cleanup, antes de remover o fallback `||`, o Introspector precisa ganhar semântica location-aware (`is_numbering_active_at(key, location)` delegando a `state_value(key, location)` em vez de `final_value`). Trabalho **substancial em M6+, não trivial** — input para diagnóstico P185A.
+
+**M9 features**: 11/11 (lacuna #4 conta após este fecho). M9 completo.
+
+Surpresas registadas:
+- Vanilla **não tem** `numbering_active` em lado algum — usa `Option<Numbering>` em `HeadingElem`/`EquationElem` via StyleChain hierárquica location-aware. Lacuna #4 é divergência arquitectural cristalino (boolean global por chave por falta de StyleChain), não feature ausente. P182 mantém a divergência consciente; M+ pode revisitar quando StyleChain for materializada.
+- Variant é `Content::SetHeadingNumbering { active: bool }` (apenas booleano, "heading" hardcoded), não `{ key, value }` como o texto inicial sugeria.
+- Cristalino não tem variant `Content::SetEquationNumbering` — chave `numbering_active:equation` em `StateRegistry` permanece sempre vazia em produção (sem emitter); fallback legacy é o único caminho activo para equation. Quando algum dia equation set rule for materializada, reusará P182C literalmente.
 
 ### Lacuna #5 — `format_hierarchical` / hierarquia em `CounterRegistry` — ✅ **RESOLVIDA em P170**
 
@@ -103,7 +126,7 @@ Critérios P181A §2.6 (Opção 3) verificados literalmente:
 
 **Pendências M6**: campos legacy `bib_entries`/`bib_numbers` em `CounterStateLegacy` continuam a existir (vazios em produção pós-P181H); fallback cite-arm preservado como segurança extra; copy-sites em `pub fn layout`/`pub fn layout_with_introspector` preservados; re-walk em `layout()` legacy para construir Introspector. M6 elimina todos quando F1 retomar.
 
-**M9 features**: 10/11 (Bibliography conta após fecho da lacuna #6). Restante: lacuna #4 (`numbering_active`).
+**M9 features**: 11/11 (Bibliography conta após fecho da lacuna #6; `numbering_active` conta após fecho da lacuna #4 em P182). **M9 completo.**
 
 ### Lacuna #7 — `has_outline`
 
@@ -117,16 +140,16 @@ Critérios P181A §2.6 (Opção 3) verificados literalmente:
 
 ## Resumo
 
-7 divergências/lacunas documentadas (3 originais P163 + 4 novas P167). Nenhuma é bug — são consequências da topologia "Introspector M3 deliberadamente minimal".
+7 divergências/lacunas documentadas (3 originais P163 + 4 novas P167). **4 resolvidas** (#4 P182, #5 P170, #6 P181, #7 P178); **3 abertas** (#1, #2, #3 — todas com decisão "adiar/manter intencional"; nenhuma bloqueia M5/M6/M7/M8). Nenhuma é bug — são consequências da topologia "Introspector M3 deliberadamente minimal".
 
 | # | Divergência/Lacuna | Origem | Decisão |
 |---|--------------------|--------|---------|
 | 1 | `figure.kind` None vs "image" default | P163 | Adiar; relevante para P168 figure-ref filter |
 | 2 | Auto-labels só em state | P163 | Adiar; M3+ |
 | 3 | Body frozen em state vs hash em tags | P163 | Manter — intencional |
-| 4 | `is_numbering_active` / `numbering_active` | P167 | Adiar — M9 ou passo dedicado |
+| 4 | `is_numbering_active` / `numbering_active` | P167 | ✅ **Resolvida em P182** (cascade `is_numbering_active` no trait + `extract_payload` arm `SetHeadingNumbering` + `from_tags` auto-init + 2 consumers Layouter migrados; Opção 3 paridade preservada via fallback `||` legacy; M9: 11/11; M6 cleanup não-trivial — Introspector precisa de `is_numbering_active_at(key, location)` location-aware antes de remover fallback, cf. P182E 5.2) |
 | 5 | `format_hierarchical` / hierarquia em CounterRegistry | P167 | ✅ **Resolvida em P170** (M9 sub-passo 2) |
-| 6 | `bib_entries` / `bib_numbers` | P167 | ✅ **Resolvida em P181** (`bib_store.rs` sub-store + `ElementKind::Bibliography` locatable + `Introspector::bib_*_for_key` + cite-arm migrado + walk puro restaurado; 3 critérios P181A §2.6 verificados; M9: 10/11) |
+| 6 | `bib_entries` / `bib_numbers` | P167 | ✅ **Resolvida em P181** (`bib_store.rs` sub-store + `ElementKind::Bibliography` locatable + `Introspector::bib_*_for_key` + cite-arm migrado + walk puro restaurado; 3 critérios P181A §2.6 verificados) |
 | 7 | `has_outline` | P167 | ✅ **Resolvida em P178** (cascade `ElementKind::Outline`) |
 
 Sem alteração de código resultante deste documento. Sem ADR nova. Lista é instrumento de referência para passos M5+ que migrem consumers e M9+ que estendam Introspector.

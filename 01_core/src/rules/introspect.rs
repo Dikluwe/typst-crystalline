@@ -1281,8 +1281,10 @@ mod tests {
         // State: contador heading deve estar em "2" após dois headings nivel 1.
         assert_eq!(state.format_hierarchical("heading").as_deref(), Some("2"),
             "state deve ter contador heading=2 após dois headings nível 1");
-        // Tags: 2 headings × 2 tags cada = 4.
-        assert_eq!(tags.len(), 4, "deve haver Start+End para cada heading; obtido {tags:?}");
+        // P182C: SetHeadingNumbering passou a ser locatable (emite
+        // ElementPayload::StateUpdate sob chave numbering_active:heading).
+        // Tags: 1 SetHeadingNumbering × 2 + 2 headings × 2 = 6.
+        assert_eq!(tags.len(), 6, "deve haver Start+End para SetHeadingNumbering e cada heading; obtido {tags:?}");
     }
 
     #[test]
@@ -1671,6 +1673,32 @@ mod tests {
         let (_, intr) = introspect_with_introspector(&content);
         let locs = intr.query_by_kind(ElementKind::Citation);
         assert_eq!(locs.len(), 3);
+    }
+
+    // ── P182C — pipeline E2E SetHeadingNumbering → StateRegistry ─────────
+
+    #[test]
+    fn introspector_set_heading_numbering_active_true_popula_state_registry() {
+        // P182C: walk emite tag para Content::SetHeadingNumbering;
+        // extract_payload produz ElementPayload::StateUpdate;
+        // from_tags arm StateUpdate popula StateRegistry; trait method
+        // is_numbering_active retorna true para chave canónica.
+        let content = Content::SetHeadingNumbering { active: true };
+        let (_, intr) = introspect_with_introspector(&content);
+        assert!(
+            intr.is_numbering_active("numbering_active:heading"),
+            "P182C: pipeline deve popular StateRegistry com Bool(true)"
+        );
+    }
+
+    #[test]
+    fn introspector_set_heading_numbering_active_false_em_state_registry() {
+        // Caso simétrico — Bool(false) é registado e propagado;
+        // is_numbering_active devolve false (não por estar ausente,
+        // mas porque o valor explícito é Bool(false)).
+        let content = Content::SetHeadingNumbering { active: false };
+        let (_, intr) = introspect_with_introspector(&content);
+        assert!(!intr.is_numbering_active("numbering_active:heading"));
     }
 
     #[test]

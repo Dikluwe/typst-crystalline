@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/locatable.md
-//! @prompt-hash d26cf6ff
+//! @prompt-hash 186cea9d
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -40,7 +40,15 @@ pub fn is_locatable(content: &Content) -> bool {
         // fechar lacuna #6.
         Content::Bibliography { .. } => true,
 
-        // ── Não-locatable (53 variants) ──────────────────────────────
+        // ── Locatable em P182C — SetHeadingNumbering emite
+        // `StateUpdate { key: "numbering_active:heading", ... }` via
+        // `extract_payload`. `from_tags` arm `StateUpdate` (P171/P173)
+        // popula `StateRegistry`. Suporta plano P182 para fechar
+        // lacuna #4. Walk arm canonical em `introspect.rs:455–457`
+        // continua write paralelo legacy (M6 elimina).
+        Content::SetHeadingNumbering { .. } => true,
+
+        // ── Não-locatable (47 variants) ──────────────────────────────
         Content::Empty
         | Content::Text(_, _)
         | Content::Space
@@ -63,7 +71,6 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::MathCases { .. }
         | Content::Labelled { .. }
         | Content::Ref { .. }
-        | Content::SetHeadingNumbering { .. }
         | Content::CounterDisplay { .. }
         | Content::CounterUpdate { .. }
         | Content::SetFigureNumbering { .. }
@@ -238,5 +245,19 @@ mod tests {
         assert!(is_locatable(&c));
         // Invariante: extract_payload deve produzir Some.
         assert!(extract_payload(&c).is_some());
+    }
+
+    // ── P182C — SetHeadingNumbering locatable ────────────────────────────
+
+    #[test]
+    fn set_heading_numbering_e_locatable() {
+        let c = Content::SetHeadingNumbering { active: true };
+        assert!(is_locatable(&c));
+        // Invariante: extract_payload deve produzir Some.
+        assert!(extract_payload(&c).is_some());
+        // Simétrico para active=false.
+        let c_false = Content::SetHeadingNumbering { active: false };
+        assert!(is_locatable(&c_false));
+        assert!(extract_payload(&c_false).is_some());
     }
 }

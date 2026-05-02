@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/from_tags.md
-//! @prompt-hash 75237ba7
+//! @prompt-hash 2010372a
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -158,7 +158,20 @@ pub fn from_tags(
                             .push(*loc);
                         match update {
                             StateUpdate::Set(value) => {
-                                intr.state.update(key.clone(), (**value).clone(), *loc);
+                                // P182C: auto-init na primeira ocorrência.
+                                // Suporta state interno (`numbering_active:*`
+                                // emitido por `Content::SetHeadingNumbering`)
+                                // que não tem `Content::State` antecedente.
+                                // Userspace `Content::State` continua a
+                                // inicializar via arm dedicado acima — este
+                                // ramo só auto-inicializa quando key ainda
+                                // não foi vista. Ocorrências subsequentes
+                                // seguem o caminho normal `state.update`.
+                                if intr.state.value_at(key, *loc).is_none() {
+                                    intr.state.init(key.clone(), (**value).clone(), *loc);
+                                } else {
+                                    intr.state.update(key.clone(), (**value).clone(), *loc);
+                                }
                             }
                             StateUpdate::Func(func) => {
                                 if let (Some(eng), Some(c)) =

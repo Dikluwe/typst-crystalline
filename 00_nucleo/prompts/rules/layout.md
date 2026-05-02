@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 95e8429b
+Hash do Código: 10004310
 
 ## Módulo
 `01_core/src/rules/layout.rs`
@@ -178,3 +178,58 @@ adoptar quando migrarem.
 `introspect_with_introspector + layout_with_introspector` directamente,
 `layout()` legacy desaparece (pode passar a wrapper trivial sobre o
 entry point novo, ou ser removido).
+
+## Secção: Heading-arm + equation-arm consomem Introspector (P182D)
+
+Heading-arm de `Content::Heading { level, body }` em `layout/mod.rs:301`
+e equation-arm de `Content::Equation { body, block }` em
+`layout/equation.rs:24` consultam `Introspector::is_numbering_active`
+primeiro com fallback **substitution-with-fallback** a
+`self.counter.is_numbering_active(legacy_key)` (padrão P168/P181G).
+
+```rust
+// Heading prefix (mod.rs:301)
+let on = self.introspector
+    .is_numbering_active("numbering_active:heading")
+    || self.counter.is_numbering_active("heading");
+if on {
+    if let Some(num_str) = self.counter.format_hierarchical("heading") { ... }
+}
+
+// Equation auto-numeração (equation.rs:24)
+let is_numbered = block
+    && (self.introspector.is_numbering_active("numbering_active:equation")
+        || self.counter.is_numbering_active("equation"));
+```
+
+**Convenção de chave**: Introspector usa `numbering_active:<feature>`
+(prefixo namespace, P182B); legacy `CounterStateLegacy.is_numbering_active`
+usa key sem prefixo (`"heading"`, `"equation"`).
+
+**Estado dos emitters** (P182C):
+- `numbering_active:heading` é populado em `StateRegistry` via
+  `extract_payload` arm `Content::SetHeadingNumbering` →
+  `from_tags::StateUpdate` com auto-init.
+- `numbering_active:equation` **não tem emitter em P182** (cristalino
+  não tem `Content::SetEquationNumbering` variant). Introspector
+  retorna sempre `false` para esta chave; fallback legacy é o caminho
+  real até passo dedicado equation-set-rule (fora P182).
+
+Comportamento por path (heading):
+- **`layout()` legacy**: `layout()` re-corre `introspect_with_introspector`
+  internamente (cf. secção P181H) — Introspector populado via P182C.
+  Fallback legacy também populado via walk canonical
+  (`introspect.rs:455–457`); paridade preservada por construção.
+- **`layout_with_introspector(content, state, introspector)`**: caller
+  passa Introspector populado; fallback continua disponível como rede
+  de segurança.
+
+Output observable preservado: para heading, ambos caminhos devolvem
+mesmo bool (StateRegistry e legacy populados pelo mesmo `Content::SetHeadingNumbering`);
+fallback é redundante mas inofensivo. Para equation, fallback é o
+único path activo.
+
+Janela compat eliminada em **M6** quando F1 retomar
+(`CounterStateLegacy.numbering_active` removido + walk arm canonical
++ write paralelo `layout/counters.rs:11–13` + copy-sites em
+`mod.rs:1414, 1442` desaparecem + fallback removido).
