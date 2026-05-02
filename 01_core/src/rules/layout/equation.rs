@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 81cfe96c
+//! @prompt-hash 59811524
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -21,7 +21,16 @@ impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S> {
     pub(super) fn layout_equation(&mut self, body: &Content, block: bool) {
         // Auto-numeração: equações de bloco numeradas avançam o contador antes de
         // desenhar (Passo 59). O número (N) é acrescentado depois da equação.
-        let is_numbered = block && self.counter.is_numbering_active("equation");
+        // P182D: substitution-with-fallback (padrão P168/P181G) — consulta
+        // Introspector primeiro (chave `numbering_active:equation`); cristalino
+        // ainda não tem variant `Content::SetEquationNumbering`, logo o
+        // Introspector retorna sempre `false` para esta chave em P182 — o
+        // fallback legacy é o caminho activo para equation, até passo dedicado
+        // equation-set-rule.
+        use crate::entities::introspector::Introspector;
+        let is_numbered = block
+            && (self.introspector.is_numbering_active("numbering_active:equation")
+                || self.counter.is_numbering_active("equation"));
         if is_numbered {
             self.counter.step_flat("equation");
         }

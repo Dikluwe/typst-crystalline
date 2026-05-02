@@ -120,6 +120,12 @@ Apenas estruturas significativas. Fan-in via `grep -lr` sobre `01_core/src/`.
 
 Decisões prévias (P166–P180) reconhecem o problema (sub-stores Introspection paralelos) mas migração de consumers M5 está em pausa (1/6 consumer migrado; 5 bloqueados — ver `inventario-consumers-counter-state-legacy.md` P167). Lacunas #4 (numbering_active) e #6 (bib_entries/bib_numbers) ainda usam `CounterStateLegacy`.
 
+**Progresso M5/M6**:
+- **P181 (lacuna #6)**: cite-arm migrado via `Introspector::bib_*_for_key`; `bib_entries` / `bib_numbers` legacy permanecem (vazios em produção pós-P181H walk puro). 2º consumer migrado.
+- **P182 (lacuna #4)**: heading-arm + equation-arm migrados via `Introspector::is_numbering_active`; `numbering_active` legacy permanece (continua write paralelo via walk arm canonical + layout walk arm). 3º e 4º consumers migrados (heading + equation contam como 2 distintos por chave/arm).
+- **P183A (M4 série, diagnóstico-primeiro)**: auditoria empírica revelou 12 read-sites de `CounterStateLegacy` em layout/, dos quais 5 já migrados (P168 + P181G × 2 + P182D × 2) e 7 não migrados, agrupados em 5 áreas funcionais (C1 heading prefix; C2 equation counter; C3 figure auto-number per kind; C4 resolved label; C5 TOC entries — esta última bloqueada pela lacuna #3 outline body frozen). Plano P183B–P183F (5 sub-passos S/S-M) fixa migração das 4 áreas não bloqueadas via substitution-with-fallback; C5 fica como DEBT M4-residual. **F1 não fecha em P183** — só em P185 quando struct for eliminada. M4 fechará com 4/5 (Opção 3 simétrica a P181/P182).
+- **F1 não fecha em P181/P182/P183** — só fecha em P185 quando F1 retomar e struct for eliminada. Pendência adicional registada em P182E 5.2: M6 cleanup do fallback `||` exige Introspector location-aware (`is_numbering_active_at(key, location)`) — re-update casos divergem se Introspector só usar `state_final_value`. Trabalho substancial em M6+, input para P185A diagnóstico.
+
 **Magnitude**: grande. Eliminar `CounterStateLegacy` é objectivo M6, não trabalho local.
 
 ### F2 — `Content` enum tem 59 variants em ficheiro de 3 560 linhas (O1, Q4)

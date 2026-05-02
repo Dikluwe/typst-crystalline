@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/from_tags`
-Hash do Código: 2f6b31cd
+Hash do Código: 9acddbb4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/introspect/from_tags.rs`
@@ -38,7 +38,9 @@ Para cada tag:
      - `Outline`: kind_index[Outline].push(loc) — feature minimal P178.
      - `Bibliography { entries }` **P181E**: kind_index[Bibliography].push(loc); para cada entry em entries, `bib_store.assign_number(entry.key.clone(), bib_store.len() as u32 + 1)` (numeração 1-based contínua, replica `state.bib_numbers.len() + 1` em walk arm); finalmente `bib_store.add_bibliography(entries.clone())` (extend, cláusula 2 P181A). Multi-Bibliography concatena entries e preserva primeiro número via `or_insert` (cláusula 3 P181A — comportamento herdado de `assign_number`).
      - `StateUpdate { key, update }`: kind_index[StateUpdate].push(loc).
-       - `update == StateUpdate::Set(value)`: `state.update(key, *value, loc)`.
+       - `update == StateUpdate::Set(value)`:
+         - **P182C**: se `state.value_at(key, loc) == None` (key nunca inicializada), `state.init(key, *value, loc)` (auto-init na primeira ocorrência). Suporta state interno emitido por `Content::SetHeadingNumbering` (chave `numbering_active:heading`), que não tem `Content::State` antecedente.
+         - Senão: `state.update(key, *value, loc)` (caminho normal P171; userspace `Content::State` inicializa via arm dedicado acima).
        - `update == StateUpdate::Func(fn)` **P173 M9**:
          - Se `engine` e `ctx` ambos `Some`: consultar `state.value_at(key, loc)`; se `Some(curr)`, chamar `apply_func(fn, Args::positional(vec![curr]), ctx, engine)`. Em `Ok(new)`, registar `state.update(key, new, loc)`. Em `Err(_)`, defensive ignore (refino futuro: diagnostics).
          - Se `engine` ou `ctx` ausente: defensive ignore (Func ignorada, registry inalterado).
@@ -126,4 +128,5 @@ Refino futuro possível: se M5+ precisar de informação contextual (e.g. headin
 |------|--------|-------------------|
 | 2026-04-30 | P165 sub-passo .E: construtor de TagIntrospector a partir de Vec<Tag> | `from_tags.rs`, `from_tags.md`, `rules/introspect.rs` |
 | 2026-04-29 | P173 sub-passo .B: cascade Engine + EvalContext opcionais; eval real de `StateUpdate::Func` via `apply_func` | `from_tags.rs`, `from_tags.md` |
+| 2026-05-02 | P182C: arm `StateUpdate::Set` auto-inicia a key se ainda não foi vista (suporte a state interno `numbering_active:*` sem `Content::State` antecedente). Caminho normal preservado para keys já inicializadas. | `from_tags.rs`, `from_tags.md` |
 | 2026-05-01 | P181E sub-passo .E: arm `Bibliography { entries }` substitui no-op (P181C) — popula `kind_index[Bibliography]` + `bib_store` via loop de `assign_number` + `add_bibliography` | `from_tags.rs`, `from_tags.md` |

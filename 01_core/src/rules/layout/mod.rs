@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 81cfe96c
+//! @prompt-hash 59811524
 //! @layer L1
 //! @updated 2026-04-21
 
@@ -297,8 +297,16 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.style = TextStyle { bold: true, italic: false, size: heading_size, ..TextStyle::default() };
                 if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
 
-                // Prefixo numérico — apenas se numbering estiver activo
-                if self.counter.is_numbering_active("heading") {
+                // Prefixo numérico — apenas se numbering estiver activo.
+                // P182D: substitution-with-fallback (padrão P168/P181G) —
+                // consulta Introspector primeiro (chave `numbering_active:heading`,
+                // populada via P182C); fallback a state legacy preserva paridade
+                // durante janela compat (M6 elimina).
+                use crate::entities::introspector::Introspector;
+                let numbering_on = self.introspector
+                    .is_numbering_active("numbering_active:heading")
+                    || self.counter.is_numbering_active("heading");
+                if numbering_on {
                     if let Some(num_str) = self.counter.format_hierarchical("heading") {
                         let prefix = Content::text(format!("{}. ", num_str));
                         self.layout_content(&prefix);

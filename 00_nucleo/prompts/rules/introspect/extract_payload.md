@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/extract_payload`
-Hash do Código: 1da1c130
+Hash do Código: 8e7cb515
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/introspect/extract_payload.rs`
@@ -35,6 +35,7 @@ P162 sub-passo .D introduz a função; consumida em P162 .E pelo walk modificado
 | `Metadata { value }` | `value` (boxed) | `Metadata { value: value.clone() }` (P169 M9) |
 | `State { key, init }` | `key`, `init` (boxed) | `State { key: key.clone(), init: init.clone() }` (P171 M9) |
 | `StateUpdate { key, update }` | `key`, `update` (enum) | `StateUpdate { key: key.clone(), update: update.clone() }` (P171 M9) |
+| `SetHeadingNumbering { active }` | `active` (bool) | `StateUpdate { key: "numbering_active:heading", update: StateUpdate::Set(Box::new(Value::Bool(active))) }` (P182C; suporta lacuna #4 — convenção de chave `numbering_active:<feature>` estabelecida em P182B) |
 | `Outline` (unit) | — | `Outline` (P178) |
 | `Bibliography { entries, title }` | `entries` apenas (`title` ignorado — irrelevante para introspecção; Layouter consome via path separado) | `Bibliography { entries: entries.clone() }` (P181D; suporta plano P181 fechar lacuna #6) |
 | Outras (Text, Sequence, Math*, etc.) | — | `None` |
@@ -111,3 +112,4 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
 |------|--------|-------------------|
 | 2026-04-30 | P162 sub-passo .D: função pura Content→ElementPayload para introspecção M1 | `extract_payload.rs`, `extract_payload.md`, `rules/introspect/mod.rs` |
 | 2026-05-01 | P181D: arm `Content::Bibliography { entries, .. } => Some(ElementPayload::Bibliography { entries: entries.clone() })` adicionado | `extract_payload.rs`, `extract_payload.md` |
+| 2026-05-02 | P182C: arm `Content::SetHeadingNumbering { active } => Some(ElementPayload::StateUpdate { key: "numbering_active:heading".to_string(), update: StateUpdate::Set(Box::new(Value::Bool(*active))) })` adicionado. Reusa infra P171/P173 — sem novo `ElementPayload` variant. | `extract_payload.rs`, `extract_payload.md` |

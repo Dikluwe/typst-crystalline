@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 81cfe96c
+//! @prompt-hash 59811524
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -738,6 +738,75 @@ fn layout_set_heading_numbering_activa_contador() {
     let text = doc.plain_text();
     assert!(text.contains("1."), "H1 deve ter prefixo '1.'");
     assert!(text.contains("1.1"), "H2 deve ter prefixo '1.1'");
+}
+
+// ── P182D — Layouter heading-arm via Introspector (substitution-with-fallback)
+
+#[test]
+fn p182d_heading_numbering_via_introspector_path() {
+    // Documento sem `Content::SetHeadingNumbering` no AST: legacy walk arm
+    // (`introspect.rs:455–457`) e Layout walk arm (`layout/counters.rs:11–13`)
+    // não populam `state.numbering_active`. Mas o Introspector é injectado
+    // pré-populado com `numbering_active:heading=true` — Layouter heading-arm
+    // deve disparar prefixo via path Introspector.
+    use crate::entities::introspector::TagIntrospector;
+    use crate::entities::location::Location;
+    use crate::entities::value::Value;
+    use crate::rules::introspect::introspect_with_introspector;
+
+    let plain = Content::heading(1, Content::text("Intro"));
+    let (_, mut intr): (CounterStateLegacy, TagIntrospector) =
+        introspect_with_introspector(&plain, None, None);
+    intr.state.init(
+        "numbering_active:heading".to_string(),
+        Value::Bool(true),
+        Location::from_raw(0),
+    );
+    // State legacy vazio — apenas Introspector path activo.
+    let doc = layout_with_introspector(&plain, CounterStateLegacy::default(), intr);
+    let text = doc.plain_text();
+    assert!(
+        text.contains("1."),
+        "P182D: prefixo deve vir via Introspector quando legacy vazio; obtido: '{text}'"
+    );
+}
+
+#[test]
+fn p182d_heading_numbering_via_fallback_legacy() {
+    // Caminho simétrico: Introspector vazio, legacy state pré-populado —
+    // fallback `||` deve disparar prefixo (preservação de janela compat M6).
+    use crate::entities::introspector::TagIntrospector;
+
+    let plain = Content::heading(1, Content::text("Intro"));
+    let mut state_legacy = CounterStateLegacy::default();
+    state_legacy.numbering_active.insert("heading".to_string(), true);
+    let intr_vazio = TagIntrospector::empty();
+    let doc = layout_with_introspector(&plain, state_legacy, intr_vazio);
+    let text = doc.plain_text();
+    assert!(
+        text.contains("1."),
+        "P182D: fallback legacy deve preservar paridade quando Introspector vazio; obtido: '{text}'"
+    );
+}
+
+#[test]
+fn p182d_heading_numbering_paridade_legacy_vs_migrated() {
+    // Output observable inalterado: `layout()` legacy e
+    // `layout_with_introspector` produzem mesmo plain_text para
+    // documento típico (SetHeadingNumbering + headings).
+    use crate::rules::introspect::introspect_with_introspector;
+
+    let content = Content::Sequence(vec![
+        Content::SetHeadingNumbering { active: true },
+        Content::heading(1, Content::text("Intro")),
+        Content::heading(2, Content::text("Sub")),
+        Content::heading(1, Content::text("Conclusão")),
+    ].into());
+
+    let txt_legacy = layout(&content, introspect(&content)).plain_text();
+    let (state, intr) = introspect_with_introspector(&content, None, None);
+    let txt_new = layout_with_introspector(&content, state, intr).plain_text();
+    assert_eq!(txt_legacy, txt_new, "P182D: paridade pre/post migração");
 }
 
 #[test]
@@ -3744,5 +3813,156 @@ mod p172_func_callback {
         );
         let (_, intr) = introspect_with_introspector(&content, None, None);
         assert_eq!(intr.state_final_value("c"), Some(&Value::Int(10)));
+    }
+}
+
+// ── P182E — Tests E2E pipeline completo `numbering_active:heading` ────────
+
+#[cfg(test)]
+mod p182e_e2e_heading_numbering {
+    use super::*;
+    use crate::entities::introspector::Introspector;
+    use crate::rules::introspect::{introspect, introspect_with_introspector};
+    use std::sync::Arc;
+
+    /// Documento típico: `set heading(numbering: ...)` + 3 headings com nesting [1, 2, 1].
+    fn doc_typico() -> Content {
+        Content::Sequence(Arc::from(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::heading(1, Content::text("Intro")),
+            Content::heading(2, Content::text("Motivação")),
+            Content::heading(1, Content::text("Conclusão")),
+        ]))
+    }
+
+    #[test]
+    fn pipeline_completo_heading_numbering_via_layout_legacy() {
+        // P182E .B: pipeline completo `walk → from_tags →
+        // layout_with_introspector` via `layout()` legacy. Após P181H,
+        // path legacy re-corre `introspect_with_introspector`
+        // internamente — Introspector populado via P182C; fallback
+        // legacy também populado via walk arm canonical.
+        // Output observable (plain_text) deve conter prefixos
+        // hierárquicos correctos.
+        let content = doc_typico();
+        let txt = layout(&content, introspect(&content)).plain_text();
+
+        assert!(txt.contains("1."),  "H1 (Intro) deve ter prefixo '1.': '{txt}'");
+        assert!(txt.contains("1.1"), "H2 (Motivação) deve ter prefixo '1.1': '{txt}'");
+        assert!(txt.contains("2."),  "segundo H1 (Conclusão) deve ter prefixo '2.': '{txt}'");
+    }
+
+    #[test]
+    fn pipeline_completo_heading_numbering_via_layout_with_introspector() {
+        // P182E .B (irmão): mesmo pipeline mas via entry point novo
+        // directamente — sem o re-walk interno de `layout()`.
+        let content = doc_typico();
+        let (state, intr) = introspect_with_introspector(&content, None, None);
+
+        // Introspector populado: chave canónica conhecida.
+        assert!(
+            intr.is_numbering_active("numbering_active:heading"),
+            "P182C deve popular StateRegistry com Bool(true)"
+        );
+
+        let txt = layout_with_introspector(&content, state, intr).plain_text();
+        assert!(txt.contains("1."));
+        assert!(txt.contains("1.1"));
+        assert!(txt.contains("2."));
+    }
+
+    #[test]
+    fn re_update_active_true_then_false() {
+        // P182E .C: caminho de re-update (auto-init na primeira
+        // ocorrência + update normal na segunda; cf. P182C 5.1).
+        // Sequência: active=true → H1 → active=false → H2.
+        // Output esperado:
+        // - H1 com prefixo "1." (numbering ON na altura).
+        // - H2 sem prefixo "2." (numbering OFF na altura).
+        // O caminho activo do bool é o fallback legacy (mutável
+        // durante o walk), com Introspector a fornecer redundância
+        // por `final_value` (que retorna o último valor — `false`
+        // após o segundo update).
+        let content = Content::Sequence(Arc::from(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::heading(1, Content::text("Intro")),
+            Content::SetHeadingNumbering { active: false },
+            Content::heading(1, Content::text("Apêndice")),
+        ]));
+        let txt = layout(&content, introspect(&content)).plain_text();
+
+        assert!(
+            txt.contains("1."),
+            "H1 (Intro) com numbering ON deve ter prefixo '1.': '{txt}'"
+        );
+        assert!(
+            !txt.contains("2."),
+            "H2 (Apêndice) com numbering OFF não deve ter prefixo '2.': '{txt}'"
+        );
+        assert!(txt.contains("Apêndice"), "corpo H2 deve estar presente");
+
+        // Validar que o re-update foi visível ao Introspector
+        // (final_value reflecte o último valor `false`).
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+        assert!(
+            !intr.is_numbering_active("numbering_active:heading"),
+            "Introspector final_value deve reflectir o último update (false)"
+        );
+    }
+
+    #[test]
+    fn paridade_documento_complexo_legacy_vs_migrated() {
+        // P182E .D: documento com headings + parágrafo de texto +
+        // equation block. Comparar plain_text entre `layout()` legacy
+        // e `layout_with_introspector` directo. Output observable
+        // deve ser idêntico — confirma que migração P182B–D não
+        // introduziu divergência.
+        let content = Content::Sequence(Arc::from(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::heading(1, Content::text("Sec1")),
+            Content::text("corpo do parágrafo"),
+            Content::heading(2, Content::text("Sub1")),
+            Content::Equation {
+                body:  Box::new(Content::MathText("x".into())),
+                block: true,
+            },
+            Content::heading(1, Content::text("Sec2")),
+        ]));
+
+        let txt_legacy = layout(&content, introspect(&content)).plain_text();
+        let (state, intr) = introspect_with_introspector(&content, None, None);
+        let txt_new = layout_with_introspector(&content, state, intr).plain_text();
+
+        assert_eq!(
+            txt_legacy, txt_new,
+            "P182E: paridade plain_text entre layout() legacy e layout_with_introspector"
+        );
+        assert!(txt_legacy.contains("1."));
+        assert!(txt_legacy.contains("1.1"));
+        assert!(txt_legacy.contains("2."));
+    }
+
+    #[test]
+    fn walk_continua_a_popular_legacy_apos_p182cd() {
+        // P182E .E: sentinela contra regressão de janela compat M6.
+        // Walk arm canonical em `introspect.rs:455–457` continua a
+        // popular `state.numbering_active` legacy paralelamente. Se
+        // este test regredir, o fallback `||` em P182D deixa de ter
+        // semântica de rede de segurança e o Layouter passa a depender
+        // exclusivamente do Introspector (mudança não intencional).
+        let content = Content::SetHeadingNumbering { active: true };
+        let state = introspect(&content);
+
+        assert!(
+            state.is_numbering_active("heading"),
+            "walk arm canonical deve continuar a popular state.numbering_active['heading'] legacy"
+        );
+        // Caso simétrico — `false` também é registado em legacy.
+        let content_false = Content::SetHeadingNumbering { active: false };
+        let state_false = introspect(&content_false);
+        assert!(
+            !state_false.is_numbering_active("heading"),
+            "walk arm canonical deve registar Bool(false) em legacy"
+        );
     }
 }

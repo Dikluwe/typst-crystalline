@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: 9c591aff
+Hash do Código: 3f5b73cc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`
@@ -93,6 +93,15 @@ pub trait Introspector {
     /// assignment respeita cláusula 3 P181A — primeiro número de uma
     /// key persiste em multi-Bibliography (`or_insert`).
     fn bib_number_for_key(&self, key: &str) -> Option<u32>;
+
+    /// **P182B (M9)** — flag de numeração activa para `key`. Replica
+    /// `CounterStateLegacy::is_numbering_active(key)` legacy via
+    /// `StateRegistry`: lê `state.final_value(key)` e devolve `true`
+    /// apenas se for `Some(Value::Bool(true))`. Default `false`
+    /// (state ausente, `Bool(false)`, ou variant não-Bool).
+    /// Resolve lacuna #4 (cf. P182A diagnóstico). Convenção de chave:
+    /// `numbering_active:<feature>` — ex. `numbering_active:heading`.
+    fn is_numbering_active(&self, key: &str) -> bool;
 }
 
 #[derive(Debug, Clone, Default)]
@@ -205,3 +214,4 @@ Fan-in baixo: M3 não tem consumers externos ainda.
 | 2026-04-29 | P177 sub-passo .C: método `formatted_counter_at(key, location) -> Option<String>` no trait + impl | `introspector.rs`, `introspector.md` |
 | 2026-05-01 | P181B sub-passo .G: field `pub bib_store: BibStore` em `TagIntrospector` (composição visível); população começa em P181E | `introspector.rs`, `introspector.md`, `bib_store.rs`, `bib_store.md` |
 | 2026-05-01 | P181F sub-passo .E: trait estendido com `bib_entry_for_key` + `bib_number_for_key`; impl em `TagIntrospector` delega para `bib_store` | `introspector.rs`, `introspector.md` |
+| 2026-05-02 | P182B sub-passo .C–.E: trait estendido com `is_numbering_active(key)`; impl delega a `state.final_value(key)` + match `Value::Bool(true)`; default `false`. Resolve lacuna #4 (cf. P182A diagnóstico). | `introspector.rs`, `introspector.md` |

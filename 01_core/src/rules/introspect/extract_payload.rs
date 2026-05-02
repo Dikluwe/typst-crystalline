@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/extract_payload.md
-//! @prompt-hash a30fd785
+//! @prompt-hash e0e41040
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -11,6 +11,8 @@ use crate::entities::content::Content;
 use crate::entities::content_hash::hash_content;
 use crate::entities::counter_update::CounterUpdate;
 use crate::entities::element_payload::ElementPayload;
+use crate::entities::state_update::StateUpdate;
+use crate::entities::value::Value;
 
 /// Extrai o `ElementPayload` correspondente a um `Content`, se for
 /// uma variante locatable (Heading/Figure/Cite em M1).
@@ -50,6 +52,17 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         Content::StateUpdate { key, update } => Some(ElementPayload::StateUpdate {
             key:    key.clone(),
             update: update.clone(),
+        }),
+
+        // P182C (M9) — SetHeadingNumbering emite StateUpdate sob chave
+        // canónica `numbering_active:heading`. Reusa infra P171/P173 —
+        // sem novo ElementPayload variant; `from_tags` arm StateUpdate
+        // popula StateRegistry. Walk arm canonical em
+        // `introspect.rs:455–457` continua write paralelo legacy
+        // (M6 elimina). Suporte ao plano P182 (lacuna #4).
+        Content::SetHeadingNumbering { active } => Some(ElementPayload::StateUpdate {
+            key:    "numbering_active:heading".to_string(),
+            update: StateUpdate::Set(Box::new(Value::Bool(*active))),
         }),
 
         // P178 — Outline é unit. Payload também unit. Fecha lacuna #7.
@@ -232,6 +245,38 @@ mod tests {
                 assert_eq!(entries.len(), 1);
             }
             other => panic!("esperado Some(Bibliography), obtido {other:?}"),
+        }
+    }
+
+    // ── P182C — SetHeadingNumbering arm ──────────────────────────────────
+
+    #[test]
+    fn set_heading_numbering_active_true_produz_state_update_bool_true() {
+        let c = Content::SetHeadingNumbering { active: true };
+        match extract_payload(&c) {
+            Some(ElementPayload::StateUpdate { key, update }) => {
+                assert_eq!(key, "numbering_active:heading");
+                match update {
+                    StateUpdate::Set(boxed) => assert_eq!(*boxed, Value::Bool(true)),
+                    other => panic!("esperado StateUpdate::Set, obtido {other:?}"),
+                }
+            }
+            other => panic!("esperado Some(StateUpdate), obtido {other:?}"),
+        }
+    }
+
+    #[test]
+    fn set_heading_numbering_active_false_produz_state_update_bool_false() {
+        let c = Content::SetHeadingNumbering { active: false };
+        match extract_payload(&c) {
+            Some(ElementPayload::StateUpdate { key, update }) => {
+                assert_eq!(key, "numbering_active:heading");
+                match update {
+                    StateUpdate::Set(boxed) => assert_eq!(*boxed, Value::Bool(false)),
+                    other => panic!("esperado StateUpdate::Set, obtido {other:?}"),
+                }
+            }
+            other => panic!("esperado Some(StateUpdate), obtido {other:?}"),
         }
     }
 }
