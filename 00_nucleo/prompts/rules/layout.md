@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 10004310
+Hash do Código: 647047a9
 
 ## Módulo
 `01_core/src/rules/layout.rs`
@@ -233,3 +233,60 @@ Janela compat eliminada em **M6** quando F1 retomar
 (`CounterStateLegacy.numbering_active` removido + walk arm canonical
 + write paralelo `layout/counters.rs:11–13` + copy-sites em
 `mod.rs:1414, 1442` desaparecem + fallback removido).
+
+## Secção: Figure-arm consome Introspector (P184D)
+
+Figure-arm de `Content::Figure { body, caption, kind, numbering }` em
+`layout/mod.rs:435–439` consulta
+`Introspector::figure_number_at_index(kind_key, idx)` primeiro com
+fallback **substitution-with-fallback** a
+`self.counter.figure_numbers.get(kind_key).and_then(|v| v.get(idx)).copied()`
+legacy + `unwrap_or(idx + 1)` defensivo final (padrão P168/P181G/P182D
+estendido com camada extra dado o fallback heurístico pré-existente):
+
+```rust
+let figure_number = self.introspector
+    .figure_number_at_index(kind_key, idx)
+    .or_else(|| self.counter.figure_numbers
+        .get(kind_key).and_then(|v| v.get(idx)).copied())
+    .unwrap_or(idx + 1);
+```
+
+**Convenção de chave**: Introspector resolve internamente
+`format!("figure:{}", kind_key)` (P184B); Layouter passa `kind_key`
+sem prefixo (`"image"`, `"table"`). Default `kind_key = "image"`
+quando `kind: None` é responsabilidade do caller (Layouter, linha 431
+`kind.as_deref().unwrap_or("image")`).
+
+**Idx 0-indexed em ambos paths**: `figure_progress` no Layouter
+inicializa em 0, incrementa após cada figure numerada; legacy
+`figure_numbers[kind][idx]` faz acesso `Vec::get` 0-indexed;
+Introspector `value_at_index(key, idx)` faz `history.get(key)?.get(idx)`
+0-indexed. Sem deslocamento entre paths.
+
+**Comportamento por path**:
+- **`layout()` legacy**: `layout()` re-corre `introspect_with_introspector`
+  internamente (cf. secção P181H) — Introspector populado via P184B arm
+  Figure (`apply_at("figure:{kind}", Step, loc)` para cada figure).
+  Fallback legacy: `state.figure_numbers` é populado em walk
+  (`introspect.rs:391–399`) mas **nunca copiado ao Layouter** (achado
+  P184A §3.6 — copy-sites `mod.rs:1414, 1442` não copiam o campo).
+  Em produção, fallback legacy retorna sempre `None` → Introspector
+  path activo é o caminho real após P184D.
+- **`layout_with_introspector(content, state, introspector)`**: caller
+  passa Introspector populado; mesmo comportamento.
+
+**Paridade output**: counter flat é incrementado no walk legacy só
+para figures `is_counted` (numbering+caption, `introspect.rs:387`)
+enquanto Introspector P184B incrementa para **toda** figure
+(`extract_payload.rs:33` define `counter_update: Step` incondicional).
+Layouter idx conta figures `numbering.is_some()` (sem exigir caption,
+`mod.rs:430`). Em produção típica (numbering+caption juntos) o offset
+coincide e ambos paths retornam `idx + 1`. Casos limite (numbering sem
+caption ou vice-versa) convergem na heurística `unwrap_or(idx + 1)`
+final que ambos paths originam.
+
+Janela compat eliminada em **M6** quando F1 retomar
+(`CounterStateLegacy.figure_numbers`/`local_figure_counters` removidos
++ walk arm canonical legacy + chave global `"figure"` paralela em
+`from_tags` arm Figure desaparecem + fallback removido).

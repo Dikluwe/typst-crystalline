@@ -153,3 +153,50 @@ Critérios P181A §2.6 (Opção 3) verificados literalmente:
 | 7 | `has_outline` | P167 | ✅ **Resolvida em P178** (cascade `ElementKind::Outline`) |
 
 Sem alteração de código resultante deste documento. Sem ADR nova. Lista é instrumento de referência para passos M5+ que migrem consumers e M9+ que estendam Introspector.
+
+---
+
+## Anexo — DEBT M4-residual (consumers C1+C2 bloqueados, C3 fechado em P184)
+
+Conceito introduzido em P183A §3 (diagnóstico M4-residual): inventário de
+consumers de `CounterStateLegacy` em `01_core/src/rules/layout/` que
+não migram trivialmente para Introspector via padrão P168/P181G/P182D.
+
+P183B/C/D auditaram cada um aplicando a regra dos 2 eixos (P183C §6):
+
+| Consumer | Site | Eixo bloqueado | Estado |
+|----------|------|----------------|--------|
+| C1 heading prefix | `mod.rs:310` (`format_hierarchical("heading")`) | 1 (snapshot-during-walk) | bloqueado em P183B; espera location-aware Layouter (M6+) |
+| C2 equation counter | `equation.rs:97` (`get_flat("equation")`) | 1 + 2 (sem arm `Equation` em `from_tags`) | bloqueado em P183C; espera location-aware + emissão Tag Equation |
+| C3 figure auto-number per kind | `mod.rs:435–439` (`figure_numbers[kind][idx]`) | 2 (chave global `"figure"` em vez de `figure:{kind}`) | **✅ FECHADO em P184D + P184E** |
+
+**P184 fechou C3** isoladamente (eixo 2 era localizado, não exigia
+cross-cutting M6+; cf. P183D §3 §4.3). Pipeline desbloqueio:
+P184B refinou arm Figure de `from_tags` para popular chave
+`figure:{kind}` (default `figure:image`); P184C adicionou método
+trait `figure_number_at_index(kind, idx)` + helper
+`CounterRegistry::value_at_index(key, idx)`; P184D migrou consumer
+com substitution-with-fallback (Introspector é o caminho activo,
+fallback legacy é dead code factual em produção); P184E adicionou
+5 tests E2E confirmando paridade observable.
+
+**Estado actual da DEBT M4-residual** (2026-05-03, pós-P184F):
+
+- **Cenário B confirmado**: P183F (passo de fecho da série P183)
+  ainda **não correu**. P184 precedeu P183F.
+- **Instrução preventiva para P183F**: quando correr, deve abrir
+  DEBT M4-residual cobrindo apenas **C1 + C2** (não C3 — fechado
+  em P184). A spec de P183F deve ser actualizada antes de correr
+  para reflectir esta cobertura reduzida.
+- **Custo de desbloqueio**: C1+C2 esperam P185+ (location-aware
+  Layouter, pendência paralela P182E §5.2). Cross-cutting M6+ —
+  trabalho não trivializável isoladamente.
+
+**Por que não está formalmente como Lacuna**: a lacunas-captura
+documenta divergências entre walk legacy e Introspector M3 minimal
+(estruturas de dados). DEBT M4-residual documenta consumers do
+Layouter que não migram para o trait Introspector com paridade
+semântica observável. As duas categorias são ortogonais. Esta
+secção fica como referência cruzada operacional.
+
+Sem alteração de código resultante deste anexo. Sem ADR nova.

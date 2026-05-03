@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/counter_registry.md
-//! @prompt-hash 885a4296
+//! @prompt-hash 0147218d
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -131,6 +131,22 @@ impl CounterRegistry {
             .filter(|(loc, _)| loc.as_u128() <= location.as_u128())
             .last()
             .map(|(_, v)| v.as_slice())
+    }
+
+    /// **P184C** — n-ésimo snapshot (0-indexed) na história de `key`.
+    /// Acesso por posição em vez de por `Location`. Suporta consumers
+    /// que iteram counters por kind em ordem de aparecimento sem
+    /// conhecer Locations específicas (Layouter C3 figure auto-number
+    /// per kind, `mod.rs:435–439`).
+    ///
+    /// Para counters flat (figure, equation), o snapshot na posição
+    /// `idx` é `[idx + 1]` (cada `apply_at(Step)` regista o estado
+    /// pós-update). Para counters hierárquicos (heading), o snapshot
+    /// reflecte o estado completo da hierarquia naquela Location.
+    ///
+    /// `None` se key inexistente ou idx fora de range da história.
+    pub fn value_at_index(&self, key: &str, idx: usize) -> Option<&[usize]> {
+        self.history.get(key)?.get(idx).map(|(_, v)| v.as_slice())
     }
 
     /// **P177 (M9 sub-passo 7)** — wrapper sobre `apply` que
@@ -338,5 +354,42 @@ mod tests {
         r.apply("heading".to_string(), CounterUpdate::Step);
         assert_eq!(r.value("heading"), Some(&[1usize][..])); // estado actual ok
         assert_eq!(r.value_at("heading", loc(100)), None); // history vazia
+    }
+
+    // ── P184C — value_at_index (acesso por posição na história) ─────
+
+    #[test]
+    fn value_at_index_em_registry_vazio_devolve_none() {
+        let r = CounterRegistry::empty();
+        assert_eq!(r.value_at_index("figure:image", 0), None);
+    }
+
+    #[test]
+    fn value_at_index_devolve_snapshot_por_posicao() {
+        // Sequência típica de figures por kind: cada apply_at(Step)
+        // produz snapshot [1], [2], [3], ... na ordem de inserção.
+        let mut r = CounterRegistry::empty();
+        r.apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10)); // [1]
+        r.apply_at("figure:image".to_string(), CounterUpdate::Step, loc(20)); // [2]
+        r.apply_at("figure:image".to_string(), CounterUpdate::Step, loc(30)); // [3]
+
+        assert_eq!(r.value_at_index("figure:image", 0), Some(&[1usize][..]));
+        assert_eq!(r.value_at_index("figure:image", 1), Some(&[2usize][..]));
+        assert_eq!(r.value_at_index("figure:image", 2), Some(&[3usize][..]));
+        // Idx fora de range.
+        assert_eq!(r.value_at_index("figure:image", 3), None);
+    }
+
+    #[test]
+    fn value_at_index_keys_distintas_isoladas() {
+        let mut r = CounterRegistry::empty();
+        r.apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10)); // [1]
+        r.apply_at("figure:table".to_string(), CounterUpdate::Step, loc(20)); // [1]
+        r.apply_at("figure:image".to_string(), CounterUpdate::Step, loc(30)); // [2]
+
+        assert_eq!(r.value_at_index("figure:image", 0), Some(&[1usize][..]));
+        assert_eq!(r.value_at_index("figure:image", 1), Some(&[2usize][..]));
+        assert_eq!(r.value_at_index("figure:table", 0), Some(&[1usize][..]));
+        assert_eq!(r.value_at_index("figure:table", 1), None);
     }
 }

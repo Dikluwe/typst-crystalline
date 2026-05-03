@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: 3f5b73cc
+Hash do Código: 2007e307
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`
@@ -102,6 +102,17 @@ pub trait Introspector {
     /// Resolve lacuna #4 (cf. P182A diagnóstico). Convenção de chave:
     /// `numbering_active:<feature>` — ex. `numbering_active:heading`.
     fn is_numbering_active(&self, key: &str) -> bool;
+
+    /// **P184C** — número 1-based da figure na posição `idx` (0-indexed)
+    /// entre as figures do `kind` indicado, processadas em ordem de
+    /// aparecimento no walk. Suporta C3 desbloqueio (consumer em
+    /// `mod.rs:435–439`). Convenção de chave: `figure:{kind}` (P184B);
+    /// chamada interna constrói `format!("figure:{}", kind)` e delega
+    /// a `CounterRegistry::value_at_index`. Default kind `"image"` é
+    /// responsabilidade do caller (per `mod.rs:431` que resolve
+    /// `kind.as_deref().unwrap_or("image")`). `None` se kind ausente
+    /// do registry ou idx fora de range.
+    fn figure_number_at_index(&self, kind: &str, idx: usize) -> Option<usize>;
 }
 
 #[derive(Debug, Clone, Default)]
@@ -215,3 +226,4 @@ Fan-in baixo: M3 não tem consumers externos ainda.
 | 2026-05-01 | P181B sub-passo .G: field `pub bib_store: BibStore` em `TagIntrospector` (composição visível); população começa em P181E | `introspector.rs`, `introspector.md`, `bib_store.rs`, `bib_store.md` |
 | 2026-05-01 | P181F sub-passo .E: trait estendido com `bib_entry_for_key` + `bib_number_for_key`; impl em `TagIntrospector` delega para `bib_store` | `introspector.rs`, `introspector.md` |
 | 2026-05-02 | P182B sub-passo .C–.E: trait estendido com `is_numbering_active(key)`; impl delega a `state.final_value(key)` + match `Value::Bool(true)`; default `false`. Resolve lacuna #4 (cf. P182A diagnóstico). | `introspector.rs`, `introspector.md` |
+| 2026-05-03 | P184C sub-passo .D: trait estendido com `figure_number_at_index(kind, idx)`; impl em `TagIntrospector` delega via `CounterRegistry::value_at_index` (helper P184C .C) sob chave `figure:{kind}` populada em P184B. Suporta C3 desbloqueio (consumer migrado em P184D). | `introspector.rs`, `introspector.md` |

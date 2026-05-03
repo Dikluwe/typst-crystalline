@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 59811524
+//! @prompt-hash 4c94a7c0
 //! @layer L1
 //! @updated 2026-04-21
 
@@ -432,10 +432,19 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     let progress = self.figure_progress.entry(kind_key.to_string()).or_insert(0);
                     let idx = *progress;
                     *progress += 1;
-                    let figure_number = self.counter.figure_numbers
-                        .get(kind_key)
-                        .and_then(|v| v.get(idx))
-                        .copied()
+                    // P184D: substitution-with-fallback (padrão P168/P181G/P182D).
+                    // Introspector primeiro via `figure_number_at_index` (P184C);
+                    // fallback legacy a `state.figure_numbers` (que em produção
+                    // é dead code — copy-sites não copiam o campo, P184A §3.6);
+                    // `unwrap_or(idx + 1)` final preserva heurística pré-existente
+                    // como rede de segurança.
+                    use crate::entities::introspector::Introspector;
+                    let figure_number = self.introspector
+                        .figure_number_at_index(kind_key, idx)
+                        .or_else(|| self.counter.figure_numbers
+                            .get(kind_key)
+                            .and_then(|v| v.get(idx))
+                            .copied())
                         .unwrap_or(idx + 1);
                     Some(format!("Figura {}: ", figure_number))
                 } else {

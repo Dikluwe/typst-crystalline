@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/from_tags`
-Hash do Código: 9acddbb4
+Hash do Código: 7ab14b2f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/introspect/from_tags.rs`
@@ -31,7 +31,7 @@ Para cada tag:
   1. Se `info.label.is_some()`: `labels.add(label, loc)`.
   2. Match sobre `info.payload`:
      - `Heading { depth, counter_update: _, .. }`: kind_index[Heading].push(loc); **P170**: `counters.apply_hierarchical("heading", *depth as usize)` em vez de apply flat — paridade com walk arm `Content::Heading` em introspect.rs:279. counter_update é ignorado para Heading (depth é fonte autoritativa).
-     - `Figure { counter_update, is_counted, .. }`: kind_index[Figure].push(loc); counters.apply("figure", counter_update). **P168**: se `is_counted == true` E `info.label.is_some()`, indexar em `figure_label_numbers` com número 1-based sequencial.
+     - `Figure { kind, counter_update, is_counted, .. }`: kind_index[Figure].push(loc). **P184B**: `counters.apply_at(format!("figure:{}", kind.as_deref().unwrap_or("image")), counter_update, loc)` — chave per-kind (`figure:image`, `figure:table`, …) com default `"image"` replicando `introspect.rs:391` e `mod.rs:431` (P184A cláusula 1). Em paralelo, `counters.apply_at("figure", counter_update, loc)` mantém a chave global durante janela compat M6 (P184A cláusula 5 — dead code factual em produção, simétrico com walk legacy `state.figure_numbers` que também não é copiado ao Layouter; cleanup orgânico em M6 junto com `CounterStateLegacy`). Convenção `figure:{kind}` originalmente documentada em `element_payload.rs:52` mas não implementada até P184B. **P168**: se `is_counted == true` E `info.label.is_some()`, indexar em `figure_label_numbers` com número 1-based sequencial.
      - `Citation { .. }`: kind_index[Citation].push(loc); (sem counter_update — Citation não tem campo counter_update).
      - `Metadata { value }`: kind_index[Metadata].push(loc); `metadata.add(*value.clone())` em ordem de aparecimento. **P169 M9**.
      - `State { key, init }`: kind_index[State].push(loc); `state.init(key.clone(), (**init).clone(), loc)`. **P171 M9**.
@@ -130,3 +130,4 @@ Refino futuro possível: se M5+ precisar de informação contextual (e.g. headin
 | 2026-04-29 | P173 sub-passo .B: cascade Engine + EvalContext opcionais; eval real de `StateUpdate::Func` via `apply_func` | `from_tags.rs`, `from_tags.md` |
 | 2026-05-02 | P182C: arm `StateUpdate::Set` auto-inicia a key se ainda não foi vista (suporte a state interno `numbering_active:*` sem `Content::State` antecedente). Caminho normal preservado para keys já inicializadas. | `from_tags.rs`, `from_tags.md` |
 | 2026-05-01 | P181E sub-passo .E: arm `Bibliography { entries }` substitui no-op (P181C) — popula `kind_index[Bibliography]` + `bib_store` via loop de `assign_number` + `add_bibliography` | `from_tags.rs`, `from_tags.md` |
+| 2026-05-03 | P184B: arm `Figure` refinado para popular `CounterRegistry` com chave per-kind `figure:{kind}` (default `"image"`); chave global `"figure"` mantida em paralelo durante janela compat M6 (dead code factual). Promove convenção documentada em `element_payload.rs:52` para implementação. | `from_tags.rs`, `from_tags.md` |

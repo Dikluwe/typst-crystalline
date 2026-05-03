@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash 30bd91d8
+//! @prompt-hash 27c46d3b
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -110,6 +110,15 @@ pub trait Introspector {
     /// Convenção de chave: `numbering_active:<feature>` (ex.
     /// `numbering_active:heading`). Resolve lacuna #4 (cf. P182A).
     fn is_numbering_active(&self, key: &str) -> bool;
+
+    /// **P184C** — número 1-based da figure na posição `idx` (0-indexed)
+    /// entre as figures do `kind` indicado, em ordem de aparecimento
+    /// no walk. Constrói `format!("figure:{}", kind)` e delega a
+    /// `CounterRegistry::value_at_index` (chave populada em P184B
+    /// arm Figure de `from_tags`). Default kind `"image"` é
+    /// responsabilidade do caller (cf. `mod.rs:431`).
+    /// `None` se kind ausente do registry ou idx fora de range.
+    fn figure_number_at_index(&self, kind: &str, idx: usize) -> Option<usize>;
 }
 
 /// Implementação concreta de `Introspector` construída a partir de
@@ -222,6 +231,15 @@ impl Introspector for TagIntrospector {
 
     fn is_numbering_active(&self, key: &str) -> bool {
         matches!(self.state.final_value(key), Some(Value::Bool(true)))
+    }
+
+    fn figure_number_at_index(&self, kind: &str, idx: usize) -> Option<usize> {
+        let key = format!("figure:{}", kind);
+        // Counter flat: snapshot é `[N]` com tamanho 1 — `.last()`
+        // extrai o número 1-based. Para counters hierárquicos
+        // (heading), `.last()` daria o nível mais profundo, mas
+        // figure é sempre flat.
+        self.counters.value_at_index(&key, idx)?.last().copied()
     }
 }
 
@@ -467,5 +485,92 @@ mod tests {
             loc(10),
         );
         assert!(!i.is_numbering_active("numbering_active:heading"));
+    }
+
+    // ── P184C — figure_number_at_index ──────────────────────────────
+
+    #[test]
+    fn figure_number_at_index_em_introspector_vazio_devolve_none() {
+        let i = TagIntrospector::empty();
+        assert_eq!(i.figure_number_at_index("image", 0), None);
+        assert_eq!(i.figure_number_at_index("table", 0), None);
+    }
+
+    #[test]
+    fn figure_number_at_index_apos_populate_devolve_some() {
+        // Replica directamente o que arm Figure faz em `from_tags`
+        // (P184B): apply_at("figure:{kind}", Step, loc).
+        let mut i = TagIntrospector::empty();
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(10),
+        );
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(20),
+        );
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(30),
+        );
+        assert_eq!(i.figure_number_at_index("image", 0), Some(1));
+        assert_eq!(i.figure_number_at_index("image", 1), Some(2));
+        assert_eq!(i.figure_number_at_index("image", 2), Some(3));
+    }
+
+    #[test]
+    fn figure_number_at_index_kinds_distintos_isolados() {
+        let mut i = TagIntrospector::empty();
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(10),
+        );
+        i.counters.apply_at(
+            "figure:table".to_string(),
+            CounterUpdate::Step,
+            loc(20),
+        );
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(30),
+        );
+        // image: 2 figures (idx 0, 1); table: 1 figure (idx 0).
+        assert_eq!(i.figure_number_at_index("image", 0), Some(1));
+        assert_eq!(i.figure_number_at_index("image", 1), Some(2));
+        assert_eq!(i.figure_number_at_index("table", 0), Some(1));
+        assert_eq!(i.figure_number_at_index("table", 1), None);
+    }
+
+    #[test]
+    fn figure_number_at_index_idx_fora_de_range_devolve_none() {
+        let mut i = TagIntrospector::empty();
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(10),
+        );
+        // 1 figure populada; idx 1+ é fora de range.
+        assert_eq!(i.figure_number_at_index("image", 0), Some(1));
+        assert_eq!(i.figure_number_at_index("image", 1), None);
+        assert_eq!(i.figure_number_at_index("image", 100), None);
+    }
+
+    #[test]
+    fn figure_number_at_index_default_kind_image() {
+        // Replica path do arm Figure quando `kind: None`: chave fica
+        // "figure:image". Caller (Layouter) resolve `None` → "image"
+        // antes de chamar; trait method não vê `Option`.
+        let mut i = TagIntrospector::empty();
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(10),
+        );
+        assert_eq!(i.figure_number_at_index("image", 0), Some(1));
     }
 }

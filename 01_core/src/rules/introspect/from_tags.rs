@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/from_tags.md
-//! @prompt-hash 2010372a
+//! @prompt-hash d0113a49
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -68,12 +68,29 @@ pub fn from_tags(
                             *loc,
                         );
                     }
-                    ElementPayload::Figure { counter_update, is_counted, .. } => {
+                    ElementPayload::Figure { kind, counter_update, is_counted, .. } => {
                         intr.kind_index
                             .entry(ElementKind::Figure)
                             .or_default()
                             .push(*loc);
-                        // P177: variante `_at` regista snapshot.
+                        // P184B: chave per-kind `figure:{kind}` (default
+                        // `"image"` replicando `introspect.rs:391` e
+                        // `mod.rs:431`). Promove convenção documentada
+                        // em `element_payload.rs:52` mas não
+                        // implementada até aqui. Suporta C3 desbloqueio
+                        // (consumer em `mod.rs:435–439`).
+                        let kind_key = kind.as_deref().unwrap_or("image");
+                        intr.counters.apply_at(
+                            format!("figure:{}", kind_key),
+                            counter_update.clone(),
+                            *loc,
+                        );
+                        // P177: variante `_at` regista snapshot. Chave
+                        // global `"figure"` mantida em paralelo durante
+                        // janela compat M6 (P184A cláusula 5; dead code
+                        // factual — sem consumers actuais — preservado
+                        // por simetria com walk legacy `state.figure_numbers`
+                        // que também não é copiado ao Layouter).
                         intr.counters.apply_at(
                             "figure".to_string(),
                             counter_update.clone(),
