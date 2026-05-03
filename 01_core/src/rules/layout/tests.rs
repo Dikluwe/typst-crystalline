@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 59811524
+//! @prompt-hash 4c94a7c0
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -3964,5 +3964,161 @@ mod p182e_e2e_heading_numbering {
             !state_false.is_numbering_active("heading"),
             "walk arm canonical deve registar Bool(false) em legacy"
         );
+    }
+}
+
+// ── P184E — Tests E2E paridade C3 (figure auto-number per kind) ────────────
+
+#[cfg(test)]
+mod p184e_figure_per_kind {
+    use super::*;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use crate::rules::introspect::{introspect, introspect_with_introspector};
+    use std::sync::Arc;
+
+    /// Helper: figure numerada+captioned com kind dado.
+    fn figure(kind: Option<&str>, caption_text: &str) -> Content {
+        Content::Figure {
+            body:      Box::new(Content::text("body")),
+            caption:   Some(Box::new(Content::text(caption_text))),
+            kind:      kind.map(|s| s.to_string()),
+            numbering: Some("1".into()),
+        }
+    }
+
+    /// Documento típico: 3 figures `kind: image` numeradas+captioned.
+    fn doc_tres_figuras_image() -> Content {
+        Content::Sequence(Arc::from(vec![
+            figure(Some("image"), "alpha"),
+            figure(Some("image"), "beta"),
+            figure(Some("image"), "gamma"),
+        ]))
+    }
+
+    #[test]
+    fn pipeline_completo_figure_kind_image_via_introspector() {
+        // P184E .B: pipeline `walk → from_tags → layout_with_introspector`
+        // com Introspector populado via P184B (chave `figure:image`).
+        // P184C `figure_number_at_index` retorna `Some(N)`; consumer C3
+        // migrado em P184D usa esse valor (path Introspector activo).
+        let content = doc_tres_figuras_image();
+        let (state, intr) = introspect_with_introspector(&content, None, None);
+
+        // Introspector populado: chaves canónicas conhecidas.
+        assert_eq!(intr.figure_number_at_index("image", 0), Some(1));
+        assert_eq!(intr.figure_number_at_index("image", 1), Some(2));
+        assert_eq!(intr.figure_number_at_index("image", 2), Some(3));
+        assert_eq!(intr.figure_number_at_index("image", 3), None);
+
+        let txt = layout_with_introspector(&content, state, intr).plain_text();
+        assert!(txt.contains("Figura 1:"), "1ª figure: '{txt}'");
+        assert!(txt.contains("Figura 2:"), "2ª figure: '{txt}'");
+        assert!(txt.contains("Figura 3:"), "3ª figure: '{txt}'");
+        assert!(txt.contains("alpha"));
+        assert!(txt.contains("beta"));
+        assert!(txt.contains("gamma"));
+    }
+
+    #[test]
+    fn pipeline_via_fallback_legacy_dead_code_idx_plus_one() {
+        // P184E .C: pipeline com `TagIntrospector::empty()` força o
+        // path Introspector a retornar `None` para `figure_number_at_index`;
+        // fallback `or_else` consulta `state.figure_numbers` legacy
+        // (que é dead code factual — copy-sites não copiam, P184A §3.6
+        // ratificado em P184B/C/D); cai em `unwrap_or(idx + 1)` heurístico
+        // final. Output observable é idêntico ao path Introspector real.
+        let content = doc_tres_figuras_image();
+        let state_legacy = introspect(&content);
+        let txt = layout_with_introspector(&content, state_legacy, TagIntrospector::empty()).plain_text();
+
+        assert!(txt.contains("Figura 1:"), "fallback heurístico 1: '{txt}'");
+        assert!(txt.contains("Figura 2:"), "fallback heurístico 2: '{txt}'");
+        assert!(txt.contains("Figura 3:"), "fallback heurístico 3: '{txt}'");
+    }
+
+    #[test]
+    fn paridade_layout_legacy_vs_layout_with_introspector_figures() {
+        // P184E .D: `layout()` legacy (re-corre `introspect_with_introspector`
+        // internamente per P181H) e `layout_with_introspector` directo
+        // produzem mesmo `plain_text`. Confirma que migração P184B–D
+        // não introduziu divergência observable. C3 é o **primeiro
+        // consumer onde Introspector populado é o caminho activo, não
+        // redundância** — paridade aqui valida a inversão.
+        let content = doc_tres_figuras_image();
+
+        let txt_legacy = layout(&content, introspect(&content)).plain_text();
+        let (state_new, intr_new) = introspect_with_introspector(&content, None, None);
+        let txt_new = layout_with_introspector(&content, state_new, intr_new).plain_text();
+
+        assert_eq!(
+            txt_legacy, txt_new,
+            "P184E: paridade plain_text entre layout() legacy e layout_with_introspector"
+        );
+        assert!(txt_legacy.contains("Figura 1:"));
+        assert!(txt_legacy.contains("Figura 2:"));
+        assert!(txt_legacy.contains("Figura 3:"));
+    }
+
+    #[test]
+    fn kinds_distintos_isolados_image_e_table() {
+        // P184E .E: documento com 2 figures kind="image" + 2 figures
+        // kind="table" intercaladas. Cada kind tem numeração própria
+        // (key isolation no `CounterRegistry` per chave `figure:{kind}`).
+        // Layouter format hardcoded "Figura N:" (mod.rs:440) independente
+        // do kind — distinção observa-se via captions únicas.
+        let content = Content::Sequence(Arc::from(vec![
+            figure(Some("image"), "im_a"),
+            figure(Some("table"), "tb_a"),
+            figure(Some("image"), "im_b"),
+            figure(Some("table"), "tb_b"),
+        ]));
+
+        let (state, intr) = introspect_with_introspector(&content, None, None);
+
+        assert_eq!(intr.figure_number_at_index("image", 0), Some(1));
+        assert_eq!(intr.figure_number_at_index("image", 1), Some(2));
+        assert_eq!(intr.figure_number_at_index("image", 2), None);
+        assert_eq!(intr.figure_number_at_index("table", 0), Some(1));
+        assert_eq!(intr.figure_number_at_index("table", 1), Some(2));
+        assert_eq!(intr.figure_number_at_index("table", 2), None);
+
+        let txt = layout_with_introspector(&content, state, intr).plain_text();
+        // Captions únicos confirmam ordem; "Figura 1:" aparece duas vezes
+        // (uma para image[0], outra para table[0]).
+        assert!(txt.contains("im_a"));
+        assert!(txt.contains("im_b"));
+        assert!(txt.contains("tb_a"));
+        assert!(txt.contains("tb_b"));
+        // "Figura 2:" também aparece duas vezes — para image[1] e table[1].
+        let figura_2_count = txt.matches("Figura 2:").count();
+        assert!(
+            figura_2_count >= 2,
+            "esperado 2+ ocorrências de 'Figura 2:' (image[1] + table[1]); obtido: {figura_2_count} em '{txt}'"
+        );
+    }
+
+    #[test]
+    fn kind_none_default_image() {
+        // P184E .F: `kind: None` mapeia para chave `figure:image`
+        // (default per P184B convenção: `kind.as_deref().unwrap_or("image")`
+        // em `from_tags` arm Figure + `mod.rs:431` Layouter). Logo
+        // figures sem kind explícito partilham o mesmo counter que
+        // figures `kind: Some("image")`.
+        let content = Content::Sequence(Arc::from(vec![
+            figure(None, "default_a"),
+            figure(Some("image"), "explicit_b"),
+        ]));
+
+        let (state, intr) = introspect_with_introspector(&content, None, None);
+
+        // Ambas figures aparecem em `figure:image` history.
+        assert_eq!(intr.figure_number_at_index("image", 0), Some(1));
+        assert_eq!(intr.figure_number_at_index("image", 1), Some(2));
+
+        let txt = layout_with_introspector(&content, state, intr).plain_text();
+        assert!(txt.contains("Figura 1:"));
+        assert!(txt.contains("Figura 2:"));
+        assert!(txt.contains("default_a"));
+        assert!(txt.contains("explicit_b"));
     }
 }

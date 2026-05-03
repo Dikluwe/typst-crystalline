@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/counter_registry`
-Hash do Código: c567fe3a
+Hash do Código: 6b03a16c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/counter_registry.rs`
@@ -53,6 +53,14 @@ impl CounterRegistry {
     /// `loc <= location`. `None` se não há update prévia.
     pub fn value_at(&self, key: &str, location: Location) -> Option<&[usize]>;
 
+    /// **P184C** — n-ésimo snapshot (0-indexed) na história de `key`.
+    /// Acesso por posição em vez de por `Location`. Suporta
+    /// consumers que iteram counters por kind em ordem de
+    /// aparecimento sem conhecer a `Location` (Layouter C3 figure
+    /// auto-number per kind, `mod.rs:435–439`).
+    /// `None` se key inexistente ou idx fora de range da história.
+    pub fn value_at_index(&self, key: &str, idx: usize) -> Option<&[usize]>;
+
     pub(crate) fn apply(&mut self, key: String, update: CounterUpdate);
 
     /// **P170 (M9 sub-passo 2)** — step hierárquico ao nível indicado.
@@ -91,6 +99,7 @@ Hierarquia em M9: counters podem ter múltiplos níveis para Headings (paridade 
 
 - **P177**: `value_at(key, location)` retorna `Option<&[usize]>` com o valor do counter **após** todas as updates de `key` com `loc <= location`. Implementação via `history` (Vec ordenado por Location, monotonicamente crescente via `Locator`). Retorna `None` se nenhuma update precede `location` ou key inexistente.
 - **P177**: `apply_at(key, update, location)` e `apply_hierarchical_at(key, level, location)` são wrappers sobre `apply`/`apply_hierarchical` que adicionalmente fazem snapshot do estado actual em `history[key]` com a Location indicada. `from_tags` migra para usar `_at` versions; tests existentes em `apply`/`apply_hierarchical` mantêm-se sem location (não populam history).
+- **P184C**: `value_at_index(key, idx)` retorna `Option<&[usize]>` com o snapshot na posição `idx` (0-indexed) da `history[key]`. Acesso por posição (não por Location) — suporta consumers que iteram counters por kind em ordem de aparecimento sem conhecer Locations específicas (P184D consumer C3 em `mod.rs:435–439`). `None` se key inexistente ou idx fora de range. Para counters flat (figure, equation), o snapshot na posição `idx` é `[idx + 1]` (cada `apply_at(Step)` regista o estado pós-update, que para flat é o número actual). Para counters hierárquicos (heading), o snapshot reflecte o estado completo da hierarquia naquela Location.
 
 ---
 
@@ -147,3 +156,4 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
 |------|--------|-------------------|
 | 2026-04-30 | P165 sub-passo .C: sub-store de counters por kind para Introspector M3 | `counter_registry.rs`, `counter_registry.md` |
 | 2026-04-29 | P177 sub-passo .B: history field + `value_at` + `apply_at` / `apply_hierarchical_at` | `counter_registry.rs`, `counter_registry.md` |
+| 2026-05-03 | P184C sub-passo .C: helper `value_at_index(key, idx)` para acesso por posição na história (não por Location). Suporta `Introspector::figure_number_at_index` (P184C .D) consumido por C3 (P184D). | `counter_registry.rs`, `counter_registry.md` |
