@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash c938c001
+//! @prompt-hash f49ec9df
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -609,37 +609,46 @@ fn walk(
         }
 
         Content::SetHeadingNumbering { active } => {
-            // Excepção M5 E5 (SetHeadingNumbering): walk muta
-            // state.numbering_active directamente porque `Heading`
-            // arm lê `is_numbering_active("heading")` durante walk
-            // para resolver auto-toc text (cadeia chained com E2).
-            // Migração depende de E2 fechar primeiro. Tag emitido
-            // paralelamente via P182C `extract_payload` arm —
-            // `from_tags` arm StateUpdate popula `StateRegistry`
-            // independentemente; legacy mutation aqui é write
-            // paralelo durante janela compat.
-            // Vide P189 consolidado §"Excepções M5".
+            // P198B — E5 fechada estruturalmente (cenário α).
+            // Caminho Introspector já activo desde P182C
+            // (extract_payload → ElementPayload::StateUpdate sob
+            // chave numbering_active:heading → from_tags arm
+            // StateUpdate popula StateRegistry).
+            //
+            // Mutação legacy preservada como write paralelo M5:
+            // compute_heading_auto_toc P196B + walk arm Equation
+            // lêem state.numbering_active(_active) durante walk
+            // para resolver auto-toc text e gate equation counter.
+            // Cadeia E5 preservada. Cleanup orgânico em M6.
             state.numbering_active.insert("heading".to_string(), *active);
         }
 
-        Content::CounterUpdate { key, action } => match action {
-            // Excepção M5 E6 (CounterUpdate): walk muta state.flat
-            // ou state.hierarchical directamente porque `Labelled`
-            // arm lê estes durante walk (cadeia chained com E2 —
-            // Reserva 2 alargada). Migração depende de E2 fechar
-            // primeiro (sub-store `resolved_labels` + C4 migration).
-            // Vide P189 consolidado §"Excepções M5".
-            CounterAction::Step => {
-                if key == "heading" {
-                    state.step_hierarchical("heading", 1);
-                } else {
-                    state.step_flat(key);
+        Content::CounterUpdate { key, action } => {
+            // P198C — E6 fechada estruturalmente (cenário β-promote
+            // ADR-0069). Caminho Introspector activado:
+            // extract_payload arm (extract_payload.rs) emite
+            // ElementPayload::CounterUpdate { key, action } pré-recursão;
+            // from_tags arm popula CounterRegistry via apply_at
+            // (flat) ou apply_hierarchical_at (key="heading").
+            //
+            // Mutação legacy preservada como write paralelo M5:
+            // compute_* helpers (P195D Equation, P196B Heading,
+            // P197B Figure) lêem state.flat/hierarchical durante
+            // walk para resolver counter values em payloads.
+            // Cleanup orgânico em M6.
+            match action {
+                CounterAction::Step => {
+                    if key == "heading" {
+                        state.step_hierarchical("heading", 1);
+                    } else {
+                        state.step_flat(key);
+                    }
+                }
+                CounterAction::Update(val) => {
+                    state.update_flat(key, *val);
                 }
             }
-            CounterAction::Update(val) => {
-                state.update_flat(key, *val);
-            }
-        },
+        }
 
         // Passo 101: `Content::Strong`/`Content::Emph` removidos; o caso
         // equivalente de filhos com Labels/contadores dentro de um bloco
@@ -2600,6 +2609,339 @@ mod tests {
             intr.figure_label_numbers.get(&Label("fig1".to_string())).copied(),
             Some(1),
             "Introspector path popula figure_label_numbers em paralelo"
+        );
+    }
+
+    // ── P198B — Walk arm SetHeadingNumbering (cenário α) ─────────────────
+    //
+    // 5 tests sentinela que validam: (a) extract_payload já emite
+    // StateUpdate desde P182C; (b) from_tags arm StateUpdate popula
+    // StateRegistry; (c) paridade legacy vs Introspector; (d)
+    // compute_heading_auto_toc lê mutação legacy durante walk; (e)
+    // cadeia E5 ↔ E2 (Heading auto-toc) preservada.
+
+    #[test]
+    fn set_heading_numbering_extract_payload_emite_state_update() {
+        // P198B test 1: confirma que extract_payload(SetHeadingNumbering)
+        // retorna Some(ElementPayload::StateUpdate { ... }) — caminho
+        // P182C activo independente de P198B.
+        use crate::rules::introspect::extract_payload::extract_payload;
+        use crate::entities::state_update::StateUpdate;
+        use crate::entities::value::Value;
+
+        let content = Content::SetHeadingNumbering { active: true };
+        match extract_payload(&content) {
+            Some(ElementPayload::StateUpdate { key, update }) => {
+                assert_eq!(key, "numbering_active:heading",
+                    "P182C: chave canónica numbering_active:heading");
+                match update {
+                    StateUpdate::Set(boxed) => assert_eq!(*boxed, Value::Bool(true)),
+                    other => panic!("esperado StateUpdate::Set(Bool(true)), obtido {other:?}"),
+                }
+            }
+            other => panic!("esperado Some(StateUpdate), obtido {other:?}"),
+        }
+    }
+
+    #[test]
+    fn set_heading_numbering_from_tags_popula_state_registry() {
+        // P198B test 2: pipeline walk + from_tags com SetHeadingNumbering
+        // popula StateRegistry com chave canónica.
+        use crate::entities::introspector::Introspector;
+
+        let content = Content::SetHeadingNumbering { active: true };
+        let (_, intr) = introspect_with_introspector(&content);
+
+        // Caminho Introspector activo desde P171/P182C: from_tags arm
+        // StateUpdate popula intr.state com numbering_active:heading.
+        assert!(
+            intr.is_numbering_active("numbering_active:heading"),
+            "P182C/P171: from_tags arm StateUpdate popula StateRegistry \
+             com numbering_active:heading=true"
+        );
+    }
+
+    #[test]
+    fn set_heading_numbering_paridade_legacy_vs_introspector() {
+        // P198B test 3: write paralelo legacy + Introspector preserva
+        // paridade. Legacy state.is_numbering_active("heading") == true;
+        // Introspector intr.is_numbering_active("numbering_active:heading")
+        // == true (chave canónica diferente mas mesmo significado).
+        use crate::entities::introspector::Introspector;
+
+        let content = Content::Sequence(
+            vec![
+                Content::SetHeadingNumbering { active: true },
+                Content::heading(1, Content::text("Intro")),
+            ]
+            .into(),
+        );
+        let (state, intr) = introspect_with_introspector(&content);
+
+        // Legacy state populado via mutação directa walk arm.
+        assert!(state.is_numbering_active("heading"),
+            "legacy: state.numbering_active['heading'] = true (write paralelo M5)");
+        // Introspector path populado via from_tags arm StateUpdate.
+        assert!(intr.is_numbering_active("numbering_active:heading"),
+            "Introspector: StateRegistry populado com chave canónica");
+    }
+
+    #[test]
+    fn compute_heading_auto_toc_le_numbering_active_legacy() {
+        // P198B test 4: confirma cadeia E5 — compute_heading_auto_toc
+        // (P196B) lê state.is_numbering_active durante walk. Quando
+        // numbering inactivo (sem SetHeadingNumbering precedente),
+        // resolved_text fica vazia.
+        let sem_set = Content::heading(1, Content::text("título"));
+        let (state_sem, _) = introspect_with_introspector(&sem_set);
+        assert!(!state_sem.is_numbering_active("heading"));
+        assert_eq!(
+            state_sem.resolved_labels
+                .get(&Label("auto-toc-1".to_string()))
+                .map(String::as_str),
+            Some(""),
+            "cadeia E5: numbering inactivo → resolved_text vazia (P196B §3)"
+        );
+
+        let com_set = Content::Sequence(
+            vec![
+                Content::SetHeadingNumbering { active: true },
+                Content::heading(1, Content::text("título")),
+            ]
+            .into(),
+        );
+        let (state_com, _) = introspect_with_introspector(&com_set);
+        assert!(state_com.is_numbering_active("heading"));
+        assert_eq!(
+            state_com.resolved_labels
+                .get(&Label("auto-toc-1".to_string()))
+                .map(String::as_str),
+            Some("Secção 1"),
+            "cadeia E5: numbering activo → compute_heading_auto_toc \
+             retorna 'Secção 1'"
+        );
+    }
+
+    #[test]
+    fn walk_arm_set_heading_preserva_write_paralelo_para_compute_helpers() {
+        // P198B test 5: sentinela cláusula gate substancial cadeia E5.
+        // Confirma que write paralelo legacy é necessário e funcional
+        // para consumer C4 (P194B) receber Some via Introspector path
+        // para auto-toc — chained com E2 fechada P196B.
+        let content = Content::Sequence(
+            vec![
+                Content::SetHeadingNumbering { active: true },
+                Content::heading(1, Content::text("Intro")),
+            ]
+            .into(),
+        );
+        let (state, intr) = introspect_with_introspector(&content);
+
+        // Mutação legacy preservada (necessária para
+        // compute_heading_auto_toc P196B funcionar durante walk).
+        assert_eq!(
+            state.numbering_active.get("heading").copied(),
+            Some(true),
+            "P198B: mutação legacy state.numbering_active.insert preservada"
+        );
+        // Consumer C4 (P194B) recebe Some via Introspector path —
+        // confirma cadeia E5 ↔ E2 (Heading auto-toc P196B) funcional.
+        let auto_lbl = Label("auto-toc-1".to_string());
+        assert_eq!(
+            intr.resolved_label_for(&auto_lbl),
+            Some("Secção 1"),
+            "cadeia E5↔E2: P196B auto-toc Tag::Labelled populated via \
+             walk arm Heading depende de mutação legacy SetHeadingNumbering"
+        );
+    }
+
+    // ── P198C — Walk arm CounterUpdate (cenário β-promote) ──────────────
+    //
+    // 6 tests sentinela que validam: (a) extract_payload arm novo;
+    // (b) is_locatable activado; (c) from_tags arm popula
+    // CounterRegistry via apply_at; (d) paridade legacy vs Introspector;
+    // (e) action Update aplica correctamente; (f) cadeia E6 ↔ helpers
+    // compute_* funcional após promote.
+
+    #[test]
+    fn counter_update_extract_payload_emite_payload() {
+        // P198C test 1: confirma que extract_payload(CounterUpdate)
+        // retorna Some(ElementPayload::CounterUpdate { ... }).
+        use crate::rules::introspect::extract_payload::extract_payload;
+        use crate::entities::counter_update::CounterUpdate as CU;
+
+        let content = Content::CounterUpdate {
+            key:    "equation".to_string(),
+            action: CounterAction::Step,
+        };
+        match extract_payload(&content) {
+            Some(ElementPayload::CounterUpdate { key, action }) => {
+                assert_eq!(key, "equation");
+                assert_eq!(action, CU::Step);
+            }
+            other => panic!("esperado Some(CounterUpdate), obtido {other:?}"),
+        }
+    }
+
+    #[test]
+    fn counter_update_is_locatable_true() {
+        // P198C test 2: is_locatable(CounterUpdate) = true após promote.
+        use crate::rules::introspect::locatable::is_locatable;
+
+        let c = Content::CounterUpdate {
+            key:    "page".to_string(),
+            action: CounterAction::Update(42),
+        };
+        assert!(is_locatable(&c),
+            "P198C: is_locatable(CounterUpdate) deve retornar true após promote");
+    }
+
+    #[test]
+    fn counter_update_walk_popula_counter_registry() {
+        // P198C test 3: pipeline walk + from_tags com 2 CounterUpdate
+        // (Step) popula CounterRegistry; flat_counter_at retorna valor
+        // correcto.
+        use crate::entities::introspector::Introspector;
+
+        let content = Content::Sequence(
+            vec![
+                Content::CounterUpdate {
+                    key:    "equation".to_string(),
+                    action: CounterAction::Step,
+                },
+                Content::CounterUpdate {
+                    key:    "equation".to_string(),
+                    action: CounterAction::Step,
+                },
+            ]
+            .into(),
+        );
+        let (_, intr) = introspect_with_introspector(&content);
+
+        // 2 Steps em "equation" → counter chega a 2.
+        // Procurar a última location com snapshot.
+        let tags_locations: Vec<Location> = intr
+            .query_by_kind(ElementKind::CounterUpdate);
+        assert_eq!(tags_locations.len(), 2,
+            "P198C: 2 CounterUpdate emitem 2 locations indexadas em kind_index");
+        let last_loc = *tags_locations.last().unwrap();
+        assert_eq!(
+            intr.flat_counter_at("equation", last_loc),
+            Some(2),
+            "P198C: from_tags arm popula CounterRegistry; flat=2 após 2 Steps"
+        );
+    }
+
+    #[test]
+    fn counter_update_paridade_legacy_vs_introspector() {
+        // P198C test 4: paridade legacy state vs Introspector após promote.
+        use crate::entities::introspector::Introspector;
+
+        let content = Content::Sequence(
+            vec![
+                Content::CounterUpdate {
+                    key:    "equation".to_string(),
+                    action: CounterAction::Step,
+                },
+                Content::CounterUpdate {
+                    key:    "equation".to_string(),
+                    action: CounterAction::Step,
+                },
+                Content::CounterUpdate {
+                    key:    "equation".to_string(),
+                    action: CounterAction::Step,
+                },
+            ]
+            .into(),
+        );
+        let (state, intr) = introspect_with_introspector(&content);
+
+        // Legacy: state.flat populated via walk arm.
+        assert_eq!(state.get_flat("equation"), 3,
+            "legacy: 3 Steps → state.flat['equation'] == 3");
+        // Introspector: counter populated via from_tags arm.
+        let last_loc = *intr.query_by_kind(ElementKind::CounterUpdate)
+            .last().unwrap();
+        assert_eq!(
+            intr.flat_counter_at("equation", last_loc),
+            Some(3),
+            "Introspector: paridade pós-P198C — flat_counter_at == 3"
+        );
+    }
+
+    #[test]
+    fn counter_update_action_update_apply_correctly() {
+        // P198C test 5: 3º caminho da match — Update(val) aplica via
+        // apply_at(Update). Legacy via state.update_flat. Paridade.
+        use crate::entities::introspector::Introspector;
+
+        let content = Content::CounterUpdate {
+            key:    "page".to_string(),
+            action: CounterAction::Update(42),
+        };
+        let (state, intr) = introspect_with_introspector(&content);
+
+        // Legacy.
+        assert_eq!(state.get_flat("page"), 42,
+            "legacy: state.update_flat('page', 42) → 42");
+        // Introspector.
+        let loc = *intr.query_by_kind(ElementKind::CounterUpdate)
+            .first().unwrap();
+        assert_eq!(
+            intr.flat_counter_at("page", loc),
+            Some(42),
+            "P198C: apply_at(Update(42)) → flat_counter_at == 42"
+        );
+    }
+
+    #[test]
+    fn counter_update_compute_helpers_continuam_funcionais() {
+        // P198C test 6: cadeia E6 ↔ compute_labelled Equation arm
+        // preservada após promote. Walk arm Equation lê
+        // state.is_numbering_active("equation") + state.step_flat
+        // durante walk; compute_labelled lê state.get_flat("equation").
+        // Mutação legacy preservada → cadeia funcional.
+        let content = Content::Sequence(
+            vec![
+                // Set equation numbering active via direct mutation —
+                // SetEquationNumbering ainda não existe (Reserva 1 P186A);
+                // mutação directa do state via walk arm Equation requer
+                // is_numbering_active("equation") = true. Sem isso,
+                // walk arm Equation não avança counter. Test usa
+                // CounterUpdate directo para bypass.
+                Content::CounterUpdate {
+                    key:    "equation".to_string(),
+                    action: CounterAction::Step,
+                },
+                Content::Labelled {
+                    label:  Label("eq1".to_string()),
+                    target: Box::new(Content::Equation {
+                        body:  Box::new(Content::Empty),
+                        block: true,
+                    }),
+                },
+            ]
+            .into(),
+        );
+        let (state, intr) = introspect_with_introspector(&content);
+
+        // Mutação legacy preservada: state.flat["equation"] populado
+        // pelo CounterUpdate Step.
+        assert_eq!(state.get_flat("equation"), 1,
+            "P198C: mutação legacy preservada — state.step_flat('equation')");
+        // compute_labelled Equation arm lê state.get_flat → produz
+        // resolved_text "Equação (1)".
+        assert_eq!(
+            state.resolved_labels.get(&Label("eq1".to_string())).map(String::as_str),
+            Some("Equação (1)"),
+            "cadeia E6↔E4: compute_labelled Equation arm continua funcional \
+             após promote — lê state.get_flat('equation') durante walk"
+        );
+        // Introspector path: resolved_labels populated via P195D Tag.
+        assert_eq!(
+            intr.resolved_label_for(&Label("eq1".to_string())),
+            Some("Equação (1)"),
+            "Introspector path: resolved_labels populated via P195D + Tag::Labelled"
         );
     }
 }

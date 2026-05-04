@@ -147,6 +147,26 @@ pub enum ElementPayload {
         resolved_text: Option<String>,
         figure_number: Option<usize>,
     },
+
+    /// **P198C** — payload de `Content::CounterUpdate` (key + action).
+    /// Promote `Content::CounterUpdate` a locatable em P198C
+    /// (cenário β-promote ADR-0069). `extract_payload` emite este
+    /// payload pré-recursão; `from_tags` arm CounterUpdate aplica
+    /// à `CounterRegistry` via `apply_at` (flat) ou
+    /// `apply_hierarchical_at` (key="heading").
+    ///
+    /// Campos:
+    /// - `key`: chave do counter (`"heading"`, `"equation"`, `"page"`, ...).
+    /// - `action`: operação a aplicar (`Step` ou `Update(usize)`).
+    ///
+    /// Walk arm legacy (E6 P189B) **mantém** mutação directa em
+    /// `state.step_*` / `state.update_flat` como write paralelo M5
+    /// porque `compute_*` helpers (P195D Equation, P196B Heading,
+    /// P197B Figure) lêem counters durante walk; cleanup em M6.
+    CounterUpdate {
+        key:    String,
+        action: CounterUpdate,
+    },
 }
 
 impl std::hash::Hash for ElementPayload {

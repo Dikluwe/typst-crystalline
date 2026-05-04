@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: b9f78ff9
+Hash do Código: d25dfc47
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -215,20 +215,23 @@ justificação literal e plano de fechamento:
 | **E2-residuo** | `Content::Heading` | `state.headings_for_toc.push` (1 mutação residual após P196B) | P196B fechou 3 das 4 mutações estruturalmente via Tag::Labelled auto-toc (pattern ADR-0069). Resta `headings_for_toc.push` porque sub-store `intr.headings_for_toc` **não existe** (lacuna #3). Outras 3 mutações (`step_hierarchical`, `auto_label_counter++`, `resolved_labels.insert`) preservadas como **write paralelo** durante janela compat M5 — fecham orgânicamente em M6. | Sub-store `intr.headings_for_toc` (passo dedicado fora série P196). |
 | **E3** | `Content::Figure` | `state.local_figure_counters`, `state.figure_numbers` | **Fechou estruturalmente em P197B** (cenário α — caminho Introspector activo desde P184: variant `ElementPayload::Figure` + `from_tags` arm popula `CounterRegistry` chave `figure:{kind}` + `figure_label_numbers`; consumer C3 P184D usa `figure_number_at_index`). Mutação legacy preservada como write paralelo M5 porque `compute_labelled` P195D Figure arm lê `state.figure_numbers.last()`. Pattern ADR-0069 (Tag pós-recursão) **dispensado** — extracção de helper `compute_figure` é refactor estilístico. Cleanup orgânico em M6. | Funcional fecha em M6. |
 | **E4** | `Content::Labelled` | `state.figure_label_numbers`, `state.resolved_labels` | **Fechou estruturalmente em P195D** (caminho Introspector activo via Tag::Labelled). Mutação legacy mantida como write paralelo M5; remoção orgânica em M6. | Funcional fecha em M6. |
-| **E5** | `Content::SetHeadingNumbering` | `state.numbering_active.insert("heading", ...)` | `Heading` arm lê `is_numbering_active("heading")` durante walk para resolver auto-toc text. Tag StateUpdate emitida paralelamente via P182C; `StateRegistry` populado independentemente — legacy mutation é write paralelo. | E2 fecha; legacy mutation removida orgânicamente. |
-| **E6** | `Content::CounterUpdate` | `state.step_*`, `update_flat` | `Labelled` arm pode ler counter mutado via CounterUpdate durante walk. Chained com E2 (Reserva 2 alargada). | E2 fecha primeiro. |
+| **E5** | `Content::SetHeadingNumbering` | `state.numbering_active.insert("heading", ...)` | **Fechou estruturalmente em P198B** (cenário α — caminho Introspector activo desde P182C: `extract_payload` retorna `Some(StateUpdate { key: "numbering_active:heading" })`; `from_tags` arm StateUpdate popula `StateRegistry`; consumer C5 via `is_numbering_active`). Mutação legacy preservada como write paralelo M5 porque `compute_heading_auto_toc` P196B + walk arm Equation lêem `state.numbering_active` durante walk. Pattern ADR-0069 (Tag pós-recursão) **dispensado** — sem helper extraído (mutação trivial 1 linha). Cleanup orgânico em M6. | Funcional fecha em M6. |
+| **E6** | `Content::CounterUpdate` | `state.step_*`, `update_flat` | **Fechou estruturalmente em P198C** (cenário β-promote — primeira aplicação): variant `ElementPayload::CounterUpdate { key, action }` adicionada; `is_locatable(CounterUpdate) = true`; `extract_payload` arm emite payload pré-recursão; `from_tags` arm popula `CounterRegistry` via `apply_at` (flat) ou `apply_hierarchical_at` (key="heading"); `kind_index[ElementKind::CounterUpdate]` populated. Mutação legacy preservada como write paralelo M5 porque `compute_*` helpers (P195D Equation, P196B Heading, P197B Figure) lêem `state.flat`/`hierarchical` durante walk. Cleanup orgânico em M6. | Funcional fecha em M6. |
 
 **Padrão de cadeia**: 5 das 6 excepções (E2/E3/E4/E5/E6) fecham
 em sequência após desbloquear sub-store `resolved_labels` + C4
 migration. E1 é independente (Reserva 1 distinta).
 
-**Estado P197B (2026-05-04)**: E4 fechou estruturalmente em
+**Estado P198C (2026-05-04)**: E4 fechou estruturalmente em
 P195D; E2 fechou estruturalmente em P196B (3 das 4 mutações
-migradas via Tag pattern ADR-0069); **E3 fechou estruturalmente
-em P197B (cenário α — caminho Introspector activo desde P184)**.
-Resta **E2-residuo** (`headings_for_toc.push`) bloqueado por
-lacuna #3 (sub-store ausente). E1/E5/E6 continuam activas com
-pré-requisitos próprios.
+migradas via Tag pattern ADR-0069); E3 fechou estruturalmente
+em P197B (cenário α — caminho Introspector activo desde P184);
+E5 fechou estruturalmente em P198B (cenário α — caminho
+Introspector activo desde P182C); **E6 fechou estruturalmente
+em P198C (cenário β-promote — primeira aplicação: variant
+nova + promote locatable + 2 arms novos)**. Restam apenas:
+- **E2-residuo** (`headings_for_toc.push`) bloqueado por lacuna #3.
+- **E1** (Equation) bloqueada por `Content::SetEquationNumbering` ausente.
 
 **Ordem inversa à mutação**: para fechar M5 universalmente,
 migração tem que acontecer da camada mais baixa (sub-stores)
@@ -245,9 +248,13 @@ para a mais alta (Layouter consumers). Concretamente:
    fecha E2-residuo).
 6. ✅ Migrar walk arm `Figure` (P197B — E3 fecha estruturalmente
    via cenário α; caminho Introspector já activo desde P184).
-7. Migrar walk arms `SetHeadingNumbering` + `CounterUpdate` (E5/E6
-   fecham residual).
-8. Quando `Content::SetEquationNumbering` materializar, E1 fecha.
+7. ✅ Migrar walk arm `SetHeadingNumbering` (P198B — E5 fecha
+   estruturalmente via cenário α; caminho Introspector já
+   activo desde P182C).
+8. ✅ Migrar walk arm `CounterUpdate` (P198C — E6 fecha
+   estruturalmente via cenário β-promote: variant nova +
+   promote locatable + extract_payload arm + from_tags arm).
+9. Quando `Content::SetEquationNumbering` materializar, E1 fecha.
 
 Após esses passos sequenciais, walk torna-se universalmente
 puro. Segue M6 (eliminação `CounterStateLegacy`).
@@ -498,3 +505,149 @@ distinta) — apenas paralelismo de shape.
   legacy preservada por isso).
 - **ADR-0069** — pattern stylesheet de helper privado
   reaplicado; Tag pós-recursão dispensada per cenário α.
+
+## Secção: Walk arm SetHeadingNumbering migrado (P198B, cenário α)
+
+**Declaração formal — sem refactor de código produção**.
+Diferente de P195D/P196B/P197B: walk arm SetHeadingNumbering
+não tem helper extraído porque mutação é trivial (1 linha).
+Cenário α aceita ambas formas (com ou sem helper).
+
+Walk arm `Content::SetHeadingNumbering` em
+`introspect.rs:Content::SetHeadingNumbering` foi marcado em
+P198B como:
+
+1. **Caminho Introspector activo desde P182C**:
+   - `is_locatable(SetHeadingNumbering) = true` (P182C
+     promoção, locatable.rs:49).
+   - `extract_payload(SetHeadingNumbering)` retorna
+     `Some(ElementPayload::StateUpdate { key:
+     "numbering_active:heading", update: Set(Bool(active)) })`
+     (extract_payload.rs:63-66).
+   - Walk top emite Tag::Start pré-recursão (sem body para
+     recursão — leaf content).
+   - `from_tags` arm StateUpdate (P171/P173) popula
+     `intr.state` (StateRegistry) com chave canónica
+     `numbering_active:heading`.
+
+2. **Mutação legacy preservada** (write paralelo M5 →
+   cleanup orgânico em M6):
+   - `state.numbering_active.insert("heading", *active);`
+   Necessária porque:
+   - `compute_heading_auto_toc` (P196B helper, introspect.rs:384)
+     lê `state.is_numbering_active("heading")` durante walk
+     para resolver auto-toc text.
+   - Walk arm `Content::Equation` (introspect.rs:517) lê
+     `state.is_numbering_active("equation")` para gate
+     do counter step.
+   Cadeia E5 preservada.
+
+3. **Tag pós-recursão dispensada**: walk top já emite
+   `Tag::Start(loc, ElementInfo { payload: StateUpdate {...},
+   label: None })`. Sem helper extraído porque mutação é
+   trivial — extracção não acrescenta valor ao stylesheet.
+
+### Estado após P198B
+
+- **E5 fecha estruturalmente** — caminho Introspector
+  activo desde P182C; consumer C5 (`is_numbering_active` via
+  StateRegistry) já recebe `Some(true/false)` via
+  Introspector path.
+- **E5 funcionalmente fecha em M6** quando mutação legacy
+  for removida (após `compute_heading_auto_toc` + Equation
+  walk arm migrarem para StateRegistry location-aware via
+  `is_numbering_active_at`).
+- Output observable em produção **inalterado** —
+  declaração formal sem código modificado.
+
+### Cross-references
+
+- **P171** — `ElementPayload::StateUpdate` variant
+  materializada para Content::State / StateUpdate user-space.
+- **P173** — Engine + EvalContext cascade para Funcs em
+  `from_tags` arm StateUpdate.
+- **P182C** — promoção SetHeadingNumbering a locatable;
+  arm em `extract_payload` reusa `StateUpdate` sob chave
+  canónica `numbering_active:heading`.
+- **P185B** — método trait `is_numbering_active_at` para
+  consumer C5 location-aware.
+- **P196B** — `compute_heading_auto_toc` consumer da
+  mutação legacy (cadeia E5).
+- **P197B** — primeira aplicação cenário α (Figure);
+  P198B é segunda aplicação.
+- **ADR-0069** — pattern stylesheet; Tag pós-recursão
+  dispensada per cenário α.
+
+## Secção: Walk arm CounterUpdate migrado (P198C, cenário β-promote)
+
+**Primeira aplicação do cenário β-promote** — promote
+`Content::CounterUpdate` a locatable + variant nova
+`ElementPayload::CounterUpdate` + 2 arms novos. Distinção
+de cenário α (P197B/P198B): caminho Introspector NÃO estava
+activo pré-P198C; precisou de promotion concreta.
+
+Trabalho concreto em P198C:
+
+1. **Variant nova `ElementPayload::CounterUpdate { key, action }`**
+   adicionada a `entities/element_payload.rs` (12ª variant).
+   Field `action: CounterUpdate` reusa enum existente
+   (counter_update.rs P161 rename de CounterAction).
+
+2. **`ElementKind::CounterUpdate`** adicionada a
+   `entities/element_kind.rs` (10ª variant). Convenção
+   cristalino — todo locatable tem ElementKind correspondente.
+
+3. **`is_locatable(Content::CounterUpdate) = true`** activada
+   em `rules/introspect/locatable.rs`. Movida da lista
+   non-locatable.
+
+4. **`extract_payload` arm** adicionada a
+   `rules/introspect/extract_payload.rs`:
+   ```rust
+   Content::CounterUpdate { key, action } => Some(ElementPayload::CounterUpdate {
+       key:    key.clone(),
+       action: action.clone(),
+   }),
+   ```
+
+5. **`from_tags` arm** adicionada a `rules/introspect/from_tags.rs`:
+   - 3 caminhos sob `match action`:
+     - `Step + key="heading"` → `intr.counters.apply_hierarchical_at(key, 1, loc)`.
+     - `Step + key!="heading"` → `intr.counters.apply_at(key, Step, loc)`.
+     - `Update(val)` → `intr.counters.apply_at(key, Update(val), loc)`.
+   - Indexa em `kind_index[ElementKind::CounterUpdate]`.
+
+6. **Walk arm preservado** — 3 caminhos legacy mantidos
+   (`state.step_hierarchical`, `state.step_flat`,
+   `state.update_flat`) como write paralelo M5. Comentário
+   inline P198C declara cenário β-promote.
+
+### Estado após P198C
+
+- **E6 fecha estruturalmente** — caminho Introspector activo
+  para CounterUpdate; CounterRegistry populated
+  paralelamente a state legacy.
+- **E6 funcionalmente fecha em M6** quando `compute_*` helpers
+  migrarem para CounterRegistry location-aware (`flat_counter_at`
+  ou similar) e mutação legacy puder ser removida.
+- Output observable em produção **inalterado** — write paralelo
+  fornece valores idênticos via legacy + Introspector.
+
+### Distinção cenário α vs β-promote
+
+| Aspecto | Cenário α (P197B, P198B) | Cenário β-promote (P198C) |
+|---------|--------------------------|---------------------------|
+| Caminho Introspector pré-passo | Activo | Inactivo |
+| Variant ElementPayload | Reuso existente | Nova (12ª) |
+| ElementKind | Reuso existente | Nova (10ª) |
+| `is_locatable` | Já true | False → true |
+| `extract_payload` arm | Já existe | Adicionar |
+| `from_tags` arm | Já existe | Adicionar |
+| Magnitude | S | M |
+
+### Cross-references
+
+- **P184B** — `CounterRegistry` sub-store (consumido por P198C from_tags arm).
+- **P186C** — precedente promotion de Equation (mas com pré-requisito Reserva 1).
+- **P195D / P196B / P197B** — `compute_*` helpers consumidores da mutação legacy.
+- **ADR-0069** — pattern stylesheet; cenário β-promote primeira aplicação concreta.

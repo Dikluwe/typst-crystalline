@@ -90,6 +90,18 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
             counter_update: CounterUpdate::Step,
         }),
 
+        // P198C — CounterUpdate promovido a locatable (cenário
+        // β-promote ADR-0069). Arm emite payload com (key, action)
+        // pré-recursão. `from_tags` arm CounterUpdate aplica a
+        // CounterRegistry via `apply_at` ou `apply_hierarchical_at`
+        // conforme key/action. Walk arm legacy (E6 P189B) preservado
+        // como write paralelo M5 porque `compute_*` helpers lêem
+        // `state.flat`/`hierarchical` durante walk; cleanup em M6.
+        Content::CounterUpdate { key, action } => Some(ElementPayload::CounterUpdate {
+            key:    key.clone(),
+            action: action.clone(),
+        }),
+
         // Todas as outras variantes não são locatable em M1.
         // Adicionar uma variant locatable nova exige edição explícita
         // deste match (compilador não força exaustividade aqui porque
