@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash 070a390f
+//! @prompt-hash 918d279b
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -22,6 +22,7 @@ use crate::entities::metadata_store::MetadataStore;
 use crate::entities::selector::Selector;
 use crate::entities::bib_entry::BibEntry;
 use crate::entities::bib_store::BibStore;
+use crate::entities::resolved_label_store::ResolvedLabelStore;
 use crate::entities::state_registry::StateRegistry;
 use crate::entities::value::Value;
 
@@ -138,6 +139,19 @@ pub trait Introspector {
     /// Suporta C2 (equation counter) — consumer migra em P188 após
     /// P185C. Cf. ADR-0068.
     fn flat_counter_at(&self, key: &str, location: Location) -> Option<usize>;
+
+    /// **P193B** — texto resolvido para a `Label` indicada. `Some(text)`
+    /// se label registada em `ResolvedLabelStore`; `None` caso
+    /// contrário. Delega a `resolved_labels.get(label)`.
+    ///
+    /// **Estado em P193B**: sub-store fica vazio em produção até
+    /// P195 adicionar arm de populate em `from_tags`. Walks E2/E4
+    /// (P189B) continuam a popular `state.resolved_labels` legacy
+    /// directamente; consumer C4 migra em P194 com
+    /// substitution-with-fallback (`resolved_label_for(label)
+    /// .or_else(|| state.resolved_labels.get(label))`). Vide P193
+    /// consolidado §5.
+    fn resolved_label_for(&self, label: &Label) -> Option<&str>;
 }
 
 /// Implementação concreta de `Introspector` construída a partir de
@@ -170,6 +184,14 @@ pub struct TagIntrospector {
     /// Consumer migrará em P181G (Layouter cite-arm via
     /// `Introspector::bib_entry_for_key` / `bib_number_for_key`).
     pub bib_store: BibStore,
+    /// **P193B** (M5 sequência §9 P189 passo 1) — sub-store para
+    /// mapeamento Label → texto resolvido. População começa em
+    /// P195 (`from_tags` arm Labelled emitido após walk arm migrar);
+    /// até lá permanece vazio em produção. Consumer C4 migra em
+    /// P194 (`layout/references.rs::layout_ref`) com
+    /// substitution-with-fallback. Suporta cadeia E2-E6 P189B
+    /// fechar incrementalmente.
+    pub resolved_labels: ResolvedLabelStore,
     // positions: HashMap<Location, Position> — adiado para M5/M9.
 }
 
@@ -267,6 +289,10 @@ impl Introspector for TagIntrospector {
 
     fn flat_counter_at(&self, key: &str, location: Location) -> Option<usize> {
         self.counters.value_at(key, location)?.last().copied()
+    }
+
+    fn resolved_label_for(&self, label: &Label) -> Option<&str> {
+        self.resolved_labels.get(label)
     }
 }
 
@@ -750,5 +776,27 @@ mod tests {
         );
         // Snapshot vazio para Location anterior à primeira apply_at.
         assert_eq!(i.flat_counter_at("figure:image", loc(5)), None);
+    }
+
+    // ── P193B — resolved_label_for ──────────────────────────────────────
+
+    #[test]
+    fn resolved_label_for_em_introspector_vazio_devolve_none() {
+        let i = TagIntrospector::empty();
+        assert_eq!(i.resolved_label_for(&lbl("foo")), None);
+    }
+
+    #[test]
+    fn resolved_label_for_apos_populate_devolve_some() {
+        // Populate manual via field directo (P193B abre infra; arm
+        // de populate em from_tags vem em P195).
+        let mut i = TagIntrospector::empty();
+        i.resolved_labels.insert(lbl("intro"), "Secção 1".to_string());
+        i.resolved_labels.insert(lbl("metodos"), "Secção 2".to_string());
+
+        // Trait method delega correctamente.
+        assert_eq!(i.resolved_label_for(&lbl("intro")), Some("Secção 1"));
+        assert_eq!(i.resolved_label_for(&lbl("metodos")), Some("Secção 2"));
+        assert_eq!(i.resolved_label_for(&lbl("ausente")), None);
     }
 }

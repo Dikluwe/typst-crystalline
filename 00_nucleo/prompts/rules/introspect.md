@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 941ad50a
+Hash do Código: 53faeaaa
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -186,3 +186,59 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
   - Hash em `Tag::End` distingue Contents diferentes.
   - Número de `ElementPayload::Heading` em tags == número de headings no
     input.
+
+## Secção: Walk puro M5 incremental (P189B)
+
+P189B materializa **a primeira peça** de M5 walk puro:
+
+- **Outline arm migrado** (`introspect.rs:Content::Outline`):
+  mutação `state.has_outline = true` removida. Flag obtida via
+  `intr.kind_index.contains_key(&ElementKind::Outline)` no
+  consumer (`mod.rs:layout_with_introspector`). Arm continua a
+  emitir `Tag::Start` no topo de `walk` fn — apenas a mutação
+  directa em state foi removida.
+
+**M5 universal não fecha em P189**. Análise empírica em P189A
+revelou cadeia de dependências
+(`Heading→Labelled→resolved_labels`) que bloqueia migração
+universal sem pré-requisitos. P189 fecha 1 arm migrável e
+declara 6 excepções honestamente.
+
+### Excepções M5
+
+Walk arms que **continuam a mutar state directamente**, com
+justificação literal e plano de fechamento:
+
+| # | Arm | Mutação | Razão | Pré-requisito |
+|---|-----|---------|-------|---------------|
+| **E1** | `Content::Equation` | `state.step_flat("equation")` | `Content::SetEquationNumbering` ausente (Reserva 1; P186A §11.2). Sem ele, gate em `from_tags` P186E nunca dispara → counter introspector vazio → P188B fallback legacy é caminho funcional permanente. | Materializar `Content::SetEquationNumbering` (passo dedicado). |
+| **E2** | `Content::Heading` | `state.step_hierarchical`, `state.auto_label_counter`, `state.resolved_labels`, `state.headings_for_toc` | `Labelled` arm lê counter durante walk para popular `resolved_labels`. Sub-store `resolved_labels` **não existe**. Cadeia bloqueia migração granular. | (a) Sub-store `resolved_labels`, (b) C4 migration (consumer Ref-arm), (c) Sub-store `headings_for_toc` (lacuna #3). |
+| **E3** | `Content::Figure` | `state.local_figure_counters`, `state.figure_numbers` | `Labelled` arm lê `figure_numbers` durante walk para popular `figure_label_numbers`. Sub-stores existem (P184B + P168) mas chained com E2. | E2 fecha primeiro. |
+| **E4** | `Content::Labelled` | `state.figure_label_numbers`, `state.resolved_labels` | Consumer Ref-arm em Layouter lê durante layout. | Idêntico a E2 (sub-store + C4). |
+| **E5** | `Content::SetHeadingNumbering` | `state.numbering_active.insert("heading", ...)` | `Heading` arm lê `is_numbering_active("heading")` durante walk para resolver auto-toc text. Tag StateUpdate emitida paralelamente via P182C; `StateRegistry` populado independentemente — legacy mutation é write paralelo. | E2 fecha; legacy mutation removida orgânicamente. |
+| **E6** | `Content::CounterUpdate` | `state.step_*`, `update_flat` | `Labelled` arm pode ler counter mutado via CounterUpdate durante walk. Chained com E2 (Reserva 2 alargada). | E2 fecha primeiro. |
+
+**Padrão de cadeia**: 5 das 6 excepções (E2-E6) fecham em
+sequência após desbloquear sub-store `resolved_labels` + C4
+migration. E1 é independente (Reserva 1 distinta).
+
+**Ordem inversa à mutação**: para fechar M5 universalmente,
+migração tem que acontecer da camada mais baixa (sub-stores)
+para a mais alta (Layouter consumers). Concretamente:
+
+1. Abrir sub-store `resolved_labels` (passo dedicado).
+2. Migrar consumer Ref-arm em Layouter para ler do sub-store
+   (C4 migration; P183E retomado ou novo).
+3. Migrar walk arm `Labelled` para emitir Tag em vez de mutar
+   directamente (E2/E4 fecham).
+4. Migrar walk arm `Heading` (E2 fecha residual).
+5. Migrar walk arm `Figure` (E3 fecha).
+6. Migrar walk arms `SetHeadingNumbering` + `CounterUpdate` (E5/E6
+   fecham residual).
+7. Quando `Content::SetEquationNumbering` materializar, E1 fecha.
+
+Após esses 7 passos sequenciais, walk torna-se universalmente
+puro. Segue M6 (eliminação `CounterStateLegacy`).
+
+**DEBT M5-residual**: cobre E1–E6 (Cenário B per P189A §8 —
+sem DEBT formal aberto; apenas notas preventivas).

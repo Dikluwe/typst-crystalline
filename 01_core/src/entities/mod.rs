@@ -23,6 +23,7 @@ pub mod scope;
 pub mod args;
 pub mod bib_entry;
 pub mod bib_store;
+pub mod resolved_label_store;
 pub mod citation_form;
 pub mod content;
 pub mod dir;

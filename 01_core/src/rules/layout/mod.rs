@@ -1465,9 +1465,17 @@ pub fn layout_with_introspector(
     use crate::entities::label::Label;
 
     // ── Short-circuit: sem TOC, não há necessidade de fixpoint ──────────────
-    // A condição correcta é `has_outline`, não `headings_for_toc.is_empty()`.
-    // Um documento com títulos mas sem #outline() não precisa do ciclo.
-    if !initial_state.has_outline {
+    // A condição correcta é "tem Content::Outline?", não
+    // `headings_for_toc.is_empty()`. Um documento com títulos mas sem
+    // `#outline()` não precisa do ciclo.
+    //
+    // P189B (M5): walk puro — flag obtida via Introspector
+    // (`kind_index[Outline]` populado por `from_tags` P178) em vez de
+    // `state.has_outline` (mutação removida em `introspect.rs:610`).
+    // Field `CounterStateLegacy::has_outline` fica morto; cleanup em M6.
+    use crate::entities::element_kind::ElementKind;
+    let has_outline = introspector.kind_index.contains_key(&ElementKind::Outline);
+    if !has_outline {
         let mut l = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
         l.introspector             = introspector;
         l.counter.resolved_labels  = initial_state.resolved_labels;

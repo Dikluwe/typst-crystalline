@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: 0938d161
+Hash do Código: 3544334d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`
@@ -139,6 +139,17 @@ pub trait Introspector {
     /// migrará em P188 quando Layouter ganhar `current_location` em
     /// P185C).
     fn flat_counter_at(&self, key: &str, location: Location) -> Option<usize>;
+
+    /// **P193B** (M5 sequência §9 P189 passo 1) — texto resolvido
+    /// para a `Label` indicada. `Some(&str)` se label registada no
+    /// `ResolvedLabelStore`; `None` caso contrário. Delega a
+    /// `resolved_labels.get(label)`. Sub-store **vazio em produção**
+    /// até P195 adicionar arm de populate em `from_tags`. Consumer
+    /// C4 (`layout/references.rs::layout_ref`) migra em P194 com
+    /// substitution-with-fallback. Sem variante `*_at` —
+    /// resolução label→text é determinística (snapshot final per
+    /// análise dos 2 eixos P193A §1.8).
+    fn resolved_label_for(&self, label: &Label) -> Option<&str>;
 }
 
 #[derive(Debug, Clone, Default)]
@@ -159,6 +170,14 @@ pub struct TagIntrospector {
     /// `ElementPayload::Bibliography`); consumer migrará em P181G
     /// (Layouter cite-arm via trait methods adicionados em P181F).
     pub bib_store:             BibStore,
+    /// **P193B** (M5 sequência §9 P189 passo 1) — sub-store para
+    /// mapeamento Label → texto resolvido. Vazio em P193B (janela
+    /// compat); popula em P195 (`from_tags` arm Labelled emitido
+    /// após walk arm migrar); consumer C4 migra em P194
+    /// (`layout/references.rs::layout_ref`) com
+    /// substitution-with-fallback. Suporta cadeia E2-E6 P189B
+    /// fechar incrementalmente.
+    pub resolved_labels:       ResolvedLabelStore,
     // positions: HashMap<Location, Position> — adiado para M5/M9
 }
 
@@ -254,3 +273,4 @@ Fan-in baixo: M3 não tem consumers externos ainda.
 | 2026-05-02 | P182B sub-passo .C–.E: trait estendido com `is_numbering_active(key)`; impl delega a `state.final_value(key)` + match `Value::Bool(true)`; default `false`. Resolve lacuna #4 (cf. P182A diagnóstico). | `introspector.rs`, `introspector.md` |
 | 2026-05-03 | P184C sub-passo .D: trait estendido com `figure_number_at_index(kind, idx)`; impl em `TagIntrospector` delega via `CounterRegistry::value_at_index` (helper P184C .C) sob chave `figure:{kind}` populada em P184B. Suporta C3 desbloqueio (consumer migrado em P184D). | `introspector.rs`, `introspector.md` |
 | 2026-05-03 | P185B sub-passo .B–.E: trait estendido com 2 métodos location-aware: `is_numbering_active_at(key, location)` (delega a `state.value_at`) e `flat_counter_at(key, location)` (delega a `counters.value_at(...).last().copied()`). Padrão P177/P184C replicado. ADR-0068 PROPOSTO: suporte ao Layouter location-aware (consumer migra em P187+P188 após P185C). Layouter **não** consulta ainda. | `introspector.rs`, `introspector.md` |
+| 2026-05-04 | P193B sub-passo .D-.F: field `pub resolved_labels: ResolvedLabelStore` adicionado a `TagIntrospector`; trait estendido com `resolved_label_for(&Label) -> Option<&str>` (delega a `resolved_labels.get(label)`). Sem variante `*_at` — snapshot final. **Sub-store vazio em produção** até P195 adicionar arm de populate em `from_tags`. Consumer C4 migra em P194. Passo 1 da sequência §9 P189 consolidado. | `introspector.rs`, `introspector.md`, `resolved_label_store.rs`, `resolved_label_store.md` |
