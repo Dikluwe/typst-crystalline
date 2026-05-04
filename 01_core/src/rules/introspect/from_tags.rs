@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/from_tags.md
-//! @prompt-hash d0113a49
+//! @prompt-hash 1164f135
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -18,6 +18,7 @@ use crate::entities::engine::Engine;
 use crate::entities::introspector::TagIntrospector;
 use crate::entities::state_update::StateUpdate;
 use crate::entities::tag::Tag;
+use crate::entities::value::Value;
 use crate::rules::eval::closures::apply_func;
 use crate::rules::eval::EvalContext;
 
@@ -215,6 +216,41 @@ pub fn from_tags(
                                 }
                                 // engine/ctx ausentes: defensive ignore.
                             }
+                        }
+                    }
+                    // P186E — arm Equation completo. P186B introduziu
+                    // stub no-op; P186D estendeu com `kind_index`
+                    // populate (cláusula gate trivial para passar test
+                    // P185D); P186E adiciona counter logic gated por
+                    // `block && state.value_at("numbering_active:equation",
+                    // loc) == Some(Bool(true))` (location-aware,
+                    // Opção B em P186E `.B` por futureproofing).
+                    //
+                    // **Gate dormente em produção**: `Content::SetEquationNumbering`
+                    // ainda não existe em cristalino (P186A §11.2),
+                    // logo `state.value_at("numbering_active:equation", _)`
+                    // é sempre `None` em runtime real → `apply_at`
+                    // nunca dispara → counter `equation` permanece
+                    // vazio. Eixo 2 P183C resolvido estruturalmente:
+                    // P188 migra C2 com substitution-with-fallback;
+                    // fallback legacy carrega até equation set rule
+                    // materializar.
+                    ElementPayload::Equation { block, counter_update } => {
+                        intr.kind_index
+                            .entry(ElementKind::Equation)
+                            .or_default()
+                            .push(*loc);
+                        if *block
+                            && matches!(
+                                intr.state.value_at("numbering_active:equation", *loc),
+                                Some(Value::Bool(true)),
+                            )
+                        {
+                            intr.counters.apply_at(
+                                "equation".to_string(),
+                                counter_update.clone(),
+                                *loc,
+                            );
                         }
                     }
                 }
@@ -778,5 +814,111 @@ mod tests {
             .expect("kind_index Bibliography deve estar populado");
         assert_eq!(bib_locations.len(), 1);
         assert_eq!(bib_locations[0], loc(7));
+    }
+
+    // ── P186E — Equation arm ─────────────────────────────────────────────
+
+    fn equation_payload(block: bool) -> ElementPayload {
+        ElementPayload::Equation {
+            block,
+            counter_update: CounterUpdate::Step,
+        }
+    }
+
+    #[test]
+    fn equation_arm_gate_dispara_block_e_state_active() {
+        // Caso central: state activo + block=true → counter populado.
+        // Pre-popula state via tag StateUpdate antes da equação.
+        let tags = vec![
+            Tag::Start(
+                loc(1),
+                ElementInfo::new(ElementPayload::StateUpdate {
+                    key:    "numbering_active:equation".to_string(),
+                    update: StateUpdate::Set(Box::new(Value::Bool(true))),
+                }),
+            ),
+            Tag::End(loc(1), 0),
+            Tag::Start(loc(10), ElementInfo::new(equation_payload(true))),
+            Tag::End(loc(10), 0),
+        ];
+        let intr = from_tags(&tags, None, None);
+        // kind_index populado.
+        assert_eq!(
+            intr.kind_index.get(&ElementKind::Equation).map(|v| v.len()),
+            Some(1),
+        );
+        // Counter populado em loc(10).
+        assert_eq!(intr.counters.value_at("equation", loc(10)), Some(&[1usize][..]));
+    }
+
+    #[test]
+    fn equation_arm_gate_dorme_inline_mesmo_com_state_active() {
+        // State activo + block=false → counter NÃO populado.
+        let tags = vec![
+            Tag::Start(
+                loc(1),
+                ElementInfo::new(ElementPayload::StateUpdate {
+                    key:    "numbering_active:equation".to_string(),
+                    update: StateUpdate::Set(Box::new(Value::Bool(true))),
+                }),
+            ),
+            Tag::End(loc(1), 0),
+            Tag::Start(loc(10), ElementInfo::new(equation_payload(false))),
+            Tag::End(loc(10), 0),
+        ];
+        let intr = from_tags(&tags, None, None);
+        // kind_index populado mesmo para inline.
+        assert_eq!(
+            intr.kind_index.get(&ElementKind::Equation).map(|v| v.len()),
+            Some(1),
+        );
+        // Counter NÃO populado — gate bloqueia inline.
+        assert_eq!(intr.counters.value_at("equation", loc(10)), None);
+    }
+
+    #[test]
+    fn equation_arm_gate_dorme_state_ausente_caso_producao() {
+        // **Caso central da produção actual**: sem state populado para
+        // `numbering_active:equation` (Content::SetEquationNumbering
+        // ausente em cristalino — P186A §11.2). Gate bloqueia mesmo
+        // para block=true. Counter permanece vazio.
+        let tags = vec![
+            Tag::Start(loc(10), ElementInfo::new(equation_payload(true))),
+            Tag::End(loc(10), 0),
+        ];
+        let intr = from_tags(&tags, None, None);
+        // kind_index populado.
+        assert_eq!(
+            intr.kind_index.get(&ElementKind::Equation).map(|v| v.len()),
+            Some(1),
+        );
+        // Counter vazio — gate dormente.
+        assert_eq!(intr.counters.value_at("equation", loc(10)), None);
+    }
+
+    #[test]
+    fn equation_arm_multiplas_block_sequencializam_counter() {
+        // 3 equations block=true sequenciais, com state activo.
+        // Counter avança 1, 2, 3 nas Locations correspondentes.
+        let tags = vec![
+            Tag::Start(
+                loc(1),
+                ElementInfo::new(ElementPayload::StateUpdate {
+                    key:    "numbering_active:equation".to_string(),
+                    update: StateUpdate::Set(Box::new(Value::Bool(true))),
+                }),
+            ),
+            Tag::End(loc(1), 0),
+            Tag::Start(loc(10), ElementInfo::new(equation_payload(true))),
+            Tag::End(loc(10), 0),
+            Tag::Start(loc(20), ElementInfo::new(equation_payload(true))),
+            Tag::End(loc(20), 0),
+            Tag::Start(loc(30), ElementInfo::new(equation_payload(true))),
+            Tag::End(loc(30), 0),
+        ];
+        let intr = from_tags(&tags, None, None);
+        assert_eq!(intr.counters.value_at("equation", loc(10)), Some(&[1usize][..]));
+        assert_eq!(intr.counters.value_at("equation", loc(20)), Some(&[2usize][..]));
+        assert_eq!(intr.counters.value_at("equation", loc(30)), Some(&[3usize][..]));
     }
 }

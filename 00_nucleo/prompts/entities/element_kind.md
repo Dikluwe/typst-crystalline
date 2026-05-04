@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_kind`
-Hash do Código: b07af9bf
+Hash do Código: 4421c65e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_kind.rs`
@@ -45,6 +45,14 @@ pub enum ElementKind {
     /// (`bib_entries`/`bib_numbers`); `from_tags` arm correspondente
     /// é adicionada em P181E e popula `BibStore` (P181B).
     Bibliography,
+    /// **P186B** — `Content::Equation` promovido a locatable em
+    /// P186C/D/E. Indexa locations de equações em `kind_index` para
+    /// `query_by_kind(Equation)`. Suporta C2 (equation counter)
+    /// desbloqueio per ADR-0068; consumer migra em P188. `from_tags`
+    /// arm Equation (P186E) gate `block && state.numbering_active:equation`
+    /// — dormente em produção até `Content::SetEquationNumbering`
+    /// materializar (P186A §11.2).
+    Equation,
 }
 
 impl ElementKind {
@@ -106,3 +114,4 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
 | 2026-04-30 | P161 sub-passo .5: discriminador estreito de elementos para Introspection M1 | `element_kind.rs`, `element_kind.md` |
 | 2026-04-29 | P178: variant `Outline` adicionada; fecha lacuna #7 (`has_outline` via `query("outline")`) | `element_kind.rs`, `element_kind.md` |
 | 2026-05-01 | P181C: variant `Bibliography` adicionada; suporte ao plano P181 (lacuna #6); `from_name("bibliography")` round-trip | `element_kind.rs`, `element_kind.md` |
+| 2026-05-03 | P186B: variant `Equation` adicionada; suporte ao plano P186 (eixo 2 do bloqueio P183C — C2 equation counter); `from_name("equation")` round-trip; `from_tags` arm Equation populará `kind_index` em P186E. Dormente em produção até `Content::SetEquationNumbering` materializar (passo dedicado fora da série P186-P188). | `element_kind.rs`, `element_kind.md` |

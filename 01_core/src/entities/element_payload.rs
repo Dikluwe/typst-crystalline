@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_payload.md
-//! @prompt-hash f7121de5
+//! @prompt-hash 2901743a
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -101,6 +101,22 @@ pub enum ElementPayload {
     /// Hash de ElementPayload cobre).
     Bibliography {
         entries: Vec<crate::entities::bib_entry::BibEntry>,
+    },
+
+    /// **P186B** — payload de `Content::Equation`. Forma paralela a
+    /// `Figure` (P184B): `block: bool` distingue display-mode de inline,
+    /// `counter_update` registado para futura flexibilidade (`Step`
+    /// agora; `Update`/`Reset` quando equation set rule materializar).
+    /// `from_tags` arm Equation (P186E) gate
+    /// `block && state.value_at("numbering_active:equation", loc) ==
+    /// Some(Bool(true))` — counter dormente em produção até
+    /// `Content::SetEquationNumbering` (passo dedicado, fora da série
+    /// P186). Suporta C2 desbloqueio per ADR-0068 (eixo 2 P183C);
+    /// consumer migra em P188 via `flat_counter_at("equation",
+    /// current_location)`.
+    Equation {
+        block:          bool,
+        counter_update: CounterUpdate,
     },
 }
 
@@ -264,6 +280,68 @@ mod tests {
         use std::hash::{Hash, Hasher};
         let a = ElementPayload::Bibliography { entries: vec![bib_entry("a")] };
         let b = ElementPayload::Bibliography { entries: vec![bib_entry("b")] };
+        let mut h1 = DefaultHasher::new();
+        let mut h2 = DefaultHasher::new();
+        a.hash(&mut h1);
+        b.hash(&mut h2);
+        assert_ne!(h1.finish(), h2.finish());
+    }
+
+    // ── P186B — Equation variant ────────────────────────────────────────
+
+    #[test]
+    fn equation_constroi_e_compara() {
+        let a = ElementPayload::Equation {
+            block:          true,
+            counter_update: CounterUpdate::Step,
+        };
+        let b = a.clone();
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn equation_block_distingue_payloads() {
+        let display = ElementPayload::Equation {
+            block:          true,
+            counter_update: CounterUpdate::Step,
+        };
+        let inline = ElementPayload::Equation {
+            block:          false,
+            counter_update: CounterUpdate::Step,
+        };
+        assert_ne!(display, inline);
+    }
+
+    #[test]
+    fn equation_distinto_de_outras_variants() {
+        let eq = ElementPayload::Equation {
+            block:          true,
+            counter_update: CounterUpdate::Step,
+        };
+        let fig = ElementPayload::Figure {
+            kind:           None,
+            counter_update: CounterUpdate::Step,
+            is_counted:     false,
+        };
+        let outline = ElementPayload::Outline;
+        let cite = ElementPayload::Citation { key: "x".into() };
+        assert_ne!(eq, fig);
+        assert_ne!(eq, outline);
+        assert_ne!(eq, cite);
+    }
+
+    #[test]
+    fn equation_hash_diferente_para_block_distinto() {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        let a = ElementPayload::Equation {
+            block:          true,
+            counter_update: CounterUpdate::Step,
+        };
+        let b = ElementPayload::Equation {
+            block:          false,
+            counter_update: CounterUpdate::Step,
+        };
         let mut h1 = DefaultHasher::new();
         let mut h2 = DefaultHasher::new();
         a.hash(&mut h1);

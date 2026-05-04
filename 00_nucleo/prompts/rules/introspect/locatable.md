@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/locatable`
-Hash do Código: 304746d3
+Hash do Código: 4b2a29e5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/introspect/locatable.rs`
@@ -33,12 +33,15 @@ Vanilla resolve via marker traits (`Locatable`, `Unqueriable`, `Tagged`); crista
 
 `Content` tem **56 variants**. Distribuição actual:
 
-- **Locatable (9)** → `true`: `Heading`, `Figure`, `Cite`, `Metadata`
+- **Locatable (10)** → `true`: `Heading`, `Figure`, `Cite`, `Metadata`
   (P169 M9), `State` + `StateUpdate` (P171 M9), `Outline` (P178),
   `Bibliography` (P181D — lacuna #6 fechada),
   **`SetHeadingNumbering`** (P182C — emite `StateUpdate` com chave
-  `numbering_active:heading`; suporta lacuna #4).
-- **Não-locatable (47)** → `false`: todos os outros.
+  `numbering_active:heading`; suporta lacuna #4),
+  **`Equation`** (P186D — eixo 2 do bloqueio P183C C2 desbloqueado;
+  emite `ElementPayload::Equation { block, counter_update }` via
+  `extract_payload` P186C).
+- **Não-locatable (46)** → `false`: todos os outros.
 
 ---
 
@@ -143,3 +146,4 @@ vtable-driven (scope-out cristalino).
 | 2026-04-30 | P164: extracção de classificação locatable como função pura — primeiro passo de M2 | `locatable.rs`, `locatable.md`, `rules/introspect.rs` (declaração `pub mod`) |
 | 2026-05-01 | P181D: `Content::Bibliography` move de não-locatable para locatable; suporte ao plano P181 (decisão P181A cláusula 4 = Opção β; lacuna #6) | `locatable.rs`, `locatable.md` |
 | 2026-05-02 | P182C: `Content::SetHeadingNumbering` move de não-locatable para locatable; emite `StateUpdate { key: "numbering_active:heading", update: Set(Bool(active)) }` em `extract_payload`. Suporte ao plano P182 (lacuna #4). | `locatable.rs`, `locatable.md` |
+| 2026-05-03 | P186D: `Content::Equation` move de não-locatable para locatable. Combinado com arm em `extract_payload` (P186C, ordem invertida pragmaticamente para evitar janela de invariante quebrada — embora a inversão tenha apenas invertido o sentido da quebra, vide P186C `.A.6` empírico). Repõe invariante `is_locatable ↔ extract_payload.is_some()` para Equation; sincronização Locator Layouter ↔ walk reposta. Cobertura `build_minimal_for_each_variant` em test de invariante estendida (lacuna pré-existente fechada). Suporte ao plano P186 (eixo 2 do bloqueio P183C C2). | `locatable.rs`, `locatable.md` |

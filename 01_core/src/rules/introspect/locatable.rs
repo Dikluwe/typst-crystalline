@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/locatable.md
-//! @prompt-hash 186cea9d
+//! @prompt-hash aaf16c83
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -48,7 +48,17 @@ pub fn is_locatable(content: &Content) -> bool {
         // continua write paralelo legacy (M6 elimina).
         Content::SetHeadingNumbering { .. } => true,
 
-        // ── Não-locatable (47 variants) ──────────────────────────────
+        // ── Locatable em P186D — Equation. Combinado com arm em
+        // `extract_payload` (P186C) repõe invariante
+        // `is_locatable ↔ extract_payload.is_some()`. `from_tags`
+        // arm Equation (P186E) gate `block && state numbering_active:equation`
+        // — counter dormente em produção até `Content::SetEquationNumbering`
+        // (passo dedicado, fora da série P186). Suporta C2
+        // desbloqueio per ADR-0068 (eixo 2 P183C); consumer migra
+        // em P188.
+        Content::Equation { .. } => true,
+
+        // ── Não-locatable (46 variants) ──────────────────────────────
         Content::Empty
         | Content::Text(_, _)
         | Content::Space
@@ -57,7 +67,6 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::ListItem(_)
         | Content::EnumItem { .. }
         | Content::Link { .. }
-        | Content::Equation { .. }
         | Content::MathSequence(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
@@ -208,6 +217,11 @@ mod tests {
             Content::MathAlignPoint,
             Content::ListItem(Box::new(Content::Empty)),
             Content::SetHeadingNumbering { active: true },
+            // P186D: Equation cobertura no test de invariante.
+            // Lacuna pré-existente — Equation estava omitida do
+            // helper, escondendo divergências entre is_locatable e
+            // extract_payload se houvesse erro de sincronização.
+            Content::Equation { body: Box::new(Content::Empty), block: true },
         ]
     }
 

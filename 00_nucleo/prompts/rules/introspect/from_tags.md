@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/from_tags`
-Hash do Código: 7ab14b2f
+Hash do Código: 3a8f291a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/introspect/from_tags.rs`
@@ -37,6 +37,7 @@ Para cada tag:
      - `State { key, init }`: kind_index[State].push(loc); `state.init(key.clone(), (**init).clone(), loc)`. **P171 M9**.
      - `Outline`: kind_index[Outline].push(loc) — feature minimal P178.
      - `Bibliography { entries }` **P181E**: kind_index[Bibliography].push(loc); para cada entry em entries, `bib_store.assign_number(entry.key.clone(), bib_store.len() as u32 + 1)` (numeração 1-based contínua, replica `state.bib_numbers.len() + 1` em walk arm); finalmente `bib_store.add_bibliography(entries.clone())` (extend, cláusula 2 P181A). Multi-Bibliography concatena entries e preserva primeiro número via `or_insert` (cláusula 3 P181A — comportamento herdado de `assign_number`).
+     - `Equation { block, counter_update }` **P186E**: `kind_index[Equation].push(loc)` (P186D estendeu o stub introduzido em P186B com este populate); gate location-aware `if *block && matches!(state.value_at("numbering_active:equation", loc), Some(Value::Bool(true)))` → quando dispara, `counters.apply_at("equation".to_string(), counter_update.clone(), loc)`. Padrão Figure (P184B) com gate adicional simétrico ao walk legacy (`introspect.rs:377-382`). **Gate dormente em produção**: `Content::SetEquationNumbering` ainda não existe em cristalino (descoberta P186A §11.2), logo `state.value_at("numbering_active:equation", _)` é sempre `None` em runtime real → counter `equation` permanece vazio. Gate activa quando equation set rule materializar (passo dedicado fora da série P186). Suporta C2 desbloqueio per ADR-0068 (eixo 2 P183C); consumer migra em P188 com substitution-with-fallback.
      - `StateUpdate { key, update }`: kind_index[StateUpdate].push(loc).
        - `update == StateUpdate::Set(value)`:
          - **P182C**: se `state.value_at(key, loc) == None` (key nunca inicializada), `state.init(key, *value, loc)` (auto-init na primeira ocorrência). Suporta state interno emitido por `Content::SetHeadingNumbering` (chave `numbering_active:heading`), que não tem `Content::State` antecedente.
@@ -131,3 +132,6 @@ Refino futuro possível: se M5+ precisar de informação contextual (e.g. headin
 | 2026-05-02 | P182C: arm `StateUpdate::Set` auto-inicia a key se ainda não foi vista (suporte a state interno `numbering_active:*` sem `Content::State` antecedente). Caminho normal preservado para keys já inicializadas. | `from_tags.rs`, `from_tags.md` |
 | 2026-05-01 | P181E sub-passo .E: arm `Bibliography { entries }` substitui no-op (P181C) — popula `kind_index[Bibliography]` + `bib_store` via loop de `assign_number` + `add_bibliography` | `from_tags.rs`, `from_tags.md` |
 | 2026-05-03 | P184B: arm `Figure` refinado para popular `CounterRegistry` com chave per-kind `figure:{kind}` (default `"image"`); chave global `"figure"` mantida em paralelo durante janela compat M6 (dead code factual). Promove convenção documentada em `element_payload.rs:52` para implementação. | `from_tags.rs`, `from_tags.md` |
+| 2026-05-03 | P186B: stub no-op `ElementPayload::Equation { .. } => {}` adicionado para preservar exhaustividade do match após variant ser introduzido em P186B `entities/element_payload`. Cláusula gate trivial — funcionalidade real virá em P186E. | `from_tags.rs`, `from_tags.md` |
+| 2026-05-03 | P186D: stub estendido com `kind_index[Equation].push(loc)` para preservar sincronização-por-construção da ADR-0068 (test P185D `gating_locator_apenas_em_locatables` agrega `kind_index.values()`; sem populate, walk_locs ≠ layout_locs). Counter logic continua para P186E. | `from_tags.rs`, `from_tags.md` |
+| 2026-05-03 | P186E: arm `Equation` completo — counter logic `apply_at("equation", counter_update, loc)` gated por `block && matches!(state.value_at("numbering_active:equation", loc), Some(Value::Bool(true)))`. Gate location-aware (Opção B) escolhido por futureproofing alinhado com P185 direcção arquitectural. **Gate dormente em produção** porque `Content::SetEquationNumbering` ausente em cristalino (P186A §11.2). Eixo 2 do bloqueio P183C resolvido estruturalmente. Suporta C2 desbloqueio per ADR-0068; consumer migra em P188 com substitution-with-fallback. | `from_tags.rs`, `from_tags.md` |
