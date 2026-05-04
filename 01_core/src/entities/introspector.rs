@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash 27c46d3b
+//! @prompt-hash 070a390f
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -119,6 +119,25 @@ pub trait Introspector {
     /// responsabilidade do caller (cf. `mod.rs:431`).
     /// `None` se kind ausente do registry ou idx fora de range.
     fn figure_number_at_index(&self, kind: &str, idx: usize) -> Option<usize>;
+
+    /// **P185B** — variante location-aware de `is_numbering_active`.
+    /// Delega a `state.value_at(key, location)` (snapshot por Location,
+    /// não snapshot final) e devolve `true` apenas se for
+    /// `Some(Value::Bool(true))`. Default `false` (state ausente em
+    /// `location`, `Bool(false)`, ou variant não-Bool). Suporta C1
+    /// (heading prefix) — consumer migra em P187 após P185C introduzir
+    /// `current_location` no Layouter. Cf. ADR-0068.
+    fn is_numbering_active_at(&self, key: &str, location: Location) -> bool;
+
+    /// **P185B** — valor 1-based de counter flat na `Location`
+    /// indicada. Delega a `counters.value_at(key, location)?.last().copied()`.
+    /// `None` se key inexistente em `location` ou history vazia.
+    /// Para counters flat (figure, equation), `.last()` é o número
+    /// actual; para hierárquicos (heading), retorna o nível mais
+    /// profundo — usar `formatted_counter_at` (P177) nesse caso.
+    /// Suporta C2 (equation counter) — consumer migra em P188 após
+    /// P185C. Cf. ADR-0068.
+    fn flat_counter_at(&self, key: &str, location: Location) -> Option<usize>;
 }
 
 /// Implementação concreta de `Introspector` construída a partir de
@@ -240,6 +259,14 @@ impl Introspector for TagIntrospector {
         // (heading), `.last()` daria o nível mais profundo, mas
         // figure é sempre flat.
         self.counters.value_at_index(&key, idx)?.last().copied()
+    }
+
+    fn is_numbering_active_at(&self, key: &str, location: Location) -> bool {
+        matches!(self.state.value_at(key, location), Some(Value::Bool(true)))
+    }
+
+    fn flat_counter_at(&self, key: &str, location: Location) -> Option<usize> {
+        self.counters.value_at(key, location)?.last().copied()
     }
 }
 
@@ -572,5 +599,156 @@ mod tests {
             loc(10),
         );
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
+    }
+
+    // ── P185B — is_numbering_active_at + flat_counter_at ────────────
+
+    #[test]
+    fn is_numbering_active_at_em_introspector_vazio_devolve_false() {
+        let i = TagIntrospector::empty();
+        assert!(!i.is_numbering_active_at("numbering_active:heading", loc(0)));
+        assert!(!i.is_numbering_active_at("numbering_active:equation", loc(100)));
+    }
+
+    #[test]
+    fn is_numbering_active_at_apos_init_bool_true_devolve_true_em_loc_posterior() {
+        let mut i = TagIntrospector::empty();
+        i.state.init(
+            "numbering_active:heading".to_string(),
+            Value::Bool(true),
+            loc(10),
+        );
+        assert!(i.is_numbering_active_at("numbering_active:heading", loc(15)));
+        // Em loc(10) (mesma location) também — value_at usa <=.
+        assert!(i.is_numbering_active_at("numbering_active:heading", loc(10)));
+    }
+
+    #[test]
+    fn is_numbering_active_at_re_update_reflecte_location_consultada() {
+        // Caso central: valida que value_at retorna snapshot por
+        // Location, não snapshot final.
+        let mut i = TagIntrospector::empty();
+        i.state.init(
+            "numbering_active:heading".to_string(),
+            Value::Bool(true),
+            loc(10),
+        );
+        i.state.update(
+            "numbering_active:heading".to_string(),
+            Value::Bool(false),
+            loc(20),
+        );
+        // Antes do update: init activo.
+        assert!(i.is_numbering_active_at("numbering_active:heading", loc(15)));
+        // Após o update: desactivado.
+        assert!(!i.is_numbering_active_at("numbering_active:heading", loc(25)));
+        // Diferença face a is_numbering_active (snapshot final): este
+        // último daria sempre `false` (último update aplicado).
+        assert!(!i.is_numbering_active("numbering_active:heading"));
+    }
+
+    #[test]
+    fn is_numbering_active_at_bool_false_devolve_false() {
+        let mut i = TagIntrospector::empty();
+        i.state.init(
+            "numbering_active:heading".to_string(),
+            Value::Bool(false),
+            loc(10),
+        );
+        assert!(!i.is_numbering_active_at("numbering_active:heading", loc(15)));
+    }
+
+    #[test]
+    fn is_numbering_active_at_value_nao_bool_devolve_false() {
+        let mut i = TagIntrospector::empty();
+        // Variant não-Bool: graceful degradation → false.
+        i.state.init(
+            "numbering_active:heading".to_string(),
+            Value::Int(1),
+            loc(10),
+        );
+        assert!(!i.is_numbering_active_at("numbering_active:heading", loc(15)));
+    }
+
+    #[test]
+    fn flat_counter_at_em_introspector_vazio_devolve_none() {
+        let i = TagIntrospector::empty();
+        assert_eq!(i.flat_counter_at("figure:image", loc(0)), None);
+        assert_eq!(i.flat_counter_at("equation", loc(100)), None);
+    }
+
+    #[test]
+    fn flat_counter_at_apos_populate_devolve_some_em_loc_posterior() {
+        let mut i = TagIntrospector::empty();
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(10),
+        );
+        assert_eq!(i.flat_counter_at("figure:image", loc(15)), Some(1));
+        // Em loc(10) (mesma location) também.
+        assert_eq!(i.flat_counter_at("figure:image", loc(10)), Some(1));
+    }
+
+    #[test]
+    fn flat_counter_at_re_update_reflecte_location_consultada() {
+        // Caso central: valida snapshot por Location.
+        let mut i = TagIntrospector::empty();
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(10),
+        );
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(20),
+        );
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(30),
+        );
+        assert_eq!(i.flat_counter_at("figure:image", loc(15)), Some(1));
+        assert_eq!(i.flat_counter_at("figure:image", loc(25)), Some(2));
+        assert_eq!(i.flat_counter_at("figure:image", loc(35)), Some(3));
+    }
+
+    #[test]
+    fn flat_counter_at_keys_distintas_isoladas() {
+        let mut i = TagIntrospector::empty();
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(10),
+        );
+        i.counters.apply_at(
+            "figure:table".to_string(),
+            CounterUpdate::Step,
+            loc(20),
+        );
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(30),
+        );
+        // image: 2 steps em loc(10) e loc(30).
+        assert_eq!(i.flat_counter_at("figure:image", loc(15)), Some(1));
+        assert_eq!(i.flat_counter_at("figure:image", loc(35)), Some(2));
+        // table: 1 step em loc(20); ausente em loc(15).
+        assert_eq!(i.flat_counter_at("figure:table", loc(15)), None);
+        assert_eq!(i.flat_counter_at("figure:table", loc(25)), Some(1));
+    }
+
+    #[test]
+    fn flat_counter_at_location_anterior_a_qualquer_apply_devolve_none() {
+        let mut i = TagIntrospector::empty();
+        i.counters.apply_at(
+            "figure:image".to_string(),
+            CounterUpdate::Step,
+            loc(10),
+        );
+        // Snapshot vazio para Location anterior à primeira apply_at.
+        assert_eq!(i.flat_counter_at("figure:image", loc(5)), None);
     }
 }

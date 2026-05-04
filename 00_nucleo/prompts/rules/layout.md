@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 647047a9
+Hash do Código: 2b8010ce
 
 ## Módulo
 `01_core/src/rules/layout.rs`
@@ -290,3 +290,67 @@ Janela compat eliminada em **M6** quando F1 retomar
 (`CounterStateLegacy.figure_numbers`/`local_figure_counters` removidos
 + walk arm canonical legacy + chave global `"figure"` paralela em
 `from_tags` arm Figure desaparecem + fallback removido).
+
+## P185C — Locator + current_location (mecanismo M3 de ADR-0068)
+
+`Layouter` ganha dois fields para suportar consumers
+location-aware (P187 C1, P188 C2):
+
+```rust
+locator:          Locator,
+current_location: Option<Location>,
+```
+
+- `Locator::new()` em `Layouter::new()` — determinismo
+  (provado em P185A §3.3) garante sincronização-por-construção
+  com o `Locator` do walk de introspect, sem partilha por
+  referência.
+- `current_location: None` antes de processar qualquer
+  conteúdo locatable. Após o primeiro `is_locatable(content)`
+  arm, `Some(loc)` reflecte a `Location` actual.
+- Avanço monotónico (sem save/restore) — alinha com walk de
+  introspect, que avança cumulativamente. Caller que precise
+  de scoping léxico salva/restaura no seu próprio nível.
+
+### Gating em `layout_content`
+
+Padrão atómico, no topo do método antes do match:
+
+```rust
+pub fn layout_content(&mut self, content: &Content) {
+    self.advance_locator_if_locatable(content);
+    match content { /* ... */ }
+}
+
+fn advance_locator_if_locatable(&mut self, content: &Content) {
+    if is_locatable(content) {
+        self.current_location = Some(self.locator.next());
+    }
+}
+```
+
+Invariante: `is_locatable(c) == extract_payload(c).is_some()`
+(garantida em `locatable.rs:11`) torna o gating do Layouter
+isomorfo ao do walk de introspect (`introspect.rs:329`).
+Consequência: `Locator::next()` é chamado nas mesmas posições
+em ambos walks, produzindo a mesma sequência de `Location`s.
+
+### Consumers (em P187/P188)
+
+- **P187 (C1 heading prefix)**: `is_numbering_active_at(key,
+  current_location)` em vez de `is_numbering_active(key)`
+  (snapshot final).
+- **P188 (C2 equation counter)**: `flat_counter_at("equation",
+  current_location)` em vez de `state.get_flat("equation")`
+  legacy.
+
+Em P185C **nenhum consumer** migra — Layouter ganha apenas
+infra. Output observable inalterado.
+
+### `Locator` não-`Clone`
+
+`Locator` é deliberadamente não-`Clone` (per `locator.rs:23`)
+para preservar invariante de unicidade. `Layouter` por
+consequência também não pode derivar `Clone`. Confirmado:
+`Layouter` actual não deriva `Clone` (verificado em `.A`),
+não há regressão de API.
