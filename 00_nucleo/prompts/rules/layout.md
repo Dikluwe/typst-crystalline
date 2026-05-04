@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 2b8010ce
+Hash do Código: 283dd6bf
 
 ## Módulo
 `01_core/src/rules/layout.rs`
@@ -354,3 +354,55 @@ para preservar invariante de unicidade. `Layouter` por
 consequência também não pode derivar `Clone`. Confirmado:
 `Layouter` actual não deriva `Clone` (verificado em `.A`),
 não há regressão de API.
+
+## Secção: C1 heading prefix migrado (P187B)
+
+Heading-arm em `layout/mod.rs:Content::Heading` consulta
+`Introspector::formatted_counter_at("heading", current_location)`
+primeiro para obter o prefixo numérico, com fallback
+`substitution-with-fallback` a `self.counter.format_hierarchical("heading")`
+legacy:
+
+```rust
+let num_str = self.current_location
+    .and_then(|loc| self.introspector
+        .formatted_counter_at("heading", loc))
+    .or_else(|| self.counter.format_hierarchical("heading"));
+if let Some(num_str) = num_str {
+    let prefix = Content::text(format!("{}. ", num_str));
+    self.layout_content(&prefix);
+}
+```
+
+**P183B aprendizado retroactivamente validado**: P183B
+falhou tentando substituir por `formatted_counter("heading")`
+(snapshot-final P170) que pré-emptava fallback em sequências
+re-update (`H1, H2, H1` produzia `"2.", "2.", "2."` em vez
+de `"1.", "1.1", "2."`). P185 introduziu primitiva
+location-aware `formatted_counter_at(key, location)` (P177)
+e field `current_location: Option<Location>` no Layouter
+(P185C). P187B finalmente fecha C1 com a primitiva correcta
+— snapshot por Location é exactamente o valor que walk-during
+legacy retornaria.
+
+**Inversão observable**: P187 é o segundo caso da série
+M4-residual onde Introspector é caminho funcional
+(depois de P184D Figure). Diferente de P186 (Equation
+dormente em produção até `Content::SetEquationNumbering`
+materializar).
+
+**Caminho funcional após P187B**:
+- `layout()` legacy: re-corre `introspect_with_introspector`
+  internamente (P181H); Introspector populado; consulta
+  `formatted_counter_at` retorna `Some("1.2.3")` para
+  headings esperados.
+- `layout_with_introspector(content, state, intr)`: caller
+  passa Introspector populado; mesmo comportamento.
+- Fallback legacy `format_hierarchical` activo apenas se
+  Introspector vazio ou `current_location` `None` (raro
+  em prática — heading-arm é sempre invocado após gating
+  `advance_locator_if_locatable` per P185C).
+
+Janela compat eliminada em **M6** quando F1 retomar
+(`CounterStateLegacy.hierarchical` removido + walk arm
+canonical legacy + fallback removido).
