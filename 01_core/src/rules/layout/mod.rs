@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 4c94a7c0
+//! @prompt-hash 20d03fe5
 //! @layer L1
 //! @updated 2026-04-21
 
@@ -21,8 +21,11 @@ use crate::entities::{
     image_sizer::{ImageSizer, NullImageSizer},
     layout_types::{Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument,
         Point, Pt, TextStyle, TransformMatrix, VAlign},
+    location::Location,
+    locator::Locator,
     style_chain::StyleChain,
 };
+use crate::rules::introspect::locatable::is_locatable;
 
 // FontMetrics / FixedMetrics extraídos para metrics.rs (Passo 96.7, ADR-0037).
 mod metrics;
@@ -127,6 +130,18 @@ pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) cell_origin_x: Option<f64>,
     pub(super) cell_origin_y: Option<f64>,
     pub(super) cell_origin_w: Option<f64>,
+    /// **P185C (mecanismo M3 da ADR-0068)** — gerador determinístico
+    /// de `Location`s, sincronizado-por-construção com o `Locator`
+    /// do walk de introspect (per P185A §3.3). Avança em cada chamada
+    /// a `layout_content` cujo content satisfaz `is_locatable`.
+    /// Nenhum consumer ainda — fica para P187/P188.
+    pub(super) locator: Locator,
+    /// **P185C** — `Location` do último content locatable processado.
+    /// `None` antes de processar qualquer locatable. Consumers
+    /// location-aware (`is_numbering_active_at`, `flat_counter_at`,
+    /// P185B) consultam este campo em vez de snapshot final
+    /// (cf. ADR-0068 PROPOSTO).
+    pub(super) current_location: Option<Location>,
 }
 
 impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
@@ -155,6 +170,8 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             cell_origin_x:           None,
             cell_origin_y:           None,
             cell_origin_w:           None,
+            locator:                 Locator::new(),
+            current_location:        None,
         }
     }
 
@@ -218,7 +235,25 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
         self.current_items.is_empty() && self.current_line.is_empty()
     }
 
+    /// **P185C (mecanismo M3 da ADR-0068)** — avança `self.locator` e
+    /// actualiza `self.current_location` se `content` for locatable.
+    /// Mirror exacto do gating do walk de introspect
+    /// (`introspect.rs:329` — `do_extract_payload(content).is_some()`):
+    /// invariante `is_locatable ↔ extract_payload.is_some()` (provada
+    /// em `locatable.rs:11`) garante sincronização-por-construção das
+    /// duas sequências de `Location`s.
+    fn advance_locator_if_locatable(&mut self, content: &Content) {
+        if is_locatable(content) {
+            self.current_location = Some(self.locator.next());
+        }
+    }
+
     pub fn layout_content(&mut self, content: &Content) {
+        // P185C: gating Locator atómico no topo, antes do match.
+        // Avança em sincronia com walk de introspect; current_location
+        // fica disponível para consumers location-aware (P187/P188).
+        self.advance_locator_if_locatable(content);
+
         match content {
             Content::Empty => {}
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 4c94a7c0
+//! @prompt-hash 20d03fe5
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -4120,5 +4120,215 @@ mod p184e_figure_per_kind {
         assert!(txt.contains("Figura 2:"));
         assert!(txt.contains("default_a"));
         assert!(txt.contains("explicit_b"));
+    }
+}
+
+// ── P185D — sincronização Locator Layouter ↔ walk de introspect ─────────────
+
+#[cfg(test)]
+mod p185d_locator_sync {
+    use super::*;
+    use crate::entities::element_kind::ElementKind;
+    use crate::entities::introspector::Introspector;
+    use crate::entities::location::Location;
+    use crate::rules::introspect::introspect_with_introspector;
+    use crate::rules::introspect::locatable::is_locatable;
+    use std::sync::Arc;
+
+    /// Recolhe a sequência de `Location`s emitidas pelo walk de
+    /// introspect, em ordem cronológica. `kind_index` preserva ordem
+    /// de inserção por kind; agregar todos e ordenar por `as_u128`
+    /// recupera a ordem global do walk (Locator é monotonicamente
+    /// crescente per `locator.rs:counter_e_monotonico_crescente`).
+    fn collect_walk_locations(
+        intr: &crate::entities::introspector::TagIntrospector,
+    ) -> Vec<Location> {
+        let mut all: Vec<Location> = intr.kind_index
+            .values()
+            .flatten()
+            .copied()
+            .collect();
+        all.sort_by_key(|l| l.as_u128());
+        all
+    }
+
+    /// Itera parts manualmente, chamando `layout_content` por cada
+    /// um, e captura `current_location` após cada arm locatable.
+    /// Não modifica produção — só usa API pub(super) acessível a
+    /// tests do mesmo módulo.
+    fn collect_layout_locations(parts: &[Content]) -> Vec<Location> {
+        let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0);
+        let mut locs = Vec::new();
+        for part in parts {
+            layouter.layout_content(part);
+            if is_locatable(part) {
+                locs.push(
+                    layouter.current_location
+                        .expect("locatable arm deve ter setado current_location"),
+                );
+            }
+        }
+        locs
+    }
+
+    #[test]
+    fn sincronizacao_locator_layouter_iguala_walk_introspect() {
+        // .B caso central: 3 locatables em sequência (Heading, Figure,
+        // Cite), todos cobertos por `is_locatable`. Walk emite 3 tags
+        // com Locations [loc(0), loc(1), loc(2)]. Layouter avança 3
+        // vezes produzindo a mesma sequência por determinismo do
+        // Locator (sincronização-por-construção, ADR-0068 mecanismo M3).
+        let parts = vec![
+            Content::Heading { level: 1, body: Box::new(Content::Empty) },
+            Content::Figure {
+                body:      Box::new(Content::Empty),
+                caption:   None,
+                kind:      None,
+                numbering: None,
+            },
+            Content::Cite { key: "k".to_string(), supplement: None, form: None },
+        ];
+        let content = Content::Sequence(Arc::from(parts.clone()));
+
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let walk_locs   = collect_walk_locations(&intr);
+        let layout_locs = collect_layout_locations(&parts);
+
+        assert_eq!(walk_locs.len(), 3, "walk deve emitir 3 tags");
+        assert_eq!(layout_locs.len(), 3, "Layouter deve avançar 3 vezes");
+        assert_eq!(
+            walk_locs, layout_locs,
+            "sequências devem coincidir por sincronização-por-construção"
+        );
+    }
+
+    #[test]
+    fn gating_locator_apenas_em_locatables() {
+        // .C mistura locatables + não-locatables. Walk emite tags só
+        // para Heading/Figure/Cite (3); Layouter avança Locator só
+        // para os 3. Text (Space-separated lá dentro) e Equation NÃO
+        // disparam gating — confirmação empírica que `is_locatable`
+        // governa avanço.
+        let parts = vec![
+            Content::Heading { level: 1, body: Box::new(Content::Empty) },
+            Content::text("plain"),
+            Content::Figure {
+                body:      Box::new(Content::Empty),
+                caption:   None,
+                kind:      None,
+                numbering: None,
+            },
+            Content::Equation { body: Box::new(Content::Empty), block: false },
+            Content::Cite { key: "k".to_string(), supplement: None, form: None },
+        ];
+        let content = Content::Sequence(Arc::from(parts.clone()));
+
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let walk_locs   = collect_walk_locations(&intr);
+        let layout_locs = collect_layout_locations(&parts);
+
+        assert_eq!(walk_locs.len(), 3, "só 3 locatables (Heading/Figure/Cite)");
+        assert_eq!(layout_locs.len(), 3, "Layouter avança só 3 vezes");
+        assert_eq!(
+            walk_locs, layout_locs,
+            "sequências iguais — Text e Equation são skipped uniformemente"
+        );
+    }
+
+    #[test]
+    fn current_location_none_antes_de_primeiro_locatable() {
+        // .D valida decisão de tipo `Option<Location>` (P185C):
+        // antes do primeiro locatable, current_location é None
+        // (não `Location::from_raw(0)`, que é uma Location real do
+        // primeiro Locator::next).
+        let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0);
+        assert_eq!(
+            layouter.current_location, None,
+            "fresh Layouter tem current_location = None"
+        );
+
+        // Não-locatable não dispara gating.
+        layouter.layout_content(&Content::text("plain"));
+        assert_eq!(
+            layouter.current_location, None,
+            "Text não-locatable não actualiza current_location"
+        );
+
+        layouter.layout_content(&Content::Space);
+        assert_eq!(
+            layouter.current_location, None,
+            "Space não-locatable não actualiza current_location"
+        );
+
+        // Primeiro locatable dispara gating.
+        layouter.layout_content(&Content::Heading {
+            level: 1,
+            body:  Box::new(Content::Empty),
+        });
+        assert!(
+            layouter.current_location.is_some(),
+            "Heading locatable → current_location = Some"
+        );
+        assert_eq!(
+            layouter.current_location.unwrap().as_u128(),
+            0,
+            "primeiro Locator::next produz Location(0)"
+        );
+    }
+
+    #[test]
+    fn pipeline_e2e_is_numbering_active_at_via_current_location() {
+        // .E pipeline end-to-end blueprint para P187 C1 migration.
+        // SetHeadingNumbering(true) inicia state em loc(0); 3
+        // Headings que vêm depois (loc(1), loc(2), loc(3)) devem
+        // ver numbering activo via `is_numbering_active_at(key,
+        // current_location)`.
+        let parts = vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::Heading { level: 1, body: Box::new(Content::Empty) },
+            Content::Heading { level: 1, body: Box::new(Content::Empty) },
+            Content::Heading { level: 1, body: Box::new(Content::Empty) },
+        ];
+        let content = Content::Sequence(Arc::from(parts.clone()));
+
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr_clone = intr.clone();
+
+        let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0);
+        layouter.introspector = intr_clone;
+
+        let mut headings_validados = 0usize;
+        for part in &parts {
+            layouter.layout_content(part);
+            if matches!(part, Content::Heading { .. }) {
+                let loc = layouter.current_location
+                    .expect("Heading locatable → Some");
+                assert!(
+                    intr.is_numbering_active_at("numbering_active:heading", loc),
+                    "heading em {:?} deve ver numbering activo (state populado em loc anterior)",
+                    loc
+                );
+                headings_validados += 1;
+            }
+        }
+        assert_eq!(headings_validados, 3, "3 headings esperados");
+
+        // Confirmação adicional: kind_index deve ter exactamente 3
+        // headings, e cada Location deve produzir true via método
+        // location-aware. Cobre o blueprint que P187 vai usar
+        // (consumer migra de `is_numbering_active` snapshot-final
+        // para `is_numbering_active_at(key, current_location)`).
+        let heading_locs = intr.kind_index
+            .get(&ElementKind::Heading)
+            .cloned()
+            .unwrap_or_default();
+        assert_eq!(heading_locs.len(), 3);
+        for loc in heading_locs {
+            assert!(
+                intr.is_numbering_active_at("numbering_active:heading", loc),
+                "kind_index Heading[loc={:?}] activo via método P185B",
+                loc
+            );
+        }
     }
 }
