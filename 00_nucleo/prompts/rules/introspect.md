@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: e7f49e39
+Hash do Código: 3bc33823
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -212,32 +212,42 @@ justificação literal e plano de fechamento:
 | # | Arm | Mutação | Razão | Pré-requisito |
 |---|-----|---------|-------|---------------|
 | **E1** | `Content::Equation` | `state.step_flat("equation")` | `Content::SetEquationNumbering` ausente (Reserva 1; P186A §11.2). Sem ele, gate em `from_tags` P186E nunca dispara → counter introspector vazio → P188B fallback legacy é caminho funcional permanente. | Materializar `Content::SetEquationNumbering` (passo dedicado). |
-| **E2** | `Content::Heading` | `state.step_hierarchical`, `state.auto_label_counter`, `state.resolved_labels`, `state.headings_for_toc` | `Labelled` arm lê counter durante walk para popular `resolved_labels`. Sub-store `resolved_labels` **não existe**. Cadeia bloqueia migração granular. | (a) Sub-store `resolved_labels`, (b) C4 migration (consumer Ref-arm), (c) Sub-store `headings_for_toc` (lacuna #3). |
-| **E3** | `Content::Figure` | `state.local_figure_counters`, `state.figure_numbers` | `Labelled` arm lê `figure_numbers` durante walk para popular `figure_label_numbers`. Sub-stores existem (P184B + P168) mas chained com E2. | E2 fecha primeiro. |
-| **E4** | `Content::Labelled` | `state.figure_label_numbers`, `state.resolved_labels` | Consumer Ref-arm em Layouter lê durante layout. | Idêntico a E2 (sub-store + C4). |
+| **E2-residuo** | `Content::Heading` | `state.headings_for_toc.push` (1 mutação residual após P196B) | P196B fechou 3 das 4 mutações estruturalmente via Tag::Labelled auto-toc (pattern ADR-0069). Resta `headings_for_toc.push` porque sub-store `intr.headings_for_toc` **não existe** (lacuna #3). Outras 3 mutações (`step_hierarchical`, `auto_label_counter++`, `resolved_labels.insert`) preservadas como **write paralelo** durante janela compat M5 — fecham orgânicamente em M6. | Sub-store `intr.headings_for_toc` (passo dedicado fora série P196). |
+| **E3** | `Content::Figure` | `state.local_figure_counters`, `state.figure_numbers` | `Labelled` arm lê `figure_numbers` durante walk para popular `figure_label_numbers`. Sub-stores existem (P184B + P168) mas chained com E2-residuo. | E2-residuo fecha primeiro. |
+| **E4** | `Content::Labelled` | `state.figure_label_numbers`, `state.resolved_labels` | **Fechou estruturalmente em P195D** (caminho Introspector activo via Tag::Labelled). Mutação legacy mantida como write paralelo M5; remoção orgânica em M6. | Funcional fecha em M6. |
 | **E5** | `Content::SetHeadingNumbering` | `state.numbering_active.insert("heading", ...)` | `Heading` arm lê `is_numbering_active("heading")` durante walk para resolver auto-toc text. Tag StateUpdate emitida paralelamente via P182C; `StateRegistry` populado independentemente — legacy mutation é write paralelo. | E2 fecha; legacy mutation removida orgânicamente. |
 | **E6** | `Content::CounterUpdate` | `state.step_*`, `update_flat` | `Labelled` arm pode ler counter mutado via CounterUpdate durante walk. Chained com E2 (Reserva 2 alargada). | E2 fecha primeiro. |
 
-**Padrão de cadeia**: 5 das 6 excepções (E2-E6) fecham em
-sequência após desbloquear sub-store `resolved_labels` + C4
+**Padrão de cadeia**: 5 das 6 excepções (E2/E3/E4/E5/E6) fecham
+em sequência após desbloquear sub-store `resolved_labels` + C4
 migration. E1 é independente (Reserva 1 distinta).
+
+**Estado P196B (2026-05-03)**: E4 fechou estruturalmente em
+P195D; E2 fechou estruturalmente em P196B (3 das 4 mutações
+migradas via Tag pattern ADR-0069). Resta **E2-residuo**
+(`headings_for_toc.push`) bloqueado por lacuna #3 (sub-store
+ausente). E3/E5/E6 continuam activas mas a cadeia já não
+bloqueia caminho Introspector funcional.
 
 **Ordem inversa à mutação**: para fechar M5 universalmente,
 migração tem que acontecer da camada mais baixa (sub-stores)
 para a mais alta (Layouter consumers). Concretamente:
 
-1. Abrir sub-store `resolved_labels` (passo dedicado).
-2. Migrar consumer Ref-arm em Layouter para ler do sub-store
-   (C4 migration; P183E retomado ou novo).
-3. Migrar walk arm `Labelled` para emitir Tag em vez de mutar
-   directamente (E2/E4 fecham).
-4. Migrar walk arm `Heading` (E2 fecha residual).
-5. Migrar walk arm `Figure` (E3 fecha).
-6. Migrar walk arms `SetHeadingNumbering` + `CounterUpdate` (E5/E6
+1. ✅ Abrir sub-store `resolved_labels` (P193B).
+2. ✅ Migrar consumer Ref-arm em Layouter para ler do sub-store
+   (C4 migration P194B com fallback substitution).
+3. ✅ Migrar walk arm `Labelled` para emitir Tag em vez de mutar
+   directamente (P195D — E4 fecha estruturalmente).
+4. ✅ Migrar walk arm `Heading` (P196B — E2 fecha estruturalmente,
+   resta E2-residuo).
+5. Abrir sub-store `intr.headings_for_toc` (passo dedicado;
+   fecha E2-residuo).
+6. Migrar walk arm `Figure` (E3 fecha).
+7. Migrar walk arms `SetHeadingNumbering` + `CounterUpdate` (E5/E6
    fecham residual).
-7. Quando `Content::SetEquationNumbering` materializar, E1 fecha.
+8. Quando `Content::SetEquationNumbering` materializar, E1 fecha.
 
-Após esses 7 passos sequenciais, walk torna-se universalmente
+Após esses passos sequenciais, walk torna-se universalmente
 puro. Segue M6 (eliminação `CounterStateLegacy`).
 
 **DEBT M5-residual**: cobre E1–E6 (Cenário B per P189A §8 —
@@ -308,3 +318,99 @@ entre mutação legacy e populate Tag. Reduz duplicação.
 
 Replica literal da lógica match legacy do walk arm; sem
 mutação (state ref imutável).
+
+## Secção: Walk arm Heading migrado (P196B, ADR-0069)
+
+**Segunda aplicação do pattern post-recursion tag emission**
+(ADR-0069 ACEITE em P195E). Análoga a P195D mas mais simples:
+Heading é locatable, então `emitted_loc` (do walk top) já
+está disponível na arm — sem necessidade de snapshot+find_map.
+
+Walk arm `Content::Heading` em `introspect.rs:Content::Heading`
+foi modificado em P196B para:
+
+1. **Mutação legacy preservada** (write paralelo M5 → M6):
+   - `state.step_hierarchical("heading", level)`.
+   - `state.auto_label_counter += 1`.
+   - `state.resolved_labels.insert(auto_label, resolved_text)`.
+   - `state.headings_for_toc.push((auto_label, frozen_body, level))` —
+     **E2-residuo** porque sub-store `intr.headings_for_toc`
+     não existe (lacuna #3).
+
+2. **Computar payload via helper privado**:
+   `compute_heading_auto_toc(state, auto_label_counter)` retorna
+   `(Label, String)` — função pura sobre referência imutável de
+   state. Replica lógica legacy:
+   - `Label("auto-toc-{n}")` sempre.
+   - `resolved_text = "Secção {prefix}"` se
+     `is_numbering_active("heading") && format_hierarchical("heading").is_some()`.
+   - `resolved_text = ""` (string vazia) caso contrário —
+     paridade legacy preserva insert mesmo quando
+     numbering inactivo.
+
+3. **Recursão no body**: `walk(body, state, locator, tags, None)` —
+   propaga state mutado para filhos do heading.
+
+4. **Tag pós-recursão emitida** (pattern ADR-0069):
+   - `if let Some(loc) = emitted_loc { … }` — Heading é
+     locatable, walk top emitiu Tag::Start no topo, então
+     `loc` está disponível directamente (sem snapshot).
+   - `tags.push(Tag::Start(loc, ElementInfo::new(
+     ElementPayload::Labelled { label: auto_label,
+     resolved_text: Some(resolved_text), figure_number: None })))`
+     + `tags.push(Tag::End(loc, 0))`.
+   - **Reuso de Location** preserva sincronização-por-construção
+     ADR-0068 (4 tags do Heading partilham mesma Location).
+
+### Estado após P196B
+
+- **E2 fecha estruturalmente** (3 de 4 mutações migradas via
+  Tag::Labelled auto-toc). Caminho Introspector activo para
+  auto-toc labels Heading.
+- **E2-residuo** persiste com 1 mutação (`headings_for_toc.push`)
+  porque sub-store ausente (lacuna #3). Fecha em passo
+  dedicado fora série P196.
+- **E2 funcionalmente fecha em M6** quando mutação legacy
+  for removida.
+- Output observable em produção **inalterado** —
+  mutação legacy fornece valores idênticos via write
+  paralelo; consumer C4 P194B recebe `Some(text)` do
+  Introspector path com auto_label sintetizada.
+
+### Helper `compute_heading_auto_toc`
+
+Função privada em `introspect.rs` (sem `pub`) — uso
+interno apenas. Análoga a `compute_labelled` (P195D).
+Sempre retorna concrete `(Label, String)` em vez de
+`Option`s — paridade legacy preserva insert de
+`auto_label → ""` quando numbering inactivo (insert
+informativo de presença, não de conteúdo).
+
+### Sequência de tags emitida
+
+Para `Content::Heading { level: 1, body: text("título") }`:
+
+```
+Tag::Start(loc, Heading)               // walk top
+Tag::Start(loc, Labelled auto-toc-1)   // arm pós-recursão
+Tag::End(loc, 0)                       // arm pós-recursão (hash=0)
+Tag::End(loc, hash_content(heading))   // walk bottom
+```
+
+4 tags com mesma Location, 2 pares Start/End válidos.
+Bracketing preservado.
+
+Para `Content::Heading { level: 1, body: figure }`:
+
+```
+Tag::Start(loc_h, Heading)
+Tag::Start(loc_f, Figure)
+Tag::End(loc_f, hash_figure)
+Tag::Start(loc_h, Labelled auto-toc-1)
+Tag::End(loc_h, 0)
+Tag::End(loc_h, hash_heading)
+```
+
+6 tags. Bracketing válido (Heading bracket envolve Figure
+bracket; auto-toc é par próprio inserido entre fim de
+recursão e End externo).
