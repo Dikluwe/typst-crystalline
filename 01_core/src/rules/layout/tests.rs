@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash e54d93e0
+//! @prompt-hash e2da3fe8
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -4653,5 +4653,152 @@ mod p187b_c1_heading_prefix {
         // pré-emptando fallback).
         assert!(!txt.contains("1. Conclusao"),
             "regressão P183B: 'Conclusao' não pode ter prefixo '1.': {:?}", txt);
+    }
+}
+
+// ── P188B — C2 equation counter migration ───────────────────────────────────
+
+#[cfg(test)]
+mod p188b_c2_equation_counter {
+    use super::*;
+    use crate::entities::introspector::Introspector;
+    use crate::entities::state_update::StateUpdate;
+    use crate::entities::value::Value;
+    use crate::rules::introspect::introspect_with_introspector;
+    use std::sync::Arc;
+
+    fn equation_block(text: &str) -> Content {
+        Content::Equation {
+            body:  Box::new(Content::MathIdent(text.into())),
+            block: true,
+        }
+    }
+
+    fn doc_3_equations() -> Content {
+        Content::Sequence(Arc::from(vec![
+            equation_block("a"),
+            equation_block("b"),
+            equation_block("c"),
+        ]))
+    }
+
+    #[test]
+    fn c2_equation_counter_via_introspector_path_quando_state_injectado() {
+        // Path Introspector funcional quando state
+        // `numbering_active:equation` é injectado via Content::StateUpdate
+        // (auto-init via P182C arm em from_tags). Gate em P186E dispara
+        // → counter introspector populado → `flat_counter_at` retorna
+        // valores correctos.
+        let parts = vec![
+            Content::StateUpdate {
+                key:    "numbering_active:equation".to_string(),
+                update: StateUpdate::Set(Box::new(Value::Bool(true))),
+            },
+            equation_block("a"),
+            equation_block("b"),
+            equation_block("c"),
+        ];
+        let content = Content::Sequence(Arc::from(parts));
+
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+
+        // Validação intermédia: counter populado.
+        let eq_locs = intr.kind_index
+            .get(&crate::entities::element_kind::ElementKind::Equation)
+            .cloned()
+            .unwrap_or_default();
+        assert_eq!(eq_locs.len(), 3, "3 equations indexadas");
+        assert_eq!(intr.flat_counter_at("equation", eq_locs[0]), Some(1));
+        assert_eq!(intr.flat_counter_at("equation", eq_locs[1]), Some(2));
+        assert_eq!(intr.flat_counter_at("equation", eq_locs[2]), Some(3));
+    }
+
+    #[test]
+    fn c2_equation_counter_via_fallback_legacy_caso_producao() {
+        // **Caso central da produção**: sem
+        // `Content::SetEquationNumbering` (e portanto sem state
+        // populado para `numbering_active:equation`), gate em P186E
+        // bloqueia → counter introspector vazio → `flat_counter_at`
+        // retorna `None` → `unwrap_or_else` cai em legacy `get_flat`.
+        //
+        // Test exercita pipeline completo via layout(); legacy
+        // produz "(1)", "(2)", "(3)" via state.numbering_active
+        // pré-populado (replica empiricamente o que eval faz em
+        // produção real).
+        let content = doc_3_equations();
+        let mut state = CounterStateLegacy::new();
+        state.numbering_active.insert("equation".to_string(), true);
+
+        let txt = layout(&content, state).plain_text();
+
+        // Output observable correcto via fallback legacy.
+        assert!(txt.contains("(1)"), "esperado '(1)' em: {:?}", txt);
+        assert!(txt.contains("(2)"), "esperado '(2)' em: {:?}", txt);
+        assert!(txt.contains("(3)"), "esperado '(3)' em: {:?}", txt);
+
+        // Confirmação adicional: Introspector populated via re-walk
+        // em layout() (P181H) **não** populates equation counter
+        // porque gate P186E dorme.
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let eq_locs = intr.kind_index
+            .get(&crate::entities::element_kind::ElementKind::Equation)
+            .cloned()
+            .unwrap_or_default();
+        assert_eq!(eq_locs.len(), 3, "kind_index populado mesmo dormente");
+        for loc in eq_locs {
+            assert_eq!(
+                intr.flat_counter_at("equation", loc),
+                None,
+                "counter dormente em produção (caso central)",
+            );
+        }
+    }
+
+    #[test]
+    fn c2_equation_counter_paridade_legacy_vs_introspector() {
+        // Paridade: ambos paths (legacy + Introspector com state
+        // injectado) produzem mesmo output observable.
+        //
+        // Path A: layout() legacy puro com state.numbering_active
+        // pré-populado.
+        // Path B: layout_with_introspector() com state injectado via
+        // Content::StateUpdate → Introspector path activo no Layouter.
+        //
+        // Em produção real, apenas Path A está activo. Path B só é
+        // activo em testes que injectam StateUpdate.
+        let content = doc_3_equations();
+
+        // Path A: legacy.
+        let mut state_a = CounterStateLegacy::new();
+        state_a.numbering_active.insert("equation".to_string(), true);
+        let txt_a = layout(&content, state_a).plain_text();
+
+        // Path B: Introspector activado via StateUpdate tag.
+        let parts_b = vec![
+            Content::StateUpdate {
+                key:    "numbering_active:equation".to_string(),
+                update: StateUpdate::Set(Box::new(Value::Bool(true))),
+            },
+            equation_block("a"),
+            equation_block("b"),
+            equation_block("c"),
+        ];
+        let content_b = Content::Sequence(Arc::from(parts_b));
+        let mut state_b = CounterStateLegacy::new();
+        state_b.numbering_active.insert("equation".to_string(), true);
+        let (_, intr_b) = introspect_with_introspector(&content_b, None, None);
+        let txt_b = layout_with_introspector(&content_b, state_b, intr_b).plain_text();
+
+        // Paridade observable em ambos paths.
+        for expected in &["(1)", "(2)", "(3)"] {
+            assert!(
+                txt_a.contains(expected),
+                "Path A deve conter {:?} em: {:?}", expected, txt_a
+            );
+            assert!(
+                txt_b.contains(expected),
+                "Path B deve conter {:?} em: {:?}", expected, txt_b
+            );
+        }
     }
 }

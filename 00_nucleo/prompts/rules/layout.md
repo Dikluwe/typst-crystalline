@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 283dd6bf
+Hash do Código: 1673ce58
 
 ## Módulo
 `01_core/src/rules/layout.rs`
@@ -406,3 +406,61 @@ materializar).
 Janela compat eliminada em **M6** quando F1 retomar
 (`CounterStateLegacy.hierarchical` removido + walk arm
 canonical legacy + fallback removido).
+
+## Secção: C2 equation counter migrado (P188B)
+
+Equation-arm em `layout/equation.rs:97` consulta
+`Introspector::flat_counter_at("equation", current_location)`
+primeiro para obter o número da equação, com fallback
+**substitution-with-fallback** a `self.counter.get_flat("equation")`
+legacy:
+
+```rust
+use crate::entities::introspector::Introspector;
+let n = self.current_location
+    .and_then(|loc| self.introspector
+        .flat_counter_at("equation", loc))
+    .unwrap_or_else(|| self.counter.get_flat("equation"));
+```
+
+**Diferença sintáctica face a P187B (C1)**: `unwrap_or_else`
+em vez de `or_else` porque `get_flat` legacy retorna `usize`
+directamente (não `Option<usize>` como `format_hierarchical`).
+
+### Estado dormente em produção (honestidade documental)
+
+P188 é o **primeiro consumer da série M4-residual onde
+migração estrutural não traduz em mudança funcional em
+produção**. Comparação:
+
+| Caso | Introspector em produção | Caminho funcional |
+|------|---------------------------|-------------------|
+| C3 Figure (P184D) | activo | Introspector |
+| C1 Heading prefix (P187B) | activo | Introspector |
+| **C2 Equation counter (P188B)** | **dormente** | **fallback legacy permanente** |
+
+**Razão**: `Content::SetEquationNumbering` não existe em
+cristalino (descoberta P186A §11.2). State
+`numbering_active:equation` nunca é populado em walk real.
+Gate em `from_tags` arm Equation (P186E) bloqueia →
+counter introspector permanece vazio → `flat_counter_at`
+retorna sempre `None` em produção → `unwrap_or_else` cai
+sempre no fallback legacy `get_flat`.
+
+**Trabalho identificado fora série**: materializar
+`Content::SetEquationNumbering` (passo dedicado, fora série
+P186-P188). Após esse passo:
+- State é populado via tag StateUpdate.
+- Gate em P186E dispara → counter introspector populado.
+- `flat_counter_at` retorna `Some(n)` → caminho Introspector
+  activa-se em produção.
+- Janela compat M6 pode abrir para Equation
+  (`CounterStateLegacy.flat["equation"]` removido +
+  fallback removido).
+
+Cross-references: P186A §11.2 (descoberta inicial), P186E
+(gate location-aware), P188A (decisões), P188B (migração).
+
+Janela compat M6 para C2 **não fechará** até
+`Content::SetEquationNumbering` materializar — diferente
+de C1 (que pode fechar imediatamente quando F1 retomar).
