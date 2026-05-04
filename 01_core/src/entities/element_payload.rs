@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_payload.md
-//! @prompt-hash 2901743a
+//! @prompt-hash 86032faf
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -18,6 +18,7 @@
 //! P162.
 
 use crate::entities::counter_update::CounterUpdate;
+use crate::entities::label::Label;
 
 /// Dados específicos por kind para indexação na introspecção.
 ///
@@ -117,6 +118,34 @@ pub enum ElementPayload {
     Equation {
         block:          bool,
         counter_update: CounterUpdate,
+    },
+
+    /// **P195B** — payload de `Content::Labelled` emitido em **post-recursion**
+    /// pelo walk arm (per ADR-0069). Diferente dos outros variants
+    /// (que vêm de `extract_payload` puro pre-recursion), este é
+    /// produzido directamente pelo walk arm Labelled após recursão
+    /// no target porque `resolved_text` depende de state mutado
+    /// durante walk recursivo (counter formatting, lang).
+    ///
+    /// Campos:
+    /// - `label`: chave para `intr.resolved_labels` populate.
+    /// - `resolved_text`: texto pré-computed pelo walk arm
+    ///   (`"Secção 1.2"`, `"Equação (3)"`, `"Figura 5"`, ou vazio).
+    ///   `Option` porque walk arm pode não conseguir resolver para
+    ///   alguns target types (per match `_ => None` actual).
+    /// - `figure_number`: `Some(n)` apenas quando target é Figure
+    ///   numerada+captioned; `None` caso contrário. Usado para
+    ///   popular `intr.figure_label_numbers` em paralelo com P168
+    ///   arm Figure (write redundante mas inofensivo).
+    ///
+    /// `from_tags` arm Labelled (P195C) popula ambos sub-stores.
+    /// Walk arm legacy (E4 P189B) **mantém** mutação directa em
+    /// `state.resolved_labels` + `state.figure_label_numbers`
+    /// como write paralelo durante janela compat M5; cleanup em M6.
+    Labelled {
+        label:         Label,
+        resolved_text: Option<String>,
+        figure_number: Option<usize>,
     },
 }
 
@@ -347,5 +376,89 @@ mod tests {
         a.hash(&mut h1);
         b.hash(&mut h2);
         assert_ne!(h1.finish(), h2.finish());
+    }
+
+    // ── P195B — Labelled variant ────────────────────────────────────────
+
+    fn lbl(s: &str) -> Label {
+        Label(s.to_string())
+    }
+
+    #[test]
+    fn labelled_construivel_e_compara() {
+        let a = ElementPayload::Labelled {
+            label:         lbl("intro"),
+            resolved_text: Some("Capítulo 1".to_string()),
+            figure_number: None,
+        };
+        let b = a.clone();
+        assert_eq!(a, b);
+    }
+
+    #[test]
+    fn labelled_distincao_de_outras_variants() {
+        let labelled = ElementPayload::Labelled {
+            label:         lbl("intro"),
+            resolved_text: Some("Capítulo 1".to_string()),
+            figure_number: None,
+        };
+        let equation = ElementPayload::Equation {
+            block:          true,
+            counter_update: CounterUpdate::Step,
+        };
+        let cite = ElementPayload::Citation { key: "k".into() };
+        assert_ne!(labelled, equation);
+        assert_ne!(labelled, cite);
+    }
+
+    #[test]
+    fn labelled_distingue_por_label() {
+        let a = ElementPayload::Labelled {
+            label:         lbl("intro"),
+            resolved_text: Some("Secção 1".to_string()),
+            figure_number: None,
+        };
+        let b = ElementPayload::Labelled {
+            label:         lbl("conclusao"),
+            resolved_text: Some("Secção 1".to_string()),
+            figure_number: None,
+        };
+        assert_ne!(a, b);
+    }
+
+    #[test]
+    fn labelled_hash_diferente_para_label_distinto() {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+        let a = ElementPayload::Labelled {
+            label:         lbl("a"),
+            resolved_text: Some("text".to_string()),
+            figure_number: None,
+        };
+        let b = ElementPayload::Labelled {
+            label:         lbl("b"),
+            resolved_text: Some("text".to_string()),
+            figure_number: None,
+        };
+        let mut h1 = DefaultHasher::new();
+        let mut h2 = DefaultHasher::new();
+        a.hash(&mut h1);
+        b.hash(&mut h2);
+        assert_ne!(h1.finish(), h2.finish());
+    }
+
+    #[test]
+    fn labelled_figure_number_distingue_payloads() {
+        let sem_figura = ElementPayload::Labelled {
+            label:         lbl("ref1"),
+            resolved_text: Some("text".to_string()),
+            figure_number: None,
+        };
+        let com_figura = ElementPayload::Labelled {
+            label:         lbl("ref1"),
+            resolved_text: Some("text".to_string()),
+            figure_number: Some(3),
+        };
+        assert_ne!(sem_figura, com_figura);
     }
 }

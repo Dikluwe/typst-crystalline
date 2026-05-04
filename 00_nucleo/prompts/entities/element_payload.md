@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_payload`
-Hash do Código: 35fc2e53
+Hash do Código: 2b440e36
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_payload.rs`
@@ -134,6 +134,37 @@ pub enum ElementPayload {
         block:          bool,
         counter_update: CounterUpdate,
     },
+
+    /// **P195B** — payload de `Content::Labelled` emitido em
+    /// **post-recursion** pelo walk arm (per ADR-0069). Pattern
+    /// arquitectural novo distinto dos outros variants: estes vêm
+    /// de `extract_payload` puro pre-recursion; `Labelled` é
+    /// produzido directamente pelo walk arm após recursão no target
+    /// porque `resolved_text` depende de state mutado durante walk
+    /// recursivo (counter formatting via `state.format_hierarchical`,
+    /// `state.get_flat`, `state.figure_numbers`, `state.lang`).
+    ///
+    /// Campos:
+    /// - `label: Label`: chave para `intr.resolved_labels` populate.
+    /// - `resolved_text: Option<String>`: texto pré-computed
+    ///   ("Secção 1.2", "Equação (3)", "Figura 5"); `None` para
+    ///   target types não-resolvíveis (catch-all `_ => None` em
+    ///   walk arm legacy).
+    /// - `figure_number: Option<usize>`: `Some(n)` apenas quando
+    ///   target é Figure numerada+captioned. Permite popular
+    ///   `intr.figure_label_numbers` em paralelo com P168 arm
+    ///   Figure (write redundante mas inofensivo).
+    ///
+    /// `from_tags` arm Labelled (P195C) popula ambos sub-stores.
+    /// Walk arm legacy (E4 P189B) **mantém** mutação directa em
+    /// `state.resolved_labels` + `state.figure_label_numbers`
+    /// durante janela compat M5; E4 fecha estruturalmente em P195;
+    /// funcionalmente em M6.
+    Labelled {
+        label:         Label,
+        resolved_text: Option<String>,
+        figure_number: Option<usize>,
+    },
 }
 ```
 
@@ -206,3 +237,4 @@ Ver `desenho-introspection-fixpoint.md` §2.1 (referenciado em P161; documento a
 | 2026-04-29 | P178: variant `Outline` unit adicionada para suporte de `query("outline")` | `element_payload.rs`, `element_payload.md` |
 | 2026-05-03 | P186B: variant `Equation { block, counter_update }` adicionada (forma paralela a `Figure` P184B); suporta P186 plano (eixo 2 P183C); P186D adiciona arm em `extract_payload`, P186E adiciona arm em `from_tags` com gate `block && state numbering_active:equation`. | `element_payload.rs`, `element_payload.md` |
 | 2026-05-01 | P181C: variant `Bibliography { entries: Vec<BibEntry> }` adicionada; suporta P181D (`extract_payload` arm Bibliography) e P181E (`from_tags` popula `BibStore`) | `element_payload.rs`, `element_payload.md` |
+| 2026-05-04 | P195B: variant `Labelled { label, resolved_text, figure_number }` adicionada com pattern arquitectural novo "post-recursion tag emission for state-dependent payload" (ADR-0069 PROPOSTO). **Sem** `extract_payload` arm — payload depende de state mutado durante walk recursivo, impossível em função pura. Walk arm Labelled (P195D) emite Tag manualmente após recursão. `from_tags` arm popula `intr.resolved_labels` + `intr.figure_label_numbers`. P195B = stub no-op em from_tags; P195C estende. | `element_payload.rs`, `element_payload.md`, `from_tags.rs`, `from_tags.md`, `typst-adr-0069-post-recursion-tag-emission.md` |

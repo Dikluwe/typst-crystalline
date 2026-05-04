@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash e2da3fe8
+//! @prompt-hash 089621fc
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -4943,5 +4943,258 @@ mod p189b_walk_puro_m5 {
         let state = introspect(&content);
         assert_eq!(state.get_flat("custom"), 2,
             "E6: flat[custom] = 2 após 2 steps");
+    }
+}
+
+// ── P194B — C4 resolved label migration ─────────────────────────────────────
+
+#[cfg(test)]
+mod p194b_c4_resolved_label {
+    use super::*;
+    use crate::entities::introspector::TagIntrospector;
+    use crate::entities::label::Label;
+    use crate::rules::introspect::introspect;
+    use std::sync::Arc;
+
+    fn lbl(s: &str) -> Label {
+        Label(s.to_string())
+    }
+
+    fn doc_heading_labelled_e_ref(label_name: &str) -> Content {
+        // Heading (level 1) wrapped in Labelled + Ref para o mesmo
+        // label. Walk legacy popula state.resolved_labels via arm
+        // Labelled (E4 P189B excepção).
+        Content::Sequence(Arc::from(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::Labelled {
+                target: Box::new(Content::Heading {
+                    level: 1,
+                    body:  Box::new(Content::text("Intro")),
+                }),
+                label:  lbl(label_name),
+            },
+            Content::Ref { target: lbl(label_name) },
+        ]))
+    }
+
+    #[test]
+    fn c4_resolved_label_via_introspector_path_quando_populated() {
+        // Introspector populated manualmente (simula pós-P195 quando
+        // walk arm Labelled migrar e popular sub-store via Tag).
+        // Fallback legacy presente mas Introspector path tem
+        // prioridade.
+        let content = Content::Sequence(Arc::from(vec![
+            Content::Ref { target: lbl("intro") },
+        ]));
+
+        let mut state = CounterStateLegacy::new();
+        // Pre-populate legacy também (Path Introspector deve preempt).
+        state.resolved_labels.insert(lbl("intro"), "Legacy text".to_string());
+
+        // Introspector populated com texto distinto — confirma que
+        // path Introspector é preferido sobre legacy.
+        let mut intr = TagIntrospector::empty();
+        intr.resolved_labels.insert(lbl("intro"), "Introspector text".to_string());
+
+        let txt = layout_with_introspector(&content, state, intr).plain_text();
+
+        assert!(txt.contains("Introspector text"),
+            "Path Introspector deve preempt legacy: {:?}", txt);
+        assert!(!txt.contains("Legacy text"),
+            "Legacy não deve aparecer quando Introspector populated: {:?}", txt);
+    }
+
+    #[test]
+    fn c4_resolved_label_via_fallback_legacy_caso_atual() {
+        // **Caso central da produção P194**: sub-store P193B vazio
+        // (estado real até P195+); fallback legacy
+        // `counter.resolved_labels.get(target)` é caminho funcional.
+        let content = doc_heading_labelled_e_ref("intro");
+        let state = introspect(&content);
+
+        // Validação intermédia: legacy populado por walk arm Labelled (E4).
+        assert!(state.resolved_labels.contains_key(&lbl("intro")),
+            "walk legacy deve popular state.resolved_labels[intro]");
+
+        // Pipeline completo via layout(); Introspector populated por
+        // re-walk (P181H) mas sub-store resolved_labels permanece
+        // vazio (walks E2/E4 ainda mutam legacy directamente).
+        let txt = layout(&content, state).plain_text();
+
+        // Output observable: ref renderizada via fallback legacy.
+        // Walk arm Labelled (E4) gera "Secção 1" para Heading
+        // labelled.
+        assert!(txt.contains("Secção 1"),
+            "fallback legacy deve renderizar 'Secção 1': {:?}", txt);
+        assert!(!txt.contains("@intro"),
+            "ref intro NÃO deve cair em fallback @intro: {:?}", txt);
+    }
+
+    #[test]
+    fn c4_resolved_label_paridade_legacy_vs_introspector() {
+        // Path A: pipeline normal (legacy populated; sub-store vazio).
+        // Path B: legacy + Introspector populated com texto idêntico.
+        // Em ambos casos output observable contém o texto resolvido.
+        let content = doc_heading_labelled_e_ref("intro");
+
+        // Path A: legacy puro.
+        let state_a = introspect(&content);
+        let txt_a = layout(&content, state_a).plain_text();
+
+        // Path B: legacy + Introspector com mesmo texto.
+        let mut state_b = CounterStateLegacy::new();
+        state_b.resolved_labels.insert(lbl("intro"), "Secção 1".to_string());
+        let mut intr_b = TagIntrospector::empty();
+        intr_b.resolved_labels.insert(lbl("intro"), "Secção 1".to_string());
+        let txt_b = layout_with_introspector(
+            &Content::Sequence(Arc::from(vec![
+                Content::Ref { target: lbl("intro") },
+            ])),
+            state_b,
+            intr_b,
+        ).plain_text();
+
+        // Paridade: ambos paths produzem "Secção 1".
+        assert!(txt_a.contains("Secção 1"),
+            "Path A: {:?}", txt_a);
+        assert!(txt_b.contains("Secção 1"),
+            "Path B: {:?}", txt_b);
+    }
+
+    #[test]
+    fn c4_resolved_label_fallback_at_arrobado_quando_ausente() {
+        // Label não existe em nenhum dos paths; fallback final do
+        // match retorna `@nome` literal.
+        let content = Content::Sequence(Arc::from(vec![
+            Content::Ref { target: lbl("missing") },
+        ]));
+
+        let state = CounterStateLegacy::new();
+        let intr = TagIntrospector::empty();
+
+        let txt = layout_with_introspector(&content, state, intr).plain_text();
+
+        assert!(txt.contains("@missing"),
+            "fallback final '@missing' esperado: {:?}", txt);
+    }
+}
+
+// ── P195D — Walk arm Labelled emite Tag pós-recursão (ADR-0069) ─────────────
+
+#[cfg(test)]
+mod p195d_walk_labelled {
+    use super::*;
+    use crate::entities::label::Label;
+    use crate::rules::introspect::introspect_with_introspector;
+    use std::sync::Arc;
+
+    fn lbl(s: &str) -> Label {
+        Label(s.to_string())
+    }
+
+    #[test]
+    fn labelled_walk_emite_tag_e_popula_introspector() {
+        let content = Content::Sequence(Arc::from(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::Labelled {
+                target: Box::new(Content::Heading {
+                    level: 1,
+                    body:  Box::new(Content::text("Intro")),
+                }),
+                label:  lbl("intro"),
+            },
+        ]));
+
+        let (state, intr) = introspect_with_introspector(&content, None, None);
+
+        // Caminho Introspector activo: sub-store populated via P195D Tag.
+        assert_eq!(
+            intr.resolved_labels.get(&lbl("intro")),
+            Some("Secção 1"),
+            "intr.resolved_labels[intro] populated via P195D",
+        );
+
+        // Heading não é Figure → figure_label_numbers vazio.
+        assert_eq!(intr.figure_label_numbers.get(&lbl("intro")), None);
+
+        // Mutação legacy preservada (write paralelo durante janela compat M5).
+        assert_eq!(
+            state.resolved_labels.get(&lbl("intro")).map(|s| s.as_str()),
+            Some("Secção 1"),
+            "state.resolved_labels[intro] preservado",
+        );
+    }
+
+    #[test]
+    fn labelled_paridade_observable_legacy_vs_introspector() {
+        let content = Content::Sequence(Arc::from(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::Labelled {
+                target: Box::new(Content::Heading {
+                    level: 1,
+                    body:  Box::new(Content::text("Intro")),
+                }),
+                label:  lbl("intro"),
+            },
+            Content::Ref { target: lbl("intro") },
+        ]));
+
+        let state = crate::rules::introspect::introspect(&content);
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+
+        // Paridade entre legacy + Introspector.
+        assert_eq!(
+            state.resolved_labels.get(&lbl("intro")).map(|s| s.as_str()),
+            intr.resolved_labels.get(&lbl("intro")),
+        );
+
+        // Pipeline completo: Ref renderiza via Introspector path.
+        let txt = layout(&content, state).plain_text();
+        assert!(txt.contains("Secção 1"),
+            "Ref intro → 'Secção 1' via Introspector: {:?}", txt);
+        assert!(!txt.contains("@intro"),
+            "fallback @intro NÃO esperado: {:?}", txt);
+    }
+
+    #[test]
+    fn labelled_figure_target_popula_figure_label_numbers() {
+        let content = Content::Sequence(Arc::from(vec![
+            Content::Labelled {
+                target: Box::new(Content::Figure {
+                    body:      Box::new(Content::text("body")),
+                    caption:   Some(Box::new(Content::text("caption"))),
+                    kind:      Some("image".into()),
+                    numbering: Some("1".into()),
+                }),
+                label:  lbl("fig1"),
+            },
+        ]));
+
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+
+        // figure_label_numbers populated (write paralelo P195D + P168).
+        assert_eq!(
+            intr.figure_label_numbers.get(&lbl("fig1")),
+            Some(&1),
+        );
+        // resolved_labels também populated via P195D Tag.
+        assert!(intr.resolved_labels.get(&lbl("fig1")).is_some());
+    }
+
+    #[test]
+    fn labelled_target_nao_resolvivel_nao_popula_introspector() {
+        // Target = Text (sem numeração); compute_labelled retorna
+        // (None, None); Tag não emitida; sub-store não populated.
+        let content = Content::Sequence(Arc::from(vec![
+            Content::Labelled {
+                target: Box::new(Content::text("not numbered")),
+                label:  lbl("foo"),
+            },
+        ]));
+
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+
+        assert_eq!(intr.resolved_labels.get(&lbl("foo")), None);
+        assert_eq!(intr.figure_label_numbers.get(&lbl("foo")), None);
     }
 }

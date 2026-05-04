@@ -50,8 +50,18 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<
         layouter.layout_content(&Content::text(format!("Figura {}", fig_num)));
         return;
     }
-    let display_text = match layouter.counter.resolved_labels.get(target) {
-        Some(text) => text.clone(),
+    // P194B: substitution-with-fallback per padrão P184D/P187B.
+    // Introspector path activa após P195 (walk Labelled migrated)
+    // + P196 (walk Heading migrated). Durante janela compat,
+    // sub-store P193B fica vazio em produção → fallback legacy
+    // `counter.resolved_labels` é caminho funcional. Vide
+    // sequência §9 P189 consolidado.
+    let display_text = match layouter
+        .introspector
+        .resolved_label_for(target)
+        .or_else(|| layouter.counter.resolved_labels.get(target).map(String::as_str))
+    {
+        Some(text) => text.to_string(),
         None       => format!("@{}", target.0),
     };
     layouter.layout_content(&Content::text(display_text));

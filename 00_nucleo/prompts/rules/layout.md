@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 1673ce58
+Hash do Código: 92312c9e
 
 ## Módulo
 `01_core/src/rules/layout.rs`
@@ -464,3 +464,67 @@ Cross-references: P186A §11.2 (descoberta inicial), P186E
 Janela compat M6 para C2 **não fechará** até
 `Content::SetEquationNumbering` materializar — diferente
 de C1 (que pode fechar imediatamente quando F1 retomar).
+
+## Secção: C4 resolved label migrado (P194B)
+
+Consumer C4 em `layout/references.rs:53-67::layout_ref`
+consulta `Introspector::resolved_label_for(target)`
+primeiro para obter texto resolvido de cross-references,
+com fallback **substitution-with-fallback** a
+`counter.resolved_labels.get(target)` legacy:
+
+```rust
+let display_text = match layouter.introspector
+    .resolved_label_for(target)
+    .or_else(|| layouter.counter.resolved_labels.get(target).map(String::as_str))
+{
+    Some(text) => text.to_string(),
+    None       => format!("@{}", target.0),
+};
+```
+
+### Estado temporário em produção (não permanente)
+
+P194 é **distinto de P188B** (C2 Equation):
+
+| | P188B (C2) | P194B (C4) |
+|---|---|---|
+| Estado dormente | **Permanente** | **Temporário** |
+| Razão | `SetEquationNumbering` ausente | Walks Labelled/Heading não migrados (E2/E4 P189B) |
+| Activação | Passo dedicado SetEquationNumbering | P195 + P196 (sequência §9 P189) |
+| Documentação | 4 pontos obrigatórios | Comentário inline curto + secção L0 |
+
+**Em produção até P195+**: sub-store
+`intr.resolved_labels` (P193B) está vazio →
+`resolved_label_for` retorna `None` → `or_else` cai em
+fallback legacy → output idêntico ao actual. Paridade
+observable preservada por construção.
+
+**Após P195** (walk arm `Labelled` migrated): Tag emitida;
+`from_tags` arm popula sub-store → caminho Introspector
+activa parcialmente (Labelled explicit cobertos).
+
+**Após P196** (walk arm `Heading` migrated): auto-toc
+populated → caminho Introspector activa universalmente.
+
+**Após P200** (M6 cleanup): `CounterStateLegacy.resolved_labels`
+removido + fallback legacy removido. Forma final apenas
+Introspector path.
+
+### Forma Opção C — `Option<&str>` propagado
+
+Variante idiomática vs P184D/P187B/P188B:
+- API trait `resolved_label_for` retorna `Option<&str>`.
+- Legacy `resolved_labels.get` retorna `Option<&String>`,
+  convertido a `Option<&str>` via `.map(String::as_str)`.
+- `or_else` chain propaga `Option<&str>` sem clones
+  intermediários.
+- Único `to_string()` no `Some` arm para satisfazer tipo
+  final `String`.
+
+Cross-references: P193A (decisões), P193B (sub-store
+aberto), P194A §11 (achados), P189 §9 sequência.
+
+Excepções E2-E6 (P189B walk arms) continuam activas após
+P194 — só fecham com P195+ que materializam o populate
+do sub-store via Tag.

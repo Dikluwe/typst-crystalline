@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 53faeaaa
+Hash do Código: e7f49e39
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -242,3 +242,69 @@ puro. Segue M6 (eliminação `CounterStateLegacy`).
 
 **DEBT M5-residual**: cobre E1–E6 (Cenário B per P189A §8 —
 sem DEBT formal aberto; apenas notas preventivas).
+
+## Secção: Walk arm Labelled migrado (P195D, ADR-0069)
+
+**Pattern arquitectural novo: post-recursion tag emission for
+state-dependent payload** (ADR-0069 PROPOSTO).
+
+Walk arm `Content::Labelled` em `introspect.rs:Content::Labelled`
+foi modificado em P195D para:
+
+1. **Recursão primeiro**: `walk(target, state, locator,
+   tags, Some(label))` — propaga label via
+   `label_from_parent`; muta counters do target via walks
+   recursivos.
+
+2. **Computar payload via helper privado**: `compute_labelled(target,
+   state)` retorna `(Option<String>, Option<usize>)` —
+   função pura que replica lógica legacy:
+   - Heading → `"Secção {n}"`.
+   - Equation block → `"Equação ({n})"`.
+   - Figure numbering+captioned → `"{supplement} {n}"` +
+     `figure_number = Some(n)`.
+   - Figure sem numbering ou caption → `Some("")`.
+   - Outros → `(None, None)`.
+
+3. **Mutação legacy preservada** (write paralelo durante
+   janela compat M5):
+   - `state.figure_label_numbers.insert(label, n)` se
+     `figure_number.is_some()`.
+   - `state.resolved_labels.insert(label, text)` se
+     `resolved_text.is_some()`.
+
+4. **Tag pós-recursão emitida** (pattern ADR-0069):
+   - Snapshot `tags.len()` antes da recursão; após
+     recursão, find_map para a primeira `Tag::Start` no
+     range novo → reuso da Location do target.
+   - `tags.push(Tag::Start(loc, ElementInfo::new(
+     ElementPayload::Labelled { label, resolved_text,
+     figure_number })))` + `tags.push(Tag::End(loc, 0))`.
+   - **Reuso de Location** preserva sincronização-por-construção
+     ADR-0068 (walk Locator e Layouter Locator não avançam
+     para Labelled em nenhum dos lados).
+   - Caso target não-locatable (sem Tag::Start no range):
+     Tag não emitida; sub-store via Tag não populated;
+     mutação legacy preservada.
+
+### Estado após P195D
+
+- **E4 fecha estruturalmente** — caminho Introspector
+  activa para explicit labels.
+- **E4 funcionalmente fecha em M6** quando mutação legacy
+  for removida.
+- **E2 (Heading auto-toc)** continua activa — só fecha em
+  P196.
+- Output observable em produção **inalterado** —
+  mutação legacy fornece valores idênticos via write
+  paralelo; consumer C4 P194B recebe `Some(text)` do
+  Introspector path mas fallback legacy continua funcional.
+
+### Helper `compute_labelled`
+
+Função privada em `introspect.rs` (sem `pub`) — uso
+interno apenas. Isola lógica de computação para reuso
+entre mutação legacy e populate Tag. Reduz duplicação.
+
+Replica literal da lógica match legacy do walk arm; sem
+mutação (state ref imutável).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/from_tags.md
-//! @prompt-hash 1164f135
+//! @prompt-hash e7647593
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -251,6 +251,25 @@ pub fn from_tags(
                                 counter_update.clone(),
                                 *loc,
                             );
+                        }
+                    }
+                    // P195C — populate completo (era stub no-op em
+                    // P195B). Walk arm emite Tag em P195D; até lá,
+                    // Tags chegam apenas via tests unit. Pattern
+                    // arquitectural: post-recursion tag emission for
+                    // state-dependent payload (ADR-0069 PROPOSTO).
+                    ElementPayload::Labelled {
+                        label,
+                        resolved_text,
+                        figure_number,
+                    } => {
+                        if let Some(text) = resolved_text {
+                            intr.resolved_labels
+                                .insert(label.clone(), text.clone());
+                        }
+                        if let Some(n) = figure_number {
+                            intr.figure_label_numbers
+                                .insert(label.clone(), *n);
                         }
                     }
                 }
@@ -920,5 +939,96 @@ mod tests {
         assert_eq!(intr.counters.value_at("equation", loc(10)), Some(&[1usize][..]));
         assert_eq!(intr.counters.value_at("equation", loc(20)), Some(&[2usize][..]));
         assert_eq!(intr.counters.value_at("equation", loc(30)), Some(&[3usize][..]));
+    }
+
+    // ── P195C — Labelled arm (post-recursion pattern; ADR-0069) ─────────
+
+    fn labelled_payload(
+        label: &str,
+        resolved_text: Option<&str>,
+        figure_number: Option<usize>,
+    ) -> ElementPayload {
+        ElementPayload::Labelled {
+            label:         lbl(label),
+            resolved_text: resolved_text.map(String::from),
+            figure_number,
+        }
+    }
+
+    #[test]
+    fn labelled_arm_popula_resolved_labels() {
+        let tags = vec![
+            Tag::Start(
+                loc(10),
+                ElementInfo::new(labelled_payload("intro", Some("Capítulo 1"), None)),
+            ),
+            Tag::End(loc(10), 0),
+        ];
+        let intr = from_tags(&tags, None, None);
+        assert_eq!(
+            intr.resolved_labels.get(&lbl("intro")),
+            Some("Capítulo 1"),
+        );
+        // figure_number era None — figure_label_numbers não populado.
+        assert_eq!(intr.figure_label_numbers.get(&lbl("intro")), None);
+    }
+
+    #[test]
+    fn labelled_arm_popula_figure_label_numbers_quando_some() {
+        let tags = vec![
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(labelled_payload("fig1", Some("Figura 3"), Some(3))),
+            ),
+            Tag::End(loc(20), 0),
+        ];
+        let intr = from_tags(&tags, None, None);
+        assert_eq!(
+            intr.resolved_labels.get(&lbl("fig1")),
+            Some("Figura 3"),
+        );
+        assert_eq!(
+            intr.figure_label_numbers.get(&lbl("fig1")),
+            Some(&3),
+        );
+    }
+
+    #[test]
+    fn labelled_arm_resolved_text_none_nao_popula() {
+        // Caso edge: target não-resolvível; ambos campos None.
+        // Arm não panica; sub-stores permanecem vazios para esta key.
+        let tags = vec![
+            Tag::Start(
+                loc(30),
+                ElementInfo::new(labelled_payload("noref", None, None)),
+            ),
+            Tag::End(loc(30), 0),
+        ];
+        let intr = from_tags(&tags, None, None);
+        assert_eq!(intr.resolved_labels.get(&lbl("noref")), None);
+        assert_eq!(intr.figure_label_numbers.get(&lbl("noref")), None);
+    }
+
+    #[test]
+    fn labelled_arm_multiplos_labels_isolados() {
+        let tags = vec![
+            Tag::Start(loc(40),
+                ElementInfo::new(labelled_payload("a", Some("Secção 1"), None))),
+            Tag::End(loc(40), 0),
+            Tag::Start(loc(50),
+                ElementInfo::new(labelled_payload("b", Some("Secção 2"), None))),
+            Tag::End(loc(50), 0),
+            Tag::Start(loc(60),
+                ElementInfo::new(labelled_payload("c", Some("Figura 1"), Some(1)))),
+            Tag::End(loc(60), 0),
+        ];
+        let intr = from_tags(&tags, None, None);
+        assert_eq!(intr.resolved_labels.get(&lbl("a")), Some("Secção 1"));
+        assert_eq!(intr.resolved_labels.get(&lbl("b")), Some("Secção 2"));
+        assert_eq!(intr.resolved_labels.get(&lbl("c")), Some("Figura 1"));
+        assert_eq!(intr.figure_label_numbers.get(&lbl("c")), Some(&1));
+        // a, b: figure_number era None.
+        assert_eq!(intr.figure_label_numbers.get(&lbl("a")), None);
+        assert_eq!(intr.figure_label_numbers.get(&lbl("b")), None);
     }
 }

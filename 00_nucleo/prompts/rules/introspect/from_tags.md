@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/from_tags`
-Hash do Código: 3a8f291a
+Hash do Código: b982323d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/introspect/from_tags.rs`
@@ -135,3 +135,5 @@ Refino futuro possível: se M5+ precisar de informação contextual (e.g. headin
 | 2026-05-03 | P186B: stub no-op `ElementPayload::Equation { .. } => {}` adicionado para preservar exhaustividade do match após variant ser introduzido em P186B `entities/element_payload`. Cláusula gate trivial — funcionalidade real virá em P186E. | `from_tags.rs`, `from_tags.md` |
 | 2026-05-03 | P186D: stub estendido com `kind_index[Equation].push(loc)` para preservar sincronização-por-construção da ADR-0068 (test P185D `gating_locator_apenas_em_locatables` agrega `kind_index.values()`; sem populate, walk_locs ≠ layout_locs). Counter logic continua para P186E. | `from_tags.rs`, `from_tags.md` |
 | 2026-05-03 | P186E: arm `Equation` completo — counter logic `apply_at("equation", counter_update, loc)` gated por `block && matches!(state.value_at("numbering_active:equation", loc), Some(Value::Bool(true)))`. Gate location-aware (Opção B) escolhido por futureproofing alinhado com P185 direcção arquitectural. **Gate dormente em produção** porque `Content::SetEquationNumbering` ausente em cristalino (P186A §11.2). Eixo 2 do bloqueio P183C resolvido estruturalmente. Suporta C2 desbloqueio per ADR-0068; consumer migra em P188 com substitution-with-fallback. | `from_tags.rs`, `from_tags.md` |
+| 2026-05-04 | P195B: stub no-op `ElementPayload::Labelled { .. } => {}` adicionado para preservar exhaustividade do match após variant ser introduzido em P195B `entities/element_payload`. Cláusula gate trivial. Variant emergiu de pattern arquitectural novo "post-recursion tag emission" (ADR-0069 PROPOSTO) porque `extract_payload` puro não suporta state-dependent payload. Funcionalidade real (populate `intr.resolved_labels` + `intr.figure_label_numbers`) virá em P195C. | `from_tags.rs`, `from_tags.md` |
+| 2026-05-04 | P195C: stub no-op P195B substituído por arm funcional. Match destructure `{ label, resolved_text, figure_number }`; `if let Some(text) = resolved_text` popula `intr.resolved_labels.insert(label.clone(), text.clone())`; `if let Some(n) = figure_number` popula `intr.figure_label_numbers.insert(label.clone(), *n)`. **Walk arm não emite Tag até P195D** — Tags Labelled chegam apenas via tests unit; sub-stores permanecem vazios em produção até P195D. Pattern post-recursion tag emission per ADR-0069. | `from_tags.rs`, `from_tags.md` |
