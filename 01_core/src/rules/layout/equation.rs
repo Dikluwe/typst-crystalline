@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash e54d93e0
+//! @prompt-hash e2da3fe8
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -94,7 +94,19 @@ impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S> {
         // Acrescentar número da equação inline após o flush (Passo 59).
         // DEBT: alinhamento à direita real requer largura de página — por agora inline.
         if is_numbered {
-            let n = self.counter.get_flat("equation");
+            // P188B: substitution-with-fallback location-aware.
+            // Path Introspector (`flat_counter_at`, P185B) é
+            // **dormente em produção** — gate em `from_tags` arm
+            // Equation (P186E) bloqueia porque
+            // `Content::SetEquationNumbering` ausente em cristalino
+            // (P186A §11.2). Fallback legacy `get_flat("equation")`
+            // é caminho funcional **permanente** até equation set rule
+            // materializar.
+            use crate::entities::introspector::Introspector;
+            let n = self.current_location
+                .and_then(|loc| self.introspector
+                    .flat_counter_at("equation", loc))
+                .unwrap_or_else(|| self.counter.get_flat("equation"));
             self.layout_content(&Content::text(format!("({})", n)));
             self.flush_line();
         }
