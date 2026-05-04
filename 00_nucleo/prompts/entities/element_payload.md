@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_payload`
-Hash do Código: af47c732
+Hash do Código: 35fc2e53
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_payload.rs`
@@ -117,6 +117,23 @@ pub enum ElementPayload {
     Bibliography {
         entries: Vec<BibEntry>,
     },
+
+    /// **P186B** — payload de `Content::Equation`. Forma paralela a
+    /// `Figure` (P184B) com `block` (display vs inline) +
+    /// `counter_update` (sempre `Step` enquanto não houver equation
+    /// set rule). `from_tags` arm Equation (P186E) popula
+    /// `CounterRegistry` sob chave `"equation"` quando
+    /// `block && state.value_at("numbering_active:equation", loc)
+    /// == Some(Bool(true))`. Sem cláusula `is_counted` — equations
+    /// não têm o predicado caption-based de figures; numbering
+    /// activo é controlado externamente via state. Em produção
+    /// (sem `Content::SetEquationNumbering`), gate nunca dispara →
+    /// counter introspector vazio → P188 substitution-with-fallback
+    /// cobre via legacy.
+    Equation {
+        block:          bool,
+        counter_update: CounterUpdate,
+    },
 }
 ```
 
@@ -187,4 +204,5 @@ Ver `desenho-introspection-fixpoint.md` §2.1 (referenciado em P161; documento a
 |------|--------|-------------------|
 | 2026-04-30 | P161 sub-passo .7: forma fechada por kind para introspecção M1 | `element_payload.rs`, `element_payload.md` |
 | 2026-04-29 | P178: variant `Outline` unit adicionada para suporte de `query("outline")` | `element_payload.rs`, `element_payload.md` |
+| 2026-05-03 | P186B: variant `Equation { block, counter_update }` adicionada (forma paralela a `Figure` P184B); suporta P186 plano (eixo 2 P183C); P186D adiciona arm em `extract_payload`, P186E adiciona arm em `from_tags` com gate `block && state numbering_active:equation`. | `element_payload.rs`, `element_payload.md` |
 | 2026-05-01 | P181C: variant `Bibliography { entries: Vec<BibEntry> }` adicionada; suporta P181D (`extract_payload` arm Bibliography) e P181E (`from_tags` popula `BibStore`) | `element_payload.rs`, `element_payload.md` |

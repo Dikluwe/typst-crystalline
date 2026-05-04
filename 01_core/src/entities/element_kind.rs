@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_kind.md
-//! @prompt-hash 00427273
+//! @prompt-hash 1c2f3200
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -33,6 +33,11 @@ pub enum ElementKind {
     /// arm Bibliography (P181E) popula `BibStore`. Suporta plano
     /// P181 para fechar lacuna #6 (`bib_entries`/`bib_numbers`).
     Bibliography,
+    /// **P186B** — `Content::Equation` promovido a locatable em
+    /// P186C/D/E. Indexa locations de equações em `kind_index`.
+    /// Suporta C2 (equation counter) desbloqueio per ADR-0068
+    /// (eixo 2 P183C); consumer migra em P188.
+    Equation,
 }
 
 impl ElementKind {
@@ -47,6 +52,7 @@ impl ElementKind {
             ElementKind::StateUpdate => "state_update",
             ElementKind::Outline     => "outline",
             ElementKind::Bibliography => "bibliography",
+            ElementKind::Equation    => "equation",
         }
     }
 
@@ -63,6 +69,7 @@ impl ElementKind {
             "state_update" => Some(ElementKind::StateUpdate),
             "outline"      => Some(ElementKind::Outline),
             "bibliography" => Some(ElementKind::Bibliography),
+            "equation"     => Some(ElementKind::Equation),
             _              => None,
         }
     }
@@ -145,6 +152,30 @@ mod tests {
         assert_eq!(
             ElementKind::from_name("bibliography"),
             Some(ElementKind::Bibliography),
+        );
+    }
+
+    // ── P186B — Equation variant ────────────────────────────────────────
+
+    #[test]
+    fn equation_existe_e_distinto() {
+        let k = ElementKind::Equation;
+        assert_eq!(k, ElementKind::Equation);
+        assert_ne!(k, ElementKind::Heading);
+        assert_ne!(k, ElementKind::Figure);
+        assert_ne!(k, ElementKind::Bibliography);
+    }
+
+    #[test]
+    fn equation_as_str() {
+        assert_eq!(ElementKind::Equation.as_str(), "equation");
+    }
+
+    #[test]
+    fn from_name_equation() {
+        assert_eq!(
+            ElementKind::from_name("equation"),
+            Some(ElementKind::Equation),
         );
     }
 }

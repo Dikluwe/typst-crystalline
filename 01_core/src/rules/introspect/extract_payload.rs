@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect/extract_payload.md
-//! @prompt-hash e0e41040
+//! @prompt-hash 68404d88
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -74,6 +74,20 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         // ignorado por não ser relevante para introspecção.
         Content::Bibliography { entries, .. } => Some(ElementPayload::Bibliography {
             entries: entries.clone(),
+        }),
+
+        // P186C — Equation arm em estado intermédio. Arm declarado mas
+        // **latente**: `is_locatable(Content::Equation)` ainda retorna
+        // `false` (P186D activa), logo walk de introspect não chama
+        // este arm. Inversão da ordem original (era P186D) preserva
+        // sincronização-por-construção da ADR-0068 — sem janela em
+        // que Layouter avança Locator para Equation enquanto walk não
+        // emite tag.
+        // `body` ignorado (não relevante para counter); `block`
+        // propagado para gate em `from_tags` arm Equation (P186E).
+        Content::Equation { block, .. } => Some(ElementPayload::Equation {
+            block:          *block,
+            counter_update: CounterUpdate::Step,
         }),
 
         // Todas as outras variantes não são locatable em M1.
@@ -278,5 +292,53 @@ mod tests {
             }
             other => panic!("esperado Some(StateUpdate), obtido {other:?}"),
         }
+    }
+
+    // ── P186C — Equation arm ─────────────────────────────────────────────
+
+    #[test]
+    fn equation_block_true_produz_some_payload() {
+        let c = Content::Equation {
+            body:  Box::new(Content::Empty),
+            block: true,
+        };
+        match extract_payload(&c) {
+            Some(ElementPayload::Equation { block, counter_update }) => {
+                assert!(block);
+                assert_eq!(counter_update, CounterUpdate::Step);
+            }
+            other => panic!("esperado Some(Equation), obtido {other:?}"),
+        }
+    }
+
+    #[test]
+    fn equation_block_false_propaga_flag() {
+        // Inline equation: gate em P186E (block && state-active) vai
+        // bloquear; payload preserva block=false para downstream.
+        let c = Content::Equation {
+            body:  Box::new(Content::Empty),
+            block: false,
+        };
+        match extract_payload(&c) {
+            Some(ElementPayload::Equation { block, counter_update }) => {
+                assert!(!block);
+                assert_eq!(counter_update, CounterUpdate::Step);
+            }
+            other => panic!("esperado Some(Equation), obtido {other:?}"),
+        }
+    }
+
+    #[test]
+    fn equation_body_e_ignorado() {
+        // body distinto não afecta payload — só block é capturado.
+        let c1 = Content::Equation {
+            body:  Box::new(Content::Empty),
+            block: true,
+        };
+        let c2 = Content::Equation {
+            body:  Box::new(Content::Text(EcoString::from("E=mc^2"), Default::default())),
+            block: true,
+        };
+        assert_eq!(extract_payload(&c1), extract_payload(&c2));
     }
 }

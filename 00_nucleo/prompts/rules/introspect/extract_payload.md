@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/extract_payload`
-Hash do Código: 8e7cb515
+Hash do Código: a8fd2bc9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/introspect/extract_payload.rs`
@@ -38,6 +38,7 @@ P162 sub-passo .D introduz a função; consumida em P162 .E pelo walk modificado
 | `SetHeadingNumbering { active }` | `active` (bool) | `StateUpdate { key: "numbering_active:heading", update: StateUpdate::Set(Box::new(Value::Bool(active))) }` (P182C; suporta lacuna #4 — convenção de chave `numbering_active:<feature>` estabelecida em P182B) |
 | `Outline` (unit) | — | `Outline` (P178) |
 | `Bibliography { entries, title }` | `entries` apenas (`title` ignorado — irrelevante para introspecção; Layouter consome via path separado) | `Bibliography { entries: entries.clone() }` (P181D; suporta plano P181 fechar lacuna #6) |
+| `Equation { body, block }` | `block` apenas (`body` ignorado — irrelevante para counter) | `Equation { block: *block, counter_update: CounterUpdate::Step }` (P186C; payload latente em estado intermédio — `is_locatable` activa em P186D, walk passa a invocar arm a partir desse momento) |
 | Outras (Text, Sequence, Math*, etc.) | — | `None` |
 
 ---
@@ -113,3 +114,4 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
 | 2026-04-30 | P162 sub-passo .D: função pura Content→ElementPayload para introspecção M1 | `extract_payload.rs`, `extract_payload.md`, `rules/introspect/mod.rs` |
 | 2026-05-01 | P181D: arm `Content::Bibliography { entries, .. } => Some(ElementPayload::Bibliography { entries: entries.clone() })` adicionado | `extract_payload.rs`, `extract_payload.md` |
 | 2026-05-02 | P182C: arm `Content::SetHeadingNumbering { active } => Some(ElementPayload::StateUpdate { key: "numbering_active:heading".to_string(), update: StateUpdate::Set(Box::new(Value::Bool(*active))) })` adicionado. Reusa infra P171/P173 — sem novo `ElementPayload` variant. | `extract_payload.rs`, `extract_payload.md` |
+| 2026-05-03 | P186C: arm `Content::Equation { block, .. } => Some(ElementPayload::Equation { block: *block, counter_update: CounterUpdate::Step })` adicionado. **Ordem invertida** face à spec original (era P186D após `is_locatable` activar) para preservar invariante de sincronização-por-construção da ADR-0068: arm latente enquanto `is_locatable=false`; walk não invoca o arm; sem dessincronização Locator. P186D activa `is_locatable` e walk passa a chamar o arm imediatamente. | `extract_payload.rs`, `extract_payload.md` |

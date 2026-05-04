@@ -4204,11 +4204,16 @@ mod p185d_locator_sync {
 
     #[test]
     fn gating_locator_apenas_em_locatables() {
-        // .C mistura locatables + não-locatables. Walk emite tags só
-        // para Heading/Figure/Cite (3); Layouter avança Locator só
-        // para os 3. Text (Space-separated lá dentro) e Equation NÃO
-        // disparam gating — confirmação empírica que `is_locatable`
+        // .C mistura locatables + não-locatables. Walk emite tags
+        // para Heading/Figure/Equation/Cite (4 — Equation locatable
+        // após P186D); Layouter avança Locator nos mesmos 4. Text
+        // NÃO dispara gating — confirmação empírica que `is_locatable`
         // governa avanço.
+        //
+        // **P186D nota**: Equation re-incluída no fixture (P186C
+        // tinha removido durante janela de invariante quebrada;
+        // P186D activa `is_locatable(Equation) = true`, restaurando
+        // invariante e sincronização Locator).
         let parts = vec![
             Content::Heading { level: 1, body: Box::new(Content::Empty) },
             Content::text("plain"),
@@ -4227,11 +4232,11 @@ mod p185d_locator_sync {
         let walk_locs   = collect_walk_locations(&intr);
         let layout_locs = collect_layout_locations(&parts);
 
-        assert_eq!(walk_locs.len(), 3, "só 3 locatables (Heading/Figure/Cite)");
-        assert_eq!(layout_locs.len(), 3, "Layouter avança só 3 vezes");
+        assert_eq!(walk_locs.len(), 4, "4 locatables (Heading/Figure/Equation/Cite)");
+        assert_eq!(layout_locs.len(), 4, "Layouter avança 4 vezes");
         assert_eq!(
             walk_locs, layout_locs,
-            "sequências iguais — Text e Equation são skipped uniformemente"
+            "sequências iguais — Text é skipped uniformemente"
         );
     }
 
@@ -4330,5 +4335,180 @@ mod p185d_locator_sync {
                 loc
             );
         }
+    }
+}
+
+// ── P186F — tests E2E equation locatable + relatório consolidado ────────────
+
+#[cfg(test)]
+mod p186f_equation_locatable {
+    use super::*;
+    use crate::entities::element_kind::ElementKind;
+    use crate::entities::introspector::Introspector;
+    use crate::entities::state_update::StateUpdate;
+    use crate::entities::value::Value;
+    use crate::rules::introspect::introspect_with_introspector;
+    use std::sync::Arc;
+
+    fn equation_block() -> Content {
+        Content::Equation {
+            body:  Box::new(Content::Empty),
+            block: true,
+        }
+    }
+
+    #[test]
+    fn pipeline_e2e_equation_block_com_state_activo() {
+        // .B caso central: state injectado via Content::StateUpdate
+        // (auto-init via P182C arm em from_tags). 3 equations block
+        // subsequentes acumulam counter [1, 2, 3].
+        let parts = vec![
+            Content::StateUpdate {
+                key:    "numbering_active:equation".to_string(),
+                update: StateUpdate::Set(Box::new(Value::Bool(true))),
+            },
+            equation_block(),
+            equation_block(),
+            equation_block(),
+        ];
+        let content = Content::Sequence(Arc::from(parts));
+
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+
+        let eq_locs = intr.kind_index
+            .get(&ElementKind::Equation)
+            .cloned()
+            .unwrap_or_default();
+        assert_eq!(eq_locs.len(), 3, "3 equations indexadas");
+
+        // Counter avança 1, 2, 3 em sequência.
+        assert_eq!(intr.flat_counter_at("equation", eq_locs[0]), Some(1));
+        assert_eq!(intr.flat_counter_at("equation", eq_locs[1]), Some(2));
+        assert_eq!(intr.flat_counter_at("equation", eq_locs[2]), Some(3));
+    }
+
+    #[test]
+    fn gate_dormente_sem_state_active() {
+        // .C sentinela: produção real — sem Content::StateUpdate para
+        // numbering_active:equation, gate bloqueia mesmo para
+        // block=true. Counter permanece vazio. Confirma empiricamente
+        // que P186 não introduz regressão observable.
+        let parts = vec![
+            equation_block(),
+            equation_block(),
+            equation_block(),
+        ];
+        let content = Content::Sequence(Arc::from(parts));
+
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+
+        let eq_locs = intr.kind_index
+            .get(&ElementKind::Equation)
+            .cloned()
+            .unwrap_or_default();
+        assert_eq!(eq_locs.len(), 3, "kind_index populado mesmo com gate dormente");
+
+        for loc in eq_locs {
+            assert_eq!(
+                intr.flat_counter_at("equation", loc),
+                None,
+                "counter dormente em loc={:?}", loc,
+            );
+        }
+    }
+
+    #[test]
+    fn gate_dormente_inline_mesmo_com_state_active() {
+        // .C variação: state activo + equations inline → gate bloqueia
+        // por block=false.
+        let parts = vec![
+            Content::StateUpdate {
+                key:    "numbering_active:equation".to_string(),
+                update: StateUpdate::Set(Box::new(Value::Bool(true))),
+            },
+            Content::Equation { body: Box::new(Content::Empty), block: false },
+            Content::Equation { body: Box::new(Content::Empty), block: false },
+        ];
+        let content = Content::Sequence(Arc::from(parts));
+
+        let (_, intr) = introspect_with_introspector(&content, None, None);
+
+        let eq_locs = intr.kind_index
+            .get(&ElementKind::Equation)
+            .cloned()
+            .unwrap_or_default();
+        assert_eq!(eq_locs.len(), 2);
+
+        for loc in eq_locs {
+            assert_eq!(
+                intr.flat_counter_at("equation", loc),
+                None,
+                "inline não populado",
+            );
+        }
+    }
+
+    #[test]
+    fn paridade_equation_counter_legacy_vs_introspector() {
+        // .D paridade: ambos paths produzem mesmo counter quando os
+        // seus respectivos gates estão activos. Convergência semântica
+        // (mesma sequência 1, 2, 3) apesar de mecanismos de activação
+        // diferentes.
+        //
+        // **Path A** (legacy via layout()): state.numbering_active
+        // pré-populado externamente; layout produz "(1)", "(2)",
+        // "(3)" inline.
+        // **Path B** (Introspector): Content::StateUpdate dispara
+        // gate; flat_counter_at retorna Some(1), Some(2), Some(3).
+        //
+        // Em produção real, **só Path A está activo** (Path B exige
+        // Content::SetEquationNumbering que não existe em cristalino —
+        // P186A §11.2). P188 substitution-with-fallback usa Path B
+        // primeiro; cai para Path A quando Path B retorna None.
+        let n = 3;
+
+        // Path A — legacy.
+        let mut state = CounterStateLegacy::new();
+        state.numbering_active.insert("equation".to_string(), true);
+        let parts_legacy: Vec<Content> = (0..n)
+            .map(|_| Content::Equation {
+                body:  Box::new(Content::MathIdent("E".into())),
+                block: true,
+            })
+            .collect();
+        let content_legacy = Content::Sequence(Arc::from(parts_legacy));
+        let txt_legacy = layout(&content_legacy, state).plain_text();
+        for i in 1..=n {
+            assert!(
+                txt_legacy.contains(&format!("({})", i)),
+                "Path A deve renderizar ({}): obtido {:?}",
+                i, txt_legacy
+            );
+        }
+
+        // Path B — Introspector via StateUpdate tag.
+        let parts_intr: Vec<Content> = std::iter::once(Content::StateUpdate {
+            key:    "numbering_active:equation".to_string(),
+            update: StateUpdate::Set(Box::new(Value::Bool(true))),
+        })
+        .chain((0..n).map(|_| equation_block()))
+        .collect();
+        let content_intr = Content::Sequence(Arc::from(parts_intr));
+        let (_, intr) = introspect_with_introspector(&content_intr, None, None);
+        let eq_locs = intr.kind_index
+            .get(&ElementKind::Equation)
+            .cloned()
+            .unwrap_or_default();
+        assert_eq!(eq_locs.len(), n);
+        for (i, loc) in eq_locs.iter().enumerate() {
+            assert_eq!(
+                intr.flat_counter_at("equation", *loc),
+                Some(i + 1),
+                "Path B deve retornar Some({}) em loc={:?}", i + 1, loc
+            );
+        }
+
+        // Convergência: ambos paths produzem 1, 2, 3 como sequência.
+        // Em produção (Path B dormente), só Path A é observable.
     }
 }
