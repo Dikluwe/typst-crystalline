@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash fef4c6d8
+//! @prompt-hash 73489ae5
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -367,6 +367,31 @@ fn compute_labelled(
     }
 }
 
+/// **P196B** — computa `(auto_label, resolved_text)` para
+/// auto-toc Heading (pattern ADR-0069). Helper privado análogo a
+/// `compute_labelled` (P195D). Função pura sobre `(state,
+/// auto_label_n)` — sem mutação. Replica lógica legacy do walk arm
+/// Heading (introspect.rs:411-428 pré-P196B).
+///
+/// Sempre retorna concrete `(Label, String)` — paridade legacy
+/// que insere `auto_label → resolved_text` mesmo quando
+/// numbering inactivo (resolved_text fica vazio nesse caso).
+fn compute_heading_auto_toc(
+    state:        &CounterStateLegacy,
+    auto_label_n: usize,
+) -> (Label, String) {
+    let auto_label = Label(format!("auto-toc-{}", auto_label_n));
+    let resolved_text = if state.is_numbering_active("heading") {
+        state
+            .format_hierarchical("heading")
+            .map(|prefix| format!("Secção {}", prefix))
+            .unwrap_or_default()
+    } else {
+        String::new()
+    };
+    (auto_label, resolved_text)
+}
+
 /// **P162 .E**: emite `Tag::Start`/`Tag::End` em paralelo para os 3 kinds
 /// locatable (Heading/Figure/Cite). `label_from_parent` é `Some(label)`
 /// quando este nó é descendente directo de um `Content::Labelled` wrapper;
@@ -400,40 +425,50 @@ fn walk(
         }
 
         Content::Heading { level, body } => {
-            // Excepção M5 E2 (Heading): walk muta state directamente
-            // porque `Labelled` arm lê counters durante walk para
-            // popular `state.resolved_labels` (cadeia
-            // Heading→Labelled→resolved_labels). Migração depende de:
-            // (a) sub-store `resolved_labels` (não existe), (b) C4
-            // migration (consumer Ref-arm), (c) sub-store
-            // `headings_for_toc` (lacuna #3, E4 chained).
-            // Vide P189 consolidado §"Excepções M5".
+            // P196B — walk arm Heading auto-toc emite Tag pós-recursão
+            // (pattern ADR-0069 post-recursion-tag-emission). 3 das 4
+            // mutações E2 migram estruturalmente via Tag; mutação 4
+            // (`state.headings_for_toc.push`) continua activa como
+            // **E2-residuo** (lacuna #3 — sub-store
+            // `intr.headings_for_toc` ausente; fecha em passo
+            // dedicado).
+            //
+            // Mutação legacy preservada como write paralelo durante
+            // janela compat M5; cleanup em M6.
             state.step_hierarchical("heading", *level as usize);
 
-            // Gerar label automática única para que a TOC possa referenciar este título.
             state.auto_label_counter += 1;
-            let auto_label = crate::entities::label::Label(
-                format!("auto-toc-{}", state.auto_label_counter)
+            let (auto_label, resolved_text) = compute_heading_auto_toc(
+                state,
+                state.auto_label_counter,
             );
+            state.resolved_labels.insert(auto_label.clone(), resolved_text.clone());
 
-            // Registar prefixo se a numeração estiver activa.
-            // Se inactiva, inserir string vazia — o braço Ref resolverá para ""
-            // em vez de usar o fallback "@auto-toc-N".
-            let resolved_text = if state.is_numbering_active("heading") {
-                state.format_hierarchical("heading")
-                    .map(|prefix| format!("Secção {}", prefix))
-                    .unwrap_or_default()
-            } else {
-                String::new()
-            };
-            state.resolved_labels.insert(auto_label.clone(), resolved_text);
-
-            // Guardar para a TOC: congelar o AST substitui CounterDisplay
-            // pelo valor actual (DEBT-18 resolvido via materialize_time).
+            // E2-residuo: state.headings_for_toc.push continua
+            // activa porque sub-store `intr.headings_for_toc` não
+            // existe (lacuna #3). Fecha em passo dedicado abrir
+            // sub-store. Vide P196 consolidado §"E2-residuo".
             let frozen_body = materialize_time(body, state);
-            state.headings_for_toc.push((auto_label, frozen_body, *level as usize));
+            state.headings_for_toc.push((auto_label.clone(), frozen_body, *level as usize));
 
             walk(body, state, locator, tags, None);
+
+            // P196B: emit Tag auto-toc pós-recursão (ADR-0069).
+            // Reusa Location alocada para Heading (locatable; walk
+            // top emitiu Tag::Start). `emitted_loc` é `Some(loc)` —
+            // mais simples que P195D (Labelled não-locatable
+            // exigiu snapshot+find_map).
+            if let Some(loc) = emitted_loc {
+                tags.push(Tag::Start(
+                    loc,
+                    ElementInfo::new(ElementPayload::Labelled {
+                        label: auto_label,
+                        resolved_text: Some(resolved_text),
+                        figure_number: None,
+                    }),
+                ));
+                tags.push(Tag::End(loc, 0));
+            }
         }
 
         Content::Equation { block, body } => {
@@ -1338,12 +1373,24 @@ mod tests {
     fn walk_emite_start_e_end_para_heading() {
         let h = Content::heading(1, Content::text("title"));
         let (_, tags) = introspect_with_tags(&h);
-        assert_eq!(tags.len(), 2, "heading deve emitir Tag::Start + Tag::End");
-        let (start_loc, end_loc) = match (&tags[0], &tags[1]) {
-            (Tag::Start(loc_s, _), Tag::End(loc_e, _)) => (*loc_s, *loc_e),
-            _ => panic!("ordem esperada: Start, End; obtido {tags:?}"),
-        };
-        assert_eq!(start_loc, end_loc, "Location do Start e End devem coincidir");
+        // P196B: heading emite Start+End para si + Start+End para Tag
+        // auto-toc (pattern ADR-0069). Total 4 tags com mesma Location.
+        assert_eq!(tags.len(), 4, "heading deve emitir 4 tags pós-P196B; obtido {tags:?}");
+        match (&tags[0], &tags[1], &tags[2], &tags[3]) {
+            (
+                Tag::Start(loc_h_s, _),
+                Tag::Start(loc_l_s, _),
+                Tag::End(loc_l_e, _),
+                Tag::End(loc_h_e, _),
+            ) => {
+                // P196B reusa emitted_loc do Heading — todas as 4 tags
+                // partilham mesma Location.
+                assert_eq!(loc_h_s, loc_l_s);
+                assert_eq!(loc_l_s, loc_l_e);
+                assert_eq!(loc_l_e, loc_h_e);
+            }
+            other => panic!("ordem esperada: Start, Start, End, End; obtido {other:?}"),
+        }
     }
 
     #[test]
@@ -1364,11 +1411,21 @@ mod tests {
         };
         let h = Content::heading(1, figure);
         let (_, tags) = introspect_with_tags(&h);
-        // Esperado: Start(Heading), Start(Figure), End(Figure), End(Heading) = 4 tags.
-        assert_eq!(tags.len(), 4, "heading-com-figura deve emitir 4 tags, obtido {tags:?}");
-        match (&tags[0], &tags[1], &tags[2], &tags[3]) {
-            (Tag::Start(_, _), Tag::Start(_, _), Tag::End(_, _), Tag::End(_, _)) => {}
-            other => panic!("ordem esperada: Start, Start, End, End; obtido {other:?}"),
+        // P196B: heading emite 4 tags (Start_h, Start_labelled, End_labelled,
+        // End_h) + figura aninhada emite 2 tags. Sequência:
+        // Start(Heading), Start(Figure), End(Figure), Start(Labelled auto-toc),
+        // End(Labelled), End(Heading) = 6 tags.
+        assert_eq!(tags.len(), 6, "heading-com-figura deve emitir 6 tags pós-P196B, obtido {tags:?}");
+        match (&tags[0], &tags[1], &tags[2], &tags[3], &tags[4], &tags[5]) {
+            (
+                Tag::Start(_, _), // Heading
+                Tag::Start(_, _), // Figure
+                Tag::End(_, _),   // Figure
+                Tag::Start(_, _), // Labelled auto-toc
+                Tag::End(_, _),   // Labelled auto-toc
+                Tag::End(_, _),   // Heading
+            ) => {}
+            other => panic!("ordem esperada: Start, Start, End, Start, End, End; obtido {other:?}"),
         }
     }
 
@@ -1389,8 +1446,10 @@ mod tests {
             "state deve ter contador heading=2 após dois headings nível 1");
         // P182C: SetHeadingNumbering passou a ser locatable (emite
         // ElementPayload::StateUpdate sob chave numbering_active:heading).
-        // Tags: 1 SetHeadingNumbering × 2 + 2 headings × 2 = 6.
-        assert_eq!(tags.len(), 6, "deve haver Start+End para SetHeadingNumbering e cada heading; obtido {tags:?}");
+        // P196B: cada heading emite 4 tags (Start_h, Start_labelled,
+        // End_labelled, End_h). Total: 1 SetHeadingNumbering × 2 +
+        // 2 headings × 4 = 10.
+        assert_eq!(tags.len(), 10, "deve haver Start+End para SetHeadingNumbering e 4 tags por heading; obtido {tags:?}");
     }
 
     #[test]
@@ -1504,26 +1563,32 @@ mod tests {
             }
         }
         assert!(stack.is_empty());
-        assert_eq!(tags.len(), 6, "3 headings × 2 tags = 6");
+        // P196B: cada heading emite 4 tags (Start_h, Start_labelled,
+        // End_labelled, End_h) — todas com mesma Location, bracketing
+        // continua válido. 3 headings × 4 = 12.
+        assert_eq!(tags.len(), 12, "3 headings × 4 tags pós-P196B = 12");
     }
 
     #[test]
     fn end_hash_distingue_conteudo() {
         // P163 .C.3: dois headings com bodies diferentes produzem
         // Tag::End com u128 distintos.
+        // P196B: heading emite agora 2 Tag::End — primeiro o auto-toc
+        // Labelled (hash=0 fixo, ADR-0069) e depois o End real do
+        // Heading (hash via hash_content). Filtramos hash != 0.
         let a = Content::heading(1, Content::text("Título A"));
         let b = Content::heading(1, Content::text("Título B"));
         let (_, tags_a) = introspect_with_tags(&a);
         let (_, tags_b) = introspect_with_tags(&b);
 
         let end_a = tags_a.iter().find_map(|t| match t {
-            Tag::End(_, h) => Some(*h),
+            Tag::End(_, h) if *h != 0 => Some(*h),
             _ => None,
-        }).expect("nenhum Tag::End emitido para a");
+        }).expect("nenhum Tag::End com hash != 0 emitido para a");
         let end_b = tags_b.iter().find_map(|t| match t {
-            Tag::End(_, h) => Some(*h),
+            Tag::End(_, h) if *h != 0 => Some(*h),
             _ => None,
-        }).expect("nenhum Tag::End emitido para b");
+        }).expect("nenhum Tag::End com hash != 0 emitido para b");
 
         assert_ne!(
             end_a, end_b,
@@ -2192,5 +2257,151 @@ mod tests {
         )).collect();
         assert_eq!(heading_tags.len(), 1,
             "walk deve descer em Bibliography.title — Heading interno deve produzir Tag");
+    }
+
+    // ── P196B — Walk arm Heading auto-toc via Tag pattern (ADR-0069) ─────
+    //
+    // 5 tests E2E que validam: (a) emissão de Tag::Labelled auto-toc;
+    // (b) paridade entre legacy state e Introspector resolved_labels;
+    // (c) numbering inactivo produz string vazia (paridade legacy);
+    // (d) E2-residuo `headings_for_toc` continua via legacy mutation;
+    // (e) consumer C4 substitution-with-fallback recebe Some via
+    //     Introspector path (auto-toc label sintetizada).
+
+    #[test]
+    fn heading_auto_toc_walk_emite_tag_e_popula_introspector() {
+        // P196B: walk arm Heading emite Tag::Start+End com payload
+        // Labelled { label: "auto-toc-N", resolved_text, figure_number: None }
+        // pós-recursão. Introspector populated via from_tags.
+        let content = Content::Sequence(
+            vec![
+                Content::SetHeadingNumbering { active: true },
+                Content::heading(1, Content::text("Intro")),
+            ]
+            .into(),
+        );
+        let (_, intr) = introspect_with_introspector(&content);
+
+        // Auto-label "auto-toc-1" deve estar no Introspector.resolved_labels
+        // populado via Tag::Labelled pós-P196B.
+        let auto_label = Label("auto-toc-1".to_string());
+        assert_eq!(
+            intr.resolved_label_for(&auto_label),
+            Some("Secção 1"),
+            "P196B: Introspector.resolved_labels deve conter auto-toc-1 \
+             populado via Tag::Labelled emitida pelo walk arm Heading"
+        );
+    }
+
+    #[test]
+    fn heading_auto_toc_paridade_legacy_vs_introspector() {
+        // P196B: durante janela compat M5, legacy state e Introspector
+        // devem conter MESMO valor para auto-toc label (write paralelo).
+        let content = Content::Sequence(
+            vec![
+                Content::SetHeadingNumbering { active: true },
+                Content::heading(1, Content::text("um")),
+                Content::heading(2, Content::text("dois")),
+            ]
+            .into(),
+        );
+        let (state, intr) = introspect_with_introspector(&content);
+
+        // 2 headings → auto-toc-1 e auto-toc-2.
+        for n in [1usize, 2] {
+            let lbl = Label(format!("auto-toc-{n}"));
+            let from_legacy = state.resolved_labels.get(&lbl).map(String::as_str);
+            let from_intr   = intr.resolved_label_for(&lbl);
+            assert!(from_legacy.is_some(),
+                "legacy state deve conter {lbl:?} (write paralelo M5)");
+            assert!(from_intr.is_some(),
+                "Introspector deve conter {lbl:?} (Tag::Labelled P196B)");
+            assert_eq!(from_legacy, from_intr,
+                "paridade compat M5: legacy e Introspector devem ter \
+                 o mesmo resolved_text para {lbl:?}");
+        }
+    }
+
+    #[test]
+    fn heading_auto_toc_numbering_inactivo_emite_string_vazia() {
+        // P196B preserva paridade legacy: quando numbering inactivo,
+        // helper compute_heading_auto_toc retorna (label, "") —
+        // resolved_labels recebe insert mesmo assim (presença, não conteúdo).
+        let content = Content::heading(1, Content::text("sem numbering"));
+        let (state, intr) = introspect_with_introspector(&content);
+
+        let lbl = Label("auto-toc-1".to_string());
+        // Legacy state preserva insert "" (não None).
+        assert_eq!(
+            state.resolved_labels.get(&lbl).map(String::as_str),
+            Some(""),
+            "legacy: numbering inactivo → insert string vazia"
+        );
+        // Introspector path: Tag::Labelled tem resolved_text=Some("") →
+        // populated em ResolvedLabelStore.
+        assert_eq!(
+            intr.resolved_label_for(&lbl),
+            Some(""),
+            "P196B: Introspector path preserva paridade — string vazia \
+             sob numbering inactivo, não None"
+        );
+    }
+
+    #[test]
+    fn walk_e2_residuo_headings_for_toc_via_legacy() {
+        // E2-residuo: state.headings_for_toc.push continua activo
+        // como mutação legacy porque sub-store `intr.headings_for_toc`
+        // não existe (lacuna #3). Test confirma write paralelo M5.
+        let content = Content::Sequence(
+            vec![
+                Content::heading(1, Content::text("Cap 1")),
+                Content::heading(2, Content::text("Sec 1.1")),
+                Content::heading(1, Content::text("Cap 2")),
+            ]
+            .into(),
+        );
+        let (state, _intr) = introspect_with_introspector(&content);
+
+        // E2-residuo: 3 entries em state.headings_for_toc (1 por heading).
+        assert_eq!(
+            state.headings_for_toc.len(),
+            3,
+            "E2-residuo: walk arm Heading continua a mutar \
+             state.headings_for_toc.push (lacuna #3 sub-store ausente)"
+        );
+        // Levels preservados em ordem.
+        let levels: Vec<usize> = state.headings_for_toc
+            .iter()
+            .map(|(_, _, lvl)| *lvl)
+            .collect();
+        assert_eq!(levels, vec![1, 2, 1]);
+    }
+
+    #[test]
+    fn consumer_c4_recebe_some_para_auto_toc_label() {
+        // P196B: consumer C4 (Ref-arm em Layouter, P194B) usa
+        // substitution-with-fallback: `intr.resolved_label_for(label)
+        // .or_else(|| state.resolved_labels.get(label))`.
+        // Pós-P196B, primeira branch (`.resolved_label_for`) deve
+        // devolver `Some(text)` para auto-toc labels — caminho
+        // Introspector activo (sem fallback necessário).
+        let content = Content::Sequence(
+            vec![
+                Content::SetHeadingNumbering { active: true },
+                Content::heading(1, Content::text("Capítulo")),
+            ]
+            .into(),
+        );
+        let (_, intr) = introspect_with_introspector(&content);
+
+        // Primeira branch: Introspector path.
+        let auto_lbl = Label("auto-toc-1".to_string());
+        let via_introspector = intr.resolved_label_for(&auto_lbl);
+        assert!(
+            via_introspector.is_some(),
+            "P196B: consumer C4 deve obter Some via Introspector path \
+             para auto-toc-1 — fallback legacy desnecessário"
+        );
+        assert_eq!(via_introspector, Some("Secção 1"));
     }
 }
