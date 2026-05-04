@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 20d03fe5
+//! @prompt-hash e54d93e0
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -4510,5 +4510,148 @@ mod p186f_equation_locatable {
 
         // Convergência: ambos paths produzem 1, 2, 3 como sequência.
         // Em produção (Path B dormente), só Path A é observable.
+    }
+}
+
+// ── P187B — C1 heading prefix migration ─────────────────────────────────────
+
+#[cfg(test)]
+mod p187b_c1_heading_prefix {
+    use super::*;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    use crate::rules::introspect::introspect_with_introspector;
+    use std::sync::Arc;
+
+    fn heading_with_text(level: u8, text: &str) -> Content {
+        Content::Heading {
+            level,
+            body:  Box::new(Content::text(text)),
+        }
+    }
+
+    fn doc_3_headings() -> Content {
+        Content::Sequence(Arc::from(vec![
+            Content::SetHeadingNumbering { active: true },
+            heading_with_text(1, "Intro"),
+            heading_with_text(2, "Motivacao"),
+            heading_with_text(1, "Conclusao"),
+        ]))
+    }
+
+    #[test]
+    fn c1_heading_prefix_via_introspector_path() {
+        // Introspector populado pelo walk; consulta `formatted_counter_at`
+        // retorna snapshot na Location de cada heading.
+        let content = doc_3_headings();
+        let (state, intr) = introspect_with_introspector(&content, None, None);
+        let txt = layout_with_introspector(&content, state, intr).plain_text();
+
+        assert!(txt.contains("1. Intro"),  "esperado '1. Intro' em: {:?}", txt);
+        assert!(txt.contains("1.1. Motivacao"), "esperado '1.1. Motivacao' em: {:?}", txt);
+        assert!(txt.contains("2. Conclusao"), "esperado '2. Conclusao' em: {:?}", txt);
+    }
+
+    #[test]
+    fn c1_heading_prefix_via_fallback_legacy() {
+        // Introspector vazio força fallback legacy
+        // `format_hierarchical("heading")`. Output observable
+        // idêntico ao path Introspector — paridade preservada
+        // por substitution-with-fallback.
+        let content = doc_3_headings();
+        let mut state = CounterStateLegacy::new();
+        // Para legacy gate "numbering_on" funcionar via fallback,
+        // numbering_active precisa de estar populated. P181H walk
+        // arm Content::SetHeadingNumbering popula
+        // state.numbering_active["heading"] = true automaticamente.
+        // Mas como passamos TagIntrospector::empty(), só o counter
+        // legacy está activo — e walk legacy também populou
+        // state.hierarchical via step_hierarchical.
+        let intr_vazio = TagIntrospector::empty();
+        // Re-correr walk para popular state.numbering_active +
+        // state.hierarchical (walk legacy emit-os mesmo sem
+        // Introspector).
+        let walk_state = crate::rules::introspect::introspect(&content);
+        state.numbering_active = walk_state.numbering_active.clone();
+        // Hierarchical é reconstruído pelo Layouter (step_hierarchical
+        // em Content::Heading arm), logo não precisa de copy.
+
+        let txt = layout_with_introspector(&content, state, intr_vazio).plain_text();
+
+        assert!(txt.contains("1. Intro"),  "fallback legacy deve produzir '1. Intro' em: {:?}", txt);
+        assert!(txt.contains("1.1. Motivacao"), "fallback legacy deve produzir '1.1. Motivacao' em: {:?}", txt);
+        assert!(txt.contains("2. Conclusao"), "fallback legacy deve produzir '2. Conclusao' em: {:?}", txt);
+    }
+
+    #[test]
+    fn c1_heading_prefix_paridade_legacy_vs_migrated() {
+        // Path A: layout() legacy (re-corre introspect; Introspector populado).
+        // Path B: layout_with_introspector(content, state, empty) — força
+        //         fallback legacy.
+        // Ambos paths devem produzir output idêntico para casos típicos.
+        let content = doc_3_headings();
+
+        // Path A: layout() legacy faz re-walk internamente (P181H)
+        // → Introspector populado → caminho funcional Introspector.
+        let state_a = crate::rules::introspect::introspect(&content);
+        let txt_a = layout(&content, state_a).plain_text();
+
+        // Path B: Introspector vazio força fallback legacy.
+        let mut state_b = CounterStateLegacy::new();
+        let walk_state = crate::rules::introspect::introspect(&content);
+        state_b.numbering_active = walk_state.numbering_active.clone();
+        let txt_b = layout_with_introspector(&content, state_b, TagIntrospector::empty()).plain_text();
+
+        // Paridade: ambos paths produzem mesmos prefixos.
+        for expected in &["1. Intro", "1.1. Motivacao", "2. Conclusao"] {
+            assert!(
+                txt_a.contains(expected),
+                "Path A deve conter {:?} em: {:?}", expected, txt_a
+            );
+            assert!(
+                txt_b.contains(expected),
+                "Path B deve conter {:?} em: {:?}", expected, txt_b
+            );
+        }
+    }
+
+    #[test]
+    fn c1_heading_prefix_re_update_correctness() {
+        // **Caso central P183B** que falhou com `formatted_counter`
+        // snapshot-final pré-emptando fallback. P187B usa
+        // `formatted_counter_at(key, current_location)` que retorna
+        // snapshot por Location — sequência H1, H2, H1 produz
+        // ["1.", "1.1", "2."] e NÃO ["2.", "2.", "2."] como em P183B.
+        //
+        // Empiricamente valida que P185 (location-aware) desbloqueou
+        // P183B aprendizado.
+        let content = doc_3_headings();
+        let (state, intr) = introspect_with_introspector(&content, None, None);
+
+        // Validação intermédia — Introspector retorna valor correcto
+        // por Location, não snapshot-final.
+        let heading_locs = intr.kind_index
+            .get(&crate::entities::element_kind::ElementKind::Heading)
+            .cloned()
+            .unwrap_or_default();
+        assert_eq!(heading_locs.len(), 3, "3 headings indexadas");
+        assert_eq!(intr.formatted_counter_at("heading", heading_locs[0]).as_deref(), Some("1"));
+        assert_eq!(intr.formatted_counter_at("heading", heading_locs[1]).as_deref(), Some("1.1"));
+        assert_eq!(intr.formatted_counter_at("heading", heading_locs[2]).as_deref(), Some("2"));
+
+        // Output observable — sequência correcta no documento.
+        let txt = layout_with_introspector(&content, state, intr).plain_text();
+        // Encontrar os 3 prefixos em ordem (não substring simples
+        // porque "1." é substring de "1.1.").
+        let intro_pos = txt.find("1. Intro").expect("'1. Intro' em ordem");
+        let motiv_pos = txt.find("1.1. Motivacao").expect("'1.1. Motivacao' em ordem");
+        let concl_pos = txt.find("2. Conclusao").expect("'2. Conclusao' em ordem");
+        assert!(intro_pos < motiv_pos);
+        assert!(motiv_pos < concl_pos);
+
+        // Garantia explícita anti-P183B: o segundo H1 ("Conclusao")
+        // NÃO ganha prefixo "1." (que indicaria snapshot-final
+        // pré-emptando fallback).
+        assert!(!txt.contains("1. Conclusao"),
+            "regressão P183B: 'Conclusao' não pode ter prefixo '1.': {:?}", txt);
     }
 }

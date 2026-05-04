@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 20d03fe5
+//! @prompt-hash e54d93e0
 //! @layer L1
 //! @updated 2026-04-21
 
@@ -342,7 +342,19 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     .is_numbering_active("numbering_active:heading")
                     || self.counter.is_numbering_active("heading");
                 if numbering_on {
-                    if let Some(num_str) = self.counter.format_hierarchical("heading") {
+                    // P187B: substitution-with-fallback location-aware.
+                    // Introspector path via `formatted_counter_at(key,
+                    // current_location)` (P177 + P185C) é primário —
+                    // retorna snapshot na Location consultada,
+                    // resolvendo P183B aprendizado (`formatted_counter`
+                    // snapshot-final pré-emptava fallback em re-update).
+                    // Fallback legacy `format_hierarchical` activo
+                    // durante janela compat M6.
+                    let num_str = self.current_location
+                        .and_then(|loc| self.introspector
+                            .formatted_counter_at("heading", loc))
+                        .or_else(|| self.counter.format_hierarchical("heading"));
+                    if let Some(num_str) = num_str {
                         let prefix = Content::text(format!("{}. ", num_str));
                         self.layout_content(&prefix);
                     }
