@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 3bc33823
+Hash do Código: b9f78ff9
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -213,7 +213,7 @@ justificação literal e plano de fechamento:
 |---|-----|---------|-------|---------------|
 | **E1** | `Content::Equation` | `state.step_flat("equation")` | `Content::SetEquationNumbering` ausente (Reserva 1; P186A §11.2). Sem ele, gate em `from_tags` P186E nunca dispara → counter introspector vazio → P188B fallback legacy é caminho funcional permanente. | Materializar `Content::SetEquationNumbering` (passo dedicado). |
 | **E2-residuo** | `Content::Heading` | `state.headings_for_toc.push` (1 mutação residual após P196B) | P196B fechou 3 das 4 mutações estruturalmente via Tag::Labelled auto-toc (pattern ADR-0069). Resta `headings_for_toc.push` porque sub-store `intr.headings_for_toc` **não existe** (lacuna #3). Outras 3 mutações (`step_hierarchical`, `auto_label_counter++`, `resolved_labels.insert`) preservadas como **write paralelo** durante janela compat M5 — fecham orgânicamente em M6. | Sub-store `intr.headings_for_toc` (passo dedicado fora série P196). |
-| **E3** | `Content::Figure` | `state.local_figure_counters`, `state.figure_numbers` | `Labelled` arm lê `figure_numbers` durante walk para popular `figure_label_numbers`. Sub-stores existem (P184B + P168) mas chained com E2-residuo. | E2-residuo fecha primeiro. |
+| **E3** | `Content::Figure` | `state.local_figure_counters`, `state.figure_numbers` | **Fechou estruturalmente em P197B** (cenário α — caminho Introspector activo desde P184: variant `ElementPayload::Figure` + `from_tags` arm popula `CounterRegistry` chave `figure:{kind}` + `figure_label_numbers`; consumer C3 P184D usa `figure_number_at_index`). Mutação legacy preservada como write paralelo M5 porque `compute_labelled` P195D Figure arm lê `state.figure_numbers.last()`. Pattern ADR-0069 (Tag pós-recursão) **dispensado** — extracção de helper `compute_figure` é refactor estilístico. Cleanup orgânico em M6. | Funcional fecha em M6. |
 | **E4** | `Content::Labelled` | `state.figure_label_numbers`, `state.resolved_labels` | **Fechou estruturalmente em P195D** (caminho Introspector activo via Tag::Labelled). Mutação legacy mantida como write paralelo M5; remoção orgânica em M6. | Funcional fecha em M6. |
 | **E5** | `Content::SetHeadingNumbering` | `state.numbering_active.insert("heading", ...)` | `Heading` arm lê `is_numbering_active("heading")` durante walk para resolver auto-toc text. Tag StateUpdate emitida paralelamente via P182C; `StateRegistry` populado independentemente — legacy mutation é write paralelo. | E2 fecha; legacy mutation removida orgânicamente. |
 | **E6** | `Content::CounterUpdate` | `state.step_*`, `update_flat` | `Labelled` arm pode ler counter mutado via CounterUpdate durante walk. Chained com E2 (Reserva 2 alargada). | E2 fecha primeiro. |
@@ -222,12 +222,13 @@ justificação literal e plano de fechamento:
 em sequência após desbloquear sub-store `resolved_labels` + C4
 migration. E1 é independente (Reserva 1 distinta).
 
-**Estado P196B (2026-05-03)**: E4 fechou estruturalmente em
+**Estado P197B (2026-05-04)**: E4 fechou estruturalmente em
 P195D; E2 fechou estruturalmente em P196B (3 das 4 mutações
-migradas via Tag pattern ADR-0069). Resta **E2-residuo**
-(`headings_for_toc.push`) bloqueado por lacuna #3 (sub-store
-ausente). E3/E5/E6 continuam activas mas a cadeia já não
-bloqueia caminho Introspector funcional.
+migradas via Tag pattern ADR-0069); **E3 fechou estruturalmente
+em P197B (cenário α — caminho Introspector activo desde P184)**.
+Resta **E2-residuo** (`headings_for_toc.push`) bloqueado por
+lacuna #3 (sub-store ausente). E1/E5/E6 continuam activas com
+pré-requisitos próprios.
 
 **Ordem inversa à mutação**: para fechar M5 universalmente,
 migração tem que acontecer da camada mais baixa (sub-stores)
@@ -242,7 +243,8 @@ para a mais alta (Layouter consumers). Concretamente:
    resta E2-residuo).
 5. Abrir sub-store `intr.headings_for_toc` (passo dedicado;
    fecha E2-residuo).
-6. Migrar walk arm `Figure` (E3 fecha).
+6. ✅ Migrar walk arm `Figure` (P197B — E3 fecha estruturalmente
+   via cenário α; caminho Introspector já activo desde P184).
 7. Migrar walk arms `SetHeadingNumbering` + `CounterUpdate` (E5/E6
    fecham residual).
 8. Quando `Content::SetEquationNumbering` materializar, E1 fecha.
@@ -414,3 +416,85 @@ Tag::End(loc_h, hash_heading)
 6 tags. Bracketing válido (Heading bracket envolve Figure
 bracket; auto-toc é par próprio inserido entre fim de
 recursão e End externo).
+
+## Secção: Walk arm Figure migrado (P197B, cenário α)
+
+**Refactor estilístico — pattern ADR-0069 (Tag pós-recursão)
+dispensado**. Diferente de P195D/P196B: walk arm Figure não
+emite Tag pós-recursão porque o caminho Introspector para
+figure numbering já está activo em produção desde P184.
+
+Walk arm `Content::Figure` em `introspect.rs:Content::Figure`
+foi modificado em P197B para:
+
+1. **Helper privado `compute_figure` extraído**:
+   `fn compute_figure(state: &CounterStateLegacy, kind: &Option<String>, is_counted: bool) -> Option<usize>`.
+   Análogo a `compute_labelled` (P195D) e
+   `compute_heading_auto_toc` (P196B). Função pura sobre
+   `(state, kind, is_counted)` — sem mutação. Projecta o
+   próximo número de Figure (1-based) para o kind indicado.
+   `None` quando `is_counted = false`.
+
+2. **Walk arm chama helper**:
+   ```rust
+   let is_counted = numbering.is_some() && caption.is_some();
+   if let Some(figure_number) = compute_figure(state, kind, is_counted) {
+       // mutação legacy preservada (write paralelo M5)
+       …
+   }
+   ```
+
+3. **Mutação legacy preservada** (write paralelo M5 →
+   cleanup orgânico em M6):
+   - `state.local_figure_counters.entry(kind_key).or_insert(0); *counter += 1;`
+   - `state.figure_numbers.entry(kind_key).or_default().push(figure_number);`
+   Necessárias porque `compute_labelled` P195D Figure arm
+   lê `state.figure_numbers.last()` durante walk para
+   popular `figure_label_numbers` quando target Figure
+   é wrapped em `Labelled`. Cadeia E2-E3 preservada.
+
+4. **Tag pós-recursão dispensada**: walk top já emite
+   `Tag::Start(loc, ElementInfo { payload: Figure { kind,
+   counter_update, is_counted }, label: label_from_parent })`
+   antes de entrar no match arm via locatable +
+   `extract_payload`. `from_tags` arm Figure (introduzido em
+   P184B) popula 4 sub-stores em produção:
+   - `kind_index[Figure]` ← locations.
+   - `counters` ← `apply_at("figure:{kind}", Step, loc)`.
+   - `counters` ← `apply_at("figure", Step, loc)` global (write paralelo M6).
+   - `figure_label_numbers` ← quando `is_counted && label_from_parent.is_some()`.
+
+### Estado após P197B
+
+- **E3 fecha estruturalmente** — caminho Introspector activo
+  desde P184; consumer C3 (`mod.rs:484`, P184D) já usa
+  `figure_number_at_index` via Introspector path.
+- **E3 funcionalmente fecha em M6** quando mutação legacy
+  for removida (após `compute_labelled` Figure arm migrar
+  para CounterRegistry).
+- Output observable em produção **inalterado** —
+  refactor estilístico puro; helper extraído replica lógica
+  legacy bit-for-bit.
+
+### Helper `compute_figure`
+
+Função privada em `introspect.rs` (sem `pub`) — uso
+interno apenas. Análoga a `compute_labelled` (P195D) e
+`compute_heading_auto_toc` (P196B) — terceiro helper na
+família. Não há reuso entre helpers (cada um cobre lógica
+distinta) — apenas paralelismo de shape.
+
+### Cross-references
+
+- **P184B** — variant `ElementPayload::Figure` materializada;
+  `from_tags` arm Figure popula CounterRegistry chave
+  `figure:{kind}`.
+- **P184C** — método trait `figure_number_at_index`.
+- **P184D** — consumer C3 (Layouter) substitution-with-fallback.
+- **P168** — `figure_label_numbers` populated em from_tags
+  arm Figure quando is_counted+label.
+- **P195D** — `compute_labelled` Figure arm lê
+  `state.figure_numbers.last()` (cadeia E2-E3; mutação
+  legacy preservada por isso).
+- **ADR-0069** — pattern stylesheet de helper privado
+  reaplicado; Tag pós-recursão dispensada per cenário α.

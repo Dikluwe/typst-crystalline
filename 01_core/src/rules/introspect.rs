@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash 73489ae5
+//! @prompt-hash c938c001
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -392,6 +392,39 @@ fn compute_heading_auto_toc(
     (auto_label, resolved_text)
 }
 
+/// **P197B** — projecta o próximo número de Figure para `kind`
+/// indicado quando `is_counted = true`. Helper privado análogo a
+/// `compute_labelled` (P195D) e `compute_heading_auto_toc`
+/// (P196B). Função pura sobre `(state, kind, is_counted)` — sem
+/// mutação. Replica lógica legacy do walk arm Figure
+/// (introspect.rs:490-519 pré-P197B).
+///
+/// Cenário α (vide P197A diagnóstico §5): caminho Introspector
+/// para figure numbering já activo desde P184 (variant
+/// `ElementPayload::Figure` + `from_tags` arm + sub-store via
+/// `CounterRegistry`). Pattern ADR-0069 (Tag pós-recursão)
+/// dispensado — extracção é refactor estilístico para
+/// consistência com restantes 2 helpers.
+///
+/// `None` quando `is_counted = false` (figura sem caption ou
+/// sem numbering — não consome número, paridade com gate
+/// legacy `numbering.is_some() && caption.is_some()`).
+fn compute_figure(
+    state:      &CounterStateLegacy,
+    kind:       &Option<String>,
+    is_counted: bool,
+) -> Option<usize> {
+    if !is_counted {
+        return None;
+    }
+    let kind_key = kind.as_deref().unwrap_or("image");
+    let counter = state.local_figure_counters
+        .get(kind_key)
+        .copied()
+        .unwrap_or(0);
+    Some(counter + 1)
+}
+
 /// **P162 .E**: emite `Tag::Start`/`Tag::End` em paralelo para os 3 kinds
 /// locatable (Heading/Figure/Cite). `label_from_parent` é `Some(label)`
 /// quando este nó é descendente directo de um `Content::Labelled` wrapper;
@@ -488,25 +521,29 @@ fn walk(
         }
 
         Content::Figure { body, caption, kind, numbering } => {
-            // Excepção M5 E3 (Figure): walk muta state.figure_numbers
-            // directamente porque `Labelled` arm lê figure_numbers
-            // durante walk para popular state.figure_label_numbers
-            // (cadeia chained com E2 — Reserva 2 alargada). Sub-store
-            // existe (P184B figure_numbers + P168 figure_label_numbers)
-            // mas Labelled arm precisa de migrar primeiro.
-            // Vide P189 consolidado §"Excepções M5".
+            // P197B — walk arm Figure refactor (cenário α).
+            // Caminho Introspector já activo desde P184 (variant
+            // ElementPayload::Figure + from_tags arm + sub-store
+            // CounterRegistry + consumer C3 P184D). Mutação legacy
+            // preservada como write paralelo M5 porque
+            // compute_labelled P195D Figure arm depende. Cleanup
+            // orgânico em M6.
+            //
+            // Helper `compute_figure` extraído (consistência com
+            // pattern ADR-0069 stylesheet: shape igual a
+            // `compute_labelled` P195D e `compute_heading_auto_toc`
+            // P196B). Pattern ADR-0069 (Tag pós-recursão) dispensado
+            // porque walk top já emite Tag pré-recursão via
+            // is_locatable + extract_payload.
             //
             // Avançar o contador apenas se a figura tiver numeração activa e legenda —
             // figuras sem caption não consomem número (evita "Figura 1", [gap], "Figura 3").
-            if numbering.is_some() && caption.is_some() {
-                // P158C: kind é Option<String>; resolver default "image"
-                // em uso (não em construção).
+            let is_counted = numbering.is_some() && caption.is_some();
+            if let Some(figure_number) = compute_figure(state, kind, is_counted) {
                 let kind_key = kind.as_deref().unwrap_or("image").to_string();
-                let counter = state.local_figure_counters
+                *state.local_figure_counters
                     .entry(kind_key.clone())
-                    .or_insert(0);
-                *counter += 1;
-                let figure_number = *counter;
+                    .or_insert(0) += 1;
                 state.figure_numbers
                     .entry(kind_key)
                     .or_default()
@@ -2403,5 +2440,166 @@ mod tests {
              para auto-toc-1 — fallback legacy desnecessário"
         );
         assert_eq!(via_introspector, Some("Secção 1"));
+    }
+
+    // ── P197B — Walk arm Figure refactor (cenário α) ─────────────────────
+    //
+    // 5 tests sentinela que validam: (a) caminho Introspector já activo
+    // desde P184 (independente de P197B); (b) helper compute_figure
+    // produz mesmo resultado que walk legacy; (c) paridade
+    // legacy↔Introspector inalterada; (d) numbering inactivo retorna
+    // None (helper sem mutação); (e) compute_labelled P195D Figure arm
+    // continua funcional após refactor (cadeia E2-E3 preservada).
+
+    #[test]
+    fn figure_walk_caminho_introspector_ja_activo() {
+        // P197B test 1: confirma que o caminho Introspector para figure
+        // numbering já está activo desde P184. Independente de P197B —
+        // cenário α (P197A diagnóstico §5).
+        let content = Content::Figure {
+            body:      Box::new(Content::Empty),
+            caption:   Some(Box::new(Content::text("Cap"))),
+            kind:      Some("image".into()),
+            numbering: Some("1".to_string()),
+        };
+        let (_, intr) = introspect_with_introspector(&content);
+
+        // Consumer C3 path (P184D): figure_number_at_index retorna Some.
+        assert_eq!(
+            intr.figure_number_at_index("image", 0),
+            Some(1),
+            "caminho Introspector já activo desde P184 — P197B não alterou"
+        );
+        // kind_index populado.
+        assert_eq!(intr.query_by_kind(ElementKind::Figure).len(), 1);
+    }
+
+    #[test]
+    fn figure_walk_helper_compute_figure_invocado() {
+        // P197B test 2: confirma que walk arm Figure usa helper
+        // compute_figure. Black-box: state.figure_numbers contém valor
+        // correcto (1-based). Mesmo resultado que walk legacy pré-P197B.
+        let content = Content::Sequence(
+            vec![
+                Content::Figure {
+                    body:      Box::new(Content::Empty),
+                    caption:   Some(Box::new(Content::text("c1"))),
+                    kind:      Some("image".into()),
+                    numbering: Some("1".to_string()),
+                },
+                Content::Figure {
+                    body:      Box::new(Content::Empty),
+                    caption:   Some(Box::new(Content::text("c2"))),
+                    kind:      Some("image".into()),
+                    numbering: Some("1".to_string()),
+                },
+            ]
+            .into(),
+        );
+        let (state, _) = introspect_with_introspector(&content);
+
+        // 2 figures image numeradas → state.figure_numbers["image"] = [1, 2].
+        assert_eq!(
+            state.figure_numbers.get("image").cloned().unwrap_or_default(),
+            vec![1, 2],
+            "P197B: helper compute_figure preserva semântica legacy \
+             (1-based, 1 → 2 incremental)"
+        );
+        // local_figure_counters cresceu para 2.
+        assert_eq!(
+            state.local_figure_counters.get("image").copied(),
+            Some(2),
+            "local_figure_counters incrementado em paralelo"
+        );
+    }
+
+    #[test]
+    fn figure_paridade_legacy_vs_introspector_inalterada() {
+        // P197B test 3: confirma paridade entre state legacy e Introspector
+        // após refactor. Caminho Introspector (P184D) e legacy
+        // (state.figure_numbers) devem retornar mesmo número.
+        let content = Content::Figure {
+            body:      Box::new(Content::Empty),
+            caption:   Some(Box::new(Content::text("Cap"))),
+            kind:      Some("table".into()),
+            numbering: Some("1".to_string()),
+        };
+        let (state, intr) = introspect_with_introspector(&content);
+
+        let legacy_num = state.figure_numbers.get("table").and_then(|v| v.last()).copied();
+        let intr_num = intr.figure_number_at_index("table", 0);
+        assert_eq!(
+            legacy_num, intr_num,
+            "paridade legacy vs Introspector preservada após P197B refactor"
+        );
+        assert_eq!(intr_num, Some(1));
+    }
+
+    #[test]
+    fn figure_numbering_inactivo_helper_retorna_none() {
+        // P197B test 4: figura sem caption → is_counted = false →
+        // helper compute_figure retorna None → walk arm Figure NÃO
+        // muta state.figure_numbers nem state.local_figure_counters.
+        // Testa o efeito directo do helper sobre state legacy.
+        //
+        // Nota: from_tags arm Figure incrementa CounterRegistry
+        // independente de is_counted (P184B comportamento pre-existente
+        // não afectado por P197B). Divergência legacy vs Introspector
+        // para figuras uncounted é conhecida (m1-lacunas-captura #1) e
+        // ortogonal ao refactor — sem assertion sobre figure_number_at_index.
+        let figura_sem_caption = Content::Figure {
+            body:      Box::new(Content::Empty),
+            caption:   None, // ← sem caption: is_counted = false
+            kind:      Some("image".into()),
+            numbering: Some("1".to_string()),
+        };
+        let (state, _intr) = introspect_with_introspector(&figura_sem_caption);
+
+        // Helper retornou None → sem push em figure_numbers.
+        assert!(
+            state.figure_numbers.get("image").is_none()
+                || state.figure_numbers.get("image").map(|v| v.is_empty()).unwrap_or(true),
+            "is_counted=false → helper retorna None → sem push em figure_numbers"
+        );
+        // local_figure_counters não incrementado.
+        assert_eq!(
+            state.local_figure_counters.get("image").copied().unwrap_or(0),
+            0,
+            "is_counted=false → local_figure_counters não incrementado"
+        );
+    }
+
+    #[test]
+    fn figure_compute_labelled_p195d_continua_funcional() {
+        // P197B test 5: cadeia E2-E3 preservada após refactor.
+        // compute_labelled P195D Figure arm lê state.figure_numbers.last()
+        // durante walk → produz resolved_text "Figura 1" + figure_number 1.
+        // Tag::Labelled emitida → from_tags popula resolved_labels +
+        // figure_label_numbers.
+        let content = Content::Labelled {
+            label:  Label("fig1".to_string()),
+            target: Box::new(Content::Figure {
+                body:      Box::new(Content::Empty),
+                caption:   Some(Box::new(Content::text("Cap"))),
+                kind:      Some("image".into()),
+                numbering: Some("1".to_string()),
+            }),
+        };
+        let (state, intr) = introspect_with_introspector(&content);
+
+        // Mutação legacy preservada: state.figure_label_numbers populado
+        // por compute_labelled P195D Figure arm (que lê state.figure_numbers).
+        assert_eq!(
+            state.figure_label_numbers.get(&Label("fig1".to_string())).copied(),
+            Some(1),
+            "P195D Figure arm continua funcional — cadeia E2-E3 preservada"
+        );
+        // Introspector path: figure_label_numbers populado via from_tags
+        // (P168 + P195D combinados).
+        assert_eq!(
+            intr.figure_label_numbers.get(&Label("fig1".to_string())).copied(),
+            Some(1),
+            "Introspector path popula figure_label_numbers em paralelo"
+        );
     }
 }
