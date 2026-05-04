@@ -58,7 +58,17 @@ pub fn is_locatable(content: &Content) -> bool {
         // em P188.
         Content::Equation { .. } => true,
 
-        // ── Não-locatable (46 variants) ──────────────────────────────
+        // ── Locatable em P198C — CounterUpdate (cenário β-promote
+        // ADR-0069). `extract_payload` emite
+        // `ElementPayload::CounterUpdate { key, action }` pré-recursão;
+        // `from_tags` arm aplica a `CounterRegistry` via `apply_at`
+        // (flat) ou `apply_hierarchical_at` (key="heading"). Walk
+        // arm legacy (E6 P189B) preservado como write paralelo M5
+        // porque `compute_*` helpers leem `state.flat`/`hierarchical`
+        // durante walk; cleanup orgânico em M6.
+        Content::CounterUpdate { .. } => true,
+
+        // ── Não-locatable ──────────────────────────────────────────
         Content::Empty
         | Content::Text(_, _)
         | Content::Space
@@ -81,7 +91,6 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Labelled { .. }
         | Content::Ref { .. }
         | Content::CounterDisplay { .. }
-        | Content::CounterUpdate { .. }
         | Content::SetFigureNumbering { .. }
         | Content::Image { .. }
         | Content::Shape { .. }

@@ -12,6 +12,7 @@
 //! adicionado.
 
 use crate::entities::args::Args;
+use crate::entities::counter_update::CounterUpdate;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::element_payload::ElementPayload;
 use crate::entities::engine::Engine;
@@ -270,6 +271,51 @@ pub fn from_tags(
                         if let Some(n) = figure_number {
                             intr.figure_label_numbers
                                 .insert(label.clone(), *n);
+                        }
+                    }
+                    // P198C — populate CounterRegistry via Tag
+                    // (cenário β-promote ADR-0069). 3 caminhos:
+                    // - Step + key="heading" → apply_hierarchical_at
+                    //   (level=1; paridade com walk arm legacy
+                    //   `state.step_hierarchical("heading", 1)`).
+                    // - Step + key!="heading" → apply_at(Step)
+                    //   (paridade com `state.step_flat(key)`).
+                    // - Update(val) → apply_at(Update(val))
+                    //   (paridade com `state.update_flat(key, val)`).
+                    //
+                    // Mutação legacy preservada como write paralelo
+                    // M5 porque `compute_*` helpers (P195D Equation,
+                    // P196B Heading, P197B Figure) lêem
+                    // `state.flat`/`hierarchical` durante walk;
+                    // cleanup orgânico em M6.
+                    ElementPayload::CounterUpdate { key, action } => {
+                        intr.kind_index
+                            .entry(ElementKind::CounterUpdate)
+                            .or_default()
+                            .push(*loc);
+                        match action {
+                            CounterUpdate::Step => {
+                                if key == "heading" {
+                                    intr.counters.apply_hierarchical_at(
+                                        key.clone(),
+                                        1,
+                                        *loc,
+                                    );
+                                } else {
+                                    intr.counters.apply_at(
+                                        key.clone(),
+                                        CounterUpdate::Step,
+                                        *loc,
+                                    );
+                                }
+                            }
+                            CounterUpdate::Update(val) => {
+                                intr.counters.apply_at(
+                                    key.clone(),
+                                    CounterUpdate::Update(*val),
+                                    *loc,
+                                );
+                            }
                         }
                     }
                 }

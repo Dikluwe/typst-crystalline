@@ -38,21 +38,28 @@ pub enum ElementKind {
     /// Suporta C2 (equation counter) desbloqueio per ADR-0068
     /// (eixo 2 P183C); consumer migra em P188.
     Equation,
+    /// **P198C** — `Content::CounterUpdate` promovido a locatable
+    /// em P198C (cenário β-promote ADR-0069). Indexa locations de
+    /// CounterUpdate em `kind_index`. `from_tags` arm aplica à
+    /// CounterRegistry via `apply_at` (flat) ou `apply_hierarchical_at`
+    /// (key="heading"). Suporta E6 fechar estruturalmente.
+    CounterUpdate,
 }
 
 impl ElementKind {
     /// Forma textual estável (para diagnóstico e debug).
     pub fn as_str(self) -> &'static str {
         match self {
-            ElementKind::Heading     => "heading",
-            ElementKind::Figure      => "figure",
-            ElementKind::Citation    => "citation",
-            ElementKind::Metadata    => "metadata",
-            ElementKind::State       => "state",
-            ElementKind::StateUpdate => "state_update",
-            ElementKind::Outline     => "outline",
-            ElementKind::Bibliography => "bibliography",
-            ElementKind::Equation    => "equation",
+            ElementKind::Heading       => "heading",
+            ElementKind::Figure        => "figure",
+            ElementKind::Citation      => "citation",
+            ElementKind::Metadata      => "metadata",
+            ElementKind::State         => "state",
+            ElementKind::StateUpdate   => "state_update",
+            ElementKind::Outline       => "outline",
+            ElementKind::Bibliography  => "bibliography",
+            ElementKind::Equation      => "equation",
+            ElementKind::CounterUpdate => "counter_update",
         }
     }
 
@@ -61,16 +68,17 @@ impl ElementKind {
     /// **P178**: `"outline"` adicionado.
     pub fn from_name(name: &str) -> Option<Self> {
         match name {
-            "heading"      => Some(ElementKind::Heading),
-            "figure"       => Some(ElementKind::Figure),
-            "citation"     => Some(ElementKind::Citation),
-            "metadata"     => Some(ElementKind::Metadata),
-            "state"        => Some(ElementKind::State),
-            "state_update" => Some(ElementKind::StateUpdate),
-            "outline"      => Some(ElementKind::Outline),
-            "bibliography" => Some(ElementKind::Bibliography),
-            "equation"     => Some(ElementKind::Equation),
-            _              => None,
+            "heading"        => Some(ElementKind::Heading),
+            "figure"         => Some(ElementKind::Figure),
+            "citation"       => Some(ElementKind::Citation),
+            "metadata"       => Some(ElementKind::Metadata),
+            "state"          => Some(ElementKind::State),
+            "state_update"   => Some(ElementKind::StateUpdate),
+            "outline"        => Some(ElementKind::Outline),
+            "bibliography"   => Some(ElementKind::Bibliography),
+            "equation"       => Some(ElementKind::Equation),
+            "counter_update" => Some(ElementKind::CounterUpdate),
+            _                => None,
         }
     }
 }
