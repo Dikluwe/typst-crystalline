@@ -4802,3 +4802,146 @@ mod p188b_c2_equation_counter {
         }
     }
 }
+
+// ── P189B — Walk puro M5 incremental ────────────────────────────────────────
+
+#[cfg(test)]
+mod p189b_walk_puro_m5 {
+    use super::*;
+    use crate::rules::introspect::introspect;
+    use std::sync::Arc;
+
+    // ── Outline migrado: paridade observable preservada ─────────────────────
+
+    #[test]
+    fn outline_migrado_paridade_observable() {
+        // P189B `.B` — Outline arm puro. `state.has_outline` mutação
+        // removida; consumer lê via `intr.kind_index`. Test confirma
+        // que walk não muta `state.has_outline` mas Layouter funciona
+        // via Introspector path.
+        let doc_com_outline = Content::Sequence(Arc::from(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::Heading { level: 1, body: Box::new(Content::text("Intro")) },
+            Content::Outline,
+        ]));
+        let state_com = introspect(&doc_com_outline);
+        // P189B: walk puro — state.has_outline NÃO é mutado.
+        assert!(!state_com.has_outline,
+            "P189B: walk puro — state.has_outline não é mutado");
+        // Layout funciona via Introspector path (re-walk em layout()).
+        let txt_com = layout(&doc_com_outline, state_com).plain_text();
+        assert!(txt_com.contains("Intro"), "doc com outline: {:?}", txt_com);
+
+        let doc_sem_outline = Content::Sequence(Arc::from(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::Heading { level: 1, body: Box::new(Content::text("Solo")) },
+        ]));
+        let state_sem = introspect(&doc_sem_outline);
+        assert!(!state_sem.has_outline);
+        let txt_sem = layout(&doc_sem_outline, state_sem).plain_text();
+        assert!(txt_sem.contains("Solo"), "doc sem outline: {:?}", txt_sem);
+    }
+
+    // ── Tests sentinela 6 excepções (E1–E6) ─────────────────────────────────
+
+    #[test]
+    fn walk_excepcao_e1_equation_counter_via_legacy() {
+        // E1: Equation walk arm. Confirma que walk legacy ainda
+        // populates `state.flat["equation"]` quando numbering activo.
+        let mut state = CounterStateLegacy::new();
+        state.numbering_active.insert("equation".to_string(), true);
+        let content = Content::Sequence(Arc::from(vec![
+            Content::Equation {
+                body: Box::new(Content::MathIdent("a".into())),
+                block: true,
+            },
+            Content::Equation {
+                body: Box::new(Content::MathIdent("b".into())),
+                block: true,
+            },
+        ]));
+        let txt = layout(&content, state).plain_text();
+        assert!(txt.contains("(1)"), "E1: '(1)' em: {:?}", txt);
+        assert!(txt.contains("(2)"), "E1: '(2)' em: {:?}", txt);
+    }
+
+    #[test]
+    fn walk_excepcao_e2_heading_hierarchical_via_legacy() {
+        // E2: Heading walk arm. Confirma que walk legacy ainda
+        // populates state.hierarchical, state.resolved_labels, etc.
+        let content = Content::Sequence(Arc::from(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::Heading { level: 1, body: Box::new(Content::text("A")) },
+            Content::Heading { level: 2, body: Box::new(Content::text("B")) },
+        ]));
+        let state = introspect(&content);
+        assert!(state.is_numbering_active("heading"));
+        assert_eq!(state.format_hierarchical("heading").as_deref(), Some("1.1"));
+        assert_eq!(state.headings_for_toc.len(), 2);
+        assert!(!state.resolved_labels.is_empty());
+    }
+
+    #[test]
+    fn walk_excepcao_e3_figure_via_legacy() {
+        // E3: Figure walk arm. Confirma que walk legacy ainda
+        // populates state.figure_numbers para figuras numbering+caption.
+        let content = Content::Figure {
+            body:      Box::new(Content::Empty),
+            caption:   Some(Box::new(Content::text("cap"))),
+            kind:      Some("image".into()),
+            numbering: Some("1".into()),
+        };
+        let state = introspect(&content);
+        let nums = state.figure_numbers.get("image").cloned().unwrap_or_default();
+        assert_eq!(nums, vec![1], "E3: figure_numbers[image] populado");
+    }
+
+    #[test]
+    fn walk_excepcao_e4_labelled_resolved_labels_via_legacy() {
+        // E4: Labelled walk arm. Confirma que walk legacy ainda
+        // populates state.resolved_labels para labels explicit.
+        let content = Content::Sequence(Arc::from(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::Labelled {
+                target: Box::new(Content::Heading {
+                    level: 1,
+                    body:  Box::new(Content::text("X")),
+                }),
+                label:  crate::entities::label::Label("intro".to_string()),
+            },
+        ]));
+        let state = introspect(&content);
+        assert!(state.resolved_labels.contains_key(
+            &crate::entities::label::Label("intro".to_string())
+        ), "E4: resolved_labels[intro] populado");
+    }
+
+    #[test]
+    fn walk_excepcao_e5_set_heading_numbering_via_legacy() {
+        // E5: SetHeadingNumbering walk arm. Confirma que walk legacy
+        // ainda populates state.numbering_active["heading"].
+        let content = Content::SetHeadingNumbering { active: true };
+        let state = introspect(&content);
+        assert!(state.is_numbering_active("heading"),
+            "E5: numbering_active[heading] populado");
+    }
+
+    #[test]
+    fn walk_excepcao_e6_counter_update_via_legacy() {
+        // E6: CounterUpdate walk arm. Confirma que walk legacy ainda
+        // populates state.flat para chaves custom via CounterUpdate.
+        let content = Content::Sequence(Arc::from(vec![
+            Content::CounterUpdate {
+                key:    "custom".to_string(),
+                action: crate::entities::counter_state_legacy::CounterAction::Step,
+            },
+            Content::CounterUpdate {
+                key:    "custom".to_string(),
+                action: crate::entities::counter_state_legacy::CounterAction::Step,
+            },
+        ]));
+        let state = introspect(&content);
+        assert_eq!(state.get_flat("custom"), 2,
+            "E6: flat[custom] = 2 após 2 steps");
+    }
+}

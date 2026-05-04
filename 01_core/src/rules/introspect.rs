@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash 281ed270
+//! @prompt-hash 1f632da6
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -346,6 +346,14 @@ fn walk(
         }
 
         Content::Heading { level, body } => {
+            // Excepção M5 E2 (Heading): walk muta state directamente
+            // porque `Labelled` arm lê counters durante walk para
+            // popular `state.resolved_labels` (cadeia
+            // Heading→Labelled→resolved_labels). Migração depende de:
+            // (a) sub-store `resolved_labels` (não existe), (b) C4
+            // migration (consumer Ref-arm), (c) sub-store
+            // `headings_for_toc` (lacuna #3, E4 chained).
+            // Vide P189 consolidado §"Excepções M5".
             state.step_hierarchical("heading", *level as usize);
 
             // Gerar label automática única para que a TOC possa referenciar este título.
@@ -375,6 +383,15 @@ fn walk(
         }
 
         Content::Equation { block, body } => {
+            // Excepção M5 E1 (Equation): walk muta state.flat["equation"]
+            // directamente porque `Content::SetEquationNumbering` não
+            // existe em cristalino (Reserva 1; P186A §11.2). Sem ele,
+            // gate em `from_tags` arm Equation (P186E) nunca dispara
+            // → counter introspector vazio → P188B fallback legacy é
+            // caminho funcional permanente. Migração depende de
+            // materialização de `Content::SetEquationNumbering`
+            // (passo dedicado fora série P186-P189).
+            // Vide P189 consolidado §"Excepções M5".
             if *block && state.is_numbering_active("equation") {
                 state.step_flat("equation");
             }
@@ -382,6 +399,14 @@ fn walk(
         }
 
         Content::Figure { body, caption, kind, numbering } => {
+            // Excepção M5 E3 (Figure): walk muta state.figure_numbers
+            // directamente porque `Labelled` arm lê figure_numbers
+            // durante walk para popular state.figure_label_numbers
+            // (cadeia chained com E2 — Reserva 2 alargada). Sub-store
+            // existe (P184B figure_numbers + P168 figure_label_numbers)
+            // mas Labelled arm precisa de migrar primeiro.
+            // Vide P189 consolidado §"Excepções M5".
+            //
             // Avançar o contador apenas se a figura tiver numeração activa e legenda —
             // figuras sem caption não consomem número (evita "Figura 1", [gap], "Figura 3").
             if numbering.is_some() && caption.is_some() {
@@ -405,6 +430,14 @@ fn walk(
         }
 
         Content::Labelled { target, label } => {
+            // Excepção M5 E2/E3 (Labelled): walk muta
+            // state.resolved_labels e state.figure_label_numbers
+            // directamente porque consumer Ref-arm em Layouter
+            // (`mod.rs:Content::Ref`) lê estes durante layout.
+            // Migração depende de: (a) sub-store `resolved_labels`
+            // (não existe), (b) C4 migration (consumer migrado para
+            // ler de Introspector). Vide P189 consolidado §"Excepções M5".
+            //
             // Walk no target primeiro — garante que o contador já avançou.
             // P162 .E: passa `Some(label)` para que o tag emitido pelo
             // walk recursivo (ex. Heading) inclua a label do wrapper.
@@ -453,10 +486,26 @@ fn walk(
         }
 
         Content::SetHeadingNumbering { active } => {
+            // Excepção M5 E5 (SetHeadingNumbering): walk muta
+            // state.numbering_active directamente porque `Heading`
+            // arm lê `is_numbering_active("heading")` durante walk
+            // para resolver auto-toc text (cadeia chained com E2).
+            // Migração depende de E2 fechar primeiro. Tag emitido
+            // paralelamente via P182C `extract_payload` arm —
+            // `from_tags` arm StateUpdate popula `StateRegistry`
+            // independentemente; legacy mutation aqui é write
+            // paralelo durante janela compat.
+            // Vide P189 consolidado §"Excepções M5".
             state.numbering_active.insert("heading".to_string(), *active);
         }
 
         Content::CounterUpdate { key, action } => match action {
+            // Excepção M5 E6 (CounterUpdate): walk muta state.flat
+            // ou state.hierarchical directamente porque `Labelled`
+            // arm lê estes durante walk (cadeia chained com E2 —
+            // Reserva 2 alargada). Migração depende de E2 fechar
+            // primeiro (sub-store `resolved_labels` + C4 migration).
+            // Vide P189 consolidado §"Excepções M5".
             CounterAction::Step => {
                 if key == "heading" {
                     state.step_hierarchical("heading", 1);
@@ -608,8 +657,14 @@ fn walk(
         Content::Styled(body, _) => walk(body, state, locator, tags, None),
 
         Content::Outline => {
-            state.has_outline = true;
-            // Outline não altera contadores — apenas sinaliza que o fixpoint é necessário.
+            // P189B (M5): walk puro para Outline.
+            // Mutação `state.has_outline = true` removida; flag obtida
+            // via `intr.kind_index.contains_key(&ElementKind::Outline)`
+            // (populado por `from_tags` arm Outline P178). Consumer
+            // migrado em `mod.rs:1470` (`layout_with_introspector`).
+            // `Content::Outline` continua a ser locatable e emite
+            // Tag::Start no topo da `walk` fn — apenas a mutação
+            // directa em state foi removida.
         }
     }
 
