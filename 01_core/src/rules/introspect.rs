@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash 1f632da6
+//! @prompt-hash fef4c6d8
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -22,6 +22,7 @@ use crate::entities::{
     content_hash::hash_content,
     counter_state_legacy::{CounterAction, CounterStateLegacy},
     element_info::ElementInfo,
+    element_payload::ElementPayload,
     label::Label,
     locator::Locator,
     tag::Tag,
@@ -313,6 +314,59 @@ fn materialize_time(content: &Content, state: &CounterStateLegacy) -> Content {
 /// na mesma ordem de travessia, mas sem aceder a `FontMetrics` nem alocar
 /// `Frame`/`FrameItem`.
 ///
+/// **P195D** — computa `(resolved_text, figure_number)` para
+/// `Content::Labelled` baseado no target type. Helper privado isolado
+/// (per ADR-0069) para reuso entre mutação legacy (`state.resolved_labels`,
+/// `state.figure_label_numbers`) e populate Tag pós-recursão
+/// (`ElementPayload::Labelled` payload).
+///
+/// Função pura sobre `(target, state)` — sem mutação. Replica lógica
+/// legacy do walk arm Labelled (introspect.rs:432-486 pré-P195D).
+fn compute_labelled(
+    target: &Content,
+    state:  &CounterStateLegacy,
+) -> (Option<String>, Option<usize>) {
+    match target {
+        Content::Heading { .. } => (
+            state
+                .format_hierarchical("heading")
+                .map(|n| format!("Secção {}", n)),
+            None,
+        ),
+        Content::Equation { block, .. } if *block => {
+            let n = state.get_flat("equation");
+            if n > 0 {
+                (Some(format!("Equação ({})", n)), None)
+            } else {
+                (None, None)
+            }
+        }
+        Content::Figure { kind, numbering, caption, .. } => {
+            let kind_key = kind.as_deref().unwrap_or("image");
+            let n = if numbering.is_some() && caption.is_some() {
+                state
+                    .figure_numbers
+                    .get(kind_key)
+                    .and_then(|v| v.last())
+                    .copied()
+                    .unwrap_or(0)
+            } else {
+                0
+            };
+            if n > 0 {
+                let supplement = crate::rules::lang::figure_supplement::figure_supplement_for_lang(
+                    kind_key,
+                    state.lang.as_ref(),
+                );
+                (Some(format!("{} {}", supplement, n)), Some(n))
+            } else {
+                (Some(String::new()), None)
+            }
+        }
+        _ => (None, None),
+    }
+}
+
 /// **P162 .E**: emite `Tag::Start`/`Tag::End` em paralelo para os 3 kinds
 /// locatable (Heading/Figure/Cite). `label_from_parent` é `Some(label)`
 /// quando este nó é descendente directo de um `Content::Labelled` wrapper;
@@ -430,58 +484,55 @@ fn walk(
         }
 
         Content::Labelled { target, label } => {
-            // Excepção M5 E2/E3 (Labelled): walk muta
-            // state.resolved_labels e state.figure_label_numbers
-            // directamente porque consumer Ref-arm em Layouter
-            // (`mod.rs:Content::Ref`) lê estes durante layout.
-            // Migração depende de: (a) sub-store `resolved_labels`
-            // (não existe), (b) C4 migration (consumer migrado para
-            // ler de Introspector). Vide P189 consolidado §"Excepções M5".
+            // P195D — Walk arm Labelled emite Tag pós-recursão
+            // (pattern ADR-0069 post-recursion-tag-emission).
+            // Lógica legacy (E2/E3 P189B excepção) **preservada**
+            // como write paralelo durante janela compat M5;
+            // funcionalmente fecha em M6 quando legacy for removido.
             //
             // Walk no target primeiro — garante que o contador já avançou.
             // P162 .E: passa `Some(label)` para que o tag emitido pelo
             // walk recursivo (ex. Heading) inclua a label do wrapper.
+            let tags_len_before = tags.len();
             walk(target, state, locator, tags, Some(label));
 
-            let resolved_text = match &**target {
-                Content::Heading { .. } => state
-                    .format_hierarchical("heading")
-                    .map(|n| format!("Secção {}", n)),
-                Content::Equation { block, .. } if *block => {
-                    let n = state.get_flat("equation");
-                    if n > 0 { Some(format!("Equação ({})", n)) } else { None }
+            // Computar resolved_text + figure_number via helper
+            // privado (per P195A §11.6; ADR-0069). Sem mutação aqui.
+            let (resolved_text, figure_number) = compute_labelled(target, state);
+
+            // Mutação legacy preservada (write paralelo M5 → M6).
+            if let Some(n) = figure_number {
+                state.figure_label_numbers.insert(label.clone(), n);
+            }
+            if let Some(ref text) = resolved_text {
+                state.resolved_labels.insert(label.clone(), text.clone());
+            }
+
+            // P195D: emit Tag pós-recursão (ADR-0069). Reusa Location
+            // do target — preserva sincronização-por-construção
+            // ADR-0068 (walk Locator e Layouter Locator não avançam
+            // para Labelled em nenhum dos lados).
+            if resolved_text.is_some() || figure_number.is_some() {
+                let target_loc = tags[tags_len_before..]
+                    .iter()
+                    .find_map(|t| if let Tag::Start(l, _) = t { Some(*l) } else { None });
+
+                if let Some(loc) = target_loc {
+                    tags.push(Tag::Start(
+                        loc,
+                        ElementInfo::new(ElementPayload::Labelled {
+                            label: label.clone(),
+                            resolved_text,
+                            figure_number,
+                        }),
+                    ));
+                    tags.push(Tag::End(loc, 0));
                 }
-                Content::Figure { kind, numbering, caption, .. } => {
-                    // P158C: kind é Option<String>; resolver default "image"
-                    // em uso (paridade walk arm acima).
-                    let kind_key = kind.as_deref().unwrap_or("image");
-                    let n = if numbering.is_some() && caption.is_some() {
-                        state.figure_numbers
-                            .get(kind_key)
-                            .and_then(|v| v.last())
-                            .copied()
-                            .unwrap_or(0)
-                    } else {
-                        0
-                    };
-                    if n > 0 {
-                        state.figure_label_numbers.insert(label.clone(), n);
-                        // Passo 158B: supplement localizado por lang.
-                        // Lang vem de state.lang (None → fallback PT
-                        // per diagnóstico P158B §8.2 backwards compat).
-                        let supplement = crate::rules::lang::figure_supplement::figure_supplement_for_lang(
-                            kind_key,
-                            state.lang.as_ref(),
-                        );
-                        Some(format!("{} {}", supplement, n))
-                    } else {
-                        Some(String::new())
-                    }
-                }
-                _ => None,
-            };
-            if let Some(text) = resolved_text {
-                state.resolved_labels.insert(label.clone(), text);
+                // else: target não-locatable → no Tag::Start em tags;
+                // sem Location para reuso. Sub-store via Tag não é
+                // populated (mas mutação legacy acima preservou
+                // resolved_labels). Caso edge raro — labels
+                // tipicamente envolvem locatables.
             }
         }
 
