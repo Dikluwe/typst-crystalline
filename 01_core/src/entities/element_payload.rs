@@ -167,6 +167,33 @@ pub enum ElementPayload {
         key:    String,
         action: CounterUpdate,
     },
+
+    /// **P200B** (M5 universal completo) — Tag derivada de Heading
+    /// para popular sub-store `intr.headings_for_toc`. Emitida
+    /// pelo walk arm Heading pós-recursão (3ª Tag depois de
+    /// Heading + Labelled auto-toc P196B; mesma `emitted_loc`).
+    /// `from_tags` arm `HeadingForToc` faz push directo em
+    /// `intr.headings_for_toc`. Fecha **E2-residuo** (lacuna #3
+    /// declarada desde P189B/P196B) e completa estruturalmente E2
+    /// (4ª mutação).
+    ///
+    /// Campos:
+    /// - `label`: auto-label sintetizada `"auto-toc-N"` (paralela
+    ///   à utilizada em `resolved_labels` P195D para reference).
+    /// - `body`: Content materializado (com counters resolvidos
+    ///   via `materialize_time`). Outline render usa este body
+    ///   para preservar formatação original do título.
+    /// - `level`: nível do heading (1-based; `usize` per paridade
+    ///   com `state.headings_for_toc` legacy).
+    ///
+    /// Mutação 4 legacy (`state.headings_for_toc.push`) preservada
+    /// como write paralelo M5 — Layouter assignments
+    /// `mod.rs:1490, 1521` dependem; cleanup orgânico em M6.
+    HeadingForToc {
+        label: Label,
+        body:  crate::entities::content::Content,
+        level: usize,
+    },
 }
 
 impl std::hash::Hash for ElementPayload {

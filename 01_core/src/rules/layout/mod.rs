@@ -369,6 +369,14 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 counters::layout_set_heading_numbering(&mut self.counter, *active);
             }
 
+            Content::SetEquationNumbering { active } => {
+                // P199B — Layouter consume SetEquationNumbering (paralelo a
+                // SetHeadingNumbering). Mutação legacy preservada como write
+                // paralelo M5; caminho Introspector já activado por construção
+                // via extract_payload + from_tags arm StateUpdate.
+                counters::layout_set_equation_numbering(&mut self.counter, *active);
+            }
+
             Content::SetFigureNumbering { .. } => {
                 // No-op: numeração baked-in em cada nó Figure (Passo 75, DEBT-14).
             }
