@@ -175,6 +175,17 @@ pub enum Content {
     /// completo for implementado.
     SetHeadingNumbering { active: bool },
 
+    /// Activa ou desactiva a numeração automática de equations.
+    /// Análoga a `SetHeadingNumbering` (P57). Materializada em P199B —
+    /// fecha Reserva 1 (E1 P189B) estruturalmente. Cenário α por
+    /// construção (ADR-0069): caminho Introspector activa
+    /// imediatamente porque arm `from_tags::StateUpdate` (P171)
+    /// é genérica e Layouter `equation.rs:32-33` já tem
+    /// substitution-with-fallback implementada.
+    /// DEBT-10: substituir por StyleChain quando o motor de
+    /// introspecção completo for implementado.
+    SetEquationNumbering { active: bool },
+
     /// Valor actual de um contador no ponto de inserção.
     /// Produzida por `counter(heading).get()` / `counter(heading).display()`.
     /// O Layouter resolve o valor no momento do layout (single-pass).
@@ -1027,6 +1038,7 @@ impl Content {
             Self::Labelled { target, .. } => target.plain_text(),
             Self::Ref { target }          => format!("@{}", target.0),
             Self::SetHeadingNumbering { .. } => String::new(),
+            Self::SetEquationNumbering { .. } => String::new(),
             Self::CounterDisplay { .. }      => String::new(),
             Self::CounterUpdate { .. }       => String::new(),
             Self::Outline                    => String::new(),
@@ -1186,6 +1198,7 @@ impl PartialEq for Content {
              Self::Labelled { target: tb, label: lb })               => ta == tb && la == lb,
             (Self::Ref { target: ta }, Self::Ref { target: tb })     => ta == tb,
             (Self::SetHeadingNumbering { active: a }, Self::SetHeadingNumbering { active: b }) => a == b,
+            (Self::SetEquationNumbering { active: a }, Self::SetEquationNumbering { active: b }) => a == b,
             (Self::CounterDisplay { kind: a }, Self::CounterDisplay { kind: b }) => a == b,
             (Self::CounterUpdate { key: ka, action: aa }, Self::CounterUpdate { key: kb, action: ab }) => ka == kb && aa == ab,
             (Self::Outline, Self::Outline) => true,
@@ -1469,6 +1482,7 @@ impl Content {
             | Content::Raw { .. }
             | Content::Ref { .. }
             | Content::SetHeadingNumbering { .. }
+            | Content::SetEquationNumbering { .. }
             | Content::SetFigureNumbering { .. }
             | Content::SetPage { .. }
             | Content::CounterUpdate { .. }
@@ -1680,6 +1694,7 @@ impl Content {
             | Content::Raw { .. }
             | Content::Ref { .. }
             | Content::SetHeadingNumbering { .. }
+            | Content::SetEquationNumbering { .. }
             | Content::SetFigureNumbering { .. }
             | Content::SetPage { .. }
             | Content::CounterUpdate { .. }

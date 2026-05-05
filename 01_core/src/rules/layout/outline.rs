@@ -5,6 +5,7 @@
 //! @updated 2026-04-13
 
 use crate::entities::content::Content;
+use crate::entities::introspector::Introspector;
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
@@ -20,8 +21,23 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Na Passagem 2 (draft) estará vazio — TOC sem números.
 /// Na Passagem 3 (final) terá os dados reais — TOC com páginas correctas.
 pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>) {
+    // P200B (M5 universal completo) — substitution-with-fallback per
+    // padrão P184D / P194B. Caminho Introspector activa após walk
+    // arm Heading emitir Tag::HeadingForToc (3ª Tag pós-recursão);
+    // sub-store `intr.headings_for_toc` populated via from_tags arm.
+    // Fallback legacy preservado durante janela compat M5; cleanup
+    // orgânico em M6 quando Layouter assignments
+    // (`mod.rs:1490, 1521`) forem eliminados.
+    //
     // Clonar o vector antes do loop para evitar borrow duplo de `layouter`.
-    let entries: Vec<_> = layouter.counter.headings_for_toc.clone();
+    let entries: Vec<(_, _, _)> = {
+        let intr_entries = layouter.introspector.headings_for_toc();
+        if !intr_entries.is_empty() {
+            intr_entries.to_vec()
+        } else {
+            layouter.counter.headings_for_toc.clone()
+        }
+    };
 
     // Título da TOC — fora do modo read-only (não contém efeitos colaterais).
     layouter.layout_content(&Content::heading(1, Content::text("Índice")));

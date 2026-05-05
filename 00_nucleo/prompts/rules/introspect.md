@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: d25dfc47
+Hash do Código: 7a3ba2b7
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -211,8 +211,8 @@ justificação literal e plano de fechamento:
 
 | # | Arm | Mutação | Razão | Pré-requisito |
 |---|-----|---------|-------|---------------|
-| **E1** | `Content::Equation` | `state.step_flat("equation")` | `Content::SetEquationNumbering` ausente (Reserva 1; P186A §11.2). Sem ele, gate em `from_tags` P186E nunca dispara → counter introspector vazio → P188B fallback legacy é caminho funcional permanente. | Materializar `Content::SetEquationNumbering` (passo dedicado). |
-| **E2-residuo** | `Content::Heading` | `state.headings_for_toc.push` (1 mutação residual após P196B) | P196B fechou 3 das 4 mutações estruturalmente via Tag::Labelled auto-toc (pattern ADR-0069). Resta `headings_for_toc.push` porque sub-store `intr.headings_for_toc` **não existe** (lacuna #3). Outras 3 mutações (`step_hierarchical`, `auto_label_counter++`, `resolved_labels.insert`) preservadas como **write paralelo** durante janela compat M5 — fecham orgânicamente em M6. | Sub-store `intr.headings_for_toc` (passo dedicado fora série P196). |
+| **E1** | `Content::Equation` | `state.step_flat("equation")` | **Fechou estruturalmente em P199B** (cenário α por construção): `Content::SetEquationNumbering { active: bool }` materializada (Reserva 1 desde P189B); `extract_payload` emite `StateUpdate { key: "numbering_active:equation" }`; `from_tags` arm StateUpdate genérica (P171) popula StateRegistry; gate em `from_tags` P186E activa em produção real; consumer Layouter `equation.rs:32-33` (substitution-with-fallback antes adormecida) activa first branch. Mutação legacy preservada como write paralelo M5 porque walk arm Equation + `compute_labelled` Equation arm (P195D) lêem `state.is_numbering_active("equation")` durante walk. Cleanup orgânico em M6. | Funcional fecha em M6. |
+| **E2-residuo** | `Content::Heading` | `state.headings_for_toc.push` (1 mutação residual após P196B) | **Fechou estruturalmente em P200B** (trabalho híbrido — sub-store novo `intr.headings_for_toc` aberto + variant `ElementPayload::HeadingForToc` + walk arm emite 3ª Tag pós-recursão + consumer `outline.rs:24` substitution-with-fallback). Lacuna #3 fecha. Mutação 4 legacy preservada como write paralelo M5 porque Layouter assignments (`mod.rs:1490, 1521`) dependem; cleanup orgânico em M6. | Funcional fecha em M6. |
 | **E3** | `Content::Figure` | `state.local_figure_counters`, `state.figure_numbers` | **Fechou estruturalmente em P197B** (cenário α — caminho Introspector activo desde P184: variant `ElementPayload::Figure` + `from_tags` arm popula `CounterRegistry` chave `figure:{kind}` + `figure_label_numbers`; consumer C3 P184D usa `figure_number_at_index`). Mutação legacy preservada como write paralelo M5 porque `compute_labelled` P195D Figure arm lê `state.figure_numbers.last()`. Pattern ADR-0069 (Tag pós-recursão) **dispensado** — extracção de helper `compute_figure` é refactor estilístico. Cleanup orgânico em M6. | Funcional fecha em M6. |
 | **E4** | `Content::Labelled` | `state.figure_label_numbers`, `state.resolved_labels` | **Fechou estruturalmente em P195D** (caminho Introspector activo via Tag::Labelled). Mutação legacy mantida como write paralelo M5; remoção orgânica em M6. | Funcional fecha em M6. |
 | **E5** | `Content::SetHeadingNumbering` | `state.numbering_active.insert("heading", ...)` | **Fechou estruturalmente em P198B** (cenário α — caminho Introspector activo desde P182C: `extract_payload` retorna `Some(StateUpdate { key: "numbering_active:heading" })`; `from_tags` arm StateUpdate popula `StateRegistry`; consumer C5 via `is_numbering_active`). Mutação legacy preservada como write paralelo M5 porque `compute_heading_auto_toc` P196B + walk arm Equation lêem `state.numbering_active` durante walk. Pattern ADR-0069 (Tag pós-recursão) **dispensado** — sem helper extraído (mutação trivial 1 linha). Cleanup orgânico em M6. | Funcional fecha em M6. |
@@ -222,16 +222,27 @@ justificação literal e plano de fechamento:
 em sequência após desbloquear sub-store `resolved_labels` + C4
 migration. E1 é independente (Reserva 1 distinta).
 
-**Estado P198C (2026-05-04)**: E4 fechou estruturalmente em
-P195D; E2 fechou estruturalmente em P196B (3 das 4 mutações
-migradas via Tag pattern ADR-0069); E3 fechou estruturalmente
-em P197B (cenário α — caminho Introspector activo desde P184);
-E5 fechou estruturalmente em P198B (cenário α — caminho
-Introspector activo desde P182C); **E6 fechou estruturalmente
-em P198C (cenário β-promote — primeira aplicação: variant
-nova + promote locatable + 2 arms novos)**. Restam apenas:
-- **E2-residuo** (`headings_for_toc.push`) bloqueado por lacuna #3.
-- **E1** (Equation) bloqueada por `Content::SetEquationNumbering` ausente.
+**Estado P200B (2026-05-04)**: **M5 universal completo pela
+primeira vez desde P189B**. Todas excepções fechadas
+estruturalmente:
+- E4 fechou estruturalmente em P195D.
+- E2 fechou parcialmente em P196B (3 das 4 mutações; resíduo
+  declarado).
+- E3 fechou estruturalmente em P197B (cenário α — caminho
+  Introspector activo desde P184).
+- E5 fechou estruturalmente em P198B (cenário α — caminho
+  Introspector activo desde P182C).
+- E6 fechou estruturalmente em P198C (cenário β-promote — 1ª
+  aplicação).
+- E1 fechou estruturalmente em P199B (cenário α por
+  construção — materialização de `Content::SetEquationNumbering`).
+- **E2-residuo fechou estruturalmente em P200B** (trabalho
+  híbrido — sub-store novo + variant + walk arm + consumer
+  migration). Lacuna #3 fecha.
+
+**0 excepções activas + 0 residuos + 0 pré-requisitos
+restantes**. Desbloqueia M6 (P190A reescrita do zero —
+eliminação `CounterStateLegacy`; magnitude L cross-modular).
 
 **Ordem inversa à mutação**: para fechar M5 universalmente,
 migração tem que acontecer da camada mais baixa (sub-stores)
@@ -244,8 +255,8 @@ para a mais alta (Layouter consumers). Concretamente:
    directamente (P195D — E4 fecha estruturalmente).
 4. ✅ Migrar walk arm `Heading` (P196B — E2 fecha estruturalmente,
    resta E2-residuo).
-5. Abrir sub-store `intr.headings_for_toc` (passo dedicado;
-   fecha E2-residuo).
+5. ✅ Abrir sub-store `intr.headings_for_toc` (P200B — fecha
+   E2-residuo + lacuna #3 via trabalho híbrido).
 6. ✅ Migrar walk arm `Figure` (P197B — E3 fecha estruturalmente
    via cenário α; caminho Introspector já activo desde P184).
 7. ✅ Migrar walk arm `SetHeadingNumbering` (P198B — E5 fecha
@@ -254,7 +265,11 @@ para a mais alta (Layouter consumers). Concretamente:
 8. ✅ Migrar walk arm `CounterUpdate` (P198C — E6 fecha
    estruturalmente via cenário β-promote: variant nova +
    promote locatable + extract_payload arm + from_tags arm).
-9. Quando `Content::SetEquationNumbering` materializar, E1 fecha.
+9. ✅ Materializar `Content::SetEquationNumbering` (P199B —
+   E1 fecha estruturalmente via cenário α por construção:
+   variant nova + 3 arms; reusa `from_tags::StateUpdate`
+   genérica P171; activa Layouter equation.rs:32-33
+   substitution-with-fallback antes adormecida).
 
 Após esses passos sequenciais, walk torna-se universalmente
 puro. Segue M6 (eliminação `CounterStateLegacy`).
@@ -651,3 +666,236 @@ Trabalho concreto em P198C:
 - **P186C** — precedente promotion de Equation (mas com pré-requisito Reserva 1).
 - **P195D / P196B / P197B** — `compute_*` helpers consumidores da mutação legacy.
 - **ADR-0069** — pattern stylesheet; cenário β-promote primeira aplicação concreta.
+
+## Secção: Variant `Content::SetEquationNumbering` materializada (P199B, cenário α por construção)
+
+**Cenário α por construção — sub-variante de cenário α**.
+Distinção das 4 variantes operacionais ADR-0069 conhecidas:
+
+| Variante | Pré-passo | Trabalho |
+|----------|-----------|----------|
+| P195D (não-locatable) | Caminho inactivo | Tag pós-recursão + snapshot+find_map |
+| P196B (locatable + body) | Caminho inactivo | Tag pós-recursão + emitted_loc directo |
+| Cenário α (P197B, P198B) | Caminho activo | Refactor estilístico ou declaração formal |
+| **Cenário α por construção (P199B)** | **Caminho activável** | **Materializar variant — caminho activa imediatamente** |
+| Cenário β-promote (P198C) | Caminho inactivo | Promote completo (variant + locatable + 2 arms) |
+
+**Cenário α por construção** distingue-se de cenário α padrão:
+- P197B/P198B: variant **já existia**; cenário α era declaração formal/refactor.
+- **P199B**: variant **não existia**; cenário α por construção é declaração formal **no momento da materialização** da variant — toda a infraestrutura downstream pronta a activar (em P199B esta infra inclui Layouter `equation.rs:32-33` substitution-with-fallback antes adormecida).
+
+Trabalho concreto em P199B:
+
+1. **Variant nova `Content::SetEquationNumbering { active: bool }`**
+   adicionada a `entities/content.rs` análoga a `SetHeadingNumbering`.
+   Comentário documenta DEBT-10 (StyleChain futuro) e referência P57 + P199B.
+
+2. **Match arms exaustivos induzidos cobertos**:
+   - `Content::plain_text` (content.rs:1040+).
+   - `Content::eq` / comparação (content.rs:1200+).
+   - 2 listas de "terminais sem effect em counters"
+     (content.rs:1483, 1694).
+   - `materialize_time` em introspect.rs (lista de terminais
+     linha 165+).
+
+3. **`is_locatable(Content::SetEquationNumbering) = true`**
+   activado em `rules/introspect/locatable.rs`.
+
+4. **`extract_payload` arm** adicionada a
+   `rules/introspect/extract_payload.rs`:
+   ```rust
+   Content::SetEquationNumbering { active } => Some(ElementPayload::StateUpdate {
+       key:    "numbering_active:equation".to_string(),
+       update: StateUpdate::Set(Box::new(Value::Bool(*active))),
+   }),
+   ```
+   Reusa `ElementPayload::StateUpdate` (P171) sob chave canónica
+   `numbering_active:equation`.
+
+5. **Walk arm** adicionada a `rules/introspect.rs`:
+   ```rust
+   Content::SetEquationNumbering { active } => {
+       state.numbering_active.insert("equation".to_string(), *active);
+   }
+   ```
+   Comentário inline P199B declara cenário α por construção.
+
+6. **Layouter consumer** adicionado a `rules/layout/mod.rs`:
+   ```rust
+   Content::SetEquationNumbering { active } => {
+       counters::layout_set_equation_numbering(&mut self.counter, *active);
+   }
+   ```
+   Helper `layout_set_equation_numbering` em
+   `rules/layout/counters.rs` (paralelo a
+   `layout_set_heading_numbering`).
+
+7. **`from_tags` arm StateUpdate NÃO modificado** — genérica
+   (P171) processa `numbering_active:equation` transparentemente.
+
+### Estado após P199B
+
+- **E1 fecha estruturalmente** via cenário α por construção.
+- **Reserva 1 (P189B) materializada** — última pendência da
+  série §9 P189 que não era pré-requisito paralelo.
+- Caminho Introspector activado em produção real:
+  StateRegistry populated com `numbering_active:equation`;
+  CounterRegistry para `equation` activa via gate em
+  `from_tags::Equation` (P186E); Layouter `equation.rs:32`
+  first branch retorna Some.
+- Mutação legacy preservada como write paralelo M5 — walk arm
+  Equation (gate) + `compute_labelled` Equation arm (P195D)
+  continuam a ler `state.numbering_active("equation")` /
+  `state.get_flat("equation")` durante walk.
+
+### Cross-references
+
+- **P57** — template original SetHeadingNumbering.
+- **P171** — `ElementPayload::StateUpdate` variant + `from_tags` arm StateUpdate genérica.
+- **P173** — Engine + EvalContext cascade.
+- **P182C** — promoção SetHeadingNumbering a locatable (template directo replicado em P199B).
+- **P186C/D/E** — Equation locatable + gate em from_tags arm.
+- **P195D** — `compute_labelled` Equation arm consumer da mutação legacy.
+- **P198B** — primeira aplicação cenário α (SetHeadingNumbering); P199B é segunda aplicação distinguida como **cenário α por construção** (variant nova).
+- **DEBT-10** — substituir StateUpdate por StyleChain quando motor de introspecção completo for implementado (futuro M6+).
+- **ADR-0069** — pattern stylesheet; cenário α por construção é sub-variante operacional do cenário α padrão.
+
+## Secção: Walk arm Heading mutação 4 fechada (P200B, trabalho híbrido)
+
+**Marco arquitectural — M5 universal completo pela primeira
+vez desde declaração em P189B**. P200B fecha **E2-residuo**
+e **lacuna #3** simultaneamente via trabalho **híbrido**
+combinando 3 padrões testados — sem nova variante operacional
+ADR-0069.
+
+### 3 categorias de trabalho combinadas
+
+| Categoria | Padrão precedente | Trabalho P200B |
+|-----------|-------------------|-----------------|
+| **A — Sub-store novo** | P193B (`ResolvedLabelStore`) | `headings_for_toc: Vec<(Label, Content, usize)>` em `TagIntrospector` (8º → 9º) |
+| **B — Variant Tag pós-recursão locatable** | Variante P196B (Heading auto-toc) | `ElementPayload::HeadingForToc { label, body, level }` (12ª → 13ª variant) emitida pelo walk arm Heading com `emitted_loc` directo |
+| **C — Consumer migration substitution-with-fallback** | P184D (figure ref-arm) / P194B (text ref-arm) | `outline.rs:24` migrado para tentar Introspector primeiro, fallback legacy |
+
+### Trabalho concreto em P200B
+
+1. **Sub-store novo** em `entities/introspector.rs`:
+   `pub headings_for_toc: Vec<(Label, Content, usize)>` em
+   `TagIntrospector` + trait method `headings_for_toc(&self)`
+   (trait passa de 19 → 20 métodos).
+
+2. **Variant nova** em `entities/element_payload.rs`:
+   `ElementPayload::HeadingForToc { label: Label, body: Content,
+   level: usize }` (12ª → 13ª variant). Não há
+   `ElementKind::HeadingForToc` correspondente — HeadingForToc
+   é Tag derivada de Heading (não Content standalone).
+
+3. **Helper `compute_heading_for_toc`** privado em
+   `rules/introspect.rs` (4º helper na família ADR-0069
+   stylesheet após `compute_labelled` P195D,
+   `compute_heading_auto_toc` P196B, `compute_figure` P197B).
+   Função pura `(state, frozen_body, level) → Option<(Label,
+   Content, usize)>`. Sempre `Some` — paridade com mutação 4
+   legacy (push incondicional).
+
+4. **Walk arm Heading** modificado: emitir 3ª Tag pós-recursão
+   `Tag::HeadingForToc` após `Tag::Labelled` auto-toc P196B.
+   Mesma `emitted_loc`. Mutação 4 legacy
+   (`state.headings_for_toc.push`) **preservada** como write
+   paralelo M5 (Layouter assignments `mod.rs:1490, 1521`
+   dependem).
+
+5. **`from_tags` arm `HeadingForToc`** em
+   `rules/introspect/from_tags.rs`: push directo em
+   `intr.headings_for_toc.push((label, body, level))`.
+
+6. **Consumer outline.rs:24** migrado para
+   substitution-with-fallback (Introspector first; legacy
+   fallback).
+
+### Sequência de tags por Heading (após P200B)
+
+Para `Content::Heading { level: 1, body: text("Capítulo") }`:
+
+```
+Tag::Start(loc, Heading)               // walk top
+[recursive body tags]
+Tag::Start(loc, Labelled auto-toc-N)   // P196B
+Tag::End(loc, 0)
+Tag::Start(loc, HeadingForToc)         // P200B (NOVO)
+Tag::End(loc, 0)
+Tag::End(loc, hash_content(heading))   // walk bottom
+```
+
+**6 tags por Heading folha** (era 4 pós-P196B). 3 pares
+Start/End válidos — bracketing preservado.
+
+### Estado após P200B
+
+- **E2-residuo fecha estruturalmente** — `intr.headings_for_toc`
+  populated via Tag::HeadingForToc. Sub-store agora cobre
+  semântica completa (auto-label + body + level).
+- **Lacuna #3 fecha**.
+- **E2 inteira fecha**: 3 mutações estruturalmente migradas em
+  P196B + 1 mutação estruturalmente migrada em P200B.
+- **M5 universal completo** — 0 excepções activas + 0 residuos
+  + 0 pré-requisitos restantes.
+- Output observable em produção **inalterado** —
+  substitution-with-fallback no consumer outline garante
+  paridade; sub-store fornece dados; legacy fica funcional
+  como backup.
+
+### Mutação legacy preservada (M6)
+
+Mutação 4 (`state.headings_for_toc.push`) continua activa
+porque Layouter assignments (`mod.rs:1490, 1521`) fazem
+`l.counter.headings_for_toc = initial_state.headings_for_toc`.
+Mover para Introspector path completo exige refactor
+cross-modular — domínio de **M6 (P190A reescrita do zero —
+eliminação `CounterStateLegacy`)**.
+
+### Cross-references
+
+- **P189B** — Outline migrado; declaração das 6 excepções +
+  Reserva 1 + lacuna #3.
+- **P193B** — sub-store `ResolvedLabelStore` (template
+  categoria A).
+- **P194B / P184D** — consumer migrations
+  substitution-with-fallback (template categoria C).
+- **P196B** — walk arm Heading auto-toc (Tag::Labelled
+  pós-recursão + 3 mutações migradas; declaração formal de
+  E2-residuo).
+- **P196A §11.5** — Tag auto-toc partilha Location com Tag
+  Heading (template para Tag HeadingForToc partilhar mesma
+  Location).
+- **ADR-0069** — pattern stylesheet (5 variantes operacionais
+  consolidadas). P200B é trabalho **híbrido**, não nova
+  variante.
+
+## Marco: M5 universal completo (P200B)
+
+**Primeira vez desde declaração em P189B**.
+
+Após **P200B**:
+- Todos walk arms cristalinos fechados estruturalmente:
+  - Outline migrado (P189B).
+  - Bibliography migrado (P181H).
+  - Labelled migrado estruturalmente (P195D).
+  - **Heading migrado estruturalmente** (P196B 3 mutações
+    + **P200B 4ª mutação**).
+  - Figure fechada estruturalmente (P197B — cenário α).
+  - SetHeadingNumbering fechada estruturalmente (P198B —
+    cenário α).
+  - CounterUpdate fechada estruturalmente (P198C — cenário
+    β-promote).
+  - SetEquationNumbering fechada estruturalmente (P199B —
+    cenário α por construção).
+- 0 excepções M5 activas.
+- 0 residuos.
+- 0 pré-requisitos restantes.
+
+**Desbloqueia M6 (P190A reescrita do zero — eliminação
+`CounterStateLegacy`; magnitude L cross-modular)**.
+
+Mutações legacy ainda activas como write paralelo M5
+(consumers `compute_*` helpers + Layouter assignments
+dependem). Cleanup orgânico em M6.

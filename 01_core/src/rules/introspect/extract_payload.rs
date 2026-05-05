@@ -65,6 +65,20 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
             update: StateUpdate::Set(Box::new(Value::Bool(*active))),
         }),
 
+        // P199B — SetEquationNumbering emite StateUpdate sob chave
+        // canónica `numbering_active:equation`. Reusa arm genérica
+        // `from_tags::StateUpdate` (P171/P173). Cenário α por
+        // construção (ADR-0069): toda infraestrutura downstream já
+        // pronta (Layouter equation.rs:32-33 substitution-with-fallback
+        // antes adormecida). Walk arm canonical em
+        // `introspect.rs:Content::SetEquationNumbering` continua
+        // write paralelo legacy (M6 elimina). Fecha Reserva 1 desde
+        // P189B (E1).
+        Content::SetEquationNumbering { active } => Some(ElementPayload::StateUpdate {
+            key:    "numbering_active:equation".to_string(),
+            update: StateUpdate::Set(Box::new(Value::Bool(*active))),
+        }),
+
         // P178 — Outline é unit. Payload também unit. Fecha lacuna #7.
         Content::Outline => Some(ElementPayload::Outline),
 

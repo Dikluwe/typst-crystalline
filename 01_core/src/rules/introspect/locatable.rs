@@ -48,6 +48,17 @@ pub fn is_locatable(content: &Content) -> bool {
         // continua write paralelo legacy (M6 elimina).
         Content::SetHeadingNumbering { .. } => true,
 
+        // ── Locatable em P199B — SetEquationNumbering emite
+        // `StateUpdate { key: "numbering_active:equation", ... }` via
+        // `extract_payload`. Reusa arm `from_tags::StateUpdate`
+        // (P171/P173) genérica. Materializa Reserva 1 (E1 P189B).
+        // Cenário α por construção (ADR-0069) — caminho Introspector
+        // activa imediatamente porque toda infraestrutura downstream
+        // já estava pronta (Layouter equation.rs:32-33
+        // substitution-with-fallback adormecida). Walk arm canonical
+        // continua write paralelo legacy (M6 elimina).
+        Content::SetEquationNumbering { .. } => true,
+
         // ── Locatable em P186D — Equation. Combinado com arm em
         // `extract_payload` (P186C) repõe invariante
         // `is_locatable ↔ extract_payload.is_some()`. `from_tags`

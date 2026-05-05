@@ -318,6 +318,24 @@ pub fn from_tags(
                             }
                         }
                     }
+                    // P200B (M5 universal completo) — popula sub-store
+                    // intr.headings_for_toc via Tag::HeadingForToc
+                    // emitida pelo walk arm Heading pós-recursão (3ª
+                    // Tag depois de Heading + Labelled auto-toc P196B;
+                    // mesma emitted_loc). Fecha E2-residuo (lacuna #3)
+                    // e completa estruturalmente E2.
+                    //
+                    // Mutação 4 legacy (state.headings_for_toc.push)
+                    // preservada como write paralelo M5 porque
+                    // Layouter assignments (mod.rs:1490, 1521)
+                    // dependem; cleanup orgânico em M6.
+                    ElementPayload::HeadingForToc { label, body, level } => {
+                        intr.headings_for_toc.push((
+                            label.clone(),
+                            body.clone(),
+                            *level,
+                        ));
+                    }
                 }
             }
             Tag::End(_, _) => {

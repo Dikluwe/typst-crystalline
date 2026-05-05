@@ -12,6 +12,15 @@ pub(super) fn layout_set_heading_numbering(counter: &mut CounterStateLegacy, act
     counter.numbering_active.insert("heading".to_string(), active);
 }
 
+/// Braço `SetEquationNumbering` (P199B) — activa/desactiva numeração de
+/// equations. Análoga a `layout_set_heading_numbering`. Não produz output
+/// visual. Mutação legacy é write paralelo M5: walk arm Equation +
+/// compute_labelled Equation arm (P195D) lêem `state.numbering_active`
+/// durante walk; cleanup orgânico em M6.
+pub(super) fn layout_set_equation_numbering(counter: &mut CounterStateLegacy, active: bool) {
+    counter.numbering_active.insert("equation".to_string(), active);
+}
+
 /// Braço `CounterUpdate` — avança ou força um contador.
 /// Não produz output visual.
 pub(super) fn layout_counter_update(
