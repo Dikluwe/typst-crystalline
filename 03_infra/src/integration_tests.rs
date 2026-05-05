@@ -18,7 +18,7 @@ mod integration {
     use typst_core::entities::module::Module;
     use typst_core::entities::source::Source;
     use typst_core::entities::source_result::SourceResult;
-    use typst_core::rules::introspect::introspect;
+    use typst_core::rules::introspect::{introspect, introspect_with_introspector};
     use typst_core::rules::layout::layout;
 
     use crate::export::export_pdf;
@@ -90,7 +90,7 @@ mod integration {
         let intro_state = introspect(content);
 
         // ── Layout (fixpoint acontece internamente em L1) ─────────────────
-        let doc = layout(content, intro_state);
+        let doc = layout(content);
 
         export_pdf(&doc)
     }
@@ -104,7 +104,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
     }
 
@@ -115,7 +115,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -131,7 +131,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
 
         if let Some(font) = world.font(0) {
             let pdf = crate::export::export_pdf_with_font(&doc, font.as_slice());
@@ -152,7 +152,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
     }
 
@@ -165,7 +165,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
     }
 
@@ -177,7 +177,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         // Confirmar ausência de "[" nos itens de texto
         for page in &doc.pages {
@@ -200,7 +200,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
     }
@@ -212,7 +212,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
@@ -226,7 +226,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
@@ -243,7 +243,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
@@ -258,7 +258,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
@@ -273,7 +273,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
@@ -288,7 +288,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
@@ -303,7 +303,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
         assert!(pdf_str.contains(" S ") || pdf_str.contains(" S Q"),
@@ -318,7 +318,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
@@ -333,7 +333,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
@@ -358,7 +358,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
@@ -373,7 +373,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
@@ -391,7 +391,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
@@ -405,7 +405,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
@@ -419,7 +419,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -433,7 +433,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -449,7 +449,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -463,7 +463,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -477,7 +477,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -491,7 +491,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -507,7 +507,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -521,7 +521,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -535,7 +535,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
         assert!(pdf_str.contains("BT") && pdf_str.contains("ET"),
@@ -552,7 +552,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -565,7 +565,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -578,7 +578,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -616,7 +616,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = crate::export::export_pdf_with_font(&doc, &data);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("<0028>"), "CMap deve ter U+0028 para parêntese de abertura");
@@ -826,7 +826,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty());
     }
@@ -905,7 +905,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         assert!(!doc.pages.is_empty());
         // Pipeline completo deve produzir PDF válido sem numeração
         let pdf = export_pdf(&doc);
@@ -952,7 +952,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty(), "PDF com #outline() não deve estar vazio");
     }
@@ -1063,7 +1063,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state  = introspect(content);
-        let doc    = layout(content, state);
+        let doc    = layout(content);
         let pdf    = export_pdf(&doc);
         let s      = String::from_utf8_lossy(&pdf);
 
@@ -1087,7 +1087,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state  = introspect(content);
-        let doc    = layout(content, state);
+        let doc    = layout(content);
         let pdf    = export_pdf(&doc);
         let s      = String::from_utf8_lossy(&pdf);
 
@@ -1111,13 +1111,14 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state  = introspect(content);
+        // P190H: state.figure_numbers eliminado; verificação via intr.
+        let intr = introspect_with_introspector(content);
 
-        let image_nums = state.figure_numbers.get("image").cloned().unwrap_or_default();
-        assert_eq!(image_nums, vec![1],
-            "Uma figura de imagem deve produzir figure_numbers[\"image\"] = [1]");
+        use typst_core::entities::introspector::Introspector;
+        assert_eq!(intr.figure_number_at_index("image", 0), Some(1),
+            "Uma figura de imagem deve produzir intr.figure_number_at_index(image, 0) = 1");
 
-        let doc = layout(content, state);
+        let doc = layout(content);
         let pdf = export_pdf(&doc);
         assert!(!pdf.is_empty(), "PDF não pode estar vazio");
     }
@@ -1180,7 +1181,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
         let pdf     = export_pdf(&doc);
 
         let pdf_str = String::from_utf8_lossy(&pdf);
@@ -1219,7 +1220,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
         let pdf     = export_pdf(&doc);
 
         let pdf_str = String::from_utf8_lossy(&pdf);
@@ -1253,7 +1254,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
         let pdf     = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
@@ -1273,7 +1274,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
         let pdf     = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
@@ -1307,7 +1308,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
         let pdf     = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
@@ -1331,7 +1332,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
         let pdf     = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
@@ -1354,7 +1355,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
         let pdf     = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
@@ -1377,7 +1378,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         assert_eq!(doc.pages.len(), 2,
             "SetPage com conteúdo deve criar 2 páginas");
@@ -1397,7 +1398,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         assert_eq!(doc.pages.len(), 1,
             "SetPage sem conteúdo anterior não deve criar página extra");
@@ -1418,7 +1419,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         assert_eq!(doc.pages.len(), 3);
         assert!(doc.pages[0].width > 500.0, "Página 1 deve ser A4");
@@ -1438,7 +1439,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         // available_width = 400 - 2*20 = 360pt; cada 1fr = 180pt.
         // O segundo item (célula B) deve começar em margin + 180 = 200pt.
@@ -1469,7 +1470,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
         let pdf     = export_pdf(&doc);
 
         let pdf_str = String::from_utf8_lossy(&pdf);
@@ -1517,7 +1518,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        layout(content, state)
+        layout(content)
     }
 
     /// Extrai a posição primária de qualquer `FrameItem`.
@@ -1712,7 +1713,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         let items = &doc.pages[0].items;
         assert!(!items.is_empty(), "Deve haver pelo menos um item");
@@ -1737,7 +1738,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         let rect_x = frame_item_pos(&doc.pages[0].items[0]).x.0;
         assert!(
@@ -1771,7 +1772,7 @@ mod integration {
             let module  = do_eval(&world, &source).unwrap();
             let content = module.content().expect("deve ter content");
             let state   = introspect(content);
-            layout(content, state)
+            layout(content)
         };
 
         let doc_sem   = layout_doc(src_sem_place);
@@ -1840,7 +1841,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         let items = &doc.pages[0].items;
         assert_eq!(items.len(), 3, "Deve haver 3 FrameItems (um por célula)");
@@ -1878,7 +1879,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         let items = &doc.pages[0].items;
         assert!(!items.is_empty(), "Deve haver pelo menos um item");
@@ -1910,7 +1911,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         let items = &doc.pages[0].items;
         assert_eq!(items.len(), 2);
@@ -1955,7 +1956,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         let items = &doc.pages[0].items;
         assert_eq!(items.len(), 4, "Deve haver 4 FrameItems, obteve {}", items.len());
@@ -1988,7 +1989,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         let items = &doc.pages[0].items;
         assert!(!items.is_empty(), "Deve haver pelo menos um item");
@@ -2016,7 +2017,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         let items = &doc.pages[0].items;
         assert!(!items.is_empty(), "Deve haver pelo menos um item");
@@ -2063,7 +2064,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         let items = &doc.pages[0].items;
         assert!(!items.is_empty(), "Deve haver pelo menos um item");
@@ -2098,7 +2099,7 @@ mod integration {
         let module  = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state   = introspect(content);
-        let doc     = layout(content, state);
+        let doc     = layout(content);
 
         let items = &doc.pages[0].items;
         assert!(!items.is_empty(), "Deve haver pelo menos um item");
@@ -2543,7 +2544,7 @@ mod integration {
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
-        layout(content, state)
+        layout(content)
     }
 
     fn count_hyphenated_words(

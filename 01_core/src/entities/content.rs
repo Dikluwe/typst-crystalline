@@ -16,7 +16,7 @@ use std::sync::Arc;
 
 use ecow::EcoString;
 
-use crate::entities::counter_state_legacy::CounterAction;
+use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
 use crate::entities::dir::Dir;

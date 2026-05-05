@@ -21,23 +21,18 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Na Passagem 2 (draft) estará vazio — TOC sem números.
 /// Na Passagem 3 (final) terá os dados reais — TOC com páginas correctas.
 pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(layouter: &mut Layouter<M, S>) {
-    // P200B (M5 universal completo) — substitution-with-fallback per
-    // padrão P184D / P194B. Caminho Introspector activa após walk
-    // arm Heading emitir Tag::HeadingForToc (3ª Tag pós-recursão);
-    // sub-store `intr.headings_for_toc` populated via from_tags arm.
-    // Fallback legacy preservado durante janela compat M5; cleanup
-    // orgânico em M6 quando Layouter assignments
-    // (`mod.rs:1490, 1521`) forem eliminados.
+    // P200B (M5 universal completo) — caminho Introspector activo via
+    // Tag::HeadingForToc pós-recursão (3ª Tag emitida pelo walk arm
+    // Heading); sub-store `intr.headings_for_toc` populated via
+    // populate_intr_from_tag_start arm HeadingForToc.
+    //
+    // P190G (M6 categoria Labels & TOC): fallback legacy
+    // `counter.headings_for_toc` ELIMINADO — field eliminado de
+    // CounterStateLegacy. P184D / P194B substitution-with-fallback
+    // colapsa em Introspector path puro.
     //
     // Clonar o vector antes do loop para evitar borrow duplo de `layouter`.
-    let entries: Vec<(_, _, _)> = {
-        let intr_entries = layouter.introspector.headings_for_toc();
-        if !intr_entries.is_empty() {
-            intr_entries.to_vec()
-        } else {
-            layouter.counter.headings_for_toc.clone()
-        }
-    };
+    let entries: Vec<(_, _, _)> = layouter.introspector.headings_for_toc().to_vec();
 
     // Título da TOC — fora do modo read-only (não contém efeitos colaterais).
     layouter.layout_content(&Content::heading(1, Content::text("Índice")));
@@ -48,7 +43,9 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(layouter: &mut Layou
         // Ler página ANTES de activar is_readonly — evita borrow duplo.
         // Na iteração 0, known_page_numbers está vazio → string vazia.
         // Nas iterações seguintes, known_page_numbers tem os dados → "  N".
-        let page_num = layouter.counter.known_page_numbers.get(&label)
+        // P190C (M6 categoria Page tracking): known_page_numbers movido
+        // para LayouterRuntimeState.
+        let page_num = layouter.runtime.known_page_numbers.get(&label)
             .map(|p| format!("  {}", p))
             .unwrap_or_default();
 
@@ -68,9 +65,14 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(layouter: &mut Layou
 
         // Activar is_readonly antes do layout para bloquear CounterUpdate/step
         // durante a renderização do clone (DEBT-13).
-        layouter.counter.is_readonly = true;
+        // P190D (M6 categoria Document metadata): is_readonly movido
+        // para LayouterRuntimeState (Layouter-runtime — não derivado
+        // de Content pre-pass). Guard movido de
+        // CounterStateLegacy::step_* para
+        // counters::layout_counter_update.
+        layouter.runtime.is_readonly = true;
         layouter.layout_content(&line);
         // Restaurar DEPOIS do layout — a protecção deve cobrir toda a execução.
-        layouter.counter.is_readonly = false;
+        layouter.runtime.is_readonly = false;
     }
 }

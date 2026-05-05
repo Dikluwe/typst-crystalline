@@ -25,7 +25,7 @@ use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 #[cfg(test)]
-use crate::entities::counter_state_legacy::CounterAction;
+use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::label::Label;
 use crate::entities::ast::expr::{ArrayItem, Expr};
 #[cfg(test)]

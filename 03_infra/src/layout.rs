@@ -6,7 +6,7 @@
 
 use typst_core::{
     entities::{content::Content, layout_types::PagedDocument},
-    rules::{introspect::introspect, layout::Layouter},
+    rules::layout::Layouter,
 };
 
 use crate::font_metrics::FontBookMetrics;
@@ -26,8 +26,8 @@ pub fn layout_with_font(
         l.layout_content(content);
         l.finish()
     } else {
-        let state = introspect(content);
-        typst_core::rules::layout::layout(content, state)
+        // P190I (M6 fechado): layout() já não recebe state.
+        typst_core::rules::layout::layout(content)
     }
 }
 

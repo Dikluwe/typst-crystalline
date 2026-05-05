@@ -19,7 +19,7 @@
 //! Vanilla equivalente: `comemo::analyze::analyze` + memoization.
 
 use crate::entities::content::Content;
-use crate::entities::counter_state_legacy::CounterStateLegacy;
+// P190I (M6 fechado): CounterStateLegacy eliminado.
 use crate::entities::engine::Engine;
 use crate::entities::introspector::TagIntrospector;
 use crate::entities::locator::Locator;
@@ -27,7 +27,7 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::tag::Tag;
 use crate::rules::eval::EvalContext;
 use crate::rules::introspect::convergence::compute_tags_hash;
-use crate::rules::introspect::from_tags::from_tags;
+use crate::rules::introspect::from_tags::apply_state_funcs;
 
 /// Hard cap de iterações. Paridade com vanilla (5).
 pub const MAX_FIXPOINT_ITERATIONS: usize = 5;
@@ -66,7 +66,7 @@ pub fn run_fixpoint<F>(
     engine: &mut Engine<'_>,
     ctx:    &mut EvalContext,
     mut eval_step: F,
-) -> Result<(CounterStateLegacy, TagIntrospector), FixpointError>
+) -> Result<TagIntrospector, FixpointError>
 where
     F: FnMut(&mut Engine<'_>, &mut EvalContext) -> SourceResult<Content>,
 {
@@ -78,19 +78,31 @@ where
 
         let content = eval_step(engine, ctx).map_err(FixpointError::Eval)?;
 
-        let mut state = CounterStateLegacy::new();
         let mut locator = Locator::new();
         let mut tags: Vec<Tag> = Vec::new();
+        let mut introspector = TagIntrospector::empty();
+        // P190G (M6 categoria Labels & TOC): `auto_label_counter`
+        // local var (Opção α) — substitui field
+        // `CounterStateLegacy::auto_label_counter` eliminado.
+        let mut auto_label_counter: usize = 0;
+        // P191B (ADR-0071): walk popula `introspector` directamente
+        // durante walk via `populate_intr_from_tag_start`. Funcs
+        // deferred para `apply_state_funcs` (post-pass slim que
+        // requer Engine+ctx).
+        // P190I (M6 fechado): walk fn drop `state` parameter (struct
+        // CounterStateLegacy eliminada). Adiciona `lang: Option<&Lang>`
+        // — `None` aqui (fixpoint não exercita lang feature).
         crate::rules::introspect::walk(
-            &content, &mut state, &mut locator, &mut tags, None,
+            &content, &mut locator, &mut tags,
+            &mut introspector, &mut auto_label_counter, None, None,
         );
 
         let curr_hash = compute_tags_hash(&tags);
-        let introspector = from_tags(&tags, Some(engine), Some(ctx));
+        apply_state_funcs(&tags, &mut introspector, engine, ctx);
 
         if let Some(prev_hash) = prev_tags_hash {
             if prev_hash == curr_hash {
-                return Ok((state, introspector));
+                return Ok(introspector);
             }
         }
 
@@ -113,7 +125,7 @@ pub fn introspect_to_fixpoint<F>(
     engine:    &mut Engine<'_>,
     ctx:       &mut EvalContext,
     eval_step: F,
-) -> Result<(CounterStateLegacy, TagIntrospector), FixpointError>
+) -> Result<TagIntrospector, FixpointError>
 where
     F: FnMut(&mut Engine<'_>, &mut EvalContext) -> SourceResult<Content>,
 {
@@ -202,7 +214,7 @@ mod tests {
             })
         });
         assert!(matches!(result, Ok(_)));
-        let (_, intr) = result.unwrap();
+        let intr = result.unwrap();
         // Heading indexado.
         use crate::entities::introspector::Introspector;
         use crate::entities::element_kind::ElementKind;
@@ -313,7 +325,7 @@ mod tests {
             })
         });
         assert!(matches!(result, Ok(_)));
-        let (_, intr) = result.unwrap();
+        let intr = result.unwrap();
         // Selector::Kind(Heading) retorna ambas locations.
         let locs = intr.query(&Selector::Kind(ElementKind::Heading));
         assert_eq!(locs.len(), 2);
@@ -389,7 +401,7 @@ mod tests {
             })
         });
         assert!(matches!(result, Ok(_)));
-        let (_, intr) = result.unwrap();
+        let intr = result.unwrap();
         // Formatted counter retorna string não-vazia para heading.
         let formatted = intr.formatted_counter("heading");
         assert!(formatted.is_some(), "counter heading deve estar populado");
@@ -431,7 +443,7 @@ mod tests {
             })
         });
         assert!(matches!(result, Ok(_)));
-        let (_, intr) = result.unwrap();
+        let intr = result.unwrap();
         assert_eq!(intr.formatted_counter("heading"), None);
     }
 
@@ -465,7 +477,7 @@ mod tests {
             })
         });
         assert!(matches!(result, Ok(_)));
-        let (_, intr) = result.unwrap();
+        let intr = result.unwrap();
 
         // Locations das labels.
         let loc_intro = intr.query_by_label(&Label("intro".to_string()));
@@ -500,7 +512,7 @@ mod tests {
             })
         });
         assert!(matches!(result, Ok(_)));
-        let (_, intr) = result.unwrap();
+        let intr = result.unwrap();
         assert_eq!(intr.query_by_label(&Label("nonexistent".to_string())), None);
     }
 
@@ -520,7 +532,7 @@ mod tests {
             })
         });
         assert!(matches!(result, Ok(_)));
-        let (_, intr) = result.unwrap();
+        let intr = result.unwrap();
         // Outline indexado.
         assert_eq!(intr.query_by_kind(ElementKind::Outline).len(), 1);
     }
@@ -539,7 +551,7 @@ mod tests {
             })
         });
         assert!(matches!(result, Ok(_)));
-        let (_, intr) = result.unwrap();
+        let intr = result.unwrap();
         assert_eq!(intr.query(&Selector::Kind(ElementKind::Outline)).len(), 0);
     }
 
@@ -564,7 +576,7 @@ mod tests {
             })
         });
         assert!(matches!(result, Ok(_)));
-        let (_, intr) = result.unwrap();
+        let intr = result.unwrap();
         assert_eq!(intr.query(&Selector::Kind(ElementKind::Outline)).len(), 1);
     }
 

@@ -11,7 +11,7 @@
 use crate::entities::ast::code::{LetBinding, LetBindingKind};
 use crate::entities::ast::expr::{Arg, Expr};
 use crate::entities::content::Content;
-use crate::entities::counter_state_legacy::CounterAction;
+use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::engine::Engine;
 use crate::entities::source_result::SourceResult;
 use crate::entities::value::Value;

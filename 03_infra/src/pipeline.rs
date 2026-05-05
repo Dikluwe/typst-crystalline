@@ -23,7 +23,8 @@ use typst_core::entities::source::Source;
 use typst_core::entities::source_result::{SourceDiagnostic, SourceResult};
 use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
 use typst_core::rules::eval::eval;
-use typst_core::rules::introspect::introspect;
+// P190I (M6 fechado): introspect import removido — layout() corre
+// introspect_with_introspector internamente.
 use typst_core::rules::layout::layout;
 
 use crate::export::{export_pdf, export_pdf_multifont, export_pdf_with_font};
@@ -79,8 +80,9 @@ pub fn compile_to_pdf_bytes(
         Some(c) => c,
         None => return (Ok(Vec::new()), warnings),
     };
-    let state = introspect(content);
-    let doc   = layout(content, state);
+    // P190I (M6 fechado): layout() corre introspect_with_introspector
+    // internamente — sem state parameter.
+    let doc = layout(content);
     // Passo 146 (ADR-0055 decisão 5): dispatch multi-font.
     // 0 fonts resolvidos → fallback Helvetica.
     // 1 font resolvido → preserva caminho single-font do 140B/141.

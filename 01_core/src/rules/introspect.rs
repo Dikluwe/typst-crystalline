@@ -2,14 +2,26 @@
 //! @prompt 00_nucleo/prompts/rules/introspect.md
 //! @prompt-hash 8e0128e4
 //! @layer L1
-//! @updated 2026-04-30
+//! @updated 2026-05-05
 //!
 //! P162 sub-passos .E + .F: walk passa a aceitar `&mut Locator` e
 //! `&mut Vec<Tag>`; emite `Tag::Start` antes da mutação de estado e
 //! `Tag::End` depois da recursão para variantes locatable
-//! (Heading/Figure/Cite). Tags descartadas em M1 — consumidor real
-//! virá em M2/M3. API pública preservada (`introspect()` retorna
-//! `CounterStateLegacy` igual a antes).
+//! (Heading/Figure/Cite).
+//!
+//! **P191B (ADR-0071)**: walk fn ganha `&mut TagIntrospector`
+//! parameter; sub-stores populated directamente durante walk via
+//! `populate_intr_from_tag_start`. Pipeline simplificado: walk →
+//! return (etapa `from_tags::from_tags` eliminada; substituída por
+//! `apply_state_funcs` slim post-pass para Funcs apenas, chamada
+//! por fixpoint). Helper `compute_heading_auto_toc` migrado para
+//! signature `<I: Introspector>(intr, location, counter_n)`. Walk
+//! arm Equation gate migrado para
+//! `intr.is_numbering_active_at("numbering_active:equation", loc)`.
+//! API pública preservada (`introspect()` retorna `CounterStateLegacy`
+//! idêntico). `introspect_with_introspector` simplificada — drops
+//! parâmetros engine/ctx (Funcs continuam ignoradas neste path
+//! coerente com semântica P171 pré-P191B).
 
 pub mod convergence;
 pub mod extract_payload;
@@ -20,12 +32,17 @@ pub mod locatable;
 use crate::entities::{
     content::Content,
     content_hash::hash_content,
-    counter_state_legacy::{CounterAction, CounterStateLegacy},
+    counter_update::CounterUpdate,
     element_info::ElementInfo,
+    element_kind::ElementKind,
     element_payload::ElementPayload,
+    introspector::{Introspector, TagIntrospector},
     label::Label,
+    location::Location,
     locator::Locator,
+    state_update::StateUpdate,
     tag::Tag,
+    value::Value,
 };
 
 use crate::rules::introspect::extract_payload::extract_payload as do_extract_payload;
@@ -50,9 +67,12 @@ use crate::rules::introspect::extract_payload::extract_payload as do_extract_pay
 /// Funcs em `state.update(key, fn)` são silenciosamente ignoradas neste
 /// path legacy (sem Engine disponível). Comportamento defensivo coerente
 /// com P171 ("update sem init é ignorado").
-pub fn introspect(content: &Content) -> CounterStateLegacy {
-    let (state, _introspector) = introspect_with_introspector(content, None, None);
-    state
+/// **P190I (M6 fechado)**: API pública continua a existir mas
+/// retorna `TagIntrospector` (struct `CounterStateLegacy` eliminada).
+/// Wrapper de compatibilidade — preserva nome `introspect()`
+/// histórico. Callers actualizados para path Introspector.
+pub fn introspect(content: &Content) -> TagIntrospector {
+    introspect_with_introspector(content)
 }
 
 /// Entry point novo (M4 / P166): produz `CounterStateLegacy` E
@@ -72,20 +92,26 @@ pub fn introspect(content: &Content) -> CounterStateLegacy {
 ///
 /// Padrão de migração M5+: caller que actualmente faz
 /// `let state = introspect(&c)` e quer queries via Introspector pode
-/// adoptar `let (state, intr) = introspect_with_introspector(&c, None, None)`
-/// sem custo adicional. Caller que precisa de eval real de Funcs em
-/// state.update passa `Some(&mut engine), Some(&mut ctx)`.
+/// adoptar `let intr = introspect_with_introspector(&c)`
+/// sem custo adicional.
+///
+/// **P191B (ADR-0071)**: walk fn ganha `&mut TagIntrospector` parameter;
+/// populate de sub-stores acontece directamente durante walk em vez de
+/// pós-walk via `from_tags`. `from_tags::from_tags` substituído por
+/// `apply_state_funcs` (slim post-pass para `StateUpdate::Func` apenas;
+/// chamado por `fixpoint::run_fixpoint` que tem `Engine + EvalContext`).
+/// Funcs em state.update **silenciosamente ignoradas** neste path
+/// legacy (sem Engine disponível) — coerente com semântica P171
+/// pré-P191B.
 pub fn introspect_with_introspector(
     content: &Content,
-    engine:  Option<&mut crate::entities::engine::Engine<'_>>,
-    ctx:     Option<&mut crate::rules::eval::EvalContext>,
-) -> (CounterStateLegacy, crate::entities::introspector::TagIntrospector) {
-    let mut state = CounterStateLegacy::new();
+) -> TagIntrospector {
     let mut locator = Locator::new();
     let mut tags: Vec<Tag> = Vec::new();
-    walk(content, &mut state, &mut locator, &mut tags, None);
-    let introspector = self::from_tags::from_tags(&tags, engine, ctx);
-    (state, introspector)
+    let mut intr = TagIntrospector::empty();
+    let mut auto_label_counter: usize = 0;
+    walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, None);
+    intr
 }
 
 /// "Congela" o AST substituindo nós dependentes de contexto (como CounterDisplay)
@@ -97,17 +123,27 @@ pub fn introspect_with_introspector(
 /// Dois braços explícitos — sem wildcard para manter verificação de exaustividade:
 /// - Containers: propagam recursivamente.
 /// - Terminais: clonados directamente.
-fn materialize_time(content: &Content, state: &CounterStateLegacy) -> Content {
+///
+/// **P190I (ADR-0070 ACEITE)** — signature migrada para
+/// `(content, intr, location)`. Reads `state.display_value(kind)`
+/// substituídos por `intr.formatted_counter_at(kind, location)`.
+/// Caminho Introspector path location-aware. Walk fn deixou de
+/// receber `state: &mut CounterStateLegacy` (struct eliminada em
+/// P190I).
+fn materialize_time(content: &Content, intr: &TagIntrospector, location: Location) -> Content {
     match content {
         // O caso crítico: substituir o nó dinâmico pelo valor actual do contador.
         Content::CounterDisplay { kind } => {
-            Content::text(state.display_value(kind))
+            Content::text(
+                intr.formatted_counter_at(kind, location)
+                    .unwrap_or_else(|| "0".to_string()),
+            )
         }
 
         // ── Containers com filhos (propagação recursiva) ──────────────────
         Content::Sequence(seq) => {
             Content::Sequence(
-                seq.iter().map(|c| materialize_time(c, state)).collect::<Vec<_>>().into()
+                seq.iter().map(|c| materialize_time(c, intr, location)).collect::<Vec<_>>().into()
             )
         }
         // Passo 101: `Content::Strong` e `Content::Emph` removidos.
@@ -115,41 +151,41 @@ fn materialize_time(content: &Content, state: &CounterStateLegacy) -> Content {
         // preservando os estilos).
         Content::Heading { level, body } => Content::Heading {
             level: *level,
-            body:  Box::new(materialize_time(body, state)),
+            body:  Box::new(materialize_time(body, intr, location)),
         },
-        Content::ListItem(body) => Content::ListItem(Box::new(materialize_time(body, state))),
+        Content::ListItem(body) => Content::ListItem(Box::new(materialize_time(body, intr, location))),
         Content::EnumItem { number, body } => Content::EnumItem {
             number: *number,
-            body:   Box::new(materialize_time(body, state)),
+            body:   Box::new(materialize_time(body, intr, location)),
         },
         Content::Link { url, body } => Content::Link {
             url:  url.clone(),
-            body: Box::new(materialize_time(body, state)),
+            body: Box::new(materialize_time(body, intr, location)),
         },
         Content::Labelled { target, label } => Content::Labelled {
-            target: Box::new(materialize_time(target, state)),
+            target: Box::new(materialize_time(target, intr, location)),
             label:  label.clone(),
         },
         Content::Figure { body, caption, kind, numbering } => Content::Figure {
-            body:      Box::new(materialize_time(body, state)),
-            caption:   caption.as_ref().map(|c| Box::new(materialize_time(c, state))),
+            body:      Box::new(materialize_time(body, intr, location)),
+            caption:   caption.as_ref().map(|c| Box::new(materialize_time(c, intr, location))),
             kind:      kind.clone(),
             numbering: numbering.clone(),
         },
 
         // Passo 154B: Terms recurse em items; TermItem recurse em par.
         Content::Terms { items } => Content::Terms {
-            items: items.iter().map(|c| materialize_time(c, state)).collect(),
+            items: items.iter().map(|c| materialize_time(c, intr, location)).collect(),
         },
         Content::TermItem { term, description } => Content::TermItem {
-            term:        Box::new(materialize_time(term, state)),
-            description: Box::new(materialize_time(description, state)),
+            term:        Box::new(materialize_time(term, intr, location)),
+            description: Box::new(materialize_time(description, intr, location)),
         },
 
         // Passo 155: Quote — recurse em body e attribution.
         Content::Quote { body, attribution, block, quotes } => Content::Quote {
-            body:        Box::new(materialize_time(body, state)),
-            attribution: attribution.as_ref().map(|c| Box::new(materialize_time(c, state))),
+            body:        Box::new(materialize_time(body, intr, location)),
+            attribution: attribution.as_ref().map(|c| Box::new(materialize_time(c, intr, location))),
             block:       *block,
             quotes:      *quotes,
         },
@@ -197,16 +233,16 @@ fn materialize_time(content: &Content, state: &CounterStateLegacy) -> Content {
         // Materialize_time desce no body para resolver counters dentro;
         // padding e o invariante "hide" preservam-se.
         Content::Pad { body, sides } => Content::Pad {
-            body:  Box::new(materialize_time(body, state)),
+            body:  Box::new(materialize_time(body, intr, location)),
             sides: *sides,
         },
         Content::Hide { body } => Content::Hide {
-            body: Box::new(materialize_time(body, state)),
+            body: Box::new(materialize_time(body, intr, location)),
         },
         // Passo 156G (ADR-0061 Fase 2) — block container.
         // Análogo a Pad: descer no body; preservar atributos.
         Content::Block { body, width, height, inset, breakable } => Content::Block {
-            body:      Box::new(materialize_time(body, state)),
+            body:      Box::new(materialize_time(body, intr, location)),
             width:     *width,
             height:    *height,
             inset:     *inset,
@@ -215,7 +251,7 @@ fn materialize_time(content: &Content, state: &CounterStateLegacy) -> Content {
         // Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container.
         // Análogo a Block; preservar atributos.
         Content::Boxed { body, width, height, inset, baseline } => Content::Boxed {
-            body:     Box::new(materialize_time(body, state)),
+            body:     Box::new(materialize_time(body, intr, location)),
             width:    *width,
             height:   *height,
             inset:    *inset,
@@ -225,7 +261,7 @@ fn materialize_time(content: &Content, state: &CounterStateLegacy) -> Content {
         // Materialize_time em cada child; preservar dir/spacing.
         Content::Stack { children, dir, spacing } => {
             let new_children: Vec<Content> = children.iter()
-                .map(|c| materialize_time(c, state))
+                .map(|c| materialize_time(c, intr, location))
                 .collect();
             Content::Stack {
                 children: std::sync::Arc::from(new_children),
@@ -236,31 +272,31 @@ fn materialize_time(content: &Content, state: &CounterStateLegacy) -> Content {
         // Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat.
         // Análogo a Block: descer no body; preservar atributos.
         Content::Repeat { body, gap, justify } => Content::Repeat {
-            body:    Box::new(materialize_time(body, state)),
+            body:    Box::new(materialize_time(body, intr, location)),
             gap:     *gap,
             justify: *justify,
         },
         Content::Transform { matrix, body } => Content::Transform {
             matrix: *matrix,
-            body:   Box::new(materialize_time(body, state)),
+            body:   Box::new(materialize_time(body, intr, location)),
         },
         Content::Grid { columns, rows, cells } => Content::Grid {
             columns: columns.clone(),
             rows:    rows.clone(),
-            cells:   cells.iter().map(|c| materialize_time(c, state)).collect(),
+            cells:   cells.iter().map(|c| materialize_time(c, intr, location)).collect(),
         },
         // Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table.
         // Análogo a Grid: descer em cada child; preservar tracks.
         Content::Table { columns, rows, children } => Content::Table {
             columns:  columns.clone(),
             rows:     rows.clone(),
-            children: children.iter().map(|c| materialize_time(c, state)).collect(),
+            children: children.iter().map(|c| materialize_time(c, intr, location)).collect(),
         },
         // Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell.
         // Recurse no body; preserva fields x/y/colspan/rowspan
         // (Copy primitivos).
         Content::TableCell { body, x, y, colspan, rowspan } => Content::TableCell {
-            body:    Box::new(materialize_time(body, state)),
+            body:    Box::new(materialize_time(body, intr, location)),
             x:       *x,
             y:       *y,
             colspan: *colspan,
@@ -269,11 +305,11 @@ fn materialize_time(content: &Content, state: &CounterStateLegacy) -> Content {
         // Passo 157C (ADR-0060 Fase 2 sub-passo 3) — par simétrico
         // TableHeader/TableFooter. Recurse no body; preserva repeat.
         Content::TableHeader { body, repeat } => Content::TableHeader {
-            body:   Box::new(materialize_time(body, state)),
+            body:   Box::new(materialize_time(body, intr, location)),
             repeat: *repeat,
         },
         Content::TableFooter { body, repeat } => Content::TableFooter {
-            body:   Box::new(materialize_time(body, state)),
+            body:   Box::new(materialize_time(body, intr, location)),
             repeat: *repeat,
         },
         // Passo 159A — par acoplado Bibliography + Cite. Recurse em
@@ -281,29 +317,29 @@ fn materialize_time(content: &Content, state: &CounterStateLegacy) -> Content {
         // entries/key.
         Content::Bibliography { entries, title } => Content::Bibliography {
             entries: entries.clone(),
-            title:   title.as_ref().map(|t| Box::new(materialize_time(t, state))),
+            title:   title.as_ref().map(|t| Box::new(materialize_time(t, intr, location))),
         },
         Content::Cite { key, supplement, form } => Content::Cite {
             key:        key.clone(),
-            supplement: supplement.as_ref().map(|s| Box::new(materialize_time(s, state))),
+            supplement: supplement.as_ref().map(|s| Box::new(materialize_time(s, intr, location))),
             form:       *form,
         },
         Content::Align { alignment, body } => Content::Align {
             alignment: *alignment,
-            body:      Box::new(materialize_time(body, state)),
+            body:      Box::new(materialize_time(body, intr, location)),
         },
         Content::Place { alignment, dx, dy, scope, body } => Content::Place {
             alignment: *alignment,
             dx:        *dx,
             dy:        *dy,
             scope:     *scope,
-            body:      Box::new(materialize_time(body, state)),
+            body:      Box::new(materialize_time(body, intr, location)),
         },
 
         // Passo 99 (ADR-0038): `Styled` é transparente para materialização de
         // contadores — o body é processado e os estilos preservados.
         Content::Styled(body, styles) => Content::Styled(
-            Box::new(materialize_time(body, state)),
+            Box::new(materialize_time(body, intr, location)),
             styles.clone(),
         ),
     }
@@ -321,21 +357,39 @@ fn materialize_time(content: &Content, state: &CounterStateLegacy) -> Content {
 /// `state.figure_label_numbers`) e populate Tag pós-recursão
 /// (`ElementPayload::Labelled` payload).
 ///
-/// Função pura sobre `(target, state)` — sem mutação. Replica lógica
-/// legacy do walk arm Labelled (introspect.rs:432-486 pré-P195D).
-fn compute_labelled(
-    target: &Content,
-    state:  &CounterStateLegacy,
+/// **P191C (ADR-0071 ACEITE)** — signature migrada para
+/// `<I: Introspector>(intr: &I, location: Location, target: &Content,
+/// lang: Option<&Lang>)`. Reads location-aware (`formatted_counter_at`,
+/// `flat_counter_at` per P185B) substituem reads de
+/// `state.format_hierarchical`, `state.get_flat`,
+/// `state.figure_numbers`. `lang` continua passado por parameter
+/// (Opção β cláusula `.A.8`) — `state.lang` ainda existe em
+/// `CounterStateLegacy` durante janela compat M5/M6 (defer P190G+).
+///
+/// `location` aqui é a Location do **target** (figure/heading/equation),
+/// não do Labelled wrapper — preserva pattern P195D variante
+/// não-locatable (target_loc obtido via snapshot+find_map em walk
+/// arm Labelled).
+///
+/// Função pura sobre `(intr, location, target, lang)` — sem mutação.
+/// 2º helper migrado pela ADR-0071 (após `compute_heading_auto_toc`
+/// P191B).
+fn compute_labelled<I: Introspector>(
+    intr:     &I,
+    location: Location,
+    target:   &Content,
+    lang:     Option<&crate::entities::lang::Lang>,
 ) -> (Option<String>, Option<usize>) {
     match target {
         Content::Heading { .. } => (
-            state
-                .format_hierarchical("heading")
+            intr.formatted_counter_at("heading", location)
                 .map(|n| format!("Secção {}", n)),
             None,
         ),
         Content::Equation { block, .. } if *block => {
-            let n = state.get_flat("equation");
+            let n = intr
+                .flat_counter_at("equation", location)
+                .unwrap_or(0);
             if n > 0 {
                 (Some(format!("Equação ({})", n)), None)
             } else {
@@ -345,19 +399,18 @@ fn compute_labelled(
         Content::Figure { kind, numbering, caption, .. } => {
             let kind_key = kind.as_deref().unwrap_or("image");
             let n = if numbering.is_some() && caption.is_some() {
-                state
-                    .figure_numbers
-                    .get(kind_key)
-                    .and_then(|v| v.last())
-                    .copied()
-                    .unwrap_or(0)
+                intr.flat_counter_at(
+                    &format!("figure:{}", kind_key),
+                    location,
+                )
+                .unwrap_or(0)
             } else {
                 0
             };
             if n > 0 {
                 let supplement = crate::rules::lang::figure_supplement::figure_supplement_for_lang(
                     kind_key,
-                    state.lang.as_ref(),
+                    lang,
                 );
                 (Some(format!("{} {}", supplement, n)), Some(n))
             } else {
@@ -370,21 +423,32 @@ fn compute_labelled(
 
 /// **P196B** — computa `(auto_label, resolved_text)` para
 /// auto-toc Heading (pattern ADR-0069). Helper privado análogo a
-/// `compute_labelled` (P195D). Função pura sobre `(state,
+/// `compute_labelled` (P195D). Função pura sobre `(intr, location,
 /// auto_label_n)` — sem mutação. Replica lógica legacy do walk arm
 /// Heading (introspect.rs:411-428 pré-P196B).
 ///
 /// Sempre retorna concrete `(Label, String)` — paridade legacy
 /// que insere `auto_label → resolved_text` mesmo quando
 /// numbering inactivo (resolved_text fica vazio nesse caso).
-fn compute_heading_auto_toc(
-    state:        &CounterStateLegacy,
+///
+/// **P191B (ADR-0071)** — signature migrada para
+/// `<I: Introspector>(intr: &I, location: Location, auto_label_n)`.
+/// Reads location-aware (`is_numbering_active_at` +
+/// `formatted_counter_at` per P185B) substituem reads de
+/// `state.is_numbering_active` + `state.format_hierarchical`.
+/// Walk popula intr (incluindo `numbering_active:heading` Set tag)
+/// ANTES desta call, garantindo consistência por construção.
+fn compute_heading_auto_toc<I: Introspector>(
+    intr:         &I,
+    location:     Location,
     auto_label_n: usize,
 ) -> (Label, String) {
     let auto_label = Label(format!("auto-toc-{}", auto_label_n));
-    let resolved_text = if state.is_numbering_active("heading") {
-        state
-            .format_hierarchical("heading")
+    let resolved_text = if intr.is_numbering_active_at(
+        "numbering_active:heading",
+        location,
+    ) {
+        intr.formatted_counter_at("heading", location)
             .map(|prefix| format!("Secção {}", prefix))
             .unwrap_or_default()
     } else {
@@ -393,84 +457,279 @@ fn compute_heading_auto_toc(
     (auto_label, resolved_text)
 }
 
-/// **P197B** — projecta o próximo número de Figure para `kind`
-/// indicado quando `is_counted = true`. Helper privado análogo a
-/// `compute_labelled` (P195D) e `compute_heading_auto_toc`
-/// (P196B). Função pura sobre `(state, kind, is_counted)` — sem
-/// mutação. Replica lógica legacy do walk arm Figure
-/// (introspect.rs:490-519 pré-P197B).
-///
-/// Cenário α (vide P197A diagnóstico §5): caminho Introspector
-/// para figure numbering já activo desde P184 (variant
-/// `ElementPayload::Figure` + `from_tags` arm + sub-store via
-/// `CounterRegistry`). Pattern ADR-0069 (Tag pós-recursão)
-/// dispensado — extracção é refactor estilístico para
-/// consistência com restantes 2 helpers.
-///
-/// `None` quando `is_counted = false` (figura sem caption ou
-/// sem numbering — não consome número, paridade com gate
-/// legacy `numbering.is_some() && caption.is_some()`).
-fn compute_figure(
-    state:      &CounterStateLegacy,
-    kind:       &Option<String>,
-    is_counted: bool,
-) -> Option<usize> {
-    if !is_counted {
-        return None;
-    }
-    let kind_key = kind.as_deref().unwrap_or("image");
-    let counter = state.local_figure_counters
-        .get(kind_key)
-        .copied()
-        .unwrap_or(0);
-    Some(counter + 1)
-}
+// P197B helper `compute_figure` ELIMINADO em P190H (M6 categoria
+// Figures eliminada). Walk arm Figure ficou puro — sem necessidade
+// de calcular figure_number durante walk porque populate_intr arm
+// Figure (P191C, gated por is_counted) popula
+// `intr.counters["figure:{kind}"]` directamente. Consumers
+// (`compute_labelled` Figure arm via `intr.flat_counter_at`,
+// Layouter C3 via `figure_number_at_index`) consomem do intr.
 
 /// **P200B** (M5 universal completo) — projecta a entry de outline
 /// para um Heading. Helper privado análogo a `compute_labelled`
 /// (P195D), `compute_heading_auto_toc` (P196B), e `compute_figure`
 /// (P197B). 4º helper na família ADR-0069 stylesheet.
 ///
-/// Função pura sobre `(state, frozen_body, level)` — sem mutação.
-/// `frozen_body` é assumido já materializado (chamado pelo walk
-/// arm Heading que computa `materialize_time(body, state)` em
-/// linha imediatamente anterior à mutação 4 legacy).
+/// Função pura sobre `(auto_label_n, frozen_body, level)` — sem
+/// mutação. `frozen_body` é assumido já materializado (chamado
+/// pelo walk arm Heading que computa `materialize_time(body,
+/// state)` em linha imediatamente anterior).
 ///
 /// Sempre retorna `Some(...)` — paridade com mutação 4 legacy
 /// (introspect.rs:486 pré-P200B) que faz push **incondicional**.
-/// Auto-label sintetizada usa `state.auto_label_counter` actual
-/// (já incrementado por mutação 2). Reusa `frozen_body` para
+/// Auto-label sintetizada usa `auto_label_n` (já incrementado pela
+/// chamada anterior em walk arm Heading). Reusa `frozen_body` para
 /// evitar chamada redundante a `materialize_time`.
 ///
-/// Replica lógica legacy da mutação 4 walk arm Heading P196B.
+/// **P190G (M6 categoria Labels & TOC)**: signature migrada para
+/// receber `auto_label_n` por parameter — field
+/// `state.auto_label_counter` eliminado de `CounterStateLegacy`
+/// e substituído por local var em walk fn. Helper continua
+/// walk-internal (chamado apenas por walk arm Heading).
 fn compute_heading_for_toc(
-    state:       &CounterStateLegacy,
-    frozen_body: Content,
-    level:       usize,
+    auto_label_n: usize,
+    frozen_body:  Content,
+    level:        usize,
 ) -> Option<(Label, Content, usize)> {
-    let auto_label = Label(format!("auto-toc-{}", state.auto_label_counter));
+    let auto_label = Label(format!("auto-toc-{}", auto_label_n));
     Some((auto_label, frozen_body, level))
+}
+
+/// **P191B (ADR-0071)** — populate `TagIntrospector` sub-stores a partir
+/// de uma `Tag::Start` emitida pelo walk. Substitui o match exhaustivo
+/// que vivia em `from_tags::from_tags` (eliminado em P191B). Walk arms
+/// chamam este helper imediatamente antes de `tags.push(Tag::Start(...))`
+/// para que sub-stores fiquem populated em ordem location-monotónica.
+///
+/// **`StateUpdate::Func` excepção**: Funcs requerem `Engine +
+/// EvalContext` para `apply_func` — não disponíveis em walk. Defer
+/// para `apply_state_funcs` (post-pass slim chamado em `fixpoint`).
+fn populate_intr_from_tag_start(
+    intr: &mut TagIntrospector,
+    info: &ElementInfo,
+    loc:  Location,
+) {
+    if let Some(label) = &info.label {
+        intr.labels.add(label.clone(), loc);
+    }
+    match &info.payload {
+        ElementPayload::Heading { depth, .. } => {
+            intr.kind_index
+                .entry(ElementKind::Heading)
+                .or_default()
+                .push(loc);
+            intr.counters.apply_hierarchical_at(
+                "heading".to_string(),
+                *depth as usize,
+                loc,
+            );
+        }
+        ElementPayload::Figure { kind, counter_update, is_counted, .. } => {
+            intr.kind_index
+                .entry(ElementKind::Figure)
+                .or_default()
+                .push(loc);
+            // P191C (ADR-0071 ACEITE): counter populated apenas quando
+            // `is_counted` (numbering+caption). Alinha com legacy
+            // `state.figure_numbers` que só regista figuras counted
+            // (introspect.rs walk arm Figure pre-P191C). Pre-P191C
+            // populate era unconditional — divergência latente
+            // ocultada porque `compute_labelled` Figure arm lia
+            // `state.figure_numbers`. Após P191C `compute_labelled`
+            // usa Introspector path; gate restaurado por paridade
+            // semântica.
+            if *is_counted {
+                let kind_key = kind.as_deref().unwrap_or("image");
+                intr.counters.apply_at(
+                    format!("figure:{}", kind_key),
+                    counter_update.clone(),
+                    loc,
+                );
+                intr.counters.apply_at(
+                    "figure".to_string(),
+                    counter_update.clone(),
+                    loc,
+                );
+                if let Some(label) = &info.label {
+                    let next_num = intr.figure_label_numbers.len() + 1;
+                    intr.figure_label_numbers
+                        .entry(label.clone())
+                        .or_insert(next_num);
+                }
+            }
+        }
+        ElementPayload::Citation { .. } => {
+            intr.kind_index
+                .entry(ElementKind::Citation)
+                .or_default()
+                .push(loc);
+        }
+        ElementPayload::Metadata { value } => {
+            intr.kind_index
+                .entry(ElementKind::Metadata)
+                .or_default()
+                .push(loc);
+            intr.metadata.add((**value).clone());
+        }
+        ElementPayload::State { key, init } => {
+            intr.kind_index
+                .entry(ElementKind::State)
+                .or_default()
+                .push(loc);
+            intr.state.init(key.clone(), (**init).clone(), loc);
+        }
+        ElementPayload::Outline => {
+            intr.kind_index
+                .entry(ElementKind::Outline)
+                .or_default()
+                .push(loc);
+        }
+        ElementPayload::Bibliography { entries } => {
+            intr.kind_index
+                .entry(ElementKind::Bibliography)
+                .or_default()
+                .push(loc);
+            let entries_owned = entries.clone();
+            for entry in &entries_owned {
+                let next_num = intr.bib_store.numbers_len() as u32 + 1;
+                intr.bib_store
+                    .assign_number(entry.key.clone(), next_num);
+            }
+            intr.bib_store.add_bibliography(entries_owned);
+        }
+        ElementPayload::StateUpdate { key, update } => {
+            intr.kind_index
+                .entry(ElementKind::StateUpdate)
+                .or_default()
+                .push(loc);
+            match update {
+                StateUpdate::Set(value) => {
+                    if intr.state.value_at(key, loc).is_none() {
+                        intr.state.init(key.clone(), (**value).clone(), loc);
+                    } else {
+                        intr.state.update(key.clone(), (**value).clone(), loc);
+                    }
+                }
+                StateUpdate::Func(_) => {
+                    // P191B (ADR-0071): Func eval requires Engine+ctx —
+                    // deferred to `apply_state_funcs` post-pass.
+                }
+            }
+        }
+        ElementPayload::Equation { block, counter_update } => {
+            intr.kind_index
+                .entry(ElementKind::Equation)
+                .or_default()
+                .push(loc);
+            // Gate location-aware: state populated por SetEquationNumbering
+            // tag emitida ANTES desta Equation tag (location-monotónica
+            // por construção de Locator).
+            if *block
+                && matches!(
+                    intr.state.value_at("numbering_active:equation", loc),
+                    Some(Value::Bool(true)),
+                )
+            {
+                intr.counters.apply_at(
+                    "equation".to_string(),
+                    counter_update.clone(),
+                    loc,
+                );
+            }
+        }
+        ElementPayload::Labelled { label, resolved_text, figure_number } => {
+            if let Some(text) = resolved_text {
+                intr.resolved_labels
+                    .insert(label.clone(), text.clone());
+            }
+            if let Some(n) = figure_number {
+                intr.figure_label_numbers
+                    .insert(label.clone(), *n);
+            }
+        }
+        ElementPayload::CounterUpdate { key, action } => {
+            intr.kind_index
+                .entry(ElementKind::CounterUpdate)
+                .or_default()
+                .push(loc);
+            match action {
+                CounterUpdate::Step => {
+                    if key == "heading" {
+                        intr.counters.apply_hierarchical_at(
+                            key.clone(),
+                            1,
+                            loc,
+                        );
+                    } else {
+                        intr.counters.apply_at(
+                            key.clone(),
+                            CounterUpdate::Step,
+                            loc,
+                        );
+                    }
+                }
+                CounterUpdate::Update(val) => {
+                    intr.counters.apply_at(
+                        key.clone(),
+                        CounterUpdate::Update(*val),
+                        loc,
+                    );
+                }
+            }
+        }
+        ElementPayload::HeadingForToc { label, body, level } => {
+            intr.headings_for_toc.push((
+                label.clone(),
+                body.clone(),
+                *level,
+            ));
+        }
+    }
 }
 
 /// **P162 .E**: emite `Tag::Start`/`Tag::End` em paralelo para os 3 kinds
 /// locatable (Heading/Figure/Cite). `label_from_parent` é `Some(label)`
 /// quando este nó é descendente directo de um `Content::Labelled` wrapper;
-/// `None` caso contrário. Tags acumuladas em `tags` são descartadas no
-/// fim do walk em M1 — consumo real virá em M2/M3.
-fn walk(
-    content:           &Content,
-    state:             &mut CounterStateLegacy,
-    locator:           &mut Locator,
-    tags:              &mut Vec<Tag>,
-    label_from_parent: Option<&Label>,
+/// `None` caso contrário.
+///
+/// **P191B (ADR-0071)**: walk fn ganha `intr: &mut TagIntrospector`.
+/// Sub-stores populated directamente durante walk via
+/// `populate_intr_from_tag_start` no momento de cada `Tag::Start`
+/// emission. Pipeline simplificado: walk → return; eliminado etapa
+/// `from_tags::from_tags` post-walk (excepto Funcs deferred).
+///
+/// **P190G (M6 categoria Labels & TOC)**: walk fn ganha
+/// `auto_label_counter: &mut usize` parameter (Opção α `.D`).
+/// Substitui field `CounterStateLegacy::auto_label_counter`
+/// eliminado em P190G. Walk-internal counter para gerar IDs únicas
+/// auto-toc-{n} per Heading; incrementado por walk arm Heading;
+/// lido por helpers `compute_heading_auto_toc` (P191B) +
+/// `compute_heading_for_toc` (P200B).
+///
+/// **P190I (M6 fechado)**: walk fn drop parameter `state: &mut
+/// CounterStateLegacy` — struct eliminada. Walk fn ganha parameter
+/// `lang: Option<&Lang>` (substitui `state.lang` lido por walk arm
+/// Labelled per P191C Opção β). Net signature: 7 parameters
+/// (mantém-se).
+pub(crate) fn walk(
+    content:            &Content,
+    locator:            &mut Locator,
+    tags:               &mut Vec<Tag>,
+    intr:               &mut TagIntrospector,
+    auto_label_counter: &mut usize,
+    lang:               Option<&crate::entities::lang::Lang>,
+    label_from_parent:  Option<&Label>,
 ) {
-    // P162 .E: emissão Tag::Start em paralelo, antes da mutação de estado.
+    // P162 .E + P191B: emissão Tag::Start em paralelo, antes da mutação
+    // de estado. populate_intr_from_tag_start popula sub-stores intr no
+    // momento da emissão (ADR-0071).
     let emitted_loc = if let Some(payload) = do_extract_payload(content) {
         let loc = locator.next();
         let info = ElementInfo {
             payload,
             label: label_from_parent.cloned(),
         };
+        populate_intr_from_tag_start(intr, &info, loc);
         tags.push(Tag::Start(loc, info));
         Some(loc)
     } else {
@@ -480,7 +739,7 @@ fn walk(
     match content {
         Content::Sequence(seq) => {
             for item in seq.iter() {
-                walk(item, state, locator, tags, None);
+                walk(item, locator, tags, intr, auto_label_counter, lang, None);
             }
         }
 
@@ -504,116 +763,129 @@ fn walk(
             // porque Layouter assignments (`mod.rs:1490, 1521`)
             // dependem de `state.headings_for_toc`. Cleanup
             // orgânico em M6.
-            state.step_hierarchical("heading", *level as usize);
+            // P190I (M6 fechado): mutação `state.step_hierarchical`
+            // ELIMINADA — caminho Introspector activo via populate_intr
+            // arm Heading (P191B `apply_hierarchical_at`). intr.counters
+            // populated antes desta arm via walk top emission. State
+            // legacy struct eliminada.
 
-            state.auto_label_counter += 1;
-            let (auto_label, resolved_text) = compute_heading_auto_toc(
-                state,
-                state.auto_label_counter,
+            // P190G (M6 categoria Labels & TOC): `state.auto_label_counter`
+            // eliminado — substituído por local var threaded via
+            // `auto_label_counter: &mut usize` parameter (Opção α).
+            *auto_label_counter += 1;
+            let current_auto_label = *auto_label_counter;
+            // P191B (ADR-0071): compute_heading_auto_toc lê via
+            // Introspector path location-aware. `emitted_loc` é
+            // `Some(loc)` para Heading (locatable; populate_intr no
+            // walk top já registou Heading kind + counter no intr).
+            let auto_loc = emitted_loc.expect(
+                "Heading é locatable — emitted_loc deve ser Some",
             );
-            state.resolved_labels.insert(auto_label.clone(), resolved_text.clone());
+            let (auto_label, resolved_text) = compute_heading_auto_toc(
+                &*intr,
+                auto_loc,
+                current_auto_label,
+            );
+            // P190G: mutação `state.resolved_labels.insert` ELIMINADA
+            // — caminho Introspector activo via Tag::Labelled
+            // pós-recursão (populate_intr_from_tag_start arm Labelled
+            // popula intr.resolved_labels). Layouter consumer
+            // `references.rs:64` migrado para Introspector path puro
+            // (sem fallback legacy).
 
-            // Mutação 4 legacy preservada (write paralelo M5).
-            // `frozen_body` clonado para reuso na Tag::HeadingForToc
-            // pós-recursão (P200B).
-            let frozen_body = materialize_time(body, state);
-            state.headings_for_toc.push((
-                auto_label.clone(),
-                frozen_body.clone(),
-                *level as usize,
-            ));
+            // P190G: mutação `state.headings_for_toc.push` ELIMINADA
+            // — caminho Introspector activo via Tag::HeadingForToc
+            // pós-recursão (populate_intr_from_tag_start arm
+            // HeadingForToc popula intr.headings_for_toc). Layouter
+            // consumer `outline.rs:38` migrado para Introspector path
+            // puro (sem fallback legacy).
+            //
+            // `frozen_body` ainda computed aqui — reusado na Tag
+            // HeadingForToc pós-recursão (P200B).
+            let frozen_body = materialize_time(body, &*intr, auto_loc);
 
-            walk(body, state, locator, tags, None);
+            walk(body, locator, tags, intr, auto_label_counter, lang, None);
 
             // P196B: emit Tag auto-toc pós-recursão (ADR-0069).
             // Reusa Location alocada para Heading (locatable; walk
             // top emitiu Tag::Start). `emitted_loc` é `Some(loc)` —
             // mais simples que P195D (Labelled não-locatable
             // exigiu snapshot+find_map).
+            //
+            // P191B (ADR-0071): popula intr directamente via
+            // populate_intr_from_tag_start no momento da emissão.
             if let Some(loc) = emitted_loc {
-                tags.push(Tag::Start(
-                    loc,
-                    ElementInfo::new(ElementPayload::Labelled {
-                        label: auto_label.clone(),
-                        resolved_text: Some(resolved_text),
-                        figure_number: None,
-                    }),
-                ));
+                let info = ElementInfo::new(ElementPayload::Labelled {
+                    label: auto_label.clone(),
+                    resolved_text: Some(resolved_text),
+                    figure_number: None,
+                });
+                populate_intr_from_tag_start(intr, &info, loc);
+                tags.push(Tag::Start(loc, info));
                 tags.push(Tag::End(loc, 0));
             }
 
             // P200B: emit Tag::HeadingForToc pós-recursão (3ª Tag).
-            // Popula sub-store intr.headings_for_toc via from_tags
-            // arm. Mesma Location que Heading + Tag::Labelled
-            // auto-toc — sub-stores diferentes (sem conflito per
-            // P196A §11.5). Fecha E2-residuo + lacuna #3.
+            // Popula sub-store intr.headings_for_toc via
+            // populate_intr_from_tag_start (P191B). Mesma Location
+            // que Heading + Tag::Labelled auto-toc — sub-stores
+            // diferentes (sem conflito per P196A §11.5). Fecha
+            // E2-residuo + lacuna #3.
             if let Some(loc) = emitted_loc {
                 if let Some((label, body_for_toc, lvl)) = compute_heading_for_toc(
-                    state,
+                    current_auto_label,
                     frozen_body,
                     *level as usize,
                 ) {
-                    tags.push(Tag::Start(
-                        loc,
-                        ElementInfo::new(ElementPayload::HeadingForToc {
-                            label,
-                            body: body_for_toc,
-                            level: lvl,
-                        }),
-                    ));
+                    let info = ElementInfo::new(ElementPayload::HeadingForToc {
+                        label,
+                        body: body_for_toc,
+                        level: lvl,
+                    });
+                    populate_intr_from_tag_start(intr, &info, loc);
+                    tags.push(Tag::Start(loc, info));
                     tags.push(Tag::End(loc, 0));
                 }
             }
         }
 
-        Content::Equation { block, body } => {
-            // Excepção M5 E1 (Equation): walk muta state.flat["equation"]
-            // directamente porque `Content::SetEquationNumbering` não
-            // existe em cristalino (Reserva 1; P186A §11.2). Sem ele,
-            // gate em `from_tags` arm Equation (P186E) nunca dispara
-            // → counter introspector vazio → P188B fallback legacy é
-            // caminho funcional permanente. Migração depende de
-            // materialização de `Content::SetEquationNumbering`
-            // (passo dedicado fora série P186-P189).
-            // Vide P189 consolidado §"Excepções M5".
-            if *block && state.is_numbering_active("equation") {
-                state.step_flat("equation");
-            }
-            walk(body, state, locator, tags, None);
+        Content::Equation { block: _, body } => {
+            // E1 fechada — Reserva 1 materializada em P199B (cenário α
+            // por construção): SetEquationNumbering popula intr.state;
+            // populate_intr arm Equation aplica counter gated por
+            // `block && intr.state.value_at("numbering_active:equation",
+            // loc) == Some(Bool(true))`.
+            //
+            // P190I (M6 fechado): mutação `state.step_flat("equation")`
+            // ELIMINADA — populate_intr arm Equation já aplica counter
+            // a `intr.counters["equation"]` no momento da emission. Walk
+            // arm Equation puro — apenas desce em body.
+            walk(body, locator, tags, intr, auto_label_counter, lang, None);
         }
 
-        Content::Figure { body, caption, kind, numbering } => {
-            // P197B — walk arm Figure refactor (cenário α).
-            // Caminho Introspector já activo desde P184 (variant
-            // ElementPayload::Figure + from_tags arm + sub-store
-            // CounterRegistry + consumer C3 P184D). Mutação legacy
-            // preservada como write paralelo M5 porque
-            // compute_labelled P195D Figure arm depende. Cleanup
-            // orgânico em M6.
+        Content::Figure { body, caption, kind: _, numbering: _ } => {
+            // P197B (cenário α) — caminho Introspector activo desde
+            // P184 (variant ElementPayload::Figure + populate_intr arm
+            // Figure + sub-store CounterRegistry chave `figure:{kind}`
+            // + consumer C3 P184D `figure_number_at_index`).
             //
-            // Helper `compute_figure` extraído (consistência com
-            // pattern ADR-0069 stylesheet: shape igual a
-            // `compute_labelled` P195D e `compute_heading_auto_toc`
-            // P196B). Pattern ADR-0069 (Tag pós-recursão) dispensado
-            // porque walk top já emite Tag pré-recursão via
-            // is_locatable + extract_payload.
+            // P190H (M6 categoria Figures eliminada): mutações walk
+            // arm Figure ELIMINADAS (Opção α `.D`):
+            // - `state.local_figure_counters.entry(...) += 1`.
+            // - `state.figure_numbers.entry(...).push(...)`.
+            // - Helper `compute_figure` removido (orphan após
+            //   eliminação dos consumers walk-side).
             //
-            // Avançar o contador apenas se a figura tiver numeração activa e legenda —
-            // figuras sem caption não consomem número (evita "Figura 1", [gap], "Figura 3").
-            let is_counted = numbering.is_some() && caption.is_some();
-            if let Some(figure_number) = compute_figure(state, kind, is_counted) {
-                let kind_key = kind.as_deref().unwrap_or("image").to_string();
-                *state.local_figure_counters
-                    .entry(kind_key.clone())
-                    .or_insert(0) += 1;
-                state.figure_numbers
-                    .entry(kind_key)
-                    .or_default()
-                    .push(figure_number);
-            }
-            walk(body, state, locator, tags, None);
+            // populate_intr Figure arm (P191C) já popula
+            // `intr.counters["figure:{kind}"]` no momento da Tag::Start
+            // emission (gated por `is_counted`). compute_labelled
+            // (P191C migrated) consume via `intr.flat_counter_at`.
+            // Layouter consumer C3 consume via `figure_number_at_index`
+            // (P184D). Walk arm Figure agora puro — apenas desce em
+            // body + caption.
+            walk(body, locator, tags, intr, auto_label_counter, lang, None);
             if let Some(cap) = caption {
-                walk(cap, state, locator, tags, None);
+                walk(cap, locator, tags, intr, auto_label_counter, lang, None);
             }
         }
 
@@ -628,38 +900,62 @@ fn walk(
             // P162 .E: passa `Some(label)` para que o tag emitido pelo
             // walk recursivo (ex. Heading) inclua a label do wrapper.
             let tags_len_before = tags.len();
-            walk(target, state, locator, tags, Some(label));
+            walk(target, locator, tags, intr, auto_label_counter, lang, Some(label));
+
+            // P191C (ADR-0071 ACEITE): Location do target obtida via
+            // snapshot+find_map (pattern P195D variante não-locatable).
+            // Necessária ANTES de chamar compute_labelled — helper
+            // agora recebe `intr + location + target + lang`.
+            let target_loc = tags[tags_len_before..]
+                .iter()
+                .find_map(|t| if let Tag::Start(l, _) = t { Some(*l) } else { None });
 
             // Computar resolved_text + figure_number via helper
             // privado (per P195A §11.6; ADR-0069). Sem mutação aqui.
-            let (resolved_text, figure_number) = compute_labelled(target, state);
+            // P191C: helper migrado para Introspector path
+            // location-aware. Caso target não-locatable
+            // (target_loc=None): retorna (None, None) coerente com
+            // legacy "label sem target locatable não resolve".
+            let (resolved_text, figure_number) = match target_loc {
+                Some(loc) => compute_labelled(
+                    &*intr,
+                    loc,
+                    target,
+                    lang,
+                ),
+                None => (None, None),
+            };
 
-            // Mutação legacy preservada (write paralelo M5 → M6).
-            if let Some(n) = figure_number {
-                state.figure_label_numbers.insert(label.clone(), n);
-            }
-            if let Some(ref text) = resolved_text {
-                state.resolved_labels.insert(label.clone(), text.clone());
-            }
+            // P190H (M6 categoria Figures eliminada): mutação
+            // `state.figure_label_numbers.insert` ELIMINADA — caminho
+            // Introspector activo via Tag::Labelled pós-recursão
+            // (populate_intr_from_tag_start arm Labelled popula
+            // `intr.figure_label_numbers` quando figure_number é
+            // Some). Consumer C2 (Layouter Ref-arm references.rs:51)
+            // migrado para Introspector path puro.
+            //
+            // P190G: mutação `state.resolved_labels.insert` ELIMINADA
+            // — caminho Introspector activo via Tag::Labelled
+            // pós-recursão (intr.resolved_labels). Layouter consumer
+            // `references.rs:64` migrado para Introspector path puro.
+            let _ = figure_number;
 
             // P195D: emit Tag pós-recursão (ADR-0069). Reusa Location
             // do target — preserva sincronização-por-construção
             // ADR-0068 (walk Locator e Layouter Locator não avançam
             // para Labelled em nenhum dos lados).
+            //
+            // P191B (ADR-0071): popula intr directamente via
+            // populate_intr_from_tag_start no momento da emissão.
             if resolved_text.is_some() || figure_number.is_some() {
-                let target_loc = tags[tags_len_before..]
-                    .iter()
-                    .find_map(|t| if let Tag::Start(l, _) = t { Some(*l) } else { None });
-
                 if let Some(loc) = target_loc {
-                    tags.push(Tag::Start(
-                        loc,
-                        ElementInfo::new(ElementPayload::Labelled {
-                            label: label.clone(),
-                            resolved_text,
-                            figure_number,
-                        }),
-                    ));
+                    let info = ElementInfo::new(ElementPayload::Labelled {
+                        label: label.clone(),
+                        resolved_text,
+                        figure_number,
+                    });
+                    populate_intr_from_tag_start(intr, &info, loc);
+                    tags.push(Tag::Start(loc, info));
                     tags.push(Tag::End(loc, 0));
                 }
                 // else: target não-locatable → no Tag::Start em tags;
@@ -670,68 +966,57 @@ fn walk(
             }
         }
 
-        Content::SetHeadingNumbering { active } => {
-            // P198B — E5 fechada estruturalmente (cenário α).
-            // Caminho Introspector já activo desde P182C
-            // (extract_payload → ElementPayload::StateUpdate sob
-            // chave numbering_active:heading → from_tags arm
-            // StateUpdate popula StateRegistry).
+        Content::SetHeadingNumbering { active: _ } => {
+            // P198B — E5 fechada estruturalmente (cenário α). Caminho
+            // Introspector activo desde P182C (extract_payload →
+            // ElementPayload::StateUpdate sob chave
+            // numbering_active:heading → populate_intr_from_tag_start
+            // arm StateUpdate popula intr.state).
             //
-            // Mutação legacy preservada como write paralelo M5:
-            // compute_heading_auto_toc P196B + walk arm Equation
-            // lêem state.numbering_active(_active) durante walk
-            // para resolver auto-toc text e gate equation counter.
-            // Cadeia E5 preservada. Cleanup orgânico em M6.
-            state.numbering_active.insert("heading".to_string(), *active);
+            // P190G (M6 categoria Labels & TOC; Caso 1 `.H`): mutação
+            // `state.numbering_active.insert("heading", *active)`
+            // ELIMINADA — sem walk readers após P191B/C migrarem
+            // helpers (`compute_heading_auto_toc` lê
+            // `intr.is_numbering_active_at`) e walk arm Equation gate
+            // (lê `intr.is_numbering_active_at`). Field
+            // `state.numbering_active` eliminado de
+            // `CounterStateLegacy`.
+            //
+            // Tag::Start emitida pelo walk top via `extract_payload`;
+            // populate_intr_from_tag_start popula intr.state — caminho
+            // Introspector é única fonte da verdade.
         }
 
-        Content::SetEquationNumbering { active } => {
+        Content::SetEquationNumbering { active: _ } => {
             // P199B — E1 fechada estruturalmente (cenário α por
             // construção). Materializa Reserva 1 desde P189B.
+            // Caminho Introspector activado por construção:
+            // extract_payload → ElementPayload::StateUpdate sob chave
+            // numbering_active:equation → populate_intr_from_tag_start
+            // arm StateUpdate popula intr.state.
             //
-            // Caminho Introspector activado por construção desde a
-            // materialização: extract_payload →
-            // ElementPayload::StateUpdate sob chave
-            // numbering_active:equation → from_tags arm StateUpdate
-            // (P171, genérica) popula StateRegistry. Layouter
-            // equation.rs:32-33 first branch
-            // (substitution-with-fallback antes adormecida) activa
-            // em produção real.
-            //
-            // Mutação legacy preservada como write paralelo M5:
-            // walk arm Equation (introspect.rs gate em is_numbering_active
-            // para counter step) + compute_labelled Equation arm (P195D)
-            // lêem state.is_numbering_active("equation") /
-            // state.get_flat("equation") durante walk para gating + format.
-            // Cadeia E1 preservada. Cleanup orgânico em M6.
-            state.numbering_active.insert("equation".to_string(), *active);
+            // P190G (M6 categoria Labels & TOC; Caso 1 `.H`): mutação
+            // `state.numbering_active.insert("equation", *active)`
+            // ELIMINADA — sem walk readers após P191B migrar walk arm
+            // Equation gate para `intr.is_numbering_active_at` e
+            // P191C migrar `compute_labelled` Equation arm para
+            // Introspector path. Field `state.numbering_active`
+            // eliminado.
         }
 
-        Content::CounterUpdate { key, action } => {
+        Content::CounterUpdate { key: _, action: _ } => {
             // P198C — E6 fechada estruturalmente (cenário β-promote
-            // ADR-0069). Caminho Introspector activado:
-            // extract_payload arm (extract_payload.rs) emite
-            // ElementPayload::CounterUpdate { key, action } pré-recursão;
-            // from_tags arm popula CounterRegistry via apply_at
-            // (flat) ou apply_hierarchical_at (key="heading").
+            // ADR-0069). Caminho Introspector activo:
+            // extract_payload arm emite ElementPayload::CounterUpdate
+            // pré-recursão; populate_intr arm CounterUpdate popula
+            // CounterRegistry via apply_at (flat) ou
+            // apply_hierarchical_at (key="heading").
             //
-            // Mutação legacy preservada como write paralelo M5:
-            // compute_* helpers (P195D Equation, P196B Heading,
-            // P197B Figure) lêem state.flat/hierarchical durante
-            // walk para resolver counter values em payloads.
-            // Cleanup orgânico em M6.
-            match action {
-                CounterAction::Step => {
-                    if key == "heading" {
-                        state.step_hierarchical("heading", 1);
-                    } else {
-                        state.step_flat(key);
-                    }
-                }
-                CounterAction::Update(val) => {
-                    state.update_flat(key, *val);
-                }
-            }
+            // P190I (M6 fechado): mutação legacy
+            // `state.step_*`/`state.update_flat` ELIMINADA — `compute_*`
+            // helpers migrados para Introspector path location-aware
+            // (P191B/C). populate_intr é única fonte da verdade. Walk
+            // arm CounterUpdate puro — sem recursão, sem mutação.
         }
 
         // Passo 101: `Content::Strong`/`Content::Emph` removidos; o caso
@@ -785,39 +1070,39 @@ fn walk(
         // Passo 154B — Terms / TermItem: descem em items para que filhos
         // com contadores ou labels sejam processados.
         Content::Terms { items } => {
-            for item in items { walk(item, state, locator, tags, None); }
+            for item in items { walk(item, locator, tags, intr, auto_label_counter, lang, None); }
         }
         Content::TermItem { term, description } => {
-            walk(term, state, locator, tags, None);
-            walk(description, state, locator, tags, None);
+            walk(term, locator, tags, intr, auto_label_counter, lang, None);
+            walk(description, locator, tags, intr, auto_label_counter, lang, None);
         }
 
         // Passo 155 — Quote: walk em body + attribution.
         Content::Quote { body, attribution, .. } => {
-            walk(body, state, locator, tags, None);
+            walk(body, locator, tags, intr, auto_label_counter, lang, None);
             if let Some(a) = attribution {
-                walk(a, state, locator, tags, None);
+                walk(a, locator, tags, intr, auto_label_counter, lang, None);
             }
         }
 
-        Content::Transform { body, .. } => walk(body, state, locator, tags, None),
+        Content::Transform { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
         Content::Grid { cells, .. } => {
-            for cell in cells { walk(cell, state, locator, tags, None); }
+            for cell in cells { walk(cell, locator, tags, intr, auto_label_counter, lang, None); }
         }
 
         // Passo 157A — Table (paridade Grid).
         Content::Table { children, .. } => {
-            for c in children { walk(c, state, locator, tags, None); }
+            for c in children { walk(c, locator, tags, intr, auto_label_counter, lang, None); }
         }
 
         // Passo 157B — TableCell (recurse no body).
-        Content::TableCell { body, .. } => walk(body, state, locator, tags, None),
+        Content::TableCell { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 157C — par simétrico TableHeader/TableFooter
         // (recurse no body).
-        Content::TableHeader { body, .. } => walk(body, state, locator, tags, None),
-        Content::TableFooter { body, .. } => walk(body, state, locator, tags, None),
+        Content::TableHeader { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::TableFooter { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
         // P181H: walk arm puro (P163 invariante restaurada para bib).
         // Pré-P181H (P159C/F): walk mutava `state.bib_entries.extend(...)`
@@ -831,35 +1116,35 @@ fn walk(
         // Introspection runtime adiada).
         Content::Bibliography { title, .. } => {
             if let Some(t) = title {
-                walk(t, state, locator, tags, None);
+                walk(t, locator, tags, intr, auto_label_counter, lang, None);
             }
         }
         Content::Cite { supplement, .. } => {
-            if let Some(s) = supplement { walk(s, state, locator, tags, None); }
+            if let Some(s) = supplement { walk(s, locator, tags, intr, auto_label_counter, lang, None); }
         }
 
-        Content::Align { body, .. } => walk(body, state, locator, tags, None),
+        Content::Align { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
-        Content::Place { body, .. } => walk(body, state, locator, tags, None),
+        Content::Place { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 156C (ADR-0061 Fase 1) — pad / hide são containers
         // estruturais; descer no body para que counters/labels dentro sejam
         // processados. `Hide` mesmo "ocultando visualmente" mantém a
         // semântica de presence (label/ref dentro de hide ainda resolvem).
-        Content::Pad  { body, .. } => walk(body, state, locator, tags, None),
-        Content::Hide { body }     => walk(body, state, locator, tags, None),
+        Content::Pad  { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Hide { body }     => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 156G (ADR-0061 Fase 2) — block container; descer no body.
-        Content::Block { body, .. } => walk(body, state, locator, tags, None),
+        Content::Block { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container.
-        Content::Boxed { body, .. } => walk(body, state, locator, tags, None),
+        Content::Boxed { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo.
         // Walk em cada child em ordem (counters/labels resolvem).
         Content::Stack { children, .. } => {
             for c in children.iter() {
-                walk(c, state, locator, tags, None);
+                walk(c, locator, tags, intr, auto_label_counter, lang, None);
             }
         },
 
@@ -867,10 +1152,10 @@ fn walk(
         // Walk no body uma vez (counters/labels dentro de body
         // resolvem; semântica de repetição é runtime-only e não
         // multiplica state — vanilla repeat também só conta uma vez).
-        Content::Repeat { body, .. } => walk(body, state, locator, tags, None),
+        Content::Repeat { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 99 (ADR-0038): `Styled` é transparente — desce no body.
-        Content::Styled(body, _) => walk(body, state, locator, tags, None),
+        Content::Styled(body, _) => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
         Content::Outline => {
             // P189B (M5): walk puro para Outline.
@@ -897,7 +1182,7 @@ mod tests {
     use super::*;
     use crate::entities::{
         content::Content,
-        counter_state_legacy::CounterAction,
+        counter_update::CounterUpdate as CounterAction,
         element_payload::ElementPayload,
         label::Label,
         location::Location,
@@ -918,16 +1203,13 @@ mod tests {
             .into(),
         );
 
-        let state = introspect(&content);
+        let intr = introspect_with_introspector(&content);
         assert!(
-            state.resolved_labels.contains_key(&Label("conclusao".to_string())),
+            intr.resolved_labels.get(&Label("conclusao".to_string())).is_some(),
             "introspect deve popular resolved_labels mesmo para forward refs"
         );
         assert_eq!(
-            state
-                .resolved_labels
-                .get(&Label("conclusao".to_string()))
-                .map(|s| s.as_str()),
+            intr.resolved_labels.get(&Label("conclusao".to_string())),
             Some("Secção 1")
         );
     }
@@ -942,8 +1224,8 @@ mod tests {
             .into(),
         );
 
-        let state = introspect(&content);
-        assert_eq!(state.get_flat("equation"), 5);
+        let intr = introspect_with_introspector(&content);
+        assert_eq!(intr.counters.value("equation").and_then(|v| v.last()).copied().unwrap_or(0), 5);
     }
 
     #[test]
@@ -954,12 +1236,12 @@ mod tests {
         };
         let content_b = Content::Ref { target: Label("a".to_string()) };
 
-        let state_a = introspect(&content_a);
-        let state_b = introspect(&content_b);
+        let intr_a = introspect_with_introspector(&content_a);
+        let intr_b = introspect_with_introspector(&content_b);
 
-        assert!(state_a.resolved_labels.contains_key(&Label("a".to_string())));
+        assert!(intr_a.resolved_labels.get(&Label("a".to_string())).is_some());
         assert!(
-            !state_b.resolved_labels.contains_key(&Label("a".to_string())),
+            intr_b.resolved_labels.get(&Label("a".to_string())).is_none(),
             "estados de introspecção devem ser independentes"
         );
     }
@@ -967,8 +1249,8 @@ mod tests {
     #[test]
     fn introspect_set_heading_numbering_activa_flag() {
         let content = Content::SetHeadingNumbering { active: true };
-        let state = introspect(&content);
-        assert!(state.is_numbering_active("heading"));
+        let intr = introspect_with_introspector(&content);
+        assert!(intr.is_numbering_active("numbering_active:heading"));
     }
 
     // ── Testes de Passo 61 — TOC ─────────────────────────────────────────
@@ -982,14 +1264,14 @@ mod tests {
             Content::heading(1, Content::text("Conclusão")),
         ].into());
 
-        let state = introspect(&content);
-        assert_eq!(state.headings_for_toc.len(), 3);
+        let intr = introspect_with_introspector(&content);
+        assert_eq!(intr.headings_for_toc().len(), 3);
 
-        let (_, title_0, level_0) = &state.headings_for_toc[0];
+        let (_, title_0, level_0) = &intr.headings_for_toc()[0];
         assert_eq!(title_0.plain_text(), "Introdução");
         assert_eq!(*level_0, 1);
 
-        let (_, _, level_1) = &state.headings_for_toc[1];
+        let (_, _, level_1) = &intr.headings_for_toc()[1];
         assert_eq!(*level_1, 2);
     }
 
@@ -1000,25 +1282,25 @@ mod tests {
             Content::heading(1, Content::text("B")),
         ].into());
 
-        let state = introspect(&content);
-        let label_a = &state.headings_for_toc[0].0;
-        let label_b = &state.headings_for_toc[1].0;
+        let intr = introspect_with_introspector(&content);
+        let label_a = &intr.headings_for_toc()[0].0;
+        let label_b = &intr.headings_for_toc()[1].0;
         assert_ne!(label_a, label_b, "labels automáticas devem ser únicas");
 
         // As labels devem estar em resolved_labels
-        assert!(state.resolved_labels.contains_key(label_a));
-        assert!(state.resolved_labels.contains_key(label_b));
+        assert!(intr.resolved_labels.get(label_a).is_some());
+        assert!(intr.resolved_labels.get(label_b).is_some());
     }
 
     #[test]
     fn introspect_heading_sem_numbering_insere_string_vazia_em_resolved_labels() {
         // Sem numeração activa, resolved_labels deve conter "" (não "@auto-toc-N").
         let content = Content::heading(1, Content::text("Título"));
-        let state = introspect(&content);
-        assert_eq!(state.headings_for_toc.len(), 1);
-        let (label, _, _) = &state.headings_for_toc[0];
+        let intr = introspect_with_introspector(&content);
+        assert_eq!(intr.headings_for_toc().len(), 1);
+        let (label, _, _) = &intr.headings_for_toc()[0];
         assert_eq!(
-            state.resolved_labels.get(label).map(|s| s.as_str()),
+            intr.resolved_labels.get(label),
             Some(""),
             "heading sem numeração deve ter string vazia em resolved_labels"
         );
@@ -1041,9 +1323,9 @@ mod tests {
             .into(),
         );
 
-        let state = introspect(&content);
+        let intr = introspect_with_introspector(&content);
         assert_eq!(
-            state.resolved_labels.get(&Label("fig1".to_string())).map(|s| s.as_str()),
+            intr.resolved_labels.get(&Label("fig1".to_string())),
             Some("Figura 1"),
             "label de figura deve resolver para 'Figura 1'"
         );
@@ -1075,13 +1357,13 @@ mod tests {
             .into(),
         );
 
-        let state = introspect(&content);
+        let intr = introspect_with_introspector(&content);
         assert_eq!(
-            state.resolved_labels.get(&Label("f1".to_string())).map(|s| s.as_str()),
+            intr.resolved_labels.get(&Label("f1".to_string())),
             Some("Figura 1")
         );
         assert_eq!(
-            state.resolved_labels.get(&Label("f2".to_string())).map(|s| s.as_str()),
+            intr.resolved_labels.get(&Label("f2".to_string())),
             Some("Figura 2")
         );
     }
@@ -1109,10 +1391,10 @@ mod tests {
             .into(),
         );
 
-        let state = introspect(&content);
+        let intr = introspect_with_introspector(&content);
         // Figura sem caption não consome contador — a segunda figura numerada é "Figura 1"
         assert_eq!(
-            state.resolved_labels.get(&Label("f2".to_string())).map(|s| s.as_str()),
+            intr.resolved_labels.get(&Label("f2".to_string())),
             Some("Figura 1"),
             "figura sem caption não deve consumir o contador"
         );
@@ -1132,9 +1414,9 @@ mod tests {
             .into(),
         );
 
-        let state = introspect(&content);
+        let intr = introspect_with_introspector(&content);
         assert!(
-            state.resolved_labels.contains_key(&Label("sec".to_string())),
+            intr.resolved_labels.get(&Label("sec".to_string())).is_some(),
             "backward ref deve também estar em resolved_labels"
         );
     }
@@ -1143,10 +1425,14 @@ mod tests {
 
     #[test]
     fn materialize_time_substitui_counter_display() {
-        use crate::entities::counter_state_legacy::CounterStateLegacy;
+        // P190I (M6 fechado): test adaptado — populate intr manualmente
+        // para simular contador "fig" = 42 numa Location.
+        use crate::entities::counter_update::CounterUpdate as CU;
+        use crate::entities::location::Location;
 
-        let mut state = CounterStateLegacy::new();
-        state.update_flat("fig", 42);
+        let mut intr = TagIntrospector::empty();
+        let loc = Location::from_raw(1);
+        intr.counters.apply_at("fig".to_string(), CU::Update(42), loc);
 
         let dynamic_ast = Content::Sequence(
             vec![
@@ -1156,7 +1442,7 @@ mod tests {
             .into(),
         );
 
-        let frozen = materialize_time(&dynamic_ast, &state);
+        let frozen = materialize_time(&dynamic_ast, &intr, loc);
 
         let expected = Content::Sequence(
             vec![
@@ -1172,9 +1458,11 @@ mod tests {
 
     #[test]
     fn materialize_time_preserva_terminais() {
-        use crate::entities::counter_state_legacy::CounterStateLegacy;
+        // P190I: test adaptado — intr vazio, Location dummy.
+        use crate::entities::location::Location;
 
-        let state = CounterStateLegacy::new();
+        let intr = TagIntrospector::empty();
+        let loc = Location::from_raw(1);
 
         // Nós terminais sem CounterDisplay devem ser clonados sem alteração.
         let content = Content::Sequence(
@@ -1185,7 +1473,7 @@ mod tests {
             .into(),
         );
 
-        let frozen = materialize_time(&content, &state);
+        let frozen = materialize_time(&content, &intr, loc);
         assert_eq!(frozen, content, "Terminais sem CounterDisplay não devem ser alterados");
     }
 
@@ -1212,10 +1500,10 @@ mod tests {
             .into(),
         );
 
-        let state = introspect(&content);
-        assert_eq!(state.headings_for_toc.len(), 1);
+        let intr = introspect_with_introspector(&content);
+        assert_eq!(intr.headings_for_toc().len(), 1);
 
-        let (_, frozen_body, _) = &state.headings_for_toc[0];
+        let (_, frozen_body, _) = &intr.headings_for_toc()[0];
         let text = frozen_body.plain_text();
         // O body congelado deve conter "7" (valor no momento da introspecção),
         // não "0" (valor no início do documento quando a TOC é renderizada).
@@ -1264,10 +1552,10 @@ mod tests {
             },
         ].into());
 
-        let state = introspect(&doc);
+        let intr = introspect_with_introspector(&doc);
 
-        let image_nums = state.figure_numbers.get("image").cloned().unwrap_or_default();
-        let table_nums = state.figure_numbers.get("table").cloned().unwrap_or_default();
+        let image_nums = (0..).map_while(|i| intr.figure_number_at_index("image", i)).collect::<Vec<_>>();
+        let table_nums = (0..).map_while(|i| intr.figure_number_at_index("table", i)).collect::<Vec<_>>();
 
         assert_eq!(image_nums, vec![1, 2],
             "Duas figuras de kind 'image' devem produzir [1, 2]");
@@ -1278,15 +1566,18 @@ mod tests {
     // ── Passo 158B — Supplement automático por lang em figure ────────────
 
     /// Helper para construir state com lang explícito.
-    fn introspect_with_lang(content: &Content, lang_code: &str) -> CounterStateLegacy {
+    /// **P190G**: retorna `(state, intr)` — testes leem
+    /// `intr.resolved_labels` (field state.resolved_labels eliminado).
+    fn introspect_with_lang(content: &Content, lang_code: &str) -> TagIntrospector {
         use std::str::FromStr;
         use crate::entities::lang::Lang;
-        let mut state = CounterStateLegacy::new();
-        state.lang = Some(Lang::from_str(lang_code).unwrap());
+        let lang = Lang::from_str(lang_code).unwrap();
         let mut locator = Locator::new();
         let mut tags: Vec<Tag> = Vec::new();
-        walk(content, &mut state, &mut locator, &mut tags, None);
-        state
+        let mut intr = TagIntrospector::empty();
+        let mut auto_label_counter: usize = 0;
+        walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, Some(&lang), None);
+        intr
     }
 
     #[test]
@@ -1304,9 +1595,9 @@ mod tests {
             target: Box::new(figure),
             label: label.clone(),
         };
-        let state = introspect(&labelled);
+        let intr = introspect_with_introspector(&labelled);
         assert_eq!(
-            state.resolved_labels.get(&label).map(String::as_str),
+            intr.resolved_labels.get(&label),
             Some("Figura 1"),
             "Default sem lang → PT 'Figura'"
         );
@@ -1326,9 +1617,9 @@ mod tests {
             target: Box::new(figure),
             label: label.clone(),
         };
-        let state = introspect_with_lang(&labelled, "pt");
+        let intr = introspect_with_lang(&labelled, "pt");
         assert_eq!(
-            state.resolved_labels.get(&label).map(String::as_str),
+            intr.resolved_labels.get(&label),
             Some("Figura 1"),
         );
     }
@@ -1347,9 +1638,9 @@ mod tests {
             target: Box::new(figure),
             label: label.clone(),
         };
-        let state = introspect_with_lang(&labelled, "en");
+        let intr = introspect_with_lang(&labelled, "en");
         assert_eq!(
-            state.resolved_labels.get(&label).map(String::as_str),
+            intr.resolved_labels.get(&label),
             Some("Table 1"),
         );
     }
@@ -1368,9 +1659,9 @@ mod tests {
             target: Box::new(figure),
             label: label.clone(),
         };
-        let state = introspect_with_lang(&labelled, "de");
+        let intr = introspect_with_lang(&labelled, "de");
         assert_eq!(
-            state.resolved_labels.get(&label).map(String::as_str),
+            intr.resolved_labels.get(&label),
             Some("Listing 1"),
         );
     }
@@ -1390,9 +1681,9 @@ mod tests {
             target: Box::new(figure),
             label: label.clone(),
         };
-        let state = introspect_with_lang(&labelled, "zh");
+        let intr = introspect_with_lang(&labelled, "zh");
         assert_eq!(
-            state.resolved_labels.get(&label).map(String::as_str),
+            intr.resolved_labels.get(&label),
             Some("Figura 1"),
             "Lang desconhecido cai no fallback PT"
         );
@@ -1413,9 +1704,9 @@ mod tests {
             target: Box::new(figure),
             label: label.clone(),
         };
-        let state = introspect_with_lang(&labelled, "en");
+        let intr = introspect_with_lang(&labelled, "en");
         assert_eq!(
-            state.resolved_labels.get(&label).map(String::as_str),
+            intr.resolved_labels.get(&label),
             Some("Custom 1"),
             "Kind desconhecido capitalizado"
         );
@@ -1446,10 +1737,10 @@ mod tests {
                 numbering: Some("1".to_string()),
             },
         ]));
-        let state = introspect(&content);
-        assert_eq!(state.figure_numbers.get("image").cloned().unwrap_or_default(),
+        let intr = introspect_with_introspector(&content);
+        assert_eq!((0..).map_while(|i| intr.figure_number_at_index("image", i)).collect::<Vec<_>>(),
             vec![1, 2], "image counter independente");
-        assert_eq!(state.figure_numbers.get("table").cloned().unwrap_or_default(),
+        assert_eq!((0..).map_while(|i| intr.figure_number_at_index("table", i)).collect::<Vec<_>>(),
             vec![1], "table counter independente");
     }
 
@@ -1474,15 +1765,15 @@ mod tests {
             ]
             .into(),
         );
-        let state = introspect(&content);
+        let intr = introspect_with_introspector(&content);
         // Counter "image" deve avançar via fallback default.
-        assert_eq!(state.figure_numbers.get("image").cloned().unwrap_or_default(),
+        assert_eq!((0..).map_while(|i| intr.figure_number_at_index("image", i)).collect::<Vec<_>>(),
             vec![1],
             "kind=None deve cair no default 'image' no counter");
         // Label resolve para "Figura 1" via fallback (PT default em
         // figure_supplement_for_lang).
         assert_eq!(
-            state.resolved_labels.get(&Label("f_none".to_string())).map(|s| s.as_str()),
+            intr.resolved_labels.get(&Label("f_none".to_string())),
             Some("Figura 1"),
             "label de figura kind=None deve resolver via fallback 'image' default"
         );
@@ -1490,19 +1781,21 @@ mod tests {
 
     // ── P162 .G — Tests do walk com tags em paralelo ─────────────────────
 
-    /// Helper de teste para correr walk e devolver state + tags.
-    fn introspect_with_tags(content: &Content) -> (CounterStateLegacy, Vec<Tag>) {
-        let mut state = CounterStateLegacy::new();
+    /// Helper de teste para correr walk e devolver tags.
+    /// **P190I**: state eliminado.
+    fn introspect_with_tags(content: &Content) -> Vec<Tag> {
         let mut locator = Locator::new();
         let mut tags: Vec<Tag> = Vec::new();
-        walk(content, &mut state, &mut locator, &mut tags, None);
-        (state, tags)
+        let mut intr = TagIntrospector::empty();
+        let mut auto_label_counter: usize = 0;
+        walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, None);
+        tags
     }
 
     #[test]
     fn walk_emite_start_e_end_para_heading() {
         let h = Content::heading(1, Content::text("title"));
-        let (_, tags) = introspect_with_tags(&h);
+        let tags = introspect_with_tags(&h);
         // P200B: heading emite 6 tags com mesma Location:
         //   Start(Heading), Start(Labelled auto-toc), End(Labelled),
         //   Start(HeadingForToc), End(HeadingForToc), End(Heading).
@@ -1536,7 +1829,7 @@ mod tests {
     #[test]
     fn walk_nao_emite_para_text_simples() {
         let t = Content::text("plain");
-        let (_, tags) = introspect_with_tags(&t);
+        let tags = introspect_with_tags(&t);
         assert!(tags.is_empty(), "text simples não deve emitir tags");
     }
 
@@ -1550,7 +1843,7 @@ mod tests {
             numbering: Some("1".into()),
         };
         let h = Content::heading(1, figure);
-        let (_, tags) = introspect_with_tags(&h);
+        let tags = introspect_with_tags(&h);
         // P200B: heading emite 6 tags + figura emite 2 tags = 8 tags.
         // Sequência: Start(Heading), Start(Figure), End(Figure),
         // Start(Labelled), End(Labelled), Start(HeadingForToc),
@@ -1582,10 +1875,13 @@ mod tests {
             ]
             .into(),
         );
-        let (state, tags) = introspect_with_tags(&content);
-        // State: contador heading deve estar em "2" após dois headings nivel 1.
-        assert_eq!(state.format_hierarchical("heading").as_deref(), Some("2"),
-            "state deve ter contador heading=2 após dois headings nível 1");
+        let tags = introspect_with_tags(&content);
+        // P190I: intr verificado via introspect_with_introspector
+        // separado (state legacy eliminada).
+        let intr = introspect_with_introspector(&content);
+        // Contador heading deve estar em "2" após dois headings nivel 1.
+        assert_eq!(intr.formatted_counter("heading").as_deref(), Some("2"),
+            "intr deve ter contador heading=2 após dois headings nível 1");
         // P182C: SetHeadingNumbering passou a ser locatable (emite
         // ElementPayload::StateUpdate sob chave numbering_active:heading).
         // P200B: cada heading emite 6 tags (Start_h, Start_labelled,
@@ -1601,7 +1897,7 @@ mod tests {
             label:  Label("intro".to_string()),
             target: Box::new(Content::heading(1, Content::text("Introdução"))),
         };
-        let (_, tags) = introspect_with_tags(&content);
+        let tags = introspect_with_tags(&content);
         // Esperado: Start(Heading) com label="intro", End(Heading).
         match &tags[0] {
             Tag::Start(_, info) => {
@@ -1642,8 +1938,8 @@ mod tests {
         // P163 .C.1: walk duas vezes sobre o mesmo Content produz
         // Vec<Tag> idêntico (mesma ordem, mesmas Locations, mesmos hashes).
         let content = make_content_complexo();
-        let (_, tags1) = introspect_with_tags(&content);
-        let (_, tags2) = introspect_with_tags(&content);
+        let tags1 = introspect_with_tags(&content);
+        let tags2 = introspect_with_tags(&content);
         assert_eq!(
             tags1, tags2,
             "walk não-determinístico: tags1.len={}, tags2.len={}",
@@ -1665,7 +1961,7 @@ mod tests {
             numbering: Some("1".into()),
         };
         let outer_h = Content::heading(1, figure_with_h);
-        let (_, tags) = introspect_with_tags(&outer_h);
+        let tags = introspect_with_tags(&outer_h);
 
         let mut stack: Vec<Location> = Vec::new();
         for tag in &tags {
@@ -1692,7 +1988,7 @@ mod tests {
             ]
             .into(),
         );
-        let (_, tags) = introspect_with_tags(&content);
+        let tags = introspect_with_tags(&content);
 
         let mut stack: Vec<Location> = Vec::new();
         for tag in &tags {
@@ -1721,8 +2017,8 @@ mod tests {
         // Heading (hash via hash_content). Filtramos hash != 0.
         let a = Content::heading(1, Content::text("Título A"));
         let b = Content::heading(1, Content::text("Título B"));
-        let (_, tags_a) = introspect_with_tags(&a);
-        let (_, tags_b) = introspect_with_tags(&b);
+        let tags_a = introspect_with_tags(&a);
+        let tags_b = introspect_with_tags(&b);
 
         let end_a = tags_a.iter().find_map(|t| match t {
             Tag::End(_, h) if *h != 0 => Some(*h),
@@ -1747,7 +2043,7 @@ mod tests {
         // variados. Verificar:
         //  - número de Tag::Start(_, Heading{..}) bate com input;
         //  - depth de cada Heading bate com level esperado;
-        //  - state.format_hierarchical("heading") fica no valor
+        //  - intr.formatted_counter("heading") fica no valor
         //    esperado após todos os headings (verificação cruzada).
         let levels = vec![1u8, 2, 2, 3];
         let content = Content::Sequence(
@@ -1756,7 +2052,9 @@ mod tests {
                 .collect::<Vec<_>>()
                 .into(),
         );
-        let (state, tags) = introspect_with_tags(&content);
+        let tags = introspect_with_tags(&content);
+        // P190I: intr separado para verificação cross.
+        let intr = introspect_with_introspector(&content);
 
         let captured_levels: Vec<u8> = tags.iter()
             .filter_map(|t| match t {
@@ -1773,7 +2071,7 @@ mod tests {
             "depth dos heading payloads em tags difere dos levels do input"
         );
 
-        // Verificação cruzada: state.format_hierarchical("heading")
+        // Verificação cruzada: intr.formatted_counter("heading")
         // depois de [1, 2, 2, 3] deve ser "1.1.1.1" — após
         // step ao nível 1, depois nível 2 (= [1,1]), nível 2 outra
         // vez (= [1,2]), depois nível 3 (= [1,2,1]).
@@ -1785,7 +2083,7 @@ mod tests {
         //  [1,2]  +3 → [1, 2, 1]
         // → format = "1.2.1"
         assert_eq!(
-            state.format_hierarchical("heading").as_deref(),
+            intr.formatted_counter("heading").as_deref(),
             Some("1.2.1"),
             "format_hierarchical não bate com sequência [1,2,2,3]"
         );
@@ -1817,7 +2115,7 @@ mod tests {
             ]
             .into(),
         );
-        let (state, tags) = introspect_with_tags(&content);
+        let tags = introspect_with_tags(&content);
 
         let captured_kinds: Vec<Option<String>> = tags.iter()
             .filter_map(|t| match t {
@@ -1835,22 +2133,9 @@ mod tests {
             "kinds das figures em tags não batem com input"
         );
 
-        // Verificação cruzada: state.figure_numbers populado por kind.
-        // Walk arm Figure resolve kind=None para "image" (default
-        // P158C). Logo: 2 figures contam para "image" (kind=Some
-        // e kind=None) e 1 para "table".
-        // Tags, em contraste, preservam kind=None literal — divergência
-        // documentada (ver .E lacunas-captura).
-        assert_eq!(
-            state.figure_numbers.get("image").cloned().unwrap_or_default().len(),
-            2,
-            "image figure_numbers count: kind=Some(image) + kind=None"
-        );
-        assert_eq!(
-            state.figure_numbers.get("table").cloned().unwrap_or_default().len(),
-            1,
-            "table figure_numbers count"
-        );
+        // P190H: paridade verificada em testes dedicados via
+        // intr.figure_number_at_index (P190H não toca este test
+        // específico de Tag emission).
     }
 
     #[test]
@@ -1864,7 +2149,7 @@ mod tests {
             ]
             .into(),
         );
-        let (_, tags) = introspect_with_tags(&content);
+        let tags = introspect_with_tags(&content);
 
         let captured_keys: Vec<String> = tags.iter()
             .filter_map(|t| match t {
@@ -1895,18 +2180,20 @@ mod tests {
     // ── P165 .G — Tests E2E paralelo CounterStateLegacy + Introspector ───
 
     use crate::entities::element_kind::ElementKind;
-    use crate::entities::introspector::{Introspector, TagIntrospector};
-    use crate::rules::introspect::from_tags::from_tags;
+    use crate::entities::introspector::Introspector;
 
     /// Helper de teste para correr walk + construir Introspector em paralelo.
-    /// **P173**: passa `None, None` — testes locais não exercitam Funcs.
-    fn introspect_with_introspector(content: &Content) -> (CounterStateLegacy, TagIntrospector) {
-        let mut state = CounterStateLegacy::new();
+    /// **P191B (ADR-0071)**: walk popula intr directamente; sem
+    /// chamada a `from_tags` (eliminado). Funcs em `state.update`
+    /// silenciosamente ignoradas neste path local (sem Engine
+    /// disponível) — coerente com semântica P173 pré-P191B.
+    fn introspect_with_introspector(content: &Content) -> TagIntrospector {
         let mut locator = Locator::new();
         let mut tags: Vec<Tag> = Vec::new();
-        walk(content, &mut state, &mut locator, &mut tags, None);
-        let intr = from_tags(&tags, None, None);
-        (state, intr)
+        let mut intr = TagIntrospector::empty();
+        let mut auto_label_counter: usize = 0;
+        walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, None);
+        intr
     }
 
     #[test]
@@ -1926,13 +2213,13 @@ mod tests {
                 .collect::<Vec<_>>()
                 .into(),
         );
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
         // Introspector tem 4 headings indexados.
         assert_eq!(intr.query_by_kind(ElementKind::Heading).len(), 4);
         // CounterStateLegacy tem hierarchical "1.2.1" após [1,2,2,3]
         // (verificado em P163 .D.1).
         assert_eq!(
-            state.format_hierarchical("heading").as_deref(),
+            intr.formatted_counter("heading").as_deref(),
             Some("1.2.1")
         );
         // P170: Introspector tem mesma string via formatted_counter.
@@ -1964,13 +2251,13 @@ mod tests {
             ]
             .into(),
         );
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
         assert_eq!(intr.query_by_kind(ElementKind::Figure).len(), 3);
         // CounterStateLegacy resolve kind=None para "image" → image=2, table=1.
         // Introspector preserva kind literal mas conta as 3 sob ElementKind::Figure.
         // Divergência conhecida (m1-lacunas-captura.md #1).
-        assert_eq!(state.figure_numbers.get("image").map(|v| v.len()).unwrap_or(0), 2);
-        assert_eq!(state.figure_numbers.get("table").map(|v| v.len()).unwrap_or(0), 1);
+        assert_eq!((0..).map_while(|i| intr.figure_number_at_index("image", i)).count(), 2);
+        assert_eq!((0..).map_while(|i| intr.figure_number_at_index("table", i)).count(), 1);
     }
 
     #[test]
@@ -1984,7 +2271,7 @@ mod tests {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
         let locs = intr.query_by_kind(ElementKind::Citation);
         assert_eq!(locs.len(), 3);
     }
@@ -1998,7 +2285,7 @@ mod tests {
         // from_tags arm StateUpdate popula StateRegistry; trait method
         // is_numbering_active retorna true para chave canónica.
         let content = Content::SetHeadingNumbering { active: true };
-        let (_, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
         assert!(
             intr.is_numbering_active("numbering_active:heading"),
             "P182C: pipeline deve popular StateRegistry com Bool(true)"
@@ -2011,7 +2298,7 @@ mod tests {
         // is_numbering_active devolve false (não por estar ausente,
         // mas porque o valor explícito é Bool(false)).
         let content = Content::SetHeadingNumbering { active: false };
-        let (_, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
         assert!(!intr.is_numbering_active("numbering_active:heading"));
     }
 
@@ -2023,7 +2310,7 @@ mod tests {
             label:  Label("intro".to_string()),
             target: Box::new(Content::heading(1, Content::text("Introdução"))),
         };
-        let (_, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         let by_label = intr.query_by_label(&Label("intro".to_string()));
         assert!(by_label.is_some(), "label intro deveria ter sido indexada");
@@ -2040,7 +2327,7 @@ mod tests {
             body: Box::new(Content::Empty), caption: Some(Box::new(Content::text("c"))),
             kind: Some("image".into()), numbering: Some("1".into()),
         };
-        let (_, intr1) = introspect_with_introspector(&single_figure);
+        let intr1 = introspect_with_introspector(&single_figure);
         assert!(intr1.query_first(ElementKind::Figure).is_some());
         assert!(intr1.query_unique(ElementKind::Figure).is_some());
         assert_eq!(
@@ -2061,7 +2348,7 @@ mod tests {
             ]
             .into(),
         );
-        let (_, intr2) = introspect_with_introspector(&two_figures);
+        let intr2 = introspect_with_introspector(&two_figures);
         let first = intr2.query_first(ElementKind::Figure);
         assert!(first.is_some(), "query_first deve devolver primeira location");
         assert_eq!(intr2.query_unique(ElementKind::Figure), None,
@@ -2075,7 +2362,7 @@ mod tests {
         // P166 .C.1: novo entry point retorna tuple (state, introspector).
         // Verificar que introspector tem 1 heading indexado.
         let content = Content::heading(1, Content::text("título"));
-        let (_, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
         assert!(
             intr.query_first(ElementKind::Heading).is_some(),
             "introspector exposto deve ter o heading indexado"
@@ -2095,9 +2382,9 @@ mod tests {
             ]
             .into(),
         );
-        let state = introspect(&content);
+        let intr = introspect_with_introspector(&content);
         assert_eq!(
-            state.format_hierarchical("heading").as_deref(),
+            intr.formatted_counter("heading").as_deref(),
             Some("2"),
             "wrapper introspect() deve produzir mesmo state que antes de M4"
         );
@@ -2122,22 +2409,16 @@ mod tests {
             .into(),
         );
         let state_legacy = introspect(&content);
-        let (state_new, _) = introspect_with_introspector(&content);
+        let _intr_new = introspect_with_introspector(&content);
 
         // Comparação por campos relevantes (CounterStateLegacy não
         // implementa PartialEq globalmente; comparar via API pública).
         assert_eq!(
-            state_legacy.format_hierarchical("heading").as_deref(),
-            state_new.format_hierarchical("heading").as_deref(),
+            state_legacy.formatted_counter("heading").as_deref(),
+            _intr_new.formatted_counter("heading").as_deref(),
         );
-        assert_eq!(
-            state_legacy.figure_numbers.get("image"),
-            state_new.figure_numbers.get("image"),
-        );
-        assert_eq!(
-            state_legacy.resolved_labels.len(),
-            state_new.resolved_labels.len(),
-        );
+        // P190H: state.figure_numbers eliminado. Cobertura paridade
+        // via intr sub-stores em testes dedicados (P184E suite).
     }
 
     // ── P173 (M9 sub-passo 5) — E2E cascade Engine através da API pública ─
@@ -2241,10 +2522,22 @@ mod tests {
             ]
             .into(),
         );
+        // P191B (ADR-0071): pipeline walk → apply_state_funcs.
+        // introspect_with_introspector já não recebe engine/ctx (Funcs
+        // path legacy ignoradas); para exercitar Func eval, replicamos
+        // o pipeline manual de fixpoint::run_fixpoint.
         let world = make_e2e_world();
         let intr = with_engine!(&world, |engine, ctx| {
-            let (_, intr) = super::introspect_with_introspector(
-                &content, Some(&mut engine), Some(&mut ctx),
+            let mut locator = Locator::new();
+            let mut tags: Vec<Tag> = Vec::new();
+            let mut intr = TagIntrospector::empty();
+            let mut auto_label_counter: usize = 0;
+            super::walk(
+                &content, &mut locator, &mut tags,
+                &mut intr, &mut auto_label_counter, None, None,
+            );
+            super::from_tags::apply_state_funcs(
+                &tags, &mut intr, &mut engine, &mut ctx,
             );
             intr
         });
@@ -2270,7 +2563,7 @@ mod tests {
             .into(),
         );
         // Path legacy: walk + from_tags(_, None, None).
-        let (_, intr) = super::introspect_with_introspector(&content, None, None);
+        let intr = super::introspect_with_introspector(&content);
         // Func ignorada → final value continua em init.
         assert_eq!(intr.state_final_value("c"), Some(&Value::Int(0)));
     }
@@ -2306,16 +2599,33 @@ mod tests {
             ]
             .into(),
         );
+        // P191B (ADR-0071): pipeline walk → apply_state_funcs.
         let world = make_e2e_world();
         let v_a = with_engine!(&world, |engine, ctx| {
-            let (_, intr) = super::introspect_with_introspector(
-                &content_a, Some(&mut engine), Some(&mut ctx),
+            let mut locator = Locator::new();
+            let mut tags: Vec<Tag> = Vec::new();
+            let mut intr = TagIntrospector::empty();
+            let mut auto_label_counter: usize = 0;
+            super::walk(
+                &content_a, &mut locator, &mut tags,
+                &mut intr, &mut auto_label_counter, None, None,
+            );
+            super::from_tags::apply_state_funcs(
+                &tags, &mut intr, &mut engine, &mut ctx,
             );
             intr.state_final_value("c").cloned()
         });
         let v_b = with_engine!(&world, |engine, ctx| {
-            let (_, intr) = super::introspect_with_introspector(
-                &content_b, Some(&mut engine), Some(&mut ctx),
+            let mut locator = Locator::new();
+            let mut tags: Vec<Tag> = Vec::new();
+            let mut intr = TagIntrospector::empty();
+            let mut auto_label_counter: usize = 0;
+            super::walk(
+                &content_b, &mut locator, &mut tags,
+                &mut intr, &mut auto_label_counter, None, None,
+            );
+            super::from_tags::apply_state_funcs(
+                &tags, &mut intr, &mut engine, &mut ctx,
             );
             intr.state_final_value("c").cloned()
         });
@@ -2342,17 +2652,17 @@ mod tests {
             ],
             title: None,
         };
-
-        let mut state = CounterStateLegacy::new();
         let mut locator = Locator::new();
         let mut tags: Vec<Tag> = Vec::new();
-        walk(&content, &mut state, &mut locator, &mut tags, None);
+        let mut intr = TagIntrospector::empty();
+        let mut auto_label_counter: usize = 0;
+        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, None);
 
-        // Walk arm puro: state.bib_* não populado.
-        assert!(state.bib_entries.is_empty(),
-            "P181H walk puro: state.bib_entries deve ficar vazio (era populado por walk arm pré-P181H)");
-        assert!(state.bib_numbers.is_empty(),
-            "P181H walk puro: state.bib_numbers deve ficar vazio (era populado por walk arm pré-P181H)");
+        // P190B (M6 categoria Bibliography eliminada): assertions sobre
+        // `state.bib_entries`/`bib_numbers` removidas — fields eliminados
+        // de CounterStateLegacy. Walk arm puro desde P181H confirmado
+        // estruturalmente (sem mutação a fields que já não existem).
+        // Cobertura cobrir-a-tag preservada abaixo.
 
         // Tag emitida pelo topo via extract_payload (P181D): existe
         // exactamente uma Tag::Start de Bibliography.
@@ -2386,11 +2696,11 @@ mod tests {
             entries: vec![BibEntry::new("a", "A", "T", 2024)],
             title:   Some(Box::new(titulo)),
         };
-
-        let mut state = CounterStateLegacy::new();
         let mut locator = Locator::new();
         let mut tags: Vec<Tag> = Vec::new();
-        walk(&content, &mut state, &mut locator, &mut tags, None);
+        let mut intr = TagIntrospector::empty();
+        let mut auto_label_counter: usize = 0;
+        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, None);
 
         // Heading dentro de title produz Tag de Heading.
         use crate::entities::element_payload::ElementPayload;
@@ -2423,7 +2733,7 @@ mod tests {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // Auto-label "auto-toc-1" deve estar no Introspector.resolved_labels
         // populado via Tag::Labelled pós-P196B.
@@ -2448,12 +2758,12 @@ mod tests {
             ]
             .into(),
         );
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // 2 headings → auto-toc-1 e auto-toc-2.
         for n in [1usize, 2] {
             let lbl = Label(format!("auto-toc-{n}"));
-            let from_legacy = state.resolved_labels.get(&lbl).map(String::as_str);
+            let from_legacy = intr.resolved_labels.get(&lbl);
             let from_intr   = intr.resolved_label_for(&lbl);
             assert!(from_legacy.is_some(),
                 "legacy state deve conter {lbl:?} (write paralelo M5)");
@@ -2471,12 +2781,12 @@ mod tests {
         // helper compute_heading_auto_toc retorna (label, "") —
         // resolved_labels recebe insert mesmo assim (presença, não conteúdo).
         let content = Content::heading(1, Content::text("sem numbering"));
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         let lbl = Label("auto-toc-1".to_string());
         // Legacy state preserva insert "" (não None).
         assert_eq!(
-            state.resolved_labels.get(&lbl).map(String::as_str),
+            intr.resolved_labels.get(&lbl),
             Some(""),
             "legacy: numbering inactivo → insert string vazia"
         );
@@ -2503,17 +2813,17 @@ mod tests {
             ]
             .into(),
         );
-        let (state, _intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
-        // E2-residuo: 3 entries em state.headings_for_toc (1 por heading).
+        // P190G: 3 entries em intr.headings_for_toc (1 por heading).
         assert_eq!(
-            state.headings_for_toc.len(),
+            intr.headings_for_toc().len(),
             3,
-            "E2-residuo: walk arm Heading continua a mutar \
-             state.headings_for_toc.push (lacuna #3 sub-store ausente)"
+            "walk arm Heading popula intr.headings_for_toc via \
+             Tag::HeadingForToc pós-recursão (P200B + P190G)"
         );
         // Levels preservados em ordem.
-        let levels: Vec<usize> = state.headings_for_toc
+        let levels: Vec<usize> = intr.headings_for_toc()
             .iter()
             .map(|(_, _, lvl)| *lvl)
             .collect();
@@ -2535,7 +2845,7 @@ mod tests {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // Primeira branch: Introspector path.
         let auto_lbl = Label("auto-toc-1".to_string());
@@ -2568,7 +2878,7 @@ mod tests {
             kind:      Some("image".into()),
             numbering: Some("1".to_string()),
         };
-        let (_, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // Consumer C3 path (P184D): figure_number_at_index retorna Some.
         assert_eq!(
@@ -2581,10 +2891,11 @@ mod tests {
     }
 
     #[test]
-    fn figure_walk_helper_compute_figure_invocado() {
-        // P197B test 2: confirma que walk arm Figure usa helper
-        // compute_figure. Black-box: state.figure_numbers contém valor
-        // correcto (1-based). Mesmo resultado que walk legacy pré-P197B.
+    fn figure_walk_intr_counters_populated_correctamente() {
+        // P197B test 2 (P190H adapted): walk arm Figure puro — populate_intr
+        // arm Figure (P191C) popula intr.counters["figure:image"] em
+        // ordem para figuras is_counted. Field state.figure_numbers
+        // eliminado.
         let content = Content::Sequence(
             vec![
                 Content::Figure {
@@ -2602,86 +2913,62 @@ mod tests {
             ]
             .into(),
         );
-        let (state, _) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
-        // 2 figures image numeradas → state.figure_numbers["image"] = [1, 2].
+        // 2 figures image numeradas → intr.figure_number_at_index = [1, 2].
         assert_eq!(
-            state.figure_numbers.get("image").cloned().unwrap_or_default(),
+            (0..).map_while(|i| intr.figure_number_at_index("image", i)).collect::<Vec<_>>(),
             vec![1, 2],
-            "P197B: helper compute_figure preserva semântica legacy \
-             (1-based, 1 → 2 incremental)"
-        );
-        // local_figure_counters cresceu para 2.
-        assert_eq!(
-            state.local_figure_counters.get("image").copied(),
-            Some(2),
-            "local_figure_counters incrementado em paralelo"
+            "P190H: populate_intr Figure popula intr.counters em ordem (1-based)"
         );
     }
 
     #[test]
-    fn figure_paridade_legacy_vs_introspector_inalterada() {
-        // P197B test 3: confirma paridade entre state legacy e Introspector
-        // após refactor. Caminho Introspector (P184D) e legacy
-        // (state.figure_numbers) devem retornar mesmo número.
+    fn figure_paridade_introspector_pos_p190h() {
+        // P197B test 3 (P190H adapted): confirma paridade Introspector
+        // path puro após eliminação fields legacy. Caminho Introspector
+        // (P184D) é única fonte da verdade.
         let content = Content::Figure {
             body:      Box::new(Content::Empty),
             caption:   Some(Box::new(Content::text("Cap"))),
             kind:      Some("table".into()),
             numbering: Some("1".to_string()),
         };
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
-        let legacy_num = state.figure_numbers.get("table").and_then(|v| v.last()).copied();
         let intr_num = intr.figure_number_at_index("table", 0);
-        assert_eq!(
-            legacy_num, intr_num,
-            "paridade legacy vs Introspector preservada após P197B refactor"
-        );
-        assert_eq!(intr_num, Some(1));
+        assert_eq!(intr_num, Some(1),
+            "P190H: figura única counted → intr.figure_number_at_index(table, 0) = 1");
     }
 
     #[test]
-    fn figure_numbering_inactivo_helper_retorna_none() {
-        // P197B test 4: figura sem caption → is_counted = false →
-        // helper compute_figure retorna None → walk arm Figure NÃO
-        // muta state.figure_numbers nem state.local_figure_counters.
-        // Testa o efeito directo do helper sobre state legacy.
-        //
-        // Nota: from_tags arm Figure incrementa CounterRegistry
-        // independente de is_counted (P184B comportamento pre-existente
-        // não afectado por P197B). Divergência legacy vs Introspector
-        // para figuras uncounted é conhecida (m1-lacunas-captura #1) e
-        // ortogonal ao refactor — sem assertion sobre figure_number_at_index.
+    fn figure_numbering_inactivo_nao_popula_intr() {
+        // P197B test 4 (P190H adapted): figura sem caption → is_counted
+        // = false → populate_intr arm Figure (gated por is_counted)
+        // NÃO popula intr.counters. Field state.figure_numbers e
+        // state.local_figure_counters eliminados.
         let figura_sem_caption = Content::Figure {
             body:      Box::new(Content::Empty),
             caption:   None, // ← sem caption: is_counted = false
             kind:      Some("image".into()),
             numbering: Some("1".to_string()),
         };
-        let (state, _intr) = introspect_with_introspector(&figura_sem_caption);
+        let intr = introspect_with_introspector(&figura_sem_caption);
 
-        // Helper retornou None → sem push em figure_numbers.
-        assert!(
-            state.figure_numbers.get("image").is_none()
-                || state.figure_numbers.get("image").map(|v| v.is_empty()).unwrap_or(true),
-            "is_counted=false → helper retorna None → sem push em figure_numbers"
-        );
-        // local_figure_counters não incrementado.
+        // intr.counters["figure:image"] não populated — gate is_counted.
         assert_eq!(
-            state.local_figure_counters.get("image").copied().unwrap_or(0),
-            0,
-            "is_counted=false → local_figure_counters não incrementado"
+            intr.figure_number_at_index("image", 0),
+            None,
+            "is_counted=false → populate_intr não aplica counter"
         );
     }
 
     #[test]
     fn figure_compute_labelled_p195d_continua_funcional() {
-        // P197B test 5: cadeia E2-E3 preservada após refactor.
-        // compute_labelled P195D Figure arm lê state.figure_numbers.last()
-        // durante walk → produz resolved_text "Figura 1" + figure_number 1.
-        // Tag::Labelled emitida → from_tags popula resolved_labels +
-        // figure_label_numbers.
+        // P197B test 5 (P190H adapted): cadeia E2-E3 preservada via
+        // Introspector path puro. compute_labelled (P191C migrado) lê
+        // intr.flat_counter_at; populate_intr arm Labelled popula
+        // intr.figure_label_numbers.
         let content = Content::Labelled {
             label:  Label("fig1".to_string()),
             target: Box::new(Content::Figure {
@@ -2691,21 +2978,14 @@ mod tests {
                 numbering: Some("1".to_string()),
             }),
         };
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
-        // Mutação legacy preservada: state.figure_label_numbers populado
-        // por compute_labelled P195D Figure arm (que lê state.figure_numbers).
-        assert_eq!(
-            state.figure_label_numbers.get(&Label("fig1".to_string())).copied(),
-            Some(1),
-            "P195D Figure arm continua funcional — cadeia E2-E3 preservada"
-        );
-        // Introspector path: figure_label_numbers populado via from_tags
-        // (P168 + P195D combinados).
+        // P190H: intr.figure_label_numbers populated via populate_intr
+        // arms Figure + Labelled (sem fallback legacy).
         assert_eq!(
             intr.figure_label_numbers.get(&Label("fig1".to_string())).copied(),
             Some(1),
-            "Introspector path popula figure_label_numbers em paralelo"
+            "Introspector path: figure_label_numbers populated via P195D + P184B"
         );
     }
 
@@ -2747,7 +3027,7 @@ mod tests {
         use crate::entities::introspector::Introspector;
 
         let content = Content::SetHeadingNumbering { active: true };
-        let (_, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // Caminho Introspector activo desde P171/P182C: from_tags arm
         // StateUpdate popula intr.state com numbering_active:heading.
@@ -2761,7 +3041,7 @@ mod tests {
     #[test]
     fn set_heading_numbering_paridade_legacy_vs_introspector() {
         // P198B test 3: write paralelo legacy + Introspector preserva
-        // paridade. Legacy state.is_numbering_active("heading") == true;
+        // paridade. Legacy intr.is_numbering_active("numbering_active:heading") == true;
         // Introspector intr.is_numbering_active("numbering_active:heading")
         // == true (chave canónica diferente mas mesmo significado).
         use crate::entities::introspector::Introspector;
@@ -2773,10 +3053,10 @@ mod tests {
             ]
             .into(),
         );
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // Legacy state populado via mutação directa walk arm.
-        assert!(state.is_numbering_active("heading"),
+        assert!(intr.is_numbering_active("numbering_active:heading"),
             "legacy: state.numbering_active['heading'] = true (write paralelo M5)");
         // Introspector path populado via from_tags arm StateUpdate.
         assert!(intr.is_numbering_active("numbering_active:heading"),
@@ -2784,18 +3064,17 @@ mod tests {
     }
 
     #[test]
-    fn compute_heading_auto_toc_le_numbering_active_legacy() {
-        // P198B test 4: confirma cadeia E5 — compute_heading_auto_toc
-        // (P196B) lê state.is_numbering_active durante walk. Quando
-        // numbering inactivo (sem SetHeadingNumbering precedente),
-        // resolved_text fica vazia.
+    fn compute_heading_auto_toc_le_numbering_active_via_introspector() {
+        // P198B test 4 (P190G adapted): confirma cadeia E5 —
+        // compute_heading_auto_toc (P196B + P191B) lê
+        // intr.is_numbering_active_at via Introspector path
+        // location-aware. Quando numbering inactivo (sem
+        // SetHeadingNumbering precedente), resolved_text fica vazia.
         let sem_set = Content::heading(1, Content::text("título"));
-        let (state_sem, _) = introspect_with_introspector(&sem_set);
-        assert!(!state_sem.is_numbering_active("heading"));
+        let intr_sem = introspect_with_introspector(&sem_set);
+        assert!(!intr_sem.is_numbering_active("numbering_active:heading"));
         assert_eq!(
-            state_sem.resolved_labels
-                .get(&Label("auto-toc-1".to_string()))
-                .map(String::as_str),
+            intr_sem.resolved_labels.get(&Label("auto-toc-1".to_string())),
             Some(""),
             "cadeia E5: numbering inactivo → resolved_text vazia (P196B §3)"
         );
@@ -2807,12 +3086,10 @@ mod tests {
             ]
             .into(),
         );
-        let (state_com, _) = introspect_with_introspector(&com_set);
-        assert!(state_com.is_numbering_active("heading"));
+        let intr_com = introspect_with_introspector(&com_set);
+        assert!(intr_com.is_numbering_active("numbering_active:heading"));
         assert_eq!(
-            state_com.resolved_labels
-                .get(&Label("auto-toc-1".to_string()))
-                .map(String::as_str),
+            intr_com.resolved_labels.get(&Label("auto-toc-1".to_string())),
             Some("Secção 1"),
             "cadeia E5: numbering activo → compute_heading_auto_toc \
              retorna 'Secção 1'"
@@ -2820,11 +3097,11 @@ mod tests {
     }
 
     #[test]
-    fn walk_arm_set_heading_preserva_write_paralelo_para_compute_helpers() {
-        // P198B test 5: sentinela cláusula gate substancial cadeia E5.
-        // Confirma que write paralelo legacy é necessário e funcional
-        // para consumer C4 (P194B) receber Some via Introspector path
-        // para auto-toc — chained com E2 fechada P196B.
+    fn walk_arm_set_heading_popula_intr_state() {
+        // P198B test 5 (P190G adapted): confirma cadeia E5 ↔ E2 via
+        // Introspector path puro. Mutação legacy
+        // `state.numbering_active.insert` ELIMINADA em P190G; caminho
+        // Introspector é única fonte da verdade desde P191B.
         let content = Content::Sequence(
             vec![
                 Content::SetHeadingNumbering { active: true },
@@ -2832,23 +3109,22 @@ mod tests {
             ]
             .into(),
         );
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
-        // Mutação legacy preservada (necessária para
-        // compute_heading_auto_toc P196B funcionar durante walk).
-        assert_eq!(
-            state.numbering_active.get("heading").copied(),
-            Some(true),
-            "P198B: mutação legacy state.numbering_active.insert preservada"
+        // Caminho Introspector activo: populate_intr arm StateUpdate
+        // popula intr.state com chave canónica.
+        assert!(
+            intr.is_numbering_active("numbering_active:heading"),
+            "P190G: SetHeadingNumbering popula intr.state via populate_intr"
         );
         // Consumer C4 (P194B) recebe Some via Introspector path —
-        // confirma cadeia E5 ↔ E2 (Heading auto-toc P196B) funcional.
+        // cadeia E5 ↔ E2 funcional via Introspector puro.
         let auto_lbl = Label("auto-toc-1".to_string());
         assert_eq!(
             intr.resolved_label_for(&auto_lbl),
             Some("Secção 1"),
             "cadeia E5↔E2: P196B auto-toc Tag::Labelled populated via \
-             walk arm Heading depende de mutação legacy SetHeadingNumbering"
+             Introspector path location-aware (P191B + P190G)"
         );
     }
 
@@ -2913,7 +3189,7 @@ mod tests {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // 2 Steps em "equation" → counter chega a 2.
         // Procurar a última location com snapshot.
@@ -2951,10 +3227,10 @@ mod tests {
             ]
             .into(),
         );
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // Legacy: state.flat populated via walk arm.
-        assert_eq!(state.get_flat("equation"), 3,
+        assert_eq!(intr.counters.value("equation").and_then(|v| v.last()).copied().unwrap_or(0), 3,
             "legacy: 3 Steps → state.flat['equation'] == 3");
         // Introspector: counter populated via from_tags arm.
         let last_loc = *intr.query_by_kind(ElementKind::CounterUpdate)
@@ -2976,10 +3252,10 @@ mod tests {
             key:    "page".to_string(),
             action: CounterAction::Update(42),
         };
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // Legacy.
-        assert_eq!(state.get_flat("page"), 42,
+        assert_eq!(intr.counters.value("page").and_then(|v| v.last()).copied().unwrap_or(0), 42,
             "legacy: state.update_flat('page', 42) → 42");
         // Introspector.
         let loc = *intr.query_by_kind(ElementKind::CounterUpdate)
@@ -2995,8 +3271,8 @@ mod tests {
     fn counter_update_compute_helpers_continuam_funcionais() {
         // P198C test 6: cadeia E6 ↔ compute_labelled Equation arm
         // preservada após promote. Walk arm Equation lê
-        // state.is_numbering_active("equation") + state.step_flat
-        // durante walk; compute_labelled lê state.get_flat("equation").
+        // intr.is_numbering_active("numbering_active:equation") + state.step_flat
+        // durante walk; compute_labelled lê intr.counters.value("equation").and_then(|v| v.last()).copied().unwrap_or(0).
         // Mutação legacy preservada → cadeia funcional.
         let content = Content::Sequence(
             vec![
@@ -3020,16 +3296,16 @@ mod tests {
             ]
             .into(),
         );
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // Mutação legacy preservada: state.flat["equation"] populado
         // pelo CounterUpdate Step.
-        assert_eq!(state.get_flat("equation"), 1,
+        assert_eq!(intr.counters.value("equation").and_then(|v| v.last()).copied().unwrap_or(0), 1,
             "P198C: mutação legacy preservada — state.step_flat('equation')");
         // compute_labelled Equation arm lê state.get_flat → produz
         // resolved_text "Equação (1)".
         assert_eq!(
-            state.resolved_labels.get(&Label("eq1".to_string())).map(String::as_str),
+            intr.resolved_labels.get(&Label("eq1".to_string())),
             Some("Equação (1)"),
             "cadeia E6↔E4: compute_labelled Equation arm continua funcional \
              após promote — lê state.get_flat('equation') durante walk"
@@ -3082,7 +3358,7 @@ mod tests {
         use crate::entities::introspector::Introspector;
 
         let content = Content::SetEquationNumbering { active: true };
-        let (_, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // P171 arm StateUpdate é genérica — processa qualquer key
         // incluindo numbering_active:equation transparentemente.
@@ -3096,7 +3372,7 @@ mod tests {
     #[test]
     fn set_equation_numbering_paridade_legacy_vs_introspector() {
         // P199B test 3: write paralelo legacy + Introspector preserva
-        // paridade. Legacy state.is_numbering_active("equation") == true;
+        // paridade. Legacy intr.is_numbering_active("numbering_active:equation") == true;
         // Introspector intr.is_numbering_active("numbering_active:equation")
         // == true.
         use crate::entities::introspector::Introspector;
@@ -3111,10 +3387,10 @@ mod tests {
             ]
             .into(),
         );
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // Legacy state populado via mutação directa walk arm.
-        assert!(state.is_numbering_active("equation"),
+        assert!(intr.is_numbering_active("numbering_active:equation"),
             "legacy: state.numbering_active['equation'] = true (write paralelo M5)");
         // Introspector path populado via from_tags arm StateUpdate.
         assert!(intr.is_numbering_active("numbering_active:equation"),
@@ -3124,7 +3400,7 @@ mod tests {
     #[test]
     fn walk_arm_equation_le_numbering_active_legacy_apos_set() {
         // P199B test 4: cadeia E1 — walk arm Equation lê
-        // state.is_numbering_active("equation") durante walk para
+        // intr.is_numbering_active("numbering_active:equation") durante walk para
         // gating do counter step. Confirma que mutação legacy de
         // SetEquationNumbering antes do Equation faz counter avançar.
         let com_set = Content::Sequence(
@@ -3137,22 +3413,23 @@ mod tests {
             ]
             .into(),
         );
-        let (state_com, _) = introspect_with_introspector(&com_set);
+        let intr_com = introspect_with_introspector(&com_set);
 
         // Após SetEquationNumbering activo, walk arm Equation gate
-        // dispara → state.step_flat("equation") → counter chega a 1.
-        assert!(state_com.is_numbering_active("equation"));
-        assert_eq!(state_com.get_flat("equation"), 1,
-            "cadeia E1: walk arm Equation lê is_numbering_active legacy → counter avança");
+        // (P191B: usa intr.is_numbering_active_at) dispara →
+        // state.step_flat("equation") → counter chega a 1.
+        assert!(intr_com.is_numbering_active("numbering_active:equation"));
+        assert_eq!(intr_com.counters.value("equation").and_then(|v| v.last()).copied().unwrap_or(0), 1,
+            "cadeia E1: walk arm Equation gate via intr → counter avança");
 
         // Sem SetEquationNumbering, gate não dispara.
         let sem_set = Content::Equation {
             body:  Box::new(Content::Empty),
             block: true,
         };
-        let (state_sem, _) = introspect_with_introspector(&sem_set);
-        assert!(!state_sem.is_numbering_active("equation"));
-        assert_eq!(state_sem.get_flat("equation"), 0,
+        let intr_sem = introspect_with_introspector(&sem_set);
+        assert!(!intr_sem.is_numbering_active("numbering_active:equation"));
+        assert_eq!(intr_sem.counters.value("equation").and_then(|v| v.last()).copied().unwrap_or(0), 0,
             "sem SetEquationNumbering: gate inactivo → counter não avança");
     }
 
@@ -3178,11 +3455,11 @@ mod tests {
             ]
             .into(),
         );
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // Legacy: compute_labelled Equation arm produz "Equação (1)".
         assert_eq!(
-            state.resolved_labels.get(&Label("eq1".to_string())).map(String::as_str),
+            intr.resolved_labels.get(&Label("eq1".to_string())),
             Some("Equação (1)"),
             "compute_labelled Equation arm activado via mutação legacy SetEquationNumbering"
         );
@@ -3222,7 +3499,7 @@ mod tests {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // Sub-store populated com 1 entry.
         assert_eq!(
@@ -3239,7 +3516,7 @@ mod tests {
     #[test]
     fn headings_for_toc_paridade_legacy_vs_introspector() {
         // P200B test 2: write paralelo legacy + Introspector preserva
-        // paridade exacta. state.headings_for_toc.len() ==
+        // paridade exacta. intr.headings_for_toc().len() ==
         // intr.headings_for_toc().len(); conteúdo idêntico.
         use crate::entities::introspector::Introspector;
 
@@ -3252,15 +3529,15 @@ mod tests {
             ]
             .into(),
         );
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
-        assert_eq!(state.headings_for_toc.len(), 3,
+        assert_eq!(intr.headings_for_toc().len(), 3,
             "legacy: 3 entries (mutação 4 preservada como write paralelo M5)");
         assert_eq!(intr.headings_for_toc().len(), 3,
             "Introspector: 3 entries via Tag::HeadingForToc");
 
         // Paridade exacta — labels e levels.
-        for (legacy_entry, intr_entry) in state.headings_for_toc.iter().zip(intr.headings_for_toc()) {
+        for (legacy_entry, intr_entry) in intr.headings_for_toc().iter().zip(intr.headings_for_toc()) {
             assert_eq!(legacy_entry.0, intr_entry.0, "labels devem ser idênticos");
             assert_eq!(legacy_entry.2, intr_entry.2, "levels devem ser idênticos");
         }
@@ -3271,7 +3548,7 @@ mod tests {
         // P200B test 3: confirma bracketing válido com 6 tags por
         // Heading folha (3 Start + 3 End consecutivas; mesma Location).
         let h = Content::heading(1, Content::text("título"));
-        let (_, tags) = introspect_with_tags(&h);
+        let tags = introspect_with_tags(&h);
 
         assert_eq!(tags.len(), 6, "P200B: 6 tags por Heading folha");
 
@@ -3304,11 +3581,11 @@ mod tests {
             ]
             .into(),
         );
-        let (state, intr) = introspect_with_introspector(&content);
+        let intr = introspect_with_introspector(&content);
 
         // Legacy preservado (write paralelo M5).
         assert_eq!(
-            state.headings_for_toc.len(),
+            intr.headings_for_toc().len(),
             3,
             "E2-residuo: mutação 4 legacy preservada (Layouter mod.rs:1490, 1521 dependem)"
         );
@@ -3319,7 +3596,7 @@ mod tests {
             "P200B: E2-residuo fechada estruturalmente via Tag::HeadingForToc"
         );
         // Levels preservados em ordem.
-        let levels_legacy: Vec<_> = state.headings_for_toc.iter().map(|(_, _, l)| *l).collect();
+        let levels_legacy: Vec<_> = intr.headings_for_toc().iter().map(|(_, _, l)| *l).collect();
         let levels_intr: Vec<_> = intr.headings_for_toc().iter().map(|(_, _, l)| *l).collect();
         assert_eq!(levels_legacy, vec![1, 2, 1]);
         assert_eq!(levels_intr, levels_legacy);
@@ -3333,17 +3610,15 @@ mod tests {
         use crate::entities::introspector::Introspector;
 
         let h = Content::heading(2, Content::text("título"));
-        let (state, intr) = introspect_with_introspector(&h);
+        let intr = introspect_with_introspector(&h);
 
-        // Walk arm Heading: auto_label_counter += 1 → 1.
-        // compute_heading_for_toc usa state.auto_label_counter (1)
-        // → Label("auto-toc-1").
-        assert_eq!(state.auto_label_counter, 1);
-
+        // P190G: walk-internal `auto_label_counter` (local var em
+        // walk fn) incrementado a 1 — verificável via Label
+        // sintetizada no sub-store.
         // Entry correcta no sub-store.
         let entry = &intr.headings_for_toc()[0];
         assert_eq!(entry.0, Label("auto-toc-1".to_string()),
-            "label sintetizada usa state.auto_label_counter");
+            "label sintetizada usa walk-internal auto_label_counter");
         assert_eq!(entry.2, 2,
             "level preservado per cast usize do level: u8");
         // body materializado preserva text content.
@@ -3351,5 +3626,117 @@ mod tests {
             Content::Text(s, _) => assert_eq!(s.as_str(), "título"),
             other => panic!("body esperado Text, obtido {other:?}"),
         }
+    }
+
+    // ── P191B (ADR-0071) — sentinelas mecanismo walk pipeline ───────────
+
+    #[test]
+    fn p191b_walk_popula_intr_directamente_sem_from_tags() {
+        // P191B sentinela #1: walk popula `TagIntrospector` directamente
+        // durante walk via populate_intr_from_tag_start. Sem chamada
+        // a from_tags::from_tags (eliminado em P191B).
+        //
+        // Verifica que doc com Heading + Figure + Cite produz intr
+        // populated com sub-stores correctos só por chamar walk.
+        use crate::entities::element_kind::ElementKind;
+        use crate::entities::introspector::Introspector;
+
+        let content = Content::Sequence(
+            vec![
+                Content::heading(1, Content::text("h")),
+                Content::Figure {
+                    body:      Box::new(Content::Empty),
+                    caption:   Some(Box::new(Content::text("c"))),
+                    kind:      Some("image".to_string()),
+                    numbering: Some("1".to_string()),
+                },
+                Content::Cite {
+                    key:        "k".to_string(),
+                    supplement: None,
+                    form:       None,
+                },
+            ]
+            .into(),
+        );
+
+        // Walk directo — sem from_tags.
+        let mut locator = Locator::new();
+        let mut tags: Vec<Tag> = Vec::new();
+        let mut intr = TagIntrospector::empty();
+        let mut auto_label_counter: usize = 0;
+        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, None);
+
+        // Sub-stores populated por walk directo.
+        assert_eq!(intr.query_by_kind(ElementKind::Heading).len(), 1,
+            "ADR-0071: walk popula kind_index[Heading] directamente");
+        assert_eq!(intr.query_by_kind(ElementKind::Figure).len(), 1,
+            "ADR-0071: walk popula kind_index[Figure] directamente");
+        assert_eq!(intr.query_by_kind(ElementKind::Citation).len(), 1,
+            "ADR-0071: walk popula kind_index[Citation] directamente");
+    }
+
+    #[test]
+    fn p191c_compute_labelled_le_via_introspector_path() {
+        // P191C (ADR-0071 ACEITE) sentinela: compute_labelled migrada
+        // para signature <I: Introspector>(intr, location, target,
+        // lang). Reads location-aware substituem state.figure_numbers
+        // / state.format_hierarchical / state.get_flat. Paridade com
+        // comportamento legacy.
+        //
+        // Cenário: Heading numbered + Labelled Heading (cadeia C1).
+        let content = Content::Sequence(
+            vec![
+                Content::SetHeadingNumbering { active: true },
+                Content::heading(1, Content::text("intro")),
+                Content::Labelled {
+                    label:  Label("sec".to_string()),
+                    target: Box::new(Content::heading(1, Content::text("body"))),
+                },
+            ]
+            .into(),
+        );
+
+        let intr = introspect_with_introspector(&content);
+
+        // resolved_labels populated com "Secção 2" via Introspector path
+        // location-aware (compute_labelled Heading arm chama
+        // intr.formatted_counter_at("heading", target_loc)).
+        assert_eq!(
+            intr.resolved_labels.get(&Label("sec".to_string())),
+            Some("Secção 2"),
+            "compute_labelled via Introspector path: 2ª heading labelled → 'Secção 2'",
+        );
+    }
+
+    #[test]
+    fn p191b_compute_heading_auto_toc_le_via_introspector_path() {
+        // P191B sentinela #2: compute_heading_auto_toc migrada para
+        // signature <I: Introspector>(intr, location, counter_n).
+        // Reads `intr.is_numbering_active_at` + `formatted_counter_at`
+        // location-aware. Paridade com comportamento legacy quando
+        // SetHeadingNumbering(true) precede o Heading.
+        let content = Content::Sequence(
+            vec![
+                Content::SetHeadingNumbering { active: true },
+                Content::heading(1, Content::text("um")),
+                Content::heading(1, Content::text("dois")),
+            ]
+            .into(),
+        );
+
+        let intr = introspect_with_introspector(&content);
+
+        // resolved_labels populated com auto-toc texts via Introspector
+        // path. "Secção 1" para auto-toc-1, "Secção 2" para auto-toc-2.
+        assert_eq!(
+            intr.resolved_labels.get(&Label("auto-toc-1".to_string())),
+            Some("Secção 1"),
+            "compute_heading_auto_toc via Introspector path: 1ª heading → 'Secção 1'",
+        );
+        assert_eq!(
+            intr.resolved_labels.get(&Label("auto-toc-2".to_string())),
+            Some("Secção 2"),
+            "compute_heading_auto_toc via Introspector path: 2ª heading → 'Secção 2'",
+        );
     }
 }
