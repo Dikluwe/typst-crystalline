@@ -22,18 +22,25 @@ impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S> {
         // Auto-numeração: equações de bloco numeradas avançam o contador antes de
         // desenhar (Passo 59). O número (N) é acrescentado depois da equação.
         // P182D: substitution-with-fallback (padrão P168/P181G) — consulta
-        // Introspector primeiro (chave `numbering_active:equation`); cristalino
-        // ainda não tem variant `Content::SetEquationNumbering`, logo o
-        // Introspector retorna sempre `false` para esta chave em P182 — o
-        // fallback legacy é o caminho activo para equation, até passo dedicado
-        // equation-set-rule.
+        // P190E (M6 categoria Numbering active): caminho Introspector
+        // único location-aware — fallback legacy
+        // `self.counter.is_numbering_active("equation")` removido. Usa
+        // `is_numbering_active_at(key, location)` (P185B) em vez de
+        // snapshot final para semântica correcta com re-updates.
+        // `current_location` populated por `advance_locator_if_locatable`
+        // durante walk Layouter.
         use crate::entities::introspector::Introspector;
         let is_numbered = block
-            && (self.introspector.is_numbering_active("numbering_active:equation")
-                || self.counter.is_numbering_active("equation"));
-        if is_numbered {
-            self.counter.step_flat("equation");
-        }
+            && self.current_location
+                .map(|loc| self.introspector
+                    .is_numbering_active_at("numbering_active:equation", loc))
+                .unwrap_or(false);
+        // P190F (M6 categoria Counters core): Layouter mutação
+        // `self.counter.step_flat` removida — counter equation
+        // populated via Introspector path (CounterRegistry +
+        // gate em `from_tags` arm Equation P186E activado por
+        // SetEquationNumbering P199B). Layouter só lê.
+        let _ = is_numbered;
 
         let math_layouter = math::layout::MathLayouter::new(&self.metrics, block);
         let math_items    = math_layouter.layout_equation(body, &self.style);
@@ -94,19 +101,16 @@ impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S> {
         // Acrescentar número da equação inline após o flush (Passo 59).
         // DEBT: alinhamento à direita real requer largura de página — por agora inline.
         if is_numbered {
-            // P188B: substitution-with-fallback location-aware.
-            // Path Introspector (`flat_counter_at`, P185B) é
-            // **dormente em produção** — gate em `from_tags` arm
-            // Equation (P186E) bloqueia porque
-            // `Content::SetEquationNumbering` ausente em cristalino
-            // (P186A §11.2). Fallback legacy `get_flat("equation")`
-            // é caminho funcional **permanente** até equation set rule
-            // materializar.
+            // P190F (M6 categoria Counters core): fallback legacy
+            // `self.counter.get_flat("equation")` removido. Caminho
+            // Introspector único — gate em `from_tags::Equation`
+            // (P186E) activado por SetEquationNumbering (P199B);
+            // CounterRegistry chave "equation" populated.
             use crate::entities::introspector::Introspector;
             let n = self.current_location
                 .and_then(|loc| self.introspector
                     .flat_counter_at("equation", loc))
-                .unwrap_or_else(|| self.counter.get_flat("equation"));
+                .unwrap_or(0);
             self.layout_content(&Content::text(format!("({})", n)));
             self.flush_line();
         }

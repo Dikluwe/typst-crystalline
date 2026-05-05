@@ -15,7 +15,7 @@
 //! actual ~1400 linhas aceite sob Regra 5 + Regra 6 combinadas.
 
 use super::*;
-use crate::entities::{content::Content, counter_state_legacy::CounterStateLegacy, layout_types::FrameItem};
+use crate::entities::{content::Content, layout_types::FrameItem};
 use crate::rules::introspect::introspect;
 
 // ── Testes de FixedMetrics (Passo 21) ────────────────────────────────
@@ -57,7 +57,7 @@ fn layouter_baseline_dentro_da_pagina() {
 
 #[test]
 fn layout_texto_simples_tem_items() {
-    let doc = layout(&Content::text("Hello world"), CounterStateLegacy::default());
+    let doc = layout(&Content::text("Hello world"));
     assert!(!doc.pages.is_empty());
     let total = doc.pages.iter().flat_map(|p| p.items.iter()).count();
     assert!(total >= 2, "Hello e world devem ser itens separados");
@@ -67,7 +67,7 @@ fn layout_texto_simples_tem_items() {
 
 #[test]
 fn layout_documento_vazio_zero_paginas() {
-    let doc = layout(&Content::Empty, CounterStateLegacy::default());
+    let doc = layout(&Content::Empty);
     assert_eq!(doc.pages.len(), 0, "documento vazio → sem páginas");
 }
 
@@ -78,7 +78,7 @@ fn layout_items_dentro_limites_da_pagina() {
         .map(|i| format!("palavra{i}"))
         .collect::<Vec<_>>()
         .join(" ");
-    let doc = layout(&Content::text(&words), CounterStateLegacy::default());
+    let doc = layout(&Content::text(&words));
 
     for page in &doc.pages {
         for item in &page.items {
@@ -102,7 +102,7 @@ fn layout_texto_longo_word_wrap() {
         .map(|i| format!("w{i}"))
         .collect::<Vec<_>>()
         .join(" ");
-    let doc = layout(&Content::text(&words), CounterStateLegacy::default());
+    let doc = layout(&Content::text(&words));
     let items = doc.pages.iter().flat_map(|p| p.items.iter()).count();
     let y_values: std::collections::HashSet<u64> = doc
         .pages
@@ -121,7 +121,7 @@ fn strong_produz_bold_style() {
     // Construção directa usa TextStyle::bold para simular o que eval produziria.
     let doc = layout(&Content::strong(
         Content::Text("Bold".into(), TextStyle::bold(Pt(11.0)))
-    ), CounterStateLegacy::default());
+    ));
     let bold = doc.pages.iter()
         .flat_map(|p| p.items.iter())
         .any(|i| matches!(i, FrameItem::Text { style, .. } if style.bold));
@@ -134,7 +134,7 @@ fn emph_produz_italic_style() {
     // Construção directa usa TextStyle::italic para simular o que eval produziria.
     let doc = layout(&Content::emph(
         Content::Text("Italic".into(), TextStyle::italic(Pt(11.0)))
-    ), CounterStateLegacy::default());
+    ));
     let italic = doc.pages.iter()
         .flat_map(|p| p.items.iter())
         .any(|i| matches!(i, FrameItem::Text { style, .. } if style.italic));
@@ -147,7 +147,7 @@ fn heading_h1_tamanho_maior() {
         Content::heading(1, Content::text("Title")),
         Content::text("body"),
     ]);
-    let doc = layout(&content, introspect(&content));
+    let doc = layout(&content);
     let sizes: Vec<f64> = doc.pages.iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| { if let FrameItem::Text { style, .. } = i { Some(style.size.val()) } else { None } })
@@ -162,7 +162,7 @@ fn estilo_restaurado_apos_strong() {
     let doc = layout(&Content::sequence(vec![
         Content::strong(Content::text("Bold")),
         Content::text("normal"),
-    ]), CounterStateLegacy::default());
+    ]));
     let items: Vec<_> = doc.pages.iter()
         .flat_map(|p| p.items.iter())
         .collect();
@@ -228,7 +228,7 @@ fn pipeline_parse_eval_layout() {
     let module = eval_for_test(&world, &src).unwrap();
     let content = module.content().expect("deve ter content");
     let state = introspect(content);
-    let doc = layout(content, state);
+    let doc = layout(content);
     assert!(!doc.pages.is_empty());
     assert!(
         doc.plain_text().contains("Olá") || doc.plain_text().contains("mundo"),
@@ -240,7 +240,7 @@ fn pipeline_parse_eval_layout() {
 
 #[test]
 fn layout_list_item_tem_bullet() {
-    let doc = layout(&Content::list_item(Content::text("Item")), CounterStateLegacy::default());
+    let doc = layout(&Content::list_item(Content::text("Item")));
     let has_marker = doc.pages.iter()
         .flat_map(|p| p.items.iter())
         .any(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "•"));
@@ -253,7 +253,7 @@ fn layout_raw_block_tamanho_menor() {
         Content::text("normal"),
         Content::raw("code", None, true),
     ]);
-    let doc = layout(&content, CounterStateLegacy::default());
+    let doc = layout(&content);
     let sizes: std::collections::HashSet<u64> = doc.pages.iter()
         .flat_map(|p| p.items.iter())
         .filter_map(|i| match i {
@@ -311,7 +311,7 @@ fn layout_test(src: &str) -> PagedDocument {
     let module = eval_for_test(&world, &source).unwrap();
     let content = module.content().expect("deve ter content");
     let state = introspect(content);
-    layout(content, state)
+    layout(content)
 }
 
 #[cfg(test)]
@@ -705,7 +705,7 @@ mod tests_align {
 fn layout_heading_sem_numbering_nao_tem_prefixo() {
     // Por defeito, numbering_active está vazio — não deve aparecer "1."
     let content = Content::heading(1, Content::text("Intro"));
-    let doc = layout(&content, introspect(&content));
+    let doc = layout(&content);
     let text = doc.plain_text();
     assert!(!text.contains("1."), "sem numbering activo, não deve haver prefixo numérico");
     assert!(text.contains("Intro"));
@@ -719,7 +719,7 @@ fn layout_heading_com_numbering_tem_prefixo() {
         Content::heading(2, Content::text("Motivação")),
         Content::heading(1, Content::text("Conclusão")),
     ].into());
-    let doc = layout(&content, introspect(&content));
+    let doc = layout(&content);
     let text = doc.plain_text();
     assert!(text.contains("1."), "H1 deve ter prefixo '1.'");
     assert!(text.contains("1.1"), "H2 deve ter prefixo '1.1'");
@@ -734,7 +734,7 @@ fn layout_set_heading_numbering_activa_contador() {
         Content::heading(1, Content::text("Intro")),
         Content::heading(2, Content::text("Sub")),
     ].into());
-    let doc = layout(&content, introspect(&content));
+    let doc = layout(&content);
     let text = doc.plain_text();
     assert!(text.contains("1."), "H1 deve ter prefixo '1.'");
     assert!(text.contains("1.1"), "H2 deve ter prefixo '1.1'");
@@ -755,15 +755,15 @@ fn p182d_heading_numbering_via_introspector_path() {
     use crate::rules::introspect::introspect_with_introspector;
 
     let plain = Content::heading(1, Content::text("Intro"));
-    let (_, mut intr): (CounterStateLegacy, TagIntrospector) =
-        introspect_with_introspector(&plain, None, None);
+    let mut intr: TagIntrospector =
+        introspect_with_introspector(&plain);
     intr.state.init(
         "numbering_active:heading".to_string(),
         Value::Bool(true),
         Location::from_raw(0),
     );
     // State legacy vazio — apenas Introspector path activo.
-    let doc = layout_with_introspector(&plain, CounterStateLegacy::default(), intr);
+    let doc = layout_with_introspector(&plain, intr);
     let text = doc.plain_text();
     assert!(
         text.contains("1."),
@@ -771,23 +771,9 @@ fn p182d_heading_numbering_via_introspector_path() {
     );
 }
 
-#[test]
-fn p182d_heading_numbering_via_fallback_legacy() {
-    // Caminho simétrico: Introspector vazio, legacy state pré-populado —
-    // fallback `||` deve disparar prefixo (preservação de janela compat M6).
-    use crate::entities::introspector::TagIntrospector;
-
-    let plain = Content::heading(1, Content::text("Intro"));
-    let mut state_legacy = CounterStateLegacy::default();
-    state_legacy.numbering_active.insert("heading".to_string(), true);
-    let intr_vazio = TagIntrospector::empty();
-    let doc = layout_with_introspector(&plain, state_legacy, intr_vazio);
-    let text = doc.plain_text();
-    assert!(
-        text.contains("1."),
-        "P182D: fallback legacy deve preservar paridade quando Introspector vazio; obtido: '{text}'"
-    );
-}
+// P190E (M6): test `p182d_heading_numbering_via_fallback_legacy` removido —
+// fallback legacy `self.counter.is_numbering_active(...)` eliminado em P190E.
+// Caminho Introspector único activo desde P198B. Sem fallback para testar.
 
 #[test]
 fn p182d_heading_numbering_paridade_legacy_vs_migrated() {
@@ -803,9 +789,9 @@ fn p182d_heading_numbering_paridade_legacy_vs_migrated() {
         Content::heading(1, Content::text("Conclusão")),
     ].into());
 
-    let txt_legacy = layout(&content, introspect(&content)).plain_text();
-    let (state, intr) = introspect_with_introspector(&content, None, None);
-    let txt_new = layout_with_introspector(&content, state, intr).plain_text();
+    let txt_legacy = layout(&content).plain_text();
+    let intr = introspect_with_introspector(&content);
+    let txt_new = layout_with_introspector(&content, intr).plain_text();
     assert_eq!(txt_legacy, txt_new, "P182D: paridade pre/post migração");
 }
 
@@ -816,7 +802,7 @@ fn layout_counter_display_heading_retorna_estado_actual() {
         Content::heading(1, Content::text("Intro")),
         Content::CounterDisplay { kind: "heading".to_string() },
     ].into());
-    let doc = layout(&content, introspect(&content));
+    let doc = layout(&content);
     let text = doc.plain_text();
     // CounterDisplay de heading após H1 deve mostrar "1"
     // (o heading já avançou o contador antes de CounterDisplay ser processado)
@@ -827,20 +813,20 @@ fn layout_counter_display_heading_retorna_estado_actual() {
 
 #[test]
 fn counter_update_nao_produz_items_visuais() {
-    use crate::entities::counter_state_legacy::CounterAction;
+    use crate::entities::counter_update::CounterUpdate as CounterAction;
 
     let content = Content::CounterUpdate {
         key:    "equation".to_string(),
         action: CounterAction::Update(5),
     };
-    let doc = layout(&content, CounterStateLegacy::default());
+    let doc = layout(&content);
     let total_items: usize = doc.pages.iter().map(|p| p.items.len()).sum();
     assert_eq!(total_items, 0, "CounterUpdate não deve gerar items visuais");
 }
 
 #[test]
 fn counter_update_seguido_de_display_mostra_valor_correcto() {
-    use crate::entities::counter_state_legacy::CounterAction;
+    use crate::entities::counter_update::CounterUpdate as CounterAction;
 
     let content = Content::Sequence(vec![
         Content::CounterUpdate {
@@ -849,7 +835,7 @@ fn counter_update_seguido_de_display_mostra_valor_correcto() {
         },
         Content::CounterDisplay { kind: "equation".to_string() },
     ].into());
-    let doc = layout(&content, CounterStateLegacy::default());
+    let doc = layout(&content);
     assert!(doc.plain_text().contains('5'),
         "CounterDisplay deve mostrar '5' após Update(5): {:?}", doc.plain_text());
 }
@@ -870,7 +856,7 @@ fn layout_ref_para_tras_resolve_secao() {
         Content::Ref { target: Label("intro".to_string()) },
     ].into());
 
-    let doc = layout(&content, introspect(&content));
+    let doc = layout(&content);
     let text = doc.plain_text();
     assert!(
         text.contains("Secção 1"),
@@ -892,7 +878,7 @@ fn layout_ref_para_frente_resolve_com_duas_passagens() {
         },
     ].into());
 
-    let doc = layout(&content, introspect(&content));
+    let doc = layout(&content);
     let text = doc.plain_text();
     assert!(
         text.contains("Secção 1"),
@@ -908,16 +894,17 @@ fn layout_ref_para_frente_resolve_com_duas_passagens() {
 fn layout_resolved_labels_nao_interfere_entre_documentos() {
     // Estados de cada chamada a layout() são independentes.
     use crate::entities::label::Label;
+    use crate::rules::introspect::introspect_with_introspector;
 
     let content_a = Content::Labelled {
         label:  Label("sec".to_string()),
         target: Box::new(Content::heading(1, Content::text("A"))),
     };
-    let _ = layout(&content_a, introspect(&content_a));
+    let _ = layout(&content_a);
 
     // Segundo layout independente — não deve ter "sec" resolvida
     let content_b = Content::Ref { target: Label("sec".to_string()) };
-    let doc_b = layout(&content_b, introspect(&content_b));
+    let doc_b = layout(&content_b);
     assert!(
         doc_b.plain_text().contains("@sec"),
         "Estado do layout anterior não deve vazar para o seguinte"
@@ -929,7 +916,7 @@ fn layout_resolved_labels_nao_interfere_entre_documentos() {
 #[test]
 fn pipeline_duas_passagens_resolve_forward_ref() {
     use crate::entities::label::Label;
-    use crate::rules::{introspect::introspect, layout::layout};
+    use crate::rules::{introspect::{introspect, introspect_with_introspector}, layout::layout};
 
     let content = Content::Sequence(vec![
         Content::SetHeadingNumbering { active: true },
@@ -942,15 +929,16 @@ fn pipeline_duas_passagens_resolve_forward_ref() {
         },
     ].into());
 
-    // Passagem 1 — verificar que introspect resolve forward ref
-    let initial_state = introspect(&content);
+    // Passagem 1 — verificar que introspect resolve forward ref via
+    // intr (P190G: state.resolved_labels eliminado).
+    let intr = introspect_with_introspector(&content);
     assert!(
-        initial_state.resolved_labels.contains_key(&Label("conclusao".to_string())),
-        "introspect deve popular resolved_labels para forward refs"
+        intr.resolved_labels.get(&Label("conclusao".to_string())).is_some(),
+        "introspect deve popular intr.resolved_labels para forward refs"
     );
 
     // Passagem 2 — layout usa o estado da pré-passagem.
-    let doc = layout(&content, initial_state);
+    let doc = layout(&content);
     let text = doc.plain_text();
     assert!(
         text.contains("Secção 1"),
@@ -964,15 +952,18 @@ fn pipeline_duas_passagens_resolve_forward_ref() {
 
 #[test]
 fn layout_equation_bloco_numerada() {
-    let mut state = CounterStateLegacy::new();
-    state.numbering_active.insert("equation".to_string(), true);
+    // P190E (M6): test adaptado — usa pipeline standard com
+    // Content::SetEquationNumbering em vez de mutar state.numbering_active
+    // directamente. Caminho Introspector activo desde P199B.
+    let content = Content::Sequence(vec![
+        Content::SetEquationNumbering { active: true },
+        Content::Equation {
+            body:  Box::new(Content::MathIdent("E".into())),
+            block: true,
+        },
+    ].into());
 
-    let content = Content::Equation {
-        body:  Box::new(Content::MathIdent("E".into())),
-        block: true,
-    };
-
-    let doc = layout(&content, state);
+    let doc = layout(&content);
     let text = doc.plain_text();
     assert!(
         text.contains("(1)"),
@@ -994,7 +985,7 @@ fn layout_outline_gera_indice_com_titulos() {
     // Passagem 1 — o teste orquestra explicitamente como o orquestrador L3 faz.
     let state = introspect(&content);
     // Passagem 2 — layout recebe o estado pré-calculado.
-    let doc = layout(&content, state);
+    let doc = layout(&content);
     let text = doc.plain_text();
 
     assert!(text.contains("Índice"), "TOC deve ter título 'Índice'");
@@ -1006,7 +997,7 @@ fn layout_outline_gera_indice_com_titulos() {
 fn layout_outline_sem_headings_gera_apenas_titulo_ou_vazio() {
     let content = Content::Outline;
     let state = introspect(&content);
-    let doc = layout(&content, state);
+    let doc = layout(&content);
     let text = doc.plain_text();
 
     assert!(text.contains("Índice") || text.is_empty(),
@@ -1022,7 +1013,7 @@ fn layout_outline_heading_nivel2_tem_indentacao() {
     ].into());
 
     let state = introspect(&content);
-    let doc = layout(&content, state);
+    let doc = layout(&content);
     let text = doc.plain_text();
 
     // Heading de nível 2 → TOC deve conter espaços de indentação antes de H2.
@@ -1043,7 +1034,7 @@ fn layout_figure_com_caption_tem_prefixo() {
     };
 
     let state = introspect(&content);
-    let doc = layout(&content, state);
+    let doc = layout(&content);
     let text = doc.plain_text();
 
     assert!(text.contains("Gráfico"),    "corpo da figura deve aparecer");
@@ -1061,7 +1052,7 @@ fn layout_figure_sem_caption_sem_prefixo() {
     };
 
     let state = introspect(&content);
-    let doc = layout(&content, state);
+    let doc = layout(&content);
     let text = doc.plain_text();
 
     assert!(text.contains("Diagrama"),    "corpo deve aparecer");
@@ -1090,7 +1081,7 @@ fn layout_ref_para_figura_resolve_corretamente() {
     );
 
     let state = introspect(&content);
-    let doc = layout(&content, state);
+    let doc = layout(&content);
     let text = doc.plain_text();
 
     assert!(text.contains("Figura 1"),
@@ -1113,7 +1104,7 @@ fn layout_regista_pagina_de_label() {
     ].into());
 
     let state = introspect(&content);
-    let doc = layout(&content, state);
+    let doc = layout(&content);
 
     assert!(
         doc.extracted_label_pages.contains_key(&Label("sec1".to_string())),
@@ -1131,7 +1122,7 @@ fn layout_pagina_de_label_e_um_indexed() {
     };
 
     let state = introspect(&content);
-    let doc = layout(&content, state);
+    let doc = layout(&content);
 
     let page = doc.extracted_label_pages.get(&Label("top".to_string()))
         .copied()
@@ -1144,7 +1135,7 @@ fn layout_toc_com_readonly_nao_duplica_contadores() {
     // Heading com CounterUpdate embebido — sem is_readonly, o contador avançaria
     // duas vezes (uma no heading real, outra no clone da TOC).
     // Com is_readonly, a renderização da TOC é neutra em relação aos contadores.
-    use crate::entities::counter_state_legacy::CounterAction;
+    use crate::entities::counter_update::CounterUpdate as CounterAction;
 
     let body_with_counter_update = Content::Sequence(vec![
         Content::text("Secção"),
@@ -1161,7 +1152,7 @@ fn layout_toc_com_readonly_nao_duplica_contadores() {
     ].into());
 
     let state = introspect(&content);
-    let doc = layout(&content, state);
+    let doc = layout(&content);
     let text = doc.plain_text();
 
     // Sem is_readonly: CounterUpdate dispararia 2× → display mostraria "2".
@@ -1176,7 +1167,7 @@ fn layout_toc_com_readonly_nao_duplica_contadores() {
 fn layout_extracted_label_pages_preenchido_apos_layout() {
     // extracted_label_pages é sempre populado após layout, mesmo sem labels.
     let content = Content::text("Texto sem labels");
-    let doc = layout(&content, CounterStateLegacy::default());
+    let doc = layout(&content);
     // Deve existir o campo (pode estar vazio)
     assert!(doc.extracted_label_pages.is_empty(),
         "sem labels, extracted_label_pages deve estar vazio");
@@ -1196,7 +1187,7 @@ fn layout_converge_sem_ciclo_infinito() {
     let state = introspect(&content);
     // Se o fixpoint tiver defeito, entra em loop até MAX_ITERATIONS.
     // Não deve panic.
-    let doc = layout(&content, state);
+    let doc = layout(&content);
 
     let text = doc.plain_text();
     assert!(text.contains("Capítulo 1"), "título deve aparecer: {:?}", text);
@@ -1217,9 +1208,12 @@ fn layout_documento_sem_toc_usa_curto_circuito() {
     ].into());
 
     let state = introspect(&content);
-    assert!(!state.has_outline, "sem Outline no documento, has_outline deve ser false");
+    // P190D (M6 categoria Document metadata): assertion sobre
+    // `state.has_outline` removida — field eliminado. Cobertura via
+    // `intr.kind_index[Outline]` em tests Introspector + integração
+    // Layouter mod.rs:1488.
 
-    let doc = layout(&content, state);
+    let doc = layout(&content);
     assert!(!doc.pages.is_empty(), "documento deve ter páginas");
 }
 
@@ -1235,7 +1229,7 @@ fn layout_com_labels_produz_extracted_label_pages() {
     ].into());
 
     let state = introspect(&content);
-    let doc = layout(&content, state);
+    let doc = layout(&content);
 
     assert!(
         doc.extracted_label_pages.contains_key(&Label("sec1".to_string())),
@@ -1258,7 +1252,7 @@ fn layout_image_gera_frameitem() {
     };
 
     let state = introspect(&content);
-    let doc   = layout(&content, state);
+    let doc   = layout(&content);
 
     assert!(!doc.pages.is_empty(), "documento deve ter pelo menos uma página");
 
@@ -1430,7 +1424,7 @@ fn grid_altura_da_linha_e_o_maximo_das_celulas() {
     };
 
     let state = introspect(&grid);
-    let doc   = layout(&grid, state);
+    let doc   = layout(&grid);
 
     assert_eq!(doc.pages.len(), 1, "Grid simples deve caber numa página");
     let total_items = doc.pages[0].items.len();
@@ -1503,7 +1497,7 @@ mod tests_styled_integration {
             Styles::from_iter([Style::Bold(true), Style::Size(Pt(18.0))]),
         );
 
-        let doc = layout(&styled, CounterStateLegacy::new());
+        let doc = layout(&styled);
         let texts = collect_text_items(&doc);
         assert!(!texts.is_empty(), "esperado pelo menos 1 FrameItem::Text");
 
@@ -1529,7 +1523,7 @@ mod tests_styled_integration {
             Styles::from_iter([Style::Bold(true), Style::Italic(false)]),
         );
 
-        let doc = layout(&outer, CounterStateLegacy::new());
+        let doc = layout(&outer);
         let texts = collect_text_items(&doc);
         assert!(!texts.is_empty());
 
@@ -1556,7 +1550,7 @@ mod tests_styled_integration {
         let plain = Content::text("plain");
         let seq = Content::Sequence(Arc::from(vec![styled, Content::Space, plain]));
 
-        let doc = layout(&seq, CounterStateLegacy::new());
+        let doc = layout(&seq);
         let texts = collect_text_items(&doc);
 
         // Encontrar o item do texto "STYLED" e do texto "plain".
@@ -1628,7 +1622,7 @@ mod tests_set_rule_integration {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("content");
         let state = introspect(content);
-        layout(content, state)
+        layout(content)
     }
 
     fn text_items(doc: &PagedDocument) -> Vec<(String, crate::entities::layout_types::TextStyle)> {
@@ -1982,7 +1976,7 @@ mod tests_show_rule_integration {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("content");
         let state = introspect(content);
-        layout(content, state)
+        layout(content)
     }
 
     fn plain_text(doc: &PagedDocument) -> String {
@@ -2077,7 +2071,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
 
         // Documento sem pad como baseline.
-        let baseline = layout(&Content::text("hello"), CounterStateLegacy::default());
+        let baseline = layout(&Content::text("hello"));
         let baseline_y_max: f64 = baseline.pages
             .iter()
             .flat_map(|p| p.items.iter())
@@ -2093,7 +2087,7 @@ mod tests_show_rule_integration {
             Content::text("hello"),
             Sides::new(None, Some(Length::pt(20.0)), None, Some(Length::pt(20.0))),
         );
-        let with_pad = layout(&padded, CounterStateLegacy::default());
+        let with_pad = layout(&padded);
         let pad_y_max: f64 = with_pad.pages
             .iter()
             .flat_map(|p| p.items.iter())
@@ -2115,7 +2109,7 @@ mod tests_show_rule_integration {
     #[test]
     fn layout_hide_emite_zero_text_items() {
         let hidden = Content::hide(Content::text("invisivel"));
-        let doc = layout(&hidden, CounterStateLegacy::default());
+        let doc = layout(&hidden);
         let text_items = doc.pages
             .iter()
             .flat_map(|p| p.items.iter())
@@ -2140,7 +2134,7 @@ mod tests_show_rule_integration {
             Content::h_space(Length::pt(50.0), false),
             Content::text("B"),
         ]));
-        let doc = layout(&with_space, CounterStateLegacy::default());
+        let doc = layout(&with_space);
         let texts: Vec<_> = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -2169,7 +2163,7 @@ mod tests_show_rule_integration {
             Content::v_space(Length::pt(30.0), false),
             Content::text("B"),
         ]));
-        let doc = layout(&with_space, CounterStateLegacy::default());
+        let doc = layout(&with_space);
         let texts: Vec<_> = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -2213,7 +2207,7 @@ mod tests_show_rule_integration {
             Content::pagebreak(false, None),
             Content::text("B"),
         ]));
-        let doc = layout(&doc_content, CounterStateLegacy::default());
+        let doc = layout(&doc_content);
         // Esperamos pelo menos 2 páginas (A na primeira, B na segunda).
         assert!(doc.pages.len() >= 2,
             "esperado >= 2 páginas após pagebreak, obtive {}", doc.pages.len());
@@ -2236,7 +2230,7 @@ mod tests_show_rule_integration {
             Content::pagebreak(false, Some(crate::entities::parity::Parity::Even)),
             Content::text("B"),
         ]));
-        let doc = layout(&doc_content, CounterStateLegacy::default());
+        let doc = layout(&doc_content);
         // A em p1 (ímpar); pagebreak commits p1, próxima seria p2 (par).
         // Even matches → sem inserção extra. B em p2.
         let page_a = page_index_containing(&doc, "A").expect("A não encontrado");
@@ -2258,7 +2252,7 @@ mod tests_show_rule_integration {
             Content::pagebreak(false, Some(crate::entities::parity::Parity::Odd)),
             Content::text("B"),
         ]));
-        let doc = layout(&doc_content, CounterStateLegacy::default());
+        let doc = layout(&doc_content);
         let page_a = page_index_containing(&doc, "A").expect("A não encontrado");
         let page_b = page_index_containing(&doc, "B").expect("B não encontrado");
         assert_eq!(page_a, 1);
@@ -2290,7 +2284,7 @@ mod tests_show_rule_integration {
             ),
             Content::text("C"),
         ]));
-        let doc = layout(&doc_content, CounterStateLegacy::default());
+        let doc = layout(&doc_content);
         let texts: Vec<_> = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -2329,7 +2323,7 @@ mod tests_show_rule_integration {
             ),
             Content::text("B"),
         ]));
-        let doc = layout(&doc_content, CounterStateLegacy::default());
+        let doc = layout(&doc_content);
         let texts: Vec<_> = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -2363,7 +2357,7 @@ mod tests_show_rule_integration {
                 Length::ZERO,
             ),
         ]));
-        let doc1 = layout(&no_inset, CounterStateLegacy::default());
+        let doc1 = layout(&no_inset);
         let pos_m1: f64 = doc1.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "M" => Some(pos.x.val()),
@@ -2380,7 +2374,7 @@ mod tests_show_rule_integration {
                 Length::ZERO,
             ),
         ]));
-        let doc2 = layout(&with_inset, CounterStateLegacy::default());
+        let doc2 = layout(&with_inset);
         let pos_m2: f64 = doc2.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "M" => Some(pos.x.val()),
@@ -2404,7 +2398,7 @@ mod tests_show_rule_integration {
             Dir::TTB,
             None,
         );
-        let doc = layout(&s, CounterStateLegacy::default());
+        let doc = layout(&s);
         let texts: Vec<_> = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } => Some((pos.y.val(), text.to_string())),
@@ -2427,7 +2421,7 @@ mod tests_show_rule_integration {
             Dir::LTR,
             None,
         );
-        let doc = layout(&s, CounterStateLegacy::default());
+        let doc = layout(&s);
         let texts: Vec<_> = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } =>
@@ -2459,7 +2453,7 @@ mod tests_show_rule_integration {
             vec![Content::text("A"), Content::text("B")],
             Dir::TTB, None,
         );
-        let doc1 = layout(&s_no_space, CounterStateLegacy::default());
+        let doc1 = layout(&s_no_space);
         let pos_b1: f64 = doc1.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "B" => Some(pos.y.val()),
@@ -2472,7 +2466,7 @@ mod tests_show_rule_integration {
             Dir::TTB,
             Some(Length::pt(30.0)),
         );
-        let doc2 = layout(&s_with_space, CounterStateLegacy::default());
+        let doc2 = layout(&s_with_space);
         let pos_b2: f64 = doc2.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "B" => Some(pos.y.val()),
@@ -2499,7 +2493,7 @@ mod tests_show_rule_integration {
             Content::block(Content::text("x"), None, None, Sides::uniform(Length::ZERO), true),
             Content::text("B"),
         ]));
-        let doc1 = layout(&no_height, CounterStateLegacy::default());
+        let doc1 = layout(&no_height);
         let pos_b1: f64 = doc1.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "B" => Some(pos.y.val()),
@@ -2519,7 +2513,7 @@ mod tests_show_rule_integration {
             ),
             Content::text("B"),
         ]));
-        let doc2 = layout(&with_height, CounterStateLegacy::default());
+        let doc2 = layout(&with_height);
         let pos_b2: f64 = doc2.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "B" => Some(pos.y.val()),
@@ -2541,7 +2535,7 @@ mod tests_show_rule_integration {
     #[test]
     fn layout_repeat_renderiza_body_no_contexto_actual() {
         let r = Content::repeat(Content::text("X"), None, true);
-        let doc = layout(&r, CounterStateLegacy::default());
+        let doc = layout(&r);
         // Body deve aparecer pelo menos uma vez (single-render).
         let count_x = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "X"))
@@ -2567,7 +2561,7 @@ mod tests_show_rule_integration {
                 true,
             ),
         ]));
-        let doc = layout(&doc_content, introspect(&doc_content));
+        let doc = layout(&doc_content);
         // Render mínimo sem panic; body Title presente.
         assert!(doc.plain_text().contains("Title"),
             "heading dentro de repeat deve renderizar: doc='{}'", doc.plain_text());
@@ -2586,7 +2580,7 @@ mod tests_show_rule_integration {
             Content::pagebreak(false, Some(crate::entities::parity::Parity::Even)),   // → próxima p4 (já par)
             Content::text("C"),                                                       // p4
         ]));
-        let doc = layout(&doc_content, CounterStateLegacy::default());
+        let doc = layout(&doc_content);
         let page_a = page_index_containing(&doc, "A").expect("A não encontrado");
         let page_b = page_index_containing(&doc, "B").expect("B não encontrado");
         let page_c = page_index_containing(&doc, "C").expect("C não encontrado");
@@ -2612,7 +2606,7 @@ mod tests_show_rule_integration {
                 Content::text("d"),
             ],
         );
-        let doc = layout(&t, CounterStateLegacy::default());
+        let doc = layout(&t);
         // Todos os 4 children devem aparecer como FrameItems::Text.
         for label in ["a", "b", "c", "d"] {
             let count = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -2640,7 +2634,7 @@ mod tests_show_rule_integration {
             rows:    vec![],
             cells:   cells.clone(),
         };
-        let doc_g = layout(&g, CounterStateLegacy::default());
+        let doc_g = layout(&g);
         let positions_g: Vec<(String, f64, f64)> = doc_g.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -2651,7 +2645,7 @@ mod tests_show_rule_integration {
 
         // Versão Table.
         let t = Content::table(columns, vec![], cells);
-        let doc_t = layout(&t, CounterStateLegacy::default());
+        let doc_t = layout(&t);
         let positions_t: Vec<(String, f64, f64)> = doc_t.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -2677,7 +2671,7 @@ mod tests_show_rule_integration {
             Some(2), Some(3),
             Some(99), Some(99),  // spans grandes; ignorados em layout
         );
-        let doc = layout(&c, CounterStateLegacy::default());
+        let doc = layout(&c);
         // Body deve aparecer **exactamente uma vez** (sem multiplicar
         // por colspan/rowspan).
         let count_x = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -2703,7 +2697,7 @@ mod tests_show_rule_integration {
                 Content::table_cell(Content::text("d"), Some(2), Some(0), None, None),
             ],
         );
-        let doc = layout(&t, CounterStateLegacy::default());
+        let doc = layout(&t);
         // Todos os 4 conteúdos devem aparecer como FrameItems.
         for label in ["a", "b", "c", "d"] {
             let count = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -2722,7 +2716,7 @@ mod tests_show_rule_integration {
     #[test]
     fn layout_table_header_renderiza_body_no_contexto_actual() {
         let h = Content::table_header(Content::text("HDR"), true);
-        let doc = layout(&h, CounterStateLegacy::default());
+        let doc = layout(&h);
         let count = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "HDR"))
             .count();
@@ -2734,7 +2728,7 @@ mod tests_show_rule_integration {
     #[test]
     fn layout_table_footer_renderiza_body_no_contexto_actual() {
         let f = Content::table_footer(Content::text("FTR"), true);
-        let doc = layout(&f, CounterStateLegacy::default());
+        let doc = layout(&f);
         let count = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "FTR"))
             .count();
@@ -2758,7 +2752,7 @@ mod tests_show_rule_integration {
                 Content::table_footer(Content::text("F"), true),
             ],
         );
-        let doc = layout(&t, CounterStateLegacy::default());
+        let doc = layout(&t);
         // Os 4 conteúdos (H, a, b, F) devem aparecer pelo menos uma vez.
         for label in ["H", "a", "b", "F"] {
             let count = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -2784,7 +2778,7 @@ mod tests_show_rule_integration {
             ],
             None,
         );
-        let doc = layout(&b, CounterStateLegacy::default());
+        let doc = layout(&b);
         let txt = doc.plain_text();
         // Ambos os keys devem aparecer no output formatado.
         assert!(txt.contains("[smith2024]"), "key smith2024 deve aparecer formatada como [key]: doc='{}'", txt);
@@ -2798,7 +2792,7 @@ mod tests_show_rule_integration {
     #[test]
     fn layout_cite_renderiza_placeholder_com_key() {
         let c = Content::cite("smith2024", None, None);
-        let doc = layout(&c, CounterStateLegacy::default());
+        let doc = layout(&c);
         let txt = doc.plain_text();
         assert!(txt.contains("[smith2024]"),
             "Cite renderiza placeholder [key]: doc='{}'", txt);
@@ -2816,7 +2810,7 @@ mod tests_show_rule_integration {
                 Some(Content::text("Referências")),
             ),
         ]));
-        let doc = layout(&doc_content, CounterStateLegacy::default());
+        let doc = layout(&doc_content);
         let txt = doc.plain_text();
         // Ambos cite e bibliography devem aparecer.
         assert!(txt.contains("[smith2024]"), "cite + bibliography ambos devem ter [smith2024]");
@@ -2831,7 +2825,7 @@ mod tests_show_rule_integration {
     fn layout_with_introspect(c: &Content) -> String {
         use crate::rules::introspect::introspect;
         let state = introspect(c);
-        let doc = layout(c, state);
+        let doc = layout(c);
         doc.plain_text()
     }
 
@@ -2916,7 +2910,7 @@ mod tests_show_rule_integration {
             .with_pages("1-10")
             .with_publisher("ACM");
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterStateLegacy::default());
+        let doc = layout(&b);
         let txt = doc.plain_text();
         // Todos os fields novos devem aparecer no output formatado.
         assert!(txt.contains("Nature Communications"),
@@ -2938,7 +2932,7 @@ mod tests_show_rule_integration {
         use crate::entities::bib_entry::BibEntry;
         let entry = BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024);
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterStateLegacy::default());
+        let doc = layout(&b);
         let txt = doc.plain_text();
         // Output P159A: "[smith2024] Smith, J.. On Crystal Math (2024)."
         assert!(txt.contains("[smith2024]"), "key como [key]");
@@ -3083,7 +3077,7 @@ mod tests_show_rule_integration {
             .with_url("https://example.com/paper")
             .with_doi("10.1234/abc");
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterStateLegacy::default());
+        let doc = layout(&b);
         let txt = doc.plain_text();
         // URL plaintext literal deve aparecer.
         assert!(txt.contains("https://example.com/paper"),
@@ -3105,7 +3099,7 @@ mod tests_show_rule_integration {
             .with_journal("Nature Communications")
             .with_volume("12");
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterStateLegacy::default());
+        let doc = layout(&b);
         let txt = doc.plain_text();
         // P159D fields presentes.
         assert!(txt.contains("Nature Communications"));
@@ -3133,7 +3127,7 @@ mod tests_show_rule_integration {
             .with_location("New York")
             .with_publisher("ACM");
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterStateLegacy::default());
+        let doc = layout(&b);
         let txt = doc.plain_text();
         // Editor com prefixo (Ed. ).
         assert!(txt.contains("(Ed. Doe, A.)"),
@@ -3161,7 +3155,7 @@ mod tests_show_rule_integration {
             .with_url("https://example.com")
             .with_doi("10.1/a");
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterStateLegacy::default());
+        let doc = layout(&b);
         let txt = doc.plain_text();
         // P159E fields preservados.
         assert!(txt.contains("https://example.com"));
@@ -3183,7 +3177,7 @@ mod tests_show_rule_integration {
         let entry = BibEntry::new("tech2024", "Smith, J.", "Tech Report", 2024)
             .with_organization("MIT");
         let b = Content::bibliography(vec![entry], None);
-        let doc = layout(&b, CounterStateLegacy::default());
+        let doc = layout(&b);
         let txt = doc.plain_text();
         // Organization aparece no slot publisher.
         assert!(txt.contains("MIT"),
@@ -3224,8 +3218,8 @@ mod p168_figure_ref_migration {
         // P168 .E.1: figure numbered+captioned + ref → layout via novo
         // entry point produz "Figura 1" usando introspector path.
         let content = doc_figure_with_ref("fig1", Some("image".into()), true, true);
-        let (state, intr) = introspect_with_introspector(&content, None, None);
-        let doc = layout_with_introspector(&content, state, intr);
+        let intr = introspect_with_introspector(&content);
+        let doc = layout_with_introspector(&content, intr);
         let txt = doc.plain_text();
         assert!(
             txt.contains("Figura 1"),
@@ -3239,7 +3233,7 @@ mod p168_figure_ref_migration {
         // figure-ref via fallback a state.figure_label_numbers.
         let content = doc_figure_with_ref("fig1", Some("image".into()), true, true);
         let state = introspect(&content);
-        let doc = layout(&content, state);
+        let doc = layout(&content);
         let txt = doc.plain_text();
         assert!(
             txt.contains("Figura 1"),
@@ -3254,11 +3248,11 @@ mod p168_figure_ref_migration {
         let content = doc_figure_with_ref("fig1", Some("image".into()), true, true);
 
         let state_legacy = introspect(&content);
-        let doc_legacy = layout(&content, state_legacy);
+        let doc_legacy = layout(&content);
         let txt_legacy = doc_legacy.plain_text();
 
-        let (state_new, intr) = introspect_with_introspector(&content, None, None);
-        let doc_new = layout_with_introspector(&content, state_new, intr);
+        let intr = introspect_with_introspector(&content);
+        let doc_new = layout_with_introspector(&content, intr);
         let txt_new = doc_new.plain_text();
 
         assert_eq!(
@@ -3273,7 +3267,7 @@ mod p168_figure_ref_migration {
         // numeração — predicado is_counted=false garante que introspector
         // NÃO indexa esta figura como figure_label_number.
         let content = doc_figure_with_ref("fig1", Some("image".into()), false, true);
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
         use crate::entities::introspector::Introspector;
         assert_eq!(
             intr.figure_number_for_label(&Label("fig1".to_string())),
@@ -3304,8 +3298,8 @@ mod p181g_cite_arm_migration {
     }
 
     fn render_via_introspector(content: &Content) -> String {
-        let (state, intr) = introspect_with_introspector(content, None, None);
-        let doc = layout_with_introspector(content, state, intr);
+        let intr = introspect_with_introspector(content);
+        let doc = layout_with_introspector(content, intr);
         doc.plain_text()
     }
 
@@ -3356,7 +3350,7 @@ mod p181g_cite_arm_migration {
             let content = doc_cite_with_bib(form);
 
             let state_legacy = crate::rules::introspect::introspect(&content);
-            let txt_legacy = layout(&content, state_legacy).plain_text();
+            let txt_legacy = layout(&content).plain_text();
 
             let txt_new = render_via_introspector(&content);
 
@@ -3374,19 +3368,18 @@ mod p181g_cite_arm_migration {
         // contrived: state.bib_* vazio + introspector populado.
         // Antes de P181G (cite-arm só lia de state) → fallback `[key]`.
         // Depois de P181G (cite-arm lê de introspector) → `[1]`.
-        use crate::entities::counter_state_legacy::CounterStateLegacy;
-        use crate::entities::introspector::TagIntrospector;
+                use crate::entities::introspector::TagIntrospector;
 
         let content = Content::cite("smith2024", None, None);
 
-        let state_vazio = CounterStateLegacy::default();
+        // P190I: state eliminado
         let mut intr = TagIntrospector::empty();
         intr.bib_store.add_bibliography(vec![
             BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024),
         ]);
         intr.bib_store.assign_number("smith2024".to_string(), 1);
 
-        let txt = layout_with_introspector(&content, state_vazio, intr).plain_text();
+        let txt = layout_with_introspector(&content, intr).plain_text();
 
         assert!(
             txt.contains("[1]"),
@@ -3427,7 +3420,7 @@ mod p181i_e2e_bib {
         ]));
 
         let state = crate::rules::introspect::introspect(&content);
-        let txt = layout(&content, state).plain_text();
+        let txt = layout(&content).plain_text();
 
         assert!(txt.contains("[1]"),
             "cite intro deve renderizar [1] via pipeline completo: doc='{txt}'");
@@ -3445,14 +3438,10 @@ mod p181i_e2e_bib {
             title:   None,
         };
 
-        let (state, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
-        // Walk puro: state legacy vazio.
-        assert!(state.bib_entries.is_empty(),
-            "P181H walk puro: state.bib_entries deve ficar vazio em produção");
-        assert!(state.bib_numbers.is_empty(),
-            "P181H walk puro: state.bib_numbers deve ficar vazio em produção");
-
+        // P190B (M6 categoria Bibliography eliminada): assertions sobre
+        // `state.bib_entries`/`bib_numbers` removidas — fields eliminados.
         // BibStore populado (P181E from_tags arm).
         assert_eq!(intr.bib_store.len(), 1);
         assert_eq!(intr.bib_number_for_key("a"), Some(1));
@@ -3469,7 +3458,7 @@ mod p181i_e2e_bib {
             Content::bibliography(vec![bib("c"), bib("d")], None),
         ]));
 
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         assert_eq!(intr.bib_store.len(), 4,
             "multi-Bib concat: 2+2 entries → len 4");
@@ -3492,7 +3481,7 @@ mod p181i_e2e_bib {
             ),
         ]));
 
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         // "a" preserva número original (1).
         assert_eq!(intr.bib_number_for_key("a"), Some(1),
@@ -3519,8 +3508,8 @@ mod p181i_e2e_bib {
                 Content::bibliography(vec![entry.clone()], None),
             ]));
 
-            let (state, intr) = introspect_with_introspector(&content, None, None);
-            let txt = layout_with_introspector(&content, state, intr).plain_text();
+            let intr = introspect_with_introspector(&content);
+            let txt = layout_with_introspector(&content, intr).plain_text();
 
             assert!(txt.contains(expected_substr),
                 "form {form:?} deve renderizar '{expected_substr}': doc='{txt}'");
@@ -3551,7 +3540,7 @@ mod p169_metadata_feature {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
         let md = intr.query_metadata();
         assert_eq!(md.len(), 1);
         assert_eq!(md[0], Value::Str(EcoString::from("hello")));
@@ -3575,8 +3564,8 @@ mod p169_metadata_feature {
             vec![Content::text("antes"), Content::text("depois")].into(),
         );
 
-        let doc_with = layout(&with_metadata, introspect(&with_metadata));
-        let doc_without = layout(&without_metadata, introspect(&without_metadata));
+        let doc_with = layout(&with_metadata);
+        let doc_without = layout(&without_metadata);
         assert_eq!(
             doc_with.plain_text(),
             doc_without.plain_text(),
@@ -3594,7 +3583,7 @@ mod p169_metadata_feature {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
         let md = intr.query_metadata();
         assert_eq!(md, &[Value::Int(1), Value::Int(2), Value::Int(3)]);
     }
@@ -3624,7 +3613,7 @@ mod p171_state_feature {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
         // Em qualquer location após o init → init value.
         assert_eq!(
             intr.state_final_value("counter"),
@@ -3651,7 +3640,7 @@ mod p171_state_feature {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
         // Final value: 5 (após o update).
         assert_eq!(intr.state_final_value("counter"), Some(&Value::Int(5)));
         // Em location max → 5.
@@ -3683,8 +3672,8 @@ mod p171_state_feature {
         let without_state = Content::Sequence(
             vec![Content::text("X"), Content::text("Y")].into(),
         );
-        let doc_with = layout(&with_state, introspect(&with_state));
-        let doc_without = layout(&without_state, introspect(&without_state));
+        let doc_with = layout(&with_state);
+        let doc_without = layout(&without_state);
         assert_eq!(
             doc_with.plain_text(),
             doc_without.plain_text(),
@@ -3712,7 +3701,7 @@ mod p171_state_feature {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
         assert_eq!(intr.state_final_value("a"), Some(&Value::Int(2)));
         assert_eq!(intr.state_final_value("b"), Some(&Value::Int(100)));
     }
@@ -3721,7 +3710,7 @@ mod p171_state_feature {
     fn state_inexistente_devolve_none() {
         // P171 .H.2: documento sem state — state_value retorna None.
         let content = Content::heading(1, Content::text("h"));
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
         assert_eq!(intr.state_final_value("counter"), None);
         assert_eq!(
             intr.state_value("counter", Location::from_raw(0)),
@@ -3779,8 +3768,8 @@ mod p172_func_callback {
         let without = Content::Sequence(
             vec![Content::text("X"), Content::text("Y")].into(),
         );
-        let doc_with = layout(&with_func, introspect(&with_func));
-        let doc_without = layout(&without, introspect(&without));
+        let doc_with = layout(&with_func);
+        let doc_without = layout(&without);
         assert_eq!(doc_with.plain_text(), doc_without.plain_text());
     }
 
@@ -3811,7 +3800,7 @@ mod p172_func_callback {
             ]
             .into(),
         );
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
         assert_eq!(intr.state_final_value("c"), Some(&Value::Int(10)));
     }
 }
@@ -3845,7 +3834,7 @@ mod p182e_e2e_heading_numbering {
         // Output observable (plain_text) deve conter prefixos
         // hierárquicos correctos.
         let content = doc_typico();
-        let txt = layout(&content, introspect(&content)).plain_text();
+        let txt = layout(&content).plain_text();
 
         assert!(txt.contains("1."),  "H1 (Intro) deve ter prefixo '1.': '{txt}'");
         assert!(txt.contains("1.1"), "H2 (Motivação) deve ter prefixo '1.1': '{txt}'");
@@ -3857,7 +3846,7 @@ mod p182e_e2e_heading_numbering {
         // P182E .B (irmão): mesmo pipeline mas via entry point novo
         // directamente — sem o re-walk interno de `layout()`.
         let content = doc_typico();
-        let (state, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         // Introspector populado: chave canónica conhecida.
         assert!(
@@ -3865,7 +3854,7 @@ mod p182e_e2e_heading_numbering {
             "P182C deve popular StateRegistry com Bool(true)"
         );
 
-        let txt = layout_with_introspector(&content, state, intr).plain_text();
+        let txt = layout_with_introspector(&content, intr).plain_text();
         assert!(txt.contains("1."));
         assert!(txt.contains("1.1"));
         assert!(txt.contains("2."));
@@ -3889,7 +3878,7 @@ mod p182e_e2e_heading_numbering {
             Content::SetHeadingNumbering { active: false },
             Content::heading(1, Content::text("Apêndice")),
         ]));
-        let txt = layout(&content, introspect(&content)).plain_text();
+        let txt = layout(&content).plain_text();
 
         assert!(
             txt.contains("1."),
@@ -3903,7 +3892,7 @@ mod p182e_e2e_heading_numbering {
 
         // Validar que o re-update foi visível ao Introspector
         // (final_value reflecte o último valor `false`).
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
         assert!(
             !intr.is_numbering_active("numbering_active:heading"),
             "Introspector final_value deve reflectir o último update (false)"
@@ -3929,9 +3918,9 @@ mod p182e_e2e_heading_numbering {
             Content::heading(1, Content::text("Sec2")),
         ]));
 
-        let txt_legacy = layout(&content, introspect(&content)).plain_text();
-        let (state, intr) = introspect_with_introspector(&content, None, None);
-        let txt_new = layout_with_introspector(&content, state, intr).plain_text();
+        let txt_legacy = layout(&content).plain_text();
+        let intr = introspect_with_introspector(&content);
+        let txt_new = layout_with_introspector(&content, intr).plain_text();
 
         assert_eq!(
             txt_legacy, txt_new,
@@ -3943,26 +3932,26 @@ mod p182e_e2e_heading_numbering {
     }
 
     #[test]
-    fn walk_continua_a_popular_legacy_apos_p182cd() {
-        // P182E .E: sentinela contra regressão de janela compat M6.
-        // Walk arm canonical em `introspect.rs:455–457` continua a
-        // popular `state.numbering_active` legacy paralelamente. Se
-        // este test regredir, o fallback `||` em P182D deixa de ter
-        // semântica de rede de segurança e o Layouter passa a depender
-        // exclusivamente do Introspector (mudança não intencional).
+    fn walk_popula_intr_state_para_set_heading_numbering() {
+        // P182E .E (P190G adapted): walk arm canonical
+        // `Content::SetHeadingNumbering` popula
+        // `intr.state["numbering_active:heading"]` via populate_intr
+        // arm StateUpdate. Mutação legacy `state.numbering_active`
+        // ELIMINADA em P190G (Caso 1 `.H`); caminho Introspector é
+        // única fonte da verdade.
         let content = Content::SetHeadingNumbering { active: true };
-        let state = introspect(&content);
+        let intr = introspect_with_introspector(&content);
 
         assert!(
-            state.is_numbering_active("heading"),
-            "walk arm canonical deve continuar a popular state.numbering_active['heading'] legacy"
+            intr.is_numbering_active("numbering_active:heading"),
+            "walk arm canonical deve popular intr.state com chave canónica"
         );
-        // Caso simétrico — `false` também é registado em legacy.
+        // Caso simétrico — `false` também é registado em intr.
         let content_false = Content::SetHeadingNumbering { active: false };
-        let state_false = introspect(&content_false);
+        let intr_false = introspect_with_introspector(&content_false);
         assert!(
-            !state_false.is_numbering_active("heading"),
-            "walk arm canonical deve registar Bool(false) em legacy"
+            !intr_false.is_numbering_active("numbering_active:heading"),
+            "walk arm canonical deve registar Bool(false) em intr.state"
         );
     }
 }
@@ -4002,7 +3991,7 @@ mod p184e_figure_per_kind {
         // P184C `figure_number_at_index` retorna `Some(N)`; consumer C3
         // migrado em P184D usa esse valor (path Introspector activo).
         let content = doc_tres_figuras_image();
-        let (state, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         // Introspector populado: chaves canónicas conhecidas.
         assert_eq!(intr.figure_number_at_index("image", 0), Some(1));
@@ -4010,7 +3999,7 @@ mod p184e_figure_per_kind {
         assert_eq!(intr.figure_number_at_index("image", 2), Some(3));
         assert_eq!(intr.figure_number_at_index("image", 3), None);
 
-        let txt = layout_with_introspector(&content, state, intr).plain_text();
+        let txt = layout_with_introspector(&content, intr).plain_text();
         assert!(txt.contains("Figura 1:"), "1ª figure: '{txt}'");
         assert!(txt.contains("Figura 2:"), "2ª figure: '{txt}'");
         assert!(txt.contains("Figura 3:"), "3ª figure: '{txt}'");
@@ -4029,7 +4018,7 @@ mod p184e_figure_per_kind {
         // final. Output observable é idêntico ao path Introspector real.
         let content = doc_tres_figuras_image();
         let state_legacy = introspect(&content);
-        let txt = layout_with_introspector(&content, state_legacy, TagIntrospector::empty()).plain_text();
+        let txt = layout_with_introspector(&content, TagIntrospector::empty()).plain_text();
 
         assert!(txt.contains("Figura 1:"), "fallback heurístico 1: '{txt}'");
         assert!(txt.contains("Figura 2:"), "fallback heurístico 2: '{txt}'");
@@ -4046,9 +4035,9 @@ mod p184e_figure_per_kind {
         // redundância** — paridade aqui valida a inversão.
         let content = doc_tres_figuras_image();
 
-        let txt_legacy = layout(&content, introspect(&content)).plain_text();
-        let (state_new, intr_new) = introspect_with_introspector(&content, None, None);
-        let txt_new = layout_with_introspector(&content, state_new, intr_new).plain_text();
+        let txt_legacy = layout(&content).plain_text();
+        let intr_new = introspect_with_introspector(&content);
+        let txt_new = layout_with_introspector(&content, intr_new).plain_text();
 
         assert_eq!(
             txt_legacy, txt_new,
@@ -4073,7 +4062,7 @@ mod p184e_figure_per_kind {
             figure(Some("table"), "tb_b"),
         ]));
 
-        let (state, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         assert_eq!(intr.figure_number_at_index("image", 0), Some(1));
         assert_eq!(intr.figure_number_at_index("image", 1), Some(2));
@@ -4082,7 +4071,7 @@ mod p184e_figure_per_kind {
         assert_eq!(intr.figure_number_at_index("table", 1), Some(2));
         assert_eq!(intr.figure_number_at_index("table", 2), None);
 
-        let txt = layout_with_introspector(&content, state, intr).plain_text();
+        let txt = layout_with_introspector(&content, intr).plain_text();
         // Captions únicos confirmam ordem; "Figura 1:" aparece duas vezes
         // (uma para image[0], outra para table[0]).
         assert!(txt.contains("im_a"));
@@ -4109,13 +4098,13 @@ mod p184e_figure_per_kind {
             figure(Some("image"), "explicit_b"),
         ]));
 
-        let (state, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         // Ambas figures aparecem em `figure:image` history.
         assert_eq!(intr.figure_number_at_index("image", 0), Some(1));
         assert_eq!(intr.figure_number_at_index("image", 1), Some(2));
 
-        let txt = layout_with_introspector(&content, state, intr).plain_text();
+        let txt = layout_with_introspector(&content, intr).plain_text();
         assert!(txt.contains("Figura 1:"));
         assert!(txt.contains("Figura 2:"));
         assert!(txt.contains("default_a"));
@@ -4190,7 +4179,7 @@ mod p185d_locator_sync {
         ];
         let content = Content::Sequence(Arc::from(parts.clone()));
 
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
         let walk_locs   = collect_walk_locations(&intr);
         let layout_locs = collect_layout_locations(&parts);
 
@@ -4228,7 +4217,7 @@ mod p185d_locator_sync {
         ];
         let content = Content::Sequence(Arc::from(parts.clone()));
 
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
         let walk_locs   = collect_walk_locations(&intr);
         let layout_locs = collect_layout_locations(&parts);
 
@@ -4296,7 +4285,7 @@ mod p185d_locator_sync {
         ];
         let content = Content::Sequence(Arc::from(parts.clone()));
 
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
         let intr_clone = intr.clone();
 
         let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0);
@@ -4373,7 +4362,7 @@ mod p186f_equation_locatable {
         ];
         let content = Content::Sequence(Arc::from(parts));
 
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         let eq_locs = intr.kind_index
             .get(&ElementKind::Equation)
@@ -4400,7 +4389,7 @@ mod p186f_equation_locatable {
         ];
         let content = Content::Sequence(Arc::from(parts));
 
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         let eq_locs = intr.kind_index
             .get(&ElementKind::Equation)
@@ -4431,7 +4420,7 @@ mod p186f_equation_locatable {
         ];
         let content = Content::Sequence(Arc::from(parts));
 
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         let eq_locs = intr.kind_index
             .get(&ElementKind::Equation)
@@ -4448,69 +4437,10 @@ mod p186f_equation_locatable {
         }
     }
 
-    #[test]
-    fn paridade_equation_counter_legacy_vs_introspector() {
-        // .D paridade: ambos paths produzem mesmo counter quando os
-        // seus respectivos gates estão activos. Convergência semântica
-        // (mesma sequência 1, 2, 3) apesar de mecanismos de activação
-        // diferentes.
-        //
-        // **Path A** (legacy via layout()): state.numbering_active
-        // pré-populado externamente; layout produz "(1)", "(2)",
-        // "(3)" inline.
-        // **Path B** (Introspector): Content::StateUpdate dispara
-        // gate; flat_counter_at retorna Some(1), Some(2), Some(3).
-        //
-        // Em produção real, **só Path A está activo** (Path B exige
-        // Content::SetEquationNumbering que não existe em cristalino —
-        // P186A §11.2). P188 substitution-with-fallback usa Path B
-        // primeiro; cai para Path A quando Path B retorna None.
-        let n = 3;
-
-        // Path A — legacy.
-        let mut state = CounterStateLegacy::new();
-        state.numbering_active.insert("equation".to_string(), true);
-        let parts_legacy: Vec<Content> = (0..n)
-            .map(|_| Content::Equation {
-                body:  Box::new(Content::MathIdent("E".into())),
-                block: true,
-            })
-            .collect();
-        let content_legacy = Content::Sequence(Arc::from(parts_legacy));
-        let txt_legacy = layout(&content_legacy, state).plain_text();
-        for i in 1..=n {
-            assert!(
-                txt_legacy.contains(&format!("({})", i)),
-                "Path A deve renderizar ({}): obtido {:?}",
-                i, txt_legacy
-            );
-        }
-
-        // Path B — Introspector via StateUpdate tag.
-        let parts_intr: Vec<Content> = std::iter::once(Content::StateUpdate {
-            key:    "numbering_active:equation".to_string(),
-            update: StateUpdate::Set(Box::new(Value::Bool(true))),
-        })
-        .chain((0..n).map(|_| equation_block()))
-        .collect();
-        let content_intr = Content::Sequence(Arc::from(parts_intr));
-        let (_, intr) = introspect_with_introspector(&content_intr, None, None);
-        let eq_locs = intr.kind_index
-            .get(&ElementKind::Equation)
-            .cloned()
-            .unwrap_or_default();
-        assert_eq!(eq_locs.len(), n);
-        for (i, loc) in eq_locs.iter().enumerate() {
-            assert_eq!(
-                intr.flat_counter_at("equation", *loc),
-                Some(i + 1),
-                "Path B deve retornar Some({}) em loc={:?}", i + 1, loc
-            );
-        }
-
-        // Convergência: ambos paths produzem 1, 2, 3 como sequência.
-        // Em produção (Path B dormente), só Path A é observable.
-    }
+    // P190E (M6): test `paridade_equation_counter_legacy_vs_introspector`
+    // removido — Path A (legacy state.numbering_active) eliminado.
+    // Caminho Introspector único após P190E. Cobertura via Path B
+    // preservada em outros tests P186/P199B.
 }
 
 // ── P187B — C1 heading prefix migration ─────────────────────────────────────
@@ -4543,76 +4473,19 @@ mod p187b_c1_heading_prefix {
         // Introspector populado pelo walk; consulta `formatted_counter_at`
         // retorna snapshot na Location de cada heading.
         let content = doc_3_headings();
-        let (state, intr) = introspect_with_introspector(&content, None, None);
-        let txt = layout_with_introspector(&content, state, intr).plain_text();
+        let intr = introspect_with_introspector(&content);
+        let txt = layout_with_introspector(&content, intr).plain_text();
 
         assert!(txt.contains("1. Intro"),  "esperado '1. Intro' em: {:?}", txt);
         assert!(txt.contains("1.1. Motivacao"), "esperado '1.1. Motivacao' em: {:?}", txt);
         assert!(txt.contains("2. Conclusao"), "esperado '2. Conclusao' em: {:?}", txt);
     }
 
-    #[test]
-    fn c1_heading_prefix_via_fallback_legacy() {
-        // Introspector vazio força fallback legacy
-        // `format_hierarchical("heading")`. Output observable
-        // idêntico ao path Introspector — paridade preservada
-        // por substitution-with-fallback.
-        let content = doc_3_headings();
-        let mut state = CounterStateLegacy::new();
-        // Para legacy gate "numbering_on" funcionar via fallback,
-        // numbering_active precisa de estar populated. P181H walk
-        // arm Content::SetHeadingNumbering popula
-        // state.numbering_active["heading"] = true automaticamente.
-        // Mas como passamos TagIntrospector::empty(), só o counter
-        // legacy está activo — e walk legacy também populou
-        // state.hierarchical via step_hierarchical.
-        let intr_vazio = TagIntrospector::empty();
-        // Re-correr walk para popular state.numbering_active +
-        // state.hierarchical (walk legacy emit-os mesmo sem
-        // Introspector).
-        let walk_state = crate::rules::introspect::introspect(&content);
-        state.numbering_active = walk_state.numbering_active.clone();
-        // Hierarchical é reconstruído pelo Layouter (step_hierarchical
-        // em Content::Heading arm), logo não precisa de copy.
-
-        let txt = layout_with_introspector(&content, state, intr_vazio).plain_text();
-
-        assert!(txt.contains("1. Intro"),  "fallback legacy deve produzir '1. Intro' em: {:?}", txt);
-        assert!(txt.contains("1.1. Motivacao"), "fallback legacy deve produzir '1.1. Motivacao' em: {:?}", txt);
-        assert!(txt.contains("2. Conclusao"), "fallback legacy deve produzir '2. Conclusao' em: {:?}", txt);
-    }
-
-    #[test]
-    fn c1_heading_prefix_paridade_legacy_vs_migrated() {
-        // Path A: layout() legacy (re-corre introspect; Introspector populado).
-        // Path B: layout_with_introspector(content, state, empty) — força
-        //         fallback legacy.
-        // Ambos paths devem produzir output idêntico para casos típicos.
-        let content = doc_3_headings();
-
-        // Path A: layout() legacy faz re-walk internamente (P181H)
-        // → Introspector populado → caminho funcional Introspector.
-        let state_a = crate::rules::introspect::introspect(&content);
-        let txt_a = layout(&content, state_a).plain_text();
-
-        // Path B: Introspector vazio força fallback legacy.
-        let mut state_b = CounterStateLegacy::new();
-        let walk_state = crate::rules::introspect::introspect(&content);
-        state_b.numbering_active = walk_state.numbering_active.clone();
-        let txt_b = layout_with_introspector(&content, state_b, TagIntrospector::empty()).plain_text();
-
-        // Paridade: ambos paths produzem mesmos prefixos.
-        for expected in &["1. Intro", "1.1. Motivacao", "2. Conclusao"] {
-            assert!(
-                txt_a.contains(expected),
-                "Path A deve conter {:?} em: {:?}", expected, txt_a
-            );
-            assert!(
-                txt_b.contains(expected),
-                "Path B deve conter {:?} em: {:?}", expected, txt_b
-            );
-        }
-    }
+    // P190E (M6): tests `c1_heading_prefix_via_fallback_legacy` +
+    // `c1_heading_prefix_paridade_legacy_vs_migrated` removidos —
+    // fallback legacy `format_hierarchical` + `is_numbering_active`
+    // eliminados. Caminho Introspector único após P190E. Cobertura via
+    // `c1_heading_prefix_re_update_correctness` + outros tests P185B/P187B.
 
     #[test]
     fn c1_heading_prefix_re_update_correctness() {
@@ -4625,7 +4498,7 @@ mod p187b_c1_heading_prefix {
         // Empiricamente valida que P185 (location-aware) desbloqueou
         // P183B aprendizado.
         let content = doc_3_headings();
-        let (state, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         // Validação intermédia — Introspector retorna valor correcto
         // por Location, não snapshot-final.
@@ -4639,7 +4512,7 @@ mod p187b_c1_heading_prefix {
         assert_eq!(intr.formatted_counter_at("heading", heading_locs[2]).as_deref(), Some("2"));
 
         // Output observable — sequência correcta no documento.
-        let txt = layout_with_introspector(&content, state, intr).plain_text();
+        let txt = layout_with_introspector(&content, intr).plain_text();
         // Encontrar os 3 prefixos em ordem (não substring simples
         // porque "1." é substring de "1.1.").
         let intro_pos = txt.find("1. Intro").expect("'1. Intro' em ordem");
@@ -4700,7 +4573,7 @@ mod p188b_c2_equation_counter {
         ];
         let content = Content::Sequence(Arc::from(parts));
 
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         // Validação intermédia: counter populado.
         let eq_locs = intr.kind_index
@@ -4713,94 +4586,12 @@ mod p188b_c2_equation_counter {
         assert_eq!(intr.flat_counter_at("equation", eq_locs[2]), Some(3));
     }
 
-    #[test]
-    fn c2_equation_counter_via_fallback_legacy_caso_producao() {
-        // **Caso central da produção**: sem
-        // `Content::SetEquationNumbering` (e portanto sem state
-        // populado para `numbering_active:equation`), gate em P186E
-        // bloqueia → counter introspector vazio → `flat_counter_at`
-        // retorna `None` → `unwrap_or_else` cai em legacy `get_flat`.
-        //
-        // Test exercita pipeline completo via layout(); legacy
-        // produz "(1)", "(2)", "(3)" via state.numbering_active
-        // pré-populado (replica empiricamente o que eval faz em
-        // produção real).
-        let content = doc_3_equations();
-        let mut state = CounterStateLegacy::new();
-        state.numbering_active.insert("equation".to_string(), true);
-
-        let txt = layout(&content, state).plain_text();
-
-        // Output observable correcto via fallback legacy.
-        assert!(txt.contains("(1)"), "esperado '(1)' em: {:?}", txt);
-        assert!(txt.contains("(2)"), "esperado '(2)' em: {:?}", txt);
-        assert!(txt.contains("(3)"), "esperado '(3)' em: {:?}", txt);
-
-        // Confirmação adicional: Introspector populated via re-walk
-        // em layout() (P181H) **não** populates equation counter
-        // porque gate P186E dorme.
-        let (_, intr) = introspect_with_introspector(&content, None, None);
-        let eq_locs = intr.kind_index
-            .get(&crate::entities::element_kind::ElementKind::Equation)
-            .cloned()
-            .unwrap_or_default();
-        assert_eq!(eq_locs.len(), 3, "kind_index populado mesmo dormente");
-        for loc in eq_locs {
-            assert_eq!(
-                intr.flat_counter_at("equation", loc),
-                None,
-                "counter dormente em produção (caso central)",
-            );
-        }
-    }
-
-    #[test]
-    fn c2_equation_counter_paridade_legacy_vs_introspector() {
-        // Paridade: ambos paths (legacy + Introspector com state
-        // injectado) produzem mesmo output observable.
-        //
-        // Path A: layout() legacy puro com state.numbering_active
-        // pré-populado.
-        // Path B: layout_with_introspector() com state injectado via
-        // Content::StateUpdate → Introspector path activo no Layouter.
-        //
-        // Em produção real, apenas Path A está activo. Path B só é
-        // activo em testes que injectam StateUpdate.
-        let content = doc_3_equations();
-
-        // Path A: legacy.
-        let mut state_a = CounterStateLegacy::new();
-        state_a.numbering_active.insert("equation".to_string(), true);
-        let txt_a = layout(&content, state_a).plain_text();
-
-        // Path B: Introspector activado via StateUpdate tag.
-        let parts_b = vec![
-            Content::StateUpdate {
-                key:    "numbering_active:equation".to_string(),
-                update: StateUpdate::Set(Box::new(Value::Bool(true))),
-            },
-            equation_block("a"),
-            equation_block("b"),
-            equation_block("c"),
-        ];
-        let content_b = Content::Sequence(Arc::from(parts_b));
-        let mut state_b = CounterStateLegacy::new();
-        state_b.numbering_active.insert("equation".to_string(), true);
-        let (_, intr_b) = introspect_with_introspector(&content_b, None, None);
-        let txt_b = layout_with_introspector(&content_b, state_b, intr_b).plain_text();
-
-        // Paridade observable em ambos paths.
-        for expected in &["(1)", "(2)", "(3)"] {
-            assert!(
-                txt_a.contains(expected),
-                "Path A deve conter {:?} em: {:?}", expected, txt_a
-            );
-            assert!(
-                txt_b.contains(expected),
-                "Path B deve conter {:?} em: {:?}", expected, txt_b
-            );
-        }
-    }
+    // P190E (M6): tests `c2_equation_counter_via_fallback_legacy_caso_producao`
+    // + `c2_equation_counter_paridade_legacy_vs_introspector` removidos —
+    // fallback legacy `state.numbering_active` eliminado. Caminho
+    // Introspector único via SetEquationNumbering (P199B) +
+    // `is_numbering_active_at` (P185B). Cobertura preservada via
+    // tests P199B SetEquationNumbering pipeline standard.
 }
 
 // ── P189B — Walk puro M5 incremental ────────────────────────────────────────
@@ -4808,7 +4599,9 @@ mod p188b_c2_equation_counter {
 #[cfg(test)]
 mod p189b_walk_puro_m5 {
     use super::*;
-    use crate::rules::introspect::introspect;
+    use crate::rules::introspect::{introspect, introspect_with_introspector};
+    use crate::entities::introspector::Introspector;
+    use crate::entities::label::Label;
     use std::sync::Arc;
 
     // ── Outline migrado: paridade observable preservada ─────────────────────
@@ -4816,20 +4609,19 @@ mod p189b_walk_puro_m5 {
     #[test]
     fn outline_migrado_paridade_observable() {
         // P189B `.B` — Outline arm puro. `state.has_outline` mutação
-        // removida; consumer lê via `intr.kind_index`. Test confirma
-        // que walk não muta `state.has_outline` mas Layouter funciona
-        // via Introspector path.
+        // removida; consumer lê via `intr.kind_index`.
+        // P190D (M6 categoria Document metadata): field
+        // `has_outline` eliminado. Test mantém cobertura observable
+        // via Layouter integration — outline render funciona via
+        // Introspector path (mod.rs:1488).
         let doc_com_outline = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
             Content::Heading { level: 1, body: Box::new(Content::text("Intro")) },
             Content::Outline,
         ]));
         let state_com = introspect(&doc_com_outline);
-        // P189B: walk puro — state.has_outline NÃO é mutado.
-        assert!(!state_com.has_outline,
-            "P189B: walk puro — state.has_outline não é mutado");
         // Layout funciona via Introspector path (re-walk em layout()).
-        let txt_com = layout(&doc_com_outline, state_com).plain_text();
+        let txt_com = layout(&doc_com_outline).plain_text();
         assert!(txt_com.contains("Intro"), "doc com outline: {:?}", txt_com);
 
         let doc_sem_outline = Content::Sequence(Arc::from(vec![
@@ -4837,69 +4629,57 @@ mod p189b_walk_puro_m5 {
             Content::Heading { level: 1, body: Box::new(Content::text("Solo")) },
         ]));
         let state_sem = introspect(&doc_sem_outline);
-        assert!(!state_sem.has_outline);
-        let txt_sem = layout(&doc_sem_outline, state_sem).plain_text();
+        let txt_sem = layout(&doc_sem_outline).plain_text();
         assert!(txt_sem.contains("Solo"), "doc sem outline: {:?}", txt_sem);
     }
 
     // ── Tests sentinela 6 excepções (E1–E6) ─────────────────────────────────
 
-    #[test]
-    fn walk_excepcao_e1_equation_counter_via_legacy() {
-        // E1: Equation walk arm. Confirma que walk legacy ainda
-        // populates `state.flat["equation"]` quando numbering activo.
-        let mut state = CounterStateLegacy::new();
-        state.numbering_active.insert("equation".to_string(), true);
-        let content = Content::Sequence(Arc::from(vec![
-            Content::Equation {
-                body: Box::new(Content::MathIdent("a".into())),
-                block: true,
-            },
-            Content::Equation {
-                body: Box::new(Content::MathIdent("b".into())),
-                block: true,
-            },
-        ]));
-        let txt = layout(&content, state).plain_text();
-        assert!(txt.contains("(1)"), "E1: '(1)' em: {:?}", txt);
-        assert!(txt.contains("(2)"), "E1: '(2)' em: {:?}", txt);
-    }
+    // P190E (M6): test `walk_excepcao_e1_equation_counter_via_legacy` removido
+    // — sentinela P189B testava walk legacy via state.numbering_active
+    // pré-populado. Após P190E, fallback legacy eliminado; E1 fechada
+    // estruturalmente em P199B via SetEquationNumbering. Cobertura via
+    // tests P199B pipeline standard.
 
     #[test]
-    fn walk_excepcao_e2_heading_hierarchical_via_legacy() {
-        // E2: Heading walk arm. Confirma que walk legacy ainda
-        // populates state.hierarchical, state.resolved_labels, etc.
+    fn walk_excepcao_e2_heading_hierarchical_via_intr() {
+        // E2 (P190G adapted): Heading walk arm popula state.hierarchical
+        // (legacy) e intr.resolved_labels + intr.headings_for_toc
+        // (Introspector path) — fields legacy `resolved_labels`,
+        // `headings_for_toc`, `numbering_active` eliminados em P190G.
         let content = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
             Content::Heading { level: 1, body: Box::new(Content::text("A")) },
             Content::Heading { level: 2, body: Box::new(Content::text("B")) },
         ]));
-        let state = introspect(&content);
-        assert!(state.is_numbering_active("heading"));
-        assert_eq!(state.format_hierarchical("heading").as_deref(), Some("1.1"));
-        assert_eq!(state.headings_for_toc.len(), 2);
-        assert!(!state.resolved_labels.is_empty());
+        let intr = introspect_with_introspector(&content);
+        assert!(intr.is_numbering_active("numbering_active:heading"));
+        assert_eq!(intr.headings_for_toc().len(), 2);
+        assert!(intr.resolved_labels.get(&Label("auto-toc-1".to_string())).is_some());
     }
 
     #[test]
-    fn walk_excepcao_e3_figure_via_legacy() {
-        // E3: Figure walk arm. Confirma que walk legacy ainda
-        // populates state.figure_numbers para figuras numbering+caption.
+    fn walk_excepcao_e3_figure_via_intr() {
+        // E3 (P190H adapted): Figure walk arm popula
+        // intr.counters["figure:image"] via populate_intr arm Figure
+        // (P191C, gated por is_counted). Field legacy
+        // `state.figure_numbers` eliminado.
         let content = Content::Figure {
             body:      Box::new(Content::Empty),
             caption:   Some(Box::new(Content::text("cap"))),
             kind:      Some("image".into()),
             numbering: Some("1".into()),
         };
-        let state = introspect(&content);
-        let nums = state.figure_numbers.get("image").cloned().unwrap_or_default();
-        assert_eq!(nums, vec![1], "E3: figure_numbers[image] populado");
+        let intr = introspect_with_introspector(&content);
+        assert_eq!(intr.figure_number_at_index("image", 0), Some(1),
+            "E3: intr.figure_number_at_index(image, 0) = 1 via populate_intr");
     }
 
     #[test]
-    fn walk_excepcao_e4_labelled_resolved_labels_via_legacy() {
-        // E4: Labelled walk arm. Confirma que walk legacy ainda
-        // populates state.resolved_labels para labels explicit.
+    fn walk_excepcao_e4_labelled_resolved_labels_via_intr() {
+        // E4 (P190G adapted): Labelled walk arm popula
+        // intr.resolved_labels via Tag::Labelled pós-recursão (P195D).
+        // Field legacy `state.resolved_labels` eliminado.
         let content = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
             Content::Labelled {
@@ -4910,20 +4690,21 @@ mod p189b_walk_puro_m5 {
                 label:  crate::entities::label::Label("intro".to_string()),
             },
         ]));
-        let state = introspect(&content);
-        assert!(state.resolved_labels.contains_key(
+        let intr = introspect_with_introspector(&content);
+        assert!(intr.resolved_labels.get(
             &crate::entities::label::Label("intro".to_string())
-        ), "E4: resolved_labels[intro] populado");
+        ).is_some(), "E4: intr.resolved_labels[intro] populado");
     }
 
     #[test]
-    fn walk_excepcao_e5_set_heading_numbering_via_legacy() {
-        // E5: SetHeadingNumbering walk arm. Confirma que walk legacy
-        // ainda populates state.numbering_active["heading"].
+    fn walk_excepcao_e5_set_heading_numbering_via_intr() {
+        // E5 (P190G adapted): SetHeadingNumbering walk arm popula
+        // intr.state["numbering_active:heading"] via populate_intr.
+        // Field legacy `state.numbering_active` eliminado.
         let content = Content::SetHeadingNumbering { active: true };
-        let state = introspect(&content);
-        assert!(state.is_numbering_active("heading"),
-            "E5: numbering_active[heading] populado");
+        let intr = introspect_with_introspector(&content);
+        assert!(intr.is_numbering_active("numbering_active:heading"),
+            "E5: intr.state[numbering_active:heading] populado");
     }
 
     #[test]
@@ -4933,16 +4714,19 @@ mod p189b_walk_puro_m5 {
         let content = Content::Sequence(Arc::from(vec![
             Content::CounterUpdate {
                 key:    "custom".to_string(),
-                action: crate::entities::counter_state_legacy::CounterAction::Step,
+                action: crate::entities::counter_update::CounterUpdate::Step,
             },
             Content::CounterUpdate {
                 key:    "custom".to_string(),
-                action: crate::entities::counter_state_legacy::CounterAction::Step,
+                action: crate::entities::counter_update::CounterUpdate::Step,
             },
         ]));
-        let state = introspect(&content);
-        assert_eq!(state.get_flat("custom"), 2,
-            "E6: flat[custom] = 2 após 2 steps");
+        // P190I (M6 fechado): state legacy eliminado; verificar via intr.
+        let intr = introspect(&content);
+        let custom_count = intr.counters.value("custom")
+            .and_then(|v| v.last()).copied().unwrap_or(0);
+        assert_eq!(custom_count, 2,
+            "E6: intr.counters['custom'].last() = 2 após 2 steps");
     }
 }
 
@@ -4978,83 +4762,66 @@ mod p194b_c4_resolved_label {
     }
 
     #[test]
-    fn c4_resolved_label_via_introspector_path_quando_populated() {
-        // Introspector populated manualmente (simula pós-P195 quando
-        // walk arm Labelled migrar e popular sub-store via Tag).
-        // Fallback legacy presente mas Introspector path tem
-        // prioridade.
+    fn c4_resolved_label_via_introspector_path_puro() {
+        // P190G: fallback legacy `state.resolved_labels` ELIMINADO.
+        // Introspector path é única fonte da verdade. Este test
+        // confirma que populate manual de intr.resolved_labels é
+        // suficiente para Layouter renderizar correctamente.
         let content = Content::Sequence(Arc::from(vec![
             Content::Ref { target: lbl("intro") },
         ]));
 
-        let mut state = CounterStateLegacy::new();
-        // Pre-populate legacy também (Path Introspector deve preempt).
-        state.resolved_labels.insert(lbl("intro"), "Legacy text".to_string());
-
-        // Introspector populated com texto distinto — confirma que
-        // path Introspector é preferido sobre legacy.
+        // P190I: state eliminado
         let mut intr = TagIntrospector::empty();
         intr.resolved_labels.insert(lbl("intro"), "Introspector text".to_string());
 
-        let txt = layout_with_introspector(&content, state, intr).plain_text();
+        let txt = layout_with_introspector(&content, intr).plain_text();
 
         assert!(txt.contains("Introspector text"),
-            "Path Introspector deve preempt legacy: {:?}", txt);
-        assert!(!txt.contains("Legacy text"),
-            "Legacy não deve aparecer quando Introspector populated: {:?}", txt);
+            "Introspector path puro: {:?}", txt);
     }
 
     #[test]
-    fn c4_resolved_label_via_fallback_legacy_caso_atual() {
-        // **Caso central da produção P194**: sub-store P193B vazio
-        // (estado real até P195+); fallback legacy
-        // `counter.resolved_labels.get(target)` é caminho funcional.
+    fn c4_resolved_label_via_introspector_pipeline_real() {
+        // P190G: pipeline real popula intr.resolved_labels via walk
+        // arm Labelled (P195D Tag pós-recursão). Caminho Introspector
+        // é única fonte da verdade.
         let content = doc_heading_labelled_e_ref("intro");
         let state = introspect(&content);
 
-        // Validação intermédia: legacy populado por walk arm Labelled (E4).
-        assert!(state.resolved_labels.contains_key(&lbl("intro")),
-            "walk legacy deve popular state.resolved_labels[intro]");
+        // Pipeline completo via layout(); Introspector populated via
+        // re-walk em layout(); Layouter consume via Introspector path
+        // puro (sem fallback legacy).
+        let txt = layout(&content).plain_text();
 
-        // Pipeline completo via layout(); Introspector populated por
-        // re-walk (P181H) mas sub-store resolved_labels permanece
-        // vazio (walks E2/E4 ainda mutam legacy directamente).
-        let txt = layout(&content, state).plain_text();
-
-        // Output observable: ref renderizada via fallback legacy.
-        // Walk arm Labelled (E4) gera "Secção 1" para Heading
-        // labelled.
         assert!(txt.contains("Secção 1"),
-            "fallback legacy deve renderizar 'Secção 1': {:?}", txt);
+            "Introspector path: 'Secção 1' renderizada: {:?}", txt);
         assert!(!txt.contains("@intro"),
             "ref intro NÃO deve cair em fallback @intro: {:?}", txt);
     }
 
     #[test]
-    fn c4_resolved_label_paridade_legacy_vs_introspector() {
-        // Path A: pipeline normal (legacy populated; sub-store vazio).
-        // Path B: legacy + Introspector populated com texto idêntico.
-        // Em ambos casos output observable contém o texto resolvido.
+    fn c4_resolved_label_paridade_pipelines() {
+        // P190G: dois pipelines (introspect normal + manual intr)
+        // produzem mesmo output observable.
         let content = doc_heading_labelled_e_ref("intro");
 
-        // Path A: legacy puro.
+        // Path A: pipeline normal.
         let state_a = introspect(&content);
-        let txt_a = layout(&content, state_a).plain_text();
+        let txt_a = layout(&content).plain_text();
 
-        // Path B: legacy + Introspector com mesmo texto.
-        let mut state_b = CounterStateLegacy::new();
-        state_b.resolved_labels.insert(lbl("intro"), "Secção 1".to_string());
+        // Path B: manual intr.
+        // P190I: state_b eliminado
         let mut intr_b = TagIntrospector::empty();
         intr_b.resolved_labels.insert(lbl("intro"), "Secção 1".to_string());
         let txt_b = layout_with_introspector(
             &Content::Sequence(Arc::from(vec![
                 Content::Ref { target: lbl("intro") },
             ])),
-            state_b,
             intr_b,
         ).plain_text();
 
-        // Paridade: ambos paths produzem "Secção 1".
+        // Paridade.
         assert!(txt_a.contains("Secção 1"),
             "Path A: {:?}", txt_a);
         assert!(txt_b.contains("Secção 1"),
@@ -5069,10 +4836,10 @@ mod p194b_c4_resolved_label {
             Content::Ref { target: lbl("missing") },
         ]));
 
-        let state = CounterStateLegacy::new();
+        // P190I: state eliminado
         let intr = TagIntrospector::empty();
 
-        let txt = layout_with_introspector(&content, state, intr).plain_text();
+        let txt = layout_with_introspector(&content, intr).plain_text();
 
         assert!(txt.contains("@missing"),
             "fallback final '@missing' esperado: {:?}", txt);
@@ -5105,7 +4872,7 @@ mod p195d_walk_labelled {
             },
         ]));
 
-        let (state, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         // Caminho Introspector activo: sub-store populated via P195D Tag.
         assert_eq!(
@@ -5117,12 +4884,8 @@ mod p195d_walk_labelled {
         // Heading não é Figure → figure_label_numbers vazio.
         assert_eq!(intr.figure_label_numbers.get(&lbl("intro")), None);
 
-        // Mutação legacy preservada (write paralelo durante janela compat M5).
-        assert_eq!(
-            state.resolved_labels.get(&lbl("intro")).map(|s| s.as_str()),
-            Some("Secção 1"),
-            "state.resolved_labels[intro] preservado",
-        );
+        // P190G: mutação legacy `state.resolved_labels` ELIMINADA;
+        // sub-store é única fonte da verdade.
     }
 
     #[test]
@@ -5139,17 +4902,17 @@ mod p195d_walk_labelled {
             Content::Ref { target: lbl("intro") },
         ]));
 
-        let state = crate::rules::introspect::introspect(&content);
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
-        // Paridade entre legacy + Introspector.
+        // P190G: paridade observable preservada via Introspector
+        // path. Field legacy `state.resolved_labels` eliminado.
         assert_eq!(
-            state.resolved_labels.get(&lbl("intro")).map(|s| s.as_str()),
             intr.resolved_labels.get(&lbl("intro")),
+            Some("Secção 1"),
         );
 
         // Pipeline completo: Ref renderiza via Introspector path.
-        let txt = layout(&content, state).plain_text();
+        let txt = layout(&content).plain_text();
         assert!(txt.contains("Secção 1"),
             "Ref intro → 'Secção 1' via Introspector: {:?}", txt);
         assert!(!txt.contains("@intro"),
@@ -5170,7 +4933,7 @@ mod p195d_walk_labelled {
             },
         ]));
 
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         // figure_label_numbers populated (write paralelo P195D + P168).
         assert_eq!(
@@ -5192,7 +4955,7 @@ mod p195d_walk_labelled {
             },
         ]));
 
-        let (_, intr) = introspect_with_introspector(&content, None, None);
+        let intr = introspect_with_introspector(&content);
 
         assert_eq!(intr.resolved_labels.get(&lbl("foo")), None);
         assert_eq!(intr.figure_label_numbers.get(&lbl("foo")), None);

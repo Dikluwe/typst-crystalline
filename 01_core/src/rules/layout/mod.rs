@@ -16,7 +16,6 @@ use std::sync::Arc;
 
 use crate::entities::{
     content::Content,
-    counter_state_legacy::CounterStateLegacy,
     geometry::ShapeKind,
     image_sizer::{ImageSizer, NullImageSizer},
     layout_types::{Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument,
@@ -95,7 +94,9 @@ pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// cursor à origem da célula em vez da margem da página.
     pub(super) line_start_x:  Pt,
     pub(super) current_line:  Vec<FrameItem>,
-    pub counter:              CounterStateLegacy,
+    // P190I (M6 fechado): `counter: CounterStateLegacy` ELIMINADO —
+    // struct eliminada. Layouter consumers usam Introspector path
+    // puro via `self.introspector` (P184D / P190G/H/I migrations).
     /// P168 (M5 sub-passo 2): introspector populado paralelamente ao
     /// `counter` legacy. Default `TagIntrospector::empty()` — apenas
     /// callers via `layout_with_introspector` populam. Consumer actual
@@ -142,6 +143,14 @@ pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// P185B) consultam este campo em vez de snapshot final
     /// (cf. ADR-0068 PROPOSTO).
     pub(super) current_location: Option<Location>,
+    /// **P190C (M6 categoria Page tracking)** — state Layouter-runtime
+    /// dedicado. Campos `label_pages` + `known_page_numbers` movidos
+    /// de `CounterStateLegacy` para `LayouterRuntimeState` por não
+    /// serem derivados de Content pre-pass (Layouter-runtime apenas).
+    /// Pattern arquitectural "Layouter-runtime → struct dedicada"
+    /// estabelecido em P190C; replicado em P190D para `is_readonly`
+    /// + `lang`.
+    pub runtime: crate::entities::layouter_runtime_state::LayouterRuntimeState,
 }
 
 impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
@@ -162,7 +171,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             cursor_y:     Pt(cfg.margin) + ascender,
             line_start_x: Pt(cfg.margin),
             current_line: Vec::new(),
-            counter:         CounterStateLegacy::new(),
+            // P190I: counter field eliminated.
             introspector:    crate::entities::introspector::TagIntrospector::empty(),
             figure_progress: std::collections::HashMap::new(),
             is_height_unconstrained: false,
@@ -172,6 +181,7 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             cell_origin_w:           None,
             locator:                 Locator::new(),
             current_location:        None,
+            runtime:                 crate::entities::layouter_runtime_state::LayouterRuntimeState::default(),
         }
     }
 
@@ -325,7 +335,12 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             // cobre ambos os casos via push/pop na `chain`.
 
             Content::Heading { level, body } => {
-                self.counter.step_hierarchical("heading", *level as usize);
+                // P190F (M6 categoria Counters core): Layouter
+                // mutação `self.counter.step_hierarchical` removida —
+                // counter hierárquico populated via Introspector path
+                // location-aware (CounterRegistry P184B + P185B). Layouter
+                // só lê via `formatted_counter_at`.
+                let _ = level;  // preservar binding para uso abaixo
 
                 let heading_size = self.font_size_pt * heading_scale(*level);
                 let prev = self.style.clone();
@@ -333,27 +348,18 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
 
                 // Prefixo numérico — apenas se numbering estiver activo.
-                // P182D: substitution-with-fallback (padrão P168/P181G) —
-                // consulta Introspector primeiro (chave `numbering_active:heading`,
-                // populada via P182C); fallback a state legacy preserva paridade
-                // durante janela compat (M6 elimina).
+                // P190E: location-aware via `is_numbering_active_at`.
+                // P190F: fallback legacy `format_hierarchical` removido —
+                // Introspector path único.
                 use crate::entities::introspector::Introspector;
-                let numbering_on = self.introspector
-                    .is_numbering_active("numbering_active:heading")
-                    || self.counter.is_numbering_active("heading");
+                let numbering_on = self.current_location
+                    .map(|loc| self.introspector
+                        .is_numbering_active_at("numbering_active:heading", loc))
+                    .unwrap_or(false);
                 if numbering_on {
-                    // P187B: substitution-with-fallback location-aware.
-                    // Introspector path via `formatted_counter_at(key,
-                    // current_location)` (P177 + P185C) é primário —
-                    // retorna snapshot na Location consultada,
-                    // resolvendo P183B aprendizado (`formatted_counter`
-                    // snapshot-final pré-emptava fallback em re-update).
-                    // Fallback legacy `format_hierarchical` activo
-                    // durante janela compat M6.
                     let num_str = self.current_location
                         .and_then(|loc| self.introspector
-                            .formatted_counter_at("heading", loc))
-                        .or_else(|| self.counter.format_hierarchical("heading"));
+                            .formatted_counter_at("heading", loc));
                     if let Some(num_str) = num_str {
                         let prefix = Content::text(format!("{}. ", num_str));
                         self.layout_content(&prefix);
@@ -365,28 +371,46 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                 self.style = prev;
             }
 
-            Content::SetHeadingNumbering { active } => {
-                counters::layout_set_heading_numbering(&mut self.counter, *active);
+            Content::SetHeadingNumbering { active: _ } => {
+                // P190G (M6 categoria Labels & TOC; Caso 1 `.H`):
+                // helper `layout_set_heading_numbering` eliminado —
+                // mutava `state.numbering_active` que não existe mais.
+                // Caminho Introspector activo via populate_intr arm
+                // StateUpdate (chave "numbering_active:heading"). No-op
+                // em Layouter.
             }
 
-            Content::SetEquationNumbering { active } => {
-                // P199B — Layouter consume SetEquationNumbering (paralelo a
-                // SetHeadingNumbering). Mutação legacy preservada como write
-                // paralelo M5; caminho Introspector já activado por construção
-                // via extract_payload + from_tags arm StateUpdate.
-                counters::layout_set_equation_numbering(&mut self.counter, *active);
+            Content::SetEquationNumbering { active: _ } => {
+                // P190G (M6 categoria Labels & TOC; Caso 1 `.H`):
+                // helper `layout_set_equation_numbering` eliminado —
+                // análogo a SetHeadingNumbering. No-op em Layouter.
             }
 
             Content::SetFigureNumbering { .. } => {
                 // No-op: numeração baked-in em cada nó Figure (Passo 75, DEBT-14).
             }
 
-            Content::CounterUpdate { key, action } => {
-                counters::layout_counter_update(&mut self.counter, key, action);
+            Content::CounterUpdate { key: _, action: _ } => {
+                // P190I (M6 fechado): mutação Layouter do counter
+                // ELIMINADA — `self.counter` field eliminado. Caminho
+                // Introspector activo via populate_intr arm
+                // CounterUpdate (P198C); intr.counters é única fonte
+                // da verdade. Layouter no-op.
             }
 
             Content::CounterDisplay { kind } => {
-                let text = counters::format_counter_display(&self.counter, kind);
+                // P190I (M6 fechado): Layouter consome via Introspector
+                // path location-aware. `current_location` set por
+                // walk-content para locatable contents (P185C). Para
+                // CounterDisplay (não-locatable), usa última location
+                // emitida (snapshot até este ponto).
+                use crate::entities::introspector::Introspector;
+                let text = self.current_location
+                    .and_then(|loc| self.introspector.formatted_counter_at(kind, loc))
+                    .unwrap_or_else(|| {
+                        self.introspector.formatted_counter(kind)
+                            .unwrap_or_else(|| "0".to_string())
+                    });
                 let display = Content::text(text);
                 self.layout_content(&display);
             }
@@ -487,19 +511,15 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
                     let progress = self.figure_progress.entry(kind_key.to_string()).or_insert(0);
                     let idx = *progress;
                     *progress += 1;
-                    // P184D: substitution-with-fallback (padrão P168/P181G/P182D).
-                    // Introspector primeiro via `figure_number_at_index` (P184C);
-                    // fallback legacy a `state.figure_numbers` (que em produção
-                    // é dead code — copy-sites não copiam o campo, P184A §3.6);
-                    // `unwrap_or(idx + 1)` final preserva heurística pré-existente
-                    // como rede de segurança.
+                    // P190H (M6 categoria Figures): fallback legacy
+                    // `state.figure_numbers` ELIMINADO — field eliminado
+                    // de CounterStateLegacy. Caminho Introspector activo
+                    // via `figure_number_at_index` (P184C/D); rede de
+                    // segurança final `unwrap_or(idx + 1)` preservada
+                    // (heurística para edge cases sem populate).
                     use crate::entities::introspector::Introspector;
                     let figure_number = self.introspector
                         .figure_number_at_index(kind_key, idx)
-                        .or_else(|| self.counter.figure_numbers
-                            .get(kind_key)
-                            .and_then(|v| v.get(idx))
-                            .copied())
                         .unwrap_or(idx + 1);
                     Some(format!("Figura {}: ", figure_number))
                 } else {
@@ -647,30 +667,22 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             }
             Content::Cite { key, supplement, form } => {
                 // Passo 159C: render placeholder por form com lookup
-                // Bibliography state. Fallback `[key]` quando key não
-                // encontrada — paridade Normal sem entry.
-                // Passo 159F: Normal/None ganha numeração via lookup
-                // state.bib_numbers (Opção C diagnóstico §8.2);
-                // forms diferenciadas (Prose/Author/Year) inalteradas.
-                // P181G: substitution-with-fallback (padrão P168).
-                // Consulta Introspector primeiro; fallback a state legacy
-                // durante janela compat (M6 elimina). Paridade
-                // BibStore ↔ state.bib_* garantida por construção
-                // (P181E §6) — output observable preservado.
+                // P190B (M6 categoria Bibliography eliminada) — consumer
+                // migrado para Introspector path completo. Fallback legacy
+                // a `state.bib_entries`/`bib_numbers` removido porque
+                // fields foram eliminados de `CounterStateLegacy`. Caminho
+                // Introspector activo desde P181H (BibStore populated via
+                // from_tags arm Bibliography). Paridade preservada por
+                // construção — output observable inalterado.
                 use crate::entities::citation_form::CitationForm;
                 use crate::entities::introspector::Introspector;
                 let resolved_form = form.unwrap_or_default();
-                let entry = self.introspector
-                    .bib_entry_for_key(key)
-                    .or_else(|| self.counter.bib_entries.iter().find(|e| e.key == *key));
+                let entry = self.introspector.bib_entry_for_key(key);
                 let text = match (resolved_form, entry) {
                     (CitationForm::Normal, _) => {
-                        // P159F: lookup numbering; fallback `[key]` se key
-                        // não encontrada em state.bib_numbers.
-                        // P181G: Introspector primeiro; state legacy fallback.
+                        // P190B: Introspector path apenas — sem fallback legacy.
                         self.introspector
                             .bib_number_for_key(key)
-                            .or_else(|| self.counter.bib_numbers.get(key).copied())
                             .map(|n| format!("[{}]", n))
                             .unwrap_or_else(|| format!("[{}]", key))
                     }
@@ -1133,7 +1145,9 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
         }
         let mut doc = PagedDocument::new(self.pages);
         // Expor o mapa de páginas sem mudar a assinatura de layout() (Passo 63).
-        doc.extracted_label_pages = self.counter.label_pages;
+        // P190C (M6 categoria Page tracking): label_pages movido para
+        // LayouterRuntimeState.
+        doc.extracted_label_pages = self.runtime.label_pages;
         doc
     }
 
@@ -1424,49 +1438,32 @@ fn format_bib_entry(e: &crate::entities::bib_entry::BibEntry) -> String {
     out
 }
 
-pub fn layout(content: &Content, initial_state: CounterStateLegacy) -> PagedDocument {
-    // P181H: re-corremos `introspect_with_introspector` para obter
-    // Introspector populado com `BibStore`. Necessário porque P181H
-    // tornou walk arm `Content::Bibliography` puro — `state.bib_*`
-    // já não é populado pelo walk do caller (`introspect()`).
-    // Cite-arm consulta Introspector primeiro (P181G); state legacy
-    // só serve fallback quando introspector vazio. Para path
-    // `layout()` legacy continuar a renderizar bib correctamente,
-    // injectamos introspector populado aqui.
-    //
-    // Custo: walk extra (caller já fez 1 walk via `introspect()`).
-    // Aceitável — bib feature é raramente usada e o custo é cobrado
-    // só quando conteúdo tem `Content::Bibliography`. Walk para
-    // documentos sem bib é trivial.
-    //
-    // Outros sub-stores do introspector (figure_label_numbers,
-    // metadata, state) também ficam populados — Layouter pode
-    // consumir via Introspector trait quando outros consumers M5+
-    // forem migrados.
-    //
-    // M6: quando `CounterStateLegacy.bib_*` for eliminado e callers
-    // adoptarem `introspect_with_introspector + layout_with_introspector`
-    // directamente, este re-walk em `layout()` desaparece.
-    let (_, intr) = crate::rules::introspect::introspect_with_introspector(
+pub fn layout(content: &Content) -> PagedDocument {
+    // P190I (M6 fechado): `initial_state: CounterStateLegacy` parameter
+    // ELIMINADO — struct eliminada. layout() corre
+    // `introspect_with_introspector` internamente para obter
+    // `TagIntrospector` populated. API breaking change comparada
+    // com versões anteriores; callers externos adaptados.
+    let intr = crate::rules::introspect::introspect_with_introspector(
         content,
-        None,
-        None,
     );
-    layout_with_introspector(content, initial_state, intr)
+    layout_with_introspector(content, intr)
 }
 
 /// Entry point P168 (M5 sub-passo 2): aceita `TagIntrospector` adicional
 /// para que consumers como `references.rs::layout_ref` (figure-ref) possam
 /// usar `query_by_label` em vez de `state.figure_label_numbers` legacy.
 ///
-/// Caller típico do M5+:
+/// Caller típico:
 /// ```ignore
-/// let (state, intr) = introspect_with_introspector(&content);
-/// let doc = layout_with_introspector(&content, state, intr);
+/// let intr = introspect_with_introspector(&content);
+/// let doc = layout_with_introspector(&content, intr);
 /// ```
+///
+/// **P190I (M6 fechado)**: signature drop `initial_state:
+/// CounterStateLegacy` parameter — struct eliminada.
 pub fn layout_with_introspector(
     content: &Content,
-    initial_state: CounterStateLegacy,
     introspector: crate::entities::introspector::TagIntrospector,
 ) -> PagedDocument {
     use std::collections::HashMap;
@@ -1486,16 +1483,19 @@ pub fn layout_with_introspector(
     if !has_outline {
         let mut l = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
         l.introspector             = introspector;
-        l.counter.resolved_labels  = initial_state.resolved_labels;
-        l.counter.headings_for_toc = initial_state.headings_for_toc;
-        // numbering_active: copiado porque equações não têm nó equivalente
-        // a SetHeadingNumbering — sem esta cópia, testes de L1 de equações
-        // numeradas só funcionariam via eval completo.
-        l.counter.numbering_active = initial_state.numbering_active;
-        // Passo 159C: bib_entries para lookup Cite.form em layout.
-        l.counter.bib_entries      = initial_state.bib_entries;
-        // Passo 159F: bib_numbers para lookup Cite Normal/None em layout.
-        l.counter.bib_numbers      = initial_state.bib_numbers;
+        // P190G (M6 categoria Labels & TOC eliminada): assignments
+        // `l.counter.resolved_labels = initial_state.resolved_labels`
+        // e `l.counter.headings_for_toc = initial_state.headings_for_toc`
+        // removidos — fields já não existem em CounterStateLegacy.
+        // Layouter consumers `references.rs:64` (resolved_labels) e
+        // `outline.rs:38` (headings_for_toc) migrados para
+        // Introspector path puro (sem fallback legacy).
+        // P190E/P190G (M6 categoria Numbering active): assignment
+        // `l.counter.numbering_active = initial_state.numbering_active`
+        // removido em P190E; field eliminado em P190G (Caso 1 `.H`).
+        // Layouter consumers usam Introspector directamente.
+        // P190B (M6 categoria Bibliography eliminada): assignments
+        // bib_* removidos.
         // NÃO copiar label_pages — começa vazio via Layouter::new().
         // NÃO copiar hierarchical, flat — reconstruídos nó a nó.
         l.layout_content(content);
@@ -1517,17 +1517,19 @@ pub fn layout_with_introspector(
 
         // Estado base da introspecção — copiado em cada iteração.
         l.introspector             = introspector.clone();
-        l.counter.resolved_labels  = initial_state.resolved_labels.clone();
-        l.counter.headings_for_toc = initial_state.headings_for_toc.clone();
-        l.counter.numbering_active = initial_state.numbering_active.clone();
-        // Passo 159C: bib_entries para lookup Cite.form em layout.
-        l.counter.bib_entries      = initial_state.bib_entries.clone();
-        // Passo 159F: bib_numbers para lookup Cite Normal/None em layout.
-        l.counter.bib_numbers      = initial_state.bib_numbers.clone();
+        // P190G (M6 categoria Labels & TOC eliminada): assignments
+        // `resolved_labels`/`headings_for_toc` removidos — fields já
+        // não existem. Layouter consumers (`references.rs:64`,
+        // `outline.rs:38`) migrados para Introspector path puro.
+        // P190E/P190G: assignment `numbering_active` removido — field
+        // eliminado em P190G Caso 1.
+        // P190B: assignments bib_* removidos — fields já não existem.
 
         // Injectar páginas da iteração anterior para leitura pelo outline.rs.
         // label_pages (onde references.rs escreve) começa vazio via Layouter::new().
-        l.counter.known_page_numbers = known_page_numbers.clone();
+        // P190C (M6 categoria Page tracking): known_page_numbers movido
+        // para LayouterRuntimeState.
+        l.runtime.known_page_numbers = known_page_numbers.clone();
 
         l.layout_content(content);
         let doc = l.finish();
