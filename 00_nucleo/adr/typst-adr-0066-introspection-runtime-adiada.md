@@ -1,7 +1,79 @@
 # ⚖️ ADR-0066: Introspection runtime — promoção da reserva conceptual a ficheiro PROPOSTO
 
-**Status**: `PROPOSTO`
-**Data**: 2026-04-27
+**Status**: **ACEITE** (com nota "intermediário até M8" — P192B 2026-05-05).
+**Data**: 2026-04-27 (PROPOSTO); 2026-05-05 (ACEITE com nota).
+
+---
+
+## Validação empírica P192A + estado intermediário
+
+**Data**: 2026-05-05 (P192B).
+
+ADR-0066 transita PROPOSTO → ACEITE com qualificação **intermediário
+até M8**.
+
+### Validação empírica
+
+P192A diagnóstico confirmou que decisão de adiar introspection
+runtime (e adoptar hash-based convergence como mecanismo
+intermédio) é viável:
+
+- **M7 estruturalmente fechado** (P192B; ADR-0072).
+- **2 loops fixpoint funcionais**:
+  - TOC fixpoint (`layout/mod.rs:1515`) — activo em produção;
+    forward refs page numbers.
+  - `run_fixpoint` (`introspect/fixpoint.rs:65`) — opt-in para
+    stdlib features.
+- **Tests E2E verdes**: 1.802 workspace; 13+ tests fixpoint.rs.
+
+### Estado intermediário
+
+Hash-based convergence é decisão **intermédia viável**, **não
+solução arquitectural definitiva**.
+
+Diferenças vs vanilla typst:
+
+| Aspecto | Vanilla typst | Cristalino actual |
+|---------|---------------|-------------------|
+| Convergence | comemo::Constraint::validate | hash-based (compute_tags_hash / page map) |
+| Re-walks | parciais (cache granular) | full por iteração |
+| Cap | MAX_ITERS = 5 | MAX_ITERATIONS = 5 (paridade nominal) |
+| Performance | comparable | aceitável; gargalo se features stdlib expandirem em produção |
+| Tracking | `#[comemo::track]` | sem track |
+
+### M8 — adopção comemo planeada
+
+**M8 introduzirá `comemo::Track`** em:
+
+- Trait `Introspector` (`#[comemo::track]` impl block).
+- Queries location-aware (`is_numbering_active_at`,
+  `flat_counter_at`, `formatted_counter_at`,
+  `figure_number_at_index`, etc.).
+- Sub-stores `TagIntrospector` se aplicável.
+
+**Objectivos M8**:
+
+- Paridade vanilla typst.
+- Saída igual ao vanilla.
+- Performance comparável.
+- Re-walks parciais via invalidação granular.
+
+ADR-0066 cobre **decisão de adiar** comemo até M5+M6+M7 estarem
+estruturalmente fechados. **Cumprido em P192B**. **Próximo passo
+natural**: M8 — ADR dedicada à adopção comemo (futura).
+
+### Cross-references
+
+- **P192A** — diagnóstico estado actual M7.
+- **P192B** — declaração formal M7 estruturalmente fechado.
+- **ADR-0072** — ACEITE; M7 fixpoint runtime fechado.
+- **M8** — próximo passo natural; adopção `comemo::Track`.
+
+---
+
+## Status original (preservado para histórico)
+
+**Status original**: `PROPOSTO` (2026-04-27).
 
 ---
 
