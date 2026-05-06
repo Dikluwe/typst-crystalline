@@ -2989,6 +2989,144 @@ mod tests {
         );
     }
 
+    // ── P203B — Formalização do fecho das lacunas #1 e #1b ───────────────
+    //
+    // Lacunas #1 (`figure.kind` literal em tags vs colapsado em state) e
+    // #1b (`from_tags` arm Figure sem gate `is_counted`) foram
+    // **estruturalmente fechadas** por P190H + P191C:
+    //
+    // - **P190H**: campos legacy `state.figure_numbers`,
+    //   `state.figure_label_numbers`, `state.local_figure_counters`
+    //   eliminados; helper `compute_figure` orphan removido.
+    // - **P191C**: `populate_intr_from_tag_start` arm Figure aplica
+    //   `is_counted` gate + `kind.as_deref().unwrap_or("image")` default
+    //   no momento da Tag::Start emission.
+    //
+    // P203B é trabalho **declarativo** — não toca código produção
+    // (já alinhado pós-P190/P191). Este test consolidado formaliza o
+    // fecho das lacunas com 4 casos canónicos.
+    //
+    // Per `P203B.div-1`: spec P203B descrevia walk arm Figure como
+    // usando `unwrap_or("image")` directamente, mas walk arm Figure
+    // está puro desde P190H — apenas desce em body + caption. O default
+    // foi migrado para `populate_intr_from_tag_start` (P191C).
+
+    #[test]
+    fn p203b_lacuna_1_e_1b_fecho_formal_4_casos() {
+        // 4 casos canónicos per spec P203B C3:
+        //   (1) #figure([img])                      — kind=None,    sem caption
+        //   (2) #figure([img], caption: [c])        — kind=None,    com caption
+        //   (3) #figure(kind: "table", [t], caption)— kind=Some,    com caption
+        //   (4) #figure(kind: "table", [t])         — kind=Some,    sem caption
+
+        use crate::rules::introspect::extract_payload::extract_payload;
+
+        let caso1 = Content::Figure {
+            body:      Box::new(Content::text("img")),
+            caption:   None,
+            kind:      None,
+            numbering: Some("1".to_string()),
+        };
+        let caso2 = Content::Figure {
+            body:      Box::new(Content::text("img")),
+            caption:   Some(Box::new(Content::text("c"))),
+            kind:      None,
+            numbering: Some("1".to_string()),
+        };
+        let caso3 = Content::Figure {
+            body:      Box::new(Content::text("t")),
+            caption:   Some(Box::new(Content::text("c"))),
+            kind:      Some("table".to_string()),
+            numbering: Some("1".to_string()),
+        };
+        let caso4 = Content::Figure {
+            body:      Box::new(Content::text("t")),
+            caption:   None,
+            kind:      Some("table".to_string()),
+            numbering: Some("1".to_string()),
+        };
+
+        // (a) `extract_payload` preserva `kind` literalmente (sem default
+        //     — lacuna #1 fecha porque tag preserva None vs Some("image")
+        //     distintamente; default só aplica em populate_intr).
+        match extract_payload(&caso1) {
+            Some(ElementPayload::Figure { kind, is_counted, .. }) => {
+                assert_eq!(kind, None,         "caso1 kind preservado None literal");
+                assert_eq!(is_counted, false, "caso1 sem caption → is_counted=false");
+            }
+            other => panic!("caso1: esperado Some(Figure), obtido {other:?}"),
+        }
+        match extract_payload(&caso2) {
+            Some(ElementPayload::Figure { kind, is_counted, .. }) => {
+                assert_eq!(kind, None,        "caso2 kind preservado None literal");
+                assert_eq!(is_counted, true, "caso2 com caption+numbering → is_counted=true");
+            }
+            other => panic!("caso2: esperado Some(Figure), obtido {other:?}"),
+        }
+        match extract_payload(&caso3) {
+            Some(ElementPayload::Figure { kind, is_counted, .. }) => {
+                assert_eq!(kind, Some("table".to_string()), "caso3 kind literal Some(\"table\")");
+                assert_eq!(is_counted, true,                "caso3 com caption+numbering → is_counted=true");
+            }
+            other => panic!("caso3: esperado Some(Figure), obtido {other:?}"),
+        }
+        match extract_payload(&caso4) {
+            Some(ElementPayload::Figure { kind, is_counted, .. }) => {
+                assert_eq!(kind, Some("table".to_string()), "caso4 kind literal Some(\"table\")");
+                assert_eq!(is_counted, false,               "caso4 sem caption → is_counted=false");
+            }
+            other => panic!("caso4: esperado Some(Figure), obtido {other:?}"),
+        }
+
+        // (b) `populate_intr_from_tag_start` aplica gate `is_counted`
+        //     + default `unwrap_or("image")` consistentemente para os
+        //     4 casos. Lacuna #1b fecha — gate aplicado no caminho
+        //     activo (não em from_tags arm porque tal arm não existe;
+        //     população é durante walk via populate_intr_from_tag_start
+        //     desde P191B/C ADR-0071).
+        let intr1 = introspect_with_introspector(&caso1);
+        assert_eq!(intr1.figure_number_at_index("image", 0), None,
+            "caso1 is_counted=false → counter NÃO populated (gate aplicado)");
+
+        let intr2 = introspect_with_introspector(&caso2);
+        assert_eq!(intr2.figure_number_at_index("image", 0), Some(1),
+            "caso2 is_counted=true + kind=None → kind_key='image' (default) → counter[1]");
+
+        let intr3 = introspect_with_introspector(&caso3);
+        assert_eq!(intr3.figure_number_at_index("table", 0), Some(1),
+            "caso3 is_counted=true + kind=Some(\"table\") → counter['table'][1]");
+        assert_eq!(intr3.figure_number_at_index("image", 0), None,
+            "caso3 kind='table' → contador 'image' NÃO populated");
+
+        let intr4 = introspect_with_introspector(&caso4);
+        assert_eq!(intr4.figure_number_at_index("table", 0), None,
+            "caso4 is_counted=false → counter NÃO populated (gate aplicado)");
+
+        // (c) Walk emite Tags consistentes (Tag preserva kind literal).
+        let tags1 = introspect_with_tags(&caso1);
+        let tags2 = introspect_with_tags(&caso2);
+        // caso1 (sem caption, kind=None): payload kind=None preservado.
+        let payload1 = tags1.iter().find_map(|t| match t {
+            Tag::Start(_, info) => match &info.payload {
+                ElementPayload::Figure { kind, is_counted, .. } => Some((kind.clone(), *is_counted)),
+                _ => None,
+            },
+            _ => None,
+        });
+        assert_eq!(payload1, Some((None, false)),
+            "Tag preserva kind=None literal e is_counted=false (paridade pre-walk).");
+        // caso2 (com caption, kind=None): payload kind=None preservado, is_counted=true.
+        let payload2 = tags2.iter().find_map(|t| match t {
+            Tag::Start(_, info) => match &info.payload {
+                ElementPayload::Figure { kind, is_counted, .. } => Some((kind.clone(), *is_counted)),
+                _ => None,
+            },
+            _ => None,
+        });
+        assert_eq!(payload2, Some((None, true)),
+            "Tag preserva kind=None literal mesmo quando is_counted=true.");
+    }
+
     // ── P198B — Walk arm SetHeadingNumbering (cenário α) ─────────────────
     //
     // 5 tests sentinela que validam: (a) extract_payload já emite

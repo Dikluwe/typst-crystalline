@@ -47,7 +47,34 @@ As outras três são derivas de snapshot de 1-2 dias.
 
 ## §2 — Lacunas residuais (C8)
 
-Estado actual face à lista declarada:
+> **CORRECÇÃO RETROACTIVA aplicada por P203B (2026-05-05)**
+>
+> A tabela abaixo atribui "Position", "Position-related"
+> e "Counter at locations" às lacunas #1/#1b/#2. Esta
+> atribuição está **empíricamente errada**. As lacunas
+> reais (per `m1-lacunas-captura.md` + P200 consolidado
+> §7) são:
+>
+> - **#1** — `figure.kind` literal em tags vs colapsado
+>   em counter (default `"image"`).
+> - **#1b** — gate `is_counted` no caminho de população
+>   do counter Figure.
+> - **#2** — reservada / vazia.
+>
+> Ambas #1 e #1b foram fechadas estruturalmente por
+> P190H/P191C; formalizadas em P203B (test
+> `p203b_lacuna_1_e_1b_fecho_formal_4_casos`).
+>
+> **Position** continua um concern real (stub
+> `position_of() -> Option<()>`) mas **não é catalogado
+> como lacuna**. ADR-0066 cobre o adiamento até M8.
+>
+> O conteúdo abaixo é preservado para histórico mas não é
+> canónico. Para estado actual, ver
+> `00_nucleo/diagnosticos/snapshot-2026-05-05.md` §7.
+
+Estado actual face à lista declarada (preservado para
+histórico; **não canónico**):
 
 | Lacuna | Tópico | Estado | Último passo a tocar | Bloqueia M8? |
 |--------|--------|--------|----------------------|--------------|
