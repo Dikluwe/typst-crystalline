@@ -45,6 +45,7 @@ pub mod state_registry;
 pub mod state_update;
 pub mod location;
 pub mod locator;
+pub mod position;
 pub mod tag;
 pub mod engine;
 pub mod label;

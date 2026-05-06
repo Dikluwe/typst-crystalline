@@ -1,0 +1,9 @@
+features = ["metadata", "query", "introspection"]
+modo_p3 = "structural"
+notes = "P204F opcional 1: 3 metadata values embebidos. Cristalino: query_metadata() retorna lista [Value::Str('primeiro'), Value::Dict({...}), Value::Str('terceiro')] em ordem de aparecimento. Vanilla integration deferred per DEBT-53."
+
+[expectations.cristalino]
+metadata_count = 3
+metadata_first_kind = "string"
+metadata_second_kind = "dict"
+metadata_third_kind = "string"

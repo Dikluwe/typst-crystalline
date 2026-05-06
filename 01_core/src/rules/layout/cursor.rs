@@ -15,7 +15,7 @@ use crate::entities::{
 
 use super::metrics::FontMetrics;
 
-impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S> {
+impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Largura de uma palavra em Pt, incluindo tracking entre glyphs
     /// (Passo 137, fase B.1 DEBT-52).
     ///

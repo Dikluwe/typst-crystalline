@@ -16,7 +16,7 @@ use crate::entities::{
 use super::metrics::FontMetrics;
 use super::{item_pos, measure_content, translate_frame_item};
 
-impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S> {
+impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Layout de `Content::Align { alignment, body }`.
     pub(super) fn layout_align(&mut self, alignment: Align2D, body: &Content) {
         // Garantir que não há texto inline pendente antes de posicionar o bloco.

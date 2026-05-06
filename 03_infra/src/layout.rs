@@ -22,7 +22,16 @@ pub fn layout_with_font(
     font_size: f64,
 ) -> PagedDocument {
     if let Some(metrics) = FontBookMetrics::from_bytes(font_data) {
-        let mut l = Layouter::new(metrics, ImageSizeImageSizer, font_size);
+        // P204C (M8): Layouter::new agora aceita
+        // `Tracked<dyn Introspector>` — construir empty introspector
+        // local + .track() + passar handle. introspector vazio é
+        // suficiente para fontes-only path (sem TOC / queries).
+        use comemo::Track;
+        use typst_core::entities::introspector::{Introspector, TagIntrospector};
+        let intr = TagIntrospector::empty();
+        let intr_dyn: &dyn Introspector = &intr;
+        let intr_tracked = intr_dyn.track();
+        let mut l = Layouter::new(metrics, ImageSizeImageSizer, font_size, intr_tracked);
         l.layout_content(content);
         l.finish()
     } else {

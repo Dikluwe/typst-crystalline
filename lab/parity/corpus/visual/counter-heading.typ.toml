@@ -1,0 +1,8 @@
+features = ["heading", "counter", "numbering", "introspection"]
+modo_p3 = "structural"
+notes = "P204F core 2: 5 headings em hierarquia 2 níveis com numbering '1.1'. Cristalino: counter('heading') avança hierarquicamente; formatted_counter() retorna '1', '1.1', '1.2', '2', '2.1'. Vanilla integration deferred per DEBT-53."
+
+[expectations.cristalino]
+heading_count = 5
+numbering_active = true
+formatted_counters = ["1", "1.1", "1.2", "2", "2.1"]

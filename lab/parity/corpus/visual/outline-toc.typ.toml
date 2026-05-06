@@ -1,0 +1,7 @@
+features = ["outline", "heading", "introspection"]
+modo_p3 = "structural"
+notes = "P204F core 1: outline() + 5 headings. Cristalino: query('heading') retorna 5 entries; headings_for_toc populado com 5 entradas após walk + from_tags. Vanilla integration: deferred per DEBT-53."
+
+[expectations.cristalino]
+heading_count = 5
+outline_present = true

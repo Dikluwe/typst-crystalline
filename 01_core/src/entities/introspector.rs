@@ -34,7 +34,11 @@ use crate::entities::value::Value;
 ///
 /// **P168 (M5 sub-passo 2)**: adicionado `figure_number_for_label`
 /// para suportar primeira migração real (figure-ref em layout_ref).
-pub trait Introspector {
+///
+/// **P204B (M8)** — `#[comemo::track]` aplicado per ADR-0073
+/// (paridade vanilla literal). Trait fica `Send + Sync`.
+#[comemo::track]
+pub trait Introspector: Send + Sync {
     /// Vector de todas as `Location`s indexadas com este kind, em
     /// ordem de aparecimento no walk.
     fn query_by_kind(&self, kind: ElementKind) -> Vec<Location>;
@@ -50,9 +54,20 @@ pub trait Introspector {
     /// indexada com este kind. `None` se 0 ou >1.
     fn query_unique(&self, kind: ElementKind) -> Option<Location>;
 
-    /// M3 stub: retorna sempre `None`. Mapa Location→Position fica
-    /// vazio até consumer real (layout) integrar em M5/M9.
-    fn position_of(&self, location: Location) -> Option<()>;
+    /// **P204D (M8)** — assinatura migrada de stub `Option<()>`
+    /// para `Option<Position>` per ADR-0073 (paridade vanilla
+    /// literal: `fn position(&self, loc: Location) -> Option<DocumentPosition>`).
+    ///
+    /// `TagIntrospector` impl retorna sempre `None` — Position
+    /// vive em `Layouter.runtime.positions` (single-pass populated
+    /// durante layout, per P203A C5). Consumers que precisem de
+    /// Position acedem via Layouter directamente, não via
+    /// trait. ADR-0073 §C6a (P204D diagnóstico).
+    ///
+    /// Future trait impl que **tenha** acesso a Layouter runtime
+    /// (ex: PagedIntrospector pós-layout, análogo vanilla)
+    /// pode override e retornar `Some(Position)`.
+    fn position_of(&self, location: Location) -> Option<crate::entities::position::Position>;
 
     /// P168 (M5): número 1-based da figura associada à label, **apenas
     /// se a figura é numerada+captioned**. Equivalente ao
@@ -245,8 +260,13 @@ impl Introspector for TagIntrospector {
             .and_then(|v| v.first().copied())
     }
 
-    fn position_of(&self, _location: Location) -> Option<()> {
-        // M3: stub. Consumer real virá em M5/M9.
+    fn position_of(&self, _location: Location) -> Option<crate::entities::position::Position> {
+        // **P204D (M8)**: Position vive em `Layouter.runtime.positions`
+        // (single-pass populated). `TagIntrospector` é construído
+        // pre-layout via `from_tags`, sem acesso ao Layouter runtime.
+        // Retorna sempre `None` — consumers acedem Position via
+        // Layouter directamente (`layouter.runtime.positions.get(&loc)`).
+        // ADR-0073 §C6a; P204D diagnóstico.
         None
     }
 
@@ -344,6 +364,47 @@ mod tests {
         assert_eq!(i.query_first(ElementKind::Heading), None);
         assert_eq!(i.query_unique(ElementKind::Heading), None);
         assert_eq!(i.position_of(loc(1)), None);
+    }
+
+    // ── P204B (M8) — Sentinel tests ──────────────────────────────────────
+    //
+    // Confirmam que `#[comemo::track]` foi aplicado ao trait
+    // `Introspector` per ADR-0073 (paridade vanilla literal). Falham
+    // de compilação se o atributo for removido ou se bounds Send+Sync
+    // forem perdidos.
+
+    #[test]
+    fn p204b_trait_e_send_sync() {
+        // Sentinel: confirma que o trait Introspector é Send+Sync
+        // (per ADR-0073 / P204B). Falha de compilação se bounds
+        // forem removidos do trait declaration.
+        fn assert_send_sync<T: Send + Sync + ?Sized>() {}
+        assert_send_sync::<dyn Introspector>();
+    }
+
+    #[test]
+    fn p204b_dyn_trait_implementa_track() {
+        // Sentinel: confirma que `dyn Introspector + 'static`
+        // implementa `comemo::Track` (gerado pelo macro
+        // `#[comemo::track]`). Falha de compilação se atributo
+        // for removido.
+        fn assert_track<T: comemo::Track + ?Sized>() {}
+        assert_track::<dyn Introspector>();
+    }
+
+    #[test]
+    fn p204b_tagintrospector_pode_ser_tracked_via_dyn() {
+        // Sentinel: confirma que TagIntrospector concreto pode ser
+        // usado via &dyn Introspector e o handle .track() é
+        // produzido via macro-generated impl. `comemo::Track` é
+        // implementado para `dyn Introspector + '__comemo_dynamic`,
+        // não para o tipo concreto — coerção e .track() devem
+        // funcionar.
+        use comemo::Track;
+        let intr = TagIntrospector::empty();
+        let dyn_ref: &dyn Introspector = &intr;
+        // .track() produz Tracked<'_, dyn Introspector + '_>.
+        let _tracked = dyn_ref.track();
     }
 
     #[test]
