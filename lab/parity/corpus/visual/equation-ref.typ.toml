@@ -1,0 +1,8 @@
+features = ["equation", "math", "label", "ref", "counter", "introspection"]
+modo_p3 = "structural"
+notes = "P204F core 4: 3 equations block-mode numeradas + labeled + 3 refs. Cristalino: equation counter avança em block mode; flat_counter_at retorna 1, 2, 3 nas Locations correspondentes. Vanilla integration deferred per DEBT-53."
+
+[expectations.cristalino]
+equation_count = 3
+equation_labels = ["eq-einstein", "eq-pitagoras", "eq-integral"]
+numbering_active_equation = true

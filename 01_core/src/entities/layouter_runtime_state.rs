@@ -25,6 +25,8 @@
 use std::collections::HashMap;
 
 use crate::entities::label::Label;
+use crate::entities::location::Location;
+use crate::entities::position::Position;
 
 /// State Layouter-runtime — campos populated durante o layout
 /// (não derivados de Content pre-pass).
@@ -56,4 +58,20 @@ pub struct LayouterRuntimeState {
     /// Set/unset por `outline.rs:73-76` em volta de
     /// `layouter.layout_content(&line)`.
     pub is_readonly: bool,
+
+    /// **P204D (M8)** — mapeia `Location` → `Position` (page +
+    /// point) para cada locatable processado durante layout.
+    /// Populated single-pass em
+    /// `Layouter::advance_locator_if_locatable` (mirror do gating
+    /// que set `current_location`). Per ADR-0073 + P203A C5.
+    ///
+    /// Pipeline cristalino diverge intencionalmente do vanilla
+    /// (que calcula post-layout fase 3 separada): cristalino
+    /// integra Position no walk de layout — saída observable
+    /// equivalente; mecanismo single-pass.
+    ///
+    /// Idempotência: `insert` substitui em re-layout (TOC fixpoint
+    /// re-emite valores correctos). Iterações posteriores
+    /// sobrescrevem valores de iterações anteriores.
+    pub positions: HashMap<Location, Position>,
 }

@@ -1,0 +1,8 @@
+features = ["cite", "bibliography", "label", "introspection"]
+modo_p3 = "structural"
+notes = "P204F core 5: 3 citações distintas + bibliography(refs.yaml). Cristalino: bib_entry_for_key retorna entries para 'ref-alfa', 'ref-beta', 'ref-gama'; bib_number_for_key retorna 1, 2, 3. Vanilla integration deferred per DEBT-53."
+
+[expectations.cristalino]
+citation_count = 3
+bibliography_keys = ["ref-alfa", "ref-beta", "ref-gama"]
+bibliography_numbers = [1, 2, 3]

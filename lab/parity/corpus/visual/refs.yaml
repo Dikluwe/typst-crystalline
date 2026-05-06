@@ -1,0 +1,20 @@
+ref-alfa:
+  type: article
+  author: "Alfa, A."
+  title: "Estudo Alfa"
+  date: 2024
+  publisher: "Editora Alfa"
+
+ref-beta:
+  type: book
+  author: "Beta, B."
+  title: "Manual Beta"
+  date: 2025
+  publisher: "Editora Beta"
+
+ref-gama:
+  type: article
+  author: "Gama, G."
+  title: "Análise Gama"
+  date: 2026
+  publisher: "Editora Gama"

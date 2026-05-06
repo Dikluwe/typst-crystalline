@@ -77,7 +77,7 @@
 /// Refinos futuros (mais fields, formatação CSL, hyperlinks,
 /// tipos estruturados como `Vec<Person>` editor) virão como
 /// métodos ou trait separada.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct BibEntry {
     pub key:          String,
     pub author:       String,

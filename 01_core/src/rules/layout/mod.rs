@@ -66,7 +66,7 @@ const DEFAULT_FONT_SIZE: f64 = 12.0;
 // ruído sem ganho de invariante — a ADR-0037 Regra 3 autoriza `pub(super)`
 // em campos quando métodos não agregam. A API externa (`pub fn layout`,
 // `pub fn layout_content`) continua inalterada.
-pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
+pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) metrics:      M,
     sizer:                   S,
     pub(super) font_size_pt: Pt,
@@ -98,11 +98,15 @@ pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     // struct eliminada. Layouter consumers usam Introspector path
     // puro via `self.introspector` (P184D / P190G/H/I migrations).
     /// P168 (M5 sub-passo 2): introspector populado paralelamente ao
-    /// `counter` legacy. Default `TagIntrospector::empty()` — apenas
-    /// callers via `layout_with_introspector` populam. Consumer actual
-    /// é `references.rs::layout_ref` (figure-ref); outros consumers
-    /// migram em M9+.
-    pub(super) introspector: crate::entities::introspector::TagIntrospector,
+    /// `counter` legacy. Consumer actual é `references.rs::layout_ref`
+    /// (figure-ref); outros consumers migram em M9+.
+    ///
+    /// **P204C (M8)** — migrado de `TagIntrospector` por valor para
+    /// `Tracked<'a, dyn Introspector + 'a>` per ADR-0073 (paridade
+    /// vanilla literal). Caller constrói `TagIntrospector` + `.track()`
+    /// e passa o handle a `Layouter::new`. Lifetime `'a` atado à
+    /// fonte do tracked (introspector concreto deve outlive Layouter).
+    pub(super) introspector: comemo::Tracked<'a, dyn crate::entities::introspector::Introspector + 'a>,
     /// Índice de progresso por kind para figuras (Passo 75, DEBT-14).
     /// kind → número de figuras já dispostas. Reiniciado por invocação de layout().
     figure_progress: std::collections::HashMap<String, usize>,
@@ -153,8 +157,18 @@ pub struct Layouter<M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub runtime: crate::entities::layouter_runtime_state::LayouterRuntimeState,
 }
 
-impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
-    pub fn new(metrics: M, sizer: S, font_size: f64) -> Self {
+impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
+    /// **P204C (M8)** — `introspector` parameter agora obrigatório
+    /// (migrado de `TagIntrospector` field assignment para
+    /// `Tracked<'a, dyn Introspector + 'a>` aceite no construtor).
+    /// Caller constrói `TagIntrospector` (provavelmente via
+    /// `introspect_with_introspector`) + `.track()` e passa o handle.
+    pub fn new(
+        metrics:      M,
+        sizer:        S,
+        font_size:    f64,
+        introspector: comemo::Tracked<'a, dyn crate::entities::introspector::Introspector + 'a>,
+    ) -> Self {
         let cfg = PageConfig::default();
         let size = Pt(font_size);
         let (ascender, _) = metrics.vertical_metrics(size);
@@ -172,7 +186,8 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
             line_start_x: Pt(cfg.margin),
             current_line: Vec::new(),
             // P190I: counter field eliminated.
-            introspector:    crate::entities::introspector::TagIntrospector::empty(),
+            // P204C: field passa a ser Tracked, recebido por parameter.
+            introspector,
             figure_progress: std::collections::HashMap::new(),
             is_height_unconstrained: false,
             cell_available_h:        None,
@@ -252,9 +267,27 @@ impl<M: FontMetrics, S: ImageSizer> Layouter<M, S> {
     /// invariante `is_locatable ↔ extract_payload.is_some()` (provada
     /// em `locatable.rs:11`) garante sincronização-por-construção das
     /// duas sequências de `Location`s.
+    ///
+    /// **P204D (M8)** — emit Position single-pass per ADR-0073.
+    /// Para cada locatable, popular `runtime.positions` com
+    /// `Position { page: pages.len() + 1, point: (cursor_x,
+    /// cursor_y) }`. Single canonical site — mirror do gating
+    /// que set `current_location`. Idempotência via `insert`.
     fn advance_locator_if_locatable(&mut self, content: &Content) {
         if is_locatable(content) {
-            self.current_location = Some(self.locator.next());
+            let loc = self.locator.next();
+            self.current_location = Some(loc);
+            // P204D: emit Position concrete single-pass.
+            let page = std::num::NonZeroUsize::new(self.pages.len() + 1)
+                .expect("pages.len() + 1 >= 1");
+            let point = crate::entities::layout_types::Point {
+                x: self.cursor_x,
+                y: self.cursor_y,
+            };
+            self.runtime.positions.insert(
+                loc,
+                crate::entities::position::Position { page, point },
+            );
         }
     }
 
@@ -1480,24 +1513,21 @@ pub fn layout_with_introspector(
     // Field `CounterStateLegacy::has_outline` fica morto; cleanup em M6.
     use crate::entities::element_kind::ElementKind;
     let has_outline = introspector.kind_index.contains_key(&ElementKind::Outline);
+
+    // P204C (M8): construir Tracked uma vez. introspector é binding
+    // local (owned por valor desde signature) e outlive todos os
+    // Layouters criados abaixo (single-pass ou fixpoint loop).
+    use comemo::Track;
+    let intr_dyn: &dyn crate::entities::introspector::Introspector = &introspector;
+    let intr_tracked = intr_dyn.track();
+
     if !has_outline {
-        let mut l = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
-        l.introspector             = introspector;
-        // P190G (M6 categoria Labels & TOC eliminada): assignments
-        // `l.counter.resolved_labels = initial_state.resolved_labels`
-        // e `l.counter.headings_for_toc = initial_state.headings_for_toc`
-        // removidos — fields já não existem em CounterStateLegacy.
-        // Layouter consumers `references.rs:64` (resolved_labels) e
-        // `outline.rs:38` (headings_for_toc) migrados para
-        // Introspector path puro (sem fallback legacy).
-        // P190E/P190G (M6 categoria Numbering active): assignment
-        // `l.counter.numbering_active = initial_state.numbering_active`
-        // removido em P190E; field eliminado em P190G (Caso 1 `.H`).
-        // Layouter consumers usam Introspector directamente.
-        // P190B (M6 categoria Bibliography eliminada): assignments
-        // bib_* removidos.
-        // NÃO copiar label_pages — começa vazio via Layouter::new().
-        // NÃO copiar hierarchical, flat — reconstruídos nó a nó.
+        let mut l = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
+        // P204C (M8): introspector já fornecido a Layouter::new via
+        // tracked. Mutações pós-construção (`l.introspector =
+        // introspector`) eliminadas porque Tracked é borrow.
+        // P190G (M6 categoria Labels & TOC eliminada) + restantes
+        // limpezas mantidas — sem trabalho aqui.
         l.layout_content(content);
         return l.finish();
     }
@@ -1513,10 +1543,11 @@ pub fn layout_with_introspector(
     let mut final_doc: Option<PagedDocument> = None;
 
     for _ in 0..MAX_ITERATIONS {
-        let mut l = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
+        let mut l = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
 
-        // Estado base da introspecção — copiado em cada iteração.
-        l.introspector             = introspector.clone();
+        // P204C (M8): assignment `l.introspector = introspector.clone()`
+        // eliminado — Tracked partilhado entre iterações via construtor.
+        // Tracked é Copy; cada iteração reusa o mesmo handle.
         // P190G (M6 categoria Labels & TOC eliminada): assignments
         // `resolved_labels`/`headings_for_toc` removidos — fields já
         // não existem. Layouter consumers (`references.rs:64`,

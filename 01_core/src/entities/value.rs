@@ -89,6 +89,21 @@ pub enum Value {
     // Dyn(Dynamic),             // valor dinâmico opaco
 }
 
+// P204B (M8): impl Hash via Debug formatting. Necessária para
+// `#[comemo::track]` no trait `Introspector` per ADR-0073 — métodos
+// como `query_metadata`, `state_value`, `state_final_value` exigem
+// `Value: Hash`. Estratégia: delega à serialização Debug (mesmo
+// padrão de `hash_content` em P162); aceita potenciais colisões
+// estruturais por simplicidade — comemo trata colisões de hash como
+// cache miss (sem prejuízo correção). Variantes `Float` e `Fraction`
+// (f64) seriam impossíveis de hash via derive devido a NaN; Debug
+// formato literal resolve.
+impl std::hash::Hash for Value {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        format!("{:?}", self).hash(state);
+    }
+}
+
 impl Value {
     /// Retorna o nome do tipo Typst deste valor.
     pub fn type_name(&self) -> &'static str {

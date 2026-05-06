@@ -48,9 +48,138 @@ fn fixed_metrics_vertical_ascender_menor_que_line_height() {
 
 #[test]
 fn layouter_baseline_dentro_da_pagina() {
-    let l = Layouter::new(FixedMetrics, NullImageSizer, 12.0);
+    // P204C (M8): Layouter ganha 'a + Tracked<dyn Introspector>.
+    use comemo::Track;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    let intr = TagIntrospector::empty();
+    let intr_dyn: &dyn Introspector = &intr;
+    let intr_tracked = intr_dyn.track();
+    let l = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_tracked);
     assert!(l.cursor_y.val() > 0.0);
     assert!(l.cursor_y.val() < 842.0);
+}
+
+// ── P204C (M8) — Sentinel tests para migração Layouter ────────────────────
+//
+// Confirmam que Layouter ganhou lifetime parameter `'a` e que field
+// `introspector` é `Tracked<dyn Introspector + 'a>` per ADR-0073.
+// Falham de compilação se a migração for revertida.
+
+#[test]
+fn p204c_layouter_struct_aceita_tracked_introspector() {
+    // Sentinel: Layouter::new aceita Tracked<dyn Introspector>
+    // como 4º parâmetro. Falha de compilação se signature reverter
+    // para 3 args.
+    use comemo::Track;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    let intr = TagIntrospector::empty();
+    let intr_dyn: &dyn Introspector = &intr;
+    let intr_tracked = intr_dyn.track();
+    let _l: Layouter<'_, FixedMetrics, NullImageSizer> =
+        Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_tracked);
+}
+
+#[test]
+fn p204c_pipeline_e2e_via_tracked() {
+    // Sentinel runtime: pipeline end-to-end com Tracked produz
+    // documento equivalente. Confirma que migração não quebra
+    // funcionalidade básica.
+    let content = Content::text("Hello P204C");
+    let doc = layout(&content);
+    assert!(!doc.pages.is_empty(), "layout via tracked produz páginas");
+    assert!(
+        doc.plain_text().contains("Hello P204C"),
+        "texto preservado pelo pipeline tracked"
+    );
+}
+
+// ── P204D (M8) — Sentinel + E2E tests para Position concrete ──────────────
+//
+// Confirmam que tipo `Position` existe, que `LayouterRuntimeState` ganhou
+// campo `positions`, e que Layouter popula durante layout single-pass.
+
+#[test]
+fn p204d_position_struct_existe() {
+    // Sentinel: tipo Position existe em `crate::entities::position`.
+    // Falha de compilação se for removido ou renomeado.
+    use std::num::NonZeroUsize;
+    use crate::entities::position::Position;
+    use crate::entities::layout_types::{Point, Pt};
+
+    let _p = Position {
+        page:  NonZeroUsize::new(1).unwrap(),
+        point: Point { x: Pt(0.0), y: Pt(0.0) },
+    };
+}
+
+#[test]
+fn p204d_runtime_positions_field_existe() {
+    // Sentinel: LayouterRuntimeState tem field `positions`.
+    // Falha de compilação se for removido. Construído via Default
+    // — confirma que campo existe e é HashMap<Location, Position>.
+    use std::collections::HashMap;
+    use crate::entities::layouter_runtime_state::LayouterRuntimeState;
+    use crate::entities::location::Location;
+    use crate::entities::position::Position;
+
+    let runtime = LayouterRuntimeState::default();
+    let _check: &HashMap<Location, Position> = &runtime.positions;
+    assert!(runtime.positions.is_empty(), "default runtime tem positions vazio");
+}
+
+#[test]
+fn p204d_position_populada_para_locatable_basico() {
+    // E2E test 1: documento com 1 label (locatable Heading)
+    // produz entry em runtime.positions.
+    use comemo::Track;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+
+    let intr = TagIntrospector::empty();
+    let intr_dyn: &dyn Introspector = &intr;
+    let intr_tracked = intr_dyn.track();
+    let mut layouter = Layouter::new(
+        FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked,
+    );
+
+    let content = Content::heading(1, Content::text("Title"));
+    layouter.layout_content(&content);
+
+    // Heading é locatable → current_location set + Position emitted.
+    let loc = layouter.current_location.expect("Heading locatable → Some");
+    let pos = layouter.runtime.positions.get(&loc).copied()
+        .expect("runtime.positions populated para locatable");
+
+    // Página 1 (1-based; primeira página).
+    assert_eq!(pos.page.get(), 1, "Heading na primeira página");
+    // Cursor x/y dentro de limites razoáveis.
+    assert!(pos.point.x.val() >= 0.0, "point.x positivo");
+    assert!(pos.point.y.val() >= 0.0, "point.y positivo");
+}
+
+#[test]
+fn p204d_position_nao_populada_para_nao_locatable() {
+    // E2E test 2: Content não-locatable (Text simples)
+    // NÃO produz entry em runtime.positions.
+    use comemo::Track;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+
+    let intr = TagIntrospector::empty();
+    let intr_dyn: &dyn Introspector = &intr;
+    let intr_tracked = intr_dyn.track();
+    let mut layouter = Layouter::new(
+        FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked,
+    );
+
+    let content = Content::text("plain text");
+    layouter.layout_content(&content);
+
+    // Text simples não-locatable → current_location ainda None
+    // → runtime.positions vazio.
+    assert_eq!(layouter.current_location, None, "Text não set current_location");
+    assert!(
+        layouter.runtime.positions.is_empty(),
+        "Text não-locatable → runtime.positions vazio"
+    );
 }
 
 // ── Testes de layout() (herdados do Passo 19) ─────────────────────────
@@ -1297,7 +1426,13 @@ fn grid_fr_distribution_quando_auto_e_pequeno() {
     ];
     let cell_auto = Content::text("hi");
 
-    let layouter = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
+    // P204C (M8): Layouter ganha 'a + Tracked<dyn Introspector>.
+    use comemo::Track;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    let intr = TagIntrospector::empty();
+    let intr_dyn: &dyn Introspector = &intr;
+    let intr_tracked = intr_dyn.track();
+    let layouter = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
 
     // Simular Fase 1.
     let mut resolved = vec![0.0_f64; 4];
@@ -1355,7 +1490,13 @@ fn grid_fr_recebe_zero_quando_auto_e_guloso() {
     ];
     // Palavra sem espaços — ocupa safe_available inteiro.
     let cell_auto = Content::text("PalavraLongaSemEspacos");
-    let layouter = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
+    // P204C (M8): Layouter ganha 'a + Tracked<dyn Introspector>.
+    use comemo::Track;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    let intr = TagIntrospector::empty();
+    let intr_dyn: &dyn Introspector = &intr;
+    let intr_tracked = intr_dyn.track();
+    let layouter = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
 
     let mut resolved = vec![0.0_f64; 3];
     let mut total_fixed = 0.0_f64;
@@ -1440,7 +1581,13 @@ fn grid_auto_respects_safe_available() {
     let available = cfg.width - 2.0 * cfg.margin;
     let cols = vec![TrackSizing::Auto];
     let cell  = Content::text("Palavra muito longa que poderia exceder a página se nao houver limite");
-    let layouter = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE);
+    // P204C (M8): Layouter ganha 'a + Tracked<dyn Introspector>.
+    use comemo::Track;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+    let intr = TagIntrospector::empty();
+    let intr_dyn: &dyn Introspector = &intr;
+    let intr_tracked = intr_dyn.track();
+    let layouter = Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
 
     let mut resolved = vec![0.0_f64; 1];
     let mut total_fixed = 0.0_f64;
@@ -4146,7 +4293,13 @@ mod p185d_locator_sync {
     /// Não modifica produção — só usa API pub(super) acessível a
     /// tests do mesmo módulo.
     fn collect_layout_locations(parts: &[Content]) -> Vec<Location> {
-        let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0);
+        // P204C (M8): Layouter ganha 'a + Tracked<dyn Introspector>.
+        use comemo::Track;
+        use crate::entities::introspector::{Introspector, TagIntrospector};
+        let intr = TagIntrospector::empty();
+        let intr_dyn: &dyn Introspector = &intr;
+        let intr_tracked = intr_dyn.track();
+        let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_tracked);
         let mut locs = Vec::new();
         for part in parts {
             layouter.layout_content(part);
@@ -4235,7 +4388,13 @@ mod p185d_locator_sync {
         // antes do primeiro locatable, current_location é None
         // (não `Location::from_raw(0)`, que é uma Location real do
         // primeiro Locator::next).
-        let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0);
+        // P204C (M8): Layouter ganha 'a + Tracked<dyn Introspector>.
+        use comemo::Track;
+        use crate::entities::introspector::{Introspector, TagIntrospector};
+        let intr = TagIntrospector::empty();
+        let intr_dyn: &dyn Introspector = &intr;
+        let intr_tracked = intr_dyn.track();
+        let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_tracked);
         assert_eq!(
             layouter.current_location, None,
             "fresh Layouter tem current_location = None"
@@ -4286,10 +4445,16 @@ mod p185d_locator_sync {
         let content = Content::Sequence(Arc::from(parts.clone()));
 
         let intr = introspect_with_introspector(&content);
-        let intr_clone = intr.clone();
 
-        let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0);
-        layouter.introspector = intr_clone;
+        // P204C (M8): Layouter ganha 'a + Tracked<dyn Introspector>.
+        // Assignment `layouter.introspector = intr_clone` ELIMINADO —
+        // tracked passa por construtor; introspector populado via
+        // introspect_with_introspector outlive layouter no scope.
+        use comemo::Track;
+        use crate::entities::introspector::Introspector;
+        let intr_dyn: &dyn Introspector = &intr;
+        let intr_tracked = intr_dyn.track();
+        let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_tracked);
 
         let mut headings_validados = 0usize;
         for part in &parts {

@@ -16,7 +16,7 @@ use crate::rules::math;
 
 use super::metrics::FontMetrics;
 
-impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S> {
+impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Layout de `Content::Equation { body, block }`.
     pub(super) fn layout_equation(&mut self, body: &Content, block: bool) {
         // Auto-numeração: equações de bloco numeradas avançam o contador antes de

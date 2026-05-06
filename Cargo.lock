@@ -618,6 +618,7 @@ name = "typst-wiring"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "comemo",
  "typst-core",
  "typst-infra",
  "typst-shell",

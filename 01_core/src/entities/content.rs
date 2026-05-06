@@ -1291,6 +1291,18 @@ impl PartialEq for Content {
     }
 }
 
+// P204B (M8): impl Hash via hash_content (existing Debug-based hash
+// function from P162). Necessária para `#[comemo::track]` no trait
+// `Introspector` per ADR-0073 — métodos como `headings_for_toc` que
+// retornam `&[(Label, Content, usize)]` exigem `Content: Hash`.
+// Estratégia: delega ao hash_content u128 que já existe, hashing-o
+// como tuple no hasher genérico.
+impl std::hash::Hash for Content {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        crate::entities::content_hash::hash_content(self).hash(state);
+    }
+}
+
 impl Content {
     /// Acesso a campos de elementos estruturados — usado pelas show rules (Passo 68).
     ///

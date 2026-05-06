@@ -16,7 +16,7 @@ use crate::entities::{
 use super::metrics::FontMetrics;
 use super::{item_pos, translate_frame_item};
 
-impl<M: FontMetrics, S: ImageSizer> super::Layouter<M, S> {
+impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Layout de `Content::Grid` — algoritmo de tracks (Passo 80, 83, 84.2,
     /// 84.6). Extraído no Passo 96.7.
     pub(super) fn layout_grid(

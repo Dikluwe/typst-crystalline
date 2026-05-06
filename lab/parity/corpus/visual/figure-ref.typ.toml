@@ -1,0 +1,8 @@
+features = ["figure", "label", "ref", "counter", "introspection"]
+modo_p3 = "structural"
+notes = "P204F core 3: 3 figures numeradas + captioned + labeled + 3 refs. Cristalino: figure_number_for_label retorna 1, 2, 3; figure_label_numbers populado para cada label. Vanilla integration deferred per DEBT-53."
+
+[expectations.cristalino]
+figure_count = 3
+figure_labels = ["fig-alfa", "fig-beta", "fig-gama"]
+figure_numbers = [1, 2, 3]

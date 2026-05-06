@@ -28,6 +28,11 @@
 //! - 1: erro de compilação (eval).
 //! - 2: erro de I/O ou argumentos (clap, via L2).
 
+// P204E (M8): wrapper `crystalline_evict` sobre `comemo::evict`
+// per ADR-0073. Reservado para integração CLI / watch mode
+// futura (não exercido em P204E — apenas exposto).
+mod eviction;
+
 use std::path::PathBuf;
 use std::process::ExitCode;
 
