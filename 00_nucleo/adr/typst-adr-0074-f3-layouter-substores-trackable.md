@@ -1,13 +1,67 @@
 # ⚖️ ADR-0074: F3 — Layouter sub-stores trackable (sealing post-iteração)
 
-**Status**: `PROPOSTO`
-**Validado**: pendente — vinculativo após materialização
-P205B–E; transita ACEITE em P205E.
-**Data**: 2026-05-07
-**Sub-passo**: P205A (PROPOSTO).
+**Status**: **ACEITE** (final, P205E 2026-05-07).
+**Validado**: P205A–E concluídos; 7/7 condições do plano
+de validação CUMPRIDAS (P205D condicional cumprida via
+deferral documentado per cond 3).
+**Data**: 2026-05-07 (PROPOSTO P205A); 2026-05-07
+(ACEITE P205E).
+**Sub-passos**: P205A (PROPOSTO); P205B–C
+(materialização); P205D (DEFERIDO empírico); P205E
+(transição ACEITE).
 **Diagnóstico prévio**:
 - `00_nucleo/diagnosticos/typst-passo-205A-auditoria-f3.md` (P205A).
 - `00_nucleo/diagnosticos/typst-passo-205A-diagnostico.md` (P205A).
+
+---
+
+## Validação P205A–E — ACEITE final
+
+**Data**: 2026-05-07.
+**Auditor**: P205E (per spec C1).
+
+| # | Condição (per Plano de validação) | Estado | Evidência |
+|---|-----------------------------------|--------|-----------|
+| 1 | P205B materializado: `SealedPositions` + `#[comemo::track]` impl; `Layouter::finish` retorna sealed sub-store | **CUMPRIDA** | `01_core/src/entities/sealed_positions.rs` (hash `89baeda9`); `Layouter::finish` produz via `SealedPositions::from_runtime(self.runtime.positions)` em `mod.rs:1187-1189`; 4 tests novos (2 sentinelas + 2 unit) |
+| 2 | P205C materializado: `TagIntrospector::position_of` retorna `Some(Position)` via consumer com sealed sub-store | **CUMPRIDA** | `TagIntrospector` campo `pub positions: SealedPositions` + método `pub fn inject_positions`; trait impl delega `self.positions.position_of(location)`; 4 tests novos (3 unit `p205c_*` em `introspector.rs::tests` + 1 E2E em `layout/tests.rs`) |
+| 3 | P205D materializado: `SealedLabelPages` struct (se benefício se materializar; senão, decisão de não prosseguir documentada) | **CUMPRIDA** | P205D deferred via Caminho B per spec branch "decisão de não prosseguir documentada"; 6 sub-secções de inventário empírico em `00_nucleo/diagnosticos/typst-passo-205D-inventario.md`; relatório em `00_nucleo/materialization/typst-passo-205D-relatorio.md` |
+| 4 | Tests workspace verdes (estimativa 1852 → 1862-1870; ∆+10 a +18) | **CUMPRIDA** | 1852 → 1860 verdes (∆+8 real). Critério literal "verdes" cumprido; estimativa numérica orientadora foi superestimada porque P205D deferred eliminou ~4-6 tests previstos. Sem regressão |
+| 5 | `crystalline-lint .` 0 violations | **CUMPRIDA** | `✓ No violations found` confirmado pós-cada sub-passo (P205B/C/D + verificação final P205E) |
+| 6 | Sealing point identificado e implementado: `Layouter::finish` produz sealed sub-stores reproduzivelmente | **CUMPRIDA** | `Layouter::finish` em `01_core/src/rules/layout/mod.rs:1187-1189` produz `extracted_positions` 1× por iteração; padrão `from_runtime` consolidado |
+| 7 | Consumers de `layouter.runtime.positions` directamente migrados para `Introspector::position_of` (P205C) | **CUMPRIDA-vacuously** | P205C C1.1 confirmou zero consumers de produção (P204F SKIP `here-locate`); migração formal limitada a tests E2E novos (D3 P205C). Infraestrutura activa para futuros consumers |
+
+**Forma de fecho**: **Completo** (per P205E C2).
+
+Justificação literal: ADR-0074 §"Decisão" declarou P205D
+**condicional** ("opcional dependendo de benefício
+observado em P205B/C"); plano de validação cond 3
+aceitou explicitamente ambas as branches ("se benefício
+se materializar; senão, decisão de não prosseguir
+documentada"). P205D deferred com fundamento empírico
+(zero consumers de produção; vanilla não trackeia
+label_pages directamente; sub-store seria duplicação
+de info já tracked por `SealedPositions` + label
+registry) é **dentro do escopo declarado**, não
+excepção.
+
+Pendência **ADR-0073 §C6a fechada estruturalmente** por
+F3:
+
+- P204D §C6a deixou `TagIntrospector::position_of`
+  retornando `None` como solução temporária.
+- F3 minimal materializou: P205B (`SealedPositions`
+  sealed sub-store) + P205C (`inject_positions` activa
+  impl real). `Introspector::position_of` agora devolve
+  `Some(Position)` real após injecção pós-layout.
+
+ADR-0073 §C6a permanece textualmente como registo
+histórico do estado intermédio; F3 fecha-a sem
+alteração da ADR-0073.
+
+ADR-0066 anotada cirúrgicamente (P205E C6 afirmativa)
+com cross-reference a F3 para auditor futuro entender
+chain-of-custody completo: introspection runtime adiada
+→ M8 adoptou comemo → F3 fechou §C6a.
 
 ---
 

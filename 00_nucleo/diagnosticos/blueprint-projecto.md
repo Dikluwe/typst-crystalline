@@ -450,6 +450,50 @@ fecho para futuros passos consultarem.
 
 ---
 
+### §3.0bis Marca de actualização — [P205E] F3 fechado completo
+
+**Data de actualização**: 2026-05-07.
+
+P205E regista cirúrgicamente que **F3 (Layouter sub-stores
+trackable, sealing post-iteração) está fechado completo**
+em 2026-05-07 per ADR-0074 ACEITE final. Tests
+workspace: **1860 verdes** (1852 → 1860 ao longo da
+série P205A–E; +8). Detalhes:
+
+- **F3 minimal** (sealing post-iteração de
+  `LayouterRuntimeState.positions` + impl real
+  `Introspector::position_of`):
+  **fechado completo em P205E 2026-05-07** per ADR-0074
+  ACEITE. 7/7 condições CUMPRIDAS; P205D condicional
+  cumprida via deferral documentado per cond 3 do plano
+  de validação ("se benefício se materializar; senão,
+  decisão de não prosseguir documentada").
+- **Pendência ADR-0073 §C6a fechada estruturalmente**
+  por P205B+C: `Introspector::position_of` devolve
+  `Some(Position)` real após `inject_positions(sealed)`
+  pós-layout. ADR-0066 anotada com cross-reference em
+  P205E para auditor futuro.
+
+**Sub-passos da série P205** (A–E, 2026-05-07):
+magnitude agregada real M+S-M+S-M+S+S documental ≈ M
+agregado (menor que P204 L cross-modular; F3 tem escopo
+mínimo per ADR-0074 §"Decisão"). Ver
+`00_nucleo/materialization/typst-passo-205-relatorio-consolidado.md`.
+
+**Distinção face a M8**: F3 não é marco arquitectónico
+agregado (M-) mas refactor pontual cristalino-only com
+divergência arquitectónica registada (`P205A.div-1` —
+vanilla não tem Layouter monolítico, arquitecturas
+cristalino vs vanilla assimétricas). M8 era paridade
+vanilla (ADR-0073); F3 é solução cristalina específica
+para fechar pendência §C6a (ADR-0074).
+
+Reescrita ampla deste blueprint mantém-se fora-de-escopo
+(per padrão estabelecido por P204H). Esta marca cirúrgica
+estende o ponto de fecho a P205E.
+
+---
+
 ### §3.1 Estado factual em 2026-04-25
 
 **Tests**: 1145 cristalino; 0 falhas; 6 ignored.

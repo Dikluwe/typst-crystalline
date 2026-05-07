@@ -3,7 +3,45 @@
 **Status**: **SUPERSEDED-BY 0073** (P204H 2026-05-07).
 **Data**: 2026-04-27 (PROPOSTO); 2026-05-05 (ACEITE com
 nota "intermediário até M8" — P192B); 2026-05-07
-(SUPERSEDED-BY 0073 — P204H).
+(SUPERSEDED-BY 0073 — P204H); 2026-05-07 (anotação F3
+fecho §C6a — P205E).
+
+---
+
+## Pendência §C6a fechada por F3 (P205B+C 2026-05-07) — anotação P205E
+
+ADR-0073 §C6a (pendência herdada por P204D — `position_of`
+retornava `None` como solução temporária por
+`TagIntrospector` ser construído pre-layout sem acesso
+a Layouter runtime) foi **fechada estruturalmente em F3**:
+
+- **P205B** materializou `SealedPositions` em
+  `01_core/src/entities/sealed_positions.rs` (newtype
+  `#[comemo::track] impl` per ADR-0074 PROPOSTO).
+- **P205C** activou impl real via `TagIntrospector::
+  inject_positions(sealed)` — `Introspector::position_of`
+  agora devolve `Some(Position)` real após injecção
+  pós-layout (default empty preserva semântica
+  pre-injecção).
+- **P205D** deferiu `SealedLabelPages` por ausência de
+  benefício empírico (Caminho B); F3 minimal completo
+  via P205B+C suficiente para fechar §C6a.
+- **P205E** (este registo) transitou ADR-0074 PROPOSTO
+  → ACEITE final.
+
+Cross-reference para auditor futuro:
+
+- ADR-0074 (ACEITE 2026-05-07) — F3 minimal.
+- `00_nucleo/materialization/typst-passo-205-relatorio-consolidado.md`.
+- `00_nucleo/diagnosticos/typst-passo-205E-inventario.md`.
+
+A cadeia chronológica completa é: **introspection
+runtime adiada (ADR-0066, 2026-04-27)** → **M8 adoptou
+comemo (ADR-0073, 2026-05-07; P204B-G)** → **F3 fechou
+§C6a (ADR-0074, 2026-05-07; P205B+C+E)**. ADR-0066
+permanece SUPERSEDED-BY 0073 — esta anotação não altera
+o status, apenas regista o ponto final do chain-of-
+custody que ADR-0066 originou.
 
 ---
 
