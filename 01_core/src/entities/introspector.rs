@@ -230,13 +230,49 @@ pub struct TagIntrospector {
     /// assignments `mod.rs:1490, 1521` dependem); cleanup
     /// orgânico em M6.
     pub headings_for_toc: Vec<(Label, crate::entities::content::Content, usize)>,
-    // positions: HashMap<Location, Position> — adiado para M5/M9.
+    /// **P205C (F3)** — sub-store sealed `Location → Position`
+    /// injectado pós-layout via `inject_positions` per ADR-0074.
+    /// `Default::default()` é vazio (pre-layout); `position_of`
+    /// devolve `None` enquanto não injectado. Caller pós-layout
+    /// (cf. tests E2E) faz
+    /// `intr.inject_positions(doc.extracted_positions)` para
+    /// activar lookup real.
+    ///
+    /// Cristalino diverge intencionalmente de vanilla
+    /// (`PagedIntrospector` separado por valor); cristalino
+    /// reusa `TagIntrospector` enriquecido por simplicidade
+    /// (P205C C2 = Caminho A; P205A.div-1 — vanilla não tem
+    /// Layouter monolítico).
+    pub positions: crate::entities::sealed_positions::SealedPositions,
 }
 
 impl TagIntrospector {
     /// Construtor vazio. Equivalente a `Default::default()`.
     pub fn empty() -> Self {
         Self::default()
+    }
+
+    /// **P205C (F3)** — Injecta sub-store sealed
+    /// `SealedPositions` produzido por `Layouter::finish` (em
+    /// `PagedDocument.extracted_positions`). Pós-injecção,
+    /// `position_of` consulta o sealed sub-store em vez de
+    /// retornar sempre `None`.
+    ///
+    /// Pattern de uso:
+    /// ```ignore
+    /// let mut intr = introspect_with_introspector(content);
+    /// let doc = layout_with_introspector(content, intr.clone());
+    /// intr.inject_positions(doc.extracted_positions.clone());
+    /// // Agora intr.position_of(loc) devolve Some(Position) reais.
+    /// ```
+    ///
+    /// Per ADR-0074 (PROPOSTO 2026-05-07; F3 minimal). Fecha
+    /// pendência ADR-0073 §C6a.
+    pub fn inject_positions(
+        &mut self,
+        sealed: crate::entities::sealed_positions::SealedPositions,
+    ) {
+        self.positions = sealed;
     }
 }
 
@@ -260,14 +296,20 @@ impl Introspector for TagIntrospector {
             .and_then(|v| v.first().copied())
     }
 
-    fn position_of(&self, _location: Location) -> Option<crate::entities::position::Position> {
-        // **P204D (M8)**: Position vive em `Layouter.runtime.positions`
-        // (single-pass populated). `TagIntrospector` é construído
-        // pre-layout via `from_tags`, sem acesso ao Layouter runtime.
-        // Retorna sempre `None` — consumers acedem Position via
-        // Layouter directamente (`layouter.runtime.positions.get(&loc)`).
-        // ADR-0073 §C6a; P204D diagnóstico.
-        None
+    fn position_of(&self, location: Location) -> Option<crate::entities::position::Position> {
+        // **P205C (F3)**: impl real per ADR-0074. Delega a
+        // `SealedPositions::position_of` (sub-store sealed
+        // injectado pós-layout via `inject_positions`).
+        // Pre-injecção (default empty), devolve `None` —
+        // comportamento P204D §C6a preservado para consumers
+        // ainda não migrados.
+        //
+        // Chamada directa ao método (não via Tracked handle):
+        // este impl roda dentro do trait method
+        // `Introspector::position_of` que já é tracked a nível
+        // do trait (P204B). Re-tracking interno seria recursivo
+        // e desnecessário.
+        self.positions.position_of(location)
     }
 
     fn figure_number_for_label(&self, label: &Label) -> Option<usize> {
@@ -426,7 +468,9 @@ mod tests {
         assert_eq!(i.query_unique(ElementKind::Heading), None);
         // query_by_label.
         assert_eq!(i.query_by_label(&lbl("intro")), Some(loc(7)));
-        // position_of stub.
+        // P205C: position_of devolve None quando `positions` não foi
+        // injectado (default empty `SealedPositions`). Comportamento
+        // P204D §C6a preservado para introspectors pré-layout.
         assert_eq!(i.position_of(loc(7)), None);
     }
 
@@ -886,5 +930,71 @@ mod tests {
         assert_eq!(i.resolved_label_for(&lbl("intro")), Some("Secção 1"));
         assert_eq!(i.resolved_label_for(&lbl("metodos")), Some("Secção 2"));
         assert_eq!(i.resolved_label_for(&lbl("ausente")), None);
+    }
+
+    // ── P205C (F3) — position_of impl real via SealedPositions ──────
+
+    fn pos(page_nz: usize, x: f64, y: f64)
+        -> crate::entities::position::Position
+    {
+        use std::num::NonZeroUsize;
+        use crate::entities::layout_types::{Point, Pt};
+        crate::entities::position::Position {
+            page:  NonZeroUsize::new(page_nz).unwrap(),
+            point: Point { x: Pt(x), y: Pt(y) },
+        }
+    }
+
+    #[test]
+    fn p205c_position_of_pre_injecao_devolve_none() {
+        // Sentinel: introspector default tem `positions` vazio
+        // (`SealedPositions::empty`); position_of devolve None.
+        // Comportamento P204D §C6a preservado pre-injecção.
+        let i = TagIntrospector::empty();
+        assert_eq!(i.position_of(loc(1)), None);
+        assert_eq!(i.position_of(loc(99)), None);
+    }
+
+    #[test]
+    fn p205c_inject_positions_activa_lookup_real() {
+        use std::collections::HashMap;
+        use crate::entities::sealed_positions::SealedPositions;
+
+        let mut runtime_positions = HashMap::new();
+        runtime_positions.insert(loc(7),  pos(1, 10.0, 20.0));
+        runtime_positions.insert(loc(13), pos(2, 30.0, 40.0));
+
+        let mut i = TagIntrospector::empty();
+        // Pre-injecção: vazio.
+        assert_eq!(i.position_of(loc(7)), None);
+
+        // Injecta SealedPositions (simula caller pós-layout).
+        i.inject_positions(SealedPositions::from_runtime(runtime_positions));
+
+        // Pós-injecção: lookup real.
+        assert_eq!(i.position_of(loc(7)),  Some(pos(1, 10.0, 20.0)));
+        assert_eq!(i.position_of(loc(13)), Some(pos(2, 30.0, 40.0)));
+        assert_eq!(i.position_of(loc(99)), None); // location ausente
+    }
+
+    #[test]
+    fn p205c_inject_positions_e_idempotente_para_reinjecao() {
+        // Re-injecção sobrescreve (caller pós-layout pode injectar
+        // resultados de iterações sucessivas do fixpoint).
+        use std::collections::HashMap;
+        use crate::entities::sealed_positions::SealedPositions;
+
+        let mut i = TagIntrospector::empty();
+
+        let mut first = HashMap::new();
+        first.insert(loc(1), pos(1, 0.0, 0.0));
+        i.inject_positions(SealedPositions::from_runtime(first));
+        assert_eq!(i.position_of(loc(1)), Some(pos(1, 0.0, 0.0)));
+
+        // Segunda injecção (iteração fixpoint subsequente) sobrescreve.
+        let mut second = HashMap::new();
+        second.insert(loc(1), pos(2, 50.0, 60.0));
+        i.inject_positions(SealedPositions::from_runtime(second));
+        assert_eq!(i.position_of(loc(1)), Some(pos(2, 50.0, 60.0)));
     }
 }

@@ -1181,6 +1181,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // P190C (M6 categoria Page tracking): label_pages movido para
         // LayouterRuntimeState.
         doc.extracted_label_pages = self.runtime.label_pages;
+        // P205B (F3): sealing point — extrai runtime.positions para
+        // sub-store sealed `SealedPositions` per ADR-0074. Tracked
+        // via comemo; consumer migration em P205C.
+        doc.extracted_positions = crate::entities::sealed_positions::SealedPositions::from_runtime(
+            self.runtime.positions,
+        );
         doc
     }
 

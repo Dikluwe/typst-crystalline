@@ -427,11 +427,21 @@ pub struct PagedDocument {
     /// Populado por `Layouter::finish()` após cada passagem de layout.
     /// Vazio por defeito — só tem dados após `layout()` com labels no documento.
     pub extracted_label_pages: HashMap<Label, usize>,
+    /// **P205B (F3)** — sub-store sealed `Location → Position`
+    /// extraído de `LayouterRuntimeState.positions` ao fim da
+    /// iteração. Tracked via `#[comemo::track]` per ADR-0074
+    /// PROPOSTO. Vazio por defeito — só tem dados após `layout()`
+    /// com locatable content. Consumer migration em P205C.
+    pub extracted_positions: crate::entities::sealed_positions::SealedPositions,
 }
 
 impl PagedDocument {
     pub fn new(pages: Vec<Page>) -> Self {
-        Self { pages, extracted_label_pages: HashMap::new() }
+        Self {
+            pages,
+            extracted_label_pages: HashMap::new(),
+            extracted_positions:   crate::entities::sealed_positions::SealedPositions::empty(),
+        }
     }
 
     pub fn is_empty(&self) -> bool {

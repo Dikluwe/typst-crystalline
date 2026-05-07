@@ -182,6 +182,54 @@ fn p204d_position_nao_populada_para_nao_locatable() {
     );
 }
 
+// ── P205C (F3) — pipeline E2E: layout → seal → inject → query ─────────
+
+#[test]
+fn p205c_pipeline_layout_seal_inject_query_devolve_some() {
+    // E2E test: pipeline completo per ADR-0074 §C6 (Position
+    // trackable). 1) Layouter populates runtime.positions;
+    // 2) finish() seal extracted_positions; 3) caller injecta
+    // SealedPositions no TagIntrospector; 4) Introspector::position_of
+    // devolve Some(Position) real.
+    use comemo::Track;
+    use crate::entities::introspector::{Introspector, TagIntrospector};
+
+    let mut intr = TagIntrospector::empty();
+    let intr_dyn: &dyn Introspector = &intr;
+    let intr_tracked = intr_dyn.track();
+    let mut layouter = Layouter::new(
+        FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked,
+    );
+
+    let content = Content::heading(1, Content::text("Title"));
+    layouter.layout_content(&content);
+
+    // Captura location locatable antes de finish (consume self).
+    let loc = layouter.current_location.expect("Heading locatable → Some");
+
+    // P205B: finish seal extracted_positions.
+    let doc = layouter.finish();
+    assert!(
+        !doc.extracted_positions.is_empty(),
+        "extracted_positions populated após heading"
+    );
+
+    // P205C: caller injecta no introspector.
+    intr.inject_positions(doc.extracted_positions.clone());
+
+    // Pós-injecção: position_of devolve Position real.
+    let pos = intr.position_of(loc)
+        .expect("position_of devolve Some pós-injecção para locatable");
+    assert_eq!(pos.page.get(), 1);
+    assert!(pos.point.x.val() >= 0.0);
+    assert!(pos.point.y.val() >= 0.0);
+
+    // Location desconhecida ainda devolve None.
+    use crate::entities::location::Location;
+    let unknown = Location::from_raw(0xDEAD_BEEF);
+    assert_eq!(intr.position_of(unknown), None);
+}
+
 // ── Testes de layout() (herdados do Passo 19) ─────────────────────────
 
 #[test]
