@@ -33,6 +33,13 @@
 // futura (não exercido em P204E — apenas exposto).
 mod eviction;
 
+// P204G (M8): measurements internos (cache stats + counts de
+// invocação Introspector) vivem em L3
+// (`typst_infra::measurements`) per ADR-0073. L4 apenas dispara
+// dump opt-in quando `CRYSTALLINE_MEASUREMENTS=1`. V12 OK:
+// L4 não cria tipos, apenas consome `cache_stats()` e
+// `introspector_call_counts()`.
+
 use std::path::PathBuf;
 use std::process::ExitCode;
 
@@ -79,7 +86,7 @@ fn main() -> ExitCode {
     let (result, warnings) = compile_to_pdf_bytes(&world, &source);
     drain_to_stderr(&warnings, &source, &source_path, colored);
 
-    match result {
+    let exit_code = match result {
         Ok(pdf_bytes) => {
             if let Err(e) = std::fs::write(&output, &pdf_bytes) {
                 eprintln!("error: failed to write {}: {}", output.display(), e);
@@ -91,7 +98,31 @@ fn main() -> ExitCode {
             drain_to_stderr(&errors, &source, &source_path, colored);
             ExitCode::from(1)
         }
+    };
+
+    // P204G (M8): logging opt-in. `CRYSTALLINE_MEASUREMENTS=1`
+    // dump cache_stats + introspector_call_counts no fim do
+    // pipeline. Default silencioso. Não muda valores em tests
+    // (env var não setada por defeito).
+    if std::env::var("CRYSTALLINE_MEASUREMENTS").as_deref() == Ok("1") {
+        let stats = typst_infra::measurements::cache_stats();
+        let counts = typst_infra::measurements::introspector_call_counts();
+        eprintln!(
+            "[crystalline] cache_stats: evict_calls={} last_max_age={}",
+            stats.evict_calls, stats.last_max_age,
+        );
+        eprintln!(
+            "[crystalline] introspector_call_counts: total={}",
+            counts.total,
+        );
+        for (method, count) in &counts.per_method {
+            if *count > 0 {
+                eprintln!("[crystalline]   {}: {}", method, count);
+            }
+        }
     }
+
+    exit_code
 }
 
 /// Helper local: drena diagnostics para stderr via formatter de L2.

@@ -1,10 +1,12 @@
 # ⚖️ ADR-0073: Adopção de `#[comemo::track]` no trait `Introspector` (M8)
 
-**Status**: `PROPOSTO`
-**Validado**: pendente — vinculativo após materialização
-P204B–G; transita ACEITE em P204H.
-**Data**: 2026-05-06
-**Sub-passo**: P204A (PROPOSTO).
+**Status**: `ACEITE` (estruturalmente fechado em P204H
+2026-05-07; condição 9 PARCIAL documentada — ver bloco
+"Validação P204A–H" abaixo).
+**Validado**: 2026-05-07 (P204H — 8/9 condições
+CUMPRIDAS; condição 9 PARCIAL por `P204F.div-1`).
+**Data**: 2026-05-06 (PROPOSTO); 2026-05-07 (ACEITE).
+**Sub-passo**: P204A (PROPOSTO); P204H (ACEITE).
 **Diagnóstico prévio**:
 - `00_nucleo/diagnosticos/typst-passo-204A-auditoria-comemo.md` (P204A).
 - `00_nucleo/diagnosticos/typst-passo-204A-diagnostico.md` (P204A).
@@ -300,7 +302,7 @@ Magnitude M (real: ~70 min).
   registadas em stdlib cristalino.
 - Tests workspace: 1838 → 1844 (+6).
 
-### P204G — Measurements internos
+### P204G — Measurements internos — ✅ MATERIALIZADO 2026-05-07
 
 Magnitude S.
 
@@ -309,7 +311,18 @@ Magnitude S.
 - Measurements de regressão em corpus existente.
 - Sem comparação vanilla absoluta.
 
-### P204H — Consolidado série + ADR ACEITE
+**Materialização**: módulo `typst_infra::measurements` (L3)
+expõe `cache_stats`, `introspector_call_counts`, `reset`,
+`record_evict` e wrapper newtype `CountingIntrospector<I>`.
+`crystalline_evict` (L4) chama `record_evict` antes de
+`comemo::evict`. `main.rs` dispara dump opt-in quando
+`CRYSTALLINE_MEASUREMENTS=1`. C2 = B (counter próprio
+`AtomicUsize` global; `comemo::testing` rejeitado por
+desproporção — per-call, não cumulativo). C3 = a (wrapper
+newtype). 1852 tests verdes (+8 measurements). 0
+violations. Ver `00_nucleo/prompts/infra/measurements.md`.
+
+### P204H — Consolidado série + ADR ACEITE — ✅ MATERIALIZADO 2026-05-07
 
 Magnitude S documental.
 
@@ -317,6 +330,48 @@ Magnitude S documental.
 - Transitar ADR-0073 PROPOSTO → ACEITE.
 - Anotar ADR-0066 secção "validação empírica" com
   registo de que M8 fechou.
+
+**Materialização**: relatório consolidado em
+`00_nucleo/materialization/typst-passo-204-relatorio-consolidado.md`
+(11 secções, padrão P200/P203). ADR-0073 ACEITE
+("estruturalmente fechado"); ADR-0066 SUPERSEDED-BY
+0073. Blueprint anotado com M8 estruturalmente fechado.
+8/9 condições CUMPRIDAS; condição 9 PARCIAL por
+`P204F.div-1` (DEBT-53/54 pre-existing). Forma de fecho:
+"estruturalmente fechado" (análogo a M7 P192B). Caminho
+de resolução: A (aceitar parcialmente). Tests 1852
+verdes; 0 violations. Ver
+`00_nucleo/diagnosticos/typst-passo-204H-inventario.md`
+para auditoria detalhada.
+
+---
+
+## Validação P204A–H
+
+**Data de fecho**: 2026-05-07.
+**Forma**: estruturalmente fechado (análogo a M7 P192B).
+**Caminho de resolução**: A (aceitar parcialmente).
+
+| # | Condição | Estado |
+|---|----------|--------|
+| 1 | P204B materializado (`#[comemo::track]` aplicado) | ✅ CUMPRIDA |
+| 2 | P204C materializado (Layouter Tracked + lifetime) | ✅ CUMPRIDA |
+| 3 | P204D materializado (Position concrete) | ✅ CUMPRIDA |
+| 4 | P204E materializado (`crystalline_evict`) | ✅ CUMPRIDA |
+| 5 | P204F materializado (corpus paridade) | ✅ CUMPRIDA |
+| 6 | P204G materializado (measurements internos) | ✅ CUMPRIDA |
+| 7 | Tests workspace verdes (estim. 1830-1840) | ✅ CUMPRIDA (1852, +28 vs baseline) |
+| 8 | Crystalline-lint 0 violations | ✅ CUMPRIDA |
+| 9 | Sanity-check cristalino vs vanilla observable | ⚠️ PARCIAL (`P204F.div-1`) |
+
+**Excepção registada (condição 9)**: lab/parity harness
+vanilla não funcional desde antes de M8 (DEBT-53/54
+pre-existing P151/P152). P204F.div-1 documenta o
+encontro empírico e a decisão de prosseguir
+cristalino-only baseline. Fecho da paridade vanilla é
+trabalho separado (sub-passo dedicado pós-M8 sugerido
+em P204G §6); não bloqueia a validação arquitectural
+da adopção de `#[comemo::track]`.
 
 ---
 

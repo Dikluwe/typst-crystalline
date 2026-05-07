@@ -1,7 +1,44 @@
 # ⚖️ ADR-0066: Introspection runtime — promoção da reserva conceptual a ficheiro PROPOSTO
 
-**Status**: **ACEITE** (com nota "intermediário até M8" — P192B 2026-05-05).
-**Data**: 2026-04-27 (PROPOSTO); 2026-05-05 (ACEITE com nota).
+**Status**: **SUPERSEDED-BY 0073** (P204H 2026-05-07).
+**Data**: 2026-04-27 (PROPOSTO); 2026-05-05 (ACEITE com
+nota "intermediário até M8" — P192B); 2026-05-07
+(SUPERSEDED-BY 0073 — P204H).
+
+---
+
+## Superseded em P204H per ADR-0073 ACEITE 2026-05-07
+
+ADR-0066 foi declarada **intermediária até M8** em P192B.
+M8 fechou estruturalmente em P204H (2026-05-07) per
+ADR-0073 ACEITE com 8/9 condições CUMPRIDAS (condição 9
+PARCIAL por `P204F.div-1` — DEBT-53/54 pre-existing).
+
+A promessa estrutural de ADR-0066 (adopção de
+`#[comemo::track]` em M8) foi cumprida pela
+materialização de ADR-0073 ao longo dos sub-passos
+P204B–G:
+
+- P204B aplicou `#[comemo::track]` ao trait `Introspector`.
+- P204C migrou Layouter para `Tracked<'a, dyn Introspector + 'a>`.
+- P204D materializou `Position` concrete; substituiu stub
+  `position_of() -> Option<()>` por `Option<Position>`.
+- P204E expôs `crystalline_evict(n)` wrapper em L4.
+- P204F adicionou corpus paridade introspection
+  (cristalino-only baseline per P204F.div-1).
+- P204G materializou measurements internos
+  (`typst_infra::measurements`).
+
+ADR-0066 **conteúdo histórico preservado abaixo** —
+serve como registo da decisão intermédia e do raciocínio
+que motivou hash-based convergence como ponte até M8.
+Não revogada (a decisão foi correcta no seu contexto);
+superseded (a sua promessa cumpriu-se).
+
+Ver:
+- ADR-0073 (ACEITE 2026-05-07).
+- `00_nucleo/materialization/typst-passo-204-relatorio-consolidado.md`.
+- `00_nucleo/diagnosticos/typst-passo-204H-inventario.md`.
 
 ---
 

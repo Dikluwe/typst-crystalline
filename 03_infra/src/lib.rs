@@ -11,6 +11,7 @@ pub mod font_metrics;
 pub mod fonts;
 pub mod image_sizer;
 pub mod layout;
+pub mod measurements;
 pub mod pipeline;
 pub mod world;
 
