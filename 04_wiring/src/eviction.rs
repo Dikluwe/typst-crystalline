@@ -41,6 +41,7 @@
 /// permanece compilável.
 #[allow(dead_code)]
 pub fn crystalline_evict(max_age: usize) {
+    typst_infra::measurements::record_evict(max_age);
     comemo::evict(max_age);
 }
 

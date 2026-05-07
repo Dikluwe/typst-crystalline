@@ -415,6 +415,41 @@ graph TD
 
 ## §3 — Roadmap de passos
 
+### §3.0 Marca de actualização — [P204H] M8 estruturalmente fechado
+
+**Data de actualização**: 2026-05-07.
+
+A secção §3.1 abaixo está datada 2026-04-25 (estado pré-M8).
+P204H regista cirúrgicamente que **M8 está estruturalmente
+fechado** em 2026-05-07 per ADR-0073 ACEITE; ADR-0066
+SUPERSEDED-BY 0073. Tests workspace: **1852 verdes**
+(1145 → 1852 ao longo de P155→P204G; +707). Detalhes:
+
+- **M5 universal** (Introspection): fechado em P200B.
+- **M6** (Layouter cleanup legacy): fechado em P190I.
+- **M7** (Fixpoint runtime): estruturalmente fechado em P192B
+  (per ADR-0072).
+- **M8** (`#[comemo::track]` em Introspector + Position
+  concrete + corpus paridade + measurements):
+  **estruturalmente fechado em P204H 2026-05-07** per
+  ADR-0073 ACEITE. 8/9 condições CUMPRIDAS; condição 9
+  (sanity-check vanilla observable) PARCIAL por
+  `P204F.div-1` — vanilla integration deferred per
+  pre-existing DEBT-53/54.
+- **M9** (Stdlib introspection 11/11): fechado em P182F.
+
+**Sub-passos da série P204** (B–H, 2026-05-06 a
+2026-05-07): magnitude agregada real M+M+S-M+S+S+M+S+S
+documental ≈ L cross-modular. Ver
+`00_nucleo/materialization/typst-passo-204-relatorio-consolidado.md`.
+
+Reescrita ampla deste blueprint é fora-de-escopo de P204H
+(per spec §7 não-objectivos). Esta marca cirúrgica
+preserva o conteúdo histórico abaixo e regista o ponto de
+fecho para futuros passos consultarem.
+
+---
+
 ### §3.1 Estado factual em 2026-04-25
 
 **Tests**: 1145 cristalino; 0 falhas; 6 ignored.
