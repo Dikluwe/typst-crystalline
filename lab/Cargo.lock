@@ -685,6 +685,7 @@ name = "typst-parity"
 version = "0.1.0"
 dependencies = [
  "pretty_assertions",
+ "serde_json",
  "typst-core",
  "typst-infra",
  "typst-syntax",

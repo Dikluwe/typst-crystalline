@@ -496,3 +496,85 @@ estado pós-série e prioridades não-codificadas.
 paridade vanilla literal; Position concrete; corpus
 paridade introspection; measurements infra. `P204F.div-1`
 (vanilla integration) é trabalho separado pós-M8.
+
+---
+
+## §14 Anotação cirúrgica P206E — Fecho retroactivo cond 9 (2026-05-08)
+
+**Adicionado em**: 2026-05-08 (P206E).
+**Pattern aplicado**: anotação cirúrgica per P201/P202
+preservação histórica — secções §1–§13 acima **NÃO
+reescritas**; este bloco regista o ponto final da
+trajectória cond 9 sem alterar narrativa P204H.
+
+### Estado em 2026-05-07 (P204H)
+
+Per §5.3 + §6 acima:
+- Cond 9 ADR-0073 era **PARCIAL** por `P204F.div-1`
+  (vanilla integration deferred; DEBT-53/54
+  pre-existing).
+- Forma de fecho fixada como "estruturalmente fechado"
+  com excepção justificada.
+- Trabalho separado pós-M8 sugerido.
+
+### Evolução em 2026-05-08 (série P206)
+
+P206 série (A-E) materializou vanilla integration:
+
+- **P206A** descobriu vanilla CLI 0.14.2 pre-built
+  disponível (DEBT-54 obsoleto sem código).
+- **P206B** reactivou harness `lab/parity/` (2 fixes
+  triviais).
+- **P206C** materializou helper L3
+  (`03_infra/src/query_helpers.rs`) + comparação
+  estrutural via `typst query` JSON.
+- **P206D** produziu matriz consolidada cobrindo 36
+  ficheiros corpus.
+- **P206E** transitou ADR-0075 PROPOSTO → ACEITE final
+  + cond 9 ADR-0073 fechada retroactivamente.
+
+### Cond 9 fechada em 2026-05-08
+
+ADR-0073 transitou de "ACEITE estruturalmente fechado"
+para **"ACEITE completo retroactivo, P206E 2026-05-08"**
+per spec C3 Caminho B (fórmula intermediária honesta
+face às excepções).
+
+Análise da cond 9 em P206E (per matriz P206D):
+
+- 4/6 ficheiros introspection P204F com matches limpos
+  (counter-heading, figure-ref, query-metadata,
+  equation-ref).
+- 2/6 com excepções documentadas:
+  - `outline-toc` heading count diff (design
+    intencional cristalino P200B; não regressão M8).
+  - `cite-bibliography` eval fail (bibliography stdlib
+    gap pre-P206; não regressão M8).
+
+DEBTs colaterais fechadas em P206E:
+- **DEBT-53** → ENCERRADO (vanilla integration
+  materializada).
+- **DEBT-54** → ENCERRADO (workspace setup obsoleto
+  via vanilla CLI pre-built).
+
+### Cross-references retroactivas
+
+- ADR-0073 §"Fecho retroactivo cond 9 — P206E"
+  (anotação no início da ADR).
+- ADR-0075 (ACEITE final P206E 2026-05-08).
+- `00_nucleo/materialization/typst-passo-206-relatorio-consolidado.md`.
+- `00_nucleo/diagnosticos/typst-passo-206E-inventario.md`.
+
+### Preservação histórica
+
+§1–§13 acima **mantêm-se inalteradas** — reflectem
+estado real em 2026-05-07. Auditor futuro lê secções
+em ordem cronológica:
+- §1–§13: trajectória M8 P204A-H 2026-05-07.
+- §14 (este bloco): fecho retroactivo cond 9 via
+  série P206 2026-05-08.
+
+Pattern reaproveitável: futuras transições
+retroactivas que afectem ADRs ou consolidados de séries
+anteriores devem usar anotação cirúrgica (não
+reescrita) per P201/P202/P206E precedent.

@@ -77,8 +77,9 @@ pub enum ValueDTO {
 }
 
 impl ValueDTO {
-    /// Conversão a partir do `Value` cristalino. Cobre os 18
-    /// variants existentes em `01_core/src/entities/value.rs`.
+    /// Conversão a partir do `Value` cristalino. Cobre os 19
+    /// variants existentes em `01_core/src/entities/value.rs`
+    /// (P206B: +`Location` per P179).
     pub fn from_cristalino(v: &Value) -> Self {
         match v {
             Value::None         => ValueDTO::None,
@@ -107,6 +108,11 @@ impl ValueDTO {
             Value::Color(c)     => ValueDTO::Color(format!("{c:?}")),
             Value::Fraction(fr) => ValueDTO::Fraction(fr.to_bits()),
             Value::Align(al)    => ValueDTO::Align(format!("{al:?}")),
+            // P206B: variant `Value::Location` adicionada por P179.
+            // Mapeada para `Other("location:N")` per convenção
+            // catch-all (l.65-67) — extensão futura para
+            // `ValueDTO::Location` se P206C/D exigir.
+            Value::Location(loc) => ValueDTO::Other(format!("location:{loc:?}")),
         }
     }
 

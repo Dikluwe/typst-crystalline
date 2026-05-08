@@ -1,15 +1,116 @@
 # ⚖️ ADR-0073: Adopção de `#[comemo::track]` no trait `Introspector` (M8)
 
-**Status**: `ACEITE` (estruturalmente fechado em P204H
-2026-05-07; condição 9 PARCIAL documentada — ver bloco
-"Validação P204A–H" abaixo).
+**Status**: **ACEITE (completo retroactivo, P206E
+2026-05-08)**.
 **Validado**: 2026-05-07 (P204H — 8/9 condições
-CUMPRIDAS; condição 9 PARCIAL por `P204F.div-1`).
-**Data**: 2026-05-06 (PROPOSTO); 2026-05-07 (ACEITE).
-**Sub-passo**: P204A (PROPOSTO); P204H (ACEITE).
+CUMPRIDAS; condição 9 PARCIAL por `P204F.div-1`);
+2026-05-08 (P206E — condição 9 fechada via matriz
+P206 com excepções documentadas).
+**Data**: 2026-05-06 (PROPOSTO); 2026-05-07 (ACEITE
+estruturalmente fechado P204H); 2026-05-08 (ACEITE
+completo retroactivo P206E).
+**Sub-passo**: P204A (PROPOSTO); P204H (ACEITE
+estrutural); **P206E (transição retroactiva cond 9
+fechada — ver bloco "Fecho retroactivo cond 9 — P206E"
+abaixo)**.
 **Diagnóstico prévio**:
 - `00_nucleo/diagnosticos/typst-passo-204A-auditoria-comemo.md` (P204A).
 - `00_nucleo/diagnosticos/typst-passo-204A-diagnostico.md` (P204A).
+
+---
+
+## Fecho retroactivo cond 9 — P206E 2026-05-08
+
+**Data**: 2026-05-08.
+**Auditor**: P206E (per spec C2 + C9).
+
+Cond 9 do plano de validação ADR-0073 foi PARCIAL em
+P204H 2026-05-07 ("Saída cristalino sanity-check vs
+vanilla nos 5-7 ficheiros corpus paridade — sem
+regressões observable" / `P204F.div-1` — DEBT-53/54
+pre-existing).
+
+P206E auditou cond 9 face à matriz consolidada produzida
+em P206D (via série P206A-D vanilla integration):
+
+### Análise empírica de cond 9 (per P206E C2)
+
+Matriz P206D cobre os 6 ficheiros introspection P204F
+(visual category). Resultados empíricos:
+
+| Ficheiro P204F | Selector(s) testados | Resultado |
+|----------------|-----------------------|-----------|
+| `counter-heading.typ` | heading, figure, metadata | ✅ Match cristalino vs vanilla |
+| `figure-ref.typ` | heading, figure, metadata | ✅ Match (figure count=3 ambos) |
+| `query-metadata.typ` | metadata | ✅ Count match (3 metadata ambos); shape diff cosmético tolerado |
+| `equation-ref.typ` | heading, figure, metadata | ✅ Match em selectors validados; equation namespace divergence (vanilla rejeita `equation` standalone — fora-de-escopo cond 9 literal) |
+| `outline-toc.typ` | heading | ⚠️ Excepção: heading count diff (cristalino emite auto-toc P200B; vanilla counts only outline body); design intencional cristalino — não regressão M8 |
+| `cite-bibliography.typ` | (todos) | ⚠️ Excepção: cristalino eval falha (bibliography stdlib parcial pre-P206; gap conhecido pre-cond 9); não regressão introduzida por M8 |
+
+**Resultado**: 4/6 ficheiros P204F com matches limpos; 2/6 com excepções documentadas (ambas pre-existentes ou
+design intencional, não regressões M8).
+
+### Etiqueta fixada (P206E C2)
+
+**CUMPRIDA com excepções**.
+
+Justificação literal:
+
+- "Sem regressões observable" satisfeito — nenhuma
+  divergência é regressão introduzida por M8
+  (`#[comemo::track]` em Introspector). As 2 excepções
+  são:
+  1. **`outline-toc` heading count**: design intencional
+     cristalino P200B (auto-toc emissions visíveis em
+     query). Pre-existente; não M8.
+  2. **`cite-bibliography` eval fail**: bibliography
+     stdlib cristalino parcial (P181 series não-completa);
+     pre-P206; não M8.
+- "5-7 ficheiros corpus paridade" cobertos: 6/6
+  introspection ficheiros P204F + 17 outros visual/markup
+  per matriz P206D extension.
+
+### Forma de transição (P206E C3 = Caminho B)
+
+ADR-0073 transitou de "ACEITE estruturalmente fechado"
+(P204H) para **"ACEITE completo retroactivo, P206E
+2026-05-08"** — fórmula intermediária honesta face às
+excepções documentadas. Distingue explicitamente que
+cond 9 fechou em série diferente (P206) com excepções.
+
+Caminho A ("completo final" análogo a P205E) rejeitado:
+implicaria cond 9 cumprida estritamente sem excepções —
+desonesto face às 2 documentadas.
+
+Caminho C ("estruturalmente fechado" preservado)
+rejeitado: cond 9 progrediu materialmente via P206
+matriz; preservar PARCIAL seria sub-estimar progresso.
+
+### DEBTs colaterais
+
+P206E também fechou:
+- **DEBT-53** → ENCERRADO (vanilla integration
+  materializada).
+- **DEBT-54** → ENCERRADO (workspace setup
+  obsoleto via vanilla CLI pre-built).
+
+### Preservação histórica
+
+P204H consolidado **não é reescrito** — anotação
+cirúrgica adicionada no final per pattern P201/P202
+("modificação retroactiva quebraria preservação"). Bloco
+"Validação P204A–H" preservado intacto; cond 9 PARCIAL
+documentada como estado em 2026-05-07 que evoluiu para
+"completo retroactivo" em 2026-05-08.
+
+### Cross-references P206E
+
+- ADR-0075 (ACEITE final P206E 2026-05-08) — vanilla
+  integration que viabilizou fecho cond 9.
+- `00_nucleo/materialization/typst-passo-206-relatorio-consolidado.md`.
+- `00_nucleo/diagnosticos/typst-passo-206E-inventario.md`.
+- `lab/parity/reports/latest.md` (matriz P206D).
+- `lab/parity/SKIPS.md` (manifest divergências).
 
 ---
 

@@ -494,6 +494,73 @@ estende o ponto de fecho a P205E.
 
 ---
 
+### §3.0ter Marca de actualização — [P206E] Vanilla integration + cond 9 fechada
+
+**Data de actualização**: 2026-05-08.
+
+P206E regista cirúrgicamente que **vanilla integration
+está materializada** em 2026-05-08 per ADR-0075 ACEITE
+final + ADR-0073 cond 9 fechada retroactivamente. Tests
+workspace: **1873 verdes** (1860 → 1873 ao longo da
+série P206A-E; +13 via helper L3 query_helpers).
+Tests `lab/parity` quarentena: **75 verdes** (52 → 75;
++23 ao longo da série, dos quais ~7 são duplicados via
+path-include). Detalhes:
+
+- **Vanilla integration P206 série** (helper L3 +
+  matriz consolidada + sentinelas + manifest SKIPs):
+  **fechada completa em P206E 2026-05-08** per
+  ADR-0075 ACEITE. 7/7 condições CUMPRIDAS;
+  `P206C.div-1` registada como divergência cosmética
+  (CLI subcomando deferred).
+- **Cond 9 ADR-0073** (sanity-check cristalino vs
+  vanilla observable) **fechada retroactivamente**
+  via matriz P206D — 4/6 introspection P204F com
+  matches; 2/6 com excepções documentadas
+  (outline-toc TOC entries — design intencional
+  cristalino P200B; cite-bibliography stdlib gap
+  pre-P206). ADR-0073 transitou de "ACEITE
+  estruturalmente fechado" (P204H) para **"ACEITE
+  completo retroactivo, P206E 2026-05-08"** per spec
+  C3 Caminho B.
+- **DEBTs colaterais fechadas em P206E**:
+  - **DEBT-53** → ENCERRADO (vanilla integration
+    materializada).
+  - **DEBT-54** → ENCERRADO/OBSOLETED (workspace
+    setup obsoleto via vanilla CLI 0.14.2 pre-built
+    em `/usr/local/bin/typst`).
+
+**Sub-passos da série P206** (A–E, 2026-05-07 a
+2026-05-08): magnitude agregada real M+S+M+S-M+S
+documental ≈ M agregado (paralelo a P205 série; menor
+que P204 L cross-modular). Ver
+`00_nucleo/materialization/typst-passo-206-relatorio-consolidado.md`.
+
+**Distinção face a M8 + F3**: P206 fecha pendência
+**externa** ao código cristalino (vanilla integration
+ambiental); M8 e F3 eram refactors **internos**. P206
+materializa via helper L3 + lab/parity quarentena
+pattern; CLI subcomando dedicado fica para sub-passo
+pós-P206 (`P206C.div-1` deferred).
+
+**Pattern emergente P206E** — **DEBT pode fechar via
+3 caminhos**:
+- **CLOSED** — materializado.
+- **REPLACED-BY** — superseded por outra abordagem.
+- **OBSOLETED** — irrelevância empírica (hipótese
+  inicial inválida; ex: DEBT-54).
+
+**Pattern emergente P206E** — **transição retroactiva
+de série anterior** via anotação cirúrgica (per
+P201/P202 preservação histórica): ADR-0073 e P204H
+consolidado anotados sem reescrita.
+
+Reescrita ampla deste blueprint mantém-se fora-de-escopo
+(per padrão estabelecido por P204H/P205E). Esta marca
+cirúrgica estende o ponto de fecho a P206E.
+
+---
+
 ### §3.1 Estado factual em 2026-04-25
 
 **Tests**: 1145 cristalino; 0 falhas; 6 ignored.

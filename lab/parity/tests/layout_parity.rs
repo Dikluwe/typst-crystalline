@@ -26,7 +26,6 @@ use frame_dto::FrameDTO;
 use report::{CategoryRow, ParityMatrix};
 
 use typst_core::contracts::world::World;
-use typst_core::rules::introspect::introspect;
 use typst_core::rules::layout::layout;
 use typst_infra::pipeline::eval_to_module_with_sink;
 use typst_infra::world::SystemWorld;
@@ -65,8 +64,10 @@ fn compile_cristalino(src: &str) -> Option<typst_core::entities::layout_types::P
     let (result, _warnings) = eval_to_module_with_sink(&world, &source);
     let module = result.ok()?;
     let content = module.content()?;
-    let state = introspect(content);
-    let doc = layout(content, state);
+    // P206B (P190I migration): `layout(content)` 1-arg.
+    // Introspector é construído internamente via
+    // `layout_with_introspector` ou semelhante per ADR-0073.
+    let doc = layout(content);
     Some(doc)
 }
 

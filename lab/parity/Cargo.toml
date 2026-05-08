@@ -17,3 +17,4 @@ typst-core        = { path = "../../01_core" }
 typst-infra       = { path = "../../03_infra" }   # Passo 150 — SystemWorld + compile_to_pdf_bytes para layout_parity
 pretty_assertions = "1"
 walkdir           = "2"
+serde_json        = "1"   # P206C — comparação estrutural cristalino vs vanilla via JSON shape

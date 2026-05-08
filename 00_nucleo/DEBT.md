@@ -554,11 +554,37 @@ Materializar em **passo dedicado** (escopo XL; ~5-8h):
 
 ---
 
-## DEBT-54 — Setup vanilla `typst` workspace em `lab/parity` (pré-condição de DEBT-53) — EM ABERTO (Passo 151)
+## DEBT-54 — Setup vanilla `typst` workspace em `lab/parity` (pré-condição de DEBT-53) — ENCERRADO (Passo 206E) ✓
 
 **Aberto em**: Passo 151 (2026-04-25) durante tentativa de
 fechar DEBT-53.
-**Bloqueia**: DEBT-53 (vanilla integration P3 em `lab/parity`).
+**Fechado em**: 2026-05-08 (Passo 206E).
+**Etiqueta de fecho**: **OBSOLETED** (workspace setup
+nunca foi necessário).
+**Justificação literal**: P206A auditoria empírica A5
+descobriu vanilla typst CLI **0.14.2 pre-built**
+disponível em `/usr/local/bin/typst` — paridade exacta
+com `lab/typst-original/crates/typst-syntax v0.14.2`.
+ADR-0075 PROPOSTO P206A C5 fixou Caminho b ("pre-built
+binário"); workspace setup torna-se irrelevante.
+
+DEBT pode fechar via 3 caminhos (pattern emergente
+P206E):
+- **CLOSED** — materializado.
+- **REPLACED-BY** — superseded por outra abordagem.
+- **OBSOLETED** — irrelevância empírica (hipótese
+  inicial inválida).
+
+DEBT-54 fecha como OBSOLETED — não há código novo;
+não há solução substituta; a hipótese inicial (vanilla
+precisa setup workspace cristalino) era falsa.
+
+**Bloqueava**: DEBT-53 (vanilla integration P3 em
+`lab/parity`) — desbloqueada simultaneamente.
+
+Histórico abaixo preservado per pattern P201/P202.
+
+### (Histórico) Estado pré-fecho — DEBT-54 — EM ABERTO (Passo 151)
 
 ### Contexto
 
@@ -756,14 +782,62 @@ posterior) tem alvo mais claro.
 
 ---
 
-## DEBT-53 — Integração de pipeline vanilla em `lab/parity` para medição P3 — EM ABERTO (Passo 150; bloqueado por DEBT-54 desde Passo 151)
+## DEBT-53 — Integração de pipeline vanilla em `lab/parity` para medição P3 — ENCERRADO (Passo 206E) ✓
 
 **Aberto em**: Passo 150 (2026-04-25) durante materialização da
 primeira matriz agregada de paridade.
-**Bloqueado por**: DEBT-54 (Passo 151) — setup vanilla
-workspace é pré-condição.
+**Fechado em**: 2026-05-08 (Passo 206E).
+**Etiqueta de fecho**: **CLOSED** (vanilla integration
+materializada via série P206A-D).
+**Justificação literal**: ADR-0075 ACEITE final
+2026-05-08 com 7/7 condições do plano de validação
+CUMPRIDAS:
+
+- **P206A** auditou empíricamente; descobriu vanilla
+  CLI 0.14.2 pre-built (DEBT-54 colateralmente
+  obsoletada).
+- **P206B** reactivou harness `lab/parity/` (2 fixes
+  triviais).
+- **P206C** materializou helper L3
+  (`03_infra/src/query_helpers.rs`) + comparação
+  estrutural via `typst query` JSON +
+  `vanilla_invoke.rs` + `structural_compare.rs`.
+- **P206D** produziu matriz consolidada cobrindo 36
+  ficheiros corpus (`lab/parity/reports/latest.md` +
+  `history/2026-05-08-passo-206D.md`).
+- **P206E** transitou ADRs e fechou esta DEBT.
+
+**Cobertura empírica matriz P206D**:
+- 34/36 ficheiros compilam em cristalino (94%).
+- 20/36 com text_content matches em categorias INCLUDE.
+- 20/36 com structural matches vs vanilla.
+- 13 SKIPs justificados (3 pre-existing + 10 feature).
+- 3 INCLUDE-com-diff documentados em
+  `lab/parity/SKIPS.md` (não regressões; design
+  intencional ou stdlib gaps pre-P206).
+
+**Bloqueador anterior**: DEBT-54 (workspace setup) —
+fechada simultaneamente em P206E como **OBSOLETED**
+(per P206A D3 pattern: vanilla CLI pre-built tornou
+hipótese inicial inválida).
+
+**ADR vinculada**: ADR-0075 (vanilla integration via
+pre-built CLI + comparação estrutural; ACEITE final
+P206E).
+
+**Cond 9 ADR-0073** (Saída cristalino sanity-check vs
+vanilla nos 5-7 ficheiros corpus paridade) **fechada
+retroactivamente** em P206E via matriz P206D — 4/6
+introspection P204F com matches; 2/6 com excepções
+documentadas (outline-toc TOC entries; cite-bibliography
+stdlib gap pre-P206; ambas não são regressões M8).
+
+Histórico abaixo preservado per pattern P201/P202.
+
 **Relacionado com**: ADR-0033 (paridade funcional), ADR-0054
 (perfil observacional graded), inventário 148, série paridade.
+
+### (Histórico) Estado pré-fecho — DEBT-53 — EM ABERTO (Passo 150; bloqueado por DEBT-54 desde Passo 151)
 
 ### Contexto
 
