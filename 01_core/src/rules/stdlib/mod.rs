@@ -40,7 +40,7 @@ pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::text::{native_lower, native_replace, native_upper};
 pub use crate::rules::stdlib::assert::native_assert;
 pub use crate::rules::stdlib::structural::{
-    native_bibliography, native_cite, native_divider, native_emph, native_heading, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms,
+    native_bibliography, native_cite, native_divider, native_emph, native_grid_cell, native_grid_footer, native_grid_header, native_heading, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms,
 };
 pub use crate::rules::stdlib::figure_image::{native_figure, native_image};
 pub use crate::rules::stdlib::shapes::{
@@ -49,8 +49,8 @@ pub use crate::rules::stdlib::shapes::{
 pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale, native_skew};
 pub use crate::rules::stdlib::layout::{
     native_align, native_block, native_box, native_colbreak, native_columns, native_grid, native_h,
-    native_hide, native_pad, native_page, native_pagebreak, native_place, native_repeat,
-    native_stack, native_v,
+    native_hide, native_measure, native_pad, native_page, native_pagebreak, native_place,
+    native_repeat, native_stack, native_v,
 };
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
@@ -3058,6 +3058,448 @@ mod tests {
         let r = native_colbreak(&mut ctx, &args,
             &null_world(), test_file_id(), None);
         assert!(r.is_err(), "to: deve falhar (named desconhecido)");
+    }
+
+    // ── P222 (Fase 4 Layout candidata sub-1; ADR-0066 Bloco C) — measure ──
+
+    #[test]
+    fn p222_native_measure_body_content_aceita() {
+        null_ctx!(ctx);
+        let r = native_measure(&mut ctx, &p(vec![
+            Value::Content(Content::text("texto")),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Dict(d) = r {
+            assert!(d.contains_key("width"));
+            assert!(d.contains_key("height"));
+        } else {
+            panic!("esperado Value::Dict, recebeu {:?}", r);
+        }
+    }
+
+    #[test]
+    fn p222_native_measure_body_str_aceita() {
+        // Str shortcut → Content::text wrapping.
+        null_ctx!(ctx);
+        let r = native_measure(&mut ctx, &p(vec![
+            Value::Str("texto".into()),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Dict(d) = r {
+            assert!(d.contains_key("width") && d.contains_key("height"));
+        } else {
+            panic!("esperado Value::Dict");
+        }
+    }
+
+    #[test]
+    fn p222_native_measure_body_ausente_rejeita() {
+        null_ctx!(ctx);
+        let r = native_measure(&mut ctx, &p(vec![]),
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "body ausente deve falhar");
+    }
+
+    #[test]
+    fn p222_native_measure_body_tipo_errado_rejeita() {
+        null_ctx!(ctx);
+        let r = native_measure(&mut ctx, &p(vec![Value::Int(42)]),
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "body Int deve falhar");
+    }
+
+    #[test]
+    fn p222_native_measure_extra_positional_rejeita() {
+        null_ctx!(ctx);
+        let r = native_measure(&mut ctx, &p(vec![
+            Value::Content(Content::text("a")),
+            Value::Content(Content::text("b")),
+        ]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), ">1 posicional deve falhar");
+    }
+
+    #[test]
+    fn p222_native_measure_named_arg_rejeita() {
+        // Opção β graded: width override scope-out per ADR-0054.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("width".into(), Value::Length(Length::pt(50.0)));
+        let r = native_measure(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named arg width deve falhar (scope-out graded)");
+    }
+
+    #[test]
+    fn p222_native_measure_retorna_dict_com_width_height() {
+        null_ctx!(ctx);
+        let r = native_measure(&mut ctx, &p(vec![
+            Value::Content(Content::text("x")),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Dict(d) = r {
+            assert!(matches!(d.get("width"),  Some(Value::Length(_))),
+                "key 'width' deve ser Value::Length");
+            assert!(matches!(d.get("height"), Some(Value::Length(_))),
+                "key 'height' deve ser Value::Length");
+        } else {
+            panic!("esperado Value::Dict");
+        }
+    }
+
+    #[test]
+    fn p222_native_measure_dimensoes_para_shape_rect() {
+        // Helper measure_content tem suporte explícito para Shape::Rect
+        // (retorna width/height resolvidos). Texto simples retorna (0, 0)
+        // per limitação documentada do helper.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        use crate::entities::geometry::ShapeKind;
+        let rect = Content::Shape {
+            kind:   ShapeKind::Rect,
+            width:  Some(Box::new(Value::Length(Length::pt(40.0)))),
+            height: Some(Box::new(Value::Length(Length::pt(20.0)))),
+            fill:   None,
+            stroke: None,
+        };
+        let r = native_measure(&mut ctx, &p(vec![Value::Content(rect)]),
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Dict(d) = r {
+            if let Some(Value::Length(w)) = d.get("width") {
+                assert!(w.abs.0 > 0.0, "rect width > 0 esperado");
+            } else { panic!("width não-Length"); }
+            if let Some(Value::Length(h)) = d.get("height") {
+                assert!(h.abs.0 > 0.0, "rect height > 0 esperado");
+            } else { panic!("height não-Length"); }
+        } else {
+            panic!("esperado Value::Dict");
+        }
+    }
+
+    #[test]
+    fn p222_native_measure_dimensoes_zero_para_empty() {
+        // Content::Empty → helper retorna (0, 0).
+        null_ctx!(ctx);
+        let r = native_measure(&mut ctx, &p(vec![
+            Value::Content(Content::Empty),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Dict(d) = r {
+            if let Some(Value::Length(w)) = d.get("width") {
+                assert_eq!(w.abs.0, 0.0);
+            } else { panic!("width não-Length"); }
+            if let Some(Value::Length(h)) = d.get("height") {
+                assert_eq!(h.abs.0, 0.0);
+            } else { panic!("height não-Length"); }
+        } else {
+            panic!("esperado Value::Dict");
+        }
+    }
+
+    #[test]
+    fn p222_native_measure_sequence_compose_dimensoes() {
+        // Integration: helper trata Sequence acumulando height + max width
+        // de children. Sequence de 2 Shape rect verticalmente → height
+        // soma; width max.
+        null_ctx!(ctx);
+        use std::sync::Arc;
+        use crate::entities::layout_types::Length;
+        use crate::entities::geometry::ShapeKind;
+        let r1 = Content::Shape {
+            kind:   ShapeKind::Rect,
+            width:  Some(Box::new(Value::Length(Length::pt(30.0)))),
+            height: Some(Box::new(Value::Length(Length::pt(10.0)))),
+            fill:   None,
+            stroke: None,
+        };
+        let r2 = Content::Shape {
+            kind:   ShapeKind::Rect,
+            width:  Some(Box::new(Value::Length(Length::pt(50.0)))),
+            height: Some(Box::new(Value::Length(Length::pt(15.0)))),
+            fill:   None,
+            stroke: None,
+        };
+        let seq = Content::Sequence(Arc::from(vec![r1, r2]));
+        let r = native_measure(&mut ctx, &p(vec![Value::Content(seq)]),
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Dict(d) = r {
+            // max_w = 50, total_h = 25.
+            if let Some(Value::Length(w)) = d.get("width") {
+                assert!(w.abs.0 >= 50.0,
+                    "Sequence max width >= 50, recebeu {}", w.abs.0);
+            } else { panic!("width não-Length"); }
+            if let Some(Value::Length(h)) = d.get("height") {
+                assert!(h.abs.0 >= 25.0,
+                    "Sequence total height >= 25, recebeu {}", h.abs.0);
+            } else { panic!("height não-Length"); }
+        } else {
+            panic!("esperado Value::Dict");
+        }
+    }
+
+    #[test]
+    fn p222_native_measure_round_trip_dict_access_shape_observable() {
+        // Round-trip: simula `let d = measure([rect]); d.width` —
+        // verifica que Dict permite indexação por key paridade vanilla
+        // `measure(body).width` observable.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        use crate::entities::geometry::ShapeKind;
+        let rect = Content::Shape {
+            kind:   ShapeKind::Rect,
+            width:  Some(Box::new(Value::Length(Length::pt(20.0)))),
+            height: Some(Box::new(Value::Length(Length::pt(40.0)))),
+            fill:   None,
+            stroke: None,
+        };
+        let r = native_measure(&mut ctx, &p(vec![Value::Content(rect)]),
+            &null_world(), test_file_id(), None).unwrap();
+        // Paridade vanilla: `dims.width` retorna Length.
+        if let Value::Dict(d) = &r {
+            let w = d.get("width").cloned().expect("key 'width' presente");
+            let h = d.get("height").cloned().expect("key 'height' presente");
+            assert!(matches!(w, Value::Length(_)),
+                "width deve indexar como Length (paridade observable vanilla)");
+            assert!(matches!(h, Value::Length(_)),
+                "height deve indexar como Length");
+            // Dict tem exactamente 2 keys.
+            assert_eq!(d.len(), 2, "Dict deve ter exactamente 2 keys (width + height)");
+        } else {
+            panic!("esperado Value::Dict, recebeu {:?}", r);
+        }
+    }
+
+    // ── P223 (Fase 4 Layout candidata sub-2; refino native_place +float +clearance) ──
+
+    #[test]
+    fn p223_native_place_float_aceita() {
+        // place(top, float: true, body) → float armazenado.
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("float".into(), Value::Bool(true));
+        let r = native_place(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Place { float, .. }) = r {
+            assert_eq!(float, true);
+        } else {
+            panic!("esperado Content::Place");
+        }
+    }
+
+    #[test]
+    fn p223_native_place_float_default_false() {
+        // place(body) sem float → float == false.
+        null_ctx!(ctx);
+        let r = native_place(&mut ctx, &p(vec![
+            Value::Content(Content::text("a")),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Place { float, .. }) = r {
+            assert_eq!(float, false, "default float == false");
+        } else {
+            panic!("esperado Content::Place");
+        }
+    }
+
+    #[test]
+    fn p223_native_place_float_nao_bool_rejeita() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("float".into(), Value::Str("yes".into()));
+        let r = native_place(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "float não-Bool deve falhar");
+    }
+
+    #[test]
+    fn p223_native_place_clearance_length_aceita() {
+        // place(top, float: true, clearance: 5pt, body) → Some(5pt).
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("float".into(),     Value::Bool(true));
+        args.named.insert("clearance".into(), Value::Length(Length::pt(5.0)));
+        let r = native_place(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Place { clearance, .. }) = r {
+            assert_eq!(clearance, Some(Length::pt(5.0)));
+        } else {
+            panic!("esperado Content::Place");
+        }
+    }
+
+    #[test]
+    fn p223_native_place_clearance_negativo_rejeita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("clearance".into(), Value::Length(Length::pt(-5.0)));
+        let r = native_place(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "clearance negativo deve falhar");
+    }
+
+    #[test]
+    fn p223_native_place_parent_sem_float_rejeita() {
+        // DEBT-37 §"Divergência" restaurada (Decisão 3 Opção α).
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("scope".into(), Value::Str("parent".into()));
+        let r = native_place(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(),
+            "scope 'parent' sem float deve falhar (paridade vanilla; DEBT-37 fechada)");
+    }
+
+    #[test]
+    fn p223_native_place_parent_com_float_aceita() {
+        // place(scope: "parent", float: true, body) → OK.
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("scope".into(), Value::Str("parent".into()));
+        args.named.insert("float".into(), Value::Bool(true));
+        let r = native_place(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        use crate::entities::layout_types::PlaceScope;
+        if let Value::Content(Content::Place { scope, float, .. }) = r {
+            assert!(matches!(scope, PlaceScope::Parent));
+            assert_eq!(float, true);
+        } else {
+            panic!("esperado Content::Place");
+        }
+    }
+
+    #[test]
+    fn p223_native_place_column_sem_restricao() {
+        // scope: "column" OK independente de float (default scope).
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("scope".into(), Value::Str("column".into()));
+        // sem float
+        let r = native_place(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_ok(), "scope 'column' sem float OK (não tem restrição vanilla)");
+    }
+
+    // ── P224 (Fase 4 Layout candidata sub-3) — grid refino + grid_cell/header/footer ──
+
+    #[test]
+    fn p224_native_grid_aceita_gutter() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("gutter".into(), Value::Length(Length::pt(5.0)));
+        let r = native_grid(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Grid { gutter, .. }) = r {
+            assert_eq!(gutter, Some(Length::pt(5.0)));
+        } else { panic!("esperado Content::Grid"); }
+    }
+
+    #[test]
+    fn p224_native_grid_gutter_negativo_rejeita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("gutter".into(), Value::Length(Length::pt(-5.0)));
+        let r = native_grid(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "gutter negativo deve falhar");
+    }
+
+    #[test]
+    fn p224_native_grid_inset_uniforme_aceita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("inset".into(), Value::Length(Length::pt(3.0)));
+        let r = native_grid(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Grid { inset, .. }) = r {
+            assert_eq!(inset.left, Length::pt(3.0));
+            assert_eq!(inset.right, Length::pt(3.0));
+        } else { panic!("esperado Content::Grid"); }
+    }
+
+    #[test]
+    fn p224_native_grid_header_footer_content_aceita() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("header".into(), Value::Content(Content::text("HDR")));
+        args.named.insert("footer".into(), Value::Content(Content::text("FTR")));
+        let r = native_grid(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Grid { header, footer, .. }) = r {
+            assert!(header.is_some(), "header presente");
+            assert!(footer.is_some(), "footer presente");
+        } else { panic!("esperado Content::Grid"); }
+    }
+
+    #[test]
+    fn p224_native_grid_named_arg_desconhecido_rejeita() {
+        // stroke/fill cosméticos scope-out — desconhecidos rejeitados.
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("stroke".into(), Value::Str("black".into()));
+        let r = native_grid(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "stroke scope-out deve falhar");
+    }
+
+    #[test]
+    fn p224_native_grid_cell_body_obrigatorio() {
+        null_ctx!(ctx);
+        let r = native_grid_cell(&mut ctx, &p(vec![]),
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "body obrigatório");
+    }
+
+    #[test]
+    fn p224_native_grid_cell_x_y_colspan_rowspan_aceita() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("cell"))]);
+        args.named.insert("x".into(),       Value::Int(1));
+        args.named.insert("y".into(),       Value::Int(0));
+        args.named.insert("colspan".into(), Value::Int(2));
+        args.named.insert("rowspan".into(), Value::Int(3));
+        let r = native_grid_cell(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::GridCell { x, y, colspan, rowspan, .. }) = r {
+            assert_eq!(x,       Some(1));
+            assert_eq!(y,       Some(0));
+            assert_eq!(colspan, Some(2));
+            assert_eq!(rowspan, Some(3));
+        } else { panic!("esperado GridCell"); }
+    }
+
+    #[test]
+    fn p224_native_grid_cell_colspan_zero_rejeita() {
+        // ADR-0064 Caso C — colspan >= 1.
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("colspan".into(), Value::Int(0));
+        let r = native_grid_cell(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "colspan 0 deve falhar (paridade NonZeroUsize)");
+    }
+
+    #[test]
+    fn p224_native_grid_header_aceita_body() {
+        null_ctx!(ctx);
+        let r = native_grid_header(&mut ctx, &p(vec![Value::Content(Content::text("hdr"))]),
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::GridHeader { body, repeat }) = r {
+            assert_eq!(body.plain_text(), "hdr");
+            assert_eq!(repeat, true, "default repeat == true (paridade vanilla)");
+        } else { panic!("esperado GridHeader"); }
+    }
+
+    #[test]
+    fn p224_native_grid_footer_aceita_body_repeat_false() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("ftr"))]);
+        args.named.insert("repeat".into(), Value::Bool(false));
+        let r = native_grid_footer(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::GridFooter { body, repeat }) = r {
+            assert_eq!(body.plain_text(), "ftr");
+            assert_eq!(repeat, false);
+        } else { panic!("esperado GridFooter"); }
     }
 
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table ─────────────────

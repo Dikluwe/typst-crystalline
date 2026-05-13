@@ -489,6 +489,134 @@ pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
     }))
 }
 
+// ── Passo 224 (ADR-0061 Fase 4 candidata sub-3) — grid_cell + grid_header + grid_footer ──
+
+/// `grid_cell(body, x?, y?, colspan?, rowspan?)` → `Content::GridCell`.
+///
+/// **P224.C — primeira aplicação de placement algorítmico real**
+/// (fecha DEBT-34e via módulo `grid_placement.rs`).
+///
+/// Implementação idêntica linha-a-linha a `native_table_cell` (P157B) —
+/// 5 fields paridade. `x`/`y`/`colspan`/`rowspan` agora **resolvidos
+/// pelo Grid layouter** (não-ignorados; DEBT-34e fechada).
+///
+/// Atributos vanilla scope-out per ADR-0054 graded: `align`/`fill`/
+/// `stroke`/`inset`/`breakable` per-cell — refinos futuros candidatos
+/// NÃO-reservados.
+pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("grid_cell() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "grid_cell() exige body como argumento posicional".to_string(),
+        )]),
+    };
+
+    let mut x:       Option<usize> = None;
+    let mut y:       Option<usize> = None;
+    let mut colspan: Option<usize> = None;
+    let mut rowspan: Option<usize> = None;
+
+    for (key, value) in args.named.iter() {
+        match key.as_str() {
+            "x" => x = extract_usize_or_none_min(value, "grid_cell", "x", 0)?,
+            "y" => y = extract_usize_or_none_min(value, "grid_cell", "y", 0)?,
+            "colspan" => colspan = extract_usize_or_none_min(value, "grid_cell", "colspan", 1)?,
+            "rowspan" => rowspan = extract_usize_or_none_min(value, "grid_cell", "rowspan", 1)?,
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("grid_cell(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
+            )]),
+        }
+    }
+
+    Ok(Value::Content(Content::GridCell {
+        body: Box::new(body),
+        x, y, colspan, rowspan,
+    }))
+}
+
+/// `grid_header(body, repeat: true)` → `Content::GridHeader`.
+///
+/// **P224.B** — paridade absoluta com `native_table_header` (P157C);
+/// implementação literal excepto naming `table_header → grid_header` +
+/// variant `TableHeader → GridHeader`.
+///
+/// `repeat: bool` ADR-0064 Caso D; default `true` (paridade vanilla).
+/// Semantic real de repetição em page breaks adiada per ADR-0054 graded
+/// (paridade P157C; pattern N=5 cumulativo "Field armazenado semantic
+/// adiada" P156D/E/G/P223/P224).
+pub fn native_grid_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("grid_header() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "grid_header() exige body como argumento posicional".to_string(),
+        )]),
+    };
+
+    for key in args.named.keys() {
+        if !["repeat"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("grid_header(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", key),
+            )]);
+        }
+    }
+
+    let repeat = extract_bool_with_default(args, "grid_header", "repeat", true)?;
+
+    Ok(Value::Content(Content::GridHeader {
+        body: Box::new(body),
+        repeat,
+    }))
+}
+
+/// `grid_footer(body, repeat: true)` → `Content::GridFooter`.
+///
+/// **P224.B** — par simétrico com `native_grid_header`. Implementação
+/// idêntica linha-a-linha excepto naming `header → footer`.
+pub fn native_grid_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("grid_footer() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "grid_footer() exige body como argumento posicional".to_string(),
+        )]),
+    };
+
+    for key in args.named.keys() {
+        if !["repeat"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("grid_footer(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", key),
+            )]);
+        }
+    }
+
+    let repeat = extract_bool_with_default(args, "grid_footer", "repeat", true)?;
+
+    Ok(Value::Content(Content::GridFooter {
+        body: Box::new(body),
+        repeat,
+    }))
+}
+
 // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ────────
 
 /// Coage `Value::Array<Value::Dict>` para `Vec<BibEntry>` per

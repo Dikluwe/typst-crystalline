@@ -129,6 +129,11 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::TableHeader { .. }
         | Content::TableFooter { .. }
         | Content::Table { .. }
+        // P224 — Grid refino + variants novos não-locatable (paridade
+        // Table*; events estructurais sem identidade observable).
+        | Content::GridHeader { .. }
+        | Content::GridFooter { .. }
+        | Content::GridCell { .. }
         | Content::Repeat { .. }
         // P217 — Columns container não-locatable (transparente para
         // introspect; consumer multi-region em P219).

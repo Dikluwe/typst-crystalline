@@ -75,7 +75,11 @@ pub(super) fn resolve_pt(val: Option<&crate::entities::value::Value>, fallback: 
 ///
 /// Suficiente para calcular a AABB de `Content::Transform`. Para conteúdo complexo
 /// (texto multi-linha, equações), retorna (0, 0) como approximação conservadora.
-pub(super) fn measure_content(content: &Content, available_w: f64) -> (f64, f64) {
+///
+/// Visibility promovida a `pub(crate)` em P222 para uso por `native_measure`
+/// stdlib (Fase 4 Layout candidata; ADR-0066 §"Plano promoção" Bloco C
+/// cross-módulo primeira materialização parcial).
+pub(crate) fn measure_content(content: &Content, available_w: f64) -> (f64, f64) {
     match content {
         Content::Shape { kind, width, height, .. } => {
             match kind {

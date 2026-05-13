@@ -134,11 +134,11 @@ primitives e `skew`). Detalhe em
 |---------|---------|------------|------------|------|
 | `pad(...)` | layout/pad.rs | `implementado⁺` ⁶ ²¹ | Passos 156C + 156L (refino sides individualizadas) | `Content::Pad { body, sides: Sides<Option<Length>> }` + stdlib `#pad(body, left:?, right:?, top:?, bottom:?, x:?, y:?, rest:?)`; **P156L refino**: cada side passa a `Option<Length>` per ADR-0064 Caso C (None ↔ default zero resolvido em uso); helper `extract_sides_lengths` privado; `right` continua scope-out em layout (perfil ADR-0054 graded); padding negativo rejeitado |
 | `align(alignment, body)` | layout/align.rs | `implementado` | Passos 84.5–84.6 (DEBT-36, 37) | `Align2D`; `Place` com scope |
-| `place(alignment, ..., body)` | layout/place.rs | `parcial` ⁵ | Passo 84.6 | reclassificado em P156B (era `implementado`); sem `float`, `clearance`; divergência `PlaceScope::Parent` |
+| `place(alignment, ..., body)` | layout/place.rs | `implementado⁺` ⁵ ⁴⁴ | Passos 84.5 + 84.6 + 223 | refino aditivo P223 — `float: bool` + `clearance: Option<Length>` armazenados (semantic real adiada per ADR-0054 graded; pattern N=4 cumulativo weak/breakable/float); restrição vanilla `scope: Parent + float: true` restaurada (DEBT-37 §"Divergência" fechada — Decisão 3 Opção α); refino multi-pass flow contorna Fase 5 candidata NÃO-reservada per política P158 |
 | `box(...)` | layout/container.rs | `implementado` ¹⁵ | Passo 156H (ADR-0061 Fase 2 sub-passo 2) | `Content::Boxed { body, width, height, inset, baseline }` + stdlib `#box(body, width: ?, height: ?, inset: ?, baseline: ?)`; container inline (não força flush_line); 6 atributos vanilla scope-out (outset/fill/stroke/radius/clip/stroke-overhang); width/height/baseline armazenados mas semantic real adiada |
 | `block(...)` | layout/container.rs | `implementado` ¹³ | Passo 156G (ADR-0061 Fase 2 sub-passo 1) | `Content::Block { body, width, height, inset, breakable }` + stdlib `#block(body, width: ?, height: ?, inset: ?, breakable: true)`; subset Fase 1 per ADR-0054 graded; 9 atributos vanilla scope-out (outset/fill/stroke/radius/clip/spacing/above/below/sticky) |
 | `columns(n)` | layout/columns.rs | `parcial` ⁴⁰ ⁴² | Passos 217 + 218 + 219 (encerrado P221) | variant + stdlib + arm consumer real graded; **multi-region flow real ausente** (Opção A diferida a P-Layout-Fase4 candidata NÃO-reservada) |
-| `grid(columns, ...)` | layout/grid | `parcial` ⁵ | Passos 82–84.6 | reclassificado em P156B (era `implementado⁺`); sem `gutter`, `align`, `stroke`, `fill`, `inset`, `header`, `footer`, `colspan`/`rowspan`. DEBT-34d/e abertos |
+| `grid(columns, ...)` | layout/grid | `implementado⁺` ⁵ ⁴⁵ | Passos 82 + 83 + 84.6 + 224 | refino substantivo P224 — Grid +5 fields aditivos (gutter/align/inset/header/footer) + 3 variants Content novos (GridHeader/GridFooter/GridCell) + módulo `grid_placement.rs` (algoritmo placement real fecha DEBT-34e colspan/rowspan); `stroke`/`fill` cosméticos scope-out Fase 5 candidata NÃO-reservada; per-cell `align`/`fill`/`stroke`/`inset`/`breakable` GridCell scope-out (paridade P157B subset). DEBT-34e ENCERRADO P224; DEBT-34d (Auto track sizing greediness) preservado aberto (refino distinto não endereçado per `P224.div-1`) |
 | `stack(spacing, ...)` | layout/stack.rs | `implementado` ¹⁷ | Passo 156I (ADR-0061 Fase 2 sub-passo 3; **último Fase 2; atinge target 72%**) | `Content::Stack { children: Arc<[Content]>, dir: Dir, spacing: Option<Length> }` + stdlib `#stack(dir: ?, spacing: ?, ..children)`; tipo `Dir` novo (LTR/RTL/TTB/BTT); 4 direcções implementadas; spacing real entre children |
 | `pagebreak()` (manual) | layout/page.rs | `implementado` ¹⁰ | Passo 156E (ADR-0061 Fase 1 sub-passo 3) | `Content::Pagebreak { weak, to: Option<Parity> }` + stdlib `#pagebreak(weak: false, to: ?)`; `to:"even"`/`"odd"` insere página vazia se necessário; `weak` collapse defere; tipo `Parity` novo em `entities/parity.rs` |
 | `colbreak()` | layout/columns.rs | `parcial` ⁴¹ ⁴² | Passo 220 (encerrado P221) | variant `Content::Colbreak { weak: bool }` + stdlib `#colbreak(weak: ?)` + arm Layouter Opção β graded (downgrade a pagebreak literal); paridade vanilla quando fora de columns context; **multi-region salto entre colunas reais ausente** (P-Layout-Fase4 candidata NÃO-reservada) |
@@ -148,7 +148,7 @@ primitives e `skew`). Detalhe em
 | `hide(body)` | layout/hide.rs | `implementado` ⁶ | Passo 156C (ADR-0061 Fase 1) | `Content::Hide { body }` + stdlib `#hide(body)`; calcula dimensões mas emite zero items (per ADR-0054 graded) |
 | `repeat(body)` | layout/repeat.rs | `implementado` ¹⁹ | Passo 156J (ADR-0061 Fase 3 sub-passo 1; **primeira Fase 3**) | `Content::Repeat { body, gap: Option<Length>, justify: bool }` + stdlib `#repeat(body, gap: ?, justify: true)`; default `justify == true` (paridade vanilla); algoritmo dinâmico de quantidade-para-encher diferido per ADR-0054 graded (Layouter executa single-render — paridade estrutural suficiente para counters/labels descenderem) |
 | `pad`, `corners`, `sides` (inset modeling) | layout/{pad,corners,sides}.rs | `ausente` | — | duplica `pad()` linha; refino PageConfig é Fase 3 ADR-0061 |
-| `measure(body)` | layout/measure.rs | `parcial` | helper privado | helper `measure_content` em `01_core/src/rules/layout/helpers.rs`; sem stdlib exposta; depende de Introspection (ADR-0017 adiada) |
+| `measure(body)` | layout/measure.rs | `implementado⁺` ⁴³ | Passo 222 | stdlib `#measure(body) -> dict(width: length, height: length)` exposta — helper `measure_content` em `01_core/src/rules/layout/helpers.rs` promovido a `pub(crate)`; **Opção β graded** — width override scope-out (refino futuro candidato NÃO-reservado); runtime queries genuínas (counter values, labels) continuam diferidas per ADR-0066 PROPOSTO §"Plano promoção" Bloco C cross-módulo primeira materialização parcial |
 | `h(amount)` / `v(amount)` ⁵ | layout/spacing.rs | `implementado` ⁸ | Passo 156D (ADR-0061 Fase 1 sub-passo 2) | `Content::HSpace` + `Content::VSpace` com `amount: Length, weak: bool`; stdlib `#h(amount, weak: false)` + `#v(...)`; `weak` armazenado mas collapse defere; amount `Fraction` scope-out (refino futuro per ADR-0061 §6.3) |
 | `skew(ax, ay, body)` ⁵ | layout/transform.rs | `implementado` ¹² | Passo 156F (ADR-0061 Fase 1 sub-passo 4) | `TransformMatrix::skew(ax_rad, ay_rad)` novo + `native_skew` reusa `Content::Transform { matrix }` existente desde P78; **sem refactor** (matriz cm já unificava); ângulos próximos de ±π/2 rejeitados; `origin` scope-out |
 
@@ -310,10 +310,13 @@ Nota: ADR-0026 + 0026-R1 declaram **divergência intencional**. Cristalino usa e
 | `Image {...}` | ImageElem | `implementado` | Passos 72–74 | |
 | `Shape {...}` | RectElem/CircleElem/LineElem/PathElem | `implementado` | Passos 78–79 | unificado em `Shape` |
 | `Transform {...}` | RotateElem/ScaleElem | `implementado` | Passo 78 | |
-| `Grid {...}` | GridElem | `implementado⁺` | Passos 82–84.6 | DEBT-34d/e abertos |
+| `Grid {columns, rows, cells, gutter, align, inset, header, footer}` | GridElem | `implementado⁺` | Passos 82 + 83 + 84.6 + 224 | refino P224 +5 fields (gutter/align/inset/header/footer) — semantic real adiada graded; `stroke`/`fill` cosméticos scope-out; DEBT-34e ENCERRADO P224; DEBT-34d preservado aberto |
+| `GridHeader {body, repeat}` | GridHeaderElem | `implementado⁺` | Passo 224.B | paridade P157C TableHeader literal; `repeat` semantic adiada (pattern N=5 weak/breakable/float/repeat) |
+| `GridFooter {body, repeat}` | GridFooterElem | `implementado⁺` | Passo 224.B | par simétrico GridHeader |
+| `GridCell {body, x, y, colspan, rowspan}` | GridCellElem | `implementado⁺` | Passo 224.C | paridade P157B TableCell literal; placement algorítmico real via `grid_placement::place_cells` (fecha DEBT-34e); per-cell `align`/`fill`/`stroke`/`inset`/`breakable` scope-out |
 | `SetPage {...}` | (set rule) | `implementado` | Passo 81 | |
 | `Align {...}` | AlignElem | `implementado` | Passo 84.5 | |
-| `Place {...}` | PlaceElem | `implementado` | Passo 84.6 | |
+| `Place {alignment, dx, dy, scope, float, clearance, body}` | PlaceElem | `implementado⁺` | Passos 84.5 + 84.6 + 223 | refino P223 +2 fields (`float: bool` + `clearance: Option<Length>`) armazenados (semantic adiada per ADR-0054 graded); DEBT-37 §"Divergência" fechada (scope `Parent` exige `float: true` paridade vanilla restaurada) |
 | `Styled(Box<Content>, Styles)` | (vtable + show rules) | `implementado` | Passos 99–101 (ADR-0038/0039) | divergência ADR-0026 |
 | `Divider` | DividerElem | `implementado` | Passo 154B | singleton; layouter emite linha 0.5pt |
 | `Terms {items}` | TermsElem | `implementado` | Passo 154B | sem atributos vanilla (tight/sep/indent) |
@@ -430,12 +433,12 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | `#let`/`#set`/`#show`/import | 7 | 1 | 4 | 1 | 0 | 13 |
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
-| Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ⁴⁰ ⁴¹ ⁴² | 12 | 1 | 5 | 0 | 0 | 18 |
+| Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ⁴⁰ ⁴¹ ⁴² ⁴³ ⁴⁴ ⁴⁵ | 12 | 4 | 2 | 0 | 0 | 18 |
 | Model (structural) ¹ ² ³ ²² ²⁴ ²⁹ | 7 | 4 | 7 | 4 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection ³⁸ | 3 | 2 | 1 | 0 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ ³⁸ ³⁹ ⁴⁰ ⁴¹ ⁴² | **68** | **24** | **27** | **20** | **2** | **141** |
+| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ ³⁸ ³⁹ ⁴⁰ ⁴¹ ⁴² ⁴³ ⁴⁴ ⁴⁵ | **68** | **27** | **24** | **20** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -1041,6 +1044,292 @@ IMPLEMENTADO 19 → **21**.
 Footnotes ⁴⁰ + ⁴¹ preservadas (paridade pattern P204H+
 "histórico textual preservado") para rastreabilidade
 P217-P220 incremental.
+
+⁴³ — Ajuste P222 (Tabela A.5 Layout — Fase 4 Layout
+candidata sub-passo 1; ADR-0066 §"Plano promoção" Bloco C
+cross-módulo primeira materialização parcial):
+- P222: stdlib `#measure(body) -> dict(width: length,
+  height: length)` exposta — `native_measure` em
+  `rules/stdlib/layout.rs` (~70 LOC + 11 unit tests).
+  Helper privado `measure_content` em
+  `rules/layout/helpers.rs` promovido `pub(super)` →
+  `pub(crate)`; módulo `helpers` promovido a `pub(crate)`
+  (visibility expansion mínima cross-module crate).
+- Stdlib funcs: 55 → **56** (+native_measure). Scope
+  register `eval/mod.rs` após `colbreak` (paridade ordem
+  P220).
+- **Opção β graded fixada** (vs Opção α width override
+  paridade vanilla completa; vs Opção γ silently ignore):
+  width override `measure(body, width: 5cm)` **rejeitado
+  explicitamente** com mensagem clara documentando
+  scope-out per ADR-0054 graded; refino futuro candidato
+  NÃO-reservado per política P158.
+- **Retorno Opção α fixada** — `Value::Dict { "width":
+  Length, "height": Length }` (vs Value::Size novo).
+  Paridade vanilla observable `measure(body).width`
+  literal funcional via Dict indexing.
+- **Limitação do helper documentada**: `measure_content`
+  retorna `(0, 0)` aproximação conservadora para texto
+  multi-linha + equações + heading + etc.; suporte real
+  só para `Shape::Rect/Ellipse/Path/Line` + `Sequence`
+  composição. Refino sub-feature de Fase 4 candidata.
+- 11 tests adicionados em `stdlib/mod.rs` (9 unit + 2
+  integração unit-as-E2E — spec C5 propôs 2 E2E layout
+  mas parse+eval harness não existe em `layout/tests.rs`;
+  decisão pragmática: 2 tests em stdlib/mod.rs testando
+  Sequence composição + round-trip Dict indexing). Tests
+  workspace: 1987 → **1998 verdes** (+11). 0 regressões.
+
+Reclassificação §A.5 `measure(body)`: **`parcial` →
+`implementado⁺`** (asterisco reflecte limitação width
+override + helper aproximação conservadora para conteúdo
+complexo; runtime queries genuínas continuam diferidas
+per ADR-0066).
+
+Distribuição Layout pós-P222: `12/1/5/0/0 = 18 →
+**12/2/4/0/0 = 18**` (1 parcial → impl⁺; zero ausentes
+preservado). Cobertura Layout per metodologia §A.9 P213:
+`(12+2)/18 = **78%**` real ✓ — paridade com Opção γ §2.1
+blueprint histórica (coincidência aritmética agradável).
+
+**Total user-facing**: `68/24/27/20/2 = 141 →
+**68/25/26/20/2 = 141**` (1 parcial → impl⁺). Cobertura
+user-facing: `(68+25)/141 ≈ **66%**` (+1pp real).
+
+**ADR-0066 anotada sem promoção** (3 condições §"Plano
+promoção" não satisfeitas: state(), 2-pass pipeline,
+E2E feature observable). Bloco C cross-módulo primeira
+materialização parcial — runtime queries genuínas
+continuam diferidas. **ADR-0061 anotada Fase 4 candidata
+sub-passo 1/3** (P222 ✓; P223 place pendente; P224 grid
+refino pendente — Opção α P221 §8).
+
+**Pattern emergente "L0 minimal para refactors" N=4 →
+**5** (P217+P218+P219+P220+**P222** todos Opção γ; sem
+extensão L0 stdlib.md). Promoção formal ADR meta
+documental fica como decisão diferida — Caminho 4 P221
+§8 candidato; política consistente N=3-4 mínima
+ultrapassada.
+
+**Pattern emergente "Fase 4 candidata reclassifica
+parcial → impl⁺" N=1 inaugurado** (paridade Fase 3 que
+reclassificou ausente → parcial em P219+P220; pattern
+"reclassificação qualitativa pós-fecho Fase").
+
+**Coincidência aritmética agradável**: 78% per metodologia
+rígida (P213) agora coincide com 78% per paridade visual
+histórica (Opção γ §2.1 blueprint) — Layout fechou esta
+"divergência metodológica" qualitativa via materialização
+real P222. **Opção γ blueprint §2.1 mantém-se literal
+"12 impl + 5 parcial" como nota histórica** — actualização
+para "12 impl + 2 impl⁺ + 4 parcial" fica diferida (S
+documental se humano priorizar).
+
+⁴⁴ — Ajuste P223 (Tabela A.5 Layout — Fase 4 Layout
+candidata sub-passo 2; refino aditivo a variant existente):
+- P223: `Content::Place` refino aditivo +2 fields graded
+  — `float: bool` (default `false`; semantic real adiada
+  per ADR-0054 graded; pattern N=3 → 4 cumulativo
+  weak/breakable/float) + `clearance: Option<Length>`
+  (default `None`; depende `float: true` real; paridade
+  Smart→Option N=6 → 7 cumulativo). Arms cascata em ~6
+  sítios L1 (5 em content.rs PartialEq/map_content/
+  map_text/Eq pattern; 1 em introspect.rs
+  materialize_time; 1 em layout/mod.rs layout_content com
+  `float: _, clearance: _` ignorados). `native_place`
+  stdlib +2 named args extraction + validation; reuso
+  `extract_length` helper N=8 → 9.
+- **DEBT-37 §"Divergência face ao vanilla" fechada** —
+  Decisão 3 Opção α restaurada: `place(scope: "parent")`
+  sem `float: true` agora rejeitado com erro hard
+  (paridade vanilla literal restaurada; mensagem cristalino
+  explicitamente referencia DEBT-37). 1 test pre-existente
+  P84.6 adaptado (`place_dentro_de_grid_com_scope_parent_ancora_a_pagina`
+  em `03_infra/integration_tests.rs`) adicionando `float:
+  true` — paridade visual preservada literal (semantic
+  real adiada).
+- **3 decisões fixadas**: Opção β float armazenado +
+  semantic adiada; Opção β clearance idem; Opção α DEBT-37
+  restrição vanilla restaurada.
+- 14 tests novos (4 unit content + 8 unit stdlib + 2 E2E
+  layout). Tests workspace: 1998 → **2012 verdes** (+14).
+  1 adaptação DEBT-37 (regressão intencional documentada).
+  0 regressões reais.
+
+Reclassificação §A.5 `place(...)`: **`parcial ⁵` →
+`implementado⁺ ⁵ ⁴⁴`** (asterisco reflecte limitação flow
+real adiada + DEBT-37 fecho documental).
+
+Distribuição Layout pós-P223: `12/2/4/0/0 = 18 →
+**12/3/3/0/0 = 18**` (1 parcial → impl⁺; zero ausentes
+preservado). **Cobertura Layout per metodologia §A.9
+P213**: `(12+3)/18 = **83%**` real (+5pp vs P222 78%;
++11pp cumulativo Fase 4 P222+P223; **divergência com
+paridade visual histórica reaberta** — §2.1 blueprint
+ainda lista 78% baseline Opção γ; possível actualização
+diferida).
+
+**Total user-facing**: `68/25/26/20/2 = 141 →
+**68/26/25/20/2 = 141**` (1 parcial → impl⁺). Cobertura
+user-facing: `(68+26)/141 ≈ **67%**` (+1pp real).
+
+**Pattern emergente "refino aditivo a variant existente"
+N=1 inaugurado pós-M9c** — distinto de variant novo
+(P217 Columns + P220 Colbreak) e de stdlib expose existente
+(P222 measure). Pattern reusável para `Block.fill`,
+`Boxed.stroke`, etc. (refinos atributos vanilla scope-out
+P156G+H+I).
+
+**Pattern emergente "Field armazenado semantic adiada"
+N=3 → 4 cumulativo** — P156D `weak`/P156E `weak`/P156G
+`breakable`/**P223 `float`**. N=4 atinge limiar
+formalização N=3-4 ultrapassado; Caminho 4 candidato
+sólido (P221 §8 ADR meta).
+
+**Pattern emergente "L0 minimal para refactors" N=5 →
+**6**** (P217+P218+P219+P220+P222+**P223** todos Opção γ).
+N≥6 patamar empírico extremamente sólido; promoção formal
+fortemente justificada se humano priorizar Caminho 4.
+
+**Pattern emergente "fecho de divergência documentada via
+refino" N=1 inaugurado** — DEBT-37 §"Divergência" fechada
+exactamente quando float adicionado (paridade comentário
+DEBT-37 explícito "quando float for adicionado, repor a
+restrição"). Pattern reusável para DEBTs com divergências
+condicionais documentadas.
+
+**Helper `extract_length` reuso N=8 → 9** — patamar
+crescente; possível candidatura helper público crate-wide
+se N ≥ 10 (não-promovido em P223 per política sem novas
+reservas P158).
+
+**Cobertura cumulativa pós-Fase 3 fechada P221** (Fase 4
+candidata em curso 2/3 sub-passos): Layout 78% → 83% real
+em 2 sub-passos (P222 + P223 = +11pp cumulativos). P224
+grid refino pendente para completar Fase 4 candidata.
+
+⁴⁵ — Ajuste P224 (Tabela A.5 Layout — **Fase 4 Layout
+candidata sub-passo 3/3 — fecha série α "terminar Layout"
+estructuralmente**; refino substantivo composto Opção δ):
+
+- P224 (magnitude L cumulativa atomizada A/B/C):
+  - **P224.A** — Grid variant +3 fields aditivos
+    (`gutter: Option<Length>`, `align: Option<Align2D>`,
+    `inset: Sides<Length>`). Semantic real adiada per
+    ADR-0054 graded (gutter/align/inset ainda não aplicados
+    em geometric layout — refino futuro candidato Fase 5
+    NÃO-reservada).
+  - **P224.B** — 2 variants Content novos:
+    `Content::GridHeader { body, repeat }` + `Content::GridFooter
+    { body, repeat }` (paridade P157C TableHeader/Footer literal).
+    `repeat: bool` armazenado mas semantic adiada (pattern N=5
+    cumulativo weak/breakable/float/repeat).
+  - **P224.C** — 1 variant Content novo: `Content::GridCell
+    { body, x, y, colspan, rowspan }` (paridade P157B
+    TableCell literal). **Módulo L1 novo `01_core/src/rules/
+    layout/grid_placement.rs`** (264 LOC) com
+    `place_cells(cells, num_cols)` que implementa algoritmo
+    placement vanilla paridade (auto linear + explicit x/y +
+    colspan/rowspan + conflito detection). **Fecha DEBT-34e**.
+
+- **Variants Content cumulativos**: 56 → **59** (+3:
+  GridHeader, GridFooter, GridCell).
+
+- **Stdlib funcs cumulativas**: 56 → **59** (+3:
+  `native_grid_header`, `native_grid_footer`,
+  `native_grid_cell`; `native_grid` refinada +5 named args).
+
+- **DEBT-34e ENCERRADO P224** (CLOSED via materialização;
+  critério 5/5 cumprido). **DEBT-34d preservado aberto**
+  (Auto track sizing greediness — refino algorítmico
+  distinto não endereçado per `P224.div-1` documentado;
+  spec esperava fecho dual mas auditoria empírica revela
+  que DEBT-34d é problema independente de track sizing,
+  não placement).
+
+- **Saldo DEBTs**: 13 → **12 abertos** (DEBT-34e fecha;
+  DEBT-34d preservado).
+
+- **stroke/fill cosméticos scope-out** explicit per ADR-0054
+  graded — atributos Grid + per-cell rejeitados como named
+  args desconhecidos. Refinos futuros candidatos Fase 5
+  NÃO-reservados.
+
+- Reclassificação §A.5 `grid(...)`: **`parcial ⁵` →
+  `implementado⁺ ⁵ ⁴⁵`**.
+
+- Distribuição §A.5: `12/3/3/0/0 = 18 → **12/4/2/0/0 = 18**`
+  (1 parcial → impl⁺; zero ausentes preservado).
+
+- **Cobertura Layout per metodologia §A.9 P213**:
+  `(12+4)/18 = **89%**` real (+6pp vs P223 83%; **+17pp
+  cumulativo Fase 4** P222+P223+P224).
+
+- **Total user-facing**: `68/26/25/20/2 = 141 →
+  **68/27/24/20/2 = 141**` (1 parcial → impl⁺). Cobertura
+  user-facing: `(68+27)/141 ≈ **67%**` preservada
+  (Layout não é maioria do user-facing).
+
+- **27 tests P224 cumulativos adicionados** (~37
+  hipotetizados spec; magnitude real reduzida):
+  - 8 unit content (`p224_grid_variant_aceita_5_fields_aditivos`
+    + `_partial_eq` + `_gridheader_variant` + `_gridfooter` +
+    `_gridheader_is_empty_proxy` + `_gridcell_variant_5_fields` +
+    `_gridcell_partial_eq` + `_gridcell_map_content`).
+  - 10 unit stdlib (`p224_native_grid_aceita_gutter` +
+    `_gutter_negativo_rejeita` + `_inset_uniforme` +
+    `_header_footer_content` + `_named_arg_desconhecido_rejeita` +
+    `_native_grid_cell_body_obrigatorio` +
+    `_x_y_colspan_rowspan_aceita` + `_colspan_zero_rejeita` +
+    `_native_grid_header_aceita_body` +
+    `_native_grid_footer_aceita_body_repeat_false`).
+  - 7 unit placement (em `grid_placement::tests`: auto
+    linear, explicit x/y, colspan adjacente, rowspan
+    adjacente, conflito rejeitado, colspan excede num_cols,
+    mistura auto+explicit).
+  - 2 E2E layout (`p224_grid_com_header_footer_renderiza_body` +
+    `_gridcell_isolado_renderiza_body`).
+
+- Tests workspace: 2012 → **2039 verdes** (+27 P224).
+  0 violations preservadas. 0 regressões reais (sem
+  adaptações pre-existentes necessárias — Table delegate
+  preservado simples passa defaults).
+
+- **Pattern emergente "L0 minimal para refactors" suspenso
+  N=6 → 7** (P217+P218+P219+P220+P222+P223+**P224** todos
+  Opção γ — divergência consciente vs spec C6 Opção α; L0
+  `entities/content.md` preservado intocado per pattern
+  consolidado N≥6). Promoção formal a ADR meta documental
+  Caminho 4 candidato sólido se humano priorizar pós-P225.
+
+- **Pattern emergente "Field armazenado semantic adiada"
+  N=4 → 5** (P156D + P156E + P156G + P223 + **P224
+  repeat Header/Footer**). N=5 patamar empírico forte.
+
+- **Pattern emergente "fecho cumulativo de DEBTs via
+  refino composto" N=1 inaugurado** — DEBT-34e fechada
+  via P224.C placement algorítmico. Distinto de DEBT-37
+  (refino aditivo single P223) + DEBT-56 (série composta
+  P217-P220 encerrada P221).
+
+- **Pattern emergente "subset Fase agregado L cumulativo
+  pós-M9c" N=2** — P218+P220 agregados triviais; **P224
+  primeiro agregado substantivo (L) com atomização
+  interna A/B/C explícita**.
+
+- **`P224.div-1`** registado: spec hipótese "fecha
+  DEBT-34d/e simultaneamente" divergente da realidade
+  empírica — DEBT-34d (Auto track sizing greediness) é
+  problema algorítmico distinto de placement, não
+  endereçável pelo módulo `grid_placement.rs`. Apenas
+  DEBT-34e fecha; DEBT-34d preservado em aberto como
+  refino futuro candidato Fase 5.
+
+**Cobertura cumulativa Fase 4 fechada estructuralmente**:
+Layout 78% (Fase 3 fechada P221) → 83% (P223) → **89%
+pós-P224** (+17pp cumulativos Fase 4). **Série α "terminar
+Layout" fechada 3/3 sub-passos**. P225 será encerramento
+documental (paridade P221 para Fase 3).
 
 ³⁹ — Ajuste P214 (Tabela A.1 Markup syntactic — recálculo
 ampliado pós-M9c 2026-05-12): **3 reclassificações

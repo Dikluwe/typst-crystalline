@@ -36,7 +36,9 @@ mod placement;
 mod equation;
 
 // Helpers livres usados pelo Layouter e pelos braços extraídos.
-mod helpers;
+pub(crate) mod helpers;
+// P224.C — Placement algorítmico Grid (fecha DEBT-34e colspan/rowspan).
+pub(crate) mod grid_placement;
 use crate::rules::layout::helpers::{
     collect_sub_items, heading_scale, item_pos, measure_content, resolve_pt,
     translate_frame_item,
@@ -671,8 +673,28 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.regions.current.cursor_y += Pt(new_h);
             }
 
-            Content::Grid { columns, rows, cells } => {
-                self.layout_grid(columns, rows, cells);
+            // P224 — Grid refino +5 fields. gutter/align/inset/header/footer
+            // são consumidos por layout_grid (signature expandida em P224.A);
+            // header/footer renderizam antes/depois das cells.
+            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer } => {
+                self.layout_grid(columns, rows, cells, *gutter, *align, *inset,
+                                 header.as_deref(), footer.as_deref());
+            }
+
+            // P224.B — GridHeader / GridFooter renderizam body sequencial
+            // (semantic real adiada; repeat ignorado per ADR-0054 graded
+            // paridade P157C TableHeader/Footer N=5).
+            Content::GridHeader { body, repeat: _ } => {
+                self.layout_content(body);
+            }
+            Content::GridFooter { body, repeat: _ } => {
+                self.layout_content(body);
+            }
+
+            // P224.C — GridCell isolado renderiza body (fora de Grid context;
+            // dentro de Grid é consumido por grid_placement em layout_grid).
+            Content::GridCell { body, x: _, y: _, colspan: _, rowspan: _ } => {
+                self.layout_content(body);
             }
 
             // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table ──
@@ -681,7 +703,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P157A §10. Sem modificação de `grid.rs`. TableCell
             // estruturado e Header/Footer diferidos para P157B/C.
             Content::Table { columns, rows, children } => {
-                self.layout_grid(columns, rows, children);
+                // P224 — Table delegate continua simples (Table não herda
+                // automaticamente refinos P224 Grid; refino Table separado
+                // candidato Fase 5 NÃO-reservado). Pass defaults para
+                // signature expandida.
+                self.layout_grid(columns, rows, children,
+                                 None, None,
+                                 crate::entities::sides::Sides::uniform(
+                                     crate::entities::layout_types::Length::pt(0.0)),
+                                 None, None);
             }
 
             // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ──
@@ -831,7 +861,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.layout_align(*alignment, body);
             }
 
-            Content::Place { alignment, dx, dy, scope, body } => {
+            // P223 — Place refino: float + clearance armazenados mas
+            // IGNORADOS no layout (semantic real adiada per ADR-0054
+            // graded; precedente N=4 cumulativo weak/breakable/float).
+            // Refino multi-pass flow contorna fica como Fase 5 candidata
+            // NÃO-reservada per política P158.
+            Content::Place { alignment, dx, dy, scope, float: _, clearance: _, body } => {
                 self.layout_place(*alignment, *dx, *dy, *scope, body);
             }
 

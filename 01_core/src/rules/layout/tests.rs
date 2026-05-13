@@ -1610,6 +1610,12 @@ fn grid_altura_da_linha_e_o_maximo_das_celulas() {
         ],
         rows:  vec![],
         cells: vec![make_rect(20.0), make_rect(40.0), make_rect(10.0)],
+        gutter: None,
+        align:  None,
+        inset:  crate::entities::sides::Sides::uniform(
+            crate::entities::layout_types::Length::pt(0.0)),
+        header: None,
+        footer: None,
     };
 
     let state = introspect(&grid);
@@ -3014,6 +3020,106 @@ mod tests_show_rule_integration {
             doc.pages.len());
     }
 
+    // ── Passo 223 (ADR-0061 Fase 4 candidata sub-2; refino Place +float +clearance) ──
+
+    /// Place com `float: true` renderiza body preservando baseline P84.6
+    /// (semantic real adiada per ADR-0054 graded; flow contorna fica
+    /// como Fase 5 candidata NÃO-reservada per política P158).
+    #[test]
+    fn p223_place_float_armazenado_layout_preservado() {
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
+        let p = Content::Place {
+            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Column,
+            float:     true,                                 // P223
+            clearance: None,
+            body:      Box::new(Content::text("p223float")),
+        };
+        let doc = layout(&p);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p223float"),
+            "Place com float renderiza body (semantic adiada preserva baseline P84.6)");
+    }
+
+    /// Place com `clearance: Some(2em)` renderiza body preservando baseline.
+    #[test]
+    fn p223_place_clearance_armazenado_layout_preservado() {
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, PlaceScope};
+        let p = Content::Place {
+            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Column,
+            float:     true,                                 // P223
+            clearance: Some(Length::pt(20.0)),               // P223
+            body:      Box::new(Content::text("p223clear")),
+        };
+        let doc = layout(&p);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p223clear"),
+            "Place com clearance renderiza body (semantic adiada preserva baseline P84.6)");
+    }
+
+    // ── Passo 224 (ADR-0061 Fase 4 candidata sub-3) — Grid refino + variants ──
+
+    /// Grid com header + footer renderiza body com header renderizado
+    /// antes (semantic adiada — header/footer renderizam como sequência
+    /// extra; refino multi-region real é Fase 5 candidata).
+    #[test]
+    fn p224_grid_com_header_footer_renderiza_body() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Auto],
+            rows:    vec![],
+            cells:   vec![Content::text("p224body")],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  Some(Box::new(Content::text("p224hdr"))),
+            footer:  Some(Box::new(Content::text("p224ftr"))),
+        };
+        let doc = layout(&g);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p224body"),
+            "Grid body renderiza preservando baseline; texts={}", texts);
+    }
+
+    /// GridCell wrappa body; placement real disponível via grid_placement
+    /// (P224.C); aqui só verifica que GridCell isolado renderiza body.
+    #[test]
+    fn p224_gridcell_isolado_renderiza_body() {
+        let cell = Content::GridCell {
+            body:    Box::new(Content::text("p224cell")),
+            x:       None,
+            y:       None,
+            colspan: None,
+            rowspan: None,
+        };
+        let doc = layout(&cell);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p224cell"),
+            "GridCell isolado renderiza body; texts={}", texts);
+    }
+
     /// Counters/labels dentro do body de repeat resolvem via walk
     /// (single-walk em P156J; sem multiplicação de state).
     #[test]
@@ -3104,6 +3210,12 @@ mod tests_show_rule_integration {
             columns: columns.clone(),
             rows:    vec![],
             cells:   cells.clone(),
+            gutter:  None,
+            align:   None,
+            inset:   crate::entities::sides::Sides::uniform(
+                crate::entities::layout_types::Length::pt(0.0)),
+            header:  None,
+            footer:  None,
         };
         let doc_g = layout(&g);
         let positions_g: Vec<(String, f64, f64)> = doc_g.pages.iter()

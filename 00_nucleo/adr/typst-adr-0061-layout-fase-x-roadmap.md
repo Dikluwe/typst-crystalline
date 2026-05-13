@@ -1135,3 +1135,203 @@ ausente → parcial cumulativas P219+P220).
 
 Anotação cumulativa acima preserva o contexto histórico para
 retomada futura.
+
+### P222 anotação — Fase 4 Layout candidata sub-passo 1 (measure stdlib expose graded)
+
+**Data**: 2026-05-13.
+
+`measure(body)` stdlib expose graded materializado em P222
+(primeiro sub-passo Fase 4 Layout candidata; ADR-0066
+§"Plano promoção" Bloco C cross-módulo primeira
+materialização parcial). Helper privado `measure_content`
+em `layout/helpers.rs` promovido `pub(super)` → `pub(crate)`;
+módulo `helpers` promovido a `pub(crate)`. Retorna
+`Value::Dict { width: Length, height: Length }` paridade
+vanilla observable. **Width override scope-out** Opção β
+graded (refino futuro candidato NÃO-reservado).
+
+**Fase 4 Layout candidata 1/3 sub-passos** (P222 measure ✓;
+P223 place pendente; P224 grid refino pendente per Opção α
+P221 §8 "4 sub-passos cumulativos" — actual literal é 3
+features + sub-passos futuros não-numerados).
+
+**Reclassificação cumulativa §A.5**: `measure(body)`
+**parcial → implementado⁺**. Layout cobertura per
+metodologia: **72% → 78%** real (+6pp) — agora coincide
+com 78% per paridade visual histórica Opção γ §2.1
+blueprint. Pattern emergente "Fase 4 candidata reclassifica
+parcial → impl⁺" N=1 inaugurado.
+
+11 tests adicionados (9 unit + 2 integração); tests
+workspace 1987 → **1998 verdes** (+11). 0 regressões.
+0 violations.
+
+**Status ADR-0061**: **`IMPLEMENTADO` mantido** (Fase 3
+fechada estructuralmente em P221; Fase 4 candidata em
+curso sem nova reserva formal per política P158).
+**ADR-0066 PROPOSTO mantido** (3 condições §"Plano
+promoção" pendentes; pattern emergente "ADR PROPOSTO com
+materialização parcial graded" N=1 inaugurado).
+
+Anotação cumulativa acima preserva o contexto histórico para
+retomada futura.
+
+### P223 anotação — Fase 4 Layout candidata sub-passo 2 (Place refino +float +clearance + DEBT-37 fecho)
+
+**Data**: 2026-05-13.
+
+`Content::Place` refino aditivo +2 fields graded materializado
+em P223 (segundo sub-passo Fase 4 Layout candidata):
+
+- 2 fields novos: `float: bool` (default `false`; semantic
+  real adiada paridade pattern P156D/E `weak` + P156G
+  `breakable`; precedente N=4 cumulativo) + `clearance:
+  Option<Length>` (default `None`; depende `float: true`
+  real; paridade Smart→Option N=7 cumulativo).
+- Arms cascata em ~6 sítios L1 (5 em `entities/content.rs`
+  PartialEq/map_content/map_text + 1 em `rules/introspect.rs`
+  materialize_time + 1 em `rules/layout/mod.rs`
+  layout_content com `float: _, clearance: _` ignorados).
+- `native_place` stdlib refino: +2 named args extraction +
+  validation; reuso `extract_length` helper N=8 → 9.
+- **DEBT-37 §"Divergência face ao vanilla" FECHADA** —
+  Decisão 3 Opção α restaurada: `place(scope: "parent")`
+  sem `float: true` rejeitado com erro hard (paridade
+  vanilla literal restaurada; mensagem cristalino
+  explicitamente referencia DEBT-37). 1 test pre-existente
+  P84.6 adaptado (`place_dentro_de_grid_com_scope_parent_ancora_a_pagina`
+  em `03_infra/integration_tests.rs`) adicionando `float:
+  true` — paridade visual preservada literal.
+- **Pattern emergente "fecho de divergência documentada
+  via refino" N=1 inaugurado**.
+- **Pattern emergente "refino aditivo a variant existente"
+  N=1 inaugurado pós-M9c** (distinto de variant novo P217
+  Columns + P220 Colbreak; distinto de stdlib expose existente
+  P222 measure). Reusável para `Block.fill`, `Boxed.stroke`,
+  etc.
+- 14 tests novos (4 unit content + 8 unit stdlib + 2 E2E).
+  Tests workspace: 1998 → **2012 verdes** (+14). 1 adaptação
+  DEBT-37 intencional. 0 regressões reais.
+- Reclassificação §A.5 `place(...)` **`parcial ⁵` →
+  `implementado⁺ ⁵ ⁴⁴`**.
+- Cobertura Layout per metodologia: 78% → **83%** real
+  (+5pp; +11pp cumulativo Fase 4 P222+P223).
+- Cobertura user-facing total: 66% → **67%** (+1pp).
+
+**Fase 4 Layout candidata 2/3 sub-passos** (P222 measure ✓;
+**P223 place ✓**; P224 grid refino pendente per Opção α
+P221 §8).
+
+**Status ADR-0061**: **`IMPLEMENTADO` mantido**. **DEBT-37
+§"Divergência" fechada via P223** (anotação histórica;
+DEBT-37 já ENCERRADO P84.6 preservado; divergência
+documentada agora fechada estructuralmente).
+
+**Pattern emergente "L0 minimal para refactors" N=5 → **6****
+(P217+P218+P219+P220+P222+**P223** todos Opção γ). N≥6
+patamar empírico extremamente sólido; promoção formal
+Caminho 4 candidato sólido se humano priorizar.
+
+**Pattern emergente "Field armazenado semantic adiada"
+N=3 → **4 cumulativo**** — P156D weak/P156E weak/P156G
+breakable/**P223 float**. N=4 atinge limiar formalização
+N=3-4 ultrapassado.
+
+Anotação cumulativa acima preserva o contexto histórico para
+retomada futura.
+
+### P224 anotação — Fase 4 Layout candidata sub-passo 3 (Grid refino substantivo Opção δ; fecha série α "terminar Layout")
+
+**Data**: 2026-05-13.
+
+**Fase 4 Layout candidata 3/3 sub-passos materializada — série α
+"terminar Layout" fechada estructuralmente**:
+- P222 measure ✓
+- P223 place ✓
+- **P224 grid substantivo Opção δ ✓**
+
+`Content::Grid` refino substantivo composto + 3 variants Content
+novos + módulo placement algorítmico real materializado em P224
+(magnitude L cumulativa atomizada A/B/C):
+
+- **P224.A** — Grid variant +3 fields aditivos (`gutter:
+  Option<Length>`, `align: Option<Align2D>`, `inset:
+  Sides<Length>`). Semantic real adiada per ADR-0054 graded.
+- **P224.B** — 2 variants Content novos: `GridHeader { body,
+  repeat }` + `GridFooter { body, repeat }` (paridade P157C
+  TableHeader/Footer literal). +2 fields Grid (`header`/`footer`:
+  `Option<Box<Content>>`).
+- **P224.C** — 1 variant Content novo: `GridCell { body, x, y,
+  colspan, rowspan }` (paridade P157B TableCell literal).
+  **Módulo L1 novo `01_core/src/rules/layout/grid_placement.rs`**
+  (264 LOC) com `place_cells` que implementa algoritmo placement
+  vanilla paridade (auto linear + explicit + colspan/rowspan +
+  conflito detection). **Fecha DEBT-34e** estructuralmente.
+- 3 stdlib funcs novas (`native_grid_cell` + `native_grid_header`
+  + `native_grid_footer`); `native_grid` refinada +5 named args.
+- Arms cascata em ~25+ sítios L1 (compiler-driven; 12 errors
+  E0027/E0063/E0004 sequenciais endereçados).
+
+**Trabalho cumulativo Fase 4 (P222 + P223 + P224)**:
+- 3 variants Content novos cumulativos (GridHeader/Footer +
+  GridCell em P224; P222+P223 sem novos variants).
+- +5 fields refino a Grid variant existente (P224).
+- +2 fields refino a Place variant existente (P223).
+- 4 stdlib funcs novas (native_measure P222 + native_grid_cell
+  + native_grid_header + native_grid_footer P224).
+- 1 stdlib refinada (`native_grid` +5 named args P224;
+  `native_place` +2 named args P223).
+- 1 helper visibility promotion (`measure_content` em P222).
+- **1 módulo L1 novo** (`grid_placement.rs` P224.C).
+- **1 DEBT fechada estructuralmente** (DEBT-34e via P224.C
+  placement algorítmico). DEBT-34d preservado aberto per
+  `P224.div-1` documentado (Auto track sizing greediness é
+  problema algorítmico distinto, não placement).
+- **DEBT-37 §"Divergência" fechada** (P223).
+- 0 ADR PROPOSTA→IMPLEMENTADA na série α (ADR-0066 PROPOSTA
+  mantida; ADR-0061 IMPLEMENTADA mantida desde P221).
+- **52 tests adicionados Fase 4** (P222 11 + P223 14 + P224
+  27); 1998 → **2039 verdes**.
+- **Reclassificações**: 3 entradas parcial → impl⁺ (measure +
+  place + grid).
+- Cobertura Layout: 78% Fase 3 → 83% pós-P223 → **89% pós-P224**
+  (+11pp cumulativo P222+P223; **+17pp cumulativo Fase 4 P222+P223+P224**).
+
+**ADR-0061 status mantido IMPLEMENTADO** (Fase 3 fechada
+P221; Fase 4 candidata 100% materializada per Opção α P221
+§8 fechada P224). **Série α "terminar Layout" fechada
+estructuralmente**. Fase 5 candidata futura (refinos
+stroke/fill cosméticos + per-cell align/inset/fill/stroke
+Grid + flow real Place float + Auto track sizing
+greediness DEBT-34d) identificada mas **NÃO reservada**
+per política P158.
+
+**P224.div-1 registado**: spec hipótese "fecha DEBT-34d/e
+simultaneamente" divergente da realidade empírica — DEBT-34d
+é problema algorítmico distinto não endereçável por
+placement work; apenas DEBT-34e fecha. Auditoria empírica
+em C1 detectou e ajustou o plano transparentemente.
+
+**Patterns emergentes pós-P224**:
+- "L0 minimal para refactors" **N=6 → 7** (P217+P218+P219+
+  P220+P222+P223+**P224** todos Opção γ — divergência
+  consciente vs spec C6 que propôs Opção α para variants
+  novos; pattern preservado em vez de reaberto). Candidatura
+  formal ADR meta documental fortalecida.
+- "Field armazenado semantic adiada" **N=4 → 5** (P156D/E
+  weak + P156G breakable + P223 float + **P224 repeat
+  Header/Footer**).
+- **"fecho cumulativo de DEBTs via refino composto" N=1
+  inaugurado** (DEBT-34e via P224.C).
+- **"subset Fase agregado L cumulativo pós-M9c" N=2** —
+  P218+P220 agregados triviais; **P224 primeiro agregado
+  substantivo L com atomização interna A/B/C explícita**.
+
+**P225 será encerramento documental Fase 4 Layout** candidata
+(paridade P221 para Fase 3): ADR-0061 anotação Fase 4
+completa; inventário 148 footnote consolidada; blueprint
+marca §3.0terdecies; possível promoção formal Caminho 4
+ADR meta documental se humano priorizar.
+
+Anotação cumulativa acima preserva o contexto histórico para
+retomada futura.

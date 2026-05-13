@@ -289,10 +289,33 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             matrix: *matrix,
             body:   Box::new(materialize_time(body, intr, location)),
         },
-        Content::Grid { columns, rows, cells } => Content::Grid {
+        // P224 — Grid refino +5 fields preservados (gutter/align/inset/header/footer).
+        Content::Grid { columns, rows, cells, gutter, align, inset, header, footer } => Content::Grid {
             columns: columns.clone(),
             rows:    rows.clone(),
             cells:   cells.iter().map(|c| materialize_time(c, intr, location)).collect(),
+            gutter:  *gutter,
+            align:   *align,
+            inset:   *inset,
+            header:  header.as_ref().map(|h| Box::new(materialize_time(h, intr, location))),
+            footer:  footer.as_ref().map(|f| Box::new(materialize_time(f, intr, location))),
+        },
+        // P224.B — GridHeader / GridFooter recurse no body.
+        Content::GridHeader { body, repeat } => Content::GridHeader {
+            body:   Box::new(materialize_time(body, intr, location)),
+            repeat: *repeat,
+        },
+        Content::GridFooter { body, repeat } => Content::GridFooter {
+            body:   Box::new(materialize_time(body, intr, location)),
+            repeat: *repeat,
+        },
+        // P224.C — GridCell recurse no body; preserva fields.
+        Content::GridCell { body, x, y, colspan, rowspan } => Content::GridCell {
+            body:    Box::new(materialize_time(body, intr, location)),
+            x:       *x,
+            y:       *y,
+            colspan: *colspan,
+            rowspan: *rowspan,
         },
         // Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table.
         // Análogo a Grid: descer em cada child; preservar tracks.
@@ -337,11 +360,14 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             alignment: *alignment,
             body:      Box::new(materialize_time(body, intr, location)),
         },
-        Content::Place { alignment, dx, dy, scope, body } => Content::Place {
+        // P223 — Place refino: preservar float + clearance no materialize_time.
+        Content::Place { alignment, dx, dy, scope, float, clearance, body } => Content::Place {
             alignment: *alignment,
             dx:        *dx,
             dy:        *dy,
             scope:     *scope,
+            float:     *float,
+            clearance: *clearance,
             body:      Box::new(materialize_time(body, intr, location)),
         },
 
@@ -1098,9 +1124,19 @@ pub(crate) fn walk(
 
         Content::Transform { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
-        Content::Grid { cells, .. } => {
+        Content::Grid { cells, header, footer, .. } => {
+            // P224 — Grid refino: walk em header (se houver) + cells + footer.
+            if let Some(h) = header { walk(h, locator, tags, intr, auto_label_counter, lang, None); }
             for cell in cells { walk(cell, locator, tags, intr, auto_label_counter, lang, None); }
+            if let Some(f) = footer { walk(f, locator, tags, intr, auto_label_counter, lang, None); }
         }
+
+        // P224.B — GridHeader / GridFooter (recurse no body; paridade P157C).
+        Content::GridHeader { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::GridFooter { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+
+        // P224.C — GridCell (recurse no body; paridade P157B TableCell).
+        Content::GridCell { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 157A — Table (paridade Grid).
         Content::Table { children, .. } => {

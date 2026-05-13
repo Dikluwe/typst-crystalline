@@ -268,10 +268,75 @@ pub enum Content {
     ///
     /// `rows` é consumido pelo layouter desde o Passo 83 (DEBT-34b encerrado).
     /// Comentário obsoleto removido na auditoria do Passo 105.
+    ///
+    /// **Refino P224** (Fase 4 Layout candidata sub-passo 3 — fecha série
+    /// α "terminar Layout"): 5 fields aditivos cumulativos:
+    /// - `gutter: Option<Length>` (P224.A) — espaço uniforme entre cells
+    ///   (default `None` == zero).
+    /// - `align: Option<Align2D>` (P224.A) — alignment uniforme (default
+    ///   `None` == top-left).
+    /// - `inset: Sides<Length>` (P224.A) — margem interna em cada cell
+    ///   (default zero; paridade P156G+H+I).
+    /// - `header: Option<Box<Content>>` (P224.B) — header opcional.
+    /// - `footer: Option<Box<Content>>` (P224.B) — footer opcional.
+    ///
+    /// Atributos vanilla `stroke`/`fill` cosméticos scope-out per ADR-0054
+    /// graded (Fase 5 candidata NÃO-reservada per política P158).
+    /// Per-cell `align`/`inset`/`fill`/`stroke`/`breakable` em `GridCell`
+    /// scope-out (subset paridade P157B literal). Placement algorítmico
+    /// completo via `Content::GridCell` + `grid_placement.rs` (P224.C
+    /// fecha DEBT-34e).
     Grid {
         columns: Vec<TrackSizing>,
         rows:    Vec<TrackSizing>,
         cells:   Vec<Content>,
+        /// P224.A — gutter uniforme entre cells.
+        gutter:  Option<Length>,
+        /// P224.A — alignment uniforme aplicado a todas as cells.
+        align:   Option<Align2D>,
+        /// P224.A — margem interna em cada cell.
+        inset:   Sides<Length>,
+        /// P224.B — header opcional (paridade P157C TableHeader).
+        header:  Option<Box<Content>>,
+        /// P224.B — footer opcional (paridade P157C TableFooter).
+        footer:  Option<Box<Content>>,
+    },
+
+    // ── Passo 224.B (ADR-0061 Fase 4 candidata sub-3) — Grid header/footer ──
+    /// Grid header — vanilla `GridHeader` (paridade P157C TableHeader
+    /// literal). Layouter renderiza `body` no contexto Grid; **`repeat`
+    /// armazenado mas semantic adiada** per ADR-0054 graded (paridade
+    /// pattern N=5 cumulativo weak/breakable/float/repeat).
+    GridHeader {
+        body:   Box<Content>,
+        repeat: bool,
+    },
+
+    /// Grid footer — vanilla `GridFooter` (paridade P157C TableFooter
+    /// literal). Par simétrico com `GridHeader` (mesmos fields).
+    GridFooter {
+        body:   Box<Content>,
+        repeat: bool,
+    },
+
+    // ── Passo 224.C (ADR-0061 Fase 4 candidata sub-3) — Grid cell + placement ──
+    /// Grid cell estruturado — vanilla `GridCell` (paridade P157B
+    /// TableCell literal; 5 fields). Placement algorítmico real
+    /// resolvido via `rules/layout/grid_placement.rs` (P224.C fecha
+    /// DEBT-34e colspan/rowspan).
+    ///
+    /// `x`/`y`: posição explícita opcional (auto-placement se `None`).
+    /// `colspan`/`rowspan`: ocupação adjacente opcional (default 1).
+    ///
+    /// `align`/`fill`/`stroke`/`inset`/`breakable` per-cell vanilla
+    /// scope-out (subset paridade P157B literal; refino futuro
+    /// candidato NÃO-reservado per política P158).
+    GridCell {
+        body:    Box<Content>,
+        x:       Option<usize>,
+        y:       Option<usize>,
+        colspan: Option<usize>,
+        rowspan: Option<usize>,
     },
 
     /// Altera a configuração da página a partir deste ponto do documento (Passo 81).
@@ -298,11 +363,26 @@ pub enum Content {
     /// `scope` (Passo 84.6, encerra DEBT-37): `PlaceScope::Column` (default)
     /// ancora ao contentor activo (célula de Grid se houver, página caso
     /// contrário); `PlaceScope::Parent` ancora à página independentemente.
+    ///
+    /// **Refino P223** (Fase 4 Layout candidata sub-passo 2): 2 fields
+    /// adicionados — `float: bool` (default `false`) e `clearance:
+    /// Option<Length>` (default `None`). Ambos armazenados mas semantic
+    /// real adiada per ADR-0054 graded (pattern N=4 cumulativo
+    /// `weak`/`breakable`/`float`). DEBT-37 §"Divergência" fechada
+    /// em P223 — `scope: Parent` agora exige `float: true` (paridade
+    /// vanilla literal restaurada).
     Place {
         alignment: Align2D,
         dx:        f64,
         dy:        f64,
         scope:     PlaceScope,
+        /// P223 — paridade vanilla `float: bool`; semantic real adiada
+        /// (flow contorna; multi-pass layout) per ADR-0054 graded.
+        float:     bool,
+        /// P223 — paridade vanilla `clearance: length`; semantic real
+        /// adiada (depende `float: true` real). Default `None` paridade
+        /// Smart→Option N=7 cumulativo.
+        clearance: Option<Length>,
         body:      Box<Content>,
     },
 
@@ -987,6 +1067,11 @@ impl Content {
             Self::Figure { body, caption, .. } =>
                 body.is_empty() && caption.as_ref().is_none_or(|c| c.is_empty()),
             Self::Grid { cells, .. } => cells.is_empty(),
+            // P224.B — GridHeader/GridFooter vazio se body for (paridade P157C).
+            Self::GridHeader { body, .. } => body.is_empty(),
+            Self::GridFooter { body, .. } => body.is_empty(),
+            // P224.C — GridCell vazio se body for (paridade P157B TableCell).
+            Self::GridCell { body, .. } => body.is_empty(),
             // Passo 157A (ADR-0060 Fase 2): Table é vazio se children
             // for vazio (paridade com Grid; cells / children indistintos
             // semanticamente para is_empty).
@@ -1134,6 +1219,11 @@ impl Content {
             Self::Grid { cells, .. } => {
                 cells.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ")
             }
+            // P224.B — GridHeader/GridFooter transparentes (paridade P157C).
+            Self::GridHeader { body, .. } => body.plain_text(),
+            Self::GridFooter { body, .. } => body.plain_text(),
+            // P224.C — GridCell transparente (paridade P157B TableCell).
+            Self::GridCell { body, .. } => body.plain_text(),
             // Passo 157A: Table concatena children com space (paridade
             // com Grid em plain_text — semântica de "células visíveis
             // em sequência").
@@ -1292,9 +1382,22 @@ impl PartialEq for Content {
                     && fa == fb && sa == sb,
             (Self::Transform { matrix: ma, body: ba }, Self::Transform { matrix: mb, body: bb }) =>
                 ma == mb && ba == bb,
-            (Self::Grid { columns: ca, rows: ra, cells: xa },
-             Self::Grid { columns: cb, rows: rb, cells: xb }) =>
-                ca == cb && ra == rb && xa == xb,
+            // P224 — Grid refino +5 fields (gutter/align/inset/header/footer).
+            (Self::Grid { columns: ca, rows: ra, cells: xa,
+                          gutter: ga, align: aa, inset: ia, header: ha, footer: fa },
+             Self::Grid { columns: cb, rows: rb, cells: xb,
+                          gutter: gb, align: ab, inset: ib, header: hb, footer: fb }) =>
+                ca == cb && ra == rb && xa == xb
+                && ga == gb && aa == ab && ia == ib && ha == hb && fa == fb,
+            // P224.B — GridHeader / GridFooter (paridade P157C literal).
+            (Self::GridHeader { body: ba, repeat: ra },
+             Self::GridHeader { body: bb, repeat: rb }) => ba == bb && ra == rb,
+            (Self::GridFooter { body: ba, repeat: ra },
+             Self::GridFooter { body: bb, repeat: rb }) => ba == bb && ra == rb,
+            // P224.C — GridCell (paridade P157B literal; 5 fields).
+            (Self::GridCell { body: ba, x: xa, y: ya, colspan: ca, rowspan: ra },
+             Self::GridCell { body: bb, x: xb, y: yb, colspan: cb, rowspan: rb }) =>
+                ba == bb && xa == xb && ya == yb && ca == cb && ra == rb,
             // Passo 157A — Table.
             (Self::Table { columns: ca, rows: ra, children: xa },
              Self::Table { columns: cb, rows: rb, children: xb }) =>
@@ -1322,9 +1425,13 @@ impl PartialEq for Content {
                 wa == wb && ha == hb && ma == mb,
             (Self::Align { alignment: aa, body: ba },
              Self::Align { alignment: ab, body: bb }) => aa == ab && ba == bb,
-            (Self::Place { alignment: aa, dx: dxa, dy: dya, scope: sa, body: ba },
-             Self::Place { alignment: ab, dx: dxb, dy: dyb, scope: sb, body: bb }) =>
-                aa == ab && dxa == dxb && dya == dyb && sa == sb && ba == bb,
+            // P223 — Place refino +2 fields (float + clearance).
+            (Self::Place { alignment: aa, dx: dxa, dy: dya, scope: sa,
+                           float: fa, clearance: ca, body: ba },
+             Self::Place { alignment: ab, dx: dxb, dy: dyb, scope: sb,
+                           float: fb, clearance: cb, body: bb }) =>
+                aa == ab && dxa == dxb && dya == dyb && sa == sb
+                && fa == fb && ca == cb && ba == bb,
             (Self::Styled(ba, sa), Self::Styled(bb, sb)) => ba == bb && sa == sb,
             // Passo 154B — terms + divider.
             (Self::Divider, Self::Divider) => true,
@@ -1611,10 +1718,41 @@ impl Content {
                 matrix: *matrix,
                 body:   Box::new(body.map_content(transform)?),
             },
-            Content::Grid { columns, rows, cells } => {
+            // P224 — Grid refino +5 fields (gutter/align/inset/header/footer).
+            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer } => {
                 let new_cells: crate::entities::source_result::SourceResult<Vec<Content>> =
                     cells.iter().map(|c| c.map_content(transform)).collect();
-                Content::Grid { columns: columns.clone(), rows: rows.clone(), cells: new_cells? }
+                let new_header: crate::entities::source_result::SourceResult<Option<Box<Content>>> =
+                    header.as_ref().map(|h| h.map_content(transform).map(Box::new)).transpose();
+                let new_footer: crate::entities::source_result::SourceResult<Option<Box<Content>>> =
+                    footer.as_ref().map(|f| f.map_content(transform).map(Box::new)).transpose();
+                Content::Grid {
+                    columns: columns.clone(),
+                    rows:    rows.clone(),
+                    cells:   new_cells?,
+                    gutter:  *gutter,
+                    align:   *align,
+                    inset:   *inset,
+                    header:  new_header?,
+                    footer:  new_footer?,
+                }
+            },
+            // P224.B — GridHeader / GridFooter recurse no body.
+            Content::GridHeader { body, repeat } => Content::GridHeader {
+                body:   Box::new(body.map_content(transform)?),
+                repeat: *repeat,
+            },
+            Content::GridFooter { body, repeat } => Content::GridFooter {
+                body:   Box::new(body.map_content(transform)?),
+                repeat: *repeat,
+            },
+            // P224.C — GridCell recurse no body; preserva x/y/colspan/rowspan (Copy).
+            Content::GridCell { body, x, y, colspan, rowspan } => Content::GridCell {
+                body:    Box::new(body.map_content(transform)?),
+                x:       *x,
+                y:       *y,
+                colspan: *colspan,
+                rowspan: *rowspan,
             },
             // Passo 157A: Table — mapear children (paridade Grid).
             Content::Table { columns, rows, children } => {
@@ -1663,11 +1801,14 @@ impl Content {
                 alignment: *alignment,
                 body:      Box::new(body.map_content(transform)?),
             },
-            Content::Place { alignment, dx, dy, scope, body } => Content::Place {
+            // P223 — Place refino: preservar float (Copy) e clearance (Copy via Option<Length>).
+            Content::Place { alignment, dx, dy, scope, float, clearance, body } => Content::Place {
                 alignment: *alignment,
                 dx:        *dx,
                 dy:        *dy,
                 scope:     *scope,
+                float:     *float,
+                clearance: *clearance,
                 body:      Box::new(body.map_content(transform)?),
             },
             Content::Styled(body, styles) => Content::Styled(
@@ -1841,10 +1982,33 @@ impl Content {
                 matrix: *matrix,
                 body:   Box::new(body.map_text(transform)),
             },
-            Content::Grid { columns, rows, cells } => Content::Grid {
+            // P224 — Grid refino +5 fields (map_text).
+            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer } => Content::Grid {
                 columns: columns.clone(),
                 rows:    rows.clone(),
                 cells:   cells.iter().map(|c| c.map_text(transform)).collect(),
+                gutter:  *gutter,
+                align:   *align,
+                inset:   *inset,
+                header:  header.as_ref().map(|h| Box::new(h.map_text(transform))),
+                footer:  footer.as_ref().map(|f| Box::new(f.map_text(transform))),
+            },
+            // P224.B — GridHeader / GridFooter recurse no body (map_text).
+            Content::GridHeader { body, repeat } => Content::GridHeader {
+                body:   Box::new(body.map_text(transform)),
+                repeat: *repeat,
+            },
+            Content::GridFooter { body, repeat } => Content::GridFooter {
+                body:   Box::new(body.map_text(transform)),
+                repeat: *repeat,
+            },
+            // P224.C — GridCell recurse no body (map_text); preserva fields.
+            Content::GridCell { body, x, y, colspan, rowspan } => Content::GridCell {
+                body:    Box::new(body.map_text(transform)),
+                x:       *x,
+                y:       *y,
+                colspan: *colspan,
+                rowspan: *rowspan,
             },
             // Passo 157A: Table — map_text em children (paridade Grid).
             Content::Table { columns, rows, children } => Content::Table {
@@ -1887,11 +2051,14 @@ impl Content {
                 alignment: *alignment,
                 body:      Box::new(body.map_text(transform)),
             },
-            Content::Place { alignment, dx, dy, scope, body } => Content::Place {
+            // P223 — Place refino: preservar float + clearance no map_text.
+            Content::Place { alignment, dx, dy, scope, float, clearance, body } => Content::Place {
                 alignment: *alignment,
                 dx:        *dx,
                 dy:        *dy,
                 scope:     *scope,
+                float:     *float,
+                clearance: *clearance,
                 body:      Box::new(body.map_text(transform)),
             },
             Content::Styled(body, styles) => Content::Styled(
@@ -3301,6 +3468,215 @@ mod tests {
         let c = Content::colbreak(true);
         let mapped = c.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
         assert_eq!(c, mapped);
+    }
+
+    // ── Passo 223 (ADR-0061 Fase 4 Layout candidata sub-passo 2) — Place refino ──
+
+    #[test]
+    fn p223_place_variant_aceita_float_clearance() {
+        // P223 refino: variant aceita 2 fields novos float + clearance.
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, PlaceScope};
+        let p = Content::Place {
+            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Column,
+            float:     true,
+            clearance: Some(Length::pt(10.0)),
+            body:      Box::new(Content::text("body")),
+        };
+        if let Content::Place { float, clearance, .. } = &p {
+            assert_eq!(*float, true);
+            assert_eq!(*clearance, Some(Length::pt(10.0)));
+        } else {
+            panic!("esperado Content::Place");
+        }
+    }
+
+    #[test]
+    fn p223_place_default_float_false_clearance_none() {
+        // Defaults stdlib: float=false, clearance=None.
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
+        let p = Content::Place {
+            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Column,
+            float:     false,
+            clearance: None,
+            body:      Box::new(Content::text("body")),
+        };
+        if let Content::Place { float, clearance, .. } = &p {
+            assert_eq!(*float, false, "default float == false");
+            assert!(clearance.is_none(), "default clearance == None");
+        } else {
+            panic!("esperado Content::Place");
+        }
+    }
+
+    #[test]
+    fn p223_place_partial_eq_inclui_float_clearance() {
+        // Eq compara 7 fields agora (P223 +2 fields).
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, PlaceScope};
+        let mk = |float: bool, clearance: Option<Length>| Content::Place {
+            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Column,
+            float,
+            clearance,
+            body:      Box::new(Content::text(".")),
+        };
+        assert_eq!(mk(false, None), mk(false, None));
+        // Float diferente → diferente.
+        assert_ne!(mk(false, None), mk(true, None));
+        // Clearance diferente → diferente.
+        assert_ne!(mk(false, None), mk(false, Some(Length::pt(5.0))));
+    }
+
+    #[test]
+    fn p223_place_map_content_preserva_atributos() {
+        // map_content recurse no body preservando float + clearance.
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, PlaceScope};
+        let p = Content::Place {
+            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Parent,  // exige float em stdlib mas Rust direct aceita
+            float:     true,
+            clearance: Some(Length::pt(8.0)),
+            body:      Box::new(Content::text("X")),
+        };
+        let mapped = p.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
+        if let Content::Place { float, clearance, .. } = &mapped {
+            assert_eq!(*float, true, "map_content preserva float");
+            assert_eq!(*clearance, Some(Length::pt(8.0)), "map_content preserva clearance");
+        } else {
+            panic!("esperado Content::Place após map_content");
+        }
+    }
+
+    // ── Passo 224 (ADR-0061 Fase 4 candidata sub-3) — Grid refino + 3 variants ──
+
+    #[test]
+    fn p224_grid_variant_aceita_5_fields_aditivos() {
+        // Grid variant aceita gutter/align/inset/header/footer.
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Auto],
+            rows:    vec![],
+            cells:   vec![Content::text("A")],
+            gutter:  Some(Length::pt(5.0)),
+            align:   Some(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }),
+            inset:   Sides::uniform(Length::pt(2.0)),
+            header:  Some(Box::new(Content::text("H"))),
+            footer:  Some(Box::new(Content::text("F"))),
+        };
+        if let Content::Grid { gutter, header, footer, .. } = &g {
+            assert_eq!(*gutter, Some(Length::pt(5.0)));
+            assert!(header.is_some());
+            assert!(footer.is_some());
+        } else {
+            panic!("esperado Content::Grid");
+        }
+    }
+
+    #[test]
+    fn p224_grid_partial_eq_inclui_5_fields_novos() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let mk = |gutter: Option<Length>| Content::Grid {
+            columns: vec![TrackSizing::Auto],
+            rows:    vec![],
+            cells:   vec![],
+            gutter,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+        };
+        assert_eq!(mk(None), mk(None));
+        assert_ne!(mk(None), mk(Some(Length::pt(5.0))));
+    }
+
+    #[test]
+    fn p224_gridheader_variant_aceita() {
+        let h = Content::GridHeader {
+            body:   Box::new(Content::text("hdr")),
+            repeat: true,
+        };
+        if let Content::GridHeader { body, repeat } = &h {
+            assert_eq!(body.plain_text(), "hdr");
+            assert_eq!(*repeat, true);
+        } else { panic!("esperado GridHeader"); }
+    }
+
+    #[test]
+    fn p224_gridfooter_variant_aceita() {
+        let f = Content::GridFooter {
+            body:   Box::new(Content::text("ftr")),
+            repeat: false,
+        };
+        if let Content::GridFooter { body, repeat } = &f {
+            assert_eq!(body.plain_text(), "ftr");
+            assert_eq!(*repeat, false);
+        } else { panic!("esperado GridFooter"); }
+    }
+
+    #[test]
+    fn p224_gridheader_is_empty_proxy_body() {
+        assert!(Content::GridHeader { body: Box::new(Content::Empty), repeat: true }.is_empty());
+        assert!(!Content::GridHeader { body: Box::new(Content::text("x")), repeat: true }.is_empty());
+    }
+
+    #[test]
+    fn p224_gridcell_variant_aceita_5_fields() {
+        let c = Content::GridCell {
+            body:    Box::new(Content::text("cell")),
+            x:       Some(1),
+            y:       Some(2),
+            colspan: Some(3),
+            rowspan: Some(4),
+        };
+        if let Content::GridCell { x, y, colspan, rowspan, .. } = &c {
+            assert_eq!(*x, Some(1));
+            assert_eq!(*y, Some(2));
+            assert_eq!(*colspan, Some(3));
+            assert_eq!(*rowspan, Some(4));
+        } else { panic!("esperado GridCell"); }
+    }
+
+    #[test]
+    fn p224_gridcell_partial_eq_5_fields() {
+        // Eq compara 5 fields (paridade P157B TableCell literal).
+        let mk = |x: Option<usize>| Content::GridCell {
+            body:    Box::new(Content::text(".")),
+            x,
+            y:       None,
+            colspan: None,
+            rowspan: None,
+        };
+        assert_eq!(mk(None), mk(None));
+        assert_ne!(mk(None), mk(Some(1)));
+    }
+
+    #[test]
+    fn p224_gridcell_map_content_preserva_fields() {
+        let c = Content::GridCell {
+            body:    Box::new(Content::text("x")),
+            x:       Some(0),
+            y:       Some(1),
+            colspan: Some(2),
+            rowspan: None,
+        };
+        let mapped = c.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
+        if let Content::GridCell { x, y, colspan, rowspan, .. } = &mapped {
+            assert_eq!(*x, Some(0));
+            assert_eq!(*y, Some(1));
+            assert_eq!(*colspan, Some(2));
+            assert!(rowspan.is_none());
+        } else { panic!("esperado GridCell após map_content"); }
     }
 
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — Table ─────────────────

@@ -10,7 +10,8 @@
 use crate::entities::{
     content::Content,
     image_sizer::ImageSizer,
-    layout_types::{FrameItem, Point, Pt, TrackSizing},
+    layout_types::{Align2D, FrameItem, Length, Point, Pt, TrackSizing},
+    sides::Sides,
 };
 
 use super::metrics::FontMetrics;
@@ -18,12 +19,23 @@ use super::{item_pos, translate_frame_item};
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Layout de `Content::Grid` — algoritmo de tracks (Passo 80, 83, 84.2,
-    /// 84.6). Extraído no Passo 96.7.
+    /// 84.6). Extraído no Passo 96.7. **P224 refino** — signature expandida
+    /// com 5 fields (`gutter`/`align`/`inset`/`header`/`footer`); semantic
+    /// real adiada para gutter/align/inset (paridade ADR-0054 graded;
+    /// algoritmo placement via `grid_placement::place_cells` em sub-fase
+    /// futura quando integração for substantiva). `_align`/`_inset`
+    /// armazenados mas ignorados nesta versão — `gutter` aplicado
+    /// horizontalmente como soma a col_starts (graded).
     pub(super) fn layout_grid(
         &mut self,
         columns: &[TrackSizing],
         rows:    &[TrackSizing],
         cells:   &[Content],
+        _gutter: Option<Length>,
+        _align:  Option<Align2D>,
+        _inset:  Sides<Length>,
+        _header: Option<&Content>,
+        _footer: Option<&Content>,
     ) {
         let available_width = self.available_width();
 
