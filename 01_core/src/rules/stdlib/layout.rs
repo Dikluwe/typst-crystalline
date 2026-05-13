@@ -195,9 +195,9 @@ pub(super) fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
 /// `grid(columns?, rows?, ...cells)` → `Content::Grid`.
 pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     for key in args.named.keys() {
-        // P224 — accept 5 named args novos (gutter/align/inset/header/footer).
-        // stroke/fill cosméticos scope-out Fase 5 candidata NÃO-reservada.
-        if !["columns", "rows", "gutter", "align", "inset", "header", "footer"]
+        // P224 + P227 — accept named args (gutter/align/inset/header/footer/stroke).
+        // fill cosmético scope-out Fase 5 candidata A.2 NÃO-reservada.
+        if !["columns", "rows", "gutter", "align", "inset", "header", "footer", "stroke"]
             .contains(&key.as_str())
         {
             return Err(vec![SourceDiagnostic::error(
@@ -277,9 +277,16 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     let cells: Vec<Content> = args.items.iter()
         .filter_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
         .collect();
+    // P227 — extract stroke (Length/Color/Stroke shorthand via extract_stroke).
+    let stroke = match args.named.get("stroke") {
+        Some(val) => Some(extract_stroke(val, "grid", "stroke")?),
+        None => None,
+    };
+
     Ok(Value::Content(Content::Grid {
         columns, rows, cells,
         gutter, align, inset, header, footer,
+        stroke,
     }))
 }
 
@@ -321,6 +328,40 @@ fn extract_length(val: &Value) -> Option<Length> {
         Value::Int(i)    => Some(Length { abs: Abs(*i as f64),  em: 0.0 }),
         _                => None,
     }
+}
+
+/// P227 — Coage `Value` para `Stroke` aceitando shorthands paridade
+/// vanilla (Opção β):
+/// - `Value::Length(l)` → `Stroke { paint: Color::BLACK, thickness: l.to_pt() }`.
+/// - `Value::Color(c)` → `Stroke { paint: c, thickness: 1.0 }` (default 1pt).
+/// - `Value::Stroke(s)` → `s.clone()`.
+/// - Outros tipos: erro hard.
+///
+/// `thickness <= 0` rejeitado (paridade vanilla).
+pub(super) fn extract_stroke(val: &Value, fn_name: &str, field: &str) -> SourceResult<crate::entities::geometry::Stroke> {
+    use crate::entities::geometry::Stroke;
+    use crate::entities::layout_types::Color;
+    let stroke = match val {
+        Value::Length(l) => {
+            let thickness = l.abs.to_pt();
+            Stroke { paint: Color::rgb(0, 0, 0), thickness }
+        }
+        Value::Color(c) => Stroke { paint: *c, thickness: 1.0 },
+        Value::Stroke(s) => s.clone(),
+        other => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{}({}): espera Length / Color / Stroke, recebeu {}",
+                fn_name, field, other.type_name()),
+        )]),
+    };
+    if stroke.thickness <= 0.0 {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{}({}): thickness deve ser > 0 (recebeu {})",
+                fn_name, field, stroke.thickness),
+        )]);
+    }
+    Ok(stroke)
 }
 
 /// `pad(body, left: ?, right: ?, top: ?, bottom: ?, x: ?, y: ?, rest: ?)`
@@ -1101,6 +1142,69 @@ pub fn native_measure(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
     dict.insert("height".into(), Value::Length(Length::pt(height_pt)));
 
     Ok(Value::Dict(dict))
+}
+
+/// `stroke(paint: ?, thickness: ?)` → `Value::Stroke` — Passo 227
+/// (ADR-0079 PROPOSTO Categoria A.1 Fase 5 Layout candidata).
+///
+/// Forma: `#stroke(thickness: 2pt)` ou `#stroke(paint: red, thickness: 1pt)`.
+///
+/// **Defaults paridade vanilla**:
+/// - `paint: Color` (named opcional; default `Color::rgb(0, 0, 0)` BLACK).
+/// - `thickness: Length` (named opcional; default 1.0 pt).
+///
+/// **Validações**:
+/// - Sem argumentos posicionais.
+/// - `thickness > 0` (rejeita 0 e negativos).
+/// - Named args restritos a `paint` + `thickness`.
+pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    use crate::entities::geometry::Stroke;
+    use crate::entities::layout_types::Color;
+
+    if !args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "stroke() não aceita argumentos posicionais".to_string(),
+        )]);
+    }
+
+    let paint = match args.named.get("paint") {
+        Some(Value::Color(c)) => *c,
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("stroke(paint): espera Color, recebeu {}", other.type_name()),
+        )]),
+        None => Color::rgb(0, 0, 0),
+    };
+
+    let thickness = match args.named.get("thickness") {
+        Some(val) => {
+            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("stroke(thickness): espera length, recebeu {}", val.type_name()),
+            )])?;
+            len.abs.to_pt()
+        }
+        None => 1.0,
+    };
+
+    if thickness <= 0.0 {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("stroke(thickness): deve ser > 0 (recebeu {})", thickness),
+        )]);
+    }
+
+    for key in args.named.keys() {
+        if !["paint", "thickness"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("stroke(): argumento nomeado inesperado '{}' (esperado: paint, thickness)", key),
+            )]);
+        }
+    }
+
+    Ok(Value::Stroke(Stroke { paint, thickness }))
 }
 
 /// `pagebreak(weak: false, to: ?)` → `Content::Pagebreak`.

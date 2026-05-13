@@ -1499,6 +1499,120 @@ N=2 cumulativo** — segundo encerramento formal pós-M9c
 
 ---
 
+### §3.0quaterdecies Marca de actualização — [P226] **Abertura série β "completar Layout" Fase 5 candidata (ADR-0080 + ADR-0079 PROPOSTAS + diagnóstico amplo 4 categorias)**
+
+**Data**: 2026-05-13.
+
+P226 abre cirurgicamente a **série β "completar Layout"
+cumulativa** per decisão humana literal P225 §8 + P226
+pré-spec "completar Layout" escopo Tudo A+B+C+D. **Passo
+administrativo + diagnóstico amplo agregado** num único
+passo per Decisão H2 humana. **Encerramento documental
+puro** — sem código tocado em P226.
+
+**Distinção qualitativa face a marcas anteriores**:
+
+- **§3.0duodecies P221**: encerramento Fase 3 Layout
+  (DEBT-56 fecha; 2 ADRs transitam IMPLEMENTADO).
+- **§3.0terdecies P225**: encerramento Fase 4 Layout
+  candidata (0 ADRs transitam; pattern N=2 encerramento
+  formalizado).
+- **§3.0quaterdecies (esta P226)**: **abertura Fase 5
+  candidata** — primeira abertura de Fase Layout pós-M9c
+  (distinta de encerramentos). Pattern emergente "abertura
+  série β + diagnóstico amplo + ADR PROPOSTO + ADR meta
+  agregados" N=1 inaugurado.
+
+**3 trabalhos agregados em P226** (Decisão H2 humana):
+
+1. **ADR-0080 PROPOSTO** "L0 minimal para refactors
+   aditivos pós-M9c" — formaliza pattern emergente N=7
+   cumulativo (P217+P218+P219+P220+P222+P223+P224 todos
+   Opção γ; P224 divergência consciente vs spec C6 Opção α
+   reforçou em vez de suspender). Pattern empírico
+   amplamente ultrapassa limiar formalização N=3-4.
+2. **Diagnóstico amplo Fase 5** `diagnostico-layout-fase-5-completar.md`
+   cobrindo 4 categorias A+B+C+D com **13-15 sub-passos
+   cumulativos identificados** mas NÃO reservados (P158).
+   Magnitudes cumulativas L+ a XL (~37-64h total).
+3. **ADR-0079 PROPOSTO** "Layout Fase 5 roadmap
+   completar Layout (Tudo A+B+C+D)" — paridade estrutural
+   ADR-0078 column flow. Registo formal de roadmap + 3-4
+   reaberturas arquiteturais explícitas.
+
+**Reaberturas arquiteturais registadas em ADR-0079
+§"Reaberturas"**:
+- **Reabertura 1** — Opção B P219 graded (Categoria C.1
+  Place float real).
+- **Reabertura 2** — P216B `Regions { current }` minimal
+  (Categoria C.2 Opção A multi-region completa).
+- **Reabertura 3** — DEBT-56 ENCERRADA derivada (Categoria
+  C.2; **DEBT-56b novo aberto se/quando C.2 materializar**;
+  DEBT-56 preservada CLOSED literal).
+- **Reabertura 4** — ADR-0066 PROPOSTO (Categoria D
+  runtime queries; promoção formal pós-D.1).
+
+**Política "sem novas reservas" P158 preservada literal**
+— 13-15 sub-passos identificados mas **NÃO reservados**.
+
+**`P226.div-1` registado**: spec hipótese ADR-0067 número
+disponível mas ADR-0067 estava ocupado (`attribute-grammar-scoping`).
+Audit C1 detectou; ADR-0080 escolhido como próximo slot
+livre após ADR-0079.
+
+**Patterns emergentes consolidados em P226**:
+- **"L0 minimal para refactors" N=7 formalizado** em
+  ADR-0080 PROPOSTO.
+- **"Diagnóstico amplo + ADR PROPOSTO + roadmap"** N=4 →
+  **5 cumulativo** (P156B + P159B + P160 + P215 + **P226**).
+- **"ADR meta + diagnóstico agregado"** N=1 **inaugurado
+  P226** (distinto de P215 que foi diagnóstico + ADR
+  PROPOSTO sem componente ADR meta).
+- **"ADR PROPOSTO com materialização parcial graded"**
+  estendido — agora **3 ADRs PROPOSTAS cumulativas**
+  (ADR-0066 + ADR-0079 + ADR-0080).
+- **"Divergência factual material `Pxxx.div-N`"** N=2 → 3
+  cumulativo (P215.div-1 + P224.div-1 + **P226.div-1
+  ADR-0067 ocupado**).
+
+**Distribuição ADRs pós-P226**:
+- PROPOSTO: 11 → **13** (+2: ADR-0079 + ADR-0080).
+- IMPLEMENTADO: 21 preservado.
+- Total: 65 → **67**.
+
+**Saldo DEBTs**: 12 preservado (P226 documental puro sem
+fechos novos; DEBT-56b candidato pós-C.2 mas não criado).
+
+**Estado pós-P226**:
+- Tests workspace: **2039 verdes preservados** (zero código
+  tocado).
+- Content variants: 59 preservado.
+- Stdlib funcs: 59 preservado.
+- ADRs: PROPOSTO 13 (+2); IMPLEMENTADO 21; total 67 (+2).
+- Layout cobertura per metodologia: **89% preservado**.
+- **Layout em estado terminal estructural reconhecido +
+  roadmap "completar Layout" formalizado**.
+- **Trajectória aberta**: 13-15 sub-passos A/B/C/D
+  materialização caso-a-caso (sugestões A.1 stroke Grid
+  baixo risco; D.1 state alto valor; cenário "selectivo"
+  scope-out C+D possível).
+
+**Marco M9c preservado** como referência arquitectural
+estável. Trajectória M9c+ inclui **14 sub-passos
+cumulativos** pós-M9c P213-P226 cobrindo:
+- Layout Fase 3 fechada (P215+P216A+B+P217-P220+P221).
+- Layout Fase 4 candidata fechada (P222+P223+P224+P225).
+- **Layout Fase 5 candidata aberta** (P226 diagnóstico).
+
+Reescrita ampla deste blueprint mantém-se fora-de-escopo
+(per padrão consolidado P204H+...+P225). Esta marca
+cirúrgica regista **abertura de Fase Layout pós-M9c N=1
+inaugurada** — primeira abertura formal pós-M9c
+(complementar aos N=2 encerramentos §3.0duodecies P221
++ §3.0terdecies P225).
+
+---
+
 ### §3.1 Estado factual em 2026-04-25
 
 **Tests**: 1145 cristalino; 0 falhas; 6 ignored.

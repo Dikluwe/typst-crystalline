@@ -57,6 +57,11 @@ pub enum Value {
     Angle(crate::entities::layout_types::Angle),
     /// Cor tipográfica. Ver ADR-0028.
     Color(crate::entities::layout_types::Color),
+    /// P227 — Stroke parametriza borders Grid/Table e refinos
+    /// cosméticos Fase 5 candidata Layout per ADR-0079 PROPOSTO
+    /// + ADR-0080 PROPOSTO (Opção γ literal — L0 não tocado;
+    /// pattern "L0 minimal para refactors" N=7 → 8).
+    Stroke(crate::entities::geometry::Stroke),
     /// Fracção para dimensionamento relativo (ex: 1fr, 2.5fr). Passo 80.
     Fraction(f64),
 
@@ -124,6 +129,7 @@ impl Value {
             Self::Ratio(_)     => "ratio",
             Self::Angle(_)     => "angle",
             Self::Color(_)     => "color",
+            Self::Stroke(_)    => "stroke",
             Self::Fraction(_)  => "fraction",
             Self::Align(_)     => "alignment",
             Self::Location(_)  => "location",
@@ -212,6 +218,9 @@ impl From<crate::entities::layout_types::Angle> for Value {
 }
 impl From<crate::entities::layout_types::Color> for Value {
     fn from(v: crate::entities::layout_types::Color) -> Self { Self::Color(v) }
+}
+impl From<crate::entities::geometry::Stroke> for Value {
+    fn from(v: crate::entities::geometry::Stroke) -> Self { Self::Stroke(v) }
 }
 
 #[cfg(test)]

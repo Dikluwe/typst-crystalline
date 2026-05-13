@@ -220,14 +220,15 @@ pub fn native_quote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 /// Helper `extract_tracks` reusado de `stdlib/layout.rs` (N=2;
 /// `pub(super)` per P157A — sibling-module access).
 pub fn native_table(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
-    use crate::rules::stdlib::layout::extract_tracks;
+    use crate::rules::stdlib::layout::{extract_tracks, extract_stroke};
     use crate::entities::layout_types::TrackSizing;
 
     for key in args.named.keys() {
-        if !["columns", "rows"].contains(&key.as_str()) {
+        // P227 — accept stroke (paridade native_grid P227).
+        if !["columns", "rows", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("argumento nomeado inesperado em table(): '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro P157B/C)", key),
+                format!("argumento nomeado inesperado em table(): '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", key),
             )]);
         }
     }
@@ -253,7 +254,12 @@ pub fn native_table(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             )]),
         }
     }
-    Ok(Value::Content(Content::Table { columns, rows, children }))
+    // P227 — extract stroke (paridade Grid via extract_stroke shorthand).
+    let stroke = match args.named.get("stroke") {
+        Some(val) => Some(extract_stroke(val, "table", "stroke")?),
+        None => None,
+    };
+    Ok(Value::Content(Content::Table { columns, rows, children, stroke }))
 }
 
 // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ───────────────────

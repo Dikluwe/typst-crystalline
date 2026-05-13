@@ -1616,6 +1616,7 @@ fn grid_altura_da_linha_e_o_maximo_das_celulas() {
             crate::entities::layout_types::Length::pt(0.0)),
         header: None,
         footer: None,
+        stroke: None,
     };
 
     let state = introspect(&grid);
@@ -3088,6 +3089,7 @@ mod tests_show_rule_integration {
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  Some(Box::new(Content::text("p224hdr"))),
             footer:  Some(Box::new(Content::text("p224ftr"))),
+            stroke:  None,
         };
         let doc = layout(&g);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -3118,6 +3120,88 @@ mod tests_show_rule_integration {
             }).collect();
         assert!(texts.contains("p224cell"),
             "GridCell isolado renderiza body; texts={}", texts);
+    }
+
+    // ── Passo 227 (Fase 5 Layout Categoria A.1) — stroke render E2E ──
+
+    /// Grid com stroke emite 4 FrameItem::Shape::Line per cell border
+    /// (renderização Opção β simplificada; sem deduplicação adjacentes).
+    /// Sem stroke não emite Lines extra (baseline preservado).
+    #[test]
+    fn p227_grid_stroke_renderiza_4_lines_per_cell() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+
+        let cells = vec![
+            Content::text("A"), Content::text("B"),
+            Content::text("C"), Content::text("D"),
+        ];
+        let with_stroke = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   cells.clone(),
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),
+        };
+        let doc = layout(&with_stroke);
+        let line_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item,
+                FrameItem::Shape { kind: crate::entities::geometry::ShapeKind::Line { .. }, .. }
+            )).count();
+        // 4 cells × 4 borders cada = 16 lines mínimo.
+        assert!(line_count >= 16,
+            "Grid 2x2 stroke deve emitir >= 16 lines (4 cells × 4 borders), recebeu {}",
+            line_count);
+    }
+
+    #[test]
+    fn p227_grid_sem_stroke_zero_lines_extra() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let g_no_stroke = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   vec![Content::text("A"), Content::text("B")],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  None,  // baseline
+        };
+        let doc = layout(&g_no_stroke);
+        let line_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item,
+                FrameItem::Shape { kind: crate::entities::geometry::ShapeKind::Line { .. }, .. }
+            )).count();
+        assert_eq!(line_count, 0,
+            "Grid sem stroke não emite Lines extra (baseline preservado)");
+    }
+
+    #[test]
+    fn p227_table_stroke_paridade_grid() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::{TrackSizing, Color};
+        let t = Content::Table {
+            columns:  vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
+            rows:     vec![],
+            children: vec![Content::text("X"), Content::text("Y")],
+            stroke:   Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 0.5 }),
+        };
+        let doc = layout(&t);
+        let line_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item,
+                FrameItem::Shape { kind: crate::entities::geometry::ShapeKind::Line { .. }, .. }
+            )).count();
+        // 2 cells × 4 borders = 8 lines mínimo.
+        assert!(line_count >= 8,
+            "Table 1x2 stroke paridade Grid emite >= 8 lines, recebeu {}",
+            line_count);
     }
 
     /// Counters/labels dentro do body de repeat resolvem via walk
@@ -3216,6 +3300,7 @@ mod tests_show_rule_integration {
                 crate::entities::layout_types::Length::pt(0.0)),
             header:  None,
             footer:  None,
+            stroke:  None,
         };
         let doc_g = layout(&g);
         let positions_g: Vec<(String, f64, f64)> = doc_g.pages.iter()

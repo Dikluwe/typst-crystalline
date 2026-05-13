@@ -203,9 +203,12 @@ por revisão).
 
 ### Distribuição de status
 
-- `PROPOSTO`: **11** ADRs (decisões em aberto: 0005, 0006,
-  0008–0015, 0062, **0066**) — pós-P221: ADR-0061 e ADR-0078
-  transitam PROPOSTO → IMPLEMENTADO.
+- `PROPOSTO`: **13** ADRs (decisões em aberto: 0005, 0006,
+  0008–0015, 0062, **0066**, **0079** P226, **0080** P226) —
+  pós-P221: ADR-0061 e ADR-0078 transitam PROPOSTO →
+  IMPLEMENTADO; pós-P226: +2 ADRs PROPOSTAS criadas
+  (ADR-0079 Layout Fase 5 roadmap + ADR-0080 L0 minimal
+  para refactors aditivos pós-M9c N=7 meta documental).
 - `IDEIA`: 2 ADRs (0002, 0003).
 - `EM VIGOR`: **28** ADRs (regras/políticas activas; 0018, 0029,
   0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**).

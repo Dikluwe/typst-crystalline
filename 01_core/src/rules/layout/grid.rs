@@ -9,6 +9,7 @@
 
 use crate::entities::{
     content::Content,
+    geometry::{ShapeKind, Stroke},
     image_sizer::ImageSizer,
     layout_types::{Align2D, FrameItem, Length, Point, Pt, TrackSizing},
     sides::Sides,
@@ -36,6 +37,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         _inset:  Sides<Length>,
         _header: Option<&Content>,
         _footer: Option<&Content>,
+        stroke:  Option<&Stroke>,  // P227 — borders cell render Opção β
     ) {
         let available_width = self.available_width();
 
@@ -265,6 +267,54 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     };
                     let translated = translate_frame_item(item, abs_pos.x, abs_pos.y);
                     self.regions.current.current_items.push(translated);
+                }
+
+                // P227 — Renderização Opção β simplificada: emite 4
+                // FrameItem::Shape::Line per cell border (top + bottom
+                // + left + right). Sem deduplicação linhas adjacentes
+                // (refino candidato A.3). Por simplicidade, fill = None;
+                // FrameItem::Shape com kind Line apenas usa stroke.
+                if let Some(s) = stroke {
+                    let x0 = cell_x;
+                    let y0 = row_start_y;
+                    let cell_h = row_h;
+                    let stroke_clone = s.clone();
+                    // Top edge.
+                    self.regions.current.current_items.push(FrameItem::Shape {
+                        pos:    Point { x: Pt(x0), y: Pt(y0) },
+                        kind:   ShapeKind::Line { dx: cell_w, dy: 0.0 },
+                        width:  0.0,
+                        height: 0.0,
+                        fill:   None,
+                        stroke: Some(stroke_clone.clone()),
+                    });
+                    // Bottom edge.
+                    self.regions.current.current_items.push(FrameItem::Shape {
+                        pos:    Point { x: Pt(x0), y: Pt(y0 + cell_h) },
+                        kind:   ShapeKind::Line { dx: cell_w, dy: 0.0 },
+                        width:  0.0,
+                        height: 0.0,
+                        fill:   None,
+                        stroke: Some(stroke_clone.clone()),
+                    });
+                    // Left edge.
+                    self.regions.current.current_items.push(FrameItem::Shape {
+                        pos:    Point { x: Pt(x0), y: Pt(y0) },
+                        kind:   ShapeKind::Line { dx: 0.0, dy: cell_h },
+                        width:  0.0,
+                        height: 0.0,
+                        fill:   None,
+                        stroke: Some(stroke_clone.clone()),
+                    });
+                    // Right edge.
+                    self.regions.current.current_items.push(FrameItem::Shape {
+                        pos:    Point { x: Pt(x0 + cell_w), y: Pt(y0) },
+                        kind:   ShapeKind::Line { dx: 0.0, dy: cell_h },
+                        width:  0.0,
+                        height: 0.0,
+                        fill:   None,
+                        stroke: Some(stroke_clone),
+                    });
                 }
             }
 

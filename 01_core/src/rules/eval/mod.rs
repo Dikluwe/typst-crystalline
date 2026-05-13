@@ -558,7 +558,7 @@ fn make_stdlib() -> Scope {
         native_hide, native_image, native_int, native_len, native_line,
         native_counter_at, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_update, native_state_update_with,
         native_colbreak, native_columns, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
-        native_scale, native_skew, native_stack, native_str, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_upper, native_v,
+        native_scale, native_skew, native_stack, native_str, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_upper, native_v,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -667,6 +667,11 @@ fn make_stdlib() -> Scope {
     // (single-pass; runtime queries genuínas diferidas; width override
     // scope-out Opção β).
     scope.define("measure", Value::Func(Func::native("measure", native_measure)));
+    // P227 (ADR-0079 PROPOSTO Fase 5 Categoria A.1 sub-passo 1):
+    // stroke(paint: ?, thickness: ?) constructor para Value::Stroke;
+    // parametriza borders Grid/Table via Stroke shorthand parsing.
+    // Valida ADR-0080 PROPOSTO N=7 → 8 (L0 não tocado em P227).
+    scope.define("stroke", Value::Func(Func::native("stroke", native_stroke)));
     // Passo 157A (ADR-0060 Fase 2 sub-passo 1): table minimal
     // (subset 3 fields; reusa layout_grid; TableCell/Header/Footer
     // diferidos para P157B/C). **Primeiro sub-passo Model Fase 2.**

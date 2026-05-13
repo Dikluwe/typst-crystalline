@@ -300,6 +300,13 @@ pub enum Content {
         header:  Option<Box<Content>>,
         /// P224.B — footer opcional (paridade P157C TableFooter).
         footer:  Option<Box<Content>>,
+        /// P227 (Fase 5 Layout Categoria A.1) — stroke uniforme
+        /// aplicado a todas cell borders. Default `None` (sem borders).
+        /// Renderização Opção β simplificada (sem deduplicação linhas
+        /// adjacentes; refino candidato A.3). Per ADR-0079 PROPOSTO
+        /// Categoria A.1 + ADR-0080 PROPOSTO Opção γ literal (L0 não
+        /// tocado; pattern N=7 → 8 validado).
+        stroke:  Option<Stroke>,
     },
 
     // ── Passo 224.B (ADR-0061 Fase 4 candidata sub-3) — Grid header/footer ──
@@ -747,6 +754,12 @@ pub enum Content {
         columns:  Vec<TrackSizing>,
         rows:     Vec<TrackSizing>,
         children: Vec<Content>,
+        /// P227 (Fase 5 Layout Categoria A.1) — stroke uniforme
+        /// paridade Grid; Table herda renderização via delegate
+        /// `layout_grid` (precedente P157A "Layouter delega a
+        /// `layout_grid` clone simples"). Per ADR-0079 PROPOSTO
+        /// Categoria A.1.
+        stroke:   Option<Stroke>,
     },
 
     // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ────────────────
@@ -989,7 +1002,7 @@ impl Content {
         rows:     Vec<TrackSizing>,
         children: Vec<Content>,
     ) -> Self {
-        Self::Table { columns, rows, children }
+        Self::Table { columns, rows, children, stroke: None }
     }
 
     /// `table_cell(body, x, y, colspan, rowspan)` — Passo 157B
@@ -1382,13 +1395,14 @@ impl PartialEq for Content {
                     && fa == fb && sa == sb,
             (Self::Transform { matrix: ma, body: ba }, Self::Transform { matrix: mb, body: bb }) =>
                 ma == mb && ba == bb,
-            // P224 — Grid refino +5 fields (gutter/align/inset/header/footer).
+            // P224+P227 — Grid refino +6 fields (gutter/align/inset/header/footer/stroke).
             (Self::Grid { columns: ca, rows: ra, cells: xa,
-                          gutter: ga, align: aa, inset: ia, header: ha, footer: fa },
+                          gutter: ga, align: aa, inset: ia, header: ha, footer: fa, stroke: stra },
              Self::Grid { columns: cb, rows: rb, cells: xb,
-                          gutter: gb, align: ab, inset: ib, header: hb, footer: fb }) =>
+                          gutter: gb, align: ab, inset: ib, header: hb, footer: fb, stroke: strb }) =>
                 ca == cb && ra == rb && xa == xb
-                && ga == gb && aa == ab && ia == ib && ha == hb && fa == fb,
+                && ga == gb && aa == ab && ia == ib && ha == hb && fa == fb
+                && stra == strb,
             // P224.B — GridHeader / GridFooter (paridade P157C literal).
             (Self::GridHeader { body: ba, repeat: ra },
              Self::GridHeader { body: bb, repeat: rb }) => ba == bb && ra == rb,
@@ -1398,10 +1412,10 @@ impl PartialEq for Content {
             (Self::GridCell { body: ba, x: xa, y: ya, colspan: ca, rowspan: ra },
              Self::GridCell { body: bb, x: xb, y: yb, colspan: cb, rowspan: rb }) =>
                 ba == bb && xa == xb && ya == yb && ca == cb && ra == rb,
-            // Passo 157A — Table.
-            (Self::Table { columns: ca, rows: ra, children: xa },
-             Self::Table { columns: cb, rows: rb, children: xb }) =>
-                ca == cb && ra == rb && xa == xb,
+            // Passo 157A + P227 — Table refino +1 field (stroke).
+            (Self::Table { columns: ca, rows: ra, children: xa, stroke: stra },
+             Self::Table { columns: cb, rows: rb, children: xb, stroke: strb }) =>
+                ca == cb && ra == rb && xa == xb && stra == strb,
             // Passo 157B — TableCell.
             (Self::TableCell { body: ba, x: xa, y: ya, colspan: csa, rowspan: rsa },
              Self::TableCell { body: bb, x: xb, y: yb, colspan: csb, rowspan: rsb }) =>
@@ -1718,8 +1732,8 @@ impl Content {
                 matrix: *matrix,
                 body:   Box::new(body.map_content(transform)?),
             },
-            // P224 — Grid refino +5 fields (gutter/align/inset/header/footer).
-            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer } => {
+            // P224+P227 — Grid refino +6 fields (gutter/align/inset/header/footer/stroke).
+            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke } => {
                 let new_cells: crate::entities::source_result::SourceResult<Vec<Content>> =
                     cells.iter().map(|c| c.map_content(transform)).collect();
                 let new_header: crate::entities::source_result::SourceResult<Option<Box<Content>>> =
@@ -1735,6 +1749,7 @@ impl Content {
                     inset:   *inset,
                     header:  new_header?,
                     footer:  new_footer?,
+                    stroke:  stroke.clone(),
                 }
             },
             // P224.B — GridHeader / GridFooter recurse no body.
@@ -1754,11 +1769,16 @@ impl Content {
                 colspan: *colspan,
                 rowspan: *rowspan,
             },
-            // Passo 157A: Table — mapear children (paridade Grid).
-            Content::Table { columns, rows, children } => {
+            // Passo 157A + P227: Table — mapear children (paridade Grid); preservar stroke.
+            Content::Table { columns, rows, children, stroke } => {
                 let new_children: crate::entities::source_result::SourceResult<Vec<Content>> =
                     children.iter().map(|c| c.map_content(transform)).collect();
-                Content::Table { columns: columns.clone(), rows: rows.clone(), children: new_children? }
+                Content::Table {
+                    columns: columns.clone(),
+                    rows: rows.clone(),
+                    children: new_children?,
+                    stroke: stroke.clone(),
+                }
             },
             // Passo 157B: TableCell — recurse no body; preserva fields
             // x/y/colspan/rowspan (Copy primitivos Option<usize>).
@@ -1982,8 +2002,8 @@ impl Content {
                 matrix: *matrix,
                 body:   Box::new(body.map_text(transform)),
             },
-            // P224 — Grid refino +5 fields (map_text).
-            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer } => Content::Grid {
+            // P224+P227 — Grid refino +6 fields (map_text).
+            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke } => Content::Grid {
                 columns: columns.clone(),
                 rows:    rows.clone(),
                 cells:   cells.iter().map(|c| c.map_text(transform)).collect(),
@@ -1992,6 +2012,7 @@ impl Content {
                 inset:   *inset,
                 header:  header.as_ref().map(|h| Box::new(h.map_text(transform))),
                 footer:  footer.as_ref().map(|f| Box::new(f.map_text(transform))),
+                stroke:  stroke.clone(),
             },
             // P224.B — GridHeader / GridFooter recurse no body (map_text).
             Content::GridHeader { body, repeat } => Content::GridHeader {
@@ -2010,11 +2031,12 @@ impl Content {
                 colspan: *colspan,
                 rowspan: *rowspan,
             },
-            // Passo 157A: Table — map_text em children (paridade Grid).
-            Content::Table { columns, rows, children } => Content::Table {
+            // Passo 157A + P227: Table — map_text em children; preservar stroke.
+            Content::Table { columns, rows, children, stroke } => Content::Table {
                 columns:  columns.clone(),
                 rows:     rows.clone(),
                 children: children.iter().map(|c| c.map_text(transform)).collect(),
+                stroke:   stroke.clone(),
             },
             // Passo 157B: TableCell — map_text no body; preserva fields.
             Content::TableCell { body, x, y, colspan, rowspan } => Content::TableCell {
@@ -3572,6 +3594,7 @@ mod tests {
             inset:   Sides::uniform(Length::pt(2.0)),
             header:  Some(Box::new(Content::text("H"))),
             footer:  Some(Box::new(Content::text("F"))),
+            stroke:  None,
         };
         if let Content::Grid { gutter, header, footer, .. } = &g {
             assert_eq!(*gutter, Some(Length::pt(5.0)));
@@ -3595,6 +3618,7 @@ mod tests {
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None,
             footer:  None,
+            stroke:  None,
         };
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(Length::pt(5.0))));
@@ -3679,12 +3703,106 @@ mod tests {
         } else { panic!("esperado GridCell após map_content"); }
     }
 
+    // ── Passo 227 (ADR-0079 PROPOSTO Fase 5 Layout Categoria A.1) — stroke ──
+
+    #[test]
+    fn p227_grid_variant_aceita_stroke() {
+        // Grid variant aceita stroke (+1 field P227; total 9 fields).
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        use crate::entities::geometry::Stroke;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Auto],
+            rows:    vec![],
+            cells:   vec![Content::text("A")],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 2.0 }),
+        };
+        if let Content::Grid { stroke, .. } = &g {
+            assert!(stroke.is_some());
+            let s = stroke.as_ref().unwrap();
+            assert_eq!(s.thickness, 2.0);
+        } else {
+            panic!("esperado Content::Grid");
+        }
+    }
+
+    #[test]
+    fn p227_table_variant_aceita_stroke() {
+        // Paridade Grid para Table (refino paralelo).
+        use crate::entities::layout_types::{TrackSizing, Color};
+        use crate::entities::geometry::Stroke;
+        let t = Content::Table {
+            columns:  vec![TrackSizing::Auto],
+            rows:     vec![],
+            children: vec![Content::text("X")],
+            stroke:   Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 1.5 }),
+        };
+        if let Content::Table { stroke, .. } = &t {
+            assert!(stroke.is_some());
+        } else {
+            panic!("esperado Content::Table");
+        }
+    }
+
+    #[test]
+    fn p227_grid_partial_eq_inclui_stroke() {
+        // Eq compara 9 fields agora (P227 +1 stroke).
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        use crate::entities::geometry::Stroke;
+        let mk = |stroke: Option<Stroke>| Content::Grid {
+            columns: vec![TrackSizing::Auto],
+            rows:    vec![],
+            cells:   vec![],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke,
+        };
+        assert_eq!(mk(None), mk(None));
+        let s = Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 };
+        assert_ne!(mk(None), mk(Some(s)));
+    }
+
+    #[test]
+    fn p227_grid_map_content_preserva_stroke() {
+        // map_content preserva stroke (Option<Stroke> Clone).
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        use crate::entities::geometry::Stroke;
+        let stroke_orig = Stroke { paint: Color::rgb(100, 100, 100), thickness: 3.0 };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Auto],
+            rows:    vec![],
+            cells:   vec![Content::text("a")],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  Some(stroke_orig.clone()),
+        };
+        let mapped = g.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
+        if let Content::Grid { stroke, .. } = &mapped {
+            assert_eq!(*stroke, Some(stroke_orig));
+        } else {
+            panic!("esperado Content::Grid após map_content");
+        }
+    }
+
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — Table ─────────────────
 
     #[test]
     fn table_constructor_default() {
         let t = Content::table(vec![], vec![], vec![]);
-        if let Content::Table { columns, rows, children } = &t {
+        if let Content::Table { columns, rows, children, .. } = &t {
             assert!(columns.is_empty());
             assert!(rows.is_empty());
             assert!(children.is_empty());
@@ -3701,7 +3819,7 @@ mod tests {
             vec![TrackSizing::Auto],
             vec![Content::text("a"), Content::text("b")],
         );
-        if let Content::Table { columns, rows, children } = &t {
+        if let Content::Table { columns, rows, children, .. } = &t {
             assert_eq!(columns.len(), 2);
             assert_eq!(rows.len(), 1);
             assert_eq!(children.len(), 2);
