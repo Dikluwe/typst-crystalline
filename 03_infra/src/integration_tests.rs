@@ -2088,10 +2088,16 @@ mod integration {
         // Mesma estrutura do teste anterior, mas scope="parent" → ancora à página.
         // - x esperado: page_margin + (avail_w - rect_w) = 20 + (360 - 30) = 350.
         // - y esperado: page_margin + (avail_h - rect_h) = 20 + (360 - 20) = 360.
+        //
+        // P223 (DEBT-37 §"Divergência" fechada — Decisão 3 Opção α):
+        // `scope: "parent"` agora exige `float: true` paridade vanilla.
+        // Test pre-existente P84.6 adaptado adicionando `float: true`;
+        // semantic real adiada per ADR-0054 graded — body renderiza
+        // na mesma posição (paridade visual preservada literal).
         let src = "\
 #set page(width: 400pt, height: 400pt, margin: 20pt)
 #grid(columns: (200pt,), rows: (100pt,),
-  place(\"bottom-right\", scope: \"parent\", rect(width: 30pt, height: 20pt)),
+  place(\"bottom-right\", scope: \"parent\", float: true, rect(width: 30pt, height: 20pt)),
 )
 ";
         let (world, _dir) = world_from_str(src);

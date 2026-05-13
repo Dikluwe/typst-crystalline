@@ -199,10 +199,46 @@ max-content para Auto, com negociação entre Auto e fr.
 
 ---
 
-## DEBT-34e — colspan e rowspan — EM ABERTO (Passo 80)
+## DEBT-34e — colspan e rowspan — ENCERRADO (Passo 224) ✓
 
-Células que ocupam múltiplas colunas ou linhas requerem um algoritmo de
-placement diferente. Resolução: passo futuro.
+**Aberto em**: Passo 80 (2026-04-26).
+**Fechado em**: Passo 224 (2026-05-13) — **CLOSED via materialização**
+(paridade pattern P206E DEBT-53 + P221 DEBT-56).
+**Resolvido por**: módulo novo `01_core/src/rules/layout/grid_placement.rs`
+com função `place_cells(cells, num_cols) -> SourceResult<Vec<PlacedCell>>`
+que implementa algoritmo placement vanilla paridade:
+- Pass 1 — placement explicit (`x`/`y` Some): posição literal +
+  validação conflito 2-cells.
+- Pass 2 — placement auto (`x: None` + `y: None`): cursor linear
+  left-to-right, top-to-bottom procurando primeira posição livre que
+  acomoda `colspan × rowspan`.
+- `colspan` excede `num_cols` → erro hard.
+- `Content::GridCell` baseline (P224.C variant novo paridade P157B);
+  raw `Content` tratado como `colspan=1, rowspan=1` sem placement
+  explícito.
+
+7 unit tests dedicados em `grid_placement::tests` cobrem auto linear,
+explicit x/y, colspan adjacente, rowspan adjacente, conflito 2-cells
+rejeitado, colspan excede num_cols rejeitado, mistura auto+explicit.
+
+**Critério de fecho 5/5 satisfeito**:
+- ✅ Algoritmo placement materializado (`grid_placement.rs` 264 LOC).
+- ✅ Tests E2E + unit cobrem casos canónicos (7 unit dedicados).
+- ✅ Conflito 2-cells rejeitado com erro hard.
+- ✅ Auto-placement linear funcional.
+- ✅ Colspan/rowspan adjacente correto.
+
+**Saldo DEBTs**: 13 → **12 abertos** (DEBT-34e fecha; DEBT-34d
+preservado em aberto — refino algorítmico track sizing distinto,
+não endereçado por P224 per `P224.div-1` documentado).
+
+Histórico preservado abaixo (per pattern P201/P202+P206E "histórico
+textual preservado").
+
+---
+
+**[HISTÓRICO]**: Células que ocupam múltiplas colunas ou linhas requerem
+um algoritmo de placement diferente. Resolução: passo futuro.
 
 ---
 

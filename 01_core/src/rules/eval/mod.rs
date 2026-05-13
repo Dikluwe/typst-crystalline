@@ -556,9 +556,9 @@ fn make_stdlib() -> Scope {
         make_calc_module, native_align, native_assert, native_bibliography, native_block, native_box, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
-        native_counter_at, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_update, native_state_update_with,
+        native_counter_at, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_update, native_state_update_with,
         native_colbreak, native_columns, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
-        native_scale, native_skew, native_stack, native_str, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms, native_type, native_upper, native_v,
+        native_scale, native_skew, native_stack, native_str, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_upper, native_v,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -660,6 +660,13 @@ fn make_stdlib() -> Scope {
     // arm Layouter Opção β graded — downgrade a pagebreak literal.
     // **Fecha sub-fase (b) DEBT-56 estructuralmente.**
     scope.define("colbreak", Value::Func(Func::native("colbreak", native_colbreak)));
+    // P222 (Fase 4 Layout candidata sub-passo 1; ADR-0066 §"Plano
+    // promoção" Bloco C primeira materialização parcial): measure(body)
+    // → Dict { width: Length, height: Length }. Helper privado
+    // `measure_content` promovido a `pub(crate)`; semantic graded
+    // (single-pass; runtime queries genuínas diferidas; width override
+    // scope-out Opção β).
+    scope.define("measure", Value::Func(Func::native("measure", native_measure)));
     // Passo 157A (ADR-0060 Fase 2 sub-passo 1): table minimal
     // (subset 3 fields; reusa layout_grid; TableCell/Header/Footer
     // diferidos para P157B/C). **Primeiro sub-passo Model Fase 2.**
@@ -678,6 +685,13 @@ fn make_stdlib() -> Scope {
     // DEBT-56 (refactor multi-region). Naming flat per padrão P157B.
     scope.define("table_header", Value::Func(Func::native("table_header", native_table_header)));
     scope.define("table_footer", Value::Func(Func::native("table_footer", native_table_footer)));
+    // P224 (ADR-0061 Fase 4 Layout candidata sub-passo 3 — fecha série α
+    // "terminar Layout"): grid_cell + grid_header + grid_footer paridade
+    // P157B/C literal; grid_cell resolve placement real via P224.C
+    // grid_placement.rs (fecha DEBT-34e).
+    scope.define("grid_cell",   Value::Func(Func::native("grid_cell",   native_grid_cell)));
+    scope.define("grid_header", Value::Func(Func::native("grid_header", native_grid_header)));
+    scope.define("grid_footer", Value::Func(Func::native("grid_footer", native_grid_footer)));
     // Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado):
     // subset minimal sem hayagriva (input cristalino literal
     // Vec<BibEntry>). Naming flat per padrão P157B; placeholder

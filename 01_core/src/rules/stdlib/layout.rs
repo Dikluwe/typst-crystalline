@@ -53,7 +53,8 @@ pub fn native_align(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 /// sempre à página). Aceita string ou omissão.
 pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     for key in args.named.keys() {
-        if !["dx", "dy", "scope"].contains(&key.as_str()) {
+        // P223 — accept "float" e "clearance" novos named args.
+        if !["dx", "dy", "scope", "float", "clearance"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("argumento nomeado inesperado em place(): '{}'", key),
@@ -96,6 +97,45 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         None => crate::entities::layout_types::PlaceScope::default(),
     };
 
+    // P223 — extract `float` (default false). Semantic real adiada per
+    // ADR-0054 graded; precedente N=4 cumulativo weak/breakable/float.
+    let float = match args.named.get("float") {
+        Some(Value::Bool(b)) => *b,
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("place(float): espera Bool, recebeu {}", other.type_name()),
+        )]),
+        None => false,
+    };
+
+    // P223 — extract `clearance` (default None). Reuso extract_length (N=8 → 9).
+    // Validar não-negativo (paridade pattern P156I Stack.spacing).
+    let clearance = match args.named.get("clearance") {
+        Some(val) => {
+            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("place(clearance): espera length, recebeu {}", val.type_name()),
+            )])?;
+            if len.abs.0 < 0.0 || len.em < 0.0 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "place(clearance): valor negativo não suportado".to_string(),
+                )]);
+            }
+            Some(len)
+        }
+        None => None,
+    };
+
+    // P223 — DEBT-37 §"Divergência" restaurada (Decisão 3 Opção α):
+    // vanilla `place` com `scope: "parent"` exige `float: true`.
+    if matches!(scope, crate::entities::layout_types::PlaceScope::Parent) && !float {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "place: scope \"parent\" requer float: true (paridade vanilla; sem float, scope \"parent\" não tem semantic flutuante; fecha divergência DEBT-37 documentada)".to_string(),
+        )]);
+    }
+
     let body = args.items.iter()
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
         .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
@@ -106,6 +146,8 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         dx,
         dy,
         scope,
+        float,
+        clearance,
         body: Box::new(body),
     }))
 }
@@ -153,7 +195,11 @@ pub(super) fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
 /// `grid(columns?, rows?, ...cells)` → `Content::Grid`.
 pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     for key in args.named.keys() {
-        if !["columns", "rows"].contains(&key.as_str()) {
+        // P224 — accept 5 named args novos (gutter/align/inset/header/footer).
+        // stroke/fill cosméticos scope-out Fase 5 candidata NÃO-reservada.
+        if !["columns", "rows", "gutter", "align", "inset", "header", "footer"]
+            .contains(&key.as_str())
+        {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("argumento nomeado inesperado em grid(): '{}'", key),
@@ -170,10 +216,71 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     if rows.is_empty() {
         rows = vec![TrackSizing::Auto];
     }
+
+    // P224.A — extract gutter (Length opcional; negativo rejeitado).
+    let gutter = match args.named.get("gutter") {
+        Some(val) => {
+            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("grid(gutter): espera length, recebeu {}", val.type_name()),
+            )])?;
+            if len.abs.0 < 0.0 || len.em < 0.0 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "grid(gutter): valor negativo não suportado".to_string(),
+                )]);
+            }
+            Some(len)
+        }
+        None => None,
+    };
+
+    // P224.A — extract align (Value::Align direct; default None == top-left).
+    let align = match args.named.get("align") {
+        Some(Value::Align(a)) => Some(*a),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("grid(align): espera alignment, recebeu {}", other.type_name()),
+        )]),
+        None => None,
+    };
+
+    // P224.A — extract inset (subset graded: Length uniforme apenas;
+    // per-side refino futuro candidato).
+    let inset: crate::entities::sides::Sides<Length> = match args.named.get("inset") {
+        Some(Value::Length(l)) => crate::entities::sides::Sides::uniform(*l),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("grid(inset): espera length, recebeu {}", other.type_name()),
+        )]),
+        None => crate::entities::sides::Sides::uniform(Length::pt(0.0)),
+    };
+
+    // P224.B — extract header/footer (Content opcional).
+    let header = match args.named.get("header") {
+        Some(Value::Content(c)) => Some(Box::new(c.clone())),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("grid(header): espera content, recebeu {}", other.type_name()),
+        )]),
+        None => None,
+    };
+    let footer = match args.named.get("footer") {
+        Some(Value::Content(c)) => Some(Box::new(c.clone())),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("grid(footer): espera content, recebeu {}", other.type_name()),
+        )]),
+        None => None,
+    };
+
     let cells: Vec<Content> = args.items.iter()
         .filter_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
         .collect();
-    Ok(Value::Content(Content::Grid { columns, rows, cells }))
+    Ok(Value::Content(Content::Grid {
+        columns, rows, cells,
+        gutter, align, inset, header, footer,
+    }))
 }
 
 /// `#set page(width: w, height: h, margin: m)` — configura as dimensões da página (Passo 81).
@@ -925,6 +1032,75 @@ pub fn native_colbreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
     }
 
     Ok(Value::Content(Content::Colbreak { weak }))
+}
+
+/// `measure(body) -> dict(width: length, height: length)` —
+/// Passo 222 (Fase 4 Layout candidata; ADR-0066 §"Plano
+/// promoção" Bloco C cross-módulo primeira materialização
+/// parcial).
+///
+/// Forma: `#measure([Hello world])` ou `#measure("text")`.
+///
+/// **Semantic graded P222** — opera sobre Content evaluated
+/// (single-pass via helper `measure_content` em `layout/helpers.rs`).
+/// Runtime queries genuínas (counter values, labels resolution)
+/// continuam diferidas per ADR-0066 PROPOSTO. Width override
+/// (`measure(body, width: 5cm)`) **scope-out** per Opção β
+/// graded ADR-0054; refino futuro candidato NÃO-reservado.
+///
+/// Retorna `Value::Dict` com keys `"width"` + `"height"` ambos
+/// `Value::Length` (paridade vanilla `measure(body).width`
+/// observable). Para conteúdo complexo (texto multi-linha,
+/// equações), helper retorna aproximação conservadora (0, 0)
+/// — limitação documentada.
+pub fn native_measure(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    use crate::rules::layout::helpers::measure_content;
+    use ecow::EcoString;
+    use indexmap::IndexMap;
+    use rustc_hash::FxBuildHasher;
+
+    // 1. Extract body (posicional [0], Content ou Str).
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("measure(body): espera Content ou Str, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "measure: argumento posicional body obrigatório ausente".to_string(),
+        )]),
+    };
+
+    // 2. Reject extra positionals.
+    if args.items.len() > 1 {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("measure: aceita 1 posicional (body), recebeu {}", args.items.len()),
+        )]);
+    }
+
+    // 3. Reject all named args (paridade Opção β graded;
+    //    `width` override scope-out per ADR-0054).
+    if let Some(key) = args.named.keys().next() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("measure: named arg `{}` não suportado (paridade graded; refino futuro candidato NÃO-reservado per ADR-0054)", key),
+        )]);
+    }
+
+    // 4. Chamar helper privado `measure_content` (pub(crate) em P222).
+    //    available_w default = f64::INFINITY (sem constraint width);
+    //    helper retorna (0, 0) para Empty + conteúdo complexo.
+    let (width_pt, height_pt) = measure_content(&body, f64::INFINITY);
+
+    // 5. Build Dict { width: Length, height: Length }.
+    let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+    dict.insert("width".into(),  Value::Length(Length::pt(width_pt)));
+    dict.insert("height".into(), Value::Length(Length::pt(height_pt)));
+
+    Ok(Value::Dict(dict))
 }
 
 /// `pagebreak(weak: false, to: ?)` → `Content::Pagebreak`.

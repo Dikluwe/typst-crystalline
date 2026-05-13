@@ -362,6 +362,56 @@ incrementos de cobertura ~3-10pp.
 stdlib expose (depende Layout integration); cross-document refs
 (depende multi-document pipeline).
 
+### P222 materializado 2026-05-13 — Bloco C primeira materialização parcial
+
+**Bloco C cross-módulo — primeira materialização parcial
+(graded; sem promoção ADR-0066)**:
+
+- `measure(body) -> dict(width: length, height: length)` stdlib
+  exposta — `native_measure` em
+  `01_core/src/rules/stdlib/layout.rs` (~70 LOC). Helper privado
+  `measure_content` em `01_core/src/rules/layout/helpers.rs`
+  promovido `pub(super)` → `pub(crate)`; módulo `helpers`
+  promovido a `pub(crate)` (visibility expansion cross-module).
+- Retorna `Value::Dict { "width": Length, "height": Length }`
+  (paridade vanilla `measure(body).width` observable via Dict
+  indexing). 2 keys exactos; Length em pt.
+- **Width override scope-out** per Opção β graded ADR-0054 —
+  `measure(body, width: 5cm)` rejeitado com mensagem clara
+  documentando refino futuro candidato NÃO-reservado.
+- **Limitação do helper documentada**: retorna `(0, 0)`
+  aproximação conservadora para texto multi-linha + equações
+  + heading + etc.; suporte real só para `Shape::Rect/
+  Ellipse/Path/Line` + `Sequence` composição.
+- 11 tests adicionados (9 unit + 2 integração unit-as-E2E).
+  Tests workspace: 1987 → **1998 verdes** (+11). 0 regressões.
+- §A.5 `measure(body)` reclassificada **`parcial` →
+  `implementado⁺`** ⁴³. Layout cobertura: 72% → 78% real per
+  metodologia. User-facing total: 65% → 66% (+1pp real).
+
+**Status ADR-0066**: **PROPOSTO mantido**. Materialização
+independente per natureza single-pass (helper opera sobre
+`Content` evaluated; sem runtime queries genuínas — sem
+counter values, sem labels resolution, sem cross-references
+2-pass). **3 condições §"Plano promoção" continuam
+pendentes**:
+1. ✗ Runtime queries genuínas materializada (e.g.
+   `state(key, init)` mutable; P160B candidato pendente).
+2. ✗ Pipeline `introspect` extendido com 2-pass.
+3. ✗ Tests E2E feature observable user-facing dependente
+   de runtime queries.
+
+**Pattern emergente "ADR PROPOSTO com materialização parcial
+graded" N=1 inaugurado** — ADR-0066 mantém PROPOSTO apesar
+de Bloco C primeira materialização parcial; distinto de
+ADR-0078 que transitou IMPLEMENTADO em P221 quando 6
+condições §"Plano materialização" cumpridas. Reusável para
+ADRs futuras com materialização cumulativa graded sem
+saturação plena dos requisitos de promoção.
+
+**Bloco C cross-módulo restante**: cross-document cite refs
+(depende multi-document pipeline; não-reservado per P158).
+
 ---
 
 ## Precedentes citáveis
