@@ -192,7 +192,7 @@ por cobertura decrescente em P214)
 |-----------|-----------|------------------|
 | Math | 92% | quase total |
 | Introspection ⁽ᴾ²¹³⁾ | 83% | quase total (paridade arquitectural pós-M9c) |
-| Layout ⁽ᴾ²¹⁴⁾⁽ᴾ²²¹⁾ | 78% (12 impl + 5 parcial) | quase total — **Fase 3 fechada estructuralmente P221** (DEBT-56 ENCERRADO; ADR-0078+ADR-0061 IMPLEMENTADO); refinos `measure`/`place` Fase 4 candidata NÃO-reservada |
+| Layout ⁽ᴾ²¹⁴⁾⁽ᴾ²²¹⁾⁽ᴾ²²⁵⁾ | **89% (12 impl + 4 impl⁺ + 2 parcial)** | quase total — **Fase 4 candidata fechada formalmente P225** (série α "terminar Layout" cumprida 3/3 sub-passos cumulativos P222+P223+P224; DEBT-37 §"Divergência" + DEBT-34e fechadas; DEBT-34d preservado per `P224.div-1`; ADR-0061 IMPLEMENTADO desde P221 preservado); refinos cosméticos stroke/fill + Auto track sizing DEBT-34d + per-cell GridCell atributos + consumer geometric integration + flow real Place float Fase 5 candidata NÃO-reservada |
 | Markup syntactic ⁽ᴾ²¹⁴⁾ | 78% | quase total (Fase 1 fechada — quote/terms/smart-quotes em P154B+P155) |
 | Foundations stdlib | 67% | parcial |
 | `#let`/`#set`/`#show` | 62% | parcial |
@@ -1343,6 +1343,159 @@ Reescrita ampla deste blueprint mantém-se fora-de-escopo
 cirúrgica regista **encerramento de Fase Layout pós-M9c**,
 qualitativamente distinta de marcas-por-série + marcas-por-
 marco + marcas-de-recálculo.
+
+---
+
+### §3.0terdecies Marca de actualização — [P225] **Encerramento Fase 4 Layout candidata (série α "terminar Layout" fechada formalmente)**
+
+**Data**: 2026-05-13.
+
+P225 fecha cirúrgicamente a **série α "terminar Layout"
+cumulativa** materializada em P222+P223+P224 (Fase 4 Layout
+candidata 3/3 sub-passos). **Encerramento documental puro** —
+sem código tocado em P225.
+
+**Distinção qualitativa face a marca §3.0duodecies (P221)**:
+
+- **§3.0duodecies (P221)**: encerramento Fase 3 Layout pós-M9c
+  pattern N=1 **inaugurado**; 2 ADRs transitam PROPOSTO →
+  IMPLEMENTADO (ADR-0078 + ADR-0061); 1 DEBT fecha (DEBT-56).
+- **§3.0terdecies (esta P225)**: encerramento Fase 4 Layout
+  pattern N=1 → **2 cumulativo formalizado**; **0 ADRs
+  transitam** (ADR-0061 já IMPLEMENTADO desde P221;
+  ADR-0066 mantém PROPOSTO per pattern emergente); **0
+  DEBTs fecham em P225** (DEBT-37 §"Divergência" via
+  P223 cumulativo; DEBT-34e via P224 cumulativo); **1
+  DEBT preservado aberto** per `P224.div-1` (DEBT-34d
+  refino algorítmico distinto).
+
+**Trajectória completa Fase 4** (3 sub-passos cumulativos):
+
+- **P222** `measure(body)` stdlib expose graded (Bloco C
+  ADR-0066 primeira materialização parcial).
+- **P223** `Content::Place` refino +2 fields (`float` +
+  `clearance` semantic adiada; DEBT-37 §"Divergência"
+  fechada via Decisão 3 Opção α restauração paridade
+  vanilla).
+- **P224** `Content::Grid` refino substantivo composto +5
+  fields + 3 variants novos GridHeader/Footer/Cell + módulo
+  L1 novo `grid_placement.rs` (264 LOC algoritmo
+  `place_cells` paridade vanilla); DEBT-34e ENCERRADO;
+  DEBT-34d preservado per `P224.div-1`.
+
+**Mudanças factuais cumulativas P222-P224**:
+- 3 variants Content novos (GridHeader + GridFooter +
+  GridCell em P224) — total 56 → **59**.
+- +7 fields refino a 2 variants existentes (Place +2 P223;
+  Grid +5 P224).
+- 4 stdlib funcs novas (`native_measure` + `native_grid_cell`
+  + `native_grid_header` + `native_grid_footer`) — total
+  55 → **59**.
+- 2 stdlib refinadas (`native_place` +2 named args;
+  `native_grid` +5 named args).
+- 1 helper visibility promotion (`measure_content`
+  `pub(super)` → `pub(crate)`).
+- 1 módulo L1 novo (`grid_placement.rs` 264 LOC).
+- 52 tests cumulativos Fase 4: 1998 → **2039 verdes**.
+- **2 DEBTs fechados** (DEBT-37 §"Divergência" via P223;
+  DEBT-34e via P224).
+- **1 DEBT preservado aberto** per `P224.div-1` (DEBT-34d).
+- **§A.5 Layout zero ausentes preservado** (estado terminal
+  estrutural pós-P221 mantido).
+- **Cobertura Layout per metodologia**: 78% Fase 3 fechada
+  → **89% real pós-Fase 4** (+11pp cumulativo Fase 4).
+  Paridade visual histórica Opção γ §2.1 **refrescada**
+  para "89% (12 impl + 4 impl⁺ + 2 parcial)" —
+  divergência metodológica visual vs real **fechada via
+  materialização cumulativa**.
+
+**Pattern emergente "encerramento Fase Layout pós-M9c"
+N=1 → 2 formalizado**:
+- P221 — primeira aplicação (Fase 3 Layout).
+- **P225 — segunda aplicação (Fase 4 Layout)**.
+- N=2 patamar — pattern reusável para encerramentos Fase
+  futura (Fase 5 candidata Layout; Model Fase 3 candidata;
+  etc.).
+
+**Patterns emergentes cumulativos consolidados em P225**:
+- **"L0 minimal para refactors" N=6 → 7 consolidado** —
+  P217+P218+P219+P220+P222+P223+P224 todos Opção γ (P224
+  divergência consciente vs spec C6 Opção α reforçou em vez
+  de suspender). N=7 patamar empírico **muito sólido**;
+  ultrapassa limiar formalização N=3-4. Promoção formal
+  ADR meta documental candidato Caminho 2 P225 §8 se
+  humano priorizar.
+- **"Field armazenado semantic adiada" N=4 → 5 consolidado**
+  — P156D weak + P156E weak + P156G breakable + P223 float
+  + **P224 repeat Header/Footer**.
+- **"ADR PROPOSTO com materialização parcial graded" N=1
+  estável** — ADR-0066 mantém PROPOSTO apesar Bloco C
+  primeira materialização parcial via P222.
+- **"Fecho de divergência documentada via refino" N=1
+  estável** (DEBT-37 §"Divergência" via P223).
+- **"Subset Fase agregado L cumulativo pós-M9c" N=1 → 2
+  cumulativo** — P218+P220 trivial; **P224 substantivo com
+  atomização interna A/B/C explícita**.
+- **"Divergência factual material registada como `Pxxx.div-N`"
+  N=1 → 2 cumulativo** — P215.div-1; **P224.div-1**.
+  Pattern de honestidade arquitectural consolidado.
+- **"Consumer geometric integration deferido pós-algorítmico"
+  N=1 inaugurado P224** — algoritmo materializado + testado;
+  integração geometric refino futuro candidato Fase 5.
+
+**Política "sem novas reservas" preservada per P158**:
+- Fase 5 Layout candidata identificada mas **NÃO reservada**
+  (refinos cosméticos stroke/fill; per-cell align/inset/
+  fill/stroke em GridCell; Auto track sizing DEBT-34d;
+  consumer geometric integration para placement P224.C;
+  flow real Place float; Opção A multi-region para columns/
+  colbreak).
+- Reservas conceptuais identificadas mas não formalizadas
+  como DEBTs ou ADRs novos.
+
+**Estado pós-P225**:
+- **Fase 3 Layout fechada** (P221) ✓.
+- **Fase 4 Layout candidata fechada** (P225) ✓.
+- **Série α "terminar Layout" fechada formalmente** —
+  3/3 sub-passos Fase 4 candidata cumpridos (Opção α P221
+  §8 100% materializada).
+- Cobertura Layout per metodologia: **89% real** (+17pp
+  cumulativo pós-M9c P213-P225 visíveis per
+  reclassificações cumulativas; +11pp real per metodologia).
+- Cobertura user-facing total: **67%** (+2pp cumulativo
+  pós-M9c; Layout não é maioria mas contribui).
+- Tests workspace: 1939 (pre-M9c) → **2039 verdes** (+100
+  cumulativo pós-M9c P213-P225).
+- ADRs: distribuição preservada P221 (PROPOSTO 11;
+  IMPLEMENTADO 21).
+- DEBTs abertos: 14 (pre-M9c) → **12** (-2 cumulativo:
+  DEBT-56 P221; DEBT-34e P224; DEBT-34d preservado per
+  `P224.div-1`).
+- 18 aplicações cumulativas anti-inflação pós-P205D (P225
+  documental preserva política).
+- **Layout em estado terminal estructural** — refinos
+  remanescentes são cosméticos (stroke/fill) ou exigem
+  reabertura arquitectural maior (Opção A multi-region;
+  Auto track sizing; runtime queries genuínas; flow real
+  Place float). Fase 5 candidata NÃO-reservada.
+
+**Trajectória aberta pós-P225**:
+- Caminhos identificados em §8 do relatório (decisão
+  humana literal).
+- P225 não compromete trabalho subsequente per política
+  "sem novas reservas" P158.
+
+Marco M9c preservado como referência arquitectural estável.
+Trajectória M9c+ inclui **13 sub-passos materializados
+cumulativamente** (P213-P225) cobrindo Layout Fase 3
+fechada + Fase 4 candidata fechada + recálculos
+administrativos iniciais.
+
+Reescrita ampla deste blueprint mantém-se fora-de-escopo
+(per padrão consolidado P204H+...+P221). Esta marca
+cirúrgica regista **encerramento de Fase Layout pós-M9c
+N=2 cumulativo** — segundo encerramento formal pós-M9c
+(primeiro foi §3.0duodecies P221).
 
 ---
 

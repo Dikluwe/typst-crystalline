@@ -1335,3 +1335,117 @@ ADR meta documental se humano priorizar.
 
 Anotação cumulativa acima preserva o contexto histórico para
 retomada futura.
+
+### P225 anotação — Encerramento série α "terminar Layout" 2026-05-13
+
+**Série α "terminar Layout" fechada formalmente em P225** —
+segundo encerramento de Fase Layout pós-M9c (primeiro foi
+P221 Fase 3 fechada). Pattern emergente "encerramento Fase
+Layout pós-M9c" N=1 → **2 cumulativo formalizado**.
+
+**Trajectória completa pós-M9c Fase 4 Layout candidata**
+(Opção α P221 §8):
+- **P222** `measure(body)` stdlib expose graded (Bloco C
+  ADR-0066 primeira materialização parcial).
+- **P223** `Content::Place` refino +2 fields (`float` +
+  `clearance` semantic adiada; DEBT-37 §"Divergência"
+  fechada).
+- **P224** `Content::Grid` refino substantivo composto +5
+  fields + 3 variants novos GridHeader/Footer/Cell + módulo
+  `grid_placement.rs` (264 LOC) + DEBT-34e ENCERRADO
+  (DEBT-34d preservado per `P224.div-1`).
+
+**Cumulativo Fase 4** (3 sub-passos cumulativos):
+- **3 variants Content novos** (GridHeader + GridFooter +
+  GridCell; 56 → **59**).
+- **+7 fields refino** a 2 variants existentes (Place +2
+  P223; Grid +5 P224).
+- **4 stdlib funcs novas** (native_measure + native_grid_cell
+  + native_grid_header + native_grid_footer; 55 → **59**).
+- **2 stdlib refinadas** (native_place +2 named args;
+  native_grid +5 named args).
+- **1 helper visibility promotion** (`measure_content`
+  `pub(super)` → `pub(crate)`).
+- **1 módulo L1 novo** (`grid_placement.rs` 264 LOC com
+  `place_cells` algoritmo placement vanilla paridade).
+- **2 DEBTs fechados** (DEBT-37 §"Divergência" via P223
+  anotação histórica; DEBT-34e ENCERRADO via P224
+  materialização CLOSED).
+- **1 DEBT preservado aberto** per `P224.div-1` (DEBT-34d
+  refino algorítmico track sizing distinto não endereçável
+  por placement work; Fase 5 candidata NÃO-reservada).
+- **0 ADR transitions** (ADR-0061 já IMPLEMENTADO desde
+  P221; ADR-0066 mantém PROPOSTO per pattern emergente
+  N=1 "ADR PROPOSTO com materialização parcial graded"
+  inaugurado P222).
+- **52 tests cumulativos Fase 4** (P222 11 + P223 14 +
+  P224 27); 1998 → **2039 verdes**.
+- **Reclassificações**: 3 entradas §A.5 parcial → impl⁺
+  (`measure` + `place` + `grid`).
+- **Cobertura Layout per metodologia**: 78% Fase 3 fechada
+  → 83% pós-P223 → **89% pós-P224** (+11pp cumulativo
+  Fase 4 real).
+- Cobertura user-facing total: 65% → **67%** (+2pp
+  cumulativo pós-Fase 4).
+
+**Patterns emergentes cumulativos consolidados Fase 4**:
+- **"L0 minimal para refactors"** N=5 → 6 → **7**
+  (P222+P223+P224 todos Opção γ; P224 divergência consciente
+  vs spec C6 Opção α reforçou em vez de suspender).
+- **"Field armazenado semantic adiada"** N=3 → 4 → **5**
+  (`weak`/`breakable`/`float`/`repeat`).
+- **"ADR PROPOSTO com materialização parcial graded"** N=1
+  inaugurado P222 (ADR-0066 mantém PROPOSTO apesar Bloco
+  C primeira materialização parcial).
+- **"Refino aditivo a variant existente"** N=1 → **2**
+  (P223 Place; P224.A Grid).
+- **"Fecho de divergência documentada via refino"** N=1
+  inaugurado P223 (DEBT-37 §"Divergência").
+- **"Fecho cumulativo de DEBTs via refino composto"** N=1
+  parcialmente inaugurado P224 (apenas DEBT-34e fecha;
+  DEBT-34d preservado per `P224.div-1`).
+- **"Subset Fase agregado L cumulativo pós-M9c"** N=1 →
+  **2** (P218+P220 trivial; **P224 substantivo com
+  atomização interna A/B/C explícita**).
+- **"Divergência factual material registada como
+  `Pxxx.div-N`"** N=1 → **2** (P215.div-1 reabriu Fase 3
+  sub-fase b; **P224.div-1 preservou DEBT-34d**). Pattern
+  de honestidade arquitectural consolidado.
+- **"Consumer geometric integration deferido pós-algorítmico"**
+  N=1 inaugurado P224 (módulo `grid_placement.rs`
+  algoritmo materializado + testado isoladamente; consumer
+  geometric refino futuro candidato Fase 5).
+
+**Política "sem novas reservas" preservada per P158**:
+- **Fase 5 Layout candidata** identificada mas **NÃO
+  reservada** (refinos stroke/fill cosméticos; per-cell
+  align/inset/fill/stroke em GridCell; Auto track sizing
+  DEBT-34d; consumer geometric integration P224.C; flow
+  real Place float; Opção A multi-region para columns/
+  colbreak).
+- **Opção A multi-region** preservada como scope-out per
+  ADR-0078 IMPLEMENTADO.
+
+**Estado pós-P225**:
+- Sub-fase (a) DEBT-56: 2/2 ✓ (P216A + P216B).
+- Sub-fase (b) DEBT-56: 4/4 ✓ (P217-P220).
+- DEBT-56 ENCERRADO (P221).
+- **Fase 4 candidata 3/3** ✓ (P222-P224); **série α
+  fechada estructuralmente E formalmente** em P225.
+- Distribuição ADRs preservada P221: PROPOSTO 11
+  (ADR-0066 inclusiva); IMPLEMENTADO 21.
+- Saldo DEBTs: 13 → **12 abertos** (DEBT-34e fechou em
+  P224; **DEBT-34d preservado aberto per `P224.div-1`**
+  vs hipótese spec original).
+
+**Status ADR-0061 mantido IMPLEMENTADO**. Fase 4 candidata
+100% materializada per Opção α P221 §8. Fase 5 candidata
+futura **NÃO reservada** per política P158.
+
+**Status ADR-0066 mantido PROPOSTO** — pattern emergente
+N=1 "ADR PROPOSTO com materialização parcial graded"
+preservado. Promoção formal continua diferida (3 condições
+§"Plano promoção" ADR-0066 não satisfeitas).
+
+Anotação cumulativa acima preserva o contexto histórico para
+retomada futura.
