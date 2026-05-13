@@ -654,6 +654,8 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
                     format!("block(breakable:) espera bool, recebeu {}", other.type_name()),
                 )]),
             },
+            // P231 — aceitar outset/radius/clip (parsing pós-loop).
+            "outset" | "radius" | "clip" => {},
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("block(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
@@ -685,12 +687,58 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         None    => Sides::uniform(Length::ZERO),
     };
 
+    // P231 — extract 3 cosméticos (outset/radius/clip).
+    // outset: Length uniforme aceito (subset; per-side refino futuro).
+    let outset = match args.named.get("outset") {
+        Some(val) => {
+            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("block(outset): espera length, recebeu {}", val.type_name()),
+            )])?;
+            if len.abs.0 < 0.0 || len.em < 0.0 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "block(outset): negativo rejeitado".to_string(),
+                )]);
+            }
+            Sides::uniform(len)
+        }
+        None => Sides::uniform(Length::ZERO),
+    };
+    let radius = match args.named.get("radius") {
+        Some(val) => {
+            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("block(radius): espera length, recebeu {}", val.type_name()),
+            )])?;
+            if len.abs.0 < 0.0 || len.em < 0.0 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "block(radius): negativo rejeitado".to_string(),
+                )]);
+            }
+            Some(len)
+        }
+        None => None,
+    };
+    let clip = match args.named.get("clip") {
+        Some(Value::Bool(b)) => *b,
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("block(clip): espera Bool, recebeu {}", other.type_name()),
+        )]),
+        None => false,
+    };
+
     Ok(Value::Content(Content::Block {
         body: Box::new(body),
         width,
         height,
         inset,
         breakable,
+        outset,
+        radius,
+        clip,
     }))
 }
 
@@ -832,6 +880,8 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
                     format!("box(baseline:) espera length, recebeu {}", value.type_name()),
                 )])?;
             }
+            // P231 — aceitar outset/radius/clip (parsing pós-loop paridade block).
+            "outset" | "radius" | "clip" => {},
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("box(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
@@ -863,9 +913,52 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         None    => Sides::uniform(Length::ZERO),
     };
 
+    // P231 — extract 3 cosméticos (outset/radius/clip) paralelo Block.
+    let outset = match args.named.get("outset") {
+        Some(val) => {
+            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("box(outset): espera length, recebeu {}", val.type_name()),
+            )])?;
+            if len.abs.0 < 0.0 || len.em < 0.0 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "box(outset): negativo rejeitado".to_string(),
+                )]);
+            }
+            Sides::uniform(len)
+        }
+        None => Sides::uniform(Length::ZERO),
+    };
+    let radius = match args.named.get("radius") {
+        Some(val) => {
+            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("box(radius): espera length, recebeu {}", val.type_name()),
+            )])?;
+            if len.abs.0 < 0.0 || len.em < 0.0 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "box(radius): negativo rejeitado".to_string(),
+                )]);
+            }
+            Some(len)
+        }
+        None => None,
+    };
+    let clip = match args.named.get("clip") {
+        Some(Value::Bool(b)) => *b,
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("box(clip): espera Bool, recebeu {}", other.type_name()),
+        )]),
+        None => false,
+    };
+
     Ok(Value::Content(Content::Boxed {
         body: Box::new(body),
         width, height, inset, baseline,
+        outset, radius, clip,
     }))
 }
 

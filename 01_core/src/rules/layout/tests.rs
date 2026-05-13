@@ -3556,6 +3556,231 @@ mod tests_show_rule_integration {
             rect_idx, line_idx);
     }
 
+    // ── Passo 231 (Fase 5 Layout Categoria A.4) — Block/Boxed cosméticos preserved ──
+
+    /// Block com outset/radius/clip preserva body render (semantic real
+    /// adiada per ADR-0054 graded — radius/clip primitivos baseline
+    /// ausentes; outset visual ainda não aplicado).
+    #[test]
+    fn p231_block_outset_radius_clip_layout_preservado() {
+        use crate::entities::sides::Sides;
+        let b = Content::Block {
+            body:      Box::new(Content::text("p231block")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(crate::entities::layout_types::Length::pt(5.0)),
+            radius:    Some(crate::entities::layout_types::Length::pt(3.0)),
+            clip:      true,
+        };
+        let doc = layout(&b);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p231block"),
+            "Block com cosméticos renderiza body (semantic adiada preserva baseline)");
+    }
+
+    /// Boxed paridade Block — cosméticos preserved.
+    #[test]
+    fn p231_boxed_cosmeticos_paridade_block() {
+        use crate::entities::sides::Sides;
+        let b = Content::Boxed {
+            body:     Box::new(Content::text("p231boxed")),
+            width:    None,
+            height:   None,
+            inset:    Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+            baseline: crate::entities::layout_types::Length::pt(0.0),
+            outset:   Sides::uniform(crate::entities::layout_types::Length::pt(2.0)),
+            radius:   Some(crate::entities::layout_types::Length::pt(1.0)),
+            clip:     false,
+        };
+        let doc = layout(&b);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p231boxed"),
+            "Boxed com cosméticos renderiza body (paridade Block; semantic adiada)");
+    }
+
+    // ── Passo 232 (Fase 5 Layout Categoria A.5) — Place precedence over Grid ──
+
+    /// Place fora de Grid (cell_align None) preserva baseline P84.5.
+    #[test]
+    fn p232_place_fora_grid_baseline_preservado() {
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
+        let p = Content::Place {
+            alignment: Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) },
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Column,
+            float:     false,
+            clearance: None,
+            body:      Box::new(Content::text("p232out")),
+        };
+        let doc = layout(&p);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p232out"),
+            "Place fora Grid renderiza body preservando baseline P84.5");
+    }
+
+    /// Place dentro Grid sem align Grid: baseline preservado (cell_align None).
+    #[test]
+    fn p232_place_dentro_grid_sem_align_baseline() {
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing, PlaceScope};
+        use crate::entities::sides::Sides;
+        let place_in_cell = Content::Place {
+            alignment: Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) },
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Column,
+            float:     false,
+            clearance: None,
+            body:      Box::new(Content::text("p232plain")),
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   vec![place_in_cell],
+            gutter:  None,
+            align:   None,  // sem Grid align → Place usa alignment direct
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  None,
+            fill:    None,
+        };
+        let doc = layout(&g);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p232plain"),
+            "Place dentro Grid sem align preserva baseline (cell_align None)");
+    }
+
+    /// Place dentro Grid com align Grid + Place vazio → Place herda Grid.
+    /// Place sem alignment (None, None); Grid align center → ambos eixos
+    /// herdam center (effective_h/v from Grid).
+    #[test]
+    fn p232_place_herda_grid_align_quando_vazio() {
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing, PlaceScope};
+        use crate::entities::sides::Sides;
+        let place_empty = Content::Place {
+            alignment: Align2D { h: None, v: None },  // vazio
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Column,
+            float:     false,
+            clearance: None,
+            body:      Box::new(Content::text("p232herda")),
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   vec![place_empty],
+            gutter:  None,
+            align:   Some(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) }),
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  None,
+            fill:    None,
+        };
+        let doc = layout(&g);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p232herda"),
+            "Place vazio dentro Grid com align herda (renderiza body OK)");
+    }
+
+    /// Place dentro Grid com Place H explícito + V vazio → H override; V herda.
+    #[test]
+    fn p232_place_override_per_axis() {
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing, PlaceScope};
+        use crate::entities::sides::Sides;
+        let place_partial = Content::Place {
+            // H explícito Right; V vazio (herda Grid V=Top).
+            alignment: Align2D { h: Some(HAlign::Right), v: None },
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Column,
+            float:     false,
+            clearance: None,
+            body:      Box::new(Content::text("p232override")),
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   vec![place_partial],
+            gutter:  None,
+            align:   Some(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) }),
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  None,
+            fill:    None,
+        };
+        let doc = layout(&g);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p232override"),
+            "Place H override + V herda renderiza body OK");
+    }
+
+    /// Place full override Grid (ambos eixos Place Some).
+    #[test]
+    fn p232_place_full_override_grid() {
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing, PlaceScope};
+        use crate::entities::sides::Sides;
+        let place_full = Content::Place {
+            // Place full Some → override Grid.
+            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Bottom) },
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Column,
+            float:     false,
+            clearance: None,
+            body:      Box::new(Content::text("p232full")),
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   vec![place_full],
+            gutter:  None,
+            align:   Some(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) }),
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  None,
+            fill:    None,
+        };
+        let doc = layout(&g);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p232full"),
+            "Place full override Grid renderiza body OK");
+    }
+
     /// Counters/labels dentro do body de repeat resolvem via walk
     /// (single-walk em P156J; sem multiplicação de state).
     #[test]

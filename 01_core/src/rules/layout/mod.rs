@@ -158,6 +158,12 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) cell_origin_x: Option<f64>,
     pub(super) cell_origin_y: Option<f64>,
     pub(super) cell_origin_w: Option<f64>,
+    /// **P232 (Fase 5 Layout Categoria A.5)** — alignment Grid-level
+    /// disponível para `Content::Place` herdar via `.or()` per eixo
+    /// quando dentro Grid context. Save/restore paridade cell_origin_*
+    /// no braço `Content::Grid` em layout_grid. None fora Grid context
+    /// (Place baseline P84.5 preservado).
+    pub(super) cell_align: Option<crate::entities::layout_types::Align2D>,
     /// **P185C (mecanismo M3 da ADR-0068)** — gerador determinístico
     /// de `Location`s, sincronizado-por-construção com o `Locator`
     /// do walk de introspect (per P185A §3.3). Avança em cada chamada
@@ -227,6 +233,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             cell_origin_x:           None,
             cell_origin_y:           None,
             cell_origin_w:           None,
+            cell_align:              None,  // P232
             locator:                 Locator::new(),
             current_location:        None,
             runtime:                 crate::entities::layouter_runtime_state::LayouterRuntimeState::default(),
@@ -869,7 +876,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Refino multi-pass flow contorna fica como Fase 5 candidata
             // NÃO-reservada per política P158.
             Content::Place { alignment, dx, dy, scope, float: _, clearance: _, body } => {
-                self.layout_place(*alignment, *dx, *dy, *scope, body);
+                // P232 — Resolver effective alignment per eixo via `.or()`.
+                // Place explícito por eixo override Grid; Place vazio por
+                // eixo herda Grid (cell_align Some quando dentro Grid context).
+                // Place fora Grid (cell_align None) preserva baseline P84.5
+                // (alignment usado directamente).
+                let effective_alignment = match self.cell_align {
+                    Some(grid_a) => crate::entities::layout_types::Align2D {
+                        h: alignment.h.or(grid_a.h),
+                        v: alignment.v.or(grid_a.v),
+                    },
+                    None => *alignment,
+                };
+                self.layout_place(effective_alignment, *dx, *dy, *scope, body);
             }
 
             // Passo 100 (ADR-0039): `Content::Styled` activa push/pop na
@@ -1062,7 +1081,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             //     suportado por cursor.rs actual.
             // `inset.top`/`inset.bottom` em contexto inline são complexos;
             // armazenados mas não aplicados (refino futuro).
-            Content::Boxed { body, width, height, inset, baseline } => {
+            // P231 — Boxed +3 cosméticos cosméticos armazenados mas semantic real
+            // adiada (outset visual ainda não aplicado; radius/clip primitivos
+            // baseline ausentes — pattern N=5 → 7 cumulativo).
+            Content::Boxed { body, width, height, inset, baseline, outset: _, radius: _, clip: _ } => {
                 let font = self.font_size_pt.val();
                 let inset_left  = inset.left.resolve_pt(font);
                 let inset_right = inset.right.resolve_pt(font);
@@ -1096,7 +1118,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `width` actualmente reduz a largura útil temporariamente
             // (cursor.x começa em line_start_x + offset). `width: None`
             // == auto (largura completa).
-            Content::Block { body, width, height, inset, breakable: _ } => {
+            Content::Block { body, width, height, inset, breakable: _, outset: _, radius: _, clip: _ } => {
                 let font = self.font_size_pt.val();
                 let inset_left   = inset.left.resolve_pt(font);
                 let inset_top    = inset.top.resolve_pt(font);
@@ -1451,7 +1473,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 156H: Boxed (Box inline) dimensões para grid
             // measurement. Análogo a Block (mesma lógica width/height/
             // inset; baseline ignorado em medição).
-            Content::Boxed { body, width, height, inset, baseline: _ } => {
+            Content::Boxed { body, width, height, inset, baseline: _, outset: _, radius: _, clip: _ } => {
                 let font = self.font_size_pt.val();
                 let inset_l = inset.left.resolve_pt(font);
                 let inset_r = inset.right.resolve_pt(font);
@@ -1503,7 +1525,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 156G: Block dimensões para grid measurement.
             // Inset adiciona aos lados; height: Some(h) força mínimo;
             // width: Some(w) prefere essa largura mas constrained por max.
-            Content::Block { body, width, height, inset, breakable: _ } => {
+            Content::Block { body, width, height, inset, breakable: _, outset: _, radius: _, clip: _ } => {
                 let font = self.font_size_pt.val();
                 let inset_l = inset.left.resolve_pt(font);
                 let inset_r = inset.right.resolve_pt(font);

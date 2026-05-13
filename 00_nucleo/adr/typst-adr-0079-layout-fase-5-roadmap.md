@@ -464,6 +464,178 @@ automática pós-promoção P229.
 Anotação cumulativa acima preserva o contexto histórico
 para retomada futura.
 
+### P231 anotação — Categoria A sub-passo 4 (outset/radius/clip Block + Boxed)
+
+**Data**: 2026-05-13.
+
+**Quarto sub-passo materialização Fase 5 Layout candidata
+— segunda aplicação automática ADR-0080 EM VIGOR + reabre
+P156G+H scope-outs documentados há 18 dias**:
+
+**A.4 materializado**:
+- **Block +3 fields** `outset: Sides<Length>` + `radius:
+  Option<Length>` + `clip: bool` (5 → 8 fields cumulativos).
+- **Boxed +3 fields** paralelo Block (5 → 8 fields).
+- **`native_block` + `native_box` accept 3 named args**
+  via parsing inline (outset Length uniforme; radius
+  Length opcional; clip Bool); validações negativos
+  rejeitados.
+- **Renderização Opção β parcial graded** (audit C1
+  determinou primitivos baseline ausentes — todos 3
+  fields semantic real adiada):
+  - `outset` armazenado; semantic real adiada (bounds
+    visual expandidos refactor cumulativo).
+  - `radius` armazenado; semantic real adiada (`ShapeKind::RoundedRect`
+    primitivo NÃO existe baseline geometry.rs P76).
+  - `clip` armazenado; semantic real adiada (wrap body
+    em `FrameItem::Group::clip_mask` requer refactor
+    estructural).
+
+**7 decisões fixadas**:
+- Decisão 1 — Opção α escopo restrito (outset+radius+clip
+  apenas).
+- Decisão 2 — Opção α `Sides<Length>` outset.
+- Decisão 3 — Opção β `Option<Length>` radius uniforme
+  (vs `Corners<T>` scope-out per ADR-0029).
+- Decisão 4 — Opção α `bool` clip (paridade vanilla).
+- Decisão 5 — Opção β graded parcial (3 fields semantic
+  adiada per audit C1).
+- Decisão 6 — Opção α refino paralelo Block + Boxed.
+- Decisão 7 — Opção γ L0 NÃO tocado automaticamente
+  (segunda aplicação automática ADR-0080 EM VIGOR).
+
+**Pattern emergente "L0 minimal" aplicação automática N=1
+→ 2 cumulativo** (P230 + P231).
+
+**Pattern "refino aditivo paralelo entre variants irmãos"
+N=3 → 4 cumulativo** (Grid+Table; GridCell+TableCell;
+Block+Boxed). N=4 patamar empírico **muito sólido**;
+promoção formal ADR meta candidato.
+
+**Pattern "Field bool simples paridade vanilla" N=2 → 3
+cumulativo** (`breakable`/`repeat`/**`clip`**). N=3
+atinge limiar formalização N=3-4.
+
+**Pattern Smart→Option N=9 → 10 cumulativo** (radius).
+N=10 patamar empírico **muito sólido**; candidato promoção
+formal (paridade `extract_length` N=10).
+
+**Pattern "Field armazenado semantic adiada" N=5 → 7
+cumulativo** (+outset + radius + clip todos adiadas em
+P231). N=7 patamar empírico **muito sólido**.
+
+**Reabertura formal P156G+H scope-outs** documentados há
+18 dias (criados 2026-04-25; reabertos 2026-05-13 em
+P231). Pattern de continuidade arquitectural cumulativa.
+
+**15 tests adicionados P231** (4 unit content + 9 unit
+stdlib + 2 E2E layout). Workspace: 2086 → **2101 verdes**
+(+15). Adaptações intencionais N=4 (Block/Boxed
+constructors pre-existentes em entities/content.rs +
+stdlib/mod.rs). 0 regressões reais. 0 violations.
+
+**Categoria A Fase 5 Layout**: 4/5 sub-passos
+materializados (A.1 stroke ✓; A.2 fill ✓; A.3 per-cell ✓;
+**A.4 Block/Boxed cosméticos ✓**; A.5 Place per-cell
+pendente). Após A.5 → **Categoria A completa 5/5**.
+
+**Status ADR-0079 mantido PROPOSTO** (sub-passo 4/13-15
+materialização Fase 5 candidata).
+
+**Status ADR-0080 mantido EM VIGOR** — segunda aplicação
+automática pós-promoção P229.
+
+Anotação cumulativa acima preserva o contexto histórico
+para retomada futura.
+
+### P232 anotação — Categoria A sub-passo 5 (Place per-cell alignment override); **Categoria A 5/5 ✓ FECHADA ESTRUCTURALMENTE**
+
+**Data**: 2026-05-13.
+
+**Quinto e último sub-passo Categoria A Fase 5 Layout
+candidata — FECHA Categoria A 5/5 ESTRUCTURALMENTE**.
+
+**Categoria A**: 5/5 sub-passos materializados ✓ **FECHADA**:
+- A.1 stroke (P227) ✓.
+- A.2 fill (P228) ✓.
+- A.3 per-cell GridCell+TableCell (P230) ✓.
+- A.4 outset/radius/clip Block+Boxed (P231) ✓.
+- **A.5 Place per-cell alignment override (P232) ✓**.
+
+**Trabalho P232**:
+- **Zero fields novos** em Place/Grid/Table/Cell — pattern
+  "sub-passo sem novos fields; só lógica precedence" N=1
+  inaugurado P232.
+- **+1 field `cell_align: Option<Align2D>` no Layouter
+  struct** (paridade `cell_origin_*` baseline P84.6;
+  save/restore ao entrar/sair Grid context em `layout_grid`).
+- **Lógica precedência per-eixo via `.or()`** no arm
+  `Content::Place`:
+  - `effective_h = alignment.h.or(grid_align.h)`.
+  - `effective_v = alignment.v.or(grid_align.v)`.
+  - Place explícito override Grid; Place vazio herda Grid.
+  - Place fora Grid (cell_align None) preserva baseline
+    P84.5 directo.
+- **Stdlib `native_place` NÃO modificado**.
+
+**Audit C1 findings**:
+- `Content::Table.align` **NÃO existe** baseline; P232
+  escopo limitado a Grid context. Table align paralelo é
+  refino XS futuro candidato (não-reservado per política
+  P158).
+
+**8 decisões fixadas**:
+- Decisão 1 — Opção α lógica precedência (zero fields
+  novos).
+- Decisão 2 — Opção α precedência por eixo via `.or()`.
+- Decisão 3 — Opção α inline no arm Place.
+- Decisão 4 — Opção α stdlib preservado.
+- Decisão 5 — 5 tests E2E precedência explícitos.
+- Decisão 6 — Table.align audit ausente → escopo Grid
+  only.
+- Decisão 7 — Anotação Categoria A 5/5 ✓ fechada sem
+  transição status (pattern N=1 inaugurado).
+- Decisão 8 — Opção γ L0 automático (**terceira aplicação
+  automática ADR-0080 EM VIGOR**).
+
+**Patterns emergentes consolidados em P232**:
+- **"L0 minimal para refactors" aplicação automática
+  pós-EM VIGOR** N=2 → **3 cumulativo** (P230+P231+P232).
+- **Pattern "precedência per-X via `.or()` resolution"
+  N=1 → 2 cumulativo** (P230 GridCell over Grid; **P232
+  Place per-axis over Grid**).
+- **"Fecho categoria completa dentro de ADR PROPOSTO sem
+  transição" N=1 inaugurado P232** — distinto de
+  §3.0duodecies P221 + §3.0terdecies P225 que envolveram
+  transições ADR.
+- **"Sub-passo sem novos fields; só lógica precedence"
+  N=1 inaugurado P232** — distinto cumulativo de A.1-A.4
+  que adicionaram fields.
+
+**5 tests adicionados P232** (5 E2E layout precedência).
+Workspace: 2101 → **2106 verdes** (+5). Sem adaptações
+intencionais. 0 regressões reais. 0 violations.
+
+**Status ADR-0079 mantido PROPOSTO** (sub-passo 5/13-15
+materialização Fase 5 candidata; **Categoria A 5/5 ✓
+fechada estructuralmente**; Categorias B/C/D pendentes).
+
+**Status ADR-0080 mantido EM VIGOR** — terceira aplicação
+automática pós-promoção P229.
+
+**Marco interno implícito Categoria A fechada
+estructuralmente** — próximo sub-passo pode pivot:
+- Categoria B (algorítmicos: B.1 DEBT-34d; B.2 consumer
+  geometric; B.3 per-cell align/inset/breakable).
+- Categoria C (estruturais reabrindo: C.1 Place float
+  real; C.2 multi-region completa).
+- Categoria D (runtime queries: D.1 state desbloqueia
+  ADR-0066 IMPLEMENTADO).
+- Pivot outro módulo (Visualize/Text/Model).
+
+Anotação cumulativa acima preserva o contexto histórico
+para retomada futura.
+
 ---
 
 ## Status
