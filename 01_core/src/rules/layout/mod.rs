@@ -691,9 +691,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.layout_content(body);
             }
 
-            // P224.C — GridCell isolado renderiza body (fora de Grid context;
-            // dentro de Grid é consumido por grid_placement em layout_grid).
-            Content::GridCell { body, x: _, y: _, colspan: _, rowspan: _ } => {
+            // P224.C + P230 — GridCell isolado renderiza body (fora de Grid
+            // context; dentro de Grid é consumido por grid_placement em
+            // layout_grid). stroke + fill per-cell P230 são ignorados aqui
+            // (semantic precedência ocorre apenas dentro de Grid context).
+            Content::GridCell { body, x: _, y: _, colspan: _, rowspan: _,
+                                stroke: _, fill: _ } => {
                 self.layout_content(body);
             }
 
@@ -720,7 +723,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // dedicado a placement Grid completo). Quando dentro de
             // `Content::Table`, cell aparece como child linear no
             // grid distribuído por `idx % num_cols`.
-            Content::TableCell { body, x: _, y: _, colspan: _, rowspan: _ } => {
+            Content::TableCell { body, x: _, y: _, colspan: _, rowspan: _,
+                                  stroke: _, fill: _ } => {
                 self.layout_content(body);
             }
 

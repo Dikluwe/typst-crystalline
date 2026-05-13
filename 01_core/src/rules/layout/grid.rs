@@ -258,10 +258,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.cell_origin_y    = saved_cell_oy;
                 self.cell_origin_w    = saved_cell_ow;
 
-                // P228 — Z-order step 1: fill emite primeiro (atrás
-                // do conteúdo cell + stroke). Renderização Opção β:
-                // FrameItem::Shape::Rect per cell com fill colour.
-                if let Some(c) = fill {
+                // P230 — resolver precedência effective per-cell vs Grid-level:
+                // cell `Some(...)` override Grid-level; cell `None` inherit
+                // Grid-level. Aplicável a GridCell e TableCell variants;
+                // raw Content sem stroke/fill → inherit.
+                let (cell_stroke, cell_fill) = match cell {
+                    Content::GridCell { stroke, fill, .. } => (stroke.as_ref(), fill.as_ref()),
+                    Content::TableCell { stroke, fill, .. } => (stroke.as_ref(), fill.as_ref()),
+                    _ => (None, None),
+                };
+                let effective_stroke: Option<&Stroke> = cell_stroke.or(stroke);
+                let effective_fill: Option<&Color> = cell_fill.or(fill);
+
+                // P228 + P230 — Z-order step 1: fill efectivo emite primeiro
+                // (atrás do conteúdo cell + stroke). Renderização Opção β:
+                // FrameItem::Shape::Rect per cell com fill efectivo
+                // (per-cell override Grid-level se Some; inherit se None).
+                if let Some(c) = effective_fill {
                     self.regions.current.current_items.push(FrameItem::Shape {
                         pos:    Point { x: Pt(cell_x), y: Pt(row_start_y) },
                         kind:   ShapeKind::Rect,
@@ -285,12 +298,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     self.regions.current.current_items.push(translated);
                 }
 
-                // P227 — Renderização Opção β simplificada: emite 4
+                // P227 + P230 — Renderização Opção β simplificada: emite 4
                 // FrameItem::Shape::Line per cell border (top + bottom
-                // + left + right). Sem deduplicação linhas adjacentes
-                // (refino candidato A.3). Por simplicidade, fill = None;
-                // FrameItem::Shape com kind Line apenas usa stroke.
-                if let Some(s) = stroke {
+                // + left + right). Stroke efectivo (per-cell override
+                // Grid-level se Some; inherit se None). Sem deduplicação
+                // linhas adjacentes (refino candidato A.3 stroke).
+                if let Some(s) = effective_stroke {
                     let x0 = cell_x;
                     let y0 = row_start_y;
                     let cell_h = row_h;

@@ -342,15 +342,28 @@ pub enum Content {
     /// `x`/`y`: posição explícita opcional (auto-placement se `None`).
     /// `colspan`/`rowspan`: ocupação adjacente opcional (default 1).
     ///
-    /// `align`/`fill`/`stroke`/`inset`/`breakable` per-cell vanilla
-    /// scope-out (subset paridade P157B literal; refino futuro
-    /// candidato NÃO-reservado per política P158).
+    /// `align`/`inset`/`breakable` per-cell vanilla scope-out
+    /// (subset paridade P157B literal; refino candidato Categoria
+    /// B.3 Fase 5 NÃO-reservado).
+    ///
+    /// **Refino P230** (Fase 5 Layout Categoria A.3): +2 fields
+    /// cosméticos per-cell `stroke` + `fill` (precedência override
+    /// Grid-level via `.or()` resolution). Per ADR-0079 PROPOSTO
+    /// Categoria A.3 + **ADR-0080 EM VIGOR aplicação automática**
+    /// (L0 não tocado por defeito; pattern "L0 minimal" formalizado
+    /// P229).
     GridCell {
         body:    Box<Content>,
         x:       Option<usize>,
         y:       Option<usize>,
         colspan: Option<usize>,
         rowspan: Option<usize>,
+        /// P230 — stroke per-cell (override Grid-level se Some;
+        /// inherit se None via `.or()` em `layout_grid`).
+        stroke:  Option<Stroke>,
+        /// P230 — fill per-cell (override Grid-level se Some;
+        /// inherit se None via `.or()` em `layout_grid`).
+        fill:    Option<Color>,
     },
 
     /// Altera a configuração da página a partir deste ponto do documento (Passo 81).
@@ -638,6 +651,12 @@ pub enum Content {
         y:       Option<usize>,
         colspan: Option<usize>,
         rowspan: Option<usize>,
+        /// P230 — stroke per-cell paralelo GridCell (refino aditivo
+        /// paralelo entre variants irmãos N=2 → 3 cumulativo;
+        /// override Table-level via `.or()` resolution).
+        stroke:  Option<Stroke>,
+        /// P230 — fill per-cell paralelo GridCell.
+        fill:    Option<Color>,
     },
 
     // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ──
@@ -1026,7 +1045,7 @@ impl Content {
         colspan: Option<usize>,
         rowspan: Option<usize>,
     ) -> Self {
-        Self::TableCell { body: Box::new(body), x, y, colspan, rowspan }
+        Self::TableCell { body: Box::new(body), x, y, colspan, rowspan, stroke: None, fill: None }
     }
 
     /// `table_header(body, repeat)` — Passo 157C (ADR-0060 Fase 2
@@ -1420,18 +1439,24 @@ impl PartialEq for Content {
              Self::GridHeader { body: bb, repeat: rb }) => ba == bb && ra == rb,
             (Self::GridFooter { body: ba, repeat: ra },
              Self::GridFooter { body: bb, repeat: rb }) => ba == bb && ra == rb,
-            // P224.C — GridCell (paridade P157B literal; 5 fields).
-            (Self::GridCell { body: ba, x: xa, y: ya, colspan: ca, rowspan: ra },
-             Self::GridCell { body: bb, x: xb, y: yb, colspan: cb, rowspan: rb }) =>
-                ba == bb && xa == xb && ya == yb && ca == cb && ra == rb,
+            // P224.C + P230 — GridCell +2 fields cosméticos (stroke + fill).
+            (Self::GridCell { body: ba, x: xa, y: ya, colspan: ca, rowspan: ra,
+                              stroke: stra, fill: fila },
+             Self::GridCell { body: bb, x: xb, y: yb, colspan: cb, rowspan: rb,
+                              stroke: strb, fill: filb }) =>
+                ba == bb && xa == xb && ya == yb && ca == cb && ra == rb
+                && stra == strb && fila == filb,
             // Passo 157A + P227 + P228 — Table refino +2 fields (stroke + fill).
             (Self::Table { columns: ca, rows: ra, children: xa, stroke: stra, fill: fila },
              Self::Table { columns: cb, rows: rb, children: xb, stroke: strb, fill: filb }) =>
                 ca == cb && ra == rb && xa == xb && stra == strb && fila == filb,
-            // Passo 157B — TableCell.
-            (Self::TableCell { body: ba, x: xa, y: ya, colspan: csa, rowspan: rsa },
-             Self::TableCell { body: bb, x: xb, y: yb, colspan: csb, rowspan: rsb }) =>
-                ba == bb && xa == xb && ya == yb && csa == csb && rsa == rsb,
+            // Passo 157B + P230 — TableCell +2 fields cosméticos paralelo GridCell.
+            (Self::TableCell { body: ba, x: xa, y: ya, colspan: csa, rowspan: rsa,
+                               stroke: stra, fill: fila },
+             Self::TableCell { body: bb, x: xb, y: yb, colspan: csb, rowspan: rsb,
+                               stroke: strb, fill: filb }) =>
+                ba == bb && xa == xb && ya == yb && csa == csb && rsa == rsb
+                && stra == strb && fila == filb,
             // Passo 157C — par simétrico TableHeader/TableFooter.
             (Self::TableHeader { body: ba, repeat: ra },
              Self::TableHeader { body: bb, repeat: rb }) =>
@@ -1774,13 +1799,15 @@ impl Content {
                 body:   Box::new(body.map_content(transform)?),
                 repeat: *repeat,
             },
-            // P224.C — GridCell recurse no body; preserva x/y/colspan/rowspan (Copy).
-            Content::GridCell { body, x, y, colspan, rowspan } => Content::GridCell {
+            // P224.C + P230 — GridCell recurse no body; preserva fields +stroke +fill.
+            Content::GridCell { body, x, y, colspan, rowspan, stroke, fill } => Content::GridCell {
                 body:    Box::new(body.map_content(transform)?),
                 x:       *x,
                 y:       *y,
                 colspan: *colspan,
                 rowspan: *rowspan,
+                stroke:  stroke.clone(),
+                fill:    *fill,
             },
             // Passo 157A + P227 + P228: Table — mapear children; preservar stroke + fill.
             Content::Table { columns, rows, children, stroke, fill } => {
@@ -1794,14 +1821,15 @@ impl Content {
                     fill: *fill,
                 }
             },
-            // Passo 157B: TableCell — recurse no body; preserva fields
-            // x/y/colspan/rowspan (Copy primitivos Option<usize>).
-            Content::TableCell { body, x, y, colspan, rowspan } => Content::TableCell {
+            // Passo 157B + P230: TableCell — recurse no body; preserva fields +stroke +fill.
+            Content::TableCell { body, x, y, colspan, rowspan, stroke, fill } => Content::TableCell {
                 body:    Box::new(body.map_content(transform)?),
                 x:       *x,
                 y:       *y,
                 colspan: *colspan,
                 rowspan: *rowspan,
+                stroke:  stroke.clone(),
+                fill:    *fill,
             },
             // Passo 157C: par simétrico TableHeader/TableFooter —
             // recurse no body; preserva repeat (Copy bool).
@@ -2038,13 +2066,15 @@ impl Content {
                 body:   Box::new(body.map_text(transform)),
                 repeat: *repeat,
             },
-            // P224.C — GridCell recurse no body (map_text); preserva fields.
-            Content::GridCell { body, x, y, colspan, rowspan } => Content::GridCell {
+            // P224.C + P230 — GridCell recurse no body (map_text); preserva fields +stroke +fill.
+            Content::GridCell { body, x, y, colspan, rowspan, stroke, fill } => Content::GridCell {
                 body:    Box::new(body.map_text(transform)),
                 x:       *x,
                 y:       *y,
                 colspan: *colspan,
                 rowspan: *rowspan,
+                stroke:  stroke.clone(),
+                fill:    *fill,
             },
             // Passo 157A + P227 + P228: Table — map_text em children; preservar stroke + fill.
             Content::Table { columns, rows, children, stroke, fill } => Content::Table {
@@ -2054,13 +2084,15 @@ impl Content {
                 stroke:   stroke.clone(),
                 fill:     *fill,
             },
-            // Passo 157B: TableCell — map_text no body; preserva fields.
-            Content::TableCell { body, x, y, colspan, rowspan } => Content::TableCell {
+            // Passo 157B + P230: TableCell — map_text no body; preserva fields +stroke +fill.
+            Content::TableCell { body, x, y, colspan, rowspan, stroke, fill } => Content::TableCell {
                 body:    Box::new(body.map_text(transform)),
                 x:       *x,
                 y:       *y,
                 colspan: *colspan,
                 rowspan: *rowspan,
+                stroke:  stroke.clone(),
+                fill:    *fill,
             },
             // Passo 157C: par simétrico — map_text no body.
             Content::TableHeader { body, repeat } => Content::TableHeader {
@@ -3680,6 +3712,8 @@ mod tests {
             y:       Some(2),
             colspan: Some(3),
             rowspan: Some(4),
+            stroke:  None,
+            fill:    None,
         };
         if let Content::GridCell { x, y, colspan, rowspan, .. } = &c {
             assert_eq!(*x, Some(1));
@@ -3698,6 +3732,8 @@ mod tests {
             y:       None,
             colspan: None,
             rowspan: None,
+            stroke:  None,
+            fill:    None,
         };
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(1)));
@@ -3711,6 +3747,8 @@ mod tests {
             y:       Some(1),
             colspan: Some(2),
             rowspan: None,
+            stroke:  None,
+            fill:    None,
         };
         let mapped = c.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
         if let Content::GridCell { x, y, colspan, rowspan, .. } = &mapped {
@@ -3907,6 +3945,87 @@ mod tests {
         }
     }
 
+    // ── Passo 230 (Fase 5 Layout Categoria A.3) — stroke/fill per-cell ──
+
+    #[test]
+    fn p230_gridcell_variant_aceita_stroke_fill() {
+        use crate::entities::layout_types::Color;
+        use crate::entities::geometry::Stroke;
+        let c = Content::GridCell {
+            body:    Box::new(Content::text("cell")),
+            x:       None,
+            y:       None,
+            colspan: None,
+            rowspan: None,
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),
+            fill:    Some(Color::rgb(255, 255, 0)),
+        };
+        if let Content::GridCell { stroke, fill, .. } = &c {
+            assert!(stroke.is_some() && fill.is_some());
+        } else {
+            panic!("esperado GridCell");
+        }
+    }
+
+    #[test]
+    fn p230_tablecell_variant_aceita_stroke_fill() {
+        use crate::entities::layout_types::Color;
+        let c = Content::TableCell {
+            body:    Box::new(Content::text("cell")),
+            x:       None,
+            y:       None,
+            colspan: None,
+            rowspan: None,
+            stroke:  None,
+            fill:    Some(Color::rgb(0, 255, 0)),
+        };
+        if let Content::TableCell { fill, .. } = &c {
+            assert!(fill.is_some());
+        } else {
+            panic!("esperado TableCell");
+        }
+    }
+
+    #[test]
+    fn p230_gridcell_partial_eq_inclui_stroke_fill() {
+        use crate::entities::layout_types::Color;
+        let mk = |fill: Option<Color>| Content::GridCell {
+            body:    Box::new(Content::text(".")),
+            x:       None,
+            y:       None,
+            colspan: None,
+            rowspan: None,
+            stroke:  None,
+            fill,
+        };
+        assert_eq!(mk(None), mk(None));
+        assert_ne!(mk(None), mk(Some(Color::rgb(255, 0, 0))));
+    }
+
+    #[test]
+    fn p230_gridcell_map_content_preserva_stroke_fill() {
+        use crate::entities::layout_types::Color;
+        use crate::entities::geometry::Stroke;
+        let stroke_orig = Stroke { paint: Color::rgb(50, 50, 50), thickness: 2.0 };
+        let fill_orig = Color::rgb(200, 200, 200);
+        let c = Content::GridCell {
+            body:    Box::new(Content::text("c")),
+            x:       None,
+            y:       None,
+            colspan: None,
+            rowspan: None,
+            stroke:  Some(stroke_orig.clone()),
+            fill:    Some(fill_orig),
+        };
+        let mapped = c.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
+        if let Content::GridCell { stroke, fill, .. } = &mapped {
+            assert_eq!(*stroke, Some(stroke_orig));
+            assert_eq!(*fill, Some(fill_orig));
+        } else {
+            panic!("esperado GridCell após map_content");
+        }
+    }
+
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — Table ─────────────────
 
     #[test]
@@ -4012,7 +4131,7 @@ mod tests {
     fn table_cell_constructor_default_todos_none() {
         // P157B: defaults — todos os fields x/y/colspan/rowspan None.
         let c = Content::table_cell(Content::text("body"), None, None, None, None);
-        if let Content::TableCell { body, x, y, colspan, rowspan } = &c {
+        if let Content::TableCell { body, x, y, colspan, rowspan, .. } = &c {
             assert_eq!(body.plain_text(), "body");
             assert_eq!(*x, None);
             assert_eq!(*y, None);

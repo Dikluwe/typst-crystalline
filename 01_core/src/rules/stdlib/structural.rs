@@ -355,6 +355,8 @@ pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
     let mut colspan: Option<usize> = None;
     let mut rowspan: Option<usize> = None;
 
+    let mut stroke: Option<crate::entities::geometry::Stroke> = None;
+    let mut fill:   Option<crate::entities::layout_types::Color> = None;
     for (key, value) in args.named.iter() {
         match key.as_str() {
             // ADR-0064 Caso A — auto-placement; min=0.
@@ -363,6 +365,15 @@ pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
             // ADR-0064 Caso C — span >= 1; min=1 (paridade NonZeroUsize).
             "colspan" => colspan = extract_usize_or_none_min(value, "table_cell", "colspan", 1)?,
             "rowspan" => rowspan = extract_usize_or_none_min(value, "table_cell", "rowspan", 1)?,
+            // P230 — stroke/fill per-cell paridade GridCell (refino paralelo).
+            "stroke" => stroke = Some(crate::rules::stdlib::layout::extract_stroke(value, "table_cell", "stroke")?),
+            "fill" => match value {
+                Value::Color(c) => fill = Some(*c),
+                other => return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("table_cell(fill): espera Color, recebeu {}", other.type_name()),
+                )]),
+            },
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("table_cell(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
@@ -373,6 +384,7 @@ pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
     Ok(Value::Content(Content::TableCell {
         body: Box::new(body),
         x, y, colspan, rowspan,
+        stroke, fill,
     }))
 }
 
@@ -536,6 +548,8 @@ pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     let mut y:       Option<usize> = None;
     let mut colspan: Option<usize> = None;
     let mut rowspan: Option<usize> = None;
+    let mut stroke:  Option<crate::entities::geometry::Stroke> = None;
+    let mut fill:    Option<crate::entities::layout_types::Color> = None;
 
     for (key, value) in args.named.iter() {
         match key.as_str() {
@@ -543,6 +557,16 @@ pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
             "y" => y = extract_usize_or_none_min(value, "grid_cell", "y", 0)?,
             "colspan" => colspan = extract_usize_or_none_min(value, "grid_cell", "colspan", 1)?,
             "rowspan" => rowspan = extract_usize_or_none_min(value, "grid_cell", "rowspan", 1)?,
+            // P230 — stroke/fill per-cell (override Grid-level via .or()).
+            // Reuso `extract_stroke` helper P227 (N=1 → 2 cumulativo).
+            "stroke" => stroke = Some(crate::rules::stdlib::layout::extract_stroke(value, "grid_cell", "stroke")?),
+            "fill" => match value {
+                Value::Color(c) => fill = Some(*c),
+                other => return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("grid_cell(fill): espera Color, recebeu {}", other.type_name()),
+                )]),
+            },
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("grid_cell(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
@@ -553,6 +577,7 @@ pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     Ok(Value::Content(Content::GridCell {
         body: Box::new(body),
         x, y, colspan, rowspan,
+        stroke, fill,
     }))
 }
 
