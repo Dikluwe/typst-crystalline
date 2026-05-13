@@ -83,17 +83,23 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Configuração da página activa. Mutável via Content::SetPage (Passo 81).
     pub page_config: PageConfig,
     pub(super) pages:        Vec<Page>,
-    /// Items acumulados na página actual (ainda não fechada).
-    pub(super) current_items: Vec<FrameItem>,
-    pub(super) cursor_x:      Pt,
-    pub(super) cursor_y:      Pt,      // posição da baseline actual
-    /// Origem horizontal da linha actual (Passo 81.5).
+    /// **P216A (DEBT-56 sub-fase a parte 1)** — Region agregando
+    /// state geométrico previamente disperso em 5 fields escalares
+    /// (`cursor_x`, `cursor_y`, `line_start_x`, `current_items`,
+    /// `current_line`) + 2 dimensões (`width`/`height`).
     ///
-    /// Normalmente `Pt(page_config.margin)`. Em sub-layouts de células de
-    /// Grid, toma o valor de `cell_x` para que `flush_line()` reinicie o
-    /// cursor à origem da célula em vez da margem da página.
-    pub(super) line_start_x:  Pt,
-    pub(super) current_line:  Vec<FrameItem>,
+    /// Caminho B1 fixado em P216A C4: `PageConfig.width/height`
+    /// preservados; `region.width/height` é cópia derivada em
+    /// `Layouter::new`. Redundância controlada por minimizar
+    /// blast radius. P216B sub-fase (a) parte 2 introduz
+    /// `Regions` wrapper; P219 consumer multi-column.
+    ///
+    /// Origem horizontal da linha actual (`region.line_start_x`):
+    /// normalmente `Pt(page_config.margin)`. Em sub-layouts de
+    /// células de Grid, toma o valor de `cell_x` para que
+    /// `flush_line()` reinicie o cursor à origem da célula em
+    /// vez da margem da página.
+    pub(super) region: crate::entities::region::Region,
     // P190I (M6 fechado): `counter: CounterStateLegacy` ELIMINADO —
     // struct eliminada. Layouter consumers usam Introspector path
     // puro via `self.introspector` (P184D / P190G/H/I migrations).
@@ -180,11 +186,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             chain:        StyleChain::default_chain(),
             page_config:  cfg.clone(),
             pages:        Vec::new(),
-            current_items: Vec::new(),
-            cursor_x:     Pt(cfg.margin),
-            cursor_y:     Pt(cfg.margin) + ascender,
-            line_start_x: Pt(cfg.margin),
-            current_line: Vec::new(),
+            // P216A: 5 fields escalares + 2 dimensões agregados em
+            // Region. Cursor + line_start_x inicializados a margin;
+            // cursor_y inicializado a margin + ascender (paridade
+            // pre-P216A).
+            region: {
+                let mut r = crate::entities::region::Region::new(
+                    cfg.width, cfg.height,
+                );
+                r.cursor_x = Pt(cfg.margin);
+                r.cursor_y = Pt(cfg.margin) + ascender;
+                r.line_start_x = Pt(cfg.margin);
+                r
+            },
             // P190I: counter field eliminated.
             // P204C: field passa a ser Tracked, recebido por parameter.
             introspector,
@@ -202,13 +216,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
     /// Largura disponível para conteúdo (exclui margens dos dois lados).
     pub(super) fn available_width(&self) -> f64 {
-        f64::max(0.0, self.page_config.width - 2.0 * self.page_config.margin)
+        f64::max(0.0, self.region.width - 2.0 * self.page_config.margin)
     }
 
     /// Altura disponível para conteúdo (exclui margens topo e base).
     #[allow(dead_code)]
     pub(super) fn available_height(&self) -> f64 {
-        f64::max(0.0, self.page_config.height - 2.0 * self.page_config.margin)
+        f64::max(0.0, self.region.height - 2.0 * self.page_config.margin)
     }
 
     /// Limite inferior da página em pontos (`height - margin`). Passo 82.
@@ -216,7 +230,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// Usar este método em vez de `page_config.height - page_config.margin`
     /// inline — evita confundir com `available_height()` (que subtrai 2×margin).
     pub(super) fn page_bottom_limit(&self) -> f64 {
-        self.page_config.height - self.page_config.margin
+        self.region.height - self.page_config.margin
     }
 
     /// Calcula a coordenada `(x, y)` do canto superior esquerdo de um item
@@ -257,7 +271,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// (items ainda pendentes de flush) — uma linha não fechada ainda constitui
     /// conteúdo visível na página.
     fn current_page_is_empty(&self) -> bool {
-        self.current_items.is_empty() && self.current_line.is_empty()
+        self.region.current_items.is_empty() && self.region.current_line.is_empty()
     }
 
     /// **P185C (mecanismo M3 da ADR-0068)** — avança `self.locator` e
@@ -281,8 +295,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             let page = std::num::NonZeroUsize::new(self.pages.len() + 1)
                 .expect("pages.len() + 1 >= 1");
             let point = crate::entities::layout_types::Point {
-                x: self.cursor_x,
-                y: self.cursor_y,
+                x: self.region.cursor_x,
+                y: self.region.cursor_y,
             };
             self.runtime.positions.insert(
                 loc,
@@ -349,8 +363,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             Content::Space => {
-                self.cursor_x += self.space_width();
-                if self.cursor_x.0 > self.page_config.width - self.page_config.margin {
+                self.region.cursor_x += self.space_width();
+                if self.region.cursor_x.0 > self.region.width - self.page_config.margin {
                     self.flush_line();
                 }
             }
@@ -378,7 +392,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let heading_size = self.font_size_pt * heading_scale(*level);
                 let prev = self.style.clone();
                 self.style = TextStyle { bold: true, italic: false, size: heading_size, ..TextStyle::default() };
-                if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                if self.region.cursor_x.0 > self.page_config.margin { self.flush_line(); }
 
                 // Prefixo numérico — apenas se numbering estiver activo.
                 // P190E: location-aware via `is_numbering_active_at`.
@@ -454,8 +468,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // DEBT: seleccionar fonte monospace real quando FontBook tiver uma
                 self.style = TextStyle { bold: false, italic: false, size: self.font_size_pt * 0.9, ..TextStyle::default() };
                 if *block {
-                    if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
-                    self.cursor_x = Pt(self.page_config.margin) + self.font_size_pt;
+                    if self.region.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                    self.region.cursor_x = Pt(self.page_config.margin) + self.font_size_pt;
                 }
                 for word in text.split_whitespace() { self.layout_word(word); }
                 if *block { self.flush_line(); }
@@ -463,35 +477,35 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             Content::ListItem(body) => {
-                if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                if self.region.cursor_x.0 > self.page_config.margin { self.flush_line(); }
                 let margin_pt = Pt(self.page_config.margin);
-                self.current_line.push(FrameItem::Text {
-                    pos:   Point { x: margin_pt, y: self.cursor_y },
+                self.region.current_line.push(FrameItem::Text {
+                    pos:   Point { x: margin_pt, y: self.region.cursor_y },
                     text:  "•".into(),  // U+2022 — suportado com CIDFont (DEBT-5 pago)
                     style: self.style.clone(),
                 });
-                self.cursor_x = margin_pt + self.font_size_pt * 1.5;
+                self.region.cursor_x = margin_pt + self.font_size_pt * 1.5;
                 self.layout_content(body);
                 self.flush_line();
-                self.cursor_x = margin_pt;
+                self.region.cursor_x = margin_pt;
             }
 
             Content::EnumItem { number, body } => {
-                if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                if self.region.cursor_x.0 > self.page_config.margin { self.flush_line(); }
                 let margin_pt = Pt(self.page_config.margin);
                 let label: EcoString = match number {
                     Some(n) => format!("{}.", n).into(),
                     None    => "-".into(),
                 };
-                self.current_line.push(FrameItem::Text {
-                    pos:   Point { x: margin_pt, y: self.cursor_y },
+                self.region.current_line.push(FrameItem::Text {
+                    pos:   Point { x: margin_pt, y: self.region.cursor_y },
                     text:  label,
                     style: self.style.clone(),
                 });
-                self.cursor_x = margin_pt + self.font_size_pt * 2.0;
+                self.region.cursor_x = margin_pt + self.font_size_pt * 2.0;
                 self.layout_content(body);
                 self.flush_line();
-                self.cursor_x = margin_pt;
+                self.region.cursor_x = margin_pt;
             }
 
             Content::Link { body, .. } => {
@@ -577,13 +591,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     ShapeKind::Line { dx, dy } => (dx.abs(), dy.abs()),
                 };
 
-                if self.cursor_y.0 + resolved_h > self.page_config.height - self.page_config.margin {
+                if self.region.cursor_y.0 + resolved_h > self.region.height - self.page_config.margin {
                     self.new_page();
                 }
                 self.flush_line();
 
-                let pos = Point { x: self.cursor_x, y: self.cursor_y };
-                self.current_items.push(FrameItem::Shape {
+                let pos = Point { x: self.region.cursor_x, y: self.region.cursor_y };
+                self.region.current_items.push(FrameItem::Shape {
                     pos,
                     kind:   kind.clone(),
                     width:  resolved_w,
@@ -592,7 +606,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     stroke: stroke.clone(),
                 });
 
-                self.cursor_y += Pt(resolved_h);
+                self.region.cursor_y += Pt(resolved_h);
             }
 
             Content::Transform { matrix, body } => {
@@ -613,12 +627,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let _new_w = max_x - min_x;
                 let new_h = max_y - min_y;
 
-                if self.cursor_y.0 + new_h > self.page_config.height - self.page_config.margin {
+                if self.region.cursor_y.0 + new_h > self.region.height - self.page_config.margin {
                     self.new_page();
                 }
                 self.flush_line();
 
-                let pos = Point { x: self.cursor_x, y: self.cursor_y };
+                let pos = Point { x: self.region.cursor_x, y: self.region.cursor_y };
 
                 // Compensação de origem negativa: garante que o canto mais à esquerda/acima
                 // da forma transformada coincide com pos.
@@ -628,7 +642,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let available_w  = self.available_width();
                 let sub_items    = collect_sub_items(body, available_w);
 
-                self.current_items.push(FrameItem::Group {
+                self.region.current_items.push(FrameItem::Group {
                     pos,
                     matrix:       final_matrix,
                     clip_mask:    None,
@@ -637,7 +651,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     items:        sub_items,
                 });
 
-                self.cursor_y += Pt(new_h);
+                self.region.cursor_y += Pt(new_h);
             }
 
             Content::Grid { columns, rows, cells } => {
@@ -744,9 +758,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         self.new_page();
                     }
                     self.page_config  = new_config;
-                    self.cursor_x     = Pt(self.page_config.margin);
-                    self.cursor_y     = Pt(self.page_config.margin);
-                    self.line_start_x = Pt(self.page_config.margin);
+                    // P216A: sincronizar region.width/height com PageConfig
+                    // (Caminho B1 — redundância controlada).
+                    self.region.width        = self.page_config.width;
+                    self.region.height       = self.page_config.height;
+                    self.region.cursor_x     = Pt(self.page_config.margin);
+                    self.region.cursor_y     = Pt(self.page_config.margin);
+                    self.region.line_start_x = Pt(self.page_config.margin);
                     // DEBT-35b: se available_width() vier a ter cache, invalidar aqui.
                 }
             }
@@ -763,20 +781,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.flush_line();
 
                 // Verificar se a imagem cabe na página actual.
-                if self.cursor_y.0 + dims.height_pt > self.page_config.height - self.page_config.margin {
+                if self.region.cursor_y.0 + dims.height_pt > self.region.height - self.page_config.margin {
                     self.new_page();
                 }
 
                 // pos.y é o TOPO da bounding box — não o baseline de texto.
                 // O exportador calcula pdf_y = page_height - pos.y - height.
-                let pos = Point { x: Pt(self.page_config.margin), y: self.cursor_y };
+                let pos = Point { x: Pt(self.page_config.margin), y: self.region.cursor_y };
 
                 // DEBT-28 encerrado: intrinsic_width/height vêm de calculate_dimensions.
                 // A segunda chamada a self.sizer.size() foi eliminada.
                 let intrinsic_w = dims.intrinsic_width.unwrap_or(100);
                 let intrinsic_h = dims.intrinsic_height.unwrap_or(100);
 
-                self.current_items.push(FrameItem::Image {
+                self.region.current_items.push(FrameItem::Image {
                     pos,
                     data:             Arc::clone(&data.0), // .0 acede ao Arc interno de PtrEqArc
                     width:            Pt(dims.width_pt),
@@ -785,9 +803,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     intrinsic_height: intrinsic_h,
                 });
 
-                self.cursor_y += Pt(dims.height_pt);
+                self.region.cursor_y += Pt(dims.height_pt);
 
-                if self.cursor_y.0 > self.page_config.height - self.page_config.margin {
+                if self.region.cursor_y.0 > self.region.height - self.page_config.margin {
                     self.new_page();
                 }
             }
@@ -820,31 +838,31 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Divider => {
                 use crate::entities::geometry::Stroke;
                 use crate::entities::layout_types::Color;
-                if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                if self.region.cursor_x.0 > self.page_config.margin { self.flush_line(); }
                 let margin   = self.page_config.margin;
-                let width_pt = self.page_config.width - 2.0 * margin;
-                self.current_items.push(FrameItem::Shape {
-                    pos:    Point { x: Pt(margin), y: self.cursor_y },
+                let width_pt = self.region.width - 2.0 * margin;
+                self.region.current_items.push(FrameItem::Shape {
+                    pos:    Point { x: Pt(margin), y: self.region.cursor_y },
                     kind:   ShapeKind::Line { dx: width_pt, dy: 0.0 },
                     width:  width_pt,
                     height: 0.5,
                     fill:   None,
                     stroke: Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 0.5 }),
                 });
-                self.cursor_y += self.font_size_pt * 0.6;
+                self.region.cursor_y += self.font_size_pt * 0.6;
             }
 
             Content::Terms { items } => {
-                if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                if self.region.cursor_x.0 > self.page_config.margin { self.flush_line(); }
                 for item in items {
                     self.layout_content(item);
                 }
             }
 
             Content::TermItem { term, description } => {
-                if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                if self.region.cursor_x.0 > self.page_config.margin { self.flush_line(); }
                 let margin_pt = Pt(self.page_config.margin);
-                self.cursor_x = margin_pt + self.font_size_pt * 1.5;
+                self.region.cursor_x = margin_pt + self.font_size_pt * 1.5;
                 // O termo aparece em negrito — convenção de listas de definições.
                 let prev_chain = self.chain.clone();
                 let prev_style = self.style.clone();
@@ -857,7 +875,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.layout_content(&Content::text(": "));
                 self.layout_content(description);
                 self.flush_line();
-                self.cursor_x = margin_pt;
+                self.region.cursor_x = margin_pt;
             }
 
             // ── Passo 156C / 156L (ADR-0061 Fase 1 + Fase 3 refino) — pad + hide ──
@@ -875,21 +893,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let top    = sides.top   .map_or(0.0, |l| l.resolve_pt(font));
                 let bottom = sides.bottom.map_or(0.0, |l| l.resolve_pt(font));
 
-                if self.cursor_x.0 > self.line_start_x.0 {
+                if self.region.cursor_x.0 > self.region.line_start_x.0 {
                     self.flush_line();
                 }
-                self.cursor_y += Pt(top);
+                self.region.cursor_y += Pt(top);
 
-                let saved_line_start = self.line_start_x;
-                self.line_start_x = saved_line_start + Pt(left);
-                self.cursor_x     = self.line_start_x;
+                let saved_line_start = self.region.line_start_x;
+                self.region.line_start_x = saved_line_start + Pt(left);
+                self.region.cursor_x     = self.region.line_start_x;
 
                 self.layout_content(body);
                 self.flush_line();
 
-                self.cursor_y += Pt(bottom);
-                self.line_start_x = saved_line_start;
-                self.cursor_x     = saved_line_start;
+                self.region.cursor_y += Pt(bottom);
+                self.region.line_start_x = saved_line_start;
+                self.region.cursor_x     = saved_line_start;
             }
 
             Content::Hide { body } => {
@@ -897,11 +915,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // Drena items pré-existentes para um buffer temporário,
                 // executa o body, e descarta os items gerados — mantém
                 // apenas o avanço de cursor.
-                let saved_items = std::mem::take(&mut self.current_items);
-                let saved_line  = std::mem::take(&mut self.current_line);
+                let saved_items = std::mem::take(&mut self.region.current_items);
+                let saved_line  = std::mem::take(&mut self.region.current_line);
                 self.layout_content(body);
-                self.current_items = saved_items;
-                self.current_line  = saved_line;
+                self.region.current_items = saved_items;
+                self.region.current_line  = saved_line;
             }
 
             // ── Passo 156D (ADR-0061 Fase 1, sub-passo 2) — h + v spacing ──
@@ -909,16 +927,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // (perfil ADR-0054 graded). Refino futuro se necessário.
             Content::HSpace { amount, weak: _ } => {
                 let pt = amount.resolve_pt(self.font_size_pt.val());
-                self.cursor_x += Pt(pt);
+                self.region.cursor_x += Pt(pt);
             }
             Content::VSpace { amount, weak: _ } => {
                 let pt = amount.resolve_pt(self.font_size_pt.val());
                 // Termina linha em curso se houver content pendente — caso
                 // contrário texto na linha actual fica meio-render.
-                if self.cursor_x.0 > self.line_start_x.0 {
+                if self.region.cursor_x.0 > self.region.line_start_x.0 {
                     self.flush_line();
                 }
-                self.cursor_y += Pt(pt);
+                self.region.cursor_y += Pt(pt);
             }
 
             // ── Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo ──
@@ -938,7 +956,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let space_pt = spacing.map_or(0.0, |l| l.resolve_pt(font));
 
                 // Stack é STRUCTURAL: força flush_line antes.
-                if self.cursor_x.0 > self.line_start_x.0 {
+                if self.region.cursor_x.0 > self.region.line_start_x.0 {
                     self.flush_line();
                 }
 
@@ -959,7 +977,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     // spacing entre via cursor_y advance.
                     for (i, child) in iter {
                         if i > 0 && space_pt > 0.0 {
-                            self.cursor_y += Pt(space_pt);
+                            self.region.cursor_y += Pt(space_pt);
                         }
                         self.layout_content(child);
                         self.flush_line();
@@ -969,7 +987,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     // cursor_x advance.
                     for (i, child) in iter {
                         if i > 0 && space_pt > 0.0 {
-                            self.cursor_x += Pt(space_pt);
+                            self.region.cursor_x += Pt(space_pt);
                         }
                         self.layout_content(child);
                     }
@@ -997,7 +1015,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
                 // Box é INLINE: avança cursor.x apenas (sem flush_line).
                 // Aplica inset_left antes do body.
-                self.cursor_x += Pt(inset_left);
+                self.region.cursor_x += Pt(inset_left);
 
                 // Layout do body in-place na linha actual.
                 let _ = width;    // armazenado; refino futuro
@@ -1007,7 +1025,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.layout_content(body);
 
                 // Aplica inset_right após body.
-                self.cursor_x += Pt(inset_right);
+                self.region.cursor_x += Pt(inset_right);
             }
 
             // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block container ──
@@ -1033,20 +1051,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // em P156C — refino com refactor multi-region).
 
                 // 1. Termina linha em curso.
-                if self.cursor_x.0 > self.line_start_x.0 {
+                if self.region.cursor_x.0 > self.region.line_start_x.0 {
                     self.flush_line();
                 }
 
                 // 2. Captura cursor.y para verificar height mínimo no fim.
-                let start_y = self.cursor_y.0;
+                let start_y = self.region.cursor_y.0;
 
                 // 3. Aplica inset top.
-                self.cursor_y += Pt(inset_top);
+                self.region.cursor_y += Pt(inset_top);
 
                 // 4. Aplica inset left (e width se especificado).
-                let saved_line_start = self.line_start_x;
-                self.line_start_x = saved_line_start + Pt(inset_left);
-                self.cursor_x     = self.line_start_x;
+                let saved_line_start = self.region.line_start_x;
+                self.region.line_start_x = saved_line_start + Pt(inset_left);
+                self.region.cursor_x     = self.region.line_start_x;
 
                 // Se width especificado, comportamento simplificado: o body
                 // é layouted normalmente. Hard-limiting da largura exigiria
@@ -1059,20 +1077,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.flush_line();
 
                 // 6. Aplica inset bottom.
-                self.cursor_y += Pt(inset_bottom);
+                self.region.cursor_y += Pt(inset_bottom);
 
                 // 7. Se height: Some(h), garantir que avançámos pelo menos h.
                 if let Some(h) = height {
                     let h_pt = h.resolve_pt(font);
-                    let consumed = self.cursor_y.0 - start_y;
+                    let consumed = self.region.cursor_y.0 - start_y;
                     if consumed < h_pt {
-                        self.cursor_y += Pt(h_pt - consumed);
+                        self.region.cursor_y += Pt(h_pt - consumed);
                     }
                 }
 
                 // 8. Restaura line_start_x.
-                self.line_start_x = saved_line_start;
-                self.cursor_x     = saved_line_start;
+                self.region.line_start_x = saved_line_start;
+                self.region.cursor_x     = saved_line_start;
             }
 
             // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ──
@@ -1101,7 +1119,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // actuais a Page e reseta cursor.
             Content::Pagebreak { weak: _, to } => {
                 // 1. Termina linha em curso (caso contrário fica meio-render).
-                if self.cursor_x.0 > self.line_start_x.0 {
+                if self.region.cursor_x.0 > self.region.line_start_x.0 {
                     self.flush_line();
                 }
                 // 2. Força nova página (mesmo se actual está vazia — vanilla
@@ -1130,9 +1148,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     ("", "")
                 };
                 if *block {
-                    if self.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+                    if self.region.cursor_x.0 > self.page_config.margin { self.flush_line(); }
                     let margin_pt = Pt(self.page_config.margin);
-                    self.cursor_x = margin_pt + self.font_size_pt * 1.5;
+                    self.region.cursor_x = margin_pt + self.font_size_pt * 1.5;
                     if !open.is_empty() {
                         self.layout_content(&Content::text(open));
                     }
@@ -1142,12 +1160,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     }
                     if let Some(a) = attribution {
                         self.flush_line();
-                        self.cursor_x = margin_pt + self.font_size_pt * 1.5;
+                        self.region.cursor_x = margin_pt + self.font_size_pt * 1.5;
                         self.layout_content(&Content::text("— "));
                         self.layout_content(a);
                     }
                     self.flush_line();
-                    self.cursor_x = margin_pt;
+                    self.region.cursor_x = margin_pt;
                 } else {
                     if !open.is_empty() {
                         self.layout_content(&Content::text(open));
@@ -1165,14 +1183,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         }
     }
     pub fn finish(mut self) -> PagedDocument {
-        for item in self.current_line.drain(..) {
-            self.current_items.push(item);
+        for item in self.region.current_line.drain(..) {
+            self.region.current_items.push(item);
         }
-        if !self.current_items.is_empty() {
+        if !self.region.current_items.is_empty() {
             let page = Page {
-                width:  self.page_config.width,
-                height: self.page_config.height,
-                items:  self.current_items,
+                width:  self.region.width,
+                height: self.region.height,
+                items:  self.region.current_items,
             };
             self.pages.push(page);
         }
@@ -1371,22 +1389,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         _cell_width: f64,
     ) -> (f64, Vec<FrameItem>) {
         // Salvar estado.
-        let saved_items         = std::mem::take(&mut self.current_items);
-        let saved_line          = std::mem::take(&mut self.current_line);
-        let saved_x             = self.cursor_x;
-        let saved_y             = self.cursor_y;
-        let saved_line_start_x  = self.line_start_x;
+        let saved_items         = std::mem::take(&mut self.region.current_items);
+        let saved_line          = std::mem::take(&mut self.region.current_line);
+        let saved_x             = self.region.cursor_x;
+        let saved_y             = self.region.cursor_y;
+        let saved_line_start_x  = self.region.line_start_x;
         let saved_unconstrained = self.is_height_unconstrained;
 
         // Inicializar cursor local — x = cell_x, y = ascender (como o layout principal).
         // `line_start_x = cell_x` garante que `flush_line()` dentro da célula
         // (chamado por Shape, word-wrap, etc.) reinicia o cursor à coluna
         // da célula, não à margem global da página (Passo 81.5).
-        self.cursor_x     = Pt(cell_x);
-        self.line_start_x = Pt(cell_x);
+        self.region.cursor_x     = Pt(cell_x);
+        self.region.line_start_x = Pt(cell_x);
         let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
-        self.cursor_y = ascender;
-        let start_y = self.cursor_y.0;
+        self.region.cursor_y = ascender;
+        let start_y = self.region.cursor_y.0;
 
         // Contexto sem altura delimitada — Content::Align decai VAlign::Bottom
         // e VAlign::Horizon para Top (não há "fundo" para ancorar). Passo 82.
@@ -1395,19 +1413,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.layout_content(content);
 
         // Flush de itens pendentes sem avançar linha (evitar double advance).
-        for item in self.current_line.drain(..) {
-            self.current_items.push(item);
+        for item in self.region.current_line.drain(..) {
+            self.region.current_items.push(item);
         }
 
-        let end_y       = self.cursor_y.0;
+        let end_y       = self.region.cursor_y.0;
         let cell_height = (end_y - start_y).max(0.0);
 
         // Recuperar items do sub-frame e restaurar estado.
-        let cell_items      = std::mem::replace(&mut self.current_items, saved_items);
-        self.cursor_x                = saved_x;
-        self.cursor_y                = saved_y;
-        self.line_start_x            = saved_line_start_x;
-        self.current_line            = saved_line;
+        let cell_items      = std::mem::replace(&mut self.region.current_items, saved_items);
+        self.region.cursor_x                = saved_x;
+        self.region.cursor_y                = saved_y;
+        self.region.line_start_x            = saved_line_start_x;
+        self.region.current_line            = saved_line;
         self.is_height_unconstrained = saved_unconstrained;
 
         (cell_height, cell_items)

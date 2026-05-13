@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/measurements`
-Hash do Código: c89617ca
+Hash do Código: a354a7b1
 
 **Camada**: L3.
 **Fase**: M8 / P204G.
@@ -68,8 +68,11 @@ memoized — magnitude desproporcional).
 
 Wrapper newtype `CountingIntrospector<I: Introspector>` que
 delega cada método ao `inner: I` e incrementa `AtomicUsize`
-global por método (20 métodos do trait `Introspector`).
-Aplicado em test fixtures (não invade L1 production).
+global por método (26 métodos do trait `Introspector` — 20
+originais + `query_labelled` (P207B) + `label_count` (P207C)
++ 4 page-aware `pages`/`page`/`page_numbering`/`page_supplement`
+(P207D), todos M9c). Aplicado em test fixtures (não invade L1
+production).
 
 API exposta:
 
@@ -106,9 +109,11 @@ introspector_call_counts}`.
 ## Restrições absolutas
 
 - L3 (infraestrutura I/O-adjacente; sem lógica de domínio).
-- 20 `AtomicUsize` globais correspondendo aos 20 métodos do
-  trait `Introspector` (ordem fixada na constante
-  `INTROSPECTOR_METHODS`).
+- 26 `AtomicUsize` globais correspondendo aos 26 métodos do
+  trait `Introspector` — 20 originais + `query_labelled`
+  (P207B) + `label_count` (P207C) + 4 page-aware (`pages`,
+  `page`, `page_numbering`, `page_supplement`) (P207D) —
+  em ordem fixada na constante `INTROSPECTOR_METHODS`.
 - 2 `AtomicUsize` globais para `EVICT_CALLS` e
   `LAST_MAX_AGE`.
 - `Ordering::Relaxed` em todos os accesses (não há
@@ -182,6 +187,7 @@ introspector_call_counts}`.
   `feature = "testing"`).
 - Trait `Introspector`:
   `01_core/src/entities/introspector.rs:40` (`#[comemo::track]`
-  com 20 métodos).
+  com 26 métodos — 20 originais + `query_labelled` (P207B) +
+  `label_count` (P207C) + 4 page-aware (P207D), todos M9c).
 - V12 disciplina L4: `04_wiring/src/main.rs:101` (nota
   "L4 faz I/O trivial sem criar tipos — composição pura").

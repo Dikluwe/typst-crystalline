@@ -430,37 +430,196 @@ pub fn native_query(
     _current_file:      FileId,
     _figure_numbering:  Option<&str>,
 ) -> SourceResult<Value> {
-    use crate::entities::element_kind::ElementKind;
     use crate::entities::introspector::Introspector;
-    use crate::entities::selector::Selector;
     expect_no_named(&args.named)?;
-    match args.items.as_slice() {
+    let selector = parse_selector_arg(&args.items, "query")?;
+    let locations = ctx.introspector.query(&selector);
+    let values: Vec<Value> = locations
+        .into_iter()
+        .map(Value::Location)
+        .collect();
+    Ok(Value::Array(values))
+}
+
+/// **P209B (M9c)** — Parse selector arg para `native_query` +
+/// `native_locate`. Dispatch por `Value` variant:
+///
+/// - `Value::Str("<name>")` (entre `<` e `>`) → `Selector::Label(Label(name))`.
+/// - `Value::Str("kind")` → `Selector::Kind(ElementKind::from_name(kind))`.
+/// - `Value::Location(loc)` → `Selector::Location(loc)`.
+///
+/// `func_name` é usado nas mensagens de erro para diferenciar
+/// `query()` vs `locate()`.
+fn parse_selector_arg(
+    items:     &[Value],
+    func_name: &str,
+) -> SourceResult<crate::entities::selector::Selector> {
+    use crate::entities::element_kind::ElementKind;
+    use crate::entities::label::Label;
+    use crate::entities::selector::Selector;
+    let msg = |s: String| -> SourceResult<Selector> {
+        Err(vec![SourceDiagnostic::error(Span::detached(), s)])
+    };
+    match items {
+        [Value::Str(s)]
+            if s.len() >= 2 && s.starts_with('<') && s.ends_with('>') =>
+        {
+            // P209B: <name> syntax → Selector::Label.
+            let name = &s[1..s.len() - 1];
+            Ok(Selector::Label(Label(name.to_string())))
+        }
         [Value::Str(kind_str)] => {
             match ElementKind::from_name(kind_str.as_str()) {
-                Some(kind) => {
-                    let selector = Selector::Kind(kind);
-                    let locations = ctx.introspector.query(&selector);
-                    let values: Vec<Value> = locations
-                        .into_iter()
-                        .map(Value::Location)
-                        .collect();
-                    Ok(Value::Array(values))
-                }
-                None => err(format!(
-                    "query(): kind '{}' não reconhecido (válidos: \
+                Some(kind) => Ok(Selector::Kind(kind)),
+                None => msg(format!(
+                    "{}(): kind '{}' não reconhecido (válidos: \
                      heading, figure, citation, metadata, state, \
-                     state_update, outline)",
-                    kind_str
+                     state_update, outline). Para label, use \
+                     `<nome>` syntax.",
+                    func_name, kind_str
                 )),
             }
         }
+        [Value::Location(loc)] => {
+            // P209B: Value::Location dispatch.
+            Ok(Selector::Location(*loc))
+        }
+        [other] => msg(format!(
+            "{}() requer string ou location, recebeu {}. \
+             Tipos suportados: \"kind\", \"<label>\", \
+             Value::Location. (Regex requer P209D; And/Or \
+             ainda só Rust API.)",
+            func_name, other.type_name()
+        )),
+        _ => msg(format!(
+            "{}() requer 1 argumento (selector), recebeu {}",
+            func_name, items.len()
+        )),
+    }
+}
+
+/// **P208B (M9c)** — `here()` — retorna a Location "actual" disponível
+/// no `EvalContext`.
+///
+/// Paridade vanilla: `here(context: Tracked<Context>) -> HintedStrResult<Location>`.
+/// Cristalino diverge per P205A.div-1: lê `ctx.current_location`
+/// directamente (sem `Tracked<Context>` envolvendo, pattern P174 +
+/// `native_query` P175/P179). Retorna `Value::Location(loc)` quando
+/// `current_location` está populated; erro contextual coerente caso
+/// contrário.
+///
+/// **Mecanismo de população** (P208B infra minimal): `current_location`
+/// é `None` por defeito. Caller que conhece a Location actual
+/// (futuro show-rule para `Content::Context` block análogo a vanilla
+/// `ContextElem`; tests sintéticos) seta o field antes de invocar
+/// eval. Sub-mecanismo de captura automática no eval walk é deferred
+/// per P208B C1 (zero consumers production confirmado em P208A A5 +
+/// P208B C1.3).
+///
+/// **Sem args** (vanilla recebe Tracked<Context> só; cristalino sem
+/// args explícitos).
+pub fn native_here(
+    ctx:               &mut EvalContext,
+    args:              &Args,
+    _world:            &dyn crate::contracts::world::World,
+    _current_file:     FileId,
+    _figure_numbering: Option<&str>,
+) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    if !args.items.is_empty() {
+        return err(format!(
+            "here() não aceita argumentos, recebeu {}",
+            args.items.len()
+        ));
+    }
+    match ctx.current_location {
+        Some(loc) => Ok(Value::Location(loc)),
+        None => err(
+            "here() chamado fora de contexto locatable — \
+             current_location não populado (P208B: infra minimal; \
+             captura automática no walk é deferred)".to_string()
+        ),
+    }
+}
+
+/// **P210B (M9c)** — `counter_step(key)` — emite
+/// `Content::CounterUpdate { key, action: Step }` que aplica
+/// em layout time.
+///
+/// Paridade vanilla: `counter.step()` → emite `CounterUpdateElem`.
+/// Cristalino devolve `Value::Content(Content::CounterUpdate {...})`
+/// que, quando inserido no documento, faz o Layouter aplicar
+/// `CounterAction::Step` ao counter `key`.
+///
+/// **Não depende de `current_location`** (per P210A A3) — emite
+/// Content estático; layout-time semantics. Distinto de
+/// `counter.display`/`state.get` (deferred per P210A C3).
+///
+/// Q1=β subset minimal — apenas `counter.step()` materializado
+/// nesta passada; display/get aguardam walk advance
+/// implementação.
+pub fn native_counter_step(
+    _ctx:              &mut EvalContext,
+    args:              &Args,
+    _world:            &dyn crate::contracts::world::World,
+    _current_file:     FileId,
+    _figure_numbering: Option<&str>,
+) -> SourceResult<Value> {
+    use crate::entities::content::Content;
+    use crate::entities::counter_update::CounterUpdate as CounterAction;
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key)] => {
+            let content = Content::CounterUpdate {
+                key:    key.to_string(),
+                action: CounterAction::Step,
+            };
+            Ok(Value::Content(content))
+        }
         [other] => err(format!(
-            "query() requer string como argumento, recebeu {}",
+            "counter_step() requer string como argumento (key), \
+             recebeu {}",
             other.type_name()
         )),
         _ => err(format!(
-            "query() requer 1 argumento (kind), recebeu {}",
+            "counter_step() requer 1 argumento (key), recebeu {}",
             args.items.len()
         )),
     }
+}
+
+/// **P208C (M9c)** — `locate(kind)` — retorna a **primeira** Location
+/// de um elemento do `kind` indicado.
+///
+/// Paridade vanilla: `locate(selector) -> Location` retorna primeira
+/// match. Cristalino P208C aceita **apenas `kind-as-string`** (paridade
+/// com `native_query` P175 minimal). `locate(<label>)` requer
+/// `Selector::Label` que será materializado em P209 (per
+/// `P207A.div-1` Q-decisões).
+///
+/// Reusa pattern literal de `native_query`:
+/// - 1 arg `Value::Str(kind)`.
+/// - `ElementKind::from_name(kind)` → `Selector::Kind`.
+/// - `ctx.introspector.query(&selector).first().copied()`.
+///
+/// Retorno:
+/// - `Value::Location(loc)` se kind tem ≥1 match.
+/// - `Value::None` se kind válido mas sem matches (`Vec::first` →
+///   `None`).
+/// - `SourceResult::Err` se kind inválido ou arg não-string.
+pub fn native_locate(
+    ctx:               &mut EvalContext,
+    args:              &Args,
+    _world:            &dyn crate::contracts::world::World,
+    _current_file:     FileId,
+    _figure_numbering: Option<&str>,
+) -> SourceResult<Value> {
+    use crate::entities::introspector::Introspector;
+    expect_no_named(&args.named)?;
+    let selector = parse_selector_arg(&args.items, "locate")?;
+    let first = ctx.introspector.query(&selector).first().copied();
+    Ok(match first {
+        Some(loc) => Value::Location(loc),
+        None      => Value::None,
+    })
 }

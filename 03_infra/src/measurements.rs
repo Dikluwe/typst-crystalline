@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/measurements.md
-//! @prompt-hash 84928cb2
+//! @prompt-hash 0520956b
 //! @layer L3
-//! @updated 2026-05-07
+//! @updated 2026-05-12
 //!
 //! **P204G (M8)** — Measurements internos per ADR-0073:
 //! cache stats (`crystalline_evict` calls + last `max_age`)
@@ -25,6 +25,9 @@
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
+use std::num::NonZeroUsize;
+
+use ecow::EcoString;
 use typst_core::entities::bib_entry::BibEntry;
 use typst_core::entities::content::Content;
 use typst_core::entities::element_kind::ElementKind;
@@ -42,7 +45,7 @@ static LAST_MAX_AGE: AtomicUsize = AtomicUsize::new(0);
 
 /// Ordem fixa dos 20 métodos do trait `Introspector`. Índice nesta
 /// constante = índice em `CALL_COUNTERS`.
-pub const INTROSPECTOR_METHODS: [&str; 20] = [
+pub const INTROSPECTOR_METHODS: [&str; 26] = [
     "query_by_kind",
     "query_by_label",
     "query_first",
@@ -63,9 +66,20 @@ pub const INTROSPECTOR_METHODS: [&str; 20] = [
     "flat_counter_at",
     "resolved_label_for",
     "headings_for_toc",
+    // P207B (M9c)
+    "query_labelled",
+    // P207C (M9c)
+    "label_count",
+    // P207D (M9c) — 4 page-aware methods
+    "pages",
+    "page",
+    "page_numbering",
+    "page_supplement",
 ];
 
-static CALL_COUNTERS: [AtomicUsize; 20] = [
+static CALL_COUNTERS: [AtomicUsize; 26] = [
+    AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
+    AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
@@ -86,8 +100,10 @@ pub struct CacheStats {
 
 /// Snapshot dos counters de invocação do trait `Introspector`.
 ///
-/// `total` agrega chamadas a todos os 20 métodos. `per_method`
-/// preserva ordem de `INTROSPECTOR_METHODS`.
+/// `total` agrega chamadas a todos os 26 métodos (20 originais +
+/// `query_labelled` P207B + `label_count` P207C + 4 page-aware
+/// P207D: `pages`, `page`, `page_numbering`, `page_supplement`).
+/// `per_method` preserva ordem de `INTROSPECTOR_METHODS`.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct CallCounts {
     pub total:      usize,
@@ -265,6 +281,36 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         record_call(19);
         self.inner.headings_for_toc()
     }
+
+    fn query_labelled(&self) -> Vec<(Label, Location)> {
+        record_call(20);
+        self.inner.query_labelled()
+    }
+
+    fn label_count(&self, label: &Label) -> usize {
+        record_call(21);
+        self.inner.label_count(label)
+    }
+
+    fn pages(&self, location: Location) -> Option<NonZeroUsize> {
+        record_call(22);
+        self.inner.pages(location)
+    }
+
+    fn page(&self, location: Location) -> Option<NonZeroUsize> {
+        record_call(23);
+        self.inner.page(location)
+    }
+
+    fn page_numbering(&self, location: Location) -> Option<&EcoString> {
+        record_call(24);
+        self.inner.page_numbering(location)
+    }
+
+    fn page_supplement(&self, location: Location) -> Option<&Content> {
+        record_call(25);
+        self.inner.page_supplement(location)
+    }
 }
 
 #[cfg(test)]
@@ -293,9 +339,12 @@ mod tests {
     fn p204g_introspector_call_counts_existe() {
         // Sentinel: confirma que `introspector_call_counts()` está
         // disponível e devolve `CallCounts`. Falha de compilação se
-        // função/tipo forem removidos.
+        // função/tipo forem removidos. Length 26 = 20 originais
+        // (P204G) + `query_labelled` (P207B) + `label_count` (P207C)
+        // + 4 page-aware (`pages`, `page`, `page_numbering`,
+        // `page_supplement`) (P207D).
         let counts: CallCounts = introspector_call_counts();
-        assert_eq!(counts.per_method.len(), 20);
+        assert_eq!(counts.per_method.len(), 26);
     }
 
     // ── C6 Test 1 (smoke): tracking activo após uso ──────────────────

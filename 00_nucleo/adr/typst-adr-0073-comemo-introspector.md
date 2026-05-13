@@ -1,21 +1,103 @@
 # ⚖️ ADR-0073: Adopção de `#[comemo::track]` no trait `Introspector` (M8)
 
-**Status**: **ACEITE (completo retroactivo, P206E
-2026-05-08)**.
+**Status**: **ACEITE (completo retroactivo + paridade trait
+estendida M9c, P212 2026-05-12)**.
 **Validado**: 2026-05-07 (P204H — 8/9 condições
 CUMPRIDAS; condição 9 PARCIAL por `P204F.div-1`);
 2026-05-08 (P206E — condição 9 fechada via matriz
-P206 com excepções documentadas).
+P206 com excepções documentadas); **2026-05-12 (P212 —
+paridade trait estendida com 6 novos métodos M9c per
+ADR-0076 ACEITE)**.
 **Data**: 2026-05-06 (PROPOSTO); 2026-05-07 (ACEITE
 estruturalmente fechado P204H); 2026-05-08 (ACEITE
-completo retroactivo P206E).
+completo retroactivo P206E); **2026-05-12 (paridade
+trait estendida M9c P212)**.
 **Sub-passo**: P204A (PROPOSTO); P204H (ACEITE
-estrutural); **P206E (transição retroactiva cond 9
+estrutural); P206E (transição retroactiva cond 9
 fechada — ver bloco "Fecho retroactivo cond 9 — P206E"
-abaixo)**.
+abaixo); **P212 (fecho retroactivo M9c — ver bloco
+"Fecho retroactivo M9c — P212" abaixo)**.
 **Diagnóstico prévio**:
 - `00_nucleo/diagnosticos/typst-passo-204A-auditoria-comemo.md` (P204A).
 - `00_nucleo/diagnosticos/typst-passo-204A-diagnostico.md` (P204A).
+
+---
+
+## Fecho retroactivo M9c — P212 2026-05-12
+
+**Data**: 2026-05-12.
+**Auditor**: P212 (encerramento marco M9c per ADR-0076 §Plano
+de validação cond #7).
+
+ADR-0073 originalmente especificou cond paridade trait
+literal vanilla com 20 métodos (estado M8). Marco M9c (per
+ADR-0076 ACEITE 2026-05-12) estendeu paridade trait com **6
+novos métodos** materializados ao longo da série P207:
+
+| Método novo | Sub-passo | Bloco M9c |
+|-------------|-----------|-----------|
+| `query_labelled() -> Vec<(Label, Location)>` | P207B | I — Trait extensions baixo-custo |
+| `label_count(&Label) -> usize` | P207C | II item 7 — Distinção 0/1/N labels |
+| `pages(loc) -> Option<NonZeroUsize>` | P207D | II item 10 — Page-aware |
+| `page(loc) -> Option<NonZeroUsize>` | P207D | II item 9 — Page-aware |
+| `page_numbering(loc) -> Option<&EcoString>` | P207D | II item 12 — Page-aware |
+| `page_supplement(loc) -> Option<&Content>` | P207D | II item 13 — Page-aware |
+
+**Trait `Introspector` cristalino passa de 20 para 26 métodos**.
+Paridade vanilla literal aproxima-se mais:
+
+- 20 métodos M8 (paridade base — fechada em P204H).
+- +5 métodos vanilla equivalentes em M9c (query_labelled,
+  label_count, pages, page, page_numbering, page_supplement).
+- Divergência intencional restante (per `P205A.div-1`):
+  vanilla `position` (renamed `position_of` em cristalino;
+  já contava); vanilla `query_count_before` (Q4=β deferred);
+  vanilla `Selector::Where` (Q2=γ deferred); vanilla
+  `Selector::Before/After/Within` (fora roadmap M9c).
+
+`page_numbering` cristalino diverge tipo (`Option<&EcoString>`
+vs vanilla `Option<&Numbering>` enum) — documentado em ADR-0024
++ ADR-0076 §P207D. Divergência arquitectónica legítima.
+
+### Sub-stores L1 novos M9c
+
+- **`PageStore`** (P207D) — paralelo a `SealedPositions`
+  (P205B/C). Wrapper `total_pages`/`numberings`/`supplements`.
+  Pre-injecção: queries page-aware retornam `None` gracfully.
+- **`Regex` wrapper** (P209D) — encapsula `regex::Regex` 1.x
+  per ADR-0077 ACEITE. Hash/Eq/PartialEq/Clone manuais via
+  pattern string. Consumer único: `Selector::Regex(Regex)`.
+
+### Regra empírica P207B §5 confirmada
+
+Cada trait method novo propaga obrigatóriamente a
+`CountingIntrospector` em `03_infra/src/measurements.rs`:
+- `INTROSPECTOR_METHODS` array: 20 → 26 entries.
+- `CALL_COUNTERS`: 20 → 26 slots.
+- `impl Introspector for CountingIntrospector`: +6 métodos.
+- Sentinel `p204g_introspector_call_counts_existe`: assertion
+  ajustada 20 → 26.
+
+Pattern formalizado em P207B §5 e mantido em P207C + P207D.
+**Não acionada** em P208/P209/P210 (stdlib funcs + variants
+enum ≠ trait methods).
+
+### Etiqueta fixada (P212)
+
+**ACEITE com paridade trait estendida M9c**.
+
+ADR-0073 mantém cond paridade trait satisfeita literalmente
+(M8 + extensão M9c documentada). Sem revogação de cláusulas
+prévias.
+
+### Cross-references P212
+
+- ADR-0076 ACEITE 2026-05-12 (marco M9c encerrado).
+- ADR-0077 ACEITE 2026-05-12 (regex L1 — Selector::Regex).
+- `00_nucleo/materialization/typst-passo-212-relatorio.md`
+  (encerramento marco M9c).
+- Sub-passos M9c: P207A-E (relatórios em `materialization/`),
+  P208A-D, P209A-E, P210A-C, P211A.
 
 ---
 

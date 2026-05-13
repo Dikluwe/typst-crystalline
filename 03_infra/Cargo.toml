@@ -14,6 +14,11 @@ thiserror  = { workspace = true }
 # [dependencies] no Passo 113 (ADR-0046) quando `pipeline.rs` expôs
 # `eval_to_module_with_sink` como API pública consumível pelo 04_wiring.
 comemo     = { workspace = true }
+# `EcoString`: P207D (M9c) precisa do tipo em `CountingIntrospector`
+# para delegar `Introspector::page_numbering(...) -> Option<&EcoString>`.
+# Antes era dev-dep apenas; promovido aqui por ser usado na impl
+# trait production.
+ecow       = { workspace = true }
 # `clap` foi removido no Passo 117 (ADR-0049): `ColorWhen` e
 # `resolve_colored_with` migraram para L2 (`02_shell/src/cli.rs`),
 # onde a CLI realmente vive. L3 voltou a ser I/O puro.
@@ -25,8 +30,7 @@ image       = { version = "0.24", default-features = false, features = ["png", "
 flate2      = "1.0"                 # compressão Zlib para PNG /FlateDecode
 
 [dev-dependencies]
-# `EcoString` em testes do dispatch font-aware (Passo 140B): tests
-# constroem `FontList::single(EcoString::from(...))`. `ecow` já é
-# dep transitiva via `typst-core`; promovida a dev-dep explícita
-# por ser usada no #[cfg(test)] de `pipeline.rs`.
-ecow = { workspace = true }
+# (P207D 2026-05-12: `ecow` promovido a `[dependencies]` porque
+# `CountingIntrospector::page_numbering` delega `Option<&EcoString>`.
+# Sem entries em dev-dependencies remanescentes — tests P140B
+# continuam a usar transitivamente via `[dependencies]`.)

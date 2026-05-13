@@ -40,8 +40,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
     pub(super) fn layout_word(&mut self, word: &str) {
         let w = self.word_width(word);
-        let right_margin = self.page_config.width - self.page_config.margin;
-        if self.cursor_x.0 + w.0 > right_margin && self.cursor_x.0 > self.page_config.margin {
+        let right_margin = self.region.width - self.page_config.margin;
+        if self.region.cursor_x.0 + w.0 > right_margin && self.region.cursor_x.0 > self.page_config.margin {
             // Passo 144 (ADR-0057): tentar hyphenation antes do
             // flush. Se `style.lang` define um idioma e `hypher`
             // produz pontos de quebra, escolher o maior prefixo
@@ -53,18 +53,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             if let Some(lang) = self.style.lang {
                 let break_points = super::hyphenation::hyphenate(word, &lang);
                 if !break_points.is_empty() {
-                    let available = right_margin - self.cursor_x.0;
+                    let available = right_margin - self.region.cursor_x.0;
                     for &point in break_points.iter().rev() {
                         let prefix: String = word.chars().take(point).collect();
                         let prefix_with_hyphen = format!("{}-", prefix);
                         let pw = self.word_width(&prefix_with_hyphen);
                         if pw.0 <= available {
-                            self.current_line.push(FrameItem::Text {
-                                pos:   Point { x: self.cursor_x, y: self.cursor_y },
+                            self.region.current_line.push(FrameItem::Text {
+                                pos:   Point { x: self.region.cursor_x, y: self.region.cursor_y },
                                 text:  prefix_with_hyphen.into(),
                                 style: self.style.clone(),
                             });
-                            self.cursor_x += pw;
+                            self.region.cursor_x += pw;
                             self.flush_line();
                             let rest: String = word.chars().skip(point).collect();
                             self.layout_word(&rest);
@@ -75,12 +75,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
             self.flush_line();
         }
-        self.current_line.push(FrameItem::Text {
-            pos:   Point { x: self.cursor_x, y: self.cursor_y },
+        self.region.current_line.push(FrameItem::Text {
+            pos:   Point { x: self.region.cursor_x, y: self.region.cursor_y },
             text:  word.into(),
             style: self.style.clone(),
         });
-        self.cursor_x += w + self.space_width();
+        self.region.cursor_x += w + self.space_width();
     }
 
     pub(super) fn flush_line(&mut self) {
@@ -88,7 +88,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // (Passo 83). Caso contrário, flush_line é um no-op semanticamente
         // — evita acumular line_height em cascata quando Shape/Image/Heading
         // chamam flush_line por segurança antes do seu próprio push.
-        let had_items = !self.current_line.is_empty();
+        let had_items = !self.region.current_line.is_empty();
 
         // Passo 138 (Fase B.2 DEBT-52): consumer leading.
         // `self.style` pode ter sido restaurado ao outer scope antes de
@@ -98,7 +98,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // `.style.leading` é o valor efectivo do baseline.
         //
         // Fórmula (opt soma): `line_height = default + user_leading`.
-        let line_leading_pt = self.current_line
+        let line_leading_pt = self.region.current_line
             .iter()
             .rev()
             .find_map(|item| match item {
@@ -109,33 +109,33 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             })
             .unwrap_or(0.0);
 
-        for item in self.current_line.drain(..) {
-            self.current_items.push(item);
+        for item in self.region.current_line.drain(..) {
+            self.region.current_items.push(item);
         }
         if had_items {
             let (_, line_height) = self.metrics.vertical_metrics(self.font_size_pt);
-            self.cursor_y += line_height + Pt(line_leading_pt);
+            self.region.cursor_y += line_height + Pt(line_leading_pt);
         }
         // Reiniciar ao início da linha actual — margem da página, ou cell_x
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).
-        self.cursor_x = self.line_start_x;
+        self.region.cursor_x = self.region.line_start_x;
 
-        if self.cursor_y.0 > self.page_config.height - self.page_config.margin {
+        if self.region.cursor_y.0 > self.region.height - self.page_config.margin {
             self.new_page();
         }
     }
 
     pub(super) fn new_page(&mut self) {
         let page = Page {
-            width:  self.page_config.width,
-            height: self.page_config.height,
-            items:  std::mem::take(&mut self.current_items),
+            width:  self.region.width,
+            height: self.region.height,
+            items:  std::mem::take(&mut self.region.current_items),
         };
         self.pages.push(page);
-        self.cursor_x = Pt(self.page_config.margin);
-        self.line_start_x = Pt(self.page_config.margin);
+        self.region.cursor_x = Pt(self.page_config.margin);
+        self.region.line_start_x = Pt(self.page_config.margin);
         let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
-        self.cursor_y = Pt(self.page_config.margin) + ascender;
+        self.region.cursor_y = Pt(self.page_config.margin) + ascender;
     }
 
     /// Número da página actual (1-indexed).

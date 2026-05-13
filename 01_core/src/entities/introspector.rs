@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash 918d279b
+//! @prompt-hash bfe24f58
 //! @layer L1
-//! @updated 2026-04-30
+//! @updated 2026-05-12
 //!
 //! `Introspector` trait + `TagIntrospector` impl concreta.
 //! P165 sub-passo .D (M3 Introspection — núcleo do query layer).
@@ -19,12 +19,14 @@ use crate::entities::label::Label;
 use crate::entities::label_registry::LabelRegistry;
 use crate::entities::location::Location;
 use crate::entities::metadata_store::MetadataStore;
+use crate::entities::page_store::PageStore;
 use crate::entities::selector::Selector;
 use crate::entities::bib_entry::BibEntry;
 use crate::entities::bib_store::BibStore;
 use crate::entities::resolved_label_store::ResolvedLabelStore;
 use crate::entities::state_registry::StateRegistry;
 use crate::entities::value::Value;
+use ecow::EcoString;
 
 /// Interface de consulta sobre elementos indexados pela introspecção.
 ///
@@ -176,6 +178,60 @@ pub trait Introspector: Send + Sync {
     /// (lacuna #3) e completa E2 estruturalmente. Consumer
     /// `layout/outline.rs:24` migrado para substitution-with-fallback.
     fn headings_for_toc(&self) -> &[(Label, crate::entities::content::Content, usize)];
+
+    /// **P207B (M9c)** — todos os labels registados com a respectiva
+    /// `Location`, ordenados alfabéticamente por `Label` (estabilidade
+    /// determinística). Delega a `LabelRegistry::iter()` + clone+copy.
+    /// Vazio se nenhum label foi adicionado.
+    ///
+    /// Equivalente vanilla: `Introspector::query_labelled()
+    /// -> EcoVec<Content>`. Cristalino retorna handles
+    /// `(Label, Location)` em vez de `Content` materializado, por
+    /// coerência com design pattern handle-based (ADR-0073 §C6 +
+    /// ADR-0074): consumers podem fazer lookup via `Location` quando
+    /// precisam do elemento concreto. Primeiro item Bloco I do
+    /// roadmap M9c (per ADR-0076).
+    fn query_labelled(&self) -> Vec<(Label, Location)>;
+
+    /// **P207C (M9c)** — Número de Locations associadas a `label`.
+    /// 0 se label nunca foi registado. Delega a
+    /// `LabelRegistry::count(label)`.
+    ///
+    /// Após o refactor P207C, `LabelRegistry` é multi-label
+    /// (`HashMap<Label, Vec<Location>>`), portanto `label_count`
+    /// distingue entre "inexistente" (0), "única" (1) e "duplicada"
+    /// (≥2). Equivalente vanilla: `Introspector::label_count(Label)
+    /// -> usize`. Resolve item 7 da auditoria P207A.
+    fn label_count(&self, label: &Label) -> usize;
+
+    /// **P207D (M9c)** — Total de páginas no documento. Vanilla
+    /// `PagedIntrospector::pages` ignora o argumento `location` e
+    /// devolve sempre o total; cristalino segue a mesma semântica.
+    /// `None` pre-injecção (`PageStore::empty()`); `Some(N)`
+    /// pós-`inject_pages`. Item 10 da auditoria P207A.
+    fn pages(&self, location: Location) -> Option<std::num::NonZeroUsize>;
+
+    /// **P207D (M9c)** — Número de página (1-based) onde `location`
+    /// aterra. Delega a `SealedPositions::position_of(location)?.page`.
+    /// `None` pre-injecção ou se Location não-locatable. Item 9
+    /// da auditoria P207A.
+    fn page(&self, location: Location) -> Option<std::num::NonZeroUsize>;
+
+    /// **P207D (M9c)** — Pattern de numbering para a página onde
+    /// `location` aterra. Combina `page(location)?` com
+    /// `PageStore::numbering_for_page`. Vanilla retorna
+    /// `Option<&Numbering>` (enum); cristalino retorna
+    /// `Option<&EcoString>` (pattern directo) per ADR-0024.
+    /// Item 12 da auditoria P207A.
+    fn page_numbering(&self, location: Location) -> Option<&EcoString>;
+
+    /// **P207D (M9c)** — Supplement para a página onde `location`
+    /// aterra. Combina `page(location)?` com
+    /// `PageStore::supplement_for_page`. Tipo `Option<&Content>`
+    /// idêntico a vanilla (cristalino preserva `Content` per
+    /// ADR-0026). Item 13 da auditoria P207A.
+    fn page_supplement(&self, location: Location)
+        -> Option<&crate::entities::content::Content>;
 }
 
 /// Implementação concreta de `Introspector` construída a partir de
@@ -244,6 +300,13 @@ pub struct TagIntrospector {
     /// (P205C C2 = Caminho A; P205A.div-1 — vanilla não tem
     /// Layouter monolítico).
     pub positions: crate::entities::sealed_positions::SealedPositions,
+    /// **P207D (M9c)** — sub-store sealed para metadata page-level
+    /// per ADR-0076. Injectado pós-layout via `inject_pages`
+    /// (paralelo a `inject_positions` P205C). Pre-injecção,
+    /// queries page-aware (`pages`, `page_numbering`,
+    /// `page_supplement`) retornam `None`. `page(location)` usa
+    /// `positions` directamente (não depende de `page_store`).
+    pub page_store: PageStore,
 }
 
 impl TagIntrospector {
@@ -273,6 +336,27 @@ impl TagIntrospector {
         sealed: crate::entities::sealed_positions::SealedPositions,
     ) {
         self.positions = sealed;
+    }
+
+    /// **P207D (M9c)** — Injecta `PageStore` produzido pós-layout
+    /// per ADR-0076. Paralelo a `inject_positions` (P205C):
+    /// pós-injecção, queries page-aware (`pages`, `page_numbering`,
+    /// `page_supplement`) começam a resolver.
+    ///
+    /// Padrão de uso típico:
+    /// ```ignore
+    /// let mut intr = introspect_with_introspector(content);
+    /// let doc = layout_with_introspector(content, intr.clone());
+    /// intr.inject_positions(doc.extracted_positions.clone());
+    /// // P207D: injectar page_store minimal (P207E completará
+    /// // com numberings + supplements quando captura no walk
+    /// // existir).
+    /// if let Some(total) = std::num::NonZeroUsize::new(doc.pages.len()) {
+    ///     intr.inject_pages(PageStore::from_total_pages(total));
+    /// }
+    /// ```
+    pub fn inject_pages(&mut self, page_store: PageStore) {
+        self.page_store = page_store;
     }
 }
 
@@ -335,6 +419,51 @@ impl Introspector for TagIntrospector {
     fn query(&self, selector: &Selector) -> Vec<Location> {
         match selector {
             Selector::Kind(kind) => self.query_by_kind(*kind),
+            // P209B (M9c): Label match → delega a query_by_label
+            // (devolve 0 ou 1 Location; P207C multi-label refactor
+            // mantém compat single-Location aqui).
+            Selector::Label(label) => self
+                .query_by_label(label)
+                .map(|loc| vec![loc])
+                .unwrap_or_default(),
+            // P209B (M9c): Location match → singleton trivial.
+            Selector::Location(loc) => vec![*loc],
+            // P209C (M9c): intersecção N-ária. Vazio → vec![]
+            // (Opção A; cristalino single-pass sem "universo").
+            Selector::And(sels) => {
+                if sels.is_empty() {
+                    return Vec::new();
+                }
+                let mut iter = sels.iter().map(|s| self.query(s));
+                let first: Vec<Location> = iter.next().unwrap();
+                iter.fold(first, |acc, next| {
+                    acc.into_iter()
+                        .filter(|loc| next.contains(loc))
+                        .collect()
+                })
+            }
+            // P209C (M9c): união N-ária dedupliquada preservando
+            // ordem de primeira-aparição.
+            Selector::Or(sels) => {
+                use std::collections::HashSet;
+                let mut seen: HashSet<Location> = HashSet::new();
+                let mut result: Vec<Location> = Vec::new();
+                for s in sels {
+                    for loc in self.query(s) {
+                        if seen.insert(loc) {
+                            result.push(loc);
+                        }
+                    }
+                }
+                result
+            }
+            // P209D (M9c): **stub `vec![]` documentado**. Cristalino
+            // single-pass não tem Content text durante query phase.
+            // Variant é materializado estructuralmente (ADR-0076 +
+            // ADR-0077); semântica de match-by-text fica para
+            // sub-passo dedicado quando Content text durante query
+            // for acessível (P212+).
+            Selector::Regex(_re) => Vec::new(),
         }
     }
 
@@ -382,6 +511,52 @@ impl Introspector for TagIntrospector {
 
     fn headings_for_toc(&self) -> &[(Label, crate::entities::content::Content, usize)] {
         &self.headings_for_toc
+    }
+
+    fn query_labelled(&self) -> Vec<(Label, Location)> {
+        // **P207B (M9c)**: delega a `LabelRegistry::iter()` (ordenado
+        // por Label). Clone+copy O(n) preserva ownership do registry;
+        // consumers ficam livres para mutar o resultado.
+        self.labels
+            .iter()
+            .map(|(label, location)| (label.clone(), *location))
+            .collect()
+    }
+
+    fn label_count(&self, label: &Label) -> usize {
+        // **P207C (M9c)**: delega a `LabelRegistry::count` (multi-label
+        // semântica). Distingue 0 / 1 / N Locations por label.
+        self.labels.count(label)
+    }
+
+    fn pages(&self, _location: Location) -> Option<std::num::NonZeroUsize> {
+        // **P207D (M9c)**: paridade com vanilla — ignora location e
+        // devolve total de páginas. `None` pre-injecção.
+        self.page_store.total_pages()
+    }
+
+    fn page(&self, location: Location) -> Option<std::num::NonZeroUsize> {
+        // **P207D (M9c)**: delega a `SealedPositions` (sub-store
+        // P205B). `page_store` não é necessário aqui.
+        self.positions.position_of(location).map(|p| p.page)
+    }
+
+    fn page_numbering(&self, location: Location) -> Option<&EcoString> {
+        // **P207D (M9c)**: combina `page(location)` com
+        // `PageStore::numbering_for_page`. Auto-bypass do trait
+        // method `page` para evitar recursão tracked.
+        let page = self.positions.position_of(location)?.page;
+        self.page_store.numbering_for_page(page)
+    }
+
+    fn page_supplement(&self, location: Location)
+        -> Option<&crate::entities::content::Content>
+    {
+        // **P207D (M9c)**: combina `page(location)` com
+        // `PageStore::supplement_for_page`. Auto-bypass idêntico ao
+        // `page_numbering`.
+        let page = self.positions.position_of(location)?.page;
+        self.page_store.supplement_for_page(page)
     }
 }
 
@@ -996,5 +1171,226 @@ mod tests {
         second.insert(loc(1), pos(2, 50.0, 60.0));
         i.inject_positions(SealedPositions::from_runtime(second));
         assert_eq!(i.position_of(loc(1)), Some(pos(2, 50.0, 60.0)));
+    }
+
+    // ── P207B (M9c) — query_labelled ────────────────────────────────
+
+    #[test]
+    fn p207b_query_labelled_em_introspector_vazio_devolve_vec_vazio() {
+        let i = TagIntrospector::empty();
+        assert_eq!(i.query_labelled(), Vec::<(Label, Location)>::new());
+    }
+
+    #[test]
+    fn p207b_query_labelled_um_label() {
+        let mut i = TagIntrospector::empty();
+        i.labels.add(lbl("intro"), loc(7));
+        assert_eq!(i.query_labelled(), vec![(lbl("intro"), loc(7))]);
+    }
+
+    #[test]
+    fn p207b_query_labelled_multiplos_ordenados_alfabeticamente() {
+        // Inserção em ordem arbitrária; output ordenado por Label
+        // garante determinismo independente do `HashMap::iter`
+        // interno (per ADR-0076 C1 — query_labelled determinístico).
+        let mut i = TagIntrospector::empty();
+        i.labels.add(lbl("gamma"), loc(30));
+        i.labels.add(lbl("alpha"), loc(10));
+        i.labels.add(lbl("beta"),  loc(20));
+        assert_eq!(
+            i.query_labelled(),
+            vec![
+                (lbl("alpha"), loc(10)),
+                (lbl("beta"),  loc(20)),
+                (lbl("gamma"), loc(30)),
+            ]
+        );
+    }
+
+    // ── P207C (M9c) — label_count via trait ─────────────────────────
+
+    // ── P207D (M9c) — Page-aware trait methods ──────────────────────
+
+    #[test]
+    fn p207d_pages_pre_injecao_devolve_none() {
+        let i = TagIntrospector::empty();
+        assert_eq!(i.pages(loc(1)), None);
+        assert_eq!(i.pages(loc(99)), None);
+    }
+
+    #[test]
+    fn p207d_pages_pos_injecao_devolve_total() {
+        use crate::entities::page_store::PageStore;
+        use std::num::NonZeroUsize;
+        let mut i = TagIntrospector::empty();
+        i.inject_pages(PageStore::from_total_pages(NonZeroUsize::new(7).unwrap()));
+        // Paridade vanilla: pages() ignora location.
+        assert_eq!(i.pages(loc(1)),   Some(NonZeroUsize::new(7).unwrap()));
+        assert_eq!(i.pages(loc(999)), Some(NonZeroUsize::new(7).unwrap()));
+    }
+
+    #[test]
+    fn p207d_page_pre_injecao_devolve_none() {
+        let i = TagIntrospector::empty();
+        // Sem positions injectado, page() devolve None.
+        assert_eq!(i.page(loc(1)), None);
+    }
+
+    #[test]
+    fn p207d_page_pos_injecao_positions_devolve_some() {
+        use crate::entities::sealed_positions::SealedPositions;
+        use std::collections::HashMap;
+        let mut i = TagIntrospector::empty();
+        let mut runtime = HashMap::new();
+        runtime.insert(loc(7),  pos(3, 0.0, 0.0));  // page 3
+        runtime.insert(loc(13), pos(5, 10.0, 20.0)); // page 5
+        i.inject_positions(SealedPositions::from_runtime(runtime));
+        // page() devolve o componente page da Position.
+        assert_eq!(i.page(loc(7)).map(|n| n.get()),  Some(3));
+        assert_eq!(i.page(loc(13)).map(|n| n.get()), Some(5));
+        // Location ausente: None.
+        assert_eq!(i.page(loc(99)), None);
+    }
+
+    #[test]
+    fn p207d_page_numbering_pre_injecao_devolve_none() {
+        let i = TagIntrospector::empty();
+        assert_eq!(i.page_numbering(loc(1)), None);
+    }
+
+    #[test]
+    fn p207d_page_numbering_pos_injecao_devolve_some() {
+        use crate::entities::page_store::PageStore;
+        use crate::entities::sealed_positions::SealedPositions;
+        use std::collections::HashMap;
+        use std::num::NonZeroUsize;
+        let mut i = TagIntrospector::empty();
+
+        // Injectar positions: loc 7 → page 1; loc 13 → page 2.
+        let mut runtime = HashMap::new();
+        runtime.insert(loc(7),  pos(1, 0.0, 0.0));
+        runtime.insert(loc(13), pos(2, 0.0, 0.0));
+        i.inject_positions(SealedPositions::from_runtime(runtime));
+
+        // Injectar page_store completo: 2 páginas com numbering.
+        let store = PageStore::from_runtime(
+            NonZeroUsize::new(2).unwrap(),
+            vec![
+                Some(EcoString::from("1")),
+                Some(EcoString::from("I")),
+            ],
+            vec![
+                crate::entities::content::Content::Empty,
+                crate::entities::content::Content::Empty,
+            ],
+        );
+        i.inject_pages(store);
+
+        assert_eq!(
+            i.page_numbering(loc(7)).map(|s| s.as_str()),
+            Some("1"),
+        );
+        assert_eq!(
+            i.page_numbering(loc(13)).map(|s| s.as_str()),
+            Some("I"),
+        );
+        // Location sem position: None.
+        assert_eq!(i.page_numbering(loc(99)), None);
+    }
+
+    #[test]
+    fn p207d_page_supplement_pre_injecao_devolve_none() {
+        let i = TagIntrospector::empty();
+        assert_eq!(i.page_supplement(loc(1)).is_none(), true);
+    }
+
+    #[test]
+    fn p207d_page_supplement_pos_injecao_devolve_some() {
+        use crate::entities::page_store::PageStore;
+        use crate::entities::sealed_positions::SealedPositions;
+        use std::collections::HashMap;
+        use std::num::NonZeroUsize;
+        let mut i = TagIntrospector::empty();
+
+        let mut runtime = HashMap::new();
+        runtime.insert(loc(7), pos(1, 0.0, 0.0));
+        i.inject_positions(SealedPositions::from_runtime(runtime));
+
+        let store = PageStore::from_runtime(
+            NonZeroUsize::new(1).unwrap(),
+            vec![None],
+            vec![crate::entities::content::Content::Empty],
+        );
+        i.inject_pages(store);
+
+        // Supplement existe (Content::Empty).
+        assert!(i.page_supplement(loc(7)).is_some());
+    }
+
+    #[test]
+    fn p207d_page_methods_e2e_pattern() {
+        // E2E: introspector vazio → inject positions + pages → 4
+        // métodos resolvem coerentemente.
+        use crate::entities::page_store::PageStore;
+        use crate::entities::sealed_positions::SealedPositions;
+        use std::collections::HashMap;
+        use std::num::NonZeroUsize;
+
+        let mut i = TagIntrospector::empty();
+        // Pre-tudo: 4 retornam None.
+        assert_eq!(i.pages(loc(1)),           None);
+        assert_eq!(i.page(loc(1)),            None);
+        assert_eq!(i.page_numbering(loc(1)),  None);
+        assert!(i.page_supplement(loc(1)).is_none());
+
+        // Inject positions: page 2 para loc(5).
+        let mut runtime = HashMap::new();
+        runtime.insert(loc(5), pos(2, 0.0, 0.0));
+        i.inject_positions(SealedPositions::from_runtime(runtime));
+
+        // Inject pages com numbering "II" e supplement Empty.
+        i.inject_pages(PageStore::from_runtime(
+            NonZeroUsize::new(3).unwrap(),
+            vec![None, Some(EcoString::from("II")), None],
+            vec![
+                crate::entities::content::Content::Empty,
+                crate::entities::content::Content::Empty,
+                crate::entities::content::Content::Empty,
+            ],
+        ));
+
+        // Pós-injecção: tudo resolve.
+        assert_eq!(i.pages(loc(5)).map(|n| n.get()),          Some(3));
+        assert_eq!(i.page(loc(5)).map(|n| n.get()),           Some(2));
+        assert_eq!(
+            i.page_numbering(loc(5)).map(|s| s.as_str()),
+            Some("II"),
+        );
+        assert!(i.page_supplement(loc(5)).is_some());
+    }
+
+    #[test]
+    fn p207c_introspector_label_count_via_trait() {
+        // Empty: 0 para qualquer label.
+        let mut i = TagIntrospector::empty();
+        assert_eq!(i.label_count(&lbl("ausente")), 0);
+
+        // Single insertion: 1.
+        i.labels.add(lbl("unica"), loc(1));
+        assert_eq!(i.label_count(&lbl("unica")), 1);
+
+        // Triple insertion para mesmo label (multi-label P207C).
+        i.labels.add(lbl("multi"), loc(10));
+        i.labels.add(lbl("multi"), loc(11));
+        i.labels.add(lbl("multi"), loc(12));
+        assert_eq!(i.label_count(&lbl("multi")), 3);
+
+        // Outros labels permanecem em 0.
+        assert_eq!(i.label_count(&lbl("ausente")), 0);
+
+        // Consistência com query_labelled: total de pares com label
+        // = soma de label_count para todos os labels únicos.
+        let total = i.query_labelled().len();
+        assert_eq!(total, i.label_count(&lbl("unica")) + i.label_count(&lbl("multi")));
     }
 }

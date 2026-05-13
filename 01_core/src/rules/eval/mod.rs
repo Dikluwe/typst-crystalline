@@ -113,6 +113,24 @@ pub struct EvalContext {
     /// **Read-only no eval**: stdlib lê, nunca escreve. Mutação
     /// exclusiva por `run_fixpoint`.
     pub introspector: crate::entities::introspector::TagIntrospector,
+
+    /// **P208B (M9c)** — `Location` "actual" disponível durante eval,
+    /// para suportar stdlib `here()` (P208B) e `locate()` (P208C).
+    ///
+    /// **Infra minimal**: `Default = None`. Cristalino single-pass +
+    /// fixpoint não avança `current_location` automaticamente no eval
+    /// walk (divergência arquitectónica vs vanilla `Tracked<Context>`
+    /// per P205A.div-1). Caller que conhece a Location actual (ex.:
+    /// futuro show-rule para `Content::Context` block análogo a
+    /// vanilla `ContextElem`, ou tests sintéticos) escreve este field
+    /// directamente via `with_current_location` antes de invocar
+    /// eval/stdlib. `here()` lê este field e devolve
+    /// `Value::Location(loc)`; se `None`, erro contextual coerente.
+    ///
+    /// Mecanismo de captura no eval walk (sub-mecanismo i avançado)
+    /// fica deferred — emerge naturalmente quando `Content::Context`
+    /// block for materializado (sub-passo dedicado pós-P208).
+    pub current_location: Option<crate::entities::location::Location>,
 }
 
 impl EvalContext {
@@ -122,7 +140,19 @@ impl EvalContext {
             max_loop_iterations: 1_000_000,
             next_rule_id: 0,
             introspector: crate::entities::introspector::TagIntrospector::empty(),
+            current_location: None,
         }
+    }
+
+    /// **P208B (M9c)** — Setter conveniente para `current_location`.
+    /// Usado em tests sintéticos e por consumers futuros que conhecem
+    /// a Location actual antes de invocar eval/stdlib `here()`.
+    pub fn with_current_location(
+        mut self,
+        location: crate::entities::location::Location,
+    ) -> Self {
+        self.current_location = Some(location);
+        self
     }
 
     /// Incrementa o contador de iterações e retorna Err se o limite foi atingido.
@@ -526,7 +556,7 @@ fn make_stdlib() -> Scope {
         make_calc_module, native_align, native_assert, native_bibliography, native_block, native_box, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
-        native_counter_at, native_counter_final, native_lower, native_luma, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_update, native_state_update_with,
+        native_counter_at, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_update, native_state_update_with,
         native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_scale, native_skew, native_stack, native_str, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms, native_type, native_upper, native_v,
     };
@@ -572,6 +602,20 @@ fn make_stdlib() -> Scope {
     // da iter de fixpoint anterior. Retorna Value::Int(count) — forma
     // minimal sem Value::Location.
     scope.define("query", Value::Func(Func::native("query", native_query)));
+    // P208B (M9c Bloco IV): here() — retorna Value::Location(loc) onde
+    // loc = ctx.current_location. Erro contextual se current_location
+    // é None (P208B infra minimal; captura automática deferred).
+    scope.define("here", Value::Func(Func::native("here", native_here)));
+    // P208C (M9c Bloco IV): locate(kind) — retorna primeira Location
+    // do kind indicado, ou Value::None se sem matches. Reusa pattern
+    // de native_query + Selector::Kind (P175 minimal); locate(<label>)
+    // requer P209 (Selector::Label).
+    scope.define("locate", Value::Func(Func::native("locate", native_locate)));
+    // P210B (M9c Bloco V): counter_step(key) — emite
+    // Content::CounterUpdate { key, action: Step } que aplica em
+    // layout time. Q1=β subset minimal (counter.display + state.get
+    // deferred até walk advance per P210A C3).
+    scope.define("counter_step", Value::Func(Func::native("counter_step", native_counter_step)));
     // P176 (M9 sub-passo 6): counter_final(key) — formato hierárquico
     // do counter na iter de fixpoint anterior. Reusa
     // Introspector::formatted_counter (P170). Retorna Value::Str.

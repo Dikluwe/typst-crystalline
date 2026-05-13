@@ -33,7 +33,7 @@ mod layout;
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
 pub use crate::rules::stdlib::foundations::{
-    native_counter_at, native_counter_final, native_float, native_int, native_len, native_luma, native_metadata, native_query, native_range, native_rgb,
+    native_counter_at, native_counter_final, native_counter_step, native_float, native_here, native_int, native_len, native_locate, native_luma, native_metadata, native_query, native_range, native_rgb,
     native_state, native_state_update, native_state_update_with, native_str, native_type,
 };
 pub use crate::rules::stdlib::calc::make_calc_module;
@@ -298,6 +298,501 @@ mod tests {
         use crate::entities::location::Location;
         let v = Value::Location(Location::from_raw(42));
         assert_eq!(v.type_name(), "location");
+    }
+
+    // ── P208B (M9c Bloco IV) — here() infra minimal ─────────────────────
+
+    #[test]
+    fn p208b_here_sem_current_location_retorna_err_contextual() {
+        // Pre-population: EvalContext::new() default current_location = None.
+        // here() retorna erro contextual coerente (não panic).
+        null_ctx!(ctx);
+        let r = native_here(
+            &mut ctx,
+            &p(vec![]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err(), "here() sem current_location deve falhar");
+        // Erro contém menção a "here()" ou similar — não validar texto exacto.
+    }
+
+    #[test]
+    fn p208b_here_com_current_location_retorna_value_location() {
+        // Setter conveniente: with_current_location.
+        use crate::entities::location::Location;
+        let mut ctx = EvalContext::new().with_current_location(
+            Location::from_raw(42),
+        );
+        let r = native_here(
+            &mut ctx,
+            &p(vec![]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Location(Location::from_raw(42)));
+        assert_eq!(r.type_name(), "location");
+    }
+
+    #[test]
+    fn p208b_here_com_args_retorna_err() {
+        // here() não aceita argumentos (paridade vanilla: sem args).
+        use crate::entities::location::Location;
+        let mut ctx = EvalContext::new().with_current_location(
+            Location::from_raw(1),
+        );
+        let r = native_here(
+            &mut ctx,
+            &p(vec![Value::Int(99)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err(), "here(99) deve falhar — sem args");
+    }
+
+    #[test]
+    fn p208b_here_field_writable_directamente() {
+        // Pattern alternativo: write directo ao field (sem setter).
+        // Útil quando consumer já tem &mut EvalContext.
+        use crate::entities::location::Location;
+        null_ctx!(ctx);
+        assert!(ctx.current_location.is_none());
+
+        ctx.current_location = Some(Location::from_raw(7));
+        let r = native_here(
+            &mut ctx,
+            &p(vec![]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Location(Location::from_raw(7)));
+    }
+
+    // ── P208C (M9c Bloco IV) — locate(kind) ──────────────────────────
+
+    #[test]
+    fn p208c_locate_kind_existente_retorna_some_location() {
+        // Popula introspector com 2 headings; locate("heading")
+        // retorna a PRIMEIRA Location (Vec::first).
+        use crate::entities::element_kind::ElementKind;
+        use crate::entities::location::Location;
+        null_ctx!(ctx);
+        ctx.introspector.kind_index
+            .entry(ElementKind::Heading)
+            .or_default()
+            .push(Location::from_raw(10));
+        ctx.introspector.kind_index
+            .entry(ElementKind::Heading)
+            .or_default()
+            .push(Location::from_raw(20));
+
+        let r = native_locate(
+            &mut ctx,
+            &p(vec![Value::Str("heading".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Location(Location::from_raw(10)));
+        assert_eq!(r.type_name(), "location");
+    }
+
+    #[test]
+    fn p208c_locate_kind_inexistente_retorna_none() {
+        // Introspector vazio; locate("figure") retorna Value::None
+        // (não Err — kind é válido, só não há matches).
+        null_ctx!(ctx);
+        let r = native_locate(
+            &mut ctx,
+            &p(vec![Value::Str("figure".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::None);
+    }
+
+    #[test]
+    fn p208c_locate_kind_invalido_retorna_err() {
+        // Kind inválido → erro contextual coerente.
+        null_ctx!(ctx);
+        let r = native_locate(
+            &mut ctx,
+            &p(vec![Value::Str("inexistente".into())]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err(), "kind inválido deve falhar");
+    }
+
+    #[test]
+    fn p208c_locate_arg_nao_string_retorna_err_com_hint_p209() {
+        // Arg não-string e não-Location → erro com hint.
+        // **Actualizado em P209B**: `Value::Location` agora é
+        // dispatched (não é mais erro). `Value::Int` continua a
+        // ser erro — hint actual menciona Regex pendente (P209D)
+        // e And/Or Rust-only.
+        null_ctx!(ctx);
+        let r = native_locate(
+            &mut ctx,
+            &p(vec![Value::Int(42)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err(), "arg não-string/location deve falhar");
+    }
+
+    // ── P209B (M9c Bloco VI) — Selector::Label + ::Location dispatch ──
+
+    #[test]
+    fn p209b_locate_label_syntax_retorna_some_location() {
+        // <nome> syntax → Selector::Label. Popula introspector
+        // com label "intro" → loc(7); locate("<intro>") deve
+        // retornar Value::Location(loc(7)).
+        use crate::entities::label::Label;
+        use crate::entities::location::Location;
+        null_ctx!(ctx);
+        ctx.introspector.labels.add(
+            Label("intro".to_string()),
+            Location::from_raw(7),
+        );
+        let r = native_locate(
+            &mut ctx,
+            &p(vec![Value::Str("<intro>".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Location(Location::from_raw(7)));
+    }
+
+    #[test]
+    fn p209b_locate_label_inexistente_retorna_none() {
+        // <nome> que não existe → query devolve Vec vazio →
+        // locate() devolve Value::None.
+        null_ctx!(ctx);
+        let r = native_locate(
+            &mut ctx,
+            &p(vec![Value::Str("<ausente>".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::None);
+    }
+
+    #[test]
+    fn p209b_query_location_arg_devolve_singleton() {
+        // Value::Location → Selector::Location → singleton
+        // [loc]. query() retorna Value::Array com 1 entry.
+        use crate::entities::location::Location;
+        null_ctx!(ctx);
+        let r = native_query(
+            &mut ctx,
+            &p(vec![Value::Location(Location::from_raw(42))]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(
+            r,
+            Value::Array(vec![Value::Location(Location::from_raw(42))]),
+        );
+    }
+
+    #[test]
+    fn p209b_locate_location_arg_retorna_propria_location() {
+        // Selector::Location é singleton trivial → locate(loc)
+        // retorna Value::Location(loc).
+        use crate::entities::location::Location;
+        null_ctx!(ctx);
+        let r = native_locate(
+            &mut ctx,
+            &p(vec![Value::Location(Location::from_raw(99))]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::Location(Location::from_raw(99)));
+    }
+
+    #[test]
+    fn p209b_query_label_via_introspector_directo() {
+        // Test API directo: Introspector::query(Selector::Label)
+        // delega a query_by_label.
+        use crate::entities::introspector::Introspector;
+        use crate::entities::label::Label;
+        use crate::entities::location::Location;
+        use crate::entities::selector::Selector;
+        null_ctx!(ctx);
+        ctx.introspector.labels.add(
+            Label("a".to_string()),
+            Location::from_raw(1),
+        );
+        let r = ctx.introspector.query(
+            &Selector::Label(Label("a".to_string())),
+        );
+        assert_eq!(r, vec![Location::from_raw(1)]);
+        // Label inexistente → vazio.
+        let r2 = ctx.introspector.query(
+            &Selector::Label(Label("b".to_string())),
+        );
+        assert!(r2.is_empty());
+    }
+
+    // ── P209C (M9c Bloco VI) — Selector::And + Or query semantics ─────
+
+    #[test]
+    fn p209c_query_and_vazio_devolve_empty() {
+        // Opção A: And(vec![]) → empty Vec.
+        use crate::entities::introspector::Introspector;
+        use crate::entities::location::Location;
+        use crate::entities::selector::Selector;
+        use ecow::EcoVec;
+        null_ctx!(ctx);
+        let r = ctx.introspector.query(&Selector::And(EcoVec::new()));
+        assert_eq!(r, Vec::<Location>::new());
+    }
+
+    #[test]
+    fn p209c_query_or_vazio_devolve_empty() {
+        use crate::entities::introspector::Introspector;
+        use crate::entities::location::Location;
+        use crate::entities::selector::Selector;
+        use ecow::EcoVec;
+        null_ctx!(ctx);
+        let r = ctx.introspector.query(&Selector::Or(EcoVec::new()));
+        assert_eq!(r, Vec::<Location>::new());
+    }
+
+    #[test]
+    fn p209c_query_and_interseccao_de_dois() {
+        // Popular: heading na loc 7 com label "a"; figure na loc 10
+        // sem label. And([Kind(heading), Label(a)]) → [loc(7)].
+        use crate::entities::element_kind::ElementKind;
+        use crate::entities::introspector::Introspector;
+        use crate::entities::label::Label;
+        use crate::entities::location::Location;
+        use crate::entities::selector::Selector;
+        use ecow::EcoVec;
+        null_ctx!(ctx);
+        ctx.introspector.kind_index
+            .entry(ElementKind::Heading)
+            .or_default()
+            .push(Location::from_raw(7));
+        ctx.introspector.kind_index
+            .entry(ElementKind::Figure)
+            .or_default()
+            .push(Location::from_raw(10));
+        ctx.introspector.labels.add(
+            Label("a".to_string()),
+            Location::from_raw(7),
+        );
+
+        let r = ctx.introspector.query(&Selector::And(EcoVec::from(vec![
+            Selector::Kind(ElementKind::Heading),
+            Selector::Label(Label("a".to_string())),
+        ])));
+        // Apenas loc(7) está em ambos.
+        assert_eq!(r, vec![Location::from_raw(7)]);
+
+        // Intersecção vazia: label que não existe.
+        let r_empty = ctx.introspector.query(&Selector::And(EcoVec::from(vec![
+            Selector::Kind(ElementKind::Heading),
+            Selector::Label(Label("zzz".to_string())),
+        ])));
+        assert!(r_empty.is_empty());
+    }
+
+    #[test]
+    fn p209c_query_or_uniao_dedupliquada() {
+        // Popular: 2 headings (loc 1, 2), 1 figure (loc 3).
+        // Or([Kind(heading), Kind(figure)]) → união ordenada
+        // [1, 2, 3].
+        use crate::entities::element_kind::ElementKind;
+        use crate::entities::introspector::Introspector;
+        use crate::entities::location::Location;
+        use crate::entities::selector::Selector;
+        use ecow::EcoVec;
+        null_ctx!(ctx);
+        ctx.introspector.kind_index
+            .entry(ElementKind::Heading)
+            .or_default()
+            .push(Location::from_raw(1));
+        ctx.introspector.kind_index
+            .entry(ElementKind::Heading)
+            .or_default()
+            .push(Location::from_raw(2));
+        ctx.introspector.kind_index
+            .entry(ElementKind::Figure)
+            .or_default()
+            .push(Location::from_raw(3));
+
+        let r = ctx.introspector.query(&Selector::Or(EcoVec::from(vec![
+            Selector::Kind(ElementKind::Heading),
+            Selector::Kind(ElementKind::Figure),
+        ])));
+        assert_eq!(
+            r,
+            vec![
+                Location::from_raw(1),
+                Location::from_raw(2),
+                Location::from_raw(3),
+            ],
+        );
+
+        // Dedup: Or com mesma kind 2× não duplica.
+        let r_dedup = ctx.introspector.query(&Selector::Or(EcoVec::from(vec![
+            Selector::Kind(ElementKind::Heading),
+            Selector::Kind(ElementKind::Heading),
+        ])));
+        assert_eq!(
+            r_dedup,
+            vec![Location::from_raw(1), Location::from_raw(2)],
+        );
+    }
+
+    // ── P210B (M9c Bloco V) — counter_step Q1=β subset ──────────────
+
+    #[test]
+    fn p210b_counter_step_basico() {
+        // counter_step("foo") devolve Value::Content(Content::CounterUpdate
+        // { key: "foo", action: Step }).
+        use crate::entities::content::Content;
+        use crate::entities::counter_update::CounterUpdate as CounterAction;
+        null_ctx!(ctx);
+        let r = native_counter_step(
+            &mut ctx,
+            &p(vec![Value::Str("foo".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        match r {
+            Value::Content(Content::CounterUpdate { key, action }) => {
+                assert_eq!(key, "foo");
+                assert_eq!(action, CounterAction::Step);
+            }
+            _ => panic!("expected Value::Content(CounterUpdate)"),
+        }
+    }
+
+    #[test]
+    fn p210b_counter_step_arg_invalido_retorna_err() {
+        // counter_step(42) — Value::Int não é Value::Str.
+        null_ctx!(ctx);
+        let r = native_counter_step(
+            &mut ctx,
+            &p(vec![Value::Int(42)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err(), "arg não-string deve falhar");
+    }
+
+    #[test]
+    fn p210b_counter_step_sem_args_retorna_err() {
+        null_ctx!(ctx);
+        let r = native_counter_step(
+            &mut ctx,
+            &p(vec![]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err(), "sem args deve falhar");
+    }
+
+    #[test]
+    fn p210b_counter_step_multipla_invocacao_estruturalmente_igual() {
+        // Duas invocações com mesma key produzem Content
+        // estructuralmente iguais (sem state shared no stdlib func).
+        use crate::entities::content::Content;
+        null_ctx!(ctx);
+        let r1 = native_counter_step(
+            &mut ctx,
+            &p(vec![Value::Str("h".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        let r2 = native_counter_step(
+            &mut ctx,
+            &p(vec![Value::Str("h".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        // PartialEq sobre Content::CounterUpdate (per content.rs:1203).
+        match (r1, r2) {
+            (Value::Content(c1), Value::Content(c2)) => {
+                assert!(matches!(
+                    (&c1, &c2),
+                    (Content::CounterUpdate { .. }, Content::CounterUpdate { .. })
+                ));
+                // Via match interno + comparison.
+                let same = match (&c1, &c2) {
+                    (Content::CounterUpdate { key: k1, action: a1 },
+                     Content::CounterUpdate { key: k2, action: a2 }) => {
+                        k1 == k2 && a1 == a2
+                    }
+                    _ => false,
+                };
+                assert!(same, "invocações idempotentes esperadas");
+            }
+            _ => panic!("expected Value::Content"),
+        }
+    }
+
+    // ── P209D (M9c Bloco VI) — Selector::Regex query stub ───────────
+
+    #[test]
+    fn p209d_introspector_query_regex_devolve_empty_stub() {
+        // Stub documentado: Regex variant retorna vec![] em query.
+        use crate::entities::introspector::Introspector;
+        use crate::entities::location::Location;
+        use crate::entities::regex::Regex;
+        use crate::entities::selector::Selector;
+        null_ctx!(ctx);
+        let r = ctx.introspector.query(&Selector::Regex(
+            Regex::new("\\d+").unwrap(),
+        ));
+        assert_eq!(r, Vec::<Location>::new());
+    }
+
+    #[test]
+    fn p209d_introspector_query_regex_in_or_compoe_com_kind() {
+        // Composição estrutural funciona: Or([Regex, Kind]) →
+        // união. Regex retorna empty (stub); Kind devolve seus
+        // matches. Result = matches do Kind apenas.
+        use crate::entities::element_kind::ElementKind;
+        use crate::entities::introspector::Introspector;
+        use crate::entities::location::Location;
+        use crate::entities::regex::Regex;
+        use crate::entities::selector::Selector;
+        use ecow::EcoVec;
+        null_ctx!(ctx);
+        ctx.introspector.kind_index
+            .entry(ElementKind::Heading)
+            .or_default()
+            .push(Location::from_raw(1));
+
+        let r = ctx.introspector.query(&Selector::Or(EcoVec::from(vec![
+            Selector::Regex(Regex::new("abc").unwrap()),
+            Selector::Kind(ElementKind::Heading),
+        ])));
+        // Regex stub: empty. Kind: [loc(1)]. Union dedup: [loc(1)].
+        assert_eq!(r, vec![Location::from_raw(1)]);
+    }
+
+    #[test]
+    fn p209c_query_nested_or_dentro_de_and() {
+        // And([Or([Kind(heading), Kind(figure)]), Label("a")]).
+        // Popular: heading loc 7 com label "a"; figure loc 10 sem
+        // label. Resultado: [loc(7)] (a ∈ {heading, figure} E label a).
+        use crate::entities::element_kind::ElementKind;
+        use crate::entities::introspector::Introspector;
+        use crate::entities::label::Label;
+        use crate::entities::location::Location;
+        use crate::entities::selector::Selector;
+        use ecow::EcoVec;
+        null_ctx!(ctx);
+        ctx.introspector.kind_index
+            .entry(ElementKind::Heading)
+            .or_default()
+            .push(Location::from_raw(7));
+        ctx.introspector.kind_index
+            .entry(ElementKind::Figure)
+            .or_default()
+            .push(Location::from_raw(10));
+        ctx.introspector.labels.add(
+            Label("a".to_string()),
+            Location::from_raw(7),
+        );
+
+        let inner_or = Selector::Or(EcoVec::from(vec![
+            Selector::Kind(ElementKind::Heading),
+            Selector::Kind(ElementKind::Figure),
+        ]));
+        let nested = Selector::And(EcoVec::from(vec![
+            inner_or,
+            Selector::Label(Label("a".to_string())),
+        ]));
+        let r = ctx.introspector.query(&nested);
+        assert_eq!(r, vec![Location::from_raw(7)]);
     }
 
     // ── P176 (M9 sub-passo 6) — counter_final(key) ──────────────────────

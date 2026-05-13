@@ -80,6 +80,7 @@ rust = [
     "indexmap",      # ADR-0023 — ordem de inserção em Scope; sem substituto no std
     "ecow",          # ADR-0024 — EcoString em Value::Str; clone O(1) no hot path de eval()
     "hypher",        # ADR-0057 — hyphenation patterns embebidos; no_std, zero deps, sem unsafe
+    "regex",         # ADR-0077 — `Selector::Regex` em L1 (M9c P209D); wrapper L1 isola dep
 ]
 
 [orphan_exceptions]
