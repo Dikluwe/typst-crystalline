@@ -289,8 +289,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             matrix: *matrix,
             body:   Box::new(materialize_time(body, intr, location)),
         },
-        // P224+P227 — Grid refino +6 fields preservados (gutter/align/inset/header/footer/stroke).
-        Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke } => Content::Grid {
+        // P224+P227+P228 — Grid refino +7 fields preservados (gutter/align/inset/header/footer/stroke/fill).
+        Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke, fill } => Content::Grid {
             columns: columns.clone(),
             rows:    rows.clone(),
             cells:   cells.iter().map(|c| materialize_time(c, intr, location)).collect(),
@@ -300,6 +300,7 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             header:  header.as_ref().map(|h| Box::new(materialize_time(h, intr, location))),
             footer:  footer.as_ref().map(|f| Box::new(materialize_time(f, intr, location))),
             stroke:  stroke.clone(),
+            fill:    *fill,
         },
         // P224.B — GridHeader / GridFooter recurse no body.
         Content::GridHeader { body, repeat } => Content::GridHeader {
@@ -318,12 +319,13 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             colspan: *colspan,
             rowspan: *rowspan,
         },
-        // Passo 157A + P227 — table; preserva stroke (Option<Stroke> Clone).
-        Content::Table { columns, rows, children, stroke } => Content::Table {
+        // Passo 157A + P227 + P228 — table; preserva stroke + fill.
+        Content::Table { columns, rows, children, stroke, fill } => Content::Table {
             columns:  columns.clone(),
             rows:     rows.clone(),
             children: children.iter().map(|c| materialize_time(c, intr, location)).collect(),
             stroke:   stroke.clone(),
+            fill:     *fill,
         },
         // Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell.
         // Recurse no body; preserva fields x/y/colspan/rowspan

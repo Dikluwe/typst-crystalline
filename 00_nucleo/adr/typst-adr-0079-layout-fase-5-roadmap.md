@@ -292,6 +292,90 @@ candidato per política minimalista P158).
 Anotação cumulativa acima preserva o contexto histórico
 para retomada futura.
 
+### P228 anotação — Categoria A sub-passo 2 (fill Grid + Table)
+
+**Data**: 2026-05-13.
+
+**Segundo sub-passo materialização Fase 5 Layout candidata
+— paralelo estructural P227**:
+
+**A.2 materializado**:
+- **Grid +1 field** `fill: Option<Color>` (9 → 10 fields
+  cumulativos pós-P227).
+- **Table +1 field** `fill: Option<Color>` (4 → 5 fields).
+- **Sem `Value::Fill` variant novo** — Color baseline P25
+  reusado.
+- **Sem `extract_color` helper** novo — inline match
+  trivial em `native_grid`/`native_table` (Opção α
+  parsing).
+- **Sem constructor stdlib novo** — anti-inflação Decisão
+  3 Opção γ (Color tem `native_rgb`/`native_luma`).
+- **`native_grid` + `native_table` accept `fill:` named**
+  via inline match (rejeita Length explicitamente —
+  semantic fill é Color).
+- **Renderização Opção β Z-order correcto** em
+  `layout_grid`: 1 `FrameItem::Shape::Rect` per cell
+  emitido **antes do conteúdo cell** (Z-order: fill →
+  conteúdo → stroke). Audit C1 confirmou P227 stroke
+  emitido após `for item in cell_items` (Z-order
+  correcto preservado; sem `P228.div-N`).
+
+**7 decisões fixadas**:
+- Decisão 1 — Opção α `Option<Color>` uniforme.
+- Decisão 2 — Opção α parsing trivial Color directo.
+- Decisão 3 — Opção γ NÃO criar constructor stdlib
+  (anti-inflação).
+- Decisão 4 — Opção β Z-order correcto (fill antes;
+  conteúdo meio; stroke depois).
+- Decisão 5 — Tests E2E Z-order para validar interacção
+  P227+P228.
+- Decisão 6 — Opção γ L0 NÃO tocado validação ADR-0080
+  N=8 → 9.
+- Decisão 7 — ADR-0079 anotação Categoria A 2/5 (sem
+  promoção).
+
+**Valida ADR-0080 PROPOSTO N=8 → 9** — segunda aplicação
+real pós-formalização do pattern "L0 minimal para
+refactors aditivos pós-M9c". L0 não tocado em P228.
+**Promoção ADR-0080 PROPOSTO → EM VIGOR** candidato P229
+administrativo XS fortemente justificado (N=9 ultrapassa
+critério N=8+).
+
+**Pattern emergente "refino aditivo paralelo entre variants
+irmãos" N=1 → 2 consolidado** (P227 stroke + P228 fill;
+Grid + Table recebem mesmo field paralelo ambos
+sub-passos).
+
+**Pattern emergente "anti-inflação por aproveitamento de
+tipos existentes" N=1 inaugurado P228** — distinto de
+P227 onde Stroke composto justificou `native_stroke`.
+Color primitivo dispensa constructor novo.
+
+**Reuso patterns cumulativos**:
+- Pattern Smart→Option N=8 → 9.
+- `extract_length` reuso N=10 preservado (P228 não usa).
+
+**14 tests adicionados P228** (4 unit content + 5 unit
+stdlib + 5 E2E layout Z-order). Workspace: 2057 → **2071
+verdes** (+14). 6 adaptações intencionais Grid/Table
+constructors pre-existentes (adicionam `fill: None`).
+0 regressões reais. 0 violations.
+
+**Categoria A Fase 5 Layout**: 2/5 sub-passos
+materializados (A.1 stroke ✓; **A.2 fill ✓**; A.3
+per-cell + A.4 Block/Boxed + A.5 Place per-cell
+pendentes).
+
+**Status ADR-0079 mantido PROPOSTO** (sub-passo 2/13-15
+materialização Fase 5 candidata).
+
+**Status ADR-0080 mantido PROPOSTO** (N=9 atingido;
+promoção EM VIGOR P229 candidato administrativo XS
+muito sólido).
+
+Anotação cumulativa acima preserva o contexto histórico
+para retomada futura.
+
 ---
 
 ## Status

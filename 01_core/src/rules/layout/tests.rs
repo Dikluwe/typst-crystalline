@@ -1617,6 +1617,7 @@ fn grid_altura_da_linha_e_o_maximo_das_celulas() {
         header: None,
         footer: None,
         stroke: None,
+        fill:   None,
     };
 
     let state = introspect(&grid);
@@ -3090,6 +3091,7 @@ mod tests_show_rule_integration {
             header:  Some(Box::new(Content::text("p224hdr"))),
             footer:  Some(Box::new(Content::text("p224ftr"))),
             stroke:  None,
+            fill:    None,
         };
         let doc = layout(&g);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -3147,6 +3149,7 @@ mod tests_show_rule_integration {
             header:  None,
             footer:  None,
             stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),
+            fill:    None,
         };
         let doc = layout(&with_stroke);
         let line_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -3173,6 +3176,7 @@ mod tests_show_rule_integration {
             header:  None,
             footer:  None,
             stroke:  None,  // baseline
+            fill:    None,
         };
         let doc = layout(&g_no_stroke);
         let line_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -3192,6 +3196,7 @@ mod tests_show_rule_integration {
             rows:     vec![],
             children: vec![Content::text("X"), Content::text("Y")],
             stroke:   Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 0.5 }),
+            fill:     None,
         };
         let doc = layout(&t);
         let line_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -3202,6 +3207,152 @@ mod tests_show_rule_integration {
         assert!(line_count >= 8,
             "Table 1x2 stroke paridade Grid emite >= 8 lines, recebeu {}",
             line_count);
+    }
+
+    // ── Passo 228 (Fase 5 Layout Categoria A.2) — fill render E2E ──
+
+    /// Grid com fill emite FrameItem::Shape::Rect per cell.
+    #[test]
+    fn p228_grid_fill_renderiza_rect_per_cell() {
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        let cells = vec![
+            Content::text("A"), Content::text("B"),
+            Content::text("C"), Content::text("D"),
+        ];
+        let with_fill = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   cells,
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  None,
+            fill:    Some(Color::rgb(255, 255, 0)),
+        };
+        let doc = layout(&with_fill);
+        let rect_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item,
+                FrameItem::Shape { kind: crate::entities::geometry::ShapeKind::Rect, .. }
+            )).count();
+        // 4 cells × 1 rect cada = 4 rects mínimo.
+        assert!(rect_count >= 4,
+            "Grid 2x2 fill deve emitir >= 4 rects (1 per cell), recebeu {}",
+            rect_count);
+    }
+
+    #[test]
+    fn p228_grid_sem_fill_zero_rects_extra() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let g_no_fill = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   vec![Content::text("A"), Content::text("B")],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  None,
+            fill:    None,  // baseline
+        };
+        let doc = layout(&g_no_fill);
+        let rect_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item,
+                FrameItem::Shape { kind: crate::entities::geometry::ShapeKind::Rect, .. }
+            )).count();
+        assert_eq!(rect_count, 0,
+            "Grid sem fill não emite Rects extra (baseline preservado)");
+    }
+
+    #[test]
+    fn p228_grid_fill_z_order_antes_de_conteudo() {
+        // Z-order: fill Rect emitido ANTES do conteúdo (Text).
+        // Index do primeiro Rect < index do primeiro Text.
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   vec![Content::text("ZorderTest")],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  None,
+            fill:    Some(Color::rgb(255, 0, 0)),
+        };
+        let doc = layout(&g);
+        let items: Vec<&FrameItem> = doc.pages.iter().flat_map(|p| p.items.iter()).collect();
+        let first_rect_idx = items.iter().position(|item| matches!(item,
+            FrameItem::Shape { kind: crate::entities::geometry::ShapeKind::Rect, .. }
+        ));
+        let first_text_idx = items.iter().position(|item| matches!(item,
+            FrameItem::Text { text, .. } if text.as_str().contains("ZorderTest")
+        ));
+        assert!(first_rect_idx.is_some(), "Rect deve existir");
+        assert!(first_text_idx.is_some(), "Text ZorderTest deve existir");
+        assert!(first_rect_idx.unwrap() < first_text_idx.unwrap(),
+            "Z-order: fill Rect (idx={:?}) deve preceder conteúdo Text (idx={:?})",
+            first_rect_idx, first_text_idx);
+    }
+
+    #[test]
+    fn p228_grid_fill_e_stroke_z_order_correcto() {
+        // Z-order completo: fill (Rect) antes; conteúdo (Text) meio;
+        // stroke (Line) depois.
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   vec![Content::text("ZorderFull")],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),
+            fill:    Some(Color::rgb(255, 255, 0)),
+        };
+        let doc = layout(&g);
+        let items: Vec<&FrameItem> = doc.pages.iter().flat_map(|p| p.items.iter()).collect();
+        let rect_idx = items.iter().position(|item| matches!(item,
+            FrameItem::Shape { kind: crate::entities::geometry::ShapeKind::Rect, .. }
+        ));
+        let line_idx = items.iter().position(|item| matches!(item,
+            FrameItem::Shape { kind: crate::entities::geometry::ShapeKind::Line { .. }, .. }
+        ));
+        assert!(rect_idx.is_some() && line_idx.is_some(),
+            "Ambos Rect e Line presentes");
+        assert!(rect_idx.unwrap() < line_idx.unwrap(),
+            "Z-order: fill Rect (idx={:?}) deve preceder stroke Line (idx={:?})",
+            rect_idx, line_idx);
+    }
+
+    #[test]
+    fn p228_table_fill_delegate_paridade_grid() {
+        use crate::entities::layout_types::{TrackSizing, Color};
+        let t = Content::Table {
+            columns:  vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
+            rows:     vec![],
+            children: vec![Content::text("X"), Content::text("Y")],
+            stroke:   None,
+            fill:     Some(Color::rgb(200, 200, 200)),
+        };
+        let doc = layout(&t);
+        let rect_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item,
+                FrameItem::Shape { kind: crate::entities::geometry::ShapeKind::Rect, .. }
+            )).count();
+        assert!(rect_count >= 2,
+            "Table 1x2 fill paridade Grid emite >= 2 rects, recebeu {}",
+            rect_count);
     }
 
     /// Counters/labels dentro do body de repeat resolvem via walk
@@ -3301,6 +3452,7 @@ mod tests_show_rule_integration {
             header:  None,
             footer:  None,
             stroke:  None,
+            fill:    None,
         };
         let doc_g = layout(&g);
         let positions_g: Vec<(String, f64, f64)> = doc_g.pages.iter()

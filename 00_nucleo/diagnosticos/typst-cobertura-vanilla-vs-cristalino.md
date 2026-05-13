@@ -138,7 +138,7 @@ primitives e `skew`). Detalhe em
 | `box(...)` | layout/container.rs | `implementado` ¹⁵ | Passo 156H (ADR-0061 Fase 2 sub-passo 2) | `Content::Boxed { body, width, height, inset, baseline }` + stdlib `#box(body, width: ?, height: ?, inset: ?, baseline: ?)`; container inline (não força flush_line); 6 atributos vanilla scope-out (outset/fill/stroke/radius/clip/stroke-overhang); width/height/baseline armazenados mas semantic real adiada |
 | `block(...)` | layout/container.rs | `implementado` ¹³ | Passo 156G (ADR-0061 Fase 2 sub-passo 1) | `Content::Block { body, width, height, inset, breakable }` + stdlib `#block(body, width: ?, height: ?, inset: ?, breakable: true)`; subset Fase 1 per ADR-0054 graded; 9 atributos vanilla scope-out (outset/fill/stroke/radius/clip/spacing/above/below/sticky) |
 | `columns(n)` | layout/columns.rs | `parcial` ⁴⁰ ⁴² | Passos 217 + 218 + 219 (encerrado P221) | variant + stdlib + arm consumer real graded; **multi-region flow real ausente** (Opção A diferida a P-Layout-Fase4 candidata NÃO-reservada) |
-| `grid(columns, ...)` | layout/grid | `implementado⁺` ⁵ ⁴⁵ ⁴⁶ ⁴⁷ | Passos 82 + 83 + 84.6 + 224 + 227 | refino substantivo P224 + refino aditivo P227 — Grid agora +6 fields aditivos cumulativos (gutter/align/inset/header/footer + **stroke** P227) + 3 variants Content novos P224 (GridHeader/GridFooter/GridCell) + módulo `grid_placement.rs` (P224.C fecha DEBT-34e); `fill` cosmético scope-out A.2 candidato; per-cell GridCell atributos scope-out A.3 candidato. **DEBT-34e ENCERRADO P224**; **DEBT-34d** (Auto track sizing greediness) preservado aberto (refino distinto não endereçado per `P224.div-1`; candidato B.1). Stroke render Opção β simplificada (4 lines per cell sem deduplicação) per Fase 5 sub-passo A.1 P227 |
+| `grid(columns, ...)` | layout/grid | `implementado⁺` ⁵ ⁴⁵ ⁴⁶ ⁴⁷ ⁴⁸ | Passos 82 + 83 + 84.6 + 224 + 227 + 228 | refino substantivo P224 + refinos aditivos P227+P228 — Grid agora +7 fields aditivos cumulativos (gutter/align/inset/header/footer + **stroke** P227 + **fill** P228) + 3 variants Content novos P224 (GridHeader/GridFooter/GridCell) + módulo `grid_placement.rs` (P224.C fecha DEBT-34e); per-cell GridCell atributos scope-out A.3 candidato. **DEBT-34e ENCERRADO P224**; **DEBT-34d** (Auto track sizing greediness) preservado aberto (refino distinto não endereçado per `P224.div-1`; candidato B.1). Render Opção β Z-order correcto: fill → conteúdo → stroke per Fase 5 sub-passos A.1 P227 + A.2 P228 |
 | `stack(spacing, ...)` | layout/stack.rs | `implementado` ¹⁷ | Passo 156I (ADR-0061 Fase 2 sub-passo 3; **último Fase 2; atinge target 72%**) | `Content::Stack { children: Arc<[Content]>, dir: Dir, spacing: Option<Length> }` + stdlib `#stack(dir: ?, spacing: ?, ..children)`; tipo `Dir` novo (LTR/RTL/TTB/BTT); 4 direcções implementadas; spacing real entre children |
 | `pagebreak()` (manual) | layout/page.rs | `implementado` ¹⁰ | Passo 156E (ADR-0061 Fase 1 sub-passo 3) | `Content::Pagebreak { weak, to: Option<Parity> }` + stdlib `#pagebreak(weak: false, to: ?)`; `to:"even"`/`"odd"` insere página vazia se necessário; `weak` collapse defere; tipo `Parity` novo em `entities/parity.rs` |
 | `colbreak()` | layout/columns.rs | `parcial` ⁴¹ ⁴² | Passo 220 (encerrado P221) | variant `Content::Colbreak { weak: bool }` + stdlib `#colbreak(weak: ?)` + arm Layouter Opção β graded (downgrade a pagebreak literal); paridade vanilla quando fora de columns context; **multi-region salto entre colunas reais ausente** (P-Layout-Fase4 candidata NÃO-reservada) |
@@ -1555,6 +1555,103 @@ sub-passo 1 — primeiro sub-passo Fase 5 materializado;
 **Categoria A Fase 5 Layout**: 1/5 sub-passos
 materializados (A.1 stroke ✓; A.2 fill + A.3 per-cell +
 A.4 Block/Boxed + A.5 Place per-cell pendentes).
+
+⁴⁸ — Ajuste P228 (Fase 5 Layout candidata Categoria A
+sub-passo 2 — **paralelo estructural P227**; **valida
+ADR-0080 PROPOSTO N=8 → 9** segunda aplicação real
+pós-formalização):
+
+- P228 materializa A.2 `fill` Grid + Table:
+  - **Grid +1 field** `fill: Option<Color>` (9 → 10
+    fields cumulativos pós-P227).
+  - **Table +1 field** `fill: Option<Color>` (4 → 5
+    fields).
+  - **Sem `Value::Fill` variant novo** — Color baseline
+    P25 reusado (Decisão 1 Opção α + anti-inflação
+    Decisão 3 Opção γ "NÃO criar constructor").
+  - **`extract_color` helper ausente** — inline match
+    trivial em `native_grid`/`native_table` (Decisão 2
+    Opção α: apenas `Value::Color`).
+  - **Renderização Opção β Z-order correcto** em
+    `layout_grid`: 1 `FrameItem::Shape::Rect` per cell
+    emitido **antes do conteúdo** + stroke per cell
+    emitido **depois do conteúdo** (Z-order: fill →
+    conteúdo → stroke).
+  - **Audit C1 confirmou P227 stroke Z-order correcto**
+    (emitido após `for item in cell_items`; Z-order
+    correcto preservado). Sem `P228.div-N`.
+
+- **7 decisões fixadas**:
+  - Decisão 1 — Opção α `Option<Color>` uniforme (vs
+    Sides per-side A.3; vs Paint enum criar — Paint
+    scope-out ADR-0029).
+  - Decisão 2 — Opção α parsing trivial Color directo.
+  - Decisão 3 — Opção γ NÃO criar constructor stdlib
+    (anti-inflação; Color tem `native_rgb`/`native_luma`).
+  - Decisão 4 — Opção β Z-order correcto (fill antes;
+    stroke depois).
+  - Decisão 5 — Tests E2E Z-order para validar interacção
+    P227+P228 (5 layout E2E tests).
+  - Decisão 6 — Opção γ L0 NÃO tocado validação ADR-0080
+    N=8 → 9.
+  - Decisão 7 — ADR-0079 anotação Categoria A 2/5 (sem
+    promoção).
+
+- **L0 NÃO tocado** — Opção γ literal validação ADR-0080
+  PROPOSTO. **Pattern N=8 → 9 atingido** — segunda
+  aplicação real pós-formalização do pattern. Promoção
+  EM VIGOR ADR-0080 candidato P229 administrativo XS
+  fortemente justificado (N=9 ultrapassa critério N=8+).
+
+- **Pattern emergente "refino aditivo paralelo entre
+  variants irmãos" N=1 → 2 consolidado** (P227 stroke +
+  P228 fill; Grid + Table recebem mesmo field paralelo
+  ambos sub-passos).
+
+- **Pattern emergente "anti-inflação por aproveitamento
+  de tipos existentes" N=1 inaugurado P228** — distinto
+  de P227 onde Stroke composto justificou
+  `native_stroke`. Color primitivo dispensa constructor
+  novo.
+
+- 14 tests adicionados P228 (4 unit content + 5 unit
+  stdlib + 5 E2E layout Z-order); workspace 2057 →
+  **2071 verdes** (+14). 6 adaptações intencionais
+  (tests P224+P227 pre-existentes adicionaram `fill:
+  None` ao construtor Grid/Table direct). 0 regressões
+  reais.
+
+- Sem reclassificação categórica §A.5 — `grid` já
+  `implementado⁺` pós-P224+P225+P227. Footnote ⁴⁸
+  adiciona refino qualitativo: fill cosmético fechado.
+
+- **Patterns emergentes consolidados em P228**:
+  - "L0 minimal para refactors" **N=8 → 9 validado
+    real** — segunda aplicação pós-ADR-0080 PROPOSTO;
+    promoção EM VIGOR P229 candidato muito sólido.
+  - Pattern Smart→Option **N=8 → 9** (`fill:
+    Option<Color>` paridade Smart→Option default None).
+  - **Pattern "refino aditivo paralelo entre variants
+    irmãos" N=1 → 2 consolidado** (P227 stroke +
+    P228 fill).
+  - **Pattern "anti-inflação por aproveitamento de tipos
+    existentes" N=1 inaugurado P228** (Color reusado;
+    sem `native_fill` constructor).
+  - **Anti-inflação 20ª aplicação cumulativa** pós-P205D
+    (Opção α field + Opção α parsing trivial + Opção γ
+    sem constructor + Opção β Z-order + Opção γ L0 +
+    ADR-0080 não promover em P228).
+
+- **Distribuição ADRs preservada P226**: PROPOSTO 13;
+  IMPLEMENTADO 21; total 67.
+- **Saldo DEBTs preservado**: 12 abertos.
+- **Cobertura Layout per metodologia**: **89% preservado**
+  (refino qualitativo P228; nota Grid+Table fill
+  materializado).
+
+**Categoria A Fase 5 Layout**: 2/5 sub-passos materializados
+(A.1 stroke ✓; **A.2 fill ✓**; A.3 per-cell + A.4
+Block/Boxed + A.5 Place per-cell pendentes).
 
 ³⁹ — Ajuste P214 (Tabela A.1 Markup syntactic — recálculo
 ampliado pós-M9c 2026-05-12): **3 reclassificações
