@@ -138,7 +138,7 @@ primitives e `skew`). Detalhe em
 | `box(...)` | layout/container.rs | `implementado` ¹⁵ | Passo 156H (ADR-0061 Fase 2 sub-passo 2) | `Content::Boxed { body, width, height, inset, baseline }` + stdlib `#box(body, width: ?, height: ?, inset: ?, baseline: ?)`; container inline (não força flush_line); 6 atributos vanilla scope-out (outset/fill/stroke/radius/clip/stroke-overhang); width/height/baseline armazenados mas semantic real adiada |
 | `block(...)` | layout/container.rs | `implementado` ¹³ | Passo 156G (ADR-0061 Fase 2 sub-passo 1) | `Content::Block { body, width, height, inset, breakable }` + stdlib `#block(body, width: ?, height: ?, inset: ?, breakable: true)`; subset Fase 1 per ADR-0054 graded; 9 atributos vanilla scope-out (outset/fill/stroke/radius/clip/spacing/above/below/sticky) |
 | `columns(n)` | layout/columns.rs | `parcial` ⁴⁰ ⁴² | Passos 217 + 218 + 219 (encerrado P221) | variant + stdlib + arm consumer real graded; **multi-region flow real ausente** (Opção A diferida a P-Layout-Fase4 candidata NÃO-reservada) |
-| `grid(columns, ...)` | layout/grid | `implementado⁺` ⁵ ⁴⁵ ⁴⁶ | Passos 82 + 83 + 84.6 + 224 (encerrado série α P225) | refino substantivo P224 — Grid +5 fields aditivos (gutter/align/inset/header/footer) + 3 variants Content novos (GridHeader/GridFooter/GridCell) + módulo `grid_placement.rs` (algoritmo placement real fecha DEBT-34e colspan/rowspan); `stroke`/`fill` cosméticos scope-out Fase 5 candidata NÃO-reservada; per-cell `align`/`fill`/`stroke`/`inset`/`breakable` GridCell scope-out (paridade P157B subset). DEBT-34e ENCERRADO P224; DEBT-34d (Auto track sizing greediness) preservado aberto (refino distinto não endereçado per `P224.div-1`) |
+| `grid(columns, ...)` | layout/grid | `implementado⁺` ⁵ ⁴⁵ ⁴⁶ ⁴⁷ | Passos 82 + 83 + 84.6 + 224 + 227 | refino substantivo P224 + refino aditivo P227 — Grid agora +6 fields aditivos cumulativos (gutter/align/inset/header/footer + **stroke** P227) + 3 variants Content novos P224 (GridHeader/GridFooter/GridCell) + módulo `grid_placement.rs` (P224.C fecha DEBT-34e); `fill` cosmético scope-out A.2 candidato; per-cell GridCell atributos scope-out A.3 candidato. **DEBT-34e ENCERRADO P224**; **DEBT-34d** (Auto track sizing greediness) preservado aberto (refino distinto não endereçado per `P224.div-1`; candidato B.1). Stroke render Opção β simplificada (4 lines per cell sem deduplicação) per Fase 5 sub-passo A.1 P227 |
 | `stack(spacing, ...)` | layout/stack.rs | `implementado` ¹⁷ | Passo 156I (ADR-0061 Fase 2 sub-passo 3; **último Fase 2; atinge target 72%**) | `Content::Stack { children: Arc<[Content]>, dir: Dir, spacing: Option<Length> }` + stdlib `#stack(dir: ?, spacing: ?, ..children)`; tipo `Dir` novo (LTR/RTL/TTB/BTT); 4 direcções implementadas; spacing real entre children |
 | `pagebreak()` (manual) | layout/page.rs | `implementado` ¹⁰ | Passo 156E (ADR-0061 Fase 1 sub-passo 3) | `Content::Pagebreak { weak, to: Option<Parity> }` + stdlib `#pagebreak(weak: false, to: ?)`; `to:"even"`/`"odd"` insere página vazia se necessário; `weak` collapse defere; tipo `Parity` novo em `entities/parity.rs` |
 | `colbreak()` | layout/columns.rs | `parcial` ⁴¹ ⁴² | Passo 220 (encerrado P221) | variant `Content::Colbreak { weak: bool }` + stdlib `#colbreak(weak: ?)` + arm Layouter Opção β graded (downgrade a pagebreak literal); paridade vanilla quando fora de columns context; **multi-region salto entre colunas reais ausente** (P-Layout-Fase4 candidata NÃO-reservada) |
@@ -1457,6 +1457,104 @@ Footnotes ⁴³ + ⁴⁴ + ⁴⁵ preservadas (paridade pattern
 P204H+ "histórico textual preservado") para rastreabilidade
 P222-P224 incremental. ⁴⁶ adiciona vista consolidada
 cumulativa.
+
+⁴⁷ — Ajuste P227 (Fase 5 Layout candidata Categoria A
+sub-passo 1 — primeiro sub-passo Fase 5 materializado;
+**valida ADR-0080 PROPOSTO N=7 → 8**):
+
+- P227 materializa A.1 `stroke` Grid + Table:
+  - **`Value::Stroke(Stroke)` variant novo** — primeira
+    adição ao enum Value pós-M9c. Value variants: 54 →
+    **55** (+Stroke).
+  - **Grid +1 field** `stroke: Option<Stroke>` (8 → 9
+    fields cumulativos pós-P224).
+  - **Table +1 field** `stroke: Option<Stroke>` (3 → 4
+    fields).
+  - **Helper `extract_stroke(val, fn, field)`** novo em
+    `stdlib/layout.rs` aceitando shorthands Length/Color/
+    Stroke (Opção β paridade vanilla UX).
+  - **`native_stroke(paint:?, thickness:?)` constructor**
+    em `stdlib/layout.rs` (~70 LOC) — constructor stdlib
+    nova; stdlib funcs 59 → **60**.
+  - **`native_grid` + `native_table` accept `stroke:`**
+    via `extract_stroke` shorthand.
+  - **Renderização Opção β simplificada** em `layout_grid`:
+    4 `FrameItem::Shape::Line` per cell border (top +
+    bottom + left + right; sem deduplicação adjacentes;
+    refino A.3 candidato).
+
+- **6 decisões fixadas**:
+  - Decisão 1 — Opção α `Option<Stroke>` uniforme (vs
+    Sides per-side A.3; vs novo tipo GridStroke).
+  - Decisão 2 — Opção β parsing Length/Color/Stroke
+    shorthands (vs literal Value::Stroke apenas).
+  - Decisão 3 — `Value::Stroke` variant novo (audit C1
+    confirmou ausência; criado paridade `Value::Color`).
+  - Decisão 4 — `native_stroke` constructor paridade
+    `native_rgb` (não `native_pad` etc — constructor
+    primário para Value type).
+  - Decisão 5 — Opção β render simplificada (vs Opção α
+    deduplicação A.3; vs Opção γ semantic adiada N=5).
+  - Decisão 6 — Table refino paralelo Grid (variant-rico
+    paridade).
+  - Decisão 7 — ADR-0080 NÃO promover EM VIGOR em P227
+    (P228 candidato administrativo XS dedicado).
+
+- **L0 NÃO tocado** — Opção γ literal per ADR-0080
+  PROPOSTO. **Pattern N=7 → 8 validado** — primeira
+  aplicação real pós-formalização do pattern. **Promoção
+  ADR-0080 PROPOSTO → EM VIGOR** candidato sólido P228
+  administrativo XS.
+
+- **Pattern emergente "refino aditivo paralelo entre
+  variants irmãos" N=1 inaugurado P227** (Grid + Table
+  recebem mesmo field paralelo; precedente futuro para
+  Fase 5 sub-passos cosméticos A.2 fill + A.3 per-cell).
+
+- 18 tests adicionados P227 (4 unit content Grid/Table +
+  7 unit Value::Stroke/native_stroke/grid_stroke/table_stroke
+  + 4 unit grid/table stroke + 3 E2E layout); workspace
+  2039 → **2057 verdes** (+18). 4 adaptações intencionais
+  (tests P224 pre-existentes adicionaram `stroke: None`
+  ao construtor Grid/Table direct; 1 pattern adapt em
+  stdlib/mod.rs P157A). 0 regressões reais.
+
+- Sem reclassificação categórica §A.5 — `grid` já
+  `implementado⁺` pós-P224 + P225. Footnote ⁴⁷ adiciona
+  refino qualitativo: stroke scope-out cosmético fechado.
+
+- **Patterns emergentes consolidados em P227**:
+  - "L0 minimal para refactors" N=7 → **8 (validado real
+    pós-ADR-0080 PROPOSTO)** — primeira validação
+    empírica do ADR formalizado.
+  - Pattern Smart→Option N=7 → **8** (`stroke:
+    Option<Stroke>` paridade Smart→Option default None).
+  - **Pattern "refino aditivo paralelo entre variants
+    irmãos" N=1 inaugurado P227** — pattern reusável
+    para Fase 5 sub-passos cosméticos seguintes A.2/A.3.
+  - `extract_length` reuso N=9 → **10** (helper público
+    candidato fortemente justificado — patamar N=10
+    atingido; refino futuro candidato XS administrativo
+    separado se humano priorizar).
+  - **Anti-inflação 19ª aplicação cumulativa** pós-P205D
+    (Opção α field uniforme + Opção β parsing graded +
+    Opção γ L0 + Opção β render simplificada + sem
+    helper construtor Rust novo + ADR-0080 não promover
+    em P227).
+
+- **Distribuição ADRs preservada P226**: PROPOSTO 13
+  (ADR-0066, ADR-0079, ADR-0080); IMPLEMENTADO 21; total
+  67.
+- **Saldo DEBTs preservado**: 12 abertos (DEBT-34d
+  preservado per `P224.div-1`; DEBT-34e ENCERRADO P224;
+  DEBT-56 ENCERRADO P221).
+- **Cobertura Layout per metodologia**: **89% preservado**
+  (refino qualitativo P227; nota Grid+Table stroke
+  materializado em footnote ⁴⁷).
+
+**Categoria A Fase 5 Layout**: 1/5 sub-passos
+materializados (A.1 stroke ✓; A.2 fill + A.3 per-cell +
+A.4 Block/Boxed + A.5 Place per-cell pendentes).
 
 ³⁹ — Ajuste P214 (Tabela A.1 Markup syntactic — recálculo
 ampliado pós-M9c 2026-05-12): **3 reclassificações

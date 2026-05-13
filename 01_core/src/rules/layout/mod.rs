@@ -673,12 +673,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.regions.current.cursor_y += Pt(new_h);
             }
 
-            // P224 — Grid refino +5 fields. gutter/align/inset/header/footer
-            // são consumidos por layout_grid (signature expandida em P224.A);
-            // header/footer renderizam antes/depois das cells.
-            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer } => {
+            // P224+P227 — Grid refino +6 fields. gutter/align/inset/header/footer/stroke
+            // são consumidos por layout_grid (signature expandida).
+            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke } => {
                 self.layout_grid(columns, rows, cells, *gutter, *align, *inset,
-                                 header.as_deref(), footer.as_deref());
+                                 header.as_deref(), footer.as_deref(),
+                                 stroke.as_ref());
             }
 
             // P224.B — GridHeader / GridFooter renderizam body sequencial
@@ -702,16 +702,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // clone simples per ADR-0060 §"Decisão 4" + diagnóstico
             // P157A §10. Sem modificação de `grid.rs`. TableCell
             // estruturado e Header/Footer diferidos para P157B/C.
-            Content::Table { columns, rows, children } => {
-                // P224 — Table delegate continua simples (Table não herda
-                // automaticamente refinos P224 Grid; refino Table separado
-                // candidato Fase 5 NÃO-reservado). Pass defaults para
-                // signature expandida.
+            Content::Table { columns, rows, children, stroke } => {
+                // P224+P227 — Table delegate; herda stroke via P227.
+                // gutter/align/inset/header/footer continuam defaults
+                // (refino Table separado candidato Fase 5 NÃO-reservado).
                 self.layout_grid(columns, rows, children,
                                  None, None,
                                  crate::entities::sides::Sides::uniform(
                                      crate::entities::layout_types::Length::pt(0.0)),
-                                 None, None);
+                                 None, None,
+                                 stroke.as_ref());
             }
 
             // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ──
