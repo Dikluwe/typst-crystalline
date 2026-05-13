@@ -191,11 +191,33 @@ cálculo analítico dos extremos da curva paramétrica B(t) para obter a AABB ex
 
 ---
 
-## DEBT-34d — Auto não encolhe antes de matar fr — EM ABERTO (Passo 80)
+## DEBT-34d — Auto não encolhe antes de matar fr — EM ABERTO (Passo 80; preservado per `P224.div-1`)
 
 Um Auto guloso (célula com texto longo) pode consumir todo o `safe_available`,
 deixando 0pt para as colunas fr. Resolução futura: implementar min-content e
 max-content para Auto, com negociação entre Auto e fr.
+
+**Estado pós-P224 (`P224.div-1` empírico registado em P225 consolidado)**:
+DEBT-34d permanece **aberto preservado** após série α "terminar Layout"
+(P222-P224 + P225 documental). Spec P224 hipótese previa fecho
+simultâneo com DEBT-34e via módulo `grid_placement.rs` P224.C; audit
+empírico C1 P224 revelou **distinção factual material**:
+- **DEBT-34d**: "Auto não encolhe antes de matar fr" — **problema
+  algorítmico de track sizing** (negociação Auto vs Fraction em
+  width resolution); NÃO placement.
+- **DEBT-34e**: "colspan e rowspan" — algoritmo de placement
+  (endereçado por `grid_placement::place_cells` P224.C; ENCERRADO).
+
+`P224.div-1` registado em ADR-0061 anotação P224 + inventário 148
+footnote ⁴⁵ + relatório P224-relatorio.md como **divergência factual
+material**. **Pattern emergente "divergência factual material
+registada como `Pxxx.div-N`" N=1 → 2 cumulativo formalizado em P225**
+(P215.div-1 reabriu Fase 3 sub-fase b; P224.div-1 preservou DEBT-34d).
+
+**Refino candidato Fase 5 Layout NÃO-reservada per política P158** —
+exige refactor do algoritmo de track sizing (min/max-content
+negotiation Auto vs Fraction) que é trabalho L+ isolado de placement
+P224.C.
 
 ---
 
@@ -2681,7 +2703,29 @@ A descrição original do DEBT estava parcialmente incorrecta: o eixo X de
 - `native_place` aceita argumento nomeado `scope: "column" | "parent"`;
   default `Column`. String inválida → erro explícito.
 
-**Divergência face ao vanilla a documentar:** o vanilla restringe `Parent`
+**Divergência face ao vanilla — FECHADA P223** ✓ (anotação histórica
+consolidada em P225):
+
+O comentário original anotava: "o vanilla restringe `Parent` a
+`float: true` (erro caso contrário, `collect.rs:309`). O cristalino
+não tem `float` implementado — `Parent` é aceite incondicionalmente,
+com efeito visual de ancoragem à página sem layout flutuante. Quando
+`float` for adicionado, repor a restrição."
+
+Em **P223** (2026-05-12) o campo `float: bool` foi adicionado a
+`Content::Place` (semantic real adiada per ADR-0054 graded; pattern
+N=4 cumulativo `weak`/`breakable`/`float`); simultaneamente a
+restrição vanilla `scope: Parent` sem `float: true` → erro hard foi
+**restaurada** em `native_place` (Decisão 3 Opção α). Paridade
+vanilla literal restaurada. 1 test pre-existente adaptado
+intencionalmente (`place_dentro_de_grid_com_scope_parent_ancora_a_pagina`
+em `03_infra/integration_tests.rs:2087` — adicionou `float: true`;
+paridade visual preservada porque semantic real adiada). **Pattern
+emergente "fecho de divergência documentada via refino" N=1
+inaugurado P223** — divergência documentada agora fechada
+estructuralmente.
+
+**Texto original [HISTÓRICO]**: o vanilla restringe `Parent`
 a `float: true` (erro caso contrário, `collect.rs:309`). O cristalino não
 tem `float` implementado — `Parent` é aceite incondicionalmente, com
 efeito visual de ancoragem à página sem layout flutuante. Quando `float`
