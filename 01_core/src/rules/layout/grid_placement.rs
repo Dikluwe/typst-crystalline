@@ -203,9 +203,12 @@ pub(crate) fn place_cells(
 
 /// Extrai fields de `Content::GridCell` ou trata `Content` raw como
 /// (body=self, x=None, y=None, colspan=None, rowspan=None).
+/// P230 — stroke/fill GridCell ignorados aqui (consumidos pelo
+/// `layout_grid` consumer via `extract_cell_cosmetics`; placement
+/// algorítmico ortogonal a render cosmético).
 fn extract_cell_fields(c: &Content) -> (&Content, Option<usize>, Option<usize>, Option<usize>, Option<usize>) {
     match c {
-        Content::GridCell { body, x, y, colspan, rowspan } => {
+        Content::GridCell { body, x, y, colspan, rowspan, .. } => {
             (body.as_ref(), *x, *y, *colspan, *rowspan)
         }
         other => (other, None, None, None, None),
@@ -272,6 +275,8 @@ mod tests {
                 y:       Some(1),
                 colspan: None,
                 rowspan: None,
+                stroke:  None,
+                fill:    None,
             },
         ];
         let placed = place_cells(&cells, 2).unwrap();
@@ -289,6 +294,8 @@ mod tests {
                 y:       None,
                 colspan: Some(2),
                 rowspan: None,
+                stroke:  None,
+                fill:    None,
             },
             Content::text("next"),
         ];
@@ -313,6 +320,8 @@ mod tests {
                 y:       None,
                 colspan: None,
                 rowspan: Some(2),
+                stroke:  None,
+                fill:    None,
             },
             Content::text("b"),
             Content::text("c"),
@@ -334,6 +343,8 @@ mod tests {
                 y:       Some(0),
                 colspan: None,
                 rowspan: None,
+                stroke:  None,
+                fill:    None,
             },
             Content::GridCell {
                 body:    Box::new(Content::text("Y")),
@@ -341,6 +352,8 @@ mod tests {
                 y:       Some(0),
                 colspan: None,
                 rowspan: None,
+                stroke:  None,
+                fill:    None,
             },
         ];
         let r = place_cells(&cells, 2);
@@ -356,6 +369,8 @@ mod tests {
                 y:       None,
                 colspan: Some(5),
                 rowspan: None,
+                stroke:  None,
+                fill:    None,
             },
         ];
         let r = place_cells(&cells, 2);
@@ -375,6 +390,8 @@ mod tests {
                 y:       Some(0),
                 colspan: None,
                 rowspan: None,
+                stroke:  None,
+                fill:    None,
             },
             Content::text("C"),
         ];

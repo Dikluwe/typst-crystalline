@@ -376,6 +376,94 @@ muito sólido).
 Anotação cumulativa acima preserva o contexto histórico
 para retomada futura.
 
+### P230 anotação — Categoria A sub-passo 3 (stroke/fill per-cell GridCell + TableCell; precedência override)
+
+**Data**: 2026-05-13.
+
+**Terceiro sub-passo materialização Fase 5 Layout candidata
+— primeira aplicação automática ADR-0080 EM VIGOR pós-P229
+promoção**:
+
+**A.3 materializado**:
+- **GridCell +2 fields** `stroke: Option<Stroke>` + `fill:
+  Option<Color>` (5 → 7 fields cumulativos).
+- **TableCell +2 fields** stroke + fill paralelo GridCell
+  (5 → 7 fields; refino paralelo).
+- **`native_grid_cell` + `native_table_cell` accept
+  `stroke:` + `fill:` named args** via reuso helper
+  `extract_stroke` P227 (N=1 → 2 cumulativo) + parsing
+  inline Color paridade P228.
+- **Renderização precedência override** em `layout_grid`:
+  - `effective_stroke = cell.stroke.or(grid.stroke)`.
+  - `effective_fill = cell.fill.or(grid.fill)`.
+  - Per-cell `Some(...)` override Grid-level; per-cell
+    `None` inherit Grid-level (paridade ADR-0033
+    observable literal).
+- **Z-order P227+P228 preservado**: fill efectivo atrás
+  do conteúdo → conteúdo cell → stroke efectivo à frente.
+- **Refactor pragmático sem `PlacedCell` expandido**:
+  match no loop existente em `layout_grid` extrai
+  per-cell stroke/fill direct. Consumer geometric
+  integration `place_cells` continua B.2 candidato.
+
+**8 decisões fixadas**:
+- Decisão 1 — Opção α fields restritos (stroke + fill;
+  align/inset/breakable per-cell são B.3 separado).
+- Decisão 2 — Opção α precedência override completo via
+  `.or()` resolution.
+- Decisão 3 — Opção α Z-order limpo cada cell uma vez.
+- Decisão 4 — Reuso helper `extract_stroke` N=1 → 2.
+- Decisão 5 — Tests E2E precedência 5 explícitos.
+- Decisão 6 — **Opção γ aplicação automática ADR-0080
+  EM VIGOR** sem decisão explícita Opção γ por sub-passo.
+- Decisão 7 — Opção α refino paralelo TableCell (pattern
+  N=2 → 3 cumulativo).
+- Decisão 8 — `extract_stroke` reuso N=1 → 2 (patamar
+  trivial; sem promoção pública).
+
+**Primeira aplicação automática ADR-0080 EM VIGOR
+pós-promoção P229** — L0 não tocado sem decisão explícita
+por sub-passo. Regra metodológica formal aplicada por
+defeito. Pattern emergente "aplicação automática ADR EM
+VIGOR sem decisão explícita por sub-passo" N=1
+inaugurado P230.
+
+**Pattern emergente "refino aditivo paralelo entre
+variants irmãos" N=2 → 3 cumulativo** (Grid+Table
+P227/P228; **GridCell+TableCell P230**). Pattern
+consolida-se para cells estructurados.
+
+**Pattern emergente "precedência per-cell vs
+container-level via `.or()` resolution" N=1 inaugurado
+P230** — reusável A.4 Block/Boxed (per-element vs
+ancestor) + B.3 align/inset/breakable per-cell.
+
+**Reuso patterns cumulativos**:
+- Helper `extract_stroke` reuso N=1 → 2 (P227 cria; P230
+  reusa primeiro). Patamar trivial; promoção pública
+  diferida (paridade `extract_length` N=10 patamar).
+
+**15 tests adicionados P230** (4 unit content + 6 unit
+stdlib + 5 E2E precedência). Workspace: 2071 → **2086
+verdes** (+15). Adaptações intencionais N=~10
+(P224+P157B+grid_placement tests pre-existentes).
+0 regressões reais. 0 violations.
+
+**Categoria A Fase 5 Layout**: 3/5 sub-passos
+materializados (A.1 stroke ✓; A.2 fill ✓; **A.3
+per-cell ✓**; A.4 Block/Boxed + A.5 Place per-cell
+pendentes).
+
+**Status ADR-0079 mantido PROPOSTO** (sub-passo 3/13-15
+materialização Fase 5 candidata; promoção a IMPLEMENTADO
+continua diferida).
+
+**Status ADR-0080 mantido EM VIGOR** — primeira aplicação
+automática pós-promoção P229.
+
+Anotação cumulativa acima preserva o contexto histórico
+para retomada futura.
+
 ---
 
 ## Status

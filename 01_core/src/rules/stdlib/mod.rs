@@ -3705,6 +3705,90 @@ mod tests {
         } else { panic!("esperado Content::Grid"); }
     }
 
+    // ── P230 (Fase 5 Layout Categoria A.3) — stroke/fill per-cell GridCell + TableCell ──
+
+    #[test]
+    fn p230_native_grid_cell_stroke_aceita_length_shorthand() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("c"))]);
+        args.named.insert("stroke".into(), Value::Length(Length::pt(2.0)));
+        let r = native_grid_cell(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::GridCell { stroke, .. }) = r {
+            assert!(stroke.is_some());
+            assert_eq!(stroke.unwrap().thickness, 2.0);
+        } else { panic!("esperado GridCell"); }
+    }
+
+    #[test]
+    fn p230_native_grid_cell_stroke_aceita_color_shorthand() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Color;
+        let mut args = p(vec![Value::Content(Content::text("c"))]);
+        args.named.insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
+        let r = native_grid_cell(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::GridCell { stroke, .. }) = r {
+            assert!(stroke.is_some());
+            assert_eq!(stroke.unwrap().thickness, 1.0);
+        } else { panic!("esperado GridCell"); }
+    }
+
+    #[test]
+    fn p230_native_grid_cell_fill_color_aceita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Color;
+        let mut args = p(vec![Value::Content(Content::text("c"))]);
+        args.named.insert("fill".into(), Value::Color(Color::rgb(0, 255, 0)));
+        let r = native_grid_cell(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::GridCell { fill, .. }) = r {
+            assert!(fill.is_some());
+        } else { panic!("esperado GridCell"); }
+    }
+
+    #[test]
+    fn p230_native_grid_cell_fill_length_rejeita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("c"))]);
+        args.named.insert("fill".into(), Value::Length(Length::pt(1.0)));
+        let r = native_grid_cell(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "fill Length deve falhar (semantic: fill é Color)");
+    }
+
+    #[test]
+    fn p230_native_table_cell_paridade_gridcell() {
+        // table_cell aceita stroke + fill (paridade native_grid_cell).
+        null_ctx!(ctx);
+        use crate::entities::layout_types::{Length, Color};
+        let mut args = p(vec![Value::Content(Content::text("c"))]);
+        args.named.insert("stroke".into(), Value::Length(Length::pt(1.0)));
+        args.named.insert("fill".into(),   Value::Color(Color::rgb(0, 0, 255)));
+        let r = native_table_cell(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::TableCell { stroke, fill, .. }) = r {
+            assert!(stroke.is_some() && fill.is_some());
+        } else { panic!("esperado TableCell"); }
+    }
+
+    #[test]
+    fn p230_native_grid_cell_stroke_e_fill_simultaneos() {
+        // Ambos aceitos no mesmo grid_cell call.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::{Length, Color};
+        let mut args = p(vec![Value::Content(Content::text("c"))]);
+        args.named.insert("stroke".into(), Value::Length(Length::pt(2.0)));
+        args.named.insert("fill".into(),   Value::Color(Color::rgb(100, 100, 100)));
+        let r = native_grid_cell(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::GridCell { stroke, fill, .. }) = r {
+            assert!(stroke.is_some() && fill.is_some());
+        } else { panic!("esperado GridCell"); }
+    }
+
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table ─────────────────
 
     #[test]
@@ -3850,7 +3934,7 @@ mod tests {
         // P157B: defaults — body required; outros fields None.
         null_ctx!(ctx);
         let r = native_table_cell(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::TableCell { body, x, y, colspan, rowspan }) = r {
+        if let Value::Content(Content::TableCell { body, x, y, colspan, rowspan, .. }) = r {
             assert_eq!(body.plain_text(), "body");
             assert_eq!(x, None);
             assert_eq!(y, None);

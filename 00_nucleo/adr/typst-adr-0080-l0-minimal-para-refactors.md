@@ -1,11 +1,11 @@
 # ⚖️ ADR-0080: L0 minimal para refactors aditivos pós-M9c
 
-**Status**: `PROPOSTO`
-**Data**: 2026-05-13
+**Status**: `EM VIGOR`
+**Data**: 2026-05-13 (PROPOSTO P226; **EM VIGOR P229**)
 **Autor**: Humano + IA
-**Validado**: 7 aplicações cumulativas pós-M9c
-(P217+P218+P219+P220+P222+P223+P224; N=7 patamar empírico
-sólido).
+**Validado**: 9 aplicações cumulativas pós-M9c
+(P217+P218+P219+P220+P222+P223+P224+**P227+P228**; N=9
+patamar empírico extremamente sólido).
 **Reservado para**: meta-documental codifica prática
 empírica emergente Fase 3 sub-fase b + Fase 4 candidata
 Layout pós-M9c.
@@ -91,7 +91,7 @@ defeito. Documentação fica distribuída em código + inventário
 
 ---
 
-## 7 aplicações cumulativas (validação empírica)
+## 9 aplicações cumulativas (validação empírica)
 
 | Passo | Refactor | L0 acção | Observação |
 |-------|----------|----------|------------|
@@ -102,8 +102,12 @@ defeito. Documentação fica distribuída em código + inventário
 | **P222** | `native_measure` stdlib + visibility promotion | L0 não tocado | Pattern N=4 → 5 consolidado |
 | **P223** | `Content::Place` +`float`+`clearance` | L0 não tocado | Pattern N=5 → 6 consolidado |
 | **P224** | `Content::Grid` refino substantivo + 3 variants + módulo | L0 não tocado | **Spec C6 propôs Opção α**; materialização Opção γ. **Divergência consciente N=7** |
+| **P227** | Grid+Table +`stroke` field; `Value::Stroke` variant novo; `native_stroke` constructor; renderização Opção β | L0 não tocado | **N=7 → 8 — primeira validação real pós-formalização ADR-0080** |
+| **P228** | Grid+Table +`fill` field; sem `Value` variant novo + sem constructor stdlib (anti-inflação) | L0 não tocado | **N=8 → 9 — segunda validação real; promoção EM VIGOR P229** |
 
-**N=7 cumulativo confirmado** em P226 audit.
+**N=9 cumulativo confirmado** em P229 audit. Pattern
+empírico **extremamente sólido**; ultrapassa critério N=8+
+de §"Promoção".
 
 ---
 
@@ -179,7 +183,7 @@ actualização cumulativa.
 
 ---
 
-## Promoção
+## Promoção [HISTÓRICO P226 — preservado per padrão P204H+]
 
 ADR-0080 transita PROPOSTO → **EM VIGOR** quando:
 
@@ -195,6 +199,56 @@ ADR-0080 transita PROPOSTO → **REJEITADA** se:
 
 **Status PROPOSTO** — autorização arquitectural concedida
 em princípio; promoção EM VIGOR em passo futuro.
+
+---
+
+## Promoção executada — P229 (2026-05-13)
+
+**Status**: PROPOSTO → **EM VIGOR**.
+
+**Critério satisfeito** (dupla satisfação dos critérios
+§"Promoção" histórica P226):
+
+- ✓ **N=8+ aplicação cumulativa** atingido: **N=9**
+  (P217+P218+P219+P220+P222+P223+P224 pre-formalização +
+  **P227+P228** pós-formalização). N=9 ultrapassa N=8+
+  critério.
+- ✓ **Sem decisão explícita contrária** em 9 aplicações
+  cumulativas (zero Opção α humana fixada em sub-passo
+  materializado pós-P217).
+- ✓ **Passo administrativo XS dedicado** fixado humano
+  (decisão literal pós-P228 §8 "P229 administrativo").
+
+**Pattern emergente "L0 minimal para refactors aditivos
+pós-M9c" formalizado como regra metodológica EM VIGOR**.
+Refactors aditivos pós-P229 seguirão automaticamente este
+padrão (Opção γ "L0 não tocado por defeito"); divergências
+exigem decisão explícita humana fixada em spec individual.
+
+**Trajectória cumulativa**:
+- P226 — formalização PROPOSTO (N=7 validação cumulativa
+  pre-formal).
+- P227 — primeira aplicação real pós-formalização (N=7 → 8).
+- P228 — segunda aplicação real pós-formalização (N=8 → 9).
+- **P229 — promoção EM VIGOR formal**.
+
+**Patterns emergentes secundários** preservados como
+candidatos a ADRs meta separadas (passos administrativos
+XS dedicados futuros se humano priorizar; anti-inflação
+via singularidade P229):
+- "Field armazenado semantic adiada" N=5.
+- "Refino aditivo paralelo entre variants irmãos" N=2.
+- "Anti-inflação por aproveitamento de tipos existentes"
+  N=1.
+- "Divergência factual material `Pxxx.div-N`" N=3.
+- "Encerramento Fase Layout pós-M9c" N=2.
+- "Abertura Fase Layout pós-M9c" N=1.
+- "ADR PROPOSTO com materialização parcial graded" N=1
+  estendido (pós-P229: 2 ADRs PROPOSTAS — ADR-0066 +
+  ADR-0079).
+
+**Status pós-P229**: `EM VIGOR` — regra metodológica
+formal cristalina para refactors aditivos pós-M9c.
 
 ---
 

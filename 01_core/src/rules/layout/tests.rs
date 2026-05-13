@@ -3113,6 +3113,8 @@ mod tests_show_rule_integration {
             y:       None,
             colspan: None,
             rowspan: None,
+            stroke:  None,
+            fill:    None,
         };
         let doc = layout(&cell);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -3353,6 +3355,205 @@ mod tests_show_rule_integration {
         assert!(rect_count >= 2,
             "Table 1x2 fill paridade Grid emite >= 2 rects, recebeu {}",
             rect_count);
+    }
+
+    // ── Passo 230 (Fase 5 Layout Categoria A.3) — precedência per-cell vs Grid-level ──
+
+    /// Per-cell stroke override Grid-level: cell `Some(...)` prevalece.
+    /// Grid stroke red + cell stroke blue → cell stroke usado.
+    #[test]
+    fn p230_per_cell_stroke_override_grid_level() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+
+        let cell_with_override = Content::GridCell {
+            body:    Box::new(Content::text("override")),
+            x:       None,
+            y:       None,
+            colspan: None,
+            rowspan: None,
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 5.0 }),
+            fill:    None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   vec![cell_with_override],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 1.0 }),
+            fill:    None,
+        };
+        let doc = layout(&g);
+        // Verificar que stroke emitido tem thickness 5.0 (cell override; não 1.0 Grid).
+        let mut found_override = false;
+        for p in &doc.pages {
+            for item in &p.items {
+                if let FrameItem::Shape { stroke: Some(s), .. } = item {
+                    if (s.thickness - 5.0).abs() < 0.01 {
+                        found_override = true;
+                    }
+                }
+            }
+        }
+        assert!(found_override,
+            "Cell stroke thickness 5.0 deve sobrepor Grid stroke thickness 1.0");
+    }
+
+    /// Per-cell fill override Grid-level.
+    #[test]
+    fn p230_per_cell_fill_override_grid_level() {
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+
+        let cell_with_fill = Content::GridCell {
+            body:    Box::new(Content::text("c")),
+            x:       None,
+            y:       None,
+            colspan: None,
+            rowspan: None,
+            stroke:  None,
+            fill:    Some(Color::rgb(0, 255, 0)),  // cell green
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   vec![cell_with_fill],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  None,
+            fill:    Some(Color::rgb(255, 0, 0)),  // grid red
+        };
+        let doc = layout(&g);
+        // Verificar fill emitido é green (cell override).
+        let mut found_green = false;
+        for p in &doc.pages {
+            for item in &p.items {
+                if let FrameItem::Shape { fill: Some(Color::Rgb { r: 0, g: 255, b: 0 }), .. } = item {
+                    found_green = true;
+                }
+            }
+        }
+        assert!(found_green,
+            "Cell fill green deve sobrepor Grid fill red");
+    }
+
+    /// Per-cell None → inherit Grid-level: cell sem stroke usa Grid stroke.
+    #[test]
+    fn p230_per_cell_none_inherits_grid_level() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+
+        let cell_raw = Content::text("raw");  // Content raw sem stroke/fill
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   vec![cell_raw],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 3.0 }),
+            fill:    None,
+        };
+        let doc = layout(&g);
+        let line_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item,
+                FrameItem::Shape { kind: crate::entities::geometry::ShapeKind::Line { .. }, .. }
+            )).count();
+        assert!(line_count >= 4,
+            "Cell raw inherit Grid stroke → emite 4 lines, recebeu {}",
+            line_count);
+    }
+
+    /// Per-cell stroke Some + Grid-level None → cell emite; Grid não tem.
+    #[test]
+    fn p230_per_cell_some_grid_none_emite_apenas_cell() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+
+        let cell_with_stroke = Content::GridCell {
+            body:    Box::new(Content::text("c")),
+            x:       None,
+            y:       None,
+            colspan: None,
+            rowspan: None,
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),
+            fill:    None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   vec![cell_with_stroke],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  None,  // Grid sem stroke
+            fill:    None,
+        };
+        let doc = layout(&g);
+        let line_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter(|item| matches!(item,
+                FrameItem::Shape { kind: crate::entities::geometry::ShapeKind::Line { .. }, .. }
+            )).count();
+        assert!(line_count >= 4,
+            "Cell stroke emite mesmo com Grid sem stroke, recebeu {}",
+            line_count);
+    }
+
+    /// Mix: per-cell stroke + Grid-level fill → cell tem ambos (ortogonais).
+    #[test]
+    fn p230_per_cell_stroke_e_grid_fill_simultaneos_z_order() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+
+        let cell = Content::GridCell {
+            body:    Box::new(Content::text("c")),
+            x:       None,
+            y:       None,
+            colspan: None,
+            rowspan: None,
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),  // cell stroke
+            fill:    None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0)],
+            rows:    vec![],
+            cells:   vec![cell],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None,
+            footer:  None,
+            stroke:  None,
+            fill:    Some(Color::rgb(255, 255, 0)),  // grid fill (cell inherit)
+        };
+        let doc = layout(&g);
+        let items: Vec<&FrameItem> = doc.pages.iter().flat_map(|p| p.items.iter()).collect();
+        let rect_idx = items.iter().position(|item| matches!(item,
+            FrameItem::Shape { kind: crate::entities::geometry::ShapeKind::Rect, .. }
+        ));
+        let line_idx = items.iter().position(|item| matches!(item,
+            FrameItem::Shape { kind: crate::entities::geometry::ShapeKind::Line { .. }, .. }
+        ));
+        assert!(rect_idx.is_some() && line_idx.is_some(),
+            "Ambos Rect (grid fill inherit) e Line (cell stroke) presentes");
+        assert!(rect_idx.unwrap() < line_idx.unwrap(),
+            "Z-order: fill (idx={:?}) antes stroke (idx={:?})",
+            rect_idx, line_idx);
     }
 
     /// Counters/labels dentro do body de repeat resolvem via walk
