@@ -1747,6 +1747,216 @@ pós-promoção P229):
 (A.1 stroke ✓; A.2 fill ✓; **A.3 per-cell ✓**; A.4
 Block/Boxed + A.5 Place per-cell pendentes).
 
+⁵⁰ — Ajuste P231 (Fase 5 Layout candidata Categoria A
+sub-passo 4 — outset/radius/clip Block + Boxed;
+**segunda aplicação automática ADR-0080 EM VIGOR**
+pós-promoção P229; reabertura formal P156G+H scope-outs):
+
+- P231 materializa A.4:
+  - **Block +3 fields** `outset: Sides<Length>` + `radius:
+    Option<Length>` + `clip: bool` (5 → 8 fields).
+  - **Boxed +3 fields** paralelo Block (5 → 8 fields;
+    pattern "refino aditivo paralelo entre variants
+    irmãos" N=3 → 4 cumulativo).
+  - **`native_block` + `native_box` accept 3 named args**
+    cada via parsing inline (`outset` Length uniforme;
+    `radius` Length opcional; `clip` Bool); validações
+    negativos rejeitados.
+  - **Renderização Opção β parcial graded** (audit C1
+    determinou primitivos baseline ausentes):
+    - `outset`: armazenado em variant — semantic real
+      (bounds visual expandidos) **adiada** porque
+      requer refactor layouter cumulativo.
+    - `radius`: **semantic real adiada** —
+      `ShapeKind::RoundedRect` primitivo NÃO existe
+      geometry.rs P76 (apenas Rect/Ellipse/Line/Path).
+      Pattern N=5 → 6 cumulativo.
+    - `clip`: **semantic real adiada** — wrap body em
+      `FrameItem::Group { clip_mask: Some(ShapeKind::Rect) }`
+      requer refactor estructural. Pattern N=6 → 7
+      cumulativo.
+
+- **7 decisões fixadas**:
+  - Decisão 1 — Opção α escopo restrito (outset + radius
+    + clip apenas; fill/stroke separados; spacing/above/
+    below/sticky Categoria B candidato).
+  - Decisão 2 — Opção α `Sides<Length>` outset (paridade
+    `inset` baseline).
+  - Decisão 3 — Opção β `Option<Length>` radius uniforme
+    (vs `Corners<T>` cristalino NÃO existe; per-corner
+    refino futuro candidato; pattern Smart→Option N=9 →
+    10).
+  - Decisão 4 — Opção α `bool` clip (paridade vanilla
+    literal; pattern "Field bool simples" N=2 → 3
+    cumulativo).
+  - Decisão 5 — Opção β graded parcial (outset/radius/clip
+    armazenados; semantic real adiada per audit C1).
+  - Decisão 6 — Opção α refino paralelo Block + Boxed
+    (pattern N=3 → 4 consolidado).
+  - Decisão 7 — Opção γ L0 NÃO tocado automaticamente
+    (**segunda aplicação automática ADR-0080 EM VIGOR**
+    pós-promoção P229).
+
+- **L0 NÃO tocado** — segunda aplicação automática
+  ADR-0080 EM VIGOR pós-promoção P229. Sem decisão
+  explícita Opção γ por sub-passo; regra metodológica
+  formal aplicada por defeito.
+
+- **Patterns emergentes consolidados em P231**:
+  - **"L0 minimal para refactors" — aplicação automática
+    pós-EM VIGOR** N=1 → **2 cumulativo** (P230 + P231).
+  - **Pattern "refino aditivo paralelo entre variants
+    irmãos" N=3 → 4 cumulativo** (Grid+Table P227/P228;
+    GridCell+TableCell P230; **Block+Boxed P231**).
+    N=4 patamar empírico **muito sólido**; promoção
+    formal ADR meta candidato.
+  - **Pattern "Field bool simples paridade vanilla" N=2
+    → 3 cumulativo** (`breakable` P156G; `repeat` P224.B;
+    **`clip` P231**). N=3 atinge limiar formalização
+    N=3-4.
+  - **Pattern Smart→Option N=9 → 10 cumulativo** (`radius:
+    Option<Length>`). N=10 patamar empírico **muito
+    sólido**; promoção formal candidato sólido (paridade
+    `extract_length` N=10 candidato).
+  - **Pattern "Field armazenado semantic adiada" N=5 →
+    7 cumulativo** (+outset + radius + clip todos
+    adiadas; +3 em P231: outset+radius+clip). N=7
+    patamar empírico **muito sólido**; promoção formal
+    candidato.
+  - **Reabertura formal P156G+H scope-outs** documentados
+    há 18 dias (criados 2026-04-25; reabertos
+    2026-05-13). Pattern de continuidade arquitectural
+    cumulativa.
+  - **23 aplicações cumulativas anti-inflação** pós-P205D
+    (Opção α escopo + Opção β graded + Opção α paralelo
+    + Opção γ L0 automático + sem `Corners<T>` + sem
+    `RoundedRect` + sem refactor Group clip_mask + ADR-0079
+    sem promoção).
+
+- 15 tests adicionados P231 (4 unit content + 9 unit
+  stdlib + 2 E2E layout); workspace 2086 → **2101 verdes**
+  (+15). Adaptações intencionais Block/Boxed constructors
+  pre-existentes (N=4 em entities/content.rs +
+  stdlib/mod.rs). 0 regressões reais.
+
+- Sem reclassificação categórica §A.5 — `block`/`box`
+  pre-existentes `implementado` (P156G/H baseline).
+  Footnote ⁵⁰ adiciona refino qualitativo cosméticos
+  cumulativo a A.1+A.2+A.3.
+
+- **Distribuição ADRs preservada P229**: PROPOSTO 12;
+  EM VIGOR 29; IMPLEMENTADO 21; total 67.
+- **Saldo DEBTs preservado**: 12 abertos.
+- **Cobertura Layout per metodologia**: **89% preservado**
+  (refino qualitativo P231).
+
+**Categoria A Fase 5 Layout**: 4/5 sub-passos materializados
+(A.1 stroke ✓; A.2 fill ✓; A.3 per-cell ✓; **A.4
+Block/Boxed cosméticos ✓**; A.5 Place per-cell pendente).
+Após A.5 → Categoria A completa 5/5.
+
+⁵¹ — Ajuste P232 (Fase 5 Layout candidata Categoria A
+sub-passo 5 — Place per-cell alignment override;
+**FECHA Categoria A 5/5 estructuralmente**; **terceira
+aplicação automática ADR-0080 EM VIGOR** pós-P229; **dois
+patterns emergentes novos N=1 inaugurados**):
+
+- P232 materializa A.5:
+  - **Zero fields novos** em Place/Grid/Table/Cell — pattern
+    "sub-passo sem novos fields; só lógica precedence" N=1
+    inaugurado P232. Refactor algorítmico puro.
+  - **+1 field `cell_align: Option<Align2D>` no Layouter
+    struct** (paridade `cell_origin_*` baseline P84.6;
+    save/restore ao entrar/sair Grid context em layout_grid).
+  - **Lógica precedência per-eixo via `.or()`** no arm
+    `Content::Place` em `layout/mod.rs`:
+    - `effective_h = alignment.h.or(grid_align.h)`.
+    - `effective_v = alignment.v.or(grid_align.v)`.
+    - Place explícito override Grid; Place vazio herda Grid.
+    - Place fora Grid (cell_align None) preserva baseline
+      P84.5 directo.
+  - **Stdlib `native_place` NÃO modificado** — sintaxe
+    utilizador preservada literal (paridade vanilla
+    baseline).
+
+- **Audit C1 findings**:
+  - `Content::Table.align` field **NÃO existe** baseline
+    (P224.A adicionou apenas Grid). Decisão pragmática
+    (sem `P232.div-N` formal): P232 escopo limitado a Grid
+    context; Table align paralelo é **refino XS futuro
+    candidato** (não-reservado per política P158).
+  - `cell_origin_*` save/restore pattern P84.6 confirmado
+    em `grid.rs:232+`; P232 adicionou `cell_align`
+    paralelo no scope Grid-level (não per-cell — align
+    uniforme aplica-se a todas cells do Grid).
+
+- **8 decisões fixadas**:
+  - Decisão 1 — Opção α (lógica precedência; zero fields
+    novos; paridade pattern P230 GridCell).
+  - Decisão 2 — Opção α precedência por eixo independente
+    via `.or()`.
+  - Decisão 3 — Opção α inline no arm Place existente.
+  - Decisão 4 — Opção α stdlib `native_place` preservado.
+  - Decisão 5 — 5 tests E2E precedência explícitos.
+  - Decisão 6 — Table.align audit C1: ausente baseline →
+    escopo Grid only; Table refino XS futuro candidato.
+  - Decisão 7 — Anotação ADR-0079 Categoria A 5/5 ✓
+    fechada sem transição status (pattern "fecho
+    categoria completa dentro de ADR PROPOSTO sem
+    transição" N=1 inaugurado P232).
+  - Decisão 8 — Opção γ L0 NÃO tocado automaticamente
+    (**terceira aplicação automática ADR-0080 EM VIGOR**
+    pós-promoção P229).
+
+- **L0 NÃO tocado** — terceira aplicação automática
+  ADR-0080 EM VIGOR pós-promoção P229. Pattern "aplicação
+  automática ADR EM VIGOR sem decisão explícita por
+  sub-passo" N=2 → **3 cumulativo** (P230 + P231 + P232).
+
+- **Patterns emergentes consolidados em P232**:
+  - **"L0 minimal para refactors" aplicação automática
+    pós-EM VIGOR** N=2 → **3 cumulativo**.
+  - **Pattern "precedência per-X via `.or()` resolution"
+    N=1 → 2 cumulativo** (P230 GridCell over Grid;
+    **P232 Place per-axis over Grid**).
+  - **"Fecho categoria completa dentro de ADR PROPOSTO
+    sem transição" N=1 inaugurado P232** — distinto de
+    §3.0duodecies P221 + §3.0terdecies P225 que
+    envolveram transições ADR PROPOSTO → IMPLEMENTADO.
+  - **"Sub-passo sem novos fields; só lógica precedence"
+    N=1 inaugurado P232** — distinto cumulativo de
+    A.1-A.4 que adicionaram fields cumulativos (stroke/
+    fill/outset/radius/clip/per-cell).
+  - **24 aplicações cumulativas anti-inflação** pós-P205D
+    (Opção α lógica não-field + Opção α inline arm +
+    Opção α stdlib preservada + Opção γ L0 automático +
+    sem helper + sem marco blueprint + sem promoção
+    ADR-0079 + sem promoção patterns emergentes).
+
+- 5 tests adicionados P232 (5 E2E layout precedência;
+  spec planeou ~9 mas baseline preservation absorve
+  maioria; subset pragmático suficiente para validar
+  comportamento). Workspace: 2101 → **2106 verdes**
+  (+5). Sem adaptações intencionais necessárias.
+  0 regressões reais.
+
+- Sem reclassificação categórica §A.5 — `place` já
+  `implementado⁺` cumulativo P223+. Footnote ⁵¹ adiciona
+  refino qualitativo precedência per-axis dentro Grid.
+
+- **Distribuição ADRs preservada P229**: PROPOSTO 12;
+  EM VIGOR 29; IMPLEMENTADO 21; total 67.
+- **Saldo DEBTs preservado**: 12 abertos.
+- **Cobertura Layout per metodologia**: **89% preservado**.
+
+**Categoria A Fase 5 Layout: 5/5 ✓ FECHADA ESTRUCTURALMENTE**
+(A.1 stroke ✓; A.2 fill ✓; A.3 per-cell ✓; A.4 Block/Boxed
+✓; **A.5 Place per-cell alignment override ✓**). Pós-P232,
+Categoria A não tem mais sub-passos identificados em
+ADR-0079 §"Próximos passos". Próximo sub-passo Fase 5
+candidata pode pivot Categoria B (algorítmicos) / C
+(estruturais reabrindo) / D (runtime queries).
+
 ³⁹ — Ajuste P214 (Tabela A.1 Markup syntactic — recálculo
 ampliado pós-M9c 2026-05-12): **3 reclassificações
 empíricas materiais** detectadas em §A.1 face ao estado

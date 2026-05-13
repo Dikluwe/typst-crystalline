@@ -241,23 +241,27 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         Content::Hide { body } => Content::Hide {
             body: Box::new(materialize_time(body, intr, location)),
         },
-        // Passo 156G (ADR-0061 Fase 2) — block container.
-        // Análogo a Pad: descer no body; preservar atributos.
-        Content::Block { body, width, height, inset, breakable } => Content::Block {
+        // Passo 156G + P231 — Block container; preserva atributos cosméticos.
+        Content::Block { body, width, height, inset, breakable, outset, radius, clip } => Content::Block {
             body:      Box::new(materialize_time(body, intr, location)),
             width:     *width,
             height:    *height,
             inset:     *inset,
             breakable: *breakable,
+            outset:    *outset,
+            radius:    *radius,
+            clip:      *clip,
         },
-        // Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container.
-        // Análogo a Block; preservar atributos.
-        Content::Boxed { body, width, height, inset, baseline } => Content::Boxed {
+        // Passo 156H + P231 — Boxed container; preserva atributos cosméticos.
+        Content::Boxed { body, width, height, inset, baseline, outset, radius, clip } => Content::Boxed {
             body:     Box::new(materialize_time(body, intr, location)),
             width:    *width,
             height:   *height,
             inset:    *inset,
             baseline: *baseline,
+            outset:   *outset,
+            radius:   *radius,
+            clip:     *clip,
         },
         // Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo.
         // Materialize_time em cada child; preservar dir/spacing.

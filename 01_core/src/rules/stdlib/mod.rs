@@ -2184,7 +2184,7 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let r = native_block(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { body, width, height, inset, breakable }) = r {
+        if let Value::Content(Content::Block { body, width, height, inset, breakable, .. }) = r {
             assert_eq!(body.plain_text(), "body");
             assert_eq!(width,  None);
             assert_eq!(height, None);
@@ -2352,7 +2352,7 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let r = native_box(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { body, width, height, inset, baseline }) = r {
+        if let Value::Content(Content::Boxed { body, width, height, inset, baseline, .. }) = r {
             assert_eq!(body.plain_text(), "body");
             assert_eq!(width,  None);
             assert_eq!(height, None);
@@ -3787,6 +3787,130 @@ mod tests {
         if let Value::Content(Content::GridCell { stroke, fill, .. }) = r {
             assert!(stroke.is_some() && fill.is_some());
         } else { panic!("esperado GridCell"); }
+    }
+
+    // ── P231 (Fase 5 Layout Categoria A.4) — Block/Boxed outset/radius/clip ──
+
+    #[test]
+    fn p231_native_block_outset_length_aceita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("outset".into(), Value::Length(Length::pt(5.0)));
+        let r = native_block(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { outset, .. }) = r {
+            assert_eq!(outset.left, Length::pt(5.0));
+        } else { panic!("esperado Block"); }
+    }
+
+    #[test]
+    fn p231_native_block_outset_negativo_rejeita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("outset".into(), Value::Length(Length::pt(-3.0)));
+        let r = native_block(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "outset negativo deve falhar");
+    }
+
+    #[test]
+    fn p231_native_block_radius_length_aceita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("radius".into(), Value::Length(Length::pt(3.0)));
+        let r = native_block(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { radius, .. }) = r {
+            assert_eq!(radius, Some(Length::pt(3.0)));
+        } else { panic!("esperado Block"); }
+    }
+
+    #[test]
+    fn p231_native_block_radius_negativo_rejeita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("radius".into(), Value::Length(Length::pt(-1.0)));
+        let r = native_block(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "radius negativo deve falhar");
+    }
+
+    #[test]
+    fn p231_native_block_clip_bool_aceita() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("clip".into(), Value::Bool(true));
+        let r = native_block(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { clip, .. }) = r {
+            assert_eq!(clip, true);
+        } else { panic!("esperado Block"); }
+    }
+
+    #[test]
+    fn p231_native_block_clip_tipo_errado_rejeita() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("clip".into(), Value::Str("yes".into()));
+        let r = native_block(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "clip Str deve falhar (espera Bool)");
+    }
+
+    #[test]
+    fn p231_native_box_paridade_block() {
+        // native_box aceita os 3 cosméticos paralelo native_block.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("outset".into(), Value::Length(Length::pt(2.0)));
+        args.named.insert("radius".into(), Value::Length(Length::pt(1.0)));
+        args.named.insert("clip".into(),   Value::Bool(true));
+        let r = native_box(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { outset, radius, clip, .. }) = r {
+            assert_eq!(outset.top, Length::pt(2.0));
+            assert_eq!(radius, Some(Length::pt(1.0)));
+            assert_eq!(clip, true);
+        } else { panic!("esperado Boxed"); }
+    }
+
+    #[test]
+    fn p231_native_block_3_fields_simultaneos() {
+        // outset + radius + clip + breakable simultâneos.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("outset".into(),    Value::Length(Length::pt(1.0)));
+        args.named.insert("radius".into(),    Value::Length(Length::pt(2.0)));
+        args.named.insert("clip".into(),      Value::Bool(true));
+        args.named.insert("breakable".into(), Value::Bool(false));
+        let r = native_block(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { outset, radius, clip, breakable, .. }) = r {
+            assert_eq!(outset.left, Length::pt(1.0));
+            assert_eq!(radius, Some(Length::pt(2.0)));
+            assert_eq!(clip, true);
+            assert_eq!(breakable, false);
+        } else { panic!("esperado Block"); }
+    }
+
+    #[test]
+    fn p231_native_block_outset_radius_clip_defaults() {
+        // Sem args → outset=Sides::uniform(zero); radius=None; clip=false.
+        null_ctx!(ctx);
+        let r = native_block(&mut ctx, &p(vec![
+            Value::Content(Content::text("body")),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { outset, radius, clip, .. }) = r {
+            assert_eq!(outset.left, crate::entities::layout_types::Length::ZERO);
+            assert!(radius.is_none());
+            assert_eq!(clip, false);
+        } else { panic!("esperado Block"); }
     }
 
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table ─────────────────

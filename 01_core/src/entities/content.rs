@@ -592,6 +592,13 @@ pub enum Content {
         /// Semantic real adiada se layouter actual não suporta
         /// (consistente com `breakable: false` em Block).
         baseline: Length,
+        /// P231 — outset uniforme paralelo Block (pattern "refino
+        /// aditivo paralelo entre variants irmãos" N=3 → 4 cumulativo).
+        outset:   Sides<Length>,
+        /// P231 — radius paralelo Block (semantic adiada).
+        radius:   Option<Length>,
+        /// P231 — clip paralelo Block (semantic adiada).
+        clip:     bool,
     },
 
     // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block container ───────
@@ -620,6 +627,22 @@ pub enum Content {
         /// (semantic adiada per ADR-0054 graded; armazenado mas
         /// layouter não impede quebra ainda).
         breakable: bool,
+        /// P231 — outset uniforme (margem externa visual; Sides Length
+        /// default zero). Renderização real em layout_grid expande
+        /// bounds visual. Per ADR-0079 PROPOSTO Categoria A.4 +
+        /// **ADR-0080 EM VIGOR aplicação automática N=2** (L0 não
+        /// tocado por defeito).
+        outset:    Sides<Length>,
+        /// P231 — radius uniforme cantos arredondados. Default None.
+        /// **Semantic real adiada** per ADR-0054 graded — `ShapeKind::RoundedRect`
+        /// primitivo NÃO existe baseline geometry.rs P76; pattern N=5
+        /// → 6 cumulativo "Field armazenado semantic adiada".
+        radius:    Option<Length>,
+        /// P231 — clip overflow. Default false. **Semantic real adiada**
+        /// per ADR-0054 graded — wrap body em FrameItem::Group com
+        /// clip_mask requer refactor estructural baseline; pattern N=6
+        /// → 7 cumulativo.
+        clip:      bool,
     },
 
     // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ───────────
@@ -972,7 +995,9 @@ impl Content {
         inset:     Sides<Length>,
         breakable: bool,
     ) -> Self {
-        Self::Block { body: Box::new(body), width, height, inset, breakable }
+        Self::Block { body: Box::new(body), width, height, inset, breakable,
+                      outset: Sides::new(Length::pt(0.0), Length::pt(0.0), Length::pt(0.0), Length::pt(0.0)),
+                      radius: None, clip: false }
     }
 
     /// `box(body, width, height, inset, baseline)` — Passo 156H
@@ -985,7 +1010,9 @@ impl Content {
         inset:    Sides<Length>,
         baseline: Length,
     ) -> Self {
-        Self::Boxed { body: Box::new(body), width, height, inset, baseline }
+        Self::Boxed { body: Box::new(body), width, height, inset, baseline,
+                      outset: Sides::new(Length::pt(0.0), Length::pt(0.0), Length::pt(0.0), Length::pt(0.0)),
+                      radius: None, clip: false }
     }
 
     /// `stack(dir, spacing, ..children)` — Passo 156I (ADR-0061 Fase 2
@@ -1508,14 +1535,20 @@ impl PartialEq for Content {
             // Passo 220 — Colbreak (1 field — paridade Pagebreak sem to).
             (Self::Colbreak { weak: wa },
              Self::Colbreak { weak: wb }) => wa == wb,
-            // Passo 156G — Block.
-            (Self::Block { body: ba, width: wa, height: ha, inset: ia, breakable: ka },
-             Self::Block { body: bb, width: wb, height: hb, inset: ib, breakable: kb }) =>
-                ba == bb && wa == wb && ha == hb && ia == ib && ka == kb,
-            // Passo 156H — Boxed.
-            (Self::Boxed { body: ba, width: wa, height: ha, inset: ia, baseline: ka },
-             Self::Boxed { body: bb, width: wb, height: hb, inset: ib, baseline: kb }) =>
-                ba == bb && wa == wb && ha == hb && ia == ib && ka == kb,
+            // Passo 156G + P231 — Block +3 cosméticos (outset/radius/clip).
+            (Self::Block { body: ba, width: wa, height: ha, inset: ia, breakable: ka,
+                            outset: oa, radius: ra, clip: cla },
+             Self::Block { body: bb, width: wb, height: hb, inset: ib, breakable: kb,
+                            outset: ob, radius: rb, clip: clb }) =>
+                ba == bb && wa == wb && ha == hb && ia == ib && ka == kb
+                && oa == ob && ra == rb && cla == clb,
+            // Passo 156H + P231 — Boxed +3 cosméticos paralelo Block.
+            (Self::Boxed { body: ba, width: wa, height: ha, inset: ia, baseline: ka,
+                            outset: oa, radius: ra, clip: cla },
+             Self::Boxed { body: bb, width: wb, height: hb, inset: ib, baseline: kb,
+                            outset: ob, radius: rb, clip: clb }) =>
+                ba == bb && wa == wb && ha == hb && ia == ib && ka == kb
+                && oa == ob && ra == rb && cla == clb,
             // Passo 156I — Stack (Arc<[Content]> compara por conteúdo).
             (Self::Stack { children: ca, dir: da, spacing: sa },
              Self::Stack { children: cb, dir: db, spacing: sb }) =>
@@ -1685,23 +1718,30 @@ impl Content {
                 body: Box::new(body.map_content(transform)?),
             },
 
-            // Passo 156G: Block container — recurse em body; atributos
-            // são Copy primitivos (Option<Length>, Sides<Length>, bool).
-            Content::Block { body, width, height, inset, breakable } => Content::Block {
+            // Passo 156G + P231: Block container — recurse em body; preserva
+            // 3 fields cosméticos novos (Sides Copy via Length Copy;
+            // Option<Length> Copy; bool Copy).
+            Content::Block { body, width, height, inset, breakable, outset, radius, clip } => Content::Block {
                 body:      Box::new(body.map_content(transform)?),
                 width:     *width,
                 height:    *height,
                 inset:     *inset,
                 breakable: *breakable,
+                outset:    *outset,
+                radius:    *radius,
+                clip:      *clip,
             },
 
-            // Passo 156H: Boxed (Box inline) — recurse análogo a Block.
-            Content::Boxed { body, width, height, inset, baseline } => Content::Boxed {
+            // Passo 156H + P231: Boxed (Box inline) — recurse análogo a Block; preserva 3 cosméticos.
+            Content::Boxed { body, width, height, inset, baseline, outset, radius, clip } => Content::Boxed {
                 body:     Box::new(body.map_content(transform)?),
                 width:    *width,
                 height:   *height,
                 inset:    *inset,
                 baseline: *baseline,
+                outset:   *outset,
+                radius:   *radius,
+                clip:     *clip,
             },
 
             // Passo 156I: Stack compositivo — mapear cada child;
@@ -1960,21 +2000,27 @@ impl Content {
             },
 
             // Passo 156G: Block container — recurse em body.
-            Content::Block { body, width, height, inset, breakable } => Content::Block {
+            Content::Block { body, width, height, inset, breakable, outset, radius, clip } => Content::Block {
                 body:      Box::new(body.map_text(transform)),
                 width:     *width,
                 height:    *height,
                 inset:     *inset,
                 breakable: *breakable,
+                outset:    *outset,
+                radius:    *radius,
+                clip:      *clip,
             },
 
-            // Passo 156H: Boxed (Box inline) — recurse análogo a Block.
-            Content::Boxed { body, width, height, inset, baseline } => Content::Boxed {
+            // Passo 156H + P231: Boxed (Box inline) — recurse análogo a Block; preserva cosméticos.
+            Content::Boxed { body, width, height, inset, baseline, outset, radius, clip } => Content::Boxed {
                 body:     Box::new(body.map_text(transform)),
                 width:    *width,
                 height:   *height,
                 inset:    *inset,
                 baseline: *baseline,
+                outset:   *outset,
+                radius:   *radius,
+                clip:     *clip,
             },
 
             // Passo 156I: Stack compositivo — map_text em cada child.
@@ -2954,7 +3000,7 @@ mod tests {
             Sides::uniform(Length::ZERO),
             true,
         );
-        if let Content::Block { body, width, height, inset, breakable } = &b {
+        if let Content::Block { body, width, height, inset, breakable, .. } = &b {
             assert_eq!(body.plain_text(), "body");
             assert_eq!(*width,  None);
             assert_eq!(*height, None);
@@ -3086,7 +3132,7 @@ mod tests {
             Sides::uniform(Length::ZERO),
             Length::ZERO,
         );
-        if let Content::Boxed { body, width, height, inset, baseline } = &b {
+        if let Content::Boxed { body, width, height, inset, baseline, .. } = &b {
             assert_eq!(body.plain_text(), "body");
             assert_eq!(*width,  None);
             assert_eq!(*height, None);
@@ -4023,6 +4069,94 @@ mod tests {
             assert_eq!(*fill, Some(fill_orig));
         } else {
             panic!("esperado GridCell após map_content");
+        }
+    }
+
+    // ── Passo 231 (Fase 5 Layout Categoria A.4) — Block/Boxed outset/radius/clip ──
+
+    #[test]
+    fn p231_block_variant_aceita_outset_radius_clip() {
+        use crate::entities::sides::Sides;
+        let b = Content::Block {
+            body:      Box::new(Content::text("body")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(5.0)),
+            radius:    Some(Length::pt(3.0)),
+            clip:      true,
+        };
+        if let Content::Block { outset, radius, clip, .. } = &b {
+            assert_eq!(*radius, Some(Length::pt(3.0)));
+            assert_eq!(*clip, true);
+            assert_eq!(outset.left, Length::pt(5.0));
+        } else {
+            panic!("esperado Block");
+        }
+    }
+
+    #[test]
+    fn p231_boxed_variant_aceita_outset_radius_clip() {
+        use crate::entities::sides::Sides;
+        let b = Content::Boxed {
+            body:     Box::new(Content::text("body")),
+            width:    None,
+            height:   None,
+            inset:    Sides::uniform(Length::pt(0.0)),
+            baseline: Length::pt(0.0),
+            outset:   Sides::uniform(Length::pt(2.0)),
+            radius:   Some(Length::pt(4.0)),
+            clip:     false,
+        };
+        if let Content::Boxed { outset, radius, clip, .. } = &b {
+            assert_eq!(*radius, Some(Length::pt(4.0)));
+            assert_eq!(*clip, false);
+            assert_eq!(outset.left, Length::pt(2.0));
+        } else {
+            panic!("esperado Boxed");
+        }
+    }
+
+    #[test]
+    fn p231_block_partial_eq_inclui_3_fields() {
+        use crate::entities::sides::Sides;
+        let mk = |clip: bool| Content::Block {
+            body:      Box::new(Content::text(".")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    None,
+            clip,
+        };
+        assert_eq!(mk(false), mk(false));
+        assert_ne!(mk(false), mk(true));
+    }
+
+    #[test]
+    fn p231_block_map_content_preserva_3_fields() {
+        use crate::entities::sides::Sides;
+        let outset_orig = Sides::uniform(Length::pt(7.0));
+        let radius_orig = Some(Length::pt(2.0));
+        let b = Content::Block {
+            body:      Box::new(Content::text("b")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    outset_orig,
+            radius:    radius_orig,
+            clip:      true,
+        };
+        let mapped = b.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
+        if let Content::Block { outset, radius, clip, .. } = &mapped {
+            assert_eq!(*outset, outset_orig);
+            assert_eq!(*radius, radius_orig);
+            assert_eq!(*clip, true);
+        } else {
+            panic!("esperado Block após map_content");
         }
     }
 

@@ -33,13 +33,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         rows:    &[TrackSizing],
         cells:   &[Content],
         _gutter: Option<Length>,
-        _align:  Option<Align2D>,
+        align:   Option<Align2D>,  // P232 — Grid-level align disponível para Place herdar
         _inset:  Sides<Length>,
         _header: Option<&Content>,
         _footer: Option<&Content>,
         stroke:  Option<&Stroke>,  // P227 — borders cell render Opção β
         fill:    Option<&Color>,    // P228 — fill cell render Z-order correcto
     ) {
+        // P232 — save/restore cell_align Grid-level para Place
+        // herdar via `.or()` per eixo no arm Content::Place. Paridade
+        // pattern cell_origin_* P84.6 mas com scope Grid-level (não
+        // per-cell — align uniforme aplica-se a todas as cells do Grid).
+        let saved_cell_align = self.cell_align;
+        self.cell_align = align;
         let available_width = self.available_width();
 
         // Guarda Passo 83 — colunas vazias caem em [Auto].
@@ -350,6 +356,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // Avançar cursor para o fim da linha (altura conhecida).
             self.regions.current.cursor_y = Pt(row_start_y + row_h);
         }
+
+        // P232 — restore cell_align ao sair de Grid context (paridade
+        // cell_origin_* save/restore pattern P84.6).
+        self.cell_align = saved_cell_align;
     }
 }
 
