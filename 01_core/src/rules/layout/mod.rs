@@ -673,12 +673,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.regions.current.cursor_y += Pt(new_h);
             }
 
-            // P224+P227 — Grid refino +6 fields. gutter/align/inset/header/footer/stroke
+            // P224+P227+P228 — Grid refino +7 fields. gutter/align/inset/header/footer/stroke/fill
             // são consumidos por layout_grid (signature expandida).
-            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke } => {
+            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke, fill } => {
                 self.layout_grid(columns, rows, cells, *gutter, *align, *inset,
                                  header.as_deref(), footer.as_deref(),
-                                 stroke.as_ref());
+                                 stroke.as_ref(), fill.as_ref());
             }
 
             // P224.B — GridHeader / GridFooter renderizam body sequencial
@@ -702,16 +702,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // clone simples per ADR-0060 §"Decisão 4" + diagnóstico
             // P157A §10. Sem modificação de `grid.rs`. TableCell
             // estruturado e Header/Footer diferidos para P157B/C.
-            Content::Table { columns, rows, children, stroke } => {
-                // P224+P227 — Table delegate; herda stroke via P227.
-                // gutter/align/inset/header/footer continuam defaults
-                // (refino Table separado candidato Fase 5 NÃO-reservado).
+            Content::Table { columns, rows, children, stroke, fill } => {
+                // P224+P227+P228 — Table delegate; herda stroke + fill.
                 self.layout_grid(columns, rows, children,
                                  None, None,
                                  crate::entities::sides::Sides::uniform(
                                      crate::entities::layout_types::Length::pt(0.0)),
                                  None, None,
-                                 stroke.as_ref());
+                                 stroke.as_ref(), fill.as_ref());
             }
 
             // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ──

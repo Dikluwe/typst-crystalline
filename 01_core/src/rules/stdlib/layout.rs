@@ -195,9 +195,9 @@ pub(super) fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
 /// `grid(columns?, rows?, ...cells)` → `Content::Grid`.
 pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     for key in args.named.keys() {
-        // P224 + P227 — accept named args (gutter/align/inset/header/footer/stroke).
-        // fill cosmético scope-out Fase 5 candidata A.2 NÃO-reservada.
-        if !["columns", "rows", "gutter", "align", "inset", "header", "footer", "stroke"]
+        // P224 + P227 + P228 — accept named args
+        // (gutter/align/inset/header/footer/stroke/fill).
+        if !["columns", "rows", "gutter", "align", "inset", "header", "footer", "stroke", "fill"]
             .contains(&key.as_str())
         {
             return Err(vec![SourceDiagnostic::error(
@@ -283,10 +283,20 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         None => None,
     };
 
+    // P228 — extract fill (Opção α: apenas Value::Color; rejeita outros).
+    let fill = match args.named.get("fill") {
+        Some(Value::Color(c)) => Some(*c),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("grid(fill): espera Color, recebeu {}", other.type_name()),
+        )]),
+        None => None,
+    };
+
     Ok(Value::Content(Content::Grid {
         columns, rows, cells,
         gutter, align, inset, header, footer,
-        stroke,
+        stroke, fill,
     }))
 }
 

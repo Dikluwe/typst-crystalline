@@ -11,7 +11,7 @@ use crate::entities::{
     content::Content,
     geometry::{ShapeKind, Stroke},
     image_sizer::ImageSizer,
-    layout_types::{Align2D, FrameItem, Length, Point, Pt, TrackSizing},
+    layout_types::{Align2D, Color, FrameItem, Length, Point, Pt, TrackSizing},
     sides::Sides,
 };
 
@@ -38,6 +38,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         _header: Option<&Content>,
         _footer: Option<&Content>,
         stroke:  Option<&Stroke>,  // P227 — borders cell render Opção β
+        fill:    Option<&Color>,    // P228 — fill cell render Z-order correcto
     ) {
         let available_width = self.available_width();
 
@@ -257,6 +258,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.cell_origin_y    = saved_cell_oy;
                 self.cell_origin_w    = saved_cell_ow;
 
+                // P228 — Z-order step 1: fill emite primeiro (atrás
+                // do conteúdo cell + stroke). Renderização Opção β:
+                // FrameItem::Shape::Rect per cell com fill colour.
+                if let Some(c) = fill {
+                    self.regions.current.current_items.push(FrameItem::Shape {
+                        pos:    Point { x: Pt(cell_x), y: Pt(row_start_y) },
+                        kind:   ShapeKind::Rect,
+                        width:  cell_w,
+                        height: row_h,
+                        fill:   Some(*c),
+                        stroke: None,
+                    });
+                }
+
+                // Z-order step 2: conteúdo cell (existing P82-84.6 lógica).
                 // Transferir items com posições absolutas (Y rebaseado
                 // a row_start_y, compensando o ascender_local).
                 for item in cell_items {

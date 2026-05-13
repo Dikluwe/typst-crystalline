@@ -3639,6 +3639,72 @@ mod tests {
         } else { panic!("esperado Content::Table"); }
     }
 
+    // ── P228 (Fase 5 Layout Categoria A.2) — fill Grid + Table ──
+
+    #[test]
+    fn p228_native_grid_fill_color_aceita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Color;
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("fill".into(), Value::Color(Color::rgb(255, 200, 0)));
+        let r = native_grid(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Grid { fill, .. }) = r {
+            assert!(fill.is_some());
+        } else { panic!("esperado Content::Grid"); }
+    }
+
+    #[test]
+    fn p228_native_grid_fill_default_none() {
+        null_ctx!(ctx);
+        let r = native_grid(&mut ctx, &p(vec![
+            Value::Content(Content::text("a")),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Grid { fill, .. }) = r {
+            assert!(fill.is_none(), "default fill == None");
+        } else { panic!("esperado Content::Grid"); }
+    }
+
+    #[test]
+    fn p228_native_grid_fill_tipo_errado_rejeita() {
+        // fill aceita só Color (não Length); rejeita explicitamente.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("fill".into(), Value::Length(Length::pt(1.0)));
+        let r = native_grid(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "fill Length deve falhar (semantic: fill é Color)");
+    }
+
+    #[test]
+    fn p228_native_table_fill_paridade_grid() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Color;
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("fill".into(), Value::Color(Color::rgb(100, 100, 100)));
+        let r = native_table(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Table { fill, .. }) = r {
+            assert!(fill.is_some());
+        } else { panic!("esperado Content::Table"); }
+    }
+
+    #[test]
+    fn p228_native_grid_fill_e_stroke_simultaneos_aceita() {
+        // Ambos fill + stroke aceitos no mesmo grid() call.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::{Length, Color};
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("fill".into(),   Value::Color(Color::rgb(0, 255, 0)));
+        args.named.insert("stroke".into(), Value::Length(Length::pt(1.0)));
+        let r = native_grid(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Grid { fill, stroke, .. }) = r {
+            assert!(fill.is_some() && stroke.is_some());
+        } else { panic!("esperado Content::Grid"); }
+    }
+
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table ─────────────────
 
     #[test]

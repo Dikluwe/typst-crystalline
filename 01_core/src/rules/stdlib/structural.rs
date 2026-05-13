@@ -224,8 +224,8 @@ pub fn native_table(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     use crate::entities::layout_types::TrackSizing;
 
     for key in args.named.keys() {
-        // P227 — accept stroke (paridade native_grid P227).
-        if !["columns", "rows", "stroke"].contains(&key.as_str()) {
+        // P227 + P228 — accept stroke + fill (paridade native_grid).
+        if !["columns", "rows", "stroke", "fill"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("argumento nomeado inesperado em table(): '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", key),
@@ -259,7 +259,16 @@ pub fn native_table(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         Some(val) => Some(extract_stroke(val, "table", "stroke")?),
         None => None,
     };
-    Ok(Value::Content(Content::Table { columns, rows, children, stroke }))
+    // P228 — extract fill (Opção α: apenas Value::Color).
+    let fill = match args.named.get("fill") {
+        Some(Value::Color(c)) => Some(*c),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("table(fill): espera Color, recebeu {}", other.type_name()),
+        )]),
+        None => None,
+    };
+    Ok(Value::Content(Content::Table { columns, rows, children, stroke, fill }))
 }
 
 // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ───────────────────
