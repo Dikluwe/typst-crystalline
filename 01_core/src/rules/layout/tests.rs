@@ -55,8 +55,8 @@ fn layouter_baseline_dentro_da_pagina() {
     let intr_dyn: &dyn Introspector = &intr;
     let intr_tracked = intr_dyn.track();
     let l = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_tracked);
-    assert!(l.cursor_y.val() > 0.0);
-    assert!(l.cursor_y.val() < 842.0);
+    assert!(l.region.cursor_y.val() > 0.0);
+    assert!(l.region.cursor_y.val() < 842.0);
 }
 
 // ── P204C (M8) — Sentinel tests para migração Layouter ────────────────────

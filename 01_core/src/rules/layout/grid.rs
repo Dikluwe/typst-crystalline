@@ -157,9 +157,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // estabilizado e a fase 2 calcula `fr` com o available_below
         // correcto. Se o Grid é maior que uma página inteira, aceita
         // overflow (não chama new_page() em loop).
-        let space_left = f64::max(0.0, self.page_bottom_limit() - self.cursor_y.0);
+        let space_left = f64::max(0.0, self.page_bottom_limit() - self.region.cursor_y.0);
         if total_fixed_and_auto > space_left {
-            let page_usable_height = self.page_config.height - 2.0 * self.page_config.margin;
+            let page_usable_height = self.region.height - 2.0 * self.page_config.margin;
             if total_fixed_and_auto <= page_usable_height {
                 self.new_page();
             }
@@ -167,7 +167,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // Fase 2 — resolver Fraction com cursor_y estabilizado.
         if !fraction_indices.is_empty() {
-            let grid_top_y = self.cursor_y.0;
+            let grid_top_y = self.region.cursor_y.0;
             let available_below = f64::max(0.0, self.page_bottom_limit() - grid_top_y);
             if total_fixed_and_auto > available_below {
                 // Caso patológico residual (Grid > página inteira):
@@ -198,14 +198,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // Quebra durante a emissão se a linha individual não cabe
             // (caso conservador: começar a linha no topo da página seguinte).
             // Se a linha for maior que uma página inteira, aceitar overflow.
-            if self.cursor_y.0 + row_h > self.page_bottom_limit() {
-                let page_usable_height = self.page_config.height - 2.0 * self.page_config.margin;
+            if self.region.cursor_y.0 + row_h > self.page_bottom_limit() {
+                let page_usable_height = self.region.height - 2.0 * self.page_config.margin;
                 if row_h <= page_usable_height {
                     self.new_page();
                 }
             }
 
-            let row_start_y = self.cursor_y.0;
+            let row_start_y = self.region.cursor_y.0;
 
             for (col_idx, cell) in row_items.iter().enumerate() {
                 if col_idx >= num_cols { break; }
@@ -229,14 +229,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // exactamente uma vez. Cache miss em linhas Fixed/
                 // Fraction cai silenciosamente para a chamada original.
                 let cell_idx = row_idx * num_cols + col_idx;
-                let saved_cursor_x = self.cursor_x;
-                let saved_cursor_y = self.cursor_y;
+                let saved_cursor_x = self.region.cursor_x;
+                let saved_cursor_y = self.region.cursor_y;
                 let (_cell_h, cell_items) = match cell_cache.remove(&cell_idx) {
                     Some(cached) => cached,
                     None => self.layout_sub_frame_with_width(cell, cell_x, cell_w),
                 };
-                self.cursor_x = saved_cursor_x;
-                self.cursor_y = saved_cursor_y;
+                self.region.cursor_x = saved_cursor_x;
+                self.region.cursor_y = saved_cursor_y;
 
                 self.cell_available_h = saved_cell_h;
                 self.cell_origin_x    = saved_cell_ox;
@@ -252,12 +252,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         y: Pt(row_start_y + (ly - local_start_y)),
                     };
                     let translated = translate_frame_item(item, abs_pos.x, abs_pos.y);
-                    self.current_items.push(translated);
+                    self.region.current_items.push(translated);
                 }
             }
 
             // Avançar cursor para o fim da linha (altura conhecida).
-            self.cursor_y = Pt(row_start_y + row_h);
+            self.region.cursor_y = Pt(row_start_y + row_h);
         }
     }
 }

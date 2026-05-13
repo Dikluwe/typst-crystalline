@@ -51,13 +51,13 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `= heading`, `== heading`, ... | model/heading.rs | `implementado` | Passos 22, 99, 103 | níveis 1–6; show rules |
 | `- list item` | model/list.rs | `parcial` | Passo 23 | captura via `Content::ListItem`; rendering básico; sem marcadores configuráveis |
 | `+ enum`, `1. enum` | model/enum.rs | `parcial` | Passo 23 | captura via `Content::EnumItem`; numeração simples |
-| `> blockquote` | model/quote.rs | `ausente` | — | sem `Content::Quote` |
-| `/ term: definition` | model/terms.rs | `ausente` | — | sem `Content::Terms` |
+| `> blockquote` | model/quote.rs | `implementado` | Passo 155 | `Content::Quote` materializado P155 (Fase 1 sub-passo 2 fechada); 4 attrs (body, attribution, block, quotes) |
+| `/ term: definition` | model/terms.rs | `implementado` | Passo 154B | `Content::Terms` + `Content::TermItem` materializados P154B (Fase 1 sub-passo 1) |
 | `$inline math$` | math/equation.rs | `implementado⁺` | Passos 34–46 | superscripts/subscripts/fracções; matrix/cases capturados; sem shaping completo (ADR-0054 perfil graded) |
 | `$ display math $` | math/equation.rs | `implementado⁺` | idem | `block: true` em `Content::Equation` |
 | `` `inline raw` ``, ```` ```block``` ```` | text/raw.rs | `implementado` | Passo 23 | `Content::Raw` com `lang` opcional |
 | `<label>`, `@ref` | foundations/label.rs, model/reference.rs | `implementado⁺` | Passo 63 | `Content::Labelled`, `Content::Ref`; forward-refs limitadas (DEBT-10 fechada) |
-| Smart quotes (`"foo"` → "foo") | text/smartquote.rs | `ausente` | — | sem `Content::SmartQuote` |
+| Smart quotes (`"foo"` → "foo") | text/smartquote.rs | `implementado` | Passo 155 | smart-quotes lang-aware (6 idiomas + default ASCII) via `rules/lang/quotes.rs`; markup `"..."` produz aspas localizadas via alternância open/close em `eval_markup` |
 | Soft hyphen Unicode (`\u{00AD}`) | text/linebreak.rs | `ausente` | — | hyphenation usa apenas literal `-` (Passo 144) |
 
 ### A.2 — `#let`, `#set`, `#show`
@@ -223,12 +223,12 @@ primitives e `skew`). Detalhe em
 
 | Feature | Vanilla | Cristalino | Referência | Nota |
 |---------|---------|------------|------------|------|
-| `counter(key)` | introspection/counter.rs | `implementado` | Passos 60–62 | step/update; counter.display() |
-| `state(key, ...)` | introspection/state.rs | `ausente` | — | |
-| `here()` / `locate()` | introspection/{here,locate}.rs | `ausente` | — | Passo 17 ADR-0017 adiou; runtime não está pronto |
-| `query(...)` | introspection/query.rs | `ausente` | — | |
-| `metadata(value)` | introspection/metadata.rs | `ausente` | — | |
-| `position(target)` | introspection/position.rs | `ausente` | — | |
+| `counter(key)` | introspection/counter.rs | `implementado⁺` | Passos 60–62 + P176 + P177 + P210B | step/update; `counter_step` (P210B); `counter_at` (P177 location-aware); `counter_final` (P176 hierarchical). `counter.display(numbering)` here-aware deferred per P210A C3 (gatilho: walk advance materializado) |
+| `state(key, ...)` | introspection/state.rs | `implementado` | P171 (M9) | `state(key, init)` + `state_update(key, value)` + `state_update_with(key, fn)` registadas no scope global. `state.get()` here-aware deferred per P210A C3 (mesmo gatilho) |
+| `here()` / `locate()` | introspection/{here,locate}.rs | `implementado` | P208B + P208C (M9c) | `here()` lê `EvalContext.current_location` (P208B); `locate(kind)` reusa `parse_selector_arg` + `Introspector::query.first()` (P208C). Walk advance automático deferred (gatilho: `Content::Context` block ou consumer real) |
+| `query(...)` | introspection/query.rs | `implementado⁺` | P175 (minimal) + P209A-D (M9c — 5 variants Selector) | `query(arg)` aceita `Value::Str(kind)`, `Value::Str("<label>")`, `Value::Location(loc)` via `parse_selector_arg`. `Selector::And/Or` Rust API only; `Selector::Regex` query stub `vec![]` (gatilho: query-by-text accessível) |
+| `metadata(value)` | introspection/metadata.rs | `implementado` | P169 (M9 sub-passo 1) | `metadata(value)` registada; `MetadataStore` sub-store + `Introspector::query_metadata()` |
+| `position(target)` | introspection/position.rs | `parcial` | P204D + P205B/C (F3) | `Introspector::position_of(loc) -> Option<Position>` materializado via `SealedPositions` (P205C inject_positions); **sem stdlib expose `position()` standalone**. Bloco B candidato pós-M9c |
 
 ---
 
@@ -424,7 +424,7 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 
 | Categoria | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |-----------|----------------|-----------------|-----------|-----------|-------------|-------|
-| Markup syntactic | 8 | 3 | 3 | 4 | 0 | 18 |
+| Markup syntactic ³⁹ | 11 | 3 | 3 | 1 | 0 | 18 |
 | `#let`/`#set`/`#show`/import | 7 | 1 | 4 | 1 | 0 | 13 |
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
@@ -432,8 +432,8 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | Model (structural) ¹ ² ³ ²² ²⁴ ²⁹ | 7 | 4 | 7 | 4 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
-| Introspection | 1 | 0 | 0 | 5 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ | **64** | **22** | **24** | **29** | **2** | **141** |
+| Introspection ³⁸ | 3 | 2 | 1 | 0 | 0 | 6 |
+| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ ³⁸ ³⁹ | **69** | **24** | **25** | **21** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -879,6 +879,103 @@ aplicável (kind continua String). Cobertura Model agregada
 estabeleceu; P158A respeita) — supplement automático, show
 selectors `figure.where(kind:)`, refactor `kind: String →
 Option<String>` permanecem candidatos NÃO-reservados.
+
+³⁹ — Ajuste P214 (Tabela A.1 Markup syntactic — recálculo
+ampliado pós-M9c 2026-05-12): **3 reclassificações
+empíricas materiais** detectadas em §A.1 face ao estado
+factual pós-P212 (M9c ACEITE):
+- `> blockquote`: ausente → **implementado** (P155 Fase 1
+  sub-passo 2 — `Content::Quote` materializado com 4 attrs;
+  par `quote(...)` na §A.6 Model L174 já registrado).
+- `/ term: definition`: ausente → **implementado** (P154B
+  Fase 1 sub-passo 1 — `Content::Terms` + `Content::TermItem`
+  materializados; par `terms(...)` na §A.6 Model L173).
+- Smart quotes: ausente → **implementado** (P155 — alternância
+  open/close lang-aware via `rules/lang/quotes.rs`; 6 idiomas
+  suportados).
+Distribuição Markup pós-recálculo: **8/3/3/4/0 → 11/3/3/1/0
+= 18** (3 ausente → implementado). Cobertura: 11/18=61% →
+**14/18=78%** (Δ +17pp).
+**Total user-facing**: `66/24/25/24/2 = 141 → 69/24/25/21/2
+= 141` (3 entradas movidas de ausente para implementado;
+total preservado). Cobertura user-facing total:
+(66+24)/141=63.8% → (69+24)/141=**~66%** (Δ +2pp).
+**Sincronizações §2.1 ↔ Tabela A** documentadas
+adicionalmente (sem material change na Tabela A; §2.1
+desactualizado desde 2026-04-25):
+- Layout §2.1 38% → **78%** (Tabela A já 14/18=78% via
+  footnotes ⁵⁶⁸¹⁰¹²¹³¹⁵¹⁷¹⁹²¹).
+- Model §2.1 45% → **50%** (Tabela A já 11/22=50% via
+  footnotes ¹²³²²²⁴²⁹).
+**Política "sem novas reservas" preservada per P158**:
+candidatos identificados em P213 §A.9 (Bloco A `measure`,
+Bloco B `position()` standalone, `query_count_before`)
+mantêm-se NÃO reservados; P214 não adiciona novos.
+Tests +0 (1939 inalterados — recálculo documental sem
+código tocado). 0 violations preservadas.
+**Pattern emergente "diagnóstico-recálculo pós-marcos"
+cresce N=1→9** (P213 + 8 categorias auditadas P214; 1
+categoria com material reclass + 2 sincronizações §2.1
++ 5 inalteradas). **Subpadrão "passo administrativo XS"
+cresce N=3→4** (`ADR-0062-create` + P160A + P213 + P214);
+ultrapassa limiar formalização N=3-4; promoção a ADR meta
+diferida per política P158.
+
+³⁸ — Ajuste P213 (Tabela A.9 Introspection — recálculo
+pós-fecho marco M9c 2026-05-12): **5 reclassificações
+empíricas** face ao estado factual pós-P212 (M9c ACEITE):
+- `counter(key)`: `implementado` → **`implementado⁺`**
+  (P210B `counter_step` + P176 `counter_final` + P177
+  `counter_at` materializados ao longo M9; deferreds
+  `counter.display(numbering)` here-aware + `counter.update`
+  documentados com gatilho walk advance per P210A C3).
+- `state(key, ...)`: `ausente` → **`implementado`** (P171
+  `state` + `state_update` + `state_update_with` registadas;
+  `StateRegistry` sub-store + `Introspector::state_value`/
+  `state_final_value` métodos trait; `state.get()` here-aware
+  deferred per P210A C3 com mesmo gatilho).
+- `here()` / `locate()`: `ausente` → **`implementado`**
+  (P208B `native_here` lê `EvalContext.current_location`;
+  P208C `native_locate` reusa `parse_selector_arg` +
+  `Introspector::query.first()`; walk advance automático
+  deferred per P208B C2 — gatilho `Content::Context` block
+  ou consumer real).
+- `query(...)`: `ausente` → **`implementado⁺`** (P175
+  minimal `Selector::Kind` + P209A-D estendido para 6
+  variants `Kind/Label/Location/And/Or/Regex`; helper
+  `parse_selector_arg` em foundations.rs com type
+  dispatch; `Selector::And/Or` Rust API only per P209A C3
+  Opção c; `Selector::Regex` query stub `vec![]` per
+  P209D C5).
+- `metadata(value)`: `ausente` → **`implementado`** (P169
+  M9 sub-passo 1 — `MetadataStore` sub-store +
+  `Introspector::query_metadata()` + stdlib
+  `metadata(value)` registada).
+- `position(target)`: `ausente` → **`parcial`**
+  (`Introspector::position_of(loc) -> Option<Position>`
+  materializado P204D + `SealedPositions` sub-store P205B
+  + `inject_positions` injection P205C; **stdlib expose
+  `position()` standalone ainda ausente** — gatilho Bloco
+  B candidato pós-M9c).
+Distribuição pós-recálculo: **3/2/1/0/0 = 6 (vs prévio
+1/0/0/5/0 antes M9c)**. Cobertura `(impl + impl⁺)/total =
+(3+2)/6 = **83%** (vs 17% prévio); +66pp categoria.
+**Cobertura user-facing total**: peso categoria
+Introspection ~4.3% das ~141 entradas; Δ +66pp × peso
+4.3% ≈ +2.8pp; total user-facing ~61% → **~63-64%**.
+**Política "sem novas reservas" preservada per P158**:
+candidatos Bloco A (`measure` stdlib expose) + Bloco B
+(`position()` stdlib + `query_count_before`) identificados
+mas NÃO reservados em P213 — decisão humana posterior em
+sessão futura. Tests +0 (1939 inalterados — recálculo
+documental sem código tocado). 0 violations preservadas.
+**Pattern emergente "diagnóstico-recálculo pós-marcos"
+N=1** (P213 primeira aplicação pós-fecho marco M9c;
+distinto de P154A/P156B/P157/P158/P159 que precederam
+materialização). **Subpadrão "passo administrativo XS"
+N=3** (`ADR-0062-create` + P160A + P213) atinge limiar
+formalização — promoção ADR meta diferida para passo
+dedicado se N=4+ ocorrer.
 
 ³⁷ — Ajuste P159G (Tabela A.6 Model): **segundo sub-passo
 família 159 fora do Bloco A** (Bloco A esgotado pós-P159F).

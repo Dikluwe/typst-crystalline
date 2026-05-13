@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: 3544334d
+Hash do Código: e447b139
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`
@@ -150,6 +150,67 @@ pub trait Introspector {
     /// resolução label→text é determinística (snapshot final per
     /// análise dos 2 eixos P193A §1.8).
     fn resolved_label_for(&self, label: &Label) -> Option<&str>;
+
+    /// **P207B (M9c)** — todos os labels registados com a respectiva
+    /// `Location`, ordenados alfabéticamente por `Label` para
+    /// determinismo. Delega a `LabelRegistry::iter()` + clone+copy
+    /// (custo O(n) sobre `n` labels). Vazio se nenhum label foi
+    /// adicionado.
+    ///
+    /// Equivalente vanilla: `Introspector::query_labelled()
+    /// -> EcoVec<Content>`. Cristalino retorna handles
+    /// `(Label, Location)` em vez de `Content` por coerência com
+    /// design pattern handle-based (ADR-0073 §C6 + ADR-0074):
+    /// consumers fazem lookup via `Location` quando precisam do
+    /// elemento materializado. Primeiro item C1 do roadmap M9c
+    /// (per ADR-0076).
+    fn query_labelled(&self) -> Vec<(Label, Location)>;
+
+    /// **P207C (M9c)** — Número de Locations associadas a `label`.
+    /// 0 se label nunca foi registado. Delega a
+    /// `LabelRegistry::count(label)`. Em multi-label (P207C),
+    /// devolve `lookup_all(label).len()`.
+    ///
+    /// Equivalente vanilla: `Introspector::label_count(Label) ->
+    /// usize`. Resolve item 7 da auditoria P207A. Permite distinguir
+    /// entre "label inexistente" (0), "label única" (1) e "label
+    /// duplicado" (≥2) sem percorrer `query_labelled` completo.
+    fn label_count(&self, label: &Label) -> usize;
+
+    /// **P207D (M9c)** — Total de páginas no documento. Vanilla
+    /// `PagedIntrospector::pages` ignora o argumento `location`
+    /// e devolve sempre o total; cristalino segue a mesma
+    /// semântica. `None` pre-injecção (`PageStore::empty()`);
+    /// `Some(N)` pós-injecção via `inject_pages`.
+    fn pages(&self, location: Location) -> Option<NonZeroUsize>;
+
+    /// **P207D (M9c)** — Número de página (1-based) onde `location`
+    /// aterra. Delega a `SealedPositions::position_of(location)?.page`.
+    /// `None` pre-injecção ou se Location não-locatable.
+    fn page(&self, location: Location) -> Option<NonZeroUsize>;
+
+    /// **P207D (M9c)** — Pattern de numbering para a página onde
+    /// `location` aterra. Combina `page(location)?` com
+    /// `PageStore::numbering_for_page(page)`. `None` se:
+    /// - Location não-locatable (sem `page`).
+    /// - PageStore não tem numbering capturado para a página
+    ///   (Bloco VIII parcial — captura no walk de layout é
+    ///   deferred a passo futuro; até lá retorna sempre `None`
+    ///   pós-injecção minimal).
+    ///
+    /// Vanilla devolve `Option<&Numbering>` (enum); cristalino
+    /// devolve `Option<&EcoString>` (pattern directo) per
+    /// ADR-0024. Divergência intencional registada em
+    /// `page_store.md`.
+    fn page_numbering(&self, location: Location) -> Option<&EcoString>;
+
+    /// **P207D (M9c)** — Supplement para a página onde `location`
+    /// aterra. Combina `page(location)?` com
+    /// `PageStore::supplement_for_page(page)`. `None` se Location
+    /// não-locatable ou PageStore sem supplement capturado para
+    /// a página. Vanilla retorna `Option<&Content>` (cristalino
+    /// preserva tipo idêntico per ADR-0026).
+    fn page_supplement(&self, location: Location) -> Option<&Content>;
 }
 
 #[derive(Debug, Clone, Default)]
@@ -178,7 +239,15 @@ pub struct TagIntrospector {
     /// substitution-with-fallback. Suporta cadeia E2-E6 P189B
     /// fechar incrementalmente.
     pub resolved_labels:       ResolvedLabelStore,
-    // positions: HashMap<Location, Position> — adiado para M5/M9
+    /// **P205C (F3)** — sub-store sealed Location → Position
+    /// injectado pós-layout via `inject_positions`. Default
+    /// empty.
+    pub positions:             SealedPositions,
+    /// **P207D (M9c)** — sub-store sealed para metadata
+    /// page-level (`total_pages`, `numberings`, `supplements`)
+    /// injectado pós-layout via `inject_pages`. Default empty
+    /// (pre-injecção, queries page-aware retornam `None`).
+    pub page_store:            PageStore,
 }
 
 impl TagIntrospector {
@@ -274,3 +343,6 @@ Fan-in baixo: M3 não tem consumers externos ainda.
 | 2026-05-03 | P184C sub-passo .D: trait estendido com `figure_number_at_index(kind, idx)`; impl em `TagIntrospector` delega via `CounterRegistry::value_at_index` (helper P184C .C) sob chave `figure:{kind}` populada em P184B. Suporta C3 desbloqueio (consumer migrado em P184D). | `introspector.rs`, `introspector.md` |
 | 2026-05-03 | P185B sub-passo .B–.E: trait estendido com 2 métodos location-aware: `is_numbering_active_at(key, location)` (delega a `state.value_at`) e `flat_counter_at(key, location)` (delega a `counters.value_at(...).last().copied()`). Padrão P177/P184C replicado. ADR-0068 PROPOSTO: suporte ao Layouter location-aware (consumer migra em P187+P188 após P185C). Layouter **não** consulta ainda. | `introspector.rs`, `introspector.md` |
 | 2026-05-04 | P193B sub-passo .D-.F: field `pub resolved_labels: ResolvedLabelStore` adicionado a `TagIntrospector`; trait estendido com `resolved_label_for(&Label) -> Option<&str>` (delega a `resolved_labels.get(label)`). Sem variante `*_at` — snapshot final. **Sub-store vazio em produção** até P195 adicionar arm de populate em `from_tags`. Consumer C4 migra em P194. Passo 1 da sequência §9 P189 consolidado. | `introspector.rs`, `introspector.md`, `resolved_label_store.rs`, `resolved_label_store.md` |
+| 2026-05-12 | P207B (M9c — primeiro item Bloco I do roadmap ADR-0076): trait estendido com `query_labelled() -> Vec<(Label, Location)>`; impl em `TagIntrospector` delega para `LabelRegistry::iter()` (introduzido em P207B) com clone+copy O(n). Vanilla retorna `EcoVec<Content>`; cristalino preserva handle-based design (ADR-0073/0074). Trait passa de 20 para 21 métodos. | `introspector.rs`, `introspector.md`, `label_registry.rs`, `label_registry.md` |
+| 2026-05-12 | P207C (M9c — Bloco III sub-store refactor + Bloco II item 7): trait estendido com `label_count(&Label) -> usize`; impl em `TagIntrospector` delega para `LabelRegistry::count` (novo P207C). Resolve item 7 da auditoria P207A (distinguir 0/1/N locations por label). Refactor `LabelRegistry` para multi-label semântica (P207C) é pré-condição. Trait passa de 21 para 22 métodos. | `introspector.rs`, `introspector.md`, `label_registry.rs`, `label_registry.md` |
+| 2026-05-12 | P207D (M9c — Bloco II page-aware + Bloco VIII infraestrutura parcial per ADR-0076): trait estendido com 4 métodos page-aware: `pages` (total via `PageStore::total_pages`), `page` (via `SealedPositions`), `page_numbering` (via `PageStore::numbering_for_page` — `Option<&EcoString>` per ADR-0024), `page_supplement` (via `PageStore::supplement_for_page`). Novo field `pub page_store: PageStore` em `TagIntrospector` + novo método `inject_pages` paralelo a `inject_positions` (P205C). Opção 2 fixada em C2 (sub-store dedicado paralelo a `SealedPositions`). Pre-injecção: todos retornam `None`. Trait passa de 22 para 26 métodos. | `introspector.rs`, `introspector.md`, `page_store.rs`, `page_store.md` |
