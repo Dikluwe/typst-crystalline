@@ -120,6 +120,8 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::HSpace { .. }
         | Content::VSpace { .. }
         | Content::Pagebreak { .. }
+        // P220: Colbreak não-locatable (event leaf; paridade Pagebreak).
+        | Content::Colbreak { .. }
         | Content::Stack { .. }
         | Content::Boxed { .. }
         | Content::Block { .. }
@@ -127,7 +129,10 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::TableHeader { .. }
         | Content::TableFooter { .. }
         | Content::Table { .. }
-        | Content::Repeat { .. } => false,
+        | Content::Repeat { .. }
+        // P217 — Columns container não-locatable (transparente para
+        // introspect; consumer multi-region em P219).
+        | Content::Columns { .. } => false,
     }
 }
 

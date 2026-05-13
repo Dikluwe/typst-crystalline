@@ -39,7 +39,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let (content_w, _) = measure_content(body, avail_w);
 
         // Verificar quebra de página com a altura do sub-frame.
-        if self.region.cursor_y.0 + sub_h > self.page_bottom_limit() {
+        if self.regions.current.cursor_y.0 + sub_h > self.page_bottom_limit() {
             self.new_page();
         }
 
@@ -56,7 +56,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         } else if self.is_height_unconstrained {
             (sub_h, None)
         } else {
-            let space = f64::max(0.0, self.page_bottom_limit() - self.region.cursor_y.0);
+            let space = f64::max(0.0, self.page_bottom_limit() - self.regions.current.cursor_y.0);
             (space, alignment.v)
         };
 
@@ -73,8 +73,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             sub_h,
             avail_w,
             remaining_h,
-            self.region.line_start_x.0,
-            self.region.cursor_y.0,
+            self.regions.current.line_start_x.0,
+            self.regions.current.cursor_y.0,
         );
 
         // Transferir items: sub_origin_x = 0 (passámos cell_x=0);
@@ -83,7 +83,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let (ix, iy) = item_pos(&item);
             let new_x = Pt(target_x + ix);
             let new_y = Pt(target_y + iy - sub_origin_y);
-            self.region.current_items.push(translate_frame_item(item, new_x, new_y));
+            self.regions.current.current_items.push(translate_frame_item(item, new_x, new_y));
         }
 
         // Avançar cursor Y.
@@ -97,10 +97,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // No fluxo de página, VAlign::Horizon/Bottom consomem o resto.
         match (self.cell_available_h.is_some(), effective_v) {
             (false, Some(VAlign::Horizon)) | (false, Some(VAlign::Bottom)) => {
-                self.region.cursor_y = Pt(self.page_bottom_limit());
+                self.regions.current.cursor_y = Pt(self.page_bottom_limit());
             }
             _ => {
-                self.region.cursor_y = Pt(target_y + sub_h);
+                self.regions.current.cursor_y = Pt(target_y + sub_h);
             }
         }
     }
@@ -141,7 +141,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             ) {
                 (Some(cx), Some(cy), Some(cw), Some(ch)) => (cx, cy, cw, ch),
                 _ => (
-                    self.region.line_start_x.0,
+                    self.regions.current.line_start_x.0,
                     self.page_config.margin,
                     avail_w_page,
                     avail_h_page,
@@ -185,7 +185,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let (ix, iy) = item_pos(&item);
             let new_x = Pt(target_x + ix);
             let new_y = Pt(target_y + iy - y_offset);
-            self.region.current_items.push(translate_frame_item(item, new_x, new_y));
+            self.regions.current.current_items.push(translate_frame_item(item, new_x, new_y));
         }
         // cursor_y e cursor_x ficam intocados — Place não consome espaço.
     }

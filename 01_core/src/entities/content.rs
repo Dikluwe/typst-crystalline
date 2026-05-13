@@ -414,6 +414,28 @@ pub enum Content {
         to:   Option<Parity>,
     },
 
+    // ── Passo 220 (ADR-0078 PROPOSTO sub-fase b 4/4) — colbreak manual ──
+    /// Quebra de coluna manual — Fase 3 Layout per ADR-0078
+    /// PROPOSTO. Adicionado em P220 (DEBT-56 sub-fase b
+    /// 4/4 — fecha sub-fase b estructuralmente).
+    ///
+    /// **Semantic graded P220**: em cristalino pós-P219
+    /// (Opção B graded — sem multi-region flow real), colbreak
+    /// downgrade a pagebreak literal. Paridade vanilla:
+    /// vanilla também downgrade fora de columns context.
+    ///
+    /// Quando consumer multi-region real existir
+    /// (P-Layout-Fase4 candidato), arm pode ser refinado para
+    /// salto entre regions reais.
+    ///
+    /// `weak: bool` armazenado mas semantic de collapse adiada
+    /// (paridade `Pagebreak.weak` P156E e HSpace/VSpace P156D).
+    /// Sem `to: Option<Parity>` — vanilla `ColbreakElem` não tem
+    /// (paridade só faz sentido em páginas).
+    Colbreak {
+        weak: bool,
+    },
+
     // ── Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo ──
     /// Container compositivo — vanilla `StackElem`. **Último sub-passo
     /// Fase 2; atinge target 72% Layout** declarado em ADR-0061.
@@ -671,6 +693,35 @@ pub enum Content {
         justify: bool,
     },
 
+    /// **P217 (DEBT-56 sub-fase b — Layout Fase 3)** — Multi-column
+    /// container per ADR-0078 PROPOSTO.
+    ///
+    /// Distinção material face a `Block`/`Boxed`/`Stack`/`Repeat`:
+    /// `Columns` é o **primeiro consumer estrutural** da abstracção
+    /// `Region`/`Regions` (P216A+P216B). Vanilla `ColumnsElem`.
+    ///
+    /// **P217 layouter arm é stub transparente** — delega a
+    /// `layout_content(body)` ignorando `count`/`gutter`. Consumer
+    /// multi-region real em P219 (sub-fase b consumer).
+    ///
+    /// **Atributos** (paridade vanilla; total 3 fields):
+    /// - `count`: número de colunas. `usize`. Validação `>= 1`
+    ///   diferida a `native_columns` (P218); construtor Rust aceita
+    ///   `count = 0` como caso degenerate.
+    /// - `gutter`: espaço entre colunas (`Option<Length>`). `None`
+    ///   ↔ default vanilla (~4% width) — **ADR-0064 Caso C** (cumulativo
+    ///   N=cresce; precedentes P156I Stack.spacing, P156L
+    ///   Sides<Option<Length>>).
+    /// - `body`: conteúdo a fluir entre N colunas.
+    ///
+    /// Stdlib `native_columns` em P218 (atomização ADR-0036).
+    /// Consumer multi-region em P219.
+    Columns {
+        count:  usize,
+        gutter: Option<Length>,
+        body:   Box<Content>,
+    },
+
     /// **P169 (M9 sub-passo 1)** — Metadata embebido para introspecção.
     /// Vanilla `metadata(value)` em `introspection/metadata.rs`.
     ///
@@ -784,6 +835,11 @@ impl Content {
         Self::Pagebreak { weak, to }
     }
 
+    /// `colbreak(weak)` — Passo 220 (ADR-0078 PROPOSTO sub-fase b 4/4).
+    pub fn colbreak(weak: bool) -> Self {
+        Self::Colbreak { weak }
+    }
+
     /// `block(body, width, height, inset, breakable)` — Passo 156G
     /// (ADR-0061 Fase 2 sub-passo 1). Construtor com defaults sensatos
     /// (None/zero/true) para uso programático.
@@ -831,6 +887,17 @@ impl Content {
         justify: bool,
     ) -> Self {
         Self::Repeat { body: Box::new(body), gap, justify }
+    }
+
+    /// **P217** — Construtor `Content::Columns` (multi-column container).
+    /// Stdlib `native_columns` em P218 com validação `count >= 1`.
+    /// Consumer multi-region real em P219.
+    pub fn columns(
+        body:   Content,
+        count:  usize,
+        gutter: Option<Length>,
+    ) -> Self {
+        Self::Columns { count, gutter, body: Box::new(body) }
     }
 
     /// `table(columns, rows, ..children)` — Passo 157A (ADR-0060
@@ -958,6 +1025,9 @@ impl Content {
             // Passo 156E: Pagebreak nunca é vazio (event com efeito
             // mesmo sem body; cf. Divider em P154B).
             Self::Pagebreak { .. } => false,
+            // Passo 220: Colbreak nunca é vazio (event observable com
+            // downgrade graded a pagebreak; paridade Pagebreak/Divider).
+            Self::Colbreak { .. } => false,
             // Passo 156G: Block é vazio se o body for (atributos de
             // dimensão/inset não fazem o container deixar de ser vazio
             // semanticamente — análogo a Pad em P156C).
@@ -971,6 +1041,9 @@ impl Content {
             // Passo 156J: Repeat é vazio se body for (atributos não
             // tornam o container não-vazio — análogo a Block/Boxed).
             Self::Repeat { body, .. } => body.is_empty(),
+            // P217: Columns é vazio se body for (count/gutter não tornam
+            // não-vazio — análogo a Block/Boxed/Repeat).
+            Self::Columns { body, .. } => body.is_empty(),
             _ => false,
         }
     }
@@ -1130,6 +1203,8 @@ impl Content {
             Self::HSpace { .. } | Self::VSpace { .. } => String::new(),
             // Passo 156E: Pagebreak é event sem texto.
             Self::Pagebreak { .. } => String::new(),
+            // Passo 220: Colbreak é event sem texto (paridade Pagebreak).
+            Self::Colbreak { .. } => String::new(),
             // Passo 156G: Block é transparente para texto plano (recurse
             // no body; análogo a Pad em P156C).
             Self::Block { body, .. } => body.plain_text(),
@@ -1142,6 +1217,8 @@ impl Content {
             // recurse no body sem multiplicar (paridade não visível em
             // texto plano; semântica de repetição é runtime-only).
             Self::Repeat { body, .. } => body.plain_text(),
+            // P217: Columns transparente para texto plano (recurse no body).
+            Self::Columns { body, .. } => body.plain_text(),
             Self::Quote { body, attribution, quotes, .. } => {
                 let body_txt = body.plain_text();
                 let with_quotes = if *quotes {
@@ -1270,6 +1347,9 @@ impl PartialEq for Content {
             // Passo 156E — Pagebreak.
             (Self::Pagebreak { weak: wa, to: ta },
              Self::Pagebreak { weak: wb, to: tb }) => wa == wb && ta == tb,
+            // Passo 220 — Colbreak (1 field — paridade Pagebreak sem to).
+            (Self::Colbreak { weak: wa },
+             Self::Colbreak { weak: wb }) => wa == wb,
             // Passo 156G — Block.
             (Self::Block { body: ba, width: wa, height: ha, inset: ia, breakable: ka },
              Self::Block { body: bb, width: wb, height: hb, inset: ib, breakable: kb }) =>
@@ -1286,6 +1366,10 @@ impl PartialEq for Content {
             (Self::Repeat { body: ba, gap: ga, justify: ja },
              Self::Repeat { body: bb, gap: gb, justify: jb }) =>
                 ba == bb && ga == gb && ja == jb,
+            // P217 — Columns: comparação 3 fields.
+            (Self::Columns { count: ca, gutter: ga, body: ba },
+             Self::Columns { count: cb, gutter: gb, body: bb }) =>
+                ca == cb && ga == gb && ba == bb,
             _ => false,
         }
     }
@@ -1482,6 +1566,14 @@ impl Content {
                 justify: *justify,
             },
 
+            // P217: Columns container — recurse em body; count/gutter
+            // são Copy primitivos (usize / Option<Length>).
+            Content::Columns { count, gutter, body } => Content::Columns {
+                count:  *count,
+                gutter: *gutter,
+                body:   Box::new(body.map_content(transform)?),
+            },
+
             // ── Terminais: clonar directamente ──────────────────────────────
             // Listados explicitamente — variantes novas não passam em silêncio.
             // Passo 156D: HSpace/VSpace são leaves (sem body), terminais.
@@ -1507,6 +1599,8 @@ impl Content {
             | Content::HSpace { .. }
             | Content::VSpace { .. }
             | Content::Pagebreak { .. }
+            // P220: Colbreak é leaf (event sem body), terminal.
+            | Content::Colbreak { .. }
             | Content::Shape { .. }
             // P169 (M9): Metadata é terminal — clonar directamente.
             | Content::Metadata { .. }
@@ -1694,6 +1788,14 @@ impl Content {
                 justify: *justify,
             },
 
+            // P217: Columns container — map_text no body; count/gutter
+            // preservados via Copy.
+            Content::Columns { count, gutter, body } => Content::Columns {
+                count:  *count,
+                gutter: *gutter,
+                body:   Box::new(body.map_text(transform)),
+            },
+
             // ── Terminais — clonar directamente ──────────────────────────
             // Nós matemáticos e estruturais sem markup Text — não contêm
             // Content::Text, portanto clonar em bloco é correcto e seguro.
@@ -1727,6 +1829,8 @@ impl Content {
             | Content::HSpace { .. }
             | Content::VSpace { .. }
             | Content::Pagebreak { .. }
+            // P220: Colbreak é leaf (event sem body), terminal.
+            | Content::Colbreak { .. }
             | Content::Shape { .. }
             // P169 (M9): Metadata é terminal — clonar directamente.
             | Content::Metadata { .. }
@@ -3068,6 +3172,135 @@ mod tests {
         } else {
             panic!("esperado Content::Repeat após map_text");
         }
+    }
+
+    // ── P217 (DEBT-56 sub-fase b primeiro sub-passo) — Columns ──────
+
+    #[test]
+    fn p217_columns_variant_existe() {
+        use crate::entities::layout_types::Length;
+        let c = Content::columns(Content::text("hello"), 2, Some(Length::pt(10.0)));
+        if let Content::Columns { count, gutter, body } = &c {
+            assert_eq!(*count, 2);
+            assert_eq!(*gutter, Some(Length::pt(10.0)));
+            assert_eq!(body.plain_text(), "hello");
+        } else {
+            panic!("esperado Content::Columns");
+        }
+    }
+
+    #[test]
+    fn p217_columns_plain_text_recurse() {
+        // Stub transparente — plain_text recurse no body.
+        let c = Content::columns(Content::text("multi"), 3, None);
+        assert_eq!(c.plain_text(), "multi");
+    }
+
+    #[test]
+    fn p217_columns_is_empty_proxy() {
+        // Body Empty → columns vazio (atributos não tornam não-vazio).
+        let c_empty = Content::columns(Content::Empty, 2, None);
+        assert!(c_empty.is_empty());
+        // Body com texto → não vazio.
+        let c_text = Content::columns(Content::text("x"), 2, None);
+        assert!(!c_text.is_empty());
+    }
+
+    #[test]
+    fn p217_columns_map_content_recurse() {
+        // map_content recurse no body preservando count/gutter.
+        use crate::entities::layout_types::Length;
+        let c = Content::columns(Content::text("a"), 4, Some(Length::pt(5.0)));
+        let mapped = c.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
+        if let Content::Columns { count, gutter, body } = &mapped {
+            assert_eq!(*count, 4);
+            assert_eq!(*gutter, Some(Length::pt(5.0)));
+            assert_eq!(body.plain_text(), "a");
+        } else {
+            panic!("esperado Content::Columns após map_content");
+        }
+    }
+
+    #[test]
+    fn p217_columns_partial_eq_3_fields() {
+        use crate::entities::layout_types::Length;
+        let mk = || Content::columns(
+            Content::text("."),
+            2,
+            Some(Length::pt(8.0)),
+        );
+        assert_eq!(mk(), mk());
+        // Count diferente → diferente.
+        let other_count = Content::columns(
+            Content::text("."),
+            3,
+            Some(Length::pt(8.0)),
+        );
+        assert_ne!(mk(), other_count);
+        // Gutter diferente → diferente.
+        let other_gutter = Content::columns(
+            Content::text("."),
+            2,
+            Some(Length::pt(12.0)),
+        );
+        assert_ne!(mk(), other_gutter);
+        // Body diferente → diferente.
+        let other_body = Content::columns(
+            Content::text("o"),
+            2,
+            Some(Length::pt(8.0)),
+        );
+        assert_ne!(mk(), other_body);
+    }
+
+    // ── Passo 220 (ADR-0078 PROPOSTO sub-fase b 4/4) — Colbreak ──────────
+
+    #[test]
+    fn p220_colbreak_variant_existe() {
+        let c = Content::colbreak(false);
+        if let Content::Colbreak { weak } = &c {
+            assert_eq!(*weak, false);
+        } else {
+            panic!("esperado Content::Colbreak");
+        }
+        let c2 = Content::colbreak(true);
+        if let Content::Colbreak { weak } = &c2 {
+            assert_eq!(*weak, true);
+        } else {
+            panic!("esperado Content::Colbreak");
+        }
+    }
+
+    #[test]
+    fn p220_colbreak_is_empty_sempre_false() {
+        // Colbreak é event observável (downgrade graded a pagebreak)
+        // mesmo "vazio" — paridade Pagebreak/Divider.
+        assert!(!Content::colbreak(false).is_empty(),
+            "Content::Colbreak nunca é considerado vazio (event com efeito)");
+        assert!(!Content::colbreak(true).is_empty());
+    }
+
+    #[test]
+    fn p220_colbreak_plain_text_vazio() {
+        // Colbreak é leaf — sem texto plain.
+        assert_eq!(Content::colbreak(false).plain_text(), "");
+        assert_eq!(Content::colbreak(true).plain_text(), "");
+    }
+
+    #[test]
+    fn p220_colbreak_partial_eq_1_field() {
+        // Eq compara `weak` (1 field — paridade Pagebreak sem to).
+        assert_eq!(Content::colbreak(false), Content::colbreak(false));
+        assert_eq!(Content::colbreak(true),  Content::colbreak(true));
+        assert_ne!(Content::colbreak(false), Content::colbreak(true));
+    }
+
+    #[test]
+    fn p220_colbreak_map_content_terminal() {
+        // Colbreak é leaf — map_content clone directo.
+        let c = Content::colbreak(true);
+        let mapped = c.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
+        assert_eq!(c, mapped);
     }
 
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — Table ─────────────────

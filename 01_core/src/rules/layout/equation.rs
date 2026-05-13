@@ -46,12 +46,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let math_items    = math_layouter.layout_equation(body, &self.style);
 
         if block
-            && self.region.cursor_x.0 > self.page_config.margin { self.flush_line(); }
+            && self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
 
         // Integrar items matemáticos no frame actual.
         // pos.x e pos.y são relativos à origem da equação —
         // pos.y inclui deslocamento vertical (sup/sub, frac).
-        let offset_x = self.region.cursor_x;
+        let offset_x = self.regions.current.cursor_x;
         // Equações inline: deslocar para cima por axis_pt de modo a que o
         // eixo matemático (axis_height acima da baseline) coincida com o
         // baseline do texto circundante (Passo 48).
@@ -61,7 +61,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let c = self.metrics.math_constants();
             c.to_pt(c.axis_height, self.style.size)
         };
-        let offset_y = self.region.cursor_y - axis_pt;
+        let offset_y = self.regions.current.cursor_y - axis_pt;
         for item in math_items {
             match item {
                 FrameItem::Text { pos, text, style } => {
@@ -70,13 +70,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         y: offset_y + pos.y,
                     };
                     let advance = self.metrics.advance(&text, style.size);
-                    self.region.current_line.push(FrameItem::Text { pos: abs_pos, text, style });
-                    self.region.cursor_x += advance;
+                    self.regions.current.current_line.push(FrameItem::Text { pos: abs_pos, text, style });
+                    self.regions.current.cursor_x += advance;
                 }
                 FrameItem::Line { start, end, thickness } => {
                     let abs_start = Point { x: offset_x + start.x, y: offset_y + start.y };
                     let abs_end   = Point { x: offset_x + end.x,   y: offset_y + end.y };
-                    self.region.current_line.push(FrameItem::Line {
+                    self.regions.current.current_line.push(FrameItem::Line {
                         start: abs_start, end: abs_end, thickness,
                     });
                 }
@@ -88,10 +88,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         x: offset_x + pos.x,
                         y: offset_y + pos.y,
                     };
-                    self.region.current_line.push(FrameItem::Glyph {
+                    self.regions.current.current_line.push(FrameItem::Glyph {
                         pos: abs_pos, glyph_id, x_advance, size,
                     });
-                    self.region.cursor_x += x_advance;
+                    self.regions.current.cursor_x += x_advance;
                 }
             }
         }

@@ -350,13 +350,43 @@ de infraestrutura, não de domínio.
 
 ---
 
-## DEBT-56 — Column flow Fase 3 Layout (L+; refactor multi-region do Layouter) — EM ABERTO (Passo 156B)
+## DEBT-56 — Column flow Fase 3 Layout (L+; refactor multi-region do Layouter) — ENCERRADO (Passo 221) ✓
 
 **Aberto em**: Passo 156B (2026-04-25) durante diagnóstico
 Layout (Fase X).
-**Bloqueia**: Fase 3 do roadmap Layout (ADR-0061) — `columns()`
+**Fechado em**: Passo 221 (2026-05-12) — **CLOSED via
+materialização** (paridade pattern P206E DEBT-53).
+**Resolvido por**: Sub-fases (a) refactor Region/Regions
+(P216A+B) + (b) consumer real graded (P217-P220) materializadas
+em série Layout Fase 3. Critério §"Plano" 5/5 cumprido
+(ADR-0078 `IMPLEMENTADO`; columns + colbreak materializados
+graded; 1987 tests verdes; 0 violations; inventário 148
+actualizado). Refino multi-region flow real fica como **Fase
+4 candidata NÃO-reservada** per política P158 — Opção A
+multi-region completa documentada como scope-out em
+ADR-0078 §"Decisão" sub-fase (b).
+
+**Critério de fecho 5/5 satisfeito**:
+- ✅ ADR column flow (`ADR-0078`) `IMPLEMENTADO` — P221.
+- ✅ `columns()` + `colbreak()` materializados em cristalino
+  (Opção B graded; downgrade β colbreak; paridade vanilla
+  literal quando fora de columns context; multi-region flow
+  real scope-out documentado).
+- ✅ Tests verdes (1987 workspace; 0 regressões pre-existente).
+- ✅ Lint zero (0 violations; "Nothing to fix" hashes).
+- ✅ ADR-0061 (Layout roadmap) Fase 3 marca columns/colbreak
+  como completos (`IMPLEMENTADO` em P221; Caminho 1 100%).
+
+**Saldo DEBTs**: pré-P221 14 abertos → pós-P221 **13 abertos**.
+
+Histórico preservado abaixo (per pattern P201/P202+P206E
+"histórico textual preservado").
+
+---
+
+**Bloqueia** [HISTÓRICO]: Fase 3 do roadmap Layout (ADR-0061) — `columns()`
 e `colbreak()` ficam ausentes até ser materializado.
-**Bloqueado por**: nada técnico imediato; **decisão humana
+**Bloqueado por** [HISTÓRICO]: nada técnico imediato; **decisão humana
 de priorizar Fase 3 Layout**. ADR dedicada (column flow
 algorithm) a criar quando materializado.
 

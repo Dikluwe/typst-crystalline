@@ -192,7 +192,7 @@ por cobertura decrescente em P214)
 |-----------|-----------|------------------|
 | Math | 92% | quase total |
 | Introspection ⁽ᴾ²¹³⁾ | 83% | quase total (paridade arquitectural pós-M9c) |
-| Layout ⁽ᴾ²¹⁴⁾ | 78% | quase total (Fase 1+2+3 sub-passo 1 fechadas) |
+| Layout ⁽ᴾ²¹⁴⁾⁽ᴾ²²¹⁾ | 78% (12 impl + 5 parcial) | quase total — **Fase 3 fechada estructuralmente P221** (DEBT-56 ENCERRADO; ADR-0078+ADR-0061 IMPLEMENTADO); refinos `measure`/`place` Fase 4 candidata NÃO-reservada |
 | Markup syntactic ⁽ᴾ²¹⁴⁾ | 78% | quase total (Fase 1 fechada — quote/terms/smart-quotes em P154B+P155) |
 | Foundations stdlib | 67% | parcial |
 | `#let`/`#set`/`#show` | 62% | parcial |
@@ -1228,6 +1228,121 @@ Reescrita ampla deste blueprint mantém-se fora-de-escopo
 cirúrgica regista **recálculo paralelo de 8 categorias
 pós-fecho marco**, escala ampliada qualitativamente
 distinta da marca §3.0decies P213 (1 categoria).
+
+---
+
+### §3.0duodecies Marca de actualização — [P221] **Encerramento Fase 3 Layout (DEBT-56 fecha; ADRs IMPLEMENTADO)**
+
+**Data**: 2026-05-12.
+
+P221 fecha cirúrgicamente a **série Layout Fase 3
+cumulativa** materializada em P217+P218+P219+P220 (sub-fase
+b DEBT-56) precedida por P216A+P216B (sub-fase a DEBT-56)
+e P215 (diagnóstico Fase 3). **Encerramento documental
+puro** — sem código tocado em P221.
+
+**Distinção qualitativa face a marcas anteriores**:
+
+- Marcas §3.0quater a §3.0octies (5 marcas): cobrem
+  **encerramentos de série** (P207E + P208D + P209E + P210C
+  + P211A).
+- Marca §3.0nonies (P212): cobre **encerramento de marco
+  M9c**.
+- Marca §3.0decies (P213) + §3.0undecies (P214):
+  recálculos de categorias.
+- **Marca §3.0duodecies (esta P221)**: cobre **encerramento
+  de Fase 3 Layout pós-M9c** — pattern emergente novo N=1
+  pós-M9c (paridade estrutural P156I Fase 2 fechada
+  pré-M9c; precedente cumulativo agora N=2).
+
+**Transições de status**:
+- ADR-0078 column flow algorithm: PROPOSTO →
+  **IMPLEMENTADO**.
+- ADR-0061 Layout Fase X roadmap: PROPOSTO →
+  **IMPLEMENTADO** (Fase 1 + 2 + 3 cumpridas; refinos
+  `measure`/`place` Fase 4 candidata futura).
+- DEBT-56 column flow Fase 3 Layout: EM ABERTO →
+  **ENCERRADO** (CLOSED via materialização).
+
+**Mudanças factuais cumulativas P216A-P220**:
+- 2 variants Content novos (Columns P217 + Colbreak
+  P220) — total 54 → 56.
+- 2 stdlib funcs novas (native_columns P218 +
+  native_colbreak P220) — total ~53 → 55.
+- 1 type novo L1 (`Region` + `Regions` co-habitantes em
+  `entities/region.rs` P216A+B).
+- ~325 substituições mecânicas em 6 ficheiros L1
+  (refactor sub-fase a; zero mudança observable).
+- 1 arm refactored substantivo (`Content::Columns`
+  Layouter P219; Opção B graded — width reduzida
+  temporariamente; multi-region flow real scope-out).
+- 1 arm aditivo (`Content::Colbreak` Layouter P220;
+  Opção β graded — downgrade a pagebreak via reuso
+  `Layouter::new_page` P156E).
+- 48 tests novos cumulativos: 1939 → **1987**.
+- **§A.5 Layout zero ausentes** pós-P221 (correcção
+  retroactiva auditada P220 preservada).
+- Cobertura Layout: **78% per metodologia** (12 impl + 5
+  parcial; Opção γ paridade visual com nota explícita
+  distribuição).
+
+**Pattern emergente "encerramento Fase pós-M9c" N=1
+formalizado**:
+
+- P221 é primeira aplicação pós-M9c.
+- Precedente estrutural pré-M9c: P156I (Fase 2 Layout
+  fechada) + P155 (Fase 1 Model fechada).
+- Pattern reusável para fechamentos Fase futura (Fase 4
+  Layout candidata; Model Fase 3 candidata; etc.).
+
+**Pattern emergente "L0 minimal para refactors" N=4 →
+candidatura formal**:
+
+- P217+P218+P219+P220 todos Opção γ (sem extensão L0
+  formal; documentação inline).
+- N=4 atinge limiar formalização N=3-4 ultrapassado.
+- **Promoção a ADR meta documental fica como decisão
+  diferida** (paridade política "sem novas reservas"
+  P158). Trabalho XS administrativo se humano julgar
+  útil.
+
+**Política "sem novas reservas" preservada per P158**:
+- Fase 4 Layout candidata (refinos `measure`/`place`)
+  identificada mas NÃO reservada.
+- Multi-region flow real Opção A documentada mas NÃO
+  reservada.
+
+**Estado pós-P221**:
+- Sub-fase (a) DEBT-56: 2/2 ✓ (P216A + P216B).
+- Sub-fase (b) DEBT-56: 4/4 ✓ (P217 + P218 + P219 +
+  P220).
+- DEBT-56 fechado; ADR-0078 IMPLEMENTADO; ADR-0061
+  IMPLEMENTADO.
+- Layout cobertura: 78% per metodologia (estável; ganho
+  qualitativo via 2 reclassificações ausente → parcial;
+  zero ausentes).
+- Tests workspace: 1987 verdes; lint: 0 violations.
+- 7 séries M9c (P207-P211) + P212 (M9c) + P213/P214
+  (recálculos) + P215 (diagnóstico) + **P216A-P221
+  Layout Fase 3** (7 sub-passos materialização + 1
+  encerramento).
+- Trajectória aberta: opções para próxima sessão
+  (decisão humana).
+- Marco M9c preservado como referência arquitectural
+  estável.
+
+**Distribuição ADRs pós-P221**:
+- PROPOSTO: 13 → **11** (ADR-0078 + ADR-0061 transitam).
+- IMPLEMENTADO: 19 → **21**.
+
+**Saldo DEBTs pós-P221**: 14 → **13 abertos** (DEBT-56
+fecha; CLOSED via materialização).
+
+Reescrita ampla deste blueprint mantém-se fora-de-escopo
+(per padrão consolidado P204H+...+P214). Esta marca
+cirúrgica regista **encerramento de Fase Layout pós-M9c**,
+qualitativamente distinta de marcas-por-série + marcas-por-
+marco + marcas-de-recálculo.
 
 ---
 

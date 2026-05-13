@@ -192,7 +192,7 @@ que corresponde a mudança específica no código.
 | 0058 | Tipo simplificado — `type()` devolve `Value::Str` | `EM VIGOR` |
 | 0059 | `Args` como tipo separado, não-variant de `Value` | `EM VIGOR` |
 | 0060 | Model (structural) roadmap — Fase 1 + 2 + 3 | `IMPLEMENTADO` (Fase 1 fechada em P155; Fase 2/3 prosseguem em **P157+** após renumeração registada em P156B) |
-| 0061 | Layout Fase X — page model + multi-column + footnote area roadmap | `PROPOSTO` (P156B; reocupou número antes reservado para hayagriva — passou para ADR-0062) |
+| 0061 | Layout Fase X — page model + multi-column + footnote area roadmap | `IMPLEMENTADO` (P156B PROPOSTO → P221 IMPLEMENTADO 2026-05-12; Fase 1+2+3 cumpridas; refinos `measure`/`place` Fase 4 candidata NÃO-reservada) |
 | 0062 | Autorização crate `hayagriva` para bibliography + cite (CSL parsing) | `PROPOSTO` (passo `ADR-0062-create`; promoção a IMPLEMENTADO em passo futuro materialização hayagriva real) |
 | 0064 | Tradução `Smart<T>` vanilla → `Option<T>`/default | `EM VIGOR` (P156K; formaliza padrão N=6 da série P156C-J) |
 | 0065 | Inventariar primeiro — sub-passo `.1` para decisão arquitectural não-trivial | `EM VIGOR` (P156K; estende ADR-0034; padrão N=5 da série P156C-J) |
@@ -203,14 +203,15 @@ por revisão).
 
 ### Distribuição de status
 
-- `PROPOSTO`: **13** ADRs (decisões em aberto: 0005, 0006,
-  0008–0015, 0061, 0062, **0066**).
+- `PROPOSTO`: **11** ADRs (decisões em aberto: 0005, 0006,
+  0008–0015, 0062, **0066**) — pós-P221: ADR-0061 e ADR-0078
+  transitam PROPOSTO → IMPLEMENTADO.
 - `IDEIA`: 2 ADRs (0002, 0003).
 - `EM VIGOR`: **28** ADRs (regras/políticas activas; 0018, 0029,
   0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**).
-- `IMPLEMENTADO`: 19 ADRs (decisões materializadas; 0001, 0004,
+- `IMPLEMENTADO`: **21** ADRs (decisões materializadas; 0001, 0004,
   0016, 0017, 0019, 0021–0027, 0026-R1, 0031, 0052, 0053, 0055,
-  0057, **0060**).
+  0057, **0060**, **0061** P221, **0078** P221).
 - `REVOGADO`: 2 ADRs (0007, 0028).
 - `ADIADO`: 1 ADR (0020).
 
