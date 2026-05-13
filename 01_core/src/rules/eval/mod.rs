@@ -557,7 +557,7 @@ fn make_stdlib() -> Scope {
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
         native_counter_at, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_update, native_state_update_with,
-        native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
+        native_colbreak, native_columns, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_scale, native_skew, native_stack, native_str, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms, native_type, native_upper, native_v,
     };
     let mut scope = Scope::new();
@@ -651,6 +651,15 @@ fn make_stdlib() -> Scope {
     // estrutural; algoritmo dinâmico diferido per ADR-0054 graded).
     // **Primeira aplicação Fase 3.**
     scope.define("repeat",  Value::Func(Func::native("repeat",  native_repeat)));
+    // P218 (DEBT-56 sub-fase b — Layout Fase 3): columns(count, body,
+    // gutter: ?). Variant Content::Columns materializado em P217;
+    // arm Layouter é stub transparente (consumer real P219).
+    scope.define("columns", Value::Func(Func::native("columns", native_columns)));
+    // P220 (DEBT-56 sub-fase b 4/4 — Layout Fase 3): colbreak(weak: ?).
+    // Variant Content::Colbreak agregado (variant + arm + stdlib);
+    // arm Layouter Opção β graded — downgrade a pagebreak literal.
+    // **Fecha sub-fase (b) DEBT-56 estructuralmente.**
+    scope.define("colbreak", Value::Func(Func::native("colbreak", native_colbreak)));
     // Passo 157A (ADR-0060 Fase 2 sub-passo 1): table minimal
     // (subset 3 fields; reusa layout_grid; TableCell/Header/Footer
     // diferidos para P157B/C). **Primeiro sub-passo Model Fase 2.**

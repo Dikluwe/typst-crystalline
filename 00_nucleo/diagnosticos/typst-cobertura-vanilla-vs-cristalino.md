@@ -137,11 +137,11 @@ primitives e `skew`). Detalhe em
 | `place(alignment, ..., body)` | layout/place.rs | `parcial` ⁵ | Passo 84.6 | reclassificado em P156B (era `implementado`); sem `float`, `clearance`; divergência `PlaceScope::Parent` |
 | `box(...)` | layout/container.rs | `implementado` ¹⁵ | Passo 156H (ADR-0061 Fase 2 sub-passo 2) | `Content::Boxed { body, width, height, inset, baseline }` + stdlib `#box(body, width: ?, height: ?, inset: ?, baseline: ?)`; container inline (não força flush_line); 6 atributos vanilla scope-out (outset/fill/stroke/radius/clip/stroke-overhang); width/height/baseline armazenados mas semantic real adiada |
 | `block(...)` | layout/container.rs | `implementado` ¹³ | Passo 156G (ADR-0061 Fase 2 sub-passo 1) | `Content::Block { body, width, height, inset, breakable }` + stdlib `#block(body, width: ?, height: ?, inset: ?, breakable: true)`; subset Fase 1 per ADR-0054 graded; 9 atributos vanilla scope-out (outset/fill/stroke/radius/clip/spacing/above/below/sticky) |
-| `columns(n)` | layout/columns.rs | `ausente` | — | Fase 3 ADR-0061; **DEBT-56** (column flow L+) |
+| `columns(n)` | layout/columns.rs | `parcial` ⁴⁰ ⁴² | Passos 217 + 218 + 219 (encerrado P221) | variant + stdlib + arm consumer real graded; **multi-region flow real ausente** (Opção A diferida a P-Layout-Fase4 candidata NÃO-reservada) |
 | `grid(columns, ...)` | layout/grid | `parcial` ⁵ | Passos 82–84.6 | reclassificado em P156B (era `implementado⁺`); sem `gutter`, `align`, `stroke`, `fill`, `inset`, `header`, `footer`, `colspan`/`rowspan`. DEBT-34d/e abertos |
 | `stack(spacing, ...)` | layout/stack.rs | `implementado` ¹⁷ | Passo 156I (ADR-0061 Fase 2 sub-passo 3; **último Fase 2; atinge target 72%**) | `Content::Stack { children: Arc<[Content]>, dir: Dir, spacing: Option<Length> }` + stdlib `#stack(dir: ?, spacing: ?, ..children)`; tipo `Dir` novo (LTR/RTL/TTB/BTT); 4 direcções implementadas; spacing real entre children |
 | `pagebreak()` (manual) | layout/page.rs | `implementado` ¹⁰ | Passo 156E (ADR-0061 Fase 1 sub-passo 3) | `Content::Pagebreak { weak, to: Option<Parity> }` + stdlib `#pagebreak(weak: false, to: ?)`; `to:"even"`/`"odd"` insere página vazia se necessário; `weak` collapse defere; tipo `Parity` novo em `entities/parity.rs` |
-| `colbreak()` | layout/columns.rs | `ausente` | — | depende de columns; Fase 3 ADR-0061; DEBT-56 |
+| `colbreak()` | layout/columns.rs | `parcial` ⁴¹ ⁴² | Passo 220 (encerrado P221) | variant `Content::Colbreak { weak: bool }` + stdlib `#colbreak(weak: ?)` + arm Layouter Opção β graded (downgrade a pagebreak literal); paridade vanilla quando fora de columns context; **multi-region salto entre colunas reais ausente** (P-Layout-Fase4 candidata NÃO-reservada) |
 | `rotate(angle, body)` | layout/transform.rs | `implementado` | Passo 78 | `Content::Transform` |
 | `scale(amount, body)` | idem | `implementado` | Passo 78 | |
 | `move(dx, dy, body)` | idem | `implementado` | stdlib `native_move` | |
@@ -319,7 +319,9 @@ Nota: ADR-0026 + 0026-R1 declaram **divergência intencional**. Cristalino usa e
 | `Terms {items}` | TermsElem | `implementado` | Passo 154B | sem atributos vanilla (tight/sep/indent) |
 | `TermItem {term, description}` | TermItemElem | `implementado` | Passo 154B | par item; standalone permitido |
 | `Quote {body, attribution, block, quotes}` | QuoteElem | `implementado` | Passo 155 | 4 atributos materializados; smart-quotes lang-aware via `rules/lang/quotes.rs` |
-| **Vanilla-only (ausentes)**: BibliographyElem, CiteElem, FootnoteElem, TableElem, ColumnsElem, BoxElem, BlockElem, StackElem, HideElem, RepeatElem, PadElem, MoveElem (function só), GradientElem, TilingElem, StrokeElem (object form), … | — | `ausente` (cada) | — | escopo crescente |
+| `Columns {count, gutter, body}` | ColumnsElem | `parcial` | Passo 221 (cumulativo P217-P219) | variant + stdlib `#columns(count, body, gutter:?)` + arm Layouter consumer real graded (Opção B); width temporariamente reduzida `(full_width − (count−1)·gutter)/count`; body single-render; multi-region flow real scope-out (P-Layout-Fase4 candidato); default gutter ~4% via `COLUMNS_DEFAULT_GUTTER_RATIO` |
+| `Colbreak {weak}` | ColbreakElem | `parcial` | Passo 220 | variant + stdlib `#colbreak(weak:?)` + arm Layouter Opção β graded (downgrade literal a pagebreak via reuso `Layouter::new_page`); paridade vanilla quando fora de columns context; sem `to:` (vanilla `ColbreakElem` não tem) |
+| **Vanilla-only (ausentes)**: BibliographyElem, CiteElem, FootnoteElem, TableElem, BoxElem, BlockElem, StackElem, HideElem, RepeatElem, PadElem, MoveElem (function só), GradientElem, TilingElem, StrokeElem (object form), … | — | `ausente` (cada) | — | escopo crescente; **`ColumnsElem` e `ColbreakElem` removidos da lista em P221** (transitam para `parcial`) |
 
 ### B.3 — `Style` enum
 
@@ -428,12 +430,12 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | `#let`/`#set`/`#show`/import | 7 | 1 | 4 | 1 | 0 | 13 |
 | Text features | 7 | 5 | 1 | 8 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
-| Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ | 13 | 1 | 3 | 1 | 0 | 18 |
+| Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ⁴⁰ ⁴¹ ⁴² | 12 | 1 | 5 | 0 | 0 | 18 |
 | Model (structural) ¹ ² ³ ²² ²⁴ ²⁹ | 7 | 4 | 7 | 4 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection ³⁸ | 3 | 2 | 1 | 0 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ ³⁸ ³⁹ | **69** | **24** | **25** | **21** | **2** | **141** |
+| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ ³⁸ ³⁹ ⁴⁰ ⁴¹ ⁴² | **68** | **24** | **27** | **20** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -879,6 +881,166 @@ aplicável (kind continua String). Cobertura Model agregada
 estabeleceu; P158A respeita) — supplement automático, show
 selectors `figure.where(kind:)`, refactor `kind: String →
 Option<String>` permanecem candidatos NÃO-reservados.
+
+⁴⁰ — Ajuste P217+P218+P219 (Tabela A.5 Layout — Fase 3
+sub-fase b 3/4 sub-passos materializados pós-DEBT-56
+decomposto em P215.div-1):
+- P217: variant `Content::Columns { count: usize, gutter:
+  Option<Length>, body: Box<Content> }` adicionado (Content
+  variants 56 → 57); 10 arms exhaustivos em 4 ficheiros
+  L1; arm Layouter stub transparente; 6 tests novos.
+- P218: stdlib `native_columns(count, body, gutter: ?)`
+  registada (~53 → 54 funcs); helper `extract_count` privado
+  (N=1); 12 tests novos.
+- P219: arm `Content::Columns` em `layout_content` substituído
+  por **consumer real graded (Opção B paridade ADR-0054)** —
+  width temporariamente reduzida `(full_width - (count-1)*gutter)
+  / count`; body single-render; width restaurada. Default
+  gutter ~4% via constante `COLUMNS_DEFAULT_GUTTER_RATIO`
+  (anti-inflação 14ª aplicação cumulativa). Decisão P216B
+  preservada — `Regions { current }` minimal mantido;
+  `backlog`/`last` continuam diferidos. **Multi-region
+  flow real ausente** (Opção A diferida a P-Layout-Fase4
+  candidato). 8 tests E2E novos. Pre-existing tests
+  preservados (zero regressão).
+Reclassificação §A.5 `columns(n)`: **`ausente` →
+`parcial`** (variant + stdlib + arm real existem; multi-region
+flow real scope-out per ADR-0054 graded; reclassificação a
+`implementado` exige Opção A futura).
+Distribuição Layout pós-recálculo: `13/1/3/1/0 = 18` →
+**`13/1/4/0/0 = 18`** (1 ausente → parcial; 0 ausente
+restantes em Layout). Cobertura `(impl + impl⁺)/total =
+14/18 = **78% preservada**` (parcial fora numerador per
+metodologia §A.9 P213; ganho qualitativo via 1 ausente
+eliminado).
+**Total user-facing**: `69/24/25/21/2 = 141 → 69/24/26/20/2
+= 141` (1 entrada movida ausente → parcial; total
+preservado). Cobertura user-facing total: `(69+24)/141 =
+65.96% ≈ **66% preservada**` (idem metodologia).
+**Sub-fase (b) DEBT-56**: 3/4 sub-passos materializados;
+P220 colbreak pendente; P221 fecho pendente. Tests
+workspace: 1952 → 1972 verdes (+20 cumulativo P217+P218+P219).
+ADR-0078 mantém PROPOSTO.
+
+⁴¹ — Ajuste P220 (Tabela A.5 Layout — Fase 3 sub-fase b
+4/4 sub-passos materializados pós-DEBT-56 decomposto em
+P215.div-1; **fecha sub-fase (b) estructuralmente**):
+- P220: variant `Content::Colbreak { weak: bool }` adicionado
+  (Content variants 55 → 56); 8 arms exhaustivos em 4
+  ficheiros L1 (paridade Pagebreak P156E mas leaf sem `to`
+  porque vanilla `ColbreakElem` não tem); `native_colbreak(weak:
+  ?)` stdlib registada (~54 → 55 funcs); arm Layouter
+  `layout_content` Opção β graded — **downgrade a pagebreak
+  literal** (paridade vanilla quando fora de columns context);
+  reusa `Layouter::new_page` (paridade P156E literal — zero
+  refactor estrutural); `weak` armazenado mas semantic adiada
+  (paridade P156D/E). 15 tests novos (5 unit content + 6 unit
+  stdlib + 4 E2E layout).
+- **Sub-passo agregado único** (variant + arm + stdlib em
+  P220 vs P217+P218+P219 atomizados) — paridade literal
+  P156E pagebreak. **Anti-inflação 15ª aplicação cumulativa**
+  (atomização ADR-0036 não é dogma absoluto; quando arm é
+  trivial, agregação economiza overhead).
+- L0 `entities/content.md` extensão Opção γ (sem secção
+  dedicada; convenção emergente "L0 minimal para refactors"
+  consolidada N=4 com P217+P218+P219+P220).
+
+Reclassificação §A.5 `colbreak()`: **`ausente` → `parcial`**
+(variant + stdlib + arm real existem; multi-region salto
+entre colunas reais ausente — P-Layout-Fase4 candidato per
+Opção A; reclassificação a `implementado` exige flow real).
+
+**Recontagem Layout pós-auditoria empírica P220** (footnote ⁴⁰
+contou erradamente Layout como `13/1/4/0/0=18` quando o
+real era `12/1/4/1/0=18` — colbreak permaneceu em `ausente`
+até P220; off-by-one corrigido aqui transparentemente):
+`12/1/4/1/0 = 18 → **12/1/5/0/0 = 18**` (1 ausente → parcial;
+**zero ausentes em Layout pós-P220**). Cobertura
+`(impl + impl⁺)/total = 13/18 = **72% preservada**` (parcial
+fora numerador per metodologia §A.9 P213; Layout inflama-se
+qualitativamente via 2 reclassificações cumulativas
+P219+P220 sem alteração quantitativa; ganho estructural
+real é "zero ausentes").
+
+**Total user-facing**: recálculo cumulativo (corrige offset
++1/-1 footnote ⁴⁰ + reclassifica colbreak): `69/24/26/20/2
+= 141 → **68/24/27/20/2 = 141**` (1 entrada Layout movida
+implementado para parcial pela correcção de auditoria;
+mais 1 entrada movida ausente para parcial pela
+reclassificação P220; net result `-1 implementado, +1
+parcial` empírico). Cobertura user-facing total:
+`(68+24)/141 = 65.25% ≈ **65% preservada**` (idem
+metodologia; declínio de 1 ponto percentual reflecte
+correcção de auditoria, não regressão semântica).
+
+**Sub-fase (b) DEBT-56 FECHADA estructuralmente**:
+**4/4 sub-passos materializados** (P217 ✓, P218 ✓, P219 ✓,
+P220 ✓). P221 é encerramento documental (ADR-0078 PROPOSTO
+→ IMPLEMENTADO + DEBT-56 fecha). Tests workspace: 1972 →
+**1987 verdes** (+15 P220). ADR-0078 mantém PROPOSTO
+(transição em P221).
+
+⁴² — Ajuste P221 (encerramento Fase 3 Layout — consolida
+P217+P218+P219+P220+correcção retroactiva auditada P220):
+P221 é **passo documental puro** — zero código tocado;
+transita 2 ADRs e fecha 1 DEBT estructuralmente.
+
+**Reclassificações cumulativas §A.5** (reapresentação
+consolidada ⁴⁰+⁴¹):
+- `columns(n)`: ausente → **parcial** (P217 variant + P218
+  stdlib + P219 consumer real graded Opção B; multi-region
+  flow real Opção A scope-out documentada).
+- `colbreak()`: ausente → **parcial** (P220 agregado:
+  variant + stdlib + arm Layouter Opção β graded — downgrade
+  a pagebreak; multi-region salto entre colunas reais
+  scope-out).
+
+**Distribuição §A.5 final pós-P221**: `12/1/5/0/0 = 18`
+(zero ausentes em Layout — paridade descoberta empírica
+P220 preservada). Cobertura Layout: `13/18 ≈ **72% per
+metodologia §A.9 P213**` (parcial fora numerador estricto;
+**78% per paridade visual histórica** preservada como Opção
+γ blueprint §2.1 com nota explícita "12 impl + 5 parcial").
+
+**Tabela B Content variants pós-P221**: 54 → **56** (+Columns
+P217 + Colbreak P220). Linha "Vanilla-only (ausentes)"
+actualizada — `ColumnsElem` e `ColbreakElem` removidos
+(transitam para `parcial`).
+
+**Stdlib funcs pós-P221**: 53 → **55** (+native_columns
+P218 + native_colbreak P220).
+
+**Tests workspace cumulativo P216A-P220**: 1939 → **1987**
+(+48 cumulativo: +7 P216A + +3 P216B + +6 P217 + +12 P218 +
++8 P219 + +15 P220; +0 P221 documental). 0 violations
+preservadas. "Nothing to fix" lint hashes (L0 não tocado
+em P221).
+
+**Multi-region flow real Opção A scope-out** per ADR-0078
+§"Decisão" sub-fase (b) — Fase 4 Layout candidata
+NÃO-reservada per política P158. Refinos `measure(body)`
+stdlib expose + `place` float/clearance ficam como Fase 4
+candidatos isolados (sub-passos S+ cada).
+
+**Transições ADR**:
+- ADR-0078 column flow algorithm: PROPOSTO (P215) →
+  **IMPLEMENTADO** (P221). 6 condições §"Plano materialização"
+  satisfeitas explicitamente.
+- ADR-0061 Layout Fase X roadmap: PROPOSTO (P156B) →
+  **IMPLEMENTADO** (P221). Caminho 1 100% cumprido (Fase 1
+  4/4 + Fase 2 3/3 + Fase 3 sub-passo 1 + sub-fase a 2/2 +
+  sub-fase b 4/4).
+
+**DEBT-56 ENCERRADO** (P221) — CLOSED via materialização;
+critério §"Critério de fecho" 5/5 cumprido. Saldo DEBTs:
+14 → **13 abertos**.
+
+**Distribuição ADRs cumulativa**: PROPOSTO 13 → **11**;
+IMPLEMENTADO 19 → **21**.
+
+Footnotes ⁴⁰ + ⁴¹ preservadas (paridade pattern P204H+
+"histórico textual preservado") para rastreabilidade
+P217-P220 incremental.
 
 ³⁹ — Ajuste P214 (Tabela A.1 Markup syntactic — recálculo
 ampliado pós-M9c 2026-05-12): **3 reclassificações

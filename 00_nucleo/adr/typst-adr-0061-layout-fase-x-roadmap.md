@@ -1,9 +1,14 @@
 # ⚖️ ADR-0061: Layout Fase X — page model + multi-column + footnote area roadmap
 
-**Status**: `PROPOSTO`
-**Data**: 2026-04-25
+**Status**: **`IMPLEMENTADO`** (PROPOSTO 2026-04-25 →
+IMPLEMENTADO 2026-05-12 P221 — Fase 1 + 2 + 3 cumpridas
+estructuralmente; refinos `measure`/`place` Fase 4
+candidata futura NÃO-reservada per política P158).
+**Data**: 2026-04-25 (PROPOSTO) → 2026-05-12 (IMPLEMENTADO P221).
 **Autor**: Humano + IA
-**Validado**: Passo 156B — diagnóstico.
+**Validado**: Passo 156B — diagnóstico; Passos P156C-L (Fase
+1+2 + sub-passo 1 Fase 3); Passos P216A-P220 (sub-fase a + b
+Fase 3); Passo P221 (encerramento Fase 3).
 **Diagnóstico prévio**:
 [`00_nucleo/diagnosticos/diagnostico-layout-passo-156b.md`](../diagnosticos/diagnostico-layout-passo-156b.md)
 
@@ -1055,20 +1060,78 @@ sem código alterado).
 
 ### Status
 
-**`PROPOSTO`** mantido. Promoção a `IMPLEMENTADO` requer
-**uma** das seguintes:
-1. ~~Fase 3 materializada~~ → **parcialmente activado em
-   P156J** (repeat ✓; columns/colbreak pendentes — DEBT-56).
-2. Decisão humana de scope-out formal de columns/colbreak
-   (com anotação que ADR-0061 fica "fase mínima + repeat
-   cumprida; columns/colbreak adiadas por DEBT-56").
-3. Inclusão de footnote area + actualização do scope da ADR.
+**`IMPLEMENTADO`** ratificado em P221 (2026-05-12). Caminho 1
+**100% cumprido** estructuralmente:
+1. ✓ **Fase 3 materializada** (P156J repeat + P156L pad refino
+   + P216A-P220 columns/colbreak série Layout Fase 3 sub-fase
+   (a)+(b) DEBT-56 fechado).
+2. (Opcional) scope-out formal `measure`/`place` refinos
+   adoptado per Fase 4 candidata NÃO-reservada per política
+   P158.
+3. (Opcional) footnote area continua diferida — possível
+   reocupação futura ADR distinta.
 
-Caminho 1 actualizado: 50% concluído (1/2 features Fase 3
-materializadas em P156J). **Promoção a IMPLEMENTADO continua
-diferida** — decisão humana sobre se columns/colbreak são
-suficientes para fechamento, ou se DEBT-56 column flow L+
-justifica scope-out formal.
+Caminho 1 final: **100% cumprido** (Fase 1 4/4 ✓ + Fase 2
+3/3 ✓ + Fase 3 sub-fase a 2/2 ✓ + Fase 3 sub-fase b 4/4 ✓ +
+Fase 3 sub-passo 1 P156J ✓ + sub-passo refino P156L ✓).
+**Promoção a IMPLEMENTADO ratificada P221**.
+
+Refinos `measure`/`place` ficam como **Fase 4 Layout
+candidata futura NÃO-reservada** per política P158
+(reabertura possível mas não compromisso).
+
+### P221 encerramento Fase 3 2026-05-12
+
+**Fase 3 Layout fechada estructuralmente em P221**:
+- columns + colbreak: materializados graded (Opção B fixada
+  em ADR-0078 + Opção β em P220; refino multi-region flow
+  real fica como Fase 4 candidata futura NÃO-reservada).
+- repeat: já materializado P156J (Fase 3 sub-passo 1).
+- skew: já materializado P156F (Fase 1).
+- pad refino sides: já materializado P156L (Fase 3 sub-passo 2).
+- Refinos pendentes Fase 4 candidata: `measure(body)` stdlib
+  expose (Bloco A diagnóstico P215 — depende ADR-0066 ainda
+  PROPOSTO; trabalho XS isolado); `place` float/clearance
+  (refino column scope; trabalho S+ isolado).
+
+**Caminho 1 ADR-0061 §"Status" 100% cumprido** —
+Fase 1 (4/4) + Fase 2 (3/3) + Fase 3 sub-passo 1+2 (P156J+L)
++ Fase 3 sub-fase (a) Region/Regions (P216A+B) + Fase 3
+sub-fase (b) columns/colbreak (P217-P220). Refinos
+`measure`/`place` ficam como **Fase 4 candidata
+NÃO-reservada** per política P158.
+
+**Transição PROPOSTO → IMPLEMENTADO ratificada**.
+
+DEBT-56 fecha simultaneamente (ver `DEBT.md` — critério
+fecho 5/5 cumprido). ADR-0078 column flow algorithm
+transita simultaneamente PROPOSTO → IMPLEMENTADO (ver
+`typst-adr-0078-column-flow-algorithm.md` — 6 condições
+§"Plano" satisfeitas).
+
+**Distribuição ADRs pós-P221**: PROPOSTO 13 → 11;
+IMPLEMENTADO 19 → 21.
+
+**Materialização cumulativa série Layout completa**:
+- Fase 1: P156C (pad/hide), P156D (h/v), P156E (pagebreak),
+  P156F (skew). 4/4.
+- Fase 2: P156G (block), P156H (boxed), P156I (stack —
+  fecha Fase 2 atinge target 72%). 3/3.
+- Fase 3 sub-1: P156J (repeat), P156L (pad refino sides).
+- Fase 3 sub-fase (a): P216A (Region), P216B (Regions
+  minimal). 2/2.
+- Fase 3 sub-fase (b): P217 (Columns variant), P218
+  (native_columns), P219 (consumer real graded Opção B),
+  P220 (Colbreak agregado Opção β). 4/4.
+- P221: encerramento Fase 3 documental.
+
+**Cobertura Layout final**: 78% per metodologia §A.9 P213
+(parcial fora numerador; 12 impl + 1 impl⁺ + 5 parcial =
+13/18 numerador estricto, mas paridade visual histórica
+preservada como 78% — Opção γ blueprint §2.1 documenta
+distribuição "12 impl + 5 parcial"). **Zero ausentes
+Layout** pós-P220 (ganho estructural via 2 reclassificações
+ausente → parcial cumulativas P219+P220).
 
 Anotação cumulativa acima preserva o contexto histórico para
 retomada futura.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/region.md
-//! @prompt-hash 2d938d3d
+//! @prompt-hash 0d428ad0
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -90,6 +90,50 @@ impl Region {
     }
 }
 
+/// Wrapper sobre regions sequenciais.
+///
+/// **P216B (DEBT-56 sub-fase a parte 2)**: introduzido para
+/// preparar consumer multi-column em P219 (sub-fase b).
+///
+/// Forma **minimal por anti-inflação 11ª aplicação cumulativa
+/// pós-P205D** — apenas `current` field. Fields `backlog: Vec<Region>`
+/// + `last: Option<Region>` (paridade vanilla literal) **diferidos
+/// a P219** quando emergir consumer real (`Content::Columns` arm
+/// no Layouter).
+///
+/// Critério de reabertura `backlog`/`last`: materialização de
+/// `Content::Columns` consumer no Layouter (P219). Até lá,
+/// single-region é suficiente — `Regions { current: Region }`
+/// preserva 100% comportamento P216A.
+///
+/// Paridade vanilla simplificada per ADR-0078 PROPOSTO §"Decisão":
+/// vanilla `Regions<'a> { current, backlog: &'a [Abs], last,
+/// expand, full, root, ... }`; cristalino reduz a 1 field até
+/// consumer emergir.
+///
+/// Cohabitação semântica com `Region` no mesmo módulo (precedente:
+/// `Sides<T>` em `sides.rs` cobre struct + helpers).
+#[derive(Debug, Clone)]
+pub struct Regions {
+    /// Region actual onde Layouter escreve. Single-region em
+    /// P216B; multi-region em P219.
+    pub current: Region,
+}
+
+impl Regions {
+    /// Cria `Regions` com 1 region de dimensões dadas.
+    pub fn single(width: f64, height: f64) -> Self {
+        Self {
+            current: Region::new(width, height),
+        }
+    }
+
+    /// Reset region actual (delega a `Region::reset`).
+    pub fn reset_current(&mut self) {
+        self.current.reset();
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -140,5 +184,41 @@ mod tests {
         assert_eq!(r.width, r2.width);
         assert_eq!(r.height, r2.height);
         assert_eq!(r.cursor_x.0, r2.cursor_x.0);
+    }
+
+    // ── P216B (DEBT-56 sub-fase a parte 2) — Regions wrapper ────────
+
+    #[test]
+    fn p216b_regions_single_cria_current_com_dimensoes() {
+        let rs = Regions::single(595.28, 841.89);
+        assert_eq!(rs.current.width, 595.28);
+        assert_eq!(rs.current.height, 841.89);
+        assert_eq!(rs.current.cursor_x.0, 0.0);
+        assert_eq!(rs.current.cursor_y.0, 0.0);
+        assert!(rs.current.current_items.is_empty());
+    }
+
+    #[test]
+    fn p216b_regions_reset_current_delega() {
+        let mut rs = Regions::single(100.0, 200.0);
+        rs.current.cursor_x = Pt(50.0);
+        rs.current.cursor_y = Pt(75.0);
+        rs.current.line_start_x = Pt(20.0);
+
+        rs.reset_current();
+
+        // Dimensões preservadas; cursor reseta para line_start_x.
+        assert_eq!(rs.current.width, 100.0);
+        assert_eq!(rs.current.height, 200.0);
+        assert_eq!(rs.current.cursor_x.0, 20.0);
+        assert_eq!(rs.current.cursor_y.0, 0.0);
+    }
+
+    #[test]
+    fn p216b_regions_clone_funciona() {
+        let rs = Regions::single(100.0, 200.0);
+        let rs2 = rs.clone();
+        assert_eq!(rs.current.width, rs2.current.width);
+        assert_eq!(rs.current.height, rs2.current.height);
     }
 }

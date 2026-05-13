@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/region`
-Hash do Código: 60b07b65
+Hash do Código: 18f0080f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/region.rs`
@@ -75,6 +75,19 @@ impl Region {
     pub fn reset(&mut self);
     pub fn has_pending(&self) -> bool;
 }
+
+// P216B (DEBT-56 sub-fase a parte 2)
+#[derive(Debug, Clone)]
+pub struct Regions {
+    pub current: Region,
+    // backlog: Vec<Region> — DIFERIDO a P219 (anti-inflação 11ª)
+    // last:    Option<Region> — DIFERIDO a P219
+}
+
+impl Regions {
+    pub fn single(width: f64, height: f64) -> Self;
+    pub fn reset_current(&mut self);
+}
 ```
 
 ---
@@ -88,6 +101,23 @@ impl Region {
   buffers limpos; dimensões preservadas. Usado entre páginas
   numa Region single (P216A).
 - `has_pending()`: true se algum buffer tem items.
+
+### Regions (P216B)
+
+- `single(width, height)`: cria `Regions` com 1 region única
+  via `Region::new(width, height)`. Single-region preservado;
+  fields `backlog`/`last` (paridade vanilla literal) deferidos
+  a P219 quando consumer multi-column emergir
+  (`Content::Columns` arm Layouter).
+- `reset_current()`: delega a `current.reset()`. Conveniência
+  semântica para Layouter chamar `self.regions.reset_current()`
+  em vez de `self.regions.current.reset()` (paridade simétrica
+  com `Region::reset`).
+
+**Anti-inflação 11ª aplicação cumulativa pós-P205D**: forma
+minimal `{ current: Region }` rejeita estrutura rica vanilla
+até consumer real emergir. Critério de reabertura: P219
+materialização `Content::Columns` consumer no Layouter.
 
 ---
 
@@ -182,3 +212,4 @@ fragmentação no `Layouter` cristalino single-pass.
 | Data | Motivo | Arquivos afetados |
 |------|--------|-------------------|
 | 2026-05-12 | P216A criação — DEBT-56 sub-fase (a) parte 1: tipo `Region` introduzido para agregar state geométrico Layouter (5 fields escalares + 2 dimensões). Paridade vanilla simplificada per ADR-0078 PROPOSTO. Pattern "Layouter-state agregado" N=2 (precedente P190C). | `region.rs`, `region.md`, `mod.rs` re-export |
+| 2026-05-12 | P216B adição — DEBT-56 sub-fase (a) parte 2: struct `Regions` adicionada cohabitando com `Region` no mesmo módulo. Forma minimal `{ current: Region }` por **anti-inflação 11ª aplicação cumulativa pós-P205D** — fields `backlog: Vec<Region>` + `last: Option<Region>` (paridade vanilla literal) diferidos a P219 quando `Content::Columns` consumer emergir. Refactor Layouter `region: Region` → `regions: Regions` (~158 call-sites `self.region.X` → `self.regions.current.X`). Sub-fase (a) DEBT-56 fechada estruturalmente; sub-fase (b) consumer multi-column é P219+. | `region.rs`, `region.md`, `layout/{mod,cursor,equation,grid,placement}.rs` |

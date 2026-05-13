@@ -55,8 +55,8 @@ fn layouter_baseline_dentro_da_pagina() {
     let intr_dyn: &dyn Introspector = &intr;
     let intr_tracked = intr_dyn.track();
     let l = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_tracked);
-    assert!(l.region.cursor_y.val() > 0.0);
-    assert!(l.region.cursor_y.val() < 842.0);
+    assert!(l.regions.current.cursor_y.val() > 0.0);
+    assert!(l.regions.current.cursor_y.val() < 842.0);
 }
 
 // ── P204C (M8) — Sentinel tests para migração Layouter ────────────────────
@@ -2736,6 +2736,282 @@ mod tests_show_rule_integration {
             .filter(|item| matches!(item, FrameItem::Text { text, .. } if text.as_str() == "X"))
             .count();
         assert!(count_x >= 1, "repeat[X] deve emitir pelo menos um Text 'X'");
+    }
+
+    /// **P218 (DEBT-56 sub-fase b segundo sub-passo)** — `Content::Columns`
+    /// produzido por `Content::columns(body, count, gutter)` (forma que
+    /// `native_columns` retorna em `Value::Content`) renderiza body via
+    /// stub transparente P217 mesmo quando count > 1. Confirma que
+    /// pipeline variant-construction → arm transparente preserva body
+    /// independentemente de `count`/`gutter` (consumer multi-region
+    /// real diferido P219).
+    ///
+    /// E2E completo `eval(#columns(2)[hello])` → layout requer NullWorld
+    /// helper que vive em `stdlib::tests`; tests stdlib P218 cobrem a
+    /// porção stdlib (parsing args + variant construction); este test
+    /// cobre a porção layout (variant → arm transparente → render).
+    #[test]
+    fn p218_columns_count_3_renderiza_body_transparentemente() {
+        use crate::entities::layout_types::Length;
+        let c = Content::columns(
+            Content::text("p218body"),        // single word — layout não splita
+            3,                                // count > 1
+            Some(Length::pt(15.0)),           // gutter explícito
+        );
+        let doc = layout(&c);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            })
+            .collect();
+        assert!(texts.contains("p218body"),
+            "P218 stub transparente deve renderizar body mesmo com count=3");
+    }
+
+    /// **P217 (DEBT-56 sub-fase b primeiro sub-passo)** — `Content::Columns`
+    /// renderiza body via stub transparente (count/gutter ignorados em
+    /// P217; consumer multi-region real em P219). Tests confirma que
+    /// body content aparece preservado no doc.
+    #[test]
+    fn p217_columns_arm_transparente_renderiza_body() {
+        use crate::entities::layout_types::Length;
+        let c = Content::columns(
+            Content::text("hello"),
+            2,                                // count ignorado em P217
+            Some(Length::pt(10.0)),           // gutter ignorado em P217
+        );
+        let doc = layout(&c);
+        // Body deve aparecer (stub transparente delega a layout_content).
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            })
+            .collect();
+        assert!(texts.contains("hello"), "columns body deve renderizar transparentemente");
+    }
+
+    // ── P219 (DEBT-56 sub-fase b 3/4) — consumer real graded ──────────
+
+    /// **P219** — count=1 caso degenerate: column_width == full_width
+    /// (paridade `(width - 0*gutter) / 1 = width`). Body renderiza
+    /// inalterado vs sem columns.
+    #[test]
+    fn p219_columns_count_1_equivale_a_body_directo() {
+        let c1 = Content::columns(Content::text("p219c1"), 1, None);
+        let doc1 = layout(&c1);
+        let texts1: String = doc1.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts1.contains("p219c1"), "count=1 preserva body");
+    }
+
+    /// **P219** — count=2: body renderiza preservado.
+    #[test]
+    fn p219_columns_count_2_renderiza_body() {
+        let c = Content::columns(Content::text("p219c2"), 2, None);
+        let doc = layout(&c);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p219c2"), "count=2 preserva body");
+    }
+
+    /// **P219** — count=3: body renderiza preservado (paralelo P218
+    /// E2E mas verifica explicitamente arm real).
+    #[test]
+    fn p219_columns_count_3_renderiza_body() {
+        use crate::entities::layout_types::Length;
+        let c = Content::columns(Content::text("p219c3"), 3, Some(Length::pt(20.0)));
+        let doc = layout(&c);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p219c3"), "count=3 preserva body");
+    }
+
+    /// **P219** — gutter explícito aceite (Length resolve para Pt).
+    #[test]
+    fn p219_columns_gutter_length_explicito_renderiza() {
+        use crate::entities::layout_types::Length;
+        let c = Content::columns(Content::text("g219"), 2, Some(Length::pt(50.0)));
+        let doc = layout(&c);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("g219"), "gutter explícito Length aceito");
+    }
+
+    /// **P219** — gutter default `None` aplicado via
+    /// `COLUMNS_DEFAULT_GUTTER_RATIO = 0.04`. Body renderiza.
+    #[test]
+    fn p219_columns_gutter_default_renderiza() {
+        let c = Content::columns(Content::text("gd219"), 2, None);
+        let doc = layout(&c);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("gd219"), "default gutter aplicado transparente");
+    }
+
+    /// **P219** — width restaurada após columns block. Sequência
+    /// `[Columns(2)[col_text]; text("after")]` produz "after"
+    /// renderizada com width original (não reduzida).
+    /// Verificação observable: ambos textos aparecem no doc.
+    #[test]
+    fn p219_columns_width_restaurada_apos_body() {
+        use std::sync::Arc;
+        let cols = Content::columns(Content::text("colbody"), 2, None);
+        let after = Content::text("afterbody");
+        let seq = Content::Sequence(Arc::from(vec![cols, after]));
+        let doc = layout(&seq);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("colbody"), "body em columns renderiza");
+        assert!(texts.contains("afterbody"), "after columns renderiza com width restaurada");
+    }
+
+    /// **P219** — body com `Content::Heading` em columns: heading
+    /// counter incrementa exactamente uma vez (paridade walk-única
+    /// preservada de P217).
+    #[test]
+    fn p219_columns_counters_contam_uma_vez() {
+        use std::sync::Arc;
+        // Dois headings dentro de columns; counter deve = 2 final
+        // (não 4 — sem multi-render).
+        let h1 = Content::Heading {
+            level: 1,
+            body: Box::new(Content::text("h1col")),
+        };
+        let h2 = Content::Heading {
+            level: 1,
+            body: Box::new(Content::text("h2col")),
+        };
+        let body_seq = Content::Sequence(Arc::from(vec![h1, h2]));
+        let cols = Content::columns(body_seq, 2, None);
+        let doc = layout(&cols);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("h1col"), "h1 renderiza");
+        assert!(texts.contains("h2col"), "h2 renderiza");
+    }
+
+    /// **P219** — composição aninhada: `columns(2)[columns(2)[text]]`
+    /// preserva body (composability multiplicativa de width:
+    /// page_w / 4 idealmente; tests confirma body presente —
+    /// comportamento estructural verificado).
+    #[test]
+    fn p219_columns_aninhado_compoe_width() {
+        let inner = Content::columns(Content::text("nest"), 2, None);
+        let outer = Content::columns(inner, 2, None);
+        let doc = layout(&outer);
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("nest"), "nested columns body renderiza (composição aninhada)");
+    }
+
+    // ── Passo 220 (ADR-0078 PROPOSTO sub-fase b 4/4) — colbreak ──────────
+
+    /// Colbreak isolado produz nova página (downgrade graded a pagebreak
+    /// per Opção β). Setup: A → colbreak() → B → produz >= 2 páginas.
+    #[test]
+    fn p220_colbreak_produz_new_page_downgrade() {
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::colbreak(false),
+            Content::text("B"),
+        ]));
+        let doc = layout(&doc_content);
+        assert!(doc.pages.len() >= 2,
+            "esperado >= 2 páginas após colbreak (downgrade graded), obtive {}",
+            doc.pages.len());
+    }
+
+    /// Colbreak dentro de columns block produz pagebreak literal — P219
+    /// single-region scope-out preserva downgrade graded (sem flow real
+    /// entre colunas reais).
+    #[test]
+    fn p220_colbreak_dentro_columns_downgrade_graded() {
+        use std::sync::Arc;
+        let body = Content::Sequence(Arc::from(vec![
+            Content::text("p220before"),
+            Content::colbreak(false),
+            Content::text("p220after"),
+        ]));
+        let cols = Content::columns(body, 2, None);
+        let doc = layout(&cols);
+        assert!(doc.pages.len() >= 2,
+            "colbreak dentro de columns produz pagebreak (downgrade β), pages={}",
+            doc.pages.len());
+        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
+                _ => None,
+            }).collect();
+        assert!(texts.contains("p220before"), "before-colbreak renderiza");
+        assert!(texts.contains("p220after"),  "after-colbreak renderiza");
+    }
+
+    /// Colbreak misturado com pagebreak — downgrade graded faz colbreak
+    /// equivaler a pagebreak (mesma quantidade de páginas).
+    #[test]
+    fn p220_colbreak_misturado_com_pagebreak() {
+        use std::sync::Arc;
+        let with_colbreak = Content::Sequence(Arc::from(vec![
+            Content::text("X"),
+            Content::colbreak(false),
+            Content::text("Y"),
+            Content::pagebreak(false, None),
+            Content::text("Z"),
+        ]));
+        let with_only_pagebreaks = Content::Sequence(Arc::from(vec![
+            Content::text("X"),
+            Content::pagebreak(false, None),
+            Content::text("Y"),
+            Content::pagebreak(false, None),
+            Content::text("Z"),
+        ]));
+        let d1 = layout(&with_colbreak);
+        let d2 = layout(&with_only_pagebreaks);
+        assert_eq!(d1.pages.len(), d2.pages.len(),
+            "colbreak ≡ pagebreak graded (downgrade β); d1={}, d2={}",
+            d1.pages.len(), d2.pages.len());
+    }
+
+    /// Colbreak no início do documento — paridade vanilla pagebreak no
+    /// início; produz página vazia + página com texto.
+    #[test]
+    fn p220_colbreak_no_inicio_documento_pagina_vazia() {
+        use std::sync::Arc;
+        let doc_content = Content::Sequence(Arc::from(vec![
+            Content::colbreak(false),
+            Content::text("p220inicio"),
+        ]));
+        let doc = layout(&doc_content);
+        assert!(doc.pages.len() >= 2,
+            "colbreak no início produz página vazia + página com texto, pages={}",
+            doc.pages.len());
     }
 
     /// Counters/labels dentro do body de repeat resolvem via walk

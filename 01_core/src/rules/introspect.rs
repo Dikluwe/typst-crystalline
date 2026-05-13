@@ -223,6 +223,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::VSpace { .. }
         // Passo 156E (ADR-0061 Fase 1 sub-passo 3) — pagebreak leaf.
         | Content::Pagebreak { .. }
+        // Passo 220 (ADR-0078 sub-fase b 4/4) — colbreak leaf.
+        | Content::Colbreak { .. }
         | Content::Shape { .. }
         // P169 (M9): Metadata é terminal — clonar directamente.
         | Content::Metadata { .. }
@@ -275,6 +277,13 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             body:    Box::new(materialize_time(body, intr, location)),
             gap:     *gap,
             justify: *justify,
+        },
+        // P217 — Columns container: análogo a Repeat/Block; descer
+        // no body; count/gutter preservados (Copy primitivos).
+        Content::Columns { count, gutter, body } => Content::Columns {
+            count:  *count,
+            gutter: *gutter,
+            body:   Box::new(materialize_time(body, intr, location)),
         },
         Content::Transform { matrix, body } => Content::Transform {
             matrix: *matrix,
@@ -1057,6 +1066,8 @@ pub(crate) fn walk(
         | Content::VSpace { .. }
         // Passo 156E — pagebreak leaf; sem effect em counters.
         | Content::Pagebreak { .. }
+        // Passo 220 — colbreak leaf; sem effect em counters.
+        | Content::Colbreak { .. }
         | Content::Shape { .. }
         // P169 (M9): Metadata é terminal — sem efeito em counters.
         // Tag::Start/End já é emitido no topo de walk via extract_payload
@@ -1153,6 +1164,11 @@ pub(crate) fn walk(
         // resolvem; semântica de repetição é runtime-only e não
         // multiplica state — vanilla repeat também só conta uma vez).
         Content::Repeat { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        // P217 (DEBT-56 sub-fase b) — Columns container.
+        // Walk no body (counters/labels dentro contam normalmente);
+        // sem Tag::Start/End próprio (columns não é locatable).
+        // Consumer multi-region em P219.
+        Content::Columns { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 99 (ADR-0038): `Styled` é transparente — desce no body.
         Content::Styled(body, _) => walk(body, locator, tags, intr, auto_label_counter, lang, None),

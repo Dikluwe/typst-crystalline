@@ -48,8 +48,9 @@ pub use crate::rules::stdlib::shapes::{
 };
 pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale, native_skew};
 pub use crate::rules::stdlib::layout::{
-    native_align, native_block, native_box, native_grid, native_h, native_hide,
-    native_pad, native_page, native_pagebreak, native_place, native_repeat, native_stack, native_v,
+    native_align, native_block, native_box, native_colbreak, native_columns, native_grid, native_h,
+    native_hide, native_pad, native_page, native_pagebreak, native_place, native_repeat,
+    native_stack, native_v,
 };
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
@@ -2856,6 +2857,207 @@ mod tests {
         // Hide
         let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
         assert!(matches!(r, Value::Content(Content::Hide { .. })));
+    }
+
+    // ── P218 (DEBT-56 sub-fase b — Layout Fase 3) — columns ──────────
+
+    #[test]
+    fn p218_native_columns_count_valido_sem_gutter() {
+        null_ctx!(ctx);
+        let r = native_columns(&mut ctx, &p(vec![
+            Value::Int(2),
+            Value::Content(Content::text("hello")),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Columns { count, gutter, body }) = r {
+            assert_eq!(count, 2);
+            assert_eq!(gutter, None);
+            assert_eq!(body.plain_text(), "hello");
+        } else {
+            panic!("esperado Content::Columns");
+        }
+    }
+
+    #[test]
+    fn p218_native_columns_count_zero_rejeita() {
+        null_ctx!(ctx);
+        let r = native_columns(&mut ctx, &p(vec![
+            Value::Int(0),
+            Value::Content(Content::text(".")),
+        ]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "count = 0 deve falhar");
+    }
+
+    #[test]
+    fn p218_native_columns_count_negativo_rejeita() {
+        null_ctx!(ctx);
+        let r = native_columns(&mut ctx, &p(vec![
+            Value::Int(-1),
+            Value::Content(Content::text(".")),
+        ]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "count = -1 deve falhar");
+    }
+
+    #[test]
+    fn p218_native_columns_count_nao_int_rejeita() {
+        null_ctx!(ctx);
+        let r = native_columns(&mut ctx, &p(vec![
+            Value::Str("foo".into()),
+            Value::Content(Content::text(".")),
+        ]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "count Str deve falhar");
+    }
+
+    #[test]
+    fn p218_native_columns_count_ausente_rejeita() {
+        null_ctx!(ctx);
+        let r = native_columns(&mut ctx, &p(vec![]),
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "sem args deve falhar");
+    }
+
+    #[test]
+    fn p218_native_columns_body_ausente_rejeita() {
+        null_ctx!(ctx);
+        let r = native_columns(&mut ctx, &p(vec![
+            Value::Int(2),
+        ]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "só count sem body deve falhar");
+    }
+
+    #[test]
+    fn p218_native_columns_body_str_aceita() {
+        // Body Value::Str → convertido para Content::text.
+        null_ctx!(ctx);
+        let r = native_columns(&mut ctx, &p(vec![
+            Value::Int(3),
+            Value::Str("texto".into()),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Columns { body, .. }) = r {
+            assert_eq!(body.plain_text(), "texto");
+        } else {
+            panic!("esperado Content::Columns com body de Str");
+        }
+    }
+
+    #[test]
+    fn p218_native_columns_gutter_length_aceita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![
+            Value::Int(2),
+            Value::Content(Content::text(".")),
+        ]);
+        args.named.insert("gutter".into(), Value::Length(Length::pt(10.0)));
+        let r = native_columns(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Columns { gutter, .. }) = r {
+            assert_eq!(gutter, Some(Length::pt(10.0)));
+        } else {
+            panic!("esperado Content::Columns com gutter Some");
+        }
+    }
+
+    #[test]
+    fn p218_native_columns_gutter_negativo_rejeita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![
+            Value::Int(2),
+            Value::Content(Content::text(".")),
+        ]);
+        args.named.insert("gutter".into(), Value::Length(Length::pt(-1.0)));
+        let r = native_columns(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "gutter negativo deve falhar");
+    }
+
+    #[test]
+    fn p218_native_columns_named_arg_desconhecido_rejeita() {
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Int(2),
+            Value::Content(Content::text(".")),
+        ]);
+        args.named.insert("foo".into(), Value::Int(42));
+        let r = native_columns(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named arg desconhecido deve falhar");
+    }
+
+    #[test]
+    fn p218_native_columns_extra_positional_rejeita() {
+        null_ctx!(ctx);
+        let r = native_columns(&mut ctx, &p(vec![
+            Value::Int(2),
+            Value::Content(Content::text("a")),
+            Value::Content(Content::text("b")),  // extra
+        ]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), ">2 posicionais deve falhar");
+    }
+
+    // ── P220 (ADR-0078 PROPOSTO sub-fase b 4/4) — colbreak ───────────────
+
+    #[test]
+    fn p220_native_colbreak_sem_args_aceita() {
+        null_ctx!(ctx);
+        let r = native_colbreak(&mut ctx, &p(vec![]),
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Colbreak { weak }) = r {
+            assert_eq!(weak, false, "default weak == false");
+        } else {
+            panic!("esperado Value::Content(Content::Colbreak)");
+        }
+    }
+
+    #[test]
+    fn p220_native_colbreak_weak_true_aceita() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("weak".into(), Value::Bool(true));
+        let r = native_colbreak(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Colbreak { weak }) = r {
+            assert_eq!(weak, true);
+        } else {
+            panic!("esperado Value::Content(Content::Colbreak {{ weak: true }})");
+        }
+    }
+
+    #[test]
+    fn p220_native_colbreak_posicional_rejeita() {
+        null_ctx!(ctx);
+        let r = native_colbreak(&mut ctx, &p(vec![Value::Str("oops".into())]),
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "posicional deve falhar");
+    }
+
+    #[test]
+    fn p220_native_colbreak_weak_nao_bool_rejeita() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("weak".into(), Value::Str("true".into()));
+        let r = native_colbreak(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "weak não-Bool deve falhar");
+    }
+
+    #[test]
+    fn p220_native_colbreak_named_desconhecido_rejeita() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("foo".into(), Value::Bool(true));
+        let r = native_colbreak(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named desconhecido deve falhar");
+    }
+
+    #[test]
+    fn p220_native_colbreak_to_rejeita() {
+        // Paridade Pagebreak mas SEM `to` em colbreak (vanilla
+        // ColbreakElem não tem; paridade só faz sentido em páginas).
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("to".into(), Value::Str("even".into()));
+        let r = native_colbreak(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "to: deve falhar (named desconhecido)");
     }
 
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table ─────────────────
