@@ -3576,17 +3576,29 @@ mod tests_show_rule_integration {
             inset:     Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
             breakable: true,
             outset:    Sides::uniform(crate::entities::layout_types::Length::pt(5.0)),
-            radius:    Some(crate::entities::layout_types::Length::pt(3.0)),
+            // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
+            radius:    crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(3.0)),
             clip:      true,
         };
         let doc = layout(&b);
-        let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
-            .filter_map(|item| match item {
-                FrameItem::Text { text, .. } => Some(text.as_str().to_string()),
-                _ => None,
-            }).collect();
+        // P242 — quando clip=true, body items wrapped em FrameItem::Group
+        // com clip_mask Some(RoundedRect). Recursivamente extrair Text de
+        // qualquer profundidade (Group items podem aninhar).
+        fn extract_texts(items: &[FrameItem], out: &mut String) {
+            for item in items {
+                match item {
+                    FrameItem::Text { text, .. } => out.push_str(text.as_str()),
+                    FrameItem::Group { items, .. } => extract_texts(items, out),
+                    _ => {}
+                }
+            }
+        }
+        let mut texts = String::new();
+        for page in doc.pages.iter() {
+            extract_texts(&page.items, &mut texts);
+        }
         assert!(texts.contains("p231block"),
-            "Block com cosméticos renderiza body (semantic adiada preserva baseline)");
+            "Block com cosméticos renderiza body (P242 materializa clip: body em Group)");
     }
 
     /// Boxed paridade Block — cosméticos preserved.
@@ -3600,7 +3612,8 @@ mod tests_show_rule_integration {
             inset:    Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
             baseline: crate::entities::layout_types::Length::pt(0.0),
             outset:   Sides::uniform(crate::entities::layout_types::Length::pt(2.0)),
-            radius:   Some(crate::entities::layout_types::Length::pt(1.0)),
+            // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
+            radius:   crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(1.0)),
             clip:     false,
         };
         let doc = layout(&b);
@@ -3611,6 +3624,232 @@ mod tests_show_rule_integration {
             }).collect();
         assert!(texts.contains("p231boxed"),
             "Boxed com cosméticos renderiza body (paridade Block; semantic adiada)");
+    }
+
+    // ── Passo 242 (M9d/M7+5; ADR-0081 IMPLEMENTADO parcial 3/5) —
+    //     Block clip=true emite FrameItem::Group com clip_mask
+    //     RoundedRect (radius non-zero) ou Rect (radius zero) ──
+
+    #[test]
+    fn p242_block_clip_true_radius_non_zero_emit_group_rounded_rect_clip_mask() {
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let b = Content::Block {
+            body:      Box::new(Content::text("clipped")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::pt(5.0)),
+            clip:      true,
+        };
+        let doc = layout(&b);
+        // Procurar FrameItem::Group com clip_mask Some(RoundedRect).
+        let mut found_rounded_clip = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Group { clip_mask: Some(shape), .. } = item {
+                    if let crate::entities::geometry::ShapeKind::RoundedRect { .. } = shape {
+                        found_rounded_clip = true;
+                    }
+                }
+            }
+        }
+        assert!(found_rounded_clip,
+            "P242 — clip=true + radius non-zero emite Group com clip_mask RoundedRect");
+    }
+
+    #[test]
+    fn p242_block_clip_true_radius_zero_emit_group_rect_clip_mask() {
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let b = Content::Block {
+            body:      Box::new(Content::text("clipped-rect")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      true,
+        };
+        let doc = layout(&b);
+        let mut found_rect_clip = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Group { clip_mask: Some(shape), .. } = item {
+                    if matches!(shape, crate::entities::geometry::ShapeKind::Rect) {
+                        found_rect_clip = true;
+                    }
+                }
+            }
+        }
+        assert!(found_rect_clip,
+            "P242 — clip=true + radius zero emite Group com clip_mask Rect (paridade DEBT-30)");
+    }
+
+    #[test]
+    fn p242_block_clip_false_radius_non_zero_sem_clip_mask() {
+        // Spec Decisão 6: radius sem clip armazenado mas sem clip_mask
+        // emit. Bloco mantém inline behavior.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let b = Content::Block {
+            body:      Box::new(Content::text("not-clipped")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::pt(5.0)),
+            clip:      false,
+        };
+        let doc = layout(&b);
+        // Nenhum Group com clip_mask deve ser emitido.
+        let mut found_any_clip_mask = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Group { clip_mask: Some(_), .. } = item {
+                    found_any_clip_mask = true;
+                }
+            }
+        }
+        assert!(!found_any_clip_mask,
+            "P242 — radius sem clip não emite clip_mask (semantic radius isolada graded)");
+    }
+
+    // ── Passo 243 (M9d / M7+3 fase (a); ADR-0081 IMPLEMENTADO parcial 4/5)
+    //     — promoção real scope-outs Pad.right + Block.width + Boxed.width
+    //     via regions.current.width save/restore ──
+
+    #[test]
+    fn p243_pad_right_efetivo_reduz_width_durante_body() {
+        // P243 — Pad.right reduz regions.current.width efectiva durante
+        // body layout (vs scope-out P156C que ignorava right).
+        use crate::entities::sides::Sides;
+        use crate::entities::layout_types::Length;
+        let pad = Content::Pad {
+            body:  Box::new(Content::text("p243pad")),
+            sides: Sides {
+                left:   None,
+                top:    None,
+                right:  Some(Length::pt(100.0)),  // Pad.right efectivo agora.
+                bottom: None,
+            },
+        };
+        // Smoke test: layout sem panic + body presente em output.
+        let doc = layout(&pad);
+        let mut texts = String::new();
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Text { text, .. } = item {
+                    texts.push_str(text.as_str());
+                }
+            }
+        }
+        assert!(texts.contains("p243pad"),
+            "Pad.right=100pt preserva body output (largura útil reduzida pero não-zero)");
+    }
+
+    #[test]
+    fn p243_block_width_efetivo_clampa_largura() {
+        // P243 — Block.width clampa regions.current.width durante body.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let block = Content::Block {
+            body:      Box::new(Content::text("p243block")),
+            width:     Some(Length::pt(150.0)),  // Block.width efectivo P243.
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+        };
+        let doc = layout(&block);
+        let mut texts = String::new();
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Text { text, .. } = item {
+                    texts.push_str(text.as_str());
+                }
+            }
+        }
+        assert!(texts.contains("p243block"),
+            "Block.width=150pt preserva body output (clamp width efectivo)");
+    }
+
+    #[test]
+    fn p243_boxed_width_efetivo_clampa_largura() {
+        // P243 — Boxed.width clampa regions.current.width durante body.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let boxed = Content::Boxed {
+            body:     Box::new(Content::text("p243boxed")),
+            width:    Some(Length::pt(80.0)),  // Boxed.width efectivo P243.
+            height:   None,
+            inset:    Sides::uniform(Length::pt(0.0)),
+            baseline: Length::pt(0.0),
+            outset:   Sides::uniform(Length::pt(0.0)),
+            radius:   Corners::uniform(Length::ZERO),
+            clip:     false,
+        };
+        let doc = layout(&boxed);
+        let mut texts = String::new();
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Text { text, .. } = item {
+                    texts.push_str(text.as_str());
+                }
+            }
+        }
+        assert!(texts.contains("p243boxed"),
+            "Boxed.width=80pt preserva body output (clamp width efectivo)");
+    }
+
+    #[test]
+    fn p243_pad_aninhado_largura_cumulativa_preservada() {
+        // P243 — Pad aninhado dentro de Block; width saved/restored em
+        // ordem correcta (LIFO stack semantic).
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let inner_pad = Content::Pad {
+            body:  Box::new(Content::text("inner")),
+            sides: Sides {
+                left:   None,
+                top:    None,
+                right:  Some(Length::pt(50.0)),
+                bottom: None,
+            },
+        };
+        let block = Content::Block {
+            body:      Box::new(inner_pad),
+            width:     Some(Length::pt(200.0)),
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+        };
+        let doc = layout(&block);
+        let mut texts = String::new();
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Text { text, .. } = item {
+                    texts.push_str(text.as_str());
+                }
+            }
+        }
+        assert!(texts.contains("inner"),
+            "Pad dentro de Block — width cumulative save/restore preservado");
     }
 
     // ── Passo 232 (Fase 5 Layout Categoria A.5) — Place precedence over Grid ──

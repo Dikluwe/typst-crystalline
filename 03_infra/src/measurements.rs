@@ -241,6 +241,15 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.state_display_value(key, location)
     }
 
+    fn counter_display_value(
+        &self,
+        key: String,
+        location: Location,
+    ) -> Option<Content> {
+        record_call(9);
+        self.inner.counter_display_value(key, location)
+    }
+
     fn query(&self, selector: &Selector) -> Vec<Location> {
         record_call(10);
         self.inner.query(selector)

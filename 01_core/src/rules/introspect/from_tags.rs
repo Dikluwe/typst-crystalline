@@ -137,6 +137,78 @@ pub fn apply_state_displays(
     }
 }
 
+/// **P241 (M9d/M7+2)** — slim post-pass para
+/// `Content::CounterDisplayCallback` paralelo absoluto
+/// `apply_state_displays` P240.
+///
+/// Walk emite `Tag::Start(loc, ElementPayload::CounterDisplay { key,
+/// callback })` via `extract_payload`. Esta função processa Tags
+/// pós-walk + pós-`apply_state_funcs` + pós-`apply_state_displays`,
+/// com Engine+ctx disponíveis.
+///
+/// Algoritmo:
+/// - Para cada `(key, loc)`: lookup `intr.counters.value_at(key, loc)`
+///   `Option<&[usize]>` → converter para `Value::Array(Vec<Value::Int>)`
+///   (counter inexistente → `Value::Array(vec![])`).
+/// - Se `callback.is_some()`: `apply_func(callback, [array], ctx,
+///   engine)`; resultado convertido para Content (paridade
+///   `apply_state_displays`: Content passa-through; Str via
+///   Content::text; outros tipos / Err → Content::Empty).
+/// - Sem callback: formato default "1.2.3" via join "." se counter
+///   existe; `Content::Empty` se inexistente.
+/// - Armazenar em `intr.counter_displays[(key, loc)]`.
+///
+/// **Forma do Value passado ao callback** (Decisão 4 P241): paridade
+/// vanilla `CounterState = SmallVec<[u64; 3]>` representado como
+/// `Value::Array(Vec<Value::Int>)`. Permite callbacks ricos como
+/// `counter("heading").display(nums => nums.map(str).join("."))`.
+///
+/// **Caller**: `fixpoint::run_fixpoint` após `apply_state_displays`.
+pub fn apply_counter_displays(
+    tags:   &[Tag],
+    intr:   &mut TagIntrospector,
+    engine: &mut Engine<'_>,
+    ctx:    &mut EvalContext,
+) {
+    use crate::entities::content::Content;
+    use crate::entities::value::Value;
+    for tag in tags {
+        if let Tag::Start(loc, info) = tag {
+            if let ElementPayload::CounterDisplay { key, callback } = &info.payload {
+                let counter_slice_opt = intr.counters.value_at(key, *loc);
+                let counter_value: Value = counter_slice_opt
+                    .map(|slice| Value::Array(
+                        slice.iter().map(|&n| Value::Int(n as i64)).collect()
+                    ))
+                    .unwrap_or(Value::Array(vec![]));
+                let pre_rendered = match callback {
+                    Some(func) => {
+                        let args = Args::positional(vec![counter_value]);
+                        match apply_func(func.clone(), args, ctx, engine) {
+                            Ok(Value::Content(c))  => c,
+                            Ok(Value::Str(s))      => Content::text(s.as_str()),
+                            Ok(_)                  => Content::Empty,
+                            Err(_)                 => Content::Empty,
+                        }
+                    }
+                    None => match counter_slice_opt {
+                        Some(slice) => {
+                            let s = slice.iter()
+                                .map(|n| n.to_string())
+                                .collect::<Vec<_>>()
+                                .join(".");
+                            Content::text(&s)
+                        }
+                        None => Content::Empty,
+                    },
+                };
+                intr.counter_displays
+                    .insert((key.clone(), *loc), pre_rendered);
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -524,5 +596,223 @@ mod tests {
             .get(&("inexistente".to_string(), loc(20)))
             .expect("state_displays populated mesmo com key ausente");
         assert_eq!(pre.plain_text(), "");
+    }
+
+    // ── Passo 241 (M9d/M7+2; ADR-0081 IMPLEMENTADO parcial paralelo absoluto
+    //     P240 M7+1) — apply_counter_displays paralelo apply_state_displays ──
+
+    #[test]
+    fn p241_apply_counter_displays_sem_callback_renderiza_formato_default() {
+        // Sem callback + counter populado: formato default "1.1"
+        // via join "." paridade formatted_counter_at P177.
+        // apply_hierarchical_at semantic: (key, level, loc); cada nova
+        // depth-step appende [1] hierarchicamente.
+        let mut intr = TagIntrospector::empty();
+        intr.counters.apply_hierarchical_at("heading".to_string(), 1, loc(10)); // [1]
+        intr.counters.apply_hierarchical_at("heading".to_string(), 2, loc(15)); // [1, 1]
+        let tags = vec![
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::CounterDisplay {
+                    key:      "heading".to_string(),
+                    callback: None,
+                }),
+            ),
+            Tag::End(loc(20), 0),
+        ];
+        let world = make_world();
+        with_engine!(&world, |engine, ctx| {
+            apply_counter_displays(&tags, &mut intr, &mut engine, &mut ctx);
+        });
+        let pre = intr.counter_displays
+            .get(&("heading".to_string(), loc(20)))
+            .expect("counter_displays populated");
+        // Snapshot final em loc 15 é [1, 1] → "1.1" via join ".".
+        assert_eq!(pre.plain_text(), "1.1");
+    }
+
+    #[test]
+    fn p241_apply_counter_displays_com_callback_aplica_func() {
+        // Callback recebe Value::Array(counter_state) e retorna Str
+        // formatado custom. apply_hierarchical_at snapshots resultam
+        // em [1, 1] em loc 20.
+        fn str_callback(
+            _ctx: &mut crate::rules::eval::EvalContext,
+            args: &crate::entities::args::Args,
+            _world: &dyn crate::contracts::world::World,
+            _current_file: crate::entities::file_id::FileId,
+            _figure_numbering: Option<&str>,
+        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
+            match args.items.first() {
+                Some(Value::Array(items)) => {
+                    let s = items.iter()
+                        .filter_map(|v| if let Value::Int(n) = v { Some(n.to_string()) } else { None })
+                        .collect::<Vec<_>>()
+                        .join("-");
+                    Ok(Value::Str(format!("[{}]", s).into()))
+                }
+                _ => Ok(Value::Str("[]".into())),
+            }
+        }
+        let f = Func::native("str_callback", str_callback);
+        let mut intr = TagIntrospector::empty();
+        intr.counters.apply_hierarchical_at("heading".to_string(), 1, loc(10)); // [1]
+        intr.counters.apply_hierarchical_at("heading".to_string(), 2, loc(15)); // [1, 1]
+        let tags = vec![
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::CounterDisplay {
+                    key:      "heading".to_string(),
+                    callback: Some(f),
+                }),
+            ),
+            Tag::End(loc(20), 0),
+        ];
+        let world = make_world();
+        with_engine!(&world, |engine, ctx| {
+            apply_counter_displays(&tags, &mut intr, &mut engine, &mut ctx);
+        });
+        let pre = intr.counter_displays
+            .get(&("heading".to_string(), loc(20)))
+            .expect("counter_displays populated");
+        // Callback recebe [1, 1] → formato "[1-1]".
+        assert_eq!(pre.plain_text(), "[1-1]");
+    }
+
+    #[test]
+    fn p241_apply_counter_displays_callback_erro_retorna_content_empty() {
+        // Func que sempre retorna Err → defensive ignore (Content::Empty).
+        fn err_callback(
+            _ctx: &mut crate::rules::eval::EvalContext,
+            _args: &crate::entities::args::Args,
+            _world: &dyn crate::contracts::world::World,
+            _current_file: crate::entities::file_id::FileId,
+            _figure_numbering: Option<&str>,
+        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
+            Err(vec![
+                crate::entities::source_result::SourceDiagnostic::error(
+                    crate::entities::span::Span::detached(),
+                    "test error",
+                ),
+            ])
+        }
+        let f = Func::native("err_callback", err_callback);
+        let mut intr = TagIntrospector::empty();
+        intr.counters.apply_hierarchical_at("heading".to_string(), 1, loc(10));
+        let tags = vec![
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::CounterDisplay {
+                    key:      "heading".to_string(),
+                    callback: Some(f),
+                }),
+            ),
+            Tag::End(loc(20), 0),
+        ];
+        let world = make_world();
+        with_engine!(&world, |engine, ctx| {
+            apply_counter_displays(&tags, &mut intr, &mut engine, &mut ctx);
+        });
+        let pre = intr.counter_displays
+            .get(&("heading".to_string(), loc(20)))
+            .expect("counter_displays populated mesmo com Err defensive ignore");
+        assert_eq!(pre.plain_text(), "");
+    }
+
+    #[test]
+    fn p241_apply_counter_displays_locations_diferentes_valores_diferentes() {
+        // 2 apply_hierarchical_at em locations diferentes; CounterDisplay
+        // em locations intermédias deve ver snapshots cumulativos.
+        let mut intr = TagIntrospector::empty();
+        intr.counters.apply_hierarchical_at("heading".to_string(), 1, loc(10));
+        intr.counters.apply_hierarchical_at("heading".to_string(), 1, loc(20));
+        intr.counters.apply_hierarchical_at("heading".to_string(), 1, loc(30));
+        let tags = vec![
+            // loc 15 → ver snapshot loc 10 = [1].
+            Tag::Start(
+                loc(15),
+                ElementInfo::new(ElementPayload::CounterDisplay {
+                    key:      "heading".to_string(),
+                    callback: None,
+                }),
+            ),
+            Tag::End(loc(15), 0),
+            // loc 25 → ver snapshot loc 20 = [2] (2º depth-1 step).
+            Tag::Start(
+                loc(25),
+                ElementInfo::new(ElementPayload::CounterDisplay {
+                    key:      "heading".to_string(),
+                    callback: None,
+                }),
+            ),
+            Tag::End(loc(25), 0),
+            // loc 35 → ver snapshot loc 30 = [3].
+            Tag::Start(
+                loc(35),
+                ElementInfo::new(ElementPayload::CounterDisplay {
+                    key:      "heading".to_string(),
+                    callback: None,
+                }),
+            ),
+            Tag::End(loc(35), 0),
+        ];
+        let world = make_world();
+        with_engine!(&world, |engine, ctx| {
+            apply_counter_displays(&tags, &mut intr, &mut engine, &mut ctx);
+        });
+        assert_eq!(
+            intr.counter_displays.get(&("heading".to_string(), loc(15)))
+                .unwrap().plain_text(),
+            "1"
+        );
+        assert_eq!(
+            intr.counter_displays.get(&("heading".to_string(), loc(25)))
+                .unwrap().plain_text(),
+            "2"
+        );
+        assert_eq!(
+            intr.counter_displays.get(&("heading".to_string(), loc(35)))
+                .unwrap().plain_text(),
+            "3"
+        );
+    }
+
+    #[test]
+    fn p241_apply_counter_displays_counter_inexistente_array_vazio() {
+        // Counter key não inicializada → value_at None → callback recebe
+        // Value::Array(vec![]) (vector vazio); sem callback → Content::Empty.
+        fn array_len_callback(
+            _ctx: &mut crate::rules::eval::EvalContext,
+            args: &crate::entities::args::Args,
+            _world: &dyn crate::contracts::world::World,
+            _current_file: crate::entities::file_id::FileId,
+            _figure_numbering: Option<&str>,
+        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
+            match args.items.first() {
+                Some(Value::Array(items)) => Ok(Value::Str(format!("len={}", items.len()).into())),
+                _ => Ok(Value::Str("?".into())),
+            }
+        }
+        let f = Func::native("array_len_callback", array_len_callback);
+        let mut intr = TagIntrospector::empty();
+        let tags = vec![
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::CounterDisplay {
+                    key:      "inexistente".to_string(),
+                    callback: Some(f),
+                }),
+            ),
+            Tag::End(loc(20), 0),
+        ];
+        let world = make_world();
+        with_engine!(&world, |engine, ctx| {
+            apply_counter_displays(&tags, &mut intr, &mut engine, &mut ctx);
+        });
+        let pre = intr.counter_displays
+            .get(&("inexistente".to_string(), loc(20)))
+            .expect("counter_displays populated mesmo com key ausente");
+        // Callback recebeu Array vazio → "len=0".
+        assert_eq!(pre.plain_text(), "len=0");
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash 9d104444
+//! @prompt-hash 3940e285
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -233,7 +233,10 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::StateUpdate { .. }
         // P240 (M9d/M7+1): StateDisplay terminal em materialize_time —
         // resolução real via apply_state_displays + layout arm.
-        | Content::StateDisplay { .. } => content.clone(),
+        | Content::StateDisplay { .. }
+        // P241 (M9d/M7+2): CounterDisplayCallback terminal paralelo
+        // StateDisplay; resolução real via apply_counter_displays.
+        | Content::CounterDisplayCallback { .. } => content.clone(),
         // Passo 156C (ADR-0061 Fase 1) — pad / hide containers.
         // Materialize_time desce no body para resolver counters dentro;
         // padding e o invariante "hide" preservam-se.
@@ -678,6 +681,14 @@ fn populate_intr_from_tag_start(
             // (paralelo `apply_state_funcs` — requer Engine+ctx).
             intr.kind_index
                 .entry(ElementKind::StateDisplay)
+                .or_default()
+                .push(loc);
+        }
+        ElementPayload::CounterDisplay { .. } => {
+            // P241 (M9d/M7+2): paralelo absoluto StateDisplay; valor
+            // pre-rendered em `apply_counter_displays` pós-walk.
+            intr.kind_index
+                .entry(ElementKind::CounterDisplay)
                 .or_default()
                 .push(loc);
         }
@@ -1135,7 +1146,11 @@ pub(crate) fn walk(
         | Content::StateUpdate { .. }
         // P240 (M9d/M7+1): StateDisplay terminal. Tag emitido no topo
         // via extract_payload; valor pre-rendered em apply_state_displays.
-        | Content::StateDisplay { .. } => {}
+        | Content::StateDisplay { .. }
+        // P241 (M9d/M7+2): CounterDisplayCallback terminal paralelo
+        // StateDisplay; tag emitido no topo via extract_payload; valor
+        // pre-rendered em apply_counter_displays.
+        | Content::CounterDisplayCallback { .. } => {}
 
         // Passo 154B — Terms / TermItem: descem em items para que filhos
         // com contadores ou labels sejam processados.

@@ -236,3 +236,60 @@ valor pós-`apply_state_funcs` Funcs cumulativos), `state_display`
 beneficia da convergência fixpoint: callback recebe state value
 cumulativo correcto no ponto de location-monotónica do walk.
 Paridade vanilla `state.display(fn)`.
+
+## `counter_display(key, [callback])` — Passo 241 (M9d/M7+2; ADR-0081 IMPLEMENTADO parcial paralelo absoluto P240)
+
+Render-mediated counter display real walk-time. **Paralelo
+absoluto** a `state_display(key, [callback])` P240. Constroi
+`Content::CounterDisplayCallback { key, callback }` que walk
+emite como `Tag::Start(loc, ElementInfo::new(ElementPayload::
+CounterDisplay { key, callback }))` via `extract_payload`.
+Pós-fixpoint, `apply_counter_displays` (em
+`rules/introspect/from_tags.rs`) converte
+`intr.counters.value_at(key, loc)` para
+`Value::Array(Vec<Value::Int>)` e chama
+`apply_func(callback, [array], ctx, engine)` com Engine+ctx
+disponíveis. Resultado Content armazenado em
+`intr.counter_displays[(key, loc)]`. Layout arm consome via
+`Introspector::counter_display_value(key, loc)` — Layouter
+permanece puro.
+
+```rust
+pub fn native_counter_display(
+    _ctx:                &mut EvalContext,
+    args:                &Args,
+    _world:              &dyn World,
+    _current_file:       FileId,
+    _figure_numbering:   Option<&str>,
+) -> SourceResult<Value>
+```
+
+**Formas aceites**:
+- **1-arg `counter_display(key: Str)`** — callback ausente;
+  pós-fixpoint formata snapshot default "1.2.3" via join "."
+  (paridade `formatted_counter_at` P177). Counter inexistente:
+  `Content::Empty`.
+- **2-arg `counter_display(key: Str, callback: Func)`** —
+  callback recebe `Value::Array(Vec<Value::Int>)` (counter
+  state actual); resultado convertido para Content paridade
+  `state_display` P240.
+
+**Casos canónicos**:
+```
+counter_display([Str("heading")])                          → Ok(Value::Content(Content::CounterDisplayCallback { key: "heading", callback: None }))
+counter_display([Str("figure"), Func(fn)])                 → Ok(Value::Content(Content::CounterDisplayCallback { key: "figure", callback: Some(fn) }))
+counter_display([Int(1)])                                  → Err (key não-string)
+counter_display([Str("k"), Int(1)])                        → Err (callback não-Func)
+counter_display([])                                        → Err (0 args)
+counter_display([Str("k"), Func(f), Int(1)])               → Err (3 args)
+```
+
+**Pipeline two-pass real**: identicamente a `state_display` P240,
+`counter_display` beneficia da convergência fixpoint via
+`apply_counter_displays` pós-walk com Engine+ctx. Callback
+recebe snapshot counter state cumulativo location-monotónica.
+Paridade vanilla `counter("heading").display(fn)`.
+
+**Distinto de `Content::CounterDisplay { kind }` legacy
+single-pass** — variant nova paralela; legacy preservada para
+display simples sem callback no Layouter directo.

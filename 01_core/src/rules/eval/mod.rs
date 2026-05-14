@@ -556,7 +556,7 @@ fn make_stdlib() -> Scope {
         make_calc_module, native_align, native_assert, native_bibliography, native_block, native_box, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
-        native_counter_at, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
+        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_colbreak, native_columns, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_scale, native_skew, native_stack, native_str, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_upper, native_v,
     };
@@ -616,6 +616,13 @@ fn make_stdlib() -> Scope {
     // ctx, engine). Layouter consome via Introspector::state_display_value
     // (Layouter permanece puro — Opção γ vs α/β/δ P239 audit).
     scope.define("state_display", Value::Func(Func::native("state_display", native_state_display)));
+    // P241 (M9d/M7+2; ADR-0081 IMPLEMENTADO parcial M7+2 paralelo P240):
+    // counter_display(key, [callback]) — render-mediated counter display
+    // real walk-time. Walk emite `Content::CounterDisplayCallback` tag;
+    // `apply_counter_displays` pós-fixpoint converte counter slice para
+    // Value::Array e aplica callback. Distinto de Content::CounterDisplay
+    // { kind } legacy single-pass.
+    scope.define("counter_display", Value::Func(Func::native("counter_display", native_counter_display)));
     // P175 (M9 sub-passo 5): query(kind_str) — consulta ctx.introspector
     // da iter de fixpoint anterior. Retorna Value::Int(count) — forma
     // minimal sem Value::Location.

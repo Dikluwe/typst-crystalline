@@ -63,6 +63,15 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
             callback: callback.clone(),
         }),
 
+        // P241 (M9d/M7+2) — counter.display(key, callback) feature
+        // paralelo absoluto StateDisplay. Walk emite Tag aqui;
+        // `apply_counter_displays` pós-fixpoint converte counter
+        // slice para Value::Array e aplica callback.
+        Content::CounterDisplayCallback { key, callback } => Some(ElementPayload::CounterDisplay {
+            key:      key.clone(),
+            callback: callback.clone(),
+        }),
+
         // P182C (M9) — SetHeadingNumbering emite StateUpdate sob chave
         // canónica `numbering_active:heading`. Reusa infra P171/P173 —
         // sem novo ElementPayload variant; `from_tags` arm StateUpdate

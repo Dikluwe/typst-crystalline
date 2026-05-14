@@ -334,3 +334,175 @@ Sub-passo NÃO merece L0 tocado se é:
 - Refactor aditivo +1 field/variant cosmético.
 - Eval-time wrapper trivial paralelo existing.
 - Renderização Z-order extension paridade existing.
+
+---
+
+## Excepção P241 — segunda aplicação cumulativa (N=2)
+
+**Data**: 2026-05-14.
+
+**Segunda excepção justificada à aplicação automática ADR-0080
+EM VIGOR pós-P229** (paralela absoluta P240). Pattern emergente
+"L0 tocado para features runtime novas + walk integration"
+N=1 → **2 cumulativo** (P240 + P241).
+
+P241 materializa M7+2 (M9d segundo sub-passo; ADR-0081
+IMPLEMENTADO parcial 1/5 → 2/5) — paralelo absoluto P240 M7+1
+substituindo `state_display` por `counter_display`:
+
+- `Content::CounterDisplayCallback { key, callback }` variant
+  novo (distinto de `Content::CounterDisplay { kind }` legacy
+  single-pass que coexiste).
+- `ElementPayload::CounterDisplay { key, callback }` variant
+  novo.
+- `ElementKind::CounterDisplay` variant novo.
+- `apply_counter_displays` fixpoint function nova (paralelo
+  absoluto `apply_state_displays` P240).
+- `Introspector::counter_display_value` trait method novo +
+  impl em `TagIntrospector` + `CountingIntrospector` adapter.
+- `TagIntrospector.counter_displays:
+  HashMap<(String, Location), Content>` storage novo.
+- `native_counter_display(key, [callback])` stdlib func nova.
+- Walk integration layout-time arm
+  `Content::CounterDisplayCallback`.
+
+**~6 entidades novas cumulativas** — não-trivial estructural;
+paridade absoluta P240; pattern de excepção justificada
+cristalizado. **L0 partial tocado** (3 ficheiros paralelos P240):
+- `00_nucleo/prompts/entities/content.md` — bloco
+  `Content::CounterDisplayCallback` documentado.
+- `00_nucleo/prompts/rules/stdlib.md` — bloco
+  `counter_display(key, [callback])` documentado.
+- `00_nucleo/prompts/rules/introspect.md` — bloco
+  `apply_counter_displays` + `Introspector::counter_display_value`
+  documentado.
+
+**Pattern "L0 tocado para features runtime novas + walk
+integration" N=1 → 2 cumulativo** (P240 + P241). N=2 atinge
+limiar formalização N=3-4 marginal; promoção a sub-categoria
+ADR-0080 candidata se N=3 atinge em sub-passo M7+ futuro.
+
+**Critério §"Excepção P240" preservado literal**: ambas as
+aplicações N=2 satisfazem critério "4+ entidades novas cumulativas
++ walk integration arquitectural + pipeline restructuring +
+feature M-fase nova". Pattern cristalizado.
+
+---
+
+## Excepção P242 — terceira aplicação cumulativa (N=3, sub-categoria geometry/exporter)
+
+**Data**: 2026-05-14.
+
+**Terceira excepção justificada à aplicação automática ADR-0080
+EM VIGOR pós-P229**. **Sub-categoria diferente** de P240/P241
+(walk-time runtime integration): P242 é **"L0 tocado para
+geometry/exporter infrastructure"** — distinta semânticamente
+mas justificada pelo mesmo critério estructural (4+ entidades
+novas + cross-camada L1/L3).
+
+P242 materializa M7+5 (M9d terceiro sub-passo; ADR-0081
+IMPLEMENTADO parcial 2/5 → 3/5):
+
+- `Corners<T>` tipo entity novo em `01_core/src/entities/corners.rs`
+  (paralelo `Sides<T>`; sub-padrão #14 "Tipo entity em ficheiro
+  próprio" N=5 → 6 cumulativo).
+- `ShapeKind::RoundedRect { radii: Corners<Length> }` variant
+  novo em `entities/geometry.rs`.
+- **Refino tipo** `Content::Block.radius` + `Content::Boxed.radius`
+  `Option<Length>` → `Corners<Length>` (per-corner; promoção real
+  de scope-out P231 graded).
+- `extract_corners_length_value` helper novo em
+  `rules/stdlib/layout.rs` (paralelo `extract_sides_lengths`).
+- stdlib `block(radius:)` + `box(radius:)` aceitam Length uniforme
+  OR Dict por canto.
+- Layouter Block arm emite `FrameItem::Group { clip_mask:
+  Some(ShapeKind::RoundedRect { radii }) }` quando `clip == true`.
+- PDF exporter `emit_rounded_rect_ops` helper novo desenha
+  Bezier 4 corners path em 5 sítios cross-arm.
+
+**~6 entidades novas cumulativas + cross-camada L1/L3** —
+estrutural; promoção real graded de scope-out P156G/H P231.
+
+**L0 partial tocado P242** (4 ficheiros — sub-categoria
+geometry/exporter distinta de P240/P241):
+- `00_nucleo/prompts/entities/corners.md` (**ficheiro novo**).
+- `00_nucleo/prompts/entities/geometry.md` — secção
+  `ShapeKind::RoundedRect`.
+- `00_nucleo/prompts/entities/content.md` — refino
+  `Block.radius` + `Boxed.radius` + materialização clip semantic.
+- `00_nucleo/prompts/infra/export.md` — secção rounded-rect
+  clip path.
+
+**Sub-padrão emergente "promoção real scope-out ADR-0054 graded"
+N=1 inaugurado P242** — distinto de:
+- Refino qualitativo (P156L Pad sides Length → Option<Length>).
+- Refactor cosmético (P158C Figure.kind String → Option<String>).
+- **Sub-categoria nova**: scope-out P156G/H P231 "semantic adiada"
+  → semantic concreta P242 + render PDF real.
+
+**Pattern "L0 tocado para features runtime + walk integration"**
+N=2 preservado (P240+P241) — **NÃO incrementa P242** por ser
+sub-categoria diferente. Pattern emergente cumulativo total
+"L0 tocado pós-P229 (sub-categorias)": **N=3 cumulativo** (P240,
+P241, P242) com 2 sub-categorias formalizadas.
+
+**Pattern "aplicação automática ADR-0080 EM VIGOR" N=8 preservado**
+mas **não-incrementa P242** (excepção justificada documentada
+formalmente acima).
+
+---
+
+## Excepção P243 — quarta aplicação cumulativa (N=4, sub-categoria nova "Layouter internal refactor")
+
+**Data**: 2026-05-14.
+
+**Quarta excepção justificada à aplicação automática ADR-0080
+EM VIGOR pós-P229**. **Sub-categoria diferente** de P240/P241
+(walk-time runtime) E de P242 (geometry/exporter): P243 é
+**"Layouter internal refactor"** — distinta semanticamente por
+tocar estrutura interna do Layouter L1 sem walk-time integration
+nem cross-camada L1/L3.
+
+P243 materializa M7+3 fase (a) (M9d quarto sub-passo; ADR-0081
+IMPLEMENTADO parcial 3/5 → 4/5):
+
+- Extensão `Regions` struct: `backlog: Vec<Region>` + `last:
+  Option<Region>` fields novos (paridade vanilla literal).
+- `Regions::advance` method novo (fase (a): retorna None;
+  fase (b) consumirá backlog).
+- Promoção real ≥3 scope-outs via `regions.current.width`
+  save/restore:
+  - `Pad.right` scope-out P156C → semantic real P243.
+  - `Block.width` semantic adiada P156G → semantic real P243.
+  - `Boxed.width` semantic adiada P156H → semantic real P243.
+
+**~5 entidades novas cumulativas em L1 interno** (2 fields novos
++ 1 method novo + 3 scope-out promoções).
+
+**Audit C1 P243 finding material**: spec hipotetizou refactor
+profundo cross-module L+ (5-7 fields migrar + ~30-50 sítios
+adaptação). Reality empírica: refactor field-agregation já feito
+em P216A/P216B; P243 reduz para extensão de `Regions` existente.
+Magnitude real M (~2-3h) face L+ hipotetizado. **Sem `P243.div-N`**
+— paridade lição N=6 cumulativo precedente.
+
+**L0 partial tocado P243** (2 ficheiros — sub-categoria nova):
+- `00_nucleo/prompts/entities/region.md` — extensão `Regions`
+  backlog/last/advance + sub-padrão promoção real scope-out N=2.
+- `00_nucleo/prompts/entities/content.md` — secção promoção
+  scope-outs Pad.right + Block.width + Boxed.width.
+
+**Pattern emergente total "L0 tocado pós-P229 (sub-categorias)"**
+N=3 → **4 cumulativo** com **3 sub-categorias formalizadas**:
+- walk-time runtime (N=2 P240+P241).
+- geometry/exporter (N=1 P242).
+- **Layouter internal refactor (N=1 P243)** ← inaugurada.
+
+**Sub-padrão "promoção real scope-out ADR-0054 graded"** N=1 →
+**2 cumulativo** (P242 radius/clip + **P243 multi-region attrs
+Pad.right + Block.width + Boxed.width**). Atinge limiar
+formalização N=2 — candidato a ADR meta passo administrativo XS.
+
+**Pattern "aplicação automática ADR-0080 EM VIGOR" N=8 preservado**
+mas **não-incrementa P243** (excepção justificada documentada
+formalmente acima).

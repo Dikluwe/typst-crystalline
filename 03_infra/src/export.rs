@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export.md
-//! @prompt-hash 8edd13ad
+//! @prompt-hash c606a6ce
 //! @layer L3
 //! @updated 2026-04-20
 
@@ -871,6 +871,10 @@ fn build_page_stream_type1(
                         ops.push_str(&format!("{:.2} {:.2} {:.2} {:.2} re\n",
                             pos.x.val(), pdf_y, width, height));
                     }
+                    ShapeKind::RoundedRect { radii } => {
+                        // P242 — Bezier 4 corners (paridade Ellipse mesmo kappa).
+                        emit_rounded_rect_ops(&mut ops, pos.x.val(), pdf_y, *width, *height, radii);
+                    }
                     ShapeKind::Ellipse => {
                         // κ = 4*(√2−1)/3 ≈ 0.5523: minimiza erro de arredondamento para qualquer raio.
                         const KAPPA: f64 = 0.552_284_749_831;
@@ -994,6 +998,12 @@ fn emit_shape_path_local(ops: &mut String, kind: &typst_core::entities::geometry
         ShapeKind::Rect => {
             ops.push_str(&format!("0.00 {:.2} {:.2} {:.2} re\n", -height, width, height));
         }
+        ShapeKind::RoundedRect { radii } => {
+            // P242 (M9d / M7+5) — Bezier 4 corners path em espaço local
+            // (origem 0,0; Y invertido pela matriz cm). Coords iguais a
+            // ShapeKind::Rect: (0, -height, width, height).
+            emit_rounded_rect_ops(ops, 0.0, -height, width, height, radii);
+        }
         ShapeKind::Path(items) => {
             for item in items {
                 match item {
@@ -1013,6 +1023,87 @@ fn emit_shape_path_local(ops: &mut String, kind: &typst_core::entities::geometry
         }
         _ => {}
     }
+}
+
+/// **P242 (M9d / M7+5)** — emite operadores PDF para um rectângulo com
+/// cantos arredondados via Bezier 4 corners (paridade vanilla
+/// `typst-pdf/.../shape.rs::draw_rounded_rect`).
+///
+/// Coordenadas em sistema PDF (Y crescente para cima). `(x, y)` é o
+/// canto inferior-esquerdo; `w` largura; `h` altura positivos. `radii`
+/// em `Corners<Length>` (top_left/top_right/bottom_right/bottom_left
+/// sentido horário começando top-left).
+///
+/// **Bezier kappa = 0.552_284_749_831** (paridade `ShapeKind::Ellipse`
+/// neste mesmo ficheiro). Quarto de círculo aproximado com 2 control
+/// points por canto.
+///
+/// **Output**: sequência `m` (move) + `l` (line) + `c` (cubic) + `h`
+/// (closePath) — formato compatível com `B`/`S`/`W n` paint operators.
+fn emit_rounded_rect_ops(
+    ops: &mut String,
+    x: f64, y: f64, w: f64, h: f64,
+    radii: &typst_core::entities::corners::Corners<typst_core::entities::layout_types::Length>,
+) {
+    const K: f64 = 0.552_284_749_831;
+    // Resolver Length → f64 pt (em = 0 para clip_mask; valores absolutos).
+    // Clamp cada raio a metade da menor dimensão (paridade vanilla evita
+    // overflow geométrico).
+    let max_r = (w.min(h)) / 2.0;
+    let tl = radii.top_left.abs.0.clamp(0.0, max_r);
+    let tr = radii.top_right.abs.0.clamp(0.0, max_r);
+    let br = radii.bottom_right.abs.0.clamp(0.0, max_r);
+    let bl = radii.bottom_left.abs.0.clamp(0.0, max_r);
+
+    // Sentido horário em PDF coords (Y para cima). Sequência:
+    // start top-left edge → top edge → top-right corner → right edge →
+    // bottom-right corner → bottom edge → bottom-left corner → left edge →
+    // top-left corner → close.
+    let x_left   = x;
+    let x_right  = x + w;
+    let y_top    = y + h;
+    let y_bottom = y;
+
+    // MoveTo: começa no início da edge top (após canto top-left).
+    ops.push_str(&format!("{:.3} {:.3} m\n", x_left + tl, y_top));
+    // Linha top edge.
+    ops.push_str(&format!("{:.3} {:.3} l\n", x_right - tr, y_top));
+    // Cubic top-right corner.
+    if tr > 0.0 {
+        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+            x_right - tr + tr * K, y_top,
+            x_right,               y_top - tr + tr * K,
+            x_right,               y_top - tr));
+    }
+    // Linha right edge.
+    ops.push_str(&format!("{:.3} {:.3} l\n", x_right, y_bottom + br));
+    // Cubic bottom-right corner.
+    if br > 0.0 {
+        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+            x_right,               y_bottom + br - br * K,
+            x_right - br + br * K, y_bottom,
+            x_right - br,          y_bottom));
+    }
+    // Linha bottom edge.
+    ops.push_str(&format!("{:.3} {:.3} l\n", x_left + bl, y_bottom));
+    // Cubic bottom-left corner.
+    if bl > 0.0 {
+        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+            x_left + bl - bl * K, y_bottom,
+            x_left,               y_bottom + bl - bl * K,
+            x_left,               y_bottom + bl));
+    }
+    // Linha left edge.
+    ops.push_str(&format!("{:.3} {:.3} l\n", x_left, y_top - tl));
+    // Cubic top-left corner.
+    if tl > 0.0 {
+        ops.push_str(&format!("{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
+            x_left,               y_top - tl + tl * K,
+            x_left + tl - tl * K, y_top,
+            x_left + tl,          y_top));
+    }
+    // Fecha o path.
+    ops.push_str("h\n");
 }
 
 /// Desenha um `FrameItem` em espaço LOCAL (após `cm`).
@@ -1038,6 +1129,10 @@ fn draw_item_local(ops: &mut String, item: &FrameItem) {
                 ShapeKind::Rect => {
                     ops.push_str(&format!("{:.2} {:.2} {:.2} {:.2} re\n",
                         pos.x.0, local_y, width, height));
+                }
+                ShapeKind::RoundedRect { radii } => {
+                    // P242 — Bezier 4 corners em espaço local.
+                    emit_rounded_rect_ops(&mut *ops, pos.x.0, local_y, *width, *height, radii);
                 }
                 ShapeKind::Ellipse => {
                     const KAPPA: f64 = 0.552_284_749_831;
@@ -1281,6 +1376,10 @@ fn build_page_stream_cidfont(
                         ops.push_str(&format!("{:.2} {:.2} {:.2} {:.2} re\n",
                             pos.x.val(), pdf_y, width, height));
                     }
+                    ShapeKind::RoundedRect { radii } => {
+                        // P242 — Bezier 4 corners path (paridade arm shape global).
+                        emit_rounded_rect_ops(&mut ops, pos.x.val(), pdf_y, *width, *height, radii);
+                    }
                     ShapeKind::Ellipse => {
                         const KAPPA: f64 = 0.552_284_749_831;
                         let cx = pos.x.val() + width  / 2.0;
@@ -1458,6 +1557,10 @@ fn build_page_stream_multifont(
                     ShapeKind::Rect => {
                         ops.push_str(&format!("{:.2} {:.2} {:.2} {:.2} re\n",
                             pos.x.val(), pdf_y, width, height));
+                    }
+                    ShapeKind::RoundedRect { radii } => {
+                        // P242 — Bezier 4 corners path (paridade arm shape global).
+                        emit_rounded_rect_ops(&mut ops, pos.x.val(), pdf_y, *width, *height, radii);
                     }
                     ShapeKind::Ellipse => {
                         const KAPPA: f64 = 0.552_284_749_831;
