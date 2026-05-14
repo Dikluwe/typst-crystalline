@@ -31,6 +31,12 @@ pub fn is_locatable(content: &Content) -> bool {
         Content::State { .. } => true,
         Content::StateUpdate { .. } => true,
 
+        // ── Locatable em P240 (M9d/M7+1) — StateDisplay. Walk emite
+        // tag para que `apply_state_displays` pre-renderize Content
+        // resultado callback pós-fixpoint; layout arm consome via
+        // `state_display_value`.
+        Content::StateDisplay { .. } => true,
+
         // ── Locatable em P178 — Outline fecha lacuna #7 ────────────
         Content::Outline => true,
 

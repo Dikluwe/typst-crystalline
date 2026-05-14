@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/stdlib` — Biblioteca Padrão Intrínseca
-Hash do Código: 6e6c49e4
+Hash do Código: 5cfe11d2
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib.rs`
@@ -187,3 +187,52 @@ calc_clamp([Int(-5), Int(0), Int(10)])  → Ok(Int(0))
 calc_clamp([Int(15), Int(0), Int(10)])  → Ok(Int(10))
 calc_clamp([Float(5.0), Float(10.0), Float(0.0)]) → Err (min > max)
 ```
+
+## `state_display(key, [callback])` — Passo 240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ)
+
+Render-mediated state display real walk-time. Constroi
+`Content::StateDisplay { key, callback }` que walk emite como
+`Tag::Start(loc, ElementInfo::new(ElementPayload::StateDisplay
+{ key, callback }))` via `extract_payload`. Pós-fixpoint,
+`apply_state_displays` (em `rules/introspect/from_tags.rs`)
+chama `apply_func(callback, [state.value_at(key, loc)], ctx,
+engine)` com Engine+ctx disponíveis e armazena Content
+resultado em `intr.state_displays[(key, loc)]`. Layout arm
+consome via `Introspector::state_display_value(key, loc)` —
+Layouter permanece puro.
+
+```rust
+pub fn native_state_display(
+    _ctx:                &mut EvalContext,
+    args:                &Args,
+    _world:              &dyn World,
+    _current_file:       FileId,
+    _figure_numbering:   Option<&str>,
+) -> SourceResult<Value>
+```
+
+**Formas aceites**:
+- **1-arg `state_display(key: Str)`** — callback ausente; pós-fixpoint
+  renderiza value directo (`Value::Content(c)` passa-through;
+  `Value::Str(s)` via `Content::text`; outros tipos
+  `Content::Empty`).
+- **2-arg `state_display(key: Str, callback: Func)`** — callback
+  aplicada ao value; resultado convertido para Content pela
+  mesma regra.
+
+**Casos canónicos**:
+```
+state_display([Str("k")])                                → Ok(Value::Content(Content::StateDisplay { key: "k", callback: None }))
+state_display([Str("k"), Func(fn)])                      → Ok(Value::Content(Content::StateDisplay { key: "k", callback: Some(fn) }))
+state_display([Int(1)])                                  → Err (key não-string)
+state_display([Str("k"), Int(1)])                        → Err (callback não-Func)
+state_display([])                                        → Err (0 args)
+state_display([Str("k"), Func(f), Int(1)])               → Err (3 args)
+```
+
+**Pipeline two-pass real**: identicamente ao `state_final`
+(P236 — `state.final_value` retorna `history.last()` que reflete
+valor pós-`apply_state_funcs` Funcs cumulativos), `state_display`
+beneficia da convergência fixpoint: callback recebe state value
+cumulativo correcto no ponto de location-monotónica do walk.
+Paridade vanilla `state.display(fn)`.

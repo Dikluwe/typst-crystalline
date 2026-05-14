@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: e4d7b3d1
+Hash do Código: dcbfb78f
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -1043,3 +1043,33 @@ agora **P156J (repeat.gap)**. Sexta aplicação consecutiva —
 emergiu como vocabulário canónico para coerção de Length em
 named args. Promoção a helper público em release futuro
 (refactor scope-out).
+
+## Variante `Content::StateDisplay` — Passo 240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ)
+
+```rust
+Content::StateDisplay {
+    key:      String,
+    callback: Option<crate::entities::func::Func>,
+}
+```
+
+Render-mediated state display vanilla `state.display(callback)`.
+Walk emite Tag via `extract_payload` arm; `apply_state_displays`
+pós-fixpoint (paralelo `apply_state_funcs` P191B) pre-renderiza
+Content via `apply_func(callback, [value], ctx, engine)` e
+armazena em `Introspector.state_displays[(key, loc)]`. Layout
+arm consome via `Introspector::state_display_value(key, loc)`
+— Layouter permanece puro (sem Engine+ctx em signature; paridade
+arquitectural estrita Opção γ vs α/β/δ P239 audit).
+
+**`callback: None`**: state value renderiza directo
+(`Value::Content(c)` passa-through; `Value::Str(s)` via
+`Content::text(s)`; outros tipos fallback `Content::Empty`).
+**`callback: Some(func)`**: aplicada ao value via apply_func;
+resultado convertido para Content pela mesma regra.
+
+**Primeira excepção justificada à aplicação automática
+ADR-0080 EM VIGOR pós-P229** — feature runtime nova + walk
+integration merece L0 tocado partial (este bloco + bloco
+`state_display` em `rules/stdlib.md` + bloco `apply_state_displays`
+em `rules/introspect.md`).

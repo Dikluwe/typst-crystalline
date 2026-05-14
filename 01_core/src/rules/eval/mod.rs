@@ -556,7 +556,7 @@ fn make_stdlib() -> Scope {
         make_calc_module, native_align, native_assert, native_bibliography, native_block, native_box, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
-        native_counter_at, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_at, native_state_final, native_state_update, native_state_update_with,
+        native_counter_at, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_colbreak, native_columns, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_scale, native_skew, native_stack, native_str, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_upper, native_v,
     };
@@ -609,6 +609,13 @@ fn make_stdlib() -> Scope {
     // P172 (M9 sub-passo 4): state_update_with(key, fn) — callback variant.
     // **Stub**: from_tags ignora Func variant até pipeline restructuring.
     scope.define("state_update_with", Value::Func(Func::native("state_update_with", native_state_update_with)));
+    // P240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ):
+    // state_display(key, [callback]) — render-mediated state display real
+    // walk-time. Walk emite `Content::StateDisplay` tag; `apply_state_displays`
+    // pós-fixpoint pre-renderiza Content via apply_func(callback, [value],
+    // ctx, engine). Layouter consome via Introspector::state_display_value
+    // (Layouter permanece puro — Opção γ vs α/β/δ P239 audit).
+    scope.define("state_display", Value::Func(Func::native("state_display", native_state_display)));
     // P175 (M9 sub-passo 5): query(kind_str) — consulta ctx.introspector
     // da iter de fixpoint anterior. Retorna Value::Int(count) — forma
     // minimal sem Value::Location.

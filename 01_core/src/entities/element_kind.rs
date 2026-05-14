@@ -44,6 +44,11 @@ pub enum ElementKind {
     /// CounterRegistry via `apply_at` (flat) ou `apply_hierarchical_at`
     /// (key="heading"). Suporta E6 fechar estruturalmente.
     CounterUpdate,
+    /// **P240 (M9d/M7+1)** — `Content::StateDisplay` promovido a
+    /// locatable. Indexa locations de StateDisplay em `kind_index`;
+    /// valor pre-rendered é produzido em `apply_state_displays`
+    /// pós-fixpoint (paralelo `apply_state_funcs` P191B).
+    StateDisplay,
 }
 
 impl ElementKind {
@@ -60,6 +65,7 @@ impl ElementKind {
             ElementKind::Bibliography  => "bibliography",
             ElementKind::Equation      => "equation",
             ElementKind::CounterUpdate => "counter_update",
+            ElementKind::StateDisplay  => "state_display",
         }
     }
 
@@ -78,6 +84,7 @@ impl ElementKind {
             "bibliography"   => Some(ElementKind::Bibliography),
             "equation"       => Some(ElementKind::Equation),
             "counter_update" => Some(ElementKind::CounterUpdate),
+            "state_display"  => Some(ElementKind::StateDisplay),
             _                => None,
         }
     }

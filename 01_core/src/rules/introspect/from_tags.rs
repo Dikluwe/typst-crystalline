@@ -77,6 +77,66 @@ pub fn apply_state_funcs(
     }
 }
 
+/// **P240 (M9d/M7+1)** — slim post-pass para `Content::StateDisplay`
+/// pre-render via Opção γ (per ADR-0081 PROPOSTO + P239 audit §3.2).
+///
+/// Paralelo absoluto a `apply_state_funcs`:
+/// - Walk fn emite `Tag::Start(loc, ElementPayload::StateDisplay {
+///   key, callback })` via `extract_payload`.
+/// - Esta função processa Tags pós-walk + pós-`apply_state_funcs` (que
+///   já materializou state values cumulativos), com Engine+ctx
+///   disponíveis.
+/// - Para cada `(key, loc)`: lookup `intr.state.value_at(key, loc)` →
+///   se `callback.is_some()`, chama `apply_func(callback, [value],
+///   ctx, engine)` → resultado convertido para `Content` →
+///   armazenado em `intr.state_displays[(key, loc)]`.
+/// - Layout arm `Content::StateDisplay` consome via
+///   `Introspector::state_display_value` — Layouter permanece puro
+///   (sem Engine+ctx em signature; paridade arquitectural Opção γ).
+///
+/// **Caller**: `fixpoint::run_fixpoint` (após `apply_state_funcs`).
+/// **Conversão Value→Content** inline: `Value::Content(c) => c;
+/// Value::Str(s) => Content::text(s); _ => Content::Empty` (paridade
+/// `figure_image.rs:59-72` + `eval/rules.rs:134-146`).
+///
+/// **Err em apply_func**: defensive ignore (paridade P191B
+/// `apply_state_funcs`). Refino futuro pode propagar via Sink.
+pub fn apply_state_displays(
+    tags:   &[Tag],
+    intr:   &mut TagIntrospector,
+    engine: &mut Engine<'_>,
+    ctx:    &mut EvalContext,
+) {
+    use crate::entities::content::Content;
+    use crate::entities::value::Value;
+    for tag in tags {
+        if let Tag::Start(loc, info) = tag {
+            if let ElementPayload::StateDisplay { key, callback } = &info.payload {
+                let value = intr.state.value_at(key, *loc).cloned()
+                    .unwrap_or(Value::None);
+                let pre_rendered = match callback {
+                    Some(func) => {
+                        let args = Args::positional(vec![value]);
+                        match apply_func(func.clone(), args, ctx, engine) {
+                            Ok(Value::Content(c))  => c,
+                            Ok(Value::Str(s))      => Content::text(s.as_str()),
+                            Ok(_)                  => Content::Empty,
+                            Err(_)                 => Content::Empty,
+                        }
+                    }
+                    None => match value {
+                        Value::Content(c) => c,
+                        Value::Str(s)     => Content::text(s.as_str()),
+                        _                 => Content::Empty,
+                    },
+                };
+                intr.state_displays
+                    .insert((key.clone(), *loc), pre_rendered);
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -269,5 +329,200 @@ mod tests {
             apply_state_funcs(&tags, &mut intr, &mut engine, &mut ctx);
         });
         assert_eq!(intr.state.final_value("c"), Some(&Value::Int(10)));
+    }
+
+    // ── Passo 240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ) —
+    //     apply_state_displays paralelo apply_state_funcs ──
+
+    #[test]
+    fn p240_apply_state_displays_sem_callback_renderiza_value() {
+        // Sem callback: state value renderiza directo (Value::Str via
+        // Content::text; outros tipos Content::Empty).
+        let mut intr = TagIntrospector::empty();
+        intr.state.init("k".to_string(), Value::Str("hello".into()), loc(10));
+        let tags = vec![
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::StateDisplay {
+                    key:      "k".to_string(),
+                    callback: None,
+                }),
+            ),
+            Tag::End(loc(20), 0),
+        ];
+        let world = make_world();
+        with_engine!(&world, |engine, ctx| {
+            apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
+        });
+        let pre = intr.state_displays
+            .get(&("k".to_string(), loc(20)))
+            .expect("state_displays populated");
+        assert_eq!(pre.plain_text(), "hello");
+    }
+
+    #[test]
+    fn p240_apply_state_displays_com_callback_aplica_func() {
+        // Callback add_one aplicado a state value 41 → Content::text("42")
+        // (via fallback Value::Int → Content::Empty se não Content/Str;
+        // mas add_one retorna Int, então `_ => Content::Empty`).
+        // Para teste material, callback retorna Str.
+        fn str_callback(
+            _ctx: &mut crate::rules::eval::EvalContext,
+            args: &crate::entities::args::Args,
+            _world: &dyn crate::contracts::world::World,
+            _current_file: crate::entities::file_id::FileId,
+            _figure_numbering: Option<&str>,
+        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
+            match args.items.first() {
+                Some(Value::Int(n)) => Ok(Value::Str(format!("v={}", n).into())),
+                _ => Ok(Value::Str("v=?".into())),
+            }
+        }
+        let f = Func::native("str_callback", str_callback);
+        let mut intr = TagIntrospector::empty();
+        intr.state.init("k".to_string(), Value::Int(42), loc(10));
+        let tags = vec![
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::StateDisplay {
+                    key:      "k".to_string(),
+                    callback: Some(f),
+                }),
+            ),
+            Tag::End(loc(20), 0),
+        ];
+        let world = make_world();
+        with_engine!(&world, |engine, ctx| {
+            apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
+        });
+        let pre = intr.state_displays
+            .get(&("k".to_string(), loc(20)))
+            .expect("state_displays populated");
+        assert_eq!(pre.plain_text(), "v=42");
+    }
+
+    #[test]
+    fn p240_apply_state_displays_callback_erro_retorna_content_empty() {
+        // Func que sempre retorna Err → defensive ignore (Content::Empty).
+        fn err_callback(
+            _ctx: &mut crate::rules::eval::EvalContext,
+            _args: &crate::entities::args::Args,
+            _world: &dyn crate::contracts::world::World,
+            _current_file: crate::entities::file_id::FileId,
+            _figure_numbering: Option<&str>,
+        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
+            Err(vec![
+                crate::entities::source_result::SourceDiagnostic::error(
+                    crate::entities::span::Span::detached(),
+                    "test error",
+                ),
+            ])
+        }
+        let f = Func::native("err_callback", err_callback);
+        let mut intr = TagIntrospector::empty();
+        intr.state.init("k".to_string(), Value::Int(1), loc(10));
+        let tags = vec![
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::StateDisplay {
+                    key:      "k".to_string(),
+                    callback: Some(f),
+                }),
+            ),
+            Tag::End(loc(20), 0),
+        ];
+        let world = make_world();
+        with_engine!(&world, |engine, ctx| {
+            apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
+        });
+        let pre = intr.state_displays
+            .get(&("k".to_string(), loc(20)))
+            .expect("state_displays populated mesmo com Err defensive ignore");
+        // Content::Empty.plain_text() == ""
+        assert_eq!(pre.plain_text(), "");
+    }
+
+    #[test]
+    fn p240_apply_state_displays_locations_diferentes_valores_diferentes() {
+        // 2 updates Set + 2 StateDisplay tags em locations diferentes.
+        // Cada display deve ver o valor cumulativo correspondente ao loc.
+        let mut intr = TagIntrospector::empty();
+        intr.state.init("k".to_string(), Value::Str("init".into()), loc(10));
+        intr.state.update("k".to_string(), Value::Str("mid".into()), loc(15));
+        intr.state.update("k".to_string(), Value::Str("end".into()), loc(25));
+        let tags = vec![
+            Tag::Start(
+                loc(12),
+                ElementInfo::new(ElementPayload::StateDisplay {
+                    key:      "k".to_string(),
+                    callback: None,
+                }),
+            ),
+            Tag::End(loc(12), 0),
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::StateDisplay {
+                    key:      "k".to_string(),
+                    callback: None,
+                }),
+            ),
+            Tag::End(loc(20), 0),
+            Tag::Start(
+                loc(30),
+                ElementInfo::new(ElementPayload::StateDisplay {
+                    key:      "k".to_string(),
+                    callback: None,
+                }),
+            ),
+            Tag::End(loc(30), 0),
+        ];
+        let world = make_world();
+        with_engine!(&world, |engine, ctx| {
+            apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
+        });
+        // loc 12 → init ainda (update mid em loc 15 não-aplicável).
+        assert_eq!(
+            intr.state_displays.get(&("k".to_string(), loc(12)))
+                .unwrap().plain_text(),
+            "init"
+        );
+        // loc 20 → mid (update em loc 15 aplicado).
+        assert_eq!(
+            intr.state_displays.get(&("k".to_string(), loc(20)))
+                .unwrap().plain_text(),
+            "mid"
+        );
+        // loc 30 → end (todos updates aplicados).
+        assert_eq!(
+            intr.state_displays.get(&("k".to_string(), loc(30)))
+                .unwrap().plain_text(),
+            "end"
+        );
+    }
+
+    #[test]
+    fn p240_apply_state_displays_state_inexistente_value_none() {
+        // State key não inicializada → value_at retorna None →
+        // Value::None.unwrap_or fallback → Content::Empty (None não é
+        // Content nem Str).
+        let mut intr = TagIntrospector::empty();
+        let tags = vec![
+            Tag::Start(
+                loc(20),
+                ElementInfo::new(ElementPayload::StateDisplay {
+                    key:      "inexistente".to_string(),
+                    callback: None,
+                }),
+            ),
+            Tag::End(loc(20), 0),
+        ];
+        let world = make_world();
+        with_engine!(&world, |engine, ctx| {
+            apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
+        });
+        let pre = intr.state_displays
+            .get(&("inexistente".to_string(), loc(20)))
+            .expect("state_displays populated mesmo com key ausente");
+        assert_eq!(pre.plain_text(), "");
     }
 }
