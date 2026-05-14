@@ -1957,6 +1957,776 @@ ADR-0079 §"Próximos passos". Próximo sub-passo Fase 5
 candidata pode pivot Categoria B (algorítmicos) / C
 (estruturais reabrindo) / D (runtime queries).
 
+⁵² — Ajuste P233 (Fase 5 Layout candidata Categoria B
+sub-passo 1 — DEBT-34d Auto track sizing fix; **DEBT-34d
+FECHADO**; saldo DEBTs 12 → 11; quarta aplicação automática
+ADR-0080 EM VIGOR; **P224.div-1 RESOLVIDA P233**):
+
+- P233 materializa B.1 fix DEBT-34d (preservado P224.div-1
+  há 18 sub-passos):
+  - **Algoritmo two-pass measure→place** inaugurado P233:
+    - Pass 1 (measure pre-pass): `measure_content_constrained`
+      per cell em tracks Auto; max → resolved_widths.
+    - Pass 2 (placement final): existing P224.C `place_cells`
+      com tamanhos pre-calculados.
+  - **Fix subset minimal** (atomização ADR-0036 aplicada):
+    `safe = if has_fr { safe_total / (num_auto + num_fr) }
+    else { safe_total }`. Auto cap-se quando há fr presente.
+  - **Zero fields novos** em Content variants; **zero novas
+    stdlib funcs**; refactor algorítmico puro inline em
+    `layout_grid` (Decisão 3 Opção β consolidar; sem novo
+    módulo per anti-inflação).
+  - 5 tests E2E P233 cobrindo Auto sem fr (baseline),
+    Auto+Fr mix (DEBT-34d fix), 2-Auto+1-Fr split,
+    Fixed+Auto+Fr combinação, Fixed baseline (regressão).
+
+- **8 decisões fixadas**:
+  - Decisão 1 — Opção α (audit C1: DEBT-34d unitário; sem
+    atomização DEBT-34d-rest necessária).
+  - Decisão 2 — Opção α algoritmo two-pass measure→place
+    standard vanilla.
+  - Decisão 3 — Opção β consolidar em `layout_grid` sem
+    novo módulo `track_sizing.rs`.
+  - Decisão 4 — Opção α distribuição remaining para fr
+    proporcional (split simples `safe_total / (num_auto +
+    num_fr)`).
+  - Decisão 5 — 5 tests E2E cobrindo cenários canónicos.
+  - Decisão 6 — Fecho DEBT-34d formal + referência cruzada
+    bidirecional DEBT.md ↔ P233 relatório.
+  - Decisão 7 — P224.div-1 RESOLVIDA P233 (anotação
+    retrospectiva).
+  - Decisão 8 — Opção γ L0 NÃO tocado automaticamente
+    (**quarta aplicação automática ADR-0080 EM VIGOR**).
+
+- **L0 NÃO tocado** — quarta aplicação automática ADR-0080
+  EM VIGOR pós-promoção P229. Pattern "aplicação automática
+  ADR EM VIGOR sem decisão explícita por sub-passo" N=3 →
+  **4 cumulativo** (P230+P231+P232+**P233**).
+
+- **DEBT-34d FECHADO P233** — saldo DEBTs 12 → **11** (-1).
+  Resolução completa do problema literal documentado
+  ("Auto guloso consome todo safe_available deixando 0pt
+  para fr") via subset minimal P233. Refino min-content/
+  max-content per cell é refino futuro candidato
+  independente (não-reservado).
+
+- **P224.div-1 RESOLVIDA P233** — divergência factual
+  material preservada conscientemente em P224 (DEBT-34d
+  preservado aberto) é agora **resolved**. Pattern
+  emergente "fecho retrospectivo de divergência factual
+  em sub-passo posterior" N=1 inaugurado P233.
+
+- **Patterns emergentes consolidados/inaugurados em P233**:
+  - **"L0 minimal para refactors" aplicação automática
+    pós-EM VIGOR** N=3 → **4 cumulativo**.
+  - **"Algoritmo two-pass measure→place" N=1 inaugurado
+    P233** — primeiro two-pass cristalino pós-M9c.
+  - **"Fecho de DEBT preservado conscientemente em
+    sub-passo posterior" N=1 inaugurado P233** —
+    DEBT-34d preservado 18 sub-passos pós-P224.div-1.
+  - **"Fecho retrospectivo de divergência factual em
+    sub-passo posterior" N=1 inaugurado P233** —
+    P224.div-1 RESOLVIDA.
+  - **25 aplicações cumulativas anti-inflação** pós-P205D.
+
+- 5 tests adicionados P233 (5 E2E layout); workspace
+  2106 → **2111 verdes** (+5). 0 adaptações intencionais
+  (algoritmo correcto preserva tests baseline). 0
+  regressões reais.
+
+- Sem reclassificação categórica §A.5 — `grid` já
+  `implementado⁺` cumulativo. Footnote ⁵² adiciona refino
+  qualitativo algoritmo Auto + fecho DEBT-34d.
+
+- **Distribuição ADRs preservada P229**: PROPOSTO 12;
+  EM VIGOR 29; IMPLEMENTADO 21; total 67.
+- **Saldo DEBTs**: 12 → **11 abertos** (DEBT-34d fechou).
+- **Cobertura Layout per metodologia**: **89% preservado**
+  (refino qualitativo P233; algoritmo correcto pós-fecho
+  DEBT-34d).
+
+**Categoria B Fase 5 Layout: 1/3 sub-passos materializados**
+(**B.1 DEBT-34d Auto track sizing ✓**; B.2 consumer
+geometric integration + B.3 per-cell algorítmico pendentes).
+
+⁵³ — Ajuste P234 (Fase 5 Layout candidata Categoria B
+sub-passo 2 — Consumer geometric `place_cells` → Layouter
+integration; quinta aplicação automática ADR-0080 EM VIGOR;
+**colspan/rowspan funcionais em renderização pela primeira
+vez pós-M9c**):
+
+- P234 materializa B.2 integração consumer geometric:
+  - **`layout_grid` passa a chamar `place_cells`** baseline
+    P224.C; obtém `Vec<PlacedCell>` em vez de iterar
+    `cells.chunks(num_cols)` direct.
+  - **Bounds reais per cell** via helper privado
+    `cell_bounds(placed, col_starts, resolved_widths,
+    row_heights, current_row_start_y) -> (x0, y0, w, h)`:
+    `cell_w = sum(resolved_widths[col..col+colspan])`;
+    `cell_h = sum(row_heights[row..row+rowspan])`.
+  - **Algoritmo three-pass measure→place→emit** inaugurado
+    P234 (extensão pattern two-pass P233): Pass 1 (P233
+    measure pre-pass Auto sizing); Pass 2 (P224.C
+    `place_cells` placement); Pass 3 (P234 emit final com
+    bounds reais).
+  - **PlacedCell.body refactorado P234** — preserva outer
+    cell (`Content::GridCell {...}` wrapper inteiro) em vez
+    de strip inner body. Consumer extrai per-cell stroke/
+    fill via match em `placed.body` preservando precedência
+    P230. **5 fields baseline preservados** (body/row/col/
+    colspan/rowspan); apenas semantic de `body` muda
+    (outer em vez de inner — paridade Decisão 2 spec).
+  - **cell_cache removido** — emissão pós-P234 itera placed
+    cells (não rows_of_items chunks); cells re-medidas
+    durante emissão (custo perf ~2× aceitável MVP;
+    re-integração cache indexada por input_idx é refino
+    futuro candidato).
+  - **Row_heights padding** quando num_rows_from_placed >
+    num_rows_produced (cells explicit com y maior ou
+    rowspan estendido): Fixed track resolved literal;
+    Auto/Fraction = 0pt (refino futuro candidato).
+
+- **8 decisões fixadas**:
+  - Decisão 1 — Opção α (integração completa; não Opção β
+    parcial nem γ refactor PlacedCell rejeitado P230).
+  - Decisão 2 — Opção α PlacedCell baseline 5 fields
+    literal; **semantic ajustada P234**: body preserva
+    outer cell wrapper.
+  - Decisão 3 — Opção α bounds calculation com helper
+    privado `cell_bounds` (cálculo inline reusável 3
+    lugares: cell_origin set + Z1 fill + Z3 stroke).
+  - Decisão 4 — Opção α match em placed.body preserva
+    semantic P230 literal (post-refactor body wrapper).
+  - Decisão 5 — 11 tests P234 (4 colspan/rowspan funcionais
+    + 4 regressões baseline P227+P228+P230+P233 + 3 cenários
+    adicionais).
+  - Decisão 6 — Opção γ L0 NÃO tocado automaticamente
+    (**quinta aplicação automática ADR-0080 EM VIGOR**).
+  - Decisão 7 — Sem promoção formal patterns N=1
+    "three-pass" e "integração consumer pós-isolamento".
+  - Decisão 8 — Cache descartado MVP; re-integração
+    refino futuro.
+
+- **L0 NÃO tocado** — quinta aplicação automática ADR-0080
+  EM VIGOR pós-promoção P229. Pattern "aplicação automática
+  ADR EM VIGOR sem decisão explícita por sub-passo" N=4 →
+  **5 cumulativo** (P230+P231+P232+P233+**P234**). Pattern
+  empíricamente extremamente sólido.
+
+- **Patterns emergentes consolidados/inaugurados em P234**:
+  - **"L0 minimal para refactors" aplicação automática
+    pós-EM VIGOR** N=4 → **5 cumulativo**.
+  - **"Three-pass measure→place→emit" N=1 inaugurado P234**
+    — extensão pattern two-pass P233; padrão mais geral
+    P233 measure pre-pass + P224.C place pre-pass integrado
+    + P234 emit final.
+  - **"Integração consumer pós-isolamento algorítmico em
+    sub-passo posterior" N=1 inaugurado P234** — P224.C
+    `place_cells` criado mas não-integrado conscientemente
+    (atomização ADR-0036); P234 integra. Paridade conceitual
+    "fecho de DEBT preservado" P233.
+  - **"PlacedCell baseline P224.C suficiente sem refactor"
+    confirmado N=2** (P230 audit rejeitou refactor; P234
+    integração validate empíricamente com mudança semantic
+    body apenas).
+  - **Reuso `place_cells` N=0 → 1 cumulativo** — primeiro
+    consumer geometric real (criado P224.C; isolado até
+    P234).
+  - **26 aplicações cumulativas anti-inflação** pós-P205D
+    (Opção α integração completa + Opção α PlacedCell
+    baseline literal + Opção α helper privado + sem novo
+    módulo + Opção γ L0 automático + sem refactor PlacedCell
+    + sem promoções patterns emergentes + ADR-0079 sem
+    promoção + cache descartado).
+
+- 11 tests adicionados P234 (E2E layout); workspace
+  2111 → **2122 verdes** (+11). 0 adaptações intencionais
+  (placed cells reorder preserva render via match em
+  `placed.body`). 0 regressões reais.
+
+- Sem reclassificação categórica §A.5 — `grid` já
+  `implementado⁺` cumulativo. Footnote ⁵³ adiciona refino
+  qualitativo integração consumer geometric + colspan/
+  rowspan funcionais em renderização pela primeira vez.
+
+- **Distribuição ADRs preservada P229**: PROPOSTO 12;
+  EM VIGOR 29; IMPLEMENTADO 21; total 67.
+- **Saldo DEBTs**: 11 preservado.
+- **Cobertura Layout per metodologia**: **89% preservado**
+  (refino qualitativo P234 — colspan/rowspan funcionais
+  algoritmo existente).
+
+**Categoria B Fase 5 Layout: 2/3 sub-passos materializados**
+(**B.1 DEBT-34d Auto track sizing ✓**; **B.2 consumer
+geometric ✓**; B.3 per-cell algorítmico pendente — valida
+pattern `.or()` N=2 → 3 atinge limiar formalização N=3-4).
+
+⁵⁴ — Ajuste P235 (Fase 5 Layout candidata Categoria B
+sub-passo 3 — GridCell + TableCell align/inset/breakable
+per-cell; **Categoria B 3/3 ✓ FECHADA estructuralmente**;
+sexta aplicação automática ADR-0080 EM VIGOR; **pattern
+`.or()` N=2 → 3 atinge limiar formalização N=3-4**):
+
+- P235 materializa B.3 algorítmicos per-cell:
+  - **GridCell +3 fields** (`align: Option<Align2D>`,
+    `inset: Option<Sides<Length>>`, `breakable: Option<bool>`)
+    — **7 → 10 fields**.
+  - **TableCell +3 fields paralelo** (pattern "refino
+    aditivo paralelo entre variants irmãos" N=4 → **5
+    cumulativo**) — 7 → 10 fields.
+  - **`native_grid_cell` + `native_table_cell` accept 3
+    named args**: helper `extract_align_value` (single
+    Value) + `extract_inset_value` (Length uniforme) +
+    Bool parsing direct.
+  - **Renderização diferenciada por atributo**:
+    - **align**: render real via Layouter `cell_align`
+      P232 estendido per-cell save/restore (pattern N=1
+      inaugurado P235 "Layouter cell_align save/restore
+      granularidade per-cell").
+    - **inset**: render real via bounds reduction
+      `body_x = cell_x + inset.left; body_w = (cell_w -
+      inset.left - inset.right).max(0.0)`; layout body
+      em bounds reduzidos (pattern N=1 inaugurado P235
+      "render real algorítmico per-cell").
+    - **breakable**: armazenado semantic adiada graded
+      (paridade Block.breakable P156G + repeat P224.B;
+      pattern "Field armazenado semantic adiada" N=7 →
+      **8 cumulativo**).
+  - **Precedência `.or()` uniforme P230 + P232 + P235**:
+    `effective_align = cell_align.or(self.cell_align)`;
+    `effective_inset = cell_inset.cloned().unwrap_or(inset)`;
+    `effective_breakable = cell_breakable` (armazenado).
+
+- **8 decisões fixadas**:
+  - Decisão 1 — Opção α escopo restrito (align + inset +
+    breakable apenas).
+  - Decisão 2 — Opção β tipos Option uniformes (todos
+    `Option<T>` para precedência `.or()` consistente).
+  - Decisão 3 — Opção α `.or()` precedência uniforme nos
+    3 atributos.
+  - Decisão 4 — Opção α refino paralelo TableCell.
+  - Decisão 5 — Opção β reuso Layouter `cell_align`
+    estendido per-cell (não Opção α directo nem γ helper
+    separado).
+  - Decisão 6 — Opção α render real inset (bounds
+    reduction trivial pós-P234 cell_bounds).
+  - Decisão 7 — Opção β breakable armazenado adiada graded.
+  - Decisão 8 — Opção γ L0 NÃO tocado (**sexta aplicação
+    automática ADR-0080 EM VIGOR**).
+
+- **Adaptações intencionais P235**:
+  - `native_table_cell_named_arg_desconhecido_rejeitado`
+    (stdlib/mod.rs:4150): test usava `inset` como exemplo
+    "unknown"; agora `inset` é conhecido P235. Adaptado
+    para `outset` que continua scope-out.
+
+- **L0 NÃO tocado** — sexta aplicação automática ADR-0080
+  EM VIGOR pós-promoção P229. Pattern "aplicação automática
+  ADR EM VIGOR sem decisão explícita por sub-passo" N=5
+  → **6 cumulativo** (P230+P231+P232+P233+P234+**P235**).
+  Pattern **extremamente sólido empíricamente** — seis
+  aplicações automáticas consecutivas sem excepção.
+
+- **Patterns emergentes consolidados/inaugurados em P235**:
+  - **"Precedência per-X via `.or()` resolution"** N=2 →
+    **3 cumulativo atingindo limiar formalização N=3-4**
+    (P230 GridCell stroke/fill; P232 Place per-axis; P235
+    GridCell 3 algorítmicos) — **promoção formal ADR meta
+    candidato XS futuro paridade P229**.
+  - **"Refino aditivo paralelo entre variants irmãos"**
+    N=4 → **5 cumulativo** (Grid+Table P227/P228;
+    GridCell+TableCell P230; Block+Boxed P231; **GridCell+
+    TableCell algorítmico P235**).
+  - **"Smart→Option"** N=10 → **12 cumulativo** (+inset
+    Option +breakable Option).
+  - **"Field armazenado semantic adiada"** N=7 → **8
+    cumulativo** (+breakable per-cell).
+  - **"L0 minimal para refactors" aplicação automática
+    pós-EM VIGOR**: N=5 → **6 cumulativo**.
+  - **"Fecho categoria completa dentro de ADR PROPOSTO
+    sem transição"** N=1 → **2 cumulativo** (P232 Categoria
+    A; **P235 Categoria B**).
+  - **"Layouter cell_align save/restore granularidade
+    per-cell" N=1 inaugurado P235** — extensão P232 que
+    só fez per-Grid save/restore.
+  - **"Render real algorítmico per-cell" N=1 inaugurado
+    P235** — distinto cumulativo de cosméticos P230.
+  - **"Renderização diferenciada por atributo dentro do
+    mesmo sub-passo" N=1 inaugurado P235** — align real
+    + inset real + breakable graded.
+
+- **15 tests adicionados P235** (4 unit content + 6 unit
+  stdlib + 5 layout E2E); workspace 2122 → **2137 verdes**
+  (+15). 1 adaptação intencional (`native_table_cell_named_arg_desconhecido_rejeitado`).
+  0 regressões reais.
+
+- Sem reclassificação categórica §A.5 — `grid` já
+  `implementado⁺` cumulativo. Footnote ⁵⁴ adiciona refino
+  qualitativo algorítmicos per-cell + fecho Categoria B
+  3/3 estructuralmente.
+
+- **Distribuição ADRs preservada P229**: PROPOSTO 12;
+  EM VIGOR 29; IMPLEMENTADO 21; total 67.
+- **Saldo DEBTs**: 11 preservado.
+- **Cobertura Layout per metodologia**: **89% preservado**
+  (refino qualitativo P235 algorítmicos per-cell).
+
+**Categoria B Fase 5 Layout: 3/3 ✓ FECHADA estructuralmente**
+(**B.1 DEBT-34d Auto track sizing ✓**; **B.2 consumer
+geometric ✓**; **B.3 GridCell + TableCell algorítmicos ✓**).
+
+⁵⁵ — Ajuste P236 (Fase 5 Layout candidata Categoria D 1/?
+— `state_final(key)` stdlib func **refino aditivo
+verdadeiro** pós-`P236.div-1` divergência factual material;
+sétima aplicação automática ADR-0080 EM VIGOR; **state
+runtime já materializado pre-P236** P171+M9+M9c):
+
+**`P236.div-1` — divergência factual material registada**:
+Spec P236 assumia (a) ADR-0066 status PROPOSTO, (b) state
+runtime ausente requerendo materialização nova, (c)
+infraestrutura (`Value::State`, `entities/state.rs`,
+`rules/stdlib/state.rs`, Layouter HashMap) requerida.
+Audit C1 confirmou estado real:
+
+- **ADR-0066 status real: SUPERSEDED-BY 0073** (P204H
+  2026-05-07). Cadeia chronológica: ADR-0066 (PROPOSTO
+  2026-04-27) → ACEITE (P192B 2026-05-05) → SUPERSEDED-BY
+  0073 (P204H 2026-05-07; M8 adoptou comemo) → F3 fechou
+  §C6a (ADR-0074 ACEITE P205B+C+E). Promoção PROPOSTO →
+  IMPLEMENTADO impossível (status SUPERSEDED).
+- **State runtime já materializado P171+M9+M9c**:
+  - `Content::State { key, init }` (P171, M9 sub-passo 3).
+  - `Content::StateUpdate { key, update: StateUpdate }`
+    (P171/P172).
+  - `entities/state_registry.rs` (P171) — full
+    `HashMap<String, Vec<(Location, Value)>>`.
+  - `entities/state_update.rs` (P171/P172) — `enum
+    StateUpdate { Set(Value), Func(Func) }`.
+  - `entities/layouter_runtime_state.rs` (P190C/D).
+  - 3 stdlib funcs em `foundations.rs`: `native_state`,
+    `native_state_update`, `native_state_update_with`.
+  - Pipeline activo: `Introspector::state_final_value` +
+    `state_value(key, location)` lookup; from_tags walk
+    aplica updates.
+
+**Decisão humana pós-divergência (Opção 2 do questionário)**:
+Refino aditivo subset — adicionar UMA stdlib func que
+materializa parte específica de D.1 não coberta pelo M9
+baseline. Escolhido: `state_final(key)` paralelo a
+`counter_final(key)` P176.
+
+- P236 materializa refino aditivo `state_final`:
+  - **`native_state_final(key)` em `foundations.rs`** —
+    1 stdlib func nova; argumento posicional Str `key`;
+    retorna `Value` (init se state nunca actualizado;
+    último valor caso contrário; `Value::None` se key
+    inexistente).
+  - **Reuso `Introspector::state_final_value`** (P171
+    baseline) — wrapper trivial.
+  - **Registo scope** em `eval/mod.rs`:
+    `scope.define("state_final", ...)`.
+  - **Paralelo absoluto a `counter_final` (P176)** —
+    pattern "stdlib func runtime para final value lookup"
+    N=1 → 2 cumulativo (counter_final P176; **state_final
+    P236**).
+
+**Não-objectivos preservados P236**:
+- **ADR-0066 NÃO promovido** (permanece SUPERSEDED).
+- **`Value::State` NÃO criado** (Content::State é
+  suficiente; Value variant adicional inflacionário).
+- **`state_at(key, location)` NÃO criado** — refino
+  futuro candidato (paralelo a `counter_at` P177; valor
+  para uso real esperando promoção formal).
+- **L0 NÃO tocado** — refino aditivo verdadeiro qualifica
+  Opção γ ADR-0080 §"Escopo" literal ("stdlib func nova
+  aditiva" categoria explícita line 66).
+
+- **8 decisões fixadas P236 (revisitadas pós-divergência)**:
+  - Decisão 1 — Opção 2 (refino aditivo subset; rejeitar
+    Opções 1/3/4 do questionário humano).
+  - Decisão 2 — `state_final` escolhido sobre `state_at`
+    (mais imediato; paralelo `counter_final` P176 directo).
+  - Decisão 3 — Paralelo absoluto pattern `counter_final`
+    (Introspector wrapper trivial).
+  - Decisão 4 — `Value::None` retornado se key inexistente
+    (semantic distinto Value::Str("") `counter_final` —
+    state pode ter qualquer Value type).
+  - Decisão 5 — Iter 0 fixpoint retorna None (introspector
+    vazio).
+  - Decisão 6 — 6 unit tests P236 (subset minimal cenários
+    canónicos; sem layout E2E pois state não-renderiza
+    output).
+  - Decisão 7 — ADR-0066 NÃO tocado (status SUPERSEDED
+    preservado; promoção impossível).
+  - Decisão 8 — **Opção γ L0 NÃO tocado** (refino aditivo
+    verdadeiro qualifica per ADR-0080 §"Escopo" line 66
+    "stdlib func nova aditiva"; **N=6 → 7 cumulativo
+    aplicação automática ADR-0080 EM VIGOR**, NÃO excepção
+    como spec original sugeria).
+
+- **L0 NÃO tocado** — sétima aplicação automática ADR-0080
+  EM VIGOR pós-promoção P229. Pattern "aplicação automática
+  ADR EM VIGOR sem decisão explícita por sub-passo" N=6
+  → **7 cumulativo** (P230+P231+P232+P233+P234+P235+
+  **P236**). Pattern **extremamente sólido empíricamente**
+  — sete aplicações automáticas consecutivas sem excepção.
+
+- **Patterns emergentes consolidados/inaugurados em P236**:
+  - **"L0 minimal para refactors" aplicação automática
+    pós-EM VIGOR**: N=6 → **7 cumulativo**.
+  - **"stdlib func runtime para final value lookup"** N=1
+    → **2 cumulativo** (counter_final P176; **state_final
+    P236**) — pattern emergente paralelo.
+  - **"Divergência factual material registada via P236.div-1
+    + decisão humana pós-divergência"** N=1 inaugurado P236
+    — primeira divergência factual MATERIAL pós-M9c
+    requerendo decisão humana imediata via questionário.
+  - **"Spec materializada como refino aditivo subset
+    pós-divergência factual"** N=1 inaugurado P236 —
+    pattern complementar a "fecho retrospectivo de
+    divergência" P233.
+  - **"State runtime materializado pre-P236 reconhecido
+    retrospectivamente como cumprimento ADR-0066"** —
+    documentação corretiva (ADR-0066 SUPERSEDED-BY 0073
+    chain materializou state via M9 P171+P172 +
+    M8 ADR-0073 + M9c ADR-0074).
+
+- 6 unit tests adicionados P236 (1 stdlib func × 6 cenários
+  canónicos: vazio retorna None; init retorna init; updates
+  retorna último; key inexistente retorna None; arg
+  não-string retorna Err; zero args retorna Err); workspace
+  2137 → **2143 verdes** (+6). 0 adaptações intencionais.
+  0 regressões reais.
+
+- Sem reclassificação categórica §A.5 — stdlib `state_final`
+  é refino aditivo. Footnote ⁵⁵ adiciona refino qualitativo
+  + documenta P236.div-1 + state runtime já-materializado
+  pre-P236.
+
+- **Distribuição ADRs preservada P229**: PROPOSTO 12;
+  EM VIGOR 29; IMPLEMENTADO 21; total 67. **ADR-0066
+  permanece SUPERSEDED-BY 0073** — não conta nos 67
+  porque SUPERSEDED é status terminal (cadeia fechada).
+- **Saldo DEBTs**: 11 preservado.
+- **Cobertura Layout per metodologia**: **89% preservado**
+  (D.1 é Introspection refino, não Layout).
+- **Cobertura Introspection**: state_final user-facing
+  exposto pela primeira vez pós-M9c — refino qualitativo
+  marginal (+1 stdlib func × paridade vanilla
+  `state.final()`).
+
+**Categoria D Fase 5 Layout: 1/? sub-passos materializados**
+(**D.1 state runtime ✓ refino aditivo P236 pós state já
+materializado pre-P236**; D.2 state.at + state.display
+candidatos refino futuro; D.3 query/D.4 counter candidatos
+sub-passos separados).
+
+**Stdlib funcs**: 60 → **61** (+`state_final`).
+
+⁵⁶ — Ajuste P237 (Fase 5 Layout candidata Categoria D 1/?
+refino estendido — `state_at(key, label)` paralelo absoluto
+`counter_at` P177; oitava aplicação automática ADR-0080
+EM VIGOR; **primeira aplicação da lição metodológica
+P236.div-1 via spec C1 audit obrigatório bloqueante**):
+
+- P237 materializa refino aditivo `state_at`:
+  - **`native_state_at(key, label)` em `foundations.rs`** —
+    stdlib func nova; reuso `Introspector::query_by_label`
+    P139+P140 + `Introspector::state_value` P171; chain
+    via `.and_then().unwrap_or(Value::None)` paralelo
+    pattern `counter_at` literal.
+  - **Registo scope** `state_at` em `eval/mod.rs:606`
+    paralelo `counter_at` P177.
+  - **6-7 unit tests subset minimal** cenários canónicos
+    (paridade P236 — sem layout E2E pois state não-renderiza).
+
+- **Audit C1 obrigatório bloqueante (lição P236.div-1)**:
+  - `Introspector::query_by_label(label: &Label) -> Option<Location>`
+    confirmado P139+P140 (não `lookup_label(&str) -> SourceResult`
+    como spec hipotetizou — ajuste signature trivial sem
+    `P237.div-N` formal).
+  - `Introspector::state_value(key, location)` confirmado
+    P171 (paridade P236 audit §2).
+  - `native_counter_at` P177 pattern: `query_by_label`
+    chain `state_value` `.and_then().unwrap_or_default()`
+    → state_at retorna `Value::None` (não erro hard como
+    spec Decisão 4 cenário 2 sugeriu — paridade literal
+    counter_at que retorna empty).
+
+- **8 decisões fixadas P237** (spec Decisão 0 = lição
+  P236.div-1 aplicada):
+  - Decisão 0 — C1 audit obrigatório bloqueante; sem
+    `P237.div-N` (audit converge com hipóteses revistas).
+  - Decisão 1 — Opção α escopo minimal aditivo (apenas
+    `state_at`).
+  - Decisão 2 — Signature `(key: Str, label: Str) → Value`
+    paridade `counter_at` P177 literal (ajuste trivial
+    pós-audit: `query_by_label` em vez de `lookup_label`).
+  - Decisão 3 — Reuso wrapper trivial `state_value`
+    paralelo P236 `state_final`.
+  - Decisão 4 — Semantic edge case: label inexistente
+    retorna `Value::None` (paridade counter_at empty
+    default; **revisão de spec** que sugeria erro hard).
+  - Decisão 5 — 7 unit tests subset minimal cenários
+    canónicos (paridade P236; sem layout E2E).
+  - Decisão 6 — Opção γ L0 NÃO tocado (**oitava aplicação
+    automática ADR-0080 EM VIGOR**).
+  - Decisão 7 — ADR-0066 NÃO tocado (SUPERSEDED-BY 0073
+    terminal preservado).
+  - Decisão 8 — Sem promoção ADR-0079; sem marco
+    cirúrgico blueprint (refino estendido não-fecha
+    Categoria nem sub-categoria).
+
+- **L0 NÃO tocado** — oitava aplicação automática ADR-0080
+  EM VIGOR pós-promoção P229. Pattern "aplicação automática
+  ADR EM VIGOR sem decisão explícita por sub-passo" N=7
+  → **8 cumulativo** (P230+P231+P232+P233+P234+P235+P236+
+  **P237**). Pattern **extremamente sólido empíricamente**
+  — oito aplicações automáticas consecutivas sem excepção.
+
+- **Patterns emergentes consolidados/inaugurados em P237**:
+  - **"L0 minimal para refactors" aplicação automática
+    pós-EM VIGOR**: N=7 → **8 cumulativo**.
+  - **"stdlib func runtime para label-based lookup"** N=1
+    inaugurado P237 — distinto do "final value lookup"
+    (state_at requer Location resolução via label;
+    state_final/counter_final não requerem). counter_at
+    P177 baseline anterior à série Categoria D refino,
+    portanto não conta no N novo.
+  - **"spec C1 audit obrigatório bloqueante pós-P236.div-1"
+    N=1 inaugurado P237** — metodológico crítico
+    aplicável a sub-passos futuros D.2+/C.1+/runtime.
+  - **"paralelismo state↔counter completo"** N=1 inaugurado
+    P237 — state agora 5 ops (state/state_update/
+    state_update_with/state_final/state_at) paridade
+    counter 4 ops (counter/counter_update/counter_final/
+    counter_at; counter sem paralelo state_update_with
+    porque counter mutation é apenas Set, não Func).
+
+- **Adaptações intencionais P237** (N=0 hipotetizadas; N=1
+  factual): test pre-existente passou (sed `LabelRegistry::
+  insert` → `add` ajustado durante implementação — método
+  pre-existente é `add` não `insert`; ajuste trivial sem
+  `P237.div-N`).
+
+- 7 unit tests adicionados P237 (label inexistente retorna
+  None; key inexistente retorna None; resolve label retorna
+  init; updates antes location visível último; updates
+  depois location não visíveis; arg não-string rejeita;
+  arity errada rejeita); workspace 2143 → **2150 verdes**
+  (+7). 0 regressões reais.
+
+- Sem reclassificação categórica §A.5. Footnote ⁵⁶ adiciona
+  refino aditivo qualitativo + lição metodológica P236.div-1
+  aplicada.
+
+- **Distribuição ADRs preservada P229**: PROPOSTO 12;
+  EM VIGOR 29; IMPLEMENTADO 21; total 67. ADR-0066
+  SUPERSEDED-BY 0073 preservado.
+- **Saldo DEBTs**: 11 preservado.
+- **Cobertura Layout per metodologia**: **89% preservado**
+  (D.1 é Introspection refino, não Layout).
+- **Cobertura Introspection**: state_at user-facing exposto
+  pela primeira vez pós-M9c — refino qualitativo marginal
+  (+1 stdlib func × paridade vanilla `state.at(location)`).
+
+**Categoria D Fase 5 Layout: 1/? refino estendido completo**
+(state_final P236 + state_at P237; **paralelismo state↔counter
+completo**).
+
+**Stdlib funcs**: 61 → **62** (+`state_at`).
+
+⁵⁷ — Ajuste P238 reescrito (passo administrativo documental
+— auditoria metodológica falhanços `P236.div-1` + `P238.div-1`
++ plano realista cobertura Layout pós-P237; **zero código
+tocado**; paridade pattern P225/P229 administrativo; refino
+lição `P236.div-1` N=1 → **2 cumulativo**; **`P238.div-1`
+registado como segundo falhanço spec arquitectural maior
+consecutivo pós-M9c**):
+
+**`P238.div-1` — divergência factual material registada**:
+Spec P238 original hipotetizou `state.display` walk-time
+render-mediated callback materializável via refino aditivo
+(Categoria D 2/?). Audit C1 obrigatório bloqueante (lição
+`P236.div-1`) revelou contradição factual material em três
+pontos:
+
+- **`Content::State` é zero-size em layout** — arm
+  `Content::State { .. } => {}` em `layout/mod.rs:352`
+  literalmente vazio. P171 baseline é init marker; valor
+  obtido **fora do walk** via queries (`state_value` /
+  `state_final_value`).
+- **`Func::call` não existe** — só `Func::native` constructor.
+  Eval real requer `EvalContext + Engine + World + FileId +
+  figure_numbering` indisponíveis durante walk.
+- **`StateUpdate::Func` (P172) é stub documentado** por
+  blocker arquitectural idêntico: "from_tags reconhece a
+  variant mas não avalia a closure — `Func::call` requer
+  `EvalContext + Engine` que não estão disponíveis em walk
+  nem em from_tags".
+
+Spec P238 original previa walk-time render-mediated callback
+**arquiteturalmente impossível sem pipeline restructuring M7+**.
+
+**Decisão humana pós-`P238.div-1`**: P238 reescrito como
+auditoria metodológica formal + plano realista cobertura
+Layout (decisão literal pós-divergência; sem materializar
+código quando bloqueio arquitectural identificado). Paridade
+pattern P225 (encerramento Fase 4 documental) + P229 (promoção
+ADR-0080 administrativa). **Distinto** dos sub-passos
+materialização P227-P237.
+
+- P238 reescrito materializa
+  (`typst-passo-238-auditoria.md` 7 §s):
+  - **Auditoria metodológica formal** dos dois falhanços
+    consecutivos (`P236.div-1` + `P238.div-1`) — causas raiz;
+    padrões emergentes; lição refinada (§2).
+  - **Estado factual cobertura Layout pós-P237** — sub-passos
+    materializados vs pendentes; bloqueadores arquiteturais
+    (§3).
+  - **Plano realista cobertura Layout** identificando viável
+    pós-P237 sem refactor M7+ vs requer pipeline restructuring
+    (§4).
+  - **Recomendações metodológicas futuras** — aplicação da
+    lição refinada; sinais de risco alto/crítico; pattern
+    emergente "spec audit prévio para sub-passos
+    walk-time/runtime" (§5).
+  - **Saída cumulativa** preservando 2150 verdes + 0 violations
+    + 11 DEBTs + ADRs distribuição (§6).
+  - **Critério aceitação** (§7).
+
+- **Causa raiz comum aos dois falhanços** (§2.3 auditoria):
+  - `P236.div-1`: sumário contexto incompleto; spec assumiu
+    baseline pré-M9c sem audit prévio.
+  - `P238.div-1`: spec incluiu C1 audit obrigatório bloqueante
+    (lição `P236.div-1`) mas fixou decisões C2-C8 prováveis
+    baseadas em hipóteses análogas eval-time aplicadas
+    incorretamente a walk-time/runtime integration. Pattern
+    "decisões sujeitas a C1" criam viés cognitivo que resiste
+    revisão pós-audit.
+
+- **Refino lição metodológica `P236.div-1`** (§2.5 auditoria):
+
+  > Para sub-passos com risco alto/crítico (walk-time;
+  > runtime callback dispatch; pipeline integration), spec
+  > deve fazer audit prévio **ANTES** de redigir decisões
+  > C2-C8. Para refinos de risco baixo/médio (eval-time
+  > wrappers; cosméticos; algorítmicos isolados), C1 audit
+  > bloqueante como primeira cláusula é suficiente.
+
+- **Atomização preventiva** (§2.6 auditoria): para sub-passos
+  risco alto/crítico, atomizar em (1) prep-passo audit-only
+  XS-S sem decisões fixadas + (2) materialização-passo
+  conforme audit. Paridade pattern P226 (diagnóstico amplo
+  + ADR PROPOSTO + roadmap) que precedeu materialização
+  Fase 5 P227+.
+
+- **Bloqueadores arquiteturais identificados pós-P237**
+  (§4.1 auditoria):
+  - **Bloqueador A** — Walk-time eval Func dispatch
+    (`Func::call` inexistente); afecta D.2 `state.display`,
+    `counter.display`, possíveis D.3+. Resolução M7+ pipeline
+    restructuring.
+  - **Bloqueador B** — Multi-region completion (DEBT-56b
+    candidato); afecta C.2 + breakable per-cell render real
+    (A.4 graded P235). Resolução refactor multi-region
+    cell-level.
+  - **Bloqueador C** — Place float real (reabertura Opção B
+    P219); afecta C.1. Resolução refactor magnitude L+.
+  - **Bloqueador D** — Pipeline runtime two-pass walk
+    (`state.final()` semantic vanilla); afecta refino
+    `state.final()` real two-pass. Resolução M7+
+    infrastructure.
+
+- **Sub-passos viáveis sem refactor M7+** identificados
+  (§4.2 auditoria):
+  - **D.X1 counter.display stub** (paridade P172
+    `StateUpdate::Func` stub) — VIÁVEL via stub paralelo;
+    não-recomendado se D.2 também stub.
+  - **D.X2 query refinos** — eval-time wrappers paridade
+    `state_at` / `state_final`. **Audit prévio obrigatório**.
+  - **D.X3 numbering refinos** — audit prévio obrigatório.
+  - **A.4 refino outset render real** — Block/Boxed; audit
+    prévio + materialização conforme.
+  - **A.X fill/stroke Block/Boxed** — paridade P227+P228
+    estructural; render real viável.
+
+- **Estimativa fecho realista Fase 5 Layout** (§4.5 auditoria):
+  - **Sem refactor M7+**: Fase 5 candidata fecha em
+    **10-12/13-15 sub-passos materializados** (~67-85%);
+    sub-passos bloqueados arquiteturalmente preservados como
+    graded/scope-out documentados.
+  - **Com refactor M7+**: Fase 5 candidata materializa
+    13-15/13-15 (100% interno) mas magnitude cumulativa
+    L+ a XL+.
+  - **Decisão arquitectural pendente**: humano decide se
+    Fase 5 fecha graded a ~80% OU reabre M-fase para refactor
+    pipeline.
+
+- **L0 NÃO tocado** — passo administrativo documental
+  não-toca código nem prompts; **não conta na contagem
+  "aplicação automática ADR-0080 EM VIGOR"** porque não
+  envolve materialização sub-passo Fase 5 (paralelo P225/P229
+  administrativos). Pattern "aplicação automática ADR EM VIGOR
+  sem decisão explícita por sub-passo" preserva **N=8
+  cumulativo** P230-P237.
+
+- **Patterns emergentes inaugurados/consolidados em P238
+  reescrito** (6):
+  - **"spec audit prévio obrigatório para sub-passos
+    walk-time/runtime" N=1 inaugurado P238 reescrito** —
+    refino lição `P236.div-1`.
+  - **"atomização prep-passo audit-only + materialização-passo
+    para sub-passos risco alto/crítico" N=1 inaugurado P238
+    reescrito** — paridade P226 diagnóstico amplo.
+  - **"`Pxxx.div-1` cumulativo para falhanços spec
+    arquitectural maior"** N=1 → **2 cumulativo**
+    (`P236.div-1` + **`P238.div-1`**).
+  - **"passo administrativo documental para auditoria
+    metodológica pós-divergência" N=1 inaugurado P238
+    reescrito** — distinto de P225 (encerramento Fase) +
+    P229 (promoção ADR-0080).
+  - **"L0 minimal para refactors" aplicação automática N=8
+    preservado** (P230-P237; P238 reescrito documental
+    não-incrementa porque não toca código).
+  - **"Fase candidata fecha graded a bloqueadores
+    arquiteturais identificados" N=1 inaugurado P238
+    reescrito** — Fase 5 Layout candidata pode fechar ~80%
+    preservando bloqueadores como scope-out documentado.
+
+- **Zero código tocado P238 reescrito**: workspace 2150
+  verdes preservado; 0 violations preservadas; 0 adaptações;
+  0 regressões; 0 novos tests; 0 fields adicionados; 0
+  variants adicionados; 0 stdlib funcs novas; 0 módulos
+  novos.
+
+- Sem reclassificação categórica §A.5. Footnote ⁵⁷ adiciona
+  documentação metodológica pós-`P238.div-1` + plano realista
+  cobertura Layout pós-P237 + refino lição `P236.div-1`.
+
+- **Distribuição ADRs preservada P229**: PROPOSTO 12;
+  EM VIGOR 29; IMPLEMENTADO 21; total 67. ADR-0066
+  SUPERSEDED-BY 0073 preservado.
+- **Saldo DEBTs**: 11 preservado.
+- **Cobertura Layout per metodologia**: **89% preservado**.
+- **Cobertura user-facing total**: 67% preservada.
+- **Anti-inflação 30ª aplicação cumulativa pós-P205D** —
+  Opção "auditoria documental" (não materializar código
+  quando bloqueio arquitectural identificado) + Opção γ L0
+  NÃO tocado + Opção α sem promoção ADR + Opção α sem marco
+  cirúrgico blueprint + paridade pattern P225/P229
+  administrativo + Decisão refino lição `P236.div-1`.
+
+**Estado pós-P238 reescrito** — Categoria A 5/5 ✓ FECHADA;
+Categoria B 3/3 ✓ FECHADA; Categoria D 1/? refino estendido
+completo (state_final P236 + state_at P237); Categoria C 0/?;
+**D.2 `state.display` walk-time BLOQUEADO arquiteturalmente
+identificado formalmente pós-`P238.div-1`**. Fase 5 Layout
+candidata 10/13-15 sub-passos materializados preservado
+(P238 reescrito administrativo não-incrementa).
+
+**Stdlib funcs**: 62 preservado.
+
 ³⁹ — Ajuste P214 (Tabela A.1 Markup syntactic — recálculo
 ampliado pós-M9c 2026-05-12): **3 reclassificações
 empíricas materiais** detectadas em §A.1 face ao estado

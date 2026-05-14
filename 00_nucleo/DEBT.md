@@ -191,7 +191,65 @@ cálculo analítico dos extremos da curva paramétrica B(t) para obter a AABB ex
 
 ---
 
-## DEBT-34d — Auto não encolhe antes de matar fr — EM ABERTO (Passo 80; preservado per `P224.div-1`)
+## DEBT-34d — Auto não encolhe antes de matar fr — FECHADO (Passo 233) ✓
+
+**Aberto em**: Passo 80 (2026-04-26); preservado per `P224.div-1`
+documentado em P225 consolidado.
+**Fechado em**: Passo 233 (2026-05-13) — **CLOSED via materialização**
+algoritmo two-pass measure→place em `layout_grid` (Fase 5 Layout
+candidata Categoria B sub-passo 1).
+**Resolvido por**: cap em `safe_available` para Auto tracks quando
+há `Fraction` tracks presentes — Auto recebe `(available - total_fixed)
+/ (num_auto + num_fr)` per track em vez de `(available - total_fixed)`
+total. Fr não morre; Auto respeita orçamento proporcional.
+**Saldo DEBTs pós-P233**: 12 → **11** (-1 DEBT-34d).
+
+**`P224.div-1` RESOLVIDA P233** — divergência factual material
+preservada conscientemente em P224 (DEBT-34d preservado aberto;
+P-Layout-Fase5 candidato NÃO-reservado per política P158) é agora
+**resolved** via materialização B.1.
+
+### Fecho P233 (2026-05-13)
+
+**Algoritmo two-pass measure→place inaugurado P233** (pattern N=1
+cristalino pós-M9c):
+1. Pass 1 (measure pre-pass): para cada cell em track Auto,
+   `measure_content_constrained(cell, safe_capped)` calcula tamanho
+   real per cell. Max per track → resolved_widths.
+2. Pass 2 (placement final): existing P224.C `place_cells` itera
+   com tamanhos pre-calculados.
+
+**Fix subset minimal** (atomização ADR-0036 aplicada — DEBT-34d
+escopo cobre exactamente o documentado):
+- `safe = if has_fr { safe_total / (num_auto + num_fr) } else
+  { safe_total }`.
+- Sem fr: comportamento baseline P80 preservado literal.
+- Com fr: Auto cap-se para reservar espaço proporcional a fr.
+
+5 tests E2E adicionados P233 cobrindo cenários canónicos:
+- Auto sem fr (baseline preservado).
+- Auto + Fr mix (DEBT-34d fix: fr renderiza).
+- 2-Auto + 1-Fr (split correcto).
+- Fixed + Auto + Fr (combinação completa).
+- Fixed baseline (regressão preservada).
+
+Workspace: 2106 → **2111 verdes** (+5). 0 regressões reais. 0
+violations. L0 NÃO tocado (quarta aplicação automática ADR-0080
+EM VIGOR pós-P229).
+
+**Estado pós-fecho**: `min-content`/`max-content` negotiation
+completa vanilla mencionada como "resolução futura" no texto
+original NÃO é necessária para fechar DEBT-34d — texto original
+era exemplificativo (uma das possíveis resoluções); o problema
+literal documentado ("Auto guloso pode consumir todo
+safe_available, deixando 0pt para fr") está **resolvido** via
+subset minimal P233 ("Auto cap-se quando há fr presente").
+Refino min-content/max-content per cell é refino futuro
+candidato independente (não-reservado per política P158).
+
+---
+
+**[HISTÓRICO]** Texto original DEBT-34d:
 
 Um Auto guloso (célula com texto longo) pode consumir todo o `safe_available`,
 deixando 0pt para as colunas fr. Resolução futura: implementar min-content e

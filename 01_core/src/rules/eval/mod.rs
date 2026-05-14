@@ -556,7 +556,7 @@ fn make_stdlib() -> Scope {
         make_calc_module, native_align, native_assert, native_bibliography, native_block, native_box, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
-        native_counter_at, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_update, native_state_update_with,
+        native_counter_at, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_at, native_state_final, native_state_update, native_state_update_with,
         native_colbreak, native_columns, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_scale, native_skew, native_stack, native_str, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_upper, native_v,
     };
@@ -595,6 +595,17 @@ fn make_stdlib() -> Scope {
     // P171 (M9 sub-passo 3): state(key, init) + state_update(key, value).
     scope.define("state", Value::Func(Func::native("state", native_state)));
     scope.define("state_update", Value::Func(Func::native("state_update", native_state_update)));
+    // P236 (Fase 5 Layout candidata Categoria D 1/?, refino aditivo
+    // pós-P236.div-1): state_final(key) — valor final do state pós-walk.
+    // Paralelo a counter_final P176. Reusa Introspector::state_final_value
+    // P171. Retorna Value (init se ausente; última update caso contrário).
+    scope.define("state_final", Value::Func(Func::native("state_final", native_state_final)));
+    // P237 (Fase 5 Layout candidata Categoria D 1/?, refino estendido):
+    // state_at(key, label) — valor do state na Location associada ao label.
+    // Paralelo absoluto a counter_at P177. Reusa query_by_label P139+P140
+    // + state_value P171. Retorna Value::None se key/label inexistentes
+    // ou state nunca actualizado antes da Location.
+    scope.define("state_at", Value::Func(Func::native("state_at", native_state_at)));
     // P172 (M9 sub-passo 4): state_update_with(key, fn) — callback variant.
     // **Stub**: from_tags ignora Func variant até pipeline restructuring.
     scope.define("state_update_with", Value::Func(Func::native("state_update_with", native_state_update_with)));

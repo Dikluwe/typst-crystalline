@@ -315,15 +315,20 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             body:   Box::new(materialize_time(body, intr, location)),
             repeat: *repeat,
         },
-        // P224.C + P230 — GridCell recurse no body; preserva fields +stroke +fill.
-        Content::GridCell { body, x, y, colspan, rowspan, stroke, fill } => Content::GridCell {
-            body:    Box::new(materialize_time(body, intr, location)),
-            x:       *x,
-            y:       *y,
-            colspan: *colspan,
-            rowspan: *rowspan,
-            stroke:  stroke.clone(),
-            fill:    *fill,
+        // P224.C + P230 + P235 — GridCell recurse no body; preserva
+        // 5 fields cumulativos.
+        Content::GridCell { body, x, y, colspan, rowspan, stroke, fill,
+                             align, inset, breakable } => Content::GridCell {
+            body:      Box::new(materialize_time(body, intr, location)),
+            x:         *x,
+            y:         *y,
+            colspan:   *colspan,
+            rowspan:   *rowspan,
+            stroke:    stroke.clone(),
+            fill:      *fill,
+            align:     *align,
+            inset:     inset.clone(),
+            breakable: *breakable,
         },
         // Passo 157A + P227 + P228 — table; preserva stroke + fill.
         Content::Table { columns, rows, children, stroke, fill } => Content::Table {
@@ -333,15 +338,19 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             stroke:   stroke.clone(),
             fill:     *fill,
         },
-        // Passo 157B + P230 — TableCell; preserva fields +stroke +fill.
-        Content::TableCell { body, x, y, colspan, rowspan, stroke, fill } => Content::TableCell {
-            body:    Box::new(materialize_time(body, intr, location)),
-            x:       *x,
-            y:       *y,
-            colspan: *colspan,
-            rowspan: *rowspan,
-            stroke:  stroke.clone(),
-            fill:    *fill,
+        // Passo 157B + P230 + P235 — TableCell; preserva 5 fields cumulativos.
+        Content::TableCell { body, x, y, colspan, rowspan, stroke, fill,
+                              align, inset, breakable } => Content::TableCell {
+            body:      Box::new(materialize_time(body, intr, location)),
+            x:         *x,
+            y:         *y,
+            colspan:   *colspan,
+            rowspan:   *rowspan,
+            stroke:    stroke.clone(),
+            fill:      *fill,
+            align:     *align,
+            inset:     inset.clone(),
+            breakable: *breakable,
         },
         // Passo 157C (ADR-0060 Fase 2 sub-passo 3) — par simétrico
         // TableHeader/TableFooter. Recurse no body; preserva repeat.

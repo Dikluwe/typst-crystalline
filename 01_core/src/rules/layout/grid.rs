@@ -15,6 +15,7 @@ use crate::entities::{
     sides::Sides,
 };
 
+use super::grid_placement::{place_cells, PlacedCell};
 use super::metrics::FontMetrics;
 use super::{item_pos, translate_frame_item};
 
@@ -34,7 +35,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         cells:   &[Content],
         _gutter: Option<Length>,
         align:   Option<Align2D>,  // P232 — Grid-level align disponível para Place herdar
-        _inset:  Sides<Length>,
+        inset:   Sides<Length>,    // P235 — Grid-level inset (default per-cell)
         _header: Option<&Content>,
         _footer: Option<&Content>,
         stroke:  Option<&Stroke>,  // P227 — borders cell render Opção β
@@ -82,7 +83,31 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     total_fixed_w     += *w;
                 }
                 TrackSizing::Auto => {
-                    let safe = (available_width - total_fixed_w).max(0.0);
+                    // P233 — DEBT-34d fix: capar `safe` quando há fr
+                    // tracks presentes para Auto NÃO consumir todo o
+                    // remaining (deixando 0pt para fr). Sem fr presente,
+                    // comportamento baseline preservado (P80).
+                    //
+                    // Estratégia subset minimal: dividir `safe_total`
+                    // proporcionalmente entre auto + fr (split igualitário
+                    // simples). Auto que precisar mais que `safe_capped`
+                    // será truncado; fr recebe pelo menos `safe_total /
+                    // (num_auto + num_fr) * num_fr_remaining`.
+                    //
+                    // Two-pass measure→place inaugurado P233 (pattern N=1).
+                    // Resolução completa min-content/max-content
+                    // negotiation continua DEBT-34d-rest se necessária
+                    // (atomização ADR-0036).
+                    let has_fr = cols.iter().any(|t| matches!(t, TrackSizing::Fraction(_)));
+                    let safe = if has_fr {
+                        let num_auto_cols = cols.iter().filter(|t| matches!(t, TrackSizing::Auto)).count();
+                        let num_fr_cols   = cols.iter().filter(|t| matches!(t, TrackSizing::Fraction(_))).count();
+                        let safe_total = (available_width - total_fixed_w).max(0.0);
+                        let total_tracks_concorrentes = (num_auto_cols + num_fr_cols).max(1) as f64;
+                        safe_total / total_tracks_concorrentes
+                    } else {
+                        (available_width - total_fixed_w).max(0.0)
+                    };
                     let mut max_w = 0.0_f64;
                     for &ci in &cols_cells[i] {
                         let (w, _) = self.measure_content_constrained(&cells[ci], safe);
@@ -125,17 +150,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // Fase 1 — Fixed e Auto numa travessia. Auto mede via
         // layout_sub_frame_with_width.
         //
-        // Cache local Passo 84.2 (encerra DEBT-38):
-        // a fase Auto guarda (sub_h, sub_items) por célula; a fase de
-        // emissão consome (via remove) em vez de relayoutar. Chave:
-        // row_idx * num_cols + col_idx. Sai de escopo no fim do braço,
-        // sem invalidação manual; cada Grid (incluindo aninhados) tem
-        // o seu próprio cache.
+        // P234 (B.2 consumer geometric): cache `cell_cache` removido
+        // porque emissão pós-P234 itera `placed_cells` (não
+        // `rows_of_items` direct) — placed cells reordenam input
+        // (explicit Pass 1 + auto Pass 2). Cells re-medidas durante
+        // emissão (custo perf ~2× aceitável MVP; cache reintegrável
+        // futuro candidato indexado por input_idx).
         let mut row_heights: Vec<f64> = vec![0.0; num_rows_produced];
         let mut total_fixed_and_auto: f64 = 0.0;
         let mut fraction_indices: Vec<(usize, f64)> = Vec::new();
-        let mut cell_cache: std::collections::HashMap<usize, (f64, Vec<FrameItem>)> =
-            std::collections::HashMap::new();
 
         for (row_idx, row_items) in rows_of_items.iter().enumerate() {
             let track = &row_tracks[row_idx % row_tracks.len()];
@@ -150,12 +173,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         if col_idx >= num_cols { break; }
                         let cell_w = resolved_widths[col_idx];
                         let cell_x = col_starts[col_idx];
-                        let (sub_h, sub_items) =
+                        let (sub_h, _sub_items) =
                             self.layout_sub_frame_with_width(item, cell_x, cell_w);
-                        // Passo 84.2 (DEBT-38): guardar para a fase
-                        // de emissão. Chave estável dentro do braço.
-                        let cell_idx = row_idx * num_cols + col_idx;
-                        cell_cache.insert(cell_idx, (sub_h, sub_items));
                         if sub_h > max_h {
                             max_h = sub_h;
                         }
@@ -207,18 +226,67 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
         }
 
-        // ── Emissão de células linha a linha ──────────────────
+        // ── P234 — Placement algorítmico via place_cells (B.2). ───
+        // `layout_grid` consumer geometric integration: itera
+        // `Vec<PlacedCell>` em vez de `rows_of_items` chunks direct.
+        // Cells com `colspan: None / rowspan: None` resolved como
+        // `colspan: 1, rowspan: 1` em `PlacedCell` → comportamento
+        // sequencial preservado paridade pré-P234. Cells com
+        // colspan/rowspan > 1 ocupam bounds reais.
+        //
+        // Error path: place_cells retorna Err em conflict explicit/
+        // explicit ou colspan excede num_cols; MVP fallback vec vazio
+        // (sem render — comportamento "no-op" para grid inválido).
+        // Sink reporting candidato futuro.
+        let placed_cells: Vec<PlacedCell> = place_cells(cells, num_cols).unwrap_or_default();
+
+        // Derive num_rows_produced_final do placed (pode estender
+        // além de rows_of_items.len() para cells explicit com y > N).
+        let num_rows_from_placed = placed_cells.iter()
+            .map(|p| p.row + p.rowspan)
+            .max()
+            .unwrap_or(0);
+        let num_rows_produced_final = num_rows_from_placed.max(num_rows_produced).max(1);
+
+        // Pad row_heights se placed estende além de chunks-derived
+        // (cells explicit com y maior ou cells com rowspan estendem
+        // para rows não-covered por chunks). Extra rows: Fixed
+        // resolved literal de row_tracks; Auto/Fraction = 0pt
+        // (sem cells a medir → refino futuro candidato).
+        while row_heights.len() < num_rows_produced_final {
+            let row_idx = row_heights.len();
+            let track = &row_tracks[row_idx % row_tracks.len()];
+            let h = match track {
+                TrackSizing::Fixed(pt) => *pt,
+                _ => 0.0,
+            };
+            row_heights.push(h);
+        }
+
+        // Group placed cells por start row para per-row pagination
+        // preservada (cells starting in row r emitidas conjunto
+        // após pagination check de row r).
+        let mut cells_per_row: Vec<Vec<usize>> = vec![vec![]; num_rows_produced_final];
+        for (i, p) in placed_cells.iter().enumerate() {
+            if p.row < num_rows_produced_final {
+                cells_per_row[p.row].push(i);
+            }
+        }
+
+        // ── Emissão linha a linha (P234 — placed cells iteration) ──
         let local_start_y = {
             let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
             ascender.0
         };
 
-        for (row_idx, row_items) in rows_of_items.iter().enumerate() {
+        for row_idx in 0..num_rows_produced_final {
             let row_h = row_heights[row_idx];
 
             // Quebra durante a emissão se a linha individual não cabe
             // (caso conservador: começar a linha no topo da página seguinte).
             // Se a linha for maior que uma página inteira, aceitar overflow.
+            // P234 nota: cells com rowspan > 1 cruzando pagination =
+            // out-of-scope (Categoria C.2 multi-region span futura).
             if self.regions.current.cursor_y.0 + row_h > self.page_bottom_limit() {
                 let page_usable_height = self.regions.current.height - 2.0 * self.page_config.margin;
                 if row_h <= page_usable_height {
@@ -228,34 +296,83 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
             let row_start_y = self.regions.current.cursor_y.0;
 
-            for (col_idx, cell) in row_items.iter().enumerate() {
-                if col_idx >= num_cols { break; }
-                let cell_w = resolved_widths[col_idx];
-                let cell_x = col_starts[col_idx];
+            for &placed_idx in &cells_per_row[row_idx] {
+                let placed = &placed_cells[placed_idx];
+                let cell = &placed.body;
+
+                // P234 — bounds reais usando placed.col/colspan ×
+                // resolved_widths + placed.row/rowspan × row_heights.
+                let (cell_x, cell_y, cell_w, cell_h) = cell_bounds(
+                    placed,
+                    &col_starts,
+                    &resolved_widths,
+                    &row_heights,
+                    row_start_y,
+                );
+
+                // P230 + P235 — extrair per-cell 5 fields (stroke + fill
+                // cosméticos P230; align + inset + breakable algorítmicos
+                // P235). Match em `placed.body` preserva GridCell wrapper
+                // P234.
+                let (cell_stroke, cell_fill, cell_align, cell_inset, _cell_breakable) = match cell {
+                    Content::GridCell { stroke, fill, align, inset, breakable, .. } |
+                    Content::TableCell { stroke, fill, align, inset, breakable, .. } => (
+                        stroke.as_ref(),
+                        fill.as_ref(),
+                        align.as_ref().copied(),
+                        inset.as_ref(),
+                        breakable.as_ref().copied(),
+                    ),
+                    _ => (None, None, None, None, None),
+                };
+
+                // Precedência `.or()` uniforme P230 + P232 + P235.
+                let effective_stroke: Option<&Stroke> = cell_stroke.or(stroke);
+                let effective_fill:   Option<&Color>  = cell_fill.or(fill);
+                // P235 — align per-cell override Grid-level (self.cell_align
+                // ainda contém Grid.align porque save/restore Grid-level
+                // P232 cobre todo o emit loop).
+                let effective_align = cell_align.or(self.cell_align);
+                // P235 — inset per-cell override Grid-level; default Grid inset.
+                let effective_inset: Sides<Length> = cell_inset.cloned().unwrap_or(inset);
+                // P235 — breakable per-cell semantic adiada graded
+                // (pattern "Field armazenado semantic adiada" N=7 → 8).
+
+                // P235 — Cell-level cell_align save/restore (extensão P232
+                // per-cell granularidade). Pattern emergente N=1 inaugurado.
+                let saved_cell_align_inner = self.cell_align;
+                self.cell_align = effective_align;
+
+                // P235 — Inset bounds reduction: layout body em área
+                // reduzida (left/top/right/bottom). Clamp a 0 para evitar
+                // bounds negativos.
+                let inset_l = effective_inset.left.abs.to_pt();
+                let inset_t = effective_inset.top.abs.to_pt();
+                let inset_r = effective_inset.right.abs.to_pt();
+                let inset_b = effective_inset.bottom.abs.to_pt();
+                let body_x = cell_x + inset_l;
+                let body_y = cell_y + inset_t;
+                let body_w = (cell_w - inset_l - inset_r).max(0.0);
+                let body_h = (cell_h - inset_t - inset_b).max(0.0);
 
                 // Definir o contexto de altura/origem da célula para
                 // Content::Align (Passo 83) e Content::Place (Passo 84.6).
+                // P235 — set ao body bounds reduzidos por inset.
                 let saved_cell_h  = self.cell_available_h;
                 let saved_cell_ox = self.cell_origin_x;
                 let saved_cell_oy = self.cell_origin_y;
                 let saved_cell_ow = self.cell_origin_w;
-                self.cell_available_h = Some(row_h);
-                self.cell_origin_x    = Some(cell_x);
-                self.cell_origin_y    = Some(row_start_y);
-                self.cell_origin_w    = Some(cell_w);
+                self.cell_available_h = Some(body_h);
+                self.cell_origin_x    = Some(body_x);
+                self.cell_origin_y    = Some(body_y);
+                self.cell_origin_w    = Some(body_w);
 
-                // Passo 84.2 (DEBT-38): consumir resultado da fase
-                // Auto se já foi medido. `remove` em vez de `get`
-                // transfere o Vec sem clonar — cada célula é emitida
-                // exactamente uma vez. Cache miss em linhas Fixed/
-                // Fraction cai silenciosamente para a chamada original.
-                let cell_idx = row_idx * num_cols + col_idx;
+                // P234 — sem cache; re-medir cell (custo perf ~2× aceitável).
+                // P235 — layout em body_x/body_w reduzidos por inset.
                 let saved_cursor_x = self.regions.current.cursor_x;
                 let saved_cursor_y = self.regions.current.cursor_y;
-                let (_cell_h, cell_items) = match cell_cache.remove(&cell_idx) {
-                    Some(cached) => cached,
-                    None => self.layout_sub_frame_with_width(cell, cell_x, cell_w),
-                };
+                let (_cell_h_measured, cell_items) =
+                    self.layout_sub_frame_with_width(cell, body_x, body_w);
                 self.regions.current.cursor_x = saved_cursor_x;
                 self.regions.current.cursor_y = saved_cursor_y;
 
@@ -263,29 +380,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.cell_origin_x    = saved_cell_ox;
                 self.cell_origin_y    = saved_cell_oy;
                 self.cell_origin_w    = saved_cell_ow;
+                self.cell_align       = saved_cell_align_inner;
 
-                // P230 — resolver precedência effective per-cell vs Grid-level:
-                // cell `Some(...)` override Grid-level; cell `None` inherit
-                // Grid-level. Aplicável a GridCell e TableCell variants;
-                // raw Content sem stroke/fill → inherit.
-                let (cell_stroke, cell_fill) = match cell {
-                    Content::GridCell { stroke, fill, .. } => (stroke.as_ref(), fill.as_ref()),
-                    Content::TableCell { stroke, fill, .. } => (stroke.as_ref(), fill.as_ref()),
-                    _ => (None, None),
-                };
-                let effective_stroke: Option<&Stroke> = cell_stroke.or(stroke);
-                let effective_fill: Option<&Color> = cell_fill.or(fill);
-
-                // P228 + P230 — Z-order step 1: fill efectivo emite primeiro
-                // (atrás do conteúdo cell + stroke). Renderização Opção β:
-                // FrameItem::Shape::Rect per cell com fill efectivo
-                // (per-cell override Grid-level se Some; inherit se None).
+                // P228 + P230 + P234 — Z-order step 1: fill efectivo
+                // emite primeiro (atrás do conteúdo cell + stroke).
+                // Bounds reais cell_w/cell_h (cobrem colspan/rowspan).
                 if let Some(c) = effective_fill {
                     self.regions.current.current_items.push(FrameItem::Shape {
-                        pos:    Point { x: Pt(cell_x), y: Pt(row_start_y) },
+                        pos:    Point { x: Pt(cell_x), y: Pt(cell_y) },
                         kind:   ShapeKind::Rect,
                         width:  cell_w,
-                        height: row_h,
+                        height: cell_h,
                         fill:   Some(*c),
                         stroke: None,
                     });
@@ -293,30 +398,26 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
                 // Z-order step 2: conteúdo cell (existing P82-84.6 lógica).
                 // Transferir items com posições absolutas (Y rebaseado
-                // a row_start_y, compensando o ascender_local).
+                // a body_y reduzido por inset P235, compensando o ascender_local).
                 for item in cell_items {
                     let (lx, ly) = item_pos(&item);
                     let abs_pos = Point {
                         x: Pt(lx),
-                        y: Pt(row_start_y + (ly - local_start_y)),
+                        y: Pt(body_y + (ly - local_start_y)),
                     };
                     let translated = translate_frame_item(item, abs_pos.x, abs_pos.y);
                     self.regions.current.current_items.push(translated);
                 }
 
-                // P227 + P230 — Renderização Opção β simplificada: emite 4
-                // FrameItem::Shape::Line per cell border (top + bottom
-                // + left + right). Stroke efectivo (per-cell override
-                // Grid-level se Some; inherit se None). Sem deduplicação
-                // linhas adjacentes (refino candidato A.3 stroke).
+                // P227 + P230 + P234 — Renderização Opção β simplificada:
+                // emite 4 FrameItem::Shape::Line per cell border (top +
+                // bottom + left + right). Stroke efectivo. Bounds reais
+                // cobrem colspan/rowspan.
                 if let Some(s) = effective_stroke {
-                    let x0 = cell_x;
-                    let y0 = row_start_y;
-                    let cell_h = row_h;
                     let stroke_clone = s.clone();
                     // Top edge.
                     self.regions.current.current_items.push(FrameItem::Shape {
-                        pos:    Point { x: Pt(x0), y: Pt(y0) },
+                        pos:    Point { x: Pt(cell_x), y: Pt(cell_y) },
                         kind:   ShapeKind::Line { dx: cell_w, dy: 0.0 },
                         width:  0.0,
                         height: 0.0,
@@ -325,7 +426,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     });
                     // Bottom edge.
                     self.regions.current.current_items.push(FrameItem::Shape {
-                        pos:    Point { x: Pt(x0), y: Pt(y0 + cell_h) },
+                        pos:    Point { x: Pt(cell_x), y: Pt(cell_y + cell_h) },
                         kind:   ShapeKind::Line { dx: cell_w, dy: 0.0 },
                         width:  0.0,
                         height: 0.0,
@@ -334,7 +435,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     });
                     // Left edge.
                     self.regions.current.current_items.push(FrameItem::Shape {
-                        pos:    Point { x: Pt(x0), y: Pt(y0) },
+                        pos:    Point { x: Pt(cell_x), y: Pt(cell_y) },
                         kind:   ShapeKind::Line { dx: 0.0, dy: cell_h },
                         width:  0.0,
                         height: 0.0,
@@ -343,7 +444,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     });
                     // Right edge.
                     self.regions.current.current_items.push(FrameItem::Shape {
-                        pos:    Point { x: Pt(x0 + cell_w), y: Pt(y0) },
+                        pos:    Point { x: Pt(cell_x + cell_w), y: Pt(cell_y) },
                         kind:   ShapeKind::Line { dx: 0.0, dy: cell_h },
                         width:  0.0,
                         height: 0.0,
@@ -361,6 +462,30 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // cell_origin_* save/restore pattern P84.6).
         self.cell_align = saved_cell_align;
     }
+}
+
+/// P234 — Bounds reais per `PlacedCell` × tracks resolved.
+///
+/// `current_row_start_y` é o cursor_y no início da emissão da row
+/// `placed.row` (já considerou pagination). Para cells com
+/// `rowspan > 1`, height = sum(row_heights[row..row+rowspan])
+/// estende para baixo a partir de current_row_start_y.
+fn cell_bounds(
+    placed: &PlacedCell,
+    col_starts: &[f64],
+    resolved_widths: &[f64],
+    row_heights: &[f64],
+    current_row_start_y: f64,
+) -> (f64, f64, f64, f64) {
+    let x0 = col_starts.get(placed.col).copied().unwrap_or(0.0);
+    let y0 = current_row_start_y;
+    let cell_w: f64 = (placed.col..placed.col + placed.colspan)
+        .map(|i| resolved_widths.get(i).copied().unwrap_or(0.0))
+        .sum();
+    let cell_h: f64 = (placed.row..placed.row + placed.rowspan)
+        .map(|i| row_heights.get(i).copied().unwrap_or(0.0))
+        .sum();
+    (x0, y0, cell_w, cell_h)
 }
 
 #[cfg(test)]
