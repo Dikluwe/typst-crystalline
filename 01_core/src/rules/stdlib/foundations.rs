@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
-//! @prompt-hash f6cc2443
+//! @prompt-hash f45bcc3a
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -320,6 +320,65 @@ pub fn native_state_update_with(
     }
 }
 
+/// `state_display(key, [callback])` — render-mediated state display.
+/// P240 (M9d/M7+1; per ADR-0081 PROPOSTO P239 Opção γ).
+///
+/// **Vanilla `state.display(callback)`**: durante walk, captura
+/// `(key, callback)`; pós-fixpoint, `apply_state_displays`
+/// (em `from_tags.rs`) chama `apply_func(callback, [state.value_at(loc)],
+/// ctx, engine)` com Engine+ctx disponíveis e armazena Content
+/// resultado em `intr.state_displays[(key, loc)]`. Layout arm
+/// `Content::StateDisplay` consome via `state_display_value`.
+/// Layouter permanece puro (sem Engine+ctx em signature).
+///
+/// **Forma 1-arg (`state_display(key)`)**: callback ausente; valor é
+/// renderizado directamente — `Value::Content` passa-through;
+/// `Value::Str` via `Content::text`; outros tipos fallback
+/// `Content::Empty`.
+///
+/// **Forma 2-arg (`state_display(key, callback)`)**: callback aplicada
+/// ao valor; resultado convertido para Content por mesma regra.
+pub fn native_state_display(
+    _ctx:                &mut EvalContext,
+    args:                &Args,
+    _world:              &dyn crate::contracts::world::World,
+    _current_file:       FileId,
+    _figure_numbering:   Option<&str>,
+) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        // 1-arg: sem callback (renderiza Value→Content directo pós-fixpoint).
+        [Value::Str(key)] => Ok(Value::Content(
+            crate::entities::content::Content::StateDisplay {
+                key:      key.to_string(),
+                callback: None,
+            },
+        )),
+        // 2-arg: com callback.
+        [Value::Str(key), Value::Func(callback)] => Ok(Value::Content(
+            crate::entities::content::Content::StateDisplay {
+                key:      key.to_string(),
+                callback: Some(callback.clone()),
+            },
+        )),
+        // 2-arg com segundo arg não-Func.
+        [Value::Str(_), other] => err(format!(
+            "state_display() requer função como segundo argumento (callback), recebeu {}",
+            other.type_name()
+        )),
+        // Primeiro arg não-string (1 OR 2 args).
+        [other, ..] => err(format!(
+            "state_display() requer string como primeiro argumento (key), recebeu {}",
+            other.type_name()
+        )),
+        // Arity errada (0 ou 3+).
+        _ => err(format!(
+            "state_display() requer 1-2 argumentos (key, [callback]), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
 /// `counter_at(key_str, label_str)` — valor do counter `key` na
 /// `Location` associada à `label_str`. P177 (M9 sub-passo 7).
 ///
@@ -429,6 +488,17 @@ pub fn native_counter_final(
 /// SUPERSEDED-BY 0073 + state runtime já materializado P171+M9+M9c.
 /// Materialização P236 limitada a refino aditivo `state_final` per
 /// directiva humana pós-divergência.
+///
+/// **P240 (M9d/M7+1) — two-pass real confirmado**: audit P239 C3.3
+/// identificou sobreposição grande bloqueador A (walk-time Func
+/// dispatch) + D (state.final two-pass). Audit P240 C7 cenário α
+/// confirmou empíricamente: `state_final_value` baseline retorna
+/// `state.final_value(key)` que delega a `history.last()` em
+/// `StateRegistry`. Após fixpoint convergência, `apply_state_funcs`
+/// (P191B) avaliou cumulativamente `StateUpdate::Func` updates;
+/// `history.last()` reflete o valor final two-pass real. Portanto
+/// **`state_final` semantic já é two-pass real pós-P240** —
+/// paridade vanilla `state.final()` sem refactor adicional.
 pub fn native_state_final(
     ctx:                &mut EvalContext,
     args:               &Args,

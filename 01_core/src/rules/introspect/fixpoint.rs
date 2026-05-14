@@ -27,7 +27,7 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::tag::Tag;
 use crate::rules::eval::EvalContext;
 use crate::rules::introspect::convergence::compute_tags_hash;
-use crate::rules::introspect::from_tags::apply_state_funcs;
+use crate::rules::introspect::from_tags::{apply_state_displays, apply_state_funcs};
 
 /// Hard cap de iterações. Paridade com vanilla (5).
 pub const MAX_FIXPOINT_ITERATIONS: usize = 5;
@@ -99,6 +99,9 @@ where
 
         let curr_hash = compute_tags_hash(&tags);
         apply_state_funcs(&tags, &mut introspector, engine, ctx);
+        // P240 (M9d/M7+1): pre-render `Content::StateDisplay` callbacks
+        // paralelo `apply_state_funcs` (Opção γ ADR-0081 PROPOSTO P239).
+        apply_state_displays(&tags, &mut introspector, engine, ctx);
 
         if let Some(prev_hash) = prev_tags_hash {
             if prev_hash == curr_hash {

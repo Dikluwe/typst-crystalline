@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
-//! @prompt-hash f6cc2443
+//! @prompt-hash f45bcc3a
 //! @layer L1
 //! @updated 2026-04-23
 
@@ -34,7 +34,7 @@ mod layout;
 // por `make_stdlib` em `eval/mod.rs`.
 pub use crate::rules::stdlib::foundations::{
     native_counter_at, native_counter_final, native_counter_step, native_float, native_here, native_int, native_len, native_locate, native_luma, native_metadata, native_query, native_range, native_rgb,
-    native_state, native_state_at, native_state_final, native_state_update, native_state_update_with, native_str, native_type,
+    native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with, native_str, native_type,
 };
 pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::text::{native_lower, native_replace, native_upper};
@@ -4479,6 +4479,83 @@ mod tests {
         let r3 = native_state_at(
             &mut ctx,
             &p(vec![Value::Str("k".into()), Value::Str("l".into()), Value::Int(1)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r3.is_err(), "3 args deve retornar Err");
+    }
+
+    // ── Passo 240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ) — state_display
+    //     render-mediated walk-time real via apply_state_displays paralelo
+    //     apply_state_funcs ──
+
+    #[test]
+    fn p240_native_state_display_sem_callback_constroi_variant() {
+        null_ctx!(ctx);
+        let r = native_state_display(
+            &mut ctx,
+            &p(vec![Value::Str("k".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        if let Value::Content(Content::StateDisplay { key, callback }) = r {
+            assert_eq!(key, "k");
+            assert!(callback.is_none(), "1-arg → callback=None");
+        } else {
+            panic!("esperado Content::StateDisplay");
+        }
+    }
+
+    #[test]
+    fn p240_native_state_display_com_callback_constroi_some() {
+        use crate::entities::func::Func;
+        null_ctx!(ctx);
+        let identity_fn = Func::native("identity", |_, args, _, _, _| {
+            Ok(args.items.first().cloned().unwrap_or(Value::None))
+        });
+        let r = native_state_display(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Func(identity_fn)]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        if let Value::Content(Content::StateDisplay { key, callback }) = r {
+            assert_eq!(key, "k");
+            assert!(callback.is_some(), "2-arg → callback=Some");
+        } else {
+            panic!("esperado Content::StateDisplay com callback");
+        }
+    }
+
+    #[test]
+    fn p240_native_state_display_arg_tipo_errado_rejeita() {
+        null_ctx!(ctx);
+        // 1-arg key não-string.
+        let r1 = native_state_display(
+            &mut ctx,
+            &p(vec![Value::Int(1)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r1.is_err(), "key não-string deve retornar Err");
+        // 2-arg segundo arg não-Func.
+        let r2 = native_state_display(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Int(2)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r2.is_err(), "callback não-Func deve retornar Err");
+    }
+
+    #[test]
+    fn p240_native_state_display_arity_errada_rejeita() {
+        null_ctx!(ctx);
+        // 0 args.
+        let r0 = native_state_display(
+            &mut ctx, &p(vec![]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r0.is_err(), "0 args deve retornar Err");
+        // 3 args.
+        let r3 = native_state_display(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Int(1), Value::Int(2)]),
             &null_world(), test_file_id(), None,
         );
         assert!(r3.is_err(), "3 args deve retornar Err");

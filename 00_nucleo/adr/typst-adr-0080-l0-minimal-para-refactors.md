@@ -263,3 +263,74 @@ Opção γ por defeito ou Opção α por excepção).
 Promoção formal a `EM VIGOR` candidato Caminho XS
 administrativo dedicado se humano priorizar pós-N=8 ou
 imediato (passo limpo sem código).
+
+---
+
+## Excepção P240 — features runtime + walk integration
+
+**Data**: 2026-05-14.
+
+**Primeira excepção justificada à aplicação automática
+ADR-0080 EM VIGOR pós-promoção P229**. ADR-0080 §"Escopo"
+aplica-se a refactors aditivos a variants/fields existentes.
+**Features runtime + walk integration** (novos Content
+variants + novos ElementPayload variants + funções fixpoint
+novas + Introspector trait methods novos) merecem L0 tocado
+partial.
+
+**P240 materializa M7+1 (M9d primeiro sub-passo; ADR-0081
+PROPOSTO P239 Opção γ)**:
+- `Content::StateDisplay { key, callback: Option<Func> }`
+  variant novo.
+- `ElementPayload::StateDisplay { key, callback }` variant
+  novo.
+- `ElementKind::StateDisplay` variant novo.
+- `apply_state_displays` fixpoint function nova (paralelo
+  absoluto `apply_state_funcs` P191B).
+- `Introspector::state_display_value` trait method novo +
+  impl em `TagIntrospector` + `CountingIntrospector`.
+- `TagIntrospector.state_displays:
+  HashMap<(String, Location), Content>` storage novo.
+- `native_state_display(key, [callback])` stdlib func nova.
+- Walk integration layout-time arm
+  `Content::StateDisplay`.
+
+**4-5 entidades novas cumulativas** — não-trivial estructural;
+paridade conceitual hipótese P236 spec original (que foi
+rejeitada empíricamente pós-`P236.div-1`; mas pattern
+proposto naquele spec aplica-se aqui: features runtime
+novas merecem L0 tocado).
+
+**L0 tocado partial P240** (3 ficheiros):
+- `00_nucleo/prompts/entities/content.md` — bloco
+  `Content::StateDisplay` documentado.
+- `00_nucleo/prompts/rules/stdlib.md` — bloco
+  `state_display(key, [callback])` documentado.
+- `00_nucleo/prompts/rules/introspect.md` — bloco
+  `apply_state_displays` + `Introspector::state_display_value`
+  documented.
+
+**Pattern emergente "L0 tocado para features runtime novas
++ walk integration" N=1 inaugurado P240** — primeira
+aplicação real (P236 spec original hipotetizou; rejeitada
+empíricamente pós-divergência).
+
+**Pattern "aplicação automática ADR-0080 EM VIGOR" N=8
+preservado** mas **não-incrementa P240** (excepção
+justificada documentada formalmente acima).
+
+**Critério para excepções futuras** (cristalizado P240):
+sub-passo merece L0 tocado partial se introduz:
+- 4+ entidades novas cumulativas (Content variant +
+  ElementPayload variant + fixpoint function + trait
+  method + storage + stdlib func + walk arm).
+- Walk integration arquitectural (não apenas eval-time
+  wrapper).
+- Pipeline restructuring (ainda que paridade pattern
+  existente).
+- Feature M-fase nova (M7+/M9d+ etc).
+
+Sub-passo NÃO merece L0 tocado se é:
+- Refactor aditivo +1 field/variant cosmético.
+- Eval-time wrapper trivial paralelo existing.
+- Renderização Z-order extension paridade existing.

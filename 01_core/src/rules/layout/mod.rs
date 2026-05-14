@@ -352,6 +352,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::State { .. } => {}
             Content::StateUpdate { .. } => {}
 
+            // P240 (M9d/M7+1): StateDisplay consome Content pre-rendered
+            // pelo `apply_state_displays` pós-fixpoint via
+            // `Introspector::state_display_value(key, loc)`. Layouter
+            // permanece puro (sem Engine+ctx em signature) — paridade
+            // arquitectural estrita preservada (Opção γ P239 audit).
+            Content::StateDisplay { key, callback: _ } => {
+                use crate::entities::introspector::Introspector;
+                if let Some(loc) = self.current_location {
+                    let pre_rendered_opt = self.introspector
+                        .state_display_value(key.clone(), loc);
+                    if let Some(pre_rendered) = pre_rendered_opt {
+                        self.layout_content(&pre_rendered);
+                    }
+                    // Sem pre_rendered: defensive ignore (fixpoint pre-walk
+                    // ainda não convergiu OR Func errored OR key inexistente).
+                }
+                // Sem current_location: defensive ignore (walk pre-Locator).
+            }
+
             Content::Text(text, node_style) => {
                 // Estilo resolvido: merge de node_style (produzido pelo eval) com
                 // self.style (cache da chain, actualizada por Content::Styled no

@@ -54,6 +54,15 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
             update: update.clone(),
         }),
 
+        // P240 (M9d/M7+1) — state.display(key, callback) feature.
+        // Walk emite Tag aqui; `apply_state_displays` pós-fixpoint
+        // (paralelo `apply_state_funcs` P191B) pre-renderiza Content
+        // resultado callback aplicada ao state value at this loc.
+        Content::StateDisplay { key, callback } => Some(ElementPayload::StateDisplay {
+            key:      key.clone(),
+            callback: callback.clone(),
+        }),
+
         // P182C (M9) — SetHeadingNumbering emite StateUpdate sob chave
         // canónica `numbering_active:heading`. Reusa infra P171/P173 —
         // sem novo ElementPayload variant; `from_tags` arm StateUpdate

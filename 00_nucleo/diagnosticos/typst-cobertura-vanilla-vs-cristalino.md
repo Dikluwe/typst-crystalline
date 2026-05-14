@@ -2727,6 +2727,387 @@ candidata 10/13-15 sub-passos materializados preservado
 
 **Stdlib funcs**: 62 preservado.
 
+⁵⁸ — Ajuste P239 (prep-passo audit-only reabertura M-fase
+pós-M9c para M7+ refactor; **zero código tocado**; **primeira
+aplicação real pattern "atomização prep-passo audit-only +
+materialização-passo" inaugurado P238 reescrito**; ADR meta
+novo ADR-0081 PROPOSTO criado; paridade pattern P225/P229/P238
+reescrito administrativo cumulativo N=3 → 4):
+
+**P239 prep-passo audit-only materializa**
+(`typst-passo-239-audit-m7-reabertura.md` 9 §s ~24 KB):
+- **Audit M-fase histórico** (M5/M6/M7/M8/M9/M9c cumulativos;
+  M7 estruturalmente fechado P192B ADR-0072; reabertura M-fase
+  para walk-time eval é **nova M-fase**, não reabertura M7).
+- **Audit blocker arquitectural walk-time eval Func dispatch**
+  — achado material refina hipótese P238 reescrito:
+  - ✗ Hipótese P238 reescrito: "`Func::call` não existe".
+  - ✓ Realidade: `Func::call` método não existe **como
+    método em Func**, mas mecanismo de chamada é
+    `closures::apply_func(func, args, ctx, engine)` que
+    existe (`01_core/src/rules/eval/closures.rs:59`) e
+    funciona.
+  - ✓ Realidade: `apply_state_funcs` JÁ EXISTE em
+    `01_core/src/rules/introspect/from_tags.rs:48` e avalia
+    `StateUpdate::Func` via fixpoint loop pós-walk com
+    Engine+ctx disponíveis (caller único `run_fixpoint` em
+    `fixpoint.rs:101`).
+  - **Blocker real**: layout-time Engine+ctx indisponíveis
+    (Layouter puro sem acesso eval) — não walk-time Func
+    dispatch.
+
+- **4 opções resolução estructural identificadas P239 §3.2**:
+  - Opção α — Pass `Engine + ctx` para Layouter signature
+    massivo. Magnitude L+; risco quebrar comemo invariants
+    ADR-0073/0074.
+  - Opção β — Two-pass walk completo. Magnitude XL+; signature
+    refactor cumulativo.
+  - **Opção γ recomendada** — `apply_state_displays` pré-eval
+    em fixpoint paralelo `apply_state_funcs`; layout consome
+    Content pré-renderizado. Magnitude **L (~5-8h)**; paridade
+    pattern existente; baixo risco.
+  - Opção δ — Show rule synthetic mecanismo recursivo. Magnitude
+    L+; incoerência arquitectural Cristalino pós-M9c.
+
+- **Audit blockers relacionados P239 §3.3**:
+  - Multi-region completion cell-level (DEBT-56b candidato; L+
+    ~8-12h; independente parcial).
+  - Place float real (reabertura Opção B P219; L ~5-8h;
+    independente).
+  - state.final two-pass walk (**sobreposição grande com
+    walk-time via Opção γ**; mesmo refactor desbloqueia ambos).
+  - **Bloqueador adicional E identificado P239** — A.4
+    radius/clip infrastructure: `ShapeKind::RoundedRect`
+    AUSENTE (`01_core/src/entities/geometry.rs:32` tem
+    `Rect|Ellipse|Line|Path`); `Group::clip_mask: Option<ShapeKind>`
+    JÁ EXISTE baseline (`layout_types.rs:235`); refactor M-L
+    ~3-5h.
+
+- **Sobreposições P239 §3.4**: bloqueadores A + D partilham
+  refactor Opção γ; resto independente.
+
+- **Roadmap atomização 5 sub-passos materialização M7+ P239 §4**:
+  - **M7+1** — Pipeline walk-time eval (Opção γ
+    `apply_state_displays` + `Content::StateDisplay` variant
+    + walk arm pre-render); L ~5-8h; nenhuma dependência;
+    desbloqueia D.2 state.display real + state.final two-pass
+    real.
+  - **M7+2** — counter.display paralelo
+    (`Content::CounterDisplay` + `apply_counter_displays`);
+    M ~2-4h; depende M7+1 (reuso pattern).
+  - **M7+3** — Multi-region completion cell-level (`Regions
+    { current, backlog, last }`); L+ ~8-12h; independente.
+  - **M7+4** — Place float real (reabertura Opção B P219); L
+    ~5-8h; independente.
+  - **M7+5** — A.4 radius/clip infrastructure
+    (`ShapeKind::RoundedRect` + `Corners<T>` type paridade
+    `Sides<T>`); M-L ~3-5h; independente.
+  - **Total cumulativo ~23-37h materialização** — refinado
+    pós-audit empírico face P238 reescrito XL+ ~20-40h
+    hipotetizado.
+
+- **3 pré-condições obrigatórias formalizadas P239 §5**:
+  - Testes baseline preservados (2150 verdes pré-M7+;
+    adaptações N>0 documentadas).
+  - Comemo memoization invariants ADR-0073/0074 preservados.
+  - Backward compat eval-time (P236 state_final + P237
+    state_at wrappers continuam funcionar).
+
+- **ADR meta novo PROPOSTO criado P239 §6** —
+  `00_nucleo/adr/typst-adr-0081-m7-plus-pipeline-restructuring-scope.md`:
+  - Status PROPOSTO.
+  - Escopo: 5 bloqueadores (A walk-time Func; B multi-region;
+    C Place float; D state.final two-pass; **E radius/clip
+    novo P239**).
+  - Atomização: 5 sub-passos M7+1 a M7+5.
+  - Pré-condições obrigatórias formalizadas.
+  - Dependencies/ordem propostos.
+  - Magnitude cumulativa estimada L+ a XL (~23-37h).
+  - 6 alternativas consideradas (A monolítico + B chain
+    extensão + C estender 0079 + E Layouter signature + F
+    two-pass + G Show rules recursivo preteridas; D pivot
+    válida).
+  - 3 sub-decisões pendentes (D1 nomenclatura M-fase
+    preliminar **M9d**; D2 ordem primeira materialização;
+    D3 promoção pós-M7+).
+
+- **8 decisões fixadas P239** (Decisão 0 = lição `P238.div-1`):
+  - Decisão 0 — Prep-passo audit-only obrigatório.
+  - Decisão 1 — Opção α escopo audit cumulativo.
+  - Decisão 2 — Opção α ADR meta novo PROPOSTO criado.
+  - Decisão 3 — Opção α atomização ADR-0036 aplicável.
+  - Decisão 4 — 3 pré-condições obrigatórias formais.
+  - Decisão 5 — Magnitude L+ a XL refinada empíricamente.
+  - Decisão 6 — Opção γ L0 NÃO tocado.
+  - Decisão 7 — Opção β saldo DEBTs preservado/decresce.
+  - Decisão 8 — Sem promoção ADR-0079; Fase 5 candidata
+    mantém 10/13-15 sub-passos.
+
+- **L0 NÃO tocado** — passo administrativo audit-only não-toca
+  código nem prompts; **não conta na contagem "aplicação
+  automática ADR-0080 EM VIGOR"** (paralelo P225/P229/P238
+  reescrito). Pattern "L0 minimal para refactors aplicação
+  automática" preserva **N=8 cumulativo** P230-P237.
+
+- **Patterns emergentes inaugurados/consolidados em P239** (7):
+  - **"spec audit prévio obrigatório para sub-passos
+    walk-time/runtime"** N=1 → **2 cumulativo** (P238 reescrito
+    + P239).
+  - **"prep-passo audit-only preventivo para reabertura M-fase"
+    N=1 inaugurado P239** — extensão pattern P238 reescrito.
+  - **"passo administrativo documental"** N=3 → **4 cumulativo**
+    (P225; P229; P238 reescrito; **P239**) — pattern
+    empíricamente sólido.
+  - **"ADR meta novo PROPOSTO para reabertura M-fase" N=1
+    inaugurado P239** — primeiro ADR meta novo pós-P229.
+  - **"atomização prep-passo audit-only + materialização-passo"**
+    N=1 → **2 cumulativo** (P238 reescrito + P239).
+  - **"L0 minimal para refactors" aplicação automática N=8
+    preservado** (P239 administrativo não-incrementa).
+  - **"audit empírico refina hipótese spec"** N=2 → **3
+    cumulativo** (`P236.div-1`; P237 audit C1; **P239 audit
+    C2.1+C2.2 `apply_state_funcs` já existe**).
+
+- **Zero código tocado P239**: workspace 2150 verdes preservado;
+  0 violations preservadas; 0 adaptações; 0 regressões; 0
+  novos tests; 0 fields adicionados; 0 variants adicionados;
+  0 stdlib funcs novas; 0 módulos novos.
+
+- Sem reclassificação categórica §A.5. Footnote ⁵⁸ adiciona
+  documentação metodológica audit empírico M-fase + 4+1
+  bloqueadores arquiteturais + roadmap atomização M7+ + ADR
+  meta novo ADR-0081 PROPOSTO.
+
+- **Distribuição ADRs P239**: PROPOSTO **12 → 13** (+ADR-0081
+  M7+ scope PROPOSTO); EM VIGOR 29; IMPLEMENTADO 21; total
+  **67 → 68**. ADR-0066 SUPERSEDED-BY 0073 preservado.
+- **Saldo DEBTs**: 11 preservado.
+- **Cobertura Layout per metodologia**: **89% preservado**.
+- **Cobertura user-facing total**: 67% preservada.
+- **Anti-inflação 31ª aplicação cumulativa pós-P205D** —
+  Opção α audit-only + Opção α ADR meta novo + Opção α
+  atomização ADR-0036 + Opção β saldo DEBTs preservado/decresce
+  + Opção α pré-condições formalizadas + Opção γ L0 NÃO
+  tocado + Opção α sem promoção ADR-0079 + Opção α sem
+  materialização imediata.
+
+**Estado pós-P239** — Categoria A 5/5 ✓ FECHADA; Categoria
+B 3/3 ✓ FECHADA; Categoria D 1/? refino estendido completo;
+Categoria C 0/?; **D.2 + counter.display + state.final two-pass
++ C.1 + C.2 + A.4 radius/clip identificados formalmente como
+bloqueadores arquiteturais M7+ refactor desbloqueia via
+ADR-0081 PROPOSTO**. Fase 5 Layout candidata 10/13-15
+sub-passos materializados preservado (P239 administrativo
+não-incrementa); **M7+ refactor posterior desbloqueia 3-5
+sub-passos adicionais** (D.2 + counter.display + state.final
+real two-pass + C.1 + C.2 + A.4 graded refinos).
+
+**Decisão humana pendente pós-P239** (per audit §7): primeira
+materialização sub-passo M7+ (recomendação subjectiva M7+1
+pipeline walk-time eval; alternativa válida M7+5 radius/clip
+ou pivot outro módulo).
+
+**Stdlib funcs**: 62 preservado.
+
+⁵⁹ — Ajuste P240 (M9d / M7+1 primeira sub-passo materialização
+pós-P239 audit-only — **Pipeline walk-time eval via Opção γ
+`apply_state_displays`**; **primeira aplicação real do pattern
+"atomização prep-passo audit-only + materialização-passo"
+inaugurado P238 reescrito N=1 → 2 cumulativo**; **terceira
+aplicação cumulativa pattern "spec C1 audit obrigatório
+bloqueante pós-P236.div-1" N=2 → 3 cumulativo**; **primeira
+excepção justificada à aplicação automática ADR-0080 EM VIGOR
+pós-P229**; ADR-0081 PROPOSTO → IMPLEMENTADO parcial;
+desbloqueia D.2 state.display walk-time real + state.final
+two-pass real via sobreposição bloqueador A+D):
+
+**P240 materializa M7+1 Opção γ** (per ADR-0081 PROPOSTO P239
+audit §3.2; refactor pipeline walk-time real cristalino sem
+quebrar Layouter pureza arquitectural):
+
+- **`Content::StateDisplay { key: String, callback: Option<Func> }`**
+  variant novo em `entities/content.rs`. **Content variants:
+  60 → 61** (+StateDisplay).
+- **`ElementPayload::StateDisplay { key, callback }`** variant
+  novo em `entities/element_payload.rs` (audit C1 P240 refinou
+  hipótese spec: Tag enum é `Tag::Start(Location, ElementInfo)`
+  com payload via ElementInfo, não `Tag::StateDisplay` directo;
+  ajuste signature trivial sem `P240.div-N`).
+- **`ElementKind::StateDisplay`** variant novo em
+  `entities/element_kind.rs`.
+- **`apply_state_displays(tags, intr, engine, ctx)`** fixpoint
+  function nova em `rules/introspect/from_tags.rs:80+` —
+  **paralelo absoluto `apply_state_funcs` P191B**. Chama
+  `apply_func(callback, [state.value_at(key, loc)], ctx,
+  engine)` pós-walk com Engine+ctx disponíveis; resultado
+  convertido para Content (`Value::Content(c)` passa-through;
+  `Value::Str(s)` via `Content::text`; outros tipos
+  `Content::Empty`; Err defensive ignore paridade P191B).
+- **`Introspector::state_display_value(key, location) ->
+  Option<Content>`** trait method novo em
+  `entities/introspector.rs` + impl em TagIntrospector +
+  adapter em `03_infra/src/measurements.rs::CountingIntrospector`.
+  Owned `Content` (clone) porque `comemo::Tracked` não permite
+  retornar `&Content`.
+- **`TagIntrospector.state_displays: HashMap<(String,
+  Location), Content>`** storage novo.
+- **`native_state_display(key, [callback])`** stdlib func nova
+  em `rules/stdlib/foundations.rs` + scope register em
+  `rules/eval/mod.rs:618` + re-export em `rules/stdlib/mod.rs`.
+  **Stdlib funcs: 62 → 63** (+state_display).
+- **Walk integration layout-time arm `Content::StateDisplay`**
+  em `rules/layout/mod.rs:355+`:
+  ```rust
+  Content::StateDisplay { key, callback: _ } => {
+      use crate::entities::introspector::Introspector;
+      if let Some(loc) = self.current_location {
+          if let Some(pre) = self.introspector
+              .state_display_value(key.clone(), loc)
+          { self.layout_content(&pre); }
+      }
+  }
+  ```
+  **Layouter permanece puro** — sem Engine+ctx em signature;
+  paridade arquitectural estrita Opção γ vs α/β/δ P239 audit.
+- **`extract_payload` arm StateDisplay** em
+  `rules/introspect/extract_payload.rs` emite Tag pós-walk.
+- **`populate_intr_from_tag_start` arm StateDisplay** em
+  `rules/introspect.rs` regista loc em kind_index.
+- **Caller** `apply_state_displays(&tags, &mut introspector,
+  engine, ctx)` em `fixpoint::run_fixpoint` após
+  `apply_state_funcs`.
+
+**Achado material audit C1 P240** (cenário α confirmed para
+state.final two-pass): hipótese P238 reescrito "`Func::call`
+não existe" refinada — `apply_state_funcs` JÁ EXISTE e avalia
+StateUpdate::Func via fixpoint pós-walk com Engine+ctx;
+`state_final_value` retorna `history.last()` que reflete valor
+two-pass real cumulativo pós-`apply_state_funcs`. **`state_final`
+semantic já é two-pass real pós-P240** — paridade vanilla
+`state.final()` sem refactor adicional (refino docs apenas).
+
+**Sobreposição bloqueador A + D desbloqueada via M7+1
+sozinho**: walk-time eval Func dispatch + state.final two-pass
+real ambos resolvidos via Opção γ paralelo `apply_state_funcs`
+existente — refinamento empírico face P238 reescrito que
+hipotetizou refactor maior.
+
+**8 decisões fixadas P240** (Decisão 0 = lição N=3 cumulativo):
+- Decisão 0 — C1 audit obrigatório bloqueante (lição refinada
+  P236.div-1 → P238.div-1 → P239 audit aplicada literal).
+- Decisão 1 — Opção γ apply_state_displays.
+- Decisão 2 — Opção β Content::StateDisplay variant novo.
+- Decisão 3 — Opção α refinada empíricamente:
+  ElementPayload::StateDisplay (não Tag::StateDisplay).
+- Decisão 4 — Opção β paralelismo absoluto.
+- Decisão 5 — Walk integration via Introspector trait.
+- Decisão 6 — native_state_display 1-2 arg.
+- Decisão 7 — Cenário α state.final two-pass trivial (docs).
+- Decisão 8 — **L0 partial tocado** (primeira excepção
+  ADR-0080 EM VIGOR pós-P229 justificada).
+
+**Pré-condições obrigatórias verificadas P240** (per ADR-0081
+§"Pré-condições obrigatórias" P239):
+1. Tests baseline preservados: **2150 → 2162 verdes** (+12 novos
+   P240; 0 regressões reais; 0 adaptações intencionais).
+2. Comemo memoization invariants ADR-0073/0074 preservados
+   (trait `Introspector` `#[comemo::track]` continua válido
+   com novo method `state_display_value(String, Location)
+   -> Option<Content>` compatível com macro).
+3. Backward compat eval-time P236 state_final + P237 state_at
+   wrappers continuam funcionar inalterados.
+
+- **L0 partial tocado** (3 ficheiros — **primeira excepção
+  justificada à aplicação automática ADR-0080 EM VIGOR
+  pós-P229**):
+  - `00_nucleo/prompts/entities/content.md` — bloco
+    `Content::StateDisplay` documentado.
+  - `00_nucleo/prompts/rules/stdlib.md` — bloco
+    `state_display(key, [callback])` documentado.
+  - `00_nucleo/prompts/rules/introspect.md` — bloco
+    `apply_state_displays` + `Introspector::state_display_value`
+    documentado.
+
+  **ADR-0080 §"Excepção P240"** anotada formalmente. Pattern
+  emergente "L0 tocado para features runtime novas + walk
+  integration" N=1 inaugurado P240 (primeira aplicação real;
+  P236 spec original hipotetizou; rejeitada empíricamente
+  pós-divergência). **Pattern "aplicação automática ADR-0080
+  EM VIGOR" N=8 preservado** mas **não-incrementa P240**
+  (excepção justificada).
+
+- **Patterns emergentes inaugurados/consolidados em P240** (4):
+  - **"L0 tocado para features runtime novas + walk
+    integration" N=1 inaugurado P240** — primeira aplicação
+    real.
+  - **"refino aditivo paralelo entre callers fixpoint" N=1
+    inaugurado P240** — extensão pattern P191B
+    `apply_state_funcs` baseline para `apply_state_displays`.
+  - **"spec C1 audit obrigatório bloqueante pós-P236.div-1"**
+    N=2 → **3 cumulativo** (P237 + P238 reescrito + P240).
+  - **"atomização prep-passo audit-only +
+    materialização-passo"** N=1 → **2 cumulativo** (P238
+    reescrito → P239 → P240 validação empírica).
+
+- 12 tests adicionados P240 (3 unit content StateDisplay
+  PartialEq + plain_text; 4 unit stdlib native_state_display;
+  5 unit introspect/fixpoint apply_state_displays cenários
+  canónicos); workspace 2150 → **2162 verdes** (+12; 0
+  regressões; 0 adaptações).
+
+- **Distribuição ADRs P240**: ADR-0081 PROPOSTO →
+  **IMPLEMENTADO parcial** (M7+1 ✓; M7+2 a M7+5 pendentes).
+  PROPOSTO 13 → **12** (-1 transita); IMPLEMENTADO 21 →
+  **22** (+1 parcial); EM VIGOR 29; total **68 preservado**.
+  ADR-0079 Categoria D 1/? → **2/?** anotado. ADR-0080
+  §"Excepção P240" anotada. ADR-0066 SUPERSEDED-BY 0073
+  preservado.
+- **Saldo DEBTs**: 11 preservado.
+- **Cobertura Layout per metodologia**: **89% preservado**
+  (M7+1 é Introspection refino + walk integration; não Layout
+  estrutural).
+- **Cobertura user-facing total**: 67% → **~68-70%** (D.2
+  state.display walk-time real + state.final two-pass real
+  bonus cumulativo marginal).
+- **Anti-inflação 32ª aplicação cumulativa pós-P205D** —
+  Opção γ pattern reusado (não α/β/δ inflacionárias) + Opção β
+  Content::StateDisplay variant novo (não α refino
+  Content::State coerência) + Opção α refinada ElementPayload
+  (não Tag::StateDisplay) + Opção β paralelismo absoluto +
+  Opção γ L0 partial (não α extenso) + Cenário α state.final
+  trivial (não γ atomização) + ADR-0081 IMPLEMENTADO parcial
+  (não completo prematuro).
+
+**Categoria D Fase 5 Layout: 1/? → 2/? sub-passos materializados**
+(D.1 state_final P236 + state_at P237 eval-time wrappers; **D.2
+state.display walk-time real P240 + state.final two-pass real
+via sobreposição bloqueador A+D**).
+
+**Fase 5 Layout candidata: 10/13-15 → 11/13-15 sub-passos
+materializados** (~73-85% cumulativo; **Categoria A 5/5 ✓ +
+Categoria B 3/3 ✓ + Categoria D 2/? + Categoria C 0/?**).
+
+**M9d / M7+ progresso**: **1/5 sub-passos materializados**
+(M7+1 ✓; M7+2 + M7+3 + M7+4 + M7+5 pendentes — magnitude
+cumulativa restante ~18-29h).
+
+**Marco interno P240**: primeira sub-passo materialização
+M-fase pós-M9c reabertura iniciada metodologicamente
+correctamente — lição refinada P236.div-1 → P238.div-1 →
+P239 audit validada empíricamente N=3 cumulativo via
+materialização real funcional. Audit C1 P240 refinou hipótese
+Tag enum signature (ajuste trivial sem div-N — paridade lição
+N=3 P237/P238 reescrito/P240).
+
+**Decisão humana pendente pós-P240**: M7+2 counter.display
+paralelo M7+1 (recomendação subjectiva; M ~2-4h; completa
+D.2 → D 3/? totalmente real); OU M7+5 A.4 radius/clip
+infrastructure (menor magnitude M-L ~3-5h); OU M7+3/M7+4
+independentes; OU pivot outro módulo; OU pausa M-fase
+(Fase 5 graded ~80-85%).
+
+**Stdlib funcs**: 62 → **63** (+state_display).
+
 ³⁹ — Ajuste P214 (Tabela A.1 Markup syntactic — recálculo
 ampliado pós-M9c 2026-05-12): **3 reclassificações
 empíricas materiais** detectadas em §A.1 face ao estado

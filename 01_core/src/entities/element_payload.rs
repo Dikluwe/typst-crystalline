@@ -88,6 +88,20 @@ pub enum ElementPayload {
         update: crate::entities::state_update::StateUpdate,
     },
 
+    /// **P240 (M9d/M7+1)** — payload de `state.display(key, callback)`.
+    ///
+    /// Emitido pelo `extract_payload` quando walk vê
+    /// `Content::StateDisplay { key, callback }`. Processado em
+    /// `apply_state_displays` pós-fixpoint (paralelo `apply_state_funcs`
+    /// P191B): chama `apply_func(callback, [state_value_at(loc)], ctx,
+    /// engine)` e guarda Content resultado em
+    /// `intr.state_displays[(key, loc)]`. Layout arm `Content::StateDisplay`
+    /// consome via `Introspector::state_display_value`.
+    StateDisplay {
+        key:      String,
+        callback: Option<crate::entities::func::Func>,
+    },
+
     /// **P178** — payload de `Content::Outline`. Unit variant (Opção α):
     /// suficiente para `query("outline")` minimal contar locations.
     /// Refino futuro pode capturar `depth` e `title_hash`.

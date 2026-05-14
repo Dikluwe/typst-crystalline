@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash ec58d849
+//! @prompt-hash 0f9ffd8a
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -924,6 +924,24 @@ pub enum Content {
         update: crate::entities::state_update::StateUpdate,
     },
 
+    /// **P240 (M9d / M7+1)** — render-mediated state display.
+    /// Vanilla `state.display(callback)` em `introspection/state.rs`.
+    ///
+    /// Emite tag durante walk; valor + callback aplicado em
+    /// `apply_state_displays` pós-fixpoint (paralelo
+    /// `apply_state_funcs` P171). Resultado pre-rendered guardado
+    /// em `Introspector.state_displays`; layout arm consome via
+    /// `state_display_value(key, loc)` — Layouter permanece puro
+    /// (sem Engine+ctx em signature).
+    ///
+    /// `callback: None` renderiza `Value` directo (Value::Content
+    /// passa-through; Value::Str via Content::text; outros tipos
+    /// fallback Content::Empty).
+    StateDisplay {
+        key:      String,
+        callback: Option<crate::entities::func::Func>,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
 }
@@ -1241,6 +1259,7 @@ impl Content {
             // P171 (M9): State e StateUpdate invisíveis em layout.
             Self::State { .. }          => String::new(),
             Self::StateUpdate { .. }    => String::new(),
+            Self::StateDisplay { .. }   => String::new(),
             Self::Heading { body, .. } => body.plain_text(),
             Self::Raw { text, .. }   => text.to_string(),
             Self::ListItem(c)        => format!("• {}", c.plain_text()),
@@ -1592,6 +1611,11 @@ impl PartialEq for Content {
             (Self::Columns { count: ca, gutter: ga, body: ba },
              Self::Columns { count: cb, gutter: gb, body: bb }) =>
                 ca == cb && ga == gb && ba == bb,
+            // P240 (M9d/M7+1) — StateDisplay: key igualdade; callback
+            // via Func::PartialEq (Arc::ptr_eq paridade StateUpdate::Func).
+            (Self::StateDisplay { key: ka, callback: ca },
+             Self::StateDisplay { key: kb, callback: cb }) =>
+                ka == kb && ca == cb,
             _ => false,
         }
     }
@@ -1835,7 +1859,10 @@ impl Content {
             | Content::Metadata { .. }
             // P171 (M9): State e StateUpdate são terminais.
             | Content::State { .. }
-            | Content::StateUpdate { .. } => self.clone(),
+            | Content::StateUpdate { .. }
+            // P240 (M9d/M7+1): StateDisplay é terminal (callback opcional
+            // mas não atravessa Content; resolvido pós-fixpoint).
+            | Content::StateDisplay { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
                 body:   Box::new(body.map_content(transform)?),
@@ -2126,7 +2153,9 @@ impl Content {
             | Content::Metadata { .. }
             // P171 (M9): State e StateUpdate são terminais.
             | Content::State { .. }
-            | Content::StateUpdate { .. } => self.clone(),
+            | Content::StateUpdate { .. }
+            // P240 (M9d/M7+1): StateDisplay é terminal em map_text.
+            | Content::StateDisplay { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
                 body:   Box::new(body.map_text(transform)),
@@ -4808,5 +4837,64 @@ mod tests {
         // form None vs Some → diferente.
         let other_none = Content::cite("k", None, None);
         assert_ne!(mk(), other_none);
+    }
+
+    // ── Passo 240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ) — Content::StateDisplay ──
+
+    #[test]
+    fn p240_content_statedisplay_partial_eq_sem_callback() {
+        // Sem callback → comparação por key.
+        let a = Content::StateDisplay {
+            key:      "k".to_string(),
+            callback: None,
+        };
+        let b = Content::StateDisplay {
+            key:      "k".to_string(),
+            callback: None,
+        };
+        assert_eq!(a, b);
+        let c = Content::StateDisplay {
+            key:      "other".to_string(),
+            callback: None,
+        };
+        assert_ne!(a, c);
+    }
+
+    #[test]
+    fn p240_content_statedisplay_partial_eq_com_callback_ptr_eq() {
+        // Com callback → comparação Arc::ptr_eq via Func::PartialEq.
+        use crate::entities::func::Func;
+        let f1 = Func::native("identity", |_, args, _, _, _| {
+            Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
+        });
+        let a = Content::StateDisplay {
+            key:      "k".to_string(),
+            callback: Some(f1.clone()),
+        };
+        let b = Content::StateDisplay {
+            key:      "k".to_string(),
+            callback: Some(f1.clone()),
+        };
+        // Mesmo Arc partilhado → equal.
+        assert_eq!(a, b);
+        // Func distinta (Arc diferente) → not equal mesmo com mesmo behaviour.
+        let f2 = Func::native("identity", |_, args, _, _, _| {
+            Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
+        });
+        let c = Content::StateDisplay {
+            key:      "k".to_string(),
+            callback: Some(f2),
+        };
+        assert_ne!(a, c);
+    }
+
+    #[test]
+    fn p240_content_statedisplay_plain_text_vazio() {
+        // P240 — StateDisplay sem texto direct (resolução pós-fixpoint).
+        let c = Content::StateDisplay {
+            key:      "k".to_string(),
+            callback: None,
+        };
+        assert_eq!(c.plain_text(), "");
     }
 }

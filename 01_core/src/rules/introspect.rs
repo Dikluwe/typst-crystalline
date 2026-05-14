@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash 8e0128e4
+//! @prompt-hash 9d104444
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -230,7 +230,10 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::Metadata { .. }
         // P171 (M9): State e StateUpdate são terminais.
         | Content::State { .. }
-        | Content::StateUpdate { .. } => content.clone(),
+        | Content::StateUpdate { .. }
+        // P240 (M9d/M7+1): StateDisplay terminal em materialize_time —
+        // resolução real via apply_state_displays + layout arm.
+        | Content::StateDisplay { .. } => content.clone(),
         // Passo 156C (ADR-0061 Fase 1) — pad / hide containers.
         // Materialize_time desce no body para resolver counters dentro;
         // padding e o invariante "hide" preservam-se.
@@ -668,6 +671,15 @@ fn populate_intr_from_tag_start(
                     // deferred to `apply_state_funcs` post-pass.
                 }
             }
+        }
+        ElementPayload::StateDisplay { .. } => {
+            // P240 (M9d/M7+1): kind_index registo apenas em walk; valor
+            // pre-rendered é produzido em `apply_state_displays` pós-walk
+            // (paralelo `apply_state_funcs` — requer Engine+ctx).
+            intr.kind_index
+                .entry(ElementKind::StateDisplay)
+                .or_default()
+                .push(loc);
         }
         ElementPayload::Equation { block, counter_update } => {
             intr.kind_index
@@ -1120,7 +1132,10 @@ pub(crate) fn walk(
         // P171 (M9): State e StateUpdate são terminais. Tag emitido
         // no topo via extract_payload.
         | Content::State { .. }
-        | Content::StateUpdate { .. } => {}
+        | Content::StateUpdate { .. }
+        // P240 (M9d/M7+1): StateDisplay terminal. Tag emitido no topo
+        // via extract_payload; valor pre-rendered em apply_state_displays.
+        | Content::StateDisplay { .. } => {}
 
         // Passo 154B — Terms / TermItem: descem em items para que filhos
         // com contadores ou labels sejam processados.

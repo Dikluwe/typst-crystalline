@@ -95,7 +95,25 @@ pub trait Introspector: Send + Sync {
 
     /// **P171 (M9 sub-passo 3)** — valor final do state `key` (último
     /// update aplicado). Equivalente a `state_value(key, last_loc)`.
+    ///
+    /// **P240 (M9d/M7+1) — two-pass real**: após fixpoint convergência,
+    /// `apply_state_funcs` (P191B) avalia `StateUpdate::Func` cumulativo;
+    /// `final_value` lê `history.last()` — portanto retorna o valor
+    /// final two-pass real (paridade vanilla `state.final()`). Não
+    /// requer refactor adicional pós-P240 audit C7 cenário α confirmado.
     fn state_final_value(&self, key: &str) -> Option<&Value>;
+
+    /// **P240 (M9d/M7+1)** — Content pre-rendered para `state.display`.
+    /// Owned `Content` (clone) — necessário porque `Tracked` não permite
+    /// retornar `&Content` directo. Caller layout arm
+    /// `Content::StateDisplay` consome valor. `None` se `(key, loc)` não
+    /// foi populated (fixpoint pre-walk ainda não convergiu OR Func
+    /// errored OR key inexistente em `loc`).
+    fn state_display_value(
+        &self,
+        key: String,
+        location: Location,
+    ) -> Option<crate::entities::content::Content>;
 
     /// **P175 (M9 sub-passo 5)** — query genérica via `Selector`.
     /// P175 minimal: só `Selector::Kind(kind)`, que delega a
@@ -307,6 +325,16 @@ pub struct TagIntrospector {
     /// `page_supplement`) retornam `None`. `page(location)` usa
     /// `positions` directamente (não depende de `page_store`).
     pub page_store: PageStore,
+
+    /// **P240 (M9d/M7+1)** — pre-rendered Content por
+    /// `(state_key, location)` produzido pelo `apply_state_displays`
+    /// pós-fixpoint (paralelo `apply_state_funcs` P191B). Consumer:
+    /// layout arm `Content::StateDisplay` via
+    /// `Introspector::state_display_value(key, loc)`. Layouter
+    /// permanece puro (sem Engine+ctx em signature) — paridade
+    /// arquitectural estrita Opção γ P239 audit.
+    pub state_displays:
+        HashMap<(String, Location), crate::entities::content::Content>,
 }
 
 impl TagIntrospector {
@@ -414,6 +442,14 @@ impl Introspector for TagIntrospector {
 
     fn state_final_value(&self, key: &str) -> Option<&Value> {
         self.state.final_value(key)
+    }
+
+    fn state_display_value(
+        &self,
+        key: String,
+        location: Location,
+    ) -> Option<crate::entities::content::Content> {
+        self.state_displays.get(&(key, location)).cloned()
     }
 
     fn query(&self, selector: &Selector) -> Vec<Location> {

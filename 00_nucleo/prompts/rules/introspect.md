@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 7a3ba2b7
+Hash do Código: 8942d0c7
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -899,3 +899,89 @@ Após **P200B**:
 Mutações legacy ainda activas como write paralelo M5
 (consumers `compute_*` helpers + Layouter assignments
 dependem). Cleanup orgânico em M6.
+
+## `apply_state_displays` — Passo 240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ)
+
+Slim post-pass para `Content::StateDisplay` paralelo absoluto
+a `apply_state_funcs` P191B. Localização:
+`01_core/src/rules/introspect/from_tags.rs`.
+
+```rust
+pub fn apply_state_displays(
+    tags:   &[Tag],
+    intr:   &mut TagIntrospector,
+    engine: &mut Engine<'_>,
+    ctx:    &mut EvalContext,
+)
+```
+
+**Algoritmo**:
+1. Iterar `tags` procurando `Tag::Start(loc, info)` com
+   `info.payload = ElementPayload::StateDisplay { key, callback }`.
+2. Para cada match: lookup `intr.state.value_at(key, loc)` →
+   se `None`, usar `Value::None`.
+3. Se `callback.is_some()`: chamar
+   `apply_func(callback.clone(), Args::positional(vec![value]),
+   ctx, engine)`:
+   - `Ok(Value::Content(c))` → `c`.
+   - `Ok(Value::Str(s))` → `Content::text(s.as_str())`.
+   - `Ok(_)` → `Content::Empty` (fallback outros tipos).
+   - `Err(_)` → `Content::Empty` (defensive ignore paridade P191B).
+4. Se `callback.is_none()`: converter value directo
+   (`Value::Content(c)` → `c`; `Value::Str(s)` →
+   `Content::text(s)`; outros → `Content::Empty`).
+5. Armazenar `intr.state_displays.insert((key.clone(), loc),
+   pre_rendered)`.
+
+**Caller**: `fixpoint::run_fixpoint` (após `apply_state_funcs`,
+para que state values cumulativos estejam materializados).
+
+```rust
+// Em run_fixpoint:
+apply_state_funcs(&tags, &mut introspector, engine, ctx);
+apply_state_displays(&tags, &mut introspector, engine, ctx);
+```
+
+**Ordem location-monotónica**: walk emite tags por ordem de
+Locator (counter incrementado). `apply_state_displays` processa
+na mesma ordem; `state.value_at(key, loc)` devolve o valor
+cumulativo correcto pós-`apply_state_funcs`.
+
+## `Introspector::state_display_value` — Passo 240
+
+```rust
+fn state_display_value(
+    &self,
+    key: String,
+    location: Location,
+) -> Option<Content>;
+```
+
+Lookup do Content pre-rendered armazenado por
+`apply_state_displays`. Retorna Owned `Content` (clone) —
+necessário porque `comemo::Tracked` não permite retornar
+`&Content` directo. Caller layout arm `Content::StateDisplay`
+consome valor:
+
+```rust
+Content::StateDisplay { key, callback: _ } => {
+    use crate::entities::introspector::Introspector;
+    if let Some(loc) = self.current_location {
+        if let Some(pre) = self.introspector
+            .state_display_value(key.clone(), loc)
+        {
+            self.layout_content(&pre);
+        }
+    }
+}
+```
+
+**Layouter permanece puro** — sem Engine+ctx em signature;
+paridade arquitectural estrita preservada (Opção γ vs α/β/δ
+P239 audit).
+
+**Primeira excepção justificada à aplicação automática ADR-0080
+EM VIGOR pós-P229** — feature runtime nova + walk integration
+merece L0 tocado partial (bloco StateDisplay em
+`entities/content.md` + bloco state_display em `rules/stdlib.md`
++ este bloco).
