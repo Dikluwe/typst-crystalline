@@ -34,7 +34,7 @@ mod layout;
 // por `make_stdlib` em `eval/mod.rs`.
 pub use crate::rules::stdlib::foundations::{
     native_counter_at, native_counter_final, native_counter_step, native_float, native_here, native_int, native_len, native_locate, native_luma, native_metadata, native_query, native_range, native_rgb,
-    native_state, native_state_update, native_state_update_with, native_str, native_type,
+    native_state, native_state_at, native_state_final, native_state_update, native_state_update_with, native_str, native_type,
 };
 pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::text::{native_lower, native_replace, native_upper};
@@ -4149,9 +4149,10 @@ mod tests {
     #[test]
     fn native_table_cell_named_arg_desconhecido_rejeitado() {
         null_ctx!(ctx);
-        use crate::entities::layout_types::Length;
+        // P235 — `inset` agora conhecido (Categoria B.3); test usa
+        // `outset` que continua scope-out per ADR-0054 graded.
         let mut args = p(vec![Value::Content(Content::text("body"))]);
-        args.named.insert("inset".into(), Value::Length(Length::pt(5.0)));
+        args.named.insert("outset".into(), Value::Int(5));
         let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
         assert!(r.is_err(), "named arg desconhecido em table_cell() deve retornar Err");
     }
@@ -4161,6 +4162,326 @@ mod tests {
         null_ctx!(ctx);
         let r = native_table_cell(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
         assert!(r.is_err(), "table_cell() sem body deve retornar Err");
+    }
+
+    // ── Passo 235 (Fase 5 Layout Categoria B.3) — algorítmicos per-cell ──
+
+    #[test]
+    fn p235_native_grid_cell_align_aceita() {
+        use crate::entities::layout_types::Align2D;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("align".into(), Value::Align(Align2D::from_string("center")));
+        let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
+        match r {
+            Ok(Value::Content(Content::GridCell { align, .. })) => assert!(align.is_some()),
+            other => panic!("esperado GridCell align Some, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p235_native_grid_cell_inset_length_uniforme_aceita() {
+        use crate::entities::layout_types::Length;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("inset".into(), Value::Length(Length::pt(5.0)));
+        let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
+        match r {
+            Ok(Value::Content(Content::GridCell { inset, .. })) => assert!(inset.is_some()),
+            other => panic!("esperado GridCell inset Some, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p235_native_grid_cell_breakable_bool_aceita() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("breakable".into(), Value::Bool(false));
+        let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
+        match r {
+            Ok(Value::Content(Content::GridCell { breakable, .. })) => assert_eq!(breakable, Some(false)),
+            other => panic!("esperado GridCell breakable Some(false), recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p235_native_grid_cell_breakable_tipo_errado_rejeita() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("breakable".into(), Value::Int(1));
+        let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "breakable Int (não Bool) deve rejeitar pós-P235");
+    }
+
+    #[test]
+    fn p235_native_table_cell_align_paridade_gridcell() {
+        use crate::entities::layout_types::Align2D;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("align".into(), Value::Align(Align2D::from_string("right")));
+        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
+        match r {
+            Ok(Value::Content(Content::TableCell { align, .. })) => assert!(align.is_some()),
+            other => panic!("esperado TableCell align Some, recebeu {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p235_native_table_cell_inset_paridade_gridcell() {
+        use crate::entities::layout_types::Length;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("a"))]);
+        args.named.insert("inset".into(), Value::Length(Length::pt(3.0)));
+        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
+        match r {
+            Ok(Value::Content(Content::TableCell { inset, .. })) => assert!(inset.is_some()),
+            other => panic!("esperado TableCell inset Some, recebeu {:?}", other),
+        }
+    }
+
+    // ── Passo 236 (Fase 5 Layout candidata Categoria D 1/? — refino aditivo
+    //     pós-P236.div-1; state runtime já materializado P171+M9+M9c) ──
+
+    #[test]
+    fn p236_state_final_introspector_vazio_retorna_none() {
+        null_ctx!(ctx);
+        let r = native_state_final(
+            &mut ctx,
+            &p(vec![Value::Str("counter_x".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        // Iter 0 fixpoint: introspector vazio → None.
+        assert_eq!(r, Value::None);
+    }
+
+    #[test]
+    fn p236_state_final_apos_init_retorna_init_value() {
+        use crate::entities::location::Location;
+        null_ctx!(ctx);
+        // Popular StateRegistry directamente via init.
+        ctx.introspector.state.init(
+            "k".to_string(),
+            Value::Int(42),
+            Location::from_raw(1),
+        );
+        let r = native_state_final(
+            &mut ctx,
+            &p(vec![Value::Str("k".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        // Sem updates → final = init.
+        assert_eq!(r, Value::Int(42));
+    }
+
+    #[test]
+    fn p236_state_final_apos_updates_retorna_ultimo_valor() {
+        use crate::entities::location::Location;
+        null_ctx!(ctx);
+        ctx.introspector.state.init(
+            "k".to_string(),
+            Value::Int(1),
+            Location::from_raw(1),
+        );
+        ctx.introspector.state.update(
+            "k".to_string(),
+            Value::Int(2),
+            Location::from_raw(2),
+        );
+        ctx.introspector.state.update(
+            "k".to_string(),
+            Value::Int(99),
+            Location::from_raw(3),
+        );
+        let r = native_state_final(
+            &mut ctx,
+            &p(vec![Value::Str("k".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        // Último update vence — paridade vanilla state.final().
+        assert_eq!(r, Value::Int(99));
+    }
+
+    #[test]
+    fn p236_state_final_key_inexistente_retorna_none() {
+        use crate::entities::location::Location;
+        null_ctx!(ctx);
+        // Popular outra key (não a key consultada).
+        ctx.introspector.state.init(
+            "outra".to_string(),
+            Value::Int(7),
+            Location::from_raw(1),
+        );
+        let r = native_state_final(
+            &mut ctx,
+            &p(vec![Value::Str("inexistente".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::None);
+    }
+
+    #[test]
+    fn p236_state_final_arg_nao_string_retorna_err() {
+        null_ctx!(ctx);
+        let r = native_state_final(
+            &mut ctx,
+            &p(vec![Value::Int(42)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err(), "arg não-string deve retornar Err");
+    }
+
+    #[test]
+    fn p236_state_final_zero_args_retorna_err() {
+        null_ctx!(ctx);
+        let r = native_state_final(
+            &mut ctx,
+            &p(vec![]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err(), "zero args deve retornar Err");
+    }
+
+    // ── Passo 237 (Fase 5 Layout candidata Categoria D 1/? — refino estendido;
+    //     paralelo absoluto state_at ↔ counter_at P177) ──
+
+    #[test]
+    fn p237_state_at_label_inexistente_retorna_none() {
+        null_ctx!(ctx);
+        // Sem labels nem state populados; label_str não resolve.
+        let r = native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Str("intro".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        // Paridade counter_at empty default: state_at retorna Value::None.
+        assert_eq!(r, Value::None);
+    }
+
+    #[test]
+    fn p237_state_at_key_inexistente_retorna_none() {
+        use crate::entities::label::Label;
+        use crate::entities::location::Location;
+        null_ctx!(ctx);
+        // Popular label + outro state (não a key consultada).
+        ctx.introspector.labels.add(Label("intro".to_string()), Location::from_raw(5));
+        ctx.introspector.state.init(
+            "outra".to_string(), Value::Int(7), Location::from_raw(5),
+        );
+        let r = native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("inexistente".into()), Value::Str("intro".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        assert_eq!(r, Value::None);
+    }
+
+    #[test]
+    fn p237_state_at_resolve_label_retorna_init() {
+        use crate::entities::label::Label;
+        use crate::entities::location::Location;
+        null_ctx!(ctx);
+        // Popular label "intro" → Location 5; state init em location 1.
+        ctx.introspector.labels.add(Label("intro".to_string()), Location::from_raw(5));
+        ctx.introspector.state.init(
+            "k".to_string(), Value::Int(42), Location::from_raw(1),
+        );
+        let r = native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Str("intro".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        // Sem updates entre init e label → init wins.
+        assert_eq!(r, Value::Int(42));
+    }
+
+    #[test]
+    fn p237_state_at_updates_antes_location_visivel() {
+        use crate::entities::label::Label;
+        use crate::entities::location::Location;
+        null_ctx!(ctx);
+        ctx.introspector.labels.add(Label("at_5".to_string()), Location::from_raw(5));
+        ctx.introspector.state.init(
+            "k".to_string(), Value::Int(1), Location::from_raw(1),
+        );
+        // 2 updates antes da location consultada (raw < 5).
+        ctx.introspector.state.update(
+            "k".to_string(), Value::Int(2), Location::from_raw(2),
+        );
+        ctx.introspector.state.update(
+            "k".to_string(), Value::Int(3), Location::from_raw(3),
+        );
+        let r = native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Str("at_5".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        // Valor em location=5 reflecte último update <= 5: Int(3).
+        assert_eq!(r, Value::Int(3));
+    }
+
+    #[test]
+    fn p237_state_at_updates_depois_location_nao_visiveis() {
+        use crate::entities::label::Label;
+        use crate::entities::location::Location;
+        null_ctx!(ctx);
+        ctx.introspector.labels.add(Label("at_2".to_string()), Location::from_raw(2));
+        ctx.introspector.state.init(
+            "k".to_string(), Value::Int(10), Location::from_raw(1),
+        );
+        // Update em location 5 (depois da location consultada raw=2).
+        ctx.introspector.state.update(
+            "k".to_string(), Value::Int(99), Location::from_raw(5),
+        );
+        let r = native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Str("at_2".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        // Em location=2: só init (raw 1) visível; update raw 5 invisível.
+        assert_eq!(r, Value::Int(10));
+    }
+
+    #[test]
+    fn p237_state_at_arg_nao_string_rejeita() {
+        null_ctx!(ctx);
+        // Key Int (não Str).
+        let r = native_state_at(
+            &mut ctx,
+            &p(vec![Value::Int(42), Value::Str("intro".into())]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r.is_err(), "key não-string deve retornar Err");
+        // Label Int (não Str).
+        let r2 = native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Int(7)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r2.is_err(), "label não-string deve retornar Err");
+    }
+
+    #[test]
+    fn p237_state_at_arity_errada_rejeita() {
+        null_ctx!(ctx);
+        // 0 args.
+        let r0 = native_state_at(
+            &mut ctx, &p(vec![]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r0.is_err(), "0 args deve retornar Err");
+        // 1 arg.
+        let r1 = native_state_at(
+            &mut ctx, &p(vec![Value::Str("k".into())]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r1.is_err(), "1 arg deve retornar Err");
+        // 3 args.
+        let r3 = native_state_at(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Str("l".into()), Value::Int(1)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r3.is_err(), "3 args deve retornar Err");
     }
 
     // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ──

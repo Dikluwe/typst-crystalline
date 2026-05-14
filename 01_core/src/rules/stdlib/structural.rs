@@ -308,6 +308,47 @@ fn extract_usize_or_none_min(
     }
 }
 
+/// P235 — extrai Align2D de Value individual (Align directo, ou Str
+/// parsed via Align2D::from_string). Helper privado paralelo a
+/// `extract_alignment(args)` em stdlib/layout.rs mas aceita `&Value`
+/// (named arg single value).
+fn extract_align_value(
+    val: &Value,
+    fn_name: &str,
+    field: &str,
+) -> SourceResult<crate::entities::layout_types::Align2D> {
+    match val {
+        Value::Align(a) => Ok(*a),
+        Value::Str(s)   => Ok(crate::entities::layout_types::Align2D::from_string(s.as_str())),
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{}({}:) espera alignment ou string, recebeu {}", fn_name, field, other.type_name()),
+        )]),
+    }
+}
+
+/// P235 — extrai `Sides<Length>` de Value individual. Aceita `Length`
+/// uniforme (paridade P156H Block.inset usage). Parsing complexo
+/// (sides explícitos por axis) candidato refino futuro.
+fn extract_inset_value(
+    val: &Value,
+    fn_name: &str,
+    field: &str,
+) -> SourceResult<crate::entities::sides::Sides<crate::entities::layout_types::Length>> {
+    use crate::entities::layout_types::Length;
+    use crate::entities::sides::Sides;
+    match val {
+        Value::Length(l) => Ok(Sides::uniform(*l)),
+        Value::Float(f)  => Ok(Sides::uniform(Length::pt(*f))),
+        Value::Int(n)    => Ok(Sides::uniform(Length::pt(*n as f64))),
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{}({}:) espera length uniforme, recebeu {} (sides explícitos refino futuro)",
+                fn_name, field, other.type_name()),
+        )]),
+    }
+}
+
 /// `table_cell(body, x: none, y: none, colspan: none, rowspan: none)` →
 /// `Content::TableCell`.
 ///
@@ -357,6 +398,10 @@ pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
 
     let mut stroke: Option<crate::entities::geometry::Stroke> = None;
     let mut fill:   Option<crate::entities::layout_types::Color> = None;
+    // P235 — 3 named args algorítmicos paralelo GridCell.
+    let mut align:     Option<crate::entities::layout_types::Align2D> = None;
+    let mut inset:     Option<crate::entities::sides::Sides<crate::entities::layout_types::Length>> = None;
+    let mut breakable: Option<bool> = None;
     for (key, value) in args.named.iter() {
         match key.as_str() {
             // ADR-0064 Caso A — auto-placement; min=0.
@@ -374,6 +419,16 @@ pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
                     format!("table_cell(fill): espera Color, recebeu {}", other.type_name()),
                 )]),
             },
+            // P235 — algorítmicos per-cell paralelo GridCell.
+            "align" => align = Some(extract_align_value(value, "table_cell", "align")?),
+            "inset" => inset = Some(extract_inset_value(value, "table_cell", "inset")?),
+            "breakable" => match value {
+                Value::Bool(b) => breakable = Some(*b),
+                other => return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("table_cell(breakable): espera Bool, recebeu {}", other.type_name()),
+                )]),
+            },
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("table_cell(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
@@ -385,6 +440,7 @@ pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
         body: Box::new(body),
         x, y, colspan, rowspan,
         stroke, fill,
+        align, inset, breakable,
     }))
 }
 
@@ -550,6 +606,10 @@ pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     let mut rowspan: Option<usize> = None;
     let mut stroke:  Option<crate::entities::geometry::Stroke> = None;
     let mut fill:    Option<crate::entities::layout_types::Color> = None;
+    // P235 — 3 named args algorítmicos.
+    let mut align:     Option<crate::entities::layout_types::Align2D> = None;
+    let mut inset:     Option<crate::entities::sides::Sides<crate::entities::layout_types::Length>> = None;
+    let mut breakable: Option<bool> = None;
 
     for (key, value) in args.named.iter() {
         match key.as_str() {
@@ -567,6 +627,18 @@ pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
                     format!("grid_cell(fill): espera Color, recebeu {}", other.type_name()),
                 )]),
             },
+            // P235 — align/inset/breakable per-cell (override Grid-level
+            // via .or() resolution; pattern N=2 → 3 cumulativo atinge
+            // limiar formalização).
+            "align" => align = Some(extract_align_value(value, "grid_cell", "align")?),
+            "inset" => inset = Some(extract_inset_value(value, "grid_cell", "inset")?),
+            "breakable" => match value {
+                Value::Bool(b) => breakable = Some(*b),
+                other => return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("grid_cell(breakable): espera Bool, recebeu {}", other.type_name()),
+                )]),
+            },
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("grid_cell(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
@@ -578,6 +650,7 @@ pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
         body: Box::new(body),
         x, y, colspan, rowspan,
         stroke, fill,
+        align, inset, breakable,
     }))
 }
 

@@ -408,6 +408,112 @@ pub fn native_counter_final(
     }
 }
 
+/// `state_final(key)` — valor final do state `key` pós-walk.
+///
+/// **P236 (Fase 5 Layout candidata Categoria D 1/? — refino aditivo)**.
+///
+/// State runtime mutable foi materializado em **P171/M9 + P172**
+/// (`Content::State`, `Content::StateUpdate`, `native_state`,
+/// `native_state_update`, `native_state_update_with`,
+/// `StateRegistry`, `state_update::StateUpdate`); pipeline activo
+/// via `Introspector::state_final_value` (P171). P236 expõe `state_final`
+/// user-facing — paralelo absoluto a `counter_final` (P176) +
+/// `counter_at` (P177).
+///
+/// Subset minimal: argumento posicional Str `key` → `Value` (init se
+/// state nunca actualizado; valor da última update caso contrário).
+/// Iteração 0 de fixpoint (`introspector` vazio) → `Value::None`.
+///
+/// **Divergência factual** `P236.div-1`: spec P236 assumia ADR-0066
+/// PROPOSTO + state runtime ausente; audit C1 confirmou ADR-0066
+/// SUPERSEDED-BY 0073 + state runtime já materializado P171+M9+M9c.
+/// Materialização P236 limitada a refino aditivo `state_final` per
+/// directiva humana pós-divergência.
+pub fn native_state_final(
+    ctx:                &mut EvalContext,
+    args:               &Args,
+    _world:             &dyn crate::contracts::world::World,
+    _current_file:      FileId,
+    _figure_numbering:  Option<&str>,
+) -> SourceResult<Value> {
+    use crate::entities::introspector::Introspector;
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key)] => {
+            let value = ctx
+                .introspector
+                .state_final_value(key.as_str())
+                .cloned()
+                .unwrap_or(Value::None);
+            Ok(value)
+        }
+        [other] => err(format!(
+            "state_final() requer string como argumento (key), recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "state_final() requer 1 argumento (key), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// `state_at(key, label)` — valor do state `key` na Location associada
+/// ao `label`. P237 (Fase 5 Layout candidata Categoria D 1/? refino
+/// estendido).
+///
+/// **Paralelo absoluto a `counter_at(key, label)` P177** — pattern
+/// "stdlib func runtime para label-based lookup" N=1 inaugurado P237
+/// (counter_at baseline P177 não conta no N novo por ser anterior à
+/// série Categoria D refino).
+///
+/// Reusa `Introspector::query_by_label` (P139+P140) +
+/// `Introspector::state_value` (P171) — wrapper trivial paralelo
+/// pattern counter_at literal.
+///
+/// Retorna `Value::None` se: key inexistente, label inexistente, ou
+/// state nunca actualizado antes da Location resolved (paridade
+/// `counter_at` que retorna `Value::Str("")` em ambos os casos —
+/// state `Value::None` distinto pois state pode ter qualquer Value
+/// type, paridade `state_final` P236).
+pub fn native_state_at(
+    ctx:                &mut EvalContext,
+    args:               &Args,
+    _world:             &dyn crate::contracts::world::World,
+    _current_file:      FileId,
+    _figure_numbering:  Option<&str>,
+) -> SourceResult<Value> {
+    use crate::entities::introspector::Introspector;
+    use crate::entities::label::Label;
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key), Value::Str(label_str)] => {
+            let label = Label(label_str.to_string());
+            // Paralelo absoluto counter_at P177: query_by_label →
+            // Option<Location>; state_value(key, loc) → Option<&Value>;
+            // chain via and_then; default Value::None.
+            let value = ctx
+                .introspector
+                .query_by_label(&label)
+                .and_then(|loc| ctx.introspector.state_value(key.as_str(), loc).cloned())
+                .unwrap_or(Value::None);
+            Ok(value)
+        }
+        [_, other] => err(format!(
+            "state_at() requer string como segundo argumento (label), recebeu {}",
+            other.type_name()
+        )),
+        [other, _] => err(format!(
+            "state_at() requer string como primeiro argumento (key), recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "state_at() requer 2 argumentos (key, label), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
 /// `query(kind_str)` — consulta o `Introspector` da iteração de fixpoint
 /// anterior por elementos do kind indicado.
 ///

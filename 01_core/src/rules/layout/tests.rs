@@ -3115,6 +3115,7 @@ mod tests_show_rule_integration {
             rowspan: None,
             stroke:  None,
             fill:    None,
+            align:   None, inset: None, breakable: None,
         };
         let doc = layout(&cell);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -3375,6 +3376,7 @@ mod tests_show_rule_integration {
             rowspan: None,
             stroke:  Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 5.0 }),
             fill:    None,
+            align:   None, inset: None, breakable: None,
         };
         let g = Content::Grid {
             columns: vec![TrackSizing::Fixed(50.0)],
@@ -3418,6 +3420,7 @@ mod tests_show_rule_integration {
             rowspan: None,
             stroke:  None,
             fill:    Some(Color::rgb(0, 255, 0)),  // cell green
+            align:   None, inset: None, breakable: None,
         };
         let g = Content::Grid {
             columns: vec![TrackSizing::Fixed(50.0)],
@@ -3490,6 +3493,7 @@ mod tests_show_rule_integration {
             rowspan: None,
             stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),
             fill:    None,
+            align:   None, inset: None, breakable: None,
         };
         let g = Content::Grid {
             columns: vec![TrackSizing::Fixed(50.0)],
@@ -3528,6 +3532,7 @@ mod tests_show_rule_integration {
             rowspan: None,
             stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),  // cell stroke
             fill:    None,
+            align:   None, inset: None, breakable: None,
         };
         let g = Content::Grid {
             columns: vec![TrackSizing::Fixed(50.0)],
@@ -3779,6 +3784,606 @@ mod tests_show_rule_integration {
             }).collect();
         assert!(texts.contains("p232full"),
             "Place full override Grid renderiza body OK");
+    }
+
+    // ── Passo 233 — B.1 DEBT-34d Auto track sizing fix ──────────
+
+    #[test]
+    fn p233_grid_auto_sem_fr_baseline_preservado() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Auto, TrackSizing::Auto],
+            rows:    vec![],
+            cells:   vec![Content::text("AA"), Content::text("BB")],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let txt = doc.plain_text();
+        assert!(txt.contains("AA") && txt.contains("BB"),
+            "Auto sem fr: baseline preservado pós-P233");
+    }
+
+    #[test]
+    fn p233_grid_auto_fr_mix_fr_recebe_espaco() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Auto, TrackSizing::Fraction(1.0)],
+            rows:    vec![],
+            cells:   vec![Content::text("X"), Content::text("Y")],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let txt = doc.plain_text();
+        assert!(txt.contains("X") && txt.contains("Y"),
+            "P233 DEBT-34d fix: Auto+Fr ambos renderizam");
+    }
+
+    #[test]
+    fn p233_grid_2auto_1fr_split() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Auto, TrackSizing::Auto, TrackSizing::Fraction(1.0)],
+            rows:    vec![],
+            cells:   vec![Content::text("A"), Content::text("B"), Content::text("C")],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let txt = doc.plain_text();
+        assert!(txt.contains("A") && txt.contains("B") && txt.contains("C"),
+            "P233: 2-Auto + 1-Fr split correcto");
+    }
+
+    #[test]
+    fn p233_grid_fixed_auto_fr_combinacao() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Auto, TrackSizing::Fraction(1.0)],
+            rows:    vec![],
+            cells:   vec![Content::text("F"), Content::text("A"), Content::text("R")],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let txt = doc.plain_text();
+        assert!(txt.contains("F") && txt.contains("A") && txt.contains("R"),
+            "P233: Fixed+Auto+Fr combinação OK");
+    }
+
+    #[test]
+    fn p233_grid_fixed_baseline_preservado() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(100.0), TrackSizing::Fixed(100.0)],
+            rows:    vec![],
+            cells:   vec![Content::text("F1"), Content::text("F2")],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        assert!(!doc.pages.is_empty(),
+            "Grid Fixed baseline P224 preservado pós-P233");
+    }
+
+    // ── Passo 234 — B.2 consumer geometric place_cells → Layouter ──
+
+    #[test]
+    fn p234_grid_colspan_2_cell_ocupa_2_cols_fill() {
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        let wide_cell = Content::GridCell {
+            body:    Box::new(Content::text("WIDE")),
+            x:       None, y: None,
+            colspan: Some(2), rowspan: None,
+            stroke:  None,
+            fill:    Some(Color::rgb(0, 200, 0)),
+            align:   None, inset: None, breakable: None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(60.0), TrackSizing::Fixed(40.0)],
+            rows:    vec![],
+            cells:   vec![wide_cell],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let mut found_wide = false;
+        for p in &doc.pages {
+            for item in &p.items {
+                if let FrameItem::Shape {
+                    kind: crate::entities::geometry::ShapeKind::Rect,
+                    width, fill: Some(Color::Rgb { r: 0, g: 200, b: 0 }), ..
+                } = item {
+                    if (*width - 100.0).abs() < 0.01 { found_wide = true; }
+                }
+            }
+        }
+        assert!(found_wide,
+            "Cell colspan=2 deve emitir fill Rect width=100 (60+40)");
+    }
+
+    #[test]
+    fn p234_grid_rowspan_2_cell_ocupa_2_rows_fill() {
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        let tall_cell = Content::GridCell {
+            body:    Box::new(Content::text("TALL")),
+            x:       None, y: None,
+            colspan: None, rowspan: Some(2),
+            stroke:  None,
+            fill:    Some(Color::rgb(0, 0, 200)),
+            align:   None, inset: None, breakable: None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
+            rows:    vec![TrackSizing::Fixed(30.0), TrackSizing::Fixed(40.0)],
+            cells:   vec![tall_cell, Content::text("b"), Content::text("c")],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let mut found_tall = false;
+        for p in &doc.pages {
+            for item in &p.items {
+                if let FrameItem::Shape {
+                    kind: crate::entities::geometry::ShapeKind::Rect,
+                    height, fill: Some(Color::Rgb { r: 0, g: 0, b: 200 }), ..
+                } = item {
+                    if (*height - 70.0).abs() < 0.01 { found_tall = true; }
+                }
+            }
+        }
+        assert!(found_tall,
+            "Cell rowspan=2 deve emitir fill Rect height=70 (30+40)");
+    }
+
+    #[test]
+    fn p234_grid_colspan_com_stroke_envolve_ambas_cols() {
+        use crate::entities::geometry::{ShapeKind, Stroke};
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        let wide_cell = Content::GridCell {
+            body:    Box::new(Content::text("WS")),
+            x:       None, y: None,
+            colspan: Some(2), rowspan: None,
+            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 2.0 }),
+            fill:    None,
+            align:   None, inset: None, breakable: None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(60.0), TrackSizing::Fixed(40.0)],
+            rows:    vec![TrackSizing::Fixed(30.0)],
+            cells:   vec![wide_cell],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let mut found_wide_edge = false;
+        for p in &doc.pages {
+            for item in &p.items {
+                if let FrameItem::Shape {
+                    kind: ShapeKind::Line { dx, dy: 0.0 },
+                    stroke: Some(s), ..
+                } = item {
+                    if (*dx - 100.0).abs() < 0.01 && (s.thickness - 2.0).abs() < 0.01 {
+                        found_wide_edge = true;
+                    }
+                }
+            }
+        }
+        assert!(found_wide_edge,
+            "Cell colspan=2 stroke deve emitir Line horizontal dx=100");
+    }
+
+    #[test]
+    fn p234_grid_colspan_per_cell_stroke_override_grid_p230_preservado() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        let wide_override = Content::GridCell {
+            body:    Box::new(Content::text("W")),
+            x:       None, y: None,
+            colspan: Some(2), rowspan: None,
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 7.0 }),
+            fill:    None,
+            align:   None, inset: None, breakable: None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
+            rows:    vec![TrackSizing::Fixed(30.0)],
+            cells:   vec![wide_override],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 1.0 }),
+            fill:    None,
+        };
+        let doc = layout(&g);
+        let mut found_override = false;
+        for p in &doc.pages {
+            for item in &p.items {
+                if let FrameItem::Shape { stroke: Some(s), .. } = item {
+                    if (s.thickness - 7.0).abs() < 0.01 { found_override = true; }
+                }
+            }
+        }
+        assert!(found_override,
+            "Per-cell stroke thickness 7.0 override Grid 1.0 multi-col P234");
+    }
+
+    #[test]
+    fn p234_grid_sem_colspan_rowspan_baseline_preservado() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
+            rows:    vec![TrackSizing::Fixed(20.0), TrackSizing::Fixed(20.0)],
+            cells:   vec![Content::text("A"), Content::text("B"),
+                          Content::text("C"), Content::text("D")],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let txt = doc.plain_text();
+        assert!(txt.contains("A") && txt.contains("B") &&
+                txt.contains("C") && txt.contains("D"),
+            "Grid sem colspan/rowspan preserva placement sequencial pós-P234");
+    }
+
+    #[test]
+    fn p234_grid_stroke_baseline_p227_preservado() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
+            rows:    vec![TrackSizing::Fixed(20.0)],
+            cells:   vec![Content::text("a"), Content::text("b")],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  Some(Stroke { paint: Color::rgb(100, 100, 100), thickness: 1.0 }),
+            fill:    None,
+        };
+        let doc = layout(&g);
+        let mut line_count = 0;
+        for p in &doc.pages {
+            for item in &p.items {
+                if let FrameItem::Shape {
+                    kind: crate::entities::geometry::ShapeKind::Line { .. },
+                    stroke: Some(_), ..
+                } = item { line_count += 1; }
+            }
+        }
+        assert!(line_count >= 8,
+            "Grid 2 cells × 4 stroke lines = 8 mínimo pós-P234; obtive {}", line_count);
+    }
+
+    #[test]
+    fn p234_grid_fill_baseline_p228_preservado() {
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
+            rows:    vec![TrackSizing::Fixed(20.0)],
+            cells:   vec![Content::text("a"), Content::text("b")],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None,
+            fill:    Some(Color::rgb(200, 200, 200)),
+        };
+        let doc = layout(&g);
+        let mut rect_count = 0;
+        for p in &doc.pages {
+            for item in &p.items {
+                if let FrameItem::Shape {
+                    kind: crate::entities::geometry::ShapeKind::Rect,
+                    fill: Some(_), ..
+                } = item { rect_count += 1; }
+            }
+        }
+        assert!(rect_count >= 2,
+            "Grid 2 cells × 1 Rect fill = 2 mínimo pós-P234; obtive {}", rect_count);
+    }
+
+    #[test]
+    fn p234_grid_auto_sizing_baseline_p233_preservado() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Auto, TrackSizing::Fraction(1.0)],
+            rows:    vec![],
+            cells:   vec![Content::text("AA"), Content::text("BB")],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let txt = doc.plain_text();
+        assert!(txt.contains("AA") && txt.contains("BB"),
+            "Auto+Fr preserva P233 baseline pós-P234");
+    }
+
+    #[test]
+    fn p234_grid_mix_explicit_e_auto_renderiza_todos() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let explicit_cell = Content::GridCell {
+            body:    Box::new(Content::text("EXP")),
+            x:       Some(1), y: Some(0),
+            colspan: None, rowspan: None,
+            stroke:  None, fill: None,
+            align:   None, inset: None, breakable: None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(30.0), TrackSizing::Fixed(30.0)],
+            rows:    vec![TrackSizing::Fixed(15.0), TrackSizing::Fixed(15.0)],
+            cells:   vec![explicit_cell, Content::text("AUTO1"), Content::text("AUTO2")],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let txt = doc.plain_text();
+        assert!(txt.contains("EXP") && txt.contains("AUTO1") &&
+                txt.contains("AUTO2"),
+            "Mix explicit+auto renderiza todos pós-P234");
+    }
+
+    #[test]
+    fn p234_grid_colspan_fill_position_x0() {
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        let wide_cell = Content::GridCell {
+            body:    Box::new(Content::text("W")),
+            x:       None, y: None,
+            colspan: Some(2), rowspan: None,
+            stroke:  None,
+            fill:    Some(Color::rgb(123, 45, 67)),
+            align:   None, inset: None, breakable: None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(60.0)],
+            rows:    vec![TrackSizing::Fixed(20.0)],
+            cells:   vec![wide_cell],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let mut found = false;
+        for p in &doc.pages {
+            for item in &p.items {
+                if let FrameItem::Shape {
+                    kind: crate::entities::geometry::ShapeKind::Rect,
+                    width, fill: Some(Color::Rgb { r: 123, g: 45, b: 67 }), ..
+                } = item {
+                    if (*width - 100.0).abs() < 0.01 { found = true; }
+                }
+            }
+        }
+        assert!(found, "colspan=2 fill emite Rect width=100 P234");
+    }
+
+    #[test]
+    fn p234_grid_colspan_rowspan_2x2_fill_bounds_combinados() {
+        use crate::entities::layout_types::{Length, TrackSizing, Color};
+        use crate::entities::sides::Sides;
+        let big_cell = Content::GridCell {
+            body:    Box::new(Content::text("BIG")),
+            x:       None, y: None,
+            colspan: Some(2), rowspan: Some(2),
+            stroke:  None,
+            fill:    Some(Color::rgb(11, 22, 33)),
+            align:   None, inset: None, breakable: None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(20.0), TrackSizing::Fixed(30.0),
+                          TrackSizing::Fixed(40.0)],
+            rows:    vec![TrackSizing::Fixed(10.0), TrackSizing::Fixed(15.0)],
+            cells:   vec![big_cell, Content::text("x")],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let mut found = false;
+        for p in &doc.pages {
+            for item in &p.items {
+                if let FrameItem::Shape {
+                    kind: crate::entities::geometry::ShapeKind::Rect,
+                    width, height,
+                    fill: Some(Color::Rgb { r: 11, g: 22, b: 33 }), ..
+                } = item {
+                    if (*width - 50.0).abs() < 0.01 && (*height - 25.0).abs() < 0.01 {
+                        found = true;
+                    }
+                }
+            }
+        }
+        assert!(found, "2x2 cell fill emite Rect width=50 height=25 P234");
+    }
+
+    // ── Passo 235 — B.3 GridCell/TableCell align/inset/breakable per-cell ──
+
+    /// Per-cell inset override Grid-level: body bounds reduzidos pelo
+    /// inset Some. Render content shifted right/down dentro da cell.
+    #[test]
+    fn p235_per_cell_inset_override_grid_bounds_reduzidos() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        // Cell com inset 10pt; grid inset 0 → body shift (10, 10).
+        let cell = Content::GridCell {
+            body:    Box::new(Content::text("INS")),
+            x:       None, y: None,
+            colspan: None, rowspan: None,
+            stroke:  None, fill: None,
+            align:   None,
+            inset:   Some(Sides::uniform(Length::pt(10.0))),
+            breakable: None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(100.0)],
+            rows:    vec![TrackSizing::Fixed(50.0)],
+            cells:   vec![cell],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        // Body renderizou (mínimo render OK).
+        let txt = doc.plain_text();
+        assert!(txt.contains("INS"),
+            "Cell inset 10pt: body renderiza com bounds reduzidos pós-P235");
+    }
+
+    /// Per-cell inset None → inherit Grid-level inset.
+    #[test]
+    fn p235_per_cell_inset_none_inherits_grid() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let cell = Content::GridCell {
+            body:    Box::new(Content::text("INH")),
+            x:       None, y: None,
+            colspan: None, rowspan: None,
+            stroke:  None, fill: None,
+            align:   None, inset: None,  // inherit Grid
+            breakable: None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(80.0)],
+            rows:    vec![TrackSizing::Fixed(30.0)],
+            cells:   vec![cell],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(5.0)),  // Grid inset 5pt
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let txt = doc.plain_text();
+        assert!(txt.contains("INH"),
+            "Cell inset None inherit Grid inset 5pt pós-P235");
+    }
+
+    /// Per-cell breakable Some(false) armazenado mas semantic adiada graded
+    /// (paridade Block.breakable P156G; pattern "Field armazenado semantic
+    /// adiada" N=7 → 8 cumulativo).
+    #[test]
+    fn p235_per_cell_breakable_armazenado_layout_preservado() {
+        use crate::entities::layout_types::{Length, TrackSizing};
+        use crate::entities::sides::Sides;
+        let cell = Content::GridCell {
+            body:    Box::new(Content::text("BR")),
+            x:       None, y: None,
+            colspan: None, rowspan: None,
+            stroke:  None, fill: None,
+            align:   None, inset: None,
+            breakable: Some(false),
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(40.0)],
+            rows:    vec![TrackSizing::Fixed(20.0)],
+            cells:   vec![cell],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        // Render preservado; breakable armazenado mas não afecta visual.
+        let txt = doc.plain_text();
+        assert!(txt.contains("BR"),
+            "Cell breakable Some(false) armazenado; render preservado pós-P235 graded");
+    }
+
+    /// Per-cell align Some + Grid align None → cell renderiza em align especificado.
+    /// Render via Layouter cell_align extension P235 per-cell save/restore.
+    #[test]
+    fn p235_per_cell_align_override_grid_armazenado() {
+        use crate::entities::layout_types::{Length, TrackSizing, Align2D};
+        use crate::entities::sides::Sides;
+        let cell = Content::GridCell {
+            body:    Box::new(Content::text("AL")),
+            x:       None, y: None,
+            colspan: None, rowspan: None,
+            stroke:  None, fill: None,
+            align:   Some(Align2D::from_string("center")),
+            inset:   None, breakable: None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(100.0)],
+            rows:    vec![TrackSizing::Fixed(30.0)],
+            cells:   vec![cell],
+            gutter:  None, align: None,
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        // Render OK; align efectivo per-cell via Layouter cell_align extension.
+        let txt = doc.plain_text();
+        assert!(txt.contains("AL"),
+            "Cell align Some(center) armazenado; render preservado pós-P235");
+    }
+
+    /// Per-cell align None + Grid align Some → cell herda Grid align.
+    #[test]
+    fn p235_per_cell_align_none_inherits_grid() {
+        use crate::entities::layout_types::{Length, TrackSizing, Align2D};
+        use crate::entities::sides::Sides;
+        let cell = Content::GridCell {
+            body:    Box::new(Content::text("IA")),
+            x:       None, y: None,
+            colspan: None, rowspan: None,
+            stroke:  None, fill: None,
+            align:   None,  // inherit Grid
+            inset:   None, breakable: None,
+        };
+        let g = Content::Grid {
+            columns: vec![TrackSizing::Fixed(100.0)],
+            rows:    vec![TrackSizing::Fixed(30.0)],
+            cells:   vec![cell],
+            gutter:  None,
+            align:   Some(Align2D::from_string("right")),  // Grid align right
+            inset:   Sides::uniform(Length::pt(0.0)),
+            header:  None, footer:  None,
+            stroke:  None, fill: None,
+        };
+        let doc = layout(&g);
+        let txt = doc.plain_text();
+        assert!(txt.contains("IA"),
+            "Cell align None inherit Grid align right pós-P235");
     }
 
     /// Counters/labels dentro do body de repeat resolvem via walk

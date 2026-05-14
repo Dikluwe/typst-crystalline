@@ -6,8 +6,12 @@
 //!
 //! P224.C — Placement algorítmico Grid completo.
 //! **Fecha DEBT-34e** (colspan/rowspan placement); DEBT-34d (Auto track
-//! sizing greediness) é refino algorítmico distinto NÃO endereçado em P224
-//! (refino futuro candidato Fase 5 NÃO-reservado per política P158).
+//! sizing greediness) FECHADO P233.
+//!
+//! P234 — `PlacedCell.body` preserva outer cell (`Content::GridCell {...}`
+//! ou raw) em vez de strip wrapper. Permite consumer geometric P234
+//! `layout_grid` extrair per-cell stroke/fill via match em `placed.body`
+//! preservando precedência P230.
 //!
 //! Algoritmo paridade vanilla `layout/grid/cells.rs`:
 //! - Cells `Content::GridCell` com `x`/`y` explícitos → posição fixada.
@@ -27,9 +31,16 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 
 /// Célula com posição resolvida pós-placement.
+///
+/// **P234** — `body` preserva outer cell (`Content::GridCell {...}` ou
+/// raw) em vez de strip wrapper inner body. Consumer (P234 `layout_grid`)
+/// extrai per-cell stroke/fill via match em `body` preservando
+/// precedência P230. Para layout do conteúdo interno, consumer faz
+/// `match &placed.body { GridCell { body, .. } => body.as_ref(),
+/// other => other }`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct PlacedCell {
-    /// Body original (clone do `GridCell.body` ou `Content` raw).
+    /// Outer cell preservado (`Content::GridCell {...}` ou raw).
     pub body: Content,
     /// Linha 0-indexed onde a célula começa.
     pub row: usize,
@@ -80,7 +91,7 @@ pub(crate) fn place_cells(
 
     // Pass 1 — explicit placement.
     for (_idx, cell) in &explicit {
-        let (body, x, y, cs, rs) = extract_cell_fields(cell);
+        let (_body, x, y, cs, rs) = extract_cell_fields(cell);
         let colspan = cs.unwrap_or(1).max(1);
         let rowspan = rs.unwrap_or(1).max(1);
 
@@ -127,8 +138,11 @@ pub(crate) fn place_cells(
             }
         }
 
+        // P234 — preserva outer cell (GridCell wrapper inteiro) em
+        // PlacedCell.body para consumer extrair per-cell stroke/fill
+        // via match preservando precedência P230.
         placed.push(PlacedCell {
-            body: body.clone(),
+            body: (*cell).clone(),
             row:  row_start,
             col:  col_start,
             colspan,
@@ -140,7 +154,7 @@ pub(crate) fn place_cells(
     let mut cursor_row: usize = 0;
     let mut cursor_col: usize = 0;
     for (_idx, cell) in &auto {
-        let (body, _, _, cs, rs) = extract_cell_fields(cell);
+        let (_body, _, _, cs, rs) = extract_cell_fields(cell);
         let colspan = cs.unwrap_or(1).max(1);
         let rowspan = rs.unwrap_or(1).max(1);
 
@@ -187,8 +201,9 @@ pub(crate) fn place_cells(
             }
         }
 
+        // P234 — preserva outer cell (GridCell wrapper inteiro).
         placed.push(PlacedCell {
-            body: body.clone(),
+            body: (*cell).clone(),
             row:  cursor_row,
             col:  cursor_col,
             colspan,
@@ -277,6 +292,9 @@ mod tests {
                 rowspan: None,
                 stroke:  None,
                 fill:    None,
+                align:   None,
+                inset:   None,
+                breakable: None,
             },
         ];
         let placed = place_cells(&cells, 2).unwrap();
@@ -296,6 +314,9 @@ mod tests {
                 rowspan: None,
                 stroke:  None,
                 fill:    None,
+                align:   None,
+                inset:   None,
+                breakable: None,
             },
             Content::text("next"),
         ];
@@ -322,6 +343,9 @@ mod tests {
                 rowspan: Some(2),
                 stroke:  None,
                 fill:    None,
+                align:   None,
+                inset:   None,
+                breakable: None,
             },
             Content::text("b"),
             Content::text("c"),
@@ -345,6 +369,9 @@ mod tests {
                 rowspan: None,
                 stroke:  None,
                 fill:    None,
+                align:   None,
+                inset:   None,
+                breakable: None,
             },
             Content::GridCell {
                 body:    Box::new(Content::text("Y")),
@@ -354,6 +381,9 @@ mod tests {
                 rowspan: None,
                 stroke:  None,
                 fill:    None,
+                align:   None,
+                inset:   None,
+                breakable: None,
             },
         ];
         let r = place_cells(&cells, 2);
@@ -371,6 +401,9 @@ mod tests {
                 rowspan: None,
                 stroke:  None,
                 fill:    None,
+                align:   None,
+                inset:   None,
+                breakable: None,
             },
         ];
         let r = place_cells(&cells, 2);
@@ -392,6 +425,9 @@ mod tests {
                 rowspan: None,
                 stroke:  None,
                 fill:    None,
+                align:   None,
+                inset:   None,
+                breakable: None,
             },
             Content::text("C"),
         ];

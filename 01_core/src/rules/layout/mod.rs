@@ -703,7 +703,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // layout_grid). stroke + fill per-cell P230 são ignorados aqui
             // (semantic precedência ocorre apenas dentro de Grid context).
             Content::GridCell { body, x: _, y: _, colspan: _, rowspan: _,
-                                stroke: _, fill: _ } => {
+                                stroke: _, fill: _,
+                                align: _, inset: _, breakable: _ } => {
                 self.layout_content(body);
             }
 
@@ -731,7 +732,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `Content::Table`, cell aparece como child linear no
             // grid distribuído por `idx % num_cols`.
             Content::TableCell { body, x: _, y: _, colspan: _, rowspan: _,
-                                  stroke: _, fill: _ } => {
+                                  stroke: _, fill: _,
+                                  align: _, inset: _, breakable: _ } => {
                 self.layout_content(body);
             }
 
