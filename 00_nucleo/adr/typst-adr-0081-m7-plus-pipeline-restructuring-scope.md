@@ -1,7 +1,7 @@
 # ⚖️ ADR-0081: M7+ pipeline restructuring scope — reabertura M-fase pós-M9c para walk-time eval Func dispatch + bloqueadores cumulativos Fase 5 Layout
 
-**Status**: `IMPLEMENTADO parcial` (M7+1 ✓ P240; M7+2 ✓ P241; M7+5 ✓ P242; **M7+3 fase (a) ✓ P243**; M7+3 fase (b) + M7+4 pendentes)
-**Data**: 2026-05-14 (PROPOSTO P239; IMPLEMENTADO parcial P240; 2/5 P241; 3/5 P242; **4/5 P243 fase (a)**)
+**Status**: `IMPLEMENTADO parcial` (M7+1 ✓ P240; M7+2 ✓ P241; M7+5 ✓ P242; M7+3 ✓ via cumulativo P243 fase (a) + Linha A pré-existente P217-P221; **M7+4 pendente**)
+**Data**: 2026-05-14 (PROPOSTO P239; IMPLEMENTADO parcial P240; 2/5 P241; 3/5 P242; 4/5 P243 fase (a); **4.5/5 P244 reconciliação M7+3 cumulativo**)
 **Autor**: Humano + IA
 **Validado**: audit empírico P239 prep-passo audit-only
 (`00_nucleo/materialization/typst-passo-239-audit-m7-reabertura.md`);
@@ -836,3 +836,116 @@ M7+3 fase (b) + M7+4 pendentes).
 - Pivot outro módulo OR pausa M-fase.
 
 Decisão humana pendente literal pós-P243.
+
+### P244 anotação — Reconciliação documental Linhas A (P216-P221) + B (P239-P243): M7+3 cumulativo via Linha A pré-existente; IMPLEMENTADO parcial 4/5 → 4.5/5
+
+**Data**: 2026-05-14.
+
+**Passo administrativo XS** puramente documental — paridade
+P156A historiograma + P156K ADRs meta + ADR-0062-create + P160A
++ P238 audit. **Zero código tocado**; reconcilia inconsistência
+factual entre o relatório P243 (recomendou "M7+3 fase (b)" como
+próximo trabalho) e o estado empírico do repositório (Linha A
+já materializou tudo P217-P221 a 2026-05-12).
+
+**Linhas paralelas reconciliadas**:
+
+- **Linha A** (série Fase 3 columns/colbreak; 2026-05-12;
+  pré-existente):
+  - P215 — diagnóstico Fase 3 + ADR-0078 PROPOSTO.
+  - P216A — `Region` entity em `01_core/src/entities/region.rs`.
+  - P216B — `Regions` minimal (`current` apenas).
+  - P217 — `Content::Columns { count, gutter, body }` variant.
+  - P218 — `native_columns` stdlib + helper `extract_count`.
+  - P219 — Consumer multi-column real (Opção B graded).
+  - P220 — `Content::Colbreak { weak }` + `native_colbreak`.
+  - P221 — Encerramento: ADR-0078 IMPLEMENTADO + ADR-0061
+    IMPLEMENTADO + DEBT-56 ENCERRADO.
+
+- **Linha B** (série M9d / M7+ pipeline restructuring; 2026-05-14;
+  em curso):
+  - P239 — ADR-0081 PROPOSTO.
+  - P240 — M7+1 state.display walk-time real.
+  - P241 — M7+2 counter.display walk-time real.
+  - P242 — M7+5 A.4 radius/clip + `Corners<T>`.
+  - P243 — M7+3 "fase (a)" — extensão `Regions { backlog, last
+    }` + `advance` method + 3 scope-outs promovidos.
+
+**Origem inconsistência** (verificada via grep empírico em P244):
+audit C1 do P243 capturou parcialmente o estado factual
+(Decisão 2 spec P243 anotou "Migração field-by-field já feita
+P216A/P216B"), mas **não auditou que `Content::Columns`/
+`Colbreak` também já existiam** em `content.rs:1126`/`1908` +
+`native_columns`/`colbreak` em `stdlib/layout.rs:1138`/`1209`.
+Decisão 5 spec P243 ("Sem `Content::Columns`/`Colbreak` em
+P243 — fase (b) DEBT-56 pendente") foi internamente coerente
+com o spec mas assumiu base factual incorrecta.
+
+**M7+3 fica CUMPRIDO cumulativamente** sem precisar de passo
+novo "fase (b)" em Linha B:
+- **M7+3 fase (a) infrastructure** ✓ P243 — extensão `Regions
+  { backlog, last, advance }` + 3 scope-outs promovidos:
+  `Pad.right` + `Block.width` + `Boxed.width`.
+- **M7+3 fase (b) consumer** ✓ **via Linha A pré-existente**
+  P217-P221 (anterior à abertura de ADR-0081 P239):
+  - `Content::Columns` variant ✓ P217.
+  - `Content::Colbreak` variant ✓ P220.
+  - `native_columns` + `native_colbreak` stdlib ✓ P218 + P220.
+  - Consumer multi-column real graded Opção B ✓ P219.
+  - ADR-0078 IMPLEMENTADO; ADR-0061 IMPLEMENTADO; DEBT-56
+    ENCERRADO ✓ P221.
+
+**Coexistência paralela inadvertida** das duas linhas até
+detecção empírica via grep em P244 (lição refinada audit C1
+N=6 → 7 cumulativo; ver ADR-0080 §"Lições refinadas"
+entrada P244).
+
+**Status ADR-0081**: IMPLEMENTADO parcial 4/5 → **4.5/5** — M7+1
+✓; M7+2 ✓; **M7+3 ✓ via cumulativo** (P243 fase (a) extensão +
+Linha A pré-existente fase (b) consumer); M7+5 ✓; **M7+4 Place
+float pendente**. Promoção a IMPLEMENTADO total requer
+materialização M7+4 ou scope-out formal humano.
+
+**Pré-condições obrigatórias verificadas P244**:
+1. Tests baseline preservados: **2198 → 2198 verdes** (paridade
+   absoluta administrativos XS precedentes — zero código tocado).
+2. Comemo memoization invariants ADR-0073/0074 preservados —
+   P244 não toca código L1 algum.
+3. Backward compat: zero código alterado; toda funcionalidade
+   pré-P244 preservada literal.
+
+**Patterns emergentes inaugurados/consolidados P244** (1
+inaugurado + 2 consolidados N≥6):
+- **"Reconciliação documental pós-divergência factual planeamento
+  vs materialização"** N=1 inaugurado P244. Candidato a
+  formalização N=3-4 futuro.
+- **"Passo administrativo XS"** N=5 → **6 cumulativo**
+  (P156A + P156K + ADR-0062-create + P160A + P238 + **P244**).
+  **Atinge limiar formalização sólido N≥4-6**; candidato a ADR
+  meta dedicada em passo administrativo XS futuro (não-reservado
+  per política P158).
+- **"Spec C1 audit obrigatório bloqueante"** N=6 → **7 cumulativo**
+  (P237 + P238 reescrito + P240 + P241 + P242 + P243 + **P244**).
+  P244 é **primeira aplicação onde audit C1 É o substantivo
+  material do passo**, não preâmbulo — refinamento procedural
+  "grep variants `Content::*` candidatas antes de assumir
+  ausência".
+
+**Anti-inflação 36ª aplicação cumulativa pós-P205D** —
+Opção α anotação cumulativa minimal + Opção α reconhecimento
+Linha A pré-existente + Opção β L0 intocados + Opção α
+ADR-0081 promoção interna parcial 4/5 → 4.5/5 (não completo
+prematuro).
+
+**Próximo sub-passo candidato pós-P244**:
+- **M7+4 Place float real** (recomendação subjectiva; último
+  sub-passo M7+ pendente; magnitude L ~5-8h; fecha ADR-0081
+  IMPLEMENTADO total 5/5; desbloqueia C.1).
+- ADR meta admin XS — formalizar pattern "passo administrativo
+  XS" N=6 (atinge limiar sólido pós-P244).
+- Cell layout migration → `regions.current.height` (M ~2-4h;
+  Decisão 7 P243 diferida).
+- Refino A.4 outset/fill/stroke (S-M).
+- Pivot outro módulo OR pausa M-fase.
+
+Decisão humana pendente literal pós-P244.

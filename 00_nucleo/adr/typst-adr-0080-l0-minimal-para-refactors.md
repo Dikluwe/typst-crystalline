@@ -506,3 +506,70 @@ formalização N=2 — candidato a ADR meta passo administrativo XS.
 **Pattern "aplicação automática ADR-0080 EM VIGOR" N=8 preservado**
 mas **não-incrementa P243** (excepção justificada documentada
 formalmente acima).
+
+---
+
+## Lição refinada P244 — Audit C1 deve grep variants `Content::*` candidatas antes de assumir ausência (2026-05-14)
+
+**Refinamento procedural** do padrão "spec C1 audit obrigatório
+bloqueante pós-P236.div-1" N=6 → **7 cumulativo** (P237 + P238
+reescrito + P240 + P241 + P242 + P243 + **P244**). Distintamente
+em P244, audit C1 **é** o substantivo material do passo (não
+preâmbulo a materialização subsequente).
+
+**Origem da lição**: P243 audit C1 capturou parcialmente o
+estado factual:
+- ✓ **Detectou** que `Regions` já existia (P216A/P216B) →
+  Decisão 2 spec P243 corrigida: "Migração field-by-field já
+  feita P216A/P216B".
+- ✗ **Não detectou** que `Content::Columns` (P217) +
+  `Content::Colbreak` (P220) + `native_columns` (P218) +
+  `native_colbreak` (P220) também já existiam, com ADR-0078
+  IMPLEMENTADO + ADR-0061 IMPLEMENTADO + DEBT-56 ENCERRADO em
+  P221.
+
+Resultado: Decisão 5 spec P243 ("Sem `Content::Columns`/
+`Colbreak` em P243 — fase (b) DEBT-56 pendente") foi
+internamente coerente com o spec mas assumiu base factual
+incorrecta. P244 reconcilia via reconhecimento Linha A
+pré-existente.
+
+**Procedimento recomendado pós-P244** (refino procedural lição
+N=7 cumulativo):
+
+1. **Identificar variants candidatas mencionadas no spec**
+   (e.g. `Content::Columns`, `Content::Colbreak`,
+   `Content::StateDisplay`, etc.).
+2. **`grep -n "VariantName" 01_core/src/entities/content.rs`**
+   antes de assumir ausência. Pattern recomendado:
+   ```
+   grep -n "Content::FOO\|Content::BAR" 01_core/src/entities/content.rs
+   grep -rn "native_foo\|native_bar" 01_core/src/rules/stdlib/
+   grep "DEBT-XX\|ADR-XXXX" 00_nucleo/DEBT.md 00_nucleo/adr/
+   ```
+3. **Se variant existe** → ajustar spec ou criar `Pxxx.div-N`
+   conforme magnitude da divergência:
+   - Ajuste trivial signature/naming: sem div-N (paridade lição
+     N=5-6 cumulativo precedente).
+   - Divergência estructural material: `Pxxx.div-N` formal
+     bloqueando para decisão humana.
+4. **Se variant ausente** → prosseguir com materialização.
+5. **Audit C1 deve grep DEBT.md + ADRs** para confirmar status
+   factual cumulativo (ENCERRADO/IMPLEMENTADO) — não confiar
+   no spec sobre estado de DEBTs/ADRs sem verificação empírica.
+
+**Sub-padrão "Reconciliação documental pós-divergência factual
+planeamento vs materialização" N=1 inaugurado P244**.
+Candidato a formalização N=3-4 futuro.
+
+**Pattern "Passo administrativo XS"** N=5 → **6 cumulativo**
+(P156A + P156K + ADR-0062-create + P160A + P238 + **P244**).
+**Atinge limiar formalização sólido N≥4-6**; candidato a ADR
+meta dedicada em passo administrativo XS futuro
+(não-reservado per política P158).
+
+**Aplicação da lição refinada**: passos administrativos
+subsequentes que envolvem audit C1 sobre material pré-existente
+devem aplicar passos 1-5 acima literalmente. Patamar empírico
+N=7 cumulativo pós-P244 ultrapassa largamente limiar N=4
+sólido; lição refinada é metodológicamente robusta.
