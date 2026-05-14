@@ -49,6 +49,12 @@ pub enum ElementKind {
     /// valor pre-rendered é produzido em `apply_state_displays`
     /// pós-fixpoint (paralelo `apply_state_funcs` P191B).
     StateDisplay,
+    /// **P241 (M9d/M7+2)** — `Content::CounterDisplayCallback`
+    /// promovido a locatable paralelo absoluto `StateDisplay` P240.
+    /// Indexa locations em `kind_index`; valor pre-rendered produzido
+    /// em `apply_counter_displays` pós-fixpoint. Distinto de
+    /// `Content::CounterDisplay { kind }` legacy (não-locatable).
+    CounterDisplay,
 }
 
 impl ElementKind {
@@ -66,6 +72,7 @@ impl ElementKind {
             ElementKind::Equation      => "equation",
             ElementKind::CounterUpdate => "counter_update",
             ElementKind::StateDisplay  => "state_display",
+            ElementKind::CounterDisplay => "counter_display",
         }
     }
 
@@ -85,6 +92,7 @@ impl ElementKind {
             "equation"       => Some(ElementKind::Equation),
             "counter_update" => Some(ElementKind::CounterUpdate),
             "state_display"  => Some(ElementKind::StateDisplay),
+            "counter_display" => Some(ElementKind::CounterDisplay),
             _                => None,
         }
     }

@@ -83,7 +83,9 @@ pub(crate) fn measure_content(content: &Content, available_w: f64) -> (f64, f64)
     match content {
         Content::Shape { kind, width, height, .. } => {
             match kind {
-                ShapeKind::Rect | ShapeKind::Ellipse | ShapeKind::Path(_) => (
+                // P242 — RoundedRect partilha dimensões com Rect/Ellipse/Path
+                // (radii não afecta bounding box per ADR-0054 graded).
+                ShapeKind::Rect | ShapeKind::RoundedRect { .. } | ShapeKind::Ellipse | ShapeKind::Path(_) => (
                     resolve_pt(width.as_deref(), available_w),
                     resolve_pt(height.as_deref(), 0.0),
                 ),
@@ -117,7 +119,9 @@ fn collect_items_at(content: &Content, items: &mut Vec<FrameItem>, x: Pt, y: Pt,
     match content {
         Content::Shape { kind, width, height, fill, stroke } => {
             let (w, h) = match kind {
-                ShapeKind::Rect | ShapeKind::Ellipse | ShapeKind::Path(_) => (
+                // P242 — RoundedRect partilha dimensões com Rect/Ellipse/Path
+                // (radii não afecta bounding box per ADR-0054 graded).
+                ShapeKind::Rect | ShapeKind::RoundedRect { .. } | ShapeKind::Ellipse | ShapeKind::Path(_) => (
                     resolve_pt(width.as_deref(), available_w),
                     resolve_pt(height.as_deref(), 0.0),
                 ),

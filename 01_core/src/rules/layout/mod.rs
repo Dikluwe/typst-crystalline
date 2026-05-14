@@ -371,6 +371,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // Sem current_location: defensive ignore (walk pre-Locator).
             }
 
+            // P241 (M9d/M7+2): CounterDisplayCallback consome Content
+            // pre-rendered pelo `apply_counter_displays` pós-fixpoint via
+            // `Introspector::counter_display_value(key, loc)`. Layouter
+            // permanece puro (paridade absoluta P240). Distinto de
+            // `Content::CounterDisplay { kind }` legacy single-pass.
+            Content::CounterDisplayCallback { key, callback: _ } => {
+                use crate::entities::introspector::Introspector;
+                if let Some(loc) = self.current_location {
+                    let pre_rendered_opt = self.introspector
+                        .counter_display_value(key.clone(), loc);
+                    if let Some(pre_rendered) = pre_rendered_opt {
+                        self.layout_content(&pre_rendered);
+                    }
+                }
+            }
+
             Content::Text(text, node_style) => {
                 // Estilo resolvido: merge de node_style (produzido pelo eval) com
                 // self.style (cache da chain, actualizada por Content::Styled no
@@ -628,7 +644,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Shape { kind, width, height, fill, stroke } => {
                 let available_w = self.available_width();
                 let (resolved_w, resolved_h) = match kind {
-                    ShapeKind::Rect | ShapeKind::Ellipse | ShapeKind::Path(_) => {
+                    // P242 — RoundedRect partilha dimensões com Rect.
+                    ShapeKind::Rect | ShapeKind::RoundedRect { .. } | ShapeKind::Ellipse | ShapeKind::Path(_) => {
                         let w = resolve_pt(width.as_deref(), available_w);
                         let h = resolve_pt(height.as_deref(), 0.0);
                         (w, h)
@@ -973,18 +990,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // ── Passo 156C / 156L (ADR-0061 Fase 1 + Fase 3 refino) — pad + hide ──
+            // P243 (M9d / M7+3 fase (a); ADR-0081 IMPLEMENTADO parcial 4/5)
+            // — promoção real `Pad.right`: `regions.current.width` save/restore
+            // permite width-aware wrap em `layout_word` consumir largura útil
+            // reduzida pelo `right` durante body layout.
             Content::Pad { body, sides } => {
                 // P156L: cada side é Option<Length>; None ↔ default
                 // vanilla zero (resolvido aqui em vez de em native_pad).
-                // `right` é scope-out neste passo: o Layouter actual não
-                // tem mecânica de "largura útil" por arm — width-aware
-                // wrap vive em `flush_line`/`layout_word` que consultam
-                // `page_config.width`. Aceitar perfil ADR-0054 graded:
-                // pad reduz horizontalmente (left+top) e avança
-                // verticalmente (bottom) consistentemente.
+                // **P243**: `right` agora reduz `regions.current.width`
+                // efectiva durante body layout via save/restore (paridade
+                // mecânica vanilla).
                 let font = self.font_size_pt.val();
                 let left   = sides.left  .map_or(0.0, |l| l.resolve_pt(font));
                 let top    = sides.top   .map_or(0.0, |l| l.resolve_pt(font));
+                let right  = sides.right .map_or(0.0, |l| l.resolve_pt(font));
                 let bottom = sides.bottom.map_or(0.0, |l| l.resolve_pt(font));
 
                 if self.regions.current.cursor_x.0 > self.regions.current.line_start_x.0 {
@@ -993,8 +1012,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.regions.current.cursor_y += Pt(top);
 
                 let saved_line_start = self.regions.current.line_start_x;
+                let saved_width      = self.regions.current.width;
                 self.regions.current.line_start_x = saved_line_start + Pt(left);
                 self.regions.current.cursor_x     = self.regions.current.line_start_x;
+                // P243 — reduz width útil por `right` (clamp a ≥ 0).
+                self.regions.current.width = (saved_width - right).max(0.0);
 
                 self.layout_content(body);
                 self.flush_line();
@@ -1002,6 +1024,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.regions.current.cursor_y += Pt(bottom);
                 self.regions.current.line_start_x = saved_line_start;
                 self.regions.current.cursor_x     = saved_line_start;
+                // P243 — restaurar width original.
+                self.regions.current.width = saved_width;
             }
 
             Content::Hide { body } => {
@@ -1114,12 +1138,24 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // Aplica inset_left antes do body.
                 self.regions.current.cursor_x += Pt(inset_left);
 
-                // Layout do body in-place na linha actual.
-                let _ = width;    // armazenado; refino futuro
+                // P243 (M9d / M7+3 fase (a); ADR-0081 IMPLEMENTADO parcial 4/5)
+                // — promoção real `Boxed.width`: quando `Some(w)`, clampa
+                // `regions.current.width` ao valor user-provided durante
+                // body layout via save/restore.
+                let saved_width = self.regions.current.width;
+                if let Some(w) = width {
+                    let w_pt = w.resolve_pt(font);
+                    let cursor_x_pt = self.regions.current.cursor_x.0;
+                    self.regions.current.width = (cursor_x_pt + w_pt).max(0.0);
+                }
+
                 let _ = height;   // armazenado; refino futuro
                 let _ = baseline; // armazenado; refino futuro
 
                 self.layout_content(body);
+
+                // P243 — restaurar width original.
+                self.regions.current.width = saved_width;
 
                 // Aplica inset_right após body.
                 self.regions.current.cursor_x += Pt(inset_right);
@@ -1139,7 +1175,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `width` actualmente reduz a largura útil temporariamente
             // (cursor.x começa em line_start_x + offset). `width: None`
             // == auto (largura completa).
-            Content::Block { body, width, height, inset, breakable: _, outset: _, radius: _, clip: _ } => {
+            Content::Block { body, width, height, inset, breakable: _, outset: _, radius, clip } => {
                 let font = self.font_size_pt.val();
                 let inset_left   = inset.left.resolve_pt(font);
                 let inset_top    = inset.top.resolve_pt(font);
@@ -1160,18 +1196,76 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
                 // 4. Aplica inset left (e width se especificado).
                 let saved_line_start = self.regions.current.line_start_x;
+                let saved_width      = self.regions.current.width;
                 self.regions.current.line_start_x = saved_line_start + Pt(inset_left);
                 self.regions.current.cursor_x     = self.regions.current.line_start_x;
 
-                // Se width especificado, comportamento simplificado: o body
-                // é layouted normalmente. Hard-limiting da largura exigiria
-                // refactor do Layouter para multi-region. Aceitar per
-                // ADR-0054 graded; documentar como scope-out parcial.
-                let _ = width; // armazenado mas não consumido neste passo
+                // P243 (M9d / M7+3 fase (a); ADR-0081 IMPLEMENTADO parcial 4/5)
+                // — promoção real `Block.width`: quando `Some(w)`,
+                // clampa `regions.current.width` ao valor user-provided
+                // durante body layout via save/restore. `width: None`
+                // preserva largura herdada.
+                if let Some(w) = width {
+                    let w_pt = w.resolve_pt(font);
+                    let line_start_pt = self.regions.current.line_start_x.0;
+                    // Width efectiva = line_start + w_pt (ponto onde wrap deve ocorrer).
+                    self.regions.current.width = (line_start_pt + w_pt).max(0.0);
+                }
 
-                // 5. Layout do body.
-                self.layout_content(body);
-                self.flush_line();
+                // P242 (M9d / M7+5) — clip=true emite FrameItem::Group com
+                // clip_mask `RoundedRect{radii}` (radius non-zero) ou `Rect`
+                // (radius zero; paridade DEBT-30 P79). Layouter restringe
+                // body output em mask. Quando clip=false, comportamento
+                // inline original preservado (semantic adiada graded mas
+                // estrutura inline mantida).
+                let radius_is_zero =
+                    radius.top_left == crate::entities::layout_types::Length::ZERO
+                 && radius.top_right == crate::entities::layout_types::Length::ZERO
+                 && radius.bottom_right == crate::entities::layout_types::Length::ZERO
+                 && radius.bottom_left == crate::entities::layout_types::Length::ZERO;
+
+                if *clip {
+                    // P242 wrap em Group via snapshot-and-extract.
+                    // Layout body normalmente; snapshots de items count
+                    // antes/depois; extrai items emitidos pelo body e
+                    // re-emite como Group com clip_mask.
+                    let pos_block   = crate::entities::layout_types::Point {
+                        x: self.regions.current.line_start_x,
+                        y: self.regions.current.cursor_y,
+                    };
+                    let items_before = self.regions.current.current_items.len();
+                    let y_before     = self.regions.current.cursor_y;
+
+                    // Layout body (acumula items em current_items).
+                    self.layout_content(body);
+                    self.flush_line();
+
+                    // Extrair items adicionados pelo body.
+                    let body_items: Vec<FrameItem> = self.regions.current
+                        .current_items.drain(items_before..).collect();
+                    let inner_h  = (self.regions.current.cursor_y - y_before).0;
+                    let inner_w  = self.available_width();
+                    let clip_shape = if radius_is_zero {
+                        crate::entities::geometry::ShapeKind::Rect
+                    } else {
+                        crate::entities::geometry::ShapeKind::RoundedRect {
+                            radii: *radius,
+                        }
+                    };
+                    // Re-emit como Group envolvendo os items extraídos.
+                    self.regions.current.current_items.push(FrameItem::Group {
+                        pos:          pos_block,
+                        matrix:       crate::entities::layout_types::TransformMatrix::identity(),
+                        clip_mask:    Some(clip_shape),
+                        inner_width:  inner_w,
+                        inner_height: inner_h,
+                        items:        body_items,
+                    });
+                } else {
+                    // 5. Layout do body (caminho original inline).
+                    self.layout_content(body);
+                    self.flush_line();
+                }
 
                 // 6. Aplica inset bottom.
                 self.regions.current.cursor_y += Pt(inset_bottom);
@@ -1185,9 +1279,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     }
                 }
 
-                // 8. Restaura line_start_x.
+                // 8. Restaura line_start_x e width (P243).
                 self.regions.current.line_start_x = saved_line_start;
                 self.regions.current.cursor_x     = saved_line_start;
+                self.regions.current.width        = saved_width;
             }
 
             // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ──
@@ -1417,7 +1512,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             Content::Shape { kind, width, height, .. } => {
                 match kind {
-                    ShapeKind::Rect | ShapeKind::Ellipse | ShapeKind::Path(_) => {
+                    // P242 — RoundedRect partilha dimensões com Rect.
+                    ShapeKind::Rect | ShapeKind::RoundedRect { .. } | ShapeKind::Ellipse | ShapeKind::Path(_) => {
                         let w = resolve_pt(width.as_deref(), max_width).min(max_width);
                         let h = resolve_pt(height.as_deref(), 0.0);
                         (w, h)

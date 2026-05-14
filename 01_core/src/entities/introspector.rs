@@ -115,6 +115,16 @@ pub trait Introspector: Send + Sync {
         location: Location,
     ) -> Option<crate::entities::content::Content>;
 
+    /// **P241 (M9d/M7+2)** — Content pre-rendered para `counter.display`
+    /// paralelo absoluto `state_display_value` P240. Caller layout arm
+    /// `Content::CounterDisplayCallback` consome valor pre-rendered
+    /// produzido por `apply_counter_displays` pós-fixpoint.
+    fn counter_display_value(
+        &self,
+        key: String,
+        location: Location,
+    ) -> Option<crate::entities::content::Content>;
+
     /// **P175 (M9 sub-passo 5)** — query genérica via `Selector`.
     /// P175 minimal: só `Selector::Kind(kind)`, que delega a
     /// `query_by_kind`. Variants futuros (`Label`, `And`, `Or`,
@@ -335,6 +345,15 @@ pub struct TagIntrospector {
     /// arquitectural estrita Opção γ P239 audit.
     pub state_displays:
         HashMap<(String, Location), crate::entities::content::Content>,
+
+    /// **P241 (M9d/M7+2)** — pre-rendered Content por
+    /// `(counter_key, location)` produzido pelo
+    /// `apply_counter_displays` pós-fixpoint paralelo absoluto
+    /// `state_displays` P240. Consumer: layout arm
+    /// `Content::CounterDisplayCallback` via
+    /// `Introspector::counter_display_value(key, loc)`.
+    pub counter_displays:
+        HashMap<(String, Location), crate::entities::content::Content>,
 }
 
 impl TagIntrospector {
@@ -450,6 +469,14 @@ impl Introspector for TagIntrospector {
         location: Location,
     ) -> Option<crate::entities::content::Content> {
         self.state_displays.get(&(key, location)).cloned()
+    }
+
+    fn counter_display_value(
+        &self,
+        key: String,
+        location: Location,
+    ) -> Option<crate::entities::content::Content> {
+        self.counter_displays.get(&(key, location)).cloned()
     }
 
     fn query(&self, selector: &Selector) -> Vec<Location> {

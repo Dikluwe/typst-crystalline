@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/region`
-Hash do Código: 18f0080f
+Hash do Código: efe89bb1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/region.rs`
@@ -213,3 +213,55 @@ fragmentação no `Layouter` cristalino single-pass.
 |------|--------|-------------------|
 | 2026-05-12 | P216A criação — DEBT-56 sub-fase (a) parte 1: tipo `Region` introduzido para agregar state geométrico Layouter (5 fields escalares + 2 dimensões). Paridade vanilla simplificada per ADR-0078 PROPOSTO. Pattern "Layouter-state agregado" N=2 (precedente P190C). | `region.rs`, `region.md`, `mod.rs` re-export |
 | 2026-05-12 | P216B adição — DEBT-56 sub-fase (a) parte 2: struct `Regions` adicionada cohabitando com `Region` no mesmo módulo. Forma minimal `{ current: Region }` por **anti-inflação 11ª aplicação cumulativa pós-P205D** — fields `backlog: Vec<Region>` + `last: Option<Region>` (paridade vanilla literal) diferidos a P219 quando `Content::Columns` consumer emergir. Refactor Layouter `region: Region` → `regions: Regions` (~158 call-sites `self.region.X` → `self.regions.current.X`). Sub-fase (a) DEBT-56 fechada estruturalmente; sub-fase (b) consumer multi-column é P219+. | `region.rs`, `region.md`, `layout/{mod,cursor,equation,grid,placement}.rs` |
+
+## Extensão `Regions` `backlog` + `last` — Passo 243 (M9d / M7+3 fase (a); ADR-0081 IMPLEMENTADO parcial 4/5)
+
+P216B introduziu `Regions { current: Region }` minimal por
+anti-inflação 11ª aplicação cumulativa pós-P205D. **P243 estende**
+para `Regions { current, backlog, last }` paridade vanilla
+literal:
+
+```rust
+#[derive(Debug, Clone)]
+pub struct Regions {
+    pub current: Region,
+    pub backlog: Vec<Region>,      // P243 — fase (b) populated
+    pub last:    Option<Region>,   // P243 — fase (b) populated
+}
+```
+
+**Fase (a) P243**: `backlog` vazio + `last: None` em produção
+(single-region preservado literal P216A/P216B observable).
+**Fase (b) DEBT-56**: populated quando `Content::Columns`
+materializar (passo subsequente fora P243 — fase (a) é
+infrastructure-only).
+
+**Novo método `Regions::advance`**:
+```rust
+pub fn advance(&mut self) -> Option<Region>;
+```
+
+Comportamento:
+- **`backlog` não-vazio (fase (b))**: move `current` → `last`;
+  consome primeira região do `backlog` como novo `current`;
+  retorna `Some(prev_current)` (caller pode commit para Page).
+- **`backlog` vazio (fase (a))**: retorna `None`; caller cria
+  nova região externa (e.g. `new_page` no Layouter). Preserva
+  semantic P216A/B literal.
+
+**Sub-padrão "promoção real scope-out ADR-0054 graded"** N=1 →
+**2 cumulativo** (P242 radius/clip + **P243 multi-region
+scope-outs**). Atinge limiar formalização N=2 candidato a ADR
+meta passo administrativo XS futuro.
+
+**Audit C1 P243 finding material**: spec hipotetizou refactor
+profundo cross-module L+ (5-7 fields migrar, ~30-50 sítios).
+Reality: refactor field-agregation já feito em P216A/B; P243
+apenas estende `Regions` com `backlog` + `last` + promove
+scope-outs via `regions.current.width` save/restore. Magnitude
+real M (~2-3h) face L+ hipotetizado. **Sem `P243.div-N`** —
+paridade lição N=6 cumulativo precedente P237/P240/P241/P242.
+
+**Sub-padrão #14 "Tipo entity em ficheiro próprio"** preservado
+N=6 (Regions já existe em `region.rs` desde P216B — P243 estende
+o existente em vez de criar novo ficheiro).

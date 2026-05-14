@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/region.md
-//! @prompt-hash 0d428ad0
+//! @prompt-hash c5d88f7d
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -95,42 +95,85 @@ impl Region {
 /// **P216B (DEBT-56 sub-fase a parte 2)**: introduzido para
 /// preparar consumer multi-column em P219 (sub-fase b).
 ///
-/// Forma **minimal por anti-inflação 11ª aplicação cumulativa
-/// pós-P205D** — apenas `current` field. Fields `backlog: Vec<Region>`
-/// + `last: Option<Region>` (paridade vanilla literal) **diferidos
-/// a P219** quando emergir consumer real (`Content::Columns` arm
-/// no Layouter).
-///
-/// Critério de reabertura `backlog`/`last`: materialização de
-/// `Content::Columns` consumer no Layouter (P219). Até lá,
-/// single-region é suficiente — `Regions { current: Region }`
-/// preserva 100% comportamento P216A.
+/// **P243 (M9d / M7+3 fase (a); ADR-0081 IMPLEMENTADO parcial 4/5)**
+/// — extensão face P216B: introduz `backlog: Vec<Region>` + `last:
+/// Option<Region>` fields (paridade vanilla literal) para preparar
+/// consumer multi-region/multi-column. Fase (a) DEBT-56 §"Notas":
+/// "introduzir `Regions { current, backlog, last }` mantendo
+/// comportamento single-region". Single-region preservado literal
+/// — `backlog` vazio + `last: None` em produção P243; populated
+/// só em fase (b) DEBT-56 quando `Content::Columns` materializar.
 ///
 /// Paridade vanilla simplificada per ADR-0078 PROPOSTO §"Decisão":
 /// vanilla `Regions<'a> { current, backlog: &'a [Abs], last,
-/// expand, full, root, ... }`; cristalino reduz a 1 field até
-/// consumer emergir.
+/// expand, full, root, ... }`; cristalino preserva subset
+/// essencial (`backlog: Vec<Region>` owned + `last: Option<Region>`
+/// owned), omitindo `expand`/`full`/`root` (semantic adiada per
+/// ADR-0054 — cristalino não tem auto-expand explícito).
+///
+/// **Critério de activação `backlog`/`last`**: materialização de
+/// `Content::Columns` consumer no Layouter (fase (b) DEBT-56).
+/// Até lá, fase (a) P243 preserva 100% comportamento P216A/P216B
+/// observable (`backlog` vazio).
 ///
 /// Cohabitação semântica com `Region` no mesmo módulo (precedente:
 /// `Sides<T>` em `sides.rs` cobre struct + helpers).
 #[derive(Debug, Clone)]
 pub struct Regions {
     /// Region actual onde Layouter escreve. Single-region em
-    /// P216B; multi-region em P219.
+    /// P216B; multi-region em fase (b) DEBT-56.
     pub current: Region,
+    /// **P243 (M9d / M7+3 fase (a))** — regions ainda não consumidas.
+    /// Vazio em fase (a) (single-region preservado); populated em
+    /// fase (b) por `Content::Columns` arm.
+    pub backlog: Vec<Region>,
+    /// **P243 (M9d / M7+3 fase (a))** — última region preservada para
+    /// overflow/fallback (e.g. medida final). `None` em fase (a);
+    /// populated em fase (b) conforme columns/colbreak consumir.
+    pub last: Option<Region>,
 }
 
 impl Regions {
-    /// Cria `Regions` com 1 region de dimensões dadas.
+    /// Cria `Regions` com 1 region de dimensões dadas. `backlog`
+    /// vazio; `last: None` (fase (a) P243 preserva semantic single-
+    /// region P216B literal).
     pub fn single(width: f64, height: f64) -> Self {
         Self {
             current: Region::new(width, height),
+            backlog: Vec::new(),
+            last:    None,
         }
     }
 
     /// Reset region actual (delega a `Region::reset`).
     pub fn reset_current(&mut self) {
         self.current.reset();
+    }
+
+    /// **P243 (M9d / M7+3 fase (a))** — avança para próxima region.
+    ///
+    /// Comportamento conforme estado `backlog`:
+    /// - **`backlog` não-vazio**: move `current` para `last`; consome
+    ///   primeira region do `backlog` como novo `current`. Retorna
+    ///   `Some(old_current)` (o caller pode commit para Page se
+    ///   necessário).
+    /// - **`backlog` vazio (fase (a))**: retorna `None` — caller
+    ///   deve criar nova region externa (e.g. `new_page` no
+    ///   Layouter). Preserva semantic P216B single-region literal.
+    ///
+    /// **Fase (a) P243**: callers existentes (`flush_line`,
+    /// `new_page`) preservam fluxo P216A/B; método disponível
+    /// apenas como infraestrutura para fase (b).
+    pub fn advance(&mut self) -> Option<Region> {
+        if self.backlog.is_empty() {
+            // Fase (a): sem backlog. Caller cria nova region externa.
+            return None;
+        }
+        // Fase (b): consome próxima do backlog.
+        let next = self.backlog.remove(0);
+        let prev = std::mem::replace(&mut self.current, next);
+        self.last = Some(prev.clone());
+        Some(prev)
     }
 }
 
@@ -220,5 +263,66 @@ mod tests {
         let rs2 = rs.clone();
         assert_eq!(rs.current.width, rs2.current.width);
         assert_eq!(rs.current.height, rs2.current.height);
+    }
+
+    // ── P243 (M9d / M7+3 fase (a); ADR-0081 IMPLEMENTADO parcial 4/5)
+    //     — Regions extends with backlog + last + advance ──
+
+    #[test]
+    fn p243_regions_single_backlog_vazio_last_none() {
+        // Fase (a): single-region preservado literal P216B.
+        let rs = Regions::single(595.28, 841.89);
+        assert!(rs.backlog.is_empty(), "fase (a) inicia com backlog vazio");
+        assert!(rs.last.is_none(),     "fase (a) inicia com last=None");
+        assert_eq!(rs.current.width,  595.28);
+        assert_eq!(rs.current.height, 841.89);
+    }
+
+    #[test]
+    fn p243_regions_advance_fase_a_retorna_none() {
+        // Fase (a): sem backlog → advance retorna None.
+        // Caller (Layouter::new_page) cria nova region externa.
+        let mut rs = Regions::single(100.0, 200.0);
+        rs.current.cursor_x = Pt(50.0);
+        let result = rs.advance();
+        assert!(result.is_none(),
+            "fase (a) advance retorna None (backlog vazio)");
+        // Estado preservado.
+        assert_eq!(rs.current.cursor_x.0, 50.0);
+        assert!(rs.last.is_none());
+    }
+
+    #[test]
+    fn p243_regions_advance_fase_b_consome_backlog() {
+        // Fase (b) simulada: backlog populated; advance move
+        // current→last + consome próximo do backlog.
+        let mut rs = Regions::single(100.0, 200.0);
+        rs.current.cursor_x = Pt(50.0);
+        // Simular fase (b): adicionar region ao backlog.
+        let next = Region::new(80.0, 200.0);   // coluna mais estreita.
+        rs.backlog.push(next);
+
+        let prev = rs.advance();
+        assert!(prev.is_some(), "fase (b) advance retorna prev");
+        assert_eq!(prev.unwrap().width, 100.0);
+        // current agora é a próxima coluna.
+        assert_eq!(rs.current.width, 80.0);
+        // last guarda a anterior.
+        assert!(rs.last.is_some());
+        assert_eq!(rs.last.as_ref().unwrap().width, 100.0);
+        // Backlog consumido.
+        assert!(rs.backlog.is_empty());
+    }
+
+    #[test]
+    fn p243_regions_clone_preserva_backlog_last() {
+        let mut rs = Regions::single(100.0, 200.0);
+        rs.backlog.push(Region::new(50.0, 200.0));
+        rs.last = Some(Region::new(70.0, 200.0));
+        let rs2 = rs.clone();
+        assert_eq!(rs2.backlog.len(), 1);
+        assert!(rs2.last.is_some());
+        assert_eq!(rs2.backlog[0].width, 50.0);
+        assert_eq!(rs2.last.as_ref().unwrap().width, 70.0);
     }
 }

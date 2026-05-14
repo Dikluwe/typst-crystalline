@@ -102,6 +102,22 @@ pub enum ElementPayload {
         callback: Option<crate::entities::func::Func>,
     },
 
+    /// **P241 (M9d/M7+2)** — payload de `counter.display(key, callback)`
+    /// paralelo absoluto `StateDisplay` P240.
+    ///
+    /// Emitido por `extract_payload` quando walk vê
+    /// `Content::CounterDisplayCallback { key, callback }`. Processado
+    /// em `apply_counter_displays` pós-fixpoint: converte
+    /// `intr.counters.value_at(key, loc)` para `Value::Array(Vec<Value::Int>)`
+    /// e chama `apply_func(callback, [array], ctx, engine)`; guarda
+    /// Content resultado em `intr.counter_displays[(key, loc)]`. Sem
+    /// callback: formato default "1.2.3" via join ".". Counter
+    /// inexistente: `Value::Array(vec![])` (vector vazio).
+    CounterDisplay {
+        key:      String,
+        callback: Option<crate::entities::func::Func>,
+    },
+
     /// **P178** — payload de `Content::Outline`. Unit variant (Opção α):
     /// suficiente para `query("outline")` minimal contar locations.
     /// Refino futuro pode capturar `depth` e `title_hash`.

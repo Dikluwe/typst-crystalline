@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export` — Exportador Físico de Documentos
-Hash do Código: 99ae3678
+Hash do Código: 391fc996
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export.rs`
@@ -189,3 +189,55 @@ CMap inclui entrada para glyph variante: "<00A2> <0028>" para glyph_id=0xA2 → 
 |------|--------|--------------------|
 | 2026-03-29 | Criação — Passo 21: serialição Helvetica manual, inversão Y, escaping | `export.rs` |
 | 2026-04-12 | Restauro — expandido: CIDFont/Identity-H (ADR-0027), FrameItem::Glyph (Passo 45), ToUnicode, helpers internos | `export.md` |
+
+## Rounded-rect clip path — Passo 242 (M9d/M7+5; ADR-0081 IMPLEMENTADO parcial 3/5)
+
+Extensão DEBT-30 (clip-mask, fechado P79) para `ShapeKind::RoundedRect
+{ radii: Corners<Length> }`. Helper local:
+
+```rust
+fn emit_rounded_rect_ops(
+    ops: &mut String,
+    x: f64, y: f64, w: f64, h: f64,
+    radii: &Corners<Length>,
+)
+```
+
+**Algoritmo**: Bezier 4 corners path via PDF operadores
+`m` (move) + `l` (line) + `c` (cubic bezier) + `h` (close).
+Coordenadas em sistema PDF (Y crescente para cima); caller
+externo aplica inversão Y se necessário.
+
+**Sequência** sentido horário começando após canto top-left:
+1. `m` posição inicial top-edge (`x + tl_r, y_top`).
+2. `l` line para `x_right - tr_r, y_top`.
+3. `c` cubic top-right corner (skip se `tr == 0`).
+4. `l` line para `x_right, y_bottom + br_r`.
+5. `c` cubic bottom-right corner (skip se `br == 0`).
+6. `l` line para `x_left + bl_r, y_bottom`.
+7. `c` cubic bottom-left corner (skip se `bl == 0`).
+8. `l` line para `x_left, y_top - tl_r`.
+9. `c` cubic top-left corner (skip se `tl == 0`).
+10. `h` close path.
+
+**Bezier kappa**: `0.552_284_749_831` (paridade `ShapeKind::Ellipse`
+mesmo ficheiro; minimiza erro quarto de círculo).
+
+**Clamp radii**: `tl/tr/br/bl` clamped a `min(w, h) / 2.0` para
+evitar overflow geométrico (paridade vanilla).
+
+**Consumers**:
+- `draw_item_global` (page-relative) — usa `pos.x.val()`, `pdf_y`.
+- `emit_shape_path_local` (Group local space) — usa `(0, -height)`
+  origem.
+- `draw_item_local` (após `cm` transformação) — usa `pos.x.0`,
+  `local_y`.
+- 2× draw_item duplicados em paths Shape (similar arms).
+
+Total **5 sítios** com arm `ShapeKind::RoundedRect` consistente.
+
+**Layout integration P242**: `FrameItem::Group { clip_mask:
+Some(RoundedRect { radii }), ... }` emitido quando
+`Content::Block.clip == true` && `radius != Corners::uniform(ZERO)`.
+PDF exporter desenha path + emite `W n` (paridade DEBT-30 fechado
+P79 mas para shape rounded).

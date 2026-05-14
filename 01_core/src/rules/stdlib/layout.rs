@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
-//! @prompt-hash f45bcc3a
+//! @prompt-hash 68fc3823
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -475,6 +475,83 @@ fn extract_sides_lengths(args: &Args, fn_name: &str) -> SourceResult<Sides<Optio
     })
 }
 
+/// **P242 (M9d / M7+5)** — extrai `Corners<Length>` a partir de um
+/// `Value` único (named arg `radius:` em `block`/`box`). Aceita:
+/// - `Value::Length(L)` (ou coerções via `extract_length`) → uniforme
+///   `Corners::uniform(L)`.
+/// - `Value::Dict(d)` com keys `top-left` / `top-right` /
+///   `bottom-right` / `bottom-left` / `top` / `bottom` / `left` /
+///   `right` / `rest`.
+///
+/// **Precedência** (paridade `extract_sides_lengths` per ADR-0064
+/// Caso C): canto específico > eixo (top/bottom/left/right) > `rest`.
+/// Cantos omitidos preservam-se em `Length::ZERO`.
+///
+/// **Validação**: negativos rejeitados (paridade `block(radius)` P231).
+fn extract_corners_length_value(value: &Value, fn_name: &str) -> SourceResult<crate::entities::corners::Corners<Length>> {
+    use crate::entities::corners::Corners;
+    // Caso 1: Length uniforme.
+    if let Some(len) = extract_length(value) {
+        if len.abs.0 < 0.0 || len.em < 0.0 {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("{}(radius): negativo rejeitado", fn_name),
+            )]);
+        }
+        return Ok(Corners::uniform(len));
+    }
+    // Caso 2: Dict por canto.
+    if let Value::Dict(d) = value {
+        let mut tl: Option<Length> = None;
+        let mut tr: Option<Length> = None;
+        let mut br: Option<Length> = None;
+        let mut bl: Option<Length> = None;
+        let mut top: Option<Length> = None;
+        let mut bottom: Option<Length> = None;
+        let mut left: Option<Length> = None;
+        let mut right: Option<Length> = None;
+        let mut rest: Option<Length> = None;
+        for (key, val) in d.iter() {
+            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("{}(radius.{}:) espera length, recebeu {}", fn_name, key, val.type_name()),
+            )])?;
+            if len.abs.0 < 0.0 || len.em < 0.0 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("{}(radius.{}:) negativo rejeitado", fn_name, key),
+                )]);
+            }
+            match key.as_str() {
+                "top-left"     => tl     = Some(len),
+                "top-right"    => tr     = Some(len),
+                "bottom-right" => br     = Some(len),
+                "bottom-left"  => bl     = Some(len),
+                "top"          => top    = Some(len),
+                "bottom"       => bottom = Some(len),
+                "left"         => left   = Some(len),
+                "right"        => right  = Some(len),
+                "rest"         => rest   = Some(len),
+                other => return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("{}(radius): chave de canto inesperada '{}'", fn_name, other),
+                )]),
+            }
+        }
+        // Precedência: específico > eixo > rest.
+        let zero = Length::ZERO;
+        let resolved_tl = tl.or(top).or(left).or(rest).unwrap_or(zero);
+        let resolved_tr = tr.or(top).or(right).or(rest).unwrap_or(zero);
+        let resolved_br = br.or(bottom).or(right).or(rest).unwrap_or(zero);
+        let resolved_bl = bl.or(bottom).or(left).or(rest).unwrap_or(zero);
+        return Ok(Corners::new(resolved_tl, resolved_tr, resolved_br, resolved_bl));
+    }
+    Err(vec![SourceDiagnostic::error(
+        Span::detached(),
+        format!("{}(radius:) espera length ou dict por canto, recebeu {}", fn_name, value.type_name()),
+    )])
+}
+
 /// `hide(body)` → `Content::Hide`. Sem argumentos nomeados.
 pub fn native_hide(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
@@ -705,21 +782,11 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         }
         None => Sides::uniform(Length::ZERO),
     };
+    // P242 — radius `Corners<Length>` (refino face P231 `Option<Length>`).
+    // Aceita Length uniforme OR Dict por canto via helper centralizado.
     let radius = match args.named.get("radius") {
-        Some(val) => {
-            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("block(radius): espera length, recebeu {}", val.type_name()),
-            )])?;
-            if len.abs.0 < 0.0 || len.em < 0.0 {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "block(radius): negativo rejeitado".to_string(),
-                )]);
-            }
-            Some(len)
-        }
-        None => None,
+        Some(val) => extract_corners_length_value(val, "block")?,
+        None => crate::entities::corners::Corners::uniform(Length::ZERO),
     };
     let clip = match args.named.get("clip") {
         Some(Value::Bool(b)) => *b,
@@ -930,21 +997,11 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         }
         None => Sides::uniform(Length::ZERO),
     };
+    // P242 — radius `Corners<Length>` paralelo block. Aceita Length
+    // uniforme OR Dict por canto via helper centralizado.
     let radius = match args.named.get("radius") {
-        Some(val) => {
-            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("box(radius): espera length, recebeu {}", val.type_name()),
-            )])?;
-            if len.abs.0 < 0.0 || len.em < 0.0 {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "box(radius): negativo rejeitado".to_string(),
-                )]);
-            }
-            Some(len)
-        }
-        None => None,
+        Some(val) => extract_corners_length_value(val, "box")?,
+        None => crate::entities::corners::Corners::uniform(Length::ZERO),
     };
     let clip = match args.named.get("clip") {
         Some(Value::Bool(b)) => *b,

@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: dcbfb78f
+Hash do Código: 2707aed2
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -1073,3 +1073,140 @@ ADR-0080 EM VIGOR pós-P229** — feature runtime nova + walk
 integration merece L0 tocado partial (este bloco + bloco
 `state_display` em `rules/stdlib.md` + bloco `apply_state_displays`
 em `rules/introspect.md`).
+
+## Variante `Content::CounterDisplayCallback` — Passo 241 (M9d/M7+2; ADR-0081 IMPLEMENTADO parcial paralelo absoluto P240)
+
+```rust
+Content::CounterDisplayCallback {
+    key:      String,
+    callback: Option<crate::entities::func::Func>,
+}
+```
+
+Render-mediated counter display real walk-time vanilla
+`counter.display(callback)`. **Paralelo absoluto** a
+`Content::StateDisplay` P240 (mesmo pattern; mesma arquitectura
+Opção γ; Layouter permanece puro).
+
+Walk emite Tag via `extract_payload` arm; `apply_counter_displays`
+pós-fixpoint (paralelo `apply_state_displays` P240) converte
+`intr.counters.value_at(key, loc)` (Option<&[usize]>) para
+`Value::Array(Vec<Value::Int>)` representando counter state e
+chama `apply_func(callback, [array], ctx, engine)`. Resultado
+Content armazenado em `intr.counter_displays[(key, loc)]`. Layout
+arm consome via `Introspector::counter_display_value(key, loc)`.
+
+**Forma do Value passado ao callback** (Decisão 4 P241): paridade
+vanilla `CounterState = SmallVec<[u64; 3]>` representado como
+`Value::Array(Vec<Value::Int>)`. Counter inexistente:
+`Value::Array(vec![])` (vector vazio).
+
+**`callback: None`** + counter populated: formato default "1.2.3"
+via join "." (paridade `formatted_counter_at` P177).
+**`callback: None`** + counter inexistente: `Content::Empty`.
+
+**Coexiste com `Content::CounterDisplay { kind }` legacy
+single-pass** — variant nova paralela preservada inalterada
+(Decisão 1 P241 Opção α: variant nova vs refino legacy).
+
+**Segunda excepção justificada ADR-0080 EM VIGOR pós-P229** —
+N=1 (P240) → 2 (P241) cumulativo; pattern "L0 tocado para
+features runtime novas + walk integration" promove-se a N=2.
+
+## Refino `Content::Block.radius` + `Content::Boxed.radius` — Passo 242 (M9d/M7+5; ADR-0081 IMPLEMENTADO parcial 3/5)
+
+P231 introduziu fields `radius: Option<Length>` + `clip: bool` em
+ambos os variants como scope-out P156G/H graded ("semantic adiada").
+P242 promove para semantic real via:
+
+```rust
+// Refino tipo radius:
+- radius: Option<Length>,      // P231 — single Length OR None
++ radius: Corners<Length>,     // P242 — per-corner (top_left/top_right/bottom_right/bottom_left)
+
+// Default migrado:
+- radius: None,
++ radius: Corners::uniform(Length::ZERO),
+```
+
+Audit C1 P242 refinou hipótese spec: assumira "5 fields → 7 fields"
+mas Block/Boxed já tinham 8 fields P231; ajuste real é "refine field
+type" (`Option<Length>` → `Corners<Length>`) + materialize semantic
+clip. Sem `P242.div-N` formal — paridade lição N=5 cumulativo
+ajustes triviais audit precedentes.
+
+**`clip` semantic materializada P242**:
+- `clip: false`: comportamento inline original preservado (radius
+  armazenado sem clip-mask emit; semantic radius isolada continua
+  graded).
+- `clip: true` + radius zero: Layouter emite `FrameItem::Group` com
+  `clip_mask: Some(ShapeKind::Rect)` (paridade DEBT-30 P79).
+- `clip: true` + radius non-zero: Layouter emite `FrameItem::Group`
+  com `clip_mask: Some(ShapeKind::RoundedRect { radii: radius })`;
+  PDF exporter desenha Bezier 4 corners path via
+  `emit_rounded_rect_ops` (kappa = 0.552_284_749_831 paridade
+  Ellipse same ficheiro).
+
+**Promoção real graded ADR-0054 P156G/H → semantic concreta P242**:
+sub-padrão emergente "promoção real scope-out ADR-0054 graded"
+N=1 inaugurado P242 (Categoria A.4 P231 graded → A.4 materializado
+parcial). Outset/fill/stroke restantes em Block/Boxed permanecem
+scope-out (refino futuro).
+
+stdlib `block(radius:)` / `box(radius:)` aceitam:
+- `Length` uniforme (paridade pre-P242; `extract_length`).
+- `Dict` por canto: `top-left` / `top-right` / `bottom-right` /
+  `bottom-left` / `top` / `bottom` / `left` / `right` / `rest`.
+  Precedência: canto específico > eixo > rest (paridade
+  `extract_sides_lengths` per ADR-0064 Caso C).
+
+## Promoção scope-outs Pad.right / Block.width / Boxed.width — Passo 243 (M9d / M7+3 fase (a); ADR-0081 IMPLEMENTADO parcial 4/5)
+
+P156C declarou `Pad.right` scope-out ("Layouter actual não tem
+mecânica de largura útil por arm"). P156G/H declararam
+`Block.width` / `Boxed.width` semantic real adiada ("armazenado
+mas não impõe limite real"). **P243 promove os 3 para semantic
+real** via `regions.current.width` save/restore:
+
+```rust
+// Em layout/mod.rs Pad arm:
+let saved_width = self.regions.current.width;
+self.regions.current.width = (saved_width - right).max(0.0);
+self.layout_content(body);
+self.regions.current.width = saved_width;
+```
+
+```rust
+// Em Block arm:
+let saved_width = self.regions.current.width;
+if let Some(w) = width {
+    let w_pt = w.resolve_pt(font);
+    self.regions.current.width = (line_start + w_pt).max(0.0);
+}
+self.layout_content(body);
+self.regions.current.width = saved_width;
+```
+
+```rust
+// Em Boxed arm (paralelo Block):
+let saved_width = self.regions.current.width;
+if let Some(w) = width {
+    let w_pt = w.resolve_pt(font);
+    self.regions.current.width = (cursor_x + w_pt).max(0.0);
+}
+self.layout_content(body);
+self.regions.current.width = saved_width;
+```
+
+**Mecânica**: `layout_word` em `cursor.rs` consulta
+`self.regions.current.width` para width-aware wrap; promoção
+P243 garante que width efectiva reflecte constraint user-provided
+durante body layout. **Save/restore LIFO** preserva semantic
+cumulativo para Pad/Block aninhados (P243 test
+`p243_pad_aninhado_largura_cumulativa_preservada`).
+
+**Sub-padrão "promoção real scope-out ADR-0054 graded"** N=2
+cumulativo (P242 radius/clip + P243 multi-region attrs).
+**§"Limitações conscientes" P156C/G/H** secções relevantes
+transitam de "scope-out" / "armazenado adiada" para
+"materializado P243" (anotação cruzada).

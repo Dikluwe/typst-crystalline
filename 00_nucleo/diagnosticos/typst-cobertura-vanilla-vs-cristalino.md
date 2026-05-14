@@ -3108,6 +3108,596 @@ independentes; OU pivot outro módulo; OU pausa M-fase
 
 **Stdlib funcs**: 62 → **63** (+state_display).
 
+⁶⁰ — Ajuste P241 (M9d / M7+2 segunda sub-passo materialização
+pós-P240 — **Pipeline walk-time eval via Opção γ
+`apply_counter_displays` paralelo absoluto P240 M7+1**;
+**segunda aplicação cumulativa pattern "L0 tocado para
+features runtime novas + walk integration" pós-ADR-0080 EM
+VIGOR P229** N=1 → 2 cumulativo; **quarta aplicação cumulativa
+pattern "spec C1 audit obrigatório bloqueante pós-P236.div-1"**
+N=3 → 4 cumulativo; ADR-0081 IMPLEMENTADO parcial 1/5 → 2/5;
+desbloqueia D.3 counter.display walk-time real):
+
+**P241 materializa M7+2 Opção γ** (per ADR-0081 IMPLEMENTADO
+parcial M7+1 P240 + spec P241 §4-§6; paralelo absoluto P240
+substituindo `state_display` por `counter_display`):
+
+- **`Content::CounterDisplayCallback { key: String, callback:
+  Option<Func> }`** variant novo em `entities/content.rs`
+  (distinto de `Content::CounterDisplay { kind }` legacy
+  single-pass que coexiste preservada — Decisão 1 P241 Opção
+  α naming explícito `CounterDisplayCallback`). **Content
+  variants: 61 → 62**.
+- **`ElementPayload::CounterDisplay { key, callback }`** variant
+  novo em `entities/element_payload.rs` paralelo
+  `ElementPayload::StateDisplay` P240.
+- **`ElementKind::CounterDisplay`** variant novo em
+  `entities/element_kind.rs` + "counter_display" as_str/from_name.
+- **`apply_counter_displays(tags, intr, engine, ctx)`** fixpoint
+  function nova em `rules/introspect/from_tags.rs` —
+  **paralelo absoluto `apply_state_displays` P240**:
+  - Converte `intr.counters.value_at(key, loc)` (Option<&[usize]>)
+    para `Value::Array(Vec<Value::Int>)` (paridade vanilla
+    `CounterState = SmallVec<[u64; 3]>`).
+  - Chama `apply_func(callback, [array], ctx, engine)` pós-walk
+    com Engine+ctx disponíveis; resultado convertido para Content
+    (Value::Content passa-through; Value::Str via Content::text;
+    outros tipos / Err → Content::Empty).
+  - Sem callback: formato default "1.2.3" via join "." (paridade
+    `formatted_counter_at` P177); counter inexistente:
+    Content::Empty.
+- **`Introspector::counter_display_value(key, location) ->
+  Option<Content>`** trait method novo + impl em TagIntrospector
+  + adapter em `03_infra/src/measurements.rs::CountingIntrospector`.
+- **`TagIntrospector.counter_displays: HashMap<(String, Location),
+  Content>`** storage novo.
+- **`native_counter_display(key, [callback])`** stdlib func nova
+  em `rules/stdlib/foundations.rs` + scope register em
+  `rules/eval/mod.rs:624` + re-export em `rules/stdlib/mod.rs`.
+  **Stdlib funcs: 63 → 64** (+counter_display).
+- **Walk integration layout-time arm
+  `Content::CounterDisplayCallback`** em `rules/layout/mod.rs`
+  consome via `Introspector::counter_display_value(key, loc)`.
+  **Layouter permanece puro** — paridade arquitectural estrita
+  P240 preservada (Opção γ vs α/β/δ P239 audit).
+- **`extract_payload` arm CounterDisplayCallback** em
+  `rules/introspect/extract_payload.rs` emite Tag pós-walk.
+- **`populate_intr_from_tag_start` arm CounterDisplay** em
+  `rules/introspect.rs` regista loc em kind_index.
+- **Caller** `apply_counter_displays(&tags, &mut introspector,
+  engine, ctx)` em `fixpoint::run_fixpoint` após
+  `apply_state_displays` (sequência cumulativa
+  apply_state_funcs → apply_state_displays → apply_counter_displays).
+
+**Forma do Value passado ao callback** (Decisão 4 P241):
+`Value::Array(Vec<Value::Int>)` representando counter state
+actual (paridade vanilla literal). Counter inexistente:
+`Value::Array(vec![])` (vector vazio passado ao callback;
+permite distinguir "counter zerado [0]" de "counter inexistente
+[]"). Sem callback + counter existente: formato default "1.2.3";
+sem callback + inexistente: `Content::Empty`.
+
+**Audit C1 P241 refinou naming** Content variant final
+(`CounterDisplayCallback` em vez de `CounterDisplay2`); ajuste
+trivial sem `P241.div-N` (lição N=4 cumulativo: ajustes triviais
+naming/signature pós-audit não merecem div-N formal).
+
+**Pré-condições obrigatórias verificadas P241** (per ADR-0081
+§"Pré-condições obrigatórias" P239):
+1. Tests baseline preservados: **2162 → 2175 verdes** (+13 novos
+   P241; 0 regressões reais; 0 adaptações intencionais; spec
+   previa +10-14 — real dentro do range).
+2. Comemo memoization invariants ADR-0073/0074 preservados
+   (trait `Introspector` `#[comemo::track]` continua válido com
+   novo method `counter_display_value(String, Location) ->
+   Option<Content>` compatível com macro; paridade P240).
+3. Backward compat: `Content::CounterDisplay { kind }` legacy
+   preservada inalterada — todos os tests pré-P241 que usam
+   variant legacy continuam intactos; P240 wrappers
+   `state_display` + tests preservados; eval-time wrappers
+   P236 state_final + P237 state_at intactos.
+
+- **L0 partial tocado** (3 ficheiros — **segunda excepção
+  justificada à aplicação automática ADR-0080 EM VIGOR
+  pós-P229**, N=1 → 2 cumulativo P240+P241):
+  - `00_nucleo/prompts/entities/content.md` — bloco
+    `Content::CounterDisplayCallback` documentado.
+  - `00_nucleo/prompts/rules/stdlib.md` — bloco
+    `counter_display(key, [callback])` documentado.
+  - `00_nucleo/prompts/rules/introspect.md` — bloco
+    `apply_counter_displays` + `Introspector::counter_display_value`
+    documentado.
+
+  **ADR-0080 §"Excepção P241"** anotada formalmente
+  cristalizando N=2 cumulativo. Pattern "L0 tocado para features
+  runtime novas + walk integration" promove-se a N=2; atinge
+  limiar formalização N=3-4 marginal (promoção a sub-categoria
+  ADR-0080 candidata se N=3 atinge em sub-passo M7+ futuro).
+  **Pattern "aplicação automática ADR-0080 EM VIGOR" N=8
+  preservado** mas **não-incrementa P241** (excepção
+  justificada).
+
+- **8 decisões fixadas P241** (Decisão 0 = lição N=4 cumulativo):
+  - Decisão 0 — C1 audit obrigatório bloqueante (lição refinada
+    aplicada N=4 cumulativo P237+P238 reescrito+P240+P241).
+  - Decisão 1 — Opção α variant nova paralela
+    `CounterDisplayCallback` (não β refino legacy).
+  - Decisão 2 — ElementPayload::CounterDisplay paralelo.
+  - Decisão 3 — ElementKind::CounterDisplay paralelo.
+  - Decisão 4 — Value::Array para counter state.
+  - Decisão 5 — Counter inexistente → Array vazio fallback.
+  - Decisão 6 — native_counter_display 1-2 arg.
+  - Decisão 7 — L0 partial tocado (segunda excepção ADR-0080).
+  - Decisão 8 — Tests materializados no mesmo passo.
+
+- **Patterns emergentes inaugurados/consolidados em P241** (3):
+  - **"L0 tocado para features runtime novas + walk integration"**
+    N=1 → **2 cumulativo** (P240 + P241).
+  - **"Refino aditivo paralelo entre callers fixpoint"** N=1 →
+    **2 cumulativo** (P240 `apply_state_displays` + P241
+    `apply_counter_displays`).
+  - **"Spec C1 audit obrigatório bloqueante pós-P236.div-1"**
+    N=3 → **4 cumulativo** (P237 + P238 reescrito + P240 + P241).
+
+- 13 tests adicionados P241 (4 unit content
+  `CounterDisplayCallback` PartialEq + plain_text + distinto
+  legacy; 4 unit stdlib `native_counter_display` cenários
+  canónicos; 5 unit introspect/fixpoint `apply_counter_displays`
+  history-aware + callback + Err defensive + counter inexistente
+  array vazio); workspace 2162 → **2175 verdes** (+13; 0
+  regressões; 0 adaptações).
+
+- **Distribuição ADRs P241**: preservada literal — ADR-0081
+  transita 1/5 → **2/5** internamente (M7+2 ✓); sem novos ADRs
+  criados; sem PROPOSTO ↔ IMPLEMENTADO. PROPOSTO 12 preservado;
+  EM VIGOR 29 preservado; IMPLEMENTADO 22 preservado; total
+  **68 preservado**. ADR-0079 Categoria D 2/? → **3/?** anotado.
+  ADR-0080 §"Excepção P241" anotada. ADR-0066 SUPERSEDED-BY
+  0073 preservado.
+- **Saldo DEBTs**: 11 preservado.
+- **Cobertura Layout per metodologia**: **89% preservado**
+  (M7+2 é Introspection refino + walk integration).
+- **Cobertura user-facing total**: ~70% → **~71-72%** (D.3
+  counter.display walk-time real bonus cumulativo marginal).
+- **Anti-inflação 33ª aplicação cumulativa pós-P205D** — Opção
+  γ pattern reusado (paridade absoluta P240) + Opção α variant
+  nova paralela (não β refino legacy) + Opção α naming explícito
+  `CounterDisplayCallback` + Opção α Value::Array paridade
+  vanilla + Opção γ L0 partial (segunda excepção justificada
+  N=2 cumulativo) + ADR-0081 IMPLEMENTADO parcial 2/5 (não
+  prematuro).
+
+**Categoria D Fase 5 Layout: 2/? → 3/? sub-passos materializados**
+(D.1 state_final P236 + state_at P237 eval-time wrappers; D.2
+state.display walk-time real P240; **D.3 counter.display
+walk-time real P241**).
+
+**Fase 5 Layout candidata: 11/13-15 → 12/13-15 sub-passos
+materializados** (~80-92% cumulativo; **Categoria A 5/5 ✓ +
+Categoria B 3/3 ✓ + Categoria D 3/? + Categoria C 0/?**).
+
+**M9d / M7+ progresso**: **2/5 sub-passos materializados**
+(M7+1 ✓; **M7+2 ✓**; M7+3 + M7+4 + M7+5 pendentes — magnitude
+cumulativa restante ~16-25h).
+
+**Marco interno P241**: segunda sub-passo materialização M9d
+validada — pattern "refino aditivo paralelo entre callers
+fixpoint" N=2 cumulativo confirmado empíricamente sem
+divergências factuais materiais (paridade absoluta P240
+preservada). Lição N=4 cumulativo C1 audit bloqueante refinou
+naming variant pós-audit sem div-N (ajuste trivial precedente
+P237/P240).
+
+**Decisão humana pendente pós-P241**: M7+5 A.4 radius/clip
+infrastructure (recomendação subjectiva; menor magnitude M-L
+~3-5h; geometry isolada); OU M7+3 multi-region (L+); OU M7+4
+Place float (L); OU ADR meta admin XS (promoção patterns N=2
+P240+P241); OU pivot outro módulo; OU pausa M-fase (Fase 5
+graded ~80-85%).
+
+**Stdlib funcs**: 63 → **64** (+counter_display).
+
+⁶¹ — Ajuste P242 (M9d / M7+5 terceira sub-passo materialização
+pós-P241 — **A.4 radius/clip infrastructure**; **primeira
+sub-passo M7+ não-pipeline**; **primeira promoção real graded
+ADR-0054 de scope-out P156G/H → semantic concreta**; sub-padrão
+#14 "Tipo entity em ficheiro próprio" N=5 → 6 cumulativo;
+sub-padrão "Reuso template helpers extract_*" N=3 → 4 cumulativo;
+**terceira excepção justificada ADR-0080 EM VIGOR pós-P229**
+sub-categoria nova "geometry/exporter"; quinta aplicação
+cumulativa pattern "spec C1 audit obrigatório bloqueante
+pós-P236.div-1" N=4 → 5 cumulativo; ADR-0081 IMPLEMENTADO
+parcial 2/5 → 3/5; ADR-0079 Categoria A.4 scope-out P231 →
+materializado parcial P242):
+
+**P242 materializa M7+5** (per ADR-0081 IMPLEMENTADO parcial
++ spec P242):
+
+- **`Corners<T>`** tipo entity novo em
+  `01_core/src/entities/corners.rs` (paralelo absoluto `Sides<T>`
+  P156C; derives Debug/Clone/Copy/PartialEq/Eq + `new` + `uniform`
+  + `Default` para `T: Default`). **Sub-padrão #14 "Tipo entity
+  em ficheiro próprio" N=5 → 6 cumulativo**: Sides (P156C) →
+  Parity (P156E) → Dir (P156I) → BibEntry (P159A) → CitationForm
+  (P159C) → **Corners (P242)**.
+- **`ShapeKind::RoundedRect { radii: Corners<Length> }`** variant
+  novo em `entities/geometry.rs`. **ShapeKind variants: 4 → 5**
+  (+RoundedRect). Coexiste com `Rect`/`Ellipse`/`Line`/`Path`.
+  Degeneração estrutural preservada (radii zero ≠ Rect; PartialEq
+  distinto).
+- **Refino tipo `Content::Block.radius`** `Option<Length>` →
+  `Corners<Length>` per-corner. **Audit C1 P242 refinou hipótese
+  spec**: assumira "5 fields → 7" mas Block/Boxed já tinham 8
+  fields P231 (`outset` + `radius` + `clip` semantic adiada
+  graded); ajuste real = **refine field type** (não add). Paridade
+  lição N=5 cumulativo P237/P240/P241 — **sem `P242.div-N`
+  formal**.
+- **Refino tipo `Content::Boxed.radius`** idem paralelo.
+- **`extract_corners_length_value(value, fn_name)`** helper novo
+  em `rules/stdlib/layout.rs` (paralelo `extract_sides_lengths`
+  P156L). **Sub-padrão "Reuso template helpers extract_*" N=3 →
+  4 cumulativo**.
+- **stdlib `block(radius:)` + `box(radius:)`** aceitam:
+  - **Length uniforme** (paridade pre-P242): `Corners::uniform(L)`.
+  - **Dict por canto**: chaves `top-left`/`top-right`/
+    `bottom-right`/`bottom-left`/`top`/`bottom`/`left`/`right`/
+    `rest`; **precedência específico > eixo > rest** (paridade
+    `extract_sides_lengths` per ADR-0064 Caso C).
+  - Validação: negativos rejeitados; chaves canto inválidas
+    rejeitadas.
+- **Layouter Block arm** (`rules/layout/mod.rs`):
+  - `clip == true` + radius non-zero: emite `FrameItem::Group`
+    com `clip_mask: Some(ShapeKind::RoundedRect { radii: radius })`.
+  - `clip == true` + radius zero: `clip_mask: Some(ShapeKind::Rect)`
+    (paridade DEBT-30 P79).
+  - `clip == false`: comportamento inline original preservado
+    (radius armazenado sem clip-mask emit; semantic radius
+    isolada continua graded per Decisão 6 spec P242).
+  - Algoritmo: snapshot-and-extract — `regions.current.current_items.len()`
+    pre/pós layout_content body, drain itens emitidos, re-emit
+    como Group com clip_mask.
+- **PDF exporter `emit_rounded_rect_ops`** helper novo em
+  `03_infra/src/export.rs`:
+  - Desenha Bezier 4 corners path via operadores PDF `m`/`l`/`c`/`h`.
+  - **Kappa** `0.552_284_749_831` (paridade `ShapeKind::Ellipse`
+    mesmo ficheiro; minimiza erro quarto de círculo).
+  - **Clamp radii** a `min(w, h) / 2.0` (evita overflow geométrico
+    paridade vanilla).
+  - Sequência horária após canto top-left; skip cubic arms quando
+    raio canto = 0.
+  - Reusado em **5 sítios cross-arm** (Shape global + Shape
+    local 2× + Group clip_mask path 2×).
+
+**Promoção real graded ADR-0054 P156G/H → semantic concreta**:
+
+- P156G/P156H declararam `radius` + `clip` scope-out com rejeição
+  hard em stdlib.
+- P231 promoveu para fields graded ("semantic adiada"): `radius:
+  Option<Length>` + `clip: bool` aceites em stdlib mas sem render
+  real.
+- **P242 materializa semantic real**: `radius` refinada per-corner;
+  `clip` emite clip_mask via Layouter; PDF exporter desenha Bezier
+  path. **Sub-padrão emergente "promoção real scope-out ADR-0054
+  graded" N=1 inaugurado P242** — distinto de:
+  - Refino qualitativo (P156L Pad sides Length → Option<Length>).
+  - Refactor cosmético (P158C Figure.kind String → Option<String>).
+  - **Sub-categoria nova**: scope-out P156G/H P231 "semantic
+    adiada" → semantic concreta + render PDF real.
+
+**Categoria A.4 ADR-0079** transita scope-out P231 →
+**materializado parcial P242** (radius + clip ✓; outset + fill +
+stroke restantes N=3 permanecem scope-out P156G/H — refino futuro
+candidato).
+
+**Pré-condições obrigatórias verificadas P242** (per ADR-0081
+§"Pré-condições obrigatórias"):
+1. **Tests baseline preservados**: 2175 verdes pré-P242 → **2190
+   verdes pós-P242** (+15 novos; 0 regressões reais; **7
+   adaptações triviais** tests pré-existentes P231 que usavam
+   `radius: Some(len)` → `radius: Corners::uniform(len)` ou
+   `Corners::ZERO`).
+2. Comemo memoization invariants ADR-0073/0074 preservados — P242
+   NÃO toca trait Introspector nem methods (refino geometry
+   isolada cross-camada L1/L3).
+3. Backward compat: stdlib `block(radius: 5pt)` continua a
+   funcionar via `Corners::uniform`; tests P231 adaptados; eval-time
+   wrappers P236/P237 + walk-time runtime P240/P241 intactos.
+
+- **L0 partial tocado** (4 ficheiros — **terceira excepção
+  justificada à aplicação automática ADR-0080 EM VIGOR pós-P229**,
+  sub-categoria nova "geometry/exporter infrastructure" distinta
+  de P240/P241 "walk-time runtime"):
+  - `00_nucleo/prompts/entities/corners.md` — **ficheiro novo**.
+  - `00_nucleo/prompts/entities/geometry.md` — secção
+    `ShapeKind::RoundedRect`.
+  - `00_nucleo/prompts/entities/content.md` — refino
+    `Block.radius` + `Boxed.radius` + materialização clip semantic.
+  - `00_nucleo/prompts/infra/export.md` — secção rounded-rect
+    clip path Bezier 4 corners.
+
+  **ADR-0080 §"Excepção P242"** anotada formalmente. Pattern
+  emergente total "L0 tocado pós-P229 (sub-categorias)" **N=3
+  cumulativo com 2 sub-categorias formalizadas** (walk-time
+  N=2 P240+P241 + geometry/exporter N=1 P242).
+
+- **9 decisões fixadas P242** (Decisão 0 = lição N=5 cumulativo):
+  - Decisão 0 — C1 audit obrigatório bloqueante.
+  - Decisão 1 — `Corners<T>` paralelo absoluto `Sides<T>`.
+  - Decisão 2 — `ShapeKind::RoundedRect` novo.
+  - Decisão 3 — Refino tipo radius (não add).
+  - Decisão 4 — Opção α radius Length OR Dict.
+  - Decisão 5 — clip semantic materializada.
+  - Decisão 6 — radius sem clip preserva graded.
+  - Decisão 7 — L0 partial tocado (terceira excepção ADR-0080).
+  - Decisão 8 — Promoção real graded scope-out (sub-padrão N=1).
+  - Decisão 9 — Sem fechamento Fase 5 graded.
+
+- **Patterns emergentes inaugurados/consolidados em P242** (4):
+  - **"Promoção real scope-out ADR-0054 graded" N=1 inaugurado
+    P242** — sub-padrão novo.
+  - **"Tipo entity em ficheiro próprio" (sub-padrão #14)** N=5 →
+    **6 cumulativo** (Corners adiciona-se).
+  - **"Reuso template helpers extract_*"** N=3 → **4 cumulativo**
+    (extract_corners_length_value via template
+    extract_sides_lengths).
+  - **"Spec C1 audit obrigatório bloqueante pós-P236.div-1"** N=4
+    → **5 cumulativo** (P237 + P238 reescrito + P240 + P241 +
+    P242).
+
+- 15 tests adicionados P242 (4 unit corners + 2 unit geometry
+  RoundedRect + 6 unit stdlib radius dict/precedência/validação +
+  3 unit/E2E layout clip_mask emit); workspace 2175 → **2190
+  verdes** (+15; 0 regressões; 7 adaptações triviais).
+
+- **Distribuição ADRs P242**: preservada literal — ADR-0081
+  transita 2/5 → **3/5** internamente (M7+5 ✓); sem novos ADRs
+  criados; sem PROPOSTO ↔ IMPLEMENTADO. PROPOSTO 12 preservado;
+  EM VIGOR 29 preservado; IMPLEMENTADO 22 preservado; total **68
+  preservado**. ADR-0079 Categoria A.4 scope-out P231 →
+  **materializado parcial P242** anotado. ADR-0080 §"Excepção
+  P242" sub-categoria nova "geometry/exporter" anotada. ADR-0066
+  SUPERSEDED-BY 0073 preservado.
+- **Saldo DEBTs**: 11 preservado.
+- **Cobertura Layout per metodologia**: 89% → **~91-92%** (refino
+  qualitativo+quantitativo — **primeira aplicação Layout
+  pós-P156L** pós série Model P157-P159 + série M7+ P240-P241).
+- **Cobertura user-facing total**: ~72% → **~73-74%** (A.4
+  radius/clip real bonus cumulativo).
+- **Anti-inflação 34ª aplicação cumulativa pós-P205D** — Opção α
+  Corners paralelo + Opção α RoundedRect novo + Opção α refino
+  tipo (não add) + Opção α Length OR Dict + Opção γ L0 partial
+  terceira excepção sub-categoria nova + Opção β snapshot-extract
+  (não refactor pipeline) + Opção α sub-padrão promoção real
+  scope-out + ADR-0081 IMPLEMENTADO parcial 3/5 (não completo).
+
+**Categoria A.4 Fase 5 Layout**: scope-out P231 → **materializado
+parcial P242** (radius + clip ✓; outset + fill + stroke restantes
+N=3 permanecem scope-out P156G/H — refino futuro candidato S-M
+cada).
+
+**Categoria D Fase 5 Layout: 3/? sub-passos materializados**
+preservado (D.1 eval-time wrappers; D.2 walk-time real P240;
+D.3 counter.display real P241; P242 é Categoria A não D).
+
+**Fase 5 Layout candidata: 12/13-15 → 13/13-15 sub-passos
+materializados** (~85-92% cumulativo; **Categoria A 5/5 ✓ (A.4
+parcial materializado P242) + B 3/3 ✓ + D 3/? + C 0/?**).
+
+**M9d / M7+ progresso**: **3/5 sub-passos materializados** (M7+1
+✓ P240; M7+2 ✓ P241; **M7+5 ✓ P242**; M7+3 + M7+4 pendentes —
+magnitude cumulativa restante ~13-20h).
+
+**Marco interno P242**: terceira sub-passo M9d validada;
+**primeira sub-passo M7+ não-pipeline** (P240/P241 walk-time
+refactor vs P242 geometry isolada); primeira aplicação real do
+sub-padrão "promoção real scope-out ADR-0054 graded" pós-2 anos
+de aplicações apenas de "field armazenado semantic adiada"
+graded. Audit C1 P242 refinou hipótese spec fields sem div-N —
+paridade lição N=5 cumulativo precedente. **Distinção qualitativa
+P242 vs P240/P241**: refino qualitativo+quantitativo (Layout +2
+pontos percentuais per metodologia) vs refino apenas qualitativo
+(Introspection P240/P241).
+
+**Decisão humana pendente pós-P242**: M7+3 multi-region completion
+(recomendação subjectiva; L+ ~8-12h; maior desbloqueio cumulativo
+restante — C.2 + A.4 breakable per-cell); OU M7+4 Place float
+real (L); OU refino A.4 outset/fill/stroke (S-M); OU ADR meta
+admin XS (promoção patterns N=2-4 acumulados P240/P241/P242);
+OU pivot outro módulo; OU pausa M-fase (Fase 5 graded ~85-92%
+com 13/13-15 sub-passos materializados).
+
+**Stdlib funcs**: 64 preservado. **ShapeKind variants**: 4 →
+**5**. **Tipos entity**: +1 Corners<T>.
+
+⁶² — Ajuste P243 (M9d / M7+3 fase (a) quarta sub-passo
+materialização pós-P242 — **infrastructure-only do plano duas-fases
+DEBT-56**; **primeira sub-passo M7+ não-pipeline #2** (P242 já foi
+não-pipeline); **sub-padrão "promoção real scope-out ADR-0054
+graded" N=1 → 2 cumulativo**; **quarta excepção justificada
+ADR-0080 EM VIGOR pós-P229 sub-categoria nova "Layouter internal
+refactor"**; sexta aplicação cumulativa pattern "spec C1 audit
+obrigatório bloqueante pós-P236.div-1" N=5 → 6 cumulativo;
+ADR-0081 IMPLEMENTADO parcial 3/5 → 4/5):
+
+**Achado material audit C1 P243**: spec hipotetizou **refactor
+profundo cross-module L+** (5-7 fields migrar `cursor_x`/`cursor_y`/
+`line_start_x`/`current_items`/`current_line` + ~30-50 sítios
+adaptação). Reality empírica: refactor field-agregation **já feito
+em P216A + P216B** (Region struct em `01_core/src/entities/region.rs`
++ Regions wrapper + Layouter `regions: Regions` field +
+`flush_line`/`new_page` actualizados). **P243 reduz para extensão
+`Regions`** com `backlog` + `last` + `advance` method + promoção
+scope-outs via `regions.current.width` save/restore. **Magnitude
+real M (~2-3h)** face L+ (~8-12h) hipotetizado. **Sem `P243.div-N`**
+— paridade lição N=6 cumulativo precedente P237/P240/P241/P242
+(audit refinou hipótese spec sem div-N formal).
+
+**P243 materializa M7+3 fase (a)** (per ADR-0081 IMPLEMENTADO
+parcial 3/5 + spec P243):
+
+- **Extensão `Regions` struct** em `01_core/src/entities/region.rs`:
+  - `pub backlog: Vec<Region>` field novo — fase (b) populated
+    quando `Content::Columns` materializar.
+  - `pub last: Option<Region>` field novo — fase (b) overflow/
+    fallback.
+  - **`pub fn advance(&mut self) -> Option<Region>`** method novo:
+    - `backlog` não-vazio (fase (b)): move current → last;
+      consome próximo backlog como novo current; retorna prev.
+    - `backlog` vazio (fase (a)): retorna None; caller cria
+      nova region externa. Preserva semantic P216A/B literal.
+  - Paridade vanilla simplificada per ADR-0078 PROPOSTO
+    §"Decisão" — subset essencial (omite `expand`/`full`/`root`).
+- **Promoção real ≥3 scope-outs multi-region** via
+  `regions.current.width` save/restore em `01_core/src/rules/layout/mod.rs`:
+  - **`Pad.right` scope-out P156C** → semantic real P243:
+    `self.regions.current.width = (saved_width - right).max(0.0)`
+    durante body layout; restaurado pós-body. Width-aware wrap
+    em `layout_word` consome largura útil reduzida.
+  - **`Block.width` semantic adiada P156G** → semantic real P243:
+    `self.regions.current.width = (line_start + w_pt).max(0.0)`
+    quando `Some(w)`.
+  - **`Boxed.width` semantic adiada P156H** → semantic real P243:
+    paralelo Block via `cursor_x + w_pt`.
+
+**Pré-condições obrigatórias verificadas P243** (per ADR-0081
+§"Pré-condições obrigatórias"):
+1. **Tests baseline preservados**: 2190 verdes pré-P243 → **2198
+   verdes pós-P243** (+8 novos; 0 regressões reais; **0 adaptações
+   intencionais** — extensão aditiva não-disruptive).
+2. Comemo memoization invariants ADR-0073/0074 preservados — P243
+   NÃO toca trait Introspector nem methods (refino L1 interno
+   isolado).
+3. Backward compat: stdlib `block(width: 100pt)` continua a
+   funcionar (semantic agora real); tests pré-P243 que usavam
+   Block.width/Boxed.width/Pad.right como scope-outs preservados
+   inalterados (`let _ = width;` foi removido; comportamento
+   anterior — body layouted with default region.width — ainda
+   funciona).
+
+- **L0 partial tocado** (2 ficheiros — **quarta excepção
+  justificada à aplicação automática ADR-0080 EM VIGOR pós-P229**,
+  sub-categoria nova "Layouter internal refactor" distinta de
+  P240/P241 walk-time + P242 geometry/exporter):
+  - `00_nucleo/prompts/entities/region.md` — secção extensão
+    `Regions` `backlog`/`last`/`advance` + sub-padrão promoção
+    real scope-out N=2.
+  - `00_nucleo/prompts/entities/content.md` — secção promoção
+    scope-outs Pad.right + Block.width + Boxed.width.
+
+  **ADR-0080 §"Excepção P243"** anotada formalmente. Pattern total
+  "L0 tocado pós-P229 (sub-categorias)" N=3 → **4 cumulativo**
+  com **3 sub-categorias formalizadas**: walk-time (N=2 P240+P241);
+  geometry/exporter (N=1 P242); **Layouter internal refactor
+  (N=1 P243)** ← inaugurada.
+
+- **10 decisões fixadas P243** (Decisão 0 = lição N=6 cumulativo):
+  - Decisão 0 — C1 audit obrigatório bloqueante (audit refinou
+    hipótese fields já-aggregados P216A/B).
+  - Decisão 1 — Regions extensão (paralelo conceptual
+    LayouterRuntimeState P190C).
+  - Decisão 2 — Migração field-by-field já feita P216A/B (audit
+    finding material).
+  - Decisão 3 — Fase (a) preserva single-region observable literal.
+  - Decisão 4 — Promoção real ≥3 scope-outs.
+  - Decisão 5 — Sem Content::Columns/Colbreak em P243.
+  - Decisão 6 — Sem ADR column flow algorithm em P243.
+  - Decisão 7 — cell_available_h integration diferida (passo
+    futuro NÃO reservado).
+  - Decisão 8 — Nova sub-categoria ADR-0080 "Layouter internal
+    refactor".
+  - Decisão 9 — Tests focam preservação observable.
+  - Decisão 10 — Sem fechamento Fase 5 / ADR-0061 / DEBT-56.
+
+- **Patterns emergentes inaugurados/consolidados em P243** (4):
+  - **"Refactor profundo Layouter internal" N=1 inaugurado P243**
+    — sub-padrão novo (magnitude reduzida vs spec por P216A/B
+    precedente).
+  - **"Sub-categoria ADR-0080 nova"** N=2 → **3 cumulativo**
+    (walk-time P240+P241; geometry/exporter P242; **Layouter
+    internal refactor P243** inaugurada).
+  - **"Promoção real scope-out ADR-0054 graded"** N=1 → **2
+    cumulativo** (P242 radius/clip + **P243 multi-region attrs
+    Pad.right + Block.width + Boxed.width**). Atinge limiar
+    formalização N=2 — candidato a ADR meta passo administrativo
+    XS futuro.
+  - **"Spec C1 audit obrigatório bloqueante pós-P236.div-1"** N=5
+    → **6 cumulativo** (P237 + P238 reescrito + P240 + P241 +
+    P242 + P243).
+
+- 8 tests adicionados P243 (4 unit regions backlog/last/advance/
+  clone preserva + 4 unit/E2E layout scope-outs promoção); workspace
+  2190 → **2198 verdes** (+8; 0 regressões; 0 adaptações).
+
+- **Distribuição ADRs P243**: preservada literal — ADR-0081
+  transita 3/5 → **4/5** internamente (M7+3 fase (a) ✓); sem
+  novos ADRs criados; sem PROPOSTO ↔ IMPLEMENTADO. PROPOSTO 12
+  preservado; EM VIGOR 29 preservado; IMPLEMENTADO 22 preservado;
+  total **68 preservado**. ADR-0079 Categoria A.4 preservada P242
+  parcial. ADR-0080 §"Excepção P243" sub-categoria nova "Layouter
+  internal refactor" anotada. ADR-0066 SUPERSEDED-BY 0073
+  preservado.
+- **Saldo DEBTs**: 11 preservado (DEBT-56 §"Plano" checklist ✓
+  item 1 anotado P243 fase (a); fase (b) pendente preserva
+  DEBT-56 aberta).
+- **Cobertura Layout per metodologia**: ~91-92% → **~93-94%**
+  (refino qualitativo + parcial quantitativo via 3 scope-outs
+  promovidos a real).
+- **Cobertura user-facing total**: ~73-74% → **~74-75%**
+  (scope-outs promovidos bonus marginal — Block.width agora
+  efectivo desbloqueia uso real).
+- **Anti-inflação 35ª aplicação cumulativa pós-P205D** — Opção α
+  extensão Regions paralelo + Opção α `backlog/last` fields novos
+  + Opção α `advance` method novo + Opção α promoção real
+  scope-outs save/restore + Opção γ L0 partial quarta excepção
+  sub-categoria nova + ADR-0081 IMPLEMENTADO parcial 4/5 (não
+  completo prematuro) + Opção β `cell_available_h` integration
+  diferida (Decisão 7).
+
+**Categoria A.4 Fase 5 Layout**: preservada P242 parcial (radius+
+clip ✓; outset+fill+stroke N=3 restantes scope-out preservado).
+
+**Categoria D Fase 5 Layout: 3/? sub-passos materializados**
+preservado (D.1+D.2+D.3 pós-P241; P242+P243 são Categoria A/
+refactor).
+
+**Fase 5 Layout candidata: 13/13-15 → 14/13-15 sub-passos
+materializados** (~93-100% cumulativo).
+
+**M9d / M7+ progresso**: **4/5 sub-passos materializados** (M7+1
+✓ P240; M7+2 ✓ P241; **M7+3 fase (a) ✓ P243**; M7+5 ✓ P242;
+M7+3 fase (b) + M7+4 pendentes — cumulativa restante ~10-16h).
+
+**DEBT-56 §"Plano" checklist** anotado pós-P243:
+- ✓ "Refactor minimal `Layouter` para multi-region" — P243 fase
+  (a) (extensão `Regions` backlog+last+advance) + P216A/B
+  precedente (Region struct + agregação fields).
+- ✗ ADR dedicada column flow — fase (b) pendente.
+- ✗ `Content::Columns` + `Content::Colbreak` — fase (b) pendente.
+- ✗ `native_columns` + `native_colbreak` — fase (b) pendente.
+- ✗ Layouter consumer multi-column — fase (b) pendente.
+- ✗ Tests + inventário 148 + DEBT fecho — fase (b) pendente.
+
+**Marco interno P243**: quarta sub-passo M9d validada; **primeira
+fase (a) duas-fases DEBT-56** materializada (infrastructure-only);
+audit C1 refinou hipótese spec material sem div-N (paridade lição
+N=6 cumulativo); sub-padrão "promoção real scope-out ADR-0054
+graded" atinge limiar formalização N=2; pattern "sub-categoria
+ADR-0080 nova" N=3 cumulativo confirma robustez sistema excepções
+EM VIGOR pós-P229.
+
+**Decisão humana pendente pós-P243**: M7+3 fase (b) (recomendação
+subjectiva; sequência natural pós-fase (a); L ~5-8h; fecha DEBT-56
++ completa M7+3 + promove potencialmente ADR-0061 → IMPLEMENTADO);
+OU M7+4 Place float real (L; isolada); OU cell layout migration
+(M; activa A.4 breakable per-cell — Decisão 7 P243 diferida);
+OU refino A.4 outset/fill/stroke (S-M); OU ADR meta admin XS;
+OU pivot outro módulo; OU pausa M-fase.
+
+**Stdlib funcs**: 64 preservado. **ShapeKind variants**: 5
+preservado. **Regions fields**: 1 → **3** (+backlog +last).
+**Regions methods**: +1 (`advance`). **Scope-outs promovidos**:
+3 (Pad.right + Block.width + Boxed.width).
+
 ³⁹ — Ajuste P214 (Tabela A.1 Markup syntactic — recálculo
 ampliado pós-M9c 2026-05-12): **3 reclassificações
 empíricas materiais** detectadas em §A.1 face ao estado

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
-//! @prompt-hash f45bcc3a
+//! @prompt-hash 68fc3823
 //! @layer L1
 //! @updated 2026-04-23
 
@@ -33,7 +33,7 @@ mod layout;
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
 pub use crate::rules::stdlib::foundations::{
-    native_counter_at, native_counter_final, native_counter_step, native_float, native_here, native_int, native_len, native_locate, native_luma, native_metadata, native_query, native_range, native_rgb,
+    native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_float, native_here, native_int, native_len, native_locate, native_luma, native_metadata, native_query, native_range, native_rgb,
     native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with, native_str, native_type,
 };
 pub use crate::rules::stdlib::calc::make_calc_module;
@@ -3824,7 +3824,12 @@ mod tests {
         let r = native_block(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Block { radius, .. }) = r {
-            assert_eq!(radius, Some(Length::pt(3.0)));
+            // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
+            // Length uniforme via stdlib → `Corners::uniform`.
+            assert_eq!(radius.top_left,     Length::pt(3.0));
+            assert_eq!(radius.top_right,    Length::pt(3.0));
+            assert_eq!(radius.bottom_right, Length::pt(3.0));
+            assert_eq!(radius.bottom_left,  Length::pt(3.0));
         } else { panic!("esperado Block"); }
     }
 
@@ -3874,7 +3879,8 @@ mod tests {
             &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Boxed { outset, radius, clip, .. }) = r {
             assert_eq!(outset.top, Length::pt(2.0));
-            assert_eq!(radius, Some(Length::pt(1.0)));
+            // P242 adapta: radius `Corners<Length>` via uniform.
+            assert_eq!(radius.top_left, Length::pt(1.0));
             assert_eq!(clip, true);
         } else { panic!("esperado Boxed"); }
     }
@@ -3893,7 +3899,8 @@ mod tests {
             &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Block { outset, radius, clip, breakable, .. }) = r {
             assert_eq!(outset.left, Length::pt(1.0));
-            assert_eq!(radius, Some(Length::pt(2.0)));
+            // P242 adapta: radius `Corners<Length>` via uniform.
+            assert_eq!(radius.top_left, Length::pt(2.0));
             assert_eq!(clip, true);
             assert_eq!(breakable, false);
         } else { panic!("esperado Block"); }
@@ -3908,7 +3915,11 @@ mod tests {
         ]), &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Block { outset, radius, clip, .. }) = r {
             assert_eq!(outset.left, crate::entities::layout_types::Length::ZERO);
-            assert!(radius.is_none());
+            // P242 adapta: radius default `Corners::uniform(Length::ZERO)`.
+            assert_eq!(radius.top_left,     crate::entities::layout_types::Length::ZERO);
+            assert_eq!(radius.top_right,    crate::entities::layout_types::Length::ZERO);
+            assert_eq!(radius.bottom_right, crate::entities::layout_types::Length::ZERO);
+            assert_eq!(radius.bottom_left,  crate::entities::layout_types::Length::ZERO);
             assert_eq!(clip, false);
         } else { panic!("esperado Block"); }
     }
@@ -4484,6 +4495,131 @@ mod tests {
         assert!(r3.is_err(), "3 args deve retornar Err");
     }
 
+    // ── Passo 242 (M9d/M7+5; ADR-0081 IMPLEMENTADO parcial 3/5) —
+    //     block/box radius `Corners<Length>` dict por canto + helper
+    //     extract_corners_length_value ──
+
+    #[test]
+    fn p242_native_block_radius_length_uniforme() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("radius".into(), Value::Length(Length::pt(5.0)));
+        let r = native_block(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { radius, .. }) = r {
+            assert_eq!(radius.top_left,     Length::pt(5.0));
+            assert_eq!(radius.top_right,    Length::pt(5.0));
+            assert_eq!(radius.bottom_right, Length::pt(5.0));
+            assert_eq!(radius.bottom_left,  Length::pt(5.0));
+        } else { panic!("esperado Block"); }
+    }
+
+    #[test]
+    fn p242_native_block_radius_dict_por_canto() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        use ecow::EcoString;
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("top-left".into(),     Value::Length(Length::pt(1.0)));
+        d.insert("top-right".into(),    Value::Length(Length::pt(2.0)));
+        d.insert("bottom-right".into(), Value::Length(Length::pt(3.0)));
+        d.insert("bottom-left".into(),  Value::Length(Length::pt(4.0)));
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("radius".into(), Value::Dict(d));
+        let r = native_block(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { radius, .. }) = r {
+            assert_eq!(radius.top_left,     Length::pt(1.0));
+            assert_eq!(radius.top_right,    Length::pt(2.0));
+            assert_eq!(radius.bottom_right, Length::pt(3.0));
+            assert_eq!(radius.bottom_left,  Length::pt(4.0));
+        } else { panic!("esperado Block"); }
+    }
+
+    #[test]
+    fn p242_native_block_radius_dict_precedencia_eixo_rest() {
+        // Spec Decisão 4: precedência específico > eixo > rest.
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        use ecow::EcoString;
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        // top específico → ambos top-left/top-right.
+        d.insert("top".into(),    Value::Length(Length::pt(10.0)));
+        // left específico → top-left/bottom-left mas top vence em top-left.
+        d.insert("left".into(),   Value::Length(Length::pt(20.0)));
+        // rest fallback para o que sobra (bottom-right).
+        d.insert("rest".into(),   Value::Length(Length::pt(99.0)));
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("radius".into(), Value::Dict(d));
+        let r = native_block(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { radius, .. }) = r {
+            // top-left: top OR left (precedência top vence: top:10pt).
+            assert_eq!(radius.top_left, Length::pt(10.0));
+            // top-right: top.
+            assert_eq!(radius.top_right, Length::pt(10.0));
+            // bottom-left: left vence (bottom não-set; rest fallback).
+            assert_eq!(radius.bottom_left, Length::pt(20.0));
+            // bottom-right: rest fallback.
+            assert_eq!(radius.bottom_right, Length::pt(99.0));
+        } else { panic!("esperado Block"); }
+    }
+
+    #[test]
+    fn p242_native_block_radius_negativo_rejeita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("radius".into(), Value::Length(Length::pt(-1.0)));
+        let r = native_block(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "radius negativo deve falhar (preservado P231→P242)");
+    }
+
+    #[test]
+    fn p242_native_block_radius_chave_canto_invalida_rejeita() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        use ecow::EcoString;
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("northwest".into(), Value::Length(Length::pt(1.0)));
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("radius".into(), Value::Dict(d));
+        let r = native_block(&mut ctx, &args,
+            &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "chave canto inválida deve falhar");
+    }
+
+    #[test]
+    fn p242_native_box_radius_paridade_block() {
+        // native_box aceita radius paralelo native_block (Decisão 1+4).
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        use ecow::EcoString;
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+        let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        d.insert("top-left".into(),  Value::Length(Length::pt(7.0)));
+        d.insert("rest".into(),       Value::Length(Length::pt(0.0)));
+        let mut args = p(vec![Value::Content(Content::text("body"))]);
+        args.named.insert("radius".into(), Value::Dict(d));
+        let r = native_box(&mut ctx, &args,
+            &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { radius, .. }) = r {
+            assert_eq!(radius.top_left,     Length::pt(7.0));
+            assert_eq!(radius.top_right,    Length::pt(0.0));
+            assert_eq!(radius.bottom_right, Length::pt(0.0));
+            assert_eq!(radius.bottom_left,  Length::pt(0.0));
+        } else { panic!("esperado Boxed"); }
+    }
+
     // ── Passo 240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ) — state_display
     //     render-mediated walk-time real via apply_state_displays paralelo
     //     apply_state_funcs ──
@@ -4554,6 +4690,83 @@ mod tests {
         assert!(r0.is_err(), "0 args deve retornar Err");
         // 3 args.
         let r3 = native_state_display(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Int(1), Value::Int(2)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r3.is_err(), "3 args deve retornar Err");
+    }
+
+    // ── Passo 241 (M9d/M7+2; ADR-0081 IMPLEMENTADO parcial paralelo absoluto
+    //     P240 M7+1) — counter_display render-mediated walk-time real via
+    //     apply_counter_displays paralelo apply_state_displays ──
+
+    #[test]
+    fn p241_native_counter_display_sem_callback_constroi_variant() {
+        null_ctx!(ctx);
+        let r = native_counter_display(
+            &mut ctx,
+            &p(vec![Value::Str("heading".into())]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        if let Value::Content(Content::CounterDisplayCallback { key, callback }) = r {
+            assert_eq!(key, "heading");
+            assert!(callback.is_none(), "1-arg → callback=None");
+        } else {
+            panic!("esperado Content::CounterDisplayCallback");
+        }
+    }
+
+    #[test]
+    fn p241_native_counter_display_com_callback_constroi_some() {
+        use crate::entities::func::Func;
+        null_ctx!(ctx);
+        let identity_fn = Func::native("identity", |_, args, _, _, _| {
+            Ok(args.items.first().cloned().unwrap_or(Value::None))
+        });
+        let r = native_counter_display(
+            &mut ctx,
+            &p(vec![Value::Str("figure".into()), Value::Func(identity_fn)]),
+            &null_world(), test_file_id(), None,
+        ).unwrap();
+        if let Value::Content(Content::CounterDisplayCallback { key, callback }) = r {
+            assert_eq!(key, "figure");
+            assert!(callback.is_some(), "2-arg → callback=Some");
+        } else {
+            panic!("esperado Content::CounterDisplayCallback com callback");
+        }
+    }
+
+    #[test]
+    fn p241_native_counter_display_arg_tipo_errado_rejeita() {
+        null_ctx!(ctx);
+        // 1-arg key não-string.
+        let r1 = native_counter_display(
+            &mut ctx,
+            &p(vec![Value::Int(1)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r1.is_err(), "key não-string deve retornar Err");
+        // 2-arg segundo arg não-Func.
+        let r2 = native_counter_display(
+            &mut ctx,
+            &p(vec![Value::Str("k".into()), Value::Int(2)]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r2.is_err(), "callback não-Func deve retornar Err");
+    }
+
+    #[test]
+    fn p241_native_counter_display_arity_errada_rejeita() {
+        null_ctx!(ctx);
+        // 0 args.
+        let r0 = native_counter_display(
+            &mut ctx, &p(vec![]),
+            &null_world(), test_file_id(), None,
+        );
+        assert!(r0.is_err(), "0 args deve retornar Err");
+        // 3 args.
+        let r3 = native_counter_display(
             &mut ctx,
             &p(vec![Value::Str("k".into()), Value::Int(1), Value::Int(2)]),
             &null_world(), test_file_id(), None,

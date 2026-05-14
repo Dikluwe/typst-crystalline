@@ -37,6 +37,15 @@ pub fn is_locatable(content: &Content) -> bool {
         // `state_display_value`.
         Content::StateDisplay { .. } => true,
 
+        // ── Locatable em P241 (M9d/M7+2) — CounterDisplayCallback
+        // paralelo StateDisplay. Walk emite tag; `apply_counter_displays`
+        // pré-renderiza Content via `apply_func(callback,
+        // [Value::Array(counter_state)], ctx, engine)` pós-fixpoint;
+        // layout arm consome via `counter_display_value`.
+        // Distinto de `Content::CounterDisplay { kind }` legacy
+        // (não-locatable; single-pass Layouter directo).
+        Content::CounterDisplayCallback { .. } => true,
+
         // ── Locatable em P178 — Outline fecha lacuna #7 ────────────
         Content::Outline => true,
 

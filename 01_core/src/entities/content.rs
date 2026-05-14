@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 0f9ffd8a
+//! @prompt-hash 5b5df89a
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -608,9 +608,18 @@ pub enum Content {
         /// P231 — outset uniforme paralelo Block (pattern "refino
         /// aditivo paralelo entre variants irmãos" N=3 → 4 cumulativo).
         outset:   Sides<Length>,
-        /// P231 — radius paralelo Block (semantic adiada).
-        radius:   Option<Length>,
-        /// P231 — clip paralelo Block (semantic adiada).
+        /// **P242 (M9d / M7+5)** — radius per-corner via `Corners<Length>`
+        /// refino face P231 (`Option<Length>` → `Corners<Length>`).
+        /// Default `Corners::uniform(Length::ZERO)` preserva semantic
+        /// pre-P242. stdlib `box(radius:)` aceita Length uniforme
+        /// (uniform) OR Dict por canto (helper `extract_corners_lengths`).
+        radius:   crate::entities::corners::Corners<Length>,
+        /// **P242 (M9d / M7+5)** — clip overflow real. Quando `true` E
+        /// `radius != Corners::default()`, Layouter emite
+        /// `FrameItem::Group` com `clip_mask: Some(ShapeKind::RoundedRect
+        /// { radii: radius })`; PDF exporter desenha Bezier 4 corners
+        /// path. Quando `true` + radius zero, `clip_mask` é `Rect`
+        /// (paridade DEBT-30 P79). Semantic materializada P242.
         clip:     bool,
     },
 
@@ -646,15 +655,22 @@ pub enum Content {
         /// **ADR-0080 EM VIGOR aplicação automática N=2** (L0 não
         /// tocado por defeito).
         outset:    Sides<Length>,
-        /// P231 — radius uniforme cantos arredondados. Default None.
-        /// **Semantic real adiada** per ADR-0054 graded — `ShapeKind::RoundedRect`
-        /// primitivo NÃO existe baseline geometry.rs P76; pattern N=5
-        /// → 6 cumulativo "Field armazenado semantic adiada".
-        radius:    Option<Length>,
-        /// P231 — clip overflow. Default false. **Semantic real adiada**
-        /// per ADR-0054 graded — wrap body em FrameItem::Group com
-        /// clip_mask requer refactor estructural baseline; pattern N=6
-        /// → 7 cumulativo.
+        /// **P242 (M9d / M7+5)** — radius per-corner via `Corners<Length>`
+        /// refino face P231 (`Option<Length>` → `Corners<Length>`).
+        /// **`ShapeKind::RoundedRect` materializado P242** desbloqueia
+        /// semantic real. Default `Corners::uniform(Length::ZERO)`
+        /// preserva semantic pre-P242. stdlib `block(radius:)` aceita
+        /// Length uniforme OR Dict por canto.
+        /// Promoção real de scope-out ADR-0054 graded P231 → semantic
+        /// concreta P242 (sub-padrão emergente "promoção real
+        /// scope-out" N=1 inaugurado).
+        radius:    crate::entities::corners::Corners<Length>,
+        /// **P242 (M9d / M7+5)** — clip overflow real. Quando `true` E
+        /// `radius != Corners::uniform(Length::ZERO)`, Layouter emite
+        /// `FrameItem::Group` com `clip_mask: Some(ShapeKind::RoundedRect
+        /// { radii: radius })`; PDF exporter desenha Bezier 4 corners
+        /// path. Quando `true` + radius zero, `clip_mask` é `Rect`
+        /// (paridade DEBT-30 P79). Semantic materializada P242.
         clip:      bool,
     },
 
@@ -942,6 +958,32 @@ pub enum Content {
         callback: Option<crate::entities::func::Func>,
     },
 
+    /// **P241 (M9d / M7+2)** — render-mediated counter display real
+    /// walk-time. Vanilla `counter.display(callback)` em
+    /// `introspection/counter.rs`.
+    ///
+    /// Paralelo absoluto a `Content::StateDisplay` P240. Coexiste
+    /// com `Content::CounterDisplay { kind }` legacy single-pass
+    /// que continua a servir display simples sem callback no
+    /// Layouter directo. Walk emite tag via `extract_payload`;
+    /// `apply_counter_displays` pós-fixpoint pre-renderiza Content
+    /// via `apply_func(callback, [Value::Array(counter_state)],
+    /// ctx, engine)` e armazena em `Introspector.counter_displays`.
+    /// Layout arm consome via `counter_display_value(key, loc)` —
+    /// Layouter permanece puro.
+    ///
+    /// **Forma do Value passado ao callback** (Decisão 4 P241):
+    /// `Value::Array(Vec<Value::Int>)` representando counter state
+    /// actual (paridade vanilla `CounterState = SmallVec<[u64; 3]>`).
+    /// Counter inexistente → `Value::Array(vec![])`.
+    ///
+    /// **Sem callback** (`callback: None`): formato default
+    /// "1.2.3" via join "." (paridade `formatted_counter_at` P177).
+    CounterDisplayCallback {
+        key:      String,
+        callback: Option<crate::entities::func::Func>,
+    },
+
     // Variantes futuras — NÃO implementar sem ADR:
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
 }
@@ -1036,7 +1078,9 @@ impl Content {
     ) -> Self {
         Self::Block { body: Box::new(body), width, height, inset, breakable,
                       outset: Sides::new(Length::pt(0.0), Length::pt(0.0), Length::pt(0.0), Length::pt(0.0)),
-                      radius: None, clip: false }
+                      // P242 — radius `Corners<Length>` substitui `Option<Length>` P231.
+                      radius: crate::entities::corners::Corners::uniform(Length::ZERO),
+                      clip: false }
     }
 
     /// `box(body, width, height, inset, baseline)` — Passo 156H
@@ -1051,7 +1095,9 @@ impl Content {
     ) -> Self {
         Self::Boxed { body: Box::new(body), width, height, inset, baseline,
                       outset: Sides::new(Length::pt(0.0), Length::pt(0.0), Length::pt(0.0), Length::pt(0.0)),
-                      radius: None, clip: false }
+                      // P242 — radius `Corners<Length>` substitui `Option<Length>` P231.
+                      radius: crate::entities::corners::Corners::uniform(Length::ZERO),
+                      clip: false }
     }
 
     /// `stack(dir, spacing, ..children)` — Passo 156I (ADR-0061 Fase 2
@@ -1260,6 +1306,7 @@ impl Content {
             Self::State { .. }          => String::new(),
             Self::StateUpdate { .. }    => String::new(),
             Self::StateDisplay { .. }   => String::new(),
+            Self::CounterDisplayCallback { .. } => String::new(),
             Self::Heading { body, .. } => body.plain_text(),
             Self::Raw { text, .. }   => text.to_string(),
             Self::ListItem(c)        => format!("• {}", c.plain_text()),
@@ -1616,6 +1663,11 @@ impl PartialEq for Content {
             (Self::StateDisplay { key: ka, callback: ca },
              Self::StateDisplay { key: kb, callback: cb }) =>
                 ka == kb && ca == cb,
+            // P241 (M9d/M7+2) — CounterDisplayCallback paralelo
+            // StateDisplay; Func::PartialEq via Arc::ptr_eq.
+            (Self::CounterDisplayCallback { key: ka, callback: ca },
+             Self::CounterDisplayCallback { key: kb, callback: cb }) =>
+                ka == kb && ca == cb,
             _ => false,
         }
     }
@@ -1862,7 +1914,10 @@ impl Content {
             | Content::StateUpdate { .. }
             // P240 (M9d/M7+1): StateDisplay é terminal (callback opcional
             // mas não atravessa Content; resolvido pós-fixpoint).
-            | Content::StateDisplay { .. } => self.clone(),
+            | Content::StateDisplay { .. }
+            // P241 (M9d/M7+2): CounterDisplayCallback terminal paralelo
+            // StateDisplay; resolvido pós-fixpoint via apply_counter_displays.
+            | Content::CounterDisplayCallback { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
                 body:   Box::new(body.map_content(transform)?),
@@ -2155,7 +2210,9 @@ impl Content {
             | Content::State { .. }
             | Content::StateUpdate { .. }
             // P240 (M9d/M7+1): StateDisplay é terminal em map_text.
-            | Content::StateDisplay { .. } => self.clone(),
+            | Content::StateDisplay { .. }
+            // P241 (M9d/M7+2): CounterDisplayCallback terminal em map_text.
+            | Content::CounterDisplayCallback { .. } => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
                 body:   Box::new(body.map_text(transform)),
@@ -4240,7 +4297,9 @@ mod tests {
 
     #[test]
     fn p231_block_variant_aceita_outset_radius_clip() {
+        // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
         use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
         let b = Content::Block {
             body:      Box::new(Content::text("body")),
             width:     None,
@@ -4248,11 +4307,14 @@ mod tests {
             inset:     Sides::uniform(Length::pt(0.0)),
             breakable: true,
             outset:    Sides::uniform(Length::pt(5.0)),
-            radius:    Some(Length::pt(3.0)),
+            radius:    Corners::uniform(Length::pt(3.0)),
             clip:      true,
         };
         if let Content::Block { outset, radius, clip, .. } = &b {
-            assert_eq!(*radius, Some(Length::pt(3.0)));
+            assert_eq!(radius.top_left, Length::pt(3.0));
+            assert_eq!(radius.top_right, Length::pt(3.0));
+            assert_eq!(radius.bottom_right, Length::pt(3.0));
+            assert_eq!(radius.bottom_left, Length::pt(3.0));
             assert_eq!(*clip, true);
             assert_eq!(outset.left, Length::pt(5.0));
         } else {
@@ -4262,7 +4324,9 @@ mod tests {
 
     #[test]
     fn p231_boxed_variant_aceita_outset_radius_clip() {
+        // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
         use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
         let b = Content::Boxed {
             body:     Box::new(Content::text("body")),
             width:    None,
@@ -4270,11 +4334,11 @@ mod tests {
             inset:    Sides::uniform(Length::pt(0.0)),
             baseline: Length::pt(0.0),
             outset:   Sides::uniform(Length::pt(2.0)),
-            radius:   Some(Length::pt(4.0)),
+            radius:   Corners::uniform(Length::pt(4.0)),
             clip:     false,
         };
         if let Content::Boxed { outset, radius, clip, .. } = &b {
-            assert_eq!(*radius, Some(Length::pt(4.0)));
+            assert_eq!(radius.top_left, Length::pt(4.0));
             assert_eq!(*clip, false);
             assert_eq!(outset.left, Length::pt(2.0));
         } else {
@@ -4284,7 +4348,9 @@ mod tests {
 
     #[test]
     fn p231_block_partial_eq_inclui_3_fields() {
+        // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
         use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
         let mk = |clip: bool| Content::Block {
             body:      Box::new(Content::text(".")),
             width:     None,
@@ -4292,7 +4358,7 @@ mod tests {
             inset:     Sides::uniform(Length::pt(0.0)),
             breakable: true,
             outset:    Sides::uniform(Length::pt(0.0)),
-            radius:    None,
+            radius:    Corners::uniform(Length::ZERO),
             clip,
         };
         assert_eq!(mk(false), mk(false));
@@ -4301,9 +4367,11 @@ mod tests {
 
     #[test]
     fn p231_block_map_content_preserva_3_fields() {
+        // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
         use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
         let outset_orig = Sides::uniform(Length::pt(7.0));
-        let radius_orig = Some(Length::pt(2.0));
+        let radius_orig = Corners::uniform(Length::pt(2.0));
         let b = Content::Block {
             body:      Box::new(Content::text("b")),
             width:     None,
@@ -4896,5 +4964,78 @@ mod tests {
             callback: None,
         };
         assert_eq!(c.plain_text(), "");
+    }
+
+    // ── Passo 241 (M9d/M7+2; ADR-0081 IMPLEMENTADO parcial paralelo
+    //     absoluto P240) — Content::CounterDisplayCallback ──
+
+    #[test]
+    fn p241_content_counter_display_callback_partial_eq_sem_callback() {
+        // Sem callback → comparação por key.
+        let a = Content::CounterDisplayCallback {
+            key:      "heading".to_string(),
+            callback: None,
+        };
+        let b = Content::CounterDisplayCallback {
+            key:      "heading".to_string(),
+            callback: None,
+        };
+        assert_eq!(a, b);
+        let c = Content::CounterDisplayCallback {
+            key:      "figure".to_string(),
+            callback: None,
+        };
+        assert_ne!(a, c);
+    }
+
+    #[test]
+    fn p241_content_counter_display_callback_partial_eq_com_callback_ptr_eq() {
+        // Com callback → comparação Arc::ptr_eq via Func::PartialEq.
+        use crate::entities::func::Func;
+        let f1 = Func::native("identity", |_, args, _, _, _| {
+            Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
+        });
+        let a = Content::CounterDisplayCallback {
+            key:      "k".to_string(),
+            callback: Some(f1.clone()),
+        };
+        let b = Content::CounterDisplayCallback {
+            key:      "k".to_string(),
+            callback: Some(f1.clone()),
+        };
+        assert_eq!(a, b);
+        let f2 = Func::native("identity", |_, args, _, _, _| {
+            Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
+        });
+        let c = Content::CounterDisplayCallback {
+            key:      "k".to_string(),
+            callback: Some(f2),
+        };
+        assert_ne!(a, c);
+    }
+
+    #[test]
+    fn p241_content_counter_display_callback_plain_text_vazio() {
+        // P241 — CounterDisplayCallback sem texto direct (resolução
+        // pós-fixpoint via apply_counter_displays).
+        let c = Content::CounterDisplayCallback {
+            key:      "heading".to_string(),
+            callback: None,
+        };
+        assert_eq!(c.plain_text(), "");
+    }
+
+    #[test]
+    fn p241_content_counter_display_callback_distinto_de_legacy_counter_display() {
+        // P241 — variant nova paralela coexiste com Content::CounterDisplay
+        // legacy { kind } sem conflito (Decisão 1 Opção α).
+        let new = Content::CounterDisplayCallback {
+            key:      "heading".to_string(),
+            callback: None,
+        };
+        let legacy = Content::CounterDisplay {
+            kind: "heading".to_string(),
+        };
+        assert_ne!(new, legacy);
     }
 }

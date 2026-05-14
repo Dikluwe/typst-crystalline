@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/geometry.md
-//! @prompt-hash e36ca1cd
+//! @prompt-hash 8a0805e1
 //! @layer L1
 //! @updated 2026-04-20
 
@@ -32,6 +32,23 @@ pub struct Stroke {
 pub enum ShapeKind {
     /// Rectângulo alinhado aos eixos.
     Rect,
+    /// **P242 (M9d / M7+5)** — rectângulo com cantos arredondados.
+    /// `radii: Corners<Length>` define o raio de cada canto independente
+    /// (paralelo vanilla `layout/shape.rs::RoundedRect`).
+    ///
+    /// **Degeneração**: quando todos os 4 radii são zero, semantic é
+    /// equivalente a `Rect` mas a distinção estrutural é preservada
+    /// (não normaliza para `Rect`). PDF exporter (P242) emite Bezier
+    /// 4 corners path via `emit_shape_path_local` arm RoundedRect.
+    ///
+    /// Consumer principal: `Content::Block.radius` + `Content::Boxed.radius`
+    /// (`Corners<Length>` per-corner via stdlib `radius:` Length
+    /// uniforme OR dict por canto). Quando `clip == true` E pelo
+    /// menos um canto não-zero, Layouter emite `FrameItem::Group`
+    /// com `clip_mask: Some(ShapeKind::RoundedRect { radii })`.
+    RoundedRect {
+        radii: crate::entities::corners::Corners<crate::entities::layout_types::Length>,
+    },
     /// Elipse. Exportador PDF usa rectângulo placeholder (DEBT-31).
     Ellipse,
     /// Segmento de recta com deslocamento relativo à origem.
@@ -63,6 +80,41 @@ mod tests {
         if let ShapeKind::Line { dx, dy } = line {
             assert_eq!(dx.abs(), 50.0);
             assert_eq!(dy.abs(), 30.0);
+        }
+    }
+
+    // ── Passo 242 (M9d / M7+5; ADR-0081 IMPLEMENTADO parcial 3/5) ──
+    //     ShapeKind::RoundedRect { radii: Corners<Length> }
+
+    #[test]
+    fn p242_shapekind_rounded_rect_radii_zero_eq_rect_distinguivel() {
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        // Decisão 2 §3 P242: degeneração estrutural preserva distinção
+        // (não normaliza para Rect). Length não impl Default; usar
+        // Corners::uniform(Length::ZERO) que é o mesmo valor.
+        let rounded_zero = ShapeKind::RoundedRect {
+            radii: Corners::uniform(Length::ZERO),
+        };
+        let rect = ShapeKind::Rect;
+        assert_ne!(rounded_zero, rect, "RoundedRect{{0,0,0,0}} ≠ Rect estrutural");
+    }
+
+    #[test]
+    fn p242_shapekind_rounded_rect_radii_uniforme_pt_5() {
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let r5 = Length { abs: crate::entities::layout_types::Abs(5.0), em: 0.0 };
+        let rounded = ShapeKind::RoundedRect {
+            radii: Corners::uniform(r5),
+        };
+        if let ShapeKind::RoundedRect { radii } = rounded {
+            assert_eq!(radii.top_left,     r5);
+            assert_eq!(radii.top_right,    r5);
+            assert_eq!(radii.bottom_right, r5);
+            assert_eq!(radii.bottom_left,  r5);
+        } else {
+            panic!("esperado ShapeKind::RoundedRect");
         }
     }
 }

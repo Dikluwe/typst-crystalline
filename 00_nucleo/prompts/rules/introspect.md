@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 8942d0c7
+Hash do Código: 174b4808
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -985,3 +985,90 @@ EM VIGOR pós-P229** — feature runtime nova + walk integration
 merece L0 tocado partial (bloco StateDisplay em
 `entities/content.md` + bloco state_display em `rules/stdlib.md`
 + este bloco).
+
+## `apply_counter_displays` — Passo 241 (M9d/M7+2; ADR-0081 IMPLEMENTADO parcial paralelo absoluto P240)
+
+Slim post-pass para `Content::CounterDisplayCallback` **paralelo
+absoluto** `apply_state_displays` P240. Localização:
+`01_core/src/rules/introspect/from_tags.rs`.
+
+```rust
+pub fn apply_counter_displays(
+    tags:   &[Tag],
+    intr:   &mut TagIntrospector,
+    engine: &mut Engine<'_>,
+    ctx:    &mut EvalContext,
+)
+```
+
+**Algoritmo**:
+1. Iterar `tags` procurando `Tag::Start(loc, info)` com
+   `info.payload = ElementPayload::CounterDisplay { key, callback }`.
+2. Para cada match: lookup `intr.counters.value_at(key, loc)`
+   `Option<&[usize]>` → converter para `Value::Array(Vec<Value::Int>)`
+   (counter inexistente → `Value::Array(vec![])`).
+3. Se `callback.is_some()`: chamar
+   `apply_func(callback.clone(), Args::positional(vec![array]),
+   ctx, engine)`:
+   - `Ok(Value::Content(c))` → `c`.
+   - `Ok(Value::Str(s))` → `Content::text(s.as_str())`.
+   - `Ok(_)` → `Content::Empty` (fallback outros tipos).
+   - `Err(_)` → `Content::Empty` (defensive ignore paridade
+     `apply_state_displays`).
+4. Se `callback.is_none()`:
+   - Counter populated: formato default "1.2.3" via join "." dos
+     items do slice (paridade `formatted_counter_at` P177).
+   - Counter inexistente: `Content::Empty`.
+5. Armazenar `intr.counter_displays.insert((key.clone(), loc),
+   pre_rendered)`.
+
+**Caller**: `fixpoint::run_fixpoint` (após `apply_state_displays`).
+
+```rust
+// Em run_fixpoint:
+apply_state_funcs(&tags, &mut introspector, engine, ctx);
+apply_state_displays(&tags, &mut introspector, engine, ctx);
+apply_counter_displays(&tags, &mut introspector, engine, ctx);
+```
+
+**Ordem location-monotónica**: walk emite tags por ordem de
+Locator. `apply_counter_displays` processa na mesma ordem;
+`counters.value_at(key, loc)` devolve o snapshot cumulativo
+correcto pós-`apply_state_funcs`.
+
+## `Introspector::counter_display_value` — Passo 241
+
+```rust
+fn counter_display_value(
+    &self,
+    key: String,
+    location: Location,
+) -> Option<Content>;
+```
+
+Lookup do Content pre-rendered armazenado por
+`apply_counter_displays`. Paralelo absoluto a
+`state_display_value` P240. Caller layout arm
+`Content::CounterDisplayCallback`:
+
+```rust
+Content::CounterDisplayCallback { key, callback: _ } => {
+    use crate::entities::introspector::Introspector;
+    if let Some(loc) = self.current_location {
+        if let Some(pre) = self.introspector
+            .counter_display_value(key.clone(), loc)
+        {
+            self.layout_content(&pre);
+        }
+    }
+}
+```
+
+**Layouter permanece puro** — sem Engine+ctx em signature;
+paridade arquitectural estrita preservada (Opção γ vs α/β/δ
+P239 audit).
+
+**Segunda excepção justificada ADR-0080 EM VIGOR pós-P229** —
+N=1 (P240) → 2 (P241) cumulativo (este bloco + bloco
+`Content::CounterDisplayCallback` em `entities/content.md` +
+bloco `counter_display(key, [callback])` em `rules/stdlib.md`).

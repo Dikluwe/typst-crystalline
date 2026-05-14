@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
-//! @prompt-hash f45bcc3a
+//! @prompt-hash 68fc3823
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -374,6 +374,73 @@ pub fn native_state_display(
         // Arity errada (0 ou 3+).
         _ => err(format!(
             "state_display() requer 1-2 argumentos (key, [callback]), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// `counter_display(key, [callback])` — render-mediated counter display.
+/// P241 (M9d/M7+2; per ADR-0081 IMPLEMENTADO parcial M7+2 paralelo
+/// absoluto M7+1 P240).
+///
+/// **Vanilla `counter.display(callback)`**: durante walk, captura
+/// `(key, callback)`; pós-fixpoint, `apply_counter_displays` (em
+/// `from_tags.rs`) converte `intr.counters.value_at(key, loc)` para
+/// `Value::Array(Vec<Value::Int>)` representando counter state
+/// (paridade vanilla `CounterState = SmallVec<[u64; 3]>`) e chama
+/// `apply_func(callback, [array], ctx, engine)`. Resultado Content
+/// armazenado em `intr.counter_displays[(key, loc)]`. Layout arm
+/// `Content::CounterDisplayCallback` consome via
+/// `counter_display_value`.
+///
+/// **Forma 1-arg (`counter_display(key)`)**: callback ausente;
+/// formato default "1.2.3" via join "." (paridade
+/// `formatted_counter_at` P177). Counter inexistente: `Content::Empty`.
+///
+/// **Forma 2-arg (`counter_display(key, callback)`)**: callback
+/// aplicada ao Value::Array; resultado convertido para Content
+/// (paridade `native_state_display` P240). Counter inexistente:
+/// callback recebe `Value::Array(vec![])`.
+///
+/// **Distinto de `Content::CounterDisplay { kind }` legacy
+/// single-pass** — variant nova paralela coexiste (Decisão 1 P241
+/// Opção α: variant nova vs refino legacy).
+pub fn native_counter_display(
+    _ctx:                &mut EvalContext,
+    args:                &Args,
+    _world:              &dyn crate::contracts::world::World,
+    _current_file:       FileId,
+    _figure_numbering:   Option<&str>,
+) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        // 1-arg: sem callback (formato default "1.2.3" pós-fixpoint).
+        [Value::Str(key)] => Ok(Value::Content(
+            crate::entities::content::Content::CounterDisplayCallback {
+                key:      key.to_string(),
+                callback: None,
+            },
+        )),
+        // 2-arg: com callback.
+        [Value::Str(key), Value::Func(callback)] => Ok(Value::Content(
+            crate::entities::content::Content::CounterDisplayCallback {
+                key:      key.to_string(),
+                callback: Some(callback.clone()),
+            },
+        )),
+        // 2-arg com segundo arg não-Func.
+        [Value::Str(_), other] => err(format!(
+            "counter_display() requer função como segundo argumento (callback), recebeu {}",
+            other.type_name()
+        )),
+        // Primeiro arg não-string.
+        [other, ..] => err(format!(
+            "counter_display() requer string como primeiro argumento (key), recebeu {}",
+            other.type_name()
+        )),
+        // Arity errada (0 ou 3+).
+        _ => err(format!(
+            "counter_display() requer 1-2 argumentos (key, [callback]), recebeu {}",
             args.items.len()
         )),
     }
