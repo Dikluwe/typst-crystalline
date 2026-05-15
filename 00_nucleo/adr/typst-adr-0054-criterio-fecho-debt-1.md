@@ -138,3 +138,35 @@ DEBT-1 fecha quando **A + B + C** encerrarem. D/E não bloqueiam.
 - **ADR-0052** (Lang) / **ADR-0053** (Font) — precedentes.
 - **Passo 135** diagnóstico.
 - **DEBT-48** (ENCERRADO) — `TextStyle` como ponte aceite.
+- **ADR-0082** (PROPOSTO P249) — formaliza pattern "Promoções
+  reais scope-outs ADR-0054 graded" (4 critérios operacionais).
+
+---
+
+## §Promoções reais cumulativas (refino interno P249)
+
+**Pós-P249**: o perfil graded permite **promoção real** de
+scope-outs declarados (refino futuro per ADR-0054 graded
+documentado em "Limitações conscientes" do passo de origem).
+
+Tabela cumulativa pós-P248:
+
+| # | Passo | Scope-out promovido | Origem (graded) |
+|---|-------|---------------------|-----------------|
+| 1 | P242 | `radius` (Block + Boxed) | P156G + P156H scope-out |
+| 2 | P242 | `clip` (Block + Boxed) | P156G + P156H scope-out |
+| 3 | P247 | `outset` semantic real (Block + Boxed) | P156G + P156H + P231 graded |
+| 4 | P247 | `fill` (Block + Boxed) | P156G + P156H scope-out |
+| 5 | P247 | `stroke` (Block + Boxed) | P156G + P156H scope-out |
+| 6 | P248 | `Block.breakable` semantic real | P156G "semantic adiada" |
+| 7 | P248 | `Boxed.height` overflow real | P156H "semantic adiada" |
+| 8 | P248 | `TableCell.body` overflow clip implícito | P157B "ignorados em layout" |
+
+**Padrão metodológico de promoção formalizado em ADR-0082
+PROPOSTO** (P249 administrativo XS): 4 critérios operacionais
+(storage prévio + consumer Layouter graded + paridade vanilla
+referência + backward compat literal).
+
+**ADR-0054 status `EM VIGOR` preservado** — refino interno
+secção nova apenas; não reaberta nem revogada. ADR-0082
+formaliza metodologia downstream sem alterar perfil graded.

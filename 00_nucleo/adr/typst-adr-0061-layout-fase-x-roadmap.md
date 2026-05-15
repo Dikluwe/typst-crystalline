@@ -1071,6 +1071,16 @@ sem código alterado).
 3. (Opcional) footnote area continua diferida — possível
    reocupação futura ADR distinta.
 
+### Refino futuro — A.4 breakable per-cell arquiteturalmente desbloqueado P246 (2026-05-14)
+
+P246 cell layout migration introduziu `Regions.cell:
+Option<Region>` + métodos `effective`/`enter_cell`/`exit_cell`.
+**Activação real semantic `breakable` per-cell** (`Content::Block.breakable`
++ `Content::Boxed.height` + overflow `TableCell` dentro célula)
+**desbloqueada arquiteturalmente**; materialização real diferida
+a passo futuro NÃO-reservado per política P158. Magnitude
+estimada M (~2-4h).
+
 Caminho 1 final: **100% cumprido** (Fase 1 4/4 ✓ + Fase 2
 3/3 ✓ + Fase 3 sub-fase a 2/2 ✓ + Fase 3 sub-fase b 4/4 ✓ +
 Fase 3 sub-passo 1 P156J ✓ + sub-passo refino P156L ✓).
@@ -1449,3 +1459,63 @@ preservado. Promoção formal continua diferida (3 condições
 
 Anotação cumulativa acima preserva o contexto histórico para
 retomada futura.
+
+---
+
+## Refino futuro — Anotação cumulativa P247
+
+P247 promove cumulativamente 3 scope-outs cosméticos visuais
+em Block + Boxed (paralelo a P242 radius/clip):
+
+- **outset semantic real activado** (cenário A audit C1 §2.4-§2.5
+  — outset zero-uso pré-P247).
+- **fill `Option<Color>`** em ambos variants.
+- **stroke `Option<Stroke>`** em ambos variants.
+
+**Categoria A.4 cumulativa pós-P247**:
+
+- Block fields: **8 → 10** (paridade simétrica Boxed).
+- 5/9 scope-outs originais Block fechados (outset + radius +
+  clip + fill + stroke); restam 4 (spacing + above + below +
+  sticky).
+- 5/6 scope-outs originais Boxed fechados (mesmos 5; resta
+  stroke-overhang).
+
+**Padrão "agregar promoções scope-outs cosméticos visuais"
+N=1 inaugurado P247** — candidato a formalização N=3-4 futuro
+(hipótese: 4 scope-outs Block restantes agregados em passo
+único S-M paridade P247).
+
+---
+
+## Refino futuro — Anotação cumulativa P248
+
+P248 promove 3 semanticas graded → real em agregação:
+
+- **Block.breakable real**: medição antecipada + `new_page()`
+  antecipado quando não-breakable não cabe na actual mas cabe
+  noutra; overlong emit normal.
+- **Boxed.height overflow** + clip=true → FrameItem::Group com
+  clip_mask Rect; clip=false → overflow visível.
+- **TableCell.body overflow** → clip implícito ao limite cell;
+  row break diferido.
+
+**Categoria A.4 cumulativa pós-P248**:
+
+- Block fields: **10 preservado** (P247 final).
+- 6/9 scope-outs originais Block fechados (+ breakable real
+  P248); restam 3 (spacing+above+below+sticky agrupados).
+- Boxed.height semantic real activada cumulativamente.
+- TableCell overflow Y clip implícito activado (row break é
+  refino futuro).
+
+**Padrão "Activação semantic real multi-consumer via mecanismo
+comum" N=1 inaugurado P248** — distinto do N=1 P247 (P247 =
+ortogonais aditivos cosméticos; P248 = semantic real com
+mecanismo comum medição antecipada). Candidato a formalização
+N=3-4 futuro.
+
+**Padrão "promoção graded → real semantic activação consumer"
+N=1 → N=2 cumulativo P248** (P245 Place float = N=1; **P248 = N=2
+agregado**; granular = N=4 contando 3 sub-activações P248 + 1
+P245).

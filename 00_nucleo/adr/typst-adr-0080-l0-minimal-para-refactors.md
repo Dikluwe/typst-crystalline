@@ -573,3 +573,306 @@ subsequentes que envolvem audit C1 sobre material pré-existente
 devem aplicar passos 1-5 acima literalmente. Patamar empírico
 N=7 cumulativo pós-P244 ultrapassa largamente limiar N=4
 sólido; lição refinada é metodológicamente robusta.
+
+---
+
+## Lição refinada P245 — Audit C1 deve grep fields/arms já implementados antes de assumir trabalho original (2026-05-14)
+
+**Refinamento procedural** do padrão "spec C1 audit obrigatório
+bloqueante pós-P236.div-1" N=7 → **8 cumulativo** (P237 +
+P238 reescrito + P240 + P241 + P242 + P243 + P244 + **P245**).
+Extensão da lição P244 ("grep variants `Content::*` candidatas
+antes de assumir ausência") para **"grep fields/arms já
+implementados antes de assumir trabalho original"**.
+
+**Origem da lição P245**: P245 audit C1 capturou que P223 já
+tinha armazenado `Content::Place.float` + `Content::Place.clearance`
+**mas** o Layouter consumer em `mod.rs:916` ainda **ignorava
+literal** os fields (`float: _, clearance: _`). Sem este audit,
+P245 poderia ter assumido implementação original (criar tudo
+do zero) ou que tudo já estava feito (skip total). Audit C1
+identificou o **estado intermediário**: storage P223 ✓ + consumer
+P223 graded (ignorado) → P245 promove consumer a real.
+
+**Sub-categoria nova ADR-0080 "Layouter internal refactor
+(semantic activation)"** N=1 → **2 cumulativo** (P243 extensão
+Regions + scope-outs promovidos; **P245 Place float semantic
+activa**). Distinta de:
+- Walk-time runtime (P240+P241).
+- Geometry/exporter (P242).
+- Layouter internal refactor (P243 — extensão + scope-outs).
+- **Layouter internal refactor (semantic activation) — P245**
+  consumer real de field graded pré-existente.
+
+**Procedimento recomendado pós-P245** (refino procedural
+lição N=8 cumulativo):
+
+1. Identificar fields/methods candidatos mencionados no spec.
+2. `grep -n "Content::FOO { ... field: _" 01_core/src/rules/layout/`
+   para detectar consumer graded (field ignorado).
+3. `grep -n "Field-name armazenado mas\|semantic adiada" 01_core/src/entities/`
+   para detectar storage graded P223-style.
+4. Se field existe + consumer ignora → P245-style "promoção
+   graded → real semantic activação consumer".
+5. Se field ausente → trabalho original.
+6. Se field existe + consumer activo → P244-style reconciliação.
+
+**Sub-padrão "Promoção graded → real semantic activação
+consumer" N=1 inaugurado P245**. Candidato a formalização
+N=3-4 futuro.
+
+**Pattern "L0 tocado pós-P229 (sub-categorias)"** N=4 cumulativo
+preservado P245 (sem novo L0 partial tocado em P245 — paridade
+P243 Layouter internal refactor; sub-categoria 4ª distinta
+mas L0 não-incrementado).
+
+**Aplicação da lição refinada**: passos materialização
+subsequentes que envolvem field graded pré-existente devem
+aplicar passos 1-6 acima. Patamar empírico N=8 cumulativo
+pós-P245 sólido — lição refinada metodológicamente robusta.
+
+---
+
+## Lição refinada P246 — Audit C1 deve mapear empíricamente distribuição de usos por sub-módulo antes de fixar arquitectura de migração (2026-05-14)
+
+**Refinamento procedural** do padrão "spec C1 audit obrigatório
+bloqueante pós-P236.div-1" N=8 → **9 cumulativo** (P237 + P238
+reescrito + P240 + P241 + P242 + P243 + P244 + P245 + **P246**).
+Extensão da lição P245 ("grep fields/arms já implementados
+antes de assumir trabalho original") para **"mapear
+empíricamente distribuição de usos por sub-módulo antes de
+fixar arquitectura de migração"**.
+
+**Origem da lição P246**: P246 spec previa 4 fields a migrar
+com distribuição cross-módulo desconhecida. Audit C1 P246
+revelou empíricamente:
+- **Save/restore**: único em `grid.rs:361-382` (8 sítios; 4
+  save + 4 write).
+- **Reads**: apenas em `placement.rs` (4 read sites).
+- **Sem `push`/`pop` API** em Regions pré-existente.
+- **Sem `regions.cell`** pré-existente.
+
+Escopo reduzido vs hipótese spec (~12-15 sítios; trivial
+migração) — Decisão 1 fixada Opção B (snapshot `cell: Option<Region>`)
+pós-audit empírico em vez de Opção A (push/pop stack) ou Opção
+C (preservar legacy + API paralela).
+
+**Sub-categoria nova ADR-0080 "Layouter consumer migration via
+API wrapper"** N=1 inaugurada P246 — distinta de:
+- Walk-time runtime (P240+P241).
+- Geometry/exporter (P242).
+- Layouter internal refactor (P243 — extensão + scope-outs).
+- Layouter internal refactor (semantic activation) (P245).
+- **Layouter consumer migration via API wrapper (P246)** —
+  migração field-by-field Layouter privado → API entity-side
+  para reduzir acoplamento.
+
+**Procedimento recomendado pós-P246** (refino procedural
+lição N=9 cumulativo):
+
+1. Identificar fields/methods candidatos mencionados no spec.
+2. `grep -rn "field_name" 01_core/src/rules/module_dir/` para
+   mapear distribuição cross-submodule.
+3. Classificar usos por categoria:
+   - Save/restore (entrada/saída de contexto).
+   - Write (atribuições durante contexto activo).
+   - Read (consumo do contexto).
+4. Contar sítios por categoria + sub-módulo.
+5. Se ≤10-15 usos cumulativos → migração trivial (Opção
+   minimal entity-side API).
+6. Se >20 usos cumulativos → considerar migração dual
+   (preserve fields legacy + add API paralela; deprecação
+   gradual passos futuros).
+7. Fixar Decisão arquitectural pós-audit (não pré-audit).
+
+**Sub-padrão "Layouter consumer migration via API wrapper"
+N=1 inaugurado P246**. Candidato a formalização N=3-4
+futuro.
+
+**Pattern "L0 tocado pós-P229 (sub-categorias)"** N=4 cumulativo
+preservado P246 + **+1 sub-categoria N=1** ("Layouter consumer
+migration via API wrapper") = **5 sub-categorias formalizadas
+cumulativo** (mas L0 tocado N=4 preservado — paridade P243+
+sub-categoria; P245 não tocou L0; **P246 toca L0 partial via
+extensão `region.md`** N=4 → **5 cumulativo**).
+
+**Pattern "aplicação automática ADR-0080 EM VIGOR" N=8
+preservado** mas **não-incrementa P246** (excepção justificada
+sub-categoria nova documentada formalmente acima).
+
+**Aplicação da lição refinada**: passos materialização
+subsequentes que envolvem refactor cross-submodule devem
+aplicar passos 1-7 acima. Patamar empírico N=9 cumulativo
+pós-P246 sólido — lição refinada metodológicamente robusta.
+
+---
+
+## Lição refinada P247 — N=9 → N=10 cumulativo
+
+P247 refina ainda mais o pattern N=9 P246 ("mapear empíricamente
+distribuição de usos por sub-módulo antes de fixar arquitectura
+de migração"):
+
+**Lição N=10 cumulativa P247**: "mapear scope-outs declarados
+historicamente vs estado real materializado antes de assumir
+ausência" (refino directo do pattern P243→P244 onde scope-outs
+declarados estavam factualmente materializados).
+
+**Conteúdo refinado**:
+
+- Scope-outs declarados em L0 ou ADR não são garantia de
+  ausência real — código pode tê-los materializado em passos
+  intermédios sem actualizar L0.
+- Audit C1 §2 deve **mapear empíricamente** (grep, sed, leitura
+  de arms layouter) o estado actual antes de assumir ausência
+  pré-implementação.
+- Cenários A/B/C documentados pré-audit em spec são preliminares;
+  decisão final fixa **pós-audit** §2.9.
+- Sub-padrão "verificação empírica refuta hipótese spec" N=2
+  cumulativo (P243→P244 outset declarado-ausente factualmente
+  materializado parcialmente; **P247 outset declarado-armazenado
+  factualmente zero-uso em Layouter** — paridade inversa do
+  pattern P244 mas mesmo lemma metodológico).
+
+**Sub-padrão emergente "promoção real scope-out ADR-0054 graded"
+N=2 → N=3 cumulativo P247**:
+
+- N=1 inaugurado P242 (radius + clip materializados).
+- N=2 cumulativo P242 agregado (radius + clip num passo único).
+- **N=3 cumulativo P247** (outset semantic + fill + stroke num
+  passo único — pattern "agregar promoções" N=1 inaugurado).
+- Contando granular: **5 promoções reais cumulativas** (radius +
+  clip + outset + fill + stroke). Limiar conceptual sólido para
+  ADR meta candidata futura (XS admin; "Promoções reais
+  scope-outs ADR-0054 graded" formalização N=5).
+
+**Sub-padrão "agregar promoções scope-outs cosméticos visuais"
+N=1 inaugurado P247**:
+
+- Cumprimento dos critérios:
+  - Magnitude controlada M-L (não L+).
+  - Coesão semantic forte (3 atributos visuais ortogonais).
+  - Tests cross-multiplicados naturalmente.
+- Candidato a formalização N=3-4 se outras agregações ocorrerem
+  futuro (hipóteses: 4 scope-outs Block restantes — spacing +
+  above + below + sticky — agregar em passo único S-M paridade
+  P247).
+
+**Pattern "L0 tocado pós-P229 (sub-categorias)"** N=5
+cumulativo P246 → **N=6 cumulativo P247** (P247 toca L0 via
+extensão `entities/content.md` §"Promoção scope-outs Block/Boxed
+fill+stroke+outset — Passo 247"; hash propagado).
+
+**Pattern "aplicação automática ADR-0080 EM VIGOR" N=8
+preservado** **incrementa P247** N=8 → **N=9 cumulativo** (P247
+toca L0 mas refino aditivo paralelo paridade P242 + sub-padrão
+emergente; L0 minimal preservado).
+
+---
+
+## Lição refinada P248 — N=10 → N=11 cumulativo
+
+P248 refina o pattern N=10 P247 ("mapear scope-outs declarados
+historicamente vs estado real materializado antes de assumir
+ausência"):
+
+**Lição N=11 cumulativa P248**: "mapear pontos de check overflow
+existentes antes de adicionar novos checks duplicados" (audit
+C1 §2.1 — 9 sítios de `new_page()` mapeados antes de adicionar
+medição antecipada em arms específicos).
+
+**Conteúdo refinado**:
+
+- Mecanismo de page break já existente (`cursor.rs:127` + 8
+  sítios adicionais) é o canónico; P248 acrescenta checks
+  antecipados em arms específicos (Block) sem substituir.
+- Audit C1 §2.4 confirmou `measure_content_constrained` puro
+  (sem side-effects); reusado directamente em Block/Boxed/cell.
+- Audit C1 §2.6 confirmou cell layout sem mecanismo embrionário
+  de overflow (zero refactor necessário; activação primeira vez).
+
+**Sub-padrão emergente "Activação semantic real multi-consumer
+via mecanismo comum" N=1 inaugurado P248**:
+
+- 3 activações granulares (Block.breakable + Boxed.height +
+  TableCell overflow) usam mecanismo partilhado
+  (`measure_content_constrained` puro pré-existente).
+- Magnitude L controlada (não L+) porque mecanismo comum reduz
+  custo per-activação.
+- Tests cross-multiplicados naturalmente (cross-attribute).
+- Candidato a formalização N=3-4 futuro.
+
+**Sub-padrão "promoção graded → real semantic activação consumer"
+N=1 → N=2 cumulativo P248**:
+
+- N=1 inaugurado P245 (Place float real).
+- **N=2 cumulativo P248** (3 sub-activações graded → real em
+  agregação).
+- Granular: N=4 contando 3 sub-activações P248 + 1 P245.
+
+**Sub-padrão emergente "promoção real scope-out ADR-0054 graded"
+granular N=5 → **N=8 cumulativo** P248**:
+
+- N=5 cumulativo P247 (radius + clip + outset + fill + stroke).
+- **N=8 cumulativo P248** (+ breakable + height + cell_overflow).
+- Limiar conceptual sólido para ADR meta candidata futura XS
+  admin (N≥6 patamar atingido P248).
+
+**Pattern "L0 tocado pós-P229 (sub-categorias)"** N=6 cumulativo
+P247 → **N=7 cumulativo P248** (P248 toca L0 via extensão
+`entities/content.md` §"Promoção graded → real semantic
+Block.breakable + Boxed.height + TableCell overflow — Passo
+248"; hash propagado `9f03e1a8`).
+
+**Pattern "aplicação automática ADR-0080 EM VIGOR" N=9
+preservado** **incrementa P248** N=9 → **N=10 cumulativo** (P248
+toca L0 mas refino documentar 3 activações via secção dedicada;
+L0 minimal preservado per Opção β).
+
+---
+
+## Lição refinada P249 — N=11 → N=12 cumulativo
+
+P249 refina o pattern N=11 P248 ("mapear pontos de check
+overflow existentes antes de adicionar novos checks duplicados"):
+
+**Lição N=12 cumulativa P249**: "ADR meta administrativo XS
+exige audit empírico das N≥4 aplicações concretas antes de
+formalizar pattern".
+
+**Conteúdo refinado**:
+
+- Antes de criar ADR meta (ex: ADR-0082 P249 promoções reais),
+  audit C1 deve confirmar empíricamente cada uma das N
+  aplicações cumulativas (audit §2.1 P249 confirmou 8
+  aplicações: P242 ×2 + P247 ×3 + P248 ×3).
+- Audit C1 deve confirmar próximo número ADR livre (audit §2.3
+  P249 revelou ADR-0067 ocupada → `P249.div-2` formal +
+  ADR-0082 escolhida como próximo slot).
+- Audit C1 deve confirmar precedentes ADR meta estruturais
+  (template canónico ADR-0065/ADR-0080).
+- Audit C1 deve confirmar ADR-0054 estado actual antes de
+  anotar refino interno secção nova.
+
+**Sub-padrão emergente "ADR meta formalizar pattern N≥4
+cumulativo" N=2 → N=3 cumulativo P249**:
+
+- N=1 (P156K Smart→Option N=6 → ADR-0064).
+- N=1 (P156K inventariar primeiro N=5 → ADR-0065).
+- N=2 cumulativo (P234 L0 minimal P217-P224 N=7 → ADR-0080).
+- **N=3 cumulativo P249** (promoções reais scope-outs ADR-0054
+  graded N=8 → ADR-0082 PROPOSTO).
+
+Limiar formalização interno N=3 atingido P249. Pattern
+metodológico sólido.
+
+**Pattern "Passo administrativo XS"** N=6 → **N=7 cumulativo
+P249** (P156A historiograma + P156K ADRs meta + ADR-0062-create
++ P160A + P238 + P244 + **P249**). Limiar formalização N=6
+ultrapassado; pattern sólido reforçado.
+
+**Promoções reais scope-outs ADR-0054 graded** granular **N=8
+preservado P249** (P249 administrativo XS não materializa nova
+promoção; apenas formaliza pattern via ADR-0082).
+
+**Cross-reference ADR-0082 PROPOSTO** (P249 administrativo XS).

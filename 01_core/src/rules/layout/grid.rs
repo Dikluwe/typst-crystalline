@@ -358,29 +358,39 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // Definir o contexto de altura/origem da célula para
                 // Content::Align (Passo 83) e Content::Place (Passo 84.6).
                 // P235 — set ao body bounds reduzidos por inset.
-                let saved_cell_h  = self.cell_available_h;
+                // P246 — cell_available_h + cell_origin_w migrados a
+                // regions.cell (entity-side); cell_origin_x/y preservados
+                // como Layouter fields legacy.
                 let saved_cell_ox = self.cell_origin_x;
                 let saved_cell_oy = self.cell_origin_y;
-                let saved_cell_ow = self.cell_origin_w;
-                self.cell_available_h = Some(body_h);
-                self.cell_origin_x    = Some(body_x);
-                self.cell_origin_y    = Some(body_y);
-                self.cell_origin_w    = Some(body_w);
+                let saved_cell_region = self.regions.enter_cell(
+                    crate::entities::region::Region::new(body_w, body_h),
+                );
+                self.cell_origin_x = Some(body_x);
+                self.cell_origin_y = Some(body_y);
 
                 // P234 — sem cache; re-medir cell (custo perf ~2× aceitável).
                 // P235 — layout em body_x/body_w reduzidos por inset.
                 let saved_cursor_x = self.regions.current.cursor_x;
                 let saved_cursor_y = self.regions.current.cursor_y;
-                let (_cell_h_measured, cell_items) =
+                let (cell_h_measured, cell_items) =
                     self.layout_sub_frame_with_width(cell, body_x, body_w);
                 self.regions.current.cursor_x = saved_cursor_x;
                 self.regions.current.cursor_y = saved_cursor_y;
 
-                self.cell_available_h = saved_cell_h;
-                self.cell_origin_x    = saved_cell_ox;
-                self.cell_origin_y    = saved_cell_oy;
-                self.cell_origin_w    = saved_cell_ow;
-                self.cell_align       = saved_cell_align_inner;
+                // P246 — sair célula; restaurar legacy fields.
+                self.regions.exit_cell(saved_cell_region);
+                self.cell_origin_x = saved_cell_ox;
+                self.cell_origin_y = saved_cell_oy;
+                self.cell_align    = saved_cell_align_inner;
+
+                // P248 — TableCell overflow clip implícito: se cell body
+                // ultrapassa o limite da célula (`body_h` populado via
+                // `regions.cell.height` P246), emite items dentro de
+                // `FrameItem::Group` com `clip_mask: Rect` (paridade
+                // mecanismo P242). Row break real diferido per
+                // Decisão 3 (refino futuro; DEBT-34e preservado aberto).
+                let cell_overflow = cell_h_measured > body_h;
 
                 // P228 + P230 + P234 — Z-order step 1: fill efectivo
                 // emite primeiro (atrás do conteúdo cell + stroke).
@@ -399,14 +409,32 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // Z-order step 2: conteúdo cell (existing P82-84.6 lógica).
                 // Transferir items com posições absolutas (Y rebaseado
                 // a body_y reduzido por inset P235, compensando o ascender_local).
-                for item in cell_items {
-                    let (lx, ly) = item_pos(&item);
-                    let abs_pos = Point {
-                        x: Pt(lx),
-                        y: Pt(body_y + (ly - local_start_y)),
-                    };
-                    let translated = translate_frame_item(item, abs_pos.x, abs_pos.y);
-                    self.regions.current.current_items.push(translated);
+                let translated_items: Vec<FrameItem> = cell_items
+                    .into_iter()
+                    .map(|item| {
+                        let (lx, ly) = item_pos(&item);
+                        let abs_pos = Point {
+                            x: Pt(lx),
+                            y: Pt(body_y + (ly - local_start_y)),
+                        };
+                        translate_frame_item(item, abs_pos.x, abs_pos.y)
+                    })
+                    .collect();
+                if cell_overflow {
+                    // P248 — wrap em Group com clip_mask Rect bounds
+                    // body_w × body_h (paridade vanilla clip implícito).
+                    self.regions.current.current_items.push(FrameItem::Group {
+                        pos:          Point { x: Pt(body_x), y: Pt(body_y) },
+                        matrix:       crate::entities::layout_types::TransformMatrix::identity(),
+                        clip_mask:    Some(ShapeKind::Rect),
+                        inner_width:  body_w,
+                        inner_height: body_h,
+                        items:        translated_items,
+                    });
+                } else {
+                    for item in translated_items {
+                        self.regions.current.current_items.push(item);
+                    }
                 }
 
                 // P227 + P230 + P234 — Renderização Opção β simplificada:

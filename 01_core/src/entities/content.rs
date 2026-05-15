@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 5b5df89a
+//! @prompt-hash 9f03e1a8
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -621,6 +621,20 @@ pub enum Content {
         /// path. Quando `true` + radius zero, `clip_mask` é `Rect`
         /// (paridade DEBT-30 P79). Semantic materializada P242.
         clip:     bool,
+        /// **P247 (M9d / M7+5; ADR-0079 Categoria A.4)** — fill da caixa
+        /// visual. `Some(c)` emite `FrameItem::Shape { fill: Some(c), .. }`
+        /// antes do body (Z-order: fill atrás do conteúdo). `None` ==
+        /// sem fill. Promoção real scope-out ADR-0054 graded (paridade
+        /// pattern P242 radius/clip). Type `Color` (não `Paint`; Paint
+        /// enum não existe — Stroke já usa Color directo per
+        /// `geometry.rs:24`).
+        fill:     Option<crate::entities::layout_types::Color>,
+        /// **P247 (M9d / M7+5; ADR-0079 Categoria A.4)** — stroke da caixa
+        /// visual. `Some(s)` emite `FrameItem::Shape { stroke: Some(s),
+        /// .. }` antes do body. `None` == sem stroke. Promoção real
+        /// scope-out ADR-0054 graded paridade fill. Reusa `Stroke` de
+        /// `geometry.rs:24`.
+        stroke:   Option<crate::entities::geometry::Stroke>,
     },
 
     // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block container ───────
@@ -672,6 +686,18 @@ pub enum Content {
         /// path. Quando `true` + radius zero, `clip_mask` é `Rect`
         /// (paridade DEBT-30 P79). Semantic materializada P242.
         clip:      bool,
+        /// **P247 (M9d / M7+5; ADR-0079 Categoria A.4)** — fill da caixa
+        /// visual paralelo Boxed. `Some(c)` emite `FrameItem::Shape
+        /// { fill: Some(c), .. }` antes do body (Z-order: fill atrás
+        /// do conteúdo). `None` == sem fill. Promoção real scope-out
+        /// ADR-0054 graded (pattern P242). Type `Color` (Paint enum
+        /// não existe).
+        fill:      Option<crate::entities::layout_types::Color>,
+        /// **P247 (M9d / M7+5; ADR-0079 Categoria A.4)** — stroke da
+        /// caixa visual paralelo Boxed. `Some(s)` emite Shape com
+        /// `stroke: Some(s)`. `None` == sem stroke. Reusa `Stroke` de
+        /// `geometry.rs:24`. Promoção real scope-out ADR-0054 graded.
+        stroke:    Option<crate::entities::geometry::Stroke>,
     },
 
     // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ───────────
@@ -1080,7 +1106,10 @@ impl Content {
                       outset: Sides::new(Length::pt(0.0), Length::pt(0.0), Length::pt(0.0), Length::pt(0.0)),
                       // P242 — radius `Corners<Length>` substitui `Option<Length>` P231.
                       radius: crate::entities::corners::Corners::uniform(Length::ZERO),
-                      clip: false }
+                      clip: false,
+                      // P247 — fill/stroke default `None` (paridade pattern P242).
+                      fill: None,
+                      stroke: None }
     }
 
     /// `box(body, width, height, inset, baseline)` — Passo 156H
@@ -1097,7 +1126,10 @@ impl Content {
                       outset: Sides::new(Length::pt(0.0), Length::pt(0.0), Length::pt(0.0), Length::pt(0.0)),
                       // P242 — radius `Corners<Length>` substitui `Option<Length>` P231.
                       radius: crate::entities::corners::Corners::uniform(Length::ZERO),
-                      clip: false }
+                      clip: false,
+                      // P247 — fill/stroke default `None` paralelo Block.
+                      fill: None,
+                      stroke: None }
     }
 
     /// `stack(dir, spacing, ..children)` — Passo 156I (ADR-0061 Fase 2
@@ -1632,20 +1664,23 @@ impl PartialEq for Content {
             // Passo 220 — Colbreak (1 field — paridade Pagebreak sem to).
             (Self::Colbreak { weak: wa },
              Self::Colbreak { weak: wb }) => wa == wb,
-            // Passo 156G + P231 — Block +3 cosméticos (outset/radius/clip).
+            // Passo 156G + P231 + P247 — Block +5 cosméticos
+            // (outset/radius/clip/fill/stroke).
             (Self::Block { body: ba, width: wa, height: ha, inset: ia, breakable: ka,
-                            outset: oa, radius: ra, clip: cla },
+                            outset: oa, radius: ra, clip: cla, fill: fia, stroke: sta },
              Self::Block { body: bb, width: wb, height: hb, inset: ib, breakable: kb,
-                            outset: ob, radius: rb, clip: clb }) =>
+                            outset: ob, radius: rb, clip: clb, fill: fib, stroke: stb }) =>
                 ba == bb && wa == wb && ha == hb && ia == ib && ka == kb
-                && oa == ob && ra == rb && cla == clb,
-            // Passo 156H + P231 — Boxed +3 cosméticos paralelo Block.
+                && oa == ob && ra == rb && cla == clb
+                && fia == fib && sta == stb,
+            // Passo 156H + P231 + P247 — Boxed +5 cosméticos paralelo Block.
             (Self::Boxed { body: ba, width: wa, height: ha, inset: ia, baseline: ka,
-                            outset: oa, radius: ra, clip: cla },
+                            outset: oa, radius: ra, clip: cla, fill: fia, stroke: sta },
              Self::Boxed { body: bb, width: wb, height: hb, inset: ib, baseline: kb,
-                            outset: ob, radius: rb, clip: clb }) =>
+                            outset: ob, radius: rb, clip: clb, fill: fib, stroke: stb }) =>
                 ba == bb && wa == wb && ha == hb && ia == ib && ka == kb
-                && oa == ob && ra == rb && cla == clb,
+                && oa == ob && ra == rb && cla == clb
+                && fia == fib && sta == stb,
             // Passo 156I — Stack (Arc<[Content]> compara por conteúdo).
             (Self::Stack { children: ca, dir: da, spacing: sa },
              Self::Stack { children: cb, dir: db, spacing: sb }) =>
@@ -1825,10 +1860,10 @@ impl Content {
                 body: Box::new(body.map_content(transform)?),
             },
 
-            // Passo 156G + P231: Block container — recurse em body; preserva
-            // 3 fields cosméticos novos (Sides Copy via Length Copy;
-            // Option<Length> Copy; bool Copy).
-            Content::Block { body, width, height, inset, breakable, outset, radius, clip } => Content::Block {
+            // Passo 156G + P231 + P247: Block container — recurse em body;
+            // preserva 5 cosméticos (Sides Copy; Corners Copy; bool Copy;
+            // Color Copy; Stroke Clone).
+            Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke } => Content::Block {
                 body:      Box::new(body.map_content(transform)?),
                 width:     *width,
                 height:    *height,
@@ -1837,10 +1872,12 @@ impl Content {
                 outset:    *outset,
                 radius:    *radius,
                 clip:      *clip,
+                fill:      *fill,
+                stroke:    stroke.clone(),
             },
 
-            // Passo 156H + P231: Boxed (Box inline) — recurse análogo a Block; preserva 3 cosméticos.
-            Content::Boxed { body, width, height, inset, baseline, outset, radius, clip } => Content::Boxed {
+            // Passo 156H + P231 + P247: Boxed (Box inline) — recurse análogo a Block; preserva 5 cosméticos.
+            Content::Boxed { body, width, height, inset, baseline, outset, radius, clip, fill, stroke } => Content::Boxed {
                 body:     Box::new(body.map_content(transform)?),
                 width:    *width,
                 height:   *height,
@@ -1849,6 +1886,8 @@ impl Content {
                 outset:   *outset,
                 radius:   *radius,
                 clip:     *clip,
+                fill:     *fill,
+                stroke:   stroke.clone(),
             },
 
             // Passo 156I: Stack compositivo — mapear cada child;
@@ -2122,8 +2161,9 @@ impl Content {
                 body: Box::new(body.map_text(transform)),
             },
 
-            // Passo 156G: Block container — recurse em body.
-            Content::Block { body, width, height, inset, breakable, outset, radius, clip } => Content::Block {
+            // Passo 156G + P247: Block container — recurse em body;
+            // preserva 5 cosméticos (P247 fill/stroke incluídos).
+            Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke } => Content::Block {
                 body:      Box::new(body.map_text(transform)),
                 width:     *width,
                 height:    *height,
@@ -2132,10 +2172,12 @@ impl Content {
                 outset:    *outset,
                 radius:    *radius,
                 clip:      *clip,
+                fill:      *fill,
+                stroke:    stroke.clone(),
             },
 
-            // Passo 156H + P231: Boxed (Box inline) — recurse análogo a Block; preserva cosméticos.
-            Content::Boxed { body, width, height, inset, baseline, outset, radius, clip } => Content::Boxed {
+            // Passo 156H + P231 + P247: Boxed (Box inline) — recurse análogo a Block; preserva 5 cosméticos.
+            Content::Boxed { body, width, height, inset, baseline, outset, radius, clip, fill, stroke } => Content::Boxed {
                 body:     Box::new(body.map_text(transform)),
                 width:    *width,
                 height:   *height,
@@ -2144,6 +2186,8 @@ impl Content {
                 outset:   *outset,
                 radius:   *radius,
                 clip:     *clip,
+                fill:     *fill,
+                stroke:   stroke.clone(),
             },
 
             // Passo 156I: Stack compositivo — map_text em cada child.
@@ -4309,6 +4353,8 @@ mod tests {
             outset:    Sides::uniform(Length::pt(5.0)),
             radius:    Corners::uniform(Length::pt(3.0)),
             clip:      true,
+            fill:      None,
+            stroke:    None,
         };
         if let Content::Block { outset, radius, clip, .. } = &b {
             assert_eq!(radius.top_left, Length::pt(3.0));
@@ -4336,6 +4382,8 @@ mod tests {
             outset:   Sides::uniform(Length::pt(2.0)),
             radius:   Corners::uniform(Length::pt(4.0)),
             clip:     false,
+            fill:     None,
+            stroke:   None,
         };
         if let Content::Boxed { outset, radius, clip, .. } = &b {
             assert_eq!(radius.top_left, Length::pt(4.0));
@@ -4360,6 +4408,8 @@ mod tests {
             outset:    Sides::uniform(Length::pt(0.0)),
             radius:    Corners::uniform(Length::ZERO),
             clip,
+            fill:      None,
+            stroke:    None,
         };
         assert_eq!(mk(false), mk(false));
         assert_ne!(mk(false), mk(true));
@@ -4381,6 +4431,8 @@ mod tests {
             outset:    outset_orig,
             radius:    radius_orig,
             clip:      true,
+            fill:      None,
+            stroke:    None,
         };
         let mapped = b.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
         if let Content::Block { outset, radius, clip, .. } = &mapped {
@@ -4389,6 +4441,148 @@ mod tests {
             assert_eq!(*clip, true);
         } else {
             panic!("esperado Block após map_content");
+        }
+    }
+
+    // ── Passo 247 (M9d / M7+5; ADR-0079 Categoria A.4) ──────────────────
+    //     Block + Boxed +2 fields (fill, stroke); promoção real cumulativa
+    //     scope-outs ADR-0054 graded N=3 P247 (outset semantic real +
+    //     fill + stroke).
+
+    #[test]
+    fn p247_block_variant_aceita_fill_stroke() {
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Color;
+        use crate::entities::geometry::Stroke;
+        let b = Content::Block {
+            body:      Box::new(Content::text("p247")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      Some(Color::rgb(200, 0, 0)),
+            stroke:    Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 2.0 }),
+        };
+        if let Content::Block { fill, stroke, .. } = &b {
+            assert_eq!(*fill, Some(Color::rgb(200, 0, 0)));
+            assert_eq!(stroke.as_ref().unwrap().thickness, 2.0);
+        } else {
+            panic!("esperado Block");
+        }
+    }
+
+    #[test]
+    fn p247_boxed_variant_aceita_fill_stroke() {
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Color;
+        use crate::entities::geometry::Stroke;
+        let b = Content::Boxed {
+            body:     Box::new(Content::text("p247")),
+            width:    None,
+            height:   None,
+            inset:    Sides::uniform(Length::pt(0.0)),
+            baseline: Length::pt(0.0),
+            outset:   Sides::uniform(Length::pt(0.0)),
+            radius:   Corners::uniform(Length::ZERO),
+            clip:     false,
+            fill:     Some(Color::rgb(0, 200, 0)),
+            stroke:   Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.5 }),
+        };
+        if let Content::Boxed { fill, stroke, .. } = &b {
+            assert_eq!(*fill, Some(Color::rgb(0, 200, 0)));
+            assert_eq!(stroke.as_ref().unwrap().thickness, 1.5);
+        } else {
+            panic!("esperado Boxed");
+        }
+    }
+
+    #[test]
+    fn p247_block_partial_eq_inclui_fill_stroke() {
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Color;
+        let mk = |fill: Option<Color>| Content::Block {
+            body:      Box::new(Content::text("p247eq")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill,
+            stroke:    None,
+        };
+        assert_eq!(mk(None), mk(None));
+        assert_ne!(mk(None), mk(Some(Color::rgb(255, 0, 0))));
+        assert_eq!(mk(Some(Color::rgb(1, 2, 3))), mk(Some(Color::rgb(1, 2, 3))));
+    }
+
+    #[test]
+    fn p247_block_map_content_preserva_fill_stroke() {
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Color;
+        use crate::entities::geometry::Stroke;
+        let fill_orig   = Some(Color::rgb(50, 100, 150));
+        let stroke_orig = Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 3.0 });
+        let b = Content::Block {
+            body:      Box::new(Content::text("p247map")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      fill_orig,
+            stroke:    stroke_orig.clone(),
+        };
+        let mapped = b.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
+        if let Content::Block { fill, stroke, .. } = &mapped {
+            assert_eq!(*fill, fill_orig);
+            assert_eq!(*stroke, stroke_orig);
+        } else {
+            panic!("esperado Block após map_content");
+        }
+    }
+
+    #[test]
+    fn p247_block_construtor_defaults_fill_stroke_none() {
+        use crate::entities::sides::Sides;
+        let b = Content::block(
+            Content::text("p247def"),
+            None, None,
+            Sides::uniform(Length::pt(0.0)),
+            true,
+        );
+        if let Content::Block { fill, stroke, .. } = &b {
+            assert_eq!(*fill, None, "construtor default fill = None");
+            assert!(stroke.is_none(), "construtor default stroke = None");
+        } else {
+            panic!("esperado Block");
+        }
+    }
+
+    #[test]
+    fn p247_boxed_construtor_defaults_fill_stroke_none() {
+        use crate::entities::sides::Sides;
+        let b = Content::boxed(
+            Content::text("p247def"),
+            None, None,
+            Sides::uniform(Length::pt(0.0)),
+            Length::pt(0.0),
+        );
+        if let Content::Boxed { fill, stroke, .. } = &b {
+            assert_eq!(*fill, None);
+            assert!(stroke.is_none());
+        } else {
+            panic!("esperado Boxed");
         }
     }
 

@@ -2288,13 +2288,131 @@ mod tests {
 
     #[test]
     fn native_block_rejeita_named_arg_avancado() {
-        // Atributos avançados (fill, stroke, radius, clip, ...) scope-out
-        // per ADR-0054 graded; rejeitar com erro hard até refino futuro.
+        // P247 — fill aceito (Color); Str("red") ainda inválido (tipo
+        // errado). Test preserva intent: rejeitar tipo errado para fill.
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("fill".into(), Value::Str("red".into()));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None);
-        assert!(r.is_err(), "fill é scope-out em P156G; deve retornar Err");
+        assert!(r.is_err(), "fill com tipo errado (Str em vez de Color) deve retornar Err");
+    }
+
+    // ── Passo 247 (M9d / M7+5; ADR-0079 Categoria A.4) ──────────────────
+    //     native_block + native_box aceitam fill (Color) + stroke
+    //     (Length/Color/Stroke shorthand reusando extract_stroke P227).
+
+    #[test]
+    fn p247_native_block_aceita_fill_color() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Color;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("fill".into(), Value::Color(Color::rgb(255, 0, 0)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { fill, .. }) = r {
+            assert_eq!(fill, Some(Color::rgb(255, 0, 0)));
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn p247_native_block_aceita_stroke_length_shorthand() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("stroke".into(), Value::Length(Length::pt(2.0)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { stroke, .. }) = r {
+            let s = stroke.expect("stroke deveria ser Some");
+            assert_eq!(s.thickness, 2.0);
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn p247_native_block_fill_default_none() {
+        null_ctx!(ctx);
+        let r = native_block(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { fill, stroke, .. }) = r {
+            assert_eq!(fill, None);
+            assert!(stroke.is_none());
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn p247_native_block_fill_tipo_invalido_rejeitado() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("fill".into(), Value::Bool(true));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "fill com Bool deve retornar Err");
+    }
+
+    #[test]
+    fn p247_native_box_aceita_fill_color() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Color;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("fill".into(), Value::Color(Color::rgb(0, 255, 0)));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { fill, .. }) = r {
+            assert_eq!(fill, Some(Color::rgb(0, 255, 0)));
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn p247_native_box_aceita_stroke_color_shorthand() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Color;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("stroke".into(), Value::Color(Color::rgb(0, 0, 255)));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { stroke, .. }) = r {
+            let s = stroke.expect("stroke deveria ser Some");
+            assert_eq!(s.paint, Color::rgb(0, 0, 255));
+            assert_eq!(s.thickness, 1.0, "Color shorthand default 1pt thickness");
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn p247_native_box_fill_default_none() {
+        null_ctx!(ctx);
+        let r = native_box(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { fill, stroke, .. }) = r {
+            assert_eq!(fill, None);
+            assert!(stroke.is_none());
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn p247_native_block_combina_fill_stroke_radius_clip_outset() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::{Color, Length};
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("fill".into(),   Value::Color(Color::rgb(50, 100, 150)));
+        args.named.insert("stroke".into(), Value::Length(Length::pt(1.5)));
+        args.named.insert("radius".into(), Value::Length(Length::pt(3.0)));
+        args.named.insert("clip".into(),   Value::Bool(true));
+        args.named.insert("outset".into(), Value::Length(Length::pt(2.0)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { fill, stroke, radius, clip, outset, .. }) = r {
+            assert_eq!(fill,   Some(Color::rgb(50, 100, 150)));
+            assert_eq!(stroke.unwrap().thickness, 1.5);
+            assert_eq!(radius.top_left, Length::pt(3.0));
+            assert_eq!(clip,   true);
+            assert_eq!(outset.left, Length::pt(2.0));
+        } else {
+            panic!("esperado Content::Block");
+        }
     }
 
     #[test]
@@ -2305,6 +2423,64 @@ mod tests {
         args.named.insert("width".into(), Value::Length(Length::pt(-10.0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None);
         assert!(r.is_err(), "width negativo deve retornar Err em P156G");
+    }
+
+    // ── Passo 248 (M9d / M7+5; ADR-0079 Categoria A.4 cumulativa) ──────
+    //     Activação semantic real Block.breakable + Boxed.height; tests
+    //     stdlib confirmam que parsing preserva valores (sem regressão
+    //     defaults P156G/H).
+
+    #[test]
+    fn p248_native_block_breakable_false_propagado_a_variant() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("breakable".into(), Value::Bool(false));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { breakable, .. }) = r {
+            assert_eq!(breakable, false,
+                "P248 — native_block(breakable: false) propaga literal para variant");
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn p248_native_block_breakable_default_true_p156g() {
+        null_ctx!(ctx);
+        let r = native_block(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { breakable, .. }) = r {
+            assert_eq!(breakable, true, "P248 — default preservado P156G");
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn p248_native_box_height_some_propagado_a_variant() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("height".into(), Value::Length(Length::pt(50.0)));
+        args.named.insert("clip".into(),   Value::Bool(true));
+        let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { height, clip, .. }) = r {
+            assert_eq!(height, Some(Length::pt(50.0)));
+            assert_eq!(clip,   true);
+        } else {
+            panic!("esperado Content::Boxed");
+        }
+    }
+
+    #[test]
+    fn p248_native_box_height_default_none_p156h() {
+        null_ctx!(ctx);
+        let r = native_box(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Boxed { height, clip, .. }) = r {
+            assert_eq!(height, None);
+            assert_eq!(clip,   false, "P248 — defaults preservados P156H");
+        } else {
+            panic!("esperado Content::Boxed");
+        }
     }
 
     #[test]
