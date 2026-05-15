@@ -630,28 +630,12 @@ impl Angle {
     pub fn to_deg(self) -> f64 { self.0.to_degrees() }
 }
 
-/// Cor tipográfica.
-///
-/// ADR-0028: enum simplificado. Espaços avançados (Oklab, HSL, CMYK) — adiados para Passo 30+.
-/// `luma(l)` → Rgb { r: l, g: l, b: l } (escala de cinzentos).
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum Color {
-    Rgb  { r: u8, g: u8, b: u8 },
-    Rgba { r: u8, g: u8, b: u8, a: u8 },
-}
-
-impl Color {
-    pub fn rgb(r: u8, g: u8, b: u8)          -> Self { Self::Rgb { r, g, b } }
-    pub fn rgba(r: u8, g: u8, b: u8, a: u8)  -> Self { Self::Rgba { r, g, b, a } }
-
-    /// Retorna (r, g, b, a) normalizados para [0.0, 1.0].
-    pub fn to_rgba_f32(self) -> (f32, f32, f32, f32) {
-        match self {
-            Self::Rgb  { r, g, b }    => (r as f32 / 255.0, g as f32 / 255.0, b as f32 / 255.0, 1.0),
-            Self::Rgba { r, g, b, a } => (r as f32 / 255.0, g as f32 / 255.0, b as f32 / 255.0, a as f32 / 255.0),
-        }
-    }
-}
+// **P257 (ADR-0083 PROPOSTO)** — `Color` migrado para
+// `01_core/src/entities/color.rs` (8 variantes paridade
+// vanilla). Re-export para compatibilidade hot path consumers
+// (`Stroke.paint: Color`, `Style::Fill(Color)`,
+// `FrameItem::Text.fill`, `Value::Color`, stdlib parsers).
+pub use crate::entities::color::Color;
 
 // ── Testes ─────────────────────────────────────────────────────────────────
 

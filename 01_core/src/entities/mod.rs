@@ -4,6 +4,7 @@
 //! @layer L1
 //! @updated 2026-04-30
 
+pub mod color;
 pub mod file_id;
 pub mod font_book;
 pub mod math_class;

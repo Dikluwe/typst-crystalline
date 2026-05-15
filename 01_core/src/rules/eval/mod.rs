@@ -557,15 +557,24 @@ fn make_stdlib() -> Scope {
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
         native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
-        native_colbreak, native_columns, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
+        native_cmyk, native_colbreak, native_columns, native_hsl, native_hsv, native_linear_rgb, native_oklab, native_oklch, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_scale, native_skew, native_stack, native_str, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_upper, native_v,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
     scope.define("len",     Value::Func(Func::native("len",     native_len)));
     scope.define("range",   Value::Func(Func::native("range",   native_range)));
-    scope.define("rgb",     Value::Func(Func::native("rgb",     native_rgb)));
-    scope.define("luma",    Value::Func(Func::native("luma",    native_luma)));
+    scope.define("rgb",        Value::Func(Func::native("rgb",        native_rgb)));
+    scope.define("luma",       Value::Func(Func::native("luma",       native_luma)));
+    // P257 (ADR-0083 PROPOSTO) — 6 stdlib funcs novas para espaços
+    // de cor materializados (paridade vanilla `oklab`/`oklch`/
+    // `linear-rgb`/`cmyk`/`color.hsl`/`color.hsv`).
+    scope.define("oklab",      Value::Func(Func::native("oklab",      native_oklab)));
+    scope.define("oklch",      Value::Func(Func::native("oklch",      native_oklch)));
+    scope.define("linear_rgb", Value::Func(Func::native("linear_rgb", native_linear_rgb)));
+    scope.define("cmyk",       Value::Func(Func::native("cmyk",       native_cmyk)));
+    scope.define("hsl",        Value::Func(Func::native("hsl",        native_hsl)));
+    scope.define("hsv",        Value::Func(Func::native("hsv",        native_hsv)));
     scope.define("str",     Value::Func(Func::native("str",     native_str)));
     scope.define("int",     Value::Func(Func::native("int",     native_int)));
     scope.define("float",   Value::Func(Func::native("float",   native_float)));

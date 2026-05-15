@@ -206,10 +206,13 @@ abaixo).
 
 ### Distribuição de status
 
-- `PROPOSTO`: **11** ADRs pós-P254 (decisões em aberto: 0005,
-  0006, 0008–0015, 0062, **0066**, ~~0079 P253~~, ~~0082
-  P254~~) — pós-P221: ADR-0061 e ADR-0078 transitam PROPOSTO
-  → IMPLEMENTADO; pós-P226: +2 ADRs PROPOSTAS criadas (ADR-0079
+- `PROPOSTO`: **11** ADRs (decisões em aberto: 0005, 0006,
+  0008–0015, 0062, **0066**, ~~0079 P253~~, ~~0082 P254~~)
+  + **+1 ADR-0083 PROPOSTO P257.B → IMPLEMENTADO P257.D**
+  (Color paridade vanilla com subset materializado;
+  PROPOSTO+IMPLEMENTADO no mesmo passo via Cenário B1 pattern)
+  — pós-P221: ADR-0061 e ADR-0078 transitam PROPOSTO →
+  IMPLEMENTADO; pós-P226: +2 ADRs PROPOSTAS criadas (ADR-0079
   Layout Fase 5 roadmap + ADR-0080 L0 minimal para refactors
   aditivos pós-M9c N=7 meta documental); **pós-P229: ADR-0080
   transita PROPOSTO → EM VIGOR** (promoção administrativa XS
@@ -219,16 +222,20 @@ abaixo).
   IMPLEMENTADO** (Cenário A scope-out formal humano; paridade
   ADR-0061 P221); **pós-P254: ADR-0082 transita PROPOSTO → EM
   VIGOR** (passo administrativo XS dedicado pós-N=3 citantes
-  P250+P251+P252; paridade pattern P229 ADR-0080). **PROPOSTO
-  12 → 11 pós-P254**.
+  P250+P251+P252; paridade pattern P229 ADR-0080); **pós-P257:
+  +1 ADR-0083 IMPLEMENTADO** (Color paridade vanilla 8 espaços
+  materializados + 4 scope-outs documentados per ADR-0029
+  §"Simplificações aceites apenas com ADR explícita").
+  **PROPOSTO 11 preservado** (ADR-0083 entra e sai no mesmo
+  passo via promoção P257.D).
 - `IDEIA`: 2 ADRs (0002, 0003).
 - `EM VIGOR`: **30** ADRs pós-P254 (regras/políticas activas;
   0018, 0029, 0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**,
   **0080** P229, **0082** P254).
-- `IMPLEMENTADO`: **24** ADRs pós-P253 (decisões materializadas;
+- `IMPLEMENTADO`: **25** ADRs pós-P257 (decisões materializadas;
   0001, 0004, 0016, 0017, 0019, 0021–0027, 0026-R1, 0031,
   0052, 0053, 0055, 0057, **0060**, **0061** P221, **0078**
-  P221, **0079** P253).
+  P221, **0079** P253, **0083** P257).
 - `REVOGADO`: 2 ADRs (0007, 0028).
 - `ADIADO`: 1 ADR (0020).
 
@@ -2095,3 +2102,50 @@ P84.8g.
   formalizado como regra vinculativa cristalina; segunda
   aplicação cumulativa sub-padrão "ADR meta PROPOSTO → EM VIGOR
   via passo admin XS dedicado" (P229 + P254 = N=2 cumulativo).
+
+- **P257 — Color paridade vanilla (Leitura B funcional)** via
+  refactor cross-cutting `Color { Rgb, Rgba }` (P25 simplificado)
+  → enum tagged 8 variantes paridade vanilla literal
+  (Srgb/Luma/LinearRgb/Oklab/Oklch/Hsl/Hsv/Cmyk). **Cumpre
+  ADR-0029 §"Diagnosticar primeiro" + §"Simplificações aceites
+  apenas com ADR explícita"** via ADR-0083 nova (PROPOSTO P257.B
+  → IMPLEMENTADO P257.D no mesmo passo). **Magnitude real M
+  (~3-4h)** face M-L estimada. Sub-passos sequenciais:
+  P257.A diagnóstico vanilla imutável
+  (`diagnostico-color-vanilla-passo-257.md`); P257.B ADR-0083
+  PROPOSTO com 4 scope-outs documentados (PDF native CMYK +
+  operadores lighten/darken/mix + ColorSpace runtime +
+  constantes nomeadas extras); P257.C L0 prompt
+  `entities/color.md` + 8 variantes em
+  `01_core/src/entities/color.rs` (~500 LoC com PartialEq
+  bitwise + conversões Oklab/HSL/HSV/etc. + 22 unit tests) +
+  remoção Color de `layout_types.rs` (re-export) + 5 adaptações
+  consumers + 7 stdlib funcs novas (`native_oklab`,
+  `native_oklch`, `native_linear_rgb`, `native_cmyk`,
+  `native_hsl`, `native_hsv` + refactor `native_luma` para
+  `Color::Luma`) registadas em eval scope + 8 unit stdlib tests;
+  P257.D promoção ADR-0083 IMPLEMENTADO. **Tests: 2304 → 2334
+  verdes (+30)**. **Paridade observable estricta preservada**:
+  `Color::rgb(255,0,0).to_srgb() == (255, 0, 0, 255)`; PDF
+  output bit-equivalente. **PDF exporter intocado**
+  estructuralmente (4 caminhos `to_rgba_f32` preservados; novos
+  espaços convertem para sRGB transparentemente via
+  `Color::to_srgb()`). Anotação implícita ADR-0028 (REVOGADA;
+  P257 confirma revogação via materialização da regra ADR-0029).
+  ADRs distribuição: PROPOSTO 11 preservado (ADR-0083 entra e
+  sai); EM VIGOR 30 preservado; IMPLEMENTADO 24 → **25**
+  (+ADR-0083); **total 69 → 70**. Hash propagado
+  (`entities/color.md` → `7188e8d9`). **45 aplicações cumulativas
+  anti-inflação** pós-P205D preservadas (Opção α nova ADR
+  PROPOSTO+IMPLEMENTADO mesmo passo via Cenário B1; Opção β L0
+  prompt novo dedicado; Opção α subset materializado per
+  ADR-0029). Patterns emergentes pós-P257 (2): "ADR PROPOSTO+
+  IMPLEMENTADO no mesmo passo via Cenário B1" N=2 cumulativo
+  (P257 cumpre paridade pattern P253 cenário A — ADR cria-se
+  PROPOSTO e logo promove-se quando materialização cumpre
+  critério); "Refactor cross-cutting entity primitivo
+  Color/Stroke" N=1 → N=2 cumulativo (P252 Stroke + **P257
+  Color**). **Marco P257**: Color paridade vanilla materializada
+  cumprindo regra ADR-0029 literal; Visualize ganha primeira
+  expansão substantiva user-facing pós-Fase 5 Layout
+  IMPLEMENTADO P253.

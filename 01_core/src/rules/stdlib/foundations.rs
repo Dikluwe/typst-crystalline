@@ -68,7 +68,13 @@ pub fn native_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     }
 }
 
-/// `luma(l)` → Color::Rgb { r: l, g: l, b: l } (escala de cinzentos).
+/// `luma(l)` → Color::Luma (paridade vanilla D65Gray pós-P257).
+///
+/// **P257 (ADR-0083 PROPOSTO)** — refactor: constrói `Color::Luma`
+/// dedicado (em vez de `Color::Srgb` cinza). Aceita Int [0, 255]
+/// como paridade construtor anterior; converte para f32 [0.0, 1.0]
+/// internamente. PDF output bit-equivalente via `to_srgb()` que
+/// expande Luma para sRGB cinza.
 pub fn native_luma(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
@@ -77,10 +83,165 @@ pub fn native_luma(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
             if !(0..=255).contains(l) {
                 return err(format!("luma(): componente fora de 0–255: {}", l));
             }
-            let l = *l as u8;
-            Ok(Value::Color(Color::rgb(l, l, l)))
+            Ok(Value::Color(Color::luma(*l as f32 / 255.0)))
         }
         _ => err(format!("luma() requer 1 Int, recebeu {} args", args.items.len())),
+    }
+}
+
+/// **P257 (ADR-0083 PROPOSTO)** — `oklab(l, a, b[, alpha])` →
+/// `Color::Oklab`. Componentes f32 (Float ou Int).
+pub fn native_oklab(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    use crate::entities::layout_types::Color;
+    expect_no_named(&args.named)?;
+    fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
+        match v {
+            Value::Float(f) => Ok(*f as f32),
+            Value::Int(i)   => Ok(*i as f32),
+            other => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("oklab({}): espera Float/Int, recebeu {}", name, other.type_name()),
+            )]),
+        }
+    }
+    match args.items.as_slice() {
+        [l, a, b] => Ok(Value::Color(Color::oklab(
+            as_f32(l, "l")?, as_f32(a, "a")?, as_f32(b, "b")?, 1.0,
+        ))),
+        [l, a, b, alpha] => Ok(Value::Color(Color::oklab(
+            as_f32(l, "l")?, as_f32(a, "a")?, as_f32(b, "b")?, as_f32(alpha, "alpha")?,
+        ))),
+        _ => err(format!("oklab() requer 3 ou 4 Float/Int, recebeu {} args", args.items.len())),
+    }
+}
+
+/// **P257 (ADR-0083 PROPOSTO)** — `oklch(l, c, h[, alpha])` →
+/// `Color::Oklch`. `h` em graus.
+pub fn native_oklch(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    use crate::entities::layout_types::Color;
+    expect_no_named(&args.named)?;
+    fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
+        match v {
+            Value::Float(f) => Ok(*f as f32),
+            Value::Int(i)   => Ok(*i as f32),
+            other => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("oklch({}): espera Float/Int, recebeu {}", name, other.type_name()),
+            )]),
+        }
+    }
+    match args.items.as_slice() {
+        [l, c, h] => Ok(Value::Color(Color::oklch(
+            as_f32(l, "l")?, as_f32(c, "c")?, as_f32(h, "h")?, 1.0,
+        ))),
+        [l, c, h, alpha] => Ok(Value::Color(Color::oklch(
+            as_f32(l, "l")?, as_f32(c, "c")?, as_f32(h, "h")?, as_f32(alpha, "alpha")?,
+        ))),
+        _ => err(format!("oklch() requer 3 ou 4 Float/Int, recebeu {} args", args.items.len())),
+    }
+}
+
+/// **P257 (ADR-0083 PROPOSTO)** — `linear_rgb(r, g, b[, alpha])`
+/// → `Color::LinearRgb`. Componentes f32 [0.0, 1.0].
+pub fn native_linear_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    use crate::entities::layout_types::Color;
+    expect_no_named(&args.named)?;
+    fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
+        match v {
+            Value::Float(f) => Ok(*f as f32),
+            Value::Int(i)   => Ok(*i as f32),
+            other => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("linear_rgb({}): espera Float/Int, recebeu {}", name, other.type_name()),
+            )]),
+        }
+    }
+    match args.items.as_slice() {
+        [r, g, b] => Ok(Value::Color(Color::linear_rgb(
+            as_f32(r, "r")?, as_f32(g, "g")?, as_f32(b, "b")?, 1.0,
+        ))),
+        [r, g, b, a] => Ok(Value::Color(Color::linear_rgb(
+            as_f32(r, "r")?, as_f32(g, "g")?, as_f32(b, "b")?, as_f32(a, "a")?,
+        ))),
+        _ => err(format!("linear_rgb() requer 3 ou 4 Float/Int, recebeu {} args", args.items.len())),
+    }
+}
+
+/// **P257 (ADR-0083 PROPOSTO)** — `cmyk(c, m, y, k)` →
+/// `Color::Cmyk`. Componentes f32 [0.0, 1.0].
+/// PDF native `/DeviceCMYK` scope-out P257 (converte para sRGB
+/// via `Color::to_srgb()` no exporter; ADR-0083 §"Scope-out
+/// PDF native CMYK").
+pub fn native_cmyk(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    use crate::entities::layout_types::Color;
+    expect_no_named(&args.named)?;
+    fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
+        match v {
+            Value::Float(f) => Ok(*f as f32),
+            Value::Int(i)   => Ok(*i as f32),
+            other => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("cmyk({}): espera Float/Int, recebeu {}", name, other.type_name()),
+            )]),
+        }
+    }
+    match args.items.as_slice() {
+        [c, m, y, k] => Ok(Value::Color(Color::cmyk(
+            as_f32(c, "c")?, as_f32(m, "m")?, as_f32(y, "y")?, as_f32(k, "k")?,
+        ))),
+        _ => err(format!("cmyk() requer 4 Float/Int, recebeu {} args", args.items.len())),
+    }
+}
+
+/// **P257 (ADR-0083 PROPOSTO)** — `hsl(h, s, l[, alpha])` →
+/// `Color::Hsl`. `h` em graus.
+pub fn native_hsl(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    use crate::entities::layout_types::Color;
+    expect_no_named(&args.named)?;
+    fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
+        match v {
+            Value::Float(f) => Ok(*f as f32),
+            Value::Int(i)   => Ok(*i as f32),
+            other => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("hsl({}): espera Float/Int, recebeu {}", name, other.type_name()),
+            )]),
+        }
+    }
+    match args.items.as_slice() {
+        [h, s, l] => Ok(Value::Color(Color::hsl(
+            as_f32(h, "h")?, as_f32(s, "s")?, as_f32(l, "l")?, 1.0,
+        ))),
+        [h, s, l, a] => Ok(Value::Color(Color::hsl(
+            as_f32(h, "h")?, as_f32(s, "s")?, as_f32(l, "l")?, as_f32(a, "a")?,
+        ))),
+        _ => err(format!("hsl() requer 3 ou 4 Float/Int, recebeu {} args", args.items.len())),
+    }
+}
+
+/// **P257 (ADR-0083 PROPOSTO)** — `hsv(h, s, v[, alpha])` →
+/// `Color::Hsv`. `h` em graus.
+pub fn native_hsv(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    use crate::entities::layout_types::Color;
+    expect_no_named(&args.named)?;
+    fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
+        match v {
+            Value::Float(f) => Ok(*f as f32),
+            Value::Int(i)   => Ok(*i as f32),
+            other => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("hsv({}): espera Float/Int, recebeu {}", name, other.type_name()),
+            )]),
+        }
+    }
+    match args.items.as_slice() {
+        [h, s, v] => Ok(Value::Color(Color::hsv(
+            as_f32(h, "h")?, as_f32(s, "s")?, as_f32(v, "v")?, 1.0,
+        ))),
+        [h, s, v, a] => Ok(Value::Color(Color::hsv(
+            as_f32(h, "h")?, as_f32(s, "s")?, as_f32(v, "v")?, as_f32(a, "a")?,
+        ))),
+        _ => err(format!("hsv() requer 3 ou 4 Float/Int, recebeu {} args", args.items.len())),
     }
 }
 
