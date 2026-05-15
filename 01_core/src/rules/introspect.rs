@@ -247,8 +247,9 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         Content::Hide { body } => Content::Hide {
             body: Box::new(materialize_time(body, intr, location)),
         },
-        // Passo 156G + P231 + P247 — Block container; preserva 5 cosméticos.
-        Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke } => Content::Block {
+        // Passo 156G + P231 + P247 + P250 — Block container; preserva 9 cosméticos.
+        Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke,
+                          spacing, above, below, sticky } => Content::Block {
             body:      Box::new(materialize_time(body, intr, location)),
             width:     *width,
             height:    *height,
@@ -259,6 +260,10 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             clip:      *clip,
             fill:      *fill,
             stroke:    stroke.clone(),
+            spacing:   *spacing,
+            above:     *above,
+            below:     *below,
+            sticky:    *sticky,
         },
         // Passo 156H + P231 + P247 — Boxed container; preserva 5 cosméticos.
         Content::Boxed { body, width, height, inset, baseline, outset, radius, clip, fill, stroke } => Content::Boxed {

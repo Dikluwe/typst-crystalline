@@ -199,6 +199,17 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// no overflow check (`cursor_y > height - margin -
     /// cursor_y_bottom_reserve`). Reset em `new_page`.
     pub(super) cursor_y_bottom_reserve: f64,
+    /// **P250 (M9d / M7+5; ADR-0079 Categoria A.4 cumulativa; cita
+    /// ADR-0082 PROPOSTO N=1)** — below pendente do bloco anterior
+    /// para CSS-style margin collapse `max(prev.below, curr.above)`
+    /// entre blocks consecutivos. Reset por Sequence consumer +
+    /// non-Block arms.
+    pub(super) prev_block_below_pending: f64,
+    /// **P250** — `true` se o elemento previamente laid out foi
+    /// `Content::Block`. Used by `prev_block_below_pending` collapse
+    /// logic + first-block-in-sequence above suppression. Reset por
+    /// non-Block arms (via Sequence consumer ou directamente).
+    pub(super) block_chain_active: bool,
 }
 
 /// **P245 (M9d / M7+4)** — entry do buffer `floats_pending` no
@@ -282,6 +293,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             floats_pending:          Vec::new(),
             cursor_y_top_reserve:    0.0,
             cursor_y_bottom_reserve: 0.0,
+            // P250 — spacing collapse state inicializado limpo.
+            prev_block_below_pending: 0.0,
+            block_chain_active:       false,
         }
     }
 
@@ -476,9 +490,47 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             Content::Sequence(parts) => {
-                for part in parts.iter() {
+                // P250 — refactor Sequence consumer para peekable + neighbour
+                // context. Permite:
+                // - Sticky lookahead (Block.sticky=true detecta next; se
+                //   combined_h > remaining + cabe em página inteira →
+                //   new_page() antes do block).
+                // - Spacing collapse via Layouter fields
+                //   `prev_block_below_pending` + `block_chain_active`
+                //   (reset entre Sequences para isolamento).
+                // Padrão emergente "Refactor Sequence consumer cross-arm"
+                // N=1 inaugurado P250.
+                let saved_below = self.prev_block_below_pending;
+                let saved_chain = self.block_chain_active;
+                self.prev_block_below_pending = 0.0;
+                self.block_chain_active       = false;
+                let mut iter = parts.iter().peekable();
+                while let Some(part) = iter.next() {
+                    // P250 — sticky pre-layout lookahead 1-block.
+                    if let Content::Block { sticky: true, .. } = part {
+                        if let Some(next) = iter.peek() {
+                            let avail_w = self.available_width();
+                            let (_, part_h) = self.measure_content_constrained(part, avail_w);
+                            let (_, next_h) = self.measure_content_constrained(next, avail_w);
+                            let combined    = part_h + next_h;
+                            let remaining   = self.page_bottom_limit()
+                                              - self.regions.current.cursor_y.0;
+                            let page_usable = self.available_height();
+                            if combined > remaining && combined <= page_usable {
+                                self.new_page();
+                            }
+                            // else: cabem ambos OU overlong → emit normal.
+                        }
+                    }
                     self.layout_content(part);
+                    if !matches!(part, Content::Block { .. }) {
+                        // P250 — non-Block child quebra chain.
+                        self.block_chain_active       = false;
+                        self.prev_block_below_pending = 0.0;
+                    }
                 }
+                self.prev_block_below_pending = saved_below;
+                self.block_chain_active       = saved_chain;
             }
 
             // Passo 101: `Content::Strong` e `Content::Emph` removidos do enum.
@@ -1370,7 +1422,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `width` actualmente reduz a largura útil temporariamente
             // (cursor.x começa em line_start_x + offset). `width: None`
             // == auto (largura completa).
-            Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke } => {
+            Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke,
+                              spacing, above, below, sticky: _ } => {
                 let font = self.font_size_pt.val();
                 let inset_left   = inset.left.resolve_pt(font);
                 let inset_top    = inset.top.resolve_pt(font);
@@ -1394,6 +1447,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 if self.regions.current.cursor_x.0 > self.regions.current.line_start_x.0 {
                     self.flush_line();
                 }
+
+                // P250 — spacing/above collapse (paridade vanilla CSS margin
+                // collapse `max(prev.below, curr.above)` entre Blocks
+                // consecutivos; `above` suprimido no primeiro Block dum
+                // Sequence — sinalizado via `block_chain_active == false`).
+                let above_pt = above
+                    .or(*spacing)
+                    .map(|l| l.resolve_pt(font))
+                    .unwrap_or(0.0);
+                let gap = if self.block_chain_active {
+                    self.prev_block_below_pending.max(above_pt)
+                } else {
+                    0.0
+                };
+                let advance = (gap - self.prev_block_below_pending).max(0.0);
+                self.regions.current.cursor_y += Pt(advance);
+                self.prev_block_below_pending = 0.0;
 
                 // P248 (M9d / M7+5; ADR-0079 Categoria A.4 cumulativa) —
                 // Block.breakable semantic real activação: medição
@@ -1571,6 +1641,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.regions.current.line_start_x = saved_line_start;
                 self.regions.current.cursor_x     = saved_line_start;
                 self.regions.current.width        = saved_width;
+
+                // P250 — below cursor.y advance + state update para
+                // collapse com próximo Block consecutivo.
+                let below_pt = below
+                    .or(*spacing)
+                    .map(|l| l.resolve_pt(font))
+                    .unwrap_or(0.0);
+                self.regions.current.cursor_y += Pt(below_pt);
+                self.prev_block_below_pending = below_pt;
+                self.block_chain_active       = true;
             }
 
             // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ──
@@ -1933,7 +2013,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 156G: Block dimensões para grid measurement.
             // Inset adiciona aos lados; height: Some(h) força mínimo;
             // width: Some(w) prefere essa largura mas constrained por max.
-            Content::Block { body, width, height, inset, breakable: _, outset: _, radius: _, clip: _, fill: _, stroke: _ } => {
+            Content::Block { body, width, height, inset, breakable: _, outset: _, radius: _, clip: _, fill: _, stroke: _,
+                              spacing: _, above: _, below: _, sticky: _ } => {
                 let font = self.font_size_pt.val();
                 let inset_l = inset.left.resolve_pt(font);
                 let inset_r = inset.right.resolve_pt(font);

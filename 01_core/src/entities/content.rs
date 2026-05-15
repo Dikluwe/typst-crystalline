@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 9f03e1a8
+//! @prompt-hash 418bbbfb
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -698,6 +698,25 @@ pub enum Content {
         /// `stroke: Some(s)`. `None` == sem stroke. Reusa `Stroke` de
         /// `geometry.rs:24`. Promoção real scope-out ADR-0054 graded.
         stroke:    Option<crate::entities::geometry::Stroke>,
+        /// **P250 (M9d / M7+5; ADR-0079 Categoria A.4; cita ADR-0082
+        /// PROPOSTO N=1 citante)** — spacing genérico antes E depois
+        /// do bloco. `None` == zero (paridade cristalina graded; vanilla
+        /// `Em::new(1.2)` é divergência consciente per ADR-0054).
+        /// Fallback usado por `above`/`below` quando `None`.
+        spacing:   Option<Length>,
+        /// **P250** — override de `spacing` no lado superior. `None` ==
+        /// usar `spacing`. Vanilla: `above.or(spacing)` resolução.
+        /// Entre blocks consecutivos, `max(prev.below, curr.above)`
+        /// collapse (paridade CSS margin collapse vanilla).
+        above:     Option<Length>,
+        /// **P250** — override de `spacing` no lado inferior. `None` ==
+        /// usar `spacing`. Idem `above` para resolução + collapse.
+        below:     Option<Length>,
+        /// **P250** — `true` impede page break entre este Block e o
+        /// próximo (lookahead 1-block; paridade vanilla simples).
+        /// Default `false`. Uso típico: headings com `sticky: true`
+        /// evitam separação do parágrafo seguinte.
+        sticky:    bool,
     },
 
     // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ───────────
@@ -1109,7 +1128,12 @@ impl Content {
                       clip: false,
                       // P247 — fill/stroke default `None` (paridade pattern P242).
                       fill: None,
-                      stroke: None }
+                      stroke: None,
+                      // P250 — spacing/above/below/sticky defaults (None×3 + false).
+                      spacing: None,
+                      above:   None,
+                      below:   None,
+                      sticky:  false }
     }
 
     /// `box(body, width, height, inset, baseline)` — Passo 156H
@@ -1664,15 +1688,18 @@ impl PartialEq for Content {
             // Passo 220 — Colbreak (1 field — paridade Pagebreak sem to).
             (Self::Colbreak { weak: wa },
              Self::Colbreak { weak: wb }) => wa == wb,
-            // Passo 156G + P231 + P247 — Block +5 cosméticos
-            // (outset/radius/clip/fill/stroke).
+            // Passo 156G + P231 + P247 + P250 — Block +9 cosméticos
+            // (outset/radius/clip/fill/stroke/spacing/above/below/sticky).
             (Self::Block { body: ba, width: wa, height: ha, inset: ia, breakable: ka,
-                            outset: oa, radius: ra, clip: cla, fill: fia, stroke: sta },
+                            outset: oa, radius: ra, clip: cla, fill: fia, stroke: sta,
+                            spacing: spa, above: aba, below: bla, sticky: sya },
              Self::Block { body: bb, width: wb, height: hb, inset: ib, breakable: kb,
-                            outset: ob, radius: rb, clip: clb, fill: fib, stroke: stb }) =>
+                            outset: ob, radius: rb, clip: clb, fill: fib, stroke: stb,
+                            spacing: spb, above: abb, below: blb, sticky: syb }) =>
                 ba == bb && wa == wb && ha == hb && ia == ib && ka == kb
                 && oa == ob && ra == rb && cla == clb
-                && fia == fib && sta == stb,
+                && fia == fib && sta == stb
+                && spa == spb && aba == abb && bla == blb && sya == syb,
             // Passo 156H + P231 + P247 — Boxed +5 cosméticos paralelo Block.
             (Self::Boxed { body: ba, width: wa, height: ha, inset: ia, baseline: ka,
                             outset: oa, radius: ra, clip: cla, fill: fia, stroke: sta },
@@ -1860,10 +1887,11 @@ impl Content {
                 body: Box::new(body.map_content(transform)?),
             },
 
-            // Passo 156G + P231 + P247: Block container — recurse em body;
-            // preserva 5 cosméticos (Sides Copy; Corners Copy; bool Copy;
-            // Color Copy; Stroke Clone).
-            Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke } => Content::Block {
+            // Passo 156G + P231 + P247 + P250: Block container — recurse em
+            // body; preserva 9 cosméticos (Sides/Corners/bool/Color Copy;
+            // Stroke Clone; Option<Length> Copy; bool Copy).
+            Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke,
+                              spacing, above, below, sticky } => Content::Block {
                 body:      Box::new(body.map_content(transform)?),
                 width:     *width,
                 height:    *height,
@@ -1874,6 +1902,10 @@ impl Content {
                 clip:      *clip,
                 fill:      *fill,
                 stroke:    stroke.clone(),
+                spacing:   *spacing,
+                above:     *above,
+                below:     *below,
+                sticky:    *sticky,
             },
 
             // Passo 156H + P231 + P247: Boxed (Box inline) — recurse análogo a Block; preserva 5 cosméticos.
@@ -2161,9 +2193,11 @@ impl Content {
                 body: Box::new(body.map_text(transform)),
             },
 
-            // Passo 156G + P247: Block container — recurse em body;
-            // preserva 5 cosméticos (P247 fill/stroke incluídos).
-            Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke } => Content::Block {
+            // Passo 156G + P247 + P250: Block container — recurse em body;
+            // preserva 9 cosméticos (P247 fill/stroke + P250 spacing/above/
+            // below/sticky incluídos).
+            Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke,
+                              spacing, above, below, sticky } => Content::Block {
                 body:      Box::new(body.map_text(transform)),
                 width:     *width,
                 height:    *height,
@@ -2174,6 +2208,10 @@ impl Content {
                 clip:      *clip,
                 fill:      *fill,
                 stroke:    stroke.clone(),
+                spacing:   *spacing,
+                above:     *above,
+                below:     *below,
+                sticky:    *sticky,
             },
 
             // Passo 156H + P231 + P247: Boxed (Box inline) — recurse análogo a Block; preserva 5 cosméticos.
@@ -4355,6 +4393,10 @@ mod tests {
             clip:      true,
             fill:      None,
             stroke:    None,
+            spacing:   None,
+            above:     None,
+            below:     None,
+            sticky:    false,
         };
         if let Content::Block { outset, radius, clip, .. } = &b {
             assert_eq!(radius.top_left, Length::pt(3.0));
@@ -4410,6 +4452,10 @@ mod tests {
             clip,
             fill:      None,
             stroke:    None,
+            spacing:   None,
+            above:     None,
+            below:     None,
+            sticky:    false,
         };
         assert_eq!(mk(false), mk(false));
         assert_ne!(mk(false), mk(true));
@@ -4433,6 +4479,10 @@ mod tests {
             clip:      true,
             fill:      None,
             stroke:    None,
+            spacing:   None,
+            above:     None,
+            below:     None,
+            sticky:    false,
         };
         let mapped = b.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
         if let Content::Block { outset, radius, clip, .. } = &mapped {
@@ -4466,6 +4516,10 @@ mod tests {
             clip:      false,
             fill:      Some(Color::rgb(200, 0, 0)),
             stroke:    Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 2.0 }),
+            spacing:   None,
+            above:     None,
+            below:     None,
+            sticky:    false,
         };
         if let Content::Block { fill, stroke, .. } = &b {
             assert_eq!(*fill, Some(Color::rgb(200, 0, 0)));
@@ -4517,6 +4571,10 @@ mod tests {
             clip:      false,
             fill,
             stroke:    None,
+            spacing:   None,
+            above:     None,
+            below:     None,
+            sticky:    false,
         };
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(Color::rgb(255, 0, 0))));
@@ -4542,6 +4600,10 @@ mod tests {
             clip:      false,
             fill:      fill_orig,
             stroke:    stroke_orig.clone(),
+            spacing:   None,
+            above:     None,
+            below:     None,
+            sticky:    false,
         };
         let mapped = b.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
         if let Content::Block { fill, stroke, .. } = &mapped {

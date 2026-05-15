@@ -1519,3 +1519,32 @@ N=3-4 futuro.
 N=1 → N=2 cumulativo P248** (P245 Place float = N=1; **P248 = N=2
 agregado**; granular = N=4 contando 3 sub-activações P248 + 1
 P245).
+
+---
+
+## Refino futuro — Anotação cumulativa P250 (Block A.4 COMPLETO)
+
+P250 fecha cumulativamente os 4 scope-outs Block restantes P156G
+(spacing + above + below + sticky) com semantic real + refactor
+Sequence consumer cross-arm:
+
+- **Block fields: 10 → 14** (+4 P250).
+- **Boxed fields: 10 preservado** (assimetria intencional).
+- **Sequence consumer migrado para peekable** (pattern emergente
+  N=1 "Refactor Sequence consumer cross-arm via peekable +
+  neighbour context").
+- **Layouter +2 fields** (`prev_block_below_pending` +
+  `block_chain_active`).
+- **Categoria A.4 Block COMPLETO 10/10** scope-outs originais
+  P156G + breakable cumulativo.
+
+**Primeira aplicação citante ADR-0082 PROPOSTO** (criada P249).
+Os 4 critérios operacionais verificados explicitamente em P250
+(storage prévio + consumer graded + paridade vanilla §2.4 +
+backward compat literal). **Validação ADR-0082 N=1 citante** —
+primeiro de uma sequência candidata N=3 para promoção EM VIGOR
+(paridade ADR-0065 P156K → P156J/P157A/P157B sequente).
+
+**Promoções reais scope-outs ADR-0054 graded granular**: N=8 →
+**N=12 cumulativo P250** (P250 ×4: spacing + above + below +
+sticky).

@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 13d30bd9
+Hash do Código: 7c954268
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -1428,3 +1428,137 @@ futura XS admin (N≥6 patamar atingido).
   spacing + above + below + sticky).
 - Boxed.height semantic real activada cumulativamente.
 - TableCell overflow Y clip implícito (row break diferido).
+
+## Promoção Block spacing + above + below + sticky — Passo 250 (M9d / M7+5; ADR-0079 Categoria A.4 Block COMPLETO; cita ADR-0082 PROPOSTO N=1 primeira aplicação citante)
+
+P156G declarou 9 scope-outs originais Block; P247 + P248
+fecharam cumulativamente 5/9 cosméticos visuais + breakable
+semantic real. **P250 fecha os 4 scope-outs restantes** em
+agregação (spacing + above + below + sticky) e marca **Block
+A.4 COMPLETO 10/10** (incluindo breakable contado como décimo
+elemento).
+
+```rust
+// Em Content::Block (P250):
+Block {
+    body, width, height, inset, breakable,        // P156G + P248
+    outset, radius, clip,                         // P231 + P242
+    fill, stroke,                                 // P247
+    spacing: Option<Length>,                      // P250 NOVO
+    above:   Option<Length>,                      // P250 NOVO
+    below:   Option<Length>,                      // P250 NOVO
+    sticky:  bool,                                // P250 NOVO
+}
+```
+
+**Block fields: 10 → 14**. **Boxed fields: 10 preservado** —
+estes 4 scope-outs são exclusivos Block (vanilla BlockElem
+properties; BoxElem não os tem). **Asymetria intencional**;
+sub-padrão "refino aditivo paralelo entre variants irmãos" N=5
+P247 **não aplica P250**.
+
+**Default values**:
+- `spacing: None` (cristalina graded; vanilla `Em::new(1.2)`).
+- `above: None` (fallback `spacing`).
+- `below: None` (fallback `spacing`).
+- `sticky: false`.
+
+**Activação A — `spacing`/`above`/`below` cursor.y advance via
+collapse semantic** (paridade vanilla CSS margin collapse):
+
+- `above_pt = above.or(spacing).map(resolve).unwrap_or(0.0)`.
+- `below_pt = below.or(spacing).map(resolve).unwrap_or(0.0)`.
+- Entre Blocks consecutivos: `gap = max(prev.below, curr.above)`;
+  cursor.y advance = `gap - prev.below_already_applied`.
+- Primeiro Block do Sequence: `above` suprimido (`block_chain_
+  active == false`).
+- Non-Block intermediário quebra chain (`block_chain_active`
+  reset).
+
+**Layouter fields novos P250**:
+- `prev_block_below_pending: f64` (default 0.0) — below pendente
+  do prev Block para CSS-style collapse.
+- `block_chain_active: bool` (default false) — chain state;
+  reset entre Sequences (save/restore) + non-Block children.
+
+**Activação B — `sticky` lookahead 1-block** (Sequence consumer):
+
+```rust
+if let Content::Block { sticky: true, .. } = part {
+    if let Some(next) = iter.peek() {
+        let part_h = measure_content_constrained(part, avail_w).1;
+        let next_h = measure_content_constrained(next, avail_w).1;
+        let combined = part_h + next_h;
+        let remaining = page_bottom - cursor_y;
+        let page_usable = available_height;
+        if combined > remaining && combined <= page_usable {
+            new_page();  // break antes do block sticky
+        }
+        // else: cabe OU overlong → emit normal.
+    }
+}
+```
+
+**Refactor Sequence consumer cross-arm P250** (pattern emergente
+N=1 inaugurado):
+
+```rust
+Content::Sequence(parts) => {
+    let saved_below = self.prev_block_below_pending;
+    let saved_chain = self.block_chain_active;
+    self.prev_block_below_pending = 0.0;
+    self.block_chain_active       = false;
+    let mut iter = parts.iter().peekable();
+    while let Some(part) = iter.next() {
+        // Sticky pre-layout lookahead.
+        // ... see Activação B ...
+        self.layout_content(part);
+        if !matches!(part, Content::Block { .. }) {
+            self.block_chain_active       = false;
+            self.prev_block_below_pending = 0.0;
+        }
+    }
+    self.prev_block_below_pending = saved_below;
+    self.block_chain_active       = saved_chain;
+}
+```
+
+**stdlib `block(spacing:, above:, below:, sticky:)` P250**:
+
+- `spacing`/`above`/`below`: helper inline `extract_block_length`
+  (paridade pattern P247); negativos rejeitados com erro hard.
+- `sticky`: `Value::Bool` directo; tipos errados rejeitados.
+
+**Citação ADR-0082 PROPOSTO N=1 (primeira aplicação citante)**:
+
+Os 4 critérios operacionais ADR-0082 verificados:
+1. **Storage prévio** ✓ — 4 fields scope-out P156G declarados
+   originalmente.
+2. **Consumer Layouter pre-promoção graded** ✓ — 4 args
+   "rejeitados em `native_block` com erro hard" P156G.
+3. **Paridade vanilla referência empírica** ✓ — audit C1 §2.4
+   confirmou: vanilla `Em::new(1.2)` default; `above.or(spacing)`
+   fallback; `max(prev.below, curr.above)` collapse; sticky
+   default false.
+4. **Backward compat literal** ✓ — defaults (None×3 + false)
+   produzem output PDF bit-equivalente para Block sem estes
+   args (sentinela `p250_block_defaults_preserva_output_pre_p250`).
+
+**Sub-padrão "promoção real scope-out ADR-0054 graded"**
+granular N=8 → **N=12 cumulativo P250** (P242 radius + P242
+clip + P247 outset + P247 fill + P247 stroke + P248 breakable
++ P248 height + P248 cell_overflow + **P250 spacing + above +
+below + sticky**).
+
+**Sub-padrão "Refactor Sequence consumer cross-arm"** N=1
+inaugurado P250 — primeira aplicação peekable + neighbour
+context no Layouter. Pattern candidato a formalização N=3-4
+futuro (hipóteses: pagebreak weak collapse; HSpace/VSpace
+weak adjacent).
+
+**§"Limitações conscientes" P156G fechadas em P250**: 10/10
+scope-outs originais P156G + breakable contado = **Block A.4
+COMPLETO**.
+
+**Boxed continua 5/6 scope-outs** (resta stroke-overhang;
+P250 não toca Boxed por assimetria intencional).

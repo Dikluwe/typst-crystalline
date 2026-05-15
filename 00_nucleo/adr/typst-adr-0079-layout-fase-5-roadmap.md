@@ -2223,3 +2223,95 @@ M7+3 fase (a) infra; P245 M7+4 C.1 Place float real; P246
 cell layout migration; P247 A.4 cumulativa fill+stroke+outset
 Block+Boxed; **P248 A.4 cumulativa breakable+height+cell
 overflow semantic real activação**).
+
+---
+
+## Anotação cumulativa P250 — A.4 Block COMPLETO 10/10 (spacing+above+below+sticky agregados)
+
+**P250 materializa Categoria A.4 Block COMPLETO** via 4 fields
+novos cumulativos + refactor Sequence consumer cross-arm:
+
+- **+4 fields em Block**: spacing/above/below/sticky;
+  **10 → 14 fields**.
+- **Boxed preservado 10 fields** (assimetria intencional;
+  scope-outs exclusivos Block).
+- **Spacing collapse semantic** paridade vanilla CSS:
+  `max(prev.below, curr.above)` entre Blocks consecutivos;
+  above suprimido no primeiro Block dum Sequence.
+- **Sticky lookahead 1-block** via peekable Sequence consumer:
+  `new_page()` antecipado se combined > remaining + cabe em
+  página inteira.
+- **Refactor Sequence consumer** para peekable + neighbour
+  context (pattern emergente N=1 inaugurado).
+- **2 Layouter fields novos**: `prev_block_below_pending` +
+  `block_chain_active` (state save/restore entre Sequences).
+
+**Categoria A.4 cumulativa pós-P250 — Block A.4 COMPLETO**:
+
+| # | Atributo | Passo |
+|---|----------|-------|
+| 1 | outset | P231 (storage) + P247 (semantic real) |
+| 2 | radius | P242 |
+| 3 | clip | P242 |
+| 4 | fill | P247 |
+| 5 | stroke | P247 |
+| 6 | breakable | P248 (semantic real) |
+| 7 | spacing | P250 |
+| 8 | above | P250 |
+| 9 | below | P250 |
+| 10 | sticky | P250 |
+
+**Block A.4: 10/10 scope-outs originais P156G fechados
+cumulativamente.** Boxed: 5/6 preservado (resta stroke-
+overhang). TableCell: overflow clip implícito P248.
+
+**Pré-condições obrigatórias verificadas P250**:
+
+1. **Tests baseline preservados**: 2255 verdes pré-P250 →
+   **2276 verdes** pós-P250 (+21 P250 testes novos dentro do
+   range +20-30 paridade L magnitude; **0 regressões**).
+2. **Comemo memoization invariants ADR-0073/0074 preservados** —
+   P250 toca Layouter consumer + entities + stdlib apenas;
+   Introspector trait intocada.
+3. **Backward compat literal**: Block com defaults
+   (`spacing=None`, `above=None`, `below=None`, `sticky=false`)
+   + refactor Sequence preserva output pre-P250 (sentinela
+   `p250_block_defaults_preserva_output_pre_p250` valida).
+
+**11 decisões fixadas P250** (Decisão 0 = lição N=12 → 13
+cumulativo; Decisões 1-7 = arquitectura + algoritmos;
+Decisões 8-11 = patterns emergentes + marco).
+
+**Patterns emergentes inaugurados/consolidados P250** (4):
+
+- **"Refactor Sequence consumer cross-arm via peekable +
+  neighbour context"** N=1 inaugurado P250.
+- **"Aplicação citante ADR-0082 PROPOSTO"** N=0 → **N=1
+  primeira aplicação citante** (4 critérios operacionais
+  verificados explicitamente).
+- **"Spec C1 audit obrigatório bloqueante"** N=12 → **N=13
+  cumulativo** P250 (lição refinada: "refactor cross-arm
+  Sequence consumer exige audit de todos os patterns de
+  iteração existentes antes de migrar a peekable").
+- **"Promoção real scope-out ADR-0054 graded"** granular N=8
+  → **N=12 cumulativo P250** (P250 ×4: spacing + above +
+  below + sticky).
+
+**Resultado P250**:
+- Tests workspace: 2255 → **2276 verdes** (+21 P250).
+- Content variants: **62 preservado**.
+- Block fields: **10 → 14** (+spacing, +above, +below, +sticky).
+- Boxed fields: **10 preservado** (asymétrico intencional).
+- ShapeKind variants: **5 preservado**.
+- Layouter fields: **+2** (`prev_block_below_pending` +
+  `block_chain_active`).
+- Stdlib funcs: **64 preservado** (refino consumer).
+- Cobertura Layout per metodologia: **~95-96% → ~96-97%**.
+- **Categoria A.4 Block COMPLETO 10/10**.
+
+Sub-passo materializado pós-P226: **10** (P227 A.1; P240 M7+1
+D.2; P241 M7+2 D.3; P242 M7+5 A.4 parcial; P243 M7+3 fase (a)
+infra; P245 M7+4 C.1; P246 cell migration; P247 A.4 cumulativa
+fill+stroke+outset; P248 A.4 cumulativa breakable+height+cell;
+**P250 A.4 Block COMPLETO spacing+above+below+sticky + refactor
+Sequence consumer**).

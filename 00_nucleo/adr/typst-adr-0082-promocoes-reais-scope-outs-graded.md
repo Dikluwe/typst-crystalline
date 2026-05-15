@@ -273,6 +273,50 @@ P248 = mecanismo comum).
 
 ---
 
+## Aplicações citantes (validação empírica pós-PROPOSTO)
+
+Sub-secção criada para registar aplicações concretas que citam
+ADR-0082 explicitamente (em vez de re-justificar empíricamente
+os 4 critérios). Promoção a EM VIGOR pendente N=3 aplicações
+consecutivas citantes (paridade ADR-0065 EM VIGOR pós-P156K
+validada P156J/P157A/P157B sequente).
+
+### N=1 — P250 (2026-05-14): Block.spacing + Block.above + Block.below + Block.sticky
+
+**Primeira aplicação citante.** P250 promove 4 scope-outs
+originais P156G (spacing + above + below + sticky) com semantic
+real cumulativa; **fecha Block A.4 COMPLETO 10/10**.
+
+Os 4 critérios operacionais ADR-0082 verificados explicitamente:
+
+1. **Storage prévio** ✓ — 4 fields scope-out P156G "Limitações
+   conscientes" declarados originalmente (não variants novos).
+2. **Consumer Layouter pre-promoção graded** ✓ — 4 args
+   actualmente "rejeitados em `native_block` com erro hard"
+   P156G; arm Block layout consumer ignora literal.
+3. **Paridade vanilla referência empírica** ✓ — audit C1 §2.4
+   P250 confirmou
+   `lab/typst-original/crates/typst-library/src/layout/
+   container.rs`: vanilla `Em::new(1.2)` default; `above.or(
+   spacing)` fallback; `max(prev.below, curr.above)` collapse;
+   sticky default false.
+4. **Backward compat literal** ✓ — defaults (None×3 + false)
+   produzem output PDF bit-equivalente para Block sem estes
+   args; sentinela `p250_block_defaults_preserva_output_pre_
+   p250` valida.
+
+**Granularidade**: 4 sub-promoções (1 fila tabela cumulativa
+ADR-0054 §"Promoções reais"). Total cumulativo pós-P250: **N=12
+granular** (P242 ×2 + P247 ×3 + P248 ×3 + P250 ×4).
+
+**Pattern adicional inaugurado P250**: "Refactor Sequence
+consumer cross-arm via peekable + neighbour context" N=1 —
+distinto P250-específico (não meta a ADR-0082; mas relacionado
+porque viabiliza sticky lookahead). Formalização meta-meta
+diferida (N≥4 não satisfeito).
+
+---
+
 ## Plano de promoção (status PROPOSTO → EM VIGOR)
 
 ADR-0082 mantém status `PROPOSTO` até satisfação de **ambas**:
