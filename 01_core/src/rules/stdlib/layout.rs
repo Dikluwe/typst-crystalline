@@ -733,7 +733,10 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             },
             // P231 — aceitar outset/radius/clip (parsing pós-loop).
             // P247 — aceitar fill/stroke (parsing pós-loop paralelo).
-            "outset" | "radius" | "clip" | "fill" | "stroke" => {},
+            // P250 — aceitar spacing/above/below/sticky (parsing pós-loop;
+            //         cita ADR-0082 PROPOSTO N=1 primeira aplicação citante).
+            "outset" | "radius" | "clip" | "fill" | "stroke"
+                | "spacing" | "above" | "below" | "sticky" => {},
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("block(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
@@ -816,6 +819,39 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         None      => None,
     };
 
+    // P250 — 4 named args novos: spacing/above/below (Length opcionais;
+    // negativos rejeitados) + sticky (Bool). Defaults None×3 + false
+    // preservam output literal pre-P250.
+    let extract_block_length = |key: &str| -> SourceResult<Option<Length>> {
+        match args.named.get(key) {
+            None      => Ok(None),
+            Some(val) => {
+                let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("block({}:) espera length, recebeu {}", key, val.type_name()),
+                )])?;
+                if len.abs.0 < 0.0 || len.em < 0.0 {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("block({}:): valor negativo não suportado (P250)", key),
+                    )]);
+                }
+                Ok(Some(len))
+            }
+        }
+    };
+    let spacing = extract_block_length("spacing")?;
+    let above   = extract_block_length("above")?;
+    let below   = extract_block_length("below")?;
+    let sticky = match args.named.get("sticky") {
+        Some(Value::Bool(b)) => *b,
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("block(sticky): espera Bool, recebeu {}", other.type_name()),
+        )]),
+        None => false,
+    };
+
     Ok(Value::Content(Content::Block {
         body: Box::new(body),
         width,
@@ -827,6 +863,10 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         clip,
         fill,
         stroke,
+        spacing,
+        above,
+        below,
+        sticky,
     }))
 }
 

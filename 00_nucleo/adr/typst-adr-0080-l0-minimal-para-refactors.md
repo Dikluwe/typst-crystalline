@@ -876,3 +876,77 @@ preservado P249** (P249 administrativo XS não materializa nova
 promoção; apenas formaliza pattern via ADR-0082).
 
 **Cross-reference ADR-0082 PROPOSTO** (P249 administrativo XS).
+
+---
+
+## Lição refinada P250 — N=12 → N=13 cumulativo
+
+P250 refina o pattern N=12 P249 ("ADR meta administrativo XS
+exige audit empírico das N≥4 aplicações concretas antes de
+formalizar pattern"):
+
+**Lição N=13 cumulativa P250**: "refactor cross-arm Sequence
+consumer exige audit de todos os patterns de iteração existentes
+antes de migrar a peekable".
+
+**Conteúdo refinado**:
+
+- Audit C1 §2.2 P250 confirmou empíricamente 2 Sequence consumers
+  em mod.rs (layout + measure) + 2 sítios em helpers.rs (não-
+  bloqueantes; traversal puro). Decisão pós-audit: refactor
+  apenas mod.rs:478 layout consumer (measure não precisa de
+  neighbour context — spacing colapsa para zero em medição
+  estática per ADR-0054 graded).
+- Audit C1 §2.3 confirmou zero peekable usage prévio no Layouter
+  — P250 inaugura pattern.
+- Audit C1 §2.4 confirmou vanilla algorithm reference
+  (`lab/typst-original/crates/typst-library/src/layout/
+  container.rs`): `above`/`below` fallback `spacing`; `max(prev.
+  below, curr.above)` collapse; sticky default false.
+
+**Sub-padrão emergente "Refactor Sequence consumer cross-arm
+via peekable + neighbour context" N=1 inaugurado P250**:
+
+- Pattern novo (look-ahead 1-block via `iter.peek()` no
+  Layouter).
+- Magnitude L controlada (1 arm consumer + Layouter fields +
+  arm Block consume).
+- Candidato a formalização N=3-4 futuro (hipóteses: pagebreak
+  weak collapse com weak adjacent; HSpace/VSpace weak collapse
+  genérico P156D refino).
+
+**Sub-padrão "Aplicação citante ADR-0082 PROPOSTO" N=0 → N=1
+P250**:
+
+- **Primeira aplicação concreta a citar ADR-0082 explicitamente**
+  (criada P249 administrativo XS).
+- Os 4 critérios operacionais ADR-0082 verificados:
+  1. Storage prévio ✓ (4 fields scope-out P156G).
+  2. Consumer Layouter pre-promoção graded ✓ (rejeitados
+     `native_block` erro hard).
+  3. Paridade vanilla referência empírica ✓ (audit §2.4).
+  4. Backward compat literal ✓ (sentinela
+     `p250_block_defaults_preserva_output_pre_p250`).
+- Validação ADR-0082 N=1 citante — primeiro passo dum sequente
+  N=3 para promoção EM VIGOR (paridade ADR-0065 P156K validada
+  pós-P156J + P157A + P157B sequente).
+
+**Sub-padrão "promoção real scope-out ADR-0054 graded" granular
+N=8 → N=12 cumulativo P250** (P242 ×2 + P247 ×3 + P248 ×3 +
+P250 ×4). Marco interno: primeiro variant Content com **100%
+dos scope-outs originais P156G fechados** — Block A.4
+COMPLETO 10/10.
+
+**Pattern "L0 tocado pós-P229 (sub-categorias)"** N=7
+cumulativo P248 → **N=8 cumulativo P250** (P250 toca L0 via
+extensão `entities/content.md` §"Promoção Block spacing +
+above + below + sticky — Passo 250"; hash propagado
+`418bbbfb`).
+
+**Pattern "aplicação automática ADR-0080 EM VIGOR" N=10
+preservado** **incrementa P250** N=10 → **N=11 cumulativo**
+(P250 toca L0 mas refino documentar 4 fields + algoritmo
+collapse + sticky lookahead; L0 minimal preservado per Opção β).
+
+**Cross-reference ADR-0082 PROPOSTO** (citado primeira vez P250
+explicitamente).

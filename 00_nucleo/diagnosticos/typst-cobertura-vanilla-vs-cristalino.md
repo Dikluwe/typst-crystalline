@@ -136,7 +136,7 @@ primitives e `skew`). Detalhe em
 | `align(alignment, body)` | layout/align.rs | `implementado` | Passos 84.5–84.6 (DEBT-36, 37) | `Align2D`; `Place` com scope |
 | `place(alignment, ..., body)` | layout/place.rs | `implementado⁺` ⁵ ⁴⁴ ⁴⁶ | Passos 84.5 + 84.6 + 223 (encerrado série α P225) | refino aditivo P223 — `float: bool` + `clearance: Option<Length>` armazenados (semantic real adiada per ADR-0054 graded; pattern N=5 cumulativo weak/breakable/float/repeat); restrição vanilla `scope: Parent + float: true` restaurada (DEBT-37 §"Divergência" fechada — Decisão 3 Opção α); refino multi-pass flow contorna Fase 5 candidata NÃO-reservada per política P158 |
 | `box(...)` | layout/container.rs | `implementado⁺` ¹⁵ ⁶⁵ ⁶⁶ | Passos 156H + 231 + 242 + 247 + **248** | `Content::Boxed { body, width, height, inset, baseline, outset, radius, clip, fill, stroke }` + stdlib `#box(body, width: ?, height: ?, inset: ?, baseline: ?, outset: ?, radius: ?, clip: ?, fill: ?, stroke: ?)`; **P248 Boxed.height overflow semantic real**: clip=true wrap body em Group com clip_mask Rect; clip=false overflow visível (paridade vanilla); 5 dos 6 scope-outs fechados cumulativamente + height real activado |
-| `block(...)` | layout/container.rs | `implementado⁺` ¹³ ⁶⁵ ⁶⁶ | Passos 156G + 231 + 242 + 243 + 247 + **248** | `Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke }` + stdlib `#block(body, width: ?, height: ?, inset: ?, breakable: true, outset: ?, radius: ?, clip: ?, fill: ?, stroke: ?)`; **P248 Block.breakable real**: medição antecipada via `measure_content_constrained` puro; `new_page()` antecipado quando não-breakable não cabe na actual mas cabe noutra; overlong emit normal (paridade vanilla); 6 dos 9 scope-outs fechados cumulativamente (+ breakable real) |
+| `block(...)` | layout/container.rs | `implementado⁺` ¹³ ⁶⁵ ⁶⁶ ⁶⁷ | Passos 156G + 231 + 242 + 243 + 247 + 248 + **250** | `Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke, spacing, above, below, sticky }` + stdlib `#block(..., spacing: ?, above: ?, below: ?, sticky: ?)`; **P250 Block A.4 COMPLETO 10/10**: spacing/above/below collapse semantic (max prev.below, curr.above) + sticky lookahead 1-block via peekable Sequence consumer; refactor Sequence cross-arm (pattern emergente N=1 inaugurado); **primeira aplicação citante ADR-0082 PROPOSTO N=1**; 10 dos 9 scope-outs originais P156G fechados cumulativamente (incluindo breakable contado como elemento original) |
 | `columns(n)` | layout/columns.rs | `parcial` ⁴⁰ ⁴² | Passos 217 + 218 + 219 (encerrado P221) | variant + stdlib + arm consumer real graded; **multi-region flow real ausente** (Opção A diferida a P-Layout-Fase4 candidata NÃO-reservada) |
 | `grid(columns, ...)` | layout/grid | `implementado⁺` ⁵ ⁴⁵ ⁴⁶ ⁴⁷ ⁴⁸ ⁴⁹ | Passos 82 + 83 + 84.6 + 224 + 227 + 228 + 230 | refino substantivo P224 + refinos aditivos P227+P228+P230 — Grid agora +7 fields cumulativos (gutter/align/inset/header/footer/stroke/fill); **GridCell + TableCell +2 fields cosméticos per-cell P230** (stroke + fill com precedência override Grid-level via `.or()`); 3 variants Content novos P224 + módulo `grid_placement.rs`. **DEBT-34e ENCERRADO P224**; **DEBT-34d** preservado aberto per `P224.div-1`. Render Opção β Z-order correcto: fill → conteúdo → stroke; precedência per-cell P230 |
 | `stack(spacing, ...)` | layout/stack.rs | `implementado` ¹⁷ | Passo 156I (ADR-0061 Fase 2 sub-passo 3; **último Fase 2; atinge target 72%**) | `Content::Stack { children: Arc<[Content]>, dir: Dir, spacing: Option<Length> }` + stdlib `#stack(dir: ?, spacing: ?, ..children)`; tipo `Dir` novo (LTR/RTL/TTB/BTT); 4 direcções implementadas; spacing real entre children |
@@ -4408,6 +4408,97 @@ renderizam idênticos P247; backward compat estrita).
 
 **Workspace pós-P248**: **2229 → 2255 verdes** (+26 P248; 0
 regressões; **0 adaptações**).
+
+⁶⁷ — Ajuste P250 (M9d / M7+5; ADR-0079 Categoria A.4 Block
+**COMPLETO 10/10**; primeira aplicação citante ADR-0082
+PROPOSTO N=1) — **4 promoções graded → real semantic** agregadas
+em Block: spacing + above + below + sticky; **fecha Block A.4
+COMPLETO 10/10 scope-outs originais P156G** (incluindo breakable
+contado como elemento original); **Boxed preservado 5/6** (resta
+stroke-overhang; P250 não toca Boxed por assimetria intencional
+— estes scope-outs são exclusivos Block); inaugura sub-padrão
+**"Refactor Sequence consumer cross-arm via peekable + neighbour
+context"** N=1; lição refinada N=12 → 13 cumulativo P250
+("refactor cross-arm Sequence consumer exige audit de todos os
+patterns de iteração existentes antes de migrar a peekable").
+
+**P250 materializa A.4 Block COMPLETO**:
+
+- **+4 fields em Block**: `spacing: Option<Length>` + `above:
+  Option<Length>` + `below: Option<Length>` + `sticky: bool`;
+  defaults None×3 + false. **10 → 14 fields**.
+- **Boxed preservado 10 fields** (assimetria intencional;
+  scope-outs exclusivos Block; pattern "refino aditivo paralelo
+  entre variants irmãos" N=5 P247 **não aplica P250**).
+- **Spacing collapse semantic** (paridade vanilla CSS margin
+  collapse `max(prev.below, curr.above)`): `above`/`below`
+  fallback `spacing`; above suprimido no primeiro Block dum
+  Sequence (`block_chain_active == false`); non-Block intermediário
+  quebra chain.
+- **Sticky lookahead 1-block** via peekable Sequence consumer:
+  `new_page()` antecipado se `combined_h > remaining + cabe em
+  página inteira`.
+- **Refactor Sequence consumer cross-arm**: layout consumer
+  (mod.rs:478) migrado para `iter.peek()` + neighbour context;
+  measure consumer (mod.rs:1850+) preservado simples (spacing
+  colapsa para zero em medição estática per ADR-0054 graded).
+- **+2 Layouter fields**: `prev_block_below_pending: f64` +
+  `block_chain_active: bool` (state save/restore entre Sequences).
+
+**Reclassificação §A.5 P250** (1 reclassificação):
+
+- `block(...)`: `implementado⁺` ¹³ ⁶⁵ ⁶⁶ → **`implementado⁺` ¹³
+  ⁶⁵ ⁶⁶ ⁶⁷** (P250 spacing+above+below+sticky semantic real
+  activados; Block A.4 COMPLETO 10/10).
+
+**Reclassificação §A.5 `box(...)` preservada** (P250 não toca
+Boxed; asymetria intencional).
+
+**Recontagem Layout per metodologia pós-P250**: `~95-96% →
+~96-97%` (+1pp refino qualitativo).
+**Cobertura user-facing total preservada**: ~75-76%.
+
+**Distribuição §A.5 Layout preservada literal**: contagens
+preservadas (reclassificação qualitativa).
+
+**Stdlib funcs**: 64 preservado. **ShapeKind variants**: 5
+preservado. **Regions fields**: 4 preservado. **Layouter
+fields**: **+2** (`prev_block_below_pending` + `block_chain_
+active`). **Content variants**: 62 preservado.
+
+**Block fields**: 10 → **14** (+spacing, +above, +below, +sticky).
+**Boxed fields**: 10 preservado. **TableCell fields**: 5 preservado.
+
+**Scope-outs promovidos cumulativos**: 3 (P243 multi-region) + 2
+(P242 radius+clip) + 3 (P247 outset+fill+stroke) + 3 (P248
+breakable+height+cell_overflow) + **4 (P250 spacing+above+below+
+sticky)** = **15 promoções reais cumulativas**.
+**Sub-padrão "Refactor Sequence consumer cross-arm" N=1 inaugurado
+P250**. **Sub-padrão "Aplicação citante ADR-0082 PROPOSTO" N=0 →
+N=1 P250** (primeira aplicação concreta a citar ADR-0082
+explicitamente; promoção EM VIGOR pendente N=3 citantes).
+
+**Tests P250** (21 unit/E2E):
+- 14 unit Block spacing/above/below + sticky + Sequence refactor
+  + A.4 completude em `layout/tests.rs`.
+- 5 unit stdlib `native_block` 4 args novos + defaults + tipos
+  errados rejeitados.
+- 2 unit Sequence aninhado + chain quebrada por non-Block.
+
+**N=21 adaptações** em tests pré-existentes (dentro do range
+N=5-15 estimado §1.4 + 6 adicionais — 31 sítios `stroke: None,`
+em entities/content.rs+layout/tests.rs cascade replace_all + 3
+sítios deeper indent; introspect.rs materialize_time arm
+adaptado).
+
+**Workspace pós-P250**: **2255 → 2276 verdes** (+21 P250; 0
+regressões).
+
+**Marco P250**: **Block A.4 COMPLETO 10/10**. Primeiro variant
+Content com **100% dos scope-outs originais fechados**
+cumulativamente. Pattern empírico "Promoção real scope-out
+ADR-0054 graded" granular N=8 → N=12 cumulativo P250
+(P250 ×4: spacing + above + below + sticky).
 
 ---
 

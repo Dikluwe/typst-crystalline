@@ -2483,6 +2483,73 @@ mod tests {
         }
     }
 
+    // ── Passo 250 (M9d / M7+5; ADR-0079 Categoria A.4 Block COMPLETO;
+    //     cita ADR-0082 PROPOSTO N=1 primeira aplicação citante) ──────
+    //     native_block aceita 4 named args novos (spacing, above, below,
+    //     sticky); defaults preservam P249.
+
+    #[test]
+    fn p250_native_block_aceita_spacing_above_below_sticky() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("spacing".into(), Value::Length(Length::pt(12.0)));
+        args.named.insert("above".into(),   Value::Length(Length::pt(20.0)));
+        args.named.insert("below".into(),   Value::Length(Length::pt(8.0)));
+        args.named.insert("sticky".into(),  Value::Bool(true));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { spacing, above, below, sticky, .. }) = r {
+            assert_eq!(spacing, Some(Length::pt(12.0)));
+            assert_eq!(above,   Some(Length::pt(20.0)));
+            assert_eq!(below,   Some(Length::pt(8.0)));
+            assert_eq!(sticky,  true);
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn p250_native_block_defaults_4_fields() {
+        null_ctx!(ctx);
+        let r = native_block(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { spacing, above, below, sticky, .. }) = r {
+            assert_eq!(spacing, None);
+            assert_eq!(above,   None);
+            assert_eq!(below,   None);
+            assert_eq!(sticky,  false, "P250 defaults preservam pre-P250");
+        } else {
+            panic!("esperado Content::Block");
+        }
+    }
+
+    #[test]
+    fn p250_native_block_spacing_negativo_rejeitado() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("spacing".into(), Value::Length(Length::pt(-5.0)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "P250 spacing negativo deve retornar Err");
+    }
+
+    #[test]
+    fn p250_native_block_sticky_nao_bool_rejeitado() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("sticky".into(), Value::Int(1));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "P250 sticky Int em vez de Bool deve retornar Err");
+    }
+
+    #[test]
+    fn p250_native_block_above_tipo_invalido_rejeitado() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("above".into(), Value::Bool(true));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "P250 above com Bool deve retornar Err");
+    }
+
     #[test]
     fn native_block_rejeita_inset_negativo() {
         null_ctx!(ctx);

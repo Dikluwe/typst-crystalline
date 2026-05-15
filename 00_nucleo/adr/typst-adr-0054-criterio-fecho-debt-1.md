@@ -149,7 +149,7 @@ DEBT-1 fecha quando **A + B + C** encerrarem. D/E não bloqueiam.
 scope-outs declarados (refino futuro per ADR-0054 graded
 documentado em "Limitações conscientes" do passo de origem).
 
-Tabela cumulativa pós-P248:
+Tabela cumulativa pós-P250:
 
 | # | Passo | Scope-out promovido | Origem (graded) |
 |---|-------|---------------------|-----------------|
@@ -161,6 +161,14 @@ Tabela cumulativa pós-P248:
 | 6 | P248 | `Block.breakable` semantic real | P156G "semantic adiada" |
 | 7 | P248 | `Boxed.height` overflow real | P156H "semantic adiada" |
 | 8 | P248 | `TableCell.body` overflow clip implícito | P157B "ignorados em layout" |
+| 9 | P250 | `Block.spacing` (cursor.y collapse) | P156G scope-out |
+| 10 | P250 | `Block.above` (override spacing) | P156G scope-out |
+| 11 | P250 | `Block.below` (override spacing) | P156G scope-out |
+| 12 | P250 | `Block.sticky` (lookahead break) | P156G scope-out |
+
+**Marco P250**: Block A.4 COMPLETO 10/10 scope-outs originais
+P156G fechados cumulativamente (incluindo breakable contado
+como elemento original).
 
 **Padrão metodológico de promoção formalizado em ADR-0082
 PROPOSTO** (P249 administrativo XS): 4 critérios operacionais
