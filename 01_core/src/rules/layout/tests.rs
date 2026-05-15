@@ -3439,8 +3439,8 @@ mod tests_show_rule_integration {
         let mut found_green = false;
         for p in &doc.pages {
             for item in &p.items {
-                if let FrameItem::Shape { fill: Some(Color::Rgb { r: 0, g: 255, b: 0 }), .. } = item {
-                    found_green = true;
+                if let FrameItem::Shape { fill: Some(c), .. } = item {
+                    if *c == Color::rgb(0, 255, 0) { found_green = true; }
                 }
             }
         }
@@ -6429,9 +6429,11 @@ mod tests_show_rule_integration {
             for item in &p.items {
                 if let FrameItem::Shape {
                     kind: crate::entities::geometry::ShapeKind::Rect,
-                    width, fill: Some(Color::Rgb { r: 0, g: 200, b: 0 }), ..
+                    width, fill: Some(c), ..
                 } = item {
-                    if (*width - 100.0).abs() < 0.01 { found_wide = true; }
+                    if (*width - 100.0).abs() < 0.01 && *c == Color::rgb(0, 200, 0) {
+                        found_wide = true;
+                    }
                 }
             }
         }
@@ -6466,9 +6468,11 @@ mod tests_show_rule_integration {
             for item in &p.items {
                 if let FrameItem::Shape {
                     kind: crate::entities::geometry::ShapeKind::Rect,
-                    height, fill: Some(Color::Rgb { r: 0, g: 0, b: 200 }), ..
+                    height, fill: Some(c), ..
                 } = item {
-                    if (*height - 70.0).abs() < 0.01 { found_tall = true; }
+                    if (*height - 70.0).abs() < 0.01 && *c == Color::rgb(0, 0, 200) {
+                        found_tall = true;
+                    }
                 }
             }
         }
@@ -6703,9 +6707,11 @@ mod tests_show_rule_integration {
             for item in &p.items {
                 if let FrameItem::Shape {
                     kind: crate::entities::geometry::ShapeKind::Rect,
-                    width, fill: Some(Color::Rgb { r: 123, g: 45, b: 67 }), ..
+                    width, fill: Some(c), ..
                 } = item {
-                    if (*width - 100.0).abs() < 0.01 { found = true; }
+                    if *c == Color::rgb(123, 45, 67) && (*width - 100.0).abs() < 0.01 {
+                        found = true;
+                    }
                 }
             }
         }
@@ -6741,9 +6747,12 @@ mod tests_show_rule_integration {
                 if let FrameItem::Shape {
                     kind: crate::entities::geometry::ShapeKind::Rect,
                     width, height,
-                    fill: Some(Color::Rgb { r: 11, g: 22, b: 33 }), ..
+                    fill: Some(c), ..
                 } = item {
-                    if (*width - 50.0).abs() < 0.01 && (*height - 25.0).abs() < 0.01 {
+                    if *c == Color::rgb(11, 22, 33)
+                        && (*width - 50.0).abs() < 0.01
+                        && (*height - 25.0).abs() < 0.01
+                    {
                         found = true;
                     }
                 }

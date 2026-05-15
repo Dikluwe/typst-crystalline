@@ -33,7 +33,7 @@ mod layout;
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
 pub use crate::rules::stdlib::foundations::{
-    native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_float, native_here, native_int, native_len, native_locate, native_luma, native_metadata, native_query, native_range, native_rgb,
+    native_cmyk, native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_float, native_here, native_hsl, native_hsv, native_int, native_len, native_linear_rgb, native_locate, native_luma, native_metadata, native_oklab, native_oklch, native_query, native_range, native_rgb,
     native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with, native_str, native_type,
 };
 pub use crate::rules::stdlib::calc::make_calc_module;
@@ -204,10 +204,126 @@ mod tests {
 
     #[test]
     fn stdlib_luma() {
+        // P257 (ADR-0083 PROPOSTO) — `luma()` agora constrói
+        // `Color::Luma` (paridade vanilla D65Gray); paridade
+        // observable preservada via `to_srgb()` que expande Luma
+        // para sRGB cinza bit-equivalente.
         null_ctx!(ctx);
-        use crate::entities::layout_types::Color;
         let r = native_luma(&mut ctx, &p(vec![Value::Int(128)]), &null_world(), test_file_id(), None).unwrap();
-        assert_eq!(r, Value::Color(Color::rgb(128, 128, 128)));
+        if let Value::Color(c) = r {
+            let (r_, g_, b_, a_) = c.to_srgb();
+            assert_eq!(r_, 128);
+            assert_eq!(g_, 128);
+            assert_eq!(b_, 128);
+            assert_eq!(a_, 255);
+        } else { panic!("esperado Value::Color"); }
+    }
+
+    // ── P257 (ADR-0083 PROPOSTO) — stdlib funcs novas para espaços
+    //     materializados (oklab/oklch/linear_rgb/cmyk/hsl/hsv) ──
+
+    #[test]
+    fn p257_native_oklab_3_args() {
+        null_ctx!(ctx);
+        let r = native_oklab(&mut ctx, &p(vec![
+            Value::Float(0.5), Value::Float(0.0), Value::Float(0.0),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Color(c) = r {
+            // L=0.5 → cinza médio aproximado.
+            let (r_, g_, b_, _) = c.to_srgb();
+            assert!(r_ > 80 && r_ < 180,
+                "oklab(0.5, 0, 0) → cinza médio; obtido r={}", r_);
+            // a=b=0 → sem chroma → r ≈ g ≈ b.
+            assert!((r_ as i32 - g_ as i32).abs() <= 3);
+            assert!((g_ as i32 - b_ as i32).abs() <= 3);
+        } else { panic!("esperado Value::Color"); }
+    }
+
+    #[test]
+    fn p257_native_oklab_4_args_com_alpha() {
+        null_ctx!(ctx);
+        let r = native_oklab(&mut ctx, &p(vec![
+            Value::Float(1.0), Value::Float(0.0), Value::Float(0.0), Value::Float(0.5),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Color(c) = r {
+            let (_, _, _, a_) = c.to_srgb();
+            // alpha=0.5 → 127 ou 128 conforme arredondamento.
+            assert!(a_ == 127 || a_ == 128, "alpha=0.5 → 127/128; obtido {}", a_);
+        } else { panic!("esperado Value::Color"); }
+    }
+
+    #[test]
+    fn p257_native_oklch_3_args() {
+        null_ctx!(ctx);
+        let r = native_oklch(&mut ctx, &p(vec![
+            Value::Float(0.5), Value::Float(0.0), Value::Float(0.0),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(r, Value::Color(_)));
+    }
+
+    #[test]
+    fn p257_native_linear_rgb_3_args() {
+        null_ctx!(ctx);
+        let r = native_linear_rgb(&mut ctx, &p(vec![
+            Value::Float(1.0), Value::Float(0.0), Value::Float(0.0),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Color(c) = r {
+            let (r_, g_, b_, _) = c.to_srgb();
+            assert_eq!(r_, 255);
+            assert_eq!(g_, 0);
+            assert_eq!(b_, 0);
+        } else { panic!("esperado Value::Color"); }
+    }
+
+    #[test]
+    fn p257_native_cmyk_branco() {
+        null_ctx!(ctx);
+        let r = native_cmyk(&mut ctx, &p(vec![
+            Value::Float(0.0), Value::Float(0.0), Value::Float(0.0), Value::Float(0.0),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Color(c) = r {
+            let (r_, g_, b_, _) = c.to_srgb();
+            assert_eq!(r_, 255);
+            assert_eq!(g_, 255);
+            assert_eq!(b_, 255);
+        } else { panic!("esperado Value::Color"); }
+    }
+
+    #[test]
+    fn p257_native_cmyk_4_args_obrigatorios() {
+        null_ctx!(ctx);
+        let r = native_cmyk(&mut ctx, &p(vec![
+            Value::Float(0.0), Value::Float(0.0), Value::Float(0.0),
+        ]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "cmyk requer 4 args; 3 args deve falhar");
+    }
+
+    #[test]
+    fn p257_native_hsl_vermelho_puro() {
+        null_ctx!(ctx);
+        let r = native_hsl(&mut ctx, &p(vec![
+            Value::Float(0.0), Value::Float(1.0), Value::Float(0.5),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Color(c) = r {
+            let (r_, g_, b_, _) = c.to_srgb();
+            assert_eq!(r_, 255);
+            assert_eq!(g_, 0);
+            assert_eq!(b_, 0);
+        } else { panic!("esperado Value::Color"); }
+    }
+
+    #[test]
+    fn p257_native_hsv_branco_s0_v1() {
+        null_ctx!(ctx);
+        let r = native_hsv(&mut ctx, &p(vec![
+            Value::Float(0.0), Value::Float(0.0), Value::Float(1.0),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Color(c) = r {
+            let (r_, g_, b_, _) = c.to_srgb();
+            assert_eq!(r_, 255);
+            assert_eq!(g_, 255);
+            assert_eq!(b_, 255);
+        } else { panic!("esperado Value::Color"); }
     }
 
     // ── P175 (M9 sub-passo 5) — query(kind_str) ─────────────────────────
