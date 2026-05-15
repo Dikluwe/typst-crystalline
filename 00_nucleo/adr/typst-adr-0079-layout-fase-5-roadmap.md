@@ -1,12 +1,17 @@
 # ⚖️ ADR-0079: Layout Fase 5 roadmap — "completar Layout" (Tudo A+B+C+D)
 
-**Status**: `PROPOSTO`
-**Data**: 2026-05-13
+**Status**: **`IMPLEMENTADO`** (PROPOSTO 2026-05-13 → **IMPLEMENTADO
+2026-05-14 P253** — Cenário A scope-out formal; paridade pattern
+ADR-0061 P221 IMPLEMENTADO).
+**Data**: 2026-05-13 (PROPOSTO) → 2026-05-14 (IMPLEMENTADO P253).
 **Autor**: Humano + IA
 **Validado**: diagnóstico amplo P226
 (`00_nucleo/diagnosticos/diagnostico-layout-fase-5-completar.md`);
 decisão humana literal P225 §8 + P226 pré-spec "completar
-Layout" escopo Tudo A+B+C+D.
+Layout" escopo Tudo A+B+C+D. **Cumprimento cumulativo
+materializado P227-P252** (~14 sub-passos granulares;
+Cenário A scope-out formal C.2 multi-region completo + D.2-D.6
+restantes prosseguindo como roadmap pós-IMPLEMENTADO).
 **Diagnóstico prévio**:
 [`diagnostico-layout-fase-5-completar.md`](../diagnosticos/diagnostico-layout-fase-5-completar.md)
 
@@ -2405,3 +2410,219 @@ D.2; P241 M7+2 D.3; P242 M7+5 A.4 parcial; P243 M7+3 fase (a)
 infra; P245 M7+4 C.1; P246 cell migration; P247 A.4 cumulativa;
 P248 A.4 cumulativa; P250 A.4 Block COMPLETO; **P251 C.2 parcial
 TableCell row break cell-level γ-Items**).
+
+---
+
+## Anotação cumulativa P252 — A.4 Boxed COMPLETO 6/6 (stroke-overhang refactor cross-cutting `Stroke` primitivo)
+
+**P252 fecha Boxed A.4 COMPLETO 6/6** — último scope-out P156H
+stroke-overhang materializado via refactor cross-cutting entity
+primitivo `Stroke` (+1 field `overhang: bool`).
+
+**Trabalho real**:
+
+- **Stroke struct +1 field** `overhang: bool` (paridade vanilla
+  literal; struct match exacto).
+- **Cascade ~42 construtores literais** em entities/geometry.rs,
+  entities/content.rs, layout/mod.rs, layout/tests.rs, stdlib/
+  shapes.rs, stdlib/mod.rs — `overhang: false` mecânicamente
+  via sed pattern.
+- **Helper `extract_stroke` expandido**: defaults `overhang: true`
+  (paridade vanilla) para Length/Color atalhos; opcional explícito.
+- **stdlib `native_stroke`** aceita `overhang` named arg (Bool;
+  default true).
+- **Layouter Block + Boxed Shape emit**: bounds expandidos por
+  `thickness/2` em cada lado quando `stroke.overhang == true`
+  (default Rust `false` preserva bounds literais).
+- **Grid/GridCell/Table/TableCell preservados** (cell borders
+  são `FrameItem::Shape::Line`; overhang n/a conceptual).
+  Divergência consciente per ADR-0054 graded.
+
+**Categoria A.4 cumulativa pós-P252 — Boxed A.4 COMPLETO**:
+
+| # | Atributo | Passo |
+|---|----------|-------|
+| 1 | outset | P231 + P247 |
+| 2 | radius | P242 |
+| 3 | clip | P242 |
+| 4 | fill | P247 |
+| 5 | stroke | P247 |
+| 6 | **stroke-overhang** | **P252** |
+
+**Boxed A.4: 6/6 scope-outs originais P156H fechados
+cumulativamente.** **Segundo variant Content com 100% scope-
+outs originais fechados** (após Block P250 10/10).
+
+**Pré-condições obrigatórias verificadas P252**:
+
+1. **Tests baseline preservados**: 2294 verdes pré-P252 → **2304
+   verdes pós-P252** (+10 P252 testes novos; **0 regressões**;
+   N=33 adaptações construtores mecânicos via cascade
+   replace_all guiado por sed pattern; dentro do range N=30-40
+   estimado §1.5).
+2. **Comemo memoization invariants ADR-0073/0074 preservados** —
+   P252 toca entity primitivo + Layouter consumer + stdlib
+   apenas.
+3. **Backward compat literal**: construtores literais Rust com
+   `overhang: false` preservam bounds Shape pré-P252 bit-
+   equivalente; só inputs stdlib + user explícito `overhang: true`
+   ganham semantic nova (sentinela
+   `p252_stroke_construtor_rust_default_overhang_false_preserva_bounds`).
+
+**12 decisões fixadas P252** (Decisão 0 = lição N=14 → 15
+cumulativo; Decisões 1-5 = struct + defaults + activação;
+Decisões 6-12 = patterns emergentes + marco + anti-inflação).
+
+**Patterns emergentes inaugurados/consolidados P252** (4):
+
+- **"Refactor cross-cutting entity primitivo com cascade
+  replace_all guiado"** N=1 inaugurado P252 — pattern novo
+  (entity primitivo Stroke cross-cutting; ~42 construtores
+  literais adaptados via sed pattern).
+- **"Aplicação citante ADR-0082 PROPOSTO"** N=2 → **N=3
+  cumulativo P252** (P250 N=1; P251 N=2; **P252 N=3 — limiar
+  interno atingido**). **Promoção EM VIGOR humana possível**
+  (paridade ADR-0065 P156K via P156J/P157A/P157B).
+- **"Spec C1 audit obrigatório bloqueante"** N=14 → **N=15
+  cumulativo** P252 (lição refinada: "refactor cross-cutting
+  de entity primitivo exige mapa empírico exhaustive de todos
+  os construtores literais antes de modificar struct").
+- **"Backward compat literal estrita"** N=1 → **N=2 cumulativo
+  P252** (P251 cell tails + P252 stroke overhang preservam
+  output literal pre-passo via defaults zero-impact).
+
+**Resultado P252**:
+- Tests workspace: 2294 → **2304 verdes** (+10 P252).
+- Content variants: **62 preservado**.
+- **Stroke fields: 2 → 3** (+overhang).
+- Block / Boxed / TableCell fields: preservados.
+- ShapeKind variants: **5 preservado**.
+- Layouter fields: preservado.
+- Stdlib funcs: **64 preservado** (refino consumer).
+- Cobertura Layout per metodologia: **~97-98% → ~98-99%**.
+- **Boxed A.4 COMPLETO 6/6** — segundo variant 100% scope-outs.
+
+Sub-passo materializado pós-P226: **12** (P227 A.1; P240 M7+1
+D.2; P241 M7+2 D.3; P242 M7+5 A.4 parcial; P243 M7+3 fase (a)
+infra; P245 M7+4 C.1; P246 cell migration; P247 A.4 cumulativa;
+P248 A.4 cumulativa; P250 A.4 Block COMPLETO; P251 C.2 parcial;
+**P252 A.4 Boxed COMPLETO refactor cross-cutting Stroke
+primitivo**).
+
+---
+
+## Status final P253 — Layout Fase 5 IMPLEMENTADO (Cenário A scope-out formal)
+
+**ADR-0079 transita PROPOSTO → IMPLEMENTADO em 2026-05-14 P253**
+após cumprimento cumulativo dos sub-passos abaixo (Cenário A
+spec §3.1 — paridade pattern ADR-0061 P221 IMPLEMENTADO; lição
+N=16 cumulativa P253 "promoção ADR roadmap → IMPLEMENTADO exige
+audit empírico cumulativo de sub-passos materializados antes
+de declarar critério satisfeito").
+
+### Cumprido cumulativamente (P227-P252)
+
+| Categoria | Sub-passo cumprido | Passo origem |
+|-----------|--------------------|--------------|
+| A.1 (stroke render) | Grid + Table + Block + Boxed | P227 + P247 + P252 |
+| A.2 (fill render) | Grid + Table + Block + Boxed | P228 + P247 |
+| A.3 (align/inset) | Grid + Table cell-level + per-cell | P230 + P232 + P235 |
+| A.4 (cosméticos) | **Block A.4 COMPLETO 10/10** + **Boxed A.4 COMPLETO 6/6** + radius/clip + breakable/height/cell overflow + spacing/above/below/sticky + stroke-overhang | P231 + P242 + P247 + P248 + P250 + P252 |
+| A.5 (Place float) | Place float real (defer top/bottom + clearance) | P245 (C.1) |
+| B.2 (placement) | Placement algorítmico cells colspan/rowspan | P234 |
+| C.1 (Place float) | Reabertura 1 disparada via P245 | P245 |
+| C.2 (cell-level) | Cell-level row break γ-Items (rows Auto/Fraction) | P251 |
+| D parcial | state_final + state_at + state.display + counter.display | P236 + P237 + P240 + P241 |
+
+**Total cumprido cumulativamente**: **~14 sub-passos granulares
+materializados** (cobertura categórica: A 5/5 reforçada; B 1/3
+B.2; C 1.5/2 C.1+C.2 parcial; D ~4/5-6).
+
+### Scope-out formal P253 (decisão humana; paridade ADR-0061 P221)
+
+- **C.2 multi-region completo** (Reabertura 2 P216B extensão +
+  Reabertura 3 column flow): **scope-out formal** por trade-off
+  magnitude (~10-15h cumulativo) vs benefício marginal pós-P251
+  γ-Items cell-level já materializado. DEBT-56b candidato
+  **não-aberto** per política P158 "sem novas reservas". Pattern
+  P251 "Slice frame items at height" reusável para futura
+  materialização column flow real.
+- **D.2-D.6 restantes** (state.final two-pass real refino,
+  metadata, here/locate, query, position): **prosseguem como
+  roadmap pós-IMPLEMENTADO** (paridade ADR-0061 P221
+  columns/colbreak prosseguindo como roadmap; ADR-0060 P155 Fase
+  2/3 prosseguindo). Magnitude cumulativa L+ a XL — decisão
+  humana caso-a-caso.
+- **B.1, B.3 restantes** (placement refinos adicionais): scope-
+  out formal cumulativo (refino futuro caso-a-caso).
+
+### ADRs derivadas pós-P253
+
+- **ADR-0082** §"Aplicações citantes" N=3 limiar atingido P252
+  preservado (promoção EM VIGOR humana possível separadamente
+  via passo administrativo XS futuro).
+- **ADR-0054** §"Promoções reais cumulativas" granular N=14
+  (P252 final pós-P253; sem novas promoções P253 administrativo).
+- **ADR-0061** anotada cumulativa P253 "paridade pattern P221
+  IMPLEMENTADO precedente para ADR-0079".
+- **ADR-0080** §"Lição refinada P253" N=16 cumulativo + sub-
+  padrão "ADR Fase X roadmap → IMPLEMENTADO via scope-out formal
+  humano" N=3 cumulativo (ADR-0060 P155 + ADR-0061 P221 +
+  **ADR-0079 P253**).
+
+### Patterns emergentes consolidados P253
+
+- **"Passo administrativo XS"** N=7 → **N=8 cumulativo P253**
+  (P156A + P156K + ADR-0062-create + P160A + P238 + P244 + P249
+  + **P253**). Limiar formalização N=6 ultrapassado amplamente.
+- **"ADR Fase X roadmap → IMPLEMENTADO via scope-out formal
+  humano"** N=2 → **N=3 cumulativo P253** (ADR-0060 P155 + ADR-0061
+  P221 + **ADR-0079 P253**). **Limiar formalização interno N=3
+  atingido** — candidato a ADR meta formalizar pattern futuro
+  (paridade ADR-0065 → EM VIGOR sequente).
+- **"Spec C1 audit obrigatório bloqueante pós-P236.div-1"** N=15
+  → **N=16 cumulativo P253** (lição refinada: "promoção ADR
+  roadmap → IMPLEMENTADO exige audit empírico cumulativo de
+  sub-passos materializados antes de declarar critério
+  satisfeito").
+
+### Estado pós-P253
+
+- Tests workspace: **2304 verdes preservado**.
+- Content variants / fields / Stroke fields / Layouter / Regions /
+  Stdlib: todos preservados literal.
+- §A.5 distribuição: preservada literal.
+- Cobertura Layout per metodologia: **~98-99% preservado**.
+- Cobertura user-facing total: **~75-76% preservado**.
+- **ADRs distribuição pós-P253**: PROPOSTO **12** (13 → 12;
+  ADR-0079 sai); EM VIGOR 29 preservado; IMPLEMENTADO **24**
+  (23 → 24; ADR-0079 entra); **total 69 preservado**.
+- **Saldo DEBTs: 11 preservado** (DEBT-56b candidato não-aberto
+  per política P158).
+- **45 aplicações cumulativas anti-inflação** pós-P205D.
+
+### Marco P253 — Layout Fase 5 IMPLEMENTADO
+
+**Terceira ADR roadmap a transitar IMPLEMENTADO via scope-out
+formal humano** (ADR-0060 P155 + ADR-0061 P221 + **ADR-0079
+P253** = N=3 cumulativo); limiar formalização interno atingido
+para pattern "ADR Fase X roadmap → IMPLEMENTADO via scope-out
+formal humano" — candidato a ADR meta futura.
+
+**Patamar conceptual máximo Layout Fase 5**:
+- Block A.4 COMPLETO 10/10 + Boxed A.4 COMPLETO 6/6 (dois
+  variants Content com 100% scope-outs originais fechados
+  cumulativamente).
+- Categoria C.1 cumprida P245.
+- Categoria C.2 parcial cell-level P251 (γ-Items; multi-region
+  completo scope-out formal).
+- Categoria D parcial (~4/5-6; restantes prosseguem como
+  roadmap pós-IMPLEMENTADO).
+- ADR-0082 N=3 limiar interno atingido P252 (promoção EM VIGOR
+  humana possível separadamente).
+
+Anotação cumulativa P253 preserva o contexto histórico para
+retomada futura. Próximo sub-passo recomendação subjectiva:
+**ADR-0082 → EM VIGOR humana** (XS pure administrativo) OU
+**pivot outro módulo** (Visualize/Text/Model 50-54% cobertura).
+**Decisão humana fica em aberto literal** pós-P253.

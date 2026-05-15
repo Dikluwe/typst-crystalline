@@ -1,5 +1,5 @@
 # Prompt L0 — geometry
-Hash do Código: a1be19a3
+Hash do Código: 3f93a04c
 
 ## Módulo
 `01_core/src/entities/geometry.rs`
@@ -12,15 +12,79 @@ Depende de `Color` de `layout_types` — sem dependências externas adicionais.
 ## Tipos
 
 ### `Stroke`
-Contorno de uma forma: cor e espessura em pontos.
+Contorno de uma forma: cor, espessura em pontos, e overhang.
 ```rust
 #[derive(Debug, Clone, PartialEq)]
 pub struct Stroke {
     pub paint:     Color,
     pub thickness: f64,
+    pub overhang:  bool,  // P252 — default false em construtor Rust
 }
 ```
 Usa `Color` de `layout_types` (já existente em L1) — sem tipo `RgbaColor` separado.
+
+**P252 (M9d / M7+5; ADR-0079 Categoria A.4 Boxed COMPLETO 6/6;
+cita ADR-0082 PROPOSTO N=3 terceira aplicação citante — limiar
+atingido)** — field `overhang: bool` controla se o stroke se
+sobrepõe ao corner da bounding box.
+
+#### Default cristalino divergente P252
+
+**Construtor Rust low-level**: `Stroke { paint, thickness,
+overhang: false }`. Divergência consciente face vanilla
+(`overhang: true` default). Justificações cumulativas:
+
+1. **Backward compat literal estrita**: ~34 construtores literais
+   pré-P252 preservam bounds Shape bit-equivalente.
+2. **Anti-inflação 44ª**: defaults zero-impact em construtor
+   low-level (paridade pattern P247 `fill: None` default
+   construtor Rust).
+3. **Paridade vanilla user-facing preservada via stdlib parse**:
+   `extract_stroke` helper aplica `overhang: true` default
+   quando input é `Length`/`Color` atalho ou `Dict` sem chave
+   `overhang` explícita.
+
+#### Activação semantic real Layouter (Block + Boxed)
+
+Quando `stroke.overhang == true` em `FrameItem::Shape` emit:
+
+```
+shape_pos.x  = pos.x - thickness / 2
+shape_pos.y  = pos.y - thickness / 2
+shape_width  = width  + thickness    // +thickness/2 cada lado
+shape_height = height + thickness
+```
+
+Quando `overhang == false`: bounds preservados literal (centered
+stroke padrão PDF; backward compat).
+
+**Limitações conscientes P252**:
+
+- Aplicação activada em **Block + Boxed only** (Shape Rect/
+  RoundedRect emit com stroke). Grid/Table cell borders são
+  `FrameItem::Shape::Line` (4 linhas per cell) — overhang
+  conceptualmente n/a (line cap distinct). Divergência
+  consciente per ADR-0054 graded.
+- PDF exporter intocado: bounds finais já calculados em
+  Layouter (single source of truth).
+- Round corners (RoundedRect P242) + overhang: bounds expandidos
+  com radius preservado; visualmente paridade vanilla graded.
+
+**Sub-padrão "Refactor cross-cutting entity primitivo" N=1
+inaugurado P252** — novo módulo conceptual (Stroke é entity
+primitivo cross-cutting em 6 variants Content + 4 caminhos PDF
+exporter). Candidato a formalização N=3-4 futuro.
+
+**Sub-padrão "Backward compat literal estrita" N=1 → N=2
+cumulativo P252** (P251 cell tails preservam P248 clip para
+Fixed rows + P252 stroke overhang preserva bounds via default
+construtor `false`).
+
+**Promoções reais scope-outs ADR-0054 graded granular**: N=13 →
+**N=14 cumulativo P252** (P252 ×1: Boxed.stroke-overhang real;
+**fecha Boxed A.4 COMPLETO 6/6** — segundo variant Content com
+100% scope-outs originais fechados cumulativamente após Block
+P250).
 
 ### `ShapeKind`
 ```rust

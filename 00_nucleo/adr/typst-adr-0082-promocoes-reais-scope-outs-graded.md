@@ -1,13 +1,20 @@
 # ⚖️ ADR-0082: Promoções reais de scope-outs ADR-0054 graded — 4 critérios operacionais
 
-**Status**: `PROPOSTO`
-**Data**: 2026-05-14 (PROPOSTO P249)
+**Status**: **`EM VIGOR`** (PROPOSTO P249 → **EM VIGOR P254** —
+paridade pattern P229 ADR-0080 promoção administrativa XS
+dedicada pós-N=3 citantes documentados literal).
+**Data**: 2026-05-14 (PROPOSTO P249; **EM VIGOR P254**)
 **Autor**: Humano + IA
 **Validado**: 8 aplicações cumulativas granular pós-M9d
 (P242 radius + P242 clip + P247 outset + P247 fill + P247
 stroke + P248 breakable + P248 height + P248 cell overflow;
 **N=8 patamar empírico extremamente sólido** — ultrapassa
 critério N≥4 mínimo ADR-0065 e N≥5 sólido ADR-0064).
+**Validação cumulativa pós-PROPOSTO**: **N=3 aplicações citantes
+consecutivas atingidas P252** (P250 N=1 + P251 N=2 + P252 N=3
+sequente consecutivo); **promoção EM VIGOR P254** (passo
+administrativo XS dedicado paridade pattern P229 ADR-0080
+PROPOSTO→EM VIGOR).
 **Reservado para**: meta-documental codifica prática empírica
 emergente Categoria A.4 Fase 5 Layout pós-M9d (cumulativa P242
 + P247 + P248).
@@ -360,9 +367,76 @@ relacionados):
 cell-level; promoção ADR-0082 PROPOSTO → EM VIGOR pendente N=3
 citantes (P252 candidato Boxed stroke-overhang).
 
+### N=3 — P252 (2026-05-14): Boxed.stroke-overhang refactor cross-cutting Stroke primitivo
+
+**Terceira aplicação citante — limiar N=3 atingido.** P252
+promove último scope-out P156H Boxed (stroke-overhang) via
+refactor cross-cutting entity primitivo `Stroke` (+1 field
+`overhang: bool`); **fecha Boxed A.4 COMPLETO 6/6** (segundo
+variant Content com 100% scope-outs originais fechados após
+Block P250 10/10).
+
+Os 4 critérios operacionais ADR-0082 verificados explicitamente:
+
+1. **Storage prévio** ✓ — stroke-overhang scope-out P156H
+   declarado "rejeitado em `native_box` com erro hard" (graded);
+   refactor cross-cutting adiciona field a entity primitivo
+   existente, não variant novo.
+2. **Consumer Layouter pre-promoção graded** ✓ — scope-out
+   actualmente erro hard em stdlib; não armazenado nem
+   consumido pelo Layouter.
+3. **Paridade vanilla referência empírica** ✓ — audit C1 §2.5
+   P252 confirmou vanilla `overhang: true` default. Cristalino
+   default `false` em construtor Rust low-level (divergência
+   consciente per ADR-0054 graded) + `true` via stdlib
+   `extract_stroke` (paridade user-facing).
+4. **Backward compat literal** ✓ — ~42 construtores literais
+   pré-P252 com `overhang: false` preservam bounds Shape
+   bit-equivalente (sentinela
+   `p252_stroke_construtor_rust_default_overhang_false_preserva_bounds`).
+
+**Granularidade**: 1 sub-promoção (1 fila tabela cumulativa
+ADR-0054 §"Promoções reais"). Total cumulativo pós-P252: **N=14
+granular** (P242 ×2 + P247 ×3 + P248 ×3 + P250 ×4 + P251 ×1 +
+P252 ×1).
+
+**Pattern adicional inaugurado P252**: "Refactor cross-cutting
+entity primitivo com cascade replace_all guiado" N=1 — pattern
+novo (entity primitivo `Stroke` cross-cutting em 6 variants
+Content + 4 caminhos PDF exporter; cascade ~42 construtores
+literais via sed pattern). Distinto P252-específico mas
+relacionado a ADR-0082 porque ilustra aplicação dos 4 critérios
+operacionais em refactor cross-cutting.
+
+**Marco N=3 limiar interno atingido** — paridade ADR-0065 P156K
+validada via P156J/P157A/P157B sequente (N=3 → EM VIGOR pós-
+humano). **Promoção ADR-0082 PROPOSTO → EM VIGOR humana possível
+pós-P252** (decisão humana directa via passo administrativo XS
+candidato).
+
+### N=3 limiar atingido P252 — Promoção EM VIGOR P254
+
+**N=3 limiar interno atingido em P252** (sequente consecutivo
+P250 → P251 → P252). **Promoção ADR-0082 PROPOSTO → EM VIGOR em
+P254 (2026-05-14)** via passo administrativo XS dedicado;
+**paridade arquitectural directa pattern P229 ADR-0080
+PROPOSTO→EM VIGOR** (2026-05-13 pós-N=9 validação cumulativa).
+
+**Status pós-P254**: **`EM VIGOR`** — pattern "Promoções reais
+scope-outs ADR-0054 graded" formalizado como **regra vinculativa
+operacional cristalina**. Aplicações futuras citam ADR-0082 EM
+VIGOR (em vez de re-justificar empíricamente os 4 critérios
+operacionais).
+
+**Sub-padrão "ADR meta PROPOSTO → EM VIGOR via passo admin XS
+dedicado"** N=1 → **N=2 cumulativo P254** (P229 ADR-0080 +
+**P254 ADR-0082**). **Limiar interno N=2 atingido** — candidato
+a sub-padrão emergente formalizar quando N=3-4 cumulativo
+futuro.
+
 ---
 
-## Plano de promoção (status PROPOSTO → EM VIGOR)
+## Plano de promoção (status PROPOSTO → EM VIGOR) — CUMPRIDO P254
 
 ADR-0082 mantém status `PROPOSTO` até satisfação de **ambas**:
 
@@ -420,3 +494,26 @@ Candidatas próximas N=9 (recomendação subjectiva pós-P249):
 
 Anotação cumulativa preserva contexto histórico para retomada
 futura.
+
+---
+
+## Nota cumulativa P253 — promoção ADR-0079 administrativo XS não-citante
+
+**P253 (2026-05-14) administrativo XS promoveu ADR-0079** (Layout
+Fase 5 roadmap) PROPOSTO → IMPLEMENTADO via Cenário A (scope-out
+formal). P253 **não-citante** ADR-0082 (passo administrativo XS
+puramente documental; zero código tocado; zero promoções reais
+scope-outs ADR-0054 graded materializadas).
+
+**§"Aplicações citantes" preservada literal**:
+- N=1 P250 (Block.spacing/above/below/sticky).
+- N=2 P251 (TableCell row break real cell-level).
+- N=3 P252 (Boxed.stroke-overhang refactor cross-cutting Stroke).
+- **N=3 limiar interno atingido P252 preservado pós-P253**.
+
+**Promoção ADR-0082 PROPOSTO → EM VIGOR humana possível** —
+candidata XS sequente independente P253. Decisão humana
+directa via passo administrativo XS futuro.
+
+**Promoções reais scope-outs ADR-0054 graded granular**: N=14
+preservado P253 (P252 final; P253 administrativo).

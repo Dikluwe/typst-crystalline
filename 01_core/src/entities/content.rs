@@ -4044,7 +4044,7 @@ mod tests {
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None,
             footer:  None,
-            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 2.0 }),
+            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 2.0, overhang: false }),
             fill:    None,
         };
         if let Content::Grid { stroke, .. } = &g {
@@ -4065,7 +4065,7 @@ mod tests {
             columns:  vec![TrackSizing::Auto],
             rows:     vec![],
             children: vec![Content::text("X")],
-            stroke:   Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 1.5 }),
+            stroke:   Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 1.5, overhang: false }),
             fill:     None,
         };
         if let Content::Table { stroke, .. } = &t {
@@ -4094,7 +4094,7 @@ mod tests {
             fill:    None,
         };
         assert_eq!(mk(None), mk(None));
-        let s = Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 };
+        let s = Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false };
         assert_ne!(mk(None), mk(Some(s)));
     }
 
@@ -4192,7 +4192,7 @@ mod tests {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
         use crate::entities::geometry::Stroke;
-        let stroke_orig = Stroke { paint: Color::rgb(100, 100, 100), thickness: 3.0 };
+        let stroke_orig = Stroke { paint: Color::rgb(100, 100, 100), thickness: 3.0, overhang: false };
         let g = Content::Grid {
             columns: vec![TrackSizing::Auto],
             rows:    vec![],
@@ -4225,7 +4225,7 @@ mod tests {
             y:       None,
             colspan: None,
             rowspan: None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false }),
             fill:    Some(Color::rgb(255, 255, 0)),
             align:   None, inset: None, breakable: None,
         };
@@ -4277,7 +4277,7 @@ mod tests {
     fn p230_gridcell_map_content_preserva_stroke_fill() {
         use crate::entities::layout_types::Color;
         use crate::entities::geometry::Stroke;
-        let stroke_orig = Stroke { paint: Color::rgb(50, 50, 50), thickness: 2.0 };
+        let stroke_orig = Stroke { paint: Color::rgb(50, 50, 50), thickness: 2.0, overhang: false };
         let fill_orig = Color::rgb(200, 200, 200);
         let c = Content::GridCell {
             body:    Box::new(Content::text("c")),
@@ -4515,7 +4515,7 @@ mod tests {
             radius:    Corners::uniform(Length::ZERO),
             clip:      false,
             fill:      Some(Color::rgb(200, 0, 0)),
-            stroke:    Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 2.0 }),
+            stroke:    Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 2.0, overhang: false }),
             spacing:   None,
             above:     None,
             below:     None,
@@ -4545,7 +4545,7 @@ mod tests {
             radius:   Corners::uniform(Length::ZERO),
             clip:     false,
             fill:     Some(Color::rgb(0, 200, 0)),
-            stroke:   Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.5 }),
+            stroke:   Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.5, overhang: false }),
         };
         if let Content::Boxed { fill, stroke, .. } = &b {
             assert_eq!(*fill, Some(Color::rgb(0, 200, 0)));
@@ -4588,7 +4588,7 @@ mod tests {
         use crate::entities::layout_types::Color;
         use crate::entities::geometry::Stroke;
         let fill_orig   = Some(Color::rgb(50, 100, 150));
-        let stroke_orig = Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 3.0 });
+        let stroke_orig = Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 3.0, overhang: false });
         let b = Content::Block {
             body:      Box::new(Content::text("p247map")),
             width:     None,

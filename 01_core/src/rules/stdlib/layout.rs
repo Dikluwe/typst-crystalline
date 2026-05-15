@@ -341,10 +341,12 @@ fn extract_length(val: &Value) -> Option<Length> {
 }
 
 /// P227 — Coage `Value` para `Stroke` aceitando shorthands paridade
-/// vanilla (Opção β):
-/// - `Value::Length(l)` → `Stroke { paint: Color::BLACK, thickness: l.to_pt() }`.
-/// - `Value::Color(c)` → `Stroke { paint: c, thickness: 1.0 }` (default 1pt).
-/// - `Value::Stroke(s)` → `s.clone()`.
+/// vanilla (Opção β); **P252** — defaults `overhang: true` (paridade
+/// vanilla user-facing; construtor Rust low-level usa `false` per
+/// ADR-0054 divergência consciente):
+/// - `Value::Length(l)` → `Stroke { paint: Color::BLACK, thickness: l.to_pt(), overhang: true }`.
+/// - `Value::Color(c)` → `Stroke { paint: c, thickness: 1.0, overhang: true }` (default 1pt).
+/// - `Value::Stroke(s)` → `s.clone()` (preserva overhang do user).
 /// - Outros tipos: erro hard.
 ///
 /// `thickness <= 0` rejeitado (paridade vanilla).
@@ -354,9 +356,11 @@ pub(super) fn extract_stroke(val: &Value, fn_name: &str, field: &str) -> SourceR
     let stroke = match val {
         Value::Length(l) => {
             let thickness = l.abs.to_pt();
-            Stroke { paint: Color::rgb(0, 0, 0), thickness }
+            // P252 — vanilla default overhang=true para inputs stdlib
+            // (cobertura Length atalho).
+            Stroke { paint: Color::rgb(0, 0, 0), thickness, overhang: true }
         }
-        Value::Color(c) => Stroke { paint: *c, thickness: 1.0 },
+        Value::Color(c) => Stroke { paint: *c, thickness: 1.0, overhang: true },
         Value::Stroke(s) => s.clone(),
         other => return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -1434,16 +1438,26 @@ pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
         )]);
     }
 
+    // P252 — overhang opcional; default vanilla `true` quando ausente.
+    let overhang = match args.named.get("overhang") {
+        Some(Value::Bool(b)) => *b,
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("stroke(overhang): espera Bool, recebeu {}", other.type_name()),
+        )]),
+        None => true,
+    };
+
     for key in args.named.keys() {
-        if !["paint", "thickness"].contains(&key.as_str()) {
+        if !["paint", "thickness", "overhang"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("stroke(): argumento nomeado inesperado '{}' (esperado: paint, thickness)", key),
+                format!("stroke(): argumento nomeado inesperado '{}' (esperado: paint, thickness, overhang)", key),
             )]);
         }
     }
 
-    Ok(Value::Stroke(Stroke { paint, thickness }))
+    Ok(Value::Stroke(Stroke { paint, thickness, overhang }))
 }
 
 /// `pagebreak(weak: false, to: ?)` → `Content::Pagebreak`.

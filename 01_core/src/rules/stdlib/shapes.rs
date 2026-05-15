@@ -60,11 +60,11 @@ pub fn native_rect(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 
     let parsed_stroke: Option<Stroke> = args.named.get("stroke")
         .and_then(parse_color)
-        .map(|c| Stroke { paint: c, thickness: 1.0 });
+        .map(|c| Stroke { paint: c, thickness: 1.0, overhang: false });
 
     // Fallback determinístico: sem fill nem stroke → stroke preta de 1pt.
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 })
+        Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false })
     } else {
         parsed_stroke
     };
@@ -97,10 +97,10 @@ pub fn native_ellipse(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 
     let parsed_stroke: Option<Stroke> = args.named.get("stroke")
         .and_then(parse_color)
-        .map(|c| Stroke { paint: c, thickness: 1.0 });
+        .map(|c| Stroke { paint: c, thickness: 1.0, overhang: false });
 
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 })
+        Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false })
     } else {
         parsed_stroke
     };
@@ -148,10 +148,10 @@ pub fn native_circle(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 
     let parsed_stroke: Option<Stroke> = args.named.get("stroke")
         .and_then(parse_color)
-        .map(|c| Stroke { paint: c, thickness: 1.0 });
+        .map(|c| Stroke { paint: c, thickness: 1.0, overhang: false });
 
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 })
+        Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false })
     } else {
         parsed_stroke
     };
@@ -200,7 +200,7 @@ pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         width:  None,
         height: None,
         fill:   None,
-        stroke: Some(Stroke { paint: stroke_color, thickness: 1.0 }),
+        stroke: Some(Stroke { paint: stroke_color, thickness: 1.0, overhang: false }),
     }))
 }
 
@@ -257,7 +257,7 @@ pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 
     let fill   = args.named.get("fill").and_then(parse_color);
     let stroke = args.named.get("stroke").and_then(|v| {
-        parse_color(v).map(|c| Stroke { paint: c, thickness: 1.0 })
+        parse_color(v).map(|c| Stroke { paint: c, thickness: 1.0, overhang: false })
     });
 
     let width  = if max_x > min_x { Some(Box::new(Value::Float(max_x - min_x))) } else { None };

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/geometry.md
-//! @prompt-hash 8a0805e1
+//! @prompt-hash 7c1ba7a4
 //! @layer L1
 //! @updated 2026-04-20
 
@@ -19,12 +19,25 @@ pub enum PathItem {
     ClosePath,
 }
 
-/// Contorno de uma forma: cor e espessura.
+/// Contorno de uma forma: cor, espessura, e overhang.
+///
+/// **P252 (M9d / M7+5; ADR-0079 Categoria A.4 Boxed COMPLETO 6/6;
+/// cita ADR-0082 PROPOSTO N=3 terceira aplicação citante)** — `overhang:
+/// bool` controla se o stroke se sobrepõe ao corner da bounding box
+/// (default cristalino `false` divergente da vanilla `true` —
+/// divergência consciente documentada em ADR-0054 §"Promoções reais
+/// cumulativas"; paridade vanilla restaurada via stdlib `extract_stroke`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Stroke {
     pub paint:     Color,
     /// Espessura do contorno em pontos tipográficos.
     pub thickness: f64,
+    /// **P252** — `true` expande bounds Shape por `thickness/2` em
+    /// todos os lados quando emit em Layouter (paridade vanilla
+    /// overhang). `false` preserva bounds literais (default
+    /// construtor Rust cristalino; backward compat literal estrita
+    /// pré-P252).
+    pub overhang:  bool,
 }
 
 /// Tipo de forma geométrica primitiva.
@@ -70,7 +83,7 @@ mod tests {
 
     #[test]
     fn stroke_clone_e_partialeq() {
-        let s = Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 };
+        let s = Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false };
         assert_eq!(s.clone(), s);
     }
 

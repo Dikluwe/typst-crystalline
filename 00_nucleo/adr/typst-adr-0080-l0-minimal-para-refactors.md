@@ -1021,3 +1021,220 @@ preservado** **incrementa P251** N=11 → **N=12 cumulativo**
 per Opção β).
 
 **Cross-reference ADR-0082 PROPOSTO** (citado segunda vez P251).
+
+---
+
+## Lição refinada P252 — N=14 → N=15 cumulativo
+
+P252 refina o pattern N=14 P251 ("audit C1 deve confirmar
+localidade pos.y antes de fixar abordagem γ-Items vs γ-Content
+para slicing"):
+
+**Lição N=15 cumulativa P252**: "refactor cross-cutting de
+entity primitivo exige mapa empírico exhaustive de todos os
+construtores literais antes de modificar struct".
+
+**Conteúdo refinado**:
+
+- Audit C1 §2.1 P252 mapeou empíricamente ~42 construtores
+  literais `Stroke` cross-cutting (entities/geometry + entities/
+  content + rules/layout/mod + rules/layout/tests + rules/
+  stdlib/shapes + rules/stdlib/mod + rules/stdlib/layout).
+  Pre-spec audit como primeira aplicação cumulativa onde audit
+  C1 antecede spec writing.
+- Cascade replace_all guiado via `sed` pattern
+  `Stroke { paint: ..., thickness: <num> } → Stroke { paint:
+  ..., thickness: <num>, overhang: false }` cobriu ~38 sítios
+  automaticamente; 4 sítios manualmente fixados (formatting
+  multilinha + variable shorthand).
+- Audit C1 §2.5 confirmou vanilla `overhang: true` default;
+  divergência consciente cristalina default `false` no construtor
+  Rust + `true` via stdlib `extract_stroke` (paridade user-
+  facing preservada).
+
+**Sub-padrão emergente "Refactor cross-cutting entity primitivo
+com cascade replace_all guiado" N=1 inaugurado P252**:
+
+- Pattern novo (entity primitivo cross-cutting; ~42 sítios
+  cascade replace).
+- Magnitude M controlada via sed pattern.
+- Candidato a formalização N=3-4 futuro (hipóteses: `Color`
+  extensão alpha channel; `Length` extensão font-relative
+  units; `Sides<T>` refactor multi-arg).
+
+**Sub-padrão "Aplicação citante ADR-0082 PROPOSTO" N=2 → N=3
+cumulativo P252**:
+
+- N=1 P250 (Block.spacing/above/below/sticky).
+- N=2 P251 (TableCell row break real cell-level).
+- **N=3 P252** (Boxed.stroke-overhang refactor cross-cutting).
+- **N=3 limiar interno atingido** — paridade ADR-0065 P156K
+  validada via P156J/P157A/P157B sequente. **Promoção ADR-0082
+  PROPOSTO → EM VIGOR humana possível pós-P252** (decisão humana
+  directa via passo administrativo XS).
+
+**Sub-padrão "Backward compat literal estrita" N=1 → N=2
+cumulativo P252**:
+
+- N=1 P251 (cell tails preservam P248 clip para Fixed rows).
+- **N=2 P252** (stroke overhang preserva bounds via default
+  construtor Rust `false`).
+- Pattern emergente: defaults zero-impact em construtor Rust
+  low-level + paridade vanilla restaurada via stdlib parse.
+
+**Sub-padrão "promoção real scope-out ADR-0054 graded" granular
+N=13 → N=14 cumulativo P252** (P242 ×2 + P247 ×3 + P248 ×3 +
+P250 ×4 + P251 ×1 + **P252 ×1**: Boxed.stroke-overhang real).
+
+**Pattern "L0 tocado pós-P229 (sub-categorias)"** N=9 cumulativo
+P251 → **N=10 cumulativo P252** (P252 toca L0 via extensão
+`entities/geometry.md` §"Default cristalino divergente P252";
+hash propagado `7c1ba7a4`).
+
+**Pattern "aplicação automática ADR-0080 EM VIGOR" N=12
+preservado** **incrementa P252** N=12 → **N=13 cumulativo**
+(P252 toca L0 refino documentar overhang field + divergência
+consciente; L0 minimal preservado per Opção β).
+
+**Cross-reference ADR-0082 PROPOSTO** (citado terceira vez P252
+— N=3 limiar interno atingido).
+
+---
+
+## Lição refinada P253 — N=15 → N=16 cumulativo
+
+P253 refina o pattern N=15 P252 ("refactor cross-cutting de
+entity primitivo exige mapa empírico exhaustive de todos os
+construtores literais antes de modificar struct"):
+
+**Lição N=16 cumulativa P253**: "promoção ADR roadmap →
+IMPLEMENTADO exige audit empírico cumulativo de sub-passos
+materializados antes de declarar critério satisfeito".
+
+**Conteúdo refinado**:
+
+- Audit C1 §2.2 P253 confirmou empíricamente ~14 sub-passos
+  granulares materializados P227-P252 + mapping para categorias
+  A/B/C/D ADR-0079.
+- Audit C1 §2.7 fixou Cenário A pós-empírico (contagem 11-13
+  com gaps documentáveis → IMPLEMENTADO com scope-out formal
+  C.2 multi-region completo + D.2-D.6 restantes).
+- Paridade directa pattern ADR-0061 P221 IMPLEMENTADO precedente
+  + ADR-0060 P155 IMPLEMENTADO sequente.
+
+**Sub-padrão emergente "ADR Fase X roadmap → IMPLEMENTADO via
+scope-out formal humano" N=2 → N=3 cumulativo P253**:
+
+- N=1 ADR-0060 P155 (Fase 1 fechada; Fase 2/3 roadmap).
+- N=2 ADR-0061 P221 (Fase 1+2+3 cumpridas; columns/colbreak
+  roadmap).
+- **N=3 ADR-0079 P253** (~14 sub-passos cumpridos cumulativamente;
+  C.2 multi-region completo + D.2-D.6 roadmap).
+- **Limiar formalização interno N=3 atingido** — candidato a
+  ADR meta formalizar pattern futuro (paridade ADR-0065 →
+  EM VIGOR sequente; paridade ADR-0080 → EM VIGOR sequente).
+
+**Sub-padrão "Passo administrativo XS" N=7 → N=8 cumulativo P253**:
+
+- N=1 P156A historiograma.
+- N=2 P156K ADRs meta.
+- N=3 ADR-0062-create.
+- N=4 P160A.
+- N=5 P238.
+- N=6 P244.
+- N=7 P249.
+- **N=8 P253** (promoção ADR-0079 PROPOSTO → IMPLEMENTADO).
+- Limiar formalização N=6 ultrapassado amplamente; pattern
+  metodológico extremamente sólido.
+
+**Sub-padrão "promoção real scope-out ADR-0054 graded" granular
+N=14 preservado P253** (P253 administrativo XS não materializa
+nova promoção; apenas formaliza promoção ADR-0079 roadmap →
+IMPLEMENTADO).
+
+**Pattern "L0 tocado pós-P229 (sub-categorias)"** N=10
+preservado P253 (P253 zero L0 tocado; paridade administrativo
+XS estricto).
+
+**Pattern "aplicação automática ADR-0080 EM VIGOR" N=13
+preservado** P253 (P253 zero código + zero L0; nem aplica nem
+viola ADR-0080).
+
+**Cross-reference ADR-0079 IMPLEMENTADO** (citada terceira ADR
+Fase X roadmap a transitar IMPLEMENTADO via scope-out formal
+humano).
+
+---
+
+## Lição refinada P254 — N=16 → N=17 cumulativo
+
+P254 refina o pattern N=16 P253 ("promoção ADR roadmap →
+IMPLEMENTADO exige audit empírico cumulativo de sub-passos
+materializados antes de declarar critério satisfeito"):
+
+**Lição N=17 cumulativa P254**: "promoção ADR meta PROPOSTO →
+EM VIGOR exige confirmação empírica de critério N=3 citantes
+documentado literal no próprio ADR meta antes de promover".
+
+**Conteúdo refinado**:
+
+- Audit C1 §2.2 P254 confirmou empíricamente 3 entradas N=1/2/3
+  documentadas literal em ADR-0082 §"Aplicações citantes":
+  - N=1 P250 (Block.spacing/above/below/sticky).
+  - N=2 P251 (TableCell row break real cell-level).
+  - N=3 P252 (Boxed.stroke-overhang refactor cross-cutting).
+- Sequente consecutivo P250 → P251 → P252 → P254 paridade
+  ADR-0065 P156K via P156J/P157A/P157B sequente (validação
+  retroactiva).
+- Paridade arquitectural directa P229 ADR-0080 PROPOSTO→EM
+  VIGOR (2026-05-13) — passo administrativo XS dedicado
+  pós-validação empírica cumulativa.
+
+**Sub-padrão emergente "ADR meta PROPOSTO → EM VIGOR via passo
+admin XS dedicado" N=1 → N=2 cumulativo P254**:
+
+- N=1 P229 ADR-0080 (pós-N=9 validação cumulativa applicações
+  L0 minimal).
+- **N=2 P254 ADR-0082** (pós-N=3 citantes consecutivos P250+
+  P251+P252).
+- **Limiar interno N=2 atingido** — candidato a sub-padrão
+  emergente formalizar quando N=3-4 cumulativo futuro.
+
+**Sub-padrão "Passo administrativo XS" N=8 → N=9 cumulativo
+P254**:
+
+- N=1 P156A historiograma.
+- N=2 P156K ADRs meta.
+- N=3 ADR-0062-create.
+- N=4 P160A.
+- N=5 P229 ADR-0080 PROPOSTO→EM VIGOR.
+- N=6 P238.
+- N=7 P244.
+- N=8 P249.
+- N=9 P253.
+- **N=9+1=10 cumulativo** se contarmos P254... wait
+  re-counting: P156A(1) + P156K(2) + ADR-0062-create(3) +
+  P160A(4) + P229(5) + P238(6) + P244(7) + P249(8) + P253(9)
+  + **P254(10)** = **N=10 cumulativo P254**.
+  (Spec hipotetizou N=9; contagem empírica revela N=10
+  cumulativo incluindo P229 retroactivo).
+- Limiar formalização N=6 ultrapassado amplamente.
+
+**Sub-padrão "promoção real scope-out ADR-0054 graded" granular
+N=14 preservado P254** (P254 administrativo XS não materializa
+nova promoção; apenas formaliza ADR-0082 PROPOSTO→EM VIGOR).
+
+**Pattern "L0 tocado pós-P229 (sub-categorias)"** N=10
+preservado P254.
+
+**Pattern "aplicação automática ADR-0080 EM VIGOR" N=13
+preservado** P254 (P254 zero código + zero L0; nem aplica nem
+viola ADR-0080).
+
+**Paridade pattern P229 ADR-0080 PROPOSTO→EM VIGOR precedente
+directo para ADR-0082 P254 PROPOSTO→EM VIGOR** — mesmo template
+arquitectural: passo administrativo XS dedicado pós-validação
+empírica cumulativa.
+
+**Cross-reference ADR-0082 EM VIGOR** (segunda ADR meta a
+transitar PROPOSTO → EM VIGOR via passo admin XS dedicado).

@@ -3151,7 +3151,7 @@ mod tests_show_rule_integration {
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None,
             footer:  None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false }),
             fill:    None,
         };
         let doc = layout(&with_stroke);
@@ -3198,7 +3198,7 @@ mod tests_show_rule_integration {
             columns:  vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
             rows:     vec![],
             children: vec![Content::text("X"), Content::text("Y")],
-            stroke:   Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 0.5 }),
+            stroke:   Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 0.5, overhang: false }),
             fill:     None,
         };
         let doc = layout(&t);
@@ -3320,7 +3320,7 @@ mod tests_show_rule_integration {
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None,
             footer:  None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false }),
             fill:    Some(Color::rgb(255, 255, 0)),
         };
         let doc = layout(&g);
@@ -3374,7 +3374,7 @@ mod tests_show_rule_integration {
             y:       None,
             colspan: None,
             rowspan: None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 5.0 }),
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 5.0, overhang: false }),
             fill:    None,
             align:   None, inset: None, breakable: None,
         };
@@ -3387,7 +3387,7 @@ mod tests_show_rule_integration {
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None,
             footer:  None,
-            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 1.0 }),
+            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 1.0, overhang: false }),
             fill:    None,
         };
         let doc = layout(&g);
@@ -3465,7 +3465,7 @@ mod tests_show_rule_integration {
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None,
             footer:  None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 3.0 }),
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 3.0, overhang: false }),
             fill:    None,
         };
         let doc = layout(&g);
@@ -3491,7 +3491,7 @@ mod tests_show_rule_integration {
             y:       None,
             colspan: None,
             rowspan: None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false }),
             fill:    None,
             align:   None, inset: None, breakable: None,
         };
@@ -3530,7 +3530,7 @@ mod tests_show_rule_integration {
             y:       None,
             colspan: None,
             rowspan: None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),  // cell stroke
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false }),  // cell stroke
             fill:    None,
             align:   None, inset: None, breakable: None,
         };
@@ -3947,7 +3947,7 @@ mod tests_show_rule_integration {
             radius:    Corners::uniform(Length::ZERO),
             clip:      false,
             fill:      None,
-            stroke:    Some(Stroke { paint: Color::rgb(10, 20, 30), thickness: 1.5 }),
+            stroke:    Some(Stroke { paint: Color::rgb(10, 20, 30), thickness: 1.5, overhang: false }),
             spacing:   None,
             above:     None,
             below:     None,
@@ -5404,7 +5404,7 @@ mod tests_show_rule_integration {
             radius:    Corners::uniform(Length::pt(2.0)),        // P242
             clip:      true,                                      // P242
             fill:      Some(Color::rgb(200, 200, 200)),          // P247
-            stroke:    Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0 }),  // P247
+            stroke:    Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false }),  // P247
             spacing:   Some(Length::pt(5.0)),                    // P250
             above:     Some(Length::pt(10.0)),                   // P250
             below:     Some(Length::pt(8.0)),                    // P250
@@ -5795,6 +5795,154 @@ mod tests_show_rule_integration {
             }
         }
         assert!(texts.contains("r1") && texts.contains("r2"));
+    }
+
+    // ── Passo 252 (M9d / M7+5; ADR-0079 Categoria A.4 Boxed COMPLETO
+    //     6/6; cita ADR-0082 PROPOSTO N=3 terceira aplicação citante;
+    //     N=3 limiar interno atingido — promoção EM VIGOR humana
+    //     possível) — Stroke +1 field overhang: bool; bounds Shape
+    //     expandidos por thickness/2 quando overhang=true (paridade
+    //     vanilla); default Rust construtor false (cristalino
+    //     divergente; paridade restaurada via extract_stroke).
+
+    #[test]
+    fn p252_stroke_struct_partial_eq_inclui_overhang() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::Color;
+        let s1 = Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false };
+        let s2 = Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: true };
+        assert_ne!(s1, s2, "P252 — overhang distingue strokes em PartialEq");
+        let s3 = Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false };
+        assert_eq!(s1, s3);
+    }
+
+    #[test]
+    fn p252_stroke_clone_preserva_overhang() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::Color;
+        let s = Stroke { paint: Color::rgb(0, 0, 0), thickness: 2.0, overhang: true };
+        let s2 = s.clone();
+        assert_eq!(s.overhang, s2.overhang);
+        assert!(s2.overhang);
+    }
+
+    #[test]
+    fn p252_stroke_construtor_rust_default_overhang_false_preserva_bounds() {
+        // Sentinela: Stroke literal Rust com overhang=false preserva
+        // bounds Shape literais (bit-equivalente pré-P252).
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Color, Length};
+        use crate::entities::geometry::Stroke;
+        let b = Content::Block {
+            body:      Box::new(Content::text("p252lit")),
+            width:     Some(Length::pt(50.0)),
+            height:    Some(Length::pt(30.0)),
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    Some(Stroke {
+                paint: Color::rgb(0, 0, 0),
+                thickness: 4.0,
+                overhang: false,
+            }),
+            spacing:   None,
+            above:     None,
+            below:     None,
+            sticky:    false,
+        };
+        let doc = layout(&b);
+        let mut shape_w = 0.0_f64;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Shape { width, stroke: Some(_), .. } = item {
+                    shape_w = *width;
+                }
+            }
+        }
+        assert!((shape_w - 50.0).abs() < 0.5,
+            "P252 — overhang=false preserva bounds literais width=50pt; obteve {:.1}", shape_w);
+    }
+
+    #[test]
+    fn p252_stroke_overhang_true_expande_bounds_thickness_half() {
+        // overhang=true: bounds expandidos por thickness/2 em cada
+        // lado (total +thickness em width e height).
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Color, Length};
+        use crate::entities::geometry::Stroke;
+        let b = Content::Block {
+            body:      Box::new(Content::text("p252ov")),
+            width:     Some(Length::pt(50.0)),
+            height:    Some(Length::pt(30.0)),
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    Some(Stroke {
+                paint: Color::rgb(0, 0, 0),
+                thickness: 4.0,
+                overhang: true,
+            }),
+            spacing:   None,
+            above:     None,
+            below:     None,
+            sticky:    false,
+        };
+        let doc = layout(&b);
+        let mut shape_w = 0.0_f64;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Shape { width, stroke: Some(_), .. } = item {
+                    shape_w = *width;
+                }
+            }
+        }
+        assert!((shape_w - 54.0).abs() < 0.5,
+            "P252 — overhang=true expande width por thickness=4; esperado 54pt, obtido {:.1}", shape_w);
+    }
+
+    #[test]
+    fn p252_boxed_overhang_true_expande_bounds() {
+        // Boxed inline também aplica overhang (paridade Block).
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Color, Length};
+        use crate::entities::geometry::Stroke;
+        let b = Content::Boxed {
+            body:     Box::new(Content::text("p252box")),
+            width:    Some(Length::pt(40.0)),
+            height:   Some(Length::pt(20.0)),
+            inset:    Sides::uniform(Length::pt(0.0)),
+            baseline: Length::pt(0.0),
+            outset:   Sides::uniform(Length::pt(0.0)),
+            radius:   Corners::uniform(Length::ZERO),
+            clip:     false,
+            fill:     None,
+            stroke:   Some(Stroke {
+                paint: Color::rgb(0, 0, 0),
+                thickness: 6.0,
+                overhang: true,
+            }),
+        };
+        let doc = layout(&b);
+        let mut shape_w = 0.0_f64;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Shape { width, stroke: Some(_), .. } = item {
+                    shape_w = *width;
+                }
+            }
+        }
+        // Boxed: outer_w = cursor advance (~ 40 inline content); + thickness=6 overhang.
+        assert!(shape_w >= 6.0,
+            "P252 — Boxed overhang=true expande bounds; obteve {:.1}", shape_w);
     }
 
     // ── Passo 245 (M9d / M7+4; ADR-0081 IMPLEMENTADO total 5/5)
@@ -6337,7 +6485,7 @@ mod tests_show_rule_integration {
             body:    Box::new(Content::text("WS")),
             x:       None, y: None,
             colspan: Some(2), rowspan: None,
-            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 2.0 }),
+            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 2.0, overhang: false }),
             fill:    None,
             align:   None, inset: None, breakable: None,
         };
@@ -6377,7 +6525,7 @@ mod tests_show_rule_integration {
             body:    Box::new(Content::text("W")),
             x:       None, y: None,
             colspan: Some(2), rowspan: None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 7.0 }),
+            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 7.0, overhang: false }),
             fill:    None,
             align:   None, inset: None, breakable: None,
         };
@@ -6388,7 +6536,7 @@ mod tests_show_rule_integration {
             gutter:  None, align: None,
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None, footer:  None,
-            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 1.0 }),
+            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 1.0, overhang: false }),
             fill:    None,
         };
         let doc = layout(&g);
@@ -6437,7 +6585,7 @@ mod tests_show_rule_integration {
             gutter:  None, align: None,
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None, footer:  None,
-            stroke:  Some(Stroke { paint: Color::rgb(100, 100, 100), thickness: 1.0 }),
+            stroke:  Some(Stroke { paint: Color::rgb(100, 100, 100), thickness: 1.0, overhang: false }),
             fill:    None,
         };
         let doc = layout(&g);
