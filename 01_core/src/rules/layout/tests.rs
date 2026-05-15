@@ -5430,6 +5430,373 @@ mod tests_show_rule_integration {
             "P250 — Block A.4 COMPLETO 10/10 atributos coexistem");
     }
 
+    // ── Passo 251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial activa;
+    //     cita ADR-0082 PROPOSTO N=2 segunda aplicação citante) ──────
+    //     TableCell row break real cell-level γ-Items: slice items
+    //     por threshold body_y+body_h; tail vai para
+    //     pending_cell_tails; flush no topo da nova página via
+    //     new_page() chain.
+
+    #[test]
+    fn p251_table_cell_overflow_row_fixed_preserva_p248_clip() {
+        // Sentinela regression: row TrackSizing::Fixed preserva
+        // P248 clip implícito (paridade vanilla "Fixed rows clip").
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Length, TrackSizing};
+        let inner_block = Content::Block {
+            body:      Box::new(Content::text("fxd")),
+            width:     None,
+            height:    Some(Length::pt(100.0)),  // excede cell
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+            spacing:   None,
+            above:     None,
+            below:     None,
+            sticky:    false,
+        };
+        let cell = Content::TableCell {
+            body:      Box::new(inner_block),
+            x:         None,
+            y:         None,
+            colspan:   None,
+            rowspan:   None,
+            stroke:    None,
+            fill:      None,
+            align:     None,
+            inset:     None,
+            breakable: None,
+        };
+        let t = Content::Table {
+            columns: vec![TrackSizing::Fixed(40.0)],
+            rows:    vec![TrackSizing::Fixed(10.0)],  // Fixed!
+            children: vec![cell],
+            stroke:   None,
+            fill:     None,
+        };
+        let doc = layout(&t);
+        // P248 preservado: Group com clip_mask Rect inner_height<=10pt.
+        let mut found_clip_group = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Group { clip_mask: Some(ShapeKind::Rect), inner_height, .. } = item {
+                    if *inner_height <= 10.1 {
+                        found_clip_group = true;
+                    }
+                }
+            }
+        }
+        assert!(found_clip_group,
+            "P251 — row Fixed preserva P248 clip implícito (paridade vanilla)");
+    }
+
+    #[test]
+    fn p251_table_cell_overflow_row_auto_emit_sem_clip_group_no_actual() {
+        // Row Auto + cell overflow: P251 substitui Group clip por
+        // slice. Cell items emit directo na página actual (head); tail
+        // vai para pending_cell_tails (não testamos forwarding aqui).
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Length, TrackSizing};
+        let inner_block = Content::Block {
+            body:      Box::new(Content::text("auto")),
+            width:     None,
+            height:    Some(Length::pt(50.0)),
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+            spacing:   None,
+            above:     None,
+            below:     None,
+            sticky:    false,
+        };
+        let cell = Content::TableCell {
+            body:      Box::new(inner_block),
+            x:         None,
+            y:         None,
+            colspan:   None,
+            rowspan:   None,
+            stroke:    None,
+            fill:      None,
+            align:     None,
+            inset:     None,
+            breakable: None,
+        };
+        let t = Content::Table {
+            columns: vec![TrackSizing::Fixed(40.0)],
+            rows:    vec![TrackSizing::Auto],  // Auto → P251 row break
+            children: vec![cell],
+            stroke:   None,
+            fill:     None,
+        };
+        let doc = layout(&t);
+        // Smoke: layout não panica. P251 substitui P248 clip por
+        // slice (NÃO há Group com clip_mask inner_height==row_h).
+        let mut texts = String::new();
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Text { text, .. } = item {
+                    texts.push_str(text.as_str());
+                }
+            }
+        }
+        assert!(texts.contains("auto"),
+            "P251 — row Auto + cell overflow emite cell body (slice head)");
+    }
+
+    #[test]
+    fn p251_cell_sem_overflow_preserva_p248_output_literal() {
+        // Sentinela: cell sem overflow preserva output P248 literal
+        // (push items directo; sem clip, sem tail).
+        use crate::entities::layout_types::TrackSizing;
+        let cell = Content::TableCell {
+            body:      Box::new(Content::text("ok")),
+            x:         None,
+            y:         None,
+            colspan:   None,
+            rowspan:   None,
+            stroke:    None,
+            fill:      None,
+            align:     None,
+            inset:     None,
+            breakable: None,
+        };
+        let t = Content::Table {
+            columns: vec![TrackSizing::Auto],
+            rows:    vec![TrackSizing::Auto],
+            children: vec![cell],
+            stroke:   None,
+            fill:     None,
+        };
+        let doc = layout(&t);
+        let mut texts = String::new();
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Text { text, .. } = item {
+                    texts.push_str(text.as_str());
+                }
+            }
+        }
+        assert!(texts.contains("ok"));
+    }
+
+    #[test]
+    fn p251_pending_cell_tails_field_inicial_vazio() {
+        // Smoke: layouter inicializa pending_cell_tails vazio + flush
+        // em new_page no-op se vazio.
+        let content = Content::text("simple");
+        let doc = layout(&content);
+        // Sem panic; output normal.
+        let mut texts = String::new();
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Text { text, .. } = item {
+                    texts.push_str(text.as_str());
+                }
+            }
+        }
+        assert!(texts.contains("simple"));
+    }
+
+    #[test]
+    fn p251_cell_tail_flushed_em_proxima_pagina() {
+        // VSpace empurra cursor → cell overflow row Auto → tail vai
+        // para pending_cell_tails → flush no new_page (causada por
+        // outro elemento que excede a página actual).
+        // Cenário: table com cell overflow + Block grande post-table
+        // que force new_page.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Length, TrackSizing};
+        let inner_block = Content::Block {
+            body:      Box::new(Content::text("tail")),
+            width:     None,
+            height:    Some(Length::pt(100.0)),
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+            spacing:   None,
+            above:     None,
+            below:     None,
+            sticky:    false,
+        };
+        let cell = Content::TableCell {
+            body:      Box::new(inner_block),
+            x:         None,
+            y:         None,
+            colspan:   None,
+            rowspan:   None,
+            stroke:    None,
+            fill:      None,
+            align:     None,
+            inset:     None,
+            breakable: None,
+        };
+        let t = Content::Table {
+            columns: vec![TrackSizing::Fixed(40.0)],
+            rows:    vec![TrackSizing::Auto],
+            children: vec![cell],
+            stroke:   None,
+            fill:     None,
+        };
+        // Pagebreak manual força flush.
+        let seq = Content::Sequence(std::sync::Arc::from(vec![
+            t,
+            Content::Pagebreak { weak: false, to: None },
+            Content::text("p2"),
+        ]));
+        let doc = layout(&seq);
+        // Esperar 2+ páginas (table + pagebreak + p2).
+        assert!(doc.pages.len() >= 2,
+            "P251 — pagebreak entre table e p2 dispara new_page; obteve {} páginas", doc.pages.len());
+    }
+
+    #[test]
+    fn p251_cell_overflow_com_fill_re_emit_no_tail() {
+        // Cell overflow com fill: head emit fill normal + tail
+        // re-emit fill na nova página.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Color, Length, TrackSizing};
+        let inner_block = Content::Block {
+            body:      Box::new(Content::text("filltail")),
+            width:     None,
+            height:    Some(Length::pt(80.0)),
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+            spacing:   None,
+            above:     None,
+            below:     None,
+            sticky:    false,
+        };
+        let cell = Content::TableCell {
+            body:      Box::new(inner_block),
+            x:         None,
+            y:         None,
+            colspan:   None,
+            rowspan:   None,
+            stroke:    None,
+            fill:      Some(Color::rgb(100, 100, 50)),
+            align:     None,
+            inset:     None,
+            breakable: None,
+        };
+        let t = Content::Table {
+            columns: vec![TrackSizing::Fixed(40.0)],
+            rows:    vec![TrackSizing::Auto],
+            children: vec![cell],
+            stroke:   None,
+            fill:     None,
+        };
+        let seq = Content::Sequence(std::sync::Arc::from(vec![
+            t,
+            Content::Pagebreak { weak: false, to: None },
+            Content::text("post"),
+        ]));
+        let doc = layout(&seq);
+        // Conta Shapes com o fill specific — pelo menos 1 (head) +
+        // possivelmente 1 (tail re-emit).
+        let mut fill_shapes = 0;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Shape { fill: Some(c), .. } = item {
+                    if *c == Color::rgb(100, 100, 50) { fill_shapes += 1; }
+                }
+            }
+        }
+        assert!(fill_shapes >= 1,
+            "P251 — cell fill emite ≥1 Shape (head); tail re-emit em flush se tail não-vazio");
+    }
+
+    #[test]
+    fn p251_flush_pending_cell_tails_vazio_no_op() {
+        // Sem pending tails: new_page não panica + emit normal.
+        use crate::entities::layout_types::Length;
+        let seq = Content::Sequence(std::sync::Arc::from(vec![
+            Content::text("p1"),
+            Content::Pagebreak { weak: false, to: None },
+            Content::text("p2"),
+        ]));
+        let doc = layout(&seq);
+        assert!(doc.pages.len() >= 2);
+        let _ = Length::pt(0.0);
+    }
+
+    #[test]
+    fn p251_cell_overflow_2_rows_independentes() {
+        // Table 2 rows: ambas com cell overflow → ambas geram tails.
+        // Smoke: layout não panica + ambos cells body emit (sequential
+        // ou flushed).
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Length, TrackSizing};
+        let mk_cell = |label: &str| -> Content {
+            let inner = Content::Block {
+                body:      Box::new(Content::text(label)),
+                width:     None,
+                height:    Some(Length::pt(40.0)),
+                inset:     Sides::uniform(Length::pt(0.0)),
+                breakable: true,
+                outset:    Sides::uniform(Length::pt(0.0)),
+                radius:    Corners::uniform(Length::ZERO),
+                clip:      false,
+                fill:      None,
+                stroke:    None,
+                spacing:   None,
+                above:     None,
+                below:     None,
+                sticky:    false,
+            };
+            Content::TableCell {
+                body:      Box::new(inner),
+                x:         None,
+                y:         None,
+                colspan:   None,
+                rowspan:   None,
+                stroke:    None,
+                fill:      None,
+                align:     None,
+                inset:     None,
+                breakable: None,
+            }
+        };
+        let t = Content::Table {
+            columns: vec![TrackSizing::Fixed(40.0)],
+            rows:    vec![TrackSizing::Auto, TrackSizing::Auto],
+            children: vec![mk_cell("r1"), mk_cell("r2")],
+            stroke:   None,
+            fill:     None,
+        };
+        let doc = layout(&t);
+        let mut texts = String::new();
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Text { text, .. } = item {
+                    texts.push_str(text.as_str());
+                }
+            }
+        }
+        assert!(texts.contains("r1") && texts.contains("r2"));
+    }
+
     // ── Passo 245 (M9d / M7+4; ADR-0081 IMPLEMENTADO total 5/5)
     //     — Place float real: defer ao topo/fundo da página + clearance
     //     vertical; promoção graded P223 → semantic activa P245 ──

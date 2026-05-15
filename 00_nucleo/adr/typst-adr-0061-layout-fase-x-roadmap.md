@@ -1548,3 +1548,35 @@ primeiro de uma sequência candidata N=3 para promoção EM VIGOR
 **Promoções reais scope-outs ADR-0054 graded granular**: N=8 →
 **N=12 cumulativo P250** (P250 ×4: spacing + above + below +
 sticky).
+
+---
+
+## Refino futuro — Anotação cumulativa P251 (Categoria C.2 parcial activada)
+
+P251 promove TableCell.body overflow de "clip implícito P248"
+para "row break vertical real cell-level" via γ-Items (slice
+frame items por threshold + push tail ao buffer
+`pending_cell_tails` + flush em `new_page` chain).
+
+- **Novo módulo** `layout/slicing.rs` com função pura
+  `slice_frame_items_at_height` + helper `rebase_item_y` sobre
+  6 variants `FrameItem`.
+- **Layouter +1 field** `pending_cell_tails` + **+1 struct**
+  `DeferredCellTail` + **+1 método** `flush_pending_cell_tails`
+  (paridade arquitectural P245 `DeferredFloat` pattern).
+- **Refactor `grid.rs`** cell overflow: rows Auto/Fraction usam
+  P251 slice; rows Fixed preservam P248 clip implícito (paridade
+  vanilla).
+- **Categoria C.2 Fase 5 Layout activada parcialmente** (cell-
+  level apenas; multi-region completo column flow DEBT-56
+  continua diferido).
+
+**Segunda aplicação citante ADR-0082 PROPOSTO** (P250 N=1; P251
+N=2). N=3 candidato P252 → **promoção EM VIGOR humana possível**.
+
+**Padrão "Slice frame items at height" N=1 inaugurado P251** —
+novo módulo. **Padrão "DeferredX buffer + flush em new_page"
+N=1 → N=2 cumulativo** (P245 floats + P251 cell tails).
+**Promoções reais scope-outs ADR-0054 graded granular**: N=12
+→ **N=13 cumulativo P251** (P251 ×1: TableCell.body overflow
+row break real).

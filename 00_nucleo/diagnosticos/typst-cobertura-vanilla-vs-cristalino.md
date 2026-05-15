@@ -165,7 +165,7 @@ primitives e `skew`). Detalhe em
 | `caption(...)` | model/figure.rs | `parcial` | dentro de figure | sem element dedicado |
 | `outline()` | model/outline.rs | `implementado` | Passos 65–66 | TOC via 2-pass introspection |
 | `table(columns, ...)` | model/table.rs | `implementado` ²² | Passo 157A (ADR-0060 Fase 2 sub-passo 1; **primeiro Model Fase 2**) | `Content::Table { columns, rows, children: Vec<Content> }` + stdlib `#table(columns: ?, rows: ?, ..children)`; subset minimal per ADR-0054 graded; layouter delega a `layout_grid` (clone simples; sem modificação de `grid.rs`); 9+ atributos vanilla scope-out (gutter/inset/align/fill/stroke/summary; cells estruturadas P157B; header/footer P157C; HLine/VLine cosmetic) |
-| `table.cell(body, ...)` | model/table.rs | `parcial` ²⁴ | Passo 157B (ADR-0060 Fase 2 sub-passo 2) | `Content::TableCell { body, x: Option<usize>, y: Option<usize>, colspan: Option<usize>, rowspan: Option<usize> }` + stdlib `#table_cell(body, x: ?, y: ?, colspan: ?, rowspan: ?)`; **naming `table_cell` flat** (não vanilla `table.cell` — FieldAccess actual não suporta namespacing de funcs; divergência intencional per ADR-0033); ADR-0064 Caso A para x/y; Caso C para colspan/rowspan; **placement algorítmico diferido em DEBT-34e** — fields armazenados mas ignorados em layout per ADR-0054 graded; 6 atributos vanilla scope-out (align/stroke/fill/inset/breakable + internals) |
+| `table.cell(body, ...)` | model/table.rs | `parcial⁺` ²⁴ ⁶⁸ | Passos 157B + 248 + **251** | `Content::TableCell { body, x: Option<usize>, y: Option<usize>, colspan: Option<usize>, rowspan: Option<usize> }` + stdlib `#table_cell(body, x: ?, y: ?, colspan: ?, rowspan: ?)`; **naming `table_cell` flat** (não vanilla `table.cell` — FieldAccess actual não suporta namespacing de funcs; divergência intencional per ADR-0033); ADR-0064 Caso A para x/y; Caso C para colspan/rowspan; **placement algorítmico diferido em DEBT-34e** — fields armazenados mas ignorados em layout per ADR-0054 graded; 6 atributos vanilla scope-out (align/stroke/fill/inset/breakable + internals); **P248 overflow clip implícito** (rows Fixed; preservado paridade vanilla); **P251 row break vertical real cell-level γ-Items** (rows Auto/Fraction; slice items + buffer pending + flush em new_page chain; **activa Categoria C.2 parcial**) |
 | `table.header(body, ...)` | model/table.rs | `parcial` ²⁶ | Passo 157C (ADR-0060 Fase 2 sub-passo 3 — **fecha table foundations**) | `Content::TableHeader { body, repeat: bool }` + stdlib `#table_header(body, repeat: true)`; **naming `table_header` flat** (paridade decisão P157B); ADR-0064 Caso D para `repeat` (default vanilla `true` — **primeira aplicação Caso D em Model**); algoritmo de repetição em page breaks **diferido em DEBT-56**; `level`/`repeat-rows` scope-out per ADR-0054 graded; divergência aceite per ADR-0033 (`body: Box<Content>` em vez de vanilla `Vec<TableItem>`) |
 | `table.footer(body, ...)` | model/table.rs | `parcial` ²⁶ | Passo 157C (par simétrico de header) | `Content::TableFooter { body, repeat: bool }` + stdlib `#table_footer(body, repeat: true)`; paridade absoluta com TableHeader (mesmos fields; mesma decisão Caso D + DEBT-56) |
 | `list(items)` (function form) | model/list.rs | `parcial` | sintaxe parcial | sem function form completa |
@@ -4499,6 +4499,101 @@ Content com **100% dos scope-outs originais fechados**
 cumulativamente. Pattern empírico "Promoção real scope-out
 ADR-0054 graded" granular N=8 → N=12 cumulativo P250
 (P250 ×4: spacing + above + below + sticky).
+
+⁶⁸ — Ajuste P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial
+activada cell-level; **segunda aplicação citante ADR-0082
+PROPOSTO N=2**) — promoção scope-out TableCell.body overflow de
+"clip implícito P248" para "row break vertical real cell-level
+γ-Items"; inaugura sub-padrão **"Slice frame items at height
+via filter + rebase pos.y"** N=1; consolida sub-padrão
+**"DeferredX buffer + flush em new_page"** N=1 → N=2 cumulativo
+(P245 floats + P251 cell tails); lição refinada N=13 → 14
+cumulativo P251 ("audit C1 deve confirmar localidade pos.y
+antes de fixar abordagem γ-Items vs γ-Content para slicing").
+
+**P251 materializa Categoria C.2 parcial cell-level**:
+
+- **Novo módulo** `01_core/src/rules/layout/slicing.rs` (~270 LoC)
+  com função pura `slice_frame_items_at_height(items, threshold)
+  -> (head, tail)` + helper `rebase_item_y(item, delta)`
+  exhaustive sobre 6 variants `FrameItem`
+  (Text/Line/Glyph/Image/Shape/Group).
+- **Layouter +1 field** `pending_cell_tails: Vec<DeferredCellTail>`
+  (paridade arquitectural P245 `floats_pending`).
+- **+1 struct local** `DeferredCellTail` (items + origin_x +
+  width + fill + stroke + forwarded_count).
+- **+1 método** `flush_pending_cell_tails()` chamado no fim de
+  `new_page()` (Z-order paridade P248: fill atrás → items
+  rebased → stroke à frente).
+- **Refactor `grid.rs:393-433`** cell overflow: rows
+  `TrackSizing::Fixed` preservam P248 clip implícito (paridade
+  vanilla "Fixed rows clip"); rows Auto/Fraction usam P251
+  slice + tail push.
+- **Limit 3 iterações** de tail forwarding (mitigação loop
+  infinito; paridade vanilla heurística).
+
+**Limitações conscientes γ-Items (per ADR-0054 graded)**:
+
+- Items atómicos (Group/Shape) não dividem mid-item (paridade
+  vanilla).
+- Fill/stroke re-emit per fragment (visualmente "dois
+  rectângulos separados").
+- Outras cells da row original **não continuam** na nova página
+  (row-level imperfeito; só cell que overflow continua).
+
+**Reclassificação §A.5 P251** (1 reclassificação):
+
+- `table_cell(...)`: `parcial` ²⁴ → **`parcial⁺` ²⁴ ⁶⁸** (P251
+  row break real cell-level activado cumulativo; activa
+  Categoria C.2 parcial).
+
+**Recontagem Layout per metodologia pós-P251**: `~96-97% →
+~97-98%` (+1pp refino qualitativo).
+**Cobertura user-facing total preservada**: ~75-76%.
+
+**Distribuição §A.5 Layout preservada literal**: contagens
+preservadas (reclassificação qualitativa).
+
+**Stdlib funcs**: 64 preservado. **ShapeKind variants**: 5
+preservado. **Regions fields**: 4 preservado. **Layouter
+fields**: **+1** (`pending_cell_tails`). **Layouter methods**:
+**+1** (`flush_pending_cell_tails`). **Layouter struct local**:
+**+1** (`DeferredCellTail`). **Layouter modules**: **+1**
+(`layout/slicing.rs`). **Content variants**: 62 preservado.
+
+**Block / Boxed / TableCell fields**: preservados (P251 é
+refino consumer Layouter sem alterar entities).
+
+**Scope-outs promovidos cumulativos**: 15 (pós-P250) + **1
+(P251 TableCell row break)** = **16 promoções reais cumulativas**.
+**Sub-padrão "Slice frame items at height" N=1 inaugurado P251**.
+**Sub-padrão "DeferredX buffer + flush em new_page" N=1 → N=2
+cumulativo P251**. **Sub-padrão "Aplicação citante ADR-0082
+PROPOSTO" N=1 → N=2 cumulativo P251** (promoção EM VIGOR pendente
+N=3 citantes).
+
+**Tests P251** (18 unit/E2E):
+- 10 unit slice + rebase em `layout/slicing.rs` (slice vazio,
+  slice todos head, slice todos tail rebased, slice mistos,
+  atomic Shape grande, threshold zero, rebase 4 variants
+  Text/Line/Shape/Group).
+- 8 unit/E2E em `layout/tests.rs` (row Fixed preserva P248;
+  row Auto P251 slice; cell sem overflow preserva P248;
+  pending_cell_tails inicial vazio; tail flushed em new_page
+  via pagebreak; cell overflow com fill re-emit; flush vazio
+  no-op; 2 rows independentes).
+
+**N=0 adaptações** em tests pré-existentes — sentinelas P248
+usam `TrackSizing::Fixed` rows que preservam clip implícito
+paridade vanilla; backward compat literal estrita.
+
+**Workspace pós-P251**: **2276 → 2294 verdes** (+18 P251; 0
+regressões; **0 adaptações**).
+
+**Marco P251**: Categoria C.2 Fase 5 Layout **activada parcial
+cell-level** (multi-region completo via column flow DEBT-56
+continua diferido). Padrão "Slice frame items at height" N=1
+inaugurado primeiro uso γ-Items no Layouter.
 
 ---
 

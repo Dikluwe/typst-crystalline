@@ -950,3 +950,74 @@ collapse + sticky lookahead; L0 minimal preservado per Opção β).
 
 **Cross-reference ADR-0082 PROPOSTO** (citado primeira vez P250
 explicitamente).
+
+---
+
+## Lição refinada P251 — N=13 → N=14 cumulativo
+
+P251 refina o pattern N=13 P250 ("refactor cross-arm Sequence
+consumer exige audit de todos os patterns de iteração existentes
+antes de migrar a peekable"):
+
+**Lição N=14 cumulativa P251**: "audit C1 deve confirmar
+localidade pos.y antes de fixar abordagem γ-Items vs γ-Content
+para slicing".
+
+**Conteúdo refinado**:
+
+- Audit C1 §2.1 P251 confirmou empíricamente que
+  `layout_sub_frame_with_width` retorna items com `pos.y` **local
+  ao sub-frame** (comentário literal mod.rs). Decisão fixa pós-
+  audit: **γ-Items** (slice por threshold trivial via filter +
+  rebase) face γ-Content (re-layout tail Content, magnitude L+
+  ~10-12h).
+- Audit C1 §2.4 confirmou 6 variants FrameItem
+  (Text/Line/Glyph/Image/Shape/Group); `Line` usa `start`/`end`
+  (não `pos`) — rebase trata simétricamente.
+- Audit C1 §2.6 confirmou pattern P245 `DeferredFloat` reusável
+  directo para `DeferredCellTail`.
+
+**Sub-padrão emergente "Slice frame items at height via filter
++ rebase pos.y" N=1 inaugurado P251**:
+
+- Pattern novo (primeira aplicação γ-Items no Layouter).
+- Função pura `slice_frame_items_at_height(items, threshold)
+  -> (head, tail)` em módulo dedicado.
+- Magnitude L controlada (não L+).
+- Candidato a formalização N=3-4 futuro (hipóteses: column flow
+  DEBT-56 multi-region; pagination overflow generic outros
+  variants Content).
+
+**Sub-padrão "DeferredX buffer + flush em new_page" N=1 → N=2
+cumulativo P251**:
+
+- N=1 inaugurado P245 (`DeferredFloat` + `floats_pending` +
+  `flush_pending_floats`).
+- **N=2 cumulativo P251** (`DeferredCellTail` +
+  `pending_cell_tails` + `flush_pending_cell_tails`).
+- Paridade arquitectural directa; pattern emergente consolidado.
+
+**Sub-padrão "Aplicação citante ADR-0082 PROPOSTO" N=1 → N=2
+cumulativo P251**:
+
+- N=1 P250 (Block.spacing/above/below/sticky).
+- **N=2 P251** (TableCell row break real cell-level).
+- N=3 candidato pós-P252 (Boxed stroke-overhang) → **promoção
+  ADR-0082 → EM VIGOR humana possível**.
+
+**Sub-padrão "promoção real scope-out ADR-0054 graded" granular
+N=12 → N=13 cumulativo P251** (P242 ×2 + P247 ×3 + P248 ×3 +
+P250 ×4 + **P251 ×1**: TableCell.body overflow row break real).
+
+**Pattern "L0 tocado pós-P229 (sub-categorias)"** N=8 cumulativo
+P250 → **N=9 cumulativo P251** (P251 toca L0 via extensão
+`entities/region.md` §"Anotação cumulativa P251 — `pending_cell_
+tails` buffer + flush em new_page"; hash propagado `6eec928d`).
+
+**Pattern "aplicação automática ADR-0080 EM VIGOR" N=11
+preservado** **incrementa P251** N=11 → **N=12 cumulativo**
+(P251 toca L0 mas refino documentar `pending_cell_tails` field
++ `DeferredCellTail` struct + flush method; L0 minimal preservado
+per Opção β).
+
+**Cross-reference ADR-0082 PROPOSTO** (citado segunda vez P251).

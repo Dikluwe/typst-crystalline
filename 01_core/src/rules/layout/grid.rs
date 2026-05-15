@@ -421,16 +421,51 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     })
                     .collect();
                 if cell_overflow {
-                    // P248 — wrap em Group com clip_mask Rect bounds
-                    // body_w × body_h (paridade vanilla clip implícito).
-                    self.regions.current.current_items.push(FrameItem::Group {
-                        pos:          Point { x: Pt(body_x), y: Pt(body_y) },
-                        matrix:       crate::entities::layout_types::TransformMatrix::identity(),
-                        clip_mask:    Some(ShapeKind::Rect),
-                        inner_width:  body_w,
-                        inner_height: body_h,
-                        items:        translated_items,
-                    });
+                    // P251 — row break TableCell cell-level γ-Items
+                    // (slice items por body_h threshold + push tail
+                    // ao buffer pending_cell_tails; flush no topo da
+                    // próxima página via new_page).
+                    //
+                    // Preservação P248 clip implícito para rows
+                    // TrackSizing::Fixed (paridade vanilla "Fixed
+                    // rows clip overflow"); só Auto/Fraction usam
+                    // row break.
+                    let row_track = &row_tracks[placed.row % row_tracks.len()];
+                    let is_fixed_row = matches!(row_track, TrackSizing::Fixed(_));
+                    if is_fixed_row {
+                        // P248 preservado para Fixed rows.
+                        self.regions.current.current_items.push(FrameItem::Group {
+                            pos:          Point { x: Pt(body_x), y: Pt(body_y) },
+                            matrix:       crate::entities::layout_types::TransformMatrix::identity(),
+                            clip_mask:    Some(ShapeKind::Rect),
+                            inner_width:  body_w,
+                            inner_height: body_h,
+                            items:        translated_items,
+                        });
+                    } else {
+                        // P251 — γ-Items slice por threshold = body_y + body_h
+                        // (em coordenadas absolutas; items já translated_).
+                        let threshold = body_y + body_h;
+                        let (head_items, tail_items) =
+                            crate::rules::layout::slicing::slice_frame_items_at_height(
+                                translated_items, threshold,
+                            );
+                        for item in head_items {
+                            self.regions.current.current_items.push(item);
+                        }
+                        if !tail_items.is_empty() {
+                            self.pending_cell_tails.push(
+                                crate::rules::layout::DeferredCellTail {
+                                    items:           tail_items,
+                                    origin_x:        body_x,
+                                    width:           body_w,
+                                    fill:            effective_fill.copied(),
+                                    stroke:          effective_stroke.cloned(),
+                                    forwarded_count: 0,
+                                }
+                            );
+                        }
+                    }
                 } else {
                     for item in translated_items {
                         self.regions.current.current_items.push(item);

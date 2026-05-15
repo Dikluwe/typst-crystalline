@@ -39,6 +39,9 @@ mod equation;
 pub(crate) mod helpers;
 // P224.C — Placement algorítmico Grid (fecha DEBT-34e colspan/rowspan).
 pub(crate) mod grid_placement;
+// P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial) — slice frame
+// items por threshold em pos.y para row break TableCell cell-level.
+mod slicing;
 use crate::rules::layout::helpers::{
     collect_sub_items, heading_scale, item_pos, measure_content, resolve_pt,
     translate_frame_item,
@@ -210,6 +213,13 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// logic + first-block-in-sequence above suppression. Reset por
     /// non-Block arms (via Sequence consumer ou directamente).
     pub(super) block_chain_active: bool,
+    /// **P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial; cita
+    /// ADR-0082 PROPOSTO N=2 segunda aplicação citante)** — buffer
+    /// de tails de cells que overflow a altura disponível. Flush em
+    /// `new_page()` (após `flush_pending_floats` P245) + `finish()`.
+    /// Paridade arquitectural ao P245 `floats_pending` (subpadrão
+    /// "DeferredX buffer + flush em new_page" N=1 → 2 cumulativo).
+    pub(super) pending_cell_tails: Vec<DeferredCellTail>,
 }
 
 /// **P245 (M9d / M7+4)** — entry do buffer `floats_pending` no
@@ -235,6 +245,40 @@ pub(super) struct DeferredFloat {
     /// Clearance vertical entre flow regular e área float (resolvido
     /// a Pt; 0.0 se `clearance: None`).
     pub clearance: f64,
+}
+
+/// **P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial; cita ADR-0082
+/// PROPOSTO N=2)** — entry do buffer `pending_cell_tails` no
+/// Layouter. Captura items de cell que ultrapassaram o limite
+/// vertical (row break real cell-level) + bounds para re-emit fill/
+/// stroke na nova página.
+///
+/// Limitações conscientes (per ADR-0054 graded):
+/// - Items são rebased (`pos.y -= threshold` no slice).
+/// - Fill/stroke re-emit na nova página com bounds = tail extent
+///   (não bounds originais do cell — visualmente "duas células
+///   separadas"; paridade vanilla "split block draws two borders").
+/// - Recursive overflow (tail que ela própria overflow na nova
+///   página) limita 3 iterações (mitigação loop infinito).
+#[derive(Debug, Clone)]
+pub(super) struct DeferredCellTail {
+    /// Items do cell tail (`pos.y` já rebased pelo slice).
+    pub items: Vec<crate::entities::layout_types::FrameItem>,
+    /// `cell_x` (origem horizontal preservada column-aligned).
+    pub origin_x: f64,
+    /// `body_w` (largura útil da cell preservada).
+    pub width: f64,
+    /// Fill efectivo do cell (paridade Z-order step 1; re-emit
+    /// atrás dos items na nova página).
+    pub fill: Option<crate::entities::layout_types::Color>,
+    /// Stroke efectivo do cell (paridade Z-order step 3; re-emit
+    /// à frente dos items na nova página).
+    pub stroke: Option<crate::entities::geometry::Stroke>,
+    /// **P251** — contador de forwardings consecutivos (cada nova
+    /// página que ainda gera tail). Incrementa em
+    /// `flush_pending_cell_tails`; tail descartado quando atinge 3
+    /// (paridade vanilla heurística max-iter).
+    pub forwarded_count: u32,
 }
 
 impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
@@ -296,6 +340,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P250 — spacing collapse state inicializado limpo.
             prev_block_below_pending: 0.0,
             block_chain_active:       false,
+            // P251 — buffer cell tails inicializado vazio.
+            pending_cell_tails:       Vec::new(),
         }
     }
 

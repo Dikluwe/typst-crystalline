@@ -2315,3 +2315,93 @@ infra; P245 M7+4 C.1; P246 cell migration; P247 A.4 cumulativa
 fill+stroke+outset; P248 A.4 cumulativa breakable+height+cell;
 **P250 A.4 Block COMPLETO spacing+above+below+sticky + refactor
 Sequence consumer**).
+
+---
+
+## Anotação cumulativa P251 — Categoria C.2 parcial activada (TableCell row break real cell-level)
+
+**P251 activa Categoria C.2 Fase 5 Layout parcialmente** —
+TableCell row break real cell-level γ-Items (slice frame items
+at height via threshold; tail pending + flush em new_page chain).
+Multi-region completo (column flow DEBT-56) continua diferido
+NÃO-reservado per política P158.
+
+**Trabalho real**:
+
+- **Novo módulo** `01_core/src/rules/layout/slicing.rs` (~100 LoC)
+  com função pura `slice_frame_items_at_height(items, threshold)
+  -> (head, tail)` + helper `rebase_item_y(item, delta)` exhaustive
+  sobre 6 variants `FrameItem` (Text/Line/Glyph/Image/Shape/Group).
+- **Layouter +1 field** `pending_cell_tails: Vec<DeferredCellTail>`
+  (paridade P245 `floats_pending`).
+- **+1 struct local** `DeferredCellTail` (items rebased + origin_x
+  + width + fill + stroke + forwarded_count).
+- **+1 método** `flush_pending_cell_tails()` chamado no fim de
+  `new_page()` (Z-order paridade P248: fill → items → stroke).
+- **Refactor `grid.rs` cell overflow** para Auto/Fraction rows:
+  slice items por threshold `body_y + body_h`; head emit directo;
+  tail push ao buffer. Rows `TrackSizing::Fixed` preservam P248
+  clip implícito (paridade vanilla "Fixed rows clip").
+- **Limit 3 iterações** de tail forwarding (mitigação loop
+  infinito; paridade vanilla heurística).
+
+**Categoria C.2 parcial pós-P251**:
+
+- Cell-level row break vertical real ✓ (γ-Items).
+- Row-level continuation (outras cells da mesma row na nova
+  página) ✗ (row-level imperfeito).
+- Multi-region completo (column flow DEBT-56) ✗ (diferido).
+
+**Pré-condições obrigatórias verificadas P251**:
+
+1. **Tests baseline preservados**: 2276 verdes pré-P251 → **2294
+   verdes pós-P251** (+18 P251 — 10 slicing.rs unit + 8 grid E2E;
+   0 regressões; **0 adaptações** em tests pré-existentes
+   — sentinelas P248 usam `TrackSizing::Fixed` rows que preservam
+   clip implícito).
+2. **Comemo memoization invariants ADR-0073/0074 preservados**.
+3. **Backward compat**: cells sem overflow + cells em rows Fixed
+   renderizam idênticos a P248 (sentinelas
+   `p251_cell_sem_overflow_preserva_p248_output_literal` +
+   `p251_table_cell_overflow_row_fixed_preserva_p248_clip`).
+
+**11 decisões fixadas P251** (Decisão 0 = lição N=13 → 14
+cumulativo; Decisões 1-8 = arquitectura γ-Items + DeferredCellTail
++ algoritmos; Decisões 9-11 = patterns emergentes + citação
+ADR-0082).
+
+**Patterns emergentes inaugurados/consolidados P251** (4):
+
+- **"Slice frame items at height via filter + rebase pos.y"** N=1
+  inaugurado P251 — pattern novo (γ-Items split; reusável noutros
+  contextos pagination overflow future).
+- **"DeferredX buffer + flush em new_page"** N=1 → **N=2 cumulativo
+  P251** (P245 floats + P251 cell tails). Paridade arquitectural
+  directa.
+- **"Aplicação citante ADR-0082 PROPOSTO"** N=1 → **N=2 cumulativo
+  P251** (P250 N=1; P251 N=2). 4 critérios operacionais
+  verificados explicitamente.
+- **"Spec C1 audit obrigatório bloqueante"** N=13 → **N=14
+  cumulativo** P251 (lição refinada: "audit C1 deve confirmar
+  localidade pos.y antes de fixar abordagem γ-Items vs γ-Content").
+
+**Resultado P251**:
+- Tests workspace: 2276 → **2294 verdes** (+18 P251).
+- Content variants: **62 preservado**.
+- Block / Boxed / TableCell fields: preservados.
+- ShapeKind variants: **5 preservado**.
+- Layouter fields: **+1** (`pending_cell_tails`).
+- Layouter methods: **+1** (`flush_pending_cell_tails`).
+- Layouter struct local: **+1** (`DeferredCellTail`).
+- Layouter modules: **+1** (`layout/slicing.rs`).
+- Stdlib funcs: **64 preservado**.
+- Cobertura Layout per metodologia: **~96-97% → ~97-98%**
+  (+1pp refino qualitativo).
+- **Categoria C.2 parcial activada cell-level** (multi-region
+  completo continua diferido).
+
+Sub-passo materializado pós-P226: **11** (P227 A.1; P240 M7+1
+D.2; P241 M7+2 D.3; P242 M7+5 A.4 parcial; P243 M7+3 fase (a)
+infra; P245 M7+4 C.1; P246 cell migration; P247 A.4 cumulativa;
+P248 A.4 cumulativa; P250 A.4 Block COMPLETO; **P251 C.2 parcial
+TableCell row break cell-level γ-Items**).
