@@ -1139,7 +1139,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     width:  width_pt,
                     height: 0.5,
                     fill:   None,
-                    stroke: Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 0.5 }),
+                    stroke: Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 0.5, overhang: false }),
                 });
                 self.regions.current.cursor_y += self.font_size_pt * 0.6;
             }
@@ -1419,18 +1419,30 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     let (_, line_h) = self.metrics.vertical_metrics(self.font_size_pt);
                     // outer_w cobre todo o intervalo (start_x captado
                     // ANTES de outset_left).
-                    let outer_w = self.regions.current.cursor_x.0 - start_x;
+                    let mut outer_w = self.regions.current.cursor_x.0 - start_x;
                     let inner_h = match height {
                         Some(h) => h.resolve_pt(font),
                         None    => line_h.0,
                     };
-                    let outer_h = inner_h + outset_top + outset_bottom;
-                    let pos = crate::entities::layout_types::Point {
+                    let mut outer_h = inner_h + outset_top + outset_bottom;
+                    let mut pos = crate::entities::layout_types::Point {
                         x: Pt(start_x),
                         // Para inline, top da caixa = cursor_y - line_h
                         // (proxy; baseline-relative). Refino futuro.
                         y: self.regions.current.cursor_y - line_h - Pt(outset_top),
                     };
+                    // P252 — stroke-overhang real activação Boxed
+                    // (paralelo Block; fecha último scope-out P156H
+                    // stroke-overhang; Boxed A.4 COMPLETO 6/6).
+                    if let Some(ref s) = stroke {
+                        if s.overhang {
+                            let ov = s.thickness / 2.0;
+                            pos.x = pos.x - Pt(ov);
+                            pos.y = pos.y - Pt(ov);
+                            outer_w += 2.0 * ov;
+                            outer_h += 2.0 * ov;
+                        }
+                    }
                     let radius_is_zero_p247 =
                         radius.top_left == crate::entities::layout_types::Length::ZERO
                      && radius.top_right == crate::entities::layout_types::Length::ZERO
@@ -1655,12 +1667,27 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         Some(w) => w.resolve_pt(font) + inset_left,
                         None    => saved_width - saved_line_start.0,
                     };
-                    let outer_w = block_outer_w + outset_left + outset_right;
-                    let outer_h = self.regions.current.cursor_y.0 - start_y;
-                    let pos = crate::entities::layout_types::Point {
+                    let mut outer_w = block_outer_w + outset_left + outset_right;
+                    let mut outer_h = self.regions.current.cursor_y.0 - start_y;
+                    let mut pos = crate::entities::layout_types::Point {
                         x: saved_line_start - Pt(outset_left),
                         y: Pt(start_y),
                     };
+                    // P252 — stroke-overhang real activação Block.
+                    // Bounds Shape expandidos por thickness/2 em todos
+                    // os lados quando `stroke.overhang == true` (paridade
+                    // vanilla). Default Rust construtor `overhang: false`
+                    // preserva bounds literais (backward compat literal
+                    // pré-P252; sentinela p252).
+                    if let Some(ref s) = stroke {
+                        if s.overhang {
+                            let ov = s.thickness / 2.0;
+                            pos.x = pos.x - Pt(ov);
+                            pos.y = pos.y - Pt(ov);
+                            outer_w += 2.0 * ov;
+                            outer_h += 2.0 * ov;
+                        }
+                    }
                     let radius_is_zero_p247 =
                         radius.top_left == crate::entities::layout_types::Length::ZERO
                      && radius.top_right == crate::entities::layout_types::Length::ZERO

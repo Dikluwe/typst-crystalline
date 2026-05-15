@@ -1580,3 +1580,66 @@ N=1 → N=2 cumulativo** (P245 floats + P251 cell tails).
 **Promoções reais scope-outs ADR-0054 graded granular**: N=12
 → **N=13 cumulativo P251** (P251 ×1: TableCell.body overflow
 row break real).
+
+---
+
+## Refino futuro — Anotação cumulativa P252 (Boxed A.4 COMPLETO 6/6)
+
+P252 fecha último scope-out P156H Boxed (stroke-overhang) via
+refactor cross-cutting entity primitivo `Stroke` (+1 field
+`overhang: bool`).
+
+- **Stroke struct +1 field** `overhang: bool` (paridade vanilla).
+- **~42 construtores literais** adaptados via cascade
+  replace_all guiado por sed pattern.
+- **Helper `extract_stroke` expandido**: defaults vanilla
+  `overhang: true`; construtor Rust default `false` (divergência
+  consciente per ADR-0054 graded; paridade user-facing
+  preservada).
+- **Layouter Block + Boxed Shape emit**: bounds expandidos por
+  `thickness/2` quando `overhang == true`.
+
+**Marco: Boxed A.4 COMPLETO 6/6** — segundo variant Content com
+100% scope-outs originais fechados cumulativamente (após Block
+P250 10/10).
+
+**Terceira aplicação citante ADR-0082 PROPOSTO** (P250 N=1; P251
+N=2; **P252 N=3 — limiar interno atingido**). **Promoção ADR-0082
+PROPOSTO → EM VIGOR humana possível** (paridade ADR-0065 P156K
+validada via P156J/P157A/P157B sequente).
+
+**Padrão "Refactor cross-cutting entity primitivo" N=1 inaugurado
+P252** — entity primitivo cross-cutting em 6 variants Content + 4
+caminhos PDF exporter. **Padrão "Backward compat literal estrita"
+N=1 → N=2 cumulativo** (P251 cell tails + P252 stroke overhang).
+**Promoções reais scope-outs ADR-0054 graded granular**: N=13 →
+**N=14 cumulativo P252** (P252 ×1: Boxed.stroke-overhang real).
+
+---
+
+## Paridade pattern P221 IMPLEMENTADO — referência precedente para ADR-0079 P253
+
+**P253 (2026-05-14) administrativo XS promoveu ADR-0079** (Layout
+Fase 5 roadmap) de `PROPOSTO` → `IMPLEMENTADO` via Cenário A
+(scope-out formal humano C.2 multi-region completo + D.2-D.6
+restantes prosseguindo como roadmap pós-IMPLEMENTADO).
+
+**Paridade directa com ADR-0061 P221 IMPLEMENTADO**:
+
+- ADR-0061 (este ADR) — IMPLEMENTADO P221 com Fase 1+2+3
+  cumpridas + columns/colbreak prosseguindo como roadmap pós-
+  IMPLEMENTADO. **Precedente metodológico explícito.**
+- ADR-0060 — IMPLEMENTADO P155 com Fase 1 fechada + Fase 2/3
+  prosseguindo como roadmap pós-IMPLEMENTADO.
+- **ADR-0079** — IMPLEMENTADO P253 com cumulativo ~14 sub-passos
+  + scope-outs C.2 + D.2-D.6 prosseguindo como roadmap pós-
+  IMPLEMENTADO.
+
+**Sub-padrão "ADR Fase X roadmap → IMPLEMENTADO via scope-out
+formal humano" N=2 → N=3 cumulativo P253** — limiar formalização
+interno atingido; candidato a ADR meta futura formalizar pattern
+(paridade ADR-0065 → EM VIGOR sequente).
+
+**Pattern "Passo administrativo XS"** N=7 → **N=8 cumulativo P253**
+(P156A + P156K + ADR-0062-create + P160A + P238 + P244 + P249 +
+**P253**).

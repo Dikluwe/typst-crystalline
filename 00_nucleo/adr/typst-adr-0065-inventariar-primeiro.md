@@ -269,3 +269,37 @@ classificada). Os dois ADRs reforçam-se mutuamente.
   — inventários da série P156C-J.
 - Relatórios em `00_nucleo/materialization/typst-passo-156*-relatorio.md`
   — evidência empírica de zero reformulações.
+
+---
+
+## Anotação preservativa P254 — pattern N=3 citantes ADR-0082 inspirado em validação retroactiva ADR-0065
+
+**P254 (2026-05-14)** promoveu ADR-0082 (Promoções reais
+scope-outs ADR-0054 graded) PROPOSTO → EM VIGOR pós-N=3
+citantes consecutivos (P250+P251+P252). Sub-padrão "ADR meta
+PROPOSTO → EM VIGOR via passo admin XS dedicado" N=1 → N=2
+cumulativo (P229 ADR-0080 + **P254 ADR-0082**).
+
+**Pattern N=3 citantes ADR-0082 inspirado em validação
+retroactiva ADR-0065** via P156J/P157A/P157B sequente — ADR-0065
+**não transitou** por PROPOSTO intermediário (criada EM VIGOR
+directo 2026-04-26 P156K). A "validação N=3 sequente" foi
+**retroactiva** (aplicações concretas pós-promoção EM VIGOR
+fornecidas como evidência cumulativa). ADR-0082 P249 invertou
+o template: **PROPOSTO inicial + critério literal N=3 citantes
+explícito** documentado no próprio ADR meta antes de promover.
+
+**Distinção formal**:
+- ADR-0065 (P156K): criada EM VIGOR directo; validação N=3
+  retroactiva (aplicações concretas pós-promoção).
+- ADR-0080 (P229): PROPOSTO P226 → EM VIGOR P229 pós-N=9
+  validação cumulativa (N≥8 documentado no próprio ADR).
+- **ADR-0082 (P254)**: PROPOSTO P249 → EM VIGOR P254 pós-N=3
+  citantes consecutivos (P250+P251+P252; **critério literal
+  N=3 citantes** documentado no próprio ADR meta).
+
+**Marco P254**: ADR-0082 inaugura sub-padrão "ADR meta com
+critério literal N=3 citantes documentado no próprio ADR
+antes de promover" N=1 (distinto de ADR-0080 "N=9 cumulativo
+documentado" N=1). Candidato a formalizar futuro quando N=3
+sub-padrões cumulativos atingir limiar.

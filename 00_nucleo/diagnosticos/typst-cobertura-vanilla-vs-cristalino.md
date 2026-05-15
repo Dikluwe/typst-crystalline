@@ -135,7 +135,7 @@ primitives e `skew`). Detalhe em
 | `pad(...)` | layout/pad.rs | `implementado⁺` ⁶ ²¹ | Passos 156C + 156L (refino sides individualizadas) | `Content::Pad { body, sides: Sides<Option<Length>> }` + stdlib `#pad(body, left:?, right:?, top:?, bottom:?, x:?, y:?, rest:?)`; **P156L refino**: cada side passa a `Option<Length>` per ADR-0064 Caso C (None ↔ default zero resolvido em uso); helper `extract_sides_lengths` privado; `right` continua scope-out em layout (perfil ADR-0054 graded); padding negativo rejeitado |
 | `align(alignment, body)` | layout/align.rs | `implementado` | Passos 84.5–84.6 (DEBT-36, 37) | `Align2D`; `Place` com scope |
 | `place(alignment, ..., body)` | layout/place.rs | `implementado⁺` ⁵ ⁴⁴ ⁴⁶ | Passos 84.5 + 84.6 + 223 (encerrado série α P225) | refino aditivo P223 — `float: bool` + `clearance: Option<Length>` armazenados (semantic real adiada per ADR-0054 graded; pattern N=5 cumulativo weak/breakable/float/repeat); restrição vanilla `scope: Parent + float: true` restaurada (DEBT-37 §"Divergência" fechada — Decisão 3 Opção α); refino multi-pass flow contorna Fase 5 candidata NÃO-reservada per política P158 |
-| `box(...)` | layout/container.rs | `implementado⁺` ¹⁵ ⁶⁵ ⁶⁶ | Passos 156H + 231 + 242 + 247 + **248** | `Content::Boxed { body, width, height, inset, baseline, outset, radius, clip, fill, stroke }` + stdlib `#box(body, width: ?, height: ?, inset: ?, baseline: ?, outset: ?, radius: ?, clip: ?, fill: ?, stroke: ?)`; **P248 Boxed.height overflow semantic real**: clip=true wrap body em Group com clip_mask Rect; clip=false overflow visível (paridade vanilla); 5 dos 6 scope-outs fechados cumulativamente + height real activado |
+| `box(...)` | layout/container.rs | `implementado⁺` ¹⁵ ⁶⁵ ⁶⁶ ⁶⁹ | Passos 156H + 231 + 242 + 247 + 248 + **252** | `Content::Boxed { body, width, height, inset, baseline, outset, radius, clip, fill, stroke }` + stdlib `#box(body, width: ?, height: ?, inset: ?, baseline: ?, outset: ?, radius: ?, clip: ?, fill: ?, stroke: ?)`; **P252 Boxed A.4 COMPLETO 6/6** via refactor cross-cutting `Stroke` primitivo (+1 field `overhang: bool`); bounds Shape expandidos por thickness/2 quando overhang=true (paridade vanilla); construtor Rust default `false` (divergência consciente; paridade restaurada via stdlib `extract_stroke`); **segundo variant Content com 100% scope-outs originais P156H fechados cumulativamente** (após Block P250 10/10) |
 | `block(...)` | layout/container.rs | `implementado⁺` ¹³ ⁶⁵ ⁶⁶ ⁶⁷ | Passos 156G + 231 + 242 + 243 + 247 + 248 + **250** | `Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke, spacing, above, below, sticky }` + stdlib `#block(..., spacing: ?, above: ?, below: ?, sticky: ?)`; **P250 Block A.4 COMPLETO 10/10**: spacing/above/below collapse semantic (max prev.below, curr.above) + sticky lookahead 1-block via peekable Sequence consumer; refactor Sequence cross-arm (pattern emergente N=1 inaugurado); **primeira aplicação citante ADR-0082 PROPOSTO N=1**; 10 dos 9 scope-outs originais P156G fechados cumulativamente (incluindo breakable contado como elemento original) |
 | `columns(n)` | layout/columns.rs | `parcial` ⁴⁰ ⁴² | Passos 217 + 218 + 219 (encerrado P221) | variant + stdlib + arm consumer real graded; **multi-region flow real ausente** (Opção A diferida a P-Layout-Fase4 candidata NÃO-reservada) |
 | `grid(columns, ...)` | layout/grid | `implementado⁺` ⁵ ⁴⁵ ⁴⁶ ⁴⁷ ⁴⁸ ⁴⁹ | Passos 82 + 83 + 84.6 + 224 + 227 + 228 + 230 | refino substantivo P224 + refinos aditivos P227+P228+P230 — Grid agora +7 fields cumulativos (gutter/align/inset/header/footer/stroke/fill); **GridCell + TableCell +2 fields cosméticos per-cell P230** (stroke + fill com precedência override Grid-level via `.or()`); 3 variants Content novos P224 + módulo `grid_placement.rs`. **DEBT-34e ENCERRADO P224**; **DEBT-34d** preservado aberto per `P224.div-1`. Render Opção β Z-order correcto: fill → conteúdo → stroke; precedência per-cell P230 |
@@ -4594,6 +4594,111 @@ regressões; **0 adaptações**).
 cell-level** (multi-region completo via column flow DEBT-56
 continua diferido). Padrão "Slice frame items at height" N=1
 inaugurado primeiro uso γ-Items no Layouter.
+
+⁶⁹ — Ajuste P252 (M9d / M7+5; ADR-0079 Categoria A.4 Boxed
+COMPLETO 6/6; **terceira aplicação citante ADR-0082 PROPOSTO
+N=3 — limiar interno atingido**) — refactor cross-cutting
+entity primitivo `Stroke` (+1 field `overhang: bool`); cascade
+~42 construtores literais; activação Layouter Block + Boxed
+Shape emit (bounds expandidos por thickness/2 quando
+overhang=true); inaugura sub-padrão **"Refactor cross-cutting
+entity primitivo com cascade replace_all guiado"** N=1;
+consolida sub-padrão **"Backward compat literal estrita"** N=1
+→ N=2 cumulativo (P251 cell tails + P252 stroke overhang);
+lição refinada N=14 → 15 cumulativo P252 ("refactor cross-
+cutting de entity primitivo exige mapa empírico exhaustive de
+todos os construtores literais antes de modificar struct").
+
+**P252 materializa Boxed A.4 COMPLETO**:
+
+- **`Stroke` struct +1 field** `overhang: bool` (paridade vanilla
+  literal).
+- **Cascade ~42 construtores literais** em entities/geometry +
+  entities/content + rules/layout + rules/stdlib via sed pattern
+  `Stroke { paint, thickness: <num> } → Stroke { paint,
+  thickness: <num>, overhang: false }`.
+- **Helper `extract_stroke` expandido**: defaults vanilla
+  `overhang: true` para Length/Color atalhos; opcional
+  explícito via Dict (não suportado actualmente — fallback true
+  via stdlib parse).
+- **stdlib `native_stroke`** aceita `overhang` named arg (Bool;
+  default `true` vanilla).
+- **Layouter Block + Boxed Shape emit**: bounds expandidos por
+  `thickness/2` em cada lado quando `stroke.overhang == true`
+  (default Rust `false` preserva bounds literais; backward
+  compat estrita).
+- **Grid/Table cell borders preservados** (`FrameItem::Shape::Line`;
+  overhang n/a conceptual — line cap distinct). Divergência
+  consciente per ADR-0054 graded.
+
+**Limitações conscientes P252**:
+
+- Construtor Rust low-level `overhang: false` divergente vanilla
+  `true` — paridade restaurada via stdlib parse.
+- PDF exporter intocado (bounds finais single source of truth).
+- Round corners (RoundedRect P242) + overhang: bounds expandidos
+  com radius preservado (paridade vanilla graded).
+- Grid/Table cell borders preservados literal (Line strokes;
+  overhang n/a).
+
+**Reclassificação §A.5 P252** (1 reclassificação):
+
+- `box(...)`: `implementado⁺` ¹⁵ ⁶⁵ ⁶⁶ → **`implementado⁺` ¹⁵
+  ⁶⁵ ⁶⁶ ⁶⁹** (P252 stroke-overhang activado cumulativo;
+  **Boxed A.4 COMPLETO 6/6**).
+
+**Recontagem Layout per metodologia pós-P252**: `~97-98% →
+~98-99%` (+1pp refino qualitativo).
+**Cobertura user-facing total preservada**: ~75-76%.
+
+**Distribuição §A.5 Layout preservada literal**: contagens
+preservadas.
+
+**Stdlib funcs**: 64 preservado. **ShapeKind variants**: 5
+preservado. **Regions fields**: 4 preservado. **Layouter
+fields**: preservado. **Content variants**: 62 preservado.
+**`Stroke` fields: 2 → 3** (+overhang).
+
+**Block / Boxed / TableCell fields**: preservados (P252 é
+refactor entity primitivo + activação consumer; sem alterar
+variants Content).
+
+**Scope-outs promovidos cumulativos**: 16 (pós-P251) + **1
+(P252 Boxed.stroke-overhang)** = **17 promoções reais
+cumulativas**.
+
+**Sub-padrão "Refactor cross-cutting entity primitivo com
+cascade replace_all guiado" N=1 inaugurado P252**. **Sub-padrão
+"Aplicação citante ADR-0082 PROPOSTO" N=2 → N=3 cumulativo
+P252** — **limiar interno N=3 atingido** (promoção EM VIGOR
+humana possível). **Sub-padrão "Backward compat literal estrita"
+N=1 → N=2 cumulativo P252** (P251 cell tails + P252 stroke
+overhang).
+
+**Tests P252** (10 unit/E2E):
+- 4 unit Stroke struct + Layouter bounds em `layout/tests.rs`
+  (PartialEq inclui overhang; Clone preserva; overhang=false
+  preserva bounds; overhang=true expande por thickness;
+  Boxed paralelo Block).
+- 5 unit stdlib em `stdlib/mod.rs` (Length atalho default
+  vanilla true; Color atalho default true; native_stroke
+  overhang=false explícito; native_stroke default true; sticky
+  não-Bool rejeitado).
+- 1 sentinela Boxed E2E.
+
+**N=33 adaptações** em construtores literais via cascade
+replace_all guiado (sed pattern + ~4 fixes manuais formatting/
+shorthand). Dentro do range N=30-40 estimado §1.5.
+
+**Workspace pós-P252**: **2294 → 2304 verdes** (+10 P252; 0
+regressões; **N=33 adaptações** documentadas cascade).
+
+**Marco P252**: **Boxed A.4 COMPLETO 6/6** — segundo variant
+Content com 100% scope-outs originais fechados cumulativamente
+(após Block P250 10/10). Pattern "Refactor cross-cutting entity
+primitivo" N=1 inaugurado primeiro uso entity primitivo
+cross-cutting. **ADR-0082 N=3 citantes limiar atingido**
+(promoção EM VIGOR humana possível).
 
 ---
 

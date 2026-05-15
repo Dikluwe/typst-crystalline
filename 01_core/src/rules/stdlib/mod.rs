@@ -2550,6 +2550,82 @@ mod tests {
         assert!(r.is_err(), "P250 above com Bool deve retornar Err");
     }
 
+    // ── Passo 252 (M9d / M7+5; ADR-0079 Categoria A.4 Boxed COMPLETO
+    //     6/6; cita ADR-0082 PROPOSTO N=3 terceira citante — limiar
+    //     atingido) — extract_stroke Length/Color atalhos default
+    //     vanilla overhang=true.
+
+    #[test]
+    fn p252_native_block_stroke_length_atalho_overhang_default_true() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("stroke".into(), Value::Length(Length::pt(2.5)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { stroke: Some(s), .. }) = r {
+            assert_eq!(s.thickness, 2.5);
+            assert_eq!(s.overhang, true,
+                "P252 — Length atalho default overhang=true (paridade vanilla)");
+        } else {
+            panic!("esperado Content::Block com stroke");
+        }
+    }
+
+    #[test]
+    fn p252_native_block_stroke_color_atalho_overhang_default_true() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Color;
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
+        let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Block { stroke: Some(s), .. }) = r {
+            assert_eq!(s.paint, Color::rgb(255, 0, 0));
+            assert_eq!(s.thickness, 1.0);
+            assert_eq!(s.overhang, true,
+                "P252 — Color atalho default overhang=true (paridade vanilla)");
+        } else {
+            panic!("esperado Content::Block com stroke");
+        }
+    }
+
+    #[test]
+    fn p252_native_stroke_overhang_explicit_false() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::Length;
+        // stroke(thickness: 2pt, overhang: false) → Stroke com
+        // overhang=false explícito.
+        let mut args = p(vec![]);
+        args.named.insert("thickness".into(), Value::Length(Length::pt(2.0)));
+        args.named.insert("overhang".into(), Value::Bool(false));
+        let r = native_stroke(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Stroke(s) = r {
+            assert_eq!(s.thickness, 2.0);
+            assert_eq!(s.overhang, false);
+        } else {
+            panic!("esperado Value::Stroke");
+        }
+    }
+
+    #[test]
+    fn p252_native_stroke_overhang_default_true_paridade_vanilla() {
+        null_ctx!(ctx);
+        // stroke() sem args → Stroke { BLACK, 1.0pt, overhang: true }.
+        let r = native_stroke(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Stroke(s) = r {
+            assert_eq!(s.overhang, true,
+                "P252 — native_stroke default vanilla overhang=true");
+        } else { panic!("esperado Value::Stroke"); }
+    }
+
+    #[test]
+    fn p252_native_stroke_overhang_nao_bool_rejeitado() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("overhang".into(), Value::Int(1));
+        let r = native_stroke(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "P252 overhang com Int em vez de Bool deve retornar Err");
+    }
+
     #[test]
     fn native_block_rejeita_inset_negativo() {
         null_ctx!(ctx);
@@ -3751,7 +3827,7 @@ mod tests {
     fn p227_value_stroke_type_name_e_eq() {
         use crate::entities::geometry::Stroke;
         use crate::entities::layout_types::Color;
-        let s = Stroke { paint: Color::rgb(255, 0, 0), thickness: 2.5 };
+        let s = Stroke { paint: Color::rgb(255, 0, 0), thickness: 2.5, overhang: false };
         let v = Value::Stroke(s.clone());
         assert_eq!(v.type_name(), "stroke");
         let v2 = Value::Stroke(s);
@@ -3858,7 +3934,7 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::geometry::Stroke;
         use crate::entities::layout_types::Color;
-        let s = Stroke { paint: Color::rgb(0, 255, 0), thickness: 3.0 };
+        let s = Stroke { paint: Color::rgb(0, 255, 0), thickness: 3.0, overhang: false };
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("stroke".into(), Value::Stroke(s.clone()));
         let r = native_grid(&mut ctx, &args,

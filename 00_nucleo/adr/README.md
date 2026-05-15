@@ -206,21 +206,29 @@ abaixo).
 
 ### Distribuição de status
 
-- `PROPOSTO`: **12** ADRs (decisões em aberto: 0005, 0006,
-  0008–0015, 0062, **0066**, **0079** P226) — pós-P221:
-  ADR-0061 e ADR-0078 transitam PROPOSTO → IMPLEMENTADO;
-  pós-P226: +2 ADRs PROPOSTAS criadas (ADR-0079 Layout
-  Fase 5 roadmap + ADR-0080 L0 minimal para refactors
-  aditivos pós-M9c N=7 meta documental); **pós-P229:
-  ADR-0080 transita PROPOSTO → EM VIGOR** (promoção
-  administrativa XS dedicada pós-N=9 validação cumulativa).
+- `PROPOSTO`: **11** ADRs pós-P254 (decisões em aberto: 0005,
+  0006, 0008–0015, 0062, **0066**, ~~0079 P253~~, ~~0082
+  P254~~) — pós-P221: ADR-0061 e ADR-0078 transitam PROPOSTO
+  → IMPLEMENTADO; pós-P226: +2 ADRs PROPOSTAS criadas (ADR-0079
+  Layout Fase 5 roadmap + ADR-0080 L0 minimal para refactors
+  aditivos pós-M9c N=7 meta documental); **pós-P229: ADR-0080
+  transita PROPOSTO → EM VIGOR** (promoção administrativa XS
+  dedicada pós-N=9 validação cumulativa); **pós-P249: +1
+  ADR-0082 PROPOSTO** (Promoções reais scope-outs ADR-0054
+  graded); **pós-P253: ADR-0079 transita PROPOSTO →
+  IMPLEMENTADO** (Cenário A scope-out formal humano; paridade
+  ADR-0061 P221); **pós-P254: ADR-0082 transita PROPOSTO → EM
+  VIGOR** (passo administrativo XS dedicado pós-N=3 citantes
+  P250+P251+P252; paridade pattern P229 ADR-0080). **PROPOSTO
+  12 → 11 pós-P254**.
 - `IDEIA`: 2 ADRs (0002, 0003).
-- `EM VIGOR`: **29** ADRs (regras/políticas activas; 0018, 0029,
-  0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**, **0080**
-  P229).
-- `IMPLEMENTADO`: **21** ADRs (decisões materializadas; 0001, 0004,
-  0016, 0017, 0019, 0021–0027, 0026-R1, 0031, 0052, 0053, 0055,
-  0057, **0060**, **0061** P221, **0078** P221).
+- `EM VIGOR`: **30** ADRs pós-P254 (regras/políticas activas;
+  0018, 0029, 0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**,
+  **0080** P229, **0082** P254).
+- `IMPLEMENTADO`: **24** ADRs pós-P253 (decisões materializadas;
+  0001, 0004, 0016, 0017, 0019, 0021–0027, 0026-R1, 0031,
+  0052, 0053, 0055, 0057, **0060**, **0061** P221, **0078**
+  P221, **0079** P253).
 - `REVOGADO`: 2 ADRs (0007, 0028).
 - `ADIADO`: 1 ADR (0020).
 
@@ -1999,3 +2007,91 @@ P84.8g.
   N=7 cumulativo; "ADR meta formalizar pattern N≥4
   cumulativo" N=3 cumulativo; "Spec C1 audit obrigatório
   bloqueante" N=11 → 12 cumulativo.
+
+- **P253 (administrativo XS) — Promoção ADR-0079 Layout Fase 5
+  roadmap `PROPOSTO → IMPLEMENTADO`** via Cenário A (scope-out
+  formal humano paridade pattern ADR-0061 P221 + ADR-0060 P155
+  precedentes). **Oitava aplicação cumulativa "passo
+  administrativo XS"** N=7 → 8 cumulativo (P156A historiograma
+  + P156K ADRs meta + ADR-0062-create + P160A + P238 + P244 +
+  P249 + **P253**). **Cumprimento cumulativo P227-P252 ~14
+  sub-passos granulares**: Categoria A 5/5 reforçada (Block A.4
+  COMPLETO 10/10 + Boxed A.4 COMPLETO 6/6); Categoria B 1/3
+  (B.2 placement P234); Categoria C 1.5/2 (C.1 P245 cumprida +
+  C.2 P251 parcial cell-level γ-Items); Categoria D ~4/5-6
+  (P236/P237/P240/P241 state+counter parciais). **Scope-outs
+  formais P253** (decisão humana paridade ADR-0061 P221): C.2
+  multi-region completo (Reabertura 2+3; DEBT-56b candidato
+  não-aberto P158) + D.2-D.6 restantes prosseguem como roadmap
+  pós-IMPLEMENTADO (paridade columns/colbreak ADR-0061; Fase
+  2/3 ADR-0060). **Sub-padrão "ADR Fase X roadmap → IMPLEMENTADO
+  via scope-out formal humano" N=2 → N=3 cumulativo P253**
+  (ADR-0060 + ADR-0061 + **ADR-0079** — limiar formalização
+  interno atingido; candidato a ADR meta futura). Anotação
+  ADR-0061 §"Paridade pattern P221 IMPLEMENTADO precedente";
+  anotação ADR-0080 §"Lição refinada P253" N=15 → 16 cumulativo
+  ("promoção ADR roadmap → IMPLEMENTADO exige audit empírico
+  cumulativo de sub-passos materializados antes de declarar
+  critério satisfeito"); ADR-0082 §"Aplicações citantes" N=3
+  limiar atingido P252 preservado (P253 administrativo
+  não-citante; promoção EM VIGOR humana possível sequente).
+  ADRs distribuição: PROPOSTO 13 → **12** (ADR-0079 sai);
+  IMPLEMENTADO 23 → **24** (ADR-0079 entra); EM VIGOR 29
+  preservado; **total 69 preservado**. **Sem código tocado**
+  (zero L1/L2/L3/L4). **Sem L0 prompts tocados**. Tests
+  workspace **2304 verdes preservado**. **Sem hashes
+  propagados** ("Nothing to fix"). Cobertura Layout per
+  metodologia **~98-99% preservado**. **45 aplicações cumulativas
+  anti-inflação** pós-P205D. Patterns emergentes pós-P253 (3):
+  "Passo administrativo XS" N=8 cumulativo; "ADR Fase X roadmap
+  → IMPLEMENTADO via scope-out formal humano" N=3 cumulativo
+  (limiar interno atingido); "Spec C1 audit obrigatório
+  bloqueante" N=15 → 16 cumulativo. **Marco P253**: terceira
+  ADR roadmap a transitar IMPLEMENTADO (ADR-0060 + ADR-0061 +
+  ADR-0079); patamar conceptual máximo Layout Fase 5 atingido.
+
+- **P254 (administrativo XS) — Promoção ADR-0082 (Promoções
+  reais scope-outs ADR-0054 graded — 4 critérios operacionais)
+  `PROPOSTO → EM VIGOR`** via passo administrativo XS dedicado
+  pós-N=3 citantes consecutivos (paridade pattern P229 ADR-0080
+  PROPOSTO→EM VIGOR precedente directo). **Nona aplicação
+  cumulativa "passo administrativo XS"** N=8 → 9 cumulativo
+  (P156A historiograma + P156K ADRs meta + ADR-0062-create +
+  P160A + **P229 ADR-0080→EM VIGOR** + P238 + P244 + P249 +
+  P253 + **P254**). **Segunda aplicação cumulativa sub-padrão
+  "ADR meta PROPOSTO → EM VIGOR via passo admin XS dedicado"**
+  N=1 → 2 cumulativo (P229 ADR-0080 + **P254 ADR-0082**).
+  **N=3 citantes ADR-0082 atingidos P252** (P250 N=1 Block 4
+  scope-outs + P251 N=2 TableCell row break γ-Items + P252 N=3
+  Boxed stroke-overhang sequente consecutivo). Critério literal
+  N=3 satisfeito; **paridade ADR-0065 P156K via P156J/P157A/
+  P157B sequente** validação retroactiva (ADR-0082 P249
+  inverteu template: PROPOSTO inicial + critério literal N=3
+  citantes explícito documentado no próprio ADR meta antes de
+  promover). **Status pós-P254 ADR-0082**: `EM VIGOR` — pattern
+  "Promoções reais scope-outs ADR-0054 graded" formalizado como
+  regra vinculativa operacional cristalina. Aplicações futuras
+  citam ADR-0082 EM VIGOR (em vez de re-justificar empíricamente
+  os 4 critérios operacionais). Anotação ADR-0080 §"Lição
+  refinada P254" N=16 → 17 cumulativo ("promoção ADR meta
+  PROPOSTO → EM VIGOR exige confirmação empírica de critério
+  N=3 citantes documentado literal no próprio ADR meta antes
+  de promover") + sub-padrão "ADR meta PROPOSTO → EM VIGOR via
+  passo admin XS dedicado" N=2 cumulativo; anotação ADR-0065
+  preservativa "pattern N=3 citantes ADR-0082 inspirado em
+  validação retroactiva ADR-0065". ADRs distribuição: PROPOSTO
+  12 → **11** (ADR-0082 sai); EM VIGOR 29 → **30** (ADR-0082
+  entra); IMPLEMENTADO 24 preservado; **total 69 preservado**.
+  **Sem código tocado** (zero L1/L2/L3/L4). **Sem L0 prompts
+  tocados**. Tests workspace **2304 verdes preservado**.
+  **Sem hashes propagados** ("Nothing to fix"). Cobertura
+  Layout per metodologia **~98-99% preservado**. **46 aplicações
+  cumulativas anti-inflação** pós-P205D. Patterns emergentes
+  pós-P254 (3): "Passo administrativo XS" N=8 → 9 cumulativo;
+  "ADR meta PROPOSTO → EM VIGOR via passo admin XS dedicado"
+  N=1 → 2 cumulativo; "Spec C1 audit obrigatório bloqueante"
+  N=16 → 17 cumulativo. **Marco P254**: ADR-0082 EM VIGOR —
+  pattern "Promoções reais scope-outs ADR-0054 graded"
+  formalizado como regra vinculativa cristalina; segunda
+  aplicação cumulativa sub-padrão "ADR meta PROPOSTO → EM VIGOR
+  via passo admin XS dedicado" (P229 + P254 = N=2 cumulativo).
