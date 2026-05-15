@@ -98,7 +98,12 @@
 
 ---
 
-## DEBT-8 — Motor de equações — PARCIALMENTE RESOLVIDO
+## DEBT-8 — Motor de equações — ENCERRADO (Passo 255) ✓
+
+**Estado**: ENCERRADO em 2026-05-15 (Passo 255 sub-passo D).
+**Auditoria empírica Fase A** confirmou 4/4 pendências fechadas
+estructuralmente; passo administrativo XS-S fechou a entrada
+formalmente via reconciliação documental L0 prompts.
 
 **Parcialmente resolvido no Passo 37**. Registado no Passo 34.
 
@@ -150,12 +155,53 @@
 - `offset_item` helper adicionado em `math/layout.rs`
 - `sqrt` e `root` adicionados a `is_math_function` (renderizados sem itálico)
 
-**Ainda pendente**:
+**Resolvido pós-Passo 40** (auditoria empírica P255.A revelou
+estado real cumulativo materializado entre P40 e P255):
 
-- Kern matemático entre símbolos
-- Fontes OpenType MATH (tabelas MATH, variantes de tamanho)
-- `MathPrimes` (parseado e evaluado em `eval.rs`, sem lógica de kern/posição no layouter)
-- Baseline correcta em relação ao x-height da fonte
+- **Kern matemático entre símbolos** — `attach.rs:49-208`
+  consume `metrics.math_kern(c)` em todos os 4 quadrantes
+  (top-left, bottom-left, top-right, bottom-right) com
+  geometria correcta (kern negativo permitido sem `.abs()`).
+  Tests `tests.rs:495+`.
+- **Fontes OpenType MATH (tabelas MATH, variantes de tamanho)**
+  — P96.8 reestruturou math/layout/ em 8 submódulos.
+  `stretchy.rs:22` consume `vertical_glyph_variants(c)` com
+  `select(min_advance)`; `assembly.rs:14,20` consume
+  `GlyphAssembly` para delimitadores grandes;
+  `mod.rs:218` obtém `MathConstants` via
+  `metrics.math_constants()` no construtor.
+- **`MathPrimes` layout** — FECHADO via divergência
+  arquitectural intencional: resolvido em **eval**
+  (`rules/eval/math.rs:85-101`) — count → glifo `′`/`″`/`‴`/`⁗`
+  (U+2032–U+2057) convertido para `Content::MathText` e merged
+  como superscript regular. Layouter recebe-os pelo arm
+  superscript regular; sem arm dedicado. Paridade observable
+  preservada per ADR-0033.
+- **Baseline correcta em relação ao x-height da fonte** —
+  `MathLayouter::apply_axis_offset` (`mod.rs:228-229`) usa
+  `self.constants.axis_height` (campo real `MathConstants`).
+  Tests `frac_com_axis_height_nao_regride`,
+  `delimitado_com_axis_height_nao_regride`,
+  `sqrt_com_axis_height_nao_regride` em `tests.rs:520+`
+  verificam `axis_height > 0` activo via fallback.
+
+**Inconsistências documentais detectadas + reconciliadas em
+P255.B**:
+
+- Prompt L0 `entities/math_constants.md` listava 10 campos
+  públicos; struct real tem **14 campos** — adicionados:
+  `axis_height`, `upper_limit_gap_min`, `lower_limit_gap_min`,
+  `math_leading`. Hash propagado.
+- Prompt L0 `rules/math/layout.md` descrevia "Passo 36 / 37+ /
+  38+" como trabalho futuro. P96.8 reestruturou em 8
+  submódulos — secção "Estado actual" + mapping consumer ↔
+  tipo de domínio adicionados. Hash propagado.
+
+**Evidência cumulativa**:
+
+Ver `00_nucleo/diagnosticos/diagnostico-math-fase-a-passo-255.md`
+para tabela §2 com hits literais por item + classificação
+detalhada (`4/4 fechados; 0/4 abertos` → Cenário B1).
 
 ### Nota — actualização no Passo 84.1
 
@@ -164,6 +210,17 @@ Passo 83.5 confirmou implementação completa em `math/layout.rs`,
 `eval.rs` e `layout/mod.rs`. A entrada de `MathPrimes` foi clarificada
 para indicar o estado parcial (parseado mas sem lógica de layout
 dedicada).
+
+### Nota — encerramento no Passo 255
+
+Auditoria empírica Fase A (Passo 255 sub-passo A) revelou que as
+4 pendências listadas estavam estructuralmente fechadas
+cumulativamente entre P40 e P255 (P96.8 reestruturação +
+integration consumers diversos). Passo 255 administrativo
+fechou DEBT-8 formalmente via reconciliação documental dos
+prompts L0 obsoletos (zero código novo materializado em P255.B
+ou P255.C; cenário B1 do diagnostico pai P254B confirmado
+empíricamente).
 
 ---
 
