@@ -165,10 +165,16 @@ Tabela cumulativa pós-P250:
 | 10 | P250 | `Block.above` (override spacing) | P156G scope-out |
 | 11 | P250 | `Block.below` (override spacing) | P156G scope-out |
 | 12 | P250 | `Block.sticky` (lookahead break) | P156G scope-out |
+| 13 | P251 | `TableCell.body` overflow row break real cell-level | P157B "clip implícito P248" → row break γ-Items |
 
 **Marco P250**: Block A.4 COMPLETO 10/10 scope-outs originais
 P156G fechados cumulativamente (incluindo breakable contado
 como elemento original).
+
+**Marco P251**: Categoria C.2 Fase 5 Layout activada parcialmente
+(cell-level row break via γ-Items); multi-region completo
+(column flow DEBT-56) continua diferido. Pattern "Slice frame
+items at height" N=1 inaugurado.
 
 **Padrão metodológico de promoção formalizado em ADR-0082
 PROPOSTO** (P249 administrativo XS): 4 critérios operacionais

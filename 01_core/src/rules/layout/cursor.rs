@@ -146,6 +146,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // P245 — reset reservas na nova página.
         self.cursor_y_top_reserve = 0.0;
         self.cursor_y_bottom_reserve = 0.0;
+
+        // P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial) — flush
+        // pending cell tails (row break TableCell cell-level) NO TOPO
+        // da nova página. Items rebased pelo `cursor_y` actual (já
+        // posicionado pós-margin + ascender). Subpadrão "DeferredX
+        // buffer + flush em new_page" N=1 → 2 cumulativo (P245
+        // floats + P251 cell tails).
+        self.flush_pending_cell_tails();
     }
 
     /// **P245 (M9d / M7+4)** — flush dos floats pendentes na página
@@ -266,6 +274,81 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// de páginas finalizadas + 1 dá o número da página em curso.
     pub(super) fn current_page_number(&self) -> usize {
         self.pages.len() + 1
+    }
+
+    /// **P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial; cita
+    /// ADR-0082 PROPOSTO N=2 segunda aplicação citante)** — flush
+    /// dos cell tails pendentes no **topo** da página actual (chamado
+    /// por `new_page` após cursor_y setup). Items rebased pelo
+    /// `cursor_y` actual; cursor_y avança pela altura do tail emitido.
+    ///
+    /// Z-order paridade P248: fill atrás → items → stroke à frente.
+    /// Bounds do fill/stroke usam tail extent (não cell original).
+    ///
+    /// Limit 3 forwardings consecutivos (paridade vanilla heurística;
+    /// `forwarded_count >= 3` descarta silenciosamente — mitigação
+    /// loop infinito caso tail recursivo).
+    pub(super) fn flush_pending_cell_tails(&mut self) {
+        use crate::entities::geometry::ShapeKind;
+        use crate::entities::layout_types::{FrameItem, Point};
+        use crate::rules::layout::slicing::rebase_item_y;
+        if self.pending_cell_tails.is_empty() {
+            return;
+        }
+        let tails: Vec<crate::rules::layout::DeferredCellTail> =
+            std::mem::take(&mut self.pending_cell_tails);
+        let cursor_top = self.regions.current.cursor_y.0;
+        let mut max_y_after = cursor_top;
+        for tail in tails {
+            if tail.forwarded_count >= 3 {
+                // P251 — limit forwarding; descarta silenciosamente
+                // (paridade vanilla heurística max-iter).
+                continue;
+            }
+            // Calcula altura do tail (max pos.y dos items locais).
+            let mut tail_h = 0.0_f64;
+            for item in tail.items.iter() {
+                let y = match item {
+                    FrameItem::Text  { pos, .. } => pos.y.0,
+                    FrameItem::Line  { start, .. } => start.y.0,
+                    FrameItem::Glyph { pos, .. } => pos.y.0,
+                    FrameItem::Image { pos, .. } => pos.y.0,
+                    FrameItem::Shape { pos, .. } => pos.y.0,
+                    FrameItem::Group { pos, .. } => pos.y.0,
+                };
+                tail_h = tail_h.max(y);
+            }
+            // Z-order step 1: fill atrás.
+            if let Some(c) = tail.fill {
+                self.regions.current.current_items.push(FrameItem::Shape {
+                    pos:    Point { x: Pt(tail.origin_x), y: Pt(cursor_top) },
+                    kind:   ShapeKind::Rect,
+                    width:  tail.width,
+                    height: tail_h,
+                    fill:   Some(c),
+                    stroke: None,
+                });
+            }
+            // Z-order step 2: items rebased.
+            for item in tail.items {
+                let final_item = rebase_item_y(item, cursor_top);
+                self.regions.current.current_items.push(final_item);
+            }
+            // Z-order step 3: stroke à frente.
+            if let Some(s) = tail.stroke {
+                self.regions.current.current_items.push(FrameItem::Shape {
+                    pos:    Point { x: Pt(tail.origin_x), y: Pt(cursor_top) },
+                    kind:   ShapeKind::Rect,
+                    width:  tail.width,
+                    height: tail_h,
+                    fill:   None,
+                    stroke: Some(s),
+                });
+            }
+            max_y_after = max_y_after.max(cursor_top + tail_h);
+        }
+        // Avança cursor_y para depois dos tails emitidos.
+        self.regions.current.cursor_y = Pt(max_y_after);
     }
 }
 

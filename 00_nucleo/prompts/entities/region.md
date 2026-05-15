@@ -348,3 +348,75 @@ fixar arquitectura de migração" (extensão da lição P245
 "grep fields/arms já implementados antes de assumir trabalho
 original"; extensão da lição P244 "grep variants `Content::*`
 candidatas").
+
+---
+
+## Anotação cumulativa P251 — `pending_cell_tails` buffer + flush em new_page
+
+**P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial; cita ADR-0082
+PROPOSTO N=2 segunda aplicação citante)** adiciona ao Layouter
+buffer de cell tails que ultrapassaram limite vertical (row break
+real cell-level γ-Items).
+
+**Layouter field novo**:
+
+```rust
+pub(super) pending_cell_tails: Vec<DeferredCellTail>,
+
+pub(super) struct DeferredCellTail {
+    pub items:           Vec<FrameItem>,  // rebased pos.y
+    pub origin_x:        f64,             // cell column-aligned
+    pub width:           f64,             // body_w preservado
+    pub fill:            Option<Color>,   // re-emit Z-order step 1
+    pub stroke:          Option<Stroke>,  // re-emit Z-order step 3
+    pub forwarded_count: u32,             // max 3 iter (loop mitigation)
+}
+```
+
+**Paridade arquitectural P245** `DeferredFloat` + `floats_pending`
++ `flush_pending_floats` — subpadrão emergente "DeferredX buffer
++ flush em new_page" **N=1 → N=2 cumulativo P251**.
+
+**Fluxo**:
+
+1. `grid.rs` cell overflow em row Auto/Fraction → slice items
+   `body_h` threshold; head emit na página actual; tail push ao
+   buffer.
+2. Próximo `new_page()` (causado por outro elemento ou pagebreak):
+   - `flush_pending_floats()` emit floats P245.
+   - Close current page; setup new page cursor.
+   - **`flush_pending_cell_tails()`** emit tails no topo da nova
+     página (Z-order paridade P248: fill atrás → items rebased →
+     stroke à frente).
+
+**Preservação P248 para rows Fixed**: cell overflow em
+`TrackSizing::Fixed` mantém P248 clip implícito (paridade vanilla
+"Fixed rows clip overflow"). Só Auto/Fraction usam P251 row
+break.
+
+**Limitações conscientes γ-Items (per ADR-0054 graded)**:
+
+- Items atómicos (Group/Shape com bounds grandes) não dividem
+  mid-item; vão completos para tail (paridade vanilla).
+- Fill/stroke re-emit per fragment (visualmente "dois rectângulos
+  separados"; paridade vanilla "split block draws two borders").
+- Tail forwarding limit 3 iter (mitigação loop infinito;
+  paridade vanilla heurística).
+- Outras cells da row original **não continuam** na nova página
+  (só cell que overflow continua; row-level imperfeito).
+
+**Sub-padrão "Slice frame items at height"** N=1 inaugurado P251
+— novo módulo `01_core/src/rules/layout/slicing.rs` com função
+pura `slice_frame_items_at_height(items, threshold) -> (head,
+tail)` + helper `rebase_item_y(item, delta)` exhaustive sobre
+6 variants `FrameItem` (Text/Line/Glyph/Image/Shape/Group).
+
+**Categoria C.2 Fase 5 Layout activada parcialmente P251**
+(cell-level only; multi-region completo via column flow DEBT-56
+continua diferido).
+
+**Lição refinada audit C1 N=13 → 14 cumulativo P251**: "audit C1
+deve confirmar localidade pos.y antes de fixar abordagem γ-Items
+vs γ-Content para slicing" (audit §2.1 confirmou
+`layout_sub_frame_with_width` retorna items com `pos.y` local
+ao sub-frame; γ-Items magnitude L viável vs γ-Content L+).

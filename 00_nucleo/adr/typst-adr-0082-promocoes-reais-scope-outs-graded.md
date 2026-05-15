@@ -315,6 +315,51 @@ distinto P250-específico (não meta a ADR-0082; mas relacionado
 porque viabiliza sticky lookahead). Formalização meta-meta
 diferida (N≥4 não satisfeito).
 
+### N=2 — P251 (2026-05-14): TableCell.body overflow row break real cell-level γ-Items
+
+**Segunda aplicação citante.** P251 promove scope-out P157B
+TableCell.body overflow de "clip implícito P248" para "row
+break vertical real cell-level" via γ-Items (slice frame items
+por threshold + buffer pending + flush em new_page chain);
+**activa Categoria C.2 Fase 5 Layout parcialmente** (cell-level
+apenas; multi-region completo diferido).
+
+Os 4 critérios operacionais ADR-0082 verificados explicitamente:
+
+1. **Storage prévio** ✓ — TableCell.body já armazenado P157B
+   (scope-out original "ignorados em layout" graded); semantic
+   actual P248 "clip implícito" não é variant novo.
+2. **Consumer Layouter pre-promoção graded** ✓ — P248 "clip
+   implícito" é graded (`FrameItem::Group { clip_mask: Some(Rect),
+   .. }`); não é semantic real "row break vertical cross-page".
+3. **Paridade vanilla referência empírica** ✓ — audit C1 §2.1
+   P251 confirmou `layout_sub_frame_with_width` retorna items
+   `pos.y` local; γ-Items viável magnitude L face γ-Content L+.
+   Vanilla `lab/typst-original/crates/typst-layout/src/grid/`
+   reference disponível (limitações atomic + recursive overflow
+   3 iter).
+4. **Backward compat literal** ✓ — cells sem overflow + cells
+   em rows `TrackSizing::Fixed` preservam P248 clip implícito
+   bit-equivalente; só cells Auto/Fraction com overflow ganham
+   semantic nova (sentinelas
+   `p251_cell_sem_overflow_preserva_p248_output_literal` +
+   `p251_table_cell_overflow_row_fixed_preserva_p248_clip`).
+
+**Granularidade**: 1 sub-promoção (1 fila tabela cumulativa
+ADR-0054 §"Promoções reais"). Total cumulativo pós-P251: **N=13
+granular** (P242 ×2 + P247 ×3 + P248 ×3 + P250 ×4 + P251 ×1).
+
+**Patterns adicionais inaugurados P251** (não meta a ADR-0082;
+relacionados):
+- "Slice frame items at height via filter + rebase pos.y" N=1
+  (novo módulo `layout/slicing.rs`).
+- "DeferredX buffer + flush em new_page" N=1 → N=2 cumulativo
+  (P245 floats + P251 cell tails).
+
+**Marco**: Categoria C.2 Fase 5 Layout activada parcialmente
+cell-level; promoção ADR-0082 PROPOSTO → EM VIGOR pendente N=3
+citantes (P252 candidato Boxed stroke-overhang).
+
 ---
 
 ## Plano de promoção (status PROPOSTO → EM VIGOR)
