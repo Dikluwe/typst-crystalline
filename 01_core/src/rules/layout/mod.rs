@@ -141,23 +141,24 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Definido como true por `layout_sub_frame_with_width` e restaurado
     /// ao regressar ao contexto pai.
     pub(super) is_height_unconstrained: bool,
-    /// Altura conhecida da célula de Grid em curso. Passo 83.
+    // **P246 (cell layout migration)** — fields `cell_available_h` +
+    // `cell_origin_w` migrados para `self.regions.cell: Option<Region>`
+    // (entity-side; `Region.height` + `Region.width`). Reader pattern:
+    // `self.regions.effective().height/width`. Activa A.4 breakable
+    // per-cell arquiteturalmente (activação real diferida a passo
+    // futuro não-reservado per política P158).
+    //
+    /// Coordenadas X/Y do canto superior esquerdo da célula activa.
+    /// Passo 84.6 (encerra DEBT-37). **P246**: preservados como
+    /// Layouter fields legacy — `Region` actual sem `origin: Point`
+    /// (cell origin absoluto em pt na página exige fields paralelos);
+    /// refactor futuro com `Region.origin` permitirá eliminar.
     ///
-    /// Quando `Some(h)`, `Content::Align` usa `h` como `available_h` em
-    /// `resolve_alignment` — `VAlign::Bottom` ancora ao limite inferior
-    /// da célula e `VAlign::Horizon` centra verticalmente. Sobrepõe-se a
-    /// `is_height_unconstrained`. Salvo e restaurado por célula no braço
-    /// `Content::Grid`. `None` no fluxo normal da página.
-    pub(super) cell_available_h: Option<f64>,
-    /// Coordenadas X/Y do canto superior esquerdo da célula activa e
-    /// largura da célula. Passo 84.6 (encerra DEBT-37).
-    ///
-    /// Quando todos `Some` em conjunto com `cell_available_h`,
+    /// Quando todos `Some` em conjunto com `regions.cell.is_some()`,
     /// `Content::Place { scope: Column, .. }` ancora à célula.
     /// Salvos e restaurados por célula no braço `Content::Grid`.
     pub(super) cell_origin_x: Option<f64>,
     pub(super) cell_origin_y: Option<f64>,
-    pub(super) cell_origin_w: Option<f64>,
     /// **P232 (Fase 5 Layout Categoria A.5)** — alignment Grid-level
     /// disponível para `Content::Place` herdar via `.or()` per eixo
     /// quando dentro Grid context. Save/restore paridade cell_origin_*
@@ -184,6 +185,45 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// estabelecido em P190C; replicado em P190D para `is_readonly`
     /// + `lang`.
     pub runtime: crate::entities::layouter_runtime_state::LayouterRuntimeState,
+    /// **P245 (M9d / M7+4)** — buffer de floats pendentes na página
+    /// actual; flush em `new_page()` + `finish()`. Reset após flush
+    /// (próxima página inicia com buffer vazio). Promoção real graded
+    /// P223 `Content::Place.float` → semantic activa P245.
+    pub(super) floats_pending: Vec<DeferredFloat>,
+    /// **P245 (M9d / M7+4)** — espaço reservado no topo da página
+    /// para floats top-aligned acumulados. Flow regular começa abaixo
+    /// (cursor_y inicial += reserve). Reset em `new_page`.
+    pub(super) cursor_y_top_reserve: f64,
+    /// **P245 (M9d / M7+4)** — espaço reservado no fundo da página
+    /// para floats bottom-aligned. Flow regular evita zona reservada
+    /// no overflow check (`cursor_y > height - margin -
+    /// cursor_y_bottom_reserve`). Reset em `new_page`.
+    pub(super) cursor_y_bottom_reserve: f64,
+}
+
+/// **P245 (M9d / M7+4)** — entry do buffer `floats_pending` no
+/// Layouter. Captura body já-layouted + alignment para emit deferred
+/// no flush da página actual.
+#[derive(Debug, Clone)]
+pub(super) struct DeferredFloat {
+    /// Alignment per eixo. `alignment.y == Top` → topo da página;
+    /// `Bottom`/`Horizon` → fundo (paridade vanilla default bottom).
+    /// `alignment.x` aplica-se à largura útil da página para
+    /// posicionamento horizontal.
+    pub alignment: crate::entities::layout_types::Align2D,
+    /// Items do body já layouted via `layout_sub_frame_with_width`;
+    /// posições locais (origem 0,0); flush translada para destino
+    /// final.
+    pub body_items: Vec<crate::entities::layout_types::FrameItem>,
+    /// Altura ocupada pelo body (sub_h retornado por
+    /// `layout_sub_frame_with_width`).
+    pub body_height: f64,
+    /// Largura ocupada pelo body (`content_w` via
+    /// `measure_content`).
+    pub body_width: f64,
+    /// Clearance vertical entre flow regular e área float (resolvido
+    /// a Pt; 0.0 se `clearance: None`).
+    pub clearance: f64,
 }
 
 impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
@@ -229,14 +269,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             introspector,
             figure_progress: std::collections::HashMap::new(),
             is_height_unconstrained: false,
-            cell_available_h:        None,
+            // P246 — cell_available_h + cell_origin_w migrados a
+            // regions.cell (entity-side). cell_origin_x/y preservados
+            // como Layouter fields legacy.
             cell_origin_x:           None,
             cell_origin_y:           None,
-            cell_origin_w:           None,
             cell_align:              None,  // P232
             locator:                 Locator::new(),
             current_location:        None,
             runtime:                 crate::entities::layouter_runtime_state::LayouterRuntimeState::default(),
+            // P245 (M9d / M7+4) — buffer floats + reservas inicializados vazios.
+            floats_pending:          Vec::new(),
+            cursor_y_top_reserve:    0.0,
+            cursor_y_bottom_reserve: 0.0,
         }
     }
 
@@ -908,17 +953,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.layout_align(*alignment, body);
             }
 
-            // P223 — Place refino: float + clearance armazenados mas
-            // IGNORADOS no layout (semantic real adiada per ADR-0054
-            // graded; precedente N=4 cumulativo weak/breakable/float).
-            // Refino multi-pass flow contorna fica como Fase 5 candidata
-            // NÃO-reservada per política P158.
-            Content::Place { alignment, dx, dy, scope, float: _, clearance: _, body } => {
+            // P223 — Place refino: float + clearance armazenados.
+            // P245 (M9d / M7+4) — semantic real activa para `float: true`:
+            // body layouted em sub-frame, capturado em buffer
+            // `floats_pending`, emitido no flush da página (new_page/
+            // finish). `float: false` preserva comportamento P84.5+P84.6
+            // literal (body in-place via cursor).
+            Content::Place { alignment, dx, dy, scope, float, clearance, body } => {
                 // P232 — Resolver effective alignment per eixo via `.or()`.
-                // Place explícito por eixo override Grid; Place vazio por
-                // eixo herda Grid (cell_align Some quando dentro Grid context).
-                // Place fora Grid (cell_align None) preserva baseline P84.5
-                // (alignment usado directamente).
                 let effective_alignment = match self.cell_align {
                     Some(grid_a) => crate::entities::layout_types::Align2D {
                         h: alignment.h.or(grid_a.h),
@@ -926,7 +968,48 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     },
                     None => *alignment,
                 };
-                self.layout_place(effective_alignment, *dx, *dy, *scope, body);
+
+                if *float {
+                    // P245 — float real: layout body em sub-frame,
+                    // capturar items + dimensões, push ao buffer.
+                    let avail_w_page = self.available_width();
+                    let (body_height, body_items) = self.layout_sub_frame_with_width(
+                        body, 0.0, avail_w_page,
+                    );
+                    let (content_w, _) = crate::rules::layout::helpers::measure_content(
+                        body, avail_w_page,
+                    );
+                    let resolved_clearance = clearance
+                        .map(|l| l.resolve_pt(self.font_size_pt.val()))
+                        .unwrap_or(0.0);
+
+                    // Reserva espaço top se alignment.y == Top.
+                    // Bottom + Horizon reservam ao fundo (paridade vanilla
+                    // default bottom).
+                    use crate::entities::layout_types::VAlign;
+                    let is_top = matches!(effective_alignment.v, Some(VAlign::Top));
+                    if is_top {
+                        self.cursor_y_top_reserve += body_height + resolved_clearance;
+                    } else {
+                        self.cursor_y_bottom_reserve += body_height + resolved_clearance;
+                    }
+
+                    self.floats_pending.push(DeferredFloat {
+                        alignment: effective_alignment,
+                        body_items,
+                        body_height,
+                        body_width: content_w,
+                        clearance: resolved_clearance,
+                    });
+                    // Cursor.y NÃO avança — float não consome flow space.
+                    // dx/dy aplicado durante flush (não in-place).
+                    let _ = dx;  // dx aplicado em flush via translate
+                    let _ = dy;  // dy aplicado em flush via translate
+                    let _ = scope; // scope: Parent + float: true (DEBT-37 sentinela)
+                } else {
+                    // P223 preserved literal: float: false → comportamento P84.5+P84.6.
+                    self.layout_place(effective_alignment, *dx, *dy, *scope, body);
+                }
             }
 
             // Passo 100 (ADR-0039): `Content::Styled` activa push/pop na
@@ -1129,10 +1212,34 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P231 — Boxed +3 cosméticos cosméticos armazenados mas semantic real
             // adiada (outset visual ainda não aplicado; radius/clip primitivos
             // baseline ausentes — pattern N=5 → 7 cumulativo).
-            Content::Boxed { body, width, height, inset, baseline, outset: _, radius: _, clip: _ } => {
+            Content::Boxed { body, width, height, inset, baseline, outset, radius, clip, fill, stroke } => {
                 let font = self.font_size_pt.val();
                 let inset_left  = inset.left.resolve_pt(font);
                 let inset_right = inset.right.resolve_pt(font);
+
+                // P247 — outset paralelo Block (inline): margem externa
+                // expande bounds Shape mas para Boxed o eixo Y inline
+                // não avança cursor; usa line_height como proxy de
+                // altura visual (paridade font-size; refino futuro
+                // medir body altura real).
+                let outset_left   = outset.left.resolve_pt(font);
+                let outset_right  = outset.right.resolve_pt(font);
+                let outset_top    = outset.top.resolve_pt(font);
+                let outset_bottom = outset.bottom.resolve_pt(font);
+                let has_shape = fill.is_some() || stroke.is_some();
+                let has_outset = outset_left != 0.0 || outset_right != 0.0
+                                 || outset_top != 0.0 || outset_bottom != 0.0;
+
+                // P247 — snapshot items_before para inserir Shape antes
+                // do body (Z-order paralelo Block).
+                let items_before = self.regions.current.current_items.len();
+
+                // P247 — outset.left avança cursor antes do inset.left.
+                // start_x captura cursor ANTES do outset_left para que
+                // outer_w = cursor_x_final - start_x cubra o intervalo
+                // completo outset.l+inset.l+body+inset.r+outset.r.
+                let start_x = self.regions.current.cursor_x.0;
+                self.regions.current.cursor_x += Pt(outset_left);
 
                 // Box é INLINE: avança cursor.x apenas (sem flush_line).
                 // Aplica inset_left antes do body.
@@ -1149,16 +1256,104 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     self.regions.current.width = (cursor_x_pt + w_pt).max(0.0);
                 }
 
-                let _ = height;   // armazenado; refino futuro
                 let _ = baseline; // armazenado; refino futuro
+
+                // P248 — Boxed.height overflow semantic real activação.
+                // Quando `height: Some(h)` e body natural altura > h E
+                // `clip: true` → wrap body items em FrameItem::Group com
+                // `clip_mask: Rect` altura h (reuso mecanismo P242).
+                // Quando `clip: false` → emit normal (overflow visível;
+                // paridade vanilla). `height: None` → preservado P156H.
+                let body_items_before = self.regions.current.current_items.len();
 
                 self.layout_content(body);
 
                 // P243 — restaurar width original.
                 self.regions.current.width = saved_width;
 
+                // P248 — aplicar clip por overflow se height + clip activos.
+                if let Some(h) = height {
+                    if *clip {
+                        let h_pt = h.resolve_pt(font);
+                        // Medir body real (inline): comparação com h_pt.
+                        let avail_w_box = match width {
+                            Some(w) => w.resolve_pt(font),
+                            None    => self.available_width(),
+                        };
+                        let (body_w_real, body_h_real) =
+                            self.measure_content_constrained(body, avail_w_box);
+                        if body_h_real > h_pt {
+                            // Body excede h E clip activo → wrap items
+                            // emitidos em Group com clip_mask Rect altura h.
+                            let body_items: Vec<FrameItem> =
+                                self.regions.current.current_items
+                                    .drain(body_items_before..).collect();
+                            let pos_box = crate::entities::layout_types::Point {
+                                x: Pt(start_x + outset_left + inset_left),
+                                // Baseline-relative: top da caixa ~
+                                // cursor_y - line_height (refino futuro).
+                                y: self.regions.current.cursor_y
+                                   - self.metrics.vertical_metrics(self.font_size_pt).1,
+                            };
+                            self.regions.current.current_items.push(FrameItem::Group {
+                                pos:          pos_box,
+                                matrix:       crate::entities::layout_types::TransformMatrix::identity(),
+                                clip_mask:    Some(crate::entities::geometry::ShapeKind::Rect),
+                                inner_width:  body_w_real,
+                                inner_height: h_pt,
+                                items:        body_items,
+                            });
+                        }
+                    }
+                }
+
                 // Aplica inset_right após body.
                 self.regions.current.cursor_x += Pt(inset_right);
+
+                // P247 — outset.right após inset.right.
+                self.regions.current.cursor_x += Pt(outset_right);
+
+                // P247 — emissão FrameItem::Shape inline (fill/stroke/outset).
+                // Inline contexto: altura visual = line_height (proxy);
+                // ajustada por outset.top + outset.bottom. Width = avanço
+                // horizontal total (cursor_x - start_x).
+                if has_shape || has_outset {
+                    let (_, line_h) = self.metrics.vertical_metrics(self.font_size_pt);
+                    // outer_w cobre todo o intervalo (start_x captado
+                    // ANTES de outset_left).
+                    let outer_w = self.regions.current.cursor_x.0 - start_x;
+                    let inner_h = match height {
+                        Some(h) => h.resolve_pt(font),
+                        None    => line_h.0,
+                    };
+                    let outer_h = inner_h + outset_top + outset_bottom;
+                    let pos = crate::entities::layout_types::Point {
+                        x: Pt(start_x),
+                        // Para inline, top da caixa = cursor_y - line_h
+                        // (proxy; baseline-relative). Refino futuro.
+                        y: self.regions.current.cursor_y - line_h - Pt(outset_top),
+                    };
+                    let radius_is_zero_p247 =
+                        radius.top_left == crate::entities::layout_types::Length::ZERO
+                     && radius.top_right == crate::entities::layout_types::Length::ZERO
+                     && radius.bottom_right == crate::entities::layout_types::Length::ZERO
+                     && radius.bottom_left == crate::entities::layout_types::Length::ZERO;
+                    let shape_kind = if radius_is_zero_p247 {
+                        crate::entities::geometry::ShapeKind::Rect
+                    } else {
+                        crate::entities::geometry::ShapeKind::RoundedRect {
+                            radii: *radius,
+                        }
+                    };
+                    self.regions.current.current_items.insert(items_before, FrameItem::Shape {
+                        pos,
+                        kind:   shape_kind,
+                        width:  outer_w,
+                        height: outer_h,
+                        fill:   *fill,
+                        stroke: stroke.clone(),
+                    });
+                }
             }
 
             // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block container ──
@@ -1175,7 +1370,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `width` actualmente reduz a largura útil temporariamente
             // (cursor.x começa em line_start_x + offset). `width: None`
             // == auto (largura completa).
-            Content::Block { body, width, height, inset, breakable: _, outset: _, radius, clip } => {
+            Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke } => {
                 let font = self.font_size_pt.val();
                 let inset_left   = inset.left.resolve_pt(font);
                 let inset_top    = inset.top.resolve_pt(font);
@@ -1183,13 +1378,62 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // inset.right é scope-out (mesma razão que Pad.right
                 // em P156C — refino com refactor multi-region).
 
+                // P247 — outset semantic real activação (cenário A audit:
+                // outset zero-uso pré-P247). Margem externa visual que
+                // expande bounds Shape mas NÃO afecta cursor interno do
+                // body (paralelo a margin CSS).
+                let outset_left   = outset.left.resolve_pt(font);
+                let outset_right  = outset.right.resolve_pt(font);
+                let outset_top    = outset.top.resolve_pt(font);
+                let outset_bottom = outset.bottom.resolve_pt(font);
+                let has_shape = fill.is_some() || stroke.is_some();
+                let has_outset = outset_left != 0.0 || outset_right != 0.0
+                                 || outset_top != 0.0 || outset_bottom != 0.0;
+
                 // 1. Termina linha em curso.
                 if self.regions.current.cursor_x.0 > self.regions.current.line_start_x.0 {
                     self.flush_line();
                 }
 
+                // P248 (M9d / M7+5; ADR-0079 Categoria A.4 cumulativa) —
+                // Block.breakable semantic real activação: medição
+                // antecipada via `measure_content_constrained` (puro;
+                // §2.4 audit). Quando `breakable: false` E o bloco não
+                // cabe no espaço restante mas cabe numa página inteira,
+                // `new_page()` antecipa o break. Quando o bloco excede a
+                // página inteira, emit normal (paridade vanilla
+                // "overlong atómico"). Default `breakable: true` preserva
+                // comportamento P156G literal.
+                if !*breakable {
+                    let avail_w = match width {
+                        Some(w) => w.resolve_pt(font),
+                        None    => self.available_width(),
+                    };
+                    let (_, body_h) = self.measure_content_constrained(body, avail_w);
+                    let height_min = height.map(|h| h.resolve_pt(font)).unwrap_or(0.0);
+                    let inner_h = body_h.max(height_min);
+                    let block_total_h = outset_top + inset_top + inner_h
+                                       + inset_bottom + outset_bottom;
+                    let page_usable_h = self.available_height();
+                    let remaining_h = self.page_bottom_limit()
+                                    - self.regions.current.cursor_y.0;
+                    if block_total_h <= page_usable_h && block_total_h > remaining_h {
+                        // Cabe em página nova mas não na actual → break antecipado.
+                        self.new_page();
+                    }
+                    // else: cabe na actual OU overlong (emit normal — paridade vanilla).
+                }
+
+                // P247 — snapshot items_before para inserir Shape ANTES
+                // do body (Z-order: fill+stroke atrás do conteúdo).
+                let items_before = self.regions.current.current_items.len();
+
                 // 2. Captura cursor.y para verificar height mínimo no fim.
                 let start_y = self.regions.current.cursor_y.0;
+
+                // P247 — outset.top avança cursor antes do inset.top
+                // (margem externa precede margem interna).
+                self.regions.current.cursor_y += Pt(outset_top);
 
                 // 3. Aplica inset top.
                 self.regions.current.cursor_y += Pt(inset_top);
@@ -1271,12 +1515,56 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.regions.current.cursor_y += Pt(inset_bottom);
 
                 // 7. Se height: Some(h), garantir que avançámos pelo menos h.
+                //    h é altura INTERNA do bloco (sem outset); por isso
+                //    compara com `cursor_y - start_y - outset_top` que é a
+                //    altura consumida desde o topo interno.
                 if let Some(h) = height {
                     let h_pt = h.resolve_pt(font);
-                    let consumed = self.regions.current.cursor_y.0 - start_y;
-                    if consumed < h_pt {
-                        self.regions.current.cursor_y += Pt(h_pt - consumed);
+                    let consumed_inner = self.regions.current.cursor_y.0 - start_y - outset_top;
+                    if consumed_inner < h_pt {
+                        self.regions.current.cursor_y += Pt(h_pt - consumed_inner);
                     }
+                }
+
+                // P247 — outset.bottom avança cursor após inset.bottom +
+                // height min (margem externa fecha o bloco).
+                self.regions.current.cursor_y += Pt(outset_bottom);
+
+                // P247 — emissão FrameItem::Shape (fill/stroke/outset).
+                // Z-order: insere ANTES dos items do body (índice
+                // items_before) para que fill+stroke renderizem por baixo
+                // do conteúdo. Bounds outer incluem outset+inset+body.
+                if has_shape || has_outset {
+                    let block_outer_w = match width {
+                        Some(w) => w.resolve_pt(font) + inset_left,
+                        None    => saved_width - saved_line_start.0,
+                    };
+                    let outer_w = block_outer_w + outset_left + outset_right;
+                    let outer_h = self.regions.current.cursor_y.0 - start_y;
+                    let pos = crate::entities::layout_types::Point {
+                        x: saved_line_start - Pt(outset_left),
+                        y: Pt(start_y),
+                    };
+                    let radius_is_zero_p247 =
+                        radius.top_left == crate::entities::layout_types::Length::ZERO
+                     && radius.top_right == crate::entities::layout_types::Length::ZERO
+                     && radius.bottom_right == crate::entities::layout_types::Length::ZERO
+                     && radius.bottom_left == crate::entities::layout_types::Length::ZERO;
+                    let shape_kind = if radius_is_zero_p247 {
+                        crate::entities::geometry::ShapeKind::Rect
+                    } else {
+                        crate::entities::geometry::ShapeKind::RoundedRect {
+                            radii: *radius,
+                        }
+                    };
+                    self.regions.current.current_items.insert(items_before, FrameItem::Shape {
+                        pos,
+                        kind:   shape_kind,
+                        width:  outer_w,
+                        height: outer_h,
+                        fill:   *fill,
+                        stroke: stroke.clone(),
+                    });
                 }
 
                 // 8. Restaura line_start_x e width (P243).
@@ -1448,6 +1736,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         for item in self.regions.current.current_line.drain(..) {
             self.regions.current.current_items.push(item);
         }
+        // P245 (M9d / M7+4) — flush floats pendentes da última página
+        // antes de comitar a Page final.
+        self.flush_pending_floats();
         if !self.regions.current.current_items.is_empty() {
             let page = Page {
                 width:  self.regions.current.width,
@@ -1590,7 +1881,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 156H: Boxed (Box inline) dimensões para grid
             // measurement. Análogo a Block (mesma lógica width/height/
             // inset; baseline ignorado em medição).
-            Content::Boxed { body, width, height, inset, baseline: _, outset: _, radius: _, clip: _ } => {
+            Content::Boxed { body, width, height, inset, baseline: _, outset: _, radius: _, clip: _, fill: _, stroke: _ } => {
                 let font = self.font_size_pt.val();
                 let inset_l = inset.left.resolve_pt(font);
                 let inset_r = inset.right.resolve_pt(font);
@@ -1642,7 +1933,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 156G: Block dimensões para grid measurement.
             // Inset adiciona aos lados; height: Some(h) força mínimo;
             // width: Some(w) prefere essa largura mas constrained por max.
-            Content::Block { body, width, height, inset, breakable: _, outset: _, radius: _, clip: _ } => {
+            Content::Block { body, width, height, inset, breakable: _, outset: _, radius: _, clip: _, fill: _, stroke: _ } => {
                 let font = self.font_size_pt.val();
                 let inset_l = inset.left.resolve_pt(font);
                 let inset_r = inset.right.resolve_pt(font);

@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 2707aed2
+Hash do Código: 13d30bd9
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -1210,3 +1210,221 @@ cumulativo (P242 radius/clip + P243 multi-region attrs).
 **§"Limitações conscientes" P156C/G/H** secções relevantes
 transitam de "scope-out" / "armazenado adiada" para
 "materializado P243" (anotação cruzada).
+
+## Promoção scope-outs Block/Boxed fill+stroke+outset — Passo 247 (M9d / M7+5; ADR-0079 Categoria A.4)
+
+P156G/H declararam **9 atributos vanilla scope-out** em Block e
+**6 em Boxed** (per ADR-0054 graded; refino futuro). P231
+materializou `outset` armazenado (semantic adiada). P242 promoveu
+`radius` + `clip` para semantic real (RoundedRect + clip_mask).
+**P247 promove 3 cosméticos visuais em agregação**: `outset`
+semantic real activado + **2 fields novos** `fill` + `stroke`
+em Block + Boxed (paridade simétrica).
+
+```rust
+// Em Content::Block (P247):
+Block {
+    body, width, height, inset, breakable,
+    outset, radius, clip,                                  // P231/P242
+    fill:   Option<Color>,                                 // P247 NOVO
+    stroke: Option<Stroke>,                                // P247 NOVO
+}
+
+// Em Content::Boxed (P247; paridade simétrica):
+Boxed {
+    body, width, height, inset, baseline,
+    outset, radius, clip,                                  // P231/P242
+    fill:   Option<Color>,                                 // P247 NOVO
+    stroke: Option<Stroke>,                                // P247 NOVO
+}
+```
+
+**Default**: `fill: None`, `stroke: None`, `outset: Sides::ZERO`
+preservam output bit-equivalente a P246 (backward compat estrita).
+
+**Types fixados** (per audit C1 §2.2 — `Color` Copy / `Stroke`
+Clone existentes em `geometry.rs:24`; `Paint` enum não existe):
+
+- `fill: Option<Color>` — `Color` Copy directo (Stroke já usa
+  Color directo). Refactor para `Paint` enum é cross-cutting
+  fora de scope P247 (futuro ADR dedicada).
+- `stroke: Option<Stroke>` — reuso de struct `Stroke { paint:
+  Color, thickness: f64 }`.
+
+**Layouter activação Shape + outset semantic real (Decisão 3-5)**:
+
+Quando `fill.is_some() || stroke.is_some() || outset != ZERO`,
+Layouter emite `FrameItem::Shape { pos, kind, width, height,
+fill, stroke }` ANTES do body (snapshot-and-insert via
+`current_items.insert(items_before, ...)`):
+
+```
+outer bound:  pos.x - outset.left, pos.y - outset.top
+shape bounds: outer_bound + (width + outset.left+right,
+                              height + outset.top+bottom)
+body origin:  pos.x + inset.left, pos.y + inset.top
+```
+
+- `kind`: `Rect` se radius == zero; `RoundedRect { radii: radius }`
+  caso contrário (reuso P242).
+- **Z-order**: Shape inserido em `items_before` para que
+  fill+stroke renderizem por baixo do conteúdo body (paridade
+  vanilla PDF z-order natural).
+- **Outset semantic** (cenário A audit §2.4-§2.5 — outset zero-uso
+  pré-P247): cursor.y avança `outset.top` antes do inset.top;
+  `outset.bottom` após height min; bounds Shape expandem em
+  todos os lados.
+- **clip=true preserva semantic P242**: body items wrapped em
+  `FrameItem::Group` com clip_mask; Shape fill+stroke + Group(body)
+  coexistem (Shape primeiro, Group depois — z-order natural).
+
+**stdlib `block(fill:, stroke:)` + `box(fill:, stroke:)` (P247)**:
+
+- `fill` aceita `Value::Color` directo; tipos inválidos rejeitados
+  com erro hard (paridade pattern Grid/Table P228).
+- `stroke` reusa `extract_stroke` helper pré-existente (P227
+  `stdlib/layout.rs:351`): aceita `Length` (Color preto + thickness
+  resolvido), `Color` (thickness default 1pt), ou `Stroke` directo.
+
+**Sub-padrão "promoção real scope-out ADR-0054 graded"** N=2 →
+**N=3 cumulativo** P247 (P242 radius+clip = N=2; **P247
+outset+fill+stroke = N=3 promoções reais agregadas**). Contando
+granular: 5 promoções cumulativas (P242 radius + P242 clip +
+P247 outset + P247 fill + P247 stroke).
+
+**Sub-padrão emergente "agregar promoções scope-outs cosméticos
+visuais"** N=1 inaugurado P247 (3 promoções num passo único;
+magnitude controlada M-L; coesão semantic forte).
+
+**§"Limitações conscientes" P156G fechadas em P247**: 5 dos 9
+scope-outs originais Block fechados cumulativamente (outset
+P231→P247 + radius P242 + clip P242 + fill P247 + stroke P247);
+restam 4 (spacing + above + below + sticky).
+
+**§"Limitações conscientes" P156H fechadas em P247**: 5 dos 6
+scope-outs originais Boxed fechados cumulativamente (outset +
+radius + clip + fill + stroke); resta 1 (stroke-overhang).
+
+## Promoção graded → real semantic Block.breakable + Boxed.height + TableCell overflow — Passo 248 (M9d / M7+5; ADR-0079 Categoria A.4 cumulativa)
+
+P156G declarou `Block.breakable` "semantic adiada per ADR-0054
+graded — armazenado mas não impede quebra". P156H declarou
+`Boxed.height` "semantic real adiada". P157B declarou
+`TableCell.body` sem detecção de overflow vertical. **P248
+activa as 3 semanticas em agregado** via mecanismo comum de
+medição antecipada (`measure_content_constrained` puro
+pré-existente, audit C1 §2.4 confirmado).
+
+**Activação A — `Block.breakable`** (Layouter `mod.rs` Block arm):
+
+```rust
+if !*breakable {
+    let avail_w = match width {
+        Some(w) => w.resolve_pt(font),
+        None    => self.available_width(),
+    };
+    let (_, body_h) = self.measure_content_constrained(body, avail_w);
+    let height_min = height.map(|h| h.resolve_pt(font)).unwrap_or(0.0);
+    let inner_h = body_h.max(height_min);
+    let block_total_h = outset_top + inset_top + inner_h
+                       + inset_bottom + outset_bottom;
+    let page_usable_h = self.available_height();
+    let remaining_h = self.page_bottom_limit()
+                    - self.regions.current.cursor_y.0;
+    if block_total_h <= page_usable_h && block_total_h > remaining_h {
+        self.new_page();
+    }
+    // else: cabe na actual OU overlong (emit normal — paridade vanilla).
+}
+```
+
+3 cenários distintos:
+- Cabe na página actual → emit normal preservado.
+- Cabe numa página nova mas não na actual → `new_page()`
+  antecipado antes do emit.
+- Overlong (excede página inteira) → emit normal (paridade
+  vanilla "overlong atómico não quebra").
+
+**Default `breakable: true` preserva comportamento P156G literal**
+(zero overhead; sem medição antecipada).
+
+**Activação B — `Boxed.height` overflow** (Layouter Boxed arm):
+
+```rust
+if let Some(h) = height {
+    if *clip {
+        let h_pt = h.resolve_pt(font);
+        let (body_w_real, body_h_real) =
+            self.measure_content_constrained(body, avail_w_box);
+        if body_h_real > h_pt {
+            let body_items = drain items emitidos pelo body;
+            push FrameItem::Group {
+                pos: top-left da caixa,
+                clip_mask: Some(ShapeKind::Rect),
+                inner_height: h_pt,
+                items: body_items,
+            };
+        }
+    }
+}
+```
+
+- `height: None` → preservado P156H literal.
+- `height: Some(h)` + body cabe → preservado.
+- `height: Some(h)` + body excede + `clip: true` → wrap em Group
+  com clip_mask Rect (reuso mecanismo P242).
+- `height: Some(h)` + body excede + `clip: false` → emit normal
+  (overflow visível; paridade vanilla default).
+
+**Activação C — `TableCell.body` overflow clip implícito**
+(Layouter `grid.rs` GridCell/TableCell arm):
+
+```rust
+let (cell_h_measured, cell_items) =
+    self.layout_sub_frame_with_width(cell, body_x, body_w);
+// ... translate cell_items para abs ...
+let cell_overflow = cell_h_measured > body_h;
+if cell_overflow {
+    push FrameItem::Group {
+        pos: (body_x, body_y),
+        clip_mask: Some(ShapeKind::Rect),
+        inner_width: body_w,
+        inner_height: body_h,
+        items: translated_items,
+    };
+} else {
+    for item in translated_items { push directo; }  // P157B preservado
+}
+```
+
+- Cell body cabe em `regions.cell.height` (P246) → preservado
+  P157B literal.
+- Cell body excede → **clip implícito ao limite cell** (paridade
+  vanilla default).
+- **Row break real é scope-out P248** (refino futuro per
+  ADR-0054 graded; promoção candidata a passo dedicado;
+  DEBT-34e preservado aberto cumulativo — distinto: DEBT-34e
+  cobre colspan/rowspan placement, P248 cobre overflow Y).
+
+**Sub-padrão "promoção graded → real semantic activação consumer"
+N=1 → N=2 cumulativo P248**: P245 inaugurou N=1 (Place float
+real); **P248 N=2 cumulativo agregado** (3 sub-activações
+granulares em passo único: breakable + height + cell overflow).
+
+**Sub-padrão emergente "agregar promoções graded → real
+multi-consumer via mecanismo comum"** N=1 inaugurado P248:
+distinto de P247 "agregar promoções cosméticos visuais"
+(ortogonais aditivos) — P248 agrega semantic real com
+mecanismo comum (medição antecipada).
+
+**Promoções reais scope-outs ADR-0054 graded granular cumulativas
+pós-P248**: 8 = (P242 radius + P242 clip) + (P247 outset + P247
+fill + P247 stroke) + (P248 breakable + P248 height + P248 cell
+overflow). Limiar conceptual sólido para ADR meta candidata
+futura XS admin (N≥6 patamar atingido).
+
+**§"Limitações conscientes" P156G/H/P157B fechadas em P248**:
+- Block.breakable semantic real activada (resta 4/9 cumulativo:
+  spacing + above + below + sticky).
+- Boxed.height semantic real activada cumulativamente.
+- TableCell overflow Y clip implícito (row break diferido).

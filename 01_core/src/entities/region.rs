@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/region.md
-//! @prompt-hash c5d88f7d
+//! @prompt-hash c5527e12
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -131,17 +131,30 @@ pub struct Regions {
     /// overflow/fallback (e.g. medida final). `None` em fase (a);
     /// populated em fase (b) conforme columns/colbreak consumir.
     pub last: Option<Region>,
+    /// **P246 (cell layout migration; activa A.4 breakable per-cell
+    /// arquiteturalmente)** — cell region transient. `Some(r)` quando
+    /// Layouter está dentro de célula Grid/TableCell; `None` em flow
+    /// regular da página. Substitui campos Layouter `cell_available_h`
+    /// + `cell_origin_w` (geometria) — `cell_origin_x` + `cell_origin_y`
+    /// preservados como Layouter fields legacy (Region sem
+    /// `origin: Point`; refactor futuro per DEBT opcional).
+    ///
+    /// Reader pattern: `regions.effective().height` retorna cell.height
+    /// se activa, senão current.height (paridade semantic anterior
+    /// `cell_available_h.unwrap_or(page_h)`).
+    pub cell: Option<Region>,
 }
 
 impl Regions {
     /// Cria `Regions` com 1 region de dimensões dadas. `backlog`
     /// vazio; `last: None` (fase (a) P243 preserva semantic single-
-    /// region P216B literal).
+    /// region P216B literal). `cell: None` (P246 — fora célula).
     pub fn single(width: f64, height: f64) -> Self {
         Self {
             current: Region::new(width, height),
             backlog: Vec::new(),
             last:    None,
+            cell:    None,
         }
     }
 
@@ -174,6 +187,31 @@ impl Regions {
         let prev = std::mem::replace(&mut self.current, next);
         self.last = Some(prev.clone());
         Some(prev)
+    }
+
+    /// **P246 (cell layout migration)** — region efectiva conforme
+    /// estado activo. Retorna `cell` se Layouter está dentro de
+    /// célula Grid/TableCell; `current` caso contrário. Paridade
+    /// semantic literal do pre-P246 pattern
+    /// `cell_available_h.unwrap_or(page_h)`.
+    pub fn effective(&self) -> &Region {
+        self.cell.as_ref().unwrap_or(&self.current)
+    }
+
+    /// **P246 (cell layout migration)** — entra célula com `region`
+    /// dada (width = column width; height = row height). Retorna
+    /// `Option<Region>` (saved) que caller passa a `exit_cell` ao
+    /// sair da célula. Suporta aninhamento Grid-in-Grid.
+    pub fn enter_cell(&mut self, cell: Region) -> Option<Region> {
+        std::mem::replace(&mut self.cell, Some(cell))
+    }
+
+    /// **P246 (cell layout migration)** — sai célula restaurando o
+    /// `saved` retornado pelo `enter_cell` correspondente. Quando
+    /// sai célula top-level, `saved` é `None` → `cell` volta a
+    /// `None`. Suporta aninhamento.
+    pub fn exit_cell(&mut self, saved: Option<Region>) {
+        self.cell = saved;
     }
 }
 
@@ -324,5 +362,72 @@ mod tests {
         assert!(rs2.last.is_some());
         assert_eq!(rs2.backlog[0].width, 50.0);
         assert_eq!(rs2.last.as_ref().unwrap().width, 70.0);
+    }
+
+    // ── P246 (cell layout migration; activa A.4 breakable per-cell
+    //     arquiteturalmente) — Regions.cell + effective/enter/exit ──
+
+    #[test]
+    fn p246_regions_single_cell_none_inicial() {
+        let rs = Regions::single(100.0, 200.0);
+        assert!(rs.cell.is_none(),
+            "fase inicial: cell=None (fora célula)");
+    }
+
+    #[test]
+    fn p246_regions_effective_sem_cell_retorna_current() {
+        let rs = Regions::single(100.0, 200.0);
+        assert_eq!(rs.effective().width,  100.0);
+        assert_eq!(rs.effective().height, 200.0);
+    }
+
+    #[test]
+    fn p246_regions_effective_com_cell_retorna_cell() {
+        let mut rs = Regions::single(100.0, 200.0);
+        rs.cell = Some(Region::new(50.0, 75.0));
+        assert_eq!(rs.effective().width,  50.0);
+        assert_eq!(rs.effective().height, 75.0);
+    }
+
+    #[test]
+    fn p246_regions_enter_exit_cell_top_level() {
+        // Entra célula top-level; saved=None; exit restaura cell=None.
+        let mut rs = Regions::single(100.0, 200.0);
+        let saved = rs.enter_cell(Region::new(60.0, 80.0));
+        assert!(saved.is_none(), "top-level enter: saved=None");
+        assert!(rs.cell.is_some());
+        assert_eq!(rs.cell.as_ref().unwrap().width, 60.0);
+        rs.exit_cell(saved);
+        assert!(rs.cell.is_none(),
+            "exit top-level: cell volta a None");
+    }
+
+    #[test]
+    fn p246_regions_enter_exit_cell_aninhado() {
+        // Aninhamento: enter outer; enter inner; exit inner restaura
+        // outer; exit outer restaura None.
+        let mut rs = Regions::single(100.0, 200.0);
+        let saved_outer = rs.enter_cell(Region::new(80.0, 100.0));
+        assert!(saved_outer.is_none());
+        let saved_inner = rs.enter_cell(Region::new(40.0, 50.0));
+        assert!(saved_inner.is_some());
+        assert_eq!(saved_inner.as_ref().unwrap().width, 80.0);
+        assert_eq!(rs.cell.as_ref().unwrap().width, 40.0);
+
+        rs.exit_cell(saved_inner);
+        // De volta à outer.
+        assert_eq!(rs.cell.as_ref().unwrap().width, 80.0);
+
+        rs.exit_cell(saved_outer);
+        assert!(rs.cell.is_none());
+    }
+
+    #[test]
+    fn p246_regions_clone_preserva_cell() {
+        let mut rs = Regions::single(100.0, 200.0);
+        rs.cell = Some(Region::new(50.0, 75.0));
+        let rs2 = rs.clone();
+        assert!(rs2.cell.is_some());
+        assert_eq!(rs2.cell.as_ref().unwrap().width, 50.0);
     }
 }

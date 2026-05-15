@@ -14,6 +14,9 @@ use crate::entities::{
 };
 
 use super::metrics::FontMetrics;
+// P245 (M9d / M7+4) — DeferredFloat buffer entry usado por
+// flush_pending_floats + emit_deferred_float.
+use super::DeferredFloat;
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Largura de uma palavra em Pt, incluindo tracking entre glyphs
@@ -126,6 +129,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     }
 
     pub(super) fn new_page(&mut self) {
+        // P245 (M9d / M7+4) — flush floats pendentes na página actual
+        // antes da transição. Top floats emit no topo, bottom no fundo.
+        self.flush_pending_floats();
+
         let page = Page {
             width:  self.regions.current.width,
             height: self.regions.current.height,
@@ -136,6 +143,120 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.line_start_x = Pt(self.page_config.margin);
         let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
         self.regions.current.cursor_y = Pt(self.page_config.margin) + ascender;
+        // P245 — reset reservas na nova página.
+        self.cursor_y_top_reserve = 0.0;
+        self.cursor_y_bottom_reserve = 0.0;
+    }
+
+    /// **P245 (M9d / M7+4)** — flush dos floats pendentes na página
+    /// actual. Top floats stack do topo; bottom stack do fundo;
+    /// alignment.x aplica-se horizontalmente. `floats_pending.clear()`
+    /// após emissão.
+    pub(super) fn flush_pending_floats(&mut self) {
+        if self.floats_pending.is_empty() {
+            return;
+        }
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, FrameItem, Point};
+        let margin    = self.page_config.margin;
+        let page_w    = self.regions.current.width;
+        let page_h    = self.regions.current.height;
+        let avail_w   = page_w - 2.0 * margin;
+        let area_top  = margin;
+        let area_bot  = page_h - margin;
+
+        let floats: Vec<DeferredFloat> = std::mem::take(&mut self.floats_pending);
+
+        // Separar top floats (alignment.v == Top) vs outros (default
+        // bottom paridade vanilla).
+        let (mut top_floats, mut bot_floats): (Vec<_>, Vec<_>) = floats
+            .into_iter()
+            .partition(|f| matches!(f.alignment.v, Some(VAlign::Top)));
+
+        // Stack top floats do topo para baixo (cursor_y_top start area_top).
+        let mut y_top_cursor = area_top;
+        for f in top_floats.drain(..) {
+            let f_y = y_top_cursor;
+            self.emit_deferred_float(&f, f_y, margin, avail_w);
+            y_top_cursor += f.body_height + f.clearance;
+        }
+
+        // Stack bottom floats do fundo para cima (cursor_y_bot start area_bot).
+        // Clearance afasta float do fundo (e do float seguinte stack-up).
+        let mut y_bot_cursor = area_bot;
+        for f in bot_floats.drain(..) {
+            y_bot_cursor -= f.clearance + f.body_height;
+            let f_y = y_bot_cursor;
+            self.emit_deferred_float(&f, f_y, margin, avail_w);
+        }
+
+        let _ = Align2D { h: None::<HAlign>, v: None::<VAlign> }; // marker import use
+        let _ = FrameItem::Group { pos: Point { x: Pt(0.0), y: Pt(0.0) }, matrix:
+            crate::entities::layout_types::TransformMatrix::identity(),
+            clip_mask: None, inner_width: 0.0, inner_height: 0.0, items: Vec::new() }; // marker
+    }
+
+    /// **P245 (M9d / M7+4)** — emite um `DeferredFloat` na posição
+    /// final calculada. Aplica `alignment.x` para posicionamento
+    /// horizontal dentro da largura útil da página. Translada items
+    /// locais (origem 0,0 + ascender) para coordenadas finais.
+    fn emit_deferred_float(
+        &mut self,
+        f: &DeferredFloat,
+        target_y: f64,
+        margin: f64,
+        avail_w: f64,
+    ) {
+        use crate::entities::layout_types::{FrameItem, Point, HAlign};
+        // `layout_sub_frame_with_width` posicionou items com ascender
+        // offset (cursor_y = ascender inicial). Para alinhar shapes ao
+        // target_y final exacto (não baseline), subtrair ascender do
+        // offset de translação — paridade pattern `layout_place`
+        // (placement.rs).
+        let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
+        let target_y = target_y - ascender.0;
+        // Calcular X conforme alignment.x.
+        let x_offset = match f.alignment.h {
+            Some(HAlign::Center) => (avail_w - f.body_width) / 2.0,
+            Some(HAlign::Right)  => avail_w - f.body_width,
+            _                    => 0.0, // None → Left default.
+        };
+        let target_x = margin + x_offset.max(0.0);
+
+        // Translate items: cada item ganha offset (target_x, target_y).
+        for item in &f.body_items {
+            let translated = match item.clone() {
+                FrameItem::Text { pos, text, style } => FrameItem::Text {
+                    pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                    text, style,
+                },
+                FrameItem::Shape { pos, kind, width, height, fill, stroke } =>
+                    FrameItem::Shape {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        kind, width, height, fill, stroke,
+                    },
+                FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } =>
+                    FrameItem::Group {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        matrix, clip_mask, inner_width, inner_height, items,
+                    },
+                FrameItem::Line { start, end, thickness } => FrameItem::Line {
+                    start: Point { x: start.x + Pt(target_x), y: start.y + Pt(target_y) },
+                    end:   Point { x: end.x   + Pt(target_x), y: end.y   + Pt(target_y) },
+                    thickness,
+                },
+                FrameItem::Glyph { pos, glyph_id, x_advance, size } =>
+                    FrameItem::Glyph {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        glyph_id, x_advance, size,
+                    },
+                FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height } =>
+                    FrameItem::Image {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        data, width, height, intrinsic_width, intrinsic_height,
+                    },
+            };
+            self.regions.current.current_items.push(translated);
+        }
     }
 
     /// Número da página actual (1-indexed).

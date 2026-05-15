@@ -1,7 +1,7 @@
 # ⚖️ ADR-0081: M7+ pipeline restructuring scope — reabertura M-fase pós-M9c para walk-time eval Func dispatch + bloqueadores cumulativos Fase 5 Layout
 
-**Status**: `IMPLEMENTADO parcial` (M7+1 ✓ P240; M7+2 ✓ P241; M7+5 ✓ P242; M7+3 ✓ via cumulativo P243 fase (a) + Linha A pré-existente P217-P221; **M7+4 pendente**)
-**Data**: 2026-05-14 (PROPOSTO P239; IMPLEMENTADO parcial P240; 2/5 P241; 3/5 P242; 4/5 P243 fase (a); **4.5/5 P244 reconciliação M7+3 cumulativo**)
+**Status**: **`IMPLEMENTADO total`** (M7+1 ✓ P240; M7+2 ✓ P241; M7+5 ✓ P242; M7+3 ✓ via cumulativo P243 fase (a) + Linha A pré-existente P217-P221; **M7+4 ✓ P245**)
+**Data**: 2026-05-14 (PROPOSTO P239; IMPLEMENTADO parcial P240; 2/5 P241; 3/5 P242; 4/5 P243 fase (a); 4.5/5 P244 reconciliação M7+3 cumulativo; **5/5 IMPLEMENTADO total P245**)
 **Autor**: Humano + IA
 **Validado**: audit empírico P239 prep-passo audit-only
 (`00_nucleo/materialization/typst-passo-239-audit-m7-reabertura.md`);
@@ -949,3 +949,137 @@ prematuro).
 - Pivot outro módulo OR pausa M-fase.
 
 Decisão humana pendente literal pós-P244.
+
+### P245 anotação — M7+4 Place float real: promoção graded P223 → semantic activa via buffer floats_pending + flush em new_page/finish; **ADR-0081 IMPLEMENTADO TOTAL 5/5**
+
+**Data**: 2026-05-14.
+
+**Quinta e última sub-passo materialização M9d / M7+** — **fecha
+ADR-0081 IMPLEMENTADO total 5/5**. Linha B M7+ completa
+estrutural.
+
+**P245 materializa M7+4 Place float real**:
+
+- **Novo struct `DeferredFloat`** em `01_core/src/rules/layout/mod.rs`
+  (`pub(super)`; não-L1 entity — local ao Layouter):
+  - `alignment: Align2D`, `body_items: Vec<FrameItem>`,
+    `body_height: f64`, `body_width: f64`, `clearance: f64`.
+- **3 fields novos no Layouter**:
+  - `floats_pending: Vec<DeferredFloat>` — buffer da página.
+  - `cursor_y_top_reserve: f64` — espaço reservado top.
+  - `cursor_y_bottom_reserve: f64` — espaço reservado bottom.
+- **Arm `Content::Place { float: true, .. }` activa** (`mod.rs:916`):
+  - Layout body em sub-frame via `layout_sub_frame_with_width`.
+  - Captura `(body_height, body_items)` + `content_w` via
+    `measure_content`.
+  - Push ao buffer `floats_pending`.
+  - Cursor.y NÃO avança (paridade vanilla — float não consome
+    flow space direct).
+- **`float: false` preservado P84.5+P84.6 literal** (Decisão 3
+  spec): comportamento in-place via cursor.
+- **`flush_pending_floats` método novo** em `cursor.rs`:
+  - Separa `floats_pending` em top vs bottom via
+    `alignment.v == Top`.
+  - Top stack do topo área útil; bottom stack do fundo área
+    útil.
+  - Clearance afasta float da margem (e do float seguinte
+    stack).
+  - `alignment.x` aplica-se horizontalmente via
+    `emit_deferred_float` (Left/Center/Right).
+  - Items locais translated para posição final (com correcção
+    de ascender per paridade `layout_place` em `placement.rs`).
+  - Buffer `clear()` após emit.
+- **`new_page()` + `finish()` chamam `flush_pending_floats`**
+  antes da transição de página / commit final.
+- **Reset `cursor_y_top_reserve` + `cursor_y_bottom_reserve`**
+  em `new_page` (nova página inicia limpa).
+
+**DEBT-37 sentinela** `scope: Parent + float: true` exigido
+(P223) **preservada literal** — `native_place` continua a
+rejeitar `scope: parent + float: false`.
+
+**Categoria C.1 Fase 5 Layout** transita pendente →
+**CUMPRIDO P245** (ADR-0079 desbloqueada para promoção potencial
+→ IMPLEMENTADO se humano decide scope-out Categoria C.2).
+
+**Pré-condições obrigatórias verificadas P245**:
+1. Tests baseline preservados: **2198 → 2203 verdes** (+5
+   novos P245; 0 regressões reais; **0 adaptações** — extensão
+   non-disruptive).
+2. Comemo memoization invariants ADR-0073/0074 preservados —
+   P245 toca Layouter consumer apenas; trait `Introspector`
+   intocada.
+3. Backward compat: `Place { float: false }` preserva
+   P84.5+P84.6 literal; tests P223 storage preservados; eval-
+   time wrappers P236/P237 + walk-time runtime P240/P241 +
+   geometry P242 + Regions P243 intactos.
+
+**9 decisões fixadas P245** (Decisão 0 = lição N=7 → 8
+cumulativo):
+- Decisão 0 — C1 audit obrigatório bloqueante (lição N=8
+  cumulativo).
+- Decisão 1 — Buffer `floats_pending: Vec<DeferredFloat>`.
+- Decisão 2 — Arm Place float: true → buffer.
+- Decisão 3 — Place sem float preservado P84.5+P84.6 literal.
+- Decisão 4 — Flush em `new_page` + `finish`.
+- Decisão 5 — Reserva espaço top/bottom para floats.
+- Decisão 6 — `scope: Parent + float: true` real (DEBT-37
+  sentinela preservada).
+- Decisão 7 — Sem tipo entity novo; sem ADR nova.
+- Decisão 8 — Anti-inflação 37ª aplicação cumulativa.
+- Decisão 9 — Padrão emergente "Promoção graded → real
+  semantic" inaugurado N=1.
+
+**Patterns emergentes inaugurados/consolidados em P245** (3):
+
+- **"Promoção graded → real semantic activação consumer"** N=1
+  inaugurado P245 — sub-padrão novo (storage P223 graded →
+  semantic activa P245 cross-passo). Candidato a formalização
+  N=3-4 futuro.
+- **"Spec C1 audit obrigatório bloqueante pós-P236.div-1"** N=7
+  → **8 cumulativo** (P237 + P238 reescrito + P240 + P241 +
+  P242 + P243 + P244 + **P245**). P245 lição refinada N=8:
+  "grep fields/arms já implementados antes de assumir trabalho
+  original".
+- **"Layouter internal refactor (semantic activation)"** N=1
+  → **2 cumulativo** (P243 extensão Regions + scope-outs
+  promovidos + **P245 Place float semantic activa**).
+
+**Resultado P245**:
+- Tests workspace: 2198 → **2203 verdes** (+5).
+- Violations: 0 preservadas.
+- Content variants: 62 preservado.
+- ShapeKind variants: 5 preservado.
+- **Layouter fields**: +3 (`floats_pending`,
+  `cursor_y_top_reserve`, `cursor_y_bottom_reserve`).
+- **Layouter struct local novo**: `DeferredFloat` (não L1
+  entity — local `pub(super)` ao módulo `layout/`).
+- **Layouter methods novos**: `flush_pending_floats` +
+  `emit_deferred_float`.
+- Regions fields: 3 preservado.
+- Stdlib funcs: 64 preservado (`native_place` inalterado;
+  consumer activado).
+- L0 prompts: **0 tocados** (paridade P243 Layouter internal
+  refactor; sub-categoria nova).
+- ADR-0079 Categoria C.1 transita pendente → **CUMPRIDO P245**.
+
+**M9d / M7+ progresso**: **5/5 sub-passos materializados** ✓✓✓
+COMPLETO (M7+1 ✓ P240; M7+2 ✓ P241; M7+3 ✓ via cumulativo P243
++ Linha A; M7+4 ✓ **P245**; M7+5 ✓ P242).
+
+**Status ADR-0081**: IMPLEMENTADO parcial 4.5/5 → **IMPLEMENTADO
+total 5/5** ✓. Distribuição ADRs: PROPOSTO 12 preservado; EM
+VIGOR 29 preservado; IMPLEMENTADO **22 → 23** (+1 ADR-0081
+transita parcial → total); total 68 preservado.
+
+**Próximo sub-passo candidato pós-P245**:
+- **ADR-0079 → IMPLEMENTADO total** (XS-S; depende de Categoria
+  C.2 multi-region completion ou scope-out humano).
+- Cell layout migration → `regions.current.height` (M ~2-4h;
+  Decisão 7 P243 diferida; activa A.4 breakable per-cell).
+- Refino A.4 outset/fill/stroke (S-M por attr).
+- ADR meta admin XS (formalizar pattern "passo administrativo
+  XS" N=6 ou novos N=2-3 P244/P245).
+- Pivot outro módulo OR pausa M-fase.
+
+Decisão humana pendente literal pós-P245.

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/region`
-Hash do Código: efe89bb1
+Hash do Código: 3f89e228
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/region.rs`
@@ -265,3 +265,86 @@ paridade lição N=6 cumulativo precedente P237/P240/P241/P242.
 **Sub-padrão #14 "Tipo entity em ficheiro próprio"** preservado
 N=6 (Regions já existe em `region.rs` desde P216B — P243 estende
 o existente em vez de criar novo ficheiro).
+
+## Extensão `Regions.cell` + métodos `effective`/`enter_cell`/`exit_cell` — Passo 246 (cell layout migration; activa A.4 breakable per-cell arquiteturalmente)
+
+P216A introduziu `Region` (geometria abstracta width+height);
+P216B adicionou `Regions { current }`; P243 estendeu para
+`Regions { current, backlog, last }` + método `advance`.
+**P246 estende novamente** para suportar consultas de contexto
+células sem acoplar Layouter:
+
+```rust
+pub struct Regions {
+    pub current: Region,
+    pub backlog: Vec<Region>,      // P243
+    pub last:    Option<Region>,   // P243
+    pub cell:    Option<Region>,   // P246 — cell region transient
+}
+```
+
+**Métodos novos**:
+
+```rust
+/// Region efectiva: cell se activa, senão current (page).
+pub fn effective(&self) -> &Region;
+
+/// Entra célula com region dada; retorna saved (suporta
+/// aninhamento Grid-in-Grid).
+pub fn enter_cell(&mut self, cell: Region) -> Option<Region>;
+
+/// Sai célula restaurando saved (None top-level; Some(outer)
+/// aninhamento).
+pub fn exit_cell(&mut self, saved: Option<Region>);
+```
+
+**Pattern uso no Layouter** (arm `Content::Grid` em `grid.rs`):
+
+```rust
+let saved_cell_region = self.regions.enter_cell(
+    Region::new(body_w, body_h),
+);
+// ... layout cell body ...
+self.regions.exit_cell(saved_cell_region);
+```
+
+Reader pattern (em `placement.rs`):
+
+```rust
+// Antes (4 fields):
+if let Some(cell_h) = self.cell_available_h { ... }
+
+// Depois (P246):
+if let Some(cell) = self.regions.cell.as_ref() {
+    let cell_h = cell.height;
+    // ...
+}
+```
+
+**Migração `cell_available_h` + `cell_origin_w`**: estes 2
+fields do Layouter migrados para `Region.height` + `Region.width`
+via `regions.cell`. **`cell_origin_x` + `cell_origin_y`
+preservados** como Layouter fields legacy — `Region` actual sem
+`origin: Point` (cell origin absoluto em pt na página exige
+fields paralelos); refactor futuro com `Region.origin` permitirá
+eliminar.
+
+**Activa A.4 breakable per-cell arquiteturalmente** — pós-P246,
+`Content::Block.breakable` + `Content::Boxed.height` + overflow
+em TableCell podem consultar `regions.effective()` para decisão
+real de quebra dentro da célula. Activação real (semantic
+materialização) diferida a passo futuro não-reservado per
+política P158.
+
+**Sub-padrão emergente "Layouter consumer migration via API
+wrapper" N=1 inaugurado P246** — migração field-by-field
+Layouter privado → API entity-side. Reduz acoplamento entre
+Layouter e contexto activo (cell/page/region). Candidato a
+formalização N=3-4 futuro.
+
+**Lição refinada audit C1 N=8 → 9 cumulativo** P246: "mapear
+empíricamente distribuição de usos por sub-módulo antes de
+fixar arquitectura de migração" (extensão da lição P245
+"grep fields/arms já implementados antes de assumir trabalho
+original"; extensão da lição P244 "grep variants `Content::*`
+candidatas").

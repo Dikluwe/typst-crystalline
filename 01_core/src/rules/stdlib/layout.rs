@@ -732,7 +732,8 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
                 )]),
             },
             // P231 — aceitar outset/radius/clip (parsing pós-loop).
-            "outset" | "radius" | "clip" => {},
+            // P247 — aceitar fill/stroke (parsing pós-loop paralelo).
+            "outset" | "radius" | "clip" | "fill" | "stroke" => {},
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("block(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
@@ -797,6 +798,24 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         None => false,
     };
 
+    // P247 — fill: aceita Value::Color directo (paridade pattern Grid/
+    // Table inline). Refino futuro para Paint enum quando ADR dedicada.
+    let fill = match args.named.get("fill") {
+        Some(Value::Color(c)) => Some(*c),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("block(fill): espera Color, recebeu {}", other.type_name()),
+        )]),
+        None => None,
+    };
+
+    // P247 — stroke: reusa `extract_stroke` (helper pré-existente
+    // P227 stdlib/layout.rs:351). Aceita Length/Color/Stroke shorthand.
+    let stroke = match args.named.get("stroke") {
+        Some(val) => Some(extract_stroke(val, "block", "stroke")?),
+        None      => None,
+    };
+
     Ok(Value::Content(Content::Block {
         body: Box::new(body),
         width,
@@ -806,6 +825,8 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         outset,
         radius,
         clip,
+        fill,
+        stroke,
     }))
 }
 
@@ -948,7 +969,8 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
                 )])?;
             }
             // P231 — aceitar outset/radius/clip (parsing pós-loop paridade block).
-            "outset" | "radius" | "clip" => {},
+            // P247 — aceitar fill/stroke paralelo block.
+            "outset" | "radius" | "clip" | "fill" | "stroke" => {},
             other => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("box(): argumento nomeado inesperado '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", other),
@@ -1012,10 +1034,27 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         None => false,
     };
 
+    // P247 — fill paralelo block.
+    let fill = match args.named.get("fill") {
+        Some(Value::Color(c)) => Some(*c),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("box(fill): espera Color, recebeu {}", other.type_name()),
+        )]),
+        None => None,
+    };
+
+    // P247 — stroke reusa `extract_stroke` paralelo block.
+    let stroke = match args.named.get("stroke") {
+        Some(val) => Some(extract_stroke(val, "box", "stroke")?),
+        None      => None,
+    };
+
     Ok(Value::Content(Content::Boxed {
         body: Box::new(body),
         width, height, inset, baseline,
         outset, radius, clip,
+        fill, stroke,
     }))
 }
 

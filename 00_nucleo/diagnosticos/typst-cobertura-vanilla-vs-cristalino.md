@@ -135,8 +135,8 @@ primitives e `skew`). Detalhe em
 | `pad(...)` | layout/pad.rs | `implementado⁺` ⁶ ²¹ | Passos 156C + 156L (refino sides individualizadas) | `Content::Pad { body, sides: Sides<Option<Length>> }` + stdlib `#pad(body, left:?, right:?, top:?, bottom:?, x:?, y:?, rest:?)`; **P156L refino**: cada side passa a `Option<Length>` per ADR-0064 Caso C (None ↔ default zero resolvido em uso); helper `extract_sides_lengths` privado; `right` continua scope-out em layout (perfil ADR-0054 graded); padding negativo rejeitado |
 | `align(alignment, body)` | layout/align.rs | `implementado` | Passos 84.5–84.6 (DEBT-36, 37) | `Align2D`; `Place` com scope |
 | `place(alignment, ..., body)` | layout/place.rs | `implementado⁺` ⁵ ⁴⁴ ⁴⁶ | Passos 84.5 + 84.6 + 223 (encerrado série α P225) | refino aditivo P223 — `float: bool` + `clearance: Option<Length>` armazenados (semantic real adiada per ADR-0054 graded; pattern N=5 cumulativo weak/breakable/float/repeat); restrição vanilla `scope: Parent + float: true` restaurada (DEBT-37 §"Divergência" fechada — Decisão 3 Opção α); refino multi-pass flow contorna Fase 5 candidata NÃO-reservada per política P158 |
-| `box(...)` | layout/container.rs | `implementado` ¹⁵ | Passo 156H (ADR-0061 Fase 2 sub-passo 2) | `Content::Boxed { body, width, height, inset, baseline }` + stdlib `#box(body, width: ?, height: ?, inset: ?, baseline: ?)`; container inline (não força flush_line); 6 atributos vanilla scope-out (outset/fill/stroke/radius/clip/stroke-overhang); width/height/baseline armazenados mas semantic real adiada |
-| `block(...)` | layout/container.rs | `implementado` ¹³ | Passo 156G (ADR-0061 Fase 2 sub-passo 1) | `Content::Block { body, width, height, inset, breakable }` + stdlib `#block(body, width: ?, height: ?, inset: ?, breakable: true)`; subset Fase 1 per ADR-0054 graded; 9 atributos vanilla scope-out (outset/fill/stroke/radius/clip/spacing/above/below/sticky) |
+| `box(...)` | layout/container.rs | `implementado⁺` ¹⁵ ⁶⁵ ⁶⁶ | Passos 156H + 231 + 242 + 247 + **248** | `Content::Boxed { body, width, height, inset, baseline, outset, radius, clip, fill, stroke }` + stdlib `#box(body, width: ?, height: ?, inset: ?, baseline: ?, outset: ?, radius: ?, clip: ?, fill: ?, stroke: ?)`; **P248 Boxed.height overflow semantic real**: clip=true wrap body em Group com clip_mask Rect; clip=false overflow visível (paridade vanilla); 5 dos 6 scope-outs fechados cumulativamente + height real activado |
+| `block(...)` | layout/container.rs | `implementado⁺` ¹³ ⁶⁵ ⁶⁶ | Passos 156G + 231 + 242 + 243 + 247 + **248** | `Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke }` + stdlib `#block(body, width: ?, height: ?, inset: ?, breakable: true, outset: ?, radius: ?, clip: ?, fill: ?, stroke: ?)`; **P248 Block.breakable real**: medição antecipada via `measure_content_constrained` puro; `new_page()` antecipado quando não-breakable não cabe na actual mas cabe noutra; overlong emit normal (paridade vanilla); 6 dos 9 scope-outs fechados cumulativamente (+ breakable real) |
 | `columns(n)` | layout/columns.rs | `parcial` ⁴⁰ ⁴² | Passos 217 + 218 + 219 (encerrado P221) | variant + stdlib + arm consumer real graded; **multi-region flow real ausente** (Opção A diferida a P-Layout-Fase4 candidata NÃO-reservada) |
 | `grid(columns, ...)` | layout/grid | `implementado⁺` ⁵ ⁴⁵ ⁴⁶ ⁴⁷ ⁴⁸ ⁴⁹ | Passos 82 + 83 + 84.6 + 224 + 227 + 228 + 230 | refino substantivo P224 + refinos aditivos P227+P228+P230 — Grid agora +7 fields cumulativos (gutter/align/inset/header/footer/stroke/fill); **GridCell + TableCell +2 fields cosméticos per-cell P230** (stroke + fill com precedência override Grid-level via `.or()`); 3 variants Content novos P224 + módulo `grid_placement.rs`. **DEBT-34e ENCERRADO P224**; **DEBT-34d** preservado aberto per `P224.div-1`. Render Opção β Z-order correcto: fill → conteúdo → stroke; precedência per-cell P230 |
 | `stack(spacing, ...)` | layout/stack.rs | `implementado` ¹⁷ | Passo 156I (ADR-0061 Fase 2 sub-passo 3; **último Fase 2; atinge target 72%**) | `Content::Stack { children: Arc<[Content]>, dir: Dir, spacing: Option<Length> }` + stdlib `#stack(dir: ?, spacing: ?, ..children)`; tipo `Dir` novo (LTR/RTL/TTB/BTT); 4 direcções implementadas; spacing real entre children |
@@ -3698,6 +3698,188 @@ preservado. **Regions fields**: 1 → **3** (+backlog +last).
 **Regions methods**: +1 (`advance`). **Scope-outs promovidos**:
 3 (Pad.right + Block.width + Boxed.width).
 
+⁶³ — Ajuste P245 (M9d / M7+4 quinta e última sub-passo
+materialização pós-P244 — **Place float real**; **fecha
+ADR-0081 IMPLEMENTADO total 5/5**; **promoção real graded P223
+→ semantic activa consumer**; sub-padrão emergente **"Promoção
+graded → real semantic activação consumer" N=1 inaugurado**;
+**Categoria C.1 Fase 5 Layout transita pendente → CUMPRIDO**;
+oitava aplicação cumulativa pattern "spec C1 audit obrigatório
+bloqueante pós-P236.div-1" N=7 → 8 cumulativo):
+
+**P245 materializa M7+4 Place float real**:
+
+- **Novo struct `DeferredFloat`** local em
+  `01_core/src/rules/layout/mod.rs` (`pub(super)`; **não L1
+  entity** — buffer entry específico ao módulo `layout/`):
+  - `alignment: Align2D`, `body_items: Vec<FrameItem>`,
+    `body_height: f64`, `body_width: f64`, `clearance: f64`.
+- **3 fields novos no Layouter**:
+  - `floats_pending: Vec<DeferredFloat>` — buffer floats
+    pendentes na página actual.
+  - `cursor_y_top_reserve: f64` — espaço reservado top
+    (futuro reserve mechanism per anti-collision).
+  - `cursor_y_bottom_reserve: f64` — espaço reservado bottom.
+- **Arm `Content::Place { float: true, .. }` activa em
+  `mod.rs:916`**:
+  - `layout_sub_frame_with_width` captura body items + altura.
+  - `measure_content` extrai content_w para alignment.x final.
+  - Clearance resolved via `resolve_pt(font_size)`.
+  - Push ao `floats_pending` (buffer linear).
+  - **Cursor.y NÃO avança** (paridade vanilla — float não
+    consome flow space direct).
+- **`float: false` preservado P84.5+P84.6 literal** (Decisão 3
+  spec): comportamento in-place via cursor — sem path mudado.
+- **`flush_pending_floats` method novo** em `cursor.rs`:
+  - Separa `floats_pending` em top vs bottom via
+    `alignment.v == Top`.
+  - Top stack do topo área útil (`area_top = margin`); bottom
+    stack do fundo área útil (`area_bot = page_h - margin`).
+  - Clearance afasta float da margem (e stack-up neighbor).
+  - `floats_pending.clear()` após emit.
+- **`emit_deferred_float` helper novo**:
+  - Translate items locais (origem 0,0 + ascender) para
+    coordenadas finais.
+  - **Correcção ascender**: `target_y -= ascender.0` (paridade
+    pattern `layout_place` em `placement.rs`); items shape
+    posicionam-se exactamente em `target_y` final, não baseline.
+  - `alignment.x` per `Align2D::h`:
+    `Left|None` → `target_x = margin`; `Center` → centrado em
+    `(avail_w - body_width)/2`; `Right` → `avail_w - body_width`.
+- **`new_page()` e `finish()` chamam `flush_pending_floats`**
+  antes da transição de página / commit final.
+- **Reset `cursor_y_top_reserve` + `cursor_y_bottom_reserve`**
+  em `new_page` (nova página inicia limpa).
+
+**DEBT-37 sentinela** `scope: Parent + float: true` exigido
+(P223) **preservada literal** — `native_place` continua a
+rejeitar `scope: parent + float: false`.
+
+**Categoria C.1 Fase 5 Layout** transita **pendente → CUMPRIDO
+P245** ✓. ADR-0079 desbloqueada para promoção potencial →
+IMPLEMENTADO graded (depende de Categoria C.2 multi-region
+completion OR scope-out humano — decisão diferida pós-P245).
+
+**Pré-condições obrigatórias verificadas P245** (per ADR-0081
+§"Pré-condições obrigatórias" P239):
+1. **Tests baseline preservados**: 2198 verdes pré-P245 →
+   **2203 verdes pós-P245** (+5 novos P245; 0 regressões reais;
+   **0 adaptações intencionais** — extensão non-disruptive).
+2. **Comemo memoization invariants ADR-0073/0074 preservados**:
+   P245 toca Layouter consumer apenas; trait `Introspector`
+   intocada; sub-stores trackable F3 intocados.
+3. **Backward compat**: `Content::Place { float: false }`
+   preserva P84.5+P84.6 literal; tests P223 storage
+   preservados; eval-time wrappers P236/P237 + walk-time
+   runtime P240/P241 + geometry P242 + Regions P243 intactos.
+
+- **L0 partial NÃO tocado** — paridade P243 Layouter internal
+  refactor sub-categoria. **Sub-categoria nova ADR-0080
+  "Layouter internal refactor (semantic activation)"** N=1 →
+  **2 cumulativo** (P243 extensão Regions + scope-outs
+  promovidos + **P245 Place float semantic activa**). Pattern
+  total "L0 tocado pós-P229 (sub-categorias)" N=4 cumulativo
+  preservado (não-incrementa P245 — sub-categoria L0
+  preserva).
+
+- **9 decisões fixadas P245** (Decisão 0 = lição N=7 → 8
+  cumulativo):
+  - Decisão 0 — C1 audit obrigatório bloqueante.
+  - Decisão 1 — Buffer `floats_pending: Vec<DeferredFloat>`.
+  - Decisão 2 — Arm Place float: true → buffer.
+  - Decisão 3 — Place sem float preservado P84.5+P84.6 literal.
+  - Decisão 4 — Flush em `new_page` + `finish`.
+  - Decisão 5 — Reserva espaço top/bottom para floats.
+  - Decisão 6 — `scope: Parent + float: true` real (DEBT-37
+    sentinela preservada P223).
+  - Decisão 7 — Sem tipo entity novo; sem ADR nova; sub-categoria
+    "Layouter internal refactor (semantic activation)" preserva
+    P243 pattern.
+  - Decisão 8 — Anti-inflação 37ª aplicação cumulativa
+    pós-P205D.
+  - Decisão 9 — Padrão emergente "Promoção graded → real
+    semantic" inaugurado N=1.
+
+- **Patterns emergentes inaugurados/consolidados em P245** (3):
+  - **"Promoção graded → real semantic activação consumer" N=1
+    inaugurado P245** — sub-padrão novo (storage P223 graded
+    → semantic activa P245 cross-passo). Candidato a
+    formalização N=3-4 futuro.
+  - **"Spec C1 audit obrigatório bloqueante pós-P236.div-1"**
+    N=7 → **8 cumulativo** (P237 + P238 reescrito + P240 +
+    P241 + P242 + P243 + P244 + **P245**). Lição refinada
+    N=8: "grep fields/arms já implementados antes de assumir
+    trabalho original" (extensão da lição P244 "grep variants
+    candidatas").
+  - **"Layouter internal refactor (semantic activation)"** N=1
+    → **2 cumulativo** (P243 + P245). Sub-categoria 4ª
+    formalizada ADR-0080 §"Lição refinada P245".
+
+- 5 tests adicionados P245 (1 unit float bottom + 1 unit float
+  top + 1 unit float false baseline + 1 unit clearance + 1
+  unit buffer flush); workspace 2198 → **2203 verdes** (+5;
+  0 regressões; 0 adaptações).
+
+- **Distribuição ADRs P245**: ADR-0081 IMPLEMENTADO parcial
+  4.5/5 → **IMPLEMENTADO total 5/5** ✓. **PROPOSTO 12
+  preservado; EM VIGOR 29 preservado; IMPLEMENTADO 22 → 23**
+  (+1 ADR-0081 transita parcial → total); total **68
+  preservado**. ADR-0079 Categoria C.1 transita **pendente
+  → CUMPRIDO P245**. ADR-0080 sub-categoria nova "Layouter
+  internal refactor (semantic activation)" N=2 cumulativo
+  anotada. ADR-0066 SUPERSEDED-BY 0073 preservado.
+- **Saldo DEBTs**: 11 preservado (DEBT-37 sentinela preservada
+  P223; nada novo).
+- **Cobertura Layout per metodologia**: **~93-94% preservado**
+  (P245 promove `place(...)` graded → real — refino qualitativo
+  para entrada já implementado⁺).
+- **Cobertura user-facing total**: ~74-75% → **~75-76%** (Place
+  float real bonus cumulativo).
+- **Anti-inflação 37ª aplicação cumulativa pós-P205D** —
+  Opção α extensão Layouter (não L1 entity) + Opção α arm
+  consumer activado (não nova variant) + Opção α flush em
+  pontos canónicos (`new_page` + `finish`) + Opção α
+  preservação `float: false` literal + Opção β L0 intocados
+  + Opção α promoção ADR-0081 IMPLEMENTADO total + Opção α
+  Categoria C.1 cumprida + Opção α sub-padrão N=1 inaugurado
+  (sem ADR meta prematura).
+
+**Categoria C.1 Fase 5 Layout**: **pendente → CUMPRIDO P245** ✓.
+**Categoria C.2 Fase 5 Layout**: pendente (cell-level
+multi-region; scope-out humano candidato pós-P245).
+
+**Fase 5 Layout candidata: 14/13-15 → 15/13-15 sub-passos
+materializados** (~100% cumulativo se C.2 scope-out humano).
+
+**M9d / M7+ progresso**: **5/5 sub-passos materializados** ✓✓✓
+COMPLETO (M7+1 ✓ P240; M7+2 ✓ P241; M7+3 ✓ via cumulativo
+P243 + Linha A; M7+4 ✓ **P245**; M7+5 ✓ P242).
+
+**Marco interno P245**: M9d / M7+ COMPLETO total via Linha B;
+ADR-0081 fecha 5/5 IMPLEMENTADO total; Categoria C.1 Fase 5
+Layout cumprida; **primeiro sub-padrão "Promoção graded → real
+semantic activação consumer" inaugurado** (P223 graded → P245
+real cross-passo); audit C1 lição N=8 cumulativo refinada
+("grep fields/arms já implementados antes de assumir trabalho
+original" — extensão da lição P244).
+
+**Decisão humana pendente pós-P245**:
+- Promoção ADR-0079 → IMPLEMENTADO graded (scope-out humano
+  Categoria C.2). XS-S magnitude.
+- Cell layout migration → `regions.current.height` (M ~2-4h;
+  Decisão 7 P243 diferida; activa A.4 breakable per-cell).
+- Refino A.4 outset/fill/stroke (S-M por attr).
+- ADR meta admin XS (formalizar pattern "passo administrativo
+  XS" N=6 ou novos N=2 P244/P245).
+- Pivot outro módulo OR pausa M-fase.
+
+**Stdlib funcs**: 64 preservado. **ShapeKind variants**: 5
+preservado. **Layouter fields**: +3 (`floats_pending`,
+`cursor_y_top_reserve`, `cursor_y_bottom_reserve`). **Layouter
+struct local**: +1 `DeferredFloat` (não L1 entity). **Layouter
+methods novos**: 2 (`flush_pending_floats` +
+`emit_deferred_float`).
+
 ³⁹ — Ajuste P214 (Tabela A.1 Markup syntactic — recálculo
 ampliado pós-M9c 2026-05-12): **3 reclassificações
 empíricas materiais** detectadas em §A.1 face ao estado
@@ -4067,6 +4249,165 @@ variants core para Bibliography+Cite).
 **Nota**: variants extra cristalino (`Value::Align`, `Content::Styled`) são **divergências intencionais**
 favoráveis — cristalino tem features que vanilla não (em forma de Value); contadas como `implementado` porque
 encerradas por ADRs (0026, 0028→0029, 0036, etc.).
+
+⁶⁵ — Ajuste P247 (M9d / M7+5; ADR-0079 Categoria A.4 cumulativa)
+— **3 scope-outs cosméticos visuais Block + Boxed promovidos
+cumulativamente** (outset semantic real + fill + stroke);
+**fecha 5 dos 9 scope-outs Block originais P156G** (outset
+P231→P247 + radius P242 + clip P242 + fill P247 + stroke P247);
+**fecha 5 dos 6 scope-outs Boxed P156H** (resta stroke-overhang);
+inaugura sub-padrão **"agregar promoções scope-outs cosméticos
+visuais"** N=1; lição refinada N=9 → 10 cumulativo P247
+("mapear scope-outs declarados historicamente vs estado real
+materializado antes de assumir ausência").
+
+**P247 materializa A.4 cumulativa**:
+
+- **+2 fields em Block + Boxed**: `fill: Option<Color>` + `stroke:
+  Option<Stroke>`; paridade simétrica; 8 → 10 fields ambos
+  variants.
+- **outset semantic real activado** (cenário A audit C1 §2.4-§2.5
+  — outset zero-uso pré-P247): cursor.y avança outset.top antes
+  do inset.top; outset.bottom após height min; bounds Shape
+  expandem em todos os lados.
+- **Layouter activa emissão `FrameItem::Shape`** ANTES do body
+  via `current_items.insert(items_before, ...)` (Z-order); reuso
+  `ShapeKind::RoundedRect { radii: radius }` P242 quando radius
+  non-zero.
+- **stdlib `block(fill:, stroke:)` + `box(fill:, stroke:)`**: fill
+  aceita `Value::Color` directo (pattern inline 1-linha paridade
+  Grid/Table P228); stroke reusa helper `extract_stroke` P227.
+
+**Reclassificações §A.5 P247** (2 reclassificações):
+
+- `block(...)`: `implementado` ¹³ → **`implementado⁺` ¹³ ⁶⁵** (P247
+  fill+stroke+outset semantic real activados cumulativamente).
+- `box(...)`: `implementado` ¹⁵ → **`implementado⁺` ¹⁵ ⁶⁵** (P247
+  análogo; paridade simétrica).
+
+**Recontagem Layout per metodologia pós-P247**: `~93-94% →
+~94-95%` (+1pp refino qualitativo; reclassificações `implementado`
+→ `implementado⁺` em 2 funcs Layout cumulativas P247).
+**Cobertura user-facing total preservada**: ~75-76%.
+
+**Distribuição §A.5 Layout preservada literal**: contagens
+preservadas (reclassificações `implementado` → `implementado⁺`
+são qualitativas; não migram entre categorias `parcial`/`ausente`).
+
+**Stdlib funcs**: 64 preservado. **ShapeKind variants**: 5
+preservado. **Regions fields**: 4 preservado. **Layouter
+fields**: preservado.
+
+**Block fields**: 8 → **10** (+fill, +stroke). **Boxed fields**:
+8 → **10** (+fill, +stroke). **Content variants**: 62 preservado
+(refino aditivo a variants existentes, sem novos).
+
+**Scope-outs promovidos cumulativos**: 3 (Pad.right P243 +
+Block.width P243 + Boxed.width P243) + 2 (Block/Boxed radius
+P242 + clip P242) + **3 (outset semantic + fill + stroke P247)**
+= **8 promoções reais cumulativas**. Sub-padrão "agregar
+promoções scope-outs cosméticos visuais" N=1 inaugurado P247.
+
+**Tests P247** (20 unit/E2E):
+- 6 unit content (`entities/content.rs`): variant aceita
+  fill+stroke; partialEq inclui; map_content preserva;
+  construtores defaults None.
+- 8 unit stdlib (`stdlib/mod.rs`): native_block + native_box
+  aceitam fill Color + stroke shorthand; defaults None; tipos
+  errados rejeitados; combina fill+stroke+radius+clip+outset.
+- 6 E2E layout (`layout/tests.rs`): Block fill emite Shape;
+  Block stroke emite Shape; fill + radius emite RoundedRect;
+  outset expande bounds; backward compat
+  (fill=stroke=None+outset=ZERO sem Shape); Boxed fill emite
+  Shape.
+
+**N=12 adaptações** em tests pré-existentes (2 acima range
+N=0-10 §1.4 estimado; documentadas):
+- 4 sítios `entities/content.rs` (P231 testes).
+- 7 sítios `layout/tests.rs` (P231/P242/P243).
+- 1 sítio `introspect.rs` (materialize_time arms).
+
+**Workspace pós-P247**: **2209 → 2229 verdes** (+20 P247; 0
+regressões; N=12 adaptações).
+
+⁶⁶ — Ajuste P248 (M9d / M7+5; ADR-0079 Categoria A.4 cumulativa)
+— **3 promoções graded → real semantic activação consumer**
+agregadas via mecanismo comum medição antecipada: Block.breakable
++ Boxed.height overflow + TableCell overflow clip implícito;
+inaugura sub-padrão **"Activação semantic real multi-consumer
+via mecanismo comum"** N=1; promoção graded → real N=1 → N=2
+cumulativo (P245 N=1; P248 N=2 agregado); lição refinada N=10
+→ 11 cumulativo P248 ("mapear pontos de check overflow
+existentes antes de adicionar novos checks duplicados"); 11ª
+aplicação cumulativa pattern "spec C1 audit obrigatório
+bloqueante pós-P236.div-1".
+
+**P248 materializa A.4 cumulativa via 3 activações graded → real**:
+
+- **Activação A — Block.breakable** (Layouter `mod.rs` Block
+  arm): medição antecipada via `measure_content_constrained`
+  puro (audit C1 §2.4); `new_page()` antecipado se bloco não-
+  breakable não cabe na actual mas cabe noutra; overlong emit
+  normal (paridade vanilla "overlong atómico não quebra").
+- **Activação B — Boxed.height** overflow: `clip: true` wrap
+  body em FrameItem::Group com clip_mask Rect altura h (reuso
+  mecanismo P242); `clip: false` overflow visível paridade
+  vanilla default. `height: None` preservado P156H literal.
+- **Activação C — TableCell.body** overflow clip implícito:
+  detecção via `regions.cell.height` (P246) + `cell_h_measured`
+  retornado por `layout_sub_frame_with_width`; clip via Group
+  + clip_mask Rect quando overflow. Row break real diferido
+  (refino futuro; DEBT-34e preservado aberto, distinto: DEBT-34e
+  cobre colspan/rowspan placement).
+
+**Reclassificações §A.5 P248** (2 reclassificações):
+
+- `block(...)`: `implementado⁺` ¹³ ⁶⁵ → **`implementado⁺` ¹³ ⁶⁵ ⁶⁶**
+  (P248 breakable real activado cumulativo).
+- `box(...)`: `implementado⁺` ¹⁵ ⁶⁵ → **`implementado⁺` ¹⁵ ⁶⁵ ⁶⁶**
+  (P248 height overflow semantic real activado).
+
+**Recontagem Layout per metodologia pós-P248**: `~94-95% →
+~95-96%` (+1pp refino qualitativo).
+**Cobertura user-facing total preservada**: ~75-76%.
+
+**Distribuição §A.5 Layout preservada literal**: contagens
+preservadas (reclassificações qualitativas não migram entre
+categorias).
+
+**Stdlib funcs**: 64 preservado. **ShapeKind variants**: 5
+preservado. **Regions fields**: 4 preservado. **Layouter
+fields**: preservado. **Content variants**: 62 preservado
+(refino consumer puro; sem novos).
+
+**Block fields**: 10 preservado (P247 final). **Boxed fields**:
+10 preservado. **TableCell fields**: 5 preservado (P157B final).
+
+**Scope-outs promovidos cumulativos**: 3 (P243 Pad.right +
+Block.width + Boxed.width) + 2 (P242 radius + clip) + 3 (P247
+outset + fill + stroke) + **3 (P248 breakable + height + cell
+overflow)** = **11 promoções reais cumulativas**.
+**Sub-padrão "Activação semantic real multi-consumer via
+mecanismo comum" N=1 inaugurado P248**.
+
+**Promoção graded → real semantic** N=1 → **N=2 cumulativo P248**
+(P245 Place float = N=1; P248 agregado = N=2; granular = N=4
+contando 3 sub-activações P248 + 1 P245).
+
+**Tests P248** (26 unit/E2E):
+- 16 unit Block.breakable + Boxed.height + cell overflow + E2E
+  cross-activação em `layout/tests.rs`.
+- 4 unit stdlib `native_block`/`native_box` propagação
+  breakable/height/clip.
+- 6 unit cross-attribute (breakable + outset; height + radius;
+  cell overflow + radius+clip; etc).
+
+**N=0 adaptações** em tests pré-existentes — defaults preservados
+literais (`breakable: true` + `height: None` + cell sem overflow
+renderizam idênticos P247; backward compat estrita).
+
+**Workspace pós-P248**: **2229 → 2255 verdes** (+26 P248; 0
+regressões; **0 adaptações**).
 
 ---
 

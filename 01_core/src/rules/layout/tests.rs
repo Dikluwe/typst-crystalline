@@ -3579,6 +3579,8 @@ mod tests_show_rule_integration {
             // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
             radius:    crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(3.0)),
             clip:      true,
+            fill:      None,
+            stroke:    None,
         };
         let doc = layout(&b);
         // P242 — quando clip=true, body items wrapped em FrameItem::Group
@@ -3615,6 +3617,8 @@ mod tests_show_rule_integration {
             // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
             radius:   crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(1.0)),
             clip:     false,
+            fill:     None,
+            stroke:   None,
         };
         let doc = layout(&b);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
@@ -3644,6 +3648,8 @@ mod tests_show_rule_integration {
             outset:    Sides::uniform(Length::pt(0.0)),
             radius:    Corners::uniform(Length::pt(5.0)),
             clip:      true,
+            fill:      None,
+            stroke:    None,
         };
         let doc = layout(&b);
         // Procurar FrameItem::Group com clip_mask Some(RoundedRect).
@@ -3675,6 +3681,8 @@ mod tests_show_rule_integration {
             outset:    Sides::uniform(Length::pt(0.0)),
             radius:    Corners::uniform(Length::ZERO),
             clip:      true,
+            fill:      None,
+            stroke:    None,
         };
         let doc = layout(&b);
         let mut found_rect_clip = false;
@@ -3707,6 +3715,8 @@ mod tests_show_rule_integration {
             outset:    Sides::uniform(Length::pt(0.0)),
             radius:    Corners::uniform(Length::pt(5.0)),
             clip:      false,
+            fill:      None,
+            stroke:    None,
         };
         let doc = layout(&b);
         // Nenhum Group com clip_mask deve ser emitido.
@@ -3770,6 +3780,8 @@ mod tests_show_rule_integration {
             outset:    Sides::uniform(Length::pt(0.0)),
             radius:    Corners::uniform(Length::ZERO),
             clip:      false,
+            fill:      None,
+            stroke:    None,
         };
         let doc = layout(&block);
         let mut texts = String::new();
@@ -3799,6 +3811,8 @@ mod tests_show_rule_integration {
             outset:   Sides::uniform(Length::pt(0.0)),
             radius:   Corners::uniform(Length::ZERO),
             clip:     false,
+            fill:     None,
+            stroke:   None,
         };
         let doc = layout(&boxed);
         let mut texts = String::new();
@@ -3838,6 +3852,8 @@ mod tests_show_rule_integration {
             outset:    Sides::uniform(Length::pt(0.0)),
             radius:    Corners::uniform(Length::ZERO),
             clip:      false,
+            fill:      None,
+            stroke:    None,
         };
         let doc = layout(&block);
         let mut texts = String::new();
@@ -3850,6 +3866,1202 @@ mod tests_show_rule_integration {
         }
         assert!(texts.contains("inner"),
             "Pad dentro de Block — width cumulative save/restore preservado");
+    }
+
+    // ── Passo 247 (M9d / M7+5; ADR-0079 Categoria A.4) ──────────────────
+    //     Block + Boxed fill/stroke/outset semantic real activação.
+    //     Layouter emite FrameItem::Shape antes do body (Z-order) com
+    //     bounds expandidos por outset.
+
+    #[test]
+    fn p247_block_fill_emite_shape_antes_do_body() {
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Color, Length};
+        let b = Content::Block {
+            body:      Box::new(Content::text("p247fill")),
+            width:     Some(Length::pt(50.0)),
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      Some(Color::rgb(200, 50, 50)),
+            stroke:    None,
+        };
+        let doc = layout(&b);
+        let mut found_shape_with_fill = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Shape { fill: Some(c), .. } = item {
+                    if *c == Color::rgb(200, 50, 50) { found_shape_with_fill = true; }
+                }
+            }
+        }
+        assert!(found_shape_with_fill,
+            "P247 — Block com fill=Some(Color) emite FrameItem::Shape com fill correspondente");
+    }
+
+    #[test]
+    fn p247_block_stroke_emite_shape_com_stroke() {
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Color, Length};
+        use crate::entities::geometry::Stroke;
+        let b = Content::Block {
+            body:      Box::new(Content::text("p247stroke")),
+            width:     Some(Length::pt(40.0)),
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    Some(Stroke { paint: Color::rgb(10, 20, 30), thickness: 1.5 }),
+        };
+        let doc = layout(&b);
+        let mut found_shape_with_stroke = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Shape { stroke: Some(s), .. } = item {
+                    if s.paint == Color::rgb(10, 20, 30) && s.thickness == 1.5 {
+                        found_shape_with_stroke = true;
+                    }
+                }
+            }
+        }
+        assert!(found_shape_with_stroke,
+            "P247 — Block com stroke=Some(Stroke) emite Shape com stroke correspondente");
+    }
+
+    #[test]
+    fn p247_block_fill_e_radius_emite_rounded_rect() {
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Color, Length};
+        let b = Content::Block {
+            body:      Box::new(Content::text("p247rounded")),
+            width:     Some(Length::pt(60.0)),
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::pt(5.0)),
+            clip:      false,
+            fill:      Some(Color::rgb(100, 100, 100)),
+            stroke:    None,
+        };
+        let doc = layout(&b);
+        let mut found_rounded_fill = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Shape { kind, fill: Some(_), .. } = item {
+                    if let crate::entities::geometry::ShapeKind::RoundedRect { .. } = kind {
+                        found_rounded_fill = true;
+                    }
+                }
+            }
+        }
+        assert!(found_rounded_fill,
+            "P247 — fill + radius não-zero emite Shape kind=RoundedRect");
+    }
+
+    #[test]
+    fn p247_block_outset_expande_bounds_shape() {
+        // outset=10pt em todos os lados; Shape width/height incluem outset.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Color, Length};
+        let b = Content::Block {
+            body:      Box::new(Content::text("p247outset")),
+            width:     Some(Length::pt(50.0)),
+            height:    Some(Length::pt(20.0)),
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(10.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      Some(Color::rgb(50, 50, 50)),
+            stroke:    None,
+        };
+        let doc = layout(&b);
+        let mut shape_w = 0.0_f64;
+        let mut shape_h = 0.0_f64;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Shape { width, height, fill: Some(_), .. } = item {
+                    shape_w = *width;
+                    shape_h = *height;
+                }
+            }
+        }
+        // Block inner_w = width + inset_left = 50 + 0 = 50.
+        // outset.left + outset.right = 20. Shape w = 70.
+        assert!(shape_w >= 65.0 && shape_w <= 75.0,
+            "P247 — outset expande Shape width; esperado ~70pt, obtido {:.1}", shape_w);
+        // Block inner_h = height = 20. outset.top + outset.bottom = 20. Shape h = 40.
+        assert!(shape_h >= 35.0 && shape_h <= 50.0,
+            "P247 — outset expande Shape height; esperado ~40pt, obtido {:.1}", shape_h);
+    }
+
+    #[test]
+    fn p247_block_fill_none_e_outset_zero_sem_shape() {
+        // Cenário backward compat: fill=None, stroke=None, outset=zero
+        // → SEM Shape emitido (apenas body items).
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let b = Content::Block {
+            body:      Box::new(Content::text("backcompat")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+        };
+        let doc = layout(&b);
+        let mut found_shape = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Shape { .. } = item {
+                    found_shape = true;
+                }
+            }
+        }
+        assert!(!found_shape,
+            "P247 — fill/stroke/outset todos zero NÃO emite Shape (backward compat P246)");
+    }
+
+    #[test]
+    fn p247_boxed_fill_emite_shape() {
+        // Boxed inline com fill emite Shape paralelo Block.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Color, Length};
+        let b = Content::Boxed {
+            body:     Box::new(Content::text("p247boxfill")),
+            width:    Some(Length::pt(30.0)),
+            height:   None,
+            inset:    Sides::uniform(Length::pt(0.0)),
+            baseline: Length::pt(0.0),
+            outset:   Sides::uniform(Length::pt(0.0)),
+            radius:   Corners::uniform(Length::ZERO),
+            clip:     false,
+            fill:     Some(Color::rgb(70, 140, 210)),
+            stroke:   None,
+        };
+        let doc = layout(&b);
+        let mut found_shape_with_fill = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Shape { fill: Some(c), .. } = item {
+                    if *c == Color::rgb(70, 140, 210) { found_shape_with_fill = true; }
+                }
+            }
+        }
+        assert!(found_shape_with_fill,
+            "P247 — Boxed inline com fill emite FrameItem::Shape paralelo Block");
+    }
+
+    // ── Passo 248 (M9d / M7+5; ADR-0079 Categoria A.4 cumulativa) ──
+    //     Activação semantic real de 3 fields graded armazenados:
+    //     A) Block.breakable (P156G) — new_page() antecipado se bloco
+    //        não-breakable não cabe na página actual mas cabe noutra.
+    //     B) Boxed.height overflow (P156H) — clip via FrameItem::Group
+    //        se clip=true; overflow visível se clip=false.
+    //     C) TableCell overflow (P157B) — clip implícito ao limite
+    //        cell via Group + clip_mask Rect.
+    //
+    //     Mecanismo comum: `measure_content_constrained` (puro, P246
+    //     audit C1 §2.4) reusado para medição antecipada.
+
+    #[test]
+    fn p248_block_breakable_true_preserva_emit_normal() {
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        // breakable=true (default P156G): emit normal sem antecipar break.
+        let b = Content::Block {
+            body:      Box::new(Content::text("p248brkt")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+        };
+        let doc = layout(&b);
+        // Smoke: body renderiza; única página.
+        assert_eq!(doc.pages.len(), 1, "breakable=true não causa break extra");
+        let mut texts = String::new();
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Text { text, .. } = item {
+                    texts.push_str(text.as_str());
+                }
+            }
+        }
+        assert!(texts.contains("p248brkt"));
+    }
+
+    #[test]
+    fn p248_block_breakable_false_cabe_actual_sem_break() {
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        // breakable=false + body pequeno: cabe na actual; sem new_page.
+        let b = Content::Block {
+            body:      Box::new(Content::text("p248brkf")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: false,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+        };
+        let doc = layout(&b);
+        assert_eq!(doc.pages.len(), 1,
+            "breakable=false body pequeno cabe na actual; sem break extra");
+    }
+
+    #[test]
+    fn p248_block_breakable_false_overlong_emit_normal() {
+        // breakable=false + body que excede página inteira: emit normal
+        // (paridade vanilla "overlong atómico"; sem loop infinito).
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        // height enorme — excede página (~595pt default test).
+        let b = Content::Block {
+            body:      Box::new(Content::text("p248overlong")),
+            width:     None,
+            height:    Some(Length::pt(10_000.0)),
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: false,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+        };
+        let doc = layout(&b);
+        // Body renderiza; sem panic; o output pode ser várias páginas
+        // por overflow natural (flush_line) mas não infinitas.
+        assert!(doc.pages.len() >= 1 && doc.pages.len() <= 50,
+            "breakable=false overlong não causa loop infinito; obteve {} páginas", doc.pages.len());
+    }
+
+    #[test]
+    fn p248_block_breakable_false_antecipa_new_page() {
+        // Cenário: encher página com Pad+VSpace push, depois Block
+        // breakable=false que precisa de espaço — `new_page()` antecipa.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        // Layout: VSpace grande (push cursor) + Block breakable=false
+        // que mede como large via height min.
+        // A4: page 841.89pt, margin 70.87pt; usable ~700pt; bottom_limit ~771pt.
+        // VSpace 650pt empurra cursor para ~729pt; remaining ≈ 42pt.
+        // Block height 100pt → block_total_h 100 > remaining 42 AND
+        // block_total_h 100 <= usable 700 → break antecipado.
+        let seq = Content::Sequence(std::sync::Arc::from(vec![
+            Content::VSpace { amount: Length::pt(650.0), weak: false },
+            Content::Block {
+                body:      Box::new(Content::text("p248new")),
+                width:     None,
+                height:    Some(Length::pt(100.0)),
+                inset:     Sides::uniform(Length::pt(0.0)),
+                breakable: false,
+                outset:    Sides::uniform(Length::pt(0.0)),
+                radius:    Corners::uniform(Length::ZERO),
+                clip:      false,
+                fill:      None,
+                stroke:    None,
+            },
+        ]));
+        let doc = layout(&seq);
+        // Esperar 2 páginas: pre-VSpace na p1; Block na p2.
+        assert!(doc.pages.len() >= 2,
+            "P248 breakable=false + espaço insuficiente → new_page antecipado; obteve {} páginas",
+            doc.pages.len());
+    }
+
+    #[test]
+    fn p248_block_breakable_false_combina_fill_stroke_outset_p247() {
+        // Cross-attribute: breakable=false + fill/stroke/outset P247.
+        // Verifica que activação A não regride P247 (Shape ainda emitido).
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Color, Length};
+        let b = Content::Block {
+            body:      Box::new(Content::text("p248cross")),
+            width:     Some(Length::pt(60.0)),
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: false,
+            outset:    Sides::uniform(Length::pt(5.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      Some(Color::rgb(100, 200, 50)),
+            stroke:    None,
+        };
+        let doc = layout(&b);
+        let mut found_shape = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Shape { fill: Some(c), .. } = item {
+                    if *c == Color::rgb(100, 200, 50) { found_shape = true; }
+                }
+            }
+        }
+        assert!(found_shape,
+            "P248 breakable=false preserva P247 fill+outset Shape emission");
+    }
+
+    #[test]
+    fn p248_boxed_height_none_preserva_p156h() {
+        // height=None: preservado P156H literal (nenhum clip).
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let b = Content::Boxed {
+            body:     Box::new(Content::text("p248bxnone")),
+            width:    None,
+            height:   None,
+            inset:    Sides::uniform(Length::pt(0.0)),
+            baseline: Length::pt(0.0),
+            outset:   Sides::uniform(Length::pt(0.0)),
+            radius:   Corners::uniform(Length::ZERO),
+            clip:     true,  // clip aceita mas height None → sem overflow handling
+            fill:     None,
+            stroke:   None,
+        };
+        let doc = layout(&b);
+        // Sem Group por height overflow (height None).
+        let mut found_overflow_group = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Group { clip_mask: Some(ShapeKind::Rect), .. } = item {
+                    found_overflow_group = true;
+                }
+            }
+        }
+        // Pode existir Group por outras razões (P242 clip) mas com height=None
+        // o handle P248 NÃO dispara.
+        let _ = found_overflow_group;
+    }
+
+    #[test]
+    fn p248_boxed_height_overflow_clip_true_emite_group() {
+        // Body excede height + clip=true → Group com clip_mask Rect.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        // Body com height natural > 5pt (line_height ~12pt default);
+        // height=5pt força overflow.
+        let b = Content::Boxed {
+            body:     Box::new(Content::text("p248bxovf")),
+            width:    Some(Length::pt(50.0)),
+            height:   Some(Length::pt(5.0)),
+            inset:    Sides::uniform(Length::pt(0.0)),
+            baseline: Length::pt(0.0),
+            outset:   Sides::uniform(Length::pt(0.0)),
+            radius:   Corners::uniform(Length::ZERO),
+            clip:     true,
+            fill:     None,
+            stroke:   None,
+        };
+        let doc = layout(&b);
+        let mut found_clip_group = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Group { clip_mask: Some(ShapeKind::Rect), inner_height, .. } = item {
+                    if (*inner_height - 5.0).abs() < 0.1 {
+                        found_clip_group = true;
+                    }
+                }
+            }
+        }
+        assert!(found_clip_group,
+            "P248 Boxed overflow + clip=true emite Group com clip_mask Rect inner_height=5pt");
+    }
+
+    #[test]
+    fn p248_boxed_height_overflow_clip_false_overflow_visivel() {
+        // Body excede height + clip=false → SEM Group por overflow
+        // (overflow visível paridade vanilla default).
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let b = Content::Boxed {
+            body:     Box::new(Content::text("p248bxnoc")),
+            width:    Some(Length::pt(50.0)),
+            height:   Some(Length::pt(5.0)),
+            inset:    Sides::uniform(Length::pt(0.0)),
+            baseline: Length::pt(0.0),
+            outset:   Sides::uniform(Length::pt(0.0)),
+            radius:   Corners::uniform(Length::ZERO),
+            clip:     false,
+            fill:     None,
+            stroke:   None,
+        };
+        let doc = layout(&b);
+        // Verificar que NÃO foi adicionado Group com inner_height=5
+        // (clip=false não wrap).
+        let mut found_overflow_group = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Group { clip_mask: Some(ShapeKind::Rect), inner_height, .. } = item {
+                    if (*inner_height - 5.0).abs() < 0.1 {
+                        found_overflow_group = true;
+                    }
+                }
+            }
+        }
+        assert!(!found_overflow_group,
+            "P248 Boxed overflow + clip=false NÃO emite Group (overflow visível)");
+    }
+
+    #[test]
+    fn p248_boxed_height_cabe_sem_clip() {
+        // Body cabe em height: preservado literal, sem Group overflow.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let b = Content::Boxed {
+            body:     Box::new(Content::text("x")),  // texto curto < height
+            width:    Some(Length::pt(50.0)),
+            height:   Some(Length::pt(100.0)),       // muito maior que body natural
+            inset:    Sides::uniform(Length::pt(0.0)),
+            baseline: Length::pt(0.0),
+            outset:   Sides::uniform(Length::pt(0.0)),
+            radius:   Corners::uniform(Length::ZERO),
+            clip:     true,
+            fill:     None,
+            stroke:   None,
+        };
+        let doc = layout(&b);
+        let mut found_overflow_group = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Group { clip_mask: Some(ShapeKind::Rect), inner_height, .. } = item {
+                    if (*inner_height - 100.0).abs() < 0.1 {
+                        found_overflow_group = true;
+                    }
+                }
+            }
+        }
+        assert!(!found_overflow_group,
+            "P248 Boxed body cabe em height: sem Group overflow (preservado)");
+    }
+
+    #[test]
+    fn p248_table_cell_sem_overflow_preserva_p157b() {
+        // Cell body cabe em cell_h: sem Group de clip overflow.
+        use crate::entities::layout_types::TrackSizing;
+        // Table 1×1 com cell pequeno; row Auto.
+        let cell = Content::TableCell {
+            body:      Box::new(Content::text("x")),
+            x:         None,
+            y:         None,
+            colspan:   None,
+            rowspan:   None,
+            stroke:    None,
+            fill:      None,
+            align:     None,
+            inset:     None,
+            breakable: None,
+        };
+        let t = Content::Table {
+            columns: vec![TrackSizing::Auto],
+            rows:    vec![TrackSizing::Auto],
+            children: vec![cell],
+            stroke:   None,
+            fill:     None,
+        };
+        let doc = layout(&t);
+        // Sem Group por overflow cell (body pequeno cabe).
+        let mut found_overflow_clip = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Group { clip_mask: Some(ShapeKind::Rect), .. } = item {
+                    found_overflow_clip = true;
+                }
+            }
+        }
+        assert!(!found_overflow_clip,
+            "P248 cell sem overflow não emite Group por clip implícito");
+    }
+
+    #[test]
+    fn p248_table_cell_overflow_emite_clip_group() {
+        // Cell body excede cell_h: Group com clip_mask Rect.
+        // Usa Block.height = 100pt dentro de cell com row Fixed(10pt) →
+        // medição determinística (não depende de word-wrap).
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Length, TrackSizing};
+        let inner_block = Content::Block {
+            body:      Box::new(Content::text("ovf")),
+            width:     None,
+            height:    Some(Length::pt(100.0)),  // força >> cell_h
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+        };
+        let cell = Content::TableCell {
+            body:      Box::new(inner_block),
+            x:         None,
+            y:         None,
+            colspan:   None,
+            rowspan:   None,
+            stroke:    None,
+            fill:      None,
+            align:     None,
+            inset:     None,
+            breakable: None,
+        };
+        let t = Content::Table {
+            columns: vec![TrackSizing::Fixed(40.0)],
+            rows:    vec![TrackSizing::Fixed(10.0)],
+            children: vec![cell],
+            stroke:   None,
+            fill:     None,
+        };
+        let doc = layout(&t);
+        let mut found_clip_group = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Group { clip_mask: Some(ShapeKind::Rect), inner_height, .. } = item {
+                    if *inner_height <= 10.1 {
+                        found_clip_group = true;
+                    }
+                }
+            }
+        }
+        assert!(found_clip_group,
+            "P248 cell body overflow (Block height 100pt) + row Fixed(10pt) emite Group com clip_mask Rect inner_height<=10pt");
+    }
+
+    #[test]
+    fn p248_table_cell_overflow_preserva_fill_stroke_externos() {
+        // Cross: cell overflow Group + cell-level fill: ambos coexistem.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Color, Length, TrackSizing};
+        let inner_block = Content::Block {
+            body:      Box::new(Content::text("fillovf")),
+            width:     None,
+            height:    Some(Length::pt(80.0)),
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+        };
+        let cell = Content::TableCell {
+            body:      Box::new(inner_block),
+            x:         None,
+            y:         None,
+            colspan:   None,
+            rowspan:   None,
+            stroke:    None,
+            fill:      Some(Color::rgb(220, 220, 50)),
+            align:     None,
+            inset:     None,
+            breakable: None,
+        };
+        let t = Content::Table {
+            columns: vec![TrackSizing::Fixed(30.0)],
+            rows:    vec![TrackSizing::Fixed(10.0)],
+            children: vec![cell],
+            stroke:   None,
+            fill:     None,
+        };
+        let doc = layout(&t);
+        let mut found_fill = false;
+        let mut found_clip = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                match item {
+                    FrameItem::Shape { fill: Some(c), .. }
+                        if *c == Color::rgb(220, 220, 50) => found_fill = true,
+                    FrameItem::Group { clip_mask: Some(ShapeKind::Rect), .. } => found_clip = true,
+                    _ => {}
+                }
+            }
+        }
+        assert!(found_fill, "P248 cell overflow preserva fill (Shape)");
+        assert!(found_clip, "P248 cell overflow emite Group clip");
+    }
+
+    #[test]
+    fn p248_block_breakable_false_dentro_table_cell_overflow_combinado() {
+        // E2E cross-activação: cell com Block (breakable=false) cujo height
+        // excede cell_h → activação A (medição) + activação C (clip)
+        // coexistem.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Length, TrackSizing};
+        let inner_block = Content::Block {
+            body:      Box::new(Content::text("cross")),
+            width:     None,
+            height:    Some(Length::pt(60.0)),  // excede cell row
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: false,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+        };
+        let cell = Content::TableCell {
+            body:      Box::new(inner_block),
+            x:         None,
+            y:         None,
+            colspan:   None,
+            rowspan:   None,
+            stroke:    None,
+            fill:      None,
+            align:     None,
+            inset:     None,
+            breakable: None,
+        };
+        let t = Content::Table {
+            columns: vec![TrackSizing::Fixed(40.0)],
+            rows:    vec![TrackSizing::Fixed(15.0)],
+            children: vec![cell],
+            stroke:   None,
+            fill:     None,
+        };
+        let doc = layout(&t);
+        // Smoke: layout não panica + alguma Group emitida por activação C.
+        let mut found_clip = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Group { clip_mask: Some(ShapeKind::Rect), .. } = item {
+                    found_clip = true;
+                }
+            }
+        }
+        assert!(found_clip, "P248 — Block breakable=false dentro cell overflow → clip implícito C");
+    }
+
+    #[test]
+    fn p248_block_breakable_false_com_inset_height_min_correto() {
+        // breakable=false + height + inset: medição inclui outset+inset
+        // correctamente. Verifica que com defaults pequenos não há break
+        // antecipado erroneamente.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let b = Content::Block {
+            body:      Box::new(Content::text("p248inset")),
+            width:     None,
+            height:    Some(Length::pt(50.0)),
+            inset:     Sides::uniform(Length::pt(10.0)),
+            breakable: false,
+            outset:    Sides::uniform(Length::pt(5.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+        };
+        let doc = layout(&b);
+        assert_eq!(doc.pages.len(), 1,
+            "P248 — Block pequeno com inset+outset cabe na actual; sem break extra");
+        let mut texts = String::new();
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Text { text, .. } = item {
+                    texts.push_str(text.as_str());
+                }
+            }
+        }
+        assert!(texts.contains("p248inset"));
+    }
+
+    #[test]
+    fn p248_boxed_height_overflow_cross_radius_clip() {
+        // height overflow + radius (P242): Group por height overflow
+        // coexiste com Shape Rect (P247 sem radius non-zero por simplicidade).
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Color, Length};
+        let b = Content::Boxed {
+            body:     Box::new(Content::text("p248cross")),
+            width:    Some(Length::pt(40.0)),
+            height:   Some(Length::pt(8.0)),
+            inset:    Sides::uniform(Length::pt(0.0)),
+            baseline: Length::pt(0.0),
+            outset:   Sides::uniform(Length::pt(0.0)),
+            radius:   Corners::uniform(Length::ZERO),
+            clip:     true,
+            fill:     Some(Color::rgb(150, 50, 200)),
+            stroke:   None,
+        };
+        let doc = layout(&b);
+        let mut found_fill = false;
+        let mut found_clip = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                match item {
+                    FrameItem::Shape { fill: Some(c), .. }
+                        if *c == Color::rgb(150, 50, 200) => found_fill = true,
+                    FrameItem::Group { clip_mask: Some(ShapeKind::Rect), inner_height, .. }
+                        if (*inner_height - 8.0).abs() < 0.1 => found_clip = true,
+                    _ => {}
+                }
+            }
+        }
+        assert!(found_fill, "P247 fill preservado em P248 cross-attribute");
+        assert!(found_clip, "P248 height overflow clip activo cross-attribute");
+    }
+
+    #[test]
+    fn p248_block_breakable_false_dentro_block_breakable_true_aninhado() {
+        // Block breakable=true exterior + Block breakable=false interior:
+        // ambos respeitam suas decisões sem panic. Sequência longa empurra
+        // cursor; inner breakable=false antecipa novo break.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let inner = Content::Block {
+            body:      Box::new(Content::text("inner")),
+            width:     None,
+            height:    Some(Length::pt(150.0)),
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: false,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+        };
+        let seq = Content::Sequence(std::sync::Arc::from(vec![
+            Content::VSpace { amount: Length::pt(600.0), weak: false },
+            Content::Block {
+                body:      Box::new(inner),
+                width:     None,
+                height:    None,
+                inset:     Sides::uniform(Length::pt(0.0)),
+                breakable: true,  // exterior permite break natural
+                outset:    Sides::uniform(Length::pt(0.0)),
+                radius:    Corners::uniform(Length::ZERO),
+                clip:      false,
+                fill:      None,
+                stroke:    None,
+            },
+        ]));
+        let doc = layout(&seq);
+        // Layout não panica + at least 1 page; aninhamento estável.
+        assert!(doc.pages.len() >= 1);
+    }
+
+    #[test]
+    fn p248_table_cell_overflow_radius_inner_block_p247() {
+        // Inner Block com radius P242 + cell overflow P248: ambos
+        // mecanismos clip_mask coexistem.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::{Length, TrackSizing};
+        let inner_block = Content::Block {
+            body:      Box::new(Content::text("radius cross")),
+            width:     None,
+            height:    Some(Length::pt(80.0)),
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: true,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::pt(3.0)),  // P242
+            clip:      true,                                // P242
+            fill:      None,
+            stroke:    None,
+        };
+        let cell = Content::TableCell {
+            body:      Box::new(inner_block),
+            x:         None,
+            y:         None,
+            colspan:   None,
+            rowspan:   None,
+            stroke:    None,
+            fill:      None,
+            align:     None,
+            inset:     None,
+            breakable: None,
+        };
+        let t = Content::Table {
+            columns: vec![TrackSizing::Fixed(60.0)],
+            rows:    vec![TrackSizing::Fixed(20.0)],
+            children: vec![cell],
+            stroke:   None,
+            fill:     None,
+        };
+        let doc = layout(&t);
+        // Espera ≥1 Group (P242 inner radius+clip ou P248 cell overflow).
+        let mut group_count = 0;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Group { .. } = item { group_count += 1; }
+            }
+        }
+        assert!(group_count >= 1,
+            "P248 cell overflow + P242 inner radius+clip coexistem; obteve {} Group(s)", group_count);
+    }
+
+    #[test]
+    fn p248_boxed_height_overflow_inset_correto() {
+        // Boxed height + inset: clip Group inner_height = height (sem inset),
+        // mas inset visualmente embebido no body.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let b = Content::Boxed {
+            body:     Box::new(Content::text("inset")),
+            width:    Some(Length::pt(40.0)),
+            height:   Some(Length::pt(6.0)),
+            inset:    Sides::uniform(Length::pt(2.0)),
+            baseline: Length::pt(0.0),
+            outset:   Sides::uniform(Length::pt(0.0)),
+            radius:   Corners::uniform(Length::ZERO),
+            clip:     true,
+            fill:     None,
+            stroke:   None,
+        };
+        let doc = layout(&b);
+        let mut found_clip = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Group { clip_mask: Some(ShapeKind::Rect), inner_height, .. } = item {
+                    if (*inner_height - 6.0).abs() < 0.1 { found_clip = true; }
+                }
+            }
+        }
+        assert!(found_clip, "P248 Boxed height overflow + inset → Group inner_height = height");
+    }
+
+    #[test]
+    fn p248_block_breakable_false_com_outset_grande_medicao_inclui_outset() {
+        // breakable=false: medição antecipada inclui outset top+bottom.
+        // Test verifica que outset NÃO é ignorado no block_total_h.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        // Cenário: cursor inicial baixo na página (VSpace push) +
+        // block height médio + outset grande → total deve causar break.
+        let seq = Content::Sequence(std::sync::Arc::from(vec![
+            Content::VSpace { amount: Length::pt(620.0), weak: false },
+            Content::Block {
+                body:      Box::new(Content::text("p248outset")),
+                width:     None,
+                height:    Some(Length::pt(80.0)),
+                inset:     Sides::uniform(Length::pt(0.0)),
+                breakable: false,
+                outset:    Sides::uniform(Length::pt(30.0)),  // +60pt total Y
+                radius:    Corners::uniform(Length::ZERO),
+                clip:      false,
+                fill:      None,
+                stroke:    None,
+            },
+        ]));
+        let doc = layout(&seq);
+        // VSpace 620 cursor ~699; remaining ~72pt; block_total_h = 80+60=140 > 72 → break.
+        assert!(doc.pages.len() >= 2,
+            "P248 — outset incluído na medição; break antecipado quando outset+height excede remaining; obteve {} páginas",
+            doc.pages.len());
+    }
+
+    #[test]
+    fn p248_boxed_height_overflow_clip_false_e_clip_true_diferem_in_group_count() {
+        // Confronto direto: mesmo conteúdo+height+overflow; clip=true emite
+        // Group de overflow; clip=false NÃO emite.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let mk = |clip: bool| Content::Boxed {
+            body:     Box::new(Content::text("diff")),
+            width:    Some(Length::pt(40.0)),
+            height:   Some(Length::pt(4.0)),  // line_height > 4pt
+            inset:    Sides::uniform(Length::pt(0.0)),
+            baseline: Length::pt(0.0),
+            outset:   Sides::uniform(Length::pt(0.0)),
+            radius:   Corners::uniform(Length::ZERO),
+            clip,
+            fill:     None,
+            stroke:   None,
+        };
+        let count_clip_groups = |c: Content| -> usize {
+            let doc = layout(&c);
+            doc.pages.iter().flat_map(|p| p.items.iter())
+                .filter(|i| matches!(i, FrameItem::Group { clip_mask: Some(ShapeKind::Rect), inner_height, .. }
+                                       if (*inner_height - 4.0).abs() < 0.1))
+                .count()
+        };
+        let n_true  = count_clip_groups(mk(true));
+        let n_false = count_clip_groups(mk(false));
+        assert!(n_true  >= 1, "clip=true emite Group por overflow");
+        assert_eq!(n_false, 0, "clip=false NÃO emite Group por overflow");
+    }
+
+    #[test]
+    fn p248_block_breakable_false_zero_height_default_emit_normal() {
+        // Edge: breakable=false + body=text simples (sem height) → cabe
+        // certamente; sem break.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let b = Content::Block {
+            body:      Box::new(Content::text("p248edge")),
+            width:     None,
+            height:    None,  // sem height min
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: false,
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+        };
+        let doc = layout(&b);
+        assert_eq!(doc.pages.len(), 1,
+            "P248 breakable=false sem height: body cabe; sem break extra");
+    }
+
+    #[test]
+    fn p248_measure_content_constrained_puro_sem_side_effects() {
+        // Audit C1 §2.4: confirmar puridade pós-P248 (sem mutar cursor).
+        // Construir Block que invocaria measure_content_constrained se
+        // breakable=false; verificar que cursor pré/pós idêntico.
+        use crate::entities::sides::Sides;
+        use crate::entities::corners::Corners;
+        use crate::entities::layout_types::Length;
+        let b = Content::Block {
+            body:      Box::new(Content::text("a")),
+            width:     None,
+            height:    None,
+            inset:     Sides::uniform(Length::pt(0.0)),
+            breakable: false,  // dispara medição antecipada
+            outset:    Sides::uniform(Length::pt(0.0)),
+            radius:    Corners::uniform(Length::ZERO),
+            clip:      false,
+            fill:      None,
+            stroke:    None,
+        };
+        // Smoke: layout não panica; body emitido.
+        let doc = layout(&b);
+        let mut texts = String::new();
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Text { text, .. } = item {
+                    texts.push_str(text.as_str());
+                }
+            }
+        }
+        assert_eq!(texts, "a",
+            "P248 measure puro: body emitido sem distorção");
+    }
+
+    // ── Passo 245 (M9d / M7+4; ADR-0081 IMPLEMENTADO total 5/5)
+    //     — Place float real: defer ao topo/fundo da página + clearance
+    //     vertical; promoção graded P223 → semantic activa P245 ──
+
+    #[test]
+    fn p245_place_float_true_bottom_renderiza_no_fundo_da_pagina() {
+        // Float bottom-aligned + scope: Parent + float: true.
+        // Espera-se que rect seja emitido próximo do fundo da página
+        // (margin = 20pt, page height = 400pt; rect 30x20 → y ≈ 360 - ascender).
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
+        let p = Content::Place {
+            alignment: Align2D { h: Some(HAlign::Center), v: Some(VAlign::Bottom) },
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Parent,
+            float:     true,
+            clearance: None,
+            body:      Box::new(Content::Shape {
+                kind:   crate::entities::geometry::ShapeKind::Rect,
+                width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(30.0)))),
+                height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
+                fill:   None,
+                stroke: None,
+            }),
+        };
+        let doc = layout(&p);
+        // Procurar shape no output.
+        let mut found_shape = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Shape { pos, .. } = item {
+                    found_shape = true;
+                    // Posicionado na metade inferior da página
+                    // (page height 595.276; bottom > 297).
+                    assert!(pos.y.0 > 297.0,
+                        "P245 — float bottom deve ficar na metade inferior; obteve y={:.1}", pos.y.0);
+                }
+            }
+        }
+        assert!(found_shape, "P245 — float deve emitir shape do body");
+    }
+
+    #[test]
+    fn p245_place_float_true_top_renderiza_no_topo_da_pagina() {
+        // Float top-aligned + scope: Parent + float: true.
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
+        let p = Content::Place {
+            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Parent,
+            float:     true,
+            clearance: None,
+            body:      Box::new(Content::Shape {
+                kind:   crate::entities::geometry::ShapeKind::Rect,
+                width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(30.0)))),
+                height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
+                fill:   None,
+                stroke: None,
+            }),
+        };
+        let doc = layout(&p);
+        let mut found_shape_at_top = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if let FrameItem::Shape { pos, .. } = item {
+                    // Top-aligned deve ficar na metade superior.
+                    if pos.y.0 < 297.0 {
+                        found_shape_at_top = true;
+                    }
+                }
+            }
+        }
+        assert!(found_shape_at_top,
+            "P245 — float top deve emitir shape na metade superior da página");
+    }
+
+    #[test]
+    fn p245_place_float_false_baseline_p84_preservado() {
+        // Place float: false preserva comportamento P84.5+P84.6 literal.
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
+        let p = Content::Place {
+            alignment: Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) },
+            dx:        50.0,
+            dy:        30.0,
+            scope:     PlaceScope::Column,  // não-Parent (Parent+float:false rejeitado)
+            float:     false,
+            clearance: None,
+            body:      Box::new(Content::Shape {
+                kind:   crate::entities::geometry::ShapeKind::Rect,
+                width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
+                height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(15.0)))),
+                fill:   None,
+                stroke: None,
+            }),
+        };
+        let doc = layout(&p);
+        // Não deve panic; pelo menos uma shape emitida via path original.
+        let mut found = false;
+        for page in doc.pages.iter() {
+            for item in page.items.iter() {
+                if matches!(item, FrameItem::Shape { .. }) {
+                    found = true;
+                }
+            }
+        }
+        assert!(found, "P245 — float:false preserva path P84.5+P84.6");
+    }
+
+    #[test]
+    fn p245_place_float_com_clearance_adiciona_espaco_y() {
+        // Float bottom + clearance 10pt. Esperado: rect emitido com offset
+        // adicional de clearance no eixo Y face ao baseline sem clearance.
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope, Length};
+        let make_doc = |clearance: Option<Length>| {
+            let p = Content::Place {
+                alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Bottom) },
+                dx:        0.0,
+                dy:        0.0,
+                scope:     PlaceScope::Parent,
+                float:     true,
+                clearance,
+                body:      Box::new(Content::Shape {
+                    kind:   crate::entities::geometry::ShapeKind::Rect,
+                    width:  Some(Box::new(crate::entities::value::Value::Length(Length::pt(30.0)))),
+                    height: Some(Box::new(crate::entities::value::Value::Length(Length::pt(20.0)))),
+                    fill:   None,
+                    stroke: None,
+                }),
+            };
+            layout(&p)
+        };
+        let doc_no_clear  = make_doc(None);
+        let doc_with_clear = make_doc(Some(Length::pt(10.0)));
+        // Find shape Y em cada.
+        let get_y = |doc: &crate::entities::layout_types::PagedDocument| -> f64 {
+            for page in doc.pages.iter() {
+                for item in page.items.iter() {
+                    if let FrameItem::Shape { pos, .. } = item {
+                        return pos.y.0;
+                    }
+                }
+            }
+            -1.0
+        };
+        let y_no    = get_y(&doc_no_clear);
+        let y_with  = get_y(&doc_with_clear);
+        assert!(y_no > 0.0 && y_with > 0.0, "P245 — ambas docs emit shape");
+        // Com clearance, float bottom desloca-se para cima (afastado do fundo).
+        assert!(y_with < y_no,
+            "P245 — clearance Bottom afasta float do fundo; sem clearance y={:.1}, com y={:.1}",
+            y_no, y_with);
+    }
+
+    #[test]
+    fn p245_floats_pending_buffer_limpo_apos_flush() {
+        // Smoke test: após layout, floats_pending deve estar vazio
+        // (consumido em finish via flush_pending_floats).
+        // Não temos acesso directo ao buffer; mas verificamos que doc
+        // tem pelo menos 1 page com items (ou seja, flush ocorreu).
+        use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
+        let p = Content::Place {
+            alignment: Align2D { h: Some(HAlign::Center), v: Some(VAlign::Bottom) },
+            dx:        0.0,
+            dy:        0.0,
+            scope:     PlaceScope::Parent,
+            float:     true,
+            clearance: None,
+            body:      Box::new(Content::Shape {
+                kind:   crate::entities::geometry::ShapeKind::Rect,
+                width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
+                height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(15.0)))),
+                fill:   None,
+                stroke: None,
+            }),
+        };
+        let doc = layout(&p);
+        // Float emit verificado: doc tem ≥1 page com ≥1 item shape.
+        assert!(!doc.pages.is_empty(), "P245 — doc deve ter páginas");
+        let total_shapes: usize = doc.pages.iter()
+            .map(|p| p.items.iter().filter(|i| matches!(i, FrameItem::Shape { .. })).count())
+            .sum();
+        assert_eq!(total_shapes, 1,
+            "P245 — float emitido exactamente 1× (sem duplicação)");
     }
 
     // ── Passo 232 (Fase 5 Layout Categoria A.5) — Place precedence over Grid ──

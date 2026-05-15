@@ -45,14 +45,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // Selecção de remaining_h e VAlign efectivo (Passo 83).
         //
-        // Prioridade: cell_available_h > is_height_unconstrained > página.
-        // Dentro de uma célula de Grid (`cell_available_h = Some(h)`), a
+        // Prioridade: cell_region > is_height_unconstrained > página.
+        // P246 — `cell_available_h` migrado para `regions.cell.height`.
+        // Dentro de uma célula de Grid (`regions.cell = Some(_)`), a
         // altura é conhecida — Bottom e Horizon ancoram à célula.
         // No fluxo livre (sub_frame sem cell), Bottom/Horizon decaem
         // para Top (sem "fundo" para ancorar).
         // No fluxo normal da página, usar o espaço restante até à margem.
-        let (remaining_h, effective_v) = if let Some(cell_h) = self.cell_available_h {
-            (cell_h, alignment.v)
+        let (remaining_h, effective_v) = if let Some(cell) = self.regions.cell.as_ref() {
+            (cell.height, alignment.v)
         } else if self.is_height_unconstrained {
             (sub_h, None)
         } else {
@@ -95,7 +96,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // sem saltar para o fundo.
         //
         // No fluxo de página, VAlign::Horizon/Bottom consomem o resto.
-        match (self.cell_available_h.is_some(), effective_v) {
+        // P246 — `cell_available_h.is_some()` migrado para
+        // `regions.cell.is_some()`.
+        match (self.regions.cell.is_some(), effective_v) {
             (false, Some(VAlign::Horizon)) | (false, Some(VAlign::Bottom)) => {
                 self.regions.current.cursor_y = Pt(self.page_bottom_limit());
             }
@@ -128,18 +131,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // Passo 84.6 (encerra DEBT-37): seleccionar área de ancoragem
         // segundo `scope`.
         // - PlaceScope::Column (default): se estamos dentro de uma
-        //   célula de Grid (cell_origin_* + cell_available_h todos
-        //   Some), ancorar à célula. Caso contrário cair para a página.
+        //   célula de Grid (cell_origin_x/y + regions.cell todos Some),
+        //   ancorar à célula. Caso contrário cair para a página.
         // - PlaceScope::Parent: ancorar sempre à página, mesmo dentro
         //   de Grid (paridade com vanilla — `parent` "spans columns").
+        // P246 — `cell_origin_w` + `cell_available_h` migrados para
+        // `regions.cell.width/height`; `cell_origin_x/y` preservados
+        // como Layouter fields legacy.
         let (origin_x, origin_y, avail_w, avail_h) = match scope {
             PlaceScope::Column => match (
                 self.cell_origin_x,
                 self.cell_origin_y,
-                self.cell_origin_w,
-                self.cell_available_h,
+                self.regions.cell.as_ref(),
             ) {
-                (Some(cx), Some(cy), Some(cw), Some(ch)) => (cx, cy, cw, ch),
+                (Some(cx), Some(cy), Some(cell)) => (cx, cy, cell.width, cell.height),
                 _ => (
                     self.regions.current.line_start_x.0,
                     self.page_config.margin,

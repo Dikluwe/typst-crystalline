@@ -247,8 +247,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         Content::Hide { body } => Content::Hide {
             body: Box::new(materialize_time(body, intr, location)),
         },
-        // Passo 156G + P231 — Block container; preserva atributos cosméticos.
-        Content::Block { body, width, height, inset, breakable, outset, radius, clip } => Content::Block {
+        // Passo 156G + P231 + P247 — Block container; preserva 5 cosméticos.
+        Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke } => Content::Block {
             body:      Box::new(materialize_time(body, intr, location)),
             width:     *width,
             height:    *height,
@@ -257,9 +257,11 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             outset:    *outset,
             radius:    *radius,
             clip:      *clip,
+            fill:      *fill,
+            stroke:    stroke.clone(),
         },
-        // Passo 156H + P231 — Boxed container; preserva atributos cosméticos.
-        Content::Boxed { body, width, height, inset, baseline, outset, radius, clip } => Content::Boxed {
+        // Passo 156H + P231 + P247 — Boxed container; preserva 5 cosméticos.
+        Content::Boxed { body, width, height, inset, baseline, outset, radius, clip, fill, stroke } => Content::Boxed {
             body:     Box::new(materialize_time(body, intr, location)),
             width:    *width,
             height:   *height,
@@ -268,6 +270,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             outset:   *outset,
             radius:   *radius,
             clip:     *clip,
+            fill:     *fill,
+            stroke:   stroke.clone(),
         },
         // Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo.
         // Materialize_time em cada child; preservar dir/spacing.

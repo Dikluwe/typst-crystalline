@@ -197,9 +197,12 @@ que corresponde a mudança específica no código.
 | 0064 | Tradução `Smart<T>` vanilla → `Option<T>`/default | `EM VIGOR` (P156K; formaliza padrão N=6 da série P156C-J) |
 | 0065 | Inventariar primeiro — sub-passo `.1` para decisão arquitectural não-trivial | `EM VIGOR` (P156K; estende ADR-0034; padrão N=5 da série P156C-J) |
 | 0066 | Introspection runtime — promoção da reserva conceptual (referida historicamente como "ADR-0017 Introspection runtime adiada") a ficheiro PROPOSTO | `PROPOSTO` (passo `P160A`; resolve confusão de numeração — reserva conceptual usava 0017 mas slot 0017 já IMPLEMENTADO para outro tópico; promoção a IMPLEMENTADO em passo futuro materialização Introspection runtime real — P160B subset minimal) |
+| 0082 | Promoções reais de scope-outs ADR-0054 graded — 4 critérios operacionais | `PROPOSTO` (passo `P249` administrativo XS; formaliza pattern empírico N=8 cumulativo granular pós-P248 — P242 radius+clip + P247 outset+fill+stroke + P248 breakable+height+cell_overflow; promoção a EM VIGOR pendente N=3 aplicações consecutivas citantes; **nota numeração**: `P249.div-2` registado — ADR-0067 já ocupada por `attribute-grammar-scoping`; ADR-0082 escolhido como próximo slot disponível após ADR-0081) |
 
 **Total**: 65 ADRs (64 números únicos; ADR-0026 tem variante -R1
-por revisão).
+por revisão; **+ADR-0082 PROPOSTO P249** + entradas históricas
+pós-P156K não-recapitatuladas nesta tabela — ver passos-chave
+abaixo).
 
 ### Distribuição de status
 
@@ -1955,3 +1958,44 @@ P84.8g.
   Próxima fase (Fase 2): P156 = table foundations; P157 =
   figure kinds; ADR-0061 + P158 = bibliography + cite (XL,
   bloqueado por DEBT-55).
+
+- **P249 (administrativo XS) — Criar ADR-0082 PROPOSTO
+  "Promoções reais de scope-outs ADR-0054 graded — 4 critérios
+  operacionais"** (paridade P156K + P160A + ADR-0062-create
+  + P244 administrativos XS precedentes). **Sétima aplicação
+  cumulativa "passo administrativo XS"** N=6 → 7 cumulativo
+  (P156A historiograma + P156K ADRs meta + ADR-0062-create
+  + P160A + P238 + P244 + **P249**). **Terceira aplicação
+  cumulativa "ADR meta formalizar pattern N≥4 cumulativo"** N=2
+  → 3 cumulativo (P156K Smart→Option N=6 + ADR-0064; P156K
+  inventariar primeiro N=5 + ADR-0065; P234 L0 minimal N=7
+  + ADR-0080; **P249 promoções reais N=8 + ADR-0082**).
+  **Pattern empírico N=8 cumulativo granular** formalizado
+  (P242 radius+clip + P247 outset+fill+stroke + P248
+  breakable+height+cell_overflow); 4 critérios operacionais
+  fixados (storage prévio + consumer Layouter graded + paridade
+  vanilla referência + backward compat literal). **Status ADR-
+  0082 PROPOSTO inicial** (paridade ADR-0065/ADR-0066/ADR-0080);
+  promoção a EM VIGOR pendente N=3 aplicações consecutivas
+  citantes (decisão humana). Anotação ADR-0054
+  §"Promoções reais cumulativas" sub-secção nova adicionada
+  (status `EM VIGOR` preservado literal — refino interno).
+  Anotação ADR-0080 §"Lição refinada P249" N=12 cumulativo
+  ("ADR meta administrativo XS exige audit empírico das N≥4
+  aplicações concretas antes de formalizar pattern"). **Nota
+  numeração**: `P249.div-2` registado — spec previa ADR-0067
+  mas já ocupada por `attribute-grammar-scoping`; ADR-0082
+  escolhido como próximo slot disponível após ADR-0081.
+  ADRs distribuição: PROPOSTO → **+1** (ADR-0082); EM VIGOR
+  preservado; IMPLEMENTADO preservado. **Sem código tocado**
+  (zero L1/L2/L3/L4). **Sem L0 prompts tocados**. Tests
+  workspace **preservado**. **Sem hashes propagados**.
+  Cobertura Layout per metodologia **preservada**. 41ª
+  aplicação cumulativa anti-inflação pós-P205D. Padrão
+  emergente "Promoção real scope-out ADR-0054 graded" granular
+  **N=8 preservado P249** (P249 administrativo XS não
+  materializa nova promoção; apenas formaliza pattern).
+  Patterns emergentes pós-P249 (3): "Passo administrativo XS"
+  N=7 cumulativo; "ADR meta formalizar pattern N≥4
+  cumulativo" N=3 cumulativo; "Spec C1 audit obrigatório
+  bloqueante" N=11 → 12 cumulativo.
