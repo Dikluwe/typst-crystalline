@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/gradient`
-Hash do Código: a237b047
+Hash do Código: f5e3a6f8
 
 ## Módulo
 `01_core/src/entities/gradient.rs`
@@ -200,4 +200,69 @@ impl Gradient {
   (zero cascade refactor).
 - P262 — Linear precedente; helpers Oklab reutilizados literal.
 - P265 (futuro) — PDF emit Radial dedicado (replica P263
+  template).
+
+---
+
+## Anotação cumulativa P267 — Conic variant materializada (cluster Gradient 3/3 completo)
+
+**Data**: 2026-05-15.
+
+Subset Conic materializado per ADR-0089 (Opção α — ADR nova
+dedicada paridade pattern N=5 P261/P262/P264). **Cluster
+Gradient L1+stdlib completo 3/3** (Linear + Radial + Conic).
+
+### Tipos adicionados
+
+```rust
+pub struct Conic {
+    pub stops:  Arc<[GradientStop]>,
+    pub center: Axes<Ratio>,
+    pub angle:  Angle,
+}
+
+impl Conic {
+    pub fn effective_offsets(&self) -> Vec<f32>;  // paridade Linear/Radial
+    pub fn sample(&self, t: f32) -> Color;        // paridade (Oklab)
+}
+```
+
+### Enum Gradient expandido (3/3 variants completo)
+
+```rust
+pub enum Gradient {
+    Linear(Arc<Linear>),
+    Radial(Arc<Radial>),
+    Conic(Arc<Conic>),    // P267 — descomentado
+}
+
+impl Gradient {
+    pub fn linear(stops, angle) -> Self;
+    pub fn radial(stops, center, radius) -> Self;  // P264
+    pub fn conic(stops, center, angle) -> Self;    // P267
+    pub fn first_stop_color(&self) -> Color;       // pattern-match 3-arm
+}
+```
+
+### Scope-outs P267 (per ADR-0089)
+
+- `space` (Oklab fixo — paridade P262/P264).
+- `relative` (bbox-local — paridade P262/P264).
+- `anti_alias` (true assumed — paridade P262/P264).
+- **PDF emit Conic fallback Solid** até **P268 dedicado**.
+- **Sem `focal_*` scope-out** — não existe em ConicGradient
+  vanilla (exclusivo Radial).
+
+### Cross-references P267
+
+- ADR-0089 — Gradient Conic-only (IMPLEMENTADO P267).
+- ADR-0088 §"variants não materializados" parcialmente
+  revogado por este passo (Conic activado; `focal_*` Radial
+  preservado).
+- ADR-0086 — Paint::Gradient automaticamente absorve Conic
+  (zero cascade refactor).
+- P262/P264 — precedentes directos; helpers Oklab reutilizados
+  literal (subpadrão "Reutilização literal helpers
+  cross-passos" N=1 → N=2).
+- P268 (futuro) — PDF emit Conic dedicado (replica P263/P265
   template).

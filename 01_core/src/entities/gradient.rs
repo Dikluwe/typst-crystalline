@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/gradient.md
-//! @prompt-hash 911125dd
+//! @prompt-hash 3354fb75
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -271,12 +271,92 @@ impl Radial {
     }
 }
 
+/// Conic gradient — paridade vanilla `ConicGradient` subset
+/// (per ADR-0089 P267).
+///
+/// **3 campos materializados**: stops + center + angle.
+/// Scope-outs (per ADR-0089): space (Oklab fixo), relative
+/// (bbox-local), anti_alias (true). **Sem `focal_*`** — não
+/// existe em ConicGradient vanilla (exclusivo Radial).
+///
+/// **PDF render Conic fallback Solid** (first_stop_color) até
+/// P268 dedicado materializar shading real.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Conic {
+    pub stops:  Arc<[GradientStop]>,
+    pub center: crate::entities::axes::Axes<Ratio>,
+    pub angle:  Angle,
+}
+
+impl Conic {
+    /// Auto-spacing paridade `Linear::effective_offsets` (P262)
+    /// e `Radial::effective_offsets` (P264).
+    pub fn effective_offsets(&self) -> Vec<f32> {
+        let n = self.stops.len();
+        if n == 0 { return Vec::new(); }
+        if n == 1 {
+            return vec![self.stops[0].offset.map(|r| r.0 as f32).unwrap_or(0.0)];
+        }
+
+        let mut offs: Vec<Option<f32>> = self.stops.iter()
+            .map(|s| s.offset.map(|r| r.0 as f32))
+            .collect();
+
+        if offs[0].is_none() { offs[0] = Some(0.0); }
+        if offs[n - 1].is_none() { offs[n - 1] = Some(1.0); }
+
+        let mut result = vec![0.0_f32; n];
+        let mut i = 0;
+        while i < n {
+            if let Some(v) = offs[i] {
+                result[i] = v;
+                i += 1;
+                continue;
+            }
+            let mut j = i;
+            while j < n && offs[j].is_none() { j += 1; }
+            let prev = result[i - 1];
+            let next = offs[j].unwrap();
+            let gap = j - i + 1;
+            for k in 0..gap {
+                result[i + k] = prev + (next - prev) * ((k + 1) as f32) / (gap as f32);
+            }
+            i = j;
+        }
+        result
+    }
+
+    /// Amostragem 1D em t ∈ [0, 1] (paridade `Linear::sample` +
+    /// `Radial::sample`).
+    ///
+    /// Para Conic, `t` representa a fração da circumferência
+    /// (0 = ângulo inicial; 1 = volta completa). Interpolação
+    /// em Oklab via helpers reutilizados de P262.
+    pub fn sample(&self, t: f32) -> Color {
+        let t = t.clamp(0.0, 1.0);
+        let offs = self.effective_offsets();
+        let n = self.stops.len();
+        if n == 0 { return Color::rgb(0, 0, 0); }
+        if n == 1 { return self.stops[0].color; }
+
+        for i in 0..(n - 1) {
+            let o0 = offs[i];
+            let o1 = offs[i + 1];
+            if t >= o0 && t <= o1 {
+                let local_t = if o1 > o0 { (t - o0) / (o1 - o0) } else { 0.0 };
+                return interpolate_oklab(self.stops[i].color, self.stops[i + 1].color, local_t);
+            }
+        }
+        if t <= offs[0] { self.stops[0].color } else { self.stops[n - 1].color }
+    }
+}
+
 /// Gradient — enum tagged paridade vanilla.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Gradient {
     Linear(Arc<Linear>),
     Radial(Arc<Radial>),   // P264 — descomentado per ADR-0088
-    // Conic(Arc<Conic>),    // P-Gradient-Conic — comentário reserva
+    Conic(Arc<Conic>),     // P267 — descomentado per ADR-0089 (cluster 3/3 completo)
 }
 
 impl Gradient {
@@ -303,6 +383,19 @@ impl Gradient {
         }))
     }
 
+    /// Construtor Conic (P267; ADR-0089).
+    pub fn conic(
+        stops: impl Into<Arc<[GradientStop]>>,
+        center: crate::entities::axes::Axes<Ratio>,
+        angle: Angle,
+    ) -> Self {
+        Gradient::Conic(Arc::new(Conic {
+            stops: stops.into(),
+            center,
+            angle,
+        }))
+    }
+
     /// Retorna primeira cor do primeiro stop. Usado como
     /// fallback para `Paint::to_color()` quando consumer
     /// precisa de Color literal (Solid path).
@@ -312,6 +405,9 @@ impl Gradient {
                 .map(|s| s.color)
                 .unwrap_or(Color::rgb(0, 0, 0)),
             Gradient::Radial(r) => r.stops.first()
+                .map(|s| s.color)
+                .unwrap_or(Color::rgb(0, 0, 0)),
+            Gradient::Conic(c) => c.stops.first()
                 .map(|s| s.color)
                 .unwrap_or(Color::rgb(0, 0, 0)),
         }
@@ -658,5 +754,150 @@ mod tests {
         assert_eq!(r.center.x, Ratio(0.25));
         assert_eq!(r.center.y, Ratio(0.75));
         assert_eq!(r.radius, Ratio(0.4));
+    }
+
+    // ── P267 (ADR-0089 Gradient Conic-only) ────────────────────────────
+
+    #[test]
+    fn p267_conic_construcao_2_stops() {
+        let g = Gradient::conic(
+            vec![
+                GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Angle::deg(0.0),
+        );
+        if let Gradient::Conic(c) = &g {
+            assert_eq!(c.stops.len(), 2);
+            assert_eq!(c.center.x, Ratio(0.5));
+            assert_eq!(c.angle.to_rad(), 0.0);
+        } else {
+            panic!("esperado Gradient::Conic");
+        }
+    }
+
+    #[test]
+    fn p267_conic_first_stop_color() {
+        let g = Gradient::conic(
+            vec![
+                GradientStop::new(Color::rgb(200, 100, 50), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 0), Ratio(1.0)),
+            ],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Angle::deg(0.0),
+        );
+        assert_eq!(g.first_stop_color(), Color::rgb(200, 100, 50));
+    }
+
+    #[test]
+    fn p267_conic_clone_arc_o1() {
+        let g = Gradient::conic(
+            vec![GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0))],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Angle::deg(0.0),
+        );
+        let g2 = g.clone();
+        if let (Gradient::Conic(c1), Gradient::Conic(c2)) = (&g, &g2) {
+            assert!(Arc::ptr_eq(c1, c2), "Arc clone deve partilhar storage");
+        }
+    }
+
+    #[test]
+    fn p267_conic_partial_eq() {
+        let g1 = Gradient::conic(
+            vec![GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0))],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Angle::deg(0.0),
+        );
+        let g2 = Gradient::conic(
+            vec![GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0))],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Angle::deg(0.0),
+        );
+        let g3 = Gradient::conic(
+            vec![GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0))],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Angle::deg(90.0),
+        );
+        assert_eq!(g1, g2);
+        assert_ne!(g1, g3);
+    }
+
+    #[test]
+    fn p267_conic_effective_offsets_auto_spacing() {
+        let c = Conic {
+            stops: Arc::from(vec![
+                GradientStop::unspaced(Color::rgb(255, 0, 0)),
+                GradientStop::unspaced(Color::rgb(0, 255, 0)),
+                GradientStop::unspaced(Color::rgb(0, 0, 255)),
+            ]),
+            center: Axes::new(Ratio(0.5), Ratio(0.5)),
+            angle: Angle::deg(0.0),
+        };
+        let offs = c.effective_offsets();
+        assert!((offs[0] - 0.0).abs() < 1e-5);
+        assert!((offs[1] - 0.5).abs() < 1e-5);
+        assert!((offs[2] - 1.0).abs() < 1e-5);
+    }
+
+    #[test]
+    fn p267_conic_sample_extremos() {
+        let c = Conic {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ]),
+            center: Axes::new(Ratio(0.5), Ratio(0.5)),
+            angle: Angle::deg(0.0),
+        };
+        let c0 = c.sample(0.0);
+        let c1 = c.sample(1.0);
+        let (r0, _, _, _) = c0.to_rgba_f32();
+        let (r1, _, b1, _) = c1.to_rgba_f32();
+        assert!(r0 > 0.9, "sample(0.0) ≈ vermelho, r={}", r0);
+        assert!(r1 < 0.1 && b1 > 0.9, "sample(1.0) ≈ azul, r={}, b={}", r1, b1);
+    }
+
+    #[test]
+    fn p267_conic_sample_clamp_above_1() {
+        let c = Conic {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ]),
+            center: Axes::new(Ratio(0.5), Ratio(0.5)),
+            angle: Angle::deg(0.0),
+        };
+        let c_clamp = c.sample(1.5);
+        let c_ref = c.sample(1.0);
+        assert_eq!(c_clamp, c_ref);
+    }
+
+    #[test]
+    fn p267_gradient_conic_to_paint_via_from() {
+        use crate::entities::paint::Paint;
+        let g = Gradient::conic(
+            vec![GradientStop::new(Color::rgb(0, 0, 0), Ratio(0.0))],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Angle::deg(0.0),
+        );
+        let p: Paint = g.into();
+        assert!(matches!(p, Paint::Gradient(Gradient::Conic(_))));
+    }
+
+    #[test]
+    fn p267_conic_angle_non_default() {
+        let c = Conic {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(0, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(255, 255, 255), Ratio(1.0)),
+            ]),
+            center: Axes::new(Ratio(0.25), Ratio(0.75)),
+            angle: Angle::deg(90.0),
+        };
+        assert_eq!(c.center.x, Ratio(0.25));
+        assert_eq!(c.center.y, Ratio(0.75));
+        assert!((c.angle.to_rad() - std::f64::consts::FRAC_PI_2).abs() < 1e-9);
     }
 }

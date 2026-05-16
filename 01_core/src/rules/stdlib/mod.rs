@@ -56,8 +56,10 @@ pub use crate::rules::stdlib::layout::{
 };
 // P262 — Gradient stdlib (Linear only per ADR-0087).
 // P264 — Gradient stdlib Radial added per ADR-0088.
+// P267 — Gradient stdlib Conic added per ADR-0089 (cluster 3/3).
 pub use crate::rules::stdlib::gradients::{
-    make_gradient_module, native_gradient_linear, native_gradient_radial,
+    make_gradient_module, native_gradient_conic, native_gradient_linear,
+    native_gradient_radial,
 };
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
@@ -6009,6 +6011,85 @@ mod tests {
             Value::Color(Color::rgb(255, 255, 255)),
         ]);
         let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert_eq!(r.type_name(), "gradient");
+    }
+
+    // ── P267 (ADR-0089 Gradient Conic-only) ────────────────────────
+
+    #[test]
+    fn p267_gradient_conic_2_color_stops_defaults() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, Ratio};
+        null_ctx!(ctx);
+        let args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Conic(c)) = r {
+            assert_eq!(c.stops.len(), 2);
+            assert_eq!(c.center.x, Ratio(0.5));
+            assert_eq!(c.center.y, Ratio(0.5));
+            assert_eq!(c.angle.to_rad(), 0.0);
+        } else {
+            panic!("esperado Value::Gradient(Conic)");
+        }
+    }
+
+    #[test]
+    fn p267_gradient_conic_custom_center_angle() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Angle, Color, Ratio};
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        args.named.insert(
+            "center".into(),
+            Value::Array(vec![
+                Value::Ratio(Ratio(0.3)),
+                Value::Ratio(Ratio(0.7)),
+            ]),
+        );
+        args.named.insert("angle".into(), Value::Angle(Angle::deg(45.0)));
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Conic(c)) = r {
+            assert_eq!(c.center.x, Ratio(0.3));
+            assert_eq!(c.center.y, Ratio(0.7));
+            assert!((c.angle.to_rad() - std::f64::consts::FRAC_PI_4).abs() < 1e-9);
+        } else {
+            panic!("esperado Value::Gradient(Conic)");
+        }
+    }
+
+    #[test]
+    fn p267_gradient_conic_zero_stops_erro() {
+        null_ctx!(ctx);
+        let args = p(vec![]);
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "stops vazios deve retornar Err");
+    }
+
+    #[test]
+    fn p267_gradient_conic_named_invalido_erro() {
+        use crate::entities::layout_types::Color;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Color(Color::rgb(0, 0, 0))]);
+        args.named.insert("unknown".into(), Value::Int(1));
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named arg desconhecido deve retornar Err");
+    }
+
+    #[test]
+    fn p267_gradient_conic_value_type_name() {
+        use crate::entities::layout_types::Color;
+        null_ctx!(ctx);
+        let args = p(vec![
+            Value::Color(Color::rgb(0, 0, 0)),
+            Value::Color(Color::rgb(255, 255, 255)),
+        ]);
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         assert_eq!(r.type_name(), "gradient");
     }
 }
