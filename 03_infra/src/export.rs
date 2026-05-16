@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export.md
-//! @prompt-hash 6c3343df
+//! @prompt-hash bf71181c
 //! @layer L3
 //! @updated 2026-04-20
 
@@ -319,9 +319,15 @@ struct PatternRef {
     name:           String,
 }
 
+/// P265 — variant para distinguir Linear / Radial em emit.
+enum GradientObjectKind {
+    Linear(std::sync::Arc<typst_core::entities::gradient::Linear>),
+    Radial(std::sync::Arc<typst_core::entities::gradient::Radial>),
+}
+
 /// Dados internos para emit Function/Shading/Pattern object dicts.
 struct GradientObject {
-    linear:         std::sync::Arc<typst_core::entities::gradient::Linear>,
+    kind:           GradientObjectKind,
     function_id:    usize,
     shading_id:     usize,
     pattern_id:     usize,
@@ -354,12 +360,17 @@ fn scan_all_gradients(
     for page in &doc.pages {
         for item in &page.items {
             if let FrameItem::Shape { stroke: Some(Stroke { paint: Paint::Gradient(g), .. }), .. } = item {
-                // P264 — Radial PDF emit adiado P265; fallback Solid no emit.
-                let linear = match g {
-                    Gradient::Linear(l) => l,
-                    Gradient::Radial(_) => continue,
+                // P265 — Linear e Radial via enum GradientObjectKind.
+                let (ptr, kind) = match g {
+                    Gradient::Linear(l) => (
+                        std::sync::Arc::as_ptr(l) as usize,
+                        GradientObjectKind::Linear(std::sync::Arc::clone(l)),
+                    ),
+                    Gradient::Radial(r) => (
+                        std::sync::Arc::as_ptr(r) as usize,
+                        GradientObjectKind::Radial(std::sync::Arc::clone(r)),
+                    ),
                 };
-                let ptr = std::sync::Arc::as_ptr(linear) as usize;
                 if ptr_to_idx.contains_key(&ptr) {
                     continue;
                 }
@@ -371,8 +382,7 @@ fn scan_all_gradients(
                 let idx = refs.len();
                 refs.push(PatternRef { pattern_obj_id: pattern_id, name });
                 grad_objs.push(GradientObject {
-                    linear: std::sync::Arc::clone(linear),
-                    function_id, shading_id, pattern_id,
+                    kind, function_id, shading_id, pattern_id,
                 });
                 ptr_to_idx.insert(ptr, idx);
             }
@@ -397,12 +407,11 @@ fn pattern_resources_for_page(
     let mut seen: BTreeSet<usize> = Default::default();
     for item in &page.items {
         if let FrameItem::Shape { stroke: Some(Stroke { paint: Paint::Gradient(g), .. }), .. } = item {
-            // P264 — Radial PDF emit adiado P265; só Linear regista resource.
-            let linear = match g {
-                Gradient::Linear(l) => l,
-                Gradient::Radial(_) => continue,
+            // P265 — Linear e Radial ambos registados.
+            let ptr = match g {
+                Gradient::Linear(l) => std::sync::Arc::as_ptr(l) as usize,
+                Gradient::Radial(r) => std::sync::Arc::as_ptr(r) as usize,
             };
-            let ptr = std::sync::Arc::as_ptr(linear) as usize;
             if let Some(&idx) = ptr_to_idx.get(&ptr) {
                 if seen.insert(idx) {
                     let r = &refs[idx];
@@ -449,6 +458,50 @@ fn oklab_sample_stops(
         .map(|i| {
             let t = i as f32 / (n - 1) as f32;
             let c = linear.sample(t);
+            let (r, g, b, _) = c.to_rgba_f32();
+            (r.clamp(0.0, 1.0), g.clamp(0.0, 1.0), b.clamp(0.0, 1.0))
+        })
+        .collect()
+}
+
+/// P265 — Calcula os 6 valores Coords para `/ShadingType 3`
+/// radial.
+///
+/// Subset materializado P264 (focal_* scope-out): círculos
+/// concêntricos. Foco pontual no center; target concêntrico
+/// com radius.
+///
+/// `center` em Ratios (0.0-1.0); `radius` em Ratio. `w`/`h` são
+/// dimensões do bbox local em pontos.
+///
+/// Retorna `(x0, y0, r0, x1, y1, r1)`:
+/// - `(x0, y0, r0)`: focal point (gradient origin).
+/// - `(x1, y1, r1)`: target point (gradient outer).
+fn compute_radial_coords(
+    center: typst_core::entities::axes::Axes<typst_core::entities::layout_types::Ratio>,
+    radius: typst_core::entities::layout_types::Ratio,
+    w: f64,
+    h: f64,
+) -> (f64, f64, f64, f64, f64, f64) {
+    let cx = center.x.0 * w;
+    let cy = center.y.0 * h;
+    let r = radius.0 * w.min(h);
+    // Subset: focal point pontual no center; target concêntrico.
+    (cx, cy, 0.0, cx, cy, r)
+}
+
+/// P265 — Amostra N stops intermédios em sRGB pós-interpolação
+/// Oklab L1 (via `Radial::sample(t)` P264). Paridade literal
+/// `oklab_sample_stops` (Linear).
+fn oklab_sample_stops_radial(
+    radial: &typst_core::entities::gradient::Radial,
+    n_samples: usize,
+) -> Vec<(f32, f32, f32)> {
+    let n = n_samples.max(2);
+    (0..n)
+        .map(|i| {
+            let t = i as f32 / (n - 1) as f32;
+            let c = radial.sample(t);
             let (r, g, b, _) = c.to_rgba_f32();
             (r.clamp(0.0, 1.0), g.clamp(0.0, 1.0), b.clamp(0.0, 1.0))
         })
@@ -959,8 +1012,35 @@ impl PdfBuilder {
         next_sub_id: &mut usize,
     ) {
         for go in grad_objs {
-            let GradientObject { linear, function_id, shading_id, pattern_id } = go;
-            let stops = oklab_sample_stops(&linear, 16);
+            let GradientObject { kind, function_id, shading_id, pattern_id } = go;
+            let (page_w, page_h) = page_dimensions.first().copied().unwrap_or((595.0, 842.0));
+            // P265 — branching Linear / Radial.
+            let (stops, shading_dict) = match &kind {
+                GradientObjectKind::Linear(linear) => {
+                    let stops = oklab_sample_stops(linear, 16);
+                    let (x0, y0, x1, y1) = compute_axial_coords(
+                        linear.angle.to_rad(), 0.0, 0.0, page_w, page_h);
+                    let shading = format!(
+                        "<< /ShadingType 2 /ColorSpace /DeviceRGB \
+                           /Coords [{:.3} {:.3} {:.3} {:.3}] \
+                           /Function {} 0 R /Extend [false false] >>",
+                        x0, y0, x1, y1, function_id,
+                    );
+                    (stops, shading)
+                }
+                GradientObjectKind::Radial(radial) => {
+                    let stops = oklab_sample_stops_radial(radial, 16);
+                    let (x0, y0, r0, x1, y1, r1) = compute_radial_coords(
+                        radial.center, radial.radius, page_w, page_h);
+                    let shading = format!(
+                        "<< /ShadingType 3 /ColorSpace /DeviceRGB \
+                           /Coords [{:.3} {:.3} {:.3} {:.3} {:.3} {:.3}] \
+                           /Function {} 0 R /Extend [true true] >>",
+                        x0, y0, r0, x1, y1, r1, function_id,
+                    );
+                    (stops, shading)
+                }
+            };
             let (func_dict, sub_objs) = emit_function_dict(&stops, function_id, next_sub_id);
             // Emit sub-Functions primeiro (se Type 3 stitching).
             for (sub_id, sub_dict) in sub_objs {
@@ -969,21 +1049,6 @@ impl PdfBuilder {
             // Emit Function dict principal.
             self.add(function_id, func_dict);
             // Emit Shading dict.
-            // Coords: usa bbox da primeira página como aproximação (bbox
-            // real do shape é resolvida pelo page stream; coords aqui
-            // servem como "axis canonical" da unidade do pattern).
-            // Decisão pragmática P263: coords baseadas em bbox unit
-            // (0, 0) → (1, 0) para angle=0; pattern transformations
-            // aplicadas a cada shape via Matrix (futuro refino).
-            // Por agora coords baseadas em page 1 dimensions como bbox.
-            let (page_w, page_h) = page_dimensions.first().copied().unwrap_or((595.0, 842.0));
-            let (x0, y0, x1, y1) = compute_axial_coords(linear.angle.to_rad(), 0.0, 0.0, page_w, page_h);
-            let shading_dict = format!(
-                "<< /ShadingType 2 /ColorSpace /DeviceRGB \
-                   /Coords [{:.3} {:.3} {:.3} {:.3}] \
-                   /Function {} 0 R /Extend [false false] >>",
-                x0, y0, x1, y1, function_id,
-            );
             self.add(shading_id, shading_dict);
             // Emit Pattern dict.
             let pattern_dict = format!(
@@ -1067,18 +1132,11 @@ fn emit_stroke_paint(
             ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, thickness));
         }
         Paint::Gradient(g) => {
-            // P264 — Radial PDF emit adiado P265; fallback Solid via first_stop_color.
-            let linear = match g {
-                Gradient::Linear(l) => l,
-                Gradient::Radial(_) => {
-                    // Fallback Solid para Radial (P265 dedicará render real).
-                    let c = paint.to_color();
-                    let (r, g, b, _) = c.to_rgba_f32();
-                    ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, thickness));
-                    return;
-                }
+            // P265 — Linear e Radial ambos via lookup pattern.
+            let ptr = match g {
+                Gradient::Linear(l) => std::sync::Arc::as_ptr(l) as usize,
+                Gradient::Radial(r) => std::sync::Arc::as_ptr(r) as usize,
             };
-            let ptr = std::sync::Arc::as_ptr(linear) as usize;
             if let Some(&idx) = pat_ptr_to_idx.get(&ptr) {
                 let r = &pat_refs[idx];
                 ops.push_str(&format!("/Pattern CS\n/{} SCN\n{:.2} w\n", r.name, thickness));
@@ -2764,5 +2822,241 @@ mod tests {
         let n_shadings = pdf_str.matches("/ShadingType 2").count();
         assert_eq!(n_shadings, 1,
             "3 shapes com mesmo Arc<Linear> → 1 Shading dedup; got {}", n_shadings);
+    }
+
+    // ── P265 (ADR-0088 anotação cumulativa) — PDF Radial shading complete ──
+
+    #[test]
+    fn p265_compute_radial_coords_center_default() {
+        use typst_core::entities::axes::Axes;
+        use typst_core::entities::layout_types::Ratio;
+        let center = Axes::new(Ratio(0.5), Ratio(0.5));
+        let (x0, y0, r0, x1, y1, r1) = compute_radial_coords(center, Ratio(0.5), 100.0, 100.0);
+        // center (0.5, 0.5) * 100x100 = (50, 50); radius 0.5 * min(100, 100) = 50.
+        assert!((x0 - 50.0).abs() < 0.01);
+        assert!((y0 - 50.0).abs() < 0.01);
+        assert!((r0 - 0.0).abs() < 0.01);
+        assert!((x1 - 50.0).abs() < 0.01);
+        assert!((y1 - 50.0).abs() < 0.01);
+        assert!((r1 - 50.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn p265_compute_radial_coords_center_offset() {
+        use typst_core::entities::axes::Axes;
+        use typst_core::entities::layout_types::Ratio;
+        let center = Axes::new(Ratio(0.25), Ratio(0.75));
+        let (x0, y0, _, x1, y1, r1) = compute_radial_coords(center, Ratio(0.4), 200.0, 100.0);
+        // center.x * 200 = 50; center.y * 100 = 75; radius 0.4 * min(200,100) = 40.
+        assert!((x0 - 50.0).abs() < 0.01);
+        assert!((y0 - 75.0).abs() < 0.01);
+        assert_eq!(x0, x1);  // concêntrico
+        assert_eq!(y0, y1);
+        assert!((r1 - 40.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn p265_compute_radial_coords_non_square_uses_min_dim() {
+        use typst_core::entities::axes::Axes;
+        use typst_core::entities::layout_types::Ratio;
+        let center = Axes::new(Ratio(0.5), Ratio(0.5));
+        // bbox 300x50 → radius 1.0 * min(300, 50) = 50.
+        let (_, _, _, _, _, r1) = compute_radial_coords(center, Ratio(1.0), 300.0, 50.0);
+        assert!((r1 - 50.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn p265_oklab_sample_stops_radial_red_blue_endpoints() {
+        use std::sync::Arc;
+        use typst_core::entities::axes::Axes;
+        use typst_core::entities::gradient::{GradientStop, Radial};
+        use typst_core::entities::layout_types::{Color, Ratio};
+
+        let radial = Radial {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ]),
+            center: Axes::new(Ratio(0.5), Ratio(0.5)),
+            radius: Ratio(0.5),
+        };
+        let samples = oklab_sample_stops_radial(&radial, 16);
+        assert_eq!(samples.len(), 16);
+        let (r0, g0, b0) = samples[0];
+        let (r1, g1, b1) = samples[15];
+        assert!(r0 > 0.9, "sample[0].r ≈ 1.0 (vermelho), got {}", r0);
+        assert!(g0 < 0.2 && b0 < 0.2);
+        assert!(b1 > 0.9, "sample[15].b ≈ 1.0 (azul), got {}", b1);
+        assert!(r1 < 0.2 && g1 < 0.2);
+    }
+
+    #[test]
+    fn p265_export_pdf_radial_emits_shading_type_3() {
+        use std::sync::Arc;
+        use typst_core::entities::axes::Axes;
+        use typst_core::entities::geometry::{ShapeKind, Stroke};
+        use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
+        use typst_core::entities::layout_types::{
+            Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
+        };
+        use typst_core::entities::paint::Paint;
+
+        let radial = Gradient::Radial(Arc::new(Radial {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ]),
+            center: Axes::new(Ratio(0.5), Ratio(0.5)),
+            radius: Ratio(0.5),
+        }));
+        let stroke = Stroke {
+            paint: Paint::Gradient(radial),
+            thickness: 2.0,
+            overhang: false,
+        };
+
+        let page = Page {
+            width:  100.0,
+            height: 100.0,
+            items: vec![FrameItem::Shape {
+                pos: Point { x: Pt(10.0), y: Pt(10.0) },
+                kind: ShapeKind::Rect,
+                width: 50.0,
+                height: 30.0,
+                fill: Some(Color::rgb(255, 255, 255)),
+                stroke: Some(stroke),
+            }],
+        };
+        let doc = PagedDocument::new(vec![page]);
+        let pdf = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert!(pdf_str.contains("/ShadingType 3"),
+            "PDF deve conter /ShadingType 3 (radial)");
+        assert!(pdf_str.contains("/PatternType 2"),
+            "PDF deve conter /PatternType 2 (shading pattern)");
+        assert!(pdf_str.contains("/FunctionType"),
+            "PDF deve conter Function dict");
+        assert!(pdf_str.contains("/Coords"),
+            "PDF deve conter /Coords endpoints (6 valores radial)");
+        assert!(pdf_str.contains("/Extend [true true]"),
+            "Radial deve emit /Extend [true true] (vanilla default)");
+        assert!(pdf_str.contains("/Pattern <<"),
+            "PDF deve conter /Pattern << ... >> em /Resources");
+        assert!(pdf_str.contains("SCN"),
+            "PDF deve conter SCN (apply pattern para stroke)");
+    }
+
+    #[test]
+    fn p265_export_pdf_radial_dedup_arc_ptr() {
+        use std::sync::Arc;
+        use typst_core::entities::axes::Axes;
+        use typst_core::entities::geometry::{ShapeKind, Stroke};
+        use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
+        use typst_core::entities::layout_types::{
+            Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
+        };
+        use typst_core::entities::paint::Paint;
+
+        let radial_arc = Arc::new(Radial {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ]),
+            center: Axes::new(Ratio(0.5), Ratio(0.5)),
+            radius: Ratio(0.5),
+        });
+        let make_shape = |y: f64| {
+            let g = Gradient::Radial(Arc::clone(&radial_arc));
+            FrameItem::Shape {
+                pos: Point { x: Pt(0.0), y: Pt(y) },
+                kind: ShapeKind::Rect,
+                width: 50.0,
+                height: 20.0,
+                fill: None,
+                stroke: Some(Stroke {
+                    paint: Paint::Gradient(g),
+                    thickness: 1.0,
+                    overhang: false,
+                }),
+            }
+        };
+        let page = Page {
+            width:  100.0,
+            height: 100.0,
+            items: vec![make_shape(0.0), make_shape(25.0), make_shape(50.0)],
+        };
+        let doc = PagedDocument::new(vec![page]);
+        let pdf = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        let n_shadings = pdf_str.matches("/ShadingType 3").count();
+        assert_eq!(n_shadings, 1,
+            "3 shapes com mesmo Arc<Radial> → 1 Shading dedup; got {}", n_shadings);
+    }
+
+    #[test]
+    fn p265_export_pdf_linear_e_radial_coexistem() {
+        use std::sync::Arc;
+        use typst_core::entities::axes::Axes;
+        use typst_core::entities::geometry::{ShapeKind, Stroke};
+        use typst_core::entities::gradient::{Gradient, GradientStop, Linear, Radial};
+        use typst_core::entities::layout_types::{
+            Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
+        };
+        use typst_core::entities::paint::Paint;
+
+        let linear = Gradient::Linear(Arc::new(Linear {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 255, 0), Ratio(1.0)),
+            ]),
+            angle: Angle::rad(0.0),
+        }));
+        let radial = Gradient::Radial(Arc::new(Radial {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(0.0)),
+                GradientStop::new(Color::rgb(255, 255, 0), Ratio(1.0)),
+            ]),
+            center: Axes::new(Ratio(0.5), Ratio(0.5)),
+            radius: Ratio(0.5),
+        }));
+        let page = Page {
+            width:  100.0,
+            height: 100.0,
+            items: vec![
+                FrameItem::Shape {
+                    pos: Point { x: Pt(0.0), y: Pt(0.0) },
+                    kind: ShapeKind::Rect, width: 50.0, height: 20.0,
+                    fill: None,
+                    stroke: Some(Stroke {
+                        paint: Paint::Gradient(linear),
+                        thickness: 1.0, overhang: false,
+                    }),
+                },
+                FrameItem::Shape {
+                    pos: Point { x: Pt(0.0), y: Pt(30.0) },
+                    kind: ShapeKind::Rect, width: 50.0, height: 20.0,
+                    fill: None,
+                    stroke: Some(Stroke {
+                        paint: Paint::Gradient(radial),
+                        thickness: 1.0, overhang: false,
+                    }),
+                },
+            ],
+        };
+        let doc = PagedDocument::new(vec![page]);
+        let pdf = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert!(pdf_str.contains("/ShadingType 2"),
+            "Linear deve emit /ShadingType 2");
+        assert!(pdf_str.contains("/ShadingType 3"),
+            "Radial deve emit /ShadingType 3");
+        // 1 axial + 1 radial = 2 shadings distintos.
+        let n_axial = pdf_str.matches("/ShadingType 2").count();
+        let n_radial = pdf_str.matches("/ShadingType 3").count();
+        assert_eq!(n_axial, 1);
+        assert_eq!(n_radial, 1);
     }
 }

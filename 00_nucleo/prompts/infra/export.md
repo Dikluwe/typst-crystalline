@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export` — Exportador Físico de Documentos
-Hash do Código: cbb1181e
+Hash do Código: 45f04082
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export.rs`
@@ -372,3 +372,109 @@ Cross-references:
   resources dict).
 - P73 — Image stack dedup `Arc::as_ptr` (template arquitectural).
 - P262 — Gradient L1+stdlib (precedente directo).
+
+---
+
+## Suporte Gradient Radial via Shading Patterns (Passo 265)
+
+`FrameItem::Shape { stroke: Some(Stroke { paint:
+Paint::Gradient(Gradient::Radial(_)), ... }), ... }` renderiza
+via PDF `/ShadingType 3` radial (ISO 32000 §7.5.7). Fecha
+promessa P264 (fallback Solid eliminado).
+
+### Pattern resources — reutilizado P263 (HashMap genérico)
+
+`pattern_resources: HashMap<usize, PatternResource>` mantém
+forma genérica. Chave `Arc::as_ptr(radial) as usize` para
+Radial (paridade Linear). **PatternRef struct inalterada**.
+
+### GradientObject expandido para enum local
+
+```rust
+enum GradientObjectKind {
+    Linear(Arc<Linear>),
+    Radial(Arc<Radial>),
+}
+
+struct GradientObject {
+    kind: GradientObjectKind,
+    function_id, shading_id, pattern_id, // sub-Function IDs allocados em emit
+}
+```
+
+Permite `scan_all_gradients` colectar ambos os tipos; emit
+diverge por variant em `emit_gradient_objects`.
+
+### Shading Type 3 (radial) — materializado P265
+
+`/ShadingType 3` radial:
+- `/ColorSpace /DeviceRGB`.
+- `/Coords [x0 y0 r0 x1 y1 r1]` — **6 valores** (vs 4 axial):
+  - `(x0, y0, r0)`: focal point (gradient origin).
+  - `(x1, y1, r1)`: target point (gradient outer).
+- `/Function obj_ref` — Type 2 ou Type 3 stitching
+  **idêntico ao axial P263**.
+- `/Extend [true true]` — estender cor fora dos círculos
+  (paridade vanilla default radial).
+
+### Radial subset materializado P264 — círculos concêntricos
+
+Sem focal_* (scope-out ADR-0088). Coords subset:
+- `(x0, y0, r0) = (cx, cy, 0.0)` — foco pontual no center.
+- `(x1, y1, r1) = (cx, cy, r)` — concêntrico.
+
+Resulta em gradient classic center → borda.
+
+### Conversão Ratio → pontos absolutos (Coords radial)
+
+```
+cx = bbox.x0 + center.x.get() * (bbox.x1 - bbox.x0)
+cy = bbox.y0 + center.y.get() * (bbox.y1 - bbox.y0)
+r  = radius.get() * min(bbox.width, bbox.height)
+```
+
+Decisão pragmática P265 (paridade P263): usar page dimensions
+como bbox approximation para coords (refino bbox real do shape
+seria refactor maior — adiado).
+
+### Helpers internos novos P265
+
+| Função | Responsabilidade |
+|--------|------------------|
+| `compute_radial_coords(center, radius, w, h)` | `(x0, y0, r0, x1, y1, r1)` — 6 valores axes locais |
+| `oklab_sample_stops_radial(radial, n_samples)` | N stops em sRGB pós Oklab (paridade `oklab_sample_stops` Linear) |
+| `emit_radial_shading_dict(samples, function_id, x0, y0, r0, x1, y1, r1)` | Shading dict `/ShadingType 3` |
+
+### Helpers reutilizados P263 (sem alteração)
+
+| Função | Reutilização |
+|--------|--------------|
+| `emit_function_dict(stops, ...)` | Idêntico — Type 2 (2 stops) ou Type 3 stitching (N>2) |
+| `emit_pattern_dict` (inline em `emit_gradient_objects`) | Idêntico — `/PatternType 2` |
+| `emit_stroke_paint` | Ganha branch `Gradient::Radial(_)` que faz lookup pattern (substitui fallback Solid P264) |
+
+### 3 sítios pattern-match P264 substituídos
+
+- `scan_all_gradients`: `Gradient::Radial(_) => continue` → regista Radial em `GradientObject::Radial(...)`.
+- `pattern_resources_for_page`: `Gradient::Radial(_) => continue` → emit entry `/Pattern << /Pn obj 0 R >>`.
+- `emit_stroke_paint`: Radial → fallback Solid → branching real `/Pattern CS /Pn SCN`.
+
+### Limitações P265
+
+- **Radial subset** — focal_* preservado scope-out ADR-0088;
+  círculos concêntricos only.
+- **Conic continua comentário reserva** em
+  `entities/gradient.rs`.
+- **`/ShadingType 1, 4-7`** continuam fora de scope.
+- **Anti-alias true assumed** (paridade P263).
+- **Relative bbox-relative assumed** (paridade ADR-0087/0088).
+- **`draw_item_local`** continua fallback Solid (P263 scope-out
+  preservado).
+
+Cross-references:
+- ADR-0088 — Gradient Radial-only (IMPLEMENTADO P264; **anotação
+  cumulativa P265** documenta backend PDF complete).
+- ADR-0087 — anotação P263 (precedente directo template).
+- P263 — template literal — paridade quase 1-para-1.
+- P264 — origem da promessa fechada por este passo.
+- P73 — Image stack dedup `Arc::as_ptr` (template arquitectural).
