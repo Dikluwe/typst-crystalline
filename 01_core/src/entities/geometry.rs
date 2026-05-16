@@ -4,7 +4,8 @@
 //! @layer L1
 //! @updated 2026-04-20
 
-use crate::entities::layout_types::{Color, Point};
+use crate::entities::layout_types::Point;
+use crate::entities::paint::Paint;
 
 /// Segmento de um caminho vectorial.
 #[derive(Debug, Clone, PartialEq)]
@@ -29,7 +30,10 @@ pub enum PathItem {
 /// cumulativas"; paridade vanilla restaurada via stdlib `extract_stroke`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Stroke {
-    pub paint:     Color,
+    /// **P261** — `Paint` wrapper enum (Solid only) substitui
+    /// `Color` directo per ADR-0086. Abre caminho para Gradient
+    /// real consumer em P262+.
+    pub paint:     Paint,
     /// Espessura do contorno em pontos tipográficos.
     pub thickness: f64,
     /// **P252** — `true` expande bounds Shape por `thickness/2` em
@@ -80,10 +84,11 @@ pub enum ShapeKind {
 mod tests {
     use super::*;
     use crate::entities::layout_types::Color;
+    use crate::entities::paint::Paint;
 
     #[test]
     fn stroke_clone_e_partialeq() {
-        let s = Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false };
+        let s = Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false };
         assert_eq!(s.clone(), s);
     }
 

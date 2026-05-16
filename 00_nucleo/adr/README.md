@@ -200,12 +200,13 @@ que corresponde a mudança específica no código.
 | 0082 | Promoções reais de scope-outs ADR-0054 graded — 4 critérios operacionais | `PROPOSTO` (passo `P249` administrativo XS; formaliza pattern empírico N=8 cumulativo granular pós-P248 — P242 radius+clip + P247 outset+fill+stroke + P248 breakable+height+cell_overflow; promoção a EM VIGOR pendente N=3 aplicações consecutivas citantes; **nota numeração**: `P249.div-2` registado — ADR-0067 já ocupada por `attribute-grammar-scoping`; ADR-0082 escolhido como próximo slot disponível após ADR-0081) |
 | 0084 | Auditoria condicional — audit empírico antes de decisão B1/B2/B3 | `EM VIGOR` (P260; formaliza padrão N=5 dos audits P192A/P255/P257/P258/P259; documenta critério "cobertura ambígua" + fluxo B1/B2/B3) |
 | 0085 | Diagnóstico imutável — artefacto produzido por audit | `EM VIGOR` (P260; estende ADR-0034; formaliza padrão N=4 dos diagnósticos imutáveis P255/P257/P258/P259) |
+| 0086 | Paint wrapper enum com subset materializado (Solid only) | `IMPLEMENTADO` (passo `P261`; precedente ADR-0083 N=2 do mesmo pattern; Paint::Solid(Color) materializado + From<Color> + Stroke.paint Color→Paint cross-cutting ~30 sítios; Gradient/Tiling comentários reserva activáveis em P262+; ADR-0039 TextStyle.fill preservado literal) |
 
 **Total**: 65 ADRs (64 números únicos; ADR-0026 tem variante -R1
 por revisão; **+ADR-0082 PROPOSTO P249** + **+ADR-0084 + ADR-0085
-EM VIGOR P260** + entradas históricas pós-P156K não-recapitatuladas
-nesta tabela — ver passos-chave abaixo). **Total pós-P260: 72
-ADRs**.
+EM VIGOR P260** + **+ADR-0086 IMPLEMENTADO P261** + entradas
+históricas pós-P156K não-recapitatuladas nesta tabela — ver
+passos-chave abaixo). **Total pós-P261: 73 ADRs**.
 
 ### Distribuição de status
 
@@ -236,10 +237,11 @@ ADRs**.
   0018, 0029, 0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**,
   **0080** P229, **0082** P254, **+0084 P260** auditoria
   condicional, **+0085 P260** diagnóstico imutável).
-- `IMPLEMENTADO`: **25** ADRs pós-P257 (decisões materializadas;
+- `IMPLEMENTADO`: **26** ADRs pós-P261 (decisões materializadas;
   0001, 0004, 0016, 0017, 0019, 0021–0027, 0026-R1, 0031,
   0052, 0053, 0055, 0057, **0060**, **0061** P221, **0078**
-  P221, **0079** P253, **0083** P257).
+  P221, **0079** P253, **0083** P257, **+0086 P261** Paint
+  wrapper Solid only).
 - `REVOGADO`: 2 ADRs (0007, 0028).
 - `ADIADO`: 1 ADR (0020).
 
@@ -2307,3 +2309,62 @@ P84.8g.
   formaliza padrões empíricos existentes, não cria reservas).
   Zero código L1/L2/L3/L4 tocado; zero L0 prompts editados;
   zero DEBTs criados/encerrados.
+
+- **Passo 261 — Paint wrapper enum (Solid only) via ADR-0086
+  sequência arquitectural Visualize pós-P259 Cenário B2 Opção
+  1 sub-passo 1**
+  (paridade precedente P257 ADR-0083 Color paridade vanilla
+  N=2 do mesmo pattern). **Magnitude S+**: P261.A Fase A
+  diagnóstico imutável `diagnostico-paint-vanilla-passo-261.md`
+  criado (vanilla 3 variants + consumers cristalino inventariados
+  ~30 sítios); P261.B ADR-0086 PROPOSTO criada (Opção α
+  granularidade per paridade ADR-0083 — cada tipo vanilla com
+  ADR próprio); P261.C materialização (`prompts/entities/paint.md`
+  L0 + `entities/paint.rs` com 7 tests + `entities/mod.rs`
+  re-export + `entities/geometry.rs` `Stroke.paint: Color →
+  Paint` + ~30 sítios construção `Stroke { paint: Paint::Solid(...) }`
+  adaptados via sed batch em content.rs/layout/mod.rs/stdlib/
+  layout.rs/stdlib/shapes.rs/stdlib/mod.rs/layout/tests.rs +
+  4 sítios PDF exporter `s.paint.to_rgba_f32()` →
+  `s.paint.to_color().to_rgba_f32()`); P261.D ADR-0086 PROPOSTO
+  → **IMPLEMENTADO** + README ADRs actualizado. **Decisão
+  minimalista declarada**: Paint::Solid(Color) only inicialmente;
+  variants `Gradient`/`Tiling` ficam **comentários reserva no
+  enum**, não unit placeholders (política P158 "sem novas
+  reservas" preservada). **ADR-0039 preservada literal**:
+  `TextStyle.fill: Option<Color>` **não** vira `Option<Paint>`;
+  apenas `Stroke.paint` adapta (DEBT-1 fechado P142 preservado).
+  **From<Color> for Paint** simples (não blanket
+  `From<T: Into<Color>>` vanilla — simplificação face vanilla
+  per ADR-0086 §scope-outs). **Métodos vanilla omitidos**:
+  `unwrap_solid()` panicking (substituído por `to_color()` sem
+  panic — Solid only garantido); `relative()`/`as_decoration()`
+  específicos Gradient/Tiling. **Stdlib intocado**:
+  `native_rgb`/etc. continuam retornar `Value::Color`; Paint::Solid
+  é wrapper interno transparente para user-facing. **PDF exporter
+  alteração mínima** (4 sítios). Distribuição: PROPOSTO 11
+  preservado (ADR-0086 entra e sai no mesmo passo via promoção
+  P261.D); EM VIGOR 32 preservado; **IMPLEMENTADO 25 → 26**;
+  total 72 → **73**. Tests workspace **2334 → 2341** (+7 paint
+  tests; zero regressões). Lint zero violations; hash propagado
+  (`entities/paint.md` → `f9855284`). **Subpadrão "Refactor
+  cross-cutting entity primitivo" N=2 → N=3 cumulativo** (P252
+  Stroke `overhang` + P257 Color expansão + **P261 Paint**) —
+  **patamar N=3 atinge limiar formalização sólida**; candidato
+  meta-ADR (improvável; auto-documentado por ADR individual).
+  **Subpadrão "ADR PROPOSTO+IMPLEMENTADO mesmo passo via
+  Cenário B1/B2" N=1 → N=2 cumulativo** (P257 ADR-0083 +
+  **P261 ADR-0086**). **Primeiro consumo indirecto ADR-0085**
+  pós-P260 (diagnóstico Paint vanilla cumpre forma análoga
+  per ADR-0029 §"Diagnosticar primeiro" + ADR-0085 estrutura
+  imutável). **Cobertura Visualize agregada**: ~52% (P259) →
+  **~53% pós-P261** (Tabela A P259 entrada G "Paint wrapper"
+  promovida ausente → implementado; +1pp estructural). **45
+  aplicações cumulativas anti-inflação** pós-P205D preservadas.
+  **Marco P261**: Paint wrapper Solid only materializado abre
+  caminho arquitectural para P262 Gradient Linear (sequência
+  preferida P259 Cenário B2 Opção 1 sub-passo 2; M; +15-20
+  tests; +8pp Visualize). **Decisão humana fica em aberto
+  literal** pós-P261 (próximo: P262 Gradient Linear OU outras
+  Opções P259 — DEBT-33 + Stroke<Length> Opção 3; Curve variant
+  Opção 2; Text audit; Footnote refino).

@@ -1130,6 +1130,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Divider => {
                 use crate::entities::geometry::Stroke;
                 use crate::entities::layout_types::Color;
+                use crate::entities::paint::Paint;
                 if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
                 let margin   = self.page_config.margin;
                 let width_pt = self.regions.current.width - 2.0 * margin;
@@ -1139,7 +1140,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     width:  width_pt,
                     height: 0.5,
                     fill:   None,
-                    stroke: Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 0.5, overhang: false }),
+                    stroke: Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 0.5, overhang: false }),
                 });
                 self.regions.current.cursor_y += self.font_size_pt * 0.6;
             }

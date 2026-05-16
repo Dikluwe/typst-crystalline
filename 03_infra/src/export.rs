@@ -860,7 +860,7 @@ fn build_page_stream_type1(
 
                 // Cor e espessura do contorno (RG + w).
                 if let Some(s) = stroke {
-                    let (r, g, b, _) = s.paint.to_rgba_f32();
+                    let (r, g, b, _) = s.paint.to_color().to_rgba_f32();
                     ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, s.thickness));
                 }
 
@@ -1122,7 +1122,7 @@ fn draw_item_local(ops: &mut String, item: &FrameItem) {
                 ops.push_str(&format!("{:.3} {:.3} {:.3} rg\n", r, g, b));
             }
             if let Some(s) = stroke {
-                let (r, g, b, _) = s.paint.to_rgba_f32();
+                let (r, g, b, _) = s.paint.to_color().to_rgba_f32();
                 ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, s.thickness));
             }
             match kind {
@@ -1368,7 +1368,7 @@ fn build_page_stream_cidfont(
                     ops.push_str(&format!("{:.3} {:.3} {:.3} rg\n", r, g, b));
                 }
                 if let Some(s) = stroke {
-                    let (r, g, b, _) = s.paint.to_rgba_f32();
+                    let (r, g, b, _) = s.paint.to_color().to_rgba_f32();
                     ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, s.thickness));
                 }
                 match kind {
@@ -1550,7 +1550,7 @@ fn build_page_stream_multifont(
                     ops.push_str(&format!("{:.3} {:.3} {:.3} rg\n", r, g, b));
                 }
                 if let Some(s) = stroke {
-                    let (r, g, b, _) = s.paint.to_rgba_f32();
+                    let (r, g, b, _) = s.paint.to_color().to_rgba_f32();
                     ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, s.thickness));
                 }
                 match kind {
