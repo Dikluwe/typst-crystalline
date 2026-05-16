@@ -23,17 +23,22 @@
 //! - ADR-0083 — Color paridade vanilla (precedente N=2).
 
 use crate::entities::color::Color;
+use crate::entities::gradient::Gradient;
 
 /// Wrapper enum sobre fontes de cor.
 ///
-/// Per ADR-0086, materializa apenas `Solid(Color)`; variants
-/// `Gradient`/`Tiling` ficam como comentários reserva no enum
-/// até P262+ activar.
-#[derive(Debug, Clone, Copy, PartialEq)]
+/// **P262 (ADR-0087)** — `Paint::Gradient(Gradient)` variant
+/// activada via ADR-0086 §"Critério revisão" cumprido.
+/// `Copy` removido — Gradient não é Copy (Arc<Linear>).
+///
+/// Per ADR-0086 + ADR-0087, materializa `Solid(Color)` +
+/// `Gradient(Gradient)`; `Tiling` permanece comentário reserva.
+#[derive(Debug, Clone, PartialEq)]
 pub enum Paint {
-    /// Cor sólida (uniforme). Único variant materializado P261.
+    /// Cor sólida (uniforme). Materializado P261.
     Solid(Color),
-    // Gradient(Gradient),  // P262 — comentário reserva
+    /// Gradient (Linear only por agora; ADR-0087).
+    Gradient(Gradient),
     // Tiling(Tiling),      // futuro — comentário reserva
 }
 
@@ -43,14 +48,20 @@ impl Paint {
         Paint::Solid(c)
     }
 
-    /// Extrai a cor (sempre `Solid` per ADR-0086 §scope-outs).
+    /// Construtor `Gradient` ergonómico.
+    pub fn gradient(g: Gradient) -> Self {
+        Paint::Gradient(g)
+    }
+
+    /// Extrai uma `Color` representativa.
     ///
-    /// Substitui `unwrap_solid()` panicking de vanilla — em
-    /// cristalino `Solid` é garantido pela enum estrutura
-    /// (Gradient/Tiling não materializados).
+    /// Para `Solid` retorna a cor literal. Para `Gradient`
+    /// retorna primeiro stop como fallback (paridade docs P261;
+    /// PDF render real via L3 shading pattern separado).
     pub fn to_color(&self) -> Color {
         match self {
             Paint::Solid(c) => *c,
+            Paint::Gradient(g) => g.first_stop_color(),
         }
     }
 }
@@ -58,6 +69,12 @@ impl Paint {
 impl From<Color> for Paint {
     fn from(c: Color) -> Self {
         Paint::Solid(c)
+    }
+}
+
+impl From<Gradient> for Paint {
+    fn from(g: Gradient) -> Self {
+        Paint::Gradient(g)
     }
 }
 
@@ -101,12 +118,13 @@ mod tests {
     }
 
     #[test]
-    fn paint_copy_clone() {
+    fn paint_clone() {
+        // P262 — Paint deixa de ser Copy (Gradient via Arc).
+        // Apenas Clone preservado.
         let p1 = Paint::Solid(Color::rgb(10, 20, 30));
-        let p2 = p1;
-        // p1 ainda usável → Copy
+        let p2 = p1.clone();
         assert_eq!(p1, p2);
-        let p3 = p1.clone();
+        let p3 = p2.clone();
         assert_eq!(p1, p3);
     }
 

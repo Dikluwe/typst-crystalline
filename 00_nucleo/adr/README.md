@@ -201,12 +201,14 @@ que corresponde a mudança específica no código.
 | 0084 | Auditoria condicional — audit empírico antes de decisão B1/B2/B3 | `EM VIGOR` (P260; formaliza padrão N=5 dos audits P192A/P255/P257/P258/P259; documenta critério "cobertura ambígua" + fluxo B1/B2/B3) |
 | 0085 | Diagnóstico imutável — artefacto produzido por audit | `EM VIGOR` (P260; estende ADR-0034; formaliza padrão N=4 dos diagnósticos imutáveis P255/P257/P258/P259) |
 | 0086 | Paint wrapper enum com subset materializado (Solid only) | `IMPLEMENTADO` (passo `P261`; precedente ADR-0083 N=2 do mesmo pattern; Paint::Solid(Color) materializado + From<Color> + Stroke.paint Color→Paint cross-cutting ~30 sítios; Gradient/Tiling comentários reserva activáveis em P262+; ADR-0039 TextStyle.fill preservado literal) |
+| 0087 | Gradient Linear materializado; Radial/Conic scope-out | `IMPLEMENTADO` (passo `P262`; precedente ADR-0083 + ADR-0086 N=3 do pattern PROPOSTO+IMPLEMENTADO mesmo passo; cumpre ADR-0086 §"Critério revisão" Paint::Gradient variant activada; Gradient::Linear(Arc<Linear>) + GradientStop Option<Ratio> auto-spacing + Linear::sample(t) Oklab interpolation; PDF shading completo scope-out adicional → P263 dedicado; primeiro consumo directo ADR-0085 pós-P260) |
 
 **Total**: 65 ADRs (64 números únicos; ADR-0026 tem variante -R1
 por revisão; **+ADR-0082 PROPOSTO P249** + **+ADR-0084 + ADR-0085
-EM VIGOR P260** + **+ADR-0086 IMPLEMENTADO P261** + entradas
-históricas pós-P156K não-recapitatuladas nesta tabela — ver
-passos-chave abaixo). **Total pós-P261: 73 ADRs**.
+EM VIGOR P260** + **+ADR-0086 IMPLEMENTADO P261** + **+ADR-0087
+IMPLEMENTADO P262** + entradas históricas pós-P156K
+não-recapitatuladas nesta tabela — ver passos-chave abaixo).
+**Total pós-P262: 74 ADRs**.
 
 ### Distribuição de status
 
@@ -237,11 +239,11 @@ passos-chave abaixo). **Total pós-P261: 73 ADRs**.
   0018, 0029, 0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**,
   **0080** P229, **0082** P254, **+0084 P260** auditoria
   condicional, **+0085 P260** diagnóstico imutável).
-- `IMPLEMENTADO`: **26** ADRs pós-P261 (decisões materializadas;
+- `IMPLEMENTADO`: **27** ADRs pós-P262 (decisões materializadas;
   0001, 0004, 0016, 0017, 0019, 0021–0027, 0026-R1, 0031,
   0052, 0053, 0055, 0057, **0060**, **0061** P221, **0078**
-  P221, **0079** P253, **0083** P257, **+0086 P261** Paint
-  wrapper Solid only).
+  P221, **0079** P253, **0083** P257, **0086** P261 Paint
+  wrapper Solid only, **+0087 P262** Gradient Linear-only).
 - `REVOGADO`: 2 ADRs (0007, 0028).
 - `ADIADO`: 1 ADR (0020).
 
@@ -2368,3 +2370,68 @@ P84.8g.
   literal** pós-P261 (próximo: P262 Gradient Linear OU outras
   Opções P259 — DEBT-33 + Stroke<Length> Opção 3; Curve variant
   Opção 2; Text audit; Footnote refino).
+
+- **Passo 262 — Gradient Linear-only via ADR-0087 sequência
+  arquitectural Visualize pós-P261 Cenário B2 Opção 1 sub-passo
+  2**
+  (precedente directo ADR-0086 §"Critério revisão" cumprido;
+  N=3 do pattern PROPOSTO+IMPLEMENTADO mesmo passo P257 ADR-0083
+  + P261 ADR-0086 + **P262 ADR-0087**; **patamar N=3 atinge
+  limiar formalização clara**). **Magnitude M dividida**:
+  P262.A Fase A diagnóstico imutável `diagnostico-gradient-vanilla-passo-262.md`
+  criado (**primeiro consumo directo ADR-0085** pós-P260 — valida
+  formalização retroactivamente); P262.B ADR-0087 PROPOSTO criada;
+  P262.C materialização (`prompts/entities/gradient.md` L0 +
+  `entities/gradient.rs` 13 tests com `GradientStop {color, offset: Option<Ratio>}`
+  + `Linear` struct + `Gradient` enum + `effective_offsets()`
+  auto-spacing + `sample(t)` Oklab interpolation + `first_stop_color()`
+  + `From<Gradient> for Paint` + `entities/mod.rs` re-export
+  + `entities/paint.rs` `Paint::Gradient(Gradient)` activada
+  `Copy` removido `From<Gradient>` adicionado + `entities/value.rs`
+  `Value::Gradient(Gradient)` activada `type_name() => "gradient"`
+  + `rules/stdlib/gradients.rs` novo módulo dedicado per Opção α
+  com `native_gradient_linear` + `make_gradient_module()` + 7
+  stdlib tests + `rules/eval/mod.rs` registo `scope.define("gradient", make_gradient_module())`);
+  P262.D ADR-0087 PROPOSTO → **IMPLEMENTADO** + README ADRs
+  actualizado. **Decisão minimalista declarada**: Linear only;
+  Radial/Conic comentários reserva activáveis em P-Gradient-Radial/Conic
+  dedicados. **User decisions pre-flight**: Q1 materializar tudo;
+  Q2 Oklab paridade vanilla (não sRGB fixo); Q3 GradientStop com
+  Option<Ratio> + auto-spacing. **PDF shading completo
+  scope-out adicional pós-P262.C inspecção magnitude** (refactor
+  monolítico build_pdf_* exporter estoira M+; ~200-300 LoC
+  Function/Shading/Pattern objects + Resources + dedup +
+  branching emit) → **P263 dedicado** per ADR-0061 §"granularidade
+  1-2 features/passo". **Estado actual PDF**: `Paint::to_color()`
+  fallback `first_stop_color()` em Gradient — mostra primeira
+  cor como Solid sem interpolação real; user-facing
+  `#gradient.linear(red, blue)` funcional via parsing. **ADR-0039
+  preservada literal**: `TextStyle.fill: Option<Color>`
+  inalterado (DEBT-1 fechado P142 preservado). Distribuição:
+  PROPOSTO 11 preservado (ADR-0087 entra e sai no mesmo passo);
+  EM VIGOR 32 preservado; **IMPLEMENTADO 26 → 27** (+0087 P262);
+  total 73 → **74**. Tests workspace **2341 → 2361** (+13
+  gradient.rs + 7 stdlib gradients; zero regressões). Lint zero
+  violations; hashes propagados (`entities/gradient.md` →
+  `391208e2`). **Subpadrão "Refactor cross-cutting entity
+  primitivo" N=3 → N=4 cumulativo** (P252 Stroke + P257 Color +
+  P261 Paint + **P262 Gradient/Paint::Gradient activação**) —
+  **patamar N=4 reforça formalização**. **Subpadrão "ADR
+  PROPOSTO+IMPLEMENTADO mesmo passo" N=2 → N=3 cumulativo
+  atinge limiar formalização clara** (P257 + P261 + **P262**;
+  candidato meta-ADR — improvável pois padrão auto-documentado).
+  **Subpadrão "Diagnóstico imutável precedente à acção" — primeiro
+  consumo directo ADR-0085** pós-P260 (N=4 audit Fase A
+  cumulativos + 1 directo P262 = N=5 geral; validates formalização
+  P260 retroactivamente). **Cobertura Visualize agregada**:
+  ~53% (P261) → **~58% pós-P262** (F.1 Gradient Linear ausente
+  → implementado +4-5pp; G Paint wrapper P261 preservado +1pp).
+  **45 aplicações cumulativas anti-inflação** pós-P205D
+  preservadas. **Marco P262**: Gradient Linear-only L1+stdlib
+  materializado; user-facing `gradient.linear(...)` funcional;
+  PDF shading complete adiado P263 per granularidade ADR-0061
+  preservada. **Decisão humana fica em aberto literal** pós-P262
+  (próximo: P263 PDF shading complete OU P-Gradient-Radial OU
+  outras Opções P259 — DEBT-33 + Stroke<Length>; Curve variant;
+  Text audit; Footnote refino).
+

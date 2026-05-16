@@ -70,6 +70,8 @@ pub mod image_sizer;
 pub mod geometry;
 // P261 — Paint wrapper enum (Solid only) per ADR-0086.
 pub mod paint;
+// P262 — Gradient Linear-only per ADR-0087; activa Paint::Gradient.
+pub mod gradient;
 pub mod ptr_eq_arc;
 pub mod value;
 pub mod world_types;
