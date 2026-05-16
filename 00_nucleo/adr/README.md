@@ -2149,3 +2149,53 @@ P84.8g.
   cumprindo regra ADR-0029 literal; Visualize ganha primeira
   expansão substantiva user-facing pós-Fase 5 Layout
   IMPLEMENTADO P253.
+
+- **P258 (administrativo XS-S) — Finalizar Model via auditoria
+  Fase A + reconciliação L0 prompts + Cenário B1 fecho conceptual**
+  (paridade pattern P255 DEBT-8 Math ENCERRADO + P257 Color
+  paridade vanilla). **Quarta aplicação cumulativa "auditoria
+  condicional"** N=3 → N=4 cumulativo (P192A + P255 + P257 +
+  **P258**); limiar formalização N=5 quase atingido (próximo
+  passo admin XS candidato a ADR meta). **Cenário B1 confirmado
+  empíricamente**: cobertura Model **~73% ponderado linear**
+  (P154A 48% → Audit P258 73%; Δ +25pp). Sub-passos:
+  P258.A audit empírico imutável criado
+  (`diagnostico-model-fase-a-passo-258.md`; 22 entradas
+  re-classificadas; Tabelas A+B preenchidas); P258.B
+  reconciliação documental L0 prompt `entities/content.md`
+  (secção "Estado actual cumulativo P258 Cenário B1" anotada;
+  ~62 variants Content reais documentados; hash propagado
+  `c120d66c`); P258.C **saltado** (cenário B1 sem
+  materialização); P258.D DEBT-55 PARCIALMENTE RESOLVIDO via
+  paridade manual P159A-G (bib_entry.rs 413 LoC; sem dependência
+  hayagriva real; ADR-0062 PROPOSTO preservada) + ADR-0060
+  anotação cumulativa P258 (cobertura ~73% confirmada;
+  promoções cumulativas P155-P252 documentadas; status
+  IMPLEMENTADO preservado). **Promoções cumulativas Bloco A
+  Model detectadas**: heading P182C numbering + figure caption
+  + bibliography/cite par acoplado P159A-G + terms/divider/quote
+  P154B-P155 + table 4 variants P157A-C + cumulativos
+  P227/P247/P248/P250 (Block/Boxed 10-14 fields). **Pendentes
+  residuais P258**: footnote ausente (P156C desbloqueio preservado;
+  variant não materializada); document/title/asset Fase 3
+  condicional scope-out formal ADR-0060; link/list/enum/par
+  parcial preservado; Bloco B hayagriva scope-out implícito
+  (paridade manual cumpriu user-facing). **Sem código L1/L2/L3/L4
+  tocado** (cenário B1 documental). **Sem ADRs novas criadas**
+  (ADR-0060 anotação cumulativa apenas; ADR-0062 PROPOSTO
+  preservada). ADRs distribuição preservada literal: PROPOSTO
+  11; EM VIGOR 30; IMPLEMENTADO 25; **total 70 preservado**.
+  Hash propagado (`entities/content.md` → `c120d66c`). Tests
+  workspace **2334 verdes preservado** (paridade absoluta
+  cenário B1 documental). **45 aplicações cumulativas
+  anti-inflação** pós-P205D preservadas. Patterns emergentes
+  pós-P258 (2): "Auditoria condicional" N=3 → **N=4 cumulativo**
+  (P192A + P255 + P257 + **P258**); "Diagnóstico imutável
+  precedente à acção" N=2 → **N=3 cumulativo** (P255 + P257 +
+  **P258**). **Marco P258**: Model fecho conceptual cumulativo
+  (~73% cobertura agregada); Bloco A Model massivamente
+  materializado P155-P252; pendências residuais isoladas
+  (footnote + Fase 3 + hayagriva CSL completo) preservadas como
+  candidatos refinos futuros granulares. **Decisão humana fica
+  em aberto literal** pós-P258 (próximo: pivot Text/Visualize/
+  Layout refinos futuros OU P-Footnote-N refino M).
