@@ -68,6 +68,8 @@ pub mod style;
 pub mod style_chain;
 pub mod image_sizer;
 pub mod geometry;
+// P261 — Paint wrapper enum (Solid only) per ADR-0086.
+pub mod paint;
 pub mod ptr_eq_arc;
 pub mod value;
 pub mod world_types;

@@ -12,6 +12,7 @@ use crate::entities::file_id::FileId;
 use crate::entities::content::Content;
 use crate::entities::geometry::{PathItem, ShapeKind, Stroke};
 use crate::entities::layout_types::{Color, Point, Pt};
+use crate::entities::paint::Paint;
 use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
@@ -60,11 +61,11 @@ pub fn native_rect(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 
     let parsed_stroke: Option<Stroke> = args.named.get("stroke")
         .and_then(parse_color)
-        .map(|c| Stroke { paint: c, thickness: 1.0, overhang: false });
+        .map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false });
 
     // Fallback determinístico: sem fill nem stroke → stroke preta de 1pt.
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false })
+        Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false })
     } else {
         parsed_stroke
     };
@@ -97,10 +98,10 @@ pub fn native_ellipse(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 
     let parsed_stroke: Option<Stroke> = args.named.get("stroke")
         .and_then(parse_color)
-        .map(|c| Stroke { paint: c, thickness: 1.0, overhang: false });
+        .map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false });
 
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false })
+        Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false })
     } else {
         parsed_stroke
     };
@@ -148,10 +149,10 @@ pub fn native_circle(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 
     let parsed_stroke: Option<Stroke> = args.named.get("stroke")
         .and_then(parse_color)
-        .map(|c| Stroke { paint: c, thickness: 1.0, overhang: false });
+        .map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false });
 
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false })
+        Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false })
     } else {
         parsed_stroke
     };
@@ -200,7 +201,7 @@ pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         width:  None,
         height: None,
         fill:   None,
-        stroke: Some(Stroke { paint: stroke_color, thickness: 1.0, overhang: false }),
+        stroke: Some(Stroke { paint: Paint::Solid(stroke_color), thickness: 1.0, overhang: false }),
     }))
 }
 
@@ -257,7 +258,7 @@ pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 
     let fill   = args.named.get("fill").and_then(parse_color);
     let stroke = args.named.get("stroke").and_then(|v| {
-        parse_color(v).map(|c| Stroke { paint: c, thickness: 1.0, overhang: false })
+        parse_color(v).map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false })
     });
 
     let width  = if max_x > min_x { Some(Box::new(Value::Float(max_x - min_x))) } else { None };

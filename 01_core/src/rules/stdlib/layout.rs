@@ -345,7 +345,7 @@ fn extract_length(val: &Value) -> Option<Length> {
 /// vanilla user-facing; construtor Rust low-level usa `false` per
 /// ADR-0054 divergência consciente):
 /// - `Value::Length(l)` → `Stroke { paint: Color::BLACK, thickness: l.to_pt(), overhang: true }`.
-/// - `Value::Color(c)` → `Stroke { paint: c, thickness: 1.0, overhang: true }` (default 1pt).
+/// - `Value::Color(c)` → `Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: true }` (default 1pt).
 /// - `Value::Stroke(s)` → `s.clone()` (preserva overhang do user).
 /// - Outros tipos: erro hard.
 ///
@@ -353,14 +353,15 @@ fn extract_length(val: &Value) -> Option<Length> {
 pub(super) fn extract_stroke(val: &Value, fn_name: &str, field: &str) -> SourceResult<crate::entities::geometry::Stroke> {
     use crate::entities::geometry::Stroke;
     use crate::entities::layout_types::Color;
+    use crate::entities::paint::Paint;
     let stroke = match val {
         Value::Length(l) => {
             let thickness = l.abs.to_pt();
             // P252 — vanilla default overhang=true para inputs stdlib
             // (cobertura Length atalho).
-            Stroke { paint: Color::rgb(0, 0, 0), thickness, overhang: true }
+            Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness, overhang: true }
         }
-        Value::Color(c) => Stroke { paint: *c, thickness: 1.0, overhang: true },
+        Value::Color(c) => Stroke { paint: Paint::Solid(*c), thickness: 1.0, overhang: true },
         Value::Stroke(s) => s.clone(),
         other => return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -1403,6 +1404,7 @@ pub fn native_measure(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     use crate::entities::geometry::Stroke;
     use crate::entities::layout_types::Color;
+    use crate::entities::paint::Paint;
 
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
@@ -1457,7 +1459,7 @@ pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
         }
     }
 
-    Ok(Value::Stroke(Stroke { paint, thickness, overhang }))
+    Ok(Value::Stroke(Stroke { paint: Paint::Solid(paint), thickness, overhang }))
 }
 
 /// `pagebreak(weak: false, to: ?)` → `Content::Pagebreak`.

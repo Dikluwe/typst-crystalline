@@ -16,6 +16,7 @@
 
 use super::*;
 use crate::entities::{content::Content, layout_types::FrameItem};
+use crate::entities::paint::Paint;
 use crate::rules::introspect::introspect;
 
 // ── Testes de FixedMetrics (Passo 21) ────────────────────────────────
@@ -3151,7 +3152,7 @@ mod tests_show_rule_integration {
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None,
             footer:  None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false }),
+            stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),
             fill:    None,
         };
         let doc = layout(&with_stroke);
@@ -3198,7 +3199,7 @@ mod tests_show_rule_integration {
             columns:  vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
             rows:     vec![],
             children: vec![Content::text("X"), Content::text("Y")],
-            stroke:   Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 0.5, overhang: false }),
+            stroke:   Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 255)), thickness: 0.5, overhang: false }),
             fill:     None,
         };
         let doc = layout(&t);
@@ -3320,7 +3321,7 @@ mod tests_show_rule_integration {
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None,
             footer:  None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false }),
+            stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),
             fill:    Some(Color::rgb(255, 255, 0)),
         };
         let doc = layout(&g);
@@ -3374,7 +3375,7 @@ mod tests_show_rule_integration {
             y:       None,
             colspan: None,
             rowspan: None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 5.0, overhang: false }),
+            stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 255)), thickness: 5.0, overhang: false }),
             fill:    None,
             align:   None, inset: None, breakable: None,
         };
@@ -3387,7 +3388,7 @@ mod tests_show_rule_integration {
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None,
             footer:  None,
-            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 1.0, overhang: false }),
+            stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(255, 0, 0)), thickness: 1.0, overhang: false }),
             fill:    None,
         };
         let doc = layout(&g);
@@ -3465,7 +3466,7 @@ mod tests_show_rule_integration {
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None,
             footer:  None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 3.0, overhang: false }),
+            stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 3.0, overhang: false }),
             fill:    None,
         };
         let doc = layout(&g);
@@ -3491,7 +3492,7 @@ mod tests_show_rule_integration {
             y:       None,
             colspan: None,
             rowspan: None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false }),
+            stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),
             fill:    None,
             align:   None, inset: None, breakable: None,
         };
@@ -3530,7 +3531,7 @@ mod tests_show_rule_integration {
             y:       None,
             colspan: None,
             rowspan: None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false }),  // cell stroke
+            stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),  // cell stroke
             fill:    None,
             align:   None, inset: None, breakable: None,
         };
@@ -3947,7 +3948,7 @@ mod tests_show_rule_integration {
             radius:    Corners::uniform(Length::ZERO),
             clip:      false,
             fill:      None,
-            stroke:    Some(Stroke { paint: Color::rgb(10, 20, 30), thickness: 1.5, overhang: false }),
+            stroke:    Some(Stroke { paint: Paint::Solid(Color::rgb(10, 20, 30)), thickness: 1.5, overhang: false }),
             spacing:   None,
             above:     None,
             below:     None,
@@ -3958,7 +3959,7 @@ mod tests_show_rule_integration {
         for page in doc.pages.iter() {
             for item in page.items.iter() {
                 if let FrameItem::Shape { stroke: Some(s), .. } = item {
-                    if s.paint == Color::rgb(10, 20, 30) && s.thickness == 1.5 {
+                    if s.paint == Paint::Solid(Color::rgb(10, 20, 30)) && s.thickness == 1.5 {
                         found_shape_with_stroke = true;
                     }
                 }
@@ -5404,7 +5405,7 @@ mod tests_show_rule_integration {
             radius:    Corners::uniform(Length::pt(2.0)),        // P242
             clip:      true,                                      // P242
             fill:      Some(Color::rgb(200, 200, 200)),          // P247
-            stroke:    Some(Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false }),  // P247
+            stroke:    Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),  // P247
             spacing:   Some(Length::pt(5.0)),                    // P250
             above:     Some(Length::pt(10.0)),                   // P250
             below:     Some(Length::pt(8.0)),                    // P250
@@ -5809,10 +5810,10 @@ mod tests_show_rule_integration {
     fn p252_stroke_struct_partial_eq_inclui_overhang() {
         use crate::entities::geometry::Stroke;
         use crate::entities::layout_types::Color;
-        let s1 = Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false };
-        let s2 = Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: true };
+        let s1 = Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false };
+        let s2 = Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: true };
         assert_ne!(s1, s2, "P252 — overhang distingue strokes em PartialEq");
-        let s3 = Stroke { paint: Color::rgb(0, 0, 0), thickness: 1.0, overhang: false };
+        let s3 = Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false };
         assert_eq!(s1, s3);
     }
 
@@ -5820,7 +5821,7 @@ mod tests_show_rule_integration {
     fn p252_stroke_clone_preserva_overhang() {
         use crate::entities::geometry::Stroke;
         use crate::entities::layout_types::Color;
-        let s = Stroke { paint: Color::rgb(0, 0, 0), thickness: 2.0, overhang: true };
+        let s = Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 2.0, overhang: true };
         let s2 = s.clone();
         assert_eq!(s.overhang, s2.overhang);
         assert!(s2.overhang);
@@ -5845,7 +5846,7 @@ mod tests_show_rule_integration {
             clip:      false,
             fill:      None,
             stroke:    Some(Stroke {
-                paint: Color::rgb(0, 0, 0),
+                paint: Paint::Solid(Color::rgb(0, 0, 0)),
                 thickness: 4.0,
                 overhang: false,
             }),
@@ -5886,7 +5887,7 @@ mod tests_show_rule_integration {
             clip:      false,
             fill:      None,
             stroke:    Some(Stroke {
-                paint: Color::rgb(0, 0, 0),
+                paint: Paint::Solid(Color::rgb(0, 0, 0)),
                 thickness: 4.0,
                 overhang: true,
             }),
@@ -5926,7 +5927,7 @@ mod tests_show_rule_integration {
             clip:     false,
             fill:     None,
             stroke:   Some(Stroke {
-                paint: Color::rgb(0, 0, 0),
+                paint: Paint::Solid(Color::rgb(0, 0, 0)),
                 thickness: 6.0,
                 overhang: true,
             }),
@@ -6489,7 +6490,7 @@ mod tests_show_rule_integration {
             body:    Box::new(Content::text("WS")),
             x:       None, y: None,
             colspan: Some(2), rowspan: None,
-            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 2.0, overhang: false }),
+            stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(255, 0, 0)), thickness: 2.0, overhang: false }),
             fill:    None,
             align:   None, inset: None, breakable: None,
         };
@@ -6529,7 +6530,7 @@ mod tests_show_rule_integration {
             body:    Box::new(Content::text("W")),
             x:       None, y: None,
             colspan: Some(2), rowspan: None,
-            stroke:  Some(Stroke { paint: Color::rgb(0, 0, 255), thickness: 7.0, overhang: false }),
+            stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 255)), thickness: 7.0, overhang: false }),
             fill:    None,
             align:   None, inset: None, breakable: None,
         };
@@ -6540,7 +6541,7 @@ mod tests_show_rule_integration {
             gutter:  None, align: None,
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None, footer:  None,
-            stroke:  Some(Stroke { paint: Color::rgb(255, 0, 0), thickness: 1.0, overhang: false }),
+            stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(255, 0, 0)), thickness: 1.0, overhang: false }),
             fill:    None,
         };
         let doc = layout(&g);
@@ -6589,7 +6590,7 @@ mod tests_show_rule_integration {
             gutter:  None, align: None,
             inset:   Sides::uniform(Length::pt(0.0)),
             header:  None, footer:  None,
-            stroke:  Some(Stroke { paint: Color::rgb(100, 100, 100), thickness: 1.0, overhang: false }),
+            stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(100, 100, 100)), thickness: 1.0, overhang: false }),
             fill:    None,
         };
         let doc = layout(&g);

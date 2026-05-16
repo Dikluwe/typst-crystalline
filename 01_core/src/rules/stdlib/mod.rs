@@ -1516,11 +1516,13 @@ mod tests {
         // #rect() sem fill nem stroke → stroke preta de 1pt.
         // Confirma que a stdlib é o único local onde este fallback existe.
         null_ctx!(ctx);
+        use crate::entities::paint::Paint;
+        use crate::entities::layout_types::Color;
         let result = native_rect(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Shape { fill, stroke, .. }) = result {
             assert!(fill.is_none(), "rect sem fill deve ter fill: None");
             let s = stroke.expect("rect sem cores deve ter stroke de fallback");
-            assert_eq!(s.paint, Color::rgb(0, 0, 0), "stroke de fallback deve ser preta");
+            assert_eq!(s.paint, Paint::Solid(Color::rgb(0, 0, 0)), "stroke de fallback deve ser preta");
             assert_eq!(s.thickness, 1.0, "espessura de fallback deve ser 1pt");
         } else {
             panic!("Esperado Content::Shape");
@@ -2485,12 +2487,13 @@ mod tests {
     fn p247_native_box_aceita_stroke_color_shorthand() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Color;
+        use crate::entities::paint::Paint;
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("stroke".into(), Value::Color(Color::rgb(0, 0, 255)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Boxed { stroke, .. }) = r {
             let s = stroke.expect("stroke deveria ser Some");
-            assert_eq!(s.paint, Color::rgb(0, 0, 255));
+            assert_eq!(s.paint, Paint::Solid(Color::rgb(0, 0, 255)));
             assert_eq!(s.thickness, 1.0, "Color shorthand default 1pt thickness");
         } else {
             panic!("esperado Content::Boxed");
@@ -2691,11 +2694,12 @@ mod tests {
     fn p252_native_block_stroke_color_atalho_overhang_default_true() {
         null_ctx!(ctx);
         use crate::entities::layout_types::Color;
+        use crate::entities::paint::Paint;
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Block { stroke: Some(s), .. }) = r {
-            assert_eq!(s.paint, Color::rgb(255, 0, 0));
+            assert_eq!(s.paint, Paint::Solid(Color::rgb(255, 0, 0)));
             assert_eq!(s.thickness, 1.0);
             assert_eq!(s.overhang, true,
                 "P252 — Color atalho default overhang=true (paridade vanilla)");
@@ -3943,7 +3947,8 @@ mod tests {
     fn p227_value_stroke_type_name_e_eq() {
         use crate::entities::geometry::Stroke;
         use crate::entities::layout_types::Color;
-        let s = Stroke { paint: Color::rgb(255, 0, 0), thickness: 2.5, overhang: false };
+        use crate::entities::paint::Paint;
+        let s = Stroke { paint: Paint::Solid(Color::rgb(255, 0, 0)), thickness: 2.5, overhang: false };
         let v = Value::Stroke(s.clone());
         assert_eq!(v.type_name(), "stroke");
         let v2 = Value::Stroke(s);
@@ -4050,7 +4055,8 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::geometry::Stroke;
         use crate::entities::layout_types::Color;
-        let s = Stroke { paint: Color::rgb(0, 255, 0), thickness: 3.0, overhang: false };
+        use crate::entities::paint::Paint;
+        let s = Stroke { paint: Paint::Solid(Color::rgb(0, 255, 0)), thickness: 3.0, overhang: false };
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("stroke".into(), Value::Stroke(s.clone()));
         let r = native_grid(&mut ctx, &args,
