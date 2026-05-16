@@ -246,6 +246,15 @@ de controlo. Para `CubicTo`, a curva real pode ultrapassar a caixa delimitadora
 dos pontos de controlo, causando vazamento visual subtil. Resolução futura:
 cálculo analítico dos extremos da curva paramétrica B(t) para obter a AABB exacta.
 
+### Auditado em P259.A (2026-05-15)
+
+Audit Fase A Visualize confirmou DEBT-33 **EM ABERTO preservado**.
+Aproximação por min/max dos pontos de controlo preservada;
+cálculo analítico não materializado. Candidato P260+ (Opção 3
+"DEBT-33 + Stroke<Length>" do diagnóstico pai). Magnitude S+
+(~1-2h; +5 tests; matemática paramétrica raízes da derivada
+`B'(t) = 0` em [0,1]).
+
 ---
 
 ## DEBT-34d — Auto não encolhe antes de matar fr — FECHADO (Passo 233) ✓

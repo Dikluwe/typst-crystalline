@@ -292,3 +292,55 @@ atinge critérios sem regressão.
 
 Cada scope-out é candidato a passo dedicado pequeno (XS-M);
 sem DEBT novo per política P158.
+
+---
+
+## Anotação cumulativa P259 (2026-05-15) — Cobertura Visualize agregada
+
+Audit Fase A Visualize (P259.A) auditou 27 entradas dos
+subsistemas Color + Shapes + Stroke + Image + Transform +
+Gradient + Paint + Tiling + Clip; output literal em
+`00_nucleo/diagnosticos/diagnostico-visualize-fase-a-passo-259.md`.
+
+**Color preservado**: 8/8 espaços + 7 stdlib funcs + zero
+operadores cor + scope-out CMYK PDF preservado. ADR-0083 status
+**IMPLEMENTADO preservado literal**.
+
+**Cobertura Visualize empírica P259** (Tabela B):
+- implementado: 10/27 (37%).
+- implementado⁺: 4/27 (15%) — Color, Ellipse, Path, Stroke base.
+- ausente: 13/27 (48%).
+- Ponderada linear: 51.9%; ponderada com bonus implementado⁺
+  ~54.8%.
+
+**Promoções não-documentadas detectadas em P259.A**:
+- Ellipse parcial → implementado⁺ (P242 Bézier kappa real, não
+  placeholder rect DEBT-31).
+- Polygon ausente → implementado (stdlib `native_polygon` via
+  Path conversion).
+- Stroke base implementado → implementado⁺ (P252 overhang
+  cross-cutting refactor).
+
+**Cenário Fase B confirmado**: B2 (55-70%). Opções para P260+
+dedicados:
+- Opção 1 (Paint enum + Gradient Linear) — sequência preferida.
+- Opção 2 (Polygon variant separada + Curve) — parcial pré-cumprida.
+- Opção 3 (DEBT-33 + Stroke<Length>) — refinos qualitativos.
+- Opção 4 (Transform origin pivot) — scope-out ADR-0061
+  preservado; materializar reverte decisão arquitectural
+  existente em `transforms.rs:104-105`.
+- Opção 5 (SVG image format) — L+ adiar.
+
+**P259.C saltado** per decisão local (preservar política
+administrativa documental + scope-out ADR-0061 sobre Opção 4).
+
+**Subpadrão "auditoria condicional" N=5 cumulativo** (P192A +
+P255 + P257 + P258 + **P259**). **Patamar N=5 atinge limiar
+formalização clara** — candidato a formalizar em ADR meta admin
+XS futuro.
+
+**Subpadrão "Diagnóstico imutável precedente à acção" N=4
+cumulativo** (P255 + P257 + P258 + **P259**).
+
+Status ADR-0083 preservado literal (`IMPLEMENTADO`). Color
+subsistema cobertura 100% estrutural preservada.

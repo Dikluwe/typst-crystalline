@@ -145,3 +145,105 @@ desenha clip path via `emit_rounded_rect_ops`.
 clamp interno em `emit_rounded_rect_ops` para `radii ≤ min(w,h)/2`
 evita overflow geométrico). `measure_content` arms tratam
 RoundedRect identicamente a Rect.
+
+---
+
+## Estado actual cumulativo (reconciliação P259 Cenário B2 — Fase A)
+
+**Anotação documental**: esta secção reconcilia o prompt L0
+com o estado real do código apurado em
+`diagnostico-visualize-fase-a-passo-259.md`. Representação base
+acima preservada como **histórico cumulativo** (paridade pattern
+P258.B + ADR-0080 §"refactor aditivo"). **Não reconciliação
+destructiva**.
+
+### Estado real `ShapeKind` (5 variants)
+
+```rust
+pub enum ShapeKind {
+    Rect,
+    RoundedRect { radii: Corners<Length> },   // P242
+    Ellipse,
+    Line { dx: f64, dy: f64 },
+    Path(Vec<PathItem>),                       // P79
+}
+```
+
+### `PathItem` (P79) — não documentado anteriormente
+
+```rust
+pub enum PathItem {
+    MoveTo(Point),
+    LineTo(Point),
+    CubicTo(Point, Point, Point),  // control1, control2, end
+    ClosePath,
+}
+```
+
+Path é container de sub-paths via `Vec<PathItem>`. PDF exporter
+(P79+) emite `m` / `l` / `c` / `h` operators correspondentes.
+DEBT-33 EM ABERTO preservado — bbox por min/max dos pontos de
+controlo (não extremos paramétricos exactos).
+
+### Ellipse — actualização P242 (linha 101-102 obsoleta)
+
+A linha 101-102 acima ("scaffolding presente; exportador PDF
+emite rectângulo placeholder TODO DEBT-31") está **factualmente
+desactualizada per audit P259 Fase A**. Estado real:
+
+```text
+PDF exporter (03_infra/src/export.rs:875 +1037 +1137 +1383 +1565)
+emite Ellipse via Bézier 4 corners com
+kappa = 0.552_284_749_831  (paridade ShapeKind::Ellipse mesmo
+ficheiro). Output PDF: m + c × 4 + h. Promoção parcial →
+implementado⁺ via P242.
+```
+
+DEBT-31 (Transform afim) está **ENCERRADO em P78**; a nota
+sobre Ellipse placeholder estava cruzada incorrectamente nessa
+DEBT histórica.
+
+### Polygon — promoção stdlib (não-documentada anteriormente)
+
+`native_polygon` em `01_core/src/rules/stdlib/shapes.rs:223`
+materializa polygon via conversão para `ShapeKind::Path` com
+sequência `MoveTo + N LineTo + ClosePath`. Não há `ShapeKind::
+Polygon` estrutural separada (Path é representação canónica).
+
+Stdlib: `scope.define("polygon", native_polygon)` em
+`rules/eval/mod.rs:591`. Testes em `stdlib/mod.rs:1565-1599`.
+
+Promoção `ausente → implementado` reconhecida em audit P259.A.
+
+### Tabela B agregada Visualize (audit P259)
+
+| Estado | Audit P259 |
+|--------|------------|
+| implementado | 10/27 (37%) |
+| implementado⁺ | 4/27 (15%) — Color, Ellipse, Path, Stroke base |
+| parcial | 0/27 (0%) |
+| ausente | 13/27 (48%) |
+
+**Cobertura ponderada linear**: 51.9%.
+**Cobertura ponderada com bonus implementado⁺**: 54.8%.
+
+Pendentes pós-P259 (Cenário B2 confirmado):
+
+1. **Gradient subsistema** (F.1 Linear + F.2 Radial + F.3
+   Conic) — ausentes; candidato P261.
+2. **Paint wrapper** (G) — ausente; pré-requisito Gradient;
+   candidato P260.
+3. **Stroke refinos** (C.2 Stroke<T> Length + C.3 Dash +
+   C.4 LineCap/Join) — ausentes; candidatos M.
+4. **Image refinos** (D.3 SVG + D.4 metadata `alt`/`fit`) —
+   ausentes; SVG L+ requer ADR crate `usvg`/`resvg`.
+5. **Transform `origin` pivot** (E.5) — ausente com **scope-out
+   documentado per ADR-0061** em `rules/stdlib/transforms.rs:
+   104-105`. Materializar reverte scope-out arquitectural.
+6. **Curve variant** (B.6) — ausente; refino bezier separado
+   (não conversão Path stdlib).
+7. **DEBT-33 Bézier bbox exacto** — EM ABERTO; refino qualitativo.
+
+**Cenário B2 confirmado**: Opções 1-5 para P260+ dedicados.
+P259.C saltado per decisão local (preservar política
+administrativa documental + scope-out ADR-0061 sobre Opção 4).
