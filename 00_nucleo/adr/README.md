@@ -198,11 +198,14 @@ que corresponde a mudança específica no código.
 | 0065 | Inventariar primeiro — sub-passo `.1` para decisão arquitectural não-trivial | `EM VIGOR` (P156K; estende ADR-0034; padrão N=5 da série P156C-J) |
 | 0066 | Introspection runtime — promoção da reserva conceptual (referida historicamente como "ADR-0017 Introspection runtime adiada") a ficheiro PROPOSTO | `PROPOSTO` (passo `P160A`; resolve confusão de numeração — reserva conceptual usava 0017 mas slot 0017 já IMPLEMENTADO para outro tópico; promoção a IMPLEMENTADO em passo futuro materialização Introspection runtime real — P160B subset minimal) |
 | 0082 | Promoções reais de scope-outs ADR-0054 graded — 4 critérios operacionais | `PROPOSTO` (passo `P249` administrativo XS; formaliza pattern empírico N=8 cumulativo granular pós-P248 — P242 radius+clip + P247 outset+fill+stroke + P248 breakable+height+cell_overflow; promoção a EM VIGOR pendente N=3 aplicações consecutivas citantes; **nota numeração**: `P249.div-2` registado — ADR-0067 já ocupada por `attribute-grammar-scoping`; ADR-0082 escolhido como próximo slot disponível após ADR-0081) |
+| 0084 | Auditoria condicional — audit empírico antes de decisão B1/B2/B3 | `EM VIGOR` (P260; formaliza padrão N=5 dos audits P192A/P255/P257/P258/P259; documenta critério "cobertura ambígua" + fluxo B1/B2/B3) |
+| 0085 | Diagnóstico imutável — artefacto produzido por audit | `EM VIGOR` (P260; estende ADR-0034; formaliza padrão N=4 dos diagnósticos imutáveis P255/P257/P258/P259) |
 
 **Total**: 65 ADRs (64 números únicos; ADR-0026 tem variante -R1
-por revisão; **+ADR-0082 PROPOSTO P249** + entradas históricas
-pós-P156K não-recapitatuladas nesta tabela — ver passos-chave
-abaixo).
+por revisão; **+ADR-0082 PROPOSTO P249** + **+ADR-0084 + ADR-0085
+EM VIGOR P260** + entradas históricas pós-P156K não-recapitatuladas
+nesta tabela — ver passos-chave abaixo). **Total pós-P260: 72
+ADRs**.
 
 ### Distribuição de status
 
@@ -229,9 +232,10 @@ abaixo).
   **PROPOSTO 11 preservado** (ADR-0083 entra e sai no mesmo
   passo via promoção P257.D).
 - `IDEIA`: 2 ADRs (0002, 0003).
-- `EM VIGOR`: **30** ADRs pós-P254 (regras/políticas activas;
+- `EM VIGOR`: **32** ADRs pós-P260 (regras/políticas activas;
   0018, 0029, 0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**,
-  **0080** P229, **0082** P254).
+  **0080** P229, **0082** P254, **+0084 P260** auditoria
+  condicional, **+0085 P260** diagnóstico imutável).
 - `IMPLEMENTADO`: **25** ADRs pós-P257 (decisões materializadas;
   0001, 0004, 0016, 0017, 0019, 0021–0027, 0026-R1, 0031,
   0052, 0053, 0055, 0057, **0060**, **0061** P221, **0078**
@@ -2199,3 +2203,107 @@ P84.8g.
   candidatos refinos futuros granulares. **Decisão humana fica
   em aberto literal** pós-P258 (próximo: pivot Text/Visualize/
   Layout refinos futuros OU P-Footnote-N refino M).
+
+- **P259 (administrativo XS-S) — Pivot Visualize via auditoria
+  Fase A + reconciliação L0 prompts + Cenário B2 sub-passos
+  prioritários adiados P260+**
+  (paridade pattern P255/P257/P258 quintos passos administrativos
+  XS-S sequenciais). **Quinta aplicação cumulativa "auditoria
+  condicional"** N=4 → **N=5 cumulativo** (P192A + P255 + P257 +
+  P258 + **P259**); **limiar formalização N=5 atinge clara
+  promoção candidato ADR meta admin XS futuro**. **Cenário B2
+  confirmado empíricamente**: cobertura Visualize **51.9%
+  ponderado linear** (Audit P259; pre-P259 estimativa 60-65%
+  era 5-10pp optimista) / 54.8% ponderado com bonus implementado⁺.
+  Sub-passos: P259.A audit empírico imutável criado
+  (`diagnostico-visualize-fase-a-passo-259.md`; 27 entradas
+  classificadas via 10 blocos checklist; Tabelas A+B preenchidas);
+  P259.B reconciliação documental L0 prompt `entities/geometry.md`
+  (secção "Estado actual cumulativo P259 Cenário B2 — Fase A"
+  anotada; 5 ShapeKind variants documentados incl. RoundedRect
+  P242 + Path P79 com PathItem MoveTo/LineTo/CubicTo/ClosePath;
+  Ellipse linha 101-102 obsoleta substituída por nota P242
+  Bézier kappa real; Polygon stdlib promoção documentada;
+  hash propagado `7dbda723`); P259.C **saltado** (decisão
+  local cenário B2: scope-out ADR-0061 sobre Opção 4 origin
+  pivot preservado + política administrativa documental P259);
+  P259.D DEBT-33 **EM ABERTO preservado** com anotação P259.A
+  (Bézier bbox aproximação min/max preservada; candidato P260+
+  Opção 3) + ADR-0083 anotação cumulativa P259 (cobertura
+  Visualize 51.9% empírica; promoções Ellipse/Polygon/Stroke
+  detectadas; status IMPLEMENTADO preservado). **Promoções
+  não-documentadas detectadas em P259.A** (3): Ellipse parcial
+  → implementado⁺ (P242 Bézier kappa real, não placeholder rect
+  DEBT-31 obsoleta); Polygon ausente → implementado (stdlib
+  `native_polygon` via Path conversion); Stroke base implementado
+  → implementado⁺ (P252 overhang cross-cutting refactor).
+  **Rebaixamento detectado**: D.4 Image metadata parcial →
+  ausente (só intrinsic_w/h; zero alt/fit). **Pendentes
+  residuais P259** (13/27 ausentes): Gradient subsistema
+  (Linear/Radial/Conic) ausente; Paint wrapper ausente
+  (pré-requisito Gradient real consumer); Stroke refinos
+  (Stroke<T>/Dash/LineCap/Join) ausentes; SVG image ausente
+  (L+; requer ADR `usvg`/`resvg`); Image metadata
+  (`alt`/`fit`) ausente; Transform `origin` pivot ausente com
+  scope-out ADR-0061 documentado em `transforms.rs:104-105`;
+  Curve variant ausente. **Sem código L1/L2/L3/L4 tocado**
+  (cenário B2 saltou P259.C documental). **Sem ADRs novas
+  criadas** (ADR-0083 anotação cumulativa apenas; ADR-0061
+  scope-out preservado; ADR-0079 preservada). ADRs distribuição
+  preservada literal: PROPOSTO 11; EM VIGOR 30; IMPLEMENTADO
+  25; **total 70 preservado**. Hash propagado
+  (`entities/geometry.md` → `7dbda723`). Tests workspace
+  **2334 verdes preservado** (paridade absoluta cenário B2
+  documental saltado). **45 aplicações cumulativas
+  anti-inflação** pós-P205D preservadas. Patterns emergentes
+  pós-P259 (2): "Auditoria condicional" N=4 → **N=5 cumulativo
+  atinge limiar formalização clara** (P192A + P255 + P257 +
+  P258 + **P259**; candidato ADR meta); "Diagnóstico imutável
+  precedente à acção" N=3 → **N=4 cumulativo** (P255 + P257 +
+  P258 + **P259**). **Marco P259**: Visualize Fase A auditado;
+  Cenário B2 confirmado; Color (P257) + Shapes (P79+P242+P252) +
+  Stroke base (P252) + Image (P73+P74) + Transform afim
+  (P78+P156F) + Clip (P79) preservados; pendências reais
+  isoladas (Gradient + Paint + Tiling subsistema cluster +
+  refinos Stroke + SVG + Image metadata + origin pivot scope-out)
+  preservadas como candidatas P260+ dedicados granulares.
+  **Decisão humana fica em aberto literal** pós-P259 (próximo:
+  P260 Paint enum + P261 Gradient Linear sequência preferida
+  arquitectural OU outras Opções 2/3 granulares).
+
+- **Passo 260 — ADRs meta formalizando padrões "auditoria
+  condicional" + "diagnóstico imutável" cumulativos**
+  (passo arquitectural meta administrativo XS; análogo
+  estrutural canónico P156K). Dois ADRs novos `EM VIGOR`:
+  **ADR-0084** (auditoria condicional — formaliza padrão N=5
+  P192A/P255/P257/P258/P259; documenta critério "cobertura
+  ambígua" + fluxo B1/B2/B3) e **ADR-0085** (diagnóstico
+  imutável — estende ADR-0034 para audits Fase A; formaliza
+  N=4 P255/P257/P258/P259). Auto-aplicação: P260 cumpre
+  ADR-0065 critério #5 (inventário inline §A.1/A.2 confirmando
+  N=5 + N=4 + slots 0084/0085 livres). Numeração escolhida:
+  0084 + 0085 (consecutivos; próximo livre pós ADR-0083 P257).
+  Contagens: total 70 → **72** ADRs; EM VIGOR 30 → **32**;
+  PROPOSTO 11 preservado; IMPLEMENTADO 25 preservado.
+  Zero código alterado; tests preservados **2334 verdes**;
+  `crystalline-lint` zero violations ("Nothing to fix"
+  esperado). **Benefício**: sessões futuras citam ADRs
+  explicitamente em vez de re-justificar empiricamente cada
+  audit — reduz overhead e garante rastreabilidade formal
+  dos padrões consolidados. Audits futuros (Text P262?
+  Layout final P262'?) consumirão ADR-0084/0085 automaticamente
+  — overhead reduzido. Cada novo audit cresce N=5→N=6
+  (Auditoria condicional) e N=4→N=5 (Diagnóstico imutável)
+  sem renegociação metodológica. **Subpadrão emergente "passo
+  administrativo XS criar/promover ADR" N=3 → N=4 cumulativo**
+  (ADR-0062-create + P156K + P160A + **P260**); atinge limiar
+  formalização N=3-4 consolidado (candidato meta-meta-ADR
+  futuro — improvável e desnecessário pois padrão é
+  auto-documentado em cada aplicação). **45 aplicações
+  cumulativas anti-inflação** pós-P205D preservadas. **Marco
+  P260**: 2 padrões meta consolidados em ADRs `EM VIGOR`
+  reduzem overhead documental cumulativo para audits futuros;
+  política "sem novas reservas" P158 preservada (P260
+  formaliza padrões empíricos existentes, não cria reservas).
+  Zero código L1/L2/L3/L4 tocado; zero L0 prompts editados;
+  zero DEBTs criados/encerrados.
