@@ -202,14 +202,16 @@ que corresponde a mudança específica no código.
 | 0085 | Diagnóstico imutável — artefacto produzido por audit | `EM VIGOR` (P260; estende ADR-0034; formaliza padrão N=4 dos diagnósticos imutáveis P255/P257/P258/P259) |
 | 0086 | Paint wrapper enum com subset materializado (Solid only) | `IMPLEMENTADO` (passo `P261`; precedente ADR-0083 N=2 do mesmo pattern; Paint::Solid(Color) materializado + From<Color> + Stroke.paint Color→Paint cross-cutting ~30 sítios; Gradient/Tiling comentários reserva activáveis em P262+; ADR-0039 TextStyle.fill preservado literal) |
 | 0087 | Gradient Linear materializado; Radial/Conic scope-out | `IMPLEMENTADO` (passo `P262`; precedente ADR-0083 + ADR-0086 N=3 do pattern PROPOSTO+IMPLEMENTADO mesmo passo; cumpre ADR-0086 §"Critério revisão" Paint::Gradient variant activada; Gradient::Linear(Arc<Linear>) + GradientStop Option<Ratio> auto-spacing + Linear::sample(t) Oklab interpolation; PDF shading completo scope-out adicional → P263 dedicado; primeiro consumo directo ADR-0085 pós-P260) + **anotação cumulativa P263** (PDF shading complete materializado via `/ShadingType 2 axial` + Function Type 3 stitching 16 stops Oklab; ~300 LoC L3) + **anotação cumulativa P264** (§"Critério revisão" Radial activado parcialmente; ADR-0088 nova) |
-| 0088 | Gradient Radial materializado; Conic scope-out preservado | `IMPLEMENTADO` (passo `P264`; precedente ADR-0083 + ADR-0086 + ADR-0087 N=4 do pattern PROPOSTO+IMPLEMENTADO mesmo passo — **limiar formalização clara excedido**; cumpre ADR-0087 §"Critério revisão" parcialmente — Radial activado, Conic continua reserva; Gradient::Radial(Arc<Radial>) + Radial subset 3 campos (stops + center + radius); focal_center/focal_radius scope-out per default vanilla; Axes<T> minimal criado per ADR-0080; PDF emit Radial fallback Solid até P265 dedicado pattern P262/P263 dividir granularidade N=2; segundo consumo directo ADR-0085 pós-P260) + **anotação cumulativa P265** (PDF Radial shading complete materializado via `/ShadingType 3` + Coords 6 valores círculos concêntricos + `/Extend [true true]`; enum local `GradientObjectKind` Linear/Radial; reutilização literal helpers P263 N=1 inaugurado) |
+| 0088 | Gradient Radial materializado; Conic scope-out preservado | `IMPLEMENTADO` (passo `P264`; precedente ADR-0083 + ADR-0086 + ADR-0087 N=4 do pattern PROPOSTO+IMPLEMENTADO mesmo passo — **limiar formalização clara excedido**; cumpre ADR-0087 §"Critério revisão" parcialmente — Radial activado, Conic continua reserva; Gradient::Radial(Arc<Radial>) + Radial subset 3 campos (stops + center + radius); focal_center/focal_radius scope-out per default vanilla; Axes<T> minimal criado per ADR-0080; PDF emit Radial fallback Solid até P265 dedicado pattern P262/P263 dividir granularidade N=2; segundo consumo directo ADR-0085 pós-P260) + **anotação cumulativa P265** (PDF Radial shading complete materializado via `/ShadingType 3` + Coords 6 valores círculos concêntricos + `/Extend [true true]`; enum local `GradientObjectKind` Linear/Radial; reutilização literal helpers P263 N=1 inaugurado) + **§"variants não materializados" parcialmente revogado P267** (Conic activado via ADR-0089; focal_* Radial-only preservado) |
+| 0089 | Gradient Conic-only L1+stdlib (fecha cluster Gradient 3/3 variants) | `IMPLEMENTADO` (passo `P267`; precedente ADR-0083 + ADR-0086 + ADR-0087 + ADR-0088 N=5 do pattern PROPOSTO+IMPLEMENTADO mesmo passo; revoga parcialmente ADR-0088 §scope-out Conic; Gradient::Conic(Arc<Conic>) + Conic subset 3 campos (stops + center + angle); SEM focal_* — exclusivo Radial; helpers Oklab reutilizados literal P262 — subpadrão "Reutilização literal helpers cross-passos" N=1 → N=2; PDF emit Conic fallback Solid até P268 dedicado; cluster Gradient L1+stdlib **3/3 completo**) |
 
 **Total**: 65 ADRs (64 números únicos; ADR-0026 tem variante -R1
 por revisão; **+ADR-0082 PROPOSTO P249** + **+ADR-0084 + ADR-0085
 EM VIGOR P260** + **+ADR-0086 IMPLEMENTADO P261** + **+ADR-0087
-IMPLEMENTADO P262** + **+ADR-0088 IMPLEMENTADO P264** + entradas
-históricas pós-P156K não-recapitatuladas nesta tabela — ver
-passos-chave abaixo). **Total pós-P264: 75 ADRs**.
+IMPLEMENTADO P262** + **+ADR-0088 IMPLEMENTADO P264** + **+ADR-0089
+IMPLEMENTADO P267** + entradas históricas pós-P156K
+não-recapitatuladas nesta tabela — ver passos-chave abaixo).
+**Total pós-P267: 76 ADRs**.
 
 ### Distribuição de status
 
@@ -240,12 +242,13 @@ passos-chave abaixo). **Total pós-P264: 75 ADRs**.
   0018, 0029, 0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**,
   **0080** P229, **0082** P254, **+0084 P260** auditoria
   condicional, **+0085 P260** diagnóstico imutável).
-- `IMPLEMENTADO`: **28** ADRs pós-P264 (decisões materializadas;
+- `IMPLEMENTADO`: **29** ADRs pós-P267 (decisões materializadas;
   0001, 0004, 0016, 0017, 0019, 0021–0027, 0026-R1, 0031,
   0052, 0053, 0055, 0057, **0060**, **0061** P221, **0078**
   P221, **0079** P253, **0083** P257, **0086** P261 Paint
   wrapper Solid only, **0087** P262 Gradient Linear-only,
-  **+0088 P264** Gradient Radial-only).
+  **0088** P264 Gradient Radial-only, **+0089 P267** Gradient
+  Conic-only).
 - `REVOGADO`: 2 ADRs (0007, 0028).
 - `ADIADO`: 1 ADR (0020).
 
@@ -2766,3 +2769,66 @@ P84.8g.
   P-Gradient-Conic L1+stdlib+PDF replicando templates OU
   P267 variant-aware font selection OU outras Opções P259 —
   DEBT-33 + Stroke<Length>; Curve variant; Footnote refino).
+
+- **Passo 267 — Gradient Conic L1+stdlib via ADR-0089 (fecha
+  cluster Gradient 3/3 variants L1+stdlib; PDF dedicado P268)**
+  (subpadrão "ADR PROPOSTO+IMPLEMENTADO mesmo passo" **N=4 →
+  N=5 cumulativo** com P257/P261/P262/P264 + **P267**;
+  subpadrão "Dividir granularidade L1+stdlib / L3 dedicado"
+  **N=2 → N=3 cumulativo** com P262/P263 + P264/P265 +
+  **P267/P268** futuro; subpadrão "Decisão minimalista (subset
+  materializado)" **N=4 → N=5 cumulativo**). **Magnitude real
+  M-** (~2h) — extensão minimal P264 template; zero cascade
+  refactor consumers; helpers Oklab reutilizados literal de
+  P262. P267.A diagnóstico imutável criado
+  (`diagnostico-gradient-conic-passo-267.md` per ADR-0085 —
+  **terceiro consumo directo vanilla** pós-P262/P264; 6 campos
+  ConicGradient vanilla confirmados; **correção spec P267 §1**:
+  ConicGradient vanilla **NÃO tem `focal_*`** — exclusivo Radial).
+  P267.B ADR-0089 PROPOSTO criada (precedente directo ADR-0088;
+  revoga parcialmente ADR-0088 §scope-out Conic). P267.C
+  materialização L1+stdlib:
+  - **`entities/gradient.md` L0** anotado secção cumulativa P267
+    (cluster 3/3 completo).
+  - **`entities/gradient.rs`** ganha `Conic` struct (3 campos:
+    stops + center + angle) + `effective_offsets` + `sample(t)`
+    Oklab paridade Linear/Radial + **`Gradient::Conic(Arc<Conic>)`
+    variant activada** + `Gradient::conic(...)` construtor +
+    `first_stop_color` expand 3-arm match + 9 tests Conic.
+  - **`rules/stdlib/gradients.rs`** ganha `native_gradient_conic`
+    (named center default `(50%, 50%)`; angle default 0deg) +
+    entrada `conic` em `make_gradient_module()`.
+  - **`rules/stdlib/mod.rs`** re-export `native_gradient_conic`;
+    5 stdlib tests P267.
+  - **`03_infra/src/export.rs`** 3 sítios pattern-match adaptados
+    com `Gradient::Conic(_) => continue/fallback` (PDF emit
+    Conic adiado P268 dedicado).
+  P267.D ADR-0089 PROPOSTO → **IMPLEMENTADO**; README ADRs
+  actualizado. **Decisão minimalista declarada**: Conic subset
+  3 campos; space/relative/anti_alias scope-outs paridade
+  P262/P264; SEM `focal_*` (não existe em ConicGradient vanilla).
+  **Reutilização literal helpers Oklab P262**: subpadrão
+  "Reutilização literal helpers cross-passos" **N=1 → N=2**
+  (P265 PDF Linear + **P267 Conic L1**). **ADR-0088 §"variants
+  não materializados" parcialmente revogado**: Conic activado;
+  `focal_*` Radial-only preservado.
+  Distribuição: PROPOSTO 11 preservado (ADR-0089 entra/sai
+  mesmo passo); EM VIGOR 32 preservado; **IMPLEMENTADO 28 → 29**
+  (+0089 P267); total 75 → **76**.
+  Tests workspace **2393 → 2407** (+14 P267 tests: 9 gradient.rs
+  Conic + 5 stdlib conic; zero regressões). Lint zero violations;
+  hash propagado (`entities/gradient.md` → código `3354fb75`).
+  **Cobertura Visualize agregada**: ~73% (P265) → **~75%
+  pós-P267** (+2pp via Conic L1+stdlib; F.3 Gradient Conic
+  promovido ausente → implementado L1+stdlib; PDF render Conic
+  fica fallback Solid até P268). **45 aplicações cumulativas
+  anti-inflação** pós-P205D preservadas. **Marco P267**:
+  **cluster Gradient L1+stdlib 3/3 completo** (Linear P262 +
+  Radial P264 + Conic P267); user-facing `gradient.conic(...)`
+  funcional via parsing; activa `Gradient::Conic` variant
+  fechando ADR-0088 §scope-out Conic. **Decisão humana fica
+  em aberto literal** pós-P267 (próximo: P268 PDF Conic shading
+  dedicado replicando P263/P265 templates; OU P-Gradient-Focal
+  expansão Radial; OU outras Opções P259/P266 — DEBT-33 +
+  Stroke<Length>; Curve variant; Variant-aware fonts P266
+  Opção 1; Tiling activação).

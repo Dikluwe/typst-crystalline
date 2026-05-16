@@ -361,6 +361,7 @@ fn scan_all_gradients(
         for item in &page.items {
             if let FrameItem::Shape { stroke: Some(Stroke { paint: Paint::Gradient(g), .. }), .. } = item {
                 // P265 — Linear e Radial via enum GradientObjectKind.
+                // P267 — Conic adicionado; fallback Solid no emit (PDF Conic shading adiado P268).
                 let (ptr, kind) = match g {
                     Gradient::Linear(l) => (
                         std::sync::Arc::as_ptr(l) as usize,
@@ -370,6 +371,7 @@ fn scan_all_gradients(
                         std::sync::Arc::as_ptr(r) as usize,
                         GradientObjectKind::Radial(std::sync::Arc::clone(r)),
                     ),
+                    Gradient::Conic(_) => continue,
                 };
                 if ptr_to_idx.contains_key(&ptr) {
                     continue;
@@ -408,9 +410,11 @@ fn pattern_resources_for_page(
     for item in &page.items {
         if let FrameItem::Shape { stroke: Some(Stroke { paint: Paint::Gradient(g), .. }), .. } = item {
             // P265 — Linear e Radial ambos registados.
+            // P267 — Conic adiado P268; salta resource entry.
             let ptr = match g {
                 Gradient::Linear(l) => std::sync::Arc::as_ptr(l) as usize,
                 Gradient::Radial(r) => std::sync::Arc::as_ptr(r) as usize,
+                Gradient::Conic(_) => continue,
             };
             if let Some(&idx) = ptr_to_idx.get(&ptr) {
                 if seen.insert(idx) {
@@ -1133,9 +1137,16 @@ fn emit_stroke_paint(
         }
         Paint::Gradient(g) => {
             // P265 — Linear e Radial ambos via lookup pattern.
+            // P267 — Conic fallback Solid (PDF emit adiado P268).
             let ptr = match g {
                 Gradient::Linear(l) => std::sync::Arc::as_ptr(l) as usize,
                 Gradient::Radial(r) => std::sync::Arc::as_ptr(r) as usize,
+                Gradient::Conic(_) => {
+                    let c = paint.to_color();
+                    let (r, g, b, _) = c.to_rgba_f32();
+                    ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, thickness));
+                    return;
+                }
             };
             if let Some(&idx) = pat_ptr_to_idx.get(&ptr) {
                 let r = &pat_refs[idx];

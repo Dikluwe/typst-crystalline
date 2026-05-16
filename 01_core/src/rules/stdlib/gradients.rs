@@ -41,6 +41,9 @@ pub fn make_gradient_module() -> Value {
     // P264 — Radial activa per ADR-0088.
     dict.insert("radial".into(),
         Value::Func(Func::native("gradient.radial", native_gradient_radial)));
+    // P267 — Conic activa per ADR-0089 (cluster Gradient 3/3 completo).
+    dict.insert("conic".into(),
+        Value::Func(Func::native("gradient.conic", native_gradient_conic)));
     Value::Dict(dict)
 }
 
@@ -214,6 +217,68 @@ fn parse_ratio(val: &Value, fn_name: &str, field: &str) -> SourceResult<Ratio> {
     }
 }
 
+/// `gradient.conic(stops..., center: ?, angle: ?)` →
+/// `Value::Gradient(Gradient::Conic)` per ADR-0089 P267.
+///
+/// Stops parsing paridade `native_gradient_linear`/`radial`.
+/// Aceita `Color` directo (offset auto) ou `[Color, Ratio]`
+/// array.
+///
+/// Named:
+/// - `center: Array [Ratio, Ratio]` (default `(50%, 50%)`).
+/// - `angle: Angle` (default `0deg`).
+pub fn native_gradient_conic(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+    _figure_numbering: Option<&str>,
+) -> SourceResult<Value> {
+    let stops = parse_stops(&args.items)?;
+    if stops.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "gradient.conic: pelo menos 1 stop requerido".to_string(),
+        )]);
+    }
+
+    let center = match args.named.get("center") {
+        Some(Value::Array(arr)) if arr.len() == 2 => {
+            let x = parse_ratio(&arr[0], "gradient.conic", "center.x")?;
+            let y = parse_ratio(&arr[1], "gradient.conic", "center.y")?;
+            Axes::new(x, y)
+        }
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("gradient.conic(center): espera Array [Ratio, Ratio], recebeu {}",
+                    other.type_name()),
+        )]),
+        None => Axes::new(Ratio(0.5), Ratio(0.5)),
+    };
+
+    let angle = match args.named.get("angle") {
+        Some(Value::Angle(a)) => *a,
+        Some(Value::Float(f)) => Angle::rad(*f),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("gradient.conic(angle): espera Angle ou Float, recebeu {}",
+                    other.type_name()),
+        )]),
+        None => Angle::rad(0.0),
+    };
+
+    for key in args.named.keys() {
+        if key != "center" && key != "angle" {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("gradient.conic: argumento nomeado inesperado '{}' (esperado: center, angle)", key),
+            )]);
+        }
+    }
+
+    Ok(Value::Gradient(Gradient::conic(stops, center, angle)))
+}
+
 // Tests para `native_gradient_linear` + `native_gradient_radial`
-// em `01_core/src/rules/stdlib/mod.rs` tests module (usa
-// `null_ctx!` + `null_world()` + `test_file_id()` helpers).
+// + `native_gradient_conic` em `01_core/src/rules/stdlib/mod.rs`
+// tests module (usa `null_ctx!` + `null_world()` + `test_file_id()`).
