@@ -338,3 +338,149 @@ passos dedicados futuros.
    (replica P263 template; ~200-250 LoC L3).
 4. **P-Gradient-Conic** (futuro) — activa `Gradient::Conic`
    variant.
+
+---
+
+## Anotação cumulativa P265 — PDF Radial shading complete materializado
+
+**Data**: 2026-05-15.
+
+PDF rendering real Gradient Radial materializado. Substitui
+fallback `first_stop_color` introduzido em P264 (3 sítios
+pattern-match adaptados). Status `IMPLEMENTADO` preservado
+literal (paridade pattern P263 anotação ADR-0087 + ADR-0080
+§"refactor aditivo").
+
+### Componentes materializados em `03_infra/src/export.rs`
+
+- **Tipo `GradientObjectKind` enum local** (novo P265):
+  ```rust
+  enum GradientObjectKind {
+      Linear(Arc<Linear>),
+      Radial(Arc<Radial>),
+  }
+  ```
+  `GradientObject.linear: Arc<Linear>` (P263) generalizado para
+  `GradientObject.kind: GradientObjectKind`.
+- **`compute_radial_coords(center, radius, w, h)`** — 6 valores
+  Coords axes locais; círculos concêntricos (focal_* scope-out
+  preservado per ADR-0088).
+- **`oklab_sample_stops_radial(radial, n=16)`** — paridade
+  literal `oklab_sample_stops` P263 (apenas tipo Radial em vez
+  de Linear).
+- **`emit_gradient_objects` expandido** com branching match
+  `GradientObjectKind::Linear` / `Radial`:
+  - Linear: emit `/ShadingType 2 /Coords [x0 y0 x1 y1] /Extend
+    [false false]`.
+  - Radial: emit `/ShadingType 3 /Coords [x0 y0 r0 x1 y1 r1]
+    /Extend [true true]` (paridade vanilla default radial).
+- **`emit_stroke_paint` branch unificado** — pattern lookup
+  funciona idêntico para Linear/Radial (chave `Arc::as_ptr`
+  genérica); fallback Solid P264 substituído.
+- **3 sítios pattern-match P264** substituídos:
+  - `scan_all_gradients`: Linear+Radial ambos registados via
+    enum kind.
+  - `pattern_resources_for_page`: ambos emit resource entry.
+  - `emit_stroke_paint`: lookup unificado (`Arc::as_ptr` Linear
+    OU Radial).
+
+### Reutilização literal de P263 (sem alteração)
+
+- **`emit_function_dict`** (Type 2 / Type 3 stitching) — idêntico.
+- **`emit_pattern_dict`** inline em `emit_gradient_objects` —
+  idêntico (PatternType 2 wrapper).
+- **`pattern_resources: HashMap<usize, PatternRef>`** —
+  estrutura genérica preservada; chave `Arc::as_ptr` funciona
+  para Linear OU Radial.
+- **3 paths `build_helvetica/cidfont/multifont`** — sem
+  modificação (branching unificado via `emit_stroke_paint`).
+- **`Radial::sample(t)`** Oklab L1 (P264) — reutilizado em
+  `oklab_sample_stops_radial`.
+
+### Paridade observable cumprida pós-P265
+
+`#gradient.radial(red, blue, center: (50%, 50%), radius: 60%)`
+em Stroke renderiza radial real no PDF — círculos concêntricos
+center → borda via `/ShadingType 3` + Function Type 3 stitching
+(16 stops Oklab pre-sampled). Fallback Solid pré-P265
+eliminado.
+
+### Decisões D1-D5 P265.A
+
+- **D1 Generalização sample_stops**: ☑ Opção α duplicação
+  explícita (`oklab_sample_stops_radial` paridade literal).
+- **D2 compute_radial_coords**: 6 valores; círculos concêntricos
+  (foco pontual no center, target radius); subset materializado
+  P264.
+- **D3 Pattern_resources chave**: `Arc::as_ptr` genérico
+  preservado paridade Linear.
+- **D4 Cross-path cobertura**: branching unificado em
+  `emit_stroke_paint` (helper P263 ganha branch Radial);
+  zero modificação em 3 paths build_page_stream_*.
+- **D5 Function reutilizada**: idêntico — `emit_function_dict`
+  aceita stops genéricos (r, g, b).
+
+### Tests adicionais P265 (+7 cumulativos)
+
+**Unit helpers** (4):
+- `p265_compute_radial_coords_center_default`.
+- `p265_compute_radial_coords_center_offset`.
+- `p265_compute_radial_coords_non_square_uses_min_dim`.
+- `p265_oklab_sample_stops_radial_red_blue_endpoints`.
+
+**E2E PDF** (3):
+- `p265_export_pdf_radial_emits_shading_type_3` — confirma
+  `/ShadingType 3`, `/PatternType 2`, `/FunctionType`, `/Coords`,
+  `/Extend [true true]`, `/Pattern <<`, `SCN`.
+- `p265_export_pdf_radial_dedup_arc_ptr` — 3 shapes com mesmo
+  Arc<Radial> → 1 Shading dedup.
+- `p265_export_pdf_linear_e_radial_coexistem` — Linear + Radial
+  no mesmo doc emit ShadingType 2 + ShadingType 3 distintos.
+
+### Cobertura Visualize agregada
+
+- Pre-P265: ~68% (P264 Radial L1+stdlib +5pp).
+- **Pós-P265: ~73%** (+5pp via PDF Radial real; F.2 promovido
+  `implementado+stdlib` → `implementado+stdlib+render` paridade
+  Linear).
+
+### Scope-outs preservados
+
+- `focal_center`/`focal_radius` → P-Gradient-Focal futuro.
+- Conic continua comentário reserva em
+  `entities/gradient.rs` → P-Gradient-Conic dedicado.
+- `/ShadingType 1, 4-7` fora de scope.
+- `draw_item_local` continua fallback Solid (scope-out P263
+  preservado).
+
+### Subpadrões cumulativos pós-P265
+
+- **"P262/P263 dividir granularidade" N=2 → N=3 cumulativo
+  atinge limiar formalização clara** (P262/P263 Linear +
+  P264/P265 Radial — cluster Gradient completa duas divisões).
+- **"Reutilização literal de helpers cross-passos" N=1
+  inaugurado** — P265 reutiliza 4 helpers P263 inalterados
+  + Radial::sample L1 P264; **~70% código L3 P265 é wiring
+  + helpers específicos** (compute_radial_coords,
+  oklab_sample_stops_radial, branching emit_gradient_objects).
+- **"Anotação cumulativa em vez de ADR nova" reaplicada** —
+  paridade pattern P263 anotação ADR-0087.
+- **Status `IMPLEMENTADO` ADR-0088 preservado** — anotação
+  cumulativa não muda status; refina aplicação (paridade
+  ADR-0080 §"refactor aditivo").
+
+Cross-references:
+- L3 emit: `03_infra/src/export.rs` (~100-150 LoC novas;
+  enum local `GradientObjectKind`; 3 helpers; expand
+  emit_gradient_objects branching).
+- L0 prompt: `00_nucleo/prompts/infra/export.md` secção
+  "Suporte Gradient Radial via Shading Patterns (Passo 265)".
+- Tests E2E: confirmam `/ShadingType 3`, `/Coords` 6 valores,
+  `/Extend [true true]`, dedup `Arc::as_ptr<Radial>`,
+  coexistência Linear + Radial.
+- ADR-0087 anotação P263 (precedente directo template).
+- P263 (template literal — paridade quase 1-para-1).
+- P264 (origem da promessa fechada por este passo).
+- P73 (template arquitectural `image_resources` dedup
+  `Arc::as_ptr` cumulativamente N=2 — P263+P265 ambos
+  aplicam).
