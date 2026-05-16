@@ -707,3 +707,73 @@ sem necessidade de re-abertura desta ADR.
   — Tabela A linha "Model"; §7 entrada 7.
 - **Diagnóstico 154A** (`diagnostico-model-passo-154a.md`)
   — Tabelas §2, §3, §6, §7 com plano detalhado.
+
+---
+
+## Anotação cumulativa P258 — Cobertura Model ~73% confirmada empíricamente (Cenário B1 Fase A)
+
+**P258 audit empírico** (`diagnostico-model-fase-a-passo-258.md`)
+confirmou cumprimento cumulativo Bloco A Model entre P155 e
+P252:
+
+### Cobertura por audit empírico (Tabela B Fase A)
+
+| Estado | P154A | Audit P258 | Δ |
+|--------|-------|------------|---|
+| implementado | 4 | 4 | 0 |
+| implementado⁺ | 4 | **10** | **+6** |
+| parcial | 5 | 4 | -1 |
+| ausente | 10 | **4** | **-6** |
+
+**Cobertura ponderada linear**: P154A 48% → Audit P258 **~73%**
+(Δ **+25pp**).
+
+### Promoções cumulativas detectadas (P155-P252)
+
+- **heading** → implementado⁺ (P182C SetHeadingNumbering).
+- **figure** → implementado⁺ preservado (caption + 4 fields).
+- **numbering** → implementado⁺ reforçado (3 variants Set*Numbering
+  cumulativos via P182C + P199B).
+- **caption inline** → implementado⁺ (parte integral Figure).
+- **bibliography** → implementado⁺ (P159A-G `bib_entry.rs` 413
+  LoC + paridade manual hayagriva sem crate).
+- **cite** → implementado⁺ (P159A par acoplado).
+- **terms / divider / quote** → implementado (P154B + P155).
+- **table** → implementado⁺ (P157A-C + cumulativos fields
+  P227/P247/P248/P250).
+
+### Pendentes residuais pós-P258
+
+- **footnote** (ausente) — pendência real isolada; P156C
+  desbloqueio Layout preservado mas variant Content + stdlib
+  func não materializados. Candidata refino futuro P-Footnote-N
+  (M; +10-15 tests).
+- **document / title / asset** (ausente) — **Fase 3 condicional
+  ADR-0060 §"Fase 3 condicional"** preservada; sem prioridade
+  designada.
+- **link / list / enum / par** (parcial) — refinos atributos
+  vanilla preservados como scope-out informal P258.
+- **Bloco B hayagriva** — scope-out implícito P258 (paridade
+  manual P159A-G cumpriu user-facing; ADR-0062 PROPOSTO
+  preservada para promoção futura quando consumer exigir CSL
+  styling completo).
+
+### Status ADR-0060
+
+**`IMPLEMENTADO`** preservado literal (Fase 1 fechada P155).
+**Bloco A cumulativamente cumprido** P155-P252. **Cenário B1
+P258** confirma fecho conceptual Model agregado ~73% cobertura.
+**Fase 2 + Fase 3 preservadas como roadmap** (paridade pattern
+ADR-0061 P221 columns/colbreak; ADR-0079 P253 D.2-D.6 roadmap).
+
+### Cumulativo "auditoria condicional" pattern
+
+**N=4 cumulativo P258** (P192A + P255 + P257 + **P258**) —
+limiar formalização interno N=5 quase atingido (próximo passo
+admin XS candidato a formalizar pattern em ADR meta).
+
+### DEBT-55
+
+**PARCIALMENTE RESOLVIDO P258** (via paridade manual P159A-G).
+Permanece aberta para CSL styling completo (hayagriva real)
+quando consumer exigir.

@@ -657,7 +657,7 @@ Materializar em **passo dedicado** (escopo L+; ~5-8h):
 
 ---
 
-## DEBT-55 — Bibliography + Cite (XL; pré-condição ADR-0062 hayagriva) — EM ABERTO (Passo 154A; renumerada por Passo 156B)
+## DEBT-55 — Bibliography + Cite (XL; pré-condição ADR-0062 hayagriva) — PARCIALMENTE RESOLVIDO (Passo 258; via paridade manual P159A-G)
 
 **Aberto em**: Passo 154A (2026-04-25) durante diagnóstico
 Model.
@@ -665,6 +665,45 @@ Model.
 reserva ADR (era ADR-0061 → agora ADR-0062) e do passo de
 materialização (era P158 → agora P159) por reocupação de
 ADR-0061 por Layout roadmap em P156B.
+**Actualizado em**: **Passo 258** (2026-05-15) — auditoria
+empírica Fase A revelou cumprimento **cumulativo via paridade
+manual P159A-G** (sem dependência crate `hayagriva` real;
+`bib_entry.rs` 413 LoC + 16 fields universais paridade
+`hayagriva::Entry`). Bibliography + Cite user-facing
+funcionalmente disponíveis. ADR-0062 PROPOSTO preservada;
+promoção a IMPLEMENTADO diferida até consumer real exigir CSL
+styling completo.
+
+### Resolvido cumulativamente P155-P159G (auditado P258.A)
+
+- **`Content::Bibliography { entries, title }`** materializada
+  (P159A par acoplado).
+- **`Content::Cite { key, supplement, form }`** materializada
+  (P159A).
+- **`01_core/src/entities/bib_entry.rs`** com 413 LoC + 30 pub
+  items: `BibEntry` struct + helpers + parser BibTeX-like.
+  Paridade estrutural com `hayagriva::Entry` (16 fields
+  universais) **sem dependência crate real**.
+- **`native_bibliography` + `native_cite`** em
+  `rules/stdlib/structural.rs`.
+- **Layouter consumer** (P159E-G) renderiza bibliografia formato
+  numérico (paridade observable básica preservada).
+- **Introspector integration** (P181D-H): refs/cites populam
+  `figure_label_numbers` + `resolved_labels`.
+
+### Pendente residual P258 (scope-out implícito)
+
+- **CSL styling completo** (author-date, MLA, APA, etc.) —
+  requer hayagriva crate real ou re-implementação CSL. Adiado
+  até consumer exigir.
+- **Hayagriva crate authorization** (ADR-0062 PROPOSTO →
+  IMPLEMENTADO) — diferido. Passo administrativo XS futuro
+  candidato análogo P229/P254 quando consumer surgir.
+- **CitationStyle enum runtime** — não materializado;
+  scope-out implícito.
+
+Ver `00_nucleo/diagnosticos/diagnostico-model-fase-a-passo-258.md`
+§4 + §6 para evidência detalhada Cenário B1 cobertura ~73%.
 **Bloqueado por**: **ADR-0062** (autorização da crate
 `hayagriva`, ainda não criada — referência condicional em
 ADR-0060 anotada). Era ADR-0061 antes da reocupação por

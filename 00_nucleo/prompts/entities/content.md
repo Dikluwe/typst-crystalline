@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 7c954268
+Hash do Código: d3f8a8c1
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -1562,3 +1562,100 @@ COMPLETO**.
 
 **Boxed continua 5/6 scope-outs** (resta stroke-overhang;
 P250 não toca Boxed por assimetria intencional).
+
+---
+
+## Estado actual cumulativo (reconciliação P258 Cenário B1)
+
+**P258 audit empírico Fase A** (`diagnostico-model-fase-a-passo-258.md`)
+confirmou **cobertura Model ~73%** (ponderado linear; +25pp face
+P154A 48%). Representação base inicial deste prompt (`Empty, Text,
+Space, Sequence` + comentário "Variantes futuras") está
+**desactualizada vs enum real pós-M3-M9 + P199B + P252/P257**:
+o enum tem **~62 variants** cumulativos.
+
+**Decisão arquitectural P258**: representação inicial preservada
+como **histórico cumulativo** (paridade pattern ADR-0080 §"refactor
+aditivo"); secções subsequentes deste prompt L0 (12+ anotações
+cumulativas P154B/P155/P157A-C/P159A/P247/P250/P251/P252) cobrem
+materializações reais variant-por-variant. **Não reconciliação
+destructiva**.
+
+### Sumário variants Content materializadas cumulativamente
+
+Lista amostral (ordem aproximada de introdução):
+
+- **Foundations** (P25-P101): `Empty`, `Text`, `Sequence`,
+  `Styled`.
+- **Markup básico** (P-M3): `Heading`, `Raw`, `ListItem`,
+  `EnumItem`, `Link`, `Outline`.
+- **Math** (P36-P40 + M3-M9): `Equation`, `MathSequence`,
+  `MathIdent`, `MathText`, `MathFrac`, `MathAttach`, `MathRoot`,
+  `MathDelimited`, `MathMatrix`, `MathCases`.
+- **Introspector + Numbering** (P164-P204; P182C; P199B):
+  `Labelled`, `Ref`, `SetHeadingNumbering`,
+  `SetEquationNumbering`, `SetFigureNumbering`,
+  `CounterDisplay`, `CounterUpdate`.
+- **Figure** (P158): `Figure { body, caption, kind, numbering }`.
+- **Visualize** (P25+): `Image`, `Shape`, `Transform`.
+- **Grid + Table** (P82-P83; P157A-C; P227-P234): `Grid`,
+  `GridHeader`, `GridFooter`, `GridCell`, `Table`, `TableCell`,
+  `TableHeader`, `TableFooter`.
+- **Bibliography + Cite** (P159A-G; Bloco B Model paridade
+  manual): `Bibliography`, `Cite`.
+- **Layout primitives** (P81-P96; P156C-L; P217-P252): `SetPage`,
+  `Align`, `Place`, `Pad`, `Hide`, `HSpace`, `VSpace`,
+  `Pagebreak`, `Colbreak`.
+- **Markup compositivo** (P154B; P155): `Terms`, `TermItem`,
+  `Quote`, `Divider`.
+- **Block + Boxed** (P156G/H + P231/P242/P247/P248/P250/P252):
+  `Block { body, width, height, inset, breakable, outset,
+  radius, clip, fill, stroke, spacing, above, below, sticky }`
+  (14 fields), `Boxed { body, width, height, inset, baseline,
+  outset, radius, clip, fill, stroke }` (10 fields).
+- **Stack + Repeat + Columns** (P156I-J; P217-P220): `Stack`,
+  `Repeat`, `Columns`.
+
+**~62 variants cumulativos total** (audit P258 Bloco 1).
+
+### Variants PENDENTES pós-P258 (ausentes empíricos confirmados)
+
+- **`Content::Footnote`** — Layout desbloqueio P156C preservado;
+  variant Content + stdlib func não materializados. Candidata
+  refino P-Footnote-N futuro (M; +10-15 tests).
+- **`Content::Document`**, **`Content::Title`**,
+  **`Content::Asset`** — Fase 3 condicional ADR-0060 §"Fase 3
+  condicional"; sem prioridade designada; scope-out formal
+  preservado.
+
+### `parcial` pendentes pós-P258
+
+- **link**, **list**, **enum**, **par** — refinos
+  atributos vanilla (`marker`/`tight`/`indent`/`leading`/etc.)
+  preservados como scope-out informal P258 (cobertura útil
+  via paridade observable básica preservada).
+
+### Bloco B hayagriva — scope-out implícito P258
+
+Bibliography + Cite cumpridas **cumulativamente via paridade
+manual P159A-G** (`bib_entry.rs` 413 LoC; 16 fields universais
+paridade `hayagriva::Entry` sem dependência crate real).
+ADR-0062 PROPOSTO preservada; promoção a IMPLEMENTADO diferida
+até consumer real exigir CSL styling completo.
+
+### Estado agregado P258
+
+| Estado | P154A | Audit P258 | Δ |
+|--------|-------|------------|---|
+| implementado | 4 | 4 | 0 |
+| implementado⁺ | 4 | 10 | **+6** |
+| parcial | 5 | 4 | -1 |
+| ausente | 10 | 4 (footnote, document, asset, title) | **-6** |
+
+**Cobertura ponderada linear**: P154A 48% → Audit P258 **~73%**
+(Δ +25pp).
+
+**Cenário Fase B**: ☑ **B1 (≥75% — fecho conceptual Model)**
+— Bloco A massivamente materializado cumulativamente; Bloco B
+scope-out implícito documentado; Fase 3 + footnote refinos
+futuros candidatos.
