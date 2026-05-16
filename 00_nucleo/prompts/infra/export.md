@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export` — Exportador Físico de Documentos
-Hash do Código: 391fc996
+Hash do Código: cbb1181e
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export.rs`
@@ -241,3 +241,134 @@ Some(RoundedRect { radii }), ... }` emitido quando
 `Content::Block.clip == true` && `radius != Corners::uniform(ZERO)`.
 PDF exporter desenha path + emite `W n` (paridade DEBT-30 fechado
 P79 mas para shape rounded).
+
+---
+
+## Suporte Gradient via Shading Patterns (Passo 263)
+
+`FrameItem::Shape { stroke: Some(Stroke { paint: Paint::Gradient(g), ... }), ... }`
+renderiza via PDF shading patterns (ISO 32000 §7.5.7).
+
+**Escopo P263**: apenas `Stroke.paint::Gradient` activa shading
+real. `FrameItem::Shape.fill: Option<Color>` é literal sRGB
+(refino futuro pode estender para Paint enum se prioritário).
+
+### Pattern resources
+
+`scan_all_gradients(doc, first_id)` paralelo a `scan_all_images`
+(P73). Retorna `(refs, ptr_to_idx, gradient_objs)`:
+- `refs: Vec<PatternRef>` — name (e.g. `P1`, `P2`) + obj_id por
+  gradient.
+- `ptr_to_idx: HashMap<usize, usize>` — `Arc::as_ptr(linear) as
+  usize → idx em refs`.
+- `gradient_objs: Vec<GradientObject>` — dados para emit
+  Function/Shading/Pattern dicts.
+
+### Shading Type 2 (axial) — único materializado P263
+
+`/ShadingType 2` axial:
+- `/ColorSpace /DeviceRGB`.
+- `/Coords [x0 y0 x1 y1]` — endpoints linha gradient (locais).
+- `/Function obj_ref` — Type 2 (2 stops) ou Type 3 stitching (N>2).
+- `/Extend [false false]`.
+
+### Function dicts
+
+**Type 2** (exponential interpolation, 2 stops):
+```
+/FunctionType 2 /Domain [0 1] /C0 [r0 g0 b0] /C1 [r1 g1 b1] /N 1
+```
+
+**Type 3** (stitching, N>2 stops):
+```
+/FunctionType 3 /Domain [0 1]
+/Functions [F2 F2 ...]   % N-1 Type 2 sub-funcs
+/Bounds [t1 t2 ... t_{N-1}]
+/Encode [0 1 0 1 ...]
+```
+
+### Interpolação Oklab via amostragem densa
+
+Vanilla Gradient interpola em Oklab (ADR-0087 P262). PDF Type
+2/3 nativos não suportam Oklab.
+
+**Aproximação P263**: pré-amostragem em Oklab via
+`Linear::sample(t)` L1 (P262) → N=16 stops intermédios em sRGB
+→ Type 3 stitching linear.
+
+### Page Resources dict
+
+Páginas com pelo menos 1 Gradient ganham:
+```
+/Resources <<
+  /Font << ... >>
+  /XObject << ... >>
+  /Pattern << /P1 obj_ref /P2 obj_ref ... >>
+>>
+```
+
+### Page stream emit — Stroke branching
+
+Quando `Stroke.paint::Solid(c)`: emit `r g b RG` literal P261
+preservado.
+
+Quando `Stroke.paint::Gradient(g)`:
+```
+/Pattern CS
+/P1 SCN
+{:.2} w
+```
+
+`CS`/`SCN` (uppercase) para stroke; `cs`/`scn` (lowercase) para
+fill (não usado P263 — Fill é Color literal).
+
+Cross-path: `build_page_stream_type1`, `build_page_stream_cidfont`,
+`build_page_stream_multifont` todos adaptados.
+
+### Coords L3
+
+Helper `compute_axial_coords(angle, x0, y0, w, h) -> (f64, f64, f64, f64)`:
+- Bbox local do shape (não da página).
+- Centro `(cx, cy) = (x0 + w/2, y0 + h/2)`.
+- Direção `(dx, dy) = (cos(angle), sin(angle))`.
+- Endpoints: `(cx - (w/2)*dx, cy - (h/2)*dy)` → `(cx + (w/2)*dx,
+  cy + (h/2)*dy)`.
+
+Coords em **espaço PDF** (Y já invertido pelo `build_page_stream`).
+
+### Helpers internos novos
+
+| Função | Responsabilidade |
+|--------|------------------|
+| `scan_all_gradients(doc, first_id)` | Pre-pass dedup `Arc::as_ptr`; aloca obj IDs |
+| `compute_axial_coords(angle, x0, y0, w, h)` | (x0, y0, x1, y1) endpoints |
+| `oklab_sample_stops(linear, n_samples)` | N stops intermédios em sRGB pós Oklab L1 |
+| `pattern_resources_for_page(page, ptr_to_idx, refs)` | `/Pattern << /P1 X 0 R ... >>` page-level |
+
+### Object IDs allocation
+
+Cada gradient único aloca 3 IDs:
+- `function_id`: Function dict (Type 2 ou Type 3).
+- `shading_id`: Shading dict referenciando function.
+- `pattern_id`: Pattern dict referenciando shading.
+
+Total objects PDF = `+3 * count(gradients únicos)`.
+
+### Limitações P263
+
+- **Linear only** — Radial/Conic continuam comentários reserva
+  em `entities/gradient.rs`; PDF emit prepara só Type 2.
+- **Apenas Stroke** — Fill continua Color literal (refino futuro
+  se Fill Paint estender).
+- **Anti-alias assume true** (PDF default; vanilla scope-out
+  ADR-0087).
+- **Relative assume bounding-box** (vanilla default; scope-out
+  ADR-0087).
+
+Cross-references:
+- ADR-0087 — Gradient Linear-only (IMPLEMENTADO P262;
+  anotação cumulativa P263 documenta backend PDF).
+- ADR-0027 — CIDFont/Identity-H (precedente arquitectural
+  resources dict).
+- P73 — Image stack dedup `Arc::as_ptr` (template arquitectural).
+- P262 — Gradient L1+stdlib (precedente directo).

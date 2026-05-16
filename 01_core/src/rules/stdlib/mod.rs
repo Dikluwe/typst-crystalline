@@ -55,7 +55,10 @@ pub use crate::rules::stdlib::layout::{
     native_repeat, native_stack, native_stroke, native_v,
 };
 // P262 — Gradient stdlib (Linear only per ADR-0087).
-pub use crate::rules::stdlib::gradients::{make_gradient_module, native_gradient_linear};
+// P264 — Gradient stdlib Radial added per ADR-0088.
+pub use crate::rules::stdlib::gradients::{
+    make_gradient_module, native_gradient_linear, native_gradient_radial,
+};
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
 
@@ -5926,6 +5929,86 @@ mod tests {
             Value::Color(Color::rgb(255, 255, 255)),
         ]);
         let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert_eq!(r.type_name(), "gradient");
+    }
+
+    // ── P264 (ADR-0088 Gradient Radial-only) ────────────────────────
+
+    #[test]
+    fn p264_gradient_radial_2_color_stops_defaults() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, Ratio};
+        null_ctx!(ctx);
+        let args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Radial(rad)) = r {
+            assert_eq!(rad.stops.len(), 2);
+            // Defaults: center (50%, 50%); radius 50%.
+            assert_eq!(rad.center.x, Ratio(0.5));
+            assert_eq!(rad.center.y, Ratio(0.5));
+            assert_eq!(rad.radius, Ratio(0.5));
+        } else {
+            panic!("esperado Value::Gradient(Radial)");
+        }
+    }
+
+    #[test]
+    fn p264_gradient_radial_custom_center_radius() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, Ratio};
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        args.named.insert(
+            "center".into(),
+            Value::Array(vec![
+                Value::Ratio(Ratio(0.25)),
+                Value::Ratio(Ratio(0.75)),
+            ]),
+        );
+        args.named.insert("radius".into(), Value::Ratio(Ratio(0.4)));
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Radial(rad)) = r {
+            assert_eq!(rad.center.x, Ratio(0.25));
+            assert_eq!(rad.center.y, Ratio(0.75));
+            assert_eq!(rad.radius, Ratio(0.4));
+        } else {
+            panic!("esperado Value::Gradient(Radial)");
+        }
+    }
+
+    #[test]
+    fn p264_gradient_radial_zero_stops_erro() {
+        null_ctx!(ctx);
+        let args = p(vec![]);
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "stops vazios deve retornar Err");
+    }
+
+    #[test]
+    fn p264_gradient_radial_radius_out_of_range_erro() {
+        use crate::entities::layout_types::{Color, Ratio};
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Color(Color::rgb(0, 0, 0))]);
+        args.named.insert("radius".into(), Value::Ratio(Ratio(1.5)));
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "radius 1.5 fora de [0,1] deve retornar Err");
+    }
+
+    #[test]
+    fn p264_gradient_radial_value_type_name() {
+        use crate::entities::layout_types::Color;
+        null_ctx!(ctx);
+        let args = p(vec![
+            Value::Color(Color::rgb(0, 0, 0)),
+            Value::Color(Color::rgb(255, 255, 255)),
+        ]);
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         assert_eq!(r.type_name(), "gradient");
     }
 }

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/gradient`
-Hash do Código: 719548c5
+Hash do Código: a237b047
 
 ## Módulo
 `01_core/src/entities/gradient.rs`
@@ -137,3 +137,67 @@ pub use gradient::{Gradient, GradientStop, Linear};
 - ADR-0039 — TextStyle SR (preservado).
 - Vanilla `lab/typst-original/.../visualize/gradient.rs` (1366
   linhas; 3 variants).
+
+---
+
+## Anotação cumulativa P264 — Radial variant materializada
+
+**Data**: 2026-05-15.
+
+Subset Radial materializado per ADR-0088 (Opção α — ADR nova
+dedicada paridade pattern N=2 P261/P262).
+
+### Tipos adicionados
+
+```rust
+use crate::entities::axes::Axes;
+
+pub struct Radial {
+    pub stops:  Arc<[GradientStop]>,
+    pub center: Axes<Ratio>,
+    pub radius: Ratio,
+}
+
+impl Radial {
+    pub fn effective_offsets(&self) -> Vec<f32>;  // paridade Linear
+    pub fn sample(&self, t: f32) -> Color;        // paridade Linear (Oklab)
+}
+```
+
+### Enum Gradient expandido
+
+```rust
+pub enum Gradient {
+    Linear(Arc<Linear>),
+    Radial(Arc<Radial>),  // P264 — descomentado
+    // Conic(Arc<Conic>),   // P-Gradient-Conic — comentário reserva
+}
+
+impl Gradient {
+    pub fn linear(stops, angle) -> Self;
+    pub fn radial(stops, center, radius) -> Self;  // P264
+    pub fn first_stop_color(&self) -> Color;  // pattern-match expandido
+}
+```
+
+### Scope-outs P264 (per ADR-0088)
+
+- `focal_center` (default = center; consumer raro).
+- `focal_radius` (default 0%; consumer raro).
+- `space` (Oklab fixo — paridade P262).
+- `relative` (bbox-local — paridade P262).
+- `anti_alias` (true assumed — paridade P262).
+- **PDF emit Radial fallback Solid** até **P265 dedicado**
+  (`/ShadingType 3`).
+
+### Cross-references P264
+
+- `entities/axes.md` — `Axes<T>` minimal criado P264.
+- ADR-0088 — Gradient Radial-only (IMPLEMENTADO P264).
+- ADR-0087 §"Critério revisão" cumprido parcialmente
+  (Conic continua scope-out).
+- ADR-0086 — Paint::Gradient automaticamente absorve Radial
+  (zero cascade refactor).
+- P262 — Linear precedente; helpers Oklab reutilizados literal.
+- P265 (futuro) — PDF emit Radial dedicado (replica P263
+  template).
