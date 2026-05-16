@@ -201,14 +201,15 @@ que corresponde a mudança específica no código.
 | 0084 | Auditoria condicional — audit empírico antes de decisão B1/B2/B3 | `EM VIGOR` (P260; formaliza padrão N=5 dos audits P192A/P255/P257/P258/P259; documenta critério "cobertura ambígua" + fluxo B1/B2/B3) |
 | 0085 | Diagnóstico imutável — artefacto produzido por audit | `EM VIGOR` (P260; estende ADR-0034; formaliza padrão N=4 dos diagnósticos imutáveis P255/P257/P258/P259) |
 | 0086 | Paint wrapper enum com subset materializado (Solid only) | `IMPLEMENTADO` (passo `P261`; precedente ADR-0083 N=2 do mesmo pattern; Paint::Solid(Color) materializado + From<Color> + Stroke.paint Color→Paint cross-cutting ~30 sítios; Gradient/Tiling comentários reserva activáveis em P262+; ADR-0039 TextStyle.fill preservado literal) |
-| 0087 | Gradient Linear materializado; Radial/Conic scope-out | `IMPLEMENTADO` (passo `P262`; precedente ADR-0083 + ADR-0086 N=3 do pattern PROPOSTO+IMPLEMENTADO mesmo passo; cumpre ADR-0086 §"Critério revisão" Paint::Gradient variant activada; Gradient::Linear(Arc<Linear>) + GradientStop Option<Ratio> auto-spacing + Linear::sample(t) Oklab interpolation; PDF shading completo scope-out adicional → P263 dedicado; primeiro consumo directo ADR-0085 pós-P260) |
+| 0087 | Gradient Linear materializado; Radial/Conic scope-out | `IMPLEMENTADO` (passo `P262`; precedente ADR-0083 + ADR-0086 N=3 do pattern PROPOSTO+IMPLEMENTADO mesmo passo; cumpre ADR-0086 §"Critério revisão" Paint::Gradient variant activada; Gradient::Linear(Arc<Linear>) + GradientStop Option<Ratio> auto-spacing + Linear::sample(t) Oklab interpolation; PDF shading completo scope-out adicional → P263 dedicado; primeiro consumo directo ADR-0085 pós-P260) + **anotação cumulativa P263** (PDF shading complete materializado via `/ShadingType 2 axial` + Function Type 3 stitching 16 stops Oklab; ~300 LoC L3) + **anotação cumulativa P264** (§"Critério revisão" Radial activado parcialmente; ADR-0088 nova) |
+| 0088 | Gradient Radial materializado; Conic scope-out preservado | `IMPLEMENTADO` (passo `P264`; precedente ADR-0083 + ADR-0086 + ADR-0087 N=4 do pattern PROPOSTO+IMPLEMENTADO mesmo passo — **limiar formalização clara excedido**; cumpre ADR-0087 §"Critério revisão" parcialmente — Radial activado, Conic continua reserva; Gradient::Radial(Arc<Radial>) + Radial subset 3 campos (stops + center + radius); focal_center/focal_radius scope-out per default vanilla; Axes<T> minimal criado per ADR-0080; PDF emit Radial fallback Solid até P265 dedicado pattern P262/P263 dividir granularidade N=2; segundo consumo directo ADR-0085 pós-P260) |
 
 **Total**: 65 ADRs (64 números únicos; ADR-0026 tem variante -R1
 por revisão; **+ADR-0082 PROPOSTO P249** + **+ADR-0084 + ADR-0085
 EM VIGOR P260** + **+ADR-0086 IMPLEMENTADO P261** + **+ADR-0087
-IMPLEMENTADO P262** + entradas históricas pós-P156K
-não-recapitatuladas nesta tabela — ver passos-chave abaixo).
-**Total pós-P262: 74 ADRs**.
+IMPLEMENTADO P262** + **+ADR-0088 IMPLEMENTADO P264** + entradas
+históricas pós-P156K não-recapitatuladas nesta tabela — ver
+passos-chave abaixo). **Total pós-P264: 75 ADRs**.
 
 ### Distribuição de status
 
@@ -239,11 +240,12 @@ não-recapitatuladas nesta tabela — ver passos-chave abaixo).
   0018, 0029, 0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**,
   **0080** P229, **0082** P254, **+0084 P260** auditoria
   condicional, **+0085 P260** diagnóstico imutável).
-- `IMPLEMENTADO`: **27** ADRs pós-P262 (decisões materializadas;
+- `IMPLEMENTADO`: **28** ADRs pós-P264 (decisões materializadas;
   0001, 0004, 0016, 0017, 0019, 0021–0027, 0026-R1, 0031,
   0052, 0053, 0055, 0057, **0060**, **0061** P221, **0078**
   P221, **0079** P253, **0083** P257, **0086** P261 Paint
-  wrapper Solid only, **+0087 P262** Gradient Linear-only).
+  wrapper Solid only, **0087** P262 Gradient Linear-only,
+  **+0088 P264** Gradient Radial-only).
 - `REVOGADO`: 2 ADRs (0007, 0028).
 - `ADIADO`: 1 ADR (0020).
 
@@ -2434,4 +2436,163 @@ P84.8g.
   (próximo: P263 PDF shading complete OU P-Gradient-Radial OU
   outras Opções P259 — DEBT-33 + Stroke<Length>; Curve variant;
   Text audit; Footnote refino).
+
+- **Passo 263 — PDF shading complete (fecha promessa P262;
+  gradient real PDF render via Shading Patterns)**
+  (passo composto sequencial L3 cross-cutting; **subpadrão
+  emergente "P262/P263 dividir granularidade" N=1 inaugurado**
+  — L1+stdlib materialização (P262) + L3 PDF rendering
+  dedicado (P263) preserva ADR-0061 §"granularidade 1-2
+  features/passo"). **Magnitude real M** (~2-3h). **Sem ADR
+  nova** — ADR-0087 já cobre Gradient Linear globalmente;
+  P263 materializa o backend PDF que ADR-0087 implicitamente
+  apontava via **anotação cumulativa** (paridade pattern
+  P258.B/P259.B "histórico cumulativo" ADR-0080 §"refactor
+  aditivo"). P263.A inventário inline (auto-aplicação ADR-0065
+  critério #5 + decisões D1-D5 explicitadas em ADR-0087
+  anotação); P263.B `infra/export.md` L0 prompt actualizado
+  com secção "Suporte Gradient via Shading Patterns (Passo 263)"
+  (hash propagado `6c3343df`); P263.C materialização L3 com
+  ~300 LoC novas em `03_infra/src/export.rs`:
+  - **Tipos novos**: `PatternRef` + `GradientObject` enum
+    (paridade ImageRef/ImageXObject P73).
+  - **5 helpers**: `scan_all_gradients` pre-pass dedup
+    `Arc::as_ptr` paridade P73; `pattern_resources_for_page`
+    `/Pattern << ... >>` fragmento; `compute_axial_coords`
+    L3 puro semi-axes projection; `oklab_sample_stops` N=16
+    pré-amostragem Oklab via `Linear::sample(t)` L1 (P262)
+    + conversão sRGB; `emit_function_dict` Type 2 (2 stops)
+    ou Type 3 stitching (N>2).
+  - **Método `emit_gradient_objects`** PdfBuilder — emit
+    sub-functions + Function + Shading + Pattern objects.
+  - **`emit_stroke_paint`** branching helper unificado:
+    Paint::Solid → `r g b RG {w} w` literal P261 preservado;
+    Paint::Gradient → `/Pattern CS /P{n} SCN {w} w`.
+  - **3 paths `build_helvetica/cidfont/multifont`** todos
+    adaptados com pre-pass `scan_all_gradients` + Resources
+    `/Pattern << ... >>` condicional + `build_page_stream_*`
+    signature ganha `pat_ptr_to_idx + pat_refs` +
+    `emit_gradient_objects` chamado depois das XObjects.
+  - **3 sítios de stroke emit principal** ganham branching
+    `emit_stroke_paint`.
+  - **+8 tests cumulativos**: unit helpers
+    (compute_axial_coords angle 0/90; oklab_sample_stops
+    red/blue endpoints; emit_function_dict Type 2 / Type 3
+    stitching) + E2E PDF (gradient emit /ShadingType 2;
+    Solid preserva RG; dedup Arc::as_ptr).
+  P263.D ADR-0087 ganha secção "Anotação cumulativa P263 —
+  PDF shading complete materializado" (status `IMPLEMENTADO`
+  preservado literal per pattern P258.B/P259.B). **Decisões
+  D1-D5** P263.A documentadas: D1 Function dict ambos Type
+  2 + Type 3; D2 Oklab→sRGB via pré-amostragem N=16; D3 Coords
+  L3 puro `compute_axial_coords`; D4 Dedup `Arc::as_ptr`
+  paridade P73; D5 Cross-path 3 paths build_page_stream_*.
+  **Paridade observable cumprida pós-P263**:
+  `#gradient.linear(red, blue, angle: 90deg)` em Stroke.paint
+  renderiza gradient real no PDF via `/ShadingType 2 axial`
+  + `/Function Type 3` stitching. **Scope-outs adicionais
+  pós-P263.C**: `draw_item_local` (shape recursivo em groups
+  com `cm` transformations) preserva fallback
+  `first_stop_color` (refactor para passar pattern resources
+  adiado); `FrameItem::Shape.fill: Option<Color>` continua
+  literal Color (não Paint; refino futuro).
+  Distribuição: PROPOSTO 11 preservado; EM VIGOR 32 preservado;
+  IMPLEMENTADO 27 preservado (anotação cumulativa não muda
+  status); **total 74 preservado**. Tests workspace **2361 →
+  2369** (+8 P263 tests; zero regressões). Lint zero violations;
+  hashes propagados (`export.md` → `6c3343df`).
+  **Subpadrão "Refactor cross-cutting entity primitivo" N=3
+  → N=4 cumulativo** (P252 Stroke + P257 Color + P261 Paint
+  + **P263 PDF exporter cross-path**) — patamar N=4 reforça
+  formalização. **Subpadrão emergente "P262/P263 dividir
+  granularidade" N=1 inaugurado** (L1+stdlib + L3 PDF
+  dedicado; candidato N=2 se Radial/Conic seguir mesmo padrão
+  pattern P-Gradient-Radial L1 + P-Gradient-Radial-PDF L3
+  dedicado). **Cobertura Visualize agregada**: ~58% (P262)
+  → **~63% pós-P263** (+5pp via PDF render real Gradient
+  Linear; F.1 promovido `implementado+stdlib` →
+  `implementado+stdlib+render`). **45 aplicações cumulativas
+  anti-inflação** pós-P205D preservadas. **Marco P263**: PDF
+  shading complete materializado; promessa P262 cumprida;
+  granularidade ADR-0061 preservada via divisão P262/P263.
+  **Decisão humana fica em aberto literal** pós-P263 (próximo:
+  P-Gradient-Radial seguindo template P262+P263 OU outras
+  Opções P259 — DEBT-33 + Stroke<Length>; Curve variant; Text
+  audit; Footnote refino; Tiling activação).
+
+- **Passo 264 — Gradient Radial L1+stdlib via ADR-0088
+  (replica template P262; PDF dedicado P265)**
+  (subpadrão emergente "P262/P263 dividir granularidade" N=1
+  → **N=2 cumulativo** com P264 L1+stdlib + P265 L3 PDF
+  futuro; subpadrão "ADR PROPOSTO+IMPLEMENTADO mesmo passo"
+  N=3 → **N=4 cumulativo limiar formalização clara excedido**).
+  **Magnitude real M-** (~2h) — extensão minimal P262 pattern;
+  zero cascade refactor consumers (Paint/Value já preparados
+  P261/P262); helpers Oklab reutilizados literal de P262.
+  P264.A diagnóstico imutável criado
+  (`diagnostico-gradient-radial-vanilla-passo-264.md` —
+  **segundo consumo directo ADR-0085** pós-P262 que foi N=5
+  geral); P264.B ADR-0088 PROPOSTO criada; P264.C
+  materialização L1+stdlib:
+  - **`entities/axes.md` L0** novo + **`entities/axes.rs`**
+    minimal (`Axes<T>` genérico per ADR-0080 §"L0 minimal"; 3
+    tests; consumer Radial.center).
+  - **`entities/gradient.md` L0** anotado com secção
+    cumulativa P264.
+  - **`entities/gradient.rs`** ganha `Radial` struct (3 campos
+    materializados: stops + center + radius; 5 scope-outs
+    focal_center/focal_radius/space/relative/anti_alias) +
+    `effective_offsets()` paridade Linear + `sample(t)` Oklab
+    paridade Linear + `Gradient::Radial(Arc<Radial>)` variant
+    activada + `Gradient::radial(...)` construtor + 9 tests
+    Radial.
+  - **`entities/mod.rs`** re-export `pub mod axes`.
+  - **`rules/stdlib/gradients.rs`** ganha `native_gradient_radial`
+    (named center default `(50%, 50%)`; radius default 50%;
+    validações stops vazios + radius out-of-range) + entrada
+    `radial` em `make_gradient_module()` + helper privado
+    `parse_ratio` + 5 stdlib tests P264.
+  - **`rules/stdlib/mod.rs`** re-export
+    `native_gradient_radial`.
+  - **`03_infra/src/export.rs`** 3 sítios pattern-match
+    `let Gradient::Linear(linear) = g` adaptados para
+    `match { Linear => ..., Radial => continue/fallback }`
+    (PDF emit Radial fallback Solid até P265 dedicado).
+  P264.D ADR-0088 PROPOSTO → **IMPLEMENTADO**; README ADRs
+  actualizado. **Decisão minimalista declarada**: Radial
+  subset 3 campos; focal_* scope-out per default vanilla;
+  Conic continua comentário reserva em gradient.rs (P-Gradient-
+  Conic dedicado futuro). **Vanilla literal vs spec preliminar
+  palpite diferença**: P264.A confirmou `focal_center: Axes<Ratio>`
+  e `focal_radius: Ratio` **directos não-Smart** (palpite spec
+  era `Smart<...>` — corrigido no diagnóstico imutável).
+  **Axes<T> ausente cristalino → criado minimal** per decisão
+  Q5 P264.A (vanilla usa amplamente; tuple `(Ratio, Ratio)`
+  perde semântica nomeada). **ADR-0039 preservada literal**:
+  `TextStyle.fill: Option<Color>` inalterado (DEBT-1 fechado
+  P142 preservado). Distribuição: PROPOSTO 11 preservado
+  (ADR-0088 entra/sai mesmo passo); EM VIGOR 32 preservado;
+  **IMPLEMENTADO 27 → 28** (+0088 P264); total 74 → **75**.
+  Tests workspace **2369 → 2386** (+17 P264 tests: 3 axes + 9
+  gradient.rs Radial + 5 stdlib radial; zero regressões).
+  Lint zero violations; hashes propagados (`entities/axes.md`
+  → `c942a18a` + código `9b5d3f18`; `entities/gradient.md` →
+  `391208e2` + código `911125dd`). **Subpadrão "Decisão
+  minimalista (subset materializado)" N=3 → N=4 cumulativo**
+  (P257 Color + P261 Paint + P262 Gradient Linear + **P264
+  Gradient Radial subset**). **Cobertura Visualize agregada**:
+  ~63% (P263) → **~68% pós-P264** (+5pp via Radial L1+stdlib;
+  F.2 Gradient Radial promovido ausente → implementado L1+stdlib;
+  PDF render Radial fica fallback Solid até P265). **45
+  aplicações cumulativas anti-inflação** pós-P205D preservadas.
+  **Marco P264**: Gradient Radial L1+stdlib materializado;
+  user-facing `gradient.radial(red, blue, center: (40%, 60%),
+  radius: 70%)` funcional via parsing; activa `Gradient::Radial`
+  variant; **PDF shading Radial real adiado P265** preservando
+  pattern "P262/P263 dividir granularidade" N=2. **Decisão
+  humana fica em aberto literal** pós-P264 (próximo: **P265
+  PDF Radial shading** dedicado replicando P263 template OU
+  P-Gradient-Conic L1+stdlib OU outras Opções P259 —
+  DEBT-33 + Stroke<Length>; Curve variant; Text audit;
+  Footnote refino).
 

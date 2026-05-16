@@ -72,6 +72,8 @@ pub mod geometry;
 pub mod paint;
 // P262 — Gradient Linear-only per ADR-0087; activa Paint::Gradient.
 pub mod gradient;
+// P264 — Axes<T> minimal per ADR-0088 + ADR-0080; consumer Radial.center.
+pub mod axes;
 pub mod ptr_eq_arc;
 pub mod value;
 pub mod world_types;

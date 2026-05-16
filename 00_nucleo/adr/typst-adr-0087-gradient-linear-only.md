@@ -360,3 +360,121 @@ geral**. Patamar validates formalização P260 retroactivamente.
 3. P-Gradient-Radial (futuro) — activa `Gradient::Radial`
    variant + PDF `/ShadingType 3`.
 4. P-Gradient-Conic (futuro) — activa `Gradient::Conic` variant.
+
+---
+
+## Anotação cumulativa P263 — PDF shading complete materializado
+
+**Data**: 2026-05-15.
+
+PDF rendering real Gradient Linear materializado. Substitui
+fallback `first_stop_color` introduzido em P262 (preserved
+apenas em `draw_item_local` para shapes em groups com `cm`
+transformations — scope-out adicional).
+
+### Componentes materializados em `03_infra/src/export.rs`
+
+- **Tipos novos**: `PatternRef { pattern_obj_id, name }` +
+  `GradientObject { linear, function_id, shading_id, pattern_id }`.
+- **`scan_all_gradients(doc, first_id)`** — pre-pass dedup
+  via `Arc::as_ptr(linear)` (paridade pattern image P73 N=2
+  do template arquitectural). Aloca 3 ObjectIDs por gradient
+  único (Function + Shading + Pattern).
+- **`pattern_resources_for_page(page, ptr_to_idx, refs)`** —
+  fragmento `/Pattern << /P1 X 0 R ... >>` page-level.
+- **`compute_axial_coords(angle_rad, x0, y0, w, h)`** — L3
+  puro; semi-axes projection.
+- **`oklab_sample_stops(linear, n=16)`** — pré-sample em
+  Oklab via `Linear::sample(t)` L1 (P262); converte para sRGB
+  via `Color::to_rgba_f32`.
+- **`emit_function_dict(stops, function_id, sub_first_id)`** —
+  Type 2 para 2 stops; Type 3 stitching para N>2.
+- **`emit_gradient_objects`** método PdfBuilder — emit
+  sub-functions + Function + Shading + Pattern objects.
+- **`emit_stroke_paint(ops, paint, thickness, ptr_to_idx, refs)`**
+  branching helper unificado:
+  - `Paint::Solid(c)` → `r g b RG {w} w` literal P261 preservado.
+  - `Paint::Gradient(g)` → `/Pattern CS /P{n} SCN {w} w`.
+- **3 paths `build_helvetica/cidfont/multifont` adaptados**:
+  - Pre-pass `scan_all_gradients`.
+  - Resources `/Pattern << ... >>` condicional.
+  - `build_page_stream_*` signature ganha `pat_ptr_to_idx +
+    pat_refs`.
+  - `emit_gradient_objects` chamado depois das XObjects.
+- **`build_page_stream_type1` + `cidfont` + `multifont`**
+  ganham branching `emit_stroke_paint` (3 sítios de stroke
+  emit principal).
+
+### Paridade observable cumprida pós-P263
+
+`#gradient.linear(red, blue, angle: 90deg)` em `Stroke.paint`
+agora renderiza gradient real no PDF via `/ShadingType 2 axial`
++ `/Function Type 3` stitching (16 stops amostrados em Oklab).
+
+### Scope-out adicional pós-P263.C
+
+- **`draw_item_local`** (shape recursivo dentro de groups com
+  `cm` transformations) preserva fallback `first_stop_color`
+  per scope-out adicional — função interna sem acesso a
+  `pat_ptr_to_idx` no escopo; refactor para passar pattern
+  resources adiado (refino futuro se consumer real exigir).
+- **`FrameItem::Shape.fill: Option<Color>`** continua literal
+  Color (não Paint) — refino futuro pode estender Fill → Paint
+  se prioritário.
+
+### Decisões D1-D5 P263.A
+
+- **D1 Function dict**: ambos Type 2 + Type 3 implementados.
+- **D2 Oklab → sRGB**: pré-amostragem N=16 stops em Oklab;
+  emit Type 3 stitching linear sRGB.
+- **D3 Coords L3**: helper `compute_axial_coords` L3 puro;
+  bbox-based semi-axes projection (algoritmo simplificado —
+  paridade vanilla pode diferir).
+- **D4 Dedup `Arc::as_ptr`**: implementado paridade pattern
+  P73.
+- **D5 Cross-path**: 3 paths build_page_stream_* todos
+  adaptados.
+
+### Tests adicionais P263 (+8 cumulativos)
+
+- `p263_compute_axial_coords_angle_0_horizontal`.
+- `p263_compute_axial_coords_angle_90_vertical`.
+- `p263_oklab_sample_stops_red_blue_endpoints`.
+- `p263_emit_function_dict_2_stops_uses_type_2`.
+- `p263_emit_function_dict_4_stops_uses_type_3_stitching`.
+- `p263_export_pdf_gradient_in_stroke_emits_shading` (E2E).
+- `p263_export_pdf_gradient_solid_preserva_rg_emit` (E2E
+  paridade P261).
+- `p263_export_pdf_gradient_dedup_arc_ptr` (E2E dedup).
+
+### Cobertura Visualize agregada
+
+- Pre-P263: ~58% (P262 L1+stdlib +5pp).
+- **Pós-P263: ~63%** (+5pp via PDF render real Gradient
+  Linear; F.1 promovido `implementado+stdlib` → `implementado+stdlib+render`).
+
+### Subpadrões cumulativos pós-P263
+
+- **"Refactor cross-cutting entity primitivo" N=3 → N=4** —
+  PDF exporter cross-path Gradient emit toca 3 paths
+  simultaneamente.
+- **"P262/P263 dividir granularidade" N=1** — pattern emergente
+  novo: L1+stdlib materialização (P262) + L3 PDF rendering
+  dedicado (P263). Preserva ADR-0061 §"granularidade 1-2
+  features/passo". Candidato N=2 se Radial/Conic seguir mesmo
+  padrão.
+- **Status `IMPLEMENTADO` preservado** — anotação cumulativa
+  não muda status; refina aplicação per paridade pattern
+  ADR-0080 §"refactor aditivo".
+
+Cross-references:
+- L3 emit: `03_infra/src/export.rs` (~300 LoC novas).
+- L0 prompt: `00_nucleo/prompts/infra/export.md` secção
+  "Suporte Gradient via Shading Patterns (Passo 263)".
+- Tests E2E: confirmam `/ShadingType 2`, `/PatternType 2`,
+  `/FunctionType`, `/Coords`, dedup `Arc::as_ptr`, paridade
+  P261 Solid preservada.
+- ADR-0027 (precedente arquitectural estrutura objectos PDF).
+- P262 (precedente directo Gradient L1+stdlib).
+- P73 (template arquitectural `image_resources` dedup
+  `Arc::as_ptr`).

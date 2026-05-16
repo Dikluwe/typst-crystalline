@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/gradient.md
-//! @prompt-hash 391208e2
+//! @prompt-hash 911125dd
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -192,11 +192,90 @@ fn linear_rgb_to_oklab(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
     (l_lab, a_lab, b_lab)
 }
 
+/// Radial gradient — paridade vanilla `RadialGradient` subset
+/// (per ADR-0088 P264).
+///
+/// **3 campos materializados**: stops + center + radius.
+/// Scope-outs (per ADR-0088): focal_center, focal_radius,
+/// space (Oklab fixo), relative (bbox-local), anti_alias (true).
+///
+/// **PDF render Radial fallback Solid** (first_stop_color) até
+/// P265 dedicado materializar `/ShadingType 3` real.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Radial {
+    pub stops:  Arc<[GradientStop]>,
+    pub center: crate::entities::axes::Axes<Ratio>,
+    pub radius: Ratio,
+    // focal_center: Axes<Ratio>,   // scope-out ADR-0088 — default = center
+    // focal_radius: Ratio,         // scope-out — default 0%
+}
+
+impl Radial {
+    /// Auto-spacing paridade `Linear::effective_offsets` (P262).
+    pub fn effective_offsets(&self) -> Vec<f32> {
+        let n = self.stops.len();
+        if n == 0 { return Vec::new(); }
+        if n == 1 {
+            return vec![self.stops[0].offset.map(|r| r.0 as f32).unwrap_or(0.0)];
+        }
+
+        let mut offs: Vec<Option<f32>> = self.stops.iter()
+            .map(|s| s.offset.map(|r| r.0 as f32))
+            .collect();
+
+        if offs[0].is_none() { offs[0] = Some(0.0); }
+        if offs[n - 1].is_none() { offs[n - 1] = Some(1.0); }
+
+        let mut result = vec![0.0_f32; n];
+        let mut i = 0;
+        while i < n {
+            if let Some(v) = offs[i] {
+                result[i] = v;
+                i += 1;
+                continue;
+            }
+            let mut j = i;
+            while j < n && offs[j].is_none() { j += 1; }
+            let prev = result[i - 1];
+            let next = offs[j].unwrap();
+            let gap = j - i + 1;
+            for k in 0..gap {
+                result[i + k] = prev + (next - prev) * ((k + 1) as f32) / (gap as f32);
+            }
+            i = j;
+        }
+        result
+    }
+
+    /// Amostragem 1D em t ∈ [0, 1] (paridade `Linear::sample`).
+    ///
+    /// Para o subset radial actual, `sample(t)` produz a cor no
+    /// raio (0=center → 1=radius). Interpolação em Oklab via
+    /// helpers reutilizados de P262.
+    pub fn sample(&self, t: f32) -> Color {
+        let t = t.clamp(0.0, 1.0);
+        let offs = self.effective_offsets();
+        let n = self.stops.len();
+        if n == 0 { return Color::rgb(0, 0, 0); }
+        if n == 1 { return self.stops[0].color; }
+
+        for i in 0..(n - 1) {
+            let o0 = offs[i];
+            let o1 = offs[i + 1];
+            if t >= o0 && t <= o1 {
+                let local_t = if o1 > o0 { (t - o0) / (o1 - o0) } else { 0.0 };
+                return interpolate_oklab(self.stops[i].color, self.stops[i + 1].color, local_t);
+            }
+        }
+        if t <= offs[0] { self.stops[0].color } else { self.stops[n - 1].color }
+    }
+}
+
 /// Gradient — enum tagged paridade vanilla.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Gradient {
     Linear(Arc<Linear>),
-    // Radial(Arc<Radial>),  // P-Gradient-Radial — comentário reserva
+    Radial(Arc<Radial>),   // P264 — descomentado per ADR-0088
     // Conic(Arc<Conic>),    // P-Gradient-Conic — comentário reserva
 }
 
@@ -211,12 +290,28 @@ impl Gradient {
         }))
     }
 
+    /// Construtor Radial (P264; ADR-0088).
+    pub fn radial(
+        stops: impl Into<Arc<[GradientStop]>>,
+        center: crate::entities::axes::Axes<Ratio>,
+        radius: Ratio,
+    ) -> Self {
+        Gradient::Radial(Arc::new(Radial {
+            stops: stops.into(),
+            center,
+            radius,
+        }))
+    }
+
     /// Retorna primeira cor do primeiro stop. Usado como
     /// fallback para `Paint::to_color()` quando consumer
     /// precisa de Color literal (Solid path).
     pub fn first_stop_color(&self) -> Color {
         match self {
             Gradient::Linear(l) => l.stops.first()
+                .map(|s| s.color)
+                .unwrap_or(Color::rgb(0, 0, 0)),
+            Gradient::Radial(r) => r.stops.first()
                 .map(|s| s.color)
                 .unwrap_or(Color::rgb(0, 0, 0)),
         }
@@ -414,5 +509,154 @@ mod tests {
         let c = l.sample(1.5);
         let c_ref = l.sample(1.0);
         assert_eq!(c, c_ref);
+    }
+
+    // ── P264 (ADR-0088 Gradient Radial-only) ───────────────────────────
+
+    use crate::entities::axes::Axes;
+
+    #[test]
+    fn p264_radial_construcao_2_stops() {
+        let g = Gradient::radial(
+            vec![
+                GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Ratio(0.5),
+        );
+        if let Gradient::Radial(r) = &g {
+            assert_eq!(r.stops.len(), 2);
+            assert_eq!(r.center.x, Ratio(0.5));
+            assert_eq!(r.center.y, Ratio(0.5));
+            assert_eq!(r.radius, Ratio(0.5));
+        } else {
+            panic!("esperado Gradient::Radial");
+        }
+    }
+
+    #[test]
+    fn p264_radial_first_stop_color() {
+        let g = Gradient::radial(
+            vec![
+                GradientStop::new(Color::rgb(100, 200, 50), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 0), Ratio(1.0)),
+            ],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Ratio(0.5),
+        );
+        assert_eq!(g.first_stop_color(), Color::rgb(100, 200, 50));
+    }
+
+    #[test]
+    fn p264_radial_clone_arc_o1() {
+        let g = Gradient::radial(
+            vec![GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0))],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Ratio(0.5),
+        );
+        let g2 = g.clone();
+        if let (Gradient::Radial(r1), Gradient::Radial(r2)) = (&g, &g2) {
+            assert!(Arc::ptr_eq(r1, r2), "Arc clone deve partilhar storage");
+        }
+    }
+
+    #[test]
+    fn p264_radial_partial_eq() {
+        let g1 = Gradient::radial(
+            vec![GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0))],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Ratio(0.5),
+        );
+        let g2 = Gradient::radial(
+            vec![GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0))],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Ratio(0.5),
+        );
+        let g3 = Gradient::radial(
+            vec![GradientStop::new(Color::rgb(0, 255, 0), Ratio(0.0))],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Ratio(0.5),
+        );
+        assert_eq!(g1, g2);
+        assert_ne!(g1, g3);
+    }
+
+    #[test]
+    fn p264_radial_effective_offsets_auto_spacing() {
+        let r = Radial {
+            stops: Arc::from(vec![
+                GradientStop::unspaced(Color::rgb(255, 0, 0)),
+                GradientStop::unspaced(Color::rgb(0, 255, 0)),
+                GradientStop::unspaced(Color::rgb(0, 0, 255)),
+            ]),
+            center: Axes::new(Ratio(0.5), Ratio(0.5)),
+            radius: Ratio(0.5),
+        };
+        let offs = r.effective_offsets();
+        assert!((offs[0] - 0.0).abs() < 1e-5);
+        assert!((offs[1] - 0.5).abs() < 1e-5);
+        assert!((offs[2] - 1.0).abs() < 1e-5);
+    }
+
+    #[test]
+    fn p264_radial_sample_extremos() {
+        let r = Radial {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ]),
+            center: Axes::new(Ratio(0.5), Ratio(0.5)),
+            radius: Ratio(0.5),
+        };
+        // Amostragem nos extremos: r próximo de vermelho/azul.
+        let c0 = r.sample(0.0);
+        let c1 = r.sample(1.0);
+        let (r0, _, _, _) = c0.to_rgba_f32();
+        let (r1, _, b1, _) = c1.to_rgba_f32();
+        assert!(r0 > 0.9, "sample(0.0) ≈ vermelho, r={}", r0);
+        assert!(r1 < 0.1 && b1 > 0.9, "sample(1.0) ≈ azul, r={}, b={}", r1, b1);
+    }
+
+    #[test]
+    fn p264_radial_sample_clamp_above_1() {
+        let r = Radial {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ]),
+            center: Axes::new(Ratio(0.5), Ratio(0.5)),
+            radius: Ratio(0.5),
+        };
+        let c = r.sample(1.5);
+        let c_ref = r.sample(1.0);
+        assert_eq!(c, c_ref);
+    }
+
+    #[test]
+    fn p264_gradient_radial_to_paint_via_from() {
+        use crate::entities::paint::Paint;
+        let g = Gradient::radial(
+            vec![GradientStop::new(Color::rgb(0, 0, 0), Ratio(0.0))],
+            Axes::new(Ratio(0.5), Ratio(0.5)),
+            Ratio(0.5),
+        );
+        let p: Paint = g.into();
+        assert!(matches!(p, Paint::Gradient(Gradient::Radial(_))));
+    }
+
+    #[test]
+    fn p264_radial_center_non_default() {
+        let r = Radial {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(0, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(255, 255, 255), Ratio(1.0)),
+            ]),
+            center: Axes::new(Ratio(0.25), Ratio(0.75)),
+            radius: Ratio(0.4),
+        };
+        assert_eq!(r.center.x, Ratio(0.25));
+        assert_eq!(r.center.y, Ratio(0.75));
+        assert_eq!(r.radius, Ratio(0.4));
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export.md
-//! @prompt-hash c606a6ce
+//! @prompt-hash 6c3343df
 //! @layer L3
 //! @updated 2026-04-20
 
@@ -311,6 +311,202 @@ fn xobject_resources_for_page(
     format!("/XObject << {} >>", entries.join(" "))
 }
 
+// ── P263: Gradient Linear → PDF Shading Patterns (ADR-0087) ────────────────
+
+/// Metadados de gradient para resource dict e page streams.
+struct PatternRef {
+    pattern_obj_id: usize,
+    name:           String,
+}
+
+/// Dados internos para emit Function/Shading/Pattern object dicts.
+struct GradientObject {
+    linear:         std::sync::Arc<typst_core::entities::gradient::Linear>,
+    function_id:    usize,
+    shading_id:     usize,
+    pattern_id:     usize,
+}
+
+/// Varre o documento e pré-processa todos os gradients únicos por
+/// `Arc::as_ptr(linear)` (paridade pattern image P73).
+///
+/// Aloca 3 ObjectIDs por gradient único: Function + Shading + Pattern.
+///
+/// Retorna `(refs, ptr_to_idx, grad_objs)`:
+/// - `refs`: metadados name/obj_id por gradient (para resource dict).
+/// - `ptr_to_idx`: `arc_ptr → índice em refs`.
+/// - `grad_objs`: dados para emit (mesma ordem que refs).
+fn scan_all_gradients(
+    doc:      &typst_core::entities::layout_types::PagedDocument,
+    first_id: usize,
+) -> (Vec<PatternRef>, HashMap<usize, usize>, Vec<GradientObject>) {
+    use typst_core::entities::geometry::Stroke;
+    use typst_core::entities::gradient::Gradient;
+    use typst_core::entities::layout_types::FrameItem;
+    use typst_core::entities::paint::Paint;
+
+    let mut ptr_to_idx: HashMap<usize, usize> = HashMap::new();
+    let mut refs:       Vec<PatternRef>    = Vec::new();
+    let mut grad_objs:  Vec<GradientObject> = Vec::new();
+    let mut next_id  = first_id;
+    let mut counter  = 1usize;
+
+    for page in &doc.pages {
+        for item in &page.items {
+            if let FrameItem::Shape { stroke: Some(Stroke { paint: Paint::Gradient(g), .. }), .. } = item {
+                // P264 — Radial PDF emit adiado P265; fallback Solid no emit.
+                let linear = match g {
+                    Gradient::Linear(l) => l,
+                    Gradient::Radial(_) => continue,
+                };
+                let ptr = std::sync::Arc::as_ptr(linear) as usize;
+                if ptr_to_idx.contains_key(&ptr) {
+                    continue;
+                }
+                let function_id = next_id; next_id += 1;
+                let shading_id  = next_id; next_id += 1;
+                let pattern_id  = next_id; next_id += 1;
+                let name = format!("P{counter}");
+                counter += 1;
+                let idx = refs.len();
+                refs.push(PatternRef { pattern_obj_id: pattern_id, name });
+                grad_objs.push(GradientObject {
+                    linear: std::sync::Arc::clone(linear),
+                    function_id, shading_id, pattern_id,
+                });
+                ptr_to_idx.insert(ptr, idx);
+            }
+        }
+    }
+    (refs, ptr_to_idx, grad_objs)
+}
+
+/// Constrói o fragmento `/Pattern << /P1 X 0 R ... >>` para os recursos
+/// de página. Retorna string vazia se não houver gradients na página.
+fn pattern_resources_for_page(
+    page:       &Page,
+    ptr_to_idx: &HashMap<usize, usize>,
+    refs:       &[PatternRef],
+) -> String {
+    use typst_core::entities::geometry::Stroke;
+    use typst_core::entities::gradient::Gradient;
+    use typst_core::entities::layout_types::FrameItem;
+    use typst_core::entities::paint::Paint;
+
+    let mut entries: Vec<String> = Vec::new();
+    let mut seen: BTreeSet<usize> = Default::default();
+    for item in &page.items {
+        if let FrameItem::Shape { stroke: Some(Stroke { paint: Paint::Gradient(g), .. }), .. } = item {
+            // P264 — Radial PDF emit adiado P265; só Linear regista resource.
+            let linear = match g {
+                Gradient::Linear(l) => l,
+                Gradient::Radial(_) => continue,
+            };
+            let ptr = std::sync::Arc::as_ptr(linear) as usize;
+            if let Some(&idx) = ptr_to_idx.get(&ptr) {
+                if seen.insert(idx) {
+                    let r = &refs[idx];
+                    entries.push(format!("/{} {} 0 R", r.name, r.pattern_obj_id));
+                }
+            }
+        }
+    }
+    if entries.is_empty() {
+        return String::new();
+    }
+    format!("/Pattern << {} >>", entries.join(" "))
+}
+
+/// Calcula os endpoints axial em coordenadas locais (espaço PDF; Y
+/// já invertido pelo `build_page_stream_*`).
+///
+/// Angle 0° → linha horizontal através do centro.
+/// Angle 90° (π/2) → linha vertical através do centro.
+/// Generalização: linha que passa pelo centro com direcção (cos θ, sin θ),
+/// estendida pelas semi-axes (w/2, h/2) projectadas.
+fn compute_axial_coords(angle_rad: f64, x0: f64, y0: f64, w: f64, h: f64)
+    -> (f64, f64, f64, f64)
+{
+    let cx = x0 + w / 2.0;
+    let cy = y0 + h / 2.0;
+    let dx = angle_rad.cos();
+    let dy = angle_rad.sin();
+    let hx = (w / 2.0) * dx;
+    let hy = (h / 2.0) * dy;
+    (cx - hx, cy - hy, cx + hx, cy + hy)
+}
+
+/// Amostra N stops intermédios em sRGB pós-interpolação Oklab L1
+/// (via `Linear::sample(t)` P262).
+///
+/// Output: `Vec<(r, g, b)>` em [0, 1] sRGB normalizado.
+fn oklab_sample_stops(
+    linear: &typst_core::entities::gradient::Linear,
+    n_samples: usize,
+) -> Vec<(f32, f32, f32)> {
+    let n = n_samples.max(2);
+    (0..n)
+        .map(|i| {
+            let t = i as f32 / (n - 1) as f32;
+            let c = linear.sample(t);
+            let (r, g, b, _) = c.to_rgba_f32();
+            (r.clamp(0.0, 1.0), g.clamp(0.0, 1.0), b.clamp(0.0, 1.0))
+        })
+        .collect()
+}
+
+/// Emit PDF Function dict (Type 2 ou Type 3).
+///
+/// 2 stops → Type 2 (exponential linear `/N 1`).
+/// N>2 stops → Type 3 stitching com N-1 sub-funções Type 2.
+///
+/// Retorna `(function_dict_string, sub_function_dicts)` onde
+/// sub_function_dicts é vazio para Type 2.
+fn emit_function_dict(stops: &[(f32, f32, f32)], function_id: usize, sub_first_id: &mut usize)
+    -> (String, Vec<(usize, String)>)
+{
+    if stops.len() == 2 {
+        let (r0, g0, b0) = stops[0];
+        let (r1, g1, b1) = stops[1];
+        let dict = format!(
+            "<< /FunctionType 2 /Domain [0 1] /C0 [{:.4} {:.4} {:.4}] /C1 [{:.4} {:.4} {:.4}] /N 1 >>",
+            r0, g0, b0, r1, g1, b1
+        );
+        let _ = function_id;
+        return (dict, Vec::new());
+    }
+    // Type 3 stitching.
+    let n = stops.len();
+    let mut sub_objs: Vec<(usize, String)> = Vec::new();
+    let mut sub_refs: Vec<String> = Vec::new();
+    for i in 0..(n - 1) {
+        let (r0, g0, b0) = stops[i];
+        let (r1, g1, b1) = stops[i + 1];
+        let sub_id = *sub_first_id;
+        *sub_first_id += 1;
+        let sub_dict = format!(
+            "<< /FunctionType 2 /Domain [0 1] /C0 [{:.4} {:.4} {:.4}] /C1 [{:.4} {:.4} {:.4}] /N 1 >>",
+            r0, g0, b0, r1, g1, b1
+        );
+        sub_objs.push((sub_id, sub_dict));
+        sub_refs.push(format!("{sub_id} 0 R"));
+    }
+    let mut bounds = Vec::new();
+    for i in 1..(n - 1) {
+        let t = i as f64 / (n - 1) as f64;
+        bounds.push(format!("{:.4}", t));
+    }
+    let encode: Vec<String> = (0..(n - 1)).map(|_| "0 1".to_string()).collect();
+    let dict = format!(
+        "<< /FunctionType 3 /Domain [0 1] /Functions [{}] /Bounds [{}] /Encode [{}] >>",
+        sub_refs.join(" "),
+        bounds.join(" "),
+        encode.join(" "),
+    );
+    let _ = function_id;
+    (dict, sub_objs)
+}
+
 /// Stream XObject para um JPEG (raw bytes com /DCTDecode).
 fn build_jpeg_xobject(data: &[u8], iw: u32, ih: u32, color_space: &str) -> Vec<u8> {
     let len = data.len();
@@ -403,6 +599,14 @@ impl PdfBuilder {
 
         let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
 
+        // P263 — Allocar IDs após imagens. Reserva n_gradients*3 + N
+        // sub-functions (estimativa pessimista: N stops 16 → 15 subs por gradient).
+        let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
+        let (pat_refs, pat_ptr_to_idx, grad_objs) = scan_all_gradients(doc, first_grad_id);
+        let n_grads = grad_objs.len();
+        // Sub-function IDs após os 3*N gradient object IDs.
+        let mut next_sub_id = first_grad_id + n_grads * 3;
+
         self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
 
         let kids = (first_page..first_page + n)
@@ -417,8 +621,9 @@ impl PdfBuilder {
             let h = page.height;
 
             let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
+            let pat_res  = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
             let resources_str = format!(
-                "/Font << /F1 {font_f1} 0 R /F2 {font_f2} 0 R /F3 {font_f3} 0 R >> {xobj_res}"
+                "/Font << /F1 {font_f1} 0 R /F2 {font_f2} 0 R /F3 {font_f3} 0 R >> {xobj_res} {pat_res}"
             );
 
             self.add(page_id, format!(
@@ -428,7 +633,7 @@ impl PdfBuilder {
                    /Resources << {resources_str} >> >>"
             ));
 
-            let stream_bytes = build_page_stream_type1(page, &ptr_to_idx, &img_refs);
+            let stream_bytes = build_page_stream_type1(page, &ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs);
             let len = stream_bytes.len();
             let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
             obj.extend_from_slice(&stream_bytes);
@@ -444,6 +649,12 @@ impl PdfBuilder {
                             /Encoding /WinAnsiEncoding >>".into());
 
         self.emit_image_xobjects(img_xobjects);
+
+        // P263 — Emit Function/Shading/Pattern objects para gradients.
+        let page_dimensions: Vec<(f64, f64)> = doc.pages.iter()
+            .map(|p| (p.width, p.height)).collect();
+        self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
+
         self.serialize()
     }
 
@@ -480,6 +691,12 @@ impl PdfBuilder {
 
         let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
 
+        // P263 — gradient pre-pass.
+        let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
+        let (pat_refs, pat_ptr_to_idx, grad_objs) = scan_all_gradients(doc, first_grad_id);
+        let n_grads = grad_objs.len();
+        let mut next_sub_id = first_grad_id + n_grads * 3;
+
         self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
 
         let kids = (first_page..first_page + n)
@@ -494,7 +711,8 @@ impl PdfBuilder {
             let h = page.height;
 
             let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
-            let resources_str = format!("/Font << /F1 {font_id} 0 R >> {xobj_res}");
+            let pat_res  = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            let resources_str = format!("/Font << /F1 {font_id} 0 R >> {xobj_res} {pat_res}");
 
             self.add(page_id, format!(
                 "<< /Type /Page /Parent 2 0 R \
@@ -503,7 +721,7 @@ impl PdfBuilder {
                    /Resources << {resources_str} >> >>"
             ));
 
-            let stream_bytes = build_page_stream_cidfont(page, &char_to_gid, &ptr_to_idx, &img_refs);
+            let stream_bytes = build_page_stream_cidfont(page, &char_to_gid, &ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs);
             let len = stream_bytes.len();
             let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
             obj.extend_from_slice(&stream_bytes);
@@ -556,6 +774,12 @@ impl PdfBuilder {
         self.add_bytes(to_unicode_id, cmap_obj);
 
         self.emit_image_xobjects(img_xobjects);
+
+        // P263 — Emit gradient objects.
+        let page_dimensions: Vec<(f64, f64)> = doc.pages.iter()
+            .map(|p| (p.width, p.height)).collect();
+        self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
+
         self.serialize()
     }
 
@@ -605,6 +829,12 @@ impl PdfBuilder {
 
         let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
 
+        // P263 — gradient pre-pass.
+        let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
+        let (pat_refs, pat_ptr_to_idx, grad_objs) = scan_all_gradients(doc, first_grad_id);
+        let n_grads = grad_objs.len();
+        let mut next_sub_id = first_grad_id + n_grads * 3;
+
         self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
 
         let kids = (first_page..first_page + n_pages)
@@ -619,11 +849,12 @@ impl PdfBuilder {
             let h = page.height;
 
             let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
+            let pat_res  = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
             let font_entries = (0..n_fonts).map(|fi| {
                 let type0_id = fonts_start + 5 * fi;
                 format!("/F{} {} 0 R", fi + 1, type0_id)
             }).collect::<Vec<_>>().join(" ");
-            let resources_str = format!("/Font << {font_entries} >> {xobj_res}");
+            let resources_str = format!("/Font << {font_entries} >> {xobj_res} {pat_res}");
 
             self.add(page_id, format!(
                 "<< /Type /Page /Parent 2 0 R \
@@ -634,6 +865,7 @@ impl PdfBuilder {
 
             let stream_bytes = build_page_stream_multifont(
                 page, fonts, &per_font_char_to_gid, &ptr_to_idx, &img_refs,
+                &pat_ptr_to_idx, &pat_refs,
             );
             let len = stream_bytes.len();
             let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
@@ -699,6 +931,12 @@ impl PdfBuilder {
         }
 
         self.emit_image_xobjects(img_xobjects);
+
+        // P263 — Emit gradient objects.
+        let page_dimensions: Vec<(f64, f64)> = doc.pages.iter()
+            .map(|p| (p.width, p.height)).collect();
+        self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
+
         self.serialize()
     }
 
@@ -707,6 +945,55 @@ impl PdfBuilder {
     /// Para PNG com alpha: emite /SMask (canal alpha) antes do XObject principal
     /// (canal RGB), para que o SMask apareça antes no ficheiro PDF — o dicionário
     /// do XObject principal referencia o ID do SMask por forward reference.
+    /// P263 — Emite objects Function + Shading + Pattern para cada
+    /// gradient único pré-processado por `scan_all_gradients`.
+    ///
+    /// `next_sub_id`: contador de IDs allocaveis para sub-Functions
+    /// (Type 3 stitching). Os IDs alocados por gradient (3×N) **não
+    /// incluem** as sub-Functions; estas são alocadas em `next_sub_id`
+    /// (que deve apontar para zone de IDs livre pós-todos os outros).
+    fn emit_gradient_objects(
+        &mut self,
+        grad_objs: Vec<GradientObject>,
+        page_dimensions: &[(f64, f64)],
+        next_sub_id: &mut usize,
+    ) {
+        for go in grad_objs {
+            let GradientObject { linear, function_id, shading_id, pattern_id } = go;
+            let stops = oklab_sample_stops(&linear, 16);
+            let (func_dict, sub_objs) = emit_function_dict(&stops, function_id, next_sub_id);
+            // Emit sub-Functions primeiro (se Type 3 stitching).
+            for (sub_id, sub_dict) in sub_objs {
+                self.add(sub_id, sub_dict);
+            }
+            // Emit Function dict principal.
+            self.add(function_id, func_dict);
+            // Emit Shading dict.
+            // Coords: usa bbox da primeira página como aproximação (bbox
+            // real do shape é resolvida pelo page stream; coords aqui
+            // servem como "axis canonical" da unidade do pattern).
+            // Decisão pragmática P263: coords baseadas em bbox unit
+            // (0, 0) → (1, 0) para angle=0; pattern transformations
+            // aplicadas a cada shape via Matrix (futuro refino).
+            // Por agora coords baseadas em page 1 dimensions como bbox.
+            let (page_w, page_h) = page_dimensions.first().copied().unwrap_or((595.0, 842.0));
+            let (x0, y0, x1, y1) = compute_axial_coords(linear.angle.to_rad(), 0.0, 0.0, page_w, page_h);
+            let shading_dict = format!(
+                "<< /ShadingType 2 /ColorSpace /DeviceRGB \
+                   /Coords [{:.3} {:.3} {:.3} {:.3}] \
+                   /Function {} 0 R /Extend [false false] >>",
+                x0, y0, x1, y1, function_id,
+            );
+            self.add(shading_id, shading_dict);
+            // Emit Pattern dict.
+            let pattern_dict = format!(
+                "<< /PatternType 2 /Shading {} 0 R /Matrix [1 0 0 1 0 0] >>",
+                shading_id,
+            );
+            self.add(pattern_id, pattern_dict);
+        }
+    }
+
     fn emit_image_xobjects(&mut self, xobjects: Vec<ImageXObject>) {
         for xobj in xobjects {
             match xobj {
@@ -760,10 +1047,69 @@ impl PdfBuilder {
 
 // ── Helpers — caminho Helvetica ────────────────────────────────────────────
 
+/// P263 — Emite operadores de stroke colour para um Paint (Solid ou Gradient).
+///
+/// Para `Paint::Solid(c)`: emit `r g b RG` literal P261 preservado.
+/// Para `Paint::Gradient(g)`: emit `/Pattern CS /P{n} SCN` (set colour
+/// space pattern + apply pattern).
+fn emit_stroke_paint(
+    ops:            &mut String,
+    paint:          &typst_core::entities::paint::Paint,
+    thickness:      f64,
+    pat_ptr_to_idx: &HashMap<usize, usize>,
+    pat_refs:       &[PatternRef],
+) {
+    use typst_core::entities::gradient::Gradient;
+    use typst_core::entities::paint::Paint;
+    match paint {
+        Paint::Solid(c) => {
+            let (r, g, b, _) = c.to_rgba_f32();
+            ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, thickness));
+        }
+        Paint::Gradient(g) => {
+            // P264 — Radial PDF emit adiado P265; fallback Solid via first_stop_color.
+            let linear = match g {
+                Gradient::Linear(l) => l,
+                Gradient::Radial(_) => {
+                    // Fallback Solid para Radial (P265 dedicará render real).
+                    let c = paint.to_color();
+                    let (r, g, b, _) = c.to_rgba_f32();
+                    ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, thickness));
+                    return;
+                }
+            };
+            let ptr = std::sync::Arc::as_ptr(linear) as usize;
+            if let Some(&idx) = pat_ptr_to_idx.get(&ptr) {
+                let r = &pat_refs[idx];
+                ops.push_str(&format!("/Pattern CS\n/{} SCN\n{:.2} w\n", r.name, thickness));
+            } else {
+                // Fallback paranóide — gradient não registado em scan_all_gradients.
+                let c = paint.to_color();
+                let (r, g, b, _) = c.to_rgba_f32();
+                ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, thickness));
+            }
+        }
+    }
+}
+
+/// Alias específico para path Helvetica (legacy alias preservado para
+/// compatibilidade interna; comportamento idêntico a `emit_stroke_paint`).
+fn emit_stroke_paint_type1(
+    ops:            &mut String,
+    paint:          &typst_core::entities::paint::Paint,
+    thickness:      f64,
+    pat_ptr_to_idx: &HashMap<usize, usize>,
+    pat_refs:       &[PatternRef],
+) {
+    emit_stroke_paint(ops, paint, thickness, pat_ptr_to_idx, pat_refs);
+}
+
 fn build_page_stream_type1(
-    page:       &Page,
-    ptr_to_idx: &HashMap<usize, usize>,
-    img_refs:   &[ImageRef],
+    page:           &Page,
+    ptr_to_idx:     &HashMap<usize, usize>,
+    img_refs:       &[ImageRef],
+    pat_ptr_to_idx: &HashMap<usize, usize>,
+    pat_refs:       &[PatternRef],
 ) -> Vec<u8> {
     let mut ops = String::new();
     let page_height = page.height;
@@ -859,9 +1205,9 @@ fn build_page_stream_type1(
                 }
 
                 // Cor e espessura do contorno (RG + w).
+                // P263 — branching Paint::Solid vs Paint::Gradient.
                 if let Some(s) = stroke {
-                    let (r, g, b, _) = s.paint.to_color().to_rgba_f32();
-                    ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, s.thickness));
+                    emit_stroke_paint_type1(&mut ops, &s.paint, s.thickness, pat_ptr_to_idx, pat_refs);
                 }
 
                 // Path — depende do tipo de forma.
@@ -1305,10 +1651,12 @@ fn text_to_hex_string(text: &str, char_to_gid: &HashMap<char, u16>) -> String {
 }
 
 fn build_page_stream_cidfont(
-    page:        &Page,
-    char_to_gid: &HashMap<char, u16>,
-    ptr_to_idx:  &HashMap<usize, usize>,
-    img_refs:    &[ImageRef],
+    page:           &Page,
+    char_to_gid:    &HashMap<char, u16>,
+    ptr_to_idx:     &HashMap<usize, usize>,
+    img_refs:       &[ImageRef],
+    pat_ptr_to_idx: &HashMap<usize, usize>,
+    pat_refs:       &[PatternRef],
 ) -> Vec<u8> {
     let mut ops = String::new();
     let page_height = page.height;
@@ -1368,8 +1716,8 @@ fn build_page_stream_cidfont(
                     ops.push_str(&format!("{:.3} {:.3} {:.3} rg\n", r, g, b));
                 }
                 if let Some(s) = stroke {
-                    let (r, g, b, _) = s.paint.to_color().to_rgba_f32();
-                    ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, s.thickness));
+                    // P263 — branching Paint::Solid vs Paint::Gradient.
+                    emit_stroke_paint(&mut ops, &s.paint, s.thickness, pat_ptr_to_idx, pat_refs);
                 }
                 match kind {
                     ShapeKind::Rect => {
@@ -1489,6 +1837,8 @@ fn build_page_stream_multifont(
     per_font_char_to_gid: &[HashMap<char, u16>],
     ptr_to_idx:           &HashMap<usize, usize>,
     img_refs:             &[ImageRef],
+    pat_ptr_to_idx:       &HashMap<usize, usize>,
+    pat_refs:             &[PatternRef],
 ) -> Vec<u8> {
     let mut ops = String::new();
     let page_height = page.height;
@@ -1550,8 +1900,8 @@ fn build_page_stream_multifont(
                     ops.push_str(&format!("{:.3} {:.3} {:.3} rg\n", r, g, b));
                 }
                 if let Some(s) = stroke {
-                    let (r, g, b, _) = s.paint.to_color().to_rgba_f32();
-                    ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, s.thickness));
+                    // P263 — branching Paint::Solid vs Paint::Gradient.
+                    emit_stroke_paint(&mut ops, &s.paint, s.thickness, pat_ptr_to_idx, pat_refs);
                 }
                 match kind {
                     ShapeKind::Rect => {
@@ -2189,5 +2539,230 @@ mod tests {
         assert!(pos_cm   < pos_clip,  "cm deve preceder W n");
         assert!(pos_clip < pos_child, "W n deve preceder o desenho dos filhos");
         assert!(pos_child < pos_q,    "filhos devem ser desenhados antes de Q");
+    }
+
+    // ── P263 (ADR-0087 anotação cumulativa) ────────────────────────────
+
+    #[test]
+    fn p263_compute_axial_coords_angle_0_horizontal() {
+        let (x0, y0, x1, y1) = compute_axial_coords(0.0, 0.0, 0.0, 100.0, 50.0);
+        // angle 0: linha horizontal através do centro
+        // cx=50 cy=25; dx=cos(0)=1 dy=sin(0)=0
+        // hx = 50; hy = 0
+        // (x0, y0) = (0, 25); (x1, y1) = (100, 25)
+        assert!((x0 - 0.0).abs() < 0.01);
+        assert!((y0 - 25.0).abs() < 0.01);
+        assert!((x1 - 100.0).abs() < 0.01);
+        assert!((y1 - 25.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn p263_compute_axial_coords_angle_90_vertical() {
+        let (x0, y0, x1, y1) = compute_axial_coords(std::f64::consts::FRAC_PI_2, 0.0, 0.0, 100.0, 50.0);
+        // angle pi/2: linha vertical através do centro
+        // cx=50 cy=25; dx≈0 dy=1
+        // hx≈0; hy = 25
+        // (x0, y0) ≈ (50, 0); (x1, y1) ≈ (50, 50)
+        assert!((x0 - 50.0).abs() < 0.01);
+        assert!((y0 - 0.0).abs() < 0.01);
+        assert!((x1 - 50.0).abs() < 0.01);
+        assert!((y1 - 50.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn p263_oklab_sample_stops_red_blue_endpoints() {
+        use std::sync::Arc;
+        use typst_core::entities::gradient::{GradientStop, Linear};
+        use typst_core::entities::layout_types::{Angle, Color, Ratio};
+
+        let linear = Linear {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ]),
+            angle: Angle::rad(0.0),
+        };
+        let samples = oklab_sample_stops(&linear, 16);
+        assert_eq!(samples.len(), 16);
+        // Endpoints: primeiro stop é vermelho, último é azul.
+        // Tolerância ampla (Oklab roundtrip não é bit-identical).
+        let (r0, g0, b0) = samples[0];
+        let (r1, g1, b1) = samples[15];
+        assert!(r0 > 0.9, "sample[0].r ≈ 1.0 (vermelho), got {}", r0);
+        assert!(g0 < 0.2 && b0 < 0.2, "sample[0] verde+azul baixo");
+        assert!(b1 > 0.9, "sample[15].b ≈ 1.0 (azul), got {}", b1);
+        assert!(r1 < 0.2 && g1 < 0.2, "sample[15] vermelho+verde baixo");
+    }
+
+    #[test]
+    fn p263_emit_function_dict_2_stops_uses_type_2() {
+        let mut sub_id = 100;
+        let (dict, sub_objs) = emit_function_dict(
+            &[(1.0, 0.0, 0.0), (0.0, 0.0, 1.0)],
+            0,
+            &mut sub_id,
+        );
+        assert!(dict.contains("/FunctionType 2"),
+            "2 stops → Type 2; got: {}", dict);
+        assert!(dict.contains("/C0"), "Type 2 deve ter C0");
+        assert!(dict.contains("/C1"), "Type 2 deve ter C1");
+        assert_eq!(sub_objs.len(), 0, "Type 2 não tem sub-functions");
+        assert_eq!(sub_id, 100, "Type 2 não consome sub_id");
+    }
+
+    #[test]
+    fn p263_emit_function_dict_4_stops_uses_type_3_stitching() {
+        let mut sub_id = 100;
+        let (dict, sub_objs) = emit_function_dict(
+            &[(1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0), (1.0, 1.0, 1.0)],
+            0,
+            &mut sub_id,
+        );
+        assert!(dict.contains("/FunctionType 3"),
+            "N>2 stops → Type 3 stitching; got: {}", dict);
+        assert!(dict.contains("/Functions"));
+        assert!(dict.contains("/Bounds"));
+        assert!(dict.contains("/Encode"));
+        // N=4 stops → 3 sub-functions Type 2.
+        assert_eq!(sub_objs.len(), 3, "4 stops → 3 sub-Type-2");
+        assert_eq!(sub_id, 103, "consumiu 3 sub_ids");
+    }
+
+    #[test]
+    fn p263_export_pdf_gradient_in_stroke_emits_shading() {
+        use std::sync::Arc;
+        use typst_core::entities::geometry::{ShapeKind, Stroke};
+        use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
+        use typst_core::entities::layout_types::{
+            Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
+        };
+        use typst_core::entities::paint::Paint;
+
+        let linear = Gradient::Linear(Arc::new(Linear {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ]),
+            angle: Angle::rad(0.0),
+        }));
+        let stroke = Stroke {
+            paint: Paint::Gradient(linear),
+            thickness: 2.0,
+            overhang: false,
+        };
+
+        let page = Page {
+            width:  100.0,
+            height: 100.0,
+            items: vec![FrameItem::Shape {
+                pos: Point { x: Pt(10.0), y: Pt(10.0) },
+                kind: ShapeKind::Rect,
+                width: 50.0,
+                height: 30.0,
+                fill: Some(Color::rgb(255, 255, 255)),
+                stroke: Some(stroke),
+            }],
+        };
+        let doc = PagedDocument::new(vec![page]);
+        let pdf = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert!(pdf_str.contains("/ShadingType 2"),
+            "PDF deve conter /ShadingType 2 (axial)");
+        assert!(pdf_str.contains("/PatternType 2"),
+            "PDF deve conter /PatternType 2 (shading pattern)");
+        assert!(pdf_str.contains("/FunctionType"),
+            "PDF deve conter Function dict");
+        assert!(pdf_str.contains("/Coords"),
+            "PDF deve conter /Coords endpoints");
+        assert!(pdf_str.contains("/Pattern <<"),
+            "PDF deve conter /Pattern << ... >> em /Resources");
+        assert!(pdf_str.contains("SCN"),
+            "PDF deve conter SCN (apply pattern para stroke)");
+    }
+
+    #[test]
+    fn p263_export_pdf_gradient_solid_preserva_rg_emit() {
+        // Solid path preservado P261: emit `r g b RG` literal.
+        use typst_core::entities::geometry::{ShapeKind, Stroke};
+        use typst_core::entities::layout_types::{
+            Color, FrameItem, Page, PagedDocument, Point, Pt,
+        };
+        use typst_core::entities::paint::Paint;
+
+        let stroke = Stroke {
+            paint: Paint::Solid(Color::rgb(0, 128, 255)),
+            thickness: 1.5,
+            overhang: false,
+        };
+        let page = Page {
+            width:  100.0,
+            height: 100.0,
+            items: vec![FrameItem::Shape {
+                pos: Point { x: Pt(0.0), y: Pt(0.0) },
+                kind: ShapeKind::Rect,
+                width: 50.0,
+                height: 30.0,
+                fill: None,
+                stroke: Some(stroke),
+            }],
+        };
+        let doc = PagedDocument::new(vec![page]);
+        let pdf = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        // RG operator com sRGB normalizado de Color::rgb(0, 128, 255).
+        assert!(pdf_str.contains("RG"), "Solid preservado emit RG operator");
+        // Não deve emit /Pattern para Solid puro.
+        assert!(!pdf_str.contains("/ShadingType"),
+            "Solid não deve emit /ShadingType");
+    }
+
+    #[test]
+    fn p263_export_pdf_gradient_dedup_arc_ptr() {
+        // 3 shapes com mesmo Arc<Linear> → 1 Pattern object (dedup).
+        use std::sync::Arc;
+        use typst_core::entities::geometry::{ShapeKind, Stroke};
+        use typst_core::entities::gradient::{Gradient, GradientStop, Linear};
+        use typst_core::entities::layout_types::{
+            Angle, Color, FrameItem, Page, PagedDocument, Point, Pt, Ratio,
+        };
+        use typst_core::entities::paint::Paint;
+
+        let linear_arc = Arc::new(Linear {
+            stops: Arc::from(vec![
+                GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
+                GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
+            ]),
+            angle: Angle::rad(0.0),
+        });
+        let make_shape = |y: f64| {
+            let g = Gradient::Linear(Arc::clone(&linear_arc));
+            FrameItem::Shape {
+                pos: Point { x: Pt(0.0), y: Pt(y) },
+                kind: ShapeKind::Rect,
+                width: 50.0,
+                height: 20.0,
+                fill: None,
+                stroke: Some(Stroke {
+                    paint: Paint::Gradient(g),
+                    thickness: 1.0,
+                    overhang: false,
+                }),
+            }
+        };
+        let page = Page {
+            width:  100.0,
+            height: 100.0,
+            items: vec![make_shape(0.0), make_shape(25.0), make_shape(50.0)],
+        };
+        let doc = PagedDocument::new(vec![page]);
+        let pdf = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        // Único /ShadingType 2 (3 shapes partilham via dedup).
+        let n_shadings = pdf_str.matches("/ShadingType 2").count();
+        assert_eq!(n_shadings, 1,
+            "3 shapes com mesmo Arc<Linear> → 1 Shading dedup; got {}", n_shadings);
     }
 }
