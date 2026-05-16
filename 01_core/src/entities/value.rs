@@ -77,10 +77,15 @@ pub enum Value {
     /// que retorna `Value::Array(Vec<Value::Location>)`.
     Location(crate::entities::location::Location),
 
+    // ── Variantes P262 (ADR-0087) ──────────────────────────────────────────
+    /// **P262** — Gradient activado per ADR-0087 (Linear only;
+    /// Radial/Conic comentários reserva). User-facing
+    /// `#gradient.linear(...)` retorna `Value::Gradient`.
+    Gradient(crate::entities::gradient::Gradient),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
-    // Variantes futuras (~13 restantes após Passo 80):
+    // Variantes futuras (~12 restantes após P262):
     // Relative(Relative),       // comprimento relativo
-    // Gradient(Gradient),       // gradiente
     // Tiling(Tiling),           // padrão de azulejos
     // Symbol(Symbol),           // símbolo Unicode
     // Version(Version),         // versão semântica
@@ -133,6 +138,7 @@ impl Value {
             Self::Fraction(_)  => "fraction",
             Self::Align(_)     => "alignment",
             Self::Location(_)  => "location",
+            Self::Gradient(_)  => "gradient",
         }
     }
 

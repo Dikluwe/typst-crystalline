@@ -29,6 +29,8 @@ mod figure_image;
 mod shapes;
 mod transforms;
 mod layout;
+// P262 — Gradient stdlib (Linear only per ADR-0087).
+mod gradients;
 
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
@@ -52,6 +54,8 @@ pub use crate::rules::stdlib::layout::{
     native_hide, native_measure, native_pad, native_page, native_pagebreak, native_place,
     native_repeat, native_stack, native_stroke, native_v,
 };
+// P262 — Gradient stdlib (Linear only per ADR-0087).
+pub use crate::rules::stdlib::gradients::{make_gradient_module, native_gradient_linear};
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
 
@@ -5818,5 +5822,110 @@ mod tests {
         let msg = r.unwrap_err()[0].message.clone();
         assert!(msg.contains("isbn"),
             "mensagem deve mencionar field 'isbn': {}", msg);
+    }
+
+    // ── P262 (ADR-0087 Gradient Linear-only) ─────────────────────────
+
+    #[test]
+    fn p262_gradient_linear_2_color_stops_no_offset() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::Color;
+        null_ctx!(ctx);
+        let args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Linear(l)) = r {
+            assert_eq!(l.stops.len(), 2);
+            assert_eq!(l.angle.to_rad(), 0.0);
+            assert_eq!(l.stops[0].offset, None);
+            assert_eq!(l.stops[1].offset, None);
+        } else {
+            panic!("esperado Value::Gradient(Linear)");
+        }
+    }
+
+    #[test]
+    fn p262_gradient_linear_explicit_offsets() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, Ratio};
+        null_ctx!(ctx);
+        let args = p(vec![
+            Value::Array(vec![Value::Color(Color::rgb(255, 0, 0)), Value::Ratio(Ratio(0.0))]),
+            Value::Array(vec![Value::Color(Color::rgb(0, 0, 255)), Value::Ratio(Ratio(1.0))]),
+        ]);
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Linear(l)) = r {
+            assert_eq!(l.stops[0].offset, Some(Ratio(0.0)));
+            assert_eq!(l.stops[1].offset, Some(Ratio(1.0)));
+        } else {
+            panic!("esperado Value::Gradient(Linear)");
+        }
+    }
+
+    #[test]
+    fn p262_gradient_linear_angle_named() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Angle, Color};
+        null_ctx!(ctx);
+        let args = pn(
+            vec![
+                Value::Color(Color::rgb(0, 0, 0)),
+                Value::Color(Color::rgb(255, 255, 255)),
+            ],
+            "angle",
+            Value::Angle(Angle::rad(std::f64::consts::FRAC_PI_2)),
+        );
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Linear(l)) = r {
+            assert!((l.angle.to_rad() - std::f64::consts::FRAC_PI_2).abs() < 1e-9);
+        } else {
+            panic!("esperado Value::Gradient(Linear)");
+        }
+    }
+
+    #[test]
+    fn p262_gradient_linear_zero_stops_erro() {
+        null_ctx!(ctx);
+        let args = p(vec![]);
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "stops vazios deve retornar Err");
+    }
+
+    #[test]
+    fn p262_gradient_linear_offset_out_of_range_erro() {
+        use crate::entities::layout_types::{Color, Ratio};
+        null_ctx!(ctx);
+        let args = p(vec![
+            Value::Array(vec![Value::Color(Color::rgb(0, 0, 0)), Value::Ratio(Ratio(1.5))]),
+        ]);
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "offset 1.5 fora de [0,1] deve retornar Err");
+    }
+
+    #[test]
+    fn p262_gradient_linear_named_invalido_erro() {
+        use crate::entities::layout_types::Color;
+        null_ctx!(ctx);
+        let args = pn(
+            vec![Value::Color(Color::rgb(0, 0, 0))],
+            "unknown",
+            Value::Int(1),
+        );
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named arg desconhecido deve retornar Err");
+    }
+
+    #[test]
+    fn p262_gradient_linear_value_type_name() {
+        use crate::entities::layout_types::Color;
+        null_ctx!(ctx);
+        let args = p(vec![
+            Value::Color(Color::rgb(0, 0, 0)),
+            Value::Color(Color::rgb(255, 255, 255)),
+        ]);
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert_eq!(r.type_name(), "gradient");
     }
 }

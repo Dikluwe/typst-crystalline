@@ -553,7 +553,7 @@ fn eval_markup_body(
 /// O avaliador deixa de conhecer o nome "figure" — desacoplamento total.
 fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
-        make_calc_module, native_align, native_assert, native_bibliography, native_block, native_box, native_circle, native_cite, native_divider,
+        make_calc_module, make_gradient_module, native_align, native_assert, native_bibliography, native_block, native_box, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
         native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
@@ -740,6 +740,8 @@ fn make_stdlib() -> Scope {
     scope.define("bibliography", Value::Func(Func::native("bibliography", native_bibliography)));
     scope.define("cite",         Value::Func(Func::native("cite",         native_cite)));
     scope.define("calc",    make_calc_module());
+    // P262 — `gradient.linear(...)` via module dict (ADR-0087).
+    scope.define("gradient", make_gradient_module());
 
     // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).
     // Sintaxe preferida: `align(center, ...)`, `align(center + bottom, ...)`.
