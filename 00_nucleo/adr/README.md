@@ -2691,3 +2691,78 @@ P84.8g.
   DEBT-33 + Stroke<Length>; Curve variant; Text audit; Footnote
   refino; Tiling activação; ou P-Gradient-Focal expansão
   Radial campos).
+
+- **Passo 266 — Text audit Fase A (PRIMEIRO consumo directo
+  formal ADR-0084 + ADR-0085 EM VIGOR pós-P260)**
+  (passo composto sequencial documental;
+  **subpadrão "auditoria condicional" cresce N=5 → N=6
+  cumulativo** com **primeiro consumo directo formal**
+  pós-formalização P260 — validação retrospectiva via
+  exercício real num módulo grande Text). **Magnitude real
+  XS-S** (~45 min) — passo documental sem materialização
+  L1/L2/L3/L4 (cenário B1 confirmado ~86% cobertura).
+  P266.A audit empírico 9 blocos checklist executados +
+  diagnóstico imutável criado
+  (`diagnostico-text-fase-a-passo-266.md` per ADR-0085 §"Propriedades
+  obrigatórias" cumprido literalmente — Tabela A 40 entradas
+  preenchidas; Tabela B agregada com **34/40 fechados (85%)**;
+  cobertura ponderada linear **86.25%** / ponderada com bonus
+  implementado⁺ **91.75%**); P266.B reconciliação documental
+  L0 (`entities/style_chain.md` anotada com secção cumulativa
+  P266 confirmando 4 promoções implementado⁺ via consumers
+  reais P128/P137/P139/P144/P155; hash propagado código `cc2dae57`);
+  P266.C **saltado** (cenário B1 fecho conceptual ≥75% atingido);
+  P266.D DEBT.md (DEBT-53 referência spec corrigida — está
+  ENCERRADO P206E para outro tópico; shaping rustybuzz
+  preservado scope-out sem DEBT formal) + **ADR-0054 anotação
+  cumulativa P266** (cobertura Text empírica confirmada; status
+  `EM VIGOR` preservado literal). **+10 promoções implementado⁺
+  detectadas pós-audit** (consumers reais não documentados
+  pré): A.8 tracking PDF Tc + A.9 leading line_height + A.12
+  lang hyphenation+quotes + B.1 Text Layouter + B.10
+  Smart-quotes + D.2 Hyphenation greedy + E.1 Faux-bold +
+  E.2 Tracking PDF + E.3 Leading + E.4 Hyphenation cursor.
+  **Achados inesperados**: `Content::Parbreak` **AUSENTE como
+  variant** (promoção arquitectural implícita via parser
+  whitespace); StyleDelta tem **10 fields** (não 12 esperados);
+  Strong/Emph promoção arquitectural (P101 ADR-0038/0039
+  removidos → Content::Styled wrapper); spec P266 referência
+  DEBT-53 errada (ENCERRADO P206E para "lab/parity", não
+  shaping). **Pendências preservadas pós-P266**: shaping
+  rustybuzz (sem DEBT formal; scope-out ADR-0054 §"granularidade
+  gradual"); C.5 Variant-aware font selection (candidato P267
+  Opção 1 — ADR-0055bis/0089; M); C.6 Font subsetting PDF
+  (candidato P267 Opção 2 — ADR-0056; M-L); D.4 Shaping + D.5
+  Bidi RTL (scope-outs ADR-0054 preservados); B.7 Content::Link
+  parcial (PDF annotation futuro); B.9 Parbreak promoção
+  implícita preservada. **Hipótese auditável Text padrão
+  Color/Model confirmada empíricamente**: pré-audit ~52% citado
+  vs empírico ~86% (Δ +34pp — paridade pattern P257 Color +25pp
+  + P258 Model +25pp; oposto a P259 Visualize -8 a -13pp).
+  Distribuição ADRs preservada: PROPOSTO 11; EM VIGOR 32;
+  IMPLEMENTADO 28; **total 75 preservado** (anotação cumulativa
+  ADR-0054 não muda status; sem ADR nova). Tests workspace
+  **2393 preservado** (paridade absoluta cenário B1 documental).
+  Lint zero violations; hashes propagados (`entities/style_chain.md`
+  → código `cc2dae57`). **Subpadrão "auditoria condicional"
+  N=5 → N=6 cumulativo** (P192A + P255 + P257 + P258 + P259
+  + **P266 primeiro consumo directo formal**) — patamar N=6
+  excede limiar formalização clara; pattern sólido confirmado
+  retroactivamente; ADR-0084 EM VIGOR validada via exercício
+  real. **Subpadrão "diagnóstico imutável precedente à acção"
+  N=6 → N=7 cumulativo** (P255-259 audit Fase A N=4 + P262 +
+  P264 + **P266**). **Subpadrão "Cobertura empírica > citada"
+  N=3 cumulativo** (P257 Color +75pp + P258 Model +25pp +
+  **P266 Text +34pp** — média +45pp dos 3 audits superiores;
+  P259 Visualize -8 a -13pp foi excepção que confirma a regra).
+  **45 aplicações cumulativas anti-inflação** pós-P205D
+  preservadas. **Cobertura Text agregada**: ~52% citado
+  pré-audit → **~86% empírico pós-P266** (cumulativo P128/
+  P137/P139/P144/P155 reconhecido). **Marco P266**: primeiro
+  consumo directo formal ADR-0084 + ADR-0085 pós-P260; validação
+  retrospectiva cumprida via Text módulo (40 entradas
+  auditadas; cobertura empírica ~86% confirmada). **Decisão
+  humana fica em aberto literal** pós-P266 (próximo:
+  P-Gradient-Conic L1+stdlib+PDF replicando templates OU
+  P267 variant-aware font selection OU outras Opções P259 —
+  DEBT-33 + Stroke<Length>; Curve variant; Footnote refino).

@@ -200,3 +200,112 @@ referência + backward compat literal).
 **ADR-0054 status `EM VIGOR` preservado** — refino interno
 secção nova apenas; não reaberta nem revogada. ADR-0082
 formaliza metodologia downstream sem alterar perfil graded.
+
+---
+
+## Anotação cumulativa P266 — Cobertura Text empírica confirmada (Fase A audit; primeiro consumo directo ADR-0084 + 0085)
+
+**Data**: 2026-05-15.
+
+P266 Fase A audit confirmou cobertura empírica Text módulo
+~86% ponderado linear (~92% ponderado com bonus implementado⁺).
+**Primeiro consumo directo formal ADR-0084 + ADR-0085** pós-P260
+formalização — validação retrospectiva via exercício real
+num módulo grande.
+
+### Cobertura empírica Text Fase A (40 entradas)
+
+| Estado | Audit P266 |
+|--------|------------|
+| implementado | 21/40 (52%) |
+| implementado⁺ | **11/40 (28%)** |
+| parcial | 1/40 (3%) |
+| ausente | 5/40 (12%) |
+| promoção arquitectural (Strong/Emph via Styled) | 2/40 (5%) |
+| TOTAL | 40 |
+
+**Fechados literais**: 34/40 = **85%**.
+**Ponderada linear**: **86.25%**.
+**Ponderada com bonus implementado⁺**: **91.75%**.
+
+### Promoções implementado⁺ detectadas (+10 vs pré-audit)
+
+Consumers reais materializados em P128/P137/P139/P144/P155:
+- A.8 tracking PDF Tc emit (P137).
+- A.9 leading line_height (P128).
+- A.12 lang hyphenation + smart-quotes (P144 + P155).
+- B.1 Text + StyleChain Layouter consumer.
+- B.10 Smart-quotes lang-aware (P155).
+- D.2 Hyphenation greedy (P144 consumer).
+- E.1 Faux-bold (P139 consumer).
+- E.2 Tracking PDF (P137 consumer).
+- E.3 Leading (P128 consumer).
+- E.4 Hyphenation greedy break (P144 consumer cursor).
+
+### Pendências preservadas pós-P266
+
+1. **Shaping completo rustybuzz** — preservado (sem DEBT
+   dedicada; era ref P266 spec mas DEBT-53 está ENCERRADO
+   P206E para outro tópico). Candidato XL futuro per ADR-0054
+   §"granularidade gradual"; sem DEBT novo per política P158.
+2. **C.5 Variant-aware font selection** — `FontVariant::default()`
+   literal em resolve_font; substitui faux-bold P139 onde
+   font-file dedicado existe. Candidato **P267 Opção 1**
+   (M; ADR-0055bis ou ADR-0089).
+3. **C.6 Font subsetting PDF** — TTF complete embedded.
+   Candidato **P267 Opção 2** (M-L; ADR-0056).
+4. **D.4 Shaping rustybuzz** + **D.5 Bidi RTL** — scope-out
+   ADR-0054 graded preservado.
+5. **B.7 Content::Link parcial** — refino qualitativo
+   (PDF annotation futuro).
+6. **B.9 Content::Parbreak** — promoção arquitectural implícita
+   via parser whitespace duplo (não variant Content explícito;
+   paridade vanilla ParbreakElem delegada ao layouter cursor/
+   spacing).
+
+### Achados inesperados
+
+- **+10 promoções implementado⁺** vs pré-audit (consumers
+  reais P128/P137/P139/P144/P155 não documentados pré).
+- **Parbreak ausente como variant** (era "a confirmar";
+  confirmado emergente do parser).
+- **Strong/Emph promoção arquitectural** P101 ADR-0038/0039
+  (variant explícito → `Content::Styled` wrapper).
+- **Spec P266 referência DEBT-53 errada** — DEBT-53 está
+  ENCERRADO P206E para "Integração pipeline vanilla lab/parity"
+  (não shaping). Shaping rustybuzz preservado scope-out
+  ADR-0054 §"granularidade gradual" sem DEBT formal dedicada.
+- **10 fields StyleDelta** (não 12 esperados pré-audit) —
+  bold/italic/size/fill/heading_level/weight/tracking/leading/
+  lang/font.
+
+### Status ADR-0054 preservado literal
+
+Status `EM VIGOR` preservado. Esta anotação documenta cobertura
+empírica P266 + validação ADR-0084/0085 sem reabrir nem revogar
+ADR-0054.
+
+### Subpadrões cumulativos pós-P266
+
+- **"Auditoria condicional" N=5 → N=6 cumulativo** (P192A +
+  P255 + P257 + P258 + P259 + **P266**) — **primeiro consumo
+  directo formal pós-P260**.
+- **"Diagnóstico imutável precedente à acção" N=6 → N=7
+  cumulativo** (P255-259 audit Fase A N=4 + P262 + P264 + **P266**;
+  Note: contagem ajustada — P262/P264 foram diagnósticos
+  vanilla; P266 é audit Fase A formal).
+- **"Cobertura empírica > citada"** confirmada N=3 (P257 +
+  P258 + **P266**; vs P259 que foi -8 a -13pp).
+- **"Hipótese auditável Text padrão Color/Model"** confirmada
+  empíricamente: pré-audit ~52% citado vs ~86% empírico
+  (Δ +34pp).
+
+Cross-references:
+- `00_nucleo/diagnosticos/diagnostico-text-fase-a-passo-266.md`
+  — diagnóstico imutável P266.A.
+- ADR-0084 + ADR-0085 (P260 formalização; primeiro consumo
+  directo P266).
+- `00_nucleo/prompts/entities/style_chain.md` — secção
+  cumulativa P266 anotada.
+- P259 — Visualize Fase A (último audit pré-formalização P260;
+  template literal directo P266).
