@@ -177,8 +177,8 @@ Radial completo (`/ShadingType 3`) adiado para **P265**.
 | Scope-out | Razão | Resolução prevista |
 |-----------|-------|---------------------|
 | `Gradient::Conic(Conic)` | Baixa prioridade; nenhum consumer real | **P-Gradient-Conic** dedicado futuro |
-| `RadialGradient.focal_center: Axes<Ratio>` | Default = center; consumer raro | Refino futuro se Gradient focal real exigir |
-| `RadialGradient.focal_radius: Ratio` | Default 0%; consumer raro | Refino futuro |
+| ~~`RadialGradient.focal_center: Axes<Ratio>`~~ | ~~Default = center; consumer raro~~ | ~~Refino futuro se Gradient focal real exigir~~ — **MATERIALIZADO P269** (ver §"Anotação cumulativa P269") |
+| ~~`RadialGradient.focal_radius: Ratio`~~ | ~~Default 0%; consumer raro~~ | ~~Refino futuro~~ — **MATERIALIZADO P269** (ver §"Anotação cumulativa P269") |
 | `RadialGradient.space: ColorSpace` | Oklab fixo (paridade ADR-0087) | Refino futuro |
 | `RadialGradient.relative: Smart<RelativeTo>` | bbox-relative (paridade ADR-0087) | "self-relative" diferido |
 | `RadialGradient.anti_alias` | true assumed (PDF default) | Refino se controlo necessário |
@@ -484,3 +484,193 @@ Cross-references:
 - P73 (template arquitectural `image_resources` dedup
   `Arc::as_ptr` cumulativamente N=2 — P263+P265 ambos
   aplicam).
+
+---
+
+## Anotação cumulativa P269 — Gradient Radial focal_* activado L1+stdlib+PDF
+
+**Data**: 2026-05-15.
+
+**Motivo**: §"Scope-outs documentados" listou `focal_center` +
+`focal_radius` como scope-out P264 (linhas riscadas acima). P269
+revoga parcialmente esse scope-out — focal_* passa a materializado
+L1+stdlib+PDF. Demais scope-outs (`space`, `relative`, `anti_alias`)
+preservados literal.
+
+### Estratégia materializada
+
+**L1** (`01_core/src/entities/gradient.rs`):
+- `Radial.focal_center: Axes<Ratio>` (campo pub directo; default
+  via construtor = `center`).
+- `Radial.focal_radius: Ratio` (campo pub directo; default via
+  construtor = `Ratio(0.0)`).
+- `Gradient::radial(stops, center, radius)` mantém assinatura SEM
+  focal_* — internamente seta `focal_center: center, focal_radius:
+  Ratio(0.0)`.
+- `Gradient::radial_with_focal(stops, center, radius, focal_center,
+  focal_radius)` construtor novo para call sites explícitos.
+- `Radial::sample(t)` **NÃO muda** — sample 1D em cristalino (não
+  usa coordenadas 2D nem focal). Focal só afecta PDF emit nativo.
+
+**Stdlib** (`01_core/src/rules/stdlib/gradients.rs`):
+- `gradient.radial(...)` ganha 2 named args:
+  - `focal_center: Array [Ratio, Ratio]` (default = center).
+  - `focal_radius: Ratio` (default `0%`).
+- 2 validações vanilla portadas (`diagnostico-gradient-focal-passo-269.md`
+  §A.12):
+  - `focal_radius > radius` → erro.
+  - `dist(focal_center, center)² >= (radius - focal_radius)²` → erro
+    (focal circle deve estar dentro do outer circle).
+
+**L3** (`03_infra/src/export.rs`):
+- `compute_radial_coords` aceita 2 args novos (`focal_center`,
+  `focal_radius`); retorna `/Coords [fx fy fr cx cy cr]` nativo
+  Type 3.
+- Callsite `emit_gradient_objects` Radial branch passa
+  `radial.focal_center` + `radial.focal_radius`.
+
+### Defaults preservam comportamento P264 — zero regressão
+
+- `Gradient::radial(...)` sem focal args → `focal_center: center,
+  focal_radius: 0` → `/Coords [cx cy 0 cx cy r]` (idêntico P265).
+- Stdlib `gradient.radial(...)` sem named focal_* → idem.
+- **16 tests P264/P265 existentes** permanecem verdes literal
+  (assertions preservadas; struct literal sites recebem 2 campos
+  novos com valores default trivial).
+
+§política condições 9 + 11 satisfeitas.
+
+### Reutilização literal helpers Oklab — N=4 → N=5 cumulativo
+
+- `oklab_sample_stops_radial` (P265) intacto — usa `Radial::sample(t)`
+  que não muda.
+- `interpolate_oklab` + `color_to_oklab_with_alpha` (P262; pub P268.2)
+  intactos.
+
+Sub-padrão "Reutilização literal helpers cross-passos" N=4 → **N=5**:
+- N=1 P265 (PDF Radial reutiliza helpers P263).
+- N=2 P267 (Conic L1 reutiliza helpers Oklab P262).
+- N=3 P268 (PDF Conic reutiliza P262/P265).
+- N=4 P268.2 (compute_adaptive_n_conic reutiliza color_to_oklab_with_alpha).
+- **N=5 P269** (focal Radial reutiliza pipeline inteiro P262/P264/P265).
+
+### Vanilla validation (§A.1 + §A.11 diagnóstico)
+
+- Vanilla `focal_center: Smart<Axes<Ratio>>` resolvido `unwrap_or(center)`.
+- Cristalino `focal_center: Axes<Ratio>` default via construtor =
+  `center`.
+- Comportamento idêntico (resolução vs default ambos = center).
+- §política condição 12 satisfeita.
+
+### Cenário B1 confirmado (§A.7 + §A.10 diagnóstico)
+
+PDF /Coords trivial-aware via krilla / Type 3 nativo (vanilla
+paridade); cristalino absorve L1+stdlib+PDF em P269 magnitude M.
+**§política condição 1 NÃO accionada** — divisão P269+P270
+desnecessária.
+
+### Sub-padrão "ADR scope-out revogado parcialmente" N=1 → N=2
+
+- N=1 P267 — ADR-0088 §"variants não materializados" §Conic
+  revogado parcialmente (Conic activado).
+- **N=2 P269** — ADR-0088 §"Scope-outs documentados" §focal_*
+  revogado parcialmente (focal_center + focal_radius activados).
+- N=2 atinge limiar formalização clara; candidato meta-formalização
+  futura.
+
+### Sub-padrão "Anotação cumulativa em vez de ADR nova" N=6 → N=7
+
+- N=1 P258.B + N=2 P259.B + N=3 P263 + N=4 P265 + N=5 P268 + N=6
+  P268.2 + **N=7 P269**.
+
+### Cluster Gradient Radial extensão completa pós-P269
+
+| Variant | L1 | Stdlib | PDF |
+|---------|----|----|-----|
+| Linear | P262 ✓ | P262 ✓ | P263 ✓ /ShadingType 2 |
+| Radial (subset 3 campos) | P264 ✓ | P264 ✓ | P265 ✓ /ShadingType 3 |
+| **Radial focal_* (5 campos)** | **P269 ✓** | **P269 ✓** | **P269 ✓ /Coords [fx fy fr cx cy cr]** |
+| Conic | P267/P268 ✓ | P267 ✓ | P268 ✓ /ShadingType 4 + P268.2 adaptive N |
+
+Status `IMPLEMENTADO` preservado literal (anotação cumulativa não
+muda status; refina aplicação paridade pattern P263 anotação
+ADR-0087 + P265 anotação esta ADR + P268 anotação ADR-0089).
+
+### Cross-references P269
+
+- `00_nucleo/diagnosticos/diagnostico-gradient-focal-passo-269.md` —
+  diagnóstico imutável P269.A (sétimo consumo directo de fonte
+  vanilla).
+- L0 `entities/gradient.md` §"Anotação P269" — secção Radial
+  estendida.
+- ADR-0054 — Perfil graded DEBT-1 (anotação cumulativa P269;
+  cluster Gradient extensão focal_* materializada).
+- P264 — Radial L1+stdlib subset 3 campos (precedente directo
+  extendido).
+- P265 — PDF Radial /ShadingType 3 (template emit extendido para
+  focal real).
+- P267 — Conic activado (precedente "ADR scope-out revogado
+  parcialmente" N=1).
+
+---
+
+## Anotação cumulativa P270 — ColorSpace runtime activado L1+stdlib
+
+**Data**: 2026-05-17.
+
+`Radial` variant ganha campo `space: ColorSpace` (default Oklab;
+preserva P264/P269 behavior bit-exact incluindo focal_* defaults).
+`Radial::sample(t)` interpola no space escolhido via dispatcher
+`interpolate_in_space`. L3 emit Oklab pipeline preservado P270 —
+refactor multi-space adiado P270.1.
+
+Sub-padrão "Anotação cumulativa cross-ADR" N=1 inaugural — P270 anota
+ADR-0083/0054/0087/0088/0089/0090 simultâneo.
+
+Status `IMPLEMENTADO` preservado literal. Ver **ADR-0091 EM VIGOR**
+para decisão arquitectural completa.
+
+---
+
+## Anotação cumulativa P270.1 — L3 emit multi-space materializado
+
+**Data**: 2026-05-17.
+
+Radial L3 emit ganha consciência de `radial.space` via helper
+renomeado `multispace_sample_stops_radial(radial, n)` (era
+`oklab_sample_stops_radial`). Pipeline `/ShadingType 3` 2-circle
+preservado P265/P269 (focal_* intactos) — só nome do helper muda;
+body literal preserved porque `radial.sample(t)` despacha via P270
+dispatcher automaticamente.
+
+Default Oklab preserva bytes pré-P270.1 bit-exact. CMYK preserva
+scope-out P270.1; P270.2 fecha. Ver ADR-0091 §"Anotação cumulativa
+P270.1".
+
+Sub-padrão "Anotação cumulativa cross-ADR" N=1 → N=2 cumulativo
+(P270 + **P270.1**).
+
+Status `IMPLEMENTADO` preservado literal.
+
+---
+
+## Anotação cumulativa P270.2 — CMYK emit branch directo (focal_* preservados)
+
+**Data**: 2026-05-17.
+
+Radial L3 emit ganha CMYK branch via dispatcher dual em
+`emit_gradient_objects`. `radial.space == ColorSpace::Cmyk`:
+shading dictionary `/ColorSpace /DeviceCMYK` + Function 4-component
+(`/Range [0 1 0 1 0 1 0 1]`). `space != Cmyk`: pipeline P270.1
+preserved literal. **Focal_* P269 preservados intactos** —
+`/Coords [fx fy fr cx cy cr]` em ambos branches.
+
+Cluster Radial L3 emit **feature-complete 8/8 spaces** (Oklab/Oklch/
+sRGB/Luma/LinearRGB/HSL/HSV + CMYK directo).
+
+Bug vanilla #4422 resolvido por construção. Ver ADR-0091
+§"Anotação cumulativa P270.2".
+
+Sub-padrão "Anotação cumulativa cross-ADR" N=2 → N=3 cumulativo.
+
+Status `IMPLEMENTADO` preservado literal.

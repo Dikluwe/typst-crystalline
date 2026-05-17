@@ -478,3 +478,63 @@ Cross-references:
 - P262 (precedente directo Gradient L1+stdlib).
 - P73 (template arquitectural `image_resources` dedup
   `Arc::as_ptr`).
+
+---
+
+## Anotação cumulativa P270 — ColorSpace runtime activado L1+stdlib
+
+**Data**: 2026-05-17.
+
+`Linear` variant ganha campo `space: ColorSpace` (default Oklab;
+preserva P262 behavior bit-exact). `Linear::sample(t)` interpola no
+space escolhido via dispatcher `interpolate_in_space`. L3 emit Oklab
+pipeline preservado P270 — refactor multi-space adiado P270.1.
+
+Sub-padrão "Anotação cumulativa cross-ADR" N=1 inaugural — P270 anota
+ADR-0083/0054/0087/0088/0089/0090 simultâneo.
+
+Status `IMPLEMENTADO` preservado literal. Ver **ADR-0091 EM VIGOR**
+para decisão arquitectural completa.
+
+---
+
+## Anotação cumulativa P270.1 — L3 emit multi-space materializado
+
+**Data**: 2026-05-17.
+
+Linear L3 emit ganha consciência de `linear.space` via helper
+renomeado `multispace_sample_stops(linear, n)` (era
+`oklab_sample_stops`). Pipeline `/ShadingType 2` axial preservado
+P263 — só nome do helper muda; body literal preserved porque
+`linear.sample(t)` despacha via P270 dispatcher automaticamente.
+
+Default Oklab preserva bytes pré-P270.1 bit-exact. CMYK preserva
+scope-out P270.1; P270.2 fecha. Ver ADR-0091 §"Anotação cumulativa
+P270.1".
+
+Sub-padrão "Anotação cumulativa cross-ADR" N=1 → N=2 cumulativo
+(P270 + **P270.1**).
+
+Status `IMPLEMENTADO` preservado literal.
+
+---
+
+## Anotação cumulativa P270.2 — CMYK emit branch directo
+
+**Data**: 2026-05-17.
+
+Linear L3 emit ganha CMYK branch via dispatcher dual em
+`emit_gradient_objects`. `linear.space == ColorSpace::Cmyk`:
+shading dictionary `/ColorSpace /DeviceCMYK` + Function 4-component
+(`/Range [0 1 0 1 0 1 0 1]`; `/C0` `/C1` 4-component). `space !=
+Cmyk`: pipeline P270.1 preserved literal.
+
+Cluster Linear L3 emit **feature-complete 8/8 spaces** (Oklab/Oklch/
+sRGB/Luma/LinearRGB/HSL/HSV + CMYK directo).
+
+Bug vanilla #4422 resolvido por construção (cristalino emit
+`/DeviceCMYK` correcto). Ver ADR-0091 §"Anotação cumulativa P270.2".
+
+Sub-padrão "Anotação cumulativa cross-ADR" N=2 → N=3 cumulativo.
+
+Status `IMPLEMENTADO` preservado literal.

@@ -6014,6 +6014,304 @@ mod tests {
         assert_eq!(r.type_name(), "gradient");
     }
 
+    // ── P269 (ADR-0088 §focal_* revogado parcialmente) — Radial focal_center + focal_radius
+
+    #[test]
+    fn p269_stdlib_radial_focal_center_named() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, Ratio};
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        args.named.insert(
+            "focal_center".into(),
+            Value::Array(vec![
+                Value::Ratio(Ratio(0.3)),
+                Value::Ratio(Ratio(0.4)),
+            ]),
+        );
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Radial(rad)) = r {
+            assert_eq!(rad.focal_center.x, Ratio(0.3));
+            assert_eq!(rad.focal_center.y, Ratio(0.4));
+            assert_eq!(rad.focal_radius, Ratio(0.0), "default focal_radius=0");
+        } else {
+            panic!("esperado Value::Gradient(Radial)");
+        }
+    }
+
+    #[test]
+    fn p269_stdlib_radial_focal_radius_named() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, Ratio};
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        args.named.insert("focal_radius".into(), Value::Ratio(Ratio(0.1)));
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Radial(rad)) = r {
+            assert_eq!(rad.focal_radius, Ratio(0.1));
+            assert_eq!(rad.focal_center, rad.center, "default focal_center=center");
+        } else {
+            panic!("esperado Value::Gradient(Radial)");
+        }
+    }
+
+    #[test]
+    fn p269_stdlib_radial_focal_ambos_named() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, Ratio};
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        args.named.insert(
+            "focal_center".into(),
+            Value::Array(vec![
+                Value::Ratio(Ratio(0.25)),
+                Value::Ratio(Ratio(0.35)),
+            ]),
+        );
+        args.named.insert("focal_radius".into(), Value::Ratio(Ratio(0.08)));
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Radial(rad)) = r {
+            assert_eq!(rad.focal_center.x, Ratio(0.25));
+            assert_eq!(rad.focal_center.y, Ratio(0.35));
+            assert_eq!(rad.focal_radius, Ratio(0.08));
+        } else {
+            panic!("esperado Value::Gradient(Radial)");
+        }
+    }
+
+    #[test]
+    fn p269_stdlib_radial_focal_defaults_preserva_p264() {
+        // Sem named args focal_* → comportamento P264: focal=(center, 0).
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, Ratio};
+        null_ctx!(ctx);
+        let args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Radial(rad)) = r {
+            assert_eq!(rad.focal_center, rad.center);
+            assert_eq!(rad.focal_radius, Ratio(0.0));
+        } else {
+            panic!("esperado Value::Gradient(Radial)");
+        }
+    }
+
+    #[test]
+    fn p269_stdlib_radial_focal_radius_maior_radius_erro() {
+        // Validação vanilla portada: focal_radius > radius → erro.
+        use crate::entities::layout_types::{Color, Ratio};
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(0, 0, 0)),
+            Value::Color(Color::rgb(255, 255, 255)),
+        ]);
+        args.named.insert("radius".into(), Value::Ratio(Ratio(0.3)));
+        args.named.insert("focal_radius".into(), Value::Ratio(Ratio(0.4)));  // > radius
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "focal_radius 0.4 > radius 0.3 deve retornar Err");
+    }
+
+    // ── P270 (ADR-0091 EM VIGOR — ColorSpace runtime cross-variant) ──
+
+    // Linear
+
+    #[test]
+    fn p270_stdlib_linear_space_default_oklab_preserva_p262() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, ColorSpace};
+        null_ctx!(ctx);
+        let args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Linear(l)) = r {
+            assert_eq!(l.space, ColorSpace::Oklab, "default sem named arg deve ser Oklab");
+        } else { panic!("expected Linear"); }
+    }
+
+    #[test]
+    fn p270_stdlib_linear_space_named_hsl() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, ColorSpace};
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        args.named.insert("space".into(), Value::Str(EcoString::from("hsl")));
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Linear(l)) = r {
+            assert_eq!(l.space, ColorSpace::Hsl);
+        } else { panic!("expected Linear"); }
+    }
+
+    #[test]
+    fn p270_stdlib_linear_space_named_luma() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, ColorSpace};
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        args.named.insert("space".into(), Value::Str(EcoString::from("luma")));
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Linear(l)) = r {
+            assert_eq!(l.space, ColorSpace::Luma);
+        } else { panic!("expected Linear"); }
+    }
+
+    #[test]
+    fn p270_stdlib_linear_space_named_invalido_erro() {
+        use crate::entities::layout_types::Color;
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(0, 0, 0)),
+        ]);
+        args.named.insert("space".into(), Value::Str(EcoString::from("xyz_unknown")));
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "space inválido deve retornar Err");
+    }
+
+    // Radial
+
+    #[test]
+    fn p270_stdlib_radial_space_default_oklab_preserva_p264() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, ColorSpace};
+        null_ctx!(ctx);
+        let args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Radial(rad)) = r {
+            assert_eq!(rad.space, ColorSpace::Oklab);
+        } else { panic!("expected Radial"); }
+    }
+
+    #[test]
+    fn p270_stdlib_radial_space_named_oklch() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, ColorSpace};
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        args.named.insert("space".into(), Value::Str(EcoString::from("oklch")));
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Radial(rad)) = r {
+            assert_eq!(rad.space, ColorSpace::Oklch);
+        } else { panic!("expected Radial"); }
+    }
+
+    #[test]
+    fn p270_stdlib_radial_space_named_cmyk() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, ColorSpace};
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        args.named.insert("space".into(), Value::Str(EcoString::from("cmyk")));
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Radial(rad)) = r {
+            assert_eq!(rad.space, ColorSpace::Cmyk);
+        } else { panic!("expected Radial"); }
+    }
+
+    #[test]
+    fn p270_stdlib_radial_space_named_invalido_erro() {
+        use crate::entities::layout_types::Color;
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Color(Color::rgb(0, 0, 0))]);
+        args.named.insert("space".into(), Value::Str(EcoString::from("invalid_space")));
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "space inválido deve retornar Err");
+    }
+
+    // Conic
+
+    #[test]
+    fn p270_stdlib_conic_space_default_oklab_preserva_p267() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, ColorSpace};
+        null_ctx!(ctx);
+        let args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Conic(c)) = r {
+            assert_eq!(c.space, ColorSpace::Oklab);
+        } else { panic!("expected Conic"); }
+    }
+
+    #[test]
+    fn p270_stdlib_conic_space_named_hsv() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, ColorSpace};
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        args.named.insert("space".into(), Value::Str(EcoString::from("hsv")));
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Conic(c)) = r {
+            assert_eq!(c.space, ColorSpace::Hsv);
+        } else { panic!("expected Conic"); }
+    }
+
+    #[test]
+    fn p270_stdlib_conic_space_named_srgb() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::{Color, ColorSpace};
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
+        args.named.insert("space".into(), Value::Str(EcoString::from("srgb")));
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Conic(c)) = r {
+            assert_eq!(c.space, ColorSpace::Srgb);
+        } else { panic!("expected Conic"); }
+    }
+
+    #[test]
+    fn p270_stdlib_conic_space_named_invalido_erro() {
+        use crate::entities::layout_types::Color;
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Color(Color::rgb(0, 0, 0))]);
+        args.named.insert("space".into(), Value::Str(EcoString::from("???")));
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "space inválido deve retornar Err");
+    }
+
     // ── P267 (ADR-0089 Gradient Conic-only) ────────────────────────
 
     #[test]

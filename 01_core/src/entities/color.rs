@@ -240,6 +240,27 @@ impl Color {
     }
 }
 
+// ── ColorSpace enum (P270) ──────────────────────────────────
+
+/// Enumeração dos 8 ColorSpace materializados P257 (paridade vanilla).
+///
+/// **P270** — criado para suportar `gradient.linear/radial/conic`
+/// `space:` named arg cross-variant (ADR-0091 EM VIGOR).
+///
+/// `Luma` ≡ vanilla `D65Gray` (nome cristalino histórico P257).
+/// Demais 7 variants paridade nominal vanilla.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ColorSpace {
+    Oklab,
+    Oklch,
+    Srgb,
+    Luma,
+    LinearRgb,
+    Hsl,
+    Hsv,
+    Cmyk,
+}
+
 // ── Helpers conversões ──────────────────────────────────────
 
 /// Linear RGB → sRGB (gamma encoding).

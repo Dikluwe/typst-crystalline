@@ -309,3 +309,313 @@ Cross-references:
   cumulativa P266 anotada.
 - P259 — Visualize Fase A (último audit pré-formalização P260;
   template literal directo P266).
+
+---
+
+## Anotação cumulativa P268.1 — Divergência arquitectural Conic PDF industry-aligned
+
+**Data**: 2026-05-15.
+
+P268.1 — divergência arquitectural Conic PDF Type 4 cristalino vs
+estratégia vanilla actual desconhecida (krilla `SweepGradient`
+interno opaco; Typst original pré-krilla era Type 6 Coons per blog
+2023) formalizada via ADR-0090 EM VIGOR; cluster Gradient PDF
+mantém-se 3/3 em estratégia conservadora industry-aligned
+(Cairo/Inkscape/Typst original precedent — todos família mesh).
+ADR-0018 preservado.
+
+Status `EM VIGOR` preservado literal. Esta anotação documenta que o
+cluster Gradient PDF cristalino — embora divergente intra-família
+mesh (Type 4 vs Type 6 Typst original / Type 6-7 Cairo) — está
+alinhado com industry mesh-based standard; perfil graded ADR-0054
+mantém-se válido para Visualize/Gradient porque a divergência é
+estratégica (simplicidade implementação Type 4 vs Type 6;
+compatibilidade reader) e não simplificação per se.
+
+Cross-references:
+- ADR-0090 — Gradient Conic PDF strategy Type 4 vs Type 1
+  (EM VIGOR P268.1).
+- ADR-0089 — Gradient Conic-only L1+stdlib (anotação cumulativa
+  P268.1 cross-reference ADR-0090).
+- P268 — PDF Conic Type 4 Gouraud materializado.
+- P268.2 (futuro) — refino adaptive N hybrid; spec dedicada.
+
+---
+
+## Anotação cumulativa P268.2 — Refino adaptive N hybrid 1+2 (cluster Gradient PDF industry-grade)
+
+**Data**: 2026-05-15.
+
+P268.2 — refino adaptive N hybrid 1+2 materializa qualidade visual
+Type 4 Gouraud sem mudar estratégia ADR-0090; cluster Gradient PDF
+qualitativamente industry-grade. Perfil graded DEBT-1 preservado
+(refino é optimização local, não simplificação).
+
+Status `EM VIGOR` preservado literal. Esta anotação documenta que o
+cluster Gradient PDF cristalino — após P268.2 — apresenta qualidade
+visual industry-grade (banding eliminado em casos extremos via
+adaptive N hybrid 1+2 calibrado para Oklab canónico). Perfil graded
+ADR-0054 mantém-se válido porque refino paramétrico é optimização
+local; ADR-0090 (estratégia Type 4) intocada.
+
+Cross-references:
+- ADR-0089 — Gradient Conic-only L1+stdlib (anotação cumulativa
+  P268.2 com fórmula completa + factor_delta=256.0 calibrado).
+- ADR-0090 — Type 4 Gouraud strategy (preservada literal por P268.2;
+  só parâmetro N refinado).
+- `00_nucleo/diagnosticos/diagnostico-adaptive-n-passo-268-2.md` —
+  diagnóstico imutável P268.2.A (sexto consumo directo de fonte;
+  primeiro consumo de literatura técnica perceptual).
+- P268 — PDF Conic Type 4 Gouraud N=32 fixo (precedente refinado).
+- P268.1 — ADR-0090 EM VIGOR (preservada literal por P268.2).
+
+---
+
+## Anotação cumulativa P269 — Gradient Radial focal_* activado (cluster extensão completa)
+
+**Data**: 2026-05-15.
+
+P269 — cluster Gradient Radial focal_* materializado L1+stdlib+PDF
+(focal_center + focal_radius activados); ADR-0088 §"Scope-outs
+documentados" §focal_* revogado parcialmente. Perfil graded DEBT-1
+preservado (activação per ADR explícita; defaults preservam P264
+zero regressão).
+
+Status `EM VIGOR` preservado literal. Esta anotação documenta que
+o cluster Gradient cristalino — pós-P269 — cobre Radial com 5
+campos materializados (stops + center + radius + focal_center +
+focal_radius) vs 3 campos P264. Cluster Gradient agora tem todas
+3 variants principais (Linear/Radial/Conic) com features completas
+L1+stdlib+PDF para gradient real-world workflows.
+
+Sub-padrão "ADR scope-out revogado parcialmente" N=1 → **N=2** (P267
+Conic + **P269 focal_***); candidato meta-formalização futura
+se N≥3.
+
+Cross-references:
+- ADR-0088 — Gradient Radial-only (anotação cumulativa P269 com
+  fórmula completa + defaults + validações stdlib portadas).
+- `00_nucleo/diagnosticos/diagnostico-gradient-focal-passo-269.md`
+  — diagnóstico imutável P269.A (sétimo consumo directo de fonte
+  vanilla).
+- P264 — Radial L1+stdlib (precedente directo extendido).
+- P265 — PDF Radial /ShadingType 3 (template emit extendido).
+- P267 — Conic activado (precedente "ADR scope-out revogado
+  parcialmente" N=1).
+
+---
+
+## Anotação cumulativa P270 — Gradient ColorSpace runtime cross-variant L1+stdlib
+
+**Data**: 2026-05-17.
+
+P270 — cluster Gradient extensão ColorSpace runtime cross-variant
+activado L1+stdlib (3 variants × 8 spaces); ADR-0083 §"ColorSpace
+runtime" scope-out revogado parcialmente; perfil graded DEBT-1
+preservado (activação per ADR explícita; defaults Oklab preservam
+P262/P264/P267 zero regressão bit-exact).
+
+Status `EM VIGOR` preservado literal. Esta anotação documenta que o
+cluster Gradient L1+stdlib cristalino — pós-P270 — cobre **3 variants
+× 8 spaces** materializados (24 combinações cross-variant × space).
+L3 emit refactor adiado P270.1 + P270.2; cluster L1+stdlib feature-
+complete.
+
+Sub-padrão "ADR scope-out revogado parcialmente" N=2 → **N=3 cumulativo**
+(P267 Conic + P269 focal_* + **P270 ColorSpace**). **Atinge limiar
+formalização clara**; candidato meta-formalização futura.
+
+Cross-references:
+- ADR-0091 — Gradient ColorSpace runtime + CMYK strategy (criada
+  PROPOSTO+IMPLEMENTADO P270).
+- ADR-0083 — Color paridade (anotada cumulativa P270; §ColorSpace
+  runtime revogado parcialmente).
+- ADR-0087/0088/0089/0090 — Variant strategies (anotadas cumulativa
+  P270; preservadas em estratégia).
+- `00_nucleo/diagnosticos/diagnostico-gradient-space-passo-270.md`
+  — diagnóstico imutável P270.A (oitavo consumo directo de fonte
+  vanilla).
+- P262/P264/P267 — Linear/Radial/Conic L1+stdlib Oklab hardcoded
+  (precedentes directos extendidos).
+- P269 — Radial focal_* activated (preservado; campo space adicional
+  cross-variant).
+
+---
+
+## Anotação cumulativa P270.1 — Gradient L3 emit multi-space materializado (7/8 spaces)
+
+**Data**: 2026-05-17.
+
+P270.1 — cluster Gradient L3 emit feature-complete **7/8 spaces** (Oklab/
+Oklch/sRGB/Luma/LinearRGB/HSL/HSV); CMYK último P270.2; perfil graded
+DEBT-1 preservado (refino L3 sem mudar estratégia ADR-0087/0088/0089/
+0090).
+
+Status `EM VIGOR` preservado literal. Esta anotação documenta que o
+cluster Gradient cristalino — pós-P270.1 — cobre 3 variants × 7 spaces
+em L3 emit completamente (21 combinações materializadas); CMYK
+adicional sub-óptimo via pipeline natural CMYK→sRGB (P270.2 fecha
+com `/DeviceCMYK` directo).
+
+Descoberta arquitectural P270.1.A: **P270 já passou L3 multi-space
+implicitamente** via `<variant>.sample(t)` dispatcher P270. P270.1 é
+maioritariamente cosmético (rename helpers + docs + tests).
+
+Cross-references:
+- ADR-0091 §"Anotação cumulativa P270.1" — fórmula completa Op B
+  uniforme materializada.
+- ADR-0087/0088/0089/0090 — Variant strategies anotadas cumulativa
+  P270.1 (preservadas; helpers L3 renomeados; body literal preserved).
+- `00_nucleo/diagnosticos/diagnostico-l3-multispace-passo-270-1.md`
+  — diagnóstico imutável P270.1.A (nono consumo directo de fonte
+  vanilla).
+- P270 — Gradient ColorSpace runtime L1+stdlib (precedente directo
+  materializado em L3).
+- P263/P265/P268/P268.2 — L3 templates (helpers renomeados; body
+  preservado).
+
+---
+
+## Anotação cumulativa P270.2 — Gradient L3 emit CMYK directo (cluster Linear+Radial 8/8; Conic CMYK preserved)
+
+**Data**: 2026-05-17.
+
+P270.2 — cluster Gradient L3 emit CMYK directo materializado
+para Linear+Radial via `/ColorSpace /DeviceCMYK` + Function
+4-component. Conic CMYK scope-out preserved (§A.8 Cenário B
+diagnóstico); candidato futuro P-Gradient-Conic-CMYK. ADR-0083
+§"DeviceCMYK PDF" revogação **parcial** P270.2; perfil graded
+DEBT-1 preservado (refino L3 sem mudar estratégia ADR-0087/0088/
+0089/0090).
+
+Status `EM VIGOR` preservado literal. Esta anotação documenta que
+o cluster Gradient cristalino — pós-P270.2 — cobre:
+- Linear: 8/8 spaces (P270.1 + P270.2 CMYK directo).
+- Radial: 8/8 spaces (P270.1 + P270.2 CMYK directo;
+  focal_* P269 preservados).
+- Conic: 7/8 spaces full + CMYK fallback sub-óptimo
+  (candidato P-Gradient-Conic-CMYK futuro).
+
+**Sub-padrão "ADR scope-out revogado parcialmente"** N=3 → **N=4
+cumulativo limiar formalização clara** (P267 Conic + P269 focal_*
++ P270 ColorSpace + **P270.2 DeviceCMYK** parcial). Candidato
+meta-ADR futura.
+
+Bug vanilla #4422 resolvido por construção (cristalino emit
+`/DeviceCMYK` correcto).
+
+Cross-references:
+- ADR-0091 §"Anotação cumulativa P270.2" — fórmula completa
+  Cenário B.
+- ADR-0083 §"Anotação cumulativa P270.2" — revogação parcial
+  §DeviceCMYK PDF.
+- ADR-0087/0088/0089/0090 — Variant strategies anotadas cumulativa
+  P270.2.
+- `00_nucleo/diagnosticos/diagnostico-l3-cmyk-passo-270-2.md`
+  — diagnóstico imutável P270.2.A (décimo consumo directo de
+  fonte vanilla).
+- P270.1 — L3 emit 7 spaces (precedente directo refinado).
+- P263/P265 — L3 templates Linear+Radial (estendidos com CMYK
+  branch dual).
+- typst/typst issue #4422 — CMYK gradient bug vanilla causa raiz.
+
+---
+
+## Anotação cumulativa P270.3 — Infra-estrutura Type 6 Coons Patch Mesh (preparação cluster 24/24)
+
+**Data**: 2026-05-17.
+
+P270.3 materializa **infra-estrutura Type 6 Coons Patch Mesh** como
+estratégia adicional Conic L3 emit (preparação CMYK P270.4 via
+ADR-0092 EM VIGOR). Cluster Gradient ganha **industry-aligned
+mesh-based** para conic CMYK (Cairo/Inkscape/Typst original Type 6
+precedent).
+
+Perfil graded DEBT-1 preservado (P270.3 adiciona infra-estrutura
+sem mudar estratégia ADR-0090 Type 4 RGB; ADR-0089 2 emit paths
+coexistem).
+
+**Primeiro caso "2 estratégias L3 emit coexistem para mesmo variant"**
+em cristalino — Conic ganha Type 4 Gouraud (RGB; ADR-0090 preserved)
++ Type 6 Coons (CMYK preparation; ADR-0092 novo).
+
+Sub-padrão "ADR scope-out revogado parcialmente" N=4 → **N=5
+cumulativo limiar formalização clara muito ultrapassado** —
+candidato meta-ADR URGENTE.
+
+Status `EM VIGOR` preservado literal. Ver ADR-0092 EM VIGOR.
+
+Cross-references:
+- ADR-0092 — Conic Coons Patches (criada PROPOSTO+IMPLEMENTADO P270.3).
+- ADR-0090 §"Anotação cumulativa P270.3" — Type 6 scope-out revogado
+  parcialmente.
+- ADR-0089 §"Anotação cumulativa P270.3" — 2 emit paths Conic.
+- ADR-0091 §"Anotação cumulativa P270.3" — preparação P270.4.
+- `00_nucleo/diagnosticos/diagnostico-conic-coons-passo-270-3.md`
+  — diagnóstico imutável (décimo primeiro consumo directo de fonte).
+- Industry research: Cairo Igalia 2020 + Typst blog 2023 + W3C
+  Workshop 2021 + Stanislaw Adaszewski + ISO 32000-1 §7.5.7.4.
+
+---
+
+## Anotação cumulativa P270.4 — Cluster Gradient L1+stdlib+L3 emit feature-complete 24/24 absoluto (fecho cluster série P270)
+
+**Data**: 2026-05-17.
+
+P270.4 — **cluster Gradient L1+stdlib+L3 emit feature-complete absoluto
+24/24** (3 variants × 8 spaces). Marco arquitectural máximo do cluster
+Color (ADR-0083) + Gradient (ADR-0087/0088/0089). Perfil graded
+DEBT-1 §"Color paridade vanilla" agora cobre 24/24 combinações
+user-facing L1+L3.
+
+### Série P270 completa pós-P270.4
+
+| Passo | Materialização | Marco |
+|---|---|---|
+| P270 | L1+stdlib `space: ColorSpace` cross-variant (3 variants × 8 spaces) | ADR-0091 PROPOSTO+IMPLEMENTADO |
+| P270.1 | L3 emit 7 spaces RGB-family + perceptual (sRGB/LinearRGB/Luma/Oklab/Oklch/HSL/HSV) | helpers renomeados `multispace_sample_stops_*` |
+| P270.2 | L3 emit CMYK Linear+Radial `/DeviceCMYK` | Bug #4422 resolvido Linear+Radial |
+| P270.3 | Coons RGB infra-estrutura (flag opt-in default OFF; ADR-0092 PROPOSTO+IMPLEMENTADO) | precedente 2 emit paths Conic |
+| **P270.4** | **Coons CMYK activação opt-in flag ON; `/ShadingType 6 /DeviceCMYK`** | **Cluster 24/24 absoluto** |
+
+### Cluster Gradient L3 emit pós-P270.4 final
+
+| Variant | 7 RGB-family + perceptual | CMYK |
+|---|---|---|
+| Linear | P270.1 ✓ `/DeviceRGB` (Function 3-comp) | P270.2 ✓ `/DeviceCMYK` (Function 4-comp) |
+| Radial | P270.1 ✓ `/DeviceRGB` (focal_* P269) | P270.2 ✓ `/DeviceCMYK` |
+| Conic | P268+P268.2 ✓ `/ShadingType 4` Gouraud | **P270.4 ✓** `/ShadingType 6` Coons |
+
+**24 combinações user-facing materializadas** (3 variants × 8 spaces)
+em L1 + stdlib + L3 PDF emit completamente.
+
+### Sub-padrão "ADR scope-out revogado parcialmente" N=5 → N=6 cumulativo
+
+**Limiar formalização clara ainda mais ultrapassado** — meta-ADR
+URGENTE FINAL. Pattern consolidado claro:
+- N=1 P267 (ADR-0088 §Conic).
+- N=2 P269 (ADR-0088 §focal_*).
+- N=3 P270 (ADR-0083 §ColorSpace runtime).
+- N=4 P270.2 (ADR-0083 §DeviceCMYK Linear+Radial).
+- N=5 P270.3 (ADR-0090 §Type 6 Coons).
+- **N=6 P270.4** (ADR-0091 §Conic CMYK scope-out + ADR-0083
+  §DeviceCMYK definitivo).
+
+Candidato meta-ADR formalização futura paridade P260 ADR-0084/0085
+(que formalizaram outros sub-padrões em N=5-6 cumulativo).
+
+Status `EM VIGOR` preservado literal.
+
+Cross-references:
+- ADR-0092 §"Anotação cumulativa P270.4" — fórmula completa
+  activação opt-in flag ON.
+- ADR-0091 §"Anotação cumulativa P270.4" — revogação final §Conic
+  CMYK scope-out.
+- ADR-0083 §"Anotação cumulativa P270.4" — revogação final
+  §DeviceCMYK PDF (3 variants × CMYK).
+- ADR-0089 §"Anotação cumulativa P270.4" — Conic 2 emit paths
+  ambos activos.
+- `00_nucleo/diagnosticos/diagnostico-conic-coons-cmyk-passo-270-4.md`
+  — diagnóstico imutável (décimo segundo consumo directo de fonte).
+- Cluster Color (P257) cobertura final 100% estrutural + 100% L3
+  PDF emit.

@@ -344,3 +344,152 @@ cumulativo** (P255 + P257 + P258 + **P259**).
 
 Status ADR-0083 preservado literal (`IMPLEMENTADO`). Color
 subsistema cobertura 100% estrutural preservada.
+
+---
+
+## Anotação cumulativa P270 — ColorSpace runtime revogado parcialmente
+
+**Data**: 2026-05-17.
+
+§"Scope-outs" — **§"ColorSpace runtime" scope-out revogado parcialmente**
+por P270 — L1+stdlib gradient activa `space: ColorSpace` cross-variant
+(3 variants × 8 spaces). L3 emit revogação adiada P270.1.
+
+§"DeviceCMYK PDF" scope-out **preserved P270** — revogação adiada P270.2
+(implementação cristalina autónoma; pode resolver bug vanilla #4422).
+
+§"Operadores cor" + §"Constantes nomeadas extras" preservados scope-out
+P270.
+
+### ColorSpace enum criado P270
+
+Novo tipo `pub enum ColorSpace { Oklab, Oklch, Srgb, Luma, LinearRgb,
+Hsl, Hsv, Cmyk }` adicionado a `01_core/src/entities/color.rs` (8
+variants paridade vanilla; Luma ≡ D65Gray nome cristalino histórico).
+
+### Subpadrão "ADR scope-out revogado parcialmente" N=3 cumulativo
+
+- N=1 P267 — ADR-0088 §Conic revogado parcialmente.
+- N=2 P269 — ADR-0088 §focal_* revogado parcialmente.
+- **N=3 P270** — ADR-0083 §ColorSpace runtime revogado parcialmente.
+
+**N=3 atinge limiar formalização clara** — candidato meta-ADR
+formalização futura paridade P260 (ADR-0084/0085 formalizadas em N=5-6
+cumulativo).
+
+Ver **ADR-0091 EM VIGOR** para decisão arquitectural completa (ColorSpace
+runtime cross-variant + CMYK strategy Op B).
+
+Status ADR-0083 preservado literal (`IMPLEMENTADO`). Color subsistema
+cobertura 100% estrutural preservada. Conversões cross-space adicionais
+em `gradient.rs` (helpers private; sem invasão Color L0).
+
+---
+
+## Anotação cumulativa P270.2 — DeviceCMYK PDF revogação parcial (Linear+Radial; Conic preserved)
+
+**Data**: 2026-05-17.
+
+**Motivo**: P270.2 materializa L3 emit `/ColorSpace /DeviceCMYK`
+directo para **Linear e Radial gradients**. §"DeviceCMYK PDF"
+scope-out **revogado parcialmente** — Conic CMYK preserved scope-out
+P-Gradient-Conic-CMYK futuro (§A.8 diagnóstico §A.11 Cenário B).
+
+### Scope-outs ADR-0083 status pós-P270.2
+
+- ~~**ColorSpace runtime**~~: revogado **final** P270 (L1+stdlib)
+  + P270.1 (L3 7 spaces) + P270.2 (L3 CMYK Linear+Radial).
+- **DeviceCMYK PDF**: **revogado parcialmente** P270.2
+  (Linear+Radial via `/ColorSpace /DeviceCMYK` directo; Conic
+  preserved scope-out via fallback P270.1 sub-óptimo —
+  candidato P-Gradient-Conic-CMYK).
+- **Operadores cor**: preserved scope-out P270.2.
+- **Constantes nomeadas extras**: preserved scope-out P270.2.
+
+### Cluster Color (P257) pós-P270.2
+
+ADR-0083 §"Color paridade vanilla 8/8 spaces" cobre:
+- **L1**: 8/8 spaces materializados (P257 — 100% estrutural).
+- **L3 PDF emit**:
+  - Linear/Radial: 8/8 spaces (P270.1 + P270.2).
+  - Conic: 7/8 spaces full + CMYK fallback sub-óptimo
+    (P-Gradient-Conic-CMYK futuro).
+
+**Sub-padrão "ADR scope-out revogado parcialmente" N=3 → N=4
+cumulativo limiar formalização clara**:
+- N=1 P267 (ADR-0088 §Conic).
+- N=2 P269 (ADR-0088 §focal_*).
+- N=3 P270 (ADR-0083 §ColorSpace runtime).
+- **N=4 P270.2** (ADR-0083 §DeviceCMYK — esta anotação).
+
+Candidato meta-ADR futura paridade P260 ADR-0084/0085 (que
+formalizaram outros sub-padrões em N=5-6 cumulativo).
+
+### Bug #4422 resolvido por construção
+
+Cristalino emit `/ColorSpace /DeviceCMYK` correcto. Ver ADR-0091
+§"Anotação cumulativa P270.2" para detalhes.
+
+Ver ADR-0091 §"Anotação cumulativa P270.2".
+
+Status ADR-0083 preservado literal (`IMPLEMENTADO`).
+
+---
+
+## Anotação cumulativa P270.4 — DeviceCMYK PDF revogação final absoluta (cluster L3 24/24)
+
+**Data**: 2026-05-17.
+
+**Motivo**: P270.2 revogou parcialmente §"DeviceCMYK PDF" para Linear+
+Radial; **P270.4 estende para Conic via Type 6 Coons** (ADR-0092
+§"Anotação cumulativa P270.4"). **§"DeviceCMYK PDF" revogado
+DEFINITIVO**.
+
+### §"DeviceCMYK PDF" revogado para todos os 3 variants
+
+- **Linear**: P270.2 directo `/ShadingType 2 /ColorSpace /DeviceCMYK`.
+- **Radial**: P270.2 directo `/ShadingType 3 /ColorSpace /DeviceCMYK`.
+- **Conic**: **P270.4 directo `/ShadingType 6 /ColorSpace /DeviceCMYK`
+  via Coons Patch Mesh**.
+
+### Scope-outs ADR-0083 status final pós-P270.4
+
+- ~~ColorSpace runtime~~: revogado P270 (anotação cumulativa).
+- ~~DeviceCMYK PDF~~: **revogado FINAL P270.2 + P270.4** (esta
+  anotação fecha).
+- Operadores cor: preserved scope-out.
+- Constantes nomeadas extras: preserved scope-out.
+
+### Cluster Color (P257) cobertura final pós-P270.4
+
+ADR-0083 perfil graded DEBT-1 §"Color paridade vanilla 8/8 spaces"
+agora cobre:
+- **L1**: 8/8 spaces materializados (P257 — 100% estrutural).
+- **L3 PDF emit**: 3 variants × 8 spaces = **24/24 combinações
+  absoluto** (P270.1 + P270.2 + P270.4).
+
+### Sub-padrão "ADR scope-out revogado parcialmente" N=5 → N=6 cumulativo
+
+- N=1 P267 (ADR-0088 §Conic).
+- N=2 P269 (ADR-0088 §focal_*).
+- N=3 P270 (ADR-0083 §ColorSpace runtime).
+- N=4 P270.2 (ADR-0083 §DeviceCMYK Linear+Radial).
+- N=5 P270.3 (ADR-0090 §Type 6 Coons).
+- **N=6 P270.4** (ADR-0083 §DeviceCMYK definitivo + ADR-0091
+  §Conic CMYK scope-out final).
+
+**N=6 limiar formalização clara ainda mais ultrapassado** — meta-ADR
+formalização URGENTE FINAL. Pattern consolidado claro candidato
+paridade P260 ADR-0084/0085.
+
+### Bug #4422 resolvido por construção (3 variants × CMYK absoluto)
+
+Cluster Gradient L3 emit pós-P270.4 resolve bug #4422 absoluto:
+- Linear CMYK ✓ /ShadingType 2 + /DeviceCMYK.
+- Radial CMYK ✓ /ShadingType 3 + /DeviceCMYK.
+- Conic CMYK ✓ /ShadingType 6 + /DeviceCMYK.
+
+Ver ADR-0092 §"Anotação cumulativa P270.4" para detalhes.
+
+Status ADR-0083 preservado literal (`IMPLEMENTADO`). Cluster Color
+cobertura 100% estrutural + 100% L3 PDF emit.

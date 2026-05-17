@@ -24,6 +24,7 @@ use crate::entities::args::Args;
 use crate::entities::axes::Axes;
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
+use crate::entities::color::ColorSpace;
 use crate::entities::gradient::{Gradient, GradientStop};
 use crate::entities::layout_types::{Angle, Ratio};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -74,16 +75,50 @@ pub fn native_gradient_linear(
         None => Angle::rad(0.0),
     };
 
+    // P270 — named arg `space` (ADR-0091 EM VIGOR).
+    let space = parse_space_named(args, "gradient.linear")?;
+
     for key in args.named.keys() {
-        if key != "angle" {
+        if key != "angle" && key != "space" {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("gradient.linear: argumento nomeado inesperado '{}' (esperado: angle)", key),
+                format!("gradient.linear: argumento nomeado inesperado '{}' (esperado: angle, space)", key),
             )]);
         }
     }
 
-    Ok(Value::Gradient(Gradient::linear(stops, angle)))
+    Ok(Value::Gradient(Gradient::linear_with_space(stops, angle, space)))
+}
+
+/// P270 — Parser do named arg `space` cross-variant (ADR-0091 EM VIGOR).
+///
+/// Aceita `Value::Str("oklab" | "oklch" | "srgb" | "luma" | "linear-rgb"
+/// | "hsl" | "hsv" | "cmyk")`. Default (sem named arg) = `ColorSpace::Oklab`
+/// (preserva P262/P264/P267 behavior bit-exact).
+fn parse_space_named(args: &Args, fn_name: &str) -> SourceResult<ColorSpace> {
+    match args.named.get("space") {
+        None => Ok(ColorSpace::Oklab),
+        Some(Value::Str(s)) => match s.as_str() {
+            "oklab"      => Ok(ColorSpace::Oklab),
+            "oklch"      => Ok(ColorSpace::Oklch),
+            "srgb"       => Ok(ColorSpace::Srgb),
+            "luma"       => Ok(ColorSpace::Luma),
+            "linear-rgb" => Ok(ColorSpace::LinearRgb),
+            "hsl"        => Ok(ColorSpace::Hsl),
+            "hsv"        => Ok(ColorSpace::Hsv),
+            "cmyk"       => Ok(ColorSpace::Cmyk),
+            other => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "{fn_name}(space): '{other}' inválido (esperado: oklab, oklch, srgb, luma, linear-rgb, hsl, hsv, cmyk)"
+                ),
+            )]),
+        },
+        Some(other) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{fn_name}(space): espera Str, recebeu {}", other.type_name()),
+        )]),
+    }
 }
 
 /// Parse cada item posicional para `GradientStop`.
@@ -190,16 +225,81 @@ pub fn native_gradient_radial(
         )]);
     }
 
+    // P269 — named args focal_* (paridade vanilla RadialGradient).
+    let focal_center = match args.named.get("focal_center") {
+        Some(Value::Array(arr)) if arr.len() == 2 => {
+            let x = parse_ratio(&arr[0], "gradient.radial", "focal_center.x")?;
+            let y = parse_ratio(&arr[1], "gradient.radial", "focal_center.y")?;
+            Axes::new(x, y)
+        }
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("gradient.radial(focal_center): espera Array [Ratio, Ratio], recebeu {}",
+                    other.type_name()),
+        )]),
+        None => center,  // default vanilla: focal_center = center
+    };
+
+    let focal_radius = match args.named.get("focal_radius") {
+        Some(Value::Ratio(r)) => *r,
+        Some(Value::Float(f)) => Ratio(*f),
+        Some(Value::Int(i)) => Ratio(*i as f64),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("gradient.radial(focal_radius): espera Ratio/Float, recebeu {}",
+                    other.type_name()),
+        )]),
+        None => Ratio(0.0),  // default vanilla: focal_radius = 0%
+    };
+
+    // Validação vanilla §1: focal_radius > radius → erro.
+    if focal_radius.0 > radius.0 {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("gradient.radial(focal_radius): {} > radius {}",
+                    focal_radius.0, radius.0),
+        )]);
+    }
+
+    // Validação vanilla §2: focal circle deve estar dentro do outer circle.
+    // dist(focal_center, center)² >= (radius - focal_radius)² → erro.
+    let dx = focal_center.x.0 - center.x.0;
+    let dy = focal_center.y.0 - center.y.0;
+    let dist_sq = dx * dx + dy * dy;
+    let max_dist = radius.0 - focal_radius.0;
+    if dist_sq >= max_dist * max_dist {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "gradient.radial: focal circle deve estar dentro do outer circle".to_string(),
+        )]);
+    }
+
+    // P270 — named arg `space`.
+    let space = parse_space_named(args, "gradient.radial")?;
+
     for key in args.named.keys() {
-        if key != "center" && key != "radius" {
+        if key != "center" && key != "radius"
+            && key != "focal_center" && key != "focal_radius"
+            && key != "space"
+        {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("gradient.radial: argumento nomeado inesperado '{}' (esperado: center, radius)", key),
+                format!("gradient.radial: argumento nomeado inesperado '{}' (esperado: center, radius, focal_center, focal_radius, space)", key),
             )]);
         }
     }
 
-    Ok(Value::Gradient(Gradient::radial(stops, center, radius)))
+    // P269 + P270 — construção full com focal_* + space.
+    use std::sync::Arc;
+    use crate::entities::gradient::Radial;
+    Ok(Value::Gradient(Gradient::Radial(Arc::new(Radial {
+        stops: Arc::from(stops),
+        center,
+        radius,
+        focal_center,
+        focal_radius,
+        space,
+    }))))
 }
 
 /// Helper privado partilhado: parse `Value::Ratio` ou `Float`
@@ -267,16 +367,19 @@ pub fn native_gradient_conic(
         None => Angle::rad(0.0),
     };
 
+    // P270 — named arg `space`.
+    let space = parse_space_named(args, "gradient.conic")?;
+
     for key in args.named.keys() {
-        if key != "center" && key != "angle" {
+        if key != "center" && key != "angle" && key != "space" {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("gradient.conic: argumento nomeado inesperado '{}' (esperado: center, angle)", key),
+                format!("gradient.conic: argumento nomeado inesperado '{}' (esperado: center, angle, space)", key),
             )]);
         }
     }
 
-    Ok(Value::Gradient(Gradient::conic(stops, center, angle)))
+    Ok(Value::Gradient(Gradient::conic_with_space(stops, center, angle, space)))
 }
 
 // Tests para `native_gradient_linear` + `native_gradient_radial`
