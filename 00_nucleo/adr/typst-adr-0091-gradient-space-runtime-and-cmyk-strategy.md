@@ -642,3 +642,22 @@ paralelas; pattern consolidado).
 
 Status `IMPLEMENTADO` preservado literal. Ver ADR-0092 §"Anotação
 cumulativa P270.4".
+
+## Anotação cumulativa P271 — Sub-padrões formalizados
+
+Esta ADR é **centro de aplicação** dos sub-padrões formalizados P271
+— 4 anotações cumulativas paralelas (P270.1+P270.2+P270.3+P270.4) +
+cross-ADR cluster Gradient pattern:
+
+- **"Anotação cumulativa em vez de ADR nova"** (4 anotações desta
+  ADR; N=10 cumulativo agregado) → **ADR-0093 EM VIGOR**.
+- **"Anotação cumulativa cross-ADR"** (cada anotação P270.x afecta
+  múltiplas ADRs simultâneo; N=5 cumulativo) → ADR-0093 §"Anotação
+  cumulativa cross-ADR".
+- **"Reutilização literal helpers cross-passos"** (helpers P262/P265/
+  P268.2/P270/P270.1-P270.4; N=10 cumulativo) → **ADR-0094 EM VIGOR**.
+- **"Fase A com industry research proactiva"** (P270 inaugural; N=4
+  cumulativo via série P270) → ADR-0094 §"Pattern 3".
+
+Ver ADR-0093 + ADR-0094 EM VIGOR para meta-formalização. Status
+`IMPLEMENTADO` preservado.

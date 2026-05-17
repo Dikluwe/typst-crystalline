@@ -207,6 +207,8 @@ que corresponde a mudança específica no código.
 | 0092 | Conic Type 6 Coons Patch Mesh L3 emit (preparação CMYK + RGB futuro) | `IMPLEMENTADO` (passo `P270.3`; precedente ADR-0083/0086/0087/0088/0089/0091 N=6 → **N=7 cumulativo** do pattern PROPOSTO+IMPLEMENTADO mesmo passo; cristalino tem **2 estratégias Conic L3 emit coexistentes** — Type 4 Gouraud P268+P268.2 preserved para 7 spaces RGB-family + perceptual; Type 6 Coons P270.3 infra-estrutura + P270.4 activação para CMYK; strategy "1 patch per stop" paridade Typst original blog 2023; matemática Bezier cúbico arc círculo Stanislaw Adaszewski offset = r·(4/3)·tan(angle/4); dispatcher opt-in flag interno default OFF P270.3 → `emit_conic_gouraud_stream` preserved; P270.4 ON para `space == Cmyk` → `emit_conic_coons_stream` activado; ADR-0090 §Type 6 scope-out revogado parcialmente; subpadrão **"ADR scope-out revogado parcialmente" N=4 → N=5 cumulativo limiar formalização clara muito ultrapassado** (P267 Conic + P269 focal_* + P270 ColorSpace + P270.2 DeviceCMYK + **P270.3 Type 6**) — candidato meta-ADR URGENTE; subpadrão "Fase A com industry research proactiva" N=2 → N=3 cumulativo (limiar formalização clara); subpadrão "Cap LOC hard vs soft explícito" N=2 → N=3 cumulativo consolidação; subpadrão "Anotação cumulativa cross-ADR" N=3 → N=4 cumulativo; subpadrão "Reutilização literal helpers cross-passos" N=8 → N=9; subpadrão "Diagnóstico imutável" N=15 → N=16 (décimo primeiro consumo directo de fonte vanilla + Cairo + Typst blog 2023 + W3C 2021 + pdf.js #6283 + PDFBOX-2100 + matplotlib #18034 + Stanislaw Adaszewski + ISO 32000-1 §7.5.7.4); cluster Gradient L3 emit preparação 24/24 absoluto pós-P270.4) + **anotação cumulativa P270.4** (Coons CMYK activação opt-in flag ON; **cluster L3 24/24 absoluto** materializado — `emit_conic_coons_stream_cmyk(conic) -> Vec<u8>` novo variant 41 bytes/patch (1 flag + 12·2 coord + 4·4 CMYK); dispatcher conic.space == ColorSpace::Cmyk → /ShadingType 6 + /DeviceCMYK + Function Type 2 N=1 identity + Decode [0 1 0 1 0 1 0 1 0 1 0 1] (6 pares 4 CMYK + 2 coord); **2 emit paths Conic AMBOS ACTIVOS** — Type 4 Gouraud P268+P268.2 para 7 spaces RGB-family/perceptual + Type 6 Coons P270.4 para CMYK; ADR-0091 §"Conic CMYK scope-out preserved" **revogação final definitivo**; **bug vanilla #4422 resolvido por construção** — cristalino constrói dicionário Coons CMYK correcto desde primeiro emit (ColorSpace /DeviceCMYK + BitsPerComponent 8 + Decode 6 pares + Function single-component domain [0 1]); reader compatibility universal (Adobe Reader, Foxit, qpdf, ghostscript, mutool); adaptive N P268.2 não aplicável a Coons (strategy "1 patch per stop" fixa); helpers P270.3 reutilizados literal — `bezier_control_points_for_arc` + `compute_coons_patches_n_stops` removido `#[allow(dead_code)]` (agora consumed via CMYK dispatcher); subpadrão "ADR scope-out revogado parcialmente" N=5 → **N=6 cumulativo**; subpadrão "Anotação cumulativa em vez de ADR nova" N=9 → **N=10 cumulativo consolidação clara**; subpadrão "Reutilização literal helpers cross-passos" N=9 → **N=10 cumulativo**; subpadrão "Diagnóstico imutável" N=16 → **N=17 cumulativo** (décimo segundo consumo directo de fonte vanilla); décimo segundo consumo directo de fonte vanilla; **cluster Gradient L3 emit 24/24 absoluto** Conic CMYK encerra debt remanescente)
 | 0091 | Gradient ColorSpace runtime cross-variant + CMYK strategy | `IMPLEMENTADO` (passo `P270`; precedente ADR-0083 + ADR-0086 + ADR-0087 + ADR-0088 + ADR-0089 N=5 → **N=6 cumulativo** do pattern PROPOSTO+IMPLEMENTADO mesmo passo; ADR-0083 §"ColorSpace runtime" scope-out revogado parcialmente — L1+stdlib activado; §"DeviceCMYK PDF" scope-out preserved (revogação adiada P270.2); 3 variants Linear/Radial/Conic ganham campo `space: ColorSpace` default Oklab; `ColorSpace` enum criado 8 variants paridade vanilla; stdlib named arg `space: Str` cross-variant + validação 8 spaces; hue-wrap shorter default HSL/Oklch/HSV (CSS standard; vanilla paridade); L3 emit Oklab pipeline preservado P270 (refactor multi-space adiado P270.1+P270.2); subpadrão **"ADR scope-out revogado parcialmente" N=2 → N=3 cumulativo** (atinge limiar formalização clara); subpadrão "Reutilização literal helpers cross-passos" N=5 → N=6 cumulativo; subpadrão "Anotação cumulativa cross-ADR" N=1 inaugural (P270 anota ADR-0083/0054/0087/0088/0089/0090 simultâneo); subpadrão "Fase A com industry research proactiva" N=1 inaugural; subpadrão "Decomposição L+ em sub-passos" N=1 inaugural (P270 + P270.1 + P270.2); oitavo consumo directo de fonte vanilla; cluster Gradient L1+stdlib feature-complete em 3 variants × 8 spaces; defaults Oklab preservam P262/P264/P267 bit-exact zero regressão) + **anotação cumulativa P270.1** (L3 emit multi-space materializado — helpers L3 `oklab_sample_stops_*` renomeados `multispace_sample_stops_*`; descoberta arquitectural §A.2: P270 já passou L3 multi-space implicitamente via `<variant>.sample(t)` dispatcher — P270.1 maioritariamente cosmético rename + docs + tests; 7 spaces materializados L3 emit (Oklab/Oklch/sRGB/Luma/LinearRGB/HSL/HSV); CMYK pipeline natural CMYK→sRGB sub-óptimo até P270.2; subpadrão "Anotação cumulativa em vez de ADR nova" N=7 → N=8 cumulativo; subpadrão "Reutilização literal helpers cross-passos" N=6 → N=7 cumulativo; subpadrão **"Cap LOC hard vs soft explícito" N=1 inaugural** (lição P270 estouro aplicada); subpadrão "Anotação cumulativa cross-ADR" N=1 → N=2 cumulativo; nono consumo directo de fonte vanilla; cluster Gradient L3 emit **7/8 spaces** materializado — CMYK último P270.2) |
 | 0090 | Gradient Conic PDF strategy: Type 4 Gouraud (cristalino) divergência industry mesh-based variants | `EM VIGOR` (passo `P268.1` administrativo XS + **correcção pré-commit P268.1**; criação EM VIGOR directa pós-pesquisa empírica industry — paridade pattern P229 ADR-0080 / P254 ADR-0082; complementa ADR-0089 §anotação P268 formalizando justificativa estratégica Type 4 vs industry mesh variants; PDF spec ISO 32000-1 Types 2/3 oficiais + Types 4-7 mesh genéricos; cristalino alinhado com Cairo/Inkscape/Typst original mesh-based industry standard — divergência intra-família mesh Type 4 vs Type 6 Typst original/Cairo; ADR-0018 preservado krilla não autorizada; subpadrão "Passo administrativo XS criar/promover ADR" N=4 → N=5 cumulativo (P156K/P160A/P229/P254/**P268.1**); subpadrão "ADR scope-out preserved com justificativa empírica" N=1 inaugural; subpadrão "Diagnóstico empírico web em vez de filesystem" N=1 inaugural com nota metodológica; **correcção pré-commit P268.1** retracta 3 afirmações factuais erradas (krilla=Type 1 inferência não verificada; PDF/A-1=functions proibidas imprecisa; vanilla=outlier total) baseada em verificação externa via Kimi + web_search blog Typst 2023 / W3C Workshop 2021 / ISO 19005-1; decisão de fundo Type 4 preservada literal; status `EM VIGOR` preservado) |
+| 0093 | Meta-metodologia de evolução de ADRs (scope-out revogado parcialmente + Anotação cumulativa) | `EM VIGOR` (passo `P271` administrativo XS; criação EM VIGOR directa paridade P260 ADR-0084/0085 + P268.1 ADR-0090; formaliza 2 sub-padrões empíricos N≥6 cumulativos: (1) "ADR scope-out revogado parcialmente" N=6 — P267 Conic + P269 focal_* + P270 ColorSpace + P270.2 DeviceCMYK + P270.3 Type 6 + P270.4 Conic CMYK final; (2) "Anotação cumulativa em vez de ADR nova" N=10 consolidação clara — P258.B/P259.B/P263/P265/P268/P268.2/P270/P270.1/P270.2/P270.4; decisão complementar "Anotação cumulativa cross-ADR" sub-caso N=5 incorporado em Pattern 2; subpadrão "Passo administrativo XS criar/promover ADR" N=5 → **N=6 cumulativo** (P156K/P160A/P229/P254/P268.1/**P271**); subpadrão "Meta-formalização sub-padrões empíricos N≥4" N=2 → **N=3 cumulativo** (P260 + P268.1 + **P271**); diagnóstico inline ADR §"Histórico empírico" (paridade auto-aplicação ADR-0065 inline)) |
+| 0094 | Meta-operacional de specs (Cap LOC hard/soft + Reutilização helpers + Industry research proactiva) | `EM VIGOR` (passo `P271` administrativo XS; criação EM VIGOR directa paridade P260 ADR-0084/0085 + P268.1 ADR-0090; formaliza 3 sub-padrões empíricos N≥4 cumulativos: (1) "Cap LOC hard vs soft explícito" N=4 — P270.1/P270.2/P270.3/P270.4 inaugural pós-lição P270 estouro silencioso; (2) "Reutilização literal helpers cross-passos" N=10 consolidação clara — P265 a P270.4 cumulativo; (3) "Fase A com industry research proactiva" N=4 — P270/P270.2/P270.3/P270.4 inaugural pós-lição P268.1 re-trabalho; subpadrão "Passo administrativo XS criar/promover ADR" N=6 cumulativo conjunto com ADR-0093; subpadrão "Meta-formalização sub-padrões empíricos N≥4" N=3 cumulativo conjunto com ADR-0093; companheira ADR-0093 — par cobre 5 sub-padrões totais (2 evolução ADRs + 3 operacional specs)) |
 
 **Total**: 65 ADRs (64 números únicos; ADR-0026 tem variante -R1
 por revisão; **+ADR-0082 PROPOSTO P249** + **+ADR-0084 + ADR-0085
@@ -222,6 +224,11 @@ Cenário B1; sub-padrão N=6 → N=7 cumulativo).
 **Total pós-P270.4: 79 ADRs preservado** (P270.4 activa Coons CMYK
 via anotação cumulativa em ADR-0092 — não cria ADR nova; sub-padrão
 "Anotação cumulativa em vez de ADR nova" N=9 → N=10 cumulativo).
+**Total pós-P271: 81 ADRs** (+ADR-0093 EM VIGOR + ADR-0094 EM VIGOR
+P271 — meta-formalização sub-padrões metodológicos; criadas
+directamente EM VIGOR paridade P260 ADR-0084/0085 + P268.1 ADR-0090;
+sub-padrão "Passo administrativo XS criar/promover ADR" N=5 → **N=6
+cumulativo**).
 
 ### Distribuição de status
 
@@ -248,11 +255,13 @@ via anotação cumulativa em ADR-0092 — não cria ADR nova; sub-padrão
   **PROPOSTO 11 preservado** (ADR-0083 entra e sai no mesmo
   passo via promoção P257.D).
 - `IDEIA`: 2 ADRs (0002, 0003).
-- `EM VIGOR`: **33** ADRs pós-P268.1 (regras/políticas activas;
+- `EM VIGOR`: **35** ADRs pós-P271 (regras/políticas activas;
   0018, 0029, 0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**,
   **0080** P229, **0082** P254, **+0084 P260** auditoria
   condicional, **+0085 P260** diagnóstico imutável,
-  **+0090 P268.1** Gradient Conic PDF strategy Type 4 vs industry mesh variants).
+  **+0090 P268.1** Gradient Conic PDF strategy Type 4 vs industry mesh variants,
+  **+0093 P271** meta-metodologia evolução ADRs,
+  **+0094 P271** meta-operacional specs).
 - `IMPLEMENTADO`: **31** ADRs pós-P270.3 (decisões materializadas;
   0001, 0004, 0016, 0017, 0019, 0021–0027, 0026-R1, 0031,
   0052, 0053, 0055, 0057, **0060**, **0061** P221, **0078**
@@ -3627,3 +3636,52 @@ P84.8g.
   literal** pós-P270.4 — cluster Gradient L3 emit fechado absoluto;
   série P270/P270.1/P270.2/P270.3/P270.4 (5 sub-passos) encerrada
   com sucesso completo.
+- **Passo 271 — Meta-formalização sub-padrões metodológicos via
+  ADR-0093 + ADR-0094 EM VIGOR (cluster metodológico formalizado)**
+  (subpadrão **"Passo administrativo XS criar/promover ADR" N=5 →
+  N=6 cumulativo** (P156K/P160A/P229/P254/P268.1/**P271**); subpadrão
+  **"Meta-formalização sub-padrões empíricos N≥4" N=2 → N=3 cumulativo
+  emergente** (P260 ADR-0084/0085 + P268.1 ADR-0090 + **P271
+  ADR-0093/0094**); subpadrão "Auto-aplicação ADR-0065 inline"
+  N=15 → N=16 cumulativo (diagnóstico empírico embebido §"Histórico
+  empírico" ADR-0093+0094; sem ficheiro filesystem novo); subpadrão
+  "Anotação cumulativa em vez de ADR nova" **N=10 cumulativo** —
+  P271 anota ADR-0083/0089/0091/0092/0054 (5 anotações paralelas).
+  **Magnitude XS** (0 LOC L1/L3/stdlib; só documentação ADRs +
+  anotações cumulativas + README). **ADR-0093 EM VIGOR criada**
+  (meta-metodologia evolução ADRs): formaliza 2 sub-padrões N≥6 —
+  (1) "ADR scope-out revogado parcialmente" N=6 cumulativo
+  (P267/P269/P270/P270.2/P270.3/P270.4); (2) "Anotação cumulativa em
+  vez de ADR nova" N=10 cumulativo consolidação clara
+  (P258.B/P259.B/P263/P265/P268/P268.2/P270/P270.1/P270.2/P270.4);
+  decisão complementar "Anotação cumulativa cross-ADR" N=5 incorporada
+  como sub-caso Pattern 2. **ADR-0094 EM VIGOR criada**
+  (meta-operacional specs): formaliza 3 sub-padrões N≥4 — (1) "Cap LOC
+  hard vs soft explícito" N=4 cumulativo (P270.1-P270.4 inaugural
+  pós-lição P270 estouro silencioso); (2) "Reutilização literal
+  helpers cross-passos" N=10 cumulativo consolidação clara (P265-P270.4
+  cumulativo); (3) "Fase A com industry research proactiva" N=4
+  cumulativo (P270/P270.2/P270.3/P270.4 inaugural pós-lição P268.1
+  re-trabalho). **5 anotações cumulativas P271 paralelas**:
+  ADR-0083 + ADR-0089 + ADR-0091 + ADR-0092 + ADR-0054 cross-reference
+  meta-ADRs novas. **L0 não tocado** (meta-ADRs metodológicas; sem
+  hash drift). **Marco metodológico P271**: cluster Gradient série
+  P270 produziu cluster metodológico — sub-padrões formalizados
+  meta-ADRs paridade P260. Cristalino agora tem ferramenta operacional
+  consolidada para specs futuras: caps explícitos hard/soft;
+  reutilização literal helpers; industry research proactiva; evolução
+  ADRs via scope-out parcial e anotação cumulativa. Distribuição
+  ADRs **79 → 81** (+ADR-0093 + ADR-0094 EM VIGOR); PROPOSTO 11 +
+  IMPLEMENTADO 31 preservados; **EM VIGOR 33 → 35** (+0093, +0094).
+  Tests workspace **2572 preservados** (zero código alterado; cap
+  XS 0 LOC). Lint zero violations; sem hash drift L0. **Subpadrão
+  emergente "Meta-formalização sub-padrões empíricos N≥4" N=3** —
+  pode atingir limiar formalização se passos futuros gerarem novas
+  meta-ADRs (candidato meta-meta-ADR no horizonte; não urgente).
+  **Pendências preservadas pós-P271** (sem mudança vs P270.4):
+  P-Gradient-Coons-RGB-Final (M) + P-Gradient-Relative-Custom (M) +
+  P-Gradient-CMYK-ICC (S-M) + P-Gradient-Adaptive-Multispace (S) +
+  ADR-0055bis variant-aware fonts (M) + P-Footnote-N (M) + DEBT-33 +
+  Tiling + outro cluster. **Decisão humana fica em aberto literal**
+  pós-P271 — cluster metodológico formalizado; cristalino consolida
+  ferramentas operacionais e abre próximo cluster/refino.

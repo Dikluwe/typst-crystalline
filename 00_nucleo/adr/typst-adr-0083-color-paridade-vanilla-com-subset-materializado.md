@@ -493,3 +493,16 @@ Ver ADR-0092 §"Anotação cumulativa P270.4" para detalhes.
 
 Status ADR-0083 preservado literal (`IMPLEMENTADO`). Cluster Color
 cobertura 100% estrutural + 100% L3 PDF emit.
+
+## Anotação cumulativa P271 — Sub-padrões formalizados
+
+Sub-padrão "ADR scope-out revogado parcialmente" aplicado a esta ADR
+em P270/P270.2/P270.4 (3 das 6 instâncias cumulativas) formalizado via
+**ADR-0093 EM VIGOR** (meta-metodologia evolução ADRs).
+
+Anotações cumulativas P259/P270/P270.2/P270.4 desta ADR participam
+pattern **"Anotação cumulativa em vez de ADR nova"** N=10 cumulativo
+também formalizado **ADR-0093 EM VIGOR**.
+
+Ver ADR-0093 §"Histórico empírico" para tabelas literais. Status
+`IMPLEMENTADO` preservado.

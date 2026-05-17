@@ -619,3 +619,25 @@ Cross-references:
   — diagnóstico imutável (décimo segundo consumo directo de fonte).
 - Cluster Color (P257) cobertura final 100% estrutural + 100% L3
   PDF emit.
+
+## Anotação cumulativa P271 — Meta-formalização sub-padrões metodológicos
+
+P271 — meta-formalização sub-padrões metodológicos via **ADR-0093 +
+ADR-0094 EM VIGOR** (passo administrativo XS; paridade P260
+ADR-0084/0085 + P268.1 ADR-0090).
+
+Perfil graded DEBT-1 reforçado por mecanismos operacionais
+documentados:
+
+- **Caps explícitos hard/soft** → ADR-0094 §"Pattern 1".
+- **Reutilização literal helpers cross-passos** → ADR-0094 §"Pattern 2".
+- **Industry research proactiva** → ADR-0094 §"Pattern 3".
+- **Evolução ADRs via scope-out parcial + anotação cumulativa** →
+  ADR-0093 §"Pattern 1 + Pattern 2".
+
+Sub-padrão "Anotação cumulativa em vez de ADR nova" N=10 cumulativo;
+anotações desta ADR (P269/P270/P270.1/P270.2/P270.3/P270.4/P271)
+demonstram o pattern em larga escala.
+
+Status `EM VIGOR` preservado literal. Ver ADR-0093 + ADR-0094 EM
+VIGOR.
