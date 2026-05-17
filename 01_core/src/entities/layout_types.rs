@@ -635,7 +635,7 @@ impl Angle {
 // vanilla). Re-export para compatibilidade hot path consumers
 // (`Stroke.paint: Color`, `Style::Fill(Color)`,
 // `FrameItem::Text.fill`, `Value::Color`, stdlib parsers).
-pub use crate::entities::color::Color;
+pub use crate::entities::color::{Color, ColorSpace};
 
 // ── Testes ─────────────────────────────────────────────────────────────────
 
