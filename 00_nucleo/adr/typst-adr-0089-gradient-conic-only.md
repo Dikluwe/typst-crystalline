@@ -706,3 +706,19 @@ Sub-padrão "Anotação cumulativa cross-ADR" N=4 → N=5 cumulativo.
 
 Status `IMPLEMENTADO` preservado literal. Estratégia Type 4 ADR-0090
 intocada.
+
+## Anotação cumulativa P271 — Sub-padrões formalizados
+
+Anotações cumulativas P268/P268.1/P268.2/P270/P270.1/P270.2/P270.3/
+P270.4 desta ADR (8 anotações cumulativas em série Gradient) são
+instâncias canónicas dos sub-padrões formalizados:
+
+- **"Anotação cumulativa em vez de ADR nova"** (N=10 cumulativo)
+  → **ADR-0093 EM VIGOR**.
+- **"Anotação cumulativa cross-ADR"** (N=5 cumulativo; sub-caso de
+  Pattern 2) → ADR-0093 §"Anotação cumulativa cross-ADR".
+- **"Reutilização literal helpers cross-passos"** (helpers Oklab
+  P262/P265/P268.2/P270.1-P270.4) → **ADR-0094 EM VIGOR**.
+
+Ver ADR-0093 + ADR-0094 EM VIGOR para meta-formalização. Status
+`IMPLEMENTADO` preservado.

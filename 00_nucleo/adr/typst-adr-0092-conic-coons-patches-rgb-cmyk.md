@@ -423,3 +423,23 @@ feature-complete a nível user-facing. Cluster Color (ADR-0083) §"8/8
 spaces" agora cobre L1 + L3 em 24/24 combinações.
 
 Status `IMPLEMENTADO` preservado literal.
+
+## Anotação cumulativa P271 — Sub-padrões formalizados
+
+Esta ADR aplica todos os 5 sub-padrões formalizados via meta-ADRs
+P271:
+
+- **"Fase A com industry research proactiva"** (P270.3 pesquisa
+  9 fontes pré-spec; N=4 cumulativo) → **ADR-0094 EM VIGOR**.
+- **"Cap LOC hard vs soft explícito"** (P270.3 N=3; P270.4 N=4
+  consolidação) → ADR-0094 §"Pattern 1".
+- **"Reutilização literal helpers cross-passos"** (helpers P270.3 RGB
+  reutilizados P270.4 CMYK; N=10 cumulativo) → ADR-0094 §"Pattern 2".
+- **"Anotação cumulativa em vez de ADR nova"** (P270.4 anotação;
+  N=10 cumulativo) → **ADR-0093 EM VIGOR**.
+- **"ADR scope-out revogado parcialmente"** (cross-ref ADR-0090
+  §Type 6 P270.3; cross-ref ADR-0091 §Conic CMYK P270.4; N=6
+  cumulativo) → ADR-0093 §"Pattern 1".
+
+Ver ADR-0093 + ADR-0094 EM VIGOR para meta-formalização. Status
+`IMPLEMENTADO` preservado.
