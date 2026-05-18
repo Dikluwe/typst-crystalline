@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export.md
-//! @prompt-hash c1a785a3
+//! @prompt-hash baa37d9c
 //! @layer L3
 //! @updated 2026-04-20
 
@@ -2616,30 +2616,54 @@ fn escape_pdf_string(text: &str) -> String {
 // ── Helpers — caminho CIDFont ──────────────────────────────────────────────
 
 /// Coleciona todos os codepoints Unicode distintos usados no documento.
+///
+/// **P280** — atravessa `FrameItem::Group` recursivamente (classe A,
+/// padrão canónico ver L0 `infra/export.md` §"Walkers top-level —
+/// invariante arquitectural"). Pré-P280: bug latent — Text dentro
+/// de Group não contribuía chars → `text_to_hex_string` retornaria
+/// `<0000>` (notdef) quando P280.X-bis-text-emit-em-group lander.
 fn collect_codepoints(doc: &PagedDocument) -> Vec<char> {
+    fn walk(items: &[FrameItem], seen: &mut std::collections::BTreeSet<char>) {
+        for item in items {
+            match item {
+                FrameItem::Text { text, .. } => {
+                    for c in text.chars() {
+                        seen.insert(c);
+                    }
+                }
+                FrameItem::Group { items: child, .. } => walk(child, seen),
+                _ => {} // Image, Line, Glyph não contribuem com codepoints de texto.
+            }
+        }
+    }
     let mut seen = std::collections::BTreeSet::new();
     for page in &doc.pages {
-        for item in &page.items {
-            if let FrameItem::Text { text, .. } = item {
-                for c in text.chars() {
-                    seen.insert(c);
-                }
-            }
-            // Image, Line, Glyph não contribuem com codepoints de texto.
-        }
+        walk(&page.items, &mut seen);
     }
     seen.into_iter().collect()
 }
 
 /// Coleciona todos os glyph IDs distintos usados em `FrameItem::Glyph` no documento.
+///
+/// **P280** — atravessa `FrameItem::Group` recursivamente (classe A,
+/// idem `collect_codepoints`). Pré-P280: bug latent — Glyph dentro
+/// de Group não contribuía IDs → ToUnicode CMap incompleto para
+/// glyphs em Group.
 fn collect_glyph_ids(doc: &PagedDocument) -> BTreeSet<u16> {
-    let mut ids = BTreeSet::new();
-    for page in &doc.pages {
-        for item in &page.items {
-            if let FrameItem::Glyph { glyph_id, .. } = item {
-                ids.insert(*glyph_id);
+    fn walk(items: &[FrameItem], ids: &mut BTreeSet<u16>) {
+        for item in items {
+            match item {
+                FrameItem::Glyph { glyph_id, .. } => {
+                    ids.insert(*glyph_id);
+                }
+                FrameItem::Group { items: child, .. } => walk(child, ids),
+                _ => {}
             }
         }
+    }
+    let mut ids = BTreeSet::new();
+    for page in &doc.pages {
+        walk(&page.items, &mut ids);
     }
     ids
 }
@@ -3308,6 +3332,160 @@ mod tests {
         let cmap = to_unicode_cmap(&mappings);
         let s = String::from_utf8(cmap).unwrap();
         assert!(s.contains("<00A2> <0028>"), "CMap deve ter entrada glyph→Unicode: {s}");
+    }
+
+    // ── P280 — auditoria walkers: collect_codepoints + collect_glyph_ids ─────
+    //
+    // P280 fixou bug latent classe B em ambos walkers: pré-fix, items dentro
+    // de FrameItem::Group não contribuíam ao set acumulado. Pattern idêntico
+    // a P273.10 (scan_all_gradients) + P279 (scan_all_images).
+    //
+    // Sub-padrão "Scope creep arquitectural por walker top-level" N=5
+    // cumulativo (P273.10 + P279×2 + P280×2).
+
+    #[test]
+    fn p280_collect_codepoints_atravessa_group() {
+        use typst_core::entities::layout_types::{
+            Page, PagedDocument, Point, Pt, TextStyle, TransformMatrix,
+        };
+        let style = TextStyle::default();
+        let group = FrameItem::Group {
+            pos: Point::ZERO,
+            matrix: TransformMatrix::identity(),
+            clip_mask: None,
+            inner_width: 100.0,
+            inner_height: 50.0,
+            items: vec![
+                FrameItem::Text {
+                    pos: Point::ZERO,
+                    text: "Zφ".into(),
+                    style: style.clone(),
+                },
+            ],
+        };
+        let page = Page {
+            width: 595.28, height: 841.89,
+            items: vec![
+                FrameItem::Text {
+                    pos: Point::ZERO,
+                    text: "A".into(),
+                    style: style.clone(),
+                },
+                group,
+            ],
+        };
+        let doc = PagedDocument::new(vec![page]);
+        let chars = collect_codepoints(&doc);
+        assert!(chars.contains(&'A'), "char top-level preserved");
+        assert!(chars.contains(&'Z'), "char dentro de Group também coletado (P280)");
+        assert!(chars.contains(&'φ'), "char não-ASCII dentro de Group coletado (P280)");
+    }
+
+    #[test]
+    fn p280_collect_codepoints_atravessa_groups_aninhados() {
+        use typst_core::entities::layout_types::{
+            Page, PagedDocument, Point, Pt, TextStyle, TransformMatrix,
+        };
+        let style = TextStyle::default();
+        let inner = FrameItem::Group {
+            pos: Point::ZERO,
+            matrix: TransformMatrix::identity(),
+            clip_mask: None,
+            inner_width: 50.0,
+            inner_height: 25.0,
+            items: vec![FrameItem::Text {
+                pos: Point::ZERO,
+                text: "Ω".into(),
+                style: style.clone(),
+            }],
+        };
+        let outer = FrameItem::Group {
+            pos: Point::ZERO,
+            matrix: TransformMatrix::identity(),
+            clip_mask: None,
+            inner_width: 100.0,
+            inner_height: 50.0,
+            items: vec![inner],
+        };
+        let page = Page {
+            width: 595.28, height: 841.89,
+            items: vec![outer],
+        };
+        let doc = PagedDocument::new(vec![page]);
+        let chars = collect_codepoints(&doc);
+        assert!(chars.contains(&'Ω'), "char em Group dentro de Group coletado (P280)");
+    }
+
+    #[test]
+    fn p280_collect_glyph_ids_atravessa_group() {
+        use typst_core::entities::layout_types::{
+            Page, PagedDocument, Point, Pt, TransformMatrix,
+        };
+        let group = FrameItem::Group {
+            pos: Point::ZERO,
+            matrix: TransformMatrix::identity(),
+            clip_mask: None,
+            inner_width: 100.0,
+            inner_height: 50.0,
+            items: vec![FrameItem::Glyph {
+                pos: Point::ZERO,
+                glyph_id: 555,
+                x_advance: Pt(10.0),
+                size: Pt(12.0),
+            }],
+        };
+        let page = Page {
+            width: 595.28, height: 841.89,
+            items: vec![
+                FrameItem::Glyph {
+                    pos: Point::ZERO,
+                    glyph_id: 42,
+                    x_advance: Pt(10.0),
+                    size: Pt(12.0),
+                },
+                group,
+            ],
+        };
+        let doc = PagedDocument::new(vec![page]);
+        let ids = collect_glyph_ids(&doc);
+        assert!(ids.contains(&42),  "glyph top-level preserved");
+        assert!(ids.contains(&555), "glyph dentro de Group também coletado (P280)");
+        assert_eq!(ids.len(), 2);
+    }
+
+    #[test]
+    fn p280_collect_glyph_ids_atravessa_groups_aninhados() {
+        use typst_core::entities::layout_types::{
+            Page, PagedDocument, Point, Pt, TransformMatrix,
+        };
+        let inner = FrameItem::Group {
+            pos: Point::ZERO,
+            matrix: TransformMatrix::identity(),
+            clip_mask: None,
+            inner_width: 50.0,
+            inner_height: 25.0,
+            items: vec![FrameItem::Glyph {
+                pos: Point::ZERO,
+                glyph_id: 777,
+                x_advance: Pt(10.0),
+                size: Pt(12.0),
+            }],
+        };
+        let outer = FrameItem::Group {
+            pos: Point::ZERO,
+            matrix: TransformMatrix::identity(),
+            clip_mask: None,
+            inner_width: 100.0,
+            inner_height: 50.0,
+            items: vec![inner],
+        };
+        let page = Page {
+            width: 595.28, height: 841.89,
+            items: vec![outer],
+        };
+        let doc = PagedDocument::new(vec![page]);
+        let ids = collect_glyph_ids(&doc);
+        assert!(ids.contains(&777), "glyph em Group dentro de Group coletado (P280)");
     }
 
     // ── Testes de imagem (Passo 73) ───────────────────────────────────────────

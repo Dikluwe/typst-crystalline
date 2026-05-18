@@ -155,6 +155,29 @@
 > bit-exact + 6 novos; lint zero. Total abertos: **6 → 6 preserved**
 > (bug fix; não fecha nem abre DEBT numerado). Detalhe em
 > [`diagnosticos/diagnostico-p279-text-image-em-group.md`](diagnosticos/diagnostico-p279-text-image-em-group.md).
+>
+> **Passo 280 (2026-05-18)**: auditoria sistemática de walkers top-level
+> em `03_infra/src/export.rs` (estabilização diagnóstica per hipótese
+> P279 §3). **10 walkers inventariados** em export.rs + 2 em pipeline.rs;
+> classificação A/B/C definitiva: **A = 7** (recursivos correctos), **B = 2**
+> (`collect_codepoints` + `collect_glyph_ids` — bug latent CIDFont
+> path), **C = 3** (stream-builders top-level que delegam Group para
+> `draw_item_local`). Hipótese P279 §3 **confirmada empíricamente**
+> (B = 2 walkers descobertos). **2 fixes oportunistas materializados**:
+> ambos walkers ganharam helper interno `walk` recursivo (pattern
+> idêntico a P273.10/P279); ~24 LOC L3 produção net (cap hard 80 / soft 50
+> respeitado). Sub-padrão **"Scope creep arquitectural por walker
+> top-level" N=2 → N=5 cumulativo** (P273.10 gradient + P279 image×2 +
+> P280 codepoints/glyph_ids). NÃO formalizado em ADR per anti-padrão
+> over-formalização [[diagnostico-passo-273-17]] §0 — invariante
+> arquitectural documentada em L0 `infra/export.md` secção
+> "Walkers top-level". Sub-padrão "Auditoria sistemática de bug latent
+> class" N=1 inaugural. 4 testes P280 verdes
+> (codepoints + codepoints_aninhados + glyph_ids + glyph_ids_aninhados);
+> 2 611 → 2 615 testes verdes; lint zero. Zero pendências P281+
+> identificadas — classe de bug estabilizada empíricamente. Total
+> abertos: **6 → 6 preserved**. Detalhe em
+> [`diagnosticos/diagnostico-auditoria-walkers-passo-280.md`](diagnosticos/diagnostico-auditoria-walkers-passo-280.md).
 
 ---
 

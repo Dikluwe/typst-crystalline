@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export` — Exportador Físico de Documentos
-Hash do Código: d04bc4e9
+Hash do Código: 2a8c625a
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export.rs`
@@ -547,3 +547,74 @@ Pendência: `P280.X-bis-text-emit-em-group-3-font-scenarios`
   preserved.
 
 Sub-padrão **"Render real Groups" N=2 cumulativo** (P273.13 + P279).
+
+---
+
+## Secção: Walkers top-level — invariante arquitectural (P280)
+
+Auditoria sistemática P280 inventariou 10 walkers em `export.rs`
++ 2 em `pipeline.rs`. Classificação A/B/C:
+
+**Classe A — Walkers recursivos** (visitam todos os items; têm
+helper interno `fn walk(items: &[FrameItem], ...)`):
+
+- `scan_all_gradients` (P273.10 inaugural).
+- `pattern_resources_for_page` (P273.10 + P273.12 + P278).
+- `scan_all_images` (P279).
+- `xobject_resources_for_page` (P279).
+- `collect_codepoints` (P280 — fixed).
+- `collect_glyph_ids` (P280 — fixed).
+- `collect_fonts_from_doc` (em `pipeline.rs`; ver L0 `pipeline.md`).
+- `first_font_in_doc` (em `pipeline.rs`).
+
+**Classe C — Walkers top-level que delegam** (iteram apenas
+`page.items` porque o arm Group da própria função chama uma
+sub-função recursiva):
+
+- `build_page_stream_type1` — arm Group chama `draw_item_local`.
+- `build_page_stream_cidfont` — idem.
+- `build_page_stream_multifont` — idem.
+
+**Invariante arquitectural**: walker que precisa de visitar
+todos os items (não só top-level) tem de implementar recursão
+explícita. Iterar apenas `page.items.iter()` no nível externo
+falha silenciosamente quando estructura ganha `FrameItem::Group`
+como contentor.
+
+**Padrão canónico** (idêntico em todos os classe A):
+
+```rust
+fn walker(doc: &PagedDocument) -> Acc {
+    fn walk(items: &[FrameItem], acc: &mut Acc) {
+        for item in items {
+            match item {
+                FrameItem::Group { items: child, .. } => walk(child, acc),
+                FrameItem::Text { ... } => { /* contribute */ }
+                _ => {}
+            }
+        }
+    }
+    let mut acc = Acc::default();
+    for page in &doc.pages {
+        walk(&page.items, &mut acc);
+    }
+    acc
+}
+```
+
+**Manifestação típica do bug** (quando latent): feature dependente
+do walker passa a renderizar dentro de Group → items invisíveis ao
+walker → resource/lookup map incompleto → emit silencioso de
+referência inválida (e.g. `/Im1 Do` para XObject não-registado;
+glyph ID 0 notdef para char não-coletado).
+
+Histórico sub-padrão "Scope creep arquitectural por walker
+top-level": **N=5 cumulativo** (P273.10 gradient + P279 image×2 +
+P280 codepoints/glyph_ids). Hipótese P279 §3 confirmada
+empíricamente em P280 com 2 walkers classe B descobertos
+(`collect_codepoints` + `collect_glyph_ids`). Auditoria estabilizou
+a classe de bug sem walkers residuais conhecidos.
+
+**Sub-padrão NÃO formalizado em ADR** per anti-padrão
+over-formalização [[diagnostico-passo-273-17]] §0. Invariante
+documentada aqui no L0 é suficiente para guard de future code.
