@@ -220,13 +220,10 @@ fn extract_coordinate(val: &Value) -> Option<(f64, f64)> {
 /// `polygon(pt1, pt2, ...; fill?, stroke?)` → `Content::Shape { kind: Path, ... }`.
 ///
 /// Cada argumento posicional é um array `[x, y]` em pontos tipográficos.
-/// A bounding box é calculada pelos pontos de controlo (DEBT-33).
+/// Bbox calculada via `geometry::path_bbox` (analítica para CubicTo;
+/// equivalente a min/max para LineTo-only — P277 consolidação DEBT-33).
 pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     let mut path_items: Vec<PathItem> = Vec::new();
-    let mut min_x = f64::INFINITY;
-    let mut max_x = f64::NEG_INFINITY;
-    let mut min_y = f64::INFINITY;
-    let mut max_y = f64::NEG_INFINITY;
 
     for (i, val) in args.items.iter().enumerate() {
         let (x, y) = extract_coordinate(val)
@@ -240,11 +237,6 @@ pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
         } else {
             path_items.push(PathItem::LineTo(Point { x: Pt(x), y: Pt(y) }));
         }
-
-        min_x = min_x.min(x);
-        max_x = max_x.max(x);
-        min_y = min_y.min(y);
-        max_y = max_y.max(y);
     }
 
     if path_items.is_empty() {
@@ -261,6 +253,10 @@ pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
         parse_color(v).map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false })
     });
 
+    // P277 — DEBT-33 CLOSED: usar geometry::path_bbox para bbox.
+    // Para LineTo-only paths preserva bit-exact min/max behavior.
+    let (min_x, min_y, max_x, max_y) =
+        crate::entities::geometry::path_bbox(&path_items);
     let width  = if max_x > min_x { Some(Box::new(Value::Float(max_x - min_x))) } else { None };
     let height = if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 

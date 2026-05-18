@@ -1,5 +1,5 @@
 # Prompt L0 — geometry
-Hash do Código: 3f93a04c
+Hash do Código: 52271440
 
 ## Módulo
 `01_core/src/entities/geometry.rs`
@@ -93,6 +93,8 @@ pub enum ShapeKind {
     Rect,
     Ellipse,
     Line { dx: f64, dy: f64 },
+    RoundedRect { radii: Corners<Length> },  // P242
+    Path(Vec<PathItem>),                      // P79+ (extended P277)
 }
 ```
 `Line::dx`/`dy`: deslocamentos no sistema de layout (Y positivo = baixo).
@@ -100,6 +102,41 @@ Bounding box de `Line` usa `abs()` dos deltas.
 
 `Ellipse`: scaffolding presente; exportador PDF emite rectângulo placeholder
 com comentário `TODO` apontando DEBT-31.
+
+`RoundedRect`: P242 — rectângulo com cantos arredondados; radii por canto.
+Ver §"ShapeKind::RoundedRect" abaixo.
+
+### `ShapeKind::Path` — bbox analítica (P277, DEBT-33 fecho CLOSED)
+
+`Path(Vec<PathItem>)` representa caminho geométrico livre composto por
+segmentos `MoveTo`, `LineTo`, `CubicTo`, `ClosePath`. Materializado em
+P79 (polígonos); CubicTo em P79+ enum (zero stdlib producers actuais
+mas estruturalmente disponível para `curve()`/`path()` user-facing
+futuro).
+
+**Bbox calculada analíticamente** (P277 — DEBT-33 CLOSED):
+- `MoveTo` / `LineTo`: endpoints contribuem directamente para min/max.
+- `CubicTo(P₁, P₂, P₃)` a partir de `current_point P₀`: bbox via
+  **raízes de B'(t)=0** em cada eixo. Candidatos: endpoints (P₀, P₃)
+  + raízes em `t ∈ (0, 1)`. `B'(t) = 3·[a·t² + b·t + c]` onde
+  `a = -P₀ + 3P₁ - 3P₂ + P₃`, `b = 2P₀ - 4P₁ + 2P₂`, `c = -P₀ + P₁`.
+
+**Razão**: curva real de `CubicTo` pode exceder a bounding box dos
+pontos de controlo. Cálculo analítico via raízes da derivada produz
+AABB exacto (não conservador). Corrige vazamento visual subtil em
+curvas que excedem control points.
+
+**Complexidade**: O(1) por segmento CubicTo (≤6 candidatos a comparar).
+**Pureza**: matemática `f64` pura; zero deps externas (ADR-0029
+preserved absoluto).
+
+**Helpers L1 em `geometry.rs`**:
+- `bezier_cubic_bbox(p0, p1, p2, p3) -> (min_x, min_y, max_x, max_y)`.
+- `path_bbox(items: &[PathItem]) -> (f64, f64, f64, f64)` — walker
+  sobre PathItems com estado `current_point`.
+
+`polygon()` (stdlib/shapes.rs) usa `path_bbox()` para consolidação;
+LineTo-only paths preservam bit-exact min/max behavior.
 
 ## Exposição em `entities/mod.rs`
 ```rust

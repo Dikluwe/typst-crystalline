@@ -67,6 +67,36 @@
 > Model**: P156→P157, P157→P158, P158→P159; reserva
 > hayagriva passa de ADR-0061 para **ADR-0062**. DEBT-55
 > actualizada. Total abertos: **13 → 14**.
+>
+> **Passo 275 (2026-05-18)**: auditoria empírica pós-cluster
+> Gradient. Contagem actual reconciliada: **8 abertos** (não 10
+> como assumido em relatórios P273.x — herança desactualizada).
+> Pós-P156B (não-reflectidos no histórico antes desta linha):
+> DEBT-53/54 ENCERRADOS P206E (OBSOLETED); DEBT-56 ENCERRADO P221
+> (CLOSED Fase 3 Layout); DEBT-34d FECHADO P233; DEBT-34e
+> ENCERRADO P224; DEBT-8 ENCERRADO P255. Detalhe em
+> [`diagnosticos/diagnostico-auditoria-passo-275.md`](diagnosticos/diagnostico-auditoria-passo-275.md).
+>
+> **Passo 276 (2026-05-18)**: fecho de **DEBT-35b** como OBSOLETED
+> (pattern P206E). DEBT preventivo aberto em P81 sobre cache
+> hipotético de `available_width`; auditoria P276 confirmou que
+> cache nunca foi materializado em ~195 passos (P81 → P275). Risco
+> previsto não activou. Nota arquitectural preservada como
+> substituto documental (ver Secção 2 DEBT-35b). Total abertos:
+> **8 → 7**. Detalhe em
+> [`diagnosticos/diagnostico-debt-35b-passo-276.md`](diagnosticos/diagnostico-debt-35b-passo-276.md).
+>
+> **Passo 277 (2026-05-18)**: fecho de **DEBT-33** como CLOSED
+> (pattern P206E — materializado). Algoritmo bbox analítico de
+> Bézier cúbica via raízes de B'(t)=0 materializado em
+> `01_core/src/entities/geometry.rs` (`bezier_cubic_bbox` +
+> `path_bbox` + helpers privados). `polygon()` stdlib refactored
+> para consolidação. 8 testes unit verdes; LineTo-only paths
+> preserved bit-exact. Pureza L1 absoluta (zero deps externas;
+> matemática f64 pura). L0 `geometry.md` actualizado para incluir
+> `ShapeKind::Path` + bbox analítica section. Total abertos:
+> **7 → 6**. Detalhe em
+> [`diagnosticos/diagnostico-debt-33-passo-277.md`](diagnosticos/diagnostico-debt-33-passo-277.md).
 
 ---
 
@@ -239,22 +269,6 @@ funcionalidades forem implementadas, adicionar casos de paridade correspondentes
 
 ---
 
-## DEBT-33 — Bounding Box de curvas Bézier (Passo 79) — EM ABERTO
-
-A bounding box de `ShapeKind::Path` é calculada verificando o min/max dos pontos
-de controlo. Para `CubicTo`, a curva real pode ultrapassar a caixa delimitadora
-dos pontos de controlo, causando vazamento visual subtil. Resolução futura:
-cálculo analítico dos extremos da curva paramétrica B(t) para obter a AABB exacta.
-
-### Auditado em P259.A (2026-05-15)
-
-Audit Fase A Visualize confirmou DEBT-33 **EM ABERTO preservado**.
-Aproximação por min/max dos pontos de controlo preservada;
-cálculo analítico não materializado. Candidato P260+ (Opção 3
-"DEBT-33 + Stroke<Length>" do diagnóstico pai). Magnitude S+
-(~1-2h; +5 tests; matemática paramétrica raízes da derivada
-`B'(t) = 0` em [0,1]).
-
 ---
 
 ## DEBT-34d — Auto não encolhe antes de matar fr — FECHADO (Passo 233) ✓
@@ -385,15 +399,6 @@ textual preservado").
 
 **[HISTÓRICO]**: Células que ocupam múltiplas colunas ou linhas requerem
 um algoritmo de placement diferente. Resolução: passo futuro.
-
----
-
-## DEBT-35b — Invalidação de cache de available_width após SetPage — EM ABERTO (Passo 81)
-
-Se alguma função guardar available_width em cache como campo do Layouter,
-esse cache tem de ser invalidado no processamento de Content::SetPage.
-Actualmente available_width() é calculado em tempo real sem cache —
-este DEBT documenta o risco caso um cache venha a ser adicionado.
 
 ---
 
@@ -1267,6 +1272,128 @@ este DEBT.
 ---
 
 ## Secção 2 — DEBTs encerrados
+
+## DEBT-35b — Invalidação de cache de available_width após SetPage — ENCERRADO (Passo 276) ✓
+
+**Aberto em**: Passo 81.
+**Fechado em**: 2026-05-18 (Passo 276).
+**Etiqueta de fecho**: **OBSOLETED** (pattern P206E — irrelevância empírica).
+
+**Justificação literal**: P276 auditoria empírica confirmou que após
+~195 passos (P81 → P275), **nenhum cache de `available_width` foi
+materializado** no `Layouter` ou módulos relacionados. O método
+`available_width()` (em `01_core/src/rules/layout/mod.rs:372`)
+continua a ser calculado em tempo real (`self.regions.current.width
+- 2.0 * self.page_config.margin`) sem cache. A hipótese inicial
+("cache poderia ser adicionado, exigindo invalidação após
+`Content::SetPage`") não se materializou; o risco previsto nunca
+activou.
+
+**Pattern análogo a DEBT-54** (OBSOLETED P206E): hipótese inicial
+sobre necessidade futura revelou-se factualmente desnecessária.
+Sub-padrão **"Fecho OBSOLETED de DEBT preventivo"** N=2 cumulativo
+(DEBT-54 P206E + DEBT-35b P276); aguarda terceira aplicação para
+considerar formalização.
+
+**Nota arquitectural preservada** (substitui o DEBT como artefacto
+documental): se passo futuro adicionar cache de `available_width`
+como campo do `Layouter` (motivado por perf benchmark concreto), o
+arm `Content::SetPage` (`mod.rs:1009+`) deve invalidar o cache.
+Esta nota fica preservada aqui em vez de manter DEBT aberto
+especulativamente.
+
+**Evidência empírica P276 Fase A**:
+- Método `available_width` calcula em tempo real, sem campos cache
+  (`cached_width`, `width_cache`, `cached_available` — todos zero
+  matches em `01_core/src/rules/layout/`).
+- 13 callsites em `layout/mod.rs` + `layout/placement.rs` +
+  `layout/grid.rs` — todos chamam método, não campo.
+- `Content::SetPage` arm existe (`mod.rs:1009`) mas configura apenas
+  `self.page_config`; sem invalidação porque sem cache.
+- Histórico git: zero commits adicionaram cache de
+  `available_width`.
+- 9 menções a DEBT-35b em `00_nucleo/` pós-P81 são todas
+  administrativas (P83.5, P83.6, P84.6 "FORA DE ESCOPO", P105,
+  P125, P275); zero passos materiais.
+
+Detalhe completo em
+[`diagnosticos/diagnostico-debt-35b-passo-276.md`](diagnosticos/diagnostico-debt-35b-passo-276.md).
+
+**Histórico preservado abaixo** per pattern P201/P202.
+
+### (Histórico) Estado pré-fecho — DEBT-35b — EM ABERTO (Passo 81)
+
+Se alguma função guardar available_width em cache como campo do Layouter,
+esse cache tem de ser invalidado no processamento de Content::SetPage.
+Actualmente available_width() é calculado em tempo real sem cache —
+este DEBT documenta o risco caso um cache venha a ser adicionado.
+
+---
+
+## DEBT-33 — Bounding Box de curvas Bézier — ENCERRADO (Passo 277) ✓
+
+**Aberto em**: Passo 79.
+**Fechado em**: 2026-05-18 (Passo 277).
+**Etiqueta de fecho**: **CLOSED** (pattern P206E — materializado).
+
+**Justificação literal**: P277 materializou cálculo analítico da
+AABB de curvas cúbicas de Bézier via raízes de B'(t)=0. Helpers L1
+adicionados em `01_core/src/entities/geometry.rs`:
+- `bezier_cubic_bbox(p0, p1, p2, p3) -> (min_x, min_y, max_x, max_y)`.
+- `path_bbox(items: &[PathItem]) -> (f64, f64, f64, f64)` — walker
+  sobre PathItems com estado `current_point`.
+- `solve_quadratic_in_unit` + `bezier_at_axis` (helpers privados).
+
+`polygon()` em `stdlib/shapes.rs` refactored para usar `path_bbox()`
+— consolidação que preserva bit-exact behavior para LineTo-only
+paths (testes P63+ verdes).
+
+**Complexidade**: O(1) por segmento CubicTo (≤6 candidatos: 2
+endpoints + 2 raízes x + 2 raízes y).
+
+**Pureza L1**: matemática f64 pura; zero deps externas (sem `lyon`,
+`kurbo`); ADR-0029 preserved absoluto.
+
+**Resultado observável**: AABB analítico é **mais apertado** (não
+maior) que min/max dos pontos de controlo. Curva Bézier é sempre
+convex combination de {P₀..P₃} ⇒ inside AABB({P₀..P₃}). Cálculo
+analítico produz AABB exacto da curva (tighter).
+
+**8 testes P277 unit verdes** em `geometry.rs`:
+1. `p277_bezier_bbox_linha_recta` — colinear → endpoints.
+2. `p277_bezier_bbox_endpoints_unicos_extremos` — monotónico.
+3. `p277_bezier_bbox_curva_tighter_em_y` — U-shape; max_y=7.5 vs 10 control points.
+4. `p277_bezier_bbox_curva_tighter_em_x` — análogo eixo x.
+5. `p277_bezier_bbox_curva_degenerada_a_zero` — todos os pontos iguais.
+6. `p277_solve_quadratic_in_unit_a_zero_linear` — caso linear + filtragem (0,1).
+7. `p277_path_bbox_polygon_lineto_preserva` — LineTo-only bit-exact.
+8. `p277_path_bbox_cubic_usa_analitica` — Path com CubicTo usa analítica.
+
+**Estado dos consumidores produção**:
+- `polygon()` stdlib: LineTo-only; behavior preserved bit-exact.
+- `PathItem::CubicTo` enum + PDF emit: estruturalmente disponíveis
+  mas **zero produtores stdlib actuais** (futuras `curve()`/`path()`
+  beneficiarão directamente do helper materializado).
+
+**Histórico preservado abaixo** per pattern P201/P202.
+
+### (Histórico) Estado pré-fecho — DEBT-33 — EM ABERTO (Passo 79)
+
+A bounding box de `ShapeKind::Path` é calculada verificando o min/max dos pontos
+de controlo. Para `CubicTo`, a curva real pode ultrapassar a caixa delimitadora
+dos pontos de controlo, causando vazamento visual subtil. Resolução futura:
+cálculo analítico dos extremos da curva paramétrica B(t) para obter a AABB exacta.
+
+#### Auditado em P259.A (2026-05-15)
+
+Audit Fase A Visualize confirmou DEBT-33 **EM ABERTO preservado**.
+Aproximação por min/max dos pontos de controlo preservada;
+cálculo analítico não materializado. Candidato P260+ (Opção 3
+"DEBT-33 + Stroke<Length>" do diagnóstico pai). Magnitude S+
+(~1-2h; +5 tests; matemática paramétrica raízes da derivada
+`B'(t) = 0` em [0,1]).
+
+---
 
 ## DEBT-1 — StyleChain — ENCERRADO (Passo 142) ✓
 
