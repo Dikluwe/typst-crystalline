@@ -674,3 +674,16 @@ Bug vanilla #4422 resolvido por construção. Ver ADR-0091
 Sub-padrão "Anotação cumulativa cross-ADR" N=2 → N=3 cumulativo.
 
 Status `IMPLEMENTADO` preservado literal.
+
+## Anotação cumulativa P273 — Radial ganha `relative: RelativeTo`
+
+Radial L1 struct ganha campo `relative: Option<RelativeTo>` (default
+`None` = Auto = Self_). Preserved P264/P265 + P269 focal_* + P270
+space. Stdlib named arg `"relative"` parsing. L3 dispatcher Radial
+ganha branch transform via `parent_bbox` quando `relative` resolve
+`Parent`. Defaults `Self_` preservam pipeline P272 bit-exact.
+
+Ver ADR-0091 §"Anotação cumulativa P273 — Cross-variant runtime fields"
+para detalhes técnicos.
+
+Status `IMPLEMENTADO` preservado literal.

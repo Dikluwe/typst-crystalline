@@ -443,3 +443,138 @@ P271:
 
 Ver ADR-0093 + ADR-0094 EM VIGOR para meta-formalização. Status
 `IMPLEMENTADO` preservado.
+
+---
+
+## Anotação cumulativa P272 — Decisão Cenário A revisado FINAL (estratégia única Coons 8/8 spaces)
+
+**Data**: 2026-05-17.
+**Status**: `IMPLEMENTADO` preservado literal — esta ADR estendida
+cobre estratégia Conic Coons unificada.
+
+**Motivo**: **ADR-0090 REVOGADO P272** (Type 4 Gouraud descontinuado);
+ADR-0092 estendida cumulativamente para cobrir estratégia Conic
+unificada Coons em 8/8 spaces.
+
+### Estratégia única Coons materializada
+
+- **RGB-family + perceptual** (7 spaces: Oklab/Oklch/sRGB/Luma/
+  LinearRGB/HSL/HSV): `/ShadingType 6` Coons + `/ColorSpace /DeviceRGB`
+  + corner colors RGB 3 bytes. Strategy **N = stops * 4 patches**
+  angulares.
+- **CMYK** (preserved P270.4): `/ShadingType 6` Coons +
+  `/ColorSpace /DeviceCMYK` + corner colors CMYK 4 bytes. Strategy
+  **N = stops** patches (preserved P270.4).
+
+### Strategy N = stops * 4 patches (RGB; divergência intencional)
+
+Divergência intencional Typst original blog 2023 ("1 patch per stop"):
+
+- Para o conjunto N de patches angulares (`stops.len() * 4`), cada
+  patch i ∈ [0, N) cobre TAU/N radianos a partir de `conic.angle`.
+- Corner colors via `Conic::sample(t)` dispatcher P270 — dispatches
+  `interpolate_in_space` per `conic.space` automaticamente:
+  - `color_start = conic.sample(i / N)`.
+  - `color_end = conic.sample((i+1) / N)`.
+- Justificativa: qualidade visual angular superior; cap LOC
+  accommodates (~80-100 additions; folga hard 100%).
+- Reader compatibility universal: Cairo/Inkscape/Adobe Reader/Foxit
+  suportam patches sub-stop arbitrários per ISO 32000-1 §7.5.7.4.
+
+### Helpers reutilizados literal P272
+
+- `emit_conic_coons_stream` (P270.3 RGB; `#[allow(dead_code)]`
+  removido; renomeado para `emit_conic_coons_stream_rgb` + extension
+  N=stops*4).
+- `bezier_control_points_for_arc` (P270.3 preserved literal).
+- `compute_coons_patches_n_stops` (P270.3 preserved; usado CMYK arm).
+- Novo: `compute_coons_patches_n_stops_extended(conic) = stops * 4`
+  (P272 RGB arm).
+- `Conic::sample(t)` (L1 P270 public API; dispatches via
+  `interpolate_in_space` per `conic.space`).
+- `emit_conic_coons_stream_cmyk` (P270.4 preserved literal).
+
+### Helpers REMOVED P272
+
+- `emit_conic_gouraud_stream` (P268; ~85 LOC L3).
+- `compute_adaptive_n_conic` (P268.2; ~40 LOC L3).
+- `oklab_delta_e` (P268.2; ~15 LOC L3; única call site era
+  `compute_adaptive_n_conic`).
+- Comment em `01_core/src/entities/gradient.rs:169` actualizado.
+
+### Tests delta P272
+
+- **REMOVED**: 20 tests P268+P268.2 (1 multispace preserved — helper
+  genérico ainda usado P270.1+).
+- **ADDED**: ~18 tests P272 (Coons RGB N=stops*4 + corner colors
+  interpolated + dispatcher unified).
+- **Net**: -2 tests; baseline 2572 → ~2570.
+
+### Cluster Gradient L3 emit estratégia unificada feature-complete 24/24 simplificado
+
+Mantém marco P270.4 (24/24 spaces) mas com simplicidade arquitectural:
+
+| Variant × ColorSpace | Pipeline L3 emit pós-P272 |
+|---|---|
+| Linear × 8 spaces | `/ShadingType 2` axial + Function Type 3 stitching (preserved P262-P270.2) |
+| Radial × 8 spaces | `/ShadingType 3` radial + Function Type 3 stitching (preserved P264-P270.2) |
+| **Conic × 7 RGB-family/perceptual** | **`/ShadingType 6` Coons + /DeviceRGB + N=stops*4 patches (P272 new)** |
+| Conic × CMYK | `/ShadingType 6` Coons + /DeviceCMYK + N=stops patches (preserved P270.4) |
+
+**Cluster 24/24 absoluto preservado**; arquitectura simplificada para
+estratégia única Coons.
+
+### Marco arquitectural máximo P272
+
+**ADR-0090 REVOGADO** — primeira ADR cristalina REVOGADA via Pattern
+ADR-0093 §"Quando NÃO aplicar". Type 4 Gouraud descontinuado;
+substituída por ADR-0092 expandida.
+
+### Sub-padrões aplicados P272
+
+- **"ADR REVOGADO + substituta"** N=2 prévio (ADR-0007/ADR-0018 e
+  ADR-0028/ADR-0029) → **N=3 cumulativo** com ADR-0090/ADR-0092.
+- **"Aplicação meta-ADR (ADR-0093)" N=1 inaugural** — primeira
+  aplicação prática Pattern 1 §"Quando NÃO aplicar" pós-formalização
+  P271.
+- **"Aplicação meta-ADR (ADR-0094)" N=1 inaugural** — primeira
+  aplicação prática Cap LOC hard/soft Pattern 1 pós-formalização P271.
+- **"Anotação cumulativa em vez de ADR nova"** N=10 → **N=11
+  cumulativo** (P272 anota ADR-0092 expandida + ADR-0091/0089/0054).
+- **"Reutilização literal helpers cross-passos"** N=10 → **N=11
+  cumulativo** (3 helpers Coons P270.3 + Conic::sample dispatcher
+  P270).
+- **"Cap LOC hard vs soft explícito"** N=4 → **N=5 cumulativo
+  consolidação total** (P272 reais ~80-100 additions; cap hard 200
+  folga 100%; cap soft 120 folga 20-40%).
+- **"Anotação cumulativa cross-ADR"** N=5 → **N=6 cumulativo**
+  (P272 anota 5 ADRs paralelas: ADR-0092 + ADR-0091 + ADR-0089 +
+  ADR-0054 + ADR-0090 transição REVOGADO).
+- **"Diagnóstico imutável" N=17 → N=18 cumulativo** (décimo terceiro
+  consumo directo de fonte; consolidação industry P270.3 reutilizada
+  + bug #4422 P270.4 reutilizado).
+- **"Fase A com industry research proactiva" preservado N=4** —
+  P272 reutiliza consolidação P270.3; não nova pesquisa.
+
+Status `IMPLEMENTADO` preservado literal.
+
+## Anotação cumulativa P273 — Coons patches transformados via parent_bbox
+
+Conic Coons dispatcher P272 estendido P273 — quando `relative` resolve
+`Parent`, Coons patches centro/radius transformados via `parent_bbox`
+em Rust nativo (PDF `/Matrix` shading dictionary permanece identity;
+paridade vanilla `correct_transform` Rust).
+
+Defaults `relative = None` → `Self_` → pipeline P272 preserved literal
+(RGB N=stops*4 + CMYK N=stops). `parent_bbox = None` (estrutural P273
+callsites) → identity transform → Self/Parent indistinguíveis até
+callsite futuro passar bbox real.
+
+Industry research P273 consolidada confirma paridade vanilla:
+- Cairo/Inkscape/vanilla usam transform Rust nativo.
+- PDF `/Matrix` rejeitado por todos (reader interpretation variation).
+- Cristalino paridade total — simplicidade auditoria pipeline.
+
+Ver ADR-0091 §"Anotação cumulativa P273 — Cross-variant runtime fields".
+
+Status `IMPLEMENTADO` preservado literal.

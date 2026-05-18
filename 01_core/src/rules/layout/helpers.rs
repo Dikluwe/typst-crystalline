@@ -44,8 +44,8 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
             FrameItem::Glyph { pos: Point { x: new_x, y: new_y }, glyph_id, x_advance, size },
         FrameItem::Image { data, width, height, intrinsic_width, intrinsic_height, .. } =>
             FrameItem::Image { pos: Point { x: new_x, y: new_y }, data, width, height, intrinsic_width, intrinsic_height },
-        FrameItem::Shape { kind, width, height, fill, stroke, .. } =>
-            FrameItem::Shape { pos: Point { x: new_x, y: new_y }, kind, width, height, fill, stroke },
+        FrameItem::Shape { kind, width, height, fill, stroke, parent_bbox_at_emit, .. } =>
+            FrameItem::Shape { pos: Point { x: new_x, y: new_y }, kind, width, height, fill, stroke, parent_bbox_at_emit },
         FrameItem::Group { matrix, clip_mask, inner_width, inner_height, items, .. } =>
             FrameItem::Group { pos: Point { x: new_x, y: new_y }, matrix, clip_mask, inner_width, inner_height, items },
     }
@@ -134,6 +134,7 @@ fn collect_items_at(content: &Content, items: &mut Vec<FrameItem>, x: Pt, y: Pt,
                 height: h,
                 fill: *fill,
                 stroke: stroke.clone(),
+                parent_bbox_at_emit: None,
             });
         }
         Content::Sequence(seq) => {

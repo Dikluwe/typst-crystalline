@@ -162,6 +162,27 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Salvos e restaurados por célula no braço `Content::Grid`.
     pub(super) cell_origin_x: Option<f64>,
     pub(super) cell_origin_y: Option<f64>,
+    /// **P273.5** — bbox do contentor imediato para resolver
+    /// `Gradient.relative: Some(RelativeTo::Parent)` no callsite emit.
+    /// Padrão DEBT-37 P84.6 (campo opcional Layouter para contexto pai)
+    /// reused estructuralmente.
+    ///
+    /// **3γ.1 materializado P273.5**: `None` default; callsite L3 emit
+    /// gradient usa `page_bbox` como fallback (cobre semântica vanilla
+    /// "shape top-level com relative=Parent ancora à página").
+    ///
+    /// **3γ.2 materializada P273.6**: arm `Content::Block` save/restore
+    /// real do campo (write quando dimensions literais Decisão 3γ.2.γ);
+    /// emit shape sites populam `FrameItem::Shape.parent_bbox_at_emit:
+    /// self.parent_bbox` (read).
+    ///
+    /// **3γ.2.γ Decisão Fase A P273.6**: popular apenas quando
+    /// `width.is_some() && height.is_some()` no Block; caso ambíguo
+    /// (auto/fr) cai no fallback page_bbox L3 P273.5 via LIFO restore.
+    ///
+    /// Boxed diferido P273.7 se necessário; Stack/Pad/Group/Grid cell
+    /// scope-out per ADR-0054 graded.
+    pub(super) parent_bbox: Option<crate::entities::layout_types::Rect>,
     /// **P232 (Fase 5 Layout Categoria A.5)** — alignment Grid-level
     /// disponível para `Content::Place` herdar via `.or()` per eixo
     /// quando dentro Grid context. Save/restore paridade cell_origin_*
@@ -329,6 +350,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // como Layouter fields legacy.
             cell_origin_x:           None,
             cell_origin_y:           None,
+            // P273.5 — fallback None; callsite L3 usa page_bbox.
+            parent_bbox:             None,
             cell_align:              None,  // P232
             locator:                 Locator::new(),
             current_location:        None,
@@ -809,6 +832,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     height: resolved_h,
                     fill:   *fill,
                     stroke: stroke.clone(),
+                    // P273.6 — populated by Layouter.parent_bbox (Block save/restore).
+                    parent_bbox_at_emit: self.parent_bbox,
                 });
 
                 self.regions.current.cursor_y += Pt(resolved_h);
@@ -1141,6 +1166,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     height: 0.5,
                     fill:   None,
                     stroke: Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 0.5, overhang: false }),
+                    parent_bbox_at_emit: None,
                 });
                 self.regions.current.cursor_y += self.font_size_pt * 0.6;
             }
@@ -1200,8 +1226,29 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // P243 — reduz width útil por `right` (clamp a ≥ 0).
                 self.regions.current.width = (saved_width - right).max(0.0);
 
+                // P273.9 — save/restore parent_bbox INNER (body region;
+                // paralela a Block semantic). Layout duplo via
+                // measure_content_constrained pre-layout (sub-padrão
+                // "Layout duplo arquitectural aceite" N=1 inaugural).
+                // Defaults rigorosos: popular apenas se measured w/h > 0.
+                let saved_parent_bbox_p273_9 = self.parent_bbox;
+                let pad_avail_inner = self.available_width();
+                let (pad_body_w, pad_body_h) =
+                    self.measure_content_constrained(body, pad_avail_inner);
+                if pad_body_w > 0.0 && pad_body_h > 0.0 {
+                    self.parent_bbox = Some(crate::entities::layout_types::Rect {
+                        x: self.regions.current.cursor_x,
+                        y: self.regions.current.cursor_y,
+                        w: Pt(pad_body_w),
+                        h: Pt(pad_body_h),
+                    });
+                }
+
                 self.layout_content(body);
                 self.flush_line();
+
+                // P273.9 — restore parent_bbox (LIFO).
+                self.parent_bbox = saved_parent_bbox_p273_9;
 
                 self.regions.current.cursor_y += Pt(bottom);
                 self.regions.current.line_start_x = saved_line_start;
@@ -1263,6 +1310,24 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let n = children.len();
                 if n == 0 { return; }
 
+                // P273.9 — measure stack bbox via Layouter::measure_stack
+                // helper (P273.11 extract — substitui replicação inline
+                // ~25 LOC por 1 chamada; bit-exact preserved).
+                // Layout duplo arquitectural aceite (sub-padrão N=1 inaugural P273.9).
+                // Defaults rigorosos: popular apenas se measured w/h > 0.
+                let saved_parent_bbox_p273_9 = self.parent_bbox;
+                let stack_avail_w = self.available_width();
+                let (stack_w, stack_h) =
+                    self.measure_stack(children, *dir, *spacing, stack_avail_w);
+                if stack_w > 0.0 && stack_h > 0.0 {
+                    self.parent_bbox = Some(crate::entities::layout_types::Rect {
+                        x: self.regions.current.cursor_x,
+                        y: self.regions.current.cursor_y,
+                        w: Pt(stack_w),
+                        h: Pt(stack_h),
+                    });
+                }
+
                 // Iteração base — forward para LTR/TTB, reverse para
                 // RTL/BTT (per ADR-0054 graded; geometria reverse real
                 // adiada para refino futuro).
@@ -1293,6 +1358,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     }
                     self.flush_line();
                 }
+
+                // P273.9 — restore parent_bbox (LIFO).
+                self.parent_bbox = saved_parent_bbox_p273_9;
             }
 
             // ── Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container ──
@@ -1365,7 +1433,29 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // paridade vanilla). `height: None` → preservado P156H.
                 let body_items_before = self.regions.current.current_items.len();
 
+                // P273.7 — save/restore parent_bbox análogo Block P273.6
+                // (Decisão 3γ.2.γ: popular apenas quando width+height
+                // literais). Decisão 1 Fase A `3γ.2.γ-inline-baseline-y`:
+                // bbox.y = cursor.y baseline-relative (coerente com P156H
+                // limitação line_height inline).
+                let saved_parent_bbox = self.parent_bbox;
+                if let (Some(w), Some(h)) = (width, height) {
+                    let w_pt = w.resolve_pt(font);
+                    let h_pt = h.resolve_pt(font);
+                    self.parent_bbox = Some(crate::entities::layout_types::Rect {
+                        x: self.regions.current.cursor_x,
+                        y: self.regions.current.cursor_y,
+                        w: Pt(w_pt),
+                        h: Pt(h_pt),
+                    });
+                }
+
                 self.layout_content(body);
+
+                // P273.7 — restore parent_bbox (LIFO). Shape emit do
+                // próprio Boxed (linha ~1485) usa parent_bbox outer
+                // (paridade Block P273.6 §2.3).
+                self.parent_bbox = saved_parent_bbox;
 
                 // P243 — restaurar width original.
                 self.regions.current.width = saved_width;
@@ -1463,6 +1553,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         height: outer_h,
                         fill:   *fill,
                         stroke: stroke.clone(),
+                        // P273.6 — Boxed's own shape; gradient relative=parent
+                        // resolve via outer self.parent_bbox (Boxed difere
+                        // save/restore P273.7).
+                        parent_bbox_at_emit: self.parent_bbox,
                     });
                 }
             }
@@ -1609,9 +1703,26 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     let items_before = self.regions.current.current_items.len();
                     let y_before     = self.regions.current.cursor_y;
 
+                    // P273.6 — save/restore parent_bbox (Decisão 3γ.2.γ:
+                    // popular apenas quando width+height literais).
+                    let saved_parent_bbox = self.parent_bbox;
+                    if let (Some(w), Some(h)) = (width, height) {
+                        let w_pt = w.resolve_pt(font);
+                        let h_pt = h.resolve_pt(font);
+                        self.parent_bbox = Some(crate::entities::layout_types::Rect {
+                            x: self.regions.current.cursor_x,
+                            y: self.regions.current.cursor_y,
+                            w: Pt(w_pt),
+                            h: Pt(h_pt),
+                        });
+                    }
+
                     // Layout body (acumula items em current_items).
                     self.layout_content(body);
                     self.flush_line();
+
+                    // P273.6 — restore parent_bbox (LIFO).
+                    self.parent_bbox = saved_parent_bbox;
 
                     // Extrair items adicionados pelo body.
                     let body_items: Vec<FrameItem> = self.regions.current
@@ -1635,9 +1746,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         items:        body_items,
                     });
                 } else {
+                    // P273.6 — save/restore parent_bbox (Decisão 3γ.2.γ).
+                    let saved_parent_bbox = self.parent_bbox;
+                    if let (Some(w), Some(h)) = (width, height) {
+                        let w_pt = w.resolve_pt(font);
+                        let h_pt = h.resolve_pt(font);
+                        self.parent_bbox = Some(crate::entities::layout_types::Rect {
+                            x: self.regions.current.cursor_x,
+                            y: self.regions.current.cursor_y,
+                            w: Pt(w_pt),
+                            h: Pt(h_pt),
+                        });
+                    }
+
                     // 5. Layout do body (caminho original inline).
                     self.layout_content(body);
                     self.flush_line();
+
+                    // P273.6 — restore parent_bbox (LIFO).
+                    self.parent_bbox = saved_parent_bbox;
                 }
 
                 // 6. Aplica inset bottom.
@@ -1708,6 +1835,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         height: outer_h,
                         fill:   *fill,
                         stroke: stroke.clone(),
+                        // P273.6 — Block's own shape; gradient relative=parent
+                        // resolve para contentor outer (saved_parent_bbox foi
+                        // restaurado em parent_bbox antes desta emissão).
+                        parent_bbox_at_emit: self.parent_bbox,
                     });
                 }
 
@@ -1917,6 +2048,41 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
     // ── Auxiliares de Grid (Passo 80) ─────────────────────────────────────
 
+    /// P273.11 — Mede um Stack (children + dir + spacing) com `max_w`.
+    /// Helper extraído da replicação inline P273.9 §2.2 (cleanup §9 P273.9).
+    /// Decisão 1β Fase A: método em Layouter (reutiliza
+    /// `measure_content_constrained` via `&self`).
+    pub(super) fn measure_stack(
+        &self,
+        children: &[Content],
+        dir: crate::entities::dir::Dir,
+        spacing: Option<crate::entities::layout_types::Length>,
+        max_w: f64,
+    ) -> (f64, f64) {
+        let n = children.len();
+        if n == 0 { return (0.0, 0.0); }
+        let space_pt = spacing.map_or(0.0, |l| l.resolve_pt(self.font_size_pt.val()));
+        if dir.is_vertical() {
+            let mut max_child_w = 0.0_f64;
+            let mut sum_h = 0.0_f64;
+            for child in children.iter() {
+                let (w, h) = self.measure_content_constrained(child, max_w);
+                max_child_w = max_child_w.max(w);
+                sum_h += h;
+            }
+            (max_child_w, sum_h + ((n - 1) as f64) * space_pt)
+        } else {
+            let mut sum_w = 0.0_f64;
+            let mut max_child_h = 0.0_f64;
+            for child in children.iter() {
+                let (w, h) = self.measure_content_constrained(child, max_w);
+                sum_w += w;
+                max_child_h = max_child_h.max(h);
+            }
+            (sum_w + ((n - 1) as f64) * space_pt, max_child_h)
+        }
+    }
+
     /// Mede conteúdo com restrição de largura máxima.
     ///
     /// Usado pelo algoritmo de grid para determinar a largura das colunas Auto.
@@ -2003,33 +2169,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 156I: Stack dimensões para grid measurement.
             // TTB/BTT: max widths; sum heights + (n-1) * spacing.
             // LTR/RTL: sum widths + (n-1) * spacing; max heights.
+            // P273.11 — delega ao helper Layouter::measure_stack (substitui
+            // replicação inline ~25 LOC; bit-exact preserved).
             Content::Stack { children, dir, spacing } => {
-                let font = self.font_size_pt.val();
-                let space_pt = spacing.map_or(0.0, |l| l.resolve_pt(font));
-                let n = children.len();
-                if n == 0 { return (0.0, 0.0); }
-
-                if dir.is_vertical() {
-                    let mut max_w = 0.0_f64;
-                    let mut sum_h = 0.0_f64;
-                    for child in children.iter() {
-                        let (w, h) = self.measure_content_constrained(child, max_width);
-                        max_w = max_w.max(w);
-                        sum_h += h;
-                    }
-                    let total_h = sum_h + ((n - 1) as f64) * space_pt;
-                    (max_w, total_h)
-                } else {
-                    let mut sum_w = 0.0_f64;
-                    let mut max_h = 0.0_f64;
-                    for child in children.iter() {
-                        let (w, h) = self.measure_content_constrained(child, max_width);
-                        sum_w += w;
-                        max_h = max_h.max(h);
-                    }
-                    let total_w = sum_w + ((n - 1) as f64) * space_pt;
-                    (total_w, max_h)
-                }
+                self.measure_stack(children, *dir, *spacing, max_width)
             }
 
             // Passo 156H: Boxed (Box inline) dimensões para grid

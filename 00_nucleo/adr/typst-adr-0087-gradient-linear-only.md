@@ -538,3 +538,17 @@ Bug vanilla #4422 resolvido por construção (cristalino emit
 Sub-padrão "Anotação cumulativa cross-ADR" N=2 → N=3 cumulativo.
 
 Status `IMPLEMENTADO` preservado literal.
+
+## Anotação cumulativa P273 — Linear ganha `relative: RelativeTo`
+
+Linear L1 struct ganha campo `relative: Option<RelativeTo>` (default
+`None` = Auto = Self_; preserva P262/P263/P270.1/P270.2 literal).
+Stdlib named arg `"relative"` parsing ("self"/"parent"/"auto"). L3
+dispatcher Linear ganha branch transform via `parent_bbox` quando
+`relative` resolve `Parent`. Defaults `Self_` preservam pipeline P272
+bit-exact.
+
+Ver ADR-0091 §"Anotação cumulativa P273 — Cross-variant runtime fields"
+para detalhes técnicos + industry research consolidada.
+
+Status `IMPLEMENTADO` preservado literal.

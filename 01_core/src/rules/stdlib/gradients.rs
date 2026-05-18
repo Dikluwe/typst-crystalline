@@ -78,16 +78,56 @@ pub fn native_gradient_linear(
     // P270 — named arg `space` (ADR-0091 EM VIGOR).
     let space = parse_space_named(args, "gradient.linear")?;
 
+    // P273 — named arg `relative` cross-variant.
+    let relative = parse_relative_named(args, "gradient.linear")?;
+
     for key in args.named.keys() {
-        if key != "angle" && key != "space" {
+        if key != "angle" && key != "space" && key != "relative" {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("gradient.linear: argumento nomeado inesperado '{}' (esperado: angle, space)", key),
+                format!("gradient.linear: argumento nomeado inesperado '{}' (esperado: angle, space, relative)", key),
             )]);
         }
     }
 
-    Ok(Value::Gradient(Gradient::linear_with_space(stops, angle, space)))
+    use std::sync::Arc;
+    use crate::entities::gradient::Linear;
+    Ok(Value::Gradient(Gradient::Linear(Arc::new(Linear {
+        stops: Arc::from(stops),
+        angle,
+        space,
+        relative,
+    }))))
+}
+
+/// P273 — Parser do named arg `relative` cross-variant (ADR-0091 §"Anotação
+/// cumulativa P273").
+///
+/// Aceita `Value::Str("self" | "parent" | "auto")`. Default (sem named arg)
+/// = `None` (Auto = `Self_` resolved). ADR-0064 §Caso A (`Smart<T>` →
+/// `Option<T>` cristalino).
+fn parse_relative_named(args: &Args, fn_name: &str)
+    -> SourceResult<Option<crate::entities::gradient::RelativeTo>>
+{
+    use crate::entities::gradient::RelativeTo;
+    match args.named.get("relative") {
+        None => Ok(None),
+        Some(Value::Str(s)) => match s.as_str() {
+            "self"   => Ok(Some(RelativeTo::Self_)),
+            "parent" => Ok(Some(RelativeTo::Parent)),
+            "auto"   => Ok(None),
+            other => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "{fn_name}(relative): '{other}' inválido (esperado: self, parent, auto)"
+                ),
+            )]),
+        },
+        Some(other) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{fn_name}(relative): espera Str, recebeu {}", other.type_name()),
+        )]),
+    }
 }
 
 /// P270 — Parser do named arg `space` cross-variant (ADR-0091 EM VIGOR).
@@ -280,16 +320,19 @@ pub fn native_gradient_radial(
     for key in args.named.keys() {
         if key != "center" && key != "radius"
             && key != "focal_center" && key != "focal_radius"
-            && key != "space"
+            && key != "space" && key != "relative"
         {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("gradient.radial: argumento nomeado inesperado '{}' (esperado: center, radius, focal_center, focal_radius, space)", key),
+                format!("gradient.radial: argumento nomeado inesperado '{}' (esperado: center, radius, focal_center, focal_radius, space, relative)", key),
             )]);
         }
     }
 
-    // P269 + P270 — construção full com focal_* + space.
+    // P273 — named arg `relative` cross-variant.
+    let relative = parse_relative_named(args, "gradient.radial")?;
+
+    // P269 + P270 + P273 — construção full com focal_* + space + relative.
     use std::sync::Arc;
     use crate::entities::gradient::Radial;
     Ok(Value::Gradient(Gradient::Radial(Arc::new(Radial {
@@ -299,6 +342,7 @@ pub fn native_gradient_radial(
         focal_center,
         focal_radius,
         space,
+        relative,
     }))))
 }
 
@@ -370,16 +414,27 @@ pub fn native_gradient_conic(
     // P270 — named arg `space`.
     let space = parse_space_named(args, "gradient.conic")?;
 
+    // P273 — named arg `relative` cross-variant.
+    let relative = parse_relative_named(args, "gradient.conic")?;
+
     for key in args.named.keys() {
-        if key != "center" && key != "angle" && key != "space" {
+        if key != "center" && key != "angle" && key != "space" && key != "relative" {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("gradient.conic: argumento nomeado inesperado '{}' (esperado: center, angle, space)", key),
+                format!("gradient.conic: argumento nomeado inesperado '{}' (esperado: center, angle, space, relative)", key),
             )]);
         }
     }
 
-    Ok(Value::Gradient(Gradient::conic_with_space(stops, center, angle, space)))
+    use std::sync::Arc;
+    use crate::entities::gradient::Conic;
+    Ok(Value::Gradient(Gradient::Conic(Arc::new(Conic {
+        stops: Arc::from(stops),
+        center,
+        angle,
+        space,
+        relative,
+    }))))
 }
 
 // Tests para `native_gradient_linear` + `native_gradient_radial`

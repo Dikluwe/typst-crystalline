@@ -95,10 +95,11 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
                 pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
                 data, width, height, intrinsic_width, intrinsic_height,
             },
-        FrameItem::Shape { pos, kind, width, height, fill, stroke } =>
+        FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } =>
             FrameItem::Shape {
                 pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
                 kind, width, height, fill, stroke,
+                parent_bbox_at_emit,
             },
         FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } =>
             FrameItem::Group {
@@ -129,6 +130,7 @@ mod tests {
             kind: ShapeKind::Rect,
             width: 10.0, height: h,
             fill: None, stroke: None,
+            parent_bbox_at_emit: None,
         }
     }
 

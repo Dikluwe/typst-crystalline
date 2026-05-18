@@ -253,8 +253,7 @@ pub enum Content {
         width:  Option<Box<crate::entities::value::Value>>,
         height: Option<Box<crate::entities::value::Value>>,
         fill:   Option<Color>,
-        stroke: Option<Stroke>,
-    },
+        stroke: Option<Stroke>,    },
 
     /// Aplica uma transformação afim ao conteúdo interno (Passo 78).
     ///
@@ -635,8 +634,7 @@ pub enum Content {
         /// .. }` antes do body. `None` == sem stroke. Promoção real
         /// scope-out ADR-0054 graded paridade fill. Reusa `Stroke` de
         /// `geometry.rs:24`.
-        stroke:   Option<crate::entities::geometry::Stroke>,
-    },
+        stroke:   Option<crate::entities::geometry::Stroke>,    },
 
     // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block container ───────
     /// Container block — vanilla `BlockElem`.
@@ -1920,8 +1918,7 @@ impl Content {
                 radius:   *radius,
                 clip:     *clip,
                 fill:     *fill,
-                stroke:   stroke.clone(),
-            },
+                stroke:   stroke.clone(),            },
 
             // Passo 156I: Stack compositivo — mapear cada child;
             // preservar dir/spacing (Copy primitivos).
@@ -2226,8 +2223,7 @@ impl Content {
                 radius:   *radius,
                 clip:     *clip,
                 fill:     *fill,
-                stroke:   stroke.clone(),
-            },
+                stroke:   stroke.clone(),            },
 
             // Passo 156I: Stack compositivo — map_text em cada child.
             Content::Stack { children, dir, spacing } => Content::Stack {
@@ -4426,8 +4422,7 @@ mod tests {
             radius:   Corners::uniform(Length::pt(4.0)),
             clip:     false,
             fill:     None,
-            stroke:   None,
-        };
+            stroke:   None,        };
         if let Content::Boxed { outset, radius, clip, .. } = &b {
             assert_eq!(radius.top_left, Length::pt(4.0));
             assert_eq!(*clip, false);
