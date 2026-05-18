@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export` — Exportador Físico de Documentos
-Hash do Código: 45f04082
+Hash do Código: d04bc4e9
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export.rs`
@@ -478,3 +478,72 @@ Cross-references:
 - P263 — template literal — paridade quase 1-para-1.
 - P264 — origem da promessa fechada por este passo.
 - P73 — Image stack dedup `Arc::as_ptr` (template arquitectural).
+
+## Secção: `draw_item_local` — emit local dentro de Group (P273.13 + P279)
+
+`draw_item_local` é chamada pelos arms `Content::Group` em cada um
+dos 3 stream-builders (type1, cidfont, multifont) para emit items
+relativos ao espaço local pós-`cm` transformação. Coordenadas
+locais (não-página); inversão Y feita usando height do Group.
+
+### Variantes FrameItem cobertas (match exaustivo P278)
+
+| FrameItem | P273.13 | P279 | P280+ pendente |
+|---|---|---|---|
+| `Shape` | ✓ emit local (Shape arm) | preserved | — |
+| `Group` | ✓ recursão com override | preserved | — |
+| `Text` | stub P278 | stub P278 preserved | **P280.X-bis-text-emit-em-group-3-font-scenarios** (S+M; font cascade) |
+| `Image` | stub P278 | **✓ emit XObject ref local** | — |
+| `Line` | stub P278 | stub preserved | P280+ |
+| `Glyph` | stub P278 | stub preserved | P280+ |
+
+### Image em Group (P279 — Opção α-narrow)
+
+`draw_item_local` ganha 2 params em P279:
+
+```rust
+ptr_to_idx: &HashMap<usize, usize>,  // image dedup (Arc::as_ptr)
+img_refs:   &[ImageRef],              // image PDF refs
+```
+
+Arm `FrameItem::Image` emite:
+
+```text
+q
+{width} 0 0 {height} {pos.x} {pos.y - height} cm
+/Im{n} Do
+Q
+```
+
+Onde `Im{n}` é o nome do XObject obtido via dedup
+`ptr_to_idx.get(Arc::as_ptr(data))`. Coordenadas locais (sem
+`page_height` subtraction porque Group cm já aplicou Y-inversion).
+
+`image_resources` partilhado entre top-level + local emit — dedup
+XObject preserved (sem duplicação de bytes).
+
+### Text/Line/Glyph (deferred P280+)
+
+Stubs documentados em P278 sub-op 3 (match exaustivo) preserved
+em P279. Refino requer:
+
+- **Text**: font scenario threading (3 stream-builders com signatures
+  diferentes para char_to_gid / per_font_char_to_gid).
+- **Glyph**: similar font scenario context.
+- **Line**: simpler — `pos.x/y` + thickness + color; magnitude XS
+  isolada.
+
+Pendência: `P280.X-bis-text-emit-em-group-3-font-scenarios`
+(magnitude S+M ou M+).
+
+### Histórico
+
+- **P273.13** inaugurou render real de Shape + Group recursivo
+  (parameter threading `parent_bbox_override + pat_ptr_to_idx +
+  pat_refs`).
+- **P278 sub-op 3** reformulada substituiu `_ => {}` catch-all
+  silencioso por 4 stubs documentados (match exaustivo).
+- **P279** narrow scope: Image arm real; Text/Line/Glyph stubs
+  preserved.
+
+Sub-padrão **"Render real Groups" N=2 cumulativo** (P273.13 + P279).

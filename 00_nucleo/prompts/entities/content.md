@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: d3f8a8c1
+Hash do Código: d5b5f12b
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -280,7 +280,7 @@ de criar o variant):
   — width-aware wrap vive em `flush_line`/`layout_word` que
   consultam `page_config.width`. Aceitar como aproximação;
   refino quando refactor de Layouter para multi-region acontecer
-  (DEBT-56 + Fase 3 Layout).
+  (ADR-0078 §sub-fase b; DEBT-56 columns/colbreak fechado P221).
 
 **Validação em `native_pad`**:
 - Padding negativo é rejeitado com erro hard (perfil ADR-0054
@@ -433,7 +433,7 @@ partilhada via helper `build_spacing` em `stdlib/layout.rs`).
   clara existir.
 - `h` no fim de linha não força wrap; cursor.x apenas avança
   (pode exceder largura da página). Refino com refactor
-  multi-region (DEBT-56 + Fase 3).
+  multi-region (ADR-0078 §sub-fase b).
 - `v` no início de página/coluna não colapsa contra margem
   (vanilla colapsa). Avanço simples de cursor.y.
 - Sem show rules `#show h: ...` ou `#show v: ...` neste passo
@@ -683,7 +683,7 @@ com erro hard até refino futuro.
 - Restaura `line_start_x`/cursor.x.
 - `inset.right` é scope-out (Layouter actual sem largura
   útil por arm; refino com refactor multi-region per
-  DEBT-56).
+  ADR-0078 §sub-fase b).
 - `width` armazenado mas não consumido em layout actual
   (largura limitada por flush_line/word_wrap globais).
   Per ADR-0054 graded; refino futuro.
@@ -793,7 +793,7 @@ Análogo a `Block` (proxy body; recurse).
 - `width`/`height`/`baseline` armazenados mas semantic real
   adiada per ADR-0054 graded:
   - `width`: limitar largura útil em contexto inline exigiria
-    refactor multi-region (DEBT-56).
+    refactor multi-region (ADR-0078 §sub-fase b).
   - `height` em contexto inline alteraria line_height —
     refino futuro.
   - `baseline` exige offset vertical mid-linha — não
@@ -821,7 +821,7 @@ Análogo a `Block` (proxy body; recurse).
 - `inset` aceita Length uniforme apenas (refino futuro
   para dict).
 - `width`/`height` armazenados mas não impõem limite real
-  (refino multi-region per DEBT-56).
+  (refino multi-region per ADR-0078 §sub-fase b).
 - `baseline` armazenado mas semantic real adiada (cursor.rs
   actual sem mecânica de offset mid-linha).
 - `inset.top`/`inset.bottom` armazenados mas não aplicados

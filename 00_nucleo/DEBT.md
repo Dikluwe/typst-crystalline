@@ -97,6 +97,64 @@
 > `ShapeKind::Path` + bbox analítica section. Total abertos:
 > **7 → 6**. Detalhe em
 > [`diagnosticos/diagnostico-debt-33-passo-277.md`](diagnosticos/diagnostico-debt-33-passo-277.md).
+>
+> **Passo 278 (2026-05-18)**: cleanup combinado pós-fechos DEBT
+> (P276/P277). 3 sub-operações: (1) L0 `content.md` actualizado —
+> 4/5 referências a DEBT-56 substituídas por ADR-0078 §sub-fase b
+> (1 preserved como histórica intencional); (2) helper L3
+> `group_bbox_from_fields` extraído consolidando **6 sítios**
+> replicados (não 3 como spec; scan_all_gradients.walk +
+> pattern_resources_for_page.walk + draw_item_local + 3
+> build_page_stream_* variants); (3) `draw_item_local` catch-all
+> `_ => {}` substituído por match exaustivo com stubs documentados
+> Text/Line/Glyph/Image (transparency improvement, não bug fix
+> funcional — limitação font scenario threading preserved como
+> pendência `P279.X-bis-text-image-em-group-emit`). Sub-padrão
+> **"Extract helper de replicação inline" N=2 → N=3 cumulativo
+> (atinge limiar formalização N≥3-4)** — NÃO formalizado per
+> anti-padrão over-formalização P273.17. Sub-padrão **"Match
+> exaustivo sem fall-through" N=1 → N=2 cumulativo cross-layer**
+> (L1 `is_locatable` inaugural + L3 `draw_item_local` reaplicação).
+> 3 pendências cluster Gradient residuais fechadas:
+> P273.X-bis-content-md-debt56-update + P273.X-bis-helper-group-bbox
+> + P273.X-bis-draw-item-local-text-image (parcial: transparency só).
+> Net LOC L3 ~0 (helper +12; 6 sítios -36; 4 stubs +24); LOC L0 ~5;
+> tests **2652 preserved bit-exact**; lint zero. Cluster Gradient
+> encerrado em todos os planos (principal P273.17 + residual P278).
+> Total abertos: **6 → 6 preserved** (cleanup; não fecha DEBT
+> numerado). Detalhe em
+> [`diagnosticos/diagnostico-cleanup-passo-278.md`](diagnosticos/diagnostico-cleanup-passo-278.md).
+>
+> **Passo 279 (2026-05-18)**: bug fix funcional **narrow scope Image**
+> em `draw_item_local` (L3 export.rs). Opção α-narrow Fase A:
+> parameter cascade +2 params (`ptr_to_idx: &HashMap<usize,usize>` +
+> `img_refs: &[ImageRef]`) propagados pelos 3 callers
+> `build_page_stream_type1/cidfont/multifont` e pela chamada
+> recursiva interna no arm `FrameItem::Group`. Image arm em
+> `draw_item_local` emite agora `q\n{w} 0 0 {h} {x} {y} cm\n/{name} Do\nQ\n`
+> (cm matrix scale+translate; `/ImN Do` referência XObject).
+> Text/Glyph/Line preservam stubs documentados (font scenario
+> threading 3 stream-builders → pendência P280+).
+> **Scope creep arquitectural análogo P273.10 §A.7**: `scan_all_images`
+> + `xobject_resources_for_page` não recursavam em Groups (bug latent
+> pré-existente — sem registo no `ptr_to_idx` nem entrada no
+> `/XObject` dict, o `/ImN Do` ficava órfão). Helper `walk` recursivo
+> adicionado a ambas as funções; lógica per-Image extraída para
+> helper privado `process_image_item` para evitar duplicação.
+> Sub-padrão emergente **"Render real Groups" N=2 cumulativo**
+> (P273.13 Shape em Group + P279 Image em Group) — aguarda
+> reaplicação cross-variant (Text/Glyph/Line em P280+) para
+> considerar formalização N≥3-4 per anti-padrão over-formalização
+> [[diagnostico-passo-273-17]]. Sub-padrão **"Narrowing within passo
+> por cap LOC" N=2 cumulativo** (P278 sub-op 3 reformulação + P279
+> narrow scope) — aguarda N≥3-4 idem. 6 testes P279 verdes
+> (image_em_group_emite_xobject_ref, preserva_xobject_dedup,
+> nested_groups, top_level_preserved, text_continua_stub,
+> render_real_groups_smoke). Net LOC L3 ~+112 (não-test; cap
+> hard 200 / soft 150 respeitado); tests 2 187 + 424 preserved
+> bit-exact + 6 novos; lint zero. Total abertos: **6 → 6 preserved**
+> (bug fix; não fecha nem abre DEBT numerado). Detalhe em
+> [`diagnosticos/diagnostico-p279-text-image-em-group.md`](diagnosticos/diagnostico-p279-text-image-em-group.md).
 
 ---
 
