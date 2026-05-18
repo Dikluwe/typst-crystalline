@@ -369,6 +369,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.cell_origin_x = Some(body_x);
                 self.cell_origin_y = Some(body_y);
 
+                // P273.9 — save/restore parent_bbox paralelo a cell_origin_*
+                // (Decisão 2α: bbox exacto cell body). Defaults rigorosos:
+                // popular apenas se body_w/h > 0. Pattern DEBT-37 reused N=4.
+                let saved_parent_bbox_p273_9 = self.parent_bbox;
+                if body_w > 0.0 && body_h > 0.0 {
+                    self.parent_bbox = Some(crate::entities::layout_types::Rect {
+                        x: Pt(body_x),
+                        y: Pt(body_y),
+                        w: Pt(body_w),
+                        h: Pt(body_h),
+                    });
+                }
+
                 // P234 — sem cache; re-medir cell (custo perf ~2× aceitável).
                 // P235 — layout em body_x/body_w reduzidos por inset.
                 let saved_cursor_x = self.regions.current.cursor_x;
@@ -377,6 +390,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     self.layout_sub_frame_with_width(cell, body_x, body_w);
                 self.regions.current.cursor_x = saved_cursor_x;
                 self.regions.current.cursor_y = saved_cursor_y;
+
+                // P273.9 — restore parent_bbox (LIFO).
+                self.parent_bbox = saved_parent_bbox_p273_9;
 
                 // P246 — sair célula; restaurar legacy fields.
                 self.regions.exit_cell(saved_cell_region);
@@ -403,6 +419,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         height: cell_h,
                         fill:   Some(*c),
                         stroke: None,
+                        parent_bbox_at_emit: None,
                     });
                 }
 
@@ -486,6 +503,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         height: 0.0,
                         fill:   None,
                         stroke: Some(stroke_clone.clone()),
+                        parent_bbox_at_emit: None,
                     });
                     // Bottom edge.
                     self.regions.current.current_items.push(FrameItem::Shape {
@@ -495,6 +513,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         height: 0.0,
                         fill:   None,
                         stroke: Some(stroke_clone.clone()),
+                        parent_bbox_at_emit: None,
                     });
                     // Left edge.
                     self.regions.current.current_items.push(FrameItem::Shape {
@@ -504,6 +523,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         height: 0.0,
                         fill:   None,
                         stroke: Some(stroke_clone.clone()),
+                        parent_bbox_at_emit: None,
                     });
                     // Right edge.
                     self.regions.current.current_items.push(FrameItem::Shape {
@@ -513,6 +533,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         height: 0.0,
                         fill:   None,
                         stroke: Some(stroke_clone),
+                        parent_bbox_at_emit: None,
                     });
                 }
             }

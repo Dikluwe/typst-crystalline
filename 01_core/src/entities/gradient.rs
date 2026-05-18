@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/gradient.md
-//! @prompt-hash a2a2a96e
+//! @prompt-hash 8d9730a3
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -49,6 +49,25 @@ impl GradientStop {
     }
 }
 
+/// P273 — Define a que bounding box o gradient é relativo.
+///
+/// Paridade vanilla `RelativeTo { Self_, Parent }`. Cristalino
+/// simplifica `Smart<RelativeTo>` → `Option<RelativeTo>` per
+/// ADR-0064 §Caso A (`None` = Auto = `Self_` default).
+///
+/// **Default `Self_`** (vanilla `unwrap_or_else(|| if on_text {
+/// Parent } else { Self_ })` simplificado — cristalino ignora
+/// contexto `on_text` por enquanto; materializável futuro se
+/// necessário).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum RelativeTo {
+    /// Relative ao próprio shape (bounding box self).
+    #[default]
+    Self_,
+    /// Relative ao parent container (bounding box parent).
+    Parent,
+}
+
 /// Linear gradient — paridade vanilla LinearGradient.
 ///
 /// ColorSpace fixo Oklab (scope-out ADR-0087 — paridade vanilla
@@ -62,6 +81,10 @@ pub struct Linear {
     /// Default via construtor `Gradient::linear(...)` = `ColorSpace::Oklab`
     /// (preserva P262 behavior bit-exact).
     pub space: ColorSpace,
+    /// P273 — `RelativeTo` cross-variant runtime field per ADR-0091
+    /// §"Anotação cumulativa P273". `None` = Auto = `Self_` default;
+    /// preserva P262/P263/P270.1/P270.2 bit-exact.
+    pub relative: Option<RelativeTo>,
 }
 
 impl Linear {
@@ -169,6 +192,10 @@ fn interpolate_oklab(c0: Color, c1: Color, t: f32) -> Color {
 /// (L3 `oklab_delta_e` reutilização literal — ver anotação ADR-0089
 /// §"Anotação cumulativa P268.2" + `diagnostico-adaptive-n-passo-268-2.md`
 /// §A.1). Function body preservada literal P262.
+/// **P272**: `oklab_delta_e` removed (ADR-0090 REVOGADO; adaptive N
+/// não aplicável a Coons). `color_to_oklab_with_alpha` permanece
+/// `pub` — usada por outros helpers L1/L3 (Oklab interpolation arms
+/// L1 + multispace helpers L3).
 pub fn color_to_oklab_with_alpha(c: Color) -> (f32, f32, f32, f32) {
     match c {
         Color::Oklab { l, a, b, alpha } => (l, a, b, alpha),
@@ -458,6 +485,9 @@ pub struct Radial {
     /// P270 — ColorSpace runtime activado per ADR-0091 EM VIGOR.
     /// Default via construtor `Gradient::radial(...)` = `ColorSpace::Oklab`.
     pub space: ColorSpace,
+    /// P273 — `RelativeTo` cross-variant runtime field. `None` = Auto =
+    /// `Self_` default; preserva P264/P265/P269 bit-exact.
+    pub relative: Option<RelativeTo>,
 }
 
 impl Radial {
@@ -540,6 +570,10 @@ pub struct Conic {
     /// P270 — ColorSpace runtime activado per ADR-0091 EM VIGOR.
     /// Default via construtor `Gradient::conic(...)` = `ColorSpace::Oklab`.
     pub space: ColorSpace,
+    /// P273 — `RelativeTo` cross-variant runtime field. `None` = Auto =
+    /// `Self_` default; preserva P267/P272 bit-exact (Coons RGB N=stops*4
+    /// + Coons CMYK N=stops).
+    pub relative: Option<RelativeTo>,
 }
 
 impl Conic {
@@ -630,6 +664,7 @@ impl Gradient {
             stops: stops.into(),
             angle,
             space: ColorSpace::Oklab,
+            relative: None,  // P273 — Auto (Self_).
         }))
     }
 
@@ -644,6 +679,7 @@ impl Gradient {
             stops: stops.into(),
             angle,
             space,
+            relative: None,  // P273 — Auto (Self_).
         }))
     }
 
@@ -664,6 +700,7 @@ impl Gradient {
             focal_center: center,         // P269 default
             focal_radius: Ratio(0.0),     // P269 default
             space: ColorSpace::Oklab,     // P270 default
+            relative: None,               // P273 — Auto (Self_).
         }))
     }
 
@@ -683,6 +720,7 @@ impl Gradient {
             focal_center,
             focal_radius,
             space: ColorSpace::Oklab,
+            relative: None,  // P273 — Auto (Self_).
         }))
     }
 
@@ -701,6 +739,7 @@ impl Gradient {
             focal_center: center,
             focal_radius: Ratio(0.0),
             space,
+            relative: None,  // P273 — Auto (Self_).
         }))
     }
 
@@ -718,6 +757,7 @@ impl Gradient {
             center,
             angle,
             space: ColorSpace::Oklab,
+            relative: None,  // P273 — Auto (Self_).
         }))
     }
 
@@ -734,6 +774,7 @@ impl Gradient {
             center,
             angle,
             space,
+            relative: None,  // P273 — Auto (Self_).
         }))
     }
 
@@ -812,6 +853,7 @@ mod tests {
             ]),
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         let offs = l.effective_offsets();
         assert_eq!(offs, vec![0.0, 0.5, 1.0]);
@@ -827,6 +869,7 @@ mod tests {
             ]),
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         let offs = l.effective_offsets();
         // 3 stops igualmente espaçados: 0.0 / 0.5 / 1.0
@@ -845,6 +888,7 @@ mod tests {
             ]),
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         let offs = l.effective_offsets();
         assert!((offs[0] - 0.0).abs() < 1e-5);
@@ -861,6 +905,7 @@ mod tests {
             ]),
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         // Amostragem nos extremos deve retornar cores dos stops
         // (após Oklab roundtrip — pequena tolerância).
@@ -883,6 +928,7 @@ mod tests {
             ]),
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         // Sample em 0.5 deve ser mistura entre vermelho e azul.
         let c_meio = l.sample(0.5);
@@ -935,6 +981,7 @@ mod tests {
             ]),
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         assert_eq!(l.effective_offsets(), vec![0.3]);
     }
@@ -948,6 +995,7 @@ mod tests {
             ]),
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         // t > 1.0 deve clamp.
         let c = l.sample(1.5);
@@ -1040,6 +1088,7 @@ mod tests {
             focal_center: center,
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         let offs = r.effective_offsets();
         assert!((offs[0] - 0.0).abs() < 1e-5);
@@ -1060,6 +1109,7 @@ mod tests {
             focal_center: center,
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         // Amostragem nos extremos: r próximo de vermelho/azul.
         let c0 = r.sample(0.0);
@@ -1083,6 +1133,7 @@ mod tests {
             focal_center: center,
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         let c = r.sample(1.5);
         let c_ref = r.sample(1.0);
@@ -1114,6 +1165,7 @@ mod tests {
             focal_center: center,
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         assert_eq!(r.center.x, Ratio(0.25));
         assert_eq!(r.center.y, Ratio(0.75));
@@ -1176,6 +1228,7 @@ mod tests {
             focal_center: Axes::new(Ratio(0.2), Ratio(0.3)),
             focal_radius: Ratio(0.05),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         assert_eq!(r.focal_center.x, Ratio(0.2));
         assert_eq!(r.focal_center.y, Ratio(0.3));
@@ -1196,6 +1249,7 @@ mod tests {
             focal_center: Axes::new(Ratio(0.5), Ratio(0.5)),
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         let r2 = Radial {
             stops: Arc::clone(&stops),
@@ -1204,6 +1258,7 @@ mod tests {
             focal_center: Axes::new(Ratio(0.3), Ratio(0.4)),  // diff
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         assert_ne!(r1, r2, "focal_center diferente → PartialEq false");
     }
@@ -1221,6 +1276,7 @@ mod tests {
             focal_center: Axes::new(Ratio(0.5), Ratio(0.5)),
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         let r2 = Radial {
             stops: Arc::clone(&stops),
@@ -1229,6 +1285,7 @@ mod tests {
             focal_center: Axes::new(Ratio(0.5), Ratio(0.5)),
             focal_radius: Ratio(0.1),  // diff,
             space: ColorSpace::Oklab,
+            relative: None,
         };
         assert_ne!(r1, r2, "focal_radius diferente → PartialEq false");
     }
@@ -1419,6 +1476,7 @@ mod tests {
             center: Axes::new(Ratio(0.5), Ratio(0.5)),
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         let offs = c.effective_offsets();
         assert!((offs[0] - 0.0).abs() < 1e-5);
@@ -1436,6 +1494,7 @@ mod tests {
             center: Axes::new(Ratio(0.5), Ratio(0.5)),
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         let c0 = c.sample(0.0);
         let c1 = c.sample(1.0);
@@ -1455,6 +1514,7 @@ mod tests {
             center: Axes::new(Ratio(0.5), Ratio(0.5)),
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         let c_clamp = c.sample(1.5);
         let c_ref = c.sample(1.0);
@@ -1483,6 +1543,7 @@ mod tests {
             center: Axes::new(Ratio(0.25), Ratio(0.75)),
             angle: Angle::deg(90.0),
             space: ColorSpace::Oklab,
+            relative: None,
         };
         assert_eq!(c.center.x, Ratio(0.25));
         assert_eq!(c.center.y, Ratio(0.75));
@@ -1543,6 +1604,7 @@ mod tests {
             stops: Arc::from(red_blue_stops()),
             angle: Angle::rad(0.0),
             space,
+            relative: None,
         }
     }
     fn make_radial_with_space(space: ColorSpace) -> Radial {
@@ -1553,6 +1615,7 @@ mod tests {
             focal_center: Axes::new(Ratio(0.5), Ratio(0.5)),
             focal_radius: Ratio(0.0),
             space,
+            relative: None,
         }
     }
     fn make_conic_with_space(space: ColorSpace) -> Conic {
@@ -1561,6 +1624,7 @@ mod tests {
             center: Axes::new(Ratio(0.5), Ratio(0.5)),
             angle: Angle::rad(0.0),
             space,
+            relative: None,
         }
     }
 

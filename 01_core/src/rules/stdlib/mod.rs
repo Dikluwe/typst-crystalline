@@ -6312,6 +6312,102 @@ mod tests {
         assert!(r.is_err(), "space inválido deve retornar Err");
     }
 
+    // ── P273 (ADR-0091 §"Anotação cumulativa P273") — relative: RelativeTo cross-variant ──
+
+    #[test]
+    fn p273_stdlib_linear_relative_self() {
+        use crate::entities::gradient::{Gradient, RelativeTo};
+        use crate::entities::layout_types::Color;
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Color(Color::rgb(255, 0, 0))]);
+        args.named.insert("relative".into(), Value::Str(EcoString::from("self")));
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Linear(l)) = r {
+            assert_eq!(l.relative, Some(RelativeTo::Self_));
+        } else { panic!("expected Linear"); }
+    }
+
+    #[test]
+    fn p273_stdlib_linear_relative_parent() {
+        use crate::entities::gradient::{Gradient, RelativeTo};
+        use crate::entities::layout_types::Color;
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Color(Color::rgb(0, 255, 0))]);
+        args.named.insert("relative".into(), Value::Str(EcoString::from("parent")));
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Linear(l)) = r {
+            assert_eq!(l.relative, Some(RelativeTo::Parent));
+        } else { panic!("expected Linear"); }
+    }
+
+    #[test]
+    fn p273_stdlib_linear_relative_auto_default_none() {
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::Color;
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Color(Color::rgb(0, 0, 255))]);
+        args.named.insert("relative".into(), Value::Str(EcoString::from("auto")));
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Linear(l)) = r {
+            assert_eq!(l.relative, None, "auto explícito = None (Auto sentinel)");
+        } else { panic!("expected Linear"); }
+    }
+
+    #[test]
+    fn p273_stdlib_linear_relative_default_none_preserva_p270() {
+        // Sem named arg `relative` → None (preserve P270.x behavior).
+        use crate::entities::gradient::Gradient;
+        use crate::entities::layout_types::Color;
+        null_ctx!(ctx);
+        let args = p(vec![Value::Color(Color::rgb(255, 255, 0))]);
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Linear(l)) = r {
+            assert_eq!(l.relative, None);
+        } else { panic!("expected Linear"); }
+    }
+
+    #[test]
+    fn p273_stdlib_radial_relative_parent() {
+        use crate::entities::gradient::{Gradient, RelativeTo};
+        use crate::entities::layout_types::Color;
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Color(Color::rgb(255, 0, 255))]);
+        args.named.insert("relative".into(), Value::Str(EcoString::from("parent")));
+        let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Radial(rad)) = r {
+            assert_eq!(rad.relative, Some(RelativeTo::Parent));
+        } else { panic!("expected Radial"); }
+    }
+
+    #[test]
+    fn p273_stdlib_conic_relative_self() {
+        use crate::entities::gradient::{Gradient, RelativeTo};
+        use crate::entities::layout_types::Color;
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Color(Color::rgb(0, 255, 255))]);
+        args.named.insert("relative".into(), Value::Str(EcoString::from("self")));
+        let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Gradient(Gradient::Conic(c)) = r {
+            assert_eq!(c.relative, Some(RelativeTo::Self_));
+        } else { panic!("expected Conic"); }
+    }
+
+    #[test]
+    fn p273_stdlib_relative_invalido_erro() {
+        use crate::entities::layout_types::Color;
+        use ecow::EcoString;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Color(Color::rgb(0, 0, 0))]);
+        args.named.insert("relative".into(), Value::Str(EcoString::from("inválido")));
+        let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "relative inválido deve retornar Err");
+    }
+
     // ── P267 (ADR-0089 Gradient Conic-only) ────────────────────────
 
     #[test]

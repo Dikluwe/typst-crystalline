@@ -237,10 +237,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                     text, style,
                 },
-                FrameItem::Shape { pos, kind, width, height, fill, stroke } =>
+                FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } =>
                     FrameItem::Shape {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         kind, width, height, fill, stroke,
+                        parent_bbox_at_emit,
                     },
                 FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } =>
                     FrameItem::Group {
@@ -327,6 +328,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     height: tail_h,
                     fill:   Some(c),
                     stroke: None,
+                    parent_bbox_at_emit: None,
                 });
             }
             // Z-order step 2: items rebased.
@@ -343,6 +345,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     height: tail_h,
                     fill:   None,
                     stroke: Some(s),
+                    parent_bbox_at_emit: None,
                 });
             }
             max_y_after = max_y_after.max(cursor_top + tail_h);

@@ -1600,8 +1600,7 @@ fn grid_altura_da_linha_e_o_maximo_das_celulas() {
                 crate::entities::layout_types::Length { abs: crate::entities::layout_types::Abs(h), em: 0.0 },
             ))),
             fill:   None,
-            stroke: None,
-        }
+            stroke: None,        }
     };
 
     let grid = Content::Grid {
@@ -3623,8 +3622,7 @@ mod tests_show_rule_integration {
             radius:   crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(1.0)),
             clip:     false,
             fill:     None,
-            stroke:   None,
-        };
+            stroke:   None,        };
         let doc = layout(&b);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -3833,8 +3831,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     false,
             fill:     None,
-            stroke:   None,
-        };
+            stroke:   None,        };
         let doc = layout(&boxed);
         let mut texts = String::new();
         for page in doc.pages.iter() {
@@ -4099,8 +4096,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     false,
             fill:     Some(Color::rgb(70, 140, 210)),
-            stroke:   None,
-        };
+            stroke:   None,        };
         let doc = layout(&b);
         let mut found_shape_with_fill = false;
         for page in doc.pages.iter() {
@@ -4311,8 +4307,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     true,  // clip aceita mas height None → sem overflow handling
             fill:     None,
-            stroke:   None,
-        };
+            stroke:   None,        };
         let doc = layout(&b);
         // Sem Group por height overflow (height None).
         let mut found_overflow_group = false;
@@ -4346,8 +4341,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     true,
             fill:     None,
-            stroke:   None,
-        };
+            stroke:   None,        };
         let doc = layout(&b);
         let mut found_clip_group = false;
         for page in doc.pages.iter() {
@@ -4380,8 +4374,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     false,
             fill:     None,
-            stroke:   None,
-        };
+            stroke:   None,        };
         let doc = layout(&b);
         // Verificar que NÃO foi adicionado Group com inner_height=5
         // (clip=false não wrap).
@@ -4415,8 +4408,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     true,
             fill:     None,
-            stroke:   None,
-        };
+            stroke:   None,        };
         let doc = layout(&b);
         let mut found_overflow_group = false;
         for page in doc.pages.iter() {
@@ -4697,8 +4689,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     true,
             fill:     Some(Color::rgb(150, 50, 200)),
-            stroke:   None,
-        };
+            stroke:   None,        };
         let doc = layout(&b);
         let mut found_fill = false;
         let mut found_clip = false;
@@ -4836,8 +4827,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     true,
             fill:     None,
-            stroke:   None,
-        };
+            stroke:   None,        };
         let doc = layout(&b);
         let mut found_clip = false;
         for page in doc.pages.iter() {
@@ -4902,8 +4892,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip,
             fill:     None,
-            stroke:   None,
-        };
+            stroke:   None,        };
         let count_clip_groups = |c: Content| -> usize {
             let doc = layout(&c);
             doc.pages.iter().flat_map(|p| p.items.iter())
@@ -5968,8 +5957,7 @@ mod tests_show_rule_integration {
                 width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(30.0)))),
                 height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
                 fill:   None,
-                stroke: None,
-            }),
+                stroke: None,            }),
         };
         let doc = layout(&p);
         // Procurar shape no output.
@@ -6004,8 +5992,7 @@ mod tests_show_rule_integration {
                 width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(30.0)))),
                 height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
                 fill:   None,
-                stroke: None,
-            }),
+                stroke: None,            }),
         };
         let doc = layout(&p);
         let mut found_shape_at_top = false;
@@ -6039,8 +6026,7 @@ mod tests_show_rule_integration {
                 width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
                 height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(15.0)))),
                 fill:   None,
-                stroke: None,
-            }),
+                stroke: None,            }),
         };
         let doc = layout(&p);
         // Não deve panic; pelo menos uma shape emitida via path original.
@@ -6073,8 +6059,7 @@ mod tests_show_rule_integration {
                     width:  Some(Box::new(crate::entities::value::Value::Length(Length::pt(30.0)))),
                     height: Some(Box::new(crate::entities::value::Value::Length(Length::pt(20.0)))),
                     fill:   None,
-                    stroke: None,
-                }),
+                    stroke: None,                }),
             };
             layout(&p)
         };
@@ -6119,8 +6104,7 @@ mod tests_show_rule_integration {
                 width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
                 height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(15.0)))),
                 fill:   None,
-                stroke: None,
-            }),
+                stroke: None,            }),
         };
         let doc = layout(&p);
         // Float emit verificado: doc tem ≥1 page com ≥1 item shape.
@@ -9356,5 +9340,459 @@ mod p195d_walk_labelled {
 
         assert_eq!(intr.resolved_labels.get(&lbl("foo")), None);
         assert_eq!(intr.figure_label_numbers.get(&lbl("foo")), None);
+    }
+}
+
+// ── P273.7 — Boxed save/restore parent_bbox (completa Decisão 3 P273.6) ──
+// Testes-primeiro do refino estrutural Cluster Gradient. Verificam o
+// arm `Content::Boxed` em `mod.rs` ganha save/restore de `parent_bbox`
+// análogo ao Block P273.6 (template replicado literal; bbox.y
+// baseline-relative em contexto inline per Decisão 1 Fase A
+// `3γ.2.γ-inline-baseline-y`).
+#[cfg(test)]
+mod p273_7_boxed_parent_bbox {
+    use super::*;
+    use crate::entities::corners::Corners;
+    use crate::entities::geometry::ShapeKind;
+    use crate::entities::layout_types::{Abs, Length, Pt};
+    use crate::entities::sides::Sides;
+    use std::sync::Arc;
+
+    fn rect_shape() -> Content {
+        Content::Shape {
+            kind:   ShapeKind::Rect,
+            width:  Some(Box::new(crate::entities::value::Value::Length(
+                Length { abs: Abs(50.0), em: 0.0 },
+            ))),
+            height: Some(Box::new(crate::entities::value::Value::Length(
+                Length { abs: Abs(30.0), em: 0.0 },
+            ))),
+            fill:   None,
+            stroke: None,
+        }
+    }
+
+    fn boxed_dimensioned(body: Content, w_pt: f64, h_pt: f64) -> Content {
+        Content::Boxed {
+            body:     Box::new(body),
+            width:    Some(Length { abs: Abs(w_pt), em: 0.0 }),
+            height:   Some(Length { abs: Abs(h_pt), em: 0.0 }),
+            inset:    Sides::uniform(Length::ZERO),
+            baseline: Length::ZERO,
+            outset:   Sides::uniform(Length::ZERO),
+            radius:   Corners::uniform(Length::ZERO),
+            clip:     false,
+            fill:     None,
+            stroke:   None,
+        }
+    }
+
+    fn boxed_dimensionless(body: Content) -> Content {
+        Content::Boxed {
+            body:     Box::new(body),
+            width:    None,
+            height:   None,
+            inset:    Sides::uniform(Length::ZERO),
+            baseline: Length::ZERO,
+            outset:   Sides::uniform(Length::ZERO),
+            radius:   Corners::uniform(Length::ZERO),
+            clip:     false,
+            fill:     None,
+            stroke:   None,
+        }
+    }
+
+    /// Helper: colecciona todos os FrameItem::Shape (recursivo em Group)
+    /// nas páginas do documento e devolve os respectivos
+    /// `parent_bbox_at_emit`.
+    fn shape_parent_bboxes(doc: &crate::entities::layout_types::PagedDocument)
+        -> Vec<Option<crate::entities::layout_types::Rect>>
+    {
+        fn walk(items: &[FrameItem],
+                out: &mut Vec<Option<crate::entities::layout_types::Rect>>)
+        {
+            for item in items {
+                match item {
+                    FrameItem::Shape { parent_bbox_at_emit, .. } => {
+                        out.push(*parent_bbox_at_emit);
+                    }
+                    FrameItem::Group { items, .. } => walk(items, out),
+                    _ => {}
+                }
+            }
+        }
+        let mut out = Vec::new();
+        for page in &doc.pages {
+            walk(&page.items, &mut out);
+        }
+        out
+    }
+
+    /// 1) Boxed com width+height literais → shape nested ganha
+    /// `parent_bbox_at_emit = Some(Rect)` com w/h iguais às dimensions
+    /// do Boxed.
+    #[test]
+    fn p273_7_shape_inside_boxed_carries_parent_bbox() {
+        let content = Content::Sequence(Arc::from(vec![
+            boxed_dimensioned(rect_shape(), 200.0, 100.0),
+        ]));
+        let doc = layout(&content);
+        let bboxes = shape_parent_bboxes(&doc);
+        // Inner Shape do body deve ter parent_bbox = Some com w=200pt,h=100pt.
+        let some_with_box = bboxes.iter().any(|b| {
+            matches!(b, Some(r) if r.w == Pt(200.0) && r.h == Pt(100.0))
+        });
+        assert!(some_with_box,
+            "Shape dentro de Boxed(w=200pt,h=100pt) deve ter \
+             parent_bbox_at_emit = Some(Rect{{w:200pt,h:100pt}}); got: {:?}",
+            bboxes);
+    }
+
+    /// 2) Boxed sem width/height → shape nested permanece com
+    /// `parent_bbox_at_emit = None` (Decisão 3γ.2.γ herdada).
+    #[test]
+    fn p273_7_shape_inside_boxed_dimensionless_no_parent_bbox() {
+        let content = Content::Sequence(Arc::from(vec![
+            boxed_dimensionless(rect_shape()),
+        ]));
+        let doc = layout(&content);
+        let bboxes = shape_parent_bboxes(&doc);
+        // Sem dimensions literais, parent_bbox permanece None.
+        assert!(bboxes.iter().all(|b| b.is_none()),
+            "Boxed sem width/height não deve popular parent_bbox; got: {:?}",
+            bboxes);
+    }
+
+    /// 3) Save/restore LIFO — top-level shape APÓS Boxed ganha
+    /// `parent_bbox_at_emit = None` (parent_bbox restaurado).
+    #[test]
+    fn p273_7_boxed_save_restore_lifo() {
+        let content = Content::Sequence(Arc::from(vec![
+            // Top-level shape ANTES: parent_bbox = None.
+            rect_shape(),
+            // Boxed dimensionado: nested shape ganha bbox do Boxed.
+            boxed_dimensioned(rect_shape(), 200.0, 100.0),
+            // Top-level shape DEPOIS: parent_bbox restaurado a None.
+            rect_shape(),
+        ]));
+        let doc = layout(&content);
+        let bboxes = shape_parent_bboxes(&doc);
+        // Esperado: pelo menos 3 shapes; 2 com None (top-level) +
+        // 1 com Some(box bbox) (nested).
+        let n_none = bboxes.iter().filter(|b| b.is_none()).count();
+        let n_some = bboxes.iter().filter(|b| b.is_some()).count();
+        assert!(n_none >= 2,
+            "≥2 shapes top-level devem ter parent_bbox=None (LIFO restore); got: {:?}",
+            bboxes);
+        assert_eq!(n_some, 1,
+            "exactamente 1 shape nested deve ter parent_bbox=Some; got: {:?}",
+            bboxes);
+    }
+
+    /// 4) Nested Boxed (Boxed dentro de Boxed) — LIFO restore correcto.
+    /// Inner Boxed bbox visível para inner Shape; depois restore para
+    /// outer Boxed bbox; depois restore para None.
+    #[test]
+    fn p273_7_nested_boxed_lifo() {
+        let inner = boxed_dimensioned(rect_shape(), 50.0, 25.0);
+        let outer = boxed_dimensioned(
+            Content::Sequence(Arc::from(vec![inner])),
+            200.0, 100.0,
+        );
+        let content = Content::Sequence(Arc::from(vec![outer]));
+        let doc = layout(&content);
+        let bboxes = shape_parent_bboxes(&doc);
+        // Inner Shape deve ver bbox do inner Boxed (50×25), NÃO o outer (200×100).
+        let saw_inner_bbox = bboxes.iter().any(|b| {
+            matches!(b, Some(r) if r.w == Pt(50.0) && r.h == Pt(25.0))
+        });
+        assert!(saw_inner_bbox,
+            "Inner Shape deve ver bbox do inner Boxed (50×25); got: {:?}",
+            bboxes);
+    }
+
+    /// 5) Boxed.fill stroke próprio Shape — emit do PRÓPRIO Boxed
+    /// (linha 1485) deve ter `parent_bbox_at_emit` igual ao OUTER
+    /// (i.e. None se top-level), paridade Block P273.6 §2.3 — restore
+    /// acontece ANTES do shape emit do próprio container.
+    #[test]
+    fn p273_7_boxed_own_shape_uses_outer_parent_bbox() {
+        use crate::entities::layout_types::Color;
+        let body = Content::text("X"); // qualquer body simples
+        let boxed = Content::Boxed {
+            body:     Box::new(body),
+            width:    Some(Length { abs: Abs(150.0), em: 0.0 }),
+            height:   Some(Length { abs: Abs(40.0), em: 0.0 }),
+            inset:    Sides::uniform(Length::ZERO),
+            baseline: Length::ZERO,
+            outset:   Sides::uniform(Length::ZERO),
+            radius:   Corners::uniform(Length::ZERO),
+            clip:     false,
+            fill:     Some(Color::rgb(255, 0, 0)),
+            stroke:   None,
+        };
+        let content = Content::Sequence(Arc::from(vec![boxed]));
+        let doc = layout(&content);
+        let bboxes = shape_parent_bboxes(&doc);
+        // Boxed.fill → emit Shape próprio com parent_bbox = outer (None
+        // top-level). Save/restore garante restore antes do shape emit.
+        let none_count = bboxes.iter().filter(|b| b.is_none()).count();
+        assert!(none_count >= 1,
+            "Boxed's own shape emit deve usar parent_bbox outer (None top-level); got: {:?}",
+            bboxes);
+    }
+}
+
+// ── P273.9 — Containers estendidos (Grid cell + Stack + Pad — escopo 1γ) ──
+// Testes-primeiro do refino estrutural Cluster Gradient. Verificam os arms
+// `Content::Grid`, `Content::Stack` e `Content::Pad` em mod.rs/grid.rs
+// ganharem save/restore de `parent_bbox` — Grid via paralelo a
+// `cell_origin_*` (DEBT-37 reused N=4); Stack/Pad via measure_content_constrained
+// pre-layout (layout duplo arquitectural aceite N=1 inaugural).
+#[cfg(test)]
+mod p273_9_containers_estendidos {
+    use super::*;
+    use crate::entities::geometry::ShapeKind;
+    use crate::entities::layout_types::{Abs, Length, Pt, TrackSizing};
+    use crate::entities::sides::Sides;
+    use std::sync::Arc;
+
+    fn rect_shape(w: f64, h: f64) -> Content {
+        Content::Shape {
+            kind:   ShapeKind::Rect,
+            width:  Some(Box::new(crate::entities::value::Value::Length(
+                Length { abs: Abs(w), em: 0.0 },
+            ))),
+            height: Some(Box::new(crate::entities::value::Value::Length(
+                Length { abs: Abs(h), em: 0.0 },
+            ))),
+            fill:   None,
+            stroke: None,
+        }
+    }
+
+    fn shape_parent_bboxes(doc: &crate::entities::layout_types::PagedDocument)
+        -> Vec<Option<crate::entities::layout_types::Rect>>
+    {
+        fn walk(items: &[FrameItem],
+                out: &mut Vec<Option<crate::entities::layout_types::Rect>>)
+        {
+            for item in items {
+                match item {
+                    FrameItem::Shape { parent_bbox_at_emit, .. } => {
+                        out.push(*parent_bbox_at_emit);
+                    }
+                    FrameItem::Group { items, .. } => walk(items, out),
+                    _ => {}
+                }
+            }
+        }
+        let mut out = Vec::new();
+        for page in &doc.pages {
+            walk(&page.items, &mut out);
+        }
+        out
+    }
+
+    // ── Grid cell ────────────────────────────────────────────────────────
+
+    /// 1) Grid cell save/restore — shape nested em cell Grid ganha
+    /// `parent_bbox_at_emit = Some(Rect)` com bbox do body cell.
+    #[test]
+    fn p273_9_grid_cell_save_restore_parent_bbox() {
+        let cell_content = rect_shape(20.0, 10.0);
+        let grid = Content::Grid {
+            columns: vec![TrackSizing::Fixed(100.0)],
+            rows:    vec![],
+            cells:   vec![cell_content],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::ZERO),
+            header:  None,
+            footer:  None,
+            stroke:  None,
+            fill:    None,
+        };
+        let content = Content::Sequence(Arc::from(vec![grid]));
+        let doc = layout(&content);
+        let bboxes = shape_parent_bboxes(&doc);
+        // Inner Shape do body cell ganha bbox da cell (body_w = column width = 100pt).
+        let saw_cell_bbox = bboxes.iter().any(|b| {
+            matches!(b, Some(r) if r.w == Pt(100.0))
+        });
+        assert!(saw_cell_bbox,
+            "Shape dentro de Grid cell deve ter parent_bbox com w=100pt; got: {:?}",
+            bboxes);
+    }
+
+    /// 2) Top-level shape após Grid → parent_bbox restaurado (LIFO).
+    #[test]
+    fn p273_9_grid_cell_lifo_restore() {
+        let grid = Content::Grid {
+            columns: vec![TrackSizing::Fixed(100.0)],
+            rows:    vec![],
+            cells:   vec![rect_shape(20.0, 10.0)],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::ZERO),
+            header:  None,
+            footer:  None,
+            stroke:  None,
+            fill:    None,
+        };
+        let content = Content::Sequence(Arc::from(vec![
+            grid,
+            rect_shape(50.0, 30.0), // top-level após Grid
+        ]));
+        let doc = layout(&content);
+        let bboxes = shape_parent_bboxes(&doc);
+        // ≥1 None (top-level shape pós Grid) + ≥1 Some (cell body).
+        let n_none = bboxes.iter().filter(|b| b.is_none()).count();
+        let n_some = bboxes.iter().filter(|b| b.is_some()).count();
+        assert!(n_none >= 1,
+            "≥1 shape top-level após Grid deve ter parent_bbox=None (LIFO); got: {:?}",
+            bboxes);
+        assert!(n_some >= 1,
+            "≥1 shape em cell deve ter parent_bbox=Some; got: {:?}",
+            bboxes);
+    }
+
+    // ── Stack ────────────────────────────────────────────────────────────
+
+    /// 3) Stack vertical TTB — shape nested ganha parent_bbox da Stack
+    /// medida via measure_content_constrained (vertical: max_w × sum_h).
+    #[test]
+    fn p273_9_stack_vertical_save_restore_parent_bbox() {
+        use crate::entities::dir::Dir;
+        let stack = Content::Stack {
+            children: Arc::from(vec![
+                rect_shape(50.0, 20.0),
+                rect_shape(80.0, 30.0),
+            ]),
+            dir:      Dir::TTB,
+            spacing:  None,
+        };
+        let content = Content::Sequence(Arc::from(vec![stack]));
+        let doc = layout(&content);
+        let bboxes = shape_parent_bboxes(&doc);
+        // Inner Shapes ganham bbox stack: max_w = 80, sum_h = 50.
+        let saw_stack_bbox = bboxes.iter().any(|b| {
+            matches!(b, Some(r) if r.w == Pt(80.0) && r.h == Pt(50.0))
+        });
+        assert!(saw_stack_bbox,
+            "Shape dentro de Stack TTB deve ter parent_bbox = {{w:80,h:50}}; got: {:?}",
+            bboxes);
+    }
+
+    /// 4) Stack vazio (n=0) não popula parent_bbox.
+    #[test]
+    fn p273_9_stack_empty_no_parent_bbox() {
+        use crate::entities::dir::Dir;
+        let stack = Content::Stack {
+            children: Arc::from(vec![]),
+            dir:      Dir::TTB,
+            spacing:  None,
+        };
+        let content = Content::Sequence(Arc::from(vec![
+            stack,
+            rect_shape(50.0, 30.0),
+        ]));
+        let doc = layout(&content);
+        let bboxes = shape_parent_bboxes(&doc);
+        // Stack vazio não emite shapes inner; top-level shape vê None
+        // (Stack vazio não setou bbox).
+        assert!(bboxes.iter().all(|b| b.is_none()),
+            "Stack vazio + top-level shape: todos parent_bbox=None; got: {:?}",
+            bboxes);
+    }
+
+    // ── Pad ──────────────────────────────────────────────────────────────
+
+    /// 5) Pad — shape nested ganha parent_bbox INNER (body sem insets).
+    #[test]
+    fn p273_9_pad_save_restore_parent_bbox_inner() {
+        let pad = Content::pad(
+            rect_shape(50.0, 30.0),
+            Sides::new(
+                Some(Length::pt(10.0)), // left
+                Some(Length::pt(10.0)), // right
+                Some(Length::pt(5.0)),  // top
+                Some(Length::pt(5.0)),  // bottom
+            ),
+        );
+        let content = Content::Sequence(Arc::from(vec![pad]));
+        let doc = layout(&content);
+        let bboxes = shape_parent_bboxes(&doc);
+        // Inner Shape (rect 50×30) deve ver parent_bbox INNER do Pad:
+        // body_w/body_h medido = 50×30 (Shape literal dimensions).
+        let saw_pad_inner = bboxes.iter().any(|b| {
+            matches!(b, Some(r) if r.w == Pt(50.0) && r.h == Pt(30.0))
+        });
+        assert!(saw_pad_inner,
+            "Shape dentro de Pad deve ter parent_bbox INNER = {{w:50,h:30}}; got: {:?}",
+            bboxes);
+    }
+
+    /// 6) Pad LIFO — top-level shape após Pad vê parent_bbox=None.
+    #[test]
+    fn p273_9_pad_lifo_restore() {
+        let pad = Content::pad(
+            rect_shape(50.0, 30.0),
+            Sides::new(
+                Some(Length::pt(10.0)),
+                Some(Length::pt(10.0)),
+                Some(Length::pt(5.0)),
+                Some(Length::pt(5.0)),
+            ),
+        );
+        let content = Content::Sequence(Arc::from(vec![
+            pad,
+            rect_shape(20.0, 10.0),
+        ]));
+        let doc = layout(&content);
+        let bboxes = shape_parent_bboxes(&doc);
+        let n_none = bboxes.iter().filter(|b| b.is_none()).count();
+        let n_some = bboxes.iter().filter(|b| b.is_some()).count();
+        assert!(n_none >= 1,
+            "≥1 top-level shape após Pad deve ter parent_bbox=None; got: {:?}",
+            bboxes);
+        assert!(n_some >= 1,
+            "≥1 inner shape do Pad deve ter parent_bbox=Some; got: {:?}",
+            bboxes);
+    }
+
+    /// 7) Regressão DEBT-37: tests `cell_origin_*` consumption preserved.
+    /// Verifica que Grid arm ainda emite cell layout correctamente após
+    /// adicionar save/restore parent_bbox paralelo.
+    #[test]
+    fn p273_9_grid_debt37_cell_origin_consumption_preserved() {
+        // Smoke test: layout grid simples e verifica que pelo menos
+        // uma FrameItem::Shape é emitida (consumption preserved).
+        let grid = Content::Grid {
+            columns: vec![
+                TrackSizing::Fixed(100.0),
+                TrackSizing::Fixed(100.0),
+            ],
+            rows:    vec![],
+            cells:   vec![
+                rect_shape(20.0, 10.0),
+                rect_shape(30.0, 15.0),
+            ],
+            gutter:  None,
+            align:   None,
+            inset:   Sides::uniform(Length::ZERO),
+            header:  None,
+            footer:  None,
+            stroke:  None,
+            fill:    None,
+        };
+        let content = Content::Sequence(Arc::from(vec![grid]));
+        let doc = layout(&content);
+        let bboxes = shape_parent_bboxes(&doc);
+        // ≥2 shapes emitidos (1 por cell); ambos com parent_bbox=Some
+        // (body_w = 100 cada cell).
+        assert!(bboxes.len() >= 2,
+            "Grid 2 cells deve emitir ≥2 shapes; got: {} shapes",
+            bboxes.len());
     }
 }

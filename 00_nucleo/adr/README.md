@@ -206,7 +206,7 @@ que corresponde a mudança específica no código.
 | 0089 | Gradient Conic-only L1+stdlib (fecha cluster Gradient 3/3 variants) | `IMPLEMENTADO` (passo `P267`; precedente ADR-0083 + ADR-0086 + ADR-0087 + ADR-0088 N=5 do pattern PROPOSTO+IMPLEMENTADO mesmo passo; revoga parcialmente ADR-0088 §scope-out Conic; Gradient::Conic(Arc<Conic>) + Conic subset 3 campos (stops + center + angle); SEM focal_* — exclusivo Radial; helpers Oklab reutilizados literal P262 — subpadrão "Reutilização literal helpers cross-passos" N=1 → N=2; PDF emit Conic fallback Solid até P268 dedicado; cluster Gradient L1+stdlib **3/3 completo**) + **anotação cumulativa P268** (PDF Conic via `/ShadingType 4` Free-Form Gouraud Triangle Mesh; helper `emit_conic_gouraud_stream` 32 fatias binary stream; vanilla usa krilla::SweepGradient não autorizada → Type 4 manual cristalino; cluster Gradient L1+stdlib+PDF **3/3 completo**) + **anotação cumulativa P268.1** (cross-reference ADR-0090 EM VIGOR formalizando divergência arquitectural Type 4 cristalino vs estratégia vanilla actual desconhecida — krilla `SweepGradient` interno opaco; Typst original pré-krilla era Type 6 Coons per blog 2023; pesquisa empírica industry Cairo/Inkscape/Skia/pdf.js/Typst original/krilla; divergência intra-família mesh Type 4 vs Type 6; cor central = primeiro stop confirmada convenção PDF mesh shading; status `IMPLEMENTADO` preservado literal; **anotação corrigida pré-commit P268.1** alinhando com ADR-0090 corrigida) + **anotação cumulativa P268.2** (refino adaptive N hybrid 1+2 — critério 1 num_stops + critério 2 Oklab ΔE; `compute_adaptive_n_conic` + `oklab_delta_e` helpers L3 novos; `color_to_oklab_with_alpha` L1 promovido a `pub` para reutilização cross-crate literal — subpadrão "Reutilização literal helpers cross-passos" N=3 → N=4; FACTOR_DELTA=256.0 calibrado para Oklab canónico — recalibração spec original 2.0 documentada `diagnostico-adaptive-n-passo-268-2.md` §A.5; ADR-0090 estratégia Type 4 preservada literal — só parâmetro N refinado; subpadrão **"Refino paramétrico preservando ADR estratégica" N=1 inaugural**; subpadrão "Anotação cumulativa em vez de ADR nova" N=5 → N=6 cumulativo; 6 tests P268 originais preservados literal — assinatura `emit_conic_gouraud_stream(conic, n_slices)` preservada; cluster Gradient PDF cristalino transita para qualidade visual **industry-grade**) |
 | 0092 | Conic Type 6 Coons Patch Mesh L3 emit (preparação CMYK + RGB futuro) | `IMPLEMENTADO` (passo `P270.3`; precedente ADR-0083/0086/0087/0088/0089/0091 N=6 → **N=7 cumulativo** do pattern PROPOSTO+IMPLEMENTADO mesmo passo; cristalino tem **2 estratégias Conic L3 emit coexistentes** — Type 4 Gouraud P268+P268.2 preserved para 7 spaces RGB-family + perceptual; Type 6 Coons P270.3 infra-estrutura + P270.4 activação para CMYK; strategy "1 patch per stop" paridade Typst original blog 2023; matemática Bezier cúbico arc círculo Stanislaw Adaszewski offset = r·(4/3)·tan(angle/4); dispatcher opt-in flag interno default OFF P270.3 → `emit_conic_gouraud_stream` preserved; P270.4 ON para `space == Cmyk` → `emit_conic_coons_stream` activado; ADR-0090 §Type 6 scope-out revogado parcialmente; subpadrão **"ADR scope-out revogado parcialmente" N=4 → N=5 cumulativo limiar formalização clara muito ultrapassado** (P267 Conic + P269 focal_* + P270 ColorSpace + P270.2 DeviceCMYK + **P270.3 Type 6**) — candidato meta-ADR URGENTE; subpadrão "Fase A com industry research proactiva" N=2 → N=3 cumulativo (limiar formalização clara); subpadrão "Cap LOC hard vs soft explícito" N=2 → N=3 cumulativo consolidação; subpadrão "Anotação cumulativa cross-ADR" N=3 → N=4 cumulativo; subpadrão "Reutilização literal helpers cross-passos" N=8 → N=9; subpadrão "Diagnóstico imutável" N=15 → N=16 (décimo primeiro consumo directo de fonte vanilla + Cairo + Typst blog 2023 + W3C 2021 + pdf.js #6283 + PDFBOX-2100 + matplotlib #18034 + Stanislaw Adaszewski + ISO 32000-1 §7.5.7.4); cluster Gradient L3 emit preparação 24/24 absoluto pós-P270.4) + **anotação cumulativa P270.4** (Coons CMYK activação opt-in flag ON; **cluster L3 24/24 absoluto** materializado — `emit_conic_coons_stream_cmyk(conic) -> Vec<u8>` novo variant 41 bytes/patch (1 flag + 12·2 coord + 4·4 CMYK); dispatcher conic.space == ColorSpace::Cmyk → /ShadingType 6 + /DeviceCMYK + Function Type 2 N=1 identity + Decode [0 1 0 1 0 1 0 1 0 1 0 1] (6 pares 4 CMYK + 2 coord); **2 emit paths Conic AMBOS ACTIVOS** — Type 4 Gouraud P268+P268.2 para 7 spaces RGB-family/perceptual + Type 6 Coons P270.4 para CMYK; ADR-0091 §"Conic CMYK scope-out preserved" **revogação final definitivo**; **bug vanilla #4422 resolvido por construção** — cristalino constrói dicionário Coons CMYK correcto desde primeiro emit (ColorSpace /DeviceCMYK + BitsPerComponent 8 + Decode 6 pares + Function single-component domain [0 1]); reader compatibility universal (Adobe Reader, Foxit, qpdf, ghostscript, mutool); adaptive N P268.2 não aplicável a Coons (strategy "1 patch per stop" fixa); helpers P270.3 reutilizados literal — `bezier_control_points_for_arc` + `compute_coons_patches_n_stops` removido `#[allow(dead_code)]` (agora consumed via CMYK dispatcher); subpadrão "ADR scope-out revogado parcialmente" N=5 → **N=6 cumulativo**; subpadrão "Anotação cumulativa em vez de ADR nova" N=9 → **N=10 cumulativo consolidação clara**; subpadrão "Reutilização literal helpers cross-passos" N=9 → **N=10 cumulativo**; subpadrão "Diagnóstico imutável" N=16 → **N=17 cumulativo** (décimo segundo consumo directo de fonte vanilla); décimo segundo consumo directo de fonte vanilla; **cluster Gradient L3 emit 24/24 absoluto** Conic CMYK encerra debt remanescente)
 | 0091 | Gradient ColorSpace runtime cross-variant + CMYK strategy | `IMPLEMENTADO` (passo `P270`; precedente ADR-0083 + ADR-0086 + ADR-0087 + ADR-0088 + ADR-0089 N=5 → **N=6 cumulativo** do pattern PROPOSTO+IMPLEMENTADO mesmo passo; ADR-0083 §"ColorSpace runtime" scope-out revogado parcialmente — L1+stdlib activado; §"DeviceCMYK PDF" scope-out preserved (revogação adiada P270.2); 3 variants Linear/Radial/Conic ganham campo `space: ColorSpace` default Oklab; `ColorSpace` enum criado 8 variants paridade vanilla; stdlib named arg `space: Str` cross-variant + validação 8 spaces; hue-wrap shorter default HSL/Oklch/HSV (CSS standard; vanilla paridade); L3 emit Oklab pipeline preservado P270 (refactor multi-space adiado P270.1+P270.2); subpadrão **"ADR scope-out revogado parcialmente" N=2 → N=3 cumulativo** (atinge limiar formalização clara); subpadrão "Reutilização literal helpers cross-passos" N=5 → N=6 cumulativo; subpadrão "Anotação cumulativa cross-ADR" N=1 inaugural (P270 anota ADR-0083/0054/0087/0088/0089/0090 simultâneo); subpadrão "Fase A com industry research proactiva" N=1 inaugural; subpadrão "Decomposição L+ em sub-passos" N=1 inaugural (P270 + P270.1 + P270.2); oitavo consumo directo de fonte vanilla; cluster Gradient L1+stdlib feature-complete em 3 variants × 8 spaces; defaults Oklab preservam P262/P264/P267 bit-exact zero regressão) + **anotação cumulativa P270.1** (L3 emit multi-space materializado — helpers L3 `oklab_sample_stops_*` renomeados `multispace_sample_stops_*`; descoberta arquitectural §A.2: P270 já passou L3 multi-space implicitamente via `<variant>.sample(t)` dispatcher — P270.1 maioritariamente cosmético rename + docs + tests; 7 spaces materializados L3 emit (Oklab/Oklch/sRGB/Luma/LinearRGB/HSL/HSV); CMYK pipeline natural CMYK→sRGB sub-óptimo até P270.2; subpadrão "Anotação cumulativa em vez de ADR nova" N=7 → N=8 cumulativo; subpadrão "Reutilização literal helpers cross-passos" N=6 → N=7 cumulativo; subpadrão **"Cap LOC hard vs soft explícito" N=1 inaugural** (lição P270 estouro aplicada); subpadrão "Anotação cumulativa cross-ADR" N=1 → N=2 cumulativo; nono consumo directo de fonte vanilla; cluster Gradient L3 emit **7/8 spaces** materializado — CMYK último P270.2) |
-| 0090 | Gradient Conic PDF strategy: Type 4 Gouraud (cristalino) divergência industry mesh-based variants | `EM VIGOR` (passo `P268.1` administrativo XS + **correcção pré-commit P268.1**; criação EM VIGOR directa pós-pesquisa empírica industry — paridade pattern P229 ADR-0080 / P254 ADR-0082; complementa ADR-0089 §anotação P268 formalizando justificativa estratégica Type 4 vs industry mesh variants; PDF spec ISO 32000-1 Types 2/3 oficiais + Types 4-7 mesh genéricos; cristalino alinhado com Cairo/Inkscape/Typst original mesh-based industry standard — divergência intra-família mesh Type 4 vs Type 6 Typst original/Cairo; ADR-0018 preservado krilla não autorizada; subpadrão "Passo administrativo XS criar/promover ADR" N=4 → N=5 cumulativo (P156K/P160A/P229/P254/**P268.1**); subpadrão "ADR scope-out preserved com justificativa empírica" N=1 inaugural; subpadrão "Diagnóstico empírico web em vez de filesystem" N=1 inaugural com nota metodológica; **correcção pré-commit P268.1** retracta 3 afirmações factuais erradas (krilla=Type 1 inferência não verificada; PDF/A-1=functions proibidas imprecisa; vanilla=outlier total) baseada em verificação externa via Kimi + web_search blog Typst 2023 / W3C Workshop 2021 / ISO 19005-1; decisão de fundo Type 4 preservada literal; status `EM VIGOR` preservado) |
+| 0090 | Gradient Conic PDF strategy: Type 4 Gouraud (cristalino) divergência industry mesh-based variants | `REVOGADO` (passo `P272`; status `EM VIGOR` P268.1 a P272; **revogado P272** — convergência industry-aligned mesh-based Type 6 Coons; helpers `emit_conic_gouraud_stream` + `compute_adaptive_n_conic` + `oklab_delta_e` removidos; 20 tests P268+P268.2 removed; substituída por **ADR-0092 expandida cumulativamente P272** (estratégia única Coons 8/8 spaces); subpadrão "ADR REVOGADO + substituta" N=2 prévio (ADR-0007/ADR-0018 + ADR-0028/ADR-0029) → **N=3 cumulativo** com P272 ADR-0090/ADR-0092; primeira aplicação prática **ADR-0093 §Pattern 1 §"Quando NÃO aplicar"** pós-formalização P271 — sub-padrão "Aplicação meta-ADR (ADR-0093)" **N=1 inaugural**; trabalho prévio P268.1 preservado historicamente — pesquisa empírica industry + correcção pré-commit + decisão de fundo Type 4 originais permanecem como registo arquitectural) |
 | 0093 | Meta-metodologia de evolução de ADRs (scope-out revogado parcialmente + Anotação cumulativa) | `EM VIGOR` (passo `P271` administrativo XS; criação EM VIGOR directa paridade P260 ADR-0084/0085 + P268.1 ADR-0090; formaliza 2 sub-padrões empíricos N≥6 cumulativos: (1) "ADR scope-out revogado parcialmente" N=6 — P267 Conic + P269 focal_* + P270 ColorSpace + P270.2 DeviceCMYK + P270.3 Type 6 + P270.4 Conic CMYK final; (2) "Anotação cumulativa em vez de ADR nova" N=10 consolidação clara — P258.B/P259.B/P263/P265/P268/P268.2/P270/P270.1/P270.2/P270.4; decisão complementar "Anotação cumulativa cross-ADR" sub-caso N=5 incorporado em Pattern 2; subpadrão "Passo administrativo XS criar/promover ADR" N=5 → **N=6 cumulativo** (P156K/P160A/P229/P254/P268.1/**P271**); subpadrão "Meta-formalização sub-padrões empíricos N≥4" N=2 → **N=3 cumulativo** (P260 + P268.1 + **P271**); diagnóstico inline ADR §"Histórico empírico" (paridade auto-aplicação ADR-0065 inline)) |
 | 0094 | Meta-operacional de specs (Cap LOC hard/soft + Reutilização helpers + Industry research proactiva) | `EM VIGOR` (passo `P271` administrativo XS; criação EM VIGOR directa paridade P260 ADR-0084/0085 + P268.1 ADR-0090; formaliza 3 sub-padrões empíricos N≥4 cumulativos: (1) "Cap LOC hard vs soft explícito" N=4 — P270.1/P270.2/P270.3/P270.4 inaugural pós-lição P270 estouro silencioso; (2) "Reutilização literal helpers cross-passos" N=10 consolidação clara — P265 a P270.4 cumulativo; (3) "Fase A com industry research proactiva" N=4 — P270/P270.2/P270.3/P270.4 inaugural pós-lição P268.1 re-trabalho; subpadrão "Passo administrativo XS criar/promover ADR" N=6 cumulativo conjunto com ADR-0093; subpadrão "Meta-formalização sub-padrões empíricos N≥4" N=3 cumulativo conjunto com ADR-0093; companheira ADR-0093 — par cobre 5 sub-padrões totais (2 evolução ADRs + 3 operacional specs)) |
 
@@ -229,6 +229,64 @@ P271 — meta-formalização sub-padrões metodológicos; criadas
 directamente EM VIGOR paridade P260 ADR-0084/0085 + P268.1 ADR-0090;
 sub-padrão "Passo administrativo XS criar/promover ADR" N=5 → **N=6
 cumulativo**).
+**Total pós-P272: 81 ADRs preservado** (P272 revoga ADR-0090 →
+status REVOGADO; ADR-0092 expandida cumulativamente P272 — sem nova
+ADR; sub-padrão "Anotação cumulativa em vez de ADR nova" N=10 →
+**N=11 cumulativo**; sub-padrão "ADR REVOGADO + substituta" N=2 →
+**N=3 cumulativo**).
+**Total pós-P273: 81 ADRs preservado** (P273 anota ADR-0091 + 4 ADRs
+paralelas — sem nova ADR; cluster Gradient cross-variant runtime
+fields canónica 3/3 elementos materializada — focal_* (P269) + space
+(P270) + **relative (P273)**; sub-padrão "Anotação cumulativa em vez
+de ADR nova" N=11 → **N=12 cumulativo**).
+**Total pós-P274: 81 ADRs preservado** (P274 anota ADR-0091
+cumulativa — sem nova ADR; refino qualitativo adaptive N multispace
+para Linear+Radial RGB-family + perceptual; sub-padrão "Anotação
+cumulativa em vez de ADR nova" N=12 → **N=13 cumulativo consolidação
+clara persistente**).
+**Total pós-P273.5: 81 ADRs preservado** (P273.5 anota ADR-0091
+cumulativa — sétima anotação consecutiva; fecha pendência P273
+`apply_parent_transform` em `#[allow(dead_code)]` via callsites L3
+reais; sub-padrão "Anotação cumulativa em vez de ADR nova" N=13 →
+**N=14 cumulativo consolidação clara persistente**; cluster Gradient
+refino estrutural encerrado).
+**Total pós-P273.6: 81 ADRs preservado** (P273.6 anota ADR-0091
+cumulativa — oitava anotação consecutiva; fecha 3γ.2 — `parent_bbox`
+Layouter ganha consumer real via save/restore em Content::Block arm +
+propagação via FrameItem::Shape.parent_bbox_at_emit; sub-padrão
+"Anotação cumulativa em vez de ADR nova" N=14 → **N=15 cumulativo
+consolidação clara persistente**; **sub-padrão "Pattern DEBT-37
+`cell_origin_*` replicado" N=2 → N=3 cumulativo (atinge limiar
+formalização N=3-4)**; cluster Gradient refino estrutural encerrado
+definitivamente).
+
+**Total pós-P273.7-P273.16: 81 ADRs preservado** (10 sub-passos
+consecutivos cluster Gradient anotaram ADR-0091 cumulativa sem criar
+ADRs novas — 9ª a 16ª anotação consecutiva; sub-padrão "Anotação
+cumulativa em vez de ADR nova" N=15 → N=22 cumulativo; cluster
+Gradient prossegue sequência terminar com 7 sub-passos materializados
+(P273.7-P273.13) + 3 scope-outs reconfirmados via Fase A NO-GO
+(P273.14 CMYK-ICC constraints externas + P273.15 Bbox medido
+constraints internas + P273.16 Bbox.y topo-exacto bloqueador
+estrutural aceito) — 3 razões NO-GO distintas e legítimas).
+
+**Total pós-P273.17: 84 ADRs** (**+3 ADRs EM VIGOR criadas
+directamente** P273.17 passo administrativo S+ — formaliza 3
+sub-padrões empíricos N=3-4 cumulativos atingidos durante cluster
+Gradient P273.5-P273.16: **ADR-0095 EM VIGOR** "Dedup `Arc::as_ptr`
+resources" (N=3: P73 image + P263 pattern + P273.12 bbox-aware);
+**ADR-0096 EM VIGOR** "Pattern DEBT-37 campo Layouter consumer-
+pending" (N=4 com folga: P84.6 Grid + P273.5 + P273.6 + P273.9);
+**ADR-0097 EM VIGOR** "Scope-out reconfirmado por Fase A" (N=3
+com 3 razões distintas: P273.14 + P273.15 + P273.16); pattern
+paridade P156K + P271 — sub-padrão "Passo administrativo XS/S
+criar ADRs meta" N=3 cumulativo NÃO formalizado por anti-padrão
+over-formalização explícito P273.17 §0; cluster Gradient
+encerrado definitivamente; **documento reflexão**
+`00_nucleo/diagnosticos/typst-cluster-gradient-reflexao.md` como
+output legível standalone — 13 sub-passos consecutivos P273.5-P273.17
+caminho mais longo de sub-passos consecutivos do mesmo cluster
+documentado no projecto cristalino).
 
 ### Distribuição de status
 
@@ -255,11 +313,11 @@ cumulativo**).
   **PROPOSTO 11 preservado** (ADR-0083 entra e sai no mesmo
   passo via promoção P257.D).
 - `IDEIA`: 2 ADRs (0002, 0003).
-- `EM VIGOR`: **35** ADRs pós-P271 (regras/políticas activas;
+- `EM VIGOR`: **34** ADRs pós-P272 (regras/políticas activas;
   0018, 0029, 0030, 0032–0051, 0054, 0058, 0059, **0064, 0065**,
   **0080** P229, **0082** P254, **+0084 P260** auditoria
   condicional, **+0085 P260** diagnóstico imutável,
-  **+0090 P268.1** Gradient Conic PDF strategy Type 4 vs industry mesh variants,
+  ~~**0090 P268.1**~~ **REVOGADO P272**,
   **+0093 P271** meta-metodologia evolução ADRs,
   **+0094 P271** meta-operacional specs).
 - `IMPLEMENTADO`: **31** ADRs pós-P270.3 (decisões materializadas;
@@ -271,7 +329,8 @@ cumulativo**).
   Conic-only, **0091 P270** Gradient ColorSpace runtime
   cross-variant + CMYK strategy, **+0092 P270.3** Conic Type 6
   Coons Patch Mesh).
-- `REVOGADO`: 2 ADRs (0007, 0028).
+- `REVOGADO`: **3** ADRs pós-P272 (0007, 0028, **+0090 P272**
+  Type 4 Gouraud descontinuado — substituída por ADR-0092 expandida).
 - `ADIADO`: 1 ADR (0020).
 
 ---
@@ -285,6 +344,7 @@ com **número novo** substitui. Campos simétricos:
 ```
 ADR-0007 (rustc_hash substituído)    ◄─revogado por─  ADR-0018 (rustc_hash reintroduzido)
 ADR-0028 (tipos tipográficos)        ◄─revogado por─  ADR-0029 (pureza física)
+ADR-0090 (Type 4 Gouraud strategy)   ◄─revogado por─  ADR-0092 expandida (Coons unified P272)
 ```
 
 ## Cadeia de revisões
@@ -3685,3 +3745,448 @@ P84.8g.
   Tiling + outro cluster. **Decisão humana fica em aberto literal**
   pós-P271 — cluster metodológico formalizado; cristalino consolida
   ferramentas operacionais e abre próximo cluster/refino.
+- **Passo 272 — P-Gradient-Coons-RGB-Final (converge Conic RGB Type 4
+  Gouraud → Type 6 Coons N=stops*4; ADR-0090 REVOGADO)** (subpadrão
+  **"ADR REVOGADO + substituta" N=2 → N=3 cumulativo** — cristalino
+  N=2 prévio (ADR-0007/ADR-0018 + ADR-0028/ADR-0029) + **P272 ADR-0090/
+  ADR-0092 expandida**; subpadrão **"Aplicação meta-ADR (ADR-0093)"
+  N=1 inaugural** — primeira aplicação prática Pattern 1 §"Quando NÃO
+  aplicar" pós-formalização P271; subpadrão **"Aplicação meta-ADR
+  (ADR-0094)" N=1 inaugural** — Cap LOC hard/soft Pattern 1 aplicado
+  spec P272 (real ~80-100 LOC additions; cap hard 200 folga 100%;
+  cap soft 120 folga 20-40%); subpadrão "Anotação cumulativa em vez
+  de ADR nova" N=10 → **N=11 cumulativo** (P272 anota ADR-0092
+  expandida + ADR-0091 + ADR-0089 + ADR-0054); subpadrão
+  "Reutilização literal helpers cross-passos" N=10 → **N=11 cumulativo**
+  (3 helpers Coons P270.3 + Conic::sample dispatcher P270 reutilizados
+  literal); subpadrão **"Cap LOC hard vs soft explícito" N=4 →
+  N=5 cumulativo consolidação total** (P272 real ~80-100 additions;
+  folga grande); subpadrão "Anotação cumulativa cross-ADR" N=5 →
+  **N=6 cumulativo** (P272 anota 5 ADRs paralelas: ADR-0092 + ADR-0091
+  + ADR-0089 + ADR-0054 + ADR-0090 transição REVOGADO); subpadrão
+  "Diagnóstico imutável" N=17 → **N=18 cumulativo** (décimo terceiro
+  consumo directo de fonte; consolidação industry P270.3 reutilizada
+  + bug #4422 P270.4 reutilizado); subpadrão "Fase A com industry
+  research proactiva" **preservado N=4** — P272 reutiliza consolidação
+  P270.3, não nova). **Magnitude M** (net LOC negativo intencional:
+  ~80-100 additions + ~140 removals helpers + ~620 removals tests =
+  net -660 a -680 L3). **Fase A diagnóstico empírico** P272.A criou
+  `diagnostico-coons-rgb-final-passo-272.md` imutável (décimo terceiro
+  consumo directo de fonte; consolidação industry P270.3 reutilizada
+  literal — Cairo Igalia + Typst blog 2023 + ISO 32000-1 §7.5.7.4).
+  **Materialização L3**:
+  - **Activação `emit_conic_coons_stream_rgb`** (renomeado de P270.3
+    `emit_conic_coons_stream`; `#[allow(dead_code)]` removido).
+  - **Extension strategy N=stops*4** (divergência intencional Typst
+    original blog 2023 "1 patch per stop"). Cada patch i ∈ [0, N)
+    cobre TAU/N radianos a partir de `conic.angle`.
+  - **Corner colors via `Conic::sample(t)`** dispatcher P270 —
+    dispatches `interpolate_in_space` per `conic.space` (Oklab/Oklch/
+    sRGB/Luma/LinearRGB/HSL/HSV). Default Oklab preserva qualidade
+    perceptual.
+  - **Novo helper `compute_coons_patches_n_stops_extended(conic) =
+    stops * 4`** (RGB arm); preserved literal `compute_coons_patches_n_stops`
+    (CMYK arm P270.4).
+  - **Dispatcher Conic unificado** em `emit_gradient_objects`:
+    `/ShadingType 6` Coons para 8/8 spaces; Decode 5 pares RGB ou 6
+    pares CMYK; Function Type 2 N=1 identity 3/4 components.
+  - **Helpers REMOVED**: `emit_conic_gouraud_stream` (~85 LOC),
+    `compute_adaptive_n_conic` (~40 LOC), `oklab_delta_e` (~15 LOC).
+    Total ~140 LOC L3 removed.
+  - **Helpers PRESERVED**: `bezier_control_points_for_arc` +
+    `compute_coons_patches_n_stops` + `emit_conic_coons_stream_cmyk`
+    (P270.3 + P270.4). `multispace_sample_stops_conic` preserved com
+    `#[allow(dead_code)]` (helper genérico ainda usado por tests
+    multispace P270.1+).
+  - **20 tests P268+P268.2 REMOVED**: 5 P268 emit_conic_gouraud_stream
+    + cluster + 15 P268.2 adaptive_n + delta_e + snapshots. 1 test
+    `p268_multispace_sample_stops_conic_red_blue_endpoints` preserved
+    (testa helper genérico ainda usado).
+  - **15 tests P272 added/renamed**: P270.3 tests obsoletos
+    refactored para semântica P272 (unified Type 6 Coons; N=stops*4);
+    5 testes inteiramente novos (stream size; 2_stops_8_patches;
+    5_stops_20_patches; corner_colors_interpolated_quarter; paridade
+    estrutural).
+  - **Tests P269/P270.1 actualizados** — assertions `/ShadingType 4`
+    → `/ShadingType 6` (4 tests). Comments actualizados.
+  - **Tests P270.4 actualizados** — `p270_4_export_pdf_conic_oklab_preserva_p268_gouraud`
+    agora afirma /ShadingType 6 (não Type 4); paridade test
+    `p270_4_emit_conic_coons_cmyk_paridade_p270_3_rgb_structure`
+    actualizada (RGB 4x maior que CMYK: 296 vs 82 bytes).
+  - **Regressão tests P262-P270.4 não-Conic preservada literal**
+    (Linear/Radial/Conic CMYK byte snapshots preserved bit-exact).
+  - **Snapshot bytes Conic RGB MUDAM intencionalmente** (Type 4 →
+    Type 6 behaviour change). §política condição 6 absoluta.
+  **Cobertura Visualize agregada**: ~85-87% (P270.4) → **~85-87%
+  preservada** (P272 é refino estratégico; cobertura efectiva
+  inalterada — arquitectura simplificada). Distribuição ADRs **81
+  preservado** (P272 revoga ADR-0090 → status REVOGADO; ADR-0092
+  expandida — sem nova ADR); PROPOSTO 11 + IMPLEMENTADO 31
+  preservados; **EM VIGOR 35 → 34** (-1 ADR-0090); **REVOGADO 2 →
+  3** (+1 ADR-0090). Tests workspace **2572 → 2557** (-15 net; -20
+  P268+P268.2 + 5 new P272 inteiramente novos). Lint zero violations;
+  sem hash drift L0 (gradient.md anotação P272 propagada automatic).
+  **Marcos arquitecturais P272**:
+  **(1) Cluster Gradient L3 emit estratégia única Coons feature-complete
+  24/24 simplificado** — eliminação 2 estratégias coexistentes Conic
+  (Type 4 Gouraud P268+P268.2 + Type 6 Coons CMYK P270.4) converge em
+  Type 6 Coons único. Cristalino oferece pipeline gradient unificado.
+  **(2) Primeira ADR cristalina REVOGADA pós-formalização ADR-0093
+  P271** — sub-padrão "Aplicação meta-ADR" inaugurado N=1 cada para
+  ADR-0093 + ADR-0094. Demonstra empiria das metodologias formalizadas.
+  **(3) Net LOC negativo intencional** — ~80-100 additions + ~140
+  helpers removals + ~620 tests removals = net -660 a -680 L3.
+  Simplicidade arquitectural sem perda funcional. **Pendências
+  preservadas pós-P272**: P-Gradient-Relative-Custom (M) +
+  P-Gradient-CMYK-ICC (S-M) + P-Gradient-Adaptive-Multispace (S) +
+  ADR-0055bis (M) + P-Footnote-N (M) + DEBT-33 + Tiling + outro
+  cluster. **Decisão humana fica em aberto literal** pós-P272 —
+  cluster Gradient L3 emit estratégia única materializada;
+  arquitectura simplificada; abre próximo cluster/refino.
+- **Passo 273 — P-Gradient-Relative-Custom (activa `relative:
+  RelativeTo` cross-variant)** (subpadrão "Anotação cumulativa em
+  vez de ADR nova" N=11 → **N=12 cumulativo consolidação clara
+  persistente**; subpadrão "Reutilização literal helpers cross-passos"
+  N=11 → **N=12 cumulativo consolidação clara persistente**
+  (Option<T> ADR-0064 §Caso A + L1 enum P270 + stdlib named arg P270
+  template + L3 dispatcher dual P272 reutilizados literal); subpadrão
+  "Cap LOC hard vs soft explícito" N=5 → **N=6 cumulativo
+  consolidação total** (L1 real ~50 LOC + stdlib real ~50 LOC + L3
+  real ~50 LOC; tests reais 26 estouraram soft 22 ~18%; hard 30
+  respected — registo relatório per Pattern 1); subpadrão **"Fase A
+  com industry research proactiva" N=4 → N=5 cumulativo (limiar
+  formalização clara muito ultrapassado)** (P273 industry research
+  consolidada PDF /Matrix em shading dictionary — iText/PDFTron APIs
+  vs Cairo/Inkscape/vanilla transform Rust); subpadrão **"Aplicação
+  meta-ADR (ADR-0094)" N=1 → N=2 cumulativo** (segunda aplicação
+  prática Cap LOC hard/soft + Industry research pós-formalização
+  P271); subpadrão "Anotação cumulativa cross-ADR" N=6 → **N=7
+  cumulativo** (P273 anota 5 ADRs paralelas + ADR-0054 = 6 ADRs);
+  subpadrão "Diagnóstico imutável" N=18 → **N=19 cumulativo**
+  (décimo quarto consumo directo de fonte; vanilla `relative:
+  Smart<RelativeTo>` literal + `correct_transform` Rust paridade)).
+  **Magnitude M** (L1 real ~50 LOC + stdlib real ~50 LOC + L3 real
+  ~50 LOC; folga caps hard 30-67%). **Fase A diagnóstico empírico**
+  P273.A criou `diagnostico-relative-custom-passo-273.md` imutável.
+  **Vanilla strategy confirmada paridade** (§A.3): vanilla
+  `lab/typst-original/crates/typst-pdf/src/paint.rs:175-181` usa
+  `match unwrap_relative(...)` + `correct_transform(state, ...)` em
+  Rust nativo. **Cristalino paridade total — não divergência**.
+  Industry research consolidada P273 confirma PDF `/Matrix` existe
+  literal em shading dictionary (iText/PDFTron APIs) mas rejeitada
+  por Cairo/Inkscape/vanilla por reader interpretation variation.
+  **Materialização L1**:
+  - **Novo `enum RelativeTo { Self_, Parent }`** com
+    `#[derive(Default)]` → `Self_` default; paridade vanilla
+    `RelativeTo` cristalino simplificado (`on_text` context
+    ignorado — materializável futuro se necessário).
+  - **3 structs Linear/Radial/Conic** ganham campo
+    `relative: Option<RelativeTo>` (paridade vanilla `Smart<RelativeTo>`
+    via ADR-0064 §Caso A; `None` = Auto = `Self_` default).
+  - **7 construtores `Gradient::*`** preservam assinatura literal +
+    adicionam default `relative: None`.
+  **Materialização stdlib**:
+  - **Novo helper `parse_relative_named(args, fn_name)`** cross-variant
+    (paridade `parse_space_named` template P270). Aceita
+    "self"/"parent"/"auto"; default `None`.
+  - **3 fns `native_gradient_linear/radial/conic`** estendidas com
+    parsing `"relative"` + whitelist actualizada.
+  **Materialização L3**:
+  - **Novo helper `resolve_relative(opt)`** retorna `RelativeTo` via
+    `unwrap_or_default()` (None → Self_).
+  - **Novo helper `apply_parent_transform(local, bbox)`** estrutural
+    (`#[allow(dead_code)]` reserved). `bbox = None` → identity
+    (preserve P272 behavior). `bbox = Some` → escala unit-space para
+    bbox real.
+  - **Dispatcher L3 não tocado** — pipeline P272 preserved bit-exact
+    (parent_bbox = None nos 3 callsites actuais; futuro callsite
+    poderá passar bbox real per spec §A.10).
+  **Tests reais: 26** (cap soft 22 estourou 18%; cap hard 30
+  respected):
+  - 19 testes L3 export (resolve/apply helpers + L1 default checks +
+    PDF E2E preserve + cluster 3 variants relative coexistem +
+    sample independent of relative pureza física L1 §A.12).
+  - 7 testes stdlib L1 (3 variants × parse self/parent/auto +
+    default None preserva P270 + invalid Err).
+  - Zero regressão tests P262-P272 (2557 baseline preserved
+    bit-exact via defaults `relative: None`).
+  **Cluster Gradient cross-variant runtime fields canónica 3/3**:
+  | N | Passo | Campo | Variants |
+  |---|---|---|---|
+  | 1 | P269 | `focal_center` + `focal_radius` | Radial only |
+  | 2 | P270 | `space: ColorSpace` | Linear + Radial + Conic |
+  | 3 | **P273** | **`relative: Option<RelativeTo>`** | **Linear + Radial + Conic** |
+  Distribuição ADRs **81 preservado** (P273 anota ADR-0091 + 4 ADRs
+  paralelas + ADR-0054 + L0 entities/gradient.md — sem nova ADR);
+  PROPOSTO 11 + IMPLEMENTADO 31 + EM VIGOR 34 + REVOGADO 3
+  preservados. Tests workspace **2557 → 2583** (+26 net; cap soft
+  estourou ~18% registo per ADR-0094 Pattern 1). Lint zero violations;
+  L0 hash drift propagado (`01_core/src/entities/gradient.rs:db2f6559`).
+  **Marcos arquitecturais P273**: **(1)** Cluster Gradient
+  cross-variant runtime fields canónica **3/3** materializada (pattern
+  consolidado focal + space + relative). **(2)** Sub-padrão **"Fase
+  A com industry research proactiva" N=5 cumulativo limiar
+  formalização clara muito ultrapassado** — confirma valor metodológico
+  ADR-0094 Pattern 3. **(3)** Sub-padrão "Aplicação meta-ADR
+  (ADR-0094)" N=2 cumulativo — segunda aplicação prática
+  pós-formalização P271 (Cap LOC + Industry research). **(4)** Pureza
+  física L1 ADR-0029 preserved absoluta (§A.12 — `sample()` não usa
+  `relative` field). **Pendências preservadas pós-P273**:
+  P-Gradient-CMYK-ICC (S-M) + P-Gradient-Adaptive-Multispace (S) +
+  ADR-0055bis (M) + P-Footnote-N (M) + DEBT-33 + Tiling + outro
+  cluster. **Decisão humana fica em aberto literal** pós-P273 —
+  cluster Gradient feature-complete user-facing cross-variant runtime
+  fields 3/3; abre próximo cluster/refino.
+- **Passo 274 — P-Gradient-Adaptive-Multispace (adaptive N multispace
+  refino qualitativo Linear+Radial)** (subpadrão **"Anotação
+  cumulativa em vez de ADR nova" N=12 → N=13 cumulativo consolidação
+  clara persistente** (P274 anota ADR-0091; sem ADR nova); subpadrão
+  **"Reutilização literal helpers cross-passos" N=12 → N=13 cumulativo
+  consolidação clara persistente** (`color_to_oklab_with_alpha` P262
+  reused 4ª vez no cluster Gradient); subpadrão **"Cap LOC hard vs
+  soft explícito" N=6 → N=7 cumulativo consolidação total** (L3 hard
+  250 / soft 180; reais ~80 LOC + 14 testes; folga grande); subpadrão
+  **"Fase A com industry research proactiva" N=5 → N=6 cumulativo**
+  (4 fontes canónicas W3C CSS Color 4 + Björn Ottosson Oklab + Skia
+  + Cairo consolidadas pré-sessão); subpadrão **"Aplicação meta-ADR
+  (ADR-0094)" N=2 → N=3 cumulativo** (Pattern 3 industry research +
+  Pattern 1 cap LOC — terceira aplicação prática pós-formalização
+  P271); subpadrão **"Aplicação meta-ADR (ADR-0093)" N=1 → N=2
+  cumulativo** (Pattern 2 anotação cumulativa em vez de ADR nova —
+  segunda aplicação prática); subpadrão "Diagnóstico imutável"
+  N=19 → **N=20 cumulativo** (décimo quinto consumo directo de
+  fonte)). **Magnitude M** (L3 ~80 LOC + 14 testes; cap hard 30-67%
+  folga; cap soft testes 12 estourou ~17% per ADR-0094 Pattern 1
+  registo). **Fase A diagnóstico empírico** P274.A criou
+  `typst-passo-274A-diagnostico.md` imutável (matriz §A.5 3 fórmulas
+  × 5 casos; decisões 1/2/3 fixadas; helper genérico cross-space
+  proposto §A.6; critério paridade tests P270.1 §A.7 satisfeito).
+  **Decisões fixadas Fase A**: (1) Opção 1B threshold-based (16/32/64);
+  (2) Opção 2A Linear+Radial apenas (Conic preserved P272; CMYK
+  preserved P270.2); (3) N_max=64 + ΔE Oklab nativo. **Materialização
+  L3**:
+  - **Novo helper `perceptual_distance_in_space(c0, c1, space)`**
+    — genérico cross-space desacoplado; param `space` futuro-proofing
+    per ADR-0094 Pattern 2 (mesmo que implementation actual ignora,
+    permite refino futuro com métrica nativa per space).
+  - **Novo helper `adaptive_n_for_stops(stops, space)`** — fórmula 1B
+    threshold; preserva N=16 para stops <2 (degenerado) ou Δ<0.05
+    (low contrast); N=32 moderate; N=64 high contrast cap.
+  - **2 callsites dispatcher actualizados** — Linear+Radial RGB-family
+    arms substituem `multispace_sample_stops(*, 16)` literal por
+    `multispace_sample_stops(*, adaptive_n_for_stops(...))`.
+  - **CMYK arms preserved literal** (P270.2) — sem adaptive (sem
+    pré-amostragem em primeiro lugar).
+  - **Conic dispatcher preserved literal** (P272 Coons N=stops*4).
+  - **+14 tests P274**: 4 unit `perceptual_distance_in_space`
+    (identity, symmetric, black-white extremo, space-independence);
+    6 unit `adaptive_n_for_stops` (degenerated, low/moderate/high
+    contrast, cap, space-independence); 4 E2E PDF (Linear pastel
+    reproducibility + Linear high-contrast Function Type 3 + CMYK
+    preserved + Conic P272 preserved).
+  - **Zero regressão tests P262-P273** (2583 baseline preserved
+    literal — defaults Auto + adaptive deterministic preservam
+    reproducibility tests; unit tests com N=16 explicit args
+    inalterados).
+  **Distinção vs precedente P268.2 removido P272**: helper P268.2
+  `oklab_delta_e` + `compute_adaptive_n_conic` acoplavam métrica ao
+  Oklab + fórmula ao Type 4 Gouraud. P274 corrige por construção —
+  helper recebe `ColorSpace`, fórmula desacoplada de estratégia.
+  Distribuição ADRs **81 preservado** (P274 anota ADR-0091 + L0 —
+  sem nova ADR); PROPOSTO 11 + IMPLEMENTADO 31 + EM VIGOR 34 +
+  REVOGADO 3 preservados. Tests workspace **2583 → 2597** (+14 net).
+  Lint zero violations; L0 hash drift propagado (`5801d27c`).
+  **Marcos arquitecturais P274**: **(1)** Refino qualitativo
+  multispace Linear+Radial sem alterar estratégia (`/ShadingType 2/3`
+  + Function Type 3 stitching preserved). **(2)** Sub-padrão
+  "Aplicação meta-ADR (ADR-0094)" N=3 — terceira aplicação prática
+  Cap LOC + Industry research pós-formalização P271. **(3)** Sub-padrão
+  "Aplicação meta-ADR (ADR-0093)" N=2 — segunda aplicação prática
+  Pattern 2 anotação cumulativa em vez de ADR nova. **(4)**
+  Desacoplamento `perceptual_distance_in_space` corrige sintoma
+  P268.2 removed P272 por construção. **Pendências preservadas
+  pós-P274**: P-Gradient-CMYK-ICC (S-M) + P-Gradient-Relative-Callsite
+  (S) + ADR-0055bis (M) + P-Footnote-N (M) + DEBT-33 + Tiling + outro
+  cluster. **Decisão humana fica em aberto literal** pós-P274 —
+  cluster Gradient feature-complete user-facing + refino qualitativo
+  multispace adaptive N materializado; abre próximo cluster/refino.
+- **Passo 273.5 — P-Gradient-Relative-Callsite (fecha pendência P273
+  `apply_parent_transform` em `#[allow(dead_code)]`)** (subpadrão
+  **"Anotação cumulativa em vez de ADR nova" N=13 → N=14 cumulativo
+  consolidação clara persistente** (sétima anotação consecutiva
+  ADR-0091); subpadrão **"Reutilização literal helpers cross-passos"
+  N=13 → N=14 cumulativo consolidação clara persistente**
+  (`apply_parent_transform` P273 reused literal; padrão DEBT-37
+  P84.6 `cell_origin_*: Option<f64>` reused estructuralmente);
+  subpadrão **"Cap LOC hard vs soft explícito" N=7 → N=8 cumulativo
+  consolidação total** (L1 hard 60 / soft 40; L3 hard 80 / soft 50;
+  testes hard 12 / soft 8 — caps respeitados literal); subpadrão
+  **"Aplicação meta-ADR (ADR-0093)" N=2 → N=3 cumulativo** (Pattern
+  2 anotação cumulativa em vez de ADR nova; terceira aplicação prática
+  pós-formalização P271); subpadrão **"Aplicação meta-ADR (ADR-0094)"
+  N=3 → N=4 cumulativo** (Pattern 1 cap LOC hard/soft; quarta
+  aplicação prática); subpadrão emergente **"Pattern DEBT-37
+  `cell_origin_*` replicado" N=1 → N=2 cumulativo emergente** (P84.6
+  + P273.5; meio caminho limiar formalização N=3-4; promoção a ADR
+  meta NÃO reservada); subpadrão "Diagnóstico imutável" N=20 →
+  **N=21 cumulativo** (décimo sexto consumo directo de fonte)).
+  **Magnitude S** (L1 ~30 LOC + L3 ~50 LOC + 8 testes; caps respeitados
+  literal). **Fase A diagnóstico empírico** P273.5.A criou
+  `typst-passo-273-5A-diagnostico.md` imutável (callsites L3 reais
+  inventariados §A.1; padrão DEBT-37 directamente aplicável §A.2;
+  decisão 3γ híbrida fixada §A.3; critério `#[allow(dead_code)]`
+  fechado §A.6). **Decisão 3 — semântica Parent escolhida**: **3γ
+  híbrida**:
+  - **3γ.1 (materializado P273.5)**: callsite L3 passa `page_bbox`
+    como fallback parent_bbox quando `gradient.relative == Some(Parent)`.
+    Cobre semântica vanilla "shape top-level com relative=Parent
+    ancora à página" — usecase mais comum. Identity transform por
+    construção (coords já page-relative); path activation fecha
+    pendência P273.
+  - **3γ.2 (pendência preservada)**: Layouter populando `parent_bbox`
+    real do Block/Boxed/Group contentor imediato via save/restore.
+    **Estructuralmente preparado** via campo `Option<Rect>` L1
+    Layouter; consumer real chega em refino futuro incremental per
+    ADR-0054 graded.
+  **Materialização L1+L3**:
+  - **L1 novo `Rect { x: Pt, y: Pt, w: Pt, h: Pt }`** em
+    `entities/layout_types.rs` (paridade `Point` + `Size`; 7 LOC).
+  - **L1 novo campo `pub(super) parent_bbox: Option<Rect>`** no
+    Layouter (`rules/layout/mod.rs`; padrão DEBT-37 P84.6
+    `cell_origin_*` reused estructuralmente). Constructor init
+    `parent_bbox: None`; `#[allow(dead_code)]` na declaração field
+    (consumer real chega com 3γ.2 refino futuro).
+  - **L3 callsites dispatcher**: Linear arm + Radial arm RGB-family
+    branch `if relative == Parent` constrói `page_bbox = Some((0, 0,
+    page_w, page_h))` + chama `apply_parent_transform(local_unit,
+    page_bbox)`. 3γ.1 identity transform por construção; resultado
+    equivalente a coords baseline.
+  - **L3 `#[allow(dead_code)]` removido** de `apply_parent_transform`
+    — função tem callsites L3 reais (2 sítios Linear+Radial dispatcher
+    arms).
+  - **+8 tests P273.5**: 1 helper validation (`apply_parent_transform_has_real_callsite`
+    + `_offset_bbox`); 2 E2E PDF (Linear/Radial `relative=Parent`
+    emit functions); 2 regressão (`relative=Self_` preserva P272+P273
+    bit-exact; `relative=Parent` identity 3γ.1 via mesmo bytes); 1
+    determinismo; 1 L1 (`Rect` struct constructible).
+  **Distinção precedente DEBT-37 P84.6**:
+  - DEBT-37: `cell_origin_x/y: Option<f64>` para Grid cell Place
+    scope Parent.
+  - P273.5: `parent_bbox: Option<Rect>` para gradient `RelativeTo::Parent`.
+  - Padrão idêntico: campo opcional Layouter + save/restore arms
+    (P273.5 só inaugura field; save/restore arms 3γ.2 pendência).
+  Distribuição ADRs **81 preservado** (P273.5 anota ADR-0091 + L0 —
+  sem nova ADR; sétima anotação consecutiva); PROPOSTO 11 +
+  IMPLEMENTADO 31 + EM VIGOR 34 + REVOGADO 3 preservados. Tests
+  workspace **2597 → 2605** (+8 net). Lint zero violations; build
+  zero `dead_code` warnings; L0 hash drift propagado (`b7bd7f98`).
+  **Marcos arquitecturais P273.5**: **(1)** Cluster Gradient refino
+  estrutural encerrado — pendência P273 §7 (`#[allow(dead_code)]`)
+  resolvida. **(2)** Sub-padrão "Aplicação meta-ADR (ADR-0094)" N=4
+  cumulativo — quarta aplicação prática Cap LOC hard/soft
+  pós-formalização P271. **(3)** Sub-padrão "Aplicação meta-ADR
+  (ADR-0093)" N=3 cumulativo — terceira aplicação prática Pattern 2
+  anotação cumulativa. **(4)** Sub-padrão emergente "Pattern DEBT-37
+  `cell_origin_*` replicado" N=2 — meio caminho limiar formalização;
+  candidato meta-ADR futura se N≥3-4. **Pendências preservadas
+  pós-P273.5**: P-Gradient-CMYK-ICC (S-M) + ADR-0055bis (M) +
+  P-Footnote-N (M) + DEBT-33 + Tiling + outro cluster. **Pendências
+  específicas P273.5**: 3γ.2 Block/Boxed/Group save/restore real
+  bbox propagation (incremental per ADR-0054 graded;
+  estructuralmente preparado L1). **Decisão humana fica em aberto
+  literal** pós-P273.5 — cluster Gradient feature-complete +
+  qualitativo + refino estrutural encerrado; abre saída para outro
+  cluster (Text/Model/Layout).
+- **Passo 273.6 — P-Gradient-Relative-Callsite-Activation (fecho 3γ.2;
+  `parent_bbox` Layouter ganha consumer real)** (subpadrão
+  **"Anotação cumulativa em vez de ADR nova" N=14 → N=15 cumulativo
+  consolidação clara persistente** (oitava anotação consecutiva
+  ADR-0091); subpadrão **"Reutilização literal helpers cross-passos"
+  N=14 → N=15 cumulativo consolidação clara persistente**
+  (`apply_parent_transform` P273 + `Rect` P273.5 reused literal;
+  padrão DEBT-37 P84.6 `cell_origin_*` reused com consumer real);
+  subpadrão **"Pattern DEBT-37 `cell_origin_*` replicado" N=2 →
+  N=3 cumulativo (atinge limiar formalização N=3-4)** — terceira
+  aplicação real (P84.6 + P273.5 estrutural + P273.6 com consumer
+  real); candidato meta-ADR futura; subpadrão **"Aplicação meta-ADR
+  (ADR-0093)" N=3 → N=4 cumulativo** (Pattern 2 anotação cumulativa;
+  quarta aplicação prática); subpadrão **"Aplicação meta-ADR
+  (ADR-0094)" N=4 → N=5 cumulativo** (Pattern 1 cap LOC hard/soft;
+  quinta aplicação prática); subpadrão "Cap LOC hard vs soft
+  explícito" N=8 → **N=9 cumulativo consolidação total** (L1 hard
+  100 / soft 70 — estouro soft esperado per spec via cascade ~86
+  sites bulk-patched); subpadrão **"Sub-passos decimais consecutivos
+  do mesmo cluster" N=1 → N=2 cumulativo emergente** (P273.5 +
+  P273.6); subpadrão **"Cascade pattern-match cross-FrameItem"
+  N=1 → N=2 cumulativo** (P156C 12 sites + P273.6 ~86 sites —
+  maior cascade do cluster Visualize); subpadrão "Diagnóstico
+  imutável" N=21 → **N=22 cumulativo** (décimo sétimo consumo
+  directo de fonte)). **Magnitude S** (L1 ~80 LOC cascade + arms
+  Block save/restore + emit shape sites; L3 ~30 LOC; 7 testes;
+  cap soft L1 70 estourou ~14% per cascade ~86 sites bulk-patched
+  via script). **Fase A diagnóstico empírico** P273.6.A criou
+  `typst-passo-273-6A-diagnostico.md` imutável (arm Block §A.1 +
+  callsite L3 §A.4 inventariados; decisão 3γ.2.γ §A.3 fixada;
+  critério §A.6 fecho `#[allow(dead_code)]` Layouter). **Decisões
+  fixadas Fase A**: (1) **3γ.2.γ** (pré-layout com fields literais);
+  (2) **Prop-A revisitada** (FrameItem::Shape + GradientObject
+  ambos ganham `parent_bbox_at_emit`); (3) **{Block} apenas** —
+  Boxed difere P273.7; outros scope-out per ADR-0054 graded.
+  **Materialização L1+L3**:
+  - **L1 FrameItem::Shape** ganha campo
+    `parent_bbox_at_emit: Option<Rect>`. Cascade pattern-match ~86
+    sites (struct init + destructure+reconstruct) bulk-patched via
+    Python script (Decisão 2 Prop-A).
+  - **L1 Layouter `parent_bbox`** perde `#[allow(dead_code)]` —
+    consumer real ativado.
+  - **L1 arm `Content::Block`** save/restore real do `parent_bbox`
+    em ambos paths (clip=true + clip=false); save no início, set
+    `Some(Rect)` quando `width.is_some() && height.is_some()`
+    (Decisão 3γ.2.γ), restore após body layout (LIFO).
+  - **L1 emit shape sites** populam
+    `parent_bbox_at_emit: self.parent_bbox` (Content::Shape arm +
+    Block's own shape emit + Boxed's own shape emit).
+  - **L3 `GradientObject`** ganha campo
+    `parent_bbox_at_emit: Option<Rect>`; `scan_all_gradients` captura
+    do FrameItem::Shape.
+  - **L3 dispatcher** Linear+Radial arms RGB-family computam
+    `effective_parent_bbox` (real bbox se Some; page_bbox fallback
+    se None) e chamam `apply_parent_transform(local, Some(effective_parent_bbox))`
+    quando `relative == Parent`.
+  - **+7 tests P273.6**: 1 unit field exists; 1 unit Rect compose;
+    1 GradientObject parent_bbox carries; 1 top-level no parent_bbox;
+    1 E2E observable diff (page_bbox vs Block bbox bytes diferem
+    quando real ≠ page; confirma 3γ.2 dá semântica real); 1 regressão
+    Self_ inalterado; 1 smoke pattern DEBT-37 N=3.
+  - **Zero regressão tests P262-P273.5** (2605 baseline preserved
+    literal — defaults `parent_bbox_at_emit: None` mantêm fallback
+    page_bbox L3 P273.5; Block sem dimensions literais não popula
+    parent_bbox; Self_ branch ignora parent_bbox_at_emit).
+  **Pattern DEBT-37 cell_origin_* replicado N=3 cumulativo**:
+  - N=1: P84.6 (DEBT-37 `cell_origin_x/y/w: Option<f64>` Grid cell).
+  - N=2: P273.5 (`parent_bbox: Option<Rect>` estrutural; consumer pending).
+  - **N=3: P273.6** (`parent_bbox` save/restore real Block + consumer real).
+  Atinge limiar formalização ADR meta N=3-4; candidato meta-ADR
+  futura documentado para potencial promoção.
+  Distribuição ADRs **81 preservado** (P273.6 anota ADR-0091 + L0 —
+  sem nova ADR; oitava anotação consecutiva); PROPOSTO 11 +
+  IMPLEMENTADO 31 + EM VIGOR 34 + REVOGADO 3 preservados. Tests
+  workspace **2605 → 2612** (+7 net). Lint zero violations; build
+  zero `dead_code` warnings (Layouter parent_bbox + emit shape sites
+  consumed real); L0 hash drift propagado (`89e7be9f`).
+  **Marcos arquitecturais P273.6**: **(1)** Cluster Gradient refino
+  estrutural encerrado **definitivamente** — pendência P273.5 §9
+  (Layouter `parent_bbox` em `#[allow(dead_code)]`) resolvida; 3γ.2
+  materializada para Content::Block. **(2)** Pattern DEBT-37
+  `cell_origin_*` replicado N=3 cumulativo atinge limiar formalização
+  — terceira aplicação cumulativa com consumer real. **(3)** Maior
+  cascade pattern-match cross-FrameItem no cluster Visualize (~86
+  sites bulk-patched). **(4)** Sub-padrão "Sub-passos decimais
+  consecutivos do mesmo cluster" N=2 emergente (P273.5 + P273.6).
+  **Pendências preservadas pós-P273.6**: P-Gradient-CMYK-ICC (S-M) +
+  ADR-0055bis (M) + P-Footnote-N (M) + DEBT-33 + Tiling + outro
+  cluster. **Pendências específicas P273.6** (incremental per
+  ADR-0054 graded): Boxed save/restore (P273.7 candidato);
+  Stack/Pad/Group/Grid cell scope-out. **Decisão humana fica em
+  aberto literal** pós-P273.6 — cluster Gradient refino estrutural
+  encerrado definitivamente; abre saída para outro cluster.

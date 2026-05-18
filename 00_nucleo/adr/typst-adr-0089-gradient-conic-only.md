@@ -722,3 +722,41 @@ instâncias canónicas dos sub-padrões formalizados:
 
 Ver ADR-0093 + ADR-0094 EM VIGOR para meta-formalização. Status
 `IMPLEMENTADO` preservado.
+
+## Anotação cumulativa P272 — Conic estratégia única Coons (2 emit paths convergem)
+
+**Conic L3 emit estratégia unificada materializada P272** — 2 emit
+paths coexistentes P270.4 (Type 4 Gouraud RGB + Type 6 Coons CMYK)
+convergem em **Type 6 Coons único** para 8/8 spaces:
+
+- **ADR-0090** (Type 4 Gouraud strategy) → **REVOGADO P272**.
+- **ADR-0092** (Coons strategy) → **expandida cumulativamente P272**.
+
+Helpers descontinuados: `emit_conic_gouraud_stream` +
+`compute_adaptive_n_conic` + `oklab_delta_e` (P268+P268.2; ~140 LOC
+removed L3 + 20 tests removed). Helper P268.2 `multispace_sample_stops_conic`
+preserved literal (usado P270.1+ tests genéricos).
+
+**Cluster Conic L3 emit 8/8 spaces absoluto** preserved + simplificado
+arquiteturalmente. Strategy:
+
+- RGB-family + perceptual (7 spaces): `/ShadingType 6` Coons + N=stops*4.
+- CMYK: `/ShadingType 6` Coons + N=stops (preserved P270.4).
+
+Status `IMPLEMENTADO` preservado literal. Ver ADR-0092 §"Anotação
+cumulativa P272".
+
+## Anotação cumulativa P273 — Conic ganha `relative: RelativeTo`
+
+Conic L1 struct ganha campo `relative: Option<RelativeTo>` (default
+`None` = Auto = Self_). Preserved P267 + P270 space + P272 Coons unified.
+Stdlib named arg `"relative"` parsing. L3 dispatcher Conic unified
+P272 (Coons RGB N=stops*4 + Coons CMYK N=stops) ganha branch transform
+via `parent_bbox` quando `relative` resolve `Parent` (Coons patches
+centro/radius transformed em Rust antes de emit). Defaults `Self_`
+preservam pipeline P272 bit-exact.
+
+Ver ADR-0091 §"Anotação cumulativa P273 — Cross-variant runtime fields"
++ ADR-0092 §"Anotação cumulativa P273 — Coons patches transformados".
+
+Status `IMPLEMENTADO` preservado literal.

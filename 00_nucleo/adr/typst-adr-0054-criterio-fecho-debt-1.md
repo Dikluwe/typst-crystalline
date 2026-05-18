@@ -641,3 +641,50 @@ demonstram o pattern em larga escala.
 
 Status `EM VIGOR` preservado literal. Ver ADR-0093 + ADR-0094 EM
 VIGOR.
+
+## Anotação cumulativa P272 — Cluster Gradient strategy unificada simplifica perfil graded
+
+**P272 — cluster Gradient strategy unificada Coons**:
+
+- **ADR-0090 REVOGADO P272** (Type 4 Gouraud descontinuado; primeira
+  aplicação prática ADR-0093 Pattern 1 §"Quando NÃO aplicar").
+- **ADR-0092 expandida cumulativamente** (Coons unified 8/8 spaces).
+- **Cluster Gradient L3 emit 24/24 absoluto preserved + simplificado
+  arquiteturalmente**.
+
+Perfil graded DEBT-1 simplificado por **eliminação 2 estratégias
+Conic coexistentes** (P270.3+P270.4 dual → P272 single strategy).
+Helpers descontinuados: `emit_conic_gouraud_stream` +
+`compute_adaptive_n_conic` + `oklab_delta_e` (~140 LOC L3 removed).
+Tests descontinuados: 20 tests P268+P268.2.
+
+**Net LOC L3**: -660 a -680 (negativo intencional; limpeza).
+**Net tests**: -2 (20 removed + 18 added).
+
+**Sub-padrão "Aplicação meta-ADR (ADR-0093 + ADR-0094)" N=1 inaugural
+cada** — P272 demonstra empiria das metodologias formalizadas P271
+em primeira aplicação prática pós-formalização.
+
+**Sub-padrão "ADR REVOGADO + substituta" N=3 cumulativo** —
+ADR-0007/ADR-0018 + ADR-0028/ADR-0029 + **P272 ADR-0090/ADR-0092
+expandida**.
+
+Status `EM VIGOR` preservado literal.
+
+## Anotação cumulativa P273 — Cluster Gradient cross-variant runtime fields canónica 3/3
+
+P273 — cluster Gradient ganha `relative: Option<RelativeTo>`
+cross-variant runtime field; **lista canónica runtime fields 3/3
+elementos**:
+
+1. `focal_center` + `focal_radius` (P269; Radial only).
+2. `space: ColorSpace` (P270; Linear + Radial + Conic).
+3. **`relative: Option<RelativeTo>`** (P273; Linear + Radial + Conic).
+
+Perfil graded DEBT-1 cobertura estendida. Sub-padrão "Aplicação
+meta-ADR (ADR-0094)" N=1 → **N=2 cumulativo** — segunda aplicação
+prática Cap LOC hard/soft Pattern 1 + Industry research Pattern 3
+pós-formalização P271.
+
+Status `EM VIGOR` preservado literal. Ver ADR-0091 §"Anotação
+cumulativa P273".

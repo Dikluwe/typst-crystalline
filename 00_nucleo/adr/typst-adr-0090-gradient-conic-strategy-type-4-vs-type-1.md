@@ -1,7 +1,11 @@
 # ⚖️ ADR-0090: Gradient Conic PDF strategy: Type 4 Gouraud (cristalino) divergência industry mesh-based variants
 
-**Status**: `EM VIGOR`
+**Status**: `REVOGADO` (P272 — Type 4 Gouraud descontinuado;
+substituída por ADR-0092 expandida cumulativamente — Type 6 Coons
+unificado 8/8 spaces).
+**Status anterior**: `EM VIGOR` (P268.1 a P272).
 **Data**: 2026-05-15
+**Data revogação**: 2026-05-17 (P272).
 **Autor**: Humano + IA
 **Passo origem**: P268.1
 **Cluster**: Visualize / Gradient / PDF export
@@ -487,3 +491,71 @@ URGENTE paridade P260 ADR-0084/0085.
 
 Status `EM VIGOR` preservado literal. Ver ADR-0092 §"Decisão (Cenário
 A revisado)".
+
+---
+
+## Revogação P272
+
+**Data**: 2026-05-17.
+**Status**: `EM VIGOR` → **`REVOGADO`**.
+
+**Motivo**: convergência industry-aligned para mesh-based Type 6
+Coons (Cairo/Inkscape/Typst original blog 2023 precedente literal).
+
+Pesquisa industry P270.3 + experiência P270.4 (Coons CMYK)
+materializaram Type 6 com sucesso. Eliminar 2 estratégias coexistentes
+(Type 4 Gouraud + Type 6 Coons) reduz complexidade arquitectural sem
+perda funcional.
+
+**Substituição**: **ADR-0092 expandida cumulativamente P272** cobrindo
+estratégia Conic unificada Coons para 8/8 spaces.
+
+**Implicações materializadas P272**:
+
+- `emit_conic_gouraud_stream` (P268) **removed** (~85 LOC L3).
+- `compute_adaptive_n_conic` (P268.2) **removed** (~40 LOC L3).
+- `oklab_delta_e` (P268.2) **removed** (~15 LOC L3; única call site
+  era `compute_adaptive_n_conic`).
+- **20 tests P268+P268.2 removed** (1 multispace preserved — testa
+  helper genérico ainda usado por P270.1+).
+- `emit_conic_coons_stream_rgb` (P272) **active** — extension
+  P270.3 `emit_conic_coons_stream` com strategy N=stops*4 patches
+  inter-stop; corner colors interpolated via `Conic::sample(t)`
+  dispatcher P270 (interpolate_in_space per conic.space).
+- Dispatcher Conic em `emit_gradient_objects` **unificado**
+  (`/ShadingType 6` Coons para 8/8 spaces; Decode 5 pares RGB ou
+  6 pares CMYK; Function Type 2 N=1 identity 3/4 components).
+
+**Decisão de fundo invalidada**: Type 4 Free-Form Gouraud já não é
+estratégia Conic cristalina; substituída por Type 6 Coons Patch Mesh
+(Cairo/Inkscape industry-aligned). Pattern ADR-0093 §Pattern 1
+§"Quando NÃO aplicar" — revogação invalida decisão de fundo; use
+status REVOGADO + ADR substituta.
+
+**Sub-padrão "ADR REVOGADO + substituta"**: N=2 prévio cristalino
+(ADR-0007 → ADR-0018; ADR-0028 → ADR-0029) → **N=3 cumulativo**
+com **P272 ADR-0090 → ADR-0092 expandida**. Pattern emergente já
+estabelecido historicamente; P272 distingue-se como **primeira
+aplicação pós-formalização ADR-0093** P271.
+
+**Sub-padrão "Aplicação meta-ADR (ADR-0093)" N=1 inaugural** —
+P272 é primeira aplicação prática de meta-ADR ADR-0093 §Pattern 1
+§"Quando NÃO aplicar" pós-formalização P271; demonstra empiria da
+metodologia.
+
+**Sub-padrão "Aplicação meta-ADR (ADR-0094)" N=1 inaugural** —
+Cap LOC hard/soft Pattern 1 aplicado em P272 spec
+(L3 additions hard 200/soft 120; testes additions hard 30/soft 22;
+real ~80-100 LOC additions; folga 100% hard).
+
+**Trabalho prévio preservado historicamente**:
+
+- ADR-0090 conteúdo original preserved como registo arquitectural
+  (decisão original, pesquisa industry, sub-padrões inaugurados
+  P268.1).
+- Industry research P268.1-correção preserved (lição metodológica;
+  ADR-0094 §Pattern 3 "Industry research proactiva").
+- Sub-padrão "Correcção ADR pré-commit" anti-pattern preservado.
+
+Cross-reference: **ADR-0092 §"Anotação cumulativa P272 — Decisão
+Cenário A revisado FINAL"**.

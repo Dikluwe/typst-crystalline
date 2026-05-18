@@ -87,6 +87,21 @@ impl Size {
     }
 }
 
+/// Rectângulo alinhado aos eixos (paridade `Point` + `Size`).
+///
+/// **P273.5** — usado como bbox de contentor para resolver
+/// `Gradient.relative: Some(RelativeTo::Parent)` no callsite real
+/// do Layouter. Padrão DEBT-37 P84.6 `cell_origin_*: Option<f64>`
+/// reused estructuralmente — campo opcional `parent_bbox: Option<Rect>`
+/// no Layouter.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Rect {
+    pub x: Pt,
+    pub y: Pt,
+    pub w: Pt,
+    pub h: Pt,
+}
+
 // ── Estilo de texto ────────────────────────────────────────────────────────
 
 /// Estilo de texto — struct plano.
@@ -217,6 +232,12 @@ pub enum FrameItem {
         height: f64,
         fill:   Option<Color>,
         stroke: Option<Stroke>,
+        /// **P273.6** — bbox do contentor imediato no momento do emit.
+        /// `Some(rect)` quando shape foi emitida dentro de `Content::Block`
+        /// com `width.is_some() && height.is_some()` (Decisão 3γ.2.γ).
+        /// `None` quando top-level ou contentor sem dimensions literais
+        /// (cai no fallback page_bbox L3 P273.5).
+        parent_bbox_at_emit: Option<Rect>,
     },
     /// Grupo com transformação afim aplicada (Passo 78).
     ///
