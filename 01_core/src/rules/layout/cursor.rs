@@ -297,12 +297,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// limite inferior `page_h - margin`, a segunda abaixo dela, etc.
     /// Marker `[N]: ` prepende cada body para identificação.
     ///
-    /// Subpadrão "DeferredX buffer + flush em new_page" N=3 cumulativo
-    /// (P245 floats + P251 cell tails + P304 footnotes).
+    /// **P305 (P295.2)** — overflow multi-página: bodies que não
+    /// cabem no espaço disponível ficam no buffer; próximo
+    /// `new_page()` (ou loop em `finish()`) faz flush deles na
+    /// próxima página. Bug latente P304 (overlap silencioso quando
+    /// `total_h > available_h`) fixado via greedy fit + defer.
+    /// Fallback defensivo: se body único > página inteira, emite
+    /// na mesma para evitar loop infinito (paralelo P251 `forwarded_count`
+    /// limit).
     ///
-    /// P304.A (single-page only): bodies que excedam o espaço
-    /// disponível são emitidos mesmo assim — overflow multi-página
-    /// é scope-out (P295.2 / P304.B).
+    /// Subpadrão "DeferredX buffer + flush em new_page" N=3 cumulativo
+    /// (P245 floats + P251 cell tails + P304 footnotes; P305 estende
+    /// com cross-page partial drain).
     pub(super) fn flush_pending_footnote_bodies(&mut self) {
         use crate::entities::content::Content;
         if self.pending_footnote_bodies.is_empty() {
@@ -316,24 +322,58 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let avail_w  = page_w - 2.0 * margin;
         let area_bot = page_h - margin;
 
-        // Pass 1 — measure cada body (incluindo marker prefix) e
-        // colecciona items locais + altura.
-        let mut measured: Vec<(f64, Vec<FrameItem>)> = Vec::with_capacity(bodies.len());
-        let mut total_h = 0.0_f64;
-        for (n, body) in bodies.iter() {
-            // Combina marker `[N]: ` + body num Sequence para layout
-            // sub-frame. Marker prefixa cada body para identificação
-            // no rodapé (paridade vanilla `1. body`).
+        // P305 — compute top boundary safe: max Y of current_items
+        // (above which bodies would overlap main content). Fallback
+        // a `margin` se página vazia.
+        let top_safe = self.regions.current.current_items.iter()
+            .map(|it| match it {
+                FrameItem::Text  { pos, .. } => pos.y.0,
+                FrameItem::Line  { start, .. } => start.y.0,
+                FrameItem::Glyph { pos, .. } => pos.y.0,
+                FrameItem::Image { pos, .. } => pos.y.0,
+                FrameItem::Shape { pos, .. } => pos.y.0,
+                FrameItem::Group { pos, .. } => pos.y.0,
+            })
+            .fold(margin, f64::max);
+        let available_h = (area_bot - top_safe).max(0.0);
+
+        // P305 — greedy measure-then-fit. Bodies que cabem ficam
+        // measured (place na pass 2); restantes diferidos para
+        // próxima página via `remainder`. Fallback defensivo
+        // refinado: emite primeiro body apenas se for maior que
+        // a área de conteúdo completa (i.e., não cabe em nenhuma
+        // página) — evita loop infinito sem forçar overlap em
+        // partial-page overflow normal. Paralelo P251 `forwarded_count`
+        // limit.
+        let full_avail = (page_h - 2.0 * margin).max(0.0);
+        let mut measured: Vec<(f64, Vec<FrameItem>)> = Vec::new();
+        let mut acc_h = 0.0_f64;
+        let mut remainder: Vec<(u32, Box<Content>)> = Vec::new();
+        let mut overflow = false;
+        for (n, body) in bodies.into_iter() {
+            if overflow {
+                remainder.push((n, body));
+                continue;
+            }
             let combined = Content::sequence(vec![
                 Content::text(format!("[{}] ", n)),
-                (**body).clone(),
+                (*body).clone(),
             ]);
             let (h, items) = self.layout_sub_frame_with_width(&combined, 0.0, avail_w);
-            total_h += h;
-            measured.push((h, items));
+            let fits = acc_h + h <= available_h;
+            // Defensive: primeiro body emite mesmo se > available_h SE
+            // body > full_avail (não fits em nenhuma página).
+            let force_emit = measured.is_empty() && h > full_avail;
+            if fits || force_emit {
+                acc_h += h;
+                measured.push((h, items));
+            } else {
+                overflow = true;
+                remainder.push((n, body));
+            }
         }
 
-        // Pass 2 — place top-down a partir de `area_bot - total_h`.
+        // Pass 2 — place top-down a partir de `area_bot - acc_h`.
         // Primeira footnote no topo da zona; última no fundo.
         // `layout_sub_frame_with_width` posicionou items com ascender
         // offset (cursor_y inicial = ascender). Para alinhar ao
@@ -341,7 +381,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // do offset de translação — paridade pattern `emit_deferred_float`
         // (P245) + `layout_place` (placement.rs).
         let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
-        let mut y_cursor = area_bot - total_h;
+        // P305 — clamp Y inicial ao top_safe para evitar overlap em
+        // defensive emit (body > full_avail). Se acc_h ≤ available_h,
+        // clamp é no-op (area_bot - acc_h ≥ top_safe por construção).
+        let mut y_cursor = (area_bot - acc_h).max(top_safe);
         for (h, items) in measured {
             let target_y = y_cursor - ascender.0;
             let target_x = margin;
@@ -381,6 +424,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
             y_cursor += h;
         }
+
+        // P305 — re-inserir remainder no buffer para flush na
+        // próxima página. `new_page()` chama este método; iteração
+        // automática até buffer vazio. `finish()` itera explicitamente
+        // via loop com new_page() se buffer não-vazio pós-flush final.
+        self.pending_footnote_bodies = remainder;
     }
 
     /// Número da página actual (1-indexed).

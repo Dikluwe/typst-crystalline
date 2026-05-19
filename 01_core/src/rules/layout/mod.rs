@@ -2254,6 +2254,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // página antes de comitar a Page final. Subpadrão DeferredX
         // N=3 paralelo a P245/P251.
         self.flush_pending_footnote_bodies();
+        // P305 (P295.2) — overflow: se bodies sobraram no buffer,
+        // criar páginas adicionais (`new_page()`) até buffer vazio.
+        // Cada iteração: new_page() saves current page + flush
+        // next batch. Iter limit defensivo (paralelo P251
+        // forwarded_count limit) — assume cada iteração emite ≥1
+        // body via defensive first-body fallback.
+        let mut iter_limit = self.pending_footnote_bodies.len() + 1;
+        while !self.pending_footnote_bodies.is_empty() && iter_limit > 0 {
+            self.new_page();
+            iter_limit -= 1;
+        }
         if !self.regions.current.current_items.is_empty() {
             let page = Page {
                 width:  self.regions.current.width,

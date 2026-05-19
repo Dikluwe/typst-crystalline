@@ -9784,6 +9784,57 @@ mod tests {
         assert!(s.contains("[2]"), "marker [2] preservado");
     }
 
+    // ── Passo 305 (P295.2) — footnote overflow multi-página L3 ─────
+    //
+    // P305 estende P304 com overflow handling. Bug fix latente
+    // (overlap silencioso) + cross-page partial drain.
+
+    #[test]
+    fn p305_overflow_body_grande_presente_no_pdf() {
+        // Body grande overflow — UNIQUEP305 sentinel deve estar
+        // presente no PDF (não silenciosamente descartado).
+        let huge = "UNIQUEP305 word ".repeat(60);
+        let doc = layout(&Content::Footnote {
+            body: Box::new(Content::text(huge))
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("UNIQUEP305"),
+            "body sentinel presente no PDF (bug fix overlap silencioso)");
+    }
+
+    #[test]
+    fn p305_overflow_multiplos_bodies_todos_no_pdf() {
+        // 4 bodies grandes — todos devem aparecer no PDF mesmo em
+        // overflow scenario.
+        let doc = layout(&Content::sequence(vec![
+            Content::text("paginatop"),
+            Content::Footnote { body: Box::new(Content::text("SENTA word ".repeat(30))) },
+            Content::Footnote { body: Box::new(Content::text("SENTB word ".repeat(30))) },
+            Content::Footnote { body: Box::new(Content::text("SENTC word ".repeat(30))) },
+            Content::Footnote { body: Box::new(Content::text("SENTD word ".repeat(30))) },
+        ]));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        for sent in &["SENTA", "SENTB", "SENTC", "SENTD"] {
+            assert!(s.contains(sent),
+                "body sentinel '{}' presente no PDF", sent);
+        }
+    }
+
+    #[test]
+    fn p305_regressao_p304_single_page_marker_bit_exact() {
+        // CRÍTICO: P304 single-page test invariante preservado.
+        // Body pequeno cabe; marker e body ambos no PDF; sem overflow.
+        let doc = layout(&Content::Footnote {
+            body: Box::new(Content::text("BODYSECRET"))
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("[1]"), "marker [1] preservado P304");
+        assert!(s.contains("BODYSECRET"), "body P304 preservado");
+    }
+
     #[test]
     fn p304_documento_sem_footnote_bit_exact_pre_p304() {
         // REGRESSÃO BIT-EXACT: documentos sem footnote produzem

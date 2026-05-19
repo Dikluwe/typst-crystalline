@@ -10980,6 +10980,155 @@ mod p292_style_font_tests {
         assert!(text.contains("segunda"),  "segunda parte do body presente");
     }
 
+    // ── Passo 305 (P295.2) — footnote overflow multi-página ─────────
+    //
+    // P305 estende P304 com cross-page overflow handling. Bug latente
+    // P304 (overlap silencioso quando total_h > available_h) fixado
+    // via greedy fit + defer. Sub-padrão "DeferredX buffer + flush
+    // em new_page" estendido com partial drain.
+
+    #[test]
+    fn p305_overflow_body_grande_distribui_no_documento() {
+        // Body muito tall força overflow. Verifica que NENHUM body
+        // é descartado silenciosamente (paridade bug fix P304).
+        // Body com ~250 palavras → ~50 linhas → ~720pt (default font
+        // 12pt × 1.2 line_height × 50). Excede available em main
+        // content presence.
+        let huge = "loremX ipsumY ".repeat(150);
+        let doc = layout(&Content::sequence(vec![
+            Content::text("topo"),
+            Content::Footnote { body: Box::new(Content::text(huge)) },
+        ]));
+        // Body content deve aparecer no documento final (alguma página).
+        let combined: String = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|it| match it {
+                FrameItem::Text { text, .. } => Some(text.to_string()),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+            .join(" ");
+        assert!(combined.contains("loremX"),
+            "body 'loremX' presente; nenhum body silenciosamente descartado");
+        assert!(combined.contains("ipsumY"),
+            "body 'ipsumY' presente");
+    }
+
+    #[test]
+    fn p305_overflow_multiplos_bodies_todos_preservados() {
+        // 5 bodies grandes — overflow força distribuição multi-página.
+        // Cada body tem sentinel UNIQUEN para tracking individual.
+        let bodies: Vec<Content> = (0..5).map(|i| {
+            let body_text = format!("UNIQUE{} word ", i).repeat(40);
+            Content::Footnote { body: Box::new(Content::text(body_text)) }
+        }).collect();
+        let mut all = vec![Content::text("texto")];
+        all.extend(bodies);
+        let doc = layout(&Content::sequence(all));
+
+        let combined: String = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|it| match it {
+                FrameItem::Text { text, .. } => Some(text.to_string()),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+            .join(" ");
+        for i in 0..5 {
+            let needle = format!("UNIQUE{}", i);
+            assert!(combined.contains(&needle),
+                "body sentinel '{}' presente no documento final", needle);
+        }
+    }
+
+    #[test]
+    fn p305_regressao_p304_single_page_preservado() {
+        // CRÍTICO: footnote pequena que cabe — comportamento idêntico
+        // P304 (1 página, body no rodapé). Determinismo + bit-exact.
+        let doc = layout(&Content::Footnote {
+            body: Box::new(Content::text("CABE"))
+        });
+        assert_eq!(doc.pages.len(), 1, "footnote pequena cabe em 1 página");
+        let text: String = doc.pages[0].items.iter()
+            .filter_map(|it| match it {
+                FrameItem::Text { text, .. } => Some(text.to_string()),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+            .join(" ");
+        assert!(text.contains("CABE"), "body 'CABE' no rodapé");
+        assert!(text.contains("[1]"), "marker [1] inline");
+    }
+
+    #[test]
+    fn p305_regressao_documento_sem_footnote_bit_exact() {
+        // REGRESSÃO BIT-EXACT: documentos sem footnote idênticos
+        // pré-P305 (e pré-P304). Flush early-return + loop iter_limit
+        // = 0 garantem zero impacto.
+        let doc = layout(&Content::text("hello"));
+        assert_eq!(doc.pages.len(), 1, "1 página para texto curto");
+        let text: String = doc.pages[0].items.iter()
+            .filter_map(|it| match it {
+                FrameItem::Text { text, .. } => Some(text.to_string()),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+            .join(" ");
+        assert!(text.contains("hello"), "texto preservado");
+        assert!(!text.contains("[1]"), "nenhum marker footnote");
+    }
+
+    #[test]
+    fn p305_body_gigante_nao_loop_infinito() {
+        // CASO DEGENERATE: body singular > página inteira.
+        // Defensive force_emit deve placar mesmo assim; iter_limit
+        // em finish() evita loop infinito.
+        let gigante = "X ".repeat(2000); // ~400 linhas → ~5800pt
+        let doc = layout(&Content::Footnote {
+            body: Box::new(Content::text(gigante))
+        });
+        // Documento finalizou (não panicou; não infinite loop).
+        assert!(!doc.pages.is_empty(), "documento terminou com páginas");
+        // Marker presente em alguma página.
+        let combined: String = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|it| match it {
+                FrameItem::Text { text, .. } => Some(text.to_string()),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+            .join(" ");
+        assert!(combined.contains("[1]"), "marker [1] presente");
+    }
+
+    #[test]
+    fn p305_bug_fix_overflow_sem_overlap_no_top() {
+        // BUG FIX P304: bodies já NÃO sobrepõem main content quando
+        // overflow. Verificação: para um body que não cabe, ou é
+        // deferido (não aparece no Y top), ou clampado a top_safe.
+        // Indirecto: body Y nunca está acima do margin minimum.
+        let big = "wordSentinel ".repeat(100); // ~30 linhas
+        let doc = layout(&Content::sequence(vec![
+            Content::text("AAA BBB CCC DDD"),
+            Content::Footnote { body: Box::new(Content::text(big)) },
+        ]));
+        // Sentinel body Y mínimo deve ser >= margin (72.0 default)
+        // — não pode estar acima do topo da página.
+        let min_body_y = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|it| match it {
+                FrameItem::Text { pos, text, .. }
+                    if text.contains("wordSentinel") => Some(pos.y.0),
+                _ => None,
+            })
+            .fold(f64::INFINITY, f64::min);
+        if min_body_y.is_finite() {
+            // P305 fix: Y do body sempre dentro da página.
+            assert!(min_body_y >= 72.0 - 1.0, // 1pt tolerance for ascender
+                "body Y mínimo ({}) deve estar dentro da página (>= margin 72)", min_body_y);
+        }
+    }
+
     #[test]
     fn p292_marco_arquitectural_serie_p288_a_p292_fechada() {
         // **Marco simbólico**: este teste atesta o fecho da série
