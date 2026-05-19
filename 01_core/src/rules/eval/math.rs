@@ -14,9 +14,41 @@ use crate::entities::ast::math::{Math, MathTextKind};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::value::Value;
 use crate::rules::scopes::Scopes;
 
 use super::EvalContext;
+
+// ── Passo 301 — Auto-lookup math mode ─────────────────────────────────────
+//
+// P301 (HP + P301.A + (a) eval-time + (γ) híbrido): consulta scope
+// `math` (P299 SSoT) antes de fallback `MathIdent`. Identifiers
+// vanilla pré-definidos (`sin`/`cos`/`lim`/etc., 42 ops) resolvem
+// automaticamente para `Content::MathOp` em math mode.
+//
+// Heurística pré-P301 preservada como fallback:
+// - `is_limit_function`/`is_large_operator` em `attach.rs` continua
+//   a aplicar para casos não cobertos por scope (operadores
+//   Unicode literais).
+// - Variables user (`x`, `f`, etc.) continuam `MathIdent` (lookup
+//   retorna None).
+
+/// Lookup helper: consulta scope `math` (P299) e retorna `MathOp`
+/// clone se encontrado. None caso contrário (incluindo se valor
+/// não é `Content::MathOp`).
+fn lookup_math_op(scopes: &Scopes<'_>, name: &str) -> Option<Content> {
+    let Value::Dict(math_module) = scopes.get("math")? else {
+        return None;
+    };
+    let Value::Content(c) = math_module.get(name)? else {
+        return None;
+    };
+    if matches!(c, Content::MathOp { .. }) {
+        Some(c.clone())
+    } else {
+        None
+    }
+}
 
 /// Avalia o corpo de uma equação matemática — produz `Content` a partir de `Math<'_>`.
 ///
@@ -50,13 +82,17 @@ fn eval_math_expr(
     match expr {
         Expr::MathIdent(ident) => {
             let name = ident.get();
+            // 1. Símbolo grego ou operador Unicode (alpha → α etc.)
             if let Some(sym) = crate::rules::math::symbols::ident_to_unicode(name) {
-                // Símbolo grego ou operador: converter para Unicode
-                Ok(Content::MathText(sym.into()))
-            } else {
-                // Variável, função, ou identificador desconhecido — manter como MathIdent
-                Ok(Content::MathIdent(name.into()))
+                return Ok(Content::MathText(sym.into()));
             }
+            // 2. P301 — auto-lookup scope `math` (42 operadores P299 via SSoT MathOp).
+            if let Some(op) = lookup_math_op(scopes, name) {
+                return Ok(op);
+            }
+            // 3. Fallback: variável, função, ou identificador desconhecido
+            //    — manter como MathIdent (regressão pré-P301 preservada).
+            Ok(Content::MathIdent(name.into()))
         }
         Expr::MathText(text) => {
             let s = match text.get() {
@@ -262,8 +298,17 @@ fn eval_math_expr(
                     Ok(Content::MathMatrix { rows, delim: ('(', ')') })
                 }
 
-                // Outros nomes: tratar como MathIdent (sin, cos, lim, …)
-                _ => Ok(Content::MathIdent(name.into())),
+                // Outros nomes: P301 auto-lookup math (sin, cos, lim, …);
+                // fallback MathIdent. Args `(x)` continuam descartados (bug
+                // latente pré-P301 fora de scope; vanilla parser-side resolve
+                // `sin(x)` como `sin` + `(x)` delimited).
+                _ => {
+                    if let Some(op) = lookup_math_op(scopes, &name) {
+                        Ok(op)
+                    } else {
+                        Ok(Content::MathIdent(name.into()))
+                    }
+                }
             }
         }
 

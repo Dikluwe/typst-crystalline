@@ -190,6 +190,11 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             quotes:      *quotes,
         },
 
+        // P295 — Footnote recurse em body (paridade Quote).
+        Content::Footnote { body } => Content::Footnote {
+            body: Box::new(materialize_time(body, intr, location)),
+        },
+
         // P284 — text decoration: recurse em body; cosméticos primitivos.
         Content::Underline { body, stroke, offset, extent } => Content::Underline {
             body:   Box::new(materialize_time(body, intr, location)),
@@ -232,6 +237,14 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::MathDelimited { .. }
         | Content::MathMatrix { .. }
         | Content::MathCases { .. }
+        // P296 — Math accent/cancel terminais em materialize_time
+        // (paralelo MathFrac/MathRoot; sem CounterDisplay no body).
+        | Content::MathAccent { .. }
+        | Content::MathCancel { .. }
+        // P297 — Math underover terminal (paralelo P296).
+        | Content::MathUnderover { .. }
+        // P298 — Math op terminal (paralelo cluster math).
+        | Content::MathOp { .. }
         | Content::Image { .. }
         | Content::Divider
         // Passo 156D (ADR-0061 Fase 1 sub-passo 2) — h/v spacing leaves.
@@ -1148,6 +1161,15 @@ pub(crate) fn walk(
         | Content::MathDelimited { .. }
         | Content::MathMatrix { .. }
         | Content::MathCases { .. }
+        // P296 — Math accent/cancel sem children non-math em walk
+        // (paralelo MathFrac/MathRoot: math layout interno não emite
+        // tags introspecção).
+        | Content::MathAccent { .. }
+        | Content::MathCancel { .. }
+        // P297 — Math underover terminal em walk (paralelo P296).
+        | Content::MathUnderover { .. }
+        // P298 — Math op terminal em walk.
+        | Content::MathOp { .. }
         | Content::MathAlignPoint
         | Content::Linebreak
         // P287 — SmartQuote leaf (não-locatable; sem counters).
@@ -1251,6 +1273,11 @@ pub(crate) fn walk(
         Content::Cite { supplement, .. } => {
             if let Some(s) = supplement { walk(s, locator, tags, intr, auto_label_counter, lang, None); }
         }
+
+        // P295 — Footnote walk em body (locatable infrastructure não
+        // aplicada em Fase 1; body recurse preserva counters/labels
+        // dentro para passes futuros).
+        Content::Footnote { body } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
         Content::Align { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 

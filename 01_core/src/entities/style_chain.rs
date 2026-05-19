@@ -151,6 +151,40 @@ impl StyleChain {
                 // preservado pelo 6º passo consecutivo). Diagnóstico P289
                 // §A.3 + §A.4.
                 Style::Weight(w)       => delta.weight = Some(*w),
+                // P290 — 2ª fonte de entrada para `delta.tracking` (paralela
+                // à parse-driven em `eval/rules.rs:374`). Consumers P137
+                // (`cursor.rs:30` tracking_extra + `export.rs:2139-2146`
+                // `Tc` operator) reusados sem alteração — ADR-0098
+                // aderência confirmada **mesmo com emit consumer real**
+                // (paradigma `TextStyle` capture via `FrameItem::Text.style.tracking`;
+                // hash `export.rs 66cb8ac3` preservado pelo 7º passo
+                // consecutivo). Diagnóstico P290 §A.0 + §A.4.
+                Style::Tracking(l)     => delta.tracking = Some(*l),
+                // P291 — 2ª fonte de entrada para `delta.leading` (paralela
+                // à parse-driven em `eval/rules.rs:298`). Consumer P138
+                // distintivo: `cursor.rs:119-128` em `flush_line` peek do
+                // último `FrameItem::Text` da current_line (`iter().rev()
+                // .find_map`) — paradigma **per-line via peek**, distinto
+                // do per-glyph de P290 tracking. `export.rs` zero hits
+                // para leading (ADR-0098 vigente; hash `66cb8ac3` preservado
+                // pelo 8º passo consecutivo). Diagnóstico P291 §A.0-A.5'.
+                Style::Leading(l)      => delta.leading = Some(*l),
+                // P292 — 2ª fonte de entrada para `delta.font` (paralela
+                // à parse-driven em `eval/rules.rs:395+`; aceita Str/Array,
+                // rejeita Dict per ADR-0054bis). **Distinção sintáctica
+                // vs P288-P291**: `f.clone()` em vez de `*f` por
+                // `FontList: !Copy` (contém `Vec<FontFamily>` — comentário
+                // `style_chain.rs:264` regista). `Style` enum perde `Copy`
+                // derive pós-P292 (A.2.0 confirma inofensivo).
+                // Paradigma consumer **2 layers**: TextStyle capture
+                // (`FrameItem::Text.style.font`) + FontBook resolution
+                // (`fonts.iter().position(|f| match name)` em
+                // `export.rs:2169-2174` multifont). ADR-0098 vigente;
+                // hash `export.rs 66cb8ac3` preservado pelo 9º passo
+                // consecutivo. **Fecha série cumulativa P288-P292 (5/5
+                // assimetria B.3↔B.4 fechada)**. Diagnóstico P292
+                // §A.0-A.5'.
+                Style::Font(f)         => delta.font = Some(f.clone()),
             }
         }
         self.push(delta)

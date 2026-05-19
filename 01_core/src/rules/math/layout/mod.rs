@@ -303,6 +303,30 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 self.layout_cases(rows, style)
             }
 
+            // P296 — Math accent/cancel handlers dedicados.
+            Content::MathAccent { base, accent } => {
+                self.layout_accent(base, accent, style)
+            }
+
+            Content::MathCancel { body } => {
+                self.layout_cancel(body, style)
+            }
+
+            // P297 — Math underover (paralelo P296 layout_accent/cancel).
+            Content::MathUnderover { base, under, over } => {
+                self.layout_underover(
+                    base,
+                    under.as_deref(),
+                    over.as_deref(),
+                    style,
+                )
+            }
+
+            // P298 — Math op (trivial delegate; limits flag consumido em layout_attach).
+            Content::MathOp { text, limits: _ } => {
+                self.layout_op(text, style)
+            }
+
             other => {
                 let text: EcoString = other.plain_text().into();
                 if text.trim().is_empty() {
@@ -311,6 +335,146 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     self.layout_text_node(&text, style)
                 }
             }
+        }
+    }
+
+    // ── Passo 296 — Math accent + cancel handlers ─────────────────────────
+    //
+    // **A.0.0 N=4 (HIV)**: features ausentes apesar de Tabela A.4
+    // marcar `parcial`. P296 materializa from-scratch via variants
+    // novos + handlers minimal.
+    //
+    // ADR-0098 honrada N=13 — hash export.rs preservado bit-exact
+    // (math layout emite FrameItem standard).
+
+    /// **P296** — Posiciona `accent` glyph centrado horizontalmente
+    /// acima de `base`. Heurística minimal per ADR-0054 graded:
+    /// - Sem `dotless` (i/j) handling — base mantém glyph original.
+    /// - Sem `size` ratio — accent é width natural.
+    fn layout_accent(
+        &self,
+        base:   &Content,
+        accent: &Content,
+        style:  &TextStyle,
+    ) -> MathBox {
+        let base_box   = self.layout_node(base,   style);
+        let accent_box = self.layout_node(accent, style);
+        // Centrar accent horizontalmente. dx é deslocamento do accent
+        // para alinhar centro do accent com centro da base.
+        let dx = (base_box.width - accent_box.width) / 2.0;
+        // Empilhar accent acima da base. Y local do accent: 0 (topo
+        // do MathBox); Y local da base: accent_box.height() (abaixo
+        // do accent).
+        let accent_h = accent_box.height();
+        let new_ascent = base_box.ascent + accent_h;
+        let mut items: Vec<FrameItem> = Vec::new();
+        // Items do accent ficam em (dx, 0..accent_h).
+        for item in accent_box.items {
+            items.push(offset_item(item, Pt(dx), Pt(0.0)));
+        }
+        // Items da base ficam em (0, accent_h..accent_h+base_h).
+        for item in base_box.items {
+            items.push(offset_item(item, Pt(0.0), Pt(accent_h)));
+        }
+        MathBox {
+            width:   base_box.width.max(accent_box.width),
+            ascent:  new_ascent,
+            descent: base_box.descent,
+            items,
+        }
+    }
+
+    /// **P297** — Layout underover: empilha `over` (topo), `base`
+    /// (meio), `under` (fundo). Cada Option é skipped se `None`.
+    /// Width final = max das 3 partes; cada parte centrada
+    /// horizontalmente. Agregação cristalina per ADR-0054 graded —
+    /// vanilla typst fragmenta em 12 elementos (underbrace/overbrace/
+    /// underbracket/etc.); cristalino unifica num único variant.
+    fn layout_underover(
+        &self,
+        base:  &Content,
+        under: Option<&Content>,
+        over:  Option<&Content>,
+        style: &TextStyle,
+    ) -> MathBox {
+        let base_box  = self.layout_node(base, style);
+        let over_box  = over.map(|c| self.layout_node(c, style));
+        let under_box = under.map(|c| self.layout_node(c, style));
+
+        let over_w  = over_box.as_ref().map(|b| b.width).unwrap_or(0.0);
+        let under_w = under_box.as_ref().map(|b| b.width).unwrap_or(0.0);
+        let w = base_box.width.max(over_w).max(under_w);
+
+        let over_h  = over_box.as_ref().map(|b| b.height()).unwrap_or(0.0);
+        let under_h = under_box.as_ref().map(|b| b.height()).unwrap_or(0.0);
+        let base_h  = base_box.height();
+
+        let mut items: Vec<FrameItem> = Vec::new();
+        // Over (topo): y = 0..over_h.
+        if let Some(ob) = over_box {
+            let dx = (w - ob.width) / 2.0;
+            for item in ob.items {
+                items.push(offset_item(item, Pt(dx), Pt(0.0)));
+            }
+        }
+        // Base (meio): y = over_h..over_h+base_h.
+        let base_dx = (w - base_box.width) / 2.0;
+        for item in base_box.items {
+            items.push(offset_item(item, Pt(base_dx), Pt(over_h)));
+        }
+        // Under (fundo): y = over_h+base_h..over_h+base_h+under_h.
+        if let Some(ub) = under_box {
+            let dx = (w - ub.width) / 2.0;
+            for item in ub.items {
+                items.push(offset_item(item, Pt(dx), Pt(over_h + base_h)));
+            }
+        }
+
+        MathBox {
+            width:   w,
+            ascent:  base_box.ascent + over_h,
+            descent: base_box.descent + under_h,
+            items,
+        }
+    }
+
+    /// **P298** — Layout op: emite text como math child standard.
+    /// Handler trivial (delegate) — verdadeira lógica está em
+    /// `layout_attach` que detecta `Content::MathOp { limits: true, .. }`
+    /// como base e renderiza scripts em limits-style.
+    fn layout_op(&self, text: &Content, style: &TextStyle) -> MathBox {
+        self.layout_node(text, style)
+    }
+
+    /// **P296** — Layout cancel: body + linha diagonal sobre bbox.
+    /// Heurística minimal per ADR-0054 graded:
+    /// - Diagonal default (bottom-left → top-right; "rising"
+    ///   per vanilla angle padrão).
+    /// - Sem `inverted`/`cross`/`angle`/`stroke` cosméticos —
+    ///   scope-out frente futura P296.X.
+    fn layout_cancel(
+        &self,
+        body:  &Content,
+        style: &TextStyle,
+    ) -> MathBox {
+        let body_box = self.layout_node(body, style);
+        let h = body_box.height();
+        // Linha diagonal de canto inferior-esquerdo (0, h) a canto
+        // superior-direito (width, 0). Local coords relativos a topo
+        // do MathBox.
+        let line = FrameItem::Line {
+            start:     Point { x: Pt(0.0),            y: Pt(h) },
+            end:       Point { x: Pt(body_box.width), y: Pt(0.0) },
+            thickness: 0.5,
+            color:     None,
+        };
+        let mut items = body_box.items;
+        items.push(line);
+        MathBox {
+            width:   body_box.width,
+            ascent:  body_box.ascent,
+            descent: body_box.descent,
+            items,
         }
     }
 

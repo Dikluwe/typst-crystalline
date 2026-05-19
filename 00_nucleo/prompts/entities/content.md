@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 4861affa
+Hash do Código: c4df3449
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -1679,6 +1679,406 @@ COMPLETO**.
 
 **Boxed continua 5/6 scope-outs** (resta stroke-overhang;
 P250 não toca Boxed por assimetria intencional).
+
+---
+
+## Variant `Content::Footnote` — Passo 295 (`P-footnote-cluster` Fase 1 marker only)
+
+```rust
+Content::Footnote {
+    body: Box<Content>,
+}
+```
+
+**Fase 1 P295 (HE marker only)**: variant minimal `(a)` per A.2 do
+diagnóstico `diagnostico-footnote-cluster-passo-295.md`. Layouter
+emite apenas marker `[N]` superscript inline; body **armazenado mas
+não renderizado** no rodapé nesta fase. Numeração via walker counter
+simples `Layouter::footnote_counter: u32` (sem Counter/Introspector
+machinery — magnitude reduzida).
+
+### Simplifications cristalino per ADR-0054 graded vs vanilla
+
+Vanilla `FootnoteElem` (lab/.../model/footnote.rs:62-86):
+
+```rust
+#[elem(scope, Locatable, Tagged, Count)]
+pub struct FootnoteElem {
+    #[default(Numbering::Pattern("1"))]
+    pub numbering: Numbering,
+    #[required]
+    pub body: FootnoteBody,
+}
+
+pub enum FootnoteBody {
+    Content(Content),
+    Reference(Label),
+}
+```
+
+Cristalino P295 scope-outs:
+
+- `numbering: Numbering` (default `"1"`) **scope-out** (cosmético;
+  arabic default implícito). Padrão "variant rico com cosméticos
+  opcionais" N=4 cumulativo **preservado inalterado** — A.2 → (a)
+  minimal.
+- `FootnoteBody::Reference(Label)` **scope-out** (multi-ref
+  footnotes — frente futura P295.X).
+
+### Consumer Layouter Fase 1
+
+```rust
+Content::Footnote { body: _ } => {
+    self.footnote_counter += 1;
+    let n = self.footnote_counter;
+    let marker = format!("[{}]", n);
+    self.layout_content(&Content::text(marker));
+}
+```
+
+Body é silenciosamente descartado em Fase 1 — sub-passos P295.1/P295.2
+renderizam no rodapé via 2-pass layout futuro.
+
+### Match arms exhaustive defesa compilador (8 sítios)
+
+| Local | Operação |
+|---|---|
+| `content.rs:is_empty()` | `false` (marker sempre observable) |
+| `content.rs:plain_text()` | recursa em `body.plain_text()` |
+| `content.rs:PartialEq` | `body == body` |
+| `content.rs:map_content()` | recursa em body |
+| `content.rs:map_text()` | recursa em body |
+| `rules/introspect.rs:materialize_time` | recursa em body |
+| `rules/introspect.rs:walk` | walk em body |
+| `rules/introspect/locatable.rs` | `false` (Fase 1 não-locatable) |
+
+### Frentes pendentes pós-P295
+
+- **P295.1** — nota corpo renderizada no rodapé da página
+  correspondente (requer 2-pass layout; magnitude L).
+- **P295.2** — overflow multi-página (footnote ocupa páginas
+  subsequentes se rodapé não chega).
+- **P295.X** — footnote reference via `#footnote(<label>)` bloqueado
+  por scope methods em stdlib.
+
+### Hash `export.rs 66cb8ac3` preservado (12º passo consecutivo)
+
+ADR-0098 §"single source of truth" honrada — emit é agnóstico ao
+variant (marker chega como `FrameItem::Text` standard).
+
+---
+
+## Variants `Content::MathAccent` + `Content::MathCancel` — Passo 296 (`P-math-accent-cancel`)
+
+```rust
+Content::MathAccent {
+    base:   Box<Content>,
+    accent: Box<Content>,
+},
+Content::MathCancel {
+    body: Box<Content>,
+},
+```
+
+**P296 (HIV + (a) minimal)**: variants minimal per A.2 do diagnóstico
+`diagnostico-math-accent-cancel-passo-296.md`. Layouter math expõe
+handlers dedicados `layout_accent` + `layout_cancel` em
+`rules/math/layout/mod.rs` paralelo a `layout_frac` (P37).
+
+### A.0.0 N=4 — refutação significativa Tabela A.4
+
+Tabela A.4 linhas 118-119 marcavam `accent` e `cancel` como
+**`parcial`** mas inspecção literal A.0.0 confirmou **zero hits**
+em todo `01_core/src/` pré-P296. Status real era **AUSENTE**. P296
+corrige classificação `ausente` → `implementado`.
+
+**Magnitude da refutação**: média (factual-significativa) —
+classificação inteira inválida. **Refuta hipótese degenerescência
+§6.6 P295** — A.0.0 template valida com refutação real genuína.
+
+### Simplifications cristalino per ADR-0054 graded vs vanilla
+
+Vanilla `AccentElem` (2 required + 2 cosméticos `size`/`dotless`).
+Vanilla `CancelElem` (1 required + 5 cosméticos
+`length`/`inverted`/`cross`/`angle`/`stroke`).
+
+Cristalino P296 scope-outs:
+- `AccentElem.size`/`dotless` → scope-out (cosméticos).
+- `CancelElem.length`/`angle`/`stroke` → scope-out (cosméticos).
+- `CancelElem.inverted`/`cross` → scope-out (toggles funcionais;
+  materialização adiada para passo P296.X candidato).
+
+**Padrão "variant rico" N=4 cumulativo preservado inalterado** —
+A.2 → (a) minimal recusa qualificação gratuita.
+
+### Consumer Layouter (paralelo `layout_frac`)
+
+```rust
+// layout_node arm:
+Content::MathAccent { base, accent } => self.layout_accent(base, accent, style),
+Content::MathCancel { body }         => self.layout_cancel(body, style),
+
+fn layout_accent(&self, base, accent, style) -> MathBox {
+    // Centra accent horizontalmente sobre bbox de base.
+    // dx = (base.width - accent.width) / 2
+    // Empilha verticalmente: accent acima, base abaixo.
+}
+
+fn layout_cancel(&self, body, style) -> MathBox {
+    // Layout body; anexa FrameItem::Line diagonal default
+    // (bottom-left → top-right; "rising" per vanilla angle padrão).
+}
+```
+
+### Match arms exhaustive defesa compilador (9 sítios)
+
+| Local | Operação |
+|---|---|
+| `content.rs:plain_text()` | concatena base+accent / body |
+| `content.rs:PartialEq` | structural |
+| `content.rs:map_content()` | recurse |
+| `content.rs:map_text()` | terminal (paralelo MathFrac/MathRoot) |
+| `rules/introspect.rs:materialize_time` | terminal |
+| `rules/introspect.rs:walk` | terminal (math structural) |
+| `rules/introspect/locatable.rs` | `false` |
+| `rules/layout/mod.rs` | fallthrough math (paralelo MathFrac) |
+| `rules/math/layout/mod.rs:layout_node` | handlers dedicados |
+
+`is_empty()` herdado via catch-all `_ => false` (math structural
+sempre observable).
+
+### Frentes pendentes pós-P296
+
+- **P296.1** — `underover` (Tabela A.4 linha 119 vanilla
+  `UnderoverElem`).
+- **P296.2** — `op` (vanilla `OpElem`).
+- **P296.X** — `cancel(..., inverted: true)` / `cross: true`
+  toggles funcionais.
+
+### Hash `export.rs 66cb8ac3` preservado (13º passo consecutivo)
+
+ADR-0098 §"single source of truth" honrada — math layout produz
+`FrameItem::Text`/`Glyph`/`Line` standard, sem operadores PDF novos.
+
+---
+
+## Variant `Content::MathUnderover` — Passo 297 (`P296.1`)
+
+```rust
+Content::MathUnderover {
+    base:  Box<Content>,
+    under: Option<Box<Content>>,
+    over:  Option<Box<Content>>,
+},
+```
+
+**P297 (HV'.a + (b) Option fields)**: variant agregado cristalino
+per ADR-0054 graded. Layouter math `layout_underover` empilha
+over/base/under verticalmente.
+
+### A.0.0 N=5 magnitude alta — refutação significativa spec
+
+Spec P297 §A.1.4 assumia vanilla `UnderoverElem { base, under?, over? }`
+unificado. **Inspecção literal refutou**: vanilla
+`lab/.../math/underover.rs` fragmenta em **12 elementos separados**:
+
+| Elemento vanilla | Estrutura |
+|---|---|
+| `UnderlineElem` / `OverlineElem` | `{ body }` |
+| `UnderbraceElem` / `OverbraceElem` | `{ body, annotation? }` |
+| `UnderbracketElem` / `OverbracketElem` | `{ body, annotation? }` |
+| `UnderparenElem` / `OverparenElem` | `{ body, annotation? }` |
+| `UndershellElem` / `OvershellElem` | `{ body, annotation? }` |
+
+**HV'.a justificação** (cristalino agregação):
+- ADR-0054 graded vigente: cristalino aceita divergência
+  consciente vs vanilla para simplificação arquitectural.
+- Paralelo P296 `MathAccent` (agrega vários accents Unicode em
+  1 variant).
+- Future-proof: refino discriminator (`UnderoverKind::Brace`/
+  `Bracket`/etc.) candidato P297.X se cluster vanilla exigir
+  paridade fina.
+
+### "Variant rico" N=5 candidato genuíno
+
+A.2 → (b) Option `Box<Content>` estrutural — **primeira
+qualificação genuína desde P287 refutação**:
+- P156G/H/I bool defaults — refutados em P287.
+- P284 attribs primitivos (Length/Color) — diferente categoria.
+- **P297 `MathUnderover` Option estrutural** — primeira qualificação real.
+
+**Promoção adiada per P273.17 §0** (uma ADR meta por passo;
+§8.7' N=5 também qualifica). Consolidação cumulativa permitirá
+promoção robusta sem arbitragem.
+
+### Consumer Layouter `layout_underover` (paralelo P296)
+
+```rust
+fn layout_underover(&self, base, under, over, style) -> MathBox {
+    let base_box = self.layout_node(base, style);
+    let over_box = over.map(|c| self.layout_node(c, style));
+    let under_box = under.map(|c| self.layout_node(c, style));
+    let w = base_box.width
+        .max(over_box.as_ref().map(|b| b.width).unwrap_or(0.0))
+        .max(under_box.as_ref().map(|b| b.width).unwrap_or(0.0));
+    // Empilha: over (topo) + base (meio) + under (fundo);
+    // cada centrado horizontalmente.
+    // ...
+}
+```
+
+### Match arms exhaustive defesa compilador (9 sítios paralelo P296)
+
+| Local | Operação |
+|---|---|
+| `content.rs:plain_text()` | concatena over+base+under (ordem visual) |
+| `content.rs:PartialEq` | structural com Options |
+| `content.rs:map_content()` | recurse condicional em Option |
+| `content.rs:map_text()` | terminal (paralelo MathFrac/MathAccent) |
+| `rules/introspect.rs:materialize_time` | terminal |
+| `rules/introspect.rs:walk` | terminal |
+| `rules/introspect/locatable.rs` | `false` |
+| `rules/layout/mod.rs` | fallthrough math |
+| `rules/math/layout/mod.rs:layout_node` | handler dedicado |
+
+### Hash `export.rs 66cb8ac3` preservado (14º passo consecutivo)
+
+ADR-0098 §"single source of truth" honrada — math layout produz
+`FrameItem::Text/Glyph` standard.
+
+### Frentes pendentes pós-P297
+
+- **P297.X** — discriminator `UnderoverKind::Brace`/`Bracket`/`Paren`/`Shell`
+  para paridade visual fina com vanilla (cosmético per ADR-0054 graded).
+- **P296.2** — `op` (vanilla `OpElem`) — **resolvido P298**.
+
+---
+
+## Variant `Content::MathOp` — Passo 298 (`P296.2 — fecho cluster math 4/4`)
+
+```rust
+Content::MathOp {
+    text:   Box<Content>,
+    limits: bool,
+},
+```
+
+**P298 (HV'' adaptado)**: variant minimal paridade vanilla
+`OpElem { text: Content, limits: bool }`. Handler `layout_op`
+trivial (delegate); verdadeira inovação é **cross-variant
+interaction** com `MathAttach`.
+
+### A.0.0 N=6 magnitude alta — heurística limits-style já existia
+
+Cristalino tinha heurística limits-style **hardcoded** em
+`rules/math/layout/attach.rs:55-61`:
+
+```rust
+let is_limits = self.block && match base {
+    Content::MathIdent(s) | Content::MathText(s) => {
+        let ch = s.chars().next().unwrap_or('\0');
+        symbols::is_large_operator(ch) || symbols::is_limit_function(s.as_str())
+    }
+    _ => false,
+};
+```
+
+E em `symbols.rs:170`:
+
+```rust
+pub fn is_limit_function(s: &str) -> bool {
+    matches!(s, "lim" | "max" | "min" | "sup" | "inf" | "limsup" | "liminf")
+}
+```
+
+**P298 estende sem substituir** — adiciona 1 arm:
+
+```rust
+Content::MathOp { limits, .. } => *limits,
+```
+
+Heurística pré-P298 preservada — `MathIdent("lim")` continua a
+funcionar via fallback `is_limit_function`. Regressão bit-exact
+validada por teste `p298_regressao_math_ident_lim_continua_a_funcionar`.
+
+### Cross-variant interaction (paradigma inaugural)
+
+P296/P297 introduziram variants com handlers **independentes**.
+P298 introduz **interaction cross-variant**: `MathOp.limits`
+afecta layout de `MathAttach`. Paradigma **genuinamente novo**
+no cluster math:
+
+```
+#op("custom", limits: true) → MathOp{limits:true}
+       │
+       ▼
+parent MathAttach { base: MathOp{...}, sub: ..., sup: ... }
+       │
+       ▼ (layout_attach)
+is_limits ← detecta MathOp{limits:true} → limits-style
+       │
+       ▼
+sub/sup empilhados ABAIXO/ACIMA da base (não lateral)
+```
+
+### Operadores vanilla pré-definidos (scope-out P298)
+
+Vanilla define 36+ operadores no scope math via macro `ops!`:
+`arccos`/`arcsin`/`cos`/`lim`/`sup`/`max`/`min`/etc. Cristalino
+**scope-out P298** — passo P298.X candidato se necessário.
+
+**Workaround actual**: `lim`/`sup`/`max` continuam a funcionar
+via `MathIdent` literal + heurística `is_limit_function`. Para
+operators custom com `limits` explícito, user usa `#op("...", limits: true)`.
+
+### "Variant rico" N=5 — caso ambíguo, P298 NÃO qualifica
+
+P297 §6.4 estabeleceu "variant rico" N=5 como qualificação
+Option `Box<Content>` estrutural. P298 tem `bool limits` —
+**discriminador estrutural mas não Option**.
+
+**Decisão**: NÃO qualificar gratuitamente. `bool` é caso
+intermédio; diluir o gatilho violaria anti-padrão
+over-formalização P273.17 §0. Padrão N=5 candidato **adiado em
+P297 e preserved em P298**.
+
+### Sub-padrão "cluster math handler dedicado" N=3 ambíguo
+
+Quantitativo: 3 handlers (`layout_accent`, `layout_cancel`,
+`layout_underover`, `layout_op`). Qualitativo: `layout_op` é
+**trivial delegate** (não estructuralmente igual a P296/P297).
+
+**Decisão**: adiar promoção. N=3 não justifica formalização se
+qualidade do 3.º caso é menor que os anteriores.
+
+### Match arms exhaustive defesa compilador (9 sítios paralelo P296/P297)
+
+| Local | Operação |
+|---|---|
+| `content.rs:plain_text()` | `text.plain_text()` (limits é layout, não texto) |
+| `content.rs:PartialEq` | structural (text + limits) |
+| `content.rs:map_content()` | recurse em text; preserva limits |
+| `content.rs:map_text()` | terminal (paralelo cluster math) |
+| `rules/introspect.rs:materialize_time` | terminal |
+| `rules/introspect.rs:walk` | terminal |
+| `rules/introspect/locatable.rs` | `false` |
+| `rules/layout/mod.rs` | fallthrough math |
+| `rules/math/layout/mod.rs:layout_node` | `layout_op` trivial delegate |
+
+**+1 sítio crítico** (não match arm exhaustive, mas paradigma novo):
+- `rules/math/layout/attach.rs:55-61` — modificação `is_limits`.
+
+### Hash `export.rs 66cb8ac3` preservado (15º passo consecutivo)
+
+ADR-0098 §"single source of truth" honrada — math layout produz
+`FrameItem::Text/Glyph` standard. **Cluster math 4/4 fechado**.
+
+### Frentes pendentes pós-P298
+
+- **P298.X** — operadores vanilla pré-definidos (`lim`/`sin`/etc.)
+  como scope module integrado.
+- **P297.X** — discriminator `UnderoverKind`.
+- **P296.X** — toggles `inverted`/`cross` cancel.
 
 ---
 

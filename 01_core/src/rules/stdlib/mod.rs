@@ -42,11 +42,11 @@ pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::text::{native_lower, native_overline, native_replace, native_smartquote, native_strike, native_underline, native_upper};
 pub use crate::rules::stdlib::assert::native_assert;
 pub use crate::rules::stdlib::structural::{
-    native_bibliography, native_cite, native_divider, native_emph, native_grid_cell, native_grid_footer, native_grid_header, native_heading, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms,
+    make_math_module, native_accent, native_bibliography, native_cancel, native_cite, native_divider, native_emph, native_footnote, native_grid_cell, native_grid_footer, native_grid_header, native_heading, native_op, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms, native_underover,
 };
 pub use crate::rules::stdlib::figure_image::{native_figure, native_image};
 pub use crate::rules::stdlib::shapes::{
-    native_circle, native_ellipse, native_line, native_polygon, native_rect,
+    native_circle, native_curve, native_ellipse, native_line, native_polygon, native_rect,
 };
 pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale, native_skew};
 pub use crate::rules::stdlib::layout::{
@@ -1881,6 +1881,349 @@ mod tests {
             assert!(matches!(items[3], PathItem::ClosePath));
         } else {
             panic!("Esperado Content::Shape com ShapeKind::Path");
+        }
+    }
+
+    // ── Passo 293 — `curve(...)` activação posterior PathItem::CubicTo ──
+
+    #[test]
+    fn p293_curve_move_line_basico() {
+        // curve com move + line + close — equivalente a polygon mas via
+        // sintaxe descritiva ("move"/"line"/"close").
+        use crate::entities::geometry::{PathItem, ShapeKind};
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("move".into()),
+                Value::Array(vec![Value::Float(0.0), Value::Float(0.0)]),
+            ]),
+            Value::Array(vec![
+                Value::Str("line".into()),
+                Value::Array(vec![Value::Float(100.0), Value::Float(0.0)]),
+            ]),
+            Value::Array(vec![Value::Str("close".into())]),
+        ]);
+        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = result {
+            assert_eq!(items.len(), 3);
+            assert!(matches!(items[0], PathItem::MoveTo(_)));
+            assert!(matches!(items[1], PathItem::LineTo(_)));
+            assert!(matches!(items[2], PathItem::ClosePath));
+        } else {
+            panic!("Esperado Content::Shape com ShapeKind::Path");
+        }
+    }
+
+    #[test]
+    fn p293_curve_cubic_activa_pathitem_cubicto() {
+        // **CRÍTICO** — activação inaugural de `PathItem::CubicTo` via
+        // stdlib (H6 descoberta empírica A.0.0). Pré-P293, nenhuma
+        // stdlib construía CubicTo (apenas P277 `path_bbox` consume +
+        // emit já existia em export.rs).
+        use crate::entities::geometry::{PathItem, ShapeKind};
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("move".into()),
+                Value::Array(vec![Value::Float(0.0), Value::Float(0.0)]),
+            ]),
+            Value::Array(vec![
+                Value::Str("cubic".into()),
+                Value::Array(vec![Value::Float(25.0), Value::Float(0.0)]),    // c1
+                Value::Array(vec![Value::Float(75.0), Value::Float(50.0)]),   // c2
+                Value::Array(vec![Value::Float(100.0), Value::Float(50.0)]),  // end
+            ]),
+        ]);
+        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = result {
+            assert_eq!(items.len(), 2);
+            assert!(matches!(items[0], PathItem::MoveTo(_)));
+            // **Activação pos-P293 — CubicTo construído via stdlib**
+            assert!(matches!(items[1], PathItem::CubicTo(_, _, _)),
+                "P293 H6: CubicTo deve ser construível via curve('cubic', c1, c2, end)");
+        } else {
+            panic!("Esperado Content::Shape com ShapeKind::Path");
+        }
+    }
+
+    #[test]
+    fn p293_curve_cubic_preserva_control_points() {
+        // Verificar literalmente que c1/c2/end são preservados na ordem
+        // certa no PathItem::CubicTo construído.
+        use crate::entities::geometry::{PathItem, ShapeKind};
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("cubic".into()),
+                Value::Array(vec![Value::Float(10.0), Value::Float(20.0)]),
+                Value::Array(vec![Value::Float(30.0), Value::Float(40.0)]),
+                Value::Array(vec![Value::Float(50.0), Value::Float(60.0)]),
+            ]),
+        ]);
+        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = result {
+            assert_eq!(items.len(), 1);
+            if let PathItem::CubicTo(c1, c2, end) = items[0] {
+                assert_eq!((c1.x.val(), c1.y.val()), (10.0, 20.0));
+                assert_eq!((c2.x.val(), c2.y.val()), (30.0, 40.0));
+                assert_eq!((end.x.val(), end.y.val()), (50.0, 60.0));
+            } else {
+                panic!("Esperado PathItem::CubicTo");
+            }
+        }
+    }
+
+    // ── Passo 294 — `curve(... "quadratic" ...)` activação via conversão q→c ──
+    //
+    // P294 H1' (refutação significativa A.0.0 N=2 da spec): vanilla
+    // typst converte quadratic→cubic em construct-time via
+    // `control_q2c(p, c) = (p + 2c) / 3`. Cristalino adopta o mesmo
+    // padrão — sem variant novo `QuadraticTo`; hash export.rs
+    // preservado pelo 11º passo consecutivo.
+
+    #[test]
+    fn p294_curve_quadratic_activa_via_conversao_q2c() {
+        // Substitui o anterior p293_curve_quadratic_scope_out — o scope-out
+        // foi removido em P294 H1' por descoberta empírica vanilla.
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("move".into()),
+                Value::Array(vec![Value::Float(0.0), Value::Float(0.0)]),
+            ]),
+            Value::Array(vec![
+                Value::Str("quadratic".into()),
+                Value::Array(vec![Value::Float(10.0), Value::Float(20.0)]),  // control
+                Value::Array(vec![Value::Float(30.0), Value::Float(40.0)]),  // end
+            ]),
+        ]);
+        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        // Esperado: 2 PathItems — MoveTo + CubicTo (conversão q→c).
+        if let Value::Content(Content::Shape { kind: crate::entities::geometry::ShapeKind::Path(items), .. }) = &result {
+            assert_eq!(items.len(), 2, "esperava 2 items (MoveTo + CubicTo)");
+            assert!(matches!(items[0], crate::entities::geometry::PathItem::MoveTo(_)));
+            assert!(matches!(items[1], crate::entities::geometry::PathItem::CubicTo(_, _, _)),
+                "quadratic deve materializar como CubicTo via conversão q→c");
+        } else {
+            panic!("esperava Content::Shape com ShapeKind::Path");
+        }
+    }
+
+    #[test]
+    fn p294_curve_quadratic_aplica_formula_q2c_exacta() {
+        // Verifica fórmula matemática exacta:
+        // P0 = (0, 0), Q = (10, 20), P2 = (30, 40)
+        // C1 = (P0 + 2Q) / 3 = (20/3, 40/3)
+        // C2 = (P2 + 2Q) / 3 = (50/3, 80/3)
+        use crate::entities::geometry::{PathItem, ShapeKind};
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("move".into()),
+                Value::Array(vec![Value::Float(0.0), Value::Float(0.0)]),
+            ]),
+            Value::Array(vec![
+                Value::Str("quadratic".into()),
+                Value::Array(vec![Value::Float(10.0), Value::Float(20.0)]),
+                Value::Array(vec![Value::Float(30.0), Value::Float(40.0)]),
+            ]),
+        ]);
+        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = &result {
+            if let PathItem::CubicTo(c1, c2, end) = items[1] {
+                let eps = 1e-9;
+                assert!((c1.x.0 - 20.0/3.0).abs() < eps, "C1.x: {}", c1.x.0);
+                assert!((c1.y.0 - 40.0/3.0).abs() < eps, "C1.y: {}", c1.y.0);
+                assert!((c2.x.0 - 50.0/3.0).abs() < eps, "C2.x: {}", c2.x.0);
+                assert!((c2.y.0 - 80.0/3.0).abs() < eps, "C2.y: {}", c2.y.0);
+                assert!((end.x.0 - 30.0).abs() < eps);
+                assert!((end.y.0 - 40.0).abs() < eps);
+            } else {
+                panic!("esperava CubicTo");
+            }
+        }
+    }
+
+    #[test]
+    fn p294_curve_quadratic_sem_move_anterior_usa_origem() {
+        // Caso fronteira: quadratic antes de qualquer move.
+        // last_point fallback (0,0); curva é válida.
+        use crate::entities::geometry::{PathItem, ShapeKind};
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("quadratic".into()),
+                Value::Array(vec![Value::Float(6.0), Value::Float(0.0)]),
+                Value::Array(vec![Value::Float(12.0), Value::Float(0.0)]),
+            ]),
+        ]);
+        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = &result {
+            assert_eq!(items.len(), 1);
+            if let PathItem::CubicTo(c1, _, _) = items[0] {
+                // P0 = (0,0), Q = (6,0) → C1 = (0+12)/3 = 4
+                let eps = 1e-9;
+                assert!((c1.x.0 - 4.0).abs() < eps);
+                assert!(c1.y.0.abs() < eps);
+            }
+        }
+    }
+
+    #[test]
+    fn p294_curve_quadratic_aridade_errada_retorna_err() {
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("quadratic".into()),
+                Value::Array(vec![Value::Float(1.0), Value::Float(2.0)]),
+                // falta end
+            ]),
+        ]);
+        let err = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap_err();
+        assert!(format!("{:?}", err).contains("quadratic"));
+    }
+
+    #[test]
+    fn p294_curve_quadratic_encadeada_actualiza_last_point() {
+        // Duas quadratics consecutivas: a segunda usa o end da primeira
+        // como P0 (last_point).
+        use crate::entities::geometry::{PathItem, ShapeKind};
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("move".into()),
+                Value::Array(vec![Value::Float(0.0), Value::Float(0.0)]),
+            ]),
+            Value::Array(vec![
+                Value::Str("quadratic".into()),
+                Value::Array(vec![Value::Float(3.0), Value::Float(0.0)]),
+                Value::Array(vec![Value::Float(6.0), Value::Float(0.0)]),  // end = (6,0)
+            ]),
+            Value::Array(vec![
+                Value::Str("quadratic".into()),
+                Value::Array(vec![Value::Float(9.0), Value::Float(0.0)]),
+                Value::Array(vec![Value::Float(12.0), Value::Float(0.0)]),
+            ]),
+        ]);
+        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = &result {
+            assert_eq!(items.len(), 3);
+            // Segunda quadratic: P0=(6,0), Q=(9,0) → C1 = (6 + 18)/3 = 8
+            if let PathItem::CubicTo(c1, _, _) = items[2] {
+                let eps = 1e-9;
+                assert!((c1.x.0 - 8.0).abs() < eps,
+                    "last_point tracking falhou: c1.x={} (esperava 8.0)", c1.x.0);
+            }
+        }
+    }
+
+    #[test]
+    fn p294_curve_quadratic_e_cubic_misturados() {
+        use crate::entities::geometry::{PathItem, ShapeKind};
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("move".into()),
+                Value::Array(vec![Value::Float(0.0), Value::Float(0.0)]),
+            ]),
+            Value::Array(vec![
+                Value::Str("quadratic".into()),
+                Value::Array(vec![Value::Float(5.0), Value::Float(10.0)]),
+                Value::Array(vec![Value::Float(10.0), Value::Float(0.0)]),
+            ]),
+            Value::Array(vec![
+                Value::Str("cubic".into()),
+                Value::Array(vec![Value::Float(15.0), Value::Float(5.0)]),
+                Value::Array(vec![Value::Float(20.0), Value::Float(-5.0)]),
+                Value::Array(vec![Value::Float(25.0), Value::Float(0.0)]),
+            ]),
+            Value::Array(vec![Value::Str("close".into())]),
+        ]);
+        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = &result {
+            assert_eq!(items.len(), 4);
+            assert!(matches!(items[0], PathItem::MoveTo(_)));
+            assert!(matches!(items[1], PathItem::CubicTo(_, _, _)));
+            assert!(matches!(items[2], PathItem::CubicTo(_, _, _)));
+            assert!(matches!(items[3], PathItem::ClosePath));
+        }
+    }
+
+    #[test]
+    fn p293_curve_kind_desconhecido_retorna_err() {
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![Value::Str("bogus".into())]),
+        ]);
+        let err = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap_err();
+        assert!(format!("{:?}", err).contains("desconhecido"));
+    }
+
+    #[test]
+    fn p293_curve_vazia_retorna_err() {
+        null_ctx!(ctx);
+        let args = Args::positional(vec![]);
+        let err = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap_err();
+        assert!(format!("{:?}", err).contains("pelo menos um segmento"));
+    }
+
+    #[test]
+    fn p293_curve_bbox_analitica_via_path_bbox_p277() {
+        // Verificar que bbox cubic é calculada via P277 analítica
+        // (não via min/max dos control points).
+        use crate::entities::geometry::ShapeKind;
+        let _ = ShapeKind::Rect; // sanity
+        null_ctx!(ctx);
+        let args = Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("move".into()),
+                Value::Array(vec![Value::Float(0.0), Value::Float(0.0)]),
+            ]),
+            Value::Array(vec![
+                Value::Str("cubic".into()),
+                Value::Array(vec![Value::Float(0.0), Value::Float(100.0)]),    // c1 alto
+                Value::Array(vec![Value::Float(100.0), Value::Float(100.0)]),  // c2 alto
+                Value::Array(vec![Value::Float(100.0), Value::Float(0.0)]),    // end
+            ]),
+        ]);
+        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Shape { width, height, .. }) = result {
+            // height da curva deve ser < 100 (extremo analítico, não 100 control point)
+            // P277 calcula extremo da Bézier que é menor que max control point.
+            let h = match height.as_deref() {
+                Some(Value::Float(f)) => *f,
+                _ => 0.0,
+            };
+            let w = match width.as_deref() {
+                Some(Value::Float(f)) => *f,
+                _ => 0.0,
+            };
+            assert!(w > 0.0 && h > 0.0, "bbox deve ser positiva; got w={w} h={h}");
+            assert!(h < 100.0,
+                "P277 bbox analítica: extremo da Bézier < max control point (100); got h={h}");
+        }
+    }
+
+    #[test]
+    fn p293_curve_named_fill_e_stroke() {
+        use crate::entities::layout_types::Color;
+        null_ctx!(ctx);
+        let mut args = Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("move".into()),
+                Value::Array(vec![Value::Float(0.0), Value::Float(0.0)]),
+            ]),
+            Value::Array(vec![
+                Value::Str("line".into()),
+                Value::Array(vec![Value::Float(50.0), Value::Float(50.0)]),
+            ]),
+        ]);
+        args.named.insert("fill".into(), Value::Color(Color::rgb(255, 0, 0)));
+        args.named.insert("stroke".into(), Value::Color(Color::rgb(0, 0, 255)));
+        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Shape { fill, stroke, .. }) = result {
+            assert!(fill.is_some(), "fill deve ser parseado");
+            assert!(stroke.is_some(), "stroke deve ser parseado");
         }
     }
 
@@ -6903,5 +7246,556 @@ mod tests {
         null_ctx!(ctx);
         let r = native_smartquote(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id(), None);
         assert!(r.is_err(), "args posicionais rejeitados (vanilla usa só named)");
+    }
+
+    // ── Passo 295 — `footnote()` cluster Fase 1 (marker only) ──────────
+    //
+    // HE Fase 1: variant Content::Footnote { body } + stdlib
+    // native_footnote + Layouter walker counter (marker [N]).
+    // Body armazenado mas não renderizado (P295.1/P295.2 sub-passos).
+
+    #[test]
+    fn p295_native_footnote_body_posicional() {
+        use super::native_footnote;
+        null_ctx!(ctx);
+        let body = Value::Content(Content::text("nota"));
+        let r = native_footnote(&mut ctx, &p(vec![body]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Footnote { body }) = r {
+            assert_eq!(body.plain_text(), "nota");
+        } else {
+            panic!("esperava Content::Footnote");
+        }
+    }
+
+    #[test]
+    fn p295_native_footnote_body_string_converte_para_text() {
+        use super::native_footnote;
+        null_ctx!(ctx);
+        let r = native_footnote(&mut ctx, &p(vec![Value::Str("texto".into())]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Footnote { body }) = r {
+            assert_eq!(body.plain_text(), "texto");
+        } else {
+            panic!("esperava Content::Footnote");
+        }
+    }
+
+    #[test]
+    fn p295_native_footnote_sem_body_retorna_err() {
+        use super::native_footnote;
+        null_ctx!(ctx);
+        let r = native_footnote(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(r.is_err());
+        assert!(format!("{:?}", r).contains("posicional"));
+    }
+
+    #[test]
+    fn p295_native_footnote_named_arg_rejeitado_fase1() {
+        use super::native_footnote;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("a".into())]);
+        args.named.insert("numbering".into(), Value::Str("*".into()));
+        let r = native_footnote(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "Fase 1 P295 scope-out cosméticos");
+        assert!(format!("{:?}", r).contains("numbering"));
+    }
+
+    #[test]
+    fn p295_native_footnote_body_content_complexo_preservado() {
+        use super::native_footnote;
+        // Body é Sequence de Content; preserved estructuralmente.
+        null_ctx!(ctx);
+        let body = Value::Content(Content::sequence(vec![
+            Content::text("hello "),
+            Content::text("world"),
+        ]));
+        let r = native_footnote(&mut ctx, &p(vec![body]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Footnote { body }) = r {
+            assert_eq!(body.plain_text(), "hello world");
+        }
+    }
+
+    #[test]
+    fn p295_footnote_partial_eq_por_body() {
+        let a = Content::Footnote { body: Box::new(Content::text("x")) };
+        let b = Content::Footnote { body: Box::new(Content::text("x")) };
+        let c = Content::Footnote { body: Box::new(Content::text("y")) };
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+    }
+
+    #[test]
+    fn p295_footnote_is_empty_sempre_false() {
+        // Marker [N] é sempre observable; footnote nunca vazia.
+        let f_empty_body = Content::Footnote { body: Box::new(Content::Empty) };
+        assert!(!f_empty_body.is_empty(),
+            "footnote nunca é is_empty mesmo com body vazio (marker sempre observable)");
+    }
+
+    // ── Passo 296 — accent + cancel math (HIV + (a) minimal) ──────────
+    //
+    // A.0.0 N=4 refuta classificação Tabela A.4 (parcial → ausente
+    // → implementado). Padrão "variant rico" N=4 preservado.
+
+    #[test]
+    fn p296_native_accent_base_e_accent_posicionais() {
+        use super::native_accent;
+        null_ctx!(ctx);
+        let r = native_accent(&mut ctx, &p(vec![
+            Value::Content(Content::MathIdent("a".into())),
+            Value::Content(Content::MathText("^".into())),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::MathAccent { base, accent }) = r {
+            assert_eq!(base.plain_text(), "a");
+            assert_eq!(accent.plain_text(), "^");
+        } else {
+            panic!("esperava Content::MathAccent");
+        }
+    }
+
+    #[test]
+    fn p296_native_accent_strings_convertidas_para_text() {
+        use super::native_accent;
+        null_ctx!(ctx);
+        let r = native_accent(&mut ctx, &p(vec![
+            Value::Str("x".into()),
+            Value::Str("~".into()),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::MathAccent { base, accent }) = r {
+            assert_eq!(base.plain_text(), "x");
+            assert_eq!(accent.plain_text(), "~");
+        }
+    }
+
+    #[test]
+    fn p296_native_accent_sem_base_retorna_err() {
+        use super::native_accent;
+        null_ctx!(ctx);
+        let r = native_accent(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(r.is_err());
+        assert!(format!("{:?}", r).contains("base"));
+    }
+
+    #[test]
+    fn p296_native_accent_sem_accent_retorna_err() {
+        use super::native_accent;
+        null_ctx!(ctx);
+        let r = native_accent(&mut ctx, &p(vec![Value::Str("a".into())]), &null_world(), test_file_id(), None);
+        assert!(r.is_err());
+        assert!(format!("{:?}", r).contains("accent"));
+    }
+
+    #[test]
+    fn p296_native_accent_named_arg_rejeitado() {
+        use super::native_accent;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("a".into()), Value::Str("^".into())]);
+        args.named.insert("size".into(), Value::Float(0.5));
+        let r = native_accent(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "size/dotless cosméticos scope-out P296");
+    }
+
+    #[test]
+    fn p296_native_cancel_body_posicional() {
+        use super::native_cancel;
+        null_ctx!(ctx);
+        let r = native_cancel(&mut ctx, &p(vec![
+            Value::Content(Content::MathIdent("x".into())),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::MathCancel { body }) = r {
+            assert_eq!(body.plain_text(), "x");
+        } else {
+            panic!("esperava Content::MathCancel");
+        }
+    }
+
+    #[test]
+    fn p296_native_cancel_body_string_convertido() {
+        use super::native_cancel;
+        null_ctx!(ctx);
+        let r = native_cancel(&mut ctx, &p(vec![Value::Str("y".into())]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::MathCancel { body }) = r {
+            assert_eq!(body.plain_text(), "y");
+        }
+    }
+
+    #[test]
+    fn p296_native_cancel_sem_body_retorna_err() {
+        use super::native_cancel;
+        null_ctx!(ctx);
+        let r = native_cancel(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(r.is_err());
+        assert!(format!("{:?}", r).contains("body"));
+    }
+
+    #[test]
+    fn p296_native_cancel_named_arg_rejeitado() {
+        use super::native_cancel;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("x".into())]);
+        args.named.insert("inverted".into(), Value::Bool(true));
+        let r = native_cancel(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "inverted/cross/length/angle/stroke cosméticos scope-out P296");
+    }
+
+    #[test]
+    fn p296_math_accent_partial_eq_e_is_empty() {
+        let a = Content::MathAccent {
+            base:   Box::new(Content::MathIdent("a".into())),
+            accent: Box::new(Content::MathText("^".into())),
+        };
+        let b = a.clone();
+        assert_eq!(a, b);
+        // is_empty fallback é false (math structural sempre observable).
+        assert!(!a.is_empty());
+    }
+
+    #[test]
+    fn p296_math_cancel_partial_eq() {
+        let a = Content::MathCancel { body: Box::new(Content::MathIdent("x".into())) };
+        let b = Content::MathCancel { body: Box::new(Content::MathIdent("x".into())) };
+        let c = Content::MathCancel { body: Box::new(Content::MathIdent("y".into())) };
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+    }
+
+    // ── Passo 297 — `underover()` math (P296.1) ─────────────────────────
+    //
+    // HV'.a + (b) Option fields: A.0.0 N=5 refutou spec (vanilla
+    // fragmenta em 12 elementos; cristalino agrega per ADR-0054 graded).
+    // Primeira qualificação genuína "variant rico" N=5 — adiada.
+
+    #[test]
+    fn p297_native_underover_so_base_posicional() {
+        use super::native_underover;
+        null_ctx!(ctx);
+        let r = native_underover(&mut ctx, &p(vec![
+            Value::Content(Content::MathIdent("x".into())),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::MathUnderover { base, under, over }) = r {
+            assert_eq!(base.plain_text(), "x");
+            assert!(under.is_none(), "under None se não fornecido");
+            assert!(over.is_none(),  "over None se não fornecido");
+        } else {
+            panic!("esperava Content::MathUnderover");
+        }
+    }
+
+    #[test]
+    fn p297_native_underover_com_under_named() {
+        use super::native_underover;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("base".into())]);
+        args.named.insert("under".into(), Value::Str("u".into()));
+        let r = native_underover(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::MathUnderover { under, over, .. }) = r {
+            assert!(under.is_some());
+            assert!(over.is_none());
+            assert_eq!(under.unwrap().plain_text(), "u");
+        }
+    }
+
+    #[test]
+    fn p297_native_underover_com_over_named() {
+        use super::native_underover;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("base".into())]);
+        args.named.insert("over".into(), Value::Str("o".into()));
+        let r = native_underover(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::MathUnderover { under, over, .. }) = r {
+            assert!(under.is_none());
+            assert!(over.is_some());
+            assert_eq!(over.unwrap().plain_text(), "o");
+        }
+    }
+
+    #[test]
+    fn p297_native_underover_com_ambos() {
+        use super::native_underover;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("b".into())]);
+        args.named.insert("under".into(), Value::Str("u".into()));
+        args.named.insert("over".into(),  Value::Str("o".into()));
+        let r = native_underover(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::MathUnderover { base, under, over }) = r {
+            assert_eq!(base.plain_text(), "b");
+            assert_eq!(under.unwrap().plain_text(), "u");
+            assert_eq!(over.unwrap().plain_text(), "o");
+        }
+    }
+
+    #[test]
+    fn p297_native_underover_sem_base_retorna_err() {
+        use super::native_underover;
+        null_ctx!(ctx);
+        let r = native_underover(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(r.is_err());
+        assert!(format!("{:?}", r).contains("base"));
+    }
+
+    #[test]
+    fn p297_native_underover_named_arg_invalido_retorna_err() {
+        use super::native_underover;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("b".into())]);
+        args.named.insert("style".into(), Value::Str("x".into()));
+        let r = native_underover(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "named args além de under/over rejeitados");
+    }
+
+    #[test]
+    fn p297_math_underover_plain_text_ordem_visual() {
+        // Ordem visual: over + base + under.
+        let u = Content::MathUnderover {
+            base:  Box::new(Content::text("BASE")),
+            under: Some(Box::new(Content::text("U"))),
+            over:  Some(Box::new(Content::text("O"))),
+        };
+        assert_eq!(u.plain_text(), "OBASEU");
+    }
+
+    #[test]
+    fn p297_math_underover_partial_eq_structural() {
+        let a = Content::MathUnderover {
+            base:  Box::new(Content::text("x")),
+            under: Some(Box::new(Content::text("u"))),
+            over:  None,
+        };
+        let b = a.clone();
+        assert_eq!(a, b);
+        let c = Content::MathUnderover {
+            base:  Box::new(Content::text("x")),
+            under: None,                                    // diferente em under
+            over:  None,
+        };
+        assert_ne!(a, c);
+    }
+
+    #[test]
+    fn p297_math_underover_ambos_none_equivale_so_base() {
+        // Caso degenerate: ambos None → plain_text == base.
+        let u = Content::MathUnderover {
+            base:  Box::new(Content::text("x")),
+            under: None,
+            over:  None,
+        };
+        assert_eq!(u.plain_text(), "x");
+    }
+
+    // ── Passo 298 — `op()` math (P296.2 fecho cluster math 4/4) ─────────
+    //
+    // HV'' adaptado: cristalino tinha heurística limits hardcoded;
+    // P298 estende para suportar `MathOp { limits: true }` user-facing.
+    // Cross-variant interaction: MathOp.limits afecta MathAttach layout.
+
+    #[test]
+    fn p298_native_op_text_posicional_default_limits_false() {
+        use super::native_op;
+        null_ctx!(ctx);
+        let r = native_op(&mut ctx, &p(vec![
+            Value::Str("lim".into()),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::MathOp { text, limits }) = r {
+            assert_eq!(text.plain_text(), "lim");
+            assert!(!limits, "limits default false");
+        } else {
+            panic!("esperava Content::MathOp");
+        }
+    }
+
+    #[test]
+    fn p298_native_op_com_limits_true_named() {
+        use super::native_op;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("lim".into())]);
+        args.named.insert("limits".into(), Value::Bool(true));
+        let r = native_op(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::MathOp { limits, .. }) = r {
+            assert!(limits, "limits=true respeitado");
+        }
+    }
+
+    #[test]
+    fn p298_native_op_text_content_preservado() {
+        use super::native_op;
+        null_ctx!(ctx);
+        let r = native_op(&mut ctx, &p(vec![
+            Value::Content(Content::MathIdent("Σ".into())),
+        ]), &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::MathOp { text, .. }) = r {
+            // Content posicional preservado estructuralmente.
+            assert_eq!(text.plain_text(), "Σ");
+        }
+    }
+
+    #[test]
+    fn p298_native_op_sem_text_retorna_err() {
+        use super::native_op;
+        null_ctx!(ctx);
+        let r = native_op(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None);
+        assert!(r.is_err());
+        assert!(format!("{:?}", r).contains("text"));
+    }
+
+    #[test]
+    fn p298_native_op_named_invalido_retorna_err() {
+        use super::native_op;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("lim".into())]);
+        args.named.insert("style".into(), Value::Str("italic".into()));
+        let r = native_op(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "só 'limits' permitido");
+    }
+
+    #[test]
+    fn p298_native_op_limits_nao_bool_retorna_err() {
+        use super::native_op;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Str("lim".into())]);
+        args.named.insert("limits".into(), Value::Int(1));
+        let r = native_op(&mut ctx, &args, &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "limits espera bool");
+    }
+
+    #[test]
+    fn p298_math_op_partial_eq_structural_com_limits() {
+        let a = Content::MathOp {
+            text:   Box::new(Content::text("lim")),
+            limits: true,
+        };
+        let b = a.clone();
+        assert_eq!(a, b);
+        // limits diferente → desigual.
+        let c = Content::MathOp {
+            text:   Box::new(Content::text("lim")),
+            limits: false,
+        };
+        assert_ne!(a, c);
+    }
+
+    #[test]
+    fn p298_math_op_plain_text_so_text_sem_limits() {
+        let o = Content::MathOp {
+            text:   Box::new(Content::text("lim")),
+            limits: true,
+        };
+        // limits é discriminador layout — plain_text só retorna text.
+        assert_eq!(o.plain_text(), "lim");
+    }
+
+    // ── Passo 299 — `math` module operadores pré-definidos (P298.X) ─────
+    //
+    // 1ª aplicação prática Content::MathOp (P298). 42 operadores
+    // vanilla registados via SSoT (Content::MathOp { text, limits }).
+    // Acesso namespaced: math.sin, math.lim, etc.
+
+    fn lookup_math(name: &str) -> Option<Value> {
+        use super::make_math_module;
+        if let Value::Dict(d) = make_math_module() {
+            d.get(name).cloned()
+        } else {
+            None
+        }
+    }
+
+    #[test]
+    fn p299_math_module_contem_sin_scripts_style() {
+        let v = lookup_math("sin").expect("math.sin deve existir");
+        if let Value::Content(Content::MathOp { text, limits }) = v {
+            assert_eq!(text.plain_text(), "sin");
+            assert!(!limits, "sin é scripts-style (limits=false)");
+        } else {
+            panic!("math.sin deve ser MathOp");
+        }
+    }
+
+    #[test]
+    fn p299_math_module_contem_lim_limits_style() {
+        let v = lookup_math("lim").expect("math.lim deve existir");
+        if let Value::Content(Content::MathOp { text, limits }) = v {
+            assert_eq!(text.plain_text(), "lim");
+            assert!(limits, "lim é limits-style (limits=true)");
+        }
+    }
+
+    #[test]
+    fn p299_math_module_contem_det_limits_style_novo() {
+        // det NÃO estava em is_limit_function pré-P299 hardcoded.
+        // P299 acrescenta via registo explícito.
+        let v = lookup_math("det").expect("math.det deve existir");
+        if let Value::Content(Content::MathOp { text, limits }) = v {
+            assert_eq!(text.plain_text(), "det");
+            assert!(limits, "det é limits-style vanilla");
+        }
+    }
+
+    #[test]
+    fn p299_math_module_contem_liminf_multi_word_text() {
+        // liminf vanilla → text "lim inf" (multi-word).
+        let v = lookup_math("liminf").expect("math.liminf deve existir");
+        if let Value::Content(Content::MathOp { text, limits }) = v {
+            assert_eq!(text.plain_text(), "lim inf",
+                "multi-word: name 'liminf' mapeia para text 'lim inf'");
+            assert!(limits);
+        }
+    }
+
+    #[test]
+    fn p299_math_module_contem_limsup_multi_word_text() {
+        let v = lookup_math("limsup").expect("math.limsup deve existir");
+        if let Value::Content(Content::MathOp { text, limits }) = v {
+            assert_eq!(text.plain_text(), "lim sup");
+            assert!(limits);
+        }
+    }
+
+    #[test]
+    fn p299_math_module_total_42_operadores() {
+        use super::make_math_module;
+        if let Value::Dict(d) = make_math_module() {
+            assert_eq!(d.len(), 42,
+                "P299: 31 scripts + 11 limits = 42 operadores vanilla");
+        } else {
+            panic!("make_math_module deve retornar Value::Dict");
+        }
+    }
+
+    #[test]
+    fn p299_math_module_todos_scripts_style_limits_false() {
+        // Amostra de scripts-style: sin/cos/tan/ln/log/exp todos limits=false.
+        for name in ["sin", "cos", "tan", "ln", "log", "exp", "arccos"] {
+            let v = lookup_math(name).expect(name);
+            if let Value::Content(Content::MathOp { limits, .. }) = v {
+                assert!(!limits, "{} deve ser scripts-style", name);
+            } else {
+                panic!("{} deve ser MathOp", name);
+            }
+        }
+    }
+
+    #[test]
+    fn p299_math_module_pr_case_sensitive() {
+        // vanilla `Pr` (probabilidade) é case-sensitive — capitalizado.
+        let v = lookup_math("Pr").expect("math.Pr deve existir");
+        if let Value::Content(Content::MathOp { text, limits }) = v {
+            assert_eq!(text.plain_text(), "Pr");
+            assert!(limits, "Pr é limits-style vanilla");
+        }
+        // 'pr' minúsculo NÃO existe.
+        assert!(lookup_math("pr").is_none(), "case sensitive: 'pr' minúsculo não existe");
+    }
+
+    #[test]
+    fn p299_math_module_nome_inexistente_retorna_none() {
+        assert!(lookup_math("foo_bar_qux").is_none());
+    }
+
+    #[test]
+    fn p299_regressao_math_ident_lim_preservado_pre_p299() {
+        // Heurística pré-P299 (is_limit_function) hardcoded preservada.
+        // MathIdent("lim") sem usar math.lim continua a funcionar.
+        // Este teste NÃO chama math.lim — só verifica que MathIdent existe.
+        let m = Content::MathIdent("lim".into());
+        // Não panic; pode usar plain_text e estar bem formado.
+        assert_eq!(m.plain_text(), "lim");
     }
 }

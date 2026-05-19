@@ -553,12 +553,12 @@ fn eval_markup_body(
 /// O avaliador deixa de conhecer o nome "figure" — desacoplamento total.
 fn make_stdlib() -> Scope {
     use crate::rules::stdlib::{
-        make_calc_module, make_gradient_module, native_align, native_assert, native_bibliography, native_block, native_box, native_circle, native_cite, native_divider,
-        native_ellipse, native_emph, native_figure, native_float, native_grid, native_h, native_heading,
+        make_calc_module, make_gradient_module, make_math_module, native_accent, native_align, native_assert, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
+        native_ellipse, native_emph, native_figure, native_float, native_footnote, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
-        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
-        native_cmyk, native_colbreak, native_columns, native_hsl, native_hsv, native_linear_rgb, native_oklab, native_oklch, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
-        native_scale, native_skew, native_smartquote, native_stack, native_str, native_strike, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_overline, native_upper, native_v,
+        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
+        native_cmyk, native_colbreak, native_columns, native_hsl, native_hsv, native_linear_rgb, native_oklab, native_oklch, native_op, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
+        native_scale, native_skew, native_smartquote, native_stack, native_str, native_strike, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -599,6 +599,11 @@ fn make_stdlib() -> Scope {
     scope.define("circle",  Value::Func(Func::native("circle",  native_circle)));
     scope.define("line",    Value::Func(Func::native("line",    native_line)));
     scope.define("polygon", Value::Func(Func::native("polygon", native_polygon)));
+    // P293 (frente `P-curve-geometry`): activação posterior de
+    // `PathItem::CubicTo` via stdlib novo. Reaplicação ADR-0099 para
+    // `PathItem` (paralelo P285-P292 para `Style`). Hash `export.rs`
+    // preservado pelo 10º passo consecutivo — emit já existe.
+    scope.define("curve",   Value::Func(Func::native("curve",   native_curve)));
     scope.define("grid",    Value::Func(Func::native("grid",    native_grid)));
     scope.define("page",    Value::Func(Func::native("page",    native_page)));
     scope.define("move",    Value::Func(Func::native("move",    native_move)));
@@ -676,6 +681,15 @@ fn make_stdlib() -> Scope {
     scope.define("divider", Value::Func(Func::native("divider", native_divider)));
     // Passo 155 (ADR-0060 Fase 1, sub-passo 2): quote.
     scope.define("quote",   Value::Func(Func::native("quote",   native_quote)));
+    // Passo 295 — footnote Fase 1 (marker only).
+    scope.define("footnote", Value::Func(Func::native("footnote", native_footnote)));
+    // Passo 296 — math accent + cancel (HIV + (a) minimal).
+    scope.define("accent",  Value::Func(Func::native("accent",  native_accent)));
+    scope.define("cancel",  Value::Func(Func::native("cancel",  native_cancel)));
+    // Passo 297 — math underover (HV'.a + (b) Option fields).
+    scope.define("underover", Value::Func(Func::native("underover", native_underover)));
+    // Passo 298 — math op (HV'' adaptado; cross-variant interaction).
+    scope.define("op",        Value::Func(Func::native("op",        native_op)));
     // Passo 156C (ADR-0061 Fase 1, sub-passo 1): pad + hide.
     scope.define("pad",     Value::Func(Func::native("pad",     native_pad)));
     scope.define("hide",    Value::Func(Func::native("hide",    native_hide)));
@@ -752,6 +766,9 @@ fn make_stdlib() -> Scope {
     scope.define("calc",    make_calc_module());
     // P262 — `gradient.linear(...)` via module dict (ADR-0087).
     scope.define("gradient", make_gradient_module());
+    // P299 — `math.sin`/`math.lim`/etc. (P298.X; 42 operadores
+    // pré-definidos paridade vanilla via SSoT MathOp).
+    scope.define("math",     make_math_module());
 
     // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).
     // Sintaxe preferida: `align(center, ...)`, `align(center + bottom, ...)`.

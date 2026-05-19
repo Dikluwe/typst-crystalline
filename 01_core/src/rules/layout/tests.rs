@@ -10441,3 +10441,421 @@ mod p289_style_weight_tests {
         let _ = Pt::ZERO; // import sanity
     }
 }
+
+// ── Passo 290 — Style::Tracking variant + cascade ────────────────────────
+
+#[cfg(test)]
+mod p290_style_tracking_tests {
+    use super::*;
+    use crate::entities::layout_types::Length;
+    use crate::entities::style::{Style, Styles};
+    use crate::entities::style_chain::StyleChain;
+
+    #[test]
+    fn p290_style_tracking_variant_basico() {
+        let s = Style::Tracking(Length::pt(0.5));
+        assert!(matches!(s, Style::Tracking(_)));
+        // PartialEq por valor (Length é Copy + PartialEq).
+        assert_eq!(s, Style::Tracking(Length::pt(0.5)));
+        assert_ne!(s, Style::Tracking(Length::pt(1.0)));
+    }
+
+    #[test]
+    fn p290_push_styles_tracking_projecta_no_delta() {
+        // Cascade arm: `Style::Tracking(l)` → `delta.tracking = Some(l)`.
+        // Paralelo absoluto a P288 lang + P289 weight.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Tracking(Length::pt(1.0)),
+        ]));
+        assert_eq!(next.tracking(), Some(Length::pt(1.0)));
+    }
+
+    #[test]
+    fn p290_styled_tracking_injetado_chain_le_corretamente() {
+        // Smoke: Content::Styled com Style::Tracking produz chain.tracking()
+        // correcto. TextStyle::from(&chain) propaga para FrameItem::Text.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Tracking(Length::em(0.1)),
+        ]));
+        assert_eq!(next.tracking(), Some(Length::em(0.1)));
+        // TextStyle::from(&chain) deve capturar.
+        let style: crate::entities::layout_types::TextStyle = (&next).into();
+        assert_eq!(style.tracking, Some(Length::em(0.1)),
+            "TextStyle::from(&StyleChain) deve propagar tracking");
+    }
+
+    #[test]
+    fn p290_tracking_last_write_wins() {
+        // Dois Style::Tracking consecutivos: último ganha (paridade P288/P289).
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Tracking(Length::pt(0.5)),
+            Style::Tracking(Length::pt(1.0)),  // re-write
+        ]));
+        assert_eq!(next.tracking(), Some(Length::pt(1.0)),
+            "último Style::Tracking na collection ganha");
+    }
+
+    // ── Testes fronteira (per A.5 detecção de bugs latentes) ──────────
+
+    #[test]
+    fn p290_tracking_zero_propaga() {
+        // Zero é estado inicial conceptualmente; emit branch EPSILON
+        // (export.rs:2142) skipa `Tc` operator mas chain.tracking()
+        // continua a devolver Some(Length::pt(0.0)).
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Tracking(Length::pt(0.0)),
+        ]));
+        assert_eq!(next.tracking(), Some(Length::pt(0.0)));
+    }
+
+    #[test]
+    fn p290_tracking_pequeno_positivo() {
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Tracking(Length::pt(1.0)),
+        ]));
+        assert_eq!(next.tracking(), Some(Length::pt(1.0)));
+    }
+
+    #[test]
+    fn p290_tracking_em_relativo_05() {
+        // Em-units: resolve em runtime via TextStyle.size.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Tracking(Length::em(0.5)),
+        ]));
+        let t = next.tracking().expect("Some(...)");
+        assert_eq!(t.em, 0.5);
+        assert_eq!(t.abs.to_pt(), 0.0, "Length::em(0.5) tem componente abs zero");
+    }
+
+    #[test]
+    fn p290_tracking_negative_propaga() {
+        // **Atenção particular**: vanilla typst aceita tracking negativo
+        // como kerning artificial. Cristalino deve preservar paridade
+        // (diagnóstico §A.5.2).
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Tracking(Length::pt(-0.5)),
+        ]));
+        let t = next.tracking().expect("Some(...)");
+        assert!(t.abs.to_pt() < 0.0,
+            "tracking negativo deve ser preservado como kerning artificial (vanilla paridade); got {}", t.abs.to_pt());
+    }
+
+    #[test]
+    fn p290_tracking_grande_10pt_propaga() {
+        // Valor grande não causa overflow ou erro silencioso.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Tracking(Length::pt(10.0)),
+        ]));
+        assert_eq!(next.tracking(), Some(Length::pt(10.0)));
+    }
+
+    #[test]
+    fn p290_tracking_consumer_p137_cursor_extra() {
+        // Verificação cumulativa: o consumer P137 em `cursor.rs:30`
+        // (`tracking_extra` glyph advance) consome via `self.style.tracking`.
+        // Verificável indirectamente: TextStyle::from(&chain) propaga,
+        // e Layouter::layout_word adiciona o tracking ao advance.
+        let chain = StyleChain::empty()
+            .push_styles(&Styles::from_iter([Style::Tracking(Length::pt(2.0))]));
+        let style: crate::entities::layout_types::TextStyle = (&chain).into();
+        let resolved = style.tracking.expect("Some").resolve_pt(style.size.val());
+        assert!((resolved - 2.0).abs() < 0.001,
+            "tracking 2pt deve resolver para 2.0 (sem em-component); got {resolved}");
+    }
+}
+
+// ── Passo 291 — Style::Leading variant + cascade ────────────────────────
+
+#[cfg(test)]
+mod p291_style_leading_tests {
+    use super::*;
+    use crate::entities::layout_types::Length;
+    use crate::entities::style::{Style, Styles};
+    use crate::entities::style_chain::StyleChain;
+
+    #[test]
+    fn p291_style_leading_variant_basico() {
+        let s = Style::Leading(Length::em(0.65));
+        assert!(matches!(s, Style::Leading(_)));
+        // PartialEq por valor.
+        assert_eq!(s, Style::Leading(Length::em(0.65)));
+        assert_ne!(s, Style::Leading(Length::em(0.5)));
+    }
+
+    #[test]
+    fn p291_push_styles_leading_projecta_no_delta() {
+        // Cascade arm: `Style::Leading(l)` → `delta.leading = Some(l)`.
+        // Paralelo absoluto a P288 lang + P289 weight + P290 tracking.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Leading(Length::pt(11.0)),
+        ]));
+        assert_eq!(next.leading(), Some(Length::pt(11.0)));
+    }
+
+    #[test]
+    fn p291_styled_leading_injetado_chain_le_corretamente() {
+        // Smoke: Content::Styled com Style::Leading produz chain.leading()
+        // correcto. TextStyle::from(&chain) propaga.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Leading(Length::em(0.65)),
+        ]));
+        assert_eq!(next.leading(), Some(Length::em(0.65)));
+        let style: crate::entities::layout_types::TextStyle = (&next).into();
+        assert_eq!(style.leading, Some(Length::em(0.65)),
+            "TextStyle::from(&StyleChain) deve propagar leading");
+    }
+
+    #[test]
+    fn p291_leading_last_write_wins() {
+        // Dois Style::Leading consecutivos: último ganha.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Leading(Length::pt(8.0)),
+            Style::Leading(Length::pt(12.0)),  // re-write
+        ]));
+        assert_eq!(next.leading(), Some(Length::pt(12.0)),
+            "último Style::Leading na collection ganha");
+    }
+
+    // ── Testes fronteira (per A.5 — 5 cenários) ────────────────────────
+
+    #[test]
+    fn p291_leading_zero_propaga() {
+        // Leading zero: linhas colapsam para line_height puro.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Leading(Length::pt(0.0)),
+        ]));
+        assert_eq!(next.leading(), Some(Length::pt(0.0)));
+    }
+
+    #[test]
+    fn p291_leading_tipico_11pt_propaga() {
+        // Valor próximo do default cristalino (font_size 11pt × 1.0 ≈ 11pt).
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Leading(Length::pt(11.0)),
+        ]));
+        assert_eq!(next.leading(), Some(Length::pt(11.0)));
+    }
+
+    #[test]
+    fn p291_leading_em_relativo_065() {
+        // Em-units: resolve em runtime via TextStyle.size.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Leading(Length::em(0.65)),
+        ]));
+        let l = next.leading().expect("Some");
+        assert_eq!(l.em, 0.65);
+        assert_eq!(l.abs.to_pt(), 0.0);
+    }
+
+    #[test]
+    fn p291_leading_grande_50pt_propaga() {
+        // Valor grande não causa overflow.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Leading(Length::pt(50.0)),
+        ]));
+        assert_eq!(next.leading(), Some(Length::pt(50.0)));
+    }
+
+    #[test]
+    fn p291_leading_negative_propaga() {
+        // **Atenção particular**: vanilla typst aceita leading negativo
+        // (line collapse parcial); cristalino preserva paridade —
+        // `cursor.rs:124` passa valor literal sem clamp (A.5.1
+        // diagnóstico).
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Leading(Length::pt(-1.0)),
+        ]));
+        let l = next.leading().expect("Some");
+        assert!(l.abs.to_pt() < 0.0,
+            "leading negativo deve ser preservado (vanilla paridade); got {}", l.abs.to_pt());
+    }
+
+    #[test]
+    fn p291_leading_consumer_p138_flush_line_peek() {
+        // Verificação cumulativa: o consumer P138 em `cursor.rs:119-128`
+        // (peek `current_line.iter().rev().find_map(FrameItem::Text)`)
+        // consome via `style.leading.resolve_pt(font_size)`.
+        // Verificável indirectamente: TextStyle::from(&chain) propaga,
+        // e `flush_line` resolve para pt no momento do peek.
+        let chain = StyleChain::empty()
+            .push_styles(&Styles::from_iter([Style::Leading(Length::pt(3.0))]));
+        let style: crate::entities::layout_types::TextStyle = (&chain).into();
+        let resolved = style.leading.expect("Some").resolve_pt(style.size.val());
+        assert!((resolved - 3.0).abs() < 0.001,
+            "leading 3pt deve resolver para 3.0 (sem em-component); got {resolved}");
+    }
+}
+
+// ── Passo 292 — Style::Font variant + cascade (fecha série P288-P292) ──
+
+#[cfg(test)]
+mod p292_style_font_tests {
+    use super::*;
+    use crate::entities::font_list::{FontFamily, FontList};
+    use crate::entities::style::{Style, Styles};
+    use crate::entities::style_chain::StyleChain;
+    use ecow::EcoString;
+
+    #[test]
+    fn p292_style_font_variant_basico() {
+        let s = Style::Font(FontList::single(EcoString::from("Inter")));
+        assert!(matches!(s, Style::Font(_)));
+        // PartialEq por valor (FontList: PartialEq).
+        assert_eq!(s, Style::Font(FontList::single(EcoString::from("Inter"))));
+        assert_ne!(s, Style::Font(FontList::single(EcoString::from("Arial"))));
+    }
+
+    #[test]
+    fn p292_push_styles_font_projecta_no_delta() {
+        // Cascade arm: `Style::Font(f)` → `delta.font = Some(f.clone())`.
+        // **Distinção sintáctica vs P288-P291**: `.clone()` em vez de `*f`
+        // por `FontList: !Copy`.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Font(FontList::single(EcoString::from("Inter"))),
+        ]));
+        assert_eq!(next.font(), Some(FontList::single(EcoString::from("Inter"))));
+    }
+
+    #[test]
+    fn p292_styled_font_injetado_chain_le_corretamente() {
+        // Smoke: Content::Styled com Style::Font produz chain.font()
+        // correcto. TextStyle::from(&chain) propaga.
+        let chain = StyleChain::empty();
+        let fl = FontList::single(EcoString::from("Helvetica"));
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Font(fl.clone()),
+        ]));
+        assert_eq!(next.font(), Some(fl.clone()));
+        let style: crate::entities::layout_types::TextStyle = (&next).into();
+        assert_eq!(style.font, Some(fl),
+            "TextStyle::from(&StyleChain) deve propagar font");
+    }
+
+    #[test]
+    fn p292_font_last_write_wins() {
+        // Dois Style::Font consecutivos: último ganha.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Font(FontList::single(EcoString::from("Arial"))),
+            Style::Font(FontList::single(EcoString::from("Inter"))),  // re-write
+        ]));
+        assert_eq!(next.font(),
+            Some(FontList::single(EcoString::from("Inter"))),
+            "último Style::Font na collection ganha");
+    }
+
+    // ── Testes fronteira (per A.5) ──────────────────────────────────
+
+    #[test]
+    fn p292_font_single_caso_tipico() {
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Font(FontList::single(EcoString::from("Inter"))),
+        ]));
+        let fl = next.font().expect("Some");
+        assert_eq!(fl.len(), 1);
+        assert_eq!(fl.as_slice()[0].name, "inter");  // lowercase per FontFamily::new
+    }
+
+    #[test]
+    fn p292_font_multi_fallback_chain() {
+        // FontList com 3 elementos — caso P141 fallback chain.
+        let fl = FontList::new(vec![
+            FontFamily::new(EcoString::from("Inter")),
+            FontFamily::new(EcoString::from("Helvetica")),
+            FontFamily::new(EcoString::from("Arial")),
+        ]).expect("non-empty");
+        let chain = StyleChain::empty()
+            .push_styles(&Styles::from_iter([Style::Font(fl.clone())]));
+        let resolved = chain.font().expect("Some");
+        assert_eq!(resolved.len(), 3,
+            "FontList multi-element preserved cross cascade");
+    }
+
+    #[test]
+    fn p292_font_list_non_empty_by_construction() {
+        // **Cenário crítico A.5 ajustado**: FontList NÃO permite vazio
+        // por construção (`FontList::new(vec![])` retorna `None` per
+        // diagnóstico §A.5.1). Réplica semântica vanilla `"font fallback
+        // list must not be empty"`. Não há bug latente — invariante
+        // estructural.
+        let attempt = FontList::new(vec![]);
+        assert!(attempt.is_none(),
+            "FontList::new(vec![]) deve retornar None — non-empty by construction");
+    }
+
+    #[test]
+    fn p292_font_missing_name_propaga_resolution_defer() {
+        // Cenário A.5: nome de font não-disponível propaga via cascade.
+        // Resolution defer ao FontBook em layout-time.
+        let fl = FontList::single(EcoString::from("NonExistentFontXYZ"));
+        let chain = StyleChain::empty()
+            .push_styles(&Styles::from_iter([Style::Font(fl.clone())]));
+        assert_eq!(chain.font(), Some(fl),
+            "missing font name propaga literalmente; resolution defer");
+    }
+
+    #[test]
+    fn p292_font_consumer_textstyle_capture_paradigma_p136() {
+        // Verificação cumulativa: TextStyle::from(&chain) propaga
+        // `font: chain.font()` (style_chain.rs:316). Emit multifont
+        // path (export.rs:2169-2174) lê `style.font.as_ref()` — paradigma
+        // P136 confirmado empiricamente.
+        let fl = FontList::new(vec![
+            FontFamily::new(EcoString::from("Inter")),
+            FontFamily::new(EcoString::from("Helvetica")),
+        ]).expect("non-empty");
+        let chain = StyleChain::empty()
+            .push_styles(&Styles::from_iter([Style::Font(fl.clone())]));
+        let style: crate::entities::layout_types::TextStyle = (&chain).into();
+        assert!(style.font.is_some(), "TextStyle.font deve capturar de chain");
+        // Confirmação que o FontList propagado tem o mesmo número de
+        // elementos (clone preserved).
+        assert_eq!(style.font.unwrap().len(), 2);
+    }
+
+    #[test]
+    fn p292_marco_arquitectural_serie_p288_a_p292_fechada() {
+        // **Marco simbólico**: este teste atesta o fecho da série
+        // cirúrgica P288-P292 (5/5 da assimetria residual P289 §5.6
+        // fechada). Pós-P292, não há mais campos `StyleDelta` sem
+        // variant `Style` correspondente — sequência cumulativa
+        // termina naturalmente. Cada um dos 5 variants é construível
+        // via `Style::*`.
+        use crate::entities::lang::Lang;
+        use crate::entities::layout_types::Length as L;
+
+        // Construir uma Styles collection completa P288-P292:
+        let all_5 = Styles::from_iter([
+            Style::Lang(Lang::ENGLISH),                              // P288
+            Style::Weight(700),                                       // P289
+            Style::Tracking(L::pt(0.5)),                              // P290
+            Style::Leading(L::em(0.65)),                              // P291
+            Style::Font(FontList::single(EcoString::from("Inter"))),  // P292
+        ]);
+        // Aplicar à chain — todos os 5 arms da cascade activam:
+        let chain = StyleChain::empty().push_styles(&all_5);
+        assert!(chain.lang().is_some());
+        assert!(chain.weight().is_some());
+        assert!(chain.tracking().is_some());
+        assert!(chain.leading().is_some());
+        assert!(chain.font().is_some());
+    }
+}

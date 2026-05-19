@@ -1017,5 +1017,300 @@ fn extract_citation_form(val: Option<&Value>) -> SourceResult<Option<crate::enti
     }
 }
 
+// ── Passo 295 — `footnote()` cluster Fase 1 (marker only) ─────────────────
+//
+// **Fase 1 P295 (HE marker only)**: variant minimal `Content::Footnote
+// { body }`. Layouter emite apenas marker `[N]` superscript inline;
+// body armazenado mas não renderizado no rodapé (sub-passo P295.1).
+//
+// Simplifications per ADR-0054 graded vs vanilla:
+// - `numbering` field scope-out (cosmético; arabic default).
+// - `FootnoteBody::Reference(Label)` scope-out (multi-ref futura).
+//
+// Padrão "variant rico" N=4 cumulativo **inalterado** — A.2 → (a)
+// minimal.
+
+/// `footnote(body)` — emite `Content::Footnote { body }`. Body
+/// posicional obrigatório (content ou string).
+pub fn native_footnote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("footnote() espera content ou string, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "footnote() exige body como argumento posicional".to_string(),
+        )]),
+    };
+
+    // Validar ausência de named args (P295 Fase 1: sem cosméticos).
+    for k in args.named.keys() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("footnote(): argumento nomeado '{}' não suportado em P295 Fase 1 (numbering/cosméticos scope-out per ADR-0054 graded)", k),
+        )]);
+    }
+
+    Ok(Value::Content(Content::Footnote { body: Box::new(body) }))
+}
+
+// ── Passo 296 — `accent()` + `cancel()` math (P-math-accent-cancel) ──────
+//
+// **A.0.0 N=4 (HIV)**: features ausentes apesar de Tabela A.4
+// marcar `parcial`. Materialização from-scratch. Padrão "variant
+// rico" N=4 **preservado** (A.2 → (a) minimal; sem cosméticos
+// `size`/`length`/`inverted`/`cross`/`angle`/`stroke`).
+
+/// `accent(base, accent)` — emite `Content::MathAccent { base, accent }`.
+/// Ambos posicionais obrigatórios (content ou string).
+pub fn native_accent(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let base = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("accent() base espera content ou string, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "accent() exige base como 1.º argumento posicional".to_string(),
+        )]),
+    };
+    let accent = match args.items.get(1) {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("accent() accent espera content ou string, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "accent() exige accent como 2.º argumento posicional".to_string(),
+        )]),
+    };
+
+    // Validar ausência de named args (P296 scope-out cosméticos).
+    for k in args.named.keys() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("accent(): argumento nomeado '{}' não suportado em P296 (size/dotless scope-out per ADR-0054 graded)", k),
+        )]);
+    }
+
+    Ok(Value::Content(Content::MathAccent {
+        base:   Box::new(base),
+        accent: Box::new(accent),
+    }))
+}
+
+/// `cancel(body)` — emite `Content::MathCancel { body }`.
+/// Body posicional obrigatório (content ou string).
+pub fn native_cancel(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("cancel() espera content ou string, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "cancel() exige body como argumento posicional".to_string(),
+        )]),
+    };
+
+    // Validar ausência de named args (P296 scope-out cosméticos).
+    for k in args.named.keys() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("cancel(): argumento nomeado '{}' não suportado em P296 (length/inverted/cross/angle/stroke scope-out per ADR-0054 graded)", k),
+        )]);
+    }
+
+    Ok(Value::Content(Content::MathCancel { body: Box::new(body) }))
+}
+
+// ── Passo 297 — `underover()` math (P296.1) ──────────────────────────────
+//
+// **HV'.a (A.0.0 N=5)**: vanilla typst NÃO tem `UnderoverElem`
+// unificado — fragmenta em 12 elementos (UnderlineElem/OverlineElem/
+// UnderbraceElem/OverbraceElem/etc.). Cristalino agrega num único
+// variant `MathUnderover { base, under?, over? }` per ADR-0054
+// graded.
+//
+// **A.2 → (b) Option `Box<Content>` estrutural**: primeira
+// qualificação genuína "variant rico" N=5 desde P287 refutação.
+// Promoção ADR meta adiada per P273.17 §0.
+
+/// `underover(base, under: ?, over: ?)` — emite
+/// `Content::MathUnderover`. Base posicional; under/over named
+/// opcionais.
+pub fn native_underover(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let base = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("underover() base espera content ou string, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "underover() exige base como argumento posicional".to_string(),
+        )]),
+    };
+
+    // Validar named args só "under"/"over" permitidos.
+    for k in args.named.keys() {
+        if !["under", "over"].contains(&k.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("underover(): argumento nomeado inesperado '{}' (válidos: under, over)", k),
+            )]);
+        }
+    }
+
+    let under = args.named.get("under").and_then(|v| match v {
+        Value::Content(c) => Some(Box::new(c.clone())),
+        Value::Str(s)     => Some(Box::new(Content::text(s.as_str()))),
+        Value::None       => None,
+        other             => Some(Box::new(Content::text(other.type_name()))),
+    });
+    let over = args.named.get("over").and_then(|v| match v {
+        Value::Content(c) => Some(Box::new(c.clone())),
+        Value::Str(s)     => Some(Box::new(Content::text(s.as_str()))),
+        Value::None       => None,
+        other             => Some(Box::new(Content::text(other.type_name()))),
+    });
+
+    Ok(Value::Content(Content::MathUnderover {
+        base:  Box::new(base),
+        under,
+        over,
+    }))
+}
+
+// ── Passo 298 — `op()` math (P296.2 fecho cluster math 4/4) ───────────────
+//
+// **HV'' adaptado (A.0.0 N=6 magnitude alta)**: cristalino tinha
+// heurística limits-style hardcoded em `attach.rs` via
+// `symbols::is_limit_function`/`is_large_operator`. P298 estende
+// para suportar `MathOp { limits: true }` user-customizable.
+//
+// **Cross-variant interaction inaugural**: `MathOp.limits` afecta
+// layout de `MathAttach` (modificação `is_limits` em `attach.rs`).
+// Heurística pré-P298 preservada — fallback `MathIdent("lim")`
+// continua a funcionar.
+
+/// `op(text, limits: false)` — emite `Content::MathOp { text, limits }`.
+/// Text posicional obrigatório; `limits` named opcional (default `false`).
+pub fn native_op(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    let text = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("op() text espera content ou string, recebeu {}", other.type_name()),
+        )]),
+        None => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "op() exige text como argumento posicional".to_string(),
+        )]),
+    };
+
+    // Validar named args só "limits" permitido.
+    for k in args.named.keys() {
+        if k.as_str() != "limits" {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("op(): argumento nomeado inesperado '{}' (válido: limits)", k),
+            )]);
+        }
+    }
+
+    let limits = match args.named.get("limits") {
+        Some(Value::Bool(b)) => *b,
+        Some(Value::None)    => false,
+        Some(other) => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("op(limits:) espera bool, recebeu {}", other.type_name()),
+        )]),
+        None => false,
+    };
+
+    Ok(Value::Content(Content::MathOp {
+        text:   Box::new(text),
+        limits,
+    }))
+}
+
+// ── Passo 299 — `math` module: operadores pré-definidos (P298.X) ───────────
+//
+// **A.0.0 N=7 magnitude baixa-modesta**: cristalino tem `calc`
+// module precedente claro (P283) via `make_calc_module()` paralelo
+// `make_math_module()`. **41 operadores vanilla** registados como
+// `Value::Content(Content::MathOp { ... })` — 1ª aplicação prática
+// de MathOp pós-materialização P298.
+//
+// Lista canónica vanilla `lab/.../math/op.rs:62-105`:
+// - 29 scripts-style.
+// - 12 limits-style.
+//
+// Acesso user-facing: `math.sin x`, `math.lim_(x→0) f` (namespaced).
+// Heurística pré-P299 preservada — `MathIdent("lim")` literal
+// continua a funcionar via fallback `is_limit_function`.
+
+fn op_value(text: &str, limits: bool) -> Value {
+    Value::Content(Content::MathOp {
+        text:   Box::new(Content::text(text)),
+        limits,
+    })
+}
+
+/// Constrói o módulo `math` como `Value::Dict` com 41 operadores
+/// vanilla pré-definidos (paralelo `make_calc_module()` P283).
+pub fn make_math_module() -> Value {
+    use indexmap::IndexMap;
+    use rustc_hash::FxBuildHasher;
+    use ecow::EcoString;
+    let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+
+    // Scripts-style operators (29) — limits: false.
+    for name in [
+        "arccos", "arcsin", "arctan", "arg",
+        "cos", "cosh", "cot", "coth",
+        "csc", "csch", "ctg", "deg",
+        "dim", "exp", "hom", "id",
+        "im", "ker", "lg", "ln",
+        "log", "mod", "sec", "sech",
+        "sin", "sinc", "sinh", "tan",
+        "tanh", "tg", "tr",
+    ] {
+        dict.insert(name.into(), op_value(name, false));
+    }
+
+    // Limits-style operators (12) — limits: true. Multi-word usam
+    // text literal vanilla (e.g. `liminf` → "lim inf").
+    for (name, text) in [
+        ("det", "det"),
+        ("gcd", "gcd"),
+        ("lcm", "lcm"),
+        ("inf", "inf"),
+        ("lim", "lim"),
+        ("liminf", "lim inf"),
+        ("limsup", "lim sup"),
+        ("max", "max"),
+        ("min", "min"),
+        ("Pr", "Pr"),
+        ("sup", "sup"),
+    ] {
+        dict.insert(name.into(), op_value(text, true));
+    }
+
+    Value::Dict(dict)
+}
+
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────
 

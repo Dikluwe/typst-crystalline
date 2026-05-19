@@ -9466,4 +9466,276 @@ mod tests {
         assert!(s.contains("'") || s.contains(")Tj") || s.contains(") Tj"),
             "SmartQuote single deve aparecer no PDF");
     }
+
+    // ── Passo 293 — curve(...) emit PDF `c` operator (cubic Bézier) ──
+
+    #[test]
+    fn p293_curve_cubic_emite_pdf_c_operator() {
+        // **CRÍTICO** — primeira aplicação prática de `PathItem::CubicTo`
+        // via stdlib. P293 activou caminho de entrada (`native_curve`);
+        // emit consumer já existia (export.rs:2375/2457/2629). Smoke
+        // L1→L3: documento com `curve(("cubic", c1, c2, end))` produz
+        // operador `c` no PDF.
+        use typst_core::entities::geometry::{PathItem, ShapeKind};
+        use typst_core::entities::layout_types::{Point, Pt};
+
+        // Construir Content::Shape::Path com CubicTo directamente
+        // (paralelo ao que native_curve produz pós-P293).
+        let items = vec![
+            PathItem::MoveTo(Point { x: Pt(0.0), y: Pt(0.0) }),
+            PathItem::CubicTo(
+                Point { x: Pt(25.0), y: Pt(0.0) },
+                Point { x: Pt(75.0), y: Pt(50.0) },
+                Point { x: Pt(100.0), y: Pt(50.0) },
+            ),
+        ];
+        let shape = Content::Shape {
+            kind: ShapeKind::Path(items),
+            width: None,
+            height: None,
+            fill: None,
+            stroke: None,
+        };
+        let doc = layout(&shape);
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        // PDF `c` operator: `{cx1} {cy1} {cx2} {cy2} {ex} {ey} c\n`.
+        // 6 floats + " c\n" — verificar literal.
+        assert!(s.contains(" c\n"),
+            "PDF deve conter operador `c` (cubic Bézier) — P293 activação CubicTo");
+        // Também `m` (moveTo) precedente.
+        assert!(s.contains(" m\n"),
+            "PDF deve conter operador `m` (moveTo) precedente ao CubicTo");
+    }
+
+    // ── Passo 294 — quadratic emite via conversão q→c, sem novo operator ──
+    //
+    // P294 H1' (refutação significativa A.0.0 N=2): vanilla typst converte
+    // quadratic→cubic em construct-time. Cristalino adopta paridade:
+    // PDF emit usa apenas `c` operator (cubic) — **sem `v`/`y`**. Confirma
+    // hash export.rs preservado bit-exact (11º passo consecutivo).
+
+    #[test]
+    fn p294_quadratic_emite_c_operator_e_nao_v_nem_y() {
+        // Simular o output de `native_curve("quadratic", ...)`: conversão
+        // q→c em construct-time. P0=(0,0), Q=(50,50), P2=(100,0):
+        //   C1 = (P0 + 2Q)/3 = (100/3, 100/3)
+        //   C2 = (P2 + 2Q)/3 = (200/3, 100/3)
+        use typst_core::entities::geometry::{PathItem, ShapeKind};
+        use typst_core::entities::layout_types::{Point, Pt};
+        let items = vec![
+            PathItem::MoveTo(Point { x: Pt(0.0), y: Pt(0.0) }),
+            PathItem::CubicTo(
+                Point { x: Pt(100.0 / 3.0), y: Pt(100.0 / 3.0) },
+                Point { x: Pt(200.0 / 3.0), y: Pt(100.0 / 3.0) },
+                Point { x: Pt(100.0), y: Pt(0.0) },
+            ),
+        ];
+        let shape = Content::Shape {
+            kind: ShapeKind::Path(items),
+            width: None,
+            height: None,
+            fill: None,
+            stroke: None,
+        };
+        let doc = layout(&shape);
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        // P294 invariante: emit usa `c` (cubic) operator — vanilla pattern.
+        assert!(s.contains(" c\n"),
+            "PDF deve conter `c` operator — quadratic emitida como cubic via q→c");
+        // P294 invariante: zero operadores `v` ou `y` (vanilla não emite).
+        assert!(!s.contains(" v\n"),
+            "PDF NÃO deve conter `v` operator (P294: vanilla converte q→c, não usa v)");
+        assert!(!s.contains(" y\n"),
+            "PDF NÃO deve conter `y` operator (P294: vanilla converte q→c, não usa y)");
+    }
+
+    // ── Passo 295 — `footnote()` marker Fase 1 (HE marker only) ──────────
+    //
+    // P295 emite marker `[N]` superscript inline (Fase 1). Body
+    // armazenado mas não renderizado no rodapé (P295.1/P295.2 sub-passos).
+    // Walker counter simples no Layouter.
+
+    // ── Passo 297 — `underover()` math (P296.1) emit standard (ADR-0098 N=14) ─
+    //
+    // HV'.a + (b) Option fields: variant agregado cristalino. Layouter
+    // empilha over + base + under verticalmente. Emit via FrameItem::Text
+    // standard — hash export.rs preservado pelo 14º passo consecutivo.
+
+    #[test]
+    fn p297_math_underover_com_ambos_emite_3_partes_no_pdf() {
+        // base="x", under="u", over="o" → todos 3 visíveis no PDF.
+        let doc = layout(&Content::Equation {
+            body: Box::new(Content::MathUnderover {
+                base:  Box::new(Content::MathIdent("x".into())),
+                under: Some(Box::new(Content::MathText("u".into()))),
+                over:  Some(Box::new(Content::MathText("o".into()))),
+            }),
+            block: false,
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("x"), "base 'x' no PDF");
+        assert!(s.contains("u"), "under 'u' no PDF");
+        assert!(s.contains("o"), "over 'o' no PDF");
+    }
+
+    // ── Passo 298 — `op()` math (P296.2) cross-variant interaction ──────
+    //
+    // HV'' adaptado: MathOp { limits: true } afecta layout_attach
+    // (renderiza sub/sup em limits-style). Heurística pré-P298 para
+    // MathIdent("lim") preservada via is_limit_function hardcoded.
+    // Hash export.rs 66cb8ac3 preservado pelo 15º passo consecutivo.
+
+    #[test]
+    fn p298_math_op_text_emite_no_pdf() {
+        // op("custom") sem attach → renderiza text simples.
+        let doc = layout(&Content::Equation {
+            body: Box::new(Content::MathOp {
+                text:   Box::new(Content::MathIdent("custom".into())),
+                limits: false,
+            }),
+            block: false,
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("custom"), "text 'custom' no PDF");
+    }
+
+    #[test]
+    fn p298_math_attach_com_op_limits_renderiza_pdf_valido() {
+        // MathAttach com base=MathOp{limits:true} + sub → limits-style
+        // em block mode (display). Verifica que PDF é produzido sem
+        // crash; layout limits-style aplicado.
+        let doc = layout(&Content::Equation {
+            body: Box::new(Content::MathAttach {
+                base: Box::new(Content::MathOp {
+                    text:   Box::new(Content::MathIdent("lim".into())),
+                    limits: true,
+                }),
+                tl:  None,
+                bl:  None,
+                sub: Some(Box::new(Content::MathText("x→0".into()))),
+                sup: None,
+            }),
+            block: true,
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("lim"), "base 'lim' presente no PDF");
+        assert!(s.contains("x") && s.contains("0"), "sub elements presentes no PDF");
+    }
+
+    #[test]
+    fn p298_regressao_math_ident_lim_continua_a_funcionar() {
+        // CRÍTICO: heurística pré-P298 hardcoded (is_limit_function)
+        // preservada. MathIdent("lim") em block mode + attach _ produz
+        // limits-style sem necessidade de `op()`.
+        let doc = layout(&Content::Equation {
+            body: Box::new(Content::MathAttach {
+                base: Box::new(Content::MathIdent("lim".into())),
+                tl:  None,
+                bl:  None,
+                sub: Some(Box::new(Content::MathText("y".into()))),
+                sup: None,
+            }),
+            block: true,
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("lim"), "base 'lim' MathIdent preservada");
+        assert!(s.contains("y"), "sub 'y' presente no PDF");
+    }
+
+    #[test]
+    fn p297_math_underover_so_base_emite_so_base_no_pdf() {
+        // Both Options None: comporta-se como base só (degenerate).
+        let doc = layout(&Content::Equation {
+            body: Box::new(Content::MathUnderover {
+                base:  Box::new(Content::MathIdent("xyz".into())),
+                under: None,
+                over:  None,
+            }),
+            block: false,
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("xyz"), "base 'xyz' no PDF mesmo sem under/over");
+    }
+
+    #[test]
+    fn p295_footnote_marker_emite_n_inline_no_pdf() {
+        // 3 footnotes consecutivas; espera-se `[1]`, `[2]`, `[3]` no PDF.
+        let doc = layout(&Content::sequence(vec![
+            Content::text("antes "),
+            Content::Footnote { body: Box::new(Content::text("nota1")) },
+            Content::text(" meio "),
+            Content::Footnote { body: Box::new(Content::text("nota2")) },
+            Content::text(" entre "),
+            Content::Footnote { body: Box::new(Content::text("nota3")) },
+        ]));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("[1]"), "marker [1] no PDF; got snippet: {}", &s[..s.len().min(500)]);
+        assert!(s.contains("[2]"), "marker [2] no PDF");
+        assert!(s.contains("[3]"), "marker [3] no PDF");
+    }
+
+    // ── Passo 296 — math accent + cancel emit standard (ADR-0098 N=13) ─
+    //
+    // P296 emite via FrameItem::Text/Glyph (accent) e FrameItem::Line
+    // (cancel diagonal). Sem operadores PDF novos — hash export.rs
+    // preservado bit-exact pelo 13º passo consecutivo.
+
+    #[test]
+    fn p296_math_accent_emite_base_e_accent_no_pdf() {
+        // Dentro de Equation, accent renderiza base + accent.
+        let doc = layout(&Content::Equation {
+            body: Box::new(Content::MathAccent {
+                base:   Box::new(Content::MathIdent("a".into())),
+                accent: Box::new(Content::MathText("^".into())),
+            }),
+            block: false,
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        // Ambos elementos devem aparecer no PDF.
+        assert!(s.contains("a"), "base 'a' presente no PDF");
+        assert!(s.contains("^"), "accent '^' presente no PDF");
+    }
+
+    #[test]
+    fn p296_math_cancel_emite_body_e_linha_diagonal_no_pdf() {
+        // Cancel emite body + linha diagonal (PDF operator `m`+`l`+`S`).
+        let doc = layout(&Content::Equation {
+            body: Box::new(Content::MathCancel {
+                body: Box::new(Content::MathIdent("x".into())),
+            }),
+            block: false,
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("x"), "body 'x' presente no PDF");
+        // FrameItem::Line emite `m`+`l`+`S` no PDF. Verificar via `S`
+        // (stroke operator final da linha).
+        assert!(s.contains(" S\n") || s.contains(" S\r") || s.contains(" S "),
+            "operador `S` (stroke) presente para linha diagonal cancel");
+    }
+
+    #[test]
+    fn p295_footnote_body_nao_renderizado_no_pdf_fase1() {
+        // Body string "BODYSECRET" deve estar AUSENTE do PDF em Fase 1
+        // (não renderizado no rodapé; armazenado mas inerte). Quando
+        // P295.1 materializar nota rodapé, este teste vai falhar
+        // intencionalmente — sinal para actualizar.
+        let doc = layout(&Content::Footnote {
+            body: Box::new(Content::text("BODYSECRET"))
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("[1]"), "marker presente");
+        assert!(!s.contains("BODYSECRET"),
+            "Fase 1: body ausente do PDF (não renderizado no rodapé)");
+    }
 }

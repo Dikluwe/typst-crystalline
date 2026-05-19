@@ -52,11 +52,18 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         // Passo 49/50 — empilhamento vertical apenas em bloco (display mode).
         // Inline: sub/sup à direita para não expandir a linha de texto.
+        //
+        // **P298 (cross-variant interaction)**: `Content::MathOp { limits: true, .. }`
+        // dispara limits-style explicitamente (paridade vanilla `op("...", limits: true)`).
+        // Heurística pré-P298 para `MathIdent`/`MathText` preservada — fallback
+        // hardcoded `is_limit_function`/`is_large_operator` continua a funcionar
+        // sem necessidade de `op()`.
         let is_limits = self.block && match base {
             Content::MathIdent(s) | Content::MathText(s) => {
                 let ch = s.chars().next().unwrap_or('\0');
                 symbols::is_large_operator(ch) || symbols::is_limit_function(s.as_str())
             }
+            Content::MathOp { limits, .. } => *limits,
             _ => false,
         };
 

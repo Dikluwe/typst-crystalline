@@ -2728,4 +2728,143 @@ mod tests {
                 "valor da string literal preservado");
         }
     }
+
+    // ── Passo 301 — Auto-lookup math mode ──────────────────────────────
+    //
+    // P301 (HP + (a) eval-time + (γ) híbrido): identifiers vanilla
+    // pré-definidos (sin/cos/lim/etc., 42 ops P299) resolvem
+    // automaticamente para Content::MathOp em math mode.
+    // Variables user (x, f) continuam MathIdent.
+
+    fn extract_math_content(world: &MockWorld) -> Content {
+        use crate::contracts::world::World;
+        let src = World::source(world, World::main(world)).unwrap();
+        let module = eval_for_test(world, &src).unwrap();
+        module.content().expect("módulo deve ter content").clone()
+    }
+
+    fn find_mathop_in(c: &Content) -> Option<(String, bool)> {
+        match c {
+            Content::MathOp { text, limits } => Some((text.plain_text(), *limits)),
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(find_mathop_in)
+            }
+            Content::Equation { body, .. } => find_mathop_in(body),
+            // MathAttach: a base pode ser MathOp.
+            Content::MathAttach { base, sub, sup, tl, bl } => {
+                find_mathop_in(base)
+                    .or_else(|| sub.as_deref().and_then(find_mathop_in))
+                    .or_else(|| sup.as_deref().and_then(find_mathop_in))
+                    .or_else(|| tl.as_deref().and_then(find_mathop_in))
+                    .or_else(|| bl.as_deref().and_then(find_mathop_in))
+            }
+            _ => None,
+        }
+    }
+
+    fn find_mathident_in(c: &Content) -> Option<String> {
+        match c {
+            Content::MathIdent(s) => Some(s.to_string()),
+            // single-letter em math mode produz MathText, não MathIdent.
+            Content::MathText(s) => Some(s.to_string()),
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(find_mathident_in)
+            }
+            Content::Equation { body, .. } => find_mathident_in(body),
+            Content::MathAttach { base, .. } => find_mathident_in(base),
+            _ => None,
+        }
+    }
+
+    #[test]
+    fn p301_sin_resolve_para_mathop_scripts_style() {
+        let world = MockWorld::new("$sin x$");
+        let content = extract_math_content(&world);
+        let mathop = find_mathop_in(&content);
+        assert!(mathop.is_some(), "$sin x$ deve produzir MathOp; content: {:?}", content);
+        let (text, limits) = mathop.unwrap();
+        assert_eq!(text, "sin");
+        assert!(!limits, "sin é scripts-style (limits=false)");
+    }
+
+    #[test]
+    fn p301_lim_resolve_para_mathop_limits_style() {
+        let world = MockWorld::new("$lim x$");
+        let content = extract_math_content(&world);
+        let mathop = find_mathop_in(&content);
+        assert!(mathop.is_some(), "$lim x$ deve produzir MathOp");
+        let (text, limits) = mathop.unwrap();
+        assert_eq!(text, "lim");
+        assert!(limits, "lim é limits-style (limits=true)");
+    }
+
+    #[test]
+    fn p301_det_resolve_para_mathop_novo() {
+        // det NÃO estava em is_limit_function pré-P299; só ficou
+        // disponível via math.det após P299, e agora via $det$ após P301.
+        let world = MockWorld::new("$det A$");
+        let content = extract_math_content(&world);
+        let mathop = find_mathop_in(&content);
+        assert!(mathop.is_some(), "$det A$ deve produzir MathOp");
+        let (text, limits) = mathop.unwrap();
+        assert_eq!(text, "det");
+        assert!(limits, "det é limits-style vanilla");
+    }
+
+    #[test]
+    fn p301_variavel_x_continua_mathident() {
+        // x não está no scope math (não é operador) → fallback MathIdent.
+        let world = MockWorld::new("$x$");
+        let content = extract_math_content(&world);
+        let ident = find_mathident_in(&content);
+        assert!(ident.is_some(), "$x$ deve continuar MathIdent (não está em scope math)");
+        assert_eq!(ident.unwrap(), "x");
+    }
+
+    #[test]
+    fn p301_symbol_unicode_alpha_continua_mathtext() {
+        // alpha → α via ident_to_unicode (path 1, antes do lookup math).
+        // Verificar que P301 não interfere com path Unicode.
+        let world = MockWorld::new("$alpha$");
+        let content = extract_math_content(&world);
+        // α NÃO é MathOp; é MathText. Verificar que find_mathop não encontra.
+        let mathop = find_mathop_in(&content);
+        assert!(mathop.is_none(), "$alpha$ deve continuar MathText (Unicode), não MathOp");
+    }
+
+    #[test]
+    fn p301_funcao_user_f_continua_mathident() {
+        // f não é operador vanilla; fallback MathIdent preservado.
+        let world = MockWorld::new("$f$");
+        let content = extract_math_content(&world);
+        let ident = find_mathident_in(&content);
+        assert!(ident.is_some(), "$f$ deve continuar MathIdent");
+        assert_eq!(ident.unwrap(), "f");
+    }
+
+    #[test]
+    fn p301_regressao_mathident_lim_attach_limits_style() {
+        // CRÍTICO: antes de P301, $lim_(x→0) f$ funcionava via heurística
+        // is_limit_function. Pós-P301, lim resolve para MathOp{limits:true}.
+        // Layout limits-style deve continuar a funcionar (via P298
+        // cross-variant arm em attach.rs).
+        let world = MockWorld::new("$ lim_(n) f $");
+        let content = extract_math_content(&world);
+        // Verificar que lim foi resolvido para MathOp.
+        let mathop = find_mathop_in(&content);
+        assert!(mathop.is_some(), "$lim_(n) f$ deve produzir MathOp para lim");
+        let (text, limits) = mathop.unwrap();
+        assert_eq!(text, "lim");
+        assert!(limits, "lim mantém limits-style após P301");
+    }
+
+    #[test]
+    fn p301_multiplos_operadores_resolvidos() {
+        // $sin x + cos y$ — 2 ops devem resolver.
+        let world = MockWorld::new("$sin x + cos y$");
+        let content = extract_math_content(&world);
+        // Verificar que pelo menos 1 MathOp encontrado.
+        assert!(find_mathop_in(&content).is_some(),
+            "$sin x + cos y$ deve ter pelo menos 1 MathOp");
+    }
 }

@@ -136,6 +136,13 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Índice de progresso por kind para figuras (Passo 75, DEBT-14).
     /// kind → número de figuras já dispostas. Reiniciado por invocação de layout().
     figure_progress: std::collections::HashMap<String, usize>,
+    /// **P295 (Footnote Fase 1)** — counter monotónico incrementado em
+    /// cada `Content::Footnote` consumido. Marker `[N]` emitido como
+    /// superscript inline. Walker counter simples (sem
+    /// Counter/Introspector machinery) — magnitude reduzida para Fase 1.
+    /// Sub-passos P295.1 (nota rodapé) + P295.2 (overflow) migrarão
+    /// para Counter machinery se 2-pass layout for adoptado.
+    pub(super) footnote_counter: u32,
     /// Indica que o contexto de layout actual não tem altura delimitada
     /// (ex: célula de grid Auto, box sem height explícito). Passo 82.
     ///
@@ -376,6 +383,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P204C: field passa a ser Tracked, recebido por parameter.
             introspector,
             figure_progress: std::collections::HashMap::new(),
+            footnote_counter: 0,
             is_height_unconstrained: false,
             // P246 — cell_available_h + cell_origin_w migrados a
             // regions.cell (entity-side). cell_origin_x/y preservados
@@ -791,7 +799,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             | Content::MathRoot { .. }
             | Content::MathDelimited { .. }
             | Content::MathMatrix { .. }
-            | Content::MathCases { .. } => {
+            | Content::MathCases { .. }
+            // P296 — Math accent/cancel também fall-through aqui se
+            // aparecerem fora de `Content::Equation`. Tratamento real
+            // dentro de equation via `rules/math/layout/mod.rs`.
+            | Content::MathAccent { .. }
+            | Content::MathCancel { .. }
+            // P297 — Math underover (paralelo P296).
+            | Content::MathUnderover { .. }
+            // P298 — Math op (paralelo cluster math).
+            | Content::MathOp { .. } => {
                 // Nós matemáticos internos — normalmente não aparecem directamente
                 // no layout fora de Content::Equation. Se aparecerem, renderizar como texto.
                 let text = content.plain_text();
@@ -1012,6 +1029,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     self.flush_line();
                 }
             }
+            // P295 — Footnote Fase 1 (marker only). Walker counter
+            // simples; marker `[N]` emitido inline como `Content::text`.
+            // Body armazenado mas **não renderizado** no rodapé nesta
+            // fase — sub-passos P295.1 (nota rodapé) + P295.2 (overflow)
+            // renderizam via 2-pass layout futuro.
+            Content::Footnote { body: _ } => {
+                self.footnote_counter += 1;
+                let n = self.footnote_counter;
+                let marker = format!("[{}]", n);
+                self.layout_content(&Content::text(marker));
+            }
+
             Content::Cite { key, supplement, form } => {
                 // Passo 159C: render placeholder por form com lookup
                 // P190B (M6 categoria Bibliography eliminada) — consumer

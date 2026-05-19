@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash cf4e3ac3
+//! @prompt-hash 82d3c47d
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -151,6 +151,88 @@ pub enum Content {
     /// Delimitador esquerdo `{`; sem delimitador direito.
     MathCases {
         rows: Vec<Vec<Content>>,
+    },
+
+    // ── Passo 296 — Math accent + cancel (P-math-accent-cancel) ─────────
+    /// Acento matemático — vanilla `AccentElem`.
+    ///
+    /// **P296 (HIV + (a) minimal)**: variant minimal com `base` e
+    /// `accent` apenas. Layouter posiciona `accent` centrado
+    /// horizontalmente acima da `base`. Cosméticos vanilla (`size`,
+    /// `dotless`) **scope-out** per ADR-0054 graded.
+    ///
+    /// **A.0.0 N=4 refuta classificação Tabela A.4 linha 118**:
+    /// `accent` estava marcado `parcial` mas zero hits no L1 pré-P296;
+    /// classificação corrigida `ausente` → `implementado`.
+    MathAccent {
+        base:   Box<Content>,
+        accent: Box<Content>,
+    },
+
+    /// Linha de cancelamento sobre conteúdo matemático — vanilla
+    /// `CancelElem`.
+    ///
+    /// **P296 (HIV + (a) minimal)**: variant minimal com `body`
+    /// apenas. Layouter emite `FrameItem::Line` diagonal sobre o
+    /// bbox do `body`. Cosméticos vanilla (`length`, `inverted`,
+    /// `cross`, `angle`, `stroke`) **scope-out** per ADR-0054 graded.
+    /// `inverted`/`cross` toggles funcionais podem materializar em
+    /// passo dedicado P296.X futuro.
+    ///
+    /// **A.0.0 N=4 refuta classificação Tabela A.4 linha 119**:
+    /// `cancel` estava marcado `parcial` mas zero hits no L1 pré-P296;
+    /// classificação corrigida `ausente` → `implementado`.
+    MathCancel {
+        body: Box<Content>,
+    },
+
+    // ── Passo 297 — `MathUnderover` (P296.1) ─────────────────────────────
+    /// Anotações verticais sobre/sob conteúdo matemático — agregação
+    /// cristalina do cluster vanilla `UnderlineElem`/`OverlineElem`/
+    /// `UnderbraceElem`/`OverbraceElem`/`UnderbracketElem`/etc.
+    ///
+    /// **P297 (HV'.a + (b) Option fields)**: variant agregado per
+    /// ADR-0054 graded. Vanilla typst fragmenta em 12 elementos
+    /// separados (cada com `body` + `annotation: Option<Content>`);
+    /// cristalino agrega num único variant com `base` + `under: Option`
+    /// + `over: Option`. Layouter empilha verticalmente conforme
+    /// presença de cada.
+    ///
+    /// **A.0.0 N=5 refuta spec P297** que assumia `UnderoverElem`
+    /// vanilla unificado — vanilla NÃO tem este wrapper. Magnitude
+    /// alta (paralelo P294); refuta categoricamente hipótese
+    /// degenerescência §6.6 P295.
+    ///
+    /// **"Variant rico" N=5 candidato genuíno** — primeira
+    /// qualificação Option `Box<Content>` estrutural (não cosmético)
+    /// desde P287 refutação. Promoção adiada per P273.17 §0 (uma
+    /// ADR meta por passo).
+    MathUnderover {
+        base:  Box<Content>,
+        under: Option<Box<Content>>,
+        over:  Option<Box<Content>>,
+    },
+
+    // ── Passo 298 — `MathOp` (P296.2 fecho cluster math 4/4) ─────────────
+    /// Operador textual matemático — vanilla `OpElem`. Paradigma
+    /// cross-variant: `limits` afecta layout de `MathAttach` pai.
+    ///
+    /// **P298 (HV'' adaptado)**: cristalino já tinha heurística
+    /// limits-style hardcoded em `attach.rs` via
+    /// `symbols::is_limit_function`/`is_large_operator`. P298 estende
+    /// para suportar `MathOp { limits: true }` user-customizable
+    /// (paridade vanilla `op("lim", limits: true)`).
+    ///
+    /// **A.0.0 N=6 magnitude alta**: refutação significativa spec
+    /// — heurística limits-style já existia parcialmente; P298
+    /// estende sem substituir (fallback `MathIdent("lim")` preservado).
+    ///
+    /// **`bool limits` discriminador estrutural ambíguo**: caso
+    /// intermédio para "variant rico" N=5 (P297 estabeleceu como
+    /// Option estrutural; `bool` não qualifica). Promoção adiada.
+    MathOp {
+        text:   Box<Content>,
+        limits: bool,
     },
 
     /// Nó com etiqueta semântica (Passo 56).
@@ -881,6 +963,33 @@ pub enum Content {
         form:       Option<crate::entities::citation_form::CitationForm>,
     },
 
+    // ── Passo 295 — `Footnote` cluster Fase 1 (marker only) ─────────────
+    /// Footnote inline — vanilla `FootnoteElem`.
+    ///
+    /// **Fase 1 P295 (HE marker only)**: variant minimal com `body`
+    /// armazenado mas **não renderizado** no rodapé nesta fase. Layouter
+    /// emite apenas marker `[N]` superscript inline onde a footnote
+    /// aparece. Numeração via walker counter simples (sem
+    /// Introspector/Counter machinery).
+    ///
+    /// Cristalino simplifications per ADR-0054 graded vs vanilla:
+    /// - `numbering: Numbering` (default `"1"`) **scope-out** (cosmético;
+    ///   numeração arábica default implícita). Padrão "variant rico"
+    ///   N=4 cumulativo preservado inalterado.
+    /// - `FootnoteBody::Reference(Label)` **scope-out** (multi-ref
+    ///   footnotes — frente futura P295.X).
+    ///
+    /// Frentes pendentes pós-P295:
+    /// - **P295.1** — nota corpo renderizada no rodapé da página
+    ///   correspondente (requer 2-pass layout; magnitude L).
+    /// - **P295.2** — overflow multi-página (footnote ocupa páginas
+    ///   subsequentes se rodapé não chega).
+    /// - **P295.X** — footnote reference via `#footnote(<label>)`
+    ///   bloqueado por scope methods em stdlib.
+    Footnote {
+        body: Box<Content>,
+    },
+
     // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ──
     /// Header repetível de Table — vanilla `TableHeader`.
     /// **Terceiro e último sub-passo Model Fase 2**.
@@ -1367,6 +1476,8 @@ impl Content {
             Self::Bibliography { entries, title } =>
                 entries.is_empty() && title.is_none(),
             Self::Cite { .. } => false,
+            // P295 — Footnote nunca vazio (marker `[N]` é sempre observable).
+            Self::Footnote { .. } => false,
             // Passo 154B: Divider é singleton estrutural, nunca vazio.
             // Terms vazio (sem items) é considerado vazio; TermItem vazio
             // se ambos os lados forem vazios.
@@ -1487,6 +1598,18 @@ impl Content {
                     row.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" & ")
                 }).collect::<Vec<_>>().join(", ")
             }
+            // P296 — Math accent/cancel: plain_text concatena base+accent / body.
+            Self::MathAccent { base, accent } => format!("{}{}", base.plain_text(), accent.plain_text()),
+            Self::MathCancel { body } => body.plain_text(),
+            // P297 — Underover plain_text concatena over+base+under em ordem visual.
+            Self::MathUnderover { base, under, over } => {
+                let o = over.as_ref().map(|c| c.plain_text()).unwrap_or_default();
+                let b = base.plain_text();
+                let u = under.as_ref().map(|c| c.plain_text()).unwrap_or_default();
+                format!("{}{}{}", o, b, u)
+            }
+            // P298 — Op plain_text apenas o text (limits é discriminador layout).
+            Self::MathOp { text, .. } => text.plain_text(),
             Self::Labelled { target, .. } => target.plain_text(),
             Self::Ref { target }          => format!("@{}", target.0),
             Self::SetHeadingNumbering { .. } => String::new(),
@@ -1560,6 +1683,10 @@ impl Content {
                 }
                 out
             }
+            // P295 — Footnote plain_text: incorporar corpo (paridade
+            // semântica de plain_text para search/screen readers).
+            // Marker `[N]` real é resolvido em layout-time.
+            Self::Footnote { body } => body.plain_text(),
             Self::SetPage { .. } => String::new(),
             Self::Align { body, .. } => body.plain_text(),
             Self::Place { body, .. } => body.plain_text(),
@@ -1655,6 +1782,16 @@ impl PartialEq for Content {
              Self::MathMatrix { rows: rb, delim: db })               => ra == rb && da == db,
             (Self::MathCases { rows: ra },
              Self::MathCases { rows: rb })                           => ra == rb,
+            // P296 — Math accent/cancel PartialEq structural.
+            (Self::MathAccent { base: ba, accent: aa },
+             Self::MathAccent { base: bb, accent: ab })              => ba == bb && aa == ab,
+            (Self::MathCancel { body: ba }, Self::MathCancel { body: bb }) => ba == bb,
+            // P297 — Underover PartialEq structural.
+            (Self::MathUnderover { base: ba, under: ua, over: oa },
+             Self::MathUnderover { base: bb, under: ub, over: ob })          => ba == bb && ua == ub && oa == ob,
+            // P298 — Op PartialEq structural (text + limits flag).
+            (Self::MathOp { text: ta, limits: la },
+             Self::MathOp { text: tb, limits: lb })                          => ta == tb && la == lb,
             (Self::Labelled { target: ta, label: la },
              Self::Labelled { target: tb, label: lb })               => ta == tb && la == lb,
             (Self::Ref { target: ta }, Self::Ref { target: tb })     => ta == tb,
@@ -1729,6 +1866,8 @@ impl PartialEq for Content {
             (Self::Cite { key: ka, supplement: sa, form: fa },
              Self::Cite { key: kb, supplement: sb, form: fb }) =>
                 ka == kb && sa == sb && fa == fb,
+            // P295 — Footnote PartialEq: body == body.
+            (Self::Footnote { body: ba }, Self::Footnote { body: bb }) => ba == bb,
             (Self::SetPage { width: wa, height: ha, margin: ma },
              Self::SetPage { width: wb, height: hb, margin: mb }) =>
                 wa == wb && ha == hb && ma == mb,
@@ -1942,6 +2081,31 @@ impl Content {
                         .map(|row| row.iter().map(|c| c.map_content(transform)).collect())
                         .collect();
                 Content::MathCases { rows: new_rows? }
+            },
+            // P296 — Math accent/cancel map_content recursivo.
+            Content::MathAccent { base, accent } => Content::MathAccent {
+                base:   Box::new(base.map_content(transform)?),
+                accent: Box::new(accent.map_content(transform)?),
+            },
+            Content::MathCancel { body } => Content::MathCancel {
+                body: Box::new(body.map_content(transform)?),
+            },
+            // P297 — Underover map_content recursivo nos 3 campos (Option preserva None).
+            Content::MathUnderover { base, under, over } => Content::MathUnderover {
+                base: Box::new(base.map_content(transform)?),
+                under: under.as_ref()
+                    .map(|c| c.map_content(transform))
+                    .transpose()?
+                    .map(Box::new),
+                over: over.as_ref()
+                    .map(|c| c.map_content(transform))
+                    .transpose()?
+                    .map(Box::new),
+            },
+            // P298 — Op map_content recursivo em text; preserva limits flag.
+            Content::MathOp { text, limits } => Content::MathOp {
+                text:   Box::new(text.map_content(transform)?),
+                limits: *limits,
             },
 
             // Passo 154B: Terms recurse em items; TermItem recurse em par.
@@ -2205,6 +2369,10 @@ impl Content {
                     .map(Box::new),
                 form:       *form,
             },
+            // P295 — Footnote map_content recursivo em body.
+            Content::Footnote { body } => Content::Footnote {
+                body: Box::new(body.map_content(transform)?),
+            },
             Content::Align { alignment, body } => Content::Align {
                 alignment: *alignment,
                 body:      Box::new(body.map_content(transform)?),
@@ -2411,6 +2579,17 @@ impl Content {
             | Content::MathDelimited { .. }
             | Content::MathMatrix { .. }
             | Content::MathCases { .. }
+            // P296 — Math accent/cancel: map_text não recurse em math
+            // estruturas (paralelo MathFrac/MathRoot/MathDelimited;
+            // map_text aplica-se a Text/Heading/etc., não a math
+            // structural).
+            | Content::MathAccent { .. }
+            | Content::MathCancel { .. }
+            // P297 — Underover terminal em map_text (paralelo MathAccent/Cancel;
+            // math structural sem texto plano para transformar).
+            | Content::MathUnderover { .. }
+            // P298 — Op terminal em map_text (paralelo cluster math).
+            | Content::MathOp { .. }
             | Content::Image { .. }
             | Content::Divider
             | Content::HSpace { .. }
@@ -2514,6 +2693,10 @@ impl Content {
                 key:        key.clone(),
                 supplement: supplement.as_ref().map(|s| Box::new(s.map_text(transform))),
                 form:       *form,
+            },
+            // P295 — Footnote map_text recursivo em body.
+            Content::Footnote { body } => Content::Footnote {
+                body: Box::new(body.map_text(transform)),
             },
             Content::Align { alignment, body } => Content::Align {
                 alignment: *alignment,

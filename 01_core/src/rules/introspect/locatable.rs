@@ -160,7 +160,19 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Repeat { .. }
         // P217 — Columns container não-locatable (transparente para
         // introspect; consumer multi-region em P219).
-        | Content::Columns { .. } => false,
+        | Content::Columns { .. }
+        // P295 — Footnote Fase 1 marker only: não-locatable. Frente
+        // futura P295.X (footnote reference via `<label>`) tornaria
+        // locatable; preserved scope-out aqui per ADR-0054 graded.
+        | Content::Footnote { .. }
+        // P296 — Math accent/cancel não-locatable (paralelo
+        // MathFrac/MathRoot/MathDelimited; math structural inerte).
+        | Content::MathAccent { .. }
+        | Content::MathCancel { .. }
+        // P297 — Math underover não-locatable (paralelo P296).
+        | Content::MathUnderover { .. }
+        // P298 — Math op não-locatable.
+        | Content::MathOp { .. } => false,
     }
 }
 

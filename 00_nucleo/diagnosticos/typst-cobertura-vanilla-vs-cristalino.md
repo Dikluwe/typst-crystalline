@@ -115,8 +115,10 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `mat(...)` matriz | math/matrix.rs | `implementado⁺` | Passo 79 | `Content::MathMatrix`; tolerância visual |
 | `cases` | math/matrix.rs | `implementado⁺` | Passo 79 | `Content::MathCases` |
 | `lr(...)` | math/lr.rs | `implementado⁺` | Passo 76 | delimitadores extensíveis |
-| `accent(c, mark)` | math/accent.rs | `parcial` | math passos | heuristic; sem todas as variantes Unicode |
-| `cancel`, `underover`, `op` | math/{cancel,underover,op}.rs | `parcial` | math passos | parcial |
+| `accent(c, mark)` | math/accent.rs | `implementado` ⁸¹ | **Passo 296** | `Content::MathAccent { base, accent }` + stdlib `#accent(base, accent)`; Layouter `layout_accent` centra accent acima da base. **A.0.0 N=4 refutou Tabela A.4 anterior `parcial`** (zero hits L1 pré-P296; status real era **ausente**). Simplifications per ADR-0054 graded: cosméticos `size`/`dotless` scope-out. **Padrão "variant rico" N=4 preservado** (A.2 → (a) minimal). **Hash `export.rs 66cb8ac3` preservado bit-exact pelo 13º passo consecutivo**. |
+| `cancel` ⁸¹ | math/cancel.rs | `implementado` | **Passo 296** | `Content::MathCancel { body }` + stdlib `#cancel(body)`; Layouter `layout_cancel` emite `FrameItem::Line` diagonal default (rising; paridade vanilla angle padrão). Cosméticos `length`/`angle`/`stroke` + toggles `inverted`/`cross` scope-out per ADR-0054 graded (passo P296.X candidato futuro). |
+| `underover` ⁸² | math/underover.rs | `implementado` | **Passo 297** | `Content::MathUnderover { base, under: Option<Box<Content>>, over: Option<Box<Content>> }` + stdlib `#underover(base, under: ?, over: ?)`; Layouter `layout_underover` empilha over/base/under verticalmente. **A.0.0 N=5 magnitude alta refutou spec P297**: vanilla NÃO tem `UnderoverElem` unificado — fragmenta em 12 elementos (`UnderlineElem`/`OverlineElem`/`UnderbraceElem`/`OverbraceElem`/`UnderbracketElem`/etc.). Cristalino agrega num único variant per ADR-0054 graded (HV'.a). **"Variant rico" N=5 candidato genuíno** — primeira qualificação Option `Box<Content>` estrutural desde P287 refutação; promoção adiada per P273.17 §0. **Hash `export.rs 66cb8ac3` preservado bit-exact pelo 14º passo consecutivo**. |
+| `op` ⁸³ | math/op.rs | `implementado` | **Passo 298** + **Passo 299** | `Content::MathOp { text: Box<Content>, limits: bool }` + stdlib `#op(text, limits: bool = false)`; handler `layout_op` trivial (delegate). **Cross-variant interaction**: modificação `attach.rs is_limits` para detectar `MathOp { limits: true, .. }` → renderiza scripts em limits-style. **A.0.0 N=6 magnitude alta refutou spec P298**: heurística limits-style já existia parcialmente em cristalino via `symbols::is_limit_function`/`is_large_operator` hardcoded (P50 herdado). P298 estende sem substituir — `MathIdent("lim")` continua a funcionar via fallback. **Cluster math 4/4 fechado** (accent+cancel+underover+op). **P299 (P298.X)**: `make_math_module()` paralelo `make_calc_module()` regista **42 operadores vanilla pré-definidos** (31 scripts-style: `sin`/`cos`/`tan`/`ln`/`log`/`exp`/etc.; 11 limits-style: `det`/`gcd`/`lcm`/`lim`/`inf`/`Pr`/etc.) acessíveis via `math.sin`/`math.lim`/etc. (namespaced; ADR-0054 graded — vanilla auto-lookup em math mode fora de scope P299). 1.ª aplicação prática `Content::MathOp` pós-P298 via SSoT. Sub-padrão "module namespaced" N=2 (calc + math). **Hash `export.rs 66cb8ac3` preservado bit-exact pelo 16º passo consecutivo**. |
 | Símbolos gregos (alpha, beta, ...) | foundations/symbol.rs | `implementado⁺` | Passo 50 | mapping Unicode literal; sem `Symbol` Value |
 | `align` em equação (`& =`) | math/equation.rs | `implementado` | math passos | `MathAlignPoint` |
 | `equation.numbering` | model/numbering.rs | `parcial` | Passo 36 | só block equations |
@@ -175,7 +177,7 @@ primitives e `skew`). Detalhe em
 | `cite(key)` | model/cite.rs | `parcial` ²⁹ ³² ³⁵ | Passo 159A (par acoplado) + P159C (form variants) + P159F (numbering numérico) | `Content::Cite { key: String, supplement: Option<Box<Content>>, form: Option<CitationForm> }` + stdlib `#cite(key, supplement: ?, form: ?)`; **naming `cite` flat**; ADR-0064 Caso A para supplement (P159A) + form (P159C); **render por form com lookup Bibliography** same-document; **P159F**: form Normal/None ganha numeração numérica `[N]` via `state.bib_numbers` (style numeric simplificado; subpadrão #15 N=3); fallback `[key]` se Bibliography vazia ou key não encontrada; forms Prose/Author/Year inalteradas; sem validação cross-reference (ADR-0017 adiada); 1+ atributo vanilla scope-out (style CSL override) |
 | `bibliography(path)` | model/bibliography.rs | `parcial` ²⁹ ³³ ³⁵ ³⁶ ³⁷ | Passo 159A (par acoplado) + P159D (4 fields) + P159F (numbering) + P159E (url+doi) + P159G (6 fields restantes) | `Content::Bibliography { entries: Vec<BibEntry>, title: Option<Box<Content>> }` + stdlib `#bibliography(entries, title: ?)`; **input cristalino literal Vec<BibEntry>** (sem hayagriva; ADR-0062 mantém-se reserva sem ficheiro); tipo entity extendido `BibEntry { key, author, title, year, volume, pages, journal, publisher, url, doi, editor, series, note, isbn, location, organization }` em `entities/bib_entry.rs` (**16 fields**: 4 obrigatórios P159A + 4 comuns P159D + 2 identificadores P159E + 6 restantes P159G via builder pattern; cobertura ~70-75% hayagriva universais); ADR-0064 Caso A para title; **render extendido APA-like** condicional por field presente; **P159F**: walk popula `state.bib_numbers`; **P159E**: url plaintext + DOI prefixo `doi:`; **P159G**: editor `(Ed. ...)`, series `(...)`, location:publisher, isbn:`isbn:...`, note `[...]`, organization substitutivo a publisher; restantes fields vanilla (booktitle/address/chapter/type/institution/etc.) + styles CSL — Bloco B hayagriva) |
 | `link(dest, body)` | model/link.rs | `parcial` | Passo 23 | `Content::Link` capturado; sem render visual |
-| `footnote(body)` | model/footnote.rs | `ausente` | — | |
+| `footnote(body)` | model/footnote.rs | `parcial` ⁸⁰ | **Passo 295** | `Content::Footnote { body: Box<Content> }` + stdlib `#footnote(body)`; **Fase 1 marker only** (HE per diagnóstico §A.0.0.3): Layouter emite `[N]` superscript inline via walker counter `Layouter::footnote_counter: u32`; **body armazenado mas não renderizado no rodapé** (sub-passos P295.1 nota rodapé + P295.2 overflow pendentes); `numbering` cosmético + `FootnoteBody::Reference(Label)` **scope-out** per ADR-0054 graded. **Padrão "variant rico" N=4 preservado inalterado** (A.2 → (a) minimal). **Hash `export.rs 66cb8ac3` preservado pelo 12º passo consecutivo** — emit agnóstico via `FrameItem::Text`. **A.0.0 N=3 reaplicação §8.7' refuta factualmente Tabela C linha 387** (bloqueador `locate` adiado já implementado P208B+C). |
 | `ref(target)` | model/reference.rs | `implementado⁺` | Passos 63–66 | `Content::Ref` com forward-resolve |
 | `numbering(pattern, ...)` | model/numbering.rs | `implementado⁺` | Passos 75, 99 | numéricas/letras/romanas |
 | `document(...)` | model/document.rs | `ausente` | — | document metadata wrapper |
@@ -191,7 +193,7 @@ primitives e `skew`). Detalhe em
 | `ellipse(...)` / `circle(...)` | idem | `implementado` | idem | `Content::Shape{ Ellipse }` |
 | `line(start, end, ...)` | visualize/line.rs | `implementado` | idem | `Content::Shape{ Line }`. **P285**: `FrameItem::Line` ganha `color: Option<Color>` + emit `r g b RG` precedente Passo 102 `text.fill` aplicado simetricamente a stroke linear (cf. `diagnostico-line-color-passo-285.md` §A.1 inventário 8 produtores) |
 | `polygon(points)` | visualize/polygon.rs | `implementado` | stdlib | |
-| `path(...)` / `curve(...)` | visualize/curve.rs | `implementado⁺` | Passo 78 | `ShapeKind::Path`; sem cubic optimisation completa (DEBT-33) |
+| `path(...)` / `curve(...)` | visualize/curve.rs | `implementado` | Passo 78 + P277 + **P293** + **P294** | `ShapeKind::Path` desde P78; DEBT-33 fecho P277 (Bézier bbox analítica O(1) por segmento); P293 activou `PathItem::CubicTo` via stdlib `native_curve` (H6 descoberta A.0.0 inaugural — variant existia inerte pré-P293). **P294 activa `quadratic` via conversão q→c em construct-time** (H1' descoberta A.0.0 N=2 — paridade vanilla: vanilla `lab/.../typst-layout/src/shapes.rs:215-220` converte `c1=(p+2c)/3`, `c2=(end+2c)/3`; sem variant `QuadraticTo` interno). Cobertura: `curve.move/line/cubic/quadratic/close` todas suportadas via tuples descritivos. **Hash `export.rs 66cb8ac3` preservado bit-exact pelo 11º passo consecutivo** — emit `c` operator único, paridade vanilla. |
 | `image(path, ...)` | visualize/image | `implementado` | Passos 72–74 | PNG (alpha + opaque) + JPEG; DEBT-26/27/28/29 fechados |
 | `square(...)` | visualize/shape.rs | `ausente` | — | |
 | `rgb(...)`, `luma(...)` | visualize/paint.rs | `implementado` | stdlib | `native_rgb`, `native_luma` |
@@ -337,13 +339,21 @@ Nota: ADR-0026 + 0026-R1 declaram **divergência intencional**. Cristalino usa e
 | `HeadingLevel(u8)` | idem | `implementado` | Passos 99, 103 |
 | `Lang(Lang)` | idem | `implementado` | **Passo 288** (`P-style-lang-variant`; fecha assimetria com `StyleDelta.lang` existente desde P144) |
 | `Weight(u16)` | idem | `implementado` | **Passo 289** (`P-style-weight-variant`; fecha 1/4 da assimetria residual P288; paralelo arquitectural a `HeadingLevel(u8)`) |
+| `Tracking(Length)` | idem | `implementado` | **Passo 290** (`P-style-tracking-variant`; fecha 1/3 da assimetria residual P289 §5.6; **emit consumer real `Tc` operator P137 — primeira aplicação de ADR-0098 com emit consumer**) |
+| `Leading(Length)` | idem | `implementado` | **Passo 291** (`P-style-leading-variant`; fecha 1/2 da assimetria residual P290 §5.6; **paradigma consumer distinto** — peek `current_line` per-line via P138 `flush_line`, não per-glyph; divergência consciente vanilla `par`↔cristalino `text` preservada) |
+| `Font(FontList)` | idem | `implementado` | **Passo 292** (`P-style-font-variant`; **fecha 5/5 final da assimetria residual P289 §5.6 — série cirúrgica P288-P292 termina**; `Style` perde `Copy` derive por `FontList: !Copy` — A.2.0 confirma inofensivo; **paradigma "indirect resolution via FontBook" 2 layers** — TextStyle capture + lookup `fonts.iter().position(\|f\| match name)`) |
 
 Nota: `Style` é divergência intencional (ADR-0038); vanilla usa vtable polimórfica.
-**Assimetria residual** (P288 §A.1.2 → P289 fecha `weight`): `StyleDelta`
-tem 10 fields; **7 têm variant `Style` correspondente** pós-P289.
-`tracking`/`leading`/`font` permanecem **sem variant** (escritos apenas
-via parse-driven `eval_set_rule`). Passos próprios candidatos (P289.1-3,
-não-reservados — paralelo P288.1-4 menos `lang` e `weight` já fechados).
+**Assimetria residual fechada 5/5 pós-P292** (P288 lang + P289 weight +
+P290 tracking + P291 leading + P292 font). `StyleDelta` tem 10 fields;
+**todos com variant `Style` correspondente excepto** os campos puramente
+de capturador interno que não fazem parte da API user-facing. **Marco
+arquitectural**: série cirúrgica P288-P292 termina naturalmente; próximo
+passo será ortogonal por construção.
+
+**Derive change pós-P292**: `Style` perde `Copy` (mantém `Clone + PartialEq`).
+Inventário literal A.2.0 P292 confirma 0 call sites afectados — perda
+estructuralmente inofensiva.
 
 ### B.4 — `StyleDelta` fields (10 fields per relatório 142 §3)
 
@@ -355,10 +365,10 @@ não-reservados — paralelo P288.1-4 menos `lang` e `weight` já fechados).
 | `fill` | `implementado` | Passo 102 |
 | `heading_level` | `implementado` | Passo 99 |
 | `weight` | `implementado⁺` | Passo 139 (faux-bold; ADR-0054) + **Passo 289** (2ª fonte de entrada via `Style::Weight(u16)` — fecha 1/4 da assimetria residual P288 §7) |
-| `tracking` | `implementado` | Passo 137 |
-| `leading` | `implementado` | Passo 138 |
+| `tracking` | `implementado` | Passo 137 + **Passo 290** (2ª fonte de entrada via `Style::Tracking(Length)` — fecha 1/3 da assimetria residual P289 §5.6; **primeira aplicação de ADR-0098 com emit consumer real** `Tc` operator P137 — paradigma `FrameItem::Text.style.tracking` confirmado) |
+| `leading` | `implementado` | Passo 138 + **Passo 291** (2ª fonte de entrada via `Style::Leading(Length)` — fecha 1/2 da assimetria residual P290 §5.6; **paradigma consumer per-line distinto** vs P290 tracking per-glyph; divergência consciente vanilla `par`↔cristalino `text` preservada per Tabela A.3 linha 70) |
 | `lang` | `implementado⁺` | Passo 144 (hyphenation; shaping ausente) + **Passo 288** (2ª fonte de entrada via `Style::Lang(Lang)` — fecha assimetria B.3 vs B.4 para `lang`) |
-| `font` | `implementado` | Passos 140B, 141, 146 |
+| `font` | `implementado` | Passos 140B, 141, 146 + **Passo 292** (2ª fonte de entrada via `Style::Font(FontList)` — **fecha 5/5 final da assimetria residual P289 §5.6; série cirúrgica P288-P292 termina**; paradigma consumer "indirect resolution via FontBook" 2 layers) |
 
 ### B.5 — `FrameItem` enum (cristalino 6 variants)
 
@@ -391,7 +401,7 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 | Soft hyphen (`\u{00AD}`) | hyphenation espera literal `-` (Passo 144) | passo dedicado futuro |
 | `quote(...)` | `Content::Quote` ausente | escopo S |
 | `terms(...)` | `Content::Terms` ausente | escopo S |
-| `footnote(body)` | `Content::Footnote` + locate runtime ausente | escopo M (locate ADR-0017 adiada) |
+| ~~`footnote(body)`~~ | ~~`Content::Footnote` + locate runtime ausente~~ | ~~escopo M (locate ADR-0017 adiada)~~ — **bloqueador `locate` runtime refutado factualmente em P295 A.0.0 (já implementado P208B+C)**; `Content::Footnote` materializado em **Passo 295 Fase 1** (marker only, HE); sub-passos P295.1 (nota rodapé) + P295.2 (overflow) pendentes. |
 | `cite(key)` | `Content::Cite` + bibliography parser ausente | escopo XL |
 | `bibliography(path)` | CSL parser; `Content::Bibliography`; `loading` module | escopo XL |
 | `link` render visual | `Content::Link` capturado mas sem render | escopo S |
@@ -5093,6 +5103,383 @@ passo próprio onde atingir N≥6.
 (Fase A obrigatória com 5 secções A.0-A.5 — uma a mais que P288
 pelo novo requisito A.0 "potencial de reuso ADR-0098" + A.5 dedicada
 à detecção de bugs latentes per padrão P288 §8.4).
+
+⁷⁶ — Ajuste P290 (frente `P-style-tracking-variant`; **primeira
+aplicação directa de ADR-0098 com emit consumer real**; reaplica
+ADR-0099 sem nova promoção):
+
+- P290 adiciona `Style::Tracking(Length)` ao enum `Style` (7 → **8
+  variants** pós-P289/P290) + arm correspondente em
+  `StyleChain::push_styles` (paralelo arquitectural absoluto a
+  `HeadingLevel(u8)`, `Lang(Lang)` P288, e `Weight(u16)` P289).
+- **Mecanismo per diagnóstico §A.0-A.5** (paralelo P289):
+  - **A.0 NÃO-TRIVIAL desta vez**: `grep "tracking\|Tc " 03_infra/src/export.rs`
+    revelou **2 hits** (`:2139` lê `style.tracking`; `:2142-2146` emite `Tc`
+    operator). **Classificação empírica**: ambos consomem via
+    `style.tracking` (i.e. `TextStyle.tracking` capturado em
+    `FrameItem::Text.style`), **não** via `chain.tracking()` directo.
+    **Paradigma P136 confirmado** — ADR-0098 vigente.
+  - **A.1**: `StyleDelta.tracking: Option<Length>` desde P127/P137;
+    write único parse-driven `eval/rules.rs:374`; 4 consumers activos
+    (top-wins P136, cursor extra P137, TextStyle capture, **emit `Tc`
+    operator P137**); A.1.7 confirma emit via paradigma `TextStyle`.
+  - **A.2 opção (a)** `Tracking(Length)`: `Length` é `Copy`
+    (`layout_types.rs:601`) → `Style: Copy` intacto. Variant **atómico
+    (não rico)** — padrão N=4 "variant rico" inalterado.
+  - **A.3 opção (α)**: `delta.tracking = Some(*l)` (paridade absoluta
+    aos 7 arms anteriores).
+  - **A.4 opção (i)**: confirmada empiricamente pela A.0. **Hash
+    `export.rs 66cb8ac3` preservado bit-exact pelo 7º passo
+    consecutivo** (P282+P285+P286+P287+P288+P289+**P290**).
+  - **A.5 detecção bugs**: 5 fronteiras testadas (0pt, 1pt, 0.5em,
+    **-0.5pt negativo**, 10pt). **Nenhum bug latente detectado** —
+    tracking negativo (kerning artificial) propaga gracefully.
+- **Hashes**:
+  - L0 `style.md` muda (+1 variant `Tracking(Length)` em B.3).
+  - L0 `content.md` preservado.
+  - L0 `stdlib.md` preservado.
+  - **L0 `export.rs` preservado `66cb8ac3` (7º passo consecutivo).**
+- **11 testes P290 verdes** (1 catalog actualizado 7→8 variants;
+  10 layout: variant ctor + push_styles cascade + Styled injetado
+  + last-write + 5 fronteiras [zero/pequeno/em-relativo/negativo/grande]
+  + consumer P137 cursor extra).
+
+**Distinção arquitectural crítica P290 vs P288/P289**:
+
+P290 é a **primeira aplicação de ADR-0098 onde emit consome
+literalmente o campo activado** (`Tc` operator em PDF stream). P288
+(`lang`) e P289 (`weight`) tinham consumers apenas em layout-time
+(eval_markup/hyphenation/faux_bold) — emit era trivialmente dead-code.
+P290 valida **subtileza arquitectural da ADR-0098**: o critério não
+é "ausência total em emit" mas "via `FrameItem.style` capturado pelo
+Layouter" (paradigma P136 = single source of truth pré-emit).
+Confirmação empírica **valida ADR-0098 como mais robusta e subtil**.
+
+**Pendências resolvidas**:
+- Assimetria Tabela B.3 vs B.4 para `tracking` → **RESOLVIDA**.
+- 1/3 da assimetria residual P289 §5.6 → fechada.
+
+**Pendências relacionadas NÃO resolvidas** (continuam):
+- 2 fields sem variant `Style` (`leading`/`font`) — passos próprios
+  P290.1-2 candidatos não-reservados.
+
+**Marco P290 — reaplicações ADR-0098 + ADR-0099 sem nova promoção**:
+
+| Padrão | N cumulativo pós-P290 | Nova promoção em P290? |
+|---|---:|---|
+| ADR-0098 (formalizada P288) | **7** | Não — reforço cumulativo |
+| ADR-0099 (formalizada P289) | **6** | Não — primeira reaplicação pós-formalização |
+| §8.3 "refutação pragmática" | 5 estável | Não — P290 segue defaults straight |
+| §8.4 "bug latente fixed" | 1 estável | Não — A.5 nenhum bug detectado |
+| §8.5 "patch cirúrgico sequencial" | **3** (P288+P289+P290) | Não — §8.5 P289 desqualifica passos cumulativos triviais (anti-inflação por construção) |
+
+P273.17 §0 anti-padrão over-formalização vigente; sem promoção meta
+nova.
+
+**Diagnóstico empírico**:
+`00_nucleo/diagnosticos/diagnostico-style-tracking-passo-290.md`
+(Fase A obrigatória com 5 secções A.0-A.5 paralelas P289 mas **A.0
+não-trivial empírica** + A.5 5 fronteiras incluindo tracking negativo).
+
+⁷⁷ — Ajuste P291 (frente `P-style-leading-variant`; **paradigma
+consumer distinto vs P290** + **A.5' anti-reflexão obrigatória nova**):
+
+- P291 adiciona `Style::Leading(Length)` ao enum `Style` (8 → **9
+  variants** pós-P290/P291) + arm correspondente em
+  `StyleChain::push_styles` (paralelo arquitectural absoluto a
+  P288/P289/P290).
+- **Mecanismo per diagnóstico §A.0-A.5 + §A.5' nova**:
+  - **A.0 trivial (zero hits confirmados empiricamente)**: `grep
+    "leading" 03_infra/src/export.rs` → 0 hits. Antecipação P290
+    §5.3 confirmada por inspecção literal (não citada como prova).
+  - **A.1.6 paradigma consumer distinto vs P290 tracking**:
+    `cursor.rs:119-128` em `flush_line` faz peek do último
+    `FrameItem::Text` da `current_line` (`iter().rev().find_map`)
+    — paradigma **per-line via peek da current_line antes do drain**,
+    distinto vs tracking per-glyph (`cursor.rs:30` per-glyph
+    horizontal advance + emit `Tc` operator).
+  - **A.2 opção (a)** `Leading(Length)`: paralelo P290 (Length é
+    Copy); estructura forçada por `StyleDelta.leading: Option<Length>`.
+  - **A.3 opção (α)**: `delta.leading = Some(*l)` paridade absoluta.
+  - **A.4 opção (i)**: confirmada empiricamente. **Hash `export.rs
+    66cb8ac3` preservado bit-exact pelo 8º passo consecutivo**
+    (P282+P285+P286+P287+P288+P289+P290+**P291**).
+  - **A.5 detecção bugs**: 5 fronteiras (0pt/11pt típico/0.65em/
+    50pt grande/**-1pt negativo**). Nenhum bug detectado.
+    `cursor.rs:124` passa valor literal sem clamp — leading negativo
+    propaga (paridade vanilla typst line collapse parcial).
+  - **A.5' anti-reflexão (NOVA per P290 §7 risco quinário)**:
+    comparação literal de A.1.6 de P288/P289/P290/P291 revela
+    **4 paradigmas consumer arquiteturalmente distintos** (cross-
+    module / TextStyle method / per-glyph / **per-line via peek
+    current_line**). **Sequência NÃO é rubber-stamp** — apenas a
+    cascade arm é trivial paralelo (por design ADR-0098). **Elemento
+    estructuralmente novo identificado** em P291: paradigma "peek
+    último FrameItem::Text da current_line antes do drain"
+    materializa "estilo persistente captura no momento da
+    finalização da unidade". P292 (font) **pode prosseguir** sem
+    intercalação ortogonal forçada.
+- **Hashes**:
+  - L0 `style.md` muda (+1 variant `Leading(Length)` em B.3).
+  - L0 `content.md` preservado.
+  - L0 `stdlib.md` preservado.
+  - **L0 `export.rs` preservado `66cb8ac3` (8º passo consecutivo).**
+- **11 testes P291 verdes** (1 catalog actualizado 8→9 variants;
+  10 layout: variant ctor + push_styles cascade + Styled injetado
+  + last-write + 5 fronteiras + consumer P138 flush_line peek).
+- **Divergência arquitectural consciente registada literalmente**
+  no doc-comment de `Style::Leading`: vanilla typst tem `leading`
+  em `par`; cristalino captura em `text` por conveniência temporária
+  (Tabela A.3 linha 70 + 184). P291 preserva esta divergência
+  per spec §5 não-objectivo.
+
+**Pendências resolvidas**:
+- Assimetria Tabela B.3 vs B.4 para `leading` → **RESOLVIDA**.
+- 1/2 da assimetria residual P290 §5.6 → fechada.
+
+**Pendências relacionadas NÃO resolvidas** (continua):
+- 1 field sem variant `Style` (`font`) — passo próprio P292
+  candidato não-reservado. **A.5' P291 valida que P292 pode
+  prosseguir** com cuidado especial em A.1.2 (FontList wrapper
+  pode requerer estructura diferente vs Length/u16/Lang).
+- `Content::Par` propriamente (Tabela A.3 linha 184 `parcial`) —
+  passo distinto.
+
+**Marco P291 — Reaplicações cumulativas sem novas promoções**:
+
+| Padrão | N pós-P291 | Promoção? |
+|---|---:|---|
+| ADR-0098 | **8** | ❌ Reforço cumulativo (8º passo consecutivo) |
+| ADR-0099 | **7** | ❌ Reaplicação cumulativa |
+| §8.3 "refutação pragmática" | 5 estável | ❌ |
+| §8.4 "bug latente fixed" | 1 estável | ❌ |
+| §8.5 "patch cirúrgico sequencial" | **4** | ❌ Desqualificado per P290 §8.5 (anti-inflação) |
+
+P273.17 §0 vigente. **Anti-padrão "over-automatização" estende-se
+implicitamente** — A.5' anti-reflexão é mitigação operacional do
+risco quinário P290 §7.
+
+**Diagnóstico empírico**:
+`00_nucleo/diagnosticos/diagnostico-style-leading-passo-291.md`
+(Fase A obrigatória com **6 secções A.0-A.5 + A.5' nova
+obrigatória** dedicada à mitigação activa do risco "sequência
+reflexa" — primeira aplicação prática deste tipo de verificação
+no projecto).
+
+⁷⁸ — Ajuste P292 (frente `P-style-font-variant`; **MARCO ARQUITECTURAL:
+fecha 5/5 final da assimetria residual P289 §5.6 — série cirúrgica
+P288-P292 termina naturalmente**):
+
+- P292 adiciona `Style::Font(FontList)` ao enum `Style` (9 → **10
+  variants** pós-P291/P292) + arm correspondente em
+  `StyleChain::push_styles` (paralelo arquitectural a P288-P291 com
+  **distinção sintáctica crítica**: `.clone()` em vez de `*f` por
+  `FontList: !Copy`).
+- **Mecanismo per diagnóstico §A.0-A.5 + §A.5' N=2**:
+  - **A.0 não-trivial** (paralelo P290): `grep "font" 03_infra/src/export.rs`
+    revelou 3+ hits incluindo **multifont path** (`:2169-2174`) que lê
+    `style.font.as_ref()` → `/F{i+1} Tf` operator. **Paradigma P136
+    confirmado empiricamente** — emit consome via `TextStyle` capture,
+    não via `chain.font()` directo. **2ª aplicação prática de ADR-0098
+    com emit consumer real** (P290 foi a 1ª).
+  - **A.1.2 crítico**: `pub struct FontList(Vec<FontFamily>)` —
+    confirmado **não é `Copy`**. `Vec` internal força perda de Copy
+    em qualquer container.
+  - **A.2 decisão genuinamente não-trivial**: 6 opções (a)-(f)
+    analisadas. **A.2.0 inventário literal call sites** confirma
+    0 hits para `*style` desreferenciamento — perda de `Style: Copy`
+    é **estructuralmente inofensiva**. **Decisão (a)** `Font(FontList)`
+    com perda explícita de `Copy` derive (`#[derive(Debug, Clone, Copy,
+    PartialEq)]` → `#[derive(Debug, Clone, PartialEq)]`).
+  - **A.2.3 honestidade epistémica crítica**: refutação de paradigma
+    "todos Copy" é **estructuralmente forçada** por tipo `FontList: !Copy`
+    já existente (P136), **não genuína vs spec**. **§8.3 N=5 estável**
+    — não atinge N=6, sem promoção.
+  - **A.3 opção (α)**: `delta.font = Some(f.clone())` — **distinção
+    sintáctica vs P288-P291** (uso de `.clone()` por necessidade
+    material; paralelo a `chain.font()` walk que clona — comentário
+    `style_chain.rs:264`).
+  - **A.4 opção (i)**: confirmada empiricamente. **Hash `export.rs
+    66cb8ac3` preservado bit-exact pelo 9º passo consecutivo**
+    (P282+P285+P286+P287+P288+P289+P290+P291+**P292**).
+  - **A.5 detecção bugs**: 5 cenários incluindo cenário crítico
+    "FontList vazia" — **invariante estructural descoberta**:
+    `FontList::new(vec![])` retorna `Option<Self> = None` (réplica
+    semântica vanilla "font fallback list must not be empty";
+    `font_list.rs:55+63`). **Não é bug** — invariante by construction.
+  - **A.5' N=2 cumulativo** (reaplicação P291 §A.5' inaugural):
+    comparação literal A.1.6 P288-P292 revela **5 paradigmas
+    arquiteturalmente distintos**:
+    1. P288 lang: cross-module
+    2. P289 weight: TextStyle method
+    3. P290 tracking: per-glyph + Tc emit
+    4. P291 leading: per-line via peek
+    5. **P292 font: 2 layers — TextStyle capture + indirect resolution
+       via FontBook** (paradigma novo "indirect resolution via global
+       registry"). **2 elementos estructuralmente novos identificados**
+       (A.2 não-trivial em si + paradigma FontBook); sequência continua
+       **NÃO ser rubber-stamp**.
+- **Hashes**:
+  - L0 `style.md` muda (+1 variant + derive change `Copy` → none).
+  - L0 `content.md` preservado.
+  - L0 `stdlib.md` preservado.
+  - **L0 `export.rs` preservado `66cb8ac3` (9º passo consecutivo).**
+- **11 testes P292 verdes** (1 catalog actualizado 9→10 variants;
+  10 layout: variant ctor + push_styles cascade + Styled injetado
+  + last-write + 5 cenários A.5 [single/multi/non-empty invariant/
+  missing/textstyle capture] + 1 marco simbólico P288-P292 fechada).
+
+**Pendências resolvidas**:
+- Assimetria Tabela B.3 vs B.4 para `font` → **RESOLVIDA**.
+- **5/5 da assimetria residual P289 §5.6 → FECHADA COMPLETAMENTE**.
+
+**Pendências relacionadas NÃO resolvidas** (continua):
+- `text.font` dict (gap 8 DEBT-52) — ADR-0054bis condicional;
+  bloqueada por regex em L1.
+- `FontVariant` variant-aware (Tabela A.3 linha 376) — ADR-0055bis
+  candidata; bloqueada por shaping XL.
+
+**MARCO ARQUITECTURAL P292 — Série cirúrgica P288-P292 termina**:
+
+5 passos cumulativos consecutivos materializaram 5 variants `Style`
+correspondentes aos 5 fields `StyleDelta` que estavam sem
+representação:
+
+| Passo | Variant | Field StyleDelta | Paradigma consumer |
+|---|---|---|---|
+| P288 | `Lang(Lang)` | `lang` | Cross-module |
+| P289 | `Weight(u16)` | `weight` | TextStyle method |
+| P290 | `Tracking(Length)` | `tracking` | Per-glyph + Tc emit |
+| P291 | `Leading(Length)` | `leading` | Per-line via peek |
+| **P292** | **`Font(FontList)`** | **`font`** | **2 layers — TextStyle + FontBook lookup** |
+
+**Pós-P292**: não há mais campos `StyleDelta` ortogonais para
+reaplicação cumulativa. **Próximo passo (P293) será ortogonal por
+construção** — não por decisão, mas por exaustão da assimetria.
+Candidatos listados no relatório P291 §9 (math-accent-cancel,
+curve-geometry, footnote-cluster).
+
+**Reaplicações cumulativas SEM novas promoções** (P273.17 §0 vigente):
+
+| Padrão | N pós-P292 | Promoção? |
+|---|---:|---|
+| ADR-0098 (formalizada P288) | **9** | ❌ Reforço cumulativo (9º passo consecutivo) |
+| ADR-0099 (formalizada P289) | **8** | ❌ Reaplicação cumulativa |
+| §8.3 "refutação pragmática" | 5 estável | ❌ A.2.3 confirma refutação estructuralmente forçada (não genuína) |
+| §8.4 "bug latente fixed" | 1 estável | ❌ A.5 verificação positiva (5 cenários sem bugs) |
+| §8.5 "patch cirúrgico sequencial" | **5** | ❌ Desqualificado per P290 §8.5 (anti-inflação) |
+| §8.6 "A.5' anti-reflexão" | **2 cumulativo** (P291+P292) | ❌ N=2 < N≥3-4 tentativo; aguardar |
+
+**Diagnóstico empírico**:
+`00_nucleo/diagnosticos/diagnostico-style-font-passo-292.md`
+(Fase A obrigatória com **6 secções A.0-A.5 + A.5' N=2** —
+reaplicação do padrão §8.6 P291 inaugural com **2 elementos
+estructuralmente novos identificados** vs P291 N=1 com 1
+elemento).
+
+⁷⁹ — Ajuste P293 (frente `P-curve-geometry`; **primeiro passo
+ortogonal pós-série cumulativa P288-P292**; **A.0.0 inaugural —
+clarificação de scope obrigatória**):
+
+- P293 adiciona `native_curve` stdlib em
+  `01_core/src/rules/stdlib/shapes.rs` — **activa `PathItem::CubicTo`
+  via caminho de entrada cascade** (variant existia desde P277
+  mas nenhuma stdlib o construía; `path_bbox` consume + emit PDF
+  `c` operator já existiam).
+- **Mecanismo per diagnóstico §A.0.0-A.5 + §A.5' N=3**:
+  - **A.0.0 INAUGURAL** (clarificação de scope nova, obrigatória
+    porque P282 §6 referenciava "ADR-0078 sub-fase b" — mas
+    ADR-0078 cobre column flow, não curve geometry):
+    - Inspecção literal de `geometry.rs` + `shapes.rs` + `export.rs`
+      + vanilla `curve.rs`.
+    - 5 hipóteses spec (H1-H5) **refutadas empiricamente**.
+    - **Descoberta H6 NOVA**: `PathItem::CubicTo` existe em
+      `geometry.rs:18` desde P277, é consumido por `path_bbox`
+      (P277) + emit PDF `c` operator (`export.rs:2375/2457/2629`),
+      **mas nenhuma stdlib o constrói** (`native_polygon` só usa
+      MoveTo/LineTo/ClosePath).
+    - **Refutação genuína da spec** (não estructuralmente forçada)
+      — §8.3 candidato a N=6.
+  - **A.0 trivial confirmada empiricamente**: emit já existe;
+    paradigma `FrameItem::Shape` capture P136 vigente.
+  - **A.1.6 paradigma consumer 6º distinto**: P293 inaugura
+    "PathItem variant inerte + stdlib constructor" — distinto vs
+    5 paradigmas style P288-P292.
+  - **A.2 decisão estrutural**: `native_curve` stdlib (não variant
+    novo). Sintaxe: `curve(("move", [x,y]), ("cubic", c1, c2, end),
+    ("close",))` — divergência consciente vs vanilla `curve.move/
+    cubic` scope methods (proc macros `#elem(scope)` não
+    materializados em L1). Quadratic Bézier scope-out.
+  - **A.3**: zero novos variants em Content/ShapeKind/PathItem;
+    apenas caminho de entrada via stdlib.
+  - **A.4 opção (i)**: confirmada empiricamente. **Hash `export.rs
+    66cb8ac3` preservado bit-exact pelo 10º passo consecutivo**
+    (P282+P285+P286+P287+P288+P289+P290+P291+P292+**P293**).
+  - **A.5 detecção bugs**: 5 cenários Bézier (control coincidentes,
+    fechada, auto-intersecção, coords grandes, items vazios).
+    Nenhum bug latente detectado.
+  - **A.5' N=3 cumulativo** (P291+P292+P293 — **P293 é primeiro
+    ortogonal**): **4 elementos estructuralmente novos identificados**
+    (vs P291 N=1 com 1 + P292 N=2 com 2):
+    1. A.0.0 em si (secção inaugural).
+    2. H6 descoberta (hipótese não-listada).
+    3. Ortogonalidade vs cumulativo (1º passo pós-série).
+    4. Refutação genuína da spec (vs estructuralmente forçada).
+- **Hashes**:
+  - L0 `style.md` **preservado** (P293 ortogonal a Style).
+  - L0 `content.md` **preservado**.
+  - L0 `stdlib.md` muda (+1 função `native_curve`).
+  - **L0 `export.rs` preservado `66cb8ac3` (10º passo consecutivo).**
+- **9 testes P293 verdes** (8 stdlib + 1 L3 PDF `c` operator
+  integration).
+- **Promoção `implementado⁺` → `implementado`** em Tabela A.7
+  linha 194 (paridade qualitativa principal vanilla typst alcançada
+  para Cubic Bézier).
+
+**Pendências resolvidas**:
+- Tabela A.7 linha 194 `path/curve` `implementado⁺` → `implementado`
+  (qualitativa).
+- Activação de `PathItem::CubicTo` via stdlib (variant inerte → activo).
+
+**Pendências relacionadas NÃO resolvidas** (continua):
+- `PathItem::QuadraticTo` (vanilla `curve.quadratic`) — variant
+  ausente; passo dedicado futuro per ADR-0054 graded.
+- `curve.move`/`curve.cubic` scope methods syntax — requer proc
+  macros `#elem(scope)` não materializados em L1.
+- `square`/`cmyk`/`gradient`/`tiling`/`Stroke rico` (Tabela A.7
+  linhas 196-201) — passos dedicados.
+
+**MARCO P293**:
+- **Primeiro passo ortogonal pós-série cumulativa P288-P292**.
+- **A.0.0 inaugurada** como secção obrigatória para passos com
+  scope ambíguo na origem — **template novo §8.7'** para reaplicação
+  futura.
+- **6º paradigma consumer arquiteturalmente distinto** identificado
+  (P288 cross-module / P289 TextStyle method / P290 per-glyph /
+  P291 per-line peek / P292 2 layers FontBook / **P293 PathItem
+  inerte + stdlib constructor**).
+- **Hash `export.rs` preservado pelo 10º passo consecutivo** —
+  ADR-0098 atravessa transição cumulativo→ortogonal robusto.
+- **§8.3 N=6 candidato refutado em favor de §8.7' N=1 inaugural**
+  (uma ADR meta por passo — P273.17 §0).
+
+**Reaplicações cumulativas sem novas promoções**:
+
+| Padrão | N pós-P293 | Promoção? |
+|---|---:|---|
+| ADR-0098 (formalizada P288) | **10** | ❌ Reforço cumulativo (10º passo consecutivo) |
+| ADR-0099 (formalizada P289) | **9** | ❌ 4ª reaplicação pós-formalização (P290/P291/P292/P293) |
+| §8.3 "refutação pragmática" | **6 candidato — não promovido** | ⚖ A.0.0 H6 é refutação genuína mas §8.7' (template A.0.0) prioritário |
+| §8.4 "bug latente fixed" | 1 estável | ❌ A.5 sem bugs |
+| §8.5 "patch cirúrgico sequencial" | 5 desqualificado encerrado | ❌ Série terminou em P292 |
+| §8.6 "A.5' anti-reflexão" | **3 cumulativo** | ❌ P293 ortogonal — padrão continua mas critério muda; aguardar P294+ |
+| §8.7' "template A.0.0 clarificação scope" | **1 inaugural** | ❌ N=1; aguardar reaplicação para considerar |
+
+**Diagnóstico empírico**:
+`00_nucleo/diagnosticos/diagnostico-curve-geometry-passo-293.md`
+(Fase A obrigatória com **7 secções A.0.0 + A.0-A.5 + A.5'** —
+primeira aplicação da secção A.0.0 inaugural; descoberta empírica
+H6 não-listada na spec; refutação genuína documentada).
 
 ---
 
