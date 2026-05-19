@@ -276,6 +276,56 @@ make_calc_module().e   ≡ Float(std::f64::consts::E)
 make_calc_module().inf ≡ Float(f64::INFINITY)
 ```
 
+## `underline(body, stroke?, offset?, extent?)` / `strike(body, ...)` / `overline(body, ...)` — Passo 284 (ADR-0054 graded)
+
+Decoração textual paralela vanilla `text/deco.rs`. Três funções com `body`
+posicional obrigatório (Content ou Str) + cosméticos opcionais. Emit reusa
+`FrameItem::Line` existente; offsets Y default por kind (constantes em em-units
+no espaço Layouter):
+
+| Função | offset_em default | Posição visual |
+|--------|---:|---|
+| `underline` | `+0.10` | logo abaixo do baseline |
+| `strike`    | `-0.25` | atravessa o x-height |
+| `overline`  | `-0.80` | acima do cap-height |
+
+```rust
+pub fn native_underline(
+    _ctx:                &mut EvalContext,
+    args:                &Args,
+    _world:              &dyn World,
+    _current_file:       FileId,
+    _figure_numbering:   Option<&str>,
+) -> SourceResult<Value>
+// — assinaturas idênticas para native_strike e native_overline.
+```
+
+**Argumentos named aceites**:
+- `stroke: Color | none` — paint da linha. **Apenas Color (paint puro)**;
+  objecto `Stroke` rico vanilla (paint+thickness+cap+dash) é scope-out
+  per diagnóstico §A.1 (Tabela A.7 linha 201 stroke parcial). `none`
+  desactiva default.
+- `offset: Length | none` — override do offset Y default (ver tabela
+  acima). Resolução via `Length::resolve_pt(font_size_pt)`. `Int`/`Float`
+  posicionais aceites como pt.
+- `extent: Length | none` — extende a linha horizontalmente além do body
+  (positiva ou negativa); `None` = 0pt.
+
+**Scope-out vanilla (registar erro explícito que referencia ADR-0054)**:
+- `evade: bool` — descender skipping; requer geometria glifo-a-glifo.
+- `background: bool` — z-order da decoração.
+
+**Construção de variant**:
+```
+native_underline([Content(c)])              → Ok(Value::Content(Content::Underline {
+                                                  body: c, stroke: None, offset: None, extent: None }))
+native_underline([Str("x")])                → Ok(Value::Content(Content::Underline { body: text("x"), ... }))
+native_underline([], stroke: Color)         → Err (body obrigatório)
+native_underline([Content(c)], evade: true) → Err (scope-out P284 / ADR-0054)
+```
+
+Idem para `native_strike` (sem `evade` em vanilla) e `native_overline`.
+
 ## `state_display(key, [callback])` — Passo 240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ)
 
 Render-mediated state display real walk-time. Constroi

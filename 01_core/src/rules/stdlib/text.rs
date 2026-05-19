@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
-//! @prompt-hash 7df1ee98
+//! @prompt-hash cc247f4d
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -11,9 +11,14 @@ use super::{err, expect_no_named};
 use crate::entities::file_id::FileId;
 
 use crate::entities::args::Args;
-use crate::entities::source_result::SourceResult;
+use crate::entities::content::Content;
+use crate::entities::layout_types::{Color, Length};
+use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
 use crate::entities::value::Value;
 use crate::rules::eval::EvalContext;
+
+use super::shapes::parse_color;
 
 // ── `upper()` / `lower()` / `replace()` — motor map_text (Passo 67) ─────────
 
@@ -102,4 +107,119 @@ pub fn native_replace(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
         Value::Content(c) => Ok(Value::Content(c.map_text(&mut do_replace))),
         other => err(format!("replace(): 1º argumento deve ser string ou content, recebeu {}", other.type_name())),
     }
+}
+
+// ── Passo 284 — decoração textual (underline / strike / overline) ───────────
+//
+// Paridade vanilla `text/deco.rs`: três funções com `body` posicional
+// obrigatório + cosméticos `stroke`/`offset`/`extent` opcionais (named).
+// Atributos scope-out (`evade`, `background`, objecto Stroke rico) per
+// diagnóstico P284 §A.1 + ADR-0054 graded.
+
+/// Discriminador interno para escolher o construtor de `Content::*` no
+/// helper partilhado `build_decoration`. Não é exposto em L0 — é apenas
+/// um eixo de variação dentro de `text.rs`.
+#[derive(Clone, Copy)]
+enum DecoKind { Underline, Strike, Overline }
+
+fn build_decoration(kind: DecoKind, args: &Args, fn_name: &str) -> SourceResult<Value> {
+    let body = match args.items.as_slice() {
+        [Value::Content(c)] => c.clone(),
+        [Value::Str(s)]     => Content::text(s.as_str()),
+        [other] => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{fn_name}() espera content ou string, recebeu {}", other.type_name()),
+        )]),
+        [] => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{fn_name}() exige body como argumento posicional"),
+        )]),
+        _ => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{fn_name}() recebeu {} argumentos posicionais (espera 1)", args.items.len()),
+        )]),
+    };
+
+    let mut stroke: Option<Color>   = None;
+    let mut offset: Option<Length>  = None;
+    let mut extent: Option<Length>  = None;
+
+    for (key, value) in args.named.iter() {
+        match key.as_str() {
+            "stroke" => {
+                // Apenas Color (paint puro) — Stroke rico vanilla é
+                // scope-out per diagnóstico §A.1. `none` desactiva default.
+                stroke = match value {
+                    Value::None => None,
+                    v => match parse_color(v) {
+                        Some(c) => Some(c),
+                        None => return Err(vec![SourceDiagnostic::error(
+                            Span::detached(),
+                            format!("{fn_name}(stroke:) espera color ou none, recebeu {}", v.type_name()),
+                        )]),
+                    },
+                };
+            }
+            "offset" => {
+                offset = match value {
+                    Value::None      => None,
+                    Value::Length(l) => Some(*l),
+                    Value::Int(i)    => Some(Length::pt(*i as f64)),
+                    Value::Float(f)  => Some(Length::pt(*f)),
+                    other => return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("{fn_name}(offset:) espera length, recebeu {}", other.type_name()),
+                    )]),
+                };
+            }
+            "extent" => {
+                extent = match value {
+                    Value::None      => None,
+                    Value::Length(l) => Some(*l),
+                    Value::Int(i)    => Some(Length::pt(*i as f64)),
+                    Value::Float(f)  => Some(Length::pt(*f)),
+                    other => return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("{fn_name}(extent:) espera length, recebeu {}", other.type_name()),
+                    )]),
+                };
+            }
+            // P284 §A.1 scope-out: erros amigáveis para parâmetros vanilla
+            // adiados, em vez de "argumento inesperado" genérico.
+            "evade" | "background" => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "{fn_name}({}:) não suportado neste passo \
+                         (P284 §A.1 scope-out / ADR-0054 graded)",
+                        key,
+                    ),
+                )]);
+            }
+            other => return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("{fn_name}(): argumento nomeado inesperado '{}'", other),
+            )]),
+        }
+    }
+
+    let body = Box::new(body);
+    let c = match kind {
+        DecoKind::Underline => Content::Underline { body, stroke, offset, extent },
+        DecoKind::Strike    => Content::Strike    { body, stroke, offset, extent },
+        DecoKind::Overline  => Content::Overline  { body, stroke, offset, extent },
+    };
+    Ok(Value::Content(c))
+}
+
+pub fn native_underline(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    build_decoration(DecoKind::Underline, args, "underline")
+}
+
+pub fn native_strike(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    build_decoration(DecoKind::Strike, args, "strike")
+}
+
+pub fn native_overline(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+    build_decoration(DecoKind::Overline, args, "overline")
 }

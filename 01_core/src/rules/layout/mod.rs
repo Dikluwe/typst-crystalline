@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 089621fc
+//! @prompt-hash 12536b5c
 //! @layer L1
 //! @updated 2026-04-21
 
@@ -241,6 +241,30 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Paridade arquitectural ao P245 `floats_pending` (subpadrão
     /// "DeferredX buffer + flush em new_page" N=1 → 2 cumulativo).
     pub(super) pending_cell_tails: Vec<DeferredCellTail>,
+    /// **P286 (frente `P-text-deco-multiline`; resolve P284 §5.3)** —
+    /// collector opcional de segmentos `(start_x, end_x, baseline_y)`
+    /// para decorações textuais wrap-aware (Underline/Strike/Overline).
+    /// `flush_line` consulta este campo no início e, se `Some`, regista
+    /// um segmento com o estado da linha que está a fechar. O consumer
+    /// das decorações activa antes de `layout_content(body)`, drena
+    /// no fim e emite 1 `FrameItem::Line` por segment + 1 para a linha
+    /// "final não-flushed". `None` por default → flush_line ignora
+    /// (zero overhead em todos os outros call-sites; backward-compat
+    /// bit-exact preservado per regressão tests P285).
+    pub(super) decoration_lines_collector: Option<Vec<DecoSegment>>,
+}
+
+/// **P286** — Segmento de linha visual capturado por `flush_line`
+/// quando o `decoration_lines_collector` está activo. Cada segmento
+/// corresponde a uma linha visual coberta por uma decoração textual
+/// que faz wrap (Underline/Strike/Overline). Consumer P284 itera os
+/// segments + acrescenta o segmento final não-flushed (porque o body
+/// pode terminar antes do flush).
+#[derive(Debug, Clone, Copy)]
+pub(super) struct DecoSegment {
+    pub start_x:    Pt,
+    pub end_x:      Pt,
+    pub baseline_y: Pt,
 }
 
 /// **P245 (M9d / M7+4)** — entry do buffer `floats_pending` no
@@ -365,6 +389,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             block_chain_active:       false,
             // P251 — buffer cell tails inicializado vazio.
             pending_cell_tails:       Vec::new(),
+            // P286 — collector inactivo por default; consumer P284 activa
+            // localmente antes de layout_content do body decorado.
+            decoration_lines_collector: None,
         }
     }
 
@@ -1968,6 +1995,108 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     self.flush_line();
                 }
                 self.new_page();
+            }
+
+            // ── Passo 284 + P285 + P286 (ADR-0054 graded) — text decoration ─
+            //
+            // Cluster decorações **COMPLETO** após P286:
+            // - P284: 3 variants ricos + body recurse + cálculo offset.
+            // - P285: `stroke` funcional + herança `style.fill` + emit RG.
+            // - P286: **wrap-aware** — N linhas visuais → N `FrameItem::Line`.
+            //
+            // Consumer arquitectural: reusa `FrameItem::Line` para o emit PDF
+            // (precedente Passo 38 frac); offset Y é a única dimensão que
+            // varia entre underline/strike/overline (diagnóstico P284 §A.2).
+            //
+            // Algoritmo P286 (diagnóstico §A.2 opção b minimalista):
+            //   1. Captura snapshot inicial `(start_x, baseline_y)`.
+            //   2. Activa `decoration_lines_collector = Some(Vec::new())`.
+            //   3. `layout_content(body)` — flush_line colecciona segments.
+            //   4. Desactiva collector; drena vec.
+            //   5. Acrescenta segment "final não-flushed"
+            //      `(line_start_x | start_x, cursor_x_final, cursor_y_final)`.
+            //   6. Emite 1 `FrameItem::Line` por segment com `line_y =
+            //      seg.baseline_y + offset_pt`; aplica `extent` simétrico
+            //      (P286 §A.3 opção α — vanilla painter parity).
+            //
+            // Fallback single-line bit-exact: se o collector ficar vazio
+            // após `layout_content(body)` e o body permaneceu na mesma
+            // linha, emite **exactamente** o algoritmo P284 (1 Line).
+            // Validado por regression P285 + dedicated P286 test.
+            Content::Underline { body, stroke, offset, extent }
+            | Content::Strike   { body, stroke, offset, extent }
+            | Content::Overline { body, stroke, offset, extent } => {
+                use crate::entities::layout_types::{FrameItem, Point, Pt};
+                let kind_em: f64 = match content {
+                    Content::Underline { .. } =>  0.10,
+                    Content::Strike    { .. } => -0.25,
+                    Content::Overline  { .. } => -0.80,
+                    _ => unreachable!("arm gates Underline/Strike/Overline"),
+                };
+                let font_pt = self.font_size_pt.val();
+                let offset_pt = offset
+                    .map(|l| l.resolve_pt(font_pt))
+                    .unwrap_or(kind_em * font_pt);
+                let extent_pt = extent.map_or(0.0, |l| l.resolve_pt(font_pt));
+                let thickness = (font_pt * 0.05).max(0.4);
+                // P285 §A.3: utilizador explícito > herança do texto > default.
+                let color = stroke.or(self.style.fill);
+
+                // P286 — snapshot inicial + activa collector.
+                let start_x_initial    = self.regions.current.cursor_x;
+                let baseline_y_initial = self.regions.current.cursor_y;
+                let prev_collector     = self.decoration_lines_collector.take();
+                self.decoration_lines_collector = Some(Vec::new());
+
+                self.layout_content(body);
+
+                let mut segments = self.decoration_lines_collector
+                    .take().unwrap_or_default();
+                // Restaurar collector outer (suporta decorações aninhadas
+                // hipotéticas; LIFO save/restore standard).
+                self.decoration_lines_collector = prev_collector;
+
+                // P286 — patch do primeiro segment: o `start_x` real é
+                // o snapshot inicial (não line_start_x), porque o body
+                // pode começar a meio de uma linha já em curso.
+                if let Some(first) = segments.first_mut() {
+                    first.start_x    = start_x_initial;
+                    first.baseline_y = baseline_y_initial;
+                }
+                // P286 — acrescentar segment "final não-flushed" (a linha
+                // onde o body terminou sem causar wrap final).
+                let final_end_x      = self.regions.current.cursor_x;
+                let final_baseline_y = self.regions.current.cursor_y;
+                let final_start_x    = if segments.is_empty() {
+                    start_x_initial
+                } else {
+                    self.regions.current.line_start_x
+                };
+                if final_end_x.val() > final_start_x.val() {
+                    segments.push(DecoSegment {
+                        start_x:    final_start_x,
+                        end_x:      final_end_x,
+                        baseline_y: final_baseline_y,
+                    });
+                }
+
+                // P286 — emite 1 `FrameItem::Line` por segment. Extent
+                // aplicado simetricamente em cada linha (§A.3 opção α).
+                for seg in &segments {
+                    let line_y = Pt(seg.baseline_y.val() + offset_pt);
+                    // Cada Line vai para `current_line` da página actual.
+                    // Para segments do meio (já flushed), o seu baseline_y
+                    // pertence a uma linha já em `current_items`; ainda
+                    // assim push em current_line é válido — o Layouter
+                    // não reordena por Y, apenas concatena no flush
+                    // seguinte (paridade vanilla painter pós-frame).
+                    self.regions.current.current_line.push(FrameItem::Line {
+                        start:     Point { x: Pt(seg.start_x.val() - extent_pt), y: line_y },
+                        end:       Point { x: Pt(seg.end_x.val()   + extent_pt), y: line_y },
+                        thickness,
+                        color,
+                    });
+                }
             }
 
             // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────

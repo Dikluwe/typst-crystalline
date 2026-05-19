@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash af36c701
+//! @prompt-hash 2a53ebb8
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -181,10 +181,15 @@ pub enum FrameItem {
     /// Linha horizontal. Usada pela linha de fracção matemática (Passo 38).
     /// `start` e `end` são posições absolutas no Frame.
     /// `thickness` em pontos tipográficos.
+    /// `color`: opcional (Passo 285). `Some(c)` → emit `r g b RG` antes
+    /// de `S`; `None` → preserva default preto bit-exact (backward-compat
+    /// para fracções, sqrt overline e linhas geométricas sem stroke
+    /// explícito).
     Line {
         start:     Point,
         end:       Point,
         thickness: f64,
+        color:     Option<Color>,
     },
     /// Glifo renderizado directamente por ID, sem mapeamento Unicode.
     ///

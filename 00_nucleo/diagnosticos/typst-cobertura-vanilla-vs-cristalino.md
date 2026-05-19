@@ -100,7 +100,7 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `upper` / `lower` (funções) | text/case.rs | `implementado` | stdlib | `native_upper`/`native_lower` |
 | `replace` (string) | text/case.rs | `implementado` | stdlib | `native_replace` |
 | `lorem` | text/lorem.rs | `ausente` | — | |
-| `underline` / `strike` / `overline` | text/deco.rs | `ausente` | — | |
+| `underline` / `strike` / `overline` | text/deco.rs | `implementado` | Passo 284 + P285 + **P286** | Variants `Content::{Underline,Strike,Overline}`; `body` + `stroke?`/`offset?`/`extent?`. **P285**: `stroke` funcional (emit `RG` + herança `style.fill`). **P286**: wrap-aware — body multi-line → N `FrameItem::Line` (cluster COMPLETO; restrição graded P284 §5.3 RESOLVIDA). `evade`/`background`/objecto Stroke rico continuam scope-out per ADR-0054 graded |
 | `linebreak` (function) | text/linebreak.rs | `parcial` | math context | só em math |
 
 ### A.4 — Math
@@ -189,7 +189,7 @@ primitives e `skew`). Detalhe em
 |---------|---------|------------|------------|------|
 | `rect(width, height, fill, ...)` | visualize/shape.rs | `implementado` | Passos 78–79 | `Content::Shape{ Rect }` |
 | `ellipse(...)` / `circle(...)` | idem | `implementado` | idem | `Content::Shape{ Ellipse }` |
-| `line(start, end, ...)` | visualize/line.rs | `implementado` | idem | `Content::Shape{ Line }` |
+| `line(start, end, ...)` | visualize/line.rs | `implementado` | idem | `Content::Shape{ Line }`. **P285**: `FrameItem::Line` ganha `color: Option<Color>` + emit `r g b RG` precedente Passo 102 `text.fill` aplicado simetricamente a stroke linear (cf. `diagnostico-line-color-passo-285.md` §A.1 inventário 8 produtores) |
 | `polygon(points)` | visualize/polygon.rs | `implementado` | stdlib | |
 | `path(...)` / `curve(...)` | visualize/curve.rs | `implementado⁺` | Passo 78 | `ShapeKind::Path`; sem cubic optimisation completa (DEBT-33) |
 | `image(path, ...)` | visualize/image | `implementado` | Passos 72–74 | PNG (alpha + opaque) + JPEG; DEBT-26/27/28/29 fechados |
@@ -324,7 +324,7 @@ Nota: ADR-0026 + 0026-R1 declaram **divergência intencional**. Cristalino usa e
 | `Quote {body, attribution, block, quotes}` | QuoteElem | `implementado` | Passo 155 | 4 atributos materializados; smart-quotes lang-aware via `rules/lang/quotes.rs` |
 | `Columns {count, gutter, body}` | ColumnsElem | `parcial` | Passo 221 (cumulativo P217-P219) | variant + stdlib `#columns(count, body, gutter:?)` + arm Layouter consumer real graded (Opção B); width temporariamente reduzida `(full_width − (count−1)·gutter)/count`; body single-render; multi-region flow real scope-out (P-Layout-Fase4 candidato); default gutter ~4% via `COLUMNS_DEFAULT_GUTTER_RATIO` |
 | `Colbreak {weak}` | ColbreakElem | `parcial` | Passo 220 | variant + stdlib `#colbreak(weak:?)` + arm Layouter Opção β graded (downgrade literal a pagebreak via reuso `Layouter::new_page`); paridade vanilla quando fora de columns context; sem `to:` (vanilla `ColbreakElem` não tem) |
-| **Vanilla-only (ausentes)**: BibliographyElem, CiteElem, FootnoteElem, TableElem, BoxElem, BlockElem, StackElem, HideElem, RepeatElem, PadElem, MoveElem (function só), GradientElem, TilingElem, StrokeElem (object form), … | — | `ausente` (cada) | — | escopo crescente; **`ColumnsElem` e `ColbreakElem` removidos da lista em P221** (transitam para `parcial`) |
+| **Vanilla-only (ausentes)**: BibliographyElem, CiteElem, FootnoteElem, TableElem, BoxElem, BlockElem, StackElem, HideElem, RepeatElem, PadElem, MoveElem (function só), GradientElem, TilingElem, StrokeElem (object form), … | — | `ausente` (cada) | — | escopo crescente; **`ColumnsElem` e `ColbreakElem` removidos da lista em P221** (transitam para `parcial`); **`UnderlineElem`/`StrikeElem`/`OverlineElem` removidos em P284** (transitam para `implementado` — variants `Content::Underline/Strike/Overline`) |
 
 ### B.3 — `Style` enum
 
@@ -380,7 +380,7 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 | `smartquote` | `Content::SmartQuote` ausente | escopo S |
 | `smallcaps` | `Content::SmallCaps`; OpenType features | DEBT-53 (shaping) |
 | `lorem` | sem stdlib helper | escopo S |
-| `underline` / `strike` / `overline` | `Content::Underline` etc. ausentes | escopo S |
+| ~~`underline` / `strike` / `overline`~~ | ~~`Content::Underline` etc. ausentes~~ | ~~escopo S~~ — **resolvido em Passo 284** (variants + native_* + Layouter consumer + PDF emit via `FrameItem::Line`) |
 | Soft hyphen (`\u{00AD}`) | hyphenation espera literal `-` (Passo 144) | passo dedicado futuro |
 | `quote(...)` | `Content::Quote` ausente | escopo S |
 | `terms(...)` | `Content::Terms` ausente | escopo S |
@@ -431,14 +431,14 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 |-----------|----------------|-----------------|-----------|-----------|-------------|-------|
 | Markup syntactic ³⁹ | 11 | 3 | 3 | 1 | 0 | 18 |
 | `#let`/`#set`/`#show`/import | 7 | 1 | 4 | 1 | 0 | 13 |
-| Text features | 7 | 5 | 1 | 8 | 2 | 23 |
+| Text features ⁷⁰ | 10 | 5 | 1 | 5 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
 | Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ⁴⁰ ⁴¹ ⁴² ⁴³ ⁴⁴ ⁴⁵ ⁴⁶ | 12 | 4 | 2 | 0 | 0 | 18 |
 | Model (structural) ¹ ² ³ ²² ²⁴ ²⁹ | 7 | 4 | 7 | 4 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection ³⁸ | 3 | 2 | 1 | 0 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ ³⁸ ³⁹ ⁴⁰ ⁴¹ ⁴² ⁴³ ⁴⁴ ⁴⁵ ⁴⁶ | **68** | **27** | **24** | **20** | **2** | **141** |
+| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ ³⁸ ³⁹ ⁴⁰ ⁴¹ ⁴² ⁴³ ⁴⁴ ⁴⁵ ⁴⁶ ⁷⁰ | **71** | **27** | **24** | **17** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -4699,6 +4699,169 @@ Content com 100% scope-outs originais fechados cumulativamente
 primitivo" N=1 inaugurado primeiro uso entity primitivo
 cross-cutting. **ADR-0082 N=3 citantes limiar atingido**
 (promoção EM VIGOR humana possível).
+
+⁷⁰ — Ajuste P284 (Tabela A.3 Text — `P-text-deco-emit` frente
+identificada na Tabela C linha 383 como escopo S sem bloqueador
+arquitectural; ADR-0054 graded):
+
+- P284 materializa `underline` / `strike` / `overline` (paridade
+  vanilla `text/deco.rs` `UnderlineElem`/`StrikeElem`/
+  `OverlineElem`):
+  - **3 variants distintos** `Content::Underline`/`Strike`/
+    `Overline` (opção α do diagnóstico §A.3 — coerente com
+    P156G/H/I e com `evade` assimétrico vanilla); cada um com
+    `body: Box<Content>` + `stroke: Option<Color>` + `offset:
+    Option<Length>` + `extent: Option<Length>`.
+  - **3 funções stdlib** `native_underline`/`native_strike`/
+    `native_overline` em `01_core/src/rules/stdlib/text.rs`;
+    helper privado `build_decoration(DecoKind, args, fn_name)`
+    centraliza parsing dos cosméticos.
+  - **Consumer Layouter** em `rules/layout/mod.rs`: captura
+    `start_x` / `baseline_y`, recurse no body, captura `end_x`,
+    empurra `FrameItem::Line` em `current_line` com
+    `line_y = baseline_y + offset.resolve_pt() | kind_em ·
+    font_pt` (defaults `+0.10/-0.25/-0.80 em` para underline/
+    strike/overline).
+  - **Reutiliza `FrameItem::Line` existente** (precedente Passo
+    38 frac) — **hash L0 `export.rs` `bc7b8b95` preservado**
+    (decisão A.2 do diagnóstico).
+- **Tabela A.3 linha 103**: `ausente` → `implementado` (cluster
+  3 features de uma vez; +3 implementado, −3 ausente).
+- **Tabela A resumo linha 434** Text features: 7/5/1/8/2 →
+  **10/5/1/5/2** (= 23, cobertura impl+impl⁺ 30% → 43%; impl/
+  partial/scope-out distribuição equilibrada).
+- **Tabela B.2** linha 327 atualizada — `UnderlineElem`/
+  `StrikeElem`/`OverlineElem` transitam de "Vanilla-only
+  ausentes" para variants cristalinos.
+- **Tabela C linha 383** marcada `~~strikethrough~~` (paridade
+  pattern `repeat` linha 402 P156J).
+- **Total user-facing**: 68/27/24/20/2 → **71/27/24/17/2**
+  (= 141; baseline preservado).
+
+**Scope-out registado**:
+- `evade: bool` (descender skipping; geometria glifo-a-glifo;
+  vanilla `StrikeElem` não o tem — asimetria intencional).
+- `background: bool` (z-order; baixa relevância visível).
+- Objecto `Stroke` rico vanilla (paint+thickness+cap+dash);
+  apenas `Color` puro suportado per A.7 linha 201 parcial.
+- Multi-line wrap (single-line apenas; sub-passo P284.1
+  candidato com `flush_line`-aware emission).
+
+**Marco P284**: 4ª aplicação consecutiva do padrão "variant
+rico com `body` + atributos cosméticos opcionais" (após Block/
+Boxed/Stack P156G/H/I). Patamar N=4 atinge 80% do gatilho
+histórico ADR-0065 (N=5). Próximo variant rico do mesmo padrão
+deve disparar ADR meta (não objectivo de P284 resolver).
+
+**Diagnóstico empírico**:
+`00_nucleo/diagnosticos/diagnostico-deco-passo-284.md` (Fase A
+obrigatória: scope atributos vanilla A.1; helper único vs três
+A.2 → emergente "reusa FrameItem::Line existente"; naming A.3 →
+opção α três variants distintos).
+
+⁷¹ — Ajuste P285 (frente `P-line-color-rg-emit`; resolução dupla
+pendência P282 §1.5 + P284 §5.4):
+
+- P285 estende `FrameItem::Line` com `color: Option<Color>`
+  (modificação cirúrgica; sem variants novos) e emite `r g b RG`
+  no PDF condicionalmente em ambos `build_page_stream` e
+  `draw_item_local` (via helper privado `line_rg_prefix(color)`):
+  - 8 produtores `FrameItem::Line` inventariados em
+    `diagnostico-line-color-passo-285.md` §A.1: 6 reflectors +
+    math frac/sqrt (`color: None` preserva preto bit-exact); 1
+    consumer P284 (decorações usa `stroke.or(self.style.fill)`
+    per §A.3 herança).
+  - 1 helper L3 novo (`line_rg_prefix`); 0 helpers removidos.
+  - Hash L0 `export.rs` muda intencionalmente (era `bc7b8b95`
+    preservado desde P281 até P284; quebra esperada per spec §1).
+  - **Activa o `stroke` parseado mas inerte** em `Content::Underline/
+    Strike/Overline` registado P284 §5.4 do relatório.
+  - **Regressão bit-exact validada**: 5 + 4 = 9 testes P285 verdes
+    (5 L3 PDF integration + 4 L1 Layouter consumer); baseline
+    2 716 P284 preserved bit-exact (sem novos failures em
+    pre-existing math frac/sqrt/line).
+
+- **Pendências resolvidas**:
+  - P282 §1.5 `P-line-color-rg-emit` → **RESOLVIDA literalmente**.
+  - P284 §5.4 `stroke parseado mas inerte` → **RESOLVIDA** para
+    todos os 3 variants P284 via herança §A.3 opção β.
+
+- **Total user-facing inalterado** (P285 é correcção de bug latente
+  + activação de feature parseada, não nova feature — cobertura
+  agregada preserved).
+
+- **Decisão Fase A registada**:
+  - A.1 inventário 8 produtores (dentro do limite §7; sem
+    necessidade de P285.1).
+  - A.2 tipo `Option<Color>` (opção a — minimiza touch points).
+  - A.3 herança `stroke.or(style.fill)` (opção β com cascata γ;
+    paridade vanilla "decoração herda cor do texto").
+
+**Marco P285**: 1ª aplicação concreta do padrão "modificação
+cirúrgica em `FrameItem` sem variants novos" — alteração de tipo
+existente afecta 8+1+8 sítios mas zero alterações arquiteturais.
+Confirma reutilizabilidade da arquitectura P281 (helpers
+unificados em export) — alteração simétrica top-level vs local
+**estructuralmente garantida** via helper `line_rg_prefix`.
+
+**Diagnóstico empírico**:
+`00_nucleo/diagnosticos/diagnostico-line-color-passo-285.md`
+(Fase A obrigatória: inventário 8 produtores A.1; tipo
+Option<Color> A.2; herança stroke.or(style.fill) A.3).
+
+⁷² — Ajuste P286 (frente `P-text-deco-multiline`; **fecha cluster
+P284-P285-P286 COMPLETO**; resolve P284 §5.3 multi-line wrap):
+
+- P286 corrige o consumer Layouter de
+  `Content::Underline`/`Strike`/`Overline` (`layout/mod.rs:1987`)
+  para emitir **N `FrameItem::Line` quando o body cobre N linhas
+  visuais** (em vez de 1 Line que ignora wraps).
+- **Mecanismo per diagnóstico §A.2** (opção b minimalista):
+  - **+1 campo no Layouter**:
+    `decoration_lines_collector: Option<Vec<DecoSegment>>` (None
+    por default; zero overhead nos outros call-sites).
+  - **+1 struct privada** `DecoSegment { start_x, end_x, baseline_y }`.
+  - **+5 LOC condicional em `flush_line`** (`cursor.rs:89`): se
+    collector activo e havia items, regista segment **antes** do
+    drain + advance.
+  - **~50 LOC no consumer P284** (em vez dos ~28 originais):
+    snapshot + activa + recurse + drena + segment final + emite
+    1 Line por segment.
+- **Decisões Fase A**:
+  - A.1: `Region` **não tem history** (inspecção literal
+    `cursor.rs:89-129`); A.2(a) bloqueado estructuralmente.
+  - A.2: opção (b) variante minimalista — vec inline drenado em
+    vez de Fn boxed callback (refutação pragmática de pressuposto
+    da spec; padrão P285 §8.3 N=2 cumulativo).
+  - A.3: opção (α) extent simétrico em todas as N linhas (paridade
+    vanilla painter chunk-aware).
+- **Hash L0 `export.rs` preservado** (`66cb8ac3` desde P285) — emit
+  não muda; apenas mais ou menos Lines passam pelo mesmo caminho.
+- **Hash L0 `layout.md` muda** (consumer + nota wrap-aware).
+- **Bit-exact backward-compat single-line** validado: collector
+  ficar vazio + segment final único produz **exactamente** 1 Line
+  como P284 (regression `p286_underline_single_line_emite_uma_linha`).
+- **7 testes P286 verdes** (6 L1 wrap consumer + 1 L3 PDF
+  integration); baseline 2 725 preserved bit-exact.
+
+**Pendência resolvida**:
+- P284 §5.3 multi-line wrap → **RESOLVIDA**.
+
+**Cluster decorações COMPLETO**: zero defeitos graded remanescentes.
+Apenas `evade`/`background`/objecto Stroke rico continuam ADR-0054
+graded (scope-out distinto, não defeito).
+
+**Marco P286**: 3ª aplicação consecutiva da "activação posterior de
+feature parseada-mas-inerte" (P285 §8.3): P285 activou `stroke`;
+P286 activou `wrap-aware`. **N=2 cumulativo** do padrão na vida do
+cluster decorações (espera-se reaplicação cross-passo para
+formalização ADR — actual N=2 ainda abaixo do gatilho histórico
+N≥3).
+
+**Diagnóstico empírico**:
+`00_nucleo/diagnosticos/diagnostico-deco-multiline-passo-286.md`
+(Fase A obrigatória: inventário flush_line A.1; estratégia captura
+opção (b) minimalista A.2; política extent simétrico A.3).
 
 ---
 

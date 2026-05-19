@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 089621fc
+//! @prompt-hash 12536b5c
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -9794,5 +9794,335 @@ mod p273_9_containers_estendidos {
         assert!(bboxes.len() >= 2,
             "Grid 2 cells deve emitir ≥2 shapes; got: {} shapes",
             bboxes.len());
+    }
+}
+
+// ── Passo 284 — text decoration (Layouter integration) ────────────────────
+
+#[cfg(test)]
+mod p284_decoration_tests {
+    use super::*;
+
+    /// Conta `FrameItem::Line` no primeiro frame de `doc`.
+    fn count_lines(doc: &PagedDocument) -> usize {
+        doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter(|i| matches!(i, FrameItem::Line { .. }))
+            .count()
+    }
+
+    /// Devolve a primeira `FrameItem::Line` encontrada (ou panic).
+    fn first_line(doc: &PagedDocument) -> (Point, Point, f64) {
+        for page in &doc.pages {
+            for item in &page.items {
+                if let FrameItem::Line { start, end, thickness, .. } = item {
+                    return (*start, *end, *thickness);
+                }
+            }
+        }
+        panic!("nenhum FrameItem::Line encontrado");
+    }
+
+    #[test]
+    fn underline_emite_uma_frameitem_line_alem_do_texto() {
+        let c = Content::Underline {
+            body:   Box::new(Content::text("hello")),
+            stroke: None, offset: None, extent: None,
+        };
+        let doc = layout(&c);
+        assert!(!doc.pages.is_empty(), "Underline com texto produz ≥1 página");
+        assert!(doc.plain_text().contains("hello"), "texto preservado no plain_text");
+        assert_eq!(count_lines(&doc), 1, "exactamente 1 linha de decoração emitida");
+    }
+
+    #[test]
+    fn strike_e_overline_emitem_y_em_posicoes_diferentes() {
+        // Mesma string, kinds distintos → Y da linha distinto (offset
+        // default por kind).
+        let body = || Box::new(Content::text("text"));
+        let u = layout(&Content::Underline { body: body(), stroke: None, offset: None, extent: None });
+        let s = layout(&Content::Strike    { body: body(), stroke: None, offset: None, extent: None });
+        let o = layout(&Content::Overline  { body: body(), stroke: None, offset: None, extent: None });
+        let (us, _, _) = first_line(&u);
+        let (ss, _, _) = first_line(&s);
+        let (os, _, _) = first_line(&o);
+        // Underline está abaixo do baseline → maior Y no espaço Layouter.
+        // Strike a meio do x-height → entre underline e overline.
+        // Overline acima do cap → menor Y.
+        assert!(us.y.val() > ss.y.val(),
+                "underline Y ({}) deve ser maior que strike Y ({})", us.y.val(), ss.y.val());
+        assert!(ss.y.val() > os.y.val(),
+                "strike Y ({}) deve ser maior que overline Y ({})", ss.y.val(), os.y.val());
+    }
+
+    #[test]
+    fn decoration_offset_override_substitui_default() {
+        use crate::entities::layout_types::Length;
+        let default = layout(&Content::Underline {
+            body: Box::new(Content::text("x")),
+            stroke: None, offset: None, extent: None,
+        });
+        let with_offset = layout(&Content::Underline {
+            body: Box::new(Content::text("x")),
+            stroke: None,
+            offset: Some(Length::pt(5.0)),
+            extent: None,
+        });
+        let (ds, _, _) = first_line(&default);
+        let (os, _, _) = first_line(&with_offset);
+        assert!((os.y.val() - ds.y.val()).abs() > 0.5,
+                "override de offset deve mudar a coordenada Y da linha; default={} override={}",
+                ds.y.val(), os.y.val());
+    }
+
+    #[test]
+    fn decoration_extent_estende_horizontalmente() {
+        use crate::entities::layout_types::Length;
+        let baseline = layout(&Content::Underline {
+            body: Box::new(Content::text("hi")),
+            stroke: None, offset: None, extent: None,
+        });
+        let extended = layout(&Content::Underline {
+            body: Box::new(Content::text("hi")),
+            stroke: None, offset: None,
+            extent: Some(Length::pt(3.0)),
+        });
+        let (bs, be, _) = first_line(&baseline);
+        let (es, ee, _) = first_line(&extended);
+        let base_len = be.x.val() - bs.x.val();
+        let ext_len  = ee.x.val() - es.x.val();
+        assert!((ext_len - base_len - 6.0).abs() < 0.1,
+                "extent: 3pt adiciona 3pt em cada lado (+6pt total); base_len={base_len} ext_len={ext_len}");
+    }
+
+    // Nota: o teste de operadores PDF (`q ... S Q`) vive em 03_infra
+    // porque L1 não pode importar typst_infra (V3 ForbiddenImport).
+    // Adicionado em `03_infra/src/lib.rs` ou ficheiro de testes equivalente.
+
+    // ── Passo 285 — herança stroke→fill no consumer Layouter ────────────
+
+    /// Devolve o `color` da primeira `FrameItem::Line` encontrada no doc.
+    fn first_line_color(doc: &PagedDocument) -> Option<crate::entities::layout_types::Color> {
+        for page in &doc.pages {
+            for item in &page.items {
+                if let FrameItem::Line { color, .. } = item {
+                    return *color;
+                }
+            }
+        }
+        panic!("nenhum FrameItem::Line encontrado");
+    }
+
+    #[test]
+    fn p285_underline_stroke_explicito_passa_para_line_color() {
+        use crate::entities::layout_types::Color;
+        let red = Color::rgb(255, 0, 0);
+        let doc = layout(&Content::Underline {
+            body:   Box::new(Content::text("x")),
+            stroke: Some(red),
+            offset: None,
+            extent: None,
+        });
+        assert_eq!(first_line_color(&doc), Some(red),
+            "stroke explícito deve aparecer literalmente em FrameItem::Line.color");
+    }
+
+    #[test]
+    fn p285_underline_sem_stroke_nem_fill_color_none() {
+        let doc = layout(&Content::Underline {
+            body:   Box::new(Content::text("x")),
+            stroke: None,
+            offset: None,
+            extent: None,
+        });
+        // Sem stroke explícito + texto sem fill (default) → herança None
+        // → color: None (PDF default preto bit-exact pré-P285).
+        assert_eq!(first_line_color(&doc), None,
+            "sem stroke nem fill, FrameItem::Line.color deve ser None");
+    }
+
+    #[test]
+    fn p285_underline_heranca_text_fill_via_styled() {
+        use crate::entities::layout_types::Color;
+        use crate::entities::style::{Style, Styles};
+        let blue = Color::rgb(0, 0, 255);
+        let inner = Content::Underline {
+            body:   Box::new(Content::text("h")),
+            stroke: None,
+            offset: None,
+            extent: None,
+        };
+        // Styled([Fill(blue)], Underline { stroke: None }) → consumer
+        // lê self.style.fill (já actualizado pelo Styled outer) → emite
+        // color: Some(blue). Paridade vanilla "decoração herda cor do
+        // texto" (P285 §A.3 opção β).
+        let styled = Content::Styled(
+            Box::new(inner),
+            Styles::from_iter([Style::Fill(blue)]),
+        );
+        let doc = layout(&styled);
+        assert_eq!(first_line_color(&doc), Some(blue),
+            "underline sem stroke explícito deve herdar fill do contexto Styled");
+    }
+
+    #[test]
+    fn p285_stroke_user_wins_sobre_fill_do_texto() {
+        // Quando stroke explícito e fill herdado existem, stroke wins
+        // (regra A.3: stroke.or(style.fill) — Some(x).or(_) == Some(x)).
+        use crate::entities::layout_types::Color;
+        use crate::entities::style::{Style, Styles};
+        let red   = Color::rgb(255, 0, 0);
+        let green = Color::rgb(0, 255, 0);
+        let inner = Content::Underline {
+            body:   Box::new(Content::text("y")),
+            stroke: Some(green),       // ← utilizador especifica green
+            offset: None,
+            extent: None,
+        };
+        let styled = Content::Styled(
+            Box::new(inner),
+            Styles::from_iter([Style::Fill(red)]),  // ← fill red herdado
+        );
+        let doc = layout(&styled);
+        assert_eq!(first_line_color(&doc), Some(green),
+            "stroke explícito (green) wins sobre fill herdado (red)");
+    }
+
+    // ── Passo 286 — wrap-aware text decoration ──────────────────────────
+
+    /// Devolve **todas** as `FrameItem::Line` (em ordem de emissão) no
+    /// primeiro frame que tem itens.
+    fn collect_lines(doc: &PagedDocument) -> Vec<(Point, Point, f64, Option<crate::entities::layout_types::Color>)> {
+        let mut out = Vec::new();
+        for page in &doc.pages {
+            for item in &page.items {
+                if let FrameItem::Line { start, end, thickness, color } = item {
+                    out.push((*start, *end, *thickness, *color));
+                }
+            }
+        }
+        out
+    }
+
+    #[test]
+    fn p286_underline_single_line_emite_uma_linha_regression_p285() {
+        // P286 §3 fallback bit-exact: body que cabe numa linha produz
+        // 1 Line — exactamente como P284/P285 (regression test).
+        let doc = layout(&Content::Underline {
+            body:   Box::new(Content::text("hi")),
+            stroke: None, offset: None, extent: None,
+        });
+        let lines = collect_lines(&doc);
+        assert_eq!(lines.len(), 1,
+            "body single-line deve emitir exactamente 1 Line (regression P285); got {}",
+            lines.len());
+    }
+
+    #[test]
+    fn p286_underline_texto_longo_emite_multiplas_linhas() {
+        // Texto suficientemente longo para forçar ≥2 quebras de linha
+        // na página default A4 (margin 70pt, useful ~455pt). Cada palavra
+        // ocupa ~30pt em FixedMetrics 12pt; 50 palavras → ≥3 linhas.
+        let texto_longo: String = (0..50)
+            .map(|i| format!("word{i}"))
+            .collect::<Vec<_>>()
+            .join(" ");
+        let doc = layout(&Content::Underline {
+            body:   Box::new(Content::text(&texto_longo)),
+            stroke: None, offset: None, extent: None,
+        });
+        let lines = collect_lines(&doc);
+        assert!(lines.len() >= 2,
+            "body multi-line deve emitir N≥2 Lines (P286 wrap-aware); got {} Lines",
+            lines.len());
+    }
+
+    #[test]
+    fn p286_underline_multilinhas_y_distintos() {
+        // Cada Line cobre uma linha visual distinta — Y diferentes.
+        let texto: String = (0..40)
+            .map(|i| format!("w{i}"))
+            .collect::<Vec<_>>()
+            .join(" ");
+        let doc = layout(&Content::Underline {
+            body:   Box::new(Content::text(&texto)),
+            stroke: None, offset: None, extent: None,
+        });
+        let lines = collect_lines(&doc);
+        assert!(lines.len() >= 2, "esperava ≥2 Lines para wrap");
+        // Y values devem ser distintos (cada linha a baseline diferente).
+        let ys: std::collections::BTreeSet<i64> = lines.iter()
+            .map(|(s, _, _, _)| (s.y.val() * 1000.0) as i64)
+            .collect();
+        assert_eq!(ys.len(), lines.len(),
+            "cada Line deve ter Y único; got {} Y distintos de {} Lines",
+            ys.len(), lines.len());
+    }
+
+    #[test]
+    fn p286_underline_multilinhas_herdam_cor_uniforme() {
+        // Stroke explícito propaga a TODAS as Lines emitidas (uma cor
+        // por decoração; sem variação per-linha).
+        use crate::entities::layout_types::Color;
+        let red = Color::rgb(255, 0, 0);
+        let texto: String = (0..40).map(|i| format!("w{i}")).collect::<Vec<_>>().join(" ");
+        let doc = layout(&Content::Underline {
+            body:   Box::new(Content::text(&texto)),
+            stroke: Some(red),
+            offset: None,
+            extent: None,
+        });
+        let lines = collect_lines(&doc);
+        assert!(lines.len() >= 2);
+        for (_, _, _, c) in &lines {
+            assert_eq!(*c, Some(red),
+                "cada Line deve preservar a cor de stroke (uniformidade per-decoração)");
+        }
+    }
+
+    #[test]
+    fn p286_strike_e_overline_tambem_wrap_aware() {
+        // Paridade simétrica para os 3 variants P284.
+        let texto: String = (0..40).map(|i| format!("w{i}")).collect::<Vec<_>>().join(" ");
+        let s_doc = layout(&Content::Strike {
+            body:   Box::new(Content::text(&texto)),
+            stroke: None, offset: None, extent: None,
+        });
+        let o_doc = layout(&Content::Overline {
+            body:   Box::new(Content::text(&texto)),
+            stroke: None, offset: None, extent: None,
+        });
+        assert!(collect_lines(&s_doc).len() >= 2,
+            "Strike multi-line deve emitir ≥2 Lines");
+        assert!(collect_lines(&o_doc).len() >= 2,
+            "Overline multi-line deve emitir ≥2 Lines");
+    }
+
+    #[test]
+    fn p286_extent_aplicado_a_todas_as_linhas() {
+        // P286 §A.3 opção α: extent simétrico em cada Line emitida.
+        use crate::entities::layout_types::Length;
+        let texto: String = (0..40).map(|i| format!("w{i}")).collect::<Vec<_>>().join(" ");
+        let baseline = layout(&Content::Underline {
+            body:   Box::new(Content::text(&texto)),
+            stroke: None, offset: None, extent: None,
+        });
+        let with_extent = layout(&Content::Underline {
+            body:   Box::new(Content::text(&texto)),
+            stroke: None, offset: None,
+            extent: Some(Length::pt(4.0)),
+        });
+        let b_lines = collect_lines(&baseline);
+        let e_lines = collect_lines(&with_extent);
+        assert_eq!(b_lines.len(), e_lines.len(),
+            "extent não muda o número de Lines, só as larguras");
+        assert!(b_lines.len() >= 2);
+        for ((bs, be, _, _), (es, ee, _, _)) in b_lines.iter().zip(e_lines.iter()) {
+            let b_len = be.x.val() - bs.x.val();
+            let e_len = ee.x.val() - es.x.val();
+            assert!((e_len - b_len - 8.0).abs() < 0.1,
+                "extent: 4pt adiciona 4pt em cada lado (+8pt total) em cada linha; \
+                 base_len={b_len} ext_len={e_len}");
+        }
     }
 }

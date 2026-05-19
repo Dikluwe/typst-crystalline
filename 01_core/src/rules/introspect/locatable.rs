@@ -130,6 +130,11 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Terms { .. }
         | Content::TermItem { .. }
         | Content::Quote { .. }
+        // P284 — text decoration: não-locatable (cosmético inline; sem
+        // identidade observable, paridade Quote/Link).
+        | Content::Underline { .. }
+        | Content::Strike { .. }
+        | Content::Overline { .. }
         | Content::Pad { .. }
         | Content::Hide { .. }
         | Content::HSpace { .. }

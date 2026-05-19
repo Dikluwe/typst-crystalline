@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 0e2ebf9a
+Hash do Código: 62398a83
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -25,8 +25,16 @@ Newtype f64 para pontos tipográficos. `Pt + Pt` OK; `Pt + f64` NÃO implementad
 Coordenada 2D e tamanho 2D em `Pt`.
 
 ### `FrameItem`
-Variantes: `Text { pos, text, style }`, `Line { start, end, thickness }`,
+Variantes: `Text { pos, text, style }`, `Line { start, end, thickness, color }`,
 `Glyph { pos, glyph_id, x_advance, size }`, `Image { pos, data, width, height, intrinsic_width, intrinsic_height }`.
+
+**`Line.color: Option<Color>`** (Passo 285) — `Some(c)` emite `r g b RG`
+antes do stroke (`S`) no PDF; `None` preserva default preto bit-exact
+(backward-compat para frac/sqrt overline/linhas geométricas pré-P285).
+Activa o `stroke` parseado em `Content::Underline`/`Strike`/`Overline`
+(P284 §5.4 — pendência registada e agora resolvida). Regra de herança
+no consumer Layouter: `color = stroke.or(self.style.fill)` (utilizador
+explícito > herança do texto corrente > default preto).
 
 `Image`: representa uma imagem a renderizar na página.
 - `pos`: canto superior esquerdo em coordenadas de página (pt).

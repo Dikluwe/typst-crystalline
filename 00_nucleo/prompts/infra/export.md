@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export` — Exportador Físico de Documentos
-Hash do Código: 8db23ba9
+Hash do Código: 31a37c57
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export.rs`
@@ -311,6 +311,26 @@ Páginas com pelo menos 1 Gradient ganham:
 
 Quando `Stroke.paint::Solid(c)`: emit `r g b RG` literal P261
 preservado.
+
+### Page stream emit — `FrameItem::Line` com color (Passo 285)
+
+Passo 285 estende `FrameItem::Line` com `color: Option<Color>`. Emit
+condicional em ambos `build_page_stream` (top-level) e `draw_item_local`
+(local em Group) via helper privado `line_rg_prefix(color) -> String`:
+
+- `None`        → `String::new()` (sem `RG`).
+- `Some(c)`     → `{r:.3} {g:.3} {b:.3} RG ` (via `c.to_rgba_f32()`;
+                   paridade absoluta com `emit_stroke_paint` Solid path).
+
+Stream resultante: `q {rg}{w} w {x1} {y1} m {x2} {y2} l S Q\n`.
+Quando `rg` é vazio, a string colapsa exactamente a `q {w} w ... S Q\n`
+(pré-P285, bit-exact backward-compat). Validado por testes regressão
+`p285_math_frac_preserva_ausencia_de_rg` + `p285_line_sem_stroke_preserva_bit_exact`
++ baseline workspace 2 716 testes preserved.
+
+**Win arquitectural P281** preservado: alteração simétrica em ambos
+`build_page_stream` e `draw_item_local` via mesmo helper `line_rg_prefix`
+— paridade local vs top-level **estructuralmente impossível de violar**.
 
 Quando `Stroke.paint::Gradient(g)`:
 ```

@@ -64,6 +64,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             start:     Point { x: Pt(radical_width),                    y: Pt(overline_y) },
             end:       Point { x: Pt(radical_width + rad_box.width),    y: Pt(overline_y) },
             thickness: line_thickness,
+            // P285: sqrt overline preto default (paridade matemática).
+            color:     None,
         });
 
         // 5c. Radicando — à direita do símbolo, deslocado abaixo da overline

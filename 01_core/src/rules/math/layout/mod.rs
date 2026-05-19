@@ -89,10 +89,12 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             text,
             style,
         },
-        FrameItem::Line { start, end, thickness } => FrameItem::Line {
+        FrameItem::Line { start, end, thickness, color } => FrameItem::Line {
             start: Point { x: Pt(start.x.val() + dx.val()), y: Pt(start.y.val() + dy.val()) },
             end:   Point { x: Pt(end.x.val()   + dx.val()), y: Pt(end.y.val()   + dy.val()) },
             thickness,
+            // P285: reflector preserva cor original (translação não afecta paint).
+            color,
         },
         FrameItem::Glyph { pos, glyph_id, x_advance, size } => FrameItem::Glyph {
             pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },

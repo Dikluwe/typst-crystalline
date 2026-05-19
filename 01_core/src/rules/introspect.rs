@@ -190,6 +190,20 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             quotes:      *quotes,
         },
 
+        // P284 — text decoration: recurse em body; cosméticos primitivos.
+        Content::Underline { body, stroke, offset, extent } => Content::Underline {
+            body:   Box::new(materialize_time(body, intr, location)),
+            stroke: *stroke, offset: *offset, extent: *extent,
+        },
+        Content::Strike { body, stroke, offset, extent } => Content::Strike {
+            body:   Box::new(materialize_time(body, intr, location)),
+            stroke: *stroke, offset: *offset, extent: *extent,
+        },
+        Content::Overline { body, stroke, offset, extent } => Content::Overline {
+            body:   Box::new(materialize_time(body, intr, location)),
+            stroke: *stroke, offset: *offset, extent: *extent,
+        },
+
         // ── Terminais — clonar directamente ──────────────────────────────
         // Nós matemáticos (Equation e subtipos) não podem conter CounterDisplay
         // em markup válido — clonados em bloco sem recursão.
@@ -1177,6 +1191,13 @@ pub(crate) fn walk(
             if let Some(a) = attribution {
                 walk(a, locator, tags, intr, auto_label_counter, lang, None);
             }
+        }
+
+        // P284 — text decoration: walk em body (cosméticos não-locatable).
+        Content::Underline { body, .. }
+        | Content::Strike   { body, .. }
+        | Content::Overline { body, .. } => {
+            walk(body, locator, tags, intr, auto_label_counter, lang, None);
         }
 
         Content::Transform { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 089621fc
+//! @prompt-hash 12536b5c
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -31,13 +31,15 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
     match item {
         FrameItem::Text { text, style, .. } =>
             FrameItem::Text { pos: Point { x: new_x, y: new_y }, text, style },
-        FrameItem::Line { start, end, thickness } => {
+        FrameItem::Line { start, end, thickness, color } => {
             let dx = end.x.0 - start.x.0;
             let dy = end.y.0 - start.y.0;
             FrameItem::Line {
                 start:     Point { x: new_x, y: new_y },
                 end:       Point { x: Pt(new_x.0 + dx), y: Pt(new_y.0 + dy) },
                 thickness,
+                // P285: translate preserva cor.
+                color,
             }
         }
         FrameItem::Glyph { glyph_id, x_advance, size, .. } =>

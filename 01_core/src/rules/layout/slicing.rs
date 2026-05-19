@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 089621fc
+//! @prompt-hash 12536b5c
 //! @layer L1
 //! @updated 2026-05-14
 //!
@@ -79,11 +79,13 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
                 pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
                 text, style,
             },
-        FrameItem::Line { start, end, thickness } =>
+        FrameItem::Line { start, end, thickness, color } =>
             FrameItem::Line {
                 start: Point { x: start.x, y: Pt(start.y.0 + delta) },
                 end:   Point { x: end.x,   y: Pt(end.y.0   + delta) },
                 thickness,
+                // P285: slicing reflector preserva cor (Y-delta).
+                color,
             },
         FrameItem::Glyph { pos, glyph_id, x_advance, size } =>
             FrameItem::Glyph {
@@ -209,6 +211,7 @@ mod tests {
             start:     Point { x: Pt(0.0), y: Pt(10.0) },
             end:       Point { x: Pt(50.0), y: Pt(10.0) },
             thickness: 1.0,
+            color:     None,  // P285
         };
         let rebased = rebase_item_y(item, -10.0);
         if let FrameItem::Line { start, end, .. } = rebased {

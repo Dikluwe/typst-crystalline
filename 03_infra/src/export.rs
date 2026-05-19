@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export.md
-//! @prompt-hash bc7b8b95
+//! @prompt-hash 66cb8ac3
 //! @layer L3
 //! @updated 2026-04-20
 
@@ -2180,6 +2180,22 @@ fn emit_text_pdf(
 
 /// **P281** — emit Glyph PDF dispatched por `FontScenario`.
 ///
+/// P285 — Constrói o prefixo `r g b RG ` para emit de `FrameItem::Line`
+/// com cor de stroke. `None` → string vazia (bit-exact pré-P285); `Some(c)`
+/// → operador `RG` com componentes sRGB normalizados em [0.0, 1.0] (via
+/// `to_rgba_f32`, paridade absoluta com `emit_stroke_paint` Solid path
+/// linha 2236-2238). Formato canónico `{:.3} {:.3} {:.3} RG `, trailing
+/// space inclusivo para concatenar imediatamente antes de `{:.3} w`.
+fn line_rg_prefix(color: &Option<typst_core::entities::layout_types::Color>) -> String {
+    match color {
+        None    => String::new(),
+        Some(c) => {
+            let (r, g, b, _) = c.to_rgba_f32();
+            format!("{:.3} {:.3} {:.3} RG ", r, g, b)
+        }
+    }
+}
+
 /// Type1 silently ignored (sem TrueType embebida); CIDFont/Multifont
 /// emitem `<{:04X}>` Identity-H via `/F1` (math fonts).
 fn emit_glyph_pdf(
@@ -2253,14 +2269,19 @@ fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
                 emit_text_pdf(&mut ops, pos.x.val(), pdf_y, text.as_str(),
                               style, &ctx.font_scenario);
             }
-            FrameItem::Line { start, end, thickness } => {
+            FrameItem::Line { start, end, thickness, color } => {
                 let x1 = start.x.val();
                 let y1 = page_height - start.y.val();
                 let x2 = end.x.val();
                 let y2 = page_height - end.y.val();
+                // P285: `color: Some(c)` injecta `r g b RG ` antes de `w`;
+                // `color: None` produz string vazia → bit-exact pré-P285
+                // (frac/sqrt/line sem stroke explícito preservam bytes
+                // exactos vs baseline P284).
+                let rg = line_rg_prefix(color);
                 ops.push_str(&format!(
-                    "q {:.3} w {:.1} {:.1} m {:.1} {:.1} l S Q\n",
-                    thickness, x1, y1, x2, y2
+                    "q {}{:.3} w {:.1} {:.1} m {:.1} {:.1} l S Q\n",
+                    rg, thickness, x1, y1, x2, y2
                 ));
             }
             FrameItem::Glyph { pos, glyph_id, size, .. } => {
@@ -2654,13 +2675,18 @@ fn draw_item_local(
             emit_glyph_pdf(ops, pos.x.0, pos.y.0, *glyph_id, *size,
                            &ctx.font_scenario);
         }
-        FrameItem::Line { start, end, thickness } => {
+        FrameItem::Line { start, end, thickness, color } => {
             // Local emit: coords locais (após Group `cm`). Y já invertido
             // pela matriz cm → preserved bit-exact com top-level emit
             // estructura (`q w m l S Q`) mas sem `page_height -` subtract.
+            // P285: paridade simétrica com top-level — `color: Some(c)`
+            // injecta `r g b RG ` antes de `w`; `color: None` preserva
+            // bit-exact (Win arquitectural P281 — helpers unificados
+            // garantem que mudança em ambos os emit ocorre simetricamente).
+            let rg = line_rg_prefix(color);
             ops.push_str(&format!(
-                "q {:.3} w {:.1} {:.1} m {:.1} {:.1} l S Q\n",
-                thickness, start.x.0, start.y.0, end.x.0, end.y.0
+                "q {}{:.3} w {:.1} {:.1} m {:.1} {:.1} l S Q\n",
+                rg, thickness, start.x.0, start.y.0, end.x.0, end.y.0
             ));
         }
     }
@@ -9139,6 +9165,7 @@ mod tests {
             start:     Point { x: Pt(0.0),  y: Pt(0.0) },
             end:       Point { x: Pt(20.0), y: Pt(15.0) },
             thickness: 1.5,
+            color:     None,  // P285 — preserva bit-exact pré-P285
         };
         let group = FrameItem::Group {
             pos:          Point { x: Pt(50.0), y: Pt(60.0) },
@@ -9228,5 +9255,184 @@ mod tests {
         assert!(pdf_str.contains("/Helvetica"));
         assert!(pdf_str.contains("(Hello World) Tj") || pdf_str.contains("(Hello"));
         assert!(pdf_str.contains("/F1"));
+    }
+
+    // ── Passo 284 — text decoration (PDF emit; reusa FrameItem::Line) ──
+
+    #[test]
+    fn p284_underline_emite_operadores_q_w_m_l_s_q_no_pdf() {
+        // O Layouter emite `FrameItem::Line` para a underline; export.rs
+        // mapeia para `q {w} w {x1} {y1} m {x2} {y2} l S Q\n` (precedente
+        // Passo 38 frac). Confirma toda a cadeia L1→L3 num smoke directo.
+        let doc = layout(&Content::Underline {
+            body:   Box::new(Content::text("hi")),
+            stroke: None,
+            offset: None,
+            extent: None,
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains(" w "), "PDF deve conter operador 'w' (line width)");
+        assert!(s.contains(" m "), "PDF deve conter operador 'm' (moveto)");
+        assert!(s.contains(" l "), "PDF deve conter operador 'l' (lineto)");
+        assert!(s.contains(" S "), "PDF deve conter operador 'S' (stroke)");
+        // Texto preservado em paralelo à linha (Tj presente).
+        assert!(s.contains(") Tj"), "texto do body deve ser emitido como Tj");
+    }
+
+    // ── Passo 285 — `FrameItem::Line` ganha `color`; emit `RG` ────────────
+
+    /// P285 — `Color = None` em todos os call-sites legados (frac, sqrt
+    /// overline, line sem stroke explícito, underline sem stroke nem
+    /// herança) preserva o stream PDF byte-a-byte. Validado por substring
+    /// negativa: o byte-sequence `RG ` **não** aparece dentro do contexto
+    /// de uma linha `q ... w ... S Q`.
+    ///
+    /// Esta é a salvaguarda principal contra regressão bit-exact.
+    #[test]
+    fn p285_line_sem_stroke_preserva_bit_exact() {
+        // Underline sem stroke explícito + texto sem fill explícito →
+        // herança falha (style.fill = None) → emit `color: None` → sem `RG`.
+        let doc = layout(&Content::Underline {
+            body:   Box::new(Content::text("plain")),
+            stroke: None,
+            offset: None,
+            extent: None,
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        // O stream deve ter `q 0.6 w ... l S Q` sem `RG` precedente.
+        // Pesquisa por padrão: nenhum `RG ` antes do `w` (na mesma linha).
+        // Heurística forte: contar ocorrências.
+        let rg_count = s.matches(" RG ").count();
+        assert_eq!(rg_count, 0,
+            "Line sem stroke nem fill herdado NÃO deve emitir RG; encontrei {rg_count} no PDF");
+    }
+
+    /// P285 — `stroke: Some(red)` injecta `1.000 0.000 0.000 RG ` antes
+    /// de `w` no operador da linha. Activação do stroke "parseado mas
+    /// inerte" registado em P284 §5.4 (relatório).
+    #[test]
+    fn p285_underline_com_stroke_explicito_emite_rg() {
+        use typst_core::entities::layout_types::Color;
+        let doc = layout(&Content::Underline {
+            body:   Box::new(Content::text("x")),
+            stroke: Some(Color::rgb(255, 0, 0)),
+            offset: None,
+            extent: None,
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("1.000 0.000 0.000 RG"),
+            "PDF deve conter '1.000 0.000 0.000 RG' (red stroke explícito)");
+    }
+
+    /// P285 — paridade simétrica para `Strike` e `Overline`: ambos
+    /// honram `stroke` quando especificado (decisão A.3 aplicada uniformemente
+    /// aos 3 variants P284).
+    #[test]
+    fn p285_strike_e_overline_honram_stroke() {
+        use typst_core::entities::layout_types::Color;
+        let s_doc = layout(&Content::Strike {
+            body:   Box::new(Content::text("a")),
+            stroke: Some(Color::rgb(0, 128, 0)),
+            offset: None,
+            extent: None,
+        });
+        let o_doc = layout(&Content::Overline {
+            body:   Box::new(Content::text("a")),
+            stroke: Some(Color::rgb(0, 0, 255)),
+            offset: None,
+            extent: None,
+        });
+        let s_pdf = String::from_utf8_lossy(&export_pdf(&s_doc)).to_string();
+        let o_pdf = String::from_utf8_lossy(&export_pdf(&o_doc)).to_string();
+        // Green (128/255 ≈ 0.502).
+        assert!(s_pdf.contains("0.000 0.502 0.000 RG"),
+            "strike(stroke: green) deve emitir green RG");
+        // Blue.
+        assert!(o_pdf.contains("0.000 0.000 1.000 RG"),
+            "overline(stroke: blue) deve emitir blue RG");
+    }
+
+    /// P285 §A.3 herança — quando `stroke = None` mas o texto corrente
+    /// tem `fill`, o consumer Layouter herda essa cor. Paridade vanilla
+    /// "decoração herda cor do texto".
+    #[test]
+    fn p285_underline_herda_fill_do_texto_quando_stroke_none() {
+        use typst_core::entities::layout_types::{Color, TextStyle};
+        use typst_core::entities::style::{Style, Styles};
+        // Construir: Styled([Fill(red)], Underline { stroke: None, ... })
+        let inner = Content::Underline {
+            body:   Box::new(Content::text("h")),
+            stroke: None,           // ← sem stroke explícito
+            offset: None,
+            extent: None,
+        };
+        let mut style = TextStyle::default();
+        style.fill = Some(Color::rgb(255, 0, 0));
+        let styled = Content::Styled(
+            Box::new(inner),
+            Styles::from_iter([Style::Fill(Color::rgb(255, 0, 0))]),
+        );
+        let _ = style; // capturado conceptualmente; teste real usa Styles.
+        let doc = layout(&styled);
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        // Underline deve herdar o vermelho do Styled wrapping → emite RG.
+        assert!(s.contains("1.000 0.000 0.000 RG"),
+            "underline deve herdar fill do contexto Styled (paridade vanilla §A.3 β)");
+    }
+
+    /// P285 — math frac (FrameItem::Line pré-P284 pela P38) **continua**
+    /// sem emitir `RG` (color = None hardcoded em frac.rs). Garantia
+    /// estrutural contra regressão em features pré-P285.
+    #[test]
+    fn p285_math_frac_preserva_ausencia_de_rg() {
+        // Construir uma fracção mínima via Content::MathFrac.
+        let frac = Content::Equation {
+            body:  Box::new(Content::MathFrac {
+                num: Box::new(Content::MathText("1".into())),
+                den: Box::new(Content::MathText("2".into())),
+            }),
+            block: false,
+        };
+        let doc = layout(&frac);
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert_eq!(s.matches(" RG ").count(), 0,
+            "math frac NÃO deve emitir RG (color: None hardcoded); preserva bit-exact pré-P285");
+    }
+
+    // ── Passo 286 — wrap-aware text decoration (PDF integration) ───────
+
+    /// P286 — body multi-line produz N operadores `q ... S Q` separados
+    /// no PDF (1 por linha visual). Smoke directo L1→L3.
+    #[test]
+    fn p286_underline_multilinhas_emite_n_operadores_q_s_q() {
+        use typst_core::entities::layout_types::Color;
+        let texto_longo: String = (0..40)
+            .map(|i| format!("w{i}"))
+            .collect::<Vec<_>>()
+            .join(" ");
+        let doc = layout(&Content::Underline {
+            body:   Box::new(Content::text(&texto_longo)),
+            stroke: Some(Color::rgb(0, 0, 255)),  // blue para distinguir
+            offset: None,
+            extent: None,
+        });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        // O exportador escreve `q {RG} {w} w {x1} {y1} m {x2} {y2} l S Q\n`
+        // por cada FrameItem::Line. Contar via match de "l S Q" (terminação
+        // estável do bloco line; mais robusto que contar `q ` que aparece
+        // também em Group/Shape).
+        let n_lines = s.matches("l S Q\n").count();
+        assert!(n_lines >= 2,
+            "underline multi-line deve emitir ≥2 operadores `l S Q` no PDF; got {n_lines}");
+        // Todas as linhas devem ter o `RG` blue.
+        let n_rg = s.matches("0.000 0.000 1.000 RG").count();
+        assert!(n_rg >= 2,
+            "cada Line deve ter `RG` blue (cor uniforme P286); got {n_rg}");
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash bcd3ea13
+//! @prompt-hash bc68ad9f
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -466,6 +466,44 @@ pub enum Content {
         attribution: Option<Box<Content>>,
         block:       bool,
         quotes:      bool,
+    },
+
+    // ── Passo 284 (ADR-0054 graded) — text decoration ─────────────────────
+    //
+    // Três variants distintos (paridade vanilla `UnderlineElem`/`StrikeElem`/
+    // `OverlineElem`). Atributos cosméticos opcionais materializados em
+    // bucket 1 do diagnóstico P284 §A.1; `evade` e `background` ficam fora
+    // (ADR-0054 graded); objecto `Stroke` rico adiado (Tabela A.7 linha 201
+    // `stroke(...)` parcial).
+    //
+    // - `body`: conteúdo a decorar.
+    // - `stroke`: paint da linha (default `Color::rgb(0, 0, 0)` quando `None`).
+    // - `offset`: override do offset Y default (em pt no espaço Layouter);
+    //   `None` = constante por kind (`+0.10/-0.25/-0.80 em` em-units).
+    // - `extent`: extensão horizontal além do body (positiva ou negativa);
+    //   `None` = 0pt.
+    //
+    // Emit reutiliza `FrameItem::Line` existente (precedente Passo 38 frac);
+    // hash L0 `export.rs` `bc7b8b95` preservado (per spec §5).
+    Underline {
+        body:   Box<Content>,
+        stroke: Option<Color>,
+        offset: Option<Length>,
+        extent: Option<Length>,
+    },
+
+    Strike {
+        body:   Box<Content>,
+        stroke: Option<Color>,
+        offset: Option<Length>,
+        extent: Option<Length>,
+    },
+
+    Overline {
+        body:   Box<Content>,
+        stroke: Option<Color>,
+        offset: Option<Length>,
+        extent: Option<Length>,
     },
 
     // ── Passo 156C (ADR-0061 Fase 1 sub-passo 1) — pad + hide ───────────
@@ -1314,6 +1352,11 @@ impl Content {
                 term.is_empty() && description.is_empty(),
             // Passo 155: Quote vazio se body for vazio.
             Self::Quote { body, .. } => body.is_empty(),
+            // P284: decoração vazia se o body for vazio (cosméticos não
+            // criam observable se não há conteúdo).
+            Self::Underline { body, .. } => body.is_empty(),
+            Self::Strike    { body, .. } => body.is_empty(),
+            Self::Overline  { body, .. } => body.is_empty(),
             // Passo 156C (ADR-0061 Fase 1): Pad/Hide vazios se o body for.
             Self::Pad  { body, .. } => body.is_empty(),
             Self::Hide { body }     => body.is_empty(),
@@ -1370,6 +1413,11 @@ impl Content {
                 format!("{}{}", n, body.plain_text())
             }
             Self::Link { body, .. }  => body.plain_text(),
+            // P284 — text decoration: transparente em texto plano (paridade
+            // com Link/Heading/Quote — só atributos cosméticos).
+            Self::Underline { body, .. } => body.plain_text(),
+            Self::Strike    { body, .. } => body.plain_text(),
+            Self::Overline  { body, .. } => body.plain_text(),
             Self::Equation { body, block } => {
                 if *block { format!("\n{}\n", body.plain_text()) }
                 else       { body.plain_text() }
@@ -1672,6 +1720,16 @@ impl PartialEq for Content {
             (Self::Quote { body: ba, attribution: aa, block: ka, quotes: qa },
              Self::Quote { body: bb, attribution: ab, block: kb, quotes: qb }) =>
                 ba == bb && aa == ab && ka == kb && qa == qb,
+            // P284 — text decoration (3 variants, 4 fields cada).
+            (Self::Underline { body: ba, stroke: sa, offset: oa, extent: ea },
+             Self::Underline { body: bb, stroke: sb, offset: ob, extent: eb }) =>
+                ba == bb && sa == sb && oa == ob && ea == eb,
+            (Self::Strike { body: ba, stroke: sa, offset: oa, extent: ea },
+             Self::Strike { body: bb, stroke: sb, offset: ob, extent: eb }) =>
+                ba == bb && sa == sb && oa == ob && ea == eb,
+            (Self::Overline { body: ba, stroke: sa, offset: oa, extent: ea },
+             Self::Overline { body: bb, stroke: sb, offset: ob, extent: eb }) =>
+                ba == bb && sa == sb && oa == ob && ea == eb,
             // Passo 156C / 156L — Pad / Hide.
             (Self::Pad  { body: ba, sides: sa },
              Self::Pad  { body: bb, sides: sb }) => ba == bb && sa == sb,
@@ -1874,6 +1932,27 @@ impl Content {
                     .map(Box::new),
                 block:       *block,
                 quotes:      *quotes,
+            },
+
+            // P284 — text decoration containers — recurse em body;
+            // atributos cosméticos são Copy primitivos.
+            Content::Underline { body, stroke, offset, extent } => Content::Underline {
+                body:   Box::new(body.map_content(transform)?),
+                stroke: *stroke,
+                offset: *offset,
+                extent: *extent,
+            },
+            Content::Strike { body, stroke, offset, extent } => Content::Strike {
+                body:   Box::new(body.map_content(transform)?),
+                stroke: *stroke,
+                offset: *offset,
+                extent: *extent,
+            },
+            Content::Overline { body, stroke, offset, extent } => Content::Overline {
+                body:   Box::new(body.map_content(transform)?),
+                stroke: *stroke,
+                offset: *offset,
+                extent: *extent,
             },
 
             // Passo 156C / 156L: Pad / Hide containers — recurse em body;
@@ -2180,6 +2259,26 @@ impl Content {
                 attribution: attribution.as_ref().map(|c| Box::new(c.map_text(transform))),
                 block:       *block,
                 quotes:      *quotes,
+            },
+
+            // P284 — text decoration containers — recurse em body.
+            Content::Underline { body, stroke, offset, extent } => Content::Underline {
+                body:   Box::new(body.map_text(transform)),
+                stroke: *stroke,
+                offset: *offset,
+                extent: *extent,
+            },
+            Content::Strike { body, stroke, offset, extent } => Content::Strike {
+                body:   Box::new(body.map_text(transform)),
+                stroke: *stroke,
+                offset: *offset,
+                extent: *extent,
+            },
+            Content::Overline { body, stroke, offset, extent } => Content::Overline {
+                body:   Box::new(body.map_text(transform)),
+                stroke: *stroke,
+                offset: *offset,
+                extent: *extent,
             },
 
             // Passo 156C / 156L: Pad / Hide containers — recurse em body.
@@ -2942,6 +3041,95 @@ mod tests {
             quotes:      true,
         };
         assert_ne!(mk(), other);
+    }
+
+    // ── Passo 284 (ADR-0054 graded) — text decoration ─────────────────────
+
+    #[test]
+    fn decoration_variants_construtores_basicos() {
+        let u = Content::Underline {
+            body: Box::new(Content::text("hi")),
+            stroke: None, offset: None, extent: None,
+        };
+        let s = Content::Strike {
+            body: Box::new(Content::text("hi")),
+            stroke: None, offset: None, extent: None,
+        };
+        let o = Content::Overline {
+            body: Box::new(Content::text("hi")),
+            stroke: None, offset: None, extent: None,
+        };
+        assert!(matches!(u, Content::Underline { .. }));
+        assert!(matches!(s, Content::Strike    { .. }));
+        assert!(matches!(o, Content::Overline  { .. }));
+        // Variants distintos não colapsam mesmo com body idêntico.
+        assert_ne!(u, s);
+        assert_ne!(s, o);
+        assert_ne!(u, o);
+    }
+
+    #[test]
+    fn decoration_plain_text_delega_no_body() {
+        let mk = |body| Content::Underline {
+            body: Box::new(body), stroke: None, offset: None, extent: None,
+        };
+        assert_eq!(mk(Content::text("hello")).plain_text(), "hello");
+        // strike/overline têm a mesma regra — paridade Quote/Link.
+        let s = Content::Strike   { body: Box::new(Content::text("x")), stroke: None, offset: None, extent: None };
+        let o = Content::Overline { body: Box::new(Content::text("y")), stroke: None, offset: None, extent: None };
+        assert_eq!(s.plain_text(), "x");
+        assert_eq!(o.plain_text(), "y");
+    }
+
+    #[test]
+    fn decoration_is_empty_proxy_para_body() {
+        let u_empty = Content::Underline { body: Box::new(Content::Empty), stroke: None, offset: None, extent: None };
+        let u_full  = Content::Underline { body: Box::new(Content::text("a")), stroke: None, offset: None, extent: None };
+        assert!(u_empty.is_empty());
+        assert!(!u_full.is_empty());
+    }
+
+    #[test]
+    fn decoration_partial_eq_distingue_cosmeticos() {
+        let base = || Content::Underline {
+            body:   Box::new(Content::text("x")),
+            stroke: None,
+            offset: None,
+            extent: None,
+        };
+        assert_eq!(base(), base());
+        let with_offset = Content::Underline {
+            body:   Box::new(Content::text("x")),
+            stroke: None,
+            offset: Some(Length::pt(2.0)),
+            extent: None,
+        };
+        assert_ne!(base(), with_offset, "offset diferente quebra igualdade");
+        let with_stroke = Content::Underline {
+            body:   Box::new(Content::text("x")),
+            stroke: Some(Color::rgb(255, 0, 0)),
+            offset: None,
+            extent: None,
+        };
+        assert_ne!(base(), with_stroke);
+    }
+
+    #[test]
+    fn decoration_map_text_recurse_no_body() {
+        let u = Content::Underline {
+            body:   Box::new(Content::text("hello")),
+            stroke: None,
+            offset: Some(Length::pt(3.0)),
+            extent: None,
+        };
+        let upper = u.map_text(&mut |s| s.to_uppercase());
+        assert_eq!(upper.plain_text(), "HELLO");
+        // Cosméticos preservados após map_text.
+        if let Content::Underline { offset, .. } = upper {
+            assert_eq!(offset, Some(Length::pt(3.0)));
+        } else {
+            panic!("map_text quebrou o variant kind");
+        }
     }
 
     // ── Passo 156C / 156L (ADR-0061 Fase 1 + Fase 3 refino) — pad + hide ──

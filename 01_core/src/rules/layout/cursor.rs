@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 089621fc
+//! @prompt-hash 12536b5c
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -92,6 +92,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // — evita acumular line_height em cascata quando Shape/Image/Heading
         // chamam flush_line por segurança antes do seu próprio push.
         let had_items = !self.regions.current.current_line.is_empty();
+
+        // P286 — hook decorações wrap-aware. Se o collector está activo
+        // (consumer Underline/Strike/Overline o ligou) e há items na
+        // linha que vai ser drenada, regista o segmento `(line_start_x,
+        // cursor_x, cursor_y)` antes do advance. Backward-compat
+        // estricta: collector None → nenhum overhead.
+        if had_items {
+            if let Some(coll) = self.decoration_lines_collector.as_mut() {
+                coll.push(super::DecoSegment {
+                    start_x:    self.regions.current.line_start_x,
+                    end_x:      self.regions.current.cursor_x,
+                    baseline_y: self.regions.current.cursor_y,
+                });
+            }
+        }
 
         // Passo 138 (Fase B.2 DEBT-52): consumer leading.
         // `self.style` pode ter sido restaurado ao outer scope antes de
@@ -248,10 +263,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         matrix, clip_mask, inner_width, inner_height, items,
                     },
-                FrameItem::Line { start, end, thickness } => FrameItem::Line {
+                FrameItem::Line { start, end, thickness, color } => FrameItem::Line {
                     start: Point { x: start.x + Pt(target_x), y: start.y + Pt(target_y) },
                     end:   Point { x: end.x   + Pt(target_x), y: end.y   + Pt(target_y) },
                     thickness,
+                    // P285: cursor reflector preserva cor (translação).
+                    color,
                 },
                 FrameItem::Glyph { pos, glyph_id, x_advance, size } =>
                     FrameItem::Glyph {

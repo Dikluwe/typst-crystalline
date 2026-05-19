@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
-//! @prompt-hash 7df1ee98
+//! @prompt-hash cc247f4d
 //! @layer L1
 //! @updated 2026-04-23
 
@@ -39,7 +39,7 @@ pub use crate::rules::stdlib::foundations::{
     native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with, native_str, native_type,
 };
 pub use crate::rules::stdlib::calc::make_calc_module;
-pub use crate::rules::stdlib::text::{native_lower, native_replace, native_upper};
+pub use crate::rules::stdlib::text::{native_lower, native_overline, native_replace, native_strike, native_underline, native_upper};
 pub use crate::rules::stdlib::assert::native_assert;
 pub use crate::rules::stdlib::structural::{
     native_bibliography, native_cite, native_divider, native_emph, native_grid_cell, native_grid_footer, native_grid_header, native_heading, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms,
@@ -6750,5 +6750,86 @@ mod tests {
         ]);
         let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         assert_eq!(r.type_name(), "gradient");
+    }
+
+    // ── Passo 284 — text decoration (underline / strike / overline) ─────
+
+    #[test]
+    fn p284_native_underline_envolve_body_sem_named() {
+        null_ctx!(ctx);
+        let args = p(vec![Value::Content(Content::text("hello"))]);
+        let r = native_underline(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Underline { body, stroke, offset, extent }) = r {
+            assert_eq!(body.plain_text(), "hello");
+            assert!(stroke.is_none() && offset.is_none() && extent.is_none(),
+                    "sem named: cosméticos preservados em None");
+        } else {
+            panic!("esperado Value::Content(Content::Underline {{ .. }})");
+        }
+    }
+
+    #[test]
+    fn p284_native_strike_e_overline_idem_underline() {
+        null_ctx!(ctx);
+        let args = p(vec![Value::Content(Content::text("x"))]);
+        let s = native_strike(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        let o = native_overline(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert!(matches!(s, Value::Content(Content::Strike   { .. })));
+        assert!(matches!(o, Value::Content(Content::Overline { .. })));
+    }
+
+    #[test]
+    fn p284_native_underline_aceita_string_como_body() {
+        null_ctx!(ctx);
+        let args = p(vec![Value::Str("important".into())]);
+        let r = native_underline(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        match r {
+            Value::Content(Content::Underline { body, .. }) => assert_eq!(body.plain_text(), "important"),
+            other => panic!("esperado Underline, obtido {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p284_native_underline_named_stroke_offset_extent() {
+        use crate::entities::layout_types::{Color, Length};
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("y"))]);
+        args.named.insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
+        args.named.insert("offset".into(), Value::Length(Length::pt(2.5)));
+        args.named.insert("extent".into(), Value::Length(Length::pt(-1.0)));
+        let r = native_underline(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        if let Value::Content(Content::Underline { stroke, offset, extent, .. }) = r {
+            assert_eq!(stroke, Some(Color::rgb(255, 0, 0)));
+            assert_eq!(offset, Some(Length::pt(2.5)));
+            assert_eq!(extent, Some(Length::pt(-1.0)));
+        } else {
+            panic!("esperado Underline com cosméticos");
+        }
+    }
+
+    #[test]
+    fn p284_native_decoration_sem_body_retorna_err() {
+        null_ctx!(ctx);
+        let args = p(vec![]);
+        assert!(native_underline(&mut ctx, &args, &null_world(), test_file_id(), None).is_err());
+        assert!(native_strike  (&mut ctx, &args, &null_world(), test_file_id(), None).is_err());
+        assert!(native_overline(&mut ctx, &args, &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn p284_native_decoration_scope_out_evade_e_background_erro_explicito() {
+        // Mensagem de erro deve referenciar a decisão graded (não erro
+        // genérico "argumento inesperado"). Cobre diagnóstico §A.1.
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("evade".into(), Value::Bool(true));
+        let err = native_underline(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap_err();
+        let msg = format!("{:?}", err);
+        assert!(msg.contains("evade") && msg.contains("ADR-0054"),
+                "mensagem deve referir 'evade' e ADR-0054 graded: {msg}");
+        let mut args2 = p(vec![Value::Content(Content::text("x"))]);
+        args2.named.insert("background".into(), Value::Bool(true));
+        let err2 = native_overline(&mut ctx, &args2, &null_world(), test_file_id(), None).unwrap_err();
+        assert!(format!("{:?}", err2).contains("background"));
     }
 }

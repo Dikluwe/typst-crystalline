@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 92312c9e
+Hash do Código: 1b3c3556
 
 ## Módulo
 `01_core/src/rules/layout.rs`
@@ -39,6 +39,36 @@ API pública — usa `FixedMetrics::new(12.0)`.
 - Paginação: nova página quando `cursor_y > page_height - MARGIN`
 - `flush_line()` move `current_line` para o frame actual
 - `finish()` faz flush final e descarta página vazia
+
+### Decoração textual wrap-aware (Passo 286 — fecha cluster P284-P285-P286)
+
+O consumer Layouter de `Content::Underline`/`Strike`/`Overline`
+(P284 §2.3, estendido em P285 §3.3 herança stroke, **finalizado em
+P286 §3.6 wrap**) emite **N `FrameItem::Line` por decoração** quando
+o body faz wrap em N linhas visuais. Mecanismo per diagnóstico P286:
+
+1. **Campo opcional no Layouter** —
+   `decoration_lines_collector: Option<Vec<DecoSegment>>` (None por
+   default — zero overhead nos outros call-sites).
+2. **Hook em `flush_line`** — se o collector está activo e há items
+   pendentes, regista `DecoSegment { start_x: line_start_x,
+   end_x: cursor_x, baseline_y: cursor_y }` **antes** do drain.
+3. **Consumer P284** — snapshot inicial + activa collector + recurse
+   no body + drena vec + acrescenta segment "final não-flushed" +
+   emite 1 `FrameItem::Line` por segment (cor uniforme via
+   `stroke.or(style.fill)`; extent simétrico em ambos os lados de
+   cada linha per P286 §A.3 opção α).
+4. **Fallback single-line bit-exact** — body que não causa flush
+   produz 1 segment ("final não-flushed"); coerente com algoritmo
+   P284 original.
+
+Cluster decorações **COMPLETO**:
+- P284: variants + native_* + Layouter consumer single-line + emit reusa `FrameItem::Line`.
+- P285: `stroke` activado (emit `RG` + herança `style.fill`).
+- P286: wrap-aware (N segments → N Lines visuais).
+
+Restrição graded P284 §5.3 **RESOLVIDA**. ADR-0054 graded preservado
+para `evade`/`background`/objecto Stroke rico.
 
 ### Hyphenation (Passo 144, ADR-0057)
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/layout.md
-//! @prompt-hash 089621fc
+//! @prompt-hash 12536b5c
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -73,11 +73,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     self.regions.current.current_line.push(FrameItem::Text { pos: abs_pos, text, style });
                     self.regions.current.cursor_x += advance;
                 }
-                FrameItem::Line { start, end, thickness } => {
+                FrameItem::Line { start, end, thickness, color } => {
                     let abs_start = Point { x: offset_x + start.x, y: offset_y + start.y };
                     let abs_end   = Point { x: offset_x + end.x,   y: offset_y + end.y };
                     self.regions.current.current_line.push(FrameItem::Line {
                         start: abs_start, end: abs_end, thickness,
+                        // P285: equação preserva cor da Line original (math
+                        // frac/sqrt usam None → preto bit-exact).
+                        color,
                     });
                 }
                 FrameItem::Image { .. } => {}   // imagens não ocorrem em math inline

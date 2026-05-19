@@ -66,6 +66,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             start:     Point { x: Pt(0.0),    y: Pt(rule_local_y) },
             end:       Point { x: Pt(width),  y: Pt(rule_local_y) },
             thickness: rule_thickness,
+            // P285: math frac sem stroke explícito — preserva preto bit-exact.
+            color:     None,
         });
 
         for mut item in den_box.items {

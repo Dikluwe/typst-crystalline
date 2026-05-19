@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: d5b5f12b
+Hash do Código: 6cc7a7e4
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -232,6 +232,68 @@ Content::Quote {
   produz `Content::Quote` (esse fica reservado para `#quote()`
   estrutural). Decisão pragmática: cristalino's lexer já é
   per-character, e refactor para parear `"..."` excederia escopo P155.
+
+## Variants `Content::Underline` + `Content::Strike` + `Content::Overline` — Passo 284 (ADR-0054 graded)
+
+Decoração textual paralela vanilla `UnderlineElem`/`StrikeElem`/`OverlineElem`
+em `text/deco.rs`. Três variants **distintos** (não tagged) por coerência
+arquitectural com P156G/H/I e com vanilla. Diagnóstico completo em
+`00_nucleo/diagnosticos/diagnostico-deco-passo-284.md`.
+
+```rust
+Content::Underline {
+    body:   Box<Content>,
+    stroke: Option<Color>,
+    offset: Option<Length>,
+    extent: Option<Length>,
+},
+// Strike e Overline com assinatura idêntica.
+```
+
+### Atributos
+
+- `body`: conteúdo a decorar (paridade `body: Content` vanilla, `#[required]`).
+- `stroke`: paint da linha (apenas Color simples — objecto Stroke rico
+  vanilla scope-out per Tabela A.7 linha 201 `stroke(...)` parcial). `None`
+  ↔ default `Color::rgb(0, 0, 0)`.
+- `offset`: override do offset Y default. `None` ↔ default por kind
+  (`+0.10/-0.25/-0.80 em` — ver `stdlib.md` §`underline/strike/overline`).
+- `extent`: extensão horizontal além do body (positiva ou negativa).
+  `None` ↔ `0pt`.
+
+### Scope-out (per diagnóstico §A.1 + ADR-0054 graded)
+
+- `evade: bool` (descender skipping) — geometria glifo-a-glifo; passo
+  dedicado futuro. **Vanilla `StrikeElem` não tem este atributo** (asimetria
+  intencional). `native_underline` rejeita com erro explícito mencionando
+  `ADR-0054`.
+- `background: bool` (z-order) — baixo valor visível neste passo.
+
+### Emit (consumer Layouter)
+
+`Layouter::layout_content` para os três variants:
+
+1. Captura `start_x = cursor_x`, `baseline_y = cursor_y` antes do body.
+2. `layout_content(body)` — recurse normal.
+3. Captura `end_x = cursor_x`.
+4. Empurra `FrameItem::Line { start: (start_x − extent_pt, line_y),
+   end: (end_x + extent_pt, line_y), thickness }` em `current_line`.
+
+`line_y = baseline_y + (offset.resolve_pt() | kind_em * font_pt)`.
+`thickness = max(font_pt * 0.05, 0.4)`.
+
+### Restrição graded
+
+Single-line apenas: se o body fluir para linha nova entre `start_x` e
+`end_x`, a decoração assume largura `(start_x, end_x)` da linha final
+(visivelmente incorrecta em multi-line). Sub-passo P284.1 candidato para
+`flush_line`-aware emission. ADR-0054 graded justifica adiamento.
+
+### Hash L0 `export.rs` preservado
+
+A decisão A.2 (helper único derivado de `FrameItem::Line` existente) garante
+que `export.rs` **não é tocado** — emit reusa a função de `Line` precedente
+P38. Hash `bc7b8b95` preservado (verificável em `03_infra/src/export.rs:3`).
 
 ## Variants `Content::Pad` + `Content::Hide` — Passo 156C (ADR-0061 Fase 1, sub-passo 1)
 
