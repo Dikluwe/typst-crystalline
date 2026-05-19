@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
-//! @prompt-hash cc247f4d
+//! @prompt-hash 21ade03a
 //! @layer L1
 //! @updated 2026-04-23
 
@@ -39,7 +39,7 @@ pub use crate::rules::stdlib::foundations::{
     native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with, native_str, native_type,
 };
 pub use crate::rules::stdlib::calc::make_calc_module;
-pub use crate::rules::stdlib::text::{native_lower, native_overline, native_replace, native_strike, native_underline, native_upper};
+pub use crate::rules::stdlib::text::{native_lower, native_overline, native_replace, native_smartquote, native_strike, native_underline, native_upper};
 pub use crate::rules::stdlib::assert::native_assert;
 pub use crate::rules::stdlib::structural::{
     native_bibliography, native_cite, native_divider, native_emph, native_grid_cell, native_grid_footer, native_grid_header, native_heading, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms,
@@ -6831,5 +6831,77 @@ mod tests {
         args2.named.insert("background".into(), Value::Bool(true));
         let err2 = native_overline(&mut ctx, &args2, &null_world(), test_file_id(), None).unwrap_err();
         assert!(format!("{:?}", err2).contains("background"));
+    }
+
+    // ── Passo 287 — native_smartquote ─────────────────────────────────
+
+    #[test]
+    fn p287_native_smartquote_sem_args_emite_variant_double_true() {
+        use super::native_smartquote;
+        null_ctx!(ctx);
+        let r = native_smartquote(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
+        assert_eq!(r, Value::Content(Content::SmartQuote { double: true }),
+            "smartquote() sem args → SmartQuote {{ double: true }} (vanilla default)");
+    }
+
+    #[test]
+    fn p287_native_smartquote_double_false_emite_variant_single() {
+        use super::native_smartquote;
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("double".into(), Value::Bool(false));
+        let r = native_smartquote(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert_eq!(r, Value::Content(Content::SmartQuote { double: false }));
+    }
+
+    #[test]
+    fn p287_native_smartquote_enabled_false_emite_text_ascii_directo() {
+        // Paridade vanilla `set smartquote(enabled: false)` — ASCII literal,
+        // não passa pelo variant SmartQuote (consumer Layouter ignora).
+        use super::native_smartquote;
+        null_ctx!(ctx);
+        // enabled=false + double=true → Text("\"").
+        let mut args = p(vec![]);
+        args.named.insert("enabled".into(), Value::Bool(false));
+        let r = native_smartquote(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
+        assert_eq!(r, Value::Content(Content::text("\"")));
+        // enabled=false + double=false → Text("'").
+        let mut args2 = p(vec![]);
+        args2.named.insert("enabled".into(), Value::Bool(false));
+        args2.named.insert("double".into(),  Value::Bool(false));
+        let r2 = native_smartquote(&mut ctx, &args2, &null_world(), test_file_id(), None).unwrap();
+        assert_eq!(r2, Value::Content(Content::text("'")));
+    }
+
+    #[test]
+    fn p287_native_smartquote_alternative_rejeitado_com_erro_educacional() {
+        // Scope-out per ADR-0054 graded — erro menciona ADR.
+        use super::native_smartquote;
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("alternative".into(), Value::Bool(true));
+        let err = native_smartquote(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap_err();
+        let msg = format!("{:?}", err);
+        assert!(msg.contains("alternative") && msg.contains("ADR-0054"),
+            "erro deve referir 'alternative' e ADR-0054: {msg}");
+    }
+
+    #[test]
+    fn p287_native_smartquote_quotes_custom_scope_out_erro_explicito() {
+        // `quotes` (custom string/array/dict) é scope-out per §A.1.3.
+        use super::native_smartquote;
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("quotes".into(), Value::Str("()".into()));
+        let err = native_smartquote(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap_err();
+        assert!(format!("{:?}", err).contains("quotes"));
+    }
+
+    #[test]
+    fn p287_native_smartquote_arg_posicional_retorna_err() {
+        use super::native_smartquote;
+        null_ctx!(ctx);
+        let r = native_smartquote(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id(), None);
+        assert!(r.is_err(), "args posicionais rejeitados (vanilla usa só named)");
     }
 }

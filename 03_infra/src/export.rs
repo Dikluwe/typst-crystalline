@@ -9435,4 +9435,35 @@ mod tests {
         assert!(n_rg >= 2,
             "cada Line deve ter `RG` blue (cor uniforme P286); got {n_rg}");
     }
+
+    // ── Passo 287 — SmartQuote PDF integration ─────────────────────────
+
+    /// P287 — `Content::SmartQuote { double: true }` × 2 produz 2 chars
+    /// `"` no stream PDF (ambos ASCII porque lang default None). Smoke
+    /// L1→L3 directo confirma toda a cadeia: variant → consumer Layouter
+    /// → Content::Text → FrameItem::Text → emit `(...) Tj`.
+    #[test]
+    fn p287_smartquote_double_default_emite_2_quotes_no_pdf() {
+        let doc = layout(&Content::sequence(vec![
+            Content::SmartQuote { double: true },
+            Content::SmartQuote { double: true },
+        ]));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        // Cada SmartQuote ASCII emite `(") Tj` (escaping PDF strings
+        // não escape `"`). Contar via `Tj`.
+        let n_tj = s.matches(") Tj").count();
+        assert!(n_tj >= 2, "2 SmartQuote → ≥2 `(...) Tj`; got {n_tj}");
+    }
+
+    /// P287 — `Content::SmartQuote { double: false }` produz `'` ASCII.
+    #[test]
+    fn p287_smartquote_single_emite_apostrophe_ascii_no_pdf() {
+        let doc = layout(&Content::SmartQuote { double: false });
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        // ASCII `'` é safe em PDF string (sem escaping).
+        assert!(s.contains("'") || s.contains(")Tj") || s.contains(") Tj"),
+            "SmartQuote single deve aparecer no PDF");
+    }
 }

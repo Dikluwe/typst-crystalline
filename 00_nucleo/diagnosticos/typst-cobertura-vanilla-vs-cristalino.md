@@ -57,7 +57,7 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `$ display math $` | math/equation.rs | `implementado⁺` | idem | `block: true` em `Content::Equation` |
 | `` `inline raw` ``, ```` ```block``` ```` | text/raw.rs | `implementado` | Passo 23 | `Content::Raw` com `lang` opcional |
 | `<label>`, `@ref` | foundations/label.rs, model/reference.rs | `implementado⁺` | Passo 63 | `Content::Labelled`, `Content::Ref`; forward-refs limitadas (DEBT-10 fechada) |
-| Smart quotes (`"foo"` → "foo") | text/smartquote.rs | `implementado` | Passo 155 | smart-quotes lang-aware (6 idiomas + default ASCII) via `rules/lang/quotes.rs`; markup `"..."` produz aspas localizadas via alternância open/close em `eval_markup` |
+| Smart quotes (`"foo"` → "foo") | text/smartquote.rs | `implementado` | Passo 155 + **P287** | smart-quotes lang-aware (6 idiomas + default ASCII) via `rules/lang/quotes.rs`; markup `"..."` produz aspas localizadas via alternância open/close em `eval_markup` (P155). **P287**: função stdlib `#smartquote(double, enabled)` materializada via `Content::SmartQuote { double }` leaf + consumer Layouter com state per-document (`smartquote_*_open`); reusa `localize_quotes`. Markup bit-exact preservado (estado independente — diagnóstico P287 §A.3.2 divergência ADR-0054 graded) |
 | Soft hyphen Unicode (`\u{00AD}`) | text/linebreak.rs | `ausente` | — | hyphenation usa apenas literal `-` (Passo 144) |
 
 ### A.2 — `#let`, `#set`, `#show`
@@ -335,8 +335,15 @@ Nota: ADR-0026 + 0026-R1 declaram **divergência intencional**. Cristalino usa e
 | `Size(Pt)` | idem | `implementado` | idem |
 | `Fill(Color)` | idem | `implementado` | Passos 99, 102 |
 | `HeadingLevel(u8)` | idem | `implementado` | Passos 99, 103 |
+| `Lang(Lang)` | idem | `implementado` | **Passo 288** (`P-style-lang-variant`; fecha assimetria com `StyleDelta.lang` existente desde P144) |
+| `Weight(u16)` | idem | `implementado` | **Passo 289** (`P-style-weight-variant`; fecha 1/4 da assimetria residual P288; paralelo arquitectural a `HeadingLevel(u8)`) |
 
 Nota: `Style` é divergência intencional (ADR-0038); vanilla usa vtable polimórfica.
+**Assimetria residual** (P288 §A.1.2 → P289 fecha `weight`): `StyleDelta`
+tem 10 fields; **7 têm variant `Style` correspondente** pós-P289.
+`tracking`/`leading`/`font` permanecem **sem variant** (escritos apenas
+via parse-driven `eval_set_rule`). Passos próprios candidatos (P289.1-3,
+não-reservados — paralelo P288.1-4 menos `lang` e `weight` já fechados).
 
 ### B.4 — `StyleDelta` fields (10 fields per relatório 142 §3)
 
@@ -347,10 +354,10 @@ Nota: `Style` é divergência intencional (ADR-0038); vanilla usa vtable polimó
 | `size` | `implementado` | Passo 30 |
 | `fill` | `implementado` | Passo 102 |
 | `heading_level` | `implementado` | Passo 99 |
-| `weight` | `implementado⁺` | Passo 139 (faux-bold; ADR-0054) |
+| `weight` | `implementado⁺` | Passo 139 (faux-bold; ADR-0054) + **Passo 289** (2ª fonte de entrada via `Style::Weight(u16)` — fecha 1/4 da assimetria residual P288 §7) |
 | `tracking` | `implementado` | Passo 137 |
 | `leading` | `implementado` | Passo 138 |
-| `lang` | `implementado⁺` | Passo 144 (hyphenation; shaping ausente) |
+| `lang` | `implementado⁺` | Passo 144 (hyphenation; shaping ausente) + **Passo 288** (2ª fonte de entrada via `Style::Lang(Lang)` — fecha assimetria B.3 vs B.4 para `lang`) |
 | `font` | `implementado` | Passos 140B, 141, 146 |
 
 ### B.5 — `FrameItem` enum (cristalino 6 variants)
@@ -377,7 +384,7 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 | `text.lang` shaping (bidi/kern/lig) | rustybuzz integration ausente | DEBT-53 candidato XL |
 | `text.region` / `text.script` | `Region`, `Script` types ausentes | escopo XL com rustybuzz |
 | `text.dir` (LTR/RTL) | bidi shaping ausente | DEBT-53 |
-| `smartquote` | `Content::SmartQuote` ausente | escopo S |
+| ~~`smartquote`~~ | ~~`Content::SmartQuote` ausente~~ | ~~escopo S~~ — **resolvido em Passo 287** (variant leaf + native_smartquote + consumer Layouter; reuso de `rules/lang/quotes.rs` — single source of truth) |
 | `smallcaps` | `Content::SmallCaps`; OpenType features | DEBT-53 (shaping) |
 | `lorem` | sem stdlib helper | escopo S |
 | ~~`underline` / `strike` / `overline`~~ | ~~`Content::Underline` etc. ausentes~~ | ~~escopo S~~ — **resolvido em Passo 284** (variants + native_* + Layouter consumer + PDF emit via `FrameItem::Line`) |
@@ -4862,6 +4869,230 @@ N≥3).
 `00_nucleo/diagnosticos/diagnostico-deco-multiline-passo-286.md`
 (Fase A obrigatória: inventário flush_line A.1; estratégia captura
 opção (b) minimalista A.2; política extent simétrico A.3).
+
+⁷³ — Ajuste P287 (frente `P-smartquote`; **completa Tabela C linha
+380** — função stdlib `#smartquote(...)` materializada):
+
+- P287 adiciona `Content::SmartQuote { double: bool }` leaf variant
+  + `native_smartquote(double, enabled)` stdlib + consumer Layouter
+  com state per-document (`Layouter.smartquote_*_open`).
+- **Mecanismo per diagnóstico §A.1-A.4**:
+  - **A.1**: P155 markup state vive em `eval_markup` local var;
+    `text.smartquotes` (atributo) **não existe** em cristalino —
+    divergência aceite per ADR-0054 graded.
+  - **A.2**: variant **leaf** (`{ double: bool }`) — **não** qualifica
+    como "variant rico com cosméticos opcionais" (1 campo bool
+    required, sem body). Honestidade epistémica: padrão N=4
+    cumulativo (P156G/H/I+P284) **inalterado**.
+  - **A.3 opção (γ′)**: markup mantém estado próprio (`eval_markup`
+    local); função tem estado próprio no Layouter
+    (`smartquote_*_open`). Bit-exact markup P155 preserved. Mistura
+    programática + markup pode produzir "2 opens consecutivos" —
+    caso edge raro registado.
+  - **A.4 opção (i)**: consumer reusa `localize_quotes` de
+    `rules/lang/quotes.rs` — **single source of truth** partilhada
+    com markup. **Padrão "Win arquitectural" N=3 (limiar atingido
+    P286) → N=4 cumulativo P287** (alvo formalização ADR meta no
+    próximo passo que cite o padrão).
+- **Hashes**:
+  - L0 `content.md` muda (+1 variant SmartQuote).
+  - L0 `stdlib.md` muda (+1 função native_smartquote).
+  - L0 `lang.md` **preservado** (A.3 → γ′ não toca P155).
+  - L0 `export.rs` **preservado** `66cb8ac3` (consumer reusa
+    Content::Text → FrameItem::Text emit existente; sem touch L3).
+    **Win arquitectural P281 atinge N=4 cumulativo** — 4º passo
+    consecutivo a preservar `export.rs` bit-exact (P282 audit + P285
+    activate stroke + P286 wrap-aware + P287 smartquote).
+- **Bit-exact backward-compat markup** validado: caminho `eval_markup`
+  P155 inalterado; testes regression layout preservam outputs.
+- **12 testes P287 verdes** (4 entity variant + 6 stdlib + 4 Layouter
+  consumer + 2 L3 PDF); baseline 2 732 P286 preserved bit-exact.
+
+**Pendências resolvidas**:
+- Tabela C linha 380 — `smartquote` ausente → **RESOLVIDO** (variant
+  leaf + função stdlib + consumer Layouter).
+
+**Pendências relacionadas NÃO resolvidas** (continuam):
+- `text.smartquotes` atributo `set text` — divergência cristalino;
+  passo dedicado condicional.
+- `alternative: bool` em smartquote — scope-out ADR-0054 graded.
+- `quotes: Smart<SmartQuoteDict>` (custom override) — scope-out.
+- Smart-apostrophes (aspas simples curly U+2018/U+2019) — scope-out
+  preserved de P155.
+
+**Marco P287**: 1ª aplicação concreta do padrão emergente
+"materialização paralela de markup pré-existente como função stdlib
+sem perturbar caminho parser" — variante refinada de "activação
+posterior de feature parseada-mas-inerte" (P285§8.3+P286 N=2
+cumulativo) aplicada agora a feature *ausente* em vez de
+*parseada-mas-inerte*. Aguardar N≥2 (próximo passo materializar
+função stdlib para feature já com markup) para considerar formalização.
+
+**Diagnóstico empírico**:
+`00_nucleo/diagnosticos/diagnostico-smartquote-passo-287.md` (Fase A
+obrigatória: 4 ambiguidades inventário P155 A.1, estrutura variant
+leaf A.2, política estado γ′ A.3, glyph emit reuso A.4).
+
+⁷⁴ — Ajuste P288 (frente `P-style-lang-variant`; **gatilho ADR meta
+N=5 dispara → ADR-0098 promovida**):
+
+- P288 adiciona `Style::Lang(Lang)` ao enum `Style` em
+  `entities/style.rs` (5 → **6 variants**) + arm correspondente em
+  `StyleChain::push_styles` (5 → 6 arms, +1 LOC) — paralelo arquitectural
+  absoluto aos 5 existentes.
+- **Mecanismo per diagnóstico §A.1-A.4**:
+  - **A.1**: caminho actual `delta.lang` é **100% lateral** ao enum
+    `Style` — escrito apenas por `eval_set_rule` em
+    `eval/rules.rs:385` (parse-driven `#set text(lang: "de")`).
+    Assimetria Tabela B.3 (5 variants) vs B.4 (10 fields) confirmada:
+    `weight`/`tracking`/`leading`/`lang`/`font` sem variants `Style`
+    correspondentes. **P288 fecha apenas `lang`** (per §5
+    não-objectivo).
+  - **A.2 opção (a)**: `Lang(Lang)` paralelo aos existentes; `Lang`
+    é `Copy` (P131B) → `Style` mantém `Copy` intacto. **Variant
+    atómico (não rico)** — padrão N=4 "variant rico" inalterado
+    pelo P288.
+  - **A.3 opção (α)**: arm `Style::Lang(l) => delta.lang = Some(*l)`
+    em `push_styles` (paridade absoluta aos 5 existentes).
+  - **A.4 opção (i)**: `FrameItem::Text` já consulta `Lang`
+    indirectamente via `chain.lang()`; `export.rs` zero hits
+    funcionais para lang. **Hash `export.rs` preservado bit-exact
+    pelo 5º passo consecutivo** (P282/P285/P286/P287/P288 cumulativos).
+- **Hashes**:
+  - L0 `style.md` muda (+1 variant `Lang(Lang)` em B.3).
+  - L0 `content.md` preservado (sem novo Content variant).
+  - L0 `stdlib.md` preservado (sem nova função).
+  - **L0 `export.rs` preservado `66cb8ac3` (3º passo consecutivo
+    pós-P285) — confirma N=5 cumulativo do padrão "single source
+    of truth como invariante anti-bug".**
+- **Bit-exact backward-compat validado**: 2 748 testes P287 preserved;
+  caminho parse-driven (`eval_set_rule`) intacto.
+- **8 testes P288 verdes** (1 entity Style variants 5→6; 3 lang-aware
+  reactivados de P287 §4 [en curly + pt chevrons + fr NBSP]; 4
+  Layouter consumer [variant ctor + push_styles cascade + Styled
+  injetado lê chain.lang + last-write-wins]).
+- **Refino consumer SmartQuote**: durante materialização P288, teste
+  `p288_smartquote_double_lang_fr_inclui_nbsp` revelou que consumer
+  P287 usava `Content::Text(glyph)` + `split_whitespace()` — perdia
+  NBSP que `LANG_QUOTES["fr"]` inclui. **Fix cirúrgico**: substituir
+  `self.layout_content(&Content::Text(...))` por `self.layout_word(glyph)`
+  no consumer SmartQuote (`layout/mod.rs:1992`). Glyph FR `«\u{00A0}`
+  preservado como unit indivisível. Paridade vanilla recuperada.
+
+**Pendências resolvidas**:
+- P287 §4 / §5.2 — 3 testes lang-aware adiados → **RESOLVIDOS**.
+- Assimetria Tabela B.3 vs B.4 (campo `lang`) → **RESOLVIDA**.
+
+**Pendências relacionadas NÃO resolvidas** (continuam):
+- Outros fields sem variant `Style`: `weight`/`tracking`/`leading`/`font`
+  — passos próprios condicionais (P288.1-4 candidatos não-reservados).
+- `text.smartquotes` atributo disable — passo dedicado.
+- Shaping per-lang (kern/lig/bidi) — DEBT-53 XL.
+
+**Marco P288 — Formalização ADR-0098**:
+**5 aplicações cumulativas confirmadas** do padrão "Single source
+of truth como invariante anti-bug":
+- N=1: P282 §1.1 (auditoria refutou 6/6 suspeitas)
+- N=2: P285 §8.2 (alteração simétrica via helper único)
+- N=3: P286 §5.2 (reuso `FrameItem::Line` sem modificação)
+- N=4: P287 §5.1 (consumer reusa `Content::Text`)
+- **N=5: P288 §A.4** (`Style::Lang` extende parse sem tocar emit)
+
+**Limiar histórico ADR-0065 N=5 atingido**. **ADR-0098 promovida**
+com status `IMPLEMENTADO` em
+`00_nucleo/adr/typst-adr-0098-single-source-of-truth-invariante-anti-bug.md`.
+Hash L0 `export.rs` torna-se **métrica testável** de aderência ao
+padrão.
+
+**Diagnóstico empírico**:
+`00_nucleo/diagnosticos/diagnostico-style-lang-passo-288.md` (Fase A
+obrigatória: 4 secções A.1-A.4 com inventário literal + diagrama de
+fluxo lang + decisão variant + confirmação gatilho N=5 empiricamente).
+
+⁷⁵ — Ajuste P289 (frente `P-style-weight-variant`; **gatilho ADR
+meta paralelo N=5 dispara → ADR-0099 promovida**):
+
+- P289 adiciona `Style::Weight(u16)` ao enum `Style` (6 → **7
+  variants** pós-P288/P289) + arm correspondente em
+  `StyleChain::push_styles` (paralelo arquitectural absoluto a
+  `HeadingLevel(u8)` e ao P288 `Style::Lang(Lang)`).
+- **Mecanismo per diagnóstico §A.0-A.5** (5 secções — uma a mais
+  que P288 pelo novo requisito operacional pós-ADR-0098):
+  - **A.0 (NOVA secção obrigatória pós-P288)**: verifica reuso
+    ADR-0098 antes da materialização. `grep "weight\|Weight"
+    03_infra/src/export.rs` → **zero hits funcionais**. **Primeira
+    aplicação directa de ADR-0098 como invariante testável** —
+    confirma robustez da formalização P288.
+  - **A.1**: `StyleDelta.weight: Option<u16>` desde P126/P129; write
+    site único parse-driven `eval/rules.rs:350-368`; 3 consumers
+    activos (top-wins propagation P136, faux-bold P139, TextStyle
+    capture); zero hits em export.rs (A.1.7).
+  - **A.2 opção (a)** `Weight(u16)`: paralelo arquitectural absoluto
+    a `HeadingLevel(u8)`; storage raw match `StyleDelta.weight`.
+    `FontWeight` é tipo helper de parse, não de storage. Variant
+    **atómico (não rico)** — padrão N=4 "variant rico" inalterado.
+  - **A.3 opção (α)**: `delta.weight = Some(*w)`; paridade absoluta
+    aos 6 arms anteriores.
+  - **A.4 opção (i)**: confirmado empiricamente pela A.0 + A.1.7.
+    **Hash `export.rs 66cb8ac3` preservado bit-exact pelo 6º passo
+    consecutivo** (P282+P285+P286+P287+P288+**P289**).
+  - **A.5 detecção bugs latentes** (per padrão P288 §8.4): 4 testes
+    fronteira (100/700/900/450). **Nenhum bug latente detectado**
+    em P289 — consumer P139 robusto a todos os valores testados.
+- **Hashes**:
+  - L0 `style.md` muda (+1 variant `Weight(u16)` em B.3).
+  - L0 `content.md` preservado.
+  - L0 `stdlib.md` preservado.
+  - **L0 `export.rs` preservado `66cb8ac3` (6º passo consecutivo) —
+    primeira aplicação prática da ADR-0098 confirma invariante
+    robusto.**
+- **9 testes P289 verdes** (1 catalog actualizado 6→7 variants;
+  8 layout: variant ctor + push_styles cascade + Styled injetado
+  + last-write-wins + thin 100 + black 900 + non-canonical 450 +
+  faux-bold consumer P139 stroke > 0).
+
+**Pendências resolvidas**:
+- Assimetria Tabela B.3 vs B.4 para `weight` → **RESOLVIDA**.
+- 1/4 da assimetria residual P288 §7 risco terciário → fechada.
+
+**Pendências relacionadas NÃO resolvidas** (continuam):
+- 3 fields sem variant `Style` (`tracking`/`leading`/`font`) —
+  passos próprios P289.1-3 candidatos não-reservados.
+- `FontVariant` selection variant-aware (Tabela A.3 linha 376) —
+  ADR-0055bis candidata; bloqueada por shaping XL.
+
+**Marco P289 — Formalização ADR-0099**:
+**5 aplicações cumulativas confirmadas** do padrão "Activação
+posterior de feature graded como padrão de pendência" (§8.2 P288):
+- N=1: P285 §8.3 (`stroke` activated em P284)
+- N=2: P286 §8.1 (wrap-aware activated em P284)
+- N=3: P287 §8.2 (smartquote stdlib materialized paralela a markup)
+- N=4: P288 §8.2 (`Style::Lang` activated via 2ª fonte)
+- **N=5: P289** (`Style::Weight` activated via 2ª fonte)
+
+**Limiar histórico ADR-0065 N=5 atingido pela 2ª vez consecutiva**
+(ADR-0098 em P288 + ADR-0099 em P289). **ADR-0099 promovida** com
+status `IMPLEMENTADO` em
+`00_nucleo/adr/typst-adr-0099-activacao-posterior-feature-graded.md`.
+
+ADR-0098 + ADR-0099 são **complementares**:
+- ADR-0098: estrutura de **emit** estável (reuso L1/L3 pré-existente).
+- ADR-0099: estrutura de **consumer** estável (extensão minimalista
+  sem refactor de caminho pré-existente).
+
+Juntas definem o **paradigma cirúrgico** dos passos pós-P281
+(modificações localizadas + bit-exact backward-compat + testes
+cumulativos).
+
+**Apenas uma ADR meta promovida P289** (per P273.17 §0): §8.3
+"refutação pragmática spec" continua disponível para promoção em
+passo próprio onde atingir N≥6.
+
+**Diagnóstico empírico**:
+`00_nucleo/diagnosticos/diagnostico-style-weight-passo-289.md`
+(Fase A obrigatória com 5 secções A.0-A.5 — uma a mais que P288
+pelo novo requisito A.0 "potencial de reuso ADR-0098" + A.5 dedicada
+à detecção de bugs latentes per padrão P288 §8.4).
 
 ---
 

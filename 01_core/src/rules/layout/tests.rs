@@ -10126,3 +10126,318 @@ mod p284_decoration_tests {
         }
     }
 }
+
+// ── Passo 287 — SmartQuote consumer Layouter (alternância) ────────────────
+
+#[cfg(test)]
+mod p287_smartquote_tests {
+    use super::*;
+
+    /// Concatena o texto de todos os `FrameItem::Text` do documento.
+    fn collect_text(doc: &PagedDocument) -> String {
+        let mut out = String::new();
+        for page in &doc.pages {
+            for item in &page.items {
+                if let FrameItem::Text { text, .. } = item {
+                    out.push_str(text.as_str());
+                }
+            }
+        }
+        out
+    }
+
+    #[test]
+    fn p287_smartquote_double_lang_default_ascii() {
+        // Lang None → DEFAULT_QUOTES = ("\"", "\"") — alternância state
+        // interno verificável indirectamente (2 quotes → ≥2 chars `"`).
+        let doc = layout(&Content::sequence(vec![
+            Content::SmartQuote { double: true },
+            Content::SmartQuote { double: true },
+        ]));
+        let n = collect_text(&doc).matches('"').count();
+        assert!(n >= 2, "2 SmartQuote → ≥2 `\"`; got {n}");
+    }
+
+    #[test]
+    fn p287_smartquote_single_always_ascii_sem_lang() {
+        // Aspas simples scope-out smart-apostrophes (paridade P155).
+        // Lang None default → sempre ASCII `'`.
+        let doc = layout(&Content::sequence(vec![
+            Content::SmartQuote { double: false },
+            Content::SmartQuote { double: false },
+        ]));
+        let txt = collect_text(&doc);
+        assert_eq!(txt.matches('\'').count(), 2,
+            "2 SmartQuote simples → 2 chars `'` ASCII; got {txt:?}");
+        assert!(!txt.contains('\u{2018}') && !txt.contains('\u{2019}'),
+            "sem curly Unicode (smart-apostrophes scope-out)");
+    }
+
+    #[test]
+    fn p287_smartquote_state_independente_do_markup() {
+        // Diagnóstico §A.3 opção (γ′): estado do markup é local ao
+        // eval_markup (P155); estado da função vive no Layouter. Em
+        // `Content::sequence([Text("\""), SmartQuote{true}])` o markup
+        // pré-resolveu `"` em `eval_markup`, e SmartQuote começa em
+        // "open" porque smartquote_double_open default true.
+        let doc = layout(&Content::sequence(vec![
+            Content::text("\""),                     // markup: emite literal
+            Content::SmartQuote { double: true },    // função: state Layouter
+        ]));
+        let txt = collect_text(&doc);
+        // 2 chars `"` no total (1 do markup literal, 1 do SmartQuote ASCII).
+        assert!(txt.matches('"').count() >= 2,
+            "estados independentes → ≥2 chars `\"`; got {txt:?}");
+    }
+
+    #[test]
+    fn p287_smartquote_independencia_layouts_sucessivos() {
+        // Cada layout() cria novo Layouter — state smartquote inicia
+        // em `open` (per-document). Dois layouts separados → ambos
+        // arrancam em open.
+        let doc1 = layout(&Content::SmartQuote { double: true });
+        let doc2 = layout(&Content::SmartQuote { double: true });
+        let n1 = collect_text(&doc1).matches('"').count();
+        let n2 = collect_text(&doc2).matches('"').count();
+        assert_eq!(n1, 1, "doc1 SmartQuote default → 1 char `\"`");
+        assert_eq!(n2, 1, "doc2 idem (state per-document)");
+    }
+
+    // ── Passo 288 — testes lang-aware reactivados (adiados de P287 §4) ─
+
+    #[test]
+    fn p288_smartquote_double_lang_en_emite_curly_open_e_close() {
+        // Com `text.lang = "en"`, esperamos glyphs curly distintos:
+        // primeiro `"` (U+201C open), segundo `"` (U+201D close).
+        // Adiado em P287 porque `Style::Lang` não existia; activado em P288.
+        use crate::entities::lang::Lang;
+        use crate::entities::style::{Style, Styles};
+        use std::str::FromStr;
+        let lang_en = Lang::from_str("en").unwrap();
+        let styled = Content::Styled(
+            Box::new(Content::sequence(vec![
+                Content::SmartQuote { double: true },
+                Content::SmartQuote { double: true },
+            ])),
+            Styles::from_iter([Style::Lang(lang_en)]),
+        );
+        let txt = collect_text(&layout(&styled));
+        assert!(txt.contains('\u{201C}'),
+            "primeiro deve ser U+201C (open); got {txt:?}");
+        assert!(txt.contains('\u{201D}'),
+            "segundo deve ser U+201D (close); got {txt:?}");
+    }
+
+    #[test]
+    fn p288_smartquote_double_lang_pt_emite_chevrons() {
+        // Lang pt: ("«", "»") per LANG_QUOTES.
+        use crate::entities::lang::Lang;
+        use crate::entities::style::{Style, Styles};
+        use std::str::FromStr;
+        let lang_pt = Lang::from_str("pt").unwrap();
+        let styled = Content::Styled(
+            Box::new(Content::sequence(vec![
+                Content::SmartQuote { double: true },
+                Content::SmartQuote { double: true },
+            ])),
+            Styles::from_iter([Style::Lang(lang_pt)]),
+        );
+        let txt = collect_text(&layout(&styled));
+        assert!(txt.contains('\u{00AB}'), "lang=pt open → «");
+        assert!(txt.contains('\u{00BB}'), "lang=pt close → »");
+    }
+
+    #[test]
+    fn p288_smartquote_double_lang_fr_inclui_nbsp() {
+        // Lang fr: ("«\u{00A0}", "\u{00A0}»") — chevrons com NBSP intercalado.
+        use crate::entities::lang::Lang;
+        use crate::entities::style::{Style, Styles};
+        use std::str::FromStr;
+        let lang_fr = Lang::from_str("fr").unwrap();
+        let styled = Content::Styled(
+            Box::new(Content::sequence(vec![
+                Content::SmartQuote { double: true },
+                Content::SmartQuote { double: true },
+            ])),
+            Styles::from_iter([Style::Lang(lang_fr)]),
+        );
+        let txt = collect_text(&layout(&styled));
+        // Em fr a sequência open inclui NBSP (U+00A0) após `«` e antes de `»`.
+        assert!(txt.contains('\u{00AB}') && txt.contains('\u{00BB}'),
+            "lang=fr deve ter chevrons; got {txt:?}");
+        assert!(txt.contains('\u{00A0}'),
+            "lang=fr deve incluir NBSP per LANG_QUOTES fr; got {txt:?}");
+    }
+}
+
+// ── Passo 288 — Style::Lang variant + cascade ────────────────────────────
+
+#[cfg(test)]
+mod p288_style_lang_tests {
+    use super::*;
+    use crate::entities::lang::Lang;
+    use crate::entities::style::{Style, Styles};
+    use crate::entities::style_chain::StyleChain;
+
+    #[test]
+    fn p288_style_lang_variant_basico() {
+        let s = Style::Lang(Lang::ENGLISH);
+        assert!(matches!(s, Style::Lang(_)));
+        // PartialEq por valor.
+        assert_eq!(s, Style::Lang(Lang::ENGLISH));
+    }
+
+    #[test]
+    fn p288_push_styles_lang_projecta_no_delta() {
+        // Cascade arm: `Style::Lang(l)` → `delta.lang = Some(l)`.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Lang(Lang::ENGLISH),
+        ]));
+        assert_eq!(next.lang(), Some(Lang::ENGLISH));
+    }
+
+    #[test]
+    fn p288_styled_lang_injetado_layouter_chain_le_corretamente() {
+        // Smoke: Content::Styled com Style::Lang produz chain.lang() correcto
+        // dentro do Layouter (via empty doc seguinte do styled; usamos
+        // SmartQuote consumer P287 como sentinela do read-path).
+        use std::str::FromStr;
+        let lang_de = Lang::from_str("de").unwrap();
+        let styled = Content::Styled(
+            Box::new(Content::SmartQuote { double: true }),
+            Styles::from_iter([Style::Lang(lang_de)]),
+        );
+        let doc = layout(&styled);
+        let txt: String = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|i| if let FrameItem::Text { text, .. } = i {
+                Some(text.as_str())
+            } else { None })
+            .collect();
+        // Lang de: open low U+201E `„`.
+        assert!(txt.contains('\u{201E}'),
+            "lang=de open → U+201E `„`; got {txt:?}");
+    }
+
+    #[test]
+    fn p288_lang_paint_overrides_via_last_write_wins() {
+        // Dois Style::Lang consecutivos no mesmo Styles delta: o último
+        // escrito ganha (paralelo aos 5 variants existentes).
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Lang(Lang::ENGLISH),
+            // Re-write com Lang::DE.
+            Style::Lang(std::str::FromStr::from_str("de").unwrap()),
+        ]));
+        assert_eq!(next.lang().map(|l| l.as_str().to_string()), Some("de".to_string()),
+            "último Style::Lang na collection ganha");
+    }
+}
+
+// ── Passo 289 — Style::Weight variant + cascade ──────────────────────────
+
+#[cfg(test)]
+mod p289_style_weight_tests {
+    use super::*;
+    use crate::entities::style::{Style, Styles};
+    use crate::entities::style_chain::StyleChain;
+
+    #[test]
+    fn p289_style_weight_variant_basico() {
+        let s = Style::Weight(700);
+        assert!(matches!(s, Style::Weight(_)));
+        // PartialEq por valor (paralelo `HeadingLevel(u8)`).
+        assert_eq!(s, Style::Weight(700));
+        assert_ne!(s, Style::Weight(400));
+    }
+
+    #[test]
+    fn p289_push_styles_weight_projecta_no_delta() {
+        // Cascade arm: `Style::Weight(w)` → `delta.weight = Some(w)`.
+        // Paralelo absoluto a P288 lang.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([Style::Weight(700)]));
+        assert_eq!(next.weight(), Some(700));
+    }
+
+    #[test]
+    fn p289_styled_weight_injetado_chain_le_corretamente() {
+        // Smoke: Content::Styled com Style::Weight produz chain.weight()
+        // correcto dentro do Layouter. Verificável indirectamente —
+        // não há sentinela trivial (faux-bold só dispara stroke em emit
+        // que é dead-code em export Helvetica path), por isso testamos
+        // via cascade directa.
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Weight(900),  // Black
+        ]));
+        assert_eq!(next.weight(), Some(900));
+        // Também verificamos que TextStyle::from(&chain) captura.
+        let style: crate::entities::layout_types::TextStyle = (&next).into();
+        assert_eq!(style.weight, Some(900),
+            "TextStyle::from(&StyleChain) deve propagar weight");
+    }
+
+    #[test]
+    fn p289_weight_last_write_wins() {
+        // Dois Style::Weight consecutivos no mesmo Styles delta: o
+        // último escrito ganha (paralelo absoluto P288 last-write).
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([
+            Style::Weight(400),
+            Style::Weight(700),  // re-write
+        ]));
+        assert_eq!(next.weight(), Some(700),
+            "último Style::Weight na collection ganha");
+    }
+
+    // ── Testes fronteira (per A.5 detecção de bugs latentes) ──────────
+
+    #[test]
+    fn p289_weight_thin_100_propaga() {
+        // Fronteira inferior canónica vanilla (CSS thin).
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([Style::Weight(100)]));
+        assert_eq!(next.weight(), Some(100));
+    }
+
+    #[test]
+    fn p289_weight_black_900_propaga() {
+        // Fronteira superior canónica vanilla (CSS black).
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([Style::Weight(900)]));
+        assert_eq!(next.weight(), Some(900));
+    }
+
+    #[test]
+    fn p289_weight_non_canonical_450_aceite() {
+        // Valor não-canónico (entre 400 e 500). Vanilla typst aceita
+        // qualquer u16 — cristalino preserva paridade (sem validação
+        // de range per spec §5 não-objectivo).
+        let chain = StyleChain::empty();
+        let next = chain.push_styles(&Styles::from_iter([Style::Weight(450)]));
+        assert_eq!(next.weight(), Some(450),
+            "weight não-canónico (450) deve ser aceite literalmente — paridade vanilla");
+    }
+
+    #[test]
+    fn p289_weight_faux_bold_stroke_consumer_p139_consome_chain_weight() {
+        // Verificação cumulativa: o consumer faux-bold P139
+        // (`TextStyle::faux_bold_stroke_pt`) consome `chain.weight()`
+        // sem alteração pós-P289. Diagnóstico §A.1.6.
+        use crate::entities::layout_types::{TextStyle, Pt};
+        let chain = StyleChain::empty()
+            .push_styles(&Styles::from_iter([Style::Weight(700)]));
+        let style: TextStyle = (&chain).into();
+        // size default ~11pt (default_chain); fórmula:
+        // ((700 - 400) / 300).max(0) * 11.0 * k → 1.0 * 11.0 * k.
+        // Para k=0.04 (typical): 0.44 pt.
+        let stroke = style.faux_bold_stroke_pt(0.04);
+        assert!(stroke > 0.0,
+            "weight=700 deve produzir stroke faux-bold > 0 (consumer P139 activo)");
+        // Verificar também que size respeita default.
+        assert!(style.size.val() > 0.0);
+        let _ = Pt::ZERO; // import sanity
+    }
+}

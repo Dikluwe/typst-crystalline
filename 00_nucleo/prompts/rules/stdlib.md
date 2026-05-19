@@ -276,6 +276,50 @@ make_calc_module().e   ≡ Float(std::f64::consts::E)
 make_calc_module().inf ≡ Float(f64::INFINITY)
 ```
 
+## `smartquote(double?, enabled?)` — Passo 287 (`P-smartquote`)
+
+Função stdlib paralela ao markup `"foo"`/`'bar'` (P155). Emite
+`Content::SmartQuote { double }` que o consumer Layouter resolve
+lang-aware via `localize_quotes` + state per-document
+(`Layouter.smartquote_*_open`). Diagnóstico completo em
+`diagnostico-smartquote-passo-287.md`.
+
+```rust
+pub fn native_smartquote(
+    _ctx:                &mut EvalContext,
+    args:                &Args,
+    _world:              &dyn World,
+    _current_file:       FileId,
+    _figure_numbering:   Option<&str>,
+) -> SourceResult<Value>
+```
+
+**Argumentos**:
+- `double: bool = true` — aspas duplas (default; vanilla paridade).
+- `enabled: bool = true` — quando `false`, emite `Content::Text(glyph)`
+  ASCII literal directo (não passa pelo variant). Paridade vanilla
+  `set smartquote(enabled: false)`.
+- **Não aceita argumentos posicionais** (vanilla usa só named).
+
+**Scope-out per ADR-0054 graded** (erro educacional mencionando ADR):
+- `alternative: bool` — alternância de quotes em DE/FR (vanilla
+  feature); passo dedicado futuro condicional.
+- `quotes: Smart<SmartQuoteDict>` — custom string/array/dict override.
+
+**Construção de variant**:
+```
+native_smartquote()                              → Ok(Value::Content(Content::SmartQuote { double: true }))
+native_smartquote(double: false)                 → Ok(Value::Content(Content::SmartQuote { double: false }))
+native_smartquote(enabled: false)                → Ok(Value::Content(Content::text("\"")))    // ASCII directo
+native_smartquote(enabled: false, double: false) → Ok(Value::Content(Content::text("'")))
+native_smartquote(alternative: true)             → Err (scope-out P287 / ADR-0054)
+native_smartquote(quotes: "()")                  → Err (scope-out P287 / ADR-0054)
+native_smartquote(Bool(true))                    → Err (sem args posicionais)
+```
+
+**Layouter consumer** (resolve glyph lang-aware): ver `content.md`
+secção "Variant Content::SmartQuote — Passo 287".
+
 ## `underline(body, stroke?, offset?, extent?)` / `strike(body, ...)` / `overline(body, ...)` — Passo 284 (ADR-0054 graded)
 
 Decoração textual paralela vanilla `text/deco.rs`. Três funções com `body`

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash bc68ad9f
+//! @prompt-hash cf4e3ac3
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -466,6 +466,30 @@ pub enum Content {
         attribution: Option<Box<Content>>,
         block:       bool,
         quotes:      bool,
+    },
+
+    // ── Passo 287 (frente `P-smartquote`) — função stdlib smartquote ──────
+    //
+    // Variant **leaf** (não container). Representa uma chamada programática
+    // a `#smartquote(double: bool)` — paralelo arquitectural ao markup
+    // `"foo"`/`'bar'` (P155) que pré-resolve glyph em `eval_markup`.
+    //
+    // `double = true`  → próximo glyph é aspa dupla open/close lang-aware.
+    // `double = false` → próximo glyph é aspa simples (always ASCII `'` em
+    //                    cristalino — smart-apostrophes scope-out P155).
+    //
+    // Estado de alternância (open/close) **não** vive no variant — está em
+    // `Layouter.smartquote_*_open` (campos pos-P287). Diagnóstico
+    // `diagnostico-smartquote-passo-287.md` §A.3 opção (γ′): markup mantém
+    // estado próprio em `eval_markup`; função mantém estado próprio no
+    // Layouter; divergência aceite per ADR-0054 graded.
+    //
+    // **Não qualifica como "variant rico com cosméticos opcionais"** —
+    // leaf-like com 1 campo `bool` required; padrão N=4 cumulativo
+    // (P156G/H/I+P284) inalterado (diagnóstico §A.2.2 honestidade
+    // epistémica).
+    SmartQuote {
+        double: bool,
     },
 
     // ── Passo 284 (ADR-0054 graded) — text decoration ─────────────────────
@@ -1357,6 +1381,8 @@ impl Content {
             Self::Underline { body, .. } => body.is_empty(),
             Self::Strike    { body, .. } => body.is_empty(),
             Self::Overline  { body, .. } => body.is_empty(),
+            // P287 — SmartQuote: nunca vazio (sempre emite 1 glyph).
+            Self::SmartQuote { .. } => false,
             // Passo 156C (ADR-0061 Fase 1): Pad/Hide vazios se o body for.
             Self::Pad  { body, .. } => body.is_empty(),
             Self::Hide { body }     => body.is_empty(),
@@ -1418,6 +1444,11 @@ impl Content {
             Self::Underline { body, .. } => body.plain_text(),
             Self::Strike    { body, .. } => body.plain_text(),
             Self::Overline  { body, .. } => body.plain_text(),
+            // P287 — SmartQuote: paridade vanilla `PlainText for
+            // Packed<SmartQuoteElem>` — emite fallback ASCII (`"` ou `'`).
+            // Layouter resolve lang-aware (consumer pós-P287); plain_text
+            // é vista textual sem contexto lang.
+            Self::SmartQuote { double } => if *double { "\"".to_string() } else { "'".to_string() },
             Self::Equation { body, block } => {
                 if *block { format!("\n{}\n", body.plain_text()) }
                 else       { body.plain_text() }
@@ -1730,6 +1761,8 @@ impl PartialEq for Content {
             (Self::Overline { body: ba, stroke: sa, offset: oa, extent: ea },
              Self::Overline { body: bb, stroke: sb, offset: ob, extent: eb }) =>
                 ba == bb && sa == sb && oa == ob && ea == eb,
+            // P287 — SmartQuote leaf (1 campo).
+            (Self::SmartQuote { double: a }, Self::SmartQuote { double: b }) => a == b,
             // Passo 156C / 156L — Pad / Hide.
             (Self::Pad  { body: ba, sides: sa },
              Self::Pad  { body: bb, sides: sb }) => ba == bb && sa == sb,
@@ -2049,6 +2082,8 @@ impl Content {
             | Content::MathText(_)
             | Content::Image { .. }
             | Content::Divider
+            // P287 — SmartQuote leaf (sem body — terminal).
+            | Content::SmartQuote { .. }
             | Content::HSpace { .. }
             | Content::VSpace { .. }
             | Content::Pagebreak { .. }
@@ -2366,6 +2401,8 @@ impl Content {
             | Content::MathAlignPoint
             | Content::MathIdent(_)
             | Content::MathText(_)
+            // P287 — SmartQuote leaf (sem texto interno — map_text não recurse).
+            | Content::SmartQuote { .. }
             | Content::Equation { .. }
             | Content::MathSequence(_)
             | Content::MathFrac { .. }
@@ -3130,6 +3167,43 @@ mod tests {
         } else {
             panic!("map_text quebrou o variant kind");
         }
+    }
+
+    // ── Passo 287 — Content::SmartQuote leaf ────────────────────────────
+
+    #[test]
+    fn smartquote_variant_construtor_basico() {
+        let sd = Content::SmartQuote { double: true };
+        let ss = Content::SmartQuote { double: false };
+        assert!(matches!(sd, Content::SmartQuote { double: true }));
+        assert!(matches!(ss, Content::SmartQuote { double: false }));
+        // Variants distintos por valor `double`.
+        assert_ne!(sd, ss);
+    }
+
+    #[test]
+    fn smartquote_plain_text_ascii_paridade_vanilla() {
+        // Paridade `PlainText for Packed<SmartQuoteElem>` — emite ASCII
+        // fallback (Layouter resolve lang-aware via consumer; plain_text
+        // é vista sem contexto).
+        assert_eq!(Content::SmartQuote { double: true }.plain_text(),  "\"");
+        assert_eq!(Content::SmartQuote { double: false }.plain_text(), "'");
+    }
+
+    #[test]
+    fn smartquote_is_empty_nunca_vazio() {
+        // SmartQuote sempre emite 1 glyph — nunca empty.
+        assert!(!Content::SmartQuote { double: true }.is_empty());
+        assert!(!Content::SmartQuote { double: false }.is_empty());
+    }
+
+    #[test]
+    fn smartquote_partial_eq() {
+        let a = Content::SmartQuote { double: true };
+        let b = Content::SmartQuote { double: true };
+        let c = Content::SmartQuote { double: false };
+        assert_eq!(a, b);
+        assert_ne!(a, c);
     }
 
     // ── Passo 156C / 156L (ADR-0061 Fase 1 + Fase 3 refino) — pad + hide ──

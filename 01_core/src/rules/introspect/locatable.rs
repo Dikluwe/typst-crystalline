@@ -135,6 +135,9 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Underline { .. }
         | Content::Strike { .. }
         | Content::Overline { .. }
+        // P287 — SmartQuote leaf não-locatable (glyph único; sem identidade
+        // queryable; paridade Space/Linebreak).
+        | Content::SmartQuote { .. }
         | Content::Pad { .. }
         | Content::Hide { .. }
         | Content::HSpace { .. }

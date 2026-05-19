@@ -222,6 +222,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::MathAlignPoint
         | Content::MathIdent(_)
         | Content::MathText(_)
+        // P287 — SmartQuote leaf (sem CounterDisplay possível).
+        | Content::SmartQuote { .. }
         | Content::Equation { .. }
         | Content::MathSequence(_)
         | Content::MathFrac { .. }
@@ -1148,6 +1150,8 @@ pub(crate) fn walk(
         | Content::MathCases { .. }
         | Content::MathAlignPoint
         | Content::Linebreak
+        // P287 — SmartQuote leaf (não-locatable; sem counters).
+        | Content::SmartQuote { .. }
         | Content::Image { .. }
         | Content::SetPage { .. }
         | Content::Divider

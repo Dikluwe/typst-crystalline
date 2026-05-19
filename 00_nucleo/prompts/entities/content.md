@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 6cc7a7e4
+Hash do Código: 4861affa
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -232,6 +232,61 @@ Content::Quote {
   produz `Content::Quote` (esse fica reservado para `#quote()`
   estrutural). Decisão pragmática: cristalino's lexer já é
   per-character, e refactor para parear `"..."` excederia escopo P155.
+
+## Variant `Content::SmartQuote` — Passo 287 (`P-smartquote`)
+
+Leaf variant (não container) que representa uma chamada programática a
+`#smartquote(double: bool)`. Materializa a função stdlib vanilla
+`text/smartquote.rs::SmartQuoteElem` em cristalino — paralelo
+arquitectural ao markup `"foo"`/`'bar'` que `eval_markup` (P155)
+pré-resolve em `Content::Text(glyph, style)` directo. Diagnóstico
+completo em `00_nucleo/diagnosticos/diagnostico-smartquote-passo-287.md`.
+
+```rust
+Content::SmartQuote {
+    double: bool,  // true = aspas duplas; false = simples
+}
+```
+
+### Consumer Layouter
+
+`Layouter::layout_content` arm `Content::SmartQuote { double }`:
+1. Se `double = true`: consulta `localize_quotes(&self.style.lang)`
+   (reuso `rules/lang/quotes.rs` — single source of truth partilhada
+   com markup P155); alterna `self.smartquote_double_open`.
+2. Se `double = false`: emite sempre ASCII `'` (smart-apostrophes
+   scope-out per P155 §A.1.2); alterna `self.smartquote_single_open`.
+3. Recurse via `Content::Text(glyph, style)` — reusa word-wrap +
+   hyphenation pré-existentes; **`export.rs` não é tocado**
+   (hash `66cb8ac3` preserved desde P285).
+
+### Estado per-document no Layouter (P287)
+
+Campos novos:
+- `smartquote_double_open: bool` (default `true`)
+- `smartquote_single_open: bool` (default `true`)
+
+Inicializados em `Layouter::new` — reset por cada invocação `layout()`.
+
+### Divergência aceite vs vanilla (ADR-0054 graded)
+
+- **Estado independente do markup**: cristalino tem 2 estados separados
+  (markup `eval_markup` local + função `Layouter`). Vanilla unifica via
+  `SmartQuoter` único. Caso edge raro (mistura programática + markup
+  literal) pode produzir "2 opens consecutivos" — registado em
+  diagnóstico §A.3.2.
+- **`text.smartquotes`** (atributo `set text`) **não existe** em
+  cristalino — vanilla permite desligar globalmente; cristalino diverge.
+- **`alternative` / `quotes`** (custom override) — rejeitados em
+  `native_smartquote` com erro educacional mencionando ADR-0054; passo
+  futuro condicional.
+
+### Leaf — não qualifica como "variant rico"
+
+Diagnóstico §A.2.2 (honestidade epistémica): `SmartQuote { double:
+bool }` é leaf com 1 campo `bool` required — **não** qualifica como
+"variant rico com `body` + cosméticos opcionais". Padrão N=4 cumulativo
+(P156G/H/I+P284) **inalterado** pelo P287.
 
 ## Variants `Content::Underline` + `Content::Strike` + `Content::Overline` — Passo 284 (ADR-0054 graded)
 

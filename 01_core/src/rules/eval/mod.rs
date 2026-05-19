@@ -558,7 +558,7 @@ fn make_stdlib() -> Scope {
         native_hide, native_image, native_int, native_len, native_line,
         native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_cmyk, native_colbreak, native_columns, native_hsl, native_hsv, native_linear_rgb, native_oklab, native_oklch, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
-        native_scale, native_skew, native_stack, native_str, native_strike, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_overline, native_upper, native_v,
+        native_scale, native_skew, native_smartquote, native_stack, native_str, native_strike, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_overline, native_upper, native_v,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -588,6 +588,10 @@ fn make_stdlib() -> Scope {
     scope.define("underline", Value::Func(Func::native("underline", native_underline)));
     scope.define("strike",    Value::Func(Func::native("strike",    native_strike)));
     scope.define("overline",  Value::Func(Func::native("overline",  native_overline)));
+    // P287 (frente `P-smartquote`): função stdlib paralela ao markup `"..."`
+    // P155. `alternative`/`quotes` scope-out per diagnóstico §A.2; `enabled:
+    // false` emite glyph ASCII literal (paridade vanilla).
+    scope.define("smartquote", Value::Func(Func::native("smartquote", native_smartquote)));
     scope.define("figure",  Value::Func(Func::native("figure",  native_figure)));
     scope.define("image",   Value::Func(Func::native("image",   native_image)));
     scope.define("rect",    Value::Func(Func::native("rect",    native_rect)));

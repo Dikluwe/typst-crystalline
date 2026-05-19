@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style.md
-//! @prompt-hash 37404a23
+//! @prompt-hash 87396557
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -18,6 +18,7 @@
 //! Divergência do vanilla (ADR-0026 como precedente): enum linear
 //! manual em vez de proc macros `#[elem]`.
 
+use crate::entities::lang::Lang;
 use crate::entities::layout_types::{Color, Pt};
 
 /// Uma propriedade individual de estilo. Usado em `Styles` como delta.
@@ -33,6 +34,24 @@ pub enum Style {
     Fill(Color),
     /// Nível de heading (1..=6). Forward-compat (Passo 99).
     HeadingLevel(u8),
+    /// Lang ISO 639-1/2/3 (Passo 288 — fecha assimetria Tabela B.3 vs B.4).
+    /// `StyleDelta.lang` existe desde P130/P131B/P144; até P288, escrito
+    /// **apenas** por parse-driven `eval_set_rule` em
+    /// `eval/rules.rs:377-394`. P288 adiciona **2ª fonte de entrada** via
+    /// `Content::Styled(body, Styles::from_iter([Style::Lang(...)]))`.
+    /// Caminho parse continua intacto — bit-exact preservado.
+    Lang(Lang),
+    /// Peso da fonte raw `u16` (Passo 289 — fecha 1/4 da assimetria
+    /// residual P288 §7 risco terciário). `StyleDelta.weight: Option<u16>`
+    /// existe desde P126/P129; até P289, escrito **apenas** por parse-driven
+    /// `eval_set_rule` em `eval/rules.rs:350-368` (aceita `Int` ou nome
+    /// simbólico via `FontWeight::from_name`). P289 adiciona **2ª fonte
+    /// de entrada** via `Content::Styled(body, Styles::from_iter(
+    /// [Style::Weight(700)]))`. Caminho parse continua intacto.
+    /// Consumer faux-bold P139 (`TextStyle::faux_bold_stroke_pt`)
+    /// reusado sem alteração — ADR-0098 aderência confirmada (hash
+    /// `export.rs 66cb8ac3` preservado pelo 6º passo consecutivo).
+    Weight(u16),
 }
 
 /// Colecção de `Style` — delta de propriedades aplicado a um nó.
@@ -119,16 +138,20 @@ mod tests {
     }
 
     #[test]
-    fn style_variantes_cobrem_catalog_99a() {
-        // Passo 99.A: 5 variantes no enum Style. Este teste falha se
-        // alguém tentar remover uma.
+    fn style_variantes_cobrem_catalog_99a_e_p288_e_p289() {
+        // Passo 99.A inaugurou 5 variantes. P288 adicionou `Lang(Lang)` → 6.
+        // P289 adiciona `Weight(u16)` → 7. Este teste falha se alguém
+        // tentar remover uma.
+        use crate::entities::lang::Lang;
         let variants = [
             Style::Bold(true),
             Style::Italic(false),
             Style::Size(Pt(12.0)),
             Style::Fill(Color::rgb(0, 0, 0)),
             Style::HeadingLevel(1),
+            Style::Lang(Lang::ENGLISH),  // P288
+            Style::Weight(700),           // P289
         ];
-        assert_eq!(variants.len(), 5);
+        assert_eq!(variants.len(), 7);
     }
 }

@@ -140,6 +140,17 @@ impl StyleChain {
                 Style::Size(pt)        => delta.size = Some(pt.val()),
                 Style::Fill(c)         => delta.fill = Some(*c),
                 Style::HeadingLevel(l) => delta.heading_level = Some(*l),
+                // P288 — 2ª fonte de entrada para `delta.lang` (paralela à
+                // parse-driven em `eval/rules.rs:385`). Last-write wins per
+                // LIFO da chain. Diagnóstico P288 §A.3.
+                Style::Lang(l)         => delta.lang = Some(*l),
+                // P289 — 2ª fonte de entrada para `delta.weight` (paralela
+                // à parse-driven em `eval/rules.rs:361/365`). Consumer
+                // faux-bold P139 (`TextStyle::faux_bold_stroke_pt`) reusado
+                // sem alteração — ADR-0098 aderência (hash `export.rs`
+                // preservado pelo 6º passo consecutivo). Diagnóstico P289
+                // §A.3 + §A.4.
+                Style::Weight(w)       => delta.weight = Some(*w),
             }
         }
         self.push(delta)

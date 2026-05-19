@@ -252,6 +252,14 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// (zero overhead em todos os outros call-sites; backward-compat
     /// bit-exact preservado per regressão tests P285).
     pub(super) decoration_lines_collector: Option<Vec<DecoSegment>>,
+    /// **P287 (frente `P-smartquote`)** — estado de alternância open/close
+    /// para `Content::SmartQuote { double }` emitido pela função stdlib
+    /// `#smartquote(...)`. **Independente** do estado do markup parser
+    /// (`eval_markup` local var; P155) — diagnóstico P287 §A.3 opção
+    /// (γ′): markup e função têm estados próprios; bit-exact do markup
+    /// preservado. Per-document (reset em `Layouter::new`).
+    pub(super) smartquote_double_open: bool,
+    pub(super) smartquote_single_open: bool,
 }
 
 /// **P286** — Segmento de linha visual capturado por `flush_line`
@@ -392,6 +400,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P286 — collector inactivo por default; consumer P284 activa
             // localmente antes de layout_content do body decorado.
             decoration_lines_collector: None,
+            // P287 — estado smartquote per-document (true = próximo é open).
+            smartquote_double_open: true,
+            smartquote_single_open: true,
         }
     }
 
@@ -2097,6 +2108,47 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         color,
                     });
                 }
+            }
+
+            // ── Passo 287 (frente `P-smartquote`) — função stdlib ──────────
+            //
+            // Consumer alterna estado open/close per-document do Layouter
+            // (`smartquote_*_open`). Resolução lang-aware via reuso de
+            // `rules/lang/quotes.rs::localize_quotes` — single source of
+            // truth partilhada com markup `eval_markup` P155 (padrão "Win
+            // arquitectural" §8.2 P286 N=3 → **N=4 cumulativo P287**).
+            //
+            // Glyph resolvido emitido como `Content::Text(glyph, style)` —
+            // reutiliza o caminho `Content::Text` standard (passa por
+            // hyphenation/wrap/font scenarios pré-existentes). Sem touch
+            // points em `export.rs` (hash `66cb8ac3` preserved).
+            //
+            // Divergência aceite vs vanilla per ADR-0054 graded: markup
+            // e função têm estados independentes; mistura programática +
+            // markup literal (caso edge raro) pode produzir "2 opens
+            // consecutivos" — registado em diagnóstico §A.3.2.
+            Content::SmartQuote { double } => {
+                let glyph: &str = if *double {
+                    let (open, close) = match &self.style.lang {
+                        Some(l) => crate::rules::lang::quotes::localize_quotes(l),
+                        None    => crate::rules::lang::quotes::DEFAULT_QUOTES,
+                    };
+                    let g = if self.smartquote_double_open { open } else { close };
+                    self.smartquote_double_open = !self.smartquote_double_open;
+                    g
+                } else {
+                    // Aspas simples — paridade P155 §A.1.2: always ASCII,
+                    // smart-apostrophes scope-out.
+                    self.smartquote_single_open = !self.smartquote_single_open;
+                    "'"
+                };
+                // Empurrar glyph directo via layout_word para preservar o
+                // **glyph como unidade indivisível** — algumas línguas
+                // (FR per LANG_QUOTES) emitem `«\u{00A0}` com NBSP que
+                // `Content::Text` split_whitespace() removeria. Bypass
+                // do path Content::Text mantém paridade vanilla literal.
+                // Word-wrap natural ainda activado via layout_word.
+                self.layout_word(glyph);
             }
 
             // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────
