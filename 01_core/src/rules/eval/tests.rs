@@ -2867,4 +2867,199 @@ mod tests {
         assert!(find_mathop_in(&content).is_some(),
             "$sin x + cos y$ deve ter pelo menos 1 MathOp");
     }
+
+    // ── Passo 302 — bug fix `sin(x)` parens descartados ────────────────
+    //
+    // Reaplica sub-padrão §8.4 P288 "bug latente fixed durante
+    // materialização dependente" (N=2: NBSP P287→P288; sin parens
+    // P301→P302).
+
+    fn find_mathdelimited_in(c: &Content) -> Option<(char, String, char)> {
+        match c {
+            Content::MathDelimited { open, body, close } => {
+                Some((*open, body.plain_text(), *close))
+            }
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(find_mathdelimited_in)
+            }
+            Content::Equation { body, .. } => find_mathdelimited_in(body),
+            _ => None,
+        }
+    }
+
+    #[test]
+    fn p302_sin_parens_produz_mathsequence_com_delimited() {
+        // P302 corrige bug P301: $sin(x)$ agora produz
+        // MathSequence([MathOp(sin), MathDelimited((x))]).
+        let world = MockWorld::new("$sin(x)$");
+        let content = extract_math_content(&world);
+        let mathop = find_mathop_in(&content);
+        assert!(mathop.is_some(), "$sin(x)$ deve produzir MathOp para sin");
+        let (text, limits) = mathop.unwrap();
+        assert_eq!(text, "sin");
+        assert!(!limits);
+        // Args devem aparecer como MathDelimited.
+        let delim = find_mathdelimited_in(&content);
+        assert!(delim.is_some(), "$sin(x)$ deve produzir MathDelimited preservando (x)");
+        let (open, body, close) = delim.unwrap();
+        assert_eq!(open, '(');
+        assert_eq!(close, ')');
+        assert!(body.contains("x"), "MathDelimited body deve conter 'x'; got: {}", body);
+    }
+
+    #[test]
+    fn p302_lim_parens_preserva_limits_e_args() {
+        // $lim(x)$ — lim é limits-style + args preservados.
+        let world = MockWorld::new("$lim(x)$");
+        let content = extract_math_content(&world);
+        let mathop = find_mathop_in(&content);
+        assert!(mathop.is_some());
+        let (text, limits) = mathop.unwrap();
+        assert_eq!(text, "lim");
+        assert!(limits, "lim mantém limits-style");
+        let delim = find_mathdelimited_in(&content);
+        assert!(delim.is_some(), "args (x) preservados via MathDelimited");
+    }
+
+    #[test]
+    fn p302_sin_args_vazios_so_mathop() {
+        // $sin()$ — args vazios; emite só MathOp sem MathDelimited vazio.
+        let world = MockWorld::new("$sin()$");
+        let content = extract_math_content(&world);
+        let mathop = find_mathop_in(&content);
+        assert!(mathop.is_some(), "$sin()$ deve produzir MathOp");
+        let (text, _) = mathop.unwrap();
+        assert_eq!(text, "sin");
+    }
+
+    #[test]
+    fn p302_regressao_sin_sem_parens_preservado() {
+        // CRÍTICO: $sin x$ (sem parens) continua a produzir MathOp directo
+        // (regressão P301 bit-exact preservada).
+        let world = MockWorld::new("$sin x$");
+        let content = extract_math_content(&world);
+        let mathop = find_mathop_in(&content);
+        assert!(mathop.is_some(), "$sin x$ produz MathOp directo");
+        // Sem MathDelimited (sem parens).
+        let delim = find_mathdelimited_in(&content);
+        assert!(delim.is_none(),
+            "$sin x$ (sem parens) NÃO deve ter MathDelimited");
+    }
+
+    #[test]
+    fn p302_multiplos_args_separados_por_virgula() {
+        // $sin(x, y)$ — múltiplos args separados.
+        let world = MockWorld::new("$sin(x, y)$");
+        let content = extract_math_content(&world);
+        let mathop = find_mathop_in(&content);
+        assert!(mathop.is_some());
+        let delim = find_mathdelimited_in(&content);
+        assert!(delim.is_some(), "MathDelimited com múltiplos args");
+        let (_, body, _) = delim.unwrap();
+        // Body contém ambos args (separação por vírgula).
+        assert!(body.contains("x"), "body contém 'x'; got: {}", body);
+        assert!(body.contains("y"), "body contém 'y'; got: {}", body);
+    }
+
+    // ── Passo 303 — bug fix `undef(x)` parens descartados (lookup-miss) ────
+    //
+    // Paralelo arquitectural directo de P302 no ramo lookup-miss:
+    // identifier desconhecido em scope `math` agora preserva args via
+    // MathSequence([MathIdent, MathDelimited]) em vez de descartar
+    // silenciosamente (bug pré-P301).
+
+    #[test]
+    fn p303_undef_parens_produz_mathsequence_com_delimited() {
+        // $undef(x)$ — identifier desconhecido com args.
+        // Pré-P303: MathIdent("undef") apenas; args descartados.
+        // Pós-P303: MathSequence([MathIdent("undef"), MathDelimited((x))]).
+        let world = MockWorld::new("$undef(x)$");
+        let content = extract_math_content(&world);
+        // MathIdent("undef") preservado.
+        let ident = find_mathident_in(&content);
+        assert!(ident.is_some(), "$undef(x)$ deve conter MathIdent");
+        // Sem MathOp (undef não está em scope math).
+        let mathop = find_mathop_in(&content);
+        assert!(mathop.is_none(), "undef NÃO está em scope math; sem MathOp");
+        // MathDelimited deve preservar args (fix P303).
+        let delim = find_mathdelimited_in(&content);
+        assert!(delim.is_some(),
+            "$undef(x)$ deve produzir MathDelimited preservando (x); content: {:?}",
+            content);
+        let (open, body, close) = delim.unwrap();
+        assert_eq!(open, '(');
+        assert_eq!(close, ')');
+        assert!(body.contains("x"), "MathDelimited body deve conter 'x'; got: {}", body);
+    }
+
+    #[test]
+    fn p303_undef_args_complexos_preservados() {
+        // $undef(x + y)$ — args complexos.
+        let world = MockWorld::new("$undef(x + y)$");
+        let content = extract_math_content(&world);
+        let ident = find_mathident_in(&content);
+        assert!(ident.is_some(), "MathIdent presente");
+        let delim = find_mathdelimited_in(&content);
+        assert!(delim.is_some(), "MathDelimited presente com expressão complexa");
+        let (_, body, _) = delim.unwrap();
+        assert!(body.contains("x"), "body contém 'x'; got: {}", body);
+        assert!(body.contains("y"), "body contém 'y'; got: {}", body);
+    }
+
+    #[test]
+    fn p303_undef_multiplos_args_separados_por_virgula() {
+        // $undef(x, y)$ — múltiplos args separados por ", ".
+        let world = MockWorld::new("$undef(x, y)$");
+        let content = extract_math_content(&world);
+        let ident = find_mathident_in(&content);
+        assert!(ident.is_some());
+        let delim = find_mathdelimited_in(&content);
+        assert!(delim.is_some(), "MathDelimited com múltiplos args");
+        let (_, body, _) = delim.unwrap();
+        assert!(body.contains("x"), "body contém 'x'; got: {}", body);
+        assert!(body.contains("y"), "body contém 'y'; got: {}", body);
+    }
+
+    #[test]
+    fn p303_undef_args_vazios_so_mathident_sem_wrapper() {
+        // $undef()$ — args vazios; só MathIdent (sem MathDelimited wrapper).
+        // Paralelo P302: $sin()$ → MathOp sem wrapper.
+        let world = MockWorld::new("$undef()$");
+        let content = extract_math_content(&world);
+        let ident = find_mathident_in(&content);
+        assert!(ident.is_some(), "$undef()$ deve produzir MathIdent");
+        // Sem MathDelimited (args vazios = sem wrapper).
+        let delim = find_mathdelimited_in(&content);
+        assert!(delim.is_none(),
+            "$undef()$ (args vazios) NÃO deve ter MathDelimited; content: {:?}",
+            content);
+    }
+
+    #[test]
+    fn p303_regressao_undef_sem_parens_preservado() {
+        // CRÍTICO: $undef$ (sem parens) continua a produzir MathIdent
+        // directo (regressão pré-P301 bit-exact preservada).
+        let world = MockWorld::new("$undef$");
+        let content = extract_math_content(&world);
+        let ident = find_mathident_in(&content);
+        assert!(ident.is_some(), "$undef$ produz MathIdent directo");
+        let delim = find_mathdelimited_in(&content);
+        assert!(delim.is_none(),
+            "$undef$ (sem parens) NÃO deve ter MathDelimited");
+    }
+
+    #[test]
+    fn p303_regressao_sin_parens_p302_preservado() {
+        // CRÍTICO: $sin(x)$ continua a produzir
+        // MathSequence([MathOp(sin), MathDelimited((x))]) — fix P302
+        // preservado bit-exact pós-P303.
+        let world = MockWorld::new("$sin(x)$");
+        let content = extract_math_content(&world);
+        let mathop = find_mathop_in(&content);
+        assert!(mathop.is_some(), "MathOp(sin) preservado");
+        let (text, _) = mathop.unwrap();
+        assert_eq!(text, "sin");
+        let delim = find_mathdelimited_in(&content);
+        assert!(delim.is_some(), "MathDelimited preservado P302 fix");
+    }
 }

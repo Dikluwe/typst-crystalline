@@ -248,6 +248,16 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Paridade arquitectural ao P245 `floats_pending` (subpadrão
     /// "DeferredX buffer + flush em new_page" N=1 → 2 cumulativo).
     pub(super) pending_cell_tails: Vec<DeferredCellTail>,
+    /// **P304 (P295.1; ADR-0079 Categoria C.2 paralela)** — buffer
+    /// de footnote bodies pendentes na página actual. Populado pelo
+    /// arm `Content::Footnote` quando o marker `[N]` é emitido; flush
+    /// em `new_page()` (antes de saving a Page) + `finish()` (última
+    /// página). Cada entry: `(número, body)`. Bodies são layoutados
+    /// no rodapé via `layout_sub_frame_with_width` + posicionamento
+    /// absoluto Y bottom.
+    /// Sub-padrão "DeferredX buffer + flush em new_page" N=2 → 3
+    /// cumulativo (P245 floats + P251 cell tails + P304 footnotes).
+    pub(super) pending_footnote_bodies: Vec<(u32, Box<crate::entities::content::Content>)>,
     /// **P286 (frente `P-text-deco-multiline`; resolve P284 §5.3)** —
     /// collector opcional de segmentos `(start_x, end_x, baseline_y)`
     /// para decorações textuais wrap-aware (Underline/Strike/Overline).
@@ -405,6 +415,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             block_chain_active:       false,
             // P251 — buffer cell tails inicializado vazio.
             pending_cell_tails:       Vec::new(),
+            // P304 — buffer footnote bodies inicializado vazio.
+            pending_footnote_bodies:  Vec::new(),
             // P286 — collector inactivo por default; consumer P284 activa
             // localmente antes de layout_content do body decorado.
             decoration_lines_collector: None,
@@ -1029,16 +1041,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     self.flush_line();
                 }
             }
-            // P295 — Footnote Fase 1 (marker only). Walker counter
-            // simples; marker `[N]` emitido inline como `Content::text`.
-            // Body armazenado mas **não renderizado** no rodapé nesta
-            // fase — sub-passos P295.1 (nota rodapé) + P295.2 (overflow)
-            // renderizam via 2-pass layout futuro.
-            Content::Footnote { body: _ } => {
+            // P295 — Footnote Fase 1 marker emitido inline; P304
+            // (P295.1) — body diferido para o rodapé via buffer
+            // `pending_footnote_bodies` (subpadrão DeferredX N=3
+            // cumulativo: P245 floats + P251 cell tails + P304
+            // footnotes). Flush em `new_page()` (antes de saving
+            // Page) + `finish()` (última página) emite os bodies
+            // no rodapé com posicionamento Y absoluto bottom-up.
+            // P295.2 (overflow multi-página) permanece scope-out.
+            Content::Footnote { body } => {
                 self.footnote_counter += 1;
                 let n = self.footnote_counter;
                 let marker = format!("[{}]", n);
                 self.layout_content(&Content::text(marker));
+                self.pending_footnote_bodies.push((n, body.clone()));
             }
 
             Content::Cite { key, supplement, form } => {
@@ -2234,6 +2250,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // P245 (M9d / M7+4) — flush floats pendentes da última página
         // antes de comitar a Page final.
         self.flush_pending_floats();
+        // P304 (P295.1) — flush footnote bodies pendentes da última
+        // página antes de comitar a Page final. Subpadrão DeferredX
+        // N=3 paralelo a P245/P251.
+        self.flush_pending_footnote_bodies();
         if !self.regions.current.current_items.is_empty() {
             let page = Page {
                 width:  self.regions.current.width,

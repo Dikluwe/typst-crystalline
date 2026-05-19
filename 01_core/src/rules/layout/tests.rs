@@ -10831,6 +10831,155 @@ mod p292_style_font_tests {
         assert_eq!(style.font.unwrap().len(), 2);
     }
 
+    // ── Passo 304 (P295.1) — footnote body renderizado no rodapé ───
+    //
+    // P304 materializa P295.1 via deferred buffer pattern (paralelo
+    // P245 floats_pending + P251 pending_cell_tails). Body emitido
+    // no rodapé da página em Y absoluto bottom-up.
+
+    #[test]
+    fn p304_footnote_body_presente_no_documento() {
+        // Body string deve estar no `plain_text()` do documento
+        // (renderizado no rodapé via flush_pending_footnote_bodies).
+        let doc = layout(&Content::Footnote {
+            body: Box::new(Content::text("BODYFOO"))
+        });
+        assert!(!doc.pages.is_empty(), "documento tem páginas");
+        // plain_text via items emitidos: marker [1] + body.
+        let text: String = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|it| match it {
+                FrameItem::Text { text, .. } => Some(text.to_string()),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+            .join(" ");
+        assert!(text.contains("BODYFOO"),
+            "body 'BODYFOO' presente nos FrameItems; got: {:?}", text);
+    }
+
+    #[test]
+    fn p304_footnote_body_no_rodape_y_alto() {
+        // Body posicionado no fundo da página: Y > metade da altura.
+        // Page default height = 842pt (A4); margin = 72pt;
+        // bottom = 842 - 72 = 770pt. Body deve estar próximo de 770pt.
+        let doc = layout(&Content::Footnote {
+            body: Box::new(Content::text("RODAPE"))
+        });
+        let page = &doc.pages[0];
+        let half = page.height / 2.0;
+        let body_y = page.items.iter().find_map(|it| match it {
+            FrameItem::Text { pos, text, .. } if text.contains("RODAPE") =>
+                Some(pos.y.0),
+            _ => None,
+        });
+        assert!(body_y.is_some(), "body 'RODAPE' encontrado nos items");
+        assert!(body_y.unwrap() > half,
+            "body Y ({}) deve estar na metade inferior da página (>{})",
+            body_y.unwrap(), half);
+    }
+
+    #[test]
+    fn p304_marker_inline_acima_do_body() {
+        // Marker `[1]` emitido inline (Y baixo, próximo do topo);
+        // body emitido no rodapé (Y alto). marker_y < body_y.
+        let doc = layout(&Content::sequence(vec![
+            Content::text("texto "),
+            Content::Footnote { body: Box::new(Content::text("RODAPEB")) },
+        ]));
+        let page = &doc.pages[0];
+        let marker_y = page.items.iter().find_map(|it| match it {
+            FrameItem::Text { pos, text, .. } if text.contains("[1]") =>
+                Some(pos.y.0),
+            _ => None,
+        });
+        let body_y = page.items.iter().find_map(|it| match it {
+            FrameItem::Text { pos, text, .. } if text.contains("RODAPEB") =>
+                Some(pos.y.0),
+            _ => None,
+        });
+        assert!(marker_y.is_some(), "marker [1] presente");
+        assert!(body_y.is_some(), "body RODAPEB presente");
+        assert!(marker_y.unwrap() < body_y.unwrap(),
+            "marker_y ({}) acima de body_y ({})", marker_y.unwrap(), body_y.unwrap());
+    }
+
+    #[test]
+    fn p304_multiplos_footnotes_bodies_empilhados() {
+        // 3 bodies empilhados no rodapé: ordem N=1 → N=3 top-down.
+        let doc = layout(&Content::sequence(vec![
+            Content::text("a "),
+            Content::Footnote { body: Box::new(Content::text("AAAA")) },
+            Content::text(" b "),
+            Content::Footnote { body: Box::new(Content::text("BBBB")) },
+            Content::text(" c "),
+            Content::Footnote { body: Box::new(Content::text("CCCC")) },
+        ]));
+        let page = &doc.pages[0];
+        let y_a = page.items.iter().find_map(|it| match it {
+            FrameItem::Text { pos, text, .. } if text.contains("AAAA") => Some(pos.y.0),
+            _ => None,
+        });
+        let y_b = page.items.iter().find_map(|it| match it {
+            FrameItem::Text { pos, text, .. } if text.contains("BBBB") => Some(pos.y.0),
+            _ => None,
+        });
+        let y_c = page.items.iter().find_map(|it| match it {
+            FrameItem::Text { pos, text, .. } if text.contains("CCCC") => Some(pos.y.0),
+            _ => None,
+        });
+        assert!(y_a.is_some() && y_b.is_some() && y_c.is_some(),
+            "todos 3 bodies presentes");
+        // Footnote 1 fica acima de 2 e 3 (paridade vanilla: ordem
+        // numérica top-down no rodapé).
+        assert!(y_a.unwrap() <= y_b.unwrap(),
+            "body 1 acima ou igual ao body 2; y_a={}, y_b={}", y_a.unwrap(), y_b.unwrap());
+        assert!(y_b.unwrap() <= y_c.unwrap(),
+            "body 2 acima ou igual ao body 3; y_b={}, y_c={}", y_b.unwrap(), y_c.unwrap());
+    }
+
+    #[test]
+    fn p304_documento_sem_footnote_sem_impacto() {
+        // Documento sem Footnote: layout idêntico pré-P304.
+        // `flush_pending_footnote_bodies` early-return em buffer vazio.
+        let doc = layout(&Content::text("hello world"));
+        // Texto presente; nenhum marker [N] gerado.
+        assert!(!doc.pages.is_empty());
+        let text: String = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|it| match it {
+                FrameItem::Text { text, .. } => Some(text.to_string()),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+            .join(" ");
+        assert!(text.contains("hello") || text.contains("world"),
+            "texto preservado pré-P304");
+        assert!(!text.contains("[1]"), "nenhum marker footnote em documento sem footnote");
+    }
+
+    #[test]
+    fn p304_footnote_body_complex_content_renderizado() {
+        // Body com conteúdo composto (Sequence) renderizado completo.
+        let doc = layout(&Content::Footnote {
+            body: Box::new(Content::sequence(vec![
+                Content::text("primeira"),
+                Content::text(" "),
+                Content::text("segunda"),
+            ]))
+        });
+        let text: String = doc.pages.iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|it| match it {
+                FrameItem::Text { text, .. } => Some(text.to_string()),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+            .join(" ");
+        assert!(text.contains("primeira"), "primeira parte do body presente");
+        assert!(text.contains("segunda"),  "segunda parte do body presente");
+    }
+
     #[test]
     fn p292_marco_arquitectural_serie_p288_a_p292_fechada() {
         // **Marco simbólico**: este teste atesta o fecho da série

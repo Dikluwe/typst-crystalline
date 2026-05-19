@@ -148,6 +148,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // antes da transição. Top floats emit no topo, bottom no fundo.
         self.flush_pending_floats();
 
+        // P304 (P295.1) — flush footnote bodies pendentes no rodapé
+        // antes de saving a Page. Items posicionados em Y absoluto
+        // bottom-up; tornam-se parte dos `current_items` da página.
+        self.flush_pending_footnote_bodies();
+
         let page = Page {
             width:  self.regions.current.width,
             height: self.regions.current.height,
@@ -282,6 +287,99 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     },
             };
             self.regions.current.current_items.push(translated);
+        }
+    }
+
+    /// **P304 (P295.1)** — flush dos footnote bodies pendentes no
+    /// rodapé da página actual. Cada body é layoutado num sub-frame
+    /// (`layout_sub_frame_with_width`) e posicionado em Y absoluto
+    /// bottom-up: a primeira footnote fica imediatamente acima do
+    /// limite inferior `page_h - margin`, a segunda abaixo dela, etc.
+    /// Marker `[N]: ` prepende cada body para identificação.
+    ///
+    /// Subpadrão "DeferredX buffer + flush em new_page" N=3 cumulativo
+    /// (P245 floats + P251 cell tails + P304 footnotes).
+    ///
+    /// P304.A (single-page only): bodies que excedam o espaço
+    /// disponível são emitidos mesmo assim — overflow multi-página
+    /// é scope-out (P295.2 / P304.B).
+    pub(super) fn flush_pending_footnote_bodies(&mut self) {
+        use crate::entities::content::Content;
+        if self.pending_footnote_bodies.is_empty() {
+            return;
+        }
+        let bodies: Vec<(u32, Box<Content>)> =
+            std::mem::take(&mut self.pending_footnote_bodies);
+        let margin   = self.page_config.margin;
+        let page_w   = self.regions.current.width;
+        let page_h   = self.regions.current.height;
+        let avail_w  = page_w - 2.0 * margin;
+        let area_bot = page_h - margin;
+
+        // Pass 1 — measure cada body (incluindo marker prefix) e
+        // colecciona items locais + altura.
+        let mut measured: Vec<(f64, Vec<FrameItem>)> = Vec::with_capacity(bodies.len());
+        let mut total_h = 0.0_f64;
+        for (n, body) in bodies.iter() {
+            // Combina marker `[N]: ` + body num Sequence para layout
+            // sub-frame. Marker prefixa cada body para identificação
+            // no rodapé (paridade vanilla `1. body`).
+            let combined = Content::sequence(vec![
+                Content::text(format!("[{}] ", n)),
+                (**body).clone(),
+            ]);
+            let (h, items) = self.layout_sub_frame_with_width(&combined, 0.0, avail_w);
+            total_h += h;
+            measured.push((h, items));
+        }
+
+        // Pass 2 — place top-down a partir de `area_bot - total_h`.
+        // Primeira footnote no topo da zona; última no fundo.
+        // `layout_sub_frame_with_width` posicionou items com ascender
+        // offset (cursor_y inicial = ascender). Para alinhar ao
+        // target_y absoluto exacto (não baseline), subtrair ascender
+        // do offset de translação — paridade pattern `emit_deferred_float`
+        // (P245) + `layout_place` (placement.rs).
+        let (ascender, _) = self.metrics.vertical_metrics(self.font_size_pt);
+        let mut y_cursor = area_bot - total_h;
+        for (h, items) in measured {
+            let target_y = y_cursor - ascender.0;
+            let target_x = margin;
+            for item in items {
+                let translated = match item {
+                    FrameItem::Text { pos, text, style } => FrameItem::Text {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        text, style,
+                    },
+                    FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } =>
+                        FrameItem::Shape {
+                            pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                            kind, width, height, fill, stroke, parent_bbox_at_emit,
+                        },
+                    FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } =>
+                        FrameItem::Group {
+                            pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                            matrix, clip_mask, inner_width, inner_height, items,
+                        },
+                    FrameItem::Line { start, end, thickness, color } => FrameItem::Line {
+                        start: Point { x: start.x + Pt(target_x), y: start.y + Pt(target_y) },
+                        end:   Point { x: end.x   + Pt(target_x), y: end.y   + Pt(target_y) },
+                        thickness, color,
+                    },
+                    FrameItem::Glyph { pos, glyph_id, x_advance, size } =>
+                        FrameItem::Glyph {
+                            pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                            glyph_id, x_advance, size,
+                        },
+                    FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height } =>
+                        FrameItem::Image {
+                            pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                            data, width, height, intrinsic_width, intrinsic_height,
+                        },
+                };
+                self.regions.current.current_items.push(translated);
+            }
+            y_cursor += h;
         }
     }
 

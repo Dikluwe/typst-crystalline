@@ -298,16 +298,53 @@ fn eval_math_expr(
                     Ok(Content::MathMatrix { rows, delim: ('(', ')') })
                 }
 
-                // Outros nomes: P301 auto-lookup math (sin, cos, lim, …);
-                // fallback MathIdent. Args `(x)` continuam descartados (bug
-                // latente pré-P301 fora de scope; vanilla parser-side resolve
-                // `sin(x)` como `sin` + `(x)` delimited).
+                // Outros nomes: P301 auto-lookup math (sin, cos, lim, …)
+                // + P302 preservação args via MathSequence + MathDelimited.
+                // + P303 paralelo lookup-miss: identifier desconhecido
+                //   também preserva args (simetria arquitectural).
+                //
+                // **P302 (HZ confirmado)**: vanilla parser distinguish
+                // `sin(x)` como `sin` + `(x)` delimited; cristalino parser
+                // produz FuncCall em math mode (divergência) mas eval
+                // emula comportamento vanilla retornando
+                // `MathSequence([MathOp, MathDelimited((x))])`.
+                //
+                // **P303 (HX')**: `undef(x)` (identifier sem lookup-hit)
+                // produzia `MathIdent("undef")` descartando args (bug
+                // pré-P301). Agora `MathSequence([MathIdent, MathDelimited])`
+                // — paralelo arquitectural directo P302.
                 _ => {
-                    if let Some(op) = lookup_math_op(scopes, &name) {
-                        Ok(op)
+                    let pos_args: Vec<Expr<'_>> = call.args().items()
+                        .filter_map(|a| match a { Arg::Pos(e) => Some(e), _ => None })
+                        .collect();
+                    let base = if let Some(op) = lookup_math_op(scopes, &name) {
+                        op
                     } else {
-                        Ok(Content::MathIdent(name.into()))
+                        Content::MathIdent(name.into())
+                    };
+                    if pos_args.is_empty() {
+                        // `sin()` / `undef()` — args vazios; só base sem wrapper.
+                        return Ok(base);
                     }
+                    let body = if pos_args.len() == 1 {
+                        eval_math_expr(scopes, ctx, pos_args[0])?
+                    } else {
+                        // Múltiplos args: separados por `, ` (paridade vanilla).
+                        let mut items: Vec<Content> = Vec::new();
+                        for (i, expr) in pos_args.iter().enumerate() {
+                            if i > 0 {
+                                items.push(Content::MathText(", ".into()));
+                            }
+                            items.push(eval_math_expr(scopes, ctx, *expr)?);
+                        }
+                        Content::MathSequence(std::sync::Arc::from(items))
+                    };
+                    let delimited = Content::MathDelimited {
+                        open:  '(',
+                        body:  Box::new(body),
+                        close: ')',
+                    };
+                    Ok(Content::MathSequence(std::sync::Arc::from(vec![base, delimited])))
                 }
             }
         }

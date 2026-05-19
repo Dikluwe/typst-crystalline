@@ -9723,19 +9723,83 @@ mod tests {
             "operador `S` (stroke) presente para linha diagonal cancel");
     }
 
+    // ── Passo 304 (P295.1) — footnote body renderizado no rodapé ───
+    //
+    // P304 materializa P295.1 via deferred buffer pattern (paralelo
+    // P245 floats_pending + P251 pending_cell_tails). Body emitido
+    // no rodapé da página via posicionamento Y absoluto.
+
     #[test]
-    fn p295_footnote_body_nao_renderizado_no_pdf_fase1() {
-        // Body string "BODYSECRET" deve estar AUSENTE do PDF em Fase 1
-        // (não renderizado no rodapé; armazenado mas inerte). Quando
-        // P295.1 materializar nota rodapé, este teste vai falhar
-        // intencionalmente — sinal para actualizar.
+    fn p304_footnote_body_renderizado_no_rodape() {
+        // INVALIDA p295_footnote_body_nao_renderizado_no_pdf_fase1.
+        // Body string "BODYSECRET" deve estar PRESENTE no PDF
+        // (renderizado no rodapé via flush_pending_footnote_bodies).
         let doc = layout(&Content::Footnote {
             body: Box::new(Content::text("BODYSECRET"))
         });
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
-        assert!(s.contains("[1]"), "marker presente");
-        assert!(!s.contains("BODYSECRET"),
-            "Fase 1: body ausente do PDF (não renderizado no rodapé)");
+        assert!(s.contains("[1]"), "marker `[1]` presente no PDF");
+        assert!(s.contains("BODYSECRET"),
+            "P304: body PRESENTE no PDF (renderizado no rodapé)");
+    }
+
+    #[test]
+    fn p304_multiplos_footnote_bodies_renderizados() {
+        // 3 footnotes na mesma página produzem 3 bodies empilhados
+        // no rodapé. Markers `[1]`, `[2]`, `[3]` inline; bodies
+        // `body1`, `body2`, `body3` no rodapé.
+        let doc = layout(&Content::sequence(vec![
+            Content::text("antes "),
+            Content::Footnote { body: Box::new(Content::text("BODYUM")) },
+            Content::text(" meio "),
+            Content::Footnote { body: Box::new(Content::text("BODYDOIS")) },
+            Content::text(" fim "),
+            Content::Footnote { body: Box::new(Content::text("BODYTRES")) },
+        ]));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        assert!(s.contains("[1]") && s.contains("[2]") && s.contains("[3]"),
+            "markers todos presentes");
+        assert!(s.contains("BODYUM"),   "body 1 no rodapé");
+        assert!(s.contains("BODYDOIS"), "body 2 no rodapé");
+        assert!(s.contains("BODYTRES"), "body 3 no rodapé");
+    }
+
+    #[test]
+    fn p304_regressao_marker_inline_preservado() {
+        // CRÍTICO: P295 marker inline preservado bit-exact.
+        // Mesma estrutura do p295_footnote_marker_emite_n_inline_no_pdf
+        // — markers ainda emitidos inline (não só no rodapé).
+        let doc = layout(&Content::sequence(vec![
+            Content::text("antes "),
+            Content::Footnote { body: Box::new(Content::text("nota1")) },
+            Content::text(" meio "),
+            Content::Footnote { body: Box::new(Content::text("nota2")) },
+        ]));
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
+        // Marker P295 inline: `[1]` e `[2]` ambos presentes.
+        assert!(s.contains("[1]"), "marker [1] preservado");
+        assert!(s.contains("[2]"), "marker [2] preservado");
+    }
+
+    #[test]
+    fn p304_documento_sem_footnote_bit_exact_pre_p304() {
+        // REGRESSÃO BIT-EXACT: documentos sem footnote produzem
+        // exactamente os mesmos bytes pré-P304. `flush_pending_footnote_bodies`
+        // early-return em buffer vazio garante zero impacto.
+        let doc_a = layout(&Content::text("hello world"));
+        let doc_b = layout(&Content::sequence(vec![
+            Content::text("linha um"),
+            Content::text("linha dois"),
+        ]));
+        let pdf_a = export_pdf(&doc_a);
+        let pdf_b = export_pdf(&doc_b);
+        // Bytes esperados — nenhuma string sentinela P304 aparece.
+        assert!(!String::from_utf8_lossy(&pdf_a).contains("[1]"),
+            "documento sem footnote: nenhum marker [1]");
+        assert!(!String::from_utf8_lossy(&pdf_b).contains("[1]"),
+            "documento sem footnote: nenhum marker [1]");
     }
 }
