@@ -178,6 +178,57 @@
 > identificadas — classe de bug estabilizada empíricamente. Total
 > abertos: **6 → 6 preserved**. Detalhe em
 > [`diagnosticos/diagnostico-auditoria-walkers-passo-280.md`](diagnosticos/diagnostico-auditoria-walkers-passo-280.md).
+>
+> **Passo 281 (2026-05-18)**: unificação β-completa dos 3 stream-builders
+> (`build_page_stream_type1/cidfont/multifont`) num pipeline central
+> `build_page_stream + PageContext + FontScenario` em `03_infra/src/export.rs`.
+> Text/Glyph/Line em Group fix funcional entrega-se como **consequência
+> natural** da unificação. **3 pendências P280.X-bis fechadas
+> simultaneamente** (Text/Glyph/Line em Group; magnitudes XS/S/M
+> consolidadas via 1 refactor). Net LOC L3 **-248 produção**
+> (consolidação compensa amplamente adições; cap soft +20 / hard +30 net
+> trivialmente respeitado). Sub-padrões emergentes (nenhum formalizado
+> em ADR per anti-padrão over-formalização P273.17 §0):
+> "Agregador de contexto em L3" N=1 inaugural (análogo conceptual
+> ADR-0044 `Engine<'a>` em L1);
+> "Render real Groups" N=3 cumulativo (P273.13 Shape + P279 Image +
+> P281 Text/Glyph/Line);
+> "Extract helper de replicação inline" N=5 cumulativo;
+> "Decisão arquitectural fixada antes de Fase A" N=1 inaugural;
+> "Refactor preservando bit-exact" N=1 inaugural;
+> "Pendência específica derivada-fecha-derivada" N=2 cumulativo
+> (P279 N=1 + P281 N=2).
+> 9 testes funcionais P281 verdes (Text/Glyph/Line em Group cross 3
+> scenarios + nested + smoke); 2 615 → 2 624 testes (+9 P281); lint
+> zero violations. Bit-exact preserved para todos os scenarios
+> pré-existentes (verificado por 428 typst-infra + 2 187 typst-core
+> baseline preserved). Total abertos: **6 → 6 preserved** (refactor
+> + bug fix; não fecha DEBT numerado). Detalhe em
+> [`diagnosticos/diagnostico-p281-unificacao-stream-builders.md`](diagnosticos/diagnostico-p281-unificacao-stream-builders.md).
+>
+> **Passo 282 (2026-05-18)**: auditoria dupla zero-código —
+> (A1) paridade emit local vs top-level pós-P281; (A2) estado
+> percentual do projecto. **A1**: paridade total confirmada para
+> Text/Glyph em todos os 3 scenarios (Type1/CIDFont/Multifont); Line
+> tem paridade estructural com limitação simétrica `RG` ausente
+> (pendência `P-line-color-rg-emit` registada). **6/6 suspeitas da
+> spec refutadas** — win arquitectural P281 (`emit_text_pdf` +
+> `emit_glyph_pdf` helpers únicos) garante paridade estructuralmente.
+> **A2**: cobertura agregada empírica **~63%** vs vanilla. Categoria
+> mais robusta: Export ~85% (cluster Gradient+Group fechado P281).
+> Categoria mais sub-implementada: Text ~30% (quick wins XS
+> disponíveis: Underline/Overline/Strikethrough, SmartQuote). 10
+> frentes accionáveis ordenadas por valor / ausência de bloqueador /
+> continuidade — top 3: stdlib calc trig/hyperbolic (XS×20 fns),
+> Curve geometry (S-M; DEBT-pending), Text decorações (XS×3).
+> Sub-padrão "Auditoria dupla zero-código" N=1 inaugural; "Auditoria
+> sistemática de bug latent class" P280 N=1 → P282 N=2 cumulativo
+> (P280 audita classe de walkers; P282 audita classe de paridade emit).
+> Zero código modificado; lint zero violations preserved; tests
+> baseline 2 624 preserved. Total abertos: **6 → 6 preserved**.
+> Detalhes em
+> [`diagnosticos/diagnostico-paridade-emit-passo-282.md`](diagnosticos/diagnostico-paridade-emit-passo-282.md)
+> + [`diagnosticos/estado-percentual-projecto-passo-282.md`](diagnosticos/estado-percentual-projecto-passo-282.md).
 
 ---
 

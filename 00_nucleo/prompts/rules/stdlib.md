@@ -66,9 +66,12 @@ Fora de 0–255 → `Err`.
 
 ### Módulo `calc` — `make_calc_module() -> Value`
 
-Constrói `Value::Dict` com 9 funções (divergência do original que usa
-`Value::Module` — Cristalino usa Dict pois não há stdlib Module sem world).
-Acesso via `calc.abs`, `calc.pow`, etc. funciona via `eval_field_access` sobre Dict.
+Constrói `Value::Dict` com 25 funções + 4 constantes (divergência do original
+que usa `Value::Module` — Cristalino usa Dict pois não há stdlib Module sem
+world). Acesso via `calc.abs`, `calc.sin`, `calc.pi`, etc. funciona via
+`eval_field_access` sobre Dict.
+
+#### Funções base (P27)
 
 | Função | Tipos | Semântica |
 |--------|-------|-----------|
@@ -82,8 +85,54 @@ Acesso via `calc.abs`, `calc.pow`, etc. funciona via `eval_field_access` sobre D
 | `calc_max` | `≥1 Num` | idem `min` |
 | `calc_clamp` | `(value, min, max)` | min > max → Err |
 
-**DEBT (ADR-0018)**: `calc_pow` usa `f64::powf` directamente em vez de
-`libm::pow`. Quando `libm` for adicionado como dependência do workspace, migrar.
+#### Trigonometria — radianos (P283)
+
+Aceitam `Int|Float`. **Sem tipo `Angle`** — radianos directos, paridade
+`f64::sin`. Conversão deg→rad adiada para passo dedicado ao tipo `Angle`.
+
+| Função | Domínio | Retorno |
+|--------|---------|---------|
+| `calc_sin` / `calc_cos` / `calc_tan` | R (radianos) | `Float`; `guard_float` captura Inf raro (e.g. `tan(π/2)`) |
+| `calc_asin` / `calc_acos` | `[-1, 1]` (inclusivo) | `Float` (radianos); fora → `Err` |
+| `calc_atan` | R | `Float` (radianos) |
+| `calc_atan2` | `(x, y)` ∈ R² | `Float` (radianos). **Ordem `(x, y)` na chamada** preservada de vanilla; internamente chama `f64::atan2(y, x)` |
+
+#### Hiperbólicas (P283)
+
+| Função | Domínio | Retorno |
+|--------|---------|---------|
+| `calc_sinh` / `calc_cosh` / `calc_tanh` / `calc_asinh` | R | `Float`; `cosh` grande → Inf → `Err` via `guard_float` |
+| `calc_acosh` | `[1, +∞)` | `Float`; <1 → `Err` |
+| `calc_atanh` | `(-1, 1)` **estrito** | `Float`; ±1 ou fora → `Err` |
+
+#### Exponencial / logaritmos (P283)
+
+| Função | Domínio | Notas |
+|--------|---------|-------|
+| `calc_exp` | R | overflow → `Err` via `guard_float` |
+| `calc_ln` | `(0, +∞)` | ≤0 → `Err` |
+| `calc_log(x[, base])` | x>0; base∈(0,+∞)∖{1}, finita | base default = 10. **Divergência vanilla**: posicional em vez de named arg `base:` — registado em `diagnostico-calc-passo-283.md` §A.1 |
+
+#### Constantes (P283)
+
+| Chave | Valor |
+|-------|-------|
+| `calc.pi`  | `std::f64::consts::PI`  |
+| `calc.tau` | `std::f64::consts::TAU` |
+| `calc.e`   | `std::f64::consts::E`   |
+| `calc.inf` | `f64::INFINITY`         |
+
+**DEBT (ADR-0018)**: `calc_pow`, `trig_op` (cobre `sin/cos/tan/asin/acos/atan/
+sinh/cosh/tanh/asinh/acosh/atanh/exp`), `calc_atan2` e `calc_ln`/`calc_log` usam
+`f64::*` directamente com `#[allow(clippy::disallowed_methods)]`. Centralização
+em `trig_op` reduz a migração futura para `libm::*` a 4 sítios (ver
+`diagnostico-calc-passo-283.md` §A.2 para racional da opção (c) escolhida em
+P283).
+
+**Funções vanilla adiadas** (bucket 2 do diagnóstico P283):
+`root`, `erf`, `fact`, `perm`, `binom`, `gcd`, `lcm`, `trunc`, `fract`, `even`,
+`odd`, `rem`, `div_euclid`, `rem_euclid`, `quo`, `norm` + extensões para
+`Length/Angle/Decimal/digits` em funções existentes.
 
 ---
 
@@ -186,6 +235,45 @@ calc_clamp([Int(5), Int(0), Int(10)])   → Ok(Int(5))
 calc_clamp([Int(-5), Int(0), Int(10)])  → Ok(Int(0))
 calc_clamp([Int(15), Int(0), Int(10)])  → Ok(Int(10))
 calc_clamp([Float(5.0), Float(10.0), Float(0.0)]) → Err (min > max)
+
+// P283 — trig (tolerância 1e-10 implícita)
+calc_sin([Float(0.0)])            → Ok(Float(0.0))
+calc_sin([Float(PI)])             → Ok(Float(~0.0))
+calc_cos([Float(0.0)])            → Ok(Float(1.0))
+calc_cos([Float(PI)])             → Ok(Float(-1.0))
+calc_tan([Float(FRAC_PI_4)])      → Ok(Float(~1.0))
+calc_asin([Float(1.0)])           → Ok(Float(FRAC_PI_2))
+calc_asin([Float(1.5)])           → Err (fora de [-1, 1])
+calc_acos([Float(-1.0)])          → Ok(Float(PI))
+calc_atan([Float(1.0)])           → Ok(Float(FRAC_PI_4))
+calc_atan2([Float(1.0), Float(1.0)])  → Ok(Float(FRAC_PI_4))   // ordem (x, y)
+calc_atan2([Float(1.0)])              → Err (arity)
+
+// P283 — hiperbólicas
+calc_sinh([Float(0.0)])           → Ok(Float(0.0))
+calc_cosh([Float(0.0)])           → Ok(Float(1.0))
+calc_tanh([Float(0.0)])           → Ok(Float(0.0))
+calc_acosh([Float(1.0)])          → Ok(Float(0.0))
+calc_acosh([Float(0.5)])          → Err (< 1)
+calc_atanh([Float(0.0)])          → Ok(Float(0.0))
+calc_atanh([Float(1.0)])          → Err (fronteira ±1 exclusiva)
+
+// P283 — exp/log
+calc_exp([Float(0.0)])            → Ok(Float(1.0))
+calc_exp([Int(1)])                → Ok(Float(E))
+calc_exp([Float(1e10)])           → Err (overflow → Inf via guard_float)
+calc_ln([Float(E)])               → Ok(Float(1.0))
+calc_ln([Float(0.0)])             → Err
+calc_log([Float(100.0)])                  → Ok(Float(2.0))     // base default 10
+calc_log([Float(8.0), Float(2.0)])        → Ok(Float(3.0))
+calc_log([Float(10.0), Float(1.0)])       → Err (base = 1)
+calc_log([Float(10.0), Float(f64::INFINITY)]) → Err (base não-finita)
+
+// P283 — constantes via make_calc_module
+make_calc_module().pi  ≡ Float(std::f64::consts::PI)
+make_calc_module().tau ≡ Float(std::f64::consts::TAU)
+make_calc_module().e   ≡ Float(std::f64::consts::E)
+make_calc_module().inf ≡ Float(f64::INFINITY)
 ```
 
 ## `state_display(key, [callback])` — Passo 240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ)

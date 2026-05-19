@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export` — Exportador Físico de Documentos
-Hash do Código: 2a8c625a
+Hash do Código: 8db23ba9
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export.rs`
@@ -107,19 +107,19 @@ pub fn export_pdf_with_font(doc: &PagedDocument, font_data: &[u8]) -> Vec<u8>
 
 ---
 
-## Helpers Internos (pub na crate apenas)
+## Helpers Internos (pub(crate))
 
 | Função | Responsabilidade |
 |--------|-----------------|
-| `collect_codepoints(doc)` | `BTreeSet<char>` de todos os chars em `FrameItem::Text` |
-| `collect_glyph_ids(doc)` | `BTreeSet<u16>` de todos os glyph_id em `FrameItem::Glyph` |
+| `collect_codepoints(doc)` | `BTreeSet<char>` de todos os chars em `FrameItem::Text` (P280 recursive em Group) |
+| `collect_glyph_ids(doc)` | `BTreeSet<u16>` de todos os glyph_id em `FrameItem::Glyph` (P280 recursive em Group) |
 | `map_chars_to_glyphs(face, chars)` | `Vec<(char, u16)>` com glyph_index da fonte |
 | `widths_array(face, mappings)` | String PDF `"gid [width]..."` em unidades 1/1000 text space |
 | `to_unicode_cmap(mappings)` | CMap stream para ToUnicode (blocos de ≤ 100) |
 | `text_to_hex_string(text, map)` | `<XXXX>` em Identity-H para cada char do texto |
 | `escape_pdf_string(text)` | Escaping `(` `→` `\(`, `)` `→` `\)`, `\` `→` `\\`; não-ASCII `→` `?` |
-| `build_page_stream_type1(page)` | Stream BT/ET para Helvetica |
-| `build_page_stream_cidfont(page, map)` | Stream BT/ET para CIDFont (hex strings + Glyph directo) |
+| `build_page_stream(page, ctx)` | **P281** — stream BT/ET unificado para qualquer font scenario (Type1/CIDFont/Multifont via `PageContext`) |
+| `draw_item_local(item, ops, ctx)` | Emit recursivo de items em Group; despachado por scenario para Text/Glyph |
 
 ---
 
@@ -618,3 +618,96 @@ a classe de bug sem walkers residuais conhecidos.
 **Sub-padrão NÃO formalizado em ADR** per anti-padrão
 over-formalização [[diagnostico-passo-273-17]] §0. Invariante
 documentada aqui no L0 é suficiente para guard de future code.
+
+---
+
+## Secção: Pipeline unificado de stream-building (P281)
+
+Os 3 caminhos de exportação (`export_pdf` Helvetica, `export_pdf_with_font`
+CIDFont, `export_pdf_multifont` Multifont) **partilham** o mesmo
+`build_page_stream` interno, despachado por `PageContext { font_scenario }`.
+
+### `PageContext` e `FontScenario`
+
+```rust
+pub(crate) enum FontScenario<'a> {
+    Type1,
+    Cidfont {
+        char_to_gid: &'a HashMap<char, u16>,
+    },
+    Multifont {
+        fonts:                &'a [(FontList, Vec<u8>)],
+        per_font_char_to_gid: &'a [HashMap<char, u16>],
+    },
+}
+
+pub(crate) struct PageContext<'a> {
+    pub ptr_to_idx:     &'a HashMap<usize, usize>,
+    pub img_refs:       &'a [ImageRef],
+    pub pat_ptr_to_idx: &'a HashMap<DedupKey, usize>,
+    pub pat_refs:       &'a [PatternRef],
+    pub font_scenario:  FontScenario<'a>,
+}
+```
+
+Constructors `PageContext::type1(...)`, `PageContext::cidfont(...)`,
+`PageContext::multifont(...)` simplificam a construção em cada entry-point.
+
+### Pipeline
+
+1. Entry-point top-level (`export_pdf*`) pré-computa resources (image
+   XObject map, char_to_gid map se aplicável, font maps + lookup se
+   multifont, gradient patterns).
+2. Constrói o `PageContext` apropriado via constructor helper.
+3. Para cada página, chama `build_page_stream(page, &ctx) -> Vec<u8>`.
+4. `build_page_stream` itera `page.items`; para cada item, dispatcha
+   o emit top-level (com inversão Y `page_height - pos.y`); arm Group
+   emite `q ... cm ...` localmente e recursa via `draw_item_local`.
+5. `draw_item_local` para items em Group (coords locais após `cm`)
+   despacha por `FrameItem` variant + `FontScenario` quando necessário
+   (Text/Glyph).
+6. Arm Group em `draw_item_local` recurse com mesmo `ctx`.
+
+### Invariante arquitectural (P281)
+
+**Single source of truth para emit PDF**:
+- Modificações a arms de `FrameItem` editam **um** sítio (helpers
+  `emit_text_pdf` + `emit_glyph_pdf` + arms inline em `draw_item_*`).
+- Modificações a setup top-level editam **um** sítio
+  (`build_page_stream` + `draw_item_top_level`).
+- Adicionar scenario novo (e.g. PDF/A, embedded subset) é **uma**
+  variante nova em `FontScenario` enum.
+
+**Text/Glyph dispatch** via `match ctx.font_scenario`:
+- `Type1` → Helvetica (escape ASCII + faux-bold + tracking); Glyph
+  silently ignored.
+- `Cidfont` → Identity-H hex glyph IDs com `char_to_gid` único.
+- `Multifont` → idem mas selecciona `/F{fi+1}` por `style.font` lookup.
+
+**Y-coordinate handling**: top-level emit usa `page_height - pos.y`
+(Y-inversion explícita); local emit (dentro de Group após `cm`) usa
+`pos.y.0` directo (matriz `cm` do Group já inverteu Y).
+
+### Histórico
+
+- **P273.13** — render real de Shape em Group; recursão em
+  `draw_item_local` inaugural.
+- **P278 sub-op 3** — stubs Text/Line/Glyph documentados em
+  `draw_item_local` (match exaustivo; preserved transparency).
+- **P279** — Image em Group fix (narrow scope α-narrow Fase A);
+  cascade `ptr_to_idx + img_refs` para `draw_item_local`.
+- **P280** — auditoria walkers; `collect_codepoints` +
+  `collect_glyph_ids` recursivos.
+- **P281** — unificação β-completa: 3 stream-builders consolidados
+  em `build_page_stream + PageContext + FontScenario`. Text/Glyph/Line
+  em Group fix funcional como consequência (3 pendências P280.X-bis
+  fechadas).
+
+Sub-padrão **"Render real Groups" N=3 cumulativo** (P273.13 Shape +
+P279 Image + P281 Text/Glyph/Line); **"Agregador de contexto em L3"**
+N=1 inaugural (análogo conceptual ADR-0044 `Engine<'a>` em L1, mas
+em L3); **"Extract helper de replicação inline"** N=5 cumulativo.
+
+**Sub-padrões NÃO formalizados em ADR** per anti-padrão
+over-formalização [[diagnostico-passo-273-17]] §0. Invariante L0
+documentada aqui é suficiente.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
-//! @prompt-hash 68fc3823
+//! @prompt-hash 7df1ee98
 //! @layer L1
 //! @updated 2026-04-23
 
@@ -91,6 +91,11 @@ mod tests {
     use super::calc::{
         calc_abs, calc_ceil, calc_clamp, calc_floor, calc_max, calc_min, calc_pow,
         calc_round, calc_sqrt,
+        // P283 — trig/hyperbolic/log/exp.
+        calc_sin, calc_cos, calc_tan, calc_asin, calc_acos, calc_atan, calc_atan2,
+        calc_sinh, calc_cosh, calc_tanh, calc_asinh, calc_acosh, calc_atanh,
+        calc_exp, calc_ln, calc_log,
+        make_calc_module as p283_make_calc_module,
     };
     use crate::entities::args::Args;
     use crate::entities::content::Content;
@@ -1213,6 +1218,266 @@ mod tests {
     fn calc_clamp_min_maior_max_retorna_err() {
         null_ctx!(ctx);
         assert!(calc_clamp(&mut ctx, &p(vec![Value::Float(5.0), Value::Float(10.0), Value::Float(0.0)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    // ── Passo 283 — calc trig / hiperbólicas / log / exp ─────────────────────
+    //
+    // Helper: float ≈ esperado dentro de 1e-10 (tolerância empírica suficiente
+    // para o ruído de `f64::sin/cos/...`).
+    fn approx_float(v: Value, expected: f64) {
+        match v {
+            Value::Float(f) => assert!(
+                (f - expected).abs() < 1e-10,
+                "esperado {expected}, obtido {f}",
+            ),
+            other => panic!("esperado Value::Float, obtido {other:?}"),
+        }
+    }
+
+    // ── Trigonometria ────────────────────────────────────────────────────────
+
+    #[test]
+    fn calc_sin_zero_e_pi() {
+        null_ctx!(ctx);
+        approx_float(calc_sin(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(), 0.0);
+        approx_float(calc_sin(&mut ctx, &p(vec![Value::Int(0)]),    &null_world(), test_file_id(), None).unwrap(), 0.0);
+        approx_float(calc_sin(&mut ctx, &p(vec![Value::Float(std::f64::consts::PI)]), &null_world(), test_file_id(), None).unwrap(), 0.0);
+    }
+
+    #[test]
+    fn calc_sin_arity_errada_retorna_err() {
+        null_ctx!(ctx);
+        assert!(calc_sin(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).is_err());
+        assert!(calc_sin(&mut ctx, &p(vec![Value::Float(1.0), Value::Float(2.0)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_cos_zero_e_pi() {
+        null_ctx!(ctx);
+        approx_float(calc_cos(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(), 1.0);
+        approx_float(calc_cos(&mut ctx, &p(vec![Value::Float(std::f64::consts::PI)]), &null_world(), test_file_id(), None).unwrap(), -1.0);
+    }
+
+    #[test]
+    fn calc_tan_zero_e_pi_quarto() {
+        null_ctx!(ctx);
+        approx_float(calc_tan(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(), 0.0);
+        approx_float(calc_tan(&mut ctx, &p(vec![Value::Float(std::f64::consts::FRAC_PI_4)]), &null_world(), test_file_id(), None).unwrap(), 1.0);
+    }
+
+    #[test]
+    fn calc_asin_dominio_valido() {
+        null_ctx!(ctx);
+        approx_float(calc_asin(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(), 0.0);
+        approx_float(calc_asin(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id(), None).unwrap(), std::f64::consts::FRAC_PI_2);
+        approx_float(calc_asin(&mut ctx, &p(vec![Value::Float(-1.0)]), &null_world(), test_file_id(), None).unwrap(), -std::f64::consts::FRAC_PI_2);
+    }
+
+    #[test]
+    fn calc_asin_fora_dominio_retorna_err() {
+        null_ctx!(ctx);
+        assert!(calc_asin(&mut ctx, &p(vec![Value::Float(1.5)]),  &null_world(), test_file_id(), None).is_err());
+        assert!(calc_asin(&mut ctx, &p(vec![Value::Float(-1.5)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_acos_dominio_valido() {
+        null_ctx!(ctx);
+        approx_float(calc_acos(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id(), None).unwrap(), 0.0);
+        approx_float(calc_acos(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(), std::f64::consts::FRAC_PI_2);
+        approx_float(calc_acos(&mut ctx, &p(vec![Value::Float(-1.0)]), &null_world(), test_file_id(), None).unwrap(), std::f64::consts::PI);
+    }
+
+    #[test]
+    fn calc_acos_fora_dominio_retorna_err() {
+        null_ctx!(ctx);
+        assert!(calc_acos(&mut ctx, &p(vec![Value::Float(2.0)]),  &null_world(), test_file_id(), None).is_err());
+        assert!(calc_acos(&mut ctx, &p(vec![Value::Float(-2.0)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_atan_basico() {
+        null_ctx!(ctx);
+        approx_float(calc_atan(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(), 0.0);
+        approx_float(calc_atan(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id(), None).unwrap(), std::f64::consts::FRAC_PI_4);
+    }
+
+    #[test]
+    fn calc_atan2_ordem_xy_paridade_vanilla() {
+        null_ctx!(ctx);
+        // calc.atan2(x=1, y=1) → π/4 (paridade vanilla).
+        approx_float(
+            calc_atan2(&mut ctx, &p(vec![Value::Float(1.0), Value::Float(1.0)]), &null_world(), test_file_id(), None).unwrap(),
+            std::f64::consts::FRAC_PI_4,
+        );
+        // calc.atan2(x=0, y=1) → π/2 (eixo +y).
+        approx_float(
+            calc_atan2(&mut ctx, &p(vec![Value::Float(0.0), Value::Float(1.0)]), &null_world(), test_file_id(), None).unwrap(),
+            std::f64::consts::FRAC_PI_2,
+        );
+    }
+
+    #[test]
+    fn calc_atan2_arity_errada_retorna_err() {
+        null_ctx!(ctx);
+        assert!(calc_atan2(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id(), None).is_err());
+        assert!(calc_atan2(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    // ── Hiperbólicas ─────────────────────────────────────────────────────────
+
+    #[test]
+    fn calc_sinh_cosh_tanh_zero() {
+        null_ctx!(ctx);
+        approx_float(calc_sinh(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(), 0.0);
+        approx_float(calc_cosh(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(), 1.0);
+        approx_float(calc_tanh(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(), 0.0);
+    }
+
+    #[test]
+    fn calc_sinh_cosh_identidade_pitagorica() {
+        null_ctx!(ctx);
+        // cosh²(x) - sinh²(x) = 1 (identidade hiperbólica fundamental).
+        let s = match calc_sinh(&mut ctx, &p(vec![Value::Float(1.5)]), &null_world(), test_file_id(), None).unwrap() {
+            Value::Float(f) => f, _ => panic!(),
+        };
+        let c = match calc_cosh(&mut ctx, &p(vec![Value::Float(1.5)]), &null_world(), test_file_id(), None).unwrap() {
+            Value::Float(f) => f, _ => panic!(),
+        };
+        assert!((c * c - s * s - 1.0).abs() < 1e-10, "cosh²-sinh² = {}", c * c - s * s);
+    }
+
+    #[test]
+    fn calc_asinh_inverso_de_sinh() {
+        null_ctx!(ctx);
+        approx_float(calc_asinh(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(), 0.0);
+        // sinh(asinh(2)) = 2.
+        let v = calc_asinh(&mut ctx, &p(vec![Value::Float(2.0)]), &null_world(), test_file_id(), None).unwrap();
+        let back = calc_sinh(&mut ctx, &p(vec![v]), &null_world(), test_file_id(), None).unwrap();
+        approx_float(back, 2.0);
+    }
+
+    #[test]
+    fn calc_acosh_dominio_valido() {
+        null_ctx!(ctx);
+        approx_float(calc_acosh(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id(), None).unwrap(), 0.0);
+        // cosh(acosh(2.5)) = 2.5.
+        let v = calc_acosh(&mut ctx, &p(vec![Value::Float(2.5)]), &null_world(), test_file_id(), None).unwrap();
+        let back = calc_cosh(&mut ctx, &p(vec![v]), &null_world(), test_file_id(), None).unwrap();
+        approx_float(back, 2.5);
+    }
+
+    #[test]
+    fn calc_acosh_fora_dominio_retorna_err() {
+        null_ctx!(ctx);
+        assert!(calc_acosh(&mut ctx, &p(vec![Value::Float(0.5)]),  &null_world(), test_file_id(), None).is_err());
+        assert!(calc_acosh(&mut ctx, &p(vec![Value::Float(-1.0)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_atanh_dominio_valido() {
+        null_ctx!(ctx);
+        approx_float(calc_atanh(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(), 0.0);
+        // tanh(atanh(0.5)) = 0.5.
+        let v = calc_atanh(&mut ctx, &p(vec![Value::Float(0.5)]), &null_world(), test_file_id(), None).unwrap();
+        let back = calc_tanh(&mut ctx, &p(vec![v]), &null_world(), test_file_id(), None).unwrap();
+        approx_float(back, 0.5);
+    }
+
+    #[test]
+    fn calc_atanh_fora_dominio_retorna_err() {
+        null_ctx!(ctx);
+        // Fronteiras (-1 e 1) são exclusivas — Err em ambos.
+        assert!(calc_atanh(&mut ctx, &p(vec![Value::Float(1.0)]),  &null_world(), test_file_id(), None).is_err());
+        assert!(calc_atanh(&mut ctx, &p(vec![Value::Float(-1.0)]), &null_world(), test_file_id(), None).is_err());
+        assert!(calc_atanh(&mut ctx, &p(vec![Value::Float(1.5)]),  &null_world(), test_file_id(), None).is_err());
+    }
+
+    // ── Exponencial / logaritmos ─────────────────────────────────────────────
+
+    #[test]
+    fn calc_exp_zero_e_um() {
+        null_ctx!(ctx);
+        approx_float(calc_exp(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(), 1.0);
+        approx_float(calc_exp(&mut ctx, &p(vec![Value::Int(1)]),     &null_world(), test_file_id(), None).unwrap(), std::f64::consts::E);
+    }
+
+    #[test]
+    fn calc_exp_overflow_retorna_err() {
+        null_ctx!(ctx);
+        // exp(1e10) → Inf → guard_float devolve Err.
+        assert!(calc_exp(&mut ctx, &p(vec![Value::Float(1e10)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_ln_e_e_dominio() {
+        null_ctx!(ctx);
+        approx_float(calc_ln(&mut ctx, &p(vec![Value::Float(1.0)]),                   &null_world(), test_file_id(), None).unwrap(), 0.0);
+        approx_float(calc_ln(&mut ctx, &p(vec![Value::Float(std::f64::consts::E)]),   &null_world(), test_file_id(), None).unwrap(), 1.0);
+    }
+
+    #[test]
+    fn calc_ln_nao_positivo_retorna_err() {
+        null_ctx!(ctx);
+        assert!(calc_ln(&mut ctx, &p(vec![Value::Float(0.0)]),  &null_world(), test_file_id(), None).is_err());
+        assert!(calc_ln(&mut ctx, &p(vec![Value::Float(-1.0)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_log_base_default_dez() {
+        null_ctx!(ctx);
+        approx_float(calc_log(&mut ctx, &p(vec![Value::Float(100.0)]),  &null_world(), test_file_id(), None).unwrap(), 2.0);
+        approx_float(calc_log(&mut ctx, &p(vec![Value::Float(1000.0)]), &null_world(), test_file_id(), None).unwrap(), 3.0);
+    }
+
+    #[test]
+    fn calc_log_base_explicita() {
+        null_ctx!(ctx);
+        approx_float(calc_log(&mut ctx, &p(vec![Value::Float(8.0),  Value::Float(2.0)]), &null_world(), test_file_id(), None).unwrap(), 3.0);
+        approx_float(calc_log(&mut ctx, &p(vec![Value::Float(27.0), Value::Float(3.0)]), &null_world(), test_file_id(), None).unwrap(), 3.0);
+    }
+
+    #[test]
+    fn calc_log_dominio_e_base_invalidos_retorna_err() {
+        null_ctx!(ctx);
+        // valor ≤ 0.
+        assert!(calc_log(&mut ctx, &p(vec![Value::Float(0.0)]),                   &null_world(), test_file_id(), None).is_err());
+        assert!(calc_log(&mut ctx, &p(vec![Value::Float(-1.0)]),                  &null_world(), test_file_id(), None).is_err());
+        // base inválida (≤0, 1, Inf, NaN).
+        assert!(calc_log(&mut ctx, &p(vec![Value::Float(10.0), Value::Float(1.0)]),         &null_world(), test_file_id(), None).is_err());
+        assert!(calc_log(&mut ctx, &p(vec![Value::Float(10.0), Value::Float(0.0)]),         &null_world(), test_file_id(), None).is_err());
+        assert!(calc_log(&mut ctx, &p(vec![Value::Float(10.0), Value::Float(-2.0)]),        &null_world(), test_file_id(), None).is_err());
+        assert!(calc_log(&mut ctx, &p(vec![Value::Float(10.0), Value::Float(f64::INFINITY)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    // ── Constantes + integração com make_calc_module ────────────────────────
+
+    #[test]
+    fn calc_constantes_pi_tau_e_inf() {
+        let module = p283_make_calc_module();
+        let dict = match module {
+            Value::Dict(d) => d,
+            other => panic!("esperado Dict, obtido {other:?}"),
+        };
+        assert_eq!(dict.get("pi").cloned(),  Some(Value::Float(std::f64::consts::PI)));
+        assert_eq!(dict.get("tau").cloned(), Some(Value::Float(std::f64::consts::TAU)));
+        assert_eq!(dict.get("e").cloned(),   Some(Value::Float(std::f64::consts::E)));
+        assert_eq!(dict.get("inf").cloned(), Some(Value::Float(f64::INFINITY)));
+    }
+
+    #[test]
+    fn calc_modulo_expoe_25_funcoes() {
+        let module = p283_make_calc_module();
+        let dict = match module {
+            Value::Dict(d) => d,
+            other => panic!("esperado Dict, obtido {other:?}"),
+        };
+        // 9 herdadas (abs/pow/sqrt/floor/ceil/round/min/max/clamp) + 16 novas P283 = 25 funções.
+        let n_funcs = dict.values().filter(|v| matches!(v, Value::Func(_))).count();
+        assert_eq!(n_funcs, 25, "esperava 25 funções calc, encontrei {n_funcs}");
+        // + 4 constantes (pi/tau/e/inf).
+        let n_floats = dict.values().filter(|v| matches!(v, Value::Float(_))).count();
+        assert_eq!(n_floats, 4, "esperava 4 constantes Float, encontrei {n_floats}");
     }
 
     #[test]

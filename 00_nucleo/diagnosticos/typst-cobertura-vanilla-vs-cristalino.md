@@ -209,7 +209,7 @@ primitives e `skew`). Detalhe em
 | `range(...)` | foundations/array.rs | `implementado` | stdlib `native_range` | |
 | `int(...)`, `float(...)`, `str(...)` | foundations/{int,float,str}.rs | `implementado` | stdlib | |
 | `assert(cond, msg)` | foundations/calc.rs | `implementado` | stdlib `native_assert` | |
-| `calc.*` (math functions) | foundations/calc.rs | `implementado⁺` | stdlib `make_calc_module` | subset (sin/cos/sqrt/min/max/abs/...) |
+| `calc.*` (math functions) | foundations/calc.rs | `implementado⁺` | stdlib `make_calc_module` | **P283**: 25/34 ≈ **74%** (era ~22%). Bucket 1 P283: trig (`sin/cos/tan/asin/acos/atan/atan2`), hiperbólicas (`sinh/cosh/tanh/asinh/acosh/atanh`), exp/log (`exp/ln/log`) + constantes (`pi/tau/e/inf`). Bucket 2 adiado: `root/erf/fact/perm/binom/gcd/lcm/trunc/fract/even/odd/rem/div_euclid/rem_euclid/quo/norm` + extensões `Length/Angle/Decimal/digits` em funções existentes. Ver `diagnostico-calc-passo-283.md`. |
 | `array.{push, pop, ...}` | foundations/array.rs | `parcial` | passos | algumas methods |
 | `dict.{at, keys, values, ...}` | foundations/dict.rs | `parcial` | passos | algumas methods |
 | `str.{contains, replace, ...}` | foundations/str.rs | `parcial` | passos | algumas methods |
