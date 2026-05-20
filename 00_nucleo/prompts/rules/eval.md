@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 4ce356e8
+Hash do Código: 04f780a8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval.rs`
@@ -66,6 +66,39 @@ Requer Content, Func, Styles para implementação completa (ADR-0017).
 - **BinOp variants**: `Add, Sub, Mul, Div, And, Or, Eq, Neq, Lt, Leq, Gt, Geq,
   Assign, In, NotIn, AddAssign, SubAssign, MulAssign, DivAssign`
 - **UnOp variants**: `Pos, Neg, Not`
+
+## Política IEEE 754 — propagação silenciosa (ADR-0101 EM VIGOR)
+
+Operações binárias (`eval_binary_op`) e unárias (`eval_unary_op`) sobre
+`Value::Float` propagam IEEE 754 **silenciosamente**:
+
+- `5.0 / 0.5e-200` → `Float(Inf)` sem erro.
+- `0.0 / 0.0` → `Err("cannot divide by zero")` (caso especial divisor
+  zero literal — paridade vanilla `foundations/ops.rs::div::is_zero`).
+- `0.0 * f64::INFINITY` → `Float(NaN)` sem erro.
+- `Float(NaN) == Float(NaN)` → `Bool(false)` (semântica IEEE 754).
+- `Float(NaN) < Float(5.0)` → `Bool(false)` (idem).
+
+**Não invoca `guard_float`** — esse helper é **exclusivo de
+`stdlib/calc.rs`** per ADR-0101 (divergência categorial consciente
+entre `eval` permissivo e `stdlib` restritivo).
+
+**Política transversal cristalina** (ADR-0101):
+- `eval`/layout/operators (este sítio): **IEEE 754 puro** —
+  paridade vanilla `foundations/ops.rs` total.
+- `stdlib` funções matemáticas (`stdlib.md` §"Política IEEE 754"):
+  rejeita NaN+Inf via `guard_float` — divergência consciente vanilla.
+
+Esta dualidade declarativa foi **formalizada em ADR-0101** após
+auditoria transversal P309 (catálogo 67 sítios L1).
+
+Cross-references:
+- `00_nucleo/adr/typst-adr-0101-ieee754-restricao-stdlib.md` — política
+  formalizada.
+- `00_nucleo/prompts/rules/stdlib.md` §"Política IEEE 754" — sítio
+  divergente (guard_float).
+- `00_nucleo/diagnosticos/diagnostico-ieee754-passo-309.md` — catálogo
+  P309.
 
 ## Integração com comemo — Cenário D (confirmado)
 

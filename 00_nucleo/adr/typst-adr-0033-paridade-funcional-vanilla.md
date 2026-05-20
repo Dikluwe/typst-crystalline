@@ -239,3 +239,53 @@ e é relevante para esta regra.
 - DEBT-9 — Cobertura incompleta de `lab/parity/` (relevante)
 - `lab/parity/` — suite de testes de paridade (mecanismo de
   verificação)
+
+---
+
+## Anotação cumulativa P310 — Excepção IEEE 754 stdlib
+
+**Data**: 2026-05-20.
+
+P310 formaliza **excepção categórica à paridade observable** em
+funções matemáticas escalares da stdlib (`calc.*`) via **ADR-0101
+EM VIGOR**. Cristalino rejeita NaN+Inf no resultado de 12 funções
+`calc.*` (9 com divergência total vs vanilla + 4 com divergência
+parcial); vanilla deixa passar (sin/cos/tan/.../erf retornam `f64`
+transparente). Catálogo completo de 67 sítios L1 em
+`00_nucleo/diagnosticos/diagnostico-ieee754-passo-309.md`.
+
+Status `EM VIGOR` ADR-0033 **preservado literal**. Esta anotação
+documenta **excepção categorial documentada** stdlib sem revogar a
+regra geral de paridade observable — `eval`/layout/operators/output
+PDF preservam paridade total. A excepção concentra-se em 11 sítios
+de `01_core/src/rules/stdlib/calc.rs` cobertos pelo helper
+`guard_float`.
+
+**Decisão P310**: Opção A de P309 §7.1 — "Conformidade IEEE 754
+total (status quo divergente)". Custo de implementação zero;
+divergência vanilla **assumida explicitamente** em ADR-0101.
+
+**Paralelo ADR-0054 graded**: precedente já existente de "divergência
+consciente documentada via ADR dedicada". P310 segue pattern para
+política numérica específica.
+
+**Sub-padrão N=1 inaugural** — *"Excepção categorial documentada via
+ADR dedicada"* (P310). Candidato a observação cumulativa futura se
+padrão repetir em outras categorias (N≥3).
+
+**Sub-padrão "Anotação cumulativa em vez de ADR nova" N+1
+cumulativo** (paralelo P266/P268.1/.../P273 acumuladas em ADR-0054).
+P310 reusa pattern via ADR-0093 Pattern 2 (anotação preserva ADR-0033
+literal; ADR-0101 é nova distinta).
+
+Cross-references:
+- **ADR-0101** — IEEE 754 restrição stdlib (criada P310; EM VIGOR).
+- **P308** — `calc.erf` divergência local que motivou auditoria.
+- **P309** — diagnóstico transversal IEEE 754 (catálogo 67 sítios,
+  comparação vanilla obrigatória todas categorias).
+- **P310** — formalização Opção A (esta anotação + ADR-0101 + drift
+  L0 duplo).
+- `00_nucleo/prompts/rules/stdlib.md` §"Política IEEE 754" — secção
+  L0 sítio divergente.
+- `00_nucleo/prompts/rules/eval.md` §"Política IEEE 754 —
+  propagação silenciosa" — secção L0 sítio paridade total.

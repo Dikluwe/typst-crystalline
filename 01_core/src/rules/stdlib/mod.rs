@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
-//! @prompt-hash dd3e2637
+//! @prompt-hash aa4ca50f
 //! @layer L1
 //! @updated 2026-04-23
 
@@ -100,6 +100,8 @@ mod tests {
         calc_rem, calc_rem_euclid, calc_div_euclid, calc_quo,
         calc_gcd, calc_lcm, calc_fact, calc_perm, calc_binom,
         calc_norm, calc_root,
+        // P308 — função erro de Gauss (paridade calc 41/41).
+        calc_erf,
         make_calc_module as p283_make_calc_module,
     };
     use crate::entities::args::Args;
@@ -1622,6 +1624,158 @@ mod tests {
         assert!(calc_root(&mut ctx, &p(vec![Value::Int(2)]), &null_world(), test_file_id(), None).is_err());
     }
 
+    // ── Passo 308 — função erro de Gauss (calc.erf) ──────────────────────────
+    //
+    // Caminho A: Abramowitz & Stegun 7.1.26 — erro máximo absoluto 1,5e-7.
+    // Tolerância dos testes usa esse limite + margem (`2e-7`) em vez do
+    // `1e-10` do helper `approx_float` partilhado.
+
+    /// Helper específico para `erf`: tolerância 2e-7 (envelope A&S 7.1.26).
+    fn approx_float_erf(v: Value, expected: f64) {
+        match v {
+            Value::Float(f) => assert!(
+                (f - expected).abs() < 2e-7,
+                "esperado ≈{expected} (tol 2e-7), obtido {f}",
+            ),
+            other => panic!("esperado Value::Float, obtido {other:?}"),
+        }
+    }
+
+    #[test]
+    fn calc_erf_identidade_e_int_coerce() {
+        null_ctx!(ctx);
+        // erf(0) = 0 — identidade exacta (sign·0·exp(0) = 0).
+        assert_eq!(
+            calc_erf(&mut ctx, &p(vec![Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(),
+            Value::Float(0.0),
+        );
+        // Int coerce: erf(Int 0) idêntico a erf(Float 0.0).
+        assert_eq!(
+            calc_erf(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id(), None).unwrap(),
+            Value::Float(0.0),
+        );
+        // Int 1 coerce: deve coincidir com Float 1.0 dentro da tolerância.
+        let a = calc_erf(&mut ctx, &p(vec![Value::Int(1)]), &null_world(), test_file_id(), None).unwrap();
+        let b = calc_erf(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id(), None).unwrap();
+        match (a, b) {
+            (Value::Float(fa), Value::Float(fb)) => assert!(
+                (fa - fb).abs() < 1e-15,
+                "Int/Float coerce deve produzir o mesmo bit-pattern: fa={fa}, fb={fb}",
+            ),
+            _ => panic!("ambos devem ser Value::Float"),
+        }
+    }
+
+    #[test]
+    fn calc_erf_valores_conhecidos() {
+        null_ctx!(ctx);
+        // Valores tabulares clássicos (Abramowitz & Stegun Tabela 7.1).
+        approx_float_erf(
+            calc_erf(&mut ctx, &p(vec![Value::Float(0.5)]), &null_world(), test_file_id(), None).unwrap(),
+            0.520_499_877_813_046_5,
+        );
+        approx_float_erf(
+            calc_erf(&mut ctx, &p(vec![Value::Float(1.0)]), &null_world(), test_file_id(), None).unwrap(),
+            0.842_700_792_949_715_0,
+        );
+        approx_float_erf(
+            calc_erf(&mut ctx, &p(vec![Value::Float(2.0)]), &null_world(), test_file_id(), None).unwrap(),
+            0.995_322_265_018_952_7,
+        );
+    }
+
+    #[test]
+    fn calc_erf_simetria_impar() {
+        null_ctx!(ctx);
+        for x in [0.1_f64, 0.5, 1.0, 1.7, 3.3] {
+            let pos = calc_erf(&mut ctx, &p(vec![Value::Float(x)]), &null_world(), test_file_id(), None).unwrap();
+            let neg = calc_erf(&mut ctx, &p(vec![Value::Float(-x)]), &null_world(), test_file_id(), None).unwrap();
+            match (pos, neg) {
+                (Value::Float(p_), Value::Float(n_)) => assert!(
+                    (p_ + n_).abs() < 2e-7,
+                    "simetria ímpar violada em x={x}: erf(x)={p_}, erf(-x)={n_}",
+                ),
+                _ => panic!("erf de Float deve retornar Float"),
+            }
+        }
+    }
+
+    #[test]
+    fn calc_erf_limites_finitos() {
+        null_ctx!(ctx);
+        // |x| grande mas finito: erf(±5) ≈ ±1 dentro da tolerância A&S.
+        approx_float_erf(
+            calc_erf(&mut ctx, &p(vec![Value::Float(5.0)]), &null_world(), test_file_id(), None).unwrap(),
+            1.0,
+        );
+        approx_float_erf(
+            calc_erf(&mut ctx, &p(vec![Value::Float(-5.0)]), &null_world(), test_file_id(), None).unwrap(),
+            -1.0,
+        );
+    }
+
+    #[test]
+    fn calc_erf_infinito_short_circuit() {
+        null_ctx!(ctx);
+        // Short-circuit no infinito: retorna ±1.0 exacto sem passar pela
+        // fórmula (que produziria 0·∞ = NaN).
+        assert_eq!(
+            calc_erf(&mut ctx, &p(vec![Value::Float(f64::INFINITY)]), &null_world(), test_file_id(), None).unwrap(),
+            Value::Float(1.0),
+        );
+        assert_eq!(
+            calc_erf(&mut ctx, &p(vec![Value::Float(f64::NEG_INFINITY)]), &null_world(), test_file_id(), None).unwrap(),
+            Value::Float(-1.0),
+        );
+    }
+
+    #[test]
+    fn calc_erf_nan_err() {
+        null_ctx!(ctx);
+        // Divergência consciente vs vanilla `libm::erf(NaN) = NaN`:
+        // cristalino mapeia para Err (paridade convenção `guard_float`).
+        assert!(
+            calc_erf(&mut ctx, &p(vec![Value::Float(f64::NAN)]), &null_world(), test_file_id(), None).is_err(),
+        );
+    }
+
+    #[test]
+    fn calc_erf_arity_e_tipos_invalidos() {
+        null_ctx!(ctx);
+        // Arity 0 → Err.
+        assert!(calc_erf(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).is_err());
+        // Arity 2 → Err.
+        assert!(calc_erf(&mut ctx, &p(vec![Value::Float(1.0), Value::Float(2.0)]), &null_world(), test_file_id(), None).is_err());
+        // Tipo inválido (Str) → Err.
+        assert!(calc_erf(&mut ctx, &p(vec![Value::Str("x".into())]), &null_world(), test_file_id(), None).is_err());
+        // Tipo inválido (Bool) → Err.
+        assert!(calc_erf(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_erf_named_arg_rejeitado() {
+        null_ctx!(ctx);
+        // Paridade `expect_no_named` — nenhum named arg é aceite.
+        let args = pn(vec![Value::Float(1.0)], "p", Value::Float(0.5));
+        assert!(calc_erf(&mut ctx, &args, &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_erf_registado_no_modulo() {
+        // Paridade `make_calc_module`: chave "erf" presente como Func.
+        let module = p283_make_calc_module();
+        let dict = match module {
+            Value::Dict(d) => d,
+            other => panic!("esperado Dict, obtido {other:?}"),
+        };
+        assert!(
+            matches!(dict.get("erf"), Some(Value::Func(_))),
+            "calc.erf não está registado como Func no módulo (P308)",
+        );
+        // Marco P308: módulo tem 41 funções + 4 constantes = 45 entradas.
+        assert_eq!(dict.len(), 45, "esperava 41 funções + 4 constantes = 45, obtido {}", dict.len());
+    }
+
     #[test]
     fn calc_modulo_contem_funcoes_p306() {
         let module = p283_make_calc_module();
@@ -1654,7 +1808,7 @@ mod tests {
     }
 
     #[test]
-    fn calc_modulo_expoe_40_funcoes() {
+    fn calc_modulo_expoe_41_funcoes() {
         let module = p283_make_calc_module();
         let dict = match module {
             Value::Dict(d) => d,
@@ -1663,9 +1817,10 @@ mod tests {
         // 9 herdadas (abs/pow/sqrt/floor/ceil/round/min/max/clamp)
         // + 16 P283 (trig/hyperbolic/log/exp)
         // + 15 P306 (trunc/fract/even/odd/rem/rem-euclid/div-euclid/quo/
-        //            gcd/lcm/fact/perm/binom/norm/root) = 40 funções.
+        //            gcd/lcm/fact/perm/binom/norm/root)
+        // + 1  P308 (erf) = 41 funções (paridade vanilla 41/41 = 100%).
         let n_funcs = dict.values().filter(|v| matches!(v, Value::Func(_))).count();
-        assert_eq!(n_funcs, 40, "esperava 40 funções calc, encontrei {n_funcs}");
+        assert_eq!(n_funcs, 41, "esperava 41 funções calc, encontrei {n_funcs}");
         // + 4 constantes (pi/tau/e/inf).
         let n_floats = dict.values().filter(|v| matches!(v, Value::Float(_))).count();
         assert_eq!(n_floats, 4, "esperava 4 constantes Float, encontrei {n_floats}");

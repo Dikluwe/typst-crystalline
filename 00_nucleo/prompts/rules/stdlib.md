@@ -4,9 +4,13 @@ Hash do Código: 5cfe11d2
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib.rs`
 **Passo de origem**: Passo 17 (funções nativas base), Passo 25 (rgb/luma),
-                     Passo 27 (str/int/float/calc)
+                     Passo 27 (str/int/float/calc), Passo 283 (trig/log/exp +
+                     constantes), Passo 306 (15 funções aritmética inteira),
+                     Passo 308 (`erf` — paridade calc 41/41 = 100%)
 **ADRs relevantes**: ADR-0016 (spread adiado), ADR-0024 (EcoString/Value::Str),
-                     ADR-0018 (libm futuro)
+                     ADR-0018 (libm DEBT agregada), ADR-0054 (perfil
+                     observacional graded — tolera aproximação Caminho A
+                     `erf`)
 
 ---
 
@@ -66,10 +70,15 @@ Fora de 0–255 → `Err`.
 
 ### Módulo `calc` — `make_calc_module() -> Value`
 
-Constrói `Value::Dict` com 40 funções + 4 constantes (divergência do original
+Constrói `Value::Dict` com **41 funções + 4 constantes** (divergência do original
 que usa `Value::Module` — Cristalino usa Dict pois não há stdlib Module sem
 world). Acesso via `calc.abs`, `calc.sin`, `calc.pi`, etc. funciona via
 `eval_field_access` sobre Dict.
+
+**Marco P308**: paridade categórica `calc` atinge **41/41 = 100%** funções
+vanilla (primeira categoria stdlib cristalina a fechar). Cobertura
+condicionada ao perfil ADR-0054 graded (sem bit-exact em `erf` — ver §"Função
+erro" abaixo).
 
 #### Funções base (P27)
 
@@ -123,12 +132,13 @@ Aceitam `Int|Float`. **Sem tipo `Angle`** — radianos directos, paridade
 | `calc.inf` | `f64::INFINITY`         |
 
 **DEBT (ADR-0018)**: `calc_pow`, `trig_op` (cobre `sin/cos/tan/asin/acos/atan/
-sinh/cosh/tanh/asinh/acosh/atanh/exp`), `calc_atan2`, `calc_ln`/`calc_log` e
-`calc_root`/`calc_norm` (via `f64::powf`) usam `f64::*` directamente com
+sinh/cosh/tanh/asinh/acosh/atanh/exp`), `calc_atan2`, `calc_ln`/`calc_log`,
+`calc_root`/`calc_norm` (via `f64::powf`) e `calc_erf` (via `f64::exp` no helper
+de aproximação P308) usam `f64::*` directamente com
 `#[allow(clippy::disallowed_methods)]`. Centralização em `trig_op` reduz a
-migração futura para `libm::*` a ≤6 sítios (ver
+migração futura para `libm::*` a ≤7 sítios (ver
 `diagnostico-calc-passo-283.md` §A.2 para racional da opção (c) escolhida em
-P283).
+P283; P308 adiciona o sétimo sítio sem reabrir a decisão).
 
 #### Aritmética inteira, divisão e partes (P306)
 
@@ -194,8 +204,67 @@ Semântica vanilla:
 - `x < 0` com `index` ímpar → ramo simétrico negativo: `-(-x).powf(1.0 / index as f64)` (preserva sinal: `root(3, -8) = -2.0`).
 - `x ≥ 0` → `x.powf(1.0 / index as f64)`; passa por `guard_float`.
 
-**Funções vanilla adiadas** (pós-P306):
-- `erf` — requer aproximação polinomial dedicada (passo P307+).
+#### Função erro (P308)
+
+| Função | Args | Retorno |
+|--------|------|---------|
+| `calc_erf` | `Int` ou `Float` | `Float` ∈ `[-1, 1]` |
+
+Implementa a função erro de Gauss `erf(x) = (2/√π) ∫₀ˣ exp(-t²) dt`.
+
+**Diagnóstico inline P308a — escolha de aproximação**:
+
+- **Vanilla** (`lab/typst-original/.../foundations/calc.rs`): delega a
+  `libm::erf(value)` — implementação Chebyshev rational (Caminho C, erro
+  < 2⁻⁵³, precisão IEEE 754 dupla).
+- **Cristalino**: `libm` não está em `[l1_allowed_external]` (ADR-0018
+  DEBT compartilhado com `f64::powf`, `f64::sin`, etc.). Adoptar `libm`
+  apenas para `erf` violaria o princípio de migração agregada.
+- **Escolha**: **Caminho A — Abramowitz & Stegun 7.1.26**, aproximação
+  polinomial pura em Rust com 5 coeficientes + constante:
+  ```
+  t = 1 / (1 + p * |x|)
+  poly = t·(a₁ + t·(a₂ + t·(a₃ + t·(a₄ + t·a₅))))         (Horner)
+  erf(x) ≈ sign(x) · (1 - poly · exp(-x²))
+  com p = 0.3275911,
+      a₁ = 0.254829592, a₂ = -0.284496736, a₃ = 1.421413741,
+      a₄ = -1.453152027, a₅ = 1.061405429.
+  ```
+- **Precisão**: erro máximo absoluto **1,5 × 10⁻⁷** — dentro da
+  tolerância ADR-0054 graded (paridade observável; não bit-exact). Para
+  consumidores que requerem bit-exact face vanilla, futura migração
+  agregada a `libm` (ADR-0018) resolve simultaneamente `erf`, `pow`,
+  trig, etc.
+- **Determinismo**: produto e soma `f64` IEEE 754; `f64::exp` é
+  determinístico nas plataformas suportadas.
+
+**Domínio e casos de borda**:
+- `x ∈ R` finito, `x ≠ 0` → fórmula directa.
+- `x = +∞` → short-circuit retorna `Float(1.0)` (limite analítico).
+  Sem short-circuit a fórmula produziria `0 · ∞ = NaN` em
+  `poly · exp(-∞)`.
+- `x = -∞` → short-circuit retorna `Float(-1.0)`.
+- `x = NaN` → `Err("calc.erf() valor é NaN")` (divergência consciente
+  vs vanilla `libm::erf(NaN) = NaN`; paridade com convenção cristalina
+  `guard_float`/`coerce_to_f64` em todas as outras unárias).
+- `x = ±0.0` → **short-circuit** retorna `Float(x)` (preserva sinal de
+  zero). Sem este desvio, A&S 7.1.26 produziria `~1e-9` em vez de
+  `0` exacto: a soma analítica `a₁+a₂+a₃+a₄+a₅ = 1.0` recebe ruído
+  de arredondamento `f64` (≈ 1e-9) que se torna o resultado quando
+  `x = 0`. Paridade vanilla `libm::erf(0) = 0` mantida bit-exact.
+
+**Tipos aceites**:
+- `Int` (coerce via `coerce_to_f64`) e `Float` posicional único.
+- Sem argumentos posicionais → `Err`.
+- Argumentos named → `Err` (paridade `expect_no_named`).
+
+**DEBT-libm (ADR-0018)** compartilhado: usa `f64::exp` directo com
+`#[allow(clippy::disallowed_methods)]`. Migração futura agregada para
+`libm::erf` (juntamente com `libm::exp`, `libm::pow`, etc.) toca também
+este sítio.
+
+**Funções vanilla adiadas** (pós-P308):
+- ~~`erf`~~ — **fechado P308** (Caminho A; Abramowitz & Stegun 7.1.26).
 - Extensões `Length`/`Angle`/`Decimal`/`digits` em funções existentes
   (escopo separado; sem `Angle` type ainda).
 
@@ -209,6 +278,45 @@ Semântica vanilla:
 | `guard_float(f)` | NaN → Err "não é um número", Inf → Err "infinito" |
 | `format_float(f)` | compacto sem trailing zeros; garante ponto decimal (`"3.0"`) |
 | `format_length(l)` | `Length` → `"12pt"`, `"1.5em"`, `"6pt + 1em"` |
+
+---
+
+## Política IEEE 754 — `guard_float` (ADR-0101 EM VIGOR)
+
+`guard_float(f)` rejeita NaN e Inf no **resultado** de funções
+matemáticas escalares (`calc.pow`, `calc.sqrt`, trig, hiperbólicas,
+log, exp, root, norm, atan2). `calc.erf` (P308) tem política dedicada:
+NaN no input → Err; ±∞ → short-circuit ±1.0; ±0 → short-circuit ±0.0.
+
+**Política transversal cristalina** (ADR-0101):
+- `eval`/layout/operators: **IEEE 754 puro** (paridade vanilla;
+  ver `eval.md` §"Política IEEE 754 — propagação silenciosa").
+- `stdlib` funções matemáticas: **rejeita NaN+Inf** (divergência
+  consciente vanilla; ADR-0101).
+
+Esta divergência é **categórica e consciente**, não acidental. Vanilla
+`sin/cos/tan/.../erf` retornam `f64` transparente; cristalino encerra
+em `SourceResult<Value>` via `guard_float`. Racional completo em
+ADR-0101 §"Racional".
+
+**Sítios afectados** (11 directos em `calc.rs`):
+- `calc_pow`/`calc_sqrt` via `guard_float`.
+- `calc_sin/cos/tan/asin/acos/atan/sinh/cosh/tanh/asinh/acosh/atanh/
+  exp` (13 funções via wrapper `trig_op` partilhado).
+- `calc_atan2`/`calc_ln`/`calc_log`/`calc_norm`/`calc_root` directos.
+- `calc_erf` input + short-circuits dedicados.
+- `calc_log` base (`!is_finite() → Err`).
+
+**Excepções não cobertas por ADR-0101** (adiadas para reforços
+pontuais futuros, per P309 §10.5/§10.6):
+- Cat D Float→Int saturating (`floor`/`ceil`/`round`/`trunc`/`quo`).
+- Cat D color constructors (`oklab/oklch/cmyk/hsl/hsv` sem range
+  check `[0.0, 1.0]`).
+- Backdoor `native_float("NaN")` aceita string literal.
+
+Catálogo completo de 67 sítios L1 em
+`00_nucleo/diagnosticos/diagnostico-ieee754-passo-309.md`. Comparação
+sítio-a-sítio vanilla em P309 §4.3.
 
 ---
 
@@ -425,6 +533,24 @@ calc_root([Int(3), Int(-8)])       → Ok(Float(-2.0))  // ramo ímpar simétric
 calc_root([Int(2), Int(-1)])       → Err              // raiz par de negativo
 calc_root([Int(0), Int(5)])        → Err              // índice zero
 calc_root([Int(2), Float(0.0)])    → Ok(Float(0.0))
+
+// P308 — erf (função erro de Gauss; tolerância 1.5e-7 perfil graded)
+calc_erf([Float(0.0)])             → Ok(Float(0.0))                  // identidade
+calc_erf([Int(0)])                 → Ok(Float(0.0))                  // Int coerce
+calc_erf([Float(1.0)])             → Ok(Float(~0.84270079))          // valor conhecido
+calc_erf([Float(-1.0)])            → Ok(Float(~-0.84270079))         // simetria ímpar
+calc_erf([Float(0.5)])             → Ok(Float(~0.52049988))
+calc_erf([Float(2.0)])             → Ok(Float(~0.99532227))
+calc_erf([Float(5.0)])             → Ok(Float(~1.0))                 // ≈1, dentro 1.5e-7
+calc_erf([Float(-5.0)])            → Ok(Float(~-1.0))                // simetria
+calc_erf([Float(f64::INFINITY)])   → Ok(Float(1.0))                  // short-circuit limite
+calc_erf([Float(f64::NEG_INFINITY)]) → Ok(Float(-1.0))               // short-circuit limite
+calc_erf([Float(f64::NAN)])        → Err                              // guard NaN
+calc_erf([])                       → Err                              // arity 0
+calc_erf([Float(1.0), Float(2.0)]) → Err                              // arity 2
+calc_erf([Str("x")])               → Err                              // tipo inválido
+// Named arg rejeitado (paridade expect_no_named):
+calc_erf([Float(1.0)], named: { "p": Float(0.5) }) → Err
 ```
 
 ## `smartquote(double?, enabled?)` — Passo 287 (`P-smartquote`)

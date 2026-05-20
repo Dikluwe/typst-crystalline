@@ -1,14 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
-//! @prompt-hash dd3e2637
+//! @prompt-hash aa4ca50f
 //! @layer L1
-//! @updated 2026-05-19
+//! @updated 2026-05-20
 //!
 //! Módulo `calc` — operações matemáticas escalares.
 //! P27: base aritmética (abs, pow, sqrt, floor, ceil, round, min, max, clamp).
 //! P96.5: extraído de `stdlib.rs` conforme ADR-0037.
 //! P283: trig/hiperbólicas/log/exp + constantes (pi, tau, e, inf).
 //! P306: aritmética inteira, combinatória, norma, raiz (15 funções).
+//! P308: função erro de Gauss (`erf`) — paridade calc 41/41 = 100%.
 
 use ecow::EcoString;
 use crate::entities::file_id::FileId;
@@ -26,7 +27,7 @@ use crate::rules::eval::EvalContext;
 
 // ── Módulo calc (Passo 27) ───────────────────────────────────────────────────
 
-/// Constrói o módulo `calc` como `Value::Dict` com 40 funções + 4 constantes.
+/// Constrói o módulo `calc` como `Value::Dict` com 41 funções + 4 constantes.
 ///
 /// Divergência: original usa `Value::Module`. Cristalino usa `Value::Dict`
 /// porque não temos stdlib Module sem world. Semântica de acesso (`calc.abs`)
@@ -38,8 +39,12 @@ use crate::rules::eval::EvalContext;
 ///
 /// P306 adicionou 15 funções de aritmética inteira, combinatória, norma e
 /// raiz (`trunc`, `fract`, `even`, `odd`, `rem`, `rem-euclid`, `div-euclid`,
-/// `quo`, `gcd`, `lcm`, `fact`, `perm`, `binom`, `norm`, `root`). Resta
-/// apenas `erf` adiada (passo dedicado).
+/// `quo`, `gcd`, `lcm`, `fact`, `perm`, `binom`, `norm`, `root`).
+///
+/// P308 fecha a paridade `calc` 41/41 = 100% com `erf` (função erro de
+/// Gauss). Vanilla delega a `libm::erf`; cristalino usa Caminho A
+/// (Abramowitz & Stegun 7.1.26, polinomial puro f64; erro máximo 1.5e-7
+/// — ADR-0054 graded). Diagnóstico inline em `stdlib.md` §"Função erro".
 pub fn make_calc_module() -> Value {
     let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
     dict.insert("abs".into(),   Value::Func(Func::native("calc.abs",   calc_abs)));
@@ -90,6 +95,8 @@ pub fn make_calc_module() -> Value {
     // P306 — norma vectorial e raiz n-ésima.
     dict.insert("norm".into(),       Value::Func(Func::native("calc.norm",       calc_norm)));
     dict.insert("root".into(),       Value::Func(Func::native("calc.root",       calc_root)));
+    // P308 — função erro de Gauss (paridade calc 41/41).
+    dict.insert("erf".into(),        Value::Func(Func::native("calc.erf",        calc_erf)));
     // P283 — constantes ergonómicas (paridade vanilla).
     dict.insert("pi".into(),    Value::Float(std::f64::consts::PI));
     dict.insert("tau".into(),   Value::Float(std::f64::consts::TAU));
@@ -714,6 +721,72 @@ pub(crate) fn calc_root(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
         [other, _] => err(format!("calc.root() índice deve ser Int, recebeu {}", other.type_name())),
         _ => err(format!("calc.root() requer 2 argumentos, recebeu {}", args.items.len())),
     }
+}
+
+// ── P308 — função erro de Gauss (calc.erf) ───────────────────────────────
+//
+// Vanilla delega a `libm::erf`. Cristalino usa Caminho A — Abramowitz &
+// Stegun 7.1.26, aproximação polinomial pura f64 com erro máximo 1.5e-7.
+// Justificação no L0 §"Função erro (P308)" e em CLAUDE.md ADR-0054 graded.
+// DEBT-libm partilhado com `calc_pow`/`trig_op`/`calc_root` (ADR-0018):
+// futura migração agregada substitui o helper por `libm::erf`.
+
+pub(crate) fn calc_erf(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+    _figure_numbering: Option<&str>,
+) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [v] => {
+            let x = coerce_to_f64(v, "calc.erf()")?;
+            // NaN → Err (paridade convenção `guard_float`; divergência
+            // consciente vs vanilla `libm::erf(NaN) = NaN`).
+            if x.is_nan() {
+                return err("calc.erf() valor é NaN");
+            }
+            // ±∞ → short-circuit ao limite analítico. Sem este desvio a
+            // fórmula produziria `0 · ∞ = NaN` em `poly · exp(-x²)`.
+            if x.is_infinite() {
+                return Ok(Value::Float(if x > 0.0 { 1.0 } else { -1.0 }));
+            }
+            // ±0 → short-circuit ao limite exacto. A&S 7.1.26 produz
+            // ~1e-9 (soma dos 5 coeficientes ≠ 1.0 bit-exact). Aqui
+            // devolvemos ±0.0 preservando o sinal (paridade vanilla
+            // `libm::erf(0) = 0`).
+            if x == 0.0 {
+                return Ok(Value::Float(x));
+            }
+            Ok(Value::Float(erf_approx_as(x)))
+        }
+        _ => err(format!("calc.erf() requer 1 argumento, recebeu {}", args.items.len())),
+    }
+}
+
+/// Aproximação Abramowitz & Stegun 7.1.26 da função erro de Gauss.
+///
+/// Pré-condições (asseguradas pelo chamador): `x` é finito e não-NaN.
+/// Erro máximo absoluto: 1.5e-7. Determinístico sob IEEE 754.
+///
+/// DEBT-libm: usa `f64::exp` directo (ADR-0018 — migração agregada futura
+/// para `libm::erf` resolve este sítio juntamente com `pow`/trig/log).
+#[allow(clippy::disallowed_methods)]
+fn erf_approx_as(x: f64) -> f64 {
+    const A1: f64 =  0.254_829_592;
+    const A2: f64 = -0.284_496_736;
+    const A3: f64 =  1.421_413_741;
+    const A4: f64 = -1.453_152_027;
+    const A5: f64 =  1.061_405_429;
+    const P:  f64 =  0.327_591_1;
+    let sign = if x < 0.0 { -1.0 } else { 1.0 };
+    let x_abs = x.abs();
+    let t = 1.0 / (1.0 + P * x_abs);
+    // Horner do polinomial de grau 5 em t.
+    let poly = t * (A1 + t * (A2 + t * (A3 + t * (A4 + t * A5))));
+    let y = 1.0 - poly * f64::exp(-x_abs * x_abs);
+    sign * y
 }
 
 fn coerce_to_f64(v: &Value, ctx: &str) -> SourceResult<f64> {
