@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/math/layout.md
-//! @prompt-hash c45536b1
+//! @prompt-hash 7be2c621
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -760,3 +760,133 @@ fn left_scripts_passo46_nao_regride() {
     assert!(items_contain_text(&items, 'n') || items_contain_text(&items, '0'),
         "scripts ausentes: {:?}", items);
 }
+
+// ── Passo 311b.5 — E2E math style integration tests ─────────────────────
+//
+// Verificam que MathStyled chega ao layout corretamente e que
+// codepoints Unicode variant são emitidos no FrameItem::Text.
+
+#[test]
+fn p311b5_bb_x_emite_double_struck_x() {
+    let bb_x = Content::MathStyled {
+        kind:    Some(MathStyleKind::DoubleStruck),
+        bold:    None,
+        italic:  None,
+        body:    Box::new(Content::MathIdent("x".into())),
+        cramped: None,
+    };
+    let items = layout_equation_items(&bb_x);
+    assert!(items_contain_text(&items, '\u{1D569}'),
+        "bb(x) deve emitir 𝕩 U+1D569: {:?}", items);
+}
+
+#[test]
+fn p311b5_cal_L_emite_script_L() {
+    let cal_L = Content::MathStyled {
+        kind:    Some(MathStyleKind::Chancery),
+        bold:    None,
+        italic:  None,
+        body:    Box::new(Content::MathIdent("L".into())),
+        cramped: None,
+    };
+    let items = layout_equation_items(&cal_L);
+    // L Chancery = U+2112 (excepção BMP)
+    assert!(items_contain_text(&items, '\u{2112}'),
+        "cal(L) deve emitir ℒ U+2112: {:?}", items);
+}
+
+#[test]
+fn p311b5_bb_cal_x_outer_wins() {
+    // bb(cal(x)) — outer Bb deve ganhar.
+    let inner = Content::MathStyled {
+        kind:    Some(MathStyleKind::Chancery),
+        bold:    None,
+        italic:  None,
+        body:    Box::new(Content::MathIdent("x".into())),
+        cramped: None,
+    };
+    let outer = Content::MathStyled {
+        kind:    Some(MathStyleKind::DoubleStruck),
+        bold:    None,
+        italic:  None,
+        body:    Box::new(inner),
+        cramped: None,
+    };
+    let items = layout_equation_items(&outer);
+    assert!(items_contain_text(&items, '\u{1D569}'),
+        "bb(cal(x)) → outer Bb deve ganhar; esperava 𝕩 U+1D569: {:?}", items);
+}
+
+#[test]
+fn p311b5_upright_italic_x_outer_wins() {
+    // upright(italic(x)) — outer upright (italic=Some(false)) deve ganhar.
+    let inner = Content::MathStyled {
+        kind:    None,
+        bold:    None,
+        italic:  Some(true),
+        body:    Box::new(Content::MathIdent("x".into())),
+        cramped: None,
+    };
+    let outer = Content::MathStyled {
+        kind:    None,
+        bold:    None,
+        italic:  Some(false),
+        body:    Box::new(inner),
+        cramped: None,
+    };
+    let items = layout_equation_items(&outer);
+    // upright wins → 'x' literal (não italic codepoint).
+    assert!(items_contain_text(&items, 'x'),
+        "upright(italic(x)) → upright deve ganhar; esperava 'x' literal: {:?}", items);
+}
+
+#[test]
+fn p311b5_bb_frac_a_b_propaga_recurse() {
+    // bb(frac(a, b)) — propaga DS aos sub-elementos.
+    let frac = Content::MathFrac {
+        num: Box::new(Content::MathIdent("a".into())),
+        den: Box::new(Content::MathIdent("b".into())),
+    };
+    let bb_frac = Content::MathStyled {
+        kind:    Some(MathStyleKind::DoubleStruck),
+        bold:    None,
+        italic:  None,
+        body:    Box::new(frac),
+        cramped: None,
+    };
+    let items = layout_equation_items(&bb_frac);
+    assert!(items_contain_text(&items, '\u{1D552}'),
+        "bb(frac(a,b)) deve emitir 𝕒 U+1D552 no numerador: {:?}", items);
+    assert!(items_contain_text(&items, '\u{1D553}'),
+        "bb(frac(a,b)) deve emitir 𝕓 U+1D553 no denominador: {:?}", items);
+}
+
+#[test]
+fn p311b5_bold_bb_x_ortogonal_preserva_inner() {
+    // bold(bb(x)) — inner Bb preserved; bold orthogonal.
+    let inner = Content::MathStyled {
+        kind:    Some(MathStyleKind::DoubleStruck),
+        bold:    None,
+        italic:  None,
+        body:    Box::new(Content::MathIdent("x".into())),
+        cramped: None,
+    };
+    let outer = Content::MathStyled {
+        kind:    None,
+        bold:    Some(true),
+        italic:  None,
+        body:    Box::new(inner),
+        cramped: None,
+    };
+    let items = layout_equation_items(&outer);
+    // DoubleStruck plane não tem variant Bold separado — DS é uniforme.
+    // map_glyph aplica DS base (U+1D569 para 'x' lowercase). Verificar
+    // que pelo menos um codepoint DS é emitido.
+    let has_ds_codepoint = items.iter().any(|i| matches!(i,
+        FrameItem::Text { text, .. }
+        if text.chars().any(|c| (c as u32) >= 0x1D552 && (c as u32) <= 0x1D56B)
+    ));
+    assert!(has_ds_codepoint,
+        "bold(bb(x)) deve preservar DS lowercase plane: {:?}", items);
+}
+

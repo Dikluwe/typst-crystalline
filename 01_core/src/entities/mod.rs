@@ -62,6 +62,8 @@ pub mod font_list;
 pub mod glyph_variants;
 pub mod layout_types;
 pub mod math_constants;
+// P311b.1 — MathStyleKind + map_glyph (Caminho I diagnóstico P311a).
+pub mod math_style;
 pub mod show;
 pub mod sink;
 pub mod style;

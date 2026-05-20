@@ -1,5 +1,5 @@
 # Prompt L0 — motor de equações
-Hash do Código: bfe1f51a
+Hash do Código: 7a10f542
 
 ## Módulo
 `01_core/src/rules/math/`
@@ -119,3 +119,64 @@ PDF correcto; glifos visualmente idênticos).
 - `stretchy.rs` selecciona variant via `select(min_advance)`.
 - `assembly.rs` constrói assembly de partes para delimitadores.
 - Primes (`′″‴⁗`) renderizam correctamente (resolvidos em eval).
+
+## Variant `Content::MathStyled` — Passo 311b.4 (handler + apply_math_style)
+
+Handler dedicado em `layout_node` arm `Content::MathStyled` resolve
+variant glyph + flags. Algoritmo:
+
+1. **Pré-transformação recursiva** do body via `apply_math_style`
+   (função livre no fim do módulo). Composição outer-wins via
+   `Option::or` — outer set ganha sobre inner.
+2. **Substituição char-by-char** em `MathIdent`/`MathText`:
+   `map_glyph(c, kind.unwrap_or(Plain), bold.unwrap_or(false),
+   italic.unwrap_or(false))`.
+3. **Propagação para containers** math (MathFrac/MathAttach/MathRoot/
+   MathDelimited/MathSequence) — recurse com mesmo context.
+4. **`MathOp` passa-through** — operadores texto (`sin`/`lim`/etc.)
+   mantêm aparência normal mesmo dentro de `bb(...)` (paridade
+   vanilla).
+5. **Size factor** para `Script`/`SScript`: aplica
+   `style.size *= kind.size_factor()` antes de descer para body.
+6. **Supressão de auto-itálico**: quando wraps math style são
+   aplicados (kind/bold/italic Some(_)), `math_style.italic = false`
+   no descent para evitar duplicar variant em fontes que já encoded
+   no codepoint.
+
+### Composição (paridade vanilla)
+
+- `bb(cal(x))` → outer Bb ganha → MathIdent("𝕩").
+- `bold(bb(x))` → kind preserved (Bb inner), bold flag aplicado.
+- `upright(italic(x))` → outer upright (italic=Some(false)) ganha.
+- `script(sscript(x))` → outer-wins via Option::or; **NÃO**
+  multiplicativo (refuta diagnóstico P311a §3.5 — confirmado vanilla
+  outer-wins em testes empíricos).
+
+### Tabela de testes P311b.4 (8 unit tests)
+
+| Teste | Cenário |
+|---|---|
+| `bb_substitutes_chars` | `bb(x)` → 𝕩 (U+1D569) |
+| `bold_italic_orthogonal` | Plain+bold+italic → Bold Italic codepoint |
+| `bb_cal_outer_wins` | `bb(cal(x))` → outer Bb DS |
+| `upright_italic_outer_wins` | `upright(italic(x))` → 'x' literal |
+| `bold_preserves_inner_bb` | `bold(bb(x))` → DS lowercase plane |
+| `recurses_through_mathfrac` | `bb(frac(a,b))` → DS num + DS den |
+| `size_variant_passthrough_glyph` | `script(x)` → 'x' literal |
+| `math_op_passthrough` | `bb(op("sin"))` → MathOp("sin") inalterado |
+
+### Integração com `is_single_letter_var`
+
+Pre-P311b.4: `MathIdent` handler aplica itálico automático a
+variáveis de 1 letra via `is_single_letter_var`.
+
+Pos-P311b.4: wraps `MathStyled` SUPRIMEM auto-itálico via
+`math_style.italic = false`. Itálico explícito (`italic(x)`) é
+honrado via codepoint Bold/Italic plane já transformado em
+`apply_math_style`. Tests existentes preservados (sem regressão).
+
+### Tests preservados
+
+Suite math layout pré-P311b.4: ~50 tests. Pós-P311b.4 todos verdes
+mais 8 novos P311b.4 = ~58. Auto-itálico para `MathIdent` sem wrap
+preservado (caminho default não-MathStyled).

@@ -1,8 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/math/layout.md
-//! @prompt-hash c45536b1
+//! @prompt-hash 7be2c621
 //! @layer L1
 //! @updated 2026-04-11
+
+use std::sync::Arc;
 
 use ecow::EcoString;
 
@@ -10,6 +12,7 @@ use crate::entities::{
     content::Content,
     layout_types::{FrameItem, Point, Pt, TextStyle},
     math_constants::MathConstants,
+    math_style::{map_glyph, MathStyleKind},
 };
 use crate::rules::layout::FontMetrics;
 use super::symbols;
@@ -325,6 +328,27 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             // P298 — Math op (trivial delegate; limits flag consumido em layout_attach).
             Content::MathOp { text, limits: _ } => {
                 self.layout_op(text, style)
+            }
+
+            // P311b.4 — Math style wrapper: aplica map_glyph + size factor.
+            // Composição outer-wins é resolvida por `apply_math_style` que
+            // funde MathStyled aninhados via Option::or (outer set ganha).
+            Content::MathStyled { kind, bold, italic, body, cramped: _ } => {
+                let transformed = apply_math_style(body, *kind, *bold, *italic);
+                let size_factor = kind
+                    .filter(|k| k.is_size_variant())
+                    .map(|k| k.size_factor())
+                    .unwrap_or(1.0);
+                let mut math_style = style.clone();
+                math_style.size = style.size * size_factor;
+                // Se kind glyph foi aplicado (chars já variant-encoded) OU
+                // italic explícito foi set, suprimir auto-itálico do
+                // `MathIdent` handler. Itálico explícito é honrado via
+                // codepoint já transformado (Italic plane).
+                if kind.is_some() || italic.is_some() || bold.is_some() {
+                    math_style.italic = false;
+                }
+                self.layout_node(&transformed, &math_style)
             }
 
             other => {
@@ -650,6 +674,216 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         }
 
         MathBox { width: x, ascent, descent, items }
+    }
+}
+
+// ── Passo 311b.4 — `apply_math_style` helper ─────────────────────────────
+//
+// Aplica recursivamente o variant glyph + flags (bold/italic) aos chars
+// do body. Composição: outer-wins via Option::or (outer set ganha sobre
+// inner). Para sub-arvores não-`MathStyled` (MathFrac/MathSequence/etc.),
+// propaga o contexto recursivamente.
+
+fn apply_math_style(
+    body:   &Content,
+    kind:   Option<MathStyleKind>,
+    bold:   Option<bool>,
+    italic: Option<bool>,
+) -> Content {
+    match body {
+        // Composição: inner MathStyled é fundido com outer via Option::or.
+        Content::MathStyled { kind: ik, bold: ib, italic: ii, body: ibody, cramped: _ } => {
+            apply_math_style(
+                ibody,
+                kind.or(*ik),
+                bold.or(*ib),
+                italic.or(*ii),
+            )
+        }
+        // Folha textual: aplica map_glyph char-by-char.
+        Content::MathIdent(name) => {
+            let k = kind.unwrap_or(MathStyleKind::Plain);
+            let b = bold.unwrap_or(false);
+            let i = italic.unwrap_or(false);
+            let new: EcoString = name.chars().map(|c| map_glyph(c, k, b, i)).collect();
+            Content::MathIdent(new)
+        }
+        Content::MathText(text) => {
+            let k = kind.unwrap_or(MathStyleKind::Plain);
+            let b = bold.unwrap_or(false);
+            let i = italic.unwrap_or(false);
+            let new: EcoString = text.chars().map(|c| map_glyph(c, k, b, i)).collect();
+            Content::MathText(new)
+        }
+        // Containers math: propaga context.
+        Content::MathSequence(seq) => {
+            let new_seq: Vec<Content> = seq.iter()
+                .map(|c| apply_math_style(c, kind, bold, italic))
+                .collect();
+            Content::MathSequence(Arc::from(new_seq))
+        }
+        Content::MathFrac { num, den } => Content::MathFrac {
+            num: Box::new(apply_math_style(num, kind, bold, italic)),
+            den: Box::new(apply_math_style(den, kind, bold, italic)),
+        },
+        Content::MathAttach { base, tl, bl, sub, sup } => Content::MathAttach {
+            base: Box::new(apply_math_style(base, kind, bold, italic)),
+            tl:   tl.as_ref().map(|c| Box::new(apply_math_style(c, kind, bold, italic))),
+            bl:   bl.as_ref().map(|c| Box::new(apply_math_style(c, kind, bold, italic))),
+            sub:  sub.as_ref().map(|c| Box::new(apply_math_style(c, kind, bold, italic))),
+            sup:  sup.as_ref().map(|c| Box::new(apply_math_style(c, kind, bold, italic))),
+        },
+        Content::MathRoot { index, radicand } => Content::MathRoot {
+            index:    index.as_ref().map(|c| Box::new(apply_math_style(c, kind, bold, italic))),
+            radicand: Box::new(apply_math_style(radicand, kind, bold, italic)),
+        },
+        Content::MathDelimited { open, body, close } => Content::MathDelimited {
+            open:  *open,
+            body:  Box::new(apply_math_style(body, kind, bold, italic)),
+            close: *close,
+        },
+        // `MathOp` (operadores texto) passa-through — variant não aplica.
+        // Operadores como "sin"/"lim" mantêm aparência normal mesmo dentro
+        // de `bb(...)` (paridade vanilla).
+        Content::MathOp { .. } => body.clone(),
+        // Outros chars / variants não-math: clone literal.
+        other => other.clone(),
+    }
+}
+
+#[cfg(test)]
+mod p311b_tests {
+    use super::*;
+
+    fn mk_ident(s: &str) -> Content { Content::MathIdent(s.into()) }
+
+    #[test]
+    fn p311b4_apply_math_style_bb_substitutes_chars() {
+        let body = mk_ident("x");
+        let out = apply_math_style(&body, Some(MathStyleKind::DoubleStruck), None, None);
+        match out {
+            Content::MathIdent(s) => assert_eq!(s.as_str(), "\u{1D569}"),
+            other => panic!("esperado MathIdent, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p311b4_apply_math_style_bold_italic_orthogonal() {
+        let body = mk_ident("x");
+        let out = apply_math_style(&body, None, Some(true), Some(true));
+        // Plain Bold Italic 'x' = U+1D499 (base U+1D468 + 26 + 23).
+        match out {
+            Content::MathIdent(s) => assert_eq!(s.as_str(), "\u{1D499}"),
+            other => panic!("esperado MathIdent, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p311b4_apply_math_style_bb_cal_outer_wins() {
+        // bb(cal(x)) — outer Bb deve ganhar.
+        let inner = Content::MathStyled {
+            kind: Some(MathStyleKind::Chancery),
+            bold: None,
+            italic: None,
+            body: Box::new(mk_ident("x")),
+            cramped: None,
+        };
+        let out = apply_math_style(&inner, Some(MathStyleKind::DoubleStruck), None, None);
+        match out {
+            Content::MathIdent(s) => assert_eq!(s.as_str(), "\u{1D569}", "outer Bb deve ganhar"),
+            other => panic!("esperado MathIdent, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p311b4_apply_math_style_upright_italic_outer_wins() {
+        // upright(italic(x)) — outer upright (italic=false) deve ganhar.
+        let inner = Content::MathStyled {
+            kind: None,
+            bold: None,
+            italic: Some(true),
+            body: Box::new(mk_ident("x")),
+            cramped: None,
+        };
+        let out = apply_math_style(&inner, None, None, Some(false));
+        match out {
+            Content::MathIdent(s) => assert_eq!(s.as_str(), "x", "upright deve suprimir italic"),
+            other => panic!("esperado MathIdent, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p311b4_apply_math_style_bold_preserves_inner_bb() {
+        // bold(bb(x)) — inner Bb preservado; outer bold ortogonal aplicado.
+        let inner = Content::MathStyled {
+            kind: Some(MathStyleKind::DoubleStruck),
+            bold: None,
+            italic: None,
+            body: Box::new(mk_ident("x")),
+            cramped: None,
+        };
+        let out = apply_math_style(&inner, None, Some(true), None);
+        // Bold Double-Struck small x: U+1D569 (DS x não tem variant bold no
+        // plano; nossa tabela aplica DS base). Aceita qualquer variant
+        // contendo DS via verificação parcial.
+        match out {
+            Content::MathIdent(s) => {
+                let c = s.chars().next().unwrap();
+                let u = c as u32;
+                // Espera dentro do plano DS U+1D552-U+1D56B (lowercase) ou
+                // similar; aceita variantes encoded.
+                assert!(u >= 0x1D552 && u <= 0x1D56B, "esperado DS lowercase, obteve U+{:X}", u);
+            }
+            other => panic!("esperado MathIdent, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p311b4_apply_math_style_recurses_through_mathfrac() {
+        let frac = Content::MathFrac {
+            num: Box::new(mk_ident("a")),
+            den: Box::new(mk_ident("b")),
+        };
+        let out = apply_math_style(&frac, Some(MathStyleKind::DoubleStruck), None, None);
+        match out {
+            Content::MathFrac { num, den } => {
+                match (*num, *den) {
+                    (Content::MathIdent(n), Content::MathIdent(d)) => {
+                        assert_eq!(n.as_str(), "\u{1D552}"); // DS a
+                        assert_eq!(d.as_str(), "\u{1D553}"); // DS b
+                    }
+                    other => panic!("esperado MathIdent/MathIdent, obteve {other:?}"),
+                }
+            }
+            other => panic!("esperado MathFrac, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p311b4_apply_math_style_size_variant_passthrough_glyph() {
+        // script(x) — kind Script é size variant; map_glyph não modifica char.
+        let out = apply_math_style(&mk_ident("x"), Some(MathStyleKind::Script), None, None);
+        match out {
+            Content::MathIdent(s) => assert_eq!(s.as_str(), "x"),
+            other => panic!("esperado MathIdent, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p311b4_apply_math_style_math_op_passthrough() {
+        // bb(op("sin")) — operadores texto não devem receber variant.
+        let op = Content::MathOp {
+            text:   Box::new(Content::text("sin")),
+            limits: false,
+        };
+        let out = apply_math_style(&op, Some(MathStyleKind::DoubleStruck), None, None);
+        match out {
+            Content::MathOp { text, limits } => {
+                assert_eq!(text.plain_text(), "sin");
+                assert!(!limits);
+            }
+            other => panic!("esperado MathOp, obteve {other:?}"),
+        }
     }
 }
 

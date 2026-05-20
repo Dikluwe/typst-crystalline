@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: c4df3449
+Hash do Código: d4501435
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -2079,6 +2079,116 @@ ADR-0098 §"single source of truth" honrada — math layout produz
   como scope module integrado.
 - **P297.X** — discriminator `UnderoverKind`.
 - **P296.X** — toggles `inverted`/`cross` cancel.
+
+---
+
+## Variant `Content::MathStyled` — Passo 311b.2 (Caminho I per P311a)
+
+```rust
+Content::MathStyled {
+    kind:    Option<MathStyleKind>,  // None = inherit; Some = override
+    bold:    Option<bool>,           // idem
+    italic:  Option<bool>,           // idem
+    body:    Box<Content>,
+    cramped: Option<bool>,           // relevante para script/sscript
+}
+```
+
+Wrapper de variant glyph / flags math style — implementa 12 funções
+vanilla `bb`/`bold`/`cal`/`frak`/`italic`/`mono`/`sans`/`scr`/`script`/
+`serif`/`sscript`/`upright`. Todos os campos override usam `Option`
+para distinguir "outer não overriding" (`None`) de "outer força este
+valor" (`Some(_)`). Necessário para que `bold(bb(x))` preserve
+DoubleStruck inner enquanto aplica bold orthogonalmente.
+
+### Mapping 12 funções → MathStyled fields
+
+| Função | `kind` | `bold` | `italic` | `cramped` |
+|---|---|---|---|---|
+| `bb` | `Some(DoubleStruck)` | None | None | None |
+| `bold` | None | `Some(true)` | None | None |
+| `cal` | `Some(Chancery)` | None | None | None |
+| `frak` | `Some(Fraktur)` | None | None | None |
+| `italic` | None | None | `Some(true)` | None |
+| `mono` | `Some(Monospace)` | None | None | None |
+| `sans` | `Some(SansSerif)` | None | None | None |
+| `scr` | `Some(Roundhand)` | None | None | None |
+| `script` | `Some(Script)` | None | None | `Some(true)` |
+| `serif` | `Some(Plain)` | None | None | None |
+| `sscript` | `Some(SScript)` | None | None | `Some(true)` |
+| `upright` | None | None | `Some(false)` | None |
+
+### Hash `content.rs` quebra deliberadamente
+
+**Marco arquitectural**: P311b.2 termina sequência **27 passos
+consecutivos** com hash `82d3c47d` preservado (last drift: P282).
+Quebra **explicitamente assumida** per ADR-0033 (paridade observable;
+forma diverge sem afectar output). Paralelo arquitectural directo a
+P298 (`MathOp`) — ambos adicionam variant Math com justificação
+fundacional.
+
+### Justificação Caminho I (Variant) vs II/III
+
+Diagnóstico P311a §3.1 + §4 fixou:
+
+- **Caminho II rejeitado** (Eager Unicode mapping): falha em
+  bindings `bb(x)` onde `x` é `MathIdent`/binding eval-time. Não
+  composicional para `bb(cal(x))`.
+- **Caminho III rejeitado** (Style enum extension): activa
+  anti-padrão "capture sem consumer" — `StyleChain` cristalina é
+  plana (DEBT-1; ADR-0040), capturar variant em chain sem
+  `MathLayouter` real consumer = estado intermédio.
+- **Caminho I escolhido**: paralelo a P298 (`MathOp`), composicional
+  natural via nesting, funciona com bindings.
+
+### Composição cross-variant (P311b.4 layout_node)
+
+Regras (P311a §3.3):
+
+1. **Variant glyph** outer-wins. `bb(cal(x))` → outer Bb prevalece.
+   Walker top-down fixa `context.kind = outer.kind` ao entrar; inner
+   `MathStyled` **não sobrescreve** se context já set.
+2. **Bold flag** ortogonal. `bold(bb(x))` → ambos aplicados =
+   "Bold Double-Struck" (kind=DoubleStruck, bold=true).
+3. **Italic flag** outer-wins (`Option<bool>`). `upright(italic(x))`
+   → outer Upright prevalece (italic=Some(false)).
+4. **Size variant** (Script/SScript) compõe multiplicativamente.
+   `script(sscript(x))` → factor 0.7 × 0.5 = 0.35.
+
+### Match arms exhaustive defesa compilador (5 sítios paralelo P298)
+
+| Local | Operação |
+|---|---|
+| `content.rs:plain_text()` | `body.plain_text()` (transparente; wrap glyph não tem texto próprio) |
+| `content.rs:PartialEq` | structural (kind + bold + italic + body + cramped) |
+| `content.rs:map_content()` | recurse em body; preserva kind/flags |
+| `content.rs:map_text()` | terminal (paralelo cluster math) |
+| `rules/introspect.rs:materialize_time` | terminal |
+| `rules/introspect.rs:walk` | terminal |
+| `rules/introspect/locatable.rs` | `false` |
+| `rules/layout/mod.rs` | fallthrough math |
+| `rules/math/layout/mod.rs:layout_node` | `layout_styled` (P311b.4 — context passing) |
+
+### Família `script`/`sscript` — variant separado no mesmo enum
+
+Per P311a §3.5, opção A: variants Script/SScript ficam dentro de
+`MathStyleKind` com sub-categoria size. `MathStyleKind::is_size_variant()`
+distingue. Anti-padrão "misturar variant glyph + size" mitigado por
+factor multiplicativo via `MathStyleKind::size_factor()`.
+
+### ADRs novas obrigatórias (P311b.6)
+
+- **ADR-Math-Style-Mechanism**: formaliza Caminho I; justifica
+  preferência sobre II/III; documenta interacção com DEBT-1.
+- **ADR-Math-Style-Composition**: formaliza 4 regras §3.3
+  (outer-wins / ortogonal / multiplicativo).
+
+### Sub-padrão Variant Math cumulativo
+
+P296-P298 já estabeleceram pattern "variant math agregado". P311b.2
+estende com **wrapper recursivo de transformação** — primeiro variant
+math sem `body` semântico próprio (wrapping puro). Pattern N=4 emerge
+mas formalização adiada per P273.17 §0.
 
 ---
 

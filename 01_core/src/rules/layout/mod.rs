@@ -820,7 +820,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P297 — Math underover (paralelo P296).
             | Content::MathUnderover { .. }
             // P298 — Math op (paralelo cluster math).
-            | Content::MathOp { .. } => {
+            | Content::MathOp { .. }
+            // P311b.2 — MathStyled fall-through (tratamento real em `math/layout`).
+            | Content::MathStyled { .. } => {
                 // Nós matemáticos internos — normalmente não aparecem directamente
                 // no layout fora de Content::Equation. Se aparecerem, renderizar como texto.
                 let text = content.plain_text();

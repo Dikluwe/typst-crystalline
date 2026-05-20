@@ -245,6 +245,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::MathUnderover { .. }
         // P298 — Math op terminal (paralelo cluster math).
         | Content::MathOp { .. }
+        // P311b.2 — MathStyled terminal em materialize_time (math structural).
+        | Content::MathStyled { .. }
         | Content::Image { .. }
         | Content::Divider
         // Passo 156D (ADR-0061 Fase 1 sub-passo 2) — h/v spacing leaves.
@@ -1170,6 +1172,8 @@ pub(crate) fn walk(
         | Content::MathUnderover { .. }
         // P298 — Math op terminal em walk.
         | Content::MathOp { .. }
+        // P311b.2 — MathStyled terminal em walk (math structural).
+        | Content::MathStyled { .. }
         | Content::MathAlignPoint
         | Content::Linebreak
         // P287 — SmartQuote leaf (não-locatable; sem counters).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
-//! @prompt-hash aa4ca50f
+//! @prompt-hash 292ed749
 //! @layer L1
 //! @updated 2026-04-23
 
@@ -31,6 +31,8 @@ mod transforms;
 mod layout;
 // P262 — Gradient stdlib (Linear only per ADR-0087).
 mod gradients;
+// P311b.3 — 12 funções math style (bb/cal/frak/etc.).
+mod math_style;
 
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
@@ -60,6 +62,12 @@ pub use crate::rules::stdlib::layout::{
 pub use crate::rules::stdlib::gradients::{
     make_gradient_module, native_gradient_conic, native_gradient_linear,
     native_gradient_radial,
+};
+// P311b.3 — 12 funções math style (paridade categoria 12/12 = 100%).
+pub use crate::rules::stdlib::math_style::{
+    native_bb, native_bold, native_cal, native_frak, native_math_italic,
+    native_mono, native_sans, native_scr, native_script, native_serif,
+    native_sscript, native_upright,
 };
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
@@ -8143,5 +8151,156 @@ mod tests {
         let m = Content::MathIdent("lim".into());
         // Não panic; pode usar plain_text e estar bem formado.
         assert_eq!(m.plain_text(), "lim");
+    }
+
+    // ── Passo 311b.3 — 12 funções math style (paridade 12/12) ─────────────────
+    //
+    // Caminho I per P311a: cada função wrap o body em Content::MathStyled
+    // com kind/bold/italic/cramped específicos. Composição (outer-wins)
+    // resolvida em P311b.4.
+
+    use super::math_style::{
+        native_bb, native_bold, native_cal, native_frak, native_math_italic,
+        native_mono, native_sans, native_scr, native_script, native_serif,
+        native_sscript, native_upright,
+    };
+    use crate::entities::math_style::MathStyleKind;
+
+    fn call_math_style(
+        f: fn(&mut EvalContext, &Args, &dyn World, FileId, Option<&str>) -> SourceResult<Value>,
+        items: Vec<Value>,
+    ) -> SourceResult<Value> {
+        null_ctx!(ctx);
+        f(&mut ctx, &p(items), &null_world(), test_file_id(), None)
+    }
+
+    fn assert_styled(
+        v: SourceResult<Value>,
+        exp_kind: Option<MathStyleKind>,
+        exp_bold: Option<bool>,
+        exp_italic: Option<bool>,
+        exp_cramped: Option<bool>,
+    ) {
+        match v.unwrap() {
+            Value::Content(Content::MathStyled { kind, bold, italic, body: _, cramped }) => {
+                assert_eq!(kind, exp_kind, "kind mismatch");
+                assert_eq!(bold, exp_bold, "bold mismatch");
+                assert_eq!(italic, exp_italic, "italic mismatch");
+                assert_eq!(cramped, exp_cramped, "cramped mismatch");
+            }
+            other => panic!("esperado Content::MathStyled, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p311b_bb_wraps_double_struck() {
+        let v = call_math_style(native_bb, vec![Value::Content(Content::MathIdent("x".into()))]);
+        assert_styled(v, Some(MathStyleKind::DoubleStruck), None, None, None);
+    }
+
+    #[test]
+    fn p311b_bold_is_orthogonal_flag() {
+        let v = call_math_style(native_bold, vec![Value::Content(Content::MathIdent("x".into()))]);
+        assert_styled(v, None, Some(true), None, None);
+    }
+
+    #[test]
+    fn p311b_cal_wraps_chancery() {
+        let v = call_math_style(native_cal, vec![Value::Content(Content::MathIdent("L".into()))]);
+        assert_styled(v, Some(MathStyleKind::Chancery), None, None, None);
+    }
+
+    #[test]
+    fn p311b_frak_wraps_fraktur() {
+        let v = call_math_style(native_frak, vec![Value::Content(Content::MathIdent("g".into()))]);
+        assert_styled(v, Some(MathStyleKind::Fraktur), None, None, None);
+    }
+
+    #[test]
+    fn p311b_italic_is_orthogonal_flag() {
+        let v = call_math_style(native_math_italic, vec![Value::Content(Content::MathIdent("x".into()))]);
+        assert_styled(v, None, None, Some(true), None);
+    }
+
+    #[test]
+    fn p311b_mono_wraps_monospace() {
+        let v = call_math_style(native_mono, vec![Value::Content(Content::MathIdent("x".into()))]);
+        assert_styled(v, Some(MathStyleKind::Monospace), None, None, None);
+    }
+
+    #[test]
+    fn p311b_sans_wraps_sans_serif() {
+        let v = call_math_style(native_sans, vec![Value::Content(Content::MathIdent("x".into()))]);
+        assert_styled(v, Some(MathStyleKind::SansSerif), None, None, None);
+    }
+
+    #[test]
+    fn p311b_scr_wraps_roundhand() {
+        let v = call_math_style(native_scr, vec![Value::Content(Content::MathIdent("L".into()))]);
+        assert_styled(v, Some(MathStyleKind::Roundhand), None, None, None);
+    }
+
+    #[test]
+    fn p311b_script_with_cramped() {
+        let v = call_math_style(native_script, vec![Value::Content(Content::MathIdent("x".into()))]);
+        assert_styled(v, Some(MathStyleKind::Script), None, None, Some(true));
+    }
+
+    #[test]
+    fn p311b_serif_forces_plain() {
+        let v = call_math_style(native_serif, vec![Value::Content(Content::MathIdent("x".into()))]);
+        assert_styled(v, Some(MathStyleKind::Plain), None, None, None);
+    }
+
+    #[test]
+    fn p311b_sscript_with_cramped() {
+        let v = call_math_style(native_sscript, vec![Value::Content(Content::MathIdent("x".into()))]);
+        assert_styled(v, Some(MathStyleKind::SScript), None, None, Some(true));
+    }
+
+    #[test]
+    fn p311b_upright_suppresses_italic() {
+        let v = call_math_style(native_upright, vec![Value::Content(Content::MathIdent("x".into()))]);
+        assert_styled(v, None, None, Some(false), None);
+    }
+
+    #[test]
+    fn p311b_accepts_string_body() {
+        let v = call_math_style(native_bb, vec![Value::Str("abc".into())]).unwrap();
+        match v {
+            Value::Content(Content::MathStyled { body, .. }) => {
+                match *body {
+                    Content::Text(s, _) => assert_eq!(s.as_str(), "abc"),
+                    other => panic!("esperado Text, obteve {other:?}"),
+                }
+            }
+            other => panic!("esperado MathStyled, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p311b_empty_args_produces_empty_body() {
+        let v = call_math_style(native_bb, vec![]).unwrap();
+        match v {
+            Value::Content(Content::MathStyled { body, .. }) => {
+                assert!(matches!(*body, Content::Empty));
+            }
+            other => panic!("esperado MathStyled, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p311b_two_args_errors() {
+        let r = call_math_style(native_bb, vec![
+            Value::Content(Content::MathIdent("x".into())),
+            Value::Content(Content::MathIdent("y".into())),
+        ]);
+        assert!(r.is_err(), "esperava erro por arity > 1");
+    }
+
+    #[test]
+    fn p311b_int_arg_errors() {
+        let r = call_math_style(native_bb, vec![Value::Int(1)]);
+        assert!(r.is_err(), "esperava erro por tipo incoercível");
     }
 }

@@ -752,3 +752,110 @@ Paridade vanilla `counter("heading").display(fn)`.
 **Distinto de `Content::CounterDisplay { kind }` legacy
 single-pass** — variant nova paralela; legacy preservada para
 display simples sem callback no Layouter directo.
+
+---
+
+## 12 funções math style — Passo 311b.3 (per P311a diagnóstico)
+
+```rust
+pub fn native_bb     (...) -> SourceResult<Value>;  // DoubleStruck
+pub fn native_bold   (...) -> SourceResult<Value>;  // bold=Some(true)
+pub fn native_cal    (...) -> SourceResult<Value>;  // Chancery
+pub fn native_frak   (...) -> SourceResult<Value>;  // Fraktur
+pub fn native_italic (...) -> SourceResult<Value>;  // italic=Some(true)
+pub fn native_mono   (...) -> SourceResult<Value>;  // Monospace
+pub fn native_sans   (...) -> SourceResult<Value>;  // SansSerif
+pub fn native_scr    (...) -> SourceResult<Value>;  // Roundhand
+pub fn native_script (...) -> SourceResult<Value>;  // Script + cramped
+pub fn native_serif  (...) -> SourceResult<Value>;  // Plain (force serif)
+pub fn native_sscript(...) -> SourceResult<Value>;  // SScript + cramped
+pub fn native_upright(...) -> SourceResult<Value>;  // italic=Some(false)
+```
+
+**Localização**: `01_core/src/rules/stdlib/math_style.rs` (módulo
+dedicado per ADR-0037 coesão por domínio; paralelo `calc.rs`/
+`structural.rs`/`text.rs`).
+
+Cada função:
+1. Aceita 1 argumento body (`Value::Content` ou `Value::Str`).
+2. Wrap o body em `Content::MathStyled { kind, bold, italic, body,
+   cramped }` com mapping específico.
+3. Retorna `Value::Content(MathStyled)`.
+
+**Marco P311b.3**: paridade categoria "math style" atinge **12/12 =
+100%** funções vanilla (segunda categoria stdlib cristalina a fechar
+após `calc` em P308). Cobertura **A.7 Text features** ascende de
+57,1% (P305) para ~65% (estimativa).
+
+### Mapping função → MathStyled fields
+
+| Função | `kind` | `bold` | `italic` | `cramped` |
+|---|---|---|---|---|
+| `bb(body)` | `Some(DoubleStruck)` | None | None | None |
+| `bold(body)` | None | `Some(true)` | None | None |
+| `cal(body)` | `Some(Chancery)` | None | None | None |
+| `frak(body)` | `Some(Fraktur)` | None | None | None |
+| `italic(body)` | None | None | `Some(true)` | None |
+| `mono(body)` | `Some(Monospace)` | None | None | None |
+| `sans(body)` | `Some(SansSerif)` | None | None | None |
+| `scr(body)` | `Some(Roundhand)` | None | None | None |
+| `script(body)` | `Some(Script)` | None | None | `Some(true)` |
+| `serif(body)` | `Some(Plain)` | None | None | None |
+| `sscript(body)` | `Some(SScript)` | None | None | `Some(true)` |
+| `upright(body)` | None | None | `Some(false)` | None |
+
+`bold`/`italic`/`upright` têm `kind = None` porque são flags
+ortogonais sobre variant herdado — `bold(bb(x))` preserva
+DoubleStruck do inner. `serif` usa `Some(Plain)` para forçar variant
+explicitamente (override outer Bb se necessário).
+
+### Registo
+
+Cada função registada em `make_root_scope` (eval/mod.rs) como
+`Func::native(<nome>, native_<nome>)`. Disponível user-facing como:
+
+```typst
+$ bb(x) $       → Content::MathStyled { kind: Some(DoubleStruck), body: MathIdent("x"), ... }
+$ bold(x + y) $ → Content::MathStyled { kind: None, bold: Some(true), body: ..., ... }
+$ bb(cal(x)) $  → outer Bb wraps inner Cal; P311b.4 outer-wins
+```
+
+### Casos de Aceitação
+
+- **`bb(body)`** com `body = Content` → wrap directo.
+- **`bb(body)`** com `body = Str` → `Content::text(s)` antes de wrap.
+- **`bb()`** sem argumento → `Content::Empty` no body (paridade
+  vanilla; lint não falha).
+- **`bb(x, y)`** com 2 args → `Err` (apenas 1 arg suportado).
+- **`bb(x, key: v)`** com named args → `Err` (sem named per scope
+  inicial; vanilla aceita named extras mas P311 scope-out).
+- **Type error**: `bb(1)` → `Err` (Int não-coercível a Content).
+
+### Composição (resolvida em P311b.4)
+
+Spec composicional fica em `MathLayouter` (P311b.4), não nas
+funções nativas: estas apenas wrap. Resolução variant glyph happens
+no walker top-down.
+
+### Helper interno
+
+```rust
+fn wrap_math_style(
+    args:    &Args,
+    kind:    Option<MathStyleKind>,
+    bold:    Option<bool>,
+    italic:  Option<bool>,
+    cramped: Option<bool>,
+) -> SourceResult<Value>;
+```
+
+Helper único elimina ~10× código duplicado nas 12 funções.
+
+### Não-objectivos P311b.3
+
+- Funções `display(body, cramped: false)` / `inline(body, cramped:
+  false)` vanilla — fora do escopo P311 (2 extras vanilla; ver
+  diagnóstico P311a §1).
+- Suporte para `bb(x, key: v)` named — sem named args.
+- Greek + dígitos completos — Latin priorizado; expansão Greek per
+  diagnóstico §"Não-objectivos" em P311b.1.

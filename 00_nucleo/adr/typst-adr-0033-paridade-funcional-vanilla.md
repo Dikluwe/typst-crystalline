@@ -289,3 +289,59 @@ Cross-references:
   L0 sítio divergente.
 - `00_nucleo/prompts/rules/eval.md` §"Política IEEE 754 —
   propagação silenciosa" — secção L0 sítio paridade total.
+
+---
+
+## Anotação cumulativa P311b — Math style mechanism + composition
+
+P311b.2 quebra o hash `entities/content.rs` (sequência 27 passos
+consecutivos termina) com adição do variant `Content::MathStyled`
+para suportar 12 funções math style (`bb`/`bold`/`cal`/`frak`/
+`italic`/`mono`/`sans`/`scr`/`script`/`serif`/`sscript`/`upright`).
+
+A quebra de hash é **mudança fundacional aceitável** per esta ADR:
+- Forma diverge (variant novo adicionado a enum).
+- Output observable preservado (chars Unicode variant correctos
+  para math style; layout PDF paritário vanilla).
+- Mecanismo escolhido (Caminho I `Content::MathStyled`) preferido
+  sobre Caminhos II/III rejeitados em diagnóstico P311a.
+
+**Paridade observable**: 12/12 = 100% paridade categoria math style
+vanilla — segunda categoria stdlib cristalina a fechar após `calc`
+(41/41 em P308). Composição cross-variant (`bb(cal(x))` outer-wins,
+`bold(italic(x))` ortogonal) testada empíricamente em P311b.4 + 6
+tests E2E em P311b.5.
+
+**Refinamento empírico vs diagnóstico**:
+- Diagnóstico P311a §3.3 propôs "bold ortogonal bitwise OR + size
+  multiplicativo".
+- P311b.4 implementação empírica refina: regra única `Option::or`
+  uniforme (outer-wins em todos os fields incluindo size).
+- Refutação documentada em ADR-0103 §"Refutações ao diagnóstico
+  P311a §3.3".
+
+**Sub-padrão N=1 inaugural** — *"Refinamento empírico de diagnóstico
+durante materialização"*. Candidato a observação cumulativa futura
+se padrão repetir (N≥3).
+
+**Sub-padrão "Excepção categorial documentada via ADR dedicada"
+N=2 cumulativo** (P310 IEEE 754 + P311b Math style). Padrão
+"divergência consciente documentada via ADR" continua a consolidar-
+se.
+
+Cross-references P311b:
+- **ADR-0102** — Math-Style-Mechanism (variant `Content::MathStyled`;
+  criada P311b; EM VIGOR).
+- **ADR-0103** — Math-Style-Composition (4 regras outer-wins; criada
+  P311b; EM VIGOR).
+- **P311a** — Diagnóstico (`diagnosticos/diagnostico-math-style-
+  passo-311a.md`).
+- **P311b** — Materialização (6 sub-passos).
+- `00_nucleo/prompts/entities/math_style.md` — L0 dedicado para
+  `MathStyleKind` + `map_glyph`.
+- `00_nucleo/prompts/entities/content.md` §"Variant
+  `Content::MathStyled`" — drift que documenta variant 25º.
+- `00_nucleo/prompts/rules/stdlib.md` §"12 funções math style" — drift
+  para registar funções nativas.
+- `00_nucleo/prompts/rules/math/layout.md` §"Variant
+  `Content::MathStyled`" — drift para handler + apply_math_style.

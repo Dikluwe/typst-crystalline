@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 82d3c47d
+//! @prompt-hash 339daebd
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -22,6 +22,7 @@ use crate::entities::paint::Paint;
 use crate::entities::label::Label;
 use crate::entities::dir::Dir;
 use crate::entities::layout_types::{Align2D, Color, Length, PlaceScope, Pt, TextStyle, TrackSizing, TransformMatrix};
+use crate::entities::math_style::MathStyleKind;
 use crate::entities::parity::Parity;
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::sides::Sides;
@@ -233,6 +234,33 @@ pub enum Content {
     MathOp {
         text:   Box<Content>,
         limits: bool,
+    },
+
+    // ── Passo 311b.2 — Math style wrapper (Caminho I per P311a) ─────────
+    /// Wrapper de variant glyph / flags math style — vanilla
+    /// `bb`/`bold`/`cal`/`frak`/`italic`/`mono`/`sans`/`scr`/`script`/
+    /// `serif`/`sscript`/`upright`.
+    ///
+    /// Todos os campos override são `Option<_>`: `None` = inherit
+    /// (preserva valor activo no walker); `Some(_)` = override (outer
+    /// força este valor, inner não sobrescreve se já set).
+    ///
+    /// - `kind`: variant glyph (DoubleStruck/Chancery/etc.) ou size
+    ///   (Script/SScript com factor multiplicativo). `bb`/`cal`/etc.
+    ///   usam `Some(_)`; `bold`/`italic`/`upright` usam `None`.
+    /// - `bold`/`italic`: flags ortogonais (e.g. Sans Bold Italic).
+    /// - `cramped`: propaga estado de script-cramping para
+    ///   `MathLayouter`.
+    ///
+    /// Composição (per diagnóstico P311a §3.3): outer-wins para
+    /// kind/italic; bold é ortogonal (bitwise OR ao descer);
+    /// cramped propaga; size compõe multiplicativamente.
+    MathStyled {
+        kind:    Option<MathStyleKind>,
+        bold:    Option<bool>,
+        italic:  Option<bool>,
+        body:    Box<Content>,
+        cramped: Option<bool>,
     },
 
     /// Nó com etiqueta semântica (Passo 56).
@@ -1610,6 +1638,8 @@ impl Content {
             }
             // P298 — Op plain_text apenas o text (limits é discriminador layout).
             Self::MathOp { text, .. } => text.plain_text(),
+            // P311b.2 — MathStyled é transparente para plain_text (wraps body).
+            Self::MathStyled { body, .. } => body.plain_text(),
             Self::Labelled { target, .. } => target.plain_text(),
             Self::Ref { target }          => format!("@{}", target.0),
             Self::SetHeadingNumbering { .. } => String::new(),
@@ -1792,6 +1822,10 @@ impl PartialEq for Content {
             // P298 — Op PartialEq structural (text + limits flag).
             (Self::MathOp { text: ta, limits: la },
              Self::MathOp { text: tb, limits: lb })                          => ta == tb && la == lb,
+            // P311b.2 — MathStyled PartialEq structural (kind + flags + body + cramped).
+            (Self::MathStyled { kind: ka, bold: ba_, italic: ia, body: bda, cramped: ca },
+             Self::MathStyled { kind: kb, bold: bb_, italic: ib, body: bdb, cramped: cb })
+                => ka == kb && ba_ == bb_ && ia == ib && bda == bdb && ca == cb,
             (Self::Labelled { target: ta, label: la },
              Self::Labelled { target: tb, label: lb })               => ta == tb && la == lb,
             (Self::Ref { target: ta }, Self::Ref { target: tb })     => ta == tb,
@@ -2106,6 +2140,14 @@ impl Content {
             Content::MathOp { text, limits } => Content::MathOp {
                 text:   Box::new(text.map_content(transform)?),
                 limits: *limits,
+            },
+            // P311b.2 — MathStyled map_content recursivo no body; preserva kind/flags.
+            Content::MathStyled { kind, bold, italic, body, cramped } => Content::MathStyled {
+                kind:    *kind,
+                bold:    *bold,
+                italic:  *italic,
+                body:    Box::new(body.map_content(transform)?),
+                cramped: *cramped,
             },
 
             // Passo 154B: Terms recurse em items; TermItem recurse em par.
@@ -2590,6 +2632,8 @@ impl Content {
             | Content::MathUnderover { .. }
             // P298 — Op terminal em map_text (paralelo cluster math).
             | Content::MathOp { .. }
+            // P311b.2 — MathStyled terminal em map_text (math structural).
+            | Content::MathStyled { .. }
             | Content::Image { .. }
             | Content::Divider
             | Content::HSpace { .. }

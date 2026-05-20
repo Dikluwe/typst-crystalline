@@ -172,7 +172,9 @@ pub fn is_locatable(content: &Content) -> bool {
         // P297 — Math underover não-locatable (paralelo P296).
         | Content::MathUnderover { .. }
         // P298 — Math op não-locatable.
-        | Content::MathOp { .. } => false,
+        | Content::MathOp { .. }
+        // P311b.2 — MathStyled não-locatable (math structural; wrap glyph).
+        | Content::MathStyled { .. } => false,
     }
 }
 

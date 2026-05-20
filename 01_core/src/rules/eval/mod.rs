@@ -559,6 +559,10 @@ fn make_stdlib() -> Scope {
         native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_cmyk, native_colbreak, native_columns, native_hsl, native_hsv, native_linear_rgb, native_oklab, native_oklch, native_op, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_scale, native_skew, native_smartquote, native_stack, native_str, native_strike, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
+        // P311b.3 — math style funcs.
+        native_bb, native_bold, native_cal, native_frak, native_math_italic,
+        native_mono, native_sans, native_scr, native_script, native_serif,
+        native_sscript, native_upright,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -690,6 +694,19 @@ fn make_stdlib() -> Scope {
     scope.define("underover", Value::Func(Func::native("underover", native_underover)));
     // Passo 298 — math op (HV'' adaptado; cross-variant interaction).
     scope.define("op",        Value::Func(Func::native("op",        native_op)));
+    // P311b.3 — 12 funções math style (paridade categoria 12/12 = 100%).
+    scope.define("bb",        Value::Func(Func::native("bb",        native_bb)));
+    scope.define("bold",      Value::Func(Func::native("bold",      native_bold)));
+    scope.define("cal",       Value::Func(Func::native("cal",       native_cal)));
+    scope.define("frak",      Value::Func(Func::native("frak",      native_frak)));
+    scope.define("italic",    Value::Func(Func::native("italic",    native_math_italic)));
+    scope.define("mono",      Value::Func(Func::native("mono",      native_mono)));
+    scope.define("sans",      Value::Func(Func::native("sans",      native_sans)));
+    scope.define("scr",       Value::Func(Func::native("scr",       native_scr)));
+    scope.define("script",    Value::Func(Func::native("script",    native_script)));
+    scope.define("serif",     Value::Func(Func::native("serif",     native_serif)));
+    scope.define("sscript",   Value::Func(Func::native("sscript",   native_sscript)));
+    scope.define("upright",   Value::Func(Func::native("upright",   native_upright)));
     // Passo 156C (ADR-0061 Fase 1, sub-passo 1): pad + hide.
     scope.define("pad",     Value::Func(Func::native("pad",     native_pad)));
     scope.define("hide",    Value::Func(Func::native("hide",    native_hide)));
