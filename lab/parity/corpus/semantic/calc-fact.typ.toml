@@ -1,0 +1,3 @@
+features = ["let", "stdlib", "calc", "fact"]
+modo_p2 = "value_equality"
+notes = "P306 — calc.fact(5); resultado esperado Int(120)."

@@ -18,3 +18,6 @@ pub mod world;
 
 #[cfg(test)]
 mod integration_tests;
+
+#[cfg(test)]
+mod p307b_snapshot_tests;

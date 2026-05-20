@@ -1,0 +1,3 @@
+features = ["let", "stdlib", "calc", "trunc"]
+modo_p2 = "value_equality"
+notes = "P306 — calc.trunc(-3.7) com truncamento para zero; resultado esperado Int(-3)."

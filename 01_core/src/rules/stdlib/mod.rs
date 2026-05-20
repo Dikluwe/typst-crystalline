@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib.md
-//! @prompt-hash 21ade03a
+//! @prompt-hash dd3e2637
 //! @layer L1
 //! @updated 2026-04-23
 
@@ -95,6 +95,11 @@ mod tests {
         calc_sin, calc_cos, calc_tan, calc_asin, calc_acos, calc_atan, calc_atan2,
         calc_sinh, calc_cosh, calc_tanh, calc_asinh, calc_acosh, calc_atanh,
         calc_exp, calc_ln, calc_log,
+        // P306 — aritmética inteira, combinatória, norma, raiz.
+        calc_trunc, calc_fract, calc_even, calc_odd,
+        calc_rem, calc_rem_euclid, calc_div_euclid, calc_quo,
+        calc_gcd, calc_lcm, calc_fact, calc_perm, calc_binom,
+        calc_norm, calc_root,
         make_calc_module as p283_make_calc_module,
     };
     use crate::entities::args::Args;
@@ -1450,6 +1455,189 @@ mod tests {
         assert!(calc_log(&mut ctx, &p(vec![Value::Float(10.0), Value::Float(f64::INFINITY)]), &null_world(), test_file_id(), None).is_err());
     }
 
+    // ── P306 — aritmética inteira, combinatória, norma, raiz ────────────────
+
+    #[test]
+    fn calc_trunc_int_e_float() {
+        null_ctx!(ctx);
+        assert_eq!(calc_trunc(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(5));
+        assert_eq!(calc_trunc(&mut ctx, &p(vec![Value::Float(3.7)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(3));
+        assert_eq!(calc_trunc(&mut ctx, &p(vec![Value::Float(-3.7)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(-3));
+        assert!(calc_trunc(&mut ctx, &p(vec![Value::Str("x".into())]), &null_world(), test_file_id(), None).is_err());
+        assert!(calc_trunc(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_fract_int_e_float() {
+        null_ctx!(ctx);
+        assert_eq!(calc_fract(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id(), None).unwrap(), Value::Float(0.0));
+        approx_float(calc_fract(&mut ctx, &p(vec![Value::Float(3.7)]), &null_world(), test_file_id(), None).unwrap(), 0.7);
+        approx_float(calc_fract(&mut ctx, &p(vec![Value::Float(-3.7)]), &null_world(), test_file_id(), None).unwrap(), -0.7);
+        assert!(calc_fract(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_even_odd_int_apenas() {
+        null_ctx!(ctx);
+        assert_eq!(calc_even(&mut ctx, &p(vec![Value::Int(4)]), &null_world(), test_file_id(), None).unwrap(), Value::Bool(true));
+        assert_eq!(calc_even(&mut ctx, &p(vec![Value::Int(-3)]), &null_world(), test_file_id(), None).unwrap(), Value::Bool(false));
+        assert_eq!(calc_even(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id(), None).unwrap(), Value::Bool(true));
+        assert!(calc_even(&mut ctx, &p(vec![Value::Float(2.0)]), &null_world(), test_file_id(), None).is_err());
+
+        assert_eq!(calc_odd(&mut ctx, &p(vec![Value::Int(3)]), &null_world(), test_file_id(), None).unwrap(), Value::Bool(true));
+        assert_eq!(calc_odd(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id(), None).unwrap(), Value::Bool(false));
+        assert_eq!(calc_odd(&mut ctx, &p(vec![Value::Int(-3)]), &null_world(), test_file_id(), None).unwrap(), Value::Bool(true));
+        assert!(calc_odd(&mut ctx, &p(vec![Value::Float(2.0)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_rem_truncado() {
+        null_ctx!(ctx);
+        assert_eq!(calc_rem(&mut ctx, &p(vec![Value::Int(7), Value::Int(3)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(1));
+        assert_eq!(calc_rem(&mut ctx, &p(vec![Value::Int(-7), Value::Int(3)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(-1));
+        approx_float(calc_rem(&mut ctx, &p(vec![Value::Float(7.5), Value::Float(2.0)]), &null_world(), test_file_id(), None).unwrap(), 1.5);
+        assert!(calc_rem(&mut ctx, &p(vec![Value::Int(1), Value::Int(0)]), &null_world(), test_file_id(), None).is_err());
+        assert!(calc_rem(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_rem_euclid_sempre_positivo() {
+        null_ctx!(ctx);
+        assert_eq!(calc_rem_euclid(&mut ctx, &p(vec![Value::Int(-7), Value::Int(3)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(2));
+        assert_eq!(calc_rem_euclid(&mut ctx, &p(vec![Value::Int(7), Value::Int(3)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(1));
+        approx_float(calc_rem_euclid(&mut ctx, &p(vec![Value::Float(-7.5), Value::Float(2.0)]), &null_world(), test_file_id(), None).unwrap(), 0.5);
+        assert!(calc_rem_euclid(&mut ctx, &p(vec![Value::Int(1), Value::Int(0)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_div_euclid_arredonda_para_menos_inf() {
+        null_ctx!(ctx);
+        assert_eq!(calc_div_euclid(&mut ctx, &p(vec![Value::Int(-7), Value::Int(3)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(-3));
+        assert_eq!(calc_div_euclid(&mut ctx, &p(vec![Value::Int(7), Value::Int(3)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(2));
+        assert!(calc_div_euclid(&mut ctx, &p(vec![Value::Int(1), Value::Int(0)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_quo_truncado() {
+        null_ctx!(ctx);
+        assert_eq!(calc_quo(&mut ctx, &p(vec![Value::Int(7), Value::Int(2)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(3));
+        assert_eq!(calc_quo(&mut ctx, &p(vec![Value::Int(-7), Value::Int(2)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(-3));
+        assert_eq!(calc_quo(&mut ctx, &p(vec![Value::Float(7.5), Value::Float(2.0)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(3));
+        assert!(calc_quo(&mut ctx, &p(vec![Value::Int(1), Value::Int(0)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_gcd_lcm_basico() {
+        null_ctx!(ctx);
+        assert_eq!(calc_gcd(&mut ctx, &p(vec![Value::Int(12), Value::Int(18)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(6));
+        assert_eq!(calc_gcd(&mut ctx, &p(vec![Value::Int(0), Value::Int(5)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(5));
+        assert_eq!(calc_gcd(&mut ctx, &p(vec![Value::Int(0), Value::Int(0)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(0));
+        assert_eq!(calc_gcd(&mut ctx, &p(vec![Value::Int(-12), Value::Int(18)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(6));
+
+        assert_eq!(calc_lcm(&mut ctx, &p(vec![Value::Int(4), Value::Int(6)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(12));
+        assert_eq!(calc_lcm(&mut ctx, &p(vec![Value::Int(0), Value::Int(5)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(0));
+        assert!(calc_lcm(&mut ctx, &p(vec![Value::Int(i64::MAX), Value::Int(2)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_fact_basico_e_overflow() {
+        null_ctx!(ctx);
+        assert_eq!(calc_fact(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(1));
+        assert_eq!(calc_fact(&mut ctx, &p(vec![Value::Int(1)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(1));
+        assert_eq!(calc_fact(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(120));
+        assert_eq!(calc_fact(&mut ctx, &p(vec![Value::Int(20)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(2_432_902_008_176_640_000));
+        assert!(calc_fact(&mut ctx, &p(vec![Value::Int(-1)]), &null_world(), test_file_id(), None).is_err());
+        assert!(calc_fact(&mut ctx, &p(vec![Value::Int(21)]), &null_world(), test_file_id(), None).is_err());
+        assert!(calc_fact(&mut ctx, &p(vec![Value::Float(5.0)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_perm_arranjos() {
+        null_ctx!(ctx);
+        assert_eq!(calc_perm(&mut ctx, &p(vec![Value::Int(5), Value::Int(2)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(20));
+        assert_eq!(calc_perm(&mut ctx, &p(vec![Value::Int(5), Value::Int(0)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(1));
+        assert_eq!(calc_perm(&mut ctx, &p(vec![Value::Int(5), Value::Int(5)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(120));
+        assert_eq!(calc_perm(&mut ctx, &p(vec![Value::Int(5), Value::Int(8)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(0));
+        assert!(calc_perm(&mut ctx, &p(vec![Value::Int(-1), Value::Int(2)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_binom_combinacoes() {
+        null_ctx!(ctx);
+        assert_eq!(calc_binom(&mut ctx, &p(vec![Value::Int(5), Value::Int(2)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(10));
+        assert_eq!(calc_binom(&mut ctx, &p(vec![Value::Int(5), Value::Int(0)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(1));
+        assert_eq!(calc_binom(&mut ctx, &p(vec![Value::Int(5), Value::Int(5)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(1));
+        assert_eq!(calc_binom(&mut ctx, &p(vec![Value::Int(5), Value::Int(8)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(0));
+        // C(20, 10) = 184756 — caso clássico, fica longe do limite i64.
+        assert_eq!(calc_binom(&mut ctx, &p(vec![Value::Int(20), Value::Int(10)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(184_756));
+        // Simetria: C(30, 28) deve usar k_eff = 2 internamente.
+        assert_eq!(calc_binom(&mut ctx, &p(vec![Value::Int(30), Value::Int(28)]), &null_world(), test_file_id(), None).unwrap(), Value::Int(435));
+        assert!(calc_binom(&mut ctx, &p(vec![Value::Int(-1), Value::Int(2)]), &null_world(), test_file_id(), None).is_err());
+        // Overflow real (n grande): C(67, 33) sai do alcance i64.
+        assert!(calc_binom(&mut ctx, &p(vec![Value::Int(67), Value::Int(33)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_norm_p2_default_pitagoras() {
+        null_ctx!(ctx);
+        // Sem args: norma de vector vazio = 0.0.
+        assert_eq!(calc_norm(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap(), Value::Float(0.0));
+        // Pitágoras: norma 2 de (3, 4) = 5.
+        approx_float(calc_norm(&mut ctx, &p(vec![Value::Int(3), Value::Int(4)]), &null_world(), test_file_id(), None).unwrap(), 5.0);
+        // abs interno: norma 2 de (-3, 4) = 5.
+        approx_float(calc_norm(&mut ctx, &p(vec![Value::Float(-3.0), Value::Float(4.0)]), &null_world(), test_file_id(), None).unwrap(), 5.0);
+    }
+
+    #[test]
+    fn calc_norm_p_named() {
+        null_ctx!(ctx);
+        // Taxicab (p=1) de (1, 1, 1) = 3.
+        approx_float(calc_norm(&mut ctx, &pn(vec![Value::Int(1), Value::Int(1), Value::Int(1)], "p", Value::Float(1.0)), &null_world(), test_file_id(), None).unwrap(), 3.0);
+        // Chebyshev-aproximação (p grande) de (3, 4) ≈ 4.
+        let v = calc_norm(&mut ctx, &pn(vec![Value::Int(3), Value::Int(4)], "p", Value::Float(100.0)), &null_world(), test_file_id(), None).unwrap();
+        match v { Value::Float(f) => assert!((f - 4.0).abs() < 1e-2, "esperado ≈4, obtido {f}"), _ => panic!() }
+    }
+
+    #[test]
+    fn calc_norm_rejeita_named_desconhecido() {
+        null_ctx!(ctx);
+        assert!(calc_norm(&mut ctx, &pn(vec![Value::Int(3)], "q", Value::Float(2.0)), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_root_raiz_quadrada_e_cubica() {
+        null_ctx!(ctx);
+        approx_float(calc_root(&mut ctx, &p(vec![Value::Int(2), Value::Int(9)]), &null_world(), test_file_id(), None).unwrap(), 3.0);
+        approx_float(calc_root(&mut ctx, &p(vec![Value::Int(3), Value::Int(8)]), &null_world(), test_file_id(), None).unwrap(), 2.0);
+        approx_float(calc_root(&mut ctx, &p(vec![Value::Int(3), Value::Int(-8)]), &null_world(), test_file_id(), None).unwrap(), -2.0);
+        approx_float(calc_root(&mut ctx, &p(vec![Value::Int(2), Value::Float(0.0)]), &null_world(), test_file_id(), None).unwrap(), 0.0);
+    }
+
+    #[test]
+    fn calc_root_erros() {
+        null_ctx!(ctx);
+        assert!(calc_root(&mut ctx, &p(vec![Value::Int(2), Value::Int(-1)]), &null_world(), test_file_id(), None).is_err());
+        assert!(calc_root(&mut ctx, &p(vec![Value::Int(0), Value::Int(5)]), &null_world(), test_file_id(), None).is_err());
+        assert!(calc_root(&mut ctx, &p(vec![Value::Float(2.0), Value::Int(9)]), &null_world(), test_file_id(), None).is_err());
+        assert!(calc_root(&mut ctx, &p(vec![Value::Int(2)]), &null_world(), test_file_id(), None).is_err());
+    }
+
+    #[test]
+    fn calc_modulo_contem_funcoes_p306() {
+        let module = p283_make_calc_module();
+        let dict = match module {
+            Value::Dict(d) => d,
+            other => panic!("esperado Dict, obtido {other:?}"),
+        };
+        for key in [
+            "trunc", "fract", "even", "odd", "rem", "rem-euclid", "div-euclid",
+            "quo", "gcd", "lcm", "fact", "perm", "binom", "norm", "root",
+        ] {
+            assert!(matches!(dict.get(key), Some(Value::Func(_))),
+                "calc.{key} não está registado como Func");
+        }
+    }
+
     // ── Constantes + integração com make_calc_module ────────────────────────
 
     #[test]
@@ -1466,15 +1654,18 @@ mod tests {
     }
 
     #[test]
-    fn calc_modulo_expoe_25_funcoes() {
+    fn calc_modulo_expoe_40_funcoes() {
         let module = p283_make_calc_module();
         let dict = match module {
             Value::Dict(d) => d,
             other => panic!("esperado Dict, obtido {other:?}"),
         };
-        // 9 herdadas (abs/pow/sqrt/floor/ceil/round/min/max/clamp) + 16 novas P283 = 25 funções.
+        // 9 herdadas (abs/pow/sqrt/floor/ceil/round/min/max/clamp)
+        // + 16 P283 (trig/hyperbolic/log/exp)
+        // + 15 P306 (trunc/fract/even/odd/rem/rem-euclid/div-euclid/quo/
+        //            gcd/lcm/fact/perm/binom/norm/root) = 40 funções.
         let n_funcs = dict.values().filter(|v| matches!(v, Value::Func(_))).count();
-        assert_eq!(n_funcs, 25, "esperava 25 funções calc, encontrei {n_funcs}");
+        assert_eq!(n_funcs, 40, "esperava 40 funções calc, encontrei {n_funcs}");
         // + 4 constantes (pi/tau/e/inf).
         let n_floats = dict.values().filter(|v| matches!(v, Value::Float(_))).count();
         assert_eq!(n_floats, 4, "esperava 4 constantes Float, encontrei {n_floats}");

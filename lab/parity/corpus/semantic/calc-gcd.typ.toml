@@ -1,0 +1,3 @@
+features = ["let", "stdlib", "calc", "gcd"]
+modo_p2 = "value_equality"
+notes = "P306 — calc.gcd(12, 18); resultado esperado Int(6)."

@@ -66,7 +66,7 @@ Fora de 0–255 → `Err`.
 
 ### Módulo `calc` — `make_calc_module() -> Value`
 
-Constrói `Value::Dict` com 25 funções + 4 constantes (divergência do original
+Constrói `Value::Dict` com 40 funções + 4 constantes (divergência do original
 que usa `Value::Module` — Cristalino usa Dict pois não há stdlib Module sem
 world). Acesso via `calc.abs`, `calc.sin`, `calc.pi`, etc. funciona via
 `eval_field_access` sobre Dict.
@@ -123,16 +123,81 @@ Aceitam `Int|Float`. **Sem tipo `Angle`** — radianos directos, paridade
 | `calc.inf` | `f64::INFINITY`         |
 
 **DEBT (ADR-0018)**: `calc_pow`, `trig_op` (cobre `sin/cos/tan/asin/acos/atan/
-sinh/cosh/tanh/asinh/acosh/atanh/exp`), `calc_atan2` e `calc_ln`/`calc_log` usam
-`f64::*` directamente com `#[allow(clippy::disallowed_methods)]`. Centralização
-em `trig_op` reduz a migração futura para `libm::*` a 4 sítios (ver
+sinh/cosh/tanh/asinh/acosh/atanh/exp`), `calc_atan2`, `calc_ln`/`calc_log` e
+`calc_root`/`calc_norm` (via `f64::powf`) usam `f64::*` directamente com
+`#[allow(clippy::disallowed_methods)]`. Centralização em `trig_op` reduz a
+migração futura para `libm::*` a ≤6 sítios (ver
 `diagnostico-calc-passo-283.md` §A.2 para racional da opção (c) escolhida em
 P283).
 
-**Funções vanilla adiadas** (bucket 2 do diagnóstico P283):
-`root`, `erf`, `fact`, `perm`, `binom`, `gcd`, `lcm`, `trunc`, `fract`, `even`,
-`odd`, `rem`, `div_euclid`, `rem_euclid`, `quo`, `norm` + extensões para
-`Length/Angle/Decimal/digits` em funções existentes.
+#### Aritmética inteira, divisão e partes (P306)
+
+| Função | Domínio | Retorno | Semântica |
+|--------|---------|---------|-----------|
+| `calc_trunc` | `Int` ou `Float` | `Int` | identidade para `Int`; `f.trunc() as i64` para `Float` |
+| `calc_fract` | `Int` ou `Float` | `Float` | `0.0` para `Int`; `f.fract()` para `Float` |
+| `calc_rem` | `(Num, Num)` | `Int` se ambos `Int`, senão `Float` | semântica truncada (`%` Rust): sinal acompanha o dividendo. Divisor zero → `Err` |
+| `calc_rem_euclid` | `(Num, Num)` | `Int`/`Float` | semântica Euclidiana via `i64::rem_euclid` / `f64::rem_euclid`. Resultado sempre ≥ 0 para divisor > 0. Divisor zero → `Err` |
+| `calc_div_euclid` | `(Num, Num)` | `Int`/`Float` | quociente Euclidiano. Divisor zero → `Err` |
+| `calc_quo` | `(Num, Num)` | `Int` | quociente truncado: `Int/Int → Int` directo; `Float → trunc as i64`. Paridade vanilla `calc.quo(-7, 2) = -3` |
+
+#### Predicados inteiros (P306)
+
+| Função | Args | Retorno |
+|--------|------|---------|
+| `calc_even` | `Int` apenas | `Bool` (`n % 2 == 0`) |
+| `calc_odd`  | `Int` apenas | `Bool` (`n % 2 != 0`) |
+
+Float é rejeitado (`Err("…requer Int…")`) — semântica vanilla.
+
+#### Teoria dos números (P306)
+
+| Função | Args | Algoritmo |
+|--------|------|-----------|
+| `calc_gcd` | `(Int, Int)` | Euclides iterativo sobre `a.abs()`, `b.abs()`. `gcd(0, 0) = 0` por convenção |
+| `calc_lcm` | `(Int, Int)` | `a.abs() / gcd(a, b) * b.abs()` com `checked_div`/`checked_mul` (dividir antes para evitar overflow intermédio). `lcm(0, x) = 0` |
+
+#### Combinatória (P306)
+
+| Função | Args | Algoritmo | Erros |
+|--------|------|-----------|-------|
+| `calc_fact` | `Int n ≥ 0` | loop `1..=n` com `checked_mul` | `n < 0` → `Err("factorial de negativo")`; overflow (`fact(21)` para `i64`) → `Err("número demasiado grande")` |
+| `calc_perm` | `(Int n ≥ 0, Int k ≥ 0)` | `n * (n-1) * … * (n-k+1)` iterativo com `checked_mul`. `k > n` retorna `0` | argumentos negativos → `Err`; overflow → `Err` |
+| `calc_binom` | `(Int n ≥ 0, Int k ≥ 0)` | iterativo com `k = k.min(n-k)` (simetria); a cada passo multiplica por `(n-i)` (`checked_mul`) e divide exactamente por `(i+1)`. Garante ausência de overflow intermédio sempre que o resultado caiba em `i64`. `k > n` retorna `0` | idem `perm` |
+
+A divisão exacta a cada iteração de `binom` é matematicamente garantida pela
+propriedade dos coeficientes binomiais (`C(n, k)` é sempre inteiro e o
+produto parcial após `i` passos divide-se exactamente por `(i+1)`).
+
+#### Norma vectorial (P306)
+
+| Função | Args | Retorno |
+|--------|------|---------|
+| `calc_norm` | `..values: Num` posicionais + `p: Float` named (default `2.0`) | `Float` (`(Σ \|x_i\|^p)^(1/p)`) |
+
+Convenções:
+- Sem argumentos posicionais → retorna `Float(0.0)` (norma do vector vazio).
+- `p` aceita named arg ou — quando ausente — assume `2.0` (norma Euclidiana).
+- Resultado passa por `guard_float` (captura `NaN`/`Inf` para inputs
+  degenerados como `p = 0` com algum valor nulo).
+- Usa `f64::powf` — DEBT-libm partilhado com `calc_pow` e `calc_root`.
+
+#### Raiz n-ésima (P306)
+
+| Função | Args | Retorno |
+|--------|------|---------|
+| `calc_root` | `(Int index, Num x)` | `Float` |
+
+Semântica vanilla:
+- `index == 0` → `Err("índice de raiz zero")`.
+- `x < 0` com `index` par → `Err("raiz par de número negativo")`.
+- `x < 0` com `index` ímpar → ramo simétrico negativo: `-(-x).powf(1.0 / index as f64)` (preserva sinal: `root(3, -8) = -2.0`).
+- `x ≥ 0` → `x.powf(1.0 / index as f64)`; passa por `guard_float`.
+
+**Funções vanilla adiadas** (pós-P306):
+- `erf` — requer aproximação polinomial dedicada (passo P307+).
+- Extensões `Length`/`Angle`/`Decimal`/`digits` em funções existentes
+  (escopo separado; sem `Angle` type ainda).
 
 ---
 
@@ -274,6 +339,92 @@ make_calc_module().pi  ≡ Float(std::f64::consts::PI)
 make_calc_module().tau ≡ Float(std::f64::consts::TAU)
 make_calc_module().e   ≡ Float(std::f64::consts::E)
 make_calc_module().inf ≡ Float(f64::INFINITY)
+
+// P306 — trunc / fract
+calc_trunc([Int(5)])         → Ok(Int(5))             // identidade
+calc_trunc([Float(3.7)])     → Ok(Int(3))
+calc_trunc([Float(-3.7)])    → Ok(Int(-3))            // truncamento para zero
+calc_trunc([Str("x")])       → Err
+calc_fract([Int(5)])         → Ok(Float(0.0))
+calc_fract([Float(3.7)])     → Ok(Float(~0.7))
+calc_fract([Float(-3.7)])    → Ok(Float(~-0.7))
+
+// P306 — even / odd (Int apenas)
+calc_even([Int(4)])          → Ok(Bool(true))
+calc_even([Int(-3)])         → Ok(Bool(false))
+calc_even([Int(0)])          → Ok(Bool(true))
+calc_even([Float(2.0)])      → Err   // Float rejeitado
+calc_odd([Int(3)])           → Ok(Bool(true))
+calc_odd([Int(0)])           → Ok(Bool(false))
+
+// P306 — rem (semântica truncada %)
+calc_rem([Int(7), Int(3)])         → Ok(Int(1))
+calc_rem([Int(-7), Int(3)])        → Ok(Int(-1))     // sinal do dividendo
+calc_rem([Float(7.5), Float(2.0)]) → Ok(Float(~1.5))
+calc_rem([Int(1), Int(0)])         → Err              // divisão por zero
+calc_rem([Int(5)])                 → Err              // arity
+
+// P306 — rem_euclid (sempre ≥ 0 para divisor > 0)
+calc_rem_euclid([Int(-7), Int(3)]) → Ok(Int(2))
+calc_rem_euclid([Float(-7.5), Float(2.0)]) → Ok(Float(~0.5))
+calc_rem_euclid([Int(1), Int(0)])  → Err
+
+// P306 — div_euclid
+calc_div_euclid([Int(-7), Int(3)]) → Ok(Int(-3))     // i64::div_euclid
+calc_div_euclid([Int(7), Int(3)])  → Ok(Int(2))
+calc_div_euclid([Int(1), Int(0)])  → Err
+
+// P306 — quo (quociente truncado)
+calc_quo([Int(7), Int(2)])         → Ok(Int(3))
+calc_quo([Int(-7), Int(2)])        → Ok(Int(-3))     // truncado, não Euclidiano
+calc_quo([Float(7.5), Float(2.0)]) → Ok(Int(3))
+calc_quo([Int(1), Int(0)])         → Err
+
+// P306 — gcd / lcm
+calc_gcd([Int(12), Int(18)])       → Ok(Int(6))
+calc_gcd([Int(0), Int(5)])         → Ok(Int(5))
+calc_gcd([Int(0), Int(0)])         → Ok(Int(0))      // convenção
+calc_gcd([Int(-12), Int(18)])      → Ok(Int(6))      // abs nos dois
+calc_lcm([Int(4), Int(6)])         → Ok(Int(12))
+calc_lcm([Int(0), Int(5)])         → Ok(Int(0))
+calc_lcm([Int(i64::MAX), Int(2)])  → Err              // overflow
+
+// P306 — fact
+calc_fact([Int(0)])                → Ok(Int(1))
+calc_fact([Int(5)])                → Ok(Int(120))
+calc_fact([Int(-1)])               → Err
+calc_fact([Int(21)])               → Err              // overflow i64
+calc_fact([Float(5.0)])            → Err              // Int only
+
+// P306 — perm (arranjos)
+calc_perm([Int(5), Int(2)])        → Ok(Int(20))      // 5*4
+calc_perm([Int(5), Int(0)])        → Ok(Int(1))       // n!/(n)!
+calc_perm([Int(5), Int(8)])        → Ok(Int(0))       // k > n
+calc_perm([Int(-1), Int(2)])       → Err
+
+// P306 — binom (combinações)
+calc_binom([Int(5), Int(2)])       → Ok(Int(10))
+calc_binom([Int(5), Int(0)])       → Ok(Int(1))
+calc_binom([Int(5), Int(5)])       → Ok(Int(1))
+calc_binom([Int(5), Int(8)])       → Ok(Int(0))       // k > n
+calc_binom([Int(-1), Int(2)])      → Err
+calc_binom([Int(67), Int(33)])     → Ok(Int(_))       // grande mas cabe em i64
+
+// P306 — norm (vector p-norm; p named, default 2.0)
+calc_norm([])                                  → Ok(Float(0.0))     // vector vazio
+calc_norm([Int(3), Int(4)])                    → Ok(Float(5.0))     // p=2 default
+calc_norm([Int(3), Int(4)], p: Float(2.0))     → Ok(Float(5.0))
+calc_norm([Int(1), Int(1), Int(1)], p: Float(1.0)) → Ok(Float(3.0)) // taxicab
+calc_norm([Float(-3.0), Float(4.0)])           → Ok(Float(5.0))     // abs por dentro
+calc_norm([Int(3)], p: Int(0))                 → Err                  // NaN/Inf via guard_float
+
+// P306 — root (raiz n-ésima)
+calc_root([Int(2), Int(9)])        → Ok(Float(3.0))
+calc_root([Int(3), Int(8)])        → Ok(Float(2.0))
+calc_root([Int(3), Int(-8)])       → Ok(Float(-2.0))  // ramo ímpar simétrico
+calc_root([Int(2), Int(-1)])       → Err              // raiz par de negativo
+calc_root([Int(0), Int(5)])        → Err              // índice zero
+calc_root([Int(2), Float(0.0)])    → Ok(Float(0.0))
 ```
 
 ## `smartquote(double?, enabled?)` — Passo 287 (`P-smartquote`)

@@ -1,0 +1,671 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/infra/export/builder.md
+//! @prompt-hash 12d113a7
+//! @layer L3
+//! @updated 2026-05-19
+//!
+//! `PdfBuilder` — orquestrador L3 que constrói o ficheiro PDF
+//! agregando objects, xref, trailer. Três caminhos: Helvetica
+//! (Type1 fallback), CIDFont (Identity-H), Multifont.
+//!
+//! Extraído de `export.rs` em P307b.1 (ADR-0100 / diagnóstico
+//! P307a §5). Conteúdo bit-exact pré e pós migração.
+//!
+//! Depende de `super::` para os submódulos extraídos
+//! (fonts, gradients, images, stream).
+
+use std::collections::{BTreeSet, HashMap};
+use std::sync::Arc;
+
+use ttf_parser::Face;
+use typst_core::entities::font_list::FontList;
+use typst_core::entities::layout_types::PagedDocument;
+
+use super::{
+    adaptive_n_for_stops, apply_parent_transform, build_jpeg_xobject,
+    build_page_stream, build_png_rgb_xobject, build_png_smask_xobject,
+    collect_codepoints, collect_glyph_ids, compute_axial_coords,
+    compute_coons_patches_n_stops, compute_coons_patches_n_stops_extended,
+    compute_radial_coords, emit_conic_coons_stream_cmyk,
+    emit_conic_coons_stream_rgb, emit_function_dict, emit_function_dict_cmyk,
+    jpeg_color_space, map_chars_to_glyphs, multispace_sample_stops,
+    multispace_sample_stops_conic, multispace_sample_stops_linear_cmyk,
+    multispace_sample_stops_radial, multispace_sample_stops_radial_cmyk,
+    pattern_resources_for_page, resolve_relative, scan_all_gradients,
+    scan_all_images, text_to_hex_string, to_unicode_cmap, widths_array,
+    xobject_resources_for_page, FontScenario, GradientObject,
+    GradientObjectKind, ImageRef, ImageXObject, PageContext, PatternRef,
+};
+
+use crate::font_metrics::build_math_glyph_reverse_map;
+
+// ── Builder ────────────────────────────────────────────────────────────────
+
+pub(super) struct PdfBuilder {
+    objects: Vec<(usize, Vec<u8>)>,
+}
+
+impl PdfBuilder {
+    pub(super) fn new() -> Self { Self { objects: Vec::new() } }
+
+    fn add(&mut self, id: usize, content: String) {
+        self.objects.push((id, content.into_bytes()));
+    }
+
+    fn add_bytes(&mut self, id: usize, content: Vec<u8>) {
+        self.objects.push((id, content));
+    }
+
+    pub(super) fn build(self, doc: &PagedDocument, font_data: Option<&[u8]>) -> Vec<u8> {
+        if let Some(data) = font_data {
+            if let Ok(face) = Face::parse(data, 0) {
+                return self.build_cidfont(doc, &face, data);
+            }
+        }
+        self.build_helvetica(doc)
+    }
+
+    // ── Caminho Helvetica (fallback, Type1 sem embedding) ─────────────────
+
+    fn build_helvetica(mut self, doc: &PagedDocument) -> Vec<u8> {
+        let n = doc.pages.len().max(1);
+        let first_page   = 3usize;
+        let first_stream = first_page + n;
+        let font_f1      = first_stream + n;
+        let font_f2      = font_f1 + 1;
+        let font_f3      = font_f2 + 1;
+        let first_img_id = font_f3 + 1;
+
+        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
+
+        // P263 — Allocar IDs após imagens. Reserva n_gradients*3 + N
+        // sub-functions (estimativa pessimista: N stops 16 → 15 subs por gradient).
+        let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
+        let (pat_refs, pat_ptr_to_idx, grad_objs) = scan_all_gradients(doc, first_grad_id);
+        let n_grads = grad_objs.len();
+        // Sub-function IDs após os 3*N gradient object IDs.
+        let mut next_sub_id = first_grad_id + n_grads * 3;
+
+        self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
+
+        let kids = (first_page..first_page + n)
+            .map(|i| format!("{i} 0 R"))
+            .collect::<Vec<_>>().join(" ");
+        self.add(2, format!("<< /Type /Pages /Kids [{kids}] /Count {n} >>"));
+
+        for (i, page) in doc.pages.iter().enumerate() {
+            let page_id   = first_page + i;
+            let stream_id = first_stream + i;
+            let w = page.width;
+            let h = page.height;
+
+            let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
+            let pat_res  = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            let resources_str = format!(
+                "/Font << /F1 {font_f1} 0 R /F2 {font_f2} 0 R /F3 {font_f3} 0 R >> {xobj_res} {pat_res}"
+            );
+
+            self.add(page_id, format!(
+                "<< /Type /Page /Parent 2 0 R \
+                   /MediaBox [0 0 {w:.2} {h:.2}] \
+                   /Contents {stream_id} 0 R \
+                   /Resources << {resources_str} >> >>"
+            ));
+
+            let ctx = PageContext::type1(&ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs);
+            let stream_bytes = build_page_stream(page, &ctx);
+            let len = stream_bytes.len();
+            let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
+            obj.extend_from_slice(&stream_bytes);
+            obj.extend_from_slice(b"\nendstream");
+            self.add_bytes(stream_id, obj);
+        }
+
+        self.add(font_f1, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica \
+                            /Encoding /WinAnsiEncoding >>".into());
+        self.add(font_f2, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold \
+                            /Encoding /WinAnsiEncoding >>".into());
+        self.add(font_f3, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique \
+                            /Encoding /WinAnsiEncoding >>".into());
+
+        self.emit_image_xobjects(img_xobjects);
+
+        // P263 — Emit Function/Shading/Pattern objects para gradients.
+        let page_dimensions: Vec<(f64, f64)> = doc.pages.iter()
+            .map(|p| (p.width, p.height)).collect();
+        self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
+
+        self.serialize()
+    }
+
+    // ── Caminho CIDFont (Unicode completo, Identity-H) ─────────────────────
+
+    fn build_cidfont(mut self, doc: &PagedDocument, face: &Face<'_>, font_data: &[u8]) -> Vec<u8> {
+        let n = doc.pages.len().max(1);
+        let first_page         = 3usize;
+        let first_stream       = first_page + n;
+        let font_id            = first_stream + n;      // Type0 — /F1
+        let cidfont_id         = font_id + 1;
+        let font_descriptor_id = font_id + 2;
+        let font_stream_id     = font_id + 3;
+        let to_unicode_id      = font_id + 4;
+        let first_img_id       = to_unicode_id + 1;
+
+        let chars = collect_codepoints(doc);
+        let mut mappings = map_chars_to_glyphs(face, &chars);
+
+        // Passo 45 — DEBT-9: adicionar glifos variantes (FrameItem::Glyph) ao ToUnicode.
+        // O dicionário reverso mapeia glyph_id → char base para caracteres extensíveis.
+        let glyph_reverse = build_math_glyph_reverse_map(face);
+        let existing_gids: BTreeSet<u16> = mappings.iter().map(|(_, gid)| *gid).collect();
+        for gid in collect_glyph_ids(doc) {
+            if !existing_gids.contains(&gid) {
+                if let Some(&c) = glyph_reverse.get(&gid) {
+                    mappings.push((c, gid));
+                }
+            }
+        }
+
+        let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
+        let widths = widths_array(face, &mappings);
+
+        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
+
+        // P263 — gradient pre-pass.
+        let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
+        let (pat_refs, pat_ptr_to_idx, grad_objs) = scan_all_gradients(doc, first_grad_id);
+        let n_grads = grad_objs.len();
+        let mut next_sub_id = first_grad_id + n_grads * 3;
+
+        self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
+
+        let kids = (first_page..first_page + n)
+            .map(|i| format!("{i} 0 R"))
+            .collect::<Vec<_>>().join(" ");
+        self.add(2, format!("<< /Type /Pages /Kids [{kids}] /Count {n} >>"));
+
+        for (i, page) in doc.pages.iter().enumerate() {
+            let page_id   = first_page + i;
+            let stream_id = first_stream + i;
+            let w = page.width;
+            let h = page.height;
+
+            let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
+            let pat_res  = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            let resources_str = format!("/Font << /F1 {font_id} 0 R >> {xobj_res} {pat_res}");
+
+            self.add(page_id, format!(
+                "<< /Type /Page /Parent 2 0 R \
+                   /MediaBox [0 0 {w:.2} {h:.2}] \
+                   /Contents {stream_id} 0 R \
+                   /Resources << {resources_str} >> >>"
+            ));
+
+            let ctx = PageContext::cidfont(&ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs, &char_to_gid);
+            let stream_bytes = build_page_stream(page, &ctx);
+            let len = stream_bytes.len();
+            let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
+            obj.extend_from_slice(&stream_bytes);
+            obj.extend_from_slice(b"\nendstream");
+            self.add_bytes(stream_id, obj);
+        }
+
+        // Type0 font (F1)
+        self.add(font_id, format!(
+            "<< /Type /Font /Subtype /Type0 /BaseFont /CrystallineFont \
+               /Encoding /Identity-H \
+               /DescendantFonts [{cidfont_id} 0 R] \
+               /ToUnicode {to_unicode_id} 0 R >>"
+        ));
+
+        // CIDFont
+        self.add(cidfont_id, format!(
+            "<< /Type /Font /Subtype /CIDFontType2 /BaseFont /CrystallineFont \
+               /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> \
+               /FontDescriptor {font_descriptor_id} 0 R \
+               /DW 500 \
+               /W [{widths}] >>"
+        ));
+
+        // FontDescriptor
+        self.add(font_descriptor_id, format!(
+            "<< /Type /FontDescriptor /FontName /CrystallineFont \
+               /Flags 32 \
+               /FontBBox [-1000 -200 2000 900] \
+               /ItalicAngle 0 /Ascent 800 /Descent -200 \
+               /CapHeight 700 /StemV 80 \
+               /FontFile2 {font_stream_id} 0 R >>"
+        ));
+
+        // Font data stream — Opção A: fonte completa sem subsetting (ADR-0027)
+        let font_len = font_data.len();
+        let mut font_stream = format!(
+            "<< /Length {font_len} /Subtype /CIDFontType2 >>\nstream\n"
+        ).into_bytes();
+        font_stream.extend_from_slice(font_data);
+        font_stream.extend_from_slice(b"\nendstream");
+        self.add_bytes(font_stream_id, font_stream);
+
+        // ToUnicode CMap stream
+        let cmap = to_unicode_cmap(&mappings);
+        let cmap_len = cmap.len();
+        let mut cmap_obj = format!("<< /Length {cmap_len} >>\nstream\n").into_bytes();
+        cmap_obj.extend_from_slice(&cmap);
+        cmap_obj.extend_from_slice(b"\nendstream");
+        self.add_bytes(to_unicode_id, cmap_obj);
+
+        self.emit_image_xobjects(img_xobjects);
+
+        // P263 — Emit gradient objects.
+        let page_dimensions: Vec<(f64, f64)> = doc.pages.iter()
+            .map(|p| (p.width, p.height)).collect();
+        self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
+
+        self.serialize()
+    }
+
+    // ── Caminho Multi-font (Passo 146, ADR-0055 decisão 5) ───────────────────
+
+    pub(super) fn build_multifont(
+        mut self,
+        doc:   &PagedDocument,
+        fonts: &[(FontList, Vec<u8>)],
+        faces: &[Face<'_>],
+    ) -> Vec<u8> {
+        let n_pages = doc.pages.len().max(1);
+        let n_fonts = fonts.len();
+        let first_page   = 3usize;
+        let first_stream = first_page + n_pages;
+        // Cada font ocupa 5 IDs consecutivos: type0, cidfont, descriptor,
+        // font_stream, to_unicode. Type0 é o "/Fn" referenciado no resource.
+        let fonts_start  = first_stream + n_pages;
+        let first_img_id = fonts_start + 5 * n_fonts;
+
+        // Codepoints + glyph mappings por font. Cada font tem o seu
+        // mapping (chars partilhados; gids específicos da face).
+        let chars = collect_codepoints(doc);
+        let glyph_ids = collect_glyph_ids(doc);
+        let mut per_font_mappings: Vec<Vec<(char, u16)>> = Vec::with_capacity(n_fonts);
+        let mut per_font_char_to_gid: Vec<HashMap<char, u16>> = Vec::with_capacity(n_fonts);
+        let mut per_font_widths: Vec<String> = Vec::with_capacity(n_fonts);
+        for face in faces {
+            let mut mappings = map_chars_to_glyphs(face, &chars);
+            // Adicionar glifos variantes de tamanho matemático
+            // (Passo 45, DEBT-9) — mesmo tratamento que `build_cidfont`.
+            let glyph_reverse = build_math_glyph_reverse_map(face);
+            let existing_gids: BTreeSet<u16> = mappings.iter().map(|(_, gid)| *gid).collect();
+            for &gid in &glyph_ids {
+                if !existing_gids.contains(&gid) {
+                    if let Some(&c) = glyph_reverse.get(&gid) {
+                        mappings.push((c, gid));
+                    }
+                }
+            }
+            let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
+            let widths = widths_array(face, &mappings);
+            per_font_mappings.push(mappings);
+            per_font_char_to_gid.push(char_to_gid);
+            per_font_widths.push(widths);
+        }
+
+        let (img_refs, ptr_to_idx, img_xobjects) = scan_all_images(doc, first_img_id);
+
+        // P263 — gradient pre-pass.
+        let first_grad_id = first_img_id + img_xobjects.len() * 2 + 100;
+        let (pat_refs, pat_ptr_to_idx, grad_objs) = scan_all_gradients(doc, first_grad_id);
+        let n_grads = grad_objs.len();
+        let mut next_sub_id = first_grad_id + n_grads * 3;
+
+        self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
+
+        let kids = (first_page..first_page + n_pages)
+            .map(|i| format!("{i} 0 R"))
+            .collect::<Vec<_>>().join(" ");
+        self.add(2, format!("<< /Type /Pages /Kids [{kids}] /Count {n_pages} >>"));
+
+        for (i, page) in doc.pages.iter().enumerate() {
+            let page_id   = first_page + i;
+            let stream_id = first_stream + i;
+            let w = page.width;
+            let h = page.height;
+
+            let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
+            let pat_res  = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            let font_entries = (0..n_fonts).map(|fi| {
+                let type0_id = fonts_start + 5 * fi;
+                format!("/F{} {} 0 R", fi + 1, type0_id)
+            }).collect::<Vec<_>>().join(" ");
+            let resources_str = format!("/Font << {font_entries} >> {xobj_res} {pat_res}");
+
+            self.add(page_id, format!(
+                "<< /Type /Page /Parent 2 0 R \
+                   /MediaBox [0 0 {w:.2} {h:.2}] \
+                   /Contents {stream_id} 0 R \
+                   /Resources << {resources_str} >> >>"
+            ));
+
+            let ctx = PageContext::multifont(
+                &ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs,
+                fonts, &per_font_char_to_gid,
+            );
+            let stream_bytes = build_page_stream(page, &ctx);
+            let len = stream_bytes.len();
+            let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
+            obj.extend_from_slice(&stream_bytes);
+            obj.extend_from_slice(b"\nendstream");
+            self.add_bytes(stream_id, obj);
+        }
+
+        // Emit objectos por font (5 cada).
+        for (fi, ((_, font_data), _face)) in fonts.iter().zip(faces.iter()).enumerate() {
+            let type0_id      = fonts_start + 5 * fi;
+            let cidfont_id    = type0_id + 1;
+            let descriptor_id = type0_id + 2;
+            let stream_id     = type0_id + 3;
+            let to_unicode_id = type0_id + 4;
+            let name = format!("CrystallineFont{}", fi + 1);
+            let widths = &per_font_widths[fi];
+            let mappings = &per_font_mappings[fi];
+
+            // Type0
+            self.add(type0_id, format!(
+                "<< /Type /Font /Subtype /Type0 /BaseFont /{name} \
+                   /Encoding /Identity-H \
+                   /DescendantFonts [{cidfont_id} 0 R] \
+                   /ToUnicode {to_unicode_id} 0 R >>"
+            ));
+
+            // CIDFont
+            self.add(cidfont_id, format!(
+                "<< /Type /Font /Subtype /CIDFontType2 /BaseFont /{name} \
+                   /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> \
+                   /FontDescriptor {descriptor_id} 0 R \
+                   /DW 500 \
+                   /W [{widths}] >>"
+            ));
+
+            // FontDescriptor
+            self.add(descriptor_id, format!(
+                "<< /Type /FontDescriptor /FontName /{name} \
+                   /Flags 32 \
+                   /FontBBox [-1000 -200 2000 900] \
+                   /ItalicAngle 0 /Ascent 800 /Descent -200 \
+                   /CapHeight 700 /StemV 80 \
+                   /FontFile2 {stream_id} 0 R >>"
+            ));
+
+            // FontFile2 stream — fonte completa, sem subsetting (ADR-0027).
+            let font_len = font_data.len();
+            let mut font_stream = format!(
+                "<< /Length {font_len} /Subtype /CIDFontType2 >>\nstream\n"
+            ).into_bytes();
+            font_stream.extend_from_slice(font_data);
+            font_stream.extend_from_slice(b"\nendstream");
+            self.add_bytes(stream_id, font_stream);
+
+            // ToUnicode CMap
+            let cmap = to_unicode_cmap(mappings);
+            let cmap_len = cmap.len();
+            let mut cmap_obj = format!("<< /Length {cmap_len} >>\nstream\n").into_bytes();
+            cmap_obj.extend_from_slice(&cmap);
+            cmap_obj.extend_from_slice(b"\nendstream");
+            self.add_bytes(to_unicode_id, cmap_obj);
+        }
+
+        self.emit_image_xobjects(img_xobjects);
+
+        // P263 — Emit gradient objects.
+        let page_dimensions: Vec<(f64, f64)> = doc.pages.iter()
+            .map(|p| (p.width, p.height)).collect();
+        self.emit_gradient_objects(grad_objs, &page_dimensions, &mut next_sub_id);
+
+        self.serialize()
+    }
+
+    /// Emite todos os XObjects de imagem pré-processados para o builder.
+    ///
+    /// Para PNG com alpha: emite /SMask (canal alpha) antes do XObject principal
+    /// (canal RGB), para que o SMask apareça antes no ficheiro PDF — o dicionário
+    /// do XObject principal referencia o ID do SMask por forward reference.
+    /// P263 — Emite objects Function + Shading + Pattern para cada
+    /// gradient único pré-processado por `scan_all_gradients`.
+    ///
+    /// `next_sub_id`: contador de IDs allocaveis para sub-Functions
+    /// (Type 3 stitching). Os IDs alocados por gradient (3×N) **não
+    /// incluem** as sub-Functions; estas são alocadas em `next_sub_id`
+    /// (que deve apontar para zone de IDs livre pós-todos os outros).
+    fn emit_gradient_objects(
+        &mut self,
+        grad_objs: Vec<GradientObject>,
+        page_dimensions: &[(f64, f64)],
+        next_sub_id: &mut usize,
+    ) {
+        for go in grad_objs {
+            let GradientObject { kind, function_id, shading_id, pattern_id, parent_bbox_at_emit } = go;
+            let (page_w, page_h) = page_dimensions.first().copied().unwrap_or((595.0, 842.0));
+            // P273.6 — bbox real do Layouter substitui page_bbox 3γ.1 quando
+            // disponível; fallback page_bbox preserved P273.5.
+            let effective_parent_bbox: (f32, f32, f32, f32) =
+                if let Some(rect) = parent_bbox_at_emit {
+                    (rect.x.0 as f32, rect.y.0 as f32,
+                     (rect.x.0 + rect.w.0) as f32, (rect.y.0 + rect.h.0) as f32)
+                } else {
+                    (0.0, 0.0, page_w as f32, page_h as f32)
+                };
+            // P265 + P268 — branching Linear / Radial / Conic.
+            match &kind {
+                GradientObjectKind::Linear(linear) => {
+                    use typst_core::entities::layout_types::ColorSpace;
+                    let (x0, y0, x1, y1) = compute_axial_coords(
+                        linear.angle.to_rad(), 0.0, 0.0, page_w, page_h);
+                    // P273.5 + P273.6 — quando relative=Parent, exercita
+                    // apply_parent_transform com effective_parent_bbox:
+                    // - P273.6: bbox real do Layouter (Block save/restore) quando disponível.
+                    // - P273.5 fallback: page_bbox identity (gradient top-level).
+                    let relative = resolve_relative(linear.relative);
+                    let (x0, y0, x1, y1) =
+                        if relative == typst_core::entities::gradient::RelativeTo::Parent {
+                            let local = (
+                                (x0 / page_w) as f32,
+                                (y0 / page_h) as f32,
+                                (x1 / page_w) as f32,
+                                (y1 / page_h) as f32,
+                            );
+                            let (tx0, ty0, tx1, ty1) =
+                                apply_parent_transform(local, Some(effective_parent_bbox));
+                            (tx0 as f64, ty0 as f64, tx1 as f64, ty1 as f64)
+                        } else {
+                            (x0, y0, x1, y1)
+                        };
+                    // P270.2 — dispatcher dual CMYK vs RGB-family.
+                    if linear.space == ColorSpace::Cmyk {
+                        let stops_cmyk = multispace_sample_stops_linear_cmyk(linear, 16);
+                        let shading_dict = format!(
+                            "<< /ShadingType 2 /ColorSpace /DeviceCMYK \
+                               /Coords [{:.3} {:.3} {:.3} {:.3}] \
+                               /Function {} 0 R /Extend [false false] >>",
+                            x0, y0, x1, y1, function_id,
+                        );
+                        let (func_dict, sub_objs) = emit_function_dict_cmyk(&stops_cmyk, function_id, next_sub_id);
+                        for (sub_id, sub_dict) in sub_objs {
+                            self.add(sub_id, sub_dict);
+                        }
+                        self.add(function_id, func_dict);
+                        self.add(shading_id, shading_dict);
+                    } else {
+                        // P270.1 pipeline + P274 adaptive N (N=16 baseline
+                        // preservado para low-contrast; N=32/64 para
+                        // moderate/high contrast — banding suppression).
+                        let n = adaptive_n_for_stops(&linear.stops, linear.space);
+                        let stops = multispace_sample_stops(linear, n);
+                        let shading_dict = format!(
+                            "<< /ShadingType 2 /ColorSpace /DeviceRGB \
+                               /Coords [{:.3} {:.3} {:.3} {:.3}] \
+                               /Function {} 0 R /Extend [false false] >>",
+                            x0, y0, x1, y1, function_id,
+                        );
+                        let (func_dict, sub_objs) = emit_function_dict(&stops, function_id, next_sub_id);
+                        for (sub_id, sub_dict) in sub_objs {
+                            self.add(sub_id, sub_dict);
+                        }
+                        self.add(function_id, func_dict);
+                        self.add(shading_id, shading_dict);
+                    }
+                }
+                GradientObjectKind::Radial(radial) => {
+                    use typst_core::entities::layout_types::ColorSpace;
+                    // P269 — passa focal_center/focal_radius reais.
+                    // Defaults (focal=center, fr=0) preservam comportamento P265.
+                    let (x0, y0, r0, x1, y1, r1) = compute_radial_coords(
+                        radial.center, radial.radius,
+                        radial.focal_center, radial.focal_radius,
+                        page_w, page_h);
+                    // P273.5 + P273.6 — paridade Linear; usa effective_parent_bbox.
+                    let relative = resolve_relative(radial.relative);
+                    let (x0, y0, x1, y1) =
+                        if relative == typst_core::entities::gradient::RelativeTo::Parent {
+                            let local = (
+                                (x0 / page_w) as f32,
+                                (y0 / page_h) as f32,
+                                (x1 / page_w) as f32,
+                                (y1 / page_h) as f32,
+                            );
+                            let (tx0, ty0, tx1, ty1) =
+                                apply_parent_transform(local, Some(effective_parent_bbox));
+                            (tx0 as f64, ty0 as f64, tx1 as f64, ty1 as f64)
+                        } else {
+                            (x0, y0, x1, y1)
+                        };
+                    // P270.2 — dispatcher dual CMYK vs RGB-family.
+                    if radial.space == ColorSpace::Cmyk {
+                        let stops_cmyk = multispace_sample_stops_radial_cmyk(radial, 16);
+                        let shading_dict = format!(
+                            "<< /ShadingType 3 /ColorSpace /DeviceCMYK \
+                               /Coords [{:.3} {:.3} {:.3} {:.3} {:.3} {:.3}] \
+                               /Function {} 0 R /Extend [true true] >>",
+                            x0, y0, r0, x1, y1, r1, function_id,
+                        );
+                        let (func_dict, sub_objs) = emit_function_dict_cmyk(&stops_cmyk, function_id, next_sub_id);
+                        for (sub_id, sub_dict) in sub_objs {
+                            self.add(sub_id, sub_dict);
+                        }
+                        self.add(function_id, func_dict);
+                        self.add(shading_id, shading_dict);
+                    } else {
+                        // P270.1 pipeline + P274 adaptive N (paridade Linear).
+                        let n = adaptive_n_for_stops(&radial.stops, radial.space);
+                        let stops = multispace_sample_stops_radial(radial, n);
+                        let shading_dict = format!(
+                            "<< /ShadingType 3 /ColorSpace /DeviceRGB \
+                               /Coords [{:.3} {:.3} {:.3} {:.3} {:.3} {:.3}] \
+                               /Function {} 0 R /Extend [true true] >>",
+                            x0, y0, r0, x1, y1, r1, function_id,
+                        );
+                        let (func_dict, sub_objs) = emit_function_dict(&stops, function_id, next_sub_id);
+                        for (sub_id, sub_dict) in sub_objs {
+                            self.add(sub_id, sub_dict);
+                        }
+                        self.add(function_id, func_dict);
+                        self.add(shading_id, shading_dict);
+                    }
+                }
+                GradientObjectKind::Conic(conic) => {
+                    use typst_core::entities::layout_types::ColorSpace;
+                    // P272 — dispatcher unificado /ShadingType 6 Coons para 8/8 spaces.
+                    // ADR-0090 REVOGADO (Type 4 Gouraud descontinuado);
+                    // ADR-0092 expandida cumulativamente (Cenário A revisado FINAL).
+                    let (stream, colorspace, decode_array, c0, c1) =
+                        if conic.space == ColorSpace::Cmyk {
+                            // P270.4 — Type 6 Coons CMYK (preserved literal).
+                            (emit_conic_coons_stream_cmyk(conic),
+                             "/DeviceCMYK",
+                             "[0 1 0 1 0 1 0 1 0 1 0 1]",
+                             "[0 0 0 0]", "[1 1 1 1]")
+                        } else {
+                            // P272 — Type 6 Coons RGB (N=stops*4 patches).
+                            (emit_conic_coons_stream_rgb(conic),
+                             "/DeviceRGB",
+                             "[0 1 0 1 0 1 0 1 0 1]",
+                             "[0 0 0]", "[1 1 1]")
+                        };
+                    let len = stream.len();
+                    let header = format!(
+                        "<< /ShadingType 6 /ColorSpace {} \
+                           /BitsPerCoordinate 8 /BitsPerComponent 8 \
+                           /BitsPerFlag 8 \
+                           /Decode {} \
+                           /Length {} >>\nstream\n",
+                        colorspace, decode_array, len,
+                    );
+                    let mut shading_bytes = header.into_bytes();
+                    shading_bytes.extend_from_slice(&stream);
+                    shading_bytes.extend_from_slice(b"\nendstream");
+                    // Type 6 Coons não usa Function dict (cores nos corner colors
+                    // do stream). Function vazio preserva numbering.
+                    self.add(function_id, format!(
+                        "<< /FunctionType 2 /Domain [0 1] /C0 {} /C1 {} /N 1 >>",
+                        c0, c1,
+                    ));
+                    self.add_bytes(shading_id, shading_bytes);
+                }
+            };
+            // Emit Pattern dict.
+            let pattern_dict = format!(
+                "<< /PatternType 2 /Shading {} 0 R /Matrix [1 0 0 1 0 0] >>",
+                shading_id,
+            );
+            self.add(pattern_id, pattern_dict);
+        }
+    }
+
+    fn emit_image_xobjects(&mut self, xobjects: Vec<ImageXObject>) {
+        for xobj in xobjects {
+            match xobj {
+                ImageXObject::Jpeg { data, main_obj_id, iw, ih } => {
+                    let cs = jpeg_color_space(&data);
+                    self.add_bytes(main_obj_id, build_jpeg_xobject(&data, iw, ih, cs));
+                }
+                ImageXObject::Png { payload, main_obj_id, smask_obj_id } => {
+                    // Emitir /SMask antes do XObject principal.
+                    if let (Some(smask_id), Some(alpha)) = (smask_obj_id, &payload.alpha_data_compressed) {
+                        self.add_bytes(smask_id, build_png_smask_xobject(payload.width, payload.height, alpha));
+                    }
+                    self.add_bytes(main_obj_id, build_png_rgb_xobject(&payload, smask_obj_id));
+                }
+            }
+        }
+    }
+
+    fn serialize(self) -> Vec<u8> {
+        // Header — %PDF-1.7 + comentário binário (4 bytes > 127)
+        let mut out: Vec<u8> = b"%PDF-1.7\n%\xe2\xe3\xcf\xd3\n".to_vec();
+        let mut offsets: HashMap<usize, usize> = Default::default();
+
+        for (id, content) in &self.objects {
+            offsets.insert(*id, out.len());
+            out.extend_from_slice(format!("{id} 0 obj\n").as_bytes());
+            out.extend_from_slice(content);
+            out.extend_from_slice(b"\nendobj\n");
+        }
+
+        // xref table
+        let xref_start = out.len();
+        let max_id = offsets.keys().copied().max().unwrap_or(0);
+        out.extend_from_slice(b"xref\n");
+        out.extend_from_slice(format!("0 {}\n", max_id + 1).as_bytes());
+        out.extend_from_slice(b"0000000000 65535 f \n");
+        for id in 1..=max_id {
+            let off = offsets.get(&id).copied().unwrap_or(0);
+            out.extend_from_slice(format!("{off:010} 00000 n \n").as_bytes());
+        }
+
+        // Trailer
+        out.extend_from_slice(format!(
+            "trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{}\n%%EOF\n",
+            max_id + 1, xref_start
+        ).as_bytes());
+
+        out
+    }
+}
+

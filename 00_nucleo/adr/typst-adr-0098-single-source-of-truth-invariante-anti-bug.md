@@ -169,11 +169,119 @@ com nomes para serem indexáveis.
 
 ---
 
+## Evolução pós-P307 — proxy textual → snapshot binário
+
+**Data desta anotação**: 2026-05-19 (P307a; status `IMPLEMENTADO`
+em P307d após validação empírica P307b/c — ver §"Validação P307d" no
+fim desta secção).
+
+Pós-P306, o hash textual `66cb8ac3` de `export.rs` foi preservado
+durante **23 passos consecutivos** (P282-P306). A métrica funcionou
+como sinal robusto: quando preservada, indicava que o passo reusou
+emit existente em vez de criar novo.
+
+P307 propôs decompor `export.rs` (2.826 LOC de produção + 7.029 LOC
+de testes) em ~15 submódulos por domínio (ADR-0100). **A decomposição
+quebra inevitavelmente o hash textual**: novos ficheiros, novos
+`@prompt-hash` headers, hashes diferentes.
+
+A invariante semântica continua válida, mas o **proxy muda**:
+
+| | Antes de P307 (P281-P306) | Depois de P307 |
+|---|---|---|
+| Invariante semântico | "Emit reusa primitivas existentes" | (idêntico) |
+| Proxy mensurável | Hash textual de `export.rs` preservado | PDF bytes de corpus canónico preservados |
+| Granularidade | 1 ficheiro × 1 hash | 7+ ficheiros `.pdf` de referência |
+| Falsos positivos | Sim — qualquer refactor benigno quebra | Não — só mudança de comportamento observable quebra |
+| Validação | Manual: ler `@prompt-hash` em diff | Automática: `cargo test snapshot_p307b` |
+
+**A substituição fortalece o invariante**: o proxy passa de **textual
+(fonte)** para **binário (output)**. Equivale ao "valor observable"
+de ADR-0033 levado a sério como teste mecânico.
+
+### Mecânica de transição
+
+P307b introduz snapshot test em `03_infra/src/integration_tests.rs`:
+
+```rust
+#[test]
+fn p307b_snapshot_markup_plain() {
+    let pre  = include_bytes!("../fixtures/p307b/markup_plain.pdf");
+    let post = compile_and_export("markup/plain.typ");
+    assert_eq!(post, pre, "PDF binário regrediu");
+}
+```
+
+Os bytes `.pdf` de referência são gerados em P307a pré-decomposição
+(7 ficheiros canónicos cobrindo os 5 clusters grandes — ver
+`diagnostico-export-passo-307a.md` §6).
+
+### Métrica antes/depois do refactor
+
+| Passo | Hash `export.rs` | PDF binário canónico |
+|---|---|---|
+| P306 (último pré-P307) | `66cb8ac3` | (não medido formalmente; é a baseline) |
+| P307a (este passo) | `66cb8ac3` (inalterado — sem código tocado) | Bytes gerados como referência |
+| P307b.1 (extracção) | n/a — ficheiro deixa de existir | **deve ser idêntico** à referência |
+| P307b.2-3 | n/a | idem |
+| P307c (L0 prompts) | n/a | idem |
+| Passos pós-P307 (P308+) | n/a (15 hashes individuais) | métrica continuada |
+
+**Contagem "X passos consecutivos com hash preservado" deixa de fazer
+sentido pós-P307**. A métrica equivalente passa a ser:
+
+> "**X passos consecutivos com bytes PDF do corpus canónico
+> preservados**"
+
+Que é mais fiel ao espírito ADR-0098: preservar comportamento, não
+proxy textual.
+
+### Coexistência durante a transição
+
+Entre P307a (este) e P307b.3 (`--fix-hashes` final), os dois proxies
+coexistem:
+
+- Hash textual `66cb8ac3` ainda registado em `export.rs` (P307a não toca).
+- Snapshot binário (a criar em P307a §6.1 após validação determinismo).
+
+Após P307b, hash textual já não existe (ficheiro decomposto). Só
+proxy binário permanece.
+
+### Não-deprecação de ADR-0098
+
+ADR-0098 **continua em vigor** — princípio "single source of truth
+como invariante anti-bug" mantém-se. Só o **proxy mensurável muda**.
+A motivação original (P281 unificação β-completa) e as 5 aplicações
+cumulativas (P282/P285/P286/P287/P288) permanecem como base
+histórica válida.
+
+### Validação P307d
+
+Anotação promovida de `PROPOSTA → IMPLEMENTADO` em 2026-05-19 (P307d) após:
+
+1. **P307b.1 + P307b.2** materializadas: `export.rs` decomposto em
+   14 submódulos `.rs`, hash textual original (`66cb8ac3`) deixa
+   de existir como entidade única.
+2. **9 fixtures snapshot binário** preservaram bit-exact:
+   `cargo test p307b_snapshot` → 9/9 OK em 2026-05-19.
+3. **Métrica equivalente operacional**: "X passos consecutivos com
+   bytes PDF do corpus canónico preservados" — começa em **N=1**
+   (P307b.1 é o primeiro passo a usar esta métrica).
+
+A coexistência de proxies foi temporária: terminou ao fim de P307b
+quando o hash textual de `export.rs` deixou de ter referente. Os
+14 novos `.rs` têm cada um o seu próprio hash, propagado via
+`crystalline-lint --fix-hashes`.
+
+---
+
 ## Status
 
 `IMPLEMENTADO` desde **P281** (helpers unificados); **formalizado
 em P288** (limiar histórico N=5 atingido empiricamente via passos
-P282/P285/P286/P287/P288).
+P282/P285/P286/P287/P288). **Anotada e promovida em P307a-d**
+(2026-05-19): transição de proxy (textual `66cb8ac3` de `export.rs`
+→ snapshot binário de 9 fixtures canónicos) confirmada empiricamente.
 
 ## Cross-references
 
@@ -192,6 +300,10 @@ P282/P285/P286/P287/P288).
 - **P273.17 §0** — Anti-padrão over-formalização (justifica que
   promoção é **condicional** ao gatilho disparar genuinamente; P288
   §A.4 confirmou empiricamente).
+- **P307a-d** — Anotação de transição proxy textual → binário
+  (`IMPLEMENTADO` em P307d).
+- **ADR-0100** — ADR-0037 estendida a L3 (`IMPLEMENTADO` em P307d) —
+  motiva a decomposição que torna o proxy textual obsoleto.
 
 ---
 
