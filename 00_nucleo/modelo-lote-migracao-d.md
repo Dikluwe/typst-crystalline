@@ -157,9 +157,9 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 ## Contabilidade de variantes (o roteiro dos lotes — atualizar a CADA lote)
 
-`Content` tem **77 variantes** (baseline P313). Estado em **P322** (Lote 7 incluído):
+`Content` tem **77 variantes** (baseline P313). Estado em **P323** (Lote 8 incluído):
 
-### Migradas para o modelo D — 43
+### Migradas para o modelo D — 47
 
 - **P316 piloto (3)**: `Divider`, `Heading` (locatável), `MathStyled`.
 - **Lote 2 P317 — math (11)**: `MathCases`, `MathMatrix`, `MathAlignPoint`,
@@ -183,6 +183,14 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   `Align` (`Align2D`), `Repeat` (`Length`/f64); derive em `Raw`, `Hide`.
   `.into()` redundante removido nos call-sites de teste (`raw`/`image` tomam
   `impl Into<…>`; `.into()` no argumento gerava E0283).
+- **Lote 8 P323 — largura (4)**: `Ref`, `Outline` (locatável), `Columns`,
+  `Quote`. `Outline` é **unit struct** (precedente `Divider`/`Linebreak`;
+  campos do vanilla pendentes de cobertura) — opção (a) confirmada: migrar
+  uniforme, absorvendo `element_kind`/`to_payload` no trait. Derive Hash em
+  `Ref`/`Outline`/`Quote`; manual em `Columns` (`Length`/f64). Construtor
+  `Content::reference` (não `r#ref`: evita raw identifier nos call-sites).
+  `Ref`/`Outline` ficam no arm `|`-terminal combinado de `map_*` (sem split —
+  são leaves sem binding).
 
 ### Fora de lote — decisão própria
 
@@ -195,12 +203,11 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   `Styled` (58), `Boxed` (58), `Labelled` (55); **observação** (leaf, candidato
   à triagem): `Text` (40).
 
-### Element-shaped restantes — ~19 (os lotes 8+ saem daqui, por largura)
+### Element-shaped restantes — ~15 (os lotes 9+ saem daqui, por largura)
 
-(O Lote 7 P322 — Raw/Align/Image/Hide/Repeat, 5 variantes — saiu daqui.)
+(O Lote 8 P323 — Ref/Outline/Columns/Quote, 4 variantes — saiu daqui.)
 
-`Quote`20 ·
-`Columns`22 · `Ref`23 · `Outline`24 · `SmartQuote`28 · `Stack`30 · `Cite`32 ·
+`SmartQuote`28 · `Stack`30 · `Cite`32 ·
 `TableCell`32 · `Transform`32 · `Place`34 · `Pad`39 · `Bibliography`40 ·
 `Table`41 · `Equation`45 · `Footnote`46 · `GridCell`47 · `Shape`57 · `Grid`73 ·
 `Figure`89.
@@ -211,7 +218,7 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 ### Estimativa
 
-~19 element-shaped restantes ÷ 5–9 variantes/lote (ritmo validado P317–P322)
-≈ **2–4 lotes** até esgotar os elegíveis — gatilho da triagem do DEBT-58 e da
-decisão F. Conta: 43 migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers +
-Text) + 19 restantes = 77. ✓
+~15 element-shaped restantes ÷ 5–9 variantes/lote (ritmo validado P317–P323)
+≈ **2–3 lotes** até esgotar os elegíveis — gatilho da triagem do DEBT-58 e da
+decisão F. Conta: 47 migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers +
+Text) + 15 restantes = 77. ✓

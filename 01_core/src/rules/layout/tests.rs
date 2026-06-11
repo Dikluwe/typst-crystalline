@@ -1025,7 +1025,7 @@ fn layout_ref_para_tras_resolve_secao() {
             target: Box::new(Content::heading(1, Content::text("Introdução"))),
         },
         Content::text("Como vimos em"),
-        Content::Ref { target: Label("intro".to_string()) },
+        Content::reference(Label("intro".to_string())),
     ].into());
 
     let doc = layout(&content);
@@ -1043,7 +1043,7 @@ fn layout_ref_para_frente_resolve_com_duas_passagens() {
 
     let content = Content::Sequence(vec![
         // Ref aparece antes da Label — forward reference
-        Content::Ref { target: Label("conclusao".to_string()) },
+        Content::reference(Label("conclusao".to_string())),
         Content::Labelled {
             label:  Label("conclusao".to_string()),
             target: Box::new(Content::heading(1, Content::text("Conclusão"))),
@@ -1075,7 +1075,7 @@ fn layout_resolved_labels_nao_interfere_entre_documentos() {
     let _ = layout(&content_a);
 
     // Segundo layout independente — não deve ter "sec" resolvida
-    let content_b = Content::Ref { target: Label("sec".to_string()) };
+    let content_b = Content::reference(Label("sec".to_string()));
     let doc_b = layout(&content_b);
     assert!(
         doc_b.plain_text().contains("@sec"),
@@ -1093,7 +1093,7 @@ fn pipeline_duas_passagens_resolve_forward_ref() {
     let content = Content::Sequence(vec![
         Content::SetHeadingNumbering { active: true },
         Content::text("Ver a"),
-        Content::Ref { target: Label("conclusao".to_string()) },
+        Content::reference(Label("conclusao".to_string())),
         Content::text("."),
         Content::Labelled {
             label:  Label("conclusao".to_string()),
@@ -1149,7 +1149,7 @@ fn layout_equation_bloco_numerada() {
 fn layout_outline_gera_indice_com_titulos() {
     let content = Content::Sequence(vec![
         Content::SetHeadingNumbering { active: true },
-        Content::Outline,
+        Content::outline(),
         Content::heading(1, Content::text("Introdução")),
         Content::heading(2, Content::text("Motivação")),
     ].into());
@@ -1167,7 +1167,7 @@ fn layout_outline_gera_indice_com_titulos() {
 
 #[test]
 fn layout_outline_sem_headings_gera_apenas_titulo_ou_vazio() {
-    let content = Content::Outline;
+    let content = Content::outline();
     let state = introspect(&content);
     let doc = layout(&content);
     let text = doc.plain_text();
@@ -1179,7 +1179,7 @@ fn layout_outline_sem_headings_gera_apenas_titulo_ou_vazio() {
 #[test]
 fn layout_outline_heading_nivel2_tem_indentacao() {
     let content = Content::Sequence(vec![
-        Content::Outline,
+        Content::outline(),
         Content::heading(1, Content::text("H1")),
         Content::heading(2, Content::text("H2")),
     ].into());
@@ -1247,7 +1247,7 @@ fn layout_ref_para_figura_resolve_corretamente() {
                 }),
             },
             Content::text(" — ver "),
-            Content::Ref { target: Label("fig1".to_string()) },
+            Content::reference(Label("fig1".to_string())),
         ]
         .into(),
     );
@@ -1315,7 +1315,7 @@ fn layout_toc_com_readonly_nao_duplica_contadores() {
     ].into());
 
     let content = Content::Sequence(vec![
-        Content::Outline,
+        Content::outline(),
         Content::heading(1, body_with_counter_update),
         Content::counter_display("equation".to_string()),
     ].into());
@@ -1348,7 +1348,7 @@ fn layout_extracted_label_pages_preenchido_apos_layout() {
 fn layout_converge_sem_ciclo_infinito() {
     let content = Content::Sequence(vec![
         Content::SetHeadingNumbering { active: true },
-        Content::Outline,
+        Content::outline(),
         Content::heading(1, Content::text("Capítulo 1")),
         Content::heading(2, Content::text("Secção 1.1")),
     ].into());
@@ -7547,7 +7547,7 @@ mod p168_figure_ref_migration {
                     target: Box::new(figure),
                 },
                 Content::text("ver "),
-                Content::Ref { target: Label(label_str.to_string()) },
+                Content::reference(Label(label_str.to_string())),
             ]
             .into(),
         )
@@ -8914,7 +8914,7 @@ mod p189b_walk_puro_m5 {
         let doc_com_outline = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
             Content::heading(1, Content::text("Intro")),
-            Content::Outline,
+            Content::outline(),
         ]));
         let state_com = introspect(&doc_com_outline);
         // Layout funciona via Introspector path (re-walk em layout()).
@@ -9042,7 +9042,7 @@ mod p194b_c4_resolved_label {
                 target: Box::new(Content::heading(1, Content::text("Intro"))),
                 label:  lbl(label_name),
             },
-            Content::Ref { target: lbl(label_name) },
+            Content::reference(lbl(label_name)),
         ]))
     }
 
@@ -9053,7 +9053,7 @@ mod p194b_c4_resolved_label {
         // confirma que populate manual de intr.resolved_labels é
         // suficiente para Layouter renderizar correctamente.
         let content = Content::Sequence(Arc::from(vec![
-            Content::Ref { target: lbl("intro") },
+            Content::reference(lbl("intro")),
         ]));
 
         // P190I: state eliminado
@@ -9101,7 +9101,7 @@ mod p194b_c4_resolved_label {
         intr_b.resolved_labels.insert(lbl("intro"), "Secção 1".to_string());
         let txt_b = layout_with_introspector(
             &Content::Sequence(Arc::from(vec![
-                Content::Ref { target: lbl("intro") },
+                Content::reference(lbl("intro")),
             ])),
             intr_b,
         ).plain_text();
@@ -9118,7 +9118,7 @@ mod p194b_c4_resolved_label {
         // Label não existe em nenhum dos paths; fallback final do
         // match retorna `@nome` literal.
         let content = Content::Sequence(Arc::from(vec![
-            Content::Ref { target: lbl("missing") },
+            Content::reference(lbl("missing")),
         ]));
 
         // P190I: state eliminado
@@ -9178,7 +9178,7 @@ mod p195d_walk_labelled {
                 target: Box::new(Content::heading(1, Content::text("Intro"))),
                 label:  lbl("intro"),
             },
-            Content::Ref { target: lbl("intro") },
+            Content::reference(lbl("intro")),
         ]));
 
         let intr = introspect_with_introspector(&content);

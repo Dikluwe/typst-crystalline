@@ -4254,10 +4254,10 @@ mod tests {
             Value::Int(2),
             Value::Content(Content::text("hello")),
         ]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Columns { count, gutter, body }) = r {
-            assert_eq!(count, 2);
-            assert_eq!(gutter, None);
-            assert_eq!(body.plain_text(), "hello");
+        if let Value::Content(Content::Columns(e)) = r {
+            assert_eq!(e.count, 2);
+            assert_eq!(e.gutter, None);
+            assert_eq!(e.body.plain_text(), "hello");
         } else {
             panic!("esperado Content::Columns");
         }
@@ -4318,8 +4318,8 @@ mod tests {
             Value::Int(3),
             Value::Str("texto".into()),
         ]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Columns { body, .. }) = r {
-            assert_eq!(body.plain_text(), "texto");
+        if let Value::Content(Content::Columns(e)) = r {
+            assert_eq!(e.body.plain_text(), "texto");
         } else {
             panic!("esperado Content::Columns com body de Str");
         }
@@ -4335,8 +4335,8 @@ mod tests {
         ]);
         args.named.insert("gutter".into(), Value::Length(Length::pt(10.0)));
         let r = native_columns(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Columns { gutter, .. }) = r {
-            assert_eq!(gutter, Some(Length::pt(10.0)));
+        if let Value::Content(Content::Columns(e)) = r {
+            assert_eq!(e.gutter, Some(Length::pt(10.0)));
         } else {
             panic!("esperado Content::Columns com gutter Some");
         }

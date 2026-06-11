@@ -477,7 +477,7 @@ fn eval_expr(
         // Passo 56 — referência cruzada: @nome → Content::Ref placeholder.
         Expr::Ref(ref_node) => {
             let name = ref_node.target().to_string();
-            Ok(Value::Content(Content::Ref { target: Label(name) }))
+            Ok(Value::Content(Content::reference(Label(name))))
         }
 
         // Passo 56 — label em contexto de código (raro); a associação retroactiva

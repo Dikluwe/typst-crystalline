@@ -370,7 +370,7 @@ mod tests {
     #[test]
     fn p178_lacuna_7_outline_kind_resolvida() {
         // **P178**: lacuna #7 (`has_outline`) fechada.
-        // `ElementKind::Outline` agora existe; `Content::Outline` é
+        // `ElementKind::Outline` agora existe; `Content::outline()` é
         // payload-yielder via P178 cascade. `query("outline")` retorna
         // count correcto.
         use crate::entities::element_kind::ElementKind;
@@ -534,7 +534,7 @@ mod tests {
         let world = make_world();
         let result = with_engine!(&world, |engine, ctx| {
             introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, _ctx| {
-                Ok(Content::Outline)
+                Ok(Content::outline())
             })
         });
         assert!(matches!(result, Ok(_)));
@@ -574,7 +574,7 @@ mod tests {
                 Ok(Content::Sequence(
                     vec![
                         Content::heading(1, Content::text("intro")),
-                        Content::Outline,
+                        Content::outline(),
                         Content::heading(1, Content::text("body")),
                     ]
                     .into(),

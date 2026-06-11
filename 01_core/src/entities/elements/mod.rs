@@ -68,6 +68,11 @@ pub mod hide;
 pub mod image;
 pub mod raw;
 pub mod repeat;
+// Lote 8 P323 — por largura (4 variantes element-shaped).
+pub mod r#ref;
+pub mod outline;
+pub mod columns;
+pub mod quote;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;

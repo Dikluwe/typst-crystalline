@@ -54,7 +54,7 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(layouter: &mut Layou
         let line = Content::Sequence(
             vec![
                 Content::text(indent),
-                Content::Ref { target: label },
+                Content::reference(label),
                 Content::text(" "),
                 body_content, // Content clonado — preserva formatação original
                 Content::text(page_num),

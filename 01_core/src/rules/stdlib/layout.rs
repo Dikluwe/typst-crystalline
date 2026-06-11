@@ -1262,11 +1262,7 @@ pub fn native_columns(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
         }
     }
 
-    Ok(Value::Content(Content::Columns {
-        count,
-        gutter,
-        body: Box::new(body),
-    }))
+    Ok(Value::Content(Content::columns(body, count, gutter)))
 }
 
 /// `colbreak(weak: false)` → `Content::Colbreak` — Passo 220

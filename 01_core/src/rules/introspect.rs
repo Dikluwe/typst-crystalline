@@ -176,12 +176,13 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         ),
 
         // Passo 155: Quote — recurse em body e attribution.
-        Content::Quote { body, attribution, block, quotes } => Content::Quote {
-            body:        Box::new(materialize_time(body, intr, location)),
-            attribution: attribution.as_ref().map(|c| Box::new(materialize_time(c, intr, location))),
-            block:       *block,
-            quotes:      *quotes,
-        },
+        // Modelo D (Lote 8 P323): destrutura o `Arc<QuoteElem>`.
+        Content::Quote(e) => Content::quote(
+            materialize_time(&e.body, intr, location),
+            e.attribution.as_ref().map(|c| materialize_time(c, intr, location)),
+            e.block,
+            e.quotes,
+        ),
 
         // P295 — Footnote recurse em body (paridade Quote).
         Content::Footnote { body } => Content::Footnote {
@@ -203,13 +204,13 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::Text(_, _)
         | Content::Space
         | Content::Raw(_)
-        | Content::Ref { .. }
+        | Content::Ref(_)
         | Content::SetHeadingNumbering { .. }
         | Content::SetEquationNumbering { .. }
         | Content::SetFigureNumbering { .. }
         | Content::SetPage { .. }
         | Content::CounterUpdate(_)
-        | Content::Outline
+        | Content::Outline(_)
         | Content::Linebreak(_)
         | Content::MathAlignPoint(_)
         | Content::MathIdent(_)
@@ -311,11 +312,11 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         Content::Repeat(e) => Content::repeat(materialize_time(&e.body, intr, location), e.gap, e.justify),
         // P217 — Columns container: análogo a Repeat/Block; descer
         // no body; count/gutter preservados (Copy primitivos).
-        Content::Columns { count, gutter, body } => Content::Columns {
-            count:  *count,
-            gutter: *gutter,
-            body:   Box::new(materialize_time(body, intr, location)),
-        },
+        Content::Columns(e) => Content::columns(
+            materialize_time(&e.body, intr, location),
+            e.count,
+            e.gutter,
+        ),
         Content::Transform { matrix, body } => Content::Transform {
             matrix: *matrix,
             body:   Box::new(materialize_time(body, intr, location)),
@@ -1117,7 +1118,7 @@ pub(crate) fn walk(
         Content::Empty
         | Content::Text(_, _)
         | Content::Space
-        | Content::Ref { .. }
+        | Content::Ref(_)
         | Content::CounterDisplay(_)
         | Content::Raw(_)
         | Content::ListItem(_)
@@ -1185,9 +1186,9 @@ pub(crate) fn walk(
         }
 
         // Passo 155 — Quote: walk em body + attribution.
-        Content::Quote { body, attribution, .. } => {
-            walk(body, locator, tags, intr, auto_label_counter, lang, None);
-            if let Some(a) = attribution {
+        Content::Quote(e) => {
+            walk(&e.body, locator, tags, intr, auto_label_counter, lang, None);
+            if let Some(a) = &e.attribution {
                 walk(a, locator, tags, intr, auto_label_counter, lang, None);
             }
         }
@@ -1284,12 +1285,12 @@ pub(crate) fn walk(
         // Walk no body (counters/labels dentro contam normalmente);
         // sem Tag::Start/End próprio (columns não é locatable).
         // Consumer multi-region em P219.
-        Content::Columns { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Columns(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 99 (ADR-0038): `Styled` é transparente — desce no body.
         Content::Styled(body, _) => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
-        Content::Outline => {
+        Content::Outline(_) => {
             // P189B (M5): walk puro para Outline.
             // Mutação `state.has_outline = true` removida; flag obtida
             // via `intr.kind_index.contains_key(&ElementKind::Outline)`
@@ -1326,7 +1327,7 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::SetHeadingNumbering { active: true },
-                Content::Ref { target: Label("conclusao".to_string()) },
+                Content::reference(Label("conclusao".to_string())),
                 Content::Labelled {
                     label:  Label("conclusao".to_string()),
                     target: Box::new(Content::heading(1, Content::text("Conclusão"))),
@@ -1363,7 +1364,7 @@ mod tests {
             label:  Label("a".to_string()),
             target: Box::new(Content::heading(1, Content::text("A"))),
         };
-        let content_b = Content::Ref { target: Label("a".to_string()) };
+        let content_b = Content::reference(Label("a".to_string()));
 
         let intr_a = introspect_with_introspector(&content_a);
         let intr_b = introspect_with_introspector(&content_b);
@@ -1538,7 +1539,7 @@ mod tests {
                     label:  Label("sec".to_string()),
                     target: Box::new(Content::heading(1, Content::text("Secção"))),
                 },
-                Content::Ref { target: Label("sec".to_string()) },
+                Content::reference(Label("sec".to_string())),
             ]
             .into(),
         );

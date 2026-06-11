@@ -47,7 +47,7 @@ pub fn is_locatable(content: &Content) -> bool {
         Content::CounterDisplayCallback(_) => true,
 
         // ── Locatable em P178 — Outline fecha lacuna #7 ────────────
-        Content::Outline => true,
+        Content::Outline(_) => true,
 
         // ── Locatable em P181D — Bibliography (decisão P181A
         // cláusula 4 = Opção β walk puro). `from_tags` arm popula
@@ -115,7 +115,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::MathMatrix(_)
         | Content::MathCases(_)
         | Content::Labelled { .. }
-        | Content::Ref { .. }
+        | Content::Ref(_)
         | Content::CounterDisplay(_)
         | Content::SetFigureNumbering { .. }
         | Content::Image(_)
@@ -129,7 +129,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Divider(_)
         | Content::Terms(_)
         | Content::TermItem(_)
-        | Content::Quote { .. }
+        | Content::Quote(_)
         // P284 — text decoration: não-locatable (cosmético inline; sem
         // identidade observable, paridade Quote/Link).
         | Content::Underline(_)
@@ -160,7 +160,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Repeat(_)
         // P217 — Columns container não-locatable (transparente para
         // introspect; consumer multi-region em P219).
-        | Content::Columns { .. }
+        | Content::Columns(_)
         // P295 — Footnote Fase 1 marker only: não-locatable. Frente
         // futura P295.X (footnote reference via `<label>`) tornaria
         // locatable; preserved scope-out aqui per ADR-0054 graded.
@@ -271,8 +271,8 @@ mod tests {
                 target: Box::new(Content::Empty),
                 label:  crate::entities::label::Label("x".to_string()),
             },
-            Content::Ref { target: crate::entities::label::Label("y".to_string()) },
-            Content::Outline,
+            Content::reference(crate::entities::label::Label("y".to_string())),
+            Content::outline(),
             Content::linebreak(),
             Content::divider(),
             Content::math_align_point(),

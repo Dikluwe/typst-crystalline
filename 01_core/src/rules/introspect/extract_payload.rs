@@ -68,7 +68,8 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         }),
 
         // P178 — Outline é unit. Payload também unit. Fecha lacuna #7.
-        Content::Outline => Some(ElementPayload::Outline),
+        // Modelo D (Lote 8 P323): delega ao elemento.
+        Content::Outline(e) => e.to_payload(),
 
         // P181D — Bibliography promovida a locatable (decisão P181A
         // cláusula 4 = Opção β). Captura entries completos por simetria
@@ -194,8 +195,8 @@ mod tests {
 
     #[test]
     fn outline_produz_some_payload() {
-        // P178: Content::Outline → Some(ElementPayload::Outline).
-        let c = Content::Outline;
+        // P178: Content::outline() → Some(ElementPayload::Outline).
+        let c = Content::outline();
         assert_eq!(extract_payload(&c), Some(ElementPayload::Outline));
     }
 

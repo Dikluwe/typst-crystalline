@@ -183,12 +183,7 @@ pub fn native_quote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         }
     }
 
-    Ok(Value::Content(Content::Quote {
-        body:        Box::new(body),
-        attribution: attribution.map(Box::new),
-        block,
-        quotes,
-    }))
+    Ok(Value::Content(Content::quote(body, attribution, block, quotes)))
 }
 
 // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table minimal ────────────────

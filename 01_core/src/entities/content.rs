@@ -77,6 +77,10 @@ use crate::entities::elements::hide::HideElem;
 use crate::entities::elements::image::ImageElem;
 use crate::entities::elements::raw::RawElem;
 use crate::entities::elements::repeat::RepeatElem;
+use crate::entities::elements::r#ref::RefElem;
+use crate::entities::elements::outline::OutlineElem;
+use crate::entities::elements::columns::ColumnsElem;
+use crate::entities::elements::quote::QuoteElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -298,9 +302,9 @@ pub enum Content {
 
     /// Referência cruzada (Passo 56).
     /// Enquanto não existe motor de introspecção, renderiza literalmente `@nome`.
-    Ref {
-        target: Label,
-    },
+    /// **Modelo D (Lote 8 P323)**: `entities::elements::r#ref::RefElem`
+    /// (não-locatável, leaf).
+    Ref(Arc<RefElem>),
 
     // ── Introspecção / Contadores (Passo 57) ────────────────────────────────
 
@@ -337,7 +341,9 @@ pub enum Content {
 
     /// Marcador para a Tabela de Conteúdos (Passo 61).
     /// O layouter substitui este nó pela lista de títulos do documento.
-    Outline,
+    /// **Modelo D (Lote 8 P323)**: `entities::elements::outline::OutlineElem`
+    /// (locatável; unit struct — campos do vanilla pendentes de cobertura).
+    Outline(Arc<OutlineElem>),
 
     /// Elemento com numeração própria e legenda opcional (Passo 62, DEBT-15 Passo 75).
     /// `kind` discrimina o contador: "image", "table", "raw", etc.
@@ -585,12 +591,9 @@ pub enum Content {
     /// Smart-quotes resolvidas no layouter via
     /// `crate::rules::lang::quotes::localize_quotes(lang)` consultando
     /// `text.lang` activo (per ADR-0057).
-    Quote {
-        body:        Box<Content>,
-        attribution: Option<Box<Content>>,
-        block:       bool,
-        quotes:      bool,
-    },
+    /// **Modelo D (Lote 8 P323)**: `entities::elements::quote::QuoteElem`
+    /// (não-locatável, contentor — recurse body + attribution).
+    Quote(Arc<QuoteElem>),
 
     // ── Passo 287 (frente `P-smartquote`) — função stdlib smartquote ──────
     //
@@ -1128,11 +1131,9 @@ pub enum Content {
     ///
     /// Stdlib `native_columns` em P218 (atomização ADR-0036).
     /// Consumer multi-region em P219.
-    Columns {
-        count:  usize,
-        gutter: Option<Length>,
-        body:   Box<Content>,
-    },
+    /// **Modelo D (Lote 8 P323)**: `entities::elements::columns::ColumnsElem`
+    /// (não-locatável, contentor — recurse body).
+    Columns(Arc<ColumnsElem>),
 
     /// **P169 (M9 sub-passo 1)** — Metadata embebido para introspecção.
     /// Vanilla `metadata(value)` em `introspection/metadata.rs`.
@@ -1499,7 +1500,28 @@ impl Content {
         count:  usize,
         gutter: Option<Length>,
     ) -> Self {
-        Self::Columns { count, gutter, body: Box::new(body) }
+        Self::Columns(Arc::new(ColumnsElem { count, gutter, body }))
+    }
+
+    /// **Lote 8 P323** — `Content::Ref` (referência cruzada `@label`).
+    /// Nome `reference` (não `r#ref`: evita raw identifier nos call-sites).
+    pub fn reference(target: Label) -> Self {
+        Self::Ref(Arc::new(RefElem { target }))
+    }
+
+    /// **Lote 8 P323** — `Content::Outline` (índice). Unit struct.
+    pub fn outline() -> Self {
+        Self::Outline(Arc::new(OutlineElem))
+    }
+
+    /// **Lote 8 P323** — `Content::Quote` (citação).
+    pub fn quote(
+        body:        Content,
+        attribution: Option<Content>,
+        block:       bool,
+        quotes:      bool,
+    ) -> Self {
+        Self::Quote(Arc::new(QuoteElem { body, attribution, block, quotes }))
     }
 
     /// `table(columns, rows, ..children)` — Passo 157A (ADR-0060
@@ -1629,7 +1651,7 @@ impl Content {
             Self::Terms(e)    => e.is_empty(),
             Self::TermItem(e) => e.is_empty(),
             // Passo 155: Quote vazio se body for vazio.
-            Self::Quote { body, .. } => body.is_empty(),
+            Self::Quote(e) => e.is_empty(),
             // P284: decoração vazia se o body for vazio (cosméticos não
             // criam observable se não há conteúdo).
             // Modelo D (Lote 4 P319): decorações delegam ao elemento.
@@ -1662,7 +1684,7 @@ impl Content {
             Self::Repeat(e) => e.is_empty(),
             // P217: Columns é vazio se body for (count/gutter não tornam
             // não-vazio — análogo a Block/Boxed/Repeat).
-            Self::Columns { body, .. } => body.is_empty(),
+            Self::Columns(e) => e.is_empty(),
             _ => false,
         }
     }
@@ -1721,12 +1743,12 @@ impl Content {
             // P311b.2 — MathStyled é transparente para plain_text (wraps body).
             Self::MathStyled(m) => m.plain_text(),
             Self::Labelled { target, .. } => target.plain_text(),
-            Self::Ref { target }          => format!("@{}", target.0),
+            Self::Ref(e)                  => e.plain_text(),
             Self::SetHeadingNumbering { .. } => String::new(),
             Self::SetEquationNumbering { .. } => String::new(),
             Self::CounterDisplay(e)          => e.plain_text(),
             Self::CounterUpdate(e)           => e.plain_text(),
-            Self::Outline                    => String::new(),
+            Self::Outline(e)                 => e.plain_text(),
             Self::Figure { body, caption, .. } => {
                 let body_text = body.plain_text();
                 let cap_text  = caption.as_ref()
@@ -1831,19 +1853,8 @@ impl Content {
             // texto plano; semântica de repetição é runtime-only).
             Self::Repeat(e) => e.plain_text(),
             // P217: Columns transparente para texto plano (recurse no body).
-            Self::Columns { body, .. } => body.plain_text(),
-            Self::Quote { body, attribution, quotes, .. } => {
-                let body_txt = body.plain_text();
-                let with_quotes = if *quotes {
-                    format!("\"{}\"", body_txt)
-                } else {
-                    body_txt
-                };
-                match attribution {
-                    Some(a) => format!("{} — {}", with_quotes, a.plain_text()),
-                    None    => with_quotes,
-                }
-            }
+            Self::Columns(e) => e.plain_text(),
+            Self::Quote(e) => e.plain_text(),
         }
     }
 }
@@ -1885,13 +1896,13 @@ impl PartialEq for Content {
             (Self::MathStyled(a), Self::MathStyled(b)) => a == b,
             (Self::Labelled { target: ta, label: la },
              Self::Labelled { target: tb, label: lb })               => ta == tb && la == lb,
-            (Self::Ref { target: ta }, Self::Ref { target: tb })     => ta == tb,
+            (Self::Ref(a), Self::Ref(b))     => a == b,
             (Self::SetHeadingNumbering { active: a }, Self::SetHeadingNumbering { active: b }) => a == b,
             (Self::SetEquationNumbering { active: a }, Self::SetEquationNumbering { active: b }) => a == b,
             // Modelo D (Lote 6 P321): delegam ao `Arc<…Elem>`.
             (Self::CounterDisplay(a), Self::CounterDisplay(b)) => a == b,
             (Self::CounterUpdate(a),  Self::CounterUpdate(b))  => a == b,
-            (Self::Outline, Self::Outline) => true,
+            (Self::Outline(a), Self::Outline(b)) => a == b,
             (Self::Figure { body: ba, caption: ca, kind: ka, numbering: na },
              Self::Figure { body: bb, caption: cb, kind: kb, numbering: nb }) =>
                 ba == bb && ca == cb && ka == kb && na == nb,
@@ -1971,10 +1982,8 @@ impl PartialEq for Content {
             (Self::Divider(a), Self::Divider(b)) => a == b,
             (Self::Terms(a),    Self::Terms(b))    => a == b,
             (Self::TermItem(a), Self::TermItem(b)) => a == b,
-            // Passo 155 — Quote.
-            (Self::Quote { body: ba, attribution: aa, block: ka, quotes: qa },
-             Self::Quote { body: bb, attribution: ab, block: kb, quotes: qb }) =>
-                ba == bb && aa == ab && ka == kb && qa == qb,
+            // Modelo D (Lote 8 P323): Quote delega ao `Arc<…Elem>`.
+            (Self::Quote(a), Self::Quote(b)) => a == b,
             // Modelo D (Lote 4 P319): decorações delegam ao `Arc<…Elem>`.
             (Self::Underline(a), Self::Underline(b)) => a == b,
             (Self::Strike(a),    Self::Strike(b))    => a == b,
@@ -2016,10 +2025,8 @@ impl PartialEq for Content {
                 ca.as_ref() == cb.as_ref() && da == db && sa == sb,
             // Modelo D (Lote 7 P322): Repeat delega ao `Arc<…Elem>`.
             (Self::Repeat(a), Self::Repeat(b)) => a == b,
-            // P217 — Columns: comparação 3 fields.
-            (Self::Columns { count: ca, gutter: ga, body: ba },
-             Self::Columns { count: cb, gutter: gb, body: bb }) =>
-                ca == cb && ga == gb && ba == bb,
+            // Modelo D (Lote 8 P323): Columns delega ao `Arc<…Elem>`.
+            (Self::Columns(a), Self::Columns(b)) => a == b,
             // Modelo D (Lote 6 P321): StateDisplay/CounterDisplayCallback delegam.
             (Self::StateDisplay(a),          Self::StateDisplay(b))          => a == b,
             (Self::CounterDisplayCallback(a), Self::CounterDisplayCallback(b)) => a == b,
@@ -2127,17 +2134,8 @@ impl Content {
             Content::Terms(e)    => e.map_content(transform)?,
             Content::TermItem(e) => e.map_content(transform)?,
 
-            // Passo 155: Quote container — recurse em body e attribution;
-            // block e quotes são primitivos.
-            Content::Quote { body, attribution, block, quotes } => Content::Quote {
-                body:        Box::new(body.map_content(transform)?),
-                attribution: attribution.as_ref()
-                    .map(|c| c.map_content(transform))
-                    .transpose()?
-                    .map(Box::new),
-                block:       *block,
-                quotes:      *quotes,
-            },
+            // Modelo D (Lote 8 P323): Quote container delega ao elemento.
+            Content::Quote(e) => e.map_content(transform)?,
 
             // P284 — text decoration containers — recurse em body;
             // atributos cosméticos são Copy primitivos.
@@ -2205,13 +2203,8 @@ impl Content {
             // justify são Copy primitivos (Option<Length>, bool).
             Content::Repeat(e) => e.map_content(transform)?,
 
-            // P217: Columns container — recurse em body; count/gutter
-            // são Copy primitivos (usize / Option<Length>).
-            Content::Columns { count, gutter, body } => Content::Columns {
-                count:  *count,
-                gutter: *gutter,
-                body:   Box::new(body.map_content(transform)?),
-            },
+            // Modelo D (Lote 8 P323): Columns container delega ao elemento.
+            Content::Columns(e) => e.map_content(transform)?,
 
             // ── Terminais: clonar directamente ──────────────────────────────
             // Listados explicitamente — variantes novas não passam em silêncio.
@@ -2221,9 +2214,9 @@ impl Content {
             | Content::Space
             | Content::Empty
             | Content::Linebreak(_)
-            | Content::Outline
+            | Content::Outline(_)
             | Content::Raw(_)
-            | Content::Ref { .. }
+            | Content::Ref(_)
             | Content::SetHeadingNumbering { .. }
             | Content::SetEquationNumbering { .. }
             | Content::SetFigureNumbering { .. }
@@ -2415,13 +2408,8 @@ impl Content {
             Content::Terms(e)    => e.map_text(transform),
             Content::TermItem(e) => e.map_text(transform),
 
-            // Passo 155: Quote container — recurse em body e attribution.
-            Content::Quote { body, attribution, block, quotes } => Content::Quote {
-                body:        Box::new(body.map_text(transform)),
-                attribution: attribution.as_ref().map(|c| Box::new(c.map_text(transform))),
-                block:       *block,
-                quotes:      *quotes,
-            },
+            // Modelo D (Lote 8 P323): Quote container delega ao elemento.
+            Content::Quote(e) => e.map_text(transform),
 
             // Modelo D (Lote 4 P319): decorações delegam ao elemento
             // (contentores de prosa — map_text recurse no body).
@@ -2481,13 +2469,8 @@ impl Content {
             // Passo 156J: Repeat container — map_text no body.
             Content::Repeat(e) => e.map_text(transform),
 
-            // P217: Columns container — map_text no body; count/gutter
-            // preservados via Copy.
-            Content::Columns { count, gutter, body } => Content::Columns {
-                count:  *count,
-                gutter: *gutter,
-                body:   Box::new(body.map_text(transform)),
-            },
+            // Modelo D (Lote 8 P323): Columns container delega ao elemento.
+            Content::Columns(e) => e.map_text(transform),
 
             // ── Terminais — clonar directamente ──────────────────────────
             // Nós matemáticos e estruturais sem markup Text — não contêm
@@ -2497,9 +2480,9 @@ impl Content {
             Content::Empty
             | Content::Space
             | Content::Linebreak(_)
-            | Content::Outline
+            | Content::Outline(_)
             | Content::Raw(_)
-            | Content::Ref { .. }
+            | Content::Ref(_)
             | Content::SetHeadingNumbering { .. }
             | Content::SetEquationNumbering { .. }
             | Content::SetFigureNumbering { .. }
@@ -3075,94 +3058,49 @@ mod tests {
 
     #[test]
     fn quote_constructor_devolve_variant_correcto() {
-        let q = Content::Quote {
-            body:        Box::new(Content::text("hello")),
-            attribution: None,
-            block:       false,
-            quotes:      true,
-        };
-        assert!(matches!(q, Content::Quote { .. }));
+        let q = Content::quote(Content::text("hello"), None, false, true);
+        assert!(matches!(q, Content::Quote(_)));
         assert!(!q.is_empty());
     }
 
     #[test]
     fn quote_plain_text_sem_attribution() {
-        let q = Content::Quote {
-            body:        Box::new(Content::text("hello")),
-            attribution: None,
-            block:       false,
-            quotes:      true,
-        };
+        let q = Content::quote(Content::text("hello"), None, false, true);
         assert_eq!(q.plain_text(), "\"hello\"");
     }
 
     #[test]
     fn quote_plain_text_com_attribution() {
-        let q = Content::Quote {
-            body:        Box::new(Content::text("Errare humanum est")),
-            attribution: Some(Box::new(Content::text("Seneca"))),
-            block:       true,
-            quotes:      true,
-        };
+        let q = Content::quote(Content::text("Errare humanum est"), Some(Content::text("Seneca")), true, true);
         assert_eq!(q.plain_text(), "\"Errare humanum est\" — Seneca");
     }
 
     #[test]
     fn quote_plain_text_quotes_false_omite_aspas() {
-        let q = Content::Quote {
-            body:        Box::new(Content::text("texto")),
-            attribution: None,
-            block:       false,
-            quotes:      false,
-        };
+        let q = Content::quote(Content::text("texto"), None, false, false);
         assert_eq!(q.plain_text(), "texto");
     }
 
     #[test]
     fn quote_is_empty_proxy_para_body() {
-        let empty = Content::Quote {
-            body:        Box::new(Content::Empty),
-            attribution: None,
-            block:       false,
-            quotes:      true,
-        };
+        let empty = Content::quote(Content::Empty, None, false, true);
         assert!(empty.is_empty());
-        let nonempty = Content::Quote {
-            body:        Box::new(Content::text("x")),
-            attribution: None,
-            block:       false,
-            quotes:      true,
-        };
+        let nonempty = Content::quote(Content::text("x"), None, false, true);
         assert!(!nonempty.is_empty());
     }
 
     #[test]
     fn quote_map_text_recurse_em_body_e_attribution() {
-        let q = Content::Quote {
-            body:        Box::new(Content::text("hello")),
-            attribution: Some(Box::new(Content::text("seneca"))),
-            block:       true,
-            quotes:      true,
-        };
+        let q = Content::quote(Content::text("hello"), Some(Content::text("seneca")), true, true);
         let upper = q.map_text(&mut |s| s.to_uppercase());
         assert_eq!(upper.plain_text(), "\"HELLO\" — SENECA");
     }
 
     #[test]
     fn quote_partial_eq() {
-        let mk = || Content::Quote {
-            body:        Box::new(Content::text("x")),
-            attribution: None,
-            block:       false,
-            quotes:      true,
-        };
+        let mk = || Content::quote(Content::text("x"), None, false, true);
         assert_eq!(mk(), mk());
-        let other = Content::Quote {
-            body:        Box::new(Content::text("x")),
-            attribution: None,
-            block:       true,        // diferente
-            quotes:      true,
-        };
+        let other = Content::quote(Content::text("x"), None, true /* diferente */, true);
         assert_ne!(mk(), other);
     }
 
@@ -3996,10 +3934,10 @@ mod tests {
     fn p217_columns_variant_existe() {
         use crate::entities::layout_types::Length;
         let c = Content::columns(Content::text("hello"), 2, Some(Length::pt(10.0)));
-        if let Content::Columns { count, gutter, body } = &c {
-            assert_eq!(*count, 2);
-            assert_eq!(*gutter, Some(Length::pt(10.0)));
-            assert_eq!(body.plain_text(), "hello");
+        if let Content::Columns(e) = &c {
+            assert_eq!(e.count, 2);
+            assert_eq!(e.gutter, Some(Length::pt(10.0)));
+            assert_eq!(e.body.plain_text(), "hello");
         } else {
             panic!("esperado Content::Columns");
         }
@@ -4028,10 +3966,10 @@ mod tests {
         use crate::entities::layout_types::Length;
         let c = Content::columns(Content::text("a"), 4, Some(Length::pt(5.0)));
         let mapped = c.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
-        if let Content::Columns { count, gutter, body } = &mapped {
-            assert_eq!(*count, 4);
-            assert_eq!(*gutter, Some(Length::pt(5.0)));
-            assert_eq!(body.plain_text(), "a");
+        if let Content::Columns(e) = &mapped {
+            assert_eq!(e.count, 4);
+            assert_eq!(e.gutter, Some(Length::pt(5.0)));
+            assert_eq!(e.body.plain_text(), "a");
         } else {
             panic!("esperado Content::Columns após map_content");
         }

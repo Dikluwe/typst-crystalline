@@ -845,8 +845,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 references::layout_labelled(self, target, label);
             }
 
-            Content::Ref { target } => {
-                references::layout_ref(self, target);
+            Content::Ref(e) => {
+                references::layout_ref(self, &e.target);
             }
 
             // Passo 62/75 — Figure: delegado a figure.rs com kind/numbering (DEBT-14/15).
@@ -877,7 +877,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // Passo 61 — TOC: delegado a outline.rs (Tarefa 5).
-            Content::Outline => {
+            Content::Outline(_) => {
                 outline::layout_outline(self);
             }
 
@@ -1984,7 +1984,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             //
             // count=0 (caso degenerate construtor Rust; stdlib P218 valida >=1):
             // tratar como passthrough (count=1 equivalente; column_width=full_width).
-            Content::Columns { count, gutter, body } => {
+            Content::Columns(e) => {
                 // 1. Flush line pendente (columns são structural — começam
                 //    em nova linha lógica).
                 if self.regions.current.cursor_x.0 > self.regions.current.line_start_x.0 {
@@ -1992,10 +1992,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 }
 
                 let full_width = self.regions.current.width;
-                let count_f = if *count == 0 { 1.0 } else { *count as f64 };
+                let count_f = if e.count == 0 { 1.0 } else { e.count as f64 };
 
                 // 2. Resolver gutter (Length → f64 Pt; default ~4% width).
-                let gutter_pt = match gutter {
+                let gutter_pt = match e.gutter {
                     Some(g) => g.resolve_pt(self.font_size_pt.0),
                     None => full_width * COLUMNS_DEFAULT_GUTTER_RATIO,
                 };
@@ -2012,7 +2012,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.regions.current.width = column_width;
 
                 // 5. Layout body com width reduzida.
-                self.layout_content(body);
+                self.layout_content(&e.body);
 
                 // 6. Flush line pendente do body antes de restaurar.
                 if self.regions.current.cursor_x.0 > self.regions.current.line_start_x.0 {
@@ -2204,10 +2204,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────
-            Content::Quote { body, attribution, block, quotes } => {
+            Content::Quote(e) => {
                 use crate::rules::lang::quotes::{DEFAULT_QUOTES, localize_quotes};
                 let lang = self.chain.lang();
-                let (open, close) = if *quotes {
+                let (open, close) = if e.quotes {
                     match &lang {
                         Some(l) => localize_quotes(l),
                         None    => DEFAULT_QUOTES,
@@ -2215,18 +2215,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 } else {
                     ("", "")
                 };
-                if *block {
+                if e.block {
                     if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
                     let margin_pt = Pt(self.page_config.margin);
                     self.regions.current.cursor_x = margin_pt + self.font_size_pt * 1.5;
                     if !open.is_empty() {
                         self.layout_content(&Content::text(open));
                     }
-                    self.layout_content(body);
+                    self.layout_content(&e.body);
                     if !close.is_empty() {
                         self.layout_content(&Content::text(close));
                     }
-                    if let Some(a) = attribution {
+                    if let Some(a) = &e.attribution {
                         self.flush_line();
                         self.regions.current.cursor_x = margin_pt + self.font_size_pt * 1.5;
                         self.layout_content(&Content::text("— "));
@@ -2238,11 +2238,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     if !open.is_empty() {
                         self.layout_content(&Content::text(open));
                     }
-                    self.layout_content(body);
+                    self.layout_content(&e.body);
                     if !close.is_empty() {
                         self.layout_content(&Content::text(close));
                     }
-                    if let Some(a) = attribution {
+                    if let Some(a) = &e.attribution {
                         self.layout_content(&Content::text(" — "));
                         self.layout_content(a);
                     }
@@ -2454,9 +2454,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // (paralelo a layout_content arm); medir body com width
             // reduzida; retorna full_width (columns ocupa width inteira)
             // + body_h (single-render graded).
-            Content::Columns { count, gutter, body } => {
-                let count_f = if *count == 0 { 1.0 } else { *count as f64 };
-                let gutter_pt = match gutter {
+            Content::Columns(e) => {
+                let count_f = if e.count == 0 { 1.0 } else { e.count as f64 };
+                let gutter_pt = match e.gutter {
                     Some(g) => g.resolve_pt(self.font_size_pt.0),
                     None => max_width * COLUMNS_DEFAULT_GUTTER_RATIO,
                 };
@@ -2466,7 +2466,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     max_width
                 };
                 let (_body_w, body_h) =
-                    self.measure_content_constrained(body, column_width);
+                    self.measure_content_constrained(&e.body, column_width);
                 (max_width, body_h)
             }
 

@@ -2085,7 +2085,7 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve ter content");
         assert!(
-            matches!(&content, Content::Ref { target: Label(s) } if s == "meu_label"),
+            matches!(&content, Content::Ref(e) if e.target.0 == "meu_label"),
             "esperado Ref(meu_label), obtido: {:?}", content
         );
     }
@@ -2611,7 +2611,7 @@ mod tests {
 
     fn find_quote(c: &Content) -> Option<&Content> {
         match c {
-            Content::Quote { .. } => Some(c),
+            Content::Quote(_) => Some(c),
             Content::Sequence(seq) => seq.iter().find_map(find_quote),
             _ => None,
         }
@@ -2625,10 +2625,10 @@ mod tests {
         let content = module.content().expect("deve ter content");
         let q = find_quote(&content).expect("esperado Content::Quote");
         match q {
-            Content::Quote { attribution, block, quotes, .. } => {
-                assert!(attribution.is_none(), "attribution default = None");
-                assert!(!block, "block default = false");
-                assert!(*quotes, "quotes default = true");
+            Content::Quote(e) => {
+                assert!(e.attribution.is_none(), "attribution default = None");
+                assert!(!e.block, "block default = false");
+                assert!(e.quotes, "quotes default = true");
             }
             _ => panic!("esperado Content::Quote, obteve {:?}", q),
         }
@@ -2642,8 +2642,8 @@ mod tests {
         let content = module.content().expect("deve ter content");
         let q = find_quote(&content).expect("esperado Content::Quote");
         match q {
-            Content::Quote { attribution: Some(a), .. } => {
-                assert_eq!(a.plain_text(), "Seneca");
+            Content::Quote(e) if e.attribution.is_some() => {
+                assert_eq!(e.attribution.as_ref().unwrap().plain_text(), "Seneca");
             }
             _ => panic!("esperado Content::Quote com attribution: {:?}", q),
         }
@@ -2657,7 +2657,7 @@ mod tests {
         let content = module.content().expect("deve ter content");
         let q = find_quote(&content).expect("esperado Content::Quote");
         match q {
-            Content::Quote { block, .. } => assert!(*block),
+            Content::Quote(e) => assert!(e.block),
             _ => panic!("esperado Content::Quote, obteve {:?}", q),
         }
     }
@@ -2670,7 +2670,7 @@ mod tests {
         let content = module.content().expect("deve ter content");
         let q = find_quote(&content).expect("esperado Content::Quote");
         match q {
-            Content::Quote { quotes, .. } => assert!(!quotes),
+            Content::Quote(e) => assert!(!e.quotes),
             _ => panic!("esperado Content::Quote, obteve {:?}", q),
         }
     }

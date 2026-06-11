@@ -210,7 +210,7 @@ pub(super) fn eval_func_call(
     // Intercepção de `outline()` — produz Content::Outline (Passo 61).
     if let Expr::Ident(ident) = call.callee() {
         if ident.as_str() == "outline" {
-            return Ok(Value::Content(Content::Outline));
+            return Ok(Value::Content(Content::outline()));
         }
     }
 
