@@ -2860,9 +2860,9 @@ mod tests {
         use crate::entities::layout_types::Length;
         let args = p(vec![Value::Length(Length::pt(12.0))]);
         let r = native_h(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::HSpace { amount, weak }) = r {
-            assert_eq!(amount, Length::pt(12.0));
-            assert!(!weak); // default
+        if let Value::Content(Content::HSpace(e)) = r {
+            assert_eq!(e.amount, Length::pt(12.0));
+            assert!(!e.weak); // default
         } else {
             panic!("esperado Content::HSpace");
         }
@@ -2874,15 +2874,15 @@ mod tests {
         use crate::entities::layout_types::Length;
         // Int interpretado em pt.
         let r = native_h(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::HSpace { amount, .. }) = r {
-            assert_eq!(amount, Length::pt(5.0));
+        if let Value::Content(Content::HSpace(e)) = r {
+            assert_eq!(e.amount, Length::pt(5.0));
         } else {
             panic!("esperado Content::HSpace");
         }
         // Float interpretado em pt.
         let r = native_h(&mut ctx, &p(vec![Value::Float(2.5)]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::HSpace { amount, .. }) = r {
-            assert_eq!(amount, Length::pt(2.5));
+        if let Value::Content(Content::HSpace(e)) = r {
+            assert_eq!(e.amount, Length::pt(2.5));
         } else {
             panic!("esperado Content::HSpace");
         }
@@ -2895,8 +2895,8 @@ mod tests {
         let mut args = p(vec![Value::Length(Length::pt(3.0))]);
         args.named.insert("weak".into(), Value::Bool(true));
         let r = native_h(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::HSpace { weak, .. }) = r {
-            assert!(weak);
+        if let Value::Content(Content::HSpace(e)) = r {
+            assert!(e.weak);
         } else {
             panic!("esperado Content::HSpace");
         }
@@ -2907,8 +2907,8 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let r = native_h(&mut ctx, &p(vec![Value::Length(Length::ZERO)]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::HSpace { amount, .. }) = r {
-            assert_eq!(amount, Length::ZERO);
+        if let Value::Content(Content::HSpace(e)) = r {
+            assert_eq!(e.amount, Length::ZERO);
         } else {
             panic!("esperado Content::HSpace");
         }
@@ -2958,9 +2958,9 @@ mod tests {
         let mut args = p(vec![Value::Length(Length::pt(15.0))]);
         args.named.insert("weak".into(), Value::Bool(true));
         let r = native_v(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::VSpace { amount, weak }) = r {
-            assert_eq!(amount, Length::pt(15.0));
-            assert!(weak);
+        if let Value::Content(Content::VSpace(e)) = r {
+            assert_eq!(e.amount, Length::pt(15.0));
+            assert!(e.weak);
         } else {
             panic!("esperado Content::VSpace");
         }
@@ -2987,9 +2987,9 @@ mod tests {
     fn native_pagebreak_defaults() {
         null_ctx!(ctx);
         let r = native_pagebreak(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pagebreak { weak, to }) = r {
-            assert!(!weak);
-            assert_eq!(to, None);
+        if let Value::Content(Content::Pagebreak(e)) = r {
+            assert!(!e.weak);
+            assert_eq!(e.to, None);
         } else {
             panic!("esperado Content::Pagebreak");
         }
@@ -3001,8 +3001,8 @@ mod tests {
         let mut args = p(vec![]);
         args.named.insert("weak".into(), Value::Bool(true));
         let r = native_pagebreak(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pagebreak { weak, .. }) = r {
-            assert!(weak);
+        if let Value::Content(Content::Pagebreak(e)) = r {
+            assert!(e.weak);
         } else {
             panic!("esperado Content::Pagebreak");
         }
@@ -3015,8 +3015,8 @@ mod tests {
         let mut args = p(vec![]);
         args.named.insert("to".into(), Value::Str("even".into()));
         let r = native_pagebreak(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pagebreak { to, .. }) = r {
-            assert_eq!(to, Some(Parity::Even));
+        if let Value::Content(Content::Pagebreak(e)) = r {
+            assert_eq!(e.to, Some(Parity::Even));
         } else {
             panic!("esperado Content::Pagebreak");
         }
@@ -3029,8 +3029,8 @@ mod tests {
         let mut args = p(vec![]);
         args.named.insert("to".into(), Value::Str("odd".into()));
         let r = native_pagebreak(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pagebreak { to, .. }) = r {
-            assert_eq!(to, Some(Parity::Odd));
+        if let Value::Content(Content::Pagebreak(e)) = r {
+            assert_eq!(e.to, Some(Parity::Odd));
         } else {
             panic!("esperado Content::Pagebreak");
         }
@@ -3044,9 +3044,9 @@ mod tests {
         args.named.insert("weak".into(), Value::Bool(true));
         args.named.insert("to".into(), Value::Str("even".into()));
         let r = native_pagebreak(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pagebreak { weak, to }) = r {
-            assert!(weak);
-            assert_eq!(to, Some(Parity::Even));
+        if let Value::Content(Content::Pagebreak(e)) = r {
+            assert!(e.weak);
+            assert_eq!(e.to, Some(Parity::Even));
         } else {
             panic!("esperado Content::Pagebreak");
         }
@@ -4409,8 +4409,8 @@ mod tests {
         null_ctx!(ctx);
         let r = native_colbreak(&mut ctx, &p(vec![]),
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Colbreak { weak }) = r {
-            assert_eq!(weak, false, "default weak == false");
+        if let Value::Content(Content::Colbreak(e)) = r {
+            assert_eq!(e.weak, false, "default weak == false");
         } else {
             panic!("esperado Value::Content(Content::Colbreak)");
         }
@@ -4423,8 +4423,8 @@ mod tests {
         args.named.insert("weak".into(), Value::Bool(true));
         let r = native_colbreak(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Colbreak { weak }) = r {
-            assert_eq!(weak, true);
+        if let Value::Content(Content::Colbreak(e)) = r {
+            assert_eq!(e.weak, true);
         } else {
             panic!("esperado Value::Content(Content::Colbreak {{ weak: true }})");
         }
@@ -4893,9 +4893,9 @@ mod tests {
         null_ctx!(ctx);
         let r = native_grid_header(&mut ctx, &p(vec![Value::Content(Content::text("hdr"))]),
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::GridHeader { body, repeat }) = r {
-            assert_eq!(body.plain_text(), "hdr");
-            assert_eq!(repeat, true, "default repeat == true (paridade vanilla)");
+        if let Value::Content(Content::GridHeader(e)) = r {
+            assert_eq!(e.body.plain_text(), "hdr");
+            assert_eq!(e.repeat, true, "default repeat == true (paridade vanilla)");
         } else { panic!("esperado GridHeader"); }
     }
 
@@ -4906,9 +4906,9 @@ mod tests {
         args.named.insert("repeat".into(), Value::Bool(false));
         let r = native_grid_footer(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::GridFooter { body, repeat }) = r {
-            assert_eq!(body.plain_text(), "ftr");
-            assert_eq!(repeat, false);
+        if let Value::Content(Content::GridFooter(e)) = r {
+            assert_eq!(e.body.plain_text(), "ftr");
+            assert_eq!(e.repeat, false);
         } else { panic!("esperado GridFooter"); }
     }
 
@@ -6195,9 +6195,9 @@ mod tests {
         // P157C ADR-0064 Caso D: default vanilla repeat=true.
         null_ctx!(ctx);
         let r = native_table_header(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::TableHeader { body, repeat }) = r {
-            assert_eq!(body.plain_text(), "body");
-            assert!(repeat, "default vanilla repeat=true (Caso D)");
+        if let Value::Content(Content::TableHeader(e)) = r {
+            assert_eq!(e.body.plain_text(), "body");
+            assert!(e.repeat, "default vanilla repeat=true (Caso D)");
         } else {
             panic!("esperado Content::TableHeader");
         }
@@ -6208,9 +6208,9 @@ mod tests {
         // Par simétrico — paridade absoluta com header.
         null_ctx!(ctx);
         let r = native_table_footer(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::TableFooter { body, repeat }) = r {
-            assert_eq!(body.plain_text(), "body");
-            assert!(repeat);
+        if let Value::Content(Content::TableFooter(e)) = r {
+            assert_eq!(e.body.plain_text(), "body");
+            assert!(e.repeat);
         } else {
             panic!("esperado Content::TableFooter");
         }
@@ -6222,8 +6222,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("repeat".into(), Value::Bool(false));
         let r = native_table_header(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::TableHeader { repeat, .. }) = r {
-            assert!(!repeat);
+        if let Value::Content(Content::TableHeader(e)) = r {
+            assert!(!e.repeat);
         } else {
             panic!("esperado Content::TableHeader");
         }
@@ -6235,8 +6235,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("repeat".into(), Value::Bool(false));
         let r = native_table_footer(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::TableFooter { repeat, .. }) = r {
-            assert!(!repeat);
+        if let Value::Content(Content::TableFooter(e)) = r {
+            assert!(!e.repeat);
         } else {
             panic!("esperado Content::TableFooter");
         }

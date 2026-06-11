@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 8e354584
+//! @prompt-hash 2723a25f
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -53,6 +53,16 @@ use crate::entities::elements::terms::TermsElem;
 use crate::entities::elements::overline::OverlineElem;
 use crate::entities::elements::strike::StrikeElem;
 use crate::entities::elements::underline::UnderlineElem;
+// Lote 5 P320 — quebras/espaços + grid/table header/footer (9 variantes).
+use crate::entities::elements::colbreak::ColbreakElem;
+use crate::entities::elements::grid_footer::GridFooterElem;
+use crate::entities::elements::grid_header::GridHeaderElem;
+use crate::entities::elements::h_space::HSpaceElem;
+use crate::entities::elements::linebreak::LinebreakElem;
+use crate::entities::elements::pagebreak::PagebreakElem;
+use crate::entities::elements::table_footer::TableFooterElem;
+use crate::entities::elements::table_header::TableHeaderElem;
+use crate::entities::elements::v_space::VSpaceElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -154,7 +164,8 @@ pub enum Content {
 
     /// Quebra de linha em contexto matemático (`\\`).
     /// Separa linhas no layout de grelha (Passo 51).
-    Linebreak,
+    /// **Modelo D (Lote 5 P320)**: `entities::elements::linebreak::LinebreakElem`.
+    Linebreak(Arc<LinebreakElem>),
 
     /// Matriz matemática produzida pela função `mat(...)`.
     /// `rows`: lista de linhas, cada linha é uma lista de células.
@@ -434,17 +445,13 @@ pub enum Content {
     /// literal). Layouter renderiza `body` no contexto Grid; **`repeat`
     /// armazenado mas semantic adiada** per ADR-0054 graded (paridade
     /// pattern N=5 cumulativo weak/breakable/float/repeat).
-    GridHeader {
-        body:   Box<Content>,
-        repeat: bool,
-    },
+    /// **Modelo D (Lote 5 P320)**: `entities::elements::grid_header::GridHeaderElem`.
+    GridHeader(Arc<GridHeaderElem>),
 
     /// Grid footer — vanilla `GridFooter` (paridade P157C TableFooter
     /// literal). Par simétrico com `GridHeader` (mesmos fields).
-    GridFooter {
-        body:   Box<Content>,
-        repeat: bool,
-    },
+    /// **Modelo D (Lote 5 P320)**: `entities::elements::grid_footer::GridFooterElem`.
+    GridFooter(Arc<GridFooterElem>),
 
     // ── Passo 224.C (ADR-0061 Fase 4 candidata sub-3) — Grid cell + placement ──
     /// Grid cell estruturado — vanilla `GridCell` (paridade P157B
@@ -672,20 +679,16 @@ pub enum Content {
     /// collapse adiado (perfil ADR-0054 graded). Layouter avança
     /// `cursor_x` por `amount`. Vanilla aceita `Fraction`; cristalino
     /// só aceita `Length` neste passo (ADR-0061 §6.3 refino futuro).
-    HSpace {
-        amount: Length,
-        weak:   bool,
-    },
+    /// **Modelo D (Lote 5 P320)**: `entities::elements::h_space::HSpaceElem`.
+    HSpace(Arc<HSpaceElem>),
 
     /// Spacing primitive vertical (vanilla `VElem`).
     ///
     /// Análogo a `HSpace` mas em eixo Y. Layouter força `flush_line`
     /// antes de avançar `cursor_y` (caso contrário texto na linha
     /// actual fica meio-render).
-    VSpace {
-        amount: Length,
-        weak:   bool,
-    },
+    /// **Modelo D (Lote 5 P320)**: `entities::elements::v_space::VSpaceElem`.
+    VSpace(Arc<VSpaceElem>),
 
     // ── Passo 156E (ADR-0061 Fase 1 sub-passo 3) — pagebreak manual ──────
     /// Quebra de página manual (vanilla `PagebreakElem`).
@@ -695,10 +698,8 @@ pub enum Content {
     /// `to: Some(parity)` força a próxima página a ter paridade
     /// especificada — Layouter insere página vazia se necessário.
     /// `to: None` == Auto (sem ajuste).
-    Pagebreak {
-        weak: bool,
-        to:   Option<Parity>,
-    },
+    /// **Modelo D (Lote 5 P320)**: `entities::elements::pagebreak::PagebreakElem`.
+    Pagebreak(Arc<PagebreakElem>),
 
     // ── Passo 220 (ADR-0078 PROPOSTO sub-fase b 4/4) — colbreak manual ──
     /// Quebra de coluna manual — Fase 3 Layout per ADR-0078
@@ -718,9 +719,8 @@ pub enum Content {
     /// (paridade `Pagebreak.weak` P156E e HSpace/VSpace P156D).
     /// Sem `to: Option<Parity>` — vanilla `ColbreakElem` não tem
     /// (paridade só faz sentido em páginas).
-    Colbreak {
-        weak: bool,
-    },
+    /// **Modelo D (Lote 5 P320)**: `entities::elements::colbreak::ColbreakElem`.
+    Colbreak(Arc<ColbreakElem>),
 
     // ── Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo ──
     /// Container compositivo — vanilla `StackElem`. **Último sub-passo
@@ -1036,10 +1036,8 @@ pub enum Content {
     /// armazenado mas ignorado** per ADR-0054 graded — algoritmo
     /// de repetição em page breaks diferido em **DEBT-56**
     /// (refactor multi-region).
-    TableHeader {
-        body:   Box<Content>,
-        repeat: bool,
-    },
+    /// **Modelo D (Lote 5 P320)**: `entities::elements::table_header::TableHeaderElem`.
+    TableHeader(Arc<TableHeaderElem>),
 
     /// Footer repetível de Table — vanilla `TableFooter`.
     /// Par simétrico com `TableHeader` (paridade absoluta:
@@ -1049,10 +1047,8 @@ pub enum Content {
     /// Mesma divergência `body: Box<Content>` aceite per ADR-0033.
     /// Mesma decisão `repeat: bool` ADR-0064 Caso D.
     /// Mesma limitação per ADR-0054 graded (DEBT-56).
-    TableFooter {
-        body:   Box<Content>,
-        repeat: bool,
-    },
+    /// **Modelo D (Lote 5 P320)**: `entities::elements::table_footer::TableFooterElem`.
+    TableFooter(Arc<TableFooterElem>),
 
     // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table minimal ────────
     /// Container tabular semântico — vanilla `TableElem`.
@@ -1371,22 +1367,35 @@ impl Content {
 
     /// `h(amount, weak)` — Passo 156D (ADR-0061 Fase 1 sub-passo 2).
     pub fn h_space(amount: Length, weak: bool) -> Self {
-        Self::HSpace { amount, weak }
+        Self::HSpace(Arc::new(HSpaceElem { amount, weak }))
     }
 
     /// `v(amount, weak)` — Passo 156D (ADR-0061 Fase 1 sub-passo 2).
     pub fn v_space(amount: Length, weak: bool) -> Self {
-        Self::VSpace { amount, weak }
+        Self::VSpace(Arc::new(VSpaceElem { amount, weak }))
     }
 
     /// `pagebreak(weak, to)` — Passo 156E (ADR-0061 Fase 1 sub-passo 3).
     pub fn pagebreak(weak: bool, to: Option<Parity>) -> Self {
-        Self::Pagebreak { weak, to }
+        Self::Pagebreak(Arc::new(PagebreakElem { weak, to }))
     }
 
     /// `colbreak(weak)` — Passo 220 (ADR-0078 PROPOSTO sub-fase b 4/4).
     pub fn colbreak(weak: bool) -> Self {
-        Self::Colbreak { weak }
+        Self::Colbreak(Arc::new(ColbreakElem { weak }))
+    }
+
+    /// `linebreak()` — Modelo D (Lote 5 P320).
+    pub fn linebreak() -> Self {
+        Self::Linebreak(Arc::new(LinebreakElem))
+    }
+    /// `grid_header(body, repeat)` — Modelo D (Lote 5 P320).
+    pub fn grid_header(body: Content, repeat: bool) -> Self {
+        Self::GridHeader(Arc::new(GridHeaderElem { body, repeat }))
+    }
+    /// `grid_footer(body, repeat)` — Modelo D (Lote 5 P320).
+    pub fn grid_footer(body: Content, repeat: bool) -> Self {
+        Self::GridFooter(Arc::new(GridFooterElem { body, repeat }))
     }
 
     /// `block(body, width, height, inset, breakable)` — Passo 156G
@@ -1504,13 +1513,13 @@ impl Content {
     /// aplicação Caso D em Model). Algoritmo de repetição diferido
     /// em DEBT-56.
     pub fn table_header(body: Content, repeat: bool) -> Self {
-        Self::TableHeader { body: Box::new(body), repeat }
+        Self::TableHeader(Arc::new(TableHeaderElem { body, repeat }))
     }
 
     /// `table_footer(body, repeat)` — par simétrico de `table_header`
     /// (Passo 157C). Mesma decisão Caso D + DEBT-56.
     pub fn table_footer(body: Content, repeat: bool) -> Self {
-        Self::TableFooter { body: Box::new(body), repeat }
+        Self::TableFooter(Arc::new(TableFooterElem { body, repeat }))
     }
 
     /// `bibliography(entries, title)` — Passo 159A (par acoplado
@@ -1560,8 +1569,9 @@ impl Content {
                 body.is_empty() && caption.as_ref().is_none_or(|c| c.is_empty()),
             Self::Grid { cells, .. } => cells.is_empty(),
             // P224.B — GridHeader/GridFooter vazio se body for (paridade P157C).
-            Self::GridHeader { body, .. } => body.is_empty(),
-            Self::GridFooter { body, .. } => body.is_empty(),
+            // Modelo D (Lote 5 P320): grid/table header/footer delegam ao elemento.
+            Self::GridHeader(e) => e.is_empty(),
+            Self::GridFooter(e) => e.is_empty(),
             // P224.C — GridCell vazio se body for (paridade P157B TableCell).
             Self::GridCell { body, .. } => body.is_empty(),
             // Passo 157A (ADR-0060 Fase 2): Table é vazio se children
@@ -1575,8 +1585,8 @@ impl Content {
             // Passo 157C (ADR-0060 Fase 2 sub-passo 3): par simétrico
             // TableHeader/TableFooter vazio se body for (atributo
             // repeat não torna o container não-vazio — paridade Block/Boxed).
-            Self::TableHeader { body, .. } => body.is_empty(),
-            Self::TableFooter { body, .. } => body.is_empty(),
+            Self::TableHeader(e) => e.is_empty(),
+            Self::TableFooter(e) => e.is_empty(),
             // Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par
             // acoplado). Bibliography vazio se entries vazias E title
             // None. Cite nunca vazio (key sempre presente; placeholder
@@ -1606,15 +1616,12 @@ impl Content {
             // Passo 156C (ADR-0061 Fase 1): Pad/Hide vazios se o body for.
             Self::Pad  { body, .. } => body.is_empty(),
             Self::Hide { body }     => body.is_empty(),
-            // Passo 156D: HSpace/VSpace vazios se amount for zero.
-            Self::HSpace { amount, .. } => amount.is_zero(),
-            Self::VSpace { amount, .. } => amount.is_zero(),
-            // Passo 156E: Pagebreak nunca é vazio (event com efeito
-            // mesmo sem body; cf. Divider em P154B).
-            Self::Pagebreak { .. } => false,
-            // Passo 220: Colbreak nunca é vazio (event observable com
-            // downgrade graded a pagebreak; paridade Pagebreak/Divider).
-            Self::Colbreak { .. } => false,
+            // Modelo D (Lote 5 P320): espaços/breaks delegam ao elemento
+            // (HSpace/VSpace = amount.is_zero(); Pagebreak/Colbreak = false).
+            Self::HSpace(e)    => e.is_empty(),
+            Self::VSpace(e)    => e.is_empty(),
+            Self::Pagebreak(e) => e.is_empty(),
+            Self::Colbreak(e)  => e.is_empty(),
             // Passo 156G: Block é vazio se o body for (atributos de
             // dimensão/inset não fazem o container deixar de ser vazio
             // semanticamente — análogo a Pad em P156C).
@@ -1680,7 +1687,7 @@ impl Content {
             Self::MathRoot(e)       => e.plain_text(),
             Self::MathDelimited(e)  => e.plain_text(),
             Self::MathAlignPoint(e) => e.plain_text(),
-            Self::Linebreak      => "\n".to_string(),
+            Self::Linebreak(e)   => e.plain_text(),
             Self::MathMatrix(e)     => e.plain_text(),
             Self::MathCases(e)      => e.plain_text(),
             Self::MathAccent(e)     => e.plain_text(),
@@ -1716,8 +1723,8 @@ impl Content {
                 cells.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ")
             }
             // P224.B — GridHeader/GridFooter transparentes (paridade P157C).
-            Self::GridHeader { body, .. } => body.plain_text(),
-            Self::GridFooter { body, .. } => body.plain_text(),
+            Self::GridHeader(e) => e.plain_text(),
+            Self::GridFooter(e) => e.plain_text(),
             // P224.C — GridCell transparente (paridade P157B TableCell).
             Self::GridCell { body, .. } => body.plain_text(),
             // Passo 157A: Table concatena children com space (paridade
@@ -1736,8 +1743,8 @@ impl Content {
             // multiplicar por repeat (semântica de page-break
             // repetição não visível em texto plano; diferida em
             // DEBT-56).
-            Self::TableHeader { body, .. } => body.plain_text(),
-            Self::TableFooter { body, .. } => body.plain_text(),
+            Self::TableHeader(e) => e.plain_text(),
+            Self::TableFooter(e) => e.plain_text(),
             // Passo 159A: Bibliography concatena title (se Some) +
             // entries formatadas. Cite emite `"[{key}]"` placeholder
             // + supplement.
@@ -1782,12 +1789,11 @@ impl Content {
             // body sem alterar texto). Hide produz string vazia (não rende).
             Self::Pad  { body, .. } => body.plain_text(),
             Self::Hide { .. }       => String::new(),
-            // Passo 156D: HSpace/VSpace são spacing primitives sem texto.
-            Self::HSpace { .. } | Self::VSpace { .. } => String::new(),
-            // Passo 156E: Pagebreak é event sem texto.
-            Self::Pagebreak { .. } => String::new(),
-            // Passo 220: Colbreak é event sem texto (paridade Pagebreak).
-            Self::Colbreak { .. } => String::new(),
+            // Modelo D (Lote 5 P320): espaços/breaks delegam ao elemento (vazio).
+            Self::HSpace(e)    => e.plain_text(),
+            Self::VSpace(e)    => e.plain_text(),
+            Self::Pagebreak(e) => e.plain_text(),
+            Self::Colbreak(e)  => e.plain_text(),
             // Passo 156G: Block é transparente para texto plano (recurse
             // no body; análogo a Pad em P156C).
             Self::Block { body, .. } => body.plain_text(),
@@ -1844,7 +1850,7 @@ impl PartialEq for Content {
             (Self::MathRoot(a),       Self::MathRoot(b))       => a == b,
             (Self::MathDelimited(a),  Self::MathDelimited(b))  => a == b,
             (Self::MathAlignPoint(a), Self::MathAlignPoint(b)) => a == b,
-            (Self::Linebreak,      Self::Linebreak)                  => true,
+            (Self::Linebreak(a),   Self::Linebreak(b))               => a == b,
             (Self::MathMatrix(a),     Self::MathMatrix(b))     => a == b,
             (Self::MathCases(a),      Self::MathCases(b))      => a == b,
             (Self::MathAccent(a),     Self::MathAccent(b))     => a == b,
@@ -1885,10 +1891,9 @@ impl PartialEq for Content {
                 && ga == gb && aa == ab && ia == ib && ha == hb && fa == fb
                 && stra == strb && fila == filb,
             // P224.B — GridHeader / GridFooter (paridade P157C literal).
-            (Self::GridHeader { body: ba, repeat: ra },
-             Self::GridHeader { body: bb, repeat: rb }) => ba == bb && ra == rb,
-            (Self::GridFooter { body: ba, repeat: ra },
-             Self::GridFooter { body: bb, repeat: rb }) => ba == bb && ra == rb,
+            // Modelo D (Lote 5 P320): delegam ao `Arc<…Elem>`.
+            (Self::GridHeader(a), Self::GridHeader(b)) => a == b,
+            (Self::GridFooter(a), Self::GridFooter(b)) => a == b,
             // P224.C + P230 + P235 — GridCell +5 fields cumulativos.
             (Self::GridCell { body: ba, x: xa, y: ya, colspan: ca, rowspan: ra,
                               stroke: stra, fill: fila,
@@ -1913,13 +1918,9 @@ impl PartialEq for Content {
                 ba == bb && xa == xb && ya == yb && csa == csb && rsa == rsb
                 && stra == strb && fila == filb
                 && ala == alb && ina == inb && bra == brb,
-            // Passo 157C — par simétrico TableHeader/TableFooter.
-            (Self::TableHeader { body: ba, repeat: ra },
-             Self::TableHeader { body: bb, repeat: rb }) =>
-                ba == bb && ra == rb,
-            (Self::TableFooter { body: ba, repeat: ra },
-             Self::TableFooter { body: bb, repeat: rb }) =>
-                ba == bb && ra == rb,
+            // Modelo D (Lote 5 P320): par simétrico TableHeader/TableFooter.
+            (Self::TableHeader(a), Self::TableHeader(b)) => a == b,
+            (Self::TableFooter(a), Self::TableFooter(b)) => a == b,
             // Passo 159A — par acoplado Bibliography + Cite.
             (Self::Bibliography { entries: ea, title: ta },
              Self::Bibliography { entries: eb, title: tb }) =>
@@ -1960,17 +1961,11 @@ impl PartialEq for Content {
             (Self::Pad  { body: ba, sides: sa },
              Self::Pad  { body: bb, sides: sb }) => ba == bb && sa == sb,
             (Self::Hide { body: ba }, Self::Hide { body: bb }) => ba == bb,
-            // Passo 156D — HSpace / VSpace.
-            (Self::HSpace { amount: aa, weak: wa },
-             Self::HSpace { amount: ab, weak: wb }) => aa == ab && wa == wb,
-            (Self::VSpace { amount: aa, weak: wa },
-             Self::VSpace { amount: ab, weak: wb }) => aa == ab && wa == wb,
-            // Passo 156E — Pagebreak.
-            (Self::Pagebreak { weak: wa, to: ta },
-             Self::Pagebreak { weak: wb, to: tb }) => wa == wb && ta == tb,
-            // Passo 220 — Colbreak (1 field — paridade Pagebreak sem to).
-            (Self::Colbreak { weak: wa },
-             Self::Colbreak { weak: wb }) => wa == wb,
+            // Modelo D (Lote 5 P320): espaços/breaks delegam ao `Arc<…Elem>`.
+            (Self::HSpace(a),    Self::HSpace(b))    => a == b,
+            (Self::VSpace(a),    Self::VSpace(b))    => a == b,
+            (Self::Pagebreak(a), Self::Pagebreak(b)) => a == b,
+            (Self::Colbreak(a),  Self::Colbreak(b))  => a == b,
             // Passo 156G + P231 + P247 + P250 — Block +9 cosméticos
             // (outset/radius/clip/fill/stroke/spacing/above/below/sticky).
             (Self::Block { body: ba, width: wa, height: ha, inset: ia, breakable: ka,
@@ -2213,7 +2208,7 @@ impl Content {
             Content::Text(_, _)
             | Content::Space
             | Content::Empty
-            | Content::Linebreak
+            | Content::Linebreak(_)
             | Content::Outline
             | Content::Raw { .. }
             | Content::Ref { .. }
@@ -2229,11 +2224,11 @@ impl Content {
             | Content::Divider(_)
             // P287 — SmartQuote leaf (sem body — terminal).
             | Content::SmartQuote { .. }
-            | Content::HSpace { .. }
-            | Content::VSpace { .. }
-            | Content::Pagebreak { .. }
+            | Content::HSpace(_)
+            | Content::VSpace(_)
+            | Content::Pagebreak(_)
             // P220: Colbreak é leaf (event sem body), terminal.
-            | Content::Colbreak { .. }
+            | Content::Colbreak(_)
             | Content::Shape { .. }
             // P169 (M9): Metadata é terminal — clonar directamente.
             | Content::Metadata { .. }
@@ -2271,15 +2266,9 @@ impl Content {
                     fill:    *fill,
                 }
             },
-            // P224.B — GridHeader / GridFooter recurse no body.
-            Content::GridHeader { body, repeat } => Content::GridHeader {
-                body:   Box::new(body.map_content(transform)?),
-                repeat: *repeat,
-            },
-            Content::GridFooter { body, repeat } => Content::GridFooter {
-                body:   Box::new(body.map_content(transform)?),
-                repeat: *repeat,
-            },
+            // Modelo D (Lote 5 P320): GridHeader/GridFooter delegam ao elemento.
+            Content::GridHeader(e) => e.map_content(transform)?,
+            Content::GridFooter(e) => e.map_content(transform)?,
             // P224.C + P230 + P235 — GridCell recurse no body; preserva
             // 5 fields cumulativos.
             Content::GridCell { body, x, y, colspan, rowspan, stroke, fill,
@@ -2322,16 +2311,9 @@ impl Content {
                 inset:     inset.clone(),
                 breakable: *breakable,
             },
-            // Passo 157C: par simétrico TableHeader/TableFooter —
-            // recurse no body; preserva repeat (Copy bool).
-            Content::TableHeader { body, repeat } => Content::TableHeader {
-                body:   Box::new(body.map_content(transform)?),
-                repeat: *repeat,
-            },
-            Content::TableFooter { body, repeat } => Content::TableFooter {
-                body:   Box::new(body.map_content(transform)?),
-                repeat: *repeat,
-            },
+            // Modelo D (Lote 5 P320): TableHeader/TableFooter delegam ao elemento.
+            Content::TableHeader(e) => e.map_content(transform)?,
+            Content::TableFooter(e) => e.map_content(transform)?,
             // Passo 159A: Bibliography recurse em title; preserva
             // entries (BibEntry é dados puros, sem Content recursivo).
             // Cite recurse em supplement; preserva key.
@@ -2510,7 +2492,7 @@ impl Content {
             // Passo 156E: Pagebreak é leaf (event sem body), terminal.
             Content::Empty
             | Content::Space
-            | Content::Linebreak
+            | Content::Linebreak(_)
             | Content::Outline
             | Content::Raw { .. }
             | Content::Ref { .. }
@@ -2544,11 +2526,11 @@ impl Content {
             | Content::MathStyled(_)
             | Content::Image { .. }
             | Content::Divider(_)
-            | Content::HSpace { .. }
-            | Content::VSpace { .. }
-            | Content::Pagebreak { .. }
+            | Content::HSpace(_)
+            | Content::VSpace(_)
+            | Content::Pagebreak(_)
             // P220: Colbreak é leaf (event sem body), terminal.
-            | Content::Colbreak { .. }
+            | Content::Colbreak(_)
             | Content::Shape { .. }
             // P169 (M9): Metadata é terminal — clonar directamente.
             | Content::Metadata { .. }
@@ -2576,15 +2558,9 @@ impl Content {
                 stroke:  stroke.clone(),
                 fill:    *fill,
             },
-            // P224.B — GridHeader / GridFooter recurse no body (map_text).
-            Content::GridHeader { body, repeat } => Content::GridHeader {
-                body:   Box::new(body.map_text(transform)),
-                repeat: *repeat,
-            },
-            Content::GridFooter { body, repeat } => Content::GridFooter {
-                body:   Box::new(body.map_text(transform)),
-                repeat: *repeat,
-            },
+            // Modelo D (Lote 5 P320): GridHeader/GridFooter delegam ao elemento.
+            Content::GridHeader(e) => e.map_text(transform),
+            Content::GridFooter(e) => e.map_text(transform),
             // P224.C + P230 + P235 — GridCell recurse no body (map_text);
             // preserva 5 fields cumulativos.
             Content::GridCell { body, x, y, colspan, rowspan, stroke, fill,
@@ -2623,15 +2599,9 @@ impl Content {
                 inset:     inset.clone(),
                 breakable: *breakable,
             },
-            // Passo 157C: par simétrico — map_text no body.
-            Content::TableHeader { body, repeat } => Content::TableHeader {
-                body:   Box::new(body.map_text(transform)),
-                repeat: *repeat,
-            },
-            Content::TableFooter { body, repeat } => Content::TableFooter {
-                body:   Box::new(body.map_text(transform)),
-                repeat: *repeat,
-            },
+            // Modelo D (Lote 5 P320): TableHeader/TableFooter delegam ao elemento.
+            Content::TableHeader(e) => e.map_text(transform),
+            Content::TableFooter(e) => e.map_text(transform),
             // Passo 159A: Bibliography map_text em title; entries
             // são dados puros (String fields) — sem map_text recursivo
             // em entries (mapeamento de strings em fields entities é
@@ -3409,9 +3379,9 @@ mod tests {
     fn hspace_constructor() {
         use crate::entities::layout_types::Length;
         let h = Content::h_space(Length::pt(12.0), false);
-        if let Content::HSpace { amount, weak } = h {
-            assert_eq!(amount, Length::pt(12.0));
-            assert!(!weak);
+        if let Content::HSpace(e) = h {
+            assert_eq!(e.amount, Length::pt(12.0));
+            assert!(!e.weak);
         } else {
             panic!("esperado Content::HSpace");
         }
@@ -3421,9 +3391,9 @@ mod tests {
     fn vspace_constructor() {
         use crate::entities::layout_types::Length;
         let v = Content::v_space(Length::pt(8.0), true);
-        if let Content::VSpace { amount, weak } = v {
-            assert_eq!(amount, Length::pt(8.0));
-            assert!(weak);
+        if let Content::VSpace(e) = v {
+            assert_eq!(e.amount, Length::pt(8.0));
+            assert!(e.weak);
         } else {
             panic!("esperado Content::VSpace");
         }
@@ -3498,16 +3468,16 @@ mod tests {
     fn pagebreak_constructor() {
         use crate::entities::parity::Parity;
         let p = Content::pagebreak(false, None);
-        if let Content::Pagebreak { weak, to } = p {
-            assert!(!weak);
-            assert_eq!(to, None);
+        if let Content::Pagebreak(e) = p {
+            assert!(!e.weak);
+            assert_eq!(e.to, None);
         } else {
             panic!("esperado Content::Pagebreak");
         }
         let p2 = Content::pagebreak(true, Some(Parity::Even));
-        if let Content::Pagebreak { weak, to } = p2 {
-            assert!(weak);
-            assert_eq!(to, Some(Parity::Even));
+        if let Content::Pagebreak(e) = p2 {
+            assert!(e.weak);
+            assert_eq!(e.to, Some(Parity::Even));
         } else {
             panic!("esperado Content::Pagebreak");
         }
@@ -4103,14 +4073,14 @@ mod tests {
     #[test]
     fn p220_colbreak_variant_existe() {
         let c = Content::colbreak(false);
-        if let Content::Colbreak { weak } = &c {
-            assert_eq!(*weak, false);
+        if let Content::Colbreak(e) = &c {
+            assert_eq!(e.weak, false);
         } else {
             panic!("esperado Content::Colbreak");
         }
         let c2 = Content::colbreak(true);
-        if let Content::Colbreak { weak } = &c2 {
-            assert_eq!(*weak, true);
+        if let Content::Colbreak(e) = &c2 {
+            assert_eq!(e.weak, true);
         } else {
             panic!("esperado Content::Colbreak");
         }
@@ -4284,32 +4254,26 @@ mod tests {
 
     #[test]
     fn p224_gridheader_variant_aceita() {
-        let h = Content::GridHeader {
-            body:   Box::new(Content::text("hdr")),
-            repeat: true,
-        };
-        if let Content::GridHeader { body, repeat } = &h {
-            assert_eq!(body.plain_text(), "hdr");
-            assert_eq!(*repeat, true);
+        let h = Content::grid_header(Content::text("hdr"), true);
+        if let Content::GridHeader(e) = &h {
+            assert_eq!(e.body.plain_text(), "hdr");
+            assert_eq!(e.repeat, true);
         } else { panic!("esperado GridHeader"); }
     }
 
     #[test]
     fn p224_gridfooter_variant_aceita() {
-        let f = Content::GridFooter {
-            body:   Box::new(Content::text("ftr")),
-            repeat: false,
-        };
-        if let Content::GridFooter { body, repeat } = &f {
-            assert_eq!(body.plain_text(), "ftr");
-            assert_eq!(*repeat, false);
+        let f = Content::grid_footer(Content::text("ftr"), false);
+        if let Content::GridFooter(e) = &f {
+            assert_eq!(e.body.plain_text(), "ftr");
+            assert_eq!(e.repeat, false);
         } else { panic!("esperado GridFooter"); }
     }
 
     #[test]
     fn p224_gridheader_is_empty_proxy_body() {
-        assert!(Content::GridHeader { body: Box::new(Content::Empty), repeat: true }.is_empty());
-        assert!(!Content::GridHeader { body: Box::new(Content::text("x")), repeat: true }.is_empty());
+        assert!(Content::grid_header(Content::Empty, true).is_empty());
+        assert!(!Content::grid_header(Content::text("x"), true).is_empty());
     }
 
     #[test]
@@ -5214,9 +5178,9 @@ mod tests {
     fn table_header_constructor_default_repeat_true() {
         // P157C ADR-0064 Caso D: default vanilla `repeat=true`.
         let h = Content::table_header(Content::text("body"), true);
-        if let Content::TableHeader { body, repeat } = &h {
-            assert_eq!(body.plain_text(), "body");
-            assert!(*repeat, "default vanilla repeat=true (Caso D)");
+        if let Content::TableHeader(e) = &h {
+            assert_eq!(e.body.plain_text(), "body");
+            assert!(e.repeat, "default vanilla repeat=true (Caso D)");
         } else {
             panic!("esperado Content::TableHeader");
         }
@@ -5226,9 +5190,9 @@ mod tests {
     fn table_footer_constructor_default_repeat_true() {
         // Par simétrico — paridade absoluta com TableHeader.
         let f = Content::table_footer(Content::text("body"), true);
-        if let Content::TableFooter { body, repeat } = &f {
-            assert_eq!(body.plain_text(), "body");
-            assert!(*repeat);
+        if let Content::TableFooter(e) = &f {
+            assert_eq!(e.body.plain_text(), "body");
+            assert!(e.repeat);
         } else {
             panic!("esperado Content::TableFooter");
         }
@@ -5237,8 +5201,8 @@ mod tests {
     #[test]
     fn table_header_repeat_false_explicito() {
         let h = Content::table_header(Content::text("x"), false);
-        if let Content::TableHeader { repeat, .. } = h {
-            assert!(!repeat);
+        if let Content::TableHeader(e) = h {
+            assert!(!e.repeat);
         } else {
             panic!("esperado Content::TableHeader");
         }
@@ -5247,8 +5211,8 @@ mod tests {
     #[test]
     fn table_footer_repeat_false_explicito() {
         let f = Content::table_footer(Content::text("x"), false);
-        if let Content::TableFooter { repeat, .. } = f {
-            assert!(!repeat);
+        if let Content::TableFooter(e) = f {
+            assert!(!e.repeat);
         } else {
             panic!("esperado Content::TableFooter");
         }
@@ -5319,8 +5283,8 @@ mod tests {
         let h = Content::table_header(Content::text("hello"), false);
         let upper = h.map_text(&mut |s| s.to_uppercase());
         assert_eq!(upper.plain_text(), "HELLO");
-        if let Content::TableHeader { repeat, .. } = upper {
-            assert!(!repeat, "repeat preservado após map_text");
+        if let Content::TableHeader(e) = upper {
+            assert!(!e.repeat, "repeat preservado após map_text");
         } else {
             panic!("esperado Content::TableHeader");
         }
@@ -5331,8 +5295,8 @@ mod tests {
         let f = Content::table_footer(Content::text("hello"), false);
         let upper = f.map_text(&mut |s| s.to_uppercase());
         assert_eq!(upper.plain_text(), "HELLO");
-        if let Content::TableFooter { repeat, .. } = upper {
-            assert!(!repeat);
+        if let Content::TableFooter(e) = upper {
+            assert!(!e.repeat);
         } else {
             panic!("esperado Content::TableFooter");
         }

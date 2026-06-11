@@ -643,7 +643,7 @@ fn build_spacing(
 /// passo (refino futuro per ADR-0061 §6.3).
 pub fn native_h(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     let (amount, weak) = build_spacing(args, "h", &["weak"])?;
-    Ok(Value::Content(Content::HSpace { amount, weak }))
+    Ok(Value::Content(Content::h_space(amount, weak)))
 }
 
 /// `v(amount, weak: false)` → `Content::VSpace`.
@@ -651,7 +651,7 @@ pub fn native_h(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contrac
 /// Análogo a `native_h`, produz spacing primitive vertical.
 pub fn native_v(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
     let (amount, weak) = build_spacing(args, "v", &["weak"])?;
-    Ok(Value::Content(Content::VSpace { amount, weak }))
+    Ok(Value::Content(Content::v_space(amount, weak)))
 }
 
 // ── Passo 156E (ADR-0061 Fase 1 sub-passo 3) — pagebreak manual ──────────────
@@ -1316,7 +1316,7 @@ pub fn native_colbreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
         }
     }
 
-    Ok(Value::Content(Content::Colbreak { weak }))
+    Ok(Value::Content(Content::colbreak(weak)))
 }
 
 /// `measure(body) -> dict(width: length, height: length)` —
@@ -1496,6 +1496,6 @@ pub fn native_pagebreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
         }
     }
 
-    Ok(Value::Content(Content::Pagebreak { weak, to }))
+    Ok(Value::Content(Content::pagebreak(weak, to)))
 }
 

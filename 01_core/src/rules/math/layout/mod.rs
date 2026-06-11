@@ -141,7 +141,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
 /// Retorna `true` se houver pelo menos um `MathAlignPoint` ou `Linebreak`.
 /// Se `false`, o layout linear existente é usado sem custo adicional.
 fn needs_grid_layout(nodes: &[Content]) -> bool {
-    nodes.iter().any(|c| matches!(c, Content::MathAlignPoint(_) | Content::Linebreak))
+    nodes.iter().any(|c| matches!(c, Content::MathAlignPoint(_) | Content::Linebreak(_)))
 }
 
 /// Particiona uma sequência flat em linhas e colunas.
@@ -157,7 +157,7 @@ fn partition_grid(nodes: &[Content]) -> Vec<Vec<Vec<Content>>> {
 
     for node in nodes {
         match node {
-            Content::Linebreak => {
+            Content::Linebreak(_) => {
                 lines.push(vec![vec![]]);
             }
             Content::MathAlignPoint(_) => {
@@ -536,7 +536,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             self.layout_grid(nodes, style)
         } else {
             let boxes: Vec<MathBox> = nodes.iter()
-                .filter(|n| !matches!(n, Content::MathAlignPoint(_) | Content::Linebreak))
+                .filter(|n| !matches!(n, Content::MathAlignPoint(_) | Content::Linebreak(_)))
                 .map(|n| self.layout_node(n, style))
                 .collect();
             self.hconcat(boxes)

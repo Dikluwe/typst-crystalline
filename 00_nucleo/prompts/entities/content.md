@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 53a12497
+Hash do Código: 3d7e4382
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -141,6 +141,29 @@ Nome { body, stroke: Option<Color>, offset: Option<Length>, extent: Option<Lengt
 (`format!("{self:?}").hash(state)`, paridade `content_hash::hash_content`) em vez
 de `#[derive(Hash)]`. Construtores ergonómicos novos
 `Content::{overline,strike,underline}(body, stroke, offset, extent)`.
+
+**Lote 5 P320** (união dos propostos 5+6 — **9 variantes** element-shaped; ordem
+por largura crescente): `GridFooter`(7) · `GridHeader`(7) · `TableFooter`(10) ·
+`TableHeader`(11) · `Linebreak`(11) · `Colbreak`(12) · `VSpace`(14) ·
+`HSpace`(18) · `Pagebreak`(22) = ~112 sites. **Nenhuma é locatável** (confirmado
+P320). Três formas:
+
+- **Contentores (body + `repeat`)** — `GridHeader`/`GridFooter`/`TableHeader`/
+  `TableFooter`: `map_*` **recursam** no body, preservam `repeat`; **`is_empty`
+  delega ao body** (override). `Box<Content>` → `Content`.
+- **Espaços (`amount: Length`, `weak`)** — `HSpace`/`VSpace`: `plain_text` vazio;
+  **`is_empty` = `amount.is_zero()`**; map_* **terminais**; **`Hash` manual via
+  Debug** (`Length` tem `f64`; precedente Lote 4).
+- **Comandos unit/leaf** — `Linebreak` (unit), `Colbreak { weak }`,
+  `Pagebreak { weak, to }`: `plain_text` `"\n"`/vazio; map_* **terminais**;
+  `Linebreak` is_empty default, `Colbreak`/`Pagebreak` nunca vazios (false).
+  **`Pagebreak` usa `Hash` manual via Debug** (`Parity` também não implementa
+  `Hash` — mesma situação do `Length`, por outra razão).
+
+Construtores preservados (`h_space`/`v_space`/`pagebreak`/`colbreak`/
+`table_header`/`table_footer`) + novos (`linebreak`/`grid_header`/`grid_footer`).
+**Fora deste lote**: `Space` (triagem DEBT-58) e o bloco
+`TableCell`/`Table`/`GridCell`/`Grid` (lote próprio, ~193 sites).
 
 **Estado misto** (esperado, ADR-0105): durante os lotes o `enum` mistura
 variantes migradas (`Nome(Arc<…>)`) e por migrar (`Nome { … }`); os 6 matches

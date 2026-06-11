@@ -210,7 +210,7 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::SetPage { .. }
         | Content::CounterUpdate { .. }
         | Content::Outline
-        | Content::Linebreak
+        | Content::Linebreak(_)
         | Content::MathAlignPoint(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
@@ -237,12 +237,12 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::Image { .. }
         | Content::Divider(_)
         // Passo 156D (ADR-0061 Fase 1 sub-passo 2) — h/v spacing leaves.
-        | Content::HSpace { .. }
-        | Content::VSpace { .. }
+        | Content::HSpace(_)
+        | Content::VSpace(_)
         // Passo 156E (ADR-0061 Fase 1 sub-passo 3) — pagebreak leaf.
-        | Content::Pagebreak { .. }
+        | Content::Pagebreak(_)
         // Passo 220 (ADR-0078 sub-fase b 4/4) — colbreak leaf.
-        | Content::Colbreak { .. }
+        | Content::Colbreak(_)
         | Content::Shape { .. }
         // P169 (M9): Metadata é terminal — clonar directamente.
         | Content::Metadata { .. }
@@ -339,15 +339,9 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             stroke:  stroke.clone(),
             fill:    *fill,
         },
-        // P224.B — GridHeader / GridFooter recurse no body.
-        Content::GridHeader { body, repeat } => Content::GridHeader {
-            body:   Box::new(materialize_time(body, intr, location)),
-            repeat: *repeat,
-        },
-        Content::GridFooter { body, repeat } => Content::GridFooter {
-            body:   Box::new(materialize_time(body, intr, location)),
-            repeat: *repeat,
-        },
+        // Modelo D (Lote 5 P320): GridHeader/GridFooter via construtor.
+        Content::GridHeader(e) => Content::grid_header(materialize_time(&e.body, intr, location), e.repeat),
+        Content::GridFooter(e) => Content::grid_footer(materialize_time(&e.body, intr, location), e.repeat),
         // P224.C + P230 + P235 — GridCell recurse no body; preserva
         // 5 fields cumulativos.
         Content::GridCell { body, x, y, colspan, rowspan, stroke, fill,
@@ -385,16 +379,9 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             inset:     inset.clone(),
             breakable: *breakable,
         },
-        // Passo 157C (ADR-0060 Fase 2 sub-passo 3) — par simétrico
-        // TableHeader/TableFooter. Recurse no body; preserva repeat.
-        Content::TableHeader { body, repeat } => Content::TableHeader {
-            body:   Box::new(materialize_time(body, intr, location)),
-            repeat: *repeat,
-        },
-        Content::TableFooter { body, repeat } => Content::TableFooter {
-            body:   Box::new(materialize_time(body, intr, location)),
-            repeat: *repeat,
-        },
+        // Modelo D (Lote 5 P320): TableHeader/TableFooter via construtor.
+        Content::TableHeader(e) => Content::table_header(materialize_time(&e.body, intr, location), e.repeat),
+        Content::TableFooter(e) => Content::table_footer(materialize_time(&e.body, intr, location), e.repeat),
         // Passo 159A — par acoplado Bibliography + Cite. Recurse em
         // title (Bibliography) ou supplement (Cite); preserva
         // entries/key.
@@ -1166,19 +1153,19 @@ pub(crate) fn walk(
         // P311b.2 — MathStyled terminal em walk (math structural).
         | Content::MathStyled(_)
         | Content::MathAlignPoint(_)
-        | Content::Linebreak
+        | Content::Linebreak(_)
         // P287 — SmartQuote leaf (não-locatable; sem counters).
         | Content::SmartQuote { .. }
         | Content::Image { .. }
         | Content::SetPage { .. }
         | Content::Divider(_)
         // Passo 156D — h/v spacing leaves; sem effect em counters.
-        | Content::HSpace { .. }
-        | Content::VSpace { .. }
+        | Content::HSpace(_)
+        | Content::VSpace(_)
         // Passo 156E — pagebreak leaf; sem effect em counters.
-        | Content::Pagebreak { .. }
+        | Content::Pagebreak(_)
         // Passo 220 — colbreak leaf; sem effect em counters.
-        | Content::Colbreak { .. }
+        | Content::Colbreak(_)
         | Content::Shape { .. }
         // P169 (M9): Metadata é terminal — sem efeito em counters.
         // Tag::Start/End já é emitido no topo de walk via extract_payload
@@ -1229,8 +1216,8 @@ pub(crate) fn walk(
         }
 
         // P224.B — GridHeader / GridFooter (recurse no body; paridade P157C).
-        Content::GridHeader { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
-        Content::GridFooter { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::GridHeader(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::GridFooter(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         // P224.C — GridCell (recurse no body; paridade P157B TableCell).
         Content::GridCell { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
@@ -1245,8 +1232,8 @@ pub(crate) fn walk(
 
         // Passo 157C — par simétrico TableHeader/TableFooter
         // (recurse no body).
-        Content::TableHeader { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
-        Content::TableFooter { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::TableHeader(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::TableFooter(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         // P181H: walk arm puro (P163 invariante restaurada para bib).
         // Pré-P181H (P159C/F): walk mutava `state.bib_entries.extend(...)`

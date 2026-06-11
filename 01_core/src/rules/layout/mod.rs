@@ -836,7 +836,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // Marcadores estruturais de equações — ignorados fora de contexto matemático.
-            Content::MathAlignPoint(_) | Content::Linebreak => {}
+            Content::MathAlignPoint(_) | Content::Linebreak(_) => {}
 
             // Passo 60 — Labelled e Ref delegados a references.rs (Passo 61).
             // Passo 63 — label passada para registo de página.
@@ -968,11 +968,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P224.B — GridHeader / GridFooter renderizam body sequencial
             // (semantic real adiada; repeat ignorado per ADR-0054 graded
             // paridade P157C TableHeader/Footer N=5).
-            Content::GridHeader { body, repeat: _ } => {
-                self.layout_content(body);
+            Content::GridHeader(e) => {
+                self.layout_content(&e.body);
             }
-            Content::GridFooter { body, repeat: _ } => {
-                self.layout_content(body);
+            Content::GridFooter(e) => {
+                self.layout_content(&e.body);
             }
 
             // P224.C + P230 — GridCell isolado renderiza body (fora de Grid
@@ -1022,11 +1022,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // diferido em DEBT-56 (refactor multi-region; column flow +
             // header/footer repeat). Quando dentro de `Content::Table`,
             // header/footer aparecem como children lineares no grid.
-            Content::TableHeader { body, repeat: _ } => {
-                self.layout_content(body);
+            Content::TableHeader(e) => {
+                self.layout_content(&e.body);
             }
-            Content::TableFooter { body, repeat: _ } => {
-                self.layout_content(body);
+            Content::TableFooter(e) => {
+                self.layout_content(&e.body);
             }
 
             // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ──
@@ -1361,12 +1361,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // ── Passo 156D (ADR-0061 Fase 1, sub-passo 2) — h + v spacing ──
             // `weak` armazenado mas comportamento de collapse adiado
             // (perfil ADR-0054 graded). Refino futuro se necessário.
-            Content::HSpace { amount, weak: _ } => {
-                let pt = amount.resolve_pt(self.font_size_pt.val());
+            Content::HSpace(e) => {
+                let pt = e.amount.resolve_pt(self.font_size_pt.val());
                 self.regions.current.cursor_x += Pt(pt);
             }
-            Content::VSpace { amount, weak: _ } => {
-                let pt = amount.resolve_pt(self.font_size_pt.val());
+            Content::VSpace(e) => {
+                let pt = e.amount.resolve_pt(self.font_size_pt.val());
                 // Termina linha em curso se houver content pendente — caso
                 // contrário texto na linha actual fica meio-render.
                 if self.regions.current.cursor_x.0 > self.regions.current.line_start_x.0 {
@@ -2027,7 +2027,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `weak` armazenado mas collapse defere (consistente P156D).
             // Layouter reusa `new_page` (cursor.rs:128) que commits items
             // actuais a Page e reseta cursor.
-            Content::Pagebreak { weak: _, to } => {
+            Content::Pagebreak(e) => {
                 // 1. Termina linha em curso (caso contrário fica meio-render).
                 if self.regions.current.cursor_x.0 > self.regions.current.line_start_x.0 {
                     self.flush_line();
@@ -2037,7 +2037,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.new_page();
                 // 3. Se `to` exige paridade específica, verifica; se não bate,
                 //    insere página vazia adicional para ajustar.
-                if let Some(parity) = to {
+                if let Some(parity) = e.to {
                     let next_page_number = self.pages.len() + 1;
                     if !parity.matches(next_page_number) {
                         self.new_page();
@@ -2052,7 +2052,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // multi-region salto entre colunas reais é P-Layout-Fase4
             // candidato (não-reservado per política P158).
             // `weak` armazenado mas semantic adiada (paridade P156D/E).
-            Content::Colbreak { weak: _ } => {
+            Content::Colbreak(_) => {
                 if self.regions.current.cursor_x.0 > self.regions.current.line_start_x.0 {
                     self.flush_line();
                 }
@@ -2397,21 +2397,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // Passo 156D: HSpace/VSpace dimensões para grid measurement.
-            Content::HSpace { amount, .. } => {
-                (amount.resolve_pt(self.font_size_pt.val()), 0.0)
+            Content::HSpace(e) => {
+                (e.amount.resolve_pt(self.font_size_pt.val()), 0.0)
             }
-            Content::VSpace { amount, .. } => {
-                (0.0, amount.resolve_pt(self.font_size_pt.val()))
+            Content::VSpace(e) => {
+                (0.0, e.amount.resolve_pt(self.font_size_pt.val()))
             }
 
-            // Passo 156E: Pagebreak é event sem dimensões dentro de cell.
-            // Em grid measurement, ignora-se (não consome largura/altura).
-            Content::Pagebreak { .. } => (0.0, 0.0),
-
-            // Passo 220: Colbreak é event sem dimensões em grid measurement
-            // (paridade Pagebreak). Downgrade a pagebreak ocorre em
-            // layout_content; aqui é no-op.
-            Content::Colbreak { .. } => (0.0, 0.0),
+            // Passo 156E/220: Pagebreak/Colbreak — events sem dimensões em cell.
+            Content::Pagebreak(_) => (0.0, 0.0),
+            Content::Colbreak(_) => (0.0, 0.0),
 
             // Passo 156I: Stack dimensões para grid measurement.
             // TTB/BTT: max widths; sum heights + (n-1) * spacing.

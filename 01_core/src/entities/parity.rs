@@ -21,7 +21,9 @@
 /// página a uma paridade específica. Quando `to: Some(parity)`
 /// e a próxima página não bate a paridade, o Layouter insere
 /// uma página vazia para ajustar.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+// `Hash` adicionado no Lote 5 P320 (dependência de `PagebreakElem` no modelo D):
+// enum `Copy + Eq` sem floats → `Hash` canónico trivialmente correto.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Parity {
     Even,
     Odd,

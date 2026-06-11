@@ -4224,7 +4224,7 @@ mod tests_show_rule_integration {
         // Block height 100pt → block_total_h 100 > remaining 42 AND
         // block_total_h 100 <= usable 700 → break antecipado.
         let seq = Content::Sequence(std::sync::Arc::from(vec![
-            Content::VSpace { amount: Length::pt(650.0), weak: false },
+            Content::v_space(Length::pt(650.0), false),
             Content::Block {
                 body:      Box::new(Content::text("p248new")),
                 width:     None,
@@ -4727,7 +4727,7 @@ mod tests_show_rule_integration {
             sticky:    false,
         };
         let seq = Content::Sequence(std::sync::Arc::from(vec![
-            Content::VSpace { amount: Length::pt(600.0), weak: false },
+            Content::v_space(Length::pt(600.0), false),
             Content::Block {
                 body:      Box::new(inner),
                 width:     None,
@@ -4844,7 +4844,7 @@ mod tests_show_rule_integration {
         // Cenário: cursor inicial baixo na página (VSpace push) +
         // block height médio + outset grande → total deve causar break.
         let seq = Content::Sequence(std::sync::Arc::from(vec![
-            Content::VSpace { amount: Length::pt(620.0), weak: false },
+            Content::v_space(Length::pt(620.0), false),
             Content::Block {
                 body:      Box::new(Content::text("p248outset")),
                 width:     None,
@@ -5223,7 +5223,7 @@ mod tests_show_rule_integration {
         };
         let b2 = p250_mk_block(Content::text("sk2"), Some(Length::pt(80.0)));
         let seq = Content::Sequence(std::sync::Arc::from(vec![
-            Content::VSpace { amount: Length::pt(650.0), weak: false },
+            Content::v_space(Length::pt(650.0), false),
             b1,
             b2,
         ]));
@@ -5639,7 +5639,7 @@ mod tests_show_rule_integration {
         // Pagebreak manual força flush.
         let seq = Content::Sequence(std::sync::Arc::from(vec![
             t,
-            Content::Pagebreak { weak: false, to: None },
+            Content::pagebreak(false, None),
             Content::text("p2"),
         ]));
         let doc = layout(&seq);
@@ -5692,7 +5692,7 @@ mod tests_show_rule_integration {
         };
         let seq = Content::Sequence(std::sync::Arc::from(vec![
             t,
-            Content::Pagebreak { weak: false, to: None },
+            Content::pagebreak(false, None),
             Content::text("post"),
         ]));
         let doc = layout(&seq);
@@ -5716,7 +5716,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         let seq = Content::Sequence(std::sync::Arc::from(vec![
             Content::text("p1"),
-            Content::Pagebreak { weak: false, to: None },
+            Content::pagebreak(false, None),
             Content::text("p2"),
         ]));
         let doc = layout(&seq);

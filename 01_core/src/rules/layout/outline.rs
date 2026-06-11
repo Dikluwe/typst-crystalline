@@ -58,7 +58,7 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(layouter: &mut Layou
                 Content::text(" "),
                 body_content, // Content clonado — preserva formatação original
                 Content::text(page_num),
-                Content::Linebreak,
+                Content::linebreak(),
             ]
             .into(),
         );

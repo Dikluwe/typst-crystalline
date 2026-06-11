@@ -85,6 +85,11 @@ grep -rnE "Content::Nome([^A-Za-z0-9]|$)" 01_core 02_shell 03_infra 04_wiring \
      via `Debug`** (`format!("{self:?}").hash(state)`), paridade `content_hash`.
      Comentar a ressalva `-0.0` vs `0.0` no código — ver L0 do **Lote 4 P319**
      (`overline.md`). Os lotes 5+ não precisam de redescobrir nem re-perguntar.
+     **Regra (P320):** Debug-hash é só para quando o `Hash` canónico é **inseguro**
+     (f64/`Length`); um tipo que pode derivar `Hash` com segurança (`Copy+Eq`,
+     sem floats — ex.: `Parity` no Lote 5) **recebe o `derive`**, com a linha no
+     L0 do tipo se ele especificar derives, e registado como **dependência do
+     lote** (não conserto oportunista).
    - Variante do enum: `Nome(Arc<NomeElem>)`.
    - Construtor ergonómico em `content.rs` (`Content::nome(...)` → embrulha
      `Arc::new(NomeElem { … })`), preservando a assinatura de chamada onde
@@ -154,7 +159,7 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 `Content` tem **77 variantes** (baseline P313). Estado em **P319** (Lote 4 incluído):
 
-### Migradas para o modelo D — 22
+### Migradas para o modelo D — 31
 
 - **P316 piloto (3)**: `Divider`, `Heading` (locatável), `MathStyled`.
 - **Lote 2 P317 — math (11)**: `MathCases`, `MathMatrix`, `MathAlignPoint`,
@@ -163,6 +168,10 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 - **Lote 3 P318 — lista/termos (5)**: `EnumItem`, `Link`, `ListItem`,
   `TermItem`, `Terms`.
 - **Lote 4 P319 — decorações (3)**: `Overline`, `Strike`, `Underline`.
+- **Lote 5 P320 — quebras/espaços + grid/table header/footer (9; união 5+6)**:
+  `GridFooter`, `GridHeader`, `TableFooter`, `TableHeader`, `Linebreak`,
+  `Colbreak`, `VSpace`, `HSpace`, `Pagebreak`. (Dependência: `Parity` ganhou
+  `Hash` por derive.)
 
 ### Fora de lote — decisão própria
 
@@ -175,32 +184,24 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   `Styled` (58), `Boxed` (58), `Labelled` (55); **observação** (leaf, candidato
   à triagem): `Text` (40).
 
-### Element-shaped restantes — ~40 (os lotes 5+ saem daqui, por largura)
+### Element-shaped restantes — ~31 (os lotes 6+ saem daqui, por largura)
 
-> **Lote 5 P320 (em curso) — união dos propostos 5+6** (decisão do dono;
-> registo de união no estilo P314→P315): **9 variantes** por largura crescente —
-> `GridFooter`(7) · `GridHeader`(7) · `TableFooter`(10) · `TableHeader`(11) ·
-> `Linebreak`(11) · `Colbreak`(12) · `VSpace`(14) · `HSpace`(18) ·
-> `Pagebreak`(22) = ~112 sites. Famílias "Grid/Table header/footer" +
-> "quebras/espaços" unidas num lote. **Fora**: `Space` (triagem DEBT-58) e o
-> bloco `TableCell`/`Table`/`GridCell`/`Grid` (lote próprio, ~193 sites). A
-> Contabilidade move-as para "migradas" no relatório do P320.
+(O Lote 5 P320 — união 5+6, 9 variantes — saiu daqui para "migradas".)
 
-`GridFooter`7 · `GridHeader`7 · `Raw`9 · `TableFooter`10 · `Align`11 ·
-`Linebreak`11† · `TableHeader`11 · `Colbreak`12† · `VSpace`14 · `CounterDisplay`15 ·
-`Metadata`16 · `Image`17 · `Hide`18 · `HSpace`18 · `Repeat`18 ·
-`CounterDisplayCallback`19 · `Quote`20 · `State`21 · `StateDisplay`21 ·
-`Columns`22 · `Pagebreak`22† · `Ref`23 · `Outline`24 · `StateUpdate`25 ·
+`Raw`9 · `Align`11 · `CounterDisplay`15 · `Metadata`16 · `Image`17 · `Hide`18 ·
+`Repeat`18 · `CounterDisplayCallback`19 · `Quote`20 · `State`21 ·
+`StateDisplay`21 · `Columns`22 · `Ref`23 · `Outline`24 · `StateUpdate`25 ·
 `SmartQuote`28 · `Stack`30 · `Cite`32 · `TableCell`32 · `Transform`32 ·
 `Place`34 · `CounterUpdate`39 · `Pad`39 · `Bibliography`40 · `Table`41 ·
 `Equation`45 · `Footnote`46 · `GridCell`47 · `Shape`57 · `Grid`73 · `Figure`89.
 
-† `Linebreak`/`Colbreak`/`Pagebreak` são **comandos unit** (precedente `Divider`,
-elegíveis); candidatos a um lote "quebras/espaços" com `VSpace`/`HSpace`.
+> **Bloco grid/table cell** (lote próprio, ~193 sites; decisão do dono):
+> `TableCell`(32) · `GridCell`(47) · `Table`(41) · `Grid`(73) — contentores
+> pesados com muitos campos cosméticos.
 
 ### Estimativa
 
-~40 element-shaped restantes ÷ 5–8 variantes/lote (ritmo validado P317–P319)
-≈ **5–8 lotes** até esgotar os elegíveis — gatilho da triagem do DEBT-58 e da
-decisão F. Conta: 22 migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers +
-Text) + 40 restantes = 77. ✓
+~31 element-shaped restantes ÷ 5–9 variantes/lote (ritmo validado P317–P320)
+≈ **4–6 lotes** até esgotar os elegíveis — gatilho da triagem do DEBT-58 e da
+decisão F. Conta: 31 migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers +
+Text) + 31 restantes = 77. ✓

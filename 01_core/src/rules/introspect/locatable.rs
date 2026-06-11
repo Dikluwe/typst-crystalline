@@ -111,7 +111,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::MathRoot(_)
         | Content::MathDelimited(_)
         | Content::MathAlignPoint(_)
-        | Content::Linebreak
+        | Content::Linebreak(_)
         | Content::MathMatrix(_)
         | Content::MathCases(_)
         | Content::Labelled { .. }
@@ -140,11 +140,11 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::SmartQuote { .. }
         | Content::Pad { .. }
         | Content::Hide { .. }
-        | Content::HSpace { .. }
-        | Content::VSpace { .. }
-        | Content::Pagebreak { .. }
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
         // P220: Colbreak não-locatable (event leaf; paridade Pagebreak).
-        | Content::Colbreak { .. }
+        | Content::Colbreak(_)
         | Content::Stack { .. }
         | Content::Boxed { .. }
         | Content::Block { .. }
@@ -273,7 +273,7 @@ mod tests {
             },
             Content::Ref { target: crate::entities::label::Label("y".to_string()) },
             Content::Outline,
-            Content::Linebreak,
+            Content::linebreak(),
             Content::divider(),
             Content::math_align_point(),
             Content::list_item(Content::Empty),

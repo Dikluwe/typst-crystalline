@@ -345,7 +345,7 @@ fn eval_math_expr(
 
         // Ponto de alinhamento (`&`) e quebra de linha (`\\`) em equações
         Expr::MathAlignPoint(_) => Ok(Content::math_align_point()),
-        Expr::Linebreak(_)      => Ok(Content::Linebreak),
+        Expr::Linebreak(_)      => Ok(Content::linebreak()),
 
         // Primes e outros nós não implementados → placeholder vazio
         _ => Ok(Content::Empty),

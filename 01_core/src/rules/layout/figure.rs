@@ -25,7 +25,7 @@ pub(super) fn layout_figure<M: FontMetrics, S: ImageSizer>(
 
     // 2. Desenhar a legenda, se existir.
     if let Some(cap) = caption {
-        layouter.layout_content(&Content::Linebreak);
+        layouter.layout_content(&Content::linebreak());
 
         if let Some(prefix) = caption_prefix {
             let caption_block = Content::Sequence(

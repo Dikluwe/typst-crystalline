@@ -44,6 +44,16 @@ pub mod terms;
 pub mod overline;
 pub mod strike;
 pub mod underline;
+// Lote 5 P320 — quebras/espaços + grid/table header/footer (9 variantes).
+pub mod colbreak;
+pub mod grid_footer;
+pub mod grid_header;
+pub mod h_space;
+pub mod linebreak;
+pub mod pagebreak;
+pub mod table_footer;
+pub mod table_header;
+pub mod v_space;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;

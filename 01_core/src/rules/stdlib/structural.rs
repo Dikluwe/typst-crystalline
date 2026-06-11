@@ -527,10 +527,7 @@ pub fn native_table_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 
     let repeat = extract_bool_with_default(args, "table_header", "repeat", true)?;
 
-    Ok(Value::Content(Content::TableHeader {
-        body: Box::new(body),
-        repeat,
-    }))
+    Ok(Value::Content(Content::table_header(body, repeat)))
 }
 
 /// `table_footer(body, repeat: true)` → `Content::TableFooter`.
@@ -563,10 +560,7 @@ pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 
     let repeat = extract_bool_with_default(args, "table_footer", "repeat", true)?;
 
-    Ok(Value::Content(Content::TableFooter {
-        body: Box::new(body),
-        repeat,
-    }))
+    Ok(Value::Content(Content::table_footer(body, repeat)))
 }
 
 // ── Passo 224 (ADR-0061 Fase 4 candidata sub-3) — grid_cell + grid_header + grid_footer ──
@@ -686,10 +680,7 @@ pub fn native_grid_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn crat
 
     let repeat = extract_bool_with_default(args, "grid_header", "repeat", true)?;
 
-    Ok(Value::Content(Content::GridHeader {
-        body: Box::new(body),
-        repeat,
-    }))
+    Ok(Value::Content(Content::grid_header(body, repeat)))
 }
 
 /// `grid_footer(body, repeat: true)` → `Content::GridFooter`.
@@ -721,10 +712,7 @@ pub fn native_grid_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn crat
 
     let repeat = extract_bool_with_default(args, "grid_footer", "repeat", true)?;
 
-    Ok(Value::Content(Content::GridFooter {
-        body: Box::new(body),
-        repeat,
-    }))
+    Ok(Value::Content(Content::grid_footer(body, repeat)))
 }
 
 // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ────────
