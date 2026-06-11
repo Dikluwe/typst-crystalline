@@ -97,6 +97,20 @@ grep -rnE "Content::Nome([^A-Za-z0-9]|$)" 01_core 02_shell 03_infra 04_wiring \
    - Os 6 matches do hub viram dispatch (`plain_text`, `is_empty`,
      `map_content`, `map_text`, `get_field`, `PartialEq`).
    - Sites de construção/match externos atualizados para o construtor/Arc.
+
+     > **Passo mecânico obrigatório — transformador × posições de padrão**
+     > (achados P321 + P323; o erro reincidiu apesar do lembrete, por isso
+     > vira regra, não nota). Antes de rodar o transformador de construções
+     > sobre os sites do LOTE:
+     > 1. `grep -rn 'matches!' --include='*.rs'` filtrado pelas variantes do
+     >    LOTE, e grep equivalente para destruturações em `if let`/`match`
+     >    com struct-literal (`Content::Nome {`) — **registrar a lista** (vai
+     >    para o relatório).
+     > 2. **Excluir esses sites da passada automática**; tratá-los à mão.
+     > 3. O transformador só serve **construções** com `Box` externo único;
+     >    **qualquer posição de padrão é manual por regra**, não por lembrete.
+     >    `Box::new` aninhado (ex.: `StateUpdate::Set(Box::new(v))`) também é
+     >    manual — o transformador sobre-remove.
 3. **Locatável** (se a variante for): segue o precedente Heading —
    implementar `element_kind`/`to_payload`; o estado misto dos enums de
    introspecção permanece e esvazia lote a lote.
