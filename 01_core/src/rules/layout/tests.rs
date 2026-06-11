@@ -1413,12 +1413,7 @@ fn layout_image_gera_frameitem() {
     // JPEG magic bytes — NullImageSizer retorna None → fallback 100×100 pt.
     let jpeg_magic = vec![0xFF, 0xD8, 0xFF, 0x00u8];
 
-    let content = Content::Image {
-        path:   "teste.jpg".to_string(),
-        data:   crate::entities::ptr_eq_arc::PtrEqArc(std::sync::Arc::new(jpeg_magic)),
-        width:  None,
-        height: None,
-    };
+    let content = Content::image("teste.jpg".to_string(), crate::entities::ptr_eq_arc::PtrEqArc(std::sync::Arc::new(jpeg_magic)), None, None);
 
     let state = introspect(&content);
     let doc   = layout(&content);

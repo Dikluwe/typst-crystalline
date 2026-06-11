@@ -2525,7 +2525,7 @@ mod tests {
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().unwrap();
-        assert!(matches!(content, Content::Image { path, .. } if path == "foto.png"),
+        assert!(matches!(&content, Content::Image(e) if e.path == "foto.png"),
             "image() deve produzir Content::Image: {:?}", content);
     }
 
@@ -2550,17 +2550,12 @@ mod tests {
     fn content_image_arc_partilhado_em_clone() {
         use crate::entities::ptr_eq_arc::PtrEqArc;
         let data = std::sync::Arc::new(vec![1u8, 2, 3]);
-        let img = Content::Image {
-            path:   "img.png".to_string(),
-            data:   PtrEqArc(data.clone()),
-            width:  None,
-            height: None,
-        };
+        let img = Content::image("img.png".to_string(), PtrEqArc(data.clone()), None, None);
         let img2 = img.clone();
         assert_eq!(img, img2);
         // PtrEqArc::PartialEq compara por ponteiro — clone do mesmo Arc é igual (O(1)).
-        if let (Content::Image { data: d1, .. }, Content::Image { data: d2, .. }) = (&img, &img2) {
-            assert!(std::sync::Arc::ptr_eq(&d1.0, &d2.0), "clone deve partilhar Arc");
+        if let (Content::Image(d1), Content::Image(d2)) = (&img, &img2) {
+            assert!(std::sync::Arc::ptr_eq(&d1.data.0, &d2.data.0), "clone deve partilhar Arc");
         }
     }
 

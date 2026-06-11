@@ -28,9 +28,9 @@ use crate::rules::eval::EvalContext;
 /// caller aplica default `"image"` em fallback chain.
 fn infer_kind_from_body(body: &Content) -> Option<String> {
     match body {
-        Content::Image { .. } => Some("image".to_string()),
+        Content::Image(_) => Some("image".to_string()),
         Content::Table { .. } => Some("table".to_string()),
-        Content::Raw   { .. } => Some("raw".to_string()),
+        Content::Raw(_) => Some("raw".to_string()),
         // Sequence: recurse no primeiro child detectável (paridade
         // vanilla `query_first_naive` simplificada — limitada a
         // Sequence per decisão P158A §8).
@@ -139,5 +139,5 @@ pub fn native_image(_ctx: &mut EvalContext, args: &Args, world: &dyn crate::cont
     let width  = args.named.get("width").cloned().map(Box::new);
     let height = args.named.get("height").cloned().map(Box::new);
 
-    Ok(Value::Content(Content::Image { path, data: PtrEqArc(data), width, height }))
+    Ok(Value::Content(Content::image(path, PtrEqArc(data), width, height)))
 }

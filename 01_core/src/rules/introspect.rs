@@ -202,7 +202,7 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         Content::Empty
         | Content::Text(_, _)
         | Content::Space
-        | Content::Raw { .. }
+        | Content::Raw(_)
         | Content::Ref { .. }
         | Content::SetHeadingNumbering { .. }
         | Content::SetEquationNumbering { .. }
@@ -234,7 +234,7 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::MathOp(_)
         // P311b.2 — MathStyled terminal em materialize_time (math structural).
         | Content::MathStyled(_)
-        | Content::Image { .. }
+        | Content::Image(_)
         | Content::Divider(_)
         // Passo 156D (ADR-0061 Fase 1 sub-passo 2) — h/v spacing leaves.
         | Content::HSpace(_)
@@ -262,9 +262,7 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             body:  Box::new(materialize_time(body, intr, location)),
             sides: *sides,
         },
-        Content::Hide { body } => Content::Hide {
-            body: Box::new(materialize_time(body, intr, location)),
-        },
+        Content::Hide(e) => Content::hide(materialize_time(&e.body, intr, location)),
         // Passo 156G + P231 + P247 + P250 — Block container; preserva 9 cosméticos.
         Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke,
                           spacing, above, below, sticky } => Content::Block {
@@ -310,11 +308,7 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         },
         // Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat.
         // Análogo a Block: descer no body; preservar atributos.
-        Content::Repeat { body, gap, justify } => Content::Repeat {
-            body:    Box::new(materialize_time(body, intr, location)),
-            gap:     *gap,
-            justify: *justify,
-        },
+        Content::Repeat(e) => Content::repeat(materialize_time(&e.body, intr, location), e.gap, e.justify),
         // P217 — Columns container: análogo a Repeat/Block; descer
         // no body; count/gutter preservados (Copy primitivos).
         Content::Columns { count, gutter, body } => Content::Columns {
@@ -394,10 +388,7 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             supplement: supplement.as_ref().map(|s| Box::new(materialize_time(s, intr, location))),
             form:       *form,
         },
-        Content::Align { alignment, body } => Content::Align {
-            alignment: *alignment,
-            body:      Box::new(materialize_time(body, intr, location)),
-        },
+        Content::Align(e) => Content::align(e.alignment, materialize_time(&e.body, intr, location)),
         // P223 — Place refino: preservar float + clearance no materialize_time.
         Content::Place { alignment, dx, dy, scope, float, clearance, body } => Content::Place {
             alignment: *alignment,
@@ -1128,7 +1119,7 @@ pub(crate) fn walk(
         | Content::Space
         | Content::Ref { .. }
         | Content::CounterDisplay(_)
-        | Content::Raw { .. }
+        | Content::Raw(_)
         | Content::ListItem(_)
         | Content::EnumItem(_)
         | Content::Link(_)
@@ -1156,7 +1147,7 @@ pub(crate) fn walk(
         | Content::Linebreak(_)
         // P287 — SmartQuote leaf (não-locatable; sem counters).
         | Content::SmartQuote { .. }
-        | Content::Image { .. }
+        | Content::Image(_)
         | Content::SetPage { .. }
         | Content::Divider(_)
         // Passo 156D — h/v spacing leaves; sem effect em counters.
@@ -1259,7 +1250,7 @@ pub(crate) fn walk(
         // dentro para passes futuros).
         Content::Footnote { body } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
-        Content::Align { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Align(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         Content::Place { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
@@ -1268,7 +1259,7 @@ pub(crate) fn walk(
         // processados. `Hide` mesmo "ocultando visualmente" mantém a
         // semântica de presence (label/ref dentro de hide ainda resolvem).
         Content::Pad  { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
-        Content::Hide { body }     => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Hide(e)           => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 156G (ADR-0061 Fase 2) — block container; descer no body.
         Content::Block { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
@@ -1288,7 +1279,7 @@ pub(crate) fn walk(
         // Walk no body uma vez (counters/labels dentro de body
         // resolvem; semântica de repetição é runtime-only e não
         // multiplica state — vanilla repeat também só conta uma vez).
-        Content::Repeat { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Repeat(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
         // P217 (DEBT-56 sub-fase b) — Columns container.
         // Walk no body (counters/labels dentro contam normalmente);
         // sem Tag::Start/End próprio (columns não é locatable).

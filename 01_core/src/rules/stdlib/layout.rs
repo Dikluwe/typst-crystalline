@@ -39,10 +39,7 @@ pub fn native_align(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
             "align() exige um bloco de conteúdo".to_string())])?;
 
-    Ok(Value::Content(Content::Align {
-        alignment,
-        body: Box::new(body),
-    }))
+    Ok(Value::Content(Content::align(alignment, body)))
 }
 
 /// `place(alignment, dx?, dy?, scope?, body)` → `Content::Place`.
@@ -572,7 +569,7 @@ pub fn native_hide(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
             "hide() exige body como argumento posicional".to_string(),
         )]),
     };
-    Ok(Value::Content(Content::Hide { body: Box::new(body) }))
+    Ok(Value::Content(Content::hide(body)))
 }
 
 // ── Passo 156D (ADR-0061 Fase 1 sub-passo 2) — h + v spacing ─────────────────
@@ -1168,11 +1165,7 @@ pub fn native_repeat(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
         }
     }
 
-    Ok(Value::Content(Content::Repeat {
-        body: Box::new(body),
-        gap,
-        justify,
-    }))
+    Ok(Value::Content(Content::repeat(body, gap, justify)))
 }
 
 /// **P218 helper** — extrai `count: usize` posicional obrigatório

@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 920579a1
+Hash do Código: 5aa0c45d
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -202,6 +202,23 @@ default.
 `ElementPayload`, que usa `Box<Value>`). Construtores ergonómicos novos
 `Content::{counter_display,metadata,counter_display_callback,state,state_display,`
 `state_update,counter_update}(…)`.
+
+**Lote 7 P322** (por largura — **5 variantes** element-shaped): `Raw`(9) ·
+`Align`(11) · `Image`(17) · `Hide`(18) · `Repeat`(18) = ~73 sites. **Nenhuma é
+locatável** (confirmado P322). Duas formas:
+
+- **Folhas** — `Raw { text, lang, block }` (`plain_text` = `text`) e
+  `Image { path, data, width, height }` (`plain_text` vazio): `map_*` terminais;
+  `is_empty` default `false`.
+- **Contentores (body)** — `Align { alignment, body }`, `Hide { body }`,
+  `Repeat { body, gap, justify }`: `map_*` **recursam** no body. `is_empty`:
+  `Hide`/`Repeat` delegam ao body; **`Align` fica no default `false`**
+  (content-preserving — o braço atual não delega). `Box<Content>` desboxa.
+
+**`Hash`** (regra do modelo): **derivam** `Raw` (`EcoString`/bool) e `Hide`
+(`Content`); **manual via Debug** `Align` (`Align2D` sem `Hash`), `Image`
+(`Value`/`PtrEqArc`), `Repeat` (`Length`/`f64`). Construtores preservados
+(`raw`/`hide`/`repeat`) + novos (`align`/`image`).
 
 **Estado misto** (esperado, ADR-0105): durante os lotes o `enum` mistura
 variantes migradas (`Nome(Arc<…>)`) e por migrar (`Nome { … }`); os 6 matches

@@ -99,7 +99,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Text(_, _)
         | Content::Space
         | Content::Sequence(_)
-        | Content::Raw { .. }
+        | Content::Raw(_)
         | Content::ListItem(_)
         | Content::EnumItem(_)
         | Content::Link(_)
@@ -118,12 +118,12 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Ref { .. }
         | Content::CounterDisplay(_)
         | Content::SetFigureNumbering { .. }
-        | Content::Image { .. }
+        | Content::Image(_)
         | Content::Shape { .. }
         | Content::Transform { .. }
         | Content::Grid { .. }
         | Content::SetPage { .. }
-        | Content::Align { .. }
+        | Content::Align(_)
         | Content::Place { .. }
         | Content::Styled(_, _)
         | Content::Divider(_)
@@ -139,7 +139,7 @@ pub fn is_locatable(content: &Content) -> bool {
         // queryable; paridade Space/Linebreak).
         | Content::SmartQuote { .. }
         | Content::Pad { .. }
-        | Content::Hide { .. }
+        | Content::Hide(_)
         | Content::HSpace(_)
         | Content::VSpace(_)
         | Content::Pagebreak(_)
@@ -157,7 +157,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::GridHeader { .. }
         | Content::GridFooter { .. }
         | Content::GridCell { .. }
-        | Content::Repeat { .. }
+        | Content::Repeat(_)
         // P217 — Columns container não-locatable (transparente para
         // introspect; consumer multi-region em P219).
         | Content::Columns { .. }

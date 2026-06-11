@@ -62,6 +62,12 @@ pub mod metadata;
 pub mod state;
 pub mod state_display;
 pub mod state_update;
+// Lote 7 P322 — por largura (5 variantes element-shaped).
+pub mod align;
+pub mod hide;
+pub mod image;
+pub mod raw;
+pub mod repeat;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;

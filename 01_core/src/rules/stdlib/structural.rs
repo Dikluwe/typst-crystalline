@@ -65,7 +65,7 @@ pub fn native_raw(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         )]),
         None => EcoString::default(),
     };
-    Ok(Value::Content(Content::Raw { text, lang: None, block: false }))
+    Ok(Value::Content(Content::raw(text, None, false)))
 }
 
 // ── `heading()` — sentinel para show rules (Passo 68, DEBT-21) ──────────────

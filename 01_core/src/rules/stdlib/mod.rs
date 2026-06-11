@@ -1904,12 +1904,7 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::ptr_eq_arc::PtrEqArc;
         use std::sync::Arc;
-        let img = Content::Image {
-            path:   "a.png".into(),
-            data:   PtrEqArc(Arc::new(Vec::new())),
-            width:  None,
-            height: None,
-        };
+        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None);
         let args = p(vec![Value::Content(img)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Figure { kind, .. }) = r {
@@ -1940,11 +1935,7 @@ mod tests {
         // P158A: figure(raw(...)) sem `kind:` → kind=Some("raw").
         null_ctx!(ctx);
         use crate::entities::content::Content;
-        let raw = Content::Raw {
-            text:  "fn x() {}".into(),
-            lang:  None,
-            block: false,
-        };
+        let raw = Content::raw("fn x() {}", None, false);
         let args = p(vec![Value::Content(raw)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Figure { kind, .. }) = r {
@@ -1962,12 +1953,7 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::ptr_eq_arc::PtrEqArc;
         use std::sync::Arc;
-        let img = Content::Image {
-            path:   "a.png".into(),
-            data:   PtrEqArc(Arc::new(Vec::new())),
-            width:  None,
-            height: None,
-        };
+        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None);
         let args = pn(vec![Value::Content(img)], "kind", Value::Str("custom-kind".into()));
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Figure { kind, .. }) = r {
@@ -1986,12 +1972,7 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::ptr_eq_arc::PtrEqArc;
         use std::sync::Arc;
-        let img = Content::Image {
-            path:   "a.png".into(),
-            data:   PtrEqArc(Arc::new(Vec::new())),
-            width:  None,
-            height: None,
-        };
+        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None);
         let args = pn(vec![Value::Content(img)], "kind", Value::Auto);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         if let Value::Content(Content::Figure { kind, .. }) = r {
@@ -2028,12 +2009,7 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::ptr_eq_arc::PtrEqArc;
         use std::sync::Arc;
-        let img = Content::Image {
-            path:   "a.png".into(),
-            data:   PtrEqArc(Arc::new(Vec::new())),
-            width:  None,
-            height: None,
-        };
+        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None);
         // Sequence começa com Text (não detectável) e contém Image.
         let seq = Content::Sequence(Arc::from(vec![
             Content::text("legenda"),
@@ -2120,7 +2096,7 @@ mod tests {
         let mut ctx = EvalContext::new();
         let args = p(vec![Value::Str("foto.png".into())]);
         let result = native_image(&mut ctx, &args, &world, test_file_id(), None).unwrap();
-        assert!(matches!(result, Value::Content(Content::Image { .. })));
+        assert!(matches!(result, Value::Content(Content::Image(_))));
     }
 
     #[test]
@@ -2822,8 +2798,8 @@ mod tests {
         let body = Content::text("invisivel");
         let args = p(vec![Value::Content(body)]);
         let result = native_hide(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Hide { body }) = result {
-            assert_eq!(body.plain_text(), "invisivel");
+        if let Value::Content(Content::Hide(e)) = result {
+            assert_eq!(e.body.plain_text(), "invisivel");
         } else {
             panic!("esperado Content::Hide");
         }
@@ -2834,7 +2810,7 @@ mod tests {
         null_ctx!(ctx);
         let args = p(vec![Value::Str("placeholder".into())]);
         let result = native_hide(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(result, Value::Content(Content::Hide { .. })));
+        assert!(matches!(result, Value::Content(Content::Hide(_))));
     }
 
     #[test]
@@ -3751,7 +3727,7 @@ mod tests {
             "regressão: native_pad deveria produzir Content::Pad");
         // Hide regression
         let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Hide { .. })),
+        assert!(matches!(r, Value::Content(Content::Hide(_))),
             "regressão: native_hide deveria produzir Content::Hide");
     }
 
@@ -4087,7 +4063,7 @@ mod tests {
             "regressão: native_pad deveria produzir Content::Pad");
         // Hide regression
         let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Hide { .. })),
+        assert!(matches!(r, Value::Content(Content::Hide(_))),
             "regressão: native_hide deveria produzir Content::Hide");
     }
 
@@ -4115,7 +4091,7 @@ mod tests {
         assert!(matches!(r, Value::Content(Content::Pad { .. })));
         // Hide
         let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Hide { .. })));
+        assert!(matches!(r, Value::Content(Content::Hide(_))));
     }
 
     // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ────────────────
@@ -4124,10 +4100,10 @@ mod tests {
     fn native_repeat_defaults_gap_none_justify_true() {
         null_ctx!(ctx);
         let r = native_repeat(&mut ctx, &p(vec![Value::Content(Content::text("."))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Repeat { body, gap, justify }) = r {
-            assert_eq!(body.plain_text(), ".");
-            assert_eq!(gap, None);
-            assert!(justify, "default justify == true (paridade vanilla)");
+        if let Value::Content(Content::Repeat(e)) = r {
+            assert_eq!(e.body.plain_text(), ".");
+            assert_eq!(e.gap, None);
+            assert!(e.justify, "default justify == true (paridade vanilla)");
         } else {
             panic!("esperado Content::Repeat");
         }
@@ -4137,8 +4113,8 @@ mod tests {
     fn native_repeat_aceita_str_como_body() {
         null_ctx!(ctx);
         let r = native_repeat(&mut ctx, &p(vec![Value::Str(".".into())]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Repeat { body, .. }) = r {
-            assert_eq!(body.plain_text(), ".");
+        if let Value::Content(Content::Repeat(e)) = r {
+            assert_eq!(e.body.plain_text(), ".");
         } else {
             panic!("esperado Content::Repeat");
         }
@@ -4151,8 +4127,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("."))]);
         args.named.insert("gap".into(), Value::Length(Length::pt(5.0)));
         let r = native_repeat(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Repeat { gap, .. }) = r {
-            assert_eq!(gap, Some(Length::pt(5.0)));
+        if let Value::Content(Content::Repeat(e)) = r {
+            assert_eq!(e.gap, Some(Length::pt(5.0)));
         } else {
             panic!("esperado Content::Repeat");
         }
@@ -4164,8 +4140,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("."))]);
         args.named.insert("justify".into(), Value::Bool(false));
         let r = native_repeat(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Repeat { justify, .. }) = r {
-            assert!(!justify);
+        if let Value::Content(Content::Repeat(e)) = r {
+            assert!(!e.justify);
         } else {
             panic!("esperado Content::Repeat");
         }
@@ -4179,10 +4155,10 @@ mod tests {
         args.named.insert("gap".into(), Value::Length(Length::pt(2.0)));
         args.named.insert("justify".into(), Value::Bool(false));
         let r = native_repeat(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Repeat { body, gap, justify }) = r {
-            assert_eq!(body.plain_text(), "o");
-            assert_eq!(gap, Some(Length::pt(2.0)));
-            assert!(!justify);
+        if let Value::Content(Content::Repeat(e)) = r {
+            assert_eq!(e.body.plain_text(), "o");
+            assert_eq!(e.gap, Some(Length::pt(2.0)));
+            assert!(!e.justify);
         } else {
             panic!("esperado Content::Repeat");
         }
@@ -4266,7 +4242,7 @@ mod tests {
         assert!(matches!(r, Value::Content(Content::Pad { .. })));
         // Hide
         let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Hide { .. })));
+        assert!(matches!(r, Value::Content(Content::Hide(_))));
     }
 
     // ── P218 (DEBT-56 sub-fase b — Layout Fase 3) — columns ──────────

@@ -751,17 +751,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.layout_content(&display);
             }
 
-            Content::Raw { text, block, .. } => {
+            Content::Raw(e) => {
                 let prev = self.style.clone();
                 // Raw: tamanho 90%, sem bold/italic
                 // DEBT: seleccionar fonte monospace real quando FontBook tiver uma
                 self.style = TextStyle { bold: false, italic: false, size: self.font_size_pt * 0.9, ..TextStyle::default() };
-                if *block {
+                if e.block {
                     if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
                     self.regions.current.cursor_x = Pt(self.page_config.margin) + self.font_size_pt;
                 }
-                for word in text.split_whitespace() { self.layout_word(word); }
-                if *block { self.flush_line(); }
+                for word in e.text.split_whitespace() { self.layout_word(word); }
+                if e.block { self.flush_line(); }
                 self.style = prev;
             }
 
@@ -1121,11 +1121,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 }
             }
 
-            Content::Image { data, width, height, .. } => {
+            Content::Image(e) => {
                 let dims = image::calculate_dimensions(
-                    &data.0,  // &[u8] via PtrEqArc → Arc → deref
-                    width.as_deref(),
-                    height.as_deref(),
+                    &e.data.0,  // &[u8] via PtrEqArc → Arc → deref
+                    e.width.as_deref(),
+                    e.height.as_deref(),
                     &self.sizer,
                 );
 
@@ -1148,7 +1148,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
                 self.regions.current.current_items.push(FrameItem::Image {
                     pos,
-                    data:             Arc::clone(&data.0), // .0 acede ao Arc interno de PtrEqArc
+                    data:             Arc::clone(&e.data.0), // .0 acede ao Arc interno de PtrEqArc
                     width:            Pt(dims.width_pt),
                     height:           Pt(dims.height_pt),
                     intrinsic_width:  intrinsic_w,
@@ -1162,8 +1162,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 }
             }
 
-            Content::Align { alignment, body } => {
-                self.layout_align(*alignment, body);
+            Content::Align(e) => {
+                self.layout_align(e.alignment, &e.body);
             }
 
             // P223 — Place refino: float + clearance armazenados.
@@ -1347,14 +1347,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.regions.current.width = saved_width;
             }
 
-            Content::Hide { body } => {
+            Content::Hide(e) => {
                 // Calcula o avanço sem emitir items (per ADR-0054 graded).
                 // Drena items pré-existentes para um buffer temporário,
                 // executa o body, e descarta os items gerados — mantém
                 // apenas o avanço de cursor.
                 let saved_items = std::mem::take(&mut self.regions.current.current_items);
                 let saved_line  = std::mem::take(&mut self.regions.current.current_line);
-                self.layout_content(body);
+                self.layout_content(&e.body);
                 self.regions.current.current_items = saved_items;
                 self.regions.current.current_line  = saved_line;
             }
@@ -1960,12 +1960,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `gap` armazenado mas não emite spacing entre cópias
             // (só uma cópia neste passo). `justify` armazenado mas
             // sem distribuição de espaço residual (idem).
-            Content::Repeat { body, gap: _, justify: _ } => {
+            Content::Repeat(e) => {
                 // Layout single-render: emite o body uma vez no
                 // contexto actual. Suficiente para paridade estrutural
                 // (variant disponível em todo o pipeline) e para que
                 // counters/labels dentro do body resolvam via walk.
-                self.layout_content(body);
+                self.layout_content(&e.body);
             }
 
             // ── P219 (DEBT-56 sub-fase b 3/4) — columns consumer REAL graded
@@ -2393,8 +2393,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let (w, h) = self.measure_content_constrained(body, constrained);
                 (w + left + right, h + top + bottom)
             }
-            Content::Hide { body } => {
-                self.measure_content_constrained(body, max_width)
+            Content::Hide(e) => {
+                self.measure_content_constrained(&e.body, max_width)
             }
 
             // Passo 156D: HSpace/VSpace dimensões para grid measurement.
@@ -2445,8 +2445,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Single-render do body (consistente com layout_content
             // arm). Algoritmo dinâmico de quantidade defere per
             // ADR-0054 graded.
-            Content::Repeat { body, .. } => {
-                self.measure_content_constrained(body, max_width)
+            Content::Repeat(e) => {
+                self.measure_content_constrained(&e.body, max_width)
             }
 
             // P219 (DEBT-56 sub-fase b 3/4): Columns dimensões para grid

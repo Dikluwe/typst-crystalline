@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 3cf1f1bc
+//! @prompt-hash 9bee0346
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -71,6 +71,12 @@ use crate::entities::elements::metadata::MetadataElem;
 use crate::entities::elements::state::StateElem;
 use crate::entities::elements::state_display::StateDisplayElem;
 use crate::entities::elements::state_update::StateUpdateElem;
+// Lote 7 P322 — por largura (5 variantes).
+use crate::entities::elements::align::AlignElem;
+use crate::entities::elements::hide::HideElem;
+use crate::entities::elements::image::ImageElem;
+use crate::entities::elements::raw::RawElem;
+use crate::entities::elements::repeat::RepeatElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -110,11 +116,8 @@ pub enum Content {
 
     // ── Passo 23 ────────────────────────────────────────────────────────────
     /// Código raw inline ou em bloco (`` `...` `` ou ```` ``` ... ``` ````).
-    Raw {
-        text:  EcoString,
-        lang:  Option<EcoString>,
-        block: bool,
-    },
+    /// **Modelo D (Lote 7 P322)**: `entities::elements::raw::RawElem`.
+    Raw(Arc<RawElem>),
     /// Item de lista não ordenada (`- ...`).
     /// **Modelo D (Lote 3 P318)**: `entities::elements::list_item::ListItemElem`.
     ListItem(Arc<ListItemElem>),
@@ -364,12 +367,8 @@ pub enum Content {
     /// e PartialEq compara por ponteiro em vez de por valor (DEBT-26).
     /// `width`/`height` usam `Box<Value>` para quebrar o ciclo de tipos
     /// `Content → Value → Content` (sem Box seria recursão infinita).
-    Image {
-        path:   String,
-        data:   PtrEqArc<Vec<u8>>,
-        width:  Option<Box<crate::entities::value::Value>>,
-        height: Option<Box<crate::entities::value::Value>>,
-    },
+    /// **Modelo D (Lote 7 P322)**: `entities::elements::image::ImageElem`.
+    Image(Arc<ImageElem>),
 
     /// Forma geométrica primitiva (Passo 76).
     ///
@@ -516,10 +515,8 @@ pub enum Content {
 
     /// Altera a posição do conteúdo dentro do espaço disponível no fluxo (Passo 82).
     /// O cursor avança após o bloco — o espaço é consumido normalmente.
-    Align {
-        alignment: Align2D,
-        body:      Box<Content>,
-    },
+    /// **Modelo D (Lote 7 P322)**: `entities::elements::align::AlignElem`.
+    Align(Arc<AlignElem>),
 
     /// Posiciona o conteúdo de forma absoluta na página sem consumir espaço (Passo 82).
     /// O cursor não avança. Usado para cabeçalhos, rodapés e marcas de água.
@@ -672,9 +669,8 @@ pub enum Content {
     /// `lab/typst-original/.../layout/hide.rs`. Cristalino preserva o
     /// avanço de cursor (consistente com vanilla "layout-aware mas não
     /// rende").
-    Hide {
-        body: Box<Content>,
-    },
+    /// **Modelo D (Lote 7 P322)**: `entities::elements::hide::HideElem`.
+    Hide(Arc<HideElem>),
 
     // ── Passo 156D (ADR-0061 Fase 1 sub-passo 2) — h + v spacing ─────────
     /// Spacing primitive horizontal (vanilla `HElem`).
@@ -1106,11 +1102,8 @@ pub enum Content {
     ///   (padrão Smart→Option N=6 da série P156D-I).
     /// - `justify: bool`: default `true` (paridade vanilla;
     ///   distribuição de espaço residual diferida per ADR-0054).
-    Repeat {
-        body:    Box<Content>,
-        gap:     Option<Length>,
-        justify: bool,
-    },
+    /// **Modelo D (Lote 7 P322)**: `entities::elements::repeat::RepeatElem`.
+    Repeat(Arc<RepeatElem>),
 
     /// **P217 (DEBT-56 sub-fase b — Layout Fase 3)** — Multi-column
     /// container per ADR-0078 PROPOSTO.
@@ -1323,7 +1316,17 @@ impl Content {
     }
 
     pub fn raw(text: impl Into<EcoString>, lang: Option<EcoString>, block: bool) -> Self {
-        Self::Raw { text: text.into(), lang, block }
+        Self::Raw(Arc::new(RawElem { text: text.into(), lang, block }))
+    }
+    /// `align(alignment, body)` — Modelo D (Lote 7 P322).
+    pub fn align(alignment: Align2D, body: Content) -> Self {
+        Self::Align(Arc::new(AlignElem { alignment, body }))
+    }
+    /// `image(path, data, width, height)` — Modelo D (Lote 7 P322).
+    pub fn image(path: impl Into<String>, data: PtrEqArc<Vec<u8>>,
+                 width: Option<Box<crate::entities::value::Value>>,
+                 height: Option<Box<crate::entities::value::Value>>) -> Self {
+        Self::Image(Arc::new(ImageElem { path: path.into(), data, width, height }))
     }
     // ── Construtores ergonómicos família lista/termos (Modelo D, Lote 3 P318) ──
     pub fn list_item(body: Content) -> Self {
@@ -1361,7 +1364,7 @@ impl Content {
 
     /// `hide(body)` — Passo 156C (ADR-0061 Fase 1).
     pub fn hide(body: Content) -> Self {
-        Self::Hide { body: Box::new(body) }
+        Self::Hide(Arc::new(HideElem { body }))
     }
 
     /// `h(amount, weak)` — Passo 156D (ADR-0061 Fase 1 sub-passo 2).
@@ -1485,7 +1488,7 @@ impl Content {
         gap:     Option<Length>,
         justify: bool,
     ) -> Self {
-        Self::Repeat { body: Box::new(body), gap, justify }
+        Self::Repeat(Arc::new(RepeatElem { body, gap, justify }))
     }
 
     /// **P217** — Construtor `Content::Columns` (multi-column container).
@@ -1637,7 +1640,7 @@ impl Content {
             Self::SmartQuote { .. } => false,
             // Passo 156C (ADR-0061 Fase 1): Pad/Hide vazios se o body for.
             Self::Pad  { body, .. } => body.is_empty(),
-            Self::Hide { body }     => body.is_empty(),
+            Self::Hide(e)           => e.is_empty(),
             // Modelo D (Lote 5 P320): espaços/breaks delegam ao elemento
             // (HSpace/VSpace = amount.is_zero(); Pagebreak/Colbreak = false).
             Self::HSpace(e)    => e.is_empty(),
@@ -1656,7 +1659,7 @@ impl Content {
             Self::Stack { children, .. } => children.iter().all(|c| c.is_empty()),
             // Passo 156J: Repeat é vazio se body for (atributos não
             // tornam o container não-vazio — análogo a Block/Boxed).
-            Self::Repeat { body, .. } => body.is_empty(),
+            Self::Repeat(e) => e.is_empty(),
             // P217: Columns é vazio se body for (count/gutter não tornam
             // não-vazio — análogo a Block/Boxed/Repeat).
             Self::Columns { body, .. } => body.is_empty(),
@@ -1680,7 +1683,7 @@ impl Content {
             Self::StateDisplay(e)           => e.plain_text(),
             Self::CounterDisplayCallback(e) => e.plain_text(),
             Self::Heading(h) => h.plain_text(),
-            Self::Raw { text, .. }   => text.to_string(),
+            Self::Raw(e)             => e.plain_text(),
             // Modelo D (Lote 3 P318): família lista/termos delega ao elemento.
             Self::ListItem(e) => e.plain_text(),
             Self::EnumItem(e) => e.plain_text(),
@@ -1737,7 +1740,7 @@ impl Content {
                 }
             }
             Self::SetFigureNumbering { .. } => String::new(),
-            Self::Image { .. } => String::new(),
+            Self::Image(e) => e.plain_text(),
             Self::Shape { .. } => String::new(),
             Self::Transform { body, .. } => body.plain_text(),
             Self::Grid { cells, .. } => {
@@ -1795,7 +1798,7 @@ impl Content {
             // Marker `[N]` real é resolvido em layout-time.
             Self::Footnote { body } => body.plain_text(),
             Self::SetPage { .. } => String::new(),
-            Self::Align { body, .. } => body.plain_text(),
+            Self::Align(e) => e.plain_text(),
             Self::Place { body, .. } => body.plain_text(),
             Self::Styled(body, _) => body.plain_text(),
             // Passo 154B: Divider é structural sem texto; Terms concatena
@@ -1809,7 +1812,7 @@ impl Content {
             // Passo 156C: Pad é transparente para texto plano (recurse no
             // body sem alterar texto). Hide produz string vazia (não rende).
             Self::Pad  { body, .. } => body.plain_text(),
-            Self::Hide { .. }       => String::new(),
+            Self::Hide(e)           => e.plain_text(),
             // Modelo D (Lote 5 P320): espaços/breaks delegam ao elemento (vazio).
             Self::HSpace(e)    => e.plain_text(),
             Self::VSpace(e)    => e.plain_text(),
@@ -1826,7 +1829,7 @@ impl Content {
             // Passo 156J: Repeat é transparente para texto plano —
             // recurse no body sem multiplicar (paridade não visível em
             // texto plano; semântica de repetição é runtime-only).
-            Self::Repeat { body, .. } => body.plain_text(),
+            Self::Repeat(e) => e.plain_text(),
             // P217: Columns transparente para texto plano (recurse no body).
             Self::Columns { body, .. } => body.plain_text(),
             Self::Quote { body, attribution, quotes, .. } => {
@@ -1854,8 +1857,8 @@ impl PartialEq for Content {
             (Self::Sequence(a),          Self::Sequence(b))          => a.as_ref() == b.as_ref(),
             // Passo 101: Content::Strong/Emph removidos — Content::Styled cobre.
             (Self::Heading(a), Self::Heading(b)) => a == b,
-            (Self::Raw { text: ta, lang: la, block: ba },
-             Self::Raw { text: tb, lang: lb, block: bb })            => ta == tb && la == lb && ba == bb,
+            // Modelo D (Lote 7 P322): Raw delega ao `Arc<…Elem>`.
+            (Self::Raw(a), Self::Raw(b)) => a == b,
             (Self::ListItem(a),          Self::ListItem(b))          => a == b,
             (Self::EnumItem(a), Self::EnumItem(b))                   => a == b,
             (Self::Link(a),     Self::Link(b))                       => a == b,
@@ -1893,9 +1896,8 @@ impl PartialEq for Content {
              Self::Figure { body: bb, caption: cb, kind: kb, numbering: nb }) =>
                 ba == bb && ca == cb && ka == kb && na == nb,
             (Self::SetFigureNumbering { pattern: a }, Self::SetFigureNumbering { pattern: b }) => a == b,
-            (Self::Image { path: pa, data: da, width: wa, height: ha },
-             Self::Image { path: pb, data: db, width: wb, height: hb }) =>
-                pa == pb && da == db && wa.as_deref() == wb.as_deref() && ha.as_deref() == hb.as_deref(),
+            // Modelo D (Lote 7 P322): Image delega ao `Arc<…Elem>`.
+            (Self::Image(a), Self::Image(b)) => a == b,
             (Self::Shape { kind: ka, width: wa, height: ha, fill: fa, stroke: sa },
              Self::Shape { kind: kb, width: wb, height: hb, fill: fb, stroke: sb }) =>
                 ka == kb && wa.as_deref() == wb.as_deref() && ha.as_deref() == hb.as_deref()
@@ -1955,8 +1957,8 @@ impl PartialEq for Content {
             (Self::SetPage { width: wa, height: ha, margin: ma },
              Self::SetPage { width: wb, height: hb, margin: mb }) =>
                 wa == wb && ha == hb && ma == mb,
-            (Self::Align { alignment: aa, body: ba },
-             Self::Align { alignment: ab, body: bb }) => aa == ab && ba == bb,
+            // Modelo D (Lote 7 P322): Align delega ao `Arc<…Elem>`.
+            (Self::Align(a), Self::Align(b)) => a == b,
             // P223 — Place refino +2 fields (float + clearance).
             (Self::Place { alignment: aa, dx: dxa, dy: dya, scope: sa,
                            float: fa, clearance: ca, body: ba },
@@ -1982,7 +1984,7 @@ impl PartialEq for Content {
             // Passo 156C / 156L — Pad / Hide.
             (Self::Pad  { body: ba, sides: sa },
              Self::Pad  { body: bb, sides: sb }) => ba == bb && sa == sb,
-            (Self::Hide { body: ba }, Self::Hide { body: bb }) => ba == bb,
+            (Self::Hide(a), Self::Hide(b)) => a == b,
             // Modelo D (Lote 5 P320): espaços/breaks delegam ao `Arc<…Elem>`.
             (Self::HSpace(a),    Self::HSpace(b))    => a == b,
             (Self::VSpace(a),    Self::VSpace(b))    => a == b,
@@ -2012,10 +2014,8 @@ impl PartialEq for Content {
             (Self::Stack { children: ca, dir: da, spacing: sa },
              Self::Stack { children: cb, dir: db, spacing: sb }) =>
                 ca.as_ref() == cb.as_ref() && da == db && sa == sb,
-            // Passo 156J — Repeat.
-            (Self::Repeat { body: ba, gap: ga, justify: ja },
-             Self::Repeat { body: bb, gap: gb, justify: jb }) =>
-                ba == bb && ga == gb && ja == jb,
+            // Modelo D (Lote 7 P322): Repeat delega ao `Arc<…Elem>`.
+            (Self::Repeat(a), Self::Repeat(b)) => a == b,
             // P217 — Columns: comparação 3 fields.
             (Self::Columns { count: ca, gutter: ga, body: ba },
              Self::Columns { count: cb, gutter: gb, body: bb }) =>
@@ -2152,9 +2152,8 @@ impl Content {
                 body:  Box::new(body.map_content(transform)?),
                 sides: *sides,
             },
-            Content::Hide { body } => Content::Hide {
-                body: Box::new(body.map_content(transform)?),
-            },
+            // Modelo D (Lote 7 P322): Hide delega ao elemento.
+            Content::Hide(e) => e.map_content(transform)?,
 
             // Passo 156G + P231 + P247 + P250: Block container — recurse em
             // body; preserva 9 cosméticos (Sides/Corners/bool/Color Copy;
@@ -2204,11 +2203,7 @@ impl Content {
 
             // Passo 156J: Repeat container — recurse em body; gap e
             // justify são Copy primitivos (Option<Length>, bool).
-            Content::Repeat { body, gap, justify } => Content::Repeat {
-                body:    Box::new(body.map_content(transform)?),
-                gap:     *gap,
-                justify: *justify,
-            },
+            Content::Repeat(e) => e.map_content(transform)?,
 
             // P217: Columns container — recurse em body; count/gutter
             // são Copy primitivos (usize / Option<Length>).
@@ -2227,7 +2222,7 @@ impl Content {
             | Content::Empty
             | Content::Linebreak(_)
             | Content::Outline
-            | Content::Raw { .. }
+            | Content::Raw(_)
             | Content::Ref { .. }
             | Content::SetHeadingNumbering { .. }
             | Content::SetEquationNumbering { .. }
@@ -2237,7 +2232,7 @@ impl Content {
             | Content::CounterDisplay(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
-            | Content::Image { .. }
+            | Content::Image(_)
             | Content::Divider(_)
             // P287 — SmartQuote leaf (sem body — terminal).
             | Content::SmartQuote { .. }
@@ -2353,10 +2348,7 @@ impl Content {
             Content::Footnote { body } => Content::Footnote {
                 body: Box::new(body.map_content(transform)?),
             },
-            Content::Align { alignment, body } => Content::Align {
-                alignment: *alignment,
-                body:      Box::new(body.map_content(transform)?),
-            },
+            Content::Align(e) => e.map_content(transform)?,
             // P223 — Place refino: preservar float (Copy) e clearance (Copy via Option<Length>).
             Content::Place { alignment, dx, dy, scope, float, clearance, body } => Content::Place {
                 alignment: *alignment,
@@ -2442,9 +2434,8 @@ impl Content {
                 body:  Box::new(body.map_text(transform)),
                 sides: *sides,
             },
-            Content::Hide { body } => Content::Hide {
-                body: Box::new(body.map_text(transform)),
-            },
+            // Modelo D (Lote 7 P322): Hide delega ao elemento.
+            Content::Hide(e) => e.map_text(transform),
 
             // Passo 156G + P247 + P250: Block container — recurse em body;
             // preserva 9 cosméticos (P247 fill/stroke + P250 spacing/above/
@@ -2488,11 +2479,7 @@ impl Content {
             },
 
             // Passo 156J: Repeat container — map_text no body.
-            Content::Repeat { body, gap, justify } => Content::Repeat {
-                body:    Box::new(body.map_text(transform)),
-                gap:     *gap,
-                justify: *justify,
-            },
+            Content::Repeat(e) => e.map_text(transform),
 
             // P217: Columns container — map_text no body; count/gutter
             // preservados via Copy.
@@ -2511,7 +2498,7 @@ impl Content {
             | Content::Space
             | Content::Linebreak(_)
             | Content::Outline
-            | Content::Raw { .. }
+            | Content::Raw(_)
             | Content::Ref { .. }
             | Content::SetHeadingNumbering { .. }
             | Content::SetEquationNumbering { .. }
@@ -2541,7 +2528,7 @@ impl Content {
             | Content::MathOp(_)
             // P311b.2 — MathStyled terminal em map_text (math structural).
             | Content::MathStyled(_)
-            | Content::Image { .. }
+            | Content::Image(_)
             | Content::Divider(_)
             | Content::HSpace(_)
             | Content::VSpace(_)
@@ -2637,10 +2624,7 @@ impl Content {
             Content::Footnote { body } => Content::Footnote {
                 body: Box::new(body.map_text(transform)),
             },
-            Content::Align { alignment, body } => Content::Align {
-                alignment: *alignment,
-                body:      Box::new(body.map_text(transform)),
-            },
+            Content::Align(e) => e.map_text(transform),
             // P223 — Place refino: preservar float + clearance no map_text.
             Content::Place { alignment, dx, dy, scope, float, clearance, body } => Content::Place {
                 alignment: *alignment,
@@ -3299,8 +3283,8 @@ mod tests {
     #[test]
     fn hide_constructor_envolve_body() {
         let h = Content::hide(Content::text("placeholder"));
-        if let Content::Hide { body } = &h {
-            assert_eq!(body.plain_text(), "placeholder");
+        if let Content::Hide(e) = &h {
+            assert_eq!(e.body.plain_text(), "placeholder");
         } else {
             panic!("esperado Content::Hide");
         }
@@ -3383,8 +3367,8 @@ mod tests {
         // Pad expõe via plain_text (recurse); Hide oculta plain_text mas
         // o body interno foi transformado — verificamos isso desembrulhando.
         assert_eq!(pad_upper.plain_text(), "HELLO");
-        if let Content::Hide { body } = &hide_upper {
-            assert_eq!(body.plain_text(), "HELLO");
+        if let Content::Hide(e) = &hide_upper {
+            assert_eq!(e.body.plain_text(), "HELLO");
         } else {
             panic!("esperado Content::Hide após map_text");
         }
@@ -3916,10 +3900,10 @@ mod tests {
     #[test]
     fn repeat_constructor_default_gap_justify() {
         let r = Content::repeat(Content::text("."), None, true);
-        if let Content::Repeat { body, gap, justify } = &r {
-            assert_eq!(body.plain_text(), ".");
-            assert_eq!(*gap, None);
-            assert!(*justify);
+        if let Content::Repeat(e) = &r {
+            assert_eq!(e.body.plain_text(), ".");
+            assert_eq!(e.gap, None);
+            assert!(e.justify);
         } else {
             panic!("esperado Content::Repeat");
         }
@@ -3929,9 +3913,9 @@ mod tests {
     fn repeat_constructor_explicit_gap_justify_false() {
         use crate::entities::layout_types::Length;
         let r = Content::repeat(Content::text("a"), Some(Length::pt(2.0)), false);
-        if let Content::Repeat { gap, justify, .. } = &r {
-            assert_eq!(*gap, Some(Length::pt(2.0)));
-            assert!(!*justify);
+        if let Content::Repeat(e) = &r {
+            assert_eq!(e.gap, Some(Length::pt(2.0)));
+            assert!(!e.justify);
         } else {
             panic!("esperado Content::Repeat");
         }
@@ -3998,9 +3982,9 @@ mod tests {
         let upper = r.map_text(&mut |t| t.to_uppercase());
         assert_eq!(upper.plain_text(), "HELLO");
         // Atributos preservados.
-        if let Content::Repeat { gap, justify, .. } = upper {
-            assert_eq!(gap, Some(Length::pt(2.0)));
-            assert!(!justify);
+        if let Content::Repeat(e) = upper {
+            assert_eq!(e.gap, Some(Length::pt(2.0)));
+            assert!(!e.justify);
         } else {
             panic!("esperado Content::Repeat após map_text");
         }
