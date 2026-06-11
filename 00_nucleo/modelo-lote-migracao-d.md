@@ -111,6 +111,16 @@ grep -rnE "Content::Nome([^A-Za-z0-9]|$)" 01_core 02_shell 03_infra 04_wiring \
      >    **qualquer posição de padrão é manual por regra**, não por lembrete.
      >    `Box::new` aninhado (ex.: `StateUpdate::Set(Box::new(v))`) também é
      >    manual — o transformador sobre-remove.
+     > 4. **Verificação pós-passada (C1-bis, achado P324 — 3ª reincidência).**
+     >    O elo que falhou no P324 foi o **(ii)**: o grep do passo 1 *capturou*
+     >    os padrões aninhados (`Value::Content(Content::Nome {…})`), mas a
+     >    exclusão do passo 2 confiou na heurística interna do transformador,
+     >    que os converteu na mesma (E0164). A exclusão deixa de ser
+     >    promessa e vira **verificável**: depois da passada, intersetar a
+     >    lista de sites que o transformador tocou com a lista do grep (passo
+     >    1). **Interseção não-vazia ⇒ parar e reverter antes de compilar** —
+     >    o transformador tocou num padrão. A regra existe para tornar o erro
+     >    *impossível*, não documentado.
 3. **Locatável** (se a variante for): segue o precedente Heading —
    implementar `element_kind`/`to_payload`; o estado misto dos enums de
    introspecção permanece e esvazia lote a lote.
