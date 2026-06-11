@@ -333,7 +333,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             // P311b.4 — Math style wrapper: aplica map_glyph + size factor.
             // Composição outer-wins é resolvida por `apply_math_style` que
             // funde MathStyled aninhados via Option::or (outer set ganha).
-            Content::MathStyled { kind, bold, italic, body, cramped: _ } => {
+            Content::MathStyled(m) => {
+                // Modelo D (P316): MathStyled delegado; re-bind dos campos.
+                let kind = &m.kind;
+                let bold = &m.bold;
+                let italic = &m.italic;
+                let body = &m.body;
                 let transformed = apply_math_style(body, *kind, *bold, *italic);
                 let size_factor = kind
                     .filter(|k| k.is_size_variant())
@@ -692,12 +697,13 @@ fn apply_math_style(
 ) -> Content {
     match body {
         // Composição: inner MathStyled é fundido com outer via Option::or.
-        Content::MathStyled { kind: ik, bold: ib, italic: ii, body: ibody, cramped: _ } => {
+        // Modelo D (P316): MathStyled delegado; campos via Arc<Elem>.
+        Content::MathStyled(m) => {
             apply_math_style(
-                ibody,
-                kind.or(*ik),
-                bold.or(*ib),
-                italic.or(*ii),
+                &m.body,
+                kind.or(m.kind),
+                bold.or(m.bold),
+                italic.or(m.italic),
             )
         }
         // Folha textual: aplica map_glyph char-by-char.
@@ -781,13 +787,7 @@ mod p311b_tests {
     #[test]
     fn p311b4_apply_math_style_bb_cal_outer_wins() {
         // bb(cal(x)) — outer Bb deve ganhar.
-        let inner = Content::MathStyled {
-            kind: Some(MathStyleKind::Chancery),
-            bold: None,
-            italic: None,
-            body: Box::new(mk_ident("x")),
-            cramped: None,
-        };
+        let inner = Content::math_styled(Some(MathStyleKind::Chancery), None, None, mk_ident("x"), None);
         let out = apply_math_style(&inner, Some(MathStyleKind::DoubleStruck), None, None);
         match out {
             Content::MathIdent(s) => assert_eq!(s.as_str(), "\u{1D569}", "outer Bb deve ganhar"),
@@ -798,13 +798,7 @@ mod p311b_tests {
     #[test]
     fn p311b4_apply_math_style_upright_italic_outer_wins() {
         // upright(italic(x)) — outer upright (italic=false) deve ganhar.
-        let inner = Content::MathStyled {
-            kind: None,
-            bold: None,
-            italic: Some(true),
-            body: Box::new(mk_ident("x")),
-            cramped: None,
-        };
+        let inner = Content::math_styled(None, None, Some(true), mk_ident("x"), None);
         let out = apply_math_style(&inner, None, None, Some(false));
         match out {
             Content::MathIdent(s) => assert_eq!(s.as_str(), "x", "upright deve suprimir italic"),
@@ -815,13 +809,7 @@ mod p311b_tests {
     #[test]
     fn p311b4_apply_math_style_bold_preserves_inner_bb() {
         // bold(bb(x)) — inner Bb preservado; outer bold ortogonal aplicado.
-        let inner = Content::MathStyled {
-            kind: Some(MathStyleKind::DoubleStruck),
-            bold: None,
-            italic: None,
-            body: Box::new(mk_ident("x")),
-            cramped: None,
-        };
+        let inner = Content::math_styled(Some(MathStyleKind::DoubleStruck), None, None, mk_ident("x"), None);
         let out = apply_math_style(&inner, None, Some(true), None);
         // Bold Double-Struck small x: U+1D569 (DS x não tem variant bold no
         // plano; nossa tabela aplica DS base). Aceita qualquer variant

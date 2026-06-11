@@ -95,7 +95,7 @@ pub fn native_divider(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
             "divider() não aceita argumentos posicionais".to_string(),
         )]);
     }
-    Ok(Value::Content(Content::Divider))
+    Ok(Value::Content(Content::divider()))
 }
 
 /// `terms(named: descrição, ...)` — emite `Content::Terms` com pares

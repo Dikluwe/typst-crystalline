@@ -2072,7 +2072,7 @@ mod tests {
         };
         assert!(
             matches!(labelled, Content::Labelled { target, label: Label(s) }
-                if matches!(target.as_ref(), Content::Heading { .. }) && s == "meu_label"),
+                if matches!(target.as_ref(), Content::Heading(_)) && s == "meu_label"),
             "esperado Labelled(Heading), obtido: {:?}", labelled
         );
     }
@@ -2575,8 +2575,8 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve ter content");
         // O conteúdo do módulo pode ser Divider directo ou Sequence([Divider]).
-        let is_divider = matches!(&content, Content::Divider)
-            || matches!(&content, Content::Sequence(s) if s.iter().any(|c| matches!(c, Content::Divider)));
+        let is_divider = matches!(&content, Content::Divider(_))
+            || matches!(&content, Content::Sequence(s) if s.iter().any(|c| matches!(c, Content::Divider(_))));
         assert!(is_divider, "esperado Content::Divider, obteve {:?}", content);
     }
 

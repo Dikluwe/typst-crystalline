@@ -58,10 +58,7 @@ mod tests {
         let b = text("b");
         let c = Content::Empty;
         let d = Content::Space;
-        let e = Content::Heading {
-            level: 1,
-            body: Box::new(text("title")),
-        };
+        let e = Content::heading(1, text("title"));
         let hashes = [
             hash_content(&a),
             hash_content(&b),
@@ -82,10 +79,7 @@ mod tests {
 
     #[test]
     fn determinismo_em_100_chamadas() {
-        let c = Content::Heading {
-            level: 2,
-            body: Box::new(text("section")),
-        };
+        let c = Content::heading(2, text("section"));
         let h0 = hash_content(&c);
         for _ in 0..100 {
             assert_eq!(hash_content(&c), h0);
@@ -101,8 +95,8 @@ mod tests {
 
     #[test]
     fn variantes_estruturalmente_distintas_produzem_hashes_distintos() {
-        let h1 = Content::Heading { level: 1, body: Box::new(Content::Empty) };
-        let h2 = Content::Heading { level: 2, body: Box::new(Content::Empty) };
+        let h1 = Content::heading(1, Content::Empty);
+        let h2 = Content::heading(2, Content::Empty);
         assert_ne!(hash_content(&h1), hash_content(&h2));
     }
 }

@@ -20,7 +20,7 @@ use crate::entities::content::Content;
 pub fn is_locatable(content: &Content) -> bool {
     match content {
         // ── Locatable em M1 ──────────────────────────────────────────
-        Content::Heading { .. } => true,
+        Content::Heading(_) => true,
         Content::Figure  { .. } => true,
         Content::Cite    { .. } => true,
 
@@ -126,7 +126,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Align { .. }
         | Content::Place { .. }
         | Content::Styled(_, _)
-        | Content::Divider
+        | Content::Divider(_)
         | Content::Terms { .. }
         | Content::TermItem { .. }
         | Content::Quote { .. }
@@ -174,7 +174,7 @@ pub fn is_locatable(content: &Content) -> bool {
         // P298 — Math op não-locatable.
         | Content::MathOp { .. }
         // P311b.2 — MathStyled não-locatable (math structural; wrap glyph).
-        | Content::MathStyled { .. } => false,
+        | Content::MathStyled(_) => false,
     }
 }
 
@@ -188,10 +188,7 @@ mod tests {
 
     #[test]
     fn heading_e_locatable() {
-        let c = Content::Heading {
-            level: 1,
-            body:  Box::new(Content::Empty),
-        };
+        let c = Content::heading(1, Content::Empty);
         assert!(is_locatable(&c));
     }
 
@@ -247,10 +244,7 @@ mod tests {
         // is_locatable: olha apenas para o nó actual, não para
         // children.
         let c = Content::Labelled {
-            target: Box::new(Content::Heading {
-                level: 1,
-                body:  Box::new(Content::Empty),
-            }),
+            target: Box::new(Content::heading(1, Content::Empty)),
             label:  crate::entities::label::Label("x".to_string()),
         };
         assert!(!is_locatable(&c));
@@ -265,7 +259,7 @@ mod tests {
         // o match em ambas as funções).
         vec![
             // Locatable (3)
-            Content::Heading { level: 1, body: Box::new(Content::Empty) },
+            Content::heading(1, Content::Empty),
             Content::Figure { body: Box::new(Content::Empty), caption: None, kind: None, numbering: None },
             Content::Cite { key: "k".into(), supplement: None, form: None },
             // Não-locatable: amostra representativa
@@ -280,7 +274,7 @@ mod tests {
             Content::Ref { target: crate::entities::label::Label("y".to_string()) },
             Content::Outline,
             Content::Linebreak,
-            Content::Divider,
+            Content::divider(),
             Content::MathAlignPoint,
             Content::ListItem(Box::new(Content::Empty)),
             Content::SetHeadingNumbering { active: true },

@@ -50,13 +50,7 @@ fn wrap_math_style(
         )]),
         None => Content::Empty,
     };
-    Ok(Value::Content(Content::MathStyled {
-        kind,
-        bold,
-        italic,
-        body: Box::new(body),
-        cramped,
-    }))
+    Ok(Value::Content(Content::math_styled(kind, bold, italic, body, cramped)))
 }
 
 /// `bb(body)` — wrap em variant DoubleStruck (blackboard bold).

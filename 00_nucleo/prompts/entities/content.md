@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: d4501435
+Hash do Código: 0ed6eb91
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -39,6 +39,43 @@ pub enum Content {
     // Elem(Arc<dyn NativeElement>),              // vtable — Passo 20+
 }
 ```
+
+## Modelo D — delegação por módulo (ADR-0105, lote piloto P316)
+
+ADR-0105 adota o modelo **D**: cada variante migra **incrementalmente** de
+campos inline (`Nome { … }`) para `Nome(Arc<nome::Nome>)`, com a lógica
+por-variante a morar num módulo `entities/elements/nome.rs` que implementa o
+trait `Element` (ver `entities/elements/_comum.md`). Os braços dessas variantes
+nos **6 matches do hub** (`plain_text`, `is_empty`, `map_content`, `map_text`,
+`get_field`, e o despacho de `eq`) deixam de conter lógica e viram **dispatch de
+1 linha**: `Content::Nome(e) => e.metodo(…)`.
+
+**Lote piloto P316** (3 variantes): `Divider`, `Heading`, `MathStyled` —
+ver `entities/elements/{divider,heading,math_styled}.md`.
+
+- `Divider` → `Divider(Arc<DividerElem>)`
+- `Heading { level, body }` → `Heading(Arc<HeadingElem>)` (locatável: o trait
+  fornece `element_kind`/`to_payload`, absorvendo o braço Heading de
+  `ElementKind`/`extract_payload`)
+- `MathStyled { … }` → `MathStyled(Arc<MathStyledElem>)`
+
+**Estado misto** (esperado, ADR-0105): durante os lotes o `enum` mistura
+variantes migradas (`Nome(Arc<…>)`) e por migrar (`Nome { … }`); os 6 matches
+despacham as migradas para o trait e mantêm o braço inline das restantes. O hub
+encolhe lote a lote (baseline P313: `content.rs` 5782 linhas, 77 variantes).
+
+**`eq`/`hash`**: `eq` por `#[derive(PartialEq)]` no `NomeElem` (estrutural via
+`Arc`); `hash` continua por `content_hash::hash_content` (Debug) — os valores
+absolutos das 3 variantes migradas mudam, a **relação** preserva-se (detalhe e
+trava em `entities/elements/_comum.md` §A.1.1.b).
+
+**Layout**: NÃO entra no trait (topologia — `entities` não depende de `rules`);
+fica em `rules/layout` / `rules/math/layout`, com o braço a destructurar
+`Arc<NomeElem>` (mesma lógica). `rules/layout.md` não é editado neste passo.
+
+**Destino F** (ADR-0105): os módulos de elemento do D são o continente do
+candidato F (PropMap); `NomeElem` agrupa campos+defaults para que `fn
+descriptor()` futuro seja natural. F entra com o DEBT StyleChain (99.E).
 
 ## Interface pública obrigatória
 ```rust

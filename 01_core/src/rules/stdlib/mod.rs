@@ -8182,11 +8182,11 @@ mod tests {
         exp_cramped: Option<bool>,
     ) {
         match v.unwrap() {
-            Value::Content(Content::MathStyled { kind, bold, italic, body: _, cramped }) => {
-                assert_eq!(kind, exp_kind, "kind mismatch");
-                assert_eq!(bold, exp_bold, "bold mismatch");
-                assert_eq!(italic, exp_italic, "italic mismatch");
-                assert_eq!(cramped, exp_cramped, "cramped mismatch");
+            Value::Content(Content::MathStyled(m)) => {
+                assert_eq!(m.kind, exp_kind, "kind mismatch");
+                assert_eq!(m.bold, exp_bold, "bold mismatch");
+                assert_eq!(m.italic, exp_italic, "italic mismatch");
+                assert_eq!(m.cramped, exp_cramped, "cramped mismatch");
             }
             other => panic!("esperado Content::MathStyled, obteve {other:?}"),
         }
@@ -8268,8 +8268,8 @@ mod tests {
     fn p311b_accepts_string_body() {
         let v = call_math_style(native_bb, vec![Value::Str("abc".into())]).unwrap();
         match v {
-            Value::Content(Content::MathStyled { body, .. }) => {
-                match *body {
+            Value::Content(Content::MathStyled(m)) => {
+                match &m.body {
                     Content::Text(s, _) => assert_eq!(s.as_str(), "abc"),
                     other => panic!("esperado Text, obteve {other:?}"),
                 }
@@ -8282,8 +8282,8 @@ mod tests {
     fn p311b_empty_args_produces_empty_body() {
         let v = call_math_style(native_bb, vec![]).unwrap();
         match v {
-            Value::Content(Content::MathStyled { body, .. }) => {
-                assert!(matches!(*body, Content::Empty));
+            Value::Content(Content::MathStyled(m)) => {
+                assert!(matches!(m.body, Content::Empty));
             }
             other => panic!("esperado MathStyled, obteve {other:?}"),
         }

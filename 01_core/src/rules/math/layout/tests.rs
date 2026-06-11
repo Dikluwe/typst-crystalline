@@ -768,13 +768,7 @@ fn left_scripts_passo46_nao_regride() {
 
 #[test]
 fn p311b5_bb_x_emite_double_struck_x() {
-    let bb_x = Content::MathStyled {
-        kind:    Some(MathStyleKind::DoubleStruck),
-        bold:    None,
-        italic:  None,
-        body:    Box::new(Content::MathIdent("x".into())),
-        cramped: None,
-    };
+    let bb_x = Content::math_styled(Some(MathStyleKind::DoubleStruck), None, None, Content::MathIdent("x".into()), None);
     let items = layout_equation_items(&bb_x);
     assert!(items_contain_text(&items, '\u{1D569}'),
         "bb(x) deve emitir 𝕩 U+1D569: {:?}", items);
@@ -782,13 +776,7 @@ fn p311b5_bb_x_emite_double_struck_x() {
 
 #[test]
 fn p311b5_cal_L_emite_script_L() {
-    let cal_L = Content::MathStyled {
-        kind:    Some(MathStyleKind::Chancery),
-        bold:    None,
-        italic:  None,
-        body:    Box::new(Content::MathIdent("L".into())),
-        cramped: None,
-    };
+    let cal_L = Content::math_styled(Some(MathStyleKind::Chancery), None, None, Content::MathIdent("L".into()), None);
     let items = layout_equation_items(&cal_L);
     // L Chancery = U+2112 (excepção BMP)
     assert!(items_contain_text(&items, '\u{2112}'),
@@ -798,20 +786,8 @@ fn p311b5_cal_L_emite_script_L() {
 #[test]
 fn p311b5_bb_cal_x_outer_wins() {
     // bb(cal(x)) — outer Bb deve ganhar.
-    let inner = Content::MathStyled {
-        kind:    Some(MathStyleKind::Chancery),
-        bold:    None,
-        italic:  None,
-        body:    Box::new(Content::MathIdent("x".into())),
-        cramped: None,
-    };
-    let outer = Content::MathStyled {
-        kind:    Some(MathStyleKind::DoubleStruck),
-        bold:    None,
-        italic:  None,
-        body:    Box::new(inner),
-        cramped: None,
-    };
+    let inner = Content::math_styled(Some(MathStyleKind::Chancery), None, None, Content::MathIdent("x".into()), None);
+    let outer = Content::math_styled(Some(MathStyleKind::DoubleStruck), None, None, inner, None);
     let items = layout_equation_items(&outer);
     assert!(items_contain_text(&items, '\u{1D569}'),
         "bb(cal(x)) → outer Bb deve ganhar; esperava 𝕩 U+1D569: {:?}", items);
@@ -820,20 +796,8 @@ fn p311b5_bb_cal_x_outer_wins() {
 #[test]
 fn p311b5_upright_italic_x_outer_wins() {
     // upright(italic(x)) — outer upright (italic=Some(false)) deve ganhar.
-    let inner = Content::MathStyled {
-        kind:    None,
-        bold:    None,
-        italic:  Some(true),
-        body:    Box::new(Content::MathIdent("x".into())),
-        cramped: None,
-    };
-    let outer = Content::MathStyled {
-        kind:    None,
-        bold:    None,
-        italic:  Some(false),
-        body:    Box::new(inner),
-        cramped: None,
-    };
+    let inner = Content::math_styled(None, None, Some(true), Content::MathIdent("x".into()), None);
+    let outer = Content::math_styled(None, None, Some(false), inner, None);
     let items = layout_equation_items(&outer);
     // upright wins → 'x' literal (não italic codepoint).
     assert!(items_contain_text(&items, 'x'),
@@ -847,13 +811,7 @@ fn p311b5_bb_frac_a_b_propaga_recurse() {
         num: Box::new(Content::MathIdent("a".into())),
         den: Box::new(Content::MathIdent("b".into())),
     };
-    let bb_frac = Content::MathStyled {
-        kind:    Some(MathStyleKind::DoubleStruck),
-        bold:    None,
-        italic:  None,
-        body:    Box::new(frac),
-        cramped: None,
-    };
+    let bb_frac = Content::math_styled(Some(MathStyleKind::DoubleStruck), None, None, frac, None);
     let items = layout_equation_items(&bb_frac);
     assert!(items_contain_text(&items, '\u{1D552}'),
         "bb(frac(a,b)) deve emitir 𝕒 U+1D552 no numerador: {:?}", items);
@@ -864,20 +822,8 @@ fn p311b5_bb_frac_a_b_propaga_recurse() {
 #[test]
 fn p311b5_bold_bb_x_ortogonal_preserva_inner() {
     // bold(bb(x)) — inner Bb preserved; bold orthogonal.
-    let inner = Content::MathStyled {
-        kind:    Some(MathStyleKind::DoubleStruck),
-        bold:    None,
-        italic:  None,
-        body:    Box::new(Content::MathIdent("x".into())),
-        cramped: None,
-    };
-    let outer = Content::MathStyled {
-        kind:    None,
-        bold:    Some(true),
-        italic:  None,
-        body:    Box::new(inner),
-        cramped: None,
-    };
+    let inner = Content::math_styled(Some(MathStyleKind::DoubleStruck), None, None, Content::MathIdent("x".into()), None);
+    let outer = Content::math_styled(None, Some(true), None, inner, None);
     let items = layout_equation_items(&outer);
     // DoubleStruck plane não tem variant Bold separado — DS é uniforme.
     // map_glyph aplica DS base (U+1D569 para 'x' lowercase). Verificar

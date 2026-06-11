@@ -149,10 +149,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // Passo 101: `Content::Strong` e `Content::Emph` removidos.
         // O arm `Content::Styled` abaixo cobre ambos (propaga recursivamente
         // preservando os estilos).
-        Content::Heading { level, body } => Content::Heading {
-            level: *level,
-            body:  Box::new(materialize_time(body, intr, location)),
-        },
+        // Modelo D (P316): Heading delegado; reconstrói via ctor.
+        Content::Heading(h) => Content::heading(h.level, materialize_time(&h.body, intr, location)),
         Content::ListItem(body) => Content::ListItem(Box::new(materialize_time(body, intr, location))),
         Content::EnumItem { number, body } => Content::EnumItem {
             number: *number,
@@ -246,9 +244,9 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // P298 — Math op terminal (paralelo cluster math).
         | Content::MathOp { .. }
         // P311b.2 — MathStyled terminal em materialize_time (math structural).
-        | Content::MathStyled { .. }
+        | Content::MathStyled(_)
         | Content::Image { .. }
-        | Content::Divider
+        | Content::Divider(_)
         // Passo 156D (ADR-0061 Fase 1 sub-passo 2) — h/v spacing leaves.
         | Content::HSpace { .. }
         | Content::VSpace { .. }
@@ -480,7 +478,7 @@ fn compute_labelled<I: Introspector>(
     lang:     Option<&crate::entities::lang::Lang>,
 ) -> (Option<String>, Option<usize>) {
     match target {
-        Content::Heading { .. } => (
+        Content::Heading(_) => (
             intr.formatted_counter_at("heading", location)
                 .map(|n| format!("Secção {}", n)),
             None,
@@ -859,7 +857,11 @@ pub(crate) fn walk(
             }
         }
 
-        Content::Heading { level, body } => {
+        Content::Heading(h) => {
+            // Modelo D (P316): Heading delegado; re-bind dos campos.
+            let level = &h.level;
+            let body = &h.body;
+            let _ = level;
             // P200B (M5 universal completo) — walk arm Heading
             // E2-residuo fechada estruturalmente. Trabalho híbrido
             // combinando 3 padrões testados:
@@ -1173,14 +1175,14 @@ pub(crate) fn walk(
         // P298 — Math op terminal em walk.
         | Content::MathOp { .. }
         // P311b.2 — MathStyled terminal em walk (math structural).
-        | Content::MathStyled { .. }
+        | Content::MathStyled(_)
         | Content::MathAlignPoint
         | Content::Linebreak
         // P287 — SmartQuote leaf (não-locatable; sem counters).
         | Content::SmartQuote { .. }
         | Content::Image { .. }
         | Content::SetPage { .. }
-        | Content::Divider
+        | Content::Divider(_)
         // Passo 156D — h/v spacing leaves; sem effect em counters.
         | Content::HSpace { .. }
         | Content::VSpace { .. }
@@ -2850,10 +2852,7 @@ mod tests {
         use crate::entities::label::Label;
 
         let titulo = Content::Labelled {
-            target: Box::new(Content::Heading {
-                level: 1,
-                body:  Box::new(Content::Empty),
-            }),
+            target: Box::new(Content::heading(1, Content::Empty)),
             label: Label("bib-title".to_string()),
         };
 

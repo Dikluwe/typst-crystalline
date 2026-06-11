@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 339daebd
+//! @prompt-hash 11a75979
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -26,6 +26,11 @@ use crate::entities::math_style::MathStyleKind;
 use crate::entities::parity::Parity;
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::sides::Sides;
+// Modelo D (ADR-0105, lote piloto P316): variantes delegadas a módulos.
+use crate::entities::elements::Element;
+use crate::entities::elements::divider::DividerElem;
+use crate::entities::elements::heading::HeadingElem;
+use crate::entities::elements::math_styled::MathStyledElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -59,11 +64,9 @@ pub enum Content {
     // redefinidos para preservar a API pública.
     /// Cabeçalho com nível 1–6 (`= Heading`).
     ///
-    /// Permanece como variante dedicada: tem semântica adicional
-    /// (`level` para introspecção, contadores hierárquicos). Futuro
-    /// colapso em `Content::Styled` depende da materialização de
-    /// `Introspection` — passo separado.
-    Heading { level: u8, body: Box<Content> },
+    /// **Modelo D (ADR-0105, P316)**: lógica delegada a
+    /// `entities::elements::heading::HeadingElem` (locatável).
+    Heading(Arc<HeadingElem>),
 
     // ── Passo 23 ────────────────────────────────────────────────────────────
     /// Código raw inline ou em bloco (`` `...` `` ou ```` ``` ... ``` ````).
@@ -255,13 +258,10 @@ pub enum Content {
     /// Composição (per diagnóstico P311a §3.3): outer-wins para
     /// kind/italic; bold é ortogonal (bitwise OR ao descer);
     /// cramped propaga; size compõe multiplicativamente.
-    MathStyled {
-        kind:    Option<MathStyleKind>,
-        bold:    Option<bool>,
-        italic:  Option<bool>,
-        body:    Box<Content>,
-        cramped: Option<bool>,
-    },
+    ///
+    /// **Modelo D (ADR-0105, P316)**: lógica delegada a
+    /// `entities::elements::math_styled::MathStyledElem`.
+    MathStyled(Arc<MathStyledElem>),
 
     /// Nó com etiqueta semântica (Passo 56).
     /// A `Label` é metainformação pura — não tem presença visual.
@@ -548,8 +548,9 @@ pub enum Content {
 
     // ── Estruturas de listas (Passo 154B, ADR-0060 Fase 1) ──────────────
     /// Separador horizontal estrutural (`#divider()`).
-    /// Singleton sem dados; layouter emite linha horizontal.
-    Divider,
+    /// **Modelo D (ADR-0105, P316)**: `entities::elements::divider::DividerElem`
+    /// (singleton). Layouter emite linha horizontal.
+    Divider(Arc<DividerElem>),
 
     /// Lista de pares termo-descrição (`#terms(...)`) — Passo 154B.
     /// Cada item é tipicamente `Content::TermItem`.
@@ -1264,7 +1265,21 @@ impl Content {
         Self::Styled(Box::new(body), Styles::from_iter([Style::Italic(true)]))
     }
     pub fn heading(level: u8, body: Content) -> Self {
-        Self::Heading { level: level.clamp(1, 6), body: Box::new(body) }
+        Self::Heading(Arc::new(HeadingElem::new(level, body)))
+    }
+    /// Construtor do separador estrutural (Modelo D, P316).
+    pub fn divider() -> Self {
+        Self::Divider(Arc::new(DividerElem))
+    }
+    /// Construtor de `MathStyled` (Modelo D, P316).
+    pub fn math_styled(
+        kind: Option<MathStyleKind>,
+        bold: Option<bool>,
+        italic: Option<bool>,
+        body: Content,
+        cramped: Option<bool>,
+    ) -> Self {
+        Self::MathStyled(Arc::new(MathStyledElem { kind, bold, italic, body, cramped }))
     }
 
     pub fn raw(text: impl Into<EcoString>, lang: Option<EcoString>, block: bool) -> Self {
@@ -1509,7 +1524,7 @@ impl Content {
             // Passo 154B: Divider é singleton estrutural, nunca vazio.
             // Terms vazio (sem items) é considerado vazio; TermItem vazio
             // se ambos os lados forem vazios.
-            Self::Divider => false,
+            Self::Divider(d) => d.is_empty(),
             Self::Terms { items } => items.is_empty(),
             Self::TermItem { term, description } =>
                 term.is_empty() && description.is_empty(),
@@ -1570,7 +1585,7 @@ impl Content {
             Self::StateUpdate { .. }    => String::new(),
             Self::StateDisplay { .. }   => String::new(),
             Self::CounterDisplayCallback { .. } => String::new(),
-            Self::Heading { body, .. } => body.plain_text(),
+            Self::Heading(h) => h.plain_text(),
             Self::Raw { text, .. }   => text.to_string(),
             Self::ListItem(c)        => format!("• {}", c.plain_text()),
             Self::EnumItem { number, body } => {
@@ -1639,7 +1654,7 @@ impl Content {
             // P298 — Op plain_text apenas o text (limits é discriminador layout).
             Self::MathOp { text, .. } => text.plain_text(),
             // P311b.2 — MathStyled é transparente para plain_text (wraps body).
-            Self::MathStyled { body, .. } => body.plain_text(),
+            Self::MathStyled(m) => m.plain_text(),
             Self::Labelled { target, .. } => target.plain_text(),
             Self::Ref { target }          => format!("@{}", target.0),
             Self::SetHeadingNumbering { .. } => String::new(),
@@ -1723,7 +1738,7 @@ impl Content {
             Self::Styled(body, _) => body.plain_text(),
             // Passo 154B: Divider é structural sem texto; Terms concatena
             // pares por linha; TermItem produz "term: description".
-            Self::Divider => String::new(),
+            Self::Divider(d) => d.plain_text(),
             Self::Terms { items } => items.iter()
                 .map(|t| t.plain_text())
                 .collect::<Vec<_>>()
@@ -1784,7 +1799,7 @@ impl PartialEq for Content {
             (Self::Space,                Self::Space)                => true,
             (Self::Sequence(a),          Self::Sequence(b))          => a.as_ref() == b.as_ref(),
             // Passo 101: Content::Strong/Emph removidos — Content::Styled cobre.
-            (Self::Heading { level: la, body: ba }, Self::Heading { level: lb, body: bb }) => la == lb && ba == bb,
+            (Self::Heading(a), Self::Heading(b)) => a == b,
             (Self::Raw { text: ta, lang: la, block: ba },
              Self::Raw { text: tb, lang: lb, block: bb })            => ta == tb && la == lb && ba == bb,
             (Self::ListItem(a),          Self::ListItem(b))          => a == b,
@@ -1822,10 +1837,8 @@ impl PartialEq for Content {
             // P298 — Op PartialEq structural (text + limits flag).
             (Self::MathOp { text: ta, limits: la },
              Self::MathOp { text: tb, limits: lb })                          => ta == tb && la == lb,
-            // P311b.2 — MathStyled PartialEq structural (kind + flags + body + cramped).
-            (Self::MathStyled { kind: ka, bold: ba_, italic: ia, body: bda, cramped: ca },
-             Self::MathStyled { kind: kb, bold: bb_, italic: ib, body: bdb, cramped: cb })
-                => ka == kb && ba_ == bb_ && ia == ib && bda == bdb && ca == cb,
+            // MathStyled PartialEq estrutural (Modelo D P316: delega ao Arc<Elem>).
+            (Self::MathStyled(a), Self::MathStyled(b)) => a == b,
             (Self::Labelled { target: ta, label: la },
              Self::Labelled { target: tb, label: lb })               => ta == tb && la == lb,
             (Self::Ref { target: ta }, Self::Ref { target: tb })     => ta == tb,
@@ -1916,7 +1929,7 @@ impl PartialEq for Content {
                 && fa == fb && ca == cb && ba == bb,
             (Self::Styled(ba, sa), Self::Styled(bb, sb)) => ba == bb && sa == sb,
             // Passo 154B — terms + divider.
-            (Self::Divider, Self::Divider) => true,
+            (Self::Divider(a), Self::Divider(b)) => a == b,
             (Self::Terms { items: a },     Self::Terms { items: b })     => a == b,
             (Self::TermItem { term: ta, description: da },
              Self::TermItem { term: tb, description: db })               => ta == tb && da == db,
@@ -2018,8 +2031,8 @@ impl Content {
     pub fn get_field(&self, field: &str) -> Option<crate::entities::value::Value> {
         use crate::entities::value::Value;
         match (self, field) {
-            (Content::Heading { body, .. },  "body")  => Some(Value::Content(*body.clone())),
-            (Content::Heading { level, .. }, "level") => Some(Value::Int(*level as i64)),
+            // Modelo D (P316): Heading delega ao elemento.
+            (Content::Heading(h), f) => h.get_field(f),
             (Content::Figure  { body, .. },  "body")  => Some(Value::Content(*body.clone())),
             _ => None,
         }
@@ -2046,10 +2059,8 @@ impl Content {
             },
             // Passo 101: Content::Strong/Emph removidos — cobertos pelo
             // arm Content::Styled abaixo (que já propaga transform recursivamente).
-            Content::Heading { level, body } => Content::Heading {
-                level: *level,
-                body:  Box::new(body.map_content(transform)?),
-            },
+            // Modelo D (P316): Heading delega ao elemento.
+            Content::Heading(h) => h.map_content(transform)?,
             Content::ListItem(body) => Content::ListItem(Box::new(body.map_content(transform)?)),
             Content::EnumItem { number, body } => Content::EnumItem {
                 number: *number,
@@ -2141,14 +2152,8 @@ impl Content {
                 text:   Box::new(text.map_content(transform)?),
                 limits: *limits,
             },
-            // P311b.2 — MathStyled map_content recursivo no body; preserva kind/flags.
-            Content::MathStyled { kind, bold, italic, body, cramped } => Content::MathStyled {
-                kind:    *kind,
-                bold:    *bold,
-                italic:  *italic,
-                body:    Box::new(body.map_content(transform)?),
-                cramped: *cramped,
-            },
+            // P311b.2 — MathStyled map_content recursivo (Modelo D P316: delega).
+            Content::MathStyled(m) => m.map_content(transform)?,
 
             // Passo 154B: Terms recurse em items; TermItem recurse em par.
             Content::Terms { items } => {
@@ -2287,7 +2292,7 @@ impl Content {
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::Image { .. }
-            | Content::Divider
+            | Content::Divider(_)
             // P287 — SmartQuote leaf (sem body — terminal).
             | Content::SmartQuote { .. }
             | Content::HSpace { .. }
@@ -2463,10 +2468,8 @@ impl Content {
                     seq.iter().map(|c| c.map_text(transform)).collect::<Vec<_>>().into()
                 )
             }
-            Content::Heading { level, body } => Content::Heading {
-                level: *level,
-                body:  Box::new(body.map_text(transform)),
-            },
+            // Modelo D (P316): Heading delega ao elemento.
+            Content::Heading(h) => h.map_text(transform),
             // Passo 101: Content::Strong/Emph removidos — cobertos pelo
             // arm Content::Styled abaixo (map_text recursivo).
             Content::Labelled { target, label } => Content::Labelled {
@@ -2633,9 +2636,9 @@ impl Content {
             // P298 — Op terminal em map_text (paralelo cluster math).
             | Content::MathOp { .. }
             // P311b.2 — MathStyled terminal em map_text (math structural).
-            | Content::MathStyled { .. }
+            | Content::MathStyled(_)
             | Content::Image { .. }
-            | Content::Divider
+            | Content::Divider(_)
             | Content::HSpace { .. }
             | Content::VSpace { .. }
             | Content::Pagebreak { .. }
@@ -2837,9 +2840,9 @@ mod tests {
 
     #[test]
     fn heading_level_clamped() {
-        assert!(matches!(Content::heading(0, Content::Empty), Content::Heading { level: 1, .. }));
-        assert!(matches!(Content::heading(9, Content::Empty), Content::Heading { level: 6, .. }));
-        assert!(matches!(Content::heading(3, Content::Empty), Content::Heading { level: 3, .. }));
+        assert!(matches!(Content::heading(0, Content::Empty), Content::Heading(h) if h.level == 1));
+        assert!(matches!(Content::heading(9, Content::Empty), Content::Heading(h) if h.level == 6));
+        assert!(matches!(Content::heading(3, Content::Empty), Content::Heading(h) if h.level == 3));
     }
 
     #[test]
@@ -3039,7 +3042,7 @@ mod tests {
         ]));
 
         let result = content.map_content(&mut |node| {
-            if matches!(node, Content::Heading { .. }) {
+            if matches!(node, Content::Heading(_)) {
                 Ok(Some(Content::text("SUBSTITUIDO")))
             } else {
                 Ok(None)
@@ -3076,7 +3079,7 @@ mod tests {
         let mut call_count = 0usize;
 
         content.map_content(&mut |node| {
-            if matches!(node, Content::Heading { .. }) {
+            if matches!(node, Content::Heading(_)) {
                 call_count += 1;
                 Ok(Some(Content::text("substituido")))
             } else {
@@ -3136,15 +3139,15 @@ mod tests {
 
     #[test]
     fn divider_constructor_devolve_variant_correcto() {
-        let c = Content::Divider;
-        assert!(matches!(c, Content::Divider));
+        let c = Content::divider();
+        assert!(matches!(c, Content::Divider(_)));
         // Divider é singleton estrutural: nunca empty.
         assert!(!c.is_empty());
     }
 
     #[test]
     fn divider_plain_text_devolve_vazio() {
-        assert_eq!(Content::Divider.plain_text(), "");
+        assert_eq!(Content::divider().plain_text(), "");
     }
 
     #[test]
@@ -3208,8 +3211,8 @@ mod tests {
             }],
         };
         assert_eq!(mk(), mk());
-        assert_ne!(mk(), Content::Divider);
-        assert_eq!(Content::Divider, Content::Divider);
+        assert_ne!(mk(), Content::divider());
+        assert_eq!(Content::divider(), Content::divider());
     }
 
     // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ─────────────────

@@ -2901,14 +2901,8 @@ mod tests_show_rule_integration {
         use std::sync::Arc;
         // Dois headings dentro de columns; counter deve = 2 final
         // (não 4 — sem multi-render).
-        let h1 = Content::Heading {
-            level: 1,
-            body: Box::new(Content::text("h1col")),
-        };
-        let h2 = Content::Heading {
-            level: 1,
-            body: Box::new(Content::text("h2col")),
-        };
+        let h1 = Content::heading(1, Content::text("h1col"));
+        let h2 = Content::heading(1, Content::text("h2col"));
         let body_seq = Content::Sequence(Arc::from(vec![h1, h2]));
         let cols = Content::columns(body_seq, 2, None);
         let doc = layout(&cols);
@@ -6908,10 +6902,7 @@ mod tests_show_rule_integration {
         // só conta uma vez no walk).
         let doc_content = Content::Sequence(Arc::from(vec![
             Content::repeat(
-                Content::Heading {
-                    level: 1,
-                    body:  Box::new(Content::text("Title")),
-                },
+                Content::heading(1, Content::text("Title")),
                 None,
                 true,
             ),
@@ -8537,7 +8528,7 @@ mod p185d_locator_sync {
         // vezes produzindo a mesma sequência por determinismo do
         // Locator (sincronização-por-construção, ADR-0068 mecanismo M3).
         let parts = vec![
-            Content::Heading { level: 1, body: Box::new(Content::Empty) },
+            Content::heading(1, Content::Empty),
             Content::Figure {
                 body:      Box::new(Content::Empty),
                 caption:   None,
@@ -8573,7 +8564,7 @@ mod p185d_locator_sync {
         // P186D activa `is_locatable(Equation) = true`, restaurando
         // invariante e sincronização Locator).
         let parts = vec![
-            Content::Heading { level: 1, body: Box::new(Content::Empty) },
+            Content::heading(1, Content::Empty),
             Content::text("plain"),
             Content::Figure {
                 body:      Box::new(Content::Empty),
@@ -8630,10 +8621,7 @@ mod p185d_locator_sync {
         );
 
         // Primeiro locatable dispara gating.
-        layouter.layout_content(&Content::Heading {
-            level: 1,
-            body:  Box::new(Content::Empty),
-        });
+        layouter.layout_content(&Content::heading(1, Content::Empty));
         assert!(
             layouter.current_location.is_some(),
             "Heading locatable → current_location = Some"
@@ -8654,9 +8642,9 @@ mod p185d_locator_sync {
         // current_location)`.
         let parts = vec![
             Content::SetHeadingNumbering { active: true },
-            Content::Heading { level: 1, body: Box::new(Content::Empty) },
-            Content::Heading { level: 1, body: Box::new(Content::Empty) },
-            Content::Heading { level: 1, body: Box::new(Content::Empty) },
+            Content::heading(1, Content::Empty),
+            Content::heading(1, Content::Empty),
+            Content::heading(1, Content::Empty),
         ];
         let content = Content::Sequence(Arc::from(parts.clone()));
 
@@ -8675,7 +8663,7 @@ mod p185d_locator_sync {
         let mut headings_validados = 0usize;
         for part in &parts {
             layouter.layout_content(part);
-            if matches!(part, Content::Heading { .. }) {
+            if matches!(part, Content::Heading(_)) {
                 let loc = layouter.current_location
                     .expect("Heading locatable → Some");
                 assert!(
@@ -8834,10 +8822,7 @@ mod p187b_c1_heading_prefix {
     use std::sync::Arc;
 
     fn heading_with_text(level: u8, text: &str) -> Content {
-        Content::Heading {
-            level,
-            body:  Box::new(Content::text(text)),
-        }
+        Content::heading(level, Content::text(text))
     }
 
     fn doc_3_headings() -> Content {
@@ -8997,7 +8982,7 @@ mod p189b_walk_puro_m5 {
         // Introspector path (mod.rs:1488).
         let doc_com_outline = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
-            Content::Heading { level: 1, body: Box::new(Content::text("Intro")) },
+            Content::heading(1, Content::text("Intro")),
             Content::Outline,
         ]));
         let state_com = introspect(&doc_com_outline);
@@ -9007,7 +8992,7 @@ mod p189b_walk_puro_m5 {
 
         let doc_sem_outline = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
-            Content::Heading { level: 1, body: Box::new(Content::text("Solo")) },
+            Content::heading(1, Content::text("Solo")),
         ]));
         let state_sem = introspect(&doc_sem_outline);
         let txt_sem = layout(&doc_sem_outline).plain_text();
@@ -9030,8 +9015,8 @@ mod p189b_walk_puro_m5 {
         // `headings_for_toc`, `numbering_active` eliminados em P190G.
         let content = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
-            Content::Heading { level: 1, body: Box::new(Content::text("A")) },
-            Content::Heading { level: 2, body: Box::new(Content::text("B")) },
+            Content::heading(1, Content::text("A")),
+            Content::heading(2, Content::text("B")),
         ]));
         let intr = introspect_with_introspector(&content);
         assert!(intr.is_numbering_active("numbering_active:heading"));
@@ -9064,10 +9049,7 @@ mod p189b_walk_puro_m5 {
         let content = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
             Content::Labelled {
-                target: Box::new(Content::Heading {
-                    level: 1,
-                    body:  Box::new(Content::text("X")),
-                }),
+                target: Box::new(Content::heading(1, Content::text("X"))),
                 label:  crate::entities::label::Label("intro".to_string()),
             },
         ]));
@@ -9132,10 +9114,7 @@ mod p194b_c4_resolved_label {
         Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
             Content::Labelled {
-                target: Box::new(Content::Heading {
-                    level: 1,
-                    body:  Box::new(Content::text("Intro")),
-                }),
+                target: Box::new(Content::heading(1, Content::text("Intro"))),
                 label:  lbl(label_name),
             },
             Content::Ref { target: lbl(label_name) },
@@ -9245,10 +9224,7 @@ mod p195d_walk_labelled {
         let content = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
             Content::Labelled {
-                target: Box::new(Content::Heading {
-                    level: 1,
-                    body:  Box::new(Content::text("Intro")),
-                }),
+                target: Box::new(Content::heading(1, Content::text("Intro"))),
                 label:  lbl("intro"),
             },
         ]));
@@ -9274,10 +9250,7 @@ mod p195d_walk_labelled {
         let content = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
             Content::Labelled {
-                target: Box::new(Content::Heading {
-                    level: 1,
-                    body:  Box::new(Content::text("Intro")),
-                }),
+                target: Box::new(Content::heading(1, Content::text("Intro"))),
                 label:  lbl("intro"),
             },
             Content::Ref { target: lbl("intro") },

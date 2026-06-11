@@ -666,7 +666,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // redefinidos). O arm `Content::Styled` (introduzido no Passo 100)
             // cobre ambos os casos via push/pop na `chain`.
 
-            Content::Heading { level, body } => {
+            Content::Heading(h) => {
+                // Modelo D (P316): Heading delegado; re-bind dos campos.
+                let level = &h.level;
+                let body = &h.body;
                 // P190F (M6 categoria Counters core): Layouter
                 // mutação `self.counter.step_hierarchical` removida —
                 // counter hierárquico populated via Introspector path
@@ -822,7 +825,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P298 — Math op (paralelo cluster math).
             | Content::MathOp { .. }
             // P311b.2 — MathStyled fall-through (tratamento real em `math/layout`).
-            | Content::MathStyled { .. } => {
+            | Content::MathStyled(_) => {
                 // Nós matemáticos internos — normalmente não aparecem directamente
                 // no layout fora de Content::Equation. Se aparecerem, renderizar como texto.
                 let text = content.plain_text();
@@ -1237,7 +1240,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // ── Passo 154B (ADR-0060 Fase 1) — terms + divider ──────────────
-            Content::Divider => {
+            Content::Divider(_) => {
                 use crate::entities::geometry::Stroke;
                 use crate::entities::layout_types::Color;
                 use crate::entities::paint::Paint;

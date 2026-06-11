@@ -8,9 +8,9 @@
 //! P162 sub-passo .D. Consumida pelo walk em P162 .E.
 
 use crate::entities::content::Content;
-use crate::entities::content_hash::hash_content;
 use crate::entities::counter_update::CounterUpdate;
 use crate::entities::element_payload::ElementPayload;
+use crate::entities::elements::Element; // Modelo D (P316): trait p/ to_payload()
 use crate::entities::state_update::StateUpdate;
 use crate::entities::value::Value;
 
@@ -18,11 +18,8 @@ use crate::entities::value::Value;
 /// uma variante locatable (Heading/Figure/Cite em M1).
 pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
     match content {
-        Content::Heading { level, body } => Some(ElementPayload::Heading {
-            depth:          *level,
-            body_hash:      hash_content(body),
-            counter_update: CounterUpdate::Step,
-        }),
+        // Modelo D (P316): absorção do locatável — o elemento fornece o payload.
+        Content::Heading(h) => h.to_payload(),
 
         Content::Figure { kind, numbering, caption, .. } => Some(ElementPayload::Figure {
             kind:           kind.clone(),
@@ -149,10 +146,7 @@ mod tests {
 
     #[test]
     fn heading_produz_some_payload() {
-        let c = Content::Heading {
-            level: 2,
-            body:  Box::new(Content::Text(EcoString::from("Section"), Default::default())),
-        };
+        let c = Content::heading(2, Content::Text(EcoString::from("Section"), Default::default()));
         match extract_payload(&c) {
             Some(ElementPayload::Heading { depth, body_hash, counter_update }) => {
                 assert_eq!(depth, 2);
