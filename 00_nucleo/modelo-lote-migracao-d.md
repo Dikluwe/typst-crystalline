@@ -104,7 +104,9 @@ grep -rnE "Content::Nome([^A-Za-z0-9]|$)" 01_core 02_shell 03_infra 04_wiring \
 
 Decisões, medições vs previsão, `content.rs` antes/depois, contagem da suíte,
 **proposta do lote seguinte derivada da tabela de largura** (decisão humana),
-fora-de-escopo confirmado.
+fora-de-escopo confirmado, e **atualização da "Contabilidade de variantes"**
+(mover as variantes do lote de "restantes" para "migradas"; é item obrigatório
+do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 ## Regras permanentes
 
@@ -126,3 +128,51 @@ fora-de-escopo confirmado.
 - **Um commit isolável por lote** (pré-tarefas separadas do lote principal).
   Lição medida no diagnóstico P313: o P298 não era isolável no histórico e
   custou à medição.
+
+---
+
+## Contabilidade de variantes (o roteiro dos lotes — atualizar a CADA lote)
+
+`Content` tem **77 variantes** (baseline P313). Estado em **P319** (Lote 4 incluído):
+
+### Migradas para o modelo D — 22
+
+- **P316 piloto (3)**: `Divider`, `Heading` (locatável), `MathStyled`.
+- **Lote 2 P317 — math (11)**: `MathCases`, `MathMatrix`, `MathAlignPoint`,
+  `MathAccent`, `MathCancel`, `MathDelimited`, `MathRoot`, `MathUnderover`,
+  `MathFrac`, `MathAttach`, `MathOp`.
+- **Lote 3 P318 — lista/termos (5)**: `EnumItem`, `Link`, `ListItem`,
+  `TermItem`, `Terms`.
+- **Lote 4 P319 — decorações (3)**: `Overline`, `Strike`, `Underline`.
+
+### Fora de lote — decisão própria
+
+- **`Set*` (4)** → decisão **F / DEBT 99.E** (superfície da StyleChain; NÃO
+  migrar por lote): `SetHeadingNumbering` (62), `SetEquationNumbering` (16),
+  `SetPage` (8), `SetFigureNumbering` (5). Medido em `medicao-pre-f-passo-318.md`.
+- **Primitivos de AST → DEBT-58** (não element-shaped): `MathSequence` (21),
+  `MathText` (50), `MathIdent` (108), `Sequence` (208), `Empty` (116),
+  `Block` (101); **em triagem**: `Space` (13, cola de texto), e os wrappers
+  `Styled` (58), `Boxed` (58), `Labelled` (55); **observação** (leaf, candidato
+  à triagem): `Text` (40).
+
+### Element-shaped restantes — ~40 (os lotes 5+ saem daqui, por largura)
+
+`GridFooter`7 · `GridHeader`7 · `Raw`9 · `TableFooter`10 · `Align`11 ·
+`Linebreak`11† · `TableHeader`11 · `Colbreak`12† · `VSpace`14 · `CounterDisplay`15 ·
+`Metadata`16 · `Image`17 · `Hide`18 · `HSpace`18 · `Repeat`18 ·
+`CounterDisplayCallback`19 · `Quote`20 · `State`21 · `StateDisplay`21 ·
+`Columns`22 · `Pagebreak`22† · `Ref`23 · `Outline`24 · `StateUpdate`25 ·
+`SmartQuote`28 · `Stack`30 · `Cite`32 · `TableCell`32 · `Transform`32 ·
+`Place`34 · `CounterUpdate`39 · `Pad`39 · `Bibliography`40 · `Table`41 ·
+`Equation`45 · `Footnote`46 · `GridCell`47 · `Shape`57 · `Grid`73 · `Figure`89.
+
+† `Linebreak`/`Colbreak`/`Pagebreak` são **comandos unit** (precedente `Divider`,
+elegíveis); candidatos a um lote "quebras/espaços" com `VSpace`/`HSpace`.
+
+### Estimativa
+
+~40 element-shaped restantes ÷ 5–8 variantes/lote (ritmo validado P317–P319)
+≈ **5–8 lotes** até esgotar os elegíveis — gatilho da triagem do DEBT-58 e da
+decisão F. Conta: 22 migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers +
+Text) + 40 restantes = 77. ✓

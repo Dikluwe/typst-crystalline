@@ -251,6 +251,12 @@ default**.
 - **A triar** (incluir só se a triagem confirmar primitivo, não element-shaped):
   os wrappers estruturais `Styled`, `Boxed`, `Labelled`. A triagem de cada um é
   **parte do fecho**.
+- **A triar — `Space`** (largura 13, adicionado no P319 C2): é **cola de texto**
+  — parente de `Empty` (116, já no conjunto), **não** de `Divider` (comando unit
+  já migrado). A triagem decide; o registo impede que um lote futuro a arraste
+  por engano. (Observação correlata: `Text` largura 40 é folha `(EcoString,
+  TextStyle)` — candidato natural à mesma triagem; registado no mapa de
+  variantes do modelo, sem decisão.)
 
 **Três saídas possíveis** (sem ordem de preferência):
 

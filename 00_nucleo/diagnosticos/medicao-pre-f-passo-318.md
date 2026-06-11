@@ -105,6 +105,12 @@ echo "$prod" | xargs grep -cE "$pat" | awk -F: '{s+=$2}END{print s}'   # 104
   (não só eval+layout). É o caminho quente honesto que o F afeta (leituras de
   propriedade em eval/layout). O "depois" do F mede-se com **o mesmo corpus e
   comando**. **Nada foi otimizado** (medir ≠ mexer).
+- **Caveat de resolução (P319 C1)**: as 5 execuções deram **exatamente** 0.07 s —
+  a granularidade de 0.01 s do `/usr/bin/time` ⇒ quantização **~15%**. Este
+  baseline só deteta **regressões grosseiras**. **A medição do "depois" do F
+  deve refazer o "antes" e o "depois" no par de commits**, com `hyperfine`
+  (média ± σ) ou corpus ~10× maior, **mesmo corpus e comando**. (O hash de
+  linhagem não se aplica: diagnósticos não são L0.)
 
 ---
 
