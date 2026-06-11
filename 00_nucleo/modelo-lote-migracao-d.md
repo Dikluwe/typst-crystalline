@@ -28,6 +28,20 @@ grep -rnE "Content::Nome([^A-Za-z0-9]|$)" 01_core 02_shell 03_infra 04_wiring \
   --include='*.rs' | grep -v "entities/content.rs" | wc -l
 ```
 
+> **Correção do preditor — arms `|`-combinados (achado P319):** uma variante que
+> **partilha um braço de `match`** (`Pat_A | Pat_B => …` com binding de campos)
+> com variantes **ainda não migradas** custa **mais** que a largura sugere: o
+> `Arc<…Elem>` é um tipo distinto por variante, logo o `|` com binding deixa de
+> compilar e o braço tem de ser **separado** (ou os campos extraídos num
+> sub-`match`). Antes de estimar, **inspecionar os `|` que envolvem o LOTE**:
+> ```sh
+> grep -rnE "Content::(A|B|…)\b.*\|" 01_core 02_shell 03_infra 04_wiring --include='*.rs'
+> grep -rnB1 -E "\| Content::(A|B|…)" 01_core 02_shell 03_infra 04_wiring --include='*.rs'
+> ```
+> Casos sem binding (`Content::A(_) | Content::B(_) => …`) **não** custam extra.
+> Exemplo P319: `Underline|Strike|Overline` partilhavam um braço com binding em
+> `layout/mod.rs` e `introspect.rs` → separados.
+
 > **Critério de elegibilidade (achado P317, guideline):** o modelo D só
 > compensa naturalmente para variantes **element-shaped** — com corpo(s)/campos
 > próprios que justifiquem um struct + `impl Element`. Primitivos de AST (folhas
@@ -162,6 +176,15 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   à triagem): `Text` (40).
 
 ### Element-shaped restantes — ~40 (os lotes 5+ saem daqui, por largura)
+
+> **Lote 5 P320 (em curso) — união dos propostos 5+6** (decisão do dono;
+> registo de união no estilo P314→P315): **9 variantes** por largura crescente —
+> `GridFooter`(7) · `GridHeader`(7) · `TableFooter`(10) · `TableHeader`(11) ·
+> `Linebreak`(11) · `Colbreak`(12) · `VSpace`(14) · `HSpace`(18) ·
+> `Pagebreak`(22) = ~112 sites. Famílias "Grid/Table header/footer" +
+> "quebras/espaços" unidas num lote. **Fora**: `Space` (triagem DEBT-58) e o
+> bloco `TableCell`/`Table`/`GridCell`/`Grid` (lote próprio, ~193 sites). A
+> Contabilidade move-as para "migradas" no relatório do P320.
 
 `GridFooter`7 · `GridHeader`7 · `Raw`9 · `TableFooter`10 · `Align`11 ·
 `Linebreak`11† · `TableHeader`11 · `Colbreak`12† · `VSpace`14 · `CounterDisplay`15 ·
