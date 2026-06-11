@@ -151,15 +151,10 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // preservando os estilos).
         // Modelo D (P316): Heading delegado; reconstrói via ctor.
         Content::Heading(h) => Content::heading(h.level, materialize_time(&h.body, intr, location)),
-        Content::ListItem(body) => Content::ListItem(Box::new(materialize_time(body, intr, location))),
-        Content::EnumItem { number, body } => Content::EnumItem {
-            number: *number,
-            body:   Box::new(materialize_time(body, intr, location)),
-        },
-        Content::Link { url, body } => Content::Link {
-            url:  url.clone(),
-            body: Box::new(materialize_time(body, intr, location)),
-        },
+        // Modelo D (Lote 3 P318): destructure de Arc<Elem> + reconstrução via construtor.
+        Content::ListItem(e) => Content::list_item(materialize_time(&e.body, intr, location)),
+        Content::EnumItem(e) => Content::enum_item(e.number, materialize_time(&e.body, intr, location)),
+        Content::Link(e) => Content::link(e.url.clone(), materialize_time(&e.body, intr, location)),
         Content::Labelled { target, label } => Content::Labelled {
             target: Box::new(materialize_time(target, intr, location)),
             label:  label.clone(),
@@ -171,14 +166,14 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             numbering: numbering.clone(),
         },
 
-        // Passo 154B: Terms recurse em items; TermItem recurse em par.
-        Content::Terms { items } => Content::Terms {
-            items: items.iter().map(|c| materialize_time(c, intr, location)).collect(),
-        },
-        Content::TermItem { term, description } => Content::TermItem {
-            term:        Box::new(materialize_time(term, intr, location)),
-            description: Box::new(materialize_time(description, intr, location)),
-        },
+        // Modelo D (Lote 3 P318): Terms/TermItem delegam reconstrução ao construtor.
+        Content::Terms(e) => Content::terms(
+            e.items.iter().map(|c| materialize_time(c, intr, location)).collect(),
+        ),
+        Content::TermItem(e) => Content::term_item(
+            materialize_time(&e.term, intr, location),
+            materialize_time(&e.description, intr, location),
+        ),
 
         // Passo 155: Quote — recurse em body e attribution.
         Content::Quote { body, attribution, block, quotes } => Content::Quote {
@@ -1154,8 +1149,8 @@ pub(crate) fn walk(
         | Content::CounterDisplay { .. }
         | Content::Raw { .. }
         | Content::ListItem(_)
-        | Content::EnumItem { .. }
-        | Content::Link { .. }
+        | Content::EnumItem(_)
+        | Content::Link(_)
         | Content::MathSequence(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
@@ -1209,12 +1204,12 @@ pub(crate) fn walk(
 
         // Passo 154B — Terms / TermItem: descem em items para que filhos
         // com contadores ou labels sejam processados.
-        Content::Terms { items } => {
-            for item in items { walk(item, locator, tags, intr, auto_label_counter, lang, None); }
+        Content::Terms(e) => {
+            for item in e.items.iter() { walk(item, locator, tags, intr, auto_label_counter, lang, None); }
         }
-        Content::TermItem { term, description } => {
-            walk(term, locator, tags, intr, auto_label_counter, lang, None);
-            walk(description, locator, tags, intr, auto_label_counter, lang, None);
+        Content::TermItem(e) => {
+            walk(&e.term, locator, tags, intr, auto_label_counter, lang, None);
+            walk(&e.description, locator, tags, intr, auto_label_counter, lang, None);
         }
 
         // Passo 155 — Quote: walk em body + attribution.

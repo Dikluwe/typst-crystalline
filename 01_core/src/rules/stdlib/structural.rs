@@ -121,12 +121,9 @@ pub fn native_terms(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
                     key, other.type_name()),
             )]),
         };
-        items.push(Content::TermItem {
-            term:        Box::new(term),
-            description: Box::new(description),
-        });
+        items.push(Content::term_item(term, description));
     }
-    Ok(Value::Content(Content::Terms { items }))
+    Ok(Value::Content(Content::terms(items)))
 }
 
 // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────────────────

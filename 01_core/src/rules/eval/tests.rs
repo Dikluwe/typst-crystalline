@@ -2588,9 +2588,9 @@ mod tests {
         let content = module.content().expect("deve ter content");
         // Procurar Content::Terms na árvore (pode estar wrapped em Sequence).
         let extracted = match &content {
-            Content::Terms { items } => Some(items.clone()),
+            Content::Terms(e) => Some(e.items.clone()),
             Content::Sequence(s) => s.iter().find_map(|c| match c {
-                Content::Terms { items } => Some(items.clone()),
+                Content::Terms(e) => Some(e.items.clone()),
                 _ => None,
             }),
             _ => None,
@@ -2598,10 +2598,10 @@ mod tests {
         let items = extracted.expect("esperado Content::Terms");
         assert_eq!(items.len(), 2, "esperado 2 items, obtido {}", items.len());
         // Verificar que cada item é um TermItem com par term/description.
-        assert!(items.iter().all(|i| matches!(i, Content::TermItem { .. })),
+        assert!(items.iter().all(|i| matches!(i, Content::TermItem(_))),
             "todos os items devem ser TermItem: {:?}", items);
         // O texto plano deve conter "apple: fruit" e "banana: yellow".
-        let pt = Content::Terms { items }.plain_text();
+        let pt = Content::terms(items).plain_text();
         assert!(pt.contains("apple: fruit"), "plain_text falta apple: {:?}", pt);
         assert!(pt.contains("banana: yellow"), "plain_text falta banana: {:?}", pt);
     }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 3dca845b
+//! @prompt-hash ce4009b8
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -43,6 +43,12 @@ use crate::entities::elements::math_matrix::MathMatrixElem;
 use crate::entities::elements::math_op::MathOpElem;
 use crate::entities::elements::math_root::MathRootElem;
 use crate::entities::elements::math_underover::MathUnderoverElem;
+// Lote 3 P318 — família lista/termos (5 variantes).
+use crate::entities::elements::enum_item::EnumItemElem;
+use crate::entities::elements::link::LinkElem;
+use crate::entities::elements::list_item::ListItemElem;
+use crate::entities::elements::term_item::TermItemElem;
+use crate::entities::elements::terms::TermsElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -88,11 +94,14 @@ pub enum Content {
         block: bool,
     },
     /// Item de lista não ordenada (`- ...`).
-    ListItem(Box<Content>),
+    /// **Modelo D (Lote 3 P318)**: `entities::elements::list_item::ListItemElem`.
+    ListItem(Arc<ListItemElem>),
     /// Item de lista ordenada (`+ ...` ou `1. ...`).
-    EnumItem { number: Option<u32>, body: Box<Content> },
+    /// **Modelo D (Lote 3 P318)**: `entities::elements::enum_item::EnumItemElem`.
+    EnumItem(Arc<EnumItemElem>),
     /// Hiperligação (`https://...`).
-    Link { url: EcoString, body: Box<Content> },
+    /// **Modelo D (Lote 3 P318)**: `entities::elements::link::LinkElem`.
+    Link(Arc<LinkElem>),
 
     // ── Matemática (Passo 34) ────────────────────────────────────────────────
     /// Equação matemática (`$...$` inline, `$ ... $` block).
@@ -544,12 +553,14 @@ pub enum Content {
 
     /// Lista de pares termo-descrição (`#terms(...)`) — Passo 154B.
     /// Cada item é tipicamente `Content::TermItem`.
-    Terms { items: Vec<Content> },
+    /// **Modelo D (Lote 3 P318)**: `entities::elements::terms::TermsElem`.
+    Terms(Arc<TermsElem>),
 
     /// Par individual termo-descrição (Passo 154B).
     /// Aparece tipicamente dentro de `Content::Terms`, mas pode também
     /// surgir standalone (e.g. show rules futuras).
-    TermItem { term: Box<Content>, description: Box<Content> },
+    /// **Modelo D (Lote 3 P318)**: `entities::elements::term_item::TermItemElem`.
+    TermItem(Arc<TermItemElem>),
 
     // ── Citação estrutural (Passo 155, ADR-0060 Fase 1, sub-passo 2) ────
     /// Citação estrutural com 4 atributos (vanilla `QuoteElem`).
@@ -1327,12 +1338,21 @@ impl Content {
     pub fn raw(text: impl Into<EcoString>, lang: Option<EcoString>, block: bool) -> Self {
         Self::Raw { text: text.into(), lang, block }
     }
-    pub fn list_item(body: Content) -> Self { Self::ListItem(Box::new(body)) }
+    // ── Construtores ergonómicos família lista/termos (Modelo D, Lote 3 P318) ──
+    pub fn list_item(body: Content) -> Self {
+        Self::ListItem(Arc::new(ListItemElem { body }))
+    }
     pub fn enum_item(number: Option<u32>, body: Content) -> Self {
-        Self::EnumItem { number, body: Box::new(body) }
+        Self::EnumItem(Arc::new(EnumItemElem { number, body }))
     }
     pub fn link(url: impl Into<EcoString>, body: Content) -> Self {
-        Self::Link { url: url.into(), body: Box::new(body) }
+        Self::Link(Arc::new(LinkElem { url: url.into(), body }))
+    }
+    pub fn terms(items: Vec<Content>) -> Self {
+        Self::Terms(Arc::new(TermsElem { items }))
+    }
+    pub fn term_item(term: Content, description: Content) -> Self {
+        Self::TermItem(Arc::new(TermItemElem { term, description }))
     }
 
     /// `pad(body, sides)` — Passo 156C (ADR-0061 Fase 1) /
@@ -1567,9 +1587,9 @@ impl Content {
             // Terms vazio (sem items) é considerado vazio; TermItem vazio
             // se ambos os lados forem vazios.
             Self::Divider(d) => d.is_empty(),
-            Self::Terms { items } => items.is_empty(),
-            Self::TermItem { term, description } =>
-                term.is_empty() && description.is_empty(),
+            // Modelo D (Lote 3 P318): Terms/TermItem delegam ao elemento.
+            Self::Terms(e)    => e.is_empty(),
+            Self::TermItem(e) => e.is_empty(),
             // Passo 155: Quote vazio se body for vazio.
             Self::Quote { body, .. } => body.is_empty(),
             // P284: decoração vazia se o body for vazio (cosméticos não
@@ -1629,12 +1649,10 @@ impl Content {
             Self::CounterDisplayCallback { .. } => String::new(),
             Self::Heading(h) => h.plain_text(),
             Self::Raw { text, .. }   => text.to_string(),
-            Self::ListItem(c)        => format!("• {}", c.plain_text()),
-            Self::EnumItem { number, body } => {
-                let n = number.map(|n| format!("{}. ", n)).unwrap_or_default();
-                format!("{}{}", n, body.plain_text())
-            }
-            Self::Link { body, .. }  => body.plain_text(),
+            // Modelo D (Lote 3 P318): família lista/termos delega ao elemento.
+            Self::ListItem(e) => e.plain_text(),
+            Self::EnumItem(e) => e.plain_text(),
+            Self::Link(e)     => e.plain_text(),
             // P284 — text decoration: transparente em texto plano (paridade
             // com Link/Heading/Quote — só atributos cosméticos).
             Self::Underline { body, .. } => body.plain_text(),
@@ -1751,15 +1769,8 @@ impl Content {
             // Passo 154B: Divider é structural sem texto; Terms concatena
             // pares por linha; TermItem produz "term: description".
             Self::Divider(d) => d.plain_text(),
-            Self::Terms { items } => items.iter()
-                .map(|t| t.plain_text())
-                .collect::<Vec<_>>()
-                .join("\n"),
-            Self::TermItem { term, description } => format!(
-                "{}: {}",
-                term.plain_text(),
-                description.plain_text(),
-            ),
+            Self::Terms(e)    => e.plain_text(),
+            Self::TermItem(e) => e.plain_text(),
             // Passo 155: Quote em texto plain usa ASCII fallback (sem
             // smart-quotes — interaction com lang só vive no layouter).
             // Com attribution: `"body" — attribution`; sem: `"body"`.
@@ -1815,10 +1826,8 @@ impl PartialEq for Content {
             (Self::Raw { text: ta, lang: la, block: ba },
              Self::Raw { text: tb, lang: lb, block: bb })            => ta == tb && la == lb && ba == bb,
             (Self::ListItem(a),          Self::ListItem(b))          => a == b,
-            (Self::EnumItem { number: na, body: ba },
-             Self::EnumItem { number: nb, body: bb })                => na == nb && ba == bb,
-            (Self::Link { url: ua, body: ba },
-             Self::Link { url: ub, body: bb })                       => ua == ub && ba == bb,
+            (Self::EnumItem(a), Self::EnumItem(b))                   => a == b,
+            (Self::Link(a),     Self::Link(b))                       => a == b,
             (Self::Equation { body: ba, block: ka },
              Self::Equation { body: bb, block: kb })                 => ba == bb && ka == kb,
             (Self::MathSequence(a), Self::MathSequence(b))           => a.as_ref() == b.as_ref(),
@@ -1931,9 +1940,8 @@ impl PartialEq for Content {
             (Self::Styled(ba, sa), Self::Styled(bb, sb)) => ba == bb && sa == sb,
             // Passo 154B — terms + divider.
             (Self::Divider(a), Self::Divider(b)) => a == b,
-            (Self::Terms { items: a },     Self::Terms { items: b })     => a == b,
-            (Self::TermItem { term: ta, description: da },
-             Self::TermItem { term: tb, description: db })               => ta == tb && da == db,
+            (Self::Terms(a),    Self::Terms(b))    => a == b,
+            (Self::TermItem(a), Self::TermItem(b)) => a == b,
             // Passo 155 — Quote.
             (Self::Quote { body: ba, attribution: aa, block: ka, quotes: qa },
              Self::Quote { body: bb, attribution: ab, block: kb, quotes: qb }) =>
@@ -2062,15 +2070,10 @@ impl Content {
             // arm Content::Styled abaixo (que já propaga transform recursivamente).
             // Modelo D (P316): Heading delega ao elemento.
             Content::Heading(h) => h.map_content(transform)?,
-            Content::ListItem(body) => Content::ListItem(Box::new(body.map_content(transform)?)),
-            Content::EnumItem { number, body } => Content::EnumItem {
-                number: *number,
-                body:   Box::new(body.map_content(transform)?),
-            },
-            Content::Link { url, body } => Content::Link {
-                url:  url.clone(),
-                body: Box::new(body.map_content(transform)?),
-            },
+            // Modelo D (Lote 3 P318): família lista/termos delega ao elemento.
+            Content::ListItem(e) => e.map_content(transform)?,
+            Content::EnumItem(e) => e.map_content(transform)?,
+            Content::Link(e)     => e.map_content(transform)?,
             Content::Labelled { target, label } => Content::Labelled {
                 target: Box::new(target.map_content(transform)?),
                 label:  label.clone(),
@@ -2110,16 +2113,9 @@ impl Content {
             // P311b.2 — MathStyled map_content recursivo (Modelo D P316: delega).
             Content::MathStyled(m) => m.map_content(transform)?,
 
-            // Passo 154B: Terms recurse em items; TermItem recurse em par.
-            Content::Terms { items } => {
-                let new_items: crate::entities::source_result::SourceResult<Vec<Content>> =
-                    items.iter().map(|c| c.map_content(transform)).collect();
-                Content::Terms { items: new_items? }
-            },
-            Content::TermItem { term, description } => Content::TermItem {
-                term:        Box::new(term.map_content(transform)?),
-                description: Box::new(description.map_content(transform)?),
-            },
+            // Modelo D (Lote 3 P318): Terms/TermItem delegam ao elemento.
+            Content::Terms(e)    => e.map_content(transform)?,
+            Content::TermItem(e) => e.map_content(transform)?,
 
             // Passo 155: Quote container — recurse em body e attribution;
             // block e quotes são primitivos.
@@ -2436,24 +2432,13 @@ impl Content {
                 kind:      kind.clone(),
                 numbering: numbering.clone(),
             },
-            Content::ListItem(body) => Content::ListItem(Box::new(body.map_text(transform))),
-            Content::EnumItem { number, body } => Content::EnumItem {
-                number: *number,
-                body:   Box::new(body.map_text(transform)),
-            },
-            Content::Link { url, body } => Content::Link {
-                url:  url.clone(),
-                body: Box::new(body.map_text(transform)),
-            },
-
-            // Passo 154B: Terms recurse em items; TermItem recurse em par.
-            Content::Terms { items } => Content::Terms {
-                items: items.iter().map(|c| c.map_text(transform)).collect(),
-            },
-            Content::TermItem { term, description } => Content::TermItem {
-                term:        Box::new(term.map_text(transform)),
-                description: Box::new(description.map_text(transform)),
-            },
+            // Modelo D (Lote 3 P318): família lista/termos delega ao elemento
+            // (contentores de prosa — map_text recurse, precedente Heading).
+            Content::ListItem(e) => e.map_text(transform),
+            Content::EnumItem(e) => e.map_text(transform),
+            Content::Link(e)     => e.map_text(transform),
+            Content::Terms(e)    => e.map_text(transform),
+            Content::TermItem(e) => e.map_text(transform),
 
             // Passo 155: Quote container — recurse em body e attribution.
             Content::Quote { body, attribution, block, quotes } => Content::Quote {
@@ -3102,64 +3087,44 @@ mod tests {
 
     #[test]
     fn terms_constructor_devolve_variant_correcto() {
-        let t = Content::Terms {
-            items: vec![Content::TermItem {
-                term:        Box::new(Content::text("a")),
-                description: Box::new(Content::text("b")),
-            }],
-        };
-        assert!(matches!(t, Content::Terms { .. }));
+        let t = Content::terms(vec![
+            Content::term_item(Content::text("a"), Content::text("b")),
+        ]);
+        assert!(matches!(t, Content::Terms(_)));
         assert!(!t.is_empty());
         // Terms vazio é considerado empty.
-        assert!(Content::Terms { items: vec![] }.is_empty());
+        assert!(Content::terms(vec![]).is_empty());
     }
 
     #[test]
     fn terms_plain_text_concatena_pares() {
-        let t = Content::Terms {
-            items: vec![
-                Content::TermItem {
-                    term:        Box::new(Content::text("Apple")),
-                    description: Box::new(Content::text("fruit")),
-                },
-                Content::TermItem {
-                    term:        Box::new(Content::text("Banana")),
-                    description: Box::new(Content::text("yellow")),
-                },
-            ],
-        };
+        let t = Content::terms(vec![
+            Content::term_item(Content::text("Apple"), Content::text("fruit")),
+            Content::term_item(Content::text("Banana"), Content::text("yellow")),
+        ]);
         assert_eq!(t.plain_text(), "Apple: fruit\nBanana: yellow");
     }
 
     #[test]
     fn term_item_plain_text() {
-        let t = Content::TermItem {
-            term:        Box::new(Content::text("key")),
-            description: Box::new(Content::text("value")),
-        };
+        let t = Content::term_item(Content::text("key"), Content::text("value"));
         assert_eq!(t.plain_text(), "key: value");
     }
 
     #[test]
     fn terms_map_text_recurse() {
-        let t = Content::Terms {
-            items: vec![Content::TermItem {
-                term:        Box::new(Content::text("apple")),
-                description: Box::new(Content::text("fruit")),
-            }],
-        };
+        let t = Content::terms(vec![
+            Content::term_item(Content::text("apple"), Content::text("fruit")),
+        ]);
         let upper = t.map_text(&mut |s| s.to_uppercase());
         assert_eq!(upper.plain_text(), "APPLE: FRUIT");
     }
 
     #[test]
     fn terms_partial_eq() {
-        let mk = || Content::Terms {
-            items: vec![Content::TermItem {
-                term:        Box::new(Content::text("k")),
-                description: Box::new(Content::text("v")),
-            }],
-        };
+        let mk = || Content::terms(vec![
+            Content::term_item(Content::text("k"), Content::text("v")),
+        ]);
         assert_eq!(mk(), mk());
         assert_ne!(mk(), Content::divider());
         assert_eq!(Content::divider(), Content::divider());

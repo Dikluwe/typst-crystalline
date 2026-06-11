@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: ada8c6d9
+Hash do Código: 8f3a50a3
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -97,6 +97,31 @@ ficam redigidos mas **não materializados** (marcados ⏸️). Migração futura
 **decisão própria** para o grupo `{MathSequence, MathText, MathIdent, Sequence,
 Empty, Block}`: migrar com medição de performance, manter inline por design via
 nota na ADR-0105, ou forma terceira.
+
+**Lote 3 P318** (família lista/termos — **5 variantes** element-shaped; ordem de
+migração por largura de uso crescente): cada migra para `Nome(Arc<NomeElem>)`,
+módulo `entities/elements/<nome>.rs` + L0 próprio. **Nenhuma é locatável**
+(confirmado P318: na lista exaustiva não-locatável; não são `ElementKind`).
+Diferença vs Lote 2 (math): estas são **contentores de prosa** → `map_text`
+**recurse** no(s) corpo(s) (precedente Heading, não terminal).
+
+| variante | módulo / L0 | forma | recursão |
+|---|---|---|---|
+| `EnumItem { number, body }` | `enum_item` | `EnumItem(Arc<EnumItemElem>)` | body (preserva `number`) |
+| `Link { url, body }` | `link` | `Link(Arc<LinkElem>)` | body (preserva `url`) |
+| `ListItem(Box<Content>)` | `list_item` | `ListItem(Arc<ListItemElem>)` | body |
+| `TermItem { term, description }` | `term_item` | `TermItem(Arc<TermItemElem>)` | term + description |
+| `Terms { items }` | `terms` | `Terms(Arc<TermsElem>)` | items |
+
+`Box<Content>` desboxa para `Content` no `…Elem` (convenção P316). `TermsElem` e
+`TermItemElem` **sobrepõem `is_empty`** (`items.is_empty()` / ambos vazios); as
+outras 3 ficam no default `false`. Construtores ergonómicos preservados
+(`list_item`/`enum_item`/`link`) + novos (`terms`/`term_item`).
+
+**Excluídas as `Set*`** (`SetFigureNumbering` 5, `SetEquationNumbering` 16,
+`SetPage` 8, `SetHeadingNumbering` 62): são marcadores de set-rule — a superfície
+da StyleChain. O destino delas depende da decisão F (medida na Parte 2 do P318);
+migrá-las agora desenharia o F por acidente.
 
 **Estado misto** (esperado, ADR-0105): durante os lotes o `enum` mistura
 variantes migradas (`Nome(Arc<…>)`) e por migrar (`Nome { … }`); os 6 matches

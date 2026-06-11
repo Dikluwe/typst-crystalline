@@ -101,8 +101,8 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Sequence(_)
         | Content::Raw { .. }
         | Content::ListItem(_)
-        | Content::EnumItem { .. }
-        | Content::Link { .. }
+        | Content::EnumItem(_)
+        | Content::Link(_)
         | Content::MathSequence(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
@@ -127,8 +127,8 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Place { .. }
         | Content::Styled(_, _)
         | Content::Divider(_)
-        | Content::Terms { .. }
-        | Content::TermItem { .. }
+        | Content::Terms(_)
+        | Content::TermItem(_)
         | Content::Quote { .. }
         // P284 — text decoration: não-locatable (cosmético inline; sem
         // identidade observable, paridade Quote/Link).
@@ -276,7 +276,7 @@ mod tests {
             Content::Linebreak,
             Content::divider(),
             Content::math_align_point(),
-            Content::ListItem(Box::new(Content::Empty)),
+            Content::list_item(Content::Empty),
             Content::SetHeadingNumbering { active: true },
             // P186D: Equation cobertura no test de invariante.
             // Lacuna pré-existente — Equation estava omitida do

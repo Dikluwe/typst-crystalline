@@ -764,7 +764,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.style = prev;
             }
 
-            Content::ListItem(body) => {
+            // Modelo D (Lote 3 P318): destructure de Arc<Elem> — mesma lógica.
+            Content::ListItem(e) => {
                 if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
                 let margin_pt = Pt(self.page_config.margin);
                 self.regions.current.current_line.push(FrameItem::Text {
@@ -773,15 +774,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     style: self.style.clone(),
                 });
                 self.regions.current.cursor_x = margin_pt + self.font_size_pt * 1.5;
-                self.layout_content(body);
+                self.layout_content(&e.body);
                 self.flush_line();
                 self.regions.current.cursor_x = margin_pt;
             }
 
-            Content::EnumItem { number, body } => {
+            Content::EnumItem(e) => {
                 if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
                 let margin_pt = Pt(self.page_config.margin);
-                let label: EcoString = match number {
+                let label: EcoString = match e.number {
                     Some(n) => format!("{}.", n).into(),
                     None    => "-".into(),
                 };
@@ -791,14 +792,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     style: self.style.clone(),
                 });
                 self.regions.current.cursor_x = margin_pt + self.font_size_pt * 2.0;
-                self.layout_content(body);
+                self.layout_content(&e.body);
                 self.flush_line();
                 self.regions.current.cursor_x = margin_pt;
             }
 
-            Content::Link { body, .. } => {
+            Content::Link(e) => {
                 // DEBT: sublinhado e cor de link — requer FrameItem::Decoration (futuro)
-                self.layout_content(body);
+                self.layout_content(&e.body);
             }
 
             // ── Matemática (Passo 37) — delegação ao MathLayouter ───────────
@@ -1259,14 +1260,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.regions.current.cursor_y += self.font_size_pt * 0.6;
             }
 
-            Content::Terms { items } => {
+            Content::Terms(e) => {
                 if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
-                for item in items {
+                for item in e.items.iter() {
                     self.layout_content(item);
                 }
             }
 
-            Content::TermItem { term, description } => {
+            Content::TermItem(e) => {
                 if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
                 let margin_pt = Pt(self.page_config.margin);
                 self.regions.current.cursor_x = margin_pt + self.font_size_pt * 1.5;
@@ -1276,11 +1277,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 use crate::entities::style::{Style, Styles};
                 self.chain = self.chain.push_styles(&Styles::from_iter([Style::Bold(true)]));
                 self.style = TextStyle::from(&self.chain);
-                self.layout_content(term);
+                self.layout_content(&e.term);
                 self.chain = prev_chain;
                 self.style = prev_style;
                 self.layout_content(&Content::text(": "));
-                self.layout_content(description);
+                self.layout_content(&e.description);
                 self.flush_line();
                 self.regions.current.cursor_x = margin_pt;
             }

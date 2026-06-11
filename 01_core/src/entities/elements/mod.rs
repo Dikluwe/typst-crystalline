@@ -34,6 +34,12 @@ pub mod math_matrix;
 pub mod math_op;
 pub mod math_root;
 pub mod math_underover;
+// Lote 3 P318 — família lista/termos (5 variantes element-shaped).
+pub mod enum_item;
+pub mod link;
+pub mod list_item;
+pub mod term_item;
+pub mod terms;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;
