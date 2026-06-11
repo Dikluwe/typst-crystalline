@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 2723a25f
+//! @prompt-hash 3cf1f1bc
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -63,6 +63,14 @@ use crate::entities::elements::pagebreak::PagebreakElem;
 use crate::entities::elements::table_footer::TableFooterElem;
 use crate::entities::elements::table_header::TableHeaderElem;
 use crate::entities::elements::v_space::VSpaceElem;
+// Lote 6 P321 — família state/counter + Metadata (7 variantes).
+use crate::entities::elements::counter_display::CounterDisplayElem;
+use crate::entities::elements::counter_display_callback::CounterDisplayCallbackElem;
+use crate::entities::elements::counter_update::CounterUpdateElem;
+use crate::entities::elements::metadata::MetadataElem;
+use crate::entities::elements::state::StateElem;
+use crate::entities::elements::state_display::StateDisplayElem;
+use crate::entities::elements::state_update::StateUpdateElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -315,18 +323,14 @@ pub enum Content {
     /// Produzida por `counter(heading).get()` / `counter(heading).display()`.
     /// O Layouter resolve o valor no momento do layout (single-pass).
     /// DEBT-10: single-pass não suporta referências para a frente.
-    CounterDisplay {
-        /// Tipo de contador: "heading", "figure", "equation", ou chave arbitrária.
-        kind: String,
-    },
+    /// **Modelo D (Lote 6 P321)**: `entities::elements::counter_display::CounterDisplayElem`
+    /// (não-locatável, legacy single-pass).
+    CounterDisplay(Arc<CounterDisplayElem>),
 
     /// Instrução de modificação de um contador (Passo 58).
-    /// Produzida por `counter(key).step()` / `counter(key).update(n)`.
-    /// O Layouter consome esta variante actualizando `CounterStateLegacy`.
-    CounterUpdate {
-        key:    String,
-        action: CounterAction,
-    },
+    /// **Modelo D (Lote 6 P321)**: `entities::elements::counter_update::CounterUpdateElem`
+    /// (locatável).
+    CounterUpdate(Arc<CounterUpdateElem>),
 
     /// Marcador para a Tabela de Conteúdos (Passo 61).
     /// O layouter substitui este nó pela lista de títulos do documento.
@@ -1149,29 +1153,26 @@ pub enum Content {
     /// (não há) e não muta state. `extract_payload` produz
     /// `ElementPayload::Metadata { value }`. Layouter arm é no-op
     /// (zero-size).
-    Metadata {
-        value: Box<crate::entities::value::Value>,
-    },
+    /// **Modelo D (Lote 6 P321)**: `entities::elements::metadata::MetadataElem`
+    /// (locatável).
+    Metadata(Arc<MetadataElem>),
 
     /// **P171 (M9 sub-passo 3)** — runtime mutable state, init.
     /// Vanilla `state(key, init)` em `introspection/state.rs`.
     ///
     /// Define o valor inicial de um state identificado por `key`.
     /// Invisível em layout. Consumer: `Introspector::state_value`.
-    State {
-        key:  String,
-        init: Box<crate::entities::value::Value>,
-    },
+    /// **Modelo D (Lote 6 P321)**: `entities::elements::state::StateElem` (locatável).
+    State(Arc<StateElem>),
 
     /// **P171 (M9 sub-passo 3)** — runtime mutable state, update.
     /// Vanilla `state.update(key, value)` (Set variant; Func adiada).
     ///
     /// Aplica `update` ao state identificado por `key` no ponto onde
     /// este nó aparece. Invisível em layout.
-    StateUpdate {
-        key:    String,
-        update: crate::entities::state_update::StateUpdate,
-    },
+    /// **Modelo D (Lote 6 P321)**: `entities::elements::state_update::StateUpdateElem`
+    /// (locatável).
+    StateUpdate(Arc<StateUpdateElem>),
 
     /// **P240 (M9d / M7+1)** — render-mediated state display.
     /// Vanilla `state.display(callback)` em `introspection/state.rs`.
@@ -1186,10 +1187,9 @@ pub enum Content {
     /// `callback: None` renderiza `Value` directo (Value::Content
     /// passa-through; Value::Str via Content::text; outros tipos
     /// fallback Content::Empty).
-    StateDisplay {
-        key:      String,
-        callback: Option<crate::entities::func::Func>,
-    },
+    /// **Modelo D (Lote 6 P321)**: `entities::elements::state_display::StateDisplayElem`
+    /// (locatável).
+    StateDisplay(Arc<StateDisplayElem>),
 
     /// **P241 (M9d / M7+2)** — render-mediated counter display real
     /// walk-time. Vanilla `counter.display(callback)` em
@@ -1212,10 +1212,9 @@ pub enum Content {
     ///
     /// **Sem callback** (`callback: None`): formato default
     /// "1.2.3" via join "." (paridade `formatted_counter_at` P177).
-    CounterDisplayCallback {
-        key:      String,
-        callback: Option<crate::entities::func::Func>,
-    },
+    /// **Modelo D (Lote 6 P321)**: `entities::elements::counter_display_callback::CounterDisplayCallbackElem`
+    /// (locatável).
+    CounterDisplayCallback(Arc<CounterDisplayCallbackElem>),
 
     // Variantes futuras — NÃO implementar sem ADR:
     // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
@@ -1396,6 +1395,29 @@ impl Content {
     /// `grid_footer(body, repeat)` — Modelo D (Lote 5 P320).
     pub fn grid_footer(body: Content, repeat: bool) -> Self {
         Self::GridFooter(Arc::new(GridFooterElem { body, repeat }))
+    }
+
+    // ── Construtores ergonómicos família state/counter (Modelo D, Lote 6 P321) ──
+    pub fn counter_display(kind: impl Into<String>) -> Self {
+        Self::CounterDisplay(Arc::new(CounterDisplayElem { kind: kind.into() }))
+    }
+    pub fn counter_update(key: impl Into<String>, action: CounterAction) -> Self {
+        Self::CounterUpdate(Arc::new(CounterUpdateElem { key: key.into(), action }))
+    }
+    pub fn metadata(value: crate::entities::value::Value) -> Self {
+        Self::Metadata(Arc::new(MetadataElem { value: Box::new(value) }))
+    }
+    pub fn state(key: impl Into<String>, init: crate::entities::value::Value) -> Self {
+        Self::State(Arc::new(StateElem { key: key.into(), init: Box::new(init) }))
+    }
+    pub fn state_update(key: impl Into<String>, update: crate::entities::state_update::StateUpdate) -> Self {
+        Self::StateUpdate(Arc::new(StateUpdateElem { key: key.into(), update }))
+    }
+    pub fn state_display(key: impl Into<String>, callback: Option<crate::entities::func::Func>) -> Self {
+        Self::StateDisplay(Arc::new(StateDisplayElem { key: key.into(), callback }))
+    }
+    pub fn counter_display_callback(key: impl Into<String>, callback: Option<crate::entities::func::Func>) -> Self {
+        Self::CounterDisplayCallback(Arc::new(CounterDisplayCallbackElem { key: key.into(), callback }))
     }
 
     /// `block(body, width, height, inset, breakable)` — Passo 156G
@@ -1651,13 +1673,12 @@ impl Content {
             Self::Sequence(v)        => v.iter().map(|c| c.plain_text()).collect(),
             // Passo 101: Content::Strong/Emph removidos — cobertos por
             // Content::Styled(body, _) => body.plain_text() no fim do match.
-            // P169 (M9): Metadata invisível em layout — sem texto plano.
-            Self::Metadata { .. }       => String::new(),
-            // P171 (M9): State e StateUpdate invisíveis em layout.
-            Self::State { .. }          => String::new(),
-            Self::StateUpdate { .. }    => String::new(),
-            Self::StateDisplay { .. }   => String::new(),
-            Self::CounterDisplayCallback { .. } => String::new(),
+            // Modelo D (Lote 6 P321): família state/counter delega ao elemento (vazio).
+            Self::Metadata(e)               => e.plain_text(),
+            Self::State(e)                  => e.plain_text(),
+            Self::StateUpdate(e)            => e.plain_text(),
+            Self::StateDisplay(e)           => e.plain_text(),
+            Self::CounterDisplayCallback(e) => e.plain_text(),
             Self::Heading(h) => h.plain_text(),
             Self::Raw { text, .. }   => text.to_string(),
             // Modelo D (Lote 3 P318): família lista/termos delega ao elemento.
@@ -1700,8 +1721,8 @@ impl Content {
             Self::Ref { target }          => format!("@{}", target.0),
             Self::SetHeadingNumbering { .. } => String::new(),
             Self::SetEquationNumbering { .. } => String::new(),
-            Self::CounterDisplay { .. }      => String::new(),
-            Self::CounterUpdate { .. }       => String::new(),
+            Self::CounterDisplay(e)          => e.plain_text(),
+            Self::CounterUpdate(e)           => e.plain_text(),
             Self::Outline                    => String::new(),
             Self::Figure { body, caption, .. } => {
                 let body_text = body.plain_text();
@@ -1864,8 +1885,9 @@ impl PartialEq for Content {
             (Self::Ref { target: ta }, Self::Ref { target: tb })     => ta == tb,
             (Self::SetHeadingNumbering { active: a }, Self::SetHeadingNumbering { active: b }) => a == b,
             (Self::SetEquationNumbering { active: a }, Self::SetEquationNumbering { active: b }) => a == b,
-            (Self::CounterDisplay { kind: a }, Self::CounterDisplay { kind: b }) => a == b,
-            (Self::CounterUpdate { key: ka, action: aa }, Self::CounterUpdate { key: kb, action: ab }) => ka == kb && aa == ab,
+            // Modelo D (Lote 6 P321): delegam ao `Arc<…Elem>`.
+            (Self::CounterDisplay(a), Self::CounterDisplay(b)) => a == b,
+            (Self::CounterUpdate(a),  Self::CounterUpdate(b))  => a == b,
             (Self::Outline, Self::Outline) => true,
             (Self::Figure { body: ba, caption: ca, kind: ka, numbering: na },
              Self::Figure { body: bb, caption: cb, kind: kb, numbering: nb }) =>
@@ -1998,16 +2020,11 @@ impl PartialEq for Content {
             (Self::Columns { count: ca, gutter: ga, body: ba },
              Self::Columns { count: cb, gutter: gb, body: bb }) =>
                 ca == cb && ga == gb && ba == bb,
-            // P240 (M9d/M7+1) — StateDisplay: key igualdade; callback
-            // via Func::PartialEq (Arc::ptr_eq paridade StateUpdate::Func).
-            (Self::StateDisplay { key: ka, callback: ca },
-             Self::StateDisplay { key: kb, callback: cb }) =>
-                ka == kb && ca == cb,
-            // P241 (M9d/M7+2) — CounterDisplayCallback paralelo
-            // StateDisplay; Func::PartialEq via Arc::ptr_eq.
-            (Self::CounterDisplayCallback { key: ka, callback: ca },
-             Self::CounterDisplayCallback { key: kb, callback: cb }) =>
-                ka == kb && ca == cb,
+            // Modelo D (Lote 6 P321): StateDisplay/CounterDisplayCallback delegam.
+            (Self::StateDisplay(a),          Self::StateDisplay(b))          => a == b,
+            (Self::CounterDisplayCallback(a), Self::CounterDisplayCallback(b)) => a == b,
+            // Quirk pré-existente preservado (Lote 6 P321): Metadata/State/
+            // StateUpdate NÃO têm arm — caem em `_ => false` (sempre desiguais).
             _ => false,
         }
     }
@@ -2216,8 +2233,8 @@ impl Content {
             | Content::SetEquationNumbering { .. }
             | Content::SetFigureNumbering { .. }
             | Content::SetPage { .. }
-            | Content::CounterUpdate { .. }
-            | Content::CounterDisplay { .. }
+            | Content::CounterUpdate(_)
+            | Content::CounterDisplay(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::Image { .. }
@@ -2231,16 +2248,16 @@ impl Content {
             | Content::Colbreak(_)
             | Content::Shape { .. }
             // P169 (M9): Metadata é terminal — clonar directamente.
-            | Content::Metadata { .. }
+            | Content::Metadata(_)
             // P171 (M9): State e StateUpdate são terminais.
-            | Content::State { .. }
-            | Content::StateUpdate { .. }
+            | Content::State(_)
+            | Content::StateUpdate(_)
             // P240 (M9d/M7+1): StateDisplay é terminal (callback opcional
             // mas não atravessa Content; resolvido pós-fixpoint).
-            | Content::StateDisplay { .. }
+            | Content::StateDisplay(_)
             // P241 (M9d/M7+2): CounterDisplayCallback terminal paralelo
             // StateDisplay; resolvido pós-fixpoint via apply_counter_displays.
-            | Content::CounterDisplayCallback { .. } => self.clone(),
+            | Content::CounterDisplayCallback(_) => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
                 body:   Box::new(body.map_content(transform)?),
@@ -2500,8 +2517,8 @@ impl Content {
             | Content::SetEquationNumbering { .. }
             | Content::SetFigureNumbering { .. }
             | Content::SetPage { .. }
-            | Content::CounterUpdate { .. }
-            | Content::CounterDisplay { .. }
+            | Content::CounterUpdate(_)
+            | Content::CounterDisplay(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
             // P287 — SmartQuote leaf (sem texto interno — map_text não recurse).
@@ -2533,14 +2550,14 @@ impl Content {
             | Content::Colbreak(_)
             | Content::Shape { .. }
             // P169 (M9): Metadata é terminal — clonar directamente.
-            | Content::Metadata { .. }
+            | Content::Metadata(_)
             // P171 (M9): State e StateUpdate são terminais.
-            | Content::State { .. }
-            | Content::StateUpdate { .. }
+            | Content::State(_)
+            | Content::StateUpdate(_)
             // P240 (M9d/M7+1): StateDisplay é terminal em map_text.
-            | Content::StateDisplay { .. }
+            | Content::StateDisplay(_)
             // P241 (M9d/M7+2): CounterDisplayCallback terminal em map_text.
-            | Content::CounterDisplayCallback { .. } => self.clone(),
+            | Content::CounterDisplayCallback(_) => self.clone(),
             Content::Transform { matrix, body } => Content::Transform {
                 matrix: *matrix,
                 body:   Box::new(body.map_text(transform)),
@@ -5474,19 +5491,10 @@ mod tests {
     #[test]
     fn p240_content_statedisplay_partial_eq_sem_callback() {
         // Sem callback → comparação por key.
-        let a = Content::StateDisplay {
-            key:      "k".to_string(),
-            callback: None,
-        };
-        let b = Content::StateDisplay {
-            key:      "k".to_string(),
-            callback: None,
-        };
+        let a = Content::state_display("k".to_string(), None);
+        let b = Content::state_display("k".to_string(), None);
         assert_eq!(a, b);
-        let c = Content::StateDisplay {
-            key:      "other".to_string(),
-            callback: None,
-        };
+        let c = Content::state_display("other".to_string(), None);
         assert_ne!(a, c);
     }
 
@@ -5497,34 +5505,22 @@ mod tests {
         let f1 = Func::native("identity", |_, args, _, _, _| {
             Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
         });
-        let a = Content::StateDisplay {
-            key:      "k".to_string(),
-            callback: Some(f1.clone()),
-        };
-        let b = Content::StateDisplay {
-            key:      "k".to_string(),
-            callback: Some(f1.clone()),
-        };
+        let a = Content::state_display("k".to_string(), Some(f1.clone()));
+        let b = Content::state_display("k".to_string(), Some(f1.clone()));
         // Mesmo Arc partilhado → equal.
         assert_eq!(a, b);
         // Func distinta (Arc diferente) → not equal mesmo com mesmo behaviour.
         let f2 = Func::native("identity", |_, args, _, _, _| {
             Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
         });
-        let c = Content::StateDisplay {
-            key:      "k".to_string(),
-            callback: Some(f2),
-        };
+        let c = Content::state_display("k".to_string(), Some(f2));
         assert_ne!(a, c);
     }
 
     #[test]
     fn p240_content_statedisplay_plain_text_vazio() {
         // P240 — StateDisplay sem texto direct (resolução pós-fixpoint).
-        let c = Content::StateDisplay {
-            key:      "k".to_string(),
-            callback: None,
-        };
+        let c = Content::state_display("k".to_string(), None);
         assert_eq!(c.plain_text(), "");
     }
 
@@ -5534,19 +5530,10 @@ mod tests {
     #[test]
     fn p241_content_counter_display_callback_partial_eq_sem_callback() {
         // Sem callback → comparação por key.
-        let a = Content::CounterDisplayCallback {
-            key:      "heading".to_string(),
-            callback: None,
-        };
-        let b = Content::CounterDisplayCallback {
-            key:      "heading".to_string(),
-            callback: None,
-        };
+        let a = Content::counter_display_callback("heading".to_string(), None);
+        let b = Content::counter_display_callback("heading".to_string(), None);
         assert_eq!(a, b);
-        let c = Content::CounterDisplayCallback {
-            key:      "figure".to_string(),
-            callback: None,
-        };
+        let c = Content::counter_display_callback("figure".to_string(), None);
         assert_ne!(a, c);
     }
 
@@ -5557,22 +5544,13 @@ mod tests {
         let f1 = Func::native("identity", |_, args, _, _, _| {
             Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
         });
-        let a = Content::CounterDisplayCallback {
-            key:      "k".to_string(),
-            callback: Some(f1.clone()),
-        };
-        let b = Content::CounterDisplayCallback {
-            key:      "k".to_string(),
-            callback: Some(f1.clone()),
-        };
+        let a = Content::counter_display_callback("k".to_string(), Some(f1.clone()));
+        let b = Content::counter_display_callback("k".to_string(), Some(f1.clone()));
         assert_eq!(a, b);
         let f2 = Func::native("identity", |_, args, _, _, _| {
             Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
         });
-        let c = Content::CounterDisplayCallback {
-            key:      "k".to_string(),
-            callback: Some(f2),
-        };
+        let c = Content::counter_display_callback("k".to_string(), Some(f2));
         assert_ne!(a, c);
     }
 
@@ -5580,10 +5558,7 @@ mod tests {
     fn p241_content_counter_display_callback_plain_text_vazio() {
         // P241 — CounterDisplayCallback sem texto direct (resolução
         // pós-fixpoint via apply_counter_displays).
-        let c = Content::CounterDisplayCallback {
-            key:      "heading".to_string(),
-            callback: None,
-        };
+        let c = Content::counter_display_callback("heading".to_string(), None);
         assert_eq!(c.plain_text(), "");
     }
 
@@ -5591,13 +5566,8 @@ mod tests {
     fn p241_content_counter_display_callback_distinto_de_legacy_counter_display() {
         // P241 — variant nova paralela coexiste com Content::CounterDisplay
         // legacy { kind } sem conflito (Decisão 1 Opção α).
-        let new = Content::CounterDisplayCallback {
-            key:      "heading".to_string(),
-            callback: None,
-        };
-        let legacy = Content::CounterDisplay {
-            kind: "heading".to_string(),
-        };
+        let new = Content::counter_display_callback("heading".to_string(), None);
+        let legacy = Content::counter_display("heading".to_string());
         assert_ne!(new, legacy);
     }
 }

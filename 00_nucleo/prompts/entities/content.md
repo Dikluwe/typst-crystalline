@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 3d7e4382
+Hash do Código: 920579a1
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -164,6 +164,44 @@ Construtores preservados (`h_space`/`v_space`/`pagebreak`/`colbreak`/
 `table_header`/`table_footer`) + novos (`linebreak`/`grid_header`/`grid_footer`).
 **Fora deste lote**: `Space` (triagem DEBT-58) e o bloco
 `TableCell`/`Table`/`GridCell`/`Grid` (lote próprio, ~193 sites).
+
+**Lote 6 P321** (família state/counter + `Metadata` — **7 variantes**; ordem por
+largura crescente): `CounterDisplay`(15) · `Metadata`(16) ·
+`CounterDisplayCallback`(19) · `State`(21) · `StateDisplay`(21) ·
+`StateUpdate`(25) · `CounterUpdate`(39) = ~172 sites. **Primeiro lote locatável
+desde o piloto Heading.** Todas são **leaves/markers**: `plain_text` vazio;
+`is_empty` default `false`; `map_content`/`map_text` **terminais**; `get_field`
+default.
+
+**Fronteira de locatabilidade (declarada):**
+
+- **6 locatáveis** (queryable) — absorvem o braço de `extract_payload` no trait
+  (precedente Heading): `element_kind` → `Some(ElementKind::X)` e `to_payload` →
+  `Some(ElementPayload::X{…})`. São `Metadata`, `State`, `StateUpdate`,
+  `StateDisplay`, `CounterUpdate`, `CounterDisplayCallback`
+  (kind → `CounterDisplay`, partilhado). O hub passa a despachar
+  `extract_payload.rs` (`Content::X(e) => e.to_payload()`) e `locatable.rs`
+  (`Content::X(_) => true`). O **consumo por `ElementPayload`** (`from_tags`/
+  walk de payload) é **inalterado** — matcheia o payload, não o `Content`.
+- **1 não-locatável** — `CounterDisplay { kind }` legacy (single-pass, DEBT-10):
+  `element_kind`/`to_payload` ficam no default `None`.
+
+**`Hash`/`eq` (notas content-preserving):**
+
+- **`Hash` manual via Debug** para as que carregam tipos sem `Hash` (`Value`/
+  `f64`, `Func`, `state_update::StateUpdate`): `Metadata`, `State`, `StateUpdate`,
+  `StateDisplay`, `CounterDisplayCallback`. `CounterDisplay` (só `String`) e
+  `CounterUpdate` (action que deriva `Hash`) derivam `Hash`. Regra do modelo.
+- **Quirk de `eq` preservado**: `Metadata`, `State`, `StateUpdate` **não têm arm
+  de `eq` no hub** (caem em `_ => false`, sempre desiguais — marcadores
+  efectivos). **Não adicionar dispatch de `eq`** para estas 3 (content-
+  preserving). As outras 4 (`CounterDisplay`/`CounterUpdate`/`StateDisplay`/
+  `CounterDisplayCallback`) têm arm → despacham `(X(a), X(b)) => a == b`.
+
+`Box<Value>` desboxa para… **não**: mantém-se `Box<Value>` no `…Elem` (paridade
+`ElementPayload`, que usa `Box<Value>`). Construtores ergonómicos novos
+`Content::{counter_display,metadata,counter_display_callback,state,state_display,`
+`state_update,counter_update}(…)`.
 
 **Estado misto** (esperado, ADR-0105): durante os lotes o `enum` mistura
 variantes migradas (`Nome(Arc<…>)`) e por migrar (`Nome { … }`); os 6 matches

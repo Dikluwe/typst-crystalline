@@ -133,9 +133,9 @@ pub fn introspect_with_introspector(
 fn materialize_time(content: &Content, intr: &TagIntrospector, location: Location) -> Content {
     match content {
         // O caso crítico: substituir o nó dinâmico pelo valor actual do contador.
-        Content::CounterDisplay { kind } => {
+        Content::CounterDisplay(e) => {
             Content::text(
-                intr.formatted_counter_at(kind, location)
+                intr.formatted_counter_at(&e.kind, location)
                     .unwrap_or_else(|| "0".to_string()),
             )
         }
@@ -208,7 +208,7 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::SetEquationNumbering { .. }
         | Content::SetFigureNumbering { .. }
         | Content::SetPage { .. }
-        | Content::CounterUpdate { .. }
+        | Content::CounterUpdate(_)
         | Content::Outline
         | Content::Linebreak(_)
         | Content::MathAlignPoint(_)
@@ -245,16 +245,16 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::Colbreak(_)
         | Content::Shape { .. }
         // P169 (M9): Metadata é terminal — clonar directamente.
-        | Content::Metadata { .. }
+        | Content::Metadata(_)
         // P171 (M9): State e StateUpdate são terminais.
-        | Content::State { .. }
-        | Content::StateUpdate { .. }
+        | Content::State(_)
+        | Content::StateUpdate(_)
         // P240 (M9d/M7+1): StateDisplay terminal em materialize_time —
         // resolução real via apply_state_displays + layout arm.
-        | Content::StateDisplay { .. }
+        | Content::StateDisplay(_)
         // P241 (M9d/M7+2): CounterDisplayCallback terminal paralelo
         // StateDisplay; resolução real via apply_counter_displays.
-        | Content::CounterDisplayCallback { .. } => content.clone(),
+        | Content::CounterDisplayCallback(_) => content.clone(),
         // Passo 156C (ADR-0061 Fase 1) — pad / hide containers.
         // Materialize_time desce no body para resolver counters dentro;
         // padding e o invariante "hide" preservam-se.
@@ -1098,7 +1098,7 @@ pub(crate) fn walk(
             // eliminado.
         }
 
-        Content::CounterUpdate { key: _, action: _ } => {
+        Content::CounterUpdate(_) => {
             // P198C — E6 fechada estruturalmente (cenário β-promote
             // ADR-0069). Caminho Introspector activo:
             // extract_payload arm emite ElementPayload::CounterUpdate
@@ -1127,7 +1127,7 @@ pub(crate) fn walk(
         | Content::Text(_, _)
         | Content::Space
         | Content::Ref { .. }
-        | Content::CounterDisplay { .. }
+        | Content::CounterDisplay(_)
         | Content::Raw { .. }
         | Content::ListItem(_)
         | Content::EnumItem(_)
@@ -1170,18 +1170,18 @@ pub(crate) fn walk(
         // P169 (M9): Metadata é terminal — sem efeito em counters.
         // Tag::Start/End já é emitido no topo de walk via extract_payload
         // (que produz `Some(ElementPayload::Metadata)`).
-        | Content::Metadata { .. }
+        | Content::Metadata(_)
         // P171 (M9): State e StateUpdate são terminais. Tag emitido
         // no topo via extract_payload.
-        | Content::State { .. }
-        | Content::StateUpdate { .. }
+        | Content::State(_)
+        | Content::StateUpdate(_)
         // P240 (M9d/M7+1): StateDisplay terminal. Tag emitido no topo
         // via extract_payload; valor pre-rendered em apply_state_displays.
-        | Content::StateDisplay { .. }
+        | Content::StateDisplay(_)
         // P241 (M9d/M7+2): CounterDisplayCallback terminal paralelo
         // StateDisplay; tag emitido no topo via extract_payload; valor
         // pre-rendered em apply_counter_displays.
-        | Content::CounterDisplayCallback { .. } => {}
+        | Content::CounterDisplayCallback(_) => {}
 
         // Passo 154B — Terms / TermItem: descem em items para que filhos
         // com contadores ou labels sejam processados.
@@ -1358,10 +1358,7 @@ mod tests {
     #[test]
     fn introspect_counter_update_e_aplicado() {
         let content = Content::Sequence(
-            vec![Content::CounterUpdate {
-                key:    "equation".to_string(),
-                action: CounterAction::Update(5),
-            }]
+            vec![Content::counter_update("equation".to_string(), CounterAction::Update(5))]
             .into(),
         );
 
@@ -1578,7 +1575,7 @@ mod tests {
         let dynamic_ast = Content::Sequence(
             vec![
                 Content::text("Figura "),
-                Content::CounterDisplay { kind: "fig".to_string() },
+                Content::counter_display("fig".to_string()),
             ]
             .into(),
         );
@@ -1626,14 +1623,11 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::SetHeadingNumbering { active: true },
-                Content::CounterUpdate {
-                    key:    "fig".to_string(),
-                    action: CounterAction::Update(7),
-                },
+                Content::counter_update("fig".to_string(), CounterAction::Update(7)),
                 Content::heading(1, Content::Sequence(
                     vec![
                         Content::text("Figura "),
-                        Content::CounterDisplay { kind: "fig".to_string() },
+                        Content::counter_display("fig".to_string()),
                     ]
                     .into(),
                 )),
@@ -2652,14 +2646,8 @@ mod tests {
         let f = Func::native("add_one", add_one_native);
         let content = Content::Sequence(
             vec![
-                Content::State {
-                    key:  "c".to_string(),
-                    init: Box::new(Value::Int(0)),
-                },
-                Content::StateUpdate {
-                    key:    "c".to_string(),
-                    update: StateUpdate::Func(f),
-                },
+                Content::state("c".to_string(), Value::Int(0)),
+                Content::state_update("c".to_string(), StateUpdate::Func(f)),
             ]
             .into(),
         );
@@ -2692,14 +2680,8 @@ mod tests {
         let f = Func::native("add_one", add_one_native);
         let content = Content::Sequence(
             vec![
-                Content::State {
-                    key:  "c".to_string(),
-                    init: Box::new(Value::Int(0)),
-                },
-                Content::StateUpdate {
-                    key:    "c".to_string(),
-                    update: StateUpdate::Func(f),
-                },
+                Content::state("c".to_string(), Value::Int(0)),
+                Content::state_update("c".to_string(), StateUpdate::Func(f)),
             ]
             .into(),
         );
@@ -2716,27 +2698,15 @@ mod tests {
         let f2 = Func::native("add_one", add_one_native);
         let content_a = Content::Sequence(
             vec![
-                Content::State {
-                    key:  "c".to_string(),
-                    init: Box::new(Value::Int(5)),
-                },
-                Content::StateUpdate {
-                    key:    "c".to_string(),
-                    update: StateUpdate::Func(f1),
-                },
+                Content::state("c".to_string(), Value::Int(5)),
+                Content::state_update("c".to_string(), StateUpdate::Func(f1)),
             ]
             .into(),
         );
         let content_b = Content::Sequence(
             vec![
-                Content::State {
-                    key:  "c".to_string(),
-                    init: Box::new(Value::Int(5)),
-                },
-                Content::StateUpdate {
-                    key:    "c".to_string(),
-                    update: StateUpdate::Func(f2),
-                },
+                Content::state("c".to_string(), Value::Int(5)),
+                Content::state_update("c".to_string(), StateUpdate::Func(f2)),
             ]
             .into(),
         );
@@ -3419,10 +3389,7 @@ mod tests {
         use crate::rules::introspect::extract_payload::extract_payload;
         use crate::entities::counter_update::CounterUpdate as CU;
 
-        let content = Content::CounterUpdate {
-            key:    "equation".to_string(),
-            action: CounterAction::Step,
-        };
+        let content = Content::counter_update("equation".to_string(), CounterAction::Step);
         match extract_payload(&content) {
             Some(ElementPayload::CounterUpdate { key, action }) => {
                 assert_eq!(key, "equation");
@@ -3437,10 +3404,7 @@ mod tests {
         // P198C test 2: is_locatable(CounterUpdate) = true após promote.
         use crate::rules::introspect::locatable::is_locatable;
 
-        let c = Content::CounterUpdate {
-            key:    "page".to_string(),
-            action: CounterAction::Update(42),
-        };
+        let c = Content::counter_update("page".to_string(), CounterAction::Update(42));
         assert!(is_locatable(&c),
             "P198C: is_locatable(CounterUpdate) deve retornar true após promote");
     }
@@ -3454,14 +3418,8 @@ mod tests {
 
         let content = Content::Sequence(
             vec![
-                Content::CounterUpdate {
-                    key:    "equation".to_string(),
-                    action: CounterAction::Step,
-                },
-                Content::CounterUpdate {
-                    key:    "equation".to_string(),
-                    action: CounterAction::Step,
-                },
+                Content::counter_update("equation".to_string(), CounterAction::Step),
+                Content::counter_update("equation".to_string(), CounterAction::Step),
             ]
             .into(),
         );
@@ -3488,18 +3446,9 @@ mod tests {
 
         let content = Content::Sequence(
             vec![
-                Content::CounterUpdate {
-                    key:    "equation".to_string(),
-                    action: CounterAction::Step,
-                },
-                Content::CounterUpdate {
-                    key:    "equation".to_string(),
-                    action: CounterAction::Step,
-                },
-                Content::CounterUpdate {
-                    key:    "equation".to_string(),
-                    action: CounterAction::Step,
-                },
+                Content::counter_update("equation".to_string(), CounterAction::Step),
+                Content::counter_update("equation".to_string(), CounterAction::Step),
+                Content::counter_update("equation".to_string(), CounterAction::Step),
             ]
             .into(),
         );
@@ -3524,10 +3473,7 @@ mod tests {
         // apply_at(Update). Legacy via state.update_flat. Paridade.
         use crate::entities::introspector::Introspector;
 
-        let content = Content::CounterUpdate {
-            key:    "page".to_string(),
-            action: CounterAction::Update(42),
-        };
+        let content = Content::counter_update("page".to_string(), CounterAction::Update(42));
         let intr = introspect_with_introspector(&content);
 
         // Legacy.
@@ -3558,10 +3504,7 @@ mod tests {
                 // is_numbering_active("equation") = true. Sem isso,
                 // walk arm Equation não avança counter. Test usa
                 // CounterUpdate directo para bypass.
-                Content::CounterUpdate {
-                    key:    "equation".to_string(),
-                    action: CounterAction::Step,
-                },
+                Content::counter_update("equation".to_string(), CounterAction::Step),
                 Content::Labelled {
                     label:  Label("eq1".to_string()),
                     target: Box::new(Content::Equation {

@@ -2113,8 +2113,7 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve ter content");
         assert!(
-            matches!(&content, Content::CounterUpdate { key, action: CounterAction::Step }
-                     if key == "equation"),
+            matches!(&content, Content::CounterUpdate(e) if e.key == "equation" && e.action == CounterAction::Step),
             "esperado CounterUpdate(equation, Step), obtido: {:?}", content
         );
     }
@@ -2126,8 +2125,7 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve ter content");
         assert!(
-            matches!(&content, Content::CounterUpdate { key, action: CounterAction::Step }
-                     if key == "heading"),
+            matches!(&content, Content::CounterUpdate(e) if e.key == "heading" && e.action == CounterAction::Step),
             "esperado CounterUpdate(heading, Step), obtido: {:?}", content
         );
     }

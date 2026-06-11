@@ -25,17 +25,17 @@ pub fn is_locatable(content: &Content) -> bool {
         Content::Cite    { .. } => true,
 
         // ── Locatable em M9 (P169) — Metadata é queriable ──────────
-        Content::Metadata { .. } => true,
+        Content::Metadata(_) => true,
 
         // ── Locatable em M9 (P171) — State e StateUpdate ───────────
-        Content::State { .. } => true,
-        Content::StateUpdate { .. } => true,
+        Content::State(_) => true,
+        Content::StateUpdate(_) => true,
 
         // ── Locatable em P240 (M9d/M7+1) — StateDisplay. Walk emite
         // tag para que `apply_state_displays` pre-renderize Content
         // resultado callback pós-fixpoint; layout arm consome via
         // `state_display_value`.
-        Content::StateDisplay { .. } => true,
+        Content::StateDisplay(_) => true,
 
         // ── Locatable em P241 (M9d/M7+2) — CounterDisplayCallback
         // paralelo StateDisplay. Walk emite tag; `apply_counter_displays`
@@ -44,7 +44,7 @@ pub fn is_locatable(content: &Content) -> bool {
         // layout arm consome via `counter_display_value`.
         // Distinto de `Content::CounterDisplay { kind }` legacy
         // (não-locatable; single-pass Layouter directo).
-        Content::CounterDisplayCallback { .. } => true,
+        Content::CounterDisplayCallback(_) => true,
 
         // ── Locatable em P178 — Outline fecha lacuna #7 ────────────
         Content::Outline => true,
@@ -92,7 +92,7 @@ pub fn is_locatable(content: &Content) -> bool {
         // arm legacy (E6 P189B) preservado como write paralelo M5
         // porque `compute_*` helpers leem `state.flat`/`hierarchical`
         // durante walk; cleanup orgânico em M6.
-        Content::CounterUpdate { .. } => true,
+        Content::CounterUpdate(_) => true,
 
         // ── Não-locatable ──────────────────────────────────────────
         Content::Empty
@@ -116,7 +116,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::MathCases(_)
         | Content::Labelled { .. }
         | Content::Ref { .. }
-        | Content::CounterDisplay { .. }
+        | Content::CounterDisplay(_)
         | Content::SetFigureNumbering { .. }
         | Content::Image { .. }
         | Content::Shape { .. }
@@ -301,9 +301,7 @@ mod tests {
 
     #[test]
     fn metadata_e_locatable() {
-        let c = Content::Metadata {
-            value: Box::new(crate::entities::value::Value::Int(42)),
-        };
+        let c = Content::metadata(crate::entities::value::Value::Int(42));
         assert!(is_locatable(&c));
         // Invariante: extract_payload deve produzir Some.
         assert!(extract_payload(&c).is_some());

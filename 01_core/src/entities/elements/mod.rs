@@ -54,6 +54,14 @@ pub mod pagebreak;
 pub mod table_footer;
 pub mod table_header;
 pub mod v_space;
+// Lote 6 P321 — família state/counter + Metadata (7 variantes; 6 locatáveis).
+pub mod counter_display;
+pub mod counter_display_callback;
+pub mod counter_update;
+pub mod metadata;
+pub mod state;
+pub mod state_display;
+pub mod state_update;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;

@@ -354,7 +354,7 @@ pub fn native_float(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 ///
 /// Vanilla: `metadata(value)` em `introspection/metadata.rs`. Cristalino
 /// minimal: 1 argumento posicional; sem named args; produz
-/// `Content::Metadata { value: Box<Value> }` que é zero-size em layout.
+/// `Content::metadata(Box<Value>)` que é zero-size em layout.
 pub fn native_metadata(
     _ctx:                &mut EvalContext,
     args:                &Args,
@@ -364,9 +364,7 @@ pub fn native_metadata(
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [v] => Ok(Value::Content(crate::entities::content::Content::Metadata {
-            value: Box::new(v.clone()),
-        })),
+        [v] => Ok(Value::Content(crate::entities::content::Content::metadata(v.clone()))),
         _ => err(format!(
             "metadata() requer 1 argumento, recebeu {}",
             args.items.len()
@@ -389,10 +387,7 @@ pub fn native_state(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(key), init] => Ok(Value::Content(
-            crate::entities::content::Content::State {
-                key:  key.to_string(),
-                init: Box::new(init.clone()),
-            },
+            crate::entities::content::Content::state(key.to_string(), init.clone()),
         )),
         [other, _] => err(format!(
             "state() requer string como primeiro argumento (key), recebeu {}",
@@ -420,12 +415,9 @@ pub fn native_state_update(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(key), value] => Ok(Value::Content(
-            crate::entities::content::Content::StateUpdate {
-                key:    key.to_string(),
-                update: crate::entities::state_update::StateUpdate::Set(
+            crate::entities::content::Content::state_update(key.to_string(), crate::entities::state_update::StateUpdate::Set(
                     Box::new(value.clone()),
-                ),
-            },
+                )),
         )),
         [other, _] => err(format!(
             "state_update() requer string como primeiro argumento (key), recebeu {}",
@@ -461,10 +453,7 @@ pub fn native_state_update_with(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(key), Value::Func(func)] => Ok(Value::Content(
-            crate::entities::content::Content::StateUpdate {
-                key:    key.to_string(),
-                update: crate::entities::state_update::StateUpdate::Func(func.clone()),
-            },
+            crate::entities::content::Content::state_update(key.to_string(), crate::entities::state_update::StateUpdate::Func(func.clone())),
         )),
         [_, other] => err(format!(
             "state_update_with() requer função como segundo argumento, recebeu {}",
@@ -510,17 +499,11 @@ pub fn native_state_display(
     match args.items.as_slice() {
         // 1-arg: sem callback (renderiza Value→Content directo pós-fixpoint).
         [Value::Str(key)] => Ok(Value::Content(
-            crate::entities::content::Content::StateDisplay {
-                key:      key.to_string(),
-                callback: None,
-            },
+            crate::entities::content::Content::state_display(key.to_string(), None),
         )),
         // 2-arg: com callback.
         [Value::Str(key), Value::Func(callback)] => Ok(Value::Content(
-            crate::entities::content::Content::StateDisplay {
-                key:      key.to_string(),
-                callback: Some(callback.clone()),
-            },
+            crate::entities::content::Content::state_display(key.to_string(), Some(callback.clone())),
         )),
         // 2-arg com segundo arg não-Func.
         [Value::Str(_), other] => err(format!(
@@ -577,17 +560,11 @@ pub fn native_counter_display(
     match args.items.as_slice() {
         // 1-arg: sem callback (formato default "1.2.3" pós-fixpoint).
         [Value::Str(key)] => Ok(Value::Content(
-            crate::entities::content::Content::CounterDisplayCallback {
-                key:      key.to_string(),
-                callback: None,
-            },
+            crate::entities::content::Content::counter_display_callback(key.to_string(), None),
         )),
         // 2-arg: com callback.
         [Value::Str(key), Value::Func(callback)] => Ok(Value::Content(
-            crate::entities::content::Content::CounterDisplayCallback {
-                key:      key.to_string(),
-                callback: Some(callback.clone()),
-            },
+            crate::entities::content::Content::counter_display_callback(key.to_string(), Some(callback.clone())),
         )),
         // 2-arg com segundo arg não-Func.
         [Value::Str(_), other] => err(format!(
@@ -974,10 +951,7 @@ pub fn native_counter_step(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(key)] => {
-            let content = Content::CounterUpdate {
-                key:    key.to_string(),
-                action: CounterAction::Step,
-            };
+            let content = Content::counter_update(key.to_string(), CounterAction::Step);
             Ok(Value::Content(content))
         }
         [other] => err(format!(

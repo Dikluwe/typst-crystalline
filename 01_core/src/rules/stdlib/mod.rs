@@ -795,9 +795,9 @@ mod tests {
             &null_world(), test_file_id(), None,
         ).unwrap();
         match r {
-            Value::Content(Content::CounterUpdate { key, action }) => {
-                assert_eq!(key, "foo");
-                assert_eq!(action, CounterAction::Step);
+            Value::Content(Content::CounterUpdate(e)) => {
+                assert_eq!(e.key, "foo");
+                assert_eq!(e.action, CounterAction::Step);
             }
             _ => panic!("expected Value::Content(CounterUpdate)"),
         }
@@ -847,13 +847,13 @@ mod tests {
             (Value::Content(c1), Value::Content(c2)) => {
                 assert!(matches!(
                     (&c1, &c2),
-                    (Content::CounterUpdate { .. }, Content::CounterUpdate { .. })
+                    (Content::CounterUpdate(_), Content::CounterUpdate(_))
                 ));
                 // Via match interno + comparison.
                 let same = match (&c1, &c2) {
-                    (Content::CounterUpdate { key: k1, action: a1 },
-                     Content::CounterUpdate { key: k2, action: a2 }) => {
-                        k1 == k2 && a1 == a2
+                    (Content::CounterUpdate(e1),
+                     Content::CounterUpdate(e2)) => {
+                        e1.key == e2.key && e1.action == e2.action
                     }
                     _ => false,
                 };
@@ -6044,9 +6044,9 @@ mod tests {
             &p(vec![Value::Str("k".into())]),
             &null_world(), test_file_id(), None,
         ).unwrap();
-        if let Value::Content(Content::StateDisplay { key, callback }) = r {
-            assert_eq!(key, "k");
-            assert!(callback.is_none(), "1-arg → callback=None");
+        if let Value::Content(Content::StateDisplay(e)) = r {
+            assert_eq!(e.key, "k");
+            assert!(e.callback.is_none(), "1-arg → callback=None");
         } else {
             panic!("esperado Content::StateDisplay");
         }
@@ -6064,9 +6064,9 @@ mod tests {
             &p(vec![Value::Str("k".into()), Value::Func(identity_fn)]),
             &null_world(), test_file_id(), None,
         ).unwrap();
-        if let Value::Content(Content::StateDisplay { key, callback }) = r {
-            assert_eq!(key, "k");
-            assert!(callback.is_some(), "2-arg → callback=Some");
+        if let Value::Content(Content::StateDisplay(e)) = r {
+            assert_eq!(e.key, "k");
+            assert!(e.callback.is_some(), "2-arg → callback=Some");
         } else {
             panic!("esperado Content::StateDisplay com callback");
         }
@@ -6121,9 +6121,9 @@ mod tests {
             &p(vec![Value::Str("heading".into())]),
             &null_world(), test_file_id(), None,
         ).unwrap();
-        if let Value::Content(Content::CounterDisplayCallback { key, callback }) = r {
-            assert_eq!(key, "heading");
-            assert!(callback.is_none(), "1-arg → callback=None");
+        if let Value::Content(Content::CounterDisplayCallback(e)) = r {
+            assert_eq!(e.key, "heading");
+            assert!(e.callback.is_none(), "1-arg → callback=None");
         } else {
             panic!("esperado Content::CounterDisplayCallback");
         }
@@ -6141,9 +6141,9 @@ mod tests {
             &p(vec![Value::Str("figure".into()), Value::Func(identity_fn)]),
             &null_world(), test_file_id(), None,
         ).unwrap();
-        if let Value::Content(Content::CounterDisplayCallback { key, callback }) = r {
-            assert_eq!(key, "figure");
-            assert!(callback.is_some(), "2-arg → callback=Some");
+        if let Value::Content(Content::CounterDisplayCallback(e)) = r {
+            assert_eq!(e.key, "figure");
+            assert!(e.callback.is_some(), "2-arg → callback=Some");
         } else {
             panic!("esperado Content::CounterDisplayCallback com callback");
         }

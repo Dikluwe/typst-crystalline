@@ -530,24 +530,24 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // sem texto, sem efeito visual. O `value` permanece
             // disponível via `Introspector::query_metadata` para
             // querying do utilizador.
-            Content::Metadata { .. } => {}
+            Content::Metadata(_) => {}
 
             // P171 (M9): State e StateUpdate são zero-size em layout.
             // Disponíveis via `Introspector::state_value` /
             // `state_final_value`.
-            Content::State { .. } => {}
-            Content::StateUpdate { .. } => {}
+            Content::State(_) => {}
+            Content::StateUpdate(_) => {}
 
             // P240 (M9d/M7+1): StateDisplay consome Content pre-rendered
             // pelo `apply_state_displays` pós-fixpoint via
             // `Introspector::state_display_value(key, loc)`. Layouter
             // permanece puro (sem Engine+ctx em signature) — paridade
             // arquitectural estrita preservada (Opção γ P239 audit).
-            Content::StateDisplay { key, callback: _ } => {
+            Content::StateDisplay(e) => {
                 use crate::entities::introspector::Introspector;
                 if let Some(loc) = self.current_location {
                     let pre_rendered_opt = self.introspector
-                        .state_display_value(key.clone(), loc);
+                        .state_display_value(e.key.clone(), loc);
                     if let Some(pre_rendered) = pre_rendered_opt {
                         self.layout_content(&pre_rendered);
                     }
@@ -562,11 +562,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `Introspector::counter_display_value(key, loc)`. Layouter
             // permanece puro (paridade absoluta P240). Distinto de
             // `Content::CounterDisplay { kind }` legacy single-pass.
-            Content::CounterDisplayCallback { key, callback: _ } => {
+            Content::CounterDisplayCallback(e) => {
                 use crate::entities::introspector::Introspector;
                 if let Some(loc) = self.current_location {
                     let pre_rendered_opt = self.introspector
-                        .counter_display_value(key.clone(), loc);
+                        .counter_display_value(e.key.clone(), loc);
                     if let Some(pre_rendered) = pre_rendered_opt {
                         self.layout_content(&pre_rendered);
                     }
@@ -725,7 +725,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // No-op: numeração baked-in em cada nó Figure (Passo 75, DEBT-14).
             }
 
-            Content::CounterUpdate { key: _, action: _ } => {
+            Content::CounterUpdate(_) => {
                 // P190I (M6 fechado): mutação Layouter do counter
                 // ELIMINADA — `self.counter` field eliminado. Caminho
                 // Introspector activo via populate_intr arm
@@ -733,13 +733,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // da verdade. Layouter no-op.
             }
 
-            Content::CounterDisplay { kind } => {
+            Content::CounterDisplay(e) => {
                 // P190I (M6 fechado): Layouter consome via Introspector
                 // path location-aware. `current_location` set por
                 // walk-content para locatable contents (P185C). Para
                 // CounterDisplay (não-locatable), usa última location
                 // emitida (snapshot até este ponto).
                 use crate::entities::introspector::Introspector;
+                let kind = &e.kind;
                 let text = self.current_location
                     .and_then(|loc| self.introspector.formatted_counter_at(kind, loc))
                     .unwrap_or_else(|| {

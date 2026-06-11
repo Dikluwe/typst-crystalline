@@ -159,7 +159,7 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 `Content` tem **77 variantes** (baseline P313). Estado em **P319** (Lote 4 incluído):
 
-### Migradas para o modelo D — 31
+### Migradas para o modelo D — 38
 
 - **P316 piloto (3)**: `Divider`, `Heading` (locatável), `MathStyled`.
 - **Lote 2 P317 — math (11)**: `MathCases`, `MathMatrix`, `MathAlignPoint`,
@@ -172,6 +172,12 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   `GridFooter`, `GridHeader`, `TableFooter`, `TableHeader`, `Linebreak`,
   `Colbreak`, `VSpace`, `HSpace`, `Pagebreak`. (Dependência: `Parity` ganhou
   `Hash` por derive.)
+- **Lote 6 P321 — state/counter + Metadata (7; 6 locatáveis)**:
+  `CounterDisplay` (não-loc legacy), `Metadata`, `CounterDisplayCallback`,
+  `State`, `StateDisplay`, `StateUpdate`, `CounterUpdate`. **1º lote locatável
+  desde o piloto** — os 6 locatáveis absorvem `element_kind`/`to_payload`
+  (`extract_payload` despacha). Quirk de `eq` preservado em
+  `Metadata`/`State`/`StateUpdate` (caem em `_ => false`).
 
 ### Fora de lote — decisão própria
 
@@ -184,16 +190,15 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   `Styled` (58), `Boxed` (58), `Labelled` (55); **observação** (leaf, candidato
   à triagem): `Text` (40).
 
-### Element-shaped restantes — ~31 (os lotes 6+ saem daqui, por largura)
+### Element-shaped restantes — ~24 (os lotes 7+ saem daqui, por largura)
 
-(O Lote 5 P320 — união 5+6, 9 variantes — saiu daqui para "migradas".)
+(O Lote 6 P321 — state/counter + Metadata, 7 variantes — saiu daqui.)
 
-`Raw`9 · `Align`11 · `CounterDisplay`15 · `Metadata`16 · `Image`17 · `Hide`18 ·
-`Repeat`18 · `CounterDisplayCallback`19 · `Quote`20 · `State`21 ·
-`StateDisplay`21 · `Columns`22 · `Ref`23 · `Outline`24 · `StateUpdate`25 ·
-`SmartQuote`28 · `Stack`30 · `Cite`32 · `TableCell`32 · `Transform`32 ·
-`Place`34 · `CounterUpdate`39 · `Pad`39 · `Bibliography`40 · `Table`41 ·
-`Equation`45 · `Footnote`46 · `GridCell`47 · `Shape`57 · `Grid`73 · `Figure`89.
+`Raw`9 · `Align`11 · `Image`17 · `Hide`18 · `Repeat`18 · `Quote`20 ·
+`Columns`22 · `Ref`23 · `Outline`24 · `SmartQuote`28 · `Stack`30 · `Cite`32 ·
+`TableCell`32 · `Transform`32 · `Place`34 · `Pad`39 · `Bibliography`40 ·
+`Table`41 · `Equation`45 · `Footnote`46 · `GridCell`47 · `Shape`57 · `Grid`73 ·
+`Figure`89.
 
 > **Bloco grid/table cell** (lote próprio, ~193 sites; decisão do dono):
 > `TableCell`(32) · `GridCell`(47) · `Table`(41) · `Grid`(73) — contentores
@@ -201,7 +206,7 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 ### Estimativa
 
-~31 element-shaped restantes ÷ 5–9 variantes/lote (ritmo validado P317–P320)
-≈ **4–6 lotes** até esgotar os elegíveis — gatilho da triagem do DEBT-58 e da
-decisão F. Conta: 31 migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers +
-Text) + 31 restantes = 77. ✓
+~24 element-shaped restantes ÷ 5–9 variantes/lote (ritmo validado P317–P321)
+≈ **3–5 lotes** até esgotar os elegíveis — gatilho da triagem do DEBT-58 e da
+decisão F. Conta: 38 migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers +
+Text) + 24 restantes = 77. ✓

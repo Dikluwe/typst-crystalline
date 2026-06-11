@@ -88,10 +88,7 @@ pub(super) fn eval_counter_method<'a>(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     match method {
-        "step" => Ok(Value::Content(Content::CounterUpdate {
-            key:    key.to_string(),
-            action: CounterAction::Step,
-        })),
+        "step" => Ok(Value::Content(Content::counter_update(key.to_string(), CounterAction::Step))),
 
         "update" => {
             // Extrair o valor numérico do primeiro argumento.
@@ -108,16 +105,11 @@ pub(super) fn eval_counter_method<'a>(
                     _ => None,
                 })
                 .unwrap_or(0);
-            Ok(Value::Content(Content::CounterUpdate {
-                key:    key.to_string(),
-                action: CounterAction::Update(val),
-            }))
+            Ok(Value::Content(Content::counter_update(key.to_string(), CounterAction::Update(val))))
         }
 
         // get(), display() e outros — fallback até motor de introspecção completo
-        _ => Ok(Value::Content(Content::CounterDisplay {
-            kind: key.to_string(),
-        })),
+        _ => Ok(Value::Content(Content::counter_display(key.to_string()))),
     }
 }
 

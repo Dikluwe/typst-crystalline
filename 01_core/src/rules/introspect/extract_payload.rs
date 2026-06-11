@@ -34,40 +34,13 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
             key: key.clone(),
         }),
 
-        // P169 (M9 sub-passo 1) — metadata(value) feature.
-        Content::Metadata { value } => Some(ElementPayload::Metadata {
-            value: value.clone(),
-        }),
-
-        // P171 (M9 sub-passo 3) — state(key, init) feature.
-        Content::State { key, init } => Some(ElementPayload::State {
-            key:  key.clone(),
-            init: init.clone(),
-        }),
-
-        // P171 (M9 sub-passo 3) — state.update(key, value) feature.
-        Content::StateUpdate { key, update } => Some(ElementPayload::StateUpdate {
-            key:    key.clone(),
-            update: update.clone(),
-        }),
-
-        // P240 (M9d/M7+1) — state.display(key, callback) feature.
-        // Walk emite Tag aqui; `apply_state_displays` pós-fixpoint
-        // (paralelo `apply_state_funcs` P191B) pre-renderiza Content
-        // resultado callback aplicada ao state value at this loc.
-        Content::StateDisplay { key, callback } => Some(ElementPayload::StateDisplay {
-            key:      key.clone(),
-            callback: callback.clone(),
-        }),
-
-        // P241 (M9d/M7+2) — counter.display(key, callback) feature
-        // paralelo absoluto StateDisplay. Walk emite Tag aqui;
-        // `apply_counter_displays` pós-fixpoint converte counter
-        // slice para Value::Array e aplica callback.
-        Content::CounterDisplayCallback { key, callback } => Some(ElementPayload::CounterDisplay {
-            key:      key.clone(),
-            callback: callback.clone(),
-        }),
+        // Modelo D (Lote 6 P321): família state/counter locatável absorve o
+        // payload no trait — o elemento fornece (precedente Heading P316).
+        Content::Metadata(e)               => e.to_payload(),
+        Content::State(e)                  => e.to_payload(),
+        Content::StateUpdate(e)            => e.to_payload(),
+        Content::StateDisplay(e)           => e.to_payload(),
+        Content::CounterDisplayCallback(e) => e.to_payload(),
 
         // P182C (M9) — SetHeadingNumbering emite StateUpdate sob chave
         // canónica `numbering_active:heading`. Reusa infra P171/P173 —
@@ -126,10 +99,8 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         // conforme key/action. Walk arm legacy (E6 P189B) preservado
         // como write paralelo M5 porque `compute_*` helpers lêem
         // `state.flat`/`hierarchical` durante walk; cleanup em M6.
-        Content::CounterUpdate { key, action } => Some(ElementPayload::CounterUpdate {
-            key:    key.clone(),
-            action: action.clone(),
-        }),
+        // Modelo D (Lote 6 P321): CounterUpdate locatável delega ao elemento.
+        Content::CounterUpdate(e) => e.to_payload(),
 
         // Todas as outras variantes não são locatable em M1.
         // Adicionar uma variant locatable nova exige edição explícita

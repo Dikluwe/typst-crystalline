@@ -978,7 +978,7 @@ fn layout_counter_display_heading_retorna_estado_actual() {
     let content = Content::Sequence(vec![
         Content::SetHeadingNumbering { active: true },
         Content::heading(1, Content::text("Intro")),
-        Content::CounterDisplay { kind: "heading".to_string() },
+        Content::counter_display("heading".to_string()),
     ].into());
     let doc = layout(&content);
     let text = doc.plain_text();
@@ -993,10 +993,7 @@ fn layout_counter_display_heading_retorna_estado_actual() {
 fn counter_update_nao_produz_items_visuais() {
     use crate::entities::counter_update::CounterUpdate as CounterAction;
 
-    let content = Content::CounterUpdate {
-        key:    "equation".to_string(),
-        action: CounterAction::Update(5),
-    };
+    let content = Content::counter_update("equation".to_string(), CounterAction::Update(5));
     let doc = layout(&content);
     let total_items: usize = doc.pages.iter().map(|p| p.items.len()).sum();
     assert_eq!(total_items, 0, "CounterUpdate não deve gerar items visuais");
@@ -1007,11 +1004,8 @@ fn counter_update_seguido_de_display_mostra_valor_correcto() {
     use crate::entities::counter_update::CounterUpdate as CounterAction;
 
     let content = Content::Sequence(vec![
-        Content::CounterUpdate {
-            key:    "equation".to_string(),
-            action: CounterAction::Update(5),
-        },
-        Content::CounterDisplay { kind: "equation".to_string() },
+        Content::counter_update("equation".to_string(), CounterAction::Update(5)),
+        Content::counter_display("equation".to_string()),
     ].into());
     let doc = layout(&content);
     assert!(doc.plain_text().contains('5'),
@@ -1317,16 +1311,13 @@ fn layout_toc_com_readonly_nao_duplica_contadores() {
 
     let body_with_counter_update = Content::Sequence(vec![
         Content::text("Secção"),
-        Content::CounterUpdate {
-            key:    "equation".to_string(),
-            action: CounterAction::Step,
-        },
+        Content::counter_update("equation".to_string(), CounterAction::Step),
     ].into());
 
     let content = Content::Sequence(vec![
         Content::Outline,
         Content::heading(1, body_with_counter_update),
-        Content::CounterDisplay { kind: "equation".to_string() },
+        Content::counter_display("equation".to_string()),
     ].into());
 
     let state = introspect(&content);
@@ -7887,9 +7878,7 @@ mod p169_metadata_feature {
         let content = Content::Sequence(
             vec![
                 Content::text("antes"),
-                Content::Metadata {
-                    value: Box::new(Value::Str(EcoString::from("hello"))),
-                },
+                Content::metadata(Value::Str(EcoString::from("hello"))),
                 Content::text("depois"),
             ]
             .into(),
@@ -7907,9 +7896,7 @@ mod p169_metadata_feature {
         let with_metadata = Content::Sequence(
             vec![
                 Content::text("antes"),
-                Content::Metadata {
-                    value: Box::new(Value::Str(EcoString::from("invisivel"))),
-                },
+                Content::metadata(Value::Str(EcoString::from("invisivel"))),
                 Content::text("depois"),
             ]
             .into(),
@@ -7931,9 +7918,9 @@ mod p169_metadata_feature {
     fn multiplas_metadatas_preservam_ordem_no_query() {
         let content = Content::Sequence(
             vec![
-                Content::Metadata { value: Box::new(Value::Int(1)) },
-                Content::Metadata { value: Box::new(Value::Int(2)) },
-                Content::Metadata { value: Box::new(Value::Int(3)) },
+                Content::metadata(Value::Int(1)),
+                Content::metadata(Value::Int(2)),
+                Content::metadata(Value::Int(3)),
             ]
             .into(),
         );
@@ -7959,10 +7946,7 @@ mod p171_state_feature {
         // P171 .H.1: state(key, init) sem updates → state_value retorna init.
         let content = Content::Sequence(
             vec![
-                Content::State {
-                    key:  "counter".to_string(),
-                    init: Box::new(Value::Int(0)),
-                },
+                Content::state("counter".to_string(), Value::Int(0)),
                 Content::heading(1, Content::text("h1")),
             ]
             .into(),
@@ -7981,15 +7965,9 @@ mod p171_state_feature {
         // → state_value(loc_pre_update) = init; state_value(loc_post_update) = new.
         let content = Content::Sequence(
             vec![
-                Content::State {
-                    key:  "counter".to_string(),
-                    init: Box::new(Value::Int(0)),
-                },
+                Content::state("counter".to_string(), Value::Int(0)),
                 Content::heading(1, Content::text("antes")),
-                Content::StateUpdate {
-                    key:    "counter".to_string(),
-                    update: StateUpdate::Set(Box::new(Value::Int(5))),
-                },
+                Content::state_update("counter".to_string(), StateUpdate::Set(Box::new(Value::Int(5)))),
                 Content::heading(1, Content::text("depois")),
             ]
             .into(),
@@ -8011,14 +7989,8 @@ mod p171_state_feature {
         let with_state = Content::Sequence(
             vec![
                 Content::text("X"),
-                Content::State {
-                    key:  "c".to_string(),
-                    init: Box::new(Value::Int(0)),
-                },
-                Content::StateUpdate {
-                    key:    "c".to_string(),
-                    update: StateUpdate::Set(Box::new(Value::Int(42))),
-                },
+                Content::state("c".to_string(), Value::Int(0)),
+                Content::state_update("c".to_string(), StateUpdate::Set(Box::new(Value::Int(42)))),
                 Content::text("Y"),
             ]
             .into(),
@@ -8040,18 +8012,9 @@ mod p171_state_feature {
         // P171 .H.4: state("a", _) e state("b", _) não interferem.
         let content = Content::Sequence(
             vec![
-                Content::State {
-                    key:  "a".to_string(),
-                    init: Box::new(Value::Int(1)),
-                },
-                Content::State {
-                    key:  "b".to_string(),
-                    init: Box::new(Value::Int(100)),
-                },
-                Content::StateUpdate {
-                    key:    "a".to_string(),
-                    update: StateUpdate::Set(Box::new(Value::Int(2))),
-                },
+                Content::state("a".to_string(), Value::Int(1)),
+                Content::state("b".to_string(), Value::Int(100)),
+                Content::state_update("a".to_string(), StateUpdate::Set(Box::new(Value::Int(2)))),
             ]
             .into(),
         );
@@ -8107,14 +8070,8 @@ mod p172_func_callback {
         let with_func = Content::Sequence(
             vec![
                 Content::text("X"),
-                Content::State {
-                    key:  "c".to_string(),
-                    init: Box::new(Value::Int(0)),
-                },
-                Content::StateUpdate {
-                    key:    "c".to_string(),
-                    update: StateUpdate::Func(f),
-                },
+                Content::state("c".to_string(), Value::Int(0)),
+                Content::state_update("c".to_string(), StateUpdate::Func(f)),
                 Content::text("Y"),
             ]
             .into(),
@@ -8135,22 +8092,10 @@ mod p172_func_callback {
         let f = Func::native("dummy", dummy_native);
         let content = Content::Sequence(
             vec![
-                Content::State {
-                    key:  "c".to_string(),
-                    init: Box::new(Value::Int(0)),
-                },
-                Content::StateUpdate {
-                    key:    "c".to_string(),
-                    update: StateUpdate::Set(Box::new(Value::Int(5))),
-                },
-                Content::StateUpdate {
-                    key:    "c".to_string(),
-                    update: StateUpdate::Func(f), // ignorada
-                },
-                Content::StateUpdate {
-                    key:    "c".to_string(),
-                    update: StateUpdate::Set(Box::new(Value::Int(10))),
-                },
+                Content::state("c".to_string(), Value::Int(0)),
+                Content::state_update("c".to_string(), StateUpdate::Set(Box::new(Value::Int(5)))),
+                Content::state_update("c".to_string(), StateUpdate::Func(f)), // ignorada
+                Content::state_update("c".to_string(), StateUpdate::Set(Box::new(Value::Int(10)))),
             ]
             .into(),
         );
@@ -8721,10 +8666,7 @@ mod p186f_equation_locatable {
         // (auto-init via P182C arm em from_tags). 3 equations block
         // subsequentes acumulam counter [1, 2, 3].
         let parts = vec![
-            Content::StateUpdate {
-                key:    "numbering_active:equation".to_string(),
-                update: StateUpdate::Set(Box::new(Value::Bool(true))),
-            },
+            Content::state_update("numbering_active:equation".to_string(), StateUpdate::Set(Box::new(Value::Bool(true)))),
             equation_block(),
             equation_block(),
             equation_block(),
@@ -8780,10 +8722,7 @@ mod p186f_equation_locatable {
         // .C variação: state activo + equations inline → gate bloqueia
         // por block=false.
         let parts = vec![
-            Content::StateUpdate {
-                key:    "numbering_active:equation".to_string(),
-                update: StateUpdate::Set(Box::new(Value::Bool(true))),
-            },
+            Content::state_update("numbering_active:equation".to_string(), StateUpdate::Set(Box::new(Value::Bool(true)))),
             Content::Equation { body: Box::new(Content::Empty), block: false },
             Content::Equation { body: Box::new(Content::Empty), block: false },
         ];
@@ -8929,10 +8868,7 @@ mod p188b_c2_equation_counter {
         // → counter introspector populado → `flat_counter_at` retorna
         // valores correctos.
         let parts = vec![
-            Content::StateUpdate {
-                key:    "numbering_active:equation".to_string(),
-                update: StateUpdate::Set(Box::new(Value::Bool(true))),
-            },
+            Content::state_update("numbering_active:equation".to_string(), StateUpdate::Set(Box::new(Value::Bool(true)))),
             equation_block("a"),
             equation_block("b"),
             equation_block("c"),
@@ -9075,14 +9011,8 @@ mod p189b_walk_puro_m5 {
         // E6: CounterUpdate walk arm. Confirma que walk legacy ainda
         // populates state.flat para chaves custom via CounterUpdate.
         let content = Content::Sequence(Arc::from(vec![
-            Content::CounterUpdate {
-                key:    "custom".to_string(),
-                action: crate::entities::counter_update::CounterUpdate::Step,
-            },
-            Content::CounterUpdate {
-                key:    "custom".to_string(),
-                action: crate::entities::counter_update::CounterUpdate::Step,
-            },
+            Content::counter_update("custom".to_string(), crate::entities::counter_update::CounterUpdate::Step),
+            Content::counter_update("custom".to_string(), crate::entities::counter_update::CounterUpdate::Step),
         ]));
         // P190I (M6 fechado): state legacy eliminado; verificar via intr.
         let intr = introspect(&content);
