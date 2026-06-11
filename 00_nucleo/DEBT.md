@@ -234,6 +234,50 @@
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
 
+## DEBT-58 — Primitivos de AST fora do modelo D — decisão pendente — EM ABERTO (Passo 317)
+
+**Estado**: aberto · **Magnitude**: M (por variante) · **Origem**: ressalva do
+checkpoint do Lote 2 (P317) + critério de elegibilidade do modelo de lote D
+(ADR-0105). Âncora durável para o conjunto que o modelo D **não absorve por
+default**.
+
+**Conjunto** (com triagem por variante como parte do fecho):
+
+- **Confirmados primitivos, deferidos no P317** (L0 já redigidos, anexados em
+  `00_nucleo/debt-anexos/primitivos-ast/`): `MathSequence` (contentor, largura
+  de uso 21), `MathText` (folha, 50), `MathIdent` (folha, 108).
+- **Confirmados primitivos, ainda não migrados**: `Sequence` (largura 208),
+  `Empty` (116), `Block` (101) — os maiores da tabela de largura P317.
+- **A triar** (incluir só se a triagem confirmar primitivo, não element-shaped):
+  os wrappers estruturais `Styled`, `Boxed`, `Labelled`. A triagem de cada um é
+  **parte do fecho**.
+
+**Três saídas possíveis** (sem ordem de preferência):
+
+- **(a) Migrar para D com medição de performance ANTES.** Risco registado:
+  `Arc` em folha quente — `MathIdent` é construída por identificador no hot path
+  de eval/layout; ADR-0029/0030 fazem da performance de RAM domínio de L1. A
+  medição (benchmark `eval()`/`map_*`) é pré-requisito desta saída.
+- **(b) Manter inline por design**, gravado em **nota na ADR-0105** — deixa de
+  ser pendência e vira forma (folhas/contentores ficam fora do D por desenho).
+- **(c) Forma terceira** a desenhar (ex.: payload inline pequeno sem `Arc`).
+
+**Critério de fecho**: cada variante do conjunto com destino decidido e gravado
+(ADR ou migração executada); **nenhuma "deferida" sem dono**.
+
+**Gatilho de decisão**: o fim dos lotes element-shaped (quando a tabela de
+largura do P317 esgotar os elegíveis), ou antes se algum passo precisar tocar
+um primitivo.
+
+**Referências**: relatório P317
+([`materialization/typst-passo-317-relatorio.md`](materialization/typst-passo-317-relatorio.md)
+— tabela de largura, ressalva do checkpoint); modelo de lote
+([`modelo-lote-migracao-d.md`](modelo-lote-migracao-d.md) — critério de
+elegibilidade); ADR-0104/0105; os 3 L0 anexados em
+`debt-anexos/primitivos-ast/`.
+
+---
+
 ## DEBT-57 — Specs L0 ausentes para ~70 funções stdlib — EM ABERTO (Passo 316)
 
 **Estado**: aberto · **Magnitude**: M (fatiável por ficheiro) · **Origem**:

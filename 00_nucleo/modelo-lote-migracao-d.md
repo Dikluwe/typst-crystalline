@@ -112,4 +112,17 @@ fora-de-escopo confirmado.
   ao L0.
 - **Conserto oportunista proibido** (nada fora do escopo do lote).
 - Toda medição acompanhada do **comando** que a produz.
-- Primitivos de AST não entram em lote D (ver elegibilidade acima).
+- Primitivos de AST não entram **por default**; inclusão só por decisão
+  explícita do dono, com a ressalva no L0 da variante e a medição que a
+  justifique (ver critério de elegibilidade acima).
+- **L0 de variante deferida não fica em `00_nucleo/prompts/`** (geraria V7
+  órfão permanente e quebraria o "zero violations"): é anexado à entrada de
+  DEBT que regista o deferimento, e volta a `prompts/` no passo que o
+  materializar.
+- Se a Fase B precisar **editar** um prompt grosso (`rules/eval.md`,
+  `rules/parse.md`, `rules/layout.md` ou outro com linhagem larga), o imposto
+  morde: **fatiar primeiro** pela receita do P314 (partição content-preserving,
+  `_comum.md` por área, `git rm` do prompt velho — a trilha fica no git).
+- **Um commit isolável por lote** (pré-tarefas separadas do lote principal).
+  Lição medida no diagnóstico P313: o P298 não era isolável no histórico e
+  custou à medição.

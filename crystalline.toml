@@ -91,12 +91,6 @@ rust = [
 # World e TrackedWorld — implementação concreta (SystemWorld) em L3 no Passo 5
 "01_core/src/contracts/world.rs" = "implementação concreta (SystemWorld) em L3, Passo 5"
 "01_core/contracts/world.rs" = "implementação concreta (SystemWorld) em L3, Passo 5"
-# P317 — L0 de primitivos de AST math redigidos mas diferidos (decisão do dono):
-# guardados, não materializados, aguardando decisão própria (migrar c/ medição /
-# inline por design via nota ADR-0105 / forma terceira). Ver content.md §Lote 2.
-"00_nucleo/prompts/entities/elements/math_sequence.md" = "P317 — primitivo AST diferido (decisão futura)"
-"00_nucleo/prompts/entities/elements/math_text.md" = "P317 — primitivo AST diferido (decisão futura)"
-"00_nucleo/prompts/entities/elements/math_ident.md" = "P317 — primitivo AST diferido (decisão futura)"
 # Prompts de Passo 3 que ainda não têm materialização em L3
 "00_nucleo/prompts/package-spec-dto.md" = "materializa em L3, Passo 3 (typst-infra não existe ainda)"
 "00_nucleo/prompts/shell.md" = "materializa em L2, passo futuro"
