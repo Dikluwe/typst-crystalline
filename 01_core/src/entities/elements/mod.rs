@@ -73,6 +73,12 @@ pub mod r#ref;
 pub mod outline;
 pub mod columns;
 pub mod quote;
+// Lote 9 P324 — por largura (5 variantes element-shaped).
+pub mod smartquote;
+pub mod stack;
+pub mod cite;
+pub mod transform;
+pub mod place;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;

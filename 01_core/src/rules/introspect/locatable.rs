@@ -120,11 +120,11 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::SetFigureNumbering { .. }
         | Content::Image(_)
         | Content::Shape { .. }
-        | Content::Transform { .. }
+        | Content::Transform(_)
         | Content::Grid { .. }
         | Content::SetPage { .. }
         | Content::Align(_)
-        | Content::Place { .. }
+        | Content::Place(_)
         | Content::Styled(_, _)
         | Content::Divider(_)
         | Content::Terms(_)
@@ -137,7 +137,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Overline(_)
         // P287 — SmartQuote leaf não-locatable (glyph único; sem identidade
         // queryable; paridade Space/Linebreak).
-        | Content::SmartQuote { .. }
+        | Content::SmartQuote(_)
         | Content::Pad { .. }
         | Content::Hide(_)
         | Content::HSpace(_)
@@ -145,7 +145,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Pagebreak(_)
         // P220: Colbreak não-locatable (event leaf; paridade Pagebreak).
         | Content::Colbreak(_)
-        | Content::Stack { .. }
+        | Content::Stack(_)
         | Content::Boxed { .. }
         | Content::Block { .. }
         | Content::TableCell { .. }
@@ -205,11 +205,7 @@ mod tests {
 
     #[test]
     fn cite_e_locatable() {
-        let c = Content::Cite {
-            key:        "k".to_string(),
-            supplement: None,
-            form:       None,
-        };
+        let c = Content::cite("k".to_string(), None, None);
         assert!(is_locatable(&c));
     }
 
@@ -261,7 +257,7 @@ mod tests {
             // Locatable (3)
             Content::heading(1, Content::Empty),
             Content::Figure { body: Box::new(Content::Empty), caption: None, kind: None, numbering: None },
-            Content::Cite { key: "k".into(), supplement: None, form: None },
+            Content::cite("k", None, None),
             // Não-locatable: amostra representativa
             Content::Empty,
             Content::Text(EcoString::from("t"), Default::default()),

@@ -81,6 +81,11 @@ use crate::entities::elements::r#ref::RefElem;
 use crate::entities::elements::outline::OutlineElem;
 use crate::entities::elements::columns::ColumnsElem;
 use crate::entities::elements::quote::QuoteElem;
+use crate::entities::elements::smartquote::SmartQuoteElem;
+use crate::entities::elements::stack::StackElem;
+use crate::entities::elements::cite::CiteElem;
+use crate::entities::elements::transform::TransformElem;
+use crate::entities::elements::place::PlaceElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -392,10 +397,9 @@ pub enum Content {
     ///
     /// O layouter calcula a AABB do conteúdo transformado e reserva o espaço
     /// correcto na página. O exportador emite q → cm → conteúdo → Q.
-    Transform {
-        matrix: TransformMatrix,
-        body:   Box<Content>,
-    },
+    /// **Modelo D (Lote 9 P324)**: `entities::elements::transform::TransformElem`
+    /// (não-locatável, contentor — recurse body).
+    Transform(Arc<TransformElem>),
 
     /// Grid de colunas com células posicionadas por ordem de leitura (Passo 80).
     ///
@@ -538,20 +542,10 @@ pub enum Content {
     /// `weak`/`breakable`/`float`). DEBT-37 §"Divergência" fechada
     /// em P223 — `scope: Parent` agora exige `float: true` (paridade
     /// vanilla literal restaurada).
-    Place {
-        alignment: Align2D,
-        dx:        f64,
-        dy:        f64,
-        scope:     PlaceScope,
-        /// P223 — paridade vanilla `float: bool`; semantic real adiada
-        /// (flow contorna; multi-pass layout) per ADR-0054 graded.
-        float:     bool,
-        /// P223 — paridade vanilla `clearance: length`; semantic real
-        /// adiada (depende `float: true` real). Default `None` paridade
-        /// Smart→Option N=7 cumulativo.
-        clearance: Option<Length>,
-        body:      Box<Content>,
-    },
+    /// **Modelo D (Lote 9 P324)**: `entities::elements::place::PlaceElem`
+    /// (não-locatável, contentor — recurse body; 6 campos cosméticos:
+    /// alignment/dx/dy/scope/float/clearance, P223 ADR-0054 graded).
+    Place(Arc<PlaceElem>),
 
     /// Conteúdo estilizado — aplica um delta `Styles` ao corpo (Passo 99,
     /// ADR-0038).
@@ -615,9 +609,9 @@ pub enum Content {
     // leaf-like com 1 campo `bool` required; padrão N=4 cumulativo
     // (P156G/H/I+P284) inalterado (diagnóstico §A.2.2 honestidade
     // epistémica).
-    SmartQuote {
-        double: bool,
-    },
+    /// **Modelo D (Lote 9 P324)**: `entities::elements::smartquote::SmartQuoteElem`
+    /// (não-locatável, leaf).
+    SmartQuote(Arc<SmartQuoteElem>),
 
     // ── Passo 284 (ADR-0054 graded) — text decoration ─────────────────────
     //
@@ -736,13 +730,9 @@ pub enum Content {
     /// Decisão arquitectural reusada de P156G/H (variant rico) com
     /// adaptação para `Arc<[Content]>` (clone O(1) per ADR-0026
     /// revisão, consistente com `Sequence`/`MathSequence`).
-    Stack {
-        children: Arc<[Content]>,
-        /// Direcção de empilhamento. Default `TTB`.
-        dir:      Dir,
-        /// Espaço entre children (avanço cursor); `None` == zero.
-        spacing:  Option<Length>,
-    },
+    /// **Modelo D (Lote 9 P324)**: `entities::elements::stack::StackElem`
+    /// (não-locatável, contentor — recurse children).
+    Stack(Arc<StackElem>),
 
     // ── Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container ──
     /// Container inline — vanilla `BoxElem`.
@@ -982,11 +972,10 @@ pub enum Content {
     /// **Sem validação cross-reference** `key ∈ Bibliography.keys`
     /// — fallback `[key]` é silencioso; ADR-0017 Introspection
     /// runtime adiada (cite cross-document ficaria como TODO).
-    Cite {
-        key:        String,
-        supplement: Option<Box<Content>>,
-        form:       Option<crate::entities::citation_form::CitationForm>,
-    },
+    /// **Modelo D (Lote 9 P324)**: `entities::elements::cite::CiteElem`
+    /// (locatável M1; recurse supplement). `CitationForm` ganhou `Hash`
+    /// por derive (dependência do lote).
+    Cite(Arc<CiteElem>),
 
     // ── Passo 295 — `Footnote` cluster Fase 1 (marker only) ─────────────
     /// Footnote inline — vanilla `FootnoteElem`.
@@ -1477,7 +1466,31 @@ impl Content {
         dir:      Dir,
         spacing:  Option<Length>,
     ) -> Self {
-        Self::Stack { children: children.into(), dir, spacing }
+        Self::Stack(Arc::new(StackElem { children: children.into(), dir, spacing }))
+    }
+
+    /// **Lote 9 P324** — `Content::SmartQuote` (aspa lang-aware).
+    pub fn smartquote(double: bool) -> Self {
+        Self::SmartQuote(Arc::new(SmartQuoteElem { double }))
+    }
+
+    /// **Lote 9 P324** — `Content::Transform` (transformação afim 2D).
+    pub fn transform(matrix: TransformMatrix, body: Content) -> Self {
+        Self::Transform(Arc::new(TransformElem { matrix, body }))
+    }
+
+    /// **Lote 9 P324** — `Content::Place` (posicionamento absoluto/flutuante).
+    #[allow(clippy::too_many_arguments)]
+    pub fn place(
+        alignment: Align2D,
+        dx:        f64,
+        dy:        f64,
+        scope:     PlaceScope,
+        float:     bool,
+        clearance: Option<Length>,
+        body:      Content,
+    ) -> Self {
+        Self::Place(Arc::new(PlaceElem { alignment, dx, dy, scope, float, clearance, body }))
     }
 
     /// `repeat(body, gap, justify)` — Passo 156J (ADR-0061 Fase 3
@@ -1590,11 +1603,11 @@ impl Content {
         supplement: Option<Content>,
         form: Option<crate::entities::citation_form::CitationForm>,
     ) -> Self {
-        Self::Cite {
+        Self::Cite(Arc::new(CiteElem {
             key: key.into(),
-            supplement: supplement.map(Box::new),
+            supplement,
             form,
-        }
+        }))
     }
 
     pub fn sequence(parts: Vec<Content>) -> Self {
@@ -1640,7 +1653,7 @@ impl Content {
             // `[key]` é sempre observable).
             Self::Bibliography { entries, title } =>
                 entries.is_empty() && title.is_none(),
-            Self::Cite { .. } => false,
+            Self::Cite(e) => e.is_empty(),
             // P295 — Footnote nunca vazio (marker `[N]` é sempre observable).
             Self::Footnote { .. } => false,
             // Passo 154B: Divider é singleton estrutural, nunca vazio.
@@ -1659,7 +1672,7 @@ impl Content {
             Self::Strike(e)    => e.is_empty(),
             Self::Overline(e)  => e.is_empty(),
             // P287 — SmartQuote: nunca vazio (sempre emite 1 glyph).
-            Self::SmartQuote { .. } => false,
+            Self::SmartQuote(e) => e.is_empty(),
             // Passo 156C (ADR-0061 Fase 1): Pad/Hide vazios se o body for.
             Self::Pad  { body, .. } => body.is_empty(),
             Self::Hide(e)           => e.is_empty(),
@@ -1678,7 +1691,7 @@ impl Content {
             // Passo 156I: Stack é vazio se TODOS os children forem vazios
             // (consistente com Sequence; stack vazio é semanticamente
             // sem conteúdo).
-            Self::Stack { children, .. } => children.iter().all(|c| c.is_empty()),
+            Self::Stack(e) => e.is_empty(),
             // Passo 156J: Repeat é vazio se body for (atributos não
             // tornam o container não-vazio — análogo a Block/Boxed).
             Self::Repeat(e) => e.is_empty(),
@@ -1719,7 +1732,7 @@ impl Content {
             // Packed<SmartQuoteElem>` — emite fallback ASCII (`"` ou `'`).
             // Layouter resolve lang-aware (consumer pós-P287); plain_text
             // é vista textual sem contexto lang.
-            Self::SmartQuote { double } => if *double { "\"".to_string() } else { "'".to_string() },
+            Self::SmartQuote(e) => e.plain_text(),
             Self::Equation { body, block } => {
                 if *block { format!("\n{}\n", body.plain_text()) }
                 else       { body.plain_text() }
@@ -1764,7 +1777,7 @@ impl Content {
             Self::SetFigureNumbering { .. } => String::new(),
             Self::Image(e) => e.plain_text(),
             Self::Shape { .. } => String::new(),
-            Self::Transform { body, .. } => body.plain_text(),
+            Self::Transform(e) => e.plain_text(),
             Self::Grid { cells, .. } => {
                 cells.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ")
             }
@@ -1808,20 +1821,14 @@ impl Content {
                 }
                 out
             }
-            Self::Cite { key, supplement, form: _ } => {
-                let mut out = format!("[{}]", key);
-                if let Some(s) = supplement {
-                    out.push_str(&s.plain_text());
-                }
-                out
-            }
+            Self::Cite(e) => e.plain_text(),
             // P295 — Footnote plain_text: incorporar corpo (paridade
             // semântica de plain_text para search/screen readers).
             // Marker `[N]` real é resolvido em layout-time.
             Self::Footnote { body } => body.plain_text(),
             Self::SetPage { .. } => String::new(),
             Self::Align(e) => e.plain_text(),
-            Self::Place { body, .. } => body.plain_text(),
+            Self::Place(e) => e.plain_text(),
             Self::Styled(body, _) => body.plain_text(),
             // Passo 154B: Divider é structural sem texto; Terms concatena
             // pares por linha; TermItem produz "term: description".
@@ -1847,7 +1854,7 @@ impl Content {
             Self::Boxed { body, .. } => body.plain_text(),
             // Passo 156I: Stack concatena plain_text de children
             // (análogo a Sequence; preserva ordem).
-            Self::Stack { children, .. } => children.iter().map(|c| c.plain_text()).collect(),
+            Self::Stack(e) => e.plain_text(),
             // Passo 156J: Repeat é transparente para texto plano —
             // recurse no body sem multiplicar (paridade não visível em
             // texto plano; semântica de repetição é runtime-only).
@@ -1913,8 +1920,8 @@ impl PartialEq for Content {
              Self::Shape { kind: kb, width: wb, height: hb, fill: fb, stroke: sb }) =>
                 ka == kb && wa.as_deref() == wb.as_deref() && ha.as_deref() == hb.as_deref()
                     && fa == fb && sa == sb,
-            (Self::Transform { matrix: ma, body: ba }, Self::Transform { matrix: mb, body: bb }) =>
-                ma == mb && ba == bb,
+            // Modelo D (Lote 9 P324): Transform delega ao `Arc<…Elem>`.
+            (Self::Transform(a), Self::Transform(b)) => a == b,
             // P224+P227+P228 — Grid refino +7 fields (gutter/align/inset/header/footer/stroke/fill).
             (Self::Grid { columns: ca, rows: ra, cells: xa,
                           gutter: ga, align: aa, inset: ia, header: ha, footer: fa,
@@ -1960,9 +1967,8 @@ impl PartialEq for Content {
             (Self::Bibliography { entries: ea, title: ta },
              Self::Bibliography { entries: eb, title: tb }) =>
                 ea == eb && ta == tb,
-            (Self::Cite { key: ka, supplement: sa, form: fa },
-             Self::Cite { key: kb, supplement: sb, form: fb }) =>
-                ka == kb && sa == sb && fa == fb,
+            // Modelo D (Lote 9 P324): Cite delega ao `Arc<…Elem>`.
+            (Self::Cite(a), Self::Cite(b)) => a == b,
             // P295 — Footnote PartialEq: body == body.
             (Self::Footnote { body: ba }, Self::Footnote { body: bb }) => ba == bb,
             (Self::SetPage { width: wa, height: ha, margin: ma },
@@ -1970,13 +1976,8 @@ impl PartialEq for Content {
                 wa == wb && ha == hb && ma == mb,
             // Modelo D (Lote 7 P322): Align delega ao `Arc<…Elem>`.
             (Self::Align(a), Self::Align(b)) => a == b,
-            // P223 — Place refino +2 fields (float + clearance).
-            (Self::Place { alignment: aa, dx: dxa, dy: dya, scope: sa,
-                           float: fa, clearance: ca, body: ba },
-             Self::Place { alignment: ab, dx: dxb, dy: dyb, scope: sb,
-                           float: fb, clearance: cb, body: bb }) =>
-                aa == ab && dxa == dxb && dya == dyb && sa == sb
-                && fa == fb && ca == cb && ba == bb,
+            // Modelo D (Lote 9 P324): Place delega ao `Arc<…Elem>`.
+            (Self::Place(a), Self::Place(b)) => a == b,
             (Self::Styled(ba, sa), Self::Styled(bb, sb)) => ba == bb && sa == sb,
             // Passo 154B — terms + divider.
             (Self::Divider(a), Self::Divider(b)) => a == b,
@@ -1988,8 +1989,8 @@ impl PartialEq for Content {
             (Self::Underline(a), Self::Underline(b)) => a == b,
             (Self::Strike(a),    Self::Strike(b))    => a == b,
             (Self::Overline(a),  Self::Overline(b))  => a == b,
-            // P287 — SmartQuote leaf (1 campo).
-            (Self::SmartQuote { double: a }, Self::SmartQuote { double: b }) => a == b,
+            // Modelo D (Lote 9 P324): SmartQuote delega ao `Arc<…Elem>`.
+            (Self::SmartQuote(a), Self::SmartQuote(b)) => a == b,
             // Passo 156C / 156L — Pad / Hide.
             (Self::Pad  { body: ba, sides: sa },
              Self::Pad  { body: bb, sides: sb }) => ba == bb && sa == sb,
@@ -2019,10 +2020,8 @@ impl PartialEq for Content {
                 ba == bb && wa == wb && ha == hb && ia == ib && ka == kb
                 && oa == ob && ra == rb && cla == clb
                 && fia == fib && sta == stb,
-            // Passo 156I — Stack (Arc<[Content]> compara por conteúdo).
-            (Self::Stack { children: ca, dir: da, spacing: sa },
-             Self::Stack { children: cb, dir: db, spacing: sb }) =>
-                ca.as_ref() == cb.as_ref() && da == db && sa == sb,
+            // Modelo D (Lote 9 P324): Stack delega ao `Arc<…Elem>`.
+            (Self::Stack(a), Self::Stack(b)) => a == b,
             // Modelo D (Lote 7 P322): Repeat delega ao `Arc<…Elem>`.
             (Self::Repeat(a), Self::Repeat(b)) => a == b,
             // Modelo D (Lote 8 P323): Columns delega ao `Arc<…Elem>`.
@@ -2187,17 +2186,8 @@ impl Content {
                 fill:     *fill,
                 stroke:   stroke.clone(),            },
 
-            // Passo 156I: Stack compositivo — mapear cada child;
-            // preservar dir/spacing (Copy primitivos).
-            Content::Stack { children, dir, spacing } => {
-                let new_children: crate::entities::source_result::SourceResult<Vec<Content>> =
-                    children.iter().map(|c| c.map_content(transform)).collect();
-                Content::Stack {
-                    children: Arc::from(new_children?),
-                    dir:      *dir,
-                    spacing:  *spacing,
-                }
-            },
+            // Modelo D (Lote 9 P324): Stack container delega ao elemento.
+            Content::Stack(e) => e.map_content(transform)?,
 
             // Passo 156J: Repeat container — recurse em body; gap e
             // justify são Copy primitivos (Option<Length>, bool).
@@ -2228,7 +2218,7 @@ impl Content {
             | Content::Image(_)
             | Content::Divider(_)
             // P287 — SmartQuote leaf (sem body — terminal).
-            | Content::SmartQuote { .. }
+            | Content::SmartQuote(_)
             | Content::HSpace(_)
             | Content::VSpace(_)
             | Content::Pagebreak(_)
@@ -2246,10 +2236,8 @@ impl Content {
             // P241 (M9d/M7+2): CounterDisplayCallback terminal paralelo
             // StateDisplay; resolvido pós-fixpoint via apply_counter_displays.
             | Content::CounterDisplayCallback(_) => self.clone(),
-            Content::Transform { matrix, body } => Content::Transform {
-                matrix: *matrix,
-                body:   Box::new(body.map_content(transform)?),
-            },
+            // Modelo D (Lote 9 P324): Transform container delega ao elemento.
+            Content::Transform(e) => e.map_content(transform)?,
             // P224+P227+P228 — Grid refino +7 fields (gutter/align/inset/header/footer/stroke/fill).
             Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke, fill } => {
                 let new_cells: crate::entities::source_result::SourceResult<Vec<Content>> =
@@ -2329,29 +2317,15 @@ impl Content {
                     .transpose()?
                     .map(Box::new),
             },
-            Content::Cite { key, supplement, form } => Content::Cite {
-                key:        key.clone(),
-                supplement: supplement.as_ref()
-                    .map(|s| s.map_content(transform))
-                    .transpose()?
-                    .map(Box::new),
-                form:       *form,
-            },
+            // Modelo D (Lote 9 P324): Cite delega ao elemento (recurse supplement).
+            Content::Cite(e) => e.map_content(transform)?,
             // P295 — Footnote map_content recursivo em body.
             Content::Footnote { body } => Content::Footnote {
                 body: Box::new(body.map_content(transform)?),
             },
             Content::Align(e) => e.map_content(transform)?,
-            // P223 — Place refino: preservar float (Copy) e clearance (Copy via Option<Length>).
-            Content::Place { alignment, dx, dy, scope, float, clearance, body } => Content::Place {
-                alignment: *alignment,
-                dx:        *dx,
-                dy:        *dy,
-                scope:     *scope,
-                float:     *float,
-                clearance: *clearance,
-                body:      Box::new(body.map_content(transform)?),
-            },
+            // Modelo D (Lote 9 P324): Place container delega ao elemento.
+            Content::Place(e) => e.map_content(transform)?,
             Content::Styled(body, styles) => Content::Styled(
                 Box::new(body.map_content(transform)?),
                 styles.clone(),
@@ -2459,12 +2433,8 @@ impl Content {
                 fill:     *fill,
                 stroke:   stroke.clone(),            },
 
-            // Passo 156I: Stack compositivo — map_text em cada child.
-            Content::Stack { children, dir, spacing } => Content::Stack {
-                children: children.iter().map(|c| c.map_text(transform)).collect::<Vec<_>>().into(),
-                dir:      *dir,
-                spacing:  *spacing,
-            },
+            // Modelo D (Lote 9 P324): Stack container delega ao elemento.
+            Content::Stack(e) => e.map_text(transform),
 
             // Passo 156J: Repeat container — map_text no body.
             Content::Repeat(e) => e.map_text(transform),
@@ -2492,7 +2462,7 @@ impl Content {
             | Content::MathIdent(_)
             | Content::MathText(_)
             // P287 — SmartQuote leaf (sem texto interno — map_text não recurse).
-            | Content::SmartQuote { .. }
+            | Content::SmartQuote(_)
             | Content::Equation { .. }
             | Content::MathSequence(_)
             // Modelo D (Lote 2 P317): família math é terminal em map_text
@@ -2528,10 +2498,8 @@ impl Content {
             | Content::StateDisplay(_)
             // P241 (M9d/M7+2): CounterDisplayCallback terminal em map_text.
             | Content::CounterDisplayCallback(_) => self.clone(),
-            Content::Transform { matrix, body } => Content::Transform {
-                matrix: *matrix,
-                body:   Box::new(body.map_text(transform)),
-            },
+            // Modelo D (Lote 9 P324): Transform container delega ao elemento.
+            Content::Transform(e) => e.map_text(transform),
             // P224+P227+P228 — Grid refino +7 fields (map_text).
             Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke, fill } => Content::Grid {
                 columns: columns.clone(),
@@ -2597,27 +2565,15 @@ impl Content {
                 entries: entries.clone(),
                 title:   title.as_ref().map(|t| Box::new(t.map_text(transform))),
             },
-            // Cite map_text em supplement; preserva key (String) e form.
-            Content::Cite { key, supplement, form } => Content::Cite {
-                key:        key.clone(),
-                supplement: supplement.as_ref().map(|s| Box::new(s.map_text(transform))),
-                form:       *form,
-            },
+            // Modelo D (Lote 9 P324): Cite delega ao elemento (recurse supplement).
+            Content::Cite(e) => e.map_text(transform),
             // P295 — Footnote map_text recursivo em body.
             Content::Footnote { body } => Content::Footnote {
                 body: Box::new(body.map_text(transform)),
             },
             Content::Align(e) => e.map_text(transform),
-            // P223 — Place refino: preservar float + clearance no map_text.
-            Content::Place { alignment, dx, dy, scope, float, clearance, body } => Content::Place {
-                alignment: *alignment,
-                dx:        *dx,
-                dy:        *dy,
-                scope:     *scope,
-                float:     *float,
-                clearance: *clearance,
-                body:      Box::new(body.map_text(transform)),
-            },
+            // Modelo D (Lote 9 P324): Place container delega ao elemento.
+            Content::Place(e) => e.map_text(transform),
             Content::Styled(body, styles) => Content::Styled(
                 Box::new(body.map_text(transform)),
                 styles.clone(),
@@ -3166,10 +3122,10 @@ mod tests {
 
     #[test]
     fn smartquote_variant_construtor_basico() {
-        let sd = Content::SmartQuote { double: true };
-        let ss = Content::SmartQuote { double: false };
-        assert!(matches!(sd, Content::SmartQuote { double: true }));
-        assert!(matches!(ss, Content::SmartQuote { double: false }));
+        let sd = Content::smartquote(true);
+        let ss = Content::smartquote(false);
+        assert!(matches!(&sd, Content::SmartQuote(e) if e.double));
+        assert!(matches!(&ss, Content::SmartQuote(e) if !e.double));
         // Variants distintos por valor `double`.
         assert_ne!(sd, ss);
     }
@@ -3179,22 +3135,22 @@ mod tests {
         // Paridade `PlainText for Packed<SmartQuoteElem>` — emite ASCII
         // fallback (Layouter resolve lang-aware via consumer; plain_text
         // é vista sem contexto).
-        assert_eq!(Content::SmartQuote { double: true }.plain_text(),  "\"");
-        assert_eq!(Content::SmartQuote { double: false }.plain_text(), "'");
+        assert_eq!(Content::smartquote(true).plain_text(),  "\"");
+        assert_eq!(Content::smartquote(false).plain_text(), "'");
     }
 
     #[test]
     fn smartquote_is_empty_nunca_vazio() {
         // SmartQuote sempre emite 1 glyph — nunca empty.
-        assert!(!Content::SmartQuote { double: true }.is_empty());
-        assert!(!Content::SmartQuote { double: false }.is_empty());
+        assert!(!Content::smartquote(true).is_empty());
+        assert!(!Content::smartquote(false).is_empty());
     }
 
     #[test]
     fn smartquote_partial_eq() {
-        let a = Content::SmartQuote { double: true };
-        let b = Content::SmartQuote { double: true };
-        let c = Content::SmartQuote { double: false };
+        let a = Content::smartquote(true);
+        let b = Content::smartquote(true);
+        let c = Content::smartquote(false);
         assert_eq!(a, b);
         assert_ne!(a, c);
     }
@@ -3723,10 +3679,10 @@ mod tests {
             Dir::default(),
             None,
         );
-        if let Content::Stack { children, dir, spacing } = &s {
-            assert_eq!(children.len(), 2);
-            assert_eq!(*dir, Dir::TTB);
-            assert_eq!(*spacing, None);
+        if let Content::Stack(e) = &s {
+            assert_eq!(e.children.len(), 2);
+            assert_eq!(e.dir, Dir::TTB);
+            assert_eq!(e.spacing, None);
         } else {
             panic!("esperado Content::Stack");
         }
@@ -3741,9 +3697,9 @@ mod tests {
             Dir::LTR,
             Some(Length::pt(5.0)),
         );
-        if let Content::Stack { dir, spacing, .. } = &s {
-            assert_eq!(*dir, Dir::LTR);
-            assert_eq!(*spacing, Some(Length::pt(5.0)));
+        if let Content::Stack(e) = &s {
+            assert_eq!(e.dir, Dir::LTR);
+            assert_eq!(e.spacing, Some(Length::pt(5.0)));
         } else {
             panic!("esperado Content::Stack");
         }
@@ -3826,8 +3782,8 @@ mod tests {
         let upper = s.map_text(&mut |t| t.to_uppercase());
         assert_eq!(upper.plain_text(), "HELLOWORLD");
         // Atributos preservados.
-        if let Content::Stack { dir, .. } = upper {
-            assert_eq!(dir, Dir::TTB);
+        if let Content::Stack(e) = upper {
+            assert_eq!(e.dir, Dir::TTB);
         } else {
             panic!("esperado Content::Stack após map_text");
         }
@@ -4063,18 +4019,10 @@ mod tests {
     fn p223_place_variant_aceita_float_clearance() {
         // P223 refino: variant aceita 2 fields novos float + clearance.
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, PlaceScope};
-        let p = Content::Place {
-            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Column,
-            float:     true,
-            clearance: Some(Length::pt(10.0)),
-            body:      Box::new(Content::text("body")),
-        };
-        if let Content::Place { float, clearance, .. } = &p {
-            assert_eq!(*float, true);
-            assert_eq!(*clearance, Some(Length::pt(10.0)));
+        let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Column, true, Some(Length::pt(10.0)), Content::text("body"));
+        if let Content::Place(e) = &p {
+            assert_eq!(e.float, true);
+            assert_eq!(e.clearance, Some(Length::pt(10.0)));
         } else {
             panic!("esperado Content::Place");
         }
@@ -4084,18 +4032,10 @@ mod tests {
     fn p223_place_default_float_false_clearance_none() {
         // Defaults stdlib: float=false, clearance=None.
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
-        let p = Content::Place {
-            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Column,
-            float:     false,
-            clearance: None,
-            body:      Box::new(Content::text("body")),
-        };
-        if let Content::Place { float, clearance, .. } = &p {
-            assert_eq!(*float, false, "default float == false");
-            assert!(clearance.is_none(), "default clearance == None");
+        let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Column, false, None, Content::text("body"));
+        if let Content::Place(e) = &p {
+            assert_eq!(e.float, false, "default float == false");
+            assert!(e.clearance.is_none(), "default clearance == None");
         } else {
             panic!("esperado Content::Place");
         }
@@ -4105,15 +4045,7 @@ mod tests {
     fn p223_place_partial_eq_inclui_float_clearance() {
         // Eq compara 7 fields agora (P223 +2 fields).
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, PlaceScope};
-        let mk = |float: bool, clearance: Option<Length>| Content::Place {
-            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Column,
-            float,
-            clearance,
-            body:      Box::new(Content::text(".")),
-        };
+        let mk = |float: bool, clearance: Option<Length>| Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Column, float, clearance, Content::text("."));
         assert_eq!(mk(false, None), mk(false, None));
         // Float diferente → diferente.
         assert_ne!(mk(false, None), mk(true, None));
@@ -4125,19 +4057,11 @@ mod tests {
     fn p223_place_map_content_preserva_atributos() {
         // map_content recurse no body preservando float + clearance.
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, PlaceScope};
-        let p = Content::Place {
-            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Parent,  // exige float em stdlib mas Rust direct aceita
-            float:     true,
-            clearance: Some(Length::pt(8.0)),
-            body:      Box::new(Content::text("X")),
-        };
+        let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Parent, true, Some(Length::pt(8.0)), Content::text("X"));
         let mapped = p.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
-        if let Content::Place { float, clearance, .. } = &mapped {
-            assert_eq!(*float, true, "map_content preserva float");
-            assert_eq!(*clearance, Some(Length::pt(8.0)), "map_content preserva clearance");
+        if let Content::Place(e) = &mapped {
+            assert_eq!(e.float, true, "map_content preserva float");
+            assert_eq!(e.clearance, Some(Length::pt(8.0)), "map_content preserva clearance");
         } else {
             panic!("esperado Content::Place após map_content");
         }
@@ -5326,10 +5250,10 @@ mod tests {
     #[test]
     fn cite_constructor_so_key() {
         let c = Content::cite("smith2024", None, None);
-        if let Content::Cite { key, supplement, form } = &c {
-            assert_eq!(key, "smith2024");
-            assert!(supplement.is_none());
-            assert!(form.is_none());
+        if let Content::Cite(e) = &c {
+            assert_eq!(e.key, "smith2024");
+            assert!(e.supplement.is_none());
+            assert!(e.form.is_none());
         } else {
             panic!("esperado Content::Cite");
         }
@@ -5338,10 +5262,10 @@ mod tests {
     #[test]
     fn cite_constructor_com_supplement() {
         let c = Content::cite("smith2024", Some(Content::text("p. 42")), None);
-        if let Content::Cite { key, supplement, form } = &c {
-            assert_eq!(key, "smith2024");
-            assert_eq!(supplement.as_ref().map(|s| s.plain_text()).as_deref(), Some("p. 42"));
-            assert!(form.is_none());
+        if let Content::Cite(e) = &c {
+            assert_eq!(e.key, "smith2024");
+            assert_eq!(e.supplement.as_ref().map(|s| s.plain_text()).as_deref(), Some("p. 42"));
+            assert!(e.form.is_none());
         } else {
             panic!("esperado Content::Cite");
         }
@@ -5387,10 +5311,10 @@ mod tests {
     #[test]
     fn cite_constructor_com_form() {
         let c = Content::cite("smith2024", None, Some(CitationForm::Prose));
-        if let Content::Cite { key, supplement, form } = &c {
-            assert_eq!(key, "smith2024");
-            assert!(supplement.is_none());
-            assert_eq!(form, &Some(CitationForm::Prose));
+        if let Content::Cite(e) = &c {
+            assert_eq!(e.key, "smith2024");
+            assert!(e.supplement.is_none());
+            assert_eq!(e.form, Some(CitationForm::Prose));
         } else {
             panic!("esperado Content::Cite");
         }

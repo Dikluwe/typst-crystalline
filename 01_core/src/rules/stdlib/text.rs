@@ -234,7 +234,7 @@ pub fn native_overline(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
 // - `alternative: bool`    — scope-out per ADR-0054 graded (rejeitado com erro
 //                            educacional; passo dedicado futuro condicional).
 //
-// Diagnóstico P287 §A.2: variant `Content::SmartQuote { double }` é leaf
+// Diagnóstico P287 §A.2: variant `Content::smartquote(double)` é leaf
 // (não rico) — 1 campo bool required. Quando `enabled = false`, função emite
 // `Content::Text` directo (não passa pelo variant; estado open/close do
 // Layouter preservado intacto).
@@ -293,5 +293,5 @@ pub fn native_smartquote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
         return Ok(Value::Content(Content::text(glyph)));
     }
 
-    Ok(Value::Content(Content::SmartQuote { double }))
+    Ok(Value::Content(Content::smartquote(double)))
 }

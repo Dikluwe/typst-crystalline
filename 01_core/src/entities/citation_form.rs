@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/citation_form.md
-//! @prompt-hash 677849cb
+//! @prompt-hash d4af3376
 //! @layer L1
 //! @updated 2026-04-27
 //!
@@ -33,7 +33,7 @@
 ///
 /// `Default` explícito como `Normal` (paridade vanilla
 /// `CiteForm::Normal`).
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum CitationForm {
     Normal,
     Prose,

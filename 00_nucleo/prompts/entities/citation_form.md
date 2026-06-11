@@ -1,5 +1,5 @@
 # Prompt L0 — CitationForm
-Hash do Código: aa847167
+Hash do Código: 67d80834
 
 ## Módulo
 `01_core/src/entities/citation_form.rs`
@@ -34,7 +34,7 @@ Bibliography same-document via `CounterState::bib_entries`.
 ## Representação
 
 ```rust
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum CitationForm {
     Normal,
     Prose,
@@ -86,6 +86,9 @@ infraestrutural P158B `state.lang`).
   outros 3 variants.
 - `CitationForm::default()` devolve `CitationForm::Normal`.
 - `PartialEq`/`Eq`: forms diferentes não são iguais.
+- `Hash`: derivado (dependência do **Lote 9 P324** — `CiteElem` deriva `Hash` e
+  carrega `Option<CitationForm>`; `Copy + Eq` sem floats → seguro, precedente
+  `Parity` P320).
 
 ## ADRs aplicadas
 

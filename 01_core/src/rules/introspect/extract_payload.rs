@@ -30,9 +30,8 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
             is_counted:     numbering.is_some() && caption.is_some(),
         }),
 
-        Content::Cite { key, .. } => Some(ElementPayload::Citation {
-            key: key.clone(),
-        }),
+        // Modelo D (Lote 9 P324): Cite locatável delega ao elemento.
+        Content::Cite(e) => e.to_payload(),
 
         // Modelo D (Lote 6 P321): família state/counter locatável absorve o
         // payload no trait — o elemento fornece (precedente Heading P316).
@@ -162,11 +161,7 @@ mod tests {
 
     #[test]
     fn cite_produz_some_payload() {
-        let c = Content::Cite {
-            key:        "smith2024".to_string(),
-            supplement: None,
-            form:       None,
-        };
+        let c = Content::cite("smith2024".to_string(), None, None);
         match extract_payload(&c) {
             Some(ElementPayload::Citation { key }) => {
                 assert_eq!(key, "smith2024");

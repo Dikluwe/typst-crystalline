@@ -138,15 +138,7 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
             "place() exige um bloco de conteúdo".to_string())])?;
 
-    Ok(Value::Content(Content::Place {
-        alignment,
-        dx,
-        dy,
-        scope,
-        float,
-        clearance,
-        body: Box::new(body),
-    }))
+    Ok(Value::Content(Content::place(alignment, dx, dy, scope, float, clearance, body)))
 }
 
 /// Helper Passo 84.5: extrai alinhamento do primeiro argumento posicional
@@ -943,11 +935,7 @@ pub fn native_stack(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         }
     }
 
-    Ok(Value::Content(Content::Stack {
-        children: std::sync::Arc::from(children),
-        dir,
-        spacing,
-    }))
+    Ok(Value::Content(Content::stack(children, dir, spacing)))
 }
 
 // ── Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container ─────────

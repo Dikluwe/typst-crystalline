@@ -3010,15 +3010,7 @@ mod tests_show_rule_integration {
     #[test]
     fn p223_place_float_armazenado_layout_preservado() {
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
-        let p = Content::Place {
-            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Column,
-            float:     true,                                 // P223
-            clearance: None,
-            body:      Box::new(Content::text("p223float")),
-        };
+        let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Column, true, None, Content::text("p223float"));
         let doc = layout(&p);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -3033,15 +3025,7 @@ mod tests_show_rule_integration {
     #[test]
     fn p223_place_clearance_armazenado_layout_preservado() {
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, PlaceScope};
-        let p = Content::Place {
-            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Column,
-            float:     true,                                 // P223
-            clearance: Some(Length::pt(20.0)),               // P223
-            body:      Box::new(Content::text("p223clear")),
-        };
+        let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Column, true, Some(Length::pt(20.0)), Content::text("p223clear"));
         let doc = layout(&p);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -5925,20 +5909,12 @@ mod tests_show_rule_integration {
         // Espera-se que rect seja emitido próximo do fundo da página
         // (margin = 20pt, page height = 400pt; rect 30x20 → y ≈ 360 - ascender).
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
-        let p = Content::Place {
-            alignment: Align2D { h: Some(HAlign::Center), v: Some(VAlign::Bottom) },
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Parent,
-            float:     true,
-            clearance: None,
-            body:      Box::new(Content::Shape {
+        let p = Content::place(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Bottom) }, 0.0, 0.0, PlaceScope::Parent, true, None, Content::Shape {
                 kind:   crate::entities::geometry::ShapeKind::Rect,
                 width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(30.0)))),
                 height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
                 fill:   None,
-                stroke: None,            }),
-        };
+                stroke: None,            });
         let doc = layout(&p);
         // Procurar shape no output.
         let mut found_shape = false;
@@ -5960,20 +5936,12 @@ mod tests_show_rule_integration {
     fn p245_place_float_true_top_renderiza_no_topo_da_pagina() {
         // Float top-aligned + scope: Parent + float: true.
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
-        let p = Content::Place {
-            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) },
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Parent,
-            float:     true,
-            clearance: None,
-            body:      Box::new(Content::Shape {
+        let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Parent, true, None, Content::Shape {
                 kind:   crate::entities::geometry::ShapeKind::Rect,
                 width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(30.0)))),
                 height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
                 fill:   None,
-                stroke: None,            }),
-        };
+                stroke: None,            });
         let doc = layout(&p);
         let mut found_shape_at_top = false;
         for page in doc.pages.iter() {
@@ -5994,20 +5962,12 @@ mod tests_show_rule_integration {
     fn p245_place_float_false_baseline_p84_preservado() {
         // Place float: false preserva comportamento P84.5+P84.6 literal.
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
-        let p = Content::Place {
-            alignment: Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) },
-            dx:        50.0,
-            dy:        30.0,
-            scope:     PlaceScope::Column,  // não-Parent (Parent+float:false rejeitado)
-            float:     false,
-            clearance: None,
-            body:      Box::new(Content::Shape {
+        let p = Content::place(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) }, 50.0, 30.0, PlaceScope::Column, false, None, Content::Shape {
                 kind:   crate::entities::geometry::ShapeKind::Rect,
                 width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
                 height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(15.0)))),
                 fill:   None,
-                stroke: None,            }),
-        };
+                stroke: None,            });
         let doc = layout(&p);
         // Não deve panic; pelo menos uma shape emitida via path original.
         let mut found = false;
@@ -6027,20 +5987,12 @@ mod tests_show_rule_integration {
         // adicional de clearance no eixo Y face ao baseline sem clearance.
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope, Length};
         let make_doc = |clearance: Option<Length>| {
-            let p = Content::Place {
-                alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Bottom) },
-                dx:        0.0,
-                dy:        0.0,
-                scope:     PlaceScope::Parent,
-                float:     true,
-                clearance,
-                body:      Box::new(Content::Shape {
+            let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Bottom) }, 0.0, 0.0, PlaceScope::Parent, true, clearance, Content::Shape {
                     kind:   crate::entities::geometry::ShapeKind::Rect,
                     width:  Some(Box::new(crate::entities::value::Value::Length(Length::pt(30.0)))),
                     height: Some(Box::new(crate::entities::value::Value::Length(Length::pt(20.0)))),
                     fill:   None,
-                    stroke: None,                }),
-            };
+                    stroke: None,                });
             layout(&p)
         };
         let doc_no_clear  = make_doc(None);
@@ -6072,20 +6024,12 @@ mod tests_show_rule_integration {
         // Não temos acesso directo ao buffer; mas verificamos que doc
         // tem pelo menos 1 page com items (ou seja, flush ocorreu).
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
-        let p = Content::Place {
-            alignment: Align2D { h: Some(HAlign::Center), v: Some(VAlign::Bottom) },
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Parent,
-            float:     true,
-            clearance: None,
-            body:      Box::new(Content::Shape {
+        let p = Content::place(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Bottom) }, 0.0, 0.0, PlaceScope::Parent, true, None, Content::Shape {
                 kind:   crate::entities::geometry::ShapeKind::Rect,
                 width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
                 height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(15.0)))),
                 fill:   None,
-                stroke: None,            }),
-        };
+                stroke: None,            });
         let doc = layout(&p);
         // Float emit verificado: doc tem ≥1 page com ≥1 item shape.
         assert!(!doc.pages.is_empty(), "P245 — doc deve ter páginas");
@@ -6102,15 +6046,7 @@ mod tests_show_rule_integration {
     #[test]
     fn p232_place_fora_grid_baseline_preservado() {
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
-        let p = Content::Place {
-            alignment: Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) },
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Column,
-            float:     false,
-            clearance: None,
-            body:      Box::new(Content::text("p232out")),
-        };
+        let p = Content::place(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Column, false, None, Content::text("p232out"));
         let doc = layout(&p);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -6126,15 +6062,7 @@ mod tests_show_rule_integration {
     fn p232_place_dentro_grid_sem_align_baseline() {
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing, PlaceScope};
         use crate::entities::sides::Sides;
-        let place_in_cell = Content::Place {
-            alignment: Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) },
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Column,
-            float:     false,
-            clearance: None,
-            body:      Box::new(Content::text("p232plain")),
-        };
+        let place_in_cell = Content::place(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Column, false, None, Content::text("p232plain"));
         let g = Content::Grid {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
@@ -6164,15 +6092,7 @@ mod tests_show_rule_integration {
     fn p232_place_herda_grid_align_quando_vazio() {
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing, PlaceScope};
         use crate::entities::sides::Sides;
-        let place_empty = Content::Place {
-            alignment: Align2D { h: None, v: None },  // vazio
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Column,
-            float:     false,
-            clearance: None,
-            body:      Box::new(Content::text("p232herda")),
-        };
+        let place_empty = Content::place(Align2D { h: None, v: None }, 0.0, 0.0, PlaceScope::Column, false, None, Content::text("p232herda"));
         let g = Content::Grid {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
@@ -6200,16 +6120,7 @@ mod tests_show_rule_integration {
     fn p232_place_override_per_axis() {
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing, PlaceScope};
         use crate::entities::sides::Sides;
-        let place_partial = Content::Place {
-            // H explícito Right; V vazio (herda Grid V=Top).
-            alignment: Align2D { h: Some(HAlign::Right), v: None },
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Column,
-            float:     false,
-            clearance: None,
-            body:      Box::new(Content::text("p232override")),
-        };
+        let place_partial = Content::place(Align2D { h: Some(HAlign::Right), v: None }, 0.0, 0.0, PlaceScope::Column, false, None, Content::text("p232override"));
         let g = Content::Grid {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
@@ -6237,16 +6148,7 @@ mod tests_show_rule_integration {
     fn p232_place_full_override_grid() {
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing, PlaceScope};
         use crate::entities::sides::Sides;
-        let place_full = Content::Place {
-            // Place full Some → override Grid.
-            alignment: Align2D { h: Some(HAlign::Left), v: Some(VAlign::Bottom) },
-            dx:        0.0,
-            dy:        0.0,
-            scope:     PlaceScope::Column,
-            float:     false,
-            clearance: None,
-            body:      Box::new(Content::text("p232full")),
-        };
+        let place_full = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Bottom) }, 0.0, 0.0, PlaceScope::Column, false, None, Content::text("p232full"));
         let g = Content::Grid {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
@@ -8475,7 +8377,7 @@ mod p185d_locator_sync {
                 kind:      None,
                 numbering: None,
             },
-            Content::Cite { key: "k".to_string(), supplement: None, form: None },
+            Content::cite("k".to_string(), None, None),
         ];
         let content = Content::Sequence(Arc::from(parts.clone()));
 
@@ -8513,7 +8415,7 @@ mod p185d_locator_sync {
                 numbering: None,
             },
             Content::Equation { body: Box::new(Content::Empty), block: false },
-            Content::Cite { key: "k".to_string(), supplement: None, form: None },
+            Content::cite("k".to_string(), None, None),
         ];
         let content = Content::Sequence(Arc::from(parts.clone()));
 
@@ -9562,14 +9464,10 @@ mod p273_9_containers_estendidos {
     #[test]
     fn p273_9_stack_vertical_save_restore_parent_bbox() {
         use crate::entities::dir::Dir;
-        let stack = Content::Stack {
-            children: Arc::from(vec![
+        let stack = Content::stack(vec![
                 rect_shape(50.0, 20.0),
                 rect_shape(80.0, 30.0),
-            ]),
-            dir:      Dir::TTB,
-            spacing:  None,
-        };
+            ], Dir::TTB, None);
         let content = Content::Sequence(Arc::from(vec![stack]));
         let doc = layout(&content);
         let bboxes = shape_parent_bboxes(&doc);
@@ -9586,11 +9484,7 @@ mod p273_9_containers_estendidos {
     #[test]
     fn p273_9_stack_empty_no_parent_bbox() {
         use crate::entities::dir::Dir;
-        let stack = Content::Stack {
-            children: Arc::from(vec![]),
-            dir:      Dir::TTB,
-            spacing:  None,
-        };
+        let stack = Content::stack(vec![], Dir::TTB, None);
         let content = Content::Sequence(Arc::from(vec![
             stack,
             rect_shape(50.0, 30.0),
@@ -9984,8 +9878,8 @@ mod p287_smartquote_tests {
         // Lang None → DEFAULT_QUOTES = ("\"", "\"") — alternância state
         // interno verificável indirectamente (2 quotes → ≥2 chars `"`).
         let doc = layout(&Content::sequence(vec![
-            Content::SmartQuote { double: true },
-            Content::SmartQuote { double: true },
+            Content::smartquote(true),
+            Content::smartquote(true),
         ]));
         let n = collect_text(&doc).matches('"').count();
         assert!(n >= 2, "2 SmartQuote → ≥2 `\"`; got {n}");
@@ -9996,8 +9890,8 @@ mod p287_smartquote_tests {
         // Aspas simples scope-out smart-apostrophes (paridade P155).
         // Lang None default → sempre ASCII `'`.
         let doc = layout(&Content::sequence(vec![
-            Content::SmartQuote { double: false },
-            Content::SmartQuote { double: false },
+            Content::smartquote(false),
+            Content::smartquote(false),
         ]));
         let txt = collect_text(&doc);
         assert_eq!(txt.matches('\'').count(), 2,
@@ -10015,7 +9909,7 @@ mod p287_smartquote_tests {
         // "open" porque smartquote_double_open default true.
         let doc = layout(&Content::sequence(vec![
             Content::text("\""),                     // markup: emite literal
-            Content::SmartQuote { double: true },    // função: state Layouter
+            Content::smartquote(true),    // função: state Layouter
         ]));
         let txt = collect_text(&doc);
         // 2 chars `"` no total (1 do markup literal, 1 do SmartQuote ASCII).
@@ -10028,8 +9922,8 @@ mod p287_smartquote_tests {
         // Cada layout() cria novo Layouter — state smartquote inicia
         // em `open` (per-document). Dois layouts separados → ambos
         // arrancam em open.
-        let doc1 = layout(&Content::SmartQuote { double: true });
-        let doc2 = layout(&Content::SmartQuote { double: true });
+        let doc1 = layout(&Content::smartquote(true));
+        let doc2 = layout(&Content::smartquote(true));
         let n1 = collect_text(&doc1).matches('"').count();
         let n2 = collect_text(&doc2).matches('"').count();
         assert_eq!(n1, 1, "doc1 SmartQuote default → 1 char `\"`");
@@ -10049,8 +9943,8 @@ mod p287_smartquote_tests {
         let lang_en = Lang::from_str("en").unwrap();
         let styled = Content::Styled(
             Box::new(Content::sequence(vec![
-                Content::SmartQuote { double: true },
-                Content::SmartQuote { double: true },
+                Content::smartquote(true),
+                Content::smartquote(true),
             ])),
             Styles::from_iter([Style::Lang(lang_en)]),
         );
@@ -10070,8 +9964,8 @@ mod p287_smartquote_tests {
         let lang_pt = Lang::from_str("pt").unwrap();
         let styled = Content::Styled(
             Box::new(Content::sequence(vec![
-                Content::SmartQuote { double: true },
-                Content::SmartQuote { double: true },
+                Content::smartquote(true),
+                Content::smartquote(true),
             ])),
             Styles::from_iter([Style::Lang(lang_pt)]),
         );
@@ -10089,8 +9983,8 @@ mod p287_smartquote_tests {
         let lang_fr = Lang::from_str("fr").unwrap();
         let styled = Content::Styled(
             Box::new(Content::sequence(vec![
-                Content::SmartQuote { double: true },
-                Content::SmartQuote { double: true },
+                Content::smartquote(true),
+                Content::smartquote(true),
             ])),
             Styles::from_iter([Style::Lang(lang_fr)]),
         );
@@ -10138,7 +10032,7 @@ mod p288_style_lang_tests {
         use std::str::FromStr;
         let lang_de = Lang::from_str("de").unwrap();
         let styled = Content::Styled(
-            Box::new(Content::SmartQuote { double: true }),
+            Box::new(Content::smartquote(true)),
             Styles::from_iter([Style::Lang(lang_de)]),
         );
         let doc = layout(&styled);

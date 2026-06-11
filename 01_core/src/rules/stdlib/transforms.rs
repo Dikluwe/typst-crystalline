@@ -32,10 +32,7 @@ pub fn native_move(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
         .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
             "move() exige um corpo de conteúdo".to_string())])?;
-    Ok(Value::Content(Content::Transform {
-        matrix: TransformMatrix::translate(dx, dy),
-        body:   Box::new(body),
-    }))
+    Ok(Value::Content(Content::transform(TransformMatrix::translate(dx, dy), body)))
 }
 
 /// `rotate(angle, body)` → `Content::Transform { matrix: rotate(rad), body }`.
@@ -58,10 +55,7 @@ pub fn native_rotate(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
         .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
             "rotate() exige um corpo de conteúdo".to_string())])?;
-    Ok(Value::Content(Content::Transform {
-        matrix: TransformMatrix::rotate(angle_rad),
-        body:   Box::new(body),
-    }))
+    Ok(Value::Content(Content::transform(TransformMatrix::rotate(angle_rad), body)))
 }
 
 /// `scale(x?, y?, body)` → `Content::Transform { matrix: scale(sx, sy), body }`.
@@ -81,10 +75,7 @@ pub fn native_scale(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
         .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
             "scale() exige um corpo de conteúdo".to_string())])?;
-    Ok(Value::Content(Content::Transform {
-        matrix: TransformMatrix::scale(sx, sy),
-        body:   Box::new(body),
-    }))
+    Ok(Value::Content(Content::transform(TransformMatrix::scale(sx, sy), body)))
 }
 
 // ── Passo 156F (ADR-0061 Fase 1 sub-passo 4) — skew via TransformMatrix ─────
@@ -159,8 +150,5 @@ pub fn native_skew(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         .ok_or_else(|| vec![SourceDiagnostic::error(Span::detached(),
             "skew() exige um corpo de conteúdo".to_string())])?;
 
-    Ok(Value::Content(Content::Transform {
-        matrix: TransformMatrix::skew(ax_rad, ay_rad),
-        body:   Box::new(body),
-    }))
+    Ok(Value::Content(Content::transform(TransformMatrix::skew(ax_rad, ay_rad), body)))
 }

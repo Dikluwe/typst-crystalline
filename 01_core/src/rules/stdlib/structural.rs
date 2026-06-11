@@ -960,15 +960,15 @@ pub fn native_cite(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     }
 
     let supplement = args.named.get("supplement").and_then(|v| match v {
-        Value::Content(c) => Some(Box::new(c.clone())),
-        Value::Str(s)     => Some(Box::new(Content::text(s.as_str()))),
+        Value::Content(c) => Some(c.clone()),
+        Value::Str(s)     => Some(Content::text(s.as_str())),
         Value::None       => None,
-        other             => Some(Box::new(Content::text(other.type_name()))),
+        other             => Some(Content::text(other.type_name())),
     });
 
     let form = extract_citation_form(args.named.get("form"))?;
 
-    Ok(Value::Content(Content::Cite { key, supplement, form }))
+    Ok(Value::Content(Content::cite(key, supplement, form)))
 }
 
 /// Helper privado P159C — parsing `Value::Str` para

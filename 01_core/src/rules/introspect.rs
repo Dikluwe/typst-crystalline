@@ -216,7 +216,7 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::MathIdent(_)
         | Content::MathText(_)
         // P287 — SmartQuote leaf (sem CounterDisplay possível).
-        | Content::SmartQuote { .. }
+        | Content::SmartQuote(_)
         | Content::Equation { .. }
         | Content::MathSequence(_)
         | Content::MathFrac(_)
@@ -297,15 +297,11 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         },
         // Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo.
         // Materialize_time em cada child; preservar dir/spacing.
-        Content::Stack { children, dir, spacing } => {
-            let new_children: Vec<Content> = children.iter()
+        Content::Stack(e) => {
+            let new_children: Vec<Content> = e.children.iter()
                 .map(|c| materialize_time(c, intr, location))
                 .collect();
-            Content::Stack {
-                children: std::sync::Arc::from(new_children),
-                dir:      *dir,
-                spacing:  *spacing,
-            }
+            Content::stack(new_children, e.dir, e.spacing)
         },
         // Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat.
         // Análogo a Block: descer no body; preservar atributos.
@@ -317,10 +313,7 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             e.count,
             e.gutter,
         ),
-        Content::Transform { matrix, body } => Content::Transform {
-            matrix: *matrix,
-            body:   Box::new(materialize_time(body, intr, location)),
-        },
+        Content::Transform(e) => Content::transform(e.matrix, materialize_time(&e.body, intr, location)),
         // P224+P227+P228 — Grid refino +7 fields preservados (gutter/align/inset/header/footer/stroke/fill).
         Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke, fill } => Content::Grid {
             columns: columns.clone(),
@@ -384,22 +377,17 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             entries: entries.clone(),
             title:   title.as_ref().map(|t| Box::new(materialize_time(t, intr, location))),
         },
-        Content::Cite { key, supplement, form } => Content::Cite {
-            key:        key.clone(),
-            supplement: supplement.as_ref().map(|s| Box::new(materialize_time(s, intr, location))),
-            form:       *form,
-        },
+        Content::Cite(e) => Content::cite(
+            e.key.clone(),
+            e.supplement.as_ref().map(|s| materialize_time(s, intr, location)),
+            e.form,
+        ),
         Content::Align(e) => Content::align(e.alignment, materialize_time(&e.body, intr, location)),
         // P223 — Place refino: preservar float + clearance no materialize_time.
-        Content::Place { alignment, dx, dy, scope, float, clearance, body } => Content::Place {
-            alignment: *alignment,
-            dx:        *dx,
-            dy:        *dy,
-            scope:     *scope,
-            float:     *float,
-            clearance: *clearance,
-            body:      Box::new(materialize_time(body, intr, location)),
-        },
+        Content::Place(e) => Content::place(
+            e.alignment, e.dx, e.dy, e.scope, e.float, e.clearance,
+            materialize_time(&e.body, intr, location),
+        ),
 
         // Passo 99 (ADR-0038): `Styled` é transparente para materialização de
         // contadores — o body é processado e os estilos preservados.
@@ -1147,7 +1135,7 @@ pub(crate) fn walk(
         | Content::MathAlignPoint(_)
         | Content::Linebreak(_)
         // P287 — SmartQuote leaf (não-locatable; sem counters).
-        | Content::SmartQuote { .. }
+        | Content::SmartQuote(_)
         | Content::Image(_)
         | Content::SetPage { .. }
         | Content::Divider(_)
@@ -1198,7 +1186,7 @@ pub(crate) fn walk(
         Content::Strike(e)    => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
         Content::Overline(e)  => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
-        Content::Transform { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Transform(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         Content::Grid { cells, header, footer, .. } => {
             // P224 — Grid refino: walk em header (se houver) + cells + footer.
@@ -1242,8 +1230,8 @@ pub(crate) fn walk(
                 walk(t, locator, tags, intr, auto_label_counter, lang, None);
             }
         }
-        Content::Cite { supplement, .. } => {
-            if let Some(s) = supplement { walk(s, locator, tags, intr, auto_label_counter, lang, None); }
+        Content::Cite(e) => {
+            if let Some(s) = &e.supplement { walk(s, locator, tags, intr, auto_label_counter, lang, None); }
         }
 
         // P295 — Footnote walk em body (locatable infrastructure não
@@ -1253,7 +1241,7 @@ pub(crate) fn walk(
 
         Content::Align(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
-        Content::Place { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Place(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 156C (ADR-0061 Fase 1) — pad / hide são containers
         // estruturais; descer no body para que counters/labels dentro sejam
@@ -1270,8 +1258,8 @@ pub(crate) fn walk(
 
         // Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo.
         // Walk em cada child em ordem (counters/labels resolvem).
-        Content::Stack { children, .. } => {
-            for c in children.iter() {
+        Content::Stack(e) => {
+            for c in e.children.iter() {
                 walk(c, locator, tags, intr, auto_label_counter, lang, None);
             }
         },
@@ -3861,11 +3849,7 @@ mod tests {
                     kind:      Some("image".to_string()),
                     numbering: Some("1".to_string()),
                 },
-                Content::Cite {
-                    key:        "k".to_string(),
-                    supplement: None,
-                    form:       None,
-                },
+                Content::cite("k".to_string(), None, None),
             ]
             .into(),
         );

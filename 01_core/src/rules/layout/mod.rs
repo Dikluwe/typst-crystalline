@@ -913,7 +913,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.regions.current.cursor_y += Pt(resolved_h);
             }
 
-            Content::Transform { matrix, body } => {
+            Content::Transform(e) => {
+                let matrix = &e.matrix;
+                let body = &e.body;
                 let (orig_w, orig_h) = measure_content(body, self.available_width());
 
                 // Projectar os quatro cantos da AABB original através da matriz.
@@ -1064,7 +1066,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.pending_footnote_bodies.push((n, body.clone()));
             }
 
-            Content::Cite { key, supplement, form } => {
+            Content::Cite(e) => {
+                let key = &e.key;
+                let supplement = &e.supplement;
+                let form = &e.form;
                 // Passo 159C: render placeholder por form com lookup
                 // P190B (M6 categoria Bibliography eliminada) — consumer
                 // migrado para Introspector path completo. Fallback legacy
@@ -1172,7 +1177,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `floats_pending`, emitido no flush da página (new_page/
             // finish). `float: false` preserva comportamento P84.5+P84.6
             // literal (body in-place via cursor).
-            Content::Place { alignment, dx, dy, scope, float, clearance, body } => {
+            Content::Place(e) => {
+                let alignment = &e.alignment;
+                let dx = &e.dx;
+                let dy = &e.dy;
+                let scope = &e.scope;
+                let float = &e.float;
+                let clearance = &e.clearance;
+                let body = &e.body;
                 // P232 — Resolver effective alignment per eixo via `.or()`.
                 let effective_alignment = match self.cell_align {
                     Some(grid_a) => crate::entities::layout_types::Align2D {
@@ -1388,7 +1400,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // visualmente invertido. Refino futuro pode aplicar
             // posicionamento absoluto reverso real (sob forma de
             // FrameItem positioning).
-            Content::Stack { children, dir, spacing } => {
+            Content::Stack(e) => {
+                let children = &e.children;
+                let dir = &e.dir;
+                let spacing = &e.spacing;
                 let font = self.font_size_pt.val();
                 let space_pt = spacing.map_or(0.0, |l| l.resolve_pt(font));
 
@@ -2179,8 +2194,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // e função têm estados independentes; mistura programática +
             // markup literal (caso edge raro) pode produzir "2 opens
             // consecutivos" — registado em diagnóstico §A.3.2.
-            Content::SmartQuote { double } => {
-                let glyph: &str = if *double {
+            Content::SmartQuote(e) => {
+                let glyph: &str = if e.double {
                     let (open, close) = match &self.style.lang {
                         Some(l) => crate::rules::lang::quotes::localize_quotes(l),
                         None    => crate::rules::lang::quotes::DEFAULT_QUOTES,
@@ -2414,8 +2429,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // LTR/RTL: sum widths + (n-1) * spacing; max heights.
             // P273.11 — delega ao helper Layouter::measure_stack (substitui
             // replicação inline ~25 LOC; bit-exact preserved).
-            Content::Stack { children, dir, spacing } => {
-                self.measure_stack(children, *dir, *spacing, max_width)
+            Content::Stack(e) => {
+                self.measure_stack(&e.children, e.dir, e.spacing, max_width)
             }
 
             // Passo 156H: Boxed (Box inline) dimensões para grid

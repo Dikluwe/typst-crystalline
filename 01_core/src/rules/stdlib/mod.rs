@@ -3080,8 +3080,8 @@ mod tests {
         use crate::entities::layout_types::TransformMatrix;
         let body = Content::text("body");
         let r = native_skew(&mut ctx, &p(vec![Value::Content(body)]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Transform { matrix, .. }) = r {
-            assert_eq!(matrix, TransformMatrix::identity());
+        if let Value::Content(Content::Transform(e)) = r {
+            assert_eq!(e.matrix, TransformMatrix::identity());
         } else {
             panic!("esperado Content::Transform");
         }
@@ -3094,12 +3094,12 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("ax".into(), Value::Angle(Angle::deg(30.0)));
         let r = native_skew(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Transform { matrix, .. }) = r {
+        if let Value::Content(Content::Transform(e)) = r {
             // c = tan(30°) ≈ 0.5774; a = 1; b = 0; d = 1.
-            assert!((matrix.a - 1.0).abs() < 1e-9);
-            assert!((matrix.b - 0.0).abs() < 1e-9);
-            assert!((matrix.c - 0.5774).abs() < 0.001, "c esperado tan(30°), obteve {}", matrix.c);
-            assert!((matrix.d - 1.0).abs() < 1e-9);
+            assert!((e.matrix.a - 1.0).abs() < 1e-9);
+            assert!((e.matrix.b - 0.0).abs() < 1e-9);
+            assert!((e.matrix.c - 0.5774).abs() < 0.001, "c esperado tan(30°), obteve {}", e.matrix.c);
+            assert!((e.matrix.d - 1.0).abs() < 1e-9);
         } else {
             panic!("esperado Content::Transform");
         }
@@ -3112,10 +3112,10 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("ay".into(), Value::Angle(Angle::deg(30.0)));
         let r = native_skew(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Transform { matrix, .. }) = r {
+        if let Value::Content(Content::Transform(e)) = r {
             // b = tan(30°) ≈ 0.5774; c = 0.
-            assert!((matrix.b - 0.5774).abs() < 0.001, "b esperado tan(30°), obteve {}", matrix.b);
-            assert!((matrix.c - 0.0).abs() < 1e-9);
+            assert!((e.matrix.b - 0.5774).abs() < 0.001, "b esperado tan(30°), obteve {}", e.matrix.b);
+            assert!((e.matrix.c - 0.0).abs() < 1e-9);
         } else {
             panic!("esperado Content::Transform");
         }
@@ -3129,9 +3129,9 @@ mod tests {
         args.named.insert("ax".into(), Value::Angle(Angle::deg(15.0)));
         args.named.insert("ay".into(), Value::Angle(Angle::deg(45.0)));
         let r = native_skew(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Transform { matrix, .. }) = r {
-            assert!((matrix.c - 15.0_f64.to_radians().tan()).abs() < 1e-9);
-            assert!((matrix.b - 1.0).abs() < 1e-9, "tan(45°) ≈ 1.0; obteve {}", matrix.b);
+        if let Value::Content(Content::Transform(e)) = r {
+            assert!((e.matrix.c - 15.0_f64.to_radians().tan()).abs() < 1e-9);
+            assert!((e.matrix.b - 1.0).abs() < 1e-9, "tan(45°) ≈ 1.0; obteve {}", e.matrix.b);
         } else {
             panic!("esperado Content::Transform");
         }
@@ -3145,9 +3145,9 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("ax".into(), Value::Float(0.0));
         let r = native_skew(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Transform { matrix, .. }) = r {
+        if let Value::Content(Content::Transform(e)) = r {
             // tan(0) = 0 → identidade.
-            assert_eq!(matrix, TransformMatrix::identity());
+            assert_eq!(e.matrix, TransformMatrix::identity());
         } else {
             panic!("esperado Content::Transform");
         }
@@ -3201,8 +3201,8 @@ mod tests {
         args.named.insert("dx".into(), Value::Float(10.0));
         args.named.insert("dy".into(), Value::Float(5.0));
         let r = native_move(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Transform { matrix, .. }) = r {
-            assert_eq!(matrix, TransformMatrix::translate(10.0, 5.0));
+        if let Value::Content(Content::Transform(e)) = r {
+            assert_eq!(e.matrix, TransformMatrix::translate(10.0, 5.0));
         } else {
             panic!("regressão: native_move deveria produzir Content::Transform");
         }
@@ -3215,13 +3215,13 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("angle".into(), Value::Angle(Angle::deg(90.0)));
         let r = native_rotate(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Transform { matrix, .. }) = r {
+        if let Value::Content(Content::Transform(e)) = r {
             // Comparação de matriz aproximada (rotate usa cos/sin).
             let expected = TransformMatrix::rotate(std::f64::consts::FRAC_PI_2);
-            assert!((matrix.a - expected.a).abs() < 1e-9);
-            assert!((matrix.b - expected.b).abs() < 1e-9);
-            assert!((matrix.c - expected.c).abs() < 1e-9);
-            assert!((matrix.d - expected.d).abs() < 1e-9);
+            assert!((e.matrix.a - expected.a).abs() < 1e-9);
+            assert!((e.matrix.b - expected.b).abs() < 1e-9);
+            assert!((e.matrix.c - expected.c).abs() < 1e-9);
+            assert!((e.matrix.d - expected.d).abs() < 1e-9);
         } else {
             panic!("regressão: native_rotate deveria produzir Content::Transform");
         }
@@ -3234,9 +3234,9 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("x".into(), Value::Float(2.0));
         let r = native_scale(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Transform { matrix, .. }) = r {
+        if let Value::Content(Content::Transform(e)) = r {
             // x: 2.0; y default = sx = 2.0.
-            assert_eq!(matrix, TransformMatrix::scale(2.0, 2.0));
+            assert_eq!(e.matrix, TransformMatrix::scale(2.0, 2.0));
         } else {
             panic!("regressão: native_scale deveria produzir Content::Transform");
         }
@@ -3901,10 +3901,10 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::dir::Dir;
         let r = native_stack(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Stack { children, dir, spacing }) = r {
-            assert!(children.is_empty());
-            assert_eq!(dir, Dir::TTB);  // default
-            assert_eq!(spacing, None);
+        if let Value::Content(Content::Stack(e)) = r {
+            assert!(e.children.is_empty());
+            assert_eq!(e.dir, Dir::TTB);  // default
+            assert_eq!(e.spacing, None);
         } else {
             panic!("esperado Content::Stack");
         }
@@ -3917,8 +3917,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("dir".into(), Value::Str("ltr".into()));
         let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Stack { dir, .. }) = r {
-            assert_eq!(dir, Dir::LTR);
+        if let Value::Content(Content::Stack(e)) = r {
+            assert_eq!(e.dir, Dir::LTR);
         } else {
             panic!("esperado Content::Stack");
         }
@@ -3933,8 +3933,8 @@ mod tests {
             let mut args = p(vec![]);
             args.named.insert("dir".into(), Value::Str(s.into()));
             let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-            if let Value::Content(Content::Stack { dir, .. }) = r {
-                assert_eq!(dir, d, "dir={s}");
+            if let Value::Content(Content::Stack(e)) = r {
+                assert_eq!(e.dir, d, "dir={s}");
             } else {
                 panic!("esperado Content::Stack para dir={s}");
             }
@@ -3948,8 +3948,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("a"))]);
         args.named.insert("spacing".into(), Value::Length(Length::pt(8.0)));
         let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Stack { spacing, .. }) = r {
-            assert_eq!(spacing, Some(Length::pt(8.0)));
+        if let Value::Content(Content::Stack(e)) = r {
+            assert_eq!(e.spacing, Some(Length::pt(8.0)));
         } else {
             panic!("esperado Content::Stack");
         }
@@ -3964,11 +3964,11 @@ mod tests {
             Value::Content(Content::text("c")),
         ]);
         let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Stack { children, .. }) = r {
-            assert_eq!(children.len(), 3);
-            assert_eq!(children[0].plain_text(), "a");
-            assert_eq!(children[1].plain_text(), "b");
-            assert_eq!(children[2].plain_text(), "c");
+        if let Value::Content(Content::Stack(e)) = r {
+            assert_eq!(e.children.len(), 3);
+            assert_eq!(e.children[0].plain_text(), "a");
+            assert_eq!(e.children[1].plain_text(), "b");
+            assert_eq!(e.children[2].plain_text(), "c");
         } else {
             panic!("esperado Content::Stack");
         }
@@ -3979,9 +3979,9 @@ mod tests {
         null_ctx!(ctx);
         let args = p(vec![Value::Str("hello".into())]);
         let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Stack { children, .. }) = r {
-            assert_eq!(children.len(), 1);
-            assert_eq!(children[0].plain_text(), "hello");
+        if let Value::Content(Content::Stack(e)) = r {
+            assert_eq!(e.children.len(), 1);
+            assert_eq!(e.children[0].plain_text(), "hello");
         } else {
             panic!("esperado Content::Stack");
         }
@@ -4034,10 +4034,10 @@ mod tests {
         args.named.insert("dir".into(), Value::Str("ltr".into()));
         args.named.insert("spacing".into(), Value::Length(Length::pt(4.0)));
         let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Stack { children, dir, spacing }) = r {
-            assert_eq!(children.len(), 2);
-            assert_eq!(dir, Dir::LTR);
-            assert_eq!(spacing, Some(Length::pt(4.0)));
+        if let Value::Content(Content::Stack(e)) = r {
+            assert_eq!(e.children.len(), 2);
+            assert_eq!(e.dir, Dir::LTR);
+            assert_eq!(e.spacing, Some(Length::pt(4.0)));
         } else {
             panic!("esperado Content::Stack");
         }
@@ -4224,7 +4224,7 @@ mod tests {
         // Stack
         let args = p(vec![Value::Content(Content::text("a"))]);
         let r = native_stack(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Stack { .. })));
+        assert!(matches!(r, Value::Content(Content::Stack(e))));
         // Block
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("width".into(), Value::Length(Length::pt(50.0)));
@@ -4661,8 +4661,8 @@ mod tests {
         args.named.insert("float".into(), Value::Bool(true));
         let r = native_place(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Place { float, .. }) = r {
-            assert_eq!(float, true);
+        if let Value::Content(Content::Place(e)) = r {
+            assert_eq!(e.float, true);
         } else {
             panic!("esperado Content::Place");
         }
@@ -4675,8 +4675,8 @@ mod tests {
         let r = native_place(&mut ctx, &p(vec![
             Value::Content(Content::text("a")),
         ]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Place { float, .. }) = r {
-            assert_eq!(float, false, "default float == false");
+        if let Value::Content(Content::Place(e)) = r {
+            assert_eq!(e.float, false, "default float == false");
         } else {
             panic!("esperado Content::Place");
         }
@@ -4702,8 +4702,8 @@ mod tests {
         args.named.insert("clearance".into(), Value::Length(Length::pt(5.0)));
         let r = native_place(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Place { clearance, .. }) = r {
-            assert_eq!(clearance, Some(Length::pt(5.0)));
+        if let Value::Content(Content::Place(e)) = r {
+            assert_eq!(e.clearance, Some(Length::pt(5.0)));
         } else {
             panic!("esperado Content::Place");
         }
@@ -4742,9 +4742,9 @@ mod tests {
         let r = native_place(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
         use crate::entities::layout_types::PlaceScope;
-        if let Value::Content(Content::Place { scope, float, .. }) = r {
-            assert!(matches!(scope, PlaceScope::Parent));
-            assert_eq!(float, true);
+        if let Value::Content(Content::Place(e)) = r {
+            assert!(matches!(e.scope, PlaceScope::Parent));
+            assert_eq!(e.float, true);
         } else {
             panic!("esperado Content::Place");
         }
@@ -6364,10 +6364,10 @@ mod tests {
     fn native_cite_so_key_posicional() {
         null_ctx!(ctx);
         let r = native_cite(&mut ctx, &p(vec![Value::Str("smith2024".into())]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Cite { key, supplement, form }) = r {
-            assert_eq!(key, "smith2024");
-            assert!(supplement.is_none());
-            assert!(form.is_none());
+        if let Value::Content(Content::Cite(e)) = r {
+            assert_eq!(e.key, "smith2024");
+            assert!(e.supplement.is_none());
+            assert!(e.form.is_none());
         } else {
             panic!("esperado Content::Cite");
         }
@@ -6379,8 +6379,8 @@ mod tests {
         let mut args = p(vec![Value::Str("smith2024".into())]);
         args.named.insert("supplement".into(), Value::Str("p. 42".into()));
         let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Cite { supplement, .. }) = r {
-            assert_eq!(supplement.as_ref().map(|s| s.plain_text()).as_deref(), Some("p. 42"));
+        if let Value::Content(Content::Cite(e)) = r {
+            assert_eq!(e.supplement.as_ref().map(|s| s.plain_text()).as_deref(), Some("p. 42"));
         } else {
             panic!("esperado Content::Cite");
         }
@@ -6418,8 +6418,8 @@ mod tests {
         let mut args = p(vec![Value::Str("k".into())]);
         args.named.insert("form".into(), Value::Str("normal".into()));
         let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Cite { form, .. }) = r {
-            assert_eq!(form, Some(CitationForm::Normal));
+        if let Value::Content(Content::Cite(e)) = r {
+            assert_eq!(e.form, Some(CitationForm::Normal));
         } else {
             panic!("esperado Content::Cite");
         }
@@ -6432,8 +6432,8 @@ mod tests {
         let mut args = p(vec![Value::Str("k".into())]);
         args.named.insert("form".into(), Value::Str("prose".into()));
         let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Cite { form, .. }) = r {
-            assert_eq!(form, Some(CitationForm::Prose));
+        if let Value::Content(Content::Cite(e)) = r {
+            assert_eq!(e.form, Some(CitationForm::Prose));
         } else {
             panic!("esperado Content::Cite");
         }
@@ -6446,8 +6446,8 @@ mod tests {
         let mut args = p(vec![Value::Str("k".into())]);
         args.named.insert("form".into(), Value::Str("author".into()));
         let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Cite { form, .. }) = r {
-            assert_eq!(form, Some(CitationForm::Author));
+        if let Value::Content(Content::Cite(e)) = r {
+            assert_eq!(e.form, Some(CitationForm::Author));
         } else {
             panic!("esperado Content::Cite");
         }
@@ -6460,8 +6460,8 @@ mod tests {
         let mut args = p(vec![Value::Str("k".into())]);
         args.named.insert("form".into(), Value::Str("year".into()));
         let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Cite { form, .. }) = r {
-            assert_eq!(form, Some(CitationForm::Year));
+        if let Value::Content(Content::Cite(e)) = r {
+            assert_eq!(e.form, Some(CitationForm::Year));
         } else {
             panic!("esperado Content::Cite");
         }
@@ -6473,8 +6473,8 @@ mod tests {
         let mut args = p(vec![Value::Str("k".into())]);
         args.named.insert("form".into(), Value::Auto);
         let r = native_cite(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Cite { form, .. }) = r {
-            assert!(form.is_none(), "form=auto deve produzir None (resolvido a Normal default em layout)");
+        if let Value::Content(Content::Cite(e)) = r {
+            assert!(e.form.is_none(), "form=auto deve produzir None (resolvido a Normal default em layout)");
         } else {
             panic!("esperado Content::Cite");
         }
@@ -7513,7 +7513,7 @@ mod tests {
         use super::native_smartquote;
         null_ctx!(ctx);
         let r = native_smartquote(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
-        assert_eq!(r, Value::Content(Content::SmartQuote { double: true }),
+        assert_eq!(r, Value::Content(Content::smartquote(true)),
             "smartquote() sem args → SmartQuote {{ double: true }} (vanilla default)");
     }
 
@@ -7524,7 +7524,7 @@ mod tests {
         let mut args = p(vec![]);
         args.named.insert("double".into(), Value::Bool(false));
         let r = native_smartquote(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert_eq!(r, Value::Content(Content::SmartQuote { double: false }));
+        assert_eq!(r, Value::Content(Content::smartquote(false)));
     }
 
     #[test]
