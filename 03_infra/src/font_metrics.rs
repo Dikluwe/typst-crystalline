@@ -7,17 +7,13 @@
 use std::collections::HashMap;
 
 use ttf_parser::Face;
-use typst_core::{
-    entities::{
-        glyph_variants::{
-            GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants,
-            MathGlyphKern, MathKernRecord, MathKernTable,
-        },
-        layout_types::Pt,
-        math_constants::MathConstants,
-    },
-    rules::layout::FontMetrics,
+use typst_core::entities::glyph_variants::{
+    GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants,
+    MathGlyphKern, MathKernRecord, MathKernTable,
 };
+use typst_core::entities::layout_types::Pt;
+use typst_core::entities::math_constants::MathConstants;
+use typst_core::rules::layout::FontMetrics;
 
 /// Extrai variantes verticais de um glifo directamente a partir da face.
 fn extract_variants(face: &Face<'_>, c: char) -> GlyphVariants {

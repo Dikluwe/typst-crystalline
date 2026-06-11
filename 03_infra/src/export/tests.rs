@@ -13,10 +13,8 @@
 //! Conteúdo bit-exact pré e pós migração — só path muda.
 
 use super::*;
-use typst_core::{
-    entities::content::Content,
-    rules::layout::layout,
-};
+use typst_core::entities::content::Content;
+use typst_core::rules::layout::layout;
 
     #[test]
     fn pdf_header_correcto() {

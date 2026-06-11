@@ -4,10 +4,9 @@
 //! @layer L3
 //! @updated 2026-03-28
 
-use typst_core::{
-    entities::{content::Content, layout_types::PagedDocument},
-    rules::layout::Layouter,
-};
+use typst_core::entities::content::Content;
+use typst_core::entities::layout_types::PagedDocument;
+use typst_core::rules::layout::Layouter;
 
 use crate::font_metrics::FontBookMetrics;
 use crate::image_sizer::ImageSizeImageSizer;
