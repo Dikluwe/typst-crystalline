@@ -222,27 +222,27 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::CounterUpdate { .. }
         | Content::Outline
         | Content::Linebreak
-        | Content::MathAlignPoint
+        | Content::MathAlignPoint(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
         // P287 — SmartQuote leaf (sem CounterDisplay possível).
         | Content::SmartQuote { .. }
         | Content::Equation { .. }
         | Content::MathSequence(_)
-        | Content::MathFrac { .. }
-        | Content::MathAttach { .. }
-        | Content::MathRoot { .. }
-        | Content::MathDelimited { .. }
-        | Content::MathMatrix { .. }
-        | Content::MathCases { .. }
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathRoot(_)
+        | Content::MathDelimited(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
         // P296 — Math accent/cancel terminais em materialize_time
         // (paralelo MathFrac/MathRoot; sem CounterDisplay no body).
-        | Content::MathAccent { .. }
-        | Content::MathCancel { .. }
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
         // P297 — Math underover terminal (paralelo P296).
-        | Content::MathUnderover { .. }
+        | Content::MathUnderover(_)
         // P298 — Math op terminal (paralelo cluster math).
-        | Content::MathOp { .. }
+        | Content::MathOp(_)
         // P311b.2 — MathStyled terminal em materialize_time (math structural).
         | Content::MathStyled(_)
         | Content::Image { .. }
@@ -1159,24 +1159,24 @@ pub(crate) fn walk(
         | Content::MathSequence(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
-        | Content::MathFrac { .. }
-        | Content::MathAttach { .. }
-        | Content::MathRoot { .. }
-        | Content::MathDelimited { .. }
-        | Content::MathMatrix { .. }
-        | Content::MathCases { .. }
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathRoot(_)
+        | Content::MathDelimited(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
         // P296 — Math accent/cancel sem children non-math em walk
         // (paralelo MathFrac/MathRoot: math layout interno não emite
         // tags introspecção).
-        | Content::MathAccent { .. }
-        | Content::MathCancel { .. }
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
         // P297 — Math underover terminal em walk (paralelo P296).
-        | Content::MathUnderover { .. }
+        | Content::MathUnderover(_)
         // P298 — Math op terminal em walk.
-        | Content::MathOp { .. }
+        | Content::MathOp(_)
         // P311b.2 — MathStyled terminal em walk (math structural).
         | Content::MathStyled(_)
-        | Content::MathAlignPoint
+        | Content::MathAlignPoint(_)
         | Content::Linebreak
         // P287 — SmartQuote leaf (não-locatable; sem counters).
         | Content::SmartQuote { .. }

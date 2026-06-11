@@ -63,7 +63,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 let ch = s.chars().next().unwrap_or('\0');
                 symbols::is_large_operator(ch) || symbols::is_limit_function(s.as_str())
             }
-            Content::MathOp { limits, .. } => *limits,
+            Content::MathOp(e) => e.limits,
             _ => false,
         };
 

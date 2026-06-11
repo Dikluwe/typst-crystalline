@@ -809,21 +809,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::MathSequence(_)
             | Content::MathIdent(_)
             | Content::MathText(_)
-            | Content::MathFrac { .. }
-            | Content::MathAttach { .. }
-            | Content::MathRoot { .. }
-            | Content::MathDelimited { .. }
-            | Content::MathMatrix { .. }
-            | Content::MathCases { .. }
+            | Content::MathFrac(_)
+            | Content::MathAttach(_)
+            | Content::MathRoot(_)
+            | Content::MathDelimited(_)
+            | Content::MathMatrix(_)
+            | Content::MathCases(_)
             // P296 — Math accent/cancel também fall-through aqui se
             // aparecerem fora de `Content::Equation`. Tratamento real
             // dentro de equation via `rules/math/layout/mod.rs`.
-            | Content::MathAccent { .. }
-            | Content::MathCancel { .. }
+            | Content::MathAccent(_)
+            | Content::MathCancel(_)
             // P297 — Math underover (paralelo P296).
-            | Content::MathUnderover { .. }
+            | Content::MathUnderover(_)
             // P298 — Math op (paralelo cluster math).
-            | Content::MathOp { .. }
+            | Content::MathOp(_)
             // P311b.2 — MathStyled fall-through (tratamento real em `math/layout`).
             | Content::MathStyled(_) => {
                 // Nós matemáticos internos — normalmente não aparecem directamente
@@ -835,7 +835,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // Marcadores estruturais de equações — ignorados fora de contexto matemático.
-            Content::MathAlignPoint | Content::Linebreak => {}
+            Content::MathAlignPoint(_) | Content::Linebreak => {}
 
             // Passo 60 — Labelled e Ref delegados a references.rs (Passo 61).
             // Passo 63 — label passada para registo de página.

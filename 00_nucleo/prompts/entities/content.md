@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 0ed6eb91
+Hash do Código: ada8c6d9
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -58,6 +58,45 @@ ver `entities/elements/{divider,heading,math_styled}.md`.
   fornece `element_kind`/`to_payload`, absorvendo o braço Heading de
   `ElementKind`/`extract_payload`)
 - `MathStyled { … }` → `MathStyled(Arc<MathStyledElem>)`
+
+**Lote 2 P317** (família math element-shaped — **11 variantes**; ordem de
+migração por **largura de uso crescente**): cada migra para
+`Math*(Arc<Math*Elem>)`, com módulo `entities/elements/math_<nome>.rs` e L0
+próprio. **Nenhuma é locatável** (confirmado P317: zero refs em `ElementKind`/
+introspecção → `element_kind`/`to_payload` ficam no default `None`). Os braços
+math em `map_text` permanecem **terminais** (math structural — não descem,
+paridade `MathStyled`/`Divider`: a variante migrada fica no bloco terminal `|`
+como `Content::Math*(_)` e o hub clona em bloco; o `Elem::map_text` existe pelo
+contrato do trait); em `map_content` os contentores recursam.
+
+| variante | módulo / L0 | forma | shape |
+|---|---|---|---|
+| `MathCases { rows }` | `math_cases` | `MathCases(Arc<MathCasesElem>)` | grelha (recurse) |
+| `MathMatrix { rows, delim }` | `math_matrix` | `MathMatrix(Arc<MathMatrixElem>)` | grelha (recurse) |
+| `MathAlignPoint` | `math_align_point` | `MathAlignPoint(Arc<…Elem>)` | marcador unit |
+| `MathAccent { base, accent }` | `math_accent` | `MathAccent(Arc<…Elem>)` | contentor (recurse) |
+| `MathCancel { body }` | `math_cancel` | `MathCancel(Arc<…Elem>)` | contentor (recurse) |
+| `MathDelimited { open, body, close }` | `math_delimited` | `MathDelimited(Arc<…Elem>)` | contentor (recurse body) |
+| `MathRoot { index, radicand }` | `math_root` | `MathRoot(Arc<…Elem>)` | contentor (recurse) |
+| `MathUnderover { base, under, over }` | `math_underover` | `MathUnderover(Arc<…Elem>)` | contentor (recurse) |
+| `MathFrac { num, den }` | `math_frac` | `MathFrac(Arc<…Elem>)` | contentor (recurse) |
+| `MathAttach { base, tl, bl, sub, sup }` | `math_attach` | `MathAttach(Arc<…Elem>)` | contentor (recurse) |
+| `MathOp { text, limits }` | `math_op` | `MathOp(Arc<…Elem>)` | contentor (recurse text) |
+
+Os campos `Box<Content>` desboxam para `Content` no `…Elem` (paridade
+`MathStyledElem`, P316); `Option<Box<Content>>` → `Option<Content>`;
+`Vec<Vec<Content>>` mantém-se. Cada `…Elem` ganha construtor ergonómico
+`Content::math_<nome>(…)`. `MathLayouter` (`rules/math/layout`) passa a
+destructurar `Arc<Math*Elem>` — **mesma lógica**, não editado por estes L0.
+
+**Primitivos de AST diferidos** (decisão do dono no checkpoint P317):
+`MathSequence` (contentor, largura 21), `MathText` (folha, 50) e `MathIdent`
+(folha, 108) **não migram** neste lote — a guideline de elegibilidade exclui
+folhas/contentores quentes (risco `Arc` em folha hot, ADR-0029/0030). Os seus L0
+ficam redigidos mas **não materializados** (marcados ⏸️). Migração futura é
+**decisão própria** para o grupo `{MathSequence, MathText, MathIdent, Sequence,
+Empty, Block}`: migrar com medição de performance, manter inline por design via
+nota na ADR-0105, ou forma terceira.
 
 **Estado misto** (esperado, ADR-0105): durante os lotes o `enum` mistura
 variantes migradas (`Nome(Arc<…>)`) e por migrar (`Nome { … }`); os 6 matches

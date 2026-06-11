@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 11a75979
+//! @prompt-hash 3dca845b
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -31,6 +31,18 @@ use crate::entities::elements::Element;
 use crate::entities::elements::divider::DividerElem;
 use crate::entities::elements::heading::HeadingElem;
 use crate::entities::elements::math_styled::MathStyledElem;
+// Lote 2 P317 — família math element-shaped (11 variantes).
+use crate::entities::elements::math_accent::MathAccentElem;
+use crate::entities::elements::math_align_point::MathAlignPointElem;
+use crate::entities::elements::math_attach::MathAttachElem;
+use crate::entities::elements::math_cancel::MathCancelElem;
+use crate::entities::elements::math_cases::MathCasesElem;
+use crate::entities::elements::math_delimited::MathDelimitedElem;
+use crate::entities::elements::math_frac::MathFracElem;
+use crate::entities::elements::math_matrix::MathMatrixElem;
+use crate::entities::elements::math_op::MathOpElem;
+use crate::entities::elements::math_root::MathRootElem;
+use crate::entities::elements::math_underover::MathUnderoverElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -101,42 +113,31 @@ pub enum Content {
     MathText(EcoString),
 
     /// Fracção matemática (`a/b` ou `frac(a, b)`).
-    MathFrac {
-        num: Box<Content>,
-        den: Box<Content>,
-    },
+    /// **Modelo D (Lote 2 P317)**: `entities::elements::math_frac::MathFracElem`.
+    MathFrac(Arc<MathFracElem>),
 
     /// Base com índice e/ou expoente (`x_1^2`, `{}^{14}_6 C`).
     /// `tl`/`bl` = pre-scripts à esquerda (Passo 46).
     /// `sub`/`sup` = scripts à direita.
-    MathAttach {
-        base: Box<Content>,
-        tl:   Option<Box<Content>>, // top-left (pre-superscript)
-        bl:   Option<Box<Content>>, // bottom-left (pre-subscript)
-        sub:  Option<Box<Content>>, // bottom-right (subscript)
-        sup:  Option<Box<Content>>, // top-right (superscript)
-    },
+    /// **Modelo D (Lote 2 P317)**: `entities::elements::math_attach::MathAttachElem`.
+    MathAttach(Arc<MathAttachElem>),
 
     /// Raiz matemática (`√x`, `∛x`, `∜x`).
     /// `index`: None = raiz quadrada, Some(n) = raiz n-ésima.
-    MathRoot {
-        index:    Option<Box<Content>>,
-        radicand: Box<Content>,
-    },
+    /// **Modelo D (Lote 2 P317)**: `entities::elements::math_root::MathRootElem`.
+    MathRoot(Arc<MathRootElem>),
 
     /// Expressão entre delimitadores (`(...)`, `[...]`, `{...}`).
     /// `open`/`close` são os caracteres delimitadores.
     /// Mantida como variante própria para que o layout possa
     /// seleccionar variantes de tamanho (Passo 42).
-    MathDelimited {
-        open:  char,
-        body:  Box<Content>,
-        close: char,
-    },
+    /// **Modelo D (Lote 2 P317)**: `entities::elements::math_delimited::MathDelimitedElem`.
+    MathDelimited(Arc<MathDelimitedElem>),
 
     /// Ponto de alinhamento em equações matemáticas (`&`).
     /// Separa colunas no layout de grelha (Passo 51).
-    MathAlignPoint,
+    /// **Modelo D (Lote 2 P317)**: `entities::elements::math_align_point::MathAlignPointElem`.
+    MathAlignPoint(Arc<MathAlignPointElem>),
 
     /// Quebra de linha em contexto matemático (`\\`).
     /// Separa linhas no layout de grelha (Passo 51).
@@ -145,17 +146,14 @@ pub enum Content {
     /// Matriz matemática produzida pela função `mat(...)`.
     /// `rows`: lista de linhas, cada linha é uma lista de células.
     /// `delim`: par de delimitadores (`('(', ')')` por defeito).
-    MathMatrix {
-        rows:  Vec<Vec<Content>>,
-        delim: (char, char),
-    },
+    /// **Modelo D (Lote 2 P317)**: `entities::elements::math_matrix::MathMatrixElem`.
+    MathMatrix(Arc<MathMatrixElem>),
 
     /// Função definida por ramos, produzida pela função `cases(...)`.
     /// `rows`: lista de ramos; cada ramo é um array de células (separadas por `&`).
     /// Delimitador esquerdo `{`; sem delimitador direito.
-    MathCases {
-        rows: Vec<Vec<Content>>,
-    },
+    /// **Modelo D (Lote 2 P317)**: `entities::elements::math_cases::MathCasesElem`.
+    MathCases(Arc<MathCasesElem>),
 
     // ── Passo 296 — Math accent + cancel (P-math-accent-cancel) ─────────
     /// Acento matemático — vanilla `AccentElem`.
@@ -168,10 +166,8 @@ pub enum Content {
     /// **A.0.0 N=4 refuta classificação Tabela A.4 linha 118**:
     /// `accent` estava marcado `parcial` mas zero hits no L1 pré-P296;
     /// classificação corrigida `ausente` → `implementado`.
-    MathAccent {
-        base:   Box<Content>,
-        accent: Box<Content>,
-    },
+    /// **Modelo D (Lote 2 P317)**: `entities::elements::math_accent::MathAccentElem`.
+    MathAccent(Arc<MathAccentElem>),
 
     /// Linha de cancelamento sobre conteúdo matemático — vanilla
     /// `CancelElem`.
@@ -186,9 +182,8 @@ pub enum Content {
     /// **A.0.0 N=4 refuta classificação Tabela A.4 linha 119**:
     /// `cancel` estava marcado `parcial` mas zero hits no L1 pré-P296;
     /// classificação corrigida `ausente` → `implementado`.
-    MathCancel {
-        body: Box<Content>,
-    },
+    /// **Modelo D (Lote 2 P317)**: `entities::elements::math_cancel::MathCancelElem`.
+    MathCancel(Arc<MathCancelElem>),
 
     // ── Passo 297 — `MathUnderover` (P296.1) ─────────────────────────────
     /// Anotações verticais sobre/sob conteúdo matemático — agregação
@@ -211,11 +206,8 @@ pub enum Content {
     /// qualificação Option `Box<Content>` estrutural (não cosmético)
     /// desde P287 refutação. Promoção adiada per P273.17 §0 (uma
     /// ADR meta por passo).
-    MathUnderover {
-        base:  Box<Content>,
-        under: Option<Box<Content>>,
-        over:  Option<Box<Content>>,
-    },
+    /// **Modelo D (Lote 2 P317)**: `entities::elements::math_underover::MathUnderoverElem`.
+    MathUnderover(Arc<MathUnderoverElem>),
 
     // ── Passo 298 — `MathOp` (P296.2 fecho cluster math 4/4) ─────────────
     /// Operador textual matemático — vanilla `OpElem`. Paradigma
@@ -234,10 +226,8 @@ pub enum Content {
     /// **`bool limits` discriminador estrutural ambíguo**: caso
     /// intermédio para "variant rico" N=5 (P297 estabeleceu como
     /// Option estrutural; `bool` não qualifica). Promoção adiada.
-    MathOp {
-        text:   Box<Content>,
-        limits: bool,
-    },
+    /// **Modelo D (Lote 2 P317)**: `entities::elements::math_op::MathOpElem`.
+    MathOp(Arc<MathOpElem>),
 
     // ── Passo 311b.2 — Math style wrapper (Caminho I per P311a) ─────────
     /// Wrapper de variant glyph / flags math style — vanilla
@@ -1282,6 +1272,58 @@ impl Content {
         Self::MathStyled(Arc::new(MathStyledElem { kind, bold, italic, body, cramped }))
     }
 
+    // ── Construtores ergonómicos da família math (Modelo D, Lote 2 P317) ──────
+    /// Construtor de `MathFrac`.
+    pub fn math_frac(num: Content, den: Content) -> Self {
+        Self::MathFrac(Arc::new(MathFracElem { num, den }))
+    }
+    /// Construtor de `MathAttach` (base + pre/pos-scripts opcionais).
+    pub fn math_attach(
+        base: Content,
+        tl:   Option<Content>,
+        bl:   Option<Content>,
+        sub:  Option<Content>,
+        sup:  Option<Content>,
+    ) -> Self {
+        Self::MathAttach(Arc::new(MathAttachElem { base, tl, bl, sub, sup }))
+    }
+    /// Construtor de `MathRoot` (`index: None` = raiz quadrada).
+    pub fn math_root(index: Option<Content>, radicand: Content) -> Self {
+        Self::MathRoot(Arc::new(MathRootElem { index, radicand }))
+    }
+    /// Construtor de `MathDelimited`.
+    pub fn math_delimited(open: char, body: Content, close: char) -> Self {
+        Self::MathDelimited(Arc::new(MathDelimitedElem { open, body, close }))
+    }
+    /// Construtor de `MathAlignPoint` (marcador `&`).
+    pub fn math_align_point() -> Self {
+        Self::MathAlignPoint(Arc::new(MathAlignPointElem))
+    }
+    /// Construtor de `MathMatrix`.
+    pub fn math_matrix(rows: Vec<Vec<Content>>, delim: (char, char)) -> Self {
+        Self::MathMatrix(Arc::new(MathMatrixElem { rows, delim }))
+    }
+    /// Construtor de `MathCases`.
+    pub fn math_cases(rows: Vec<Vec<Content>>) -> Self {
+        Self::MathCases(Arc::new(MathCasesElem { rows }))
+    }
+    /// Construtor de `MathAccent`.
+    pub fn math_accent(base: Content, accent: Content) -> Self {
+        Self::MathAccent(Arc::new(MathAccentElem { base, accent }))
+    }
+    /// Construtor de `MathCancel`.
+    pub fn math_cancel(body: Content) -> Self {
+        Self::MathCancel(Arc::new(MathCancelElem { body }))
+    }
+    /// Construtor de `MathUnderover`.
+    pub fn math_underover(base: Content, under: Option<Content>, over: Option<Content>) -> Self {
+        Self::MathUnderover(Arc::new(MathUnderoverElem { base, under, over }))
+    }
+    /// Construtor de `MathOp` (`limits` é discriminador de layout).
+    pub fn math_op(text: Content, limits: bool) -> Self {
+        Self::MathOp(Arc::new(MathOpElem { text, limits }))
+    }
+
     pub fn raw(text: impl Into<EcoString>, lang: Option<EcoString>, block: bool) -> Self {
         Self::Raw { text: text.into(), lang, block }
     }
@@ -1610,49 +1652,19 @@ impl Content {
             Self::MathSequence(nodes) => nodes.iter().map(|n| n.plain_text()).collect(),
             Self::MathIdent(s)        => s.to_string(),
             Self::MathText(s)         => s.to_string(),
-            Self::MathFrac { num, den } => {
-                format!("({})/({})", num.plain_text(), den.plain_text())
-            }
-            Self::MathAttach { base, tl, bl, sub, sup } => {
-                let mut s = String::new();
-                if let Some(tl) = tl { s.push_str(&format!("^{}", tl.plain_text())); }
-                if let Some(bl) = bl { s.push_str(&format!("_{}", bl.plain_text())); }
-                s.push_str(&base.plain_text());
-                if let Some(sub) = sub { s.push_str(&format!("_{}", sub.plain_text())); }
-                if let Some(sup) = sup { s.push_str(&format!("^{}", sup.plain_text())); }
-                s
-            }
-            Self::MathRoot { index, radicand } => match index {
-                None    => format!("sqrt({})", radicand.plain_text()),
-                Some(i) => format!("root({}, {})", i.plain_text(), radicand.plain_text()),
-            },
-            Self::MathDelimited { open, body, close } => {
-                format!("{}{}{}", open, body.plain_text(), close)
-            }
-            Self::MathAlignPoint => String::new(),
+            // Modelo D (Lote 2 P317): família math delega ao elemento.
+            Self::MathFrac(e)       => e.plain_text(),
+            Self::MathAttach(e)     => e.plain_text(),
+            Self::MathRoot(e)       => e.plain_text(),
+            Self::MathDelimited(e)  => e.plain_text(),
+            Self::MathAlignPoint(e) => e.plain_text(),
             Self::Linebreak      => "\n".to_string(),
-            Self::MathMatrix { rows, .. } => {
-                rows.iter().map(|row| {
-                    row.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(", ")
-                }).collect::<Vec<_>>().join("; ")
-            }
-            Self::MathCases { rows } => {
-                rows.iter().map(|row| {
-                    row.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" & ")
-                }).collect::<Vec<_>>().join(", ")
-            }
-            // P296 — Math accent/cancel: plain_text concatena base+accent / body.
-            Self::MathAccent { base, accent } => format!("{}{}", base.plain_text(), accent.plain_text()),
-            Self::MathCancel { body } => body.plain_text(),
-            // P297 — Underover plain_text concatena over+base+under em ordem visual.
-            Self::MathUnderover { base, under, over } => {
-                let o = over.as_ref().map(|c| c.plain_text()).unwrap_or_default();
-                let b = base.plain_text();
-                let u = under.as_ref().map(|c| c.plain_text()).unwrap_or_default();
-                format!("{}{}{}", o, b, u)
-            }
-            // P298 — Op plain_text apenas o text (limits é discriminador layout).
-            Self::MathOp { text, .. } => text.plain_text(),
+            Self::MathMatrix(e)     => e.plain_text(),
+            Self::MathCases(e)      => e.plain_text(),
+            Self::MathAccent(e)     => e.plain_text(),
+            Self::MathCancel(e)     => e.plain_text(),
+            Self::MathUnderover(e)  => e.plain_text(),
+            Self::MathOp(e)         => e.plain_text(),
             // P311b.2 — MathStyled é transparente para plain_text (wraps body).
             Self::MathStyled(m) => m.plain_text(),
             Self::Labelled { target, .. } => target.plain_text(),
@@ -1812,31 +1824,20 @@ impl PartialEq for Content {
             (Self::MathSequence(a), Self::MathSequence(b))           => a.as_ref() == b.as_ref(),
             (Self::MathIdent(a),    Self::MathIdent(b))              => a == b,
             (Self::MathText(a),     Self::MathText(b))               => a == b,
-            (Self::MathFrac { num: na, den: da },
-             Self::MathFrac { num: nb, den: db })                    => na == nb && da == db,
-            (Self::MathAttach { base: ba, tl: tla, bl: bla, sub: sa, sup: pa },
-             Self::MathAttach { base: bb, tl: tlb, bl: blb, sub: sb, sup: pb })
-                => ba == bb && tla == tlb && bla == blb && sa == sb && pa == pb,
-            (Self::MathRoot { index: ia, radicand: ra },
-             Self::MathRoot { index: ib, radicand: rb })             => ia == ib && ra == rb,
-            (Self::MathDelimited { open: oa, body: ba, close: ca },
-             Self::MathDelimited { open: ob, body: bb, close: cb })  => oa == ob && ba == bb && ca == cb,
-            (Self::MathAlignPoint, Self::MathAlignPoint)             => true,
+            // Modelo D (Lote 2 P317): família math delega ao `Arc<…Elem>`
+            // (PartialEq estrutural derivado em cada `…Elem`).
+            (Self::MathFrac(a),       Self::MathFrac(b))       => a == b,
+            (Self::MathAttach(a),     Self::MathAttach(b))     => a == b,
+            (Self::MathRoot(a),       Self::MathRoot(b))       => a == b,
+            (Self::MathDelimited(a),  Self::MathDelimited(b))  => a == b,
+            (Self::MathAlignPoint(a), Self::MathAlignPoint(b)) => a == b,
             (Self::Linebreak,      Self::Linebreak)                  => true,
-            (Self::MathMatrix { rows: ra, delim: da },
-             Self::MathMatrix { rows: rb, delim: db })               => ra == rb && da == db,
-            (Self::MathCases { rows: ra },
-             Self::MathCases { rows: rb })                           => ra == rb,
-            // P296 — Math accent/cancel PartialEq structural.
-            (Self::MathAccent { base: ba, accent: aa },
-             Self::MathAccent { base: bb, accent: ab })              => ba == bb && aa == ab,
-            (Self::MathCancel { body: ba }, Self::MathCancel { body: bb }) => ba == bb,
-            // P297 — Underover PartialEq structural.
-            (Self::MathUnderover { base: ba, under: ua, over: oa },
-             Self::MathUnderover { base: bb, under: ub, over: ob })          => ba == bb && ua == ub && oa == ob,
-            // P298 — Op PartialEq structural (text + limits flag).
-            (Self::MathOp { text: ta, limits: la },
-             Self::MathOp { text: tb, limits: lb })                          => ta == tb && la == lb,
+            (Self::MathMatrix(a),     Self::MathMatrix(b))     => a == b,
+            (Self::MathCases(a),      Self::MathCases(b))      => a == b,
+            (Self::MathAccent(a),     Self::MathAccent(b))     => a == b,
+            (Self::MathCancel(a),     Self::MathCancel(b))     => a == b,
+            (Self::MathUnderover(a),  Self::MathUnderover(b))  => a == b,
+            (Self::MathOp(a),         Self::MathOp(b))         => a == b,
             // MathStyled PartialEq estrutural (Modelo D P316: delega ao Arc<Elem>).
             (Self::MathStyled(a), Self::MathStyled(b)) => a == b,
             (Self::Labelled { target: ta, label: la },
@@ -2093,65 +2094,19 @@ impl Content {
                     seq.iter().map(|c| c.map_content(transform)).collect();
                 Content::MathSequence(Arc::from(new_seq?))
             },
-            Content::MathFrac { num, den } => Content::MathFrac {
-                num: Box::new(num.map_content(transform)?),
-                den: Box::new(den.map_content(transform)?),
-            },
-            Content::MathAttach { base, tl, bl, sub, sup } => Content::MathAttach {
-                base: Box::new(base.map_content(transform)?),
-                tl:   tl.as_ref().map(|c| c.map_content(transform)).transpose()?.map(Box::new),
-                bl:   bl.as_ref().map(|c| c.map_content(transform)).transpose()?.map(Box::new),
-                sub:  sub.as_ref().map(|c| c.map_content(transform)).transpose()?.map(Box::new),
-                sup:  sup.as_ref().map(|c| c.map_content(transform)).transpose()?.map(Box::new),
-            },
-            Content::MathRoot { index, radicand } => Content::MathRoot {
-                index:    index.as_ref().map(|c| c.map_content(transform)).transpose()?.map(Box::new),
-                radicand: Box::new(radicand.map_content(transform)?),
-            },
-            Content::MathDelimited { open, body, close } => Content::MathDelimited {
-                open:  *open,
-                body:  Box::new(body.map_content(transform)?),
-                close: *close,
-            },
-            Content::MathMatrix { rows, delim } => {
-                let new_rows: crate::entities::source_result::SourceResult<Vec<Vec<Content>>> =
-                    rows.iter()
-                        .map(|row| row.iter().map(|c| c.map_content(transform)).collect())
-                        .collect();
-                Content::MathMatrix { rows: new_rows?, delim: *delim }
-            },
-            Content::MathCases { rows } => {
-                let new_rows: crate::entities::source_result::SourceResult<Vec<Vec<Content>>> =
-                    rows.iter()
-                        .map(|row| row.iter().map(|c| c.map_content(transform)).collect())
-                        .collect();
-                Content::MathCases { rows: new_rows? }
-            },
-            // P296 — Math accent/cancel map_content recursivo.
-            Content::MathAccent { base, accent } => Content::MathAccent {
-                base:   Box::new(base.map_content(transform)?),
-                accent: Box::new(accent.map_content(transform)?),
-            },
-            Content::MathCancel { body } => Content::MathCancel {
-                body: Box::new(body.map_content(transform)?),
-            },
-            // P297 — Underover map_content recursivo nos 3 campos (Option preserva None).
-            Content::MathUnderover { base, under, over } => Content::MathUnderover {
-                base: Box::new(base.map_content(transform)?),
-                under: under.as_ref()
-                    .map(|c| c.map_content(transform))
-                    .transpose()?
-                    .map(Box::new),
-                over: over.as_ref()
-                    .map(|c| c.map_content(transform))
-                    .transpose()?
-                    .map(Box::new),
-            },
-            // P298 — Op map_content recursivo em text; preserva limits flag.
-            Content::MathOp { text, limits } => Content::MathOp {
-                text:   Box::new(text.map_content(transform)?),
-                limits: *limits,
-            },
+            // Modelo D (Lote 2 P317): família math delega ao elemento
+            // (cada `…Elem::map_content` recurse nos filhos e re-embrulha).
+            Content::MathFrac(e)      => e.map_content(transform)?,
+            Content::MathAttach(e)    => e.map_content(transform)?,
+            Content::MathRoot(e)      => e.map_content(transform)?,
+            Content::MathDelimited(e) => e.map_content(transform)?,
+            Content::MathMatrix(e)    => e.map_content(transform)?,
+            Content::MathCases(e)     => e.map_content(transform)?,
+            Content::MathAccent(e)    => e.map_content(transform)?,
+            Content::MathCancel(e)    => e.map_content(transform)?,
+            Content::MathUnderover(e) => e.map_content(transform)?,
+            Content::MathOp(e)        => e.map_content(transform)?,
+            Content::MathAlignPoint(e) => e.map_content(transform)?,
             // P311b.2 — MathStyled map_content recursivo (Modelo D P316: delega).
             Content::MathStyled(m) => m.map_content(transform)?,
 
@@ -2288,7 +2243,6 @@ impl Content {
             | Content::SetPage { .. }
             | Content::CounterUpdate { .. }
             | Content::CounterDisplay { .. }
-            | Content::MathAlignPoint
             | Content::MathIdent(_)
             | Content::MathText(_)
             | Content::Image { .. }
@@ -2611,30 +2565,26 @@ impl Content {
             | Content::SetPage { .. }
             | Content::CounterUpdate { .. }
             | Content::CounterDisplay { .. }
-            | Content::MathAlignPoint
             | Content::MathIdent(_)
             | Content::MathText(_)
             // P287 — SmartQuote leaf (sem texto interno — map_text não recurse).
             | Content::SmartQuote { .. }
             | Content::Equation { .. }
             | Content::MathSequence(_)
-            | Content::MathFrac { .. }
-            | Content::MathAttach { .. }
-            | Content::MathRoot { .. }
-            | Content::MathDelimited { .. }
-            | Content::MathMatrix { .. }
-            | Content::MathCases { .. }
-            // P296 — Math accent/cancel: map_text não recurse em math
-            // estruturas (paralelo MathFrac/MathRoot/MathDelimited;
-            // map_text aplica-se a Text/Heading/etc., não a math
-            // structural).
-            | Content::MathAccent { .. }
-            | Content::MathCancel { .. }
-            // P297 — Underover terminal em map_text (paralelo MathAccent/Cancel;
-            // math structural sem texto plano para transformar).
-            | Content::MathUnderover { .. }
-            // P298 — Op terminal em map_text (paralelo cluster math).
-            | Content::MathOp { .. }
+            // Modelo D (Lote 2 P317): família math é terminal em map_text
+            // (math structural; não desce — paralelo MathStyled/Divider). O
+            // bloco clona em bloco; `…Elem::map_text` existe pelo contrato.
+            | Content::MathAlignPoint(_)
+            | Content::MathFrac(_)
+            | Content::MathAttach(_)
+            | Content::MathRoot(_)
+            | Content::MathDelimited(_)
+            | Content::MathMatrix(_)
+            | Content::MathCases(_)
+            | Content::MathAccent(_)
+            | Content::MathCancel(_)
+            | Content::MathUnderover(_)
+            | Content::MathOp(_)
             // P311b.2 — MathStyled terminal em map_text (math structural).
             | Content::MathStyled(_)
             | Content::Image { .. }
@@ -2906,40 +2856,40 @@ mod tests {
 
     #[test]
     fn content_math_frac_plain_text() {
-        let frac = Content::MathFrac {
-            num: Box::new(Content::MathIdent("a".into())),
-            den: Box::new(Content::MathIdent("b".into())),
-        };
+        let frac = Content::math_frac(
+            Content::MathIdent("a".into()),
+            Content::MathIdent("b".into()),
+        );
         assert_eq!(frac.plain_text(), "(a)/(b)");
     }
 
     #[test]
     fn content_math_attach_plain_text() {
-        let attach = Content::MathAttach {
-            base: Box::new(Content::MathIdent("x".into())),
-            tl:   None,
-            bl:   None,
-            sub:  None,
-            sup:  Some(Box::new(Content::MathText("2".into()))),
-        };
+        let attach = Content::math_attach(
+            Content::MathIdent("x".into()),
+            None,
+            None,
+            None,
+            Some(Content::MathText("2".into())),
+        );
         assert_eq!(attach.plain_text(), "x^2");
     }
 
     #[test]
     fn content_math_root_quadrada() {
-        let root = Content::MathRoot {
-            index:    None,
-            radicand: Box::new(Content::MathIdent("x".into())),
-        };
+        let root = Content::math_root(
+            None,
+            Content::MathIdent("x".into()),
+        );
         assert_eq!(root.plain_text(), "sqrt(x)");
     }
 
     #[test]
     fn content_math_root_cubica() {
-        let root = Content::MathRoot {
-            index:    Some(Box::new(Content::MathText("3".into()))),
-            radicand: Box::new(Content::MathIdent("x".into())),
-        };
+        let root = Content::math_root(
+            Some(Content::MathText("3".into())),
+            Content::MathIdent("x".into()),
+        );
         assert_eq!(root.plain_text(), "root(3, x)");
     }
 

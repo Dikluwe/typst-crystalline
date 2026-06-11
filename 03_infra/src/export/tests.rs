@@ -6573,10 +6573,7 @@ use typst_core::rules::layout::layout;
     fn p285_math_frac_preserva_ausencia_de_rg() {
         // Construir uma fracção mínima via Content::MathFrac.
         let frac = Content::Equation {
-            body:  Box::new(Content::MathFrac {
-                num: Box::new(Content::MathText("1".into())),
-                den: Box::new(Content::MathText("2".into())),
-            }),
+            body:  Box::new(Content::math_frac(Content::MathText("1".into()), Content::MathText("2".into()))),
             block: false,
         };
         let doc = layout(&frac);
@@ -6749,11 +6746,7 @@ use typst_core::rules::layout::layout;
     fn p297_math_underover_com_ambos_emite_3_partes_no_pdf() {
         // base="x", under="u", over="o" → todos 3 visíveis no PDF.
         let doc = layout(&Content::Equation {
-            body: Box::new(Content::MathUnderover {
-                base:  Box::new(Content::MathIdent("x".into())),
-                under: Some(Box::new(Content::MathText("u".into()))),
-                over:  Some(Box::new(Content::MathText("o".into()))),
-            }),
+            body: Box::new(Content::math_underover(Content::MathIdent("x".into()), Some(Content::MathText("u".into())), Some(Content::MathText("o".into())))),
             block: false,
         });
         let pdf = export_pdf(&doc);
@@ -6774,10 +6767,7 @@ use typst_core::rules::layout::layout;
     fn p298_math_op_text_emite_no_pdf() {
         // op("custom") sem attach → renderiza text simples.
         let doc = layout(&Content::Equation {
-            body: Box::new(Content::MathOp {
-                text:   Box::new(Content::MathIdent("custom".into())),
-                limits: false,
-            }),
+            body: Box::new(Content::math_op(Content::MathIdent("custom".into()), false)),
             block: false,
         });
         let pdf = export_pdf(&doc);
@@ -6791,16 +6781,7 @@ use typst_core::rules::layout::layout;
         // em block mode (display). Verifica que PDF é produzido sem
         // crash; layout limits-style aplicado.
         let doc = layout(&Content::Equation {
-            body: Box::new(Content::MathAttach {
-                base: Box::new(Content::MathOp {
-                    text:   Box::new(Content::MathIdent("lim".into())),
-                    limits: true,
-                }),
-                tl:  None,
-                bl:  None,
-                sub: Some(Box::new(Content::MathText("x→0".into()))),
-                sup: None,
-            }),
+            body: Box::new(Content::math_attach(Content::math_op(Content::MathIdent("lim".into()), true), None, None, Some(Content::MathText("x→0".into())), None)),
             block: true,
         });
         let pdf = export_pdf(&doc);
@@ -6815,13 +6796,7 @@ use typst_core::rules::layout::layout;
         // preservada. MathIdent("lim") em block mode + attach _ produz
         // limits-style sem necessidade de `op()`.
         let doc = layout(&Content::Equation {
-            body: Box::new(Content::MathAttach {
-                base: Box::new(Content::MathIdent("lim".into())),
-                tl:  None,
-                bl:  None,
-                sub: Some(Box::new(Content::MathText("y".into()))),
-                sup: None,
-            }),
+            body: Box::new(Content::math_attach(Content::MathIdent("lim".into()), None, None, Some(Content::MathText("y".into())), None)),
             block: true,
         });
         let pdf = export_pdf(&doc);
@@ -6834,11 +6809,7 @@ use typst_core::rules::layout::layout;
     fn p297_math_underover_so_base_emite_so_base_no_pdf() {
         // Both Options None: comporta-se como base só (degenerate).
         let doc = layout(&Content::Equation {
-            body: Box::new(Content::MathUnderover {
-                base:  Box::new(Content::MathIdent("xyz".into())),
-                under: None,
-                over:  None,
-            }),
+            body: Box::new(Content::math_underover(Content::MathIdent("xyz".into()), None, None)),
             block: false,
         });
         let pdf = export_pdf(&doc);
@@ -6874,10 +6845,7 @@ use typst_core::rules::layout::layout;
     fn p296_math_accent_emite_base_e_accent_no_pdf() {
         // Dentro de Equation, accent renderiza base + accent.
         let doc = layout(&Content::Equation {
-            body: Box::new(Content::MathAccent {
-                base:   Box::new(Content::MathIdent("a".into())),
-                accent: Box::new(Content::MathText("^".into())),
-            }),
+            body: Box::new(Content::math_accent(Content::MathIdent("a".into()), Content::MathText("^".into()))),
             block: false,
         });
         let pdf = export_pdf(&doc);
@@ -6891,9 +6859,7 @@ use typst_core::rules::layout::layout;
     fn p296_math_cancel_emite_body_e_linha_diagonal_no_pdf() {
         // Cancel emite body + linha diagonal (PDF operator `m`+`l`+`S`).
         let doc = layout(&Content::Equation {
-            body: Box::new(Content::MathCancel {
-                body: Box::new(Content::MathIdent("x".into())),
-            }),
+            body: Box::new(Content::math_cancel(Content::MathIdent("x".into()))),
             block: false,
         });
         let pdf = export_pdf(&doc);

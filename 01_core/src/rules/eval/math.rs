@@ -105,18 +105,16 @@ fn eval_math_expr(
         Expr::MathFrac(frac) => {
             let num = eval_math_expr(scopes, ctx, frac.num())?;
             let den = eval_math_expr(scopes, ctx, frac.denom())?;
-            Ok(Content::MathFrac { num: Box::new(num), den: Box::new(den) })
+            Ok(Content::math_frac(num, den))
         }
         Expr::MathAttach(attach) => {
             let base = eval_math_expr(scopes, ctx, attach.base())?;
             let sub  = attach.bottom()
                 .map(|e| eval_math_expr(scopes, ctx, e))
-                .transpose()?
-                .map(Box::new);
+                .transpose()?;
             let sup  = attach.top()
                 .map(|e| eval_math_expr(scopes, ctx, e))
-                .transpose()?
-                .map(Box::new);
+                .transpose()?;
 
             // Primes (′ ″ ‴ ⁗) — convertidos para superscript.
             // MathPrimes::count() retorna o número de apóstrofos usando o comprimento em bytes.
@@ -137,22 +135,22 @@ fn eval_math_expr(
             };
 
             // Merge prime com sup existente: primes primeiro, depois o sup original.
-            let sup_final: Option<Box<Content>> = match (prime_char, sup) {
-                (Some(p), None)    => Some(Box::new(p)),
+            let sup_final: Option<Content> = match (prime_char, sup) {
+                (Some(p), None)    => Some(p),
                 (None,    Some(s)) => Some(s),
-                (Some(p), Some(s)) => Some(Box::new(Content::MathSequence(
-                    std::sync::Arc::from(vec![p, *s])
-                ))),
+                (Some(p), Some(s)) => Some(Content::MathSequence(
+                    std::sync::Arc::from(vec![p, s])
+                )),
                 (None,    None)    => None,
             };
 
-            Ok(Content::MathAttach { base: Box::new(base), tl: None, bl: None, sub, sup: sup_final })
+            Ok(Content::math_attach(base, None, None, sub, sup_final))
         }
         Expr::MathRoot(root) => {
             // root.index() retorna Option<u8> — converter para Content::MathText se presente
-            let index = root.index().map(|n| Box::new(Content::MathText(n.to_string().into())));
+            let index = root.index().map(|n| Content::MathText(n.to_string().into()));
             let radicand = eval_math_expr(scopes, ctx, root.radicand())?;
-            Ok(Content::MathRoot { index, radicand: Box::new(radicand) })
+            Ok(Content::math_root(index, radicand))
         }
         Expr::Math(inner) => eval_math_content(scopes, ctx, inner),
 
@@ -164,7 +162,7 @@ fn eval_math_expr(
             let close_str = delim.close().to_untyped().text();
             let open  = open_str.as_str().chars().next().unwrap_or('(');
             let close = close_str.as_str().chars().next().unwrap_or(')');
-            Ok(Content::MathDelimited { open, body: Box::new(body), close })
+            Ok(Content::math_delimited(open, body, close))
         }
 
         // frac() e outras funções nativas de math (Passo 38)
@@ -182,7 +180,7 @@ fn eval_math_expr(
                     if let (Some(num_expr), Some(den_expr)) = (pos_args.next(), pos_args.next()) {
                         let num = eval_math_expr(scopes, ctx, num_expr)?;
                         let den = eval_math_expr(scopes, ctx, den_expr)?;
-                        Ok(Content::MathFrac { num: Box::new(num), den: Box::new(den) })
+                        Ok(Content::math_frac(num, den))
                     } else {
                         Ok(Content::Empty)
                     }
@@ -200,7 +198,7 @@ fn eval_math_expr(
                         )]);
                     }
                     let radicand = eval_math_expr(scopes, ctx, args[0])?;
-                    Ok(Content::MathRoot { index: None, radicand: Box::new(radicand) })
+                    Ok(Content::math_root(None, radicand))
                 }
                 // root(n, x) — 2 argumentos posicionais: índice, radicando
                 "root" => {
@@ -216,7 +214,7 @@ fn eval_math_expr(
                     }
                     let index    = eval_math_expr(scopes, ctx, args[0])?;
                     let radicand = eval_math_expr(scopes, ctx, args[1])?;
-                    Ok(Content::MathRoot { index: Some(Box::new(index)), radicand: Box::new(radicand) })
+                    Ok(Content::math_root(Some(index), radicand))
                 }
                 // vec(...) — vector coluna (Passo 55): cada arg torna-se uma linha de uma célula.
                 // Os args são planos (sem `;`), por isso não há Arrays intermediários.
@@ -229,7 +227,7 @@ fn eval_math_expr(
                         let cell = eval_math_expr(scopes, ctx, expr)?;
                         rows.push(vec![cell]);
                     }
-                    Ok(Content::MathMatrix { rows, delim: ('(', ')') })
+                    Ok(Content::math_matrix(rows, ('(', ')')))
                 }
 
                 // cases(...) — função por ramos (Passo 55): args separados por vírgula.
@@ -246,7 +244,7 @@ fn eval_math_expr(
                                 let mut cols: Vec<Vec<Content>> = vec![vec![]];
                                 for item in items.iter() {
                                     match item {
-                                        Content::MathAlignPoint => cols.push(vec![]),
+                                        Content::MathAlignPoint(_) => cols.push(vec![]),
                                         other => cols.last_mut().unwrap().push(other.clone()),
                                     }
                                 }
@@ -259,7 +257,7 @@ fn eval_math_expr(
                         };
                         rows.push(cells);
                     }
-                    Ok(Content::MathCases { rows })
+                    Ok(Content::math_cases(rows))
                 }
 
                 // mat(...) — matriz matemática (Passo 54)
@@ -295,7 +293,7 @@ fn eval_math_expr(
                         }
                         if !row.is_empty() { rows.push(row); }
                     }
-                    Ok(Content::MathMatrix { rows, delim: ('(', ')') })
+                    Ok(Content::math_matrix(rows, ('(', ')')))
                 }
 
                 // Outros nomes: P301 auto-lookup math (sin, cos, lim, …)
@@ -339,18 +337,14 @@ fn eval_math_expr(
                         }
                         Content::MathSequence(std::sync::Arc::from(items))
                     };
-                    let delimited = Content::MathDelimited {
-                        open:  '(',
-                        body:  Box::new(body),
-                        close: ')',
-                    };
+                    let delimited = Content::math_delimited('(', body, ')');
                     Ok(Content::MathSequence(std::sync::Arc::from(vec![base, delimited])))
                 }
             }
         }
 
         // Ponto de alinhamento (`&`) e quebra de linha (`\\`) em equações
-        Expr::MathAlignPoint(_) => Ok(Content::MathAlignPoint),
+        Expr::MathAlignPoint(_) => Ok(Content::math_align_point()),
         Expr::Linebreak(_)      => Ok(Content::Linebreak),
 
         // Primes e outros nós não implementados → placeholder vazio

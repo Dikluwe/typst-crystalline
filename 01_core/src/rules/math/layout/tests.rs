@@ -58,10 +58,7 @@ fn math_layouter_sequence_produz_multiplos_items() {
 #[test]
 fn math_layouter_frac_sem_placeholder_colchetes() {
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let frac = Content::MathFrac {
-        num: Box::new(Content::MathIdent("a".into())),
-        den: Box::new(Content::MathIdent("b".into())),
-    };
+    let frac = Content::math_frac(Content::MathIdent("a".into()), Content::MathIdent("b".into()));
     let items = ml.layout_equation(&frac, &default_style());
     for item in &items {
         if let FrameItem::Text { text, .. } = item {
@@ -93,13 +90,7 @@ fn math_layouter_cursor_avanca_horizontalmente() {
 #[test]
 fn math_layouter_math_attach_sem_colchetes() {
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("x".into())),
-        tl:   None,
-        bl:   None,
-        sub:  None,
-        sup:  Some(Box::new(Content::MathText("2".into()))),
-    };
+    let attach = Content::math_attach(Content::MathIdent("x".into()), None, None, None, Some(Content::MathText("2".into())));
     let items = ml.layout_equation(&attach, &default_style());
     for item in &items {
         if let FrameItem::Text { text, .. } = item {
@@ -113,10 +104,7 @@ fn math_layouter_math_attach_sem_colchetes() {
 #[test]
 fn math_frac_tem_dois_ou_mais_items() {
     let ml   = MathLayouter::new(&FixedMetrics, true);
-    let frac = Content::MathFrac {
-        num: Box::new(Content::MathIdent("a".into())),
-        den: Box::new(Content::MathIdent("b".into())),
-    };
+    let frac = Content::math_frac(Content::MathIdent("a".into()), Content::MathIdent("b".into()));
     let items = ml.layout_equation(&frac, &size10_style());
     assert!(items.len() >= 2, "frac deve ter >= 2 items, tem {}", items.len());
 }
@@ -124,10 +112,7 @@ fn math_frac_tem_dois_ou_mais_items() {
 #[test]
 fn math_frac_numerador_acima_denominador() {
     let ml   = MathLayouter::new(&FixedMetrics, true);
-    let frac = Content::MathFrac {
-        num: Box::new(Content::MathIdent("a".into())),
-        den: Box::new(Content::MathIdent("b".into())),
-    };
+    let frac = Content::math_frac(Content::MathIdent("a".into()), Content::MathIdent("b".into()));
     let items = ml.layout_equation(&frac, &size10_style());
 
     let ys: Vec<f64> = items.iter().filter_map(|item| {
@@ -143,13 +128,7 @@ fn math_frac_numerador_acima_denominador() {
 #[test]
 fn math_attach_sup_elevado() {
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("x".into())),
-        tl:   None,
-        bl:   None,
-        sub:  None,
-        sup:  Some(Box::new(Content::MathIdent("2".into()))),
-    };
+    let attach = Content::math_attach(Content::MathIdent("x".into()), None, None, None, Some(Content::MathIdent("2".into())));
     let items = ml.layout_equation(&attach, &size10_style());
     assert!(items.len() >= 2, "x^2 deve ter >= 2 items");
 
@@ -166,10 +145,7 @@ fn math_attach_sup_elevado() {
 #[test]
 fn math_frac_tem_item_linha() {
     let ml   = MathLayouter::new(&FixedMetrics, true);
-    let frac = Content::MathFrac {
-        num: Box::new(Content::MathIdent("a".into())),
-        den: Box::new(Content::MathIdent("b".into())),
-    };
+    let frac = Content::math_frac(Content::MathIdent("a".into()), Content::MathIdent("b".into()));
     let items = ml.layout_equation(&frac, &size10_style());
     let has_line = items.iter().any(|item| matches!(item, FrameItem::Line { .. }));
     assert!(has_line, "frac deve ter FrameItem::Line para a linha de fracção");
@@ -178,10 +154,7 @@ fn math_frac_tem_item_linha() {
 #[test]
 fn math_frac_linha_horizontal() {
     let ml   = MathLayouter::new(&FixedMetrics, true);
-    let frac = Content::MathFrac {
-        num: Box::new(Content::MathIdent("a".into())),
-        den: Box::new(Content::MathIdent("b".into())),
-    };
+    let frac = Content::math_frac(Content::MathIdent("a".into()), Content::MathIdent("b".into()));
     let items = ml.layout_equation(&frac, &size10_style());
     for item in &items {
         if let FrameItem::Line { start, end, .. } = item {
@@ -196,13 +169,7 @@ fn math_frac_linha_horizontal() {
 #[test]
 fn math_attach_sub_baixado() {
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("x".into())),
-        tl:   None,
-        bl:   None,
-        sub:  Some(Box::new(Content::MathIdent("i".into()))),
-        sup:  None,
-    };
+    let attach = Content::math_attach(Content::MathIdent("x".into()), None, None, Some(Content::MathIdent("i".into())), None);
     let items = ml.layout_equation(&attach, &size10_style());
     assert!(items.len() >= 2);
 
@@ -221,10 +188,7 @@ fn math_attach_sub_baixado() {
 #[test]
 fn layout_root_contem_radical_e_radicando() {
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let root = Content::MathRoot {
-        index:    None,
-        radicand: Box::new(Content::MathIdent("x".into())),
-    };
+    let root = Content::math_root(None, Content::MathIdent("x".into()));
     let items = ml.layout_equation(&root, &default_style());
     // Deve conter pelo menos o símbolo √ e o radicando "x"
     let texts: Vec<_> = items.iter().filter_map(|i| {
@@ -237,10 +201,7 @@ fn layout_root_contem_radical_e_radicando() {
 #[test]
 fn layout_root_tem_overline() {
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let root = Content::MathRoot {
-        index:    None,
-        radicand: Box::new(Content::MathIdent("x".into())),
-    };
+    let root = Content::math_root(None, Content::MathIdent("x".into()));
     let items = ml.layout_equation(&root, &default_style());
     let has_line = items.iter().any(|i| matches!(i, FrameItem::Line { .. }));
     assert!(has_line, "sqrt deve gerar FrameItem::Line para overline");
@@ -249,10 +210,7 @@ fn layout_root_tem_overline() {
 #[test]
 fn layout_root_overline_horizontal() {
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let root = Content::MathRoot {
-        index:    None,
-        radicand: Box::new(Content::MathIdent("x".into())),
-    };
+    let root = Content::math_root(None, Content::MathIdent("x".into()));
     let items = ml.layout_equation(&root, &default_style());
     for item in &items {
         if let FrameItem::Line { start, end, .. } = item {
@@ -265,10 +223,7 @@ fn layout_root_overline_horizontal() {
 #[test]
 fn layout_root_com_indice_contem_indice() {
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let root = Content::MathRoot {
-        index:    Some(Box::new(Content::MathText("3".into()))),
-        radicand: Box::new(Content::MathIdent("x".into())),
-    };
+    let root = Content::math_root(Some(Content::MathText("3".into())), Content::MathIdent("x".into()));
     let items = ml.layout_equation(&root, &default_style());
     let texts: Vec<_> = items.iter().filter_map(|i| {
         if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
@@ -283,11 +238,7 @@ fn layout_root_com_indice_contem_indice() {
 #[test]
 fn layout_delimited_contem_corpo_e_delimitadores() {
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let delim = Content::MathDelimited {
-        open:  '(',
-        body:  Box::new(Content::MathIdent("a".into())),
-        close: ')',
-    };
+    let delim = Content::math_delimited('(', Content::MathIdent("a".into()), ')');
     let items = ml.layout_equation(&delim, &default_style());
     let texts: Vec<_> = items.iter().filter_map(|i| {
         if let FrameItem::Text { text, .. } = i { Some(text.as_str().to_string()) } else { None }
@@ -300,11 +251,7 @@ fn layout_delimited_contem_corpo_e_delimitadores() {
 #[test]
 fn layout_delimited_tres_ou_mais_items() {
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let delim = Content::MathDelimited {
-        open:  '[',
-        body:  Box::new(Content::MathIdent("x".into())),
-        close: ']',
-    };
+    let delim = Content::math_delimited('[', Content::MathIdent("x".into()), ']');
     let items = ml.layout_equation(&delim, &default_style());
     assert!(items.len() >= 3, "delimitado deve ter >= 3 items, tem {}", items.len());
 }
@@ -313,11 +260,7 @@ fn layout_delimited_tres_ou_mais_items() {
 fn layout_delimited_cursor_avanca() {
     // Delimitadores à esquerda e à direita do corpo
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let delim = Content::MathDelimited {
-        open:  '(',
-        body:  Box::new(Content::MathIdent("x".into())),
-        close: ')',
-    };
+    let delim = Content::math_delimited('(', Content::MathIdent("x".into()), ')');
     let items = ml.layout_equation(&delim, &default_style());
     let xs: Vec<f64> = items.iter().filter_map(|i| {
         if let FrameItem::Text { pos, .. } = i { Some(pos.x.val()) } else { None }
@@ -390,11 +333,7 @@ fn layout_stretchy_sem_variantes_sem_assembly_usa_char_base() {
 fn layout_delimited_nao_tem_glyph_com_fixed_metrics() {
     // FixedMetrics não tem variantes — todos os items devem ser Text ou Line
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let delim = Content::MathDelimited {
-        open:  '(',
-        body:  Box::new(Content::MathIdent("a".into())),
-        close: ')',
-    };
+    let delim = Content::math_delimited('(', Content::MathIdent("a".into()), ')');
     let items = ml.layout_equation(&delim, &default_style());
     let has_glyph = items.iter().any(|i| matches!(i, FrameItem::Glyph { .. }));
     assert!(!has_glyph, "FixedMetrics não deve emitir FrameItem::Glyph");
@@ -403,14 +342,7 @@ fn layout_delimited_nao_tem_glyph_com_fixed_metrics() {
 #[test]
 fn frac_dentro_de_delimitadores_nao_regride() {
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let delim = Content::MathDelimited {
-        open: '(',
-        body: Box::new(Content::MathFrac {
-            num: Box::new(Content::MathIdent("a".into())),
-            den: Box::new(Content::MathIdent("b".into())),
-        }),
-        close: ')',
-    };
+    let delim = Content::math_delimited('(', Content::math_frac(Content::MathIdent("a".into()), Content::MathIdent("b".into())), ')');
     let items = ml.layout_equation(&delim, &default_style());
     let texts: Vec<_> = items.iter()
         .filter_map(|i| if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None })
@@ -422,10 +354,7 @@ fn frac_dentro_de_delimitadores_nao_regride() {
 #[test]
 fn sqrt_nao_regride_passo43() {
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let root = Content::MathRoot {
-        index:    None,
-        radicand: Box::new(Content::MathIdent("x".into())),
-    };
+    let root = Content::math_root(None, Content::MathIdent("x".into()));
     let items = ml.layout_equation(&root, &default_style());
     let texts: Vec<_> = items.iter()
         .filter_map(|i| if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None })
@@ -437,13 +366,7 @@ fn sqrt_nao_regride_passo43() {
 #[test]
 fn attach_nao_regride_passo43() {
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("x".into())),
-        tl:   None,
-        bl:   None,
-        sub:  None,
-        sup:  Some(Box::new(Content::MathText("2".into()))),
-    };
+    let attach = Content::math_attach(Content::MathIdent("x".into()), None, None, None, Some(Content::MathText("2".into())));
     let items = ml.layout_equation(&attach, &default_style());
     let texts: Vec<_> = items.iter()
         .filter_map(|i| if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None })
@@ -502,13 +425,7 @@ fn fixed_metrics_math_kern_vazio() {
 fn math_kern_default_nao_afecta_layout() {
     // math_kern com FixedMetrics retorna kern zero — layout não deve mudar
     let ml = MathLayouter::new(&FixedMetrics, true);
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("f".into())),
-        tl:   None,
-        bl:   None,
-        sub:  None,
-        sup:  Some(Box::new(Content::MathText("2".into()))),
-    };
+    let attach = Content::math_attach(Content::MathIdent("f".into()), None, None, None, Some(Content::MathText("2".into())));
     let items = ml.layout_equation(&attach, &default_style());
     assert!(!items.is_empty(), "attach deve produzir items");
 }
@@ -519,10 +436,7 @@ fn items_contain_text(items: &[FrameItem], c: char) -> bool {
 
 #[test]
 fn frac_com_axis_height_nao_regride() {
-    let frac = Content::MathFrac {
-        num: Box::new(Content::MathIdent("a".into())),
-        den: Box::new(Content::MathIdent("b".into())),
-    };
+    let frac = Content::math_frac(Content::MathIdent("a".into()), Content::MathIdent("b".into()));
     let items = layout_equation_items(&frac);
     assert!(items_contain_text(&items, 'a'), "numerador: {:?}", items);
     assert!(items_contain_text(&items, 'b'), "denominador: {:?}", items);
@@ -530,14 +444,7 @@ fn frac_com_axis_height_nao_regride() {
 
 #[test]
 fn delimitado_com_axis_height_nao_regride() {
-    let delim = Content::MathDelimited {
-        open: '(',
-        body: Box::new(Content::MathFrac {
-            num: Box::new(Content::MathIdent("a".into())),
-            den: Box::new(Content::MathIdent("b".into())),
-        }),
-        close: ')',
-    };
+    let delim = Content::math_delimited('(', Content::math_frac(Content::MathIdent("a".into()), Content::MathIdent("b".into())), ')');
     let items = layout_equation_items(&delim);
     assert!(items_contain_text(&items, 'a'));
     assert!(items_contain_text(&items, 'b'));
@@ -545,10 +452,7 @@ fn delimitado_com_axis_height_nao_regride() {
 
 #[test]
 fn sqrt_com_axis_height_nao_regride() {
-    let root = Content::MathRoot {
-        index:    None,
-        radicand: Box::new(Content::MathIdent("x".into())),
-    };
+    let root = Content::math_root(None, Content::MathIdent("x".into()));
     let items = layout_equation_items(&root);
     assert!(
         items_contain_text(&items, '√') || items_contain_text(&items, 'x'),
@@ -558,13 +462,7 @@ fn sqrt_com_axis_height_nao_regride() {
 
 #[test]
 fn attach_com_kern_nao_regride() {
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("x".into())),
-        tl:   None,
-        bl:   None,
-        sub:  None,
-        sup:  Some(Box::new(Content::MathText("2".into()))),
-    };
+    let attach = Content::math_attach(Content::MathIdent("x".into()), None, None, None, Some(Content::MathText("2".into())));
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, 'x'));
     assert!(items_contain_text(&items, '2'));
@@ -572,13 +470,7 @@ fn attach_com_kern_nao_regride() {
 
 #[test]
 fn attach_sub_com_kern_nao_regride() {
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("x".into())),
-        tl:   None,
-        bl:   None,
-        sub:  Some(Box::new(Content::MathIdent("i".into()))),
-        sup:  None,
-    };
+    let attach = Content::math_attach(Content::MathIdent("x".into()), None, None, Some(Content::MathIdent("i".into())), None);
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, 'x'));
     assert!(items_contain_text(&items, 'i'));
@@ -597,13 +489,7 @@ fn frac_axis_ascent_maior_que_sem_axis() {
 #[test]
 fn attach_sem_left_scripts_nao_regride() {
     // Regressão: MathAttach sem tl/bl comporta-se como antes
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("x".into())),
-        tl:   None,
-        bl:   None,
-        sub:  None,
-        sup:  Some(Box::new(Content::MathText("2".into()))),
-    };
+    let attach = Content::math_attach(Content::MathIdent("x".into()), None, None, None, Some(Content::MathText("2".into())));
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, 'x'), "base ausente: {:?}", items);
     assert!(items_contain_text(&items, '2'), "sup ausente: {:?}", items);
@@ -612,13 +498,7 @@ fn attach_sem_left_scripts_nao_regride() {
 #[test]
 fn attach_left_sup_contem_base_e_script() {
     // Pre-superscript: conteúdo do script e da base presentes
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("x".into())),
-        tl:   Some(Box::new(Content::MathText("2".into()))),
-        bl:   None,
-        sub:  None,
-        sup:  None,
-    };
+    let attach = Content::math_attach(Content::MathIdent("x".into()), Some(Content::MathText("2".into())), None, None, None);
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, '2'), "pre-sup ausente: {:?}", items);
     assert!(items_contain_text(&items, 'x'), "base ausente: {:?}", items);
@@ -627,13 +507,7 @@ fn attach_left_sup_contem_base_e_script() {
 #[test]
 fn attach_left_sub_contem_base_e_script() {
     // Pre-subscript
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("x".into())),
-        tl:   None,
-        bl:   Some(Box::new(Content::MathText("1".into()))),
-        sub:  None,
-        sup:  None,
-    };
+    let attach = Content::math_attach(Content::MathIdent("x".into()), None, Some(Content::MathText("1".into())), None, None);
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, '1'), "pre-sub ausente: {:?}", items);
     assert!(items_contain_text(&items, 'x'), "base ausente: {:?}", items);
@@ -642,13 +516,7 @@ fn attach_left_sub_contem_base_e_script() {
 #[test]
 fn attach_left_e_right_juntos() {
     // Scripts nos dois lados simultaneamente
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("x".into())),
-        tl:   Some(Box::new(Content::MathText("2".into()))),
-        bl:   Some(Box::new(Content::MathText("1".into()))),
-        sub:  Some(Box::new(Content::MathText("3".into()))),
-        sup:  Some(Box::new(Content::MathText("4".into()))),
-    };
+    let attach = Content::math_attach(Content::MathIdent("x".into()), Some(Content::MathText("2".into())), Some(Content::MathText("1".into())), Some(Content::MathText("3".into())), Some(Content::MathText("4".into())));
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, '1'), "bl ausente");
     assert!(items_contain_text(&items, '2'), "tl ausente");
@@ -660,13 +528,7 @@ fn attach_left_e_right_juntos() {
 #[test]
 fn attach_left_sup_base_deslocada_para_direita() {
     // Com tl presente, a base deve aparecer a uma posição x maior do que zero
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("x".into())),
-        tl:   Some(Box::new(Content::MathText("2".into()))),
-        bl:   None,
-        sub:  None,
-        sup:  None,
-    };
+    let attach = Content::math_attach(Content::MathIdent("x".into()), Some(Content::MathText("2".into())), None, None, None);
     let items = layout_equation_items(&attach);
     // Encontrar a posição x do glifo "x" (base)
     let base_xs: Vec<f64> = items.iter()
@@ -684,13 +546,7 @@ fn attach_left_sup_base_deslocada_para_direita() {
 #[test]
 fn attach_sem_base_explicita_usa_empty() {
     // Base vazia: não deve panicar
-    let attach = Content::MathAttach {
-        base: Box::new(Content::Empty),
-        tl:   Some(Box::new(Content::MathText("14".into()))),
-        bl:   None,
-        sub:  None,
-        sup:  None,
-    };
+    let attach = Content::math_attach(Content::Empty, Some(Content::MathText("14".into())), None, None, None);
     let items = layout_equation_items(&attach);
     // Não deve panicar; items pode estar vazio mas o programa não crasha
     let _ = items;
@@ -702,13 +558,7 @@ fn attach_sem_base_explicita_usa_empty() {
 fn left_scripts_tem_posicoes_x_independentes() {
     // tl e bl em simultâneo — lógica de kern independente não deve panicar.
     // Com FixedMetrics os kerns são zero, por isso tl_x == bl_x é esperado.
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("A".into())),
-        tl:   Some(Box::new(Content::MathText("x".into()))),
-        bl:   Some(Box::new(Content::MathText("y".into()))),
-        sub:  None,
-        sup:  None,
-    };
+    let attach = Content::math_attach(Content::MathIdent("A".into()), Some(Content::MathText("x".into())), Some(Content::MathText("y".into())), None, None);
     let items = layout_equation_items(&attach);
     assert!(!items.is_empty(), "deve produzir items com tl e bl");
     assert!(items_contain_text(&items, 'x'), "tl ausente");
@@ -719,13 +569,7 @@ fn left_scripts_tem_posicoes_x_independentes() {
 #[test]
 fn left_scripts_sem_bl_nao_panica() {
     // Apenas tl presente — bl_push é zero, base_offset_x = tl_push.
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("A".into())),
-        tl:   Some(Box::new(Content::MathText("x".into()))),
-        bl:   None,
-        sub:  None,
-        sup:  None,
-    };
+    let attach = Content::math_attach(Content::MathIdent("A".into()), Some(Content::MathText("x".into())), None, None, None);
     let items = layout_equation_items(&attach);
     assert!(!items.is_empty());
     assert!(items_contain_text(&items, 'x'), "tl ausente");
@@ -734,13 +578,7 @@ fn left_scripts_sem_bl_nao_panica() {
 #[test]
 fn left_scripts_sem_tl_nao_panica() {
     // Apenas bl presente — tl_push é zero, base_offset_x = bl_push.
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathIdent("A".into())),
-        tl:   None,
-        bl:   Some(Box::new(Content::MathText("y".into()))),
-        sub:  None,
-        sup:  None,
-    };
+    let attach = Content::math_attach(Content::MathIdent("A".into()), None, Some(Content::MathText("y".into())), None, None);
     let items = layout_equation_items(&attach);
     assert!(!items.is_empty());
     assert!(items_contain_text(&items, 'y'), "bl ausente");
@@ -749,13 +587,7 @@ fn left_scripts_sem_tl_nao_panica() {
 #[test]
 fn left_scripts_passo46_nao_regride() {
     // Regressão Passo 46: _0^n ∑ — operador grande com left-scripts.
-    let attach = Content::MathAttach {
-        base: Box::new(Content::MathText("∑".into())),
-        tl:   Some(Box::new(Content::MathText("n".into()))),
-        bl:   Some(Box::new(Content::MathText("0".into()))),
-        sub:  None,
-        sup:  None,
-    };
+    let attach = Content::math_attach(Content::MathText("∑".into()), Some(Content::MathText("n".into())), Some(Content::MathText("0".into())), None, None);
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, 'n') || items_contain_text(&items, '0'),
         "scripts ausentes: {:?}", items);
@@ -807,10 +639,7 @@ fn p311b5_upright_italic_x_outer_wins() {
 #[test]
 fn p311b5_bb_frac_a_b_propaga_recurse() {
     // bb(frac(a, b)) — propaga DS aos sub-elementos.
-    let frac = Content::MathFrac {
-        num: Box::new(Content::MathIdent("a".into())),
-        den: Box::new(Content::MathIdent("b".into())),
-    };
+    let frac = Content::math_frac(Content::MathIdent("a".into()), Content::MathIdent("b".into()));
     let bb_frac = Content::math_styled(Some(MathStyleKind::DoubleStruck), None, None, frac, None);
     let items = layout_equation_items(&bb_frac);
     assert!(items_contain_text(&items, '\u{1D552}'),

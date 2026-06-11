@@ -1100,10 +1100,7 @@ pub fn native_accent(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
         )]);
     }
 
-    Ok(Value::Content(Content::MathAccent {
-        base:   Box::new(base),
-        accent: Box::new(accent),
-    }))
+    Ok(Value::Content(Content::math_accent(base, accent)))
 }
 
 /// `cancel(body)` — emite `Content::MathCancel { body }`.
@@ -1130,7 +1127,7 @@ pub fn native_cancel(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
         )]);
     }
 
-    Ok(Value::Content(Content::MathCancel { body: Box::new(body) }))
+    Ok(Value::Content(Content::math_cancel(body)))
 }
 
 // ── Passo 297 — `underover()` math (P296.1) ──────────────────────────────
@@ -1173,23 +1170,19 @@ pub fn native_underover(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     }
 
     let under = args.named.get("under").and_then(|v| match v {
-        Value::Content(c) => Some(Box::new(c.clone())),
-        Value::Str(s)     => Some(Box::new(Content::text(s.as_str()))),
+        Value::Content(c) => Some(c.clone()),
+        Value::Str(s)     => Some(Content::text(s.as_str())),
         Value::None       => None,
-        other             => Some(Box::new(Content::text(other.type_name()))),
+        other             => Some(Content::text(other.type_name())),
     });
     let over = args.named.get("over").and_then(|v| match v {
-        Value::Content(c) => Some(Box::new(c.clone())),
-        Value::Str(s)     => Some(Box::new(Content::text(s.as_str()))),
+        Value::Content(c) => Some(c.clone()),
+        Value::Str(s)     => Some(Content::text(s.as_str())),
         Value::None       => None,
-        other             => Some(Box::new(Content::text(other.type_name()))),
+        other             => Some(Content::text(other.type_name())),
     });
 
-    Ok(Value::Content(Content::MathUnderover {
-        base:  Box::new(base),
-        under,
-        over,
-    }))
+    Ok(Value::Content(Content::math_underover(base, under, over)))
 }
 
 // ── Passo 298 — `op()` math (P296.2 fecho cluster math 4/4) ───────────────
@@ -1240,10 +1233,7 @@ pub fn native_op(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contra
         None => false,
     };
 
-    Ok(Value::Content(Content::MathOp {
-        text:   Box::new(text),
-        limits,
-    }))
+    Ok(Value::Content(Content::math_op(text, limits)))
 }
 
 // ── Passo 299 — `math` module: operadores pré-definidos (P298.X) ───────────
@@ -1263,10 +1253,7 @@ pub fn native_op(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contra
 // continua a funcionar via fallback `is_limit_function`.
 
 fn op_value(text: &str, limits: bool) -> Value {
-    Value::Content(Content::MathOp {
-        text:   Box::new(Content::text(text)),
-        limits,
-    })
+    Value::Content(Content::math_op(Content::text(text), limits))
 }
 
 /// Constrói o módulo `math` como `Value::Dict` com 41 operadores

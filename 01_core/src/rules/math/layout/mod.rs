@@ -141,7 +141,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
 /// Retorna `true` se houver pelo menos um `MathAlignPoint` ou `Linebreak`.
 /// Se `false`, o layout linear existente é usado sem custo adicional.
 fn needs_grid_layout(nodes: &[Content]) -> bool {
-    nodes.iter().any(|c| matches!(c, Content::MathAlignPoint | Content::Linebreak))
+    nodes.iter().any(|c| matches!(c, Content::MathAlignPoint(_) | Content::Linebreak))
 }
 
 /// Particiona uma sequência flat em linhas e colunas.
@@ -160,7 +160,7 @@ fn partition_grid(nodes: &[Content]) -> Vec<Vec<Vec<Content>>> {
             Content::Linebreak => {
                 lines.push(vec![vec![]]);
             }
-            Content::MathAlignPoint => {
+            Content::MathAlignPoint(_) => {
                 lines.last_mut().unwrap().push(vec![]);
             }
             other => {
@@ -277,57 +277,58 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 self.layout_sequence(nodes, style)
             }
 
-            Content::MathFrac { num, den } => {
-                self.layout_frac(num, den, style)
+            // Modelo D (Lote 2 P317): destructuring de `Arc<…Elem>` — mesma lógica.
+            Content::MathFrac(e) => {
+                self.layout_frac(&e.num, &e.den, style)
             }
 
-            Content::MathAttach { base, tl, bl, sub, sup } => {
+            Content::MathAttach(e) => {
                 self.layout_attach(
-                    base,
-                    tl.as_deref(), bl.as_deref(),
-                    sub.as_deref(), sup.as_deref(),
+                    &e.base,
+                    e.tl.as_ref(), e.bl.as_ref(),
+                    e.sub.as_ref(), e.sup.as_ref(),
                     style,
                 )
             }
 
-            Content::MathRoot { index, radicand } => {
-                self.layout_root(index.as_deref(), radicand, style)
+            Content::MathRoot(e) => {
+                self.layout_root(e.index.as_ref(), &e.radicand, style)
             }
 
-            Content::MathDelimited { open, body, close } => {
-                self.layout_delimited(*open, body, *close, style)
+            Content::MathDelimited(e) => {
+                self.layout_delimited(e.open, &e.body, e.close, style)
             }
 
-            Content::MathMatrix { rows, delim } => {
-                self.layout_matrix(rows, *delim, style)
+            Content::MathMatrix(e) => {
+                self.layout_matrix(&e.rows, e.delim, style)
             }
 
-            Content::MathCases { rows } => {
-                self.layout_cases(rows, style)
+            Content::MathCases(e) => {
+                self.layout_cases(&e.rows, style)
             }
 
             // P296 — Math accent/cancel handlers dedicados.
-            Content::MathAccent { base, accent } => {
-                self.layout_accent(base, accent, style)
+            Content::MathAccent(e) => {
+                self.layout_accent(&e.base, &e.accent, style)
             }
 
-            Content::MathCancel { body } => {
-                self.layout_cancel(body, style)
+            Content::MathCancel(e) => {
+                self.layout_cancel(&e.body, style)
             }
 
             // P297 — Math underover (paralelo P296 layout_accent/cancel).
-            Content::MathUnderover { base, under, over } => {
+            Content::MathUnderover(e) => {
                 self.layout_underover(
-                    base,
-                    under.as_deref(),
-                    over.as_deref(),
+                    &e.base,
+                    e.under.as_ref(),
+                    e.over.as_ref(),
                     style,
                 )
             }
 
             // P298 — Math op (trivial delegate; limits flag consumido em layout_attach).
-            Content::MathOp { text, limits: _ } => {
-                self.layout_op(text, style)
+            Content::MathOp(e) => {
+                self.layout_op(&e.text, style)
             }
 
             // P311b.4 — Math style wrapper: aplica map_glyph + size factor.
@@ -535,7 +536,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             self.layout_grid(nodes, style)
         } else {
             let boxes: Vec<MathBox> = nodes.iter()
-                .filter(|n| !matches!(n, Content::MathAlignPoint | Content::Linebreak))
+                .filter(|n| !matches!(n, Content::MathAlignPoint(_) | Content::Linebreak))
                 .map(|n| self.layout_node(n, style))
                 .collect();
             self.hconcat(boxes)
@@ -728,30 +729,32 @@ fn apply_math_style(
                 .collect();
             Content::MathSequence(Arc::from(new_seq))
         }
-        Content::MathFrac { num, den } => Content::MathFrac {
-            num: Box::new(apply_math_style(num, kind, bold, italic)),
-            den: Box::new(apply_math_style(den, kind, bold, italic)),
-        },
-        Content::MathAttach { base, tl, bl, sub, sup } => Content::MathAttach {
-            base: Box::new(apply_math_style(base, kind, bold, italic)),
-            tl:   tl.as_ref().map(|c| Box::new(apply_math_style(c, kind, bold, italic))),
-            bl:   bl.as_ref().map(|c| Box::new(apply_math_style(c, kind, bold, italic))),
-            sub:  sub.as_ref().map(|c| Box::new(apply_math_style(c, kind, bold, italic))),
-            sup:  sup.as_ref().map(|c| Box::new(apply_math_style(c, kind, bold, italic))),
-        },
-        Content::MathRoot { index, radicand } => Content::MathRoot {
-            index:    index.as_ref().map(|c| Box::new(apply_math_style(c, kind, bold, italic))),
-            radicand: Box::new(apply_math_style(radicand, kind, bold, italic)),
-        },
-        Content::MathDelimited { open, body, close } => Content::MathDelimited {
-            open:  *open,
-            body:  Box::new(apply_math_style(body, kind, bold, italic)),
-            close: *close,
-        },
+        // Modelo D (Lote 2 P317): destructuring de `Arc<…Elem>` + reconstrução
+        // via construtor ergonómico — mesma lógica recursiva.
+        Content::MathFrac(e) => Content::math_frac(
+            apply_math_style(&e.num, kind, bold, italic),
+            apply_math_style(&e.den, kind, bold, italic),
+        ),
+        Content::MathAttach(e) => Content::math_attach(
+            apply_math_style(&e.base, kind, bold, italic),
+            e.tl.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
+            e.bl.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
+            e.sub.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
+            e.sup.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
+        ),
+        Content::MathRoot(e) => Content::math_root(
+            e.index.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
+            apply_math_style(&e.radicand, kind, bold, italic),
+        ),
+        Content::MathDelimited(e) => Content::math_delimited(
+            e.open,
+            apply_math_style(&e.body, kind, bold, italic),
+            e.close,
+        ),
         // `MathOp` (operadores texto) passa-through — variant não aplica.
         // Operadores como "sin"/"lim" mantêm aparência normal mesmo dentro
         // de `bb(...)` (paridade vanilla).
-        Content::MathOp { .. } => body.clone(),
+        Content::MathOp(_) => body.clone(),
         // Outros chars / variants não-math: clone literal.
         other => other.clone(),
     }
@@ -828,14 +831,11 @@ mod p311b_tests {
 
     #[test]
     fn p311b4_apply_math_style_recurses_through_mathfrac() {
-        let frac = Content::MathFrac {
-            num: Box::new(mk_ident("a")),
-            den: Box::new(mk_ident("b")),
-        };
+        let frac = Content::math_frac(mk_ident("a"), mk_ident("b"));
         let out = apply_math_style(&frac, Some(MathStyleKind::DoubleStruck), None, None);
         match out {
-            Content::MathFrac { num, den } => {
-                match (*num, *den) {
+            Content::MathFrac(e) => {
+                match (&e.num, &e.den) {
                     (Content::MathIdent(n), Content::MathIdent(d)) => {
                         assert_eq!(n.as_str(), "\u{1D552}"); // DS a
                         assert_eq!(d.as_str(), "\u{1D553}"); // DS b
@@ -860,15 +860,12 @@ mod p311b_tests {
     #[test]
     fn p311b4_apply_math_style_math_op_passthrough() {
         // bb(op("sin")) — operadores texto não devem receber variant.
-        let op = Content::MathOp {
-            text:   Box::new(Content::text("sin")),
-            limits: false,
-        };
+        let op = Content::math_op(Content::text("sin"), false);
         let out = apply_math_style(&op, Some(MathStyleKind::DoubleStruck), None, None);
         match out {
-            Content::MathOp { text, limits } => {
-                assert_eq!(text.plain_text(), "sin");
-                assert!(!limits);
+            Content::MathOp(e) => {
+                assert_eq!(e.text.plain_text(), "sin");
+                assert!(!e.limits);
             }
             other => panic!("esperado MathOp, obteve {other:?}"),
         }

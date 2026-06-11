@@ -22,6 +22,18 @@
 pub mod divider;
 pub mod heading;
 pub mod math_styled;
+// Lote 2 P317 — família math element-shaped (11 variantes).
+pub mod math_accent;
+pub mod math_align_point;
+pub mod math_attach;
+pub mod math_cancel;
+pub mod math_cases;
+pub mod math_delimited;
+pub mod math_frac;
+pub mod math_matrix;
+pub mod math_op;
+pub mod math_root;
+pub mod math_underover;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;

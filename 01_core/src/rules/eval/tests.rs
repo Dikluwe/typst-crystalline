@@ -1810,7 +1810,7 @@ mod tests {
         // Verificar que o conteúdo contém MathRoot
         fn has_math_root(c: &Content) -> bool {
             match c {
-                Content::MathRoot { index, .. } => index.is_none(),
+                Content::MathRoot(e) => e.index.is_none(),
                 Content::Equation { body, .. } => has_math_root(body),
                 Content::MathSequence(ns) => ns.iter().any(has_math_root),
                 Content::Sequence(ns) => ns.iter().any(has_math_root),
@@ -1828,7 +1828,7 @@ mod tests {
         let content = m.content().expect("módulo deve ter content");
         fn has_math_root_with_index(c: &Content) -> bool {
             match c {
-                Content::MathRoot { index, .. } => index.is_some(),
+                Content::MathRoot(e) => e.index.is_some(),
                 Content::Equation { body, .. } => has_math_root_with_index(body),
                 Content::MathSequence(ns) => ns.iter().any(has_math_root_with_index),
                 Content::Sequence(ns) => ns.iter().any(has_math_root_with_index),
@@ -2745,18 +2745,18 @@ mod tests {
 
     fn find_mathop_in(c: &Content) -> Option<(String, bool)> {
         match c {
-            Content::MathOp { text, limits } => Some((text.plain_text(), *limits)),
+            Content::MathOp(e) => Some((e.text.plain_text(), e.limits)),
             Content::Sequence(items) | Content::MathSequence(items) => {
                 items.iter().find_map(find_mathop_in)
             }
             Content::Equation { body, .. } => find_mathop_in(body),
             // MathAttach: a base pode ser MathOp.
-            Content::MathAttach { base, sub, sup, tl, bl } => {
-                find_mathop_in(base)
-                    .or_else(|| sub.as_deref().and_then(find_mathop_in))
-                    .or_else(|| sup.as_deref().and_then(find_mathop_in))
-                    .or_else(|| tl.as_deref().and_then(find_mathop_in))
-                    .or_else(|| bl.as_deref().and_then(find_mathop_in))
+            Content::MathAttach(e) => {
+                find_mathop_in(&e.base)
+                    .or_else(|| e.sub.as_ref().and_then(find_mathop_in))
+                    .or_else(|| e.sup.as_ref().and_then(find_mathop_in))
+                    .or_else(|| e.tl.as_ref().and_then(find_mathop_in))
+                    .or_else(|| e.bl.as_ref().and_then(find_mathop_in))
             }
             _ => None,
         }
@@ -2771,7 +2771,7 @@ mod tests {
                 items.iter().find_map(find_mathident_in)
             }
             Content::Equation { body, .. } => find_mathident_in(body),
-            Content::MathAttach { base, .. } => find_mathident_in(base),
+            Content::MathAttach(e) => find_mathident_in(&e.base),
             _ => None,
         }
     }
@@ -2876,8 +2876,8 @@ mod tests {
 
     fn find_mathdelimited_in(c: &Content) -> Option<(char, String, char)> {
         match c {
-            Content::MathDelimited { open, body, close } => {
-                Some((*open, body.plain_text(), *close))
+            Content::MathDelimited(e) => {
+                Some((e.open, e.body.plain_text(), e.close))
             }
             Content::Sequence(items) | Content::MathSequence(items) => {
                 items.iter().find_map(find_mathdelimited_in)

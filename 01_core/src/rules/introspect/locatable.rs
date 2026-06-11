@@ -106,14 +106,14 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::MathSequence(_)
         | Content::MathIdent(_)
         | Content::MathText(_)
-        | Content::MathFrac { .. }
-        | Content::MathAttach { .. }
-        | Content::MathRoot { .. }
-        | Content::MathDelimited { .. }
-        | Content::MathAlignPoint
+        | Content::MathFrac(_)
+        | Content::MathAttach(_)
+        | Content::MathRoot(_)
+        | Content::MathDelimited(_)
+        | Content::MathAlignPoint(_)
         | Content::Linebreak
-        | Content::MathMatrix { .. }
-        | Content::MathCases { .. }
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
         | Content::Labelled { .. }
         | Content::Ref { .. }
         | Content::CounterDisplay { .. }
@@ -167,12 +167,12 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Footnote { .. }
         // P296 — Math accent/cancel não-locatable (paralelo
         // MathFrac/MathRoot/MathDelimited; math structural inerte).
-        | Content::MathAccent { .. }
-        | Content::MathCancel { .. }
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
         // P297 — Math underover não-locatable (paralelo P296).
-        | Content::MathUnderover { .. }
+        | Content::MathUnderover(_)
         // P298 — Math op não-locatable.
-        | Content::MathOp { .. }
+        | Content::MathOp(_)
         // P311b.2 — MathStyled não-locatable (math structural; wrap glyph).
         | Content::MathStyled(_) => false,
     }
@@ -275,7 +275,7 @@ mod tests {
             Content::Outline,
             Content::Linebreak,
             Content::divider(),
-            Content::MathAlignPoint,
+            Content::math_align_point(),
             Content::ListItem(Box::new(Content::Empty)),
             Content::SetHeadingNumbering { active: true },
             // P186D: Equation cobertura no test de invariante.

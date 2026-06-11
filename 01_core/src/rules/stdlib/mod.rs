@@ -7698,9 +7698,9 @@ mod tests {
             Value::Content(Content::MathIdent("a".into())),
             Value::Content(Content::MathText("^".into())),
         ]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::MathAccent { base, accent }) = r {
-            assert_eq!(base.plain_text(), "a");
-            assert_eq!(accent.plain_text(), "^");
+        if let Value::Content(Content::MathAccent(e)) = r {
+            assert_eq!(e.base.plain_text(), "a");
+            assert_eq!(e.accent.plain_text(), "^");
         } else {
             panic!("esperava Content::MathAccent");
         }
@@ -7714,9 +7714,9 @@ mod tests {
             Value::Str("x".into()),
             Value::Str("~".into()),
         ]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::MathAccent { base, accent }) = r {
-            assert_eq!(base.plain_text(), "x");
-            assert_eq!(accent.plain_text(), "~");
+        if let Value::Content(Content::MathAccent(e)) = r {
+            assert_eq!(e.base.plain_text(), "x");
+            assert_eq!(e.accent.plain_text(), "~");
         }
     }
 
@@ -7755,8 +7755,8 @@ mod tests {
         let r = native_cancel(&mut ctx, &p(vec![
             Value::Content(Content::MathIdent("x".into())),
         ]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::MathCancel { body }) = r {
-            assert_eq!(body.plain_text(), "x");
+        if let Value::Content(Content::MathCancel(e)) = r {
+            assert_eq!(e.body.plain_text(), "x");
         } else {
             panic!("esperava Content::MathCancel");
         }
@@ -7767,8 +7767,8 @@ mod tests {
         use super::native_cancel;
         null_ctx!(ctx);
         let r = native_cancel(&mut ctx, &p(vec![Value::Str("y".into())]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::MathCancel { body }) = r {
-            assert_eq!(body.plain_text(), "y");
+        if let Value::Content(Content::MathCancel(e)) = r {
+            assert_eq!(e.body.plain_text(), "y");
         }
     }
 
@@ -7793,10 +7793,7 @@ mod tests {
 
     #[test]
     fn p296_math_accent_partial_eq_e_is_empty() {
-        let a = Content::MathAccent {
-            base:   Box::new(Content::MathIdent("a".into())),
-            accent: Box::new(Content::MathText("^".into())),
-        };
+        let a = Content::math_accent(Content::MathIdent("a".into()), Content::MathText("^".into()));
         let b = a.clone();
         assert_eq!(a, b);
         // is_empty fallback é false (math structural sempre observable).
@@ -7805,9 +7802,9 @@ mod tests {
 
     #[test]
     fn p296_math_cancel_partial_eq() {
-        let a = Content::MathCancel { body: Box::new(Content::MathIdent("x".into())) };
-        let b = Content::MathCancel { body: Box::new(Content::MathIdent("x".into())) };
-        let c = Content::MathCancel { body: Box::new(Content::MathIdent("y".into())) };
+        let a = Content::math_cancel(Content::MathIdent("x".into()));
+        let b = Content::math_cancel(Content::MathIdent("x".into()));
+        let c = Content::math_cancel(Content::MathIdent("y".into()));
         assert_eq!(a, b);
         assert_ne!(a, c);
     }
@@ -7825,10 +7822,10 @@ mod tests {
         let r = native_underover(&mut ctx, &p(vec![
             Value::Content(Content::MathIdent("x".into())),
         ]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::MathUnderover { base, under, over }) = r {
-            assert_eq!(base.plain_text(), "x");
-            assert!(under.is_none(), "under None se não fornecido");
-            assert!(over.is_none(),  "over None se não fornecido");
+        if let Value::Content(Content::MathUnderover(e)) = r {
+            assert_eq!(e.base.plain_text(), "x");
+            assert!(e.under.is_none(), "under None se não fornecido");
+            assert!(e.over.is_none(),  "over None se não fornecido");
         } else {
             panic!("esperava Content::MathUnderover");
         }
@@ -7841,10 +7838,10 @@ mod tests {
         let mut args = p(vec![Value::Str("base".into())]);
         args.named.insert("under".into(), Value::Str("u".into()));
         let r = native_underover(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::MathUnderover { under, over, .. }) = r {
-            assert!(under.is_some());
-            assert!(over.is_none());
-            assert_eq!(under.unwrap().plain_text(), "u");
+        if let Value::Content(Content::MathUnderover(e)) = r {
+            assert!(e.under.is_some());
+            assert!(e.over.is_none());
+            assert_eq!(e.under.as_ref().unwrap().plain_text(), "u");
         }
     }
 
@@ -7855,10 +7852,10 @@ mod tests {
         let mut args = p(vec![Value::Str("base".into())]);
         args.named.insert("over".into(), Value::Str("o".into()));
         let r = native_underover(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::MathUnderover { under, over, .. }) = r {
-            assert!(under.is_none());
-            assert!(over.is_some());
-            assert_eq!(over.unwrap().plain_text(), "o");
+        if let Value::Content(Content::MathUnderover(e)) = r {
+            assert!(e.under.is_none());
+            assert!(e.over.is_some());
+            assert_eq!(e.over.as_ref().unwrap().plain_text(), "o");
         }
     }
 
@@ -7870,10 +7867,10 @@ mod tests {
         args.named.insert("under".into(), Value::Str("u".into()));
         args.named.insert("over".into(),  Value::Str("o".into()));
         let r = native_underover(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::MathUnderover { base, under, over }) = r {
-            assert_eq!(base.plain_text(), "b");
-            assert_eq!(under.unwrap().plain_text(), "u");
-            assert_eq!(over.unwrap().plain_text(), "o");
+        if let Value::Content(Content::MathUnderover(e)) = r {
+            assert_eq!(e.base.plain_text(), "b");
+            assert_eq!(e.under.as_ref().unwrap().plain_text(), "u");
+            assert_eq!(e.over.as_ref().unwrap().plain_text(), "o");
         }
     }
 
@@ -7899,39 +7896,23 @@ mod tests {
     #[test]
     fn p297_math_underover_plain_text_ordem_visual() {
         // Ordem visual: over + base + under.
-        let u = Content::MathUnderover {
-            base:  Box::new(Content::text("BASE")),
-            under: Some(Box::new(Content::text("U"))),
-            over:  Some(Box::new(Content::text("O"))),
-        };
+        let u = Content::math_underover(Content::text("BASE"), Some(Content::text("U")), Some(Content::text("O")));
         assert_eq!(u.plain_text(), "OBASEU");
     }
 
     #[test]
     fn p297_math_underover_partial_eq_structural() {
-        let a = Content::MathUnderover {
-            base:  Box::new(Content::text("x")),
-            under: Some(Box::new(Content::text("u"))),
-            over:  None,
-        };
+        let a = Content::math_underover(Content::text("x"), Some(Content::text("u")), None);
         let b = a.clone();
         assert_eq!(a, b);
-        let c = Content::MathUnderover {
-            base:  Box::new(Content::text("x")),
-            under: None,                                    // diferente em under
-            over:  None,
-        };
+        let c = Content::math_underover(Content::text("x"), None, None); // diferente em under
         assert_ne!(a, c);
     }
 
     #[test]
     fn p297_math_underover_ambos_none_equivale_so_base() {
         // Caso degenerate: ambos None → plain_text == base.
-        let u = Content::MathUnderover {
-            base:  Box::new(Content::text("x")),
-            under: None,
-            over:  None,
-        };
+        let u = Content::math_underover(Content::text("x"), None, None);
         assert_eq!(u.plain_text(), "x");
     }
 
@@ -7948,9 +7929,9 @@ mod tests {
         let r = native_op(&mut ctx, &p(vec![
             Value::Str("lim".into()),
         ]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::MathOp { text, limits }) = r {
-            assert_eq!(text.plain_text(), "lim");
-            assert!(!limits, "limits default false");
+        if let Value::Content(Content::MathOp(e)) = r {
+            assert_eq!(e.text.plain_text(), "lim");
+            assert!(!e.limits, "limits default false");
         } else {
             panic!("esperava Content::MathOp");
         }
@@ -7963,8 +7944,8 @@ mod tests {
         let mut args = p(vec![Value::Str("lim".into())]);
         args.named.insert("limits".into(), Value::Bool(true));
         let r = native_op(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::MathOp { limits, .. }) = r {
-            assert!(limits, "limits=true respeitado");
+        if let Value::Content(Content::MathOp(e)) = r {
+            assert!(e.limits, "limits=true respeitado");
         }
     }
 
@@ -7975,9 +7956,9 @@ mod tests {
         let r = native_op(&mut ctx, &p(vec![
             Value::Content(Content::MathIdent("Σ".into())),
         ]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::MathOp { text, .. }) = r {
+        if let Value::Content(Content::MathOp(e)) = r {
             // Content posicional preservado estructuralmente.
-            assert_eq!(text.plain_text(), "Σ");
+            assert_eq!(e.text.plain_text(), "Σ");
         }
     }
 
@@ -8012,26 +7993,17 @@ mod tests {
 
     #[test]
     fn p298_math_op_partial_eq_structural_com_limits() {
-        let a = Content::MathOp {
-            text:   Box::new(Content::text("lim")),
-            limits: true,
-        };
+        let a = Content::math_op(Content::text("lim"), true);
         let b = a.clone();
         assert_eq!(a, b);
         // limits diferente → desigual.
-        let c = Content::MathOp {
-            text:   Box::new(Content::text("lim")),
-            limits: false,
-        };
+        let c = Content::math_op(Content::text("lim"), false);
         assert_ne!(a, c);
     }
 
     #[test]
     fn p298_math_op_plain_text_so_text_sem_limits() {
-        let o = Content::MathOp {
-            text:   Box::new(Content::text("lim")),
-            limits: true,
-        };
+        let o = Content::math_op(Content::text("lim"), true);
         // limits é discriminador layout — plain_text só retorna text.
         assert_eq!(o.plain_text(), "lim");
     }
@@ -8054,9 +8026,9 @@ mod tests {
     #[test]
     fn p299_math_module_contem_sin_scripts_style() {
         let v = lookup_math("sin").expect("math.sin deve existir");
-        if let Value::Content(Content::MathOp { text, limits }) = v {
-            assert_eq!(text.plain_text(), "sin");
-            assert!(!limits, "sin é scripts-style (limits=false)");
+        if let Value::Content(Content::MathOp(e)) = v {
+            assert_eq!(e.text.plain_text(), "sin");
+            assert!(!e.limits, "sin é scripts-style (limits=false)");
         } else {
             panic!("math.sin deve ser MathOp");
         }
@@ -8065,9 +8037,9 @@ mod tests {
     #[test]
     fn p299_math_module_contem_lim_limits_style() {
         let v = lookup_math("lim").expect("math.lim deve existir");
-        if let Value::Content(Content::MathOp { text, limits }) = v {
-            assert_eq!(text.plain_text(), "lim");
-            assert!(limits, "lim é limits-style (limits=true)");
+        if let Value::Content(Content::MathOp(e)) = v {
+            assert_eq!(e.text.plain_text(), "lim");
+            assert!(e.limits, "lim é limits-style (limits=true)");
         }
     }
 
@@ -8076,9 +8048,9 @@ mod tests {
         // det NÃO estava em is_limit_function pré-P299 hardcoded.
         // P299 acrescenta via registo explícito.
         let v = lookup_math("det").expect("math.det deve existir");
-        if let Value::Content(Content::MathOp { text, limits }) = v {
-            assert_eq!(text.plain_text(), "det");
-            assert!(limits, "det é limits-style vanilla");
+        if let Value::Content(Content::MathOp(e)) = v {
+            assert_eq!(e.text.plain_text(), "det");
+            assert!(e.limits, "det é limits-style vanilla");
         }
     }
 
@@ -8086,19 +8058,19 @@ mod tests {
     fn p299_math_module_contem_liminf_multi_word_text() {
         // liminf vanilla → text "lim inf" (multi-word).
         let v = lookup_math("liminf").expect("math.liminf deve existir");
-        if let Value::Content(Content::MathOp { text, limits }) = v {
-            assert_eq!(text.plain_text(), "lim inf",
+        if let Value::Content(Content::MathOp(e)) = v {
+            assert_eq!(e.text.plain_text(), "lim inf",
                 "multi-word: name 'liminf' mapeia para text 'lim inf'");
-            assert!(limits);
+            assert!(e.limits);
         }
     }
 
     #[test]
     fn p299_math_module_contem_limsup_multi_word_text() {
         let v = lookup_math("limsup").expect("math.limsup deve existir");
-        if let Value::Content(Content::MathOp { text, limits }) = v {
-            assert_eq!(text.plain_text(), "lim sup");
-            assert!(limits);
+        if let Value::Content(Content::MathOp(e)) = v {
+            assert_eq!(e.text.plain_text(), "lim sup");
+            assert!(e.limits);
         }
     }
 
@@ -8118,8 +8090,8 @@ mod tests {
         // Amostra de scripts-style: sin/cos/tan/ln/log/exp todos limits=false.
         for name in ["sin", "cos", "tan", "ln", "log", "exp", "arccos"] {
             let v = lookup_math(name).expect(name);
-            if let Value::Content(Content::MathOp { limits, .. }) = v {
-                assert!(!limits, "{} deve ser scripts-style", name);
+            if let Value::Content(Content::MathOp(e)) = v {
+                assert!(!e.limits, "{} deve ser scripts-style", name);
             } else {
                 panic!("{} deve ser MathOp", name);
             }
@@ -8130,9 +8102,9 @@ mod tests {
     fn p299_math_module_pr_case_sensitive() {
         // vanilla `Pr` (probabilidade) é case-sensitive — capitalizado.
         let v = lookup_math("Pr").expect("math.Pr deve existir");
-        if let Value::Content(Content::MathOp { text, limits }) = v {
-            assert_eq!(text.plain_text(), "Pr");
-            assert!(limits, "Pr é limits-style vanilla");
+        if let Value::Content(Content::MathOp(e)) = v {
+            assert_eq!(e.text.plain_text(), "Pr");
+            assert!(e.limits, "Pr é limits-style vanilla");
         }
         // 'pr' minúsculo NÃO existe.
         assert!(lookup_math("pr").is_none(), "case sensitive: 'pr' minúsculo não existe");
