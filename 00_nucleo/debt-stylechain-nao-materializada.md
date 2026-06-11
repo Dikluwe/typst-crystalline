@@ -7,6 +7,11 @@
 features actuais e futuras).
 **Pré-condição de fecho**: nenhuma técnica imediata; depende de
 prioridade humana.
+**Ver ADR-0105** (Modelo de elemento) — o candidato **F** (propriedades
+reificadas / PropMap) **resolve este DEBT por construção**: a PropMap
+`(elemento, campo) → chave resolvível` que a StyleChain exige É a mesma
+estrutura de F. A sequência está gravada lá (D incremental P316+ → F junto
+com este DEBT/99.E). Verificado no §4 do `diagnostico-modelo-elemento-passo-313.md`.
 
 ---
 
