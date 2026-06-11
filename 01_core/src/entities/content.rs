@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash ce4009b8
+//! @prompt-hash 8e354584
 //! @layer L1
 //! @updated 2026-04-25
 //!
@@ -49,6 +49,10 @@ use crate::entities::elements::link::LinkElem;
 use crate::entities::elements::list_item::ListItemElem;
 use crate::entities::elements::term_item::TermItemElem;
 use crate::entities::elements::terms::TermsElem;
+// Lote 4 P319 — decorações de texto (3 variantes).
+use crate::entities::elements::overline::OverlineElem;
+use crate::entities::elements::strike::StrikeElem;
+use crate::entities::elements::underline::UnderlineElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -621,26 +625,14 @@ pub enum Content {
     //
     // Emit reutiliza `FrameItem::Line` existente (precedente Passo 38 frac);
     // hash L0 `export.rs` `bc7b8b95` preservado (per spec §5).
-    Underline {
-        body:   Box<Content>,
-        stroke: Option<Color>,
-        offset: Option<Length>,
-        extent: Option<Length>,
-    },
+    /// **Modelo D (Lote 4 P319)**: `entities::elements::underline::UnderlineElem`.
+    Underline(Arc<UnderlineElem>),
 
-    Strike {
-        body:   Box<Content>,
-        stroke: Option<Color>,
-        offset: Option<Length>,
-        extent: Option<Length>,
-    },
+    /// **Modelo D (Lote 4 P319)**: `entities::elements::strike::StrikeElem`.
+    Strike(Arc<StrikeElem>),
 
-    Overline {
-        body:   Box<Content>,
-        stroke: Option<Color>,
-        offset: Option<Length>,
-        extent: Option<Length>,
-    },
+    /// **Modelo D (Lote 4 P319)**: `entities::elements::overline::OverlineElem`.
+    Overline(Arc<OverlineElem>),
 
     // ── Passo 156C (ADR-0061 Fase 1 sub-passo 1) — pad + hide ───────────
     // ── Passo 156L (ADR-0061 Fase 3 sub-passo 2; refino) — sides
@@ -1355,6 +1347,17 @@ impl Content {
         Self::TermItem(Arc::new(TermItemElem { term, description }))
     }
 
+    // ── Construtores ergonómicos decorações de texto (Modelo D, Lote 4 P319) ──
+    pub fn overline(body: Content, stroke: Option<Color>, offset: Option<Length>, extent: Option<Length>) -> Self {
+        Self::Overline(Arc::new(OverlineElem { body, stroke, offset, extent }))
+    }
+    pub fn strike(body: Content, stroke: Option<Color>, offset: Option<Length>, extent: Option<Length>) -> Self {
+        Self::Strike(Arc::new(StrikeElem { body, stroke, offset, extent }))
+    }
+    pub fn underline(body: Content, stroke: Option<Color>, offset: Option<Length>, extent: Option<Length>) -> Self {
+        Self::Underline(Arc::new(UnderlineElem { body, stroke, offset, extent }))
+    }
+
     /// `pad(body, sides)` — Passo 156C (ADR-0061 Fase 1) /
     /// Passo 156L (refino sides individualizadas per ADR-0064 Caso C).
     pub fn pad(body: Content, sides: Sides<Option<Length>>) -> Self {
@@ -1594,9 +1597,10 @@ impl Content {
             Self::Quote { body, .. } => body.is_empty(),
             // P284: decoração vazia se o body for vazio (cosméticos não
             // criam observable se não há conteúdo).
-            Self::Underline { body, .. } => body.is_empty(),
-            Self::Strike    { body, .. } => body.is_empty(),
-            Self::Overline  { body, .. } => body.is_empty(),
+            // Modelo D (Lote 4 P319): decorações delegam ao elemento.
+            Self::Underline(e) => e.is_empty(),
+            Self::Strike(e)    => e.is_empty(),
+            Self::Overline(e)  => e.is_empty(),
             // P287 — SmartQuote: nunca vazio (sempre emite 1 glyph).
             Self::SmartQuote { .. } => false,
             // Passo 156C (ADR-0061 Fase 1): Pad/Hide vazios se o body for.
@@ -1653,11 +1657,11 @@ impl Content {
             Self::ListItem(e) => e.plain_text(),
             Self::EnumItem(e) => e.plain_text(),
             Self::Link(e)     => e.plain_text(),
-            // P284 — text decoration: transparente em texto plano (paridade
-            // com Link/Heading/Quote — só atributos cosméticos).
-            Self::Underline { body, .. } => body.plain_text(),
-            Self::Strike    { body, .. } => body.plain_text(),
-            Self::Overline  { body, .. } => body.plain_text(),
+            // Modelo D (Lote 4 P319): decorações delegam ao elemento
+            // (transparente — só body; cosméticos não afetam plain_text).
+            Self::Underline(e) => e.plain_text(),
+            Self::Strike(e)    => e.plain_text(),
+            Self::Overline(e)  => e.plain_text(),
             // P287 — SmartQuote: paridade vanilla `PlainText for
             // Packed<SmartQuoteElem>` — emite fallback ASCII (`"` ou `'`).
             // Layouter resolve lang-aware (consumer pós-P287); plain_text
@@ -1946,16 +1950,10 @@ impl PartialEq for Content {
             (Self::Quote { body: ba, attribution: aa, block: ka, quotes: qa },
              Self::Quote { body: bb, attribution: ab, block: kb, quotes: qb }) =>
                 ba == bb && aa == ab && ka == kb && qa == qb,
-            // P284 — text decoration (3 variants, 4 fields cada).
-            (Self::Underline { body: ba, stroke: sa, offset: oa, extent: ea },
-             Self::Underline { body: bb, stroke: sb, offset: ob, extent: eb }) =>
-                ba == bb && sa == sb && oa == ob && ea == eb,
-            (Self::Strike { body: ba, stroke: sa, offset: oa, extent: ea },
-             Self::Strike { body: bb, stroke: sb, offset: ob, extent: eb }) =>
-                ba == bb && sa == sb && oa == ob && ea == eb,
-            (Self::Overline { body: ba, stroke: sa, offset: oa, extent: ea },
-             Self::Overline { body: bb, stroke: sb, offset: ob, extent: eb }) =>
-                ba == bb && sa == sb && oa == ob && ea == eb,
+            // Modelo D (Lote 4 P319): decorações delegam ao `Arc<…Elem>`.
+            (Self::Underline(a), Self::Underline(b)) => a == b,
+            (Self::Strike(a),    Self::Strike(b))    => a == b,
+            (Self::Overline(a),  Self::Overline(b))  => a == b,
             // P287 — SmartQuote leaf (1 campo).
             (Self::SmartQuote { double: a }, Self::SmartQuote { double: b }) => a == b,
             // Passo 156C / 156L — Pad / Hide.
@@ -2131,24 +2129,10 @@ impl Content {
 
             // P284 — text decoration containers — recurse em body;
             // atributos cosméticos são Copy primitivos.
-            Content::Underline { body, stroke, offset, extent } => Content::Underline {
-                body:   Box::new(body.map_content(transform)?),
-                stroke: *stroke,
-                offset: *offset,
-                extent: *extent,
-            },
-            Content::Strike { body, stroke, offset, extent } => Content::Strike {
-                body:   Box::new(body.map_content(transform)?),
-                stroke: *stroke,
-                offset: *offset,
-                extent: *extent,
-            },
-            Content::Overline { body, stroke, offset, extent } => Content::Overline {
-                body:   Box::new(body.map_content(transform)?),
-                stroke: *stroke,
-                offset: *offset,
-                extent: *extent,
-            },
+            // Modelo D (Lote 4 P319): decorações delegam ao elemento.
+            Content::Underline(e) => e.map_content(transform)?,
+            Content::Strike(e)    => e.map_content(transform)?,
+            Content::Overline(e)  => e.map_content(transform)?,
 
             // Passo 156C / 156L: Pad / Hide containers — recurse em body;
             // sides é Copy primitivo (Sides<Option<Length>>).
@@ -2448,25 +2432,11 @@ impl Content {
                 quotes:      *quotes,
             },
 
-            // P284 — text decoration containers — recurse em body.
-            Content::Underline { body, stroke, offset, extent } => Content::Underline {
-                body:   Box::new(body.map_text(transform)),
-                stroke: *stroke,
-                offset: *offset,
-                extent: *extent,
-            },
-            Content::Strike { body, stroke, offset, extent } => Content::Strike {
-                body:   Box::new(body.map_text(transform)),
-                stroke: *stroke,
-                offset: *offset,
-                extent: *extent,
-            },
-            Content::Overline { body, stroke, offset, extent } => Content::Overline {
-                body:   Box::new(body.map_text(transform)),
-                stroke: *stroke,
-                offset: *offset,
-                extent: *extent,
-            },
+            // Modelo D (Lote 4 P319): decorações delegam ao elemento
+            // (contentores de prosa — map_text recurse no body).
+            Content::Underline(e) => e.map_text(transform),
+            Content::Strike(e)    => e.map_text(transform),
+            Content::Overline(e)  => e.map_text(transform),
 
             // Passo 156C / 156L: Pad / Hide containers — recurse em body.
             Content::Pad { body, sides } => Content::Pad {
@@ -3229,21 +3199,12 @@ mod tests {
 
     #[test]
     fn decoration_variants_construtores_basicos() {
-        let u = Content::Underline {
-            body: Box::new(Content::text("hi")),
-            stroke: None, offset: None, extent: None,
-        };
-        let s = Content::Strike {
-            body: Box::new(Content::text("hi")),
-            stroke: None, offset: None, extent: None,
-        };
-        let o = Content::Overline {
-            body: Box::new(Content::text("hi")),
-            stroke: None, offset: None, extent: None,
-        };
-        assert!(matches!(u, Content::Underline { .. }));
-        assert!(matches!(s, Content::Strike    { .. }));
-        assert!(matches!(o, Content::Overline  { .. }));
+        let u = Content::underline(Content::text("hi"), None, None, None);
+        let s = Content::strike(Content::text("hi"), None, None, None);
+        let o = Content::overline(Content::text("hi"), None, None, None);
+        assert!(matches!(u, Content::Underline(_)));
+        assert!(matches!(s, Content::Strike(_)));
+        assert!(matches!(o, Content::Overline(_)));
         // Variants distintos não colapsam mesmo com body idêntico.
         assert_ne!(u, s);
         assert_ne!(s, o);
@@ -3252,63 +3213,41 @@ mod tests {
 
     #[test]
     fn decoration_plain_text_delega_no_body() {
-        let mk = |body| Content::Underline {
-            body: Box::new(body), stroke: None, offset: None, extent: None,
-        };
+        let mk = |body| Content::underline(body, None, None, None);
         assert_eq!(mk(Content::text("hello")).plain_text(), "hello");
         // strike/overline têm a mesma regra — paridade Quote/Link.
-        let s = Content::Strike   { body: Box::new(Content::text("x")), stroke: None, offset: None, extent: None };
-        let o = Content::Overline { body: Box::new(Content::text("y")), stroke: None, offset: None, extent: None };
+        let s = Content::strike(Content::text("x"), None, None, None);
+        let o = Content::overline(Content::text("y"), None, None, None);
         assert_eq!(s.plain_text(), "x");
         assert_eq!(o.plain_text(), "y");
     }
 
     #[test]
     fn decoration_is_empty_proxy_para_body() {
-        let u_empty = Content::Underline { body: Box::new(Content::Empty), stroke: None, offset: None, extent: None };
-        let u_full  = Content::Underline { body: Box::new(Content::text("a")), stroke: None, offset: None, extent: None };
+        let u_empty = Content::underline(Content::Empty, None, None, None);
+        let u_full  = Content::underline(Content::text("a"), None, None, None);
         assert!(u_empty.is_empty());
         assert!(!u_full.is_empty());
     }
 
     #[test]
     fn decoration_partial_eq_distingue_cosmeticos() {
-        let base = || Content::Underline {
-            body:   Box::new(Content::text("x")),
-            stroke: None,
-            offset: None,
-            extent: None,
-        };
+        let base = || Content::underline(Content::text("x"), None, None, None);
         assert_eq!(base(), base());
-        let with_offset = Content::Underline {
-            body:   Box::new(Content::text("x")),
-            stroke: None,
-            offset: Some(Length::pt(2.0)),
-            extent: None,
-        };
+        let with_offset = Content::underline(Content::text("x"), None, Some(Length::pt(2.0)), None);
         assert_ne!(base(), with_offset, "offset diferente quebra igualdade");
-        let with_stroke = Content::Underline {
-            body:   Box::new(Content::text("x")),
-            stroke: Some(Color::rgb(255, 0, 0)),
-            offset: None,
-            extent: None,
-        };
+        let with_stroke = Content::underline(Content::text("x"), Some(Color::rgb(255, 0, 0)), None, None);
         assert_ne!(base(), with_stroke);
     }
 
     #[test]
     fn decoration_map_text_recurse_no_body() {
-        let u = Content::Underline {
-            body:   Box::new(Content::text("hello")),
-            stroke: None,
-            offset: Some(Length::pt(3.0)),
-            extent: None,
-        };
+        let u = Content::underline(Content::text("hello"), None, Some(Length::pt(3.0)), None);
         let upper = u.map_text(&mut |s| s.to_uppercase());
         assert_eq!(upper.plain_text(), "HELLO");
         // Cosméticos preservados após map_text.
-        if let Content::Underline { offset, .. } = upper {
-            assert_eq!(offset, Some(Length::pt(3.0)));
+        if let Content::Underline(e) = upper {
+            assert_eq!(e.offset, Some(Length::pt(3.0)));
         } else {
             panic!("map_text quebrou o variant kind");
         }

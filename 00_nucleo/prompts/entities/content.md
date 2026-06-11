@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 8f3a50a3
+Hash do Código: 53a12497
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -122,6 +122,25 @@ outras 3 ficam no default `false`. Construtores ergonómicos preservados
 `SetPage` 8, `SetHeadingNumbering` 62): são marcadores de set-rule — a superfície
 da StyleChain. O destino delas depende da decisão F (medida na Parte 2 do P318);
 migrá-las agora desenharia o F por acidente.
+
+**Lote 4 P319** (decorações de texto — **3 variantes** element-shaped; ordem por
+largura crescente): `Overline`(10) · `Strike`(10) · `Underline`(31). Cada migra
+para `Nome(Arc<NomeElem>)`, módulo `entities/elements/<nome>.rs` + L0. **Nenhuma
+é locatável** (confirmado P319). São **contentores de prosa** (corpo + cosméticos
+`stroke`/`offset`/`extent`) → `map_text`/`map_content` **recursam** no body
+(precedente Lote 3/Heading); **`is_empty` delega ao body** (override). Forma
+idêntica para as 3:
+
+```rust
+Nome { body, stroke: Option<Color>, offset: Option<Length>, extent: Option<Length> }
+  → Nome(Arc<NomeElem>)   // body desboxado para Content
+```
+
+**Novidade `Hash` manual**: `Length` não implementa `Hash`; como o trait
+`Element` o exige, os 3 `…Elem` implementam `Hash` **à mão via `Debug`**
+(`format!("{self:?}").hash(state)`, paridade `content_hash::hash_content`) em vez
+de `#[derive(Hash)]`. Construtores ergonómicos novos
+`Content::{overline,strike,underline}(body, stroke, offset, extent)`.
 
 **Estado misto** (esperado, ADR-0105): durante os lotes o `enum` mistura
 variantes migradas (`Nome(Arc<…>)`) e por migrar (`Nome { … }`); os 6 matches

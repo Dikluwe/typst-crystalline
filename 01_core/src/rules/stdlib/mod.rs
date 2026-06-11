@@ -7456,9 +7456,9 @@ mod tests {
         null_ctx!(ctx);
         let args = p(vec![Value::Content(Content::text("hello"))]);
         let r = native_underline(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Underline { body, stroke, offset, extent }) = r {
-            assert_eq!(body.plain_text(), "hello");
-            assert!(stroke.is_none() && offset.is_none() && extent.is_none(),
+        if let Value::Content(Content::Underline(e)) = r {
+            assert_eq!(e.body.plain_text(), "hello");
+            assert!(e.stroke.is_none() && e.offset.is_none() && e.extent.is_none(),
                     "sem named: cosméticos preservados em None");
         } else {
             panic!("esperado Value::Content(Content::Underline {{ .. }})");
@@ -7471,8 +7471,8 @@ mod tests {
         let args = p(vec![Value::Content(Content::text("x"))]);
         let s = native_strike(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         let o = native_overline(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(s, Value::Content(Content::Strike   { .. })));
-        assert!(matches!(o, Value::Content(Content::Overline { .. })));
+        assert!(matches!(s, Value::Content(Content::Strike(_))));
+        assert!(matches!(o, Value::Content(Content::Overline(_))));
     }
 
     #[test]
@@ -7481,7 +7481,7 @@ mod tests {
         let args = p(vec![Value::Str("important".into())]);
         let r = native_underline(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         match r {
-            Value::Content(Content::Underline { body, .. }) => assert_eq!(body.plain_text(), "important"),
+            Value::Content(Content::Underline(e)) => assert_eq!(e.body.plain_text(), "important"),
             other => panic!("esperado Underline, obtido {other:?}"),
         }
     }
@@ -7495,10 +7495,10 @@ mod tests {
         args.named.insert("offset".into(), Value::Length(Length::pt(2.5)));
         args.named.insert("extent".into(), Value::Length(Length::pt(-1.0)));
         let r = native_underline(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Underline { stroke, offset, extent, .. }) = r {
-            assert_eq!(stroke, Some(Color::rgb(255, 0, 0)));
-            assert_eq!(offset, Some(Length::pt(2.5)));
-            assert_eq!(extent, Some(Length::pt(-1.0)));
+        if let Value::Content(Content::Underline(e)) = r {
+            assert_eq!(e.stroke, Some(Color::rgb(255, 0, 0)));
+            assert_eq!(e.offset, Some(Length::pt(2.5)));
+            assert_eq!(e.extent, Some(Length::pt(-1.0)));
         } else {
             panic!("esperado Underline com cosméticos");
         }

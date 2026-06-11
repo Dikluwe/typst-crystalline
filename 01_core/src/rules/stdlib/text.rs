@@ -203,11 +203,11 @@ fn build_decoration(kind: DecoKind, args: &Args, fn_name: &str) -> SourceResult<
         }
     }
 
-    let body = Box::new(body);
+    // Modelo D (Lote 4 P319): construtores ergonómicos (body sem Box).
     let c = match kind {
-        DecoKind::Underline => Content::Underline { body, stroke, offset, extent },
-        DecoKind::Strike    => Content::Strike    { body, stroke, offset, extent },
-        DecoKind::Overline  => Content::Overline  { body, stroke, offset, extent },
+        DecoKind::Underline => Content::underline(body, stroke, offset, extent),
+        DecoKind::Strike    => Content::strike(body, stroke, offset, extent),
+        DecoKind::Overline  => Content::overline(body, stroke, offset, extent),
     };
     Ok(Value::Content(c))
 }

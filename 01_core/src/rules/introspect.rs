@@ -188,19 +188,13 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             body: Box::new(materialize_time(body, intr, location)),
         },
 
-        // P284 — text decoration: recurse em body; cosméticos primitivos.
-        Content::Underline { body, stroke, offset, extent } => Content::Underline {
-            body:   Box::new(materialize_time(body, intr, location)),
-            stroke: *stroke, offset: *offset, extent: *extent,
-        },
-        Content::Strike { body, stroke, offset, extent } => Content::Strike {
-            body:   Box::new(materialize_time(body, intr, location)),
-            stroke: *stroke, offset: *offset, extent: *extent,
-        },
-        Content::Overline { body, stroke, offset, extent } => Content::Overline {
-            body:   Box::new(materialize_time(body, intr, location)),
-            stroke: *stroke, offset: *offset, extent: *extent,
-        },
+        // Modelo D (Lote 4 P319): decorações — recurse no body via construtor.
+        Content::Underline(e) => Content::underline(
+            materialize_time(&e.body, intr, location), e.stroke, e.offset, e.extent),
+        Content::Strike(e) => Content::strike(
+            materialize_time(&e.body, intr, location), e.stroke, e.offset, e.extent),
+        Content::Overline(e) => Content::overline(
+            materialize_time(&e.body, intr, location), e.stroke, e.offset, e.extent),
 
         // ── Terminais — clonar directamente ──────────────────────────────
         // Nós matemáticos (Equation e subtipos) não podem conter CounterDisplay
@@ -1220,12 +1214,10 @@ pub(crate) fn walk(
             }
         }
 
-        // P284 — text decoration: walk em body (cosméticos não-locatable).
-        Content::Underline { body, .. }
-        | Content::Strike   { body, .. }
-        | Content::Overline { body, .. } => {
-            walk(body, locator, tags, intr, auto_label_counter, lang, None);
-        }
+        // Modelo D (Lote 4 P319): decorações — walk no body (não-locatable).
+        Content::Underline(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Strike(e)    => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Overline(e)  => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         Content::Transform { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 

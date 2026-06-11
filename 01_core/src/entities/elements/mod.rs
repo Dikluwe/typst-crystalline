@@ -40,6 +40,10 @@ pub mod link;
 pub mod list_item;
 pub mod term_item;
 pub mod terms;
+// Lote 4 P319 — decorações de texto (3 variantes element-shaped).
+pub mod overline;
+pub mod strike;
+pub mod underline;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;

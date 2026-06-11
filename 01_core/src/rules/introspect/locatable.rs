@@ -132,9 +132,9 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Quote { .. }
         // P284 — text decoration: não-locatable (cosmético inline; sem
         // identidade observable, paridade Quote/Link).
-        | Content::Underline { .. }
-        | Content::Strike { .. }
-        | Content::Overline { .. }
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
         // P287 — SmartQuote leaf não-locatable (glyph único; sem identidade
         // queryable; paridade Space/Linebreak).
         | Content::SmartQuote { .. }

@@ -2085,14 +2085,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // após `layout_content(body)` e o body permaneceu na mesma
             // linha, emite **exactamente** o algoritmo P284 (1 Line).
             // Validado por regression P285 + dedicated P286 test.
-            Content::Underline { body, stroke, offset, extent }
-            | Content::Strike   { body, stroke, offset, extent }
-            | Content::Overline { body, stroke, offset, extent } => {
+            Content::Underline(_) | Content::Strike(_) | Content::Overline(_) => {
                 use crate::entities::layout_types::{FrameItem, Point, Pt};
-                let kind_em: f64 = match content {
-                    Content::Underline { .. } =>  0.10,
-                    Content::Strike    { .. } => -0.25,
-                    Content::Overline  { .. } => -0.80,
+                // Modelo D (Lote 4 P319): destructure de Arc<Elem> + kind_em
+                // num só match (os 3 são tipos `Arc` distintos — sem `|`).
+                let (body, stroke, offset, extent, kind_em) = match content {
+                    Content::Underline(e) => (&e.body, e.stroke, e.offset, e.extent,  0.10_f64),
+                    Content::Strike(e)    => (&e.body, e.stroke, e.offset, e.extent, -0.25),
+                    Content::Overline(e)  => (&e.body, e.stroke, e.offset, e.extent, -0.80),
                     _ => unreachable!("arm gates Underline/Strike/Overline"),
                 };
                 let font_pt = self.font_size_pt.val();

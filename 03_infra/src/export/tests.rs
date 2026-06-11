@@ -6446,12 +6446,7 @@ use typst_core::rules::layout::layout;
         // O Layouter emite `FrameItem::Line` para a underline; export.rs
         // mapeia para `q {w} w {x1} {y1} m {x2} {y2} l S Q\n` (precedente
         // Passo 38 frac). Confirma toda a cadeia L1→L3 num smoke directo.
-        let doc = layout(&Content::Underline {
-            body:   Box::new(Content::text("hi")),
-            stroke: None,
-            offset: None,
-            extent: None,
-        });
+        let doc = layout(&Content::underline(Content::text("hi"), None, None, None));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains(" w "), "PDF deve conter operador 'w' (line width)");
@@ -6475,12 +6470,7 @@ use typst_core::rules::layout::layout;
     fn p285_line_sem_stroke_preserva_bit_exact() {
         // Underline sem stroke explícito + texto sem fill explícito →
         // herança falha (style.fill = None) → emit `color: None` → sem `RG`.
-        let doc = layout(&Content::Underline {
-            body:   Box::new(Content::text("plain")),
-            stroke: None,
-            offset: None,
-            extent: None,
-        });
+        let doc = layout(&Content::underline(Content::text("plain"), None, None, None));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         // O stream deve ter `q 0.6 w ... l S Q` sem `RG` precedente.
@@ -6497,12 +6487,7 @@ use typst_core::rules::layout::layout;
     #[test]
     fn p285_underline_com_stroke_explicito_emite_rg() {
         use typst_core::entities::layout_types::Color;
-        let doc = layout(&Content::Underline {
-            body:   Box::new(Content::text("x")),
-            stroke: Some(Color::rgb(255, 0, 0)),
-            offset: None,
-            extent: None,
-        });
+        let doc = layout(&Content::underline(Content::text("x"), Some(Color::rgb(255, 0, 0)), None, None));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("1.000 0.000 0.000 RG"),
@@ -6515,18 +6500,8 @@ use typst_core::rules::layout::layout;
     #[test]
     fn p285_strike_e_overline_honram_stroke() {
         use typst_core::entities::layout_types::Color;
-        let s_doc = layout(&Content::Strike {
-            body:   Box::new(Content::text("a")),
-            stroke: Some(Color::rgb(0, 128, 0)),
-            offset: None,
-            extent: None,
-        });
-        let o_doc = layout(&Content::Overline {
-            body:   Box::new(Content::text("a")),
-            stroke: Some(Color::rgb(0, 0, 255)),
-            offset: None,
-            extent: None,
-        });
+        let s_doc = layout(&Content::strike(Content::text("a"), Some(Color::rgb(0, 128, 0)), None, None));
+        let o_doc = layout(&Content::overline(Content::text("a"), Some(Color::rgb(0, 0, 255)), None, None));
         let s_pdf = String::from_utf8_lossy(&export_pdf(&s_doc)).to_string();
         let o_pdf = String::from_utf8_lossy(&export_pdf(&o_doc)).to_string();
         // Green (128/255 ≈ 0.502).
@@ -6545,12 +6520,7 @@ use typst_core::rules::layout::layout;
         use typst_core::entities::layout_types::{Color, TextStyle};
         use typst_core::entities::style::{Style, Styles};
         // Construir: Styled([Fill(red)], Underline { stroke: None, ... })
-        let inner = Content::Underline {
-            body:   Box::new(Content::text("h")),
-            stroke: None,           // ← sem stroke explícito
-            offset: None,
-            extent: None,
-        };
+        let inner = Content::underline(Content::text("h"), None, None, None);
         let mut style = TextStyle::default();
         style.fill = Some(Color::rgb(255, 0, 0));
         let styled = Content::Styled(
@@ -6594,12 +6564,12 @@ use typst_core::rules::layout::layout;
             .map(|i| format!("w{i}"))
             .collect::<Vec<_>>()
             .join(" ");
-        let doc = layout(&Content::Underline {
-            body:   Box::new(Content::text(&texto_longo)),
-            stroke: Some(Color::rgb(0, 0, 255)),  // blue para distinguir
-            offset: None,
-            extent: None,
-        });
+        let doc = layout(&Content::underline(
+            Content::text(&texto_longo),
+            Some(Color::rgb(0, 0, 255)),  // blue para distinguir
+            None,
+            None,
+        ));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         // O exportador escreve `q {RG} {w} w {x1} {y1} m {x2} {y2} l S Q\n`

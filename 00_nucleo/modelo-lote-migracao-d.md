@@ -66,6 +66,11 @@ grep -rnE "Content::Nome([^A-Za-z0-9]|$)" 01_core 02_shell 03_infra 04_wiring \
 2. **Migrar variante a variante** (a mais barata primeiro):
    - `NomeElem` struct no módulo próprio `entities/elements/<nome>.rs`
      (`#[derive(Debug, Clone, PartialEq, Hash)]`), absorvendo os campos.
+     **Campos com `f64`/`Length`/`Color`**: estes tipos **não** implementam
+     `Hash` → derivar só `Debug, Clone, PartialEq` e implementar `Hash` **à mão
+     via `Debug`** (`format!("{self:?}").hash(state)`), paridade `content_hash`.
+     Comentar a ressalva `-0.0` vs `0.0` no código — ver L0 do **Lote 4 P319**
+     (`overline.md`). Os lotes 5+ não precisam de redescobrir nem re-perguntar.
    - Variante do enum: `Nome(Arc<NomeElem>)`.
    - Construtor ergonómico em `content.rs` (`Content::nome(...)` → embrulha
      `Arc::new(NomeElem { … })`), preservando a assinatura de chamada onde
