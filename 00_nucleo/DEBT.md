@@ -234,6 +234,37 @@
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
 
+## DEBT-57 — Specs L0 ausentes para ~70 funções stdlib — EM ABERTO (Passo 316)
+
+**Estado**: aberto · **Magnitude**: M (fatiável por ficheiro) · **Origem**:
+deriva F4 retroativa exposta pela partição do prompt `rules/stdlib.md` no P314.
+
+A partição do P314 (ADR-0104) revelou que o prompt grosso `rules/stdlib.md`
+especificava só uma fração do que os `.rs` da stdlib implementam. Os ficheiros
+abaixo passaram a apontar para `stdlib/_comum.md` (a convenção partilhada) por
+**não terem spec L0 dedicada** — não foi inventada spec no P314 (content-
+preserving). Ficheiros sem prompt L0 dedicado:
+
+- `rules/stdlib/layout.rs` — 17 funções (`align`/`place`/`grid`/`page`/`pad`/
+  `hide`/`h`/`v`/`block`/`stack`/`box`/`repeat`/`columns`/`colbreak`/`measure`/
+  `stroke`/`pagebreak`).
+- `rules/stdlib/structural.rs` — 21 funções (`strong`/`emph`/`raw`/`heading`/
+  `divider`/`terms`/`quote`/`table`+cell/header/footer/`grid_cell`/header/footer/
+  `bibliography`/`cite`/`footnote`/`accent`/`cancel`/`underover`/`op`).
+- `rules/stdlib/shapes.rs` — 6 (`rect`/`ellipse`/`circle`/`line`/`polygon`/`curve`).
+- `rules/stdlib/transforms.rs` — 4 (`move`/`rotate`/`scale`/`skew`).
+- `rules/stdlib/gradients.rs` — 3 (`gradient_linear`/`radial`/`conic`).
+- `rules/stdlib/assert.rs` — `assert`.
+- `rules/stdlib/foundations.rs` — funções além das specadas em `foundations.md`:
+  `oklab`/`oklch`/`linear_rgb`/`cmyk`/`hsl`/`hsv`, `metadata`, `state`/
+  `state_update`/`state_update_with`/`state_final`/`state_at`, `counter_at`/
+  `counter_final`/`counter_step`, `query`/`here`/`locate`.
+
+**Critério de fecho**: cada ficheiro da lista com um prompt L0 dedicado (mesma
+receita de fatiamento do P314). Sem corrigir agora — só o registro.
+
+---
+
 ## DEBT-2 — Closures eager vs lazy capture — PARCIALMENTE RESOLVIDO
 
 ### Resolvido no Passo 31
