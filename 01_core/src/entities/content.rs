@@ -1067,6 +1067,12 @@ impl Content {
     pub fn heading(level: u8, body: Content) -> Self {
         Self::Heading(Arc::new(HeadingElem::new(level, body)))
     }
+    /// Heading com numeração ativa (Lote F-2 S1, P335) — assado do
+    /// `#set heading(numbering:)`. Substitui o padrão antigo
+    /// `[SetHeadingNumbering{active:true}, heading(..)]`.
+    pub fn heading_numbered(level: u8, body: Content) -> Self {
+        Self::Heading(Arc::new(HeadingElem::new_numbered(level, body, true)))
+    }
     /// Construtor do separador estrutural (Modelo D, P316).
     pub fn divider() -> Self {
         Self::Divider(Arc::new(DividerElem))

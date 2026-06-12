@@ -85,8 +85,19 @@ pub(super) fn eval_heading(
     // Capturar bold no estilo para que os Text filhos do heading carreguem bold=true.
     let delta = StyleDelta { bold: Some(true), italic: None, size: None, ..StyleDelta::empty() };
     let body = eval_body_with_delta(heading.body().to_untyped(), scopes, ctx, engine, delta)?;
+    // Lote F-2 S1 (P335): assar a numeração ativa a partir da chain léxica
+    // (`#set heading(numbering:)` empurrou para `engine.styles.custom`). Fecha o
+    // canal global `SetHeadingNumbering` — o set agora respeita escopo (DEBT 99.E).
+    let numbering_active = matches!(
+        engine.styles.custom("heading.numbering"),
+        Some(crate::entities::value::Value::Bool(true))
+    );
     // Intercepção eager — show rules aplicadas imediatamente após criação (Passo 68).
-    let content = Content::heading(level, body);
+    let content = if numbering_active {
+        Content::heading_numbered(level, body)
+    } else {
+        Content::heading(level, body)
+    };
     Ok(Value::Content(rules::intercept_content(content, ctx, engine)?))
 }
 

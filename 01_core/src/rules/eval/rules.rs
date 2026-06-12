@@ -224,7 +224,12 @@ pub(super) fn eval_set_rule(
             }
             false
         });
-        return Ok(Value::Content(Content::SetHeadingNumbering { active }));
+        // Lote F-2 S1 (P335): em vez de um marcador global `SetHeadingNumbering`,
+        // empurra para a chain léxica (`engine.styles` é escopado por
+        // `local_styles`). O heading assa este valor na criação
+        // (`eval/markup.rs`). Fecha o canal global → escopo de container (DEBT 99.E).
+        *engine.styles = engine.styles.push_custom("heading.numbering", Value::Bool(active));
+        return Ok(Value::None);
     }
 
     if target == "page" {

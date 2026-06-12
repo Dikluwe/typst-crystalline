@@ -891,11 +891,12 @@ fn layout_heading_sem_numbering_nao_tem_prefixo() {
 
 #[test]
 fn layout_heading_com_numbering_tem_prefixo() {
+    // Lote F-2 S1 (P335): numeração assada no heading (`heading_numbered`);
+    // asserções inalteradas.
     let content = Content::Sequence(vec![
-        Content::SetHeadingNumbering { active: true },
-        Content::heading(1, Content::text("Intro")),
-        Content::heading(2, Content::text("Motivação")),
-        Content::heading(1, Content::text("Conclusão")),
+        Content::heading_numbered(1, Content::text("Intro")),
+        Content::heading_numbered(2, Content::text("Motivação")),
+        Content::heading_numbered(1, Content::text("Conclusão")),
     ].into());
     let doc = layout(&content);
     let text = doc.plain_text();
@@ -906,11 +907,11 @@ fn layout_heading_com_numbering_tem_prefixo() {
 
 #[test]
 fn layout_set_heading_numbering_activa_contador() {
-    // SetHeadingNumbering activado via Content::SetHeadingNumbering + headings
+    // Lote F-2 S1 (P335): numeração assada no heading (`heading_numbered`);
+    // asserções inalteradas.
     let content = Content::Sequence(vec![
-        Content::SetHeadingNumbering { active: true },
-        Content::heading(1, Content::text("Intro")),
-        Content::heading(2, Content::text("Sub")),
+        Content::heading_numbered(1, Content::text("Intro")),
+        Content::heading_numbered(2, Content::text("Sub")),
     ].into());
     let doc = layout(&content);
     let text = doc.plain_text();
@@ -918,34 +919,42 @@ fn layout_set_heading_numbering_activa_contador() {
     assert!(text.contains("1.1"), "H2 deve ter prefixo '1.1'");
 }
 
-// ── P182D — Layouter heading-arm via Introspector (substitution-with-fallback)
+// ── Lote F-2 S1 (P335) — o gate de numeração migrou do Introspector para o
+// campo assado `HeadingElem::numbering_active`. Este teto (era P182D) passa a
+// assertar a NOVA realidade: o flag `numbering_active:heading` do Introspector
+// é **ignorado** pelo consumer (que lê o campo assado, escopo léxico).
 
 #[test]
-fn p182d_heading_numbering_via_introspector_path() {
-    // Documento sem `Content::SetHeadingNumbering` no AST: legacy walk arm
-    // (`introspect.rs:455–457`) e Layout walk arm (`layout/counters.rs:11–13`)
-    // não populam `state.numbering_active`. Mas o Introspector é injectado
-    // pré-populado com `numbering_active:heading=true` — Layouter heading-arm
-    // deve disparar prefixo via path Introspector.
+fn f2s1_heading_numbering_le_campo_assado_nao_o_introspector() {
     use crate::entities::introspector::TagIntrospector;
     use crate::entities::location::Location;
     use crate::entities::value::Value;
     use crate::rules::introspect::introspect_with_introspector;
 
+    // Heading NÃO numerado (campo assado = false), mas o Introspector tem o
+    // flag antigo `numbering_active:heading=true` injetado.
     let plain = Content::heading(1, Content::text("Intro"));
-    let mut intr: TagIntrospector =
-        introspect_with_introspector(&plain);
+    let mut intr: TagIntrospector = introspect_with_introspector(&plain);
     intr.state.init(
         "numbering_active:heading".to_string(),
         Value::Bool(true),
         Location::from_raw(0),
     );
-    // State legacy vazio — apenas Introspector path activo.
-    let doc = layout_with_introspector(&plain, intr);
-    let text = doc.plain_text();
+    let text = layout_with_introspector(&plain, intr).plain_text();
+    // O flag do Introspector é ignorado — sem prefixo (lê o campo assado=false).
     assert!(
-        text.contains("1."),
-        "P182D: prefixo deve vir via Introspector quando legacy vazio; obtido: '{text}'"
+        !text.contains("1."),
+        "F-2 S1: o consumer ignora o flag do Introspector e lê o campo assado; \
+         heading não-numerado não deve ter prefixo; obtido: '{text}'"
+    );
+
+    // E um heading numerado (campo assado=true) tem prefixo, sem depender do
+    // Introspector para o gate.
+    let numbered = Content::heading_numbered(1, Content::text("Intro"));
+    let text2 = layout(&numbered).plain_text();
+    assert!(
+        text2.contains("1."),
+        "F-2 S1: heading numerado (campo assado) deve ter prefixo; obtido: '{text2}'"
     );
 }
 
@@ -7677,11 +7686,15 @@ mod p182e_e2e_heading_numbering {
 
     /// Documento típico: `set heading(numbering: ...)` + 3 headings com nesting [1, 2, 1].
     fn doc_typico() -> Content {
+        // Lote F-2 S1 (P335): numeração assada (`heading_numbered`) para o
+        // prefixo de layout; o marcador `SetHeadingNumbering` permanece para os
+        // testes que ainda exercitam a plumbing de introspecção (StateRegistry),
+        // inerte em produção até a limpeza S5.
         Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
-            Content::heading(1, Content::text("Intro")),
-            Content::heading(2, Content::text("Motivação")),
-            Content::heading(1, Content::text("Conclusão")),
+            Content::heading_numbered(1, Content::text("Intro")),
+            Content::heading_numbered(2, Content::text("Motivação")),
+            Content::heading_numbered(1, Content::text("Conclusão")),
         ]))
     }
 
@@ -7733,9 +7746,11 @@ mod p182e_e2e_heading_numbering {
         // durante o walk), com Introspector a fornecer redundância
         // por `final_value` (que retorna o último valor — `false`
         // após o segundo update).
+        // Lote F-2 S1 (P335): o gate é assado por heading — H1 numerado (ON),
+        // H2 plano (OFF). Marcadores mantidos para o teste de plumbing abaixo.
         let content = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
-            Content::heading(1, Content::text("Intro")),
+            Content::heading_numbered(1, Content::text("Intro")),
             Content::SetHeadingNumbering { active: false },
             Content::heading(1, Content::text("Apêndice")),
         ]));
@@ -7767,13 +7782,14 @@ mod p182e_e2e_heading_numbering {
         // e `layout_with_introspector` directo. Output observable
         // deve ser idêntico — confirma que migração P182B–D não
         // introduziu divergência.
+        // Lote F-2 S1 (P335): headings numerados assados; marcador mantido p/ plumbing.
         let content = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
-            Content::heading(1, Content::text("Sec1")),
+            Content::heading_numbered(1, Content::text("Sec1")),
             Content::text("corpo do parágrafo"),
-            Content::heading(2, Content::text("Sub1")),
+            Content::heading_numbered(2, Content::text("Sub1")),
             Content::equation(Content::MathText("x".into()), true),
-            Content::heading(1, Content::text("Sec2")),
+            Content::heading_numbered(1, Content::text("Sec2")),
         ]));
 
         let txt_legacy = layout(&content).plain_text();
@@ -8306,11 +8322,13 @@ mod p187b_c1_heading_prefix {
     }
 
     fn doc_3_headings() -> Content {
+        // Lote F-2 S1 (P335): numeração assada para o prefixo; marcador mantido
+        // para a plumbing de introspecção (ver `doc_typico`).
         Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
-            heading_with_text(1, "Intro"),
-            heading_with_text(2, "Motivacao"),
-            heading_with_text(1, "Conclusao"),
+            Content::heading_numbered(1, Content::text("Intro")),
+            Content::heading_numbered(2, Content::text("Motivacao")),
+            Content::heading_numbered(1, Content::text("Conclusao")),
         ]))
     }
 
@@ -10492,10 +10510,11 @@ mod f_caracterizacao_estilo {
     // ── SetHeadingNumbering → prefixo de heading ──────────────────────────
     #[test]
     fn carac_set_heading_numbering_liga_prefixo() {
+        // Lote F-2 S1 (P335): numeração assada no heading (`heading_numbered`);
+        // asserções inalteradas.
         let c = Content::Sequence(vec![
-            Content::SetHeadingNumbering { active: true },
-            Content::heading(1, Content::text("Intro")),
-            Content::heading(2, Content::text("Sub")),
+            Content::heading_numbered(1, Content::text("Intro")),
+            Content::heading_numbered(2, Content::text("Sub")),
         ].into());
         let t = doc_text(&c);
         assert!(t.contains("1."), "H1 deve ter prefixo '1.': '{t}'");
@@ -10615,13 +10634,14 @@ mod f_caracterizacao_estilo {
     // ── Set + elemento migrado: heading numerado dentro de columns ────────
     #[test]
     fn carac_heading_numerado_dentro_de_columns() {
+        // Lote F-2 S1 (P335): numeração assada no heading (`heading_numbered`);
+        // asserções inalteradas.
         let c = Content::Sequence(vec![
-            Content::SetHeadingNumbering { active: true },
-            Content::columns(Content::heading(1, Content::text("Dentro")), 2, None),
+            Content::columns(Content::heading_numbered(1, Content::text("Dentro")), 2, None),
         ].into());
         let t = doc_text(&c);
         // caracteriza: a numeração de heading atravessa o contentor migrado
-        // (columns) — o set aplica-se ao heading mesmo encapsulado.
+        // (columns) — o heading numerado renderiza numerado mesmo encapsulado.
         assert!(t.contains("Dentro"), "corpo do heading presente: '{t}'");
         assert!(t.contains("1."), "heading dentro de columns deve numerar: '{t}'");
     }

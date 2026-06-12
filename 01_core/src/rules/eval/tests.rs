@@ -235,6 +235,70 @@ mod tests {
         assert!(module.scope().is_empty());
     }
 
+    // ── Lote F-2 S1 (P335) — `#set heading(numbering:)` via chain léxica ──────
+    fn find_heading_numbered(c: &Content) -> Option<bool> {
+        match c {
+            Content::Heading(h) => Some(h.numbering_active),
+            Content::Sequence(items) => items.iter().find_map(find_heading_numbered),
+            Content::Styled(b, _) => find_heading_numbered(b),
+            _ => None,
+        }
+    }
+
+    #[test]
+    fn f2s1_set_heading_numbering_assa_via_chain() {
+        // End-to-end: `#set heading(numbering:)` empurra para a chain
+        // (`engine.styles.custom`); o heading assa `numbering_active=true`.
+        let world = MockWorld::new("#set heading(numbering: \"1.\")\n= Titulo");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        let content = module.content().expect("módulo deve ter content");
+        assert_eq!(
+            find_heading_numbered(content),
+            Some(true),
+            "#set heading(numbering:) deve assar numbering_active=true via chain"
+        );
+    }
+
+    #[test]
+    fn f2s1_sem_set_heading_nao_assa() {
+        // Sem `#set heading` → heading não-numerado (gate via campo assado).
+        let world = MockWorld::new("= Titulo");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        let content = module.content().expect("módulo deve ter content");
+        assert_eq!(find_heading_numbered(content), Some(false));
+    }
+
+    fn collect_headings_numbered(c: &Content, out: &mut Vec<bool>) {
+        match c {
+            Content::Heading(h) => out.push(h.numbering_active),
+            Content::Sequence(items) => {
+                items.iter().for_each(|i| collect_headings_numbered(i, out))
+            }
+            Content::Styled(b, _) => collect_headings_numbered(b, out),
+            _ => {}
+        }
+    }
+
+    #[test]
+    fn f2s1_set_heading_escopo_lexical_nao_vaza() {
+        // **A prova do fecho do DEBT 99.E**: `#set heading(numbering:)` dentro
+        // de um bloco de conteúdo `[...]` escopa ao bloco — não vaza para o
+        // heading de fora. (Antes do F-2, o marcador era global.)
+        let world = MockWorld::new("#[#set heading(numbering: \"1.\")\n= Dentro]\n= Fora");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        let content = module.content().expect("módulo deve ter content");
+        let mut hs = vec![];
+        collect_headings_numbered(content, &mut hs);
+        assert_eq!(
+            hs,
+            vec![true, false],
+            "Dentro numerado; Fora NÃO (escopo léxico, DEBT 99.E): {hs:?}"
+        );
+    }
+
     // ── Testes de control flow ────────────────────────────────────────────────
 
     #[test]

@@ -693,14 +693,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
 
                 // Prefixo numérico — apenas se numbering estiver activo.
-                // P190E: location-aware via `is_numbering_active_at`.
-                // P190F: fallback legacy `format_hierarchical` removido —
-                // Introspector path único.
+                // Lote F-2 S1 (P335): o "ativo" é **assado** no `HeadingElem`
+                // (escopo léxico via chain, fecha o canal global StateRegistry).
+                // O **valor** do contador continua via Introspector
+                // (`formatted_counter_at`), location-aware (P190E/F).
                 use crate::entities::introspector::Introspector;
-                let numbering_on = self.current_location
-                    .map(|loc| self.introspector
-                        .is_numbering_active_at("numbering_active:heading", loc))
-                    .unwrap_or(false);
+                let numbering_on = h.numbering_active;
                 if numbering_on {
                     let num_str = self.current_location
                         .and_then(|loc| self.introspector
@@ -717,12 +715,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             Content::SetHeadingNumbering { active: _ } => {
-                // P190G (M6 categoria Labels & TOC; Caso 1 `.H`):
-                // helper `layout_set_heading_numbering` eliminado —
-                // mutava `state.numbering_active` que não existe mais.
-                // Caminho Introspector activo via populate_intr arm
-                // StateUpdate (chave "numbering_active:heading"). No-op
-                // em Layouter.
+                // Lote F-2 S1 (P335): a numeração de heading passou a ser
+                // **assada no `HeadingElem`** (escopo léxico via chain) — o
+                // consumer acima lê `h.numbering_active`, não mais o
+                // StateRegistry. Esta variante deixou de ser **produzida** pelo
+                // eval; permanece como marcador inerte (+ plumbing de
+                // introspecção) até a limpeza de código morto em **S5**.
+                // No-op em Layouter.
             }
 
             Content::SetEquationNumbering { active: _ } => {

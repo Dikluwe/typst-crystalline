@@ -25,12 +25,23 @@ pub struct HeadingElem {
     pub level: u8,
     /// Corpo do cabeçalho (era `Box<Content>`; agora `Content` dentro do `Arc`).
     pub body: Content,
+    /// **Numeração ativa (Lote F-2 S1, P335)** — assada na criação a partir do
+    /// `engine.styles.custom("heading.numbering")` (escopo léxico via a chain;
+    /// fecha o canal global `SetHeadingNumbering`/StateRegistry). Paridade:
+    /// só "ativo" (o pattern era descartado no canal antigo). O **valor** do
+    /// contador continua via Introspector (`formatted_counter_at("heading")`).
+    pub numbering_active: bool,
 }
 
 impl HeadingElem {
-    /// Construtor com clamp de paridade (content.rs:1267).
+    /// Construtor com clamp de paridade (content.rs:1267). Numeração inativa.
     pub fn new(level: u8, body: Content) -> Self {
-        Self { level: level.clamp(1, 6), body }
+        Self { level: level.clamp(1, 6), body, numbering_active: false }
+    }
+
+    /// Construtor com numeração ativa (assada do `#set heading(numbering:)`).
+    pub fn new_numbered(level: u8, body: Content, numbering_active: bool) -> Self {
+        Self { level: level.clamp(1, 6), body, numbering_active }
     }
 }
 
@@ -46,6 +57,7 @@ impl Element for HeadingElem {
         Ok(Content::Heading(Arc::new(HeadingElem {
             level: self.level,
             body: self.body.map_content(transform)?,
+            numbering_active: self.numbering_active,
         })))
     }
 
@@ -56,6 +68,7 @@ impl Element for HeadingElem {
         Content::Heading(Arc::new(HeadingElem {
             level: self.level,
             body: self.body.map_text(transform),
+            numbering_active: self.numbering_active,
         }))
     }
 
