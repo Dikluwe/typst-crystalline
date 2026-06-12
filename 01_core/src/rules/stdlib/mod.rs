@@ -3259,12 +3259,12 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let r = native_block(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { body, width, height, inset, breakable, .. }) = r {
-            assert_eq!(body.plain_text(), "body");
-            assert_eq!(width,  None);
-            assert_eq!(height, None);
-            assert_eq!(inset.left, Length::ZERO);
-            assert!(breakable, "default breakable é true");
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.body.plain_text(), "body");
+            assert_eq!(e.width,  None);
+            assert_eq!(e.height, None);
+            assert_eq!(e.inset.left, Length::ZERO);
+            assert!(e.breakable, "default breakable é true");
         } else {
             panic!("esperado Content::Block");
         }
@@ -3276,8 +3276,8 @@ mod tests {
         // (Content::Empty como fallback).
         null_ctx!(ctx);
         let r = native_block(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { body, .. }) = r {
-            assert!(body.is_empty());
+        if let Value::Content(Content::Block(e)) = r {
+            assert!(e.body.is_empty());
         } else {
             panic!("esperado Content::Block com body Empty");
         }
@@ -3290,8 +3290,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("width".into(), Value::Length(Length::pt(100.0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { width, .. }) = r {
-            assert_eq!(width, Some(Length::pt(100.0)));
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.width, Some(Length::pt(100.0)));
         } else {
             panic!("esperado Content::Block");
         }
@@ -3304,8 +3304,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("height".into(), Value::Int(50));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { height, .. }) = r {
-            assert_eq!(height, Some(Length::pt(50.0)));
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.height, Some(Length::pt(50.0)));
         } else {
             panic!("esperado Content::Block");
         }
@@ -3318,11 +3318,11 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("inset".into(), Value::Length(Length::pt(8.0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { inset, .. }) = r {
-            assert_eq!(inset.left,   Length::pt(8.0));
-            assert_eq!(inset.right,  Length::pt(8.0));
-            assert_eq!(inset.top,    Length::pt(8.0));
-            assert_eq!(inset.bottom, Length::pt(8.0));
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.inset.left,   Length::pt(8.0));
+            assert_eq!(e.inset.right,  Length::pt(8.0));
+            assert_eq!(e.inset.top,    Length::pt(8.0));
+            assert_eq!(e.inset.bottom, Length::pt(8.0));
         } else {
             panic!("esperado Content::Block");
         }
@@ -3334,8 +3334,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("breakable".into(), Value::Bool(false));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { breakable, .. }) = r {
-            assert!(!breakable);
+        if let Value::Content(Content::Block(e)) = r {
+            assert!(!e.breakable);
         } else {
             panic!("esperado Content::Block");
         }
@@ -3351,11 +3351,11 @@ mod tests {
         args.named.insert("inset".into(),  Value::Length(Length::pt(4.0)));
         args.named.insert("breakable".into(), Value::Bool(false));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { width, height, inset, breakable, .. }) = r {
-            assert_eq!(width,  Some(Length::pt(200.0)));
-            assert_eq!(height, Some(Length::pt(80.0)));
-            assert_eq!(inset.top, Length::pt(4.0));
-            assert!(!breakable);
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.width,  Some(Length::pt(200.0)));
+            assert_eq!(e.height, Some(Length::pt(80.0)));
+            assert_eq!(e.inset.top, Length::pt(4.0));
+            assert!(!e.breakable);
         } else {
             panic!("esperado Content::Block");
         }
@@ -3383,8 +3383,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("fill".into(), Value::Color(Color::rgb(255, 0, 0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { fill, .. }) = r {
-            assert_eq!(fill, Some(Color::rgb(255, 0, 0)));
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.fill, Some(Color::rgb(255, 0, 0)));
         } else {
             panic!("esperado Content::Block");
         }
@@ -3397,8 +3397,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("stroke".into(), Value::Length(Length::pt(2.0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { stroke, .. }) = r {
-            let s = stroke.expect("stroke deveria ser Some");
+        if let Value::Content(Content::Block(e)) = r {
+            let s = e.stroke.clone().expect("stroke deveria ser Some");
             assert_eq!(s.thickness, 2.0);
         } else {
             panic!("esperado Content::Block");
@@ -3409,9 +3409,9 @@ mod tests {
     fn p247_native_block_fill_default_none() {
         null_ctx!(ctx);
         let r = native_block(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { fill, stroke, .. }) = r {
-            assert_eq!(fill, None);
-            assert!(stroke.is_none());
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.fill, None);
+            assert!(e.stroke.is_none());
         } else {
             panic!("esperado Content::Block");
         }
@@ -3480,12 +3480,12 @@ mod tests {
         args.named.insert("clip".into(),   Value::Bool(true));
         args.named.insert("outset".into(), Value::Length(Length::pt(2.0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { fill, stroke, radius, clip, outset, .. }) = r {
-            assert_eq!(fill,   Some(Color::rgb(50, 100, 150)));
-            assert_eq!(stroke.unwrap().thickness, 1.5);
-            assert_eq!(radius.top_left, Length::pt(3.0));
-            assert_eq!(clip,   true);
-            assert_eq!(outset.left, Length::pt(2.0));
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.fill,   Some(Color::rgb(50, 100, 150)));
+            assert_eq!(e.stroke.clone().unwrap().thickness, 1.5);
+            assert_eq!(e.radius.top_left, Length::pt(3.0));
+            assert_eq!(e.clip,   true);
+            assert_eq!(e.outset.left, Length::pt(2.0));
         } else {
             panic!("esperado Content::Block");
         }
@@ -3512,8 +3512,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("breakable".into(), Value::Bool(false));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { breakable, .. }) = r {
-            assert_eq!(breakable, false,
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.breakable, false,
                 "P248 — native_block(breakable: false) propaga literal para variant");
         } else {
             panic!("esperado Content::Block");
@@ -3524,8 +3524,8 @@ mod tests {
     fn p248_native_block_breakable_default_true_p156g() {
         null_ctx!(ctx);
         let r = native_block(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { breakable, .. }) = r {
-            assert_eq!(breakable, true, "P248 — default preservado P156G");
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.breakable, true, "P248 — default preservado P156G");
         } else {
             panic!("esperado Content::Block");
         }
@@ -3574,11 +3574,11 @@ mod tests {
         args.named.insert("below".into(),   Value::Length(Length::pt(8.0)));
         args.named.insert("sticky".into(),  Value::Bool(true));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { spacing, above, below, sticky, .. }) = r {
-            assert_eq!(spacing, Some(Length::pt(12.0)));
-            assert_eq!(above,   Some(Length::pt(20.0)));
-            assert_eq!(below,   Some(Length::pt(8.0)));
-            assert_eq!(sticky,  true);
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.spacing, Some(Length::pt(12.0)));
+            assert_eq!(e.above,   Some(Length::pt(20.0)));
+            assert_eq!(e.below,   Some(Length::pt(8.0)));
+            assert_eq!(e.sticky,  true);
         } else {
             panic!("esperado Content::Block");
         }
@@ -3588,11 +3588,11 @@ mod tests {
     fn p250_native_block_defaults_4_fields() {
         null_ctx!(ctx);
         let r = native_block(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { spacing, above, below, sticky, .. }) = r {
-            assert_eq!(spacing, None);
-            assert_eq!(above,   None);
-            assert_eq!(below,   None);
-            assert_eq!(sticky,  false, "P250 defaults preservam pre-P250");
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.spacing, None);
+            assert_eq!(e.above,   None);
+            assert_eq!(e.below,   None);
+            assert_eq!(e.sticky,  false, "P250 defaults preservam pre-P250");
         } else {
             panic!("esperado Content::Block");
         }
@@ -3638,7 +3638,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("stroke".into(), Value::Length(Length::pt(2.5)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { stroke: Some(s), .. }) = r {
+        if let Value::Content(Content::Block(e)) = r {
+            let s = e.stroke.clone().expect("stroke deveria ser Some");
             assert_eq!(s.thickness, 2.5);
             assert_eq!(s.overhang, true,
                 "P252 — Length atalho default overhang=true (paridade vanilla)");
@@ -3655,7 +3656,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { stroke: Some(s), .. }) = r {
+        if let Value::Content(Content::Block(e)) = r {
+            let s = e.stroke.clone().expect("stroke deveria ser Some");
             assert_eq!(s.paint, Paint::Solid(Color::rgb(255, 0, 0)));
             assert_eq!(s.thickness, 1.0);
             assert_eq!(s.overhang, true,
@@ -4063,7 +4065,7 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("inset".into(), Value::Length(Length::pt(3.0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Block { .. })),
+        assert!(matches!(r, Value::Content(Content::Block(e))),
             "regressão: native_block deveria produzir Content::Block");
         // Pad regression
         let mut args = p(vec![Value::Content(Content::text("x"))]);
@@ -4088,7 +4090,7 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("width".into(), Value::Length(Length::pt(50.0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Block { .. })));
+        assert!(matches!(r, Value::Content(Content::Block(e))));
         // Box (Boxed)
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("baseline".into(), Value::Length(Length::pt(2.0)));
@@ -4239,7 +4241,7 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("width".into(), Value::Length(Length::pt(50.0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Block { .. })));
+        assert!(matches!(r, Value::Content(Content::Block(e))));
         // Box
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("baseline".into(), Value::Length(Length::pt(2.0)));
@@ -5173,8 +5175,8 @@ mod tests {
         args.named.insert("outset".into(), Value::Length(Length::pt(5.0)));
         let r = native_block(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { outset, .. }) = r {
-            assert_eq!(outset.left, Length::pt(5.0));
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.outset.left, Length::pt(5.0));
         } else { panic!("esperado Block"); }
     }
 
@@ -5197,13 +5199,13 @@ mod tests {
         args.named.insert("radius".into(), Value::Length(Length::pt(3.0)));
         let r = native_block(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { radius, .. }) = r {
-            // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
+        if let Value::Content(Content::Block(e)) = r {
+            // P242 adapta: e.radius `Option<Length>` → `Corners<Length>`.
             // Length uniforme via stdlib → `Corners::uniform`.
-            assert_eq!(radius.top_left,     Length::pt(3.0));
-            assert_eq!(radius.top_right,    Length::pt(3.0));
-            assert_eq!(radius.bottom_right, Length::pt(3.0));
-            assert_eq!(radius.bottom_left,  Length::pt(3.0));
+            assert_eq!(e.radius.top_left,     Length::pt(3.0));
+            assert_eq!(e.radius.top_right,    Length::pt(3.0));
+            assert_eq!(e.radius.bottom_right, Length::pt(3.0));
+            assert_eq!(e.radius.bottom_left,  Length::pt(3.0));
         } else { panic!("esperado Block"); }
     }
 
@@ -5225,8 +5227,8 @@ mod tests {
         args.named.insert("clip".into(), Value::Bool(true));
         let r = native_block(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { clip, .. }) = r {
-            assert_eq!(clip, true);
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.clip, true);
         } else { panic!("esperado Block"); }
     }
 
@@ -5271,12 +5273,12 @@ mod tests {
         args.named.insert("breakable".into(), Value::Bool(false));
         let r = native_block(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { outset, radius, clip, breakable, .. }) = r {
-            assert_eq!(outset.left, Length::pt(1.0));
-            // P242 adapta: radius `Corners<Length>` via uniform.
-            assert_eq!(radius.top_left, Length::pt(2.0));
-            assert_eq!(clip, true);
-            assert_eq!(breakable, false);
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.outset.left, Length::pt(1.0));
+            // P242 adapta: e.radius `Corners<Length>` via uniform.
+            assert_eq!(e.radius.top_left, Length::pt(2.0));
+            assert_eq!(e.clip, true);
+            assert_eq!(e.breakable, false);
         } else { panic!("esperado Block"); }
     }
 
@@ -5287,14 +5289,14 @@ mod tests {
         let r = native_block(&mut ctx, &p(vec![
             Value::Content(Content::text("body")),
         ]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { outset, radius, clip, .. }) = r {
-            assert_eq!(outset.left, crate::entities::layout_types::Length::ZERO);
-            // P242 adapta: radius default `Corners::uniform(Length::ZERO)`.
-            assert_eq!(radius.top_left,     crate::entities::layout_types::Length::ZERO);
-            assert_eq!(radius.top_right,    crate::entities::layout_types::Length::ZERO);
-            assert_eq!(radius.bottom_right, crate::entities::layout_types::Length::ZERO);
-            assert_eq!(radius.bottom_left,  crate::entities::layout_types::Length::ZERO);
-            assert_eq!(clip, false);
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.outset.left, crate::entities::layout_types::Length::ZERO);
+            // P242 adapta: e.radius default `Corners::uniform(Length::ZERO)`.
+            assert_eq!(e.radius.top_left,     crate::entities::layout_types::Length::ZERO);
+            assert_eq!(e.radius.top_right,    crate::entities::layout_types::Length::ZERO);
+            assert_eq!(e.radius.bottom_right, crate::entities::layout_types::Length::ZERO);
+            assert_eq!(e.radius.bottom_left,  crate::entities::layout_types::Length::ZERO);
+            assert_eq!(e.clip, false);
         } else { panic!("esperado Block"); }
     }
 
@@ -5881,11 +5883,11 @@ mod tests {
         args.named.insert("radius".into(), Value::Length(Length::pt(5.0)));
         let r = native_block(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { radius, .. }) = r {
-            assert_eq!(radius.top_left,     Length::pt(5.0));
-            assert_eq!(radius.top_right,    Length::pt(5.0));
-            assert_eq!(radius.bottom_right, Length::pt(5.0));
-            assert_eq!(radius.bottom_left,  Length::pt(5.0));
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.radius.top_left,     Length::pt(5.0));
+            assert_eq!(e.radius.top_right,    Length::pt(5.0));
+            assert_eq!(e.radius.bottom_right, Length::pt(5.0));
+            assert_eq!(e.radius.bottom_left,  Length::pt(5.0));
         } else { panic!("esperado Block"); }
     }
 
@@ -5905,11 +5907,11 @@ mod tests {
         args.named.insert("radius".into(), Value::Dict(d));
         let r = native_block(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { radius, .. }) = r {
-            assert_eq!(radius.top_left,     Length::pt(1.0));
-            assert_eq!(radius.top_right,    Length::pt(2.0));
-            assert_eq!(radius.bottom_right, Length::pt(3.0));
-            assert_eq!(radius.bottom_left,  Length::pt(4.0));
+        if let Value::Content(Content::Block(e)) = r {
+            assert_eq!(e.radius.top_left,     Length::pt(1.0));
+            assert_eq!(e.radius.top_right,    Length::pt(2.0));
+            assert_eq!(e.radius.bottom_right, Length::pt(3.0));
+            assert_eq!(e.radius.bottom_left,  Length::pt(4.0));
         } else { panic!("esperado Block"); }
     }
 
@@ -5932,15 +5934,15 @@ mod tests {
         args.named.insert("radius".into(), Value::Dict(d));
         let r = native_block(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Block { radius, .. }) = r {
+        if let Value::Content(Content::Block(e)) = r {
             // top-left: top OR left (precedência top vence: top:10pt).
-            assert_eq!(radius.top_left, Length::pt(10.0));
+            assert_eq!(e.radius.top_left, Length::pt(10.0));
             // top-right: top.
-            assert_eq!(radius.top_right, Length::pt(10.0));
+            assert_eq!(e.radius.top_right, Length::pt(10.0));
             // bottom-left: left vence (bottom não-set; rest fallback).
-            assert_eq!(radius.bottom_left, Length::pt(20.0));
+            assert_eq!(e.radius.bottom_left, Length::pt(20.0));
             // bottom-right: rest fallback.
-            assert_eq!(radius.bottom_right, Length::pt(99.0));
+            assert_eq!(e.radius.bottom_right, Length::pt(99.0));
         } else { panic!("esperado Block"); }
     }
 

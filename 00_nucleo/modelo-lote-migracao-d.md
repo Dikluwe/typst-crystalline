@@ -218,9 +218,10 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 ## Contabilidade de variantes (o roteiro dos lotes — atualizar a CADA lote)
 
-`Content` tem **77 variantes** (baseline P313). Estado em **P329** (Lote 14 incluído):
+`Content` tem **77 variantes** (baseline P313). Estado em **P330** (Lote 15 incluído
+— **roteiro de lotes ENCERRADO**):
 
-### Migradas para o modelo D — 64
+### Migradas para o modelo D — 65
 
 - **P316 piloto (3)**: `Divider`, `Heading` (locatável), `MathStyled`.
 - **Lote 2 P317 — math (11)**: `MathCases`, `MathMatrix`, `MathAlignPoint`,
@@ -322,6 +323,15 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   `Boxed` denso (~10 campos, família L12) — **Hash manual** (`Length`/`Sides`/
   `Corners`/f64); construtor cobre 5/10 → construções via **Arc-wrap** (C2).
   `Styled` **não tocado** (sem `|`-combinado com binding). `content.rs` **−63**.
+- **Lote 15 P330 — `Block` (1; o ÚLTIMO lote)**: a variante mais densa (14
+  campos), família L12/`Boxed`. **Não-locatável**; a introspecção só desce no
+  body (sem consumo direto de payload — contraste `Labelled`/P195D). Contentor
+  (recurse body). **Hash manual** (`Length`/`Sides`/`Corners`/`Color`/`Stroke`,
+  f64). Construtor `block` cobre **5/14** → construções de campo-completo via
+  **Arc-wrap** (C2; materialize `..(**e).clone()`, módulo usa `..(*self).clone()`).
+  Os arms de `Styled` e dos 7 primitivos ficam intactos (sem `|`-combinado).
+  `content.rs` **−112** (5072→4960, abaixo de 5000). **Roteiro de lotes
+  encerrado** — 65 variantes migradas em 15 lotes + piloto.
 
 ### Fora de lote — decisão própria
 
@@ -348,11 +358,13 @@ primitivos): **L14 = `Labelled`(57) + `Boxed`(69)** · **L15 = `Block`(121)**
 ### Roteiro restante
 
 1. ~~**L14** — `Labelled` + `Boxed`~~ ✅ **feito (P329)**.
-2. **L15** — `Block` (~121) — o último lote-tardio.
-3. **Verificação de performance** (`hyperfine`; caveat C1/P319).
-4. **Diagnóstico do F** — absorve `Set*` + `Styled` + revisita
+2. ~~**L15** — `Block`~~ ✅ **feito (P330) — roteiro de lotes ENCERRADO**.
+3. **Verificação de performance** (`hyperfine`; caveat C1/P319) — baseline
+   tirado em P330 (`medicao-pre-f-passo-330.md`).
+4. **Diagnóstico do F** (próximo passo) — absorve `Set*` + `Styled` + revisita
    `Text`/`MathText`/`MathIdent`.
 
-Conta: **64 migradas** + 4 `Set*` + 9 (4 def. + 3 prov. + `Block` lote-tardio +
-`Styled`→F) = **77** ✓. Após L15: **65 migradas**; restam só os primitivos do
-hub (desenho declarado) + a superfície do F.
+**Conta FINAL**: **65 migradas** + 4 `Set*` + 7 primitivos (4 def. + 3 prov.) +
+`Styled`→F = **77** ✓. **Roteiro de lotes encerrado.** O que resta nos 6 matches
+do hub são **12 arms por desenho/escopo-F** (7 primitivos declarados + `Styled`
++ 4 `Set*`) — **zero dívida não classificada**.

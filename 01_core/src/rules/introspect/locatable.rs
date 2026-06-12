@@ -147,7 +147,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Colbreak(_)
         | Content::Stack(_)
         | Content::Boxed(_)
-        | Content::Block { .. }
+        | Content::Block(_)
         | Content::TableCell(_)
         | Content::TableHeader { .. }
         | Content::TableFooter { .. }

@@ -845,22 +845,14 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         None => false,
     };
 
-    Ok(Value::Content(Content::Block {
-        body: Box::new(body),
-        width,
-        height,
-        inset,
-        breakable,
-        outset,
-        radius,
-        clip,
-        fill,
-        stroke,
-        spacing,
-        above,
-        below,
-        sticky,
-    }))
+    Ok(Value::Content(Content::Block(std::sync::Arc::new(
+        crate::entities::elements::block::BlockElem {
+            body,
+            width, height, inset, breakable,
+            outset, radius, clip, fill, stroke,
+            spacing, above, below, sticky,
+        },
+    ))))
 }
 
 // ── Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo ────────────

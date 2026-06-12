@@ -634,7 +634,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let mut iter = parts.iter().peekable();
                 while let Some(part) = iter.next() {
                     // P250 — sticky pre-layout lookahead 1-block.
-                    if let Content::Block { sticky: true, .. } = part {
+                    if matches!(part, Content::Block(e) if e.sticky) {
                         if let Some(next) = iter.peek() {
                             let avail_w = self.available_width();
                             let (_, part_h) = self.measure_content_constrained(part, avail_w);
@@ -1682,8 +1682,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `width` actualmente reduz a largura útil temporariamente
             // (cursor.x começa em line_start_x + offset). `width: None`
             // == auto (largura completa).
-            Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke,
-                              spacing, above, below, sticky: _ } => {
+            Content::Block(e) => {
+                let (body, width, height, inset, breakable, outset, radius, clip, fill, stroke, spacing, above, below) =
+                    (&e.body, &e.width, &e.height, &e.inset, &e.breakable, &e.outset, &e.radius, &e.clip, &e.fill, &e.stroke, &e.spacing, &e.above, &e.below);
                 let font = self.font_size_pt.val();
                 let inset_left   = inset.left.resolve_pt(font);
                 let inset_top    = inset.top.resolve_pt(font);
@@ -2493,8 +2494,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 156G: Block dimensões para grid measurement.
             // Inset adiciona aos lados; height: Some(h) força mínimo;
             // width: Some(w) prefere essa largura mas constrained por max.
-            Content::Block { body, width, height, inset, breakable: _, outset: _, radius: _, clip: _, fill: _, stroke: _,
-                              spacing: _, above: _, below: _, sticky: _ } => {
+            Content::Block(e) => {
+                let (body, width, height, inset) = (&e.body, &e.width, &e.height, &e.inset);
                 let font = self.font_size_pt.val();
                 let inset_l = inset.left.resolve_pt(font);
                 let inset_r = inset.right.resolve_pt(font);

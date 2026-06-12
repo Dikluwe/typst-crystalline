@@ -258,24 +258,13 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // padding e o invariante "hide" preservam-se.
         Content::Pad(e) => Content::pad(materialize_time(&e.body, intr, location), e.sides),
         Content::Hide(e) => Content::hide(materialize_time(&e.body, intr, location)),
-        // Passo 156G + P231 + P247 + P250 — Block container; preserva 9 cosméticos.
-        Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke,
-                          spacing, above, below, sticky } => Content::Block {
-            body:      Box::new(materialize_time(body, intr, location)),
-            width:     *width,
-            height:    *height,
-            inset:     *inset,
-            breakable: *breakable,
-            outset:    *outset,
-            radius:    *radius,
-            clip:      *clip,
-            fill:      *fill,
-            stroke:    stroke.clone(),
-            spacing:   *spacing,
-            above:     *above,
-            below:     *below,
-            sticky:    *sticky,
-        },
+        // Modelo D (Lote 15 P330): Block — recurse no body via struct-update.
+        Content::Block(e) => Content::Block(std::sync::Arc::new(
+            crate::entities::elements::block::BlockElem {
+                body: materialize_time(&e.body, intr, location),
+                ..(**e).clone()
+            },
+        )),
         // Modelo D (Lote 14 P329): Boxed — recurse no body via struct-update.
         Content::Boxed(e) => Content::Boxed(std::sync::Arc::new(
             crate::entities::elements::boxed::BoxedElem {
@@ -1222,7 +1211,7 @@ pub(crate) fn walk(
         Content::Hide(e)           => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 156G (ADR-0061 Fase 2) — block container; descer no body.
-        Content::Block { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Block(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container.
         Content::Boxed(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),

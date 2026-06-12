@@ -3438,8 +3438,7 @@ mod tests_show_rule_integration {
     #[test]
     fn p231_block_outset_radius_clip_layout_preservado() {
         use crate::entities::sides::Sides;
-        let b = Content::Block {
-            body:      Box::new(Content::text("p231block")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p231block"),
             width:     None,
             height:    None,
             inset:     Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
@@ -3453,8 +3452,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         // P242 — quando clip=true, body items wrapped em FrameItem::Group
         // com clip_mask Some(RoundedRect). Recursivamente extrair Text de
@@ -3510,8 +3508,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let b = Content::Block {
-            body:      Box::new(Content::text("clipped")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("clipped"),
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -3524,8 +3521,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         // Procurar FrameItem::Group com clip_mask Some(RoundedRect).
         let mut found_rounded_clip = false;
@@ -3547,8 +3543,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let b = Content::Block {
-            body:      Box::new(Content::text("clipped-rect")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("clipped-rect"),
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -3561,8 +3556,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         let mut found_rect_clip = false;
         for page in doc.pages.iter() {
@@ -3585,8 +3579,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let b = Content::Block {
-            body:      Box::new(Content::text("not-clipped")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("not-clipped"),
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -3599,8 +3592,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         // Nenhum Group com clip_mask deve ser emitido.
         let mut found_any_clip_mask = false;
@@ -3651,8 +3643,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let block = Content::Block {
-            body:      Box::new(Content::text("p243block")),
+        let block = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p243block"),
             width:     Some(Length::pt(150.0)),  // Block.width efectivo P243.
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -3665,8 +3656,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&block);
         let mut texts = String::new();
         for page in doc.pages.iter() {
@@ -3722,8 +3712,7 @@ mod tests_show_rule_integration {
                 right:  Some(Length::pt(50.0)),
                 bottom: None,
             });
-        let block = Content::Block {
-            body:      Box::new(inner_pad),
+        let block = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: inner_pad,
             width:     Some(Length::pt(200.0)),
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -3736,8 +3725,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&block);
         let mut texts = String::new();
         for page in doc.pages.iter() {
@@ -3761,8 +3749,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Color, Length};
-        let b = Content::Block {
-            body:      Box::new(Content::text("p247fill")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p247fill"),
             width:     Some(Length::pt(50.0)),
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -3775,8 +3762,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         let mut found_shape_with_fill = false;
         for page in doc.pages.iter() {
@@ -3796,8 +3782,7 @@ mod tests_show_rule_integration {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::geometry::Stroke;
-        let b = Content::Block {
-            body:      Box::new(Content::text("p247stroke")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p247stroke"),
             width:     Some(Length::pt(40.0)),
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -3810,8 +3795,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         let mut found_shape_with_stroke = false;
         for page in doc.pages.iter() {
@@ -3832,8 +3816,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Color, Length};
-        let b = Content::Block {
-            body:      Box::new(Content::text("p247rounded")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p247rounded"),
             width:     Some(Length::pt(60.0)),
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -3846,8 +3829,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         let mut found_rounded_fill = false;
         for page in doc.pages.iter() {
@@ -3869,8 +3851,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Color, Length};
-        let b = Content::Block {
-            body:      Box::new(Content::text("p247outset")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p247outset"),
             width:     Some(Length::pt(50.0)),
             height:    Some(Length::pt(20.0)),
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -3883,8 +3864,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         let mut shape_w = 0.0_f64;
         let mut shape_h = 0.0_f64;
@@ -3912,8 +3892,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let b = Content::Block {
-            body:      Box::new(Content::text("backcompat")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("backcompat"),
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -3926,8 +3905,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         let mut found_shape = false;
         for page in doc.pages.iter() {
@@ -3988,8 +3966,7 @@ mod tests_show_rule_integration {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
         // breakable=true (default P156G): emit normal sem antecipar break.
-        let b = Content::Block {
-            body:      Box::new(Content::text("p248brkt")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p248brkt"),
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4002,8 +3979,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         // Smoke: body renderiza; única página.
         assert_eq!(doc.pages.len(), 1, "breakable=true não causa break extra");
@@ -4024,8 +4000,7 @@ mod tests_show_rule_integration {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
         // breakable=false + body pequeno: cabe na actual; sem new_page.
-        let b = Content::Block {
-            body:      Box::new(Content::text("p248brkf")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p248brkf"),
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4038,8 +4013,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         assert_eq!(doc.pages.len(), 1,
             "breakable=false body pequeno cabe na actual; sem break extra");
@@ -4053,8 +4027,7 @@ mod tests_show_rule_integration {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
         // height enorme — excede página (~595pt default test).
-        let b = Content::Block {
-            body:      Box::new(Content::text("p248overlong")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p248overlong"),
             width:     None,
             height:    Some(Length::pt(10_000.0)),
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4067,8 +4040,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         // Body renderiza; sem panic; o output pode ser várias páginas
         // por overflow natural (flush_line) mas não infinitas.
@@ -4091,8 +4063,7 @@ mod tests_show_rule_integration {
         // block_total_h 100 <= usable 700 → break antecipado.
         let seq = Content::Sequence(std::sync::Arc::from(vec![
             Content::v_space(Length::pt(650.0), false),
-            Content::Block {
-                body:      Box::new(Content::text("p248new")),
+            Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p248new"),
                 width:     None,
                 height:    Some(Length::pt(100.0)),
                 inset:     Sides::uniform(Length::pt(0.0)),
@@ -4105,8 +4076,7 @@ mod tests_show_rule_integration {
                 spacing:   None,
                 above:     None,
                 below:     None,
-                sticky:    false,
-            },
+                sticky:    false})),
         ]));
         let doc = layout(&seq);
         // Esperar 2 páginas: pre-VSpace na p1; Block na p2.
@@ -4122,8 +4092,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Color, Length};
-        let b = Content::Block {
-            body:      Box::new(Content::text("p248cross")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p248cross"),
             width:     Some(Length::pt(60.0)),
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4136,8 +4105,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         let mut found_shape = false;
         for page in doc.pages.iter() {
@@ -4323,8 +4291,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Length, TrackSizing};
-        let inner_block = Content::Block {
-            body:      Box::new(Content::text("ovf")),
+        let inner_block = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("ovf"),
             width:     None,
             height:    Some(Length::pt(100.0)),  // força >> cell_h
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4337,8 +4304,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
@@ -4376,8 +4342,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Color, Length, TrackSizing};
-        let inner_block = Content::Block {
-            body:      Box::new(Content::text("fillovf")),
+        let inner_block = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("fillovf"),
             width:     None,
             height:    Some(Length::pt(80.0)),
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4390,8 +4355,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
@@ -4433,8 +4397,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Length, TrackSizing};
-        let inner_block = Content::Block {
-            body:      Box::new(Content::text("cross")),
+        let inner_block = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("cross"),
             width:     None,
             height:    Some(Length::pt(60.0)),  // excede cell row
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4447,8 +4410,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
@@ -4486,8 +4448,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let b = Content::Block {
-            body:      Box::new(Content::text("p248inset")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p248inset"),
             width:     None,
             height:    Some(Length::pt(50.0)),
             inset:     Sides::uniform(Length::pt(10.0)),
@@ -4500,8 +4461,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         assert_eq!(doc.pages.len(), 1,
             "P248 — Block pequeno com inset+outset cabe na actual; sem break extra");
@@ -4559,8 +4519,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let inner = Content::Block {
-            body:      Box::new(Content::text("inner")),
+        let inner = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("inner"),
             width:     None,
             height:    Some(Length::pt(150.0)),
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4573,12 +4532,10 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let seq = Content::Sequence(std::sync::Arc::from(vec![
             Content::v_space(Length::pt(600.0), false),
-            Content::Block {
-                body:      Box::new(inner),
+            Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: inner,
                 width:     None,
                 height:    None,
                 inset:     Sides::uniform(Length::pt(0.0)),
@@ -4591,8 +4548,7 @@ mod tests_show_rule_integration {
                 spacing:   None,
                 above:     None,
                 below:     None,
-                sticky:    false,
-            },
+                sticky:    false})),
         ]));
         let doc = layout(&seq);
         // Layout não panica + at least 1 page; aninhamento estável.
@@ -4606,8 +4562,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Length, TrackSizing};
-        let inner_block = Content::Block {
-            body:      Box::new(Content::text("radius cross")),
+        let inner_block = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("radius cross"),
             width:     None,
             height:    Some(Length::pt(80.0)),
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4620,8 +4575,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
@@ -4690,8 +4644,7 @@ mod tests_show_rule_integration {
         // block height médio + outset grande → total deve causar break.
         let seq = Content::Sequence(std::sync::Arc::from(vec![
             Content::v_space(Length::pt(620.0), false),
-            Content::Block {
-                body:      Box::new(Content::text("p248outset")),
+            Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p248outset"),
                 width:     None,
                 height:    Some(Length::pt(80.0)),
                 inset:     Sides::uniform(Length::pt(0.0)),
@@ -4704,8 +4657,7 @@ mod tests_show_rule_integration {
                 spacing:   None,
                 above:     None,
                 below:     None,
-                sticky:    false,
-            },
+                sticky:    false})),
         ]));
         let doc = layout(&seq);
         // VSpace 620 cursor ~699; remaining ~72pt; block_total_h = 80+60=140 > 72 → break.
@@ -4751,8 +4703,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let b = Content::Block {
-            body:      Box::new(Content::text("p248edge")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p248edge"),
             width:     None,
             height:    None,  // sem height min
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4765,8 +4716,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         assert_eq!(doc.pages.len(), 1,
             "P248 breakable=false sem height: body cabe; sem break extra");
@@ -4780,8 +4730,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let b = Content::Block {
-            body:      Box::new(Content::text("a")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("a"),
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4794,8 +4743,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         // Smoke: layout não panica; body emitido.
         let doc = layout(&b);
         let mut texts = String::new();
@@ -4820,8 +4768,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        Content::Block {
-            body:      Box::new(body),
+        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: body,
             width:     None,
             height,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4834,8 +4781,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        }
+            sticky:    false}))
     }
 
     /// Helper P250 — construtor Block com spacing/above/below/sticky.
@@ -4849,8 +4795,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        Content::Block {
-            body:      Box::new(body),
+        Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: body,
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4863,8 +4808,7 @@ mod tests_show_rule_integration {
             spacing,
             above,
             below,
-            sticky,
-        }
+            sticky}))
     }
 
     #[test]
@@ -5049,8 +4993,7 @@ mod tests_show_rule_integration {
         // to be height-restricted. Adjust:
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
-        let b1 = Content::Block {
-            body:      Box::new(Content::text("sk1")),
+        let b1 = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("sk1"),
             width:     None,
             height:    Some(Length::pt(20.0)),
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -5063,8 +5006,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    true,
-        };
+            sticky:    true}));
         let b2 = p250_mk_block(Content::text("sk2"), Some(Length::pt(80.0)));
         let seq = Content::Sequence(std::sync::Arc::from(vec![
             Content::v_space(Length::pt(650.0), false),
@@ -5222,8 +5164,7 @@ mod tests_show_rule_integration {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::geometry::Stroke;
-        let b = Content::Block {
-            body:      Box::new(Content::text("a4completo")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("a4completo"),
             width:     Some(Length::pt(80.0)),
             height:    Some(Length::pt(40.0)),
             inset:     Sides::uniform(Length::pt(3.0)),
@@ -5237,7 +5178,7 @@ mod tests_show_rule_integration {
             above:     Some(Length::pt(10.0)),                   // P250
             below:     Some(Length::pt(8.0)),                    // P250
             sticky:    true,                                      // P250
-        };
+        }));
         let doc = layout(&b);
         // Smoke: layout não panica + body emitido (recursivo: clip=true
         // wrap em Group P242).
@@ -5272,8 +5213,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Length, TrackSizing};
-        let inner_block = Content::Block {
-            body:      Box::new(Content::text("fxd")),
+        let inner_block = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("fxd"),
             width:     None,
             height:    Some(Length::pt(100.0)),  // excede cell
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -5286,8 +5226,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
@@ -5328,8 +5267,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Length, TrackSizing};
-        let inner_block = Content::Block {
-            body:      Box::new(Content::text("auto")),
+        let inner_block = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("auto"),
             width:     None,
             height:    Some(Length::pt(50.0)),
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -5342,8 +5280,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
@@ -5436,8 +5373,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Length, TrackSizing};
-        let inner_block = Content::Block {
-            body:      Box::new(Content::text("tail")),
+        let inner_block = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("tail"),
             width:     None,
             height:    Some(Length::pt(100.0)),
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -5450,8 +5386,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
@@ -5487,8 +5422,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Color, Length, TrackSizing};
-        let inner_block = Content::Block {
-            body:      Box::new(Content::text("filltail")),
+        let inner_block = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("filltail"),
             width:     None,
             height:    Some(Length::pt(80.0)),
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -5501,8 +5435,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
@@ -5562,8 +5495,7 @@ mod tests_show_rule_integration {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Length, TrackSizing};
         let mk_cell = |label: &str| -> Content {
-            let inner = Content::Block {
-                body:      Box::new(Content::text(label)),
+            let inner = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text(label),
                 width:     None,
                 height:    Some(Length::pt(40.0)),
                 inset:     Sides::uniform(Length::pt(0.0)),
@@ -5576,8 +5508,7 @@ mod tests_show_rule_integration {
                 spacing:   None,
                 above:     None,
                 below:     None,
-                sticky:    false,
-            };
+                sticky:    false}));
             Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner,
                 x:         None,
                 y:         None,
@@ -5644,8 +5575,7 @@ mod tests_show_rule_integration {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::geometry::Stroke;
-        let b = Content::Block {
-            body:      Box::new(Content::text("p252lit")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p252lit"),
             width:     Some(Length::pt(50.0)),
             height:    Some(Length::pt(30.0)),
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -5662,8 +5592,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         let mut shape_w = 0.0_f64;
         for page in doc.pages.iter() {
@@ -5685,8 +5614,7 @@ mod tests_show_rule_integration {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::geometry::Stroke;
-        let b = Content::Block {
-            body:      Box::new(Content::text("p252ov")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p252ov"),
             width:     Some(Length::pt(50.0)),
             height:    Some(Length::pt(30.0)),
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -5703,8 +5631,7 @@ mod tests_show_rule_integration {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let doc = layout(&b);
         let mut shape_w = 0.0_f64;
         for page in doc.pages.iter() {

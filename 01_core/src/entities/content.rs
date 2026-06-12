@@ -98,6 +98,7 @@ use crate::entities::elements::grid::GridElem;
 use crate::entities::elements::figure::FigureElem;
 use crate::entities::elements::labelled::LabelledElem;
 use crate::entities::elements::boxed::BoxedElem;
+use crate::entities::elements::block::BlockElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -722,73 +723,10 @@ pub enum Content {
     /// que cobre propriedades de texto (Bold/Italic/Size/Fill/HeadingLevel).
     /// Coerente com `Content::Pad` (P156C) que também tem fields explícitos
     /// para padding.
-    Block {
-        body:      Box<Content>,
-        /// Largura explícita; `None` == auto (largura disponível).
-        width:     Option<Length>,
-        /// Altura explícita; `None` == auto (calcular do body).
-        height:    Option<Length>,
-        /// Margem interna em quatro lados.
-        inset:     Sides<Length>,
-        /// `true` = pode quebrar entre páginas; `false` = atómico
-        /// (semantic adiada per ADR-0054 graded; armazenado mas
-        /// layouter não impede quebra ainda).
-        breakable: bool,
-        /// P231 — outset uniforme (margem externa visual; Sides Length
-        /// default zero). Renderização real em layout_grid expande
-        /// bounds visual. Per ADR-0079 PROPOSTO Categoria A.4 +
-        /// **ADR-0080 EM VIGOR aplicação automática N=2** (L0 não
-        /// tocado por defeito).
-        outset:    Sides<Length>,
-        /// **P242 (M9d / M7+5)** — radius per-corner via `Corners<Length>`
-        /// refino face P231 (`Option<Length>` → `Corners<Length>`).
-        /// **`ShapeKind::RoundedRect` materializado P242** desbloqueia
-        /// semantic real. Default `Corners::uniform(Length::ZERO)`
-        /// preserva semantic pre-P242. stdlib `block(radius:)` aceita
-        /// Length uniforme OR Dict por canto.
-        /// Promoção real de scope-out ADR-0054 graded P231 → semantic
-        /// concreta P242 (sub-padrão emergente "promoção real
-        /// scope-out" N=1 inaugurado).
-        radius:    crate::entities::corners::Corners<Length>,
-        /// **P242 (M9d / M7+5)** — clip overflow real. Quando `true` E
-        /// `radius != Corners::uniform(Length::ZERO)`, Layouter emite
-        /// `FrameItem::Group` com `clip_mask: Some(ShapeKind::RoundedRect
-        /// { radii: radius })`; PDF exporter desenha Bezier 4 corners
-        /// path. Quando `true` + radius zero, `clip_mask` é `Rect`
-        /// (paridade DEBT-30 P79). Semantic materializada P242.
-        clip:      bool,
-        /// **P247 (M9d / M7+5; ADR-0079 Categoria A.4)** — fill da caixa
-        /// visual paralelo Boxed. `Some(c)` emite `FrameItem::Shape
-        /// { fill: Some(c), .. }` antes do body (Z-order: fill atrás
-        /// do conteúdo). `None` == sem fill. Promoção real scope-out
-        /// ADR-0054 graded (pattern P242). Type `Color` (Paint enum
-        /// não existe).
-        fill:      Option<crate::entities::layout_types::Color>,
-        /// **P247 (M9d / M7+5; ADR-0079 Categoria A.4)** — stroke da
-        /// caixa visual paralelo Boxed. `Some(s)` emite Shape com
-        /// `stroke: Some(s)`. `None` == sem stroke. Reusa `Stroke` de
-        /// `geometry.rs:24`. Promoção real scope-out ADR-0054 graded.
-        stroke:    Option<crate::entities::geometry::Stroke>,
-        /// **P250 (M9d / M7+5; ADR-0079 Categoria A.4; cita ADR-0082
-        /// PROPOSTO N=1 citante)** — spacing genérico antes E depois
-        /// do bloco. `None` == zero (paridade cristalina graded; vanilla
-        /// `Em::new(1.2)` é divergência consciente per ADR-0054).
-        /// Fallback usado por `above`/`below` quando `None`.
-        spacing:   Option<Length>,
-        /// **P250** — override de `spacing` no lado superior. `None` ==
-        /// usar `spacing`. Vanilla: `above.or(spacing)` resolução.
-        /// Entre blocks consecutivos, `max(prev.below, curr.above)`
-        /// collapse (paridade CSS margin collapse vanilla).
-        above:     Option<Length>,
-        /// **P250** — override de `spacing` no lado inferior. `None` ==
-        /// usar `spacing`. Idem `above` para resolução + collapse.
-        below:     Option<Length>,
-        /// **P250** — `true` impede page break entre este Block e o
-        /// próximo (lookahead 1-block; paridade vanilla simples).
-        /// Default `false`. Uso típico: headings com `sticky: true`
-        /// evitam separação do parágrafo seguinte.
-        sticky:    bool,
-    },
+    /// **Modelo D (Lote 15 P330)**: `entities::elements::block::BlockElem`
+    /// (não-locatável, contentor — recurse body; 13 cosméticos; a mais densa.
+    /// `block` cobre 5/14 → construções completas via Arc-wrap, C2).
+    Block(Arc<BlockElem>),
 
     // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ───────────
     /// Cell estruturada de Table — vanilla `TableCell`.
@@ -1342,19 +1280,21 @@ impl Content {
         inset:     Sides<Length>,
         breakable: bool,
     ) -> Self {
-        Self::Block { body: Box::new(body), width, height, inset, breakable,
-                      outset: Sides::new(Length::pt(0.0), Length::pt(0.0), Length::pt(0.0), Length::pt(0.0)),
-                      // P242 — radius `Corners<Length>` substitui `Option<Length>` P231.
-                      radius: crate::entities::corners::Corners::uniform(Length::ZERO),
-                      clip: false,
-                      // P247 — fill/stroke default `None` (paridade pattern P242).
-                      fill: None,
-                      stroke: None,
-                      // P250 — spacing/above/below/sticky defaults (None×3 + false).
-                      spacing: None,
-                      above:   None,
-                      below:   None,
-                      sticky:  false }
+        Self::Block(Arc::new(BlockElem {
+            body, width, height, inset, breakable,
+            outset: Sides::new(Length::pt(0.0), Length::pt(0.0), Length::pt(0.0), Length::pt(0.0)),
+            // P242 — radius `Corners<Length>` substitui `Option<Length>` P231.
+            radius: crate::entities::corners::Corners::uniform(Length::ZERO),
+            clip: false,
+            // P247 — fill/stroke default `None` (paridade pattern P242).
+            fill: None,
+            stroke: None,
+            // P250 — spacing/above/below/sticky defaults (None×3 + false).
+            spacing: None,
+            above:   None,
+            below:   None,
+            sticky:  false,
+        }))
     }
 
     /// `box(body, width, height, inset, baseline)` — Passo 156H
@@ -1601,7 +1541,7 @@ impl Content {
             // Passo 156G: Block é vazio se o body for (atributos de
             // dimensão/inset não fazem o container deixar de ser vazio
             // semanticamente — análogo a Pad em P156C).
-            Self::Block { body, .. } => body.is_empty(),
+            Self::Block(e) => e.is_empty(),
             // Passo 156H: Boxed (Box inline) — proxy análogo a Block.
             Self::Boxed(e) => e.is_empty(),
             // Passo 156I: Stack é vazio se TODOS os children forem vazios
@@ -1734,7 +1674,7 @@ impl Content {
             Self::Colbreak(e)  => e.plain_text(),
             // Passo 156G: Block é transparente para texto plano (recurse
             // no body; análogo a Pad em P156C).
-            Self::Block { body, .. } => body.plain_text(),
+            Self::Block(e) => e.plain_text(),
             // Passo 156H: Boxed (Box) — análogo a Block.
             Self::Boxed(e) => e.plain_text(),
             // Passo 156I: Stack concatena plain_text de children
@@ -1861,16 +1801,8 @@ impl PartialEq for Content {
             (Self::Colbreak(a),  Self::Colbreak(b))  => a == b,
             // Passo 156G + P231 + P247 + P250 — Block +9 cosméticos
             // (outset/radius/clip/fill/stroke/spacing/above/below/sticky).
-            (Self::Block { body: ba, width: wa, height: ha, inset: ia, breakable: ka,
-                            outset: oa, radius: ra, clip: cla, fill: fia, stroke: sta,
-                            spacing: spa, above: aba, below: bla, sticky: sya },
-             Self::Block { body: bb, width: wb, height: hb, inset: ib, breakable: kb,
-                            outset: ob, radius: rb, clip: clb, fill: fib, stroke: stb,
-                            spacing: spb, above: abb, below: blb, sticky: syb }) =>
-                ba == bb && wa == wb && ha == hb && ia == ib && ka == kb
-                && oa == ob && ra == rb && cla == clb
-                && fia == fib && sta == stb
-                && spa == spb && aba == abb && bla == blb && sya == syb,
+            // Modelo D (Lote 15 P330): Block delega ao `Arc<…Elem>`.
+            (Self::Block(a), Self::Block(b)) => a == b,
             // Passo 156H + P231 + P247 — Boxed +5 cosméticos paralelo Block.
             // Modelo D (Lote 14 P329): Boxed delega ao `Arc<…Elem>`.
             (Self::Boxed(a), Self::Boxed(b)) => a == b,
@@ -1995,23 +1927,7 @@ impl Content {
             // Passo 156G + P231 + P247 + P250: Block container — recurse em
             // body; preserva 9 cosméticos (Sides/Corners/bool/Color Copy;
             // Stroke Clone; Option<Length> Copy; bool Copy).
-            Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke,
-                              spacing, above, below, sticky } => Content::Block {
-                body:      Box::new(body.map_content(transform)?),
-                width:     *width,
-                height:    *height,
-                inset:     *inset,
-                breakable: *breakable,
-                outset:    *outset,
-                radius:    *radius,
-                clip:      *clip,
-                fill:      *fill,
-                stroke:    stroke.clone(),
-                spacing:   *spacing,
-                above:     *above,
-                below:     *below,
-                sticky:    *sticky,
-            },
+            Content::Block(e) => e.map_content(transform)?,
 
             // Passo 156H + P231 + P247: Boxed (Box inline) — recurse análogo a Block; preserva 5 cosméticos.
             Content::Boxed(e) => e.map_content(transform)?,
@@ -2163,23 +2079,7 @@ impl Content {
             // Passo 156G + P247 + P250: Block container — recurse em body;
             // preserva 9 cosméticos (P247 fill/stroke + P250 spacing/above/
             // below/sticky incluídos).
-            Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke,
-                              spacing, above, below, sticky } => Content::Block {
-                body:      Box::new(body.map_text(transform)),
-                width:     *width,
-                height:    *height,
-                inset:     *inset,
-                breakable: *breakable,
-                outset:    *outset,
-                radius:    *radius,
-                clip:      *clip,
-                fill:      *fill,
-                stroke:    stroke.clone(),
-                spacing:   *spacing,
-                above:     *above,
-                below:     *below,
-                sticky:    *sticky,
-            },
+            Content::Block(e) => e.map_text(transform),
 
             // Passo 156H + P231 + P247: Boxed (Box inline) — recurse análogo a Block; preserva 5 cosméticos.
             Content::Boxed(e) => e.map_text(transform),
@@ -3128,12 +3028,12 @@ mod tests {
             Sides::uniform(Length::ZERO),
             true,
         );
-        if let Content::Block { body, width, height, inset, breakable, .. } = &b {
-            assert_eq!(body.plain_text(), "body");
-            assert_eq!(*width,  None);
-            assert_eq!(*height, None);
-            assert_eq!(inset.left, Length::ZERO);
-            assert!(*breakable);
+        if let Content::Block(e) = &b {
+            assert_eq!(e.body.plain_text(), "body");
+            assert_eq!(e.width,  None);
+            assert_eq!(e.height, None);
+            assert_eq!(e.inset.left, Length::ZERO);
+            assert!(e.breakable);
         } else {
             panic!("esperado Content::Block");
         }
@@ -3150,11 +3050,11 @@ mod tests {
             Sides::uniform(Length::pt(8.0)),
             false,
         );
-        if let Content::Block { width, height, inset, breakable, .. } = &b {
-            assert_eq!(*width,  Some(Length::pt(100.0)));
-            assert_eq!(*height, Some(Length::pt(50.0)));
-            assert_eq!(inset.left, Length::pt(8.0));
-            assert!(!*breakable);
+        if let Content::Block(e) = &b {
+            assert_eq!(e.width,  Some(Length::pt(100.0)));
+            assert_eq!(e.height, Some(Length::pt(50.0)));
+            assert_eq!(e.inset.left, Length::pt(8.0));
+            assert!(!e.breakable);
         } else {
             panic!("esperado Content::Block");
         }
@@ -3241,8 +3141,8 @@ mod tests {
         let upper = b.map_text(&mut |s| s.to_uppercase());
         assert_eq!(upper.plain_text(), "HELLO");
         // Atributos preservados após map_text.
-        if let Content::Block { inset, .. } = upper {
-            assert_eq!(inset.left, Length::pt(1.0));
+        if let Content::Block(e) = upper {
+            assert_eq!(e.inset.left, Length::pt(1.0));
         } else {
             panic!("esperado Content::Block após map_text");
         }
@@ -4208,8 +4108,7 @@ mod tests {
         // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
-        let b = Content::Block {
-            body:      Box::new(Content::text("body")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("body"),
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4222,15 +4121,14 @@ mod tests {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
-        if let Content::Block { outset, radius, clip, .. } = &b {
-            assert_eq!(radius.top_left, Length::pt(3.0));
-            assert_eq!(radius.top_right, Length::pt(3.0));
-            assert_eq!(radius.bottom_right, Length::pt(3.0));
-            assert_eq!(radius.bottom_left, Length::pt(3.0));
-            assert_eq!(*clip, true);
-            assert_eq!(outset.left, Length::pt(5.0));
+            sticky:    false}));
+        if let Content::Block(e) = &b {
+            assert_eq!(e.radius.top_left, Length::pt(3.0));
+            assert_eq!(e.radius.top_right, Length::pt(3.0));
+            assert_eq!(e.radius.bottom_right, Length::pt(3.0));
+            assert_eq!(e.radius.bottom_left, Length::pt(3.0));
+            assert_eq!(e.clip, true);
+            assert_eq!(e.outset.left, Length::pt(5.0));
         } else {
             panic!("esperado Block");
         }
@@ -4265,8 +4163,7 @@ mod tests {
         // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
-        let mk = |clip: bool| Content::Block {
-            body:      Box::new(Content::text(".")),
+        let mk = |clip: bool| Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("."),
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4279,8 +4176,7 @@ mod tests {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         assert_eq!(mk(false), mk(false));
         assert_ne!(mk(false), mk(true));
     }
@@ -4292,8 +4188,7 @@ mod tests {
         use crate::entities::corners::Corners;
         let outset_orig = Sides::uniform(Length::pt(7.0));
         let radius_orig = Corners::uniform(Length::pt(2.0));
-        let b = Content::Block {
-            body:      Box::new(Content::text("b")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("b"),
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4306,13 +4201,12 @@ mod tests {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let mapped = b.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
-        if let Content::Block { outset, radius, clip, .. } = &mapped {
-            assert_eq!(*outset, outset_orig);
-            assert_eq!(*radius, radius_orig);
-            assert_eq!(*clip, true);
+        if let Content::Block(e) = &mapped {
+            assert_eq!(e.outset, outset_orig);
+            assert_eq!(e.radius, radius_orig);
+            assert_eq!(e.clip, true);
         } else {
             panic!("esperado Block após map_content");
         }
@@ -4329,8 +4223,7 @@ mod tests {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Color;
         use crate::entities::geometry::Stroke;
-        let b = Content::Block {
-            body:      Box::new(Content::text("p247")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p247"),
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4343,11 +4236,10 @@ mod tests {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
-        if let Content::Block { fill, stroke, .. } = &b {
-            assert_eq!(*fill, Some(Color::rgb(200, 0, 0)));
-            assert_eq!(stroke.as_ref().unwrap().thickness, 2.0);
+            sticky:    false}));
+        if let Content::Block(e) = &b {
+            assert_eq!(e.fill, Some(Color::rgb(200, 0, 0)));
+            assert_eq!(e.stroke.as_ref().unwrap().thickness, 2.0);
         } else {
             panic!("esperado Block");
         }
@@ -4382,8 +4274,7 @@ mod tests {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Color;
-        let mk = |fill: Option<Color>| Content::Block {
-            body:      Box::new(Content::text("p247eq")),
+        let mk = |fill: Option<Color>| Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p247eq"),
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4396,8 +4287,7 @@ mod tests {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(Color::rgb(255, 0, 0))));
         assert_eq!(mk(Some(Color::rgb(1, 2, 3))), mk(Some(Color::rgb(1, 2, 3))));
@@ -4411,8 +4301,7 @@ mod tests {
         use crate::entities::geometry::Stroke;
         let fill_orig   = Some(Color::rgb(50, 100, 150));
         let stroke_orig = Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 3.0, overhang: false });
-        let b = Content::Block {
-            body:      Box::new(Content::text("p247map")),
+        let b = Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem { body: Content::text("p247map"),
             width:     None,
             height:    None,
             inset:     Sides::uniform(Length::pt(0.0)),
@@ -4425,12 +4314,11 @@ mod tests {
             spacing:   None,
             above:     None,
             below:     None,
-            sticky:    false,
-        };
+            sticky:    false}));
         let mapped = b.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
-        if let Content::Block { fill, stroke, .. } = &mapped {
-            assert_eq!(*fill, fill_orig);
-            assert_eq!(*stroke, stroke_orig);
+        if let Content::Block(e) = &mapped {
+            assert_eq!(e.fill, fill_orig);
+            assert_eq!(e.stroke, stroke_orig);
         } else {
             panic!("esperado Block após map_content");
         }
@@ -4445,9 +4333,9 @@ mod tests {
             Sides::uniform(Length::pt(0.0)),
             true,
         );
-        if let Content::Block { fill, stroke, .. } = &b {
-            assert_eq!(*fill, None, "construtor default fill = None");
-            assert!(stroke.is_none(), "construtor default stroke = None");
+        if let Content::Block(e) = &b {
+            assert_eq!(e.fill, None, "construtor default fill = None");
+            assert!(e.stroke.is_none(), "construtor default stroke = None");
         } else {
             panic!("esperado Block");
         }

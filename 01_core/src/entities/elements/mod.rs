@@ -96,6 +96,8 @@ pub mod figure;
 // Lote 14 P329 — reclassificados da triagem DEBT-58 (wrappers densos).
 pub mod labelled;
 pub mod boxed;
+// Lote 15 P330 — o último lote.
+pub mod block;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;
