@@ -71,3 +71,23 @@ usar o **10×** como métrica.
 Stack default estoura em `recursao_infinita_*` — não é regressão; suíte corre com
 `RUST_MIN_STACK=33554432`. (Não afeta este baseline — é compile/render de corpus,
 não os testes de recursão.)
+
+---
+
+## Protocolo canônico de perf (carona C1, P335 — corrige o uso do absoluto)
+
+O **absoluto `0.6518 s` do P330 fica superseded como número absoluto**: o P334
+comprovou **deriva de ambiente entre sessões** — o mesmo binário/máquina/corpus
+re-medido noutra sessão deu **0.7188 s** (≈ +10%), sem nenhuma mudança de código.
+
+**Regra canônica de não-regressão** (a usar em todo lote do F daqui em diante):
+
+- A prova é o **par antes/depois back-to-back na MESMA sessão** (mesmo corpus 10×,
+  mesmo método/ferramenta, intercalado), construindo o binário "antes" do commit
+  base num `git worktree`. Ex. (P334): baseline `0.7188 s` vs F-1 `0.7150 s`
+  na mesma sessão → sem regressão.
+- **Números absolutos entre sessões NÃO se comparam** (deriva de frequência de
+  CPU/carga). O `0.6518 s` serve só como referência histórica do P330, não como
+  alvo a bater noutra sessão.
+- Complemento determinístico barato: `size_of::<Content>()` antes/depois (uma
+  variante nova só onera o hot-path se crescer o enum). F-1: 136 → 136 bytes.

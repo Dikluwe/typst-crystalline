@@ -56,19 +56,33 @@ paridade — **nenhuma asserção alterada**. **Lente**: primeiro par antes/depo
 real (`--comparar`) — exercita R5; mede se o canal único **reduz** acoplamento dos
 4 canais. **Perf**: antes/depois vs `0.6518 s`.
 
-### Fila incremental (gatilhos declarados — não agendada)
+### Emenda de sequência (carona C3, P335)
+
+A reconhecida heterogeneidade das `Set*` (3 subsistemas: numbering via
+Introspector/StateRegistry; `SetPage` via `page_config`; `SetFigureNumbering`
+assado em `FigureElem`) + a dependência real (a **realização** do `#show` monta
+sobre a chain léxica que o canal `Set*` prova) emendam a fila:
+
+- **F-2** = **só** o canal `Set*` (este lote; a chain léxica + B1 + B3 + a trava).
+- **F-3 (novo)** = **realização / `#show`** (S2–S6 + guards na camada `rules/` +
+  o teste de transparência da condição **Trava-Q1** + o **fecho do DEBT C2**, o
+  no-op de layout do `Content::Dynamic`).
+- Fila renumerada: `Styled` → **F-4**; de-bake `#set text` → **F-5**; 3 folhas →
+  **F-6**.
 
 | Lote | Conteúdo | Gatilho de revisita | Largura (preditor) |
 |------|----------|---------------------|--------------------|
-| **F-3 — `Styled`** | `Styled(Box, Styles)` → chain única (a 2ª StyleChain do Layouter colapsa) | depois de F-2 provar a chain léxica | ⟨grep `Styled` — a refazer no arranque de F-3⟩ |
-| **F-4 — de-bake `#set text`** | `#set text` deixa de **assar** `TextStyle` em `Content::Text`; passa pela chain | depois de F-3 (chain léxica madura) | ~283 sites no pior caso (1c; eco da opção C — confirmar por grep) |
-| **F-5 — 3 folhas** | `Text`/`MathText`/`MathIdent` recebem os campos de estilo via chain (DEBT-58) | quando a chain léxica existir (após F-4) | ⟨a medir⟩ |
+| **F-3 — realização/`#show`** | S2–S6 + guards (`rules/`) + transparência Trava-Q1 + fecho DEBT C2 (no-op de layout) | depois de F-2 provar a chain léxica | ⟨a dimensionar na Fase A do F-3⟩ |
+| **F-4 — `Styled`** | `Styled(Box, Styles)` → chain única (a 2ª StyleChain do Layouter colapsa) | depois de F-3 (realização madura) | ⟨grep `Styled` — a refazer no arranque⟩ |
+| **F-5 — de-bake `#set text`** | `#set text` deixa de **assar** `TextStyle` em `Content::Text`; passa pela chain | depois de F-4 | ~283 sites no pior caso (1c; eco da opção C — confirmar por grep) |
+| **F-6 — 3 folhas** | `Text`/`MathText`/`MathIdent` recebem estilo via chain (DEBT-58) | após F-5 | ⟨a medir⟩ |
 
-**Destino dos consertos B1/B2/B3 do P331** (registrar, não consertar agora):
-- **B1** (`SetEquationNumbering` sem produtor eval) → resolvido **no canal F-2**.
-- **B2** (`Styled.is_empty` cai em `_ => false`) → resolvido **no lote F-3**.
-- **B3** (`world_types::Styles(())` stub morto) → removido **no primeiro lote do F**
-  (F-1 ou F-2, quando a chain real substituir o stub).
+**Destino dos consertos B1/B2/B3 do P331** (registrar; B1/B3 neste lote F-2):
+- **B1** (`SetEquationNumbering` sem produtor eval) → resolvido **no canal F-2**
+  (P335; paridade de linguagem declarada).
+- **B2** (`Styled.is_empty` cai em `_ => false`) → resolvido **no lote F-4**.
+- **B3** (`world_types::Styles(())` stub morto) → removido em **F-2** (a chain
+  real substitui o stub).
 
 ---
 

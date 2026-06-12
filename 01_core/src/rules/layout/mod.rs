@@ -527,11 +527,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Empty => {}
 
             // Lote F-1 (P334): a fronteira dinâmica é **no-op em layout** neste
-            // lote. O layout/render do elemento de utilizador acontece via a
-            // **realização** (`#show`/guards/chain) que chega em **F-2** (L0
-            // `f_fronteira_e1.md` §3a.7). Em F-1 o `Content::Dynamic` só existe
-            // em fixtures (nenhum documento real o produz); render = nada.
-            // Content-preserving: nenhum dos 2708 testes existentes o exercita.
+            // lote — buraco DECLARADO e limitado (DEBT `debt-layout-noop-dinamico.md`,
+            // carona C2/P335). O layout/render do elemento de utilizador acontece
+            // via a **realização** (`#show`/guards/chain) que chega em **F-3** (L0
+            // `f_fronteira_e1.md` §3a.7; sequência emendada em C3/P335). Em F-1/F-2
+            // o `Content::Dynamic` só existe em fixtures (nenhum documento real o
+            // produz); render = nada. Content-preserving (a suíte não o exercita).
+            // O DEBT fecha quando F-3 der layout real ao nó dinâmico.
             Content::Dynamic(_) => {}
 
             // P169 (M9): Metadata é zero-size em layout — sem caixa,
