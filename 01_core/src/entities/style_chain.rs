@@ -376,6 +376,37 @@ impl From<&StyleChain> for TextStyle {
 mod tests {
     use super::*;
 
+    // ── Lote F-2 S5 (P335) — trava do canal aberto (teste-varre-tabela) ──────
+    // A trava da ADR-0105 cláusula 3, lado estilo: onde o canal aberto perde a
+    // exaustividade do compilador (chave dinâmica → `Value`), este teste enumera
+    // as `PropKey` das `Set*` migradas e assere que resolvem com o **tipo
+    // esperado pelos consumidores**. Adicionar uma `Set*` nova ao canal obriga a
+    // estender esta tabela (caso contrário a chave fica sem cobertura).
+    #[test]
+    fn f2_canal_aberto_varre_tabela_de_chaves() {
+        // (chave, valor esperado pelo consumidor)
+        let chain = StyleChain::default_chain()
+            .push_custom("heading.numbering", Value::Bool(true))      // S1
+            .push_custom("equation.numbering", Value::Bool(true))     // S2
+            .push_custom("figure.numbering", Value::Str("1".into())); // S3
+
+        // Cada chave resolve com o tipo que o consumidor casa (Bool/Bool/Str).
+        assert!(matches!(chain.custom("heading.numbering"), Some(Value::Bool(true))));
+        assert!(matches!(chain.custom("equation.numbering"), Some(Value::Bool(true))));
+        assert!(matches!(chain.custom("figure.numbering"), Some(Value::Str(_))));
+
+        // Chave ausente → `None` (fallback léxico explícito; o consumidor trata
+        // como "não definido", não como erro de tipo silencioso).
+        assert!(chain.custom("chave.inexistente").is_none());
+
+        // Top-wins (escopo léxico): um push mais interno sobrepõe o externo —
+        // a base do `#set` dentro de bloco não vazar (DEBT 99.E).
+        let inner = chain.push_custom("heading.numbering", Value::Bool(false));
+        assert!(matches!(inner.custom("heading.numbering"), Some(Value::Bool(false))));
+        // O externo permanece intacto (clone O(1), imutável).
+        assert!(matches!(chain.custom("heading.numbering"), Some(Value::Bool(true))));
+    }
+
     #[test]
     fn style_chain_defaults() {
         let chain = StyleChain::default_chain();
