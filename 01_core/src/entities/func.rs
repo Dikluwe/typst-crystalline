@@ -116,6 +116,16 @@ impl Func {
         &self.0
     }
 
+    /// Lote F-3 inc-2 — `Some(kind)` se esta Func é um construtor de elemento de
+    /// utilizador (`FuncRepr::Element`); usado pelo `#show` para construir
+    /// `Selector::DynKind`. `None` para closures/nativas.
+    pub fn element_name(&self) -> Option<&str> {
+        match self.0.as_ref() {
+            FuncRepr::Element(e) => Some(&e.name),
+            _ => None,
+        }
+    }
+
     /// Retorna o nome da função — `Some(name)` para nativas e closures nomeadas.
     ///
     /// Apenas para apresentação (mensagens de erro, debug). A identidade

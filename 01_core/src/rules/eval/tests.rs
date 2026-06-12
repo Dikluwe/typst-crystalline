@@ -373,7 +373,7 @@ mod tests {
 
     // ── Lote F-3 inc-2 S1 — elemento de utilizador na linguagem (#name(args)) ──
     fn registry_com_callout() -> crate::entities::element_registry::ElementRegistry {
-        use crate::entities::elements::test_callout::CalloutElem;
+        use crate::entities::elements::test_callout::{CalloutElem, BadgeElem};
         let mut reg = crate::entities::element_registry::ElementRegistry::new();
         reg.register("callout", std::sync::Arc::new(|args: &[Value]| {
             let body = match args.first() {
@@ -386,6 +386,14 @@ mod tests {
                 _ => Default::default(),
             };
             Ok(Content::dynamic(CalloutElem::new(body, s(1), s(2))))
+        }));
+        // Lote F-3 inc-2 S2: segundo kind (`badge`) para o teste kind-A-vs-B.
+        reg.register("badge", std::sync::Arc::new(|args: &[Value]| {
+            let label = match args.first() {
+                Some(Value::Str(s)) => s.clone(),
+                _ => Default::default(),
+            };
+            Ok(Content::dynamic(BadgeElem::new(label)))
         }));
         reg
     }
@@ -425,6 +433,55 @@ mod tests {
         let source = World::source(&world, World::main(&world)).unwrap();
         let r = eval_for_test_with_registry(&world, &source, &reg);
         assert!(r.is_err(), "elemento desconhecido deve ser Err (catálogo), não panic");
+    }
+
+    // ── Lote F-3 inc-2 S2 — #show sobre o elemento dinâmico (eager, mesmo caminho) ──
+    fn eval_doc(src: &str) -> Content {
+        let world = MockWorld::new(src);
+        let reg = registry_com_callout();
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test_with_registry(&world, &source, &reg).unwrap();
+        module.content().expect("módulo deve ter content").clone()
+    }
+
+    #[test]
+    fn f3s2_show_callout_transforma() {
+        // `#show callout:` intercepta o dinâmico pelo apply_show_rules comum.
+        let c = eval_doc("#show callout: it => [TRANSFORMADO]\n#callout(\"x\", \"T\", \"w\")");
+        assert!(c.plain_text().contains("TRANSFORMADO"), "transform aplicado: {:?}", c.plain_text());
+        assert!(!has_dynamic(&c), "o callout foi substituído (não resta Dynamic): {c:?}");
+    }
+
+    #[test]
+    fn f3s2_show_callout_anti_recursao_termina() {
+        // **Teste-contrato**: uma regra que emite o próprio kind termina pelo
+        // guard (RuleId em active_guards durante a sua própria chamada). Sem o
+        // guard, isto penduraria. O callout interno NÃO é re-transformado.
+        let c = eval_doc(
+            "#show callout: it => callout(\"interno\", \"T\", \"w\")\n#callout(\"externo\", \"T\", \"w\")",
+        );
+        assert!(has_dynamic(&c), "o callout interno (produzido) sobrevive: {c:?}");
+        assert!(c.plain_text().contains("interno"), "corpo interno presente: {:?}", c.plain_text());
+        assert!(!c.plain_text().contains("externo"), "o externo foi transformado");
+    }
+
+    #[test]
+    fn f3s2_show_callout_nao_pega_badge() {
+        // Regra para o kind A (`callout`) não intercepta o kind B (`badge`).
+        let c = eval_doc("#show callout: it => [CAUGHT]\n#badge(\"selo\")");
+        assert!(has_dynamic(&c), "o badge (kind B) sobrevive: {c:?}");
+        assert!(!c.plain_text().contains("CAUGHT"), "regra de callout não pega badge");
+        assert!(c.plain_text().contains("selo"), "label do badge presente");
+    }
+
+    #[test]
+    fn f3s2_dyn_e_nativo_coexistem() {
+        // Dinâmico e nativo no mesmo doc: a regra de callout transforma o
+        // callout; o heading nativo fica intacto.
+        let c = eval_doc("#show callout: it => [CALLOUT_OK]\n#callout(\"x\", \"T\", \"w\")\n= Titulo");
+        let t = c.plain_text();
+        assert!(t.contains("CALLOUT_OK"), "callout transformado: {t:?}");
+        assert!(t.contains("Titulo"), "heading nativo presente: {t:?}");
     }
 
     #[test]

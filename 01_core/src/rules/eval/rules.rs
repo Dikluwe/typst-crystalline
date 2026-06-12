@@ -81,24 +81,29 @@ pub(crate) fn apply_show_rules(
     // Pago parcial do DEBT-45 no Passo 93.
     route_check_show_depth(engine.route)?;
 
-    // Separar regras por tipo para travessias distintas.
-    let has_node_rules = rules.iter().any(|r| matches!(r.selector, Selector::NodeKind(_)));
+    // Separar regras por tipo para travessias distintas. Lote F-3 inc-2: as
+    // regras de **kind dinâmico** (`#show callout:`) viajam pela MESMA travessia
+    // que as NodeKind — mesmo `apply_all`, mesma ordem, mesmo guard por `RuleId`.
+    let has_node_rules = rules.iter().any(|r|
+        matches!(r.selector, Selector::NodeKind(_) | Selector::DynKind(_)));
 
     if has_node_rules {
-        // Única travessia para todas as NodeKind rules.
+        // Única travessia para todas as NodeKind + DynKind rules.
         let node_rules: Vec<ShowRule> = rules.iter()
-            .filter(|r| matches!(r.selector, Selector::NodeKind(_)))
+            .filter(|r| matches!(r.selector, Selector::NodeKind(_) | Selector::DynKind(_)))
             .cloned()
             .collect();
 
         let mut apply_all = |node: &Content| -> SourceResult<Option<Content>> {
             for rule in &node_rules {
                 // Saltar se esta regra está actualmente em execução (anti-recursão).
+                // Lote F-3 inc-2: o guard é por `RuleId` — vale para DynKind igual
+                // aos nativos. Uma regra `#show callout: it => callout(..)` termina
+                // porque a regra fica em `active_guards` durante a sua própria
+                // chamada (o callout produzido não re-aplica a regra).
                 if engine.active_guards.contains(&rule.id) {
                     continue;
                 }
-
-                let Selector::NodeKind(ref kind) = rule.selector else { continue };
 
                 // Passo 101: `Content::Strong`/`Content::Emph` removidos do enum.
                 // `show strong: it => ...` e `show emph: it => ...` passam a
@@ -110,15 +115,21 @@ pub(crate) fn apply_show_rules(
                 let is_italic_styled = matches!(node, Content::Styled(_, ss)
                     if ss.iter().any(|s| matches!(s, Style::Italic(true))));
 
-                let is_match = matches!(
-                    (node, kind),
-                    (Content::Heading(_),  NodeKind::Heading)
-                    | (Content::Figure(_),   NodeKind::Figure)
-                    | (Content::Raw { .. },      NodeKind::Raw)
-                    | (Content::Equation { .. }, NodeKind::Equation)
-                    | (Content::ListItem(_),     NodeKind::ListItem)
-                ) || (matches!(kind, NodeKind::Strong) && is_bold_styled)
-                  || (matches!(kind, NodeKind::Emph)   && is_italic_styled);
+                let is_match = match &rule.selector {
+                    Selector::NodeKind(kind) => matches!(
+                        (node, kind),
+                        (Content::Heading(_),  NodeKind::Heading)
+                        | (Content::Figure(_),   NodeKind::Figure)
+                        | (Content::Raw { .. },      NodeKind::Raw)
+                        | (Content::Equation { .. }, NodeKind::Equation)
+                        | (Content::ListItem(_),     NodeKind::ListItem)
+                    ) || (matches!(kind, NodeKind::Strong) && is_bold_styled)
+                      || (matches!(kind, NodeKind::Emph)   && is_italic_styled),
+                    // Lote F-3 inc-2: kind dinâmico (elemento de utilizador).
+                    Selector::DynKind(name) =>
+                        matches!(node, Content::Dynamic(e) if e.dyn_kind() == name),
+                    Selector::Text(_) => false, // tratado abaixo, fora desta travessia
+                };
 
                 if !is_match {
                     continue;
@@ -510,6 +521,12 @@ pub(super) fn eval_show_rule(
             let selector_val = eval_expr(sel_expr, scopes, ctx, engine)?;
             match selector_val {
                 Value::Str(s) => Selector::Text(s.to_string()),
+                // Lote F-3 inc-2: elemento de utilizador (fronteira E1) — o
+                // selector `callout` resolve para uma `FuncRepr::Element`, que
+                // não tem fn-ptr nativo. Casa por **kind dinâmico** (nome).
+                Value::Func(ref f) if f.element_name().is_some() => {
+                    Selector::DynKind(f.element_name().unwrap().to_string())
+                },
                 Value::Func(ref f) => {
                     // Passo 84.3 (encerra DEBT-21): resolver NodeKind
                     // por identidade do function pointer da nativa

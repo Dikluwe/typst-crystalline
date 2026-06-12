@@ -33,6 +33,12 @@ pub enum Selector {
     /// Interceta nós de um tipo específico.
     /// Ex: `#show heading: it => ...`
     NodeKind(NodeKind),
+    /// **Lote F-3 inc-2** — interceta `Content::Dynamic` de um **kind dinâmico**
+    /// (elemento de utilizador, fronteira E1). Ex: `#show callout: it => ...`.
+    /// O kind é o nome do elemento (`dyn_kind`), não um endereço de função (que
+    /// o elemento não tem). Casado no `apply_show_rules` pelo mesmo caminho dos
+    /// nativos, com o mesmo guard por `RuleId` + depth-64.
+    DynKind(String),
 }
 
 /// Uma regra de transformação declarada com `#show selector: transform`.

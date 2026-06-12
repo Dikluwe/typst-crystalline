@@ -91,6 +91,36 @@ impl Element for CalloutElem {
     }
 }
 
+/// Segundo elemento de utilizador de teste (Lote F-3 inc-2) — kind **distinto**
+/// (`"badge"`), para provar que `#show callout:` **não** pega outro kind.
+#[derive(Clone, PartialEq, Hash, Debug)]
+pub struct BadgeElem {
+    pub label: EcoString,
+}
+
+impl BadgeElem {
+    pub fn new(label: impl Into<EcoString>) -> Self {
+        Self { label: label.into() }
+    }
+}
+
+impl Element for BadgeElem {
+    fn plain_text(&self) -> String {
+        self.label.to_string()
+    }
+    fn map_content<F>(&self, _t: &mut F) -> SourceResult<Content>
+    where F: FnMut(&Content) -> SourceResult<Option<Content>> {
+        Ok(Content::dynamic(self.clone()))
+    }
+    fn map_text<F>(&self, _t: &mut F) -> Content
+    where F: FnMut(&str) -> String {
+        Content::dynamic(self.clone())
+    }
+    fn dyn_kind_name(&self) -> &'static str {
+        "badge"
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
