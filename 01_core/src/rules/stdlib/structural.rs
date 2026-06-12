@@ -1034,7 +1034,7 @@ pub fn native_footnote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
         )]);
     }
 
-    Ok(Value::Content(Content::Footnote { body: Box::new(body) }))
+    Ok(Value::Content(Content::footnote(body)))
 }
 
 // ── Passo 296 — `accent()` + `cancel()` math (P-math-accent-cancel) ──────

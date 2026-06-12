@@ -89,6 +89,8 @@ use crate::entities::elements::place::PlaceElem;
 use crate::entities::elements::pad::PadElem;
 use crate::entities::elements::bibliography::BibliographyElem;
 use crate::entities::elements::equation::EquationElem;
+use crate::entities::elements::footnote::FootnoteElem;
+use crate::entities::elements::shape::ShapeElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -389,12 +391,9 @@ pub enum Content {
     /// `width`/`height`: dimensões opcionais no AST — o layouter resolve os valores
     /// finais e emite `FrameItem::Shape` com `f64` concretos.
     /// `fill`/`stroke` resolvidos na stdlib — nunca por resolver no layouter.
-    Shape {
-        kind:   ShapeKind,
-        width:  Option<Box<crate::entities::value::Value>>,
-        height: Option<Box<crate::entities::value::Value>>,
-        fill:   Option<Color>,
-        stroke: Option<Stroke>,    },
+    /// **Modelo D (Lote 11 P326)**: `entities::elements::shape::ShapeElem`
+    /// (não-locatável, leaf — geometria pura).
+    Shape(Arc<ShapeElem>),
 
     /// Aplica uma transformação afim ao conteúdo interno (Passo 78).
     ///
@@ -1001,9 +1000,9 @@ pub enum Content {
     ///   subsequentes se rodapé não chega).
     /// - **P295.X** — footnote reference via `#footnote(<label>)`
     ///   bloqueado por scope methods em stdlib.
-    Footnote {
-        body: Box<Content>,
-    },
+    /// **Modelo D (Lote 11 P326)**: `entities::elements::footnote::FootnoteElem`
+    /// (não-locatável P295 Fase 1; contentor — recurse body).
+    Footnote(Arc<FootnoteElem>),
 
     // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ──
     /// Header repetível de Table — vanilla `TableHeader`.
@@ -1358,6 +1357,22 @@ impl Content {
         Self::Equation(Arc::new(EquationElem { body, block }))
     }
 
+    /// **Lote 11 P326** — `Content::Footnote` (nota de rodapé).
+    pub fn footnote(body: Content) -> Self {
+        Self::Footnote(Arc::new(FootnoteElem { body }))
+    }
+
+    /// **Lote 11 P326** — `Content::Shape` (geometria).
+    pub fn shape(
+        kind:   ShapeKind,
+        width:  Option<Box<crate::entities::value::Value>>,
+        height: Option<Box<crate::entities::value::Value>>,
+        fill:   Option<Color>,
+        stroke: Option<Stroke>,
+    ) -> Self {
+        Self::Shape(Arc::new(ShapeElem { kind, width, height, fill, stroke }))
+    }
+
     /// `hide(body)` — Passo 156C (ADR-0061 Fase 1).
     pub fn hide(body: Content) -> Self {
         Self::Hide(Arc::new(HideElem { body }))
@@ -1657,7 +1672,7 @@ impl Content {
             Self::Bibliography(e) => e.is_empty(),
             Self::Cite(e) => e.is_empty(),
             // P295 — Footnote nunca vazio (marker `[N]` é sempre observable).
-            Self::Footnote { .. } => false,
+            Self::Footnote(e) => e.is_empty(),
             // Passo 154B: Divider é singleton estrutural, nunca vazio.
             // Terms vazio (sem items) é considerado vazio; TermItem vazio
             // se ambos os lados forem vazios.
@@ -1775,7 +1790,7 @@ impl Content {
             }
             Self::SetFigureNumbering { .. } => String::new(),
             Self::Image(e) => e.plain_text(),
-            Self::Shape { .. } => String::new(),
+            Self::Shape(e) => e.plain_text(),
             Self::Transform(e) => e.plain_text(),
             Self::Grid { cells, .. } => {
                 cells.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ")
@@ -1811,7 +1826,7 @@ impl Content {
             // P295 — Footnote plain_text: incorporar corpo (paridade
             // semântica de plain_text para search/screen readers).
             // Marker `[N]` real é resolvido em layout-time.
-            Self::Footnote { body } => body.plain_text(),
+            Self::Footnote(e) => e.plain_text(),
             Self::SetPage { .. } => String::new(),
             Self::Align(e) => e.plain_text(),
             Self::Place(e) => e.plain_text(),
@@ -1902,10 +1917,8 @@ impl PartialEq for Content {
             (Self::SetFigureNumbering { pattern: a }, Self::SetFigureNumbering { pattern: b }) => a == b,
             // Modelo D (Lote 7 P322): Image delega ao `Arc<…Elem>`.
             (Self::Image(a), Self::Image(b)) => a == b,
-            (Self::Shape { kind: ka, width: wa, height: ha, fill: fa, stroke: sa },
-             Self::Shape { kind: kb, width: wb, height: hb, fill: fb, stroke: sb }) =>
-                ka == kb && wa.as_deref() == wb.as_deref() && ha.as_deref() == hb.as_deref()
-                    && fa == fb && sa == sb,
+            // Modelo D (Lote 11 P326): Shape delega ao `Arc<…Elem>`.
+            (Self::Shape(a), Self::Shape(b)) => a == b,
             // Modelo D (Lote 9 P324): Transform delega ao `Arc<…Elem>`.
             (Self::Transform(a), Self::Transform(b)) => a == b,
             // P224+P227+P228 — Grid refino +7 fields (gutter/align/inset/header/footer/stroke/fill).
@@ -1955,7 +1968,8 @@ impl PartialEq for Content {
             // Modelo D (Lote 9 P324): Cite delega ao `Arc<…Elem>`.
             (Self::Cite(a), Self::Cite(b)) => a == b,
             // P295 — Footnote PartialEq: body == body.
-            (Self::Footnote { body: ba }, Self::Footnote { body: bb }) => ba == bb,
+            // Modelo D (Lote 11 P326): Footnote delega ao `Arc<…Elem>`.
+            (Self::Footnote(a), Self::Footnote(b)) => a == b,
             (Self::SetPage { width: wa, height: ha, margin: ma },
              Self::SetPage { width: wb, height: hb, margin: mb }) =>
                 wa == wb && ha == hb && ma == mb,
@@ -2205,7 +2219,7 @@ impl Content {
             | Content::Pagebreak(_)
             // P220: Colbreak é leaf (event sem body), terminal.
             | Content::Colbreak(_)
-            | Content::Shape { .. }
+            | Content::Shape(_)
             // P169 (M9): Metadata é terminal — clonar directamente.
             | Content::Metadata(_)
             // P171 (M9): State e StateUpdate são terminais.
@@ -2295,10 +2309,8 @@ impl Content {
             Content::Bibliography(e) => e.map_content(transform)?,
             // Modelo D (Lote 9 P324): Cite delega ao elemento (recurse supplement).
             Content::Cite(e) => e.map_content(transform)?,
-            // P295 — Footnote map_content recursivo em body.
-            Content::Footnote { body } => Content::Footnote {
-                body: Box::new(body.map_content(transform)?),
-            },
+            // Modelo D (Lote 11 P326): Footnote container delega ao elemento.
+            Content::Footnote(e) => e.map_content(transform)?,
             Content::Align(e) => e.map_content(transform)?,
             // Modelo D (Lote 9 P324): Place container delega ao elemento.
             Content::Place(e) => e.map_content(transform)?,
@@ -2462,7 +2474,7 @@ impl Content {
             | Content::Pagebreak(_)
             // P220: Colbreak é leaf (event sem body), terminal.
             | Content::Colbreak(_)
-            | Content::Shape { .. }
+            | Content::Shape(_)
             // P169 (M9): Metadata é terminal — clonar directamente.
             | Content::Metadata(_)
             // P171 (M9): State e StateUpdate são terminais.
@@ -2539,10 +2551,8 @@ impl Content {
             Content::Bibliography(e) => e.map_text(transform),
             // Modelo D (Lote 9 P324): Cite delega ao elemento (recurse supplement).
             Content::Cite(e) => e.map_text(transform),
-            // P295 — Footnote map_text recursivo em body.
-            Content::Footnote { body } => Content::Footnote {
-                body: Box::new(body.map_text(transform)),
-            },
+            // Modelo D (Lote 11 P326): Footnote container delega ao elemento.
+            Content::Footnote(e) => e.map_text(transform),
             Content::Align(e) => e.map_text(transform),
             // Modelo D (Lote 9 P324): Place container delega ao elemento.
             Content::Place(e) => e.map_text(transform),

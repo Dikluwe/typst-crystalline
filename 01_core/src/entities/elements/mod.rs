@@ -83,6 +83,9 @@ pub mod place;
 pub mod pad;
 pub mod bibliography;
 pub mod equation;
+// Lote 11 P326 — por largura (2 variantes element-shaped).
+pub mod footnote;
+pub mod shape;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;

@@ -6635,13 +6635,7 @@ use typst_core::rules::layout::layout;
                 Point { x: Pt(100.0), y: Pt(50.0) },
             ),
         ];
-        let shape = Content::Shape {
-            kind: ShapeKind::Path(items),
-            width: None,
-            height: None,
-            fill: None,
-            stroke: None,
-        };
+        let shape = Content::shape(ShapeKind::Path(items), None, None, None, None);
         let doc = layout(&shape);
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
@@ -6677,13 +6671,7 @@ use typst_core::rules::layout::layout;
                 Point { x: Pt(100.0), y: Pt(0.0) },
             ),
         ];
-        let shape = Content::Shape {
-            kind: ShapeKind::Path(items),
-            width: None,
-            height: None,
-            fill: None,
-            stroke: None,
-        };
+        let shape = Content::shape(ShapeKind::Path(items), None, None, None, None);
         let doc = layout(&shape);
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
@@ -6774,11 +6762,11 @@ use typst_core::rules::layout::layout;
         // 3 footnotes consecutivas; espera-se `[1]`, `[2]`, `[3]` no PDF.
         let doc = layout(&Content::sequence(vec![
             Content::text("antes "),
-            Content::Footnote { body: Box::new(Content::text("nota1")) },
+            Content::footnote(Content::text("nota1")),
             Content::text(" meio "),
-            Content::Footnote { body: Box::new(Content::text("nota2")) },
+            Content::footnote(Content::text("nota2")),
             Content::text(" entre "),
-            Content::Footnote { body: Box::new(Content::text("nota3")) },
+            Content::footnote(Content::text("nota3")),
         ]));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
@@ -6828,9 +6816,7 @@ use typst_core::rules::layout::layout;
         // INVALIDA p295_footnote_body_nao_renderizado_no_pdf_fase1.
         // Body string "BODYSECRET" deve estar PRESENTE no PDF
         // (renderizado no rodapé via flush_pending_footnote_bodies).
-        let doc = layout(&Content::Footnote {
-            body: Box::new(Content::text("BODYSECRET"))
-        });
+        let doc = layout(&Content::footnote(Content::text("BODYSECRET")));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("[1]"), "marker `[1]` presente no PDF");
@@ -6845,11 +6831,11 @@ use typst_core::rules::layout::layout;
         // `body1`, `body2`, `body3` no rodapé.
         let doc = layout(&Content::sequence(vec![
             Content::text("antes "),
-            Content::Footnote { body: Box::new(Content::text("BODYUM")) },
+            Content::footnote(Content::text("BODYUM")),
             Content::text(" meio "),
-            Content::Footnote { body: Box::new(Content::text("BODYDOIS")) },
+            Content::footnote(Content::text("BODYDOIS")),
             Content::text(" fim "),
-            Content::Footnote { body: Box::new(Content::text("BODYTRES")) },
+            Content::footnote(Content::text("BODYTRES")),
         ]));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
@@ -6867,9 +6853,9 @@ use typst_core::rules::layout::layout;
         // — markers ainda emitidos inline (não só no rodapé).
         let doc = layout(&Content::sequence(vec![
             Content::text("antes "),
-            Content::Footnote { body: Box::new(Content::text("nota1")) },
+            Content::footnote(Content::text("nota1")),
             Content::text(" meio "),
-            Content::Footnote { body: Box::new(Content::text("nota2")) },
+            Content::footnote(Content::text("nota2")),
         ]));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
@@ -6888,9 +6874,7 @@ use typst_core::rules::layout::layout;
         // Body grande overflow — UNIQUEP305 sentinel deve estar
         // presente no PDF (não silenciosamente descartado).
         let huge = "UNIQUEP305 word ".repeat(60);
-        let doc = layout(&Content::Footnote {
-            body: Box::new(Content::text(huge))
-        });
+        let doc = layout(&Content::footnote(Content::text(huge)));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("UNIQUEP305"),
@@ -6903,10 +6887,10 @@ use typst_core::rules::layout::layout;
         // overflow scenario.
         let doc = layout(&Content::sequence(vec![
             Content::text("paginatop"),
-            Content::Footnote { body: Box::new(Content::text("SENTA word ".repeat(30))) },
-            Content::Footnote { body: Box::new(Content::text("SENTB word ".repeat(30))) },
-            Content::Footnote { body: Box::new(Content::text("SENTC word ".repeat(30))) },
-            Content::Footnote { body: Box::new(Content::text("SENTD word ".repeat(30))) },
+            Content::footnote(Content::text("SENTA word ".repeat(30))),
+            Content::footnote(Content::text("SENTB word ".repeat(30))),
+            Content::footnote(Content::text("SENTC word ".repeat(30))),
+            Content::footnote(Content::text("SENTD word ".repeat(30))),
         ]));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
@@ -6920,9 +6904,7 @@ use typst_core::rules::layout::layout;
     fn p305_regressao_p304_single_page_marker_bit_exact() {
         // CRÍTICO: P304 single-page test invariante preservado.
         // Body pequeno cabe; marker e body ambos no PDF; sem overflow.
-        let doc = layout(&Content::Footnote {
-            body: Box::new(Content::text("BODYSECRET"))
-        });
+        let doc = layout(&Content::footnote(Content::text("BODYSECRET")));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("[1]"), "marker [1] preservado P304");

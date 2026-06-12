@@ -1574,16 +1574,11 @@ fn grid_altura_da_linha_e_o_maximo_das_celulas() {
     use crate::entities::geometry::ShapeKind;
 
     let make_rect = |h: f64| -> Content {
-        Content::Shape {
-            kind:   ShapeKind::Rect,
-            width:  Some(Box::new(crate::entities::value::Value::Length(
+        Content::shape(ShapeKind::Rect, Some(Box::new(crate::entities::value::Value::Length(
                 crate::entities::layout_types::Length { abs: crate::entities::layout_types::Abs(100.0), em: 0.0 },
-            ))),
-            height: Some(Box::new(crate::entities::value::Value::Length(
+            ))), Some(Box::new(crate::entities::value::Value::Length(
                 crate::entities::layout_types::Length { abs: crate::entities::layout_types::Abs(h), em: 0.0 },
-            ))),
-            fill:   None,
-            stroke: None,        }
+            ))), None, None)
     };
 
     let grid = Content::Grid {
@@ -5900,12 +5895,7 @@ mod tests_show_rule_integration {
         // Espera-se que rect seja emitido próximo do fundo da página
         // (margin = 20pt, page height = 400pt; rect 30x20 → y ≈ 360 - ascender).
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
-        let p = Content::place(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Bottom) }, 0.0, 0.0, PlaceScope::Parent, true, None, Content::Shape {
-                kind:   crate::entities::geometry::ShapeKind::Rect,
-                width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(30.0)))),
-                height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
-                fill:   None,
-                stroke: None,            });
+        let p = Content::place(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Bottom) }, 0.0, 0.0, PlaceScope::Parent, true, None, Content::shape(crate::entities::geometry::ShapeKind::Rect, Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(30.0)))), Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))), None, None));
         let doc = layout(&p);
         // Procurar shape no output.
         let mut found_shape = false;
@@ -5927,12 +5917,7 @@ mod tests_show_rule_integration {
     fn p245_place_float_true_top_renderiza_no_topo_da_pagina() {
         // Float top-aligned + scope: Parent + float: true.
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
-        let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Parent, true, None, Content::Shape {
-                kind:   crate::entities::geometry::ShapeKind::Rect,
-                width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(30.0)))),
-                height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
-                fill:   None,
-                stroke: None,            });
+        let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Parent, true, None, Content::shape(crate::entities::geometry::ShapeKind::Rect, Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(30.0)))), Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))), None, None));
         let doc = layout(&p);
         let mut found_shape_at_top = false;
         for page in doc.pages.iter() {
@@ -5953,12 +5938,7 @@ mod tests_show_rule_integration {
     fn p245_place_float_false_baseline_p84_preservado() {
         // Place float: false preserva comportamento P84.5+P84.6 literal.
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
-        let p = Content::place(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) }, 50.0, 30.0, PlaceScope::Column, false, None, Content::Shape {
-                kind:   crate::entities::geometry::ShapeKind::Rect,
-                width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
-                height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(15.0)))),
-                fill:   None,
-                stroke: None,            });
+        let p = Content::place(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) }, 50.0, 30.0, PlaceScope::Column, false, None, Content::shape(crate::entities::geometry::ShapeKind::Rect, Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))), Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(15.0)))), None, None));
         let doc = layout(&p);
         // Não deve panic; pelo menos uma shape emitida via path original.
         let mut found = false;
@@ -5978,12 +5958,7 @@ mod tests_show_rule_integration {
         // adicional de clearance no eixo Y face ao baseline sem clearance.
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope, Length};
         let make_doc = |clearance: Option<Length>| {
-            let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Bottom) }, 0.0, 0.0, PlaceScope::Parent, true, clearance, Content::Shape {
-                    kind:   crate::entities::geometry::ShapeKind::Rect,
-                    width:  Some(Box::new(crate::entities::value::Value::Length(Length::pt(30.0)))),
-                    height: Some(Box::new(crate::entities::value::Value::Length(Length::pt(20.0)))),
-                    fill:   None,
-                    stroke: None,                });
+            let p = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Bottom) }, 0.0, 0.0, PlaceScope::Parent, true, clearance, Content::shape(crate::entities::geometry::ShapeKind::Rect, Some(Box::new(crate::entities::value::Value::Length(Length::pt(30.0)))), Some(Box::new(crate::entities::value::Value::Length(Length::pt(20.0)))), None, None));
             layout(&p)
         };
         let doc_no_clear  = make_doc(None);
@@ -6015,12 +5990,7 @@ mod tests_show_rule_integration {
         // Não temos acesso directo ao buffer; mas verificamos que doc
         // tem pelo menos 1 page com items (ou seja, flush ocorreu).
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, PlaceScope};
-        let p = Content::place(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Bottom) }, 0.0, 0.0, PlaceScope::Parent, true, None, Content::Shape {
-                kind:   crate::entities::geometry::ShapeKind::Rect,
-                width:  Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))),
-                height: Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(15.0)))),
-                fill:   None,
-                stroke: None,            });
+        let p = Content::place(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Bottom) }, 0.0, 0.0, PlaceScope::Parent, true, None, Content::shape(crate::entities::geometry::ShapeKind::Rect, Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(20.0)))), Some(Box::new(crate::entities::value::Value::Length(crate::entities::layout_types::Length::pt(15.0)))), None, None));
         let doc = layout(&p);
         // Float emit verificado: doc tem ≥1 page com ≥1 item shape.
         assert!(!doc.pages.is_empty(), "P245 — doc deve ter páginas");
@@ -9138,17 +9108,11 @@ mod p273_7_boxed_parent_bbox {
     use std::sync::Arc;
 
     fn rect_shape() -> Content {
-        Content::Shape {
-            kind:   ShapeKind::Rect,
-            width:  Some(Box::new(crate::entities::value::Value::Length(
+        Content::shape(ShapeKind::Rect, Some(Box::new(crate::entities::value::Value::Length(
                 Length { abs: Abs(50.0), em: 0.0 },
-            ))),
-            height: Some(Box::new(crate::entities::value::Value::Length(
+            ))), Some(Box::new(crate::entities::value::Value::Length(
                 Length { abs: Abs(30.0), em: 0.0 },
-            ))),
-            fill:   None,
-            stroke: None,
-        }
+            ))), None, None)
     }
 
     fn boxed_dimensioned(body: Content, w_pt: f64, h_pt: f64) -> Content {
@@ -9337,17 +9301,11 @@ mod p273_9_containers_estendidos {
     use std::sync::Arc;
 
     fn rect_shape(w: f64, h: f64) -> Content {
-        Content::Shape {
-            kind:   ShapeKind::Rect,
-            width:  Some(Box::new(crate::entities::value::Value::Length(
+        Content::shape(ShapeKind::Rect, Some(Box::new(crate::entities::value::Value::Length(
                 Length { abs: Abs(w), em: 0.0 },
-            ))),
-            height: Some(Box::new(crate::entities::value::Value::Length(
+            ))), Some(Box::new(crate::entities::value::Value::Length(
                 Length { abs: Abs(h), em: 0.0 },
-            ))),
-            fill:   None,
-            stroke: None,
-        }
+            ))), None, None)
     }
 
     fn shape_parent_bboxes(doc: &crate::entities::layout_types::PagedDocument)
@@ -10547,9 +10505,7 @@ mod p292_style_font_tests {
     fn p304_footnote_body_presente_no_documento() {
         // Body string deve estar no `plain_text()` do documento
         // (renderizado no rodapé via flush_pending_footnote_bodies).
-        let doc = layout(&Content::Footnote {
-            body: Box::new(Content::text("BODYFOO"))
-        });
+        let doc = layout(&Content::footnote(Content::text("BODYFOO")));
         assert!(!doc.pages.is_empty(), "documento tem páginas");
         // plain_text via items emitidos: marker [1] + body.
         let text: String = doc.pages.iter()
@@ -10569,9 +10525,7 @@ mod p292_style_font_tests {
         // Body posicionado no fundo da página: Y > metade da altura.
         // Page default height = 842pt (A4); margin = 72pt;
         // bottom = 842 - 72 = 770pt. Body deve estar próximo de 770pt.
-        let doc = layout(&Content::Footnote {
-            body: Box::new(Content::text("RODAPE"))
-        });
+        let doc = layout(&Content::footnote(Content::text("RODAPE")));
         let page = &doc.pages[0];
         let half = page.height / 2.0;
         let body_y = page.items.iter().find_map(|it| match it {
@@ -10591,7 +10545,7 @@ mod p292_style_font_tests {
         // body emitido no rodapé (Y alto). marker_y < body_y.
         let doc = layout(&Content::sequence(vec![
             Content::text("texto "),
-            Content::Footnote { body: Box::new(Content::text("RODAPEB")) },
+            Content::footnote(Content::text("RODAPEB")),
         ]));
         let page = &doc.pages[0];
         let marker_y = page.items.iter().find_map(|it| match it {
@@ -10615,11 +10569,11 @@ mod p292_style_font_tests {
         // 3 bodies empilhados no rodapé: ordem N=1 → N=3 top-down.
         let doc = layout(&Content::sequence(vec![
             Content::text("a "),
-            Content::Footnote { body: Box::new(Content::text("AAAA")) },
+            Content::footnote(Content::text("AAAA")),
             Content::text(" b "),
-            Content::Footnote { body: Box::new(Content::text("BBBB")) },
+            Content::footnote(Content::text("BBBB")),
             Content::text(" c "),
-            Content::Footnote { body: Box::new(Content::text("CCCC")) },
+            Content::footnote(Content::text("CCCC")),
         ]));
         let page = &doc.pages[0];
         let y_a = page.items.iter().find_map(|it| match it {
@@ -10667,13 +10621,11 @@ mod p292_style_font_tests {
     #[test]
     fn p304_footnote_body_complex_content_renderizado() {
         // Body com conteúdo composto (Sequence) renderizado completo.
-        let doc = layout(&Content::Footnote {
-            body: Box::new(Content::sequence(vec![
+        let doc = layout(&Content::footnote(Content::sequence(vec![
                 Content::text("primeira"),
                 Content::text(" "),
                 Content::text("segunda"),
-            ]))
-        });
+            ])));
         let text: String = doc.pages.iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|it| match it {
@@ -10703,7 +10655,7 @@ mod p292_style_font_tests {
         let huge = "loremX ipsumY ".repeat(150);
         let doc = layout(&Content::sequence(vec![
             Content::text("topo"),
-            Content::Footnote { body: Box::new(Content::text(huge)) },
+            Content::footnote(Content::text(huge)),
         ]));
         // Body content deve aparecer no documento final (alguma página).
         let combined: String = doc.pages.iter()
@@ -10726,7 +10678,7 @@ mod p292_style_font_tests {
         // Cada body tem sentinel UNIQUEN para tracking individual.
         let bodies: Vec<Content> = (0..5).map(|i| {
             let body_text = format!("UNIQUE{} word ", i).repeat(40);
-            Content::Footnote { body: Box::new(Content::text(body_text)) }
+            Content::footnote(Content::text(body_text))
         }).collect();
         let mut all = vec![Content::text("texto")];
         all.extend(bodies);
@@ -10751,9 +10703,7 @@ mod p292_style_font_tests {
     fn p305_regressao_p304_single_page_preservado() {
         // CRÍTICO: footnote pequena que cabe — comportamento idêntico
         // P304 (1 página, body no rodapé). Determinismo + bit-exact.
-        let doc = layout(&Content::Footnote {
-            body: Box::new(Content::text("CABE"))
-        });
+        let doc = layout(&Content::footnote(Content::text("CABE")));
         assert_eq!(doc.pages.len(), 1, "footnote pequena cabe em 1 página");
         let text: String = doc.pages[0].items.iter()
             .filter_map(|it| match it {
@@ -10790,9 +10740,7 @@ mod p292_style_font_tests {
         // Defensive force_emit deve placar mesmo assim; iter_limit
         // em finish() evita loop infinito.
         let gigante = "X ".repeat(2000); // ~400 linhas → ~5800pt
-        let doc = layout(&Content::Footnote {
-            body: Box::new(Content::text(gigante))
-        });
+        let doc = layout(&Content::footnote(Content::text(gigante)));
         // Documento finalizou (não panicou; não infinite loop).
         assert!(!doc.pages.is_empty(), "documento terminou com páginas");
         // Marker presente em alguma página.
@@ -10816,7 +10764,7 @@ mod p292_style_font_tests {
         let big = "wordSentinel ".repeat(100); // ~30 linhas
         let doc = layout(&Content::sequence(vec![
             Content::text("AAA BBB CCC DDD"),
-            Content::Footnote { body: Box::new(Content::text(big)) },
+            Content::footnote(Content::text(big)),
         ]));
         // Sentinel body Y mínimo deve ser >= margin (72.0 default)
         // — não pode estar acima do topo da página.

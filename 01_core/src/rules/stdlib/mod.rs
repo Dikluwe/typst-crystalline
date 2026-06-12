@@ -2123,9 +2123,9 @@ mod tests {
         use crate::entities::paint::Paint;
         use crate::entities::layout_types::Color;
         let result = native_rect(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { fill, stroke, .. }) = result {
-            assert!(fill.is_none(), "rect sem fill deve ter fill: None");
-            let s = stroke.expect("rect sem cores deve ter stroke de fallback");
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(e.fill.is_none(), "rect sem fill deve ter fill: None");
+            let s = e.stroke.clone().expect("rect sem cores deve ter stroke de fallback");
             assert_eq!(s.paint, Paint::Solid(Color::rgb(0, 0, 0)), "stroke de fallback deve ser preta");
             assert_eq!(s.thickness, 1.0, "espessura de fallback deve ser 1pt");
         } else {
@@ -2139,9 +2139,9 @@ mod tests {
         let mut args = Args::positional(vec![]);
         args.named.insert("fill".into(), Value::Str("red".into()));
         let result = native_rect(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { fill, stroke, .. }) = result {
-            assert!(fill.is_some(), "fill red deve estar presente");
-            assert!(stroke.is_none(), "sem stroke explícito e com fill → stroke deve ser None");
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(e.fill.is_some(), "fill red deve estar presente");
+            assert!(e.stroke.is_none(), "sem stroke explícito e com fill → stroke deve ser None");
         } else {
             panic!("Esperado Content::Shape");
         }
@@ -2155,10 +2155,10 @@ mod tests {
         args.named.insert("dx".into(), Value::Float(100.0));
         args.named.insert("dy".into(), Value::Float(50.0));
         let result = native_line(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { kind, fill, stroke, .. }) = result {
-            assert!(matches!(kind, ShapeKind::Line { dx, dy } if dx == 100.0 && dy == 50.0));
-            assert!(fill.is_none(), "linha não tem fill");
-            assert!(stroke.is_some(), "linha tem stroke por omissão");
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(matches!(e.kind, ShapeKind::Line { dx, dy } if dx == 100.0 && dy == 50.0));
+            assert!(e.fill.is_none(), "linha não tem fill");
+            assert!(e.stroke.is_some(), "linha tem stroke por omissão");
         } else {
             panic!("Esperado Content::Shape");
         }
@@ -2184,7 +2184,8 @@ mod tests {
             Value::Array(vec![Value::Float(10.0), Value::Float(20.0)]),
         ]);
         let result = native_polygon(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = result {
+        if let Value::Content(Content::Shape(e)) = result {
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
             assert_eq!(items.len(), 2, "Um ponto deve gerar MoveTo + ClosePath");
             assert!(matches!(items[0], PathItem::MoveTo(_)), "Primeiro item deve ser MoveTo");
             assert!(matches!(items[1], PathItem::ClosePath), "Último item deve ser ClosePath");
@@ -2203,7 +2204,8 @@ mod tests {
             Value::Array(vec![Value::Float(25.0), Value::Float(50.0)]),
         ]);
         let result = native_polygon(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = result {
+        if let Value::Content(Content::Shape(e)) = result {
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
             assert_eq!(items.len(), 4); // MoveTo + 2×LineTo + ClosePath
             assert!(matches!(items[0], PathItem::MoveTo(_)));
             assert!(matches!(items[1], PathItem::LineTo(_)));
@@ -2234,7 +2236,8 @@ mod tests {
             Value::Array(vec![Value::Str("close".into())]),
         ]);
         let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = result {
+        if let Value::Content(Content::Shape(e)) = result {
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
             assert_eq!(items.len(), 3);
             assert!(matches!(items[0], PathItem::MoveTo(_)));
             assert!(matches!(items[1], PathItem::LineTo(_)));
@@ -2265,7 +2268,8 @@ mod tests {
             ]),
         ]);
         let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = result {
+        if let Value::Content(Content::Shape(e)) = result {
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
             assert_eq!(items.len(), 2);
             assert!(matches!(items[0], PathItem::MoveTo(_)));
             // **Activação pos-P293 — CubicTo construído via stdlib**
@@ -2291,7 +2295,8 @@ mod tests {
             ]),
         ]);
         let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = result {
+        if let Value::Content(Content::Shape(e)) = result {
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
             assert_eq!(items.len(), 1);
             if let PathItem::CubicTo(c1, c2, end) = items[0] {
                 assert_eq!((c1.x.val(), c1.y.val()), (10.0, 20.0));
@@ -2329,7 +2334,8 @@ mod tests {
         ]);
         let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
         // Esperado: 2 PathItems — MoveTo + CubicTo (conversão q→c).
-        if let Value::Content(Content::Shape { kind: crate::entities::geometry::ShapeKind::Path(items), .. }) = &result {
+        if let Value::Content(Content::Shape(e)) = &result {
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
             assert_eq!(items.len(), 2, "esperava 2 items (MoveTo + CubicTo)");
             assert!(matches!(items[0], crate::entities::geometry::PathItem::MoveTo(_)));
             assert!(matches!(items[1], crate::entities::geometry::PathItem::CubicTo(_, _, _)),
@@ -2359,7 +2365,8 @@ mod tests {
             ]),
         ]);
         let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = &result {
+        if let Value::Content(Content::Shape(e)) = &result {
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
             if let PathItem::CubicTo(c1, c2, end) = items[1] {
                 let eps = 1e-9;
                 assert!((c1.x.0 - 20.0/3.0).abs() < eps, "C1.x: {}", c1.x.0);
@@ -2388,7 +2395,8 @@ mod tests {
             ]),
         ]);
         let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = &result {
+        if let Value::Content(Content::Shape(e)) = &result {
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
             assert_eq!(items.len(), 1);
             if let PathItem::CubicTo(c1, _, _) = items[0] {
                 // P0 = (0,0), Q = (6,0) → C1 = (0+12)/3 = 4
@@ -2436,7 +2444,8 @@ mod tests {
             ]),
         ]);
         let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = &result {
+        if let Value::Content(Content::Shape(e)) = &result {
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
             assert_eq!(items.len(), 3);
             // Segunda quadratic: P0=(6,0), Q=(9,0) → C1 = (6 + 18)/3 = 8
             if let PathItem::CubicTo(c1, _, _) = items[2] {
@@ -2470,7 +2479,8 @@ mod tests {
             Value::Array(vec![Value::Str("close".into())]),
         ]);
         let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { kind: ShapeKind::Path(items), .. }) = &result {
+        if let Value::Content(Content::Shape(e)) = &result {
+            let crate::entities::geometry::ShapeKind::Path(items) = &e.kind else { panic!("esperado ShapeKind::Path"); };
             assert_eq!(items.len(), 4);
             assert!(matches!(items[0], PathItem::MoveTo(_)));
             assert!(matches!(items[1], PathItem::CubicTo(_, _, _)));
@@ -2517,14 +2527,14 @@ mod tests {
             ]),
         ]);
         let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { width, height, .. }) = result {
-            // height da curva deve ser < 100 (extremo analítico, não 100 control point)
+        if let Value::Content(Content::Shape(e)) = result {
+            // e.height da curva deve ser < 100 (extremo analítico, não 100 control point)
             // P277 calcula extremo da Bézier que é menor que max control point.
-            let h = match height.as_deref() {
+            let h = match e.height.as_deref() {
                 Some(Value::Float(f)) => *f,
                 _ => 0.0,
             };
-            let w = match width.as_deref() {
+            let w = match e.width.as_deref() {
                 Some(Value::Float(f)) => *f,
                 _ => 0.0,
             };
@@ -2551,9 +2561,9 @@ mod tests {
         args.named.insert("fill".into(), Value::Color(Color::rgb(255, 0, 0)));
         args.named.insert("stroke".into(), Value::Color(Color::rgb(0, 0, 255)));
         let result = native_curve(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Shape { fill, stroke, .. }) = result {
-            assert!(fill.is_some(), "fill deve ser parseado");
-            assert!(stroke.is_some(), "stroke deve ser parseado");
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(e.fill.is_some(), "fill deve ser parseado");
+            assert!(e.stroke.is_some(), "stroke deve ser parseado");
         }
     }
 
@@ -4538,13 +4548,7 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         use crate::entities::geometry::ShapeKind;
-        let rect = Content::Shape {
-            kind:   ShapeKind::Rect,
-            width:  Some(Box::new(Value::Length(Length::pt(40.0)))),
-            height: Some(Box::new(Value::Length(Length::pt(20.0)))),
-            fill:   None,
-            stroke: None,
-        };
+        let rect = Content::shape(ShapeKind::Rect, Some(Box::new(Value::Length(Length::pt(40.0)))), Some(Box::new(Value::Length(Length::pt(20.0)))), None, None);
         let r = native_measure(&mut ctx, &p(vec![Value::Content(rect)]),
             &null_world(), test_file_id(), None).unwrap();
         if let Value::Dict(d) = r {
@@ -4587,20 +4591,8 @@ mod tests {
         use std::sync::Arc;
         use crate::entities::layout_types::Length;
         use crate::entities::geometry::ShapeKind;
-        let r1 = Content::Shape {
-            kind:   ShapeKind::Rect,
-            width:  Some(Box::new(Value::Length(Length::pt(30.0)))),
-            height: Some(Box::new(Value::Length(Length::pt(10.0)))),
-            fill:   None,
-            stroke: None,
-        };
-        let r2 = Content::Shape {
-            kind:   ShapeKind::Rect,
-            width:  Some(Box::new(Value::Length(Length::pt(50.0)))),
-            height: Some(Box::new(Value::Length(Length::pt(15.0)))),
-            fill:   None,
-            stroke: None,
-        };
+        let r1 = Content::shape(ShapeKind::Rect, Some(Box::new(Value::Length(Length::pt(30.0)))), Some(Box::new(Value::Length(Length::pt(10.0)))), None, None);
+        let r2 = Content::shape(ShapeKind::Rect, Some(Box::new(Value::Length(Length::pt(50.0)))), Some(Box::new(Value::Length(Length::pt(15.0)))), None, None);
         let seq = Content::Sequence(Arc::from(vec![r1, r2]));
         let r = native_measure(&mut ctx, &p(vec![Value::Content(seq)]),
             &null_world(), test_file_id(), None).unwrap();
@@ -4627,13 +4619,7 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         use crate::entities::geometry::ShapeKind;
-        let rect = Content::Shape {
-            kind:   ShapeKind::Rect,
-            width:  Some(Box::new(Value::Length(Length::pt(20.0)))),
-            height: Some(Box::new(Value::Length(Length::pt(40.0)))),
-            fill:   None,
-            stroke: None,
-        };
+        let rect = Content::shape(ShapeKind::Rect, Some(Box::new(Value::Length(Length::pt(20.0)))), Some(Box::new(Value::Length(Length::pt(40.0)))), None, None);
         let r = native_measure(&mut ctx, &p(vec![Value::Content(rect)]),
             &null_world(), test_file_id(), None).unwrap();
         // Paridade vanilla: `dims.width` retorna Length.
@@ -7580,7 +7566,7 @@ mod tests {
 
     // ── Passo 295 — `footnote()` cluster Fase 1 (marker only) ──────────
     //
-    // HE Fase 1: variant Content::Footnote { body } + stdlib
+    // HE Fase 1: variant Content::footnote(body) + stdlib
     // native_footnote + Layouter walker counter (marker [N]).
     // Body armazenado mas não renderizado (P295.1/P295.2 sub-passos).
 
@@ -7590,8 +7576,8 @@ mod tests {
         null_ctx!(ctx);
         let body = Value::Content(Content::text("nota"));
         let r = native_footnote(&mut ctx, &p(vec![body]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Footnote { body }) = r {
-            assert_eq!(body.plain_text(), "nota");
+        if let Value::Content(Content::Footnote(e)) = r {
+            assert_eq!(e.body.plain_text(), "nota");
         } else {
             panic!("esperava Content::Footnote");
         }
@@ -7602,8 +7588,8 @@ mod tests {
         use super::native_footnote;
         null_ctx!(ctx);
         let r = native_footnote(&mut ctx, &p(vec![Value::Str("texto".into())]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Footnote { body }) = r {
-            assert_eq!(body.plain_text(), "texto");
+        if let Value::Content(Content::Footnote(e)) = r {
+            assert_eq!(e.body.plain_text(), "texto");
         } else {
             panic!("esperava Content::Footnote");
         }
@@ -7639,16 +7625,16 @@ mod tests {
             Content::text("world"),
         ]));
         let r = native_footnote(&mut ctx, &p(vec![body]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Footnote { body }) = r {
-            assert_eq!(body.plain_text(), "hello world");
+        if let Value::Content(Content::Footnote(e)) = r {
+            assert_eq!(e.body.plain_text(), "hello world");
         }
     }
 
     #[test]
     fn p295_footnote_partial_eq_por_body() {
-        let a = Content::Footnote { body: Box::new(Content::text("x")) };
-        let b = Content::Footnote { body: Box::new(Content::text("x")) };
-        let c = Content::Footnote { body: Box::new(Content::text("y")) };
+        let a = Content::footnote(Content::text("x"));
+        let b = Content::footnote(Content::text("x"));
+        let c = Content::footnote(Content::text("y"));
         assert_eq!(a, b);
         assert_ne!(a, c);
     }
@@ -7656,7 +7642,7 @@ mod tests {
     #[test]
     fn p295_footnote_is_empty_sempre_false() {
         // Marker [N] é sempre observable; footnote nunca vazia.
-        let f_empty_body = Content::Footnote { body: Box::new(Content::Empty) };
+        let f_empty_body = Content::footnote(Content::Empty);
         assert!(!f_empty_body.is_empty(),
             "footnote nunca é is_empty mesmo com body vazio (marker sempre observable)");
     }

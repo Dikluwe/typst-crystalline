@@ -195,9 +195,9 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 ## Contabilidade de variantes (o roteiro dos lotes — atualizar a CADA lote)
 
-`Content` tem **77 variantes** (baseline P313). Estado em **P325** (Lote 10 incluído):
+`Content` tem **77 variantes** (baseline P313). Estado em **P326** (Lote 11 incluído):
 
-### Migradas para o modelo D — 55
+### Migradas para o modelo D — 57
 
 - **P316 piloto (3)**: `Divider`, `Heading` (locatável), `MathStyled`.
 - **Lote 2 P317 — math (11)**: `MathCases`, `MathMatrix`, `MathAlignPoint`,
@@ -249,6 +249,20 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   (interseção sites-tocados ∩ grep ≠ ∅) parou antes de compilar; revertidos à
   mão. A heurística do transformador continua o elo fraco (candidato a C1-ter:
   excluir por linha-do-grep, não por heurística).
+- **Lote 11 P326 — largura (2)**: `Footnote`, `Shape`. **Ambas
+  não-locatáveis** (achado: contraria a hipótese — `Footnote` é P295 Fase-1
+  marker-only, scope-out; *não* locatável hoje). `Footnote` contentor (body,
+  derive Hash); `Shape` **leaf** geometria (manual Hash por `Value`/`Color`/
+  `Stroke`; arm `|`-combinado, sem split). `Footnote` `is_empty` no default
+  `false`. **C1-ter estreou e funcionou**: skip-list por `ficheiro:linha`
+  preveniu o transformador de tocar nos 21 padrões aninhados (1ª passada limpa
+  em 5 lotes; verificação pós-passada confirmou interseção vazia). Achado
+  separado: o transformador de **padrões** (distinto do de construções) não
+  honra a skip-list e quebrou patterns `Shape { kind: Path(items), .. }`
+  aninhados — corrigidos à mão com `let-else`; **a skip-list deve cobrir ambos
+  os transformadores** (nota para futuros lotes). `content.rs` cresceu +10
+  (hub encolheu, mas 2 construtores novos — `shape` 5-param e `footnote`,
+  inexistentes antes — compensaram).
 
 ### Fora de lote — decisão própria
 
@@ -261,12 +275,12 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   `Styled` (58), `Boxed` (58), `Labelled` (55); **observação** (leaf, candidato
   à triagem): `Text` (40).
 
-### Element-shaped restantes — ~7 (os lotes 11+ saem daqui, por largura)
+### Element-shaped restantes — ~5 (os lotes 12+ saem daqui, por largura)
 
-(O Lote 10 P325 — Pad/Bibliography/Equation, 3 variantes — saiu daqui.)
+(O Lote 11 P326 — Footnote/Shape, 2 variantes — saiu daqui.)
 
 `TableCell`32 ·
-`Table`41 · `Footnote`46 · `GridCell`47 · `Shape`57 · `Grid`73 ·
+`Table`41 · `GridCell`47 · `Grid`73 ·
 `Figure`89.
 
 > **Bloco grid/table cell** (lote próprio, ~193 sites; decisão do dono):
@@ -275,7 +289,7 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 ### Estimativa
 
-~7 element-shaped restantes ÷ 5–9 variantes/lote (ritmo validado P317–P325)
+~5 element-shaped restantes ÷ 5–9 variantes/lote (ritmo validado P317–P326)
 ≈ **1–2 lotes** até esgotar os elegíveis — gatilho da triagem do DEBT-58 e da
-decisão F. Conta: 55 migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers +
-Text) + 7 restantes = 77. ✓
+decisão F. Conta: 57 migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers +
+Text) + 5 restantes = 77. ✓

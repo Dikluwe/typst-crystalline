@@ -881,7 +881,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 outline::layout_outline(self);
             }
 
-            Content::Shape { kind, width, height, fill, stroke } => {
+            Content::Shape(e) => {
+                let (kind, width, height, fill, stroke) = (&e.kind, &e.width, &e.height, &e.fill, &e.stroke);
                 let available_w = self.available_width();
                 let (resolved_w, resolved_h) = match kind {
                     // P242 — RoundedRect partilha dimensões com Rect.
@@ -1058,12 +1059,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Page) + `finish()` (última página) emite os bodies
             // no rodapé com posicionamento Y absoluto bottom-up.
             // P295.2 (overflow multi-página) permanece scope-out.
-            Content::Footnote { body } => {
+            Content::Footnote(e) => {
                 self.footnote_counter += 1;
                 let n = self.footnote_counter;
                 let marker = format!("[{}]", n);
                 self.layout_content(&Content::text(marker));
-                self.pending_footnote_bodies.push((n, body.clone()));
+                self.pending_footnote_bodies.push((n, Box::new(e.body.clone())));
             }
 
             Content::Cite(e) => {
@@ -2386,7 +2387,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 (max_w, total_h)
             }
 
-            Content::Shape { kind, width, height, .. } => {
+            Content::Shape(e) => {
+                let (kind, width, height) = (&e.kind, &e.width, &e.height);
                 match kind {
                     // P242 — RoundedRect partilha dimensões com Rect.
                     ShapeKind::Rect | ShapeKind::RoundedRect { .. } | ShapeKind::Ellipse | ShapeKind::Path(_) => {

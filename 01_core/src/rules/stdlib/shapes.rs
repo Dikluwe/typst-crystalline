@@ -70,13 +70,7 @@ pub fn native_rect(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         parsed_stroke
     };
 
-    Ok(Value::Content(Content::Shape {
-        kind:   ShapeKind::Rect,
-        width,
-        height,
-        fill,
-        stroke: final_stroke,
-    }))
+    Ok(Value::Content(Content::shape(ShapeKind::Rect, width, height, fill, final_stroke)))
 }
 
 /// `ellipse(width?, height?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, ... }`.
@@ -106,13 +100,7 @@ pub fn native_ellipse(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
         parsed_stroke
     };
 
-    Ok(Value::Content(Content::Shape {
-        kind: ShapeKind::Ellipse,
-        width,
-        height,
-        fill,
-        stroke: final_stroke,
-    }))
+    Ok(Value::Content(Content::shape(ShapeKind::Ellipse, width, height, fill, final_stroke)))
 }
 
 /// `circle(radius?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, width==height }`.
@@ -157,13 +145,7 @@ pub fn native_circle(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
         parsed_stroke
     };
 
-    Ok(Value::Content(Content::Shape {
-        kind: ShapeKind::Ellipse,
-        width,
-        height,
-        fill,
-        stroke: final_stroke,
-    }))
+    Ok(Value::Content(Content::shape(ShapeKind::Ellipse, width, height, fill, final_stroke)))
 }
 
 /// `line(dx?, dy?, stroke?)` → `Content::Shape { kind: Line, ... }`.
@@ -196,13 +178,7 @@ pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         .and_then(parse_color)
         .unwrap_or(Color::rgb(0, 0, 0)); // preto por omissão
 
-    Ok(Value::Content(Content::Shape {
-        kind:   ShapeKind::Line { dx, dy },
-        width:  None,
-        height: None,
-        fill:   None,
-        stroke: Some(Stroke { paint: Paint::Solid(stroke_color), thickness: 1.0, overhang: false }),
-    }))
+    Ok(Value::Content(Content::shape(ShapeKind::Line { dx, dy }, None, None, None, Some(Stroke { paint: Paint::Solid(stroke_color), thickness: 1.0, overhang: false }))))
 }
 
 /// Extrai um par de coordenadas (x, y) de um `Value::Array` com dois elementos numéricos.
@@ -260,13 +236,7 @@ pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
     let width  = if max_x > min_x { Some(Box::new(Value::Float(max_x - min_x))) } else { None };
     let height = if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 
-    Ok(Value::Content(Content::Shape {
-        kind: ShapeKind::Path(path_items),
-        width,
-        height,
-        fill,
-        stroke,
-    }))
+    Ok(Value::Content(Content::shape(ShapeKind::Path(path_items), width, height, fill, stroke)))
 }
 
 // ── Passo 293-294 — `curve(...)` constructor stdlib ─────────────────────
@@ -446,11 +416,5 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     let width  = if max_x > min_x { Some(Box::new(Value::Float(max_x - min_x))) } else { None };
     let height = if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 
-    Ok(Value::Content(Content::Shape {
-        kind: ShapeKind::Path(path_items),
-        width,
-        height,
-        fill,
-        stroke,
-    }))
+    Ok(Value::Content(Content::shape(ShapeKind::Path(path_items), width, height, fill, stroke)))
 }

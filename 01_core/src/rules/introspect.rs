@@ -185,9 +185,7 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         ),
 
         // P295 — Footnote recurse em body (paridade Quote).
-        Content::Footnote { body } => Content::Footnote {
-            body: Box::new(materialize_time(body, intr, location)),
-        },
+        Content::Footnote(e) => Content::footnote(materialize_time(&e.body, intr, location)),
 
         // Modelo D (Lote 4 P319): decorações — recurse no body via construtor.
         Content::Underline(e) => Content::underline(
@@ -1234,7 +1232,7 @@ pub(crate) fn walk(
         // P295 — Footnote walk em body (locatable infrastructure não
         // aplicada em Fase 1; body recurse preserva counters/labels
         // dentro para passes futuros).
-        Content::Footnote { body } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Footnote(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         Content::Align(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 

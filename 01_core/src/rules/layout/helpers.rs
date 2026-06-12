@@ -83,7 +83,8 @@ pub(super) fn resolve_pt(val: Option<&crate::entities::value::Value>, fallback: 
 /// cross-módulo primeira materialização parcial).
 pub(crate) fn measure_content(content: &Content, available_w: f64) -> (f64, f64) {
     match content {
-        Content::Shape { kind, width, height, .. } => {
+        Content::Shape(e) => {
+            let (kind, width, height) = (&e.kind, &e.width, &e.height);
             match kind {
                 // P242 — RoundedRect partilha dimensões com Rect/Ellipse/Path
                 // (radii não afecta bounding box per ADR-0054 graded).
@@ -119,7 +120,8 @@ pub(super) fn collect_sub_items(content: &Content, available_w: f64) -> Vec<Fram
 
 fn collect_items_at(content: &Content, items: &mut Vec<FrameItem>, x: Pt, y: Pt, available_w: f64) {
     match content {
-        Content::Shape { kind, width, height, fill, stroke } => {
+        Content::Shape(e) => {
+            let (kind, width, height, fill, stroke) = (&e.kind, &e.width, &e.height, &e.fill, &e.stroke);
             let (w, h) = match kind {
                 // P242 — RoundedRect partilha dimensões com Rect/Ellipse/Path
                 // (radii não afecta bounding box per ADR-0054 graded).
