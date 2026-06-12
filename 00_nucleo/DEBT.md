@@ -234,12 +234,60 @@
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
 
-## DEBT-58 — Primitivos de AST fora do modelo D — decisão pendente — EM ABERTO (Passo 317)
+## DEBT-58 — Primitivos de AST fora do modelo D — **TRIADO (Passo 329)**
 
-**Estado**: aberto · **Magnitude**: M (por variante) · **Origem**: ressalva do
-checkpoint do Lote 2 (P317) + critério de elegibilidade do modelo de lote D
-(ADR-0105). Âncora durável para o conjunto que o modelo D **não absorve por
-default**.
+**Estado**: a parte "primitivos" **encerra** (vira desenho declarado); `Styled`
+**transfere** para o F/99.E; `Block`/`Boxed`/`Labelled` **saem** do débito para
+o roteiro de lotes (L14/L15). · **Magnitude**: M (por variante) · **Origem**:
+ressalva do checkpoint do Lote 2 (P317) + critério de elegibilidade do modelo de
+lote D (ADR-0105).
+
+### Triagem do P329 — as decisões do dono
+
+**Critério do dono** (cabeçalho da triagem): a fidelidade ao typst vanilla é
+**de comportamento** (saída renderizada + semântica da linguagem), **não de
+estrutura Rust**. A estrutura interna decide-se por **atomicidade, performance e
+manutenção por IA**. Decisões do vanilla que impõem *forma* ao código não
+vinculam.
+
+**Verificação mecânica (P329)**: `grep -nE "Self::(Sequence|Empty|Block|Space|
+MathSequence)\b" 01_core/src/entities/content.rs | grep -v "=>"` → a álgebra do
+`Content` (`sequence()` em `content.rs:1560`) constrói **`Sequence`/`Empty`**
+(normalização de casos degenerados: 0→`Empty`, 1→passthrough, n→`Sequence`).
+**`Block` aparece só no seu construtor ergonómico `block(...)`** (campos de
+utilizador, como todo elemento denso) → **NÃO é álgebra → lote tardio
+confirmado** (L15). Binário resolvido sem surpresa.
+
+**Decisões:**
+
+1. **Primitivos definitivos (4)** — `Sequence`, `MathSequence`, `Empty`,
+   `Space`: álgebra/cola do próprio `Content`, sem campos de utilizador;
+   permanecem no hub **por desenho declarado** (arm próprio **deixa de ser
+   dívida**). Migração não compra atomicidade e custa o topo da largura
+   (`Sequence` 216, `Empty` 156).
+2. **Primitivos provisórios (3)** — `Text`, `MathText`, `MathIdent`: permanecem
+   no hub **com revisita marcada no diagnóstico do F**. Os campos que o vanilla
+   lhes dá são estilo (StyleChain) — território do F; decidir agora desenharia
+   o F por acidente (mesmo argumento das `Set*`).
+3. **Lote tardio (3)** — `Labelled`(57) · `Boxed`(69) · `Block`(121):
+   element-shaped densos; o modelo provado os come (precedente L12 + Arc-wrap
+   C2). Soma ~247 > faixa → **dois lotes**: **L14 = `Labelled`+`Boxed`** (~126),
+   **L15 = `Block`** (~121).
+4. **Transferido ao F (1)** — `Styled(Box<Content>, Styles)`: carrega `Styles`,
+   a superfície que o F/99.E redesenha; sai da triagem, entra no diagnóstico do
+   F junto das 4 `Set*` (ver **DEBT 99.E**).
+
+Conta: 7 primitivos + 3 lote tardio + 1 ao F = 11 ✓ (62 + 4 `Set*` + 11 = 77 ✓).
+
+**Critério de fecho original** (cada variante com destino decidido e gravado):
+**cumprido** — primitivos declarados (item 1+2, na L0 do `content`); `Styled`→F;
+`Block`/`Boxed`/`Labelled`→lotes. Nenhuma "deferida sem dono".
+
+---
+
+### _Histórico (pré-triagem, P317)_
+
+**Âncora durável para o conjunto que o modelo D não absorve por default.**
 
 **Conjunto** (com triagem por variante como parte do fecho):
 

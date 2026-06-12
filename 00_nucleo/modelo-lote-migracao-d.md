@@ -317,25 +317,34 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 ### Fora de lote — decisão própria
 
-- **`Set*` (4)** → decisão **F / DEBT 99.E** (superfície da StyleChain; NÃO
-  migrar por lote): `SetHeadingNumbering` (62), `SetEquationNumbering` (16),
-  `SetPage` (8), `SetFigureNumbering` (5). Medido em `medicao-pre-f-passo-318.md`.
-- **Primitivos de AST → DEBT-58** (não element-shaped): `MathSequence` (21),
-  `MathText` (50), `MathIdent` (108), `Sequence` (208), `Empty` (116),
-  `Block` (101); **em triagem**: `Space` (13, cola de texto), e os wrappers
-  `Styled` (58), `Boxed` (58), `Labelled` (55); **observação** (leaf, candidato
-  à triagem): `Text` (40).
+- **`Set*` (4 + `Styled`)** → decisão **F / DEBT 99.E** (superfície da
+  StyleChain; NÃO migrar por lote): `SetHeadingNumbering`, `SetEquationNumbering`,
+  `SetPage`, `SetFigureNumbering` + **`Styled`** (transferido na triagem P329 —
+  carrega `Styles`). Medido em `medicao-pre-f-passo-318.md`.
+- **Primitivos do hub — desenho declarado (triagem DEBT-58, P329)**: **não
+  migram** (arm próprio intencional, não dívida).
+  - **Definitivos (4)**: `Sequence`, `MathSequence`, `Empty`, `Space` —
+    álgebra/cola do `Content`.
+  - **Provisórios (3)**: `Text`, `MathText`, `MathIdent` — revisita no
+    diagnóstico do F (campos = estilo/StyleChain).
 
-### Element-shaped restantes — 0 (fase de lotes encerrada)
+### Element-shaped restantes — 0; lotes tardios da triagem — 2 (L14, L15)
 
-(O Lote 13 P328 — `Figure` — saiu daqui; **era o último**.)
+(O Lote 13 P328 — `Figure` — saiu da tabela P317; **era o último** dela.)
 
-**Nenhum.** Os element-shaped esgotaram no L13. O **gatilho do DEBT-58
-disparou** — a triagem dos primitivos/wrappers é o passo seguinte (conversa de
-desenho, não lote); dossiê em `dossie-triagem-debt-58.md`.
+Os element-shaped da **tabela P317** esgotaram no L13. A **triagem DEBT-58
+(P329)** reclassificou 3 densos como **lotes tardios** (são element-shaped, não
+primitivos): **L14 = `Labelled`(57) + `Boxed`(69)** · **L15 = `Block`(121)**
+(`Block` confirmado lote tardio — a álgebra não o constrói, ver DEBT-58).
 
-### Estimativa — encerrada
+### Roteiro restante
 
-**0 element-shaped restantes.** Conta final da fase de lotes: **62 migradas** +
-4 `Set*` (→ F/99.E) + 11 (DEBT-58: 6 primitivos + `Space` + 3 wrappers + `Text`)
-= **77**. ✓ Fase de lotes (piloto P316 + Lotes 2–13) **completa**.
+1. **L14** — `Labelled` + `Boxed` (~126).
+2. **L15** — `Block` (~121).
+3. **Verificação de performance** (`hyperfine`; caveat C1/P319).
+4. **Diagnóstico do F** — absorve `Set*` + `Styled` + revisita
+   `Text`/`MathText`/`MathIdent`.
+
+Conta: **62 migradas** + 4 `Set*` + 11 (4 def. + 3 prov. + 3 lote-tardio +
+`Styled`) = **77** ✓. Após L14+L15: **64 migradas** + 4 `Set*` + 9 primitivos +
+`Styled`→F.

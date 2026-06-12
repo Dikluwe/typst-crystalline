@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 5aa0c45d
+Hash do Código: e163048d
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -89,14 +89,29 @@ Os campos `Box<Content>` desboxam para `Content` no `…Elem` (paridade
 `Content::math_<nome>(…)`. `MathLayouter` (`rules/math/layout`) passa a
 destructurar `Arc<Math*Elem>` — **mesma lógica**, não editado por estes L0.
 
-**Primitivos de AST diferidos** (decisão do dono no checkpoint P317):
-`MathSequence` (contentor, largura 21), `MathText` (folha, 50) e `MathIdent`
-(folha, 108) **não migram** neste lote — a guideline de elegibilidade exclui
-folhas/contentores quentes (risco `Arc` em folha hot, ADR-0029/0030). Os seus L0
-ficam redigidos mas **não materializados** (marcados ⏸️). Migração futura é
-**decisão própria** para o grupo `{MathSequence, MathText, MathIdent, Sequence,
-Empty, Block}`: migrar com medição de performance, manter inline por design via
-nota na ADR-0105, ou forma terceira.
+**Primitivos do hub — desenho declarado (triagem DEBT-58, P329).** Estas
+variantes **permanecem no hub por desenho**, não por dívida — o arm próprio é
+**intencional**. Critério do dono: fidelidade ao vanilla é de *comportamento*,
+não de *estrutura Rust*; migrar não compra atomicidade quando não há semântica
+de utilizador nem campos por crescer.
+
+- **Definitivos (4)** — `Sequence`, `MathSequence`, `Empty`, `Space`:
+  álgebra/cola do próprio `Content` (`sequence()` constrói `Sequence`/`Empty`;
+  `Space` é cola de whitespace; `MathSequence` é o contentor math interno). Sem
+  campos de utilizador. **Não migram nunca.**
+- **Provisórios (3)** — `Text`, `MathText`, `MathIdent`: permanecem no hub **com
+  revisita marcada no diagnóstico do F** — os campos que o vanilla lhes daria
+  são estilo (StyleChain), território do F; decidir agora desenharia o F por
+  acidente.
+
+Os L0 redigidos no P317 para `MathSequence`/`MathText`/`MathIdent` (em
+`debt-anexos/primitivos-ast/`) ficam como **referência histórica** — não serão
+materializados (a decisão é manter inline). Ver **DEBT-58** (triado) e a L0 do
+trait `entities/elements/_comum.md`.
+
+> **Fora deste conjunto** (não são primitivos): `Block`/`Boxed`/`Labelled` são
+> element-shaped densos → **lotes tardios** (L14 `Labelled`+`Boxed`, L15
+> `Block`); `Styled` carrega `Styles` → **diagnóstico do F** (com as `Set*`).
 
 **Lote 3 P318** (família lista/termos — **5 variantes** element-shaped; ordem de
 migração por largura de uso crescente): cada migra para `Nome(Arc<NomeElem>)`,

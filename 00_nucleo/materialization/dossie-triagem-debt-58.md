@@ -107,3 +107,24 @@ A **fotografia para o F**: os 6 matches têm hoje, cada um, ~15–20 arms
 não-dispatch (as 15 não migradas, algumas com arm em vários matches). É essa a
 superfície que a decisão F / DEBT 99.E (StyleChain) e a triagem do DEBT-58
 consomem.
+
+---
+
+## Nota de fecho (P329) — a triagem aconteceu
+
+Este dossiê era o **material**; a **triagem** está gravada (P329, decisões do
+dono):
+
+- **DEBT-58** (`00_nucleo/DEBT.md`): triado. 7 primitivos declarados (4
+  definitivos + 3 provisórios), `Styled`→F, `Block`/`Boxed`/`Labelled`→lotes.
+- **L0 do content** (`prompts/entities/content.md`): os 7 primitivos como
+  desenho declarado do hub.
+- **Contabilidade** (`modelo-lote-migracao-d.md`): roteiro L14/L15 + perf + F.
+
+**Verificação mecânica** (a única pendência factual): `grep` confirmou que a
+álgebra (`sequence()`) constrói `Sequence`/`Empty`; `Block` aparece só no seu
+construtor ergonómico → **lote tardio** (L15), não primitivo. Binário resolvido
+sem surpresa.
+
+**Critério do dono**: fidelidade ao vanilla é *de comportamento*, não *de
+estrutura Rust*.
