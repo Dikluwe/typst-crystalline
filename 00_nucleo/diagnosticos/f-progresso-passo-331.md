@@ -21,7 +21,8 @@
   - [x] 1a cristalino → `f-inventario-1a-cristalino.md` (393 l)
   - [x] 1b vanilla → `f-inventario-1b-vanilla.md` (443 l)
   - [x] 1c custo → `f-inventario-1c-custo.md` (306 l)
-- [ ] **Fase 2 — rede de caracterização** (testes) → +N, suíte verde, lint 0
+- [x] **Fase 2 — rede de caracterização** (testes) ✅ — **+11** testes
+  (`mod f_caracterizacao_estilo` em `layout/tests.rs`), suíte 2697→2708, lint 0
 - [ ] **Fase 3 — dossiê de opções** → `f-dossie-opcoes-passo-331.md`
 
 ## Achados-chave da Fase 1 (para a Fase 3)
@@ -45,4 +46,8 @@
 
 - P331 iniciado. Precondição ✅ (lint 0, suíte 2697). Orientação feita.
 - Fase 1 ✅ (3 frentes paralelas, agentes). Commit "F fase 1".
-- Próximo: Fase 2 (rede de caracterização — testes).
+- Fase 2 ✅ (+11 testes de caracterização, observable-output). Commit "F fase 2".
+  - Achados p/ §bugs: `SetEquationNumbering` sem produtor eval — efeito de
+    numeração não caracterizável via `layout` puro (Introspector-dependente);
+    o teste só fixa que o corpo renderiza.
+- Próximo: Fase 3 (dossiê de opções).

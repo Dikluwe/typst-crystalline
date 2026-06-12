@@ -10460,3 +10460,169 @@ mod p292_style_font_tests {
         assert!(chain.font().is_some());
     }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// P331 Fase 2 — Rede de caracterização do comportamento de estilo
+//
+// Fixa a SAÍDA OBSERVÁVEL atual (numeração, estilo, escopo, página) para
+// detectar regressão semântica quando o "F" refatorar a StyleChain. Asserta
+// sobre saída de layout/plain_text, NÃO sobre representação interna — o F muda
+// a representação; esta rede protege o comportamento (critério do dono P329:
+// fidelidade é de comportamento). Zero conserto: divergências são
+// caracterizadas como estado atual e listadas no dossiê §bugs.
+// ─────────────────────────────────────────────────────────────────────────────
+#[cfg(test)]
+mod f_caracterizacao_estilo {
+    use super::*;
+    use crate::entities::layout_types::{TextStyle, Pt, FrameItem};
+
+    fn doc_text(c: &Content) -> String {
+        layout(c).plain_text()
+    }
+
+    fn has_bold(c: &Content) -> bool {
+        layout(c).pages.iter().flat_map(|p| p.items.iter())
+            .any(|i| matches!(i, FrameItem::Text { style, .. } if style.bold))
+    }
+    fn has_italic(c: &Content) -> bool {
+        layout(c).pages.iter().flat_map(|p| p.items.iter())
+            .any(|i| matches!(i, FrameItem::Text { style, .. } if style.italic))
+    }
+
+    // ── SetHeadingNumbering → prefixo de heading ──────────────────────────
+    #[test]
+    fn carac_set_heading_numbering_liga_prefixo() {
+        let c = Content::Sequence(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::heading(1, Content::text("Intro")),
+            Content::heading(2, Content::text("Sub")),
+        ].into());
+        let t = doc_text(&c);
+        assert!(t.contains("1."), "H1 deve ter prefixo '1.': '{t}'");
+        assert!(t.contains("1.1"), "H2 deve ter prefixo '1.1': '{t}'");
+    }
+
+    #[test]
+    fn carac_sem_set_heading_numbering_sem_prefixo() {
+        let c = Content::heading(1, Content::text("Intro"));
+        let t = doc_text(&c);
+        assert!(t.contains("Intro"), "corpo presente: '{t}'");
+        assert!(!t.contains("1."), "sem SetHeadingNumbering → sem prefixo: '{t}'");
+    }
+
+    // ── SetFigureNumbering → prefixo de figura (com caption) ──────────────
+    #[test]
+    fn carac_set_figure_numbering_caption_prefixo() {
+        let c = Content::Sequence(vec![
+            Content::SetFigureNumbering { pattern: "1".to_string() },
+            Content::figure(
+                Content::text("img"),
+                Some(Content::text("legenda")),
+                Some("image".to_string()),
+                Some("1".to_string()),
+            ),
+        ].into());
+        let t = doc_text(&c);
+        // Caracteriza: figura com caption + numbering activo recebe "Figura N".
+        assert!(t.contains("Figura 1"), "figura numerada deve ter 'Figura 1': '{t}'");
+    }
+
+    #[test]
+    fn carac_figura_sem_caption_sem_prefixo() {
+        let c = Content::figure(Content::text("img"), None, Some("image".to_string()), Some("1".to_string()));
+        let t = doc_text(&c);
+        assert!(!t.contains("Figura 1"), "sem caption → sem prefixo numérico: '{t}'");
+    }
+
+    // ── SetEquationNumbering → caracterizar estado atual ──────────────────
+    // 1a (inventário): SetEquationNumbering NÃO tem produtor em eval (só
+    // testes); o efeito real depende do Introspector. Caracteriza o que
+    // `layout` produz hoje para uma equação block com o marcador presente.
+    #[test]
+    fn carac_set_equation_numbering_estado_atual() {
+        let c = Content::Sequence(vec![
+            Content::SetEquationNumbering { active: true },
+            Content::equation(Content::text("x"), true),
+        ].into());
+        let t = doc_text(&c);
+        // caracteriza estado atual; comportamento de numeração de equação
+        // registado no dossiê §bugs (sem produtor eval, efeito dependente de
+        // Introspector pré-populado).
+        assert!(t.contains("x"), "corpo da equação presente: '{t}'");
+    }
+
+    // ── SetPage → dimensões da página ─────────────────────────────────────
+    #[test]
+    fn carac_set_page_altera_dimensoes() {
+        let baseline = layout(&Content::text("x"));
+        let (bw, bh) = (baseline.pages[0].width, baseline.pages[0].height);
+        let c = Content::Sequence(vec![
+            Content::SetPage { width: Some(123.0), height: Some(456.0), margin: None },
+            Content::text("x"),
+        ].into());
+        let doc = layout(&c);
+        // caracteriza: SetPage muta page_config; dimensões observáveis mudam.
+        assert!(doc.pages[0].width != bw || doc.pages[0].height != bh,
+            "SetPage deve alterar dimensões (baseline {bw}x{bh}, obtido {}x{})",
+            doc.pages[0].width, doc.pages[0].height);
+        assert_eq!(doc.pages[0].width, 123.0, "width do SetPage propaga");
+        assert_eq!(doc.pages[0].height, 456.0, "height do SetPage propaga");
+    }
+
+    // ── Styled (bold/italic) → escopo: aplica ao corpo, não vaza ──────────
+    #[test]
+    fn carac_strong_aplica_bold_ao_corpo() {
+        let c = Content::strong(Content::Text("Bold".into(), TextStyle::bold(Pt(11.0))));
+        assert!(has_bold(&c), "strong deve produzir glyph bold");
+    }
+
+    #[test]
+    fn carac_emph_aplica_italic_ao_corpo() {
+        let c = Content::emph(Content::Text("It".into(), TextStyle::italic(Pt(11.0))));
+        assert!(has_italic(&c), "emph deve produzir glyph italic");
+    }
+
+    #[test]
+    fn carac_styled_nao_vaza_para_irmao() {
+        // strong(bold) seguido de texto regular: o irmão NÃO fica bold.
+        let c = Content::Sequence(vec![
+            Content::strong(Content::Text("B".into(), TextStyle::bold(Pt(11.0)))),
+            Content::Text("normal".into(), TextStyle::regular(Pt(11.0))),
+        ].into());
+        let bolds: Vec<bool> = layout(&c).pages.iter().flat_map(|p| p.items.iter())
+            .filter_map(|i| if let FrameItem::Text { style, text, .. } = i {
+                Some((text.as_str().to_string(), style.bold)) } else { None })
+            .map(|(_, b)| b).collect();
+        // caracteriza: existe pelo menos um bold e pelo menos um não-bold
+        // (o estilo não vaza do strong para o irmão regular).
+        assert!(bolds.iter().any(|&b| b), "deve haver glyph bold (do strong)");
+        assert!(bolds.iter().any(|&b| !b), "irmão regular não deve ser bold (escopo)");
+    }
+
+    // ── Text com/sem Styled em volta: plain_text idêntico, layout difere ──
+    #[test]
+    fn carac_text_plain_text_identico_com_e_sem_styled() {
+        let nu = Content::Text("hi".into(), TextStyle::regular(Pt(11.0)));
+        let st = Content::strong(Content::Text("hi".into(), TextStyle::bold(Pt(11.0))));
+        // plain_text é transparente ao wrapper Styled.
+        assert_eq!(nu.plain_text(), "hi");
+        assert_eq!(st.plain_text(), "hi", "Styled é transparente em plain_text");
+        // mas o layout difere (bold vs regular).
+        assert!(!has_bold(&nu), "Text cru não é bold");
+        assert!(has_bold(&st), "Text em strong é bold");
+    }
+
+    // ── Set + elemento migrado: heading numerado dentro de columns ────────
+    #[test]
+    fn carac_heading_numerado_dentro_de_columns() {
+        let c = Content::Sequence(vec![
+            Content::SetHeadingNumbering { active: true },
+            Content::columns(Content::heading(1, Content::text("Dentro")), 2, None),
+        ].into());
+        let t = doc_text(&c);
+        // caracteriza: a numeração de heading atravessa o contentor migrado
+        // (columns) — o set aplica-se ao heading mesmo encapsulado.
+        assert!(t.contains("Dentro"), "corpo do heading presente: '{t}'");
+        assert!(t.contains("1."), "heading dentro de columns deve numerar: '{t}'");
+    }
+}
