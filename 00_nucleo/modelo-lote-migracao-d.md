@@ -218,10 +218,9 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 ## Contabilidade de variantes (o roteiro dos lotes — atualizar a CADA lote)
 
-`Content` tem **77 variantes** (baseline P313). Estado em **P328** (Lote 13 incluído
-— **fim da fase de lotes**):
+`Content` tem **77 variantes** (baseline P313). Estado em **P329** (Lote 14 incluído):
 
-### Migradas para o modelo D — 62
+### Migradas para o modelo D — 64
 
 - **P316 piloto (3)**: `Divider`, `Heading` (locatável), `MathStyled`.
 - **Lote 2 P317 — math (11)**: `MathCases`, `MathMatrix`, `MathAlignPoint`,
@@ -314,6 +313,15 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   absorvido — content-preserving). **Fim da fase de lotes**: element-shaped
   esgotam (restantes 0); **gatilho do DEBT-58 disparado** (ver
   `dossie-triagem-debt-58.md`).
+- **Lote 14 P329 — `Labelled` + `Boxed` (2; reclassificados da triagem
+  DEBT-58)**: ambos **não-locatáveis**, contentores. `Labelled` `{target,
+  label}` wrapper — **derive Hash** (`Label: Eq+Hash`); **achado**: não é
+  locatável no trait mas a introspecção consome `Content::Labelled` num walk arm
+  que emite payload em **pós-recursão** (P195D) — mecanismo inalterado, só o
+  lado `Content::Labelled` dos arms (walk/materialize/fixpoint/layout) converte.
+  `Boxed` denso (~10 campos, família L12) — **Hash manual** (`Length`/`Sides`/
+  `Corners`/f64); construtor cobre 5/10 → construções via **Arc-wrap** (C2).
+  `Styled` **não tocado** (sem `|`-combinado com binding). `content.rs` **−63**.
 
 ### Fora de lote — decisão própria
 
@@ -339,12 +347,12 @@ primitivos): **L14 = `Labelled`(57) + `Boxed`(69)** · **L15 = `Block`(121)**
 
 ### Roteiro restante
 
-1. **L14** — `Labelled` + `Boxed` (~126).
-2. **L15** — `Block` (~121).
+1. ~~**L14** — `Labelled` + `Boxed`~~ ✅ **feito (P329)**.
+2. **L15** — `Block` (~121) — o último lote-tardio.
 3. **Verificação de performance** (`hyperfine`; caveat C1/P319).
 4. **Diagnóstico do F** — absorve `Set*` + `Styled` + revisita
    `Text`/`MathText`/`MathIdent`.
 
-Conta: **62 migradas** + 4 `Set*` + 11 (4 def. + 3 prov. + 3 lote-tardio +
-`Styled`) = **77** ✓. Após L14+L15: **64 migradas** + 4 `Set*` + 9 primitivos +
-`Styled`→F.
+Conta: **64 migradas** + 4 `Set*` + 9 (4 def. + 3 prov. + `Block` lote-tardio +
+`Styled`→F) = **77** ✓. Após L15: **65 migradas**; restam só os primitivos do
+hub (desenho declarado) + a superfície do F.

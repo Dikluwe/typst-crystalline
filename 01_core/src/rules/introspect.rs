@@ -155,10 +155,8 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         Content::ListItem(e) => Content::list_item(materialize_time(&e.body, intr, location)),
         Content::EnumItem(e) => Content::enum_item(e.number, materialize_time(&e.body, intr, location)),
         Content::Link(e) => Content::link(e.url.clone(), materialize_time(&e.body, intr, location)),
-        Content::Labelled { target, label } => Content::Labelled {
-            target: Box::new(materialize_time(target, intr, location)),
-            label:  label.clone(),
-        },
+        // Modelo D (Lote 14 P329): Labelled — recurse no target via construtor.
+        Content::Labelled(e) => Content::labelled(materialize_time(&e.target, intr, location), e.label.clone()),
         // Modelo D (Lote 13 P328): Figure — recurse body+caption via construtor.
         Content::Figure(e) => Content::figure(
             materialize_time(&e.body, intr, location),
@@ -278,19 +276,13 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             below:     *below,
             sticky:    *sticky,
         },
-        // Passo 156H + P231 + P247 — Boxed container; preserva 5 cosméticos.
-        Content::Boxed { body, width, height, inset, baseline, outset, radius, clip, fill, stroke } => Content::Boxed {
-            body:     Box::new(materialize_time(body, intr, location)),
-            width:    *width,
-            height:   *height,
-            inset:    *inset,
-            baseline: *baseline,
-            outset:   *outset,
-            radius:   *radius,
-            clip:     *clip,
-            fill:     *fill,
-            stroke:   stroke.clone(),
-        },
+        // Modelo D (Lote 14 P329): Boxed — recurse no body via struct-update.
+        Content::Boxed(e) => Content::Boxed(std::sync::Arc::new(
+            crate::entities::elements::boxed::BoxedElem {
+                body: materialize_time(&e.body, intr, location),
+                ..(**e).clone()
+            },
+        )),
         // Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo.
         // Materialize_time em cada child; preservar dir/spacing.
         Content::Stack(e) => {
@@ -941,7 +933,8 @@ pub(crate) fn walk(
             }
         }
 
-        Content::Labelled { target, label } => {
+        Content::Labelled(e) => {
+            let (target, label) = (&e.target, &e.label);
             // P195D — Walk arm Labelled emite Tag pós-recursão
             // (pattern ADR-0069 post-recursion-tag-emission).
             // Lógica legacy (E2/E3 P189B excepção) **preservada**
@@ -1232,7 +1225,7 @@ pub(crate) fn walk(
         Content::Block { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container.
-        Content::Boxed { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Boxed(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo.
         // Walk em cada child em ordem (counters/labels resolvem).
@@ -1294,10 +1287,7 @@ mod tests {
             vec![
                 Content::SetHeadingNumbering { active: true },
                 Content::reference(Label("conclusao".to_string())),
-                Content::Labelled {
-                    label:  Label("conclusao".to_string()),
-                    target: Box::new(Content::heading(1, Content::text("Conclusão"))),
-                },
+                Content::labelled(Content::heading(1, Content::text("Conclusão")), Label("conclusao".to_string())),
             ]
             .into(),
         );
@@ -1326,10 +1316,7 @@ mod tests {
 
     #[test]
     fn introspect_dois_conteudos_independentes() {
-        let content_a = Content::Labelled {
-            label:  Label("a".to_string()),
-            target: Box::new(Content::heading(1, Content::text("A"))),
-        };
+        let content_a = Content::labelled(Content::heading(1, Content::text("A")), Label("a".to_string()));
         let content_b = Content::reference(Label("a".to_string()));
 
         let intr_a = introspect_with_introspector(&content_a);
@@ -1407,10 +1394,7 @@ mod tests {
     #[test]
     fn introspect_resolve_label_de_figura() {
         let content = Content::Sequence(
-            vec![Content::Labelled {
-                label:  Label("fig1".to_string()),
-                target: Box::new(Content::figure(Content::text("Um gráfico"), Some(Content::text("Evolução")), Some("image".to_string()), Some("1".to_string()))),
-            }]
+            vec![Content::labelled(Content::figure(Content::text("Um gráfico"), Some(Content::text("Evolução")), Some("image".to_string()), Some("1".to_string())), Label("fig1".to_string()))]
             .into(),
         );
 
@@ -1426,14 +1410,8 @@ mod tests {
     fn introspect_duas_figuras_contadores_independentes() {
         let content = Content::Sequence(
             vec![
-                Content::Labelled {
-                    label:  Label("f1".to_string()),
-                    target: Box::new(Content::figure(Content::text("A"), Some(Content::text("Legenda A")), Some("image".to_string()), Some("1".to_string()))),
-                },
-                Content::Labelled {
-                    label:  Label("f2".to_string()),
-                    target: Box::new(Content::figure(Content::text("B"), Some(Content::text("Legenda B")), Some("image".to_string()), Some("1".to_string()))),
-                },
+                Content::labelled(Content::figure(Content::text("A"), Some(Content::text("Legenda A")), Some("image".to_string()), Some("1".to_string())), Label("f1".to_string())),
+                Content::labelled(Content::figure(Content::text("B"), Some(Content::text("Legenda B")), Some("image".to_string()), Some("1".to_string())), Label("f2".to_string())),
             ]
             .into(),
         );
@@ -1454,10 +1432,7 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::figure(Content::text("Diagrama"), None, Some("image".to_string()), Some("1".to_string())),
-                Content::Labelled {
-                    label:  Label("f2".to_string()),
-                    target: Box::new(Content::figure(Content::text("B"), Some(Content::text("Legenda")), Some("image".to_string()), Some("1".to_string()))),
-                },
+                Content::labelled(Content::figure(Content::text("B"), Some(Content::text("Legenda")), Some("image".to_string()), Some("1".to_string())), Label("f2".to_string())),
             ]
             .into(),
         );
@@ -1476,10 +1451,7 @@ mod tests {
         // Labelled antes de Ref — deve também popular o mapa
         let content = Content::Sequence(
             vec![
-                Content::Labelled {
-                    label:  Label("sec".to_string()),
-                    target: Box::new(Content::heading(1, Content::text("Secção"))),
-                },
+                Content::labelled(Content::heading(1, Content::text("Secção")), Label("sec".to_string())),
                 Content::reference(Label("sec".to_string())),
             ]
             .into(),
@@ -1634,10 +1606,7 @@ mod tests {
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
         let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".to_string()), Some("1".to_string()));
-        let labelled = Content::Labelled {
-            target: Box::new(figure),
-            label: label.clone(),
-        };
+        let labelled = Content::labelled(figure, label.clone());
         let intr = introspect_with_introspector(&labelled);
         assert_eq!(
             intr.resolved_labels.get(&label),
@@ -1651,10 +1620,7 @@ mod tests {
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
         let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".to_string()), Some("1".to_string()));
-        let labelled = Content::Labelled {
-            target: Box::new(figure),
-            label: label.clone(),
-        };
+        let labelled = Content::labelled(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "pt");
         assert_eq!(
             intr.resolved_labels.get(&label),
@@ -1667,10 +1633,7 @@ mod tests {
         use crate::entities::label::Label;
         let label = Label("tab1".to_string());
         let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("table".to_string()), Some("1".to_string()));
-        let labelled = Content::Labelled {
-            target: Box::new(figure),
-            label: label.clone(),
-        };
+        let labelled = Content::labelled(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "en");
         assert_eq!(
             intr.resolved_labels.get(&label),
@@ -1683,10 +1646,7 @@ mod tests {
         use crate::entities::label::Label;
         let label = Label("lst1".to_string());
         let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("raw".to_string()), Some("1".to_string()));
-        let labelled = Content::Labelled {
-            target: Box::new(figure),
-            label: label.clone(),
-        };
+        let labelled = Content::labelled(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "de");
         assert_eq!(
             intr.resolved_labels.get(&label),
@@ -1700,10 +1660,7 @@ mod tests {
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
         let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".to_string()), Some("1".to_string()));
-        let labelled = Content::Labelled {
-            target: Box::new(figure),
-            label: label.clone(),
-        };
+        let labelled = Content::labelled(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "zh");
         assert_eq!(
             intr.resolved_labels.get(&label),
@@ -1718,10 +1675,7 @@ mod tests {
         use crate::entities::label::Label;
         let label = Label("custom1".to_string());
         let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("custom".to_string()), Some("1".to_string()));
-        let labelled = Content::Labelled {
-            target: Box::new(figure),
-            label: label.clone(),
-        };
+        let labelled = Content::labelled(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "en");
         assert_eq!(
             intr.resolved_labels.get(&label),
@@ -1756,10 +1710,7 @@ mod tests {
         // que usam Some("image".to_string())).
         let content = Content::Sequence(
             vec![
-                Content::Labelled {
-                    label:  Label("f_none".to_string()),
-                    target: Box::new(Content::figure(Content::text("body sem kind explícito"), Some(Content::text("legenda")), None, Some("1".to_string()))),
-                },
+                Content::labelled(Content::figure(Content::text("body sem kind explícito"), Some(Content::text("legenda")), None, Some("1".to_string())), Label("f_none".to_string())),
             ]
             .into(),
         );
@@ -1886,10 +1837,7 @@ mod tests {
     #[test]
     fn walk_label_de_wrapper_chega_ao_payload() {
         // Content::Labelled { target: Heading } → tag Heading recebe Some(label).
-        let content = Content::Labelled {
-            label:  Label("intro".to_string()),
-            target: Box::new(Content::heading(1, Content::text("Introdução"))),
-        };
+        let content = Content::labelled(Content::heading(1, Content::text("Introdução")), Label("intro".to_string()));
         let tags = introspect_with_tags(&content);
         // Esperado: Start(Heading) com label="intro", End(Heading).
         match &tags[0] {
@@ -2265,10 +2213,7 @@ mod tests {
     fn introspector_query_by_label() {
         // P165 .G.4: walk com Heading labelled → query_by_label retorna location;
         // mesma location aparece em query_by_kind(Heading).
-        let content = Content::Labelled {
-            label:  Label("intro".to_string()),
-            target: Box::new(Content::heading(1, Content::text("Introdução"))),
-        };
+        let content = Content::labelled(Content::heading(1, Content::text("Introdução")), Label("intro".to_string()));
         let intr = introspect_with_introspector(&content);
 
         let by_label = intr.query_by_label(&Label("intro".to_string()));
@@ -2602,10 +2547,7 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::label::Label;
 
-        let titulo = Content::Labelled {
-            target: Box::new(Content::heading(1, Content::Empty)),
-            label: Label("bib-title".to_string()),
-        };
+        let titulo = Content::labelled(Content::heading(1, Content::Empty), Label("bib-title".to_string()));
 
         let content = Content::bibliography(vec![BibEntry::new("a", "A", "T", 2024)], Some(titulo));
         let mut locator = Locator::new();
@@ -2856,10 +2798,7 @@ mod tests {
         // Introspector path puro. compute_labelled (P191C migrado) lê
         // intr.flat_counter_at; populate_intr arm Labelled popula
         // intr.figure_label_numbers.
-        let content = Content::Labelled {
-            label:  Label("fig1".to_string()),
-            target: Box::new(Content::figure(Content::Empty, Some(Content::text("Cap")), Some("image".into()), Some("1".to_string()))),
-        };
+        let content = Content::labelled(Content::figure(Content::Empty, Some(Content::text("Cap")), Some("image".into()), Some("1".to_string())), Label("fig1".to_string()));
         let intr = introspect_with_introspector(&content);
 
         // P190H: intr.figure_label_numbers populated via populate_intr
@@ -3259,10 +3198,7 @@ mod tests {
                 // walk arm Equation não avança counter. Test usa
                 // CounterUpdate directo para bypass.
                 Content::counter_update("equation".to_string(), CounterAction::Step),
-                Content::Labelled {
-                    label:  Label("eq1".to_string()),
-                    target: Box::new(Content::equation(Content::Empty, true)),
-                },
+                Content::labelled(Content::equation(Content::Empty, true), Label("eq1".to_string())),
             ]
             .into(),
         );
@@ -3406,10 +3342,7 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::SetEquationNumbering { active: true },
-                Content::Labelled {
-                    label:  Label("eq1".to_string()),
-                    target: Box::new(Content::equation(Content::Empty, true)),
-                },
+                Content::labelled(Content::equation(Content::Empty, true), Label("eq1".to_string())),
             ]
             .into(),
         );
@@ -3637,10 +3570,7 @@ mod tests {
             vec![
                 Content::SetHeadingNumbering { active: true },
                 Content::heading(1, Content::text("intro")),
-                Content::Labelled {
-                    label:  Label("sec".to_string()),
-                    target: Box::new(Content::heading(1, Content::text("body"))),
-                },
+                Content::labelled(Content::heading(1, Content::text("body")), Label("sec".to_string())),
             ]
             .into(),
         );

@@ -468,15 +468,9 @@ mod tests {
             introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, _ctx| {
                 Ok(Content::Sequence(
                     vec![
-                        Content::Labelled {
-                            label:  Label("intro".to_string()),
-                            target: Box::new(Content::heading(1, Content::text("um"))),
-                        },
+                        Content::labelled(Content::heading(1, Content::text("um")), Label("intro".to_string())),
                         Content::heading(1, Content::text("dois")),
-                        Content::Labelled {
-                            label:  Label("subsec".to_string()),
-                            target: Box::new(Content::heading(2, Content::text("tres"))),
-                        },
+                        Content::labelled(Content::heading(2, Content::text("tres")), Label("subsec".to_string())),
                     ]
                     .into(),
                 ))

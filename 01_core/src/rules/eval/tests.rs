@@ -2071,8 +2071,8 @@ mod tests {
             _ => panic!("esperado Labelled ou Sequence, obtido: {:?}", content),
         };
         assert!(
-            matches!(labelled, Content::Labelled { target, label: Label(s) }
-                if matches!(target.as_ref(), Content::Heading(_)) && s == "meu_label"),
+            matches!(labelled, Content::Labelled(e)
+                if matches!(&e.target, Content::Heading(_)) && e.label.0 == "meu_label"),
             "esperado Labelled(Heading), obtido: {:?}", labelled
         );
     }

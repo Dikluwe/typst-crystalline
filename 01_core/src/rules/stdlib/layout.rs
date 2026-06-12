@@ -1079,12 +1079,14 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         None      => None,
     };
 
-    Ok(Value::Content(Content::Boxed {
-        body: Box::new(body),
-        width, height, inset, baseline,
-        outset, radius, clip,
-        fill, stroke,
-    }))
+    Ok(Value::Content(Content::Boxed(std::sync::Arc::new(
+        crate::entities::elements::boxed::BoxedElem {
+            body,
+            width, height, inset, baseline,
+            outset, radius, clip,
+            fill, stroke,
+        },
+    ))))
 }
 
 // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ──────────────────────

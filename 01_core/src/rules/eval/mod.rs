@@ -324,10 +324,7 @@ fn eval_markup(
                         trailing.push(parts.pop().unwrap());
                     }
                     if let Some(last) = parts.pop() {
-                        parts.push(Content::Labelled {
-                            target: Box::new(last),
-                            label:  Label(name),
-                        });
+                        parts.push(Content::labelled(last, Label(name)));
                         trailing.reverse();
                         parts.extend(trailing);
                     }

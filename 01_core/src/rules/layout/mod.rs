@@ -841,8 +841,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             // Passo 60 — Labelled e Ref delegados a references.rs (Passo 61).
             // Passo 63 — label passada para registo de página.
-            Content::Labelled { target, label } => {
-                references::layout_labelled(self, target, label);
+            Content::Labelled(e) => {
+                references::layout_labelled(self, &e.target, &e.label);
             }
 
             Content::Ref(e) => {
@@ -1484,7 +1484,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P231 — Boxed +3 cosméticos cosméticos armazenados mas semantic real
             // adiada (outset visual ainda não aplicado; radius/clip primitivos
             // baseline ausentes — pattern N=5 → 7 cumulativo).
-            Content::Boxed { body, width, height, inset, baseline, outset, radius, clip, fill, stroke } => {
+            Content::Boxed(e) => {
+                let (body, width, height, inset, baseline, outset, radius, clip, fill, stroke) =
+                    (&e.body, &e.width, &e.height, &e.inset, &e.baseline, &e.outset, &e.radius, &e.clip, &e.fill, &e.stroke);
                 let font = self.font_size_pt.val();
                 let inset_left  = inset.left.resolve_pt(font);
                 let inset_right = inset.right.resolve_pt(font);
@@ -2438,7 +2440,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 156H: Boxed (Box inline) dimensões para grid
             // measurement. Análogo a Block (mesma lógica width/height/
             // inset; baseline ignorado em medição).
-            Content::Boxed { body, width, height, inset, baseline: _, outset: _, radius: _, clip: _, fill: _, stroke: _ } => {
+            Content::Boxed(e) => {
+                let (body, width, height, inset) = (&e.body, &e.width, &e.height, &e.inset);
                 let font = self.font_size_pt.val();
                 let inset_l = inset.left.resolve_pt(font);
                 let inset_r = inset.right.resolve_pt(font);

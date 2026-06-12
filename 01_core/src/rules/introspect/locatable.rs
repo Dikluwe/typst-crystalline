@@ -114,7 +114,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Linebreak(_)
         | Content::MathMatrix(_)
         | Content::MathCases(_)
-        | Content::Labelled { .. }
+        | Content::Labelled(_)
         | Content::Ref(_)
         | Content::CounterDisplay(_)
         | Content::SetFigureNumbering { .. }
@@ -146,7 +146,7 @@ pub fn is_locatable(content: &Content) -> bool {
         // P220: Colbreak não-locatable (event leaf; paridade Pagebreak).
         | Content::Colbreak(_)
         | Content::Stack(_)
-        | Content::Boxed { .. }
+        | Content::Boxed(_)
         | Content::Block { .. }
         | Content::TableCell(_)
         | Content::TableHeader { .. }
@@ -234,10 +234,7 @@ mod tests {
         // mechanism em walk). Esta é uma propriedade da função pura
         // is_locatable: olha apenas para o nó actual, não para
         // children.
-        let c = Content::Labelled {
-            target: Box::new(Content::heading(1, Content::Empty)),
-            label:  crate::entities::label::Label("x".to_string()),
-        };
+        let c = Content::labelled(Content::heading(1, Content::Empty), crate::entities::label::Label("x".to_string()));
         assert!(!is_locatable(&c));
     }
 
@@ -258,10 +255,7 @@ mod tests {
             Content::Text(EcoString::from("t"), Default::default()),
             Content::Space,
             Content::Sequence(std::sync::Arc::from(vec![Content::Empty])),
-            Content::Labelled {
-                target: Box::new(Content::Empty),
-                label:  crate::entities::label::Label("x".to_string()),
-            },
+            Content::labelled(Content::Empty, crate::entities::label::Label("x".to_string())),
             Content::reference(crate::entities::label::Label("y".to_string())),
             Content::outline(),
             Content::linebreak(),

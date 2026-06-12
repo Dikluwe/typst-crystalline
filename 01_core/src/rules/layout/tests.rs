@@ -1020,10 +1020,7 @@ fn layout_ref_para_tras_resolve_secao() {
     use crate::entities::label::Label;
 
     let content = Content::Sequence(vec![
-        Content::Labelled {
-            label:  Label("intro".to_string()),
-            target: Box::new(Content::heading(1, Content::text("Introdução"))),
-        },
+        Content::labelled(Content::heading(1, Content::text("Introdução")), Label("intro".to_string())),
         Content::text("Como vimos em"),
         Content::reference(Label("intro".to_string())),
     ].into());
@@ -1044,10 +1041,7 @@ fn layout_ref_para_frente_resolve_com_duas_passagens() {
     let content = Content::Sequence(vec![
         // Ref aparece antes da Label — forward reference
         Content::reference(Label("conclusao".to_string())),
-        Content::Labelled {
-            label:  Label("conclusao".to_string()),
-            target: Box::new(Content::heading(1, Content::text("Conclusão"))),
-        },
+        Content::labelled(Content::heading(1, Content::text("Conclusão")), Label("conclusao".to_string())),
     ].into());
 
     let doc = layout(&content);
@@ -1068,10 +1062,7 @@ fn layout_resolved_labels_nao_interfere_entre_documentos() {
     use crate::entities::label::Label;
     use crate::rules::introspect::introspect_with_introspector;
 
-    let content_a = Content::Labelled {
-        label:  Label("sec".to_string()),
-        target: Box::new(Content::heading(1, Content::text("A"))),
-    };
+    let content_a = Content::labelled(Content::heading(1, Content::text("A")), Label("sec".to_string()));
     let _ = layout(&content_a);
 
     // Segundo layout independente — não deve ter "sec" resolvida
@@ -1095,10 +1086,7 @@ fn pipeline_duas_passagens_resolve_forward_ref() {
         Content::text("Ver a"),
         Content::reference(Label("conclusao".to_string())),
         Content::text("."),
-        Content::Labelled {
-            label:  Label("conclusao".to_string()),
-            target: Box::new(Content::heading(1, Content::text("Conclusão"))),
-        },
+        Content::labelled(Content::heading(1, Content::text("Conclusão")), Label("conclusao".to_string())),
     ].into());
 
     // Passagem 1 — verificar que introspect resolve forward ref via
@@ -1224,10 +1212,7 @@ fn layout_ref_para_figura_resolve_corretamente() {
 
     let content = Content::Sequence(
         vec![
-            Content::Labelled {
-                label:  Label("fig1".to_string()),
-                target: Box::new(Content::figure(Content::text("Gráfico"), Some(Content::text("Legenda")), Some("image".to_string()), Some("1".to_string()))),
-            },
+            Content::labelled(Content::figure(Content::text("Gráfico"), Some(Content::text("Legenda")), Some("image".to_string()), Some("1".to_string())), Label("fig1".to_string())),
             Content::text(" — ver "),
             Content::reference(Label("fig1".to_string())),
         ]
@@ -1251,10 +1236,7 @@ fn layout_regista_pagina_de_label() {
     use crate::entities::label::Label;
 
     let content = Content::Sequence(vec![
-        Content::Labelled {
-            label:  Label("sec1".to_string()),
-            target: Box::new(Content::heading(1, Content::text("Introdução"))),
-        },
+        Content::labelled(Content::heading(1, Content::text("Introdução")), Label("sec1".to_string())),
     ].into());
 
     let state = introspect(&content);
@@ -1270,10 +1252,7 @@ fn layout_regista_pagina_de_label() {
 fn layout_pagina_de_label_e_um_indexed() {
     use crate::entities::label::Label;
 
-    let content = Content::Labelled {
-        label:  Label("top".to_string()),
-        target: Box::new(Content::text("No topo")),
-    };
+    let content = Content::labelled(Content::text("No topo"), Label("top".to_string()));
 
     let state = introspect(&content);
     let doc = layout(&content);
@@ -1373,10 +1352,7 @@ fn layout_com_labels_produz_extracted_label_pages() {
     use crate::entities::label::Label;
 
     let content = Content::Sequence(vec![
-        Content::Labelled {
-            label:  Label("sec1".to_string()),
-            target: Box::new(Content::heading(1, Content::text("Secção"))),
-        },
+        Content::labelled(Content::heading(1, Content::text("Secção")), Label("sec1".to_string())),
     ].into());
 
     let state = introspect(&content);
@@ -3504,8 +3480,7 @@ mod tests_show_rule_integration {
     #[test]
     fn p231_boxed_cosmeticos_paridade_block() {
         use crate::entities::sides::Sides;
-        let b = Content::Boxed {
-            body:     Box::new(Content::text("p231boxed")),
+        let b = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("p231boxed"),
             width:    None,
             height:   None,
             inset:    Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
@@ -3515,7 +3490,7 @@ mod tests_show_rule_integration {
             radius:   crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(1.0)),
             clip:     false,
             fill:     None,
-            stroke:   None,        };
+            stroke:   None}));
         let doc = layout(&b);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -3711,8 +3686,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let boxed = Content::Boxed {
-            body:     Box::new(Content::text("p243boxed")),
+        let boxed = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("p243boxed"),
             width:    Some(Length::pt(80.0)),  // Boxed.width efectivo P243.
             height:   None,
             inset:    Sides::uniform(Length::pt(0.0)),
@@ -3721,7 +3695,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     false,
             fill:     None,
-            stroke:   None,        };
+            stroke:   None}));
         let doc = layout(&boxed);
         let mut texts = String::new();
         for page in doc.pages.iter() {
@@ -3973,8 +3947,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Color, Length};
-        let b = Content::Boxed {
-            body:     Box::new(Content::text("p247boxfill")),
+        let b = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("p247boxfill"),
             width:    Some(Length::pt(30.0)),
             height:   None,
             inset:    Sides::uniform(Length::pt(0.0)),
@@ -3983,7 +3956,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     false,
             fill:     Some(Color::rgb(70, 140, 210)),
-            stroke:   None,        };
+            stroke:   None}));
         let doc = layout(&b);
         let mut found_shape_with_fill = false;
         for page in doc.pages.iter() {
@@ -4184,8 +4157,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let b = Content::Boxed {
-            body:     Box::new(Content::text("p248bxnone")),
+        let b = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("p248bxnone"),
             width:    None,
             height:   None,
             inset:    Sides::uniform(Length::pt(0.0)),
@@ -4194,7 +4166,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     true,  // clip aceita mas height None → sem overflow handling
             fill:     None,
-            stroke:   None,        };
+            stroke:   None}));
         let doc = layout(&b);
         // Sem Group por height overflow (height None).
         let mut found_overflow_group = false;
@@ -4218,8 +4190,7 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::Length;
         // Body com height natural > 5pt (line_height ~12pt default);
         // height=5pt força overflow.
-        let b = Content::Boxed {
-            body:     Box::new(Content::text("p248bxovf")),
+        let b = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("p248bxovf"),
             width:    Some(Length::pt(50.0)),
             height:   Some(Length::pt(5.0)),
             inset:    Sides::uniform(Length::pt(0.0)),
@@ -4228,7 +4199,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     true,
             fill:     None,
-            stroke:   None,        };
+            stroke:   None}));
         let doc = layout(&b);
         let mut found_clip_group = false;
         for page in doc.pages.iter() {
@@ -4251,8 +4222,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let b = Content::Boxed {
-            body:     Box::new(Content::text("p248bxnoc")),
+        let b = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("p248bxnoc"),
             width:    Some(Length::pt(50.0)),
             height:   Some(Length::pt(5.0)),
             inset:    Sides::uniform(Length::pt(0.0)),
@@ -4261,7 +4231,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     false,
             fill:     None,
-            stroke:   None,        };
+            stroke:   None}));
         let doc = layout(&b);
         // Verificar que NÃO foi adicionado Group com inner_height=5
         // (clip=false não wrap).
@@ -4285,8 +4255,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let b = Content::Boxed {
-            body:     Box::new(Content::text("x")),  // texto curto < height
+        let b = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("x"),  // texto curto < height
             width:    Some(Length::pt(50.0)),
             height:   Some(Length::pt(100.0)),       // muito maior que body natural
             inset:    Sides::uniform(Length::pt(0.0)),
@@ -4295,7 +4264,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     true,
             fill:     None,
-            stroke:   None,        };
+            stroke:   None}));
         let doc = layout(&b);
         let mut found_overflow_group = false;
         for page in doc.pages.iter() {
@@ -4554,8 +4523,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Color, Length};
-        let b = Content::Boxed {
-            body:     Box::new(Content::text("p248cross")),
+        let b = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("p248cross"),
             width:    Some(Length::pt(40.0)),
             height:   Some(Length::pt(8.0)),
             inset:    Sides::uniform(Length::pt(0.0)),
@@ -4564,7 +4532,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     true,
             fill:     Some(Color::rgb(150, 50, 200)),
-            stroke:   None,        };
+            stroke:   None}));
         let doc = layout(&b);
         let mut found_fill = false;
         let mut found_clip = false;
@@ -4689,8 +4657,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let b = Content::Boxed {
-            body:     Box::new(Content::text("inset")),
+        let b = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("inset"),
             width:    Some(Length::pt(40.0)),
             height:   Some(Length::pt(6.0)),
             inset:    Sides::uniform(Length::pt(2.0)),
@@ -4699,7 +4666,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip:     true,
             fill:     None,
-            stroke:   None,        };
+            stroke:   None}));
         let doc = layout(&b);
         let mut found_clip = false;
         for page in doc.pages.iter() {
@@ -4754,8 +4721,7 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let mk = |clip: bool| Content::Boxed {
-            body:     Box::new(Content::text("diff")),
+        let mk = |clip: bool| Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("diff"),
             width:    Some(Length::pt(40.0)),
             height:   Some(Length::pt(4.0)),  // line_height > 4pt
             inset:    Sides::uniform(Length::pt(0.0)),
@@ -4764,7 +4730,7 @@ mod tests_show_rule_integration {
             radius:   Corners::uniform(Length::ZERO),
             clip,
             fill:     None,
-            stroke:   None,        };
+            stroke:   None}));
         let count_clip_groups = |c: Content| -> usize {
             let doc = layout(&c);
             doc.pages.iter().flat_map(|p| p.items.iter())
@@ -5759,8 +5725,7 @@ mod tests_show_rule_integration {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::{Color, Length};
         use crate::entities::geometry::Stroke;
-        let b = Content::Boxed {
-            body:     Box::new(Content::text("p252box")),
+        let b = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("p252box"),
             width:    Some(Length::pt(40.0)),
             height:   Some(Length::pt(20.0)),
             inset:    Sides::uniform(Length::pt(0.0)),
@@ -5773,8 +5738,7 @@ mod tests_show_rule_integration {
                 paint: Paint::Solid(Color::rgb(0, 0, 0)),
                 thickness: 6.0,
                 overhang: true,
-            }),
-        };
+            })}));
         let doc = layout(&b);
         let mut shape_w = 0.0_f64;
         for page in doc.pages.iter() {
@@ -7224,10 +7188,7 @@ mod p168_figure_ref_migration {
         let figure = Content::figure(Content::text("body"), if with_caption { Some(Content::text("cap")) } else { None }, kind, if with_numbering { Some("1".into()) } else { None });
         Content::Sequence(
             vec![
-                Content::Labelled {
-                    label:  Label(label_str.to_string()),
-                    target: Box::new(figure),
-                },
+                Content::labelled(figure, Label(label_str.to_string())),
                 Content::text("ver "),
                 Content::reference(Label(label_str.to_string())),
             ]
@@ -8629,10 +8590,7 @@ mod p189b_walk_puro_m5 {
         // Field legacy `state.resolved_labels` eliminado.
         let content = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
-            Content::Labelled {
-                target: Box::new(Content::heading(1, Content::text("X"))),
-                label:  crate::entities::label::Label("intro".to_string()),
-            },
+            Content::labelled(Content::heading(1, Content::text("X")), crate::entities::label::Label("intro".to_string())),
         ]));
         let intr = introspect_with_introspector(&content);
         assert!(intr.resolved_labels.get(
@@ -8688,10 +8646,7 @@ mod p194b_c4_resolved_label {
         // Labelled (E4 P189B excepção).
         Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
-            Content::Labelled {
-                target: Box::new(Content::heading(1, Content::text("Intro"))),
-                label:  lbl(label_name),
-            },
+            Content::labelled(Content::heading(1, Content::text("Intro")), lbl(label_name)),
             Content::reference(lbl(label_name)),
         ]))
     }
@@ -8798,10 +8753,7 @@ mod p195d_walk_labelled {
     fn labelled_walk_emite_tag_e_popula_introspector() {
         let content = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
-            Content::Labelled {
-                target: Box::new(Content::heading(1, Content::text("Intro"))),
-                label:  lbl("intro"),
-            },
+            Content::labelled(Content::heading(1, Content::text("Intro")), lbl("intro")),
         ]));
 
         let intr = introspect_with_introspector(&content);
@@ -8824,10 +8776,7 @@ mod p195d_walk_labelled {
     fn labelled_paridade_observable_legacy_vs_introspector() {
         let content = Content::Sequence(Arc::from(vec![
             Content::SetHeadingNumbering { active: true },
-            Content::Labelled {
-                target: Box::new(Content::heading(1, Content::text("Intro"))),
-                label:  lbl("intro"),
-            },
+            Content::labelled(Content::heading(1, Content::text("Intro")), lbl("intro")),
             Content::reference(lbl("intro")),
         ]));
 
@@ -8851,10 +8800,7 @@ mod p195d_walk_labelled {
     #[test]
     fn labelled_figure_target_popula_figure_label_numbers() {
         let content = Content::Sequence(Arc::from(vec![
-            Content::Labelled {
-                target: Box::new(Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".into()), Some("1".into()))),
-                label:  lbl("fig1"),
-            },
+            Content::labelled(Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".into()), Some("1".into())), lbl("fig1")),
         ]));
 
         let intr = introspect_with_introspector(&content);
@@ -8873,10 +8819,7 @@ mod p195d_walk_labelled {
         // Target = Text (sem numeração); compute_labelled retorna
         // (None, None); Tag não emitida; sub-store não populated.
         let content = Content::Sequence(Arc::from(vec![
-            Content::Labelled {
-                target: Box::new(Content::text("not numbered")),
-                label:  lbl("foo"),
-            },
+            Content::labelled(Content::text("not numbered"), lbl("foo")),
         ]));
 
         let intr = introspect_with_introspector(&content);
@@ -8910,8 +8853,7 @@ mod p273_7_boxed_parent_bbox {
     }
 
     fn boxed_dimensioned(body: Content, w_pt: f64, h_pt: f64) -> Content {
-        Content::Boxed {
-            body:     Box::new(body),
+        Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: body,
             width:    Some(Length { abs: Abs(w_pt), em: 0.0 }),
             height:   Some(Length { abs: Abs(h_pt), em: 0.0 }),
             inset:    Sides::uniform(Length::ZERO),
@@ -8920,13 +8862,11 @@ mod p273_7_boxed_parent_bbox {
             radius:   Corners::uniform(Length::ZERO),
             clip:     false,
             fill:     None,
-            stroke:   None,
-        }
+            stroke:   None}))
     }
 
     fn boxed_dimensionless(body: Content) -> Content {
-        Content::Boxed {
-            body:     Box::new(body),
+        Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: body,
             width:    None,
             height:   None,
             inset:    Sides::uniform(Length::ZERO),
@@ -8935,8 +8875,7 @@ mod p273_7_boxed_parent_bbox {
             radius:   Corners::uniform(Length::ZERO),
             clip:     false,
             fill:     None,
-            stroke:   None,
-        }
+            stroke:   None}))
     }
 
     /// Helper: colecciona todos os FrameItem::Shape (recursivo em Group)
@@ -9056,8 +8995,7 @@ mod p273_7_boxed_parent_bbox {
     fn p273_7_boxed_own_shape_uses_outer_parent_bbox() {
         use crate::entities::layout_types::Color;
         let body = Content::text("X"); // qualquer body simples
-        let boxed = Content::Boxed {
-            body:     Box::new(body),
+        let boxed = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: body,
             width:    Some(Length { abs: Abs(150.0), em: 0.0 }),
             height:   Some(Length { abs: Abs(40.0), em: 0.0 }),
             inset:    Sides::uniform(Length::ZERO),
@@ -9066,8 +9004,7 @@ mod p273_7_boxed_parent_bbox {
             radius:   Corners::uniform(Length::ZERO),
             clip:     false,
             fill:     Some(Color::rgb(255, 0, 0)),
-            stroke:   None,
-        };
+            stroke:   None}));
         let content = Content::Sequence(Arc::from(vec![boxed]));
         let doc = layout(&content);
         let bboxes = shape_parent_bboxes(&doc);

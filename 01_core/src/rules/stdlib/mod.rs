@@ -3433,8 +3433,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("fill".into(), Value::Color(Color::rgb(0, 255, 0)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { fill, .. }) = r {
-            assert_eq!(fill, Some(Color::rgb(0, 255, 0)));
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert_eq!(e.fill, Some(Color::rgb(0, 255, 0)));
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3448,8 +3448,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("stroke".into(), Value::Color(Color::rgb(0, 0, 255)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { stroke, .. }) = r {
-            let s = stroke.expect("stroke deveria ser Some");
+        if let Value::Content(Content::Boxed(e)) = r {
+            let s = e.stroke.clone().expect("stroke deveria ser Some");
             assert_eq!(s.paint, Paint::Solid(Color::rgb(0, 0, 255)));
             assert_eq!(s.thickness, 1.0, "Color shorthand default 1pt thickness");
         } else {
@@ -3461,9 +3461,9 @@ mod tests {
     fn p247_native_box_fill_default_none() {
         null_ctx!(ctx);
         let r = native_box(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { fill, stroke, .. }) = r {
-            assert_eq!(fill, None);
-            assert!(stroke.is_none());
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert_eq!(e.fill, None);
+            assert!(e.stroke.is_none());
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3539,9 +3539,9 @@ mod tests {
         args.named.insert("height".into(), Value::Length(Length::pt(50.0)));
         args.named.insert("clip".into(),   Value::Bool(true));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { height, clip, .. }) = r {
-            assert_eq!(height, Some(Length::pt(50.0)));
-            assert_eq!(clip,   true);
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert_eq!(e.height, Some(Length::pt(50.0)));
+            assert_eq!(e.clip,   true);
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3551,9 +3551,9 @@ mod tests {
     fn p248_native_box_height_default_none_p156h() {
         null_ctx!(ctx);
         let r = native_box(&mut ctx, &p(vec![Value::Content(Content::text("x"))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { height, clip, .. }) = r {
-            assert_eq!(height, None);
-            assert_eq!(clip,   false, "P248 — defaults preservados P156H");
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert_eq!(e.height, None);
+            assert_eq!(e.clip,   false, "P248 — defaults preservados P156H");
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3748,12 +3748,12 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let r = native_box(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { body, width, height, inset, baseline, .. }) = r {
-            assert_eq!(body.plain_text(), "body");
-            assert_eq!(width,  None);
-            assert_eq!(height, None);
-            assert_eq!(inset.left, Length::ZERO);
-            assert_eq!(baseline, Length::ZERO);
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert_eq!(e.body.plain_text(), "body");
+            assert_eq!(e.width,  None);
+            assert_eq!(e.height, None);
+            assert_eq!(e.inset.left, Length::ZERO);
+            assert_eq!(e.baseline, Length::ZERO);
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3763,8 +3763,8 @@ mod tests {
     fn native_box_sem_body_aceita_empty() {
         null_ctx!(ctx);
         let r = native_box(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { body, .. }) = r {
-            assert!(body.is_empty());
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert!(e.body.is_empty());
         } else {
             panic!("esperado Content::Boxed com body Empty");
         }
@@ -3777,8 +3777,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("width".into(), Value::Length(Length::pt(80.0)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { width, .. }) = r {
-            assert_eq!(width, Some(Length::pt(80.0)));
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert_eq!(e.width, Some(Length::pt(80.0)));
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3791,8 +3791,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("height".into(), Value::Int(20));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { height, .. }) = r {
-            assert_eq!(height, Some(Length::pt(20.0)));
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert_eq!(e.height, Some(Length::pt(20.0)));
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3805,11 +3805,11 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("inset".into(), Value::Length(Length::pt(4.0)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { inset, .. }) = r {
-            assert_eq!(inset.left,   Length::pt(4.0));
-            assert_eq!(inset.right,  Length::pt(4.0));
-            assert_eq!(inset.top,    Length::pt(4.0));
-            assert_eq!(inset.bottom, Length::pt(4.0));
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert_eq!(e.inset.left,   Length::pt(4.0));
+            assert_eq!(e.inset.right,  Length::pt(4.0));
+            assert_eq!(e.inset.top,    Length::pt(4.0));
+            assert_eq!(e.inset.bottom, Length::pt(4.0));
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3822,8 +3822,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("baseline".into(), Value::Length(Length::pt(3.0)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { baseline, .. }) = r {
-            assert_eq!(baseline, Length::pt(3.0));
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert_eq!(e.baseline, Length::pt(3.0));
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3838,8 +3838,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("baseline".into(), Value::Length(Length::pt(-5.0)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { baseline, .. }) = r {
-            assert_eq!(baseline, Length::pt(-5.0));
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert_eq!(e.baseline, Length::pt(-5.0));
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3855,11 +3855,11 @@ mod tests {
         args.named.insert("inset".into(),    Value::Length(Length::pt(2.0)));
         args.named.insert("baseline".into(), Value::Length(Length::pt(1.0)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { width, height, inset, baseline, .. }) = r {
-            assert_eq!(width,  Some(Length::pt(100.0)));
-            assert_eq!(height, Some(Length::pt(30.0)));
-            assert_eq!(inset.top, Length::pt(2.0));
-            assert_eq!(baseline, Length::pt(1.0));
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert_eq!(e.width,  Some(Length::pt(100.0)));
+            assert_eq!(e.height, Some(Length::pt(30.0)));
+            assert_eq!(e.inset.top, Length::pt(2.0));
+            assert_eq!(e.baseline, Length::pt(1.0));
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -4093,7 +4093,7 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("baseline".into(), Value::Length(Length::pt(2.0)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Boxed { .. })));
+        assert!(matches!(r, Value::Content(Content::Boxed(e))));
         // Pad
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("rest".into(), Value::Length(Length::pt(2.0)));
@@ -4244,7 +4244,7 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("baseline".into(), Value::Length(Length::pt(2.0)));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Boxed { .. })));
+        assert!(matches!(r, Value::Content(Content::Boxed(e))));
         // Pad
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("rest".into(), Value::Length(Length::pt(2.0)));
@@ -5251,11 +5251,11 @@ mod tests {
         args.named.insert("clip".into(),   Value::Bool(true));
         let r = native_box(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { outset, radius, clip, .. }) = r {
-            assert_eq!(outset.top, Length::pt(2.0));
-            // P242 adapta: radius `Corners<Length>` via uniform.
-            assert_eq!(radius.top_left, Length::pt(1.0));
-            assert_eq!(clip, true);
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert_eq!(e.outset.top, Length::pt(2.0));
+            // P242 adapta: e.radius `Corners<Length>` via uniform.
+            assert_eq!(e.radius.top_left, Length::pt(1.0));
+            assert_eq!(e.clip, true);
         } else { panic!("esperado Boxed"); }
     }
 
@@ -5986,11 +5986,11 @@ mod tests {
         args.named.insert("radius".into(), Value::Dict(d));
         let r = native_box(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Boxed { radius, .. }) = r {
-            assert_eq!(radius.top_left,     Length::pt(7.0));
-            assert_eq!(radius.top_right,    Length::pt(0.0));
-            assert_eq!(radius.bottom_right, Length::pt(0.0));
-            assert_eq!(radius.bottom_left,  Length::pt(0.0));
+        if let Value::Content(Content::Boxed(e)) = r {
+            assert_eq!(e.radius.top_left,     Length::pt(7.0));
+            assert_eq!(e.radius.top_right,    Length::pt(0.0));
+            assert_eq!(e.radius.bottom_right, Length::pt(0.0));
+            assert_eq!(e.radius.bottom_left,  Length::pt(0.0));
         } else { panic!("esperado Boxed"); }
     }
 

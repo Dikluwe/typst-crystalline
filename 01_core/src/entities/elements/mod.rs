@@ -93,6 +93,9 @@ pub mod grid_cell;
 pub mod grid;
 // Lote 13 P328 — o último element-shaped.
 pub mod figure;
+// Lote 14 P329 — reclassificados da triagem DEBT-58 (wrappers densos).
+pub mod labelled;
+pub mod boxed;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;

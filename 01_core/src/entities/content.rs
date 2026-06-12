@@ -96,6 +96,8 @@ use crate::entities::elements::table::TableElem;
 use crate::entities::elements::grid_cell::GridCellElem;
 use crate::entities::elements::grid::GridElem;
 use crate::entities::elements::figure::FigureElem;
+use crate::entities::elements::labelled::LabelledElem;
+use crate::entities::elements::boxed::BoxedElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -310,10 +312,10 @@ pub enum Content {
     /// Nó com etiqueta semântica (Passo 56).
     /// A `Label` é metainformação pura — não tem presença visual.
     /// Produzida por `= Título <label>` ou `#figure(...) <label>`.
-    Labelled {
-        target: Box<Content>,
-        label:  Label,
-    },
+    /// **Modelo D (Lote 14 P329)**: `entities::elements::labelled::LabelledElem`
+    /// (wrapper de label; recurse target; payload emitido pelo walk arm em
+    /// pós-recursão, P195B — não-locatável no trait).
+    Labelled(Arc<LabelledElem>),
 
     /// Referência cruzada (Passo 56).
     /// Enquanto não existe motor de introspecção, renderiza literalmente `@nome`.
@@ -701,48 +703,10 @@ pub enum Content {
     /// Naming: variant Rust é `Boxed` (não `Box`) para evitar confusão
     /// com `std::boxed::Box`; stdlib expõe `#box(...)` (paridade
     /// vanilla). Construtor Rust: `Content::boxed(...)`.
-    Boxed {
-        body:     Box<Content>,
-        /// Largura explícita; `None` == content-based.
-        width:    Option<Length>,
-        /// Altura explícita; `None` == auto.
-        height:   Option<Length>,
-        /// Margem interna em quatro lados.
-        inset:    Sides<Length>,
-        /// Ajuste vertical da baseline; positivo move para baixo.
-        /// Semantic real adiada se layouter actual não suporta
-        /// (consistente com `breakable: false` em Block).
-        baseline: Length,
-        /// P231 — outset uniforme paralelo Block (pattern "refino
-        /// aditivo paralelo entre variants irmãos" N=3 → 4 cumulativo).
-        outset:   Sides<Length>,
-        /// **P242 (M9d / M7+5)** — radius per-corner via `Corners<Length>`
-        /// refino face P231 (`Option<Length>` → `Corners<Length>`).
-        /// Default `Corners::uniform(Length::ZERO)` preserva semantic
-        /// pre-P242. stdlib `box(radius:)` aceita Length uniforme
-        /// (uniform) OR Dict por canto (helper `extract_corners_lengths`).
-        radius:   crate::entities::corners::Corners<Length>,
-        /// **P242 (M9d / M7+5)** — clip overflow real. Quando `true` E
-        /// `radius != Corners::default()`, Layouter emite
-        /// `FrameItem::Group` com `clip_mask: Some(ShapeKind::RoundedRect
-        /// { radii: radius })`; PDF exporter desenha Bezier 4 corners
-        /// path. Quando `true` + radius zero, `clip_mask` é `Rect`
-        /// (paridade DEBT-30 P79). Semantic materializada P242.
-        clip:     bool,
-        /// **P247 (M9d / M7+5; ADR-0079 Categoria A.4)** — fill da caixa
-        /// visual. `Some(c)` emite `FrameItem::Shape { fill: Some(c), .. }`
-        /// antes do body (Z-order: fill atrás do conteúdo). `None` ==
-        /// sem fill. Promoção real scope-out ADR-0054 graded (paridade
-        /// pattern P242 radius/clip). Type `Color` (não `Paint`; Paint
-        /// enum não existe — Stroke já usa Color directo per
-        /// `geometry.rs:24`).
-        fill:     Option<crate::entities::layout_types::Color>,
-        /// **P247 (M9d / M7+5; ADR-0079 Categoria A.4)** — stroke da caixa
-        /// visual. `Some(s)` emite `FrameItem::Shape { stroke: Some(s),
-        /// .. }` antes do body. `None` == sem stroke. Promoção real
-        /// scope-out ADR-0054 graded paridade fill. Reusa `Stroke` de
-        /// `geometry.rs:24`.
-        stroke:   Option<crate::entities::geometry::Stroke>,    },
+    /// **Modelo D (Lote 14 P329)**: `entities::elements::boxed::BoxedElem`
+    /// (não-locatável, contentor — recurse body; 9 cosméticos de caixa; o
+    /// construtor `boxed` cobre 5 → construções completas via Arc-wrap, C2).
+    Boxed(Arc<BoxedElem>),
 
     // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block container ───────
     /// Container block — vanilla `BlockElem`.
@@ -1331,6 +1295,11 @@ impl Content {
     }
 
     // ── Construtores ergonómicos família state/counter (Modelo D, Lote 6 P321) ──
+    /// **Lote 14 P329** — `Content::Labelled` (wrapper de label).
+    pub fn labelled(target: Content, label: Label) -> Self {
+        Self::Labelled(Arc::new(LabelledElem { target, label }))
+    }
+
     /// **Lote 13 P328** — `Content::Figure` (figura locatável M1).
     pub fn figure(
         body:      Content,
@@ -1398,14 +1367,16 @@ impl Content {
         inset:    Sides<Length>,
         baseline: Length,
     ) -> Self {
-        Self::Boxed { body: Box::new(body), width, height, inset, baseline,
-                      outset: Sides::new(Length::pt(0.0), Length::pt(0.0), Length::pt(0.0), Length::pt(0.0)),
-                      // P242 — radius `Corners<Length>` substitui `Option<Length>` P231.
-                      radius: crate::entities::corners::Corners::uniform(Length::ZERO),
-                      clip: false,
-                      // P247 — fill/stroke default `None` paralelo Block.
-                      fill: None,
-                      stroke: None }
+        Self::Boxed(Arc::new(BoxedElem {
+            body, width, height, inset, baseline,
+            outset: Sides::new(Length::pt(0.0), Length::pt(0.0), Length::pt(0.0), Length::pt(0.0)),
+            // P242 — radius `Corners<Length>` substitui `Option<Length>` P231.
+            radius: crate::entities::corners::Corners::uniform(Length::ZERO),
+            clip: false,
+            // P247 — fill/stroke default `None` paralelo Block.
+            fill: None,
+            stroke: None,
+        }))
     }
 
     /// `stack(dir, spacing, ..children)` — Passo 156I (ADR-0061 Fase 2
@@ -1570,7 +1541,7 @@ impl Content {
         match self {
             Self::Empty => true,
             Self::Sequence(v) => v.is_empty(),
-            Self::Labelled { target, .. } => target.is_empty(),
+            Self::Labelled(e) => e.is_empty(),
             // Figura: não está vazia se tiver body OU caption com conteúdo.
             Self::Figure(e) => e.is_empty(),
             Self::Grid(e) => e.is_empty(),
@@ -1632,7 +1603,7 @@ impl Content {
             // semanticamente — análogo a Pad em P156C).
             Self::Block { body, .. } => body.is_empty(),
             // Passo 156H: Boxed (Box inline) — proxy análogo a Block.
-            Self::Boxed { body, .. } => body.is_empty(),
+            Self::Boxed(e) => e.is_empty(),
             // Passo 156I: Stack é vazio se TODOS os children forem vazios
             // (consistente com Sequence; stack vazio é semanticamente
             // sem conteúdo).
@@ -1697,7 +1668,7 @@ impl Content {
             Self::MathOp(e)         => e.plain_text(),
             // P311b.2 — MathStyled é transparente para plain_text (wraps body).
             Self::MathStyled(m) => m.plain_text(),
-            Self::Labelled { target, .. } => target.plain_text(),
+            Self::Labelled(e) => e.plain_text(),
             Self::Ref(e)                  => e.plain_text(),
             Self::SetHeadingNumbering { .. } => String::new(),
             Self::SetEquationNumbering { .. } => String::new(),
@@ -1765,7 +1736,7 @@ impl Content {
             // no body; análogo a Pad em P156C).
             Self::Block { body, .. } => body.plain_text(),
             // Passo 156H: Boxed (Box) — análogo a Block.
-            Self::Boxed { body, .. } => body.plain_text(),
+            Self::Boxed(e) => e.plain_text(),
             // Passo 156I: Stack concatena plain_text de children
             // (análogo a Sequence; preserva ordem).
             Self::Stack(e) => e.plain_text(),
@@ -1815,8 +1786,8 @@ impl PartialEq for Content {
             (Self::MathOp(a),         Self::MathOp(b))         => a == b,
             // MathStyled PartialEq estrutural (Modelo D P316: delega ao Arc<Elem>).
             (Self::MathStyled(a), Self::MathStyled(b)) => a == b,
-            (Self::Labelled { target: ta, label: la },
-             Self::Labelled { target: tb, label: lb })               => ta == tb && la == lb,
+            // Modelo D (Lote 14 P329): Labelled delega ao `Arc<…Elem>`.
+            (Self::Labelled(a), Self::Labelled(b)) => a == b,
             (Self::Ref(a), Self::Ref(b))     => a == b,
             (Self::SetHeadingNumbering { active: a }, Self::SetHeadingNumbering { active: b }) => a == b,
             (Self::SetEquationNumbering { active: a }, Self::SetEquationNumbering { active: b }) => a == b,
@@ -1901,13 +1872,8 @@ impl PartialEq for Content {
                 && fia == fib && sta == stb
                 && spa == spb && aba == abb && bla == blb && sya == syb,
             // Passo 156H + P231 + P247 — Boxed +5 cosméticos paralelo Block.
-            (Self::Boxed { body: ba, width: wa, height: ha, inset: ia, baseline: ka,
-                            outset: oa, radius: ra, clip: cla, fill: fia, stroke: sta },
-             Self::Boxed { body: bb, width: wb, height: hb, inset: ib, baseline: kb,
-                            outset: ob, radius: rb, clip: clb, fill: fib, stroke: stb }) =>
-                ba == bb && wa == wb && ha == hb && ia == ib && ka == kb
-                && oa == ob && ra == rb && cla == clb
-                && fia == fib && sta == stb,
+            // Modelo D (Lote 14 P329): Boxed delega ao `Arc<…Elem>`.
+            (Self::Boxed(a), Self::Boxed(b)) => a == b,
             // Modelo D (Lote 9 P324): Stack delega ao `Arc<…Elem>`.
             (Self::Stack(a), Self::Stack(b)) => a == b,
             // Modelo D (Lote 7 P322): Repeat delega ao `Arc<…Elem>`.
@@ -1978,10 +1944,7 @@ impl Content {
             Content::ListItem(e) => e.map_content(transform)?,
             Content::EnumItem(e) => e.map_content(transform)?,
             Content::Link(e)     => e.map_content(transform)?,
-            Content::Labelled { target, label } => Content::Labelled {
-                target: Box::new(target.map_content(transform)?),
-                label:  label.clone(),
-            },
+            Content::Labelled(e) => e.map_content(transform)?,
             // Modelo D (Lote 13 P328): Figure container delega ao elemento.
             Content::Figure(e) => e.map_content(transform)?,
             // Content::Equation tem body: Box<Content> → container.
@@ -2051,17 +2014,7 @@ impl Content {
             },
 
             // Passo 156H + P231 + P247: Boxed (Box inline) — recurse análogo a Block; preserva 5 cosméticos.
-            Content::Boxed { body, width, height, inset, baseline, outset, radius, clip, fill, stroke } => Content::Boxed {
-                body:     Box::new(body.map_content(transform)?),
-                width:    *width,
-                height:   *height,
-                inset:    *inset,
-                baseline: *baseline,
-                outset:   *outset,
-                radius:   *radius,
-                clip:     *clip,
-                fill:     *fill,
-                stroke:   stroke.clone(),            },
+            Content::Boxed(e) => e.map_content(transform)?,
 
             // Modelo D (Lote 9 P324): Stack container delega ao elemento.
             Content::Stack(e) => e.map_content(transform)?,
@@ -2181,10 +2134,7 @@ impl Content {
             Content::Heading(h) => h.map_text(transform),
             // Passo 101: Content::Strong/Emph removidos — cobertos pelo
             // arm Content::Styled abaixo (map_text recursivo).
-            Content::Labelled { target, label } => Content::Labelled {
-                target: Box::new(target.map_text(transform)),
-                label:  label.clone(),
-            },
+            Content::Labelled(e) => e.map_text(transform),
             // Modelo D (Lote 13 P328): Figure container delega ao elemento.
             Content::Figure(e) => e.map_text(transform),
             // Modelo D (Lote 3 P318): família lista/termos delega ao elemento
@@ -2232,17 +2182,7 @@ impl Content {
             },
 
             // Passo 156H + P231 + P247: Boxed (Box inline) — recurse análogo a Block; preserva 5 cosméticos.
-            Content::Boxed { body, width, height, inset, baseline, outset, radius, clip, fill, stroke } => Content::Boxed {
-                body:     Box::new(body.map_text(transform)),
-                width:    *width,
-                height:   *height,
-                inset:    *inset,
-                baseline: *baseline,
-                outset:   *outset,
-                radius:   *radius,
-                clip:     *clip,
-                fill:     *fill,
-                stroke:   stroke.clone(),            },
+            Content::Boxed(e) => e.map_text(transform),
 
             // Modelo D (Lote 9 P324): Stack container delega ao elemento.
             Content::Stack(e) => e.map_text(transform),
@@ -3320,12 +3260,12 @@ mod tests {
             Sides::uniform(Length::ZERO),
             Length::ZERO,
         );
-        if let Content::Boxed { body, width, height, inset, baseline, .. } = &b {
-            assert_eq!(body.plain_text(), "body");
-            assert_eq!(*width,  None);
-            assert_eq!(*height, None);
-            assert_eq!(inset.left,  Length::ZERO);
-            assert_eq!(*baseline, Length::ZERO);
+        if let Content::Boxed(e) = &b {
+            assert_eq!(e.body.plain_text(), "body");
+            assert_eq!(e.width,  None);
+            assert_eq!(e.height, None);
+            assert_eq!(e.inset.left,  Length::ZERO);
+            assert_eq!(e.baseline, Length::ZERO);
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3342,11 +3282,11 @@ mod tests {
             Sides::uniform(Length::pt(2.0)),
             Length::pt(-3.0),  // baseline negativo aceito
         );
-        if let Content::Boxed { width, height, inset, baseline, .. } = &b {
-            assert_eq!(*width,  Some(Length::pt(60.0)));
-            assert_eq!(*height, Some(Length::pt(20.0)));
-            assert_eq!(inset.right, Length::pt(2.0));
-            assert_eq!(*baseline, Length::pt(-3.0));
+        if let Content::Boxed(e) = &b {
+            assert_eq!(e.width,  Some(Length::pt(60.0)));
+            assert_eq!(e.height, Some(Length::pt(20.0)));
+            assert_eq!(e.inset.right, Length::pt(2.0));
+            assert_eq!(e.baseline, Length::pt(-3.0));
         } else {
             panic!("esperado Content::Boxed");
         }
@@ -3422,9 +3362,9 @@ mod tests {
         let upper = b.map_text(&mut |s| s.to_uppercase());
         assert_eq!(upper.plain_text(), "HELLO");
         // Atributos preservados.
-        if let Content::Boxed { baseline, inset, .. } = upper {
-            assert_eq!(baseline, Length::pt(2.0));
-            assert_eq!(inset.left, Length::pt(1.0));
+        if let Content::Boxed(e) = upper {
+            assert_eq!(e.baseline, Length::pt(2.0));
+            assert_eq!(e.inset.left, Length::pt(1.0));
         } else {
             panic!("esperado Content::Boxed após map_text");
         }
@@ -4301,8 +4241,7 @@ mod tests {
         // P242 adapta: radius `Option<Length>` → `Corners<Length>`.
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
-        let b = Content::Boxed {
-            body:     Box::new(Content::text("body")),
+        let b = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("body"),
             width:    None,
             height:   None,
             inset:    Sides::uniform(Length::pt(0.0)),
@@ -4311,11 +4250,11 @@ mod tests {
             radius:   Corners::uniform(Length::pt(4.0)),
             clip:     false,
             fill:     None,
-            stroke:   None,        };
-        if let Content::Boxed { outset, radius, clip, .. } = &b {
-            assert_eq!(radius.top_left, Length::pt(4.0));
-            assert_eq!(*clip, false);
-            assert_eq!(outset.left, Length::pt(2.0));
+            stroke:   None}));
+        if let Content::Boxed(e) = &b {
+            assert_eq!(e.radius.top_left, Length::pt(4.0));
+            assert_eq!(e.clip, false);
+            assert_eq!(e.outset.left, Length::pt(2.0));
         } else {
             panic!("esperado Boxed");
         }
@@ -4420,8 +4359,7 @@ mod tests {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Color;
         use crate::entities::geometry::Stroke;
-        let b = Content::Boxed {
-            body:     Box::new(Content::text("p247")),
+        let b = Content::Boxed(std::sync::Arc::new(crate::entities::elements::boxed::BoxedElem { body: Content::text("p247"),
             width:    None,
             height:   None,
             inset:    Sides::uniform(Length::pt(0.0)),
@@ -4430,11 +4368,10 @@ mod tests {
             radius:   Corners::uniform(Length::ZERO),
             clip:     false,
             fill:     Some(Color::rgb(0, 200, 0)),
-            stroke:   Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.5, overhang: false }),
-        };
-        if let Content::Boxed { fill, stroke, .. } = &b {
-            assert_eq!(*fill, Some(Color::rgb(0, 200, 0)));
-            assert_eq!(stroke.as_ref().unwrap().thickness, 1.5);
+            stroke:   Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.5, overhang: false })}));
+        if let Content::Boxed(e) = &b {
+            assert_eq!(e.fill, Some(Color::rgb(0, 200, 0)));
+            assert_eq!(e.stroke.as_ref().unwrap().thickness, 1.5);
         } else {
             panic!("esperado Boxed");
         }
@@ -4525,9 +4462,9 @@ mod tests {
             Sides::uniform(Length::pt(0.0)),
             Length::pt(0.0),
         );
-        if let Content::Boxed { fill, stroke, .. } = &b {
-            assert_eq!(*fill, None);
-            assert!(stroke.is_none());
+        if let Content::Boxed(e) = &b {
+            assert_eq!(e.fill, None);
+            assert!(e.stroke.is_none());
         } else {
             panic!("esperado Boxed");
         }
