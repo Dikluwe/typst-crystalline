@@ -963,10 +963,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             // P224+P227+P228 — Grid refino +7 fields. gutter/align/inset/header/footer/stroke/fill
             // são consumidos por layout_grid (signature expandida).
-            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke, fill } => {
-                self.layout_grid(columns, rows, cells, *gutter, *align, *inset,
-                                 header.as_deref(), footer.as_deref(),
-                                 stroke.as_ref(), fill.as_ref());
+            Content::Grid(e) => {
+                self.layout_grid(&e.columns, &e.rows, &e.cells, e.gutter, e.align, e.inset,
+                                 e.header.as_ref(), e.footer.as_ref(),
+                                 e.stroke.as_ref(), e.fill.as_ref());
             }
 
             // P224.B — GridHeader / GridFooter renderizam body sequencial
@@ -983,10 +983,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // context; dentro de Grid é consumido por grid_placement em
             // layout_grid). stroke + fill per-cell P230 são ignorados aqui
             // (semantic precedência ocorre apenas dentro de Grid context).
-            Content::GridCell { body, x: _, y: _, colspan: _, rowspan: _,
-                                stroke: _, fill: _,
-                                align: _, inset: _, breakable: _ } => {
-                self.layout_content(body);
+            Content::GridCell(e) => {
+                self.layout_content(&e.body);
             }
 
             // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table ──
@@ -994,14 +992,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // clone simples per ADR-0060 §"Decisão 4" + diagnóstico
             // P157A §10. Sem modificação de `grid.rs`. TableCell
             // estruturado e Header/Footer diferidos para P157B/C.
-            Content::Table { columns, rows, children, stroke, fill } => {
+            Content::Table(e) => {
                 // P224+P227+P228 — Table delegate; herda stroke + fill.
-                self.layout_grid(columns, rows, children,
+                self.layout_grid(&e.columns, &e.rows, &e.children,
                                  None, None,
                                  crate::entities::sides::Sides::uniform(
                                      crate::entities::layout_types::Length::pt(0.0)),
                                  None, None,
-                                 stroke.as_ref(), fill.as_ref());
+                                 e.stroke.as_ref(), e.fill.as_ref());
             }
 
             // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ──
@@ -1012,10 +1010,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // dedicado a placement Grid completo). Quando dentro de
             // `Content::Table`, cell aparece como child linear no
             // grid distribuído por `idx % num_cols`.
-            Content::TableCell { body, x: _, y: _, colspan: _, rowspan: _,
-                                  stroke: _, fill: _,
-                                  align: _, inset: _, breakable: _ } => {
-                self.layout_content(body);
+            Content::TableCell(e) => {
+                self.layout_content(&e.body);
             }
 
             // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ──

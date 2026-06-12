@@ -91,6 +91,10 @@ use crate::entities::elements::bibliography::BibliographyElem;
 use crate::entities::elements::equation::EquationElem;
 use crate::entities::elements::footnote::FootnoteElem;
 use crate::entities::elements::shape::ShapeElem;
+use crate::entities::elements::table_cell::TableCellElem;
+use crate::entities::elements::table::TableElem;
+use crate::entities::elements::grid_cell::GridCellElem;
+use crate::entities::elements::grid::GridElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -425,35 +429,9 @@ pub enum Content {
     /// scope-out (subset paridade P157B literal). Placement algorítmico
     /// completo via `Content::GridCell` + `grid_placement.rs` (P224.C
     /// fecha DEBT-34e).
-    Grid {
-        columns: Vec<TrackSizing>,
-        rows:    Vec<TrackSizing>,
-        cells:   Vec<Content>,
-        /// P224.A — gutter uniforme entre cells.
-        gutter:  Option<Length>,
-        /// P224.A — alignment uniforme aplicado a todas as cells.
-        align:   Option<Align2D>,
-        /// P224.A — margem interna em cada cell.
-        inset:   Sides<Length>,
-        /// P224.B — header opcional (paridade P157C TableHeader).
-        header:  Option<Box<Content>>,
-        /// P224.B — footer opcional (paridade P157C TableFooter).
-        footer:  Option<Box<Content>>,
-        /// P227 (Fase 5 Layout Categoria A.1) — stroke uniforme
-        /// aplicado a todas cell borders. Default `None` (sem borders).
-        /// Renderização Opção β simplificada (sem deduplicação linhas
-        /// adjacentes; refino candidato A.3). Per ADR-0079 PROPOSTO
-        /// Categoria A.1 + ADR-0080 PROPOSTO Opção γ literal (L0 não
-        /// tocado; pattern N=7 → 8 validado).
-        stroke:  Option<Stroke>,
-        /// P228 (Fase 5 Layout Categoria A.2) — fill uniforme aplicado
-        /// a todas cells (atrás do conteúdo; antes do stroke). Default
-        /// `None` (sem fill). Renderização Opção β Z-order correcto:
-        /// fill → conteúdo → stroke. Per ADR-0079 PROPOSTO Categoria
-        /// A.2 + ADR-0080 PROPOSTO Opção γ literal (L0 não tocado;
-        /// pattern N=8 → 9 validado real).
-        fill:    Option<Color>,
-    },
+    /// **Modelo D (Lote 12 P327)**: `entities::elements::grid::GridElem`
+    /// (não-locatável, contentor — recurse cells + header + footer; 10 campos).
+    Grid(Arc<GridElem>),
 
     // ── Passo 224.B (ADR-0061 Fase 4 candidata sub-3) — Grid header/footer ──
     /// Grid header — vanilla `GridHeader` (paridade P157C TableHeader
@@ -487,32 +465,10 @@ pub enum Content {
     /// Categoria A.3 + **ADR-0080 EM VIGOR aplicação automática**
     /// (L0 não tocado por defeito; pattern "L0 minimal" formalizado
     /// P229).
-    GridCell {
-        body:    Box<Content>,
-        x:       Option<usize>,
-        y:       Option<usize>,
-        colspan: Option<usize>,
-        rowspan: Option<usize>,
-        /// P230 — stroke per-cell (override Grid-level se Some;
-        /// inherit se None via `.or()` em `layout_grid`).
-        stroke:  Option<Stroke>,
-        /// P230 — fill per-cell (override Grid-level se Some;
-        /// inherit se None via `.or()` em `layout_grid`).
-        fill:    Option<Color>,
-        /// P235 (B.3) — align per-cell (override Grid.align se Some;
-        /// inherit se None via `.or()`). Reuso Layouter `cell_align`
-        /// P232 estendido per-cell save/restore.
-        align:   Option<Align2D>,
-        /// P235 (B.3) — inset per-cell (override Grid.inset se Some;
-        /// inherit se None via `.or()`). Render real via bounds
-        /// reduction antes layout body.
-        inset:   Option<Sides<Length>>,
-        /// P235 (B.3) — breakable per-cell. Armazenado semantic
-        /// adiada graded paridade `Block.breakable` P156G +
-        /// `repeat` P224.B (pattern "Field armazenado semantic
-        /// adiada" N=7 → 8 cumulativo).
-        breakable: Option<bool>,
-    },
+    /// **Modelo D (Lote 12 P327)**: `entities::elements::grid_cell::GridCellElem`
+    /// (não-locatável, contentor — recurse body; 9 cosméticos P230/P235,
+    /// gémeo de `TableCell`).
+    GridCell(Arc<GridCellElem>),
 
     /// Altera a configuração da página a partir deste ponto do documento (Passo 81).
     ///
@@ -901,27 +857,9 @@ pub enum Content {
     /// rowspan **armazenados mas ignorados** per ADR-0054 graded —
     /// algoritmo de placement diferido em **DEBT-34e** (refactor
     /// dedicado a placement Grid completo).
-    TableCell {
-        body:    Box<Content>,
-        x:       Option<usize>,
-        y:       Option<usize>,
-        colspan: Option<usize>,
-        rowspan: Option<usize>,
-        /// P230 — stroke per-cell paralelo GridCell (refino aditivo
-        /// paralelo entre variants irmãos N=2 → 3 cumulativo;
-        /// override Table-level via `.or()` resolution).
-        stroke:  Option<Stroke>,
-        /// P230 — fill per-cell paralelo GridCell.
-        fill:    Option<Color>,
-        /// P235 (B.3) — align per-cell paralelo GridCell (refino
-        /// aditivo paralelo entre variants irmãos N=4 → 5 cumulativo).
-        align:   Option<Align2D>,
-        /// P235 (B.3) — inset per-cell paralelo GridCell.
-        inset:   Option<Sides<Length>>,
-        /// P235 (B.3) — breakable per-cell paralelo GridCell;
-        /// semantic adiada graded.
-        breakable: Option<bool>,
-    },
+    /// **Modelo D (Lote 12 P327)**: `entities::elements::table_cell::TableCellElem`
+    /// (não-locatável, contentor — recurse body; 9 cosméticos P230/P235).
+    TableCell(Arc<TableCellElem>),
 
     // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ──
     /// Lista bibliográfica — vanilla `BibliographyElem`.
@@ -1061,20 +999,9 @@ pub enum Content {
     ///
     /// Layouter delega a `layout_grid` clone simples — sem
     /// modificação de `grid.rs` per diagnóstico P157A §10.
-    Table {
-        columns:  Vec<TrackSizing>,
-        rows:     Vec<TrackSizing>,
-        children: Vec<Content>,
-        /// P227 (Fase 5 Layout Categoria A.1) — stroke uniforme
-        /// paridade Grid; Table herda renderização via delegate
-        /// `layout_grid` (precedente P157A "Layouter delega a
-        /// `layout_grid` clone simples"). Per ADR-0079 PROPOSTO
-        /// Categoria A.1.
-        stroke:   Option<Stroke>,
-        /// P228 (Fase 5 Layout Categoria A.2) — fill paridade
-        /// Grid; Table herda renderização via delegate `layout_grid`.
-        fill:     Option<Color>,
-    },
+    /// **Modelo D (Lote 12 P327)**: `entities::elements::table::TableElem`
+    /// (não-locatável, contentor — recurse children; columns/rows/stroke/fill).
+    Table(Arc<TableElem>),
 
     // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ────────────────
     /// Repetição de body para preencher espaço (vanilla `RepeatElem`).
@@ -1567,7 +1494,7 @@ impl Content {
         rows:     Vec<TrackSizing>,
         children: Vec<Content>,
     ) -> Self {
-        Self::Table { columns, rows, children, stroke: None, fill: None }
+        Self::Table(Arc::new(TableElem { columns, rows, children, stroke: None, fill: None }))
     }
 
     /// `table_cell(body, x, y, colspan, rowspan)` — Passo 157B
@@ -1581,11 +1508,11 @@ impl Content {
         colspan: Option<usize>,
         rowspan: Option<usize>,
     ) -> Self {
-        Self::TableCell {
-            body: Box::new(body), x, y, colspan, rowspan,
+        Self::TableCell(Arc::new(TableCellElem {
+            body, x, y, colspan, rowspan,
             stroke: None, fill: None,
             align: None, inset: None, breakable: None,
-        }
+        }))
     }
 
     /// `table_header(body, repeat)` — Passo 157C (ADR-0060 Fase 2
@@ -1645,21 +1572,21 @@ impl Content {
             // Figura: não está vazia se tiver body OU caption com conteúdo.
             Self::Figure { body, caption, .. } =>
                 body.is_empty() && caption.as_ref().is_none_or(|c| c.is_empty()),
-            Self::Grid { cells, .. } => cells.is_empty(),
+            Self::Grid(e) => e.is_empty(),
             // P224.B — GridHeader/GridFooter vazio se body for (paridade P157C).
             // Modelo D (Lote 5 P320): grid/table header/footer delegam ao elemento.
             Self::GridHeader(e) => e.is_empty(),
             Self::GridFooter(e) => e.is_empty(),
             // P224.C — GridCell vazio se body for (paridade P157B TableCell).
-            Self::GridCell { body, .. } => body.is_empty(),
+            Self::GridCell(e) => e.is_empty(),
             // Passo 157A (ADR-0060 Fase 2): Table é vazio se children
             // for vazio (paridade com Grid; cells / children indistintos
             // semanticamente para is_empty).
-            Self::Table { children, .. } => children.is_empty(),
+            Self::Table(e) => e.is_empty(),
             // Passo 157B (ADR-0060 Fase 2 sub-passo 2): TableCell vazio
             // se body for (atributos x/y/colspan/rowspan não tornam o
             // container não-vazio — paridade Block/Boxed).
-            Self::TableCell { body, .. } => body.is_empty(),
+            Self::TableCell(e) => e.is_empty(),
             // Passo 157C (ADR-0060 Fase 2 sub-passo 3): par simétrico
             // TableHeader/TableFooter vazio se body for (atributo
             // repeat não torna o container não-vazio — paridade Block/Boxed).
@@ -1792,25 +1719,21 @@ impl Content {
             Self::Image(e) => e.plain_text(),
             Self::Shape(e) => e.plain_text(),
             Self::Transform(e) => e.plain_text(),
-            Self::Grid { cells, .. } => {
-                cells.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ")
-            }
+            Self::Grid(e) => e.plain_text(),
             // P224.B — GridHeader/GridFooter transparentes (paridade P157C).
             Self::GridHeader(e) => e.plain_text(),
             Self::GridFooter(e) => e.plain_text(),
             // P224.C — GridCell transparente (paridade P157B TableCell).
-            Self::GridCell { body, .. } => body.plain_text(),
+            Self::GridCell(e) => e.plain_text(),
             // Passo 157A: Table concatena children com space (paridade
             // com Grid em plain_text — semântica de "células visíveis
             // em sequência").
-            Self::Table { children, .. } => {
-                children.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ")
-            }
+            Self::Table(e) => e.plain_text(),
             // Passo 157B: TableCell é transparente para texto plano —
             // recurse no body sem multiplicar por colspan/rowspan
             // (paridade não visível em texto plano; spans são
             // runtime-only e diferidos em DEBT-34e).
-            Self::TableCell { body, .. } => body.plain_text(),
+            Self::TableCell(e) => e.plain_text(),
             // Passo 157C: par simétrico TableHeader/TableFooter
             // transparente para texto plano — recurse no body sem
             // multiplicar por repeat (semântica de page-break
@@ -1922,43 +1845,20 @@ impl PartialEq for Content {
             // Modelo D (Lote 9 P324): Transform delega ao `Arc<…Elem>`.
             (Self::Transform(a), Self::Transform(b)) => a == b,
             // P224+P227+P228 — Grid refino +7 fields (gutter/align/inset/header/footer/stroke/fill).
-            (Self::Grid { columns: ca, rows: ra, cells: xa,
-                          gutter: ga, align: aa, inset: ia, header: ha, footer: fa,
-                          stroke: stra, fill: fila },
-             Self::Grid { columns: cb, rows: rb, cells: xb,
-                          gutter: gb, align: ab, inset: ib, header: hb, footer: fb,
-                          stroke: strb, fill: filb }) =>
-                ca == cb && ra == rb && xa == xb
-                && ga == gb && aa == ab && ia == ib && ha == hb && fa == fb
-                && stra == strb && fila == filb,
+            // Modelo D (Lote 12 P327): Grid delega ao `Arc<…Elem>`.
+            (Self::Grid(a), Self::Grid(b)) => a == b,
             // P224.B — GridHeader / GridFooter (paridade P157C literal).
             // Modelo D (Lote 5 P320): delegam ao `Arc<…Elem>`.
             (Self::GridHeader(a), Self::GridHeader(b)) => a == b,
             (Self::GridFooter(a), Self::GridFooter(b)) => a == b,
             // P224.C + P230 + P235 — GridCell +5 fields cumulativos.
-            (Self::GridCell { body: ba, x: xa, y: ya, colspan: ca, rowspan: ra,
-                              stroke: stra, fill: fila,
-                              align: ala, inset: ina, breakable: bra },
-             Self::GridCell { body: bb, x: xb, y: yb, colspan: cb, rowspan: rb,
-                              stroke: strb, fill: filb,
-                              align: alb, inset: inb, breakable: brb }) =>
-                ba == bb && xa == xb && ya == yb && ca == cb && ra == rb
-                && stra == strb && fila == filb
-                && ala == alb && ina == inb && bra == brb,
-            // Passo 157A + P227 + P228 — Table refino +2 fields (stroke + fill).
-            (Self::Table { columns: ca, rows: ra, children: xa, stroke: stra, fill: fila },
-             Self::Table { columns: cb, rows: rb, children: xb, stroke: strb, fill: filb }) =>
-                ca == cb && ra == rb && xa == xb && stra == strb && fila == filb,
+            // Modelo D (Lote 12 P327): GridCell delega ao `Arc<…Elem>`.
+            (Self::GridCell(a), Self::GridCell(b)) => a == b,
+            // Modelo D (Lote 12 P327): Table delega ao `Arc<…Elem>`.
+            (Self::Table(a), Self::Table(b)) => a == b,
             // Passo 157B + P230 + P235 — TableCell +5 fields cumulativos.
-            (Self::TableCell { body: ba, x: xa, y: ya, colspan: csa, rowspan: rsa,
-                               stroke: stra, fill: fila,
-                               align: ala, inset: ina, breakable: bra },
-             Self::TableCell { body: bb, x: xb, y: yb, colspan: csb, rowspan: rsb,
-                               stroke: strb, fill: filb,
-                               align: alb, inset: inb, breakable: brb }) =>
-                ba == bb && xa == xb && ya == yb && csa == csb && rsa == rsb
-                && stra == strb && fila == filb
-                && ala == alb && ina == inb && bra == brb,
+            // Modelo D (Lote 12 P327): TableCell delega ao `Arc<…Elem>`.
+            (Self::TableCell(a), Self::TableCell(b)) => a == b,
             // Modelo D (Lote 5 P320): par simétrico TableHeader/TableFooter.
             (Self::TableHeader(a), Self::TableHeader(b)) => a == b,
             (Self::TableFooter(a), Self::TableFooter(b)) => a == b,
@@ -2234,71 +2134,18 @@ impl Content {
             // Modelo D (Lote 9 P324): Transform container delega ao elemento.
             Content::Transform(e) => e.map_content(transform)?,
             // P224+P227+P228 — Grid refino +7 fields (gutter/align/inset/header/footer/stroke/fill).
-            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke, fill } => {
-                let new_cells: crate::entities::source_result::SourceResult<Vec<Content>> =
-                    cells.iter().map(|c| c.map_content(transform)).collect();
-                let new_header: crate::entities::source_result::SourceResult<Option<Box<Content>>> =
-                    header.as_ref().map(|h| h.map_content(transform).map(Box::new)).transpose();
-                let new_footer: crate::entities::source_result::SourceResult<Option<Box<Content>>> =
-                    footer.as_ref().map(|f| f.map_content(transform).map(Box::new)).transpose();
-                Content::Grid {
-                    columns: columns.clone(),
-                    rows:    rows.clone(),
-                    cells:   new_cells?,
-                    gutter:  *gutter,
-                    align:   *align,
-                    inset:   *inset,
-                    header:  new_header?,
-                    footer:  new_footer?,
-                    stroke:  stroke.clone(),
-                    fill:    *fill,
-                }
-            },
+            // Modelo D (Lote 12 P327): Grid container delega ao elemento.
+            Content::Grid(e) => e.map_content(transform)?,
             // Modelo D (Lote 5 P320): GridHeader/GridFooter delegam ao elemento.
             Content::GridHeader(e) => e.map_content(transform)?,
             Content::GridFooter(e) => e.map_content(transform)?,
-            // P224.C + P230 + P235 — GridCell recurse no body; preserva
-            // 5 fields cumulativos.
-            Content::GridCell { body, x, y, colspan, rowspan, stroke, fill,
-                                 align, inset, breakable } => Content::GridCell {
-                body:      Box::new(body.map_content(transform)?),
-                x:         *x,
-                y:         *y,
-                colspan:   *colspan,
-                rowspan:   *rowspan,
-                stroke:    stroke.clone(),
-                fill:      *fill,
-                align:     *align,
-                inset:     inset.clone(),
-                breakable: *breakable,
-            },
+            // Modelo D (Lote 12 P327): GridCell container delega ao elemento.
+            Content::GridCell(e) => e.map_content(transform)?,
             // Passo 157A + P227 + P228: Table — mapear children; preservar stroke + fill.
-            Content::Table { columns, rows, children, stroke, fill } => {
-                let new_children: crate::entities::source_result::SourceResult<Vec<Content>> =
-                    children.iter().map(|c| c.map_content(transform)).collect();
-                Content::Table {
-                    columns: columns.clone(),
-                    rows: rows.clone(),
-                    children: new_children?,
-                    stroke: stroke.clone(),
-                    fill: *fill,
-                }
-            },
-            // Passo 157B + P230 + P235: TableCell — recurse no body;
-            // preserva 5 fields paralelo GridCell.
-            Content::TableCell { body, x, y, colspan, rowspan, stroke, fill,
-                                  align, inset, breakable } => Content::TableCell {
-                body:      Box::new(body.map_content(transform)?),
-                x:         *x,
-                y:         *y,
-                colspan:   *colspan,
-                rowspan:   *rowspan,
-                stroke:    stroke.clone(),
-                fill:      *fill,
-                align:     *align,
-                inset:     inset.clone(),
-                breakable: *breakable,
-            },
+            // Modelo D (Lote 12 P327): Table container delega ao elemento.
+            Content::Table(e) => e.map_content(transform)?,
+            // Modelo D (Lote 12 P327): TableCell container delega ao elemento.
+            Content::TableCell(e) => e.map_content(transform)?,
             // Modelo D (Lote 5 P320): TableHeader/TableFooter delegam ao elemento.
             Content::TableHeader(e) => e.map_content(transform)?,
             Content::TableFooter(e) => e.map_content(transform)?,
@@ -2487,59 +2334,19 @@ impl Content {
             // Modelo D (Lote 9 P324): Transform container delega ao elemento.
             Content::Transform(e) => e.map_text(transform),
             // P224+P227+P228 — Grid refino +7 fields (map_text).
-            Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke, fill } => Content::Grid {
-                columns: columns.clone(),
-                rows:    rows.clone(),
-                cells:   cells.iter().map(|c| c.map_text(transform)).collect(),
-                gutter:  *gutter,
-                align:   *align,
-                inset:   *inset,
-                header:  header.as_ref().map(|h| Box::new(h.map_text(transform))),
-                footer:  footer.as_ref().map(|f| Box::new(f.map_text(transform))),
-                stroke:  stroke.clone(),
-                fill:    *fill,
-            },
+            // Modelo D (Lote 12 P327): Grid container delega ao elemento.
+            Content::Grid(e) => e.map_text(transform),
             // Modelo D (Lote 5 P320): GridHeader/GridFooter delegam ao elemento.
             Content::GridHeader(e) => e.map_text(transform),
             Content::GridFooter(e) => e.map_text(transform),
             // P224.C + P230 + P235 — GridCell recurse no body (map_text);
-            // preserva 5 fields cumulativos.
-            Content::GridCell { body, x, y, colspan, rowspan, stroke, fill,
-                                 align, inset, breakable } => Content::GridCell {
-                body:      Box::new(body.map_text(transform)),
-                x:         *x,
-                y:         *y,
-                colspan:   *colspan,
-                rowspan:   *rowspan,
-                stroke:    stroke.clone(),
-                fill:      *fill,
-                align:     *align,
-                inset:     inset.clone(),
-                breakable: *breakable,
-            },
+            // Modelo D (Lote 12 P327): GridCell container delega ao elemento.
+            Content::GridCell(e) => e.map_text(transform),
             // Passo 157A + P227 + P228: Table — map_text em children; preservar stroke + fill.
-            Content::Table { columns, rows, children, stroke, fill } => Content::Table {
-                columns:  columns.clone(),
-                rows:     rows.clone(),
-                children: children.iter().map(|c| c.map_text(transform)).collect(),
-                stroke:   stroke.clone(),
-                fill:     *fill,
-            },
-            // Passo 157B + P230 + P235: TableCell — map_text no body;
-            // preserva 5 fields paralelo GridCell.
-            Content::TableCell { body, x, y, colspan, rowspan, stroke, fill,
-                                  align, inset, breakable } => Content::TableCell {
-                body:      Box::new(body.map_text(transform)),
-                x:         *x,
-                y:         *y,
-                colspan:   *colspan,
-                rowspan:   *rowspan,
-                stroke:    stroke.clone(),
-                fill:      *fill,
-                align:     *align,
-                inset:     inset.clone(),
-                breakable: *breakable,
-            },
+            // Modelo D (Lote 12 P327): Table container delega ao elemento.
+            Content::Table(e) => e.map_text(transform),
+            // Modelo D (Lote 12 P327): TableCell container delega ao elemento.
+            Content::TableCell(e) => e.map_text(transform),
             // Modelo D (Lote 5 P320): TableHeader/TableFooter delegam ao elemento.
             Content::TableHeader(e) => e.map_text(transform),
             Content::TableFooter(e) => e.map_text(transform),
@@ -4050,22 +3857,19 @@ mod tests {
         // Grid variant aceita gutter/align/inset/header/footer.
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Auto],
             rows:    vec![],
             cells:   vec![Content::text("A")],
             gutter:  Some(Length::pt(5.0)),
             align:   Some(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }),
-            inset:   Sides::uniform(Length::pt(2.0)),
-            header:  Some(Box::new(Content::text("H"))),
-            footer:  Some(Box::new(Content::text("F"))),
+            inset:   Sides::uniform(Length::pt(2.0)), header: Some(Content::text("H")), footer: Some(Content::text("F")),
             stroke:  None,
-            fill:    None,
-        };
-        if let Content::Grid { gutter, header, footer, .. } = &g {
-            assert_eq!(*gutter, Some(Length::pt(5.0)));
-            assert!(header.is_some());
-            assert!(footer.is_some());
+            fill:    None}));
+        if let Content::Grid(e) = &g {
+            assert_eq!(e.gutter, Some(Length::pt(5.0)));
+            assert!(e.header.is_some());
+            assert!(e.footer.is_some());
         } else {
             panic!("esperado Content::Grid");
         }
@@ -4075,18 +3879,15 @@ mod tests {
     fn p224_grid_partial_eq_inclui_5_fields_novos() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let mk = |gutter: Option<Length>| Content::Grid {
+        let mk = |gutter: Option<Length>| Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Auto],
             rows:    vec![],
             cells:   vec![],
             gutter,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
-            fill:    None,
-        };
+            fill:    None}));
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(Length::pt(5.0))));
     }
@@ -4117,59 +3918,53 @@ mod tests {
 
     #[test]
     fn p224_gridcell_variant_aceita_5_fields() {
-        let c = Content::GridCell {
-            body:    Box::new(Content::text("cell")),
+        let c = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("cell"),
             x:       Some(1),
             y:       Some(2),
             colspan: Some(3),
             rowspan: Some(4),
             stroke:  None,
             fill:    None,
-            align:   None, inset: None, breakable: None,
-        };
-        if let Content::GridCell { x, y, colspan, rowspan, .. } = &c {
-            assert_eq!(*x, Some(1));
-            assert_eq!(*y, Some(2));
-            assert_eq!(*colspan, Some(3));
-            assert_eq!(*rowspan, Some(4));
+            align:   None, inset: None, breakable: None}));
+        if let Content::GridCell(e) = &c {
+            assert_eq!(e.x, Some(1));
+            assert_eq!(e.y, Some(2));
+            assert_eq!(e.colspan, Some(3));
+            assert_eq!(e.rowspan, Some(4));
         } else { panic!("esperado GridCell"); }
     }
 
     #[test]
     fn p224_gridcell_partial_eq_5_fields() {
         // Eq compara 5 fields (paridade P157B TableCell literal).
-        let mk = |x: Option<usize>| Content::GridCell {
-            body:    Box::new(Content::text(".")),
+        let mk = |x: Option<usize>| Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("."),
             x,
             y:       None,
             colspan: None,
             rowspan: None,
             stroke:  None,
             fill:    None,
-            align:   None, inset: None, breakable: None,
-        };
+            align:   None, inset: None, breakable: None}));
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(1)));
     }
 
     #[test]
     fn p224_gridcell_map_content_preserva_fields() {
-        let c = Content::GridCell {
-            body:    Box::new(Content::text("x")),
+        let c = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("x"),
             x:       Some(0),
             y:       Some(1),
             colspan: Some(2),
             rowspan: None,
             stroke:  None,
             fill:    None,
-            align:   None, inset: None, breakable: None,
-        };
+            align:   None, inset: None, breakable: None}));
         let mapped = c.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
-        if let Content::GridCell { x, y, colspan, rowspan, .. } = &mapped {
-            assert_eq!(*x, Some(0));
-            assert_eq!(*y, Some(1));
-            assert_eq!(*colspan, Some(2));
-            assert!(rowspan.is_none());
+        if let Content::GridCell(e) = &mapped {
+            assert_eq!(e.x, Some(0));
+            assert_eq!(e.y, Some(1));
+            assert_eq!(e.colspan, Some(2));
+            assert!(e.rowspan.is_none());
         } else { panic!("esperado GridCell após map_content"); }
     }
 
@@ -4181,21 +3976,18 @@ mod tests {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
         use crate::entities::geometry::Stroke;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Auto],
             rows:    vec![],
             cells:   vec![Content::text("A")],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(255, 0, 0)), thickness: 2.0, overhang: false }),
-            fill:    None,
-        };
-        if let Content::Grid { stroke, .. } = &g {
-            assert!(stroke.is_some());
-            let s = stroke.as_ref().unwrap();
+            fill:    None}));
+        if let Content::Grid(e) = &g {
+            assert!(e.stroke.is_some());
+            let s = e.stroke.as_ref().unwrap();
             assert_eq!(s.thickness, 2.0);
         } else {
             panic!("esperado Content::Grid");
@@ -4207,15 +3999,14 @@ mod tests {
         // Paridade Grid para Table (refino paralelo).
         use crate::entities::layout_types::{TrackSizing, Color};
         use crate::entities::geometry::Stroke;
-        let t = Content::Table {
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns:  vec![TrackSizing::Auto],
             rows:     vec![],
             children: vec![Content::text("X")],
             stroke:   Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 255)), thickness: 1.5, overhang: false }),
-            fill:     None,
-        };
-        if let Content::Table { stroke, .. } = &t {
-            assert!(stroke.is_some());
+            fill:     None}));
+        if let Content::Table(e) = &t {
+            assert!(e.stroke.is_some());
         } else {
             panic!("esperado Content::Table");
         }
@@ -4227,18 +4018,15 @@ mod tests {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
         use crate::entities::geometry::Stroke;
-        let mk = |stroke: Option<Stroke>| Content::Grid {
+        let mk = |stroke: Option<Stroke>| Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Auto],
             rows:    vec![],
             cells:   vec![],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke,
-            fill:    None,
-        };
+            fill:    None}));
         assert_eq!(mk(None), mk(None));
         let s = Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false };
         assert_ne!(mk(None), mk(Some(s)));
@@ -4251,20 +4039,17 @@ mod tests {
         // Grid variant aceita fill (+1 field P228; total 10 fields).
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Auto],
             rows:    vec![],
             cells:   vec![Content::text("A")],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
-            fill:    Some(Color::rgb(255, 255, 0)),
-        };
-        if let Content::Grid { fill, .. } = &g {
-            assert!(fill.is_some());
+            fill:    Some(Color::rgb(255, 255, 0))}));
+        if let Content::Grid(e) = &g {
+            assert!(e.fill.is_some());
         } else {
             panic!("esperado Content::Grid");
         }
@@ -4273,15 +4058,14 @@ mod tests {
     #[test]
     fn p228_table_variant_aceita_fill() {
         use crate::entities::layout_types::{TrackSizing, Color};
-        let t = Content::Table {
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns:  vec![TrackSizing::Auto],
             rows:     vec![],
             children: vec![Content::text("X")],
             stroke:   None,
-            fill:     Some(Color::rgb(0, 255, 0)),
-        };
-        if let Content::Table { fill, .. } = &t {
-            assert!(fill.is_some());
+            fill:     Some(Color::rgb(0, 255, 0))}));
+        if let Content::Table(e) = &t {
+            assert!(e.fill.is_some());
         } else {
             panic!("esperado Content::Table");
         }
@@ -4291,18 +4075,15 @@ mod tests {
     fn p228_grid_partial_eq_inclui_fill() {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
-        let mk = |fill: Option<Color>| Content::Grid {
+        let mk = |fill: Option<Color>| Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Auto],
             rows:    vec![],
             cells:   vec![],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
-            fill,
-        };
+            fill}));
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(Color::rgb(255, 0, 0))));
     }
@@ -4312,21 +4093,18 @@ mod tests {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
         let fill_orig = Color::rgb(50, 50, 50);
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Auto],
             rows:    vec![],
             cells:   vec![Content::text("a")],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
-            fill:    Some(fill_orig),
-        };
+            fill:    Some(fill_orig)}));
         let mapped = g.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
-        if let Content::Grid { fill, .. } = &mapped {
-            assert_eq!(*fill, Some(fill_orig));
+        if let Content::Grid(e) = &mapped {
+            assert_eq!(e.fill, Some(fill_orig));
         } else {
             panic!("esperado Content::Grid após map_content");
         }
@@ -4339,7 +4117,7 @@ mod tests {
         use crate::entities::sides::Sides;
         use crate::entities::geometry::Stroke;
         let stroke_orig = Stroke { paint: Paint::Solid(Color::rgb(100, 100, 100)), thickness: 3.0, overhang: false };
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Auto],
             rows:    vec![],
             cells:   vec![Content::text("a")],
@@ -4350,10 +4128,10 @@ mod tests {
             footer:  None,
             stroke:  Some(stroke_orig.clone()),
             fill:    None,
-        };
+        }));
         let mapped = g.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
-        if let Content::Grid { stroke, .. } = &mapped {
-            assert_eq!(*stroke, Some(stroke_orig));
+        if let Content::Grid(e) = &mapped {
+            assert_eq!(e.stroke, Some(stroke_orig));
         } else {
             panic!("esperado Content::Grid após map_content");
         }
@@ -4365,18 +4143,16 @@ mod tests {
     fn p230_gridcell_variant_aceita_stroke_fill() {
         use crate::entities::layout_types::Color;
         use crate::entities::geometry::Stroke;
-        let c = Content::GridCell {
-            body:    Box::new(Content::text("cell")),
+        let c = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("cell"),
             x:       None,
             y:       None,
             colspan: None,
             rowspan: None,
             stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),
             fill:    Some(Color::rgb(255, 255, 0)),
-            align:   None, inset: None, breakable: None,
-        };
-        if let Content::GridCell { stroke, fill, .. } = &c {
-            assert!(stroke.is_some() && fill.is_some());
+            align:   None, inset: None, breakable: None}));
+        if let Content::GridCell(e) = &c {
+            assert!(e.stroke.is_some() && e.fill.is_some());
         } else {
             panic!("esperado GridCell");
         }
@@ -4385,18 +4161,16 @@ mod tests {
     #[test]
     fn p230_tablecell_variant_aceita_stroke_fill() {
         use crate::entities::layout_types::Color;
-        let c = Content::TableCell {
-            body:    Box::new(Content::text("cell")),
+        let c = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: Content::text("cell"),
             x:       None,
             y:       None,
             colspan: None,
             rowspan: None,
             stroke:  None,
             fill:    Some(Color::rgb(0, 255, 0)),
-            align:   None, inset: None, breakable: None,
-        };
-        if let Content::TableCell { fill, .. } = &c {
-            assert!(fill.is_some());
+            align:   None, inset: None, breakable: None}));
+        if let Content::TableCell(e) = &c {
+            assert!(e.fill.is_some());
         } else {
             panic!("esperado TableCell");
         }
@@ -4405,16 +4179,14 @@ mod tests {
     #[test]
     fn p230_gridcell_partial_eq_inclui_stroke_fill() {
         use crate::entities::layout_types::Color;
-        let mk = |fill: Option<Color>| Content::GridCell {
-            body:    Box::new(Content::text(".")),
+        let mk = |fill: Option<Color>| Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("."),
             x:       None,
             y:       None,
             colspan: None,
             rowspan: None,
             stroke:  None,
             fill,
-            align:   None, inset: None, breakable: None,
-        };
+            align:   None, inset: None, breakable: None}));
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(Color::rgb(255, 0, 0))));
     }
@@ -4425,20 +4197,18 @@ mod tests {
         use crate::entities::geometry::Stroke;
         let stroke_orig = Stroke { paint: Paint::Solid(Color::rgb(50, 50, 50)), thickness: 2.0, overhang: false };
         let fill_orig = Color::rgb(200, 200, 200);
-        let c = Content::GridCell {
-            body:    Box::new(Content::text("c")),
+        let c = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("c"),
             x:       None,
             y:       None,
             colspan: None,
             rowspan: None,
             stroke:  Some(stroke_orig.clone()),
             fill:    Some(fill_orig),
-            align:   None, inset: None, breakable: None,
-        };
+            align:   None, inset: None, breakable: None}));
         let mapped = c.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
-        if let Content::GridCell { stroke, fill, .. } = &mapped {
-            assert_eq!(*stroke, Some(stroke_orig));
-            assert_eq!(*fill, Some(fill_orig));
+        if let Content::GridCell(e) = &mapped {
+            assert_eq!(e.stroke, Some(stroke_orig));
+            assert_eq!(e.fill, Some(fill_orig));
         } else {
             panic!("esperado GridCell após map_content");
         }
@@ -4450,19 +4220,17 @@ mod tests {
     fn p235_gridcell_variant_aceita_align_inset_breakable() {
         use crate::entities::layout_types::Align2D;
         use crate::entities::sides::Sides;
-        let c = Content::GridCell {
-            body:    Box::new(Content::text("p235")),
+        let c = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("p235"),
             x:       None, y: None,
             colspan: None, rowspan: None,
             stroke:  None, fill: None,
             align:     Some(Align2D::from_string("center")),
             inset:     Some(Sides::uniform(Length::pt(7.0))),
-            breakable: Some(false),
-        };
-        if let Content::GridCell { align, inset, breakable, .. } = &c {
-            assert!(align.is_some());
-            assert!(inset.is_some());
-            assert_eq!(*breakable, Some(false));
+            breakable: Some(false)}));
+        if let Content::GridCell(e) = &c {
+            assert!(e.align.is_some());
+            assert!(e.inset.is_some());
+            assert_eq!(e.breakable, Some(false));
         } else { panic!("esperado GridCell"); }
     }
 
@@ -4470,31 +4238,27 @@ mod tests {
     fn p235_tablecell_variant_aceita_align_inset_breakable() {
         use crate::entities::layout_types::Align2D;
         use crate::entities::sides::Sides;
-        let c = Content::TableCell {
-            body:    Box::new(Content::text("p235t")),
+        let c = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: Content::text("p235t"),
             x:       None, y: None,
             colspan: None, rowspan: None,
             stroke:  None, fill: None,
             align:     Some(Align2D::from_string("right")),
             inset:     Some(Sides::uniform(Length::pt(3.0))),
-            breakable: Some(true),
-        };
-        if let Content::TableCell { align, inset, breakable, .. } = &c {
-            assert!(align.is_some());
-            assert!(inset.is_some());
-            assert_eq!(*breakable, Some(true));
+            breakable: Some(true)}));
+        if let Content::TableCell(e) = &c {
+            assert!(e.align.is_some());
+            assert!(e.inset.is_some());
+            assert_eq!(e.breakable, Some(true));
         } else { panic!("esperado TableCell"); }
     }
 
     #[test]
     fn p235_gridcell_partial_eq_inclui_3_fields() {
-        let mk = |breakable: Option<bool>| Content::GridCell {
-            body:    Box::new(Content::text(".")),
+        let mk = |breakable: Option<bool>| Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("."),
             x:       None, y: None,
             colspan: None, rowspan: None,
             stroke:  None, fill: None,
-            align:   None, inset: None, breakable,
-        };
+            align:   None, inset: None, breakable}));
         assert_eq!(mk(None), mk(None));
         assert_ne!(mk(None), mk(Some(false)));
         assert_ne!(mk(Some(true)), mk(Some(false)));
@@ -4504,20 +4268,18 @@ mod tests {
     fn p235_gridcell_map_content_preserva_3_fields() {
         use crate::entities::layout_types::Align2D;
         use crate::entities::sides::Sides;
-        let c = Content::GridCell {
-            body:    Box::new(Content::text("x")),
+        let c = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("x"),
             x:       None, y: None,
             colspan: None, rowspan: None,
             stroke:  None, fill: None,
             align:     Some(Align2D::from_string("top")),
             inset:     Some(Sides::uniform(Length::pt(2.0))),
-            breakable: Some(true),
-        };
+            breakable: Some(true)}));
         let mapped = c.map_content(&mut |x| Ok(Some(x.clone()))).unwrap();
-        if let Content::GridCell { align, inset, breakable, .. } = &mapped {
-            assert!(align.is_some());
-            assert!(inset.is_some());
-            assert_eq!(*breakable, Some(true));
+        if let Content::GridCell(e) = &mapped {
+            assert!(e.align.is_some());
+            assert!(e.inset.is_some());
+            assert_eq!(e.breakable, Some(true));
         } else { panic!("esperado GridCell após map_content"); }
     }
 
@@ -4798,10 +4560,10 @@ mod tests {
     #[test]
     fn table_constructor_default() {
         let t = Content::table(vec![], vec![], vec![]);
-        if let Content::Table { columns, rows, children, .. } = &t {
-            assert!(columns.is_empty());
-            assert!(rows.is_empty());
-            assert!(children.is_empty());
+        if let Content::Table(e) = &t {
+            assert!(e.columns.is_empty());
+            assert!(e.rows.is_empty());
+            assert!(e.children.is_empty());
         } else {
             panic!("esperado Content::Table");
         }
@@ -4815,10 +4577,10 @@ mod tests {
             vec![TrackSizing::Auto],
             vec![Content::text("a"), Content::text("b")],
         );
-        if let Content::Table { columns, rows, children, .. } = &t {
-            assert_eq!(columns.len(), 2);
-            assert_eq!(rows.len(), 1);
-            assert_eq!(children.len(), 2);
+        if let Content::Table(e) = &t {
+            assert_eq!(e.columns.len(), 2);
+            assert_eq!(e.rows.len(), 1);
+            assert_eq!(e.children.len(), 2);
         } else {
             panic!("esperado Content::Table");
         }
@@ -4898,12 +4660,12 @@ mod tests {
     fn table_cell_constructor_default_todos_none() {
         // P157B: defaults — todos os fields x/y/colspan/rowspan None.
         let c = Content::table_cell(Content::text("body"), None, None, None, None);
-        if let Content::TableCell { body, x, y, colspan, rowspan, .. } = &c {
-            assert_eq!(body.plain_text(), "body");
-            assert_eq!(*x, None);
-            assert_eq!(*y, None);
-            assert_eq!(*colspan, None);
-            assert_eq!(*rowspan, None);
+        if let Content::TableCell(e) = &c {
+            assert_eq!(e.body.plain_text(), "body");
+            assert_eq!(e.x, None);
+            assert_eq!(e.y, None);
+            assert_eq!(e.colspan, None);
+            assert_eq!(e.rowspan, None);
         } else {
             panic!("esperado Content::TableCell");
         }
@@ -4917,9 +4679,9 @@ mod tests {
             Some(2), Some(3),
             None, None,
         );
-        if let Content::TableCell { x, y, .. } = &c {
-            assert_eq!(*x, Some(2));
-            assert_eq!(*y, Some(3));
+        if let Content::TableCell(e) = &c {
+            assert_eq!(e.x, Some(2));
+            assert_eq!(e.y, Some(3));
         } else {
             panic!("esperado Content::TableCell");
         }
@@ -4933,9 +4695,9 @@ mod tests {
             None, None,
             Some(2), Some(3),
         );
-        if let Content::TableCell { colspan, rowspan, .. } = &c {
-            assert_eq!(*colspan, Some(2));
-            assert_eq!(*rowspan, Some(3));
+        if let Content::TableCell(e) = &c {
+            assert_eq!(e.colspan, Some(2));
+            assert_eq!(e.rowspan, Some(3));
         } else {
             panic!("esperado Content::TableCell");
         }
@@ -4999,11 +4761,11 @@ mod tests {
         let upper = c.map_text(&mut |s| s.to_uppercase());
         assert_eq!(upper.plain_text(), "HELLO");
         // Atributos preservados após map_text.
-        if let Content::TableCell { x, y, colspan, rowspan, .. } = upper {
-            assert_eq!(x, Some(2));
-            assert_eq!(y, Some(3));
-            assert_eq!(colspan, Some(4));
-            assert_eq!(rowspan, Some(5));
+        if let Content::TableCell(e) = upper {
+            assert_eq!(e.x, Some(2));
+            assert_eq!(e.y, Some(3));
+            assert_eq!(e.colspan, Some(4));
+            assert_eq!(e.rowspan, Some(5));
         } else {
             panic!("esperado Content::TableCell após map_text");
         }

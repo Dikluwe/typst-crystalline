@@ -86,6 +86,11 @@ pub mod equation;
 // Lote 11 P326 — por largura (2 variantes element-shaped).
 pub mod footnote;
 pub mod shape;
+// Lote 12 P327 — bloco grid/table cell (4 variantes element-shaped).
+pub mod table_cell;
+pub mod table;
+pub mod grid_cell;
+pub mod grid;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;

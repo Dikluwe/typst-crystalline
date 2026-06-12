@@ -82,7 +82,7 @@ pub(crate) fn place_cells(
     let mut auto:     Vec<(usize, &Content)> = Vec::new();
     for (idx, c) in cells.iter().enumerate() {
         match c {
-            Content::GridCell { x, y, .. } if x.is_some() || y.is_some() => {
+            Content::GridCell(e) if e.x.is_some() || e.y.is_some() => {
                 explicit.push((idx, c));
             }
             _ => auto.push((idx, c)),
@@ -223,8 +223,8 @@ pub(crate) fn place_cells(
 /// algorítmico ortogonal a render cosmético).
 fn extract_cell_fields(c: &Content) -> (&Content, Option<usize>, Option<usize>, Option<usize>, Option<usize>) {
     match c {
-        Content::GridCell { body, x, y, colspan, rowspan, .. } => {
-            (body.as_ref(), *x, *y, *colspan, *rowspan)
+        Content::GridCell(e) => {
+            (&e.body, e.x, e.y, e.colspan, e.rowspan)
         }
         other => (other, None, None, None, None),
     }
@@ -284,8 +284,7 @@ mod tests {
     fn p224_placement_explicit_x_y() {
         // GridCell { x: Some(1), y: Some(1) } → posicionada literal.
         let cells = vec![
-            Content::GridCell {
-                body:    Box::new(Content::text("X")),
+            Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("X"),
                 x:       Some(1),
                 y:       Some(1),
                 colspan: None,
@@ -294,8 +293,7 @@ mod tests {
                 fill:    None,
                 align:   None,
                 inset:   None,
-                breakable: None,
-            },
+                breakable: None})),
         ];
         let placed = place_cells(&cells, 2).unwrap();
         assert_eq!(placed.len(), 1);
@@ -306,8 +304,7 @@ mod tests {
     fn p224_placement_colspan_ocupa_adjacente() {
         // GridCell colspan=2 ocupa 2 colunas; cell auto seguinte vai p/ row 1.
         let cells = vec![
-            Content::GridCell {
-                body:    Box::new(Content::text("WIDE")),
+            Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("WIDE"),
                 x:       None,
                 y:       None,
                 colspan: Some(2),
@@ -316,8 +313,7 @@ mod tests {
                 fill:    None,
                 align:   None,
                 inset:   None,
-                breakable: None,
-            },
+                breakable: None})),
             Content::text("next"),
         ];
         let placed = place_cells(&cells, 2).unwrap();
@@ -335,8 +331,7 @@ mod tests {
         // (rowspan=2 em (0,0)+(1,0)), cursor está em col=1. cell 2 vai
         // p/ (0,1). cell 3 vai p/ (1,1).
         let cells = vec![
-            Content::GridCell {
-                body:    Box::new(Content::text("TALL")),
+            Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("TALL"),
                 x:       None,
                 y:       None,
                 colspan: None,
@@ -345,8 +340,7 @@ mod tests {
                 fill:    None,
                 align:   None,
                 inset:   None,
-                breakable: None,
-            },
+                breakable: None})),
             Content::text("b"),
             Content::text("c"),
         ];
@@ -361,8 +355,7 @@ mod tests {
     #[test]
     fn p224_placement_conflito_explicit_explicit_rejeita() {
         let cells = vec![
-            Content::GridCell {
-                body:    Box::new(Content::text("X")),
+            Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("X"),
                 x:       Some(0),
                 y:       Some(0),
                 colspan: None,
@@ -371,10 +364,8 @@ mod tests {
                 fill:    None,
                 align:   None,
                 inset:   None,
-                breakable: None,
-            },
-            Content::GridCell {
-                body:    Box::new(Content::text("Y")),
+                breakable: None})),
+            Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("Y"),
                 x:       Some(0),
                 y:       Some(0),
                 colspan: None,
@@ -383,8 +374,7 @@ mod tests {
                 fill:    None,
                 align:   None,
                 inset:   None,
-                breakable: None,
-            },
+                breakable: None})),
         ];
         let r = place_cells(&cells, 2);
         assert!(r.is_err(), "conflito 2-cells em (0,0) deve falhar");
@@ -393,8 +383,7 @@ mod tests {
     #[test]
     fn p224_placement_colspan_excede_num_cols_rejeita() {
         let cells = vec![
-            Content::GridCell {
-                body:    Box::new(Content::text("HUGE")),
+            Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("HUGE"),
                 x:       None,
                 y:       None,
                 colspan: Some(5),
@@ -403,8 +392,7 @@ mod tests {
                 fill:    None,
                 align:   None,
                 inset:   None,
-                breakable: None,
-            },
+                breakable: None})),
         ];
         let r = place_cells(&cells, 2);
         assert!(r.is_err(), "colspan=5 > num_cols=2 deve falhar");
@@ -417,8 +405,7 @@ mod tests {
         // auto next → (1,0) cell C
         let cells = vec![
             Content::text("A"),
-            Content::GridCell {
-                body:    Box::new(Content::text("B")),
+            Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("B"),
                 x:       Some(1),
                 y:       Some(0),
                 colspan: None,
@@ -427,8 +414,7 @@ mod tests {
                 fill:    None,
                 align:   None,
                 inset:   None,
-                breakable: None,
-            },
+                breakable: None})),
             Content::text("C"),
         ];
         let placed = place_cells(&cells, 2).unwrap();

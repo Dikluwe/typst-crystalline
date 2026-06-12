@@ -247,7 +247,7 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 
     // P224.B — extract header/footer (Content opcional).
     let header = match args.named.get("header") {
-        Some(Value::Content(c)) => Some(Box::new(c.clone())),
+        Some(Value::Content(c)) => Some(c.clone()),
         Some(other) => return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("grid(header): espera content, recebeu {}", other.type_name()),
@@ -255,7 +255,7 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         None => None,
     };
     let footer = match args.named.get("footer") {
-        Some(Value::Content(c)) => Some(Box::new(c.clone())),
+        Some(Value::Content(c)) => Some(c.clone()),
         Some(other) => return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("grid(footer): espera content, recebeu {}", other.type_name()),
@@ -282,11 +282,13 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         None => None,
     };
 
-    Ok(Value::Content(Content::Grid {
-        columns, rows, cells,
-        gutter, align, inset, header, footer,
-        stroke, fill,
-    }))
+    Ok(Value::Content(Content::Grid(std::sync::Arc::new(
+        crate::entities::elements::grid::GridElem {
+            columns, rows, cells,
+            gutter, align, inset, header, footer,
+            stroke, fill,
+        },
+    ))))
 }
 
 /// `#set page(width: w, height: h, margin: m)` — configura as dimensões da página (Passo 81).

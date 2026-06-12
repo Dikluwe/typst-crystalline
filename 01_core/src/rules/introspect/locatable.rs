@@ -121,7 +121,7 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Image(_)
         | Content::Shape { .. }
         | Content::Transform(_)
-        | Content::Grid { .. }
+        | Content::Grid(_)
         | Content::SetPage { .. }
         | Content::Align(_)
         | Content::Place(_)
@@ -148,15 +148,15 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Stack(_)
         | Content::Boxed { .. }
         | Content::Block { .. }
-        | Content::TableCell { .. }
+        | Content::TableCell(_)
         | Content::TableHeader { .. }
         | Content::TableFooter { .. }
-        | Content::Table { .. }
+        | Content::Table(_)
         // P224 — Grid refino + variants novos não-locatable (paridade
         // Table*; events estructurais sem identidade observable).
         | Content::GridHeader { .. }
         | Content::GridFooter { .. }
-        | Content::GridCell { .. }
+        | Content::GridCell(_)
         | Content::Repeat(_)
         // P217 — Columns container não-locatable (transparente para
         // introspect; consumer multi-region em P219).

@@ -315,13 +315,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // P235). Match em `placed.body` preserva GridCell wrapper
                 // P234.
                 let (cell_stroke, cell_fill, cell_align, cell_inset, _cell_breakable) = match cell {
-                    Content::GridCell { stroke, fill, align, inset, breakable, .. } |
-                    Content::TableCell { stroke, fill, align, inset, breakable, .. } => (
-                        stroke.as_ref(),
-                        fill.as_ref(),
-                        align.as_ref().copied(),
-                        inset.as_ref(),
-                        breakable.as_ref().copied(),
+                    // Modelo D (Lote 12 P327): arm `|`-combinado GridCell+TableCell
+                    // dividido — TableCell já é `Arc<…Elem>`, GridCell ainda struct
+                    // (migra a seguir). Bindings com tipos distintos não partilham
+                    // or-pattern; split permanente.
+                    Content::TableCell(e) => (
+                        e.stroke.as_ref(),
+                        e.fill.as_ref(),
+                        e.align.as_ref().copied(),
+                        e.inset.as_ref(),
+                        e.breakable.as_ref().copied(),
+                    ),
+                    Content::GridCell(e) => (
+                        e.stroke.as_ref(),
+                        e.fill.as_ref(),
+                        e.align.as_ref().copied(),
+                        e.inset.as_ref(),
+                        e.breakable.as_ref().copied(),
                     ),
                     _ => (None, None, None, None, None),
                 };

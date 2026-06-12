@@ -1581,7 +1581,7 @@ fn grid_altura_da_linha_e_o_maximo_das_celulas() {
             ))), None, None)
     };
 
-    let grid = Content::Grid {
+    let grid = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
         columns: vec![
             crate::entities::layout_types::TrackSizing::Fixed(100.0),
             crate::entities::layout_types::TrackSizing::Fixed(100.0),
@@ -1591,12 +1591,9 @@ fn grid_altura_da_linha_e_o_maximo_das_celulas() {
         gutter: None,
         align:  None,
         inset:  crate::entities::sides::Sides::uniform(
-            crate::entities::layout_types::Length::pt(0.0)),
-        header: None,
-        footer: None,
+            crate::entities::layout_types::Length::pt(0.0)), header: None, footer: None,
         stroke: None,
-        fill:   None,
-    };
+        fill:   None}));
 
     let state = introspect(&grid);
     let doc   = layout(&grid);
@@ -3037,18 +3034,15 @@ mod tests_show_rule_integration {
     fn p224_grid_com_header_footer_renderiza_body() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Auto],
             rows:    vec![],
             cells:   vec![Content::text("p224body")],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  Some(Box::new(Content::text("p224hdr"))),
-            footer:  Some(Box::new(Content::text("p224ftr"))),
+            inset:   Sides::uniform(Length::pt(0.0)), header: Some(Content::text("p224hdr")), footer: Some(Content::text("p224ftr")),
             stroke:  None,
-            fill:    None,
-        };
+            fill:    None}));
         let doc = layout(&g);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -3063,16 +3057,14 @@ mod tests_show_rule_integration {
     /// (P224.C); aqui só verifica que GridCell isolado renderiza body.
     #[test]
     fn p224_gridcell_isolado_renderiza_body() {
-        let cell = Content::GridCell {
-            body:    Box::new(Content::text("p224cell")),
+        let cell = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("p224cell"),
             x:       None,
             y:       None,
             colspan: None,
             rowspan: None,
             stroke:  None,
             fill:    None,
-            align:   None, inset: None, breakable: None,
-        };
+            align:   None, inset: None, breakable: None}));
         let doc = layout(&cell);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -3098,18 +3090,15 @@ mod tests_show_rule_integration {
             Content::text("A"), Content::text("B"),
             Content::text("C"), Content::text("D"),
         ];
-        let with_stroke = Content::Grid {
+        let with_stroke = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   cells.clone(),
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),
-            fill:    None,
-        };
+            fill:    None}));
         let doc = layout(&with_stroke);
         let line_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item,
@@ -3125,18 +3114,15 @@ mod tests_show_rule_integration {
     fn p227_grid_sem_stroke_zero_lines_extra() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let g_no_stroke = Content::Grid {
+        let g_no_stroke = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   vec![Content::text("A"), Content::text("B")],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,  // baseline
-            fill:    None,
-        };
+            fill:    None}));
         let doc = layout(&g_no_stroke);
         let line_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item,
@@ -3150,13 +3136,12 @@ mod tests_show_rule_integration {
     fn p227_table_stroke_paridade_grid() {
         use crate::entities::geometry::Stroke;
         use crate::entities::layout_types::{TrackSizing, Color};
-        let t = Content::Table {
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns:  vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
             rows:     vec![],
             children: vec![Content::text("X"), Content::text("Y")],
             stroke:   Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 255)), thickness: 0.5, overhang: false }),
-            fill:     None,
-        };
+            fill:     None}));
         let doc = layout(&t);
         let line_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item,
@@ -3179,18 +3164,15 @@ mod tests_show_rule_integration {
             Content::text("A"), Content::text("B"),
             Content::text("C"), Content::text("D"),
         ];
-        let with_fill = Content::Grid {
+        let with_fill = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   cells,
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
-            fill:    Some(Color::rgb(255, 255, 0)),
-        };
+            fill:    Some(Color::rgb(255, 255, 0))}));
         let doc = layout(&with_fill);
         let rect_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item,
@@ -3206,18 +3188,16 @@ mod tests_show_rule_integration {
     fn p228_grid_sem_fill_zero_rects_extra() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let g_no_fill = Content::Grid {
+        let g_no_fill = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   vec![Content::text("A"), Content::text("B")],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
             fill:    None,  // baseline
-        };
+        }));
         let doc = layout(&g_no_fill);
         let rect_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item,
@@ -3233,18 +3213,15 @@ mod tests_show_rule_integration {
         // Index do primeiro Rect < index do primeiro Text.
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   vec![Content::text("ZorderTest")],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
-            fill:    Some(Color::rgb(255, 0, 0)),
-        };
+            fill:    Some(Color::rgb(255, 0, 0))}));
         let doc = layout(&g);
         let items: Vec<&FrameItem> = doc.pages.iter().flat_map(|p| p.items.iter()).collect();
         let first_rect_idx = items.iter().position(|item| matches!(item,
@@ -3267,18 +3244,15 @@ mod tests_show_rule_integration {
         use crate::entities::geometry::Stroke;
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   vec![Content::text("ZorderFull")],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),
-            fill:    Some(Color::rgb(255, 255, 0)),
-        };
+            fill:    Some(Color::rgb(255, 255, 0))}));
         let doc = layout(&g);
         let items: Vec<&FrameItem> = doc.pages.iter().flat_map(|p| p.items.iter()).collect();
         let rect_idx = items.iter().position(|item| matches!(item,
@@ -3297,13 +3271,12 @@ mod tests_show_rule_integration {
     #[test]
     fn p228_table_fill_delegate_paridade_grid() {
         use crate::entities::layout_types::{TrackSizing, Color};
-        let t = Content::Table {
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns:  vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
             rows:     vec![],
             children: vec![Content::text("X"), Content::text("Y")],
             stroke:   None,
-            fill:     Some(Color::rgb(200, 200, 200)),
-        };
+            fill:     Some(Color::rgb(200, 200, 200))}));
         let doc = layout(&t);
         let rect_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item,
@@ -3324,28 +3297,23 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
 
-        let cell_with_override = Content::GridCell {
-            body:    Box::new(Content::text("override")),
+        let cell_with_override = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("override"),
             x:       None,
             y:       None,
             colspan: None,
             rowspan: None,
             stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 255)), thickness: 5.0, overhang: false }),
             fill:    None,
-            align:   None, inset: None, breakable: None,
-        };
-        let g = Content::Grid {
+            align:   None, inset: None, breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   vec![cell_with_override],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(255, 0, 0)), thickness: 1.0, overhang: false }),
-            fill:    None,
-        };
+            fill:    None}));
         let doc = layout(&g);
         // Verificar que stroke emitido tem thickness 5.0 (cell override; não 1.0 Grid).
         let mut found_override = false;
@@ -3368,28 +3336,24 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
 
-        let cell_with_fill = Content::GridCell {
-            body:    Box::new(Content::text("c")),
+        let cell_with_fill = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("c"),
             x:       None,
             y:       None,
             colspan: None,
             rowspan: None,
             stroke:  None,
             fill:    Some(Color::rgb(0, 255, 0)),  // cell green
-            align:   None, inset: None, breakable: None,
-        };
-        let g = Content::Grid {
+            align:   None, inset: None, breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   vec![cell_with_fill],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
             fill:    Some(Color::rgb(255, 0, 0)),  // grid red
-        };
+        }));
         let doc = layout(&g);
         // Verificar fill emitido é green (cell override).
         let mut found_green = false;
@@ -3412,18 +3376,15 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
 
         let cell_raw = Content::text("raw");  // Content raw sem stroke/fill
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   vec![cell_raw],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 3.0, overhang: false }),
-            fill:    None,
-        };
+            fill:    None}));
         let doc = layout(&g);
         let line_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item,
@@ -3441,28 +3402,23 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
 
-        let cell_with_stroke = Content::GridCell {
-            body:    Box::new(Content::text("c")),
+        let cell_with_stroke = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("c"),
             x:       None,
             y:       None,
             colspan: None,
             rowspan: None,
             stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),
             fill:    None,
-            align:   None, inset: None, breakable: None,
-        };
-        let g = Content::Grid {
+            align:   None, inset: None, breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   vec![cell_with_stroke],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,  // Grid sem stroke
-            fill:    None,
-        };
+            fill:    None}));
         let doc = layout(&g);
         let line_count: usize = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter(|item| matches!(item,
@@ -3480,28 +3436,24 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
 
-        let cell = Content::GridCell {
-            body:    Box::new(Content::text("c")),
+        let cell = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("c"),
             x:       None,
             y:       None,
             colspan: None,
             rowspan: None,
             stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),  // cell stroke
             fill:    None,
-            align:   None, inset: None, breakable: None,
-        };
-        let g = Content::Grid {
+            align:   None, inset: None, breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   vec![cell],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
             fill:    Some(Color::rgb(255, 255, 0)),  // grid fill (cell inherit)
-        };
+        }));
         let doc = layout(&g);
         let items: Vec<&FrameItem> = doc.pages.iter().flat_map(|p| p.items.iter()).collect();
         let rect_idx = items.iter().position(|item| matches!(item,
@@ -4379,8 +4331,7 @@ mod tests_show_rule_integration {
         // Cell body cabe em cell_h: sem Group de clip overflow.
         use crate::entities::layout_types::TrackSizing;
         // Table 1×1 com cell pequeno; row Auto.
-        let cell = Content::TableCell {
-            body:      Box::new(Content::text("x")),
+        let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: Content::text("x"),
             x:         None,
             y:         None,
             colspan:   None,
@@ -4389,15 +4340,13 @@ mod tests_show_rule_integration {
             fill:      None,
             align:     None,
             inset:     None,
-            breakable: None,
-        };
-        let t = Content::Table {
+            breakable: None}));
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns: vec![TrackSizing::Auto],
             rows:    vec![TrackSizing::Auto],
             children: vec![cell],
             stroke:   None,
-            fill:     None,
-        };
+            fill:     None}));
         let doc = layout(&t);
         // Sem Group por overflow cell (body pequeno cabe).
         let mut found_overflow_clip = false;
@@ -4436,8 +4385,7 @@ mod tests_show_rule_integration {
             below:     None,
             sticky:    false,
         };
-        let cell = Content::TableCell {
-            body:      Box::new(inner_block),
+        let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
             colspan:   None,
@@ -4446,15 +4394,13 @@ mod tests_show_rule_integration {
             fill:      None,
             align:     None,
             inset:     None,
-            breakable: None,
-        };
-        let t = Content::Table {
+            breakable: None}));
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns: vec![TrackSizing::Fixed(40.0)],
             rows:    vec![TrackSizing::Fixed(10.0)],
             children: vec![cell],
             stroke:   None,
-            fill:     None,
-        };
+            fill:     None}));
         let doc = layout(&t);
         let mut found_clip_group = false;
         for page in doc.pages.iter() {
@@ -4492,8 +4438,7 @@ mod tests_show_rule_integration {
             below:     None,
             sticky:    false,
         };
-        let cell = Content::TableCell {
-            body:      Box::new(inner_block),
+        let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
             colspan:   None,
@@ -4502,15 +4447,13 @@ mod tests_show_rule_integration {
             fill:      Some(Color::rgb(220, 220, 50)),
             align:     None,
             inset:     None,
-            breakable: None,
-        };
-        let t = Content::Table {
+            breakable: None}));
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns: vec![TrackSizing::Fixed(30.0)],
             rows:    vec![TrackSizing::Fixed(10.0)],
             children: vec![cell],
             stroke:   None,
-            fill:     None,
-        };
+            fill:     None}));
         let doc = layout(&t);
         let mut found_fill = false;
         let mut found_clip = false;
@@ -4552,8 +4495,7 @@ mod tests_show_rule_integration {
             below:     None,
             sticky:    false,
         };
-        let cell = Content::TableCell {
-            body:      Box::new(inner_block),
+        let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
             colspan:   None,
@@ -4562,15 +4504,13 @@ mod tests_show_rule_integration {
             fill:      None,
             align:     None,
             inset:     None,
-            breakable: None,
-        };
-        let t = Content::Table {
+            breakable: None}));
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns: vec![TrackSizing::Fixed(40.0)],
             rows:    vec![TrackSizing::Fixed(15.0)],
             children: vec![cell],
             stroke:   None,
-            fill:     None,
-        };
+            fill:     None}));
         let doc = layout(&t);
         // Smoke: layout não panica + alguma Group emitida por activação C.
         let mut found_clip = false;
@@ -4729,8 +4669,7 @@ mod tests_show_rule_integration {
             below:     None,
             sticky:    false,
         };
-        let cell = Content::TableCell {
-            body:      Box::new(inner_block),
+        let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
             colspan:   None,
@@ -4739,15 +4678,13 @@ mod tests_show_rule_integration {
             fill:      None,
             align:     None,
             inset:     None,
-            breakable: None,
-        };
-        let t = Content::Table {
+            breakable: None}));
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns: vec![TrackSizing::Fixed(60.0)],
             rows:    vec![TrackSizing::Fixed(20.0)],
             children: vec![cell],
             stroke:   None,
-            fill:     None,
-        };
+            fill:     None}));
         let doc = layout(&t);
         // Espera ≥1 Group (P242 inner radius+clip ou P248 cell overflow).
         let mut group_count = 0;
@@ -5400,8 +5337,7 @@ mod tests_show_rule_integration {
             below:     None,
             sticky:    false,
         };
-        let cell = Content::TableCell {
-            body:      Box::new(inner_block),
+        let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
             colspan:   None,
@@ -5410,15 +5346,13 @@ mod tests_show_rule_integration {
             fill:      None,
             align:     None,
             inset:     None,
-            breakable: None,
-        };
-        let t = Content::Table {
+            breakable: None}));
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns: vec![TrackSizing::Fixed(40.0)],
             rows:    vec![TrackSizing::Fixed(10.0)],  // Fixed!
             children: vec![cell],
             stroke:   None,
-            fill:     None,
-        };
+            fill:     None}));
         let doc = layout(&t);
         // P248 preservado: Group com clip_mask Rect inner_height<=10pt.
         let mut found_clip_group = false;
@@ -5459,8 +5393,7 @@ mod tests_show_rule_integration {
             below:     None,
             sticky:    false,
         };
-        let cell = Content::TableCell {
-            body:      Box::new(inner_block),
+        let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
             colspan:   None,
@@ -5469,15 +5402,13 @@ mod tests_show_rule_integration {
             fill:      None,
             align:     None,
             inset:     None,
-            breakable: None,
-        };
-        let t = Content::Table {
+            breakable: None}));
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns: vec![TrackSizing::Fixed(40.0)],
             rows:    vec![TrackSizing::Auto],  // Auto → P251 row break
             children: vec![cell],
             stroke:   None,
-            fill:     None,
-        };
+            fill:     None}));
         let doc = layout(&t);
         // Smoke: layout não panica. P251 substitui P248 clip por
         // slice (NÃO há Group com clip_mask inner_height==row_h).
@@ -5498,8 +5429,7 @@ mod tests_show_rule_integration {
         // Sentinela: cell sem overflow preserva output P248 literal
         // (push items directo; sem clip, sem tail).
         use crate::entities::layout_types::TrackSizing;
-        let cell = Content::TableCell {
-            body:      Box::new(Content::text("ok")),
+        let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: Content::text("ok"),
             x:         None,
             y:         None,
             colspan:   None,
@@ -5508,15 +5438,13 @@ mod tests_show_rule_integration {
             fill:      None,
             align:     None,
             inset:     None,
-            breakable: None,
-        };
-        let t = Content::Table {
+            breakable: None}));
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns: vec![TrackSizing::Auto],
             rows:    vec![TrackSizing::Auto],
             children: vec![cell],
             stroke:   None,
-            fill:     None,
-        };
+            fill:     None}));
         let doc = layout(&t);
         let mut texts = String::new();
         for page in doc.pages.iter() {
@@ -5573,8 +5501,7 @@ mod tests_show_rule_integration {
             below:     None,
             sticky:    false,
         };
-        let cell = Content::TableCell {
-            body:      Box::new(inner_block),
+        let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
             colspan:   None,
@@ -5583,15 +5510,13 @@ mod tests_show_rule_integration {
             fill:      None,
             align:     None,
             inset:     None,
-            breakable: None,
-        };
-        let t = Content::Table {
+            breakable: None}));
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns: vec![TrackSizing::Fixed(40.0)],
             rows:    vec![TrackSizing::Auto],
             children: vec![cell],
             stroke:   None,
-            fill:     None,
-        };
+            fill:     None}));
         // Pagebreak manual força flush.
         let seq = Content::Sequence(std::sync::Arc::from(vec![
             t,
@@ -5627,8 +5552,7 @@ mod tests_show_rule_integration {
             below:     None,
             sticky:    false,
         };
-        let cell = Content::TableCell {
-            body:      Box::new(inner_block),
+        let cell = Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner_block,
             x:         None,
             y:         None,
             colspan:   None,
@@ -5637,15 +5561,13 @@ mod tests_show_rule_integration {
             fill:      Some(Color::rgb(100, 100, 50)),
             align:     None,
             inset:     None,
-            breakable: None,
-        };
-        let t = Content::Table {
+            breakable: None}));
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns: vec![TrackSizing::Fixed(40.0)],
             rows:    vec![TrackSizing::Auto],
             children: vec![cell],
             stroke:   None,
-            fill:     None,
-        };
+            fill:     None}));
         let seq = Content::Sequence(std::sync::Arc::from(vec![
             t,
             Content::pagebreak(false, None),
@@ -5705,8 +5627,7 @@ mod tests_show_rule_integration {
                 below:     None,
                 sticky:    false,
             };
-            Content::TableCell {
-                body:      Box::new(inner),
+            Content::TableCell(std::sync::Arc::new(crate::entities::elements::table_cell::TableCellElem { body: inner,
                 x:         None,
                 y:         None,
                 colspan:   None,
@@ -5715,16 +5636,14 @@ mod tests_show_rule_integration {
                 fill:      None,
                 align:     None,
                 inset:     None,
-                breakable: None,
-            }
+                breakable: None}))
         };
-        let t = Content::Table {
+        let t = Content::Table(std::sync::Arc::new(crate::entities::elements::table::TableElem {
             columns: vec![TrackSizing::Fixed(40.0)],
             rows:    vec![TrackSizing::Auto, TrackSizing::Auto],
             children: vec![mk_cell("r1"), mk_cell("r2")],
             stroke:   None,
-            fill:     None,
-        };
+            fill:     None}));
         let doc = layout(&t);
         let mut texts = String::new();
         for page in doc.pages.iter() {
@@ -6024,18 +5943,15 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing, PlaceScope};
         use crate::entities::sides::Sides;
         let place_in_cell = Content::place(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) }, 0.0, 0.0, PlaceScope::Column, false, None, Content::text("p232plain"));
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   vec![place_in_cell],
             gutter:  None,
             align:   None,  // sem Grid align → Place usa alignment direct
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
-            fill:    None,
-        };
+            fill:    None}));
         let doc = layout(&g);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -6054,18 +5970,15 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing, PlaceScope};
         use crate::entities::sides::Sides;
         let place_empty = Content::place(Align2D { h: None, v: None }, 0.0, 0.0, PlaceScope::Column, false, None, Content::text("p232herda"));
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   vec![place_empty],
             gutter:  None,
             align:   Some(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) }),
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
-            fill:    None,
-        };
+            fill:    None}));
         let doc = layout(&g);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -6082,18 +5995,15 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing, PlaceScope};
         use crate::entities::sides::Sides;
         let place_partial = Content::place(Align2D { h: Some(HAlign::Right), v: None }, 0.0, 0.0, PlaceScope::Column, false, None, Content::text("p232override"));
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   vec![place_partial],
             gutter:  None,
             align:   Some(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) }),
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
-            fill:    None,
-        };
+            fill:    None}));
         let doc = layout(&g);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -6110,18 +6020,15 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Align2D, HAlign, VAlign, Length, TrackSizing, PlaceScope};
         use crate::entities::sides::Sides;
         let place_full = Content::place(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Bottom) }, 0.0, 0.0, PlaceScope::Column, false, None, Content::text("p232full"));
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0)],
             rows:    vec![],
             cells:   vec![place_full],
             gutter:  None,
             align:   Some(Align2D { h: Some(HAlign::Center), v: Some(VAlign::Top) }),
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
-            fill:    None,
-        };
+            fill:    None}));
         let doc = layout(&g);
         let texts: String = doc.pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
@@ -6138,15 +6045,13 @@ mod tests_show_rule_integration {
     fn p233_grid_auto_sem_fr_baseline_preservado() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Auto, TrackSizing::Auto],
             rows:    vec![],
             cells:   vec![Content::text("AA"), Content::text("BB")],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let txt = doc.plain_text();
         assert!(txt.contains("AA") && txt.contains("BB"),
@@ -6157,15 +6062,13 @@ mod tests_show_rule_integration {
     fn p233_grid_auto_fr_mix_fr_recebe_espaco() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Auto, TrackSizing::Fraction(1.0)],
             rows:    vec![],
             cells:   vec![Content::text("X"), Content::text("Y")],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let txt = doc.plain_text();
         assert!(txt.contains("X") && txt.contains("Y"),
@@ -6176,15 +6079,13 @@ mod tests_show_rule_integration {
     fn p233_grid_2auto_1fr_split() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Auto, TrackSizing::Auto, TrackSizing::Fraction(1.0)],
             rows:    vec![],
             cells:   vec![Content::text("A"), Content::text("B"), Content::text("C")],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let txt = doc.plain_text();
         assert!(txt.contains("A") && txt.contains("B") && txt.contains("C"),
@@ -6195,15 +6096,13 @@ mod tests_show_rule_integration {
     fn p233_grid_fixed_auto_fr_combinacao() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Auto, TrackSizing::Fraction(1.0)],
             rows:    vec![],
             cells:   vec![Content::text("F"), Content::text("A"), Content::text("R")],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let txt = doc.plain_text();
         assert!(txt.contains("F") && txt.contains("A") && txt.contains("R"),
@@ -6214,15 +6113,13 @@ mod tests_show_rule_integration {
     fn p233_grid_fixed_baseline_preservado() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(100.0), TrackSizing::Fixed(100.0)],
             rows:    vec![],
             cells:   vec![Content::text("F1"), Content::text("F2")],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         assert!(!doc.pages.is_empty(),
             "Grid Fixed baseline P224 preservado pós-P233");
@@ -6234,23 +6131,19 @@ mod tests_show_rule_integration {
     fn p234_grid_colspan_2_cell_ocupa_2_cols_fill() {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
-        let wide_cell = Content::GridCell {
-            body:    Box::new(Content::text("WIDE")),
+        let wide_cell = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("WIDE"),
             x:       None, y: None,
             colspan: Some(2), rowspan: None,
             stroke:  None,
             fill:    Some(Color::rgb(0, 200, 0)),
-            align:   None, inset: None, breakable: None,
-        };
-        let g = Content::Grid {
+            align:   None, inset: None, breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(60.0), TrackSizing::Fixed(40.0)],
             rows:    vec![],
             cells:   vec![wide_cell],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let mut found_wide = false;
         for p in &doc.pages {
@@ -6273,23 +6166,19 @@ mod tests_show_rule_integration {
     fn p234_grid_rowspan_2_cell_ocupa_2_rows_fill() {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
-        let tall_cell = Content::GridCell {
-            body:    Box::new(Content::text("TALL")),
+        let tall_cell = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("TALL"),
             x:       None, y: None,
             colspan: None, rowspan: Some(2),
             stroke:  None,
             fill:    Some(Color::rgb(0, 0, 200)),
-            align:   None, inset: None, breakable: None,
-        };
-        let g = Content::Grid {
+            align:   None, inset: None, breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
             rows:    vec![TrackSizing::Fixed(30.0), TrackSizing::Fixed(40.0)],
             cells:   vec![tall_cell, Content::text("b"), Content::text("c")],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let mut found_tall = false;
         for p in &doc.pages {
@@ -6313,23 +6202,19 @@ mod tests_show_rule_integration {
         use crate::entities::geometry::{ShapeKind, Stroke};
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
-        let wide_cell = Content::GridCell {
-            body:    Box::new(Content::text("WS")),
+        let wide_cell = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("WS"),
             x:       None, y: None,
             colspan: Some(2), rowspan: None,
             stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(255, 0, 0)), thickness: 2.0, overhang: false }),
             fill:    None,
-            align:   None, inset: None, breakable: None,
-        };
-        let g = Content::Grid {
+            align:   None, inset: None, breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(60.0), TrackSizing::Fixed(40.0)],
             rows:    vec![TrackSizing::Fixed(30.0)],
             cells:   vec![wide_cell],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let mut found_wide_edge = false;
         for p in &doc.pages {
@@ -6353,24 +6238,20 @@ mod tests_show_rule_integration {
         use crate::entities::geometry::Stroke;
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
-        let wide_override = Content::GridCell {
-            body:    Box::new(Content::text("W")),
+        let wide_override = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("W"),
             x:       None, y: None,
             colspan: Some(2), rowspan: None,
             stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 255)), thickness: 7.0, overhang: false }),
             fill:    None,
-            align:   None, inset: None, breakable: None,
-        };
-        let g = Content::Grid {
+            align:   None, inset: None, breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
             rows:    vec![TrackSizing::Fixed(30.0)],
             cells:   vec![wide_override],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(255, 0, 0)), thickness: 1.0, overhang: false }),
-            fill:    None,
-        };
+            fill:    None}));
         let doc = layout(&g);
         let mut found_override = false;
         for p in &doc.pages {
@@ -6388,16 +6269,14 @@ mod tests_show_rule_integration {
     fn p234_grid_sem_colspan_rowspan_baseline_preservado() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
             rows:    vec![TrackSizing::Fixed(20.0), TrackSizing::Fixed(20.0)],
             cells:   vec![Content::text("A"), Content::text("B"),
                           Content::text("C"), Content::text("D")],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let txt = doc.plain_text();
         assert!(txt.contains("A") && txt.contains("B") &&
@@ -6410,16 +6289,14 @@ mod tests_show_rule_integration {
         use crate::entities::geometry::Stroke;
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
             rows:    vec![TrackSizing::Fixed(20.0)],
             cells:   vec![Content::text("a"), Content::text("b")],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  Some(Stroke { paint: Paint::Solid(Color::rgb(100, 100, 100)), thickness: 1.0, overhang: false }),
-            fill:    None,
-        };
+            fill:    None}));
         let doc = layout(&g);
         let mut line_count = 0;
         for p in &doc.pages {
@@ -6438,16 +6315,14 @@ mod tests_show_rule_integration {
     fn p234_grid_fill_baseline_p228_preservado() {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
             rows:    vec![TrackSizing::Fixed(20.0)],
             cells:   vec![Content::text("a"), Content::text("b")],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
-            fill:    Some(Color::rgb(200, 200, 200)),
-        };
+            fill:    Some(Color::rgb(200, 200, 200))}));
         let doc = layout(&g);
         let mut rect_count = 0;
         for p in &doc.pages {
@@ -6466,15 +6341,13 @@ mod tests_show_rule_integration {
     fn p234_grid_auto_sizing_baseline_p233_preservado() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Auto, TrackSizing::Fraction(1.0)],
             rows:    vec![],
             cells:   vec![Content::text("AA"), Content::text("BB")],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let txt = doc.plain_text();
         assert!(txt.contains("AA") && txt.contains("BB"),
@@ -6485,22 +6358,18 @@ mod tests_show_rule_integration {
     fn p234_grid_mix_explicit_e_auto_renderiza_todos() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let explicit_cell = Content::GridCell {
-            body:    Box::new(Content::text("EXP")),
+        let explicit_cell = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("EXP"),
             x:       Some(1), y: Some(0),
             colspan: None, rowspan: None,
             stroke:  None, fill: None,
-            align:   None, inset: None, breakable: None,
-        };
-        let g = Content::Grid {
+            align:   None, inset: None, breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(30.0), TrackSizing::Fixed(30.0)],
             rows:    vec![TrackSizing::Fixed(15.0), TrackSizing::Fixed(15.0)],
             cells:   vec![explicit_cell, Content::text("AUTO1"), Content::text("AUTO2")],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let txt = doc.plain_text();
         assert!(txt.contains("EXP") && txt.contains("AUTO1") &&
@@ -6512,23 +6381,19 @@ mod tests_show_rule_integration {
     fn p234_grid_colspan_fill_position_x0() {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
-        let wide_cell = Content::GridCell {
-            body:    Box::new(Content::text("W")),
+        let wide_cell = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("W"),
             x:       None, y: None,
             colspan: Some(2), rowspan: None,
             stroke:  None,
             fill:    Some(Color::rgb(123, 45, 67)),
-            align:   None, inset: None, breakable: None,
-        };
-        let g = Content::Grid {
+            align:   None, inset: None, breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(60.0)],
             rows:    vec![TrackSizing::Fixed(20.0)],
             cells:   vec![wide_cell],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let mut found = false;
         for p in &doc.pages {
@@ -6550,24 +6415,20 @@ mod tests_show_rule_integration {
     fn p234_grid_colspan_rowspan_2x2_fill_bounds_combinados() {
         use crate::entities::layout_types::{Length, TrackSizing, Color};
         use crate::entities::sides::Sides;
-        let big_cell = Content::GridCell {
-            body:    Box::new(Content::text("BIG")),
+        let big_cell = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("BIG"),
             x:       None, y: None,
             colspan: Some(2), rowspan: Some(2),
             stroke:  None,
             fill:    Some(Color::rgb(11, 22, 33)),
-            align:   None, inset: None, breakable: None,
-        };
-        let g = Content::Grid {
+            align:   None, inset: None, breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(20.0), TrackSizing::Fixed(30.0),
                           TrackSizing::Fixed(40.0)],
             rows:    vec![TrackSizing::Fixed(10.0), TrackSizing::Fixed(15.0)],
             cells:   vec![big_cell, Content::text("x")],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let mut found = false;
         for p in &doc.pages {
@@ -6598,24 +6459,20 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
         // Cell com inset 10pt; grid inset 0 → body shift (10, 10).
-        let cell = Content::GridCell {
-            body:    Box::new(Content::text("INS")),
+        let cell = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("INS"),
             x:       None, y: None,
             colspan: None, rowspan: None,
             stroke:  None, fill: None,
             align:   None,
             inset:   Some(Sides::uniform(Length::pt(10.0))),
-            breakable: None,
-        };
-        let g = Content::Grid {
+            breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(100.0)],
             rows:    vec![TrackSizing::Fixed(50.0)],
             cells:   vec![cell],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         // Body renderizou (mínimo render OK).
         let txt = doc.plain_text();
@@ -6628,23 +6485,20 @@ mod tests_show_rule_integration {
     fn p235_per_cell_inset_none_inherits_grid() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let cell = Content::GridCell {
-            body:    Box::new(Content::text("INH")),
+        let cell = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("INH"),
             x:       None, y: None,
             colspan: None, rowspan: None,
             stroke:  None, fill: None,
             align:   None, inset: None,  // inherit Grid
-            breakable: None,
-        };
-        let g = Content::Grid {
+            breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(80.0)],
             rows:    vec![TrackSizing::Fixed(30.0)],
             cells:   vec![cell],
             gutter:  None, align: None,
             inset:   Sides::uniform(Length::pt(5.0)),  // Grid inset 5pt
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            header:  None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let txt = doc.plain_text();
         assert!(txt.contains("INH"),
@@ -6658,23 +6512,19 @@ mod tests_show_rule_integration {
     fn p235_per_cell_breakable_armazenado_layout_preservado() {
         use crate::entities::layout_types::{Length, TrackSizing};
         use crate::entities::sides::Sides;
-        let cell = Content::GridCell {
-            body:    Box::new(Content::text("BR")),
+        let cell = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("BR"),
             x:       None, y: None,
             colspan: None, rowspan: None,
             stroke:  None, fill: None,
             align:   None, inset: None,
-            breakable: Some(false),
-        };
-        let g = Content::Grid {
+            breakable: Some(false)}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(40.0)],
             rows:    vec![TrackSizing::Fixed(20.0)],
             cells:   vec![cell],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         // Render preservado; breakable armazenado mas não afecta visual.
         let txt = doc.plain_text();
@@ -6688,23 +6538,19 @@ mod tests_show_rule_integration {
     fn p235_per_cell_align_override_grid_armazenado() {
         use crate::entities::layout_types::{Length, TrackSizing, Align2D};
         use crate::entities::sides::Sides;
-        let cell = Content::GridCell {
-            body:    Box::new(Content::text("AL")),
+        let cell = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("AL"),
             x:       None, y: None,
             colspan: None, rowspan: None,
             stroke:  None, fill: None,
             align:   Some(Align2D::from_string("center")),
-            inset:   None, breakable: None,
-        };
-        let g = Content::Grid {
+            inset:   None, breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(100.0)],
             rows:    vec![TrackSizing::Fixed(30.0)],
             cells:   vec![cell],
             gutter:  None, align: None,
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         // Render OK; align efectivo per-cell via Layouter cell_align extension.
         let txt = doc.plain_text();
@@ -6717,24 +6563,20 @@ mod tests_show_rule_integration {
     fn p235_per_cell_align_none_inherits_grid() {
         use crate::entities::layout_types::{Length, TrackSizing, Align2D};
         use crate::entities::sides::Sides;
-        let cell = Content::GridCell {
-            body:    Box::new(Content::text("IA")),
+        let cell = Content::GridCell(std::sync::Arc::new(crate::entities::elements::grid_cell::GridCellElem { body: Content::text("IA"),
             x:       None, y: None,
             colspan: None, rowspan: None,
             stroke:  None, fill: None,
             align:   None,  // inherit Grid
-            inset:   None, breakable: None,
-        };
-        let g = Content::Grid {
+            inset:   None, breakable: None}));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(100.0)],
             rows:    vec![TrackSizing::Fixed(30.0)],
             cells:   vec![cell],
             gutter:  None,
             align:   Some(Align2D::from_string("right")),  // Grid align right
-            inset:   Sides::uniform(Length::pt(0.0)),
-            header:  None, footer:  None,
-            stroke:  None, fill: None,
-        };
+            inset:   Sides::uniform(Length::pt(0.0)), header: None, footer: None,
+            stroke:  None, fill: None}));
         let doc = layout(&g);
         let txt = doc.plain_text();
         assert!(txt.contains("IA"),
@@ -6824,19 +6666,16 @@ mod tests_show_rule_integration {
         ];
 
         // Versão Grid.
-        let g = Content::Grid {
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: columns.clone(),
             rows:    vec![],
             cells:   cells.clone(),
             gutter:  None,
             align:   None,
             inset:   crate::entities::sides::Sides::uniform(
-                crate::entities::layout_types::Length::pt(0.0)),
-            header:  None,
-            footer:  None,
+                crate::entities::layout_types::Length::pt(0.0)), header: None, footer: None,
             stroke:  None,
-            fill:    None,
-        };
+            fill:    None}));
         let doc_g = layout(&g);
         let positions_g: Vec<(String, f64, f64)> = doc_g.pages.iter()
             .flat_map(|p| p.items.iter())
@@ -9338,18 +9177,15 @@ mod p273_9_containers_estendidos {
     #[test]
     fn p273_9_grid_cell_save_restore_parent_bbox() {
         let cell_content = rect_shape(20.0, 10.0);
-        let grid = Content::Grid {
+        let grid = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(100.0)],
             rows:    vec![],
             cells:   vec![cell_content],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::ZERO),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::ZERO), header: None, footer: None,
             stroke:  None,
-            fill:    None,
-        };
+            fill:    None}));
         let content = Content::Sequence(Arc::from(vec![grid]));
         let doc = layout(&content);
         let bboxes = shape_parent_bboxes(&doc);
@@ -9365,18 +9201,15 @@ mod p273_9_containers_estendidos {
     /// 2) Top-level shape após Grid → parent_bbox restaurado (LIFO).
     #[test]
     fn p273_9_grid_cell_lifo_restore() {
-        let grid = Content::Grid {
+        let grid = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![TrackSizing::Fixed(100.0)],
             rows:    vec![],
             cells:   vec![rect_shape(20.0, 10.0)],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::ZERO),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::ZERO), header: None, footer: None,
             stroke:  None,
-            fill:    None,
-        };
+            fill:    None}));
         let content = Content::Sequence(Arc::from(vec![
             grid,
             rect_shape(50.0, 30.0), // top-level após Grid
@@ -9497,7 +9330,7 @@ mod p273_9_containers_estendidos {
     fn p273_9_grid_debt37_cell_origin_consumption_preserved() {
         // Smoke test: layout grid simples e verifica que pelo menos
         // uma FrameItem::Shape é emitida (consumption preserved).
-        let grid = Content::Grid {
+        let grid = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
             columns: vec![
                 TrackSizing::Fixed(100.0),
                 TrackSizing::Fixed(100.0),
@@ -9509,12 +9342,9 @@ mod p273_9_containers_estendidos {
             ],
             gutter:  None,
             align:   None,
-            inset:   Sides::uniform(Length::ZERO),
-            header:  None,
-            footer:  None,
+            inset:   Sides::uniform(Length::ZERO), header: None, footer: None,
             stroke:  None,
-            fill:    None,
-        };
+            fill:    None}));
         let content = Content::Sequence(Arc::from(vec![grid]));
         let doc = layout(&content);
         let bboxes = shape_parent_bboxes(&doc);

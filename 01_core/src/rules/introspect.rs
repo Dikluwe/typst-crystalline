@@ -309,59 +309,39 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             e.gutter,
         ),
         Content::Transform(e) => Content::transform(e.matrix, materialize_time(&e.body, intr, location)),
-        // P224+P227+P228 — Grid refino +7 fields preservados (gutter/align/inset/header/footer/stroke/fill).
-        Content::Grid { columns, rows, cells, gutter, align, inset, header, footer, stroke, fill } => Content::Grid {
-            columns: columns.clone(),
-            rows:    rows.clone(),
-            cells:   cells.iter().map(|c| materialize_time(c, intr, location)).collect(),
-            gutter:  *gutter,
-            align:   *align,
-            inset:   *inset,
-            header:  header.as_ref().map(|h| Box::new(materialize_time(h, intr, location))),
-            footer:  footer.as_ref().map(|f| Box::new(materialize_time(f, intr, location))),
-            stroke:  stroke.clone(),
-            fill:    *fill,
-        },
+        // Modelo D (Lote 12 P327): Grid — recurse cells+header+footer (struct-update).
+        Content::Grid(e) => Content::Grid(std::sync::Arc::new(
+            crate::entities::elements::grid::GridElem {
+                cells:  e.cells.iter().map(|c| materialize_time(c, intr, location)).collect(),
+                header: e.header.as_ref().map(|h| materialize_time(h, intr, location)),
+                footer: e.footer.as_ref().map(|f| materialize_time(f, intr, location)),
+                ..(**e).clone()
+            },
+        )),
         // Modelo D (Lote 5 P320): GridHeader/GridFooter via construtor.
         Content::GridHeader(e) => Content::grid_header(materialize_time(&e.body, intr, location), e.repeat),
         Content::GridFooter(e) => Content::grid_footer(materialize_time(&e.body, intr, location), e.repeat),
-        // P224.C + P230 + P235 — GridCell recurse no body; preserva
-        // 5 fields cumulativos.
-        Content::GridCell { body, x, y, colspan, rowspan, stroke, fill,
-                             align, inset, breakable } => Content::GridCell {
-            body:      Box::new(materialize_time(body, intr, location)),
-            x:         *x,
-            y:         *y,
-            colspan:   *colspan,
-            rowspan:   *rowspan,
-            stroke:    stroke.clone(),
-            fill:      *fill,
-            align:     *align,
-            inset:     inset.clone(),
-            breakable: *breakable,
-        },
-        // Passo 157A + P227 + P228 — table; preserva stroke + fill.
-        Content::Table { columns, rows, children, stroke, fill } => Content::Table {
-            columns:  columns.clone(),
-            rows:     rows.clone(),
-            children: children.iter().map(|c| materialize_time(c, intr, location)).collect(),
-            stroke:   stroke.clone(),
-            fill:     *fill,
-        },
-        // Passo 157B + P230 + P235 — TableCell; preserva 5 fields cumulativos.
-        Content::TableCell { body, x, y, colspan, rowspan, stroke, fill,
-                              align, inset, breakable } => Content::TableCell {
-            body:      Box::new(materialize_time(body, intr, location)),
-            x:         *x,
-            y:         *y,
-            colspan:   *colspan,
-            rowspan:   *rowspan,
-            stroke:    stroke.clone(),
-            fill:      *fill,
-            align:     *align,
-            inset:     inset.clone(),
-            breakable: *breakable,
-        },
+        // Modelo D (Lote 12 P327): GridCell — recurse no body via struct-update.
+        Content::GridCell(e) => Content::GridCell(std::sync::Arc::new(
+            crate::entities::elements::grid_cell::GridCellElem {
+                body: materialize_time(&e.body, intr, location),
+                ..(**e).clone()
+            },
+        )),
+        // Modelo D (Lote 12 P327): Table — recurse em children via struct-update.
+        Content::Table(e) => Content::Table(std::sync::Arc::new(
+            crate::entities::elements::table::TableElem {
+                children: e.children.iter().map(|c| materialize_time(c, intr, location)).collect(),
+                ..(**e).clone()
+            },
+        )),
+        // Modelo D (Lote 12 P327): TableCell — recurse no body via struct-update.
+        Content::TableCell(e) => Content::TableCell(std::sync::Arc::new(
+            crate::entities::elements::table_cell::TableCellElem {
+                body: materialize_time(&e.body, intr, location),
+                ..(**e).clone()
+            },
+        )),
         // Modelo D (Lote 5 P320): TableHeader/TableFooter via construtor.
         Content::TableHeader(e) => Content::table_header(materialize_time(&e.body, intr, location), e.repeat),
         Content::TableFooter(e) => Content::table_footer(materialize_time(&e.body, intr, location), e.repeat),
@@ -1183,11 +1163,11 @@ pub(crate) fn walk(
 
         Content::Transform(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
-        Content::Grid { cells, header, footer, .. } => {
+        Content::Grid(e) => {
             // P224 — Grid refino: walk em header (se houver) + cells + footer.
-            if let Some(h) = header { walk(h, locator, tags, intr, auto_label_counter, lang, None); }
-            for cell in cells { walk(cell, locator, tags, intr, auto_label_counter, lang, None); }
-            if let Some(f) = footer { walk(f, locator, tags, intr, auto_label_counter, lang, None); }
+            if let Some(h) = &e.header { walk(h, locator, tags, intr, auto_label_counter, lang, None); }
+            for cell in &e.cells { walk(cell, locator, tags, intr, auto_label_counter, lang, None); }
+            if let Some(f) = &e.footer { walk(f, locator, tags, intr, auto_label_counter, lang, None); }
         }
 
         // P224.B — GridHeader / GridFooter (recurse no body; paridade P157C).
@@ -1195,15 +1175,15 @@ pub(crate) fn walk(
         Content::GridFooter(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         // P224.C — GridCell (recurse no body; paridade P157B TableCell).
-        Content::GridCell { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::GridCell(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 157A — Table (paridade Grid).
-        Content::Table { children, .. } => {
-            for c in children { walk(c, locator, tags, intr, auto_label_counter, lang, None); }
+        Content::Table(e) => {
+            for c in &e.children { walk(c, locator, tags, intr, auto_label_counter, lang, None); }
         }
 
         // Passo 157B — TableCell (recurse no body).
-        Content::TableCell { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::TableCell(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 157C — par simétrico TableHeader/TableFooter
         // (recurse no body).

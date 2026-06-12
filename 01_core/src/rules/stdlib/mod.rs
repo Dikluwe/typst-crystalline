@@ -4758,8 +4758,8 @@ mod tests {
         args.named.insert("gutter".into(), Value::Length(Length::pt(5.0)));
         let r = native_grid(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Grid { gutter, .. }) = r {
-            assert_eq!(gutter, Some(Length::pt(5.0)));
+        if let Value::Content(Content::Grid(e)) = r {
+            assert_eq!(e.gutter, Some(Length::pt(5.0)));
         } else { panic!("esperado Content::Grid"); }
     }
 
@@ -4782,9 +4782,9 @@ mod tests {
         args.named.insert("inset".into(), Value::Length(Length::pt(3.0)));
         let r = native_grid(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Grid { inset, .. }) = r {
-            assert_eq!(inset.left, Length::pt(3.0));
-            assert_eq!(inset.right, Length::pt(3.0));
+        if let Value::Content(Content::Grid(e)) = r {
+            assert_eq!(e.inset.left, Length::pt(3.0));
+            assert_eq!(e.inset.right, Length::pt(3.0));
         } else { panic!("esperado Content::Grid"); }
     }
 
@@ -4796,9 +4796,9 @@ mod tests {
         args.named.insert("footer".into(), Value::Content(Content::text("FTR")));
         let r = native_grid(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Grid { header, footer, .. }) = r {
-            assert!(header.is_some(), "header presente");
-            assert!(footer.is_some(), "footer presente");
+        if let Value::Content(Content::Grid(e)) = r {
+            assert!(e.header.is_some(), "header presente");
+            assert!(e.footer.is_some(), "footer presente");
         } else { panic!("esperado Content::Grid"); }
     }
 
@@ -4831,11 +4831,11 @@ mod tests {
         args.named.insert("rowspan".into(), Value::Int(3));
         let r = native_grid_cell(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::GridCell { x, y, colspan, rowspan, .. }) = r {
-            assert_eq!(x,       Some(1));
-            assert_eq!(y,       Some(0));
-            assert_eq!(colspan, Some(2));
-            assert_eq!(rowspan, Some(3));
+        if let Value::Content(Content::GridCell(e)) = r {
+            assert_eq!(e.x,       Some(1));
+            assert_eq!(e.y,       Some(0));
+            assert_eq!(e.colspan, Some(2));
+            assert_eq!(e.rowspan, Some(3));
         } else { panic!("esperado GridCell"); }
     }
 
@@ -4961,9 +4961,9 @@ mod tests {
         args.named.insert("stroke".into(), Value::Length(Length::pt(2.0)));
         let r = native_grid(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Grid { stroke, .. }) = r {
-            assert!(stroke.is_some());
-            assert_eq!(stroke.unwrap().thickness, 2.0);
+        if let Value::Content(Content::Grid(e)) = r {
+            assert!(e.stroke.is_some());
+            assert_eq!(e.stroke.clone().unwrap().thickness, 2.0);
         } else { panic!("esperado Content::Grid"); }
     }
 
@@ -4976,8 +4976,8 @@ mod tests {
         args.named.insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
         let r = native_grid(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Grid { stroke, .. }) = r {
-            let s = stroke.expect("stroke presente");
+        if let Value::Content(Content::Grid(e)) = r {
+            let s = e.stroke.clone().expect("stroke presente");
             assert_eq!(s.thickness, 1.0);
         } else { panic!("esperado Content::Grid"); }
     }
@@ -4994,8 +4994,8 @@ mod tests {
         args.named.insert("stroke".into(), Value::Stroke(s.clone()));
         let r = native_grid(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Grid { stroke, .. }) = r {
-            assert_eq!(stroke, Some(s));
+        if let Value::Content(Content::Grid(e)) = r {
+            assert_eq!(e.stroke, Some(s));
         } else { panic!("esperado Content::Grid"); }
     }
 
@@ -5008,8 +5008,8 @@ mod tests {
         args.named.insert("stroke".into(), Value::Length(Length::pt(1.0)));
         let r = native_table(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Table { stroke, .. }) = r {
-            assert!(stroke.is_some());
+        if let Value::Content(Content::Table(e)) = r {
+            assert!(e.stroke.is_some());
         } else { panic!("esperado Content::Table"); }
     }
 
@@ -5023,8 +5023,8 @@ mod tests {
         args.named.insert("fill".into(), Value::Color(Color::rgb(255, 200, 0)));
         let r = native_grid(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Grid { fill, .. }) = r {
-            assert!(fill.is_some());
+        if let Value::Content(Content::Grid(e)) = r {
+            assert!(e.fill.is_some());
         } else { panic!("esperado Content::Grid"); }
     }
 
@@ -5034,8 +5034,8 @@ mod tests {
         let r = native_grid(&mut ctx, &p(vec![
             Value::Content(Content::text("a")),
         ]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Grid { fill, .. }) = r {
-            assert!(fill.is_none(), "default fill == None");
+        if let Value::Content(Content::Grid(e)) = r {
+            assert!(e.fill.is_none(), "default fill == None");
         } else { panic!("esperado Content::Grid"); }
     }
 
@@ -5059,8 +5059,8 @@ mod tests {
         args.named.insert("fill".into(), Value::Color(Color::rgb(100, 100, 100)));
         let r = native_table(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Table { fill, .. }) = r {
-            assert!(fill.is_some());
+        if let Value::Content(Content::Table(e)) = r {
+            assert!(e.fill.is_some());
         } else { panic!("esperado Content::Table"); }
     }
 
@@ -5074,8 +5074,8 @@ mod tests {
         args.named.insert("stroke".into(), Value::Length(Length::pt(1.0)));
         let r = native_grid(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Grid { fill, stroke, .. }) = r {
-            assert!(fill.is_some() && stroke.is_some());
+        if let Value::Content(Content::Grid(e)) = r {
+            assert!(e.fill.is_some() && e.stroke.is_some());
         } else { panic!("esperado Content::Grid"); }
     }
 
@@ -5089,9 +5089,9 @@ mod tests {
         args.named.insert("stroke".into(), Value::Length(Length::pt(2.0)));
         let r = native_grid_cell(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::GridCell { stroke, .. }) = r {
-            assert!(stroke.is_some());
-            assert_eq!(stroke.unwrap().thickness, 2.0);
+        if let Value::Content(Content::GridCell(e)) = r {
+            assert!(e.stroke.is_some());
+            assert_eq!(e.stroke.clone().unwrap().thickness, 2.0);
         } else { panic!("esperado GridCell"); }
     }
 
@@ -5103,9 +5103,9 @@ mod tests {
         args.named.insert("stroke".into(), Value::Color(Color::rgb(255, 0, 0)));
         let r = native_grid_cell(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::GridCell { stroke, .. }) = r {
-            assert!(stroke.is_some());
-            assert_eq!(stroke.unwrap().thickness, 1.0);
+        if let Value::Content(Content::GridCell(e)) = r {
+            assert!(e.stroke.is_some());
+            assert_eq!(e.stroke.clone().unwrap().thickness, 1.0);
         } else { panic!("esperado GridCell"); }
     }
 
@@ -5117,8 +5117,8 @@ mod tests {
         args.named.insert("fill".into(), Value::Color(Color::rgb(0, 255, 0)));
         let r = native_grid_cell(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::GridCell { fill, .. }) = r {
-            assert!(fill.is_some());
+        if let Value::Content(Content::GridCell(e)) = r {
+            assert!(e.fill.is_some());
         } else { panic!("esperado GridCell"); }
     }
 
@@ -5143,8 +5143,8 @@ mod tests {
         args.named.insert("fill".into(),   Value::Color(Color::rgb(0, 0, 255)));
         let r = native_table_cell(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::TableCell { stroke, fill, .. }) = r {
-            assert!(stroke.is_some() && fill.is_some());
+        if let Value::Content(Content::TableCell(e)) = r {
+            assert!(e.stroke.is_some() && e.fill.is_some());
         } else { panic!("esperado TableCell"); }
     }
 
@@ -5158,8 +5158,8 @@ mod tests {
         args.named.insert("fill".into(),   Value::Color(Color::rgb(100, 100, 100)));
         let r = native_grid_cell(&mut ctx, &args,
             &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::GridCell { stroke, fill, .. }) = r {
-            assert!(stroke.is_some() && fill.is_some());
+        if let Value::Content(Content::GridCell(e)) = r {
+            assert!(e.stroke.is_some() && e.fill.is_some());
         } else { panic!("esperado GridCell"); }
     }
 
@@ -5307,10 +5307,10 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::TrackSizing;
         let r = native_table(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Table { columns, rows, children, .. }) = r {
-            assert_eq!(columns, vec![TrackSizing::Auto]);
-            assert_eq!(rows,    vec![TrackSizing::Auto]);
-            assert!(children.is_empty());
+        if let Value::Content(Content::Table(e)) = r {
+            assert_eq!(e.columns, vec![TrackSizing::Auto]);
+            assert_eq!(e.rows,    vec![TrackSizing::Auto]);
+            assert!(e.children.is_empty());
         } else {
             panic!("esperado Content::Table");
         }
@@ -5324,8 +5324,8 @@ mod tests {
         let mut args = p(vec![]);
         args.named.insert("columns".into(), Value::Int(3));
         let r = native_table(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Table { columns, .. }) = r {
-            assert_eq!(columns, vec![TrackSizing::Auto, TrackSizing::Auto, TrackSizing::Auto]);
+        if let Value::Content(Content::Table(e)) = r {
+            assert_eq!(e.columns, vec![TrackSizing::Auto, TrackSizing::Auto, TrackSizing::Auto]);
         } else {
             panic!("esperado Content::Table");
         }
@@ -5345,10 +5345,10 @@ mod tests {
             ]),
         );
         let r = native_table(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Table { columns, .. }) = r {
-            assert_eq!(columns.len(), 2);
-            assert!(matches!(columns[0], TrackSizing::Fixed(v) if (v - 10.0).abs() < 1e-6));
-            assert!(matches!(columns[1], TrackSizing::Fixed(v) if (v - 20.0).abs() < 1e-6));
+        if let Value::Content(Content::Table(e)) = r {
+            assert_eq!(e.columns.len(), 2);
+            assert!(matches!(e.columns[0], TrackSizing::Fixed(v) if (v - 10.0).abs() < 1e-6));
+            assert!(matches!(e.columns[1], TrackSizing::Fixed(v) if (v - 20.0).abs() < 1e-6));
         } else {
             panic!("esperado Content::Table");
         }
@@ -5366,10 +5366,10 @@ mod tests {
         ]);
         args.named.insert("columns".into(), Value::Int(2));
         let r = native_table(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Table { children, .. }) = r {
-            assert_eq!(children.len(), 4);
-            assert_eq!(children[0].plain_text(), "a");
-            assert_eq!(children[3].plain_text(), "d");
+        if let Value::Content(Content::Table(e)) = r {
+            assert_eq!(e.children.len(), 4);
+            assert_eq!(e.children[0].plain_text(), "a");
+            assert_eq!(e.children[3].plain_text(), "d");
         } else {
             panic!("esperado Content::Table");
         }
@@ -5379,9 +5379,9 @@ mod tests {
     fn native_table_aceita_str_como_child() {
         null_ctx!(ctx);
         let r = native_table(&mut ctx, &p(vec![Value::Str("hello".into())]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Table { children, .. }) = r {
-            assert_eq!(children.len(), 1);
-            assert_eq!(children[0].plain_text(), "hello");
+        if let Value::Content(Content::Table(e)) = r {
+            assert_eq!(e.children.len(), 1);
+            assert_eq!(e.children[0].plain_text(), "hello");
         } else {
             panic!("esperado Content::Table");
         }
@@ -5427,10 +5427,10 @@ mod tests {
         // Variants diferentes — não são iguais por PartialEq.
         assert_ne!(g, t);
         // Mas ambos têm 2 cells/children e 2 columns.
-        if let (Value::Content(Content::Grid { cells: gc, columns: gcols, .. }),
-                Value::Content(Content::Table { children: tc, columns: tcols, .. })) = (g, t) {
-            assert_eq!(gc.len(), tc.len());
-            assert_eq!(gcols.len(), tcols.len());
+        if let (Value::Content(Content::Grid(ge)),
+                Value::Content(Content::Table(te))) = (g, t) {
+            assert_eq!(ge.cells.len(), te.children.len());
+            assert_eq!(ge.columns.len(), te.columns.len());
         } else {
             panic!("esperado Grid + Table");
         }
@@ -5443,12 +5443,12 @@ mod tests {
         // P157B: defaults — body required; outros fields None.
         null_ctx!(ctx);
         let r = native_table_cell(&mut ctx, &p(vec![Value::Content(Content::text("body"))]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::TableCell { body, x, y, colspan, rowspan, .. }) = r {
-            assert_eq!(body.plain_text(), "body");
-            assert_eq!(x, None);
-            assert_eq!(y, None);
-            assert_eq!(colspan, None);
-            assert_eq!(rowspan, None);
+        if let Value::Content(Content::TableCell(e)) = r {
+            assert_eq!(e.body.plain_text(), "body");
+            assert_eq!(e.x, None);
+            assert_eq!(e.y, None);
+            assert_eq!(e.colspan, None);
+            assert_eq!(e.rowspan, None);
         } else {
             panic!("esperado Content::TableCell");
         }
@@ -5462,9 +5462,9 @@ mod tests {
         args.named.insert("x".into(), Value::Int(2));
         args.named.insert("y".into(), Value::Int(3));
         let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::TableCell { x, y, .. }) = r {
-            assert_eq!(x, Some(2));
-            assert_eq!(y, Some(3));
+        if let Value::Content(Content::TableCell(e)) = r {
+            assert_eq!(e.x, Some(2));
+            assert_eq!(e.y, Some(3));
         } else {
             panic!("esperado Content::TableCell");
         }
@@ -5477,8 +5477,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("body"))]);
         args.named.insert("x".into(), Value::Auto);
         let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::TableCell { x, .. }) = r {
-            assert_eq!(x, None, "Value::Auto deve traduzir para None per ADR-0064 Caso A");
+        if let Value::Content(Content::TableCell(e)) = r {
+            assert_eq!(e.x, None, "Value::Auto deve traduzir para None per ADR-0064 Caso A");
         } else {
             panic!("esperado Content::TableCell");
         }
@@ -5492,9 +5492,9 @@ mod tests {
         args.named.insert("colspan".into(), Value::Int(2));
         args.named.insert("rowspan".into(), Value::Int(3));
         let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::TableCell { colspan, rowspan, .. }) = r {
-            assert_eq!(colspan, Some(2));
-            assert_eq!(rowspan, Some(3));
+        if let Value::Content(Content::TableCell(e)) = r {
+            assert_eq!(e.colspan, Some(2));
+            assert_eq!(e.rowspan, Some(3));
         } else {
             panic!("esperado Content::TableCell");
         }
@@ -5559,7 +5559,7 @@ mod tests {
         args.named.insert("align".into(), Value::Align(Align2D::from_string("center")));
         let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
         match r {
-            Ok(Value::Content(Content::GridCell { align, .. })) => assert!(align.is_some()),
+            Ok(Value::Content(Content::GridCell(e))) => assert!(e.align.is_some()),
             other => panic!("esperado GridCell align Some, recebeu {:?}", other),
         }
     }
@@ -5572,7 +5572,7 @@ mod tests {
         args.named.insert("inset".into(), Value::Length(Length::pt(5.0)));
         let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
         match r {
-            Ok(Value::Content(Content::GridCell { inset, .. })) => assert!(inset.is_some()),
+            Ok(Value::Content(Content::GridCell(e))) => assert!(e.inset.is_some()),
             other => panic!("esperado GridCell inset Some, recebeu {:?}", other),
         }
     }
@@ -5584,7 +5584,7 @@ mod tests {
         args.named.insert("breakable".into(), Value::Bool(false));
         let r = native_grid_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
         match r {
-            Ok(Value::Content(Content::GridCell { breakable, .. })) => assert_eq!(breakable, Some(false)),
+            Ok(Value::Content(Content::GridCell(e))) => assert_eq!(e.breakable, Some(false)),
             other => panic!("esperado GridCell breakable Some(false), recebeu {:?}", other),
         }
     }
@@ -5606,7 +5606,7 @@ mod tests {
         args.named.insert("align".into(), Value::Align(Align2D::from_string("right")));
         let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
         match r {
-            Ok(Value::Content(Content::TableCell { align, .. })) => assert!(align.is_some()),
+            Ok(Value::Content(Content::TableCell(e))) => assert!(e.align.is_some()),
             other => panic!("esperado TableCell align Some, recebeu {:?}", other),
         }
     }
@@ -5619,7 +5619,7 @@ mod tests {
         args.named.insert("inset".into(), Value::Length(Length::pt(3.0)));
         let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id(), None);
         match r {
-            Ok(Value::Content(Content::TableCell { inset, .. })) => assert!(inset.is_some()),
+            Ok(Value::Content(Content::TableCell(e))) => assert!(e.inset.is_some()),
             other => panic!("esperado TableCell inset Some, recebeu {:?}", other),
         }
     }

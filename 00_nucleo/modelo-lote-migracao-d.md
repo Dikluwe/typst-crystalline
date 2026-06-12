@@ -208,9 +208,9 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 ## Contabilidade de variantes (o roteiro dos lotes — atualizar a CADA lote)
 
-`Content` tem **77 variantes** (baseline P313). Estado em **P326** (Lote 11 incluído):
+`Content` tem **77 variantes** (baseline P313). Estado em **P327** (Lote 12 incluído):
 
-### Migradas para o modelo D — 57
+### Migradas para o modelo D — 61
 
 - **P316 piloto (3)**: `Divider`, `Heading` (locatável), `MathStyled`.
 - **Lote 2 P317 — math (11)**: `MathCases`, `MathMatrix`, `MathAlignPoint`,
@@ -276,6 +276,22 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   os transformadores** (nota para futuros lotes). `content.rs` cresceu +10
   (hub encolheu, mas 2 construtores novos — `shape` 5-param e `footnote`,
   inexistentes antes — compensaram).
+- **Lote 12 P327 — bloco grid/table cell (4)**: `TableCell`, `Table`,
+  `GridCell`, `Grid` (~193 sites, o maior lote). Todas **não-locatáveis**,
+  **Hash manual** (`TrackSizing`/`Length`/`Align2D`/`Sides`/`Stroke`/`Color`,
+  f64). Contentores: `Table`/`Grid` recursam em `children`/`cells` (Vec) +
+  `Grid` em header/footer; `TableCell`/`GridCell` (gémeas, 10 campos) no body.
+  **Válvula**: o `|`-combinado **com binding** entre as 4 NÃO existe no hub
+  (arms separados); o único combinado estava em `layout/grid.rs`
+  (`GridCell | TableCell`) — **dividido** (tipos `Elem` distintos não partilham
+  or-pattern). Custo ≈ largura; bloco rodado inteiro (decisão do dono) com
+  validação intermediária após cada variante. **C1-quater estreou**: skip-list
+  entregue aos dois transformadores; padrões aninhados (tuple if-let
+  `(Grid, Table)`, `Shape Path(items)`) à mão. Achado de tooling: o
+  transformador de **construções** assume construtor-cobre-campos — falso para
+  densos (constrsolver só toma 5 de 10); usado `Arc::new(Elem{…})` direto com
+  caminho qualificado (sem novos imports). `content.rs` **−238** (encolhimento
+  grande esperado — arms verbosos das 4).
 
 ### Fora de lote — decisão própria
 
@@ -288,21 +304,18 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   `Styled` (58), `Boxed` (58), `Labelled` (55); **observação** (leaf, candidato
   à triagem): `Text` (40).
 
-### Element-shaped restantes — ~5 (os lotes 12+ saem daqui, por largura)
+### Element-shaped restantes — 1 (o Lote 13, por largura)
 
-(O Lote 11 P326 — Footnote/Shape, 2 variantes — saiu daqui.)
+(O Lote 12 P327 — bloco grid/table cell TableCell/Table/GridCell/Grid, 4
+variantes, ~193 sites — saiu daqui.)
 
-`TableCell`32 ·
-`Table`41 · `GridCell`47 · `Grid`73 ·
 `Figure`89.
 
-> **Bloco grid/table cell** (lote próprio, ~193 sites; decisão do dono):
-> `TableCell`(32) · `GridCell`(47) · `Table`(41) · `Grid`(73) — contentores
-> pesados com muitos campos cosméticos.
+> **`Figure` (L13, o último element-shaped)**: ao fechar, **dispara o gatilho
+> do DEBT-58** (triagem dos primitivos de AST — conversa de desenho, não lote).
 
 ### Estimativa
 
-~5 element-shaped restantes ÷ 5–9 variantes/lote (ritmo validado P317–P326)
-≈ **1–2 lotes** até esgotar os elegíveis — gatilho da triagem do DEBT-58 e da
-decisão F. Conta: 57 migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers +
-Text) + 5 restantes = 77. ✓
+**1 element-shaped restante** (`Figure`) → **Lote 13**, o último. Conta: 61
+migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers + Text) + 1 restante
+= 77. ✓

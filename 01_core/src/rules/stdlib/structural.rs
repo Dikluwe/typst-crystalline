@@ -260,7 +260,9 @@ pub fn native_table(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         )]),
         None => None,
     };
-    Ok(Value::Content(Content::Table { columns, rows, children, stroke, fill }))
+    Ok(Value::Content(Content::Table(std::sync::Arc::new(
+        crate::entities::elements::table::TableElem { columns, rows, children, stroke, fill },
+    ))))
 }
 
 // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ───────────────────
@@ -428,12 +430,14 @@ pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
         }
     }
 
-    Ok(Value::Content(Content::TableCell {
-        body: Box::new(body),
-        x, y, colspan, rowspan,
-        stroke, fill,
-        align, inset, breakable,
-    }))
+    Ok(Value::Content(Content::TableCell(std::sync::Arc::new(
+        crate::entities::elements::table_cell::TableCellElem {
+            body,
+            x, y, colspan, rowspan,
+            stroke, fill,
+            align, inset, breakable,
+        },
+    ))))
 }
 
 // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ─────
@@ -632,12 +636,14 @@ pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
         }
     }
 
-    Ok(Value::Content(Content::GridCell {
-        body: Box::new(body),
-        x, y, colspan, rowspan,
-        stroke, fill,
-        align, inset, breakable,
-    }))
+    Ok(Value::Content(Content::GridCell(std::sync::Arc::new(
+        crate::entities::elements::grid_cell::GridCellElem {
+            body,
+            x, y, colspan, rowspan,
+            stroke, fill,
+            align, inset, breakable,
+        },
+    ))))
 }
 
 /// `grid_header(body, repeat: true)` → `Content::GridHeader`.
