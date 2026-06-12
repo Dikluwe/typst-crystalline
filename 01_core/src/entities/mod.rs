@@ -41,6 +41,8 @@ pub mod content_hash;
 pub mod element_info;
 pub mod element_kind;
 pub mod element_payload;
+// Lote F-1 P334 — registro de elementos dinâmicos (fronteira E1).
+pub mod element_registry;
 pub mod introspector;
 pub mod label_registry;
 pub mod metadata_store;

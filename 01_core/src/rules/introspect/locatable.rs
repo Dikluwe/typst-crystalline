@@ -94,6 +94,12 @@ pub fn is_locatable(content: &Content) -> bool {
         // durante walk; cleanup orgânico em M6.
         Content::CounterUpdate(_) => true,
 
+        // ── Lote F-1 (P334): a fronteira dinâmica é locatável SE o
+        // elemento de utilizador declarar um `element_kind`. Mantém o
+        // invariante `is_locatable ↔ extract_payload.is_some()` (o arm de
+        // `extract_payload` despacha `e.to_payload()`).
+        Content::Dynamic(e) => e.dyn_element_kind().is_some(),
+
         // ── Não-locatable ──────────────────────────────────────────
         Content::Empty
         | Content::Text(_, _)

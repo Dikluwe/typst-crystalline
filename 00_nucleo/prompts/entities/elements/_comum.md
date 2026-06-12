@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements` — trait `Element` (modelo D, lote piloto)
-Hash do Código: bb42ab58
+Hash do Código: a0e33527
 
 **Camada**: L1 · **Módulo**: `01_core/src/entities/elements/`
 **Decisão de origem**: ADR-0105 (modelo D incremental; F como destino) +
@@ -47,6 +47,10 @@ pub trait Element: Clone + PartialEq + std::hash::Hash + std::fmt::Debug {
     /// Absorção do locatável (ver A.1.3). Default `None` (não-locatável).
     fn element_kind(&self) -> Option<ElementKind> { None }
     fn to_payload(&self) -> Option<ElementPayload> { None }
+
+    /// Id estável do kind para o match de seletor `#show` (S1; F-2+).
+    /// Default `""` — ver A.1.5. Adicionado no lote F-1 (P334).
+    fn dyn_kind_name(&self) -> &'static str { "" }
 }
 ```
 
@@ -96,6 +100,17 @@ O que `ElementKind`/`ElementPayload` davam passa a métodos do trait:
   variantes locatáveis (Figure/Cite/Equation/…). **Estado misto esperado e
   permitido** (ADR-0105 migração incremental): os enums esvaziam lote a lote;
   o destino final é o trait fornecer tudo e os enums desaparecerem.
+
+### A.1.5 — `dyn_kind_name` (fronteira E1; lote F-1, P334)
+
+Método defaultado `fn dyn_kind_name(&self) -> &'static str { "" }`. Adicionado ao
+trait `Element` no lote F-1 (ADR-0106; L0 `entities/f_fronteira_e1.md` §3a). É o
+**id estável de kind** (S1 do spike-2) para o match de seletor `#show` (F-2+). O
+default `""` mantém **os 65 nativos intocados** (despachados estaticamente pelo
+`match Content`, nunca usam o id). Os elementos **dinâmicos** (`Content::Dynamic`,
+utilizador) **sobrepõem** com o seu nome. A versão object-safe `DynElement`
+(`entities/elements/dynamic.rs`, L0 próprio `f_fronteira_e1.md`) expõe o mesmo
+método; o blanket `impl<T: Element + 'static> DynElement for T` busca-o de `Element`.
 
 ### A.1.4 — Forma compatível com F (trava ADR-0105)
 

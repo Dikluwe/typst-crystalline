@@ -28,6 +28,7 @@ use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::sides::Sides;
 // Modelo D (ADR-0105, lote piloto P316): variantes delegadas a módulos.
 use crate::entities::elements::Element;
+use crate::entities::elements::DynElement;
 use crate::entities::elements::divider::DividerElem;
 use crate::entities::elements::heading::HeadingElem;
 use crate::entities::elements::math_styled::MathStyledElem;
@@ -1020,8 +1021,15 @@ pub enum Content {
     /// (locatável).
     CounterDisplayCallback(Arc<CounterDisplayCallbackElem>),
 
-    // Variantes futuras — NÃO implementar sem ADR:
-    // Elem(Arc<dyn NativeElement>),               // vtable — Passo 20+
+    /// **Lote F-1 (P334) — a fronteira de extensão E1** (ADR-0106; L0
+    /// `entities/f_fronteira_e1.md` §3a). A **única** porta de extensão: um
+    /// elemento de utilizador (`impl Element`) entra aqui via `Arc<dyn
+    /// DynElement>` (object-safe; o blanket bridga `Element → DynElement`). Os
+    /// 6 matches do hub despacham por 1 linha, idêntico aos 65 nativos; o `dyn`
+    /// só toca **esta** folha (os nativos ficam monomórficos — §4* da tabela
+    /// P332, ADR-0029/0030). O enum continua **fechado** (ADR-0026): o dinâmico
+    /// é o *conteúdo* da variante, não o enum.
+    Dynamic(Arc<dyn DynElement>),
 }
 
 impl Content {
@@ -1062,6 +1070,12 @@ impl Content {
     /// Construtor do separador estrutural (Modelo D, P316).
     pub fn divider() -> Self {
         Self::Divider(Arc::new(DividerElem))
+    }
+    /// Construtor da fronteira de extensão E1 (Lote F-1, P334). Embrulha um
+    /// elemento de utilizador (qualquer `impl Element`) na variante dinâmica.
+    /// `Arc<E>` faz coerção para `Arc<dyn DynElement>` via o blanket.
+    pub fn dynamic<E: DynElement>(elem: E) -> Self {
+        Self::Dynamic(Arc::new(elem))
     }
     /// Construtor de `MathStyled` (Modelo D, P316).
     pub fn math_styled(
@@ -1554,6 +1568,8 @@ impl Content {
             // P217: Columns é vazio se body for (count/gutter não tornam
             // não-vazio — análogo a Block/Boxed/Repeat).
             Self::Columns(e) => e.is_empty(),
+            // Lote F-1 (P334): a fronteira dinâmica delega ao elemento.
+            Self::Dynamic(e) => e.dyn_is_empty(),
             _ => false,
         }
     }
@@ -1687,6 +1703,8 @@ impl Content {
             // P217: Columns transparente para texto plano (recurse no body).
             Self::Columns(e) => e.plain_text(),
             Self::Quote(e) => e.plain_text(),
+            // Lote F-1 (P334): a fronteira dinâmica delega ao elemento.
+            Self::Dynamic(e) => e.dyn_plain_text(),
         }
     }
 }
@@ -1817,6 +1835,9 @@ impl PartialEq for Content {
             (Self::CounterDisplayCallback(a), Self::CounterDisplayCallback(b)) => a == b,
             // Quirk pré-existente preservado (Lote 6 P321): Metadata/State/
             // StateUpdate NÃO têm arm — caem em `_ => false` (sempre desiguais).
+            // Lote F-1 (P334): a fronteira dinâmica compara por downcast
+            // estrutural (`dyn_eq`); kinds diferentes ⇒ `false`.
+            (Self::Dynamic(a), Self::Dynamic(b)) => a.dyn_eq(b.as_ref()),
             _ => false,
         }
     }
@@ -1845,6 +1866,9 @@ impl Content {
             // Modelo D (P316): Heading delega ao elemento.
             (Content::Heading(h), f) => h.get_field(f),
             (Content::Figure(e),  "body")  => Some(Value::Content(e.body.clone())),
+            // Lote F-1 (P334): leitura de campos da fronteira dinâmica (S7) —
+            // o que o closure de `#show` usará (F-2+).
+            (Content::Dynamic(e), f) => e.dyn_get_field(f),
             _ => None,
         }
     }
@@ -2016,6 +2040,10 @@ impl Content {
                 Box::new(body.map_content(transform)?),
                 styles.clone(),
             ),
+            // Lote F-1 (P334): a fronteira dinâmica recursa nos filhos via o
+            // elemento (mesmo contrato dos 65: devolve o nó com filhos
+            // transformados; o hub aplica `transform` ao nó abaixo).
+            Content::Dynamic(e) => e.dyn_map_content(transform)?,
         };
 
         // Passo 2: aplicar a transformação ao nó já processado.
@@ -2185,6 +2213,8 @@ impl Content {
                 Box::new(body.map_text(transform)),
                 styles.clone(),
             ),
+            // Lote F-1 (P334): a fronteira dinâmica delega ao elemento.
+            Content::Dynamic(e) => e.dyn_map_text(transform),
         }
     }
 }

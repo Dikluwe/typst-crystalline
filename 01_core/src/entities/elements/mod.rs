@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/_comum.md
-//! @prompt-hash 44210c74
+//! @prompt-hash 6d7ffd6d
 //! @layer L1
 //! @updated 2026-06-10
 //!
@@ -99,6 +99,14 @@ pub mod boxed;
 // Lote 15 P330 — o último lote.
 pub mod block;
 
+// Lote F-1 P334 — a fronteira de extensão E1 (object-safe `DynElement`).
+// L0 próprio: `entities/f_fronteira_e1.md` (não `_comum.md`).
+pub mod dynamic;
+pub use dynamic::DynElement;
+// Fixture do `callout` (elemento de utilizador de teste; fora dos 65).
+#[cfg(test)]
+pub mod test_callout;
+
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::element_payload::ElementPayload;
@@ -143,5 +151,17 @@ pub trait Element: Clone + PartialEq + std::hash::Hash + std::fmt::Debug {
     /// Payload de introspecção (absorção do locatável). Default `None`.
     fn to_payload(&self) -> Option<ElementPayload> {
         None
+    }
+
+    /// Id estável do kind para o match de seletor `#show` (S1; F-2+).
+    /// Default `""` = elemento sem kind distinto matchável — os 65 nativos,
+    /// que são despachados **estaticamente** pelo `match Content` e nunca
+    /// usam este id. Os elementos **dinâmicos** (utilizador, `Content::Dynamic`)
+    /// sobrepõem com o seu nome registrado. Defaultado aqui para **não tocar
+    /// os 65 módulos** (ADR-0106; L0 `f_fronteira_e1.md` §3a, ajuste de Fase A
+    /// P334: `dyn_kind_name` mora em `Element` com default, não só em
+    /// `DynElement`, para o blanket ser trivial).
+    fn dyn_kind_name(&self) -> &'static str {
+        ""
     }
 }

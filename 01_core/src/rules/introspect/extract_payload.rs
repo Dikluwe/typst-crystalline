@@ -93,6 +93,10 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         // Modelo D (Lote 6 P321): CounterUpdate locatável delega ao elemento.
         Content::CounterUpdate(e) => e.to_payload(),
 
+        // Lote F-1 (P334): a fronteira dinâmica delega ao elemento (S1) —
+        // mantém `is_locatable ↔ extract_payload.is_some()` (locatable.rs).
+        Content::Dynamic(e) => e.dyn_to_payload(),
+
         // Todas as outras variantes não são locatable em M1.
         // Adicionar uma variant locatable nova exige edição explícita
         // deste match (compilador não força exaustividade aqui porque

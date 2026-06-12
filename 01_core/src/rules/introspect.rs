@@ -352,6 +352,11 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             Box::new(materialize_time(body, intr, location)),
             styles.clone(),
         ),
+
+        // Lote F-1 (P334): a fronteira dinâmica é **terminal** aqui (clone). A
+        // travessia/realização do nó dinâmico (e dos seus filhos) chega em F-2
+        // (L0 `f_fronteira_e1.md` §3a.7); em F-1 só existe em fixtures.
+        Content::Dynamic(_) => content.clone(),
     }
 }
 
@@ -1122,6 +1127,12 @@ pub(crate) fn walk(
         // StateDisplay; tag emitido no topo via extract_payload; valor
         // pre-rendered em apply_counter_displays.
         | Content::CounterDisplayCallback(_) => {}
+
+        // Lote F-1 (P334): a fronteira dinâmica é **leaf** no walk — o tag de
+        // início (se locatável) já foi emitido acima via `extract_payload`; a
+        // travessia dos filhos do nó dinâmico chega com a realização em F-2
+        // (L0 `f_fronteira_e1.md` §3a.7). Em F-1 só existe em fixtures.
+        Content::Dynamic(_) => {}
 
         // Passo 154B — Terms / TermItem: descem em items para que filhos
         // com contadores ou labels sejam processados.

@@ -1,5 +1,5 @@
 # Prompt L0 — F sob a fronteira E1 (`Content::Dynamic` + chain única)
-Hash do Código: (design-ahead — a calcular quando o primeiro lote aterrar; ver §0)
+Hash do Código: e3acc315
 
 **Camada**: L1 · **Módulos**: `01_core/src/entities/{content,elements/mod,style,style_chain,value}.rs`
 **Decisão de origem**: **ADR-0106** (fronteira de extensão E1) + ADR-0105 (modelo D
@@ -23,9 +23,11 @@ elemento de utilizador). **Forward-looking**: descreve o desenho; a implementaç
 **primeiro lote** (a fronteira, §3a — **F-1, P334**) materializa-o: o código
 declara `@prompt entities/f_fronteira_e1.md` + `@prompt-hash <hash deste
 ficheiro>`, e `crystalline-lint --fix-hashes .` sincroniza (o warning V7 órfão
-limpa). Os L0 existentes (`entities/content.md` hash `e163048d`,
-`entities/elements/_comum.md` hash `bb42ab58`, `entities/style.md`,
-`entities/style_chain.md`) **permanecem intocados** (só citados).
+limpa). **Exceção (F-1)**: `entities/elements/_comum.md` recebeu o método
+defaultado `dyn_kind_name` no trait `Element` (§A.1.5 lá; hash re-sincronizado).
+Os restantes L0 de estilo (`entities/style.md`, `entities/style_chain.md`,
+`entities/content.md`) **permanecem intocados** (só citados) — o lado estilo (3b)
+é F-2+.
 
 **Ajuste de Fase A (P334) — `dyn_hash` removido**: `content_hash::hash_content`
 serializa por `format!("{:?}")` (Debug estrutural), **não** por match. Logo
@@ -83,55 +85,68 @@ intocados, despacho monomórfico, zero custo). Acrescenta-se um trait object-saf
 `DynElement` que **ninguém implementa à mão** — um **blanket impl** deriva-o de
 qualquer `Element`:
 
+**Como construído (F-1, `entities/elements/dynamic.rs`):**
+
 ```rust
 use std::any::Any;
 
-/// Versão object-safe de `Element`, para a porta de extensão `Content::Dynamic`.
-/// NÃO é implementada à mão: o blanket abaixo dá-a a todo `Element`.
-pub trait DynElement: std::fmt::Debug + 'static {
-    fn plain_text(&self) -> String;
-    fn is_empty(&self) -> bool;
-    // closures por `&mut dyn FnMut` (object-safe) em vez de `<F>`:
-    fn map_content_dyn(
+/// Versão object-safe de `Element`. NÃO é implementada à mão: o blanket dá-a a
+/// todo `Element + Send + Sync + 'static`.
+///
+/// Nomes `dyn_*` DISTINTOS dos de `Element` de propósito: o blanket torna todo
+/// `Element` também `DynElement`; nomes coincidentes tornariam `elem.is_empty()`
+/// num tipo concreto (com ambos em scope) AMBÍGUO (E0034). Com `dyn_*` o caminho
+/// nativo usa `Element::*` e a folha dinâmica usa `DynElement::dyn_*`.
+///
+/// `Send + Sync`: o `Content` vive em contextos `Send + Sync` (introspector),
+/// logo `dyn DynElement` (e o `Arc`) têm de o ser.
+pub trait DynElement: std::fmt::Debug + Send + Sync + 'static {
+    fn dyn_plain_text(&self) -> String;
+    fn dyn_is_empty(&self) -> bool;
+    fn dyn_map_content(
         &self,
         f: &mut dyn FnMut(&Content) -> SourceResult<Option<Content>>,
     ) -> SourceResult<Content>;
-    fn map_text_dyn(&self, f: &mut dyn FnMut(&str) -> String) -> Content;
-    fn get_field(&self, field: &str) -> Option<Value>;
-    fn element_kind(&self) -> Option<ElementKind>;
-    fn to_payload(&self) -> Option<ElementPayload>;
-    // object-safe eq/clone (ver 3a.3). NÃO há `dyn_hash`: o hash é por Debug
-    // (content_hash usa `format!("{:?}")`) — ver §0 ajuste de Fase A.
+    fn dyn_map_text(&self, f: &mut dyn FnMut(&str) -> String) -> Content;
+    fn dyn_get_field(&self, field: &str) -> Option<Value>;
+    fn dyn_element_kind(&self) -> Option<ElementKind>;
+    fn dyn_to_payload(&self) -> Option<ElementPayload>;
+    fn dyn_kind(&self) -> &'static str;   // S1; vem de Element::dyn_kind_name
     fn as_any(&self) -> &dyn Any;
     fn dyn_eq(&self, other: &dyn DynElement) -> bool;
-    // identidade dinâmica para o `#show` (ver 3a.4 + S* do spike-2):
-    fn dyn_kind_name(&self) -> &str;   // S1: id estável Eq p/ match de seletor #show
+    // sem `dyn_hash`: `Content::Dynamic` faz hash pelo `Debug` do `dyn` (§0).
 }
 
-impl<T: Element + Any + 'static> DynElement for T {
-    fn plain_text(&self) -> String { Element::plain_text(self) }
-    fn is_empty(&self) -> bool { Element::is_empty(self) }
-    fn map_content_dyn(
+impl<T: Element + Send + Sync + 'static> DynElement for T {
+    fn dyn_plain_text(&self) -> String { Element::plain_text(self) }
+    fn dyn_is_empty(&self) -> bool { Element::is_empty(self) }
+    fn dyn_map_content(
         &self,
         f: &mut dyn FnMut(&Content) -> SourceResult<Option<Content>>,
     ) -> SourceResult<Content> {
-        // `&mut dyn FnMut` JÁ É um `F: FnMut` — o genérico aceita-o sem custo extra:
-        Element::map_content(self, f)
+        // `&mut dyn FnMut` não satisfaz `F: Sized`; um reborrow local torna
+        // `F = &mut dyn FnMut` (que É Sized e FnMut).
+        let mut g = f;
+        Element::map_content(self, &mut g)
     }
-    fn map_text_dyn(&self, f: &mut dyn FnMut(&str) -> String) -> Content {
-        Element::map_text(self, f)
+    fn dyn_map_text(&self, f: &mut dyn FnMut(&str) -> String) -> Content {
+        let mut g = f;
+        Element::map_text(self, &mut g)
     }
-    fn get_field(&self, field: &str) -> Option<Value> { Element::get_field(self, field) }
-    fn element_kind(&self) -> Option<ElementKind> { Element::element_kind(self) }
-    fn to_payload(&self) -> Option<ElementPayload> { Element::to_payload(self) }
+    fn dyn_get_field(&self, field: &str) -> Option<Value> { Element::get_field(self, field) }
+    fn dyn_element_kind(&self) -> Option<ElementKind> { Element::element_kind(self) }
+    fn dyn_to_payload(&self) -> Option<ElementPayload> { Element::to_payload(self) }
+    fn dyn_kind(&self) -> &'static str { Element::dyn_kind_name(self) }
     fn as_any(&self) -> &dyn Any { self }
     fn dyn_eq(&self, other: &dyn DynElement) -> bool {
         other.as_any().downcast_ref::<T>().is_some_and(|o| self == o)
     }
-    // sem `dyn_hash`: `Content::Dynamic` faz hash pelo `Debug` do `dyn` (§0).
-    fn dyn_kind_name(&self) -> &str { /* do registro — ver 3a.5 */ unimplemented!() }
 }
 ```
+
+O id de kind (S1) é defaultado em **`Element::dyn_kind_name`** (`{ "" }`, em
+`_comum.md` §A.1.5); o utilizador sobrepõe-no no seu `impl Element` (a fixture
+`callout` devolve `"callout"`). O `DynElement::dyn_kind` apenas o repassa.
 
 **Por que isto cumpre ADR-0106 à letra**: o utilizador escreve `impl Element` —
 **o mesmo trait dos 65 módulos**, o precedente vivo, o menor custo-IA. O
