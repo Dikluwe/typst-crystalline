@@ -14,7 +14,7 @@ use std::str::FromStr;
 use crate::entities::args::Args;
 use crate::entities::ast::AstNode;
 use crate::entities::ast::code::{SetRule, ShowRule as ShowRuleNode};
-use crate::entities::ast::expr::Arg;
+use crate::entities::ast::expr::{Arg, Expr};
 use crate::entities::content::Content;
 use crate::entities::engine::Engine;
 use crate::entities::font_book::FontWeight;
@@ -230,6 +230,31 @@ pub(super) fn eval_set_rule(
         // (`eval/markup.rs`). Fecha o canal global → escopo de container (DEBT 99.E).
         *engine.styles = engine.styles.push_custom("heading.numbering", Value::Bool(active));
         return Ok(Value::None);
+    }
+
+    // Lote F-2 S2 / **B1** (P335): `#set math.equation(numbering:)` — target
+    // **pontuado** (`FieldAccess` `math.equation`), que `text_str()` não capta
+    // (nó interno → ""). Era a lacuna do P331 (sem produtor eval). Empurra para
+    // a chain léxica; a equação assa o valor (`eval/mod.rs`). Paridade vanilla:
+    // `lab/.../math/equation.rs` — numeração de equação de bloco.
+    if let Expr::FieldAccess(fa) = set.target() {
+        if fa.target().to_untyped().text_str() == "math"
+            && fa.field().to_untyped().text_str() == "equation"
+        {
+            let active = set.args().items().any(|arg| {
+                if let Arg::Named(named) = arg {
+                    if named.name().as_str() == "numbering" {
+                        let val = eval_expr(named.expr(), scopes, ctx, engine)
+                            .unwrap_or(Value::None);
+                        return matches!(val, Value::Str(_));
+                    }
+                }
+                false
+            });
+            *engine.styles =
+                engine.styles.push_custom("equation.numbering", Value::Bool(active));
+            return Ok(Value::None);
+        }
     }
 
     if target == "page" {

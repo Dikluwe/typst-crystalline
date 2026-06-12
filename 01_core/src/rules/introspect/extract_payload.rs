@@ -281,7 +281,7 @@ mod tests {
     fn equation_block_true_produz_some_payload() {
         let c = Content::equation(Content::Empty, true);
         match extract_payload(&c) {
-            Some(ElementPayload::Equation { block, counter_update }) => {
+            Some(ElementPayload::Equation { block, counter_update, .. }) => {
                 assert!(block);
                 assert_eq!(counter_update, CounterUpdate::Step);
             }
@@ -295,7 +295,7 @@ mod tests {
         // bloquear; payload preserva block=false para downstream.
         let c = Content::equation(Content::Empty, false);
         match extract_payload(&c) {
-            Some(ElementPayload::Equation { block, counter_update }) => {
+            Some(ElementPayload::Equation { block, counter_update, .. }) => {
                 assert!(!block);
                 assert_eq!(counter_update, CounterUpdate::Step);
             }

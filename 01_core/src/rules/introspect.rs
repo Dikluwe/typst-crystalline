@@ -649,20 +649,15 @@ fn populate_intr_from_tag_start(
                 .or_default()
                 .push(loc);
         }
-        ElementPayload::Equation { block, counter_update } => {
+        ElementPayload::Equation { block, counter_update, numbering_active } => {
             intr.kind_index
                 .entry(ElementKind::Equation)
                 .or_default()
                 .push(loc);
-            // Gate location-aware: state populated por SetEquationNumbering
-            // tag emitida ANTES desta Equation tag (location-monotónica
-            // por construção de Locator).
-            if *block
-                && matches!(
-                    intr.state.value_at("numbering_active:equation", loc),
-                    Some(Value::Bool(true)),
-                )
-            {
+            // Lote F-2 S2 (P335): gate pelo `numbering_active` **assado** no
+            // `EquationElem` (escopo léxico via chain) — não mais pelo
+            // StateRegistry `numbering_active:equation` (canal global retirado).
+            if *block && *numbering_active {
                 intr.counters.apply_at(
                     "equation".to_string(),
                     counter_update.clone(),
@@ -3306,10 +3301,12 @@ mod tests {
         // intr.is_numbering_active("numbering_active:equation") durante walk para
         // gating do counter step. Confirma que mutação legacy de
         // SetEquationNumbering antes do Equation faz counter avançar.
+        // Lote F-2 S2 (P335): gate via campo assado (`equation_numbered`);
+        // marcador mantido para a asserção de plumbing (is_numbering_active).
         let com_set = Content::Sequence(
             vec![
                 Content::SetEquationNumbering { active: true },
-                Content::equation(Content::Empty, true),
+                Content::equation_numbered(Content::Empty, true),
             ]
             .into(),
         );
@@ -3339,10 +3336,12 @@ mod tests {
         // Tag::StateUpdate. Confirma activação imediata após P199B.
         use crate::entities::introspector::Introspector;
 
+        // Lote F-2 S2 (P335): gate via campo assado (`equation_numbered`);
+        // marcador mantido para a plumbing.
         let content = Content::Sequence(
             vec![
                 Content::SetEquationNumbering { active: true },
-                Content::labelled(Content::equation(Content::Empty, true), Label("eq1".to_string())),
+                Content::labelled(Content::equation_numbered(Content::Empty, true), Label("eq1".to_string())),
             ]
             .into(),
         );

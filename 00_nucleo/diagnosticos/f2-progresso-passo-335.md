@@ -10,8 +10,8 @@ validados, commit por estágio).
 |---------|--------|--------|
 | Caronas C1–C3 | ✅ | `249497558` |
 | Fundação: canal aberto + B3 | ✅ verde 2719 | `8a6aadeef` |
-| **S1 — heading numbering → chain** | ✅ verde 2722; DEBT 99.E provado p/ heading | (a commitar) |
-| S2 — equation numbering → chain + B1 | ⬜ | — |
+| **S1 — heading numbering → chain** | ✅ verde 2722; DEBT 99.E provado p/ heading | `4d0a52571` |
+| S2 — equation numbering → chain + B1 | ✅ verde 2724; B1 fechado | (a commitar) |
 | S3 — figure numbering → chain | ⬜ | — |
 | S4 — SetPage → chain (page_config, 34 leitores; remover native_page legacy) | ⬜ | — |
 | S5 — trava (teste-varre-tabela do canal) + remover código morto dos canais antigos | ⬜ | — |

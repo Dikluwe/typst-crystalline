@@ -18,23 +18,14 @@ use super::metrics::FontMetrics;
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Layout de `Content::Equation { body, block }`.
-    pub(super) fn layout_equation(&mut self, body: &Content, block: bool) {
+    pub(super) fn layout_equation(&mut self, body: &Content, block: bool, numbering_active: bool) {
         // Auto-numeração: equações de bloco numeradas avançam o contador antes de
         // desenhar (Passo 59). O número (N) é acrescentado depois da equação.
-        // P182D: substitution-with-fallback (padrão P168/P181G) — consulta
-        // P190E (M6 categoria Numbering active): caminho Introspector
-        // único location-aware — fallback legacy
-        // `self.counter.is_numbering_active("equation")` removido. Usa
-        // `is_numbering_active_at(key, location)` (P185B) em vez de
-        // snapshot final para semântica correcta com re-updates.
-        // `current_location` populated por `advance_locator_if_locatable`
-        // durante walk Layouter.
-        use crate::entities::introspector::Introspector;
-        let is_numbered = block
-            && self.current_location
-                .map(|loc| self.introspector
-                    .is_numbering_active_at("numbering_active:equation", loc))
-                .unwrap_or(false);
+        // Lote F-2 S2 (P335): o "ativo" é **assado** no `EquationElem` (escopo
+        // léxico via chain, fecha o canal global StateRegistry). O **valor** do
+        // contador continua via Introspector (`flat_counter_at`), gateado pelo
+        // mesmo `numbering_active` assado (via payload, em `from_tags`).
+        let is_numbered = block && numbering_active;
         // P190F (M6 categoria Counters core): Layouter mutação
         // `self.counter.step_flat` removida — counter equation
         // populated via Introspector path (CounterRegistry +

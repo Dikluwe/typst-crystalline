@@ -148,6 +148,10 @@ pub enum ElementPayload {
     Equation {
         block:          bool,
         counter_update: CounterUpdate,
+        /// **Lote F-2 S2 (P335)** — numeração ativa **assada** no `EquationElem`
+        /// (escopo léxico). Gateia o contador em `from_tags` sem depender do
+        /// StateRegistry `numbering_active:equation` (canal global retirado).
+        numbering_active: bool,
     },
 
     /// **P195B** — payload de `Content::Labelled` emitido em **post-recursion**
@@ -400,6 +404,7 @@ mod tests {
         let a = ElementPayload::Equation {
             block:          true,
             counter_update: CounterUpdate::Step,
+            numbering_active: false,
         };
         let b = a.clone();
         assert_eq!(a, b);
@@ -410,10 +415,12 @@ mod tests {
         let display = ElementPayload::Equation {
             block:          true,
             counter_update: CounterUpdate::Step,
+            numbering_active: false,
         };
         let inline = ElementPayload::Equation {
             block:          false,
             counter_update: CounterUpdate::Step,
+            numbering_active: false,
         };
         assert_ne!(display, inline);
     }
@@ -423,6 +430,7 @@ mod tests {
         let eq = ElementPayload::Equation {
             block:          true,
             counter_update: CounterUpdate::Step,
+            numbering_active: false,
         };
         let fig = ElementPayload::Figure {
             kind:           None,
@@ -443,10 +451,12 @@ mod tests {
         let a = ElementPayload::Equation {
             block:          true,
             counter_update: CounterUpdate::Step,
+            numbering_active: false,
         };
         let b = ElementPayload::Equation {
             block:          false,
             counter_update: CounterUpdate::Step,
+            numbering_active: false,
         };
         let mut h1 = DefaultHasher::new();
         let mut h2 = DefaultHasher::new();
@@ -482,6 +492,7 @@ mod tests {
         let equation = ElementPayload::Equation {
             block:          true,
             counter_update: CounterUpdate::Step,
+            numbering_active: false,
         };
         let cite = ElementPayload::Citation { key: "k".into() };
         assert_ne!(labelled, equation);

@@ -281,6 +281,40 @@ mod tests {
         }
     }
 
+    // ── Lote F-2 S2 / B1 (P335) — `#set math.equation(numbering:)` via chain ──
+    fn find_equation_numbered(c: &Content) -> Option<bool> {
+        match c {
+            Content::Equation(e) => Some(e.numbering_active),
+            Content::Sequence(items) => items.iter().find_map(find_equation_numbered),
+            Content::Styled(b, _) => find_equation_numbered(b),
+            _ => None,
+        }
+    }
+
+    #[test]
+    fn f2s2_b1_set_equation_numbering_assa_via_chain() {
+        // B1: o produtor eval de `#set math.equation(numbering:)` (target
+        // pontuado) nasce neste lote. `$ x $` é equação de bloco.
+        let world = MockWorld::new("#set math.equation(numbering: \"(1)\")\n$ x $");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        let content = module.content().expect("módulo deve ter content");
+        assert_eq!(
+            find_equation_numbered(content),
+            Some(true),
+            "#set math.equation(numbering:) deve assar numbering_active=true na equação de bloco"
+        );
+    }
+
+    #[test]
+    fn f2s2_sem_set_equation_nao_assa() {
+        let world = MockWorld::new("$ x $");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        let content = module.content().expect("módulo deve ter content");
+        assert_eq!(find_equation_numbered(content), Some(false));
+    }
+
     #[test]
     fn f2s1_set_heading_escopo_lexical_nao_vaza() {
         // **A prova do fecho do DEBT 99.E**: `#set heading(numbering:)` dentro

@@ -814,7 +814,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             // ── Matemática (Passo 37) — delegação ao MathLayouter ───────────
             Content::Equation(e) => {
-                self.layout_equation(&e.body, e.block);
+                self.layout_equation(&e.body, e.block, e.numbering_active);
             }
 
             Content::MathSequence(_)

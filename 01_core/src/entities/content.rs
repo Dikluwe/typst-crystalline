@@ -1195,7 +1195,12 @@ impl Content {
 
     /// **Lote 10 P325** — `Content::Equation` (equação matemática).
     pub fn equation(body: Content, block: bool) -> Self {
-        Self::Equation(Arc::new(EquationElem { body, block }))
+        Self::Equation(Arc::new(EquationElem::new(body, block)))
+    }
+    /// Equação com numeração ativa (Lote F-2 S2, P335) — assada do
+    /// `#set math.equation(numbering:)`.
+    pub fn equation_numbered(body: Content, block: bool) -> Self {
+        Self::Equation(Arc::new(EquationElem::new_numbered(body, block, true)))
     }
 
     /// **Lote 11 P326** — `Content::Footnote` (nota de rodapé).

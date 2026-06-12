@@ -456,7 +456,20 @@ fn eval_expr(
         Expr::Equation(eq) => {
             let block = eq.block();
             let body  = math::eval_math_content(scopes, ctx, eq.body())?;
-            Ok(Value::Content(Content::equation(body, block)))
+            // Lote F-2 S2 (P335): assar a numeração ativa da chain léxica
+            // (`#set math.equation(numbering:)` empurrou para custom). Só
+            // equações de bloco numeram (paridade vanilla).
+            let numbering_active = block
+                && matches!(
+                    engine.styles.custom("equation.numbering"),
+                    Some(crate::entities::value::Value::Bool(true))
+                );
+            let content = if numbering_active {
+                Content::equation_numbered(body, block)
+            } else {
+                Content::equation(body, block)
+            };
+            Ok(Value::Content(content))
         }
 
         Expr::Math(math) => {

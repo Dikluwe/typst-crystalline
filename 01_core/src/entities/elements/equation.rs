@@ -22,6 +22,20 @@ use crate::entities::source_result::SourceResult;
 pub struct EquationElem {
     pub body:  Content,
     pub block: bool,
+    /// **Numeração ativa (Lote F-2 S2, P335)** — assada na criação a partir do
+    /// `engine.styles.custom("equation.numbering")` (escopo léxico via chain;
+    /// fecha o canal global `SetEquationNumbering`/StateRegistry). Só "ativo";
+    /// o **valor** do contador continua via Introspector.
+    pub numbering_active: bool,
+}
+
+impl EquationElem {
+    pub fn new(body: Content, block: bool) -> Self {
+        Self { body, block, numbering_active: false }
+    }
+    pub fn new_numbered(body: Content, block: bool, numbering_active: bool) -> Self {
+        Self { body, block, numbering_active }
+    }
 }
 
 impl Element for EquationElem {
@@ -41,6 +55,7 @@ impl Element for EquationElem {
         Ok(Content::Equation(Arc::new(EquationElem {
             body:  self.body.map_content(transform)?,
             block: self.block,
+            numbering_active: self.numbering_active,
         })))
     }
 
@@ -61,6 +76,7 @@ impl Element for EquationElem {
         Some(ElementPayload::Equation {
             block:          self.block,
             counter_update: CounterUpdate::Step,
+            numbering_active: self.numbering_active,
         })
     }
 }
@@ -72,7 +88,7 @@ mod tests {
     use std::collections::hash_map::DefaultHasher;
 
     fn ex() -> EquationElem {
-        EquationElem { body: Content::text("x"), block: false }
+        EquationElem::new(Content::text("x"), false)
     }
 
     #[test]
@@ -82,12 +98,12 @@ mod tests {
 
     #[test]
     fn plain_text_block_com_quebras() {
-        assert_eq!(EquationElem { body: Content::text("x"), block: true }.plain_text(), "\nx\n");
+        assert_eq!(EquationElem::new(Content::text("x"), true).plain_text(), "\nx\n");
     }
 
     #[test]
     fn is_empty_default_false_nao_delega() {
-        let e = EquationElem { body: Content::Empty, block: false };
+        let e = EquationElem::new(Content::Empty, false);
         assert!(!e.is_empty());
     }
 
@@ -99,7 +115,7 @@ mod tests {
                 _ => Ok(None),
             }
         };
-        let src = EquationElem { body: Content::text("x"), block: true };
+        let src = EquationElem::new(Content::text("x"), true);
         match src.map_content(&mut f).unwrap() {
             Content::Equation(e) => {
                 assert!(e.block);
@@ -123,7 +139,7 @@ mod tests {
     fn locatavel_kind_e_payload() {
         assert_eq!(ex().element_kind(), Some(ElementKind::Equation));
         assert_eq!(ex().to_payload(), Some(ElementPayload::Equation {
-            block: false, counter_update: CounterUpdate::Step,
+            block: false, counter_update: CounterUpdate::Step, numbering_active: false,
         }));
     }
 
@@ -135,6 +151,6 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        assert_ne!(h(&ex()), h(&EquationElem { body: Content::text("x"), block: true }));
+        assert_ne!(h(&ex()), h(&EquationElem::new(Content::text("x"), true)));
     }
 }

@@ -1124,9 +1124,9 @@ fn layout_equation_bloco_numerada() {
     // P190E (M6): test adaptado — usa pipeline standard com
     // Content::SetEquationNumbering em vez de mutar state.numbering_active
     // directamente. Caminho Introspector activo desde P199B.
+    // Lote F-2 S2 (P335): numeração assada (`equation_numbered`); asserção inalterada.
     let content = Content::Sequence(vec![
-        Content::SetEquationNumbering { active: true },
-        Content::equation(Content::MathIdent("E".into()), true),
+        Content::equation_numbered(Content::MathIdent("E".into()), true),
     ].into());
 
     let doc = layout(&content);
@@ -8214,7 +8214,9 @@ mod p186f_equation_locatable {
     use std::sync::Arc;
 
     fn equation_block() -> Content {
-        Content::equation(Content::Empty, true)
+        // Lote F-2 S2 (P335): numeração assada (`equation_numbered`) — o gate do
+        // contador lê o campo assado, não mais o StateRegistry injetado.
+        Content::equation_numbered(Content::Empty, true)
     }
 
     #[test]
@@ -8246,14 +8248,14 @@ mod p186f_equation_locatable {
 
     #[test]
     fn gate_dormente_sem_state_active() {
-        // .C sentinela: produção real — sem Content::StateUpdate para
-        // numbering_active:equation, gate bloqueia mesmo para
-        // block=true. Counter permanece vazio. Confirma empiricamente
-        // que P186 não introduz regressão observable.
+        // Lote F-2 S2 (P335): sentinela do gate dormente — equações de bloco
+        // **não numeradas** (campo assado `numbering_active=false`) → o gate do
+        // contador não dispara. (Antes: gate via StateRegistry; agora via campo
+        // assado.) Equações planas, não `equation_block()` (que agora é numerada).
         let parts = vec![
-            equation_block(),
-            equation_block(),
-            equation_block(),
+            Content::equation(Content::Empty, true),
+            Content::equation(Content::Empty, true),
+            Content::equation(Content::Empty, true),
         ];
         let content = Content::Sequence(Arc::from(parts));
 
@@ -8405,7 +8407,8 @@ mod p188b_c2_equation_counter {
     use std::sync::Arc;
 
     fn equation_block(text: &str) -> Content {
-        Content::equation(Content::MathIdent(text.into()), true)
+        // Lote F-2 S2 (P335): numeração assada (gate via campo assado).
+        Content::equation_numbered(Content::MathIdent(text.into()), true)
     }
 
     fn doc_3_equations() -> Content {
