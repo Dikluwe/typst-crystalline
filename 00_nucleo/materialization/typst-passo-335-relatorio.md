@@ -60,15 +60,17 @@ feitos.
   testados — minimizou o churn de teste por estágio (5/6 funções por estágio em
   vez de ~45).
 
-## S5b — adiado (cleanup de código morto)
+## S5b — cleanup de código morto (commit `bfc7a5e7c`)
 
-A remoção dos marcadores `Set*Numbering` + plumbing revelou superfície de **~50
-funções de teste** (umas testam a plumbing removida → apagar; outras usam o
-marcador como veículo para TOC/labels/contadores → migrar caso a caso). A
-remoção do **código de produção** compila limpa, mas as ~50 edições de teste são
-um cleanup dedicado (julgamento por função) — **adiado para passagem focada** em
-vez de arriscar erro no fim de uma sessão longa. **Nada bloqueia**: os marcadores
-inertes não afetam produção. (Estado retomável em `f2-progresso-passo-335.md`.)
+Os 3 marcadores `Content::Set{Heading,Equation,Figure}Numbering` + toda a plumbing
+de introspecção (extract_payload/from_tags/locatable/walk/layout) **removidos** —
+os canais antigos colapsam no canal único. **Achado**: a remoção expôs uma
+migração **incompleta** de S1 — `compute_heading_auto_toc` (a label "Secção N" do
+auto-TOC) ainda gateava no StateRegistry `numbering_active:heading`; a Opção B
+mascarava isso (o marcador populava o StateRegistry). Corrigido: gateia agora no
+campo assado `h.numbering_active` (passado pelo caller). ~16 testes
+marker-específicos apagados (testavam a plumbing removida); ~6 testes veículo
+migrados. **Suíte 2727 → 2709** (−18 testes de plumbing morta), lint 0/0.
 
 ## Verificação
 
@@ -80,19 +82,25 @@ inertes não afetam produção. (Estado retomável em `f2-progresso-passo-335.md
 - **Perf** (protocolo C1): a tríade migra via eval/elemento; nativos sem regressão
   estrutural (enum `Content` inalterado em tamanho — sem variante nova; só campos
   `numbering_active` em Heading/Equation, atrás do `Arc`).
-- **Lente** `--comparar` (R5): adiada com o cleanup S5b (o colapso dos canais que
-  reduz acoplamento acontece quando os marcadores saírem).
+- **Lente (R5)** — `tekt-cargo-dsm@98d8f9e`, `--estrutura --so-referencia`: o
+  **colapso dos canais reduziu typst-core de 3 → 2 ciclos** (o ciclo
+  introspect↔content da numeração quebrou com a remoção dos arms dos marcadores).
+  Confirmação estrutural por computação de que os canais antigos colapsaram. (219
+  módulos = 217 do baseline P333 + 2 da fronteira F-1.)
 - **Caveat de stack**: `RUST_MIN_STACK=33554432`.
 
 ## Contabilidade do F
 
-- **F-2 funcionalmente fechado** — DEBT 99.E fechado para a tríade de numeração;
-  `SetPage` registado por desenho; B1/B3/D4 feitos; a trava no lugar.
-- **Pendente**: S5b (cleanup de código morto, passagem focada) + lente `--comparar`.
+- **F-2 FECHADO** — DEBT 99.E fechado para a tríade de numeração (escopo léxico
+  provado); canais antigos **colapsados** (S5b; lente confirma 3→2 ciclos);
+  `SetPage` registado por desenho; B1/B3/D4 feitos; trava no lugar.
+- **Resíduo menor**: `engine.figure_numbering` (campo threaded-mas-não-lido) —
+  micro-cleanup futuro, inofensivo.
 - **Próximo: F-3** — realização/`#show` (S2–S6 do spike-2, guards, transparência
   Trava-Q1, fecho do DEBT C2 do no-op de layout).
 
 ## git log (P335)
 
 `249497558` caronas · `8a6aadeef` fundação+B3 · `4d0a52571` S1 · `d64950919` S2+B1
-· `0d37be3bc` S3 · `c36dd223a` S4+D4 · `1567f51e6` S5a trava.
+· `0d37be3bc` S3 · `c36dd223a` S4+D4 · `1567f51e6` S5a trava · `bfc7a5e7c` S5b
+cleanup · `c0eef73e4`/(este) relatório.

@@ -15,7 +15,9 @@ validados, commit por estágio).
 | S3 — figure numbering → chain | ✅ verde 2726; DEBT 99.E provado p/ figure | `0d37be3bc` |
 | S4 — SetPage: D4 (remover native_page) + página-por-desenho registrada | ✅ verde 2726 (decisão do dono: página fica no modelo de região, fora do DEBT) | (a commitar) |
 | **S5a — trava (teste-varre-tabela do canal)** | ✅ verde 2727 | `1567f51e6` |
-| S5b — remover código morto (marcadores Set*Numbering + plumbing) | ⏸️ **adiado** (superfície de ~50 funções de teste; cleanup dedicado) | — |
+| **S5b — remover código morto (marcadores Set*Numbering + plumbing)** | ✅ verde 2709; lente 3→2 ciclos | `bfc7a5e7c` |
+
+**F-2 FECHADO** — DEBT 99.E fechado para a tríade (escopo léxico provado); canais colapsados (lente confirma 3→2 ciclos). Resíduo menor: `engine.figure_numbering` (campo threaded-mas-não-lido, micro-cleanup futuro).
 
 **Decisão do dono (S4)**: `SetPage` é estado de região (não estilo lexical) — fica no modelo marcador/nova-página por desenho; só D4 (remover `native_page` legacy) + registro em `debt-stylechain-nao-materializada.md` §Geometria de página + item de paridade futura. O DEBT 99.E é fechado pela **tríade de numeração** (S1-S3).
 
