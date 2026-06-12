@@ -135,6 +135,19 @@ grep -rnE "Content::Nome([^A-Za-z0-9]|$)" 01_core 02_shell 03_infra 04_wiring \
      >    (script `/tmp` reescrito por lote) — por isso o mecanismo mora
      >    **aqui**, não no script: cada passo que use transformador gera a
      >    skip-list do grep e passa-a ao script antes da passada.
+     > 6. **A skip-list cobre AMBOS os transformadores (C1-quater, achado P326).**
+     >    Há dois transformadores efémeros: o de **construções** (`Content::X {…}`
+     >    → `Content::x(…)`) e o de **padrões** (`if let`/`match` → `(e)` +
+     >    prefixo `e.`). No P326 a skip-list cobriu só o de construções; o de
+     >    padrões, sem ela, quebrou patterns **aninhados** (`Shape { kind:
+     >    ShapeKind::Path(items), .. }` — perdeu o binding `items`). Regra: a
+     >    **mesma** skip-list por `ficheiro:linha` é entregue **aos dois**;
+     >    nenhum decide por heurística. E **padrões aninhados são excluídos por
+     >    classe**: qualquer padrão com destruturação interna além do
+     >    `Content::X` de topo (enum/struct interno) é **sempre** manual
+     >    (receita validada P326: `let <Pat> = … else { panic!… }`), nunca pela
+     >    passada automática — mesmo que não esteja na skip-list. A verificação
+     >    pós-passada (item 4) é a rede de segurança dos dois.
 3. **Locatável** (se a variante for): segue o precedente Heading —
    implementar `element_kind`/`to_payload`; o estado misto dos enums de
    introspecção permanece e esvazia lote a lote.
