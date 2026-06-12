@@ -148,6 +148,16 @@ grep -rnE "Content::Nome([^A-Za-z0-9]|$)" 01_core 02_shell 03_infra 04_wiring \
      >    (receita validada P326: `let <Pat> = … else { panic!… }`), nunca pela
      >    passada automática — mesmo que não esteja na skip-list. A verificação
      >    pós-passada (item 4) é a rede de segurança dos dois.
+     > 7. **Construtor vs Arc-wrap nas construções (C2, achado P327).** O
+     >    transformador de construções emite `Content::x(…)` **só** quando o
+     >    construtor ergonómico cobre **todos** os campos da variante. Para
+     >    variantes **densas** (ex.: `Grid`/`GridCell` 10 campos; o `table_cell`
+     >    só toma 5) o construtor perde os cosméticos → a emissão correta é
+     >    `Content::X(Arc::new(Elem{…}))` (caminho qualificado, sem novos
+     >    imports). Em `materialize_time` (recursa um campo, preserva o resto):
+     >    `Content::X(Arc::new(Elem { campo: novo, ..(**e).clone() }))`. A regra:
+     >    transformador conhece a aridade do construtor por variante; se < nº de
+     >    campos, Arc-wrap.
 3. **Locatável** (se a variante for): segue o precedente Heading —
    implementar `element_kind`/`to_payload`; o estado misto dos enums de
    introspecção permanece e esvazia lote a lote.
