@@ -1,5 +1,5 @@
 # Prompt L0 — F sob a fronteira E1 (`Content::Dynamic` + chain única)
-Hash do Código: e3acc315
+Hash do Código: 4c46a3af
 
 **Camada**: L1 · **Módulos**: `01_core/src/entities/{content,elements/mod,style,style_chain,value}.rs`
 **Decisão de origem**: **ADR-0106** (fronteira de extensão E1) + ADR-0105 (modelo D
@@ -324,8 +324,34 @@ unifica-as como **entradas na chain única**:
 
 ### 3b.6 — `#show` no desenho (S3, S4, S5, S6 — validado pelo spike-2)
 
-O spike-2 validou os 5 casos sobre `Content::Dynamic` (todos PASS). O desenho do
-`#show` no F, sob E1:
+> **Correção do inventário 1a (Lote F-3, Fase A — registro (a)):** o P331 §1a
+> gravou "`#show` não existe" no cristalino. **Falso.** A Fase A do F-3 achou um
+> `#show` **eager** já em produção: `eval/rules.rs:182 intercept_content` →
+> `:69 apply_show_rules`, aplicado na **criação** do conteúdo (não numa passagem
+> de realização). Casa nativos por **endereço de função** do selector
+> (`#show heading: …` → `native_heading` → `Selector::NodeKind(Heading)`,
+> `eval/rules.rs:496 eval_show_rule`; selectors em `entities/show.rs` —
+> `Selector::{Text, NodeKind}`). **Tem** anti-recursão por `active_guards`
+> (stack de `RuleId`) + teto de profundidade 64 (`route_check_show_depth`,
+> paridade `typst-realize:402`). É **exposto na linguagem** (`#show` é parseado).
+> Logo o cristalino **já diverge** do vanilla aqui: **eager single-pass** vs
+> **realização multi-passe**.
+>
+> **Divergência S2–S6 registada + gatilho (Lote F-3 — registro (c)):** o modelo
+> **eager** do cristalino (com guards+depth) é a forma cristalina **por desenho**
+> (fidelidade é **comportamental**, P329 — não estrutural). Os S2–S6 (guards
+> por-nó, ordem innermost-first, loop multi-passe até fixpoint, `Transformation =
+> Content|Func|Style`, nó dinâmico membro pleno) do spike-2 ficam como
+> **diferença estrutural não-implementada**. **Gatilho concreto**: quando `#show`
+> entrar na **cobertura de linguagem** (parmetrização real de show rules de
+> utilizador), os **5 casos do spike-2** viram **testes de paridade** contra o
+> **vanilla medido** (`lab/typst-original/`); **se o eager falhar** algum caso, a
+> **realização multi-passe vira lote** nesse momento — não antes. Até lá, o eager
+> basta.
+
+O spike-2 validou os 5 casos sobre `Content::Dynamic` (todos PASS) — **como
+desenho de referência**, não como implementação obrigatória agora. O desenho do
+`#show` no F, sob E1 (a materializar **se/quando** o gatilho acima disparar):
 
 - **Recipes na chain única** (S3, S5): `Style` ganha um caso de **recipe**
   (transformação) ao lado das props. **`Transformation = Content | Func | Style`**:

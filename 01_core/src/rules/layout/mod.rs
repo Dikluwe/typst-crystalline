@@ -526,15 +526,28 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         match content {
             Content::Empty => {}
 
-            // Lote F-1 (P334): a fronteira dinâmica é **no-op em layout** neste
-            // lote — buraco DECLARADO e limitado (DEBT `debt-layout-noop-dinamico.md`,
-            // carona C2/P335). O layout/render do elemento de utilizador acontece
-            // via a **realização** (`#show`/guards/chain) que chega em **F-3** (L0
-            // `f_fronteira_e1.md` §3a.7; sequência emendada em C3/P335). Em F-1/F-2
-            // o `Content::Dynamic` só existe em fixtures (nenhum documento real o
-            // produz); render = nada. Content-preserving (a suíte não o exercita).
-            // O DEBT fecha quando F-3 der layout real ao nó dinâmico.
-            Content::Dynamic(_) => {}
+            // Lote F-3 (DEBT C2 fechado): layout **default** do elemento de
+            // utilizador (fronteira E1). Renderiza o campo `body` (se o elemento
+            // o expõe via `get_field`) ou, em fallback, o `plain_text`. Um
+            // `#show <kind>: …` na linguagem (recipe → conteúdo nativo) transforma
+            // o nó ANTES de chegar aqui (caminho eager existente; o casamento por
+            // kind dinâmico chega no incremento seguinte do F-3). A divergência
+            // S2–S6 (realização multi-passe/guards do vanilla) fica registada
+            // (L0 §3b.6) — o eager do cristalino com `active_guards`+depth basta
+            // até `#show` na linguagem exigir paridade medida (gatilho registado).
+            Content::Dynamic(e) => {
+                match e.dyn_get_field("body") {
+                    Some(crate::entities::value::Value::Content(body)) => {
+                        self.layout_content(&body);
+                    }
+                    _ => {
+                        let t = e.dyn_plain_text();
+                        if !t.is_empty() {
+                            self.layout_content(&Content::text(t));
+                        }
+                    }
+                }
+            }
 
             // P169 (M9): Metadata é zero-size em layout — sem caixa,
             // sem texto, sem efeito visual. O `value` permanece

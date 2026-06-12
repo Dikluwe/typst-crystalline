@@ -94,6 +94,26 @@ fn p204c_pipeline_e2e_via_tracked() {
     );
 }
 
+// ── Lote F-3 (DEBT C2) — o elemento de utilizador dinâmico renderiza ──────────
+#[test]
+fn f3_dynamic_element_renderiza_body_fecha_debt_c2() {
+    use crate::entities::elements::test_callout::CalloutElem;
+    // Pipeline real: Content::Dynamic → layout → FrameItems → plain_text.
+    // (Antes, F-1/F-2: no-op. Agora o body renderiza — DEBT C2 fechado.)
+    let c = Content::dynamic(CalloutElem::new(
+        Content::text("corpo dinâmico"),
+        "Aviso",
+        "warn",
+    ));
+    let doc = layout(&c);
+    assert!(!doc.pages.is_empty(), "elemento dinâmico produz páginas");
+    assert!(
+        doc.plain_text().contains("corpo dinâmico"),
+        "o body do elemento dinâmico deve renderizar no layout (DEBT C2): '{}'",
+        doc.plain_text()
+    );
+}
+
 // ── P204D (M8) — Sentinel + E2E tests para Position concrete ──────────────
 //
 // Confirmam que tipo `Position` existe, que `LayouterRuntimeState` ganhou

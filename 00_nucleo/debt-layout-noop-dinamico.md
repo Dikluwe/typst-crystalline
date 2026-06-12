@@ -1,11 +1,20 @@
 # DEBT — layout no-op do `Content::Dynamic` (fronteira E1)
 
-**Estado**: aberto
-**Data de abertura**: 2026-06-12 (carona C2, P335)
+**Estado**: ✅ **FECHADO** (Lote F-3, increment 1)
+**Data de abertura**: 2026-06-12 (carona C2, P335).
+**Data de fecho**: 2026-06-12 (Lote F-3).
 **Origem**: P334 (Lote F-1, ambiguidade de Fase A **A2**).
 **Magnitude**: S (um arm; buraco declarado e limitado).
-**Pré-condição de fecho**: o **lote de realização (F-3)** — quando a
-realização/`#show` (S2–S6) der layout real ao nó dinâmico.
+
+**Fecho**: o arm `Content::Dynamic` em `layout/mod.rs` deixou de ser no-op — dá
+**layout default** ao elemento de utilizador (renderiza o campo `body` via
+`get_field`, ou o `plain_text` em fallback). Provado por **teste de pipeline
+real** (não-fixture): `f3_dynamic_element_renderiza_body_fecha_debt_c2`
+(`layout/tests.rs`) — `Content::dynamic(callout)` → `layout()` → o body sai no
+`plain_text` do documento. O `#show` sobre o dinâmico (recipe → conteúdo nativo,
+por kind dinâmico) chega no incremento seguinte do F-3; a divergência S2–S6
+(realização multi-passe do vanilla) fica **registada** com gatilho (L0
+`f_fronteira_e1.md` §3b.6).
 
 ---
 
