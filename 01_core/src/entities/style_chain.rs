@@ -13,10 +13,13 @@
 
 use std::sync::Arc;
 
+use ecow::EcoString;
+
 use crate::entities::font_list::FontList;
 use crate::entities::lang::Lang;
 use crate::entities::layout_types::{Pt, TextStyle};
 use crate::entities::style::{Style, Styles};
+use crate::entities::value::Value;
 
 /// Um delta de estilo — apenas as propriedades que este nó define explicitamente.
 /// Propriedades ausentes são herdadas do nó pai na cadeia.
@@ -61,6 +64,15 @@ pub struct StyleDelta {
     /// (covers sem suporte até `regex` ser autorizado em L1).
     /// Inerte em layout (consumer futuro: shaping, lookup).
     pub font: Option<FontList>,
+    /// **Canal aberto das `Set*` (Lote F-2, P335)** — propriedades não-texto
+    /// dinâmicas resolvidas por chave (`PropKey → Value`), ao lado das 10
+    /// nativas fechadas. Eixo do **DEBT 99.E**: as `Set*` (numbering de
+    /// heading/equation/figure, dims de page) entram aqui em vez de canais
+    /// dispersos (Introspector/`page_config`/baking), ganhando **escopo léxico**
+    /// de graça (o `engine.styles` é escopado via `local_styles`). Chave é
+    /// `EcoString` (clone O(1)); valor é o `Value` fechado (espelho da
+    /// linguagem). Vazio na maioria dos nós (custo marginal só onde há `#set`).
+    pub custom: Vec<(EcoString, Value)>,
 }
 
 impl StyleDelta {
@@ -70,6 +82,7 @@ impl StyleDelta {
             fill: None, heading_level: None,
             weight: None, tracking: None, leading: None,
             lang: None, font: None,
+            custom: Vec::new(),
         }
     }
 }
@@ -188,6 +201,31 @@ impl StyleChain {
             }
         }
         self.push(delta)
+    }
+
+    /// **Canal aberto (Lote F-2, P335)** — empurra uma propriedade `Set*`
+    /// `(key → value)` como novo delta. Escopo léxico de graça (o `engine.styles`
+    /// é escopado por `local_styles`). Convenção de chave: `"heading.numbering"`,
+    /// `"equation.numbering"`, `"figure.numbering"`, `"page.width/height/margin"`.
+    pub fn push_custom(&self, key: impl Into<EcoString>, value: Value) -> Self {
+        self.push(StyleDelta {
+            custom: vec![(key.into(), value)],
+            ..StyleDelta::empty()
+        })
+    }
+
+    /// **Canal aberto (Lote F-2, P335)** — resolve uma propriedade `Set*` por
+    /// chave, percorrendo a cadeia até ao primeiro nó que a define (top-wins,
+    /// fallback léxico). `None` = não definida em nenhum nível.
+    pub fn custom(&self, key: &str) -> Option<&Value> {
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some((_, v)) = n.delta.custom.iter().find(|(k, _)| k == key) {
+                return Some(v);
+            }
+            node = n.parent.as_deref();
+        }
+        None
     }
 
     /// Resolve `fill` (cor de texto) percorrendo a cadeia até ao primeiro

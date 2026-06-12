@@ -150,20 +150,10 @@ impl Traced {
 }
 
 
-/// Sistema de propriedades encadeadas do Typst.
-///
-/// Stub — NÃO migrar neste passo. No original: `EcoVec<LazyHash<Style>>`
-/// com vtable dinâmica para show rules e set rules. Dependências:
-/// ecow, typst_utils::LazyHash, Style (vtable dinâmica), Content.
-pub struct Styles(());
-
-impl Styles {
-    pub fn new() -> Self { Self(()) }
-}
-
-impl Default for Styles {
-    fn default() -> Self { Self::new() }
-}
+// B3 (Lote F-2, P335): o stub morto `Styles(())` foi **removido**. A chain de
+// estilo real é `entities::style::Styles` + `entities::style_chain::StyleChain`
+// (esta última agora com o canal aberto `custom_props` das `Set*`). O stub não
+// tinha uso externo (só um smoke-test próprio, também removido).
 
 /// Rota de compilação usada para detectar imports cíclicos e aninhamento
 /// excessivo.
@@ -564,11 +554,6 @@ mod tests {
         use comemo::Track;
         let t = Traced::default();
         let _tracked: comemo::Tracked<'_, Traced> = t.track();
-    }
-
-    #[test]
-    fn styles_stub_exists() {
-        let _ = Styles::new();
     }
 
     #[test]
