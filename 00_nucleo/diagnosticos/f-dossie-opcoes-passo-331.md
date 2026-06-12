@@ -225,3 +225,17 @@ Rust e autor typst). Consequências:
 
 Ver `debt-stylechain-nao-materializada.md` (§Requisito de extensibilidade) e o
 experimento P332.
+
+## Adendo final P333 — decisão tomada: fronteira E1
+
+O experimento P332 mediu E1/E2/E3 e o dono **decidiu**: **fronteira E1**
+(`Content::Dynamic(Arc<dyn Element>)`, despacho pelo `trait Element` existente,
+65 nativos monomórficos). Gravado em **ADR-0106**. Mapeamento para as 4 opções
+deste dossiê: E1 **não** é nenhuma das A/B/C/D puras — é a forma que entrega a
+extensibilidade total (que A não dá, que C dá ao custo de `dyn` em tudo) com o
+PropMap aberto **só** na folha dinâmica (não no caminho nativo). O F materializa-se
+sob E1: chain única (10 campos fechados + mapa aberto), `Set*` como primeira
+aplicação (eco de **D**), `de-bake` de `#set text` e `Styled` por lotes
+incrementais (eco parcial de **B**). **C rejeitada** (≡E2: downcast silencioso,
+fidelidade estrutural não-requisito). **A rejeitada** (Parte 0 P332). Este dossiê
+fecha aqui; a forma do F passa a viver no **L0 do F** (P333 Parte 3).

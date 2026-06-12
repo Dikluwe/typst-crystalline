@@ -39,6 +39,24 @@ Resultado do experimento e a decisão da fronteira: ver
 
 ---
 
+## Decisão da fronteira: E1 (P333 — ADR-0106)
+
+O dono escolheu a fronteira **E1** após o experimento P332:
+`Content::Dynamic(Arc<dyn Element>)` como **única** variante de extensão,
+despacho pelo `trait Element` existente, os 65 nativos monomórficos. Gravada em
+**ADR-0106** (`adr/typst-adr-0106-fronteira-de-extensao-e1.md`). **F materializa-se
+sob E1** — a PropMap que este DEBT exige é a chain única (10 campos nativos
+fechados + mapa aberto `(PropKey → Value)`); o `enum Value` é fechado por
+espelhar os tipos da linguagem typst (escape `Value::Custom` só com evidência).
+A migração é incremental: fronteira aditiva → canal único das `Set*` (o F-D na
+forma nova) → `Styled`/folhas por lote. O critério de fecho deste DEBT (StyleChain
+com escopo léxico + features migradas) é re-expresso sob E1 no **L0 do F**
+(P333 Parte 3) — ver `f-experimento-extensao-passo-332.md` (nota de fecho) e o
+L0 quando redigido. A trava da ADR-0105 cláusula 3 (verificação mecânica no
+caminho dinâmico) **permanece obrigatória**.
+
+---
+
 ## Contexto
 
 Vanilla resolve propriedades hierárquicas com `StyleChain` —

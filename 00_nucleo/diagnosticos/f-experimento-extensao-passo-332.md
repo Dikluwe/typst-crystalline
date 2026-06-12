@@ -214,6 +214,16 @@ forma final de F-D/F-B — é do dono, na conversa, com esta tabela na mão.
 
 ---
 
-## Parte 4 — Leitura do executor + perguntas
+## Nota de fecho (P333) — fronteira escolhida: E1
 
-_(preenchido no fim; não vinculativo; a decisão é do dono)_
+O dono escolheu **E1** (fronteira por trait). Gravado em **ADR-0106**
+(`adr/typst-adr-0106-fronteira-de-extensao-e1.md`) + DEBT 99.E. Razões da
+tabela: nativos sem imposto (§4*), precedente vivo → menor custo-IA (critério 3),
+migração aditiva. **E2 rejeitada** (downcast silencioso, Q4 eliminatório;
+fidelidade estrutural não é requisito). **E3 não escolhida** (comportamento em
+`fn` ptrs = menos precedente; teto do `Value` no lugar errado) — registrada como
+alternativa. O `enum Value` fica **fechado por espelhar a linguagem typst**; o
+escape `Value::Custom` só entra com evidência (item do checkpoint da Trava).
+`Set*`/`Styled`/folhas migram **incrementalmente**, não absorvidas no primeiro
+movimento. Q1–Q7 respondidas por consequência na ADR-0106. O L0 do F é redigido
+sob E1 em P333 (Partes 3–4); código só pós-Trava, com hash humano.
