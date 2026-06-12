@@ -1,5 +1,11 @@
 # Medição pré-F (P318 Parte 2) — números e comandos, sem recomendação
 
+> **⚠️ Baseline de performance SUPERSEDED (P330).** O baseline M3 abaixo está
+> **quantizado** (~15%, caveat C1/P319). O baseline de referência do F é agora
+> **`medicao-pre-f-passo-330.md`** — tirado com o hub no estado final pós-lotes
+> (Block/L15), corpus 10× (σ útil). Use **esse** como "antes" do F. As outras
+> medições deste documento (M1/M2/M4 — larguras, superfície) continuam válidas.
+
 **Propósito**: alimentar o diagnóstico de decisão do candidato F (StyleChain
 real / PropMap, DEBT 99.E `debt-stylechain-nao-materializada.md`). **Este
 documento mede; não recomenda nem decide.** Quatro medições (M1–M4).
