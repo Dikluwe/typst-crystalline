@@ -563,7 +563,7 @@ fn make_stdlib() -> Scope {
         make_calc_module, make_gradient_module, make_math_module, native_accent, native_align, native_assert, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_footnote, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
-        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_page, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
+        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_here, native_locate, native_lower, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_cmyk, native_colbreak, native_columns, native_hsl, native_hsv, native_linear_rgb, native_oklab, native_oklch, native_op, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_scale, native_skew, native_smartquote, native_stack, native_str, native_strike, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
         // P311b.3 — math style funcs.
@@ -616,7 +616,7 @@ fn make_stdlib() -> Scope {
     // preservado pelo 10º passo consecutivo — emit já existe.
     scope.define("curve",   Value::Func(Func::native("curve",   native_curve)));
     scope.define("grid",    Value::Func(Func::native("grid",    native_grid)));
-    scope.define("page",    Value::Func(Func::native("page",    native_page)));
+    // Lote F-2 S4/D4 (P335): `page(...)` função-forma legacy removida.
     scope.define("move",    Value::Func(Func::native("move",    native_move)));
     scope.define("rotate",  Value::Func(Func::native("rotate",  native_rotate)));
     scope.define("scale",   Value::Func(Func::native("scale",   native_scale)));

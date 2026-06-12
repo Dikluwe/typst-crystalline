@@ -53,7 +53,7 @@ pub use crate::rules::stdlib::shapes::{
 pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale, native_skew};
 pub use crate::rules::stdlib::layout::{
     native_align, native_block, native_box, native_colbreak, native_columns, native_grid, native_h,
-    native_hide, native_measure, native_pad, native_page, native_pagebreak, native_place,
+    native_hide, native_measure, native_pad, native_pagebreak, native_place,
     native_repeat, native_stack, native_stroke, native_v,
 };
 // P262 — Gradient stdlib (Linear only per ADR-0087).

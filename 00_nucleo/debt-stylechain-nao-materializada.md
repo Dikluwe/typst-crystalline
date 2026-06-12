@@ -39,6 +39,32 @@ Resultado do experimento e a decisão da fronteira: ver
 
 ---
 
+## Geometria de página fora do DEBT (P335 S4 — decisão do dono)
+
+O canal único das `Set*` (Lote F-2, P335) migrou a **tríade de numeração**
+(`heading`/`equation`/`figure`) para a **chain léxica** — fechando o DEBT 99.E
+para set rules de numeração (provado: `#set X(numbering:)` dentro de um bloco
+**não vaza**; testes `f2s{1,2,3}_..._escopo_lexical_nao_vaza`).
+
+**`SetPage` fica de fora — por desenho.** A geometria de página
+(`width`/`height`/`margin`) é **estado de região**, não estilo de
+texto/elemento: é lida por ~34 sítios de layout (largura útil, margens, cursor,
+quebras de página) e a semântica correta é **"nova página ao mudar"** (não se
+muda o tamanho de página a meio de uma página). Forçá-la pela chain de estilo
+de texto seria arquiteturalmente errado. `#set page(...)` permanece no modelo
+**marcador `SetPage` → `page_config` → nova página** (consumer `layout/mod.rs`).
+A forma-função legacy `page(...)` (`native_page`) foi **removida** (D4, P335 S4)
+— o caminho canónico é `#set page` via `eval_set_rule`.
+
+**Item de paridade futura (registrado, não agora):** o comportamento observável
+do **vanilla** para `#set page(...)` **dentro de um bloco** (escopa? nova
+região?) deve ser **medido** quando a cobertura de layout chegar lá, e a
+decisão (manter o modelo de região ou aproximar do vanilla) tomada **com a
+medição**, não por antecipação. Até lá, o modelo de região é a forma cristalina
+registada — divergência intencional, não bug.
+
+---
+
 ## Decisão da fronteira: E1 (P333 — ADR-0106)
 
 O dono escolheu a fronteira **E1** após o experimento P332:

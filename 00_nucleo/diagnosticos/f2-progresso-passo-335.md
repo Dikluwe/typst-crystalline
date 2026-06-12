@@ -12,9 +12,11 @@ validados, commit por estágio).
 | Fundação: canal aberto + B3 | ✅ verde 2719 | `8a6aadeef` |
 | **S1 — heading numbering → chain** | ✅ verde 2722; DEBT 99.E provado p/ heading | `4d0a52571` |
 | S2 — equation numbering → chain + B1 | ✅ verde 2724; B1 fechado | `d64950919` |
-| S3 — figure numbering → chain | ✅ verde 2726; DEBT 99.E provado p/ figure | (a commitar) |
-| S4 — SetPage → chain (page_config, 34 leitores; remover native_page legacy) | ⬜ | — |
-| S5 — trava (teste-varre-tabela do canal) + remover código morto dos canais antigos | ⬜ | — |
+| S3 — figure numbering → chain | ✅ verde 2726; DEBT 99.E provado p/ figure | `0d37be3bc` |
+| S4 — SetPage: D4 (remover native_page) + página-por-desenho registrada | ✅ verde 2726 (decisão do dono: página fica no modelo de região, fora do DEBT) | (a commitar) |
+| S5 — trava (teste-varre-tabela do canal) + remover código morto dos canais antigos | ⬜ próximo | — |
+
+**Decisão do dono (S4)**: `SetPage` é estado de região (não estilo lexical) — fica no modelo marcador/nova-página por desenho; só D4 (remover `native_page` legacy) + registro em `debt-stylechain-nao-materializada.md` §Geometria de página + item de paridade futura. O DEBT 99.E é fechado pela **tríade de numeração** (S1-S3).
 
 ## Mecanismo (estabelecido na Fase A→B)
 

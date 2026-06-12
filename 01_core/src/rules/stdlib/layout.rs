@@ -291,32 +291,12 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     ))))
 }
 
-/// `#set page(width: w, height: h, margin: m)` — configura as dimensões da página (Passo 81).
-pub fn native_page(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
-    fn extract_pt(val: &Value) -> Option<f64> {
-        match val {
-            Value::Length(l) => Some(l.abs.to_pt()),
-            Value::Float(f)  => Some(*f),
-            Value::Int(i)    => Some(*i as f64),
-            _                => None,
-        }
-    }
-
-    for key in args.named.keys() {
-        if !["width", "height", "margin"].contains(&key.as_str()) {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("argumento nomeado inesperado em page(): '{}'", key),
-            )]);
-        }
-    }
-
-    let width  = args.named.get("width") .and_then(extract_pt);
-    let height = args.named.get("height").and_then(extract_pt);
-    let margin = args.named.get("margin").and_then(extract_pt);
-
-    Ok(Value::Content(Content::SetPage { width, height, margin }))
-}
+// Lote F-2 S4 / D4 (P335): `native_page` (a forma-função legacy `page(...)`)
+// **removida**. O caminho canónico é `#set page(...)` via `eval_set_rule`
+// (target=="page", string match — não precisa da função). A forma-função não
+// tinha uso (zero call-sites). A geometria de página fica no modelo
+// marcador/nova-página por desenho (ver `debt-stylechain-nao-materializada.md`
+// §Geometria de página).
 
 // ── Passo 156C (ADR-0061 Fase 1 sub-passo 1) — pad + hide ───────────────────
 
