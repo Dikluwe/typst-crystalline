@@ -86,6 +86,9 @@ use crate::entities::elements::stack::StackElem;
 use crate::entities::elements::cite::CiteElem;
 use crate::entities::elements::transform::TransformElem;
 use crate::entities::elements::place::PlaceElem;
+use crate::entities::elements::pad::PadElem;
+use crate::entities::elements::bibliography::BibliographyElem;
+use crate::entities::elements::equation::EquationElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -141,10 +144,10 @@ pub enum Content {
     /// Equação matemática (`$...$` inline, `$ ... $` block).
     /// `block: true` → equação em linha própria (display mode).
     /// O motor de equações (Passo 36+) processa `body`.
-    Equation {
-        body:  Box<Content>,
-        block: bool,
-    },
+    /// **Modelo D (Lote 10 P325)**: `entities::elements::equation::EquationElem`
+    /// (locatável P186B; contentor assimétrico — map_content recursa,
+    /// map_text terminal).
+    Equation(Arc<EquationElem>),
 
     /// Sequência de nós matemáticos — corpo interno de uma equação.
     MathSequence(Arc<[Content]>),
@@ -655,10 +658,9 @@ pub enum Content {
     /// (`left`/`right`/`top`/`bottom`/`x`/`y`/`rest`) resolvidos em
     /// `native_pad` com precedência específico > eixo > rest antes de
     /// chegar a este variant.
-    Pad {
-        body:  Box<Content>,
-        sides: Sides<Option<Length>>,
-    },
+    /// **Modelo D (Lote 10 P325)**: `entities::elements::pad::PadElem`
+    /// (não-locatável, contentor — recurse body).
+    Pad(Arc<PadElem>),
 
     /// Container que calcula dimensões mas não emite items visuais.
     ///
@@ -944,10 +946,9 @@ pub enum Content {
     /// entries formatadas como `"[{key}] {author}. {title}
     /// ({year})."` per ADR-0033 + ADR-0054 graded — paridade
     /// vanilla observable mínima.
-    Bibliography {
-        entries: Vec<crate::entities::bib_entry::BibEntry>,
-        title:   Option<Box<Content>>,
-    },
+    /// **Modelo D (Lote 10 P325)**: `entities::elements::bibliography::BibliographyElem`
+    /// (locatável P181C; contentor — recurse title).
+    Bibliography(Arc<BibliographyElem>),
 
     /// Citação inline — vanilla `CiteElem`.
     /// Par com `Bibliography` (acoplamento semântico vanilla
@@ -1349,7 +1350,12 @@ impl Content {
     /// `pad(body, sides)` — Passo 156C (ADR-0061 Fase 1) /
     /// Passo 156L (refino sides individualizadas per ADR-0064 Caso C).
     pub fn pad(body: Content, sides: Sides<Option<Length>>) -> Self {
-        Self::Pad { body: Box::new(body), sides }
+        Self::Pad(Arc::new(PadElem { body, sides }))
+    }
+
+    /// **Lote 10 P325** — `Content::Equation` (equação matemática).
+    pub fn equation(body: Content, block: bool) -> Self {
+        Self::Equation(Arc::new(EquationElem { body, block }))
     }
 
     /// `hide(body)` — Passo 156C (ADR-0061 Fase 1).
@@ -1589,10 +1595,7 @@ impl Content {
         entries: Vec<crate::entities::bib_entry::BibEntry>,
         title:   Option<Content>,
     ) -> Self {
-        Self::Bibliography {
-            entries,
-            title: title.map(Box::new),
-        }
+        Self::Bibliography(Arc::new(BibliographyElem { entries, title }))
     }
 
     /// `cite(key, supplement, form)` — Passo 159A (par acoplado com
@@ -1651,8 +1654,7 @@ impl Content {
             // acoplado). Bibliography vazio se entries vazias E title
             // None. Cite nunca vazio (key sempre presente; placeholder
             // `[key]` é sempre observable).
-            Self::Bibliography { entries, title } =>
-                entries.is_empty() && title.is_none(),
+            Self::Bibliography(e) => e.is_empty(),
             Self::Cite(e) => e.is_empty(),
             // P295 — Footnote nunca vazio (marker `[N]` é sempre observable).
             Self::Footnote { .. } => false,
@@ -1674,7 +1676,7 @@ impl Content {
             // P287 — SmartQuote: nunca vazio (sempre emite 1 glyph).
             Self::SmartQuote(e) => e.is_empty(),
             // Passo 156C (ADR-0061 Fase 1): Pad/Hide vazios se o body for.
-            Self::Pad  { body, .. } => body.is_empty(),
+            Self::Pad(e) => e.is_empty(),
             Self::Hide(e)           => e.is_empty(),
             // Modelo D (Lote 5 P320): espaços/breaks delegam ao elemento
             // (HSpace/VSpace = amount.is_zero(); Pagebreak/Colbreak = false).
@@ -1733,10 +1735,7 @@ impl Content {
             // Layouter resolve lang-aware (consumer pós-P287); plain_text
             // é vista textual sem contexto lang.
             Self::SmartQuote(e) => e.plain_text(),
-            Self::Equation { body, block } => {
-                if *block { format!("\n{}\n", body.plain_text()) }
-                else       { body.plain_text() }
-            }
+            Self::Equation(e) => e.plain_text(),
             Self::MathSequence(nodes) => nodes.iter().map(|n| n.plain_text()).collect(),
             Self::MathIdent(s)        => s.to_string(),
             Self::MathText(s)         => s.to_string(),
@@ -1807,20 +1806,7 @@ impl Content {
             // Passo 159A: Bibliography concatena title (se Some) +
             // entries formatadas. Cite emite `"[{key}]"` placeholder
             // + supplement.
-            Self::Bibliography { entries, title } => {
-                let mut out = String::new();
-                if let Some(t) = title {
-                    out.push_str(&t.plain_text());
-                    out.push('\n');
-                }
-                for e in entries {
-                    out.push_str(&format!(
-                        "[{}] {}. {} ({}).\n",
-                        e.key, e.author, e.title, e.year
-                    ));
-                }
-                out
-            }
+            Self::Bibliography(e) => e.plain_text(),
             Self::Cite(e) => e.plain_text(),
             // P295 — Footnote plain_text: incorporar corpo (paridade
             // semântica de plain_text para search/screen readers).
@@ -1840,7 +1826,7 @@ impl Content {
             // Com attribution: `"body" — attribution`; sem: `"body"`.
             // Passo 156C: Pad é transparente para texto plano (recurse no
             // body sem alterar texto). Hide produz string vazia (não rende).
-            Self::Pad  { body, .. } => body.plain_text(),
+            Self::Pad(e) => e.plain_text(),
             Self::Hide(e)           => e.plain_text(),
             // Modelo D (Lote 5 P320): espaços/breaks delegam ao elemento (vazio).
             Self::HSpace(e)    => e.plain_text(),
@@ -1880,8 +1866,8 @@ impl PartialEq for Content {
             (Self::ListItem(a),          Self::ListItem(b))          => a == b,
             (Self::EnumItem(a), Self::EnumItem(b))                   => a == b,
             (Self::Link(a),     Self::Link(b))                       => a == b,
-            (Self::Equation { body: ba, block: ka },
-             Self::Equation { body: bb, block: kb })                 => ba == bb && ka == kb,
+            // Modelo D (Lote 10 P325): Equation delega ao `Arc<…Elem>`.
+            (Self::Equation(a), Self::Equation(b)) => a == b,
             (Self::MathSequence(a), Self::MathSequence(b))           => a.as_ref() == b.as_ref(),
             (Self::MathIdent(a),    Self::MathIdent(b))              => a == b,
             (Self::MathText(a),     Self::MathText(b))               => a == b,
@@ -1964,9 +1950,8 @@ impl PartialEq for Content {
             (Self::TableHeader(a), Self::TableHeader(b)) => a == b,
             (Self::TableFooter(a), Self::TableFooter(b)) => a == b,
             // Passo 159A — par acoplado Bibliography + Cite.
-            (Self::Bibliography { entries: ea, title: ta },
-             Self::Bibliography { entries: eb, title: tb }) =>
-                ea == eb && ta == tb,
+            // Modelo D (Lote 10 P325): Bibliography delega ao `Arc<…Elem>`.
+            (Self::Bibliography(a), Self::Bibliography(b)) => a == b,
             // Modelo D (Lote 9 P324): Cite delega ao `Arc<…Elem>`.
             (Self::Cite(a), Self::Cite(b)) => a == b,
             // P295 — Footnote PartialEq: body == body.
@@ -1992,8 +1977,8 @@ impl PartialEq for Content {
             // Modelo D (Lote 9 P324): SmartQuote delega ao `Arc<…Elem>`.
             (Self::SmartQuote(a), Self::SmartQuote(b)) => a == b,
             // Passo 156C / 156L — Pad / Hide.
-            (Self::Pad  { body: ba, sides: sa },
-             Self::Pad  { body: bb, sides: sb }) => ba == bb && sa == sb,
+            // Modelo D (Lote 10 P325): Pad delega ao `Arc<…Elem>`.
+            (Self::Pad(a), Self::Pad(b)) => a == b,
             (Self::Hide(a), Self::Hide(b)) => a == b,
             // Modelo D (Lote 5 P320): espaços/breaks delegam ao `Arc<…Elem>`.
             (Self::HSpace(a),    Self::HSpace(b))    => a == b,
@@ -2104,10 +2089,8 @@ impl Content {
                 numbering: numbering.clone(),
             },
             // Content::Equation tem body: Box<Content> → container.
-            Content::Equation { body, block } => Content::Equation {
-                body:  Box::new(body.map_content(transform)?),
-                block: *block,
-            },
+            // Modelo D (Lote 10 P325): Equation container delega ao elemento.
+            Content::Equation(e) => e.map_content(transform)?,
             Content::MathSequence(seq) => {
                 let new_seq: crate::entities::source_result::SourceResult<Vec<Content>> =
                     seq.iter().map(|c| c.map_content(transform)).collect();
@@ -2145,10 +2128,8 @@ impl Content {
 
             // Passo 156C / 156L: Pad / Hide containers — recurse em body;
             // sides é Copy primitivo (Sides<Option<Length>>).
-            Content::Pad { body, sides } => Content::Pad {
-                body:  Box::new(body.map_content(transform)?),
-                sides: *sides,
-            },
+            // Modelo D (Lote 10 P325): Pad container delega ao elemento.
+            Content::Pad(e) => e.map_content(transform)?,
             // Modelo D (Lote 7 P322): Hide delega ao elemento.
             Content::Hide(e) => e.map_content(transform)?,
 
@@ -2310,13 +2291,8 @@ impl Content {
             // Passo 159A: Bibliography recurse em title; preserva
             // entries (BibEntry é dados puros, sem Content recursivo).
             // Cite recurse em supplement; preserva key.
-            Content::Bibliography { entries, title } => Content::Bibliography {
-                entries: entries.clone(),
-                title:   title.as_ref()
-                    .map(|t| t.map_content(transform))
-                    .transpose()?
-                    .map(Box::new),
-            },
+            // Modelo D (Lote 10 P325): Bibliography delega ao elemento (recurse title).
+            Content::Bibliography(e) => e.map_content(transform)?,
             // Modelo D (Lote 9 P324): Cite delega ao elemento (recurse supplement).
             Content::Cite(e) => e.map_content(transform)?,
             // P295 — Footnote map_content recursivo em body.
@@ -2392,10 +2368,8 @@ impl Content {
             Content::Overline(e)  => e.map_text(transform),
 
             // Passo 156C / 156L: Pad / Hide containers — recurse em body.
-            Content::Pad { body, sides } => Content::Pad {
-                body:  Box::new(body.map_text(transform)),
-                sides: *sides,
-            },
+            // Modelo D (Lote 10 P325): Pad container delega ao elemento.
+            Content::Pad(e) => e.map_text(transform),
             // Modelo D (Lote 7 P322): Hide delega ao elemento.
             Content::Hide(e) => e.map_text(transform),
 
@@ -2463,7 +2437,7 @@ impl Content {
             | Content::MathText(_)
             // P287 — SmartQuote leaf (sem texto interno — map_text não recurse).
             | Content::SmartQuote(_)
-            | Content::Equation { .. }
+            | Content::Equation(_)
             | Content::MathSequence(_)
             // Modelo D (Lote 2 P317): família math é terminal em map_text
             // (math structural; não desce — paralelo MathStyled/Divider). O
@@ -2561,10 +2535,8 @@ impl Content {
             // são dados puros (String fields) — sem map_text recursivo
             // em entries (mapeamento de strings em fields entities é
             // out of scope per ADR-0033 paridade observable).
-            Content::Bibliography { entries, title } => Content::Bibliography {
-                entries: entries.clone(),
-                title:   title.as_ref().map(|t| Box::new(t.map_text(transform))),
-            },
+            // Modelo D (Lote 10 P325): Bibliography delega ao elemento (recurse title).
+            Content::Bibliography(e) => e.map_text(transform),
             // Modelo D (Lote 9 P324): Cite delega ao elemento (recurse supplement).
             Content::Cite(e) => e.map_text(transform),
             // P295 — Footnote map_text recursivo em body.
@@ -2703,19 +2675,13 @@ mod tests {
 
     #[test]
     fn content_equation_inline_plain_text() {
-        let eq = Content::Equation {
-            body:  Box::new(Content::MathIdent("x".into())),
-            block: false,
-        };
+        let eq = Content::equation(Content::MathIdent("x".into()), false);
         assert_eq!(eq.plain_text(), "x");
     }
 
     #[test]
     fn content_equation_block_plain_text() {
-        let eq = Content::Equation {
-            body:  Box::new(Content::MathIdent("x".into())),
-            block: true,
-        };
+        let eq = Content::equation(Content::MathIdent("x".into()), true);
         assert_eq!(eq.plain_text(), "\nx\n");
     }
 
@@ -3163,12 +3129,12 @@ mod tests {
         use crate::entities::layout_types::Length;
         // P156L: cada side é Option<Length>; Some(...) ↔ lado declarado.
         let p = Content::pad(Content::text("x"), Sides::uniform(Some(Length::pt(10.0))));
-        if let Content::Pad { body, sides } = &p {
-            assert_eq!(body.plain_text(), "x");
-            assert_eq!(sides.left,   Some(Length::pt(10.0)));
-            assert_eq!(sides.right,  Some(Length::pt(10.0)));
-            assert_eq!(sides.top,    Some(Length::pt(10.0)));
-            assert_eq!(sides.bottom, Some(Length::pt(10.0)));
+        if let Content::Pad(e) = &p {
+            assert_eq!(e.body.plain_text(), "x");
+            assert_eq!(e.sides.left,   Some(Length::pt(10.0)));
+            assert_eq!(e.sides.right,  Some(Length::pt(10.0)));
+            assert_eq!(e.sides.top,    Some(Length::pt(10.0)));
+            assert_eq!(e.sides.bottom, Some(Length::pt(10.0)));
         } else {
             panic!("esperado Content::Pad");
         }
@@ -5170,9 +5136,9 @@ mod tests {
     #[test]
     fn bibliography_constructor_default_vazia() {
         let b = Content::bibliography(vec![], None);
-        if let Content::Bibliography { entries, title } = &b {
-            assert!(entries.is_empty());
-            assert!(title.is_none());
+        if let Content::Bibliography(e) = &b {
+            assert!(e.entries.is_empty());
+            assert!(e.title.is_none());
         } else {
             panic!("esperado Content::Bibliography");
         }
@@ -5185,10 +5151,10 @@ mod tests {
             vec![BibEntry::new("k1", "A1", "T1", 2024)],
             Some(Content::text("Referências")),
         );
-        if let Content::Bibliography { entries, title } = &b {
-            assert_eq!(entries.len(), 1);
-            assert_eq!(entries[0].key, "k1");
-            assert_eq!(title.as_ref().map(|t| t.plain_text()).as_deref(), Some("Referências"));
+        if let Content::Bibliography(e) = &b {
+            assert_eq!(e.entries.len(), 1);
+            assert_eq!(e.entries[0].key, "k1");
+            assert_eq!(e.title.as_ref().map(|t| t.plain_text()).as_deref(), Some("Referências"));
         } else {
             panic!("esperado Content::Bibliography");
         }

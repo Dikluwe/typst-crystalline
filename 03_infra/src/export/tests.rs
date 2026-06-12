@@ -6542,10 +6542,7 @@ use typst_core::rules::layout::layout;
     #[test]
     fn p285_math_frac_preserva_ausencia_de_rg() {
         // Construir uma fracção mínima via Content::MathFrac.
-        let frac = Content::Equation {
-            body:  Box::new(Content::math_frac(Content::MathText("1".into()), Content::MathText("2".into()))),
-            block: false,
-        };
+        let frac = Content::equation(Content::math_frac(Content::MathText("1".into()), Content::MathText("2".into())), false);
         let doc = layout(&frac);
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
@@ -6715,10 +6712,7 @@ use typst_core::rules::layout::layout;
     #[test]
     fn p297_math_underover_com_ambos_emite_3_partes_no_pdf() {
         // base="x", under="u", over="o" → todos 3 visíveis no PDF.
-        let doc = layout(&Content::Equation {
-            body: Box::new(Content::math_underover(Content::MathIdent("x".into()), Some(Content::MathText("u".into())), Some(Content::MathText("o".into())))),
-            block: false,
-        });
+        let doc = layout(&Content::equation(Content::math_underover(Content::MathIdent("x".into()), Some(Content::MathText("u".into())), Some(Content::MathText("o".into()))), false));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("x"), "base 'x' no PDF");
@@ -6736,10 +6730,7 @@ use typst_core::rules::layout::layout;
     #[test]
     fn p298_math_op_text_emite_no_pdf() {
         // op("custom") sem attach → renderiza text simples.
-        let doc = layout(&Content::Equation {
-            body: Box::new(Content::math_op(Content::MathIdent("custom".into()), false)),
-            block: false,
-        });
+        let doc = layout(&Content::equation(Content::math_op(Content::MathIdent("custom".into()), false), false));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("custom"), "text 'custom' no PDF");
@@ -6750,10 +6741,7 @@ use typst_core::rules::layout::layout;
         // MathAttach com base=MathOp{limits:true} + sub → limits-style
         // em block mode (display). Verifica que PDF é produzido sem
         // crash; layout limits-style aplicado.
-        let doc = layout(&Content::Equation {
-            body: Box::new(Content::math_attach(Content::math_op(Content::MathIdent("lim".into()), true), None, None, Some(Content::MathText("x→0".into())), None)),
-            block: true,
-        });
+        let doc = layout(&Content::equation(Content::math_attach(Content::math_op(Content::MathIdent("lim".into()), true), None, None, Some(Content::MathText("x→0".into())), None), true));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("lim"), "base 'lim' presente no PDF");
@@ -6765,10 +6753,7 @@ use typst_core::rules::layout::layout;
         // CRÍTICO: heurística pré-P298 hardcoded (is_limit_function)
         // preservada. MathIdent("lim") em block mode + attach _ produz
         // limits-style sem necessidade de `op()`.
-        let doc = layout(&Content::Equation {
-            body: Box::new(Content::math_attach(Content::MathIdent("lim".into()), None, None, Some(Content::MathText("y".into())), None)),
-            block: true,
-        });
+        let doc = layout(&Content::equation(Content::math_attach(Content::MathIdent("lim".into()), None, None, Some(Content::MathText("y".into())), None), true));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("lim"), "base 'lim' MathIdent preservada");
@@ -6778,10 +6763,7 @@ use typst_core::rules::layout::layout;
     #[test]
     fn p297_math_underover_so_base_emite_so_base_no_pdf() {
         // Both Options None: comporta-se como base só (degenerate).
-        let doc = layout(&Content::Equation {
-            body: Box::new(Content::math_underover(Content::MathIdent("xyz".into()), None, None)),
-            block: false,
-        });
+        let doc = layout(&Content::equation(Content::math_underover(Content::MathIdent("xyz".into()), None, None), false));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("xyz"), "base 'xyz' no PDF mesmo sem under/over");
@@ -6814,10 +6796,7 @@ use typst_core::rules::layout::layout;
     #[test]
     fn p296_math_accent_emite_base_e_accent_no_pdf() {
         // Dentro de Equation, accent renderiza base + accent.
-        let doc = layout(&Content::Equation {
-            body: Box::new(Content::math_accent(Content::MathIdent("a".into()), Content::MathText("^".into()))),
-            block: false,
-        });
+        let doc = layout(&Content::equation(Content::math_accent(Content::MathIdent("a".into()), Content::MathText("^".into())), false));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         // Ambos elementos devem aparecer no PDF.
@@ -6828,10 +6807,7 @@ use typst_core::rules::layout::layout;
     #[test]
     fn p296_math_cancel_emite_body_e_linha_diagonal_no_pdf() {
         // Cancel emite body + linha diagonal (PDF operator `m`+`l`+`S`).
-        let doc = layout(&Content::Equation {
-            body: Box::new(Content::math_cancel(Content::MathIdent("x".into()))),
-            block: false,
-        });
+        let doc = layout(&Content::equation(Content::math_cancel(Content::MathIdent("x".into())), false));
         let pdf = export_pdf(&doc);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("x"), "body 'x' presente no PDF");

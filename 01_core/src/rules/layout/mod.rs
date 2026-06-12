@@ -804,8 +804,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // ── Matemática (Passo 37) — delegação ao MathLayouter ───────────
-            Content::Equation { body, block } => {
-                self.layout_equation(body, *block);
+            Content::Equation(e) => {
+                self.layout_equation(&e.body, e.block);
             }
 
             Content::MathSequence(_)
@@ -1039,12 +1039,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Cite renderiza placeholder `"[{key}]"` + supplement.
             // Refinos futuros (CSL styles, form variants, hayagriva)
             // NÃO reservados per política P158.
-            Content::Bibliography { entries, title } => {
-                if let Some(t) = title {
+            Content::Bibliography(b) => {
+                if let Some(t) = &b.title {
                     self.layout_content(t);
                     self.flush_line();
                 }
-                for e in entries {
+                for e in &b.entries {
                     let line = format_bib_entry(e);
                     self.layout_content(&Content::text(line));
                     self.flush_line();
@@ -1304,7 +1304,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // — promoção real `Pad.right`: `regions.current.width` save/restore
             // permite width-aware wrap em `layout_word` consumir largura útil
             // reduzida pelo `right` durante body layout.
-            Content::Pad { body, sides } => {
+            Content::Pad(e) => {
+                let body = &e.body;
+                let sides = &e.sides;
                 // P156L: cada side é Option<Length>; None ↔ default
                 // vanilla zero (resolvido aqui em vez de em native_pad).
                 // **P243**: `right` agora reduz `regions.current.width`
@@ -2398,14 +2400,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             // Passo 156C / 156L: Pad / Hide para grid measurement.
             // P156L: cada side é Option<Length>; None ↔ zero.
-            Content::Pad { body, sides } => {
+            Content::Pad(e) => {
+                let sides = &e.sides;
                 let font  = self.font_size_pt.val();
                 let left   = sides.left  .map_or(0.0, |l| l.resolve_pt(font));
                 let right  = sides.right .map_or(0.0, |l| l.resolve_pt(font));
                 let top    = sides.top   .map_or(0.0, |l| l.resolve_pt(font));
                 let bottom = sides.bottom.map_or(0.0, |l| l.resolve_pt(font));
                 let constrained = (max_width - left - right).max(0.0);
-                let (w, h) = self.measure_content_constrained(body, constrained);
+                let (w, h) = self.measure_content_constrained(&e.body, constrained);
                 (w + left + right, h + top + bottom)
             }
             Content::Hide(e) => {

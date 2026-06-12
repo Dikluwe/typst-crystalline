@@ -259,10 +259,7 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // Passo 156C (ADR-0061 Fase 1) — pad / hide containers.
         // Materialize_time desce no body para resolver counters dentro;
         // padding e o invariante "hide" preservam-se.
-        Content::Pad { body, sides } => Content::Pad {
-            body:  Box::new(materialize_time(body, intr, location)),
-            sides: *sides,
-        },
+        Content::Pad(e) => Content::pad(materialize_time(&e.body, intr, location), e.sides),
         Content::Hide(e) => Content::hide(materialize_time(&e.body, intr, location)),
         // Passo 156G + P231 + P247 + P250 — Block container; preserva 9 cosméticos.
         Content::Block { body, width, height, inset, breakable, outset, radius, clip, fill, stroke,
@@ -373,10 +370,10 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // Passo 159A — par acoplado Bibliography + Cite. Recurse em
         // title (Bibliography) ou supplement (Cite); preserva
         // entries/key.
-        Content::Bibliography { entries, title } => Content::Bibliography {
-            entries: entries.clone(),
-            title:   title.as_ref().map(|t| Box::new(materialize_time(t, intr, location))),
-        },
+        Content::Bibliography(e) => Content::bibliography(
+            e.entries.clone(),
+            e.title.as_ref().map(|t| materialize_time(t, intr, location)),
+        ),
         Content::Cite(e) => Content::cite(
             e.key.clone(),
             e.supplement.as_ref().map(|s| materialize_time(s, intr, location)),
@@ -439,7 +436,7 @@ fn compute_labelled<I: Introspector>(
                 .map(|n| format!("Secção {}", n)),
             None,
         ),
-        Content::Equation { block, .. } if *block => {
+        Content::Equation(e) if e.block => {
             let n = intr
                 .flat_counter_at("equation", location)
                 .unwrap_or(0);
@@ -923,7 +920,7 @@ pub(crate) fn walk(
             }
         }
 
-        Content::Equation { block: _, body } => {
+        Content::Equation(e) => {
             // E1 fechada — Reserva 1 materializada em P199B (cenário α
             // por construção): SetEquationNumbering popula intr.state;
             // populate_intr arm Equation aplica counter gated por
@@ -934,7 +931,7 @@ pub(crate) fn walk(
             // ELIMINADA — populate_intr arm Equation já aplica counter
             // a `intr.counters["equation"]` no momento da emission. Walk
             // arm Equation puro — apenas desce em body.
-            walk(body, locator, tags, intr, auto_label_counter, lang, None);
+            walk(&e.body, locator, tags, intr, auto_label_counter, lang, None);
         }
 
         Content::Figure { body, caption, kind: _, numbering: _ } => {
@@ -1225,8 +1222,8 @@ pub(crate) fn walk(
         // `ElementPayload::Bibliography { entries }`. Cite walk em
         // supplement; sem validação cross-reference (ADR-0017
         // Introspection runtime adiada).
-        Content::Bibliography { title, .. } => {
-            if let Some(t) = title {
+        Content::Bibliography(e) => {
+            if let Some(t) = &e.title {
                 walk(t, locator, tags, intr, auto_label_counter, lang, None);
             }
         }
@@ -1247,7 +1244,7 @@ pub(crate) fn walk(
         // estruturais; descer no body para que counters/labels dentro sejam
         // processados. `Hide` mesmo "ocultando visualmente" mantém a
         // semântica de presence (label/ref dentro de hide ainda resolvem).
-        Content::Pad  { body, .. } => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Pad(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
         Content::Hide(e)           => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
 
         // Passo 156G (ADR-0061 Fase 2) — block container; descer no body.
@@ -2736,13 +2733,10 @@ mod tests {
         use crate::entities::bib_entry::BibEntry;
         use crate::entities::content::Content;
 
-        let content = Content::Bibliography {
-            entries: vec![
+        let content = Content::bibliography(vec![
                 BibEntry::new("a", "Author A", "Title A", 2024),
                 BibEntry::new("b", "Author B", "Title B", 2025),
-            ],
-            title: None,
-        };
+            ], None);
         let mut locator = Locator::new();
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
@@ -2780,10 +2774,7 @@ mod tests {
             label: Label("bib-title".to_string()),
         };
 
-        let content = Content::Bibliography {
-            entries: vec![BibEntry::new("a", "A", "T", 2024)],
-            title:   Some(Box::new(titulo)),
-        };
+        let content = Content::bibliography(vec![BibEntry::new("a", "A", "T", 2024)], Some(titulo));
         let mut locator = Locator::new();
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
@@ -3487,10 +3478,7 @@ mod tests {
                 Content::counter_update("equation".to_string(), CounterAction::Step),
                 Content::Labelled {
                     label:  Label("eq1".to_string()),
-                    target: Box::new(Content::Equation {
-                        body:  Box::new(Content::Empty),
-                        block: true,
-                    }),
+                    target: Box::new(Content::equation(Content::Empty, true)),
                 },
             ]
             .into(),
@@ -3579,10 +3567,7 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::SetEquationNumbering { active: true },
-                Content::Equation {
-                    body:  Box::new(Content::Empty),
-                    block: true,
-                },
+                Content::equation(Content::Empty, true),
             ]
             .into(),
         );
@@ -3605,10 +3590,7 @@ mod tests {
         let com_set = Content::Sequence(
             vec![
                 Content::SetEquationNumbering { active: true },
-                Content::Equation {
-                    body:  Box::new(Content::Empty),
-                    block: true,
-                },
+                Content::equation(Content::Empty, true),
             ]
             .into(),
         );
@@ -3622,10 +3604,7 @@ mod tests {
             "cadeia E1: walk arm Equation gate via intr → counter avança");
 
         // Sem SetEquationNumbering, gate não dispara.
-        let sem_set = Content::Equation {
-            body:  Box::new(Content::Empty),
-            block: true,
-        };
+        let sem_set = Content::equation(Content::Empty, true);
         let intr_sem = introspect_with_introspector(&sem_set);
         assert!(!intr_sem.is_numbering_active("numbering_active:equation"));
         assert_eq!(intr_sem.counters.value("equation").and_then(|v| v.last()).copied().unwrap_or(0), 0,
@@ -3646,10 +3625,7 @@ mod tests {
                 Content::SetEquationNumbering { active: true },
                 Content::Labelled {
                     label:  Label("eq1".to_string()),
-                    target: Box::new(Content::Equation {
-                        body:  Box::new(Content::Empty),
-                        block: true,
-                    }),
+                    target: Box::new(Content::equation(Content::Empty, true)),
                 },
             ]
             .into(),

@@ -2578,12 +2578,12 @@ mod tests {
         let body = Content::text("body");
         let args = p(vec![Value::Content(body)]);
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { body, sides }) = result {
-            assert_eq!(body.plain_text(), "body");
-            assert_eq!(sides.left,   None);
-            assert_eq!(sides.right,  None);
-            assert_eq!(sides.top,    None);
-            assert_eq!(sides.bottom, None);
+        if let Value::Content(Content::Pad(e)) = result {
+            assert_eq!(e.body.plain_text(), "body");
+            assert_eq!(e.sides.left,   None);
+            assert_eq!(e.sides.right,  None);
+            assert_eq!(e.sides.top,    None);
+            assert_eq!(e.sides.bottom, None);
         } else {
             panic!("esperado Content::Pad");
         }
@@ -2599,11 +2599,11 @@ mod tests {
         args.named.insert("top".into(),    Value::Length(Length::pt(3.0)));
         args.named.insert("bottom".into(), Value::Length(Length::pt(4.0)));
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { sides, .. }) = result {
-            assert_eq!(sides.left,   Some(Length::pt(1.0)));
-            assert_eq!(sides.right,  Some(Length::pt(2.0)));
-            assert_eq!(sides.top,    Some(Length::pt(3.0)));
-            assert_eq!(sides.bottom, Some(Length::pt(4.0)));
+        if let Value::Content(Content::Pad(e)) = result {
+            assert_eq!(e.sides.left,   Some(Length::pt(1.0)));
+            assert_eq!(e.sides.right,  Some(Length::pt(2.0)));
+            assert_eq!(e.sides.top,    Some(Length::pt(3.0)));
+            assert_eq!(e.sides.bottom, Some(Length::pt(4.0)));
         } else {
             panic!("esperado Content::Pad");
         }
@@ -2618,11 +2618,11 @@ mod tests {
         args.named.insert("x".into(), Value::Length(Length::pt(5.0)));
         args.named.insert("y".into(), Value::Length(Length::pt(7.0)));
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { sides, .. }) = result {
-            assert_eq!(sides.left,   Some(Length::pt(5.0)));
-            assert_eq!(sides.right,  Some(Length::pt(5.0)));
-            assert_eq!(sides.top,    Some(Length::pt(7.0)));
-            assert_eq!(sides.bottom, Some(Length::pt(7.0)));
+        if let Value::Content(Content::Pad(e)) = result {
+            assert_eq!(e.sides.left,   Some(Length::pt(5.0)));
+            assert_eq!(e.sides.right,  Some(Length::pt(5.0)));
+            assert_eq!(e.sides.top,    Some(Length::pt(7.0)));
+            assert_eq!(e.sides.bottom, Some(Length::pt(7.0)));
         } else {
             panic!("esperado Content::Pad");
         }
@@ -2636,11 +2636,11 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("rest".into(), Value::Length(Length::pt(8.0)));
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { sides, .. }) = result {
-            assert_eq!(sides.left,   Some(Length::pt(8.0)));
-            assert_eq!(sides.right,  Some(Length::pt(8.0)));
-            assert_eq!(sides.top,    Some(Length::pt(8.0)));
-            assert_eq!(sides.bottom, Some(Length::pt(8.0)));
+        if let Value::Content(Content::Pad(e)) = result {
+            assert_eq!(e.sides.left,   Some(Length::pt(8.0)));
+            assert_eq!(e.sides.right,  Some(Length::pt(8.0)));
+            assert_eq!(e.sides.top,    Some(Length::pt(8.0)));
+            assert_eq!(e.sides.bottom, Some(Length::pt(8.0)));
         } else {
             panic!("esperado Content::Pad");
         }
@@ -2656,14 +2656,14 @@ mod tests {
         args.named.insert("x".into(),    Value::Length(Length::pt(2.0)));
         args.named.insert("rest".into(), Value::Length(Length::pt(3.0)));
         let result = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { sides, .. }) = result {
+        if let Value::Content(Content::Pad(e)) = result {
             // left vence (específico)
-            assert_eq!(sides.left,   Some(Length::pt(1.0)));
+            assert_eq!(e.sides.left,   Some(Length::pt(1.0)));
             // right cai para x (eixo)
-            assert_eq!(sides.right,  Some(Length::pt(2.0)));
+            assert_eq!(e.sides.right,  Some(Length::pt(2.0)));
             // top cai para rest (não há y nem específico)
-            assert_eq!(sides.top,    Some(Length::pt(3.0)));
-            assert_eq!(sides.bottom, Some(Length::pt(3.0)));
+            assert_eq!(e.sides.top,    Some(Length::pt(3.0)));
+            assert_eq!(e.sides.bottom, Some(Length::pt(3.0)));
         } else {
             panic!("esperado Content::Pad");
         }
@@ -2696,8 +2696,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("rest".into(), Value::Float(2.5));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { sides, .. }) = r {
-            assert_eq!(sides.left, Some(Length::pt(2.5)));
+        if let Value::Content(Content::Pad(e)) = r {
+            assert_eq!(e.sides.left, Some(Length::pt(2.5)));
         } else {
             panic!("esperado Content::Pad");
         }
@@ -2714,11 +2714,11 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("top".into(), Value::Length(Length::pt(7.0)));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { sides, .. }) = r {
-            assert_eq!(sides.top,    Some(Length::pt(7.0)));
-            assert_eq!(sides.left,   None);
-            assert_eq!(sides.right,  None);
-            assert_eq!(sides.bottom, None);
+        if let Value::Content(Content::Pad(e)) = r {
+            assert_eq!(e.sides.top,    Some(Length::pt(7.0)));
+            assert_eq!(e.sides.left,   None);
+            assert_eq!(e.sides.right,  None);
+            assert_eq!(e.sides.bottom, None);
         } else {
             panic!("esperado Content::Pad");
         }
@@ -2733,10 +2733,10 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("left".into(), Value::Length(Length::ZERO));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { sides, .. }) = r {
-            assert_eq!(sides.left,  Some(Length::ZERO),
+        if let Value::Content(Content::Pad(e)) = r {
+            assert_eq!(e.sides.left,  Some(Length::ZERO),
                 "left explicitamente declarado a zero é Some(ZERO), não None");
-            assert_eq!(sides.right, None,
+            assert_eq!(e.sides.right, None,
                 "right não declarado é None, não Some(ZERO)");
         } else {
             panic!("esperado Content::Pad");
@@ -2751,11 +2751,11 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("x".into(), Value::Length(Length::pt(4.0)));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { sides, .. }) = r {
-            assert_eq!(sides.left,   Some(Length::pt(4.0)));
-            assert_eq!(sides.right,  Some(Length::pt(4.0)));
-            assert_eq!(sides.top,    None);
-            assert_eq!(sides.bottom, None);
+        if let Value::Content(Content::Pad(e)) = r {
+            assert_eq!(e.sides.left,   Some(Length::pt(4.0)));
+            assert_eq!(e.sides.right,  Some(Length::pt(4.0)));
+            assert_eq!(e.sides.top,    None);
+            assert_eq!(e.sides.bottom, None);
         } else {
             panic!("esperado Content::Pad");
         }
@@ -2772,14 +2772,14 @@ mod tests {
         args.named.insert("y".into(),    Value::Length(Length::pt(20.0)));
         args.named.insert("rest".into(), Value::Length(Length::pt(30.0)));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Pad { sides, .. }) = r {
-            assert_eq!(sides.top,    Some(Length::pt(10.0)),
+        if let Value::Content(Content::Pad(e)) = r {
+            assert_eq!(e.sides.top,    Some(Length::pt(10.0)),
                 "top específico vence y e rest");
-            assert_eq!(sides.bottom, Some(Length::pt(20.0)),
+            assert_eq!(e.sides.bottom, Some(Length::pt(20.0)),
                 "bottom cai para y (sem específico)");
-            assert_eq!(sides.left,   Some(Length::pt(30.0)),
+            assert_eq!(e.sides.left,   Some(Length::pt(30.0)),
                 "left cai para rest (sem específico nem x)");
-            assert_eq!(sides.right,  Some(Length::pt(30.0)));
+            assert_eq!(e.sides.right,  Some(Length::pt(30.0)));
         } else {
             panic!("esperado Content::Pad");
         }
@@ -3723,7 +3723,7 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("rest".into(), Value::Length(Length::pt(5.0)));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Pad { .. })),
+        assert!(matches!(r, Value::Content(Content::Pad(e))),
             "regressão: native_pad deveria produzir Content::Pad");
         // Hide regression
         let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
@@ -4059,7 +4059,7 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("rest".into(), Value::Length(Length::pt(5.0)));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Pad { .. })),
+        assert!(matches!(r, Value::Content(Content::Pad(e))),
             "regressão: native_pad deveria produzir Content::Pad");
         // Hide regression
         let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
@@ -4088,7 +4088,7 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("rest".into(), Value::Length(Length::pt(2.0)));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Pad { .. })));
+        assert!(matches!(r, Value::Content(Content::Pad(e))));
         // Hide
         let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
         assert!(matches!(r, Value::Content(Content::Hide(_))));
@@ -4239,7 +4239,7 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("rest".into(), Value::Length(Length::pt(2.0)));
         let r = native_pad(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(r, Value::Content(Content::Pad { .. })));
+        assert!(matches!(r, Value::Content(Content::Pad(e))));
         // Hide
         let r = native_hide(&mut ctx, &p(vec![Value::Content(Content::text("y"))]), &null_world(), test_file_id(), None).unwrap();
         assert!(matches!(r, Value::Content(Content::Hide(_))));
@@ -6286,9 +6286,9 @@ mod tests {
         // P159A: bibliography() sem args produz Bibliography vazia.
         null_ctx!(ctx);
         let r = native_bibliography(&mut ctx, &p(vec![]), &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Bibliography { entries, title }) = r {
-            assert!(entries.is_empty());
-            assert!(title.is_none());
+        if let Value::Content(Content::Bibliography(e)) = r {
+            assert!(e.entries.is_empty());
+            assert!(e.title.is_none());
         } else {
             panic!("esperado Content::Bibliography");
         }
@@ -6302,11 +6302,11 @@ mod tests {
         ]);
         let args = p(vec![entries_arr]);
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Bibliography { entries, .. }) = r {
-            assert_eq!(entries.len(), 1);
-            assert_eq!(entries[0].key, "smith2024");
-            assert_eq!(entries[0].author, "Smith, J.");
-            assert_eq!(entries[0].year, 2024);
+        if let Value::Content(Content::Bibliography(e)) = r {
+            assert_eq!(e.entries.len(), 1);
+            assert_eq!(e.entries[0].key, "smith2024");
+            assert_eq!(e.entries[0].author, "Smith, J.");
+            assert_eq!(e.entries[0].year, 2024);
         } else {
             panic!("esperado Content::Bibliography");
         }
@@ -6318,8 +6318,8 @@ mod tests {
         let mut args = p(vec![Value::Array(vec![])]);
         args.named.insert("title".into(), Value::Str("Referências".into()));
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Bibliography { title, .. }) = r {
-            assert_eq!(title.as_ref().map(|t| t.plain_text()).as_deref(), Some("Referências"));
+        if let Value::Content(Content::Bibliography(e)) = r {
+            assert_eq!(e.title.as_ref().map(|t| t.plain_text()).as_deref(), Some("Referências"));
         } else {
             panic!("esperado Content::Bibliography");
         }
@@ -6521,8 +6521,8 @@ mod tests {
         ]);
         let args = p(vec![entries_arr]);
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Bibliography { entries, .. }) = r {
-            let e = &entries[0];
+        if let Value::Content(Content::Bibliography(e)) = r {
+            let e = &e.entries[0];
             assert_eq!(e.volume.as_deref(),    Some("12"));
             assert_eq!(e.pages.as_deref(),     Some("1-10"));
             assert_eq!(e.journal.as_deref(),   Some("Nature Communications"));
@@ -6541,8 +6541,8 @@ mod tests {
             make_bib_dict("smith2024", "Smith, J.", "On Crystal Math", 2024),
         ])]);
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Bibliography { entries, .. }) = r {
-            let e = &entries[0];
+        if let Value::Content(Content::Bibliography(e)) = r {
+            let e = &e.entries[0];
             assert!(e.volume.is_none());
             assert!(e.pages.is_none());
             assert!(e.journal.is_none());
@@ -6601,8 +6601,8 @@ mod tests {
         ]);
         let args = p(vec![entries_arr]);
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Bibliography { entries, .. }) = r {
-            let e = &entries[0];
+        if let Value::Content(Content::Bibliography(e)) = r {
+            let e = &e.entries[0];
             assert_eq!(e.url.as_deref(), Some("https://example.com/paper"));
             assert_eq!(e.doi.as_deref(), Some("10.1234/abc"));
         } else {
@@ -6619,8 +6619,8 @@ mod tests {
             make_bib_dict("smith2024", "Smith, J.", "On Crystal Math", 2024),
         ])]);
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Bibliography { entries, .. }) = r {
-            let e = &entries[0];
+        if let Value::Content(Content::Bibliography(e)) = r {
+            let e = &e.entries[0];
             assert!(e.url.is_none());
             assert!(e.doi.is_none());
         } else {
@@ -6683,8 +6683,8 @@ mod tests {
         ]);
         let args = p(vec![entries_arr]);
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Bibliography { entries, .. }) = r {
-            let e = &entries[0];
+        if let Value::Content(Content::Bibliography(e)) = r {
+            let e = &e.entries[0];
             assert_eq!(e.editor.as_deref(),       Some("Doe, A."));
             assert_eq!(e.series.as_deref(),       Some("Crystal Studies"));
             assert_eq!(e.note.as_deref(),         Some("See also Smith 2023"));
@@ -6711,8 +6711,8 @@ mod tests {
         d.insert("isbn".into(),   Value::Str("978-0-1".into()));
         let args = p(vec![Value::Array(vec![Value::Dict(d)])]);
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Bibliography { entries, .. }) = r {
-            let e = &entries[0];
+        if let Value::Content(Content::Bibliography(e)) = r {
+            let e = &e.entries[0];
             assert_eq!(e.editor.as_deref(), Some("Ed1"));
             assert_eq!(e.isbn.as_deref(),   Some("978-0-1"));
             // Outros P159G permanecem None.
@@ -6734,8 +6734,8 @@ mod tests {
             make_bib_dict("smith2024", "Smith, J.", "On Crystal Math", 2024),
         ])]);
         let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Bibliography { entries, .. }) = r {
-            let e = &entries[0];
+        if let Value::Content(Content::Bibliography(e)) = r {
+            let e = &e.entries[0];
             assert!(e.editor.is_none());
             assert!(e.series.is_none());
             assert!(e.note.is_none());

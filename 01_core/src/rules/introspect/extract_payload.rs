@@ -74,9 +74,8 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         // cláusula 4 = Opção β). Captura entries completos por simetria
         // com walk arm actual `state.bib_entries.extend(...)`. `title`
         // ignorado por não ser relevante para introspecção.
-        Content::Bibliography { entries, .. } => Some(ElementPayload::Bibliography {
-            entries: entries.clone(),
-        }),
+        // Modelo D (Lote 10 P325): Bibliography locatável delega ao elemento.
+        Content::Bibliography(e) => e.to_payload(),
 
         // P186C — Equation arm em estado intermédio. Arm declarado mas
         // **latente**: `is_locatable(Content::Equation)` ainda retorna
@@ -87,10 +86,8 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         // emite tag.
         // `body` ignorado (não relevante para counter); `block`
         // propagado para gate em `from_tags` arm Equation (P186E).
-        Content::Equation { block, .. } => Some(ElementPayload::Equation {
-            block:          *block,
-            counter_update: CounterUpdate::Step,
-        }),
+        // Modelo D (Lote 10 P325): Equation locatável delega ao elemento.
+        Content::Equation(e) => e.to_payload(),
 
         // P198C — CounterUpdate promovido a locatable (cenário
         // β-promote ADR-0069). Arm emite payload com (key, action)
@@ -220,10 +217,7 @@ mod tests {
 
     #[test]
     fn bibliography_produz_some_payload_com_entries() {
-        let c = Content::Bibliography {
-            entries: vec![bib_entry("smith2024")],
-            title:   None,
-        };
+        let c = Content::bibliography(vec![bib_entry("smith2024")], None);
         match extract_payload(&c) {
             Some(ElementPayload::Bibliography { entries }) => {
                 assert_eq!(entries.len(), 1);
@@ -235,10 +229,7 @@ mod tests {
 
     #[test]
     fn bibliography_clona_entries_para_payload() {
-        let c = Content::Bibliography {
-            entries: vec![bib_entry("a"), bib_entry("b"), bib_entry("c")],
-            title:   None,
-        };
+        let c = Content::bibliography(vec![bib_entry("a"), bib_entry("b"), bib_entry("c")], None);
         let payload = extract_payload(&c).expect("bibliography deve produzir Some");
         if let ElementPayload::Bibliography { entries } = payload {
             assert_eq!(entries.len(), 3);
@@ -255,10 +246,7 @@ mod tests {
         // P181D ignora `title` — apenas `entries` entra no payload.
         // Layouter (P181G+) continuará a renderizar `title` via path
         // separado se necessário.
-        let c = Content::Bibliography {
-            entries: vec![bib_entry("k")],
-            title:   Some(Box::new(Content::Empty)),
-        };
+        let c = Content::bibliography(vec![bib_entry("k")], Some(Content::Empty));
         match extract_payload(&c) {
             Some(ElementPayload::Bibliography { entries }) => {
                 assert_eq!(entries.len(), 1);
@@ -303,10 +291,7 @@ mod tests {
 
     #[test]
     fn equation_block_true_produz_some_payload() {
-        let c = Content::Equation {
-            body:  Box::new(Content::Empty),
-            block: true,
-        };
+        let c = Content::equation(Content::Empty, true);
         match extract_payload(&c) {
             Some(ElementPayload::Equation { block, counter_update }) => {
                 assert!(block);
@@ -320,10 +305,7 @@ mod tests {
     fn equation_block_false_propaga_flag() {
         // Inline equation: gate em P186E (block && state-active) vai
         // bloquear; payload preserva block=false para downstream.
-        let c = Content::Equation {
-            body:  Box::new(Content::Empty),
-            block: false,
-        };
+        let c = Content::equation(Content::Empty, false);
         match extract_payload(&c) {
             Some(ElementPayload::Equation { block, counter_update }) => {
                 assert!(!block);
@@ -336,14 +318,8 @@ mod tests {
     #[test]
     fn equation_body_e_ignorado() {
         // body distinto não afecta payload — só block é capturado.
-        let c1 = Content::Equation {
-            body:  Box::new(Content::Empty),
-            block: true,
-        };
-        let c2 = Content::Equation {
-            body:  Box::new(Content::Text(EcoString::from("E=mc^2"), Default::default())),
-            block: true,
-        };
+        let c1 = Content::equation(Content::Empty, true);
+        let c2 = Content::equation(Content::Text(EcoString::from("E=mc^2"), Default::default()), true);
         assert_eq!(extract_payload(&c1), extract_payload(&c2));
     }
 }

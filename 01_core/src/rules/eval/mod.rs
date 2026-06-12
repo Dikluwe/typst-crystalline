@@ -459,10 +459,7 @@ fn eval_expr(
         Expr::Equation(eq) => {
             let block = eq.block();
             let body  = math::eval_math_content(scopes, ctx, eq.body())?;
-            Ok(Value::Content(Content::Equation {
-                body: Box::new(body),
-                block,
-            }))
+            Ok(Value::Content(Content::equation(body, block)))
         }
 
         Expr::Math(math) => {

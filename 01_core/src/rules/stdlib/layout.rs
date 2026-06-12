@@ -396,10 +396,7 @@ pub fn native_pad(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 
     let sides = extract_sides_lengths(args, "pad")?;
 
-    Ok(Value::Content(Content::Pad {
-        body: Box::new(body),
-        sides,
-    }))
+    Ok(Value::Content(Content::pad(body, sides)))
 }
 
 /// Helper Passo 156L: parse named args left/top/right/bottom + atalhos

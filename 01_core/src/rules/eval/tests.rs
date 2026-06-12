@@ -1811,7 +1811,7 @@ mod tests {
         fn has_math_root(c: &Content) -> bool {
             match c {
                 Content::MathRoot(e) => e.index.is_none(),
-                Content::Equation { body, .. } => has_math_root(body),
+                Content::Equation(e) => has_math_root(&e.body),
                 Content::MathSequence(ns) => ns.iter().any(has_math_root),
                 Content::Sequence(ns) => ns.iter().any(has_math_root),
                 _ => false,
@@ -1829,7 +1829,7 @@ mod tests {
         fn has_math_root_with_index(c: &Content) -> bool {
             match c {
                 Content::MathRoot(e) => e.index.is_some(),
-                Content::Equation { body, .. } => has_math_root_with_index(body),
+                Content::Equation(e) => has_math_root_with_index(&e.body),
                 Content::MathSequence(ns) => ns.iter().any(has_math_root_with_index),
                 Content::Sequence(ns) => ns.iter().any(has_math_root_with_index),
                 _ => false,
@@ -2742,7 +2742,7 @@ mod tests {
             Content::Sequence(items) | Content::MathSequence(items) => {
                 items.iter().find_map(find_mathop_in)
             }
-            Content::Equation { body, .. } => find_mathop_in(body),
+            Content::Equation(e) => find_mathop_in(&e.body),
             // MathAttach: a base pode ser MathOp.
             Content::MathAttach(e) => {
                 find_mathop_in(&e.base)
@@ -2763,7 +2763,7 @@ mod tests {
             Content::Sequence(items) | Content::MathSequence(items) => {
                 items.iter().find_map(find_mathident_in)
             }
-            Content::Equation { body, .. } => find_mathident_in(body),
+            Content::Equation(e) => find_mathident_in(&e.body),
             Content::MathAttach(e) => find_mathident_in(&e.base),
             _ => None,
         }
@@ -2875,7 +2875,7 @@ mod tests {
             Content::Sequence(items) | Content::MathSequence(items) => {
                 items.iter().find_map(find_mathdelimited_in)
             }
-            Content::Equation { body, .. } => find_mathdelimited_in(body),
+            Content::Equation(e) => find_mathdelimited_in(&e.body),
             _ => None,
         }
     }

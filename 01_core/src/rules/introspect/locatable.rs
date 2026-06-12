@@ -53,7 +53,7 @@ pub fn is_locatable(content: &Content) -> bool {
         // cláusula 4 = Opção β walk puro). `from_tags` arm popula
         // `BibStore` (P181E pendente). Suporta plano P181 para
         // fechar lacuna #6.
-        Content::Bibliography { .. } => true,
+        Content::Bibliography(_) => true,
 
         // ── Locatable em P182C — SetHeadingNumbering emite
         // `StateUpdate { key: "numbering_active:heading", ... }` via
@@ -82,7 +82,7 @@ pub fn is_locatable(content: &Content) -> bool {
         // (passo dedicado, fora da série P186). Suporta C2
         // desbloqueio per ADR-0068 (eixo 2 P183C); consumer migra
         // em P188.
-        Content::Equation { .. } => true,
+        Content::Equation(_) => true,
 
         // ── Locatable em P198C — CounterUpdate (cenário β-promote
         // ADR-0069). `extract_payload` emite
@@ -138,7 +138,7 @@ pub fn is_locatable(content: &Content) -> bool {
         // P287 — SmartQuote leaf não-locatable (glyph único; sem identidade
         // queryable; paridade Space/Linebreak).
         | Content::SmartQuote(_)
-        | Content::Pad { .. }
+        | Content::Pad(_)
         | Content::Hide(_)
         | Content::HSpace(_)
         | Content::VSpace(_)
@@ -278,7 +278,7 @@ mod tests {
             // Lacuna pré-existente — Equation estava omitida do
             // helper, escondendo divergências entre is_locatable e
             // extract_payload se houvesse erro de sincronização.
-            Content::Equation { body: Box::new(Content::Empty), block: true },
+            Content::equation(Content::Empty, true),
         ]
     }
 
@@ -307,10 +307,7 @@ mod tests {
 
     #[test]
     fn bibliography_e_locatable() {
-        let c = Content::Bibliography {
-            entries: vec![],
-            title:   None,
-        };
+        let c = Content::bibliography(vec![], None);
         assert!(is_locatable(&c));
         // Invariante: extract_payload deve produzir Some.
         assert!(extract_payload(&c).is_some());

@@ -1129,10 +1129,7 @@ fn layout_equation_bloco_numerada() {
     // directamente. Caminho Introspector activo desde P199B.
     let content = Content::Sequence(vec![
         Content::SetEquationNumbering { active: true },
-        Content::Equation {
-            body:  Box::new(Content::MathIdent("E".into())),
-            block: true,
-        },
+        Content::equation(Content::MathIdent("E".into()), true),
     ].into());
 
     let doc = layout(&content);
@@ -3721,15 +3718,12 @@ mod tests_show_rule_integration {
         // body layout (vs scope-out P156C que ignorava right).
         use crate::entities::sides::Sides;
         use crate::entities::layout_types::Length;
-        let pad = Content::Pad {
-            body:  Box::new(Content::text("p243pad")),
-            sides: Sides {
+        let pad = Content::pad(Content::text("p243pad"), Sides {
                 left:   None,
                 top:    None,
-                right:  Some(Length::pt(100.0)),  // Pad.right efectivo agora.
+                right:  Some(Length::pt(100.0)),  
                 bottom: None,
-            },
-        };
+            });
         // Smoke test: layout sem panic + body presente em output.
         let doc = layout(&pad);
         let mut texts = String::new();
@@ -3816,15 +3810,12 @@ mod tests_show_rule_integration {
         use crate::entities::sides::Sides;
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let inner_pad = Content::Pad {
-            body:  Box::new(Content::text("inner")),
-            sides: Sides {
+        let inner_pad = Content::pad(Content::text("inner"), Sides {
                 left:   None,
                 top:    None,
                 right:  Some(Length::pt(50.0)),
                 bottom: None,
-            },
-        };
+            });
         let block = Content::Block {
             body:      Box::new(inner_pad),
             width:     Some(Length::pt(200.0)),
@@ -7675,10 +7666,7 @@ mod p181i_e2e_bib {
         // P181I: confirma walk puro restaurado (P181H) — state.bib_*
         // permanece vazio após walk em produção. BibStore é
         // populado por from_tags como fonte única.
-        let content = Content::Bibliography {
-            entries: vec![bib("a")],
-            title:   None,
-        };
+        let content = Content::bibliography(vec![bib("a")], None);
 
         let intr = introspect_with_introspector(&content);
 
@@ -8107,10 +8095,7 @@ mod p182e_e2e_heading_numbering {
             Content::heading(1, Content::text("Sec1")),
             Content::text("corpo do parágrafo"),
             Content::heading(2, Content::text("Sub1")),
-            Content::Equation {
-                body:  Box::new(Content::MathText("x".into())),
-                block: true,
-            },
+            Content::equation(Content::MathText("x".into()), true),
             Content::heading(1, Content::text("Sec2")),
         ]));
 
@@ -8414,7 +8399,7 @@ mod p185d_locator_sync {
                 kind:      None,
                 numbering: None,
             },
-            Content::Equation { body: Box::new(Content::Empty), block: false },
+            Content::equation(Content::Empty, false),
             Content::cite("k".to_string(), None, None),
         ];
         let content = Content::Sequence(Arc::from(parts.clone()));
@@ -8551,10 +8536,7 @@ mod p186f_equation_locatable {
     use std::sync::Arc;
 
     fn equation_block() -> Content {
-        Content::Equation {
-            body:  Box::new(Content::Empty),
-            block: true,
-        }
+        Content::equation(Content::Empty, true)
     }
 
     #[test]
@@ -8620,8 +8602,8 @@ mod p186f_equation_locatable {
         // por block=false.
         let parts = vec![
             Content::state_update("numbering_active:equation".to_string(), StateUpdate::Set(Box::new(Value::Bool(true)))),
-            Content::Equation { body: Box::new(Content::Empty), block: false },
-            Content::Equation { body: Box::new(Content::Empty), block: false },
+            Content::equation(Content::Empty, false),
+            Content::equation(Content::Empty, false),
         ];
         let content = Content::Sequence(Arc::from(parts));
 
@@ -8743,10 +8725,7 @@ mod p188b_c2_equation_counter {
     use std::sync::Arc;
 
     fn equation_block(text: &str) -> Content {
-        Content::Equation {
-            body:  Box::new(Content::MathIdent(text.into())),
-            block: true,
-        }
+        Content::equation(Content::MathIdent(text.into()), true)
     }
 
     fn doc_3_equations() -> Content {

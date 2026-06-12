@@ -181,9 +181,9 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 ## Contabilidade de variantes (o roteiro dos lotes — atualizar a CADA lote)
 
-`Content` tem **77 variantes** (baseline P313). Estado em **P324** (Lote 9 incluído):
+`Content` tem **77 variantes** (baseline P313). Estado em **P325** (Lote 10 incluído):
 
-### Migradas para o modelo D — 52
+### Migradas para o modelo D — 55
 
 - **P316 piloto (3)**: `Divider`, `Heading` (locatável), `MathStyled`.
 - **Lote 2 P317 — math (11)**: `MathCases`, `MathMatrix`, `MathAlignPoint`,
@@ -223,6 +223,18 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   `Transform`/`Place` `is_empty` no default `false` (não delegam — paridade hub
   `_ => false`, precedente Align L7). C1 aplicada: sites de padrão tratados à
   mão; o transformador errou de novo (3 padrões → construtor) — corrigidos.
+- **Lote 10 P325 — largura (3)**: `Pad`, `Bibliography` (locatável P181C),
+  `Equation` (locatável P186B). **2 de 3 locatáveis** — absorvem
+  `element_kind`/`to_payload`. Derive Hash em `Bibliography` (`BibEntry: Hash`)
+  e `Equation` (`Content`+bool); manual em `Pad` (`Sides<Length>`/f64).
+  **`Equation` é assimétrico** (inédito): `map_content` recursa no body,
+  `map_text` é **terminal** (math structural; arm `|`-combinado, sem split).
+  `Equation` `is_empty` no default `false` (não delega). **C1-bis estreou e
+  apanhou a 4ª reincidência**: o transformador converteu 2 padrões aninhados
+  (`Value::Content(Content::{pad,bibliography}(…))`) → a verificação pós-passada
+  (interseção sites-tocados ∩ grep ≠ ∅) parou antes de compilar; revertidos à
+  mão. A heurística do transformador continua o elo fraco (candidato a C1-ter:
+  excluir por linha-do-grep, não por heurística).
 
 ### Fora de lote — decisão própria
 
@@ -235,12 +247,12 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   `Styled` (58), `Boxed` (58), `Labelled` (55); **observação** (leaf, candidato
   à triagem): `Text` (40).
 
-### Element-shaped restantes — ~10 (os lotes 10+ saem daqui, por largura)
+### Element-shaped restantes — ~7 (os lotes 11+ saem daqui, por largura)
 
-(O Lote 9 P324 — SmartQuote/Stack/Cite/Transform/Place, 5 variantes — saiu daqui.)
+(O Lote 10 P325 — Pad/Bibliography/Equation, 3 variantes — saiu daqui.)
 
-`TableCell`32 · `Pad`39 · `Bibliography`40 ·
-`Table`41 · `Equation`45 · `Footnote`46 · `GridCell`47 · `Shape`57 · `Grid`73 ·
+`TableCell`32 ·
+`Table`41 · `Footnote`46 · `GridCell`47 · `Shape`57 · `Grid`73 ·
 `Figure`89.
 
 > **Bloco grid/table cell** (lote próprio, ~193 sites; decisão do dono):
@@ -249,7 +261,7 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 ### Estimativa
 
-~10 element-shaped restantes ÷ 5–9 variantes/lote (ritmo validado P317–P324)
+~7 element-shaped restantes ÷ 5–9 variantes/lote (ritmo validado P317–P325)
 ≈ **1–2 lotes** até esgotar os elegíveis — gatilho da triagem do DEBT-58 e da
-decisão F. Conta: 52 migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers +
-Text) + 10 restantes = 77. ✓
+decisão F. Conta: 55 migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers +
+Text) + 7 restantes = 77. ✓

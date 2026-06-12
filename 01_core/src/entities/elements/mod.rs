@@ -79,6 +79,10 @@ pub mod stack;
 pub mod cite;
 pub mod transform;
 pub mod place;
+// Lote 10 P325 — por largura (3 variantes element-shaped).
+pub mod pad;
+pub mod bibliography;
+pub mod equation;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;
