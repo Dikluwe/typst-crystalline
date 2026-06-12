@@ -23,7 +23,8 @@
   - [x] 1c custo → `f-inventario-1c-custo.md` (306 l)
 - [x] **Fase 2 — rede de caracterização** (testes) ✅ — **+11** testes
   (`mod f_caracterizacao_estilo` em `layout/tests.rs`), suíte 2697→2708, lint 0
-- [ ] **Fase 3 — dossiê de opções** → `f-dossie-opcoes-passo-331.md`
+- [x] **Fase 3 — dossiê de opções** ✅ → `f-dossie-opcoes-passo-331.md`
+  (4 opções A/B/C/D + §10 perguntas + §3 bugs). **P331 COMPLETO.**
 
 ## Achados-chave da Fase 1 (para a Fase 3)
 
