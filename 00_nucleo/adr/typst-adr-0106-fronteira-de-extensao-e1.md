@@ -164,3 +164,30 @@ P333 **grava** esta decisão e redige o **L0 do F** sob ela; **não** implementa
 nenhum código de produto. A implementação é **por lotes, depois da Trava**, com o
 L0 aprovado e o hash humano. A decisão final do escape `Value::Custom` é item do
 checkpoint da Trava, com a evidência do spike-2 e do L0.
+
+---
+
+## Aprovação da Trava (P334 — checkpoint do dono fechado)
+
+O dono **aprovou** o L0 `entities/f_fronteira_e1.md` no checkpoint do P333. As
+respostas que destravam o código (gravadas para o leitor futuro):
+
+1. **L0 aprovado** — blanket `impl<T: Element> DynElement for T`; chain única;
+   `Value` fechado; canal `Set*` (F-2); `#show` por S3–S6.
+2. **Trava-Q1**: guard/lifecycle vive na **camada de realização** (`rules/`), em
+   invólucro **transparente** uniforme nativo+dinâmico — **não** no `Content` nem
+   no trait. Condição: a transparência é provada por teste quando o invólucro
+   nascer (F-2; F-1 não o traz).
+3. **Trava-Q2 confirmada**: `dyn_kind_name()` estável `Eq` + `get_field` são
+   contrato obrigatório do elemento dinâmico (S1/S7).
+4. **`Value::Custom` fica fora** — gatilho de reabertura registrado (§3b.4 do L0).
+5. **Plano de lotes aprovado**: F-1 → F-2 → fila incremental; a trava ADR-0105
+   cláusula 3 constrói-se em F-1/F-2 antes de relaxar o compilador.
+6. **R4 da lente**: sessão `tekt-cargo-dsm` abre em paralelo (não bloqueia F-1).
+
+O L0 passa de **design-ahead** a **ativo** a partir do lote **F-1 (P334)**: o
+código F-1 declara `@prompt entities/f_fronteira_e1.md` e o warning V7 (órfão)
+limpa. Ajuste de Fase A registrado: o `dyn_hash` do L0 §3a.3 é **removido** —
+`content_hash::hash_content` serializa por `format!("{:?}")` (Debug), logo
+`Content::Dynamic` precisa só de `Debug` (que `DynElement` já exige); `dyn_eq` +
+`as_any` permanecem (o `eq` do hub é um match, precisa do arm dinâmico).

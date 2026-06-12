@@ -10,22 +10,29 @@ agora, F destino) + ADR-0104 (atomicidade) + ADR-0026 (enum fechado, complementa
 elemento de utilizador). **Forward-looking**: descreve o desenho; a implementação é
 **por lotes, pós-Trava**, com hash humano por lote.
 
-> **Este L0 é design-ahead (§0).** Nenhum código de produto o referencia ainda; a
-> Trava arquitetural (CLAUDE.md) exige que o dono aprove este L0 antes de qualquer
-> código. O `crystalline-lint` não dispara V5/PromptDrift contra ele enquanto nenhum
-> header `@prompt entities/f_fronteira_e1.md` existir no código.
+> **Estatuto: APROVADO (P333 checkpoint) — ativação em F-1 (P334).** O dono
+> aprovou este L0 (ADR-0106 §Aprovação da Trava). O código F-1 declara `@prompt
+> entities/f_fronteira_e1.md` e o warning V7 (órfão) limpa. Trava arquitetural
+> (CLAUDE.md) cumprida.
 
 ---
 
 ## §0 — Estatuto e sincronização de hash
 
-Este ficheiro não é hashed contra código ainda (não há código de F). Quando o
-**primeiro lote** (a fronteira, §3a) aterrar, o código que o materializa declara
-`@prompt entities/f_fronteira_e1.md` + `@prompt-hash <hash deste ficheiro>`, e
-`crystalline-lint --fix-hashes .` sincroniza. Até lá, os L0 existentes
-(`entities/content.md` hash `e163048d`, `entities/elements/_comum.md` hash
-`bb42ab58`, `entities/style.md`, `entities/style_chain.md`) **permanecem
-intocados** — este passo não edita nenhum deles (só os cita).
+**Aprovado pelo dono no checkpoint do P333** (ADR-0106 §Aprovação da Trava). O
+**primeiro lote** (a fronteira, §3a — **F-1, P334**) materializa-o: o código
+declara `@prompt entities/f_fronteira_e1.md` + `@prompt-hash <hash deste
+ficheiro>`, e `crystalline-lint --fix-hashes .` sincroniza (o warning V7 órfão
+limpa). Os L0 existentes (`entities/content.md` hash `e163048d`,
+`entities/elements/_comum.md` hash `bb42ab58`, `entities/style.md`,
+`entities/style_chain.md`) **permanecem intocados** (só citados).
+
+**Ajuste de Fase A (P334) — `dyn_hash` removido**: `content_hash::hash_content`
+serializa por `format!("{:?}")` (Debug estrutural), **não** por match. Logo
+`Content::Dynamic(Arc<dyn DynElement>)` faz hash automático pelo `Debug` do `dyn`
+(que `DynElement` já exige) — **sem arm em `content_hash` e sem `dyn_hash` no
+trait**. `dyn_eq` + `as_any` permanecem (o `eq` do hub É um match — precisa do arm
+`Dynamic`). Ver §3a.2/§3a.3 atualizados.
 
 ---
 
@@ -78,7 +85,6 @@ qualquer `Element`:
 
 ```rust
 use std::any::Any;
-use std::hash::Hasher;
 
 /// Versão object-safe de `Element`, para a porta de extensão `Content::Dynamic`.
 /// NÃO é implementada à mão: o blanket abaixo dá-a a todo `Element`.
@@ -94,10 +100,10 @@ pub trait DynElement: std::fmt::Debug + 'static {
     fn get_field(&self, field: &str) -> Option<Value>;
     fn element_kind(&self) -> Option<ElementKind>;
     fn to_payload(&self) -> Option<ElementPayload>;
-    // object-safe eq/hash/clone (ver 3a.3):
+    // object-safe eq/clone (ver 3a.3). NÃO há `dyn_hash`: o hash é por Debug
+    // (content_hash usa `format!("{:?}")`) — ver §0 ajuste de Fase A.
     fn as_any(&self) -> &dyn Any;
     fn dyn_eq(&self, other: &dyn DynElement) -> bool;
-    fn dyn_hash(&self, state: &mut dyn Hasher);
     // identidade dinâmica para o `#show` (ver 3a.4 + S* do spike-2):
     fn dyn_kind_name(&self) -> &str;   // S1: id estável Eq p/ match de seletor #show
 }
@@ -122,10 +128,7 @@ impl<T: Element + Any + 'static> DynElement for T {
     fn dyn_eq(&self, other: &dyn DynElement) -> bool {
         other.as_any().downcast_ref::<T>().is_some_and(|o| self == o)
     }
-    fn dyn_hash(&self, mut state: &mut dyn Hasher) {
-        // paridade com content_hash (Debug estrutural) ou T::hash — ver 3a.3
-        std::hash::Hash::hash(self, &mut state);
-    }
+    // sem `dyn_hash`: `Content::Dynamic` faz hash pelo `Debug` do `dyn` (§0).
     fn dyn_kind_name(&self) -> &str { /* do registro — ver 3a.5 */ unimplemented!() }
 }
 ```
@@ -145,10 +148,13 @@ indireta por nó no caminho frio** de `map_*` (não é folha quente — ADR-0030
   a.dyn_eq(b.as_ref())`. `dyn_eq` faz **downcast** ao tipo concreto e compara
   estruturalmente (`self == o` via o `PartialEq` derivado do `*Elem`). Tipos
   diferentes ⇒ `false` (paridade: elementos de kinds distintos nunca são iguais).
-- **`Hash`**: `content_hash::hash_content` ganha o arm `Content::Dynamic(e) =>
-  e.dyn_hash(state)`. Mantém-se a regra do modelo D (`_comum.md` §A.1.1.b): a
-  **relação** preserva-se; valores absolutos são internos (dedup de introspecção),
-  não observáveis no PDF.
+- **`Hash`**: `content_hash::hash_content` serializa por `format!("{:?}", content)`
+  (Debug estrutural) — **não** é um match. Logo `Content::Dynamic` faz hash
+  **automaticamente** pelo `Debug` do `dyn DynElement` (que `DynElement` exige como
+  supertrait, delegado ao `#[derive(Debug)]` do `*Elem` concreto). **Sem arm em
+  `content_hash`; sem `dyn_hash` no trait** (ajuste de Fase A P334, §0). Mantém-se a
+  regra do modelo D (`_comum.md` §A.1.1.b): a **relação** preserva-se; valores
+  absolutos são internos (dedup de introspecção), não observáveis no PDF.
 
 ### 3a.4 — Identidade dinâmica + leitura de campos para `#show` (S1, S7)
 
