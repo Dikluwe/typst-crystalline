@@ -315,6 +315,53 @@ mod tests {
         assert_eq!(find_equation_numbered(content), Some(false));
     }
 
+    // ── Lote F-2 S3 (P335) — `#set figure(numbering:)` via chain léxica ──────
+    fn collect_figure_numbering(c: &Content, out: &mut Vec<Option<String>>) {
+        match c {
+            Content::Figure(e) => out.push(e.numbering.clone()),
+            Content::Sequence(items) => {
+                items.iter().for_each(|i| collect_figure_numbering(i, out))
+            }
+            Content::Styled(b, _) => collect_figure_numbering(b, out),
+            Content::Labelled(e) => collect_figure_numbering(&e.target, out),
+            _ => {}
+        }
+    }
+
+    #[test]
+    fn f2s3_set_figure_numbering_assa_via_chain() {
+        // `#set figure(numbering:)` empurra para a chain (`custom`); o
+        // `native_figure` assa lendo a chain (não mais `engine.figure_numbering`).
+        let world = MockWorld::new(
+            "#set figure(numbering: \"1\")\n#figure([Fig], caption: [Cap])",
+        );
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        let content = module.content().expect("módulo deve ter content");
+        let mut nums = vec![];
+        collect_figure_numbering(content, &mut nums);
+        assert_eq!(nums, vec![Some("1".to_string())], "figura assada com numbering '1'");
+    }
+
+    #[test]
+    fn f2s3_set_figure_escopo_lexical_nao_vaza() {
+        // DEBT 99.E para figure: `#set figure(numbering:)` dentro de um bloco
+        // escopa — a figura de fora não herda.
+        let world = MockWorld::new(
+            "#[#set figure(numbering: \"1\")\n#figure([In], caption: [C])]\n#figure([Out], caption: [C])",
+        );
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        let content = module.content().expect("módulo deve ter content");
+        let mut nums = vec![];
+        collect_figure_numbering(content, &mut nums);
+        assert_eq!(
+            nums,
+            vec![Some("1".to_string()), None],
+            "Dentro numerada; Fora NÃO (escopo léxico): {nums:?}"
+        );
+    }
+
     #[test]
     fn f2s1_set_heading_escopo_lexical_nao_vaza() {
         // **A prova do fecho do DEBT 99.E**: `#set heading(numbering:)` dentro

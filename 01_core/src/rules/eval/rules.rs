@@ -287,25 +287,32 @@ pub(super) fn eval_set_rule(
     }
 
     if target == "figure" {
-        // #set figure(numbering: "1") — activa numeração automática de figuras (Passo 75, DEBT-14).
-        // Passo 109 (ADR-0044): `figure_numbering` agora é campo de `Engine`.
-        let mut new_numbering = engine.figure_numbering.clone();
+        // #set figure(numbering: "1") — activa numeração automática de figuras.
+        // Lote F-2 S3 (P335): empurra para a chain léxica (`custom`), como
+        // heading/equation, em vez de mutar o campo global `engine.figure_numbering`.
+        // `native_figure` assa o valor lendo a chain (`closures.rs`). Escopo
+        // léxico de graça (fecha o DEBT 99.E para figure).
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 if named.name().as_str() == "numbering" {
                     let val = eval_expr(named.expr(), scopes, ctx, engine).unwrap_or(Value::None);
-                    new_numbering = match val {
-                        Value::Str(s) => Some(s.to_string()),
-                        Value::None   => None,
-                        _             => new_numbering.clone(),
-                    };
+                    match val {
+                        Value::Str(s) => {
+                            *engine.styles = engine.styles
+                                .push_custom("figure.numbering", Value::Str(s));
+                        }
+                        Value::None => {
+                            // Limpa a numeração no escopo (Value::None = ausente).
+                            *engine.styles = engine.styles
+                                .push_custom("figure.numbering", Value::None);
+                        }
+                        // Outros tipos: herdar (não empurra).
+                        _ => {}
+                    }
                 }
             }
         }
-        *engine.figure_numbering = new_numbering.clone();
-        return Ok(Value::Content(Content::SetFigureNumbering {
-            pattern: new_numbering.unwrap_or_default(),
-        }));
+        return Ok(Value::None);
     }
 
     if target == "par" {

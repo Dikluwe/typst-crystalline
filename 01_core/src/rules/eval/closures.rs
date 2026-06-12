@@ -67,7 +67,14 @@ pub(crate) fn apply_func(
         FuncRepr::Native(native)   => {
             let world = engine.world;
             let current_file = engine.current_file;
-            let figure_numbering = engine.figure_numbering.as_deref();
+            // Lote F-2 S3 (P335): a numeração de figura vem agora da **chain
+            // léxica** (`engine.styles.custom`), não do campo global
+            // `engine.figure_numbering` (que fica morto até a limpeza S5).
+            // `native_figure` assa este valor na `FigureElem`.
+            let figure_numbering = match engine.styles.custom("figure.numbering") {
+                Some(Value::Str(s)) => Some(s.as_str()),
+                _ => None,
+            };
             (native.call)(ctx, &args, world, current_file, figure_numbering)
         }
     }
