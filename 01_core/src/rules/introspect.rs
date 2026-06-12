@@ -2296,7 +2296,6 @@ mod tests {
             let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
             let mut active_guards: Vec<RuleId> = Vec::new();
             let current_file = world.main();
-            let mut figure_numbering: Option<String> = None;
             let mut sink_local = Sink::new();
             let mut sink = sink_local.track_mut();
             let mut $engine = Engine {
@@ -2306,7 +2305,6 @@ mod tests {
                 show_rules: &mut show_rules,
                 active_guards: &mut active_guards,
                 current_file,
-                figure_numbering: &mut figure_numbering,
                 sink: &mut sink,
             };
             $body

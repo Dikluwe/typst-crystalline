@@ -77,7 +77,6 @@ pub(super) fn eval_module_include(
         show_rules: &mut *engine.show_rules,
         active_guards: &mut *engine.active_guards,
         current_file: src_id,
-        figure_numbering: &mut *engine.figure_numbering,
         sink: &mut local_sink,
     };
     eval_markup(source.root(), scopes, ctx, &mut local_engine)

@@ -67,10 +67,10 @@ pub(crate) fn apply_func(
         FuncRepr::Native(native)   => {
             let world = engine.world;
             let current_file = engine.current_file;
-            // Lote F-2 S3 (P335): a numeração de figura vem agora da **chain
-            // léxica** (`engine.styles.custom`), não do campo global
-            // `engine.figure_numbering` (que fica morto até a limpeza S5).
-            // `native_figure` assa este valor na `FigureElem`.
+            // Lote F-2 S3 (P335): a numeração de figura vem da **chain léxica**
+            // (`engine.styles.custom`). O campo global `engine.figure_numbering`
+            // foi **removido** (carona C2, F-3 inc-2). `native_figure` assa este
+            // valor (param `figure_numbering: Option<&str>`) na `FigureElem`.
             let figure_numbering = match engine.styles.custom("figure.numbering") {
                 Some(Value::Str(s)) => Some(s.as_str()),
                 _ => None,
@@ -147,7 +147,6 @@ pub(super) fn apply_closure(
             show_rules: &mut *engine.show_rules,
             active_guards: &mut *engine.active_guards,
             current_file: engine.current_file,
-            figure_numbering: &mut *engine.figure_numbering,
             sink: &mut local_sink,
         };
         eval_expr(body_expr, &mut call_scopes, ctx, &mut local_engine)

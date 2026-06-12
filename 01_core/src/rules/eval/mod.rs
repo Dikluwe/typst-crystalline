@@ -213,7 +213,6 @@ pub fn eval(
     let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
     let mut active_guards: Vec<RuleId> = Vec::new();
     let current_file = source.id();
-    let mut figure_numbering: Option<String> = None;
 
     let mut scopes = Scopes::new(None);
     // Stdlib como scope base — type, len, range visíveis em todo o documento
@@ -235,7 +234,6 @@ pub fn eval(
         show_rules: &mut show_rules,
         active_guards: &mut active_guards,
         current_file,
-        figure_numbering: &mut figure_numbering,
         sink: &mut local_sink,
     };
 
@@ -393,7 +391,6 @@ fn eval_expr(
                     show_rules: &mut local_show_rules,
                     active_guards: &mut *engine.active_guards,
                     current_file: engine.current_file,
-                    figure_numbering: &mut *engine.figure_numbering,
                     sink: &mut local_sink,
                 };
                 for expr in code_block.body().exprs() {
@@ -447,7 +444,6 @@ fn eval_expr(
                 show_rules: &mut *engine.show_rules,
                 active_guards: &mut *engine.active_guards,
                 current_file: engine.current_file,
-                figure_numbering: &mut *engine.figure_numbering,
                 sink: &mut local_sink,
             };
             eval_markup(content_block.body().to_untyped(), scopes, ctx, &mut local_engine)

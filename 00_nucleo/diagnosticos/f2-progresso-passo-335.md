@@ -21,19 +21,15 @@ validados, commit por estágio).
 
 **Decisão do dono (S4)**: `SetPage` é estado de região (não estilo lexical) — fica no modelo marcador/nova-página por desenho; só D4 (remover `native_page` legacy) + registro em `debt-stylechain-nao-materializada.md` §Geometria de página + item de paridade futura. O DEBT 99.E é fechado pela **tríade de numeração** (S1-S3).
 
-## S5b — adiado (cleanup de código morto)
+## S5b — feito (cleanup de código morto) — ✅ commit `bfc7a5e7c`
 
-A migração funcional (S1-S5a) está **completa e verde**. Os marcadores
-`Content::Set{Heading,Equation,Figure}Numbering` + a sua plumbing de
-introspecção ficam como **código morto-em-produção mas ainda testado** (Opção B).
-Tentativa de remoção (S5b) revelou superfície de **~50 funções de teste** que
-constroem os marcadores — umas testam a plumbing removida (apagar), outras usam
-o marcador como **veículo** para testar TOC/labels/contadores/walk (migrar para
-os construtores `*_numbered`, caso a caso). A remoção do **código de produção**
-foi feita e compila limpa, mas as ~50 edições de teste são um cleanup dedicado
-(julgamento apagar-vs-migrar por função) — adiado para uma passagem focada, em
-vez de arriscar erro no fim de uma sessão longa. **Nada bloqueia**: os marcadores
-inertes não afetam produção (o eval já não os produz).
+> **Nota (carona C1, F-3 inc-2)**: esta seção dizia "adiado" — **fóssil
+> superseded**. O S5b **foi feito** na mesma sessão (não adiado): markers +
+> plumbing removidos, ~16 testes marker-específicos apagados, ~6 veículo
+> migrados, e a migração incompleta de S1 (auto-TOC `compute_heading_auto_toc`
+> gateava no StateRegistry) **corrigida**. Detalhe no relatório
+> `typst-passo-335-relatorio.md` §S5b + commit `bfc7a5e7c`. A lente confirmou o
+> colapso (typst-core 3→2 ciclos). Suíte 2727→2709.
 
 ## Mecanismo (estabelecido na Fase A→B)
 

@@ -57,8 +57,10 @@ pub struct Engine<'a> {
     /// Ficheiro actual — muda em `eval_module_include`.
     pub current_file: FileId,
 
-    /// Padrão de numeração de figuras activo (Passo 75, DEBT-14).
-    pub figure_numbering: &'a mut Option<String>,
+    // Lote F-3 inc-2 (carona C2): `figure_numbering` removido — a numeração de
+    // figura vem da chain léxica (`engine.styles.custom`, F-2 S3); o campo
+    // ficara threaded-mas-não-lido. O param `figure_numbering: Option<&str>` das
+    // funções nativas permanece (alimentado pela chain em `closures.rs`).
 
     /// Canal de warnings (ADR-0042, ADR-0043). `TrackedMut` garante
     /// que mutações passam por métodos tracked (`warn_note`).

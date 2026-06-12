@@ -43,7 +43,6 @@ fn eval_body_with_delta(
         show_rules: &mut *engine.show_rules,
         active_guards: &mut *engine.active_guards,
         current_file: engine.current_file,
-        figure_numbering: &mut *engine.figure_numbering,
         sink: &mut local_sink,
     };
     eval_markup_body(node, scopes, ctx, &mut local_engine)
