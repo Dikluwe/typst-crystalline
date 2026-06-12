@@ -43,6 +43,9 @@ pub fn eval_to_module_with_sink(
     let traced   = Traced::default();
     let mut sink = Sink::new();
     let route    = Route::root();
+    // Lote F-3 inc-2: registry de elementos de utilizador. Vazio até pacotes
+    // registarem elementos (não há elemento de utilizador em produção ainda).
+    let registry = typst_core::entities::element_registry::ElementRegistry::new();
     let result = eval(
         &routines,
         world,
@@ -50,6 +53,7 @@ pub fn eval_to_module_with_sink(
         sink.track_mut(),
         route.track(),
         source,
+        &registry,
     );
     let warnings = sink.into_diagnostics();
     (result, warnings)

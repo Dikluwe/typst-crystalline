@@ -190,6 +190,10 @@ pub fn eval(
     mut sink: TrackedMut<Sink>,
     _route: Tracked<Route>,
     source: &Source,
+    // Lote F-3 inc-2: o threading registry→escopo que o F-1 deferiu. Elementos
+    // de utilizador registados entram no escopo como funções (`#name(args)`).
+    // Em produção é vazio até pacotes registarem elementos; testes injetam.
+    registry: &crate::entities::element_registry::ElementRegistry,
 ) -> SourceResult<Module> {
     let root = source.root();
 
@@ -219,6 +223,18 @@ pub fn eval(
     let stdlib = make_stdlib();
     for (name, binding) in stdlib.iter() {
         scopes.define(name, binding.value().clone());
+    }
+    // Lote F-3 inc-2: elementos de utilizador registados entram no escopo como
+    // funções (`#name(args)` → `Content::Dynamic` via o construtor do registry).
+    // Mesmo escopo base que os nativos (document-wide); `#set`/`#show` léxicos
+    // por cima seguem o padrão `local_styles` (F-2).
+    for name in registry.names() {
+        if let Some(ctor) = registry.ctor(name) {
+            scopes.define(
+                name.as_str(),
+                Value::Func(Func::element(name.as_str(), ctor)),
+            );
+        }
     }
     scopes.enter();  // âmbito do módulo
 

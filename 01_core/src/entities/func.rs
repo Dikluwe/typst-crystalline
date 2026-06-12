@@ -22,6 +22,17 @@ pub struct Func(pub(crate) Arc<FuncRepr>);
 pub(crate) enum FuncRepr {
     Closure(ClosureRepr),
     Native(NativeFunc),
+    /// **Lote F-3 inc-2** — construtor de elemento de utilizador (fronteira E1).
+    /// `#callout(args)` resolve para isto (definido no escopo a partir do
+    /// `ElementRegistry`); `apply_func` invoca o `ctor` e devolve
+    /// `Value::Content(Content::Dynamic(...))`. Caminho único com os nativos.
+    Element(ElementFunc),
+}
+
+/// Construtor de elemento de utilizador no escopo do eval (Lote F-3 inc-2).
+pub struct ElementFunc {
+    pub name: String,
+    pub ctor: crate::entities::element_registry::ElementCtor,
 }
 
 /// Representação de uma closure Typst.
@@ -94,6 +105,12 @@ impl Func {
         Self(Arc::new(FuncRepr::Native(NativeFunc { name, call })))
     }
 
+    /// Constrói uma Func de elemento de utilizador (Lote F-3 inc-2) — `#name(args)`
+    /// invoca `ctor` e devolve `Content::Dynamic`.
+    pub fn element(name: impl Into<String>, ctor: crate::entities::element_registry::ElementCtor) -> Self {
+        Self(Arc::new(FuncRepr::Element(ElementFunc { name: name.into(), ctor })))
+    }
+
     /// Acesso à representação interna (restrito a crate).
     pub(crate) fn repr(&self) -> &FuncRepr {
         &self.0
@@ -108,6 +125,7 @@ impl Func {
         match self.0.as_ref() {
             FuncRepr::Closure(c) => c.name.as_deref(),
             FuncRepr::Native(n)  => Some(n.name),
+            FuncRepr::Element(e) => Some(&e.name),
         }
     }
 
@@ -134,6 +152,9 @@ impl Func {
         match self.0.as_ref() {
             FuncRepr::Native(n)  => Some(n.call),
             FuncRepr::Closure(_) => None,
+            // Elemento de utilizador não tem fn-ptr nativo — o selector de
+            // `#show` casa-o por **kind dinâmico** (S2), não por endereço.
+            FuncRepr::Element(_) => None,
         }
     }
 

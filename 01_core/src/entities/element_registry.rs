@@ -30,9 +30,11 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
-/// Construtor de um elemento dinâmico por nome. Recebe args posicionais
-/// (mínimo em F-1; named/`#set` são F-2+) e devolve um `Content::Dynamic`.
-pub type ElementCtor = Arc<dyn Fn(&[Value]) -> SourceResult<Content>>;
+/// Construtor de um elemento dinâmico por nome. Recebe args posicionais e
+/// devolve um `Content::Dynamic`. **`Send + Sync`** (Lote F-3 inc-2): o
+/// construtor entra num `Value::Func` (via `FuncRepr::Element`) e o `Value`/
+/// `Content` vivem em contextos `Send + Sync` (eco da fronteira E1).
+pub type ElementCtor = Arc<dyn Fn(&[Value]) -> SourceResult<Content> + Send + Sync>;
 
 /// Registro injetado de elementos dinâmicos (nome → construtor). Sem estado
 /// global — instanciado e passado pelo pipeline (pureza L1).
@@ -62,6 +64,12 @@ impl ElementRegistry {
     /// Itera os nomes registados (para a trava `teste-varre-registro`).
     pub fn names(&self) -> impl Iterator<Item = &EcoString> {
         self.ctors.keys()
+    }
+
+    /// O construtor de `name` (clone O(1) do `Arc`), para o definir como função
+    /// no escopo do eval (Lote F-3 inc-2 — `#name(args)` resolve aqui).
+    pub fn ctor(&self, name: &str) -> Option<ElementCtor> {
+        self.ctors.get(name).cloned()
     }
 
     /// Constrói o elemento `name` com `args`. **Elemento desconhecido = erro

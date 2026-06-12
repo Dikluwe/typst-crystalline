@@ -64,6 +64,11 @@ pub(crate) fn apply_func(
 ) -> SourceResult<Value> {
     match func.repr() {
         FuncRepr::Closure(closure) => apply_closure(closure, &func, args, ctx, engine),
+        // Lote F-3 inc-2: elemento de utilizador (fronteira E1) — `#name(args)`
+        // invoca o construtor do registry e devolve `Content::Dynamic`. Mesmo
+        // ponto de despacho dos nativos (sem caminho paralelo). Erro do catálogo
+        // existente se o ctor falhar (não panic).
+        FuncRepr::Element(ef) => Ok(Value::Content((ef.ctor)(&args.items)?)),
         FuncRepr::Native(native)   => {
             let world = engine.world;
             let current_file = engine.current_file;

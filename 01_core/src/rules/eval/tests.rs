@@ -21,13 +21,24 @@ pub(crate) fn eval_for_test<W: World>(
     world: &W,
     source: &Source,
 ) -> SourceResult<Module> {
+    let registry = crate::entities::element_registry::ElementRegistry::new();
+    eval_for_test_with_registry(world, source, &registry)
+}
+
+/// Lote F-3 inc-2 — eval de teste com um `ElementRegistry` injetado, para
+/// exercitar `#name(args)` (elemento de utilizador na linguagem).
+pub(crate) fn eval_for_test_with_registry<W: World>(
+    world: &W,
+    source: &Source,
+    registry: &crate::entities::element_registry::ElementRegistry,
+) -> SourceResult<Module> {
     use comemo::Track;
     let routines = Routines::new();
     let traced   = Traced::default();
     let mut sink = Sink::new();
     let route    = Route::root();
 
-    eval(&routines, world, traced.track(), sink.track_mut(), route.track(), source)
+    eval(&routines, world, traced.track(), sink.track_mut(), route.track(), source, registry)
 }
 
 /// Função de teste que permite customizar o limite de iterações de loop.
@@ -358,6 +369,62 @@ mod tests {
             vec![Some("1".to_string()), None],
             "Dentro numerada; Fora NÃO (escopo léxico): {nums:?}"
         );
+    }
+
+    // ── Lote F-3 inc-2 S1 — elemento de utilizador na linguagem (#name(args)) ──
+    fn registry_com_callout() -> crate::entities::element_registry::ElementRegistry {
+        use crate::entities::elements::test_callout::CalloutElem;
+        let mut reg = crate::entities::element_registry::ElementRegistry::new();
+        reg.register("callout", std::sync::Arc::new(|args: &[Value]| {
+            let body = match args.first() {
+                Some(Value::Content(c)) => c.clone(),
+                Some(Value::Str(s)) => Content::text(s.as_str()),
+                _ => Content::Empty,
+            };
+            let s = |i: usize| match args.get(i) {
+                Some(Value::Str(s)) => s.clone(),
+                _ => Default::default(),
+            };
+            Ok(Content::dynamic(CalloutElem::new(body, s(1), s(2))))
+        }));
+        reg
+    }
+
+    fn has_dynamic(c: &Content) -> bool {
+        match c {
+            Content::Dynamic(_) => true,
+            Content::Sequence(items) => items.iter().any(has_dynamic),
+            Content::Styled(b, _) => has_dynamic(b),
+            _ => false,
+        }
+    }
+
+    #[test]
+    fn f3s1_callout_resolve_no_escopo_via_registry() {
+        // O threading registry→escopo (deferido do F-1): `#callout(...)` resolve
+        // no registry e constrói Content::Dynamic via o construct/dispatch do F-1.
+        let world = MockWorld::new("#callout(\"corpo\", \"Aviso\", \"warn\")");
+        let reg = registry_com_callout();
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test_with_registry(&world, &source, &reg).unwrap();
+        let content = module.content().expect("módulo deve ter content");
+        assert!(
+            has_dynamic(content),
+            "#callout deve construir Content::Dynamic via registry: {content:?}"
+        );
+        // E o body renderiza no plain_text (eco do DEBT C2 do inc-1).
+        assert!(content.plain_text().contains("corpo"), "body do callout presente");
+    }
+
+    #[test]
+    fn f3s1_elemento_desconhecido_e_erro_do_catalogo_nao_panic() {
+        // Elemento não registado = erro do catálogo existente (identificador não
+        // definido), não panic.
+        let world = MockWorld::new("#inexistente(\"x\")");
+        let reg = registry_com_callout(); // não tem `inexistente`
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let r = eval_for_test_with_registry(&world, &source, &reg);
+        assert!(r.is_err(), "elemento desconhecido deve ser Err (catálogo), não panic");
     }
 
     #[test]
@@ -1385,7 +1452,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
@@ -1410,7 +1478,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
@@ -1437,7 +1506,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
@@ -1465,7 +1535,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
@@ -1492,7 +1563,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
@@ -1526,7 +1598,8 @@ mod tests {
             let mut sink = Sink::new();
             let route    = Route::root();
             let result   = eval(&routines, &world, traced.track(),
-                                sink.track_mut(), route.track(), &src);
+                                sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
             assert!(result.is_ok(),
                 "eval falhou para nome '{}': {:?}", nome, result);
@@ -1553,7 +1626,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
@@ -1578,7 +1652,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
@@ -1604,7 +1679,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_err(), "lang composto deve emitir erro; got: {:?}", result);
         let errs = result.unwrap_err();
@@ -1630,7 +1706,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_err(), "lang inválido deve emitir erro; got: {:?}", result);
         let errs = result.unwrap_err();
@@ -1659,7 +1736,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
@@ -1683,7 +1761,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
@@ -1709,7 +1788,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
@@ -1762,7 +1842,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_err(), "int deve erro; got: {:?}", result);
         let errs = result.unwrap_err();
@@ -1788,7 +1869,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_err(), "array vazio deve erro; got: {:?}", result);
         let errs = result.unwrap_err();
@@ -1811,7 +1893,8 @@ mod tests {
         let mut sink = Sink::new();
         let route    = Route::root();
         let result   = eval(&routines, &world, traced.track(),
-                            sink.track_mut(), route.track(), &src);
+                            sink.track_mut(), route.track(), &src,
+                            &crate::entities::element_registry::ElementRegistry::new());
 
         assert!(result.is_err(), "array com int deve erro; got: {:?}", result);
         let errs = result.unwrap_err();
