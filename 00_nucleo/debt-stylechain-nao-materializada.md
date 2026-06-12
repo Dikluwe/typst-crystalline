@@ -15,6 +15,30 @@ com este DEBT/99.E). Verificado no §4 do `diagnostico-modelo-elemento-passo-313
 
 ---
 
+## Requisito de extensibilidade (P332 — decisão do dono, registro)
+
+Após o dossiê do F (P331), o dono fixou o **requisito que reabre a decisão
+A/B/C/D** e a faz **esperar a medição experimental** (spikes E1/E2/E3, P332):
+
+1. **Extensibilidade é requisito do projeto, e TOTAL**: utilizadores podem
+   definir elementos novos que são **cidadãos plenos** — recebem `#set`,
+   `#show`, `query` e renderizam — **sem tocar o core**.
+2. **Dois públicos**: (a) programador Rust (define elementos em código); (b)
+   autor typst (pacotes / show rules na linguagem, sem Rust).
+3. **Critérios de engenharia da escolha** (do dono): atomização, separação de
+   camadas, economia para a IA escrever e manter, mantendo a qualidade
+   construída. Fidelidade ao vanilla continua **comportamental** (P329).
+4. **Implicações**: o alvo de escala é a superfície **M1 (~273 propriedades
+   settable** de paridade final, crescendo incrementalmente; M1 do
+   `medicao-pre-f-passo-318.md`); o **juro M4** de adiar continua a correr. A
+   **Opção A está REJEITADA** (congelaria contra o requisito). **B/C/D
+   re-avaliam-se sob o requisito pelo EXPERIMENTO (P332), não por argumento.**
+
+Resultado do experimento e a decisão da fronteira: ver
+`f-experimento-extensao-passo-332.md` (P332) e o checkpoint do dono.
+
+---
+
 ## Contexto
 
 Vanilla resolve propriedades hierárquicas com `StyleChain` —

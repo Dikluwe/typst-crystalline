@@ -202,3 +202,26 @@ Registo; conserto é decisão do dono.
 - **B3 — `world_types::Styles(())` é stub morto** (1a §1.1): tipo duplicado, só
   usado pelo seu próprio smoke-test. Candidato a remoção (decisão do dono;
   conserto oportunista proibido neste passo).
+
+---
+
+## Adendo P332 — requisito de extensibilidade reabre a decisão
+
+**Não é fecho — é reabertura.** Após este dossiê, o dono fixou que
+**extensibilidade total é requisito do projeto** (elemento de utilizador =
+cidadão pleno: `#set`/`#show`/`query`/render, sem tocar o core; dois públicos:
+Rust e autor typst). Consequências:
+
+- **Opção A (Declarar e congelar) está REJEITADA** — congelaria contra o
+  requisito (o estado misto não suporta elementos de 3os).
+- **B/C/D re-avaliam-se sob o requisito pelo EXPERIMENTO** (spikes E1/E2/E3,
+  P332 — `f-experimento-extensao-passo-332.md`), **não por argumento**. A
+  pergunta Q6 (extensibilidade de 3os) deixou de ser opcional: é o eixo da
+  decisão.
+- A leitura do executor acima (D/B alinham; C só se `#show`) fica **suspensa**
+  até a medição — o experimento decide se o custo do `dyn`/type-erased (C/E2) se
+  paga pela extensibilidade, ou se um registo aberto por dados (E3) a entrega
+  sem `dyn`.
+
+Ver `debt-stylechain-nao-materializada.md` (§Requisito de extensibilidade) e o
+experimento P332.
