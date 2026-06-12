@@ -435,6 +435,56 @@ mod tests {
         assert!(r.is_err(), "elemento desconhecido deve ser Err (catálogo), não panic");
     }
 
+
+    // ── Lote F-3 inc-2 S3 — o gatilho executado (paridade vs vanilla medido) ──
+    //
+    // Decisão Stage 0 (registrada no L0 §3b): paridade contra a semântica do
+    // vanilla **medida na fonte** pelo spike-2 (P333), não rodando o binário
+    // (vanilla não tem elemento custom trivial nem binário pronto).
+    //
+    // Casos EXPRESSÁVEIS e a PARIDADE:
+    //  - Caso 2 (recursão/guard): PARIDADE ✅ — `f3s2_show_callout_anti_recursao
+    //    _termina`. Vanilla: guard por-nó termina (spike-2 §2 caso 2;
+    //    `typst-realize/lib.rs:472-474`). Cristalino: guard por RuleId termina.
+    //  - Caso 5 (nativo+dyn na mesma travessia): PARIDADE ✅ —
+    //    `f3s2_dyn_e_nativo_coexistem`. Vanilla: mesma chain (spike-2 §2 caso 5).
+    //  - Caso 4 (escopo): **DIVERGÊNCIA** — ver o teste abaixo. Dispara o gatilho.
+    //
+    // Casos FALTA-SUPERFÍCIE (registrados, não exercidos):
+    //  - Caso 1 (multi-regra, composição innermost-first): o eager aplica UMA
+    //    regra (a 1ª declarada que casa), single-pass; o vanilla COMPÕE várias
+    //    em multi-passe (spike-2 §2 caso 1). A composição precisa da realização
+    //    multi-passe → LOTE (o mesmo do caso 4).
+    //  - Caso 3 (show-set `#show k: set k(..)`): precisa `Transformation = Style`
+    //    (spike-2 S5); o transform eager é só Func/Content (`rules.rs`). LOTE.
+
+    #[test]
+    fn f3s3_caso4_escopo_eager_nao_confina_divergencia_registrada() {
+        // CASO 4 (escopo): no vanilla, `#show` dentro de um bloco NÃO vaza — o
+        // irmão de fora fica intacto (spike-2 §2 caso 4; vanilla
+        // `content/mod.rs:744-752` — a recipe viaja num `StyledElem` que confina
+        // à subárvore). No cristalino **EAGER**, `#show` muta `engine.show_rules`
+        // da declaração em diante, **não confinado ao bloco** — PROPRIEDADE
+        // PRÉ-EXISTENTE do modelo eager (afeta os nativos também; não introduzida
+        // pelo dyn). Logo o caso 4 **falha a paridade**.
+        //
+        // Conforme o gatilho (c) do inc-1: a `#show` léxica / realização
+        // multi-passe vira **LOTE** — **não** consertar inline. Este teto
+        // **documenta** o estado atual (divergente); se um lote futuro confinar
+        // o `#show`, este teste vira e a registração do L0 §3b é atualizada.
+        let c = eval_doc(
+            "#[#show callout: it => [DENTRO]\n#callout(\"a\", \"T\", \"w\")]\n#callout(\"b\", \"T\", \"w\")",
+        );
+        let t = c.plain_text();
+        assert_eq!(
+            t.matches("DENTRO").count(),
+            2,
+            "estado atual DIVERGENTE: a regra vaza do bloco e transforma ambos \
+             os callouts (dentro+fora); vanilla confinaria ao bloco. Multi-passe \
+             é o lote (gatilho c). plain_text: {t:?}"
+        );
+    }
+
     // ── Lote F-3 inc-2 S2 — #show sobre o elemento dinâmico (eager, mesmo caminho) ──
     fn eval_doc(src: &str) -> Content {
         let world = MockWorld::new(src);

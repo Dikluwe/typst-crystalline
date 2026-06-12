@@ -72,8 +72,9 @@ sobre a chain léxica que o canal `Set*` prova) emendam a fila:
 
 | Lote | Conteúdo | Gatilho de revisita | Largura (preditor) |
 |------|----------|---------------------|--------------------|
-| **F-3 — realização/`#show`** | S2–S6 + guards (`rules/`) + transparência Trava-Q1 + fecho DEBT C2 (no-op de layout) | depois de F-2 provar a chain léxica | ⟨a dimensionar na Fase A do F-3⟩ |
-| **F-4 — `Styled`** | `Styled(Box, Styles)` → chain única (a 2ª StyleChain do Layouter colapsa) | depois de F-3 (realização madura) | ⟨grep `Styled` — a refazer no arranque⟩ |
+| **F-3 — fronteira na linguagem** ✅ **FECHADO** | inc-1: DEBT C2 (dinâmico renderiza); inc-2: registry→escopo (`#name(args)`) + `#show <dyn>` eager (`Selector::DynKind`, guard por RuleId) + Stage 0 executado | — | feito (P336; commits inc-2 S1/S2/S3/S4) |
+| **F-realização** (novo — **gatilho disparado** em F-3 inc-2 S3) | `#show` **léxico** (confina ao bloco — caso 4 diverge hoje) + composição multi-regra (caso 1) + `Transformation::Style` show-set (caso 3) — a realização multi-passe do spike-2 (S2–S6) | **já disparado**: o eager falhou o caso 4 (escopo) na cobertura de linguagem (F-3 inc-2) | ⟨a dimensionar — toca o modelo eager dos **nativos** também⟩ |
+| **F-4 — `Styled`** | `Styled(Box, Styles)` → chain única (a 2ª StyleChain do Layouter colapsa) | depois de F-3 | ⟨grep `Styled` — a refazer no arranque⟩ |
 | **F-5 — de-bake `#set text`** | `#set text` deixa de **assar** `TextStyle` em `Content::Text`; passa pela chain | depois de F-4 | ~283 sites no pior caso (1c; eco da opção C — confirmar por grep) |
 | **F-6 — 3 folhas** | `Text`/`MathText`/`MathIdent` recebem estilo via chain (DEBT-58) | após F-5 | ⟨a medir⟩ |
 

@@ -1,5 +1,5 @@
 # Prompt L0 — F sob a fronteira E1 (`Content::Dynamic` + chain única)
-Hash do Código: 4c46a3af
+Hash do Código: 12c03c65
 
 **Camada**: L1 · **Módulos**: `01_core/src/entities/{content,elements/mod,style,style_chain,value}.rs`
 **Decisão de origem**: **ADR-0106** (fronteira de extensão E1) + ADR-0105 (modelo D
@@ -348,6 +348,28 @@ unifica-as como **entradas na chain única**:
 > **vanilla medido** (`lab/typst-original/`); **se o eager falhar** algum caso, a
 > **realização multi-passe vira lote** nesse momento — não antes. Até lá, o eager
 > basta.
+>
+> **Resultado do gatilho (Lote F-3 inc-2, S3 — Stage 0 executado):** `#show <dyn>`
+> entrou na linguagem (`Selector::DynKind`). Decisão Stage 0 (dono, Opção 1):
+> paridade contra a semântica **medida na fonte** pelo spike-2 (vanilla não tem
+> elemento custom trivial nem binário pronto — não se roda o binário). **Veredito
+> por caso:**
+> - **Caso 2 (recursão/guard): PARIDADE ✅** — guard por `RuleId` termina (teste
+>   `f3s2_show_callout_anti_recursao_termina`; vanilla `typst-realize:472-474`).
+> - **Caso 5 (nativo+dyn): PARIDADE ✅** — mesma travessia (`f3s2_dyn_e_nativo_
+>   coexistem`).
+> - **Caso 4 (escopo): DIVERGÊNCIA — gatilho DISPARADO.** O eager **não confina**
+>   `#show` ao bloco (muta `engine.show_rules` da declaração em diante; propriedade
+>   **pré-existente**, afeta nativos também). Vanilla confina via `StyledElem`
+>   (`content/mod.rs:744-752`). Teste-divergência checado:
+>   `f3s3_caso4_escopo_eager_nao_confina_divergencia_registrada`.
+> - **Caso 1 (composição multi-regra) + Caso 3 (show-set): FALTA-SUPERFÍCIE** —
+>   precisam de multi-passe / `Transformation::Style`. Registrados.
+>
+> **Logo a `#show` léxica + realização multi-passe é agora um LOTE concreto** (não
+> mais "se/quando") — ver fila em `f-plano-lotes-passo-333.md` (lote **F-realização**).
+> Conforme (c): **não consertada inline**; decide-se com o dado. F-3 (a fronteira
+> entrar na linguagem) **fecha** com o eager + a divergência registada.
 
 O spike-2 validou os 5 casos sobre `Content::Dynamic` (todos PASS) — **como
 desenho de referência**, não como implementação obrigatória agora. O desenho do
