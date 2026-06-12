@@ -1,0 +1,3 @@
+# Spikes descartáveis P332 — artefactos de build fora do versionamento
+**/target/
+**/Cargo.lock

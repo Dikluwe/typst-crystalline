@@ -1,0 +1,16 @@
+# DISPOSABLE SPIKE — design E1 (fronteira por trait, híbrido estático/dinâmico).
+# NOT product code. Standalone crate: empty [workspace] detaches from parent.
+[package]
+name = "spike-e1"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+# Detach from the repo-root workspace (which has an explicit members list).
+[workspace]
+
+[dependencies]
+# none — std only, to keep the boundary cost honest.
+
+[profile.release]
+opt-level = 3

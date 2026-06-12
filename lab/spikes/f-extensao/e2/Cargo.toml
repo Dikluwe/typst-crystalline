@@ -1,0 +1,15 @@
+# DISPOSABLE EXPERIMENTAL SPIKE — design E2 (type-erased à vanilla, C honesta).
+# Standalone crate: empty [workspace] detaches it from the parent workspace.
+# NEVER path= to product crates or lab/typst-original/. Snippets copied, not linked.
+[package]
+name = "spike-e2"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[profile.release]
+opt-level = 3
+
+[dependencies]

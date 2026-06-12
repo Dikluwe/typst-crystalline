@@ -1,0 +1,16 @@
+# DISPOSABLE EXPERIMENTAL SPIKE — design E3 (Registro aberto por kind).
+# Standalone crate: the empty [workspace] table detaches it from the parent
+# workspace (whose root declares explicit members 01_core..04_wiring).
+# It does NOT `path =` to any product crate nor to lab/typst-original/.
+[package]
+name = "spike-e3"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[profile.release]
+opt-level = 3
+
+[dependencies]
