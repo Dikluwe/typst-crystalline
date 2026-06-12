@@ -714,25 +714,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.style = prev;
             }
 
-            Content::SetHeadingNumbering { active: _ } => {
-                // Lote F-2 S1 (P335): a numeração de heading passou a ser
-                // **assada no `HeadingElem`** (escopo léxico via chain) — o
-                // consumer acima lê `h.numbering_active`, não mais o
-                // StateRegistry. Esta variante deixou de ser **produzida** pelo
-                // eval; permanece como marcador inerte (+ plumbing de
-                // introspecção) até a limpeza de código morto em **S5**.
-                // No-op em Layouter.
-            }
-
-            Content::SetEquationNumbering { active: _ } => {
-                // P190G (M6 categoria Labels & TOC; Caso 1 `.H`):
-                // helper `layout_set_equation_numbering` eliminado —
-                // análogo a SetHeadingNumbering. No-op em Layouter.
-            }
-
-            Content::SetFigureNumbering { .. } => {
-                // No-op: numeração baked-in em cada nó Figure (Passo 75, DEBT-14).
-            }
+            // Lote F-2 S5 (P335): marcadores Set*Numbering removidos — numeração assada nos elementos.
 
             Content::CounterUpdate(_) => {
                 // P190I (M6 fechado): mutação Layouter do counter

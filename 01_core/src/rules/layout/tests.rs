@@ -970,7 +970,6 @@ fn p182d_heading_numbering_paridade_legacy_vs_migrated() {
     use crate::rules::introspect::introspect_with_introspector;
 
     let content = Content::Sequence(vec![
-        Content::SetHeadingNumbering { active: true },
         Content::heading(1, Content::text("Intro")),
         Content::heading(2, Content::text("Sub")),
         Content::heading(1, Content::text("Conclusão")),
@@ -985,7 +984,6 @@ fn p182d_heading_numbering_paridade_legacy_vs_migrated() {
 #[test]
 fn layout_counter_display_heading_retorna_estado_actual() {
     let content = Content::Sequence(vec![
-        Content::SetHeadingNumbering { active: true },
         Content::heading(1, Content::text("Intro")),
         Content::counter_display("heading".to_string()),
     ].into());
@@ -1091,7 +1089,6 @@ fn pipeline_duas_passagens_resolve_forward_ref() {
     use crate::rules::{introspect::{introspect, introspect_with_introspector}, layout::layout};
 
     let content = Content::Sequence(vec![
-        Content::SetHeadingNumbering { active: true },
         Content::text("Ver a"),
         Content::reference(Label("conclusao".to_string())),
         Content::text("."),
@@ -1142,7 +1139,6 @@ fn layout_equation_bloco_numerada() {
 #[test]
 fn layout_outline_gera_indice_com_titulos() {
     let content = Content::Sequence(vec![
-        Content::SetHeadingNumbering { active: true },
         Content::outline(),
         Content::heading(1, Content::text("Introdução")),
         Content::heading(2, Content::text("Motivação")),
@@ -1317,7 +1313,6 @@ fn layout_extracted_label_pages_preenchido_apos_layout() {
 #[test]
 fn layout_converge_sem_ciclo_infinito() {
     let content = Content::Sequence(vec![
-        Content::SetHeadingNumbering { active: true },
         Content::outline(),
         Content::heading(1, Content::text("Capítulo 1")),
         Content::heading(2, Content::text("Secção 1.1")),
@@ -1340,7 +1335,6 @@ fn layout_documento_sem_toc_usa_curto_circuito() {
     // terá entradas, mas has_outline é false — o short-circuit evita o loop.
     // Prova que a condição correcta é has_outline, não headings_for_toc.is_empty().
     let content = Content::Sequence(vec![
-        Content::SetHeadingNumbering { active: true },
         Content::heading(1, Content::text("Introdução")),
         Content::heading(2, Content::text("Motivação")),
         Content::text("Texto sem índice."),
@@ -7691,7 +7685,6 @@ mod p182e_e2e_heading_numbering {
         // testes que ainda exercitam a plumbing de introspecção (StateRegistry),
         // inerte em produção até a limpeza S5.
         Content::Sequence(Arc::from(vec![
-            Content::SetHeadingNumbering { active: true },
             Content::heading_numbered(1, Content::text("Intro")),
             Content::heading_numbered(2, Content::text("Motivação")),
             Content::heading_numbered(1, Content::text("Conclusão")),
@@ -7722,12 +7715,7 @@ mod p182e_e2e_heading_numbering {
         let content = doc_typico();
         let intr = introspect_with_introspector(&content);
 
-        // Introspector populado: chave canónica conhecida.
-        assert!(
-            intr.is_numbering_active("numbering_active:heading"),
-            "P182C deve popular StateRegistry com Bool(true)"
-        );
-
+        // Lote F-2 S5 (P335): asserção is_numbering_active removida.
         let txt = layout_with_introspector(&content, intr).plain_text();
         assert!(txt.contains("1."));
         assert!(txt.contains("1.1"));
@@ -7749,9 +7737,7 @@ mod p182e_e2e_heading_numbering {
         // Lote F-2 S1 (P335): o gate é assado por heading — H1 numerado (ON),
         // H2 plano (OFF). Marcadores mantidos para o teste de plumbing abaixo.
         let content = Content::Sequence(Arc::from(vec![
-            Content::SetHeadingNumbering { active: true },
             Content::heading_numbered(1, Content::text("Intro")),
-            Content::SetHeadingNumbering { active: false },
             Content::heading(1, Content::text("Apêndice")),
         ]));
         let txt = layout(&content).plain_text();
@@ -7784,7 +7770,6 @@ mod p182e_e2e_heading_numbering {
         // introduziu divergência.
         // Lote F-2 S1 (P335): headings numerados assados; marcador mantido p/ plumbing.
         let content = Content::Sequence(Arc::from(vec![
-            Content::SetHeadingNumbering { active: true },
             Content::heading_numbered(1, Content::text("Sec1")),
             Content::text("corpo do parágrafo"),
             Content::heading_numbered(2, Content::text("Sub1")),
@@ -7805,29 +7790,6 @@ mod p182e_e2e_heading_numbering {
         assert!(txt_legacy.contains("2."));
     }
 
-    #[test]
-    fn walk_popula_intr_state_para_set_heading_numbering() {
-        // P182E .E (P190G adapted): walk arm canonical
-        // `Content::SetHeadingNumbering` popula
-        // `intr.state["numbering_active:heading"]` via populate_intr
-        // arm StateUpdate. Mutação legacy `state.numbering_active`
-        // ELIMINADA em P190G (Caso 1 `.H`); caminho Introspector é
-        // única fonte da verdade.
-        let content = Content::SetHeadingNumbering { active: true };
-        let intr = introspect_with_introspector(&content);
-
-        assert!(
-            intr.is_numbering_active("numbering_active:heading"),
-            "walk arm canonical deve popular intr.state com chave canónica"
-        );
-        // Caso simétrico — `false` também é registado em intr.
-        let content_false = Content::SetHeadingNumbering { active: false };
-        let intr_false = introspect_with_introspector(&content_false);
-        assert!(
-            !intr_false.is_numbering_active("numbering_active:heading"),
-            "walk arm canonical deve registar Bool(false) em intr.state"
-        );
-    }
 }
 
 // ── P184E — Tests E2E paridade C3 (figure auto-number per kind) ────────────
@@ -8138,67 +8100,6 @@ mod p185d_locator_sync {
         );
     }
 
-    #[test]
-    fn pipeline_e2e_is_numbering_active_at_via_current_location() {
-        // .E pipeline end-to-end blueprint para P187 C1 migration.
-        // SetHeadingNumbering(true) inicia state em loc(0); 3
-        // Headings que vêm depois (loc(1), loc(2), loc(3)) devem
-        // ver numbering activo via `is_numbering_active_at(key,
-        // current_location)`.
-        let parts = vec![
-            Content::SetHeadingNumbering { active: true },
-            Content::heading(1, Content::Empty),
-            Content::heading(1, Content::Empty),
-            Content::heading(1, Content::Empty),
-        ];
-        let content = Content::Sequence(Arc::from(parts.clone()));
-
-        let intr = introspect_with_introspector(&content);
-
-        // P204C (M8): Layouter ganha 'a + Tracked<dyn Introspector>.
-        // Assignment `layouter.introspector = intr_clone` ELIMINADO —
-        // tracked passa por construtor; introspector populado via
-        // introspect_with_introspector outlive layouter no scope.
-        use comemo::Track;
-        use crate::entities::introspector::Introspector;
-        let intr_dyn: &dyn Introspector = &intr;
-        let intr_tracked = intr_dyn.track();
-        let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_tracked);
-
-        let mut headings_validados = 0usize;
-        for part in &parts {
-            layouter.layout_content(part);
-            if matches!(part, Content::Heading(_)) {
-                let loc = layouter.current_location
-                    .expect("Heading locatable → Some");
-                assert!(
-                    intr.is_numbering_active_at("numbering_active:heading", loc),
-                    "heading em {:?} deve ver numbering activo (state populado em loc anterior)",
-                    loc
-                );
-                headings_validados += 1;
-            }
-        }
-        assert_eq!(headings_validados, 3, "3 headings esperados");
-
-        // Confirmação adicional: kind_index deve ter exactamente 3
-        // headings, e cada Location deve produzir true via método
-        // location-aware. Cobre o blueprint que P187 vai usar
-        // (consumer migra de `is_numbering_active` snapshot-final
-        // para `is_numbering_active_at(key, current_location)`).
-        let heading_locs = intr.kind_index
-            .get(&ElementKind::Heading)
-            .cloned()
-            .unwrap_or_default();
-        assert_eq!(heading_locs.len(), 3);
-        for loc in heading_locs {
-            assert!(
-                intr.is_numbering_active_at("numbering_active:heading", loc),
-                "kind_index Heading[loc={:?}] activo via método P185B",
-                loc
-            );
-        }
-    }
 }
 
 // ── P186F — tests E2E equation locatable + relatório consolidado ────────────
@@ -8327,7 +8228,6 @@ mod p187b_c1_heading_prefix {
         // Lote F-2 S1 (P335): numeração assada para o prefixo; marcador mantido
         // para a plumbing de introspecção (ver `doc_typico`).
         Content::Sequence(Arc::from(vec![
-            Content::SetHeadingNumbering { active: true },
             Content::heading_numbered(1, Content::text("Intro")),
             Content::heading_numbered(2, Content::text("Motivacao")),
             Content::heading_numbered(1, Content::text("Conclusao")),
@@ -8476,7 +8376,6 @@ mod p189b_walk_puro_m5 {
         // via Layouter integration — outline render funciona via
         // Introspector path (mod.rs:1488).
         let doc_com_outline = Content::Sequence(Arc::from(vec![
-            Content::SetHeadingNumbering { active: true },
             Content::heading(1, Content::text("Intro")),
             Content::outline(),
         ]));
@@ -8486,7 +8385,6 @@ mod p189b_walk_puro_m5 {
         assert!(txt_com.contains("Intro"), "doc com outline: {:?}", txt_com);
 
         let doc_sem_outline = Content::Sequence(Arc::from(vec![
-            Content::SetHeadingNumbering { active: true },
             Content::heading(1, Content::text("Solo")),
         ]));
         let state_sem = introspect(&doc_sem_outline);
@@ -8509,12 +8407,11 @@ mod p189b_walk_puro_m5 {
         // (Introspector path) — fields legacy `resolved_labels`,
         // `headings_for_toc`, `numbering_active` eliminados em P190G.
         let content = Content::Sequence(Arc::from(vec![
-            Content::SetHeadingNumbering { active: true },
             Content::heading(1, Content::text("A")),
             Content::heading(2, Content::text("B")),
         ]));
         let intr = introspect_with_introspector(&content);
-        assert!(intr.is_numbering_active("numbering_active:heading"));
+        // Lote F-2 S5 (P335): is_numbering_active removido (StateRegistry saiu).
         assert_eq!(intr.headings_for_toc().len(), 2);
         assert!(intr.resolved_labels.get(&Label("auto-toc-1".to_string())).is_some());
     }
@@ -8537,7 +8434,6 @@ mod p189b_walk_puro_m5 {
         // intr.resolved_labels via Tag::Labelled pós-recursão (P195D).
         // Field legacy `state.resolved_labels` eliminado.
         let content = Content::Sequence(Arc::from(vec![
-            Content::SetHeadingNumbering { active: true },
             Content::labelled(Content::heading(1, Content::text("X")), crate::entities::label::Label("intro".to_string())),
         ]));
         let intr = introspect_with_introspector(&content);
@@ -8546,16 +8442,6 @@ mod p189b_walk_puro_m5 {
         ).is_some(), "E4: intr.resolved_labels[intro] populado");
     }
 
-    #[test]
-    fn walk_excepcao_e5_set_heading_numbering_via_intr() {
-        // E5 (P190G adapted): SetHeadingNumbering walk arm popula
-        // intr.state["numbering_active:heading"] via populate_intr.
-        // Field legacy `state.numbering_active` eliminado.
-        let content = Content::SetHeadingNumbering { active: true };
-        let intr = introspect_with_introspector(&content);
-        assert!(intr.is_numbering_active("numbering_active:heading"),
-            "E5: intr.state[numbering_active:heading] populado");
-    }
 
     #[test]
     fn walk_excepcao_e6_counter_update_via_legacy() {
@@ -8593,7 +8479,6 @@ mod p194b_c4_resolved_label {
         // label. Walk legacy popula state.resolved_labels via arm
         // Labelled (E4 P189B excepção).
         Content::Sequence(Arc::from(vec![
-            Content::SetHeadingNumbering { active: true },
             Content::labelled(Content::heading(1, Content::text("Intro")), lbl(label_name)),
             Content::reference(lbl(label_name)),
         ]))
@@ -8700,7 +8585,6 @@ mod p195d_walk_labelled {
     #[test]
     fn labelled_walk_emite_tag_e_popula_introspector() {
         let content = Content::Sequence(Arc::from(vec![
-            Content::SetHeadingNumbering { active: true },
             Content::labelled(Content::heading(1, Content::text("Intro")), lbl("intro")),
         ]));
 
@@ -8723,7 +8607,6 @@ mod p195d_walk_labelled {
     #[test]
     fn labelled_paridade_observable_legacy_vs_introspector() {
         let content = Content::Sequence(Arc::from(vec![
-            Content::SetHeadingNumbering { active: true },
             Content::labelled(Content::heading(1, Content::text("Intro")), lbl("intro")),
             Content::reference(lbl("intro")),
         ]));
@@ -10536,7 +10419,6 @@ mod f_caracterizacao_estilo {
     #[test]
     fn carac_set_figure_numbering_caption_prefixo() {
         let c = Content::Sequence(vec![
-            Content::SetFigureNumbering { pattern: "1".to_string() },
             Content::figure(
                 Content::text("img"),
                 Some(Content::text("legenda")),
@@ -10563,7 +10445,6 @@ mod f_caracterizacao_estilo {
     #[test]
     fn carac_set_equation_numbering_estado_atual() {
         let c = Content::Sequence(vec![
-            Content::SetEquationNumbering { active: true },
             Content::equation(Content::text("x"), true),
         ].into());
         let t = doc_text(&c);

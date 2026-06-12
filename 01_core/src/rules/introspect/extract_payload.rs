@@ -35,30 +35,7 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         Content::StateDisplay(e)           => e.to_payload(),
         Content::CounterDisplayCallback(e) => e.to_payload(),
 
-        // P182C (M9) — SetHeadingNumbering emite StateUpdate sob chave
-        // canónica `numbering_active:heading`. Reusa infra P171/P173 —
-        // sem novo ElementPayload variant; `from_tags` arm StateUpdate
-        // popula StateRegistry. Walk arm canonical em
-        // `introspect.rs:455–457` continua write paralelo legacy
-        // (M6 elimina). Suporte ao plano P182 (lacuna #4).
-        Content::SetHeadingNumbering { active } => Some(ElementPayload::StateUpdate {
-            key:    "numbering_active:heading".to_string(),
-            update: StateUpdate::Set(Box::new(Value::Bool(*active))),
-        }),
-
-        // P199B — SetEquationNumbering emite StateUpdate sob chave
-        // canónica `numbering_active:equation`. Reusa arm genérica
-        // `from_tags::StateUpdate` (P171/P173). Cenário α por
-        // construção (ADR-0069): toda infraestrutura downstream já
-        // pronta (Layouter equation.rs:32-33 substitution-with-fallback
-        // antes adormecida). Walk arm canonical em
-        // `introspect.rs:Content::SetEquationNumbering` continua
-        // write paralelo legacy (M6 elimina). Fecha Reserva 1 desde
-        // P189B (E1).
-        Content::SetEquationNumbering { active } => Some(ElementPayload::StateUpdate {
-            key:    "numbering_active:equation".to_string(),
-            update: StateUpdate::Set(Box::new(Value::Bool(*active))),
-        }),
+        // Lote F-2 S5 (P335): arms Set*Numbering removidos com as variantes.
 
         // P178 — Outline é unit. Payload também unit. Fecha lacuna #7.
         // Modelo D (Lote 8 P323): delega ao elemento.
@@ -243,37 +220,9 @@ mod tests {
         }
     }
 
-    // ── P182C — SetHeadingNumbering arm ──────────────────────────────────
-
-    #[test]
-    fn set_heading_numbering_active_true_produz_state_update_bool_true() {
-        let c = Content::SetHeadingNumbering { active: true };
-        match extract_payload(&c) {
-            Some(ElementPayload::StateUpdate { key, update }) => {
-                assert_eq!(key, "numbering_active:heading");
-                match update {
-                    StateUpdate::Set(boxed) => assert_eq!(*boxed, Value::Bool(true)),
-                    other => panic!("esperado StateUpdate::Set, obtido {other:?}"),
-                }
-            }
-            other => panic!("esperado Some(StateUpdate), obtido {other:?}"),
-        }
-    }
-
-    #[test]
-    fn set_heading_numbering_active_false_produz_state_update_bool_false() {
-        let c = Content::SetHeadingNumbering { active: false };
-        match extract_payload(&c) {
-            Some(ElementPayload::StateUpdate { key, update }) => {
-                assert_eq!(key, "numbering_active:heading");
-                match update {
-                    StateUpdate::Set(boxed) => assert_eq!(*boxed, Value::Bool(false)),
-                    other => panic!("esperado StateUpdate::Set, obtido {other:?}"),
-                }
-            }
-            other => panic!("esperado Some(StateUpdate), obtido {other:?}"),
-        }
-    }
+    // Lote F-2 S5 (P335): testes set_heading_numbering_*_produz_state_update
+    // removidos — a variante SetHeadingNumbering e o seu arm StateUpdate saíram
+    // (numeração via chain léxica).
 
     // ── P186C — Equation arm ─────────────────────────────────────────────
 

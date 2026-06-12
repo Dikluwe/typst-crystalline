@@ -327,23 +327,8 @@ pub enum Content {
 
     // ── Introspecção / Contadores (Passo 57) ────────────────────────────────
 
-    /// Activa ou desactiva a numeração automática de headings.
-    /// Produzida por `#set heading(numbering: "1.1")` em eval.
-    /// O Layouter consome esta variante actualizando `CounterStateLegacy`.
-    /// DEBT-10: substituir por StyleChain quando o motor de introspecção
-    /// completo for implementado.
-    SetHeadingNumbering { active: bool },
-
-    /// Activa ou desactiva a numeração automática de equations.
-    /// Análoga a `SetHeadingNumbering` (P57). Materializada em P199B —
-    /// fecha Reserva 1 (E1 P189B) estruturalmente. Cenário α por
-    /// construção (ADR-0069): caminho Introspector activa
-    /// imediatamente porque arm `from_tags::StateUpdate` (P171)
-    /// é genérica e Layouter `equation.rs:32-33` já tem
-    /// substitution-with-fallback implementada.
-    /// DEBT-10: substituir por StyleChain quando o motor de
-    /// introspecção completo for implementado.
-    SetEquationNumbering { active: bool },
+    // Lote F-2 S5 (P335): SetHeadingNumbering/SetEquationNumbering removidos
+    // — numeração migrada para a chain léxica (assada nos elementos).
 
     /// Valor actual de um contador no ponto de inserção.
     /// Produzida por `counter(heading).get()` / `counter(heading).display()`.
@@ -372,10 +357,7 @@ pub enum Content {
     /// `Option<String>` — `kind` None↔Auto, default "image" resolvido em uso).
     Figure(Arc<FigureElem>),
 
-    /// Activa a numeração automática de figuras a partir deste ponto (Passo 75).
-    /// Produzida por `#set figure(numbering: "1")` em eval.
-    /// Padrão idêntico a `SetHeadingNumbering` (Passo 57).
-    SetFigureNumbering { pattern: String },
+    // Lote F-2 S5 (P335): SetFigureNumbering removido — assado em FigureElem.numbering.
 
     /// Imagem carregada do disco (Passo 71, DEBT-24).
     ///
@@ -1637,13 +1619,10 @@ impl Content {
             Self::MathStyled(m) => m.plain_text(),
             Self::Labelled(e) => e.plain_text(),
             Self::Ref(e)                  => e.plain_text(),
-            Self::SetHeadingNumbering { .. } => String::new(),
-            Self::SetEquationNumbering { .. } => String::new(),
             Self::CounterDisplay(e)          => e.plain_text(),
             Self::CounterUpdate(e)           => e.plain_text(),
             Self::Outline(e)                 => e.plain_text(),
             Self::Figure(e) => e.plain_text(),
-            Self::SetFigureNumbering { .. } => String::new(),
             Self::Image(e) => e.plain_text(),
             Self::Shape(e) => e.plain_text(),
             Self::Transform(e) => e.plain_text(),
@@ -1758,15 +1737,12 @@ impl PartialEq for Content {
             // Modelo D (Lote 14 P329): Labelled delega ao `Arc<…Elem>`.
             (Self::Labelled(a), Self::Labelled(b)) => a == b,
             (Self::Ref(a), Self::Ref(b))     => a == b,
-            (Self::SetHeadingNumbering { active: a }, Self::SetHeadingNumbering { active: b }) => a == b,
-            (Self::SetEquationNumbering { active: a }, Self::SetEquationNumbering { active: b }) => a == b,
             // Modelo D (Lote 6 P321): delegam ao `Arc<…Elem>`.
             (Self::CounterDisplay(a), Self::CounterDisplay(b)) => a == b,
             (Self::CounterUpdate(a),  Self::CounterUpdate(b))  => a == b,
             (Self::Outline(a), Self::Outline(b)) => a == b,
             // Modelo D (Lote 13 P328): Figure delega ao `Arc<…Elem>`.
             (Self::Figure(a), Self::Figure(b)) => a == b,
-            (Self::SetFigureNumbering { pattern: a }, Self::SetFigureNumbering { pattern: b }) => a == b,
             // Modelo D (Lote 7 P322): Image delega ao `Arc<…Elem>`.
             (Self::Image(a), Self::Image(b)) => a == b,
             // Modelo D (Lote 11 P326): Shape delega ao `Arc<…Elem>`.
@@ -1988,9 +1964,6 @@ impl Content {
             | Content::Outline(_)
             | Content::Raw(_)
             | Content::Ref(_)
-            | Content::SetHeadingNumbering { .. }
-            | Content::SetEquationNumbering { .. }
-            | Content::SetFigureNumbering { .. }
             | Content::SetPage { .. }
             | Content::CounterUpdate(_)
             | Content::CounterDisplay(_)
@@ -2143,9 +2116,6 @@ impl Content {
             | Content::Outline(_)
             | Content::Raw(_)
             | Content::Ref(_)
-            | Content::SetHeadingNumbering { .. }
-            | Content::SetEquationNumbering { .. }
-            | Content::SetFigureNumbering { .. }
             | Content::SetPage { .. }
             | Content::CounterUpdate(_)
             | Content::CounterDisplay(_)

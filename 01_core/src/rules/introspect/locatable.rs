@@ -61,7 +61,6 @@ pub fn is_locatable(content: &Content) -> bool {
         // popula `StateRegistry`. Suporta plano P182 para fechar
         // lacuna #4. Walk arm canonical em `introspect.rs:455–457`
         // continua write paralelo legacy (M6 elimina).
-        Content::SetHeadingNumbering { .. } => true,
 
         // ── Locatable em P199B — SetEquationNumbering emite
         // `StateUpdate { key: "numbering_active:equation", ... }` via
@@ -72,7 +71,6 @@ pub fn is_locatable(content: &Content) -> bool {
         // já estava pronta (Layouter equation.rs:32-33
         // substitution-with-fallback adormecida). Walk arm canonical
         // continua write paralelo legacy (M6 elimina).
-        Content::SetEquationNumbering { .. } => true,
 
         // ── Locatable em P186D — Equation. Combinado com arm em
         // `extract_payload` (P186C) repõe invariante
@@ -123,7 +121,6 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Labelled(_)
         | Content::Ref(_)
         | Content::CounterDisplay(_)
-        | Content::SetFigureNumbering { .. }
         | Content::Image(_)
         | Content::Shape { .. }
         | Content::Transform(_)
@@ -268,7 +265,6 @@ mod tests {
             Content::divider(),
             Content::math_align_point(),
             Content::list_item(Content::Empty),
-            Content::SetHeadingNumbering { active: true },
             // P186D: Equation cobertura no test de invariante.
             // Lacuna pré-existente — Equation estava omitida do
             // helper, escondendo divergências entre is_locatable e
@@ -308,17 +304,6 @@ mod tests {
         assert!(extract_payload(&c).is_some());
     }
 
-    // ── P182C — SetHeadingNumbering locatable ────────────────────────────
-
-    #[test]
-    fn set_heading_numbering_e_locatable() {
-        let c = Content::SetHeadingNumbering { active: true };
-        assert!(is_locatable(&c));
-        // Invariante: extract_payload deve produzir Some.
-        assert!(extract_payload(&c).is_some());
-        // Simétrico para active=false.
-        let c_false = Content::SetHeadingNumbering { active: false };
-        assert!(is_locatable(&c_false));
-        assert!(extract_payload(&c_false).is_some());
-    }
+    // Lote F-2 S5 (P335): `set_heading_numbering_e_locatable` removido — a
+    // variante saiu (numeração via chain léxica; já não é locatável/marcador).
 }

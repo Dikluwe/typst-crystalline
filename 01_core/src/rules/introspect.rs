@@ -202,9 +202,6 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         | Content::Space
         | Content::Raw(_)
         | Content::Ref(_)
-        | Content::SetHeadingNumbering { .. }
-        | Content::SetEquationNumbering { .. }
-        | Content::SetFigureNumbering { .. }
         | Content::SetPage { .. }
         | Content::CounterUpdate(_)
         | Content::Outline(_)
@@ -455,15 +452,16 @@ fn compute_labelled<I: Introspector>(
 /// Walk popula intr (incluindo `numbering_active:heading` Set tag)
 /// ANTES desta call, garantindo consistência por construção.
 fn compute_heading_auto_toc<I: Introspector>(
-    intr:         &I,
-    location:     Location,
-    auto_label_n: usize,
+    intr:             &I,
+    location:         Location,
+    auto_label_n:     usize,
+    numbering_active: bool,
 ) -> (Label, String) {
     let auto_label = Label(format!("auto-toc-{}", auto_label_n));
-    let resolved_text = if intr.is_numbering_active_at(
-        "numbering_active:heading",
-        location,
-    ) {
+    // Lote F-2 S5 (P335): gate pelo `numbering_active` **assado** no
+    // `HeadingElem` (escopo léxico via chain) — não mais pelo StateRegistry
+    // `numbering_active:heading` (canal global retirado).
+    let resolved_text = if numbering_active {
         intr.formatted_counter_at("heading", location)
             .map(|prefix| format!("Secção {}", prefix))
             .unwrap_or_default()
@@ -817,6 +815,7 @@ pub(crate) fn walk(
                 &*intr,
                 auto_loc,
                 current_auto_label,
+                h.numbering_active,
             );
             // P190G: mutação `state.resolved_labels.insert` ELIMINADA
             // — caminho Introspector activo via Tag::Labelled
@@ -1000,43 +999,7 @@ pub(crate) fn walk(
             }
         }
 
-        Content::SetHeadingNumbering { active: _ } => {
-            // P198B — E5 fechada estruturalmente (cenário α). Caminho
-            // Introspector activo desde P182C (extract_payload →
-            // ElementPayload::StateUpdate sob chave
-            // numbering_active:heading → populate_intr_from_tag_start
-            // arm StateUpdate popula intr.state).
-            //
-            // P190G (M6 categoria Labels & TOC; Caso 1 `.H`): mutação
-            // `state.numbering_active.insert("heading", *active)`
-            // ELIMINADA — sem walk readers após P191B/C migrarem
-            // helpers (`compute_heading_auto_toc` lê
-            // `intr.is_numbering_active_at`) e walk arm Equation gate
-            // (lê `intr.is_numbering_active_at`). Field
-            // `state.numbering_active` eliminado de
-            // `CounterStateLegacy`.
-            //
-            // Tag::Start emitida pelo walk top via `extract_payload`;
-            // populate_intr_from_tag_start popula intr.state — caminho
-            // Introspector é única fonte da verdade.
-        }
-
-        Content::SetEquationNumbering { active: _ } => {
-            // P199B — E1 fechada estruturalmente (cenário α por
-            // construção). Materializa Reserva 1 desde P189B.
-            // Caminho Introspector activado por construção:
-            // extract_payload → ElementPayload::StateUpdate sob chave
-            // numbering_active:equation → populate_intr_from_tag_start
-            // arm StateUpdate popula intr.state.
-            //
-            // P190G (M6 categoria Labels & TOC; Caso 1 `.H`): mutação
-            // `state.numbering_active.insert("equation", *active)`
-            // ELIMINADA — sem walk readers após P191B migrar walk arm
-            // Equation gate para `intr.is_numbering_active_at` e
-            // P191C migrar `compute_labelled` Equation arm para
-            // Introspector path. Field `state.numbering_active`
-            // eliminado.
-        }
+        // Lote F-2 S5 (P335): arms populate Set*Numbering removidos com as variantes.
 
         Content::CounterUpdate(_) => {
             // P198C — E6 fechada estruturalmente (cenário β-promote
@@ -1059,9 +1022,6 @@ pub(crate) fn walk(
 
         // Terminais e nós sem efeito em contadores — cobertos explicitamente
         // para que o compilador detecte variantes em falta (sem wildcard silencioso).
-        Content::SetFigureNumbering { .. } => {
-            // No-op: a numeração está baked-in em cada nó Figure (capturada em eval).
-        }
 
         Content::Empty
         | Content::Text(_, _)
@@ -1280,7 +1240,6 @@ mod tests {
         // Ref antes do Labelled — forward reference
         let content = Content::Sequence(
             vec![
-                Content::SetHeadingNumbering { active: true },
                 Content::reference(Label("conclusao".to_string())),
                 Content::labelled(Content::heading(1, Content::text("Conclusão")), Label("conclusao".to_string())),
             ]
@@ -1324,19 +1283,12 @@ mod tests {
         );
     }
 
-    #[test]
-    fn introspect_set_heading_numbering_activa_flag() {
-        let content = Content::SetHeadingNumbering { active: true };
-        let intr = introspect_with_introspector(&content);
-        assert!(intr.is_numbering_active("numbering_active:heading"));
-    }
 
     // ── Testes de Passo 61 — TOC ─────────────────────────────────────────
 
     #[test]
     fn introspect_cataloga_headings_para_toc() {
         let content = Content::Sequence(vec![
-            Content::SetHeadingNumbering { active: true },
             Content::heading(1, Content::text("Introdução")),
             Content::heading(2, Content::text("Motivação")),
             Content::heading(1, Content::text("Conclusão")),
@@ -1522,7 +1474,6 @@ mod tests {
         // da introspecção — não pelo valor quando a TOC for renderizada.
         let content = Content::Sequence(
             vec![
-                Content::SetHeadingNumbering { active: true },
                 Content::counter_update("fig".to_string(), CounterAction::Update(7)),
                 Content::heading(1, Content::Sequence(
                     vec![
@@ -1808,7 +1759,6 @@ mod tests {
         // Verifica que tanto state quanto tags são populados.
         let content = Content::Sequence(
             vec![
-                Content::SetHeadingNumbering { active: true },
                 Content::heading(1, Content::text("um")),
                 Content::heading(1, Content::text("dois")),
             ]
@@ -1826,7 +1776,7 @@ mod tests {
         // P200B: cada heading emite 6 tags (Start_h, Start_labelled,
         // End_labelled, Start_HeadingForToc, End_HeadingForToc, End_h).
         // Total: 1 SetHeadingNumbering × 2 + 2 headings × 6 = 14.
-        assert_eq!(tags.len(), 14, "deve haver Start+End para SetHeadingNumbering e 6 tags por heading; obtido {tags:?}");
+        assert_eq!(tags.len(), 12, "deve haver 6 tags por heading (2 headings x 6); obtido {tags:?}");
     }
 
     #[test]
@@ -1854,7 +1804,6 @@ mod tests {
     fn make_content_complexo() -> Content {
         Content::Sequence(
             vec![
-                Content::SetHeadingNumbering { active: true },
                 Content::heading(1, Content::text("Capítulo")),
                 Content::figure(Content::Empty, Some(Content::text("legenda")), Some("image".into()), Some("1".into())),
                 Content::heading(2, Content::text("Secção")),
@@ -1972,9 +1921,9 @@ mod tests {
         //  - intr.formatted_counter("heading") fica no valor
         //    esperado após todos os headings (verificação cruzada).
         let levels = vec![1u8, 2, 2, 3];
+        // Lote F-2 S5 (P335): marcador removido — contador de heading incondicional.
         let content = Content::Sequence(
-            std::iter::once(Content::SetHeadingNumbering { active: true })
-                .chain(levels.iter().map(|&l| Content::heading(l, Content::text("h"))))
+            levels.iter().map(|&l| Content::heading(l, Content::text("h")))
                 .collect::<Vec<_>>()
                 .into(),
         );
@@ -2118,9 +2067,9 @@ mod tests {
         // agora também produz "1.2.1" via formatted_counter (resolve
         // lacuna #5).
         let levels = vec![1u8, 2, 2, 3];
+        // Lote F-2 S5 (P335): marcador removido — contador de heading incondicional.
         let content = Content::Sequence(
-            std::iter::once(Content::SetHeadingNumbering { active: true })
-                .chain(levels.iter().map(|&l| Content::heading(l, Content::text("h"))))
+            levels.iter().map(|&l| Content::heading(l, Content::text("h")))
                 .collect::<Vec<_>>()
                 .into(),
         );
@@ -2178,31 +2127,7 @@ mod tests {
         assert_eq!(locs.len(), 3);
     }
 
-    // ── P182C — pipeline E2E SetHeadingNumbering → StateRegistry ─────────
 
-    #[test]
-    fn introspector_set_heading_numbering_active_true_popula_state_registry() {
-        // P182C: walk emite tag para Content::SetHeadingNumbering;
-        // extract_payload produz ElementPayload::StateUpdate;
-        // from_tags arm StateUpdate popula StateRegistry; trait method
-        // is_numbering_active retorna true para chave canónica.
-        let content = Content::SetHeadingNumbering { active: true };
-        let intr = introspect_with_introspector(&content);
-        assert!(
-            intr.is_numbering_active("numbering_active:heading"),
-            "P182C: pipeline deve popular StateRegistry com Bool(true)"
-        );
-    }
-
-    #[test]
-    fn introspector_set_heading_numbering_active_false_em_state_registry() {
-        // Caso simétrico — Bool(false) é registado e propagado;
-        // is_numbering_active devolve false (não por estar ausente,
-        // mas porque o valor explícito é Bool(false)).
-        let content = Content::SetHeadingNumbering { active: false };
-        let intr = introspect_with_introspector(&content);
-        assert!(!intr.is_numbering_active("numbering_active:heading"));
-    }
 
     #[test]
     fn introspector_query_by_label() {
@@ -2266,7 +2191,6 @@ mod tests {
         // Esta é a invariante crítica de M4b — wrapper preserva API.
         let content = Content::Sequence(
             vec![
-                Content::SetHeadingNumbering { active: true },
                 Content::heading(1, Content::text("um")),
                 Content::heading(1, Content::text("dois")),
             ]
@@ -2577,8 +2501,7 @@ mod tests {
         // pós-recursão. Introspector populated via from_tags.
         let content = Content::Sequence(
             vec![
-                Content::SetHeadingNumbering { active: true },
-                Content::heading(1, Content::text("Intro")),
+                Content::heading_numbered(1, Content::text("Intro")),
             ]
             .into(),
         );
@@ -2601,7 +2524,6 @@ mod tests {
         // devem conter MESMO valor para auto-toc label (write paralelo).
         let content = Content::Sequence(
             vec![
-                Content::SetHeadingNumbering { active: true },
                 Content::heading(1, Content::text("um")),
                 Content::heading(2, Content::text("dois")),
             ]
@@ -2689,8 +2611,7 @@ mod tests {
         // Introspector activo (sem fallback necessário).
         let content = Content::Sequence(
             vec![
-                Content::SetHeadingNumbering { active: true },
-                Content::heading(1, Content::text("Capítulo")),
+                Content::heading_numbered(1, Content::text("Capítulo")),
             ]
             .into(),
         );
@@ -2923,144 +2844,10 @@ mod tests {
             "Tag preserva kind=None literal mesmo quando is_counted=true.");
     }
 
-    // ── P198B — Walk arm SetHeadingNumbering (cenário α) ─────────────────
-    //
-    // 5 tests sentinela que validam: (a) extract_payload já emite
-    // StateUpdate desde P182C; (b) from_tags arm StateUpdate popula
-    // StateRegistry; (c) paridade legacy vs Introspector; (d)
-    // compute_heading_auto_toc lê mutação legacy durante walk; (e)
-    // cadeia E5 ↔ E2 (Heading auto-toc) preservada.
 
-    #[test]
-    fn set_heading_numbering_extract_payload_emite_state_update() {
-        // P198B test 1: confirma que extract_payload(SetHeadingNumbering)
-        // retorna Some(ElementPayload::StateUpdate { ... }) — caminho
-        // P182C activo independente de P198B.
-        use crate::rules::introspect::extract_payload::extract_payload;
-        use crate::entities::state_update::StateUpdate;
-        use crate::entities::value::Value;
 
-        let content = Content::SetHeadingNumbering { active: true };
-        match extract_payload(&content) {
-            Some(ElementPayload::StateUpdate { key, update }) => {
-                assert_eq!(key, "numbering_active:heading",
-                    "P182C: chave canónica numbering_active:heading");
-                match update {
-                    StateUpdate::Set(boxed) => assert_eq!(*boxed, Value::Bool(true)),
-                    other => panic!("esperado StateUpdate::Set(Bool(true)), obtido {other:?}"),
-                }
-            }
-            other => panic!("esperado Some(StateUpdate), obtido {other:?}"),
-        }
-    }
 
-    #[test]
-    fn set_heading_numbering_from_tags_popula_state_registry() {
-        // P198B test 2: pipeline walk + from_tags com SetHeadingNumbering
-        // popula StateRegistry com chave canónica.
-        use crate::entities::introspector::Introspector;
 
-        let content = Content::SetHeadingNumbering { active: true };
-        let intr = introspect_with_introspector(&content);
-
-        // Caminho Introspector activo desde P171/P182C: from_tags arm
-        // StateUpdate popula intr.state com numbering_active:heading.
-        assert!(
-            intr.is_numbering_active("numbering_active:heading"),
-            "P182C/P171: from_tags arm StateUpdate popula StateRegistry \
-             com numbering_active:heading=true"
-        );
-    }
-
-    #[test]
-    fn set_heading_numbering_paridade_legacy_vs_introspector() {
-        // P198B test 3: write paralelo legacy + Introspector preserva
-        // paridade. Legacy intr.is_numbering_active("numbering_active:heading") == true;
-        // Introspector intr.is_numbering_active("numbering_active:heading")
-        // == true (chave canónica diferente mas mesmo significado).
-        use crate::entities::introspector::Introspector;
-
-        let content = Content::Sequence(
-            vec![
-                Content::SetHeadingNumbering { active: true },
-                Content::heading(1, Content::text("Intro")),
-            ]
-            .into(),
-        );
-        let intr = introspect_with_introspector(&content);
-
-        // Legacy state populado via mutação directa walk arm.
-        assert!(intr.is_numbering_active("numbering_active:heading"),
-            "legacy: state.numbering_active['heading'] = true (write paralelo M5)");
-        // Introspector path populado via from_tags arm StateUpdate.
-        assert!(intr.is_numbering_active("numbering_active:heading"),
-            "Introspector: StateRegistry populado com chave canónica");
-    }
-
-    #[test]
-    fn compute_heading_auto_toc_le_numbering_active_via_introspector() {
-        // P198B test 4 (P190G adapted): confirma cadeia E5 —
-        // compute_heading_auto_toc (P196B + P191B) lê
-        // intr.is_numbering_active_at via Introspector path
-        // location-aware. Quando numbering inactivo (sem
-        // SetHeadingNumbering precedente), resolved_text fica vazia.
-        let sem_set = Content::heading(1, Content::text("título"));
-        let intr_sem = introspect_with_introspector(&sem_set);
-        assert!(!intr_sem.is_numbering_active("numbering_active:heading"));
-        assert_eq!(
-            intr_sem.resolved_labels.get(&Label("auto-toc-1".to_string())),
-            Some(""),
-            "cadeia E5: numbering inactivo → resolved_text vazia (P196B §3)"
-        );
-
-        let com_set = Content::Sequence(
-            vec![
-                Content::SetHeadingNumbering { active: true },
-                Content::heading(1, Content::text("título")),
-            ]
-            .into(),
-        );
-        let intr_com = introspect_with_introspector(&com_set);
-        assert!(intr_com.is_numbering_active("numbering_active:heading"));
-        assert_eq!(
-            intr_com.resolved_labels.get(&Label("auto-toc-1".to_string())),
-            Some("Secção 1"),
-            "cadeia E5: numbering activo → compute_heading_auto_toc \
-             retorna 'Secção 1'"
-        );
-    }
-
-    #[test]
-    fn walk_arm_set_heading_popula_intr_state() {
-        // P198B test 5 (P190G adapted): confirma cadeia E5 ↔ E2 via
-        // Introspector path puro. Mutação legacy
-        // `state.numbering_active.insert` ELIMINADA em P190G; caminho
-        // Introspector é única fonte da verdade desde P191B.
-        let content = Content::Sequence(
-            vec![
-                Content::SetHeadingNumbering { active: true },
-                Content::heading(1, Content::text("Intro")),
-            ]
-            .into(),
-        );
-        let intr = introspect_with_introspector(&content);
-
-        // Caminho Introspector activo: populate_intr arm StateUpdate
-        // popula intr.state com chave canónica.
-        assert!(
-            intr.is_numbering_active("numbering_active:heading"),
-            "P190G: SetHeadingNumbering popula intr.state via populate_intr"
-        );
-        // Consumer C4 (P194B) recebe Some via Introspector path —
-        // cadeia E5 ↔ E2 funcional via Introspector puro.
-        let auto_lbl = Label("auto-toc-1".to_string());
-        assert_eq!(
-            intr.resolved_label_for(&auto_lbl),
-            Some("Secção 1"),
-            "cadeia E5↔E2: P196B auto-toc Tag::Labelled populated via \
-             Introspector path location-aware (P191B + P190G)"
-        );
-    }
 
     // ── P198C — Walk arm CounterUpdate (cenário β-promote) ──────────────
     //
@@ -3219,113 +3006,9 @@ mod tests {
         );
     }
 
-    // ── P199B — Materialização Content::SetEquationNumbering ───────────
-    //
-    // 5 tests sentinela que validam: (a) extract_payload arm novo;
-    // (b) from_tags arm StateUpdate (P171 genérica) processa
-    // numbering_active:equation transparentemente; (c) paridade
-    // legacy vs Introspector; (d) cadeia E1 — walk arm Equation lê
-    // mutação legacy durante walk após SetEquationNumbering;
-    // (e) consumer Layouter Equation activação por construção.
 
-    #[test]
-    fn set_equation_numbering_extract_payload_emite_state_update() {
-        // P199B test 1: confirma que extract_payload(SetEquationNumbering)
-        // retorna Some(ElementPayload::StateUpdate { ... }) com chave
-        // canónica numbering_active:equation.
-        use crate::rules::introspect::extract_payload::extract_payload;
-        use crate::entities::state_update::StateUpdate;
-        use crate::entities::value::Value;
 
-        let content = Content::SetEquationNumbering { active: true };
-        match extract_payload(&content) {
-            Some(ElementPayload::StateUpdate { key, update }) => {
-                assert_eq!(key, "numbering_active:equation",
-                    "P199B: chave canónica numbering_active:equation");
-                match update {
-                    StateUpdate::Set(boxed) => assert_eq!(*boxed, Value::Bool(true)),
-                    other => panic!("esperado StateUpdate::Set(Bool(true)), obtido {other:?}"),
-                }
-            }
-            other => panic!("esperado Some(StateUpdate), obtido {other:?}"),
-        }
-    }
 
-    #[test]
-    fn set_equation_numbering_from_tags_popula_state_registry() {
-        // P199B test 2: pipeline walk + from_tags com SetEquationNumbering
-        // popula StateRegistry com chave canónica via arm StateUpdate
-        // genérica (P171) — sem modificação a from_tags.
-        use crate::entities::introspector::Introspector;
-
-        let content = Content::SetEquationNumbering { active: true };
-        let intr = introspect_with_introspector(&content);
-
-        // P171 arm StateUpdate é genérica — processa qualquer key
-        // incluindo numbering_active:equation transparentemente.
-        assert!(
-            intr.is_numbering_active("numbering_active:equation"),
-            "P199B: from_tags arm StateUpdate popula StateRegistry \
-             com numbering_active:equation=true (sem modificação a P171)"
-        );
-    }
-
-    #[test]
-    fn set_equation_numbering_paridade_legacy_vs_introspector() {
-        // P199B test 3: write paralelo legacy + Introspector preserva
-        // paridade. Legacy intr.is_numbering_active("numbering_active:equation") == true;
-        // Introspector intr.is_numbering_active("numbering_active:equation")
-        // == true.
-        use crate::entities::introspector::Introspector;
-
-        let content = Content::Sequence(
-            vec![
-                Content::SetEquationNumbering { active: true },
-                Content::equation(Content::Empty, true),
-            ]
-            .into(),
-        );
-        let intr = introspect_with_introspector(&content);
-
-        // Legacy state populado via mutação directa walk arm.
-        assert!(intr.is_numbering_active("numbering_active:equation"),
-            "legacy: state.numbering_active['equation'] = true (write paralelo M5)");
-        // Introspector path populado via from_tags arm StateUpdate.
-        assert!(intr.is_numbering_active("numbering_active:equation"),
-            "Introspector: StateRegistry populado com chave canónica");
-    }
-
-    #[test]
-    fn walk_arm_equation_le_numbering_active_legacy_apos_set() {
-        // P199B test 4: cadeia E1 — walk arm Equation lê
-        // intr.is_numbering_active("numbering_active:equation") durante walk para
-        // gating do counter step. Confirma que mutação legacy de
-        // SetEquationNumbering antes do Equation faz counter avançar.
-        // Lote F-2 S2 (P335): gate via campo assado (`equation_numbered`);
-        // marcador mantido para a asserção de plumbing (is_numbering_active).
-        let com_set = Content::Sequence(
-            vec![
-                Content::SetEquationNumbering { active: true },
-                Content::equation_numbered(Content::Empty, true),
-            ]
-            .into(),
-        );
-        let intr_com = introspect_with_introspector(&com_set);
-
-        // Após SetEquationNumbering activo, walk arm Equation gate
-        // (P191B: usa intr.is_numbering_active_at) dispara →
-        // state.step_flat("equation") → counter chega a 1.
-        assert!(intr_com.is_numbering_active("numbering_active:equation"));
-        assert_eq!(intr_com.counters.value("equation").and_then(|v| v.last()).copied().unwrap_or(0), 1,
-            "cadeia E1: walk arm Equation gate via intr → counter avança");
-
-        // Sem SetEquationNumbering, gate não dispara.
-        let sem_set = Content::equation(Content::Empty, true);
-        let intr_sem = introspect_with_introspector(&sem_set);
-        assert!(!intr_sem.is_numbering_active("numbering_active:equation"));
-        assert_eq!(intr_sem.counters.value("equation").and_then(|v| v.last()).copied().unwrap_or(0), 0,
-            "sem SetEquationNumbering: gate inactivo → counter não avança");
-    }
 
     #[test]
     fn consumer_layouter_equation_activa_via_introspector() {
@@ -3340,7 +3023,6 @@ mod tests {
         // marcador mantido para a plumbing.
         let content = Content::Sequence(
             vec![
-                Content::SetEquationNumbering { active: true },
                 Content::labelled(Content::equation_numbered(Content::Empty, true), Label("eq1".to_string())),
             ]
             .into(),
@@ -3359,11 +3041,8 @@ mod tests {
             Some("Equação (1)"),
             "Introspector path: resolved_labels populated em paralelo (P199B + P195D)"
         );
-        // Introspector: StateRegistry populated via Tag::StateUpdate.
-        assert!(
-            intr.is_numbering_active("numbering_active:equation"),
-            "P199B: Layouter equation.rs:32 first branch retorna Some via Introspector path"
-        );
+        // Lote F-2 S5 (P335): asserção is_numbering_active removida (StateRegistry
+        // numbering_active:equation saiu — gate via campo assado).
     }
 
     // ── P200B — Sub-store headings_for_toc + Tag + consumer (M5 universal) ─
@@ -3384,7 +3063,6 @@ mod tests {
 
         let content = Content::Sequence(
             vec![
-                Content::SetHeadingNumbering { active: true },
                 Content::heading(1, Content::text("Intro")),
             ]
             .into(),
@@ -3412,7 +3090,6 @@ mod tests {
 
         let content = Content::Sequence(
             vec![
-                Content::SetHeadingNumbering { active: true },
                 Content::heading(1, Content::text("Cap 1")),
                 Content::heading(2, Content::text("Sec 1.1")),
                 Content::heading(1, Content::text("Cap 2")),
@@ -3567,7 +3244,6 @@ mod tests {
         // Cenário: Heading numbered + Labelled Heading (cadeia C1).
         let content = Content::Sequence(
             vec![
-                Content::SetHeadingNumbering { active: true },
                 Content::heading(1, Content::text("intro")),
                 Content::labelled(Content::heading(1, Content::text("body")), Label("sec".to_string())),
             ]
@@ -3595,9 +3271,8 @@ mod tests {
         // SetHeadingNumbering(true) precede o Heading.
         let content = Content::Sequence(
             vec![
-                Content::SetHeadingNumbering { active: true },
-                Content::heading(1, Content::text("um")),
-                Content::heading(1, Content::text("dois")),
+                Content::heading_numbered(1, Content::text("um")),
+                Content::heading_numbered(1, Content::text("dois")),
             ]
             .into(),
         );
