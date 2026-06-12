@@ -113,7 +113,7 @@ pub(crate) fn apply_show_rules(
                 let is_match = matches!(
                     (node, kind),
                     (Content::Heading(_),  NodeKind::Heading)
-                    | (Content::Figure { .. },   NodeKind::Figure)
+                    | (Content::Figure(_),   NodeKind::Figure)
                     | (Content::Raw { .. },      NodeKind::Raw)
                     | (Content::Equation { .. }, NodeKind::Equation)
                     | (Content::ListItem(_),     NodeKind::ListItem)

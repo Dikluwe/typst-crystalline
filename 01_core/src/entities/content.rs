@@ -95,6 +95,7 @@ use crate::entities::elements::table_cell::TableCellElem;
 use crate::entities::elements::table::TableElem;
 use crate::entities::elements::grid_cell::GridCellElem;
 use crate::entities::elements::grid::GridElem;
+use crate::entities::elements::figure::FigureElem;
 
 /// Conteúdo declarativo produzido por `eval()`.
 ///
@@ -362,19 +363,10 @@ pub enum Content {
     /// Elemento com numeração própria e legenda opcional (Passo 62, DEBT-15 Passo 75).
     /// `kind` discrimina o contador: "image", "table", "raw", etc.
     /// `numbering` baked-in em eval via `#set figure(numbering: "1")` (DEBT-14).
-    Figure {
-        body:      Box<Content>,
-        caption:   Option<Box<Content>>,
-        /// Tipo da figura — discriminador para contadores independentes.
-        /// Passo 158C (ADR-0064 Caso A estrito): vanilla
-        /// `Smart<Str>` → cristalino `Option<String>` (None ↔ Auto;
-        /// default `"image"` resolvido em uso, não em construção).
-        /// Caller resolve via `kind.as_deref().unwrap_or("image")`.
-        kind:      Option<String>,
-        /// Padrão de numeração activo no momento da produção via `#set figure(numbering:)`.
-        /// None → sem numeração; Some("1") → numeração arábica.
-        numbering: Option<String>,
-    },
+    /// **Modelo D (Lote 13 P328)**: `entities::elements::figure::FigureElem`
+    /// (locatável M1; contentor — recurse body + caption; kind/numbering
+    /// `Option<String>` — `kind` None↔Auto, default "image" resolvido em uso).
+    Figure(Arc<FigureElem>),
 
     /// Activa a numeração automática de figuras a partir deste ponto (Passo 75).
     /// Produzida por `#set figure(numbering: "1")` em eval.
@@ -1339,6 +1331,16 @@ impl Content {
     }
 
     // ── Construtores ergonómicos família state/counter (Modelo D, Lote 6 P321) ──
+    /// **Lote 13 P328** — `Content::Figure` (figura locatável M1).
+    pub fn figure(
+        body:      Content,
+        caption:   Option<Content>,
+        kind:      Option<String>,
+        numbering: Option<String>,
+    ) -> Self {
+        Self::Figure(Arc::new(FigureElem { body, caption, kind, numbering }))
+    }
+
     pub fn counter_display(kind: impl Into<String>) -> Self {
         Self::CounterDisplay(Arc::new(CounterDisplayElem { kind: kind.into() }))
     }
@@ -1570,8 +1572,7 @@ impl Content {
             Self::Sequence(v) => v.is_empty(),
             Self::Labelled { target, .. } => target.is_empty(),
             // Figura: não está vazia se tiver body OU caption com conteúdo.
-            Self::Figure { body, caption, .. } =>
-                body.is_empty() && caption.as_ref().is_none_or(|c| c.is_empty()),
+            Self::Figure(e) => e.is_empty(),
             Self::Grid(e) => e.is_empty(),
             // P224.B — GridHeader/GridFooter vazio se body for (paridade P157C).
             // Modelo D (Lote 5 P320): grid/table header/footer delegam ao elemento.
@@ -1703,18 +1704,7 @@ impl Content {
             Self::CounterDisplay(e)          => e.plain_text(),
             Self::CounterUpdate(e)           => e.plain_text(),
             Self::Outline(e)                 => e.plain_text(),
-            Self::Figure { body, caption, .. } => {
-                let body_text = body.plain_text();
-                let cap_text  = caption.as_ref()
-                    .map(|c| c.plain_text())
-                    .unwrap_or_default();
-                match (body_text.is_empty(), cap_text.is_empty()) {
-                    (false, false) => format!("{} {}", body_text, cap_text),
-                    (false, true)  => body_text,
-                    (true,  false) => cap_text,
-                    (true,  true)  => String::new(),
-                }
-            }
+            Self::Figure(e) => e.plain_text(),
             Self::SetFigureNumbering { .. } => String::new(),
             Self::Image(e) => e.plain_text(),
             Self::Shape(e) => e.plain_text(),
@@ -1834,9 +1824,8 @@ impl PartialEq for Content {
             (Self::CounterDisplay(a), Self::CounterDisplay(b)) => a == b,
             (Self::CounterUpdate(a),  Self::CounterUpdate(b))  => a == b,
             (Self::Outline(a), Self::Outline(b)) => a == b,
-            (Self::Figure { body: ba, caption: ca, kind: ka, numbering: na },
-             Self::Figure { body: bb, caption: cb, kind: kb, numbering: nb }) =>
-                ba == bb && ca == cb && ka == kb && na == nb,
+            // Modelo D (Lote 13 P328): Figure delega ao `Arc<…Elem>`.
+            (Self::Figure(a), Self::Figure(b)) => a == b,
             (Self::SetFigureNumbering { pattern: a }, Self::SetFigureNumbering { pattern: b }) => a == b,
             // Modelo D (Lote 7 P322): Image delega ao `Arc<…Elem>`.
             (Self::Image(a), Self::Image(b)) => a == b,
@@ -1957,7 +1946,7 @@ impl Content {
         match (self, field) {
             // Modelo D (P316): Heading delega ao elemento.
             (Content::Heading(h), f) => h.get_field(f),
-            (Content::Figure  { body, .. },  "body")  => Some(Value::Content(*body.clone())),
+            (Content::Figure(e),  "body")  => Some(Value::Content(e.body.clone())),
             _ => None,
         }
     }
@@ -1993,15 +1982,8 @@ impl Content {
                 target: Box::new(target.map_content(transform)?),
                 label:  label.clone(),
             },
-            Content::Figure { body, caption, kind, numbering } => Content::Figure {
-                body:      Box::new(body.map_content(transform)?),
-                caption:   caption.as_ref()
-                    .map(|c| c.map_content(transform))
-                    .transpose()?
-                    .map(Box::new),
-                kind:      kind.clone(),
-                numbering: numbering.clone(),
-            },
+            // Modelo D (Lote 13 P328): Figure container delega ao elemento.
+            Content::Figure(e) => e.map_content(transform)?,
             // Content::Equation tem body: Box<Content> → container.
             // Modelo D (Lote 10 P325): Equation container delega ao elemento.
             Content::Equation(e) => e.map_content(transform)?,
@@ -2203,12 +2185,8 @@ impl Content {
                 target: Box::new(target.map_text(transform)),
                 label:  label.clone(),
             },
-            Content::Figure { body, caption, kind, numbering } => Content::Figure {
-                body:      Box::new(body.map_text(transform)),
-                caption:   caption.as_ref().map(|c| Box::new(c.map_text(transform))),
-                kind:      kind.clone(),
-                numbering: numbering.clone(),
-            },
+            // Modelo D (Lote 13 P328): Figure container delega ao elemento.
+            Content::Figure(e) => e.map_text(transform),
             // Modelo D (Lote 3 P318): família lista/termos delega ao elemento
             // (contentores de prosa — map_text recurse, precedente Heading).
             Content::ListItem(e) => e.map_text(transform),

@@ -159,12 +159,13 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             target: Box::new(materialize_time(target, intr, location)),
             label:  label.clone(),
         },
-        Content::Figure { body, caption, kind, numbering } => Content::Figure {
-            body:      Box::new(materialize_time(body, intr, location)),
-            caption:   caption.as_ref().map(|c| Box::new(materialize_time(c, intr, location))),
-            kind:      kind.clone(),
-            numbering: numbering.clone(),
-        },
+        // Modelo D (Lote 13 P328): Figure — recurse body+caption via construtor.
+        Content::Figure(e) => Content::figure(
+            materialize_time(&e.body, intr, location),
+            e.caption.as_ref().map(|c| materialize_time(c, intr, location)),
+            e.kind.clone(),
+            e.numbering.clone(),
+        ),
 
         // Modelo D (Lote 3 P318): Terms/TermItem delegam reconstrução ao construtor.
         Content::Terms(e) => Content::terms(
@@ -424,7 +425,8 @@ fn compute_labelled<I: Introspector>(
                 (None, None)
             }
         }
-        Content::Figure { kind, numbering, caption, .. } => {
+        Content::Figure(e) => {
+            let (kind, numbering, caption) = (&e.kind, &e.numbering, &e.caption);
             let kind_key = kind.as_deref().unwrap_or("image");
             let n = if numbering.is_some() && caption.is_some() {
                 intr.flat_counter_at(
@@ -912,7 +914,8 @@ pub(crate) fn walk(
             walk(&e.body, locator, tags, intr, auto_label_counter, lang, None);
         }
 
-        Content::Figure { body, caption, kind: _, numbering: _ } => {
+        Content::Figure(e) => {
+            let (body, caption) = (&e.body, &e.caption);
             // P197B (cenário α) — caminho Introspector activo desde
             // P184 (variant ElementPayload::Figure + populate_intr arm
             // Figure + sub-store CounterRegistry chave `figure:{kind}`
@@ -1406,12 +1409,7 @@ mod tests {
         let content = Content::Sequence(
             vec![Content::Labelled {
                 label:  Label("fig1".to_string()),
-                target: Box::new(Content::Figure {
-                    body:      Box::new(Content::text("Um gráfico")),
-                    caption:   Some(Box::new(Content::text("Evolução"))),
-                    kind:      Some("image".to_string()),
-                    numbering: Some("1".to_string()),
-                }),
+                target: Box::new(Content::figure(Content::text("Um gráfico"), Some(Content::text("Evolução")), Some("image".to_string()), Some("1".to_string()))),
             }]
             .into(),
         );
@@ -1430,21 +1428,11 @@ mod tests {
             vec![
                 Content::Labelled {
                     label:  Label("f1".to_string()),
-                    target: Box::new(Content::Figure {
-                        body:      Box::new(Content::text("A")),
-                        caption:   Some(Box::new(Content::text("Legenda A"))),
-                        kind:      Some("image".to_string()),
-                        numbering: Some("1".to_string()),
-                    }),
+                    target: Box::new(Content::figure(Content::text("A"), Some(Content::text("Legenda A")), Some("image".to_string()), Some("1".to_string()))),
                 },
                 Content::Labelled {
                     label:  Label("f2".to_string()),
-                    target: Box::new(Content::Figure {
-                        body:      Box::new(Content::text("B")),
-                        caption:   Some(Box::new(Content::text("Legenda B"))),
-                        kind:      Some("image".to_string()),
-                        numbering: Some("1".to_string()),
-                    }),
+                    target: Box::new(Content::figure(Content::text("B"), Some(Content::text("Legenda B")), Some("image".to_string()), Some("1".to_string()))),
                 },
             ]
             .into(),
@@ -1465,20 +1453,10 @@ mod tests {
     fn introspect_figura_sem_caption_nao_incrementa_contador() {
         let content = Content::Sequence(
             vec![
-                Content::Figure {
-                    body:      Box::new(Content::text("Diagrama")),
-                    caption:   None,
-                    kind:      Some("image".to_string()),
-                    numbering: Some("1".to_string()),
-                },
+                Content::figure(Content::text("Diagrama"), None, Some("image".to_string()), Some("1".to_string())),
                 Content::Labelled {
                     label:  Label("f2".to_string()),
-                    target: Box::new(Content::Figure {
-                        body:      Box::new(Content::text("B")),
-                        caption:   Some(Box::new(Content::text("Legenda"))),
-                        kind:      Some("image".to_string()),
-                        numbering: Some("1".to_string()),
-                    }),
+                    target: Box::new(Content::figure(Content::text("B"), Some(Content::text("Legenda")), Some("image".to_string()), Some("1".to_string()))),
                 },
             ]
             .into(),
@@ -1605,15 +1583,10 @@ mod tests {
 
     #[test]
     fn figure_tem_kind_e_numbering() {
-        let fig = Content::Figure {
-            body:      Box::new(Content::text("corpo")),
-            caption:   Some(Box::new(Content::text("legenda"))),
-            kind:      Some("image".to_string()),
-            numbering: Some("1".to_string()),
-        };
-        if let Content::Figure { kind, numbering, .. } = fig {
-            assert_eq!(kind.as_deref(), Some("image"));
-            assert_eq!(numbering, Some("1".to_string()));
+        let fig = Content::figure(Content::text("corpo"), Some(Content::text("legenda")), Some("image".to_string()), Some("1".to_string()));
+        if let Content::Figure(e) = fig {
+            assert_eq!(e.kind.as_deref(), Some("image"));
+            assert_eq!(e.numbering, Some("1".to_string()));
         } else {
             panic!("Variante inesperada");
         }
@@ -1622,24 +1595,9 @@ mod tests {
     #[test]
     fn figuras_kind_diferente_contadores_independentes() {
         let doc = Content::Sequence(vec![
-            Content::Figure {
-                body:      Box::new(Content::text("img1")),
-                caption:   Some(Box::new(Content::text("cap1"))),
-                kind:      Some("image".to_string()),
-                numbering: Some("1".to_string()),
-            },
-            Content::Figure {
-                body:      Box::new(Content::text("tab1")),
-                caption:   Some(Box::new(Content::text("cap2"))),
-                kind:      Some("table".to_string()),
-                numbering: Some("1".to_string()),
-            },
-            Content::Figure {
-                body:      Box::new(Content::text("img2")),
-                caption:   Some(Box::new(Content::text("cap3"))),
-                kind:      Some("image".to_string()),
-                numbering: Some("1".to_string()),
-            },
+            Content::figure(Content::text("img1"), Some(Content::text("cap1")), Some("image".to_string()), Some("1".to_string())),
+            Content::figure(Content::text("tab1"), Some(Content::text("cap2")), Some("table".to_string()), Some("1".to_string())),
+            Content::figure(Content::text("img2"), Some(Content::text("cap3")), Some("image".to_string()), Some("1".to_string())),
         ].into());
 
         let intr = introspect_with_introspector(&doc);
@@ -1675,12 +1633,7 @@ mod tests {
         // P158B §8.2: lang None → fallback PT (backwards compat).
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
-        let figure = Content::Figure {
-            body: Box::new(Content::text("body")),
-            caption: Some(Box::new(Content::text("caption"))),
-            kind: Some("image".to_string()),
-            numbering: Some("1".to_string()),
-        };
+        let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".to_string()), Some("1".to_string()));
         let labelled = Content::Labelled {
             target: Box::new(figure),
             label: label.clone(),
@@ -1697,12 +1650,7 @@ mod tests {
     fn figure_label_lang_pt_image_devolve_figura() {
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
-        let figure = Content::Figure {
-            body: Box::new(Content::text("body")),
-            caption: Some(Box::new(Content::text("caption"))),
-            kind: Some("image".to_string()),
-            numbering: Some("1".to_string()),
-        };
+        let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".to_string()), Some("1".to_string()));
         let labelled = Content::Labelled {
             target: Box::new(figure),
             label: label.clone(),
@@ -1718,12 +1666,7 @@ mod tests {
     fn figure_label_lang_en_table_devolve_table() {
         use crate::entities::label::Label;
         let label = Label("tab1".to_string());
-        let figure = Content::Figure {
-            body: Box::new(Content::text("body")),
-            caption: Some(Box::new(Content::text("caption"))),
-            kind: Some("table".to_string()),
-            numbering: Some("1".to_string()),
-        };
+        let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("table".to_string()), Some("1".to_string()));
         let labelled = Content::Labelled {
             target: Box::new(figure),
             label: label.clone(),
@@ -1739,12 +1682,7 @@ mod tests {
     fn figure_label_lang_de_raw_devolve_listing() {
         use crate::entities::label::Label;
         let label = Label("lst1".to_string());
-        let figure = Content::Figure {
-            body: Box::new(Content::text("body")),
-            caption: Some(Box::new(Content::text("caption"))),
-            kind: Some("raw".to_string()),
-            numbering: Some("1".to_string()),
-        };
+        let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("raw".to_string()), Some("1".to_string()));
         let labelled = Content::Labelled {
             target: Box::new(figure),
             label: label.clone(),
@@ -1761,12 +1699,7 @@ mod tests {
         // P158B §8.2: lang desconhecido (zh) → fallback PT.
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
-        let figure = Content::Figure {
-            body: Box::new(Content::text("body")),
-            caption: Some(Box::new(Content::text("caption"))),
-            kind: Some("image".to_string()),
-            numbering: Some("1".to_string()),
-        };
+        let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".to_string()), Some("1".to_string()));
         let labelled = Content::Labelled {
             target: Box::new(figure),
             label: label.clone(),
@@ -1784,12 +1717,7 @@ mod tests {
         // P158B §6: kind desconhecido devolve string capitalizada.
         use crate::entities::label::Label;
         let label = Label("custom1".to_string());
-        let figure = Content::Figure {
-            body: Box::new(Content::text("body")),
-            caption: Some(Box::new(Content::text("caption"))),
-            kind: Some("custom".to_string()),
-            numbering: Some("1".to_string()),
-        };
+        let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("custom".to_string()), Some("1".to_string()));
         let labelled = Content::Labelled {
             target: Box::new(figure),
             label: label.clone(),
@@ -1808,24 +1736,9 @@ mod tests {
         // independentes; supplement P158B não interfere.
         use std::sync::Arc;
         let content = Content::Sequence(Arc::from(vec![
-            Content::Figure {
-                body: Box::new(Content::text("body1")),
-                caption: Some(Box::new(Content::text("c1"))),
-                kind: Some("image".to_string()),
-                numbering: Some("1".to_string()),
-            },
-            Content::Figure {
-                body: Box::new(Content::text("body2")),
-                caption: Some(Box::new(Content::text("c2"))),
-                kind: Some("table".to_string()),
-                numbering: Some("1".to_string()),
-            },
-            Content::Figure {
-                body: Box::new(Content::text("body3")),
-                caption: Some(Box::new(Content::text("c3"))),
-                kind: Some("image".to_string()),
-                numbering: Some("1".to_string()),
-            },
+            Content::figure(Content::text("body1"), Some(Content::text("c1")), Some("image".to_string()), Some("1".to_string())),
+            Content::figure(Content::text("body2"), Some(Content::text("c2")), Some("table".to_string()), Some("1".to_string())),
+            Content::figure(Content::text("body3"), Some(Content::text("c3")), Some("image".to_string()), Some("1".to_string())),
         ]));
         let intr = introspect_with_introspector(&content);
         assert_eq!((0..).map_while(|i| intr.figure_number_at_index("image", i)).collect::<Vec<_>>(),
@@ -1845,12 +1758,7 @@ mod tests {
             vec![
                 Content::Labelled {
                     label:  Label("f_none".to_string()),
-                    target: Box::new(Content::Figure {
-                        body:      Box::new(Content::text("body sem kind explícito")),
-                        caption:   Some(Box::new(Content::text("legenda"))),
-                        kind:      None,  // P158C: novo caso
-                        numbering: Some("1".to_string()),
-                    }),
+                    target: Box::new(Content::figure(Content::text("body sem kind explícito"), Some(Content::text("legenda")), None, Some("1".to_string()))),
                 },
             ]
             .into(),
@@ -1926,12 +1834,7 @@ mod tests {
     #[test]
     fn walk_aninha_start_end_para_heading_contendo_figure() {
         // Heading com Figure aninhada no body.
-        let figure = Content::Figure {
-            body:      Box::new(Content::Empty),
-            caption:   Some(Box::new(Content::text("cap"))),
-            kind:      Some("image".into()),
-            numbering: Some("1".into()),
-        };
+        let figure = Content::figure(Content::Empty, Some(Content::text("cap")), Some("image".into()), Some("1".into()));
         let h = Content::heading(1, figure);
         let tags = introspect_with_tags(&h);
         // P200B: heading emite 6 tags + figura emite 2 tags = 8 tags.
@@ -2010,12 +1913,7 @@ mod tests {
             vec![
                 Content::SetHeadingNumbering { active: true },
                 Content::heading(1, Content::text("Capítulo")),
-                Content::Figure {
-                    body:      Box::new(Content::Empty),
-                    caption:   Some(Box::new(Content::text("legenda"))),
-                    kind:      Some("image".into()),
-                    numbering: Some("1".into()),
-                },
+                Content::figure(Content::Empty, Some(Content::text("legenda")), Some("image".into()), Some("1".into())),
                 Content::heading(2, Content::text("Secção")),
                 Content::cite("smith2024", None, None),
             ]
@@ -2044,12 +1942,7 @@ mod tests {
         // overlapping. Headings emitem tags; figures aninhadas no
         // caption também.
         let inner_h = Content::heading(2, Content::text("inner"));
-        let figure_with_h = Content::Figure {
-            body:      Box::new(inner_h),
-            caption:   Some(Box::new(Content::text("cap"))),
-            kind:      Some("image".into()),
-            numbering: Some("1".into()),
-        };
+        let figure_with_h = Content::figure(inner_h, Some(Content::text("cap")), Some("image".into()), Some("1".into()));
         let outer_h = Content::heading(1, figure_with_h);
         let tags = introspect_with_tags(&outer_h);
 
@@ -2184,24 +2077,9 @@ mod tests {
         // P163 .D.2: walk sobre Content com 3 figures (kind variados).
         let content = Content::Sequence(
             vec![
-                Content::Figure {
-                    body:      Box::new(Content::Empty),
-                    caption:   Some(Box::new(Content::text("c1"))),
-                    kind:      Some("image".into()),
-                    numbering: Some("1".into()),
-                },
-                Content::Figure {
-                    body:      Box::new(Content::Empty),
-                    caption:   Some(Box::new(Content::text("c2"))),
-                    kind:      Some("table".into()),
-                    numbering: Some("1".into()),
-                },
-                Content::Figure {
-                    body:      Box::new(Content::Empty),
-                    caption:   Some(Box::new(Content::text("c3"))),
-                    kind:      None,
-                    numbering: Some("1".into()),
-                },
+                Content::figure(Content::Empty, Some(Content::text("c1")), Some("image".into()), Some("1".into())),
+                Content::figure(Content::Empty, Some(Content::text("c2")), Some("table".into()), Some("1".into())),
+                Content::figure(Content::Empty, Some(Content::text("c3")), None, Some("1".into())),
             ]
             .into(),
         );
@@ -2326,18 +2204,9 @@ mod tests {
         // P165 .G.2: 3 figures (kind variados) → introspector indexa 3.
         let content = Content::Sequence(
             vec![
-                Content::Figure {
-                    body: Box::new(Content::Empty), caption: Some(Box::new(Content::text("c1"))),
-                    kind: Some("image".into()), numbering: Some("1".into()),
-                },
-                Content::Figure {
-                    body: Box::new(Content::Empty), caption: Some(Box::new(Content::text("c2"))),
-                    kind: Some("table".into()), numbering: Some("1".into()),
-                },
-                Content::Figure {
-                    body: Box::new(Content::Empty), caption: Some(Box::new(Content::text("c3"))),
-                    kind: None, numbering: Some("1".into()),
-                },
+                Content::figure(Content::Empty, Some(Content::text("c1")), Some("image".into()), Some("1".into())),
+                Content::figure(Content::Empty, Some(Content::text("c2")), Some("table".into()), Some("1".into())),
+                Content::figure(Content::Empty, Some(Content::text("c3")), None, Some("1".into())),
             ]
             .into(),
         );
@@ -2413,10 +2282,7 @@ mod tests {
     fn introspector_query_first_e_query_unique() {
         // P165 .G.5: walk com 1 Figure → query_first e query_unique retornam Some.
         // walk com 2 Figures → query_first retorna Some(loc1), query_unique None.
-        let single_figure = Content::Figure {
-            body: Box::new(Content::Empty), caption: Some(Box::new(Content::text("c"))),
-            kind: Some("image".into()), numbering: Some("1".into()),
-        };
+        let single_figure = Content::figure(Content::Empty, Some(Content::text("c")), Some("image".into()), Some("1".into()));
         let intr1 = introspect_with_introspector(&single_figure);
         assert!(intr1.query_first(ElementKind::Figure).is_some());
         assert!(intr1.query_unique(ElementKind::Figure).is_some());
@@ -2427,14 +2293,8 @@ mod tests {
 
         let two_figures = Content::Sequence(
             vec![
-                Content::Figure {
-                    body: Box::new(Content::Empty), caption: Some(Box::new(Content::text("c1"))),
-                    kind: Some("image".into()), numbering: Some("1".into()),
-                },
-                Content::Figure {
-                    body: Box::new(Content::Empty), caption: Some(Box::new(Content::text("c2"))),
-                    kind: Some("table".into()), numbering: Some("1".into()),
-                },
+                Content::figure(Content::Empty, Some(Content::text("c1")), Some("image".into()), Some("1".into())),
+                Content::figure(Content::Empty, Some(Content::text("c2")), Some("table".into()), Some("1".into())),
             ]
             .into(),
         );
@@ -2489,12 +2349,7 @@ mod tests {
             vec![
                 Content::heading(1, Content::text("a")),
                 Content::heading(2, Content::text("b")),
-                Content::Figure {
-                    body:      Box::new(Content::Empty),
-                    caption:   Some(Box::new(Content::text("cap"))),
-                    kind:      Some("image".into()),
-                    numbering: Some("1".into()),
-                },
+                Content::figure(Content::Empty, Some(Content::text("cap")), Some("image".into()), Some("1".into())),
             ]
             .into(),
         );
@@ -2929,12 +2784,7 @@ mod tests {
         // P197B test 1: confirma que o caminho Introspector para figure
         // numbering já está activo desde P184. Independente de P197B —
         // cenário α (P197A diagnóstico §5).
-        let content = Content::Figure {
-            body:      Box::new(Content::Empty),
-            caption:   Some(Box::new(Content::text("Cap"))),
-            kind:      Some("image".into()),
-            numbering: Some("1".to_string()),
-        };
+        let content = Content::figure(Content::Empty, Some(Content::text("Cap")), Some("image".into()), Some("1".to_string()));
         let intr = introspect_with_introspector(&content);
 
         // Consumer C3 path (P184D): figure_number_at_index retorna Some.
@@ -2955,18 +2805,8 @@ mod tests {
         // eliminado.
         let content = Content::Sequence(
             vec![
-                Content::Figure {
-                    body:      Box::new(Content::Empty),
-                    caption:   Some(Box::new(Content::text("c1"))),
-                    kind:      Some("image".into()),
-                    numbering: Some("1".to_string()),
-                },
-                Content::Figure {
-                    body:      Box::new(Content::Empty),
-                    caption:   Some(Box::new(Content::text("c2"))),
-                    kind:      Some("image".into()),
-                    numbering: Some("1".to_string()),
-                },
+                Content::figure(Content::Empty, Some(Content::text("c1")), Some("image".into()), Some("1".to_string())),
+                Content::figure(Content::Empty, Some(Content::text("c2")), Some("image".into()), Some("1".to_string())),
             ]
             .into(),
         );
@@ -2985,12 +2825,7 @@ mod tests {
         // P197B test 3 (P190H adapted): confirma paridade Introspector
         // path puro após eliminação fields legacy. Caminho Introspector
         // (P184D) é única fonte da verdade.
-        let content = Content::Figure {
-            body:      Box::new(Content::Empty),
-            caption:   Some(Box::new(Content::text("Cap"))),
-            kind:      Some("table".into()),
-            numbering: Some("1".to_string()),
-        };
+        let content = Content::figure(Content::Empty, Some(Content::text("Cap")), Some("table".into()), Some("1".to_string()));
         let intr = introspect_with_introspector(&content);
 
         let intr_num = intr.figure_number_at_index("table", 0);
@@ -3004,12 +2839,7 @@ mod tests {
         // = false → populate_intr arm Figure (gated por is_counted)
         // NÃO popula intr.counters. Field state.figure_numbers e
         // state.local_figure_counters eliminados.
-        let figura_sem_caption = Content::Figure {
-            body:      Box::new(Content::Empty),
-            caption:   None, // ← sem caption: is_counted = false
-            kind:      Some("image".into()),
-            numbering: Some("1".to_string()),
-        };
+        let figura_sem_caption = Content::figure(Content::Empty, None, Some("image".into()), Some("1".to_string()));
         let intr = introspect_with_introspector(&figura_sem_caption);
 
         // intr.counters["figure:image"] não populated — gate is_counted.
@@ -3028,12 +2858,7 @@ mod tests {
         // intr.figure_label_numbers.
         let content = Content::Labelled {
             label:  Label("fig1".to_string()),
-            target: Box::new(Content::Figure {
-                body:      Box::new(Content::Empty),
-                caption:   Some(Box::new(Content::text("Cap"))),
-                kind:      Some("image".into()),
-                numbering: Some("1".to_string()),
-            }),
+            target: Box::new(Content::figure(Content::Empty, Some(Content::text("Cap")), Some("image".into()), Some("1".to_string()))),
         };
         let intr = introspect_with_introspector(&content);
 
@@ -3078,30 +2903,10 @@ mod tests {
 
         use crate::rules::introspect::extract_payload::extract_payload;
 
-        let caso1 = Content::Figure {
-            body:      Box::new(Content::text("img")),
-            caption:   None,
-            kind:      None,
-            numbering: Some("1".to_string()),
-        };
-        let caso2 = Content::Figure {
-            body:      Box::new(Content::text("img")),
-            caption:   Some(Box::new(Content::text("c"))),
-            kind:      None,
-            numbering: Some("1".to_string()),
-        };
-        let caso3 = Content::Figure {
-            body:      Box::new(Content::text("t")),
-            caption:   Some(Box::new(Content::text("c"))),
-            kind:      Some("table".to_string()),
-            numbering: Some("1".to_string()),
-        };
-        let caso4 = Content::Figure {
-            body:      Box::new(Content::text("t")),
-            caption:   None,
-            kind:      Some("table".to_string()),
-            numbering: Some("1".to_string()),
-        };
+        let caso1 = Content::figure(Content::text("img"), None, None, Some("1".to_string()));
+        let caso2 = Content::figure(Content::text("img"), Some(Content::text("c")), None, Some("1".to_string()));
+        let caso3 = Content::figure(Content::text("t"), Some(Content::text("c")), Some("table".to_string()), Some("1".to_string()));
+        let caso4 = Content::figure(Content::text("t"), None, Some("table".to_string()), Some("1".to_string()));
 
         // (a) `extract_payload` preserva `kind` literalmente (sem default
         //     — lacuna #1 fecha porque tag preserva None vs Some("image")
@@ -3797,12 +3602,7 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::heading(1, Content::text("h")),
-                Content::Figure {
-                    body:      Box::new(Content::Empty),
-                    caption:   Some(Box::new(Content::text("c"))),
-                    kind:      Some("image".to_string()),
-                    numbering: Some("1".to_string()),
-                },
+                Content::figure(Content::Empty, Some(Content::text("c")), Some("image".to_string()), Some("1".to_string())),
                 Content::cite("k".to_string(), None, None),
             ]
             .into(),

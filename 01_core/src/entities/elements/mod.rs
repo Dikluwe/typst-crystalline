@@ -91,6 +91,8 @@ pub mod table_cell;
 pub mod table;
 pub mod grid_cell;
 pub mod grid;
+// Lote 13 P328 — o último element-shaped.
+pub mod figure;
 
 use crate::entities::content::Content;
 use crate::entities::element_kind::ElementKind;

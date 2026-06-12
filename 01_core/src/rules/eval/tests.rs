@@ -2140,7 +2140,7 @@ mod tests {
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve ter content");
-        assert!(matches!(content, Content::Figure { caption: Some(_), .. }),
+        assert!(matches!(content, Content::Figure(e)),
             "figure() com caption deve produzir Content::Figure com caption: {:?}", content);
     }
 
@@ -2152,7 +2152,7 @@ mod tests {
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().unwrap();
-        assert!(matches!(content, Content::Figure { .. }));
+        assert!(matches!(content, Content::Figure(e)));
     }
 
     #[test]
@@ -2178,7 +2178,7 @@ mod tests {
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().unwrap();
-        assert!(matches!(content, Content::Figure { caption: None, .. }),
+        assert!(matches!(content, Content::Figure(e)),
             "figure() sem caption deve ter caption None: {:?}", content);
     }
 

@@ -1860,7 +1860,7 @@ mod tests {
             Value::Content(caption_content),
         );
         let result = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(result, Value::Content(Content::Figure { caption: Some(_), .. })),
+        assert!(matches!(&result, Value::Content(Content::Figure(e)) if e.caption.is_some()),
             "figure com caption deve ter Some(caption): {:?}", result);
     }
 
@@ -1871,7 +1871,7 @@ mod tests {
         let body_content = Content::text("Diagrama");
         let args = p(vec![Value::Content(body_content)]);
         let result = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(result, Value::Content(Content::Figure { caption: None, .. })),
+        assert!(matches!(&result, Value::Content(Content::Figure(e)) if e.caption.is_none()),
             "figure sem caption deve ter None: {:?}", result);
     }
 
@@ -1883,7 +1883,7 @@ mod tests {
         let body_content = Content::text("Corpo");
         let args = pn(vec![Value::Content(body_content)], "caption", Value::None);
         let result = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        assert!(matches!(result, Value::Content(Content::Figure { caption: None, .. })),
+        assert!(matches!(&result, Value::Content(Content::Figure(e)) if e.caption.is_none()),
             "figure com caption: none deve ter caption None");
     }
 
@@ -1907,8 +1907,8 @@ mod tests {
         let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None);
         let args = p(vec![Value::Content(img)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Figure { kind, .. }) = r {
-            assert_eq!(kind.as_deref(), Some("image"), "auto-detect Image → kind=Some(\"image\")");
+        if let Value::Content(Content::Figure(e)) = r {
+            assert_eq!(e.kind.as_deref(), Some("image"), "auto-detect Image → kind=Some(\"image\")");
         } else {
             panic!("esperado Content::Figure");
         }
@@ -1923,8 +1923,8 @@ mod tests {
         let tab = Content::table(vec![TrackSizing::Auto], vec![], vec![]);
         let args = p(vec![Value::Content(tab)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Figure { kind, .. }) = r {
-            assert_eq!(kind.as_deref(), Some("table"), "auto-detect Table → kind=Some(\"table\")");
+        if let Value::Content(Content::Figure(e)) = r {
+            assert_eq!(e.kind.as_deref(), Some("table"), "auto-detect Table → kind=Some(\"table\")");
         } else {
             panic!("esperado Content::Figure");
         }
@@ -1938,8 +1938,8 @@ mod tests {
         let raw = Content::raw("fn x() {}", None, false);
         let args = p(vec![Value::Content(raw)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Figure { kind, .. }) = r {
-            assert_eq!(kind.as_deref(), Some("raw"), "auto-detect Raw → kind=Some(\"raw\")");
+        if let Value::Content(Content::Figure(e)) = r {
+            assert_eq!(e.kind.as_deref(), Some("raw"), "auto-detect Raw → kind=Some(\"raw\")");
         } else {
             panic!("esperado Content::Figure");
         }
@@ -1956,8 +1956,8 @@ mod tests {
         let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None);
         let args = pn(vec![Value::Content(img)], "kind", Value::Str("custom-kind".into()));
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Figure { kind, .. }) = r {
-            assert_eq!(kind.as_deref(), Some("custom-kind"),
+        if let Value::Content(Content::Figure(e)) = r {
+            assert_eq!(e.kind.as_deref(), Some("custom-kind"),
                 "kind explícito vence auto-detecção (precedência absoluta)");
         } else {
             panic!("esperado Content::Figure");
@@ -1975,8 +1975,8 @@ mod tests {
         let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None);
         let args = pn(vec![Value::Content(img)], "kind", Value::Auto);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Figure { kind, .. }) = r {
-            assert!(kind.is_none(),
+        if let Value::Content(Content::Figure(e)) = r {
+            assert!(e.kind.is_none(),
                 "kind=auto explícito produz None (Caso A); auto-detect ignorado quando explícito");
         } else {
             panic!("esperado Content::Figure");
@@ -1992,8 +1992,8 @@ mod tests {
         use crate::entities::content::Content;
         let args = p(vec![Value::Content(Content::text("apenas texto"))]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Figure { kind, .. }) = r {
-            assert!(kind.is_none(),
+        if let Value::Content(Content::Figure(e)) = r {
+            assert!(e.kind.is_none(),
                 "body Text sem auto-detect produz kind=None (default 'image' resolvido em uso)");
         } else {
             panic!("esperado Content::Figure");
@@ -2017,8 +2017,8 @@ mod tests {
         ]));
         let args = p(vec![Value::Content(seq)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id(), None).unwrap();
-        if let Value::Content(Content::Figure { kind, .. }) = r {
-            assert_eq!(kind.as_deref(), Some("image"),
+        if let Value::Content(Content::Figure(e)) = r {
+            assert_eq!(e.kind.as_deref(), Some("image"),
                 "Sequence com Image dentro auto-detecta Some(\"image\") via recursão");
         } else {
             panic!("esperado Content::Figure");

@@ -17,7 +17,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 pub(super) fn layout_figure<M: FontMetrics, S: ImageSizer>(
     layouter:       &mut Layouter<M, S>,
     body:           &Content,
-    caption:        &Option<Box<Content>>,
+    caption:        &Option<Content>,
     caption_prefix: Option<String>,
 ) {
     // 1. Desenhar o corpo da figura.
@@ -31,7 +31,7 @@ pub(super) fn layout_figure<M: FontMetrics, S: ImageSizer>(
             let caption_block = Content::Sequence(
                 vec![
                     Content::text(prefix),
-                    *cap.clone(),
+                    cap.clone(),
                 ]
                 .into(),
             );

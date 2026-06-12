@@ -218,9 +218,10 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
 
 ## Contabilidade de variantes (o roteiro dos lotes — atualizar a CADA lote)
 
-`Content` tem **77 variantes** (baseline P313). Estado em **P327** (Lote 12 incluído):
+`Content` tem **77 variantes** (baseline P313). Estado em **P328** (Lote 13 incluído
+— **fim da fase de lotes**):
 
-### Migradas para o modelo D — 61
+### Migradas para o modelo D — 62
 
 - **P316 piloto (3)**: `Divider`, `Heading` (locatável), `MathStyled`.
 - **Lote 2 P317 — math (11)**: `MathCases`, `MathMatrix`, `MathAlignPoint`,
@@ -302,6 +303,17 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   densos (constrsolver só toma 5 de 10); usado `Arc::new(Elem{…})` direto com
   caminho qualificado (sem novos imports). `content.rs` **−238** (encolhimento
   grande esperado — arms verbosos das 4).
+- **Lote 13 P328 — `Figure` (1; o último element-shaped)**: **locatável M1**
+  (junto de Heading/Cite) — absorve `element_kind`/`to_payload`. Contentor
+  (recurse body+caption, **simétrico**; precedente Quote L8). **Derive Hash**
+  (`Content`+`Option<String>`, sem floats). Construtor `figure` cobre os 4
+  campos → transformador usa `Content::figure(…)` (regra C2 não dispara).
+  `figure_image.rs::infer_kind_from_body` inalterado (matcheia o body, não
+  Figure); `layout_figure` mudou `caption: &Option<Box<Content>>` →
+  `&Option<Content>`. `get_field` "body" **fica no hub** (arm próprio, não
+  absorvido — content-preserving). **Fim da fase de lotes**: element-shaped
+  esgotam (restantes 0); **gatilho do DEBT-58 disparado** (ver
+  `dossie-triagem-debt-58.md`).
 
 ### Fora de lote — decisão própria
 
@@ -314,18 +326,16 @@ do relatório de **todo** lote — o roteiro mora no repo, não em conversa).
   `Styled` (58), `Boxed` (58), `Labelled` (55); **observação** (leaf, candidato
   à triagem): `Text` (40).
 
-### Element-shaped restantes — 1 (o Lote 13, por largura)
+### Element-shaped restantes — 0 (fase de lotes encerrada)
 
-(O Lote 12 P327 — bloco grid/table cell TableCell/Table/GridCell/Grid, 4
-variantes, ~193 sites — saiu daqui.)
+(O Lote 13 P328 — `Figure` — saiu daqui; **era o último**.)
 
-`Figure`89.
+**Nenhum.** Os element-shaped esgotaram no L13. O **gatilho do DEBT-58
+disparou** — a triagem dos primitivos/wrappers é o passo seguinte (conversa de
+desenho, não lote); dossiê em `dossie-triagem-debt-58.md`.
 
-> **`Figure` (L13, o último element-shaped)**: ao fechar, **dispara o gatilho
-> do DEBT-58** (triagem dos primitivos de AST — conversa de desenho, não lote).
+### Estimativa — encerrada
 
-### Estimativa
-
-**1 element-shaped restante** (`Figure`) → **Lote 13**, o último. Conta: 61
-migradas + 4 `Set*` + 11 (DEBT-58: 6 + Space + 3 wrappers + Text) + 1 restante
-= 77. ✓
+**0 element-shaped restantes.** Conta final da fase de lotes: **62 migradas** +
+4 `Set*` (→ F/99.E) + 11 (DEBT-58: 6 primitivos + `Space` + 3 wrappers + `Text`)
+= **77**. ✓ Fase de lotes (piloto P316 + Lotes 2–13) **completa**.

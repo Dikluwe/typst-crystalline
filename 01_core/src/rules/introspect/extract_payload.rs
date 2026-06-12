@@ -21,14 +21,8 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         // Modelo D (P316): absorção do locatável — o elemento fornece o payload.
         Content::Heading(h) => h.to_payload(),
 
-        Content::Figure { kind, numbering, caption, .. } => Some(ElementPayload::Figure {
-            kind:           kind.clone(),
-            counter_update: CounterUpdate::Step,
-            // P168 (M5 sub-passo 2): figura conta para numeração apenas
-            // se tiver `numbering` E `caption` (paridade com walk arm
-            // `Content::Labelled` em introspect.rs:366).
-            is_counted:     numbering.is_some() && caption.is_some(),
-        }),
+        // Modelo D (Lote 13 P328): Figure locatável delega ao elemento.
+        Content::Figure(e) => e.to_payload(),
 
         // Modelo D (Lote 9 P324): Cite locatável delega ao elemento.
         Content::Cite(e) => e.to_payload(),
@@ -127,12 +121,7 @@ mod tests {
 
     #[test]
     fn figure_produz_some_payload() {
-        let c = Content::Figure {
-            body:      Box::new(Content::Empty),
-            caption:   None,
-            kind:      Some("image".into()),
-            numbering: None,
-        };
+        let c = Content::figure(Content::Empty, None, Some("image".into()), None);
         match extract_payload(&c) {
             Some(ElementPayload::Figure { kind, counter_update, is_counted: _ }) => {
                 assert_eq!(kind, Some("image".to_string()));
@@ -144,12 +133,7 @@ mod tests {
 
     #[test]
     fn figure_kind_none_preserva_none() {
-        let c = Content::Figure {
-            body:      Box::new(Content::Empty),
-            caption:   None,
-            kind:      None,
-            numbering: None,
-        };
+        let c = Content::figure(Content::Empty, None, None, None);
         match extract_payload(&c) {
             Some(ElementPayload::Figure { kind, .. }) => assert_eq!(kind, None),
             other => panic!("esperado Some(Figure), obtido {other:?}"),

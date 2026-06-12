@@ -852,7 +852,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 62/75 — Figure: delegado a figure.rs com kind/numbering (DEBT-14/15).
             // Passo 158C: kind é Option<String>; resolver default "image"
             // em uso (paridade introspect.rs walk arm).
-            Content::Figure { body, caption, kind, numbering } => {
+            Content::Figure(e) => {
+                let (body, caption, kind, numbering) = (&e.body, &e.caption, &e.kind, &e.numbering);
                 // Calcular o prefixo de numeração antes de chamar layout_figure.
                 let caption_prefix: Option<String> = if let Some(_pattern) = numbering {
                     let kind_key = kind.as_deref().unwrap_or("image");

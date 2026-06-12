@@ -67,10 +67,10 @@ pub fn native_figure(ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     // Argumento nomeado: caption (opcional)
     // Value::None → ausência de legenda (comportamento intencional).
     let caption = args.named.get("caption").and_then(|v| match v {
-        Value::Content(c) => Some(Box::new(c.clone())),
-        Value::Str(s)     => Some(Box::new(Content::text(s.as_str()))),
+        Value::Content(c) => Some(c.clone()),
+        Value::Str(s)     => Some(Content::text(s.as_str())),
         Value::None       => None,
-        other             => Some(Box::new(Content::text(other.type_name()))),
+        other             => Some(Content::text(other.type_name())),
     });
 
     // Argumento nomeado: kind (Passo 75 DEBT-15; P158A auto-detect;
@@ -89,12 +89,7 @@ pub fn native_figure(ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     // Reflecte o estado activo de `#set figure(numbering: ...)` no momento da chamada.
     let numbering = figure_numbering.map(str::to_string);
 
-    Ok(Value::Content(Content::Figure {
-        body: Box::new(body),
-        caption,
-        kind,
-        numbering,
-    }))
+    Ok(Value::Content(Content::figure(body, caption, kind, numbering)))
 }
 
 // ── `image()` — carregamento de imagens do disco (Passo 71, DEBT-24) ─────────

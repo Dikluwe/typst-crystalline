@@ -21,7 +21,7 @@ pub fn is_locatable(content: &Content) -> bool {
     match content {
         // ── Locatable em M1 ──────────────────────────────────────────
         Content::Heading(_) => true,
-        Content::Figure  { .. } => true,
+        Content::Figure(_) => true,
         Content::Cite    { .. } => true,
 
         // ── Locatable em M9 (P169) — Metadata é queriable ──────────
@@ -194,12 +194,7 @@ mod tests {
 
     #[test]
     fn figure_e_locatable() {
-        let c = Content::Figure {
-            body:      Box::new(Content::Empty),
-            caption:   None,
-            kind:      None,
-            numbering: None,
-        };
+        let c = Content::figure(Content::Empty, None, None, None);
         assert!(is_locatable(&c));
     }
 
@@ -256,7 +251,7 @@ mod tests {
         vec![
             // Locatable (3)
             Content::heading(1, Content::Empty),
-            Content::Figure { body: Box::new(Content::Empty), caption: None, kind: None, numbering: None },
+            Content::figure(Content::Empty, None, None, None),
             Content::cite("k", None, None),
             // Não-locatable: amostra representativa
             Content::Empty,

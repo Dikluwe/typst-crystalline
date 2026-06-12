@@ -1195,12 +1195,7 @@ fn layout_outline_heading_nivel2_tem_indentacao() {
 
 #[test]
 fn layout_figure_com_caption_tem_prefixo() {
-    let content = Content::Figure {
-        body:      Box::new(Content::text("Gráfico")),
-        caption:   Some(Box::new(Content::text("Resultados"))),
-        kind:      Some("image".to_string()),
-        numbering: Some("1".to_string()),
-    };
+    let content = Content::figure(Content::text("Gráfico"), Some(Content::text("Resultados")), Some("image".to_string()), Some("1".to_string()));
 
     let state = introspect(&content);
     let doc = layout(&content);
@@ -1213,12 +1208,7 @@ fn layout_figure_com_caption_tem_prefixo() {
 
 #[test]
 fn layout_figure_sem_caption_sem_prefixo() {
-    let content = Content::Figure {
-        body:      Box::new(Content::text("Diagrama")),
-        caption:   None,
-        kind:      Some("image".to_string()),
-        numbering: Some("1".to_string()),
-    };
+    let content = Content::figure(Content::text("Diagrama"), None, Some("image".to_string()), Some("1".to_string()));
 
     let state = introspect(&content);
     let doc = layout(&content);
@@ -1236,12 +1226,7 @@ fn layout_ref_para_figura_resolve_corretamente() {
         vec![
             Content::Labelled {
                 label:  Label("fig1".to_string()),
-                target: Box::new(Content::Figure {
-                    body:      Box::new(Content::text("Gráfico")),
-                    caption:   Some(Box::new(Content::text("Legenda"))),
-                    kind:      Some("image".to_string()),
-                    numbering: Some("1".to_string()),
-                }),
+                target: Box::new(Content::figure(Content::text("Gráfico"), Some(Content::text("Legenda")), Some("image".to_string()), Some("1".to_string()))),
             },
             Content::text(" — ver "),
             Content::reference(Label("fig1".to_string())),
@@ -7236,12 +7221,7 @@ mod p168_figure_ref_migration {
     use crate::rules::introspect::introspect_with_introspector;
 
     fn doc_figure_with_ref(label_str: &str, kind: Option<String>, with_caption: bool, with_numbering: bool) -> Content {
-        let figure = Content::Figure {
-            body:      Box::new(Content::text("body")),
-            caption:   if with_caption { Some(Box::new(Content::text("cap"))) } else { None },
-            kind,
-            numbering: if with_numbering { Some("1".into()) } else { None },
-        };
+        let figure = Content::figure(Content::text("body"), if with_caption { Some(Content::text("cap")) } else { None }, kind, if with_numbering { Some("1".into()) } else { None });
         Content::Sequence(
             vec![
                 Content::Labelled {
@@ -7957,12 +7937,7 @@ mod p184e_figure_per_kind {
 
     /// Helper: figure numerada+captioned com kind dado.
     fn figure(kind: Option<&str>, caption_text: &str) -> Content {
-        Content::Figure {
-            body:      Box::new(Content::text("body")),
-            caption:   Some(Box::new(Content::text(caption_text))),
-            kind:      kind.map(|s| s.to_string()),
-            numbering: Some("1".into()),
-        }
+        Content::figure(Content::text("body"), Some(Content::text(caption_text)), kind.map(|s| s.to_string()), Some("1".into()))
     }
 
     /// Documento típico: 3 figures `kind: image` numeradas+captioned.
@@ -8165,12 +8140,7 @@ mod p185d_locator_sync {
         // Locator (sincronização-por-construção, ADR-0068 mecanismo M3).
         let parts = vec![
             Content::heading(1, Content::Empty),
-            Content::Figure {
-                body:      Box::new(Content::Empty),
-                caption:   None,
-                kind:      None,
-                numbering: None,
-            },
+            Content::figure(Content::Empty, None, None, None),
             Content::cite("k".to_string(), None, None),
         ];
         let content = Content::Sequence(Arc::from(parts.clone()));
@@ -8202,12 +8172,7 @@ mod p185d_locator_sync {
         let parts = vec![
             Content::heading(1, Content::Empty),
             Content::text("plain"),
-            Content::Figure {
-                body:      Box::new(Content::Empty),
-                caption:   None,
-                kind:      None,
-                numbering: None,
-            },
+            Content::figure(Content::Empty, None, None, None),
             Content::equation(Content::Empty, false),
             Content::cite("k".to_string(), None, None),
         ];
@@ -8651,12 +8616,7 @@ mod p189b_walk_puro_m5 {
         // intr.counters["figure:image"] via populate_intr arm Figure
         // (P191C, gated por is_counted). Field legacy
         // `state.figure_numbers` eliminado.
-        let content = Content::Figure {
-            body:      Box::new(Content::Empty),
-            caption:   Some(Box::new(Content::text("cap"))),
-            kind:      Some("image".into()),
-            numbering: Some("1".into()),
-        };
+        let content = Content::figure(Content::Empty, Some(Content::text("cap")), Some("image".into()), Some("1".into()));
         let intr = introspect_with_introspector(&content);
         assert_eq!(intr.figure_number_at_index("image", 0), Some(1),
             "E3: intr.figure_number_at_index(image, 0) = 1 via populate_intr");
@@ -8892,12 +8852,7 @@ mod p195d_walk_labelled {
     fn labelled_figure_target_popula_figure_label_numbers() {
         let content = Content::Sequence(Arc::from(vec![
             Content::Labelled {
-                target: Box::new(Content::Figure {
-                    body:      Box::new(Content::text("body")),
-                    caption:   Some(Box::new(Content::text("caption"))),
-                    kind:      Some("image".into()),
-                    numbering: Some("1".into()),
-                }),
+                target: Box::new(Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".into()), Some("1".into()))),
                 label:  lbl("fig1"),
             },
         ]));
