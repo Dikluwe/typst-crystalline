@@ -9,7 +9,8 @@ use std::time::Instant;
 
 use callout::Callout;
 use core::{
-    apply_show, query, Content, PropMap, Registry, ShowRule, StyleChain, Value,
+    query, realize, Content, PropMap, Recipe, Registry, ShowChain, StyleChain,
+    Value,
 };
 
 // ---------------------------------------------------------------------------
@@ -30,18 +31,14 @@ fn set_callout_tone(chain: &StyleChain, tone: &str) -> StyleChain {
     chain.set(Callout::KIND, props)
 }
 
-/// 3) `#show callout: it => it.with(tone: "danger")` — a transform fn.
-/// STUB: real #show takes a closure with full element access and can return
-/// arbitrary content; here it's a fixed `fn(&Content)->Content`. (limit)
-fn show_rule_force_danger() -> ShowRule {
-    ShowRule {
-        kind: Callout::KIND,
-        transform: |c| match c {
-            Content::Dynamic(e) => Content::dynamic(
-                e.with_prop("tone", Value::Str("danger".into())),
-            ),
-            other => other.clone(),
-        },
+/// Helper for show rules that override a callout's `tone` own-prop.
+/// `c` may be a guarded node — peel it to reach the real element.
+fn force_tone(c: &Content, tone: &str) -> Content {
+    match c.peeled() {
+        Content::Dynamic(e) => {
+            Content::dynamic(e.with_prop("tone", Value::Str(tone.into())))
+        }
+        other => other.clone(),
     }
 }
 
@@ -85,6 +82,118 @@ fn time_render(doc: &Content, chain: &StyleChain, runs: usize) -> (f64, f64, f64
     let min = samples.iter().cloned().fold(f64::INFINITY, f64::min);
     let max = samples.iter().cloned().fold(0.0, f64::max);
     (mean, min, max)
+}
+
+// ---------------------------------------------------------------------------
+// The 5 #show cases — each proves one vanilla behavior on the E1 frontier.
+// ---------------------------------------------------------------------------
+
+fn callout(title: &str, body: &str, tone: &str) -> Content {
+    Content::dynamic(Arc::new(Callout::new(title, Content::text(body), tone)))
+}
+
+fn show_cases() {
+    let base = StyleChain::new();
+    println!("\n=== 5 #show cases ===");
+
+    // --- Case 1: MULTI-RULE — 2 rules on the same kind ---
+    // Vanilla: recipes are tried INNERMOST-FIRST; the first matching, un-guarded
+    // recipe is THE step for this pass (one rule/pass). The other rule then
+    // applies on the NEXT pass. We register both as func rules forcing a tone;
+    // the innermost (registered LAST in the scope vec, = closest to the node)
+    // must win on pass 1.
+    {
+        let doc = Content::seq(vec![callout("A", "body", "note")]);
+        // scope vec is OUTERMOST-FIRST: [outer=warn, inner=danger]
+        let rules = [
+            Recipe::func(Callout::KIND, |c| force_tone(c, "warn")),   // outer
+            Recipe::func(Callout::KIND, |c| force_tone(c, "danger")), // inner
+        ];
+        let chain = ShowChain::new().scoped(&rules);
+        let (out, passes) = realize(&doc, &chain, 16);
+        println!("[1 multi-rule]   {}  [{passes} passes]", out.render(&base));
+        println!("                 -> innermost (danger) fires pass 1; outer (warn) pass 2 — final tone = last-applied = WARN");
+    }
+
+    // --- Case 2: MULTI-PASS / RECURSION — a rule that emits its OWN kind ---
+    // `#show heading: it => [<heading> wrapping the same heading]`. Without a
+    // guard this loops forever. Vanilla guards the produced inner heading by the
+    // firing recipe's index so it is skipped on the next pass → terminates.
+    {
+        let doc = Content::seq(vec![Content::heading(1, Content::text("Title"))]);
+        let rules = [Recipe::func("heading", |c| {
+            // wrap the (already-guarded) heading inside a NEW heading of its kind
+            Content::heading(2, Content::seq(vec![Content::text(">> "), c.clone()]))
+        })];
+        let chain = ShowChain::new().scoped(&rules);
+        let (out, passes) = realize(&doc, &chain, 16);
+        println!("[2 recursion]    {}  [{passes} passes — TERMINATED via guard]", out.render(&base));
+    }
+
+    // --- Case 3: SHOW-SET — `#show callout: set callout(tone: "warn")` ---
+    // A recipe that IS a set. It does NOT replace the node nor consume the show
+    // step; it pushes a scoped #set layer the node renders under (vanilla
+    // `Transformation::Style => map.apply`). Sibling outside scope unaffected.
+    {
+        let mut props = PropMap::new();
+        props.set("tone", Value::Str("warn".into()));
+        let doc = Content::seq(vec![callout("S", "body", "note")]);
+        let rules = [Recipe::set(Callout::KIND, Callout::KIND, props)];
+        let chain = ShowChain::new().scoped(&rules);
+        let (out, passes) = realize(&doc, &chain, 16);
+        // instance tone is "note", but the show-set layer overrides at render.
+        println!("[3 show-set]     {}  [{passes} pass]", out.render(&base));
+        println!("                 -> instance tone=note, show-set forces WARN at render");
+    }
+
+    // --- Case 4: SCOPE — a rule inside a block must NOT leak to a sibling ---
+    // Two sibling callouts. Only the FIRST is realized under a scoped recipe
+    // (force danger); the second is realized under the bare chain. Vanilla scopes
+    // recipes to the StyledElem subtree → sibling unaffected.
+    {
+        let scoped_rules = [Recipe::func(Callout::KIND, |c| force_tone(c, "danger"))];
+        let inner_chain = ShowChain::new().scoped(&scoped_rules);
+        let outer_chain = ShowChain::new();
+
+        let first = callout("scoped", "in block", "note");
+        let (first_done, _) = realize(&first, &inner_chain, 16);
+
+        let sibling = callout("sibling", "outside", "note");
+        let (sibling_done, _) = realize(&sibling, &outer_chain, 16);
+
+        let doc = Content::seq(vec![first_done, sibling_done]);
+        println!("[4 scope]        {}", doc.render(&base));
+        println!("                 -> 1st callout DANGER (in scope); sibling stays NOTE (rule didn't leak)");
+    }
+
+    // --- Case 5: NATIVE + DYNAMIC — same harness drives both publics ---
+    // One recipe on a NATIVE element (heading) and one on the DYNAMIC user
+    // element (callout), in the same chain. Both must match & transform via the
+    // SAME machinery — proving E1's frontier is uniform across native/dynamic.
+    {
+        let doc = Content::seq(vec![
+            Content::heading(1, Content::text("Native H")),
+            callout("Dyn", "user element", "note"),
+        ]);
+        let rules = [
+            // native: uppercase-ish marker by bumping level text
+            Recipe::func("heading", |c| {
+                Content::heading(3, Content::seq(vec![Content::text("[H] "), inner_of_heading(c)]))
+            }),
+            // dynamic: force tone
+            Recipe::func(Callout::KIND, |c| force_tone(c, "danger")),
+        ];
+        let chain = ShowChain::new().scoped(&rules);
+        let (out, passes) = realize(&doc, &chain, 16);
+        println!("[5 native+dyn]   {}  [{passes} passes]", out.render(&base));
+        println!("                 -> heading rewritten (native) AND callout tone=danger (dynamic), one chain");
+    }
+}
+
+/// Extract the body of a (possibly guarded) heading, else the node itself.
+fn inner_of_heading(c: &Content) -> Content {
+    let kids = c.peeled().children();
+    kids.into_iter().next().unwrap_or_else(|| c.clone())
 }
 
 // ---------------------------------------------------------------------------
@@ -132,9 +241,14 @@ fn main() {
         println!("    - plain_text: {:?}  tone={:?}", c.plain_text(), tone);
     }
 
-    // #show callout: force tone=danger
-    let shown = apply_show(&doc, &show_rule_force_danger());
-    println!("render (#show):  {}", shown.render(&base_chain));
+    // #show callout: force tone=danger (single rule, single sanity check)
+    let danger = [Recipe::func(Callout::KIND, |c| force_tone(c, "danger"))];
+    let chain1 = ShowChain::new().scoped(&danger);
+    let (shown, passes) = realize(&doc, &chain1, 16);
+    println!("render (#show):  {}  [{passes} pass]", shown.render(&base_chain));
+
+    // ---- The 5 #show cases (Passo 333, Parte 2) ----
+    show_cases();
 
     // ---- Perf scenario ----
     println!("\n=== E1 perf (render, 10 runs each) ===");

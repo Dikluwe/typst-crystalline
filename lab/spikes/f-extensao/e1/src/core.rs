@@ -186,6 +186,19 @@ pub enum Content {
     Dynamic(Arc<dyn Element>),
     /// A flat sequence (toy Sequence).
     Seq(Arc<Vec<Content>>),
+    /// A node carrying show-rule GUARDS (toy analogue of vanilla
+    /// `meta().lifecycle` bitset). Transparent for kind/render/children; it
+    /// only records which recipe indices were already applied to `inner`.
+    Guarded {
+        guards: Vec<RecipeIndex>,
+        inner: Arc<Content>,
+    },
+    /// A subtree wrapped with scoped `#set` layers produced by a show-SET
+    /// recipe (toy analogue of vanilla `StyledElem{child, styles}`).
+    Styled {
+        layers: Vec<StyleLayer>,
+        child: Arc<Content>,
+    },
 }
 
 impl Content {
@@ -204,6 +217,21 @@ impl Content {
     pub fn dynamic(e: Arc<dyn Element>) -> Content {
         Content::Dynamic(e)
     }
+    pub fn styled(child: Content, layers: Vec<StyleLayer>) -> Content {
+        Content::Styled { layers, child: Arc::new(child) }
+    }
+
+    /// Peel any transparent `Guarded` shell to reach the underlying element.
+    /// Show-rule closures use this so they can pattern-match the real node
+    /// while the guard set still rides along on the original (it is re-applied
+    /// to the produced output by the realizer). Vanilla closures get this for
+    /// free because the public Content API sees through the meta bitset.
+    pub fn peeled(&self) -> &Content {
+        match self {
+            Content::Guarded { inner, .. } => inner.peeled(),
+            other => other,
+        }
+    }
 
     /// Hub kind dispatch — native arms static, dynamic arm via trait.
     pub fn kind(&self) -> &'static str {
@@ -214,6 +242,10 @@ impl Content {
             },
             Content::Dynamic(e) => e.kind(),
             Content::Seq(_) => "sequence",
+            // Transparent wrappers report the kind of what they wrap, so
+            // recipes still match the underlying element.
+            Content::Guarded { inner, .. } => inner.kind(),
+            Content::Styled { child, .. } => child.kind(),
         }
     }
 
@@ -226,6 +258,8 @@ impl Content {
             },
             Content::Dynamic(e) => e.plain_text(),
             Content::Seq(items) => items.iter().map(|c| c.plain_text()).collect::<String>(),
+            Content::Guarded { inner, .. } => inner.plain_text(),
+            Content::Styled { child, .. } => child.plain_text(),
         }
     }
 
@@ -252,6 +286,17 @@ impl Content {
             },
             Content::Dynamic(e) => e.render(chain),
             Content::Seq(items) => items.iter().map(|c| c.render(chain)).collect::<String>(),
+            Content::Guarded { inner, .. } => inner.render(chain),
+            // A show-set wrapper renders its child under an AUGMENTED chain:
+            // its scoped layers stack on top of the inherited ones, then leave
+            // scope (they don't leak to siblings).
+            Content::Styled { layers, child } => {
+                let mut augmented = chain.clone();
+                for l in layers {
+                    augmented = augmented.set(l.target, l.props.clone());
+                }
+                child.render(&augmented)
+            }
         }
     }
 
@@ -264,6 +309,8 @@ impl Content {
             },
             Content::Dynamic(e) => e.children(),
             Content::Seq(items) => items.as_ref().clone(),
+            Content::Guarded { inner, .. } => inner.children(),
+            Content::Styled { child, .. } => child.children(),
         }
     }
 }
@@ -315,32 +362,308 @@ pub fn query(root: &Content, kind: &str) -> Vec<Content> {
 }
 
 // ---------------------------------------------------------------------------
-// show transform — minimal #show: a fn Content -> Content applied to matches
+// #show — REAL harness modelling vanilla recipe semantics (Passo 333, Parte 2)
 // ---------------------------------------------------------------------------
+//
+// This replaces the P332 stub (`fn(&Content)->Content`, single rule, single
+// pass). It mirrors the vanilla machinery measured in lab/typst-original:
+//
+//   * Recipes live IN the StyleChain (a `Recipe` layer), so they are SCOPED:
+//     a recipe only sees the subtree it wraps (vanilla `StyledElem.styles`).
+//   * Recipes are tried INNERMOST-FIRST (vanilla `Entries::next_back` walks
+//     the head link in reverse, then moves outward). First matching, non-
+//     guarded recipe wins → ONE show step per pass (vanilla `verdict`, the
+//     `if step.is_some() { continue }` guard).
+//   * Each Content node carries a GUARD set (`Vec<RecipeIndex>`), the toy
+//     analogue of vanilla `meta().lifecycle` bitset. When a recipe fires, its
+//     output is `.guarded(index)`, so the SAME recipe never re-fires on the
+//     produced body → recursion terminates (vanilla `is_guarded` / `guarded`).
+//   * A show-SET recipe (`Transformation::Style`) does NOT consume the step;
+//     it pushes a `#set` layer for that node's subtree and realization
+//     continues (vanilla `if let Transformation::Style(..) => map.apply(..)`).
+//
+// `RecipeIndex` here is the recipe's stable position in the active chain,
+// computed innermost-first exactly like vanilla `RecipeIndex(depth - r)`.
 
-/// A show rule: kind to match + a transform on matching nodes.
-pub struct ShowRule {
-    pub kind: &'static str,
-    pub transform: fn(&Content) -> Content,
+/// Stable identity of a recipe inside the active chain. Two passes over the
+/// same chain produce the same index for the same recipe → guards are stable.
+pub type RecipeIndex = usize;
+
+/// What a matched recipe does to a node.
+pub enum Transformation {
+    /// `#show k: it => <content>` — replace the node with arbitrary content.
+    /// The closure gets the matched node and returns its replacement.
+    Func(Box<dyn Fn(&Content) -> Content>),
+    /// `#show k: set <prop>(...)` — a show-SET. Pushes these props as a scoped
+    /// `#set k(..)` layer instead of replacing the node.
+    Style(StyleLayer),
 }
 
-/// Apply a show rule bottom-up over the tree (toy: one rule, one pass).
-pub fn apply_show(root: &Content, rule: &ShowRule) -> Content {
-    // recurse into children first
-    let rebuilt = match root {
-        Content::Seq(items) => Content::seq(
-            items.iter().map(|c| apply_show(c, rule)).collect(),
-        ),
+/// A single `#show kind: transform` recipe.
+pub struct Recipe {
+    pub kind: &'static str,
+    pub transform: Transformation,
+}
+
+impl Recipe {
+    pub fn func(
+        kind: &'static str,
+        f: impl Fn(&Content) -> Content + 'static,
+    ) -> Recipe {
+        Recipe { kind, transform: Transformation::Func(Box::new(f)) }
+    }
+    /// `#show kind: set target(props)` — a show-set recipe.
+    pub fn set(
+        kind: &'static str,
+        target: &'static str,
+        props: PropMap,
+    ) -> Recipe {
+        Recipe {
+            kind,
+            transform: Transformation::Style(StyleLayer { target, props }),
+        }
+    }
+}
+
+/// The realization environment: the active set-layers AND the active recipes,
+/// both scoped. This is the toy StyleChain extended with recipes (vanilla keeps
+/// both `Property` and `Recipe` in the same `Style` chain — we split them for
+/// readability but keep the same scoping/ordering semantics).
+#[derive(Default)]
+pub struct ShowChain<'a> {
+    /// Set-layers in effect (innermost last), for `render`.
+    pub styles: StyleChain,
+    /// Recipes in effect, OUTERMOST-FIRST in this Vec. We iterate it REVERSED
+    /// so the effective order is innermost-first (vanilla).
+    pub recipes: Vec<&'a Recipe>,
+}
+
+impl<'a> ShowChain<'a> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+    /// Enter a scope that adds `recipes` (and optionally set-layers). The added
+    /// recipes are visible ONLY while this chain value is alive → scoping.
+    pub fn scoped(&self, recipes: &'a [Recipe]) -> ShowChain<'a> {
+        let mut child = ShowChain { styles: self.styles.clone(), recipes: self.recipes.clone() };
+        for r in recipes {
+            child.recipes.push(r);
+        }
+        child
+    }
+}
+
+/// Per-pass realization: walk the tree, applying AT MOST ONE recipe step per
+/// node per pass, bottom-up, re-realizing produced content (multi-pass) until a
+/// fixpoint. Guards on nodes make it terminate.
+///
+/// Returns the realized tree. `max_passes` bounds runaway (it should never be
+/// hit once guards work — we assert it isn't, to PROVE termination).
+pub fn realize<'a>(root: &Content, chain: &ShowChain<'a>, max_passes: usize) -> (Content, usize) {
+    let mut current = root.clone();
+    let mut passes = 0;
+    loop {
+        passes += 1;
+        let (next, changed) = realize_pass(&current, chain);
+        current = next;
+        if !changed {
+            break;
+        }
+        assert!(passes < max_passes, "show realization did not converge — guards failed");
+    }
+    (current, passes)
+}
+
+/// One realization pass: recurse into children first (bottom-up), then try to
+/// apply ONE recipe to THIS node. Returns (rebuilt, changed_this_pass).
+///
+/// Crucially: a recipe is applied to a node AT MOST ONCE per call. The
+/// `Guarded` carrier is transparent — we descend into its children but the
+/// guard set stays attached to the node so `apply_recipes` can see it. This is
+/// what makes recursion terminate.
+fn realize_pass<'a>(node: &Content, chain: &ShowChain<'a>) -> (Content, bool) {
+    // A `Styled` (show-set) wrapper is realized by recursing its child under the
+    // same recipe chain; the wrapper itself never matches a recipe.
+    if let Content::Styled { layers, child } = node {
+        let (r, ch) = realize_pass(child, chain);
+        return (Content::Styled { layers: layers.clone(), child: Arc::new(r) }, ch);
+    }
+
+    // Split the node into (guards, bare). Guards travel with the node; we rebuild
+    // the bare node's CHILDREN (bottom-up) WITHOUT applying a recipe to the bare
+    // node itself, then run `apply_recipes` exactly once on the guarded node.
+    let (guards, bare): (Vec<RecipeIndex>, &Content) = match node {
+        Content::Guarded { guards, inner } => (guards.clone(), inner.as_ref()),
+        other => (Vec::new(), other),
+    };
+
+    let (rebuilt_bare, child_changed) = realize_children(bare, chain);
+
+    // Re-attach the guards before trying a recipe on this node.
+    let guarded_node = if guards.is_empty() {
+        rebuilt_bare
+    } else {
+        Content::Guarded { guards, inner: Arc::new(rebuilt_bare) }
+    };
+
+    apply_recipes(guarded_node, child_changed, chain)
+}
+
+/// Rebuild a node's children (recursively realizing them) but do NOT apply any
+/// recipe to `node` itself. `node` here is always a BARE node (no outer guard).
+fn realize_children<'a>(node: &Content, chain: &ShowChain<'a>) -> (Content, bool) {
+    match node {
+        Content::Seq(items) => {
+            let mut any = false;
+            let mut out = Vec::with_capacity(items.len());
+            for c in items.iter() {
+                let (r, ch) = realize_pass(c, chain);
+                any |= ch;
+                out.push(r);
+            }
+            (Content::seq(out), any)
+        }
         Content::Native(n) => match &**n {
             NativeElem::Heading { level, body } => {
-                Content::heading(*level, apply_show(body, rule))
+                let (b, ch) = realize_pass(body, chain);
+                (Content::heading(*level, b), ch)
             }
-            _ => root.clone(),
+            NativeElem::Text(_) => (node.clone(), false),
         },
-        Content::Dynamic(_) => root.clone(),
+        // Dynamic leaves: the spike's callout body is realized via children().
+        // For the toy we treat dynamic children as already-realized (the demo
+        // callouts hold plain text); descending would require a with_children
+        // on the trait. Recorded as a measurement limit (see findings).
+        Content::Dynamic(_) => (node.clone(), false),
+        // A bare node is never Guarded/Styled (those are peeled above).
+        Content::Guarded { .. } | Content::Styled { .. } => (node.clone(), false),
+    }
+}
+
+/// Step 2+3 of a pass: try ONE recipe on `rebuilt`, innermost-first.
+fn apply_recipes<'a>(
+    rebuilt: Content,
+    child_changed: bool,
+    chain: &ShowChain<'a>,
+) -> (Content, bool) {
+
+    // 2) Try recipes on THIS node, innermost-first; first matching, non-guarded,
+    //    non-show-set recipe fires (one step). Show-set recipes accumulate a
+    //    set-layer for re-rendering but do NOT count as the step.
+    let kind = rebuilt.kind();
+    let depth = chain.recipes.len();
+    let mut set_layers: Vec<StyleLayer> = Vec::new();
+    // innermost-first = reversed Vec (Vec holds outermost-first)
+    for (i, recipe) in chain.recipes.iter().enumerate().rev() {
+        if recipe.kind != kind {
+            continue;
+        }
+        // Stable recipe index, innermost-first: vanilla RecipeIndex(depth - r).
+        let index: RecipeIndex = depth - i;
+        match &recipe.transform {
+            Transformation::Style(layer) => {
+                // show-set: record the layer (applies to this node's render).
+                set_layers.push(layer.clone());
+            }
+            Transformation::Func(f) => {
+                if guards_of(&rebuilt).contains(&index) {
+                    continue; // already applied to this node → skip (termination)
+                }
+                // Fire: guard the INPUT so the recipe can't re-fire on it
+                // (vanilla `output.into_owned().guarded(guard)`), then transform.
+                let guarded_input = push_guard(&rebuilt, index);
+                let produced = f(&guarded_input);
+                // Carry the INPUT's full guard set forward onto every same-kind
+                // node of the produced body, PLUS this recipe's index. Vanilla
+                // gets accumulation for free (the guarded input is nested inside
+                // the output); the spike re-applies it structurally so that
+                // already-applied recipes stay applied → multi-rule converges
+                // and self-producing recipes terminate.
+                let mut carry = guards_of(&rebuilt).to_vec();
+                if !carry.contains(&index) {
+                    carry.push(index);
+                }
+                let mut produced = produced;
+                for g in carry {
+                    produced = guard_kind(&produced, recipe.kind, g);
+                }
+                return (produced, true);
+            }
+        }
+    }
+
+    // 3) No func step. If we collected show-set layers, attach them so that this
+    //    node renders under them. Toy: stash them as guards-free wrapper via a
+    //    Seq carrying a marker is overkill; instead we fold them into the node's
+    //    own props by wrapping in a Styled marker. For the spike we render with
+    //    an augmented chain (handled by `render_with_sets`), so we attach them
+    //    onto a lightweight wrapper.
+    if !set_layers.is_empty() {
+        return (Content::styled(rebuilt, set_layers), child_changed);
+    }
+
+    (rebuilt, child_changed)
+}
+
+// --- guard plumbing (toy analogue of meta().lifecycle bitset) ---
+//
+// We can't store guards inside Arc<NativeElem>/Arc<dyn Element> without growing
+// the trait, so the spike keeps a SIDE map keyed by a per-node tag. To stay
+// simple and self-contained, we model guards as a wrapper variant. We thread
+// them via `Content::Guarded`. (In product L1 this would be the meta bitset on
+// the packed element, NOT a wrapper — see findings S2.)
+
+fn guards_of(_c: &Content) -> &[RecipeIndex] {
+    // guards live on Content::Guarded; for non-guarded nodes, empty.
+    match _c {
+        Content::Guarded { guards, .. } => guards,
+        _ => &[],
+    }
+}
+
+fn push_guard(c: &Content, index: RecipeIndex) -> Content {
+    match c {
+        Content::Guarded { guards, inner } => {
+            let mut g = guards.clone();
+            if !g.contains(&index) {
+                g.push(index);
+            }
+            Content::Guarded { guards: g, inner: inner.clone() }
+        }
+        other => Content::Guarded {
+            guards: vec![index],
+            inner: Arc::new(other.clone()),
+        },
+    }
+}
+
+/// Add `index` to the guard set of EVERY node whose kind == `kind` in `c`
+/// (recursively). Terminates recursion for self-producing recipes.
+fn guard_kind(c: &Content, kind: &str, index: RecipeIndex) -> Content {
+    // First recurse into children, rebuilding the tree.
+    let rebuilt = match c {
+        Content::Seq(items) => {
+            Content::seq(items.iter().map(|x| guard_kind(x, kind, index)).collect())
+        }
+        Content::Native(n) => match &**n {
+            NativeElem::Heading { level, body } => {
+                Content::heading(*level, guard_kind(body, kind, index))
+            }
+            NativeElem::Text(_) => c.clone(),
+        },
+        Content::Dynamic(_) => c.clone(),
+        Content::Guarded { guards, inner } => Content::Guarded {
+            guards: guards.clone(),
+            inner: Arc::new(guard_kind(inner, kind, index)),
+        },
+        Content::Styled { layers, child } => Content::Styled {
+            layers: layers.clone(),
+            child: Arc::new(guard_kind(child, kind, index)),
+        },
     };
-    if rebuilt.kind() == rule.kind {
-        (rule.transform)(&rebuilt)
+    // Then, if THIS node matches, ensure the guard is present.
+    if rebuilt.kind() == kind {
+        push_guard(&rebuilt, index)
     } else {
         rebuilt
     }
