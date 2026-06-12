@@ -14,9 +14,24 @@ validados, commit por estágio).
 | S2 — equation numbering → chain + B1 | ✅ verde 2724; B1 fechado | `d64950919` |
 | S3 — figure numbering → chain | ✅ verde 2726; DEBT 99.E provado p/ figure | `0d37be3bc` |
 | S4 — SetPage: D4 (remover native_page) + página-por-desenho registrada | ✅ verde 2726 (decisão do dono: página fica no modelo de região, fora do DEBT) | (a commitar) |
-| S5 — trava (teste-varre-tabela do canal) + remover código morto dos canais antigos | ⬜ próximo | — |
+| **S5a — trava (teste-varre-tabela do canal)** | ✅ verde 2727 | `1567f51e6` |
+| S5b — remover código morto (marcadores Set*Numbering + plumbing) | ⏸️ **adiado** (superfície de ~50 funções de teste; cleanup dedicado) | — |
 
 **Decisão do dono (S4)**: `SetPage` é estado de região (não estilo lexical) — fica no modelo marcador/nova-página por desenho; só D4 (remover `native_page` legacy) + registro em `debt-stylechain-nao-materializada.md` §Geometria de página + item de paridade futura. O DEBT 99.E é fechado pela **tríade de numeração** (S1-S3).
+
+## S5b — adiado (cleanup de código morto)
+
+A migração funcional (S1-S5a) está **completa e verde**. Os marcadores
+`Content::Set{Heading,Equation,Figure}Numbering` + a sua plumbing de
+introspecção ficam como **código morto-em-produção mas ainda testado** (Opção B).
+Tentativa de remoção (S5b) revelou superfície de **~50 funções de teste** que
+constroem os marcadores — umas testam a plumbing removida (apagar), outras usam
+o marcador como **veículo** para testar TOC/labels/contadores/walk (migrar para
+os construtores `*_numbered`, caso a caso). A remoção do **código de produção**
+foi feita e compila limpa, mas as ~50 edições de teste são um cleanup dedicado
+(julgamento apagar-vs-migrar por função) — adiado para uma passagem focada, em
+vez de arriscar erro no fim de uma sessão longa. **Nada bloqueia**: os marcadores
+inertes não afetam produção (o eval já não os produz).
 
 ## Mecanismo (estabelecido na Fase A→B)
 
