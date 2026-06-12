@@ -106,7 +106,8 @@ grep -rnE "Content::Nome([^A-Za-z0-9]|$)" 01_core 02_shell 03_infra 04_wiring \
      >    LOTE, e grep equivalente para destruturações em `if let`/`match`
      >    com struct-literal (`Content::Nome {`) — **registrar a lista** (vai
      >    para o relatório).
-     > 2. **Excluir esses sites da passada automática**; tratá-los à mão.
+     > 2. **Excluir esses sites da passada automática** (ver item 5 —
+     >    skip-list por `ficheiro:linha`); tratá-los à mão.
      > 3. O transformador só serve **construções** com `Box` externo único;
      >    **qualquer posição de padrão é manual por regra**, não por lembrete.
      >    `Box::new` aninhado (ex.: `StateUpdate::Set(Box::new(v))`) também é
@@ -121,6 +122,19 @@ grep -rnE "Content::Nome([^A-Za-z0-9]|$)" 01_core 02_shell 03_infra 04_wiring \
      >    1). **Interseção não-vazia ⇒ parar e reverter antes de compilar** —
      >    o transformador tocou num padrão. A regra existe para tornar o erro
      >    *impossível*, não documentado.
+     > 5. **Skip-list por linha-do-grep (C1-ter, achado P325 — 4ª reincidência).**
+     >    A C1-bis *apanha* o erro mas não o torna impossível: a heurística
+     >    interna do transformador (decidir construção-vs-padrão) continua o
+     >    elo fraco. **A exclusão deixa de depender da heurística**: a lista
+     >    do passo 1 vira **skip-list explícita** — o transformador recebe o
+     >    conjunto de `ficheiro:linha` e **pula** qualquer `Content::Nome {`
+     >    cuja linha esteja na lista (não decide; obedece). A verificação
+     >    pós-passada (item 4) **permanece**, rebaixada a rede de segurança:
+     >    a partir de P326, interseção não-vazia = a skip-list falhou
+     >    (reportar como falha da C1-ter). O transformador é **efémero**
+     >    (script `/tmp` reescrito por lote) — por isso o mecanismo mora
+     >    **aqui**, não no script: cada passo que use transformador gera a
+     >    skip-list do grep e passa-a ao script antes da passada.
 3. **Locatável** (se a variante for): segue o precedente Heading —
    implementar `element_kind`/`to_payload`; o estado misto dos enums de
    introspecção permanece e esvazia lote a lote.
