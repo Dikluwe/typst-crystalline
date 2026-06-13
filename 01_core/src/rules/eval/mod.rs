@@ -492,13 +492,22 @@ fn eval_expr(
         Expr::ContentBlock(content_block) => {
             // Content block [ ] — styles locais ao bloco. Engine
             // reconstruído localmente (ADR-0044, Passo 109).
+            //
+            // **Caso 4 / f3s3 (P340, F-realização fatia 2):** `show_rules` também
+            // local (clone O(1) do Arc), espelhando o `CodeBlock` (`{}`). Antes,
+            // o `[]` partilhava `&mut *engine.show_rules` → um `#show` dentro do
+            // bloco VAZAVA para fora (mutava a chain do chamador da declaração em
+            // diante). Agora confina ao escopo do bloco — paridade com o vanilla,
+            // que confina via `StyledElem` (`content/mod.rs:744-752`). É o
+            // confinamento estrutural que faltava ao modelo eager no `[]`.
             let mut local_styles = engine.styles.clone();
+            let mut local_show_rules = Arc::clone(engine.show_rules);
             let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
             let mut local_engine = Engine {
                 world: engine.world,
                 route: engine.route,
                 styles: &mut local_styles,
-                show_rules: &mut *engine.show_rules,
+                show_rules: &mut local_show_rules,
                 active_guards: &mut *engine.active_guards,
                 current_file: engine.current_file,
                 sink: &mut local_sink,

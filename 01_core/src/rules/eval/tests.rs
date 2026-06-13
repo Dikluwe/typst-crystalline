@@ -459,29 +459,32 @@ mod tests {
     //    (spike-2 S5); o transform eager é só Func/Content (`rules.rs`). LOTE.
 
     #[test]
-    fn f3s3_caso4_escopo_eager_nao_confina_divergencia_registrada() {
-        // CASO 4 (escopo): no vanilla, `#show` dentro de um bloco NÃO vaza — o
-        // irmão de fora fica intacto (spike-2 §2 caso 4; vanilla
-        // `content/mod.rs:744-752` — a recipe viaja num `StyledElem` que confina
-        // à subárvore). No cristalino **EAGER**, `#show` muta `engine.show_rules`
-        // da declaração em diante, **não confinado ao bloco** — PROPRIEDADE
-        // PRÉ-EXISTENTE do modelo eager (afeta os nativos também; não introduzida
-        // pelo dyn). Logo o caso 4 **falha a paridade**.
+    fn f3s3_caso4_escopo_show_confina_no_content_block() {
+        // CASO 4 (escopo) — **PARIDADE ALCANÇADA (P340, F-realização fatia 2).**
+        // No vanilla, `#show` dentro de um bloco NÃO vaza — o irmão de fora fica
+        // intacto (spike-2 §2 caso 4; vanilla `content/mod.rs:744-752` — a recipe
+        // viaja num `StyledElem` que confina à subárvore).
         //
-        // Conforme o gatilho (c) do inc-1: a `#show` léxica / realização
-        // multi-passe vira **LOTE** — **não** consertar inline. Este teto
-        // **documenta** o estado atual (divergente); se um lote futuro confinar
-        // o `#show`, este teste vira e a registração do L0 §3b é atualizada.
+        // **DECISÃO REGISTRADA — `f3s3` VIROU** (a única exceção autorizada à
+        // regra content-preserving; o plano sempre marcou este teto para virar
+        // quando a F-realização confinasse o `#show`). Antes (eager): `#show` no
+        // `[]` partilhava `engine.show_rules` e VAZAVA → AMBOS os callouts viravam
+        // "DENTRO" (count 2). Agora o `ContentBlock` clona `local_show_rules`
+        // (`eval/mod.rs`, espelhando o `CodeBlock`) → o `#show` confina ao bloco:
+        // só o callout "a" (dentro) vira "DENTRO"; o "b" (fora) fica intacto.
         let c = eval_doc(
             "#[#show callout: it => [DENTRO]\n#callout(\"a\", \"T\", \"w\")]\n#callout(\"b\", \"T\", \"w\")",
         );
         let t = c.plain_text();
         assert_eq!(
             t.matches("DENTRO").count(),
-            2,
-            "estado atual DIVERGENTE: a regra vaza do bloco e transforma ambos \
-             os callouts (dentro+fora); vanilla confinaria ao bloco. Multi-passe \
-             é o lote (gatilho c). plain_text: {t:?}"
+            1,
+            "confinado: só o callout DENTRO do bloco é transformado; o de fora \
+             fica intacto (paridade vanilla). plain_text: {t:?}"
+        );
+        assert!(
+            has_dynamic(&c),
+            "o callout 'b' (fora do bloco) sobrevive como Dynamic não-transformado: {c:?}"
         );
     }
 
