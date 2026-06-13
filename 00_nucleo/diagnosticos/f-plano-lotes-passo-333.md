@@ -70,13 +70,23 @@ sobre a chain léxica que o canal `Set*` prova) emendam a fila:
 - Fila renumerada: `Styled` → **F-4**; de-bake `#set text` → **F-5**; 3 folhas →
   **F-6**.
 
-| Lote | Conteúdo | Gatilho de revisita | Largura (preditor) |
+**Ordem dimensionada e DECIDIDA (P337, recon `f-recon-passo-337.md`):**
+`F-4 → F-realização → F-5 → F-6`. O recon mapeou o **conjunto-interseção
+F-5↔F-realização**: o de-bake-para-chain precisa do `custom` do `#set` disponível
+no consumidor, mas `#set` **não emite `Content::Styled`** (`rules.rs:242/265/297`)
+— o valor só chega por **baking**; o transporte confinado que o de-bake precisaria
+é **exatamente** o `StyledElem`-scoped que a F-realização constrói. Logo F-realização
+**antes** de F-5 (não des-assar duas vezes; não migrar consumo para modelo
+substituído). Dono aceitou front-loadar o risco (F-realização é o lote maior).
+Tabela abaixo reordenada e dimensionada (números exatos no recon).
+
+| Lote | Conteúdo | Gatilho de revisita | Largura (recon P337) |
 |------|----------|---------------------|--------------------|
 | **F-3 — fronteira na linguagem** ✅ **FECHADO** | inc-1: DEBT C2 (dinâmico renderiza); inc-2: registry→escopo (`#name(args)`) + `#show <dyn>` eager (`Selector::DynKind`, guard por RuleId) + Stage 0 executado | — | feito (P336; commits inc-2 S1/S2/S3/S4) |
-| **F-realização** (novo — **gatilho disparado** em F-3 inc-2 S3) | `#show` **léxico** (confina ao bloco — caso 4 diverge hoje) + composição multi-regra (caso 1) + `Transformation::Style` show-set (caso 3) — a realização multi-passe do spike-2 (S2–S6) | **já disparado**: o eager falhou o caso 4 (escopo) na cobertura de linguagem (F-3 inc-2) | ⟨a dimensionar — toca o modelo eager dos **nativos** também⟩ |
-| **F-4 — `Styled`** | `Styled(Box, Styles)` → chain única (a 2ª StyleChain do Layouter colapsa) | depois de F-3 | ⟨grep `Styled` — a refazer no arranque⟩ |
-| **F-5 — de-bake `#set text`** | `#set text` deixa de **assar** `TextStyle` em `Content::Text`; passa pela chain | depois de F-4 | ~283 sites no pior caso (1c; eco da opção C — confirmar por grep) |
-| **F-6 — 3 folhas** | `Text`/`MathText`/`MathIdent` recebem estilo via chain (DEBT-58) | após F-5 | ⟨a medir⟩ |
+| **① F-4 — `Styled`** | colapsa a **dualidade de backing** `StyleDelta`↔`Styled.Styles` (não "2ª chain" — recon corrigiu: 1 chain/fase) + fecha **B2** (`is_empty` sem arm Styled, `content.rs:1566`) | fundação — antes de tudo | 2 construtores prod. + 3 preservadores + ~7 consumidores |
+| **② F-realização** (gatilho disparado em F-3 inc-2 S3) | `#show` **léxico** (caso 4: `[]` vaza em `eval/mod.rs:460`, `{}` confina; `#set` já escopado) + composição (caso 1) + `Transformation::Style` show-set (caso 3) — multi-passe `StyledElem`-scoped (`lab/.../content/mod.rs:744-752`) | **já disparado** | ~15 sítios show-state; toca o eager dos **nativos**; **20** testes de `#show` (1 vira, 18 revisão, 1 permanece) |
+| **③ F-5 — de-bake** | os **4 pontos assados** (heading/equation/figure `numbering` + `Content::Text` `TextStyle`) deixam de assar; consumidor lê a chain que a F-realização garante no nó | depois de F-realização (transporte pronto) | 4 pontos; 28 refs de teste `numbering_active`; **risco**: 47 refs `is_numbering_active` em `introspector.rs` (vivo/morto?) |
+| **④ F-6 — 3 folhas** | `Text`/`MathText`/`MathIdent` recebem estilo via chain (DEBT-58) | após F-4 (tampão possível) | Text 4/7 · MathText 6/5 · MathIdent 2/5 |
 
 **Destino dos consertos B1/B2/B3 do P331** (registrar; B1/B3 neste lote F-2):
 - **B1** (`SetEquationNumbering` sem produtor eval) → resolvido **no canal F-2**
