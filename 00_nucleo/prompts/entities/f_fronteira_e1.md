@@ -224,6 +224,56 @@ tratou filhos de elemento dinâmico como folha já-realizada — o caso geral ex
 `with_children`/walk no trait; **registado como item de F-2, não provado pelo
 spike**).
 
+#### 3a.7-bis — Materialização P340 (fatia 2): o que aterrou e o que ficou medido-mas-parado
+
+> **Modo autônomo (P340).** Este registro substitui a "Trava" do molde por
+> medição→decisão→registro. Resolvido pela fonte (`lab/typst-realize/src/lib.rs`)
+> e pela suíte herdada (2719).
+
+**Aterrado — Caso 4 / `f3s3` (fatia 2a, confinamento de escopo).** O `#show` num
+`ContentBlock` `[]` deixa de vazar: `eval/mod.rs` passa a clonar
+`local_show_rules` (Arc O(1)), espelhando o `CodeBlock` `{}`. **Medição:** a
+mudança toca **exatamente 1 teste** (o `f3s3`, único que usa `#[#show]`); todo o
+resto content-preserving (suíte 3238/0). É o confinamento estrutural que faltava
+ao eager no `[]` — paridade com o `StyledElem` do vanilla
+(`content/mod.rs:744-752`). `f3s3` virou (de "vaza 2×" a "confina 1×"), a exceção
+sempre planeada.
+
+**Terminação (eager) — já existe.** O modelo eager termina por **dois**
+mecanismos vivos e testados: (i) `active_guards` (stack de `RuleId`) — uma regra
+não re-aplica ao próprio output (`show_rule_nao_recursiva_sem_stack_overflow`,
+`f3s2_show_callout_anti_recursao_termina`); (ii) **teto de profundidade 64**
+(`check_show_depth`, `world_types.rs:249`; paridade vanilla `lib.rs:401-402`). O
+guard é tão eficaz que o teto-64 é um **backstop** — difícil de alcançar no eager
+(o teste que o dispara é, na verdade, concern do multi-passe).
+
+**Trava-Q1 — DECIDIDA (medida).** Representação do guard por-nó:
+**`Content::Guarded` transparente** (invólucro que pode embrulhar qualquer
+`Content`, nativo OU `Dynamic`), **não** campo `meta` no `Dynamic`. Razão medida:
+o vanilla guarda no `meta().lifecycle` bitset do elemento (`content/mod.rs:148-156`),
+mas no E1 o `Arc<dyn DynElement>` é imutável/partilhado (clone O(1)); um wrapper
+transparente (i) não põe meta nos 65 nativos, (ii) mantém o `dyn` limpo, (iii) é
+uniforme nativo+dinâmico (S6). Transparência a `plain_text`/`is_empty`/`map_*`/
+closures é **requisito de teste quando o invólucro nascer**.
+
+**PARADO — multi-passe / fixpoint (fatia 2b: casos 1/2, e os "2 passes" do caso 5).**
+**Não materializado nesta corrida.** Razão **medida, não preguiça**: o modelo
+cristalino é **eager por criação** (`intercept_content` intercepta no momento da
+criação; compõe via cascata de interceção). A suíte herdada tem **18 testes de
+`#show` que asseveram exatamente essa semântica eager** (ex.:
+`show_rule_composicao_sem_loop` asserta `count==1` / "não reaplicada";
+`show_rule_encadeamento_duas_regras`). Substituir o eager por um **loop externo
+até fixpoint** (o modelo do vanilla: `realize→visit→visit_show_rules`, fixpoint na
+**introspection loop**, `recipe-index` innermost-first, `lib.rs:335/401/472`)
+**mudaria** a saída desses 18 testes — e P340 declara content-preserving
+**inviolável** (única exceção: `f3s3`). Por **regra 6 (degradação segura)** +
+**regra 3d (medição não decide barato → opção conservadora reversível)**: aterra-se
+o seguro (caso 4), **estaciona-se** o multi-passe como **lote próprio futuro**
+(onde a sua paridade se mede contra um conjunto de testes deliberadamente evoluído,
+não retrofitado sob no-change estrito). O `Content::Guarded` (Trava-Q1) nasce
+**nesse** lote, com a sua prova de transparência. **DECISÃO AUTÔNOMA PROVISÓRIA —
+revisar:** confirmar que o multi-passe é lote próprio (não retrofit) é do dono.
+
 ### 3a.8 — Fatia 1 da F-realização: a fundação do transporte `StyledElem`-scoped (aditivo, β1)
 
 > **Estatuto.** Esta é a **fatia 1** da F-realização (P339). Constrói **só** o
