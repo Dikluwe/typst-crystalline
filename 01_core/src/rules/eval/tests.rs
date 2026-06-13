@@ -494,6 +494,60 @@ mod tests {
         module.content().expect("módulo deve ter content").clone()
     }
 
+    // ════════════════════════════════════════════════════════════════════
+    // P339 — F-realização fatia 1 (β1, transporte aditivo). L0 §3a.8.
+    // Estágio T: caracterização (saída preservada) + alvos do transporte.
+    // ════════════════════════════════════════════════════════════════════
+
+    /// Devolve o `custom` de `key` no 1º `Content::Styled` que o carregue
+    /// (walk transparente — espelha os helpers F-2 acima). Lê `delta().custom`
+    /// (API existente); não depende de `push_custom`.
+    fn find_custom_in_styled(
+        c: &Content,
+        key: &str,
+    ) -> Option<crate::entities::value::Value> {
+        match c {
+            Content::Styled(b, s) => {
+                if let Some((_, v)) = s.delta().custom.iter().find(|(k, _)| k == key) {
+                    return Some(v.clone());
+                }
+                find_custom_in_styled(b, key)
+            }
+            Content::Sequence(items) => {
+                items.iter().find_map(|i| find_custom_in_styled(i, key))
+            }
+            _ => None,
+        }
+    }
+
+    // ── Caracterização: a saída de nível é o invariante (β1 content-preserving).
+    //    VERDE hoje e após o Estágio C (o wrapper é transparente ao layout). ──
+    #[test]
+    fn f339t_caracterizacao_saida_preservada() {
+        use crate::rules::layout::layout;
+        let casos = [
+            ("#set heading(numbering: \"1.1\")\n\n= A\n\n= B", "1. A 2. B"),
+            ("#set math.equation(numbering: \"1\")\n\n$ x = 1 $", "x = 1 (1)"),
+            ("#set figure(numbering: \"1\")\n\n= A", "A"),
+        ];
+        for (src, esperado) in casos {
+            let got = layout(&eval_doc(src)).plain_text();
+            assert_eq!(got, esperado, "saída de layout deve ser preservada: {src:?}");
+        }
+    }
+
+    // (Os alvos do transporte — wrap carrega custom + paridade chain≡assado —
+    //  vivem no commit do Estágio C, onde passam de vermelho a verde.)
+
+    // ── Guarda: sem #set numbering, NÃO se embrulha (não criar wrapper espúrio).
+    //    VERDE hoje e após C. ──
+    #[test]
+    fn f339t_sem_set_nao_embrulha() {
+        let c = eval_doc("= A\n\n= B");
+        assert_eq!(find_custom_in_styled(&c, "heading.numbering"), None);
+        assert_eq!(find_heading_numbered(&c), Some(false));
+    }
+
     #[test]
     fn f3s2_show_callout_transforma() {
         // `#show callout:` intercepta o dinâmico pelo apply_show_rules comum.
