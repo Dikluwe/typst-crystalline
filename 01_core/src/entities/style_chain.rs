@@ -18,7 +18,7 @@ use ecow::EcoString;
 use crate::entities::font_list::FontList;
 use crate::entities::lang::Lang;
 use crate::entities::layout_types::{Pt, TextStyle};
-use crate::entities::style::{Style, Styles};
+use crate::entities::style::Styles;
 use crate::entities::value::Value;
 
 /// Um delta de estilo — apenas as propriedades que este nó define explicitamente.
@@ -85,6 +85,23 @@ impl StyleDelta {
             custom: Vec::new(),
         }
     }
+
+    /// `true` se nenhuma propriedade está definida (todos os campos `None` e
+    /// `custom` vazio). Lote F-4 (P338): backing de `Styles::is_empty` — `Styles`
+    /// é fachada sobre `StyleDelta` (colapso da dualidade).
+    pub fn is_empty(&self) -> bool {
+        self.bold.is_none()
+            && self.italic.is_none()
+            && self.size.is_none()
+            && self.fill.is_none()
+            && self.heading_level.is_none()
+            && self.weight.is_none()
+            && self.tracking.is_none()
+            && self.leading.is_none()
+            && self.lang.is_none()
+            && self.font.is_none()
+            && self.custom.is_empty()
+    }
 }
 
 /// Nó interno da lista ligada.
@@ -138,69 +155,15 @@ impl StyleChain {
         StyleChain(Some(Arc::new(node)))
     }
 
-    /// Cria uma nova cadeia aplicando `styles` (colecção de `Style`) como
-    /// delta. Passo 99 (ADR-0038) — entrada tipada para `Content::Styled`.
+    /// Cria uma nova cadeia aplicando `styles` como delta. Passo 99 (ADR-0038)
+    /// — entrada tipada para `Content::Styled`.
     ///
-    /// Cada variante do enum `Style` é projectada no campo correspondente
-    /// de `StyleDelta`. O `match` é exaustivo — adicionar uma nova variante
-    /// ao enum `Style` obriga a tratá-la aqui.
+    /// **Lote F-4 (P338): `Styles` é fachada sobre `StyleDelta`** (backing
+    /// único — colapso da dualidade). A projeção `Style→StyleDelta` (o `match`
+    /// exaustivo das 10 variantes) mudou-se para `Styles::from_iter`/`push`;
+    /// aqui só empurramos o `delta` já dobrado — **zero conversão dupla**.
     pub fn push_styles(&self, styles: &Styles) -> Self {
-        let mut delta = StyleDelta::empty();
-        for style in styles.iter() {
-            match style {
-                Style::Bold(b)         => delta.bold = Some(*b),
-                Style::Italic(i)       => delta.italic = Some(*i),
-                Style::Size(pt)        => delta.size = Some(pt.val()),
-                Style::Fill(c)         => delta.fill = Some(*c),
-                Style::HeadingLevel(l) => delta.heading_level = Some(*l),
-                // P288 — 2ª fonte de entrada para `delta.lang` (paralela à
-                // parse-driven em `eval/rules.rs:385`). Last-write wins per
-                // LIFO da chain. Diagnóstico P288 §A.3.
-                Style::Lang(l)         => delta.lang = Some(*l),
-                // P289 — 2ª fonte de entrada para `delta.weight` (paralela
-                // à parse-driven em `eval/rules.rs:361/365`). Consumer
-                // faux-bold P139 (`TextStyle::faux_bold_stroke_pt`) reusado
-                // sem alteração — ADR-0098 aderência (hash `export.rs`
-                // preservado pelo 6º passo consecutivo). Diagnóstico P289
-                // §A.3 + §A.4.
-                Style::Weight(w)       => delta.weight = Some(*w),
-                // P290 — 2ª fonte de entrada para `delta.tracking` (paralela
-                // à parse-driven em `eval/rules.rs:374`). Consumers P137
-                // (`cursor.rs:30` tracking_extra + `export.rs:2139-2146`
-                // `Tc` operator) reusados sem alteração — ADR-0098
-                // aderência confirmada **mesmo com emit consumer real**
-                // (paradigma `TextStyle` capture via `FrameItem::Text.style.tracking`;
-                // hash `export.rs 66cb8ac3` preservado pelo 7º passo
-                // consecutivo). Diagnóstico P290 §A.0 + §A.4.
-                Style::Tracking(l)     => delta.tracking = Some(*l),
-                // P291 — 2ª fonte de entrada para `delta.leading` (paralela
-                // à parse-driven em `eval/rules.rs:298`). Consumer P138
-                // distintivo: `cursor.rs:119-128` em `flush_line` peek do
-                // último `FrameItem::Text` da current_line (`iter().rev()
-                // .find_map`) — paradigma **per-line via peek**, distinto
-                // do per-glyph de P290 tracking. `export.rs` zero hits
-                // para leading (ADR-0098 vigente; hash `66cb8ac3` preservado
-                // pelo 8º passo consecutivo). Diagnóstico P291 §A.0-A.5'.
-                Style::Leading(l)      => delta.leading = Some(*l),
-                // P292 — 2ª fonte de entrada para `delta.font` (paralela
-                // à parse-driven em `eval/rules.rs:395+`; aceita Str/Array,
-                // rejeita Dict per ADR-0054bis). **Distinção sintáctica
-                // vs P288-P291**: `f.clone()` em vez de `*f` por
-                // `FontList: !Copy` (contém `Vec<FontFamily>` — comentário
-                // `style_chain.rs:264` regista). `Style` enum perde `Copy`
-                // derive pós-P292 (A.2.0 confirma inofensivo).
-                // Paradigma consumer **2 layers**: TextStyle capture
-                // (`FrameItem::Text.style.font`) + FontBook resolution
-                // (`fonts.iter().position(|f| match name)` em
-                // `export.rs:2169-2174` multifont). ADR-0098 vigente;
-                // hash `export.rs 66cb8ac3` preservado pelo 9º passo
-                // consecutivo. **Fecha série cumulativa P288-P292 (5/5
-                // assimetria B.3↔B.4 fechada)**. Diagnóstico P292
-                // §A.0-A.5'.
-                Style::Font(f)         => delta.font = Some(f.clone()),
-            }
-        }
-        self.push(delta)
+        self.push(styles.delta().clone())
     }
 
     /// **Canal aberto (Lote F-2, P335)** — empurra uma propriedade `Set*`
@@ -375,6 +338,7 @@ impl From<&StyleChain> for TextStyle {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::entities::style::Style;
 
     // ── Lote F-2 S5 (P335) — trava do canal aberto (teste-varre-tabela) ──────
     // A trava da ADR-0105 cláusula 3, lado estilo: onde o canal aberto perde a

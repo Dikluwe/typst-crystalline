@@ -1,5 +1,5 @@
 # Prompt L0 — Style e Styles
-Hash do Código: eb0d8fd9
+Hash do Código: db606b42
 
 ## Módulo
 `01_core/src/entities/style.rs`
@@ -107,12 +107,28 @@ Derive pós-P292: `Debug, Clone, PartialEq`. **`Copy` removido por
 confirma 0 call sites afectados — perda inofensiva. Clone preserved
 para `cascade.push_styles(&Styles)` walk.
 
-### Struct `Styles`
+### Struct `Styles` — **fachada sobre `StyleDelta`** (Lote F-4, P338)
 
-- `Styles(Vec<Style>)` — colecção de deltas de estilo.
-- Métodos mínimos: `new()`, `push()`, `iter()`, `is_empty()`, `len()`,
-  `from_iter<I: IntoIterator<Item = Style>>(iter)`.
-- Ordem preservada (a ordem de inserção importa para resolução).
+**Colapso da dualidade de backing** (ADR-0106 fronteira E1; correção do recon
+P337 — não era "2ª chain", era backing duplo). Antes do F-4 `Styles` armazenava
+`Vec<Style>` e a `StyleChain` armazenava `StyleDelta`, com `push_styles` a
+**converter** entre os dois — duas representações da mesma informação. F-4
+colapsa: `Styles` passa a **embrulhar um único `StyleDelta`** (o backing único),
+de modo que `Content::Styled` e a `StyleChain` carregam **a mesma representação**
+(zero conversão dupla).
+
+- `Styles { delta: StyleDelta }` — uma fachada tipada sobre o backing único.
+- O enum `Style` permanece como **vocabulário-construtor**: `from_iter`/`push`
+  **dobram** cada `Style` no campo correspondente de `StyleDelta` (last-write-wins
+  por campo — semântica idêntica à projeção antiga). A projeção `Style→StyleDelta`
+  (o `match` exaustivo das 10 variantes) vive em `Styles::from_iter`/`push`.
+- Métodos: `new()`, `push(Style)`, `from_iter<I: IntoIterator<Item = Style>>(iter)`,
+  `is_empty()` (delegado a `StyleDelta::is_empty`), `delta() -> &StyleDelta`.
+- **`iter()` e `len()` removidos** — não há mais `Vec<Style>` armazenado; os
+  consumidores lêem `delta()` (campos tipados), não uma lista de variantes.
+- **Canal `custom` (F-2) disponível por construção**: o `StyleDelta` embrulhado
+  já tem `custom: Vec<(EcoString, Value)>`, de modo que `#set` pode viajar no
+  `Content::Styled` quando F-realização/F-5 o exigirem (a porta fica aberta).
 
 Derive: `Debug, Clone, Default, PartialEq`.
 
@@ -124,6 +140,11 @@ Derive: `Debug, Clone, Default, PartialEq`.
 
 ## Consumidores
 
-- `Content::Styled(Box<Content>, Styles)` — variante de `Content`.
-- `StyleChain::push_styles(&Styles)` — projecção em `StyleDelta`.
+- `Content::Styled(Box<Content>, Styles)` — variante de `Content` (carrega o
+  backing único via a fachada; tipo da variante **inalterado** no F-4).
+- `StyleChain::push_styles(&Styles)` — pós-F-4 empurra `styles.delta().clone()`
+  (a projeção `Style→StyleDelta` mudou-se para `Styles::from_iter`; o método
+  permanece como fachada fina, sem o `match`).
+- Deteção de `#show` (`eval/rules.rs`) lê `styles.delta().bold/italic` — não
+  mais `iter()` sobre variantes.
 - Pipeline futuro de `#set`/`#show` — activação fora do Passo 99.

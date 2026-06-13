@@ -106,14 +106,14 @@ pub(crate) fn apply_show_rules(
                 }
 
                 // Passo 101: `Content::Strong`/`Content::Emph` removidos do enum.
-                // `show strong: it => ...` e `show emph: it => ...` passam a
-                // casar `Content::Styled` que contenha `Style::Bold(true)` ou
-                // `Style::Italic(true)` respectivamente.
-                use crate::entities::style::Style;
+                // `show strong: it => ...` e `show emph: it => ...` casam um
+                // `Content::Styled` com `bold`/`italic` activo. Lote F-4 (P338):
+                // `Styles` é fachada sobre `StyleDelta` — lê-se `delta().bold/
+                // italic` (campo tipado), não mais `iter()` sobre variantes.
                 let is_bold_styled = matches!(node, Content::Styled(_, ss)
-                    if ss.iter().any(|s| matches!(s, Style::Bold(true))));
+                    if ss.delta().bold == Some(true));
                 let is_italic_styled = matches!(node, Content::Styled(_, ss)
-                    if ss.iter().any(|s| matches!(s, Style::Italic(true))));
+                    if ss.delta().italic == Some(true));
 
                 let is_match = match &rule.selector {
                     Selector::NodeKind(kind) => matches!(

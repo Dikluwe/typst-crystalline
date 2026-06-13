@@ -422,9 +422,16 @@ puro).
 
 ### 3b.7 — Fronteiras declaradas (o que fica para lotes futuros)
 
-- **`Styled`** (`Styled(Box, Styles)`): re-resolução numa 2ª StyleChain no
-  Layouter (1a). Migra **por lote** quando o canal único o alcançar — não no
-  primeiro movimento (ADR-0106 item 3). Gatilho de revisita: o lote do estilo.
+- **`Styled`** (`Styled(Box, Styles)`) — **✅ F-4 (P338).** Correção do recon
+  P337: não havia "2ª StyleChain" no Layouter (há **uma** chain por fase — eval
+  `engine.styles` + layout `self.chain`); o que havia era **dualidade de backing**
+  (`Styles(Vec<Style>)` em `Styled` ↔ `StyleDelta` na chain, com `push_styles` a
+  converter). F-4 colapsa pela **direção (ii)** (decisão do dono, P338 Fase A):
+  `Styles` vira **fachada sobre `StyleDelta`** (backing único), o enum `Style`
+  fica como vocabulário-construtor (`from_iter` dobra na borda, 1×), e o canal
+  `custom` (F-2) fica **disponível no `Styled`** — a porta para `#set` viajar
+  confinado que F-realização/F-5 usarão. **B2** (`is_empty` sem arm Styled)
+  fechado no mesmo lote (S1). Detalhe em `style.md`.
 - **De-bake de `#set text`**: hoje `#set text` **assa** `TextStyle` em
   `Content::Text` (chain descartada, 1a). O de-bake (a chain deixar de assar)
   é **lote dedicado** — gatilho: depois do canal `Set*` provar a chain léxica.

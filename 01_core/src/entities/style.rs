@@ -1,14 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style.md
-//! @prompt-hash dfe68a89
+//! @prompt-hash 159c907e
 //! @layer L1
 //! @updated 2026-04-23
 //!
 //! Enum `Style` — propriedades individuais de um bloco estilizado.
 //!
-//! Colecção `Styles(Vec<Style>)` — delta de propriedades aplicado a um
-//! nó de `Content`. Fundação tipada para `#set` / `#show` (Passo 99,
-//! ADR-0038).
+//! Colecção `Styles` — delta de propriedades aplicado a um nó de `Content`.
+//! Fundação tipada para `#set` / `#show` (Passo 99, ADR-0038). **Lote F-4
+//! (P338)**: `Styles` é uma **fachada sobre `StyleDelta`** (backing único —
+//! colapso da dualidade); o enum `Style` é o vocabulário-construtor.
 //!
 //! Superconjunto (5 variantes no Passo 99): `Bold`, `Italic`, `Size`
 //! (usadas hoje por `TextStyle`/StyleDelta), mais `Fill` e
@@ -21,6 +22,7 @@
 use crate::entities::font_list::FontList;
 use crate::entities::lang::Lang;
 use crate::entities::layout_types::{Color, Length, Pt};
+use crate::entities::style_chain::StyleDelta;
 
 /// Uma propriedade individual de estilo. Usado em `Styles` como delta.
 ///
@@ -122,43 +124,76 @@ pub enum Style {
     Font(FontList),
 }
 
-/// Colecção de `Style` — delta de propriedades aplicado a um nó.
-///
-/// Usado em `Content::Styled` e para construir `StyleChain` via `push_styles`.
-/// Invariante: a ordem dos estilos preserva a de inserção; a resolução
-/// num `StyleChain` privilegia o valor mais recente em cada variante.
-#[derive(Debug, Clone, Default, PartialEq)]
+impl Style {
+    /// **Lote F-4 (P338)** — dobra esta propriedade no `StyleDelta`
+    /// (last-write-wins por campo). A projeção `Style→StyleDelta` (antes em
+    /// `StyleChain::push_styles`) vive aqui: `Styles` é a fachada sobre o
+    /// backing único. O `match` é exaustivo — uma nova variante de `Style`
+    /// obriga a tratá-la aqui.
+    fn fold_into(&self, delta: &mut StyleDelta) {
+        match self {
+            Style::Bold(b)         => delta.bold = Some(*b),
+            Style::Italic(i)       => delta.italic = Some(*i),
+            Style::Size(pt)        => delta.size = Some(pt.val()),
+            Style::Fill(c)         => delta.fill = Some(*c),
+            Style::HeadingLevel(l) => delta.heading_level = Some(*l),
+            Style::Lang(l)         => delta.lang = Some(*l),
+            Style::Weight(w)       => delta.weight = Some(*w),
+            Style::Tracking(l)     => delta.tracking = Some(*l),
+            Style::Leading(l)      => delta.leading = Some(*l),
+            // `FontList: !Copy` (Vec<FontFamily>) — clone material (P292).
+            Style::Font(f)         => delta.font = Some(f.clone()),
+        }
+    }
+}
+
+/// **Fachada tipada sobre `StyleDelta`** (Lote F-4, P338 — colapso da dualidade
+/// de backing). `Styles` armazena **um único `StyleDelta`** (o backing que a
+/// `StyleChain` também usa), de modo que `Content::Styled` e a chain carregam a
+/// **mesma** representação — zero conversão dupla. O enum `Style` permanece como
+/// vocabulário-construtor: `from_iter`/`push` dobram cada variante no delta na
+/// borda (1×). O canal `custom` (F-2) fica disponível por construção (via o
+/// `StyleDelta` embrulhado), abrindo a porta para `#set` viajar no `Styled`.
+#[derive(Debug, Clone, PartialEq)]
 pub struct Styles {
-    inner: Vec<Style>,
+    delta: StyleDelta,
+}
+
+impl Default for Styles {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Styles {
-    /// Colecção vazia — sem estilos aplicados.
+    /// Colecção vazia — nenhum estilo aplicado (delta todo `None`).
     pub const fn new() -> Self {
-        Self { inner: Vec::new() }
+        Self { delta: StyleDelta::empty() }
     }
 
-    /// Constrói a partir de um iterador de `Style`.
+    /// Constrói dobrando um iterador de `Style` no backing único.
     pub fn from_iter<I: IntoIterator<Item = Style>>(iter: I) -> Self {
-        Self { inner: iter.into_iter().collect() }
+        let mut delta = StyleDelta::empty();
+        for style in iter {
+            style.fold_into(&mut delta);
+        }
+        Self { delta }
     }
 
-    /// Adiciona um estilo à colecção.
+    /// Dobra um estilo no backing (last-write-wins por campo).
     pub fn push(&mut self, style: Style) {
-        self.inner.push(style);
+        style.fold_into(&mut self.delta);
     }
 
-    /// Iterador sobre os estilos, pela ordem de inserção.
-    pub fn iter(&self) -> std::slice::Iter<'_, Style> {
-        self.inner.iter()
-    }
-
+    /// `true` se nenhuma propriedade está definida.
     pub fn is_empty(&self) -> bool {
-        self.inner.is_empty()
+        self.delta.is_empty()
     }
 
-    pub fn len(&self) -> usize {
-        self.inner.len()
+    /// O backing único — os consumidores lêem campos tipados aqui (não mais
+    /// uma lista de variantes). Lote F-4 (P338).
+    pub fn delta(&self) -> &StyleDelta {
+        &self.delta
     }
 }
 
@@ -168,32 +203,41 @@ mod tests {
 
     #[test]
     fn styles_new_vazio() {
+        // Lote F-4 (P338): `Styles` é fachada sobre `StyleDelta`; vazio = delta
+        // vazio (`len()` removido — não há mais lista de variantes).
         let s = Styles::new();
         assert!(s.is_empty());
-        assert_eq!(s.len(), 0);
+        assert!(s.delta().is_empty());
     }
 
     #[test]
-    fn styles_push_e_iter() {
+    fn styles_push_dobra_no_delta() {
+        // F-4: `push` dobra a variante no campo correspondente do delta.
         let mut s = Styles::new();
         s.push(Style::Bold(true));
         s.push(Style::Italic(false));
-        assert_eq!(s.len(), 2);
-        let collected: Vec<_> = s.iter().collect();
-        assert_eq!(collected.len(), 2);
-        assert!(matches!(collected[0], Style::Bold(true)));
-        assert!(matches!(collected[1], Style::Italic(false)));
+        assert!(!s.is_empty());
+        assert_eq!(s.delta().bold, Some(true));
+        assert_eq!(s.delta().italic, Some(false));
     }
 
     #[test]
-    fn styles_from_iter() {
+    fn styles_from_iter_dobra_no_delta() {
+        // F-4: `from_iter` dobra cada variante no backing único.
         let s = Styles::from_iter([
             Style::Bold(true),
             Style::Size(Pt(18.0)),
         ]);
-        assert_eq!(s.len(), 2);
-        assert!(s.iter().any(|st| matches!(st, Style::Bold(true))));
-        assert!(s.iter().any(|st| matches!(st, Style::Size(p) if p.val() == 18.0)));
+        assert_eq!(s.delta().bold, Some(true));
+        assert_eq!(s.delta().size, Some(18.0));
+    }
+
+    #[test]
+    fn styles_from_iter_last_write_wins_por_campo() {
+        // F-4: dobra é last-write-wins por campo (semântica idêntica à projeção
+        // antiga via LIFO da chain).
+        let s = Styles::from_iter([Style::Bold(true), Style::Bold(false)]);
+        assert_eq!(s.delta().bold, Some(false), "última escrita do campo vence");
     }
 
     #[test]
