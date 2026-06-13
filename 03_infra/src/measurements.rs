@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/measurements.md
-//! @prompt-hash 0520956b
+//! @prompt-hash d0dffaf5
 //! @layer L3
 //! @updated 2026-05-12
 //!
@@ -45,7 +45,7 @@ static LAST_MAX_AGE: AtomicUsize = AtomicUsize::new(0);
 
 /// Ordem fixa dos 20 métodos do trait `Introspector`. Índice nesta
 /// constante = índice em `CALL_COUNTERS`.
-pub const INTROSPECTOR_METHODS: [&str; 26] = [
+pub const INTROSPECTOR_METHODS: [&str; 24] = [
     "query_by_kind",
     "query_by_label",
     "query_first",
@@ -60,9 +60,7 @@ pub const INTROSPECTOR_METHODS: [&str; 26] = [
     "formatted_counter_at",
     "bib_entry_for_key",
     "bib_number_for_key",
-    "is_numbering_active",
     "figure_number_at_index",
-    "is_numbering_active_at",
     "flat_counter_at",
     "resolved_label_for",
     "headings_for_toc",
@@ -77,7 +75,7 @@ pub const INTROSPECTOR_METHODS: [&str; 26] = [
     "page_supplement",
 ];
 
-static CALL_COUNTERS: [AtomicUsize; 26] = [
+static CALL_COUNTERS: [AtomicUsize; 24] = [
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
@@ -86,7 +84,6 @@ static CALL_COUNTERS: [AtomicUsize; 26] = [
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
     AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
-    AtomicUsize::new(0), AtomicUsize::new(0),
 ];
 
 // ── API pública ────────────────────────────────────────────────────
@@ -100,9 +97,9 @@ pub struct CacheStats {
 
 /// Snapshot dos counters de invocação do trait `Introspector`.
 ///
-/// `total` agrega chamadas a todos os 26 métodos (20 originais +
+/// `total` agrega chamadas a todos os 24 métodos (20 originais +
 /// `query_labelled` P207B + `label_count` P207C + 4 page-aware
-/// P207D: `pages`, `page`, `page_numbering`, `page_supplement`).
+/// P207D − `is_numbering_active`/`_at` removidos no F-4 E0, P338).
 /// `per_method` preserva ordem de `INTROSPECTOR_METHODS`.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct CallCounts {
@@ -270,63 +267,57 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.bib_number_for_key(key)
     }
 
-    fn is_numbering_active(&self, key: &str) -> bool {
-        record_call(14);
-        self.inner.is_numbering_active(key)
-    }
+    // Lote F-4 E0 (P338): `is_numbering_active`/`is_numbering_active_at`
+    // removidos do trait (API legada morta — triagem-47). O proxy de medição
+    // deixou de os forwardar; os índices de `record_call` re-compactaram (24).
 
     fn figure_number_at_index(&self, kind: &str, idx: usize) -> Option<usize> {
-        record_call(15);
+        record_call(14);
         self.inner.figure_number_at_index(kind, idx)
     }
 
-    fn is_numbering_active_at(&self, key: &str, location: Location) -> bool {
-        record_call(16);
-        self.inner.is_numbering_active_at(key, location)
-    }
-
     fn flat_counter_at(&self, key: &str, location: Location) -> Option<usize> {
-        record_call(17);
+        record_call(15);
         self.inner.flat_counter_at(key, location)
     }
 
     fn resolved_label_for(&self, label: &Label) -> Option<&str> {
-        record_call(18);
+        record_call(16);
         self.inner.resolved_label_for(label)
     }
 
     fn headings_for_toc(&self) -> &[(Label, Content, usize)] {
-        record_call(19);
+        record_call(17);
         self.inner.headings_for_toc()
     }
 
     fn query_labelled(&self) -> Vec<(Label, Location)> {
-        record_call(20);
+        record_call(18);
         self.inner.query_labelled()
     }
 
     fn label_count(&self, label: &Label) -> usize {
-        record_call(21);
+        record_call(19);
         self.inner.label_count(label)
     }
 
     fn pages(&self, location: Location) -> Option<NonZeroUsize> {
-        record_call(22);
+        record_call(20);
         self.inner.pages(location)
     }
 
     fn page(&self, location: Location) -> Option<NonZeroUsize> {
-        record_call(23);
+        record_call(21);
         self.inner.page(location)
     }
 
     fn page_numbering(&self, location: Location) -> Option<&EcoString> {
-        record_call(24);
+        record_call(22);
         self.inner.page_numbering(location)
     }
 
     fn page_supplement(&self, location: Location) -> Option<&Content> {
-        record_call(25);
+        record_call(23);
         self.inner.page_supplement(location)
     }
 }
@@ -357,12 +348,12 @@ mod tests {
     fn p204g_introspector_call_counts_existe() {
         // Sentinel: confirma que `introspector_call_counts()` está
         // disponível e devolve `CallCounts`. Falha de compilação se
-        // função/tipo forem removidos. Length 26 = 20 originais
+        // função/tipo forem removidos. Length 24 = 20 originais
         // (P204G) + `query_labelled` (P207B) + `label_count` (P207C)
-        // + 4 page-aware (`pages`, `page`, `page_numbering`,
-        // `page_supplement`) (P207D).
+        // + 4 page-aware (P207D) − 2 (`is_numbering_active`/`_at`
+        // removidos no F-4 E0, P338 — API legada morta).
         let counts: CallCounts = introspector_call_counts();
-        assert_eq!(counts.per_method.len(), 26);
+        assert_eq!(counts.per_method.len(), 24);
     }
 
     // ── C6 Test 1 (smoke): tracking activo após uso ──────────────────
