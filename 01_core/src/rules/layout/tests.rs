@@ -7771,14 +7771,10 @@ mod p182e_e2e_heading_numbering {
             "H2 (Apêndice) com numbering OFF não deve ter prefixo '2.': '{txt}'"
         );
         assert!(txt.contains("Apêndice"), "corpo H2 deve estar presente");
-
-        // Validar que o re-update foi visível ao Introspector
-        // (final_value reflecte o último valor `false`).
-        let intr = introspect_with_introspector(&content);
-        assert!(
-            !intr.is_numbering_active("numbering_active:heading"),
-            "Introspector final_value deve reflectir o último update (false)"
-        );
+        // Lote F-4 E0 (P338): a asserção-cauda `is_numbering_active` saiu — a API
+        // legada de gate por StateRegistry foi removida (triagem-47, morta pós-F-2;
+        // o gate vive no campo assado). O corpo do teste (render H2 sem prefixo)
+        // permanece intacto.
     }
 
     #[test]
@@ -8142,11 +8138,12 @@ mod p186f_equation_locatable {
 
     #[test]
     fn pipeline_e2e_equation_block_com_state_activo() {
-        // .B caso central: state injectado via Content::StateUpdate
-        // (auto-init via P182C arm em from_tags). 3 equations block
-        // subsequentes acumulam counter [1, 2, 3].
+        // .B caso central: 3 equations block **numeradas** (campo assado
+        // `numbering_active=true` via `equation_block()`) acumulam counter
+        // [1, 2, 3]. Lote F-4 E0 (P338): o injector `Content::StateUpdate
+        // ("numbering_active:equation")` saiu — o canal StateRegistry estava
+        // morto (gate pelo campo assado; o counter mantém [1,2,3] sem ele).
         let parts = vec![
-            Content::state_update("numbering_active:equation".to_string(), StateUpdate::Set(Box::new(Value::Bool(true)))),
             equation_block(),
             equation_block(),
             equation_block(),
@@ -8199,10 +8196,12 @@ mod p186f_equation_locatable {
 
     #[test]
     fn gate_dormente_inline_mesmo_com_state_active() {
-        // .C variação: state activo + equations inline → gate bloqueia
-        // por block=false.
+        // .C variação: equations **inline** → gate bloqueia por `block=false`,
+        // independente de numeração. Lote F-4 E0 (P338): o injector de
+        // `numbering_active:equation` saiu (canal StateRegistry morto); o nome
+        // histórico "com_state_active" refere a injeção removida — o gate sempre
+        // foi `block`, e segue dormente sem ela.
         let parts = vec![
-            Content::state_update("numbering_active:equation".to_string(), StateUpdate::Set(Box::new(Value::Bool(true)))),
             Content::equation(Content::Empty, false),
             Content::equation(Content::Empty, false),
         ];
@@ -8341,13 +8340,13 @@ mod p188b_c2_equation_counter {
 
     #[test]
     fn c2_equation_counter_via_introspector_path_quando_state_injectado() {
-        // Path Introspector funcional quando state
-        // `numbering_active:equation` é injectado via Content::StateUpdate
-        // (auto-init via P182C arm em from_tags). Gate em P186E dispara
-        // → counter introspector populado → `flat_counter_at` retorna
-        // valores correctos.
+        // Path Introspector funcional para equations block **numeradas**
+        // (`equation_block(..)` = campo assado true): o gate dispara → counter
+        // introspector populado → `flat_counter_at` retorna valores correctos.
+        // Lote F-4 E0 (P338): o injector `numbering_active:equation` saiu (canal
+        // StateRegistry morto); o nome histórico "quando_state_injectado" refere
+        // a injeção removida — o counter mantém [1,2,3] pelo campo assado.
         let parts = vec![
-            Content::state_update("numbering_active:equation".to_string(), StateUpdate::Set(Box::new(Value::Bool(true)))),
             equation_block("a"),
             equation_block("b"),
             equation_block("c"),

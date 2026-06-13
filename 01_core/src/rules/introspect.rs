@@ -16,8 +16,8 @@
 //! `apply_state_funcs` slim post-pass para Funcs apenas, chamada
 //! por fixpoint). Helper `compute_heading_auto_toc` migrado para
 //! signature `<I: Introspector>(intr, location, counter_n)`. Walk
-//! arm Equation gate migrado para
-//! `intr.is_numbering_active_at("numbering_active:equation", loc)`.
+//! arm Equation gate pelo campo assado `numbering_active` (F-2 S2;
+//! o gate legado por StateRegistry foi removido em F-4 E0, P338).
 //! API pública preservada (`introspect()` retorna `CounterStateLegacy`
 //! idêntico). `introspect_with_introspector` simplificada — drops
 //! parâmetros engine/ctx (Funcs continuam ignoradas neste path
@@ -446,11 +446,10 @@ fn compute_labelled<I: Introspector>(
 ///
 /// **P191B (ADR-0071)** — signature migrada para
 /// `<I: Introspector>(intr: &I, location: Location, auto_label_n)`.
-/// Reads location-aware (`is_numbering_active_at` +
-/// `formatted_counter_at` per P185B) substituem reads de
-/// `state.is_numbering_active` + `state.format_hierarchical`.
-/// Walk popula intr (incluindo `numbering_active:heading` Set tag)
-/// ANTES desta call, garantindo consistência por construção.
+/// O número vem de `formatted_counter_at` (per P185B); o **gate** de numeração
+/// é o param `numbering_active` (campo assado no `HeadingElem`, F-2 S5). Lote
+/// F-4 E0 (P338): o gate legado por StateRegistry (`is_numbering_active_at` /
+/// `numbering_active:heading`) foi removido — canal morto pós-F-2.
 fn compute_heading_auto_toc<I: Introspector>(
     intr:             &I,
     location:         Location,
@@ -3263,10 +3262,10 @@ mod tests {
     #[test]
     fn p191b_compute_heading_auto_toc_le_via_introspector_path() {
         // P191B sentinela #2: compute_heading_auto_toc migrada para
-        // signature <I: Introspector>(intr, location, counter_n).
-        // Reads `intr.is_numbering_active_at` + `formatted_counter_at`
-        // location-aware. Paridade com comportamento legacy quando
-        // SetHeadingNumbering(true) precede o Heading.
+        // signature <I: Introspector>(intr, location, counter_n). Gate pelo
+        // campo assado `numbering_active` + `formatted_counter_at` location-
+        // aware (F-4 E0, P338: o gate legado `is_numbering_active_at` saiu).
+        // Paridade quando SetHeadingNumbering(true) precede o Heading.
         let content = Content::Sequence(
             vec![
                 Content::heading_numbered(1, Content::text("um")),

@@ -204,9 +204,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     pub(super) locator: Locator,
     /// **P185C** — `Location` do último content locatable processado.
     /// `None` antes de processar qualquer locatable. Consumers
-    /// location-aware (`is_numbering_active_at`, `flat_counter_at`,
-    /// P185B) consultam este campo em vez de snapshot final
-    /// (cf. ADR-0068 PROPOSTO).
+    /// location-aware (`flat_counter_at`, P185B) consultam este campo
+    /// em vez de snapshot final (cf. ADR-0068 PROPOSTO). (F-4 E0, P338:
+    /// `is_numbering_active_at` saiu — gate vive no campo assado.)
     pub(super) current_location: Option<Location>,
     /// **P190C (M6 categoria Page tracking)** — state Layouter-runtime
     /// dedicado. Campos `label_pages` + `known_page_numbers` movidos

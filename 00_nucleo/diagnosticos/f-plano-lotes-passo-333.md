@@ -85,7 +85,18 @@ Tabela abaixo reordenada e dimensionada (números exatos no recon).
 | **F-3 — fronteira na linguagem** ✅ **FECHADO** | inc-1: DEBT C2 (dinâmico renderiza); inc-2: registry→escopo (`#name(args)`) + `#show <dyn>` eager (`Selector::DynKind`, guard por RuleId) + Stage 0 executado | — | feito (P336; commits inc-2 S1/S2/S3/S4) |
 | **① F-4 — `Styled`** | colapsa a **dualidade de backing** `StyleDelta`↔`Styled.Styles` (não "2ª chain" — recon corrigiu: 1 chain/fase) + fecha **B2** (`is_empty` sem arm Styled, `content.rs:1566`) | fundação — antes de tudo | 2 construtores prod. + 3 preservadores + ~7 consumidores |
 | **② F-realização** (gatilho disparado em F-3 inc-2 S3) | `#show` **léxico** (caso 4: `[]` vaza em `eval/mod.rs:460`, `{}` confina; `#set` já escopado) + composição (caso 1) + `Transformation::Style` show-set (caso 3) — multi-passe `StyledElem`-scoped (`lab/.../content/mod.rs:744-752`) | **já disparado** | ~15 sítios show-state; toca o eager dos **nativos**; **20** testes de `#show` (1 vira, 18 revisão, 1 permanece) |
-| **③ F-5 — de-bake** | os **4 pontos assados** (heading/equation/figure `numbering` + `Content::Text` `TextStyle`) deixam de assar; consumidor lê a chain que a F-realização garante no nó | depois de F-realização (transporte pronto) | 4 pontos; 28 refs de teste `numbering_active`; **risco**: 47 refs `is_numbering_active` em `introspector.rs` (vivo/morto?) |
+| **③ F-5 — de-bake** | os **4 pontos assados** (heading/equation/figure `numbering` + `Content::Text` `TextStyle`) deixam de assar; consumidor lê a chain que a F-realização garante no nó | depois de F-realização (transporte pronto) | **4 pontos confirmados** (não 5 — ver E0); risco `is_numbering_active` **RESOLVIDO** |
+
+**Triagem-47 (P338 Estágio 0) — VEREDITO: morto (Desfecho A).** A API legada
+`is_numbering_active`/`is_numbering_active_at` (gate por StateRegistry) tinha
+**zero chamadores de produção** (todas as refs eram comentários ou testes da
+própria plumbing) e o canal `numbering_active:*` deixou de ter produtor desde o
+F-2 S5. **Prova de mordida**: removidos os 3 injectores `state_update
+("numbering_active:equation")` dos testes de equação, o counter manteve [1,2,3]
+(vem do **campo assado**, não da chave). Removidos: 2 métodos de trait + 2 impls +
+**10 testes** dedicados + 1 asserção-cauda + 3 injectores. Suíte **2718 → 2708**
+(−10). **Consequência na fila: o F-5 tem 4 pontos, não 5** — o de-bake **não**
+terá de religar este consumidor (ele não existe mais).
 | **④ F-6 — 3 folhas** | `Text`/`MathText`/`MathIdent` recebem estilo via chain (DEBT-58) | após F-4 (tampão possível) | Text 4/7 · MathText 6/5 · MathIdent 2/5 |
 
 **Condição do tampão F-6 (C1, P338 — lição do S5b):** se o F-6 for usado como

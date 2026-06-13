@@ -148,15 +148,6 @@ pub trait Introspector: Send + Sync {
     /// `None` se key não existe.
     fn bib_number_for_key(&self, key: &str) -> Option<u32>;
 
-    /// **P182B (M9)** — flag de numeração activa para `key`. Replica
-    /// `CounterStateLegacy::is_numbering_active(key)` legacy via
-    /// `StateRegistry`: delega a `state.final_value(key)` e devolve
-    /// `true` apenas se for `Some(Value::Bool(true))`. Default `false`
-    /// (state ausente, `Bool(false)`, ou variant não-Bool).
-    /// Convenção de chave: `numbering_active:<feature>` (ex.
-    /// `numbering_active:heading`). Resolve lacuna #4 (cf. P182A).
-    fn is_numbering_active(&self, key: &str) -> bool;
-
     /// **P184C** — número 1-based da figure na posição `idx` (0-indexed)
     /// entre as figures do `kind` indicado, em ordem de aparecimento
     /// no walk. Constrói `format!("figure:{}", kind)` e delega a
@@ -165,15 +156,6 @@ pub trait Introspector: Send + Sync {
     /// responsabilidade do caller (cf. `mod.rs:431`).
     /// `None` se kind ausente do registry ou idx fora de range.
     fn figure_number_at_index(&self, kind: &str, idx: usize) -> Option<usize>;
-
-    /// **P185B** — variante location-aware de `is_numbering_active`.
-    /// Delega a `state.value_at(key, location)` (snapshot por Location,
-    /// não snapshot final) e devolve `true` apenas se for
-    /// `Some(Value::Bool(true))`. Default `false` (state ausente em
-    /// `location`, `Bool(false)`, ou variant não-Bool). Suporta C1
-    /// (heading prefix) — consumer migra em P187 após P185C introduzir
-    /// `current_location` no Layouter. Cf. ADR-0068.
-    fn is_numbering_active_at(&self, key: &str, location: Location) -> bool;
 
     /// **P185B** — valor 1-based de counter flat na `Location`
     /// indicada. Delega a `counters.value_at(key, location)?.last().copied()`.
@@ -547,10 +529,6 @@ impl Introspector for TagIntrospector {
         self.bib_store.number_for_key(key)
     }
 
-    fn is_numbering_active(&self, key: &str) -> bool {
-        matches!(self.state.final_value(key), Some(Value::Bool(true)))
-    }
-
     fn figure_number_at_index(&self, kind: &str, idx: usize) -> Option<usize> {
         let key = format!("figure:{}", kind);
         // Counter flat: snapshot é `[N]` com tamanho 1 — `.last()`
@@ -558,10 +536,6 @@ impl Introspector for TagIntrospector {
         // (heading), `.last()` daria o nível mais profundo, mas
         // figure é sempre flat.
         self.counters.value_at_index(&key, idx)?.last().copied()
-    }
-
-    fn is_numbering_active_at(&self, key: &str, location: Location) -> bool {
-        matches!(self.state.value_at(key, location), Some(Value::Bool(true)))
     }
 
     fn flat_counter_at(&self, key: &str, location: Location) -> Option<usize> {
@@ -853,63 +827,6 @@ mod tests {
         assert_eq!(i.bib_number_for_key("nao_existe"), None);
     }
 
-    // ── P182B — trait method is_numbering_active ────────────────────────
-
-    #[test]
-    fn is_numbering_active_em_introspector_vazio_devolve_false() {
-        let i = TagIntrospector::empty();
-        assert!(!i.is_numbering_active("numbering_active:heading"));
-        assert!(!i.is_numbering_active("numbering_active:equation"));
-        assert!(!i.is_numbering_active("any"));
-    }
-
-    #[test]
-    fn is_numbering_active_apos_init_bool_true_devolve_true() {
-        let mut i = TagIntrospector::empty();
-        i.state.init(
-            "numbering_active:heading".to_string(),
-            Value::Bool(true),
-            loc(10),
-        );
-        assert!(i.is_numbering_active("numbering_active:heading"));
-    }
-
-    #[test]
-    fn is_numbering_active_keys_distintas_isoladas() {
-        let mut i = TagIntrospector::empty();
-        i.state.init(
-            "numbering_active:heading".to_string(),
-            Value::Bool(true),
-            loc(10),
-        );
-        // Apenas heading está activo; equation não foi inicializado.
-        assert!(i.is_numbering_active("numbering_active:heading"));
-        assert!(!i.is_numbering_active("numbering_active:equation"));
-    }
-
-    #[test]
-    fn is_numbering_active_bool_false_devolve_false() {
-        let mut i = TagIntrospector::empty();
-        i.state.init(
-            "numbering_active:heading".to_string(),
-            Value::Bool(false),
-            loc(10),
-        );
-        assert!(!i.is_numbering_active("numbering_active:heading"));
-    }
-
-    #[test]
-    fn is_numbering_active_value_nao_bool_devolve_false() {
-        let mut i = TagIntrospector::empty();
-        // Variant não-Bool: graceful degradation → false.
-        i.state.init(
-            "numbering_active:heading".to_string(),
-            Value::Int(1),
-            loc(10),
-        );
-        assert!(!i.is_numbering_active("numbering_active:heading"));
-    }
-
     // ── P184C — figure_number_at_index ──────────────────────────────
 
     #[test]
@@ -997,74 +914,7 @@ mod tests {
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
     }
 
-    // ── P185B — is_numbering_active_at + flat_counter_at ────────────
-
-    #[test]
-    fn is_numbering_active_at_em_introspector_vazio_devolve_false() {
-        let i = TagIntrospector::empty();
-        assert!(!i.is_numbering_active_at("numbering_active:heading", loc(0)));
-        assert!(!i.is_numbering_active_at("numbering_active:equation", loc(100)));
-    }
-
-    #[test]
-    fn is_numbering_active_at_apos_init_bool_true_devolve_true_em_loc_posterior() {
-        let mut i = TagIntrospector::empty();
-        i.state.init(
-            "numbering_active:heading".to_string(),
-            Value::Bool(true),
-            loc(10),
-        );
-        assert!(i.is_numbering_active_at("numbering_active:heading", loc(15)));
-        // Em loc(10) (mesma location) também — value_at usa <=.
-        assert!(i.is_numbering_active_at("numbering_active:heading", loc(10)));
-    }
-
-    #[test]
-    fn is_numbering_active_at_re_update_reflecte_location_consultada() {
-        // Caso central: valida que value_at retorna snapshot por
-        // Location, não snapshot final.
-        let mut i = TagIntrospector::empty();
-        i.state.init(
-            "numbering_active:heading".to_string(),
-            Value::Bool(true),
-            loc(10),
-        );
-        i.state.update(
-            "numbering_active:heading".to_string(),
-            Value::Bool(false),
-            loc(20),
-        );
-        // Antes do update: init activo.
-        assert!(i.is_numbering_active_at("numbering_active:heading", loc(15)));
-        // Após o update: desactivado.
-        assert!(!i.is_numbering_active_at("numbering_active:heading", loc(25)));
-        // Diferença face a is_numbering_active (snapshot final): este
-        // último daria sempre `false` (último update aplicado).
-        assert!(!i.is_numbering_active("numbering_active:heading"));
-    }
-
-    #[test]
-    fn is_numbering_active_at_bool_false_devolve_false() {
-        let mut i = TagIntrospector::empty();
-        i.state.init(
-            "numbering_active:heading".to_string(),
-            Value::Bool(false),
-            loc(10),
-        );
-        assert!(!i.is_numbering_active_at("numbering_active:heading", loc(15)));
-    }
-
-    #[test]
-    fn is_numbering_active_at_value_nao_bool_devolve_false() {
-        let mut i = TagIntrospector::empty();
-        // Variant não-Bool: graceful degradation → false.
-        i.state.init(
-            "numbering_active:heading".to_string(),
-            Value::Int(1),
-            loc(10),
-        );
-        assert!(!i.is_numbering_active_at("numbering_active:heading", loc(15)));
-    }
+    // ── P185B — flat_counter_at ────────────────────────────────────
 
     #[test]
     fn flat_counter_at_em_introspector_vazio_devolve_none() {
