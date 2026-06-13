@@ -88,6 +88,13 @@ Tabela abaixo reordenada e dimensionada (números exatos no recon).
 | **③ F-5 — de-bake** | os **4 pontos assados** (heading/equation/figure `numbering` + `Content::Text` `TextStyle`) deixam de assar; consumidor lê a chain que a F-realização garante no nó | depois de F-realização (transporte pronto) | 4 pontos; 28 refs de teste `numbering_active`; **risco**: 47 refs `is_numbering_active` em `introspector.rs` (vivo/morto?) |
 | **④ F-6 — 3 folhas** | `Text`/`MathText`/`MathIdent` recebem estilo via chain (DEBT-58) | após F-4 (tampão possível) | Text 4/7 · MathText 6/5 · MathIdent 2/5 |
 
+**Condição do tampão F-6 (C1, P338 — lição do S5b):** se o F-6 for usado como
+**tampão** (rotear o estilo da folha pela chain **mantendo o campo assado** —
+content-preserving), o caminho duplo que nasce **não** pode dormir: nasce com
+**(a)** gatilho de remoção escrito (o F-5 remove o campo assado) e **(b)** teste de
+**paridade entre os dois caminhos** enquanto coexistirem. Sem isso, o caminho
+morto-mas-alimentado mascara (foi exatamente o que escondeu o auto-TOC no S5b).
+
 **Destino dos consertos B1/B2/B3 do P331** (registrar; B1/B3 neste lote F-2):
 - **B1** (`SetEquationNumbering` sem produtor eval) → resolvido **no canal F-2**
   (P335; paridade de linguagem declarada).

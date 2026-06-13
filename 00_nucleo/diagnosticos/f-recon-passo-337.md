@@ -7,6 +7,11 @@
 > P335); **claims derivados de `00_nucleo/materialization/` foram descartados**
 > (pasta restrita — alguns agentes tocaram-na; só o nível-código foi retido) e os
 > números-chave foram **re-verificados à mão** (greps + leitura direta).
+>
+> **Contabilidade das caronas (C0, fixado no P338):** o commit `1be7083df` (C1)
+> **adicionou** o teste-contrato negativo da `FuncRepr::Element`
+> (`element_func_e_veiculo_de_construtor_nao_chamavel_generico`, `func.rs`) — **+1**,
+> suíte typst-core **2717 → 2718**, lint 0/0. **A suíte-base do P338 é 2718.**
 
 ---
 
