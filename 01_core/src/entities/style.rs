@@ -195,6 +195,21 @@ impl Styles {
     pub fn delta(&self) -> &StyleDelta {
         &self.delta
     }
+
+    /// **F-realização fatia 1 (P339, L0 §3a.8)** — dobra uma entrada
+    /// `(key, value)` no canal `custom` do backing. **Espelho** de
+    /// `StyleChain::push_custom`: é o mecanismo que deixa `#set …(numbering:)`
+    /// embrulhar o escopo num `Content::Styled` carregando o custom (transporte
+    /// aditivo β1). **Não** toca o enum `Style` — o custom é `(key, value)`, por
+    /// decisão da §3a.8 (resolve o fork "forma de partida" do §3b.1).
+    pub fn push_custom(
+        mut self,
+        key: impl Into<ecow::EcoString>,
+        value: crate::entities::value::Value,
+    ) -> Self {
+        self.delta.custom.push((key.into(), value));
+        self
+    }
 }
 
 #[cfg(test)]

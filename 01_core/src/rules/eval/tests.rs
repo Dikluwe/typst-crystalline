@@ -536,8 +536,84 @@ mod tests {
         }
     }
 
-    // (Os alvos do transporte — wrap carrega custom + paridade chain≡assado —
-    //  vivem no commit do Estágio C, onde passam de vermelho a verde.)
+    // ── Estágio C: o transporte. #set numbering embrulha o escopo num
+    //    Content::Styled carregando o custom (β1). ──
+    #[test]
+    fn f339c_wrap_heading_carrega_custom() {
+        use crate::entities::value::Value;
+        let c = eval_doc("#set heading(numbering: \"1.1\")\n\n= A\n\n= B");
+        assert_eq!(
+            find_custom_in_styled(&c, "heading.numbering"),
+            Some(Value::Bool(true)),
+            "o escopo do #set heading deve ser embrulhado num Content::Styled[heading.numbering=true]"
+        );
+    }
+
+    #[test]
+    fn f339c_wrap_equation_carrega_custom() {
+        use crate::entities::value::Value;
+        let c = eval_doc("#set math.equation(numbering: \"1\")\n\n$ x = 1 $");
+        assert_eq!(
+            find_custom_in_styled(&c, "equation.numbering"),
+            Some(Value::Bool(true)),
+            "o escopo do #set math.equation deve ser embrulhado num Content::Styled[equation.numbering=true]"
+        );
+    }
+
+    #[test]
+    fn f339c_wrap_figure_carrega_custom() {
+        use crate::entities::value::Value;
+        let c = eval_doc("#set figure(numbering: \"1\")\n\n= A");
+        assert_eq!(
+            find_custom_in_styled(&c, "figure.numbering"),
+            Some(Value::Str("1".into())),
+            "o escopo do #set figure deve ser embrulhado num Content::Styled[figure.numbering=\"1\"]"
+        );
+    }
+
+    // ── Paridade do caminho duplo: o custom transportado na chain ≡ o campo
+    //    assado no elemento (disciplina anti-morto, L0 §3a.8). ──
+    #[test]
+    fn f339c_paridade_chain_assado_heading() {
+        use crate::entities::value::Value;
+        let c = eval_doc("#set heading(numbering: \"1.1\")\n\n= A");
+        let chain = find_custom_in_styled(&c, "heading.numbering");
+        let assado = find_heading_numbered(&c); // helper F-2 (walk transparente)
+        assert_eq!(
+            chain,
+            assado.map(Value::Bool),
+            "chain.custom(heading.numbering) deve igualar o campo assado numbering_active"
+        );
+    }
+
+    #[test]
+    fn f339c_paridade_chain_assado_equation() {
+        use crate::entities::value::Value;
+        let c = eval_doc("#set math.equation(numbering: \"1\")\n\n$ x $");
+        let chain = find_custom_in_styled(&c, "equation.numbering");
+        let assado = find_equation_numbered(&c);
+        assert_eq!(chain, assado.map(Value::Bool));
+    }
+
+    // ── Transparência do wrapper (L0 §3a.8): o Content::Styled[custom] é
+    //    transparente a plain_text / is_empty (custom inerte ao layout). ──
+    #[test]
+    fn f339c_wrapper_custom_transparente() {
+        use crate::entities::style::Styles;
+        use crate::entities::value::Value;
+        let inner = Content::sequence(vec![
+            Content::text("A"),
+            Content::Space,
+            Content::text("B"),
+        ]);
+        let wrapped = Content::Styled(
+            Box::new(inner.clone()),
+            Styles::new().push_custom("heading.numbering", Value::Bool(true)),
+        );
+        assert_eq!(wrapped.plain_text(), inner.plain_text(), "plain_text vê através do wrapper");
+        assert_eq!(wrapped.is_empty(), inner.is_empty(), "is_empty vê através do wrapper");
+    }
+
 
     // ── Guarda: sem #set numbering, NÃO se embrulha (não criar wrapper espúrio).
     //    VERDE hoje e após C. ──

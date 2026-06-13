@@ -289,6 +289,20 @@ fn eval_markup(
     let mut double_open = true; // true = próximo `"` é open
     let mut single_open = true;
 
+    // β1 fatia 1 (P339, L0 §3a.8): snapshot dos 3 customs de numbering à entrada
+    // deste corpo, para detectar um `#set …(numbering:)` local e embrulhar o
+    // resto do escopo léxico num `Content::Styled` (transporte aditivo
+    // `StyledElem`-scoped). Só o #set muta `engine.styles` neste loop
+    // (strong/emph/heading usam `local_styles`).
+    const NUM_KEYS: [&str; 3] =
+        ["heading.numbering", "equation.numbering", "figure.numbering"];
+    let snap: [Option<crate::entities::value::Value>; 3] = [
+        engine.styles.custom(NUM_KEYS[0]).cloned(),
+        engine.styles.custom(NUM_KEYS[1]).cloned(),
+        engine.styles.custom(NUM_KEYS[2]).cloned(),
+    ];
+    let mut wrap_start: Option<usize> = None;
+
     for child in node.children() {
         match child.kind() {
             SyntaxKind::Text => {
@@ -359,6 +373,33 @@ fn eval_markup(
                 }
             }
         }
+
+        // β1: detectar o #set numbering — quando um custom novo aparece (vs o
+        // início deste corpo), o escopo a embrulhar começa nas partes seguintes.
+        if wrap_start.is_none()
+            && NUM_KEYS
+                .iter()
+                .enumerate()
+                .any(|(i, k)| engine.styles.custom(k) != snap[i].as_ref())
+        {
+            wrap_start = Some(parts.len());
+        }
+    }
+
+    // β1: embrulha o resto do escopo num `Content::Styled` carregando o custom
+    // (transporte aditivo; o baking permanece autoritativo até o F-5; `f3s3`
+    // intocado — é `#show`). Caminho duplo chain↔assado, paridade testada.
+    if let Some(start) = wrap_start {
+        let tail = parts.split_off(start);
+        let mut styles = crate::entities::style::Styles::new();
+        for (i, k) in NUM_KEYS.iter().enumerate() {
+            if let Some(v) = engine.styles.custom(k) {
+                if Some(v) != snap[i].as_ref() {
+                    styles = styles.push_custom(*k, v.clone());
+                }
+            }
+        }
+        parts.push(Content::Styled(Box::new(Content::sequence(tail)), styles));
     }
 
     Ok(Value::Content(Content::sequence(parts)))
