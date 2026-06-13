@@ -250,6 +250,72 @@ mod tests {
     }
 
     #[test]
+    fn f4_s3_trava_backing_unico_varre_10_campos() {
+        // **Lote F-4 S3 (P338) — TRAVA contra o renascimento da dualidade de
+        // backing.** Duas asserções pinam o backing único de ponta a ponta:
+        //
+        // (a) a fachada `Styles` **É** o backing: `from_iter` das 10 variantes
+        //     dobra TODAS num único `StyleDelta` (não numa lista de variantes).
+        // (b) `push_styles` é **definicionalmente** `push(styles.delta())` — não
+        //     uma 2ª conversão. Compara, accessor a accessor, a chain via
+        //     `push_styles(&s)` com a chain via `push(s.delta().clone())`.
+        //
+        // Se alguém reviver um `Vec<Style>` em `Styles`, ou reintroduzir um
+        // `match` (conversão) divergente/parcial em `push_styles`, (a) perde um
+        // campo ou (b) diverge — e a varredura quebra. É a S5a do F-4.
+        use crate::entities::layout_types::{Color, Length};
+        use crate::entities::style_chain::StyleChain;
+        use ecow::EcoString;
+
+        let red = Color::rgb(255, 0, 0);
+        let font = FontList::single(EcoString::from("Inter"));
+        let s = Styles::from_iter([
+            Style::Bold(true),
+            Style::Italic(true),
+            Style::Size(Pt(18.0)),
+            Style::Fill(red),
+            Style::HeadingLevel(3),
+            Style::Lang(Lang::ENGLISH),
+            Style::Weight(700),
+            Style::Tracking(Length::pt(0.5)),
+            Style::Leading(Length::em(0.65)),
+            Style::Font(font.clone()),
+        ]);
+
+        // (a) backing único: a fachada dobrou os 10 campos no delta.
+        let d = s.delta();
+        assert_eq!(d.bold, Some(true));
+        assert_eq!(d.italic, Some(true));
+        assert_eq!(d.size, Some(18.0));
+        assert_eq!(d.fill, Some(red));
+        assert_eq!(d.heading_level, Some(3));
+        assert_eq!(d.lang, Some(Lang::ENGLISH));
+        assert_eq!(d.weight, Some(700));
+        assert_eq!(d.tracking, Some(Length::pt(0.5)));
+        assert_eq!(d.leading, Some(Length::em(0.65)));
+        assert_eq!(d.font, Some(font.clone()));
+
+        // (b) push_styles ≡ push(delta) — sem 2ª conversão. Idêntico em todos
+        // os accessors da chain.
+        let via_styles = StyleChain::default_chain().push_styles(&s);
+        let via_delta = StyleChain::default_chain().push(s.delta().clone());
+        assert_eq!(via_styles.bold(), via_delta.bold());
+        assert_eq!(via_styles.italic(), via_delta.italic());
+        assert_eq!(via_styles.size(), via_delta.size());
+        assert_eq!(via_styles.fill(), via_delta.fill());
+        assert_eq!(via_styles.heading_level(), via_delta.heading_level());
+        assert_eq!(via_styles.lang(), via_delta.lang());
+        assert_eq!(via_styles.weight(), via_delta.weight());
+        assert_eq!(via_styles.tracking(), via_delta.tracking());
+        assert_eq!(via_styles.leading(), via_delta.leading());
+        assert_eq!(via_styles.font(), via_delta.font());
+        // e o valor real propagou (não só "iguais por ambos vazios"):
+        assert!(via_styles.bold() && via_styles.italic());
+        assert_eq!(via_styles.size(), 18.0);
+        assert_eq!(via_styles.font(), Some(font));
+    }
+
+    #[test]
     fn style_variantes_cobrem_catalog_99a_e_p288_a_p292() {
         // Passo 99.A inaugurou 5 variantes. P288 adicionou `Lang(Lang)` → 6.
         // P289 adicionou `Weight(u16)` → 7. P290 adicionou `Tracking(Length)`
