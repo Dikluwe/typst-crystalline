@@ -295,7 +295,11 @@ introspect `kind_index`/counters/locations idênticos, matching de `#show` por
 **selector** (`eval/rules.rs:88-176`) inalterado. A **única** diferença é
 `Content::PartialEq` estrutural (o wrapper é um nó) — **sem dependente em
 produção** (`Content ==` só em `source.rs:38`, por id+hash; selectors não usam
-igualdade de árvore). Custo de perf: ≈2.8µs/wrap/passe (negligível). A
+igualdade de árvore). **Gatilho de reabertura do wrapper β1** (carona C1, P340):
+se igualdade-de-`Content` (PartialEq de árvore) **virar requisito de produção** —
+ex.: dedup estrutural, memoização por conteúdo, ou um selector de `#show` por
+igualdade de árvore — **reavaliar** o wrapper β1 (o nó visível passa a ter custo
+observável). Até lá, fica. Custo de perf: ≈2.8µs/wrap/passe (negligível). A
 **caracterização (Estágio T) congela a saída de nível** (layout/`plain_text` +
 introspect) como o invariante; o wrapper é detalhe estrutural interno aceite.
 
