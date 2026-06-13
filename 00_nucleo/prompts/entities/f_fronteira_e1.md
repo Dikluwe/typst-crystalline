@@ -370,6 +370,23 @@ unifica-as como **entradas na chain única**:
 > mais "se/quando") — ver fila em `f-plano-lotes-passo-333.md` (lote **F-realização**).
 > Conforme (c): **não consertada inline**; decide-se com o dado. F-3 (a fronteira
 > entrar na linguagem) **fecha** com o eager + a divergência registada.
+>
+> **Emenda do termo + escalada (carona C2, fecho P337):**
+> 1. **"Vanilla medido" redefinido** — para um **elemento custom** (não nativo),
+>    "paridade contra o vanilla medido" significa **semântica extraída da fonte do
+>    `lab/typst-original/` com `file:line`**, não execução. Rodar é inviável: o
+>    vanilla não tem binário pronto neste repo nem um modo trivial de **definir**
+>    um elemento custom (a sua extensão é o macro `#[elem]` em Rust, compile-time).
+>    O que o spike-2 fez foi **ler a fonte** (`typst-realize`, `content/mod.rs`),
+>    nunca correr — e é essa a medida de referência válida para o caminho dinâmico.
+> 2. **Gatilho de 2º nível (escalada para execução)** — a redefinição (1) vale
+>    enquanto a leitura-da-fonte for **inequívoca**. **Se** um teste de paridade
+>    baseado em leitura conflitar com comportamento observado, **ou** a fonte for
+>    ambígua num caso concreto, **então** escala-se: compila-se o `typst-cli` do
+>    `lab/` e mede-se o **mecanismo compartilhado em disputa com os NATIVOS**
+>    (`#show heading: …`, `#set`, escopo de bloco) — que o vanilla **sabe** exibir
+>    sem elemento custom. A medição com nativos resolve a ambiguidade sem precisar
+>    de um elemento custom no vanilla. Até esse conflito surgir, a leitura basta.
 
 O spike-2 validou os 5 casos sobre `Content::Dynamic` (todos PASS) — **como
 desenho de referência**, não como implementação obrigatória agora. O desenho do

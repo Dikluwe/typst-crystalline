@@ -265,4 +265,38 @@ mod tests {
         let f = Func::native("type", |_ctx, _args, _world, _cf, _fn| Ok(Value::None));
         assert_eq!(format!("{:?}", f), "<function>");
     }
+
+    #[test]
+    fn element_func_e_veiculo_de_construtor_nao_chamavel_generico() {
+        // **Contrato NEGATIVO da `FuncRepr::Element`** (carona C1, fecho P337 do
+        // Lote F-3 inc-2). A variante é **veículo do construtor de elemento** —
+        // identificável e distinta de closure/nativa — **não** um `Func` chamável
+        // genérico nem um nativo despachável por fn-ptr.
+        use crate::entities::content::Content;
+        let ctor: crate::entities::element_registry::ElementCtor =
+            Arc::new(|_args| Ok(Content::Empty));
+        let elem = Func::element("callout", ctor);
+        let closure = make_closure();
+        let native = Func::native("type", |_ctx, _args, _world, _cf, _fn| Ok(Value::None));
+
+        // (a) `element_name()` SÓ é `Some` para `Element` — o `#show` constrói
+        //     `Selector::DynKind` apenas para elementos; uma closure/nativa de
+        //     utilizador **nunca** vira `DynKind` (não há confusão de superfície).
+        assert_eq!(elem.element_name(), Some("callout"));
+        assert_eq!(closure.element_name(), None, "closure não é elemento");
+        assert_eq!(native.element_name(), None, "nativa não é elemento");
+
+        // (b) `native_fn_addr()` é `None` para `Element` — **não** é selecionável
+        //     pelo caminho de fn-ptr nativo (S2); só pelo `DynKind` (kind). Logo
+        //     não colide com a identidade dos 65 nativos.
+        assert!(elem.native_fn_addr().is_none(), "Element não tem fn-ptr nativo");
+
+        // (c) `name()` apresenta o nome do elemento (erros/debug), como as nativas.
+        assert_eq!(elem.name(), Some("callout"));
+
+        // Nota arquitetural (não testável por ausência): a ÚNICA via que produz
+        // `FuncRepr::Element` é `Func::element`, invocada só no threading
+        // registry→escopo (`eval/mod.rs`). A superfície de linguagem comum não
+        // tem sintaxe que a construa — só o registry injetado a alcança.
+    }
 }
