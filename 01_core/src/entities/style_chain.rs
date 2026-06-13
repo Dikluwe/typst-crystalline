@@ -4,12 +4,14 @@
 //! @layer L1
 //! @updated 2026-04-23
 //!
-//! Passo 99 (ADR-0038): `StyleChain` ganhou métodos para aceitar uma
-//! colecção `Styles` (enum `Style` do módulo `style`). A representação
-//! interna (`StyleDelta` com bold/italic/size) permanece como backing
-//! dos accessors existentes — a coexistência é intencional até que
-//! o pipeline `#set`/`#show` e o Layouter migrem para `StyleChain`
-//! directamente (DEBT sucessor registado em 99.E).
+//! Passo 99 (ADR-0038): `StyleChain` aceita uma colecção `Styles` via
+//! `push_styles`. **Lote F-4 (P338): a dualidade de backing colapsou** —
+//! `Styles` passou a ser uma **fachada sobre `StyleDelta`** (o backing único
+//! desta chain; ver `style.rs`). Já não há duas representações: `push_styles`
+//! empurra o `delta()` da fachada (sem reconversão), e `StyleDelta` é o backing
+//! único lido pelos accessors **e** carregado por `Content::Styled`. A
+//! coexistência "até migrar" terminou (o canal `custom` do F-2 fica disponível
+//! no `Styled` para F-realização/F-5).
 
 use std::sync::Arc;
 

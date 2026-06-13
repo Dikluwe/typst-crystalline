@@ -83,7 +83,7 @@ Tabela abaixo reordenada e dimensionada (números exatos no recon).
 | Lote | Conteúdo | Gatilho de revisita | Largura (recon P337) |
 |------|----------|---------------------|--------------------|
 | **F-3 — fronteira na linguagem** ✅ **FECHADO** | inc-1: DEBT C2 (dinâmico renderiza); inc-2: registry→escopo (`#name(args)`) + `#show <dyn>` eager (`Selector::DynKind`, guard por RuleId) + Stage 0 executado | — | feito (P336; commits inc-2 S1/S2/S3/S4) |
-| **① F-4 — `Styled`** | colapsa a **dualidade de backing** `StyleDelta`↔`Styled.Styles` (não "2ª chain" — recon corrigiu: 1 chain/fase) + fecha **B2** (`is_empty` sem arm Styled, `content.rs:1566`) | fundação — antes de tudo | 2 construtores prod. + 3 preservadores + ~7 consumidores |
+| **① F-4 — `Styled`** ✅ **FECHADO (P338)** | colapsou a **dualidade de backing**: `Styles` virou **fachada sobre `StyleDelta`** (direção ii; backing único, `custom` disponível no Styled) + **B2 fechado** (`is_empty` arm Styled). Estágio 0: triagem-47 morta-removida. | fundação — feita | feito (caronas/E0/S1/S2/S3/S4; suíte 2711; det. `f-recon`/relatório P338) |
 | **② F-realização** (gatilho disparado em F-3 inc-2 S3) | `#show` **léxico** (caso 4: `[]` vaza em `eval/mod.rs:460`, `{}` confina; `#set` já escopado) + composição (caso 1) + `Transformation::Style` show-set (caso 3) — multi-passe `StyledElem`-scoped (`lab/.../content/mod.rs:744-752`) | **já disparado** | ~15 sítios show-state; toca o eager dos **nativos**; **20** testes de `#show` (1 vira, 18 revisão, 1 permanece) |
 | **③ F-5 — de-bake** | os **4 pontos assados** (heading/equation/figure `numbering` + `Content::Text` `TextStyle`) deixam de assar; consumidor lê a chain que a F-realização garante no nó | depois de F-realização (transporte pronto) | **4 pontos confirmados** (não 5 — ver E0); risco `is_numbering_active` **RESOLVIDO** |
 
@@ -109,7 +109,8 @@ morto-mas-alimentado mascara (foi exatamente o que escondeu o auto-TOC no S5b).
 **Destino dos consertos B1/B2/B3 do P331** (registrar; B1/B3 neste lote F-2):
 - **B1** (`SetEquationNumbering` sem produtor eval) → resolvido **no canal F-2**
   (P335; paridade de linguagem declarada).
-- **B2** (`Styled.is_empty` cai em `_ => false`) → resolvido **no lote F-4**.
+- **B2** (`Styled.is_empty` cai em `_ => false`) → ✅ **RESOLVIDO no F-4 S1**
+  (P338): arm `Content::Styled` delega ao body (`content.rs`).
 - **B3** (`world_types::Styles(())` stub morto) → removido em **F-2** (a chain
   real substitui o stub).
 
