@@ -1,5 +1,5 @@
 # Prompt L0 — Style e Styles
-Hash do Código: db606b42
+Hash do Código: c6851f4c
 
 ## Módulo
 `01_core/src/entities/style.rs`
@@ -123,12 +123,22 @@ de modo que `Content::Styled` e a `StyleChain` carregam **a mesma representaçã
   por campo — semântica idêntica à projeção antiga). A projeção `Style→StyleDelta`
   (o `match` exaustivo das 10 variantes) vive em `Styles::from_iter`/`push`.
 - Métodos: `new()`, `push(Style)`, `from_iter<I: IntoIterator<Item = Style>>(iter)`,
-  `is_empty()` (delegado a `StyleDelta::is_empty`), `delta() -> &StyleDelta`.
+  `is_empty()` (delegado a `StyleDelta::is_empty`), `delta() -> &StyleDelta`,
+  **`push_custom(key, value) -> Self`** (F-realização fatia 1, P339).
 - **`iter()` e `len()` removidos** — não há mais `Vec<Style>` armazenado; os
   consumidores lêem `delta()` (campos tipados), não uma lista de variantes.
 - **Canal `custom` (F-2) disponível por construção**: o `StyleDelta` embrulhado
   já tem `custom: Vec<(EcoString, Value)>`, de modo que `#set` pode viajar no
   `Content::Styled` quando F-realização/F-5 o exigirem (a porta fica aberta).
+- **`Styles::push_custom(key, value)` (F-realização fatia 1, P339)**: dobra uma
+  entrada `(key, value)` no `StyleDelta.custom` embrulhado — **espelho** de
+  `StyleChain::push_custom` (`style_chain.rs:175`), o mecanismo que permite a
+  `#set …(numbering:)` embrulhar o escopo num `Content::Styled` carregando o
+  custom (transporte aditivo β1, governado por `f_fronteira_e1.md §3a.8`).
+  **Não** introduz variante no enum `Style`: o canal custom é `(key, value)` por
+  decisão do §3a.8 (resolve o fork "forma de partida" do §3b.1 a favor da
+  representação `(key, value)` já implantada no F-2). O baking atual permanece
+  autoritativo até o F-5; caminho duplo chain↔assado com paridade testada.
 
 Derive: `Debug, Clone, Default, PartialEq`.
 

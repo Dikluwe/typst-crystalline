@@ -224,6 +224,97 @@ tratou filhos de elemento dinâmico como folha já-realizada — o caso geral ex
 `with_children`/walk no trait; **registado como item de F-2, não provado pelo
 spike**).
 
+### 3a.8 — Fatia 1 da F-realização: a fundação do transporte `StyledElem`-scoped (aditivo, β1)
+
+> **Estatuto.** Esta é a **fatia 1** da F-realização (P339). Constrói **só** o
+> transporte; **não** religa consumidores (F-5), **não** confina `#show` (o eager
+> fica intocado), **não** introduz guards/multi-passe (Trava-Q1 → fatia 2). As
+> fatias 2 (composição/multi-passe) e 3 (show-set) são P340/P341.
+
+**A lacuna medida (P339, da fonte).** Hoje os 3 `#set …(numbering:)` —
+`heading` (`eval/rules.rs:242`), `equation` (`:266`), `figure` (`:313`) — só
+fazem `engine.styles.push_custom("X.numbering", …)`. Esse custom vive **apenas**
+na chain de **eval** (`engine.styles`), que é **descartada na fronteira
+eval→layout**: `pub fn layout(content)` (`layout/mod.rs:2644`) e
+`layout_with_introspector(content, introspector)` (`:2668`) **não** recebem
+`engine.styles`; `self.chain` do Layouter nasce **fresca**
+(`:374`, `default_chain()`) e é escrita **só** por `Content::Styled`/`Strong`
+(`:1251`/`:1293`). Os 3 consumidores do gate leem o **campo assado**, não a
+chain: `layout/mod.rs:714` (heading), `:812` (equation), `introspect.rs:817`
+(heading auto-TOC). O introspect-walk atravessa `Content::Styled` mas **ignora**
+os styles (`introspect.rs:1204`, arm `(body, _)`).
+
+**Mecanismo escolhido — β1 (decisão do dono, P339).** Reusar `Content::Styled`
+como o nó `StyledElem`-scoped (eco do vanilla `content/mod.rs:744-752`), em vez
+de:
+- **β3 (inserir na chain já fiada): inviável** — não há chain fiada que carregue
+  o custom no ponto de consumo (a de eval morre na fronteira; a de layout nasce
+  fresca e só `Content::Styled` a alimenta), e os consumidores nem leem a chain.
+- **β2 (walk novo em `rules/realize`): rejeitado** — paridade neutra mas
+  superfície maior (módulo novo) e ~6× o custo de passe medido (≈17.6µs/walk vs
+  ≈2.8µs/wrap, P339).
+
+**O que a fatia materializa:**
+
+1. **Caminho `Styles`→custom (superfície mínima).** Adiciona-se
+   **`Styles::push_custom(key, value)`** — espelho de `StyleChain::push_custom`
+   (`style_chain.rs:175`), dobrando em `StyleDelta.custom`. **Sem** nova variante
+   no enum `Style`: o canal custom implantado (F-2) é `StyleDelta.custom:
+   Vec<(EcoString, Value)>` com chave codificada (`"heading.numbering"`), **não**
+   o `Style::Custom { kind, key, value }` que o §3b.1 esboçou como "forma de
+   partida". **Esta fatia resolve esse fork do §3b.1 a favor da representação
+   `(key, value)` já implantada** (o `Style` permanece o vocabulário das 10
+   nativas; o custom entra por `push_custom`, como na chain). **Edição L0
+   acoplada**: `style.rs` é governado pelo `style.md` — adicionar
+   `Styles::push_custom` à secção "Struct `Styles`" desse L0 (o método espelha
+   `StyleChain::push_custom`, sem tocar o enum `Style`).
+
+2. **Emissão wrap nos 3 sítios.** Cada `#set …(numbering:)` passa a **também**
+   embrulhar o resto do escopo léxico num `Content::Styled(body, styles)` com
+   `styles = Styles::new().push_custom("X.numbering", v)` — **além** do
+   `engine.styles.push_custom` atual. O custom passa a viajar na árvore; a
+   `StyleChain` reconstruída em layout (`:1251`) disponibiliza-o em `self.chain`
+   **no nó**. O wrap espelha a produção do `StyledElem` do vanilla.
+
+**Invariante aditivo (o que NÃO muda).** O **baking** permanece autoritativo:
+`eval/markup.rs`/`closures.rs` continuam a assar `numbering_active` de
+`engine.styles.custom`; os 3 consumidores continuam a ler o **campo assado**.
+**Não** são religados — isso é o **F-5**. `#show` eager intocado → o teste-âncora
+`f3s3` permanece divergente (vaza, 2×). `SetPage` (viaja como `Content::SetPage`)
+e `#set text` (assa `TextStyle`) ficam **fora** (§3b.7).
+
+**Caminho duplo + disciplina anti-morto (lição S5b/C1 do P338).** A fatia cria
+caminho duplo chain↔assado, que **nasce com**: (i) **gatilho de remoção escrito**
+= F-5 (o de-bake religa o consumidor à chain e remove o assado); (ii) **teste de
+paridade** `chain.custom("X.numbering") ≡ campo assado` enquanto coexistem; (iii)
+**zero** representação morta "por segurança".
+
+**Content-preserving (medido, protótipo β1 P339).** O `Content::Styled`
+adicionado é **transparente à saída observável**: layout `plain_text` idêntico,
+introspect `kind_index`/counters/locations idênticos, matching de `#show` por
+**selector** (`eval/rules.rs:88-176`) inalterado. A **única** diferença é
+`Content::PartialEq` estrutural (o wrapper é um nó) — **sem dependente em
+produção** (`Content ==` só em `source.rs:38`, por id+hash; selectors não usam
+igualdade de árvore). Custo de perf: ≈2.8µs/wrap/passe (negligível). A
+**caracterização (Estágio T) congela a saída de nível** (layout/`plain_text` +
+introspect) como o invariante; o wrapper é detalhe estrutural interno aceite.
+
+**Contrato S* desta fatia.** Materializa **S6** (escopo por subárvore via
+`StyledElem`) **só no lado transporte** — o custom confina-se à subárvore
+embrulhada; o **consumo** confinado é F-5. **S1–S5, S7** (identidade, guards,
+recipes, multi-passe, show-set, leitura de campos) **não** são tocados.
+
+**Dimensão exata (P339).** Sítios de emissão: **3** (`rules.rs:242/266/313`).
+Tipo novo: **0** variantes de enum (`Styles::push_custom`, +1 método). Arms de
+consumidor novos: **0** (reusa `Content::Styled`). Consumidores religados: **0**
+(F-5).
+
+**Assinatura na lente (registrada, não-surpresa).** A fatia opera **dentro** do
+megaciclo de 90 — a assinatura **não** é queda de contagem de ciclos (isso é o
+corte content→elemento, fora desta fila). Espera-se **delta de aresta** dentro do
+megaciclo (ou ~nulo); `content→elements::*` permanece **66**; `elem→elem`
+permanece **0**.
+
 ### 3a.5 — O registro (os dois públicos, sem global — pureza L1)
 
 - **Público Rust**: implementa `trait Element` no seu `*Elem` + (para o público
