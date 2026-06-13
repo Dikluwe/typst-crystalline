@@ -1563,6 +1563,11 @@ impl Content {
             Self::Columns(e) => e.is_empty(),
             // Lote F-1 (P334): a fronteira dinâmica delega ao elemento.
             Self::Dynamic(e) => e.dyn_is_empty(),
+            // Lote F-4 S1 (P338) — fecha **B2**: um nó estilizado é vazio sse o
+            // body for (o estilo não adiciona observable — paridade com
+            // Block/Pad/Boxed). Antes caía em `_ => false` (styled-de-vazio
+            // reportava não-vazio incorretamente).
+            Self::Styled(body, _) => body.is_empty(),
             _ => false,
         }
     }
@@ -3092,6 +3097,20 @@ mod tests {
             true,
         );
         assert!(!b_text.is_empty());
+    }
+
+    #[test]
+    fn styled_is_empty_proxy_para_body_b2() {
+        // Lote F-4 S1 (P338) — fecha **B2**: um nó estilizado delega `is_empty`
+        // ao body (o estilo não cria observable). Antes caía em `_ => false`
+        // (styled-de-vazio reportava não-vazio).
+        let styled_vazio = Content::strong(Content::Empty);
+        assert!(styled_vazio.is_empty(), "strong(Empty) deve ser vazio (B2)");
+        let styled_emph_vazio = Content::emph(Content::Empty);
+        assert!(styled_emph_vazio.is_empty(), "emph(Empty) deve ser vazio (B2)");
+        // Com conteúdo, não vazio.
+        let styled_texto = Content::strong(Content::text("a"));
+        assert!(!styled_texto.is_empty(), "strong(texto) não é vazio");
     }
 
     #[test]
