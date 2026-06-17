@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 2b209e94
+//! @prompt-hash cf7e6581
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -39,6 +39,24 @@ pub(crate) fn eval_for_test_with_registry<W: World>(
     let route    = Route::root();
 
     eval(&routines, world, traced.track(), sink.track_mut(), route.track(), source, registry)
+}
+
+/// P350c — eval de teste com a **flag de erro completo LIGADA** (`full_error = true`),
+/// para verificar a classificação (cíclico / não-convergente) no 3º hint do erro de
+/// recursão. Espelha `eval_for_test_with_registry`, mas via `eval_with_full_error`.
+pub(crate) fn eval_for_test_full_error<W: World>(
+    world: &W,
+    source: &Source,
+) -> SourceResult<Module> {
+    use comemo::Track;
+    let routines = Routines::new();
+    let traced   = Traced::default();
+    let mut sink = Sink::new();
+    let route    = Route::root();
+    let registry = crate::entities::element_registry::ElementRegistry::new();
+    eval_with_full_error(
+        &routines, world, traced.track(), sink.track_mut(), route.track(), source, &registry, true,
+    )
 }
 
 /// Função de teste que permite customizar o limite de iterações de loop.
@@ -715,6 +733,53 @@ mod tests {
             "mensagem base byte-idêntica ao vanilla");
         assert!(err[0].hints.iter().any(|h| h == "maybe a show rule matches its own output"),
             "hint do vanilla presente (canal separado): {:?}", err[0].hints);
+    }
+
+    // ── P350c — flag de erro completo: classificação (2 rótulos) no 3º hint ──────
+    #[test]
+    fn p350c_flag_off_mensagem_byte_identica_ao_vanilla() {
+        // DEFAULT (flag desligada): o erro de recursão é byte-idêntico ao vanilla —
+        // base + EXATAMENTE os 2 hints do vanilla, SEM 3º. (Prova de que a flag é
+        // aditiva: não muda o padrão.)
+        let world = MockWorld::new(
+            "#show heading: it => { if it.body == [a] {[= b]} else {[= a]} }\n= a"
+        );
+        let src = world.source(world.main()).unwrap();
+        let err = eval_for_test(&world, &src).expect_err("ciclo erra");
+        assert_eq!(err[0].message, "maximum show rule depth exceeded");
+        assert_eq!(err[0].hints.len(), 2,
+            "flag off: exatamente os 2 hints do vanilla, sem 3º: {:?}", err[0].hints);
+    }
+
+    #[test]
+    fn p350c_flag_on_ciclo_classifica_ciclico() {
+        // Flag LIGADA + recursão CÍCLICA (a→b→a→…, a morfologia repete): 3º hint
+        // "CÍCLICA"; base + 2 hints do vanilla intactos.
+        let world = MockWorld::new(
+            "#show heading: it => { if it.body == [a] {[= b]} else {[= a]} }\n= a"
+        );
+        let src = world.source(world.main()).unwrap();
+        let err = eval_for_test_full_error(&world, &src).expect_err("ciclo erra");
+        assert_eq!(err[0].message, "maximum show rule depth exceeded");
+        assert!(err[0].hints.iter().any(|h| h == "maybe a show rule matches its own output"),
+            "hint base 1 intacto: {:?}", err[0].hints);
+        assert!(err[0].hints.iter().any(|h| h == "maybe there are too deeply nested elements"),
+            "hint base 2 intacto: {:?}", err[0].hints);
+        assert!(err[0].hints.iter().any(|h| h.contains("CÍCLICA")),
+            "3º hint classifica CÍCLICA: {:?}", err[0].hints);
+    }
+
+    #[test]
+    fn p350c_flag_on_nao_convergente_classifica() {
+        // Flag LIGADA + recursão NÃO-CONVERGENTE (cresce sem repetir): 3º hint
+        // "NÃO-CONVERGENTE". A regra acrescenta " x" ao corpo a cada passe → o
+        // heading re-casa e a morfologia cresce sem nunca repetir → teto.
+        let world = MockWorld::new("#show heading: it => [= #it.body x]\n= a");
+        let src = world.source(world.main()).unwrap();
+        let err = eval_for_test_full_error(&world, &src).expect_err("divergente erra");
+        assert_eq!(err[0].message, "maximum show rule depth exceeded");
+        assert!(err[0].hints.iter().any(|h| h.contains("NÃO-CONVERGENTE")),
+            "3º hint classifica NÃO-CONVERGENTE: {:?}", err[0].hints);
     }
 
     #[test]

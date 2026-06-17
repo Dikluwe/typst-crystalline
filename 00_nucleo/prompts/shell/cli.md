@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 1a747482
+Hash do Código: 41e81492
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -46,6 +46,7 @@ pub struct RunIntent {
     pub root: PathBuf,
     pub font_paths: Vec<PathBuf>,
     pub colored: bool,
+    pub full_error: bool, // P350c — origem da flag de erro completo
 }
 ```
 
@@ -53,6 +54,13 @@ Output puro de `parse()`. L4 consome sem conhecer clap ou env
 vars. À medida que flags forem adicionadas em passos futuros,
 `RunIntent` ganha campos (sempre como dados crus, nunca
 estruturas de clap).
+
+**`full_error` (P350c)** — origem (casa) da flag de "erro completo"
+(capacidade interna em L1, `EvalContext::full_error`: classifica o erro de
+recursão de `#show` em cíclico/não-convergente num 3º hint). **Débito P350c**:
+(1) o `Arg --full-error` em `Args` (hoje `parse()` fixa `false`); (2) o fio
+`RunIntent.full_error` → L1 pelo caminho **interno** de L3 (`eval_with_full_error`)
+— a assinatura **pública** de `compile_to_pdf_bytes` **não** muda.
 
 ### `parse() -> RunIntent` — API pública
 

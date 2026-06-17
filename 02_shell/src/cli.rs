@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash f7783fcc
+//! @prompt-hash 899148ee
 //! @layer L2
-//! @updated 2026-04-23
+//! @updated 2026-06-17
 //!
 //! CLI do compilador cristalino (Passo 117, ADR-0049).
 //!
@@ -106,6 +106,14 @@ pub struct RunIntent {
     pub root: PathBuf,
     pub font_paths: Vec<PathBuf>,
     pub colored: bool,
+    /// **P350c — flag de "erro completo"** (capacidade interna; origem desta flag).
+    /// Quando ligada, o erro de recursão de `#show` ganha um 3º hint classificando
+    /// cíclico/não-convergente (a capacidade vive em L1, `EvalContext::full_error`).
+    /// **Débito P350c**: (1) o parsing CLI (`--full-error` em `Args` → aqui — hoje
+    /// `parse()` fixa `false`); (2) o fio desta flag até L1 pelo caminho **interno**
+    /// de L3 (a assinatura pública de `compile_to_pdf_bytes` **não** muda). Até o
+    /// débito, este campo é a **casa** da origem (ao lado de `colored`), default `false`.
+    pub full_error: bool,
 }
 
 /// Ponto de entrada público da CLI.
@@ -124,6 +132,9 @@ pub fn parse() -> RunIntent {
         root,
         font_paths: args.font_paths,
         colored,
+        // P350c: débito — sem `Arg --full-error` ainda; a casa da origem existe,
+        // default `false` (= comportamento byte-idêntico ao vanilla).
+        full_error: false,
     }
 }
 

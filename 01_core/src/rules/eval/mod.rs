@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 2b209e94
+//! @prompt-hash cf7e6581
 //! @layer L1
-//! @updated 2026-04-22
+//! @updated 2026-06-17
 //!
 //! Dispatcher central do eval: `EvalContext` struct + impl, `pub fn eval`
 //! entry point, `eval_markup` iterator, `eval_expr` dispatcher delegando
@@ -131,6 +131,18 @@ pub struct EvalContext {
     /// fica deferred — emerge naturalmente quando `Content::Context`
     /// block for materializado (sub-passo dedicado pós-P208).
     pub current_location: Option<crate::entities::location::Location>,
+
+    /// **P350c — flag de "erro completo" (capacidade interna)**. Quando ligada,
+    /// o erro de recursão de `#show` (teto, `apply_show_rules`) ganha um **3º hint**
+    /// classificando **cíclico** (uma morfologia do caminho repetiu — fato medido
+    /// pelo `==` do P345) ou **não-convergente** (teto sem repetição). A **mensagem
+    /// base** e os 2 hints do vanilla **não mudam**; o 3º hint só aparece com a flag.
+    /// **Caminho quente intacto**: o histórico de morfologias só é alocado quando
+    /// esta flag está ligada (atrás do `if`). **L1 não lê env** — recebe o booleano
+    /// já resolvido (via `eval_with_full_error`; origem em `RunIntent`, fio L4→L1
+    /// interno + parsing CLI = débito P350c). Default `false` (= comportamento
+    /// byte-idêntico ao vanilla).
+    pub full_error: bool,
 }
 
 impl EvalContext {
@@ -141,6 +153,7 @@ impl EvalContext {
             next_rule_id: 0,
             introspector: crate::entities::introspector::TagIntrospector::empty(),
             current_location: None,
+            full_error: false,
         }
     }
 
@@ -174,16 +187,34 @@ impl EvalContext {
 
 }
 
-/// Avalia um ficheiro Typst e retorna o módulo resultante.
-///
-/// Travessia AST parcial (Passo 17): avalia literais, Ident, Let, CodeBlock,
-/// Binary, Unary, Conditional, WhileLoop, ForLoop, Closure, FuncCall.
-/// Stdlib mínima injectada: `type`, `len`, `range`.
-/// Fronteira deliberada: `_ => Ok(Value::None)` para Content, Styles (ADR-0017).
-///
-/// **Invariante**: não importa nada de `03_infra`. Acesso ao world
-/// sempre via `World` (L1).
+/// Avalia um ficheiro Typst e retorna o módulo resultante (flag de erro completo
+/// **desligada** — comportamento byte-idêntico ao vanilla). **Delegado** de
+/// `eval_with_full_error` (P350c): mantém a assinatura estável para os ~165 callers
+/// (produção L3 + testes) — a capacidade da flag entra pela sibling, não por aqui.
 pub fn eval(
+    routines: &Routines,
+    world: &dyn World,
+    traced: Tracked<Traced>,
+    sink: TrackedMut<Sink>,
+    route: Tracked<Route>,
+    source: &Source,
+    registry: &crate::entities::element_registry::ElementRegistry,
+) -> SourceResult<Module> {
+    eval_with_full_error(routines, world, traced, sink, route, source, registry, false)
+}
+
+/// Como [`eval`], mas com a flag de **erro completo** (P350c) explícita. Quando
+/// `full_error` está ligada, o erro de recursão de `#show` ganha um 3º hint
+/// classificando cíclico/não-convergente (ver [`EvalContext::full_error`]). A
+/// origem do booleano é `RunIntent` (L2), via o caminho **interno** de L3 — a
+/// assinatura **pública** de L3 (`compile_to_pdf_bytes`) **não** muda; o parsing
+/// da CLI + o fio `RunIntent`→L3-interno são **débito** (P350c). L1 recebe o
+/// booleano já resolvido (não lê env).
+///
+/// Travessia AST parcial: literais, Ident, Let, CodeBlock, Binary, Unary,
+/// Conditional, WhileLoop, ForLoop, Closure, FuncCall. **Invariante**: não importa
+/// nada de `03_infra`; acesso ao world sempre via `World` (L1).
+pub fn eval_with_full_error(
     _routines: &Routines,
     world: &dyn World,
     _traced: Tracked<Traced>,
@@ -194,6 +225,8 @@ pub fn eval(
     // de utilizador registados entram no escopo como funções (`#name(args)`).
     // Em produção é vazio até pacotes registarem elementos; testes injetam.
     registry: &crate::entities::element_registry::ElementRegistry,
+    // P350c: flag de erro completo, já resolvida (origem `RunIntent`; L1 não lê env).
+    full_error: bool,
 ) -> SourceResult<Module> {
     let root = source.root();
 
@@ -209,6 +242,7 @@ pub fn eval(
     }
 
     let mut ctx = EvalContext::new();
+    ctx.full_error = full_error; // P350c: flag resolvida (default false via `eval`)
 
     // Route raiz com o FileId do ficheiro principal — primeira aplicação da
     // ADR-0036 (Passo 92), agora campo do Engine (ADR-0044, Passo 109).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 2b209e94
+//! @prompt-hash cf7e6581
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -109,6 +109,15 @@ pub(crate) fn apply_show_rules(
             // GEROU em P347b/c), o cristalino por morfologia.
             let mut work = node.clone();
             let mut applied = 0usize;
+            // P350c — flag de erro completo: sob a flag, manter o histórico de
+            // morfologias do caminho para classificar o erro (cíclico vs
+            // não-convergente). Com a flag DESLIGADA (default), `history` fica vazio
+            // e nada é alocado/computado — caminho quente intacto. `full_error` é Copy
+            // (lido uma vez; `ctx` continua livre para `apply_func`).
+            let full_error = ctx.full_error;
+            let mut history: Vec<Content> =
+                if full_error { vec![work.morph_canon()] } else { Vec::new() };
+            let mut cycle = false;
             loop {
                 // Aplicar a PRIMEIRA regra que casa `work`, uma vez.
                 let mut produced: Option<Content> = None;
@@ -180,6 +189,19 @@ pub(crate) fn apply_show_rules(
                 let Some(out) = produced else { break };
                 applied += 1;
 
+                // P350c (só sob a flag): registrar a morfologia do output e detectar
+                // se uma forma do caminho **repetiu** (ciclo — fato medido pelo `==`
+                // do P345 sobre `morph_canon`, sem alterá-los). Não corta cedo: a
+                // terminação continua no teto (timing idêntico ao flag-off); só o hint
+                // muda. Com a flag off, este bloco não corre.
+                if full_error {
+                    let out_canon = out.morph_canon();
+                    if history.iter().any(|h| *h == out_canon) {
+                        cycle = true;
+                    }
+                    history.push(out_canon);
+                }
+
                 // A partir da 2ª aplicação, revisitamos um output: detectar o
                 // ponto-fixo (no-op morfológico) e cortar runaway. O caminho comum —
                 // uma aplicação cujo output **não** re-casa — NÃO paga `morph_canon`:
@@ -190,15 +212,33 @@ pub(crate) fn apply_show_rules(
                         break; // ponto-fixo morfológico
                     }
                     if applied >= crate::entities::world_types::Route::MAX_SHOW_RULE_DEPTH {
-                        // Teto backstop (mecânica) — recursão não-convergente.
-                        // Mensagem base BYTE-IDÊNTICA ao vanilla (`engine.rs:350`,
-                        // ADR-0033: a mensagem é comportamento observável).
-                        return Err(vec![SourceDiagnostic::error(
+                        // Teto backstop (mecânica). Mensagem base + 2 hints
+                        // BYTE-IDÊNTICOS ao vanilla (`engine.rs:350`, ADR-0033: a
+                        // mensagem é comportamento observável).
+                        let mut diag = SourceDiagnostic::error(
                             Span::detached(),
                             "maximum show rule depth exceeded",
                         )
                         .with_hint("maybe a show rule matches its own output")
-                        .with_hint("maybe there are too deeply nested elements")]);
+                        .with_hint("maybe there are too deeply nested elements");
+                        // P350c: sob a flag, 3º hint com a classificação — DOIS rótulos
+                        // sólidos: **cíclico** (uma morfologia do caminho repetiu — fato)
+                        // ou **não-convergente** (teto sem repetição). NÃO há terceiro
+                        // rótulo ("converge-fundo") — distinguir divergente de
+                        // converge-fundo adivinharia o futuro pós-corte (ADR-0108:
+                        // afirmar só o medido). Sem a flag, a mensagem é byte-idêntica.
+                        if full_error {
+                            diag = diag.with_hint(if cycle {
+                                "erro completo: recursão CÍCLICA — uma forma de conteúdo \
+                                 repetiu-se no caminho de revisitação (a regra de #show \
+                                 reescreve para algo que reaparece)"
+                            } else {
+                                "erro completo: recursão NÃO-CONVERGENTE — passou do limite \
+                                 sem repetir nem estabilizar (verifique se a regra termina, \
+                                 ou se é recursão legítima profunda)"
+                            });
+                        }
+                        return Err(vec![diag]);
                     }
                 }
                 work = out;

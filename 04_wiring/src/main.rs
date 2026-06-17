@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/wiring.md
 //! @prompt-hash 63faaf24
 //! @layer L4
-//! @updated 2026-04-23
+//! @updated 2026-06-17
 //!
 //! CLI mínima do compilador cristalino — composição thin.
 //!
@@ -53,7 +53,9 @@ use typst_shell::cli::{self, RunIntent};
 use typst_shell::diagnostic::format_diagnostic;
 
 fn main() -> ExitCode {
-    let RunIntent { input, output, root, font_paths, colored } = cli::parse();
+    // P350c: `full_error` (origem em RunIntent) ainda não é fiado a L3 — o `..`
+    // ignora-o de propósito (débito: o fio RunIntent→L3-interno + o parsing CLI).
+    let RunIntent { input, output, root, font_paths, colored, .. } = cli::parse();
 
     let main_path = match input.file_name() {
         Some(name) => PathBuf::from(name),

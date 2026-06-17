@@ -234,6 +234,28 @@
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
 
+## DEBT-59 — Flag de erro completo: exposição CLI + fio `RunIntent`→L1 — EM ABERTO (P350c)
+
+A **capacidade interna** da flag de "erro completo" está **feita** (P350c): quando
+`EvalContext.full_error` está ligada, o erro de recursão de `#show` ganha um 3º hint
+classificando **cíclico**/**não-convergente** (mensagem base byte-idêntica ao vanilla sem a
+flag). Testável já via `eval_with_full_error(…, true)`. A **casa da origem** existe em
+`RunIntent.full_error` (`02_shell/src/cli.rs`, ao lado de `colored`, default `false`).
+
+**Falta (o débito), por decisão de escopo (P350; forma C-com-origem intermédio, P350b):**
+1. **Parsing CLI** — o `Arg --full-error` em `Args` (`cli.rs`) e o seu mapeamento para
+   `RunIntent.full_error` (hoje `parse()` fixa `false`).
+2. **Fio `RunIntent`→L1** — ligar `RunIntent.full_error` (consumido em `04_wiring/main.rs`,
+   hoje ignorado via `..`) até `eval_with_full_error` pelo caminho **interno** de L3
+   (`03_infra/pipeline.rs`), **sem** mudar a assinatura **pública** de `compile_to_pdf_bytes`
+   (decisão, não débito — não expor por uma flag off-by-default).
+
+**Critério de conclusão:** `typst --full-error doc.typ` produz, num erro de recursão de
+`#show`, o 3º hint classificado; sem a flag, a mensagem é byte-idêntica ao vanilla.
+
+Ver: `00_nucleo/prompts/entities/f_fronteira_e1.md §3a.7-bis`, `prompts/shell/cli.md`
+(`RunIntent.full_error`), relatórios P350/P350b/P350c.
+
 ## DEBT-58 — Primitivos de AST fora do modelo D — **TRIADO (Passo 329)**
 
 **Estado**: a parte "primitivos" **encerra** (vira desenho declarado); `Styled`

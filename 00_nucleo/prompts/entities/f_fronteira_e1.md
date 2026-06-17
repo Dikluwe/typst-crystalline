@@ -292,11 +292,25 @@ comum (output não re-casa) **não paga `morph_canon`** (a checagem de ponto-fix
 instância (mecânica), o cristalino por morfologia. **Text rules não mudam** (passe único,
 `map_text`; a Revocation servia só a elas no vanilla, e o cristalino já não as revisita) —
 logo o `Content::Guarded` (Trava-Q1) e o multi-passe (fatia 2b) ficam **dispensados** para a
-recursão de element rules: α resolve sem eles. **Flag de erro completo** (classificar
-cíclico/divergente/converge-fundo num **canal de hint separado**): é **superfície nova de
-config** (cross-layer; L1 não lê env) — **adiada a lote próprio**; a mensagem base já é
-byte-idêntica ao vanilla sem ela (a flag só *adicionaria* detalhe sob demanda, sem mudar o
-padrão).
+recursão de element rules: α resolve sem eles.
+
+**Flag de erro completo — capacidade interna FEITA (P350c; forma C-com-origem intermédio).**
+Quando ligada, o erro do teto ganha um **3º hint** num **canal separado** (`with_hint`)
+classificando em **DOIS rótulos sólidos**: **cíclico** (uma morfologia do caminho repetiu —
+fato medido pelo `==`/`morph_canon` do P345) e **não-convergente** (teto sem repetição). O
+**terceiro rótulo "converge-fundo" foi CORTADO** (decisão do dono, ADR-0108 regra 4: afirmar
+só o medido — distinguir divergente de converge-fundo adivinharia o futuro pós-corte). A
+**mensagem base + os 2 hints do vanilla são byte-idênticos** (a flag só *acrescenta* o 3º).
+**Caminho quente intacto**: o histórico de morfologias só é alocado/computado quando a flag
+está ligada (atrás do `if ctx.full_error` em `apply_show_rules`/`apply_all`). **Origem→leitura**
+(C-com-origem intermédio, P350b/c): a flag mora em `RunIntent` (L2, `cli.rs`, ao lado de
+`colored`) → desce a `eval` pelo **sibling `eval_with_full_error`** (a assinatura **pública**
+de L3 `compile_to_pdf_bytes` **não muda**; `eval()` continua o delegado com `false`) →
+`EvalContext.full_error` (L1) é lida no ponto do erro. **L1 não lê env** (recebe resolvido).
+**Débito nomeado (P350c):** (1) o **parsing CLI** (`--full-error` em `Args` → `RunIntent`);
+(2) o **fio `RunIntent`→`eval_with_full_error`** pelo caminho **interno** de L3 (hoje a
+produção entra com `false`; ligar o `RunIntent` real é débito junto com a CLI). Testável já
+via `eval_with_full_error(…, true)`.
 
 ### 3a.8 — Fatia 1 da F-realização: a fundação do transporte `StyledElem`-scoped (aditivo, β1)
 

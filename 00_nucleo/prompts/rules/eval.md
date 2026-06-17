@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 4c38ef64
+Hash do Código: bbdca83d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval.rs`
@@ -81,6 +81,13 @@ Requer Content, Func, Styles para implementação completa (ADR-0017).
   "Z" (vanilla erra — termina por identidade de instância, mecânica/GEROU, P347b-d; a
   Revocation é INTERNA e **não** é reproduzida). Text rules (`map_text`) não recursam. Detalhe
   em `entities/f_fronteira_e1.md §3a.7-bis`.
+- **Flag de erro completo (P350c)**: `EvalContext.full_error` (default `false`, recebida via
+  `eval_with_full_error` — `eval()` é o delegado com `false`; L1 não lê env). Quando ligada,
+  o erro do teto ganha um **3º hint** classificando **cíclico** (morfologia do caminho repetiu)
+  ou **não-convergente** (teto sem repetição) — **2 rótulos** (sem "converge-fundo": afirmar só
+  o medido, ADR-0108). Mensagem base + 2 hints do vanilla **byte-idênticos** sem a flag; o
+  histórico de morfologias só é alocado sob a flag (caminho quente intacto). Detalhe + débito
+  (CLI + fio `RunIntent`→L3-interno) em `entities/f_fronteira_e1.md §3a.7-bis`.
 - **BinOp variants**: `Add, Sub, Mul, Div, And, Or, Eq, Neq, Lt, Leq, Gt, Geq,
   Assign, In, NotIn, AddAssign, SubAssign, MulAssign, DivAssign`
 - **UnOp variants**: `Pos, Neg, Not`
