@@ -81,6 +81,20 @@ objeto da linguagem (texto, markup, estilo semântico `*bold*`), distinta do est
 
 ---
 
+## Disciplina anti-deriva — medir antes de decidir (ADR-0108)
+
+Todo prompt **mede antes de decidir**: a secção de decisão/classificação é **precedida**
+pela medição (`file:line`) que a produz — nunca o contrário. Classifica **língua vs
+mecânica** da fonte (semântica/sintaxe/morfologia = paridade; igualdade do Rust/bytes/
+passos/estrutura = diverge, ADR-0107); distingue **intenção de comportamento** (não inferir
+intenção do comportamento); **marca inferência** e o que a refutaria; **desconfia do
+enquadramento lisonjeiro/cômodo** (checagem extra da fonte antes de aceitar). **Aceitação no
+nível da língua**, nunca mecânica — exceto onde a mecânica **é** o observável (mensagem de
+erro). Um prompt que viole a forma é **malformado**; o dono **audita a substância** (reduz a
+dependência do freio, não a elimina). Ver **ADR-0108**.
+
+---
+
 ## Protocolo de Nucleação (obrigatório antes de código)
 
 1. **Auditoria L0:** existe prompt em `00_nucleo/prompts/` para o módulo afetado? Está atualizado face às ADRs vigentes?
@@ -115,6 +129,7 @@ objeto da linguagem (texto, markup, estilo semântico `*bold*`), distinta do est
 | ADR-0030 | Performance de RAM é domínio de L1; corrige ADR-0004/0015 |
 | ADR-0031 | Early hashing em `Source`; complementa ADR-0016 |
 | ADR-0107 | Paridade é com a linguagem (semântica/sintaxe/morfologia), não com a mecânica/igualdade do Rust |
+| ADR-0108 | Disciplina anti-deriva: medir antes de decidir (6 regras verificáveis); o dono audita a substância |
 
 ADRs revogadas não constam na tabela e não devem ser seguidas.
 
