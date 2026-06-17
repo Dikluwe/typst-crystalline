@@ -116,6 +116,32 @@ morto-mas-alimentado mascara (foi exatamente o que escondeu o auto-TOC no S5b).
 
 ---
 
+## Marco G — desacoplamento dos nativos (pós-F-6, FORA da fila F)
+
+> **Dono do corte `content → elements::* → 0`** — o item carregado sem dono do P339
+> ao P345; **decidido no P346 (Saída 2)**: não é regressão nem expectativa órfã, é um
+> marco maior que a fila F **habilita mas não entrega**.
+
+A fila F-1…F-6 + F-realização torna os elementos **extensíveis** (fronteira E1, F-1) e
+unifica estilo/realização — mas **não desacopla** `content` dos 65 `*Elem` concretos: o
+modelo D (enum fechado) importa cada elemento **por desenho**. Logo
+`edges(content → elements::*) = 66` (lente, baseline P338) **não** baixa na fila F —
+confirmado lote a lote (F-1 aditivo declarou `content→elements` inalterado; F-2…F-6 não
+removem os `use elements::*Elem` do núcleo). Não é regressão: é o que a fila **não promete**.
+
+O corte `= 0` é o marco **G**, pós-F-6, **fora da fila**: converter os 65 nativos a
+passarem pela **fronteira de extensão E1** (que o F-1 construiu), para o núcleo deixar de
+importar cada um.
+- **Dependência**: fronteira E1 (F-1) — pré-requisito já habilitado.
+- **Métrica do marco G** (sua, não a do F): `edges(content → elements::*) → 0` (lente
+  R3/R4). É **aqui** que o `target = 0` do baseline P338 mora — deixa de ser órfão.
+- **Métrica-gate do F** (distinta): atomização preservada + `edges(elemento→elemento) = 0`
+  (já satisfeito). O F **não** é medido por `content→elements`.
+- **Escopo**: migração grande (mover 65 elementos pela fronteira), com **spec própria**
+  quando chegar a vez. **Não** é trabalho desta branch — o P346 nomeia o marco, não o executa.
+
+---
+
 ## Critérios transversais a todos os lotes
 
 1. **Aditivo/content-preserving**: nenhuma asserção existente alterada (alterar
