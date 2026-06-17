@@ -1,5 +1,5 @@
 # Prompt L0 — Style e Styles
-Hash do Código: 8c030d91
+Hash do Código: 8817bc3c
 
 ## Módulo
 `01_core/src/entities/style.rs`
@@ -124,6 +124,10 @@ de modo que `Content::Styled` e a `StyleChain` carregam **a mesma representaçã
   (o `match` exaustivo das 10 variantes) vive em `Styles::from_iter`/`push`.
 - Métodos: `new()`, `push(Style)`, `from_iter<I: IntoIterator<Item = Style>>(iter)`,
   `is_empty()` (delegado a `StyleDelta::is_empty`), `delta() -> &StyleDelta`,
+  **`from_delta(StyleDelta) -> Self`** (P352, show-set): constrói uma `Styles`
+  envolvendo um `StyleDelta` já dobrado — o inverso de `delta()`. Usado pela
+  captura do show-set (`#show k: set …`) para carregar o efeito do `set` num
+  `Content::Styled` (`f_fronteira_e1.md §3a.8`, `entities/show.md`).
   **`push_custom(key, value) -> Self`** (F-realização fatia 1, P339),
   **`is_semantically_empty() -> bool`** (P345, ADR-0107): nenhum campo tipado
   (bold/italic/size/…) definido, **ignorando** o canal `custom`. Distingue um

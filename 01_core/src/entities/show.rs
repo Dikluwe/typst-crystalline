@@ -1,10 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/show.md
-//! @prompt-hash 21e02485
+//! @prompt-hash 59184b04
 //! @layer L1
 //! @updated 2026-04-19
 
-use crate::entities::value::Value;
+use ecow::EcoString;
+
+use crate::entities::content::Content;
+use crate::entities::func::Func;
+use crate::entities::style::Styles;
 
 /// Identificador único de uma show rule por sessão de avaliação.
 pub type RuleId = u64;
@@ -41,10 +45,31 @@ pub enum Selector {
     DynKind(String),
 }
 
+/// A transformação que uma show rule aplica. Materializa o **S5** do spike-2
+/// (`Transformation = Content | Func | Style`, `f_fronteira_e1.md §3c`).
+/// Substitui o antigo `transform: Value` solto por um vocabulário fechado.
+#[derive(Debug, Clone)]
+pub enum Transformation {
+    /// Closure `it => …` — recebe o nó, devolve `Content` (ou `Str`, promovido
+    /// a `Content::text`). Consome o passe de show.
+    Func(Func),
+    /// Substituição estática direta. Consome o passe.
+    Content(Content),
+    /// Substituição literal de texto — **apenas** para `Selector::Text` (via
+    /// `map_text`). Sobre `NodeKind`/`DynKind` é erro (requer função ou Content).
+    Str(EcoString),
+    /// **Show-set** (`#show k: set …`, P352). Os styles do `set` são capturados
+    /// na declaração (sem mutar `engine.styles` globalmente) e transportados para
+    /// o nó casado embrulhando-o num `Content::Styled(elem, styles)` — o
+    /// carregador `StyledElem`-scoped da fatia 1 (`f_fronteira_e1.md §3a.8`).
+    /// **NÃO consome o passe** (espelha `map.apply; continue` do vanilla).
+    Style(Styles),
+}
+
 /// Uma regra de transformação declarada com `#show selector: transform`.
 #[derive(Debug, Clone)]
 pub struct ShowRule {
     pub id:        RuleId,
     pub selector:  Selector,
-    pub transform: Value,
+    pub transform: Transformation,
 }

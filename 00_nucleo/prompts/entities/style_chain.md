@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: ee1bb41e
+Hash do Código: 138c1236
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -35,6 +35,12 @@ pub struct StyleChain(Option<Arc<StyleNode>>);
 `StyleDelta::empty()` — nenhuma propriedade definida.
 `StyleChain::default_chain()` — bold=false, italic=false, size=11.0pt.
 `StyleChain::push(delta)` — nova cadeia herdando desta, com delta por cima. O(1).
+`StyleChain::collapse() -> StyleDelta` (P352, show-set) — dobra **todos** os nós da
+cadeia num único `StyleDelta` preservando a semântica `Option` (top-wins por campo;
+`custom` mantém a primeira ocorrência por chave). Read-only. Usado pela captura do
+show-set para extrair, de uma cadeia construída sobre `StyleChain::empty()`, o efeito
+exato do `#set` (sem os defaults de `default_chain`). Sobre `empty()` o resultado é
+apenas o que o `set` definiu — não os defaults.
 
 ## Resolução de propriedades
 

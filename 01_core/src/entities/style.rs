@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style.md
-//! @prompt-hash de4e8a2f
+//! @prompt-hash 74b5d8b0
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -169,6 +169,14 @@ impl Styles {
     /// Colecção vazia — nenhum estilo aplicado (delta todo `None`).
     pub const fn new() -> Self {
         Self { delta: StyleDelta::empty() }
+    }
+
+    /// **Show-set (P352)** — constrói uma `Styles` envolvendo um `StyleDelta` já
+    /// dobrado (o inverso de `delta()`). Usado pela captura de `#show k: set …`
+    /// para carregar o efeito do `set` num `Content::Styled` (`f_fronteira_e1.md`
+    /// §3a.8). Não passa pelo enum `Style` — o `StyleDelta` já é a representação.
+    pub const fn from_delta(delta: StyleDelta) -> Self {
+        Self { delta }
     }
 
     /// Constrói dobrando um iterador de `Style` no backing único.

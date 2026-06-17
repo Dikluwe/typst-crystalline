@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash cf7e6581
+//! @prompt-hash 7a92cc2d
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -3155,6 +3155,101 @@ mod tests {
             "Heading deve ser transformado para maiúsculas: {:?}", text);
         assert!(text.contains("forte"),
             "Strong deve ser transformado para minúsculas: {:?}", text);
+    }
+
+    // ── P352 — show-set (`#show k: set …`, Transformation::Style, S5) ─────────
+
+    /// `true` se algum `Content::Styled` com `bold == Some(true)` embrulha
+    /// (direta ou transitivamente) um `Content::Heading`.
+    fn styled_bold_envolve_heading(c: &Content) -> bool {
+        match c {
+            Content::Styled(b, s) => {
+                if s.delta().bold == Some(true) && contem_heading(b) {
+                    return true;
+                }
+                styled_bold_envolve_heading(b)
+            }
+            Content::Sequence(items) => items.iter().any(styled_bold_envolve_heading),
+            _ => false,
+        }
+    }
+
+    fn contem_heading(c: &Content) -> bool {
+        match c {
+            Content::Heading(_) => true,
+            Content::Styled(b, _) => contem_heading(b),
+            Content::Sequence(items) => items.iter().any(contem_heading),
+            _ => false,
+        }
+    }
+
+    /// `true` se existe um `Content::Text` cujo texto contém `needle` e cujo
+    /// `TextStyle.bold` é `true` (deteta vazamento global de um `set text(bold:)`).
+    fn texto_bold_contendo(c: &Content, needle: &str) -> bool {
+        match c {
+            Content::Text(s, ts) => s.as_str().contains(needle) && ts.bold,
+            Content::Styled(b, _) => texto_bold_contendo(b, needle),
+            Content::Sequence(items) => items.iter().any(|i| texto_bold_contendo(i, needle)),
+            Content::Heading(h) => texto_bold_contendo(&h.body, needle),
+            _ => false,
+        }
+    }
+
+    #[test]
+    fn show_set_text_embrulha_heading_em_styled_bold() {
+        // **Caso 3 (show-set), P352.** `#show heading: set text(bold: true)`
+        // ANTES ERRAVA ("requer função ou Content, recebeu none" — o eager avaliava
+        // o set como statement e devolvia Value::None; Fase A P352). AGORA o heading
+        // é embrulhado num `Content::Styled` carregando `bold=true`, e o texto
+        // SOBREVIVE — show-set **não substitui** o elemento (espelha
+        // `map.apply(transform); continue` do vanilla, `typst-realize:458-464`).
+        let world = MockWorld::new("#show heading: set text(bold: true)\n\n= titulo");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).expect("show-set não deve errar");
+        let c = module.content().unwrap();
+        assert!(styled_bold_envolve_heading(c),
+            "o heading deve estar embrulhado num Styled(bold=true): {c:?}");
+        assert!(c.plain_text().contains("titulo"),
+            "o texto do heading é preservado (não substituído): {:?}", c.plain_text());
+    }
+
+    #[test]
+    fn show_set_nao_consome_o_passe_preserva_o_elemento() {
+        // Show-set NÃO consome o passe: o elemento permanece (não é trocado por
+        // outro conteúdo). O heading continua presente sob o wrapper de estilo.
+        let world = MockWorld::new("#show heading: set text(bold: true)\n\n= Cabecalho");
+        let src = world.source(world.main()).unwrap();
+        let c = module_content(&world, &src);
+        assert!(contem_heading(&c), "o heading sobrevive ao show-set: {c:?}");
+    }
+
+    #[test]
+    fn show_set_nao_vaza_estilo_global() {
+        // **Paridade-chave.** O `set` dentro do show-set é CAPTURADO, não aplicado
+        // ao `engine.styles` global: o parágrafo de FORA não fica bold. (No caminho
+        // eager antigo o set mutava o estilo global na declaração — a divergência
+        // que o P352 fecha.) Confina-se ao elemento casado, como o vanilla.
+        let world = MockWorld::new(
+            "#show heading: set text(bold: true)\n\n= T\n\nparagrafo de fora",
+        );
+        let src = world.source(world.main()).unwrap();
+        let c = module_content(&world, &src);
+        assert!(!texto_bold_contendo(&c, "paragrafo de fora"),
+            "o texto de fora NÃO deve ficar bold (sem vazamento global): {c:?}");
+    }
+
+    #[test]
+    fn show_set_em_selector_de_texto_e_erro() {
+        // Show-set é sobre elementos; sobre um selector de texto literal → erro
+        // explícito (invariante de `entities/show.md`).
+        let world = MockWorld::new("#show \"x\": set text(bold: true)\nxxx");
+        let src = world.source(world.main()).unwrap();
+        let r = eval_for_test(&world, &src);
+        assert!(r.is_err(), "show-set sobre selector de texto deve errar");
+    }
+
+    fn module_content(world: &MockWorld, src: &crate::entities::source::Source) -> Content {
+        eval_for_test(world, src).unwrap().content().unwrap().clone()
     }
 
     // ── Passo 71 — image() integration ──────────────────────────────────────

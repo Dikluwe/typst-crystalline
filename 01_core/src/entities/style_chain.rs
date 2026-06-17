@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash cc2dae57
+//! @prompt-hash 622cbc62
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -177,6 +177,39 @@ impl StyleChain {
             custom: vec![(key.into(), value)],
             ..StyleDelta::empty()
         })
+    }
+
+    /// **Show-set (P352)** — dobra **todos** os nós da cadeia num único
+    /// `StyleDelta`, preservando a semântica `Option` (top-wins por campo; o
+    /// `custom` mantém a primeira ocorrência por chave). Read-only.
+    ///
+    /// Usado pela captura do show-set (`#show k: set …`): a cadeia é construída
+    /// sobre `StyleChain::empty()` (não `default_chain()`), logo o resultado é
+    /// **apenas** o que o `#set` definiu — sem os defaults bold/italic/size. Os
+    /// consumidores (`Content::Styled`) recebem o efeito exato do `set`.
+    pub fn collapse(&self) -> StyleDelta {
+        let mut out = StyleDelta::empty();
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            let d = &n.delta;
+            if out.bold.is_none()          { out.bold = d.bold; }
+            if out.italic.is_none()        { out.italic = d.italic; }
+            if out.size.is_none()          { out.size = d.size; }
+            if out.fill.is_none()          { out.fill = d.fill; }
+            if out.heading_level.is_none() { out.heading_level = d.heading_level; }
+            if out.weight.is_none()        { out.weight = d.weight; }
+            if out.tracking.is_none()      { out.tracking = d.tracking; }
+            if out.leading.is_none()       { out.leading = d.leading; }
+            if out.lang.is_none()          { out.lang = d.lang.clone(); }
+            if out.font.is_none()          { out.font = d.font.clone(); }
+            for (k, v) in &d.custom {
+                if !out.custom.iter().any(|(ek, _)| ek == k) {
+                    out.custom.push((k.clone(), v.clone()));
+                }
+            }
+            node = n.parent.as_deref();
+        }
+        out
     }
 
     /// **Canal aberto (Lote F-2, P335)** — resolve uma propriedade `Set*` por

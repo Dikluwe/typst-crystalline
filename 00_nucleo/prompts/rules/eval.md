@@ -81,6 +81,16 @@ Requer Content, Func, Styles para implementação completa (ADR-0017).
   "Z" (vanilla erra — termina por identidade de instância, mecânica/GEROU, P347b-d; a
   Revocation é INTERNA e **não** é reproduzida). Text rules (`map_text`) não recursam. Detalhe
   em `entities/f_fronteira_e1.md §3a.7-bis`.
+- **Show-set (`#show k: set …`, P352, S5/`Transformation::Style`)**: `eval_show_rule` deteta o
+  transform `Expr::SetRule`, **captura** o `Styles`/`StyleDelta` resultante (avaliando os args do
+  set) **sem mutar `engine.styles` globalmente**, e regista a `ShowRule` com
+  `Transformation::Style(styles)`. Em `apply_show_rules`, quando uma show-set casa o elemento
+  (NodeKind/DynKind), o nó é **embrulhado** em `Content::Styled(elem, styles)` (o carregador da
+  fatia 1, `f_fronteira_e1.md §3a.8`) e a regra **NÃO consome o passe** (espelha
+  `map.apply(transform); continue` do vanilla, `typst-realize/src/lib.rs:458-464` /
+  `styles.rs:504`). O elemento renderiza sob a chain aumentada; não é substituído. **Não** é
+  válida sobre `Selector::Text`. **Fora de escopo**: caso 1 (composição multi-regra) — colide com
+  o modelo α (relatório P352 §4); não materializado aqui. Detalhe em `entities/show.md`.
 - **Flag de erro completo (P350c)**: `EvalContext.full_error` (default `false`, recebida via
   `eval_with_full_error` — `eval()` é o delegado com `false`; L1 não lê env). Quando ligada,
   o erro do teto ganha um **3º hint** classificando **cíclico** (morfologia do caminho repetiu)

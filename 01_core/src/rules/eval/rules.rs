@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash cf7e6581
+//! @prompt-hash 7a92cc2d
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -20,10 +20,11 @@ use crate::entities::engine::Engine;
 use crate::entities::font_book::FontWeight;
 use crate::entities::font_list::{FontFamily, FontList};
 use crate::entities::lang::Lang;
-use crate::entities::show::{NodeKind, Selector, ShowRule};
+use crate::entities::show::{NodeKind, Selector, ShowRule, Transformation};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
-use crate::entities::style_chain::StyleDelta;
+use crate::entities::style::Styles;
+use crate::entities::style_chain::{StyleChain, StyleDelta};
 use crate::entities::value::Value;
 use crate::entities::world_types::check_show_depth as route_check_show_depth;
 use crate::rules::scopes::Scopes;
@@ -57,6 +58,33 @@ fn unsupported_target_warn(target: &str) -> (String, String) {
         format!("set: target '{target}' ainda não suportado"),
         "targets suportados: heading, page, figure, text, par".to_string(),
     )
+}
+
+/// Casa um nó contra um selector de element rule (`NodeKind`/`DynKind`).
+/// **Partilhado** (P352) pelo loop α (transformação func/content) e pela passagem
+/// de show-set: ambos usam exatamente o mesmo critério de match. `Selector::Text`
+/// nunca casa aqui (tratado por `map_text`).
+fn selector_matches(work: &Content, selector: &Selector) -> bool {
+    // Passo 101: `show strong/emph` casam `Content::Styled` com bold/italic activo
+    // (F-4: `delta()` tipado, não `iter()`).
+    let is_bold_styled = matches!(work, Content::Styled(_, ss)
+        if ss.delta().bold == Some(true));
+    let is_italic_styled = matches!(work, Content::Styled(_, ss)
+        if ss.delta().italic == Some(true));
+    match selector {
+        Selector::NodeKind(kind) => matches!(
+            (work, kind),
+            (Content::Heading(_),  NodeKind::Heading)
+            | (Content::Figure(_),   NodeKind::Figure)
+            | (Content::Raw { .. },      NodeKind::Raw)
+            | (Content::Equation { .. }, NodeKind::Equation)
+            | (Content::ListItem(_),     NodeKind::ListItem)
+        ) || (matches!(kind, NodeKind::Strong) && is_bold_styled)
+          || (matches!(kind, NodeKind::Emph)   && is_italic_styled),
+        Selector::DynKind(name) =>
+            matches!(work, Content::Dynamic(e) if e.dyn_kind() == name),
+        Selector::Text(_) => false,
+    }
 }
 
 /// Aplica as show rules activas ao Content (Passo 70 — DEBT-23 encerrado).
@@ -128,34 +156,18 @@ pub(crate) fn apply_show_rules(
                         continue;
                     }
 
-                    // Passo 101: `show strong/emph` casam `Content::Styled` com
-                    // `bold`/`italic` activo (F-4: `delta()` tipado, não `iter()`).
-                    let is_bold_styled = matches!(&work, Content::Styled(_, ss)
-                        if ss.delta().bold == Some(true));
-                    let is_italic_styled = matches!(&work, Content::Styled(_, ss)
-                        if ss.delta().italic == Some(true));
+                    // Show-set (P352): NÃO consome o passe de func — é tratado após o
+                    // loop α (embrulha o nó em `Content::Styled`). Saltado aqui.
+                    if matches!(rule.transform, Transformation::Style(_)) {
+                        continue;
+                    }
 
-                    let is_match = match &rule.selector {
-                        Selector::NodeKind(kind) => matches!(
-                            (&work, kind),
-                            (Content::Heading(_),  NodeKind::Heading)
-                            | (Content::Figure(_),   NodeKind::Figure)
-                            | (Content::Raw { .. },      NodeKind::Raw)
-                            | (Content::Equation { .. }, NodeKind::Equation)
-                            | (Content::ListItem(_),     NodeKind::ListItem)
-                        ) || (matches!(kind, NodeKind::Strong) && is_bold_styled)
-                          || (matches!(kind, NodeKind::Emph)   && is_italic_styled),
-                        Selector::DynKind(name) =>
-                            matches!(&work, Content::Dynamic(e) if e.dyn_kind() == name),
-                        Selector::Text(_) => false, // tratado abaixo
-                    };
-
-                    if !is_match {
+                    if !selector_matches(&work, &rule.selector) {
                         continue;
                     }
 
                     match &rule.transform {
-                        Value::Func(func) => {
+                        Transformation::Func(func) => {
                             let args = Args::positional(vec![Value::Content(work.clone())]);
                             engine.active_guards.push(rule.id);
                             let call_result = closures::apply_func(func.clone(), args, ctx, engine);
@@ -174,15 +186,17 @@ pub(crate) fn apply_show_rules(
                             });
                             break;
                         },
-                        Value::Content(c) => { produced = Some(c.clone()); break; },
-                        other => return Err(vec![SourceDiagnostic::error(
+                        Transformation::Content(c) => { produced = Some(c.clone()); break; },
+                        // `Str` só é válida sobre `Selector::Text` (tratada no loop
+                        // de texto). Sobre NodeKind/DynKind é erro — paridade com o
+                        // comportamento anterior ("recebeu str").
+                        Transformation::Str(_) => return Err(vec![SourceDiagnostic::error(
                             Span::detached(),
-                            format!(
-                                "show rule com selector de tipo requer função ou Content, \
-                                 recebeu {}",
-                                other.type_name()
-                            ),
+                            "show rule com selector de tipo requer função ou Content, \
+                             recebeu str".to_string(),
                         )]),
+                        // Saltado acima; inalcançável.
+                        Transformation::Style(_) => continue,
                     }
                 }
 
@@ -244,7 +258,38 @@ pub(crate) fn apply_show_rules(
                 work = out;
             }
 
-            if applied > 0 { Ok(Some(work)) } else { Ok(None) }
+            // Show-set (P352, S5): embrulha o nó (possivelmente já transformado
+            // pelo loop α de func) nos styles das regras **show-set** que o casam.
+            // **NÃO consome o passe** — espelha `map.apply(transform); continue` do
+            // vanilla (`typst-realize/src/lib.rs:458-464` / `styles.rs:504`). O
+            // confinamento à subárvore vem do `Content::Styled` (carregador da
+            // fatia 1, `f_fronteira_e1.md §3a.8`). Ordem de fold: regras casadas
+            // empurradas na ordem de declaração; `collapse` resolve top-wins
+            // (mais-recente vence — paridade com a precedência innermost do vanilla).
+            // O caso comum (sem show-set) não entra: `set_chain` fica `empty()`.
+            let mut set_chain = StyleChain::empty();
+            let mut any_set = false;
+            for rule in &node_rules {
+                if let Transformation::Style(styles) = &rule.transform {
+                    if engine.active_guards.contains(&rule.id) {
+                        continue;
+                    }
+                    if selector_matches(&work, &rule.selector) {
+                        set_chain = set_chain.push(styles.delta().clone());
+                        any_set = true;
+                    }
+                }
+            }
+            let mut wrapped = false;
+            if any_set {
+                let delta = set_chain.collapse();
+                if !delta.is_empty() {
+                    work = Content::Styled(Box::new(work), Styles::from_delta(delta));
+                    wrapped = true;
+                }
+            }
+
+            if applied > 0 || wrapped { Ok(Some(work)) } else { Ok(None) }
         };
 
         content = content.map_content(&mut apply_all)?;
@@ -253,7 +298,7 @@ pub(crate) fn apply_show_rules(
     // Text rules — map_text por padrão, na ordem de declaração.
     for rule in rules {
         if let Selector::Text(pattern) = &rule.selector {
-            if let Value::Str(s) = &rule.transform {
+            if let Transformation::Str(s) = &rule.transform {
                 let replacement = s.to_string();
                 let mut do_replace = |text: &str| text.replace(pattern.as_str(), &replacement);
                 content = content.map_text(&mut do_replace);
@@ -583,6 +628,26 @@ pub(super) fn eval_set_rule(
     Ok(Value::None)
 }
 
+/// **Show-set (P352)** — captura o efeito de um `#set` como `Styles`, **sem**
+/// mutar o estilo global. Reusa `eval_set_rule` (fiel a todos os targets, aos
+/// warns e aos erros hard) aplicando-o a uma `StyleChain::empty()` temporária e
+/// extrai o delta resultante (`collapse`). Sobre `empty()`, o resultado é só o
+/// que o `set` definiu — sem os defaults. `engine.styles` é restaurado mesmo
+/// em caso de erro (o swap de volta corre antes do `?`).
+fn capture_set_styles(
+    set: SetRule<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Styles> {
+    let mut scratch = StyleChain::empty();
+    std::mem::swap(&mut *engine.styles, &mut scratch);
+    let result = eval_set_rule(set, scopes, ctx, engine);
+    std::mem::swap(&mut *engine.styles, &mut scratch);
+    result?;
+    Ok(Styles::from_delta(scratch.collapse()))
+}
+
 pub(super) fn eval_show_rule(
     show_rule: ShowRuleNode<'_>,
     scopes: &mut Scopes<'_>,
@@ -656,8 +721,40 @@ pub(super) fn eval_show_rule(
         }
     };
 
-    // Avaliar a transformação (closure ou valor estático).
-    let transform = eval_expr(show_rule.transform(), scopes, ctx, engine)?;
+    // Classificar a transformação. Show-set (`#show k: set …`) é detetado pelo
+    // tipo do nó (`Expr::SetRule`) e **capturado sem mutar `engine.styles`**
+    // globalmente (P352); as restantes formas avaliam para um `Value` e
+    // classificam-se em `Transformation`.
+    let transform_expr = show_rule.transform();
+    let transform = match transform_expr {
+        Expr::SetRule(set) => {
+            // Show-set é sobre um elemento (NodeKind/DynKind), não sobre texto.
+            if matches!(selector, Selector::Text(_)) {
+                return Err(vec![SourceDiagnostic::error(
+                    set.to_untyped().span(),
+                    "show-set (`#show …: set …`) não é válido para um selector de \
+                     texto — use uma função ou Content".to_string(),
+                )]);
+            }
+            Transformation::Style(capture_set_styles(set, scopes, ctx, engine)?)
+        }
+        expr => {
+            let value = eval_expr(expr, scopes, ctx, engine)?;
+            match value {
+                Value::Func(f)    => Transformation::Func(f),
+                Value::Content(c) => Transformation::Content(c),
+                Value::Str(s)     => Transformation::Str(s),
+                other => return Err(vec![SourceDiagnostic::error(
+                    expr.span(),
+                    format!(
+                        "transformação de show rule inválida: esperado função, \
+                         Content, string ou set rule, recebeu {}",
+                        other.type_name()
+                    ),
+                )]),
+            }
+        }
+    };
     let id = ctx.next_rule_id;
     ctx.next_rule_id += 1;
     // Reconstruir o slice com a nova regra (Passo 95 + 109: show_rules
