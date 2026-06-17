@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash edae68fa
+//! @prompt-hash 2b209e94
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -637,9 +637,12 @@ mod tests {
 
     #[test]
     fn f3s2_show_callout_anti_recursao_termina() {
-        // **Teste-contrato**: uma regra que emite o próprio kind termina pelo
-        // guard (RuleId em active_guards durante a sua própria chamada). Sem o
-        // guard, isto penduraria. O callout interno NÃO é re-transformado.
+        // **Teste-contrato (P348, α)**: uma regra que emite o próprio kind com corpo
+        // CONSTANTE termina por **ponto-fixo morfológico** — externo→callout("interno"),
+        // depois interno→interno (no-op morfológico) → para. O `active_guards` continua
+        // a impedir a recursão DURANTE a chamada do recipe (criação aninhada), mas a
+        // terminação agora é o ponto-fixo (antes do P348: truncava no nível 1). Resultado
+        // idêntico: o callout("interno") sobrevive, o "externo" some.
         let c = eval_doc(
             "#show callout: it => callout(\"interno\", \"T\", \"w\")\n#callout(\"externo\", \"T\", \"w\")",
         );
@@ -665,6 +668,53 @@ mod tests {
         let t = c.plain_text();
         assert!(t.contains("CALLOUT_OK"), "callout transformado: {t:?}");
         assert!(t.contains("Titulo"), "heading nativo presente: {t:?}");
+    }
+
+    // ── P348 (modelo α, ADR-0107) — recursão de #show por ponto-fixo morfológico ──
+    #[test]
+    fn p348_show_recursao_converge_para_ponto_fixo() {
+        // O output de uma element rule que re-casa é REVISITADO até ponto-fixo
+        // morfológico (== do P345). m1 (P341b): a→b→c→(fixo). Antes (P345) dava "b"
+        // (o `==` morfológico destravou a→b); o P348 revisita até "c".
+        // vanilla 0.14.2: `c`.
+        let c = eval_doc(
+            "#show heading: it => { if it.body == [a] {[= b]} else if it.body == [b] {[= c]} else {it} }\n= a"
+        );
+        let t = c.plain_text();
+        assert!(t.contains('c'), "m1 revisita até o ponto-fixo 'c': {t:?}");
+        assert!(!t.contains('a') && !t.contains('b'),
+            "passos intermédios (a/b) consumidos pela revisitação: {t:?}");
+    }
+
+    #[test]
+    fn p348_show_recursao_o_inf_converge_divergencia_consciente() {
+        // DIVERGÊNCIA CONSCIENTE vs vanilla (ADR-0107). `#show heading: it => [= Z]`
+        // sempre reescreve para `= Z`; a 2ª aplicação é no-op morfológico (Z→Z) →
+        // ponto-fixo → "Z". vanilla 0.14.2: ERRO `maximum show rule depth exceeded`
+        // (termina por identidade de instância — mecânica, GEROU em P347b/c). O
+        // cristalino converge por morfologia: mais gracioso. Não é falha — é a marca
+        // da escolha α (registrada na nota de paridade).
+        let c = eval_doc("#show heading: it => [= Z]\n= a");
+        let t = c.plain_text();
+        assert!(t.contains('Z'), "o_inf converge para 'Z' (divergência consciente): {t:?}");
+        assert!(!t.contains('a'), "o heading original foi reescrito: {t:?}");
+    }
+
+    #[test]
+    fn p348_show_recursao_ciclo_erra_com_mensagem_vanilla() {
+        // Recursão NÃO-convergente (ciclo a→b→a→…) nunca atinge ponto-fixo → o teto
+        // backstop corta e erra com a mensagem base BYTE-IDÊNTICA ao vanilla
+        // (ADR-0033: a mensagem é comportamento observável). vanilla 0.14.2: ERRO
+        // `maximum show rule depth exceeded`.
+        let world = MockWorld::new(
+            "#show heading: it => { if it.body == [a] {[= b]} else {[= a]} }\n= a"
+        );
+        let src = world.source(world.main()).unwrap();
+        let err = eval_for_test(&world, &src).expect_err("ciclo deve errar (teto backstop)");
+        assert_eq!(err[0].message, "maximum show rule depth exceeded",
+            "mensagem base byte-idêntica ao vanilla");
+        assert!(err[0].hints.iter().any(|h| h == "maybe a show rule matches its own output"),
+            "hint do vanilla presente (canal separado): {:?}", err[0].hints);
     }
 
     #[test]
@@ -2925,9 +2975,9 @@ mod tests {
 
     #[test]
     fn show_rule_nao_recursiva_sem_stack_overflow() {
-        // Guard in_show_transform previne loop infinito (DEBT-20).
-        // Nota: o guard é global — enquanto activo, NENHUMA outra show rule
-        // dispara. Compromisso arquitectural do Passo 68.
+        // P348 (α): `#show heading: it => [= X ]` reescreve para `= X` constante → a
+        // 2ª aplicação é no-op morfológico (X→X) → ponto-fixo → termina com "X" (antes:
+        // truncava no nível 1). Deve terminar — Ok, nunca loop infinito.
         let world = MockWorld::new("#show heading: it => [= X ]\n\n= A");
         let src = world.source(world.main()).unwrap();
         // Deve terminar — Ok ou Err, nunca loop infinito.
@@ -2981,9 +3031,10 @@ mod tests {
 
     #[test]
     fn show_rule_composicao_sem_loop() {
-        // DEBT-20 encerrado: a regra transforma heading em heading.
-        // Durante apply_func, rule.id está em active_guards. O novo Heading
-        // gerado passa pelo intercept_content mas esta regra é saltada.
+        // P348 (α): a regra transforma o heading num `[Prefixo: ] + it.body` — uma
+        // SEQUÊNCIA, não um heading. O output NÃO re-casa a regra de heading → aplica-se
+        // uma vez (ponto-fixo imediato: nada mais casa). Antes: o `active_guards` saltava
+        // a regra; agora o output simplesmente não re-casa.
         let world = MockWorld::new(
             "#show heading: it => [Prefixo: ] + it.body\n\n= Título"
         );

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash edae68fa
+//! @prompt-hash 2b209e94
 //! @layer L1
-//! @updated 2026-04-22
+//! @updated 2026-06-17
 //!
 //! Show rules e set rules — aplicação e intercepção. Extraído de `eval.rs`
 //! no Passo 96.1 conforme ADR-0037 (coesão por domínio).
@@ -95,77 +95,116 @@ pub(crate) fn apply_show_rules(
             .collect();
 
         let mut apply_all = |node: &Content| -> SourceResult<Option<Content>> {
-            for rule in &node_rules {
-                // Saltar se esta regra está actualmente em execução (anti-recursão).
-                // Lote F-3 inc-2: o guard é por `RuleId` — vale para DynKind igual
-                // aos nativos. Uma regra `#show callout: it => callout(..)` termina
-                // porque a regra fica em `active_guards` durante a sua própria
-                // chamada (o callout produzido não re-aplica a regra).
-                if engine.active_guards.contains(&rule.id) {
-                    continue;
+            // P348 (modelo α, ADR-0107): a element rule cujo output **re-casa** é
+            // **revisitada** até **ponto-fixo morfológico** — o loop re-alimenta o
+            // output no mesmo conjunto de regras e para quando a regra é um **no-op
+            // morfológico** (`morph_canon(out) == morph_canon(work)`, o `==` do P345).
+            // Recursão **não-convergente** (ciclo / divergente) é cortada pelo **teto**
+            // backstop (`MAX_SHOW_RULE_DEPTH`, mecânica) e vira erro com a mensagem base
+            // do vanilla. O `active_guards` continua a impedir a recursão **durante** a
+            // chamada do recipe (criação aninhada); a revisitação é este loop, após o
+            // recipe devolver. Divergência consciente vs vanilla (P347d/ADR-0107):
+            // `#show heading: it => [= Z]` **converge para "Z"** (ponto-fixo) onde o
+            // vanilla erra — o vanilla termina por identidade de instância (mecânica,
+            // GEROU em P347b/c), o cristalino por morfologia.
+            let mut work = node.clone();
+            let mut applied = 0usize;
+            loop {
+                // Aplicar a PRIMEIRA regra que casa `work`, uma vez.
+                let mut produced: Option<Content> = None;
+                for rule in &node_rules {
+                    // Saltar se esta regra está em execução (anti-recursão na criação
+                    // aninhada — Lote F-3 inc-2; guard por `RuleId`, vale p/ DynKind).
+                    if engine.active_guards.contains(&rule.id) {
+                        continue;
+                    }
+
+                    // Passo 101: `show strong/emph` casam `Content::Styled` com
+                    // `bold`/`italic` activo (F-4: `delta()` tipado, não `iter()`).
+                    let is_bold_styled = matches!(&work, Content::Styled(_, ss)
+                        if ss.delta().bold == Some(true));
+                    let is_italic_styled = matches!(&work, Content::Styled(_, ss)
+                        if ss.delta().italic == Some(true));
+
+                    let is_match = match &rule.selector {
+                        Selector::NodeKind(kind) => matches!(
+                            (&work, kind),
+                            (Content::Heading(_),  NodeKind::Heading)
+                            | (Content::Figure(_),   NodeKind::Figure)
+                            | (Content::Raw { .. },      NodeKind::Raw)
+                            | (Content::Equation { .. }, NodeKind::Equation)
+                            | (Content::ListItem(_),     NodeKind::ListItem)
+                        ) || (matches!(kind, NodeKind::Strong) && is_bold_styled)
+                          || (matches!(kind, NodeKind::Emph)   && is_italic_styled),
+                        Selector::DynKind(name) =>
+                            matches!(&work, Content::Dynamic(e) if e.dyn_kind() == name),
+                        Selector::Text(_) => false, // tratado abaixo
+                    };
+
+                    if !is_match {
+                        continue;
+                    }
+
+                    match &rule.transform {
+                        Value::Func(func) => {
+                            let args = Args::positional(vec![Value::Content(work.clone())]);
+                            engine.active_guards.push(rule.id);
+                            let call_result = closures::apply_func(func.clone(), args, ctx, engine);
+                            engine.active_guards.pop();
+                            produced = Some(match call_result? {
+                                Value::Content(c) => c,
+                                Value::Str(s)     => Content::text(s.as_str()),
+                                other => return Err(vec![SourceDiagnostic::error(
+                                    Span::detached(),
+                                    format!(
+                                        "show rule deve retornar Content ou String, \
+                                         recebeu {}",
+                                        other.type_name()
+                                    ),
+                                )]),
+                            });
+                            break;
+                        },
+                        Value::Content(c) => { produced = Some(c.clone()); break; },
+                        other => return Err(vec![SourceDiagnostic::error(
+                            Span::detached(),
+                            format!(
+                                "show rule com selector de tipo requer função ou Content, \
+                                 recebeu {}",
+                                other.type_name()
+                            ),
+                        )]),
+                    }
                 }
 
-                // Passo 101: `Content::Strong`/`Content::Emph` removidos do enum.
-                // `show strong: it => ...` e `show emph: it => ...` casam um
-                // `Content::Styled` com `bold`/`italic` activo. Lote F-4 (P338):
-                // `Styles` é fachada sobre `StyleDelta` — lê-se `delta().bold/
-                // italic` (campo tipado), não mais `iter()` sobre variantes.
-                let is_bold_styled = matches!(node, Content::Styled(_, ss)
-                    if ss.delta().bold == Some(true));
-                let is_italic_styled = matches!(node, Content::Styled(_, ss)
-                    if ss.delta().italic == Some(true));
+                let Some(out) = produced else { break };
+                applied += 1;
 
-                let is_match = match &rule.selector {
-                    Selector::NodeKind(kind) => matches!(
-                        (node, kind),
-                        (Content::Heading(_),  NodeKind::Heading)
-                        | (Content::Figure(_),   NodeKind::Figure)
-                        | (Content::Raw { .. },      NodeKind::Raw)
-                        | (Content::Equation { .. }, NodeKind::Equation)
-                        | (Content::ListItem(_),     NodeKind::ListItem)
-                    ) || (matches!(kind, NodeKind::Strong) && is_bold_styled)
-                      || (matches!(kind, NodeKind::Emph)   && is_italic_styled),
-                    // Lote F-3 inc-2: kind dinâmico (elemento de utilizador).
-                    Selector::DynKind(name) =>
-                        matches!(node, Content::Dynamic(e) if e.dyn_kind() == name),
-                    Selector::Text(_) => false, // tratado abaixo, fora desta travessia
-                };
-
-                if !is_match {
-                    continue;
+                // A partir da 2ª aplicação, revisitamos um output: detectar o
+                // ponto-fixo (no-op morfológico) e cortar runaway. O caminho comum —
+                // uma aplicação cujo output **não** re-casa — NÃO paga `morph_canon`:
+                // a 2ª iteração apenas falha o match e sai (M-trigger, P348).
+                if applied >= 2 {
+                    if out.morph_canon() == work.morph_canon() {
+                        work = out;
+                        break; // ponto-fixo morfológico
+                    }
+                    if applied >= crate::entities::world_types::Route::MAX_SHOW_RULE_DEPTH {
+                        // Teto backstop (mecânica) — recursão não-convergente.
+                        // Mensagem base BYTE-IDÊNTICA ao vanilla (`engine.rs:350`,
+                        // ADR-0033: a mensagem é comportamento observável).
+                        return Err(vec![SourceDiagnostic::error(
+                            Span::detached(),
+                            "maximum show rule depth exceeded",
+                        )
+                        .with_hint("maybe a show rule matches its own output")
+                        .with_hint("maybe there are too deeply nested elements")]);
+                    }
                 }
-
-                match &rule.transform {
-                    Value::Func(func) => {
-                        let args = Args::positional(vec![Value::Content(node.clone())]);
-                        engine.active_guards.push(rule.id);
-                        let call_result = closures::apply_func(func.clone(), args, ctx, engine);
-                        engine.active_guards.pop();
-                        return match call_result? {
-                            Value::Content(c) => Ok(Some(c)),
-                            Value::Str(s)     => Ok(Some(Content::text(s.as_str()))),
-                            other => Err(vec![SourceDiagnostic::error(
-                                Span::detached(),
-                                format!(
-                                    "show rule deve retornar Content ou String, \
-                                     recebeu {}",
-                                    other.type_name()
-                                ),
-                            )]),
-                        };
-                    },
-                    Value::Content(c) => return Ok(Some(c.clone())),
-                    other => return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
-                        format!(
-                            "show rule com selector de tipo requer função ou Content, \
-                             recebeu {}",
-                            other.type_name()
-                        ),
-                    )]),
-                }
+                work = out;
             }
-            Ok(None)
+
+            if applied > 0 { Ok(Some(work)) } else { Ok(None) }
         };
 
         content = content.map_content(&mut apply_all)?;

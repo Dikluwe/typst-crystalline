@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 456025e8
+Hash do Código: 4c38ef64
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval.rs`
@@ -70,6 +70,17 @@ Requer Content, Func, Styles para implementação completa (ADR-0017).
   `numbering_active` assado) sai. `it.body == [a]` casa por morfologia (fecha o
   Achado 2, P342). O `derive(PartialEq)` do Rust permanece **estrutural** (dois
   sistemas, ADR-0025) — `morph_canon` vive em `entities/content.md`.
+- **Recursão de `#show` por PONTO-FIXO MORFOLÓGICO (P348, modelo α, ADR-0107)**: em
+  `apply_show_rules` (`rules/eval/rules.rs`), o output de uma **element rule** que re-casa
+  é **revisitado** num loop local até **ponto-fixo morfológico** (`morph_canon`, P345 — para
+  quando a regra é no-op morfológico) ou até o **teto-64 backstop** (`MAX_SHOW_RULE_DEPTH`;
+  não-convergente → erro `"maximum show rule depth exceeded"` + hints, byte-idêntico ao
+  vanilla, ADR-0033). `active_guards` impede a recursão **durante** a chamada do recipe; a
+  revisitação é o loop, após devolver. Caminho comum não paga `morph_canon` (checa do 2º
+  passe). **Divergência consciente** vs vanilla: `#show heading: it => [= Z]` converge para
+  "Z" (vanilla erra — termina por identidade de instância, mecânica/GEROU, P347b-d; a
+  Revocation é INTERNA e **não** é reproduzida). Text rules (`map_text`) não recursam. Detalhe
+  em `entities/f_fronteira_e1.md §3a.7-bis`.
 - **BinOp variants**: `Add, Sub, Mul, Div, And, Or, Eq, Neq, Lt, Leq, Gt, Geq,
   Assign, In, NotIn, AddAssign, SubAssign, MulAssign, DivAssign`
 - **UnOp variants**: `Pos, Neg, Not`

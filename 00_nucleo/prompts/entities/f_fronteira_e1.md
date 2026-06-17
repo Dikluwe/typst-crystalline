@@ -274,6 +274,30 @@ não retrofitado sob no-change estrito). O `Content::Guarded` (Trava-Q1) nasce
 **nesse** lote, com a sua prova de transparência. **DECISÃO AUTÔNOMA PROVISÓRIA —
 revisar:** confirmar que o multi-passe é lote próprio (não retrofit) é do dono.
 
+**ATERRADO P348 — recursão de element rules por PONTO-FIXO MORFOLÓGICO (modelo α).**
+A cadeia P347→P347d mediu: reproduzir o vanilla **exato** (terminar por identidade de
+instância) exigiria o multi-passe + guard-por-instância + Revocation; mas essa terminação
+do vanilla é **GEROU** (mecânica, não promessa — P347b/c, commit #3327) e a Revocation é
+**INTERNA** (P347d — só o motor a constrói, sem porta de usuário). Logo o cristalino **não**
+porta o multi-passe: `apply_show_rules` (`rules/eval/rules.rs`) ganhou um **loop local de
+revisitação** — o output de uma element rule que re-casa é re-alimentado no conjunto de
+regras até **ponto-fixo morfológico** (`Content::morph_canon`, P345: para quando a regra é
+no-op morfológico) ou até o **teto-64 backstop** (`MAX_SHOW_RULE_DEPTH`; não-convergente →
+erro com a mensagem base do vanilla `"maximum show rule depth exceeded"` + hints,
+byte-idêntica, ADR-0033). O `active_guards` permanece (anti-recursão DURANTE a chamada do
+recipe — criação aninhada); a revisitação é o loop, **após** o recipe devolver. O caminho
+comum (output não re-casa) **não paga `morph_canon`** (a checagem de ponto-fixo só entra da
+2ª aplicação — M-trigger, P348). **Divergência consciente** (ADR-0107): `#show heading: it
+=> [= Z]` **converge para "Z"** onde o vanilla erra — o vanilla termina por identidade de
+instância (mecânica), o cristalino por morfologia. **Text rules não mudam** (passe único,
+`map_text`; a Revocation servia só a elas no vanilla, e o cristalino já não as revisita) —
+logo o `Content::Guarded` (Trava-Q1) e o multi-passe (fatia 2b) ficam **dispensados** para a
+recursão de element rules: α resolve sem eles. **Flag de erro completo** (classificar
+cíclico/divergente/converge-fundo num **canal de hint separado**): é **superfície nova de
+config** (cross-layer; L1 não lê env) — **adiada a lote próprio**; a mensagem base já é
+byte-idêntica ao vanilla sem ela (a flag só *adicionaria* detalhe sob demanda, sem mudar o
+padrão).
+
 ### 3a.8 — Fatia 1 da F-realização: a fundação do transporte `StyledElem`-scoped (aditivo, β1)
 
 > **Estatuto.** Esta é a **fatia 1** da F-realização (P339). Constrói **só** o
