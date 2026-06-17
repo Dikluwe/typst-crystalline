@@ -69,6 +69,18 @@ O código original do compilador está em `lab/typst-original/` (quarentena). A 
 
 ---
 
+## Paridade — com a linguagem, não com a mecânica (ADR-0107)
+
+A paridade é com a **linguagem** Typst — **semântica, sintaxe, morfologia** — **nunca**
+com a mecânica de execução ou a igualdade restrita do Rust. A implementação (estrutura
+de dados, `PartialEq` do Rust, bytes de saída, passos do algoritmo) **diverge de
+propósito** (P329). Ao medir paridade ou escrever critério de aceitação, usar os três
+níveis da linguagem, não a mecânica. **Morfologia** = a forma do conteúdo enquanto
+objeto da linguagem (texto, markup, estilo semântico `*bold*`), distinta do estilo de
+**render** assado/derivado. Ver **ADR-0107**.
+
+---
+
 ## Protocolo de Nucleação (obrigatório antes de código)
 
 1. **Auditoria L0:** existe prompt em `00_nucleo/prompts/` para o módulo afetado? Está atualizado face às ADRs vigentes?
@@ -102,6 +114,7 @@ O código original do compilador está em `lab/typst-original/` (quarentena). A 
 | ADR-0029 | Pureza física — `Arc` em struct de domínio permitido (revoga ADR-0028) |
 | ADR-0030 | Performance de RAM é domínio de L1; corrige ADR-0004/0015 |
 | ADR-0031 | Early hashing em `Source`; complementa ADR-0016 |
+| ADR-0107 | Paridade é com a linguagem (semântica/sintaxe/morfologia), não com a mecânica/igualdade do Rust |
 
 ADRs revogadas não constam na tabela e não devem ser seguidas.
 
