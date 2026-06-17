@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash bf9002ad
+//! @prompt-hash edae68fa
 //! @layer L1
-//! @updated 2026-04-22
+//! @updated 2026-06-17
 //!
 //! Operadores binários e unários do eval. Extraído de `eval.rs` no Passo 96.1
 //! conforme ADR-0037 (coesão por domínio).
@@ -69,6 +69,16 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Eq,  Value::Float(a), Value::Int(b))   => Ok(Value::Bool(a == (b as f64))),
         (BinOp::Neq, Value::Int(a),   Value::Float(b)) => Ok(Value::Bool((a as f64) != b)),
         (BinOp::Neq, Value::Float(a), Value::Int(b))   => Ok(Value::Bool(a != (b as f64))),
+        // P345 (ADR-0107): o `==` da linguagem sobre conteúdo é **morfológico** —
+        // compara texto/markup/estilo semântico (`*bold*`) e **ignora** o estilo de
+        // render (o `TextStyle` assado, o transporte β1, o numbering assado da chain)
+        // via `Content::morph_canon`. Fecha o Achado 2 (`it.body == [a]` casa) na
+        // camada da linguagem. **Não** toca o `derive(PartialEq)` do Rust — dois
+        // sistemas (ADR-0025): a forma canônica é comparada com o `==` estrutural.
+        (BinOp::Eq,  Value::Content(a), Value::Content(b)) =>
+            Ok(Value::Bool(a.morph_canon() == b.morph_canon())),
+        (BinOp::Neq, Value::Content(a), Value::Content(b)) =>
+            Ok(Value::Bool(a.morph_canon() != b.morph_canon())),
         (BinOp::Eq,  a, b) => Ok(Value::Bool(a == b)),
         (BinOp::Neq, a, b) => Ok(Value::Bool(a != b)),
         // Ordenação: coerção Int↔Float confirmada no original (ops::compare)

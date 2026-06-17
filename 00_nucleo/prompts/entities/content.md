@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: e163048d
+Hash do Código: 6a0c9a59
 
 ## Módulo
 `01_core/src/entities/content.rs`
@@ -244,6 +244,19 @@ encolhe lote a lote (baseline P313: `content.rs` 5782 linhas, 77 variantes).
 `Arc`); `hash` continua por `content_hash::hash_content` (Debug) — os valores
 absolutos das 3 variantes migradas mudam, a **relação** preserva-se (detalhe e
 trava em `entities/elements/_comum.md` §A.1.1.b).
+
+**Dois sistemas de igualdade (ADR-0025 + ADR-0107)**: o `#[derive(PartialEq)]`
+acima é **estrutural** e serve testes/coleções/`IndexMap`/`hash` — **intacto**. O
+`==` da **linguagem** (eval, `eval_binary_op`) sobre `Content` é **morfológico**
+via **`morph_canon(&self) -> Content`**: produz uma forma canônica que remove o
+estilo de **render** (o `TextStyle` assado de `Content::Text` → `default()`; o
+`Content::Styled` **semanticamente vazio** — só transporte `custom` β1 — →
+transparente, desce no body; `numbering_active`/`numbering` assados da chain →
+neutros) e **preserva** a morfologia (texto, markup, estilo semântico
+`*bold*`/`_italic_`). Compara-se duas formas canônicas com o `==` estrutural.
+Implementado com `map_content` (transform total). `it.body == [a]` casa como
+consequência (Achado 2, P342). Medido contra o vanilla (P345): `#set numbering`
+**não** entra na igualdade (N1=true); estilo anexado ao conteúdo entra.
 
 **Layout**: NÃO entra no trait (topologia — `entities` não depende de `rules`);
 fica em `rules/layout` / `rules/math/layout`, com o braço a destructurar

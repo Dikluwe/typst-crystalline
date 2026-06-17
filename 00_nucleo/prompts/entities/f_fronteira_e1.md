@@ -353,6 +353,16 @@ observável). Até lá, fica. Custo de perf: ≈2.8µs/wrap/passe (negligível).
 **caracterização (Estágio T) congela a saída de nível** (layout/`plain_text` +
 introspect) como o invariante; o wrapper é detalhe estrutural interno aceite.
 
+**Resolução do gatilho (P345, ADR-0107):** a igualdade-de-`Content` **virou
+requisito** (`it.body == [a]` no `==` da linguagem — Achado 2, P342). O gatilho foi
+resolvido **pela via da linguagem, não pelo de-bake**: o `==` da linguagem passou a
+ser **morfológico** (`Content::morph_canon`, `eval_binary_op`), e trata o transporte
+β1 (`Content::Styled` semanticamente vazio, só `custom`) como **render — transparente**
+(desce no body). Logo o wrapper β1 **continua a não ser observável** pela igualdade da
+linguagem, e **fica** (sem de-bake). O `PartialEq` estrutural do Rust segue intacto
+(dois sistemas, ADR-0025). Medido contra o vanilla (P345 N1: `#set numbering` não entra
+na igualdade).
+
 **Contrato S* desta fatia.** Materializa **S6** (escopo por subárvore via
 `StyledElem`) **só no lado transporte** — o custom confina-se à subárvore
 embrulhada; o **consumo** confinado é F-5. **S1–S5, S7** (identidade, guards,

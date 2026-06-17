@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style.md
-//! @prompt-hash 779d20ca
+//! @prompt-hash de4e8a2f
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-06-17
 //!
 //! Enum `Style` — propriedades individuais de um bloco estilizado.
 //!
@@ -188,6 +188,26 @@ impl Styles {
     /// `true` se nenhuma propriedade está definida.
     pub fn is_empty(&self) -> bool {
         self.delta.is_empty()
+    }
+
+    /// `true` se nenhum estilo **semântico** (campo tipado: bold/italic/size/
+    /// fill/…) está definido — ignorando o canal `custom` (transporte de render
+    /// β1, ex.: numbering). Usado pelo `==` **morfológico** da linguagem
+    /// (P345, ADR-0107): um `Content::Styled` semanticamente vazio carrega só
+    /// transporte e é **transparente** na comparação de morfologia (desce no
+    /// body). Espelha `StyleDelta::is_empty` sem a cláusula `custom`.
+    pub fn is_semantically_empty(&self) -> bool {
+        let d = &self.delta;
+        d.bold.is_none()
+            && d.italic.is_none()
+            && d.size.is_none()
+            && d.fill.is_none()
+            && d.heading_level.is_none()
+            && d.weight.is_none()
+            && d.tracking.is_none()
+            && d.leading.is_none()
+            && d.lang.is_none()
+            && d.font.is_none()
     }
 
     /// O backing único — os consumidores lêem campos tipados aqui (não mais

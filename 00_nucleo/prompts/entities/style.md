@@ -1,5 +1,5 @@
 # Prompt L0 — Style e Styles
-Hash do Código: c6851f4c
+Hash do Código: 8c030d91
 
 ## Módulo
 `01_core/src/entities/style.rs`
@@ -124,7 +124,11 @@ de modo que `Content::Styled` e a `StyleChain` carregam **a mesma representaçã
   (o `match` exaustivo das 10 variantes) vive em `Styles::from_iter`/`push`.
 - Métodos: `new()`, `push(Style)`, `from_iter<I: IntoIterator<Item = Style>>(iter)`,
   `is_empty()` (delegado a `StyleDelta::is_empty`), `delta() -> &StyleDelta`,
-  **`push_custom(key, value) -> Self`** (F-realização fatia 1, P339).
+  **`push_custom(key, value) -> Self`** (F-realização fatia 1, P339),
+  **`is_semantically_empty() -> bool`** (P345, ADR-0107): nenhum campo tipado
+  (bold/italic/size/…) definido, **ignorando** o canal `custom`. Distingue um
+  `Content::Styled` semântico (`*bold*` → mantém na morfologia) de um de puro
+  transporte β1 (só `custom` → transparente no `==` morfológico).
 - **`iter()` e `len()` removidos** — não há mais `Vec<Style>` armazenado; os
   consumidores lêem `delta()` (campos tipados), não uma lista de variantes.
 - **Canal `custom` (F-2) disponível por construção**: o `StyleDelta` embrulhado

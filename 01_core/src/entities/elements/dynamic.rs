@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/f_fronteira_e1.md
-//! @prompt-hash 91d0f5f8
+//! @prompt-hash 08738a90
 //! @layer L1
 //! @updated 2026-06-12
 //!

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash bf9002ad
+//! @prompt-hash edae68fa
 //! @layer L1
-//! @updated 2026-04-22
+//! @updated 2026-06-17
 //!
 //! Testes unitários e helpers de teste de eval. Extraído de mod.rs no
 //! Passo 96.1 (ADR-0037 Regra 5: testes seguem o domínio — aqui um
@@ -822,6 +822,65 @@ mod tests {
         // Bool vs Int — sem coerção em nenhum sistema
         assert_eq!(eval_binary_op(BinOp::Eq, Value::Bool(true), Value::Int(1)),
                    Ok(Value::Bool(false)));
+    }
+
+    // ── P345 (ADR-0107) — o `==` da linguagem sobre conteúdo é MORFOLÓGICO ────
+    // Morfologia (texto, markup, estilo semântico) entra; render (TextStyle
+    // assado, transporte β1, numbering assado) sai. Dois sistemas (ADR-0025):
+    // o `derive(PartialEq)` do Rust permanece estrutural (testes/coleções).
+    use crate::entities::content::Content;
+    use crate::entities::layout_types::{TextStyle, Pt};
+    use crate::entities::style::Styles;
+
+    #[test]
+    fn morfologia_eq_ignora_textstyle_assado() {
+        // Mesma morfologia (texto "a"), render diferente (estilo assado) → casa.
+        // É o Achado 2 (P342): it.body de `= a` (bold assado) vs [a] (regular).
+        let a_reg  = Content::Text("a".into(), TextStyle::regular(Pt(11.0)));
+        let a_bold = Content::Text("a".into(), TextStyle::bold(Pt(20.0)));
+        assert_eq!(
+            eval_binary_op(BinOp::Eq, Value::Content(a_reg.clone()), Value::Content(a_bold.clone())),
+            Ok(Value::Bool(true)),
+            "mesma morfologia, render diferente → o == da linguagem casa"
+        );
+        // Dois sistemas: o PartialEq do Rust continua estrutural (distingue o estilo).
+        assert_ne!(a_reg, a_bold, "derive(PartialEq) do Rust permanece estrutural");
+    }
+
+    #[test]
+    fn morfologia_eq_distingue_texto() {
+        // Morfologia diferente (texto) → não casa.
+        assert_eq!(
+            eval_binary_op(BinOp::Eq, Value::Content(Content::text("a")), Value::Content(Content::text("b"))),
+            Ok(Value::Bool(false))
+        );
+    }
+
+    #[test]
+    fn morfologia_eq_estilo_semantico_e_morfologia() {
+        // `*bold*`/strong → Content::Styled([Bold]) é estilo SEMÂNTICO (o #show
+        // strong o vê) → morfologia. strong[a] != [a] (vanilla: false).
+        let strong_a = Content::strong(Content::text("a"));
+        assert_eq!(
+            eval_binary_op(BinOp::Eq, Value::Content(strong_a), Value::Content(Content::text("a"))),
+            Ok(Value::Bool(false)),
+            "estilo semântico (*bold*) é morfologia — distingue"
+        );
+    }
+
+    #[test]
+    fn morfologia_eq_transporte_b1_transparente() {
+        // Content::Styled semanticamente vazio (só transporte custom numbering β1)
+        // → transparente: igual ao body nu. (vanilla: #set numbering não entra no ==.)
+        let transported = Content::Styled(
+            Box::new(Content::text("a")),
+            Styles::new().push_custom("heading.numbering", Value::Bool(true)),
+        );
+        assert_eq!(
+            eval_binary_op(BinOp::Eq, Value::Content(transported), Value::Content(Content::text("a"))),
+            Ok(Value::Bool(true)),
+            "transporte β1 (custom-only) é render — transparente no =="
+        );
     }
 
     #[test]

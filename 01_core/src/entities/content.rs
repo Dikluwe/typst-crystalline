@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 5010f61f
+//! @prompt-hash 7c208532
 //! @layer L1
-//! @updated 2026-04-25
+//! @updated 2026-06-17
 //!
 //! Excepção Regra 6 da ADR-0037: o enum `Content` é a entidade
 //! fundamental do domínio visual — representa toda a árvore de
@@ -2040,6 +2040,56 @@ impl Content {
             Some(new_content) => Ok(new_content),
             None              => Ok(processed),
         }
+    }
+
+    /// Forma canônica para o `==` **morfológico** da linguagem (Passo 345,
+    /// ADR-0107). Remove o estilo de **render** sem o apagar da árvore real:
+    /// - `Content::Text`: o `TextStyle` **assado** (heading bold, `#set text`
+    ///   ambiente — render, P343 #1) → `TextStyle::default()`. A morfologia do
+    ///   texto é a **string**, não o estilo resolvido.
+    /// - `Content::Styled` **semanticamente vazio** (só transporte `custom`,
+    ///   ex.: numbering β1) → **transparente** (desce no body). O estilo
+    ///   semântico (`*bold*`/`_italic_`, em campos tipados) **permanece** —
+    ///   é morfologia (o `#show strong` o vê, ADR-0038).
+    /// - `numbering_active`/`numbering` (heading/equation/figure — assados da
+    ///   chain `#set …(numbering:)`, P343 #2/#3/#4) → neutro. Medido contra o
+    ///   vanilla (P345 N1: `#set` numbering **não** entra na igualdade).
+    ///
+    /// Comparar duas formas canônicas com o `==` **estrutural** (`PartialEq`)
+    /// dá a igualdade **morfológica**. **Não** altera o `#[derive(PartialEq)]`
+    /// do Rust — são dois sistemas de propósito (ADR-0025): o derivado serve
+    /// testes/coleções; este caminho serve o `==` da linguagem (`eval`).
+    /// `it.body == [a]` casa por morfologia **como consequência** (Achado 2,
+    /// P342), não como alvo.
+    pub fn morph_canon(&self) -> Content {
+        let mut transform = |node: &Content|
+            -> crate::entities::source_result::SourceResult<Option<Content>> {
+            Ok(match node {
+                Content::Text(s, _) =>
+                    Some(Content::Text(s.clone(), TextStyle::default())),
+                Content::Styled(body, styles) if styles.is_semantically_empty() =>
+                    Some((**body).clone()),
+                Content::Heading(h) if h.numbering_active => {
+                    let mut h2 = (**h).clone();
+                    h2.numbering_active = false;
+                    Some(Content::Heading(Arc::new(h2)))
+                }
+                Content::Equation(e) if e.numbering_active => {
+                    let mut e2 = (**e).clone();
+                    e2.numbering_active = false;
+                    Some(Content::Equation(Arc::new(e2)))
+                }
+                Content::Figure(e) if e.numbering.is_some() => {
+                    let mut e2 = (**e).clone();
+                    e2.numbering = None;
+                    Some(Content::Figure(Arc::new(e2)))
+                }
+                _ => None,
+            })
+        };
+        // `transform` é total (nunca devolve `Err`) → `map_content` não falha.
+        self.map_content(&mut transform)
+            .expect("morph_canon: transform total nunca devolve Err")
     }
 
     /// Aplica uma função de transformação a todos os nós `Content::Text`,

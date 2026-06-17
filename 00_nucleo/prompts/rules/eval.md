@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 04f780a8
+Hash do Código: 456025e8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/eval.rs`
@@ -63,6 +63,13 @@ Requer Content, Func, Styles para implementação completa (ADR-0017).
 - **ADR-0025 — `Int == Float` → true em eval**: coerção explícita em eval_binary_op
   antes do wildcard `(Eq, a, b)`. `derive(PartialEq)` mantido para estruturas de dados.
   Coerção aplica-se também a ordenação (lt/leq/gt/geq com Int↔Float).
+- **ADR-0107 — `Content == Content` é MORFOLÓGICO em eval** (P345): os braços
+  `(Eq|Neq, Content(a), Content(b))` vêm **antes** do wildcard e comparam
+  `a.morph_canon() == b.morph_canon()` — texto/markup/estilo semântico (`*bold*`)
+  entram; estilo de **render** (o `TextStyle` assado, o transporte β1 `custom`, o
+  `numbering_active` assado) sai. `it.body == [a]` casa por morfologia (fecha o
+  Achado 2, P342). O `derive(PartialEq)` do Rust permanece **estrutural** (dois
+  sistemas, ADR-0025) — `morph_canon` vive em `entities/content.md`.
 - **BinOp variants**: `Add, Sub, Mul, Div, And, Or, Eq, Neq, Lt, Leq, Gt, Geq,
   Assign, In, NotIn, AddAssign, SubAssign, MulAssign, DivAssign`
 - **UnOp variants**: `Pos, Neg, Not`
