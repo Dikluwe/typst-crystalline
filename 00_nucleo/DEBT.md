@@ -234,6 +234,32 @@
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
 
+## DEBT-60 — Contador de heading diverge do vanilla + supplement "Secção" no outline — EM ABERTO (P353)
+
+**Medido (P353 Fase A, probe read-only contra vanilla 0.14.2 como oráculo).** Para
+`= A` / `#[ #set heading(numbering: "1.") == B ]` / `== C` / `#outline()`:
+
+| | heading A | **heading B** | heading C |
+|---|---|---|---|
+| vanilla 0.14.2 (corpo **e** outline) | (sem nº) | **`0.1.`** | (sem nº) |
+| crystalline (corpo **e** outline) | (sem nº) | **`1.1`** | (sem nº) |
+
+**Dois desvios de paridade, ambos ORTOGONAIS ao de-bake do F-5** (não corrigíveis por de-bake —
+ver relatório P353, Adendo):
+1. **Contador**: o nº de B diverge (`1.1` vs `0.1`). O confinamento está correto (A/C sem número
+   no crystalline **e** no vanilla; as réguas layout↔introspect **concordam**) — a divergência é
+   no **stepping do contador de nível-1** (no vanilla, o heading `A` não-numerado **não** conta
+   para o nível-1; no crystalline, conta). Mora no contador, não no gate `heading.numbering`; o nº
+   vem de `introspector.formatted_counter_at("heading", loc)` (`rules/layout/mod.rs:716-718`), não
+   da chain.
+2. **Outline supplement**: o crystalline emite "Secção" no item de outline do heading; o vanilla
+   não emite supplement para heading no outline.
+
+**Por que não foi corrigido aqui:** o P353 (F-5 de-bake) decidiu **rumo (b)** — o de-bake é
+limpeza, não correção (as réguas não divergem sob confinamento), e o de-bake **não tocaria** o
+contador (`1.1` continuaria). Logo este desvio é débito **separado**, candidato a diagnóstico/lote
+próprio. **M** (manter; medir a fonte do stepping e do supplement antes de corrigir).
+
 ## DEBT-59 — Flag de erro completo: exposição CLI + fio `RunIntent`→L1 — EM ABERTO (P350c)
 
 A **capacidade interna** da flag de "erro completo" está **feita** (P350c): quando
