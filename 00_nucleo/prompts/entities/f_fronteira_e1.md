@@ -536,6 +536,82 @@ declarados (S5b).
 - **`is_counted` no payload** = placeholder `caption.is_some()` (de `to_payload`) **ANDado**
   com `chain.custom("figure.numbering").is_str()` no walk top (espelho da equation P364).
 
+### 3a.10 — Fatia F-5b: de-bake do `TextStyle` (`Content::Text`) — fecha o item (1)
+
+> **Estatuto.** Fecha o **4º caminho duplo** (item (1) da auditoria P362): o `TextStyle`
+> assado em `Content::Text(EcoString, TextStyle)` sai; o consumidor (layout) lê o estilo **só
+> da chain** (`self.style`). **Fonte única.** Decidido pelo dono (P362); escopo P366 = tudo
+> num lote (transporte + remoção).
+
+**A correção de enquadramento (P366 Fase A, ADR-0108).** O arrasto **não** é "o bold do
+heading" (como o pré-passo supunha). Medido:
+- **heading bold** — o arm Heading do layout (`mod.rs:704`) já **seta `self.style.bold=true`**
+  (+ `size`) antes de descer no corpo → **já na chain**. Não é arrasto.
+- **strong/emph** — `Content::strong/emph` = `Content::Styled([Bold/Italic])` → chain. Não é
+  arrasto.
+- **`#set text`** (size, fill, font, weight, tracking, leading, lang, bold, italic) — empurrado
+  a `engine.styles` (`rules.rs:497/638`) e **assado** em `Content::Text` (`eval/mod.rs:344`),
+  **sem** wrapper `Content::Styled`: a fatia-1 (`eval/mod.rs:413-419`) só embrulha quando muda
+  um `NUM_KEYS` de numbering. **Este é o arrasto, e é o `#set text` tipado inteiro.**
+
+**O mecanismo: o transporte por diff-de-delta (generaliza a fatia-1).** A fatia-1 embrulhava
+a cauda só quando um `NUM_KEYS` mudava, carregando só o `custom`. Generaliza-se: snapshot do
+`engine.styles.collapse()` (StyleDelta completo: custom **+** tipado) à entrada de
+`eval_markup`; quando o delta muda (um `#set …` qualquer), `wrap_start`; a cauda embrulha num
+`Content::Styled(tail, Styles::from_delta(diff))`, onde `diff` = os campos (custom e **tipados**)
+que mudaram vs o snapshot. Como dentro de `eval_markup` **só o `#set` muta `engine.styles`**
+(strong/emph/heading usam `local_styles`, comentário `eval/mod.rs:327-330`), o diff captura
+exatamente o efeito do `#set`. **Backward-compatible:** para `#set …(numbering:)` puro o diff
+é só o custom (= fatia-1 de antes); para `#set text` o diff é o tipado (transporte novo). O
+layout `Content::Styled` arm já faz `push_styles` → `self.style` recebe o tipado por **todos**
+os caminhos de produção.
+
+**O de-bake (após o transporte garantir o estilo na chain).**
+- `Content::Text(EcoString, TextStyle)` → **`Content::Text(EcoString)`** (campo removido).
+- `Content::text()` e ~90 sítios de construção/match cascateiam (`Content::Text(s, style)` /
+  `Content::Text(s, _)` → `Content::Text(s)`).
+- **Layout `mod.rs:599-632`**: o merge `node_style.X || self.style.X` colapsa para **ler só
+  `self.style`** (a chain) — `effective = self.style`. O `node_style` desaparece.
+- `map_text` (`content.rs:2134`) e `morph_canon` (`content.rs` `Content::Text(s,_) =>
+  Text(s.clone(), default)`) deixam de tocar estilo (o `Text` não o tem) — **morfologia
+  intacta** (o `==` morfológico já ignorava o `TextStyle`, P345/ADR-0107; o bold de render
+  nunca foi morfologia).
+
+**Ordem (medida, não opcional).** Transporte **primeiro** (aditivo: `#set text` passa a
+viajar na chain; o `TextStyle` assado ainda existe e é autoritativo) → de-bake **depois**
+(remove o campo; layout lê só a chain). Senão o `#set text` perde o estilo (regressão).
+
+**Intactos.** `morph_canon`/`==` (P345 — render ≠ morfologia), caso 4, α/caso 2, flag P350c,
+Marco G, os 3 numbering (P364/P365). **Content-preserving** (paridade pela rede +11).
+
+**Fixtures.** As que constroem `Content::Text(s, <style>)` ou casam `Content::Text(s, _)`
+viram para `Content::Text(s)` (declaradas, S5b); nenhuma asserção de comportamento muda
+exceto onde liam o estilo fora da chain.
+
+> **⚠ OBSTÁCULO MEDIDO (P366 Estágio 1 — parar e reportar).** O transporte por **diff de
+> delta tipado** acima **viola o limite duro "não tocar a morfologia"**, medido na fonte:
+> - `morph_canon` (`content.rs`) mantém um `Content::Styled` **a menos que** seja
+>   `is_semantically_empty()`; e `is_semantically_empty` (`style.rs:207`) conta **todos os
+>   campos tipados** (`bold/italic/size/fill/weight/…`), ignorando só o `custom`.
+> - Logo um `Content::Styled` carregando o `#set text` **tipado** (ex.: `size`) é
+>   **semanticamente não-vazio** → `morph_canon` **mantém-no** → o `#set text` passa a ser
+>   **morfologicamente significativo**. Hoje o `#set text` é **assado** no `Text` e
+>   `morph_canon` o **descarta** (`Content::Text(s,_) => Text(s, default)`) — i.e. é
+>   morfologicamente **transparente** (render, ADR-0107). O transporte tipado **inverteria**
+>   isso (`[#set text(size:20) foo] == [foo]` passaria de **true** a **false**).
+> - `#set text` usa os **mesmos** campos tipados (`delta.bold/italic/size/…`, `rules.rs:511+`)
+>   que `*bold*`/`_italic_` (strong/emph), que são **morfologia** (ADR-0038, mantidos por
+>   `morph_canon`). Estruturalmente **indistinguíveis** — `morph_canon` não consegue separar
+>   render de morfologia se ambos vivem nos campos tipados de um `Styled`.
+>
+> **Direção corrigida (morph-safe, maior):** o transporte do estilo de **render** do `#set
+> text` tem de ir pelo **canal `custom`** (que `is_semantically_empty` ignora →
+> `morph_canon` **desce**, transparente), como o numbering já faz — **não** pelos campos
+> tipados. Isso exige o **layout ler o estilo de render do `custom`** (não de `self.style`
+> tipado), um mecanismo **diferente e maior** do que o aprovado na Trava. **É re-escopo.**
+> Nenhum `.rs` foi escrito. Decisão do dono: redesenhar o P366 com o transporte por `custom`,
+> ou fatiar/adiar. Ver relatório `typst-passo-366-relatorio.md`.
+
 ### 3a.5 — O registro (os dois públicos, sem global — pureza L1)
 
 - **Público Rust**: implementa `trait Element` no seu `*Elem` + (para o público
