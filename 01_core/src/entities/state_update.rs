@@ -104,7 +104,7 @@ mod tests {
 
     #[test]
     fn func_variant_construi_e_compara_por_arc_ptr_eq() {
-        let f = Func::native("test_fn", |_, _, _, _, _| Ok(Value::Int(0)));
+        let f = Func::native("test_fn", |_, _, _, _| Ok(Value::Int(0)));
         let u1 = StateUpdate::Func(f.clone());
         let u2 = StateUpdate::Func(f.clone());
         // Mesmo Arc → iguais.
@@ -115,8 +115,8 @@ mod tests {
     fn func_variants_distintas_sao_diferentes() {
         // Duas Funcs nativas separadas têm Arcs diferentes mesmo com
         // mesmo comportamento.
-        let f1 = Func::native("f1", |_, _, _, _, _| Ok(Value::Int(0)));
-        let f2 = Func::native("f2", |_, _, _, _, _| Ok(Value::Int(0)));
+        let f1 = Func::native("f1", |_, _, _, _| Ok(Value::Int(0)));
+        let f2 = Func::native("f2", |_, _, _, _| Ok(Value::Int(0)));
         let u1 = StateUpdate::Func(f1);
         let u2 = StateUpdate::Func(f2);
         assert_ne!(u1, u2);
@@ -124,7 +124,7 @@ mod tests {
 
     #[test]
     fn set_e_func_sao_distintos() {
-        let f = Func::native("test", |_, _, _, _, _| Ok(Value::Int(0)));
+        let f = Func::native("test", |_, _, _, _| Ok(Value::Int(0)));
         let set = StateUpdate::Set(Box::new(Value::Int(0)));
         let func_var = StateUpdate::Func(f);
         assert_ne!(set, func_var);

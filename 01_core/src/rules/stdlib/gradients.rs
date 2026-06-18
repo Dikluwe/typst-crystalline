@@ -54,7 +54,6 @@ pub fn native_gradient_linear(
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
-    _figure_numbering: Option<&str>,
 ) -> SourceResult<Value> {
     let stops = parse_stops(&args.items)?;
     if stops.is_empty() {
@@ -223,7 +222,6 @@ pub fn native_gradient_radial(
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
-    _figure_numbering: Option<&str>,
 ) -> SourceResult<Value> {
     let stops = parse_stops(&args.items)?;
     if stops.is_empty() {
@@ -376,7 +374,6 @@ pub fn native_gradient_conic(
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
-    _figure_numbering: Option<&str>,
 ) -> SourceResult<Value> {
     let stops = parse_stops(&args.items)?;
     if stops.is_empty() {

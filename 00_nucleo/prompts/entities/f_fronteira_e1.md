@@ -477,6 +477,65 @@ fora do label) — declarado (S5b). O transporte permanece **transparente** ao d
 (P363), **sem** propagar `label_from_parent` (a forma de produção não exige; manter
 mínimo, ADR-0108).
 
+#### Figura (P365) — o 3º numbering + o colapso da assinatura partilhada
+
+> **Estatuto.** Fecha a figura, o 3º caminho duplo. Igual em **princípio** a
+> heading/equation (gate de numbering → fonte única na chain), mas com **mais
+> superfície**, medida no P364/P365: (i) o gate é o **padrão `Option<String>`**, não
+> um bool — porém o **layout só checa `Some`/`None`** (`mod.rs:872` `if let Some(_pattern)`,
+> o valor é ignorado), e a chain carrega `Value::Str(padrão)`/`Value::None`; e (ii) o
+> padrão era threadado pela **assinatura partilhada `figure_numbering: Option<&str>`**,
+> o **último parâmetro do tipo `NativeFn`** (`func.rs:78/97`) — **141 ocorrências em 16
+> ficheiros**, morto em todas menos `native_figure` (`figure_image.rs:54`). Decisão do
+> dono (P365 Fase A): **de-bake + colapso da assinatura num lote só** (estado final
+> limpo, sem parâmetro morto interino).
+
+**O de-bake (figura).**
+- **Campo removido:** `FigureElem.numbering` sai (`figure.rs:26` + clones). **Fonte
+  única.**
+- **Produção para de bakar:** `native_figure` (`figure_image.rs:54`) cria a `FigureElem`
+  **sem** o padrão; `closures.rs:79-83` deixa de ler `custom("figure.numbering")` para
+  alimentar a assinatura (o transporte da fatia-1 carrega o custom).
+- **Consumidores leem a chain:** `layout/mod.rs:870` → o gate vem de
+  `self.chain.custom("figure.numbering")` (`Some(Str)` = numerado). O introspect tira o
+  `is_counted` do payload **da chain na emissão** (walk top, espelho da equation P364):
+  `is_counted = chain.custom("figure.numbering").is_str() && caption.is_some()`. O
+  `to_payload` põe placeholder.
+- **`morph_canon`:** o arm `Content::Figure(e) if e.numbering.is_some()` (`content.rs:2096`)
+  **removido** — subsumido pelo arm `Styled` transparente (mecanismo único, P345 N1).
+- **Gate ≠ número:** o de-bake lê **só o gate** (padrão presente/ausente); o **número**
+  (`figure_progress` + `figure_number_at_index`, `mod.rs:874-886`) e o contador ficam
+  **intactos**.
+
+**O colapso da assinatura partilhada (mesmo lote).** Como `figure_numbering` fica **morto
+em todas** as natives (incluindo `native_figure` após o de-bake), o parâmetro **some** do
+tipo `NativeFn` (`func.rs:78/97`), de todas as ~141 assinaturas, do dispatch
+(`closures.rs:83`) e dos sítios de chamada diretos (testes `, None`). **Zero
+comportamento** — é hygiene mecânica que a fonte única torna possível (disciplina
+anti-morto: o parâmetro perde o único consumidor → sai). **Fixtures** que constroem
+`FigureElem { numbering: … }` direto (`figure.rs` tests, `layout/tests.rs`) e os testes de
+`to_payload`/`is_counted` **viram** para a forma de transporte / leitura-da-chain —
+declarados (S5b).
+
+**Dimensão (figura).** Campo removido: **1** (`FigureElem.numbering`). Param colapsado:
+**1** (`figure_numbering`, ~141 ocorrências, 16 ficheiros). Consumidores religados: **2**
+(layout, introspect). Arm `morph_canon` removido: **1**. Tipo `NativeFn` alterado: **1**
+(menos um parâmetro).
+
+**Achados de execução (P365, medidos).**
+- **`compute_labelled` (introspect) não lê mais campo** — passa a confiar **só no
+  contador** `figure:{kind}` (`flat_counter_at`, `n>0`), que só avança quando `is_counted`
+  (padrão-da-chain && caption) na emissão. Espelho do arm `Equation` (que já confiava no
+  contador). O gate de numbering chega via o contador, não via leitura de campo.
+- **Aninhamento label×transporte (igual à equation, P364):** em produção o transporte fica
+  **fora** do `Labelled` (`Styled{ Labelled{ Figure } }`); o construtor `Content::figure(..,
+  Some)` embrulha a folha. Fixtures que faziam `Labelled{ figure_numerada }` invertiam a
+  ordem → o helper de teste `labelled_prod` **levanta** o transporte transparente para fora,
+  reproduzindo a forma de produção (declarado, S5b). **Sem** mudança em código de produção
+  (mínimo, ADR-0108).
+- **`is_counted` no payload** = placeholder `caption.is_some()` (de `to_payload`) **ANDado**
+  com `chain.custom("figure.numbering").is_str()` no walk top (espelho da equation P364).
+
 ### 3a.5 — O registro (os dois públicos, sem global — pureza L1)
 
 - **Público Rust**: implementa `trait Element` no seu `*Elem` + (para o público

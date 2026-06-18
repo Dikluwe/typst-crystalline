@@ -23,7 +23,7 @@ use crate::rules::eval::EvalContext;
 
 /// `strong(body)` — emite `Content::Styled([Bold(true)], body)`
 /// (Passo 101) ou serve como selector em show rules.
-pub fn native_strong(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_strong(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
@@ -39,7 +39,7 @@ pub fn native_strong(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 
 /// `emph(body)` — emite `Content::Styled([Italic(true)], body)`
 /// (Passo 101) ou serve como selector em show rules.
-pub fn native_emph(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_emph(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
@@ -55,7 +55,7 @@ pub fn native_emph(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 
 /// `raw(text)` — cria `Content::Raw` ou serve como selector em show rules.
 /// Aceita apenas string — não faz sentido semântico aceitar Content aqui.
-pub fn native_raw(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_raw(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let text: EcoString = match args.items.first() {
         Some(Value::Str(s)) => s.clone(),
@@ -75,7 +75,7 @@ pub fn native_raw(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 ///
 /// A criação real de headings usa a sintaxe de markup `= Título`.
 /// Chamar `heading()` directamente retorna Err (DEBT-21).
-pub fn native_heading(_ctx: &mut EvalContext, _args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_heading(_ctx: &mut EvalContext, _args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     Err(vec![SourceDiagnostic::error(
         Span::detached(),
         "heading() como função directa não suportada; use a sintaxe de markup `= Título`"
@@ -87,7 +87,7 @@ pub fn native_heading(_ctx: &mut EvalContext, _args: &Args, _world: &dyn crate::
 
 /// `divider()` — emite `Content::Divider` (separador horizontal).
 /// Não aceita argumentos.
-pub fn native_divider(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_divider(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     super::expect_no_named(&args.named)?;
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
@@ -102,7 +102,7 @@ pub fn native_divider(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 /// (chave nomeada, valor descrição). A ordem dos argumentos nomeados é
 /// preservada (IndexMap). Aceita `Value::Content` ou `Value::Str` como
 /// descrição. Posicionais não suportados (forma chave: descrição).
-pub fn native_terms(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_terms(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -131,7 +131,7 @@ pub fn native_terms(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 /// `quote(body, attribution: ?, block: false, quotes: true)` — emite
 /// `Content::Quote`. Body posicional obrigatório (content ou string);
 /// outros argumentos via named.
-pub fn native_quote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_quote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -211,7 +211,7 @@ pub fn native_quote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 ///
 /// Helper `extract_tracks` reusado de `stdlib/layout.rs` (N=2;
 /// `pub(super)` per P157A — sibling-module access).
-pub fn native_table(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_table(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::rules::stdlib::layout::{extract_tracks, extract_stroke};
     use crate::entities::layout_types::TrackSizing;
 
@@ -371,7 +371,7 @@ fn extract_inset_value(
 /// armazenados mas **ignorados em layout** — algoritmo de placement
 /// diferido em **DEBT-34e**. Layouter renderiza `body` no contexto
 /// actual.
-pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_table_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -501,7 +501,7 @@ fn extract_bool_with_default(
 /// **Limitação per ADR-0054 graded**: `repeat` armazenado mas
 /// **ignorado em layout** — algoritmo de repetição em page breaks
 /// diferido em **DEBT-56** (refactor multi-region).
-pub fn native_table_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_table_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -534,7 +534,7 @@ pub fn native_table_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 /// Par simétrico com `native_table_header` (P157C). Mesma decisão
 /// arquitectural Caso D + DEBT-56 + naming flat. Implementação
 /// idêntica linha-a-linha excepto naming `header → footer`.
-pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -576,7 +576,7 @@ pub fn native_table_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 /// Atributos vanilla scope-out per ADR-0054 graded: `align`/`fill`/
 /// `stroke`/`inset`/`breakable` per-cell — refinos futuros candidatos
 /// NÃO-reservados.
-pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -656,7 +656,7 @@ pub fn native_grid_cell(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 /// Semantic real de repetição em page breaks adiada per ADR-0054 graded
 /// (paridade P157C; pattern N=5 cumulativo "Field armazenado semantic
 /// adiada" P156D/E/G/P223/P224).
-pub fn native_grid_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_grid_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -688,7 +688,7 @@ pub fn native_grid_header(_ctx: &mut EvalContext, args: &Args, _world: &dyn crat
 ///
 /// **P224.B** — par simétrico com `native_grid_header`. Implementação
 /// idêntica linha-a-linha excepto naming `header → footer`.
-pub fn native_grid_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_grid_footer(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -884,7 +884,7 @@ fn extract_bib_entries(val: Option<&Value>) -> SourceResult<Vec<crate::entities:
 /// **literal** `Vec<BibEntry>` — sem hayagriva, sem CSL parsing.
 /// Layouter renderiza placeholder `"[{key}] {author}. {title}
 /// ({year})."` per linha.
-pub fn native_bibliography(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_bibliography(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     // Validar named args.
     for key in args.named.keys() {
         if !["entries", "title"].contains(&key.as_str()) {
@@ -937,7 +937,7 @@ pub fn native_bibliography(_ctx: &mut EvalContext, args: &Args, _world: &dyn cra
 /// `cite("inexistente")` produz placeholder `[inexistente]`
 /// sem erro; forms `Prose`/`Author`/`Year` caem no fallback
 /// `[key]` se key não encontrada.
-pub fn native_cite(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_cite(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     // key posicional obrigatório.
     let key = match args.items.first() {
         Some(Value::Str(s)) if !s.is_empty() => s.to_string(),
@@ -1018,7 +1018,7 @@ fn extract_citation_form(val: Option<&Value>) -> SourceResult<Option<crate::enti
 
 /// `footnote(body)` — emite `Content::Footnote { body }`. Body
 /// posicional obrigatório (content ou string).
-pub fn native_footnote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_footnote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -1052,7 +1052,7 @@ pub fn native_footnote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
 
 /// `accent(base, accent)` — emite `Content::MathAccent { base, accent }`.
 /// Ambos posicionais obrigatórios (content ou string).
-pub fn native_accent(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_accent(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let base = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -1091,7 +1091,7 @@ pub fn native_accent(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 
 /// `cancel(body)` — emite `Content::MathCancel { body }`.
 /// Body posicional obrigatório (content ou string).
-pub fn native_cancel(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_cancel(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -1131,7 +1131,7 @@ pub fn native_cancel(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 /// `underover(base, under: ?, over: ?)` — emite
 /// `Content::MathUnderover`. Base posicional; under/over named
 /// opcionais.
-pub fn native_underover(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_underover(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let base = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -1185,7 +1185,7 @@ pub fn native_underover(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 
 /// `op(text, limits: false)` — emite `Content::MathOp { text, limits }`.
 /// Text posicional obrigatório; `limits` named opcional (default `false`).
-pub fn native_op(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_op(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let text = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),

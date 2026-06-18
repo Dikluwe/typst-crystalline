@@ -267,7 +267,6 @@ mod tests {
         args: &crate::entities::args::Args,
         _world: &dyn crate::contracts::world::World,
         _current_file: crate::entities::file_id::FileId,
-        _figure_numbering: Option<&str>,
     ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
         match args.items.first() {
             Some(crate::entities::value::Value::Int(n)) =>
@@ -282,7 +281,6 @@ mod tests {
         args: &crate::entities::args::Args,
         _world: &dyn crate::contracts::world::World,
         _current_file: crate::entities::file_id::FileId,
-        _figure_numbering: Option<&str>,
     ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
         match args.items.first() {
             Some(crate::entities::value::Value::Int(n)) =>
@@ -441,7 +439,6 @@ mod tests {
             args: &crate::entities::args::Args,
             _world: &dyn crate::contracts::world::World,
             _current_file: crate::entities::file_id::FileId,
-            _figure_numbering: Option<&str>,
         ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
             match args.items.first() {
                 Some(Value::Int(n)) => Ok(Value::Str(format!("v={}", n).into())),
@@ -479,7 +476,6 @@ mod tests {
             _args: &crate::entities::args::Args,
             _world: &dyn crate::contracts::world::World,
             _current_file: crate::entities::file_id::FileId,
-            _figure_numbering: Option<&str>,
         ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
             Err(vec![
                 crate::entities::source_result::SourceDiagnostic::error(
@@ -639,7 +635,6 @@ mod tests {
             args: &crate::entities::args::Args,
             _world: &dyn crate::contracts::world::World,
             _current_file: crate::entities::file_id::FileId,
-            _figure_numbering: Option<&str>,
         ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
             match args.items.first() {
                 Some(Value::Array(items)) => {
@@ -685,7 +680,6 @@ mod tests {
             _args: &crate::entities::args::Args,
             _world: &dyn crate::contracts::world::World,
             _current_file: crate::entities::file_id::FileId,
-            _figure_numbering: Option<&str>,
         ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
             Err(vec![
                 crate::entities::source_result::SourceDiagnostic::error(
@@ -784,7 +778,6 @@ mod tests {
             args: &crate::entities::args::Args,
             _world: &dyn crate::contracts::world::World,
             _current_file: crate::entities::file_id::FileId,
-            _figure_numbering: Option<&str>,
         ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
             match args.items.first() {
                 Some(Value::Array(items)) => Ok(Value::Str(format!("len={}", items.len()).into())),

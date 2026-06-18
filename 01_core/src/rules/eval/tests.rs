@@ -378,16 +378,32 @@ mod tests {
     }
 
     // ── Lote F-2 S3 (P335) — `#set figure(numbering:)` via chain léxica ──────
+    // F-5a de-bake (P365): o padrão da figura vive **só na chain** (`Content::Styled`
+    // custom `figure.numbering` = `Value::Str(padrão)`). O probe threada o padrão
+    // ativo ao descer num `Styled`. Asserção idêntica — verifica o transporte de
+    // produção (a fatia-1 carrega o padrão).
     fn collect_figure_numbering(c: &Content, out: &mut Vec<Option<String>>) {
-        match c {
-            Content::Figure(e) => out.push(e.numbering.clone()),
-            Content::Sequence(items) => {
-                items.iter().for_each(|i| collect_figure_numbering(i, out))
+        fn go(c: &Content, active: Option<String>, out: &mut Vec<Option<String>>) {
+            match c {
+                Content::Figure(_) => out.push(active),
+                Content::Sequence(items) => {
+                    items.iter().for_each(|i| go(i, active.clone(), out))
+                }
+                Content::Styled(b, s) => {
+                    let a = match s.delta().custom.iter().rev()
+                        .find(|(k, _)| k == "figure.numbering")
+                    {
+                        Some((_, crate::entities::value::Value::Str(p))) => Some(p.to_string()),
+                        Some((_, _)) => None,
+                        None => active,
+                    };
+                    go(b, a, out)
+                }
+                Content::Labelled(e) => go(&e.target, active, out),
+                _ => {}
             }
-            Content::Styled(b, _) => collect_figure_numbering(b, out),
-            Content::Labelled(e) => collect_figure_numbering(&e.target, out),
-            _ => {}
         }
+        go(c, None, out)
     }
 
     #[test]

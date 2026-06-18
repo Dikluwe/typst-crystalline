@@ -23,7 +23,11 @@ pub struct FigureElem {
     pub body:      Content,
     pub caption:   Option<Content>,
     pub kind:      Option<String>,
-    pub numbering: Option<String>,
+    // F-5a de-bake (P365, `f_fronteira_e1.md` §3a.9): o campo assado `numbering`
+    // foi **removido** — o padrão de numeração vive **só na chain**
+    // (`#set figure(numbering:)` → `custom("figure.numbering")`, transportado por
+    // `Content::Styled`). O consumidor (layout/introspect) lê o gate da chain; o
+    // **número** (`figure_number_at_index`) segue via Introspector.
 }
 
 impl Element for FigureElem {
@@ -51,7 +55,6 @@ impl Element for FigureElem {
             body:      self.body.map_content(transform)?,
             caption:   self.caption.as_ref().map(|c| c.map_content(transform)).transpose()?,
             kind:      self.kind.clone(),
-            numbering: self.numbering.clone(),
         })))
     }
 
@@ -63,7 +66,6 @@ impl Element for FigureElem {
             body:      self.body.map_text(transform),
             caption:   self.caption.as_ref().map(|c| c.map_text(transform)),
             kind:      self.kind.clone(),
-            numbering: self.numbering.clone(),
         }))
     }
 
@@ -72,10 +74,14 @@ impl Element for FigureElem {
     }
 
     fn to_payload(&self) -> Option<ElementPayload> {
+        // F-5a de-bake (P365): `is_counted` é a conjunção do **gate** (padrão, vindo
+        // da chain) com a presença de caption. O elemento não baka mais o padrão;
+        // aqui dá-se a parte que conhece (caption), e o walk top (`introspect.rs`)
+        // faz `is_counted &= chain.custom("figure.numbering").is_str()` na emissão.
         Some(ElementPayload::Figure {
             kind:           self.kind.clone(),
             counter_update: CounterUpdate::Step,
-            is_counted:     self.numbering.is_some() && self.caption.is_some(),
+            is_counted:     self.caption.is_some(),
         })
     }
 }
@@ -91,7 +97,6 @@ mod tests {
             body: Content::text("img"),
             caption: Some(Content::text("Fig 1")),
             kind: Some("image".to_string()),
-            numbering: Some("1".to_string()),
         }
     }
 
@@ -102,14 +107,14 @@ mod tests {
 
     #[test]
     fn plain_text_sem_caption() {
-        let f = FigureElem { body: Content::text("img"), caption: None, kind: None, numbering: None };
+        let f = FigureElem { body: Content::text("img"), caption: None, kind: None };
         assert_eq!(f.plain_text(), "img");
     }
 
     #[test]
     fn is_empty_body_e_caption_vazios() {
         assert!(!ex().is_empty());
-        let vazia = FigureElem { body: Content::Empty, caption: None, kind: None, numbering: None };
+        let vazia = FigureElem { body: Content::Empty, caption: None, kind: None };
         assert!(vazia.is_empty());
     }
 
@@ -137,15 +142,20 @@ mod tests {
             Some(ElementPayload::Figure { kind, counter_update, is_counted }) => {
                 assert_eq!(kind, Some("image".to_string()));
                 assert_eq!(counter_update, CounterUpdate::Step);
-                assert!(is_counted); // numbering Some + caption Some
+                // F-5a de-bake (P365): `is_counted` no payload é o placeholder
+                // = caption.is_some() (ex tem caption); o gate do padrão é ANDado
+                // pela chain no walk top (testado no nível introspect).
+                assert!(is_counted);
             }
             other => panic!("esperado Figure payload, obtido {other:?}"),
         }
     }
 
     #[test]
-    fn is_counted_falso_sem_numbering() {
-        let f = FigureElem { body: Content::text("x"), caption: Some(Content::text("c")), kind: None, numbering: None };
+    fn is_counted_placeholder_falso_sem_caption() {
+        // F-5a de-bake (P365): sem o campo `numbering`, o placeholder de
+        // `is_counted` reflete só a caption; sem caption → false.
+        let f = FigureElem { body: Content::text("x"), caption: None, kind: None };
         match f.to_payload() {
             Some(ElementPayload::Figure { is_counted, .. }) => assert!(!is_counted),
             _ => panic!("esperado Figure payload"),

@@ -45,7 +45,7 @@ pub(super) fn parse_color(val: &Value) -> Option<Color> {
 /// Fallback determinístico: sem `fill` nem `stroke` → stroke preta de 1pt.
 /// Este é o único local onde este fallback existe — nem o layouter nem o
 /// exportador têm permissão para inventar cores ou espessuras.
-pub fn native_rect(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_rect(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -76,7 +76,7 @@ pub fn native_rect(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 /// `ellipse(width?, height?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, ... }`.
 ///
 /// Mesmo padrão de fallback que `native_rect`.
-pub fn native_ellipse(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_ellipse(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -106,7 +106,7 @@ pub fn native_ellipse(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 /// `circle(radius?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, width==height }`.
 ///
 /// `radius` em pt. Converte para `width = height = radius * 2`.
-pub fn native_circle(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_circle(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["radius", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -152,7 +152,7 @@ pub fn native_circle(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 ///
 /// `dx`/`dy`: Float ou Length em pt. Omitidos → 0.0 (linha degenerada, válida).
 /// Stroke preta por omissão — linhas não têm fill.
-pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["dx", "dy", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -198,7 +198,7 @@ fn extract_coordinate(val: &Value) -> Option<(f64, f64)> {
 /// Cada argumento posicional é um array `[x, y]` em pontos tipográficos.
 /// Bbox calculada via `geometry::path_bbox` (analítica para CubicTo;
 /// equivalente a min/max para LineTo-only — P277 consolidação DEBT-33).
-pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let mut path_items: Vec<PathItem> = Vec::new();
 
     for (i, val) in args.items.iter().enumerate() {
@@ -270,7 +270,7 @@ pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 /// Divergência aproximada vs vanilla typst (`curve.move`/`curve.cubic`
 /// scope methods): cristalino usa tuples descritivos por simplicidade
 /// (proc macros `#elem(scope)` não materializados em L1).
-pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let mut path_items: Vec<PathItem> = Vec::new();
     // P294: tracking de last_point para conversão q→c em "quadratic"
     // (paridade vanilla `Curve::last_point`). Arranca em (0,0) — caso

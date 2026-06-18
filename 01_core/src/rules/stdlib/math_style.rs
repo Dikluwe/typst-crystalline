@@ -54,62 +54,62 @@ fn wrap_math_style(
 }
 
 /// `bb(body)` — wrap em variant DoubleStruck (blackboard bold).
-pub fn native_bb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_bb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "bb", Some(MathStyleKind::DoubleStruck), None, None, None)
 }
 
 /// `bold(body)` — flag bold ortogonal (preserva variant inner).
-pub fn native_bold(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_bold(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "bold", None, Some(true), None, None)
 }
 
 /// `cal(body)` — wrap em variant Chancery (script).
-pub fn native_cal(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_cal(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "cal", Some(MathStyleKind::Chancery), None, None, None)
 }
 
 /// `frak(body)` — wrap em variant Fraktur.
-pub fn native_frak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_frak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "frak", Some(MathStyleKind::Fraktur), None, None, None)
 }
 
 /// `italic(body)` — flag italic ortogonal.
-pub fn native_math_italic(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_math_italic(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "italic", None, None, Some(true), None)
 }
 
 /// `mono(body)` — wrap em variant Monospace.
-pub fn native_mono(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_mono(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "mono", Some(MathStyleKind::Monospace), None, None, None)
 }
 
 /// `sans(body)` — wrap em variant Sans-Serif.
-pub fn native_sans(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_sans(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "sans", Some(MathStyleKind::SansSerif), None, None, None)
 }
 
 /// `scr(body)` — wrap em variant Roundhand (Bold Script).
-pub fn native_scr(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_scr(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "scr", Some(MathStyleKind::Roundhand), None, None, None)
 }
 
 /// `script(body)` — wrap em variant Script (size factor 0.7) + cramped.
-pub fn native_script(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_script(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "script", Some(MathStyleKind::Script), None, None, Some(true))
 }
 
 /// `serif(body)` — force variant Plain (override outer variant).
-pub fn native_serif(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_serif(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "serif", Some(MathStyleKind::Plain), None, None, None)
 }
 
 /// `sscript(body)` — wrap em variant SScript (size factor 0.5) + cramped.
-pub fn native_sscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_sscript(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "sscript", Some(MathStyleKind::SScript), None, None, Some(true))
 }
 
 /// `upright(body)` — flag italic=Some(false) (suprime itálico).
-pub fn native_upright(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_upright(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     wrap_math_style(args, "upright", None, None, Some(false), None)
 }
 

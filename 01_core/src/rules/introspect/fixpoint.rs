@@ -596,7 +596,7 @@ mod tests {
             introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, c| {
                 // Chamar native_query simula stdlib invocation.
                 let args = Args::positional(vec![Value::Str("heading".into())]);
-                let r = native_query(c, &args, &world, main_id, None)
+                let r = native_query(c, &args, &world, main_id)
                     .expect("native_query não deve falhar");
                 observed.push(r);
                 Ok(Content::Sequence(

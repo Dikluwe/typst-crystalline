@@ -72,15 +72,12 @@ pub(crate) fn apply_func(
         FuncRepr::Native(native)   => {
             let world = engine.world;
             let current_file = engine.current_file;
-            // Lote F-2 S3 (P335): a numeração de figura vem da **chain léxica**
-            // (`engine.styles.custom`). O campo global `engine.figure_numbering`
-            // foi **removido** (carona C2, F-3 inc-2). `native_figure` assa este
-            // valor (param `figure_numbering: Option<&str>`) na `FigureElem`.
-            let figure_numbering = match engine.styles.custom("figure.numbering") {
-                Some(Value::Str(s)) => Some(s.as_str()),
-                _ => None,
-            };
-            (native.call)(ctx, &args, world, current_file, figure_numbering)
+            // F-5a de-bake (P365, `f_fronteira_e1.md` §3a.9): o dispatch não lê mais
+            // `custom("figure.numbering")` para alimentar a native — o padrão vive
+            // só na chain e é lido pelo **consumidor** (layout/introspect). O
+            // parâmetro `figure_numbering` foi colapsado do ABI (`func.rs`). Fonte
+            // única.
+            (native.call)(ctx, &args, world, current_file)
         }
     }
 }

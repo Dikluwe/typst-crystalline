@@ -867,9 +867,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 158C: kind é Option<String>; resolver default "image"
             // em uso (paridade introspect.rs walk arm).
             Content::Figure(e) => {
-                let (body, caption, kind, numbering) = (&e.body, &e.caption, &e.kind, &e.numbering);
+                let (body, caption, kind) = (&e.body, &e.caption, &e.kind);
+                // F-5a de-bake (P365, §3a.9): o gate (padrão presente/ausente) vive
+                // **só na chain** (`custom("figure.numbering")`, transportado por
+                // `Content::Styled`); lido de `self.chain`. O **número**
+                // (`figure_progress` + `figure_number_at_index`) fica intacto.
+                let numbering_on = matches!(
+                    self.chain.custom("figure.numbering"),
+                    Some(crate::entities::value::Value::Str(_)),
+                );
                 // Calcular o prefixo de numeração antes de chamar layout_figure.
-                let caption_prefix: Option<String> = if let Some(_pattern) = numbering {
+                let caption_prefix: Option<String> = if numbering_on {
                     let kind_key = kind.as_deref().unwrap_or("image");
                     let progress = self.figure_progress.entry(kind_key.to_string()).or_insert(0);
                     let idx = *progress;

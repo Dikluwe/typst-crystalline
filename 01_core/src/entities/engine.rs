@@ -14,7 +14,7 @@
 //! Ordem dos campos segue a coesão por domínio (ADR-0037):
 //! 1. Handle externo (`world`).
 //! 2. Fluxo de eval (route, styles, show_rules, active_guards,
-//!    current_file, figure_numbering).
+//!    current_file).
 //! 3. Efeitos laterais (sink).
 //!
 //! Campos omitidos face ao vanilla (`introspector`, `routines`,

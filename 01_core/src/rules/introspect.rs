@@ -180,11 +180,14 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // Modelo D (Lote 14 P329): Labelled — recurse no target via construtor.
         Content::Labelled(e) => Content::labelled(materialize_time(&e.target, intr, location), e.label.clone()),
         // Modelo D (Lote 13 P328): Figure — recurse body+caption via construtor.
+        // F-5a de-bake (P365): a figura não tem mais campo `numbering` — o gate
+        // vive na chain (no `Content::Styled` que envolve a figura, preservado pelo
+        // arm Styled de `materialize_time`). Reconstrói com numbering=None.
         Content::Figure(e) => Content::figure(
             materialize_time(&e.body, intr, location),
             e.caption.as_ref().map(|c| materialize_time(c, intr, location)),
             e.kind.clone(),
-            e.numbering.clone(),
+            None,
         ),
 
         // Modelo D (Lote 3 P318): Terms/TermItem delegam reconstrução ao construtor.
@@ -431,17 +434,15 @@ fn compute_labelled<I: Introspector>(
             }
         }
         Content::Figure(e) => {
-            let (kind, numbering, caption) = (&e.kind, &e.numbering, &e.caption);
-            let kind_key = kind.as_deref().unwrap_or("image");
-            let n = if numbering.is_some() && caption.is_some() {
-                intr.flat_counter_at(
-                    &format!("figure:{}", kind_key),
-                    location,
-                )
-                .unwrap_or(0)
-            } else {
-                0
-            };
+            // F-5a de-bake (P365): o gate (padrão + caption) não é mais lido de um
+            // campo — vive no **contador** `figure:{kind}`, que só é avançado quando
+            // `is_counted` (padrão-da-chain && caption) na emissão (walk top). Logo
+            // `flat_counter_at` location-aware devolve >0 só para figuras numeradas
+            // (espelho do arm Equation, que confia no contador). Sem leitura de campo.
+            let kind_key = e.kind.as_deref().unwrap_or("image");
+            let n = intr
+                .flat_counter_at(&format!("figure:{}", kind_key), location)
+                .unwrap_or(0);
             if n > 0 {
                 let supplement = crate::rules::lang::figure_supplement::figure_supplement_for_lang(
                     kind_key,
@@ -793,6 +794,12 @@ pub(crate) fn walk(
         if let ElementPayload::Equation { numbering_active, .. } = &mut payload {
             *numbering_active =
                 matches!(chain.custom("equation.numbering"), Some(Value::Bool(true)));
+        }
+        // F-5a de-bake (P365): a figura não baka mais o padrão. `is_counted` é o
+        // placeholder (`caption.is_some()`, de `to_payload`) **ANDado** com o gate
+        // do padrão lido da chain aqui (`Some(Str)` = numerado). Fonte única.
+        if let ElementPayload::Figure { is_counted, .. } = &mut payload {
+            *is_counted &= matches!(chain.custom("figure.numbering"), Some(Value::Str(_)));
         }
         let info = ElementInfo {
             payload,
@@ -1302,6 +1309,21 @@ mod tests {
         location::Location,
     };
 
+    /// **F-5a de-bake (P365)** — rotula reproduzindo a **forma de produção**: o
+    /// transporte de numbering (`Content::Styled`, ex.: o que `Content::figure(..,
+    /// Some)` produz) fica **fora** do `Labelled` (`Styled{ Labelled{ alvo } }`),
+    /// como a fatia-1 embrulha a cauda. Sem isto, `Labelled{ Styled{ alvo } }`
+    /// inverte a ordem e o `compute_labelled` (que inspeciona o tipo do alvo) não
+    /// dispara. Levanta o transporte transparente para fora; alvo simples passa
+    /// direto.
+    fn labelled_prod(target: Content, label: Label) -> Content {
+        match target {
+            Content::Styled(inner, styles) =>
+                Content::Styled(Box::new(Content::labelled(*inner, label)), styles),
+            other => Content::labelled(other, label),
+        }
+    }
+
     #[test]
     fn introspect_popula_label_forward() {
         // Ref antes do Labelled — forward reference
@@ -1408,7 +1430,7 @@ mod tests {
     #[test]
     fn introspect_resolve_label_de_figura() {
         let content = Content::Sequence(
-            vec![Content::labelled(Content::figure(Content::text("Um gráfico"), Some(Content::text("Evolução")), Some("image".to_string()), Some("1".to_string())), Label("fig1".to_string()))]
+            vec![labelled_prod(Content::figure(Content::text("Um gráfico"), Some(Content::text("Evolução")), Some("image".to_string()), Some("1".to_string())), Label("fig1".to_string()))]
             .into(),
         );
 
@@ -1424,8 +1446,8 @@ mod tests {
     fn introspect_duas_figuras_contadores_independentes() {
         let content = Content::Sequence(
             vec![
-                Content::labelled(Content::figure(Content::text("A"), Some(Content::text("Legenda A")), Some("image".to_string()), Some("1".to_string())), Label("f1".to_string())),
-                Content::labelled(Content::figure(Content::text("B"), Some(Content::text("Legenda B")), Some("image".to_string()), Some("1".to_string())), Label("f2".to_string())),
+                labelled_prod(Content::figure(Content::text("A"), Some(Content::text("Legenda A")), Some("image".to_string()), Some("1".to_string())), Label("f1".to_string())),
+                labelled_prod(Content::figure(Content::text("B"), Some(Content::text("Legenda B")), Some("image".to_string()), Some("1".to_string())), Label("f2".to_string())),
             ]
             .into(),
         );
@@ -1446,7 +1468,7 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::figure(Content::text("Diagrama"), None, Some("image".to_string()), Some("1".to_string())),
-                Content::labelled(Content::figure(Content::text("B"), Some(Content::text("Legenda")), Some("image".to_string()), Some("1".to_string())), Label("f2".to_string())),
+                labelled_prod(Content::figure(Content::text("B"), Some(Content::text("Legenda")), Some("image".to_string()), Some("1".to_string())), Label("f2".to_string())),
             ]
             .into(),
         );
@@ -1568,12 +1590,18 @@ mod tests {
 
     #[test]
     fn figure_tem_kind_e_numbering() {
+        // F-5a de-bake (P365): `Content::figure(.., Some(padrão))` produz a forma de
+        // transporte `Styled(Figure, custom("figure.numbering"))` — o `kind` fica no
+        // `Figure`; o padrão vive no custom da chain (não mais campo do elemento).
         let fig = Content::figure(Content::text("corpo"), Some(Content::text("legenda")), Some("image".to_string()), Some("1".to_string()));
-        if let Content::Figure(e) = fig {
-            assert_eq!(e.kind.as_deref(), Some("image"));
-            assert_eq!(e.numbering, Some("1".to_string()));
+        if let Content::Styled(body, styles) = fig {
+            let pat = styles.delta().custom.iter()
+                .find(|(k, _)| k == "figure.numbering")
+                .map(|(_, v)| v.clone());
+            assert_eq!(pat, Some(Value::Str("1".into())));
+            assert!(matches!(&*body, Content::Figure(e) if e.kind.as_deref() == Some("image")));
         } else {
-            panic!("Variante inesperada");
+            panic!("esperado Styled (transporte de numbering)");
         }
     }
 
@@ -1619,7 +1647,7 @@ mod tests {
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
         let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".to_string()), Some("1".to_string()));
-        let labelled = Content::labelled(figure, label.clone());
+        let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_introspector(&labelled);
         assert_eq!(
             intr.resolved_labels.get(&label),
@@ -1633,7 +1661,7 @@ mod tests {
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
         let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".to_string()), Some("1".to_string()));
-        let labelled = Content::labelled(figure, label.clone());
+        let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "pt");
         assert_eq!(
             intr.resolved_labels.get(&label),
@@ -1646,7 +1674,7 @@ mod tests {
         use crate::entities::label::Label;
         let label = Label("tab1".to_string());
         let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("table".to_string()), Some("1".to_string()));
-        let labelled = Content::labelled(figure, label.clone());
+        let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "en");
         assert_eq!(
             intr.resolved_labels.get(&label),
@@ -1659,7 +1687,7 @@ mod tests {
         use crate::entities::label::Label;
         let label = Label("lst1".to_string());
         let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("raw".to_string()), Some("1".to_string()));
-        let labelled = Content::labelled(figure, label.clone());
+        let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "de");
         assert_eq!(
             intr.resolved_labels.get(&label),
@@ -1673,7 +1701,7 @@ mod tests {
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
         let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".to_string()), Some("1".to_string()));
-        let labelled = Content::labelled(figure, label.clone());
+        let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "zh");
         assert_eq!(
             intr.resolved_labels.get(&label),
@@ -1688,7 +1716,7 @@ mod tests {
         use crate::entities::label::Label;
         let label = Label("custom1".to_string());
         let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("custom".to_string()), Some("1".to_string()));
-        let labelled = Content::labelled(figure, label.clone());
+        let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "en");
         assert_eq!(
             intr.resolved_labels.get(&label),
@@ -1723,7 +1751,7 @@ mod tests {
         // que usam Some("image".to_string())).
         let content = Content::Sequence(
             vec![
-                Content::labelled(Content::figure(Content::text("body sem kind explícito"), Some(Content::text("legenda")), None, Some("1".to_string())), Label("f_none".to_string())),
+                labelled_prod(Content::figure(Content::text("body sem kind explícito"), Some(Content::text("legenda")), None, Some("1".to_string())), Label("f_none".to_string())),
             ]
             .into(),
         );
@@ -2370,7 +2398,6 @@ mod tests {
         args: &Args,
         _world: &dyn crate::contracts::world::World,
         _current_file: FileId,
-        _figure_numbering: Option<&str>,
     ) -> crate::entities::source_result::SourceResult<Value> {
         match args.items.first() {
             Some(Value::Int(n)) => Ok(Value::Int(n + 1)),
@@ -2807,7 +2834,7 @@ mod tests {
         // Introspector path puro. compute_labelled (P191C migrado) lê
         // intr.flat_counter_at; populate_intr arm Labelled popula
         // intr.figure_label_numbers.
-        let content = Content::labelled(Content::figure(Content::Empty, Some(Content::text("Cap")), Some("image".into()), Some("1".to_string())), Label("fig1".to_string()));
+        let content = labelled_prod(Content::figure(Content::Empty, Some(Content::text("Cap")), Some("image".into()), Some("1".to_string())), Label("fig1".to_string()));
         let intr = introspect_with_introspector(&content);
 
         // P190H: intr.figure_label_numbers populated via populate_intr
@@ -2851,6 +2878,17 @@ mod tests {
 
         use crate::rules::introspect::extract_payload::extract_payload;
 
+        // F-5a de-bake (P365): `Content::figure(.., Some)` produz a forma de
+        // transporte `Styled(Figure, custom)`. Para a parte (a) — que chama
+        // `extract_payload` **direto** no elemento — descasca o transporte para
+        // alcançar a `Figure`. `extract_payload`/`to_payload` dão agora o
+        // **placeholder** de `is_counted` (= `caption.is_some()`); o gate de
+        // numbering é ANDado no walk (parte (b)/(c) abaixo o exercitam). Como todos
+        // os casos têm numbering Some, o placeholder coincide com o valor antigo.
+        fn fig_inner(c: &Content) -> &Content {
+            match c { Content::Styled(b, _) => b, other => other }
+        }
+
         let caso1 = Content::figure(Content::text("img"), None, None, Some("1".to_string()));
         let caso2 = Content::figure(Content::text("img"), Some(Content::text("c")), None, Some("1".to_string()));
         let caso3 = Content::figure(Content::text("t"), Some(Content::text("c")), Some("table".to_string()), Some("1".to_string()));
@@ -2859,28 +2897,28 @@ mod tests {
         // (a) `extract_payload` preserva `kind` literalmente (sem default
         //     — lacuna #1 fecha porque tag preserva None vs Some("image")
         //     distintamente; default só aplica em populate_intr).
-        match extract_payload(&caso1) {
+        match extract_payload(fig_inner(&caso1)) {
             Some(ElementPayload::Figure { kind, is_counted, .. }) => {
                 assert_eq!(kind, None,         "caso1 kind preservado None literal");
                 assert_eq!(is_counted, false, "caso1 sem caption → is_counted=false");
             }
             other => panic!("caso1: esperado Some(Figure), obtido {other:?}"),
         }
-        match extract_payload(&caso2) {
+        match extract_payload(fig_inner(&caso2)) {
             Some(ElementPayload::Figure { kind, is_counted, .. }) => {
                 assert_eq!(kind, None,        "caso2 kind preservado None literal");
                 assert_eq!(is_counted, true, "caso2 com caption+numbering → is_counted=true");
             }
             other => panic!("caso2: esperado Some(Figure), obtido {other:?}"),
         }
-        match extract_payload(&caso3) {
+        match extract_payload(fig_inner(&caso3)) {
             Some(ElementPayload::Figure { kind, is_counted, .. }) => {
                 assert_eq!(kind, Some("table".to_string()), "caso3 kind literal Some(\"table\")");
                 assert_eq!(is_counted, true,                "caso3 com caption+numbering → is_counted=true");
             }
             other => panic!("caso3: esperado Some(Figure), obtido {other:?}"),
         }
-        match extract_payload(&caso4) {
+        match extract_payload(fig_inner(&caso4)) {
             Some(ElementPayload::Figure { kind, is_counted, .. }) => {
                 assert_eq!(kind, Some("table".to_string()), "caso4 kind literal Some(\"table\")");
                 assert_eq!(is_counted, false,               "caso4 sem caption → is_counted=false");

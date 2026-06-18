@@ -51,7 +51,7 @@ fn infer_kind_from_body(body: &Content) -> Option<String> {
 ///   recursivo); se inferência falha, **`None` directo** (default
 ///   `"image"` resolvido em uso por callers — Passo 158C ADR-0064
 ///   Caso A estrito).
-pub fn native_figure(ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_figure(ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let _ = ctx;
     // Argumento posicional: body (obrigatório)
     let body = match args.items.first() {
@@ -85,11 +85,12 @@ pub fn native_figure(ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         })
         .unwrap_or_else(|| infer_kind_from_body(&body));   // P158A
 
-    // Numeração capturada do contexto (Passo 75, DEBT-14).
-    // Reflecte o estado activo de `#set figure(numbering: ...)` no momento da chamada.
-    let numbering = figure_numbering.map(str::to_string);
-
-    Ok(Value::Content(Content::figure(body, caption, kind, numbering)))
+    // F-5a de-bake (P365, `f_fronteira_e1.md` §3a.9): `native_figure` **não baka**
+    // mais o padrão de numeração. O `#set figure(numbering:)` vive **só na chain**
+    // (`custom("figure.numbering")` no `Content::Styled` da fatia-1); a produção cria
+    // a figura **simples** (numbering=None). Consumidor lê o gate da chain. Fonte
+    // única. (`_figure_numbering` colapsa da assinatura no mesmo lote — abaixo.)
+    Ok(Value::Content(Content::figure(body, caption, kind, None)))
 }
 
 // ── `image()` — carregamento de imagens do disco (Passo 71, DEBT-24) ─────────
@@ -100,7 +101,7 @@ pub fn native_figure(ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 /// `world` passou do `EvalContext` para o ABI directo, ADR-0044).
 /// `width` e `height` são preservados no AST para o Passo 72 (dimensões reais).
 /// O layouter usa placeholder 100×100 pt neste passo (DEBT-24b).
-pub fn native_image(_ctx: &mut EvalContext, args: &Args, world: &dyn crate::contracts::world::World, current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_image(_ctx: &mut EvalContext, args: &Args, world: &dyn crate::contracts::world::World, current_file: FileId) -> SourceResult<Value> {
     // Validar named args: apenas "width" e "height" são aceites.
     for key in args.named.keys() {
         if key.as_str() != "width" && key.as_str() != "height" {

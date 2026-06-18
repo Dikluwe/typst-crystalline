@@ -105,7 +105,7 @@ pub fn make_calc_module() -> Value {
     Value::Dict(dict)
 }
 
-pub(crate) fn calc_abs(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_abs(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]   => Ok(Value::Int(i.saturating_abs())),
@@ -115,7 +115,7 @@ pub(crate) fn calc_abs(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
     }
 }
 
-pub(crate) fn calc_pow(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_pow(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(base), Value::Int(exp)] => {
@@ -135,7 +135,7 @@ pub(crate) fn calc_pow(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
     }
 }
 
-pub(crate) fn calc_sqrt(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_sqrt(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
@@ -149,7 +149,7 @@ pub(crate) fn calc_sqrt(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     }
 }
 
-pub(crate) fn calc_floor(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_floor(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]   => Ok(Value::Int(*i)),
@@ -159,7 +159,7 @@ pub(crate) fn calc_floor(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
     }
 }
 
-pub(crate) fn calc_ceil(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_ceil(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]   => Ok(Value::Int(*i)),
@@ -169,7 +169,7 @@ pub(crate) fn calc_ceil(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     }
 }
 
-pub(crate) fn calc_round(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_round(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]   => Ok(Value::Int(*i)),
@@ -179,7 +179,7 @@ pub(crate) fn calc_round(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
     }
 }
 
-pub(crate) fn calc_min(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_min(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     if args.items.is_empty() {
         return err("calc.min() requer pelo menos 1 argumento");
@@ -199,7 +199,7 @@ pub(crate) fn calc_min(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
     Ok(result)
 }
 
-pub(crate) fn calc_max(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_max(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     if args.items.is_empty() {
         return err("calc.max() requer pelo menos 1 argumento");
@@ -219,7 +219,7 @@ pub(crate) fn calc_max(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
     Ok(result)
 }
 
-pub(crate) fn calc_clamp(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_clamp(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(v), Value::Int(lo), Value::Int(hi)] =>
@@ -269,19 +269,19 @@ fn unary_f64(
     }
 }
 
-pub(crate) fn calc_sin(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_sin(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     unary_f64("calc.sin", args, f64::sin)
 }
 
-pub(crate) fn calc_cos(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_cos(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     unary_f64("calc.cos", args, f64::cos)
 }
 
-pub(crate) fn calc_tan(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_tan(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     unary_f64("calc.tan", args, f64::tan)
 }
 
-pub(crate) fn calc_asin(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_asin(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
@@ -295,7 +295,7 @@ pub(crate) fn calc_asin(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     }
 }
 
-pub(crate) fn calc_acos(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_acos(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
@@ -309,14 +309,14 @@ pub(crate) fn calc_acos(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     }
 }
 
-pub(crate) fn calc_atan(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_atan(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     unary_f64("calc.atan", args, f64::atan)
 }
 
 /// `calc.atan2(x, y)` — paridade vanilla na **ordem dos parâmetros** (`x` antes
 /// de `y`); a stdlib Rust expõe `f64::atan2(y, x)` portanto a chamada interna
 /// passa-os trocados (cf. diagnóstico §A.1).
-pub(crate) fn calc_atan2(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_atan2(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [vx, vy] => {
@@ -330,23 +330,23 @@ pub(crate) fn calc_atan2(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
     }
 }
 
-pub(crate) fn calc_sinh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_sinh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     unary_f64("calc.sinh", args, f64::sinh)
 }
 
-pub(crate) fn calc_cosh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_cosh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     unary_f64("calc.cosh", args, f64::cosh)
 }
 
-pub(crate) fn calc_tanh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_tanh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     unary_f64("calc.tanh", args, f64::tanh)
 }
 
-pub(crate) fn calc_asinh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_asinh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     unary_f64("calc.asinh", args, f64::asinh)
 }
 
-pub(crate) fn calc_acosh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_acosh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
@@ -360,7 +360,7 @@ pub(crate) fn calc_acosh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
     }
 }
 
-pub(crate) fn calc_atanh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_atanh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
@@ -374,11 +374,11 @@ pub(crate) fn calc_atanh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
     }
 }
 
-pub(crate) fn calc_exp(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_exp(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     unary_f64("calc.exp", args, f64::exp)
 }
 
-pub(crate) fn calc_ln(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_ln(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
@@ -397,7 +397,7 @@ pub(crate) fn calc_ln(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 /// `calc.log(x)` (base 10) ou `calc.log(x, base)`. Vanilla usa argumento nomeado
 /// `base:` (default 10); cristalino diverge para posicional por simplicidade
 /// — registado no L0 e em diagnóstico §A.1.
-pub(crate) fn calc_log(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_log(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let (x, base) = match args.items.as_slice() {
         [v]    => (coerce_to_f64(v, "calc.log() valor")?, 10.0_f64),
@@ -424,7 +424,7 @@ pub(crate) fn calc_log(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
 // `f64::rem_euclid`, etc.). `calc_norm`/`calc_root` usam `f64::powf` —
 // DEBT-libm partilhado com `calc_pow` (ADR-0018).
 
-pub(crate) fn calc_trunc(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_trunc(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]   => Ok(Value::Int(*i)),
@@ -434,7 +434,7 @@ pub(crate) fn calc_trunc(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
     }
 }
 
-pub(crate) fn calc_fract(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_fract(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(_)]   => Ok(Value::Float(0.0)),
@@ -444,7 +444,7 @@ pub(crate) fn calc_fract(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
     }
 }
 
-pub(crate) fn calc_even(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_even(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(n)] => Ok(Value::Bool(n % 2 == 0)),
@@ -453,7 +453,7 @@ pub(crate) fn calc_even(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     }
 }
 
-pub(crate) fn calc_odd(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_odd(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(n)] => Ok(Value::Bool(n % 2 != 0)),
@@ -463,7 +463,7 @@ pub(crate) fn calc_odd(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
 }
 
 /// Resto truncado: sinal acompanha o dividendo (paridade operador `%`).
-pub(crate) fn calc_rem(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_rem(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(a), Value::Int(b)] => {
@@ -486,7 +486,7 @@ pub(crate) fn calc_rem(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
 }
 
 /// Resto Euclidiano: sempre ≥ 0 para divisor > 0.
-pub(crate) fn calc_rem_euclid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_rem_euclid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(a), Value::Int(b)] => {
@@ -508,7 +508,7 @@ pub(crate) fn calc_rem_euclid(_ctx: &mut EvalContext, args: &Args, _world: &dyn 
 }
 
 /// Quociente Euclidiano: arredonda para -∞ quando divisor > 0.
-pub(crate) fn calc_div_euclid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_div_euclid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(a), Value::Int(b)] => {
@@ -530,7 +530,7 @@ pub(crate) fn calc_div_euclid(_ctx: &mut EvalContext, args: &Args, _world: &dyn 
 }
 
 /// Quociente truncado em Int (paridade vanilla `calc.quo(-7, 2) = -3`).
-pub(crate) fn calc_quo(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_quo(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(a), Value::Int(b)] => {
@@ -563,7 +563,7 @@ fn gcd_impl(mut a: i64, mut b: i64) -> i64 {
     a
 }
 
-pub(crate) fn calc_gcd(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_gcd(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(a), Value::Int(b)] => Ok(Value::Int(gcd_impl(*a, *b))),
@@ -572,7 +572,7 @@ pub(crate) fn calc_gcd(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
     }
 }
 
-pub(crate) fn calc_lcm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_lcm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(a), Value::Int(b)] => {
@@ -596,7 +596,7 @@ pub(crate) fn calc_lcm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
     }
 }
 
-pub(crate) fn calc_fact(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_fact(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(n)] => {
@@ -615,7 +615,7 @@ pub(crate) fn calc_fact(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 }
 
 /// Arranjos: `P(n, k) = n * (n-1) * ... * (n-k+1)`.
-pub(crate) fn calc_perm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_perm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(n), Value::Int(k)] => {
@@ -639,7 +639,7 @@ pub(crate) fn calc_perm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 /// `C(n, k) = ∏_{i=0..k} (n - i) / (i + 1)`. A divisão exacta a cada
 /// iteração é garantida pela propriedade combinatória: o produto parcial
 /// após `i` passos é divisível por `(i + 1)`.
-pub(crate) fn calc_binom(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_binom(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(n), Value::Int(k)] => {
@@ -662,7 +662,7 @@ pub(crate) fn calc_binom(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
 }
 
 /// Norma p de um vector: `(Σ |x_i|^p)^(1/p)`. `p` é named arg, default `2.0`.
-pub(crate) fn calc_norm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_norm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     // `p` é o único named arg aceite.
     let p = match args.named.get("p") {
         Some(Value::Float(f)) => *f,
@@ -696,7 +696,7 @@ pub(crate) fn calc_norm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 }
 
 /// Raiz n-ésima: `root(index, x)`. Preserva sinal para `index` ímpar.
-pub(crate) fn calc_root(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub(crate) fn calc_root(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(index), x] => {
@@ -736,7 +736,6 @@ pub(crate) fn calc_erf(
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
-    _figure_numbering: Option<&str>,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {

@@ -17,7 +17,7 @@ use crate::entities::value::Value;
 use crate::rules::eval::EvalContext;
 
 /// `move(dx?, dy?, body)` → `Content::Transform { matrix: translate(dx, dy), body }`.
-pub fn native_move(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_move(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     fn extract_pt(val: &Value) -> f64 {
         match val {
             Value::Float(f)  => *f,
@@ -38,7 +38,7 @@ pub fn native_move(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 /// `rotate(angle, body)` → `Content::Transform { matrix: rotate(rad), body }`.
 ///
 /// `angle` pode ser `Value::Angle` (graus→radianos via `to_rad()`) ou `Value::Float` (radianos).
-pub fn native_rotate(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_rotate(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let angle_rad = match args.named.get("angle") {
         Some(Value::Angle(a)) => a.to_rad(),
         Some(Value::Float(f)) => *f,
@@ -61,7 +61,7 @@ pub fn native_rotate(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 /// `scale(x?, y?, body)` → `Content::Transform { matrix: scale(sx, sy), body }`.
 ///
 /// `x` e `y` são factores de escala (Float ou Int). Se `y` omitido, escala uniforme.
-pub fn native_scale(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_scale(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     fn extract_factor(val: &Value) -> f64 {
         match val {
             Value::Float(f) => *f,
@@ -98,7 +98,7 @@ pub fn native_scale(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 ///   validação `|ax|, |ay| < π/2 - epsilon` (epsilon=1e-3 rad ≈ 0.057°).
 /// - Ângulos negativos aceites (skew em direcção oposta — semantic
 ///   simétrica natural).
-pub fn native_skew(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_skew(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     /// Coage `Value` para ângulo em radianos. Aceita `Angle` (idiomático)
     /// e `Float` (radianos directos, consistente com `native_rotate`).
     fn extract_angle_rad(val: &Value) -> Option<f64> {

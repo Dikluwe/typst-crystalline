@@ -698,15 +698,15 @@ pub(super) fn eval_show_rule(
                         native_emph, native_raw,
                     };
                     match f.native_fn_addr() {
-                        Some(addr) if fn_addr_eq(addr, native_heading as fn(_, _, _, _, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Heading),
-                        Some(addr) if fn_addr_eq(addr, native_figure as fn(_, _, _, _, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Figure),
-                        Some(addr) if fn_addr_eq(addr, native_strong as fn(_, _, _, _, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_strong as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Strong),
-                        Some(addr) if fn_addr_eq(addr, native_emph as fn(_, _, _, _, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_emph as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Emph),
-                        Some(addr) if fn_addr_eq(addr, native_raw as fn(_, _, _, _, _) -> _) =>
+                        Some(addr) if fn_addr_eq(addr, native_raw as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Raw),
                         Some(_) => return Err(vec![SourceDiagnostic::error(
                             sel_expr.span(),

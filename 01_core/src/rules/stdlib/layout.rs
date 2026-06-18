@@ -29,7 +29,7 @@ use crate::rules::eval::EvalContext;
 /// ex: `align(center + bottom, ...)`) ou `Value::Str` (sintaxe legacy,
 /// ex: `align("center", ...)`) — ver DEBT-36 (encerrado).
 /// `body` é o primeiro argumento posicional do tipo Content.
-pub fn native_align(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_align(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
 
     let alignment = extract_alignment(args, Align2D::default());
@@ -48,7 +48,7 @@ pub fn native_align(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 /// `scope` (Passo 84.6, encerra DEBT-37): `"column"` (default — ancora à
 /// célula activa de Grid, ou à página fora de Grid) ou `"parent"` (ancora
 /// sempre à página). Aceita string ou omissão.
-pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     for key in args.named.keys() {
         // P223 — accept "float" e "clearance" novos named args.
         if !["dx", "dy", "scope", "float", "clearance"].contains(&key.as_str()) {
@@ -182,7 +182,7 @@ pub(super) fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
 }
 
 /// `grid(columns?, rows?, ...cells)` → `Content::Grid`.
-pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     for key in args.named.keys() {
         // P224 + P227 + P228 — accept named args
         // (gutter/align/inset/header/footer/stroke/fill).
@@ -362,7 +362,7 @@ pub(super) fn extract_stroke(val: &Value, fn_name: &str, field: &str) -> SourceR
 /// `body` posicional obrigatório (Content ou Str).
 /// Padding negativo rejeitado por agora (perfil ADR-0054 graded; vanilla
 /// aceita-o mas a semântica em cristalino fica para passo posterior).
-pub fn native_pad(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_pad(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -526,7 +526,7 @@ fn extract_corners_length_value(value: &Value, fn_name: &str) -> SourceResult<cr
 }
 
 /// `hide(body)` → `Content::Hide`. Sem argumentos nomeados.
-pub fn native_hide(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_hide(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
@@ -609,7 +609,7 @@ fn build_spacing(
 /// comportamento de collapse adiado neste passo (perfil ADR-0054 graded).
 /// Vanilla aceita `Fraction` para amount; cristalino só `Length` neste
 /// passo (refino futuro per ADR-0061 §6.3).
-pub fn native_h(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_h(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let (amount, weak) = build_spacing(args, "h", &["weak"])?;
     Ok(Value::Content(Content::h_space(amount, weak)))
 }
@@ -617,7 +617,7 @@ pub fn native_h(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contrac
 /// `v(amount, weak: false)` → `Content::VSpace`.
 ///
 /// Análogo a `native_h`, produz spacing primitive vertical.
-pub fn native_v(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_v(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let (amount, weak) = build_spacing(args, "v", &["weak"])?;
     Ok(Value::Content(Content::v_space(amount, weak)))
 }
@@ -658,7 +658,7 @@ fn extract_parity(value: &Value) -> SourceResult<Parity> {
 ///
 /// **Scope-out** (refino futuro): outset, fill, stroke, radius, clip,
 /// spacing, above/below, sticky.
-pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -866,7 +866,7 @@ fn extract_dir(value: &Value) -> SourceResult<Dir> {
 /// - `spacing: Length`; default `None` (zero).
 ///
 /// Sem atributos vanilla scope-out (vanilla stack tem apenas estes 3).
-pub fn native_stack(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_stack(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let mut dir: Dir = Dir::default();  // TTB
     let mut spacing: Option<Length> = None;
 
@@ -927,7 +927,7 @@ pub fn native_stack(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 ///
 /// Distinção material face a `block`: posicionamento **inline** vs
 /// structural.
-pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -1080,7 +1080,7 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 /// está diferido — Layouter executa single-render do body
 /// (suficiente para paridade estrutural, exhaustive pattern-match
 /// e walk de counters/labels dentro do body).
-pub fn native_repeat(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_repeat(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s))     => Content::text(s.as_str()),
@@ -1173,7 +1173,7 @@ fn extract_count(args: &Args, fn_name: &str) -> SourceResult<usize> {
 ///   `Repeat.gap` P156J).
 /// - Named arg desconhecido rejeitado.
 /// - Body `Value::Content` ou `Value::Str` obrigatório.
-pub fn native_columns(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_columns(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     // 1. Extract count (posicional [0] obrigatório).
     let count = extract_count(args, "columns")?;
 
@@ -1240,7 +1240,7 @@ pub fn native_columns(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 /// pós-P219 (Opção B graded; sem multi-region flow real).
 /// Refino multi-region salto entre colunas reais é
 /// P-Layout-Fase4 candidato (não-reservado).
-pub fn native_colbreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_colbreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -1288,7 +1288,7 @@ pub fn native_colbreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
 /// observable). Para conteúdo complexo (texto multi-linha,
 /// equações), helper retorna aproximação conservadora (0, 0)
 /// — limitação documentada.
-pub fn native_measure(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_measure(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::rules::layout::helpers::measure_content;
     use ecow::EcoString;
     use indexmap::IndexMap;
@@ -1351,7 +1351,7 @@ pub fn native_measure(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 /// - Sem argumentos posicionais.
 /// - `thickness > 0` (rejeita 0 e negativos).
 /// - Named args restritos a `paint` + `thickness`.
-pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::entities::geometry::Stroke;
     use crate::entities::layout_types::Color;
     use crate::entities::paint::Paint;
@@ -1418,7 +1418,7 @@ pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 /// collapse adiado (perfil ADR-0054 graded; consistente com P156D).
 /// `to` aceita string `"even"` ou `"odd"`; ausente → `None` (sem
 /// ajuste de paridade).
-pub fn native_pagebreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_pagebreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),

@@ -1263,13 +1263,31 @@ impl Content {
     }
 
     /// **Lote 13 P328** — `Content::Figure` (figura locatável M1).
+    ///
+    /// **F-5a de-bake (P365, `f_fronteira_e1.md` §3a.9):** o campo assado
+    /// `numbering` foi removido de `FigureElem`. Quando `numbering` é `Some(padrão)`
+    /// este construtor produz a **forma de transporte** (`Content::Styled` com
+    /// `custom("figure.numbering")`), a forma canônica que `#set figure(numbering:)`
+    /// gera — usada pelos fixtures. `None` → figura simples. Em produção
+    /// `native_figure` passa `None` (a fatia-1 carrega o gate).
     pub fn figure(
         body:      Content,
         caption:   Option<Content>,
         kind:      Option<String>,
         numbering: Option<String>,
     ) -> Self {
-        Self::Figure(Arc::new(FigureElem { body, caption, kind, numbering }))
+        let fig = Self::Figure(Arc::new(FigureElem { body, caption, kind }));
+        match numbering {
+            Some(pat) => {
+                use crate::entities::style::Styles;
+                use crate::entities::value::Value;
+                Self::Styled(
+                    Box::new(fig),
+                    Styles::new().push_custom("figure.numbering", Value::Str(pat.into())),
+                )
+            }
+            None => fig,
+        }
     }
 
     pub fn counter_display(kind: impl Into<String>) -> Self {
@@ -2093,11 +2111,6 @@ impl Content {
                 // é render, não morfologia — P345 N1).
                 Content::Styled(body, styles) if styles.is_semantically_empty() =>
                     Some((**body).clone()),
-                Content::Figure(e) if e.numbering.is_some() => {
-                    let mut e2 = (**e).clone();
-                    e2.numbering = None;
-                    Some(Content::Figure(Arc::new(e2)))
-                }
                 _ => None,
             })
         };
@@ -4983,7 +4996,7 @@ mod tests {
     fn p240_content_statedisplay_partial_eq_com_callback_ptr_eq() {
         // Com callback → comparação Arc::ptr_eq via Func::PartialEq.
         use crate::entities::func::Func;
-        let f1 = Func::native("identity", |_, args, _, _, _| {
+        let f1 = Func::native("identity", |_, args, _, _| {
             Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
         });
         let a = Content::state_display("k".to_string(), Some(f1.clone()));
@@ -4991,7 +5004,7 @@ mod tests {
         // Mesmo Arc partilhado → equal.
         assert_eq!(a, b);
         // Func distinta (Arc diferente) → not equal mesmo com mesmo behaviour.
-        let f2 = Func::native("identity", |_, args, _, _, _| {
+        let f2 = Func::native("identity", |_, args, _, _| {
             Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
         });
         let c = Content::state_display("k".to_string(), Some(f2));
@@ -5022,13 +5035,13 @@ mod tests {
     fn p241_content_counter_display_callback_partial_eq_com_callback_ptr_eq() {
         // Com callback → comparação Arc::ptr_eq via Func::PartialEq.
         use crate::entities::func::Func;
-        let f1 = Func::native("identity", |_, args, _, _, _| {
+        let f1 = Func::native("identity", |_, args, _, _| {
             Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
         });
         let a = Content::counter_display_callback("k".to_string(), Some(f1.clone()));
         let b = Content::counter_display_callback("k".to_string(), Some(f1.clone()));
         assert_eq!(a, b);
-        let f2 = Func::native("identity", |_, args, _, _, _| {
+        let f2 = Func::native("identity", |_, args, _, _| {
             Ok(args.items.first().cloned().unwrap_or(crate::entities::value::Value::None))
         });
         let c = Content::counter_display_callback("k".to_string(), Some(f2));

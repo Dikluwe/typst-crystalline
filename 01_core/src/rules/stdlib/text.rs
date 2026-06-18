@@ -23,7 +23,7 @@ use super::shapes::parse_color;
 // ── `upper()` / `lower()` / `replace()` — motor map_text (Passo 67) ─────────
 
 /// `upper(str | content)` → texto em maiúsculas.
-pub fn native_upper(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_upper(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(s)] => Ok(Value::Str(s.to_uppercase())),
@@ -37,7 +37,7 @@ pub fn native_upper(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 }
 
 /// `lower(str | content)` → texto em minúsculas.
-pub fn native_lower(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_lower(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(s)] => Ok(Value::Str(s.to_lowercase())),
@@ -53,7 +53,7 @@ pub fn native_lower(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 /// `replace(fonte, padrão, substituição, count: N)` → string ou content com substituição.
 ///
 /// `count` é global ao documento: persiste entre nós de texto via `FnMut`.
-pub fn native_replace(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_replace(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     // Validar named args: apenas "count" é aceite.
     for key in args.named.keys() {
         if key.as_str() != "count" {
@@ -212,15 +212,15 @@ fn build_decoration(kind: DecoKind, args: &Args, fn_name: &str) -> SourceResult<
     Ok(Value::Content(c))
 }
 
-pub fn native_underline(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_underline(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     build_decoration(DecoKind::Underline, args, "underline")
 }
 
-pub fn native_strike(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_strike(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     build_decoration(DecoKind::Strike, args, "strike")
 }
 
-pub fn native_overline(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_overline(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     build_decoration(DecoKind::Overline, args, "overline")
 }
 
@@ -239,7 +239,7 @@ pub fn native_overline(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
 // `Content::Text` directo (não passa pelo variant; estado open/close do
 // Layouter preservado intacto).
 
-pub fn native_smartquote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_smartquote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),

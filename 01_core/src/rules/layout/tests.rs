@@ -19,6 +19,19 @@ use crate::entities::{content::Content, layout_types::FrameItem};
 use crate::entities::paint::Paint;
 use crate::rules::introspect::introspect;
 
+/// **F-5a de-bake (P365)** — rotula reproduzindo a **forma de produção**: o
+/// transporte de numbering (`Content::Styled`, ex.: `Content::figure(.., Some)`)
+/// fica **fora** do `Labelled` (`Styled{ Labelled{ alvo } }`), como a fatia-1
+/// embrulha a cauda. Levanta o transporte transparente para fora; alvo simples
+/// passa direto. (Espelho do helper homónimo em `introspect.rs`.)
+fn labelled_prod(target: Content, label: crate::entities::label::Label) -> Content {
+    match target {
+        Content::Styled(inner, styles) =>
+            Content::Styled(Box::new(Content::labelled(*inner, label)), styles),
+        other => Content::labelled(other, label),
+    }
+}
+
 // ── Testes de FixedMetrics (Passo 21) ────────────────────────────────
 
 #[test]
@@ -1262,7 +1275,7 @@ fn layout_ref_para_figura_resolve_corretamente() {
 
     let content = Content::Sequence(
         vec![
-            Content::labelled(Content::figure(Content::text("Gráfico"), Some(Content::text("Legenda")), Some("image".to_string()), Some("1".to_string())), Label("fig1".to_string())),
+            labelled_prod(Content::figure(Content::text("Gráfico"), Some(Content::text("Legenda")), Some("image".to_string()), Some("1".to_string())), Label("fig1".to_string())),
             Content::text(" — ver "),
             Content::reference(Label("fig1".to_string())),
         ]
@@ -7163,7 +7176,7 @@ mod p168_figure_ref_migration {
         let figure = Content::figure(Content::text("body"), if with_caption { Some(Content::text("cap")) } else { None }, kind, if with_numbering { Some("1".into()) } else { None });
         Content::Sequence(
             vec![
-                Content::labelled(figure, Label(label_str.to_string())),
+                labelled_prod(figure, Label(label_str.to_string())),
                 Content::text("ver "),
                 Content::reference(Label(label_str.to_string())),
             ]
@@ -7662,7 +7675,6 @@ mod p172_func_callback {
         _args: &crate::entities::args::Args,
         _world: &dyn crate::contracts::world::World,
         _current_file: crate::entities::file_id::FileId,
-        _figure_numbering: Option<&str>,
     ) -> crate::entities::source_result::SourceResult<Value> {
         Ok(Value::Int(42))
     }
@@ -8675,7 +8687,7 @@ mod p195d_walk_labelled {
     #[test]
     fn labelled_figure_target_popula_figure_label_numbers() {
         let content = Content::Sequence(Arc::from(vec![
-            Content::labelled(Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".into()), Some("1".into())), lbl("fig1")),
+            labelled_prod(Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".into()), Some("1".into())), lbl("fig1")),
         ]));
 
         let intr = introspect_with_introspector(&content);

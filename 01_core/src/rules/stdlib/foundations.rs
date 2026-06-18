@@ -20,7 +20,7 @@ use crate::entities::value::Value;
 use crate::rules::eval::EvalContext;
 
 /// `type(v)` → nome do tipo como string Typst.
-pub fn native_type(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_type(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => Ok(Value::Str(v.type_name().into())),
@@ -29,7 +29,7 @@ pub fn native_type(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 }
 
 /// `len(v)` → comprimento de Str, Array ou Dict.
-pub fn native_len(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_len(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(s)]   => Ok(Value::Int(s.chars().count() as i64)),
@@ -44,7 +44,7 @@ pub fn native_len(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 ///
 /// Args em Int 0–255. Quatro args incluem canal alpha.
 /// Fora de 0–255 → Err.
-pub fn native_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn check(v: i64, name: &str) -> SourceResult<u8> {
@@ -75,7 +75,7 @@ pub fn native_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 /// como paridade construtor anterior; converte para f32 [0.0, 1.0]
 /// internamente. PDF output bit-equivalente via `to_srgb()` que
 /// expande Luma para sRGB cinza.
-pub fn native_luma(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_luma(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
@@ -91,7 +91,7 @@ pub fn native_luma(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 
 /// **P257 (ADR-0083 PROPOSTO)** — `oklab(l, a, b[, alpha])` →
 /// `Color::Oklab`. Componentes f32 (Float ou Int).
-pub fn native_oklab(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_oklab(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
@@ -117,7 +117,7 @@ pub fn native_oklab(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 
 /// **P257 (ADR-0083 PROPOSTO)** — `oklch(l, c, h[, alpha])` →
 /// `Color::Oklch`. `h` em graus.
-pub fn native_oklch(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_oklch(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
@@ -143,7 +143,7 @@ pub fn native_oklch(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 
 /// **P257 (ADR-0083 PROPOSTO)** — `linear_rgb(r, g, b[, alpha])`
 /// → `Color::LinearRgb`. Componentes f32 [0.0, 1.0].
-pub fn native_linear_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_linear_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
@@ -172,7 +172,7 @@ pub fn native_linear_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
 /// PDF native `/DeviceCMYK` scope-out P257 (converte para sRGB
 /// via `Color::to_srgb()` no exporter; ADR-0083 §"Scope-out
 /// PDF native CMYK").
-pub fn native_cmyk(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_cmyk(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
@@ -195,7 +195,7 @@ pub fn native_cmyk(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 
 /// **P257 (ADR-0083 PROPOSTO)** — `hsl(h, s, l[, alpha])` →
 /// `Color::Hsl`. `h` em graus.
-pub fn native_hsl(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_hsl(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
@@ -221,7 +221,7 @@ pub fn native_hsl(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 
 /// **P257 (ADR-0083 PROPOSTO)** — `hsv(h, s, v[, alpha])` →
 /// `Color::Hsv`. `h` em graus.
-pub fn native_hsv(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_hsv(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
@@ -246,7 +246,7 @@ pub fn native_hsv(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 }
 
 /// `range(n)` → Array de 0..n; `range(start, end)` → Array de start..end.
-pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(n)] => {
@@ -270,7 +270,7 @@ pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 // ── Funções de conversão de tipo (Passo 27) ─────────────────────────────────
 
 /// `str(v)` → representação textual do valor.
-pub fn native_str(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_str(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
@@ -313,7 +313,7 @@ fn format_length(l: &Length) -> String {
 
 /// `int(v)` → inteiro. Aceita Int, Str (decimal), Bool.
 /// Float → Err (semântica vanilla: Float não é `ToInt`).
-pub fn native_int(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_int(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(i)]    => Ok(Value::Int(*i)),
@@ -333,7 +333,7 @@ pub fn native_int(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 }
 
 /// `float(v)` → float. Aceita Float, Int (coerção), Str.
-pub fn native_float(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId, _figure_numbering: Option<&str>) -> SourceResult<Value> {
+pub fn native_float(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Float(f)] => Ok(Value::Float(*f)),
@@ -360,7 +360,6 @@ pub fn native_metadata(
     args:                &Args,
     _world:              &dyn crate::contracts::world::World,
     _current_file:       FileId,
-    _figure_numbering:   Option<&str>,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
@@ -382,7 +381,6 @@ pub fn native_state(
     args:                &Args,
     _world:              &dyn crate::contracts::world::World,
     _current_file:       FileId,
-    _figure_numbering:   Option<&str>,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
@@ -410,7 +408,6 @@ pub fn native_state_update(
     args:                &Args,
     _world:              &dyn crate::contracts::world::World,
     _current_file:       FileId,
-    _figure_numbering:   Option<&str>,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
@@ -448,7 +445,6 @@ pub fn native_state_update_with(
     args:                &Args,
     _world:              &dyn crate::contracts::world::World,
     _current_file:       FileId,
-    _figure_numbering:   Option<&str>,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
@@ -493,7 +489,6 @@ pub fn native_state_display(
     args:                &Args,
     _world:              &dyn crate::contracts::world::World,
     _current_file:       FileId,
-    _figure_numbering:   Option<&str>,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
@@ -554,7 +549,6 @@ pub fn native_counter_display(
     args:                &Args,
     _world:              &dyn crate::contracts::world::World,
     _current_file:       FileId,
-    _figure_numbering:   Option<&str>,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
@@ -601,7 +595,6 @@ pub fn native_counter_at(
     args:               &Args,
     _world:             &dyn crate::contracts::world::World,
     _current_file:      FileId,
-    _figure_numbering:  Option<&str>,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     use crate::entities::label::Label;
@@ -649,7 +642,6 @@ pub fn native_counter_final(
     args:               &Args,
     _world:             &dyn crate::contracts::world::World,
     _current_file:      FileId,
-    _figure_numbering:  Option<&str>,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     expect_no_named(&args.named)?;
@@ -709,7 +701,6 @@ pub fn native_state_final(
     args:               &Args,
     _world:             &dyn crate::contracts::world::World,
     _current_file:      FileId,
-    _figure_numbering:  Option<&str>,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     expect_no_named(&args.named)?;
@@ -756,7 +747,6 @@ pub fn native_state_at(
     args:               &Args,
     _world:             &dyn crate::contracts::world::World,
     _current_file:      FileId,
-    _figure_numbering:  Option<&str>,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     use crate::entities::label::Label;
@@ -809,7 +799,6 @@ pub fn native_query(
     args:               &Args,
     _world:             &dyn crate::contracts::world::World,
     _current_file:      FileId,
-    _figure_numbering:  Option<&str>,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     expect_no_named(&args.named)?;
@@ -904,7 +893,6 @@ pub fn native_here(
     args:              &Args,
     _world:            &dyn crate::contracts::world::World,
     _current_file:     FileId,
-    _figure_numbering: Option<&str>,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     if !args.items.is_empty() {
@@ -944,7 +932,6 @@ pub fn native_counter_step(
     args:              &Args,
     _world:            &dyn crate::contracts::world::World,
     _current_file:     FileId,
-    _figure_numbering: Option<&str>,
 ) -> SourceResult<Value> {
     use crate::entities::content::Content;
     use crate::entities::counter_update::CounterUpdate as CounterAction;
@@ -990,7 +977,6 @@ pub fn native_locate(
     args:              &Args,
     _world:            &dyn crate::contracts::world::World,
     _current_file:     FileId,
-    _figure_numbering: Option<&str>,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     expect_no_named(&args.named)?;

@@ -68,11 +68,14 @@ pub struct ClosureParam {
 /// Recebe `&dyn World` para aceder a I/O (ex: leitura de ficheiros).
 /// Funções sem I/O usam `_world` (prefixo underscore suprime warning).
 ///
-/// Passo 98 (ADR-0036 Regra 1): `current_file` e `figure_numbering`
-/// passaram a parâmetros explícitos do ABI.
+/// Passo 98 (ADR-0036 Regra 1): `current_file` passou a parâmetro explícito do ABI.
 /// Passo 109 (ADR-0044): `world` deixou de estar em `EvalContext` (agora em
 /// `Engine`); para manter native functions desacopladas do `Engine`, o
 /// `world` entra directamente no ABI como parâmetro extra.
+/// **F-5a de-bake (P365):** o parâmetro `figure_numbering: Option<&str>` foi
+/// **removido** do ABI — era a fonte assada do `#set figure(numbering:)`, agora
+/// vive só na chain (`custom("figure.numbering")`). Morto em todas as natives após
+/// o de-bake → colapsado (disciplina anti-morto).
 pub struct NativeFunc {
     pub name: &'static str,
     pub call: fn(
@@ -80,7 +83,6 @@ pub struct NativeFunc {
         &Args,
         &dyn crate::contracts::world::World,
         FileId,
-        Option<&str>,
     ) -> SourceResult<Value>,
 }
 
@@ -91,7 +93,7 @@ impl Func {
     }
 
     /// Constrói uma Func nativa com um function pointer que recebe
-    /// `EvalContext`, `World`, `FileId`, `figure_numbering`.
+    /// `EvalContext`, `World`, `FileId` (F-5a P365: `figure_numbering` removido).
     pub fn native(
         name: &'static str,
         call: fn(
@@ -99,7 +101,6 @@ impl Func {
             &Args,
             &dyn crate::contracts::world::World,
             FileId,
-            Option<&str>,
         ) -> SourceResult<Value>,
     ) -> Self {
         Self(Arc::new(FuncRepr::Native(NativeFunc { name, call })))
@@ -156,7 +157,6 @@ impl Func {
             &Args,
             &dyn crate::contracts::world::World,
             FileId,
-            Option<&str>,
         ) -> SourceResult<Value>>
     {
         match self.0.as_ref() {
@@ -262,7 +262,7 @@ mod tests {
 
     #[test]
     fn native_func_debug_nao_panicar() {
-        let f = Func::native("type", |_ctx, _args, _world, _cf, _fn| Ok(Value::None));
+        let f = Func::native("type", |_ctx, _args, _world, _cf| Ok(Value::None));
         assert_eq!(format!("{:?}", f), "<function>");
     }
 
@@ -277,7 +277,7 @@ mod tests {
             Arc::new(|_args| Ok(Content::Empty));
         let elem = Func::element("callout", ctor);
         let closure = make_closure();
-        let native = Func::native("type", |_ctx, _args, _world, _cf, _fn| Ok(Value::None));
+        let native = Func::native("type", |_ctx, _args, _world, _cf| Ok(Value::None));
 
         // (a) `element_name()` SÓ é `Some` para `Element` — o `#show` constrói
         //     `Selector::DynKind` apenas para elementos; uma closure/nativa de
