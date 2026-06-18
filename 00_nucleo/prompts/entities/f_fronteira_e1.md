@@ -886,6 +886,27 @@ puro).
 - **3 folhas provisórias** (`Text`/`MathText`/`MathIdent`, DEBT-58): os campos que
   o vanilla lhes daria são estilo (StyleChain) → resolvem-se **quando a chain
   léxica existir**. Gatilho: o lote do estilo.
+  - **F-6 medido (P367) — não há de-bake de fonte única a fazer.** Medição
+    (`content.rs:122/167/170`): **`MathText(EcoString)`/`MathIdent(EcoString)` são
+    folhas NUAS** — só a string, **sem campo de estilo assado**; o estilo vem do
+    **contexto de math** (o wrapper `MathStyled` transforma o glyph,
+    `math/layout/mod.rs:711-723`), não de um campo da folha. ∴ **sem caminho duplo**
+    → nada a remover, já são fonte única por construção. O **`Content::Text`** é a
+    única folha com estilo assado (`TextStyle`) — mas isso é o **F-5b** (adiado,
+    DEBT-61: bloqueio α-fixpoint + colapso P101), **fora do F-6** pela regra de
+    fronteira do passo. Dar às folhas de math os **campos completos do vanilla** é
+    **adição de feature** (sem divergência observável — auditoria P362), **não**
+    de-bake de fonte única. **F-6 fecha sem código** (medido). Próximo: item (3),
+    `#set` de user-props.
+  - **Confirmação vanilla (P367, oráculo `lab/`):** o math text do vanilla é um
+    `TextElem` cujos campos de estilo (`font`/`size`/`fill`/`weight`/…) são **`#[ghost]`**
+    (`text/mod.rs:95+`) — **resolvidos da `StyleChain`, não guardados no elemento**; o
+    layout de math (`typst-layout/math/text.rs:18`) faz `TextElem::packed(text)` (só a
+    string) e estiliza **pela chain**. ∴ a folha de math do vanilla = **string nua +
+    estilo-da-chain**, **idêntica** ao `MathText`/`MathIdent` nu do cristalino. **Sem
+    divergência observável** → já são vanilla-faithful. (E o `TextStyle` **assado** do
+    `Content::Text` é justamente a divergência do modelo `#[ghost]` do vanilla = o F-5b
+    adiado, reforçando o DEBT-61.) **F-6 confirmado: nada a fazer.**
 
 ---
 
