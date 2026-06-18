@@ -1,5 +1,5 @@
 # Prompt L0 — F sob a fronteira E1 (`Content::Dynamic` + chain única)
-Hash do Código: 12c03c65
+Hash do Código: a4523152
 
 **Camada**: L1 · **Módulos**: `01_core/src/entities/{content,elements/mod,style,style_chain,value}.rs`
 **Decisão de origem**: **ADR-0106** (fronteira de extensão E1) + ADR-0105 (modelo D
@@ -719,6 +719,27 @@ rede +11.
 **Dimensão.** Set: `eval_set_rule` + lookup em `scopes` (contido). Read: o arm `Content::Dynamic`
 resolve campos opcionais da chain (modelo novo, mas localizado). Fixture: 1 user-element com
 campo opcional. Público typst puro-`.typ`: **fora** (P369, fronteira).
+
+> **Público typst — a outra metade (P369, VEREDITO B medido).** A pergunta decisiva — *no
+> vanilla, um usuário define um elemento com **layout próprio** puramente em `.typ`?* — medida em
+> `lab/` (oráculo): **NÃO**. Evidência:
+> - Elementos definem-se **só** pela macro Rust **`#[elem]`** (`content/mod.rs:707`, `text/mod.rs:94`,
+>   …) — **não há primitivo `.typ`** de definição de elemento.
+> - `#let` produz um **`Closure`** (`func.rs:154`), **não** um elemento: `func.element()` → `None`
+>   para closures; ops de elemento rejeitam closures (`where()` "can only be called on element
+>   functions", `func.rs:410`). ∴ `#set`/`#show` sobre uma função de usuário não é caminho de
+>   elemento.
+> - A única extensibilidade `.typ` com comportamento novo é **WASM plugin** (`plugin("…wasm")`,
+>   `plugin.rs`) — **código** (WASM), e produz **computação** (funções), **não** elementos de
+>   layout.
+>
+> **∴ Veredito B:** definir um elemento **com layout** = **código** no vanilla **e** no cristalino
+> (a fronteira da linguagem, confirmando o P362-C). O público typst do cristalino — **composição
+> via `#let`** (closures no eval) + **`#set`/`#show` sobre elementos registrados** (P368) +
+> definição-com-layout em Rust (registry + trait, espelho do `#[elem]`) — **casa exatamente** o
+> que o `.typ` puro do vanilla permite. **O público typst está completo pela fronteira da
+> linguagem.** P369 **fecha sem código**. **Com ele, o F está completo pelos princípios — exceto o
+> F-5b** (lote arquitetural dedicado, DEBT-61).
 
 ### 3a.5 — O registro (os dois públicos, sem global — pureza L1)
 
