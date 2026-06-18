@@ -3252,6 +3252,81 @@ mod tests {
         eval_for_test(world, src).unwrap().content().unwrap().clone()
     }
 
+    // ── P356 — caso 1, lacuna (i): show-set + func (exemplo canônico do doc) ──
+
+    /// `true` se algum `Content::Styled` com `bold == Some(true)` existe na árvore.
+    fn styled_bold_anywhere(c: &Content) -> bool {
+        match c {
+            Content::Styled(b, s) => s.delta().bold == Some(true) || styled_bold_anywhere(b),
+            Content::Sequence(items) => items.iter().any(styled_bold_anywhere),
+            Content::Heading(h) => styled_bold_anywhere(&h.body),
+            _ => false,
+        }
+    }
+
+    #[test]
+    fn show_set_mais_func_estilo_alcanca_output() {
+        // **Caso 1, lacuna (i), P356.** show-set + func no mesmo heading. O vanilla
+        // dobra o show-set na chain e aplica o func SOB ela (lib.rs:341,357,458-464);
+        // o doc (styling.md) promove exatamente este combo. ANTES (P352): o func
+        // rodava 1º, o output (Sequence) não casava o seletor de heading, e o
+        // show-set era PERDIDO. AGORA: o show-set casa o ELEMENTO original e
+        // embrulha o output do func → o "X:" renderiza sob o estilo do show-set.
+        let world = MockWorld::new(
+            "#show heading: set text(bold: true)\n#show heading: it => [X:] + it.body\n\n= T"
+        );
+        let src = world.source(world.main()).unwrap();
+        let c = module_content(&world, &src);
+        assert!(c.plain_text().contains("X:T"),
+            "o func aplicou (prefixo X:): {:?}", c.plain_text());
+        assert!(styled_bold_anywhere(&c),
+            "o show-set (bold) embrulha o output do func — não foi perdido: {c:?}");
+    }
+
+    #[test]
+    fn multiplos_show_set_continuam_compondo() {
+        // Regressão (P352): múltiplos show-set same-kind compõem via `collapse` —
+        // o conserto do P356 (casar o nó original) não pode quebrar isto.
+        let world = MockWorld::new(
+            "#show heading: set text(bold: true)\n#show heading: set text(weight: 700)\n\n= T"
+        );
+        let src = world.source(world.main()).unwrap();
+        let c = module_content(&world, &src);
+        // bold + weight no mesmo Styled (ambos os show-set dobraram)
+        fn styled_bold_e_weight(c: &Content) -> bool {
+            match c {
+                Content::Styled(b, s) =>
+                    (s.delta().bold == Some(true) && s.delta().weight == Some(700))
+                    || styled_bold_e_weight(b),
+                Content::Sequence(items) => items.iter().any(styled_bold_e_weight),
+                _ => false,
+            }
+        }
+        assert!(styled_bold_e_weight(&c),
+            "ambos os show-set (bold + weight) compõem num Styled: {c:?}");
+    }
+
+    #[test]
+    fn multiplos_func_same_kind_ainda_diverge_lacuna_ii() {
+        // **DIVERGÊNCIA ABERTA E DECLARADA (lacuna (ii), NÃO consertada no P356).**
+        // Dois `func` same-kind sobre o mesmo heading: o vanilla acumula ambos
+        // (innermost-first); o crystalline aplica UMA efetiva (a 1ª declarada cujo
+        // output deixa de casar). Isto NÃO é paridade — é a lacuna (ii) (A2/A3,
+        // fatia seguinte; recon `f-recon-composicao-passo-355.md` / `…-354.md §4`).
+        // O teste assere o comportamento ATUAL DECLARADO, não finge acumulação.
+        let world = MockWorld::new(
+            "#show heading: it => [A:] + it.body\n#show heading: it => [B:] + it.body\n\n= T"
+        );
+        let src = world.source(world.main()).unwrap();
+        let c = module_content(&world, &src);
+        let t = c.plain_text();
+        // Uma só regra func é efetiva (a 1ª declarada; o output vira Sequence e a 2ª
+        // não re-casa). NÃO acumulam ("A:" XOR "B:", não ambos). Vanilla daria ambos.
+        assert!(t.contains("A:T"), "lacuna (ii): só a 1ª func efetiva: {t:?}");
+        assert!(!t.contains("B:"),
+            "lacuna (ii) DECLARADA: a 2ª func same-kind NÃO acumula (diverge do vanilla): {t:?}");
+    }
+
     // ── Passo 71 — image() integration ──────────────────────────────────────
 
     #[test]

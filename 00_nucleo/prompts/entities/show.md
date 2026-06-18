@@ -1,5 +1,5 @@
 # Prompt L0 — Entidade `ShowRule` (Passo 68-70; atualizado P352)
-Hash do Código: edc8666b
+Hash do Código: 8c9b7205
 
 ## Propósito
 
@@ -46,12 +46,23 @@ o antigo `transform: Value` solto por um vocabulário fechado:
   (DEBT-19 ENCERRADO).
 - `Style(Styles)` — **show-set** (`#show k: set …`, P352). Os styles do `set` são
   **capturados** na declaração (sem mutar `engine.styles` globalmente) e
-  **transportados** para o nó casado embrulhando-o num `Content::Styled(elem,
-  styles)` — o carregador `StyledElem`-scoped da fatia 1 (P339, `f_fronteira_e1.md`
-  §3a.8). **NÃO consome o passe** (espelha `map.apply(transform); continue` do
-  vanilla, `typst-realize/src/lib.rs:458-464`): o elemento renderiza sob a chain
-  aumentada, não é substituído. Paridade: `styles.rs:504`
-  (`content.styled_with_map(styles)`).
+  **transportados** embrulhando o conteúdo num `Content::Styled(…, styles)` — o
+  carregador `StyledElem`-scoped da fatia 1 (P339, `f_fronteira_e1.md` §3a.8).
+  **NÃO consome o passe** (espelha `map.apply(transform); continue` do vanilla,
+  `typst-realize/src/lib.rs:458-464`): o conteúdo renderiza sob a chain aumentada,
+  não é substituído. Paridade: `styles.rs:504` (`content.styled_with_map(styles)`).
+
+  **Ordem show-set-vs-func (P356, paridade `lib.rs:341,357,458-464`).** As show-set
+  que casam um elemento dobram com base no **elemento** (o nó que entra na
+  realização), **não** no output de uma func que também o transforme. Quando uma
+  show-set **e** uma func casam o mesmo elemento, o vanilla dobra a show-set na
+  chain (`map`) e aplica a func **sob** a chain aumentada (`chained =
+  styles.chain(&map)`); o crystalline espelha isto **embrulhando o output da func**
+  no `Styles` da show-set (a show-set fica ativa quando a func realiza). Casa o
+  **exemplo canônico** da referência (`docs/reference/language/styling.md`,
+  *Show rules*: 4× `#show heading`, "keeping styling composable", "good practice").
+  Sem este ordenamento, a show-set seria perdida (o output da func não casa o
+  seletor). Múltiplos show-set continuam a compor por `collapse`.
 
 ### `ShowRule`
 
@@ -80,10 +91,14 @@ Triplo `(id, selector, transform)` armazenado no `EvalContext` durante a avalia�
 
 ## Fora de escopo (registrado)
 
-- **Caso 1 (composição multi-regra sobre o mesmo elemento)** — NÃO materializado.
-  A composição fiel ao vanilla (cada regra uma vez, innermost-first) exige um guard
-  por-recipe incompatível com o re-apply do modelo α (caso 2, fechado). Decisão de
-  desenho do dono (relatório P352 §4). Este L0 não a especifica.
+- **Caso 1, lacuna (ii) — múltiplos `func` same-kind sobre o mesmo elemento** — NÃO
+  materializado. Acumular N func same-kind (cada uma uma vez, innermost-first) exige
+  um guard por-recipe incompatível com o re-apply do modelo α (caso 2, fechado): A2
+  (por-`(RuleId, morph_canon)`, diverge na ordem) ou A3 (por-instância, reabre o α).
+  Fatia seguinte, com a demanda medida e a decisão do dono (recon
+  `f-recon-composicao-passo-355.md`; recon `f-recon-caso1-passo-354.md` §4). Este L0
+  não a especifica. *(A lacuna (i) — show-set + func — foi materializada no P356, ver
+  a ordem em `Transformation::Style` acima.)*
 
 ## Layer
 

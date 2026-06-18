@@ -258,15 +258,21 @@ pub(crate) fn apply_show_rules(
                 work = out;
             }
 
-            // Show-set (P352, S5): embrulha o nó (possivelmente já transformado
-            // pelo loop α de func) nos styles das regras **show-set** que o casam.
-            // **NÃO consome o passe** — espelha `map.apply(transform); continue` do
-            // vanilla (`typst-realize/src/lib.rs:458-464` / `styles.rs:504`). O
-            // confinamento à subárvore vem do `Content::Styled` (carregador da
-            // fatia 1, `f_fronteira_e1.md §3a.8`). Ordem de fold: regras casadas
-            // empurradas na ordem de declaração; `collapse` resolve top-wins
-            // (mais-recente vence — paridade com a precedência innermost do vanilla).
-            // O caso comum (sem show-set) não entra: `set_chain` fica `empty()`.
+            // Show-set (P352/P356, S5): embrulha o output no `Styles` das regras
+            // **show-set** que casam o **ELEMENTO** — o nó **original** que entrou na
+            // realização (`node`), NÃO o `work` pós-func. **NÃO consome o passe** —
+            // espelha `map.apply(transform); continue` do vanilla
+            // (`typst-realize/src/lib.rs:458-464` / `styles.rs:504`).
+            //
+            // **Ordem show-set-vs-func (P356, paridade `lib.rs:341,357`).** O vanilla
+            // dobra a show-set na chain (`map`) e aplica a func **sob** `chained =
+            // styles.chain(&map)`. Casar contra `node` (o elemento) e embrulhar o
+            // `work` (o output da func) reproduz isso: a show-set fica ativa quando a
+            // func realiza. Casar contra `work` (pós-func) — o bug que isto conserta —
+            // perdia a show-set (o output da func não casa o seletor do elemento).
+            // Sem func, `work == node` → idêntico ao P352 (show-set-só e múltiplos
+            // show-set por `collapse`). O confinamento vem do `Content::Styled`
+            // (fatia 1, `f_fronteira_e1.md §3a.8`). `collapse` resolve top-wins.
             let mut set_chain = StyleChain::empty();
             let mut any_set = false;
             for rule in &node_rules {
@@ -274,7 +280,7 @@ pub(crate) fn apply_show_rules(
                     if engine.active_guards.contains(&rule.id) {
                         continue;
                     }
-                    if selector_matches(&work, &rule.selector) {
+                    if selector_matches(node, &rule.selector) {
                         set_chain = set_chain.push(styles.delta().clone());
                         any_set = true;
                     }
