@@ -1,5 +1,5 @@
 # Prompt L0 — F sob a fronteira E1 (`Content::Dynamic` + chain única)
-Hash do Código: 7ac2e2c2
+Hash do Código: a4523152
 
 **Camada**: L1 · **Módulos**: `01_core/src/entities/{content,elements/mod,style,style_chain,value}.rs`
 **Decisão de origem**: **ADR-0106** (fronteira de extensão E1) + ADR-0105 (modelo D
@@ -792,6 +792,84 @@ a terminação **não muda**. **Prova:** rodar o **caso 2** (α, P342–P350c) +
 layout (render-replica), o match de `#show` (2), o `morph_canon` (2), os construtores (2). A lente
 pode ganhar arestas `content→elements::strong/emph` — **não é regressão de atomização** (a
 0026/0105 preveem variantes; é o modelo prescrito; registrar o delta).
+
+### 3a.13 — F-5b fatia (2): de-bake do render `#set text` pelo `custom` (P372)
+
+> **Estatuto.** Última fatia do F-5b: o estilo de **render** do `#set text` (size/fill/font/
+> weight/tracking/leading/lang/bold/italic) deixa de ser **assado** (no `TextStyle` do
+> `Content::Text`) e passa a viajar pelo canal **`custom`** da chain — **fonte única do render**.
+> Fecha o 4º caminho duplo da auditoria → atomização **completa**. **Forma decidida pelo dono
+> (P372 Fase A): transparente** (`morph_canon` desce o `custom`-Styled, como o numbering) → `#set
+> text X == X`.
+
+**A medição vanilla (P372 Fase A, decisiva).** `styled_with_map` (`lab/.../content/mod.rs:351`)
+embrulha qualquer `#set` não-vazio num `StyledElem`; o `==` de topo **não** o desembrulha
+(`Packed::eq` por id; `StyledElem::eq` compara só o child). ∴ vanilla: `#set text X ≠ X`
+(**presença**) e `#set text(a) X == #set text(b) X` (**valores ignorados**). O `#set
+heading(numbering:)` usa o **mesmo** `styled_with_map` → também `≠ X` no vanilla. **O cristalino
+usa o modelo `custom`-transparente** (desce → `== X`) para o numbering (P364/P365) — divergente do
+vanilla nos dois eixos (presença e valores). **Decisão do dono: o `#set text` segue o MESMO modelo
+transparente** (consistência com o numbering, α intacto); o `≠ X` vanilla é **divergência de
+MODELO uniforme** (numbering + `#set text`), **registrada no DEBT-61**, não resolvida nesta fatia.
+
+**O de-bake (forma transparente).**
+- **`#set text` → `custom`** (`eval/rules.rs` `eval_set_rule`, arm `text`): cada campo nomeado vira
+  `("text.<campo>", Value)` no `custom` da chain, em vez de `delta.<campo>` tipado. O `Value`
+  fechado carrega os tipos de render: `size`/`tracking`/`leading` → `Value::Length`; `fill` →
+  `Value::Color`; `weight` → `Value::Int`; `bold`/`italic` → `Value::Bool`; `lang` → `Value::Str`;
+  `font` → `Value::Array`/`Str`. (Refuta a nota P366 "Value não exprime" — o `enum Value` tem
+  `Length`/`Color`/`Array`, `value.rs`.)
+- **Transporte:** o `eval_markup` (generalizado no P368) **já** embrulha a cauda com qualquer
+  `custom` mudado → o `text.*` chega à chain do layout **sem mudança de transporte**.
+- **Layout lê do `custom`** (`mod.rs:612-635`): o merge passa a ler o render de
+  `self.chain.custom("text.<campo>")` (helpers `Value → bool/f64/Color/…`) em vez de `node_style`.
+  Precedência inalterada: `self.style` tipado (heading/strong/emph) vence onde aplicável;
+  `text.*` dá o render do `#set text`.
+- **Remoção do assado (fonte única):** `Content::Text(EcoString, TextStyle)` → **`Content::Text(
+  EcoString)`** (campo removido); `Content::text()` e ~**90 sítios** de construção/match cascateiam
+  (`Content::Text(s, style)`/`(s, _)` → `Content::Text(s)`). O `eval/mod.rs:344/354/401` e
+  `markup.rs:112` deixam de assar `TextStyle::from(...)`.
+- **`morph_canon`/α:** **inalterado** — o `custom`-only Styled **desce** (transparente,
+  `is_semantically_empty` ignora o `custom`, `style.rs:207`). `#set text X == X` (como o
+  numbering). O α-fixpoint **não muda** (o render é transparente). **Gate duro:** caso 2 + rede
+  +11 verdes.
+
+**Divergência registrada (DEBT-61).** `#set text X == X` (e `numbering X == X`) — o cristalino é
+**`custom`-transparente**; o vanilla é **`StyledElem`-presença** (`≠ X`, valores ignorados).
+Divergência de **modelo uniforme**, conhecida e registrada; resolvê-la (manter+normalizar o
+`custom`-Styled no `morph_canon`) tocaria o numbering + o α — lote de modelo separado, fora do
+F-5b.
+
+**Render idêntico** (paridade visual, rede +11). As asserções que mudam: as de `#set text X == X`
+(se houver — latente, como na fatia 1) e as ~90 de construção/match de `Content::Text`
+(declaradas, S5b).
+
+**Válvula.** Se a cascata (~90) + o caminho `custom` + a leitura não couberem num lote, fatiar:
+render→`custom` + leitura (P372) / remoção do `TextStyle` assado (P373). Registrar o número.
+
+> **⛔ BLOQUEIO MEDIDO NA EXECUÇÃO (P372 — parar e reportar; código revertido).** A
+> implementação foi feita e a suíte `typst-core` ficou **verde (2747, inclusive α/caso 2 +
+> rede +11)** — MAS duas medições contradisseram o desenho e uma terceira **bloqueou**:
+> 1. **"Inerte em layout" era FALSO.** `tracking`/`leading` **são consumidos** (o frame guarda
+>    o `TextStyle` efetivo; os testes `set_text_tracking_propaga_ao_frame`/`layout_leading…` o
+>    checam), e o `leading` vem por **`#set par`** (não `text`), que **também** assava no
+>    `Content::Text`. Logo o `node_render` precisou decodificar **todos** os campos do `custom`
+>    (incl. o round-trip `Value↔Lang/FontList`), e o `#set par(leading)` migrou para o `custom`.
+> 2. **O transporte do P368 é single-wrap-final-collapse — ERRADO para `#set` sequenciais da
+>    MESMA chave.** `#set text(font: A)\nOlá\n#set text(font: B)\nAdeus` produz **um** `Styled`
+>    em volta da cauda inteira carregando o `custom` **final** (`font: B`) → "Olá" **e** "Adeus"
+>    ficam font B → só **1 de 2** fonts embebidas (`font_wiring_segunda_font_diferente` falha;
+>    `03_infra`). O numbering nunca expôs isto (é por-elemento; mesma-chave-2× é raro/inerte). O
+>    `#set text` **exige** o transporte **aninhar** os wraps (cada `#set` embrulha a sua própria
+>    cauda) ou carregar **por-segmento** — uma **correção do P368, pré-requisito** da fatia 2,
+>    fora do escopo medido aqui.
+> 3. **Snapshots PDF golden (`p307b`, 5)** regridem (bytes mudaram — ao menos em parte pelo bug
+>    do font; golden byte-a-byte é frágil).
+>
+> **∴ A fatia 2 está BLOQUEADA** na limitação do transporte (P368 single-wrap). **Recomendação:
+> primeiro um lote de correção do transporte (wraps aninhados/por-segmento, fiel ao escopo
+> léxico do `#set`), depois a fatia 2 sobre ele.** Código revertido (a suíte volta a 2747 do
+> P371); o L0 (este bloco) + o relatório registram a medição. **A decisão é do dono.**
 
 ### 3a.5 — O registro (os dois públicos, sem global — pureza L1)
 
