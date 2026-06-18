@@ -104,7 +104,7 @@ mod tests {
         let c = CiteElem { key: "k".to_string(), supplement: Some(Content::text("a")), form: Some(CitationForm::Prose) };
         let mut f = |x: &Content| -> SourceResult<Option<Content>> {
             match x {
-                Content::Text(s, _) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
+                Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
                 _ => Ok(None),
             }
         };
@@ -112,7 +112,7 @@ mod tests {
             Content::Cite(e) => {
                 assert_eq!(e.key, "k");
                 assert_eq!(e.form, Some(CitationForm::Prose));
-                assert!(matches!(e.supplement.as_ref().unwrap(), Content::Text(s, _) if s.as_str() == "Z"));
+                assert!(matches!(e.supplement.as_ref().unwrap(), Content::Text(s) if s.as_str() == "Z"));
             }
             _ => panic!("esperado Cite"),
         }

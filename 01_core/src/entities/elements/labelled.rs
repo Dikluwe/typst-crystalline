@@ -77,14 +77,14 @@ mod tests {
     fn map_content_recurse_target_preserva_label() {
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
-                Content::Text(s, _) if s.as_str() == "x" => Ok(Some(Content::text("Z"))),
+                Content::Text(s) if s.as_str() == "x" => Ok(Some(Content::text("Z"))),
                 _ => Ok(None),
             }
         };
         match ex().map_content(&mut f).unwrap() {
             Content::Labelled(e) => {
                 assert_eq!(e.label.0, "intro");
-                assert!(matches!(&e.target, Content::Text(s, _) if s.as_str() == "Z"));
+                assert!(matches!(&e.target, Content::Text(s) if s.as_str() == "Z"));
             }
             _ => panic!("esperado Labelled"),
         }

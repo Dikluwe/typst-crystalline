@@ -84,14 +84,14 @@ mod tests {
     fn map_content_recurse_body_preserva_matrix() {
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
-                Content::Text(s, _) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
+                Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
                 _ => Ok(None),
             }
         };
         match ex().map_content(&mut f).unwrap() {
             Content::Transform(e) => {
                 assert_eq!(e.matrix, TransformMatrix::identity());
-                assert!(matches!(&e.body, Content::Text(s, _) if s.as_str() == "Z"));
+                assert!(matches!(&e.body, Content::Text(s) if s.as_str() == "Z"));
             }
             _ => panic!("esperado Transform"),
         }

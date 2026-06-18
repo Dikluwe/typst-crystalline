@@ -112,7 +112,7 @@ mod tests {
     fn map_content_recurse_body_preserva_block() {
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
-                Content::Text(s, _) if s.as_str() == "x" => Ok(Some(Content::text("Z"))),
+                Content::Text(s) if s.as_str() == "x" => Ok(Some(Content::text("Z"))),
                 _ => Ok(None),
             }
         };
@@ -120,7 +120,7 @@ mod tests {
         match src.map_content(&mut f).unwrap() {
             Content::Equation(e) => {
                 assert!(e.block);
-                assert!(matches!(&e.body, Content::Text(s, _) if s.as_str() == "Z"));
+                assert!(matches!(&e.body, Content::Text(s) if s.as_str() == "Z"));
             }
             _ => panic!("esperado Equation"),
         }
@@ -131,7 +131,7 @@ mod tests {
         // Assimetria: map_text NÃO recursa (body preservado intacto).
         let r = ex().map_text(&mut |s| s.to_uppercase());
         match r {
-            Content::Equation(e) => assert!(matches!(&e.body, Content::Text(s, _) if s.as_str() == "x")),
+            Content::Equation(e) => assert!(matches!(&e.body, Content::Text(s) if s.as_str() == "x")),
             _ => panic!("esperado Equation"),
         }
     }

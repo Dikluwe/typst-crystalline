@@ -104,7 +104,7 @@ mod tests {
         e.extent = Some(Length::pt(1.0));
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
-                Content::Text(s, _) if s.as_str() == "abc" => Ok(Some(Content::text("Z"))),
+                Content::Text(s) if s.as_str() == "abc" => Ok(Some(Content::text("Z"))),
                 _ => Ok(None),
             }
         };

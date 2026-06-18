@@ -97,14 +97,14 @@ mod tests {
     fn map_content_recurse_children_preserva_dir() {
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
-                Content::Text(s, _) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
+                Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
                 _ => Ok(None),
             }
         };
         match ex().map_content(&mut f).unwrap() {
             Content::Stack(e) => {
                 assert_eq!(e.dir, Dir::TTB);
-                assert!(matches!(&e.children[0], Content::Text(s, _) if s.as_str() == "Z"));
+                assert!(matches!(&e.children[0], Content::Text(s) if s.as_str() == "Z"));
             }
             _ => panic!("esperado Stack"),
         }

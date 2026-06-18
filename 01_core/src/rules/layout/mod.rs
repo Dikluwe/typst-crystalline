@@ -370,7 +370,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             metrics,
             sizer,
             font_size_pt: size,
-            style:        TextStyle::regular(size),
+            // **F-5b fatia 2 (P373)**: o `self.style` inicial deriva da chain
+            // (ADR-0039: a chain é a fonte da verdade do estilo de texto), não de
+            // `font_size` (geometria). Antes: `regular(size=12)` → `style.size=12`
+            // (usado por `space_width` quando não-embrulhado), mas o texto resolve
+            // a 11 (default da chain) e qualquer descida de `Content::Styled`
+            // recompõe `style` da chain (11). A inconsistência 12-vs-11 ficava só no
+            // espaço-líder de docs não-embrulhados. Derivar da chain unifica em 11.
+            style:        TextStyle::from(&StyleChain::default_chain()),
             chain:        StyleChain::default_chain(),
             page_config:  cfg.clone(),
             pages:        Vec::new(),
@@ -609,33 +616,79 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 }
             }
 
-            Content::Text(text, node_style) => {
-                // Estilo resolvido: merge de node_style (produzido pelo eval) com
-                // self.style (cache da chain, actualizada por Content::Styled no
-                // Passo 100, ADR-0039).
-                //
-                // Regra: qualquer propriedade "activa" na chain (`true` para
-                // Bold/Italic, ou size > base) tem prioridade sobre o node_style.
-                // Esta regra preserva a semântica histórica (heading > base) e
-                // adiciona a semântica nova: `Content::Styled([Bold(true)], body)`
-                // envolvendo um Text sem bold torna-o bold.
+            Content::Text(text) => {
+                // **F-5b fatia 2 (P373, §3a.13/§3a.14)**: o render do `#set text`/
+                // `#set par` não vem mais assado no node — vive na chain pelo canal
+                // `custom` (`"text.<campo>"` / `"par.leading"`), levado até aqui pelo
+                // transporte aninhado. Decodifica-o num node-render `ns` (Value→tipo)
+                // e aplica a MESMA regra de merge top-wins de antes: a chain tipada
+                // (`self.style` — heading, e Bold/Italic de `Content::Styled`) vence;
+                // o `ns` cobre o resto.
+                use crate::entities::value::Value;
+                let cs = |k: &str| self.chain.custom(k);
+                let ns_bold   = matches!(cs("text.bold"),   Some(Value::Bool(true)));
+                let ns_italic = matches!(cs("text.italic"), Some(Value::Bool(true)));
+                let ns_size   = match cs("text.size") {
+                    Some(Value::Length(l)) => Some(Pt(l.abs.to_pt())),
+                    _ => None,
+                };
+                let ns_fill   = match cs("text.fill") {
+                    Some(Value::Color(c)) => Some(c.clone()),
+                    _ => None,
+                };
+                let ns_weight = match cs("text.weight") {
+                    Some(Value::Int(n)) => u16::try_from(*n).ok(),
+                    _ => None,
+                };
+                let ns_tracking = match cs("text.tracking") {
+                    Some(Value::Length(l)) => Some(l.clone()),
+                    _ => None,
+                };
+                let ns_leading = match cs("par.leading") {
+                    Some(Value::Length(l)) => Some(l.clone()),
+                    _ => None,
+                };
+                let ns_lang = match cs("text.lang") {
+                    Some(Value::Str(s)) => {
+                        use std::str::FromStr;
+                        crate::entities::lang::Lang::from_str(s).ok()
+                    }
+                    _ => None,
+                };
+                let ns_font = match cs("text.font") {
+                    Some(Value::Array(arr)) => {
+                        let fams: Vec<_> = arr.iter().filter_map(|v| {
+                            if let Value::Str(s) = v {
+                                Some(crate::entities::font_list::FontFamily::new(s.clone()))
+                            } else {
+                                None
+                            }
+                        }).collect();
+                        crate::entities::font_list::FontList::new(fams)
+                    }
+                    _ => None,
+                };
                 let effective = TextStyle {
-                    bold:   node_style.bold   || self.style.bold,
-                    italic: node_style.italic || self.style.italic,
+                    bold:   ns_bold   || self.style.bold,
+                    italic: ns_italic || self.style.italic,
                     size:   if self.style.size > self.font_size_pt {
                         self.style.size   // heading ou Content::Styled aumentou
                     } else {
-                        node_style.size   // #set text(size:) capturado em eval
+                        // F-5b fatia 2 (P373): equivalente exato do antigo
+                        // `node_style.size` = `TextStyle::from(chain).size` =
+                        // `chain.size()` (default 11.0); `ns_size` = `#set text(size)`
+                        // (custom). NÃO `self.font_size_pt` (12.0 — default do layouter,
+                        // distinto do default da chain; ver P373).
+                        ns_size.unwrap_or(Pt(self.chain.size()))
                     },
-                    fill:          self.style.fill.or(node_style.fill),
-                    heading_level: self.style.heading_level.or(node_style.heading_level),
-                    // Passo 136 (Fase A — DEBT-52): propagação top-wins.
-                    // self.style (chain) tem prioridade sobre node_style (eval).
-                    weight:        self.style.weight.or(node_style.weight),
-                    tracking:      self.style.tracking.or(node_style.tracking),
-                    leading:       self.style.leading.or(node_style.leading),
-                    lang:          self.style.lang.or(node_style.lang.clone()),
-                    font:          self.style.font.clone().or_else(|| node_style.font.clone()),
+                    fill:          self.style.fill.or(ns_fill),
+                    heading_level: self.style.heading_level,
+                    // Top-wins: chain tipada (heading) vence; senão o ns (#set).
+                    weight:        self.style.weight.or(ns_weight),
+                    tracking:      self.style.tracking.clone().or(ns_tracking),
+                    leading:       self.style.leading.clone().or(ns_leading),
+                    lang:          self.style.lang.clone().or(ns_lang),
+                    font:          self.style.font.clone().or(ns_font),
                 };
                 let prev_style = self.style.clone();
                 self.style = effective;
@@ -2248,7 +2301,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // truth partilhada com markup `eval_markup` P155 (padrão "Win
             // arquitectural" §8.2 P286 N=3 → **N=4 cumulativo P287**).
             //
-            // Glyph resolvido emitido como `Content::Text(glyph, style)` —
+            // Glyph resolvido emitido como `Content::Text(glyph)` —
             // reutiliza o caminho `Content::Text` standard (passa por
             // hyphenation/wrap/font scenarios pré-existentes). Sem touch
             // points em `export.rs` (hash `66cb8ac3` preserved).
@@ -2415,7 +2468,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// Retorna `(width, height)` em pontos.
     pub(super) fn measure_content_constrained(&self, content: &Content, max_width: f64) -> (f64, f64) {
         match content {
-            Content::Text(text, _style) => {
+            Content::Text(text) => {
                 let mut max_line_w  = 0.0_f64;
                 let mut current_w   = 0.0_f64;
                 let mut line_count  = 1usize;

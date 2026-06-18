@@ -42,7 +42,7 @@ mod tests {
     use ecow::EcoString;
 
     fn text(s: &str) -> Content {
-        Content::Text(EcoString::from(s), Default::default())
+        Content::Text(EcoString::from(s))
     }
 
     #[test]

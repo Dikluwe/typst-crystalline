@@ -116,14 +116,14 @@ mod tests {
         let mut c = ex(); c.colspan = Some(2);
         let mut f = |x: &Content| -> SourceResult<Option<Content>> {
             match x {
-                Content::Text(s, _) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
+                Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
                 _ => Ok(None),
             }
         };
         match c.map_content(&mut f).unwrap() {
             Content::TableCell(e) => {
                 assert_eq!(e.colspan, Some(2));
-                assert!(matches!(&e.body, Content::Text(s, _) if s.as_str() == "Z"));
+                assert!(matches!(&e.body, Content::Text(s) if s.as_str() == "Z"));
             }
             _ => panic!("esperado TableCell"),
         }

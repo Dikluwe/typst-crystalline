@@ -1033,18 +1033,24 @@ mod tests {
     use crate::entities::style::Styles;
 
     #[test]
-    fn morfologia_eq_ignora_textstyle_assado() {
-        // Mesma morfologia (texto "a"), render diferente (estilo assado) → casa.
-        // É o Achado 2 (P342): it.body de `= a` (bold assado) vs [a] (regular).
-        let a_reg  = Content::Text("a".into(), TextStyle::regular(Pt(11.0)));
-        let a_bold = Content::Text("a".into(), TextStyle::bold(Pt(20.0)));
-        assert_eq!(
-            eval_binary_op(BinOp::Eq, Value::Content(a_reg.clone()), Value::Content(a_bold.clone())),
-            Ok(Value::Bool(true)),
-            "mesma morfologia, render diferente → o == da linguagem casa"
+    fn morfologia_eq_ignora_render_na_chain() {
+        // **F-5b fatia 2 (P373).** O render do `#set text` deixou de ser assado no
+        // node (`Content::Text` perdeu o `TextStyle`) — viaja num `Content::Styled`
+        // **custom-only** (semanticamente vazio). `morph_canon` desce-o (§3a, P366) →
+        // o `==` da linguagem ignora o render. É o Achado 2 (P342) na forma nova:
+        // it.body de `= a` (render na chain) vs `[a]` (sem render) → casa.
+        let plain = Content::text("a");
+        let render_na_chain = Content::Styled(
+            Box::new(Content::text("a")),
+            Styles::new().push_custom("text.bold", Value::Bool(true)),
         );
-        // Dois sistemas: o PartialEq do Rust continua estrutural (distingue o estilo).
-        assert_ne!(a_reg, a_bold, "derive(PartialEq) do Rust permanece estrutural");
+        assert_eq!(
+            eval_binary_op(BinOp::Eq, Value::Content(plain.clone()), Value::Content(render_na_chain.clone())),
+            Ok(Value::Bool(true)),
+            "mesma morfologia, render só na chain (custom) → o == da linguagem casa"
+        );
+        // Dois sistemas (ADR-0025): o PartialEq do Rust permanece estrutural.
+        assert_ne!(plain, render_na_chain, "derive(PartialEq) do Rust permanece estrutural");
     }
 
     #[test]
@@ -3244,12 +3250,26 @@ mod tests {
 
     // ── P352 — show-set (`#show k: set …`, Transformation::Style, S5) ─────────
 
-    /// `true` se algum `Content::Styled` com `bold == Some(true)` embrulha
+    /// **F-5b fatia 2 (P373)**: o bold/weight do `#set text` (e do show-set, que o
+    /// captura) vive no canal `custom` `"text.bold"`/`"text.weight"` da `Styles` —
+    /// não em campos tipados. Estes helpers leem o custom.
+    fn styles_has_text_bold(s: &crate::entities::style::Styles) -> bool {
+        s.delta().custom.iter().any(|(k, v)| {
+            k == "text.bold" && matches!(v, crate::entities::value::Value::Bool(true))
+        })
+    }
+    fn styles_has_text_weight(s: &crate::entities::style::Styles, w: i64) -> bool {
+        s.delta().custom.iter().any(|(k, v)| {
+            k == "text.weight" && matches!(v, crate::entities::value::Value::Int(n) if *n == w)
+        })
+    }
+
+    /// `true` se algum `Content::Styled` com `text.bold` embrulha
     /// (direta ou transitivamente) um `Content::Heading`.
     fn styled_bold_envolve_heading(c: &Content) -> bool {
         match c {
             Content::Styled(b, s) => {
-                if s.delta().bold == Some(true) && contem_heading(b) {
+                if styles_has_text_bold(s) && contem_heading(b) {
                     return true;
                 }
                 styled_bold_envolve_heading(b)
@@ -3268,16 +3288,28 @@ mod tests {
         }
     }
 
-    /// `true` se existe um `Content::Text` cujo texto contém `needle` e cujo
-    /// `TextStyle.bold` é `true` (deteta vazamento global de um `set text(bold:)`).
+    /// `true` se existe um `Content::Text` que contém `needle` **sob** um escopo
+    /// com `#set text(bold: true)` activo (deteta vazamento global do set).
+    /// **F-5b fatia 2 (P373)**: o bold do `#set text` não vive mais no node — viaja
+    /// no canal `custom` `"text.bold"` de um `Content::Styled`. O helper thread o
+    /// estado bold ao descer cada wrap.
     fn texto_bold_contendo(c: &Content, needle: &str) -> bool {
-        match c {
-            Content::Text(s, ts) => s.as_str().contains(needle) && ts.bold,
-            Content::Styled(b, _) => texto_bold_contendo(b, needle),
-            Content::Sequence(items) => items.iter().any(|i| texto_bold_contendo(i, needle)),
-            Content::Heading(h) => texto_bold_contendo(&h.body, needle),
-            _ => false,
+        fn go(c: &Content, needle: &str, bold: bool) -> bool {
+            match c {
+                Content::Text(s) => bold && s.as_str().contains(needle),
+                Content::Styled(b, styles) => {
+                    let here = styles.delta().custom.iter().any(|(k, v)| {
+                        k == "text.bold"
+                            && matches!(v, crate::entities::value::Value::Bool(true))
+                    });
+                    go(b, needle, bold || here)
+                }
+                Content::Sequence(items) => items.iter().any(|i| go(i, needle, bold)),
+                Content::Heading(h) => go(&h.body, needle, bold),
+                _ => false,
+            }
         }
+        go(c, needle, false)
     }
 
     #[test]
@@ -3342,7 +3374,7 @@ mod tests {
     /// `true` se algum `Content::Styled` com `bold == Some(true)` existe na árvore.
     fn styled_bold_anywhere(c: &Content) -> bool {
         match c {
-            Content::Styled(b, s) => s.delta().bold == Some(true) || styled_bold_anywhere(b),
+            Content::Styled(b, s) => styles_has_text_bold(s) || styled_bold_anywhere(b),
             Content::Sequence(items) => items.iter().any(styled_bold_anywhere),
             Content::Heading(h) => styled_bold_anywhere(&h.body),
             _ => false,
@@ -3381,7 +3413,7 @@ mod tests {
         fn styled_bold_e_weight(c: &Content) -> bool {
             match c {
                 Content::Styled(b, s) =>
-                    (s.delta().bold == Some(true) && s.delta().weight == Some(700))
+                    (styles_has_text_bold(s) && styles_has_text_weight(s, 700))
                     || styled_bold_e_weight(b),
                 Content::Sequence(items) => items.iter().any(styled_bold_e_weight),
                 _ => false,

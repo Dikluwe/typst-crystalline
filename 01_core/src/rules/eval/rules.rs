@@ -466,18 +466,17 @@ pub(super) fn eval_set_rule(
         // (paridade ADR-0033; resolve divergência temporal do 128).
         // Outras propriedades (justify, first-line-indent, etc.)
         // continuam no fallback até serem activadas on-demand.
-        let mut delta = StyleDelta::empty();
+        // F-5b fatia 2 (P373): `leading` migra de `StyleDelta` tipado para o canal
+        // `custom` `"par.leading"` (morph-transparente, transportado). O layout
+        // (merge arm) decodifica de volta.
         for arg in set.args().items() {
             if let Arg::Named(named) = arg {
                 let key = named.name().as_str().to_owned();
                 let val = eval_expr(named.expr(), scopes, ctx, engine)?;
                 match key.as_str() {
                     "leading" => {
-                        // Migrado do bloco text em 134. Preserva
-                        // `Length { abs + em }`; consumer futuro
-                        // resolve com font-size.
                         if let Value::Length(l) = val {
-                            delta.leading = Some(l);
+                            *engine.styles = engine.styles.push_custom("par.leading", Value::Length(l));
                         }
                     }
                     _ => {
@@ -493,7 +492,6 @@ pub(super) fn eval_set_rule(
                 }
             }
         }
-        *engine.styles = engine.styles.push(delta);
         return Ok(Value::None);
     }
 
@@ -526,68 +524,65 @@ pub(super) fn eval_set_rule(
         return Ok(Value::None);
     }
 
-    let mut delta = StyleDelta::empty();
-
+    // **F-5b fatia 2 (P373, §3a.13/§3a.14)**: o render do `#set text` deixa de assar
+    // num `StyleDelta` tipado capturado no node — passa a viajar na chain pelo canal
+    // `custom` `"text.<campo>"` (Value canónico), **transparente à morfologia**
+    // (`is_semantically_empty` ignora o custom → `#set text X == X`) e levado ao
+    // layout pelo transporte aninhado (`eval_markup`). A validação/erro-hard de
+    // `lang`/`font` permanece (paridade ADR-0033/0052/0053); só a **saída** muda
+    // (typed → custom). O layout (merge arm) decodifica o Value de volta.
     for arg in set.args().items() {
         if let Arg::Named(named) = arg {
             let key = named.name().as_str().to_owned();
             let val = eval_expr(named.expr(), scopes, ctx, engine)?;
             match key.as_str() {
                 "bold" => {
-                    if let Value::Bool(b) = val { delta.bold = Some(b); }
+                    if let Value::Bool(b) = val {
+                        *engine.styles = engine.styles.push_custom("text.bold", Value::Bool(b));
+                    }
                 }
                 "italic" => {
-                    if let Value::Bool(b) = val { delta.italic = Some(b); }
+                    if let Value::Bool(b) = val {
+                        *engine.styles = engine.styles.push_custom("text.italic", Value::Bool(b));
+                    }
                 }
                 "size" => {
                     if let Value::Length(l) = val {
-                        delta.size = Some(l.abs.to_pt());
+                        *engine.styles = engine.styles.push_custom("text.size", Value::Length(l));
                     }
                 }
                 "fill" => {
-                    // Passo 102 (ADR-0040): activar `#set text(fill: color)`.
-                    // Captura `Value::Color` em `StyleDelta.fill`; propaga para
-                    // `TextStyle.fill` via `TextStyle::from(&StyleChain)`.
                     if let Value::Color(c) = val {
-                        delta.fill = Some(c);
+                        *engine.styles = engine.styles.push_custom("text.fill", Value::Color(c));
                     }
                 }
                 "weight" => {
-                    // Passo 126 (ADR-0038 anotada, DEBT-1 subset): captura
-                    // raw `u16` de `#set text(weight: N)`. Tipo errado ou
-                    // fora do range `u16` é silenciosamente ignorado
-                    // (mesmo padrão dos outros arms). Inerte em layout —
-                    // consumo é trabalho futuro.
-                    // Passo 129: também aceita nomes simbólicos (9
-                    // canónicos via `FontWeight::from_name`). Nome
-                    // desconhecido → silent skip.
-                    if let Value::Int(n) = val {
-                        if let Ok(w) = u16::try_from(n) {
-                            delta.weight = Some(w);
-                        }
-                    } else if let Value::Str(s) = val {
-                        if let Some(fw) = FontWeight::from_name(s.as_str()) {
-                            delta.weight = Some(fw.to_number());
-                        }
+                    // Int direto ou nome simbólico (FontWeight::from_name) → u16
+                    // canónico em Value::Int. Tipo/nome inválido: silent skip
+                    // (padrão histórico).
+                    let w: Option<u16> = match &val {
+                        Value::Int(n) => u16::try_from(*n).ok(),
+                        Value::Str(s) => FontWeight::from_name(s.as_str()).map(|fw| fw.to_number()),
+                        _ => None,
+                    };
+                    if let Some(w) = w {
+                        *engine.styles = engine.styles.push_custom("text.weight", Value::Int(w as i64));
                     }
                 }
                 "tracking" => {
-                    // Passo 127 (ADR-0038 anotada, DEBT-1 subset): captura
-                    // `Length` inteiro (`abs + em`). Não colapsa para pt —
-                    // consumer resolve com `font-size` quando existir.
                     if let Value::Length(l) = val {
-                        delta.tracking = Some(l);
+                        *engine.styles = engine.styles.push_custom("text.tracking", Value::Length(l));
                     }
                 }
                 "lang" => {
-                    // Passo 130 → 131B (ADR-0052): `lang` migrado de
-                    // `EcoString` raw para tipo semântico `Lang` com
-                    // validação e erro hard em inválido (paridade
-                    // ADR-0033). Primeiro arm em `eval_set_rule` a
-                    // emitir `Err` dentro do loop de argumentos.
+                    // ADR-0052: valida via `Lang::from_str` (erro hard em
+                    // inválido); guarda o código canónico (`Value::Str`).
                     if let Value::Str(s) = val {
                         match Lang::from_str(&s) {
-                            Ok(lang) => delta.lang = Some(lang),
+                            Ok(lang) => {
+                                *engine.styles = engine.styles
+                                    .push_custom("text.lang", Value::Str(lang.as_str().into()));
+                            }
                             Err(msg) => {
                                 return Err(vec![SourceDiagnostic::error(
                                     named.expr().span(),
@@ -598,21 +593,17 @@ pub(super) fn eval_set_rule(
                     }
                 }
                 "font" => {
-                    // Passo 132B (ADR-0053): `font` materializado como
-                    // `FontList` agregador. Paridade parcial: string +
-                    // array aceites; dict rejeitado (covers sem suporte
-                    // até `regex` ser autorizado em L1). Erro hard em
-                    // inválido (padrão 131B).
+                    // ADR-0053: valida string/array (dict rejeitado, erro hard);
+                    // guarda a `FontList` como `Value::Array` de nomes canónicos
+                    // (lowercased por `FontFamily::new` no decode do layout).
                     let span = named.expr().span();
-                    match val {
-                        Value::Str(s) => {
-                            delta.font = Some(FontList::single(s));
-                        }
+                    let families: Vec<ecow::EcoString> = match val {
+                        Value::Str(s) => vec![s],
                         Value::Array(arr) => {
-                            let mut families = Vec::with_capacity(arr.len());
+                            let mut fams = Vec::with_capacity(arr.len());
                             for item in arr.iter() {
                                 if let Value::Str(s) = item {
-                                    families.push(FontFamily::new(s.clone()));
+                                    fams.push(s.clone());
                                 } else {
                                     return Err(vec![SourceDiagnostic::error(
                                         span,
@@ -620,15 +611,13 @@ pub(super) fn eval_set_rule(
                                     )]);
                                 }
                             }
-                            match FontList::new(families) {
-                                Some(list) => delta.font = Some(list),
-                                None => {
-                                    return Err(vec![SourceDiagnostic::error(
-                                        span,
-                                        "font array must not be empty".to_string(),
-                                    )]);
-                                }
+                            if fams.is_empty() {
+                                return Err(vec![SourceDiagnostic::error(
+                                    span,
+                                    "font array must not be empty".to_string(),
+                                )]);
                             }
+                            fams
                         }
                         Value::Dict(_) => {
                             return Err(vec![SourceDiagnostic::error(
@@ -642,13 +631,13 @@ pub(super) fn eval_set_rule(
                                 "font expects a string or array of strings".to_string(),
                             )]);
                         }
-                    }
+                    };
+                    let arr: Vec<Value> = families.into_iter().map(Value::Str).collect();
+                    *engine.styles = engine.styles.push_custom("text.font", Value::Array(arr));
                 }
                 _ => {
                     // Passo 107 (encerra DEBT-49): propriedades não suportadas
-                    // de `#set text(...)` emitem warning via Sink em vez de
-                    // serem silenciadas. O span do argumento permite ao
-                    // utilizador localizar a propriedade exacta.
+                    // de `#set text(...)` emitem warning via Sink.
                     let (msg, hint) = unsupported_property_warn("text", &key, Some("0040"));
                     engine.sink.warn_note(named.name().to_untyped().span(), &msg, &hint);
                 }
@@ -656,8 +645,6 @@ pub(super) fn eval_set_rule(
         }
     }
 
-    // Mutação persistente do styles propagado (Passo 94; agora via Engine).
-    *engine.styles = engine.styles.push(delta);
     Ok(Value::None)
 }
 

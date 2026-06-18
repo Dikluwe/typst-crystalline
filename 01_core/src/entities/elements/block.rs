@@ -111,14 +111,14 @@ mod tests {
         let mut v = ex(); v.sticky = true;
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
-                Content::Text(s, _) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
+                Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
                 _ => Ok(None),
             }
         };
         match v.map_content(&mut f).unwrap() {
             Content::Block(e) => {
                 assert!(e.sticky);
-                assert!(matches!(&e.body, Content::Text(s, _) if s.as_str() == "Z"));
+                assert!(matches!(&e.body, Content::Text(s) if s.as_str() == "Z"));
             }
             _ => panic!("esperado Block"),
         }

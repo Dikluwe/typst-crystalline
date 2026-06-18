@@ -89,7 +89,7 @@ mod tests {
 
     #[test]
     fn heading_produz_some_payload() {
-        let c = Content::heading(2, Content::Text(EcoString::from("Section"), Default::default()));
+        let c = Content::heading(2, Content::Text(EcoString::from("Section")));
         match extract_payload(&c) {
             Some(ElementPayload::Heading { depth, body_hash, counter_update }) => {
                 assert_eq!(depth, 2);
@@ -134,7 +134,7 @@ mod tests {
 
     #[test]
     fn text_produz_none() {
-        let c = Content::Text(EcoString::from("plain"), Default::default());
+        let c = Content::Text(EcoString::from("plain"));
         assert_eq!(extract_payload(&c), None);
     }
 
@@ -256,7 +256,7 @@ mod tests {
     fn equation_body_e_ignorado() {
         // body distinto não afecta payload — só block é capturado.
         let c1 = Content::equation(Content::Empty, true);
-        let c2 = Content::equation(Content::Text(EcoString::from("E=mc^2"), Default::default()), true);
+        let c2 = Content::equation(Content::Text(EcoString::from("E=mc^2")), true);
         assert_eq!(extract_payload(&c1), extract_payload(&c2));
     }
 }

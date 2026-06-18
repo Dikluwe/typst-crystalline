@@ -68,7 +68,7 @@ mod tests {
     fn map_content_recurse_body() {
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
-                Content::Text(s, _) if s.as_str() == "xy" => Ok(Some(Content::text("Z"))),
+                Content::Text(s) if s.as_str() == "xy" => Ok(Some(Content::text("Z"))),
                 _ => Ok(None),
             }
         };

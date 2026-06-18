@@ -254,30 +254,58 @@ impl StyleChain {
         None
     }
 
-    /// Resolve `bold` percorrendo a cadeia até ao primeiro delta que o define.
+    // **F-5b fatia 2 (P373, §3a.13/§3a.14)**: o render do `#set text`/`#set par`
+    // deixou de ser assado no `Content::Text` — viaja no canal `custom`
+    // (`"text.<campo>"` / `"par.leading"`). Para que `TextStyle::from(&chain)` —
+    // e portanto o `self.style` que o layout lê em TODO lugar (margem, medição,
+    // render), não só no merge arm — reflita o `#set text` como o antigo delta
+    // tipado refletia, cada resolver consulta, **no mesmo nó e antes de subir**, o
+    // campo tipado E o `custom` (top-wins exato por profundidade). O `custom` é
+    // ignorado por `is_semantically_empty` → permanece transparente à morfologia.
+
+    /// Resolve `bold` (typed > custom `"text.bold"`, top-wins por profundidade).
     pub fn bold(&self) -> bool {
-        self.resolve_bool(|d| d.bold).unwrap_or(false)
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.bold { return v; }
+            if let Some(Value::Bool(b)) = delta_custom(&n.delta, "text.bold") { return *b; }
+            node = n.parent.as_deref();
+        }
+        false
     }
 
     /// Resolve `italic`.
     pub fn italic(&self) -> bool {
-        self.resolve_bool(|d| d.italic).unwrap_or(false)
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.italic { return v; }
+            if let Some(Value::Bool(b)) = delta_custom(&n.delta, "text.italic") { return *b; }
+            node = n.parent.as_deref();
+        }
+        false
     }
 
     /// Resolve `size` em pontos tipográficos.
     pub fn size(&self) -> f64 {
-        self.resolve_f64(|d| d.size).unwrap_or(11.0)
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(v) = n.delta.size { return v; }
+            if let Some(Value::Length(l)) = delta_custom(&n.delta, "text.size") {
+                return l.abs.to_pt();
+            }
+            node = n.parent.as_deref();
+        }
+        11.0
     }
-
-    // Passo 136 (Fase A — DEBT-52): resolvers para propriedades
-    // novas de `StyleDelta`. Forward-compat; consumer futuro em
-    // layout usa via `TextStyle::from(&StyleChain)`.
 
     /// Resolve `weight` percorrendo a cadeia.
     pub fn weight(&self) -> Option<u16> {
         let mut node = self.0.as_deref();
         while let Some(n) = node {
             if let Some(v) = n.delta.weight { return Some(v); }
+            if let Some(Value::Int(i)) = delta_custom(&n.delta, "text.weight") {
+                return u16::try_from(*i).ok();
+            }
             node = n.parent.as_deref();
         }
         None
@@ -288,16 +316,22 @@ impl StyleChain {
         let mut node = self.0.as_deref();
         while let Some(n) = node {
             if let Some(v) = n.delta.tracking { return Some(v); }
+            if let Some(Value::Length(l)) = delta_custom(&n.delta, "text.tracking") {
+                return Some(*l);
+            }
             node = n.parent.as_deref();
         }
         None
     }
 
-    /// Resolve `leading` (Length inteiro).
+    /// Resolve `leading` (Length inteiro). Custom: `"par.leading"`.
     pub fn leading(&self) -> Option<crate::entities::layout_types::Length> {
         let mut node = self.0.as_deref();
         while let Some(n) = node {
             if let Some(v) = n.delta.leading { return Some(v); }
+            if let Some(Value::Length(l)) = delta_custom(&n.delta, "par.leading") {
+                return Some(*l);
+            }
             node = n.parent.as_deref();
         }
         None
@@ -305,9 +339,13 @@ impl StyleChain {
 
     /// Resolve `lang` (código BCP 47 validado).
     pub fn lang(&self) -> Option<crate::entities::lang::Lang> {
+        use std::str::FromStr;
         let mut node = self.0.as_deref();
         while let Some(n) = node {
             if let Some(v) = n.delta.lang { return Some(v); }
+            if let Some(Value::Str(s)) = delta_custom(&n.delta, "text.lang") {
+                return crate::entities::lang::Lang::from_str(s).ok();
+            }
             node = n.parent.as_deref();
         }
         None
@@ -318,6 +356,16 @@ impl StyleChain {
         let mut node = self.0.as_deref();
         while let Some(n) = node {
             if let Some(v) = &n.delta.font { return Some(v.clone()); }
+            if let Some(Value::Array(arr)) = delta_custom(&n.delta, "text.font") {
+                let fams: Vec<_> = arr.iter().filter_map(|v| {
+                    if let Value::Str(s) = v {
+                        Some(crate::entities::font_list::FontFamily::new(s.clone()))
+                    } else {
+                        None
+                    }
+                }).collect();
+                return crate::entities::font_list::FontList::new(fams);
+            }
             node = n.parent.as_deref();
         }
         None
@@ -344,6 +392,12 @@ impl StyleChain {
         }
         None
     }
+}
+
+/// **F-5b fatia 2 (P373)** — lê o valor do canal `custom` para `key` no delta
+/// deste nó (sem subir a cadeia; o walk de cada resolver trata a herança).
+fn delta_custom<'a>(delta: &'a StyleDelta, key: &str) -> Option<&'a Value> {
+    delta.custom.iter().find(|(k, _)| k == key).map(|(_, v)| v)
 }
 
 /// Conversão para `TextStyle` plano — **ponto único de resolução**

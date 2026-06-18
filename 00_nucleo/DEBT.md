@@ -234,7 +234,18 @@
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
 
-## DEBT-61 — F-5b (de-bake do `TextStyle`) bloqueado no modelo de morfologia — ADIADO (P366)
+## DEBT-61 — F-5b (de-bake do `TextStyle`) — ✅ FECHADO (P371 fatia 1 + P373 fatia 2)
+
+> **Fechado.** O bloqueio (achado 3) foi resolvido em **duas fatias**: o **P371** (§3a.12) deu a
+> `strong`/`emph` **variantes próprias** (modelo D), separando o estilo semântico do render e
+> destravando o Passo-101-collapse sem tocar o α; o **P373** (§3a.14 escopo A) fez o **de-bake** do
+> render `#set text`/`#set par` pelo canal `custom` (transparente à morfologia, via resolvers da
+> chain), removeu o `TextStyle` de `Content::Text`, e corrigiu o transporte (wraps aninhados) + a
+> baseline 12-vs-11. **Pipeline COMPLETO verde** (typst-core 2747, `03_infra` 472 incl. `font_wiring`
+> 2-fonts + 9 goldens p307b regenerados, ADR-0107). O item (1) da auditoria P362 fecha em **4/4**
+> (fonte única do render). Detalhe abaixo é histórico (o estado ADIADO do P366).
+
+## DEBT-61 (histórico) — F-5b bloqueado no modelo de morfologia — ADIADO (P366)
 
 O 4º caminho duplo do item (1) da auditoria P362 — o `TextStyle` assado em
 `Content::Text(EcoString, TextStyle)` — **não** fechou. O P366 mediu (registo completo em

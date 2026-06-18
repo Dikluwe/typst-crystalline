@@ -390,7 +390,7 @@ fn strong_produz_bold_style() {
     // Após Passo 33: node_style deve ter bold=true (capturado em eval via Strong).
     // Construção directa usa TextStyle::bold para simular o que eval produziria.
     let doc = layout(&Content::strong(
-        Content::Text("Bold".into(), TextStyle::bold(Pt(11.0)))
+        Content::Text("Bold".into())
     ));
     let bold = doc.pages.iter()
         .flat_map(|p| p.items.iter())
@@ -403,7 +403,7 @@ fn emph_produz_italic_style() {
     // Após Passo 33: node_style deve ter italic=true (capturado em eval via Emph).
     // Construção directa usa TextStyle::italic para simular o que eval produziria.
     let doc = layout(&Content::emph(
-        Content::Text("Italic".into(), TextStyle::italic(Pt(11.0)))
+        Content::Text("Italic".into())
     ));
     let italic = doc.pages.iter()
         .flat_map(|p| p.items.iter())
@@ -10590,13 +10590,13 @@ mod f_caracterizacao_estilo {
     // ── Styled (bold/italic) → escopo: aplica ao corpo, não vaza ──────────
     #[test]
     fn carac_strong_aplica_bold_ao_corpo() {
-        let c = Content::strong(Content::Text("Bold".into(), TextStyle::bold(Pt(11.0))));
+        let c = Content::strong(Content::Text("Bold".into()));
         assert!(has_bold(&c), "strong deve produzir glyph bold");
     }
 
     #[test]
     fn carac_emph_aplica_italic_ao_corpo() {
-        let c = Content::emph(Content::Text("It".into(), TextStyle::italic(Pt(11.0))));
+        let c = Content::emph(Content::Text("It".into()));
         assert!(has_italic(&c), "emph deve produzir glyph italic");
     }
 
@@ -10604,8 +10604,8 @@ mod f_caracterizacao_estilo {
     fn carac_styled_nao_vaza_para_irmao() {
         // strong(bold) seguido de texto regular: o irmão NÃO fica bold.
         let c = Content::Sequence(vec![
-            Content::strong(Content::Text("B".into(), TextStyle::bold(Pt(11.0)))),
-            Content::Text("normal".into(), TextStyle::regular(Pt(11.0))),
+            Content::strong(Content::Text("B".into())),
+            Content::Text("normal".into()),
         ].into());
         let bolds: Vec<bool> = layout(&c).pages.iter().flat_map(|p| p.items.iter())
             .filter_map(|i| if let FrameItem::Text { style, text, .. } = i {
@@ -10620,8 +10620,8 @@ mod f_caracterizacao_estilo {
     // ── Text com/sem Styled em volta: plain_text idêntico, layout difere ──
     #[test]
     fn carac_text_plain_text_identico_com_e_sem_styled() {
-        let nu = Content::Text("hi".into(), TextStyle::regular(Pt(11.0)));
-        let st = Content::strong(Content::Text("hi".into(), TextStyle::bold(Pt(11.0))));
+        let nu = Content::Text("hi".into());
+        let st = Content::strong(Content::Text("hi".into()));
         // plain_text é transparente ao wrapper Styled.
         assert_eq!(nu.plain_text(), "hi");
         assert_eq!(st.plain_text(), "hi", "Styled é transparente em plain_text");

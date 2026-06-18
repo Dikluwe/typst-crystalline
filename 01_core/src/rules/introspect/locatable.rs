@@ -100,7 +100,7 @@ pub fn is_locatable(content: &Content) -> bool {
 
         // ── Não-locatable ──────────────────────────────────────────
         Content::Empty
-        | Content::Text(_, _)
+        | Content::Text(_)
         | Content::Space
         | Content::Sequence(_)
         | Content::Raw(_)
@@ -213,7 +213,7 @@ mod tests {
 
     #[test]
     fn text_nao_e_locatable() {
-        let c = Content::Text(EcoString::from("plain"), Default::default());
+        let c = Content::Text(EcoString::from("plain"));
         assert!(!is_locatable(&c));
     }
 
@@ -257,7 +257,7 @@ mod tests {
             Content::cite("k", None, None),
             // Não-locatable: amostra representativa
             Content::Empty,
-            Content::Text(EcoString::from("t"), Default::default()),
+            Content::Text(EcoString::from("t")),
             Content::Space,
             Content::Sequence(std::sync::Arc::from(vec![Content::Empty])),
             Content::labelled(Content::Empty, crate::entities::label::Label("x".to_string())),

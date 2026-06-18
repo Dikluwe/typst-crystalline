@@ -68,12 +68,12 @@ mod tests {
         let e = HideElem { body: Content::text("a") };
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
-                Content::Text(s, _) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
+                Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
                 _ => Ok(None),
             }
         };
         match e.map_content(&mut f).unwrap() {
-            Content::Hide(el) => assert!(matches!(&el.body, Content::Text(s, _) if s.as_str() == "Z")),
+            Content::Hide(el) => assert!(matches!(&el.body, Content::Text(s) if s.as_str() == "Z")),
             _ => panic!("esperado Hide"),
         }
     }

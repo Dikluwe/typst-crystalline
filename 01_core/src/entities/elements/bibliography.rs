@@ -104,14 +104,14 @@ mod tests {
         let b = BibliographyElem { entries: vec![entry()], title: Some(Content::text("a")) };
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
-                Content::Text(s, _) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
+                Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
                 _ => Ok(None),
             }
         };
         match b.map_content(&mut f).unwrap() {
             Content::Bibliography(e) => {
                 assert_eq!(e.entries.len(), 1);
-                assert!(matches!(e.title.as_ref().unwrap(), Content::Text(s, _) if s.as_str() == "Z"));
+                assert!(matches!(e.title.as_ref().unwrap(), Content::Text(s) if s.as_str() == "Z"));
             }
             _ => panic!("esperado Bibliography"),
         }

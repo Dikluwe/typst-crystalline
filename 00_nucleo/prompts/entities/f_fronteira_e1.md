@@ -802,6 +802,10 @@ pode ganhar arestas `content→elements::strong/emph` — **não é regressão d
 > (P372 Fase A): transparente** (`morph_canon` desce o `custom`-Styled, como o numbering) → `#set
 > text X == X`.
 
+> **Realizado no P373** (escopo A, sobre o transporte aninhado corrigido) — ver a **Realização
+> P373** em §3a.14. O ⛔ bloqueio do P372 (transporte single-wrap) foi resolvido pela §3a.14; o
+> de-bake aterrou com o pipeline COMPLETO verde.
+
 **A medição vanilla (P372 Fase A, decisiva).** `styled_with_map` (`lab/.../content/mod.rs:351`)
 embrulha qualquer `#set` não-vazio num `StyledElem`; o `==` de topo **não** o desembrulha
 (`Packed::eq` por id; `StyledElem::eq` compara só o child). ∴ vanilla: `#set text X ≠ X`
@@ -871,6 +875,83 @@ render→`custom` + leitura (P372) / remoção do `TextStyle` assado (P373). Reg
 > léxico do `#set`), depois a fatia 2 sobre ele.** Código revertido (a suíte volta a 2747 do
 > P371); o L0 (este bloco) + o relatório registram a medição. **A decisão é do dono.**
 
+### 3a.14 — Correção do transporte do `#set`: wraps aninhados por escopo léxico (P373)
+
+> **Estatuto.** Corrige o **bug de paridade observável** que a fatia 2 revelou (independente do
+> F-5b): o transporte do P368 é **single-wrap-final-collapse** → `#set` sequenciais da mesma chave
+> num corpo colapsam para o valor final. **Escopo P373: só o transporte** (escopo **B** da Fase A
+> — a fatia 2 fica para o P374, sobre o transporte corrigido). Decisão do dono.
+
+**Oráculo vanilla (P373 Fase A, `lab/typst-eval/markup.rs:25-42`).** `eval_markup` é **recursivo**:
+num `SetRule`, faz `eval_markup(RESTO).styled_with_map(styles)` — cada `#set` embrulha o **resto**
+recursivamente, carregando o **seu próprio** delta (não colapsado). `#set A\nX\n#set B\nY` →
+`Styled(A, [X, Styled(B, [Y])])` — **aninhado**, escopo léxico: X sob A, Y sob A+B (B vence).
+
+**O bug medido (`eval/mod.rs` `eval_markup`).** O cristalino tem um `wrap_start` único + **um**
+`Content::Styled` em volta da cauda inteira (`parts[wrap_start..]`) carregando o **diff final
+colapsado**. Logo `#set text(font:A) X #set text(font:B) Y` → um wrap com `font:B` → X **e** Y font
+B (só 1 de 2 fonts embebidas — `font_wiring`, `03_infra`).
+
+**A correção: boundary-tracking + reverse-fold (aninhamento).**
+- No loop, rastrear cada **fronteira de `#set`** (quando o `custom` muda vs o estado corrente):
+  registrar `(parts.len(), Styles do delta QUE ESTE #set introduziu)` e atualizar o estado corrente.
+- No fim, **fold de dentro para fora** (`boundaries.rev()`): para cada `(idx, styles)`,
+  `split_off(idx)` → embrulha `parts[idx..]` num `Content::Styled(.., styles)` e re-`push`. Resulta
+  no aninhamento `Styled(A, [X, Styled(B, [Y])])`. Espelho do `styled_with_map` por-`#set` do vanilla.
+- **Cada wrap carrega o delta que o seu `#set` introduziu** (não o colapso final): A→{font:A};
+  B→{font:B} (a chave mudou A→B).
+
+**Content-preserving para o existente (medido).**
+- **`#set` único** (o caso comum): 1 fronteira → 1 wrap = **exatamente** o comportamento atual.
+- **`#set` de chaves DIFERENTES** (ex.: `#set heading(numbering:)` + `#set figure(numbering:)`):
+  antes um wrap com ambos os customs; agora aninhado — a chain do layout tem **os mesmos** customs
+  (empurrados aninhados) → **mesmo efeito** (cada elemento lê o seu da chain). Sem regressão.
+- **`#set` mesma-chave** (o bug): agora aninhado → correto por-segmento (a correção).
+
+**Os 3 consumidores.** numbering (por-elemento, lê o gate da chain → o aninhamento não muda o que vê);
+`#set` user-props (P368 — o mesmo bug same-key late aqui; a correção o conserta também); render
+`#set text` (a fatia 2, P374 — assenta sobre o transporte aninhado). **α (gate duro):** o `custom`
+é transparente (`morph_canon` desce); aninhar muda a **topologia** dos wraps, não a morfologia → o
+α-fixpoint não muda. **Prova:** caso 2 + rede +11 + **pipeline completo** (`03_infra`, `font_wiring`
+2 fonts, golden PDF).
+
+**Escopo (Fase A → B).** O desenho original deste lote era **só** a correção do transporte (a fatia 2
+para o P374). **O dono escolheu o escopo A** (transporte + fatia 2 **num lote**) — ver a Realização.
+
+---
+
+#### Realização P373 (escopo A — transporte + fatia 2 num lote)
+
+**Aterrou (verde no pipeline COMPLETO).** typst-core **2747**; `03_infra` **472** (incl. `font_wiring`
+2-fonts **corrigido** + os **9 goldens p307b**); shell/wiring **47**; lint **0/0**.
+
+1. **Transporte aninhado** (acima): `eval_markup` com boundary-tracking + reverse-fold. **Prova
+   isolada:** `font_wiring_segunda_font_diferente_ambas_embebidas` passou (2 fonts embebidas).
+
+2. **Fatia 2 — de-bake do render `#set text`/`#set par`.** `Content::Text(EcoString, TextStyle)` →
+   `Content::Text(EcoString)` (cascata ~90 sítios). `#set text(<campo>)` e `#set par(leading)` →
+   canal `custom` (`"text.<campo>"` / `"par.leading"`, Value canónico) em `eval_set_rule` — em vez do
+   `StyleDelta` tipado assado no node. **Achado-chave da realização:** para o render chegar ao layout
+   em TODO lugar (margem, medição, render — não só no merge arm), os **resolvers da
+   `StyleChain`** (`bold/italic/size/weight/tracking/leading/lang/font`) passaram a consultar, **no
+   mesmo nó e antes de subir** (top-wins exato), o campo tipado **E** o `custom`. Assim
+   `TextStyle::from(&chain)` — e o `self.style` que o layout lê — reflete o `#set text` como o antigo
+   delta tipado refletia. O `custom` continua ignorado por `is_semantically_empty` → **transparente à
+   morfologia** (α intocado: caso 2 + rede +11 verdes). `morph_canon` inalterado.
+
+3. **Correção emergente da baseline 12-vs-11 (decisão do dono).** A fatia 2 expôs uma inconsistência
+   **pré-existente**: o `Layouter` inicializava `self.style` de `font_size`=**12.0**
+   (`DEFAULT_FONT_SIZE`, geometria: heading-scale/leading/indent), mas o texto resolve a **11.0**
+   (default da chain, ADR-0039) e qualquer descida de `Content::Styled` recompõe `self.style` da chain
+   (11). O `space_width()` (= `self.style.size`) ficava a 12 em docs **não-embrulhados** e a 11 nos
+   embrulhados — visível só no **espaço-líder**. O transporte da fatia 2 embrulha o corpo do `#set`
+   num `Styled`, expondo o 0.6pt no `09-cidfont`. **Correção (ADR-0039, fonte única):** `self.style`
+   inicial deriva da chain (`TextStyle::from(&default_chain())` = 11), mantendo `font_size_pt`=12 para
+   geometria. Unifica o `space_width` ao tamanho do texto (11) em todo lugar. **Propagou a 4 goldens**
+   (`02`/`03`/`07`/`09`), todos a **mesma** correção sub-pixel (espaço-líder 12→11). **Os 4 goldens
+   foram regenerados** (aprovação do dono) — **divergência mecânica consciente (ADR-0107):** a
+   paridade é com a língua; os bytes do PDF divergem de propósito, e o novo output é **mais
+   consistente** (espaço = tamanho do texto). `01-markup-plain` (sem espaço-líder) intocado.
 ### 3a.5 — O registro (os dois públicos, sem global — pureza L1)
 
 - **Público Rust**: implementa `trait Element` no seu `*Elem` + (para o público

@@ -122,14 +122,14 @@ mod tests {
     fn map_content_recurse_body_e_caption_preserva_kind() {
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
-                Content::Text(s, _) if s.as_str() == "img" => Ok(Some(Content::text("Z"))),
+                Content::Text(s) if s.as_str() == "img" => Ok(Some(Content::text("Z"))),
                 _ => Ok(None),
             }
         };
         match ex().map_content(&mut f).unwrap() {
             Content::Figure(e) => {
                 assert_eq!(e.kind, Some("image".to_string()));
-                assert!(matches!(&e.body, Content::Text(s, _) if s.as_str() == "Z"));
+                assert!(matches!(&e.body, Content::Text(s) if s.as_str() == "Z"));
             }
             _ => panic!("esperado Figure"),
         }

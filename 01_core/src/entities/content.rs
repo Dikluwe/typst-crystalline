@@ -119,9 +119,11 @@ use crate::entities::elements::block::BlockElem;
 pub enum Content {
     /// Conteúdo vazio.
     Empty,
-    /// Texto simples com estilo capturado em eval (Passo 30).
-    /// O estilo reflecte as `#set text()` rules activas no momento da produção.
-    Text(EcoString, TextStyle),
+    /// Texto simples. **F-5b fatia 2 (P372/P373, §3a.13/§3a.14)**: perdeu o
+    /// `TextStyle` assado — o render do `#set text`/`#set par` vive **só na chain**
+    /// (canal `custom` `"text.<campo>"`, transparente à morfologia; transporte
+    /// aninhado P373). O layout resolve o render da chain. Fonte única do render.
+    Text(EcoString),
     /// Espaço entre elementos (SpaceElem).
     Space,
     /// Sequência de elementos — clone O(1) via Arc (ADR-0026 revisão).
@@ -1025,11 +1027,10 @@ pub enum Content {
 }
 
 impl Content {
-    /// Cria conteúdo de texto com estilo por defeito (regular 11pt).
-    /// Em eval, usar `Content::Text(s, TextStyle::from(&ctx.styles))` directamente
-    /// para capturar o estilo activo no momento da produção.
+    /// Cria conteúdo de texto. **F-5b fatia 2 (P373)**: sem estilo assado — o render
+    /// do `#set text`/`#set par` viaja na chain (`custom`), resolvido no layout.
     pub fn text(s: impl Into<EcoString>) -> Self {
-        Self::Text(s.into(), TextStyle::regular(Pt(11.0)))
+        Self::Text(s.into())
     }
 
     /// Cria conteúdo vazio.
@@ -1625,7 +1626,7 @@ impl Content {
     pub fn plain_text(&self) -> String {
         match self {
             Self::Empty                 => String::new(),
-            Self::Text(s, _)            => s.to_string(),
+            Self::Text(s)            => s.to_string(),
             Self::Space              => " ".to_string(),
             Self::Sequence(v)        => v.iter().map(|c| c.plain_text()).collect(),
             // Passo 101: Content::Strong/Emph removidos — cobertos por
@@ -1760,7 +1761,7 @@ impl PartialEq for Content {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Empty,                Self::Empty)                => true,
-            (Self::Text(a, sa),          Self::Text(b, sb))          => a == b && sa == sb,
+            (Self::Text(a),              Self::Text(b))              => a == b,
             (Self::Space,                Self::Space)                => true,
             (Self::Sequence(a),          Self::Sequence(b))          => a.as_ref() == b.as_ref(),
             // Passo 101: Content::Strong/Emph removidos — Content::Styled cobre.
@@ -2023,7 +2024,7 @@ impl Content {
             // Listados explicitamente — variantes novas não passam em silêncio.
             // Passo 156D: HSpace/VSpace são leaves (sem body), terminais.
             // Passo 156E: Pagebreak é leaf (event sem body), terminal.
-            Content::Text(_, _)
+            Content::Text(_)
             | Content::Space
             | Content::Empty
             | Content::Linebreak(_)
@@ -2126,8 +2127,8 @@ impl Content {
         let mut transform = |node: &Content|
             -> crate::entities::source_result::SourceResult<Option<Content>> {
             Ok(match node {
-                Content::Text(s, _) =>
-                    Some(Content::Text(s.clone(), TextStyle::default())),
+                Content::Text(s) =>
+                    Some(Content::Text(s.clone())),
                 // F-5a de-bake (P364): heading/equation numbering deixaram de
                 // viver em campo assado — viajam como `custom` num
                 // `Content::Styled` semanticamente vazio, já tratado
@@ -2156,8 +2157,8 @@ impl Content {
         F: FnMut(&str) -> String,
     {
         match self {
-            // O caso alvo: aplicar a transformação preservando o estilo.
-            Content::Text(s, style) => Content::Text(transform(s.as_str()).into(), style.clone()),
+            // O caso alvo: aplicar a transformação (o render vive na chain, F-5b).
+            Content::Text(s) => Content::Text(transform(s.as_str()).into()),
 
             // ── Containers com filhos (propagação recursiva) ──────────────
             // Cada variante listada explicitamente — sem `_ =>` ou `other =>`.
@@ -2621,7 +2622,7 @@ mod tests {
 
         let result = content.map_content(&mut |node| {
             match node {
-                Content::Text(s, _) => Ok(Some(Content::text(s.to_uppercase()))),
+                Content::Text(s) => Ok(Some(Content::text(s.to_uppercase()))),
                 Content::Strong(e) => {
                     let text = e.body.plain_text();
                     assert_eq!(text, "ORIGINAL",

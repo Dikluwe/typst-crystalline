@@ -110,7 +110,7 @@ pub(super) fn eval_raw(raw: markup::Raw<'_>) -> SourceResult<Value> {
 pub(super) fn eval_link(link: markup::Link<'_>, styles: &StyleChain) -> SourceResult<Value> {
     let url = link.get().to_string();
     let style = TextStyle::from(styles);
-    Ok(Value::Content(Content::link(url.clone(), Content::Text(url.into(), style))))
+    Ok(Value::Content(Content::link(url.clone(), Content::Text(url.into()))))
 }
 
 pub(super) fn eval_list_item(

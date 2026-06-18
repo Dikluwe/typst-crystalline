@@ -8206,7 +8206,7 @@ mod tests {
         match v {
             Value::Content(Content::MathStyled(m)) => {
                 match &m.body {
-                    Content::Text(s, _) => assert_eq!(s.as_str(), "abc"),
+                    Content::Text(s) => assert_eq!(s.as_str(), "abc"),
                     other => panic!("esperado Text, obteve {other:?}"),
                 }
             }

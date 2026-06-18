@@ -120,14 +120,14 @@ mod tests {
         let mut v = ex(); v.header = Some(Content::text("a"));
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
-                Content::Text(s, _) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
+                Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
                 _ => Ok(None),
             }
         };
         match v.map_content(&mut f).unwrap() {
             Content::Grid(e) => {
-                assert!(matches!(&e.cells[0], Content::Text(s, _) if s.as_str() == "Z"));
-                assert!(matches!(e.header.as_ref().unwrap(), Content::Text(s, _) if s.as_str() == "Z"));
+                assert!(matches!(&e.cells[0], Content::Text(s) if s.as_str() == "Z"));
+                assert!(matches!(e.header.as_ref().unwrap(), Content::Text(s) if s.as_str() == "Z"));
             }
             _ => panic!("esperado Grid"),
         }

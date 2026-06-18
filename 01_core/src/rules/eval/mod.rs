@@ -331,16 +331,23 @@ fn eval_markup(
     // (`is_semantically_empty` ignora-o, P366), logo carregar qualquer custom é
     // morph-safe. Só o #set muta `engine.styles` neste loop (strong/emph/heading
     // usam `local_styles`).
+    // P373 (§3a.14): correção do transporte — **wraps aninhados por escopo léxico**
+    // (espelho do `styled_with_map` por-`#set` do vanilla, recursivo). Rastreia cada
+    // **fronteira de `#set`** (mudança do `custom` vs o estado corrente) com o delta
+    // QUE ESTE `#set` introduziu; no fim, fold de dentro para fora produz o
+    // aninhamento. Conserta o bug single-wrap-final-collapse (P372): `#set`
+    // sequenciais da mesma chave deixam de colapsar para o valor final.
     let snap_customs: Vec<(ecow::EcoString, crate::entities::value::Value)> =
         engine.styles.collapse().custom;
-    let mut wrap_start: Option<usize> = None;
+    let mut running_customs = snap_customs.clone();
+    let mut boundaries: Vec<(usize, crate::entities::style::Styles)> = Vec::new();
 
     for child in node.children() {
         match child.kind() {
             SyntaxKind::Text => {
-                // Capturar o estilo activo no momento da produção (Passo 30).
-                let style = TextStyle::from(&*engine.styles);
-                let text_node = Content::Text(child.text().as_str().into(), style);
+                // F-5b fatia 2 (P373): o render não é mais assado no node — viaja
+                // na chain (custom), resolvido no layout.
+                let text_node = Content::Text(child.text().as_str().into());
                 // Intercepção eager para Selector::Text (Passo 68).
                 parts.push(rules::intercept_content(text_node, ctx, engine)?);
             }
@@ -349,7 +356,6 @@ fn eval_markup(
             SyntaxKind::SmartQuote => {
                 let raw = child.text();
                 let is_double = raw.as_str() == "\"";
-                let style = TextStyle::from(&*engine.styles);
                 let lang = engine.styles.lang();
                 let (open, close) = match &lang {
                     Some(l) => crate::rules::lang::quotes::localize_quotes(l),
@@ -366,7 +372,7 @@ fn eval_markup(
                     single_open = !single_open;
                     "'"
                 };
-                let quote_node = Content::Text(glyph.into(), style);
+                let quote_node = Content::Text(glyph.into());
                 parts.push(rules::intercept_content(quote_node, ctx, engine)?);
             }
             SyntaxKind::Space | SyntaxKind::Parbreak => parts.push(Content::Space),
@@ -396,8 +402,7 @@ fn eval_markup(
                     match eval_expr(expr, scopes, ctx, engine)? {
                         Value::Content(c) => parts.push(c),
                         Value::Str(s)     => {
-                            let style = TextStyle::from(&*engine.styles);
-                            parts.push(Content::Text(s, style));
+                            parts.push(Content::Text(s));
                         }
                         Value::None       => {}
                         _                 => {}
@@ -406,31 +411,34 @@ fn eval_markup(
             }
         }
 
-        // β1+F-item3: detectar um #set (numbering ou prop de usuário) — quando o
-        // canal custom muda (vs o início deste corpo), o escopo a embrulhar começa
-        // nas partes seguintes.
-        if wrap_start.is_none() && engine.styles.collapse().custom != snap_customs {
-            wrap_start = Some(parts.len());
+        // P373: fronteira de `#set` — o `custom` mudou vs o estado corrente. Regista
+        // `(parts.len(), Styles do delta introduzido)` e atualiza o corrente. (Só o
+        // `#set` muta `engine.styles` neste loop; o `#set` não produz `part`, logo
+        // `parts.len()` é o início da cauda que este `#set` escopa.)
+        let cur = engine.styles.collapse().custom;
+        if cur != running_customs {
+            let mut styles = crate::entities::style::Styles::new();
+            for (k, v) in &cur {
+                let changed = running_customs
+                    .iter()
+                    .find(|(sk, _)| sk == k)
+                    .map(|(_, sv)| sv != v)
+                    .unwrap_or(true);
+                if changed {
+                    styles = styles.push_custom(k.clone(), v.clone());
+                }
+            }
+            boundaries.push((parts.len(), styles));
+            running_customs = cur;
         }
     }
 
-    // β1+F-item3: embrulha o resto do escopo num `Content::Styled` carregando os
-    // customs que mudaram (transporte aditivo, morph-safe; numbering E props de
-    // usuário). O consumidor lê pela chain.
-    if let Some(start) = wrap_start {
-        let tail = parts.split_off(start);
-        let cur_customs = engine.styles.collapse().custom;
-        let mut styles = crate::entities::style::Styles::new();
-        for (k, v) in &cur_customs {
-            let changed = snap_customs
-                .iter()
-                .find(|(sk, _)| sk == k)
-                .map(|(_, sv)| sv != v)
-                .unwrap_or(true);
-            if changed {
-                styles = styles.push_custom(k.clone(), v.clone());
-            }
-        }
+    // P373: fold de dentro para fora — cada fronteira embrulha a sua cauda
+    // (`parts[idx..]`) no delta do seu `#set`, produzindo o aninhamento
+    // `Styled(A, [X, Styled(B, [Y])])` (escopo léxico, fiel ao vanilla). `#set`
+    // único → 1 fronteira → 1 wrap = comportamento de antes (content-preserving).
+    for (idx, styles) in boundaries.into_iter().rev() {
+        let tail = parts.split_off(idx);
         parts.push(Content::Styled(Box::new(Content::sequence(tail)), styles));
     }
 

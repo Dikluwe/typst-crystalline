@@ -71,7 +71,7 @@ mod tests {
     fn map_content_recurse_preserva_limits() {
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
-                Content::Text(s, _) if s.as_str() == "lim" => Ok(Some(Content::text("max"))),
+                Content::Text(s) if s.as_str() == "lim" => Ok(Some(Content::text("max"))),
                 _ => Ok(None),
             }
         };

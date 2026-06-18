@@ -224,7 +224,7 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // Nós matemáticos (Equation e subtipos) não podem conter CounterDisplay
         // em markup válido — clonados em bloco sem recursão.
         Content::Empty
-        | Content::Text(_, _)
+        | Content::Text(_)
         | Content::Space
         | Content::Raw(_)
         | Content::Ref(_)
@@ -1096,7 +1096,7 @@ pub(crate) fn walk(
         // para que o compilador detecte variantes em falta (sem wildcard silencioso).
 
         Content::Empty
-        | Content::Text(_, _)
+        | Content::Text(_)
         | Content::Space
         | Content::Ref(_)
         | Content::CounterDisplay(_)
@@ -3340,7 +3340,7 @@ mod tests {
             "level preservado per cast usize do level: u8");
         // body materializado preserva text content.
         match &entry.1 {
-            Content::Text(s, _) => assert_eq!(s.as_str(), "título"),
+            Content::Text(s) => assert_eq!(s.as_str(), "título"),
             other => panic!("body esperado Text, obtido {other:?}"),
         }
     }
