@@ -234,6 +234,30 @@
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
 
+## DEBT-61 — F-5b (de-bake do `TextStyle`) bloqueado no modelo de morfologia — ADIADO (P366)
+
+O 4º caminho duplo do item (1) da auditoria P362 — o `TextStyle` assado em
+`Content::Text(EcoString, TextStyle)` — **não** fechou. O P366 mediu (registo completo em
+`00_nucleo/prompts/entities/f_fronteira_e1.md §3a.10`) e **adiou** por bloqueio arquitetural.
+
+**Achados medidos:**
+1. O arrasto **não é o bold do heading** (esse já está na chain via `layout/mod.rs:704`;
+   strong/emph são `Styled`). É o **`#set text` tipado inteiro** — vive só no `node_style`
+   assado, sem transporte para a chain (a fatia-1 só leva o `custom` de numbering).
+2. **Vanilla (oráculo):** `StyledElem::eq` compara só o `child` (`content/mod.rs:763`); `#set
+   text` embrulha a cauda num `StyledElem` (`typst-eval/markup.rs:41`). ∴ `#set text X ≠ X`
+   (presença do wrapper), valores ignorados. **O cristalino atual (`#set text X == X`, via
+   assar+descartar) DIVERGE do vanilla** — divergência conhecida, registada.
+3. **Bloqueio:** tornar o `==` vanilla-faithful exige normalizar o `morph_canon`, que (a) serve
+   o **α-fixpoint do `#show`** (`rules.rs:229`, P348) — mudá-lo toca o α; e (b) exige separar
+   render-Styled de strong/emph-Styled, colapsados no **Passo 101** (`#set text(bold:)` usa o
+   mesmo `delta.bold` que `*bold*`) — separar = marcador/variante novo (mudança de modelo).
+
+**Religação prevista:** lote **arquitetural dedicado** (re-desenho do modelo
+strong/emph/styled + `morph_canon`/α vanilla-faithful), não como de-bake. O item (1) fica
+**3/4** (os 3 numbering com fonte única, P364/P365). A extensibilidade (item 3, `#set` de
+user-props) **não depende** deste de-bake.
+
 ## DEBT-60 — Contador de heading diverge do vanilla + supplement "Secção" no outline — EM ABERTO (P353)
 
 **Medido (P353 Fase A, probe read-only contra vanilla 0.14.2 como oráculo).** Para

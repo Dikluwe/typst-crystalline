@@ -554,39 +554,45 @@ heading" (como o pré-passo supunha). Medido:
   **sem** wrapper `Content::Styled`: a fatia-1 (`eval/mod.rs:413-419`) só embrulha quando muda
   um `NUM_KEYS` de numbering. **Este é o arrasto, e é o `#set text` tipado inteiro.**
 
-**O mecanismo: o transporte por diff-de-delta (generaliza a fatia-1).** A fatia-1 embrulhava
-a cauda só quando um `NUM_KEYS` mudava, carregando só o `custom`. Generaliza-se: snapshot do
-`engine.styles.collapse()` (StyleDelta completo: custom **+** tipado) à entrada de
-`eval_markup`; quando o delta muda (um `#set …` qualquer), `wrap_start`; a cauda embrulha num
-`Content::Styled(tail, Styles::from_delta(diff))`, onde `diff` = os campos (custom e **tipados**)
-que mudaram vs o snapshot. Como dentro de `eval_markup` **só o `#set` muta `engine.styles`**
-(strong/emph/heading usam `local_styles`, comentário `eval/mod.rs:327-330`), o diff captura
-exatamente o efeito do `#set`. **Backward-compatible:** para `#set …(numbering:)` puro o diff
-é só o custom (= fatia-1 de antes); para `#set text` o diff é o tipado (transporte novo). O
-layout `Content::Styled` arm já faz `push_styles` → `self.style` recebe o tipado por **todos**
-os caminhos de produção.
+**O mecanismo morph-safe: um canal de render separado dos campos tipados (corrigido pós-
+obstáculo).** A raiz do obstáculo (bloco ⚠ abaixo): `#set text(bold:)` põe `delta.bold` — o
+**mesmo campo tipado** que `*bold*`/strong (`content.rs:1040`); `morph_canon` não os distingue.
+∴ o estilo de **render** do `#set text` **não pode** viajar nos campos tipados de um `Styled`.
+Tem de viajar num **canal de render separado**, que `is_semantically_empty` **ignora** (→
+`morph_canon` desce, transparente — como já ignora o `custom`). Separação conceptual limpa
+(resolve a tensão ADR-0107 × ADR-0038): **campos tipados (`Style::Bold/Italic`) = morfologia de
+markup** (strong/emph, mantidos por `morph_canon`); **canal de render = `#set text`**
+(transparente).
+- **Forma do canal** (a decidir no redesenho): (i) um slot `render: Option<…>` na `StyleDelta`,
+  ignorado por `is_semantically_empty`; ou (ii) chaves `custom` por-prop (`"text.size"`, …) —
+  mas o `Value` fechado não exprime `Color`/`Length`/`FontList` cômodo, logo (i) é a
+  recomendação medida.
+- **`#set text`** passa a popular o **canal de render** (não `delta.bold/italic/size/…`
+  tipados). O transporte (fatia-1 generalizada) embrulha a cauda num `Content::Styled` com o
+  canal de render diff. `morph_canon` desce (ignora o canal) → `#set text` **continua
+  morfologicamente transparente** (content-preserving do `==`).
+- **Layout** lê o estilo de render do **canal** (merge em `self.style`), não do `node_style`
+  assado.
 
-**O de-bake (após o transporte garantir o estilo na chain).**
+**O de-bake (após o canal de render levar o estilo à chain).**
 - `Content::Text(EcoString, TextStyle)` → **`Content::Text(EcoString)`** (campo removido).
-- `Content::text()` e ~90 sítios de construção/match cascateiam (`Content::Text(s, style)` /
-  `Content::Text(s, _)` → `Content::Text(s)`).
-- **Layout `mod.rs:599-632`**: o merge `node_style.X || self.style.X` colapsa para **ler só
-  `self.style`** (a chain) — `effective = self.style`. O `node_style` desaparece.
-- `map_text` (`content.rs:2134`) e `morph_canon` (`content.rs` `Content::Text(s,_) =>
-  Text(s.clone(), default)`) deixam de tocar estilo (o `Text` não o tem) — **morfologia
-  intacta** (o `==` morfológico já ignorava o `TextStyle`, P345/ADR-0107; o bold de render
-  nunca foi morfologia).
+- `Content::text()` e ~90 sítios cascateiam (`Content::Text(s, style)`/`(s, _)` →
+  `Content::Text(s)`).
+- **Layout `mod.rs:599-632`**: o merge passa a ler o render-style do canal da chain; o
+  `node_style` desaparece.
+- `map_text`/`morph_canon` deixam de tocar estilo no `Text` (não o tem) — morfologia
+  **intacta por construção** (o canal de render é transparente).
 
-**Ordem (medida, não opcional).** Transporte **primeiro** (aditivo: `#set text` passa a
-viajar na chain; o `TextStyle` assado ainda existe e é autoritativo) → de-bake **depois**
-(remove o campo; layout lê só a chain). Senão o `#set text` perde o estilo (regressão).
+**Ordem (medida, não opcional).** Canal de render + `#set text` a popular o canal **primeiro**
+(aditivo; o `TextStyle` assado ainda autoritativo) → de-bake **depois**. Senão regride.
 
-**Intactos.** `morph_canon`/`==` (P345 — render ≠ morfologia), caso 4, α/caso 2, flag P350c,
-Marco G, os 3 numbering (P364/P365). **Content-preserving** (paridade pela rede +11).
+**Intactos.** `morph_canon`/`==` (canal de render transparente **por construção**), caso 4,
+α/caso 2, flag P350c, Marco G, os 3 numbering (P364/P365). **Content-preserving** (rede +11).
 
-**Fixtures.** As que constroem `Content::Text(s, <style>)` ou casam `Content::Text(s, _)`
-viram para `Content::Text(s)` (declaradas, S5b); nenhuma asserção de comportamento muda
-exceto onde liam o estilo fora da chain.
+**Magnitude (corrigida).** Maior que o original: o canal de render é um **conceito de estilo
+novo** (slot na `StyleDelta` + `is_semantically_empty` a ignorá-lo + `#set text` a popular o
+canal + transporte + layout a ler do canal + remoção do `TextStyle` + cascata ~90 sítios).
+Candidato a **fatiar** (canal+transporte / remoção). O dono reaprova o desenho antes de código.
 
 > **⚠ OBSTÁCULO MEDIDO (P366 Estágio 1 — parar e reportar).** O transporte por **diff de
 > delta tipado** acima **viola o limite duro "não tocar a morfologia"**, medido na fonte:
@@ -611,6 +617,60 @@ exceto onde liam o estilo fora da chain.
 > tipado), um mecanismo **diferente e maior** do que o aprovado na Trava. **É re-escopo.**
 > Nenhum `.rs` foi escrito. Decisão do dono: redesenhar o P366 com o transporte por `custom`,
 > ou fatiar/adiar. Ver relatório `typst-passo-366-relatorio.md`.
+
+> **⚖ MEDIÇÃO VANILLA (P366, decisiva — refuta a premissa de transparência).** O dono pediu
+> medir o **oráculo** (vanilla 0.14.2) antes de fixar o desenho. Medido em `lab/`:
+> - `StyledElem::PartialEq` (`content/mod.rs:763`): `fn eq = self.child == other.child` — **o
+>   wrapper compara só o child; IGNORA os styles**.
+> - `#set text` no markup (`typst-eval/markup.rs:41`): `tail.styled_with_map(styles)` →
+>   embrulha a cauda num **`StyledElem`**.
+> - strong/emph são elementos **distintos** (`model/strong.rs`/`emph.rs`: `StrongElem`/
+>   `EmphElem`), **não** `StyledElem`; `Packed::eq` compara id de elemento (tipos diferentes →
+>   `false`).
+> - **∴ vanilla:** `#set text(…) X` (StyledElem) **≠** `X` (TextElem) — **morfologicamente
+>   significativo pela PRESENÇA do wrapper**; mas `#set text(a) X == #set text(b) X` (valores
+>   ignorados). E `*bold* X` (StrongElem) ≠ `#set text X` (StyledElem) ≠ `X`.
+>
+> **Consequência (inverte a conclusão):** o comportamento **atual do cristalino**
+> (`#set text X == X`, via assar+descartar) **DIVERGE do vanilla** (que dá `≠`). Logo:
+> - O **canal de render transparente** (a "direção corrigida" acima) **preservaria a
+>   divergência** → **errado** por ADR-0107 (paridade é com a língua/vanilla).
+> - O de-bake **vanilla-faithful** faz `#set text X ≠ X` — i.e. `#set text` → wrapper
+>   **morfologicamente significativo pela presença** (vindica a direção do transporte tipado
+>   original), **com** `morph_canon`/`==` a comparar **só o child** do `Styled` (ignorar os
+>   **valores** de estilo, espelho do `StyledElem::eq`). Hoje o `==` do cristalino sobre
+>   `Content::Styled` compara os styles (derive) → precisa de normalização no `morph_canon`.
+> - **Divergência pré-existente (fora de escopo):** o cristalino colapsou strong/emph em
+>   `Content::Styled` (Passo 101), perdendo a distinção `StrongElem` vs `StyledElem` do vanilla
+>   — isso já existe e não é deste de-bake.
+>
+> **Três opções para o dono** (o desenho mudou de novo com a medição):
+> **(a) vanilla-faithful** — `#set text` → wrapper significativo-por-presença; `morph_canon`
+> normaliza os valores do `Styled` (compara child). Corrige a divergência; **muda** o `==`
+> atual do `#set text` (testes que o codifiquem viram). **(b) preservar o atual** (transparente)
+> — adia a fidelidade ao vanilla; o de-bake fica bloqueado (não há transporte morph-transparente
+> sem o canal custom, que é grande e *também* não-vanilla). **(c) adiar o F-5b** — o item (1)
+> fica 3/4; seguir item (2)/(3). Nenhum `.rs` escrito.
+
+> **⛔ BLOQUEIO ARQUITETURAL (P366, medido — fecha a questão; o dono escolheu (a) vanilla-faithful,
+> mas a medição da normalização revela dois limites duros):**
+> 1. **A normalização vanilla-faithful toca o α-fixpoint.** `morph_canon` é usado em **dois**
+>    sítios: `operators.rs:79` (o `==`/`!=` da linguagem) **e `rules.rs:229`** (o **α-fixpoint
+>    do `#show`**, P348: `out.morph_canon() == work.morph_canon()` decide a terminação). Mudar o
+>    `morph_canon` para normalizar os valores do `Styled` **muda o α** — **limite duro** ("não
+>    tocar o α / `morph_canon`").
+> 2. **Distinguir render-Styled de strong/emph-Styled exige reverter o colapso do Passo 101.**
+>    Vanilla: `StyledElem` (settext, valores ignorados) ≠ `StrongElem`/`EmphElem` (distintos). O
+>    cristalino colapsou os três em `Content::Styled`; `#set text(bold:)` põe `delta.bold` — o
+>    **mesmo** campo que `*bold*`. `morph_canon` **não os separa**. Normalizar **todos** os
+>    valores equipararia `*bold* X == *italic* X` (vanilla: ≠); separar exige **marcador/variante**
+>    novo (refinar o P101) — mudança de **modelo**, não de-bake.
+>
+> **∴ F-5b está bloqueado** no modelo de morfologia (colapso P101 + α-fixpoint) — ambos limites
+> duros / arquitetura grande. **Recomendação medida: ADIAR.** O item (1) fica **3/4** (os 3
+> numbering fechados; o `TextStyle` permanece assado); a extensibilidade (item 3) **não depende**
+> deste de-bake. O F-5b volta como **lote arquitetural dedicado** (modelo strong/emph/styled + α),
+> não como de-bake. Nenhum `.rs` escrito.
 
 ### 3a.5 — O registro (os dois públicos, sem global — pureza L1)
 

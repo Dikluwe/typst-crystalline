@@ -93,5 +93,42 @@ commit: só L0 + relatório (padrão "reverte por contradição → commita só 
 **Tocados:** `f_fronteira_e1.md` (§3a.10 + obstáculo) + 9 backings (hash sync); este relatório.
 Nenhum `.rs`.
 
-**Próximo:** decisão do dono entre as 3 opções. **Termino aqui — não emendo o passo seguinte
-(Trava 5).**
+---
+
+## Continuação — medição do oráculo (vanilla) → bloqueio arquitetural → ADIAR
+
+O dono pediu **re-medir contra o vanilla** antes de fixar o desenho morph-safe. A medição
+**inverte a conclusão** e depois revela um **bloqueio duro**. Toda registada em `§3a.10`.
+
+**1. Medição vanilla (decisiva; `lab/`).**
+- `StyledElem::PartialEq` (`content/mod.rs:763`): `eq = self.child == other.child` — **ignora os
+  styles**.
+- `#set text` no markup (`typst-eval/markup.rs:41`): `tail.styled_with_map(styles)` → **`StyledElem`**.
+- strong/emph = elementos **distintos** (`model/strong.rs`/`emph.rs`); `Packed::eq` compara id.
+- **∴ vanilla:** `#set text X` (StyledElem) **≠** `X` (TextElem) — significativo pela **presença**
+  do wrapper; mas `#set text(a) X == #set text(b) X` (valores ignorados).
+- **O atual do cristalino (`#set text X == X`, assar+descartar) DIVERGE do vanilla.** Logo o
+  "canal de render transparente" que eu propus **preservaria a divergência** → errado (ADR-0107).
+  O "obstáculo" do transporte tipado era, na verdade, **corrigir** rumo ao vanilla. Dono
+  escolheu **(a) vanilla-faithful**.
+
+**2. Bloqueio arquitetural (ao desenhar a normalização vanilla-faithful do `morph_canon`).**
+- **Toca o α-fixpoint.** `morph_canon` serve **dois** consumidores: `operators.rs:79` (o `==` da
+  linguagem) **e `rules.rs:229`** (o **α-fixpoint do `#show`**, P348). Normalizar os valores do
+  `Styled` no `morph_canon` **muda o α** — limite duro ("não tocar o α / `morph_canon`").
+- **Exige reverter o colapso do Passo 101.** `#set text(bold:)` põe `delta.bold` — o **mesmo**
+  campo que `*bold*`; `morph_canon` não separa render-Styled de strong/emph-Styled. Normalizar
+  todos equipararia `*bold* X == *italic* X` (vanilla: ≠). Separar = marcador/variante novo
+  (mudança de **modelo**).
+
+**Desfecho: ADIAR o F-5b** (decisão do dono). Não é de-bake — é **lote arquitetural dedicado**
+(modelo strong/emph/styled + α-fixpoint). O **item (1) fica 3/4**: os 3 numbering com fonte
+única (P364/P365); o `TextStyle` de `Content::Text` **permanece assado** — divergência conhecida
+e registada (`#set text X == X` no cristalino vs `≠` no vanilla). A extensibilidade (item 3,
+`#set` de user-props) **não depende** deste de-bake. Ver **DEBT** (entrada F-5b adiado).
+
+**Nenhum `.rs` tocado em todo o P366.** Toda a medição (arrasto real ≠ bold do heading; vanilla
+`==`; α-fixpoint; colapso P101) preservada em `§3a.10` como o porquê do adiamento.
+
+**Próximo (decisão do dono):** item (2) **F-6** (DEBT-58, 3 folhas) ou item (3) **`#set` de
+user-props**. **Termino aqui — não emendo o passo seguinte (Trava 5).**
