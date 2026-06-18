@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash 15b1586c
+//! @prompt-hash 0c508658
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -41,11 +41,31 @@ use crate::entities::{
     location::Location,
     locator::Locator,
     state_update::StateUpdate,
+    style_chain::StyleChain,
     tag::Tag,
     value::Value,
 };
 
 use crate::rules::introspect::extract_payload::extract_payload as do_extract_payload;
+
+/// **P363 (introspect-chain) — probe de verificação, `#[cfg(test)]`.** Captura, por
+/// heading visitado no walk, o gate de numbering **lido da chain** — para um teste
+/// provar que a infra threadou o custom `heading.numbering` até o heading (sem mudar
+/// o comportamento de produção). Removida quando o de-bake (P364) tornar o read da
+/// chain o caminho real e o teste passar a asserir o output.
+#[cfg(test)]
+pub(crate) mod introspect_chain_probe {
+    use std::cell::RefCell;
+    thread_local! {
+        static GATES: RefCell<Vec<bool>> = const { RefCell::new(Vec::new()) };
+    }
+    /// Limpa a captura (chamar antes de um walk no teste).
+    pub(crate) fn reset() { GATES.with(|g| g.borrow_mut().clear()); }
+    /// Regista o gate da chain de um heading (chamado pelo arm Heading do walk).
+    pub(crate) fn record(gate: bool) { GATES.with(|g| g.borrow_mut().push(gate)); }
+    /// Os gates capturados, na ordem de visita.
+    pub(crate) fn captured() -> Vec<bool> { GATES.with(|g| g.borrow().clone()) }
+}
 
 /// Pré-passagem analítica sobre `Content` — entry point legado.
 ///
@@ -110,7 +130,9 @@ pub fn introspect_with_introspector(
     let mut tags: Vec<Tag> = Vec::new();
     let mut intr = TagIntrospector::empty();
     let mut auto_label_counter: usize = 0;
-    walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, None);
+    // P363: chain raiz = default_chain (espelha o root do layout, `layout/mod.rs`).
+    let root_chain = StyleChain::default_chain();
+    walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &root_chain, None);
     intr
 }
 
@@ -749,13 +771,29 @@ pub(crate) fn walk(
     intr:               &mut TagIntrospector,
     auto_label_counter: &mut usize,
     lang:               Option<&crate::entities::lang::Lang>,
+    // P363 (F-5a, introspect-chain): a chain léxica threaded no walk. Empurrada
+    // ao descer num `Content::Styled` (espelho de `layout/mod.rs:1248`), carrega o
+    // gate de numbering (`X.numbering`) para o introspect ler de UMA fonte só (a
+    // chain) no de-bake (P364). **Aditivo aqui** — usada pelo push em `Styled` e
+    // pela probe `#[cfg(test)]` no arm Heading; os reads de gate continuam no campo
+    // assado até o P364. Separação gate-vs-número: NÃO toca o contador (P335).
+    chain:              &StyleChain,
     label_from_parent:  Option<&Label>,
 ) {
     // P162 .E + P191B: emissão Tag::Start em paralelo, antes da mutação
     // de estado. populate_intr_from_tag_start popula sub-stores intr no
     // momento da emissão (ADR-0071).
-    let emitted_loc = if let Some(payload) = do_extract_payload(content) {
+    let emitted_loc = if let Some(mut payload) = do_extract_payload(content) {
         let loc = locator.next();
+        // F-5a de-bake (P364, §3a.9): a equação **não baka** mais o gate. O
+        // payload tira `numbering_active` da **chain** aqui (introspect-chain
+        // P363), no momento da emissão — a consumição posterior (`from_tags` /
+        // `populate_intr_from_tag_start`) não tem chain. Fonte única. (`block`
+        // segue no payload; o gate efetivo é `block && numbering` no consumidor.)
+        if let ElementPayload::Equation { numbering_active, .. } = &mut payload {
+            *numbering_active =
+                matches!(chain.custom("equation.numbering"), Some(Value::Bool(true)));
+        }
         let info = ElementInfo {
             payload,
             label: label_from_parent.cloned(),
@@ -770,7 +808,7 @@ pub(crate) fn walk(
     match content {
         Content::Sequence(seq) => {
             for item in seq.iter() {
-                walk(item, locator, tags, intr, auto_label_counter, lang, None);
+                walk(item, locator, tags, intr, auto_label_counter, lang, chain, None);
             }
         }
 
@@ -779,6 +817,16 @@ pub(crate) fn walk(
             let level = &h.level;
             let body = &h.body;
             let _ = level;
+            // P363 (introspect-chain, PROBE de verificação): o gate de numbering
+            // lido **da chain** neste heading. **Aditivo** — não muda o read do
+            // gate (continua `h.numbering_active` até o de-bake P364). Só captura,
+            // sob `#[cfg(test)]`, o que a chain entrega aqui, para o teste provar que
+            // a infra threadou o custom até o heading (um heading sob o `Content::
+            // Styled` de `#set heading(numbering:)` vê `Some(Bool(true))`).
+            #[cfg(test)]
+            self::introspect_chain_probe::record(
+                matches!(chain.custom("heading.numbering"), Some(Value::Bool(true))),
+            );
             // P200B (M5 universal completo) — walk arm Heading
             // E2-residuo fechada estruturalmente. Trabalho híbrido
             // combinando 3 padrões testados:
@@ -816,11 +864,17 @@ pub(crate) fn walk(
             let auto_loc = emitted_loc.expect(
                 "Heading é locatable — emitted_loc deve ser Some",
             );
+            // F-5a de-bake (P364, §3a.9): o gate vive **só na chain** (lido aqui
+            // sobre o introspect-chain do P363). O campo assado `numbering_active`
+            // foi removido. O **valor** do contador (`apply_hierarchical_at`,
+            // incondicional P335) e `formatted_counter_at` ficam intactos.
+            let numbering_active =
+                matches!(chain.custom("heading.numbering"), Some(Value::Bool(true)));
             let (auto_label, resolved_text) = compute_heading_auto_toc(
                 &*intr,
                 auto_loc,
                 current_auto_label,
-                h.numbering_active,
+                numbering_active,
             );
             // P190G: mutação `state.resolved_labels.insert` ELIMINADA
             // — caminho Introspector activo via Tag::Labelled
@@ -840,7 +894,7 @@ pub(crate) fn walk(
             // HeadingForToc pós-recursão (P200B).
             let frozen_body = materialize_time(body, &*intr, auto_loc);
 
-            walk(body, locator, tags, intr, auto_label_counter, lang, None);
+            walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
 
             // P196B: emit Tag auto-toc pós-recursão (ADR-0069).
             // Reusa Location alocada para Heading (locatable; walk
@@ -896,7 +950,7 @@ pub(crate) fn walk(
             // ELIMINADA — populate_intr arm Equation já aplica counter
             // a `intr.counters["equation"]` no momento da emission. Walk
             // arm Equation puro — apenas desce em body.
-            walk(&e.body, locator, tags, intr, auto_label_counter, lang, None);
+            walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None);
         }
 
         Content::Figure(e) => {
@@ -920,9 +974,9 @@ pub(crate) fn walk(
             // Layouter consumer C3 consume via `figure_number_at_index`
             // (P184D). Walk arm Figure agora puro — apenas desce em
             // body + caption.
-            walk(body, locator, tags, intr, auto_label_counter, lang, None);
+            walk(body, locator, tags, intr, auto_label_counter, lang, chain, None);
             if let Some(cap) = caption {
-                walk(cap, locator, tags, intr, auto_label_counter, lang, None);
+                walk(cap, locator, tags, intr, auto_label_counter, lang, chain, None);
             }
         }
 
@@ -938,7 +992,7 @@ pub(crate) fn walk(
             // P162 .E: passa `Some(label)` para que o tag emitido pelo
             // walk recursivo (ex. Heading) inclua a label do wrapper.
             let tags_len_before = tags.len();
-            walk(target, locator, tags, intr, auto_label_counter, lang, Some(label));
+            walk(target, locator, tags, intr, auto_label_counter, lang, chain, Some(label));
 
             // P191C (ADR-0071 ACEITE): Location do target obtida via
             // snapshot+find_map (pattern P195D variante não-locatable).
@@ -1097,54 +1151,54 @@ pub(crate) fn walk(
         // Passo 154B — Terms / TermItem: descem em items para que filhos
         // com contadores ou labels sejam processados.
         Content::Terms(e) => {
-            for item in e.items.iter() { walk(item, locator, tags, intr, auto_label_counter, lang, None); }
+            for item in e.items.iter() { walk(item, locator, tags, intr, auto_label_counter, lang, chain, None); }
         }
         Content::TermItem(e) => {
-            walk(&e.term, locator, tags, intr, auto_label_counter, lang, None);
-            walk(&e.description, locator, tags, intr, auto_label_counter, lang, None);
+            walk(&e.term, locator, tags, intr, auto_label_counter, lang, chain, None);
+            walk(&e.description, locator, tags, intr, auto_label_counter, lang, chain, None);
         }
 
         // Passo 155 — Quote: walk em body + attribution.
         Content::Quote(e) => {
-            walk(&e.body, locator, tags, intr, auto_label_counter, lang, None);
+            walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None);
             if let Some(a) = &e.attribution {
-                walk(a, locator, tags, intr, auto_label_counter, lang, None);
+                walk(a, locator, tags, intr, auto_label_counter, lang, chain, None);
             }
         }
 
         // Modelo D (Lote 4 P319): decorações — walk no body (não-locatable).
-        Content::Underline(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
-        Content::Strike(e)    => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
-        Content::Overline(e)  => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Underline(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Strike(e)    => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Overline(e)  => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
-        Content::Transform(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Transform(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
         Content::Grid(e) => {
             // P224 — Grid refino: walk em header (se houver) + cells + footer.
-            if let Some(h) = &e.header { walk(h, locator, tags, intr, auto_label_counter, lang, None); }
-            for cell in &e.cells { walk(cell, locator, tags, intr, auto_label_counter, lang, None); }
-            if let Some(f) = &e.footer { walk(f, locator, tags, intr, auto_label_counter, lang, None); }
+            if let Some(h) = &e.header { walk(h, locator, tags, intr, auto_label_counter, lang, chain, None); }
+            for cell in &e.cells { walk(cell, locator, tags, intr, auto_label_counter, lang, chain, None); }
+            if let Some(f) = &e.footer { walk(f, locator, tags, intr, auto_label_counter, lang, chain, None); }
         }
 
         // P224.B — GridHeader / GridFooter (recurse no body; paridade P157C).
-        Content::GridHeader(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
-        Content::GridFooter(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::GridHeader(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::GridFooter(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
         // P224.C — GridCell (recurse no body; paridade P157B TableCell).
-        Content::GridCell(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::GridCell(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
         // Passo 157A — Table (paridade Grid).
         Content::Table(e) => {
-            for c in &e.children { walk(c, locator, tags, intr, auto_label_counter, lang, None); }
+            for c in &e.children { walk(c, locator, tags, intr, auto_label_counter, lang, chain, None); }
         }
 
         // Passo 157B — TableCell (recurse no body).
-        Content::TableCell(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::TableCell(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
         // Passo 157C — par simétrico TableHeader/TableFooter
         // (recurse no body).
-        Content::TableHeader(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
-        Content::TableFooter(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::TableHeader(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::TableFooter(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
         // P181H: walk arm puro (P163 invariante restaurada para bib).
         // Pré-P181H (P159C/F): walk mutava `state.bib_entries.extend(...)`
@@ -1158,40 +1212,40 @@ pub(crate) fn walk(
         // Introspection runtime adiada).
         Content::Bibliography(e) => {
             if let Some(t) = &e.title {
-                walk(t, locator, tags, intr, auto_label_counter, lang, None);
+                walk(t, locator, tags, intr, auto_label_counter, lang, chain, None);
             }
         }
         Content::Cite(e) => {
-            if let Some(s) = &e.supplement { walk(s, locator, tags, intr, auto_label_counter, lang, None); }
+            if let Some(s) = &e.supplement { walk(s, locator, tags, intr, auto_label_counter, lang, chain, None); }
         }
 
         // P295 — Footnote walk em body (locatable infrastructure não
         // aplicada em Fase 1; body recurse preserva counters/labels
         // dentro para passes futuros).
-        Content::Footnote(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Footnote(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
-        Content::Align(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Align(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
-        Content::Place(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Place(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
         // Passo 156C (ADR-0061 Fase 1) — pad / hide são containers
         // estruturais; descer no body para que counters/labels dentro sejam
         // processados. `Hide` mesmo "ocultando visualmente" mantém a
         // semântica de presence (label/ref dentro de hide ainda resolvem).
-        Content::Pad(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
-        Content::Hide(e)           => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Pad(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Hide(e)           => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
         // Passo 156G (ADR-0061 Fase 2) — block container; descer no body.
-        Content::Block(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Block(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
         // Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container.
-        Content::Boxed(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Boxed(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
         // Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo.
         // Walk em cada child em ordem (counters/labels resolvem).
         Content::Stack(e) => {
             for c in e.children.iter() {
-                walk(c, locator, tags, intr, auto_label_counter, lang, None);
+                walk(c, locator, tags, intr, auto_label_counter, lang, chain, None);
             }
         },
 
@@ -1199,15 +1253,23 @@ pub(crate) fn walk(
         // Walk no body uma vez (counters/labels dentro de body
         // resolvem; semântica de repetição é runtime-only e não
         // multiplica state — vanilla repeat também só conta uma vez).
-        Content::Repeat(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Repeat(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
         // P217 (DEBT-56 sub-fase b) — Columns container.
         // Walk no body (counters/labels dentro contam normalmente);
         // sem Tag::Start/End próprio (columns não é locatable).
         // Consumer multi-region em P219.
-        Content::Columns(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, None),
+        Content::Columns(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
         // Passo 99 (ADR-0038): `Styled` é transparente — desce no body.
-        Content::Styled(body, _) => walk(body, locator, tags, intr, auto_label_counter, lang, None),
+        // P363 (introspect-chain): empurra os styles na chain ao descer (espelho de
+        // `layout/mod.rs:1248` `push_styles`), para que um heading/equation/figure
+        // dentro do `Content::Styled` que o `#set …(numbering:)` embrulha tenha o
+        // gate `X.numbering` na chain. Escopado à subárvore (o `pushed` só vale na
+        // recursão do `body`).
+        Content::Styled(body, styles) => {
+            let pushed = chain.push_styles(styles);
+            walk(body, locator, tags, intr, auto_label_counter, lang, &pushed, None);
+        }
 
         Content::Outline(_) => {
             // P189B (M5): walk puro para Outline.
@@ -1547,7 +1609,7 @@ mod tests {
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
-        walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, Some(&lang), None);
+        walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, Some(&lang), &crate::entities::style_chain::StyleChain::default_chain(), None);
         intr
     }
 
@@ -1688,7 +1750,7 @@ mod tests {
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
-        walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, None);
+        walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None);
         tags
     }
 
@@ -2057,7 +2119,7 @@ mod tests {
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
-        walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, None);
+        walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None);
         intr
     }
 
@@ -2186,6 +2248,31 @@ mod tests {
         assert!(
             intr.query_first(ElementKind::Heading).is_some(),
             "introspector exposto deve ter o heading indexado"
+        );
+    }
+
+    #[test]
+    fn introspect_chain_threada_gate_de_numbering_ate_o_heading() {
+        // **P363 (introspect-chain) — prova a infra (aditiva).** Um heading DENTRO do
+        // `Content::Styled` que o `#set heading(numbering:)` embrulha vê o gate
+        // `heading.numbering` **na chain** (true); um heading fora não (false). A probe
+        // `#[cfg(test)]` no arm Heading do walk captura o gate lido da chain. Prova que
+        // a chain foi threadada até o heading (sem mudar o comportamento — o read real do
+        // gate continua no campo assado até o de-bake P364).
+        use crate::entities::style::Styles;
+        super::introspect_chain_probe::reset();
+        let sob_set = Content::Styled(
+            Box::new(Content::heading(1, Content::text("Sob set"))),
+            Styles::new().push_custom("heading.numbering", Value::Bool(true)),
+        );
+        let fora = Content::heading(1, Content::text("Fora"));
+        let doc = Content::Sequence(vec![sob_set, fora].into());
+        let _ = introspect_with_introspector(&doc);
+        assert_eq!(
+            super::introspect_chain_probe::captured(),
+            vec![true, false],
+            "introspect-chain: o heading sob #set numbering vê o gate na chain (true); \
+             o de fora não (false)"
         );
     }
 
@@ -2340,7 +2427,7 @@ mod tests {
             let mut auto_label_counter: usize = 0;
             super::walk(
                 &content, &mut locator, &mut tags,
-                &mut intr, &mut auto_label_counter, None, None,
+                &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None,
             );
             super::from_tags::apply_state_funcs(
                 &tags, &mut intr, &mut engine, &mut ctx,
@@ -2396,7 +2483,7 @@ mod tests {
             let mut auto_label_counter: usize = 0;
             super::walk(
                 &content_a, &mut locator, &mut tags,
-                &mut intr, &mut auto_label_counter, None, None,
+                &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None,
             );
             super::from_tags::apply_state_funcs(
                 &tags, &mut intr, &mut engine, &mut ctx,
@@ -2410,7 +2497,7 @@ mod tests {
             let mut auto_label_counter: usize = 0;
             super::walk(
                 &content_b, &mut locator, &mut tags,
-                &mut intr, &mut auto_label_counter, None, None,
+                &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None,
             );
             super::from_tags::apply_state_funcs(
                 &tags, &mut intr, &mut engine, &mut ctx,
@@ -2441,7 +2528,7 @@ mod tests {
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
-        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, None);
+        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None);
 
         // P190B (M6 categoria Bibliography eliminada): assertions sobre
         // `state.bib_entries`/`bib_numbers` removidas — fields eliminados
@@ -2476,7 +2563,7 @@ mod tests {
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
-        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, None);
+        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None);
 
         // Heading dentro de title produz Tag de Heading.
         use crate::entities::element_payload::ElementPayload;
@@ -3025,11 +3112,24 @@ mod tests {
         // Tag::StateUpdate. Confirma activação imediata após P199B.
         use crate::entities::introspector::Introspector;
 
-        // Lote F-2 S2 (P335): gate via campo assado (`equation_numbered`);
-        // marcador mantido para a plumbing.
+        // F-5a de-bake (P364, §3a.9): o gate de numeração vive **só na chain**,
+        // transportado por `Content::Styled`. A forma de **produção** põe o
+        // transporte **fora** do `Labelled` (a fatia-1 embrulha a cauda:
+        // `Styled{ Labelled{ Equation } }`) — assim o alvo do `Labelled` é a
+        // própria `Equation` (o `compute_labelled` inspeciona o tipo do alvo) e o
+        // `custom("equation.numbering")` chega à chain antes da emissão do payload.
+        // Fixture roteado a essa forma (S5b declarado; era campo assado
+        // `equation_numbered` direto, P335).
         let content = Content::Sequence(
             vec![
-                Content::labelled(Content::equation_numbered(Content::Empty, true), Label("eq1".to_string())),
+                Content::Styled(
+                    Box::new(Content::labelled(
+                        Content::equation(Content::Empty, true),
+                        Label("eq1".to_string()),
+                    )),
+                    crate::entities::style::Styles::new()
+                        .push_custom("equation.numbering", Value::Bool(true)),
+                ),
             ]
             .into(),
         );
@@ -3228,7 +3328,7 @@ mod tests {
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
-        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, None);
+        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None);
 
         // Sub-stores populated por walk directo.
         assert_eq!(intr.query_by_kind(ElementKind::Heading).len(), 1,

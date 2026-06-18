@@ -22,19 +22,17 @@ use crate::entities::source_result::SourceResult;
 pub struct EquationElem {
     pub body:  Content,
     pub block: bool,
-    /// **Numeração ativa (Lote F-2 S2, P335)** — assada na criação a partir do
-    /// `engine.styles.custom("equation.numbering")` (escopo léxico via chain;
-    /// fecha o canal global `SetEquationNumbering`/StateRegistry). Só "ativo";
-    /// o **valor** do contador continua via Introspector.
-    pub numbering_active: bool,
 }
 
 impl EquationElem {
+    /// **F-5a de-bake (P364, `f_fronteira_e1.md` §3a.9):** o campo assado
+    /// `numbering_active` foi **removido** — o gate vive **só na chain**
+    /// (`#set math.equation(numbering:)` → `custom("equation.numbering")`,
+    /// transportado por `Content::Styled`). O introspect lê o gate da chain no
+    /// momento da emissão do payload (`introspect.rs` walk top); o **valor** do
+    /// contador segue via Introspector.
     pub fn new(body: Content, block: bool) -> Self {
-        Self { body, block, numbering_active: false }
-    }
-    pub fn new_numbered(body: Content, block: bool, numbering_active: bool) -> Self {
-        Self { body, block, numbering_active }
+        Self { body, block }
     }
 }
 
@@ -55,7 +53,6 @@ impl Element for EquationElem {
         Ok(Content::Equation(Arc::new(EquationElem {
             body:  self.body.map_content(transform)?,
             block: self.block,
-            numbering_active: self.numbering_active,
         })))
     }
 
@@ -73,10 +70,14 @@ impl Element for EquationElem {
     }
 
     fn to_payload(&self) -> Option<ElementPayload> {
+        // F-5a de-bake (P364): `numbering_active` no payload é **sourced da
+        // chain** no momento da emissão (`introspect.rs` walk top o sobrescreve
+        // de `custom("equation.numbering")`). O elemento não baka mais o gate;
+        // aqui fica o placeholder neutro.
         Some(ElementPayload::Equation {
             block:          self.block,
             counter_update: CounterUpdate::Step,
-            numbering_active: self.numbering_active,
+            numbering_active: false,
         })
     }
 }

@@ -552,19 +552,13 @@ fn eval_expr(
         Expr::Equation(eq) => {
             let block = eq.block();
             let body  = math::eval_math_content(scopes, ctx, eq.body())?;
-            // Lote F-2 S2 (P335): assar a numeração ativa da chain léxica
-            // (`#set math.equation(numbering:)` empurrou para custom). Só
-            // equações de bloco numeram (paridade vanilla).
-            let numbering_active = block
-                && matches!(
-                    engine.styles.custom("equation.numbering"),
-                    Some(crate::entities::value::Value::Bool(true))
-                );
-            let content = if numbering_active {
-                Content::equation_numbered(body, block)
-            } else {
-                Content::equation(body, block)
-            };
+            // F-5a de-bake (P364, `f_fronteira_e1.md` §3a.9): a equação **não
+            // baka** mais o gate. O `#set math.equation(numbering:)` vive **só na
+            // chain** (`custom("equation.numbering")` no `Content::Styled` da
+            // fatia-1). O consumidor lê o gate da chain e mantém `block &&
+            // numbering` (só equações de bloco numeram, paridade vanilla). Fonte
+            // única.
+            let content = Content::equation(body, block);
             Ok(Value::Content(content))
         }
 

@@ -706,12 +706,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
 
                 // Prefixo numérico — apenas se numbering estiver activo.
-                // Lote F-2 S1 (P335): o "ativo" é **assado** no `HeadingElem`
-                // (escopo léxico via chain, fecha o canal global StateRegistry).
-                // O **valor** do contador continua via Introspector
-                // (`formatted_counter_at`), location-aware (P190E/F).
+                // F-5a de-bake (P364, §3a.9): o gate vive **só na chain**
+                // (`#set heading(numbering:)` → `custom`, transportado por
+                // `Content::Styled`); lido aqui de `self.chain`. O campo assado
+                // `numbering_active` foi removido. O **valor** do contador segue
+                // via Introspector (`formatted_counter_at`, P335 incondicional).
                 use crate::entities::introspector::Introspector;
-                let numbering_on = h.numbering_active;
+                let numbering_on = matches!(
+                    self.chain.custom("heading.numbering"),
+                    Some(crate::entities::value::Value::Bool(true)),
+                );
                 if numbering_on {
                     let num_str = self.current_location
                         .and_then(|loc| self.introspector
@@ -809,7 +813,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             // ── Matemática (Passo 37) — delegação ao MathLayouter ───────────
             Content::Equation(e) => {
-                self.layout_equation(&e.body, e.block, e.numbering_active);
+                // F-5a de-bake (P364, §3a.9): o gate vive **só na chain**; lido
+                // de `self.chain`. `layout_equation` mantém `block && numbering`.
+                let numbering_active = matches!(
+                    self.chain.custom("equation.numbering"),
+                    Some(crate::entities::value::Value::Bool(true)),
+                );
+                self.layout_equation(&e.body, e.block, numbering_active);
             }
 
             Content::MathSequence(_)

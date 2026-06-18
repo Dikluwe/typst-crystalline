@@ -417,6 +417,66 @@ corte content→elemento, fora desta fila). Espera-se **delta de aresta** dentro
 megaciclo (ou ~nulo); `content→elements::*` permanece **66**; `elem→elem`
 permanece **0**.
 
+### 3a.9 — Fatia F-5a: de-bake de `heading`/`equation` numbering (fonte única)
+
+> **Estatuto.** Realiza o **gatilho (i)** de §3a.8 (o de-bake que religa o
+> consumidor à chain e remove o assado), movido pelo **princípio da fonte única
+> (atomização)** — decidido pelo dono (P362), não demanda da lente; não se
+> re-litiga. **Escopo P364: `heading` + `equation`** (os 2 gates bool, forma
+> idêntica). **`figure` = P365** — o gate dela (`figure_numbering: Option<&str>`)
+> threada a **assinatura partilhada das natives** (`stdlib/structural.rs`, ~10 fns),
+> cascata separável; fatiada por elemento (válvula P364). O ponto 4 (`TextStyle`) é
+> o **F-5b** (§3b.7).
+
+**A varredura (P364 Fase A; `file:line`; medido).** Os **3 produtores de produção**
+de numbering passam **todos** pelo transporte `Content::Styled` da fatia-1 (estão na
+cauda que a fatia-1 embrulha): `heading` `eval/markup.rs:96` (`Content::heading_numbered`),
+`equation` `eval/mod.rs:564` (`Content::equation_numbered`), `figure` `closures.rs:79-83`
+(lê `custom("figure.numbering")`). → **zero produtores de produção a rotear**: a chain
+**já** carrega o custom (P363 provou o gate disponível na chain sob `Styled`). A
+representação dupla existe **só** porque o eval **também** baka o campo. Os **~37
+fixtures** (`introspect.rs` 6 + `layout/tests.rs` 31) constroem numerado **direto**
+(sem o `Styled`) → **[fixture, fora-do-transporte]**.
+
+**O de-bake (heading+equation).**
+- **Produção**: `markup.rs:96` e `eval/mod.rs:564` **deixam de bakar** — criam o
+  elemento **simples** (`Content::heading`/`equation`); o transporte (fatia-1) carrega
+  o gate. `Content::heading_numbered`/`equation_numbered` e os campos
+  `HeadingElem.numbering_active`/`EquationElem.numbering_active` (+ payload da equation)
+  **removidos** → **fonte única**.
+- **Consumidores leem a chain**: layout (`mod.rs:714` `h.numbering_active` →
+  `self.chain.custom("heading.numbering")`; equation idem) e introspect (sobre o
+  **introspect-chain do P363** — `chain.custom("X.numbering")`). O gatilho (i) e o
+  teste de paridade (ii) de §3a.8 ficam **resolvidos** para os 2.
+- **Gate ≠ número (P335/DEBT-60).** O de-bake lê **só o gate**; o número
+  (`formatted_counter_at`) e o **contador incondicional** (P335,
+  `apply_hierarchical_at`) ficam **intactos**. Confirmado: `mod.rs:714` lê o gate
+  (`numbering_active`) e **só então** o número.
+- **Fixtures [fora-do-transporte]**: roteados ao **transporte** via helper de teste
+  (`Content::Styled(elem, push_custom("X.numbering", Bool(true)))`) — **content-preserving**
+  (seguem a testar elemento numerado, cobertura preservada). Virar a asserção para
+  não-numerado **perde cobertura** → descartado. Cada fixture alterado é **declarado**
+  (S5b); nenhuma asserção de comportamento muda (a rede de caracterização +11 passa
+  inalterada).
+
+**Dimensão.** Variantes de enum: **0**. Campos removidos: **2** (`numbering_active` de
+heading/equation) + construtores `heading_numbered`/`equation_numbered`. Consumidores
+religados: **2** (layout, introspect). Fixtures roteados: ~37 (declarados). `figure`
+fora (P365).
+
+**A forma de aninhamento (medida, P364).** Em produção a fatia-1 embrulha a **cauda** do
+markup → o transporte fica **fora** do `Labelled`: `Styled{ Labelled{ Equation } }`. Isto
+importa porque (i) o `compute_labelled` (introspect) inspeciona o **tipo do alvo** do
+`Labelled` — com o transporte fora, o alvo é a própria `Equation`; e (ii) o
+`custom("X.numbering")` entra na chain **antes** da emissão do payload (walk top). O
+construtor de conveniência (`equation_numbered`/`heading_numbered`) embrulha **a folha**
+(`Styled{ Equation }`); um fixture que o use como **alvo** de `Labelled`
+(`Labelled{ Styled{ Equation } }`) inverte a ordem e quebra o `compute_labelled`. Logo
+fixtures rotulados-e-numerados constroem a forma de produção explicitamente (transporte
+fora do label) — declarado (S5b). O transporte permanece **transparente** ao descer
+(P363), **sem** propagar `label_from_parent` (a forma de produção não exige; manter
+mínimo, ADR-0108).
+
 ### 3a.5 — O registro (os dois públicos, sem global — pureza L1)
 
 - **Público Rust**: implementa `trait Element` no seu `*Elem` + (para o público

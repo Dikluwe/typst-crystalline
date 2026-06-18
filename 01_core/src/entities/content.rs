@@ -1049,11 +1049,20 @@ impl Content {
     pub fn heading(level: u8, body: Content) -> Self {
         Self::Heading(Arc::new(HeadingElem::new(level, body)))
     }
-    /// Heading com numeração ativa (Lote F-2 S1, P335) — assado do
-    /// `#set heading(numbering:)`. Substitui o padrão antigo
-    /// `[SetHeadingNumbering{active:true}, heading(..)]`.
+    /// Heading numerado **na forma de transporte** (F-5a de-bake, P364,
+    /// `f_fronteira_e1.md` §3a.9). O campo assado `numbering_active` foi
+    /// removido; a numeração vive **só na chain** — este construtor produz o
+    /// `Content::Styled` que carrega `custom("heading.numbering")=true`, a forma
+    /// canônica que `#set heading(numbering:)` gera em produção (transporte
+    /// fatia-1). Consumidor (layout/introspect) lê o gate da chain. Usado pelos
+    /// fixtures para construir um heading numerado sem passar pelo eval.
     pub fn heading_numbered(level: u8, body: Content) -> Self {
-        Self::Heading(Arc::new(HeadingElem::new_numbered(level, body, true)))
+        use crate::entities::style::Styles;
+        use crate::entities::value::Value;
+        Self::Styled(
+            Box::new(Self::heading(level, body)),
+            Styles::new().push_custom("heading.numbering", Value::Bool(true)),
+        )
     }
     /// Construtor do separador estrutural (Modelo D, P316).
     pub fn divider() -> Self {
@@ -1179,10 +1188,18 @@ impl Content {
     pub fn equation(body: Content, block: bool) -> Self {
         Self::Equation(Arc::new(EquationElem::new(body, block)))
     }
-    /// Equação com numeração ativa (Lote F-2 S2, P335) — assada do
-    /// `#set math.equation(numbering:)`.
+    /// Equação numerada **na forma de transporte** (F-5a de-bake, P364,
+    /// `f_fronteira_e1.md` §3a.9). Campo assado removido; a numeração vive **só
+    /// na chain** — produz o `Content::Styled` com `custom("equation.numbering")
+    /// =true`, a forma que `#set math.equation(numbering:)` gera em produção. O
+    /// gate efetivo continua `block && numbering` no consumidor.
     pub fn equation_numbered(body: Content, block: bool) -> Self {
-        Self::Equation(Arc::new(EquationElem::new_numbered(body, block, true)))
+        use crate::entities::style::Styles;
+        use crate::entities::value::Value;
+        Self::Styled(
+            Box::new(Self::equation(body, block)),
+            Styles::new().push_custom("equation.numbering", Value::Bool(true)),
+        )
     }
 
     /// **Lote 11 P326** — `Content::Footnote` (nota de rodapé).
@@ -2067,18 +2084,15 @@ impl Content {
             Ok(match node {
                 Content::Text(s, _) =>
                     Some(Content::Text(s.clone(), TextStyle::default())),
+                // F-5a de-bake (P364): heading/equation numbering deixaram de
+                // viver em campo assado — viajam como `custom` num
+                // `Content::Styled` semanticamente vazio, já tratado
+                // transparente pelo arm acima (desce no body). Os arms
+                // dedicados (que zeravam `numbering_active`) tornaram-se
+                // redundantes e foram removidos: o mecanismo é único (o custom
+                // é render, não morfologia — P345 N1).
                 Content::Styled(body, styles) if styles.is_semantically_empty() =>
                     Some((**body).clone()),
-                Content::Heading(h) if h.numbering_active => {
-                    let mut h2 = (**h).clone();
-                    h2.numbering_active = false;
-                    Some(Content::Heading(Arc::new(h2)))
-                }
-                Content::Equation(e) if e.numbering_active => {
-                    let mut e2 = (**e).clone();
-                    e2.numbering_active = false;
-                    Some(Content::Equation(Arc::new(e2)))
-                }
                 Content::Figure(e) if e.numbering.is_some() => {
                     let mut e2 = (**e).clone();
                     e2.numbering = None;

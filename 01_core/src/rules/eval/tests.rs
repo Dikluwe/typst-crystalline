@@ -263,13 +263,34 @@ mod tests {
     }
 
     // ── Lote F-2 S1 (P335) — `#set heading(numbering:)` via chain léxica ──────
+    // F-5a de-bake (P364, §3a.9): o gate de numeração deixou de viver em campo
+    // assado — vive **só na chain**, transportado por `Content::Styled` (custom).
+    // Estes probes de teste threadam o gate ativo ao descer num `Styled`, em vez
+    // de ler um campo do elemento. As asserções ficam **idênticas**
+    // (content-preserving) e passam a **verificar o transporte de produção**: se a
+    // fatia-1 não embrulhasse o heading, o probe veria `false`.
+    fn styled_custom_bool(s: &crate::entities::style::Styles, key: &str) -> Option<bool> {
+        s.delta().custom.iter().rev().find_map(|(k, v)| {
+            if k == key {
+                if let crate::entities::value::Value::Bool(b) = v { Some(*b) } else { None }
+            } else {
+                None
+            }
+        })
+    }
+
     fn find_heading_numbered(c: &Content) -> Option<bool> {
-        match c {
-            Content::Heading(h) => Some(h.numbering_active),
-            Content::Sequence(items) => items.iter().find_map(find_heading_numbered),
-            Content::Styled(b, _) => find_heading_numbered(b),
-            _ => None,
+        fn go(c: &Content, active: bool) -> Option<bool> {
+            match c {
+                Content::Heading(_) => Some(active),
+                Content::Sequence(items) => items.iter().find_map(|i| go(i, active)),
+                Content::Styled(b, s) => {
+                    go(b, styled_custom_bool(s, "heading.numbering").unwrap_or(active))
+                }
+                _ => None,
+            }
         }
+        go(c, false)
     }
 
     #[test]
@@ -298,24 +319,38 @@ mod tests {
     }
 
     fn collect_headings_numbered(c: &Content, out: &mut Vec<bool>) {
-        match c {
-            Content::Heading(h) => out.push(h.numbering_active),
-            Content::Sequence(items) => {
-                items.iter().for_each(|i| collect_headings_numbered(i, out))
+        // F-5a de-bake (P364): gate threadado do `Styled` custom (ver
+        // `find_heading_numbered`).
+        fn go(c: &Content, active: bool, out: &mut Vec<bool>) {
+            match c {
+                Content::Heading(_) => out.push(active),
+                Content::Sequence(items) => {
+                    items.iter().for_each(|i| go(i, active, out))
+                }
+                Content::Styled(b, s) => {
+                    go(b, styled_custom_bool(s, "heading.numbering").unwrap_or(active), out)
+                }
+                _ => {}
             }
-            Content::Styled(b, _) => collect_headings_numbered(b, out),
-            _ => {}
         }
+        go(c, false, out)
     }
 
     // ── Lote F-2 S2 / B1 (P335) — `#set math.equation(numbering:)` via chain ──
     fn find_equation_numbered(c: &Content) -> Option<bool> {
-        match c {
-            Content::Equation(e) => Some(e.numbering_active),
-            Content::Sequence(items) => items.iter().find_map(find_equation_numbered),
-            Content::Styled(b, _) => find_equation_numbered(b),
-            _ => None,
+        // F-5a de-bake (P364): gate threadado do `Styled` custom. O probe segue
+        // só o gate da chain; o `block && numbering` efetivo é do consumidor.
+        fn go(c: &Content, active: bool) -> Option<bool> {
+            match c {
+                Content::Equation(_) => Some(active),
+                Content::Sequence(items) => items.iter().find_map(|i| go(i, active)),
+                Content::Styled(b, s) => {
+                    go(b, styled_custom_bool(s, "equation.numbering").unwrap_or(active))
+                }
+                _ => None,
+            }
         }
+        go(c, false)
     }
 
     #[test]

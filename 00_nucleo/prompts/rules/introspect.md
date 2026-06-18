@@ -1086,3 +1086,38 @@ P239 audit).
 N=1 (P240) → 2 (P241) cumulativo (este bloco + bloco
 `Content::CounterDisplayCallback` em `entities/content.md` +
 bloco `counter_display(key, [callback])` em `rules/stdlib.md`).
+
+## introspect-chain (P363, F-5a) — o walk lê o gate de numbering de UMA fonte só
+
+> **Motivo: fonte única de verdade (atomização)**, não demanda da lente (decisão do dono,
+> P362). Hoje os 3 gates de numbering vivem **em dobro**: campo assado
+> (`HeadingElem.numbering_active` etc.) **E** chain (`X.numbering` custom). O de-bake (F-5a) remove
+> o campo assado; o consumidor lê **só a chain**. O **layout** já tem `self.chain`; o **introspect**
+> **não** tem chain no walk (P353) — esta secção é a infra que falta.
+
+**O que se adiciona (aditivo).** O `walk` ganha uma `StyleChain` (threaded como os outros
+parâmetros `&mut`): ao descer num `Content::Styled(body, styles)`, **empurra** `styles` na chain
+(espelho de `StyleChain::push_styles`, como o layout faz em `layout/mod.rs:1248`), desce no `body`,
+e **restaura** ao subir. Assim, num heading/equation/figure **dentro** do `Content::Styled` que o
+`#set …(numbering:)` embrulha (transporte da fatia 1), o walk tem `chain.custom("X.numbering")`
+disponível — a **mesma** fonte que o layout lê.
+
+**Os 3 gates passam a ler a chain (no de-bake, F-5a/Estágio 2):**
+- `compute_heading_auto_toc` lê `chain.custom("heading.numbering")` em vez do param
+  `h.numbering_active` (`introspect.rs:823`).
+- o arm `ElementPayload::Equation` (`introspect.rs:663`) gateia pelo `chain.custom("equation.
+  numbering")` em vez do `numbering_active` do payload.
+- a figura lê `chain.custom("figure.numbering")`.
+
+**Separação gate vs número (a lição do DEBT-60/P359 — eixos distintos).** O introspect-chain serve o
+**gate** (numbering ativo: o heading mostra número? a equação numera?). O **número** (`formatted_
+counter_at`) e o **avanço do contador** (`apply_hierarchical_at("heading")`, **incondicional**,
+P335) **NÃO são tocados**. Para a equation, o counter já é gateado por `numbering_active` (F-2 S2);
+o de-bake move a **fonte** desse gate (payload → chain), **mesmo valor** → content-preserving (não
+muda se/como conta — só de onde lê o gate).
+
+**Aditivo vs remoção.** Esta infra (a chain no walk) é **aditiva** e **verificável** sem o de-bake
+(um teste confirma que a chain no walk tem o custom certo num heading sob `#set numbering`). O
+**de-bake** (remover o campo assado, religar os 3 gates à chain) é o **Estágio 2** — fatiável como
+lote próprio (P364) se a Fase A medir que não cabe com a infra. **content-preserving**: a rede de
+caracterização (+11) é o oráculo.

@@ -94,7 +94,9 @@ where
         // — `None` aqui (fixpoint não exercita lang feature).
         crate::rules::introspect::walk(
             &content, &mut locator, &mut tags,
-            &mut introspector, &mut auto_label_counter, None, None,
+            // P363 (introspect-chain): chain raiz = default_chain (espelha o layout).
+            &mut introspector, &mut auto_label_counter, None,
+            &crate::entities::style_chain::StyleChain::default_chain(), None,
         );
 
         let curr_hash = compute_tags_hash(&tags);
