@@ -1,5 +1,5 @@
 # L0 — Layout: Tabela de Conteúdos
-Hash do Código: 48bf5672
+Hash do Código: ef0abff8
 
 ## Módulo
 `01_core/src/rules/layout/outline.rs`
@@ -19,6 +19,13 @@ Encapsula o braço `Content::Outline`. Lê `headings_for_toc` do
   Passagem 2 (draft). Acrescentado ao fim da linha.
 - Não calcula números de página por si — lê-os do `label_pages` injectado.
   DEBT-12 resolvido via orquestração em 3 passagens em L3.
+- **Número da entrada (P359, DEBT-60 b, paridade vanilla).** A entrada usa
+  `Content::reference(auto-toc-label)`, cujo `resolved_text` é o **número** do
+  heading (`{n}.`, ex. "1.1."), **sem** o supplement "Secção" — definido em
+  `compute_heading_auto_toc` (`rules/introspect.rs`, P359). Headings não-numerados →
+  `resolved_text` vazio → entrada sem número (só o título). Espelha o vanilla, cujo
+  `prefix` de outline formata o numbering e não acrescenta supplement para heading
+  (`model/outline.rs:123-124`). Coberto por `layout_outline_mostra_numero_sem_supplement_seccao`.
 
 ## Critérios de verificação
 - Documento com 3 headings → TOC tem 3 linhas após o "Índice".

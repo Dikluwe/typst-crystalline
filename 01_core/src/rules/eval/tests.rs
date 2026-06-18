@@ -3307,24 +3307,25 @@ mod tests {
     }
 
     #[test]
-    fn multiplos_func_same_kind_ainda_diverge_lacuna_ii() {
-        // **DIVERGÊNCIA ABERTA E DECLARADA (lacuna (ii), NÃO consertada no P356).**
-        // Dois `func` same-kind sobre o mesmo heading: o vanilla acumula ambos
-        // (innermost-first); o crystalline aplica UMA efetiva (a 1ª declarada cujo
-        // output deixa de casar). Isto NÃO é paridade — é a lacuna (ii) (A2/A3,
-        // fatia seguinte; recon `f-recon-composicao-passo-355.md` / `…-354.md §4`).
-        // O teste assere o comportamento ATUAL DECLARADO, não finge acumulação.
+    fn multiplos_func_same_kind_ultima_declarada_vence() {
+        // **Caso 1, lacuna (ii), P358 — PARIDADE (era divergência no P356).** Dois
+        // `func` same-kind sobre o mesmo heading cujo output muda de kind (Sequence):
+        // **uma** func é efetiva — em ambos vanilla e crystalline (a outra não re-casa
+        // o output). O P357 mediu o vanilla 0.14.2 = **"B:T"** (innermost-first: a
+        // ÚLTIMA-declarada vence). Antes do P358 o crystalline dava "A:T" (1ª
+        // declarada) — divergência de ORDEM. O conserto innermost-first
+        // (`node_rules.iter().rev()`) casa o vanilla. (NÃO é acumulação — o vanilla
+        // não acumula func same-kind; recon `f-recon-lacuna-ii-passo-357.md`.)
         let world = MockWorld::new(
             "#show heading: it => [A:] + it.body\n#show heading: it => [B:] + it.body\n\n= T"
         );
         let src = world.source(world.main()).unwrap();
         let c = module_content(&world, &src);
         let t = c.plain_text();
-        // Uma só regra func é efetiva (a 1ª declarada; o output vira Sequence e a 2ª
-        // não re-casa). NÃO acumulam ("A:" XOR "B:", não ambos). Vanilla daria ambos.
-        assert!(t.contains("A:T"), "lacuna (ii): só a 1ª func efetiva: {t:?}");
-        assert!(!t.contains("B:"),
-            "lacuna (ii) DECLARADA: a 2ª func same-kind NÃO acumula (diverge do vanilla): {t:?}");
+        assert!(t.contains("B:T"),
+            "paridade vanilla: a última-declarada (B) vence: {t:?}");
+        assert!(!t.contains("A:"),
+            "a 1ª-declarada (A) não aplica (o output de B não re-casa heading): {t:?}");
     }
 
     // ── Passo 71 — image() integration ──────────────────────────────────────

@@ -1176,6 +1176,31 @@ fn layout_outline_gera_indice_com_titulos() {
 }
 
 #[test]
+fn layout_outline_mostra_numero_sem_supplement_seccao() {
+    // **P359 (DEBT-60 b) — fecha a lacuna de teste.** Antes, NENHUM teste assertava
+    // o número do outline — o que escondeu o supplement "Secção" (e, na probe, o
+    // desaparecimento do número). O outline de headings **numerados** mostra o
+    // NÚMERO ("1.", "1.1."), **NÃO** o supplement "Secção" — paridade com o vanilla
+    // 0.14.2 (cujo `prefix` de outline formata o numbering e não acrescenta
+    // supplement para heading; `model/outline.rs:123-124`).
+    let content = Content::Sequence(vec![
+        Content::outline(),
+        Content::heading_numbered(1, Content::text("Intro")),
+        Content::heading_numbered(2, Content::text("Motiv")),
+    ].into());
+    let _state = introspect(&content);
+    let doc = layout(&content);
+    let text = doc.plain_text();
+
+    assert!(text.contains("Intro") && text.contains("Motiv"),
+        "TOC lista os títulos: {text:?}");
+    assert!(!text.contains("Secção"),
+        "TOC NÃO emite o supplement 'Secção' (paridade vanilla): {text:?}");
+    assert!(text.contains("1.") && text.contains("1.1."),
+        "TOC mostra os números do heading ('1.', '1.1.'): {text:?}");
+}
+
+#[test]
 fn layout_outline_sem_headings_gera_apenas_titulo_ou_vazio() {
     let content = Content::outline();
     let state = introspect(&content);

@@ -88,17 +88,36 @@ Triplo `(id, selector, transform)` armazenado no `EvalContext` durante a avalia�
   `active_guards`; o teto `MAX_SHOW_RULE_DEPTH` é o backstop.
 - `apply_show_rules` faz uma única travessia `map_content` para todos os NodeKind +
   DynKind rules (DEBT-23 ENCERRADO): itera o snapshot de regras dentro da closure.
+- **Ordem das `func` (P358, innermost-first).** A travessia de regras **func** tenta a
+  **última-declarada primeiro** (`node_rules.iter().rev()`), de modo que, no subconjunto
+  onde **uma** func é efetiva, a **última-declarada vence** — paridade com o vanilla
+  (recipes innermost-first, `styles.rs:835` `next_back`; ex.: `#show heading: it=>[A:]…`
+  ⨁ `…[B:]…` → `"B:T"`). É **reordenação**, **não** acumulação: o vanilla **não** acumula
+  múltiplos `func` same-kind (aplica um quando o output muda de kind; **erra** no caso
+  mesmo-kind) — medido no P357. O fold de **show-set** (`Transformation::Style`) mantém a
+  ordem de declaração + `collapse` (a **última-declarada sobrepõe**, como a referência
+  promove) — não é invertido.
 
-## Fora de escopo (registrado)
+## Caso 1, lacuna (ii) — FECHADA (P358): ordem, não acumulação
 
-- **Caso 1, lacuna (ii) — múltiplos `func` same-kind sobre o mesmo elemento** — NÃO
-  materializado. Acumular N func same-kind (cada uma uma vez, innermost-first) exige
-  um guard por-recipe incompatível com o re-apply do modelo α (caso 2, fechado): A2
-  (por-`(RuleId, morph_canon)`, diverge na ordem) ou A3 (por-instância, reabre o α).
-  Fatia seguinte, com a demanda medida e a decisão do dono (recon
-  `f-recon-composicao-passo-355.md`; recon `f-recon-caso1-passo-354.md` §4). Este L0
-  não a especifica. *(A lacuna (i) — show-set + func — foi materializada no P356, ver
-  a ordem em `Transformation::Style` acima.)*
+A medição do P357 (`f-recon-lacuna-ii-passo-357.md`, vanilla 0.14.2 oráculo) estabeleceu
+que o vanilla **NÃO acumula** múltiplos `func` same-kind (aplica **um** quando o output
+muda de kind; **erra** no caso mesmo-kind) e que **não há demanda** na referência (0
+exemplos). Logo a única divergência real era de **ordem**, fechada pelo conserto
+innermost-first (ver invariante acima): a **última-declarada func vence** — paridade com
+o vanilla. **Não há acumulação a reconciliar** — a premissa "vanilla acumula func" (P354,
+herdada do B1) era um conflato com o **show-set** (fold de estilo, = lacuna (i), feita no
+P356). **A2/A3 declinados** (A2 acumularia onde o vanilla erra; A3 reabriria o α/P348
+selado — custo alto, demanda nula).
+
+**Residual (paridade de erro, não buraco).** 2+ `func` same-kind **mesmo-kind-returning**
+(o output re-casa o seletor) → **recursão** → ambos (vanilla e crystalline) **erram** no
+teto (`maximum show rule depth exceeded`) = **caso 2**, já tratado pelo α/teto. Não é
+acumulação; é paridade de erro.
+
+**Gatilho de reabertura** (medido como zero hoje): se surgir um padrão real (pacote/doc)
+onde 2+ `func` same-kind **precisem** acumular com ordem exata, os casos viram testes de
+paridade contra o vanilla e A2/A3 entram nessa hora — não antes (ADR-0107/0108).
 
 ## Layer
 

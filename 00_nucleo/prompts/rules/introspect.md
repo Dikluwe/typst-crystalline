@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 174b4808
+Hash do Código: 0a8de9e2
 
 ## Módulo
 `01_core/src/rules/introspect.rs`
@@ -165,8 +165,22 @@ Vanilla não tem walk explícito sobre `Content`. Usa `comemo` + `convergence::a
 
 Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-30) para o mapa completo de tipos vanilla e quais cristalino materializa.
 
+## auto-toc resolved_text — número, sem supplement (P359, DEBT-60 b)
+
+`compute_heading_auto_toc` produz o `resolved_text` da auto-label `auto-toc-{n}`
+(consumida **só** pelo outline via `reference`) como o **número** do heading
+formatado `{n}.` (ex. `1.`, `1.1.`) quando `numbering_active`, ou `""` quando não.
+**NÃO** acrescenta o supplement "Secção" — o outline mostra o numbering, não a
+cross-reference (paridade vanilla; `model/outline.rs:123-124`: o `prefix` do outline
+não tem supplement para heading). O formato `{n}.` espelha o corpo do heading
+(`layout/mod.rs:720`). **Distinto** de `compute_labelled** (refs de corpo `@heading`),
+que **mantém** "Secção {n}" (correto no corpo) — labels diferentes, stores não
+conflitam.
+
 ## Critérios de verificação
 - `Labelled` após `Heading` → `resolved_labels` contém a chave.
+- **P359**: `auto-toc-{n}` → `resolved_labels` = `"{n}."` (número, **sem** "Secção");
+  o outline mostra o número; `@heading` de corpo mantém "Secção {n}".
 - `Labelled` antes de `Heading` (forward ref) → `resolved_labels` contém
   a chave (porque `walk` percorre o `target` antes de registar).
 - `CounterUpdate { action: Update(5) }` → `flat["equation"] == 5`.

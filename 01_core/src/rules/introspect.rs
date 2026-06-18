@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/introspect.md
-//! @prompt-hash 3940e285
+//! @prompt-hash 15b1586c
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -461,8 +461,14 @@ fn compute_heading_auto_toc<I: Introspector>(
     // `HeadingElem` (escopo léxico via chain) — não mais pelo StateRegistry
     // `numbering_active:heading` (canal global retirado).
     let resolved_text = if numbering_active {
+        // P359 (DEBT-60 b): o número do heading, **sem** o supplement
+        // "Secção" — o outline mostra o numbering (paridade vanilla), não a
+        // cross-reference. Formato `{n}.` espelha o corpo do heading
+        // (`layout/mod.rs:720` usa `{n}. `), para o nº do outline == o nº do
+        // corpo. (O `.` literal é a mesma simplificação pré-existente do corpo —
+        // não aplica o pattern literal; limitação separada, não DEBT-60.)
         intr.formatted_counter_at("heading", location)
-            .map(|prefix| format!("Secção {}", prefix))
+            .map(|n| format!("{}.", n))
             .unwrap_or_default()
     } else {
         String::new()
@@ -2509,7 +2515,9 @@ mod tests {
         let auto_label = Label("auto-toc-1".to_string());
         assert_eq!(
             intr.resolved_label_for(&auto_label),
-            Some("Secção 1"),
+            // P359 (DEBT-60 b): auto-toc resolved_text é o NÚMERO ("1."), sem o
+            // supplement "Secção" — o outline mostra o numbering (paridade vanilla).
+            Some("1."),
             "P196B: Introspector.resolved_labels deve conter auto-toc-1 \
              populado via Tag::Labelled emitida pelo walk arm Heading"
         );
@@ -2622,7 +2630,8 @@ mod tests {
             "P196B: consumer C4 deve obter Some via Introspector path \
              para auto-toc-1 — fallback legacy desnecessário"
         );
-        assert_eq!(via_introspector, Some("Secção 1"));
+        // P359 (DEBT-60 b): número só ("1."), sem supplement "Secção".
+        assert_eq!(via_introspector, Some("1."));
     }
 
     // ── P197B — Walk arm Figure refactor (cenário α) ─────────────────────
@@ -3276,17 +3285,18 @@ mod tests {
 
         let intr = introspect_with_introspector(&content);
 
-        // resolved_labels populated com auto-toc texts via Introspector
-        // path. "Secção 1" para auto-toc-1, "Secção 2" para auto-toc-2.
+        // resolved_labels populated com auto-toc texts via Introspector path.
+        // P359 (DEBT-60 b): NÚMERO só ("1." / "2."), sem supplement "Secção" — o
+        // outline mostra o numbering (paridade vanilla), não a cross-reference.
         assert_eq!(
             intr.resolved_labels.get(&Label("auto-toc-1".to_string())),
-            Some("Secção 1"),
-            "compute_heading_auto_toc via Introspector path: 1ª heading → 'Secção 1'",
+            Some("1."),
+            "compute_heading_auto_toc via Introspector path: 1ª heading → '1.'",
         );
         assert_eq!(
             intr.resolved_labels.get(&Label("auto-toc-2".to_string())),
-            Some("Secção 2"),
-            "compute_heading_auto_toc via Introspector path: 2ª heading → 'Secção 2'",
+            Some("2."),
+            "compute_heading_auto_toc via Introspector path: 2ª heading → '2.'",
         );
     }
 }

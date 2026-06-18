@@ -260,6 +260,24 @@ limpeza, não correção (as réguas não divergem sob confinamento), e o de-bak
 contador (`1.1` continuaria). Logo este desvio é débito **separado**, candidato a diagnóstico/lote
 próprio. **M** (manter; medir a fonte do stepping e do supplement antes de corrigir).
 
+**Atualização P359 (medido + decisão do dono):**
+- **(a) Contador — ACEITE como divergência consciente medida (não corrigir).** A causa é o **P335
+  (Lote F-2 S5): o contador de heading é INCONDICIONAL por decisão deliberada** (+ gate no
+  *display*, não no *step*); ~20 testes de introspect/layout encodam isso (ex.
+  `introspector_consistencia_heading`). Gatear o step em `numbering_active` reverte o P335 e flipa
+  os ~20 — re-escopo, não conserto. **Medição de demanda (P359):** varredura de `docs/` → **6 usos
+  de `set heading(numbering:)`, TODOS document-wide; ZERO confinados** → numbering confinado **não
+  é idiomático**; a divergência (`1.1`≠`0.1`) só aparece no caso misto/confinado (construído). A
+  arquitetura P335 é **observavelmente igual** ao vanilla em todos os casos comuns. Reverter pagaria
+  caro por demanda nula (anti-ADR-0107). **Decisão do dono (P359): aceitar.** Gatilho de reabertura:
+  se numbering confinado/misto virar padrão real medido. **(a) permanece como divergência registrada,
+  não como bug a fechar.**
+- **(b) Supplement "Secção" — EM CORREÇÃO (lote isolado P359).** Medido independente de (a) (probe
+  só em `outline.rs` → 0 flips do contador). O número do TOC vem embutido no `resolved_text`
+  "Secção {n}" (partilhado com refs de corpo); fix = fiar a Location/número na entrada do TOC
+  (`headings_for_toc`/`HeadingForToc`) → outline mostra o número sem "Secção" + teste do número no
+  outline (lacuna: nenhum teste o assertia, escondendo o supplement). Contido ao caminho do TOC.
+
 ## DEBT-59 — Flag de erro completo: exposição CLI + fio `RunIntent`→L1 — EM ABERTO (P350c)
 
 A **capacidade interna** da flag de "erro completo" está **feita** (P350c): quando

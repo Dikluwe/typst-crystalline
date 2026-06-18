@@ -147,9 +147,14 @@ pub(crate) fn apply_show_rules(
                 if full_error { vec![work.morph_canon()] } else { Vec::new() };
             let mut cycle = false;
             loop {
-                // Aplicar a PRIMEIRA regra que casa `work`, uma vez.
+                // Aplicar a primeira regra func que casa `work`, uma vez, em ordem
+                // **innermost-first** (última-declarada primeiro — P358): no
+                // subconjunto onde uma func é efetiva, a última-declarada vence,
+                // casando o vanilla (`styles.rs:835` `next_back`). É reordenação, não
+                // acumulação (o vanilla não acumula func same-kind — P357). O fold de
+                // show-set (abaixo) NÃO é invertido (mantém last-declared-overrides).
                 let mut produced: Option<Content> = None;
-                for rule in &node_rules {
+                for rule in node_rules.iter().rev() {
                     // Saltar se esta regra está em execução (anti-recursão na criação
                     // aninhada — Lote F-3 inc-2; guard por `RuleId`, vale p/ DynKind).
                     if engine.active_guards.contains(&rule.id) {
