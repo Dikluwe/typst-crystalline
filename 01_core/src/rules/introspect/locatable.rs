@@ -129,6 +129,8 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Align(_)
         | Content::Place(_)
         | Content::Styled(_, _)
+        | Content::Strong(_)
+        | Content::Emph(_)
         | Content::Divider(_)
         | Content::Terms(_)
         | Content::TermItem(_)

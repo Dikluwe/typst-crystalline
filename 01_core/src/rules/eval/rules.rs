@@ -65,12 +65,10 @@ fn unsupported_target_warn(target: &str) -> (String, String) {
 /// de show-set: ambos usam exatamente o mesmo critério de match. `Selector::Text`
 /// nunca casa aqui (tratado por `map_text`).
 fn selector_matches(work: &Content, selector: &Selector) -> bool {
-    // Passo 101: `show strong/emph` casam `Content::Styled` com bold/italic activo
-    // (F-4: `delta()` tipado, não `iter()`).
-    let is_bold_styled = matches!(work, Content::Styled(_, ss)
-        if ss.delta().bold == Some(true));
-    let is_italic_styled = matches!(work, Content::Styled(_, ss)
-        if ss.delta().italic == Some(true));
+    // F-5b fatia 1 (P371): `show strong/emph` casam as **variantes próprias**
+    // `Content::Strong`/`Emph` (S1, por tipo) — o colapso P101 (que casava
+    // `Content::Styled` com bold/italic) foi superado. `#set text(bold)`
+    // (`Styled[Bold]`) **não** casa `show strong` (fidelidade 0107).
     match selector {
         Selector::NodeKind(kind) => matches!(
             (work, kind),
@@ -79,8 +77,9 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
             | (Content::Raw { .. },      NodeKind::Raw)
             | (Content::Equation { .. }, NodeKind::Equation)
             | (Content::ListItem(_),     NodeKind::ListItem)
-        ) || (matches!(kind, NodeKind::Strong) && is_bold_styled)
-          || (matches!(kind, NodeKind::Emph)   && is_italic_styled),
+            | (Content::Strong(_),       NodeKind::Strong)
+            | (Content::Emph(_),         NodeKind::Emph)
+        ),
         Selector::DynKind(name) =>
             matches!(work, Content::Dynamic(e) if e.dyn_kind() == name),
         Selector::Text(_) => false,

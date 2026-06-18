@@ -168,9 +168,10 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
                 seq.iter().map(|c| materialize_time(c, intr, location)).collect::<Vec<_>>().into()
             )
         }
-        // Passo 101: `Content::Strong` e `Content::Emph` removidos.
-        // O arm `Content::Styled` abaixo cobre ambos (propaga recursivamente
-        // preservando os estilos).
+        // F-5b fatia 1 (P371): strong/emph voltaram a variantes próprias (o
+        // colapso P101 foi superado); reconstroem via ctor, recursando no body.
+        Content::Strong(e) => Content::strong(materialize_time(&e.body, intr, location)),
+        Content::Emph(e)   => Content::emph(materialize_time(&e.body, intr, location)),
         // Modelo D (P316): Heading delegado; reconstrói via ctor.
         Content::Heading(h) => Content::heading(h.level, materialize_time(&h.body, intr, location)),
         // Modelo D (Lote 3 P318): destructure de Arc<Elem> + reconstrução via construtor.
@@ -818,6 +819,11 @@ pub(crate) fn walk(
                 walk(item, locator, tags, intr, auto_label_counter, lang, chain, None);
             }
         }
+
+        // F-5b fatia 1 (P371): strong/emph são transparentes ao walk (morfologia,
+        // sem custom/locatável) — descem no body, como o arm `Styled`.
+        Content::Strong(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+        Content::Emph(e)   => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
 
         Content::Heading(h) => {
             // Modelo D (P316): Heading delegado; re-bind dos campos.

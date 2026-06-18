@@ -1286,6 +1286,31 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.style = prev_style;
             }
 
+            // F-5b fatia 1 (P371): strong/emph são variantes próprias (morfologia,
+            // 0107). O render (bold/italic) **replica** o arm `Styled` acima — push
+            // de `Bold(true)`/`Italic(true)` na chain, layout do body, restore →
+            // output byte-idêntico ao `Styled[Bold/Italic]` de antes (paridade visual).
+            Content::Strong(e) => {
+                use crate::entities::style::{Style, Styles};
+                let prev_chain = self.chain.clone();
+                let prev_style = self.style.clone();
+                self.chain = self.chain.push_styles(&Styles::from_iter([Style::Bold(true)]));
+                self.style = TextStyle::from(&self.chain);
+                self.layout_content(&e.body);
+                self.chain = prev_chain;
+                self.style = prev_style;
+            }
+            Content::Emph(e) => {
+                use crate::entities::style::{Style, Styles};
+                let prev_chain = self.chain.clone();
+                let prev_style = self.style.clone();
+                self.chain = self.chain.push_styles(&Styles::from_iter([Style::Italic(true)]));
+                self.style = TextStyle::from(&self.chain);
+                self.layout_content(&e.body);
+                self.chain = prev_chain;
+                self.style = prev_style;
+            }
+
             // ── Passo 154B (ADR-0060 Fase 1) — terms + divider ──────────────
             Content::Divider(_) => {
                 use crate::entities::geometry::Stroke;

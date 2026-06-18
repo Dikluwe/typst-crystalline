@@ -31,6 +31,8 @@ use crate::entities::elements::Element;
 use crate::entities::elements::DynElement;
 use crate::entities::elements::divider::DividerElem;
 use crate::entities::elements::heading::HeadingElem;
+use crate::entities::elements::strong::StrongElem;
+use crate::entities::elements::emph::EmphElem;
 use crate::entities::elements::math_styled::MathStyledElem;
 // Lote 2 P317 — família math element-shaped (11 variantes).
 use crate::entities::elements::math_accent::MathAccentElem;
@@ -136,6 +138,14 @@ pub enum Content {
     /// **Modelo D (ADR-0105, P316)**: lógica delegada a
     /// `entities::elements::heading::HeadingElem` (locatável).
     Heading(Arc<HeadingElem>),
+    /// **`strong` (`*bold*`) — F-5b fatia 1 (P371, §3a.12)**: variante própria
+    /// (modelo D), distinta de `Styled` (era `Styled([Bold])` antes do retorno ao
+    /// modelo de variantes que a 0026 `:63` prescreve). Dá a fidelidade ADR-0107
+    /// (`*bold* ≠ #set text(bold)`). Render (bold) replicado no layout.
+    Strong(Arc<StrongElem>),
+    /// **`emph` (`_italic_`) — F-5b fatia 1 (P371, §3a.12)**: par simétrico do
+    /// `strong` (variante própria, modelo D). Era `Styled([Italic])`.
+    Emph(Arc<EmphElem>),
 
     // ── Passo 23 ────────────────────────────────────────────────────────────
     /// Código raw inline ou em bloco (`` `...` `` ou ```` ``` ... ``` ````).
@@ -1032,19 +1042,20 @@ impl Content {
     /// - 0 partes → `Empty`
     /// - 1 parte → desembrulha (evita `Sequence([x])`)
     /// - n > 1 → `Sequence(parts)`
-    /// Negrito — produz `Content::Styled([Style::Bold(true)], body)`
-    /// (Passo 101, ADR-0038/0039). A variante `Content::Strong` foi
-    /// removida do enum; os callers continuam a usar este construtor.
+    /// Negrito (`*bold*`) — **F-5b fatia 1 (P371, §3a.12)**: produz a **variante
+    /// própria** `Content::Strong` (modelo D), distinta de `Styled` (era
+    /// `Styled([Bold])` no colapso P101, agora **superado** pelo modelo de
+    /// variantes que a 0026 `:63`/0105-D prescrevem). Render (bold) replicado no
+    /// layout; o `==`/`#show`/`morph_canon` distinguem `strong` de `#set text(bold)`
+    /// (fidelidade ADR-0107).
     pub fn strong(body: Content) -> Self {
-        use crate::entities::style::{Style, Styles};
-        Self::Styled(Box::new(body), Styles::from_iter([Style::Bold(true)]))
+        Self::Strong(Arc::new(StrongElem::new(body)))
     }
 
-    /// Itálico — produz `Content::Styled([Style::Italic(true)], body)`
-    /// (Passo 101, ADR-0038/0039).
+    /// Itálico (`_italic_`) — **F-5b fatia 1 (P371, §3a.12)**: variante própria
+    /// `Content::Emph` (era `Styled([Italic])`).
     pub fn emph(body: Content) -> Self {
-        use crate::entities::style::{Style, Styles};
-        Self::Styled(Box::new(body), Styles::from_iter([Style::Italic(true)]))
+        Self::Emph(Arc::new(EmphElem::new(body)))
     }
     pub fn heading(level: u8, body: Content) -> Self {
         Self::Heading(Arc::new(HeadingElem::new(level, body)))
@@ -1603,6 +1614,9 @@ impl Content {
             // Block/Pad/Boxed). Antes caía em `_ => false` (styled-de-vazio
             // reportava não-vazio incorretamente).
             Self::Styled(body, _) => body.is_empty(),
+            // F-5b fatia 1 (P371): strong/emph vazios se o body for (como Styled).
+            Self::Strong(e) => e.is_empty(),
+            Self::Emph(e)   => e.is_empty(),
             _ => false,
         }
     }
@@ -1623,6 +1637,9 @@ impl Content {
             Self::StateDisplay(e)           => e.plain_text(),
             Self::CounterDisplayCallback(e) => e.plain_text(),
             Self::Heading(h) => h.plain_text(),
+            // F-5b fatia 1 (P371): strong/emph transparentes ao plain_text (só body).
+            Self::Strong(e) => e.plain_text(),
+            Self::Emph(e)   => e.plain_text(),
             Self::Raw(e)             => e.plain_text(),
             // Modelo D (Lote 3 P318): família lista/termos delega ao elemento.
             Self::ListItem(e) => e.plain_text(),
@@ -1748,6 +1765,10 @@ impl PartialEq for Content {
             (Self::Sequence(a),          Self::Sequence(b))          => a.as_ref() == b.as_ref(),
             // Passo 101: Content::Strong/Emph removidos — Content::Styled cobre.
             (Self::Heading(a), Self::Heading(b)) => a == b,
+            // F-5b fatia 1 (P371): strong/emph variantes próprias — `==` por tipo
+            // (distinto de `Styled[Bold]` → `strong ≠ #set text`, fidelidade 0107).
+            (Self::Strong(a), Self::Strong(b)) => a == b,
+            (Self::Emph(a),   Self::Emph(b))   => a == b,
             // Modelo D (Lote 7 P322): Raw delega ao `Arc<…Elem>`.
             (Self::Raw(a), Self::Raw(b)) => a == b,
             (Self::ListItem(a),          Self::ListItem(b))          => a == b,
@@ -1892,6 +1913,9 @@ impl Content {
         match (self, field) {
             // Modelo D (P316): Heading delega ao elemento.
             (Content::Heading(h), f) => h.get_field(f),
+            // F-5b fatia 1 (P371): strong/emph delegam (ex.: `it.body`).
+            (Content::Strong(e), f) => e.get_field(f),
+            (Content::Emph(e),   f) => e.get_field(f),
             (Content::Figure(e),  "body")  => Some(Value::Content(e.body.clone())),
             // Lote F-1 (P334): leitura de campos da fronteira dinâmica (S7) —
             // o que o closure de `#show` usará (F-2+).
@@ -1923,6 +1947,8 @@ impl Content {
             // arm Content::Styled abaixo (que já propaga transform recursivamente).
             // Modelo D (P316): Heading delega ao elemento.
             Content::Heading(h) => h.map_content(transform)?,
+            Content::Strong(e) => e.map_content(transform)?,
+            Content::Emph(e)   => e.map_content(transform)?,
             // Modelo D (Lote 3 P318): família lista/termos delega ao elemento.
             Content::ListItem(e) => e.map_content(transform)?,
             Content::EnumItem(e) => e.map_content(transform)?,
@@ -2142,6 +2168,8 @@ impl Content {
             }
             // Modelo D (P316): Heading delega ao elemento.
             Content::Heading(h) => h.map_text(transform),
+            Content::Strong(e) => e.map_text(transform),
+            Content::Emph(e)   => e.map_text(transform),
             // Passo 101: Content::Strong/Emph removidos — cobertos pelo
             // arm Content::Styled abaixo (map_text recursivo).
             Content::Labelled(e) => e.map_text(transform),
@@ -2354,6 +2382,29 @@ mod tests {
     }
 
     #[test]
+    fn f5b_strong_distinto_de_set_text_bold() {
+        // F-5b fatia 1 (P371): `strong` é variante própria, **distinta** do
+        // `Styled[Bold]` que `#set text(bold)` produz → `*bold* ≠ #set text(bold)`
+        // (fidelidade ADR-0107; o vanilla trata StrongElem ≠ StyledElem). Antes do
+        // retorno ao modelo de variantes (colapso P101), ambos eram `Styled[Bold]`
+        // e davam `==` (divergência).
+        use crate::entities::style::{Style, Styles};
+        let strong = Content::strong(Content::text("x"));
+        let set_text_bold =
+            Content::Styled(Box::new(Content::text("x")), Styles::from_iter([Style::Bold(true)]));
+        assert_ne!(strong, set_text_bold, "strong ≠ #set text(bold) — distinção de tipo (0107)");
+        assert!(matches!(strong, Content::Strong(_)), "strong é variante própria");
+        // emph idem, e strong ≠ emph (tipos distintos).
+        assert_ne!(
+            Content::strong(Content::text("x")),
+            Content::emph(Content::text("x")),
+            "strong ≠ emph (tipos distintos, como StrongElem ≠ EmphElem no vanilla)"
+        );
+        // Auto-igualdade preservada (o α depende disto).
+        assert_eq!(Content::strong(Content::text("x")), Content::strong(Content::text("x")));
+    }
+
+    #[test]
     fn heading_level_clamped() {
         assert!(matches!(Content::heading(0, Content::Empty), Content::Heading(h) if h.level == 1));
         assert!(matches!(Content::heading(9, Content::Empty), Content::Heading(h) if h.level == 6));
@@ -2511,7 +2562,7 @@ mod tests {
 
     #[test]
     fn map_text_desce_em_strong() {
-        // Passo 101: `Content::strong(..)` produz `Content::Styled(.., [Bold])`.
+        // F-5b fatia 1 (P371): `Content::strong(..)` produz `Content::Strong` (variante própria).
         let content = Content::strong(Content::text("hello"));
         let result = content.map_text(&mut |s| s.to_uppercase());
         assert_eq!(result, Content::strong(Content::text("HELLO")));
@@ -2563,16 +2614,18 @@ mod tests {
 
     #[test]
     fn map_content_bottom_up_pai_ve_filhos_transformados() {
-        // Passo 101: `Content::strong` passou a `Content::Styled([Bold], body)`.
+        // F-5b fatia 1 (P371): `Content::strong` é variante própria `Content::Strong`
+        // (o colapso P101 → `Styled[Bold]` foi superado). O bottom-up: o pai
+        // (`Strong`) vê o filho já transformado.
         let content = Content::strong(Content::text("original"));
 
         let result = content.map_content(&mut |node| {
             match node {
                 Content::Text(s, _) => Ok(Some(Content::text(s.to_uppercase()))),
-                Content::Styled(body, _) => {
-                    let text = body.plain_text();
+                Content::Strong(e) => {
+                    let text = e.body.plain_text();
                     assert_eq!(text, "ORIGINAL",
-                        "Styled([Bold]) deve receber filho já transformado: {:?}", text);
+                        "Strong deve receber filho já transformado: {:?}", text);
                     Ok(None)
                 },
                 _ => Ok(None),

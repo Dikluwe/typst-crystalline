@@ -21,6 +21,8 @@
 
 pub mod divider;
 pub mod heading;
+pub mod strong;
+pub mod emph;
 pub mod math_styled;
 // Lote 2 P317 — família math element-shaped (11 variantes).
 pub mod math_accent;

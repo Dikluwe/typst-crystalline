@@ -1,5 +1,5 @@
 # Prompt L0 — F sob a fronteira E1 (`Content::Dynamic` + chain única)
-Hash do Código: a4523152
+Hash do Código: 7ac2e2c2
 
 **Camada**: L1 · **Módulos**: `01_core/src/entities/{content,elements/mod,style,style_chain,value}.rs`
 **Decisão de origem**: **ADR-0106** (fronteira de extensão E1) + ADR-0105 (modelo D
@@ -740,6 +740,58 @@ campo opcional. Público typst puro-`.typ`: **fora** (P369, fronteira).
 > que o `.typ` puro do vanilla permite. **O público typst está completo pela fronteira da
 > linguagem.** P369 **fecha sem código**. **Com ele, o F está completo pelos princípios — exceto o
 > F-5b** (lote arquitetural dedicado, DEBT-61).
+
+### 3a.12 — F-5b fatia (1): distinção de tipo `strong`/`emph`/`text` (P371)
+
+> **Estatuto.** Devolve a **distinção semântica de tipo** que o colapso do **P101** removeu, dando
+> à **0107** a fidelidade ao vanilla (`*bold* ≠ _italic_ ≠ #set text X ≠ X`). **Não é emenda de
+> ADR** (P370: conflito **aparente**): a forma escolhida — **variante própria, modelo D** — é o que
+> a **0026 (`:63`)** e a **0105-D** já **prescrevem**; o **vtable** que a 0026 rejeita **não** é
+> usado (variante de enum = distinção **estática**, `match` exaustivo preservado). **Nota: o colapso
+> P101 fica superado** por este retorno ao modelo de variantes. **Fatia 2 (de-bake do render `#set
+> text`) fica fora.**
+
+**A forma (medida P371, decisão do dono): variante própria (modelo D).**
+- `Content::Strong(Arc<StrongElem>)` e `Content::Emph(Arc<EmphElem>)` (novas variantes); módulos
+  `entities/elements/strong.rs`/`emph.rs` com `StrongElem{ body: Content }`/`EmphElem{ body }`
+  implementando o `trait Element` (`plain_text`/`is_empty`/`map_content`/`map_text` delegam ao
+  body) — o padrão D dos nativos (Heading/Equation/Figure). **Sem vtable/`dyn`/proc-macro.**
+- **Hub (~9 sítios exaustivos × 2 = ~18 arms uniformes):** `plain_text`, `is_empty`, `map_content`,
+  `map_text`, `eq`/`hash_content`, `morph_canon`, `locatable`, `extract_payload`, `get_field` —
+  cada um ganha `Content::Strong(e) => e.<m>()` / `Content::Emph(e) => …` (delegação, como Heading).
+- **Construtores** (`content.rs`): `Content::strong(body)` → `Self::Strong(Arc::new(StrongElem{body}))`
+  (era `Styled([Bold])`); `emph` idem.
+- **Eval** (`markup.rs` `eval_strong`/`eval_emph`): **inalterado** no `eval_body_with_delta`
+  (o bold/italic **assado** nos `Text` filhos **fica** — é o mecanismo de render, intocado nesta
+  fatia; de-baká-lo é a fatia 2). Só o `Content::strong/emph` final muda (variante).
+- **Render idêntico (layout):** arm `Content::Strong(e)` **replica** o arm `Content::Styled`
+  (`mod.rs:1279-1287`) com `Styles::from_iter([Style::Bold(true)])` — push na chain, re-sync
+  `self.style`, layout do body, restore. `Emph` idem com `Italic(true)`. **Output byte-idêntico**
+  ao `Styled[Bold/Italic]` de antes (paridade visual, rede de caracterização).
+- **`#show strong`/`emph`** (`eval/rules.rs:70-83`): `is_bold_styled`/`is_italic_styled` (que
+  detectavam `Styled` com Bold/Italic) → passam a casar `Content::Strong`/`Content::Emph`
+  **diretamente** (por variante, S1).
+- **`morph_canon`:** Strong/Emph são **mantidos** (morfologia) e recursam no body — distintos do
+  `Styled[Bold]` (que o `#set text` produz) → `strong X ≠ #set text X` (a fidelidade 0107). A
+  auto-igualdade (`Strong(x) == Strong(x)`) preserva-se.
+- **`==` (vira, S5b):** `Content::Strong(a) == Content::Strong(b)` sse `a==b`; `Strong ≠ Styled[Bold]`
+  (variantes distintas) → `strong X ≠ #set text X` (hoje `==`, divergência). As asserções que
+  codificavam o `==` atual viram, **declaradas e justificadas** (poucas/nenhuma direta — a
+  divergência não era testada explicitamente).
+
+**GATE DURO do α (P371 Estágio 2).** O `morph_canon` serve o α-fixpoint (`rules.rs:229`). A
+distinção **mantém** Strong/Emph como morfologia (como já mantinha o `Styled[Bold]` não-vazio) →
+a terminação **não muda**. **Prova:** rodar o **caso 2** (α, P342–P350c) + a **rede +11**, verdes
+**sem alteração**. **Se reabrir → reverter** (a fatia 1 não vale reabrir o caso 2).
+
+**Fronteira fatia 2.** Esta fatia é **só o tipo** (morfologia); o de-bake do render `#set text` (o
+`custom`-vs-tipado do `morph_canon`, P366 #1) **fica fora**. Não se entrelaçam (o bold assado dos
+`Text` filhos permanece; é a fatia 2 que o de-baka).
+
+**Dimensão.** +2 variantes de enum, +2 módulos, ~18 arms de hub (uniformes/delegação), 2 arms de
+layout (render-replica), o match de `#show` (2), o `morph_canon` (2), os construtores (2). A lente
+pode ganhar arestas `content→elements::strong/emph` — **não é regressão de atomização** (a
+0026/0105 preveem variantes; é o modelo prescrito; registrar o delta).
 
 ### 3a.5 — O registro (os dois públicos, sem global — pureza L1)
 
