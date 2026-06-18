@@ -323,18 +323,16 @@ fn eval_markup(
     let mut double_open = true; // true = próximo `"` é open
     let mut single_open = true;
 
-    // β1 fatia 1 (P339, L0 §3a.8): snapshot dos 3 customs de numbering à entrada
-    // deste corpo, para detectar um `#set …(numbering:)` local e embrulhar o
-    // resto do escopo léxico num `Content::Styled` (transporte aditivo
-    // `StyledElem`-scoped). Só o #set muta `engine.styles` neste loop
-    // (strong/emph/heading usam `local_styles`).
-    const NUM_KEYS: [&str; 3] =
-        ["heading.numbering", "equation.numbering", "figure.numbering"];
-    let snap: [Option<crate::entities::value::Value>; 3] = [
-        engine.styles.custom(NUM_KEYS[0]).cloned(),
-        engine.styles.custom(NUM_KEYS[1]).cloned(),
-        engine.styles.custom(NUM_KEYS[2]).cloned(),
-    ];
+    // β1 fatia 1 (P339, §3a.8) + F-item3 (P368, §3a.11): snapshot do **canal custom
+    // inteiro** à entrada deste corpo, para detectar um `#set` local (numbering OU
+    // prop de elemento de usuário) e embrulhar o resto do escopo léxico num
+    // `Content::Styled` (transporte aditivo `StyledElem`-scoped). Generaliza o
+    // antigo snapshot só-de-NUM_KEYS: o custom é transparente à morfologia
+    // (`is_semantically_empty` ignora-o, P366), logo carregar qualquer custom é
+    // morph-safe. Só o #set muta `engine.styles` neste loop (strong/emph/heading
+    // usam `local_styles`).
+    let snap_customs: Vec<(ecow::EcoString, crate::entities::value::Value)> =
+        engine.styles.collapse().custom;
     let mut wrap_start: Option<usize> = None;
 
     for child in node.children() {
@@ -408,29 +406,29 @@ fn eval_markup(
             }
         }
 
-        // β1: detectar o #set numbering — quando um custom novo aparece (vs o
-        // início deste corpo), o escopo a embrulhar começa nas partes seguintes.
-        if wrap_start.is_none()
-            && NUM_KEYS
-                .iter()
-                .enumerate()
-                .any(|(i, k)| engine.styles.custom(k) != snap[i].as_ref())
-        {
+        // β1+F-item3: detectar um #set (numbering ou prop de usuário) — quando o
+        // canal custom muda (vs o início deste corpo), o escopo a embrulhar começa
+        // nas partes seguintes.
+        if wrap_start.is_none() && engine.styles.collapse().custom != snap_customs {
             wrap_start = Some(parts.len());
         }
     }
 
-    // β1: embrulha o resto do escopo num `Content::Styled` carregando o custom
-    // (transporte aditivo; o baking permanece autoritativo até o F-5; `f3s3`
-    // intocado — é `#show`). Caminho duplo chain↔assado, paridade testada.
+    // β1+F-item3: embrulha o resto do escopo num `Content::Styled` carregando os
+    // customs que mudaram (transporte aditivo, morph-safe; numbering E props de
+    // usuário). O consumidor lê pela chain.
     if let Some(start) = wrap_start {
         let tail = parts.split_off(start);
+        let cur_customs = engine.styles.collapse().custom;
         let mut styles = crate::entities::style::Styles::new();
-        for (i, k) in NUM_KEYS.iter().enumerate() {
-            if let Some(v) = engine.styles.custom(k) {
-                if Some(v) != snap[i].as_ref() {
-                    styles = styles.push_custom(*k, v.clone());
-                }
+        for (k, v) in &cur_customs {
+            let changed = snap_customs
+                .iter()
+                .find(|(sk, _)| sk == k)
+                .map(|(_, sv)| sv != v)
+                .unwrap_or(true);
+            if changed {
+                styles = styles.push_custom(k.clone(), v.clone());
             }
         }
         parts.push(Content::Styled(Box::new(Content::sequence(tail)), styles));

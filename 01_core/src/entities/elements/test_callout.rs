@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/f_fronteira_e1.md
-//! @prompt-hash 11ab6782
+//! @prompt-hash b4211b24
 //! @layer L1
 //! @updated 2026-06-12
 //!
@@ -96,17 +96,24 @@ impl Element for CalloutElem {
 #[derive(Clone, PartialEq, Hash, Debug)]
 pub struct BadgeElem {
     pub label: EcoString,
+    /// **F-item3 (P368)** — campo **opcional setável** pela chain. `None` =
+    /// não-construído → resolve-se de `#set badge(note:)` (mapa aberto) no layout.
+    /// Afeta o `plain_text` (logo o output observável), provando a capacidade.
+    pub note: Option<EcoString>,
 }
 
 impl BadgeElem {
     pub fn new(label: impl Into<EcoString>) -> Self {
-        Self { label: label.into() }
+        Self { label: label.into(), note: None }
     }
 }
 
 impl Element for BadgeElem {
     fn plain_text(&self) -> String {
-        self.label.to_string()
+        match &self.note {
+            Some(n) => format!("{} ({})", self.label, n),
+            None => self.label.to_string(),
+        }
     }
     fn map_content<F>(&self, _t: &mut F) -> SourceResult<Content>
     where F: FnMut(&Content) -> SourceResult<Option<Content>> {
@@ -116,8 +123,28 @@ impl Element for BadgeElem {
     where F: FnMut(&str) -> String {
         Content::dynamic(self.clone())
     }
+    fn get_field(&self, field: &str) -> Option<Value> {
+        match field {
+            "label" => Some(Value::Str(self.label.clone())),
+            "note"  => self.note.clone().map(Value::Str),
+            _ => None,
+        }
+    }
     fn dyn_kind_name(&self) -> &'static str {
         "badge"
+    }
+
+    /// F-item3 (P368): `note` opcional resolve-se da chain (`#set badge(note:)`).
+    /// Precedência: construído explícito (`Some`) vence; senão lê `get("note")`.
+    fn resolve_settable(&self, get: &dyn Fn(&str) -> Option<Value>) -> Content {
+        if self.note.is_some() {
+            return Content::dynamic(self.clone()); // explícito vence
+        }
+        let note = match get("note") {
+            Some(Value::Str(s)) => Some(s),
+            _ => None,
+        };
+        Content::dynamic(BadgeElem { label: self.label.clone(), note })
     }
 }
 

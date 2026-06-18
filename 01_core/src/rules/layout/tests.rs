@@ -127,6 +127,65 @@ fn f3_dynamic_element_renderiza_body_fecha_debt_c2() {
     );
 }
 
+// ── F-item3 (P368) — `#set <elemento-de-usuário>(prop:)` pelo mapa aberto ─────
+// O elemento de usuário lê uma prop **opcional** da chain (`custom`), com
+// precedência **construído explícito > chain > default**. Prova a extensibilidade
+// (a chain como fonte de estilo para props de usuário). O `badge` renderiza via
+// `plain_text` (sem body), logo a prop resolvida é observável no output.
+
+fn badge_note_chain(note: &str) -> crate::entities::style::Styles {
+    crate::entities::style::Styles::new().push_custom(
+        "badge.note",
+        crate::entities::value::Value::Str(note.into()),
+    )
+}
+
+#[test]
+fn f_item3_set_badge_note_resolve_da_chain() {
+    use crate::entities::elements::test_callout::BadgeElem;
+    // `#set badge(note: "X")` viaja como `Content::Styled{custom badge.note=X}`;
+    // o badge (construído SEM note) resolve-o da chain → output "L (X)".
+    let content = Content::Styled(
+        Box::new(Content::dynamic(BadgeElem::new("L"))),
+        badge_note_chain("nota-da-chain"),
+    );
+    let doc = layout(&content);
+    assert!(
+        doc.plain_text().contains("L (nota-da-chain)"),
+        "badge sem note deve resolver `note` da chain (#set): '{}'",
+        doc.plain_text()
+    );
+}
+
+#[test]
+fn f_item3_construido_explicito_vence_a_chain() {
+    use crate::entities::elements::test_callout::BadgeElem;
+    // Precedência (vanilla: explícito > #set): um badge com `note` construído
+    // ignora o `#set badge(note:)` da chain.
+    let content = Content::Styled(
+        Box::new(Content::dynamic(BadgeElem {
+            label: "L".into(),
+            note: Some("own".into()),
+        })),
+        badge_note_chain("da-chain"),
+    );
+    let doc = layout(&content);
+    assert!(
+        doc.plain_text().contains("L (own)") && !doc.plain_text().contains("da-chain"),
+        "note construído explícito vence o #set da chain: '{}'",
+        doc.plain_text()
+    );
+}
+
+#[test]
+fn f_item3_sem_set_badge_sem_note() {
+    use crate::entities::elements::test_callout::BadgeElem;
+    // Sem `#set` (sem o transporte), o badge não tem note → só o label.
+    let doc = layout(&Content::dynamic(BadgeElem::new("L")));
+    let t = doc.plain_text();
+    assert!(t.contains("L") && !t.contains("("), "sem #set, sem note: '{t}'");
+}
+
 // ── P204D (M8) — Sentinel + E2E tests para Position concrete ──────────────
 //
 // Confirmam que tipo `Position` existe, que `LayouterRuntimeState` ganhou

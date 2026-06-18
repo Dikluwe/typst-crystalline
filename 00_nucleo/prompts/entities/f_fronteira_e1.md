@@ -672,6 +672,54 @@ Candidato a **fatiar** (canal+transporte / remoção). O dono reaprova o desenho
 > deste de-bake. O F-5b volta como **lote arquitetural dedicado** (modelo strong/emph/styled + α),
 > não como de-bake. Nenhum `.rs` escrito.
 
+### 3a.11 — Item (3): `#set <elemento-de-usuário>(prop:)` — a extensibilidade (P368)
+
+> **Estatuto.** **Realiza** o §3b.1 (o canal aberto + a resolução *instância → chain → default*)
+> para o `#set` de props de **elemento de usuário** — o único item do F-B que era
+> **extensibilidade** e não atomização. Decidido pelo dono (P362). **Adição de capacidade**
+> (não de-bake; não content-preserving — acrescenta um caminho que não existia). Escopo P368 =
+> **set + read + fixture** (a unidade mínima não-inerte); o **público typst puro-`.typ`** é
+> fronteira (P369).
+
+**Oráculo vanilla (P368 Fase A).** `#set Elem(field: v)` → `target.set(engine, args)` põe um
+`Style` na chain (`typst-eval/rules.rs:23`); o campo do elemento resolve-se da chain.
+**Precedência: construtor explícito > `#set` > default** — exatamente o "instância → chain →
+default" do §3b.1.
+
+**O caminho (medido).** **Set:** `eval_set_rule` cai em `unsupported_target_warn` para alvo
+não-nativo (`rules.rs:501`); o registry **não** está no `Engine`, mas os user-elements estão em
+`scopes` como `Func::element` (`eval/mod.rs:265`). **Read:** o layout do `Content::Dynamic` lê
+**só campos construídos** (`dyn_get_field`, `layout/mod.rs:538`), nunca a chain. **Demo:** o
+`tone` do `callout` é obrigatório (sempre explícito) → exige um campo **opcional** para `#set`
+ser observável.
+
+**O desenho (forma decidida pela medição).**
+- **Set** — `eval_set_rule`, para um `target` que resolve em `scopes` a um `Func::element`
+  (user-element registrado), em vez do warn, **empurra `("<kind>.<prop>", Value)` no
+  `engine.styles` custom** para cada arg nomeado (realiza o `Style::Custom{kind,key,value}` do
+  §3b.1 na forma flat `(EcoString, Value)`, key = `"<kind>.<prop>"`, como o numbering). Aditivo:
+  os `#set` nativos (heading/equation/figure/page/par/text) **não mudam**.
+- **Read** — o elemento de usuário resolve um campo **opcional** com a precedência do §3b.1:
+  **construído explícito (`dyn_get_field` Some) > `chain.custom("<kind>.<prop>")` > default**.
+  O `kind` vem de `dyn_kind_name()`. Realiza a "walk-up da chain" do §3b.1 para o canal aberto.
+- **Fixture** — um user-element com um campo **opcional que afeta o output** (estende o `callout`
+  ou um elemento novo de teste), para `#set <elem>(<optprop>: v)` ser **observável**: o elemento
+  construído **sem** o campo lê `v` da chain; o output reflete `v`.
+- **Público typst** — os user-elements são **Rust-registados** (`test_callout.rs`); declarar um
+  elemento com prop setável **puramente em `.typ`** (sem Rust) **não existe** → **fronteira
+  declarada** (P362-C: definição/layout = Rust). O público typst **deste lote** = o usuário
+  **escreve `#set <elem>(prop:)` em `.typ`** sobre um elemento registrado (isso funciona); a
+  **definição** `.typ` de elementos com props setáveis é P369.
+
+**Limites duros (confirmados seguros).** O `custom` é **transparente à morfologia**
+(`is_semantically_empty` ignora-o, P366) → **não toca** o α/`morph_canon`/F-5b. A semântica
+**casa o vanilla** (precedência explícito > set > default); não-regressão dos `#set` nativos +
+rede +11.
+
+**Dimensão.** Set: `eval_set_rule` + lookup em `scopes` (contido). Read: o arm `Content::Dynamic`
+resolve campos opcionais da chain (modelo novo, mas localizado). Fixture: 1 user-element com
+campo opcional. Público typst puro-`.typ`: **fora** (P369, fronteira).
+
 ### 3a.5 — O registro (os dois públicos, sem global — pureza L1)
 
 - **Público Rust**: implementa `trait Element` no seu `*Elem` + (para o público

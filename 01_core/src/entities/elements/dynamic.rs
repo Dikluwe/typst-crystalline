@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/f_fronteira_e1.md
-//! @prompt-hash 11ab6782
+//! @prompt-hash b4211b24
 //! @layer L1
 //! @updated 2026-06-12
 //!
@@ -56,6 +56,9 @@ pub trait DynElement: std::fmt::Debug + Send + Sync + 'static {
     /// Id estável do kind (S1) — match de seletor `#show` (F-2+). Vem de
     /// `Element::dyn_kind_name` (que o utilizador sobrepõe).
     fn dyn_kind(&self) -> &'static str;
+    /// **F-item3 (P368)** — resolve campos setáveis da chain (mapa aberto). Bridge
+    /// object-safe de `Element::resolve_settable`. `get(prop)` = `#set <kind>(prop:)`.
+    fn dyn_resolve_settable(&self, get: &dyn Fn(&str) -> Option<Value>) -> Content;
     /// Downcast para o `eq` do hub (que é um match) — ver `dyn_eq`.
     fn as_any(&self) -> &dyn Any;
     /// Igualdade object-safe: downcast ao tipo concreto e compara
@@ -105,6 +108,10 @@ impl<T: Element + Send + Sync + 'static> DynElement for T {
 
     fn dyn_kind(&self) -> &'static str {
         Element::dyn_kind_name(self)
+    }
+
+    fn dyn_resolve_settable(&self, get: &dyn Fn(&str) -> Option<Value>) -> Content {
+        Element::resolve_settable(self, get)
     }
 
     fn as_any(&self) -> &dyn Any {

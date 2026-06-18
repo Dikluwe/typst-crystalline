@@ -498,6 +498,29 @@ pub(super) fn eval_set_rule(
         return Ok(Value::None);
     }
 
+    // F-item3 (P368, `f_fronteira_e1.md` §3a.11): `#set <elemento-de-usuário>(prop:)`
+    // pelo mapa aberto. Se o `target` resolve em `scopes` a um `Func::element`
+    // (elemento de usuário registrado), em vez do warn, empurra `("<kind>.<prop>",
+    // Value)` no canal `custom` da chain — transparente à morfologia
+    // (`is_semantically_empty` ignora o custom, P366). O elemento lê pela chain no
+    // layout (precedência: construído explícito > chain > default). Aditivo: os
+    // `#set` nativos (acima) não mudam.
+    let is_user_elem = matches!(
+        scopes.get(&target),
+        Some(Value::Func(f)) if f.element_name().is_some()
+    );
+    if is_user_elem {
+        for arg in set.args().items() {
+            if let Arg::Named(named) = arg {
+                let key = format!("{}.{}", target, named.name().as_str());
+                let val = eval_expr(named.expr(), scopes, ctx, engine)
+                    .unwrap_or(Value::None);
+                *engine.styles = engine.styles.push_custom(key, val);
+            }
+        }
+        return Ok(Value::None);
+    }
+
     if target != "text" {
         let (msg, hint) = unsupported_target_warn(&target);
         engine.sink.warn_note(target_span, &msg, &hint);

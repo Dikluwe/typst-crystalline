@@ -536,12 +536,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // (L0 §3b.6) — o eager do cristalino com `active_guards`+depth basta
             // até `#show` na linguagem exigir paridade medida (gatilho registado).
             Content::Dynamic(e) => {
-                match e.dyn_get_field("body") {
+                // F-item3 (P368, §3a.11): resolve campos setáveis da chain (mapa
+                // aberto) antes de renderizar — `#set <kind>(prop:)` chega como
+                // `custom("<kind>.<prop>")`. Precedência construído > chain (no
+                // próprio elemento). O custom é transparente à morfologia (P366).
+                let kind = e.dyn_kind();
+                let resolved = e.dyn_resolve_settable(&|prop| {
+                    self.chain.custom(&format!("{kind}.{prop}")).cloned()
+                });
+                let re: &dyn crate::entities::elements::dynamic::DynElement =
+                    match &resolved {
+                        Content::Dynamic(re) => re.as_ref(),
+                        _ => e.as_ref(),
+                    };
+                match re.dyn_get_field("body") {
                     Some(crate::entities::value::Value::Content(body)) => {
                         self.layout_content(&body);
                     }
                     _ => {
-                        let t = e.dyn_plain_text();
+                        let t = re.dyn_plain_text();
                         if !t.is_empty() {
                             self.layout_content(&Content::text(t));
                         }

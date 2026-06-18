@@ -164,4 +164,19 @@ pub trait Element: Clone + PartialEq + std::hash::Hash + std::fmt::Debug {
     fn dyn_kind_name(&self) -> &'static str {
         ""
     }
+
+    /// **F-item3 (P368, `f_fronteira_e1.md` §3a.11)** — resolve campos **setáveis**
+    /// a partir da chain (o mapa aberto). `get(prop)` devolve o valor de
+    /// `#set <kind>(prop:)` na chain (já namespaced pelo kind via o custom). O
+    /// elemento aplica-o aos seus campos **opcionais não-construídos**
+    /// (precedência **construído explícito > chain**) e devolve-se resolvido.
+    /// Default: **sem campos setáveis** — devolve-se inalterado (os 65 nativos e os
+    /// elementos sem props opcionais). Espelha a resolução `instância → chain →
+    /// default` do §3b.1 / o getter `#[ghost]` do vanilla.
+    fn resolve_settable(&self, _get: &dyn Fn(&str) -> Option<Value>) -> Content
+    where
+        Self: Sized + Send + Sync + 'static,
+    {
+        Content::dynamic(self.clone())
+    }
 }

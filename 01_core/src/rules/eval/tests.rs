@@ -476,6 +476,40 @@ mod tests {
         }
     }
 
+    // F-item3 (P368): procura um custom por chave no canal aberto de qualquer
+    // `Content::Styled` da árvore (o transporte do `#set`).
+    fn find_styled_custom(c: &Content, key: &str) -> Option<crate::entities::value::Value> {
+        match c {
+            Content::Styled(b, s) => s
+                .delta()
+                .custom
+                .iter()
+                .find(|(k, _)| k == key)
+                .map(|(_, v)| v.clone())
+                .or_else(|| find_styled_custom(b, key)),
+            Content::Sequence(items) => items.iter().find_map(|i| find_styled_custom(i, key)),
+            _ => None,
+        }
+    }
+
+    #[test]
+    fn f_item3_set_badge_prop_entra_no_mapa_aberto() {
+        // `#set badge(note: "x")` sobre um elemento de usuário registrado: em vez
+        // do `unsupported_target_warn`, a prop entra no canal `custom` da chain
+        // (`"badge.note"`), e o transporte (fatia-1 generalizada) a leva à árvore
+        // como `Content::Styled`. Prova o set-side + o transporte.
+        let world = MockWorld::new("#set badge(note: \"x\")\n#badge(\"L\")");
+        let reg = registry_com_callout();
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test_with_registry(&world, &source, &reg).unwrap();
+        let content = module.content().expect("módulo deve ter content");
+        assert_eq!(
+            find_styled_custom(content, "badge.note"),
+            Some(crate::entities::value::Value::Str("x".into())),
+            "#set badge(note:) deve pôr `badge.note` no custom da chain (mapa aberto): {content:?}"
+        );
+    }
+
     #[test]
     fn f3s1_callout_resolve_no_escopo_via_registry() {
         // O threading registry→escopo (deferido do F-1): `#callout(...)` resolve
