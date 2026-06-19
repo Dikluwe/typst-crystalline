@@ -5,6 +5,18 @@
 **Vanilla snapshot**: `lab/typst-original/` em commit `ba61529986e0a5a916cbf937c3c65117cd450683` (2026-04-24).
 **Cristalino snapshot**: Passo 146; 57 ADRs; DEBT-1 + DEBT-52 fechados.
 
+> **Refresh P384 (2026-06-19) — recon amplo, read-only.** O corpo deste inventário foi mantido
+> ad-hoc **até ao P299**; o agregado vigente (Tabela A/B) é: **user-facing ~69%** (Markup 78%,
+> #let/#set/#show 62%, Text 65%, Math 92%, Layout 89%, Model 50%, Visualize 54%, Foundations stdlib
+> 67%, **Introspection 83%**); **arquitetural ~82%** (Content variants 95%). **Delta P299→P384 = 0
+> em features:** o arco P300-383 foi **de-baking/morfologia** (F-5a/b) + **atomização**
+> content-preserving (ADR-0109, P376-383) — nenhuma feature de utilizador nova, logo a cobertura
+> não se moveu. **A tabela "Introspection 17% (P160)" do plano P384 está obsoleta** — o valor real
+> é 83% (M3-M9 + sealing entraram após o P160). Os domínios não re-medidos linha-a-linha no P384
+> (recon amplo, não inventário exaustivo): Parse/Lexer/Eval não são linhas próprias aqui (integrados
+> noutras categorias). Detalhe e priorização: `diagnostico-recon-amplo-passo-384.md` +
+> `backlog-priorizado-passo-384.md`.
+
 ---
 
 ## Reformulação da pergunta
