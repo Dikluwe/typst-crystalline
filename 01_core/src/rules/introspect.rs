@@ -27,6 +27,9 @@ pub mod convergence;
 pub mod extract_payload;
 pub mod fixpoint;
 pub mod from_tags;
+// Atomização por-elemento (ADR-0109, P383): compute_* movidos do tronco.
+pub mod heading;
+pub mod labelled;
 pub mod locatable;
 
 use crate::entities::{
@@ -383,122 +386,9 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
     }
 }
 
-/// Percurso recursivo sem efeitos visuais.
-///
-/// Replica exactamente os side-effects de estado que o Layouter produz,
-/// na mesma ordem de travessia, mas sem aceder a `FontMetrics` nem alocar
-/// `Frame`/`FrameItem`.
-///
-/// **P195D** — computa `(resolved_text, figure_number)` para
-/// `Content::Labelled` baseado no target type. Helper privado isolado
-/// (per ADR-0069) para reuso entre mutação legacy (`state.resolved_labels`,
-/// `state.figure_label_numbers`) e populate Tag pós-recursão
-/// (`ElementPayload::Labelled` payload).
-///
-/// **P191C (ADR-0071 ACEITE)** — signature migrada para
-/// `<I: Introspector>(intr: &I, location: Location, target: &Content,
-/// lang: Option<&Lang>)`. Reads location-aware (`formatted_counter_at`,
-/// `flat_counter_at` per P185B) substituem reads de
-/// `state.format_hierarchical`, `state.get_flat`,
-/// `state.figure_numbers`. `lang` continua passado por parameter
-/// (Opção β cláusula `.A.8`) — `state.lang` ainda existe em
-/// `CounterStateLegacy` durante janela compat M5/M6 (defer P190G+).
-///
-/// `location` aqui é a Location do **target** (figure/heading/equation),
-/// não do Labelled wrapper — preserva pattern P195D variante
-/// não-locatable (target_loc obtido via snapshot+find_map em walk
-/// arm Labelled).
-///
-/// Função pura sobre `(intr, location, target, lang)` — sem mutação.
-/// 2º helper migrado pela ADR-0071 (após `compute_heading_auto_toc`
-/// P191B).
-fn compute_labelled<I: Introspector>(
-    intr:     &I,
-    location: Location,
-    target:   &Content,
-    lang:     Option<&crate::entities::lang::Lang>,
-) -> (Option<String>, Option<usize>) {
-    match target {
-        Content::Heading(_) => (
-            intr.formatted_counter_at("heading", location)
-                .map(|n| format!("Secção {}", n)),
-            None,
-        ),
-        Content::Equation(e) if e.block => {
-            let n = intr
-                .flat_counter_at("equation", location)
-                .unwrap_or(0);
-            if n > 0 {
-                (Some(format!("Equação ({})", n)), None)
-            } else {
-                (None, None)
-            }
-        }
-        Content::Figure(e) => {
-            // F-5a de-bake (P365): o gate (padrão + caption) não é mais lido de um
-            // campo — vive no **contador** `figure:{kind}`, que só é avançado quando
-            // `is_counted` (padrão-da-chain && caption) na emissão (walk top). Logo
-            // `flat_counter_at` location-aware devolve >0 só para figuras numeradas
-            // (espelho do arm Equation, que confia no contador). Sem leitura de campo.
-            let kind_key = e.kind.as_deref().unwrap_or("image");
-            let n = intr
-                .flat_counter_at(&format!("figure:{}", kind_key), location)
-                .unwrap_or(0);
-            if n > 0 {
-                let supplement = crate::rules::lang::figure_supplement::figure_supplement_for_lang(
-                    kind_key,
-                    lang,
-                );
-                (Some(format!("{} {}", supplement, n)), Some(n))
-            } else {
-                (Some(String::new()), None)
-            }
-        }
-        _ => (None, None),
-    }
-}
-
-/// **P196B** — computa `(auto_label, resolved_text)` para
-/// auto-toc Heading (pattern ADR-0069). Helper privado análogo a
-/// `compute_labelled` (P195D). Função pura sobre `(intr, location,
-/// auto_label_n)` — sem mutação. Replica lógica legacy do walk arm
-/// Heading (introspect.rs:411-428 pré-P196B).
-///
-/// Sempre retorna concrete `(Label, String)` — paridade legacy
-/// que insere `auto_label → resolved_text` mesmo quando
-/// numbering inactivo (resolved_text fica vazio nesse caso).
-///
-/// **P191B (ADR-0071)** — signature migrada para
-/// `<I: Introspector>(intr: &I, location: Location, auto_label_n)`.
-/// O número vem de `formatted_counter_at` (per P185B); o **gate** de numeração
-/// é o param `numbering_active` (campo assado no `HeadingElem`, F-2 S5). Lote
-/// F-4 E0 (P338): o gate legado por StateRegistry (`is_numbering_active_at` /
-/// `numbering_active:heading`) foi removido — canal morto pós-F-2.
-fn compute_heading_auto_toc<I: Introspector>(
-    intr:             &I,
-    location:         Location,
-    auto_label_n:     usize,
-    numbering_active: bool,
-) -> (Label, String) {
-    let auto_label = Label(format!("auto-toc-{}", auto_label_n));
-    // Lote F-2 S5 (P335): gate pelo `numbering_active` **assado** no
-    // `HeadingElem` (escopo léxico via chain) — não mais pelo StateRegistry
-    // `numbering_active:heading` (canal global retirado).
-    let resolved_text = if numbering_active {
-        // P359 (DEBT-60 b): o número do heading, **sem** o supplement
-        // "Secção" — o outline mostra o numbering (paridade vanilla), não a
-        // cross-reference. Formato `{n}.` espelha o corpo do heading
-        // (`layout/mod.rs:720` usa `{n}. `), para o nº do outline == o nº do
-        // corpo. (O `.` literal é a mesma simplificação pré-existente do corpo —
-        // não aplica o pattern literal; limitação separada, não DEBT-60.)
-        intr.formatted_counter_at("heading", location)
-            .map(|n| format!("{}.", n))
-            .unwrap_or_default()
-    } else {
-        String::new()
-    };
-    (auto_label, resolved_text)
-}
+// Atomização (ADR-0109, P383): `compute_labelled` movido para
+// `introspect/labelled.rs`; `compute_heading_auto_toc` + `compute_heading_for_toc`
+// para `introspect/heading.rs`. O walk chama via `labelled::`/`heading::`.
 
 // P197B helper `compute_figure` ELIMINADO em P190H (M6 categoria
 // Figures eliminada). Walk arm Figure ficou puro — sem necessidade
@@ -508,35 +398,6 @@ fn compute_heading_auto_toc<I: Introspector>(
 // (`compute_labelled` Figure arm via `intr.flat_counter_at`,
 // Layouter C3 via `figure_number_at_index`) consomem do intr.
 
-/// **P200B** (M5 universal completo) — projecta a entry de outline
-/// para um Heading. Helper privado análogo a `compute_labelled`
-/// (P195D), `compute_heading_auto_toc` (P196B), e `compute_figure`
-/// (P197B). 4º helper na família ADR-0069 stylesheet.
-///
-/// Função pura sobre `(auto_label_n, frozen_body, level)` — sem
-/// mutação. `frozen_body` é assumido já materializado (chamado
-/// pelo walk arm Heading que computa `materialize_time(body,
-/// state)` em linha imediatamente anterior).
-///
-/// Sempre retorna `Some(...)` — paridade com mutação 4 legacy
-/// (introspect.rs:486 pré-P200B) que faz push **incondicional**.
-/// Auto-label sintetizada usa `auto_label_n` (já incrementado pela
-/// chamada anterior em walk arm Heading). Reusa `frozen_body` para
-/// evitar chamada redundante a `materialize_time`.
-///
-/// **P190G (M6 categoria Labels & TOC)**: signature migrada para
-/// receber `auto_label_n` por parameter — field
-/// `state.auto_label_counter` eliminado de `CounterStateLegacy`
-/// e substituído por local var em walk fn. Helper continua
-/// walk-internal (chamado apenas por walk arm Heading).
-fn compute_heading_for_toc(
-    auto_label_n: usize,
-    frozen_body:  Content,
-    level:        usize,
-) -> Option<(Label, Content, usize)> {
-    let auto_label = Label(format!("auto-toc-{}", auto_label_n));
-    Some((auto_label, frozen_body, level))
-}
 
 /// **P191B (ADR-0071)** — populate `TagIntrospector` sub-stores a partir
 /// de uma `Tag::Start` emitida pelo walk. Substitui o match exhaustivo
@@ -883,7 +744,7 @@ pub(crate) fn walk(
             // incondicional P335) e `formatted_counter_at` ficam intactos.
             let numbering_active =
                 matches!(chain.custom("heading.numbering"), Some(Value::Bool(true)));
-            let (auto_label, resolved_text) = compute_heading_auto_toc(
+            let (auto_label, resolved_text) = heading::compute_heading_auto_toc(
                 &*intr,
                 auto_loc,
                 current_auto_label,
@@ -935,7 +796,7 @@ pub(crate) fn walk(
             // diferentes (sem conflito per P196A §11.5). Fecha
             // E2-residuo + lacuna #3.
             if let Some(loc) = emitted_loc {
-                if let Some((label, body_for_toc, lvl)) = compute_heading_for_toc(
+                if let Some((label, body_for_toc, lvl)) = heading::compute_heading_for_toc(
                     current_auto_label,
                     frozen_body,
                     *level as usize,
@@ -1022,7 +883,7 @@ pub(crate) fn walk(
             // (target_loc=None): retorna (None, None) coerente com
             // legacy "label sem target locatable não resolve".
             let (resolved_text, figure_number) = match target_loc {
-                Some(loc) => compute_labelled(
+                Some(loc) => labelled::compute_labelled(
                     &*intr,
                     loc,
                     target,
