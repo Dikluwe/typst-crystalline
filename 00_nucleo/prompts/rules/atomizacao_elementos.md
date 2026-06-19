@@ -1,6 +1,6 @@
 # Prompt L0 — Atomização dos elementos (layout/introspect → arquivo do elemento)
 
-Hash do Código: 1fd1ba1e
+Hash do Código: a4e8bfd5
 
 **Camada**: L1 · **Módulos afetados**: `01_core/src/rules/layout/mod.rs` (o monólito
 `layout_content`), `01_core/src/rules/introspect.rs` (o walk), e os arquivos dos elementos
@@ -142,3 +142,25 @@ ADR-0109. A diferença é **onde** o arquivo atomizado mora e o custo §3.
   qualquer viragem = a lógica mudou ao mover → **investigar, não mascarar**.
 - **INTACTOS**: α/caso 2, `morph_canon`/`==`, caso 4, flag P350c, F-5b (fechado), os 3 numbering,
   o `#set` de props de usuário.
+
+---
+
+## §7 — Fatia P377: elementos visuais (forma B)
+
+> **Aprovado pelo dono (P377): fatia elementos visuais.** Atomizados na forma B (free function em
+> `rules/layout/<elem>.rs`):
+> - `Heading` (`:765`, 44 linhas) → `rules/layout/heading.rs` — lê `chain`/`introspector`/
+>   `current_location`/`style`/`regions` (estado diferente dos containers; prova a forma em quem lê
+>   o Introspector).
+> - `Transform` (`:1013`, 49 linhas) → `rules/layout/transform.rs`.
+> - `Shape` (`:980`, 33 linhas) → `rules/layout/shape.rs`.
+> - `Columns` (`:1544`, 44 linhas) → `rules/layout/columns.rs`.
+>
+> Arm magro: `Content::Heading(h) => heading::layout(self, h)` (idem os outros 3). As free functions
+> acedem ao estado privado do `Layouter` por **descendência de módulo**; helpers livres
+> (`heading_scale`/`resolve_pt`/`measure_content`/`collect_sub_items`) e a const
+> `COLUMNS_DEFAULT_GUTTER_RATIO` via `super::`. **Sem** import reverso, **sem** `pub(crate)`.
+>
+> **Leitura:** `layout_content` 1276 → 1126 linhas (−150; −731 acumulado desde P376).
+> **Não-metas (medido):** `match` exaustivo (0 wildcards), despacho estático (0 `dyn`), `entities/`
+> não tocado. Suíte verde (rede +11 sem asserção virada). Precedente seguido: `figure.rs`/`image.rs`.

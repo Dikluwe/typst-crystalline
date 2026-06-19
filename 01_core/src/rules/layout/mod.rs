@@ -19,7 +19,7 @@ use crate::entities::{
     geometry::ShapeKind,
     image_sizer::{ImageSizer, NullImageSizer},
     layout_types::{Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument,
-        Point, Pt, TextStyle, TransformMatrix, VAlign},
+        Point, Pt, TextStyle, VAlign},
     location::Location,
     locator::Locator,
     style_chain::StyleChain,
@@ -42,6 +42,12 @@ mod boxed;
 mod pad;
 mod stack;
 
+// Atomização dos elementos visuais (ADR-0109, P377): mesma forma B.
+mod columns;
+mod heading;
+mod shape;
+mod transform;
+
 // Helpers livres usados pelo Layouter e pelos braços extraídos.
 pub(crate) mod helpers;
 // P224.C — Placement algorítmico Grid (fecha DEBT-34e colspan/rowspan).
@@ -50,7 +56,7 @@ pub(crate) mod grid_placement;
 // items por threshold em pos.y para row break TableCell cell-level.
 mod slicing;
 use crate::rules::layout::helpers::{
-    collect_sub_items, heading_scale, item_pos, measure_content, resolve_pt,
+    item_pos, measure_content, resolve_pt,
     translate_frame_item,
 };
 
@@ -762,47 +768,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // redefinidos). O arm `Content::Styled` (introduzido no Passo 100)
             // cobre ambos os casos via push/pop na `chain`.
 
-            Content::Heading(h) => {
-                // Modelo D (P316): Heading delegado; re-bind dos campos.
-                let level = &h.level;
-                let body = &h.body;
-                // P190F (M6 categoria Counters core): Layouter
-                // mutação `self.counter.step_hierarchical` removida —
-                // counter hierárquico populated via Introspector path
-                // location-aware (CounterRegistry P184B + P185B). Layouter
-                // só lê via `formatted_counter_at`.
-                let _ = level;  // preservar binding para uso abaixo
-
-                let heading_size = self.font_size_pt * heading_scale(*level);
-                let prev = self.style.clone();
-                self.style = TextStyle { bold: true, italic: false, size: heading_size, ..TextStyle::default() };
-                if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
-
-                // Prefixo numérico — apenas se numbering estiver activo.
-                // F-5a de-bake (P364, §3a.9): o gate vive **só na chain**
-                // (`#set heading(numbering:)` → `custom`, transportado por
-                // `Content::Styled`); lido aqui de `self.chain`. O campo assado
-                // `numbering_active` foi removido. O **valor** do contador segue
-                // via Introspector (`formatted_counter_at`, P335 incondicional).
-                use crate::entities::introspector::Introspector;
-                let numbering_on = matches!(
-                    self.chain.custom("heading.numbering"),
-                    Some(crate::entities::value::Value::Bool(true)),
-                );
-                if numbering_on {
-                    let num_str = self.current_location
-                        .and_then(|loc| self.introspector
-                            .formatted_counter_at("heading", loc));
-                    if let Some(num_str) = num_str {
-                        let prefix = Content::text(format!("{}. ", num_str));
-                        self.layout_content(&prefix);
-                    }
-                }
-
-                self.layout_content(body);
-                self.flush_line();
-                self.style = prev;
-            }
+            // Atomizado (ADR-0109, P377) → layout/heading.rs.
+            Content::Heading(h) => heading::layout(self, h),
 
             // Lote F-2 S5 (P335): marcadores Set*Numbering removidos — numeração assada nos elementos.
 
@@ -977,85 +944,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 outline::layout_outline(self);
             }
 
-            Content::Shape(e) => {
-                let (kind, width, height, fill, stroke) = (&e.kind, &e.width, &e.height, &e.fill, &e.stroke);
-                let available_w = self.available_width();
-                let (resolved_w, resolved_h) = match kind {
-                    // P242 — RoundedRect partilha dimensões com Rect.
-                    ShapeKind::Rect | ShapeKind::RoundedRect { .. } | ShapeKind::Ellipse | ShapeKind::Path(_) => {
-                        let w = resolve_pt(width.as_deref(), available_w);
-                        let h = resolve_pt(height.as_deref(), 0.0);
-                        (w, h)
-                    }
-                    ShapeKind::Line { dx, dy } => (dx.abs(), dy.abs()),
-                };
+            // Atomizado (ADR-0109, P377) → layout/shape.rs.
+            Content::Shape(e) => shape::layout(self, e),
 
-                if self.regions.current.cursor_y.0 + resolved_h > self.regions.current.height - self.page_config.margin {
-                    self.new_page();
-                }
-                self.flush_line();
-
-                let pos = Point { x: self.regions.current.cursor_x, y: self.regions.current.cursor_y };
-                self.regions.current.current_items.push(FrameItem::Shape {
-                    pos,
-                    kind:   kind.clone(),
-                    width:  resolved_w,
-                    height: resolved_h,
-                    fill:   *fill,
-                    stroke: stroke.clone(),
-                    // P273.6 — populated by Layouter.parent_bbox (Block save/restore).
-                    parent_bbox_at_emit: self.parent_bbox,
-                });
-
-                self.regions.current.cursor_y += Pt(resolved_h);
-            }
-
-            Content::Transform(e) => {
-                let matrix = &e.matrix;
-                let body = &e.body;
-                let (orig_w, orig_h) = measure_content(body, self.available_width());
-
-                // Projectar os quatro cantos da AABB original através da matriz.
-                let corners = [
-                    matrix.apply(0.0, 0.0),
-                    matrix.apply(orig_w, 0.0),
-                    matrix.apply(0.0, orig_h),
-                    matrix.apply(orig_w, orig_h),
-                ];
-                let min_x = corners.iter().map(|(x, _)| *x).fold(f64::INFINITY,     f64::min);
-                let max_x = corners.iter().map(|(x, _)| *x).fold(f64::NEG_INFINITY, f64::max);
-                let min_y = corners.iter().map(|(_, y)| *y).fold(f64::INFINITY,     f64::min);
-                let max_y = corners.iter().map(|(_, y)| *y).fold(f64::NEG_INFINITY, f64::max);
-
-                let _new_w = max_x - min_x;
-                let new_h = max_y - min_y;
-
-                if self.regions.current.cursor_y.0 + new_h > self.regions.current.height - self.page_config.margin {
-                    self.new_page();
-                }
-                self.flush_line();
-
-                let pos = Point { x: self.regions.current.cursor_x, y: self.regions.current.cursor_y };
-
-                // Compensação de origem negativa: garante que o canto mais à esquerda/acima
-                // da forma transformada coincide com pos.
-                let align        = TransformMatrix::translate(-min_x, -min_y);
-                let final_matrix = align.concat(matrix);
-
-                let available_w  = self.available_width();
-                let sub_items    = collect_sub_items(body, available_w);
-
-                self.regions.current.current_items.push(FrameItem::Group {
-                    pos,
-                    matrix:       final_matrix,
-                    clip_mask:    None,
-                    inner_width:  orig_w,
-                    inner_height: orig_h,
-                    items:        sub_items,
-                });
-
-                self.regions.current.cursor_y += Pt(new_h);
-            }
+            // Atomizado (ADR-0109, P377) → layout/transform.rs.
+            Content::Transform(e) => transform::layout(self, e),
 
             // P224+P227+P228 — Grid refino +7 fields. gutter/align/inset/header/footer/stroke/fill
             // são consumidos por layout_grid (signature expandida).
@@ -1541,45 +1434,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             //
             // count=0 (caso degenerate construtor Rust; stdlib P218 valida >=1):
             // tratar como passthrough (count=1 equivalente; column_width=full_width).
-            Content::Columns(e) => {
-                // 1. Flush line pendente (columns são structural — começam
-                //    em nova linha lógica).
-                if self.regions.current.cursor_x.0 > self.regions.current.line_start_x.0 {
-                    self.flush_line();
-                }
-
-                let full_width = self.regions.current.width;
-                let count_f = if e.count == 0 { 1.0 } else { e.count as f64 };
-
-                // 2. Resolver gutter (Length → f64 Pt; default ~4% width).
-                let gutter_pt = match e.gutter {
-                    Some(g) => g.resolve_pt(self.font_size_pt.0),
-                    None => full_width * COLUMNS_DEFAULT_GUTTER_RATIO,
-                };
-
-                // 3. column_width = (full_width - (count-1)*gutter) / count.
-                let column_width = if count_f >= 1.0 {
-                    (full_width - (count_f - 1.0) * gutter_pt) / count_f
-                } else {
-                    full_width
-                };
-
-                // 4. Saved/restore pattern (paridade P156C Pad cursor_x).
-                let saved_width = full_width;
-                self.regions.current.width = column_width;
-
-                // 5. Layout body com width reduzida.
-                self.layout_content(&e.body);
-
-                // 6. Flush line pendente do body antes de restaurar.
-                if self.regions.current.cursor_x.0 > self.regions.current.line_start_x.0 {
-                    self.flush_line();
-                }
-
-                // 7. Restaurar width original (invariante crucial — conteúdo
-                //    subsequente fora do columns block volta a width original).
-                self.regions.current.width = saved_width;
-            }
+            // Atomizado (ADR-0109, P377) → layout/columns.rs.
+            Content::Columns(e) => columns::layout(self, e),
 
             // ── Passo 156E (ADR-0061 Fase 1, sub-passo 3) — pagebreak ──
             // `weak` armazenado mas collapse defere (consistente P156D).
