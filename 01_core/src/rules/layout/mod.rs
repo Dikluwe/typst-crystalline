@@ -767,15 +767,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Link(e) => link::layout(self, e),
 
             // ── Matemática (Passo 37) — delegação ao MathLayouter ───────────
-            Content::Equation(e) => {
-                // F-5a de-bake (P364, §3a.9): o gate vive **só na chain**; lido
-                // de `self.chain`. `layout_equation` mantém `block && numbering`.
-                let numbering_active = matches!(
-                    self.chain.custom("equation.numbering"),
-                    Some(crate::entities::value::Value::Bool(true)),
-                );
-                self.layout_equation(&e.body, e.block, numbering_active);
-            }
+            // Atomizado (ADR-0109, P382) → equation.rs (cola math; o layout real
+            // dos nós vive em rules/math/layout/). Convenção impl Layouter.
+            Content::Equation(e) => self.layout_equation_arm(e),
 
             Content::MathSequence(_)
             | Content::MathIdent(_)
@@ -786,24 +780,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             | Content::MathDelimited(_)
             | Content::MathMatrix(_)
             | Content::MathCases(_)
-            // P296 — Math accent/cancel também fall-through aqui se
-            // aparecerem fora de `Content::Equation`. Tratamento real
-            // dentro de equation via `rules/math/layout/mod.rs`.
             | Content::MathAccent(_)
             | Content::MathCancel(_)
-            // P297 — Math underover (paralelo P296).
             | Content::MathUnderover(_)
-            // P298 — Math op (paralelo cluster math).
             | Content::MathOp(_)
-            // P311b.2 — MathStyled fall-through (tratamento real em `math/layout`).
-            | Content::MathStyled(_) => {
-                // Nós matemáticos internos — normalmente não aparecem directamente
-                // no layout fora de Content::Equation. Se aparecerem, renderizar como texto.
-                let text = content.plain_text();
-                for word in text.split_whitespace() {
-                    self.layout_word(word);
-                }
-            }
+            | Content::MathStyled(_) => self.layout_math_fallback(content),
 
             // Marcadores estruturais de equações — ignorados fora de contexto matemático.
             Content::MathAlignPoint(_) | Content::Linebreak(_) => {}

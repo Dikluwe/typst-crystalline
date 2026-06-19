@@ -9,6 +9,7 @@
 
 use crate::entities::{
     content::Content,
+    elements::equation::EquationElem,
     image_sizer::ImageSizer,
     layout_types::{FrameItem, Point, Pt},
 };
@@ -107,6 +108,30 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 .unwrap_or(0);
             self.layout_content(&Content::text(format!("({})", n)));
             self.flush_line();
+        }
+    }
+
+    /// Braço `Content::Equation` do `layout_content` (atomização ADR-0109
+    /// P382): decodifica o gate de numeração da chain e delega a
+    /// `layout_equation`. Content-preserving — era inline no `layout_content`.
+    pub(super) fn layout_equation_arm(&mut self, e: &EquationElem) {
+        // F-5a de-bake (P364, §3a.9): o gate vive **só na chain**; lido
+        // de `self.chain`. `layout_equation` mantém `block && numbering`.
+        let numbering_active = matches!(
+            self.chain.custom("equation.numbering"),
+            Some(crate::entities::value::Value::Bool(true)),
+        );
+        self.layout_equation(&e.body, e.block, numbering_active);
+    }
+
+    /// Fallback de nós matemáticos que aparecem **fora** de um `Content::Equation`
+    /// (atomização ADR-0109 P382). Normalmente não ocorrem directamente no
+    /// layout — o despacho real é `MathLayouter::layout_node`. Se aparecerem,
+    /// renderiza como texto. Content-preserving — era inline no `layout_content`.
+    pub(super) fn layout_math_fallback(&mut self, content: &Content) {
+        let text = content.plain_text();
+        for word in text.split_whitespace() {
+            self.layout_word(word);
         }
     }
 }
