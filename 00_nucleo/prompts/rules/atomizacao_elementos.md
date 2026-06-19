@@ -1,6 +1,6 @@
 # Prompt L0 — Atomização dos elementos (layout/introspect → arquivo do elemento)
 
-Hash do Código: 7e8b75c2
+Hash do Código: 00110025
 
 **Camada**: L1 · **Módulos afetados**: `01_core/src/rules/layout/mod.rs` (o monólito
 `layout_content`), `01_core/src/rules/introspect.rs` (o walk), e os arquivos dos elementos
@@ -256,3 +256,31 @@ Footnote) + Text + (máquina fica) + math final.
 O `layout_content` fica **só máquina + math** (+ os no-ops e os arms já-magros). Os **elementos de
 domínio** do layout estão atomizados. Resta a **fatia math** (final) e depois a atomização do
 `introspect.rs`.
+
+---
+
+## §11 — P382: fatia math (final) — consolidar a cola em equation.rs
+
+> **Medição do subsistema (a forma NÃO é assumida):** o math **já está atomizado** em
+> `rules/math/layout/` — `MathLayouter` (`mod.rs:223`) + `layout_node` (`:258`, despacha as 16
+> variantes) + `layout_equation` (`:246`) + arquivos por-feature (`frac.rs`/`attach.rs`/`matrix.rs`/
+> `cases.rs`/`delimited.rs`/`root.rs`/`stretchy.rs`/`assembly.rs`). A ponte do lado-layout é
+> `rules/layout/equation.rs::Layouter::layout_equation` (`:21`) — **convenção `impl Layouter`
+> método** (ADR-0037/P96.7), **não** a forma B free-function das fatias anteriores.
+>
+> **Os 3 arms math no `layout_content` são cola fina** (não lógica de math — essa está no subsistema):
+> - `Equation` (`@770`): decode do gate `equation.numbering` da chain (5 linhas) + `layout_equation`.
+> - 16-variante agrupado (`@780`): **fallback defensivo** (`plain_text`→`layout_word`) para nós math
+>   fora de uma equação — não é o layout real (esse é `layout_node`).
+> - `MathAlignPoint`/`Linebreak` (`@809`): **no-op** (`=> {}`).
+>
+> **Decisão do dono (P382): consolidar a cola em `equation.rs`** (convenção `impl Layouter` do
+> subsistema): `layout_equation_arm(&mut self, e: &EquationElem)` (decode+bridge) e
+> `layout_math_fallback(&mut self, content)` (o fallback). Arms magros no núcleo; o no-op fica.
+> equation.rs mantém a sua linhagem (`layout.md`). **Sem** `dyn`, **sem** wildcard, `entities/`
+> intacto.
+
+### Após este passo — a atomização do LAYOUT fecha
+O `layout_content` fica **só máquina** (`Sequence`/`Styled`/`Dynamic`/`SetPage`) **+ no-ops/displays**
+counter/state. Os **elementos de domínio do layout (incl. math) estão atomizados**. A próxima frente
+é o **`introspect.rs`** (43 arms); os displays counter/state ficam [a-decidir].

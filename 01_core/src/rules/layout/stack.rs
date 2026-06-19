@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/atomizacao_elementos.md
-//! @prompt-hash af160bbb
+//! @prompt-hash cedb58ca
 //! @layer L1
 //! @updated 2026-06-18
 //!
