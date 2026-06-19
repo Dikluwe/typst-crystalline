@@ -1,6 +1,6 @@
 # Prompt L0 — Atomização dos elementos (layout/introspect → arquivo do elemento)
 
-Hash do Código: 13163d31
+Hash do Código: a4e8bfd5
 
 **Camada**: L1 · **Módulos afetados**: `01_core/src/rules/layout/mod.rs` (o monólito
 `layout_content`), `01_core/src/rules/introspect.rs` (o walk), e os arquivos dos elementos
@@ -194,3 +194,34 @@ ADR-0109. A diferença é **onde** o arquivo atomizado mora e o custo §3.
   SetPage 25, família state/counter) — a decidir se atomiza ou fica como motor.
 - **Math** (fatia FINAL própria): `Equation` + arm agrupado de 16 variantes (`:865`) = **17
   variantes** → descem a `rules/math/layout/`. Fora de todas as fatias não-math.
+
+---
+
+## §9 — Fatia 1/2 P380: fluxo de bloco e estrutura (forma B, por-elemento)
+
+> **Aprovado pelo dono (P380): granularidade POR-ELEMENTO** (um arquivo por elemento, como os 12
+> fat já feitos; o dono aceitou os ficheiros header-dominados dos 1-liners). Forma B.
+>
+> **Listas** → `rules/layout/{list_item,enum_item,terms,term_item}.rs` (lê fluxo-texto: `regions`/
+> `page_config`/`flush_line`/`font_size_pt`/`style`/`layout_content`; TermItem lê `chain`).
+> **Tabelas/Grid** (cluster `layout_grid`) → `Grid` dobra em `rules/layout/grid.rs` (junto de
+> `layout_grid`); `Table` → `table.rs` (chama `lo.layout_grid`, pub(super) visível por descendência);
+> `grid_header`/`grid_footer`/`grid_cell`/`table_cell`/`table_header`/`table_footer` → arquivos
+> próprios (1-liner `layout_content(&e.body)`).
+> **Breaks** → `pagebreak.rs` (lê `regions`/`flush_line`/`new_page`/`pages`), `colbreak.rs`.
+> **Spacing** → `h_space.rs`, `v_space.rs`, `repeat.rs`.
+>
+> Arm magro: `Content::EnumItem(e) => enum_item::layout(self, e)`. Estado privado do `Layouter` e o
+> método `layout_grid` (pub(super)) por descendência de módulo. **Sem** import reverso, **sem**
+> `pub(crate)`, **sem** `dyn`.
+
+### Fora desta fatia (medido P379) — NÃO tocar
+- **Text** (`:635`, 82L) — fatia própria (folha de render, chain-pesado).
+- **Máquina do layouter** — `Sequence`/`Styled`/`Dynamic`/`SetPage` (orquestram/reconfiguram; não são
+  elementos de domínio).
+- **Math** — `Equation` + arm agrupado 16 variantes (`:858`/`:868`) → fatia final, `rules/math/layout/`.
+- **Displays counter/state** ([a-decidir], fronteira).
+
+### O que resta após esta fatia (rumo a fechar)
+Fatia 2 (refs/citações + avulsos: Quote/SmartQuote/Raw/Hide/Divider/Cite/Ref/Link/Bibliography/
+Footnote) + Text + (máquina fica) + math final.
