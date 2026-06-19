@@ -69,6 +69,17 @@ mod term_item;
 mod terms;
 mod v_space;
 
+// Atomização Fatia 2 (ADR-0109, P381): refs/citações + avulsos.
+mod bibliography;
+mod cite;
+mod divider;
+mod footnote;
+mod hide;
+mod link;
+mod quote;
+mod raw;
+mod smartquote;
+
 // Helpers livres usados pelo Layouter e pelos braços extraídos.
 pub(crate) mod helpers;
 // P224.C — Placement algorítmico Grid (fecha DEBT-34e colspan/rowspan).
@@ -820,29 +831,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.layout_content(&display);
             }
 
-            Content::Raw(e) => {
-                let prev = self.style.clone();
-                // Raw: tamanho 90%, sem bold/italic
-                // DEBT: seleccionar fonte monospace real quando FontBook tiver uma
-                self.style = TextStyle { bold: false, italic: false, size: self.font_size_pt * 0.9, ..TextStyle::default() };
-                if e.block {
-                    if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
-                    self.regions.current.cursor_x = Pt(self.page_config.margin) + self.font_size_pt;
-                }
-                for word in e.text.split_whitespace() { self.layout_word(word); }
-                if e.block { self.flush_line(); }
-                self.style = prev;
-            }
+            // Atomizado (ADR-0109, P381) → layout/raw.rs.
+            Content::Raw(e) => raw::layout(self, e),
 
             // Modelo D (Lote 3 P318): destructure de Arc<Elem> — mesma lógica.
             // Atomizado (ADR-0109, P380) → layout/list_item.rs, enum_item.rs.
             Content::ListItem(e) => list_item::layout(self, e),
             Content::EnumItem(e) => enum_item::layout(self, e),
 
-            Content::Link(e) => {
-                // DEBT: sublinhado e cor de link — requer FrameItem::Decoration (futuro)
-                self.layout_content(&e.body);
-            }
+            // Atomizado (ADR-0109, P381) → layout/link.rs.
+            Content::Link(e) => link::layout(self, e),
 
             // ── Matemática (Passo 37) — delegação ao MathLayouter ───────────
             Content::Equation(e) => {
@@ -933,17 +931,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Cite renderiza placeholder `"[{key}]"` + supplement.
             // Refinos futuros (CSL styles, form variants, hayagriva)
             // NÃO reservados per política P158.
-            Content::Bibliography(b) => {
-                if let Some(t) = &b.title {
-                    self.layout_content(t);
-                    self.flush_line();
-                }
-                for e in &b.entries {
-                    let line = format_bib_entry(e);
-                    self.layout_content(&Content::text(line));
-                    self.flush_line();
-                }
-            }
+            // Atomizado (ADR-0109, P381) → layout/bibliography.rs.
+            Content::Bibliography(b) => bibliography::layout(self, b),
             // P295 — Footnote Fase 1 marker emitido inline; P304
             // (P295.1) — body diferido para o rodapé via buffer
             // `pending_footnote_bodies` (subpadrão DeferredX N=3
@@ -952,48 +941,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Page) + `finish()` (última página) emite os bodies
             // no rodapé com posicionamento Y absoluto bottom-up.
             // P295.2 (overflow multi-página) permanece scope-out.
-            Content::Footnote(e) => {
-                self.footnote_counter += 1;
-                let n = self.footnote_counter;
-                let marker = format!("[{}]", n);
-                self.layout_content(&Content::text(marker));
-                self.pending_footnote_bodies.push((n, Box::new(e.body.clone())));
-            }
+            // Atomizado (ADR-0109, P381) → layout/footnote.rs.
+            Content::Footnote(e) => footnote::layout(self, e),
 
-            Content::Cite(e) => {
-                let key = &e.key;
-                let supplement = &e.supplement;
-                let form = &e.form;
-                // Passo 159C: render placeholder por form com lookup
-                // P190B (M6 categoria Bibliography eliminada) — consumer
-                // migrado para Introspector path completo. Fallback legacy
-                // a `state.bib_entries`/`bib_numbers` removido porque
-                // fields foram eliminados de `CounterStateLegacy`. Caminho
-                // Introspector activo desde P181H (BibStore populated via
-                // from_tags arm Bibliography). Paridade preservada por
-                // construção — output observable inalterado.
-                use crate::entities::citation_form::CitationForm;
-                use crate::entities::introspector::Introspector;
-                let resolved_form = form.unwrap_or_default();
-                let entry = self.introspector.bib_entry_for_key(key);
-                let text = match (resolved_form, entry) {
-                    (CitationForm::Normal, _) => {
-                        // P190B: Introspector path apenas — sem fallback legacy.
-                        self.introspector
-                            .bib_number_for_key(key)
-                            .map(|n| format!("[{}]", n))
-                            .unwrap_or_else(|| format!("[{}]", key))
-                    }
-                    (CitationForm::Prose,  Some(e))   => format!("{} ({})", e.author, e.year),
-                    (CitationForm::Author, Some(e))   => e.author.clone(),
-                    (CitationForm::Year,   Some(e))   => e.year.to_string(),
-                    (_, None)                         => format!("[{}]", key),
-                };
-                self.layout_content(&Content::text(text));
-                if let Some(s) = supplement {
-                    self.layout_content(s);
-                }
-            }
+            // Atomizado (ADR-0109, P381) → layout/cite.rs.
+            Content::Cite(e) => cite::layout(self, e),
 
             Content::SetPage { width, height, margin } => {
                 let mut new_config = self.page_config.clone();
@@ -1078,24 +1030,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // ── Passo 154B (ADR-0060 Fase 1) — terms + divider ──────────────
-            Content::Divider(_) => {
-                use crate::entities::geometry::Stroke;
-                use crate::entities::layout_types::Color;
-                use crate::entities::paint::Paint;
-                if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
-                let margin   = self.page_config.margin;
-                let width_pt = self.regions.current.width - 2.0 * margin;
-                self.regions.current.current_items.push(FrameItem::Shape {
-                    pos:    Point { x: Pt(margin), y: self.regions.current.cursor_y },
-                    kind:   ShapeKind::Line { dx: width_pt, dy: 0.0 },
-                    width:  width_pt,
-                    height: 0.5,
-                    fill:   None,
-                    stroke: Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 0.5, overhang: false }),
-                    parent_bbox_at_emit: None,
-                });
-                self.regions.current.cursor_y += self.font_size_pt * 0.6;
-            }
+            // Atomizado (ADR-0109, P381) → layout/divider.rs.
+            Content::Divider(e) => divider::layout(self, e),
 
             // Atomizado (ADR-0109, P380) → layout/terms.rs, term_item.rs.
             Content::Terms(e) => terms::layout(self, e),
@@ -1109,17 +1045,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Atomizado (ADR-0109, P376) → layout/pad.rs.
             Content::Pad(e) => pad::layout(self, e),
 
-            Content::Hide(e) => {
-                // Calcula o avanço sem emitir items (per ADR-0054 graded).
-                // Drena items pré-existentes para um buffer temporário,
-                // executa o body, e descarta os items gerados — mantém
-                // apenas o avanço de cursor.
-                let saved_items = std::mem::take(&mut self.regions.current.current_items);
-                let saved_line  = std::mem::take(&mut self.regions.current.current_line);
-                self.layout_content(&e.body);
-                self.regions.current.current_items = saved_items;
-                self.regions.current.current_line  = saved_line;
-            }
+            // Atomizado (ADR-0109, P381) → layout/hide.rs.
+            Content::Hide(e) => hide::layout(self, e),
 
             // ── Passo 156D (ADR-0061 Fase 1, sub-passo 2) — h + v spacing ──
             // `weak` armazenado mas comportamento de collapse adiado
@@ -1277,75 +1204,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // e função têm estados independentes; mistura programática +
             // markup literal (caso edge raro) pode produzir "2 opens
             // consecutivos" — registado em diagnóstico §A.3.2.
-            Content::SmartQuote(e) => {
-                let glyph: &str = if e.double {
-                    let (open, close) = match &self.style.lang {
-                        Some(l) => crate::rules::lang::quotes::localize_quotes(l),
-                        None    => crate::rules::lang::quotes::DEFAULT_QUOTES,
-                    };
-                    let g = if self.smartquote_double_open { open } else { close };
-                    self.smartquote_double_open = !self.smartquote_double_open;
-                    g
-                } else {
-                    // Aspas simples — paridade P155 §A.1.2: always ASCII,
-                    // smart-apostrophes scope-out.
-                    self.smartquote_single_open = !self.smartquote_single_open;
-                    "'"
-                };
-                // Empurrar glyph directo via layout_word para preservar o
-                // **glyph como unidade indivisível** — algumas línguas
-                // (FR per LANG_QUOTES) emitem `«\u{00A0}` com NBSP que
-                // `Content::Text` split_whitespace() removeria. Bypass
-                // do path Content::Text mantém paridade vanilla literal.
-                // Word-wrap natural ainda activado via layout_word.
-                self.layout_word(glyph);
-            }
+            // Atomizado (ADR-0109, P381) → layout/smartquote.rs.
+            Content::SmartQuote(e) => smartquote::layout(self, e),
 
             // ── Passo 155 (ADR-0060 Fase 1, sub-passo 2) — quote ───────────
-            Content::Quote(e) => {
-                use crate::rules::lang::quotes::{DEFAULT_QUOTES, localize_quotes};
-                let lang = self.chain.lang();
-                let (open, close) = if e.quotes {
-                    match &lang {
-                        Some(l) => localize_quotes(l),
-                        None    => DEFAULT_QUOTES,
-                    }
-                } else {
-                    ("", "")
-                };
-                if e.block {
-                    if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
-                    let margin_pt = Pt(self.page_config.margin);
-                    self.regions.current.cursor_x = margin_pt + self.font_size_pt * 1.5;
-                    if !open.is_empty() {
-                        self.layout_content(&Content::text(open));
-                    }
-                    self.layout_content(&e.body);
-                    if !close.is_empty() {
-                        self.layout_content(&Content::text(close));
-                    }
-                    if let Some(a) = &e.attribution {
-                        self.flush_line();
-                        self.regions.current.cursor_x = margin_pt + self.font_size_pt * 1.5;
-                        self.layout_content(&Content::text("— "));
-                        self.layout_content(a);
-                    }
-                    self.flush_line();
-                    self.regions.current.cursor_x = margin_pt;
-                } else {
-                    if !open.is_empty() {
-                        self.layout_content(&Content::text(open));
-                    }
-                    self.layout_content(&e.body);
-                    if !close.is_empty() {
-                        self.layout_content(&Content::text(close));
-                    }
-                    if let Some(a) = &e.attribution {
-                        self.layout_content(&Content::text(" — "));
-                        self.layout_content(a);
-                    }
-                }
-            }
+            // Atomizado (ADR-0109, P381) → layout/quote.rs.
+            Content::Quote(e) => quote::layout(self, e),
         }
     }
     pub fn finish(mut self) -> PagedDocument {
