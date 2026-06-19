@@ -5,8 +5,46 @@
 //! @updated 2026-04-20
 
 use crate::entities::content::Content;
+use crate::entities::elements::figure::FigureElem;
+use crate::entities::introspector::Introspector;
 
 use super::{FontMetrics, ImageSizer, Layouter};
+
+/// Layout de `figure(...)` (atomização ADR-0109 P378): calcula o prefixo de
+/// numeração (gate na chain, número via Introspector) e delega o desenho a
+/// `layout_figure`. Content-preserving — era inline no `layout_content`.
+pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    e:        &FigureElem,
+) {
+    let (body, caption, kind) = (&e.body, &e.caption, &e.kind);
+    // F-5a de-bake (P365, §3a.9): o gate (padrão presente/ausente) vive
+    // **só na chain** (`custom("figure.numbering")`, transportado por
+    // `Content::Styled`); lido de `layouter.chain`. O **número**
+    // (`figure_progress` + `figure_number_at_index`) fica intacto.
+    let numbering_on = matches!(
+        layouter.chain.custom("figure.numbering"),
+        Some(crate::entities::value::Value::Str(_)),
+    );
+    // Calcular o prefixo de numeração antes de chamar layout_figure.
+    let caption_prefix: Option<String> = if numbering_on {
+        let kind_key = kind.as_deref().unwrap_or("image");
+        let progress = layouter.figure_progress.entry(kind_key.to_string()).or_insert(0);
+        let idx = *progress;
+        *progress += 1;
+        // P190H (M6 categoria Figures): fallback legacy
+        // `state.figure_numbers` ELIMINADO. Caminho Introspector activo
+        // via `figure_number_at_index` (P184C/D); rede de segurança final
+        // `unwrap_or(idx + 1)` preservada (heurística para edge cases).
+        let figure_number = layouter.introspector
+            .figure_number_at_index(kind_key, idx)
+            .unwrap_or(idx + 1);
+        Some(format!("Figura {}: ", figure_number))
+    } else {
+        None
+    };
+    layout_figure(layouter, body, caption, caption_prefix);
+}
 
 /// Renderiza uma figura com legenda opcional (Passo 62/75, DEBT-14/15).
 ///

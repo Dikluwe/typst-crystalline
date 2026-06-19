@@ -12,8 +12,6 @@ pub mod references;
 
 use ecow::EcoString;
 
-use std::sync::Arc;
-
 use crate::entities::{
     content::Content,
     geometry::ShapeKind,
@@ -47,6 +45,11 @@ mod columns;
 mod heading;
 mod shape;
 mod transform;
+
+// Atomização visuais/decorações (ADR-0109, P378): mesma forma B.
+// (Image/Figure completam-se nos seus próprios arquivos image.rs/figure.rs.)
+mod decorations;
+mod place;
 
 // Helpers livres usados pelo Layouter e pelos braços extraídos.
 pub(crate) mod helpers;
@@ -906,38 +909,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Passo 62/75 — Figure: delegado a figure.rs com kind/numbering (DEBT-14/15).
             // Passo 158C: kind é Option<String>; resolver default "image"
             // em uso (paridade introspect.rs walk arm).
-            Content::Figure(e) => {
-                let (body, caption, kind) = (&e.body, &e.caption, &e.kind);
-                // F-5a de-bake (P365, §3a.9): o gate (padrão presente/ausente) vive
-                // **só na chain** (`custom("figure.numbering")`, transportado por
-                // `Content::Styled`); lido de `self.chain`. O **número**
-                // (`figure_progress` + `figure_number_at_index`) fica intacto.
-                let numbering_on = matches!(
-                    self.chain.custom("figure.numbering"),
-                    Some(crate::entities::value::Value::Str(_)),
-                );
-                // Calcular o prefixo de numeração antes de chamar layout_figure.
-                let caption_prefix: Option<String> = if numbering_on {
-                    let kind_key = kind.as_deref().unwrap_or("image");
-                    let progress = self.figure_progress.entry(kind_key.to_string()).or_insert(0);
-                    let idx = *progress;
-                    *progress += 1;
-                    // P190H (M6 categoria Figures): fallback legacy
-                    // `state.figure_numbers` ELIMINADO — field eliminado
-                    // de CounterStateLegacy. Caminho Introspector activo
-                    // via `figure_number_at_index` (P184C/D); rede de
-                    // segurança final `unwrap_or(idx + 1)` preservada
-                    // (heurística para edge cases sem populate).
-                    use crate::entities::introspector::Introspector;
-                    let figure_number = self.introspector
-                        .figure_number_at_index(kind_key, idx)
-                        .unwrap_or(idx + 1);
-                    Some(format!("Figura {}: ", figure_number))
-                } else {
-                    None
-                };
-                figure::layout_figure(self, body, caption, caption_prefix);
-            }
+            // Atomizado (ADR-0109, P378) → layout/figure.rs.
+            Content::Figure(e) => figure::layout(self, e),
 
             // Passo 61 — TOC: delegado a outline.rs (Tarefa 5).
             Content::Outline(_) => {
@@ -1112,46 +1085,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 }
             }
 
-            Content::Image(e) => {
-                let dims = image::calculate_dimensions(
-                    &e.data.0,  // &[u8] via PtrEqArc → Arc → deref
-                    e.width.as_deref(),
-                    e.height.as_deref(),
-                    &self.sizer,
-                );
-
-                // Garantir linha limpa antes da imagem (bloco).
-                self.flush_line();
-
-                // Verificar se a imagem cabe na página actual.
-                if self.regions.current.cursor_y.0 + dims.height_pt > self.regions.current.height - self.page_config.margin {
-                    self.new_page();
-                }
-
-                // pos.y é o TOPO da bounding box — não o baseline de texto.
-                // O exportador calcula pdf_y = page_height - pos.y - height.
-                let pos = Point { x: Pt(self.page_config.margin), y: self.regions.current.cursor_y };
-
-                // DEBT-28 encerrado: intrinsic_width/height vêm de calculate_dimensions.
-                // A segunda chamada a self.sizer.size() foi eliminada.
-                let intrinsic_w = dims.intrinsic_width.unwrap_or(100);
-                let intrinsic_h = dims.intrinsic_height.unwrap_or(100);
-
-                self.regions.current.current_items.push(FrameItem::Image {
-                    pos,
-                    data:             Arc::clone(&e.data.0), // .0 acede ao Arc interno de PtrEqArc
-                    width:            Pt(dims.width_pt),
-                    height:           Pt(dims.height_pt),
-                    intrinsic_width:  intrinsic_w,
-                    intrinsic_height: intrinsic_h,
-                });
-
-                self.regions.current.cursor_y += Pt(dims.height_pt);
-
-                if self.regions.current.cursor_y.0 > self.regions.current.height - self.page_config.margin {
-                    self.new_page();
-                }
-            }
+            // Atomizado (ADR-0109, P378) → layout/image.rs.
+            Content::Image(e) => image::layout(self, e),
 
             Content::Align(e) => {
                 self.layout_align(e.alignment, &e.body);
@@ -1163,65 +1098,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `floats_pending`, emitido no flush da página (new_page/
             // finish). `float: false` preserva comportamento P84.5+P84.6
             // literal (body in-place via cursor).
-            Content::Place(e) => {
-                let alignment = &e.alignment;
-                let dx = &e.dx;
-                let dy = &e.dy;
-                let scope = &e.scope;
-                let float = &e.float;
-                let clearance = &e.clearance;
-                let body = &e.body;
-                // P232 — Resolver effective alignment per eixo via `.or()`.
-                let effective_alignment = match self.cell_align {
-                    Some(grid_a) => crate::entities::layout_types::Align2D {
-                        h: alignment.h.or(grid_a.h),
-                        v: alignment.v.or(grid_a.v),
-                    },
-                    None => *alignment,
-                };
-
-                if *float {
-                    // P245 — float real: layout body em sub-frame,
-                    // capturar items + dimensões, push ao buffer.
-                    let avail_w_page = self.available_width();
-                    let (body_height, body_items) = self.layout_sub_frame_with_width(
-                        body, 0.0, avail_w_page,
-                    );
-                    let (content_w, _) = crate::rules::layout::helpers::measure_content(
-                        body, avail_w_page,
-                    );
-                    let resolved_clearance = clearance
-                        .map(|l| l.resolve_pt(self.font_size_pt.val()))
-                        .unwrap_or(0.0);
-
-                    // Reserva espaço top se alignment.y == Top.
-                    // Bottom + Horizon reservam ao fundo (paridade vanilla
-                    // default bottom).
-                    use crate::entities::layout_types::VAlign;
-                    let is_top = matches!(effective_alignment.v, Some(VAlign::Top));
-                    if is_top {
-                        self.cursor_y_top_reserve += body_height + resolved_clearance;
-                    } else {
-                        self.cursor_y_bottom_reserve += body_height + resolved_clearance;
-                    }
-
-                    self.floats_pending.push(DeferredFloat {
-                        alignment: effective_alignment,
-                        body_items,
-                        body_height,
-                        body_width: content_w,
-                        clearance: resolved_clearance,
-                    });
-                    // Cursor.y NÃO avança — float não consome flow space.
-                    // dx/dy aplicado durante flush (não in-place).
-                    let _ = dx;  // dx aplicado em flush via translate
-                    let _ = dy;  // dy aplicado em flush via translate
-                    let _ = scope; // scope: Parent + float: true (DEBT-37 sentinela)
-                } else {
-                    // P223 preserved literal: float: false → comportamento P84.5+P84.6.
-                    self.layout_place(effective_alignment, *dx, *dy, *scope, body);
-                }
-            }
+            // Atomizado (ADR-0109, P378) → layout/place.rs.
+            Content::Place(e) => place::layout(self, e),
 
             // Passo 100 (ADR-0039): `Content::Styled` activa push/pop na
             // `chain` interna. A vista achatada `self.style` é
@@ -1499,81 +1377,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // após `layout_content(body)` e o body permaneceu na mesma
             // linha, emite **exactamente** o algoritmo P284 (1 Line).
             // Validado por regression P285 + dedicated P286 test.
-            Content::Underline(_) | Content::Strike(_) | Content::Overline(_) => {
-                use crate::entities::layout_types::{FrameItem, Point, Pt};
-                // Modelo D (Lote 4 P319): destructure de Arc<Elem> + kind_em
-                // num só match (os 3 são tipos `Arc` distintos — sem `|`).
-                let (body, stroke, offset, extent, kind_em) = match content {
-                    Content::Underline(e) => (&e.body, e.stroke, e.offset, e.extent,  0.10_f64),
-                    Content::Strike(e)    => (&e.body, e.stroke, e.offset, e.extent, -0.25),
-                    Content::Overline(e)  => (&e.body, e.stroke, e.offset, e.extent, -0.80),
-                    _ => unreachable!("arm gates Underline/Strike/Overline"),
-                };
-                let font_pt = self.font_size_pt.val();
-                let offset_pt = offset
-                    .map(|l| l.resolve_pt(font_pt))
-                    .unwrap_or(kind_em * font_pt);
-                let extent_pt = extent.map_or(0.0, |l| l.resolve_pt(font_pt));
-                let thickness = (font_pt * 0.05).max(0.4);
-                // P285 §A.3: utilizador explícito > herança do texto > default.
-                let color = stroke.or(self.style.fill);
-
-                // P286 — snapshot inicial + activa collector.
-                let start_x_initial    = self.regions.current.cursor_x;
-                let baseline_y_initial = self.regions.current.cursor_y;
-                let prev_collector     = self.decoration_lines_collector.take();
-                self.decoration_lines_collector = Some(Vec::new());
-
-                self.layout_content(body);
-
-                let mut segments = self.decoration_lines_collector
-                    .take().unwrap_or_default();
-                // Restaurar collector outer (suporta decorações aninhadas
-                // hipotéticas; LIFO save/restore standard).
-                self.decoration_lines_collector = prev_collector;
-
-                // P286 — patch do primeiro segment: o `start_x` real é
-                // o snapshot inicial (não line_start_x), porque o body
-                // pode começar a meio de uma linha já em curso.
-                if let Some(first) = segments.first_mut() {
-                    first.start_x    = start_x_initial;
-                    first.baseline_y = baseline_y_initial;
-                }
-                // P286 — acrescentar segment "final não-flushed" (a linha
-                // onde o body terminou sem causar wrap final).
-                let final_end_x      = self.regions.current.cursor_x;
-                let final_baseline_y = self.regions.current.cursor_y;
-                let final_start_x    = if segments.is_empty() {
-                    start_x_initial
-                } else {
-                    self.regions.current.line_start_x
-                };
-                if final_end_x.val() > final_start_x.val() {
-                    segments.push(DecoSegment {
-                        start_x:    final_start_x,
-                        end_x:      final_end_x,
-                        baseline_y: final_baseline_y,
-                    });
-                }
-
-                // P286 — emite 1 `FrameItem::Line` por segment. Extent
-                // aplicado simetricamente em cada linha (§A.3 opção α).
-                for seg in &segments {
-                    let line_y = Pt(seg.baseline_y.val() + offset_pt);
-                    // Cada Line vai para `current_line` da página actual.
-                    // Para segments do meio (já flushed), o seu baseline_y
-                    // pertence a uma linha já em `current_items`; ainda
-                    // assim push em current_line é válido — o Layouter
-                    // não reordena por Y, apenas concatena no flush
-                    // seguinte (paridade vanilla painter pós-frame).
-                    self.regions.current.current_line.push(FrameItem::Line {
-                        start:     Point { x: Pt(seg.start_x.val() - extent_pt), y: line_y },
-                        end:       Point { x: Pt(seg.end_x.val()   + extent_pt), y: line_y },
-                        thickness,
-                        color,
-                    });
-                }
-            }
+            // Atomizado (ADR-0109, P378) → layout/decorations.rs (arm agrupado).
+            Content::Underline(_) | Content::Strike(_) | Content::Overline(_) =>
+                decorations::layout(self, content),
 
             // ── Passo 287 (frente `P-smartquote`) — função stdlib ──────────
             //

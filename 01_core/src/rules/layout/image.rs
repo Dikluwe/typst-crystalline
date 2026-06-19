@@ -4,8 +4,14 @@
 //! @layer L1
 //! @updated 2026-04-19
 
+use std::sync::Arc;
+
+use crate::entities::elements::image::ImageElem;
 use crate::entities::image_sizer::ImageSizer;
+use crate::entities::layout_types::{FrameItem, Point, Pt};
 use crate::entities::value::Value;
+
+use super::{FontMetrics, Layouter};
 
 /// Densidade padrão para conversão px → pt.
 /// 96 DPI: 1 pt = 1/72 inch; 1 px = 1/96 inch → 1 px = 72/96 pt = 0.75 pt.
@@ -72,6 +78,52 @@ fn extract_pt(val: &Value) -> Option<f64> {
         Value::Float(f)  => Some(*f),
         Value::Length(l) => Some(l.abs.to_pt()),
         _ => None,
+    }
+}
+
+/// Layout de `image(...)` (atomização ADR-0109 P378): resolve dimensões via
+/// `calculate_dimensions`, garante linha/página, emite o `FrameItem::Image` e
+/// avança o cursor vertical. Content-preserving — era inline no `layout_content`.
+pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    e:        &ImageElem,
+) {
+    let dims = calculate_dimensions(
+        &e.data.0,  // &[u8] via PtrEqArc → Arc → deref
+        e.width.as_deref(),
+        e.height.as_deref(),
+        &layouter.sizer,
+    );
+
+    // Garantir linha limpa antes da imagem (bloco).
+    layouter.flush_line();
+
+    // Verificar se a imagem cabe na página actual.
+    if layouter.regions.current.cursor_y.0 + dims.height_pt > layouter.regions.current.height - layouter.page_config.margin {
+        layouter.new_page();
+    }
+
+    // pos.y é o TOPO da bounding box — não o baseline de texto.
+    // O exportador calcula pdf_y = page_height - pos.y - height.
+    let pos = Point { x: Pt(layouter.page_config.margin), y: layouter.regions.current.cursor_y };
+
+    // DEBT-28 encerrado: intrinsic_width/height vêm de calculate_dimensions.
+    let intrinsic_w = dims.intrinsic_width.unwrap_or(100);
+    let intrinsic_h = dims.intrinsic_height.unwrap_or(100);
+
+    layouter.regions.current.current_items.push(FrameItem::Image {
+        pos,
+        data:             Arc::clone(&e.data.0), // .0 acede ao Arc interno de PtrEqArc
+        width:            Pt(dims.width_pt),
+        height:           Pt(dims.height_pt),
+        intrinsic_width:  intrinsic_w,
+        intrinsic_height: intrinsic_h,
+    });
+
+    layouter.regions.current.cursor_y += Pt(dims.height_pt);
+
+    if layouter.regions.current.cursor_y.0 > layouter.regions.current.height - layouter.page_config.margin {
+        layouter.new_page();
     }
 }
 
