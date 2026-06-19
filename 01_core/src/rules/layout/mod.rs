@@ -10,7 +10,6 @@ pub mod image;
 pub mod outline;
 pub mod references;
 
-use ecow::EcoString;
 
 use crate::entities::{
     content::Content,
@@ -50,6 +49,25 @@ mod transform;
 // (Image/Figure completam-se nos seus próprios arquivos image.rs/figure.rs.)
 mod decorations;
 mod place;
+
+// Atomização Fatia 1/2 (ADR-0109, P380): fluxo de bloco e estrutura.
+// (Grid completa-se no próprio grid.rs, junto de layout_grid.)
+mod colbreak;
+mod enum_item;
+mod grid_cell;
+mod grid_footer;
+mod grid_header;
+mod h_space;
+mod list_item;
+mod pagebreak;
+mod repeat;
+mod table;
+mod table_cell;
+mod table_footer;
+mod table_header;
+mod term_item;
+mod terms;
+mod v_space;
 
 // Helpers livres usados pelo Layouter e pelos braços extraídos.
 pub(crate) mod helpers;
@@ -817,37 +835,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // Modelo D (Lote 3 P318): destructure de Arc<Elem> — mesma lógica.
-            Content::ListItem(e) => {
-                if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
-                let margin_pt = Pt(self.page_config.margin);
-                self.regions.current.current_line.push(FrameItem::Text {
-                    pos:   Point { x: margin_pt, y: self.regions.current.cursor_y },
-                    text:  "•".into(),  // U+2022 — suportado com CIDFont (DEBT-5 pago)
-                    style: self.style.clone(),
-                });
-                self.regions.current.cursor_x = margin_pt + self.font_size_pt * 1.5;
-                self.layout_content(&e.body);
-                self.flush_line();
-                self.regions.current.cursor_x = margin_pt;
-            }
-
-            Content::EnumItem(e) => {
-                if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
-                let margin_pt = Pt(self.page_config.margin);
-                let label: EcoString = match e.number {
-                    Some(n) => format!("{}.", n).into(),
-                    None    => "-".into(),
-                };
-                self.regions.current.current_line.push(FrameItem::Text {
-                    pos:   Point { x: margin_pt, y: self.regions.current.cursor_y },
-                    text:  label,
-                    style: self.style.clone(),
-                });
-                self.regions.current.cursor_x = margin_pt + self.font_size_pt * 2.0;
-                self.layout_content(&e.body);
-                self.flush_line();
-                self.regions.current.cursor_x = margin_pt;
-            }
+            // Atomizado (ADR-0109, P380) → layout/list_item.rs, enum_item.rs.
+            Content::ListItem(e) => list_item::layout(self, e),
+            Content::EnumItem(e) => enum_item::layout(self, e),
 
             Content::Link(e) => {
                 // DEBT: sublinhado e cor de link — requer FrameItem::Decoration (futuro)
@@ -925,71 +915,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             // P224+P227+P228 — Grid refino +7 fields. gutter/align/inset/header/footer/stroke/fill
             // são consumidos por layout_grid (signature expandida).
-            Content::Grid(e) => {
-                self.layout_grid(&e.columns, &e.rows, &e.cells, e.gutter, e.align, e.inset,
-                                 e.header.as_ref(), e.footer.as_ref(),
-                                 e.stroke.as_ref(), e.fill.as_ref());
-            }
-
-            // P224.B — GridHeader / GridFooter renderizam body sequencial
-            // (semantic real adiada; repeat ignorado per ADR-0054 graded
-            // paridade P157C TableHeader/Footer N=5).
-            Content::GridHeader(e) => {
-                self.layout_content(&e.body);
-            }
-            Content::GridFooter(e) => {
-                self.layout_content(&e.body);
-            }
-
-            // P224.C + P230 — GridCell isolado renderiza body (fora de Grid
-            // context; dentro de Grid é consumido por grid_placement em
-            // layout_grid). stroke + fill per-cell P230 são ignorados aqui
-            // (semantic precedência ocorre apenas dentro de Grid context).
-            Content::GridCell(e) => {
-                self.layout_content(&e.body);
-            }
-
-            // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table ──
-            // **Primeiro sub-passo Model Fase 2**. Delega a `layout_grid`
-            // clone simples per ADR-0060 §"Decisão 4" + diagnóstico
-            // P157A §10. Sem modificação de `grid.rs`. TableCell
-            // estruturado e Header/Footer diferidos para P157B/C.
-            Content::Table(e) => {
-                // P224+P227+P228 — Table delegate; herda stroke + fill.
-                self.layout_grid(&e.columns, &e.rows, &e.children,
-                                 None, None,
-                                 crate::entities::sides::Sides::uniform(
-                                     crate::entities::layout_types::Length::pt(0.0)),
-                                 None, None,
-                                 e.stroke.as_ref(), e.fill.as_ref());
-            }
-
-            // ── Passo 157B (ADR-0060 Fase 2 sub-passo 2) — table cell ──
-            // **Segundo sub-passo Model Fase 2**. Renderiza body no
-            // contexto actual (single render). `x`/`y`/colspan/rowspan
-            // **armazenados mas ignorados** per ADR-0054 graded —
-            // algoritmo de placement diferido em DEBT-34e (refactor
-            // dedicado a placement Grid completo). Quando dentro de
-            // `Content::Table`, cell aparece como child linear no
-            // grid distribuído por `idx % num_cols`.
-            Content::TableCell(e) => {
-                self.layout_content(&e.body);
-            }
-
-            // ── Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha table foundations) ──
-            // **Terceiro e último sub-passo Model Fase 2**. Par simétrico
-            // TableHeader/TableFooter — renderiza body no contexto actual
-            // (single render). `repeat` **armazenado mas ignorado** per
-            // ADR-0054 graded — algoritmo de repetição em page breaks
-            // diferido em DEBT-56 (refactor multi-region; column flow +
-            // header/footer repeat). Quando dentro de `Content::Table`,
-            // header/footer aparecem como children lineares no grid.
-            Content::TableHeader(e) => {
-                self.layout_content(&e.body);
-            }
-            Content::TableFooter(e) => {
-                self.layout_content(&e.body);
-            }
+            // Atomizado (ADR-0109, P380) → grid.rs (cluster layout_grid) + table.rs
+            // e os arquivos próprios das cells/headers/footers.
+            Content::Grid(e) => grid::layout(self, e),
+            Content::GridHeader(e) => grid_header::layout(self, e),
+            Content::GridFooter(e) => grid_footer::layout(self, e),
+            Content::GridCell(e) => grid_cell::layout(self, e),
+            Content::Table(e) => table::layout(self, e),
+            Content::TableCell(e) => table_cell::layout(self, e),
+            Content::TableHeader(e) => table_header::layout(self, e),
+            Content::TableFooter(e) => table_footer::layout(self, e),
 
             // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ──
             // Render placeholder per ADR-0033 + ADR-0054 graded:
@@ -1162,31 +1097,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.regions.current.cursor_y += self.font_size_pt * 0.6;
             }
 
-            Content::Terms(e) => {
-                if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
-                for item in e.items.iter() {
-                    self.layout_content(item);
-                }
-            }
-
-            Content::TermItem(e) => {
-                if self.regions.current.cursor_x.0 > self.page_config.margin { self.flush_line(); }
-                let margin_pt = Pt(self.page_config.margin);
-                self.regions.current.cursor_x = margin_pt + self.font_size_pt * 1.5;
-                // O termo aparece em negrito — convenção de listas de definições.
-                let prev_chain = self.chain.clone();
-                let prev_style = self.style.clone();
-                use crate::entities::style::{Style, Styles};
-                self.chain = self.chain.push_styles(&Styles::from_iter([Style::Bold(true)]));
-                self.style = TextStyle::from(&self.chain);
-                self.layout_content(&e.term);
-                self.chain = prev_chain;
-                self.style = prev_style;
-                self.layout_content(&Content::text(": "));
-                self.layout_content(&e.description);
-                self.flush_line();
-                self.regions.current.cursor_x = margin_pt;
-            }
+            // Atomizado (ADR-0109, P380) → layout/terms.rs, term_item.rs.
+            Content::Terms(e) => terms::layout(self, e),
+            Content::TermItem(e) => term_item::layout(self, e),
 
             // ── Passo 156C / 156L (ADR-0061 Fase 1 + Fase 3 refino) — pad + hide ──
             // P243 (M9d / M7+3 fase (a); ADR-0081 IMPLEMENTADO parcial 4/5)
@@ -1211,19 +1124,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // ── Passo 156D (ADR-0061 Fase 1, sub-passo 2) — h + v spacing ──
             // `weak` armazenado mas comportamento de collapse adiado
             // (perfil ADR-0054 graded). Refino futuro se necessário.
-            Content::HSpace(e) => {
-                let pt = e.amount.resolve_pt(self.font_size_pt.val());
-                self.regions.current.cursor_x += Pt(pt);
-            }
-            Content::VSpace(e) => {
-                let pt = e.amount.resolve_pt(self.font_size_pt.val());
-                // Termina linha em curso se houver content pendente — caso
-                // contrário texto na linha actual fica meio-render.
-                if self.regions.current.cursor_x.0 > self.regions.current.line_start_x.0 {
-                    self.flush_line();
-                }
-                self.regions.current.cursor_y += Pt(pt);
-            }
+            // Atomizado (ADR-0109, P380) → layout/h_space.rs, v_space.rs.
+            Content::HSpace(e) => h_space::layout(self, e),
+            Content::VSpace(e) => v_space::layout(self, e),
 
             // ── Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo ──
             // **Último sub-passo Fase 2 (atinge target 72% Layout)**.
@@ -1288,13 +1191,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `gap` armazenado mas não emite spacing entre cópias
             // (só uma cópia neste passo). `justify` armazenado mas
             // sem distribuição de espaço residual (idem).
-            Content::Repeat(e) => {
-                // Layout single-render: emite o body uma vez no
-                // contexto actual. Suficiente para paridade estrutural
-                // (variant disponível em todo o pipeline) e para que
-                // counters/labels dentro do body resolvam via walk.
-                self.layout_content(&e.body);
-            }
+            // Atomizado (ADR-0109, P380) → layout/repeat.rs.
+            Content::Repeat(e) => repeat::layout(self, e),
 
             // ── P219 (DEBT-56 sub-fase b 3/4) — columns consumer REAL graded
             //
@@ -1319,23 +1217,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `weak` armazenado mas collapse defere (consistente P156D).
             // Layouter reusa `new_page` (cursor.rs:128) que commits items
             // actuais a Page e reseta cursor.
-            Content::Pagebreak(e) => {
-                // 1. Termina linha em curso (caso contrário fica meio-render).
-                if self.regions.current.cursor_x.0 > self.regions.current.line_start_x.0 {
-                    self.flush_line();
-                }
-                // 2. Força nova página (mesmo se actual está vazia — vanilla
-                //    pagebreak() é "event" sempre observável).
-                self.new_page();
-                // 3. Se `to` exige paridade específica, verifica; se não bate,
-                //    insere página vazia adicional para ajustar.
-                if let Some(parity) = e.to {
-                    let next_page_number = self.pages.len() + 1;
-                    if !parity.matches(next_page_number) {
-                        self.new_page();
-                    }
-                }
-            }
+            // Atomizado (ADR-0109, P380) → layout/pagebreak.rs.
+            Content::Pagebreak(e) => pagebreak::layout(self, e),
 
             // ── Passo 220 (ADR-0078 PROPOSTO sub-fase b 4/4) — colbreak ──
             // Opção β graded: downgrade a pagebreak literal (paridade
@@ -1344,12 +1227,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // multi-region salto entre colunas reais é P-Layout-Fase4
             // candidato (não-reservado per política P158).
             // `weak` armazenado mas semantic adiada (paridade P156D/E).
-            Content::Colbreak(_) => {
-                if self.regions.current.cursor_x.0 > self.regions.current.line_start_x.0 {
-                    self.flush_line();
-                }
-                self.new_page();
-            }
+            // Atomizado (ADR-0109, P380) → layout/colbreak.rs.
+            Content::Colbreak(e) => colbreak::layout(self, e),
 
             // ── Passo 284 + P285 + P286 (ADR-0054 graded) — text decoration ─
             //

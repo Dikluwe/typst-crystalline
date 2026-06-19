@@ -1,6 +1,6 @@
 # Prompt L0 — Atomização dos elementos (layout/introspect → arquivo do elemento)
 
-Hash do Código: a4e8bfd5
+Hash do Código: 00110025
 
 **Camada**: L1 · **Módulos afetados**: `01_core/src/rules/layout/mod.rs` (o monólito
 `layout_content`), `01_core/src/rules/introspect.rs` (o walk), e os arquivos dos elementos

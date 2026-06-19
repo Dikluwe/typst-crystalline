@@ -9,6 +9,7 @@
 
 use crate::entities::{
     content::Content,
+    elements::grid::GridElem,
     geometry::{ShapeKind, Stroke},
     image_sizer::ImageSizer,
     layout_types::{Align2D, Color, FrameItem, Length, Point, Pt, TrackSizing},
@@ -18,6 +19,18 @@ use crate::entities::{
 use super::grid_placement::{place_cells, PlacedCell};
 use super::metrics::FontMetrics;
 use super::{item_pos, translate_frame_item};
+
+/// Layout de `grid(...)` (atomização ADR-0109 P380): delega ao motor
+/// `layout_grid` (cluster Grid+Table). Content-preserving — era inline no
+/// `layout_content`.
+pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut super::Layouter<M, S>,
+    e:        &GridElem,
+) {
+    layouter.layout_grid(&e.columns, &e.rows, &e.cells, e.gutter, e.align, e.inset,
+                         e.header.as_ref(), e.footer.as_ref(),
+                         e.stroke.as_ref(), e.fill.as_ref());
+}
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Layout de `Content::Grid` — algoritmo de tracks (Passo 80, 83, 84.2,
