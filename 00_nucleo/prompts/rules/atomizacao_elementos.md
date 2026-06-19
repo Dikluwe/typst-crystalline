@@ -225,3 +225,34 @@ ADR-0109. A diferença é **onde** o arquivo atomizado mora e o custo §3.
 ### O que resta após esta fatia (rumo a fechar)
 Fatia 2 (refs/citações + avulsos: Quote/SmartQuote/Raw/Hide/Divider/Cite/Ref/Link/Bibliography/
 Footnote) + Text + (máquina fica) + math final.
+
+---
+
+## §10 — P381: Fatia 2 (refs/avulsos) + Fatia Text (isolada), forma B por-elemento
+
+> **Fatia 2 (refs/citações + avulsos), commit próprio.** 9 arms inline → `rules/layout/<elem>.rs`:
+> `cite.rs` (lê `introspector`), `bibliography.rs` (usa `super::format_bib_entry`), `footnote.rs`
+> (estado dedicado `footnote_counter`/`pending_footnote_bodies` por descendência), `quote.rs`
+> (`chain.lang`), `smartquote.rs` (estado dedicado `smartquote_*_open` + `layout_word`), `raw.rs`
+> (`layout_word`), `hide.rs`, `divider.rs`, `link.rs`. **`Ref`/`Labelled` já delegam a
+> `references.rs`** (atomizados; não se tocam).
+>
+> **Fatia Text (isolada), commit próprio.** `Text` (`@653`, ~82 linhas) → `rules/layout/text.rs`.
+> Folha de render (decodifica `#set text` da chain, merge top-wins, `split_whitespace`→`layout_word`;
+> **não re-entra `layout_content`** — confirmado P379). Caminho quente: oráculo crítico é a rede
+> `f_caracterizacao_estilo::*`.
+>
+> Forma B; estado privado/dedicado e helpers (`format_bib_entry`, `layout_word`) por **descendência
+> de módulo**; **sem** import reverso, **sem** `pub(crate)`, **sem** `dyn`.
+
+### FORA (não tocar — medido P379)
+- **Máquina do layouter**: `Sequence` (`@742`), `Styled` (`@1045`), `Dynamic` (`@579`), `SetPage`
+  (`@998`) — orquestram/reconfiguram; **não** são elementos de domínio.
+- **Math**: `Equation` (`@848`) + arm agrupado 16 variantes (`@858`) + `MathAlignPoint`/`Linebreak`
+  (`@887`) → fatia final, `rules/math/layout/`.
+- **Displays counter/state** ([a-decidir], fronteira).
+
+### Após este passo (o "monólito fechado" no sentido correto)
+O `layout_content` fica **só máquina + math** (+ os no-ops e os arms já-magros). Os **elementos de
+domínio** do layout estão atomizados. Resta a **fatia math** (final) e depois a atomização do
+`introspect.rs`.
