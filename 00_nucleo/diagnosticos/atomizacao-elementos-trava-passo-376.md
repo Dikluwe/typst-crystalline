@@ -1,4 +1,4 @@
-# Passo 376 — Atomização dos elementos (ADR-0110): relatório
+# Passo 376 — Atomização dos elementos (ADR-0109): relatório
 
 > **Estado: MATERIALIZADO — fatia família-containers.** Trava aprovada pelo dono (Opção B + fatia
 > containers); Estágio 1 executado. Caveat de stack: `RUST_MIN_STACK=33554432`. HEAD pós-P375
@@ -18,7 +18,7 @@ privado do `Layouter` por ser módulo descendente; **sem** import reverso, **sem
 | `Stack` | `Content::Stack(e) => stack::layout(self, e)` | `rules/layout/stack.rs` | 87 |
 | `Pad`   | `Content::Pad(e) => pad::layout(self, e)`     | `rules/layout/pad.rs`   | 75 |
 
-**Métrica de leitura (ADR-0110):** `layout_content` encolheu **1857 → 1276 linhas** (−581);
+**Métrica de leitura (ADR-0109):** `layout_content` encolheu **1857 → 1276 linhas** (−581);
 `layout/mod.rs` **2867 → 2293** (−574). Cada container é agora legível no seu arquivo.
 
 **Não-metas confirmadas (medido):** `match` exaustivo MANTIDO (0 wildcards); despacho ESTÁTICO
@@ -30,10 +30,10 @@ Stack, não despacho); `entities/` **não tocado** → `content→elements` inal
 ---
 
 ## Estágio 0 — feito
-- **ADR-0110** (`00_nucleo/adr/typst-adr-0110-atomizacao.md`): definição, não-metas, forma
+- **ADR-0109** (`00_nucleo/adr/typst-adr-0109-atomizacao.md`): definição, não-metas, forma
   canónica, o erro histórico (P346 confundiu a métrica da lente com atomização). Já existia
   redigida (untracked); revista e mantida.
-- **claude.md**: secção "Atomização (ADR-0110)" + entrada na tabela de ADRs Vigentes.
+- **claude.md**: secção "Atomização (ADR-0109)" + entrada na tabela de ADRs Vigentes.
 
 ## Fase A — a medição (a fonte vence; `file:line`)
 
@@ -50,7 +50,7 @@ desta fatia.
 
 ## O achado decisivo (§3 do L0) — o custo da forma canónica
 
-Mover a lógica para o arquivo do elemento (a forma que a ADR-0110 desenha, **Opção A**) **exige
+Mover a lógica para o arquivo do elemento (a forma que a ADR-0109 desenha, **Opção A**) **exige
 três coisas que a ADR não precificou** — medido no arm `Heading` (`:758-798`), que lê o estado
 **privado** do `Layouter`:
 
@@ -63,12 +63,12 @@ três coisas que a ADR não precificou** — medido no arm `Heading` (`:758-798`
 3. **Threading de genéricos** `Layouter<'a, M: FontMetrics, S: ImageSizer>` → o método do elemento
    fica genérico em `M,S`.
 
-**Nenhum viola a ADR-0110** (sem `dyn`, sem wildcard; estático+exaustivo intactos). Mas são custo
+**Nenhum viola a ADR-0109** (sem `dyn`, sem wildcard; estático+exaustivo intactos). Mas são custo
 real a aceitar conscientemente.
 
 ## O fork A/B (a decisão do dono)
 
-- **Opção A — elemento-dono** (forma canónica ADR-0110): `impl HeadingElem { fn layout }` em
+- **Opção A — elemento-dono** (forma canónica ADR-0109): `impl HeadingElem { fn layout }` em
   `heading.rs`. Leitura por-elemento-único literal; **paga** o custo §3 (ciclo + `pub(crate)` +
   genéricos).
 - **Opção B — layout por-elemento**: `rules/layout/elem/heading.rs`. Atomiza o monólito em ~59
@@ -96,12 +96,12 @@ F-5b INTACTOS.
 ## Commits
 | Estágio | Commit |
 |---|---|
-| 0 — ADR-0110 + claude.md | `4461c808a` |
+| 0 — ADR-0109 + claude.md | `4461c808a` |
 | Trava — Opção B + containers aprovados | `9bed75348` |
 | 1 — materialização da fatia | `cf204f949` |
 
 ## Notas de execução (transparência)
-- O ficheiro da **ADR-0110 desapareceu** da working tree a meio do passo; restaurado de `HEAD`
+- O ficheiro da **ADR-0109 desapareceu** da working tree a meio do passo; restaurado de `HEAD`
   (estava commitado, intacto).
 - O texto do L0 **não fixa o valor do hash** (auto-invalida-se a cada edição); referência genérica
   + `crystalline-lint --fix-hashes`.

@@ -1,11 +1,11 @@
 # Prompt L0 — Atomização dos elementos (layout/introspect → arquivo do elemento)
 
-Hash do Código: 56dc2e78
+Hash do Código: 1fd1ba1e
 
 **Camada**: L1 · **Módulos afetados**: `01_core/src/rules/layout/mod.rs` (o monólito
 `layout_content`), `01_core/src/rules/introspect.rs` (o walk), e os arquivos dos elementos
 `01_core/src/entities/elements/<elem>.rs`.
-**Decisão de origem**: **ADR-0110** (atomização — mover a lógica para o arquivo da unidade;
+**Decisão de origem**: **ADR-0109** (atomização — mover a lógica para o arquivo da unidade;
 `match` exaustivo + estático + imports ficam; NÃO é desacoplar `content→elements`). Complementa
 ADR-0026 (enum fechado sem vtable, **satisfeita**) e ADR-0105 (modelo D, exaustividade cl.3,
 **mantida**). Disciplina: ADR-0107 (content-preserving) + ADR-0108 (medir antes de decidir).
@@ -59,19 +59,20 @@ passar/expor esse estado (ver §3).
 
 ---
 
-## §2 — A forma canónica da delegação (ADR-0110)
+## §2 — A forma canónica da delegação (ADR-0109, forma B)
 
 Antes (monólito): `Content::Heading(h) => { /* 44 linhas */ }`.
-Depois (magro, exaustivo, estático): `Content::Heading(h) => h.layout(lo)`, com a lógica num
-método do elemento. **O `match` fica magro (1 linha/arm); a jump table, a exaustividade e os
-imports ficam.**
+Depois (magro, exaustivo, estático): `Content::Heading(h) => heading::layout(self, h)`, com a
+lógica numa **free function** `pub(super) fn layout<M,S>(layouter, h)` em `rules/layout/heading.rs`
+(camada de render). **O `match` fica magro (1 linha/arm); a jump table, a exaustividade e os
+imports ficam.** *(§3/§4 abaixo registam por que a Opção A — método no struct — foi rejeitada.)*
 
 ---
 
-## §3 — O custo medido da forma canónica (Opção A) — o achado para o dono
+## §3 — O custo medido da Opção A (por que foi rejeitada) — o achado para o dono
 
-Mover a lógica para `entities/elements/heading.rs` (a forma que a ADR-0110 desenha) **exige três
-coisas que a ADR não precificou** (medido, marcado para o dono decidir — ADR-0108):
+Mover a lógica para `entities/elements/heading.rs` (a Opção A, que o P376 herdou da ADR antes da
+correção P377) **exige três coisas** (medido, marcado para o dono decidir — ADR-0108):
 
 1. **Import reverso `entities → rules::layout::Layouter`.** Hoje **nenhum** elemento chama o
    `Layouter` (as menções em `math_*.rs` são comentário) [medido]. Cria um **ciclo de módulos**
@@ -85,15 +86,15 @@ coisas que a ADR não precificou** (medido, marcado para o dono decidir — ADR-
    [medido `:84`] → o método vira `fn layout<M: FontMetrics, S: ImageSizer>(&self, lo: &mut
    Layouter<'_, M, S>)` em cada elemento.
 
-**Nenhum desses é violação da ADR-0110** (não exige `dyn` nem wildcard; o despacho fica estático e
+**Nenhum desses é violação da ADR-0109** (não exige `dyn` nem wildcard; o despacho fica estático e
 exaustivo). Mas os três são **custo real** que o dono deve aceitar conscientemente.
 
 ---
 
 ## §4 — O fork A/B (decisão do dono na Trava)
 
-- **Opção A — elemento-dono (forma canónica da ADR-0110).** `impl HeadingElem { fn layout(&self,
-  lo) }` em `heading.rs`. **Prós:** "abrindo só o arquivo do elemento" no sentido literal — struct
+- **Opção A — elemento-dono (REJEITADA pela ADR-0109 corrigida no P377).** `impl HeadingElem { fn
+  layout(&self, lo) }` em `heading.rs`. **Prós:** "abrindo só o arquivo do elemento" no sentido literal — struct
   + Element + layout + introspect juntos. **Contras:** o custo §3 (ciclo + `pub(crate)` +
   genéricos).
 - **Opção B — arquivo de layout por-elemento.** `rules/layout/heading.rs` com
@@ -104,14 +105,14 @@ exaustivo). Mas os três são **custo real** que o dono deve aceitar conscientem
   não por-elemento-único).
 
 **Ambas mantêm o `match` exaustivo + estático + os imports** → ambas satisfazem as não-metas da
-ADR-0110. A diferença é **onde** o arquivo atomizado mora e o custo §3.
+ADR-0109. A diferença é **onde** o arquivo atomizado mora e o custo §3.
 
 > **ESCOLHA DO DONO (P376): Opção B.** A lógica de layout de cada elemento move para
 > `rules/layout/<elem>.rs` (`pub(super) fn layout<M,S>(lo: &mut Layouter<'_,M,S>, e: &XElem)`);
 > o arm no monólito vira `Content::X(e) => elem::x::layout(self, e)`. **Sem** import reverso, **sem**
 > `pub(crate)` novo, **sem** ciclo (mesmo módulo-árvore `rules::layout`) — o custo §3 **não se
-> paga**. A forma canónica da ADR-0110 (Opção A, lógica no arquivo do struct) fica **registada como
-> alternativa**, não aplicada nesta varredura.
+> paga**. A Opção A (lógica no arquivo do struct) é a **forma rejeitada** pela ADR-0109 (corrigida no
+> P377): cria o acoplamento dado→render.
 
 ---
 
@@ -130,7 +131,7 @@ ADR-0110. A diferença é **onde** o arquivo atomizado mora e o custo §3.
 
 ---
 
-## §6 — Não-metas confirmadas (ADR-0110)
+## §6 — Não-metas confirmadas (ADR-0109)
 
 - **`match` exaustivo MANTIDO** (sem wildcard) — a garantia do compilador fica. [medido: os 59
   arms são sem wildcard hoje]

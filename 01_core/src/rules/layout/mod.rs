@@ -35,7 +35,7 @@ mod grid;
 mod placement;
 mod equation;
 
-// Atomização dos elementos-container (ADR-0110, P376): o layout de cada
+// Atomização dos elementos-container (ADR-0109, P376): o layout de cada
 // container vive no seu arquivo; o `match` delega numa linha.
 mod block;
 mod boxed;
@@ -1422,7 +1422,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // — promoção real `Pad.right`: `regions.current.width` save/restore
             // permite width-aware wrap em `layout_word` consumir largura útil
             // reduzida pelo `right` durante body layout.
-            // Atomizado (ADR-0110, P376) → layout/pad.rs.
+            // Atomizado (ADR-0109, P376) → layout/pad.rs.
             Content::Pad(e) => pad::layout(self, e),
 
             Content::Hide(e) => {
@@ -1466,7 +1466,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // visualmente invertido. Refino futuro pode aplicar
             // posicionamento absoluto reverso real (sob forma de
             // FrameItem positioning).
-            // Atomizado (ADR-0110, P376) → layout/stack.rs.
+            // Atomizado (ADR-0109, P376) → layout/stack.rs.
             Content::Stack(e) => stack::layout(self, e),
 
             // ── Passo 156H (ADR-0061 Fase 2 sub-passo 2) — box inline container ──
@@ -1485,7 +1485,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P231 — Boxed +3 cosméticos cosméticos armazenados mas semantic real
             // adiada (outset visual ainda não aplicado; radius/clip primitivos
             // baseline ausentes — pattern N=5 → 7 cumulativo).
-            // Atomizado (ADR-0110, P376) → layout/boxed.rs.
+            // Atomizado (ADR-0109, P376) → layout/boxed.rs.
             Content::Boxed(e) => boxed::layout(self, e),
 
             // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block container ──
@@ -1502,7 +1502,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `width` actualmente reduz a largura útil temporariamente
             // (cursor.x começa em line_start_x + offset). `width: None`
             // == auto (largura completa).
-            // Atomizado (ADR-0110, P376) → layout/block.rs.
+            // Atomizado (ADR-0109, P376) → layout/block.rs.
             Content::Block(e) => block::layout(self, e),
 
             // ── Passo 156J (ADR-0061 Fase 3 sub-passo 1) — repeat ──

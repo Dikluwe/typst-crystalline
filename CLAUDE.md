@@ -95,16 +95,19 @@ dependência do freio, não a elimina). Ver **ADR-0108**.
 
 ---
 
-## Atomização — mover a lógica para o arquivo da unidade (ADR-0110)
+## Atomização — mover a lógica para o arquivo da unidade, na sua camada (ADR-0109)
 
-**Atomização** = mover a lógica de arquivos **monolíticos** para o arquivo da **unidade dona**
-(cada elemento/feature **legível sozinho**). **NÃO** é zerar `content→elements`, **NÃO** é
-desacoplamento de imports, **NÃO** usa vtable/`dyn`/PropMap, **NÃO** remove o `match` exaustivo.
-A forma: o `match` no núcleo fica **magro** (corpos delegam a `elem.metodo(ctx)`); a lógica gorda
-muda para o arquivo do elemento. O `match` exaustivo, a **jump table** e os **imports** ficam. A
-métrica da lente (`content→elements`) é **irrelevante** para a atomização — não a use como gate.
-Se um plano propuser despacho dinâmico ou "zerar `content→elements`" em nome de atomização,
-**isso é a deriva que esta ADR proíbe** — pare e separe os dois significados. Ver **ADR-0110**.
+**Atomização** = mover a lógica de arquivos **monolíticos** para o arquivo da **unidade dona, na
+sua camada** (cada elemento/feature **legível sozinho**). **NÃO** é zerar `content→elements`,
+**NÃO** é desacoplamento de imports, **NÃO** usa vtable/`dyn`/PropMap, **NÃO** remove o `match`
+exaustivo. A **forma é a B**: o `match` no núcleo fica **magro** (corpos delegam a uma free function
+`<elem>::layout(self, e)` em `rules/layout/<elem>.rs`); a lógica de render muda para o arquivo da
+feature **na camada de render** (acede ao `Layouter` por **descendência de módulo** — **sem** import
+reverso `entities→rules`, **sem** `pub(crate)`). A **Opção A** (lógica no arquivo do *struct*) está
+**rejeitada** (cria o acoplamento dado→render). O `match` exaustivo, a **jump table** e os **imports**
+ficam. A métrica da lente (`content→elements`) é **irrelevante** — não a use como gate. Se um plano
+propuser despacho dinâmico, "zerar `content→elements`", ou a Opção A em nome de atomização, **isso é
+a deriva que esta ADR proíbe** — pare e separe os significados. Ver **ADR-0109**.
 
 ---
 
@@ -143,7 +146,7 @@ Se um plano propuser despacho dinâmico ou "zerar `content→elements`" em nome 
 | ADR-0031 | Early hashing em `Source`; complementa ADR-0016 |
 | ADR-0107 | Paridade é com a linguagem (semântica/sintaxe/morfologia), não com a mecânica/igualdade do Rust |
 | ADR-0108 | Disciplina anti-deriva: medir antes de decidir (6 regras verificáveis); o dono audita a substância |
-| ADR-0110 | Atomização = lógica para o arquivo da unidade (legível sozinho); `match` exaustivo + estático + imports ficam; NÃO é desacoplar `content→elements` |
+| ADR-0109 | Atomização = lógica de render para `rules/layout/<elem>.rs` (forma B, free function; Opção A dado→render rejeitada); `match` exaustivo + estático + imports ficam; NÃO é desacoplar `content→elements` |
 
 ADRs revogadas não constam na tabela e não devem ser seguidas.
 

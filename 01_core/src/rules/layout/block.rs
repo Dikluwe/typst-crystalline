@@ -1,10 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/atomizacao_elementos.md
-//! @prompt-hash 8f091ac7
+//! @prompt-hash eba4a68c
 //! @layer L1
 //! @updated 2026-06-18
 //!
-//! Atomização (ADR-0110, P376): o layout de `Block` movido do monólito
+//! Atomização (ADR-0109, P376): o layout de `Block` movido do monólito
 //! `layout_content` para o arquivo da feature. Content-preserving — a lógica
 //! é idêntica; só o endereço mudou. O `match` no núcleo delega numa linha.
 
