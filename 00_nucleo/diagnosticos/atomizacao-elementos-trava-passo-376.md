@@ -29,10 +29,6 @@ Stack, não despacho); `entities/` **não tocado** → `content→elements` inal
 
 ---
 
-## Estágio 0 — feito (banner pré-Trava preservado abaixo)
-
----
-
 ## Estágio 0 — feito
 - **ADR-0110** (`00_nucleo/adr/typst-adr-0110-atomizacao.md`): definição, não-metas, forma
   canónica, o erro histórico (P346 confundiu a métrica da lente com atomização). Já existia
@@ -90,17 +86,27 @@ atinge a leitura sem o custo. [inferência marcada]
 (`content→elements=68` não-gate) · content-preserving (rede +11 oráculo) · α/caso 2/caso 4/flag/
 F-5b INTACTOS.
 
-## Decisão do dono (P376)
-- **Forma: Opção B** — layout por-elemento (`rules/layout/elem/<elem>.rs`), sem ciclo, sem
-  `pub(crate)`, sem o custo §3. (Opção A fica registada como alternativa.)
-- **Escopo: família containers** — `Block`(296)+`Boxed`(198)+`Stack`(84)+`Pad`(57) = ~635 linhas.
-- **Falta**: o hash humano do L0 antes do Estágio 1 (Regra de Ouro).
+## Decisão do dono (P376) — resolvida
+- **Forma: Opção B** — layout por-elemento em `rules/layout/<elem>.rs` (flat, seguindo os 6
+  precedentes existentes: `figure.rs`/`image.rs`/`grid.rs`/…), sem ciclo, sem `pub(crate)`, sem o
+  custo §3. (Opção A fica registada como alternativa.)
+- **Escopo: família containers** — `Block`+`Boxed`+`Stack`+`Pad`. Materializado no Estágio 1 (topo
+  deste relatório).
 
-## A Trava (PARA aqui)
-**Para o dono aprovar:** (a) o desenho — Opção **A** ou **B**; (b) o escopo — a fatia-prova
-`Heading` (ou outra); (c) o **hash** do L0 `rules/atomizacao_elementos.md` (guardar + calcular).
-**Nenhum código movido antes.** Após aprovação → Estágio 1 (mover a fatia), em passo separado
-(Trava 5: não emendar o seguinte).
+## Commits
+| Estágio | Commit |
+|---|---|
+| 0 — ADR-0110 + claude.md | `4461c808a` |
+| Trava — Opção B + containers aprovados | `9bed75348` |
+| 1 — materialização da fatia | `cf204f949` |
 
-Commit de fecho da Trava: ADR-0110 + claude.md + L0 + este relatório. Árvore (tracked) limpa fora
-desses; backlog untracked intacto.
+## Notas de execução (transparência)
+- O ficheiro da **ADR-0110 desapareceu** da working tree a meio do passo; restaurado de `HEAD`
+  (estava commitado, intacto).
+- O texto do L0 **não fixa o valor do hash** (auto-invalida-se a cada edição); referência genérica
+  + `crystalline-lint --fix-hashes`.
+- Desvio menor face ao §4/§5 do L0: arquivos **flat** em `layout/` em vez de subdir `elem/` —
+  alinha com os 6 precedentes do repo; L0 corrigido para refletir.
+
+**Fora de escopo (Trava 5):** os lotes futuros (Figure/Image/Shape/Transform e o resto), a
+varredura do projeto inteiro e a decisão de crates — decisão do dono, passos separados.
