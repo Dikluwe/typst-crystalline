@@ -284,3 +284,37 @@ domínio** do layout estão atomizados. Resta a **fatia math** (final) e depois 
 O `layout_content` fica **só máquina** (`Sequence`/`Styled`/`Dynamic`/`SetPage`) **+ no-ops/displays**
 counter/state. Os **elementos de domínio do layout (incl. math) estão atomizados**. A próxima frente
 é o **`introspect.rs`** (43 arms); os displays counter/state ficam [a-decidir].
+
+---
+
+## §12 — P383: introspect.rs — completar a convenção por-elemento
+
+> **Medição (a forma sai do walk, não do layout/math):** o `introspect.rs` é o tronco do walk; o
+> subsistema `rules/introspect/` já tem submódulos por-concern (`extract_payload.rs`, `from_tags.rs`,
+> `fixpoint.rs`, `convergence.rs`, `locatable.rs`), cada um com **L0 próprio**. A lógica de
+> introspeção **por-elemento já foi extraída nas migrações M5/M6** (P178-P200): `extract_payload`
+> (payload por elemento), `from_tags::apply_state_displays`/`apply_counter_displays` (os displays — o
+> [a-decidir] do P379 **resolve-se aqui**: já estão atomizados em `from_tags.rs`), e os helpers
+> `compute_heading_auto_toc`/`compute_heading_for_toc`/`compute_labelled` (compute por-elemento,
+> soltos em `introspect.rs`).
+>
+> **Classificação dos arms do walk (medido):** ~31 são **recursão/descida** (`walk(&e.body…)` —
+> máquina); Heading/Labelled fazem **orquestração de emissão de tags** (máquina, chamam os
+> `compute_*`); Equation/Figure/CounterUpdate são **puros/no-op** (lógica já em extract_payload/
+> populate_intr); Empty/Text/Dynamic/Outline **no-op**. `materialize_time` é **rebuild recursivo**
+> (máquina) + a substituição de `CounterDisplay`/`StateDisplay` (adapter). **O walk é máquina; a
+> lógica por-elemento já está extraída.**
+>
+> **Decisão do dono (P383): completar a convenção por-elemento** — mover os helpers `compute_*`
+> (ainda soltos em `introspect.rs`) para o submódulo por-elemento:
+> - `compute_heading_auto_toc` + `compute_heading_for_toc` → `rules/introspect/heading.rs`.
+> - `compute_labelled` → `rules/introspect/labelled.rs`.
+> O walk chama via `heading::…`/`labelled::…` (pub(super), descendência). Os ficheiros novos declaram
+> `@prompt rules/atomizacao_elementos.md` (convenção da atomização P376+; o submódulo usa L0 próprio
+> por ficheiro, mas a atomização governa este movimento). **Sem** `dyn`, **sem** wildcard, `entities/`
+> intacto. A **máquina do walk fica** (recursão/tags/rebuild).
+
+### Após este passo — "elementos primeiro" completo
+A camada layout (P376-382) e a camada introspect (M5/M6 + este passo) têm a lógica por-elemento
+atomizada. O walk e o `layout_content` ficam **máquina**. A frente seguinte é a **varredura do
+projeto** (decisão do dono).
