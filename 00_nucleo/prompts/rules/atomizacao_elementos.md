@@ -14,9 +14,10 @@ implementação é **por fatias, pós-Trava**, com **hash humano por fatia**. **
 a lógica muda de arquivo, **não** muda de comportamento (oráculo: a rede de caracterização +11,
 P331).
 
-> **Estatuto: EM TRAVA (P376) — aguarda aprovação do dono.** Nenhum código movido antes da
-> aprovação do desenho + do escopo + do hash (CLAUDE.md, Regra de Ouro). Este L0 regista a
-> medição e o desenho; a escolha A/B (§4) e a fatia (§5) são do dono.
+> **Estatuto: DESENHO + ESCOPO APROVADOS pelo dono (P376) — aguarda só o hash.** O dono escolheu
+> **Opção B** (§4) e a **fatia família-containers** (§5). Falta o passo final da Trava: o humano
+> guarda este L0 e calcula o hash (`crystalline-lint --fix-hashes .`); só então o Estágio 1 move
+> o código (CLAUDE.md, Regra de Ouro). Nenhum código movido antes do hash.
 
 ---
 
@@ -105,20 +106,25 @@ exaustivo). Mas os três são **custo real** que o dono deve aceitar conscientem
 **Ambas mantêm o `match` exaustivo + estático + os imports** → ambas satisfazem as não-metas da
 ADR-0110. A diferença é **onde** o arquivo atomizado mora e o custo §3.
 
-**Recomendação (a refutar pelo dono):** começar pela **Opção A numa fatia-prova de 1 elemento**
-(§5) para **medir o custo §3 concretamente** numa unidade antes do rollout de 59; se o ciclo for
-indesejável, **Opção B** atinge a métrica de leitura da ADR-0110 sem o custo §3. [inferência —
-marcada; refuta-se medindo a fatia-prova real]
+> **ESCOLHA DO DONO (P376): Opção B.** A lógica de layout de cada elemento move para
+> `rules/layout/elem/<elem>.rs` (`pub(super) fn layout<M,S>(lo: &mut Layouter<'_,M,S>, e: &XElem)`);
+> o arm no monólito vira `Content::X(e) => elem::x::layout(self, e)`. **Sem** import reverso, **sem**
+> `pub(crate)` novo, **sem** ciclo (mesmo módulo-árvore `rules::layout`) — o custo §3 **não se
+> paga**. A forma canónica da ADR-0110 (Opção A, lógica no arquivo do struct) fica **registada como
+> alternativa**, não aplicada nesta varredura.
 
 ---
 
-## §5 — Escopo e ordem (a fatia-prova; válvula da ADR-0110)
+## §5 — Escopo e ordem (a fatia aprovada)
 
-- **Fatia-prova: `Heading`** — 44 linhas de layout (`:758`) + introspect (`materialize_time :176`,
-  walk `:828`), arquivo do elemento já existe e é pequeno (`heading.rs`, 124 linhas). Prova a forma
-  end-to-end e mede o custo §3 numa unidade. **Aditivo-neutro**: a rede +11 passa sem virar.
-- **Depois** (pós-fatia-prova aprovada): as famílias por lógica decrescente — containers
-  (`Block`/`Boxed`/`Stack`/`Pad`), depois `Figure`/`Image`/`Shape`/`Transform`, depois o resto.
+> **ESCOLHA DO DONO (P376): fatia família-containers.** O Estágio 1 move os **4 arms mais gordos**:
+> `Block` 296 linhas (`:1798`), `Boxed` 198 (`:1600`), `Stack` 84 (`:1516`), `Pad` 57 (`:1418`) =
+> **~635 linhas** → `rules/layout/elem/{block,boxed,stack,pad}.rs`. Maior encolhimento imediato do
+> monólito. **Aditivo-neutro**: a rede +11 e a suíte passam **sem asserção virada**.
+
+- **Ordem dentro da fatia**: do maior para o menor (`Block` → `Boxed` → `Stack` → `Pad`), cada arm
+  migra independente (a exaustividade fica intacta o tempo todo).
+- **Depois** (lotes futuros, decisão do dono): `Figure`/`Image`/`Shape`/`Transform`; depois o resto.
 - **Fora desta fatia**: os arms math (path `rules/math/layout/`, agrupados); a varredura do projeto
   inteiro; a decisão de crates (todas decisão do dono, **depois**).
 

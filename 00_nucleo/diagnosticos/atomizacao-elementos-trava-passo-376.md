@@ -64,6 +64,12 @@ atinge a leitura sem o custo. [inferência marcada]
 (`content→elements=68` não-gate) · content-preserving (rede +11 oráculo) · α/caso 2/caso 4/flag/
 F-5b INTACTOS.
 
+## Decisão do dono (P376)
+- **Forma: Opção B** — layout por-elemento (`rules/layout/elem/<elem>.rs`), sem ciclo, sem
+  `pub(crate)`, sem o custo §3. (Opção A fica registada como alternativa.)
+- **Escopo: família containers** — `Block`(296)+`Boxed`(198)+`Stack`(84)+`Pad`(57) = ~635 linhas.
+- **Falta**: o hash humano do L0 antes do Estágio 1 (Regra de Ouro).
+
 ## A Trava (PARA aqui)
 **Para o dono aprovar:** (a) o desenho — Opção **A** ou **B**; (b) o escopo — a fatia-prova
 `Heading` (ou outra); (c) o **hash** do L0 `rules/atomizacao_elementos.md` (guardar + calcular).
