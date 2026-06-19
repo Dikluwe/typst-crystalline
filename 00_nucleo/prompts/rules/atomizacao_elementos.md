@@ -1,6 +1,6 @@
 # Prompt L0 — Atomização dos elementos (layout/introspect → arquivo do elemento)
 
-Hash do Código: pendente — definido na materialização (Estágio 1, pós-Trava, hash humano por fatia)
+Hash do Código: 56dc2e78
 
 **Camada**: L1 · **Módulos afetados**: `01_core/src/rules/layout/mod.rs` (o monólito
 `layout_content`), `01_core/src/rules/introspect.rs` (o walk), e os arquivos dos elementos
@@ -14,19 +14,19 @@ implementação é **por fatias, pós-Trava**, com **hash humano por fatia**. **
 a lógica muda de arquivo, **não** muda de comportamento (oráculo: a rede de caracterização +11,
 P331).
 
-> **Estatuto: DESENHO + ESCOPO APROVADOS pelo dono (P376) — aguarda só o hash.** O dono escolheu
-> **Opção B** (§4) e a **fatia família-containers** (§5). Falta o passo final da Trava: o humano
-> guarda este L0 e calcula o hash (`crystalline-lint --fix-hashes .`); só então o Estágio 1 move
-> o código (CLAUDE.md, Regra de Ouro). Nenhum código movido antes do hash.
+> **Estatuto: MATERIALIZADO — fatia família-containers (P376).** O dono aprovou **Opção B** (§4) e
+> a **fatia containers** (§5); o hash foi sincronizado (`crystalline-lint --fix-hashes`) e o código
+> movido para `rules/layout/{block,boxed,stack,pad}.rs`. Suíte verde (content-preserving), lint 0/0. Os
+> lotes seguintes (Figure/Image/… e o resto) ficam para passos futuros, decisão do dono.
 
 ---
 
 ## §0 — Estatuto e sincronização de hash
 
-Em Trava. O **primeiro lote** (a fatia-prova, §5) materializa-o: o código declara
-`@prompt rules/atomizacao_elementos.md` + `@prompt-hash <hash deste ficheiro>`, e
-`crystalline-lint --fix-hashes .` sincroniza. Até lá o ficheiro é órfão (V7) — esperado e
-idêntico ao padrão do `f_fronteira_e1.md` pré-P334.
+Materializado pela fatia containers (§5): os 4 arquivos declaram
+`@prompt rules/atomizacao_elementos.md` + `@prompt-hash <hash deste ficheiro>`, sincronizados por
+`crystalline-lint --fix-hashes .` (V7 órfão resolvido). Lotes futuros que materializem mais
+elementos re-sincronizam se o L0 mudar.
 
 ---
 
@@ -96,7 +96,7 @@ exaustivo). Mas os três são **custo real** que o dono deve aceitar conscientem
   lo) }` em `heading.rs`. **Prós:** "abrindo só o arquivo do elemento" no sentido literal — struct
   + Element + layout + introspect juntos. **Contras:** o custo §3 (ciclo + `pub(crate)` +
   genéricos).
-- **Opção B — arquivo de layout por-elemento.** `rules/layout/elem/heading.rs` com
+- **Opção B — arquivo de layout por-elemento.** `rules/layout/heading.rs` com
   `pub(super) fn layout<M,S>(lo, h: &HeadingElem)`. **Prós:** atomiza o monólito de 1857 linhas em
   ~59 arquivos pequenos **sem** o ciclo nem o alargamento de visibilidade (mesmo módulo-árvore;
   segue a separação domínio/render do Typst vanilla). **Contras:** a lógica de layout do elemento
@@ -107,7 +107,7 @@ exaustivo). Mas os três são **custo real** que o dono deve aceitar conscientem
 ADR-0110. A diferença é **onde** o arquivo atomizado mora e o custo §3.
 
 > **ESCOLHA DO DONO (P376): Opção B.** A lógica de layout de cada elemento move para
-> `rules/layout/elem/<elem>.rs` (`pub(super) fn layout<M,S>(lo: &mut Layouter<'_,M,S>, e: &XElem)`);
+> `rules/layout/<elem>.rs` (`pub(super) fn layout<M,S>(lo: &mut Layouter<'_,M,S>, e: &XElem)`);
 > o arm no monólito vira `Content::X(e) => elem::x::layout(self, e)`. **Sem** import reverso, **sem**
 > `pub(crate)` novo, **sem** ciclo (mesmo módulo-árvore `rules::layout`) — o custo §3 **não se
 > paga**. A forma canónica da ADR-0110 (Opção A, lógica no arquivo do struct) fica **registada como
@@ -119,7 +119,7 @@ ADR-0110. A diferença é **onde** o arquivo atomizado mora e o custo §3.
 
 > **ESCOLHA DO DONO (P376): fatia família-containers.** O Estágio 1 move os **4 arms mais gordos**:
 > `Block` 296 linhas (`:1798`), `Boxed` 198 (`:1600`), `Stack` 84 (`:1516`), `Pad` 57 (`:1418`) =
-> **~635 linhas** → `rules/layout/elem/{block,boxed,stack,pad}.rs`. Maior encolhimento imediato do
+> **~635 linhas** → `rules/layout/{block,boxed,stack,pad}.rs`. Maior encolhimento imediato do
 > monólito. **Aditivo-neutro**: a rede +11 e a suíte passam **sem asserção virada**.
 
 - **Ordem dentro da fatia**: do maior para o menor (`Block` → `Boxed` → `Stack` → `Pad`), cada arm

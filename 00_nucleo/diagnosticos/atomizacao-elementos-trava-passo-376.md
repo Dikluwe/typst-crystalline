@@ -1,9 +1,35 @@
-# Passo 376 — Atomização dos elementos (ADR-0110): relatório da Trava
+# Passo 376 — Atomização dos elementos (ADR-0110): relatório
 
-> **Estado: PARADO NA TRAVA** (design-first, CLAUDE.md Regra de Ouro). ADR-0110 + claude.md + L0
-> gravados; **nenhum código movido**. Aguarda aprovação do dono (desenho + escopo + hash).
-> Caveat de stack: `RUST_MIN_STACK=33554432`. HEAD pós-P375 (`769ebf0a9`). Lint: 0 violações
-> (1 warning V7 órfão no L0 novo — esperado pré-materialização, igual ao `f_fronteira_e1`).
+> **Estado: MATERIALIZADO — fatia família-containers.** Trava aprovada pelo dono (Opção B + fatia
+> containers); Estágio 1 executado. Caveat de stack: `RUST_MIN_STACK=33554432`. HEAD pós-P375
+> (`769ebf0a9`). **Suíte verde** (2747+472+24+21+2, 0 falhas; rede de caracterização `+11` sem
+> asserção virada); **lint 0/0**; build limpo.
+
+## Estágio 1 — a fatia materializada (Opção B)
+
+A lógica de layout dos 4 containers movida do monólito para o seu arquivo (free function
+`pub(super) fn layout<M,S>(layouter, e)`, mesma módulo-árvore `rules::layout` — acessa o estado
+privado do `Layouter` por ser módulo descendente; **sem** import reverso, **sem** `pub(crate)`):
+
+| Elemento | Arm antes (mod.rs) | Arquivo novo | Linhas |
+|---|---|---|---|
+| `Block` | `Content::Block(e) => block::layout(self, e)` | `rules/layout/block.rs` | 302 |
+| `Boxed` | `Content::Boxed(e) => boxed::layout(self, e)` | `rules/layout/boxed.rs` | 202 |
+| `Stack` | `Content::Stack(e) => stack::layout(self, e)` | `rules/layout/stack.rs` | 87 |
+| `Pad`   | `Content::Pad(e) => pad::layout(self, e)`     | `rules/layout/pad.rs`   | 75 |
+
+**Métrica de leitura (ADR-0110):** `layout_content` encolheu **1857 → 1276 linhas** (−581);
+`layout/mod.rs` **2867 → 2293** (−574). Cada container é agora legível no seu arquivo.
+
+**Não-metas confirmadas (medido):** `match` exaustivo MANTIDO (0 wildcards); despacho ESTÁTICO
+(0 `dyn`/vtable de elemento — o único `Box<dyn Iterator>` em `stack.rs` é o iterador original do
+Stack, não despacho); `entities/` **não tocado** → `content→elements` inalterado, sem ciclo.
+**Linhagem:** os 4 arquivos com `@prompt rules/atomizacao_elementos.md` + `@prompt-hash` (V7
+órfão resolvido). **Perf:** free function inlinável (sem regressão esperada; suíte 0.37s estável).
+
+---
+
+## Estágio 0 — feito (banner pré-Trava preservado abaixo)
 
 ---
 
