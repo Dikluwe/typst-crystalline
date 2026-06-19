@@ -164,3 +164,33 @@ ADR-0109. A diferença é **onde** o arquivo atomizado mora e o custo §3.
 > **Leitura:** `layout_content` 1276 → 1126 linhas (−150; −731 acumulado desde P376).
 > **Não-metas (medido):** `match` exaustivo (0 wildcards), despacho estático (0 `dyn`), `entities/`
 > não tocado. Suíte verde (rede +11 sem asserção virada). Precedente seguido: `figure.rs`/`image.rs`.
+
+---
+
+## §8 — Fatia P378: visuais/decorações restantes (forma B)
+
+> **Aprovado pelo dono (P378): fatia Place + Image + Figure + Decorações.** Forma B.
+> - `Place` (`:1166`, 58 linhas) → **novo** `rules/layout/place.rs` — lê `cell_align`/
+>   `available_width`/`layout_sub_frame_with_width`/`floats_pending`/`cursor_y_*_reserve`/
+>   `layout_place`.
+> - `Underline`/`Strike`/`Overline` (arm agrupado `:1502`, 75 linhas) → **novo**
+>   `rules/layout/decorations.rs` — free function recebe `&Content` e re-match interno (1.º arm
+>   agrupado atomizado); lê `font_size_pt`/`style.fill`/`regions`/`decoration_lines_collector`.
+> - `Image` (`:1115`, ~36 linhas) → **completa** `rules/layout/image.rs` (`pub(super) fn layout`
+>   junto do helper `calculate_dimensions` já lá).
+> - `Figure` (`:909`, ~31 linhas de cálculo de prefixo) → **completa** `rules/layout/figure.rs`
+>   (dobra o prefixo + chama o `layout_figure` existente).
+>
+> Arm magro: `Content::Place(e) => place::layout(self, e)` (idem). Estado privado do `Layouter` por
+> descendência; helpers via `super::`. **Sem** import reverso, **sem** `pub(crate)`, **sem** `dyn`.
+
+### Inventário — o que falta para fechar o `layout_content` (medido P378)
+- **Movidos até aqui** (P376+P377+P378): Block/Boxed/Stack/Pad, Heading/Transform/Shape/Columns,
+  Place/Image/Figure/Decorações(3) = **15 unidades**.
+- **Restam não-math** (lotes futuros, mesma forma B): Quote 46, Cite 35, Colbreak 33, TermItem 25,
+  SmartQuote 25, Repeat 25, Pagebreak 25, VSpace 23, Divider 19, Bibliography 19, Table 18, EnumItem
+  18, Hide 15, Raw 15, ListItem 14, TableCell 12, TableFooter 11, Footnote 8, Terms 7, Ref 7, Link 6,
+  família Grid (~30), HSpace 4. Plus o **core/infra** (Text 82, Sequence 51, Styled 14, Dynamic 31,
+  SetPage 25, família state/counter) — a decidir se atomiza ou fica como motor.
+- **Math** (fatia FINAL própria): `Equation` + arm agrupado de 16 variantes (`:865`) = **17
+  variantes** → descem a `rules/math/layout/`. Fora de todas as fatias não-math.
