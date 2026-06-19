@@ -69,6 +69,9 @@ mod term_item;
 mod terms;
 mod v_space;
 
+// Atomização Fatia Text (ADR-0109, P381): a folha de render, isolada.
+mod text;
+
 // Atomização Fatia 2 (ADR-0109, P381): refs/citações + avulsos.
 mod bibliography;
 mod cite;
@@ -661,87 +664,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 }
             }
 
-            Content::Text(text) => {
-                // **F-5b fatia 2 (P373, §3a.13/§3a.14)**: o render do `#set text`/
-                // `#set par` não vem mais assado no node — vive na chain pelo canal
-                // `custom` (`"text.<campo>"` / `"par.leading"`), levado até aqui pelo
-                // transporte aninhado. Decodifica-o num node-render `ns` (Value→tipo)
-                // e aplica a MESMA regra de merge top-wins de antes: a chain tipada
-                // (`self.style` — heading, e Bold/Italic de `Content::Styled`) vence;
-                // o `ns` cobre o resto.
-                use crate::entities::value::Value;
-                let cs = |k: &str| self.chain.custom(k);
-                let ns_bold   = matches!(cs("text.bold"),   Some(Value::Bool(true)));
-                let ns_italic = matches!(cs("text.italic"), Some(Value::Bool(true)));
-                let ns_size   = match cs("text.size") {
-                    Some(Value::Length(l)) => Some(Pt(l.abs.to_pt())),
-                    _ => None,
-                };
-                let ns_fill   = match cs("text.fill") {
-                    Some(Value::Color(c)) => Some(c.clone()),
-                    _ => None,
-                };
-                let ns_weight = match cs("text.weight") {
-                    Some(Value::Int(n)) => u16::try_from(*n).ok(),
-                    _ => None,
-                };
-                let ns_tracking = match cs("text.tracking") {
-                    Some(Value::Length(l)) => Some(l.clone()),
-                    _ => None,
-                };
-                let ns_leading = match cs("par.leading") {
-                    Some(Value::Length(l)) => Some(l.clone()),
-                    _ => None,
-                };
-                let ns_lang = match cs("text.lang") {
-                    Some(Value::Str(s)) => {
-                        use std::str::FromStr;
-                        crate::entities::lang::Lang::from_str(s).ok()
-                    }
-                    _ => None,
-                };
-                let ns_font = match cs("text.font") {
-                    Some(Value::Array(arr)) => {
-                        let fams: Vec<_> = arr.iter().filter_map(|v| {
-                            if let Value::Str(s) = v {
-                                Some(crate::entities::font_list::FontFamily::new(s.clone()))
-                            } else {
-                                None
-                            }
-                        }).collect();
-                        crate::entities::font_list::FontList::new(fams)
-                    }
-                    _ => None,
-                };
-                let effective = TextStyle {
-                    bold:   ns_bold   || self.style.bold,
-                    italic: ns_italic || self.style.italic,
-                    size:   if self.style.size > self.font_size_pt {
-                        self.style.size   // heading ou Content::Styled aumentou
-                    } else {
-                        // F-5b fatia 2 (P373): equivalente exato do antigo
-                        // `node_style.size` = `TextStyle::from(chain).size` =
-                        // `chain.size()` (default 11.0); `ns_size` = `#set text(size)`
-                        // (custom). NÃO `self.font_size_pt` (12.0 — default do layouter,
-                        // distinto do default da chain; ver P373).
-                        ns_size.unwrap_or(Pt(self.chain.size()))
-                    },
-                    fill:          self.style.fill.or(ns_fill),
-                    heading_level: self.style.heading_level,
-                    // Top-wins: chain tipada (heading) vence; senão o ns (#set).
-                    weight:        self.style.weight.or(ns_weight),
-                    tracking:      self.style.tracking.clone().or(ns_tracking),
-                    leading:       self.style.leading.clone().or(ns_leading),
-                    lang:          self.style.lang.clone().or(ns_lang),
-                    font:          self.style.font.clone().or(ns_font),
-                };
-                let prev_style = self.style.clone();
-                self.style = effective;
-                for word in text.split_whitespace() {
-                    self.layout_word(word);
-                }
-                self.style = prev_style;
-            }
+            // Atomizado (ADR-0109, P381) → layout/text.rs (folha de render).
+            Content::Text(text) => text::layout(self, text),
 
             Content::Space => {
                 self.regions.current.cursor_x += self.space_width();
