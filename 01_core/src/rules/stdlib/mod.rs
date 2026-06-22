@@ -1,8 +1,9 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash b8224089
+//! @prompt-hash a0982782
+//! @prompt 00_nucleo/prompts/rules/model/document.md
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-06-22
 
 //! Stdlib nativa mínima — Passo 17.
 //!
@@ -53,7 +54,7 @@ pub use crate::rules::stdlib::assert::native_assert;
 pub use crate::rules::stdlib::panic::native_panic;
 pub use crate::rules::stdlib::eval::native_eval;
 pub use crate::rules::stdlib::structural::{
-    make_math_module, native_accent, native_bibliography, native_cancel, native_cite, native_divider, native_emph, native_footnote, native_grid_cell, native_grid_footer, native_grid_header, native_heading, native_op, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms, native_underover,
+    make_math_module, native_accent, native_asset, native_bibliography, native_cancel, native_cite, native_divider, native_document, native_emph, native_footnote, native_grid_cell, native_grid_footer, native_grid_header, native_heading, native_op, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms, native_underover,
 };
 pub use crate::rules::stdlib::figure_image::{native_figure, native_image};
 // P387 (ADR-0111) — data import.

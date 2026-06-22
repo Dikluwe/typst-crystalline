@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 6a0c9a59
+Hash do Código: 72111ca4
 
 ## Módulo
 `01_core/src/entities/content.rs`

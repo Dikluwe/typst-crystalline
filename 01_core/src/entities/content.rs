@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/entities/content.md
 //! @prompt-hash 7c208532
 //! @layer L1
-//! @updated 2026-06-17
+//! @updated 2026-06-22
 //!
 //! Excepção Regra 6 da ADR-0037: o enum `Content` é a entidade
 //! fundamental do domínio visual — representa toda a árvore de
@@ -22,6 +22,7 @@ use crate::entities::paint::Paint;
 use crate::entities::label::Label;
 use crate::entities::dir::Dir;
 use crate::entities::layout_types::{Align2D, Color, Length, PlaceScope, Pt, TextStyle, TrackSizing, TransformMatrix};
+use crate::entities::world_types::Datetime;
 use crate::entities::math_style::MathStyleKind;
 use crate::entities::parity::Parity;
 use crate::entities::ptr_eq_arc::PtrEqArc;
@@ -536,6 +537,24 @@ pub enum Content {
     /// **Modelo D (Lote 8 P323)**: `entities::elements::quote::QuoteElem`
     /// (não-locatável, contentor — recurse body + attribution).
     Quote(Arc<QuoteElem>),
+
+    // ── Passo 397 — metadata do documento + placeholder de resource ───────
+    /// Wrapper de metadata do documento (`#document(...)`).
+    /// Não emite frames — é metadata pura; PDF Info dict continua scope-out
+    /// per ADR-0054 graded.
+    Document {
+        title: Option<Box<Content>>,
+        author: Vec<EcoString>,
+        date: Option<Datetime>,
+        keywords: Vec<EcoString>,
+    },
+    /// Placeholder de resource externo (`#asset(...)`).
+    /// Extensão cristalina (não existe no vanilla como elemento standalone).
+    /// Registry real de resources continua scope-out per ADR-0054 graded.
+    Asset {
+        path: EcoString,
+        kind: Option<EcoString>,
+    },
 
     // ── Passo 287 (frente `P-smartquote`) — função stdlib smartquote ──────
     //
@@ -1452,6 +1471,26 @@ impl Content {
         Self::Quote(Arc::new(QuoteElem { body, attribution, block, quotes }))
     }
 
+    /// **Passo 397** — `Content::Document` (metadata pura).
+    pub fn document(
+        title:    Option<Content>,
+        author:   Vec<EcoString>,
+        date:     Option<Datetime>,
+        keywords: Vec<EcoString>,
+    ) -> Self {
+        Self::Document {
+            title: title.map(Box::new),
+            author,
+            date,
+            keywords,
+        }
+    }
+
+    /// **Passo 397** — `Content::Asset` (placeholder de resource).
+    pub fn asset(path: EcoString, kind: Option<EcoString>) -> Self {
+        Self::Asset { path, kind }
+    }
+
     /// `table(columns, rows, ..children)` — Passo 157A (ADR-0060
     /// Fase 2 sub-passo 1; **primeiro sub-passo Model Fase 2**).
     /// Subset minimal: cells distribuídas como `Content::Grid`;
@@ -1575,6 +1614,10 @@ impl Content {
             Self::TermItem(e) => e.is_empty(),
             // Passo 155: Quote vazio se body for vazio.
             Self::Quote(e) => e.is_empty(),
+            // P397: Document/Asset são metadata/resources; não produzem
+            // conteúdo observável no layout.
+            Self::Document { .. } => true,
+            Self::Asset { .. }    => true,
             // P284: decoração vazia se o body for vazio (cosméticos não
             // criam observable se não há conteúdo).
             // Modelo D (Lote 4 P319): decorações delegam ao elemento.
@@ -1751,6 +1794,10 @@ impl Content {
             // P217: Columns transparente para texto plano (recurse no body).
             Self::Columns(e) => e.plain_text(),
             Self::Quote(e) => e.plain_text(),
+            // P397: Document devolve texto plano do título; Asset não tem
+            // representação textual.
+            Self::Document { title, .. } => title.as_ref().map_or(String::new(), |t| t.plain_text()),
+            Self::Asset { .. }           => String::new(),
             // Lote F-1 (P334): a fronteira dinâmica delega ao elemento.
             Self::Dynamic(e) => e.dyn_plain_text(),
         }
@@ -1851,6 +1898,12 @@ impl PartialEq for Content {
             (Self::TermItem(a), Self::TermItem(b)) => a == b,
             // Modelo D (Lote 8 P323): Quote delega ao `Arc<…Elem>`.
             (Self::Quote(a), Self::Quote(b)) => a == b,
+            // P397: Document/Asset comparam estruturalmente por campos.
+            (
+                Self::Document { title: a, author: b, date: c, keywords: d },
+                Self::Document { title: e, author: f, date: g, keywords: h },
+            ) => a == e && b == f && c == g && d == h,
+            (Self::Asset { path: a, kind: b }, Self::Asset { path: c, kind: d }) => a == c && b == d,
             // Modelo D (Lote 4 P319): decorações delegam ao `Arc<…Elem>`.
             (Self::Underline(a), Self::Underline(b)) => a == b,
             (Self::Strike(a),    Self::Strike(b))    => a == b,
@@ -2091,6 +2144,18 @@ impl Content {
                 Box::new(body.map_content(transform)?),
                 styles.clone(),
             ),
+            // P397: Document recursa no título (único Content aninhado);
+            // Asset é terminal (sem Content aninhado).
+            Content::Document { title, author, date, keywords } => Content::Document {
+                title: match title {
+                    Some(body) => Some(Box::new(body.map_content(transform)?)),
+                    None       => None,
+                },
+                author: author.clone(),
+                date:   *date,
+                keywords: keywords.clone(),
+            },
+            Content::Asset { .. } => self.clone(),
             // Lote F-1 (P334): a fronteira dinâmica recursa nos filhos via o
             // elemento (mesmo contrato dos 65: devolve o nó com filhos
             // transformados; o hub aplica `transform` ao nó abaixo).
@@ -2305,6 +2370,14 @@ impl Content {
                 Box::new(body.map_text(transform)),
                 styles.clone(),
             ),
+            // P397: Document recursa no título; Asset é terminal.
+            Content::Document { title, author, date, keywords } => Content::Document {
+                title: title.as_ref().map(|body| Box::new(body.map_text(transform))),
+                author: author.clone(),
+                date:   *date,
+                keywords: keywords.clone(),
+            },
+            Content::Asset { .. } => self.clone(),
             // Lote F-1 (P334): a fronteira dinâmica delega ao elemento.
             Content::Dynamic(e) => e.dyn_map_text(transform),
         }

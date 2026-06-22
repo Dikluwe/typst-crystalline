@@ -660,7 +660,7 @@ fn make_stdlib() -> Scope {
         native_ellipse, native_emph, native_figure, native_float, native_footnote, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
         native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
-        native_cmyk, native_colbreak, native_columns, native_hsl, native_hsv, native_linear_rgb, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
+        native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_linear_rgb, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_square, native_tiling,
         native_scale, native_skew, native_smartquote, native_stack, native_str, native_strike, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
         // P311b.3 — math style funcs.
@@ -808,6 +808,9 @@ fn make_stdlib() -> Scope {
     scope.define("divider", Value::Func(Func::native("divider", native_divider)));
     // Passo 155 (ADR-0060 Fase 1, sub-passo 2): quote.
     scope.define("quote",   Value::Func(Func::native("quote",   native_quote)));
+    // P397 — document metadata wrapper + asset placeholder.
+    scope.define("document", Value::Func(Func::native("document", native_document)));
+    scope.define("asset",    Value::Func(Func::native("asset",    native_asset)));
     // Passo 295 — footnote Fase 1 (marker only).
     scope.define("footnote", Value::Func(Func::native("footnote", native_footnote)));
     // Passo 296 — math accent + cancel (HIV + (a) minimal).

@@ -372,6 +372,15 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
             materialize_time(&e.body, intr, location),
         ),
 
+        // P397 — Document recursa no title; Asset é terminal.
+        Content::Document { title, author, date, keywords } => Content::Document {
+            title: title.as_ref().map(|t| Box::new(materialize_time(t, intr, location))),
+            author: author.clone(),
+            date: *date,
+            keywords: keywords.clone(),
+        },
+        Content::Asset { .. } => content.clone(),
+
         // Passo 99 (ADR-0038): `Styled` é transparente para materialização de
         // contadores — o body é processado e os estilos preservados.
         Content::Styled(body, styles) => Content::Styled(
@@ -1155,6 +1164,11 @@ pub(crate) fn walk(
             // Tag::Start no topo da `walk` fn — apenas a mutação
             // directa em state foi removida.
         }
+
+        // P397 — Document/Asset são metadata/resources; não entram no walk
+        // de conteúdo renderizável.
+        Content::Document { .. } => {}
+        Content::Asset { .. }    => {}
     }
 
     // P162 .E: emissão Tag::End após recursão. Usa o mesmo Location

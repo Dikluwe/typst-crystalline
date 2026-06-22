@@ -193,9 +193,10 @@ primitives e `skew`). Detalhe em
 | `footnote(body)` | model/footnote.rs | `parcial` ⁸⁰ | **Passo 295** | `Content::Footnote { body: Box<Content> }` + stdlib `#footnote(body)`; **Fase 1 marker only** (HE per diagnóstico §A.0.0.3): Layouter emite `[N]` superscript inline via walker counter `Layouter::footnote_counter: u32`; **body armazenado mas não renderizado no rodapé** (sub-passos P295.1 nota rodapé + P295.2 overflow pendentes); `numbering` cosmético + `FootnoteBody::Reference(Label)` **scope-out** per ADR-0054 graded. **Padrão "variant rico" N=4 preservado inalterado** (A.2 → (a) minimal). **Hash `export.rs 66cb8ac3` preservado pelo 12º passo consecutivo** — emit agnóstico via `FrameItem::Text`. **A.0.0 N=3 reaplicação §8.7' refuta factualmente Tabela C linha 387** (bloqueador `locate` adiado já implementado P208B+C). |
 | `ref(target)` | model/reference.rs | `implementado⁺` | Passos 63–66 | `Content::Ref` com forward-resolve |
 | `numbering(pattern, ...)` | model/numbering.rs | `implementado⁺` | Passos 75, 99 | numéricas/letras/romanas |
-| `document(...)` | model/document.rs | `ausente` | — | document metadata wrapper |
+| `document(...)` | model/document.rs | `implementado` | **Passo 397** | `Content::Document { title, author, date, keywords }` + stdlib `#document(...)`; metadata pura — não emite frames; export PDF Info dict scope-out ADR-0054 graded. |
 | `divider` | model/divider.rs | `implementado` | Passo 154B | `Content::Divider` singleton; layouter emite `FrameItem::Shape::Line` 0.5pt |
-| `asset`, `title` | model/{asset,title}.rs | `ausente` | — | Fase 3 ADR-0060 |
+| `asset(...)` | model/asset.rs | `implementado` | **Passo 397** | `Content::Asset { path, kind }` + stdlib `#asset(path, kind:?)`; extensão cristalina (não existe no vanilla como elemento); resource registry real scope-out ADR-0054 graded. |
+| `title(...)` | — | `ausente` | — | Não é função standalone no vanilla; `title` é campo de `document`/`heading`/`figure`. |
 | `par` (paragraph element) | model/par.rs | `parcial` | Passo 138 | `leading` activo; sem `Content::Par` |
 
 ### A.7 — Visualize
@@ -350,6 +351,8 @@ Nota: ADR-0026 + 0026-R1 declaram **divergência intencional**. Cristalino usa e
 | `Terms {items}` | TermsElem | `implementado` | Passo 154B | sem atributos vanilla (tight/sep/indent) |
 | `TermItem {term, description}` | TermItemElem | `implementado` | Passo 154B | par item; standalone permitido |
 | `Quote {body, attribution, block, quotes}` | QuoteElem | `implementado` | Passo 155 | 4 atributos materializados; smart-quotes lang-aware via `rules/lang/quotes.rs` |
+| `Document {title, author, date, keywords}` | DocumentElem | `implementado` | **Passo 397** | metadata pura; não emite frames; PDF Info dict scope-out ADR-0054 graded |
+| `Asset {path, kind}` | (extensão cristalina) | `implementado` | **Passo 397** | placeholder de resource; `kind` inferido por extensão ou explícito; registry real scope-out ADR-0054 graded |
 | `Columns {count, gutter, body}` | ColumnsElem | `parcial` | Passo 221 (cumulativo P217-P219) | variant + stdlib `#columns(count, body, gutter:?)` + arm Layouter consumer real graded (Opção B); width temporariamente reduzida `(full_width − (count−1)·gutter)/count`; body single-render; multi-region flow real scope-out (P-Layout-Fase4 candidato); default gutter ~4% via `COLUMNS_DEFAULT_GUTTER_RATIO` |
 | `Colbreak {weak}` | ColbreakElem | `parcial` | Passo 220 | variant + stdlib `#colbreak(weak:?)` + arm Layouter Opção β graded (downgrade literal a pagebreak via reuso `Layouter::new_page`); paridade vanilla quando fora de columns context; sem `to:` (vanilla `ColbreakElem` não tem) |
 | **Vanilla-only (ausentes)**: BibliographyElem, CiteElem, FootnoteElem, TableElem, BoxElem, BlockElem, StackElem, HideElem, RepeatElem, PadElem, MoveElem (function só), GradientElem, TilingElem, StrokeElem (object form), … | — | `ausente` (cada) | — | escopo crescente; **`ColumnsElem` e `ColbreakElem` removidos da lista em P221** (transitam para `parcial`); **`UnderlineElem`/`StrikeElem`/`OverlineElem` removidos em P284** (transitam para `implementado` — variants `Content::Underline/Strike/Overline`) |
@@ -448,6 +451,8 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 | ~~`square(...)`~~ | resolvido no Passo 390 (`native_square` sobre `ShapeKind::Rect`) | — |
 | `gradient(...)` | `Value::Gradient` ausente; render gradient em PDF | escopo M |
 | ~~`tiling(...)`~~ | resolvido no Passo 396 (`native_tiling` + consumers `Paint::Tiling` fallback Color) | — |
+| ~~`document(...)`~~ | resolvido no Passo 397 (`Content::Document` + `native_document`; metadata pura; PDF Info dict scope-out) | — |
+| ~~`asset(...)`~~ | resolvido no Passo 397 (`Content::Asset` + `native_asset`; extensão cristalina; registry scope-out) | — |
 | `cmyk` / `oklab` cores | Color space não-RGB ausente | escopo S |
 | `table(columns, ...)` | `Content::Table`; cell layout; rowspan/colspan (DEBT-34d/e) | escopo M; DEBT-34d/e abertos |
 | `Value::Bytes` | foundations/bytes.rs ausente | escopo XS |
@@ -478,11 +483,11 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | Text features ⁷⁰ | 10 | 5 | 1 | 5 | 2 | 23 |
 | Math | 6 | 6 | 1 | 0 | 0 | 13 |
 | Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ⁴⁰ ⁴¹ ⁴² ⁴³ ⁴⁴ ⁴⁵ ⁴⁶ | 12 | 4 | 2 | 0 | 0 | 18 |
-| Model (structural) ¹ ² ³ ²² ²⁴ ²⁹ | 7 | 4 | 7 | 4 | 0 | 22 |
+| Model (structural) ¹ ² ³ ²² ²⁴ ²⁹ ⁸⁰ | 9 | 4 | 7 | 2 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
 | Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection ³⁸ | 3 | 2 | 1 | 0 | 0 | 6 |
-| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ ³⁸ ³⁹ ⁴⁰ ⁴¹ ⁴² ⁴³ ⁴⁴ ⁴⁵ ⁴⁶ ⁷⁰ | **71** | **27** | **24** | **17** | **2** | **141** |
+| **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ ³⁸ ³⁹ ⁴⁰ ⁴¹ ⁴² ⁴³ ⁴⁴ ⁴⁵ ⁴⁶ ⁷⁰ ⁸⁰ | **73** | **27** | **24** | **15** | **2** | **141** |
 
 ¹ — Ajuste P154A (diagnóstico Model): cobertura empírica
 revisada (era 4/4/5/8/0=21; passa a 3/4/5/10/0=22 após
@@ -5696,3 +5701,24 @@ H6 não-listada na spec; refutação genuína documentada).
   - [`typst-paridade-definicoes.md`](typst-paridade-definicoes.md) — definições operacionais de "passa".
   - [`typst-paridade-plano-medicao.md`](typst-paridade-plano-medicao.md) — plano de medição P1–P4.
   - [`relatorios/fecho-debt-1-passo-142.md`](../relatorios/fecho-debt-1-passo-142.md) — mapeamento campo-a-campo de `StyleDelta`.
+
+⁸⁰ — Ajuste P397 (Tabela A.6 Model: `document(...)` e `asset(...)`;
+**fecha Passo 397**):
+
+- `document(...)` transita `ausente → implementado`:
+  - Novo variant `Content::Document { title: Option<Box<Content>>, author: Vec<EcoString>, date: Option<Datetime>, keywords: Vec<EcoString> }` em `01_core/src/entities/content.rs`.
+  - Stdlib `native_document` em `01_core/src/rules/stdlib/structural.rs`; registada em `make_stdlib`.
+  - Named args `title`, `author`, `date`, `keywords` com coerção `Str | Array[Str]` para listas de strings.
+  - Layout no-op (não emite frames); introspection não-locatable.
+  - Export PDF Info dict real continua **scope-out** per ADR-0054 graded.
+- `asset(...)` transita `ausente → implementado`:
+  - Novo variant `Content::Asset { path: EcoString, kind: Option<EcoString> }`.
+  - Stdlib `native_asset` aceita path posicional ou named; `kind` explícito ou inferido por extensão (`.png`, `.jpg`, `.svg`, `.pdf`, `.ttf`, `.otf`, `.wasm`, `.txt`, `.csv`, `.json`, `.yaml`, `.toml`, `.xml`).
+  - Extensão cristalina intencional (vanilla não tem `asset(...)` como elemento standalone); ADR-0033.
+  - Resource registry real (carregamento/embedding) continua **scope-out** per ADR-0054 graded.
+- **Tabela B.2 Content variants**: 62 → **64** (+`Document`, +`Asset`).
+- **Tabela C**: entradas `document(...)` e `asset(...)` movidas para resolvidas (strikethrough).
+- **Contagens Tabela A.6 Model**: 7/4/7/4/0=22 → **9/4/7/2/0=22** (+2 implementado, −2 ausente).
+- **Contagem user-facing total**: 71/27/24/17/2=141 → **73/27/24/15/2=141** (+2 implementado, −2 ausente).
+- **Testes**: 16 unitários (`structural.rs`) + 2 E2E (`integration_tests.rs`) verdes; `cargo test --workspace` passa.
+- **Decisão arquitectural**: nenhum novo `Value` variant; reuso do enum `Content` para metadata pura e placeholders de resource, mantendo o pipeline de layout agnóstico.

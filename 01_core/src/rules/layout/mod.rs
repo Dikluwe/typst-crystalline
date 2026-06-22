@@ -629,6 +629,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::State(_) => {}
             Content::StateUpdate(_) => {}
 
+            // P397 — Document/Asset são metadata/resources; não emitem frames.
+            Content::Document { .. } => {}
+            Content::Asset { .. }    => {}
+
             // P240 (M9d/M7+1): StateDisplay consome Content pre-rendered
             // pelo `apply_state_displays` pós-fixpoint via
             // `Introspector::state_display_value(key, loc)`. Layouter

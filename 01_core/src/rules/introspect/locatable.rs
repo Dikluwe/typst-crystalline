@@ -179,7 +179,10 @@ pub fn is_locatable(content: &Content) -> bool {
         // P298 — Math op não-locatable.
         | Content::MathOp(_)
         // P311b.2 — MathStyled não-locatable (math structural; wrap glyph).
-        | Content::MathStyled(_) => false,
+        | Content::MathStyled(_)
+        // P397 — Document/Asset são metadata/resources; não queryable.
+        | Content::Document { .. }
+        | Content::Asset { .. } => false,
     }
 }
 

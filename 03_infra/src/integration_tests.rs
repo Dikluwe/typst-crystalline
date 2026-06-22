@@ -1290,6 +1290,42 @@ mod integration {
         );
     }
 
+    #[test]
+    fn document_metadata_nao_emite_frames_no_pdf() {
+        // #document(title: [Hello]) é metadata pura — o PDF deve ser vazio
+        // (apenas estrutura, sem stream de conteúdo com operadores de texto).
+        let (world, _dir) = world_from_str(
+            "#document(title: [Hello], author: \"Ana\", keywords: (\"a\", \"b\"))"
+        );
+        let source = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let _state  = introspect(content);
+        let doc     = layout(content);
+        let pdf     = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        // Sem operadores de texto (Tj / Td) nem formas (re/f/B).
+        assert!(!pdf_str.contains("Tj"), "Document não deve emitir texto");
+        assert!(!pdf_str.contains(" re\n"), "Document não deve emitir shapes");
+    }
+
+    #[test]
+    fn asset_placeholder_nao_emite_frames_no_pdf() {
+        // #asset("logo.png") é placeholder — não deve emitir conteúdo.
+        let (world, _dir) = world_from_str("#asset(\"logo.png\")");
+        let source = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let _state  = introspect(content);
+        let doc     = layout(content);
+        let pdf     = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        assert!(!pdf_str.contains("Tj"), "Asset não deve emitir texto");
+        assert!(!pdf_str.contains(" re\n"), "Asset não deve emitir shapes");
+    }
+
     // ── Passo 77 — Bézier, elipses e deltas negativos ───────────────────────
 
     #[test]

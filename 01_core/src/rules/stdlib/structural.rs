@@ -1,8 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash b8224089
+//! @prompt-hash 9c9b7122
+//! @prompt 00_nucleo/prompts/rules/model/document.md
+//! @prompt 00_nucleo/prompts/rules/model/asset.md
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-06-22
 //!
 //! Funções nativas estruturais (strong, emph, raw, heading).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
@@ -17,6 +19,7 @@ use crate::entities::content::Content;
 use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
+use crate::entities::world_types::Datetime;
 use crate::rules::eval::EvalContext;
 
 // ── Sentinelas e construtores de nós estruturais (Passo 69) ─────────────────
@@ -1287,3 +1290,300 @@ pub fn make_math_module() -> Value {
 
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────
 
+
+
+// ── Passo 397: `document(...)` e `asset(...)` ────────────────────────────────
+
+/// `document(title:?, author:?, date:?, keywords:?)` — metadata pura do documento.
+pub fn native_document(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    const ALLOWED: &[&str] = &["title", "author", "date", "keywords"];
+    for key in args.named.keys() {
+        if !ALLOWED.contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("document() não aceita o argumento nomeado '{}'", key),
+            )]);
+        }
+    }
+
+    let title = match args.named.get("title") {
+        Some(Value::Content(c)) => Some(c.clone()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("title deve ser content, recebeu {}", other.type_name()),
+            )]);
+        }
+        None => None,
+    };
+
+    let author = match args.named.get("author") {
+        Some(v) => extract_string_list(v, "author")?,
+        None => Vec::new(),
+    };
+
+    let date = match args.named.get("date") {
+        Some(Value::Datetime(d)) => Some(*d),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("date deve ser datetime, recebeu {}", other.type_name()),
+            )]);
+        }
+        None => None,
+    };
+
+    let keywords = match args.named.get("keywords") {
+        Some(v) => extract_string_list(v, "keywords")?,
+        None => Vec::new(),
+    };
+
+    Ok(Value::Content(Content::document(title, author, date, keywords)))
+}
+
+/// `asset(path, kind:?)` — placeholder de resource externo (extensão cristalina).
+pub fn native_asset(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    const ALLOWED: &[&str] = &["path", "kind"];
+    for key in args.named.keys() {
+        if !ALLOWED.contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("asset() não aceita o argumento nomeado '{}'", key),
+            )]);
+        }
+    }
+
+    let path = if let Some(Value::Str(s)) = args.named.get("path") {
+        s.clone()
+    } else if let Some(Value::Str(s)) = args.items.first() {
+        s.clone()
+    } else {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "asset() espera path como string posicional ou named".to_string(),
+        )]);
+    };
+
+    let kind = if let Some(Value::Str(s)) = args.named.get("kind") {
+        Some(s.clone())
+    } else {
+        infer_asset_kind(&path)
+    };
+
+    Ok(Value::Content(Content::asset(path, kind)))
+}
+
+fn extract_string_list(value: &Value, field: &str) -> SourceResult<Vec<EcoString>> {
+    match value {
+        Value::Str(s) => Ok(vec![s.clone()]),
+        Value::Array(arr) => arr
+            .iter()
+            .map(|v| match v {
+                Value::Str(s) => Ok(s.clone()),
+                other => Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("{} deve ser string ou array de strings; recebeu {}", field, other.type_name()),
+                )]),
+            })
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(|e| e),
+        other => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("{} deve ser string ou array de strings; recebeu {}", field, other.type_name()),
+        )]),
+    }
+}
+
+fn infer_asset_kind(path: &EcoString) -> Option<EcoString> {
+    let ext = path.rsplit('.').next()?;
+    Some(match ext.to_lowercase().as_str() {
+        "png" | "jpg" | "jpeg" | "gif" | "svg" | "webp" => EcoString::from("image"),
+        "ttf" | "otf" | "woff" | "woff2" => EcoString::from("font"),
+        "wasm" => EcoString::from("wasm"),
+        "txt" | "csv" | "json" | "yaml" | "yml" | "toml" | "xml" => EcoString::from("data"),
+        _ => return None,
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::entities::args::Args;
+    use crate::entities::file_id::FileId;
+    use crate::entities::font_book::FontBook;
+    use crate::entities::source::Source;
+    use crate::entities::value::Value;
+    use crate::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
+    use crate::rules::eval::EvalContext;
+    use std::num::NonZeroU16;
+
+    #[derive(Default)]
+    struct NullWorld {
+        library: Library,
+        book: FontBook,
+    }
+    impl crate::contracts::world::World for NullWorld {
+        fn library(&self) -> &Library { &self.library }
+        fn book(&self) -> &FontBook { &self.book }
+        fn main(&self) -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
+        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
+        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
+        fn font(&self, _: usize) -> Option<Font> { None }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+    }
+
+    fn test_file_id() -> FileId {
+        FileId::from_raw(NonZeroU16::new(1).unwrap())
+    }
+
+    fn call_document(args: Args) -> SourceResult<Value> {
+        native_document(&mut EvalContext::new(), &args, &NullWorld::default(), test_file_id())
+    }
+
+    fn call_asset(args: Args) -> SourceResult<Value> {
+        native_asset(&mut EvalContext::new(), &args, &NullWorld::default(), test_file_id())
+    }
+
+    fn named_args(pairs: &[(&str, Value)]) -> Args {
+        let mut args = Args::positional(vec![]);
+        for (k, v) in pairs {
+            args.named.insert((*k).into(), v.clone());
+        }
+        args
+    }
+
+    #[test]
+    fn native_document_title_content() {
+        let mut args = Args::positional(vec![]);
+        args.named.insert("title".into(), Value::Content(Content::text("Título")));
+        let v = call_document(args).unwrap();
+        let Value::Content(Content::Document { title, author, date, keywords }) = v else {
+            panic!("esperado Content::Document, recebeu {:?}", v);
+        };
+        assert_eq!(title.as_ref().map(|b| b.plain_text()), Some("Título".to_string()));
+        assert!(author.is_empty());
+        assert!(date.is_none());
+        assert!(keywords.is_empty());
+    }
+
+    #[test]
+    fn native_document_author_str() {
+        let args = named_args(&[("author", Value::Str("Ana".into()))]);
+        let v = call_document(args).unwrap();
+        let Value::Content(Content::Document { author, .. }) = v else { panic!("esperado Document") };
+        assert_eq!(author, vec![EcoString::from("Ana")]);
+    }
+
+    #[test]
+    fn native_document_author_array() {
+        let args = named_args(&[(
+            "author",
+            Value::Array(vec![Value::Str("Ana".into()), Value::Str("Bob".into())]),
+        )]);
+        let v = call_document(args).unwrap();
+        let Value::Content(Content::Document { author, .. }) = v else { panic!("esperado Document") };
+        assert_eq!(author, vec![EcoString::from("Ana"), EcoString::from("Bob")]);
+    }
+
+    #[test]
+    fn native_document_keywords_str() {
+        let args = named_args(&[("keywords", Value::Str("typst".into()))]);
+        let v = call_document(args).unwrap();
+        let Value::Content(Content::Document { keywords, .. }) = v else { panic!("esperado Document") };
+        assert_eq!(keywords, vec![EcoString::from("typst")]);
+    }
+
+    #[test]
+    fn native_document_keywords_array() {
+        let args = named_args(&[(
+            "keywords",
+            Value::Array(vec![Value::Str("a".into()), Value::Str("b".into())]),
+        )]);
+        let v = call_document(args).unwrap();
+        let Value::Content(Content::Document { keywords, .. }) = v else { panic!("esperado Document") };
+        assert_eq!(keywords, vec![EcoString::from("a"), EcoString::from("b")]);
+    }
+
+    #[test]
+    fn native_document_date() {
+        let dt = Datetime::new_date(2026, 6, 22).unwrap();
+        let args = named_args(&[("date", Value::Datetime(dt))]);
+        let v = call_document(args).unwrap();
+        let Value::Content(Content::Document { date, .. }) = v else { panic!("esperado Document") };
+        assert_eq!(date, Some(dt));
+    }
+
+    #[test]
+    fn native_document_no_args() {
+        let args = Args::positional(vec![]);
+        let v = call_document(args).unwrap();
+        let Value::Content(Content::Document { title, author, date, keywords }) = v else { panic!("esperado Document") };
+        assert!(title.is_none());
+        assert!(author.is_empty());
+        assert!(date.is_none());
+        assert!(keywords.is_empty());
+    }
+
+    #[test]
+    fn native_document_rejects_unknown_named() {
+        let args = named_args(&[("foo", Value::Str("x".into()))]);
+        assert!(call_document(args).is_err());
+    }
+
+    #[test]
+    fn native_document_rejects_bad_author_type() {
+        let args = named_args(&[("author", Value::Int(1))]);
+        assert!(call_document(args).is_err());
+    }
+
+    #[test]
+    fn native_asset_path_positional() {
+        let args = Args::positional(vec![Value::Str("logo.png".into())]);
+        let v = call_asset(args).unwrap();
+        let Value::Content(Content::Asset { path, kind }) = v else { panic!("esperado Asset") };
+        assert_eq!(path, EcoString::from("logo.png"));
+        assert_eq!(kind, Some(EcoString::from("image")));
+    }
+
+    #[test]
+    fn native_asset_path_named() {
+        let args = named_args(&[("path", Value::Str("font.ttf".into()))]);
+        let v = call_asset(args).unwrap();
+        let Value::Content(Content::Asset { path, kind }) = v else { panic!("esperado Asset") };
+        assert_eq!(path, EcoString::from("font.ttf"));
+        assert_eq!(kind, Some(EcoString::from("font")));
+    }
+
+    #[test]
+    fn native_asset_kind_explicit() {
+        let mut args = Args::positional(vec![Value::Str("x".into())]);
+        args.named.insert("kind".into(), Value::Str("custom".into()));
+        let v = call_asset(args).unwrap();
+        let Value::Content(Content::Asset { kind, .. }) = v else { panic!("esperado Asset") };
+        assert_eq!(kind, Some(EcoString::from("custom")));
+    }
+
+    #[test]
+    fn native_asset_kind_unknown_extension() {
+        let args = Args::positional(vec![Value::Str("file.xyz".into())]);
+        let v = call_asset(args).unwrap();
+        let Value::Content(Content::Asset { kind, .. }) = v else { panic!("esperado Asset") };
+        assert_eq!(kind, None);
+    }
+
+    #[test]
+    fn native_asset_rejects_missing_path() {
+        let args = Args::positional(vec![Value::Int(1)]);
+        assert!(call_asset(args).is_err());
+    }
+}
