@@ -17,7 +17,11 @@ tarpaulin-report.html
 # Rust
 /target
 lab/target/
+lab/typst-original/target/
 **/*.rs.bk
+
+# Python
+**/__pycache__/
 
 # Node
 node_modules
