@@ -4,6 +4,8 @@
 //! @layer L1
 //! @updated 2026-03-27
 
+use crate::entities::font_list::FontNamePattern;
+
 /// Estilo de fonte: Normal (upright), Italic (cursivo), Oblique (inclinado).
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash, Default)]
 pub enum FontStyle {
@@ -208,6 +210,35 @@ impl FontBook {
             .enumerate()
             .filter(move |(_, info)| info.family.eq_ignore_ascii_case(family))
             .map(|(i, _)| i)
+    }
+
+    /// Selecciona o índice da fonte mais próxima de `(pattern, variant)`.
+    ///
+    /// Para `FontNamePattern::Literal` usa lookup exacto case-insensitive.
+    /// Para `FontNamePattern::Regex` faz scan linear O(n) e retorna a
+    /// primeira face que matcha. Critério de desempate: peso + estilo
+    /// mais próximos (mesmo de `select`).
+    pub fn select_pattern(
+        &self,
+        pattern: &FontNamePattern,
+        variant: &FontVariant,
+    ) -> Option<usize> {
+        let candidates: Vec<usize> = self.infos.iter()
+            .enumerate()
+            .filter(|(_, info)| pattern.is_match(&info.family))
+            .map(|(i, _)| i)
+            .collect();
+
+        if candidates.is_empty() {
+            return None;
+        }
+
+        candidates.into_iter().min_by_key(|&i| {
+            let info = &self.infos[i];
+            let weight_dist = info.variant.weight.distance(variant.weight);
+            let style_dist  = info.variant.style.distance(variant.style);
+            (weight_dist, style_dist)
+        })
     }
 }
 

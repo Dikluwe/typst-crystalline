@@ -1,7 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 239ef53e
+//! @prompt-hash e5101c69
 //! @prompt 00_nucleo/prompts/rules/show-regex.md
+//! @prompt 00_nucleo/prompts/rules/style/font-dict.md
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -12,20 +13,23 @@ use std::sync::Arc;
 
 use std::str::FromStr;
 
+use ecow::EcoString;
+use indexmap::IndexMap;
+use rustc_hash::FxBuildHasher;
+
 use crate::entities::args::Args;
 use crate::entities::ast::AstNode;
 use crate::entities::ast::code::{SetRule, ShowRule as ShowRuleNode};
-use crate::entities::ast::expr::{Arg, Expr};
+use crate::entities::ast::expr::{Arg, ArrayItem, Expr};
 use crate::entities::content::Content;
 use crate::entities::engine::Engine;
 use crate::entities::font_book::FontWeight;
-use crate::entities::font_list::{FontFamily, FontList};
 use crate::entities::lang::Lang;
 use crate::entities::show::{NodeKind, Selector, ShowRule, Transformation};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::style::Styles;
-use crate::entities::style_chain::{StyleChain, StyleDelta};
+use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
 use crate::entities::world_types::check_show_depth as route_check_show_depth;
 use crate::rules::scopes::Scopes;
@@ -648,46 +652,154 @@ pub(super) fn eval_set_rule(
                     }
                 }
                 "font" => {
-                    // ADR-0053: valida string/array (dict rejeitado, erro hard);
-                    // guarda a `FontList` como `Value::Array` de nomes canónicos
-                    // (lowercased por `FontFamily::new` no decode do layout).
+                    // P407 (DEBT-52): string/array/dict aceites. Inspeccionamos o
+                    // AST do argumento porque `Value::Dict` tem keys `EcoString`, não
+                    // suportando regex keys (que o vanilla exige para `text.font`).
+                    // Persiste na chain custom como `Value::Array` de items:
+                    //   - `Value::Str(name)` → literal, variants vazio (P292/P373).
+                    //   - `Value::Dict` com "name" (Str|Regex) + "variants" (Array[Str])
+                    //     → dict form com regex keys.
+                    // Zero tipo novo em `Value`: reusa Array/Dict/Str/Regex.
                     let span = named.expr().span();
-                    let families: Vec<ecow::EcoString> = match val {
-                        Value::Str(s) => vec![s],
-                        Value::Array(arr) => {
-                            let mut fams = Vec::with_capacity(arr.len());
-                            for item in arr.iter() {
-                                if let Value::Str(s) = item {
-                                    fams.push(s.clone());
-                                } else {
-                                    return Err(vec![SourceDiagnostic::error(
-                                        span,
-                                        "font array must contain only strings".to_string(),
-                                    )]);
+                    let font_expr = named.expr();
+                    let arr: Vec<Value> = match font_expr {
+                        Expr::Str(node) => vec![Value::Str(EcoString::from(node.get()))],
+                        Expr::Array(arr_node) => {
+                            let mut items = Vec::new();
+                            for item in arr_node.items() {
+                                if let ArrayItem::Pos(expr) = item {
+                                    if let Expr::Str(node) = expr {
+                                        items.push(Value::Str(EcoString::from(node.get())));
+                                    } else {
+                                        return Err(vec![SourceDiagnostic::error(
+                                            span,
+                                            "font array must contain only strings".to_string(),
+                                        )]);
+                                    }
                                 }
                             }
-                            if fams.is_empty() {
+                            if items.is_empty() {
                                 return Err(vec![SourceDiagnostic::error(
                                     span,
                                     "font array must not be empty".to_string(),
                                 )]);
                             }
-                            fams
+                            items
                         }
-                        Value::Dict(_) => {
-                            return Err(vec![SourceDiagnostic::error(
-                                span,
-                                "dict form of font not yet supported — use string or array of strings".to_string(),
-                            )]);
+                        Expr::Dict(dict_node) => {
+                            let mut items = Vec::new();
+                            for dict_item in dict_node.items() {
+                                let (name_val, variants_val) = match dict_item {
+                                    crate::entities::ast::expr::DictItem::Keyed(keyed) => {
+                                        let key_expr = keyed.key();
+                                        let name_val = match key_expr {
+                                            Expr::Str(node) => Value::Str(EcoString::from(node.get())),
+                                            Expr::FuncCall(call) => {
+                                                // regex("...") avalia para Value::Regex.
+                                                match eval_expr(Expr::FuncCall(call), scopes, ctx, engine)? {
+                                                    Value::Regex(re) => Value::Regex(re),
+                                                    other => {
+                                                        return Err(vec![SourceDiagnostic::error(
+                                                            span,
+                                                            format!("font dict key must be string or regex, recebeu {}", other.type_name()),
+                                                        )]);
+                                                    }
+                                                }
+                                            }
+                                            _other => {
+                                                return Err(vec![SourceDiagnostic::error(
+                                                    span,
+                                                    "font dict key must be string or regex".to_string(),
+                                                )]);
+                                            }
+                                        };
+                                        let value = eval_expr(keyed.expr(), scopes, ctx, engine)?;
+                                        let variants = match value {
+                                            Value::Str(s) => vec![Value::Str(s)],
+                                            Value::Array(arr) => {
+                                                let mut vs = Vec::with_capacity(arr.len());
+                                                for v in arr.iter() {
+                                                    if let Value::Str(s) = v {
+                                                        vs.push(Value::Str(s.clone()));
+                                                    } else {
+                                                        return Err(vec![SourceDiagnostic::error(
+                                                            span,
+                                                            "font variants must be strings".to_string(),
+                                                        )]);
+                                                    }
+                                                }
+                                                vs
+                                            }
+                                            other => {
+                                                return Err(vec![SourceDiagnostic::error(
+                                                    span,
+                                                    format!("font dict value must be string or array of strings, recebeu {}", other.type_name()),
+                                                )]);
+                                            }
+                                        };
+                                        (name_val, variants)
+                                    }
+                                    crate::entities::ast::expr::DictItem::Named(named_item) => {
+                                        // Identificador como key: "Name": value é syntax sugar
+                                        // para string literal? No Typst vanilla, named pairs em
+                                        // dict são convertidos para string keys. Aqui tratamos
+                                        // como string literal lowercased.
+                                        let name = named_item.name().as_str();
+                                        let name_val = Value::Str(EcoString::from(name));
+                                        let value = eval_expr(named_item.expr(), scopes, ctx, engine)?;
+                                        let variants = match value {
+                                            Value::Str(s) => vec![Value::Str(s)],
+                                            Value::Array(arr) => {
+                                                let mut vs = Vec::with_capacity(arr.len());
+                                                for v in arr.iter() {
+                                                    if let Value::Str(s) = v {
+                                                        vs.push(Value::Str(s.clone()));
+                                                    } else {
+                                                        return Err(vec![SourceDiagnostic::error(
+                                                            span,
+                                                            "font variants must be strings".to_string(),
+                                                        )]);
+                                                    }
+                                                }
+                                                vs
+                                            }
+                                            other => {
+                                                return Err(vec![SourceDiagnostic::error(
+                                                    span,
+                                                    format!("font dict value must be string or array of strings, recebeu {}", other.type_name()),
+                                                )]);
+                                            }
+                                        };
+                                        (name_val, variants)
+                                    }
+                                    crate::entities::ast::expr::DictItem::Spread(_) => {
+                                        return Err(vec![SourceDiagnostic::error(
+                                            span,
+                                            "font dict spread not supported".to_string(),
+                                        )]);
+                                    }
+                                };
+                                let mut entry: IndexMap<EcoString, Value, FxBuildHasher> =
+                                    IndexMap::default();
+                                entry.insert(EcoString::from("name"), name_val);
+                                entry.insert(EcoString::from("variants"), Value::Array(variants_val));
+                                items.push(Value::Dict(entry));
+                            }
+                            if items.is_empty() {
+                                return Err(vec![SourceDiagnostic::error(
+                                    span,
+                                    "font dict must not be empty".to_string(),
+                                )]);
+                            }
+                            items
                         }
                         _ => {
                             return Err(vec![SourceDiagnostic::error(
                                 span,
-                                "font expects a string or array of strings".to_string(),
+                                "font expects a string, array of strings, or dict".to_string(),
                             )]);
                         }
                     };
-                    let arr: Vec<Value> = families.into_iter().map(Value::Str).collect();
                     *engine.styles = engine.styles.push_custom("text.font", Value::Array(arr));
                 }
                 _ => {

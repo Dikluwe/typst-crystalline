@@ -2101,6 +2101,22 @@ abaixo.
   candidato XL futuro). Contagem de DEBTs abertos: **inalterada
   (10)**.
 
+### Actualização Passo 407 — `text.font` dict com regex keys (gap 8)
+
+- [x] Gap 8 (font dict) materializado pós-fecho de DEBT-52.
+  `FontFamily.name` passa a ser `FontNamePattern` (literal ou
+  regex) em `01_core/src/entities/font_list.rs`; `FontBook` ganha
+  `select_pattern` para resolver regex via scan linear.
+  `#set text(font: ("Name": ("Regular", "Bold")))` e
+  `#set text(font: (regex("Name.*"): ("Regular")))` são aceites.
+  O parsing inspecciona o AST (`Expr::Dict`) porque `Value::Dict`
+  tem keys `EcoString` e não suporta regex keys; a representação
+  na chain custom reusa `Value::Array`/`Dict`/`Str`/`Regex`.
+  **Não reabre** DEBT-52: consistente com o encerramento no
+  Passo 142 e com ADR-0054 (gap 8 opcional). Variants-aware
+  selection continua scope-out (ADR-0054bis condicional). Contagem
+  de DEBTs abertos: **inalterada (10)**.
+
 ---
 
 ### (Histórico) Estado pré-fecho — DEBT-52 — EM ABERTO (Passo 135)

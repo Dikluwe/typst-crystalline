@@ -60,11 +60,37 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     };
     let ns_font = match cs("text.font") {
         Some(Value::Array(arr)) => {
+            use crate::entities::font_list::{FontFamily, FontNamePattern};
+            use ecow::EcoString;
+
             let fams: Vec<_> = arr.iter().filter_map(|v| {
-                if let Value::Str(s) = v {
-                    Some(crate::entities::font_list::FontFamily::new(s.clone()))
-                } else {
-                    None
+                match v {
+                    // Forma P292/P373: string literal, variants vazio.
+                    Value::Str(s) => Some(FontFamily::new(s.clone())),
+                    // Forma P407: dict com name (Str|Regex) + variants (Array[Str]).
+                    Value::Dict(dict) => {
+                        let name = dict.get("name")?;
+                        let pattern = match name {
+                            Value::Str(s) => FontNamePattern::Literal(s.clone()),
+                            Value::Regex(re) => FontNamePattern::Regex(re.clone()),
+                            _ => return None,
+                        };
+                        let variants: Vec<EcoString> = match dict.get("variants") {
+                            Some(Value::Array(arr)) => arr.iter()
+                                .filter_map(|v| match v {
+                                    Value::Str(s) => Some(s.clone()),
+                                    _ => None,
+                                })
+                                .collect(),
+                            _ => return None,
+                        };
+                        Some(FontFamily {
+                            name: pattern,
+                            variants,
+                            covers: None,
+                        })
+                    }
+                    _ => None,
                 }
             }).collect();
             crate::entities::font_list::FontList::new(fams)

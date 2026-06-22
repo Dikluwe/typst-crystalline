@@ -1,25 +1,25 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/font-list.md
-//! @prompt-hash 583df8dd
+//! @prompt-hash d943a0eb
 //! @layer L1
-//! @updated 2026-04-24
+//! @updated 2026-06-22
 //!
 //! Tipo `FontList` — lista priorizada de famílias de fonte.
 //!
 //! Réplica estrutural parcial de `typst::text::FontList` vanilla
 //! com divergência consciente (ADR-0053):
-//! - `covers` é **inabitado** neste passo (`enum Covers {}` sem
-//!   variantes). Forma estrutural reservada para futuro.
-//! - Dict form do vanilla é **rejeitada** até `regex` ser
-//!   autorizado em L1.
+//! - `covers` é **inabitado** (`enum Covers {}` sem variantes).
+//!   Forma estrutural reservada para futuro.
+//! - **P407** (DEBT-52): dict form activada — `FontFamily.name` passa
+//!   a ser `FontNamePattern` (literal ou regex), e `variants` passa a
+//!   ser armazenado (uso variant-aware scope-out ADR-0054bis).
 //!
-//! Paridade ADR-0033 parcial: string + array aceites; dict
-//! rejeitada com mensagem clara.
-//!
-//! Ver ADR-0053 e diagnóstico
-//! `00_nucleo/diagnosticos/diagnostico-font-list-passo-132a.md`.
+//! Paridade ADR-0033/ADR-0107: string + array + dict (regex keys)
+//! aceites.
 
 use ecow::EcoString;
+
+use crate::entities::regex::Regex;
 
 /// Enum inabitado. Reserva forma estrutural para futuro
 /// suporte a coverage filtering (ADR-0053 decisão 2).
@@ -29,24 +29,75 @@ use ecow::EcoString;
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum Covers {}
 
-/// Família de fonte com coverage opcional.
+/// Padrão de nome de família de fonte.
 ///
-/// Name é lowercased na construção (réplica do vanilla).
+/// Paridade vanilla: uma key de dict `text.font` pode ser string
+/// literal ou regex. Literais são normalizados para lowercase no
+/// constructo; regex usa a pattern tal como escrita.
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum FontNamePattern {
+    /// Nome exacto, lowercased na construção.
+    Literal(EcoString),
+    /// Pattern regex; compilação partilhada via `Arc<regex::Regex>`.
+    Regex(Regex),
+}
+
+impl FontNamePattern {
+    /// Verifica se `name` casa com este padrão.
+    ///
+    /// Literais comparam case-insensitive (paridade com
+    /// `FontBook::select`). Regex usa `Regex::is_match`.
+    pub fn is_match(&self, name: &str) -> bool {
+        match self {
+            Self::Literal(lit) => lit.eq_ignore_ascii_case(name),
+            Self::Regex(re)    => re.is_match(name),
+        }
+    }
+
+    /// Se for literal, devolve a string; caso contrário `None`.
+    pub fn as_str(&self) -> Option<&str> {
+        match self {
+            Self::Literal(lit) => Some(lit.as_str()),
+            Self::Regex(_)     => None,
+        }
+    }
+}
+
+/// Família de fonte com coverage opcional.
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct FontFamily {
-    /// Nome da família, lowercased na construção.
-    pub name: EcoString,
+    /// Nome/padrão da família.
+    pub name: FontNamePattern,
+    /// Variant names associadas (ex.: `"Regular"`, `"Bold"`).
+    /// Uso concreto (variant-aware selection) é scope-out
+    /// (ADR-0054bis condicional); o campo é transportado intacto.
+    pub variants: Vec<EcoString>,
     /// Coverage filter. Sempre `None` neste passo (`Covers`
     /// inabitado).
     pub covers: Option<Covers>,
 }
 
 impl FontFamily {
-    /// Constrói família a partir de nome, normalizando para
-    /// lowercase (paridade vanilla).
+    /// Constrói família literal a partir de nome, normalizando para
+    /// lowercase (paridade vanilla), variants vazio.
     pub fn new(name: EcoString) -> Self {
+        Self::new_literal(name, vec![])
+    }
+
+    /// Constrói família literal explicitando variants.
+    pub fn new_literal(name: EcoString, variants: Vec<EcoString>) -> Self {
         Self {
-            name: name.to_lowercase().into(),
+            name: FontNamePattern::Literal(name.to_lowercase().into()),
+            variants,
+            covers: None,
+        }
+    }
+
+    /// Constrói família regex explicitando variants.
+    pub fn new_regex(regex: Regex, variants: Vec<EcoString>) -> Self {
+        Self {
+            name: FontNamePattern::Regex(regex),
+            variants,
             covers: None,
         }
     }
@@ -68,8 +119,8 @@ impl FontList {
         }
     }
 
-    /// Constrói lista com uma única família (forma string do
-    /// vanilla).
+    /// Constrói lista com uma única família literal (forma string do
+    /// vanilla), variants vazio.
     pub fn single(name: EcoString) -> Self {
         Self(vec![FontFamily::new(name)])
     }
@@ -98,8 +149,9 @@ mod tests {
     #[test]
     fn font_family_new_normaliza_lowercase_passo_132b() {
         let f = FontFamily::new(EcoString::from("Arial"));
-        assert_eq!(f.name, "arial");
+        assert_eq!(f.name.as_str(), Some("arial"));
         assert!(f.covers.is_none());
+        assert!(f.variants.is_empty());
     }
 
     #[test]
@@ -107,25 +159,92 @@ mod tests {
         let f1 = FontFamily::new(EcoString::from("arial"));
         let f2 = FontFamily::new(EcoString::from("ARIAL"));
         let f3 = FontFamily::new(EcoString::from("Arial"));
-        assert_eq!(f1.name, f2.name);
-        assert_eq!(f2.name, f3.name);
+        assert_eq!(f1.name.as_str(), f2.name.as_str());
+        assert_eq!(f2.name.as_str(), f3.name.as_str());
     }
 
     #[test]
     fn font_family_covers_sempre_none_passo_132b() {
-        // Covers é enum inabitado; só pode ser None.
         let f = FontFamily::new(EcoString::from("any"));
         match f.covers {
-            None => {} // OK, único caso possível.
+            None => {}
             Some(_) => unreachable!("Covers é inabitado"),
         }
+    }
+
+    #[test]
+    fn font_name_pattern_literal_is_match_case_insensitive() {
+        let p = FontNamePattern::Literal(EcoString::from("name"));
+        assert!(p.is_match("name"));
+        assert!(p.is_match("Name"));
+        assert!(p.is_match("NAME"));
+        assert!(!p.is_match("name bold"));
+    }
+
+    #[test]
+    fn font_name_pattern_regex_is_match() {
+        let p = FontNamePattern::Regex(Regex::new("Name.*").unwrap());
+        assert!(p.is_match("Name Bold"));
+        assert!(p.is_match("Name"));
+        assert!(!p.is_match("Other"));
+    }
+
+    #[test]
+    fn font_name_pattern_as_str_literal() {
+        let p = FontNamePattern::Literal(EcoString::from("foo"));
+        assert_eq!(p.as_str(), Some("foo"));
+    }
+
+    #[test]
+    fn font_name_pattern_as_str_regex_none() {
+        let p = FontNamePattern::Regex(Regex::new(".*").unwrap());
+        assert_eq!(p.as_str(), None);
+    }
+
+    #[test]
+    fn font_family_new_literal_com_variants() {
+        let f = FontFamily::new_literal(
+            EcoString::from("Name"),
+            vec![EcoString::from("Regular"), EcoString::from("Bold")],
+        );
+        assert_eq!(f.name.as_str(), Some("name"));
+        assert_eq!(f.variants, vec!["Regular", "Bold"]);
+    }
+
+    #[test]
+    fn font_family_new_regex_com_variants() {
+        let re = Regex::new("Name.*").unwrap();
+        let f = FontFamily::new_regex(re.clone(), vec![EcoString::from("Regular")]);
+        assert!(matches!(f.name, FontNamePattern::Regex(_)));
+        assert!(f.name.is_match("Name Bold"));
+        assert_eq!(f.variants, vec!["Regular"]);
+    }
+
+    #[test]
+    fn font_family_clone_partilha_regex() {
+        let re = Regex::new("Name.*").unwrap();
+        let f = FontFamily::new_regex(re, vec![EcoString::from("Regular")]);
+        let cloned = f.clone();
+        assert_eq!(f.name, cloned.name);
+        assert_eq!(f.variants, cloned.variants);
+    }
+
+    #[test]
+    fn font_family_partial_eq_por_pattern_e_variants() {
+        let a = FontFamily::new_literal(EcoString::from("A"), vec![EcoString::from("R")]);
+        let b = FontFamily::new_literal(EcoString::from("A"), vec![EcoString::from("R")]);
+        let c = FontFamily::new_literal(EcoString::from("A"), vec![EcoString::from("B")]);
+        let d = FontFamily::new(EcoString::from("A"));
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+        assert_ne!(a, d);
     }
 
     #[test]
     fn font_list_single_tem_um_elemento_passo_132b() {
         let list = FontList::single(EcoString::from("Arial"));
         assert_eq!(list.len(), 1);
-        assert_eq!(list.as_slice()[0].name, "arial");
+        assert_eq!(list.as_slice()[0].name.as_str(), Some("arial"));
     }
 
     #[test]
@@ -160,8 +279,8 @@ mod tests {
             FontFamily::new(EcoString::from("primeira")),
             FontFamily::new(EcoString::from("segunda")),
         ]).unwrap();
-        assert_eq!(list.as_slice()[0].name, "primeira");
-        assert_eq!(list.as_slice()[1].name, "segunda");
+        assert_eq!(list.as_slice()[0].name.as_str(), Some("primeira"));
+        assert_eq!(list.as_slice()[1].name.as_str(), Some("segunda"));
     }
 
     #[test]
@@ -175,9 +294,6 @@ mod tests {
 
     #[test]
     fn font_list_clone_o1_via_ecow_passo_132b() {
-        // EcoString é clone O(1); FontList clone copia Vec e
-        // cada FontFamily clona EcoString. Pequeno overhead mas
-        // ainda barato. Validação: clone preserva igualdade.
         let a = FontList::single(EcoString::from("arial"));
         let b = a.clone();
         assert_eq!(a, b);
@@ -185,9 +301,6 @@ mod tests {
 
     #[test]
     fn covers_inabitado_estruturalmente_passo_132b() {
-        // Validação compile-time: match vazio é exaustivo para
-        // enum sem variantes. Se Covers tivesse alguma variante,
-        // este código não compilaria.
         fn _nunca_chamado(c: Covers) -> ! {
             match c {}
         }
@@ -195,8 +308,6 @@ mod tests {
 
     #[test]
     fn font_list_is_empty_sempre_false_passo_132b() {
-        // Por construção (new rejeita empty), is_empty é sempre
-        // false para uma FontList construída.
         let list = FontList::single(EcoString::from("arial"));
         assert!(!list.is_empty());
     }

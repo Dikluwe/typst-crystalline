@@ -10103,7 +10103,7 @@ mod p292_style_font_tests {
         ]));
         let fl = next.font().expect("Some");
         assert_eq!(fl.len(), 1);
-        assert_eq!(fl.as_slice()[0].name, "inter");  // lowercase per FontFamily::new
+        assert_eq!(fl.as_slice()[0].name.as_str(), Some("inter"));  // lowercase per FontFamily::new
     }
 
     #[test]

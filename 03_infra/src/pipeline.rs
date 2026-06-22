@@ -194,7 +194,7 @@ fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
 }
 
 /// Itera `font_list.as_slice()` em ordem. Para cada família,
-/// consulta `font_book.select(name, &FontVariant::default())`;
+/// consulta `font_book.select_pattern(&family.name, &FontVariant::default())`;
 /// se devolve `Some(index)`, chama `world.font(index)`; primeira
 /// família que completa ambos os passos vence. Se nenhuma
 /// completa, devolve `None` (pipeline cai em fallback Helvetica).
@@ -215,7 +215,7 @@ fn resolve_font(
 ) -> Option<Vec<u8>> {
     let variant = FontVariant::default();
     for family in font_list.as_slice() {
-        if let Some(index) = font_book.select(&family.name, &variant) {
+        if let Some(index) = font_book.select_pattern(&family.name, &variant) {
             if let Some(font) = world.font(index) {
                 return Some(font.as_slice().to_vec());
             }
@@ -344,7 +344,7 @@ mod tests {
             ]),
         ]);
         let fl = first_font_from_doc(&doc).expect("deve resolver");
-        assert_eq!(fl.as_slice()[0].name, "primeira");
+        assert_eq!(fl.as_slice()[0].name.as_str(), Some("primeira"));
     }
 
     #[test]
@@ -355,7 +355,7 @@ mod tests {
             page_with(vec![text_item_with_font(Some(font_list("Inria Serif")))]),
         ]);
         let fl = first_font_from_doc(&doc).expect("deve encontrar na segunda");
-        assert_eq!(fl.as_slice()[0].name, "inria serif");
+        assert_eq!(fl.as_slice()[0].name.as_str(), Some("inria serif"));
     }
 
     // ── resolve_font ──────────────────────────────────────────────────
@@ -515,7 +515,7 @@ mod tests {
         ]);
         let collected = collect_fonts_from_doc(&doc);
         assert_eq!(collected.len(), 1);
-        assert_eq!(collected[0].as_slice()[0].name, "inria");
+        assert_eq!(collected[0].as_slice()[0].name.as_str(), Some("inria"));
     }
 
     #[test]
@@ -528,8 +528,8 @@ mod tests {
         ]);
         let collected = collect_fonts_from_doc(&doc);
         assert_eq!(collected.len(), 2);
-        assert_eq!(collected[0].as_slice()[0].name, "primeira");
-        assert_eq!(collected[1].as_slice()[0].name, "segunda");
+        assert_eq!(collected[0].as_slice()[0].name.as_str(), Some("primeira"));
+        assert_eq!(collected[1].as_slice()[0].name.as_str(), Some("segunda"));
     }
 
     #[test]
@@ -549,8 +549,8 @@ mod tests {
         let collected = collect_fonts_from_doc(&doc);
         assert_eq!(collected.len(), 2,
             "dedup estrutural: A e B aparecem cada um uma vez no resultado");
-        assert_eq!(collected[0].as_slice()[0].name, "a");
-        assert_eq!(collected[1].as_slice()[0].name, "b");
+        assert_eq!(collected[0].as_slice()[0].name.as_str(), Some("a"));
+        assert_eq!(collected[1].as_slice()[0].name.as_str(), Some("b"));
     }
 
     // resolve_fonts (plural)
@@ -602,5 +602,59 @@ mod tests {
         };
         let inputs = vec![font_list("X"), font_list("Y")];
         assert!(resolve_fonts(&inputs, world.book(), &world).is_empty());
+    }
+
+    // ── Passo 407: regex keys em FontList (DEBT-52) ─────────────────────
+
+    use typst_core::entities::font_list::FontNamePattern;
+    use typst_core::entities::regex::Regex;
+
+    fn font_list_regex(pattern: &str) -> FontList {
+        FontList::new(vec![
+            FontFamily::new_regex(Regex::new(pattern).unwrap(), vec![]),
+        ]).expect("lista não-vazia")
+    }
+
+    #[test]
+    fn resolve_font_regex_key_match() {
+        let mut book = FontBook::new();
+        book.push(font_info("Name Bold"));
+        let bytes = vec![0xDD, 0xDD];
+        let world = FontMockWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(bytes.clone()))],
+        };
+        let fl = font_list_regex("Name.*");
+        let got = resolve_font(&fl, world.book(), &world).expect("deve resolver via regex");
+        assert_eq!(got, bytes);
+    }
+
+    #[test]
+    fn resolve_font_regex_key_no_match() {
+        let mut book = FontBook::new();
+        book.push(font_info("Other"));
+        let world = FontMockWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(vec![0xEE]))],
+        };
+        let fl = font_list_regex("Name.*");
+        assert!(resolve_font(&fl, world.book(), &world).is_none());
+    }
+
+    #[test]
+    fn resolve_font_literal_still_works_after_p407() {
+        let mut book = FontBook::new();
+        book.push(font_info("Inria Serif"));
+        let bytes = vec![0x11, 0x22];
+        let world = FontMockWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(bytes.clone()))],
+        };
+        let fl = font_list("Inria Serif");
+        let got = resolve_font(&fl, world.book(), &world).expect("literal continua a resolver");
+        assert_eq!(got, bytes);
     }
 }

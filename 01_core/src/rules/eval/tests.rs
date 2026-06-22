@@ -2559,7 +2559,7 @@ mod tests {
         let errs = result.unwrap_err();
         assert!(
             errs.iter().any(|e|
-                e.message.contains("font expects a string or array of strings")
+                e.message.contains("font expects a string, array of strings, or dict")
             ),
             "mensagem deve indicar tipo esperado; errs: {:?}",
             errs.iter().map(|e| &e.message).collect::<Vec<_>>()
@@ -2613,6 +2613,64 @@ mod tests {
             "mensagem deve indicar 'only strings'; errs: {:?}",
             errs.iter().map(|e| &e.message).collect::<Vec<_>>()
         );
+    }
+
+    // ── Passo 407 — `text.font` dict (DEBT-52) ───────────────────────────────
+
+    #[test]
+    fn eval_set_text_font_dict_literal_key_passo_407() {
+        use crate::entities::value::Value;
+        use ecow::EcoString;
+        let c = eval_doc("#set text(font: (\"Name\": (\"Regular\", \"Bold\")))\nX");
+        let font_val = find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
+        let arr = font_val.cast_array().expect("text.font deve ser array");
+        assert_eq!(arr.len(), 1);
+        let dict = arr[0].cast_dict().expect("item deve ser dict");
+        assert_eq!(dict.get("name"), Some(&Value::Str(EcoString::from("Name"))));
+        let variants = dict.get("variants").unwrap().cast_array().unwrap();
+        assert_eq!(variants, &[Value::Str(EcoString::from("Regular")), Value::Str(EcoString::from("Bold"))]);
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_regex_key_passo_407() {
+        use crate::entities::value::Value;
+        use ecow::EcoString;
+        let c = eval_doc("#set text(font: (regex(\"Name.*\"): (\"Regular\")))\nX");
+        let font_val = find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
+        let arr = font_val.cast_array().expect("text.font deve ser array");
+        assert_eq!(arr.len(), 1);
+        let dict = arr[0].cast_dict().expect("item deve ser dict");
+        assert!(matches!(dict.get("name"), Some(Value::Regex(_))), "name deve ser regex");
+        let variants = dict.get("variants").unwrap().cast_array().unwrap();
+        assert_eq!(variants, &[Value::Str(EcoString::from("Regular"))]);
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_str_value_passo_407() {
+        use crate::entities::value::Value;
+        use ecow::EcoString;
+        let c = eval_doc("#set text(font: (\"Name\": \"Regular\"))\nX");
+        let font_val = find_custom_in_styled(&c, "text.font").expect("text.font deve existir");
+        let arr = font_val.cast_array().expect("text.font deve ser array");
+        let dict = arr[0].cast_dict().expect("item deve ser dict");
+        let variants = dict.get("variants").unwrap().cast_array().unwrap();
+        assert_eq!(variants, &[Value::Str(EcoString::from("Regular"))]);
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_invalid_key_passo_407() {
+        let world = MockWorld::new("#set text(font: (123: (\"Regular\")))\nX");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "dict key int deve erro");
+    }
+
+    #[test]
+    fn eval_set_text_font_dict_invalid_value_passo_407() {
+        let world = MockWorld::new("#set text(font: (\"Name\": 123))\nX");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "dict value int deve erro");
     }
 
     // ── Testes de Passo 34 — equações matemáticas ────────────────────────────
