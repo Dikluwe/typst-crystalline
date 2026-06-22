@@ -1,14 +1,17 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
 //! @prompt-hash 7a92cc2d
+//! @prompt 00_nucleo/prompts/rules/eval/decimal-arithmetic.md
+//! @prompt-hash 1e867e48
 //! @layer L1
-//! @updated 2026-06-17
+//! @updated 2026-06-22
 //!
 //! Operadores binários e unários do eval. Extraído de `eval.rs` no Passo 96.1
 //! conforme ADR-0037 (coesão por domínio).
 
 use crate::entities::ast::expr::{BinOp, UnOp};
 use crate::entities::content::Content;
+use crate::entities::decimal::Decimal;
 use crate::entities::value::Value;
 
 /// Avalia uma operação binária com semântica Typst.
@@ -26,6 +29,7 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         match &rhs {
             Value::Int(0)   => return Err("cannot divide by zero".into()),
             Value::Float(f) if *f == 0.0 => return Err("cannot divide by zero".into()),
+            Value::Decimal(d) if d.0.is_zero() => return Err("cannot divide by zero".into()),
             _ => {}
         }
     }
@@ -37,6 +41,8 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Add, Value::Float(a), Value::Float(b)) => Ok(Value::Float(a + b)),
         (BinOp::Add, Value::Float(a), Value::Int(b))   => Ok(Value::Float(a + b as f64)),
         (BinOp::Add, Value::Int(a),   Value::Float(b)) => Ok(Value::Float(a as f64 + b)),
+        // P404 — aritmética Decimal homogénea.
+        (BinOp::Add, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Decimal(Decimal(a.0 + b.0))),
         (BinOp::Add, Value::Str(a),   Value::Str(b))   => Ok(Value::Str(a + b.as_str())),
         (BinOp::Add, Value::Content(a), Value::Content(b)) =>
             Ok(Value::Content(Content::sequence(vec![a, b]))),
@@ -47,6 +53,8 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Sub, Value::Float(a), Value::Float(b)) => Ok(Value::Float(a - b)),
         (BinOp::Sub, Value::Float(a), Value::Int(b))   => Ok(Value::Float(a - b as f64)),
         (BinOp::Sub, Value::Int(a),   Value::Float(b)) => Ok(Value::Float(a as f64 - b)),
+        // P404 — aritmética Decimal homogénea.
+        (BinOp::Sub, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Decimal(Decimal(a.0 - b.0))),
 
         // ── Multiplicação ────────────────────────────────────────────────────
         (BinOp::Mul, Value::Int(a),   Value::Int(b))   =>
@@ -54,12 +62,16 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Mul, Value::Float(a), Value::Float(b)) => Ok(Value::Float(a * b)),
         (BinOp::Mul, Value::Float(a), Value::Int(b))   => Ok(Value::Float(a * b as f64)),
         (BinOp::Mul, Value::Int(a),   Value::Float(b)) => Ok(Value::Float(a as f64 * b)),
+        // P404 — aritmética Decimal homogénea.
+        (BinOp::Mul, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Decimal(Decimal(a.0 * b.0))),
 
         // ── Divisão — Int/Int → Float (semântica Typst, não truncamento) ────
         (BinOp::Div, Value::Int(a),   Value::Int(b))   => Ok(Value::Float(a as f64 / b as f64)),
         (BinOp::Div, Value::Float(a), Value::Float(b)) => Ok(Value::Float(a / b)),
         (BinOp::Div, Value::Float(a), Value::Int(b))   => Ok(Value::Float(a / b as f64)),
         (BinOp::Div, Value::Int(a),   Value::Float(b)) => Ok(Value::Float(a as f64 / b)),
+        // P404 — divisão Decimal homogénea (div/0 já verificado acima).
+        (BinOp::Div, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Decimal(Decimal(a.0 / b.0))),
 
         // ── Comparações ──────────────────────────────────────────────────────
         // ADR-0025: coerção Int↔Float em Eq/Neq e ordenação, como no original.
@@ -86,18 +98,26 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Lt,  Value::Float(a), Value::Float(b)) => Ok(Value::Bool(a < b)),
         (BinOp::Lt,  Value::Int(a),   Value::Float(b)) => Ok(Value::Bool((a as f64) < b)),
         (BinOp::Lt,  Value::Float(a), Value::Int(b))   => Ok(Value::Bool(a < (b as f64))),
+        // P404 — ordenação Decimal homogénea.
+        (BinOp::Lt,  Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Bool(a.0 < b.0)),
         (BinOp::Leq, Value::Int(a),   Value::Int(b))   => Ok(Value::Bool(a <= b)),
         (BinOp::Leq, Value::Float(a), Value::Float(b)) => Ok(Value::Bool(a <= b)),
         (BinOp::Leq, Value::Int(a),   Value::Float(b)) => Ok(Value::Bool((a as f64) <= b)),
         (BinOp::Leq, Value::Float(a), Value::Int(b))   => Ok(Value::Bool(a <= (b as f64))),
+        // P404 — ordenação Decimal homogénea.
+        (BinOp::Leq, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Bool(a.0 <= b.0)),
         (BinOp::Gt,  Value::Int(a),   Value::Int(b))   => Ok(Value::Bool(a > b)),
         (BinOp::Gt,  Value::Float(a), Value::Float(b)) => Ok(Value::Bool(a > b)),
         (BinOp::Gt,  Value::Int(a),   Value::Float(b)) => Ok(Value::Bool((a as f64) > b)),
         (BinOp::Gt,  Value::Float(a), Value::Int(b))   => Ok(Value::Bool(a > (b as f64))),
+        // P404 — ordenação Decimal homogénea.
+        (BinOp::Gt,  Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Bool(a.0 > b.0)),
         (BinOp::Geq, Value::Int(a),   Value::Int(b))   => Ok(Value::Bool(a >= b)),
         (BinOp::Geq, Value::Float(a), Value::Float(b)) => Ok(Value::Bool(a >= b)),
         (BinOp::Geq, Value::Int(a),   Value::Float(b)) => Ok(Value::Bool((a as f64) >= b)),
         (BinOp::Geq, Value::Float(a), Value::Int(b))   => Ok(Value::Bool(a >= (b as f64))),
+        // P404 — ordenação Decimal homogénea.
+        (BinOp::Geq, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Bool(a.0 >= b.0)),
 
         // ── Lógica booleana ──────────────────────────────────────────────────
         (BinOp::And, Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(a && b)),
@@ -152,6 +172,8 @@ pub(crate) fn eval_unary_op(op: UnOp, operand: Value) -> Result<Value, String> {
         (UnOp::Neg, Value::Int(i))   =>
             Ok(Value::Int(i.checked_neg().ok_or("number too large")?)),
         (UnOp::Neg, Value::Float(f)) => Ok(Value::Float(-f)),
+        // P404 — negação Decimal.
+        (UnOp::Neg, Value::Decimal(d)) => Ok(Value::Decimal(Decimal(-d.0))),
         (UnOp::Neg, Value::Length(l)) => {
             use crate::entities::layout_types::{Abs, Length};
             Ok(Value::Length(Length { abs: Abs(-l.abs.to_pt()), em: -l.em }))

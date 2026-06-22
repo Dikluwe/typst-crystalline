@@ -1142,6 +1142,75 @@ mod tests {
         assert!(r.is_err());
     }
 
+    // ── P404 — Aritmética e comparações Decimal ──────────────────────────────
+
+    fn dec(s: &str) -> Value {
+        Value::Decimal(crate::entities::decimal::Decimal::from_str(s).unwrap())
+    }
+
+    #[test]
+    fn decimal_add() {
+        assert_eq!(eval_binary_op(BinOp::Add, dec("1.5"), dec("2.5")), Ok(dec("4.0")));
+        assert_eq!(eval_binary_op(BinOp::Add, dec("-1.5"), dec("2.5")), Ok(dec("1.0")));
+        assert_eq!(eval_binary_op(BinOp::Add, dec("0"), dec("0")), Ok(dec("0")));
+    }
+
+    #[test]
+    fn decimal_sub() {
+        assert_eq!(eval_binary_op(BinOp::Sub, dec("10"), dec("3")), Ok(dec("7")));
+        assert_eq!(eval_binary_op(BinOp::Sub, dec("1.5"), dec("2.5")), Ok(dec("-1.0")));
+        assert_eq!(eval_binary_op(BinOp::Sub, dec("0"), dec("0")), Ok(dec("0")));
+    }
+
+    #[test]
+    fn decimal_mul() {
+        assert_eq!(eval_binary_op(BinOp::Mul, dec("2.5"), dec("4")), Ok(dec("10.0")));
+        assert_eq!(eval_binary_op(BinOp::Mul, dec("-3"), dec("2")), Ok(dec("-6")));
+        assert_eq!(eval_binary_op(BinOp::Mul, dec("0"), dec("123.456")), Ok(dec("0")));
+    }
+
+    #[test]
+    fn decimal_div() {
+        assert_eq!(eval_binary_op(BinOp::Div, dec("10"), dec("2")), Ok(dec("5")));
+        let r = eval_binary_op(BinOp::Div, dec("10"), dec("3")).unwrap();
+        assert!(matches!(r, Value::Decimal(_)));
+        if let Value::Decimal(d) = r {
+            assert!(d.to_string().starts_with("3.3333"));
+        }
+        assert!(eval_binary_op(BinOp::Div, dec("1"), dec("0")).is_err());
+    }
+
+    #[test]
+    fn decimal_eq_neq() {
+        assert_eq!(eval_binary_op(BinOp::Eq,  dec("1.0"), dec("1.00")), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Eq,  dec("1.0"), dec("2.0")),  Ok(Value::Bool(false)));
+        assert_eq!(eval_binary_op(BinOp::Neq, dec("1.0"), dec("2.0")),  Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Neq, dec("1.0"), dec("1.00")), Ok(Value::Bool(false)));
+    }
+
+    #[test]
+    fn decimal_lt_gt_leq_geq() {
+        assert_eq!(eval_binary_op(BinOp::Lt,  dec("1.0"), dec("2.0")), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Gt,  dec("3.0"), dec("2.0")), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Leq, dec("2.0"), dec("2.0")), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Geq, dec("3.0"), dec("3.0")), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Lt,  dec("2.0"), dec("2.0")), Ok(Value::Bool(false)));
+        assert_eq!(eval_binary_op(BinOp::Gt,  dec("2.0"), dec("2.0")), Ok(Value::Bool(false)));
+    }
+
+    #[test]
+    fn decimal_no_coercion_with_int_float() {
+        assert!(eval_binary_op(BinOp::Add, dec("1"), Value::Int(2)).is_err());
+        assert!(eval_binary_op(BinOp::Add, dec("1"), Value::Float(2.0)).is_err());
+        assert!(eval_binary_op(BinOp::Add, Value::Int(2), dec("1")).is_err());
+    }
+
+    #[test]
+    fn decimal_neg_unary() {
+        assert_eq!(eval_unary_op(UnOp::Neg, dec("1.5")), Ok(dec("-1.5")));
+        assert_eq!(eval_unary_op(UnOp::Neg, dec("-3")), Ok(dec("3")));
+    }
+
     // ── Testes de paridade: eval_unary_op ────────────────────────────────────
 
     #[test]
