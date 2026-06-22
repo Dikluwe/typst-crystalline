@@ -85,6 +85,8 @@ pub mod bytes;
 pub mod decimal;
 // P400 — Duration (intervalo de tempo); tipo S puro.
 pub mod duration;
+// P401 — Version (semver); tipo S puro.
+pub mod version;
 // P264 — Axes<T> minimal per ADR-0088 + ADR-0080; consumer Radial.center.
 pub mod axes;
 pub mod ptr_eq_arc;

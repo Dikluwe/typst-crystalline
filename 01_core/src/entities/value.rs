@@ -13,6 +13,7 @@ use rustc_hash::FxBuildHasher;
 use crate::entities::bytes::Bytes;
 use crate::entities::decimal::Decimal;
 use crate::entities::duration::Duration;
+use crate::entities::version::Version;
 
 /// Valor em tempo de avaliação do Typst.
 ///
@@ -109,12 +110,16 @@ pub enum Value {
     /// temporais e constructor stdlib são scope-out futuro.
     Duration(Duration),
 
+    /// **P401** — Version (semver). Tipo L1 puro; `Arc`-wrapped porque contém
+    /// `Vec<EcoString>`; constructor stdlib e comparações são scope-out futuro.
+    Version(Arc<Version>),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
-    // Variantes futuras (~10 restantes após P262):
+    // Variantes futuras (~9 restantes após P262):
     // Relative(Relative),       // comprimento relativo
     // Tiling(Tiling),           // padrão de azulejos
     // Symbol(Symbol),           // símbolo Unicode
-    // Version(Version),         // versão semântica
+    // Version(Version),         // versão semântica — já em L1 como tipo separado
     // Bytes(Bytes),             // bytes binários — já em L1 como tipo separado
     // Decimal(Decimal),         // decimal de alta precisão — já em L1 como tipo separado
     // Duration(Duration),       // duração — já em L1 como tipo separado
@@ -170,6 +175,7 @@ impl Value {
             Self::Bytes(_)     => "bytes",
             Self::Decimal(_)   => "decimal",
             Self::Duration(_)  => "duration",
+            Self::Version(_)   => "version",
         }
     }
 
@@ -254,6 +260,17 @@ impl Value {
             _ => None,
         }
     }
+
+    /// Converte para `Arc<Version>`, se compatível. Passo 401.
+    ///
+    /// Aceita `Version` (identidade) e `Str` (parse semver).
+    pub fn cast_version(&self) -> Option<Arc<Version>> {
+        match self {
+            Self::Version(v) => Some(Arc::clone(v)),
+            Self::Str(s) => Version::from_str(s).map(Arc::new),
+            _ => None,
+        }
+    }
 }
 
 // Conversões From para ergonomia em eval() e testes
@@ -308,6 +325,9 @@ impl From<crate::entities::decimal::Decimal> for Value {
 }
 impl From<crate::entities::duration::Duration> for Value {
     fn from(v: crate::entities::duration::Duration) -> Self { Self::Duration(v) }
+}
+impl From<crate::entities::version::Version> for Value {
+    fn from(v: crate::entities::version::Version) -> Self { Self::Version(Arc::new(v)) }
 }
 
 #[cfg(test)]
@@ -597,5 +617,71 @@ mod tests {
         let c = Value::from(Duration::from_seconds(1));
         assert_eq!(a, b);
         assert_ne!(a, c);
+    }
+
+    // ── Passo 401 — Version (tipo S puro) ────────────────────────────────────
+
+    use crate::entities::version::Version;
+
+    fn version_ids(parts: &[&str]) -> Vec<EcoString> {
+        parts.iter().map(|s| EcoString::from(*s)).collect()
+    }
+
+    #[test]
+    fn value_version_type_name() {
+        let v = Value::from(Version::new(1, 2, 3));
+        assert_eq!(v.type_name(), "version");
+    }
+
+    #[test]
+    fn value_version_cast_identity() {
+        let ver = Version::new(1, 2, 3).with_pre(version_ids(&["alpha", "1"]));
+        let v = Value::from(ver.clone());
+        let got = v.cast_version().unwrap();
+        assert_eq!(*got, ver);
+    }
+
+    #[test]
+    fn value_version_cast_from_str() {
+        let v = Value::Str("1.2.3".into());
+        let got = v.cast_version().unwrap();
+        assert_eq!(*got, Version::new(1, 2, 3));
+    }
+
+    #[test]
+    fn value_version_cast_from_str_with_pre_build() {
+        let v = Value::Str("1.2.3-alpha.1+build.2".into());
+        let got = v.cast_version().unwrap();
+        assert_eq!(got.major, 1);
+        assert_eq!(got.pre, version_ids(&["alpha", "1"]));
+        assert_eq!(got.build, version_ids(&["build", "2"]));
+    }
+
+    #[test]
+    fn value_version_cast_from_str_invalid() {
+        let v = Value::Str("abc".into());
+        assert_eq!(v.cast_version(), None);
+    }
+
+    #[test]
+    fn value_version_repr_canonical() {
+        let v = Value::from(Version::new(1, 2, 3).with_pre(version_ids(&["alpha", "1"])));
+        assert_eq!(v.cast_version().unwrap().to_string(), "1.2.3-alpha.1");
+    }
+
+    #[test]
+    fn value_version_partial_eq() {
+        let a = Value::from(Version::new(1, 0, 0));
+        let b = Value::from(Version::new(1, 0, 0));
+        let c = Value::from(Version::new(1, 0, 1));
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+    }
+
+    #[test]
+    fn value_version_ordering_via_cast() {
+        let a = Value::from(Version::new(1, 0, 0).with_pre(version_ids(&["alpha"])));
+        let b = Value::from(Version::new(1, 0, 0));
+        assert!(a.cast_version().unwrap() < b.cast_version().unwrap());
     }
 }

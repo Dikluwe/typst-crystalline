@@ -265,7 +265,7 @@ primitives e `skew`). Detalhe em
 
 Tipos do Rust em `01_core/src/entities/` versus `lab/typst-original/crates/typst-library/src/foundations/value.rs` etc.
 
-### B.1 — `Value` enum (vanilla 30 variants; cristalino 21 variants)
+### B.1 — `Value` enum (vanilla 30 variants; cristalino 22 variants)
 
 | Variant | Vanilla path | Cristalino estado | Referência | Nota |
 |---------|--------------|--------------------|------------|------|
@@ -283,7 +283,7 @@ Tipos do Rust em `01_core/src/entities/` versus `lab/typst-original/crates/typst
 | `Gradient` | visualize/gradient.rs | `ausente` | — | |
 | `Tiling` | visualize/tiling.rs | `implementado` | **Passo 395** | `entities::tiling::Tiling` + `Value::Tiling(Arc<Tiling>)` + `Paint::Tiling`. `TilingBody::Gradient` placeholder; render PDF pattern fill scope-out ADR-0054. |
 | `Symbol` | foundations/symbol.rs | `ausente` | — | mapping literal Unicode em vez de tipo dedicado |
-| `Version` | foundations/version.rs | `ausente` | — | |
+| `Version` | foundations/version.rs | `implementado` | **Passo 401** | `entities::version::Version { major, minor, patch, pre, build }` + `Value::Version(Arc<Version>)`; tipo S puro; parse/repr/comparação semver 2.0.0; `version(...)` stdlib scope-out futuro |
 | `Str` | foundations/str.rs | `implementado` | Passo 13, 24 (EcoString ADR-0024) | |
 | `Bytes` | foundations/bytes.rs | `implementado` | **Passo 398** | `entities::bytes::Bytes(Vec<u8>)` + `Value::Bytes(Bytes)`; `read` binário e byte-strings CBOR activados; `EcoVec<u8>` refino futuro XS |
 | `Label` | foundations/label.rs | `parcial` | Passos 63–66 | `Label` tipo separado de Value |
@@ -676,13 +676,13 @@ BibEntry com 16 fields cobertura ~70-75% hayagriva universais).
 
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
-| `Value` variants ⁸¹ ⁸³ ⁸⁴ | 21 | 2 | 2 | 9 | 0 | 34 |
+| `Value` variants ⁸¹ ⁸³ ⁸⁴ ⁸⁵ | 22 | 2 | 2 | 9 | 0 | 35 |
 | `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ ²⁰ ²³ ²⁵ ²⁷ ³⁰ | 46 | 9 | 3 | 0 | 0 | 58 |
 | `Content` variants (vanilla extra ausentes) | — | — | — | 0 | — | 0 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
-| **Total arquitectural** | **77** | **13** | **5** | **13** | **1** | **109** |
+| **Total arquitectural** | **78** | **13** | **5** | **13** | **1** | **110** |
 
 ³ — Ajuste P154B: 39 → 42 (+`Divider`, +`Terms`, +`TermItem`).
 Vanilla extra ausentes desce de ~14 para ~12 (terms + divider
@@ -5768,3 +5768,16 @@ inalterado; apenas a nota de qualidade muda de `implementado+` para `implementad
 - **Contagem user-facing total mantém-se 141** (`Duration` é tipo arquitectural; `duration()` stdlib continua `ausente` — futuro S).
 - **Testes**: unitários (`duration.rs`, `value.rs`) verdes; `cargo test --workspace` passa (com `RUST_MIN_STACK=33554432`).
 - **Decisão arquitectural**: ADR-0017 autoriza novos variants em `Value`; `Duration` mantém-se L1 puro; operações temporais e constructor stdlib são scope-out futuro (ADR-0054).
+
+⁸⁵ — Ajuste P401 (Tabela B.1 `Value` enum: novo variant `Version`;
+**fecha Passo 401**):
+
+- `Version` transita `ausente → implementado` em B.1:
+  - Novo tipo L1 `Version { major, minor, patch, pre, build }` em `01_core/src/entities/version.rs`; `Clone` (não `Copy` devido a `Vec<EcoString>`); zero I/O.
+  - Novo variant `Value::Version(Arc<Version>)` em `01_core/src/entities/value.rs` com `type_name == "version"`, `cast_version()` e `From<Version>`.
+  - Parse, repr e comparação semver 2.0.0 implementados (build metadata ignorado na comparação).
+- **Tabela B.1 `Value` variants**: 21 → **22** (+`Version`); total 34 → **35**.
+- **Tabela B total arquitectural**: 77 → **78** implementado; 109 → **110**.
+- **Contagem user-facing total mantém-se 141** (`Version` é tipo arquitectural; `version()` stdlib continua `ausente` — futuro S).
+- **Testes**: unitários (`version.rs`, `value.rs`) verdes; `cargo test --workspace` passa (com `RUST_MIN_STACK=33554432`).
+- **Decisão arquitectural**: ADR-0017 autoriza novos variants em `Value`; `Version` mantém-se L1 puro; constructor stdlib e comparações em stdlib são scope-out futuro (ADR-0054).
