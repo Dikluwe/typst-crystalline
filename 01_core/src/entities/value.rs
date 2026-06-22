@@ -12,6 +12,7 @@ use rustc_hash::FxBuildHasher;
 
 use crate::entities::bytes::Bytes;
 use crate::entities::decimal::Decimal;
+use crate::entities::duration::Duration;
 
 /// Valor em tempo de avaliação do Typst.
 ///
@@ -104,15 +105,19 @@ pub enum Value {
     /// operações aritméticas e constructor stdlib são scope-out futuro.
     Decimal(Decimal),
 
+    /// **P400** — Duration (intervalo de tempo). Tipo L1 puro; operações
+    /// temporais e constructor stdlib são scope-out futuro.
+    Duration(Duration),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
-    // Variantes futuras (~11 restantes após P262):
+    // Variantes futuras (~10 restantes após P262):
     // Relative(Relative),       // comprimento relativo
     // Tiling(Tiling),           // padrão de azulejos
     // Symbol(Symbol),           // símbolo Unicode
     // Version(Version),         // versão semântica
     // Bytes(Bytes),             // bytes binários — já em L1 como tipo separado
     // Decimal(Decimal),         // decimal de alta precisão — já em L1 como tipo separado
-    // Duration(Duration),       // duração
+    // Duration(Duration),       // duração — já em L1 como tipo separado
     // (Content migrado no Passo 18)
     // Styles(Styles),           // estilos encadeados — bloqueia show/set
     // Args(Args),               // argumentos de função
@@ -164,6 +169,7 @@ impl Value {
             Self::Tiling(_)    => "tiling",
             Self::Bytes(_)     => "bytes",
             Self::Decimal(_)   => "decimal",
+            Self::Duration(_)  => "duration",
         }
     }
 
@@ -229,6 +235,25 @@ impl Value {
             _                => None,
         }
     }
+
+    /// Converte para `Duration`, se compatível. Passo 400.
+    ///
+    /// Aceita `Duration` (identidade), `Int` (nanossegundos; rejeita
+    /// negativos) e `Float` (segundos → nanos; rejeita negativos e overflow).
+    pub fn cast_duration(&self) -> Option<Duration> {
+        match self {
+            Self::Duration(d) => Some(*d),
+            Self::Int(i) if *i >= 0 => Some(Duration::from_nanos(*i as u64)),
+            Self::Float(f) if *f >= 0.0 => {
+                let max_seconds = u64::MAX as f64 / 1e9;
+                if *f > max_seconds {
+                    return None;
+                }
+                Some(Duration::from_nanos((*f * 1e9) as u64))
+            }
+            _ => None,
+        }
+    }
 }
 
 // Conversões From para ergonomia em eval() e testes
@@ -280,6 +305,9 @@ impl From<crate::entities::bytes::Bytes> for Value {
 }
 impl From<crate::entities::decimal::Decimal> for Value {
     fn from(v: crate::entities::decimal::Decimal) -> Self { Self::Decimal(v) }
+}
+impl From<crate::entities::duration::Duration> for Value {
+    fn from(v: crate::entities::duration::Duration) -> Self { Self::Duration(v) }
 }
 
 #[cfg(test)]
@@ -502,6 +530,71 @@ mod tests {
         let a = Value::from(Decimal::new(100, 2)); // 1.00
         let b = Value::from(Decimal::new(10, 1));  // 1.0
         let c = Value::from(Decimal::new(2, 0));
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+    }
+
+    // ── Passo 400 — Duration (tipo S puro) ───────────────────────────────────
+
+    #[test]
+    fn value_duration_type_name() {
+        let d = Duration::from_seconds(270180);
+        assert_eq!(Value::from(d).type_name(), "duration");
+    }
+
+    #[test]
+    fn value_duration_cast_identity() {
+        let d = Duration::from_seconds(270180);
+        let v = Value::from(d);
+        assert_eq!(v.cast_duration(), Some(d));
+        assert_eq!(v.cast_int(), None);
+    }
+
+    #[test]
+    fn value_duration_cast_from_int() {
+        let v = Value::Int(1_000_000_000);
+        assert_eq!(v.cast_duration(), Some(Duration::from_seconds(1)));
+    }
+
+    #[test]
+    fn value_duration_cast_from_int_negative_rejected() {
+        let v = Value::Int(-1);
+        assert_eq!(v.cast_duration(), None);
+    }
+
+    #[test]
+    fn value_duration_cast_from_float() {
+        let v = Value::Float(1.5);
+        assert_eq!(v.cast_duration(), Some(Duration::from_nanos(1_500_000_000)));
+    }
+
+    #[test]
+    fn value_duration_cast_from_float_negative_rejected() {
+        let v = Value::Float(-1.0);
+        assert_eq!(v.cast_duration(), None);
+    }
+
+    #[test]
+    fn value_duration_repr_canonical() {
+        let d = Duration::from_days(3)
+            .nanos
+            + Duration::from_hours(2).nanos
+            + Duration::from_minutes(30).nanos;
+        let v = Value::from(Duration::from_nanos(d));
+        assert_eq!(v.cast_duration().unwrap().to_string(), "3d2h30m");
+    }
+
+    #[test]
+    fn value_duration_repr_zero() {
+        let v = Value::from(Duration::ZERO);
+        assert_eq!(v.cast_duration().unwrap().to_string(), "0s");
+    }
+
+    #[test]
+    fn value_duration_partial_eq() {
+        let a = Value::from(Duration::from_seconds(60));
+        let b = Value::from(Duration::from_minutes(1));
+        let c = Value::from(Duration::from_seconds(1));
         assert_eq!(a, b);
         assert_ne!(a, c);
     }

@@ -265,7 +265,7 @@ primitives e `skew`). Detalhe em
 
 Tipos do Rust em `01_core/src/entities/` versus `lab/typst-original/crates/typst-library/src/foundations/value.rs` etc.
 
-### B.1 — `Value` enum (vanilla 30 variants; cristalino 20 variants)
+### B.1 — `Value` enum (vanilla 30 variants; cristalino 21 variants)
 
 | Variant | Vanilla path | Cristalino estado | Referência | Nota |
 |---------|--------------|--------------------|------------|------|
@@ -289,7 +289,7 @@ Tipos do Rust em `01_core/src/entities/` versus `lab/typst-original/crates/typst
 | `Label` | foundations/label.rs | `parcial` | Passos 63–66 | `Label` tipo separado de Value |
 | `Datetime` | foundations/datetime.rs | `implementado` | Passo 21 (ADR-0021) | |
 | `Decimal` | foundations/decimal.rs | `implementado` | **Passo 399** | `entities::decimal::Decimal(rust_decimal::Decimal)` + `Value::Decimal(Decimal)`; tipo S puro, `Copy`, zero I/O; `native_decimal(...)` e operações aritméticas são scope-out futuro |
-| `Duration` | foundations/duration.rs | `ausente` | — | |
+| `Duration` | foundations/duration.rs | `implementado` | **Passo 400** | `entities::duration::Duration { nanos: u64 }` + `Value::Duration(Duration)`; tipo S puro, `Copy`, zero I/O; `duration(...)` e operações temporais são scope-out futuro |
 | `Content` | foundations/content/ | `implementado` | Passos 18, ADR-0026 + 0026-R1 | enum vs vtable |
 | `Styles` | foundations/styles.rs | `parcial` | Passos 99 | `Styles` tipo separado; não Value variant |
 | `Array` | foundations/array.rs | `implementado` | Passo 15 | |
@@ -676,13 +676,13 @@ BibEntry com 16 fields cobertura ~70-75% hayagriva universais).
 
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
-| `Value` variants ⁸¹ ⁸³ | 20 | 2 | 2 | 9 | 0 | 33 |
+| `Value` variants ⁸¹ ⁸³ ⁸⁴ | 21 | 2 | 2 | 9 | 0 | 34 |
 | `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ ²⁰ ²³ ²⁵ ²⁷ ³⁰ | 46 | 9 | 3 | 0 | 0 | 58 |
 | `Content` variants (vanilla extra ausentes) | — | — | — | 0 | — | 0 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
-| **Total arquitectural** | **76** | **13** | **5** | **13** | **1** | **108** |
+| **Total arquitectural** | **77** | **13** | **5** | **13** | **1** | **109** |
 
 ³ — Ajuste P154B: 39 → 42 (+`Divider`, +`Terms`, +`TermItem`).
 Vanilla extra ausentes desce de ~14 para ~12 (terms + divider
@@ -5756,3 +5756,15 @@ inalterado; apenas a nota de qualidade muda de `implementado+` para `implementad
 - **Contagem user-facing total mantém-se 141** (`Decimal` é tipo arquitectural; `decimal()` stdlib continua `ausente` — P400).
 - **Testes**: unitários (`decimal.rs`, `value.rs`) verdes; `cargo test --workspace` passa (com `RUST_MIN_STACK=33554432`).
 - **Decisão arquitectural**: ADR-0017 autoriza novos variants em `Value`; `Decimal` mantém-se L1 puro; operações aritméticas e constructor stdlib são scope-out futuro (ADR-0054).
+
+⁸⁴ — Ajuste P400 (Tabela B.1 `Value` enum: novo variant `Duration`;
+**fecha Passo 400**):
+
+- `Duration` transita `ausente → implementado` em B.1:
+  - Novo tipo L1 `Duration { nanos: u64 }` em `01_core/src/entities/duration.rs`; `Copy`, puro-Rust, zero alloc.
+  - Novo variant `Value::Duration(Duration)` em `01_core/src/entities/value.rs` com `type_name == "duration"`, `cast_duration()` e `From<Duration>`.
+- **Tabela B.1 `Value` variants**: 20 → **21** (+`Duration`); total 33 → **34**.
+- **Tabela B total arquitectural**: 76 → **77** implementado; 108 → **109**.
+- **Contagem user-facing total mantém-se 141** (`Duration` é tipo arquitectural; `duration()` stdlib continua `ausente` — futuro S).
+- **Testes**: unitários (`duration.rs`, `value.rs`) verdes; `cargo test --workspace` passa (com `RUST_MIN_STACK=33554432`).
+- **Decisão arquitectural**: ADR-0017 autoriza novos variants em `Value`; `Duration` mantém-se L1 puro; operações temporais e constructor stdlib são scope-out futuro (ADR-0054).
