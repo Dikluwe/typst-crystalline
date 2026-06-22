@@ -669,6 +669,8 @@ fn make_stdlib() -> Scope {
         native_sscript, native_upright,
         // P387 (ADR-0111) — data import.
         native_cbor, native_csv, native_json, native_read, native_toml, native_xml, native_yaml,
+        // P403 — constructors stdlib para tipos primitivos L1.
+        native_decimal, native_duration, native_version,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -688,6 +690,10 @@ fn make_stdlib() -> Scope {
     scope.define("str",     Value::Func(Func::native("str",     native_str)));
     scope.define("int",     Value::Func(Func::native("int",     native_int)));
     scope.define("float",   Value::Func(Func::native("float",   native_float)));
+    // P403 — constructors stdlib para tipos primitivos L1 modelados em P399–P401.
+    scope.define("decimal",  Value::Func(Func::native("decimal",  native_decimal)));
+    scope.define("duration", Value::Func(Func::native("duration", native_duration)));
+    scope.define("version",  Value::Func(Func::native("version",  native_version)));
     scope.define("heading",   Value::Func(Func::native("heading",   native_heading)));
     scope.define("strong",    Value::Func(Func::native("strong",    native_strong)));
     scope.define("emph",      Value::Func(Func::native("emph",      native_emph)));

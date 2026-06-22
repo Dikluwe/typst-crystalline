@@ -41,6 +41,8 @@ mod loading;
 mod eval;
 // P396 — constructor `tiling(...)` e helpers visuais.
 mod visualize;
+// P403 — constructors stdlib para tipos primitivos L1: decimal, duration, version.
+mod primitives_constructors;
 
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
@@ -80,6 +82,10 @@ pub use crate::rules::stdlib::gradients::{
 };
 // P396 — constructor `tiling(...)`.
 pub use crate::rules::stdlib::visualize::native_tiling;
+// P403 — constructors stdlib para tipos primitivos L1.
+pub use crate::rules::stdlib::primitives_constructors::{
+    native_decimal, native_duration, native_version,
+};
 // P311b.3 — 12 funções math style (paridade categoria 12/12 = 100%).
 pub use crate::rules::stdlib::math_style::{
     native_bb, native_bold, native_cal, native_frak, native_math_italic,
