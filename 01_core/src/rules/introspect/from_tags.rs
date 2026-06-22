@@ -28,6 +28,7 @@ use crate::entities::state_update::StateUpdate;
 use crate::entities::tag::Tag;
 use crate::rules::eval::closures::apply_func;
 use crate::rules::eval::EvalContext;
+use crate::rules::scopes::Scopes;
 
 /// **P191B (ADR-0071)** — slim post-pass para `StateUpdate::Func`.
 ///
@@ -51,6 +52,9 @@ pub fn apply_state_funcs(
     engine: &mut Engine<'_>,
     ctx:    &mut EvalContext,
 ) {
+    // P394: callbacks de state não têm acesso ao scope de eval; usam scope
+    // vazio (closures trazem o seu captured scope como parent).
+    let mut scopes = Scopes::new(None);
     for tag in tags {
         if let Tag::Start(loc, info) = tag {
             if let ElementPayload::StateUpdate { key, update } = &info.payload {
@@ -58,7 +62,7 @@ pub fn apply_state_funcs(
                     if let Some(curr) = intr.state.value_at(key, *loc).cloned() {
                         let args = Args::positional(vec![curr]);
                         if let Ok(new_value) =
-                            apply_func(func.clone(), args, ctx, engine)
+                            apply_func(func.clone(), args, &mut scopes, ctx, engine)
                         {
                             intr.state.update(
                                 key.clone(),
@@ -109,6 +113,8 @@ pub fn apply_state_displays(
 ) {
     use crate::entities::content::Content;
     use crate::entities::value::Value;
+    // P394: callbacks de state display não têm acesso ao scope de eval.
+    let mut scopes = Scopes::new(None);
     for tag in tags {
         if let Tag::Start(loc, info) = tag {
             if let ElementPayload::StateDisplay { key, callback } = &info.payload {
@@ -117,7 +123,7 @@ pub fn apply_state_displays(
                 let pre_rendered = match callback {
                     Some(func) => {
                         let args = Args::positional(vec![value]);
-                        match apply_func(func.clone(), args, ctx, engine) {
+                        match apply_func(func.clone(), args, &mut scopes, ctx, engine) {
                             Ok(Value::Content(c))  => c,
                             Ok(Value::Str(s))      => Content::text(s.as_str()),
                             Ok(_)                  => Content::Empty,
@@ -172,6 +178,8 @@ pub fn apply_counter_displays(
 ) {
     use crate::entities::content::Content;
     use crate::entities::value::Value;
+    // P394: callbacks de counter display não têm acesso ao scope de eval.
+    let mut scopes = Scopes::new(None);
     for tag in tags {
         if let Tag::Start(loc, info) = tag {
             if let ElementPayload::CounterDisplay { key, callback } = &info.payload {
@@ -184,7 +192,7 @@ pub fn apply_counter_displays(
                 let pre_rendered = match callback {
                     Some(func) => {
                         let args = Args::positional(vec![counter_value]);
-                        match apply_func(func.clone(), args, ctx, engine) {
+                        match apply_func(func.clone(), args, &mut scopes, ctx, engine) {
                             Ok(Value::Content(c))  => c,
                             Ok(Value::Str(s))      => Content::text(s.as_str()),
                             Ok(_)                  => Content::Empty,

@@ -55,10 +55,11 @@ pub(super) fn eval_args(
     Ok(Args { items, named })
 }
 
-/// Aplica uma função (closure ou native) aos args dados.
+/// Aplica uma função (closure, native ou native-with-engine) aos args dados.
 pub(crate) fn apply_func(
     func: Func,
     args: Args,
+    scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
@@ -78,6 +79,12 @@ pub(crate) fn apply_func(
             // parâmetro `figure_numbering` foi colapsado do ABI (`func.rs`). Fonte
             // única.
             (native.call)(ctx, &args, world, current_file)
+        }
+        // P394: native function com acesso ao scope/engine actuais (eval).
+        FuncRepr::NativeWithEngine(native) => {
+            let world = engine.world;
+            let current_file = engine.current_file;
+            (native.call)(ctx, &args, world, current_file, scopes, engine)
         }
     }
 }
@@ -227,7 +234,7 @@ pub(super) fn eval_func_call(
 
     match callee {
         Value::Func(func) => {
-            let result = apply_func(func, args, ctx, engine)?;
+            let result = apply_func(func, args, scopes, ctx, engine)?;
             // Intercepção eager — show rules aplicadas após apply_func (Passo 68).
             if let Value::Content(c) = result {
                 Ok(Value::Content(rules::intercept_content(c, ctx, engine)?))

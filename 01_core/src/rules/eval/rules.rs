@@ -105,6 +105,10 @@ pub(crate) fn apply_show_rules(
         return Ok(content);
     }
 
+    // P394: scope vazio para apply_func; closures de show-rule usam captured
+    // scope como parent, e nativas comuns não usam scopes.
+    let mut scopes = Scopes::new(None);
+
     // Limite de aninhamento vanilla (MAX_SHOW_RULE_DEPTH = 64) —
     // paridade com `typst-realize/src/lib.rs:402` (ADR-0033).
     // Pago parcial do DEBT-45 no Passo 93.
@@ -176,7 +180,7 @@ pub(crate) fn apply_show_rules(
                         Transformation::Func(func) => {
                             let args = Args::positional(vec![Value::Content(work.clone())]);
                             engine.active_guards.push(rule.id);
-                            let call_result = closures::apply_func(func.clone(), args, ctx, engine);
+                            let call_result = closures::apply_func(func.clone(), args, &mut scopes, ctx, engine);
                             engine.active_guards.pop();
                             produced = Some(match call_result? {
                                 Value::Content(c) => c,
@@ -330,7 +334,7 @@ pub(crate) fn apply_show_rules(
                     Transformation::Func(func) => {
                         let args = Args::positional(vec![Value::Content(node.clone())]);
                         engine.active_guards.push(rule.id);
-                        let call_result = closures::apply_func(func.clone(), args, ctx, engine);
+                        let call_result = closures::apply_func(func.clone(), args, &mut scopes, ctx, engine);
                         engine.active_guards.pop();
                         match call_result? {
                             Value::Content(c) => c,

@@ -3309,6 +3309,69 @@ mod tests {
         assert!(result.is_err(), "show-set com regex deve gerar Err");
     }
 
+    // ── P394 — eval(source) ─────────────────────────────────────────────────
+
+    #[test]
+    fn eval_retorna_valor_de_expressao() {
+        let world = MockWorld::new("#let y = eval(\"1 + 2\"); #str(y)");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        assert_eq!(module.content().unwrap().plain_text().trim(), "3",
+            "eval(\"1 + 2\") deve devolver 3");
+    }
+
+    #[test]
+    fn eval_ve_escopo_actual() {
+        let world = MockWorld::new("#let x = 5\n#let y = eval(\"x * 2\"); #str(y)");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        assert_eq!(module.content().unwrap().plain_text().trim(), "10",
+            "eval deve ver a variável x do scope actual");
+    }
+
+    #[test]
+    fn eval_retorna_content() {
+        let world = MockWorld::new("#eval(\"[*bold*]\")");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let text = module.content().unwrap().plain_text();
+        assert!(texto_em_strong(module.content().unwrap(), "bold"),
+            "eval de content deve produzir strong: {:?}", text);
+    }
+
+    #[test]
+    fn eval_inteiro_literal() {
+        let world = MockWorld::new("#let y = eval(\"123\"); #str(y)");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        assert_eq!(module.content().unwrap().plain_text().trim(), "123");
+    }
+
+    #[test]
+    fn eval_identificador_desconhecido_erro() {
+        // Em modo código, \"hello\" é um identificador desconhecido.
+        let world = MockWorld::new("#eval(\"hello\")");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "eval de identificador desconhecido deve falhar");
+    }
+
+    #[test]
+    fn eval_sintaxe_invalida_erro() {
+        let world = MockWorld::new("#eval(\"#{{{broken\")");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "eval de string com sintaxe inválida deve falhar");
+    }
+
+    #[test]
+    fn eval_tipo_errado_erro() {
+        let world = MockWorld::new("#eval(123)");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "eval com arg não-string deve falhar");
+    }
+
     /// Verifica se existe algum `Content::Text` contendo `needle` directamente
     /// sob um `Content::Strong`.
     fn texto_em_strong(c: &Content, needle: &str) -> bool {

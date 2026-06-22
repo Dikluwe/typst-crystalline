@@ -22,6 +22,10 @@ pub struct Func(pub(crate) Arc<FuncRepr>);
 pub(crate) enum FuncRepr {
     Closure(ClosureRepr),
     Native(NativeFunc),
+    /// **P394** — variante de native function com acesso ao `Scopes` e `Engine`
+    /// actuais. Usada por `eval(source)` para re-avaliar código Typst no contexto
+    /// corrente. O ABI geral das nativas permanece inalterado.
+    NativeWithEngine(NativeFuncWithEngine),
     /// **Lote F-3 inc-2** — construtor de elemento de utilizador (fronteira E1).
     /// `#callout(args)` resolve para isto (definido no escopo a partir do
     /// `ElementRegistry`); `apply_func` invoca o `ctor` e devolve
@@ -86,6 +90,20 @@ pub struct NativeFunc {
     ) -> SourceResult<Value>,
 }
 
+/// **P394** — native function com acesso ao `Scopes` e `Engine` actuais.
+/// Usada por `eval(source)` para re-avaliar código Typst no contexto de chamada.
+pub struct NativeFuncWithEngine {
+    pub name: &'static str,
+    pub call: fn(
+        &mut crate::rules::eval::EvalContext,
+        &Args,
+        &dyn crate::contracts::world::World,
+        FileId,
+        &mut crate::rules::scopes::Scopes<'_>,
+        &mut crate::entities::engine::Engine<'_>,
+    ) -> SourceResult<Value>,
+}
+
 impl Func {
     /// Constrói uma Func a partir de uma ClosureRepr.
     pub fn closure(repr: ClosureRepr) -> Self {
@@ -104,6 +122,22 @@ impl Func {
         ) -> SourceResult<Value>,
     ) -> Self {
         Self(Arc::new(FuncRepr::Native(NativeFunc { name, call })))
+    }
+
+    /// **P394** — constrói uma Func nativa com acesso ao `Scopes` e `Engine`
+    /// actuais. Usada por `eval(source)`.
+    pub fn native_with_engine(
+        name: &'static str,
+        call: fn(
+            &mut crate::rules::eval::EvalContext,
+            &Args,
+            &dyn crate::contracts::world::World,
+            FileId,
+            &mut crate::rules::scopes::Scopes<'_>,
+            &mut crate::entities::engine::Engine<'_>,
+        ) -> SourceResult<Value>,
+    ) -> Self {
+        Self(Arc::new(FuncRepr::NativeWithEngine(NativeFuncWithEngine { name, call })))
     }
 
     /// Constrói uma Func de elemento de utilizador (Lote F-3 inc-2) — `#name(args)`
@@ -134,9 +168,10 @@ impl Func {
     /// (encerra DEBT-21).
     pub fn name(&self) -> Option<&str> {
         match self.0.as_ref() {
-            FuncRepr::Closure(c) => c.name.as_deref(),
-            FuncRepr::Native(n)  => Some(n.name),
-            FuncRepr::Element(e) => Some(&e.name),
+            FuncRepr::Closure(c)         => c.name.as_deref(),
+            FuncRepr::Native(n)          => Some(n.name),
+            FuncRepr::NativeWithEngine(n)=> Some(n.name),
+            FuncRepr::Element(e)         => Some(&e.name),
         }
     }
 
@@ -162,6 +197,8 @@ impl Func {
         match self.0.as_ref() {
             FuncRepr::Native(n)  => Some(n.call),
             FuncRepr::Closure(_) => None,
+            // P394: assinatura diferente; não comparável com nativas normais.
+            FuncRepr::NativeWithEngine(_) => None,
             // Elemento de utilizador não tem fn-ptr nativo — o selector de
             // `#show` casa-o por **kind dinâmico** (S2), não por endereço.
             FuncRepr::Element(_) => None,

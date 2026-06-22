@@ -36,6 +36,8 @@ mod gradients;
 mod math_style;
 // P387 (ADR-0111) — data import: read/csv/json/yaml/toml/cbor/xml.
 mod loading;
+// P394 — runtime de re-avaliação `eval(source)`.
+mod eval;
 
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
@@ -47,6 +49,7 @@ pub use crate::rules::stdlib::calc::make_calc_module;
 pub use crate::rules::stdlib::text::{native_lorem, native_lower, native_overline, native_regex, native_replace, native_smartquote, native_strike, native_underline, native_upper};
 pub use crate::rules::stdlib::assert::native_assert;
 pub use crate::rules::stdlib::panic::native_panic;
+pub use crate::rules::stdlib::eval::native_eval;
 pub use crate::rules::stdlib::structural::{
     make_math_module, native_accent, native_bibliography, native_cancel, native_cite, native_divider, native_emph, native_footnote, native_grid_cell, native_grid_footer, native_grid_header, native_heading, native_op, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms, native_underover,
 };
@@ -129,8 +132,15 @@ mod tests {
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
     use crate::entities::source::Source;
-    use crate::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
+    use crate::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library, Route};
+    use crate::entities::engine::Engine;
+    use crate::entities::show::{RuleId, ShowRule};
+    use crate::entities::sink::Sink;
+    use crate::entities::style_chain::StyleChain;
+    use crate::rules::scopes::Scopes;
+    use comemo::{Track, TrackedMut};
     use std::num::NonZeroU16;
+    use std::sync::Arc;
 
     /// Helper de teste: cria Args apenas com posicionais.
     fn p(items: Vec<Value>) -> Args {
@@ -173,6 +183,31 @@ mod tests {
         ($ctx:ident) => {
             let mut $ctx = EvalContext::new();
         }
+    }
+
+    /// Helper que cria um Engine mínimo para tests de `native_eval`.
+    ///
+    /// Usa um callback em vez de macro para contornar a higiene de macros do
+    /// Rust: as variáveis `world`, `styles`, etc. são owned pela closure e
+    /// emprestadas ao `Engine` apenas durante a execução de `f`.
+    fn with_engine<R>(f: impl FnOnce(&mut Engine<'_>, &NullWorld) -> R) -> R {
+        let world = null_world();
+        let route = Route::root();
+        let mut styles = StyleChain::default_chain();
+        let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+        let mut active_guards: Vec<RuleId> = Vec::new();
+        let mut sink_local = Sink::new();
+        let mut sink = sink_local.track_mut();
+        let mut engine = Engine {
+            world: &world,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut show_rules,
+            active_guards: &mut active_guards,
+            current_file: test_file_id(),
+            sink: &mut sink,
+        };
+        f(&mut engine, &world)
     }
 
     /// Helper que cria um World nulo para tests que passam para o ABI.
@@ -8456,5 +8491,91 @@ mod tests {
     fn p311b_int_arg_errors() {
         let r = call_math_style(native_bb, vec![Value::Int(1)]);
         assert!(r.is_err(), "esperava erro por tipo incoercível");
+    }
+
+    // ── P394 — eval(source) runtime de re-avaliação ────────────────────────────
+
+    /// Helper de teste: avalia `source` através de `native_eval` com um scope/engine mínimos.
+    fn run_eval(source: &str) -> SourceResult<Value> {
+        with_engine(|engine, world| {
+            let mut ctx = EvalContext::new();
+            let mut scopes = Scopes::new(None);
+            native_eval(&mut ctx, &p(vec![Value::Str(source.into())]), world, test_file_id(), &mut scopes, engine)
+        })
+    }
+
+    /// Helper de teste: avalia `source` com uma variável `name` pré-definida no scope.
+    fn run_eval_with_var(source: &str, name: &str, value: Value) -> SourceResult<Value> {
+        with_engine(|engine, world| {
+            let mut ctx = EvalContext::new();
+            let mut scopes = Scopes::new(None);
+            scopes.define(name, value);
+            native_eval(&mut ctx, &p(vec![Value::Str(source.into())]), world, test_file_id(), &mut scopes, engine)
+        })
+    }
+
+    #[test]
+    fn p394_eval_retorna_valor_da_ultima_expressao() {
+        assert_eq!(run_eval("1 + 2").unwrap(), Value::Int(3));
+        assert_eq!(run_eval("7 * 8").unwrap(), Value::Int(56));
+        assert_eq!(run_eval("\"foo\"").unwrap(), Value::Str("foo".into()));
+    }
+
+    #[test]
+    fn p394_eval_ve_escopo_exterior() {
+        assert_eq!(
+            run_eval_with_var("x + 3", "x", Value::Int(7)).unwrap(),
+            Value::Int(10)
+        );
+    }
+
+    #[test]
+    fn p394_eval_content_block_produz_content() {
+        let r = run_eval("[*bold*]").unwrap();
+        match r {
+            Value::Content(c) => {
+                // O content block deve conter texto strong com "bold".
+                assert_eq!(c.plain_text(), "bold");
+            }
+            other => panic!("esperado Value::Content, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p394_eval_identificador_desconhecido_erro() {
+        let r = run_eval("variavel_inexistente");
+        assert!(r.is_err(), "identificador desconhecido deve falhar");
+    }
+
+    #[test]
+    fn p394_eval_sintaxe_invalida_erro() {
+        let r = run_eval("let x =");
+        assert!(r.is_err(), "sintaxe inválida deve falhar");
+    }
+
+    #[test]
+    fn p394_eval_tipo_errado_erro() {
+        let r = with_engine(|engine, world| {
+            native_eval(&mut EvalContext::new(), &p(vec![Value::Int(42)]), world, test_file_id(), &mut Scopes::new(None), engine)
+        });
+        assert!(r.is_err(), "eval com argumento não-string deve falhar");
+    }
+
+    #[test]
+    fn p394_eval_arity_errado_erro() {
+        let r = with_engine(|engine, world| {
+            native_eval(&mut EvalContext::new(), &p(vec![]), world, test_file_id(), &mut Scopes::new(None), engine)
+        });
+        assert!(r.is_err(), "eval sem argumentos deve falhar");
+    }
+
+    #[test]
+    fn p394_eval_named_arg_inesperado_erro() {
+        let mut args = p(vec![Value::Str("1".into())]);
+        args.named.insert("mode".into(), Value::Str("code".into()));
+        let r = with_engine(|engine, world| {
+            native_eval(&mut EvalContext::new(), &args, world, test_file_id(), &mut Scopes::new(None), engine)
+        });
+        assert!(r.is_err(), "named arg inesperado deve falhar");
     }
 }

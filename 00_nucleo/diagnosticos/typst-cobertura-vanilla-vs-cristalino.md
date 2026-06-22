@@ -228,7 +228,7 @@ primitives e `skew`). Detalhe em
 | `array.{push, pop, ...}` | foundations/array.rs | `parcial` | passos | algumas methods |
 | `dict.{at, keys, values, ...}` | foundations/dict.rs | `parcial` | passos | algumas methods |
 | `str.{contains, replace, ...}` | foundations/str.rs | `parcial` | passos | algumas methods |
-| `eval(string)` | foundations | `ausente` | — | |
+| `eval(string)` | foundations | `implementado` | **Passo 394** | Modo código (code block) por default; `mode: "markup"`/`mode: "code"` scope-out. Variante `FuncRepr::NativeWithEngine` dá acesso a `Scopes`/`Engine` sem alterar ABI geral. |
 | `repr(value)` | foundations/repr.rs | `parcial` | sub-set | |
 | `panic(msg)` | foundations | `implementado` | Passo 392 | `native_panic`; helper puro `Str → abort`, zero tipo novo. |
 | `if/else`, `while`, `for`, `break`, `continue` | foundations/ops.rs | `implementado` | Passo 30 + flow | control flow |
@@ -434,7 +434,7 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 | `state(key, ...)` | introspection runtime ausente | depende de ADR-0017 (adiada) |
 | `here()` / `locate()` / `query()` | introspection runtime ausente | depende de ADR-0017 (adiada) |
 | `metadata(value)` | introspection runtime ausente | idem |
-| `eval(string)` | runtime de re-eval ausente | escopo M |
+| ~~`eval(string)`~~ | ~~runtime de re-eval ausente~~ | ~~escopo M~~ — **resolvido no Passo 394** (`native_eval` em `eval.rs`; variante `FuncRepr::NativeWithEngine`; modo código por default; `mode:` scope-out) |
 | ~~`panic(msg)`~~ | resolvido no Passo 392 (`native_panic` em `panic.rs`) | — |
 | `repr(value)` (completo) | `repr` de cada Value variant parcial | passos passados materializaram subset |
 | `box(...)` / `block(...)` | `Content::Box`/`Block` ausentes | escopo M |

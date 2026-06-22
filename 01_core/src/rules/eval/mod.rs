@@ -307,7 +307,7 @@ pub fn eval_with_full_error(
     Ok(module)
 }
 
-fn eval_markup(
+pub(crate) fn eval_markup(
     node: &SyntaxNode,
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
@@ -445,7 +445,7 @@ fn eval_markup(
     Ok(Value::Content(Content::sequence(parts)))
 }
 
-fn eval_expr(
+pub(crate) fn eval_expr(
     expr: Expr<'_>,
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
@@ -659,7 +659,7 @@ fn make_stdlib() -> Scope {
         make_calc_module, make_gradient_module, make_math_module, native_accent, native_align, native_assert, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
         native_ellipse, native_emph, native_figure, native_float, native_footnote, native_grid, native_h, native_heading,
         native_hide, native_image, native_int, native_len, native_line,
-        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
+        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_cmyk, native_colbreak, native_columns, native_hsl, native_hsv, native_linear_rgb, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_square,
         native_scale, native_skew, native_smartquote, native_stack, native_str, native_strike, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
@@ -737,6 +737,8 @@ fn make_stdlib() -> Scope {
     scope.define("place",   Value::Func(Func::native("place",   native_place)));
     scope.define("assert",  Value::Func(Func::native("assert",  native_assert)));
     scope.define("panic",   Value::Func(Func::native("panic",   native_panic)));
+    // P394: eval(source) — re-avalia string como markup Typst no contexto actual.
+    scope.define("eval",    Value::Func(Func::native_with_engine("eval", native_eval)));
     // P169 (M9 sub-passo 1): metadata(value) — feature Introspection vanilla.
     scope.define("metadata", Value::Func(Func::native("metadata", native_metadata)));
     // P171 (M9 sub-passo 3): state(key, init) + state_update(key, value).

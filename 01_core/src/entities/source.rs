@@ -67,6 +67,25 @@ impl Source {
         self.0.content_hash
     }
 
+    /// Cria `Source` com parser customizado.
+    ///
+    /// Útil para contextos que precisam de parsear como `code` ou `math`
+    /// em vez de markup (ex: `eval(source)` — P394).
+    pub fn new_with_parser(
+        id: FileId,
+        text: String,
+        parser: fn(&str) -> SyntaxNode,
+    ) -> Self {
+        let content_hash = {
+            let mut h = FxHasher::default();
+            text.hash(&mut h);
+            h.finish()
+        };
+        let mut root = parser(&text);
+        root.numberize(id, Span::FULL).unwrap();
+        Self(Arc::new(SourceInner { id, text, root, content_hash }))
+    }
+
     /// Cria `Source` sem `FileId` real — para testes e contextos sem filesystem.
     ///
     /// Usa um `FileId` sentinel (1). Dois `detached()` partilham o mesmo id —
@@ -74,6 +93,15 @@ impl Source {
     pub fn detached(text: impl Into<String>) -> Self {
         let id = FileId::from_raw(NonZeroU16::new(1).unwrap());
         Self::new(id, text.into())
+    }
+
+    /// **P394** — `Source::detached` com parser customizado.
+    pub fn detached_with_parser(
+        text: impl Into<String>,
+        parser: fn(&str) -> SyntaxNode,
+    ) -> Self {
+        let id = FileId::from_raw(NonZeroU16::new(1).unwrap());
+        Self::new_with_parser(id, text.into(), parser)
     }
 
     /// O `FileId` desta source.
