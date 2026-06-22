@@ -1,11 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/primitives-constructors.md
-//! @prompt-hash e88a8a83
+//! @prompt-hash d910ed09
 //! @layer L1
 //! @updated 2026-06-22
 //!
 //! Constructors stdlib para tipos primitivos L1: `decimal`, `duration`, `version`.
 //! Passo 403: zero tipo novo; zero variant novo; zero I/O.
+//! Passo 405: `duration()` estendido para named args vanilla (mantém string P403).
 
 use std::sync::Arc;
 
@@ -13,7 +14,8 @@ use crate::entities::args::Args;
 use crate::entities::decimal::Decimal;
 use crate::entities::duration::Duration;
 use crate::entities::file_id::FileId;
-use crate::entities::source_result::SourceResult;
+use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
 use crate::entities::value::Value;
 use crate::entities::version::Version;
 use crate::rules::eval::EvalContext;
@@ -41,26 +43,74 @@ pub fn native_decimal(
     }
 }
 
-/// `duration(s)` → `Value::Duration`.
+/// `duration(...)` → `Value::Duration`.
 ///
-/// Parser canónico `NdNhNmNs` (ordem fixa; componentes opcionais; fração decimal
-/// apenas em segundos). Rejeita sufixos duplicados, ordem invertida e
-/// componentes vazios.
+/// Duas formas suportadas:
+/// 1. Named args vanilla: `duration(days: 3, hours: 2, minutes: 30)`.
+/// 2. String posicional (compatibilidade P403): `duration("1h30m")`.
+///
+/// Mistura das duas formas → erro. Todos os named args são `Int` ≥ 0.
 pub fn native_duration(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
-    match args.items.as_slice() {
-        [Value::Str(s)] => match parse_duration(s) {
-            Some(d) => Ok(Value::Duration(d)),
-            None => err(format!("duration(): string inválida: '{}'", s)),
-        },
-        [other] => err(format!("duration(): espera Str, recebeu {}", other.type_name())),
-        _ => err(format!("duration(): requer 1 argumento, recebeu {}", args.items.len())),
+    let has_named = !args.named.is_empty();
+    let has_positional = !args.items.is_empty();
+
+    if has_named && has_positional {
+        return err("duration(): não pode misturar argumentos posicionais e nomeados".to_string());
     }
+
+    if has_positional {
+        // Forma legada P403: string canónica.
+        return match args.items.as_slice() {
+            [Value::Str(s)] => match parse_duration(s) {
+                Some(d) => Ok(Value::Duration(d)),
+                None => err(format!("duration(): string inválida: '{}'", s)),
+            },
+            [other] => err(format!("duration(): espera Str, recebeu {}", other.type_name())),
+            _ => err(format!("duration(): requer 1 argumento, recebeu {}", args.items.len())),
+        };
+    }
+
+    // Forma vanilla: named args.
+    fn extract_nonneg(args: &Args, name: &str) -> Result<u64, String> {
+        match args.named.get(name) {
+            Some(Value::Int(v)) if *v < 0 => Err(format!("duration(): '{}' não pode ser negativo", name)),
+            Some(Value::Int(v)) => Ok(*v as u64),
+            Some(other) => Err(format!("duration(): '{}' espera Int, recebeu {}", name, other.type_name())),
+            None => Ok(0),
+        }
+    }
+
+    let days = extract_nonneg(args, "days").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let hours = extract_nonneg(args, "hours").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let minutes = extract_nonneg(args, "minutes").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let seconds = extract_nonneg(args, "seconds").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let milliseconds = extract_nonneg(args, "milliseconds").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let microseconds = extract_nonneg(args, "microseconds").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let nanoseconds = extract_nonneg(args, "nanoseconds").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+
+    const SECOND_NANOS: u128 = 1_000_000_000;
+    const MINUTE_NANOS: u128 = 60 * SECOND_NANOS;
+    const HOUR_NANOS: u128 = 60 * MINUTE_NANOS;
+    const DAY_NANOS: u128 = 24 * HOUR_NANOS;
+
+    let total = days as u128 * DAY_NANOS
+        + hours as u128 * HOUR_NANOS
+        + minutes as u128 * MINUTE_NANOS
+        + seconds as u128 * SECOND_NANOS
+        + milliseconds as u128 * 1_000_000
+        + microseconds as u128 * 1_000
+        + nanoseconds as u128;
+
+    if total > u64::MAX as u128 {
+        return err("duration(): excede o máximo suportado".to_string());
+    }
+
+    Ok(Value::Duration(Duration::from_nanos(total as u64)))
 }
 
 /// `version(s)` → `Value::Version`.
@@ -185,6 +235,12 @@ mod tests {
         Args::positional(items)
     }
 
+    fn pn(items: Vec<Value>, name: &str, val: Value) -> Args {
+        let mut a = Args::positional(items);
+        a.named.insert(name.into(), val);
+        a
+    }
+
     fn ctx() -> EvalContext {
         EvalContext::new()
     }
@@ -296,6 +352,66 @@ mod tests {
     #[test]
     fn duration_empty() {
         assert!(native_duration(&mut ctx(), &p(vec![Value::Str("".into())]), &null_world(), test_file_id()).is_err());
+    }
+
+    // ── P405 — constructor duration com named args ───────────────────────────
+
+    #[test]
+    fn duration_named_zero() {
+        let v = native_duration(&mut ctx(), &p(vec![]), &null_world(), test_file_id()).unwrap();
+        assert_eq!(v, Value::Duration(Duration::ZERO));
+    }
+
+    #[test]
+    fn duration_named_seconds() {
+        let v = native_duration(&mut ctx(), &pn(vec![], "seconds", Value::Int(90)), &null_world(), test_file_id()).unwrap();
+        assert_eq!(v, Value::Duration(Duration::from_seconds(90)));
+    }
+
+    #[test]
+    fn duration_named_mixed() {
+        let args = {
+            let mut a = Args::positional(vec![]);
+            a.named.insert("days".into(), Value::Int(1));
+            a.named.insert("hours".into(), Value::Int(2));
+            a.named.insert("minutes".into(), Value::Int(3));
+            a
+        };
+        let v = native_duration(&mut ctx(), &args, &null_world(), test_file_id()).unwrap();
+        let expected = Duration::from_days(1).nanos
+            + Duration::from_hours(2).nanos
+            + Duration::from_minutes(3).nanos;
+        assert_eq!(v, Value::Duration(Duration::from_nanos(expected)));
+    }
+
+    #[test]
+    fn duration_named_nanos() {
+        let v = native_duration(&mut ctx(), &pn(vec![], "nanoseconds", Value::Int(500)), &null_world(), test_file_id()).unwrap();
+        assert_eq!(v, Value::Duration(Duration::from_nanos(500)));
+    }
+
+    #[test]
+    fn duration_named_negative() {
+        assert!(native_duration(&mut ctx(), &pn(vec![], "seconds", Value::Int(-1)), &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn duration_named_wrong_type() {
+        assert!(native_duration(&mut ctx(), &pn(vec![], "seconds", Value::Float(1.5)), &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn duration_named_overflow() {
+        let mut args = Args::positional(vec![]);
+        args.named.insert("seconds".into(), Value::Int(i64::MAX));
+        assert!(native_duration(&mut ctx(), &args, &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn duration_named_and_positional_mixed() {
+        let mut args = Args::positional(vec![Value::Str("1h".into())]);
+        args.named.insert("seconds".into(), Value::Int(1));
+        assert!(native_duration(&mut ctx(), &args, &null_world(), test_file_id()).is_err());
     }
 
     #[test]

@@ -1211,6 +1211,98 @@ mod tests {
         assert_eq!(eval_unary_op(UnOp::Neg, dec("-3")), Ok(dec("3")));
     }
 
+    // ── P405 — Operações básicas Duration ────────────────────────────────────
+
+    fn dur(seconds: u64) -> Value {
+        Value::Duration(crate::entities::duration::Duration::from_seconds(seconds))
+    }
+
+    #[test]
+    fn duration_add() {
+        assert_eq!(eval_binary_op(BinOp::Add, dur(90), dur(30)), Ok(dur(120)));
+    }
+
+    #[test]
+    fn duration_add_overflow() {
+        let max = Value::Duration(crate::entities::duration::Duration::from_nanos(u64::MAX));
+        assert!(eval_binary_op(BinOp::Add, max, dur(1)).is_err());
+    }
+
+    #[test]
+    fn duration_sub() {
+        assert_eq!(eval_binary_op(BinOp::Sub, dur(120), dur(30)), Ok(dur(90)));
+    }
+
+    #[test]
+    fn duration_sub_underflow() {
+        assert!(eval_binary_op(BinOp::Sub, dur(30), dur(120)).is_err());
+    }
+
+    #[test]
+    fn duration_mul_int() {
+        assert_eq!(eval_binary_op(BinOp::Mul, dur(60), Value::Int(2)), Ok(dur(120)));
+        assert_eq!(eval_binary_op(BinOp::Mul, Value::Int(2), dur(60)), Ok(dur(120)));
+    }
+
+    #[test]
+    fn duration_mul_int_neg() {
+        assert!(eval_binary_op(BinOp::Mul, dur(60), Value::Int(-1)).is_err());
+    }
+
+    #[test]
+    fn duration_mul_float() {
+        assert_eq!(eval_binary_op(BinOp::Mul, dur(60), Value::Float(1.5)), Ok(dur(90)));
+        assert_eq!(eval_binary_op(BinOp::Mul, Value::Float(1.5), dur(60)), Ok(dur(90)));
+    }
+
+    #[test]
+    fn duration_div_int() {
+        assert_eq!(eval_binary_op(BinOp::Div, dur(120), Value::Int(2)), Ok(dur(60)));
+    }
+
+    #[test]
+    fn duration_div_int_zero() {
+        assert!(eval_binary_op(BinOp::Div, dur(120), Value::Int(0)).is_err());
+    }
+
+    #[test]
+    fn duration_div_int_neg() {
+        assert!(eval_binary_op(BinOp::Div, dur(120), Value::Int(-2)).is_err());
+    }
+
+    #[test]
+    fn duration_div_float() {
+        assert_eq!(eval_binary_op(BinOp::Div, dur(120), Value::Float(2.0)), Ok(dur(60)));
+    }
+
+    #[test]
+    fn duration_div_duration() {
+        assert_eq!(eval_binary_op(BinOp::Div, dur(120), dur(60)), Ok(Value::Float(2.0)));
+    }
+
+    #[test]
+    fn duration_div_duration_zero() {
+        assert!(eval_binary_op(BinOp::Div, dur(120), dur(0)).is_err());
+    }
+
+    #[test]
+    fn duration_eq_neq() {
+        assert_eq!(eval_binary_op(BinOp::Eq,  dur(60), dur(60)), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Eq,  dur(60), dur(59)), Ok(Value::Bool(false)));
+        assert_eq!(eval_binary_op(BinOp::Neq, dur(60), dur(59)), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Neq, dur(60), dur(60)), Ok(Value::Bool(false)));
+    }
+
+    #[test]
+    fn duration_lt_gt_leq_geq() {
+        assert_eq!(eval_binary_op(BinOp::Lt,  dur(59), dur(60)), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Gt,  dur(61), dur(60)), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Leq, dur(60), dur(60)), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Geq, dur(60), dur(60)), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Lt,  dur(60), dur(60)), Ok(Value::Bool(false)));
+        assert_eq!(eval_binary_op(BinOp::Gt,  dur(60), dur(60)), Ok(Value::Bool(false)));
+    }
+
     // ── Testes de paridade: eval_unary_op ────────────────────────────────────
 
     #[test]

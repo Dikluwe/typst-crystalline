@@ -12,6 +12,7 @@
 use crate::entities::ast::expr::{BinOp, UnOp};
 use crate::entities::content::Content;
 use crate::entities::decimal::Decimal;
+use crate::entities::duration::Duration;
 use crate::entities::value::Value;
 
 /// Avalia uma operação binária com semântica Typst.
@@ -43,6 +44,14 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Add, Value::Int(a),   Value::Float(b)) => Ok(Value::Float(a as f64 + b)),
         // P404 — aritmética Decimal homogénea.
         (BinOp::Add, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Decimal(Decimal(a.0 + b.0))),
+        // P405 — adição Duration homogénea.
+        (BinOp::Add, Value::Duration(a), Value::Duration(b)) => {
+            let sum = a.nanos as u128 + b.nanos as u128;
+            if sum > u64::MAX as u128 {
+                return Err("overflow em duration + duration".into());
+            }
+            Ok(Value::Duration(Duration::from_nanos(sum as u64)))
+        },
         (BinOp::Add, Value::Str(a),   Value::Str(b))   => Ok(Value::Str(a + b.as_str())),
         (BinOp::Add, Value::Content(a), Value::Content(b)) =>
             Ok(Value::Content(Content::sequence(vec![a, b]))),
@@ -55,6 +64,13 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Sub, Value::Int(a),   Value::Float(b)) => Ok(Value::Float(a as f64 - b)),
         // P404 — aritmética Decimal homogénea.
         (BinOp::Sub, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Decimal(Decimal(a.0 - b.0))),
+        // P405 — subtracção Duration homogénea (rejeita negativo).
+        (BinOp::Sub, Value::Duration(a), Value::Duration(b)) => {
+            if a.nanos < b.nanos {
+                return Err("underflow em duration - duration (resultado negativo)".into());
+            }
+            Ok(Value::Duration(Duration::from_nanos(a.nanos - b.nanos)))
+        },
 
         // ── Multiplicação ────────────────────────────────────────────────────
         (BinOp::Mul, Value::Int(a),   Value::Int(b))   =>
@@ -64,6 +80,23 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Mul, Value::Int(a),   Value::Float(b)) => Ok(Value::Float(a as f64 * b)),
         // P404 — aritmética Decimal homogénea.
         (BinOp::Mul, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Decimal(Decimal(a.0 * b.0))),
+        // P405 — multiplicação Duration por Int/Float.
+        (BinOp::Mul, Value::Duration(d), Value::Int(n)) | (BinOp::Mul, Value::Int(n), Value::Duration(d)) => {
+            if n < 0 {
+                return Err("duration * int negativo não suportado".into());
+            }
+            let prod = d.nanos as u128 * n as u128;
+            if prod > u64::MAX as u128 {
+                return Err("overflow em duration * int".into());
+            }
+            Ok(Value::Duration(Duration::from_nanos(prod as u64)))
+        }
+        (BinOp::Mul, Value::Duration(d), Value::Float(f)) | (BinOp::Mul, Value::Float(f), Value::Duration(d)) => {
+            if f < 0.0 {
+                return Err("duration * float negativo não suportado".into());
+            }
+            Ok(Value::Duration(Duration::from_nanos((d.nanos as f64 * f) as u64)))
+        },
 
         // ── Divisão — Int/Int → Float (semântica Typst, não truncamento) ────
         (BinOp::Div, Value::Int(a),   Value::Int(b))   => Ok(Value::Float(a as f64 / b as f64)),
@@ -72,6 +105,31 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Div, Value::Int(a),   Value::Float(b)) => Ok(Value::Float(a as f64 / b)),
         // P404 — divisão Decimal homogénea (div/0 já verificado acima).
         (BinOp::Div, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Decimal(Decimal(a.0 / b.0))),
+        // P405 — divisão Duration por Int/Float/Duration.
+        (BinOp::Div, Value::Duration(d), Value::Int(n)) => {
+            if n == 0 {
+                return Err("divisão por zero".into());
+            }
+            if n < 0 {
+                return Err("duration / int negativo não suportado".into());
+            }
+            Ok(Value::Duration(Duration::from_nanos(d.nanos / n as u64)))
+        }
+        (BinOp::Div, Value::Duration(d), Value::Float(f)) => {
+            if f == 0.0 {
+                return Err("divisão por zero".into());
+            }
+            if f < 0.0 {
+                return Err("duration / float negativo não suportado".into());
+            }
+            Ok(Value::Duration(Duration::from_nanos((d.nanos as f64 / f) as u64)))
+        }
+        (BinOp::Div, Value::Duration(a), Value::Duration(b)) => {
+            if b.nanos == 0 {
+                return Err("divisão por zero".into());
+            }
+            Ok(Value::Float(a.nanos as f64 / b.nanos as f64))
+        },
 
         // ── Comparações ──────────────────────────────────────────────────────
         // ADR-0025: coerção Int↔Float em Eq/Neq e ordenação, como no original.
@@ -100,24 +158,32 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Lt,  Value::Float(a), Value::Int(b))   => Ok(Value::Bool(a < (b as f64))),
         // P404 — ordenação Decimal homogénea.
         (BinOp::Lt,  Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Bool(a.0 < b.0)),
+        // P405 — ordenação Duration homogénea.
+        (BinOp::Lt,  Value::Duration(a), Value::Duration(b)) => Ok(Value::Bool(a < b)),
         (BinOp::Leq, Value::Int(a),   Value::Int(b))   => Ok(Value::Bool(a <= b)),
         (BinOp::Leq, Value::Float(a), Value::Float(b)) => Ok(Value::Bool(a <= b)),
         (BinOp::Leq, Value::Int(a),   Value::Float(b)) => Ok(Value::Bool((a as f64) <= b)),
         (BinOp::Leq, Value::Float(a), Value::Int(b))   => Ok(Value::Bool(a <= (b as f64))),
         // P404 — ordenação Decimal homogénea.
         (BinOp::Leq, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Bool(a.0 <= b.0)),
+        // P405 — ordenação Duration homogénea.
+        (BinOp::Leq, Value::Duration(a), Value::Duration(b)) => Ok(Value::Bool(a <= b)),
         (BinOp::Gt,  Value::Int(a),   Value::Int(b))   => Ok(Value::Bool(a > b)),
         (BinOp::Gt,  Value::Float(a), Value::Float(b)) => Ok(Value::Bool(a > b)),
         (BinOp::Gt,  Value::Int(a),   Value::Float(b)) => Ok(Value::Bool((a as f64) > b)),
         (BinOp::Gt,  Value::Float(a), Value::Int(b))   => Ok(Value::Bool(a > (b as f64))),
         // P404 — ordenação Decimal homogénea.
         (BinOp::Gt,  Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Bool(a.0 > b.0)),
+        // P405 — ordenação Duration homogénea.
+        (BinOp::Gt,  Value::Duration(a), Value::Duration(b)) => Ok(Value::Bool(a > b)),
         (BinOp::Geq, Value::Int(a),   Value::Int(b))   => Ok(Value::Bool(a >= b)),
         (BinOp::Geq, Value::Float(a), Value::Float(b)) => Ok(Value::Bool(a >= b)),
         (BinOp::Geq, Value::Int(a),   Value::Float(b)) => Ok(Value::Bool((a as f64) >= b)),
         (BinOp::Geq, Value::Float(a), Value::Int(b))   => Ok(Value::Bool(a >= (b as f64))),
         // P404 — ordenação Decimal homogénea.
         (BinOp::Geq, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Bool(a.0 >= b.0)),
+        // P405 — ordenação Duration homogénea.
+        (BinOp::Geq, Value::Duration(a), Value::Duration(b)) => Ok(Value::Bool(a >= b)),
 
         // ── Lógica booleana ──────────────────────────────────────────────────
         (BinOp::And, Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(a && b)),

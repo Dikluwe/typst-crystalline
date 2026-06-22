@@ -1,10 +1,10 @@
 # Prompt L0 — `stdlib/primitives-constructors` — constructors `decimal`, `duration`, `version`
-Hash do Código: b9e944a5
+Hash do Código: 1bf011ed
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/primitives_constructors.rs`
-**Origem**: Passo 403 (`typst-passo-403.md`) — materialização de constructors stdlib para tipos L1 modelados em P399–P401.
-**ADRs**: ADR-0017 (portão aberto), ADR-0107 (paridade linguagem), ADR-0108 (medir-antes-de-decidir).
+**Origem**: Passo 403 (`typst-passo-403.md`) — materialização de constructors stdlib para tipos L1 modelados em P399–P401. Passo 405 estende `native_duration` para named args vanilla e adiciona operações básicas eval.
+**ADRs**: ADR-0017 (portão aberto), ADR-0107 (paridade linguagem), ADR-0108 (medir-antes-de-decidir), ADR-0054 (graded scope-out operações avançadas).
 **Convenção partilhada**: `rules/stdlib/_comum.md`.
 
 ---
@@ -49,7 +49,9 @@ fn native_X(
 
 ---
 
-## 4. `native_duration(s: Str)`
+## 4. `native_duration(...)`
+
+### Forma string (compatibilidade P403)
 
 Parser minimal canónico `NdNhNmNs`, onde cada componente é opcional mas a ordem é fixa (dias → horas → minutos → segundos). Exemplos válidos:
 
@@ -71,6 +73,28 @@ Regras:
 
 Mensagem de erro padrão: `"duration(): string inválida: '{s}'"`.
 
+### Forma vanilla (named args)
+
+```typst
+duration(days: 3, hours: 2, minutes: 30)
+duration(seconds: 90)
+duration()
+```
+
+Argumentos nomeados opcionais, todos `Int`, ≥ 0, default 0:
+
+- `days`, `hours`, `minutes`, `seconds`, `milliseconds`, `microseconds`, `nanoseconds`
+
+Validação:
+
+- Tipo errado → erro eval.
+- Valor negativo → erro eval (`'{name}' não pode ser negativo`).
+- Soma total > `u64::MAX` nanossegundos → erro eval (`duration excede o máximo suportado`).
+- Mistura string posicional + named args → erro eval.
+- Nenhum argumento → `Duration::ZERO`.
+
+Cálculo usa `u128` intermédio e converte para `u64` após verificação.
+
 ---
 
 ## 5. `native_version(s: Str)`
@@ -81,17 +105,36 @@ Mensagem de erro padrão: `"duration(): string inválida: '{s}'"`.
 
 ---
 
-## 6. Paridade vanilla
+## 6. Operações eval básicas (P405)
+
+Adicionar em `rules/eval/operators.rs` braços para `Value::Duration`:
+
+| Operador | Operandos | Resultado | Notas |
+|----------|-----------|-----------|-------|
+| `+` | Duration + Duration | Duration | overflow u64 → erro |
+| `-` | Duration - Duration | Duration | underflow → erro |
+| `*` | Duration * Int / Int * Duration | Duration | Int negativo → erro; overflow → erro |
+| `*` | Duration * Float / Float * Duration | Duration | Float negativo → erro; trunca sub-nano |
+| `/` | Duration / Int | Duration | div/0 → erro; Int negativo → erro; trunca |
+| `/` | Duration / Float | Duration | div/0 → erro; Float negativo → erro; trunca |
+| `/` | Duration / Duration | Float | razão `a.nanos / b.nanos` como f64 |
+| `==`, `!=`, `<`, `<=`, `>`, `>=` | Duration vs Duration | Bool | via `PartialEq`/`Ord` de `Duration` (P400) |
+
+Não implementar coerção `Duration + Int`, `Duration * Duration`, etc.
+
+## 7. Paridade vanilla
 
 A paridade é com a **forma da linguagem**: uma função global que converte string no tipo. A mecânica interna (parser hand-rolled vs. biblioteca) é detalhe de implementação cristalino.
 
 - `decimal("1.5")` ≡ literal decimal `1.5`.
 - `duration("1h30m")` ≡ `5400s`.
+- `duration(seconds: 90) + duration(seconds: 30)` ≡ `120s`.
+- `duration(minutes: 2) > duration(seconds: 119)` ≡ `true`.
 - `version("1.2.3")` compara via semver (operadores futuros; constructor só constrói).
 
 ---
 
-## 7. Testes
+## 8. Testes
 
 ### `native_decimal`
 
@@ -128,6 +171,35 @@ native_version([Int(1)]) → Err
 native_version([]) → Err
 ```
 
+### `native_duration` named args
+
+```
+native_duration(named: {}) → Duration::ZERO
+native_duration(named: {seconds: 90}) → 90s
+native_duration(named: {days: 1, hours: 2, minutes: 3}) → 1d2h3m
+native_duration(named: {seconds: -1}) → Err
+native_duration(named: {seconds: Float(1.5)}) → Err
+native_duration(positional: [Str("1h30m")], named: {seconds: 1}) → Err
+```
+
+### Operações eval Duration
+
+```
+90s + 30s → 120s
+120s - 30s → 90s
+30s - 120s → Err (underflow)
+60s * 2 → 120s
+60s * -1 → Err
+60s * 1.5 → 90s
+120s / 2 → 60s
+120s / 0 → Err
+120s / 2.0 → 60s
+120s / 60s → Float(2.0)
+59s < 60s → true
+61s > 60s → true
+60s == 60s → true
+```
+
 ### Round-trip `repr`
 
 - `repr(decimal("1.5"))` → `"1.5"` (depende de `Value::repr` para `Decimal`).
@@ -136,10 +208,12 @@ native_version([]) → Err
 
 ---
 
-## 8. Scope-out
+## 9. Scope-out
 
 - Não criar novos variants de `Value`.
 - Não tocar em `entities/`.
-- Não adicionar operações aritméticas (`+`, `-`, `*`, `/`) para os tipos.
-- Não adicionar field access (`.major`, `.minor`, etc.).
-- Não aceitar argumentos nomeados.
+- Não adicionar operações aritméticas para `Decimal`/`Version` neste prompt (ver P404 para Decimal).
+- Não adicionar field access (`.major`, `.minor`, `.hours()`, `.seconds()`, etc.).
+- Não implementar `.in(unit)`, `.display()`, extractores de componente.
+- Não implementar cast `Duration → Int/Float`.
+- Não aceitar argumentos nomeados para `decimal` e `version`.
