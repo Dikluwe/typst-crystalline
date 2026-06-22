@@ -1263,6 +1263,33 @@ mod integration {
         assert!(pdf_str.contains("S\n"),   "PDF deve ter paint operator S (stroke only)");
     }
 
+    #[test]
+    fn rect_fill_tiling_cai_no_fallback_color_no_pdf() {
+        // #rect(fill: tiling(red)) → Paint::Tiling; o exportador PDF ainda não
+        // renderiza padrões (ADR-0054), pelo que o layout converte para a cor
+        // de fallback do tiling antes de emitir FrameItem::Shape.
+        let (world, _dir) = world_from_str(
+            "#rect(width: 50pt, height: 30pt, fill: tiling(rgb(255,0,0)))"
+        );
+        let source = world.source(world.main()).unwrap();
+        let module  = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("deve ter content");
+        let state   = introspect(content);
+        let doc     = layout(content);
+        let pdf     = export_pdf(&doc);
+        let pdf_str = String::from_utf8_lossy(&pdf);
+
+        // Deve emitir o rectângulo preenchido com a cor de fallback (vermelho).
+        assert!(pdf_str.contains(" re\n"), "PDF deve ter rectângulo re");
+        assert!(pdf_str.contains(" rg\n"), "PDF deve ter operador de fill rg");
+        assert!(pdf_str.contains("f\n"),   "PDF deve ter paint operator f (fill only)");
+        // Red DeviceRGB ≈ 1.000 0.000 0.000 rg.
+        assert!(
+            pdf_str.contains("1.000 0.000 0.000 rg\n"),
+            "PDF deve preencher com vermelho puro (fallback do tiling)"
+        );
+    }
+
     // ── Passo 77 — Bézier, elipses e deltas negativos ───────────────────────
 
     #[test]

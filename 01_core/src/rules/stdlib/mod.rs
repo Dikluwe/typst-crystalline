@@ -38,6 +38,8 @@ mod math_style;
 mod loading;
 // P394 — runtime de re-avaliação `eval(source)`.
 mod eval;
+// P396 — constructor `tiling(...)` e helpers visuais.
+mod visualize;
 
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
@@ -75,6 +77,8 @@ pub use crate::rules::stdlib::gradients::{
     make_gradient_module, native_gradient_conic, native_gradient_linear,
     native_gradient_radial,
 };
+// P396 — constructor `tiling(...)`.
+pub use crate::rules::stdlib::visualize::native_tiling;
 // P311b.3 — 12 funções math style (paridade categoria 12/12 = 100%).
 pub use crate::rules::stdlib::math_style::{
     native_bb, native_bold, native_cal, native_frak, native_math_italic,

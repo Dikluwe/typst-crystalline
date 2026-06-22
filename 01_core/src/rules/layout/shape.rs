@@ -11,6 +11,7 @@
 use crate::entities::elements::shape::ShapeElem;
 use crate::entities::geometry::ShapeKind;
 use crate::entities::layout_types::{FrameItem, Point, Pt};
+use crate::entities::paint::Paint;
 
 use super::helpers::resolve_pt;
 use super::{FontMetrics, ImageSizer, Layouter};
@@ -44,7 +45,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         kind:   kind.clone(),
         width:  resolved_w,
         height: resolved_h,
-        fill:   *fill,
+        fill:   fill.as_ref().map(|p| p.to_color()),
         stroke: stroke.clone(),
         // P273.6 — populated by Layouter.parent_bbox (Block save/restore).
         parent_bbox_at_emit: layouter.parent_bbox,

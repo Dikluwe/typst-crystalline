@@ -12,6 +12,7 @@ use crate::entities::{
     content::Content,
     geometry::ShapeKind,
     layout_types::{FrameItem, Point, Pt},
+    paint::Paint,
 };
 
 /// Extrai a posição primária de um FrameItem (posição do canto superior esquerdo).
@@ -136,7 +137,7 @@ fn collect_items_at(content: &Content, items: &mut Vec<FrameItem>, x: Pt, y: Pt,
                 kind: kind.clone(),
                 width: w,
                 height: h,
-                fill: *fill,
+                fill: fill.as_ref().map(|p| p.to_color()),
                 stroke: stroke.clone(),
                 parent_bbox_at_emit: None,
             });

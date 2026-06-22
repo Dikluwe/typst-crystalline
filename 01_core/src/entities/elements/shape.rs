@@ -12,7 +12,7 @@ use std::sync::Arc;
 use crate::entities::content::Content;
 use crate::entities::elements::Element;
 use crate::entities::geometry::{ShapeKind, Stroke};
-use crate::entities::layout_types::Color;
+use crate::entities::paint::Paint;
 use crate::entities::source_result::SourceResult;
 use crate::entities::value::Value;
 
@@ -23,7 +23,7 @@ pub struct ShapeElem {
     pub kind:   ShapeKind,
     pub width:  Option<Box<Value>>,
     pub height: Option<Box<Value>>,
-    pub fill:   Option<Color>,
+    pub fill:   Option<Paint>,
     pub stroke: Option<Stroke>,
 }
 

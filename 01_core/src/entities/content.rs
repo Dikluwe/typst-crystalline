@@ -1224,7 +1224,7 @@ impl Content {
         kind:   ShapeKind,
         width:  Option<Box<crate::entities::value::Value>>,
         height: Option<Box<crate::entities::value::Value>>,
-        fill:   Option<Color>,
+        fill:   Option<crate::entities::paint::Paint>,
         stroke: Option<Stroke>,
     ) -> Self {
         Self::Shape(Arc::new(ShapeElem { kind, width, height, fill, stroke }))

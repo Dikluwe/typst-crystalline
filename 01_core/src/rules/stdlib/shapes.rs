@@ -42,6 +42,19 @@ pub(super) fn parse_color(val: &Value) -> Option<Color> {
     }
 }
 
+/// Converte um `Value` em `Paint` (fill de shape).
+///
+/// P396 — suporta `Color`, `Tiling` e `Gradient`; `Str` nomeado cai em cor sólida.
+pub(super) fn parse_paint(val: &Value) -> Option<Paint> {
+    match val {
+        Value::Color(c) => Some(Paint::Solid(*c)),
+        Value::Tiling(t) => Some(Paint::Tiling((**t).clone())),
+        Value::Gradient(g) => Some(Paint::Gradient(g.clone())),
+        Value::Str(_) => parse_color(val).map(Paint::Solid),
+        _ => None,
+    }
+}
+
 /// `rect(width?, height?, fill?, stroke?)` → `Content::Shape { kind: Rect, ... }`.
 ///
 /// Fallback determinístico: sem `fill` nem `stroke` → stroke preta de 1pt.
@@ -59,7 +72,7 @@ pub fn native_rect(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 
     let width  = args.named.get("width").cloned().map(Box::new);
     let height = args.named.get("height").cloned().map(Box::new);
-    let fill   = args.named.get("fill").and_then(parse_color);
+    let fill   = args.named.get("fill").and_then(parse_paint);
 
     let parsed_stroke: Option<Stroke> = args.named.get("stroke")
         .and_then(parse_color)
@@ -109,7 +122,7 @@ pub fn native_square(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
         .map(Box::new)
         .unwrap_or_else(|| width.clone());
 
-    let fill = args.named.get("fill").and_then(parse_color);
+    let fill = args.named.get("fill").and_then(parse_paint);
 
     let parsed_stroke: Option<Stroke> = args.named.get("stroke")
         .and_then(parse_color)
@@ -140,7 +153,7 @@ pub fn native_ellipse(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 
     let width  = args.named.get("width").cloned().map(Box::new);
     let height = args.named.get("height").cloned().map(Box::new);
-    let fill   = args.named.get("fill").and_then(parse_color);
+    let fill   = args.named.get("fill").and_then(parse_paint);
 
     let parsed_stroke: Option<Stroke> = args.named.get("stroke")
         .and_then(parse_color)
@@ -185,7 +198,7 @@ pub fn native_circle(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
         None => (None, None),
     };
 
-    let fill = args.named.get("fill").and_then(parse_color);
+    let fill = args.named.get("fill").and_then(parse_paint);
 
     let parsed_stroke: Option<Stroke> = args.named.get("stroke")
         .and_then(parse_color)
@@ -276,7 +289,7 @@ pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 
     path_items.push(PathItem::ClosePath);
 
-    let fill   = args.named.get("fill").and_then(parse_color);
+    let fill   = args.named.get("fill").and_then(parse_paint);
     let stroke = args.named.get("stroke").and_then(|v| {
         parse_color(v).map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false })
     });
@@ -457,7 +470,7 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         )]);
     }
 
-    let fill   = args.named.get("fill").and_then(parse_color);
+    let fill   = args.named.get("fill").and_then(parse_paint);
     let stroke = args.named.get("stroke").and_then(|v| {
         parse_color(v).map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false })
     });

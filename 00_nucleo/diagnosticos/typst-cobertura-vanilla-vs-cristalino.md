@@ -212,7 +212,7 @@ primitives e `skew`). Detalhe em
 | `rgb(...)`, `luma(...)` | visualize/paint.rs | `implementado` | stdlib | `native_rgb`, `native_luma` |
 | `cmyk(...)`, `oklab(...)`, etc. | visualize/color.rs | `ausente` | — | space-specific constructors |
 | `gradient(...)` | visualize/gradient.rs | `ausente` | — | |
-| `tiling(...)` | visualize/tiling.rs | `ausente` | — | Tipo `Value::Tiling` modelado no Passo 395; função `tiling()` é P396. |
+| `tiling(...)` | visualize/tiling.rs | `implementado` | **Passo 396** | `native_tiling` em `rules/stdlib/visualize.rs`; body `Color`/`Image`/`Str` (I/O via `world.read_bytes`)/`Tiling`; `Gradient` rejeitado (scope-out ADR-0054); render PDF pattern fill continua scope-out (fallback Color via `Paint::to_color()`). |
 | `stroke(...)` (object) | visualize/stroke.rs | `parcial` | shape passos | `Stroke` em `FrameItem::Shape`; sem todas as variantes (paint, dash, …) |
 
 ### A.8 — Foundations (stdlib functions)
@@ -447,7 +447,7 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 | `measure(body)` | introspection runtime ausente | depende de ADR-0017 |
 | ~~`square(...)`~~ | resolvido no Passo 390 (`native_square` sobre `ShapeKind::Rect`) | — |
 | `gradient(...)` | `Value::Gradient` ausente; render gradient em PDF | escopo M |
-| `tiling(...)` | `Value::Tiling` modelado no Passo 395; `native_tiling()` / consumer real pendente | escopo M (continua até P396) |
+| ~~`tiling(...)`~~ | resolvido no Passo 396 (`native_tiling` + consumers `Paint::Tiling` fallback Color) | — |
 | `cmyk` / `oklab` cores | Color space não-RGB ausente | escopo S |
 | `table(columns, ...)` | `Content::Table`; cell layout; rowspan/colspan (DEBT-34d/e) | escopo M; DEBT-34d/e abertos |
 | `Value::Bytes` | foundations/bytes.rs ausente | escopo XS |
