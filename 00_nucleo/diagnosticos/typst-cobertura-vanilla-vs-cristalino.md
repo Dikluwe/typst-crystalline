@@ -265,7 +265,7 @@ primitives e `skew`). Detalhe em
 
 Tipos do Rust em `01_core/src/entities/` versus `lab/typst-original/crates/typst-library/src/foundations/value.rs` etc.
 
-### B.1 — `Value` enum (vanilla 30 variants; cristalino 22 variants)
+### B.1 — `Value` enum (vanilla 30 variants; cristalino 23 variants)
 
 | Variant | Vanilla path | Cristalino estado | Referência | Nota |
 |---------|--------------|--------------------|------------|------|
@@ -284,6 +284,7 @@ Tipos do Rust em `01_core/src/entities/` versus `lab/typst-original/crates/typst
 | `Tiling` | visualize/tiling.rs | `implementado` | **Passo 395** | `entities::tiling::Tiling` + `Value::Tiling(Arc<Tiling>)` + `Paint::Tiling`. `TilingBody::Gradient` placeholder; render PDF pattern fill scope-out ADR-0054. |
 | `Symbol` | foundations/symbol.rs | `ausente` | — | mapping literal Unicode em vez de tipo dedicado |
 | `Version` | foundations/version.rs | `implementado` | **Passo 401** | `entities::version::Version { major, minor, patch, pre, build }` + `Value::Version(Arc<Version>)`; tipo S puro; parse/repr/comparação semver 2.0.0; `version(...)` stdlib scope-out futuro |
+| `Regex` | foundations/regex.rs | `implementado` | **P209D + P402** | `entities::regex::Regex { pattern: EcoString, compiled: Arc<regex::Regex> }` + `Value::Regex(Regex)`; refino P402: clone O(1), cast `Str → Regex`; `Selector::Regex` query stub; operações regex scope-out |
 | `Str` | foundations/str.rs | `implementado` | Passo 13, 24 (EcoString ADR-0024) | |
 | `Bytes` | foundations/bytes.rs | `implementado` | **Passo 398** | `entities::bytes::Bytes(Vec<u8>)` + `Value::Bytes(Bytes)`; `read` binário e byte-strings CBOR activados; `EcoVec<u8>` refino futuro XS |
 | `Label` | foundations/label.rs | `parcial` | Passos 63–66 | `Label` tipo separado de Value |
@@ -676,13 +677,13 @@ BibEntry com 16 fields cobertura ~70-75% hayagriva universais).
 
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
-| `Value` variants ⁸¹ ⁸³ ⁸⁴ ⁸⁵ | 22 | 2 | 2 | 9 | 0 | 35 |
+| `Value` variants ⁸¹ ⁸³ ⁸⁴ ⁸⁵ ⁸⁶ | 23 | 2 | 2 | 9 | 0 | 36 |
 | `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ ²⁰ ²³ ²⁵ ²⁷ ³⁰ | 46 | 9 | 3 | 0 | 0 | 58 |
 | `Content` variants (vanilla extra ausentes) | — | — | — | 0 | — | 0 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
-| **Total arquitectural** | **78** | **13** | **5** | **13** | **1** | **110** |
+| **Total arquitectural** | **79** | **13** | **5** | **13** | **1** | **111** |
 
 ³ — Ajuste P154B: 39 → 42 (+`Divider`, +`Terms`, +`TermItem`).
 Vanilla extra ausentes desce de ~14 para ~12 (terms + divider
@@ -5781,3 +5782,18 @@ inalterado; apenas a nota de qualidade muda de `implementado+` para `implementad
 - **Contagem user-facing total mantém-se 141** (`Version` é tipo arquitectural; `version()` stdlib continua `ausente` — futuro S).
 - **Testes**: unitários (`version.rs`, `value.rs`) verdes; `cargo test --workspace` passa (com `RUST_MIN_STACK=33554432`).
 - **Decisão arquitectural**: ADR-0017 autoriza novos variants em `Value`; `Version` mantém-se L1 puro; constructor stdlib e comparações em stdlib são scope-out futuro (ADR-0054).
+
+⁸⁶ — Ajuste P402 (Tabela B.1 `Value` enum: adicionada entrada `Regex`;
+**fecha Passo 402**):
+
+- `Regex` já era `implementado` como wrapper L1 desde P209D/P393, mas faltava
+  entrada explícita em B.1. P402 refinou o tipo para primeiro-cidadão:
+  - `pattern` passou de `String` para `EcoString`.
+  - `compiled` passou de `regex::Regex` directo para `Arc<regex::Regex>` (clone O(1)).
+  - Adicionado `cast_regex()` em `Value` (`Regex` identidade; `Str` → compile fallible).
+  - Adicionado `From<Regex> for Value`.
+- **Tabela B.1 `Value` variants**: 22 → **23** (+`Regex` explicitado); total 35 → **36**.
+- **Tabela B total arquitectural**: 78 → **79** implementado; 110 → **111**.
+- **Contagem user-facing total mantém-se 141** (`Regex` já estava contabilizado; `text.font` dict continua gap 8 DEBT-52).
+- **Testes**: unitários (`regex.rs`, `value.rs`) verdes; `cargo test --workspace` passa (com `RUST_MIN_STACK=33554432`).
+- **Decisão arquitectural**: ADR-0077 mantém `regex` autorizado em L1; ADR-0107 (pattern como valor linguagem); ADR-0054 (operações regex ricas scope-out).

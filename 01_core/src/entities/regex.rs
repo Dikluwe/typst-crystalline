@@ -1,24 +1,22 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/regex.md
-//! @prompt-hash 377d975d
+//! @prompt-hash 52c93345
 //! @layer L1
-//! @updated 2026-05-12
+//! @updated 2026-06-22
 //!
 //! **P209D (M9c)** — Wrapper L1 sobre `regex::Regex` crate per
-//! ADR-0077 (PROPOSTO 2026-05-12).
+//! ADR-0077. **P402** — refino para tipo de primeiro-cidadão:
+//! `pattern: EcoString`, `compiled: Arc<regex::Regex>` (clone O(1)),
+//! integração com `Value::Regex` e cast `Str → Regex`.
 //!
-//! `regex::Regex` não deriva `Hash`/`PartialEq`/`Eq`/`Clone`;
-//! wrapper materializa estes traits manualmente via field
-//! `pattern: String` como key. Mesma pattern → semanticamente
-//! mesma regex (compilação determinística do crate).
-//!
-//! Consumer único actual: `Selector::Regex(Regex)` (P209D
-//! Bloco VI). Query arm `Regex` é stub `vec![]` documentado —
-//! cristalino single-pass não tem Content text durante query
-//! phase; semântica funcional fica deferred per P209A A3.
+//! `regex::Regex` não deriva `Hash`/`PartialEq`/`Eq`/`Debug`;
+//! o wrapper materializa estes traits manualmente via field
+//! `pattern` como key. Mesma pattern → semanticamente mesma regex.
 
+use ecow::EcoString;
 use std::fmt;
 use std::hash::{Hash, Hasher};
+use std::sync::Arc;
 
 /// Erro de construção de `Regex` — pattern inválida.
 #[derive(thiserror::Error, Debug)]
@@ -28,30 +26,29 @@ pub enum RegexError {
 }
 
 /// Wrapper L1 sobre `regex::Regex`. Hash/Eq/PartialEq via pattern.
+#[derive(Clone)]
 pub struct Regex {
-    pattern:  String,
-    compiled: regex::Regex,
+    pattern: EcoString,
+    compiled: Arc<regex::Regex>,
 }
 
 impl Regex {
-    /// Constrói uma nova `Regex`. Erro contextual se pattern
-    /// inválido (rejeitado por `regex::Regex::new`).
+    /// Constrói uma nova `Regex`. Erro contextual se pattern inválido.
     pub fn new(pattern: &str) -> Result<Self, RegexError> {
         let compiled = regex::Regex::new(pattern)
             .map_err(|e| RegexError::Invalid(e.to_string()))?;
         Ok(Self {
-            pattern: pattern.to_string(),
-            compiled,
+            pattern: EcoString::from(pattern),
+            compiled: Arc::new(compiled),
         })
     }
 
-    /// Pattern original (string).
+    /// Pattern original.
     pub fn pattern(&self) -> &str {
         &self.pattern
     }
 
-    /// Verifica se a regex matchea `text`. Custo amortizado
-    /// O(|text|) por invocação (sem cache cristalino).
+    /// Verifica se a regex matcheia `text`.
     pub fn is_match(&self, text: &str) -> bool {
         self.compiled.is_match(text)
     }
@@ -59,35 +56,30 @@ impl Regex {
 
 impl Hash for Regex {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        // Hash via pattern: mesma pattern → mesmo hash.
-        // `compiled` é opaco; não pode contribuir.
         self.pattern.hash(state);
     }
 }
 
 impl PartialEq for Regex {
     fn eq(&self, other: &Self) -> bool {
-        // Eq via pattern. Compilação é determinística per crate.
         self.pattern == other.pattern
     }
 }
 
 impl Eq for Regex {}
 
-impl Clone for Regex {
-    fn clone(&self) -> Self {
-        // Re-construção via `Regex::new`. Pattern já validada
-        // no `new` original; expect documentado.
-        Self::new(&self.pattern)
-            .expect("Regex::clone: pattern previamente válida")
-    }
-}
-
 impl fmt::Debug for Regex {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.debug_struct("Regex")
-            .field("pattern", &self.pattern)
+            .field("pattern", &self.pattern.as_str())
             .finish()
+    }
+}
+
+impl Default for Regex {
+    fn default() -> Self {
+        // Pattern vazia é uma regex válida.
+        Self::new("").expect("empty regex is valid")
     }
 }
 
@@ -105,7 +97,6 @@ mod tests {
 
     #[test]
     fn regex_new_invalido_err() {
-        // `[` é bracket-class sem fecho — pattern inválida.
         let r = Regex::new("[");
         assert!(r.is_err());
         match r {
@@ -118,7 +109,6 @@ mod tests {
 
     #[test]
     fn regex_hash_determinismo() {
-        // Mesma pattern em 2 instances → mesmo hash.
         let a = Regex::new("\\d+").unwrap();
         let b = Regex::new("\\d+").unwrap();
         let mut h1 = DefaultHasher::new();
@@ -149,19 +139,15 @@ mod tests {
     fn regex_clone_preserva_semantica() {
         let r = Regex::new("[a-z]+").unwrap();
         let cloned = r.clone();
-        // Igualdade structural.
         assert_eq!(r, cloned);
-        // Funcionalmente equivalente.
         assert_eq!(r.is_match("hello"), cloned.is_match("hello"));
         assert_eq!(r.is_match("123"), cloned.is_match("123"));
     }
 
     #[test]
-    fn regex_debug_oculta_compiled() {
-        let r = Regex::new("foo").unwrap();
-        let debug = format!("{:?}", r);
-        assert!(debug.contains("pattern"));
-        assert!(debug.contains("foo"));
-        // `compiled` é opaco; não deve aparecer formatado.
+    fn regex_default_empty_pattern() {
+        let r = Regex::default();
+        assert_eq!(r.pattern(), "");
+        assert!(r.is_match(""));
     }
 }

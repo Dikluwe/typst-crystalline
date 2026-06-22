@@ -13,6 +13,7 @@ use rustc_hash::FxBuildHasher;
 use crate::entities::bytes::Bytes;
 use crate::entities::decimal::Decimal;
 use crate::entities::duration::Duration;
+use crate::entities::regex::Regex;
 use crate::entities::version::Version;
 
 /// Valor em tempo de avaliação do Typst.
@@ -271,6 +272,17 @@ impl Value {
             _ => None,
         }
     }
+
+    /// Converte para `Regex`, se compatível. Passo 402.
+    ///
+    /// Aceita `Regex` (identidade) e `Str` (compile; rejeita pattern inválido).
+    pub fn cast_regex(&self) -> Option<Regex> {
+        match self {
+            Self::Regex(r) => Some(r.clone()),
+            Self::Str(s) => Regex::new(s).ok(),
+            _ => None,
+        }
+    }
 }
 
 // Conversões From para ergonomia em eval() e testes
@@ -328,6 +340,9 @@ impl From<crate::entities::duration::Duration> for Value {
 }
 impl From<crate::entities::version::Version> for Value {
     fn from(v: crate::entities::version::Version) -> Self { Self::Version(Arc::new(v)) }
+}
+impl From<crate::entities::regex::Regex> for Value {
+    fn from(v: crate::entities::regex::Regex) -> Self { Self::Regex(v) }
 }
 
 #[cfg(test)]
@@ -683,5 +698,45 @@ mod tests {
         let a = Value::from(Version::new(1, 0, 0).with_pre(version_ids(&["alpha"])));
         let b = Value::from(Version::new(1, 0, 0));
         assert!(a.cast_version().unwrap() < b.cast_version().unwrap());
+    }
+
+    // ── Passo 402 — Regex (refino de tipo L1) ────────────────────────────────
+
+    #[test]
+    fn value_regex_type_name() {
+        let r = Regex::new("a.*b").unwrap();
+        assert_eq!(Value::from(r).type_name(), "regex");
+    }
+
+    #[test]
+    fn value_regex_cast_identity() {
+        let r = Regex::new("a.*b").unwrap();
+        let v = Value::from(r.clone());
+        let got = v.cast_regex().unwrap();
+        assert_eq!(got, r);
+        assert!(got.is_match("axxxb"));
+    }
+
+    #[test]
+    fn value_regex_cast_from_str() {
+        let v = Value::Str("a.*b".into());
+        let got = v.cast_regex().unwrap();
+        assert_eq!(got.pattern(), "a.*b");
+        assert!(got.is_match("axxxb"));
+    }
+
+    #[test]
+    fn value_regex_cast_from_str_invalid() {
+        let v = Value::Str("[".into());
+        assert_eq!(v.cast_regex(), None);
+    }
+
+    #[test]
+    fn value_regex_partial_eq() {
+        let a = Value::from(Regex::new("a+").unwrap());
+        let b = Value::from(Regex::new("a+").unwrap());
+        let c = Value::from(Regex::new("b+").unwrap());
+        assert_eq!(a, b);
+        assert_ne!(a, c);
     }
 }
