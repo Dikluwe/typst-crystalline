@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/loading.md
-//! @prompt-hash 12e906aa
+//! @prompt-hash 928f3e07
 //! @layer L1
 //! @updated 2026-06-21
 //!
@@ -14,6 +14,7 @@
 //! com a mecânica do parser.
 
 use crate::entities::args::Args;
+use crate::entities::bytes::Bytes;
 use crate::entities::file_id::FileId;
 use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -183,8 +184,9 @@ fn cbor_to_value(v: ciborium::value::Value) -> SourceResult<Value> {
         }
         C::Float(f) => Ok(Value::Float(f)),
         C::Text(s) => Ok(Value::Str(s.into())),
-        // graded (DEBT-62): sem Value::Bytes.
-        C::Bytes(_) => Err(err("cbor: byte string sem suporte (Value::Bytes ausente — DEBT-62)")),
+        // P398: byte-strings CBOR → Value::Bytes (fecha DEBT-62).
+        C::Bytes(b) => Ok(Value::Bytes(Bytes::new(b))),
+
         C::Tag(_, inner) => cbor_to_value(*inner),
         C::Array(a) => {
             let mut out = Vec::with_capacity(a.len());
@@ -331,8 +333,8 @@ fn read_bytes(
         .map_err(|msg| err(format!("{fname}(): não foi possível ler '{path}': {msg}")))
 }
 
-/// `read(path)` → `Str` (utf8). Modo binário (`Bytes`) deferido até
-/// `Value::Bytes` (DEBT-62).
+/// `read(path)` → `Str` (utf8) ou `Bytes` (binário).
+/// Heurística vanilla: tenta UTF-8; se falhar, retorna bytes opacos.
 pub fn native_read(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -342,9 +344,10 @@ pub fn native_read(
     reject_named(args, "read")?;
     let path = arg_path(args, "read")?;
     let data = read_bytes(world, current_file, &path, "read")?;
-    let s = std::str::from_utf8(&data)
-        .map_err(|_| err(format!("read(): '{path}' não é UTF-8 válido (modo binário deferido — DEBT-62)")))?;
-    Ok(Value::Str(s.into()))
+    match String::from_utf8(data.to_vec()) {
+        Ok(text) => Ok(Value::Str(text.into())),
+        Err(_) => Ok(Value::Bytes(Bytes::new(data.to_vec()))),
+    }
 }
 
 macro_rules! native_loader {
@@ -521,10 +524,11 @@ mod tests {
     }
 
     #[test]
-    fn cbor_byte_string_graded_err() {
+    fn cbor_byte_string_returns_bytes() {
         use ciborium::value::Value as C;
         let doc = C::Bytes(vec![1, 2, 3]);
-        assert!(decode_cbor(&cbor_bytes(&doc)).is_err(), "byte string → graded Err (DEBT-62)");
+        let v = decode_cbor(&cbor_bytes(&doc)).unwrap();
+        assert_eq!(v, Value::Bytes(Bytes::new(vec![1, 2, 3])));
     }
 
     // ── CSV ─────────────────────────────────────────────────────────────────
@@ -584,5 +588,71 @@ mod tests {
         } else {
             panic!("esperava Array");
         }
+    }
+
+    // ── read() texto vs binário — P398 ───────────────────────────────────────
+
+    use std::num::NonZeroU16;
+    use std::sync::Arc;
+
+    struct MockWorld {
+        files: std::collections::HashMap<String, Arc<Vec<u8>>>,
+        library: crate::entities::world_types::Library,
+        book: crate::entities::font_book::FontBook,
+    }
+    impl Default for MockWorld {
+        fn default() -> Self {
+            Self {
+                files: std::collections::HashMap::new(),
+                library: crate::entities::world_types::Library::default(),
+                book: crate::entities::font_book::FontBook::default(),
+            }
+        }
+    }
+    impl crate::contracts::world::World for MockWorld {
+        fn library(&self) -> &crate::entities::world_types::Library { &self.library }
+        fn book(&self) -> &crate::entities::font_book::FontBook { &self.book }
+        fn main(&self) -> FileId {
+            FileId::from_raw(NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::source::Source> {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes> {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> { None }
+        fn today(&self, _: Option<i64>) -> Option<crate::entities::world_types::Datetime> { None }
+        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<Arc<Vec<u8>>, String> {
+            self.files.get(path).cloned().ok_or_else(|| format!("ficheiro não encontrado: {}", path))
+        }
+    }
+
+    fn mock_args(path: &str) -> Args {
+        Args::positional(vec![Value::Str(path.into())])
+    }
+
+    #[test]
+    fn read_texto_utf8() {
+        let mut world = MockWorld::default();
+        world.files.insert("texto.txt".into(), Arc::new(b"hello".to_vec()));
+        let v = native_read(&mut EvalContext::new(), &mock_args("texto.txt"), &world, FileId::from_raw(NonZeroU16::new(1).unwrap())).unwrap();
+        assert_eq!(v, Value::Str("hello".into()));
+    }
+
+    #[test]
+    fn read_binario_nao_utf8() {
+        let mut world = MockWorld::default();
+        world.files.insert("logo.png".into(), Arc::new(vec![0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+        let v = native_read(&mut EvalContext::new(), &mock_args("logo.png"), &world, FileId::from_raw(NonZeroU16::new(1).unwrap())).unwrap();
+        assert_eq!(v, Value::Bytes(Bytes::new(vec![0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])));
+    }
+
+    #[test]
+    fn read_vazio() {
+        let mut world = MockWorld::default();
+        world.files.insert("empty".into(), Arc::new(Vec::new()));
+        let v = native_read(&mut EvalContext::new(), &mock_args("empty"), &world, FileId::from_raw(NonZeroU16::new(1).unwrap())).unwrap();
+        assert_eq!(v, Value::Str("".into()));
     }
 }

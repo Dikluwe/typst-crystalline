@@ -10,6 +10,8 @@ use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
+use crate::entities::bytes::Bytes;
+
 /// Valor em tempo de avaliação do Typst.
 ///
 /// Subset de Passo 15: 9 variantes (5 primitivos + Array, Dict, Module, Datetime).
@@ -93,6 +95,10 @@ pub enum Value {
     /// ADR-0017; `tiling()` consumer é P396.
     Tiling(Arc<crate::entities::tiling::Tiling>),
 
+    /// **P398** — Bytes binários opacos. Fecha DEBT-62; activa `read`
+    /// binário e byte-strings CBOR.
+    Bytes(Bytes),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
     // Variantes futuras (~12 restantes após P262):
     // Relative(Relative),       // comprimento relativo
@@ -151,6 +157,7 @@ impl Value {
             Self::Gradient(_)  => "gradient",
             Self::Regex(_)     => "regex",
             Self::Tiling(_)    => "tiling",
+            Self::Bytes(_)     => "bytes",
         }
     }
 
@@ -197,6 +204,11 @@ impl Value {
     pub fn cast_align(&self) -> Option<crate::entities::layout_types::Align2D> {
         match self { Self::Align(a) => Some(*a), _ => None }
     }
+
+    /// Converte para `&Bytes`, se for `Bytes`. Passo 398.
+    pub fn cast_bytes(&self) -> Option<&Bytes> {
+        match self { Self::Bytes(b) => Some(b), _ => None }
+    }
 }
 
 // Conversões From para ergonomia em eval() e testes
@@ -242,6 +254,9 @@ impl From<crate::entities::geometry::Stroke> for Value {
 }
 impl From<crate::entities::tiling::Tiling> for Value {
     fn from(v: crate::entities::tiling::Tiling) -> Self { Self::Tiling(Arc::new(v)) }
+}
+impl From<crate::entities::bytes::Bytes> for Value {
+    fn from(v: crate::entities::bytes::Bytes) -> Self { Self::Bytes(v) }
 }
 
 #[cfg(test)]
@@ -384,6 +399,31 @@ mod tests {
         let a = Value::from(Tiling::new(TilingBody::Color(Color::rgb(1, 2, 3))));
         let b = Value::from(Tiling::new(TilingBody::Color(Color::rgb(1, 2, 3))));
         let c = Value::from(Tiling::new(TilingBody::Color(Color::rgb(4, 5, 6))));
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+    }
+
+    // ── Passo 398 — Bytes (fecha DEBT-62) ────────────────────────────────────
+
+    #[test]
+    fn value_bytes_type_name() {
+        let b = Bytes::new(vec![0xDE, 0xAD]);
+        assert_eq!(Value::from(b).type_name(), "bytes");
+    }
+
+    #[test]
+    fn value_bytes_cast_identity() {
+        let b = Bytes::new(vec![1, 2, 3]);
+        let v = Value::from(b.clone());
+        assert_eq!(v.cast_bytes(), Some(&b));
+        assert_eq!(v.cast_int(), None);
+    }
+
+    #[test]
+    fn value_bytes_partial_eq() {
+        let a = Value::from(Bytes::new(vec![1, 2]));
+        let b = Value::from(Bytes::new(vec![1, 2]));
+        let c = Value::from(Bytes::new(vec![2, 1]));
         assert_eq!(a, b);
         assert_ne!(a, c);
     }

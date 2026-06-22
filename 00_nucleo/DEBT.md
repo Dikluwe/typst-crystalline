@@ -234,24 +234,21 @@
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
 
-## DEBT-62 — `Value::Bytes` ausente (bloqueia `read` binário + cbor byte-strings) — EM ABERTO (Passo 387)
+## DEBT-62 — `Value::Bytes` ausente (bloqueia `read` binário + cbor byte-strings) — FECHADO (Passo 398)
 
 **Origem**: materialização do módulo `loading` (P387, ADR-0111). O cristalino
-não tem o variant `Value::Bytes` (ADR-0017 proíbe adicionar variant sem tipo
-migrado). Consequência declarada e **graded** (ADR-0054), não divergência
-silenciosa:
+não tinha o variant `Value::Bytes` (ADR-0017 proíbe adicionar variant sem tipo
+migrado). A consequência era **graded** (ADR-0054):
 
-- `read(path)` materializa **só o modo texto** (`Str` utf8); bytes não-utf8 → `Err`.
-  O modo binário (`read` → `Bytes`) fica deferido.
-- `decode_cbor` com **byte-strings** → `Err` graded "Value::Bytes ausente". O resto
-  do cbor (trees: map/array/int/float/bool/null/str) funciona.
+- `read(path)` só materializava modo texto (`Str` utf8); bytes não-utf8 → `Err`.
+- `decode_cbor` com **byte-strings** → `Err` graded "Value::Bytes ausente".
 
-**Resolução**: passo dedicado de **modelagem de tipos** que materialize
-`Value::Bytes` (entrada `ausente` da Lista A / Tabela C do Inventário 148; ver
-`typst-falta-migrar-lista-A-passo-386.md`). Ao fechar, promove o graded de `read`
-e `cbor` a paridade plena. **Magnitude**: S (tipo simples + casts + repr).
+**Resolução (P398)**: modelado `Value::Bytes` em `01_core/src/entities/bytes.rs` e
+aberto variant em `Value`. `native_read` activou heurística vanilla (UTF-8 →
+`Str`, fallback → `Bytes`). `decode_cbor` mapeia byte-strings para `Value::Bytes`.
+O graded de `read` e `cbor` foi levantado.
 
-**Não-bloqueante** do P387: os 6 formatos + `read` texto materializam sem ele.
+**Magnitude**: S-M (tipo simples + activação de consumer L3).
 
 ---
 

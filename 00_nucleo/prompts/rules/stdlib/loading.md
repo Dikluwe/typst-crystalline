@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/loading` — módulo de carregamento de dados
-Hash do Código: a63aaf59
+Hash do Código: e447fbcb
 
 **Camada**: L1 (decode puro) + composição com L3 já existente.
 **Ficheiro alvo**: `01_core/src/rules/stdlib/loading.rs`
@@ -25,7 +25,7 @@ Assinatura `fn native_X(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<
 
 | Função | Args | Devolve | Decode L1 |
 |--------|------|---------|-----------|
-| `read(path)` | path | `Str` (utf8) — **ver §4 graded** | (sem decode; bytes→Str utf8) |
+| `read(path)` | path | `Str` (utf8) ou `Bytes` (binário) — **ver §4** | (sem decode; bytes→Str utf8 ou Bytes) |
 | `csv(path, delimiter:, row-type:)` | path + named | `Array` de linhas | `decode_csv` |
 | `json(path)` | path | árvore `Value` | `decode_json` |
 | `yaml(path)` | path | árvore `Value` | `decode_yaml` |
@@ -51,7 +51,7 @@ Mapa canónico documento→`Value`:
 | array/seq | `Value::Array` |
 | objeto/mapa/table | `Value::Dict` (ordem de inserção, IndexMap — ADR-0023) |
 | datetime (toml) | `Value::Str` (RFC 3339) — **graded**: mapa rico para `Value::Datetime` deferido (sub-caso raro; ADR-0054) |
-| byte string (cbor) | **graded — §4** (sem `Value::Bytes`) |
+| byte string (cbor) | `Value::Bytes` (P398) |
 
 - Inteiro fora de i64 → seguir o vanilla (provável `Float`); documentar no fecho com o caso de teste.
 - Chave de mapa não-string (yaml/cbor) → `Err` (paridade vanilla: chaves de dict são string).
@@ -69,13 +69,16 @@ Mapa canónico documento→`Value`:
 - Cada elemento → `Dict { tag: Str, attrs: Dict, children: Array }` (forma vanilla `convert_xml`).
 - Nós de texto → `Str`. Documento → `Array` de nós de topo.
 
-## 4. Subset graded (ADR-0054) — `Value::Bytes` ausente
+## 4. `read` binário e byte-strings CBOR — P398
 
-`Value::Bytes` **não existe** (entrada `ausente` da Lista A; ADR-0017 proíbe adicionar variant sem tipo migrado). Consequência declarada:
+Com `Value::Bytes` materializado (Passo 398), o graded de P387 é levantado:
 
-- `read(path)` materializa **só o modo texto** (`Str` utf8). Bytes inválidos utf8 → `Err` "ficheiro não é UTF-8 válido". O modo binário (`read` → `Bytes`) fica **deferido** até `Value::Bytes` materializar (passo dedicado; é dívida Lista A independente).
-- `decode_cbor` com byte-strings → `Err` graded "byte string sem suporte (Value::Bytes ausente)". O resto do cbor (trees) funciona.
-- Este subset é **paridade graded ADR-0054**, não divergência silenciosa. `Value::Bytes` é o prerequisito documentado para fechar o graded — registado como **DEBT-62** (passo dedicado de modelagem de tipos).
+- `read(path)` usa heurística vanilla: tenta UTF-8 → `Value::Str`; se falhar, retorna `Value::Bytes`.
+- `decode_cbor` com byte-strings → `Value::Bytes`.
+
+A heurística UTF-8 é suficiente para paridade linguagem (ADR-0107); encoding detection sofisticado (BOM, ISO, etc.) permanece scope-out ADR-0054 graded.
+
+**Histórico**: em P387, `Value::Bytes` estava ausente (ADR-0017); `read` binário e byte-strings cbor eram graded e registados como DEBT-62. P398 fecha DEBT-62.
 - **yaml usa `saphyr`** (parser mantido; mapa `Yaml → Value` manual), após `serde_yaml`/`serde_yml` se confirmarem não-mantidas (ADR-0111). A paridade de saída é independente da crate, provada pelos testes de bytes literais (§7).
 
 ## 5. Estratificação de erro (critério de aceitação 4)
@@ -101,16 +104,16 @@ decode_yaml(b"- 1\n- 2") → Ok(Array[Int(1),Int(2)])
 // toml
 decode_toml(b"x = 1\ny = \"s\"") → Ok(Dict{x:Int(1), y:Str("s")})
 decode_toml(b"d = 1979-05-27") → Ok(Dict{d:Str("1979-05-27")})  // graded: datetime→Str
-// cbor (tree); byte-string → graded Err
-decode_cbor(<cbor de {"a":1}>) → Ok(Dict{a:Int(1)});  decode_cbor(<cbor byte-string>) → Err("Value::Bytes ausente")
+// cbor (tree); byte-string → Bytes
+decode_cbor(<cbor de {"a":1}>) → Ok(Dict{a:Int(1)});  decode_cbor(<cbor byte-string 0xDE 0xAD>) → Ok(Bytes([0xDE, 0xAD]))
 // csv
 decode_csv(b"a,b\n1,2", delim=',', row=array) → Ok(Array[Array[Str("a"),Str("b")], Array[Str("1"),Str("2")]])
 decode_csv(b"a,b\n1,2", row=dictionary) → Ok(Array[Dict{a:Str("1"), b:Str("2")}])
 decode_csv(b"x;y", delim=';') → Ok(Array[Array[Str("x"),Str("y")]]);  decode_csv(b"x", delim="ab") → Err
 // xml
 decode_xml(b"<r><c>t</c></r>") → Ok(Array[Dict{tag:Str("r"), attrs:Dict{}, children:Array[Dict{tag:Str("c"),attrs:Dict{},children:Array[Str("t")]}]}])
-// read (graded — só texto)
-read(utf8 bytes) → Ok(Str);  read(bytes inválidos utf8) → Err("não é UTF-8")
+// read (texto ou binário)
+read(utf8 bytes) → Ok(Str);  read(bytes inválidos utf8) → Ok(Bytes)
 // estratificação
 native_csv(path inexistente) → Err (I/O, L3);  native_json(path com bytes malformados) → Err (parsing, L1)
 ```

@@ -234,11 +234,11 @@ primitives e `skew`). Detalhe em
 | `panic(msg)` | foundations | `implementado` | Passo 392 | `native_panic`; helper puro `Str → abort`, zero tipo novo. |
 | `if/else`, `while`, `for`, `break`, `continue` | foundations/ops.rs | `implementado` | Passo 30 + flow | control flow |
 | `import math: ...`, `from math: ...` | foundations | `parcial` | Passos 71, 75 | std imports limitados |
-| `read(path)` | loading/read.rs | `implementado⁺` | **Passo 387** (ADR-0111) | decode L1 puro compõe com L3 `read_bytes`; **graded ADR-0054**: modo texto (`Str`) apenas — binário (`Bytes`) deferido até `Value::Bytes` (DEBT-62) |
+| `read(path)` | loading/read.rs | `implementado` | **Passo 398** | decode L1 puro compõe com L3 `read_bytes`; heurística vanilla UTF-8 → `Str`, fallback → `Bytes` (fecha DEBT-62) |
 | `json(path)` | loading/json.rs | `implementado` | **Passo 387** | `serde_json` (preserve_order); árvore→`Value` |
 | `yaml(path)` | loading/yaml.rs | `implementado` | **Passo 387** | `saphyr` (mantido; mapa `Yaml→Value` manual — `serde_yaml`/`serde_yml` não-mantidas) |
 | `toml(path)` | loading/toml.rs | `implementado⁺` | **Passo 387** | `toml` (preserve_order); **graded**: datetime→`Str` RFC 3339 (mapa rico deferido) |
-| `cbor(path)` | loading/cbor.rs | `implementado⁺` | **Passo 387** | `ciborium`; **graded**: byte-strings → Err (Value::Bytes ausente, DEBT-62) |
+| `cbor(path)` | loading/cbor.rs | `implementado` | **Passo 398** | `ciborium`; byte-strings → `Value::Bytes` (fecha DEBT-62) |
 | `xml(path)` | loading/xml.rs | `implementado` | **Passo 387** | `roxmltree`; nó→`Dict{tag,attrs,children}` |
 | `csv(path, delimiter:, row-type:)` | loading/csv.rs | `implementado` | **Passo 387** | `csv`; Array 2D (row-type array/dictionary) |
 
@@ -265,7 +265,7 @@ primitives e `skew`). Detalhe em
 
 Tipos do Rust em `01_core/src/entities/` versus `lab/typst-original/crates/typst-library/src/foundations/value.rs` etc.
 
-### B.1 — `Value` enum (vanilla 30 variants; cristalino 18 variants)
+### B.1 — `Value` enum (vanilla 30 variants; cristalino 19 variants)
 
 | Variant | Vanilla path | Cristalino estado | Referência | Nota |
 |---------|--------------|--------------------|------------|------|
@@ -285,7 +285,7 @@ Tipos do Rust em `01_core/src/entities/` versus `lab/typst-original/crates/typst
 | `Symbol` | foundations/symbol.rs | `ausente` | — | mapping literal Unicode em vez de tipo dedicado |
 | `Version` | foundations/version.rs | `ausente` | — | |
 | `Str` | foundations/str.rs | `implementado` | Passo 13, 24 (EcoString ADR-0024) | |
-| `Bytes` | foundations/bytes.rs | `ausente` | — | |
+| `Bytes` | foundations/bytes.rs | `implementado` | **Passo 398** | `entities::bytes::Bytes(Vec<u8>)` + `Value::Bytes(Bytes)`; `read` binário e byte-strings CBOR activados; `EcoVec<u8>` refino futuro XS |
 | `Label` | foundations/label.rs | `parcial` | Passos 63–66 | `Label` tipo separado de Value |
 | `Datetime` | foundations/datetime.rs | `implementado` | Passo 21 (ADR-0021) | |
 | `Decimal` | foundations/decimal.rs | `ausente` | — | |
@@ -485,7 +485,7 @@ Categorias e contagens são aproximadas (~1 por linha listada acima):
 | Layout ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ⁴⁰ ⁴¹ ⁴² ⁴³ ⁴⁴ ⁴⁵ ⁴⁶ | 12 | 4 | 2 | 0 | 0 | 18 |
 | Model (structural) ¹ ² ³ ²² ²⁴ ²⁹ ⁸⁰ | 9 | 4 | 7 | 2 | 0 | 22 |
 | Visualize | 6 | 1 | 1 | 5 | 0 | 13 |
-| Foundations stdlib | 9 | 1 | 4 | 1 | 0 | 15 |
+| Foundations stdlib ⁸² | 9 | 1 | 4 | 1 | 0 | 15 |
 | Introspection ³⁸ | 3 | 2 | 1 | 0 | 0 | 6 |
 | **Total user-facing** ⁵ ⁶ ⁸ ¹⁰ ¹² ¹³ ¹⁵ ¹⁷ ¹⁹ ²¹ ²² ²⁹ ³⁸ ³⁹ ⁴⁰ ⁴¹ ⁴² ⁴³ ⁴⁴ ⁴⁵ ⁴⁶ ⁷⁰ ⁸⁰ | **73** | **27** | **24** | **15** | **2** | **141** |
 
@@ -676,13 +676,13 @@ BibEntry com 16 fields cobertura ~70-75% hayagriva universais).
 
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
-| `Value` variants | 18 | 2 | 2 | 9 | 0 | 31 |
+| `Value` variants ⁸¹ | 19 | 2 | 2 | 9 | 0 | 32 |
 | `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ ²⁰ ²³ ²⁵ ²⁷ ³⁰ | 46 | 9 | 3 | 0 | 0 | 58 |
 | `Content` variants (vanilla extra ausentes) | — | — | — | 0 | — | 0 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
-| **Total arquitectural** | **74** | **13** | **5** | **13** | **1** | **106** |
+| **Total arquitectural** | **75** | **13** | **5** | **13** | **1** | **107** |
 
 ³ — Ajuste P154B: 39 → 42 (+`Divider`, +`Terms`, +`TermItem`).
 Vanilla extra ausentes desce de ~14 para ~12 (terms + divider
@@ -5722,3 +5722,25 @@ H6 não-listada na spec; refutação genuína documentada).
 - **Contagem user-facing total**: 71/27/24/17/2=141 → **73/27/24/15/2=141** (+2 implementado, −2 ausente).
 - **Testes**: 16 unitários (`structural.rs`) + 2 E2E (`integration_tests.rs`) verdes; `cargo test --workspace` passa.
 - **Decisão arquitectural**: nenhum novo `Value` variant; reuso do enum `Content` para metadata pura e placeholders de resource, mantendo o pipeline de layout agnóstico.
+
+⁸¹ — Ajuste P398 (Tabela B.1 `Value` enum: novo variant `Bytes`;
+**fecha Passo 398**):
+
+- `Bytes` transita `ausente → implementado` em B.1:
+  - Novo tipo L1 `Bytes(pub Vec<u8>)` em `01_core/src/entities/bytes.rs`.
+  - Novo variant `Value::Bytes(Bytes)` em `01_core/src/entities/value.rs` com `cast_bytes()`, `type_name == "bytes"` e `From<Bytes>`.
+- `read(...)` transita `implementado+ → implementado`:
+  - `native_read` em `01_core/src/rules/stdlib/loading.rs` detecta UTF-8 → `Value::Str`, fallback → `Value::Bytes(Bytes::new(...))`.
+- `cbor(...)` (decode) transita `implementado+ → implementado`:
+  - `cbor_to_value` mapeia byte-strings CBOR para `Value::Bytes`.
+- **DEBT-62 fechado**: `read("file")` binário / `Value::Bytes`.
+- **Tabela B.1 `Value` variants**: 18 → **19** (+`Bytes`); total 31 → **32**.
+- **Tabela B total arquitectural**: 74 → **75** implementado; 106 → **107**.
+- **Contagem user-facing total mantém-se 141** (read/cbor já estavam contabilizados).
+- **Testes**: unitários (`bytes.rs`, `value.rs`, `loading.rs`) + E2E (`integration_tests.rs`) verdes; `cargo test --workspace` passa (com `RUST_MIN_STACK=33554432`).
+- **Decisão arquitectural**: ADR-0017 autoriza novos variants em `Value`; `Bytes` mantém-se L1 puro, sem I/O no decode CBOR (ADR-0029).
+
+⁸² — Ajuste P398 (Tabela A.8 Foundations stdlib): `read(...)` e `cbor(...)`
+passam a `implementado` (funcionalidade binária / byte-strings CBOR). As contagens
+linha-a-linha já reflectiam estes itens, pelo que o resumo 9/1/4/1/0=15 permanece
+inalterado; apenas a nota de qualidade muda de `implementado+` para `implementado`.

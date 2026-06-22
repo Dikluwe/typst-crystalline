@@ -15,9 +15,11 @@ mod integration {
     use std::path::{Path, PathBuf};
 
     use typst_core::contracts::world::World;
+    use typst_core::entities::bytes::Bytes;
     use typst_core::entities::module::Module;
     use typst_core::entities::source::Source;
     use typst_core::entities::source_result::SourceResult;
+    use typst_core::entities::value::Value;
     use typst_core::rules::introspect::{introspect, introspect_with_introspector};
     use typst_core::rules::layout::layout;
 
@@ -1324,6 +1326,29 @@ mod integration {
 
         assert!(!pdf_str.contains("Tj"), "Asset não deve emitir texto");
         assert!(!pdf_str.contains(" re\n"), "Asset não deve emitir shapes");
+    }
+
+    // ── Passo 398 — read binário + Value::Bytes ───────────────────────────────
+
+    #[test]
+    fn read_texto_utf8_pipeline() {
+        let (world, dir) = world_from_str("#let data = read(\"file.txt\")");
+        std::fs::write(dir.path().join("file.txt"), b"hello").unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let data = module.scope().get("data").expect("data deve estar no scope");
+        assert_eq!(data, &Value::Str("hello".into()));
+    }
+
+    #[test]
+    fn read_binario_pipeline() {
+        let bytes = vec![0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+        let (world, dir) = world_from_str("#let data = read(\"logo.png\")");
+        std::fs::write(dir.path().join("logo.png"), &bytes).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let data = module.scope().get("data").expect("data deve estar no scope");
+        assert_eq!(data, &Value::Bytes(Bytes::new(bytes)));
     }
 
     // ── Passo 77 — Bézier, elipses e deltas negativos ───────────────────────
