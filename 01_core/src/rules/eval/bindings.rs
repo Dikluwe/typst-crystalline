@@ -1,10 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
 //! @prompt-hash 7a92cc2d
+//! @prompt 00_nucleo/prompts/rules/eval/version-field-access.md
+//! @prompt-hash 7dde40ef
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-06-22
 //!
-//! Bindings: `#let`, e métodos de counter. Extraído de `eval.rs` no Passo 96.1
+//! Bindings: `#let`, `#show` counter, e field access (Passo 411 — Version). Extraído de `eval.rs` no Passo 96.1
 //! conforme ADR-0037 (coesão por domínio). Assinaturas simplificadas no
 //! Passo 109 (ADR-0044) via `Engine<'_>`.
 
@@ -140,6 +142,20 @@ pub(super) fn eval_field_access(
                 access.span(),
                 format!("campo '{field}' não existe neste elemento de conteúdo"),
             )]),
+        // P411 — Field access em Value::Version (semver): major/minor/patch/pre/build.
+        Value::Version(v) => {
+            match field.as_str() {
+                "major" => Ok(Value::Int(v.major as i64)),
+                "minor" => Ok(Value::Int(v.minor as i64)),
+                "patch" => Ok(Value::Int(v.patch as i64)),
+                "pre" => Ok(Value::Array(v.pre.iter().map(|s| Value::Str(s.clone())).collect())),
+                "build" => Ok(Value::Array(v.build.iter().map(|s| Value::Str(s.clone())).collect())),
+                _ => Err(vec![SourceDiagnostic::error(
+                    access.span(),
+                    format!("campo desconhecido em version: '{}'", field),
+                )]),
+            }
+        }
         other => Err(vec![SourceDiagnostic::error(
             access.span(),
             format!("field access não suportado em {}", other.type_name()),

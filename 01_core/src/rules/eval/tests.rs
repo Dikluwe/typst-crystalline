@@ -1347,6 +1347,77 @@ mod tests {
         assert_eq!(eval_binary_op(BinOp::Lt, ver_pre(1, 2, 3, "1"), ver_pre(1, 2, 3, "alpha")), Ok(Value::Bool(true)));
     }
 
+    // ── P411 — Field Access Version ──────────────────────────────────────────
+
+    #[test]
+    fn version_field_major() {
+        let world = MockWorld::new("#let x = version(\"1.2.3\").major");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(1)));
+    }
+
+    #[test]
+    fn version_field_minor() {
+        let world = MockWorld::new("#let x = version(\"1.2.3\").minor");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(2)));
+    }
+
+    #[test]
+    fn version_field_patch() {
+        let world = MockWorld::new("#let x = version(\"1.2.3\").patch");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(3)));
+    }
+
+    #[test]
+    fn version_field_pre() {
+        let world = MockWorld::new("#let x = version(\"1.2.3-alpha.1\").pre");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Str("alpha".into()), Value::Str("1".into())]))
+        );
+    }
+
+    #[test]
+    fn version_field_pre_empty() {
+        let world = MockWorld::new("#let x = version(\"1.2.3\").pre");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Array(vec![])));
+    }
+
+    #[test]
+    fn version_field_build() {
+        let world = MockWorld::new("#let x = version(\"1.2.3+build.2\").build");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(
+            m.scope().get("x"),
+            Some(&Value::Array(vec![Value::Str("build".into()), Value::Str("2".into())]))
+        );
+    }
+
+    #[test]
+    fn version_field_build_empty() {
+        let world = MockWorld::new("#let x = version(\"1.2.3\").build");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Array(vec![])));
+    }
+
+    #[test]
+    fn version_field_unknown() {
+        let world = MockWorld::new("#let x = version(\"1.2.3\").foo");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        assert!(eval_for_test(&world, &src).is_err());
+    }
+
     // ── Testes de paridade: eval_unary_op ────────────────────────────────────
 
     #[test]
