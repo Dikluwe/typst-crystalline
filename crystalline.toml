@@ -81,6 +81,14 @@ rust = [
     "ecow",          # ADR-0024 — EcoString em Value::Str; clone O(1) no hot path de eval()
     "hypher",        # ADR-0057 — hyphenation patterns embebidos; no_std, zero deps, sem unsafe
     "regex",         # ADR-0077 — `Selector::Regex` em L1 (M9c P209D); wrapper L1 isola dep
+    # grupo loading (data import) — ADR-0111 (P387); decode puro, paridade do Value de saída
+    "serde",         # ADR-0111 — base de serde_json; sem derive em contrato L1
+    "serde_json",    # ADR-0111 — decode_json
+    "saphyr",        # ADR-0111 — decode_yaml (YAML mantido; mapa Yaml→Value manual)
+    "toml",          # ADR-0111 — decode_toml
+    "ciborium",      # ADR-0111 — decode_cbor (puro-Rust sem C)
+    "roxmltree",     # ADR-0111 — decode_xml (read-only)
+    "csv",           # ADR-0111 — decode_csv
 ]
 
 [orphan_exceptions]

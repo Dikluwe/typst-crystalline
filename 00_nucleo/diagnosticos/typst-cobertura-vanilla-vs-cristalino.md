@@ -232,6 +232,19 @@ primitives e `skew`). Detalhe em
 | `panic(msg)` | foundations | `ausente` | — | |
 | `if/else`, `while`, `for`, `break`, `continue` | foundations/ops.rs | `implementado` | Passo 30 + flow | control flow |
 | `import math: ...`, `from math: ...` | foundations | `parcial` | Passos 71, 75 | std imports limitados |
+| `read(path)` | loading/read.rs | `implementado⁺` | **Passo 387** (ADR-0111) | decode L1 puro compõe com L3 `read_bytes`; **graded ADR-0054**: modo texto (`Str`) apenas — binário (`Bytes`) deferido até `Value::Bytes` (DEBT-62) |
+| `json(path)` | loading/json.rs | `implementado` | **Passo 387** | `serde_json` (preserve_order); árvore→`Value` |
+| `yaml(path)` | loading/yaml.rs | `implementado` | **Passo 387** | `saphyr` (mantido; mapa `Yaml→Value` manual — `serde_yaml`/`serde_yml` não-mantidas) |
+| `toml(path)` | loading/toml.rs | `implementado⁺` | **Passo 387** | `toml` (preserve_order); **graded**: datetime→`Str` RFC 3339 (mapa rico deferido) |
+| `cbor(path)` | loading/cbor.rs | `implementado⁺` | **Passo 387** | `ciborium`; **graded**: byte-strings → Err (Value::Bytes ausente, DEBT-62) |
+| `xml(path)` | loading/xml.rs | `implementado` | **Passo 387** | `roxmltree`; nó→`Dict{tag,attrs,children}` |
+| `csv(path, delimiter:, row-type:)` | loading/csv.rs | `implementado` | **Passo 387** | `csv`; Array 2D (row-type array/dictionary) |
+
+> **Cluster `loading` (data import) — Passo 387.** Resolve o achado da Lista B do
+> Passo 386 (`typst-falta-migrar-lista-B-passo-386.md` §3): o módulo `loading` estava
+> ausente em L1 e não catalogado. Materializado per ADR-0111 (autorização de crates de
+> parsing por formato) com decode L1 puro (paridade do `Value` de saída, ADR-0107).
+> Destrava `bibliography`/`cite` (pré-condição: carregar ficheiros de dados).
 
 ### A.9 — Introspection
 

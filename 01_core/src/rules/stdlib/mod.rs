@@ -33,6 +33,8 @@ mod layout;
 mod gradients;
 // P311b.3 — 12 funções math style (bb/cal/frak/etc.).
 mod math_style;
+// P387 (ADR-0111) — data import: read/csv/json/yaml/toml/cbor/xml.
+mod loading;
 
 // Re-exports públicos — preservam o path `crate::rules::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
@@ -47,6 +49,10 @@ pub use crate::rules::stdlib::structural::{
     make_math_module, native_accent, native_bibliography, native_cancel, native_cite, native_divider, native_emph, native_footnote, native_grid_cell, native_grid_footer, native_grid_header, native_heading, native_op, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms, native_underover,
 };
 pub use crate::rules::stdlib::figure_image::{native_figure, native_image};
+// P387 (ADR-0111) — data import.
+pub use crate::rules::stdlib::loading::{
+    native_cbor, native_csv, native_json, native_read, native_toml, native_xml, native_yaml,
+};
 pub use crate::rules::stdlib::shapes::{
     native_circle, native_curve, native_ellipse, native_line, native_polygon, native_rect,
 };

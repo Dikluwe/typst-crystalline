@@ -234,6 +234,27 @@
 
 ## Secção 1 — DEBTs em aberto ou parcialmente resolvidos
 
+## DEBT-62 — `Value::Bytes` ausente (bloqueia `read` binário + cbor byte-strings) — EM ABERTO (Passo 387)
+
+**Origem**: materialização do módulo `loading` (P387, ADR-0111). O cristalino
+não tem o variant `Value::Bytes` (ADR-0017 proíbe adicionar variant sem tipo
+migrado). Consequência declarada e **graded** (ADR-0054), não divergência
+silenciosa:
+
+- `read(path)` materializa **só o modo texto** (`Str` utf8); bytes não-utf8 → `Err`.
+  O modo binário (`read` → `Bytes`) fica deferido.
+- `decode_cbor` com **byte-strings** → `Err` graded "Value::Bytes ausente". O resto
+  do cbor (trees: map/array/int/float/bool/null/str) funciona.
+
+**Resolução**: passo dedicado de **modelagem de tipos** que materialize
+`Value::Bytes` (entrada `ausente` da Lista A / Tabela C do Inventário 148; ver
+`typst-falta-migrar-lista-A-passo-386.md`). Ao fechar, promove o graded de `read`
+e `cbor` a paridade plena. **Magnitude**: S (tipo simples + casts + repr).
+
+**Não-bloqueante** do P387: os 6 formatos + `read` texto materializam sem ele.
+
+---
+
 ## DEBT-61 — F-5b (de-bake do `TextStyle`) — ✅ FECHADO (P371 fatia 1 + P373 fatia 2)
 
 > **Fechado.** O bloqueio (achado 3) foi resolvido em **duas fatias**: o **P371** (§3a.12) deu a

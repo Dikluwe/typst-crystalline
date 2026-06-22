@@ -666,6 +666,8 @@ fn make_stdlib() -> Scope {
         native_bb, native_bold, native_cal, native_frak, native_math_italic,
         native_mono, native_sans, native_scr, native_script, native_serif,
         native_sscript, native_upright,
+        // P387 (ADR-0111) — data import.
+        native_cbor, native_csv, native_json, native_read, native_toml, native_xml, native_yaml,
     };
     let mut scope = Scope::new();
     scope.define("type",    Value::Func(Func::native("type",    native_type)));
@@ -701,6 +703,15 @@ fn make_stdlib() -> Scope {
     scope.define("smartquote", Value::Func(Func::native("smartquote", native_smartquote)));
     scope.define("figure",  Value::Func(Func::native("figure",  native_figure)));
     scope.define("image",   Value::Func(Func::native("image",   native_image)));
+    // P387 (ADR-0111) — data import: read + 6 parsers. Decode L1 puro compõe
+    // com L3 World::read_bytes. Paridade do Value de saída (ADR-0107).
+    scope.define("read",    Value::Func(Func::native("read",    native_read)));
+    scope.define("csv",     Value::Func(Func::native("csv",     native_csv)));
+    scope.define("json",    Value::Func(Func::native("json",    native_json)));
+    scope.define("yaml",    Value::Func(Func::native("yaml",    native_yaml)));
+    scope.define("toml",    Value::Func(Func::native("toml",    native_toml)));
+    scope.define("cbor",    Value::Func(Func::native("cbor",    native_cbor)));
+    scope.define("xml",     Value::Func(Func::native("xml",     native_xml)));
     scope.define("rect",    Value::Func(Func::native("rect",    native_rect)));
     scope.define("ellipse", Value::Func(Func::native("ellipse", native_ellipse)));
     scope.define("circle",  Value::Func(Func::native("circle",  native_circle)));

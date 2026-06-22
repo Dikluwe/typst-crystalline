@@ -34,3 +34,11 @@ unicode-script       = "0.5"
 unicode-segmentation = "1"
 hypher               = "0.1"   # ADR-0057 — hyphenation patterns embebidos (no_std, zero deps)
 regex                = "1"     # ADR-0077 — `Selector::Regex` em L1 (M9c P209D); full Unicode
+# grupo loading (data import) — ADR-0111 (P387); decode puro em L1, paridade do Value de saída
+serde                = "1"
+serde_json           = { version = "1", features = ["preserve_order"] }  # dict ordem-de-inserção (paridade Typst IndexMap)
+saphyr               = "0.0.6" # YAML mantido (serde_yaml arquivada, serde_yml DEPRECATED); mapa Yaml→Value manual
+toml                 = { version = "0.8", features = ["preserve_order"] }
+ciborium             = "0.2"   # CBOR puro-Rust sem C
+roxmltree            = "0.20"  # XML read-only
+csv                  = "1"
