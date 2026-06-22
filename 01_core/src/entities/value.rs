@@ -1,8 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/value.md
-//! @prompt-hash 02423035
+//! @prompt-hash c9faa625
 //! @layer L1
 //! @updated 2026-03-28
+
+use std::sync::Arc;
 
 use ecow::EcoString;
 use indexmap::IndexMap;
@@ -87,6 +89,10 @@ pub enum Value {
     /// retorna `Value::Regex`; usável como selector em `#show`.
     Regex(crate::entities::regex::Regex),
 
+    /// **P395** — Tiling L1 (padrão de azulejos). Abertura do portão
+    /// ADR-0017; `tiling()` consumer é P396.
+    Tiling(Arc<crate::entities::tiling::Tiling>),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
     // Variantes futuras (~12 restantes após P262):
     // Relative(Relative),       // comprimento relativo
@@ -144,6 +150,7 @@ impl Value {
             Self::Location(_)  => "location",
             Self::Gradient(_)  => "gradient",
             Self::Regex(_)     => "regex",
+            Self::Tiling(_)    => "tiling",
         }
     }
 
@@ -233,10 +240,14 @@ impl From<crate::entities::layout_types::Color> for Value {
 impl From<crate::entities::geometry::Stroke> for Value {
     fn from(v: crate::entities::geometry::Stroke) -> Self { Self::Stroke(v) }
 }
+impl From<crate::entities::tiling::Tiling> for Value {
+    fn from(v: crate::entities::tiling::Tiling) -> Self { Self::Tiling(Arc::new(v)) }
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::entities::layout_types::Color;
     use ecow::EcoString;
 
     #[test]
@@ -355,5 +366,25 @@ mod tests {
         assert_eq!(Value::Angle(Angle::deg(90.0)).type_name(),  "angle");
         assert_eq!(Value::Color(Color::rgb(0, 0, 0)).type_name(), "color");
         assert_eq!(Value::Auto.type_name(),                     "auto");
+    }
+
+    // ── Passo 395 — Tiling (ADR-0017) ────────────────────────────────────────
+
+    #[test]
+    fn value_tiling_type_name() {
+        use crate::entities::tiling::{Tiling, TilingBody};
+        let t = Tiling::new(TilingBody::Color(Color::rgb(255, 0, 0)));
+        let v = Value::from(t);
+        assert_eq!(v.type_name(), "tiling");
+    }
+
+    #[test]
+    fn value_tiling_partial_eq() {
+        use crate::entities::tiling::{Tiling, TilingBody};
+        let a = Value::from(Tiling::new(TilingBody::Color(Color::rgb(1, 2, 3))));
+        let b = Value::from(Tiling::new(TilingBody::Color(Color::rgb(1, 2, 3))));
+        let c = Value::from(Tiling::new(TilingBody::Color(Color::rgb(4, 5, 6))));
+        assert_eq!(a, b);
+        assert_ne!(a, c);
     }
 }

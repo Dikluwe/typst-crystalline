@@ -24,6 +24,7 @@
 
 use crate::entities::color::Color;
 use crate::entities::gradient::Gradient;
+use crate::entities::tiling::Tiling;
 
 /// Wrapper enum sobre fontes de cor.
 ///
@@ -31,15 +32,17 @@ use crate::entities::gradient::Gradient;
 /// activada via ADR-0086 §"Critério revisão" cumprido.
 /// `Copy` removido — Gradient não é Copy (Arc<Linear>).
 ///
-/// Per ADR-0086 + ADR-0087, materializa `Solid(Color)` +
-/// `Gradient(Gradient)`; `Tiling` permanece comentário reserva.
+/// Per ADR-0086 + ADR-0087 + P395, materializa `Solid(Color)` +
+/// `Gradient(Gradient)` e `Tiling(Tiling)`.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Paint {
     /// Cor sólida (uniforme). Materializado P261.
     Solid(Color),
     /// Gradient (Linear only por agora; ADR-0087).
     Gradient(Gradient),
-    // Tiling(Tiling),      // futuro — comentário reserva
+    /// Tiling / pattern fill. Materializado P395; consumer real é scope-out
+    /// ADR-0054 graded — fallback a cor representativa.
+    Tiling(Tiling),
 }
 
 impl Paint {
@@ -53,15 +56,21 @@ impl Paint {
         Paint::Gradient(g)
     }
 
+    /// Construtor `Tiling` ergonómico.
+    pub fn tiling(t: Tiling) -> Self {
+        Paint::Tiling(t)
+    }
+
     /// Extrai uma `Color` representativa.
     ///
-    /// Para `Solid` retorna a cor literal. Para `Gradient`
-    /// retorna primeiro stop como fallback (paridade docs P261;
-    /// PDF render real via L3 shading pattern separado).
+    /// - `Solid` → cor literal.
+    /// - `Gradient` → primeiro stop.
+    /// - `Tiling` → fallback definido por `Tiling::to_color()`.
     pub fn to_color(&self) -> Color {
         match self {
             Paint::Solid(c) => *c,
             Paint::Gradient(g) => g.first_stop_color(),
+            Paint::Tiling(t) => t.to_color(),
         }
     }
 }
@@ -75,6 +84,12 @@ impl From<Color> for Paint {
 impl From<Gradient> for Paint {
     fn from(g: Gradient) -> Self {
         Paint::Gradient(g)
+    }
+}
+
+impl From<Tiling> for Paint {
+    fn from(t: Tiling) -> Self {
+        Paint::Tiling(t)
     }
 }
 
@@ -133,5 +148,23 @@ mod tests {
         let p = Paint::Solid(Color::rgb(0, 0, 0));
         let s = format!("{:?}", p);
         assert!(s.contains("Solid"));
+    }
+
+    // ── P395 — Tiling integration ────────────────────────────────────────────
+
+    #[test]
+    fn paint_tiling_variant_and_to_color() {
+        use crate::entities::tiling::{Tiling, TilingBody};
+        let t = Tiling::new(TilingBody::Color(Color::rgb(0, 128, 255)));
+        let p = Paint::tiling(t);
+        assert_eq!(p.to_color(), Color::rgb(0, 128, 255));
+    }
+
+    #[test]
+    fn paint_tiling_from_tiling() {
+        use crate::entities::tiling::{Tiling, TilingBody};
+        let t = Tiling::new(TilingBody::Color(Color::rgb(255, 0, 0)));
+        let p: Paint = t.clone().into();
+        assert_eq!(p.to_color(), Color::rgb(255, 0, 0));
     }
 }

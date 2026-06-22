@@ -241,6 +241,13 @@ pub(super) fn emit_stroke_paint(
                 ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, thickness));
             }
         }
+        Paint::Tiling(_) => {
+            // P395 — pattern fill de Tiling é scope-out ADR-0054 graded.
+            // Fallback para cor representativa (Color body → cor; Image → preto).
+            let c = paint.to_color();
+            let (r, g, b, _) = c.to_rgba_f32();
+            ops.push_str(&format!("{:.3} {:.3} {:.3} RG\n{:.2} w\n", r, g, b, thickness));
+        }
     }
 }
 

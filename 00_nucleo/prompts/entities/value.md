@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/value`
-Hash do Código: 18fc08ea
+Hash do Código: 8b74a405
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`
@@ -25,8 +25,9 @@ regra: **não adicionar variantes sem ADR e tipo migrado**.
 - **Passo 16** — `Func`
 - **Passo 18** — `Content`
 - **Passo 25** — 5 tipos tipográficos: `Auto`, `Length`, `Ratio`, `Angle`, `Color`
+- **Passo 395** — `Tiling` (padrão de azulejos; abertura ADR-0017)
 
-~14 variantes futuras permanecem comentadas no código (não implementar sem ADR).
+~13 variantes futuras permanecem comentadas no código (não implementar sem ADR).
 
 ---
 
@@ -99,14 +100,18 @@ pub enum Value {
     Angle(Angle),
     Color(Color),
 
-    // ~14 variantes futuras comentadas — NÃO implementar sem ADR e tipo migrado
+    // Passo 395 — Tiling (padrão de azulejos; abertura ADR-0017)
+    Tiling(Arc<Tiling>),
+
+    // ~13 variantes futuras comentadas — NÃO implementar sem ADR e tipo migrado
 }
 
 impl Value {
     pub fn type_name(&self) -> &'static str  // "none", "bool", "int", "float", "str",
                                               // "array", "dictionary", "module", "datetime",
                                               // "function", "content", "auto",
-                                              // "length", "ratio", "angle", "color"
+                                              // "length", "ratio", "angle", "color",
+                                              // "tiling"
     pub fn is_none(&self) -> bool
     pub fn cast_bool(&self)  -> Option<bool>
     pub fn cast_int(&self)   -> Option<i64>
@@ -134,6 +139,7 @@ impl From<Length>     for Value
 impl From<Ratio>      for Value
 impl From<Angle>      for Value
 impl From<Color>      for Value
+impl From<Tiling>     for Value   // Passo 395
 ```
 
 ---
@@ -176,6 +182,7 @@ Value::Ratio(Ratio(0.5)).type_name()        = "ratio"
 Value::Angle(Angle::deg(90.0)).type_name()  = "angle"
 Value::Color(Color::rgb(0,0,0)).type_name() = "color"
 Value::Auto.type_name()                     = "auto"
+Value::Tiling(...).type_name()              = "tiling"
 
 // Scope integration
 Scope::define("x", Value::Int(42))
@@ -186,8 +193,8 @@ scope.get("x") = Some(&Value::Int(42))
 
 ## Variantes futuras (comentadas no código — NÃO implementar sem ADR)
 
-`Relative`, `Fraction`, `Gradient`, `Tiling`, `Symbol`, `Version`,
-`Bytes`, `Decimal`, `Duration`, `Styles`, `Args`, `Type`, `Dyn` (~13 restantes)
+`Relative`, `Fraction`, `Gradient`, `Symbol`, `Version`,
+`Bytes`, `Decimal`, `Duration`, `Styles`, `Args`, `Type`, `Dyn` (~12 restantes)
 
 ---
 
@@ -207,4 +214,5 @@ scope.get("x") = Some(&Value::Int(42))
 | 2026-03-25 | Passo 16: Func | `value.rs` |
 | 2026-03-26 | Passo 18: Content | `value.rs` |
 | 2026-03-28 | Passo 25: Auto, Length, Ratio, Angle, Color (ADR-0028) | `value.rs` |
+| 2026-06-22 | Passo 395: Tiling (abertura ADR-0017) | `value.rs`, `tiling.rs` |
 | 2026-04-12 | Restauro — prompt expandido para refletir Passos 15–25; sem mudanças no código | `value.md` |

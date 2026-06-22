@@ -212,7 +212,7 @@ primitives e `skew`). Detalhe em
 | `rgb(...)`, `luma(...)` | visualize/paint.rs | `implementado` | stdlib | `native_rgb`, `native_luma` |
 | `cmyk(...)`, `oklab(...)`, etc. | visualize/color.rs | `ausente` | — | space-specific constructors |
 | `gradient(...)` | visualize/gradient.rs | `ausente` | — | |
-| `tiling(...)` | visualize/tiling.rs | `ausente` | — | |
+| `tiling(...)` | visualize/tiling.rs | `ausente` | — | Tipo `Value::Tiling` modelado no Passo 395; função `tiling()` é P396. |
 | `stroke(...)` (object) | visualize/stroke.rs | `parcial` | shape passos | `Stroke` em `FrameItem::Shape`; sem todas as variantes (paint, dash, …) |
 
 ### A.8 — Foundations (stdlib functions)
@@ -280,7 +280,7 @@ Tipos do Rust em `01_core/src/entities/` versus `lab/typst-original/crates/typst
 | `Fraction` (Fr) | layout/fr.rs | `implementado` | Passo 80 | f64 directo (não tipo dedicado) |
 | `Color` | visualize/color.rs | `implementado` | Passo 102 | `entities/layout_types::Color` |
 | `Gradient` | visualize/gradient.rs | `ausente` | — | |
-| `Tiling` | visualize/tiling.rs | `ausente` | — | |
+| `Tiling` | visualize/tiling.rs | `implementado` | **Passo 395** | `entities::tiling::Tiling` + `Value::Tiling(Arc<Tiling>)` + `Paint::Tiling`. `TilingBody::Gradient` placeholder; render PDF pattern fill scope-out ADR-0054. |
 | `Symbol` | foundations/symbol.rs | `ausente` | — | mapping literal Unicode em vez de tipo dedicado |
 | `Version` | foundations/version.rs | `ausente` | — | |
 | `Str` | foundations/str.rs | `implementado` | Passo 13, 24 (EcoString ADR-0024) | |
@@ -447,7 +447,7 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 | `measure(body)` | introspection runtime ausente | depende de ADR-0017 |
 | ~~`square(...)`~~ | resolvido no Passo 390 (`native_square` sobre `ShapeKind::Rect`) | — |
 | `gradient(...)` | `Value::Gradient` ausente; render gradient em PDF | escopo M |
-| `tiling(...)` | `Value::Tiling` ausente | escopo M |
+| `tiling(...)` | `Value::Tiling` modelado no Passo 395; `native_tiling()` / consumer real pendente | escopo M (continua até P396) |
 | `cmyk` / `oklab` cores | Color space não-RGB ausente | escopo S |
 | `table(columns, ...)` | `Content::Table`; cell layout; rowspan/colspan (DEBT-34d/e) | escopo M; DEBT-34d/e abertos |
 | `Value::Bytes` | foundations/bytes.rs ausente | escopo XS |
