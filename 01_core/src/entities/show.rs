@@ -8,6 +8,7 @@ use ecow::EcoString;
 
 use crate::entities::content::Content;
 use crate::entities::func::Func;
+use crate::entities::regex::Regex;
 use crate::entities::style::Styles;
 
 /// Identificador único de uma show rule por sessão de avaliação.
@@ -43,6 +44,9 @@ pub enum Selector {
     /// o elemento não tem). Casado no `apply_show_rules` pelo mesmo caminho dos
     /// nativos, com o mesmo guard por `RuleId` + depth-64.
     DynKind(String),
+    /// **P393** — Selector regex sobre texto. Ex: `#show regex("\\d+"): it => ...`.
+    /// Casa nós de texto cujo conteúdo textual matcha o padrão.
+    Regex(Regex),
 }
 
 /// A transformação que uma show rule aplica. Materializa o **S5** do spike-2

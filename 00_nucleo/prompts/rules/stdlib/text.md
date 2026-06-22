@@ -1,5 +1,5 @@
-# Prompt L0 — `stdlib/text` — smartquote e decoração textual
-Hash do Código: 79514d22
+# Prompt L0 — `stdlib/text` — smartquote, decoração textual e lorem
+Hash do Código: 11960470
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/text.rs`
@@ -64,3 +64,23 @@ native_underline([Str("x")]) → Ok(Content::Underline { body:text("x"), ... })
 native_underline([],stroke:Color) → Err;  native_underline([Content(c)],evade:true) → Err
 ```
 Idem `native_strike` (sem `evade` em vanilla) e `native_overline`.
+
+## `lorem(n)` — Passo 391
+
+Helper puro de texto dummy. Entrada `Int` ≥ 0, saída `Value::Str` com `n`
+palavras de Lorem Ipsum. Zero tipo novo; zero I/O; zero layout.
+
+**Argumentos**: `n: Int` (posicional obrigatório). `n < 0` → erro. Não aceita
+argumentos nomeados.
+
+**Implementação**: vocabulário Lorem Ipsum fixo embeddado; cicla/repete até
+atingir `n` palavras. O texto exacto não precisa de ser byte-identical ao
+vanilla (paridade semântica ADR-0107).
+
+```
+native_lorem(Int(0))  → Ok(Str(""))
+native_lorem(Int(5))  → Ok(Str("Lorem ipsum dolor sit amet"))
+native_lorem(Int(-1)) → Err
+native_lorem(Str("x")) → Err
+native_lorem(Int(5), foo:Int(1)) → Err
+```

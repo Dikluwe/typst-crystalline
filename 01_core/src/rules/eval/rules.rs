@@ -1,8 +1,9 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/eval.md
-//! @prompt-hash 7a92cc2d
+//! @prompt-hash 239ef53e
+//! @prompt 00_nucleo/prompts/rules/show-regex.md
 //! @layer L1
-//! @updated 2026-06-17
+//! @updated 2026-06-22
 //!
 //! Show rules e set rules — aplicação e intercepção. Extraído de `eval.rs`
 //! no Passo 96.1 conforme ADR-0037 (coesão por domínio).
@@ -83,6 +84,7 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
         Selector::DynKind(name) =>
             matches!(work, Content::Dynamic(e) if e.dyn_kind() == name),
         Selector::Text(_) => false,
+        Selector::Regex(_) => false,
     }
 }
 
@@ -303,6 +305,55 @@ pub(crate) fn apply_show_rules(
         };
 
         content = content.map_content(&mut apply_all)?;
+    }
+
+    // Regex rules (P393) — aplicadas a nós de texto que casam.
+    // Última-declarada vence (consistente com NodeKind). Transformações
+    // Func/Content/Str são suportadas; Style foi rejeitado em parse.
+    let regex_rules: Vec<ShowRule> = rules.iter()
+        .filter(|r| matches!(r.selector, Selector::Regex(_)))
+        .cloned()
+        .collect();
+
+    if !regex_rules.is_empty() {
+        let mut apply_regex = |node: &Content| -> SourceResult<Option<Content>> {
+            let Content::Text(text) = node else { return Ok(None); };
+            for rule in regex_rules.iter().rev() {
+                if engine.active_guards.contains(&rule.id) {
+                    continue;
+                }
+                let Selector::Regex(re) = &rule.selector else { continue };
+                if !re.is_match(text.as_str()) {
+                    continue;
+                }
+                let produced = match &rule.transform {
+                    Transformation::Func(func) => {
+                        let args = Args::positional(vec![Value::Content(node.clone())]);
+                        engine.active_guards.push(rule.id);
+                        let call_result = closures::apply_func(func.clone(), args, ctx, engine);
+                        engine.active_guards.pop();
+                        match call_result? {
+                            Value::Content(c) => c,
+                            Value::Str(s)     => Content::text(s.as_str()),
+                            other => return Err(vec![SourceDiagnostic::error(
+                                Span::detached(),
+                                format!(
+                                    "show rule regex deve retornar Content ou String, \
+                                     recebeu {}",
+                                    other.type_name()
+                                ),
+                            )]),
+                        }
+                    },
+                    Transformation::Content(c) => c.clone(),
+                    Transformation::Str(s)     => Content::text(s.as_str()),
+                    Transformation::Style(_)   => continue,
+                };
+                return Ok(Some(produced));
+            }
+            Ok(None)
+        };
+        content = content.map_content(&mut apply_regex)?;
     }
 
     // Text rules — map_text por padrão, na ordem de declaração.
@@ -685,6 +736,8 @@ pub(super) fn eval_show_rule(
             let selector_val = eval_expr(sel_expr, scopes, ctx, engine)?;
             match selector_val {
                 Value::Str(s) => Selector::Text(s.to_string()),
+                // P393: regex(pattern) → selector regex sobre texto.
+                Value::Regex(re) => Selector::Regex(re),
                 // Lote F-3 inc-2: elemento de utilizador (fronteira E1) — o
                 // selector `callout` resolve para uma `FuncRepr::Element`, que
                 // não tem fn-ptr nativo. Casa por **kind dinâmico** (nome).
@@ -748,8 +801,9 @@ pub(super) fn eval_show_rule(
     let transform_expr = show_rule.transform();
     let transform = match transform_expr {
         Expr::SetRule(set) => {
-            // Show-set é sobre um elemento (NodeKind/DynKind), não sobre texto.
-            if matches!(selector, Selector::Text(_)) {
+            // Show-set é sobre um elemento (NodeKind/DynKind), não sobre texto
+            // nem regex (P393).
+            if matches!(selector, Selector::Text(_) | Selector::Regex(_)) {
                 return Err(vec![SourceDiagnostic::error(
                     set.to_untyped().span(),
                     "show-set (`#show …: set …`) não é válido para um selector de \

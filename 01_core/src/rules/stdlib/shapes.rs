@@ -1,10 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/_comum.md
-//! @prompt-hash b8224089
+//! @prompt-hash 01f8461b
+//! @prompt 00_nucleo/prompts/rules/stdlib/square.md
+//! @prompt-hash 01f8461b
 //! @layer L1
 //! @updated 2026-04-23
 //!
-//! Funções nativas de formas geométricas (rect, ellipse, circle, line, polygon).
+//! Funções nativas de formas geométricas (rect, square, ellipse, circle, line, polygon).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
 use crate::entities::args::Args;
@@ -71,6 +73,56 @@ pub fn native_rect(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     };
 
     Ok(Value::Content(Content::shape(ShapeKind::Rect, width, height, fill, final_stroke)))
+}
+
+/// `square(width, height: auto, fill?, stroke?)` → `Content::Shape { kind: Rect, ... }`.
+///
+/// Helper morfológico sobre `Rect`: `square(w)` é equivalente a
+/// `rect(width: w, height: w)`. Se `height` for omitido, assume o valor de
+/// `width`. O fallback de stroke preta 1pt segue o mesmo determinismo de
+/// `native_rect`.
+pub fn native_square(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    for key in args.named.keys() {
+        if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("argumento nomeado inesperado em square(): '{}'", key),
+            )]);
+        }
+    }
+
+    let width = if let Some(w) = args.items.first() {
+        Some(Box::new(w.clone()))
+    } else {
+        args.named.get("width").cloned().map(Box::new)
+    };
+
+    let Some(width) = width else {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "square() requer um argumento de largura",
+        )]);
+    };
+
+    let height = args.named.get("height")
+        .cloned()
+        .map(Box::new)
+        .unwrap_or_else(|| width.clone());
+
+    let fill = args.named.get("fill").and_then(parse_color);
+
+    let parsed_stroke: Option<Stroke> = args.named.get("stroke")
+        .and_then(parse_color)
+        .map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false });
+
+    // Fallback determinístico: sem fill nem stroke → stroke preta de 1pt.
+    let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
+        Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false })
+    } else {
+        parsed_stroke
+    };
+
+    Ok(Value::Content(Content::shape(ShapeKind::Rect, Some(width), Some(height), fill, final_stroke)))
 }
 
 /// `ellipse(width?, height?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, ... }`.

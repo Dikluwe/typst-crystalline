@@ -83,6 +83,10 @@ pub enum Value {
     /// `#gradient.linear(...)` retorna `Value::Gradient`.
     Gradient(crate::entities::gradient::Gradient),
 
+    /// **P393** — Regex L1 (ADR-0077). User-facing `regex(pattern)`
+    /// retorna `Value::Regex`; usável como selector em `#show`.
+    Regex(crate::entities::regex::Regex),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
     // Variantes futuras (~12 restantes após P262):
     // Relative(Relative),       // comprimento relativo
@@ -139,6 +143,7 @@ impl Value {
             Self::Align(_)     => "alignment",
             Self::Location(_)  => "location",
             Self::Gradient(_)  => "gradient",
+            Self::Regex(_)     => "regex",
         }
     }
 

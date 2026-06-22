@@ -3248,6 +3248,105 @@ mod tests {
             "Strong deve ser transformado para minúsculas: {:?}", text);
     }
 
+    // ── P393 — show rules regex (`#show regex(pattern): …`) ─────────────────
+
+    #[test]
+    fn show_rule_regex_aplica_func_a_texto_que_casa() {
+        // Texto com dígitos deve ser embrulhado em Strong.
+        let world = MockWorld::new("#show regex(\"\\\\d+\"): it => strong(it)\nabc123def");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let c = module.content().unwrap();
+        assert!(c.plain_text().contains("abc123def"),
+            "texto original deve sobreviver: {:?}", c.plain_text());
+        assert!(texto_em_strong(c, "123"),
+            "a parte que casa deve ficar em Strong: {c:?}");
+    }
+
+    #[test]
+    fn show_rule_regex_ignora_texto_sem_match() {
+        let world = MockWorld::new("#show regex(\"\\\\d+\"): it => strong(it)\nabcdef");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let c = module.content().unwrap();
+        assert!(c.plain_text().contains("abcdef"),
+            "texto sem dígitos deve permanecer: {:?}", c.plain_text());
+        assert!(!texto_em_strong(c, "abcdef"),
+            "texto sem match não deve ficar em Strong: {c:?}");
+    }
+
+    #[test]
+    fn show_rule_regex_ultima_declarada_vence() {
+        let world = MockWorld::new(
+            "#show regex(\"\\\\d+\"): it => strong(it)\n#show regex(\"\\\\d+\"): it => emph(it)\nabc123def"
+        );
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let c = module.content().unwrap();
+        assert!(!texto_em_strong(c, "123"),
+            "primeira regra (strong) deve ser sobreposta: {c:?}");
+        assert!(texto_em_emph(c, "123"),
+            "última regra (emph) deve vencer: {c:?}");
+    }
+
+    #[test]
+    fn show_rule_regex_pattern_invalida_erro() {
+        let world = MockWorld::new("#show regex(\"[\"): it => strong(it)\ntexto");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "regex inválida deve produzir erro");
+        let err = result.unwrap_err();
+        assert!(err[0].message.contains("regex"),
+            "mensagem deve mencionar regex: {:?}", err[0].message);
+    }
+
+    #[test]
+    fn show_rule_regex_set_rejeitado() {
+        // Show-set com regex selector deve ser rejeitado (mesma regra de Selector::Text).
+        let world = MockWorld::new("#show regex(\"\\\\d+\"): set text(bold: true)\n123");
+        let src = world.source(world.main()).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "show-set com regex deve gerar Err");
+    }
+
+    /// Verifica se existe algum `Content::Text` contendo `needle` directamente
+    /// sob um `Content::Strong`.
+    fn texto_em_strong(c: &Content, needle: &str) -> bool {
+        fn go(c: &Content, needle: &str) -> bool {
+            match c {
+                Content::Strong(e) => {
+                    if e.body.plain_text().contains(needle) {
+                        return true;
+                    }
+                    go(&e.body, needle)
+                }
+                Content::Sequence(items) => items.iter().any(|i| go(i, needle)),
+                Content::Styled(b, _) => go(b, needle),
+                _ => false,
+            }
+        }
+        go(c, needle)
+    }
+
+    /// Verifica se existe algum `Content::Text` contendo `needle` directamente
+    /// sob um `Content::Emph`.
+    fn texto_em_emph(c: &Content, needle: &str) -> bool {
+        fn go(c: &Content, needle: &str) -> bool {
+            match c {
+                Content::Emph(e) => {
+                    if e.body.plain_text().contains(needle) {
+                        return true;
+                    }
+                    go(&e.body, needle)
+                }
+                Content::Sequence(items) => items.iter().any(|i| go(i, needle)),
+                Content::Styled(b, _) => go(b, needle),
+                _ => false,
+            }
+        }
+        go(c, needle)
+    }
+
     // ── P352 — show-set (`#show k: set …`, Transformation::Style, S5) ─────────
 
     /// **F-5b fatia 2 (P373)**: o bold/weight do `#set text` (e do show-set, que o

@@ -24,6 +24,7 @@ mod foundations;
 mod calc;
 mod text;
 mod assert;
+mod panic;
 mod structural;
 mod figure_image;
 mod shapes;
@@ -43,8 +44,9 @@ pub use crate::rules::stdlib::foundations::{
     native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with, native_str, native_type,
 };
 pub use crate::rules::stdlib::calc::make_calc_module;
-pub use crate::rules::stdlib::text::{native_lower, native_overline, native_replace, native_smartquote, native_strike, native_underline, native_upper};
+pub use crate::rules::stdlib::text::{native_lorem, native_lower, native_overline, native_regex, native_replace, native_smartquote, native_strike, native_underline, native_upper};
 pub use crate::rules::stdlib::assert::native_assert;
+pub use crate::rules::stdlib::panic::native_panic;
 pub use crate::rules::stdlib::structural::{
     make_math_module, native_accent, native_bibliography, native_cancel, native_cite, native_divider, native_emph, native_footnote, native_grid_cell, native_grid_footer, native_grid_header, native_heading, native_op, native_quote, native_raw, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_terms, native_underover,
 };
@@ -55,6 +57,7 @@ pub use crate::rules::stdlib::loading::{
 };
 pub use crate::rules::stdlib::shapes::{
     native_circle, native_curve, native_ellipse, native_line, native_polygon, native_rect,
+    native_square,
 };
 pub use crate::rules::stdlib::transforms::{native_move, native_rotate, native_scale, native_skew};
 pub use crate::rules::stdlib::layout::{
@@ -120,7 +123,7 @@ mod tests {
     };
     use crate::entities::args::Args;
     use crate::entities::content::Content;
-    use crate::entities::layout_types::Color;
+    use crate::entities::layout_types::{Color, Length};
     use crate::rules::eval::EvalContext;
     use crate::contracts::world::World;
     use crate::entities::file_id::FileId;
@@ -945,6 +948,52 @@ mod tests {
         ]));
         let r = ctx.introspector.query(&nested);
         assert_eq!(r, vec![Location::from_raw(7)]);
+    }
+
+    // ── P393 — `regex(pattern)` (construtor L1 para show rules regex) ───
+
+    #[test]
+    fn p393_regex_construtor_valido_devolve_value_regex() {
+        null_ctx!(ctx);
+        let r = native_regex(
+            &mut ctx,
+            &p(vec![Value::Str("\\d+".into())]),
+            &null_world(), test_file_id(),
+        ).unwrap();
+        assert!(matches!(r, Value::Regex(_)), "regex(\"\\d+\") deve devolver Value::Regex: {:?}", r);
+    }
+
+    #[test]
+    fn p393_regex_construtor_invalido_erro() {
+        null_ctx!(ctx);
+        let r = native_regex(
+            &mut ctx,
+            &p(vec![Value::Str("[".into())]),
+            &null_world(), test_file_id(),
+        );
+        assert!(r.is_err(), "regex(\"[\") deve falhar");
+    }
+
+    #[test]
+    fn p393_regex_construtor_tipo_errado_erro() {
+        null_ctx!(ctx);
+        let r = native_regex(
+            &mut ctx,
+            &p(vec![Value::Int(42)]),
+            &null_world(), test_file_id(),
+        );
+        assert!(r.is_err(), "regex(42) deve falhar");
+    }
+
+    #[test]
+    fn p393_regex_construtor_arg_nomeado_rejeitado() {
+        null_ctx!(ctx);
+        let r = native_regex(
+            &mut ctx,
+            &pn(vec![Value::Str("\\d+".into())], "foo", Value::Int(1)),
+            &null_world(), test_file_id(),
+        );
+        assert!(r.is_err(), "regex com arg nomeado deve falhar");
     }
 
     // ── P176 (M9 sub-passo 6) — counter_final(key) ──────────────────────
@@ -2092,6 +2141,40 @@ mod tests {
         );
     }
 
+    // ── Passo 392 — native_panic ──────────────────────────────────────────────
+
+    #[test]
+    fn native_panic_aborta_com_mensagem() {
+        null_ctx!(ctx);
+        let result = native_panic(&mut ctx, &p(vec![Value::Str("fail".into())]), &null_world(), test_file_id());
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert_eq!(err[0].message, "fail");
+    }
+
+    #[test]
+    fn native_panic_aceita_mensagem_vazia() {
+        null_ctx!(ctx);
+        let result = native_panic(&mut ctx, &p(vec![Value::Str("".into())]), &null_world(), test_file_id());
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert_eq!(err[0].message, "");
+    }
+
+    #[test]
+    fn native_panic_rejeita_tipo_errado() {
+        null_ctx!(ctx);
+        let result = native_panic(&mut ctx, &p(vec![Value::Int(42)]), &null_world(), test_file_id());
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn native_panic_rejeita_named_arg() {
+        null_ctx!(ctx);
+        let args = pn(vec![Value::Str("x".into())], "foo", Value::Int(1));
+        assert!(native_panic(&mut ctx, &args, &null_world(), test_file_id()).is_err());
+    }
+
     // ── Passo 71 — native_image ───────────────────────────────────────────────
 
     #[test]
@@ -2148,6 +2231,70 @@ mod tests {
         if let Value::Content(Content::Shape(e)) = result {
             assert!(e.fill.is_some(), "fill red deve estar presente");
             assert!(e.stroke.is_none(), "sem stroke explícito e com fill → stroke deve ser None");
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn square_posicional_1cm_produz_rect_lados_iguais() {
+        use crate::entities::geometry::ShapeKind;
+        null_ctx!(ctx);
+        let w = Value::Length(Length::pt(28.346));
+        let result = native_square(&mut ctx, &p(vec![w.clone()]), &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(matches!(e.kind, ShapeKind::Rect));
+            assert_eq!(e.width.as_deref(), Some(&w));
+            assert_eq!(e.height.as_deref(), Some(&w));
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn square_com_height_diferente_aceita_fallback() {
+        use crate::entities::geometry::ShapeKind;
+        null_ctx!(ctx);
+        let w = Value::Length(Length::pt(28.346));
+        let h = Value::Length(Length::pt(56.692));
+        let mut args = Args::positional(vec![w.clone()]);
+        args.named.insert("height".into(), h.clone());
+        let result = native_square(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(matches!(e.kind, ShapeKind::Rect));
+            assert_eq!(e.width.as_deref(), Some(&w));
+            assert_eq!(e.height.as_deref(), Some(&h));
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn square_sem_width_gera_erro() {
+        null_ctx!(ctx);
+        let result = native_square(&mut ctx, &p(vec![]), &null_world(), test_file_id());
+        assert!(result.is_err(), "square() sem width deve retornar Err");
+    }
+
+    #[test]
+    fn square_rejeita_named_arg_invalido() {
+        null_ctx!(ctx);
+        let args = pn(vec![Value::Length(Length::pt(10.0))], "foo", Value::Int(1));
+        assert!(native_square(&mut ctx, &args, &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn square_sem_cores_tem_stroke_preta_1pt() {
+        use crate::entities::geometry::ShapeKind;
+        use crate::entities::paint::Paint;
+        null_ctx!(ctx);
+        let result = native_square(&mut ctx, &p(vec![Value::Length(Length::pt(10.0))]), &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(matches!(e.kind, ShapeKind::Rect));
+            assert!(e.fill.is_none(), "square sem fill deve ter fill: None");
+            let s = e.stroke.clone().expect("square sem cores deve ter stroke de fallback");
+            assert_eq!(s.paint, Paint::Solid(Color::rgb(0, 0, 0)), "stroke de fallback deve ser preta");
+            assert_eq!(s.thickness, 1.0, "espessura de fallback deve ser 1pt");
         } else {
             panic!("Esperado Content::Shape");
         }
@@ -7570,6 +7717,71 @@ mod tests {
         null_ctx!(ctx);
         let r = native_smartquote(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id());
         assert!(r.is_err(), "args posicionais rejeitados (vanilla usa só named)");
+    }
+
+    // ── Passo 391 — `lorem(n)` ─────────────────────────────────────────
+
+    #[test]
+    fn lorem_0_retorna_string_vazia() {
+        null_ctx!(ctx);
+        let r = native_lorem(&mut ctx, &p(vec![Value::Int(0)]), &null_world(), test_file_id()).unwrap();
+        assert_eq!(r, Value::Str("".into()));
+    }
+
+    #[test]
+    fn lorem_1_retorna_uma_palavra_sem_espaco() {
+        null_ctx!(ctx);
+        let r = native_lorem(&mut ctx, &p(vec![Value::Int(1)]), &null_world(), test_file_id()).unwrap();
+        if let Value::Str(s) = r {
+            assert_eq!(s.split_whitespace().count(), 1);
+            assert!(!s.ends_with(' '));
+        } else {
+            panic!("esperava Value::Str");
+        }
+    }
+
+    #[test]
+    fn lorem_5_retorna_5_palavras() {
+        null_ctx!(ctx);
+        let r = native_lorem(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id()).unwrap();
+        if let Value::Str(s) = r {
+            assert_eq!(s.split_whitespace().count(), 5);
+        } else {
+            panic!("esperava Value::Str");
+        }
+    }
+
+    #[test]
+    fn lorem_100_retorna_100_palavras() {
+        null_ctx!(ctx);
+        let r = native_lorem(&mut ctx, &p(vec![Value::Int(100)]), &null_world(), test_file_id()).unwrap();
+        if let Value::Str(s) = r {
+            assert_eq!(s.split_whitespace().count(), 100);
+        } else {
+            panic!("esperava Value::Str");
+        }
+    }
+
+    #[test]
+    fn lorem_negativo_retorna_erro() {
+        null_ctx!(ctx);
+        let r = native_lorem(&mut ctx, &p(vec![Value::Int(-1)]), &null_world(), test_file_id());
+        assert!(r.is_err(), "lorem(-1) deve retornar erro");
+    }
+
+    #[test]
+    fn lorem_rejeita_named_arg() {
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Int(5)]);
+        args.named.insert("foo".into(), Value::Int(1));
+        assert!(native_lorem(&mut ctx, &args, &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn lorem_rejeita_tipo_errado() {
+        null_ctx!(ctx);
+        let r = native_lorem(&mut ctx, &p(vec![Value::Str("x".into())]), &null_world(), test_file_id());
+        assert!(r.is_err(), "lorem(string) deve retornar erro");
     }
 
     // ── Passo 295 — `footnote()` cluster Fase 1 (marker only) ──────────

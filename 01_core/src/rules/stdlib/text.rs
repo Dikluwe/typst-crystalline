@@ -1,10 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/text.md
-//! @prompt-hash 215aa21e
+//! @prompt-hash 6239237e
 //! @layer L1
 //! @updated 2026-04-23
 //!
-//! Funções nativas de texto (upper, lower, replace).
+//! Funções nativas de texto (upper, lower, replace, lorem).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
 use super::{err, expect_no_named};
@@ -13,6 +13,7 @@ use crate::entities::file_id::FileId;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::layout_types::{Color, Length};
+use crate::entities::regex::Regex;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -294,4 +295,82 @@ pub fn native_smartquote(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
     }
 
     Ok(Value::Content(Content::smartquote(double)))
+}
+
+// ── Passo 391 — `lorem(n)` ───────────────────────────────────────────────────
+
+/// Vocabulário dummy Lorem Ipsum usado por `native_lorem`.
+const LOREM_WORDS: &[&str] = &[
+    "Lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit",
+    "sed", "do", "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore",
+    "magna", "aliqua", "Ut", "enim", "ad", "minim", "veniam", "quis", "nostrud",
+    "exercitation", "ullamco", "laboris", "nisi", "ut", "aliquip", "ex", "ea",
+    "commodo", "consequat", "Duis", "aute", "irure", "dolor", "in", "reprehenderit",
+    "in", "voluptate", "velit", "esse", "cillum", "dolore", "eu", "fugiat", "nulla",
+    "pariatur", "Excepteur", "sint", "occaecat", "cupidatat", "non", "proident",
+    "sunt", "in", "culpa", "qui", "officia", "deserunt", "mollit", "anim", "id",
+    "est", "laborum",
+];
+
+/// `lorem(n)` → `Value::Str` com `n` palavras de texto dummy.
+///
+/// `n` deve ser um `Int` ≥ 0. Argumentos nomeados são rejeitados.
+/// O texto exacto não precisa de coincidir com o vanilla; a paridade é
+/// semântica — exactamente `n` palavras de Lorem Ipsum.
+pub fn native_lorem(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+
+    let n = match args.items.as_slice() {
+        [Value::Int(n)] => *n,
+        [other] => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("lorem() espera um inteiro, recebeu {}", other.type_name()),
+        )]),
+        _ => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "lorem() requer 1 argumento inteiro",
+        )]),
+    };
+
+    if n < 0 {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "lorem() não aceita números negativos",
+        )]);
+    }
+
+    if n == 0 {
+        return Ok(Value::Str("".into()));
+    }
+
+    let n = n as usize;
+    let len = LOREM_WORDS.len();
+    let mut words: Vec<&str> = Vec::with_capacity(n);
+    for i in 0..n {
+        words.push(LOREM_WORDS[i % len]);
+    }
+
+    Ok(Value::Str(words.join(" ").into()))
+}
+
+/// `regex(pattern)` → `Value::Regex` (P393).
+///
+/// Recebe um único argumento posicional `Str` com uma pattern regex válida.
+/// Argumentos nomeados são rejeitados. Pattern inválida → erro de eval.
+pub fn native_regex(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+
+    match args.items.as_slice() {
+        [Value::Str(pattern)] => {
+            match Regex::new(pattern.as_str()) {
+                Ok(re) => Ok(Value::Regex(re)),
+                Err(e) => Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("regex inválida: {}", e),
+                )]),
+            }
+        }
+        [other] => err(format!("regex() espera string, recebeu {}", other.type_name())),
+        _ => err("regex() requer 1 argumento (pattern)".to_string()),
+    }
 }

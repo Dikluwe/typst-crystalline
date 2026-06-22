@@ -86,7 +86,8 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `#set figure(...)` | model/figure.rs | `parcial` | Passo 75 | numbering pattern; kind hardcoded |
 | `#show heading: ...` | foundations/styles.rs | `implementado` | Passo 103 (ADR-0041) | NodeKind selector |
 | `#show strong/emph: ...` | idem | `implementado` | Passo 70, 101 | DEBT-19/20 encerradas |
-| `#show <selector>: ...` (regex/where) | idem | `ausente` | — | requer `regex` em L1 (ADR-0054bis condicional) |
+| `#show regex(...): ...` | idem | `implementado` | Passo 393 | `.where(field:)` continua ausente (precisa `Selector::Where`) |
+| `#show <selector>.where(...): ...` | idem | `ausente` | — | `Selector::Where` ainda não existe |
 | `#import`, `#include` | foundations/module.rs | `implementado⁺` | Passos 71, 75 | filesystem real (L3); subset de features |
 
 ### A.3 — Text features
@@ -111,7 +112,7 @@ Features visíveis ao utilizador no Typst (markup, funções stdlib, `#set`/`#sh
 | `smallcaps` | text/smallcaps.rs | `ausente` | — | |
 | `upper` / `lower` (funções) | text/case.rs | `implementado` | stdlib | `native_upper`/`native_lower` |
 | `replace` (string) | text/case.rs | `implementado` | stdlib | `native_replace` |
-| `lorem` | text/lorem.rs | `ausente` | — | |
+| `lorem` | text/lorem.rs | `implementado` | Passo 391 | `native_lorem`; helper puro `Int → Str`, zero tipo novo. |
 | `underline` / `strike` / `overline` | text/deco.rs | `implementado` | Passo 284 + P285 + **P286** | Variants `Content::{Underline,Strike,Overline}`; `body` + `stroke?`/`offset?`/`extent?`. **P285**: `stroke` funcional (emit `RG` + herança `style.fill`). **P286**: wrap-aware — body multi-line → N `FrameItem::Line` (cluster COMPLETO; restrição graded P284 §5.3 RESOLVIDA). `evade`/`background`/objecto Stroke rico continuam scope-out per ADR-0054 graded |
 | `linebreak` (function) | text/linebreak.rs | `parcial` | math context | só em math |
 
@@ -207,7 +208,7 @@ primitives e `skew`). Detalhe em
 | `polygon(points)` | visualize/polygon.rs | `implementado` | stdlib | |
 | `path(...)` / `curve(...)` | visualize/curve.rs | `implementado` | Passo 78 + P277 + **P293** + **P294** | `ShapeKind::Path` desde P78; DEBT-33 fecho P277 (Bézier bbox analítica O(1) por segmento); P293 activou `PathItem::CubicTo` via stdlib `native_curve` (H6 descoberta A.0.0 inaugural — variant existia inerte pré-P293). **P294 activa `quadratic` via conversão q→c em construct-time** (H1' descoberta A.0.0 N=2 — paridade vanilla: vanilla `lab/.../typst-layout/src/shapes.rs:215-220` converte `c1=(p+2c)/3`, `c2=(end+2c)/3`; sem variant `QuadraticTo` interno). Cobertura: `curve.move/line/cubic/quadratic/close` todas suportadas via tuples descritivos. **Hash `export.rs 66cb8ac3` preservado bit-exact pelo 11º passo consecutivo** — emit `c` operator único, paridade vanilla. |
 | `image(path, ...)` | visualize/image | `implementado` | Passos 72–74 | PNG (alpha + opaque) + JPEG; DEBT-26/27/28/29 fechados |
-| `square(...)` | visualize/shape.rs | `ausente` | — | |
+| `square(...)` | visualize/shape.rs | `implementado` | Passo 390 | Helper sobre `Rect` (`ShapeKind::Rect`), zero tipo novo. |
 | `rgb(...)`, `luma(...)` | visualize/paint.rs | `implementado` | stdlib | `native_rgb`, `native_luma` |
 | `cmyk(...)`, `oklab(...)`, etc. | visualize/color.rs | `ausente` | — | space-specific constructors |
 | `gradient(...)` | visualize/gradient.rs | `ausente` | — | |
@@ -229,7 +230,7 @@ primitives e `skew`). Detalhe em
 | `str.{contains, replace, ...}` | foundations/str.rs | `parcial` | passos | algumas methods |
 | `eval(string)` | foundations | `ausente` | — | |
 | `repr(value)` | foundations/repr.rs | `parcial` | sub-set | |
-| `panic(msg)` | foundations | `ausente` | — | |
+| `panic(msg)` | foundations | `implementado` | Passo 392 | `native_panic`; helper puro `Str → abort`, zero tipo novo. |
 | `if/else`, `while`, `for`, `break`, `continue` | foundations/ops.rs | `implementado` | Passo 30 + flow | control flow |
 | `import math: ...`, `from math: ...` | foundations | `parcial` | Passos 71, 75 | std imports limitados |
 | `read(path)` | loading/read.rs | `implementado⁺` | **Passo 387** (ADR-0111) | decode L1 puro compõe com L3 `read_bytes`; **graded ADR-0054**: modo texto (`Str`) apenas — binário (`Bytes`) deferido até `Value::Bytes` (DEBT-62) |
@@ -421,7 +422,7 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 | `text.dir` (LTR/RTL) | bidi shaping ausente | DEBT-53 |
 | ~~`smartquote`~~ | ~~`Content::SmartQuote` ausente~~ | ~~escopo S~~ — **resolvido em Passo 287** (variant leaf + native_smartquote + consumer Layouter; reuso de `rules/lang/quotes.rs` — single source of truth) |
 | `smallcaps` | `Content::SmallCaps`; OpenType features | DEBT-53 (shaping) |
-| `lorem` | sem stdlib helper | escopo S |
+| ~~`lorem`~~ | resolvido no Passo 391 (`native_lorem` em `text.rs`) | — |
 | ~~`underline` / `strike` / `overline`~~ | ~~`Content::Underline` etc. ausentes~~ | ~~escopo S~~ — **resolvido em Passo 284** (variants + native_* + Layouter consumer + PDF emit via `FrameItem::Line`) |
 | Soft hyphen (`\u{00AD}`) | hyphenation espera literal `-` (Passo 144) | passo dedicado futuro |
 | `quote(...)` | `Content::Quote` ausente | escopo S |
@@ -434,7 +435,7 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 | `here()` / `locate()` / `query()` | introspection runtime ausente | depende de ADR-0017 (adiada) |
 | `metadata(value)` | introspection runtime ausente | idem |
 | `eval(string)` | runtime de re-eval ausente | escopo M |
-| `panic(msg)` | sem helper stdlib | escopo XS |
+| ~~`panic(msg)`~~ | resolvido no Passo 392 (`native_panic` em `panic.rs`) | — |
 | `repr(value)` (completo) | `repr` de cada Value variant parcial | passos passados materializaram subset |
 | `box(...)` / `block(...)` | `Content::Box`/`Block` ausentes | escopo M |
 | `columns(n)` | `Content::Columns` + multi-col layout ausentes | escopo M |
@@ -444,7 +445,7 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 | ~~`repeat(body)`~~ | resolvido P156J (`Content::Repeat`) | — |
 | `hide(body)` | `Content::Hide` ausente | escopo XS |
 | `measure(body)` | introspection runtime ausente | depende de ADR-0017 |
-| `square(...)` | `ShapeKind::Square` ausente; trivially derivable de Rect com width=height | escopo XS |
+| ~~`square(...)`~~ | resolvido no Passo 390 (`native_square` sobre `ShapeKind::Rect`) | — |
 | `gradient(...)` | `Value::Gradient` ausente; render gradient em PDF | escopo M |
 | `tiling(...)` | `Value::Tiling` ausente | escopo M |
 | `cmyk` / `oklab` cores | Color space não-RGB ausente | escopo S |
@@ -458,7 +459,8 @@ Para cada feature `parcial` ou `ausente` da Tabela A, lista de tipos arquitectur
 | `Value::Type` | string-based em cristalino vs `Type` em vanilla | divergência ADR-0025; refactor escopo S |
 | `accent` math (variantes Unicode completas) | mapping char→glyph parcial | passo dedicado math |
 | `cancel` / `underover` / `op` | layout aproximado | passos dedicados math |
-| Show selectors (regex/where) | `regex` em L1 ausente | ADR-0054bis condicional |
+| ~~Show selectors (regex)~~ | resolvido no Passo 393 (`Selector::Regex` + wiring `apply_show_rules`) | — |
+| Show selectors (`.where()`) | `Selector::Where` ausente | escopo M |
 | `#import "@preview/..."` | package resolver completo ausente | escopo M |
 
 ---
