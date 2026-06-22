@@ -51,7 +51,7 @@ pub use crate::rules::stdlib::foundations::{
     native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with, native_str, native_type,
 };
 pub use crate::rules::stdlib::calc::make_calc_module;
-pub use crate::rules::stdlib::text::{native_lorem, native_lower, native_overline, native_regex, native_replace, native_smartquote, native_strike, native_underline, native_upper};
+pub use crate::rules::stdlib::text::{native_lorem, native_lower, native_overline, native_regex, native_replace, native_smallcaps, native_smartquote, native_strike, native_underline, native_upper};
 pub use crate::rules::stdlib::assert::native_assert;
 pub use crate::rules::stdlib::panic::native_panic;
 pub use crate::rules::stdlib::eval::native_eval;
@@ -7763,6 +7763,78 @@ mod tests {
         null_ctx!(ctx);
         let r = native_smartquote(&mut ctx, &p(vec![Value::Bool(true)]), &null_world(), test_file_id());
         assert!(r.is_err(), "args posicionais rejeitados (vanilla usa só named)");
+    }
+
+    // ── Passo 408 — `smallcaps(body)` ──────────────────────────────────
+
+    #[test]
+    fn p408_native_smallcaps_envolve_content() {
+        use super::native_smallcaps;
+        null_ctx!(ctx);
+        let args = p(vec![Value::Content(Content::text("Hello"))]);
+        let r = native_smallcaps(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        match r {
+            Value::Content(Content::SmallCaps { body }) => {
+                assert_eq!(body.plain_text(), "Hello");
+            }
+            other => panic!("esperado Content::SmallCaps, obtido {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p408_native_smallcaps_aceita_string() {
+        use super::native_smallcaps;
+        null_ctx!(ctx);
+        let args = p(vec![Value::Str("World".into())]);
+        let r = native_smallcaps(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        match r {
+            Value::Content(Content::SmallCaps { body }) => {
+                assert_eq!(body.plain_text(), "World");
+            }
+            other => panic!("esperado Content::SmallCaps, obtido {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p408_native_smallcaps_sem_body_retorna_err() {
+        use super::native_smallcaps;
+        null_ctx!(ctx);
+        let args = p(vec![]);
+        assert!(native_smallcaps(&mut ctx, &args, &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn p408_native_smallcaps_rejeita_named_arg() {
+        use super::native_smallcaps;
+        null_ctx!(ctx);
+        let mut args = p(vec![Value::Content(Content::text("x"))]);
+        args.named.insert("stroke".into(), Value::Int(1));
+        assert!(native_smallcaps(&mut ctx, &args, &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn p408_native_smallcaps_rejeita_tipo_errado() {
+        use super::native_smallcaps;
+        null_ctx!(ctx);
+        let args = p(vec![Value::Int(42)]);
+        assert!(native_smallcaps(&mut ctx, &args, &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn p408_native_smallcaps_body_acessivel_via_get_field() {
+        use super::native_smallcaps;
+        null_ctx!(ctx);
+        let args = p(vec![Value::Content(Content::text("abc"))]);
+        let r = native_smallcaps(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(c) = r {
+            assert_eq!(
+                c.get_field("body"),
+                Some(Value::Content(Content::text("abc"))),
+                "it.body deve devolver o body original"
+            );
+        } else {
+            panic!("esperado Value::Content");
+        }
     }
 
     // ── Passo 391 — `lorem(n)` ─────────────────────────────────────────

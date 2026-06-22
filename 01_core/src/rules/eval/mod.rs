@@ -662,7 +662,7 @@ fn make_stdlib() -> Scope {
         native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_curve, native_eval, native_here, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_state, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with,
         native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_linear_rgb, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_rgb, native_rotate,
         native_square, native_tiling,
-        native_scale, native_skew, native_smartquote, native_stack, native_str, native_strike, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
+        native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_str, native_strike, native_stroke, native_strong, native_table, native_table_cell, native_table_footer, native_table_header, native_grid_cell, native_grid_footer, native_grid_header, native_terms, native_type, native_underline, native_underover, native_overline, native_upper, native_v,
         // P311b.3 — math style funcs.
         native_bb, native_bold, native_cal, native_frak, native_math_italic,
         native_mono, native_sans, native_scr, native_script, native_serif,
@@ -704,6 +704,9 @@ fn make_stdlib() -> Scope {
     scope.define("underline", Value::Func(Func::native("underline", native_underline)));
     scope.define("strike",    Value::Func(Func::native("strike",    native_strike)));
     scope.define("overline",  Value::Func(Func::native("overline",  native_overline)));
+    // P408: smallcaps — variant + stdlib materializados; consumer em layout é
+    // stub transparente (small caps real requer shaping OpenType, DEBT-53).
+    scope.define("smallcaps", Value::Func(Func::native("smallcaps", native_smallcaps)));
     // P287 (frente `P-smartquote`): função stdlib paralela ao markup `"..."`
     // P155. `alternative`/`quotes` scope-out per diagnóstico §A.2; `enabled:
     // false` emite glyph ASCII literal (paridade vanilla).

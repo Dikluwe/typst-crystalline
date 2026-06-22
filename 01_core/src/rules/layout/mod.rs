@@ -938,6 +938,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.style = prev_style;
             }
 
+            // P408: smallcaps — consumer stub transparente. O shaping real de
+            // small caps (OpenType `smcp`/`c2sc`) é DEBT-53 scope-out XL;
+            // neste passo o output é byte-idêntico ao body.
+            Content::SmallCaps { body } => self.layout_content(body),
+
             // ── Passo 154B (ADR-0060 Fase 1) — terms + divider ──────────────
             // Atomizado (ADR-0109, P381) → layout/divider.rs.
             Content::Divider(e) => divider::layout(self, e),
@@ -1268,6 +1273,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
             Content::Hide(e) => {
                 self.measure_content_constrained(&e.body, max_width)
+            }
+
+            // P408: smallcaps — stub transparente em medição (paridade layout).
+            Content::SmallCaps { body } => {
+                self.measure_content_constrained(body, max_width)
             }
 
             // Passo 156D: HSpace/VSpace dimensões para grid measurement.

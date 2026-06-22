@@ -175,6 +175,9 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
         // colapso P101 foi superado); reconstroem via ctor, recursando no body.
         Content::Strong(e) => Content::strong(materialize_time(&e.body, intr, location)),
         Content::Emph(e)   => Content::emph(materialize_time(&e.body, intr, location)),
+        // P408: smallcaps é container transparente para materialização de tempo
+        // (o consumer real de small caps será aplicado no layout; DEBT-53).
+        Content::SmallCaps { body } => Content::smallcaps(materialize_time(body, intr, location)),
         // Modelo D (P316): Heading delegado; reconstrói via ctor.
         Content::Heading(h) => Content::heading(h.level, materialize_time(&h.body, intr, location)),
         // Modelo D (Lote 3 P318): destructure de Arc<Elem> + reconstrução via construtor.
@@ -694,6 +697,11 @@ pub(crate) fn walk(
         // sem custom/locatável) — descem no body, como o arm `Styled`.
         Content::Strong(e) => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
         Content::Emph(e)   => walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, None),
+
+        // P408: smallcaps é transparente ao walk (morfologia, não locatável).
+        Content::SmallCaps { body } => walk(
+            body, locator, tags, intr, auto_label_counter, lang, chain, None,
+        ),
 
         Content::Heading(h) => {
             // Modelo D (P316): Heading delegado; re-bind dos campos.

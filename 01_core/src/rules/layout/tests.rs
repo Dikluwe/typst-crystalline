@@ -443,6 +443,60 @@ fn estilo_restaurado_apos_strong() {
     }
 }
 
+// ── Passo 408 — smallcaps (consumer stub transparente) ─────────────────
+
+#[test]
+fn p408_smallcaps_stub_preserva_texto_do_body() {
+    // Consumer é stub transparente: o output de layout deve ser
+    // byte-idêntico ao body (sem small caps real — DEBT-53).
+    let doc = layout(&Content::smallcaps(Content::text("SmallCaps")));
+    let texts: Vec<String> = doc.pages.iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| {
+            if let FrameItem::Text { text, .. } = i {
+                Some(text.to_string())
+            } else {
+                None
+            }
+        })
+        .collect();
+    assert_eq!(texts.concat(), "SmallCaps");
+}
+
+#[test]
+fn p408_smallcaps_via_stdlib_preserva_texto() {
+    let doc = layout_test("#smallcaps(\"Hello\")");
+    let texts: Vec<String> = doc.pages.iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| {
+            if let FrameItem::Text { text, .. } = i {
+                Some(text.to_string())
+            } else {
+                None
+            }
+        })
+        .collect();
+    assert_eq!(texts.concat(), "Hello");
+}
+
+#[test]
+fn p408_smallcaps_nao_vaza_estilo() {
+    // SmallCaps é transparente: não introduz bold/italic nem modifica
+    // estilos irmãos.
+    let doc = layout(&Content::sequence(vec![
+        Content::smallcaps(Content::text("sc")),
+        Content::text("normal"),
+    ]));
+    let items: Vec<_> = doc.pages.iter()
+        .flat_map(|p| p.items.iter())
+        .collect();
+    if let Some(FrameItem::Text { style, text, .. }) = items.last() {
+        if text.as_str() == "normal" {
+            assert!(!style.bold && !style.italic, "texto após smallcaps deve ser regular");
+        }
+    }
+}
+
 #[test]
 fn pt_tipagem_nao_permite_add_f64() {
     let a = Pt(10.0);

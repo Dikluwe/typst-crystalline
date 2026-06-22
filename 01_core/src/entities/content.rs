@@ -606,6 +606,19 @@ pub enum Content {
     /// **Modelo D (Lote 4 P319)**: `entities::elements::overline::OverlineElem`.
     Overline(Arc<OverlineElem>),
 
+    // ── Passo 408 (ADR-0054 graded) — small caps ──────────────────────────
+    //
+    // Paridade vanilla `SmallcapsElem`: elemento de texto que transforma
+    // o body em small capitals. Consumer real requer shaping OpenType
+    // (`smcp` / `c2sc`) — DEBT-53 scope-out XL. Neste passo materializa-se
+    // o variant e o stdlib; o consumer em layout é stub transparente.
+    //
+    // Modelo minimal: só `body` (sem atributos opcionais). Não segue o
+    // Modelo D para evitar um ficheiro de elemento só para um campo.
+    SmallCaps {
+        body: Box<Content>,
+    },
+
     // ── Passo 156C (ADR-0061 Fase 1 sub-passo 1) — pad + hide ───────────
     // ── Passo 156L (ADR-0061 Fase 3 sub-passo 2; refino) — sides
     //    individualizadas: `padding: Sides<Length>` → `sides:
@@ -1209,6 +1222,14 @@ impl Content {
         Self::Underline(Arc::new(UnderlineElem { body, stroke, offset, extent }))
     }
 
+    /// **Passo 408** — `smallcaps(body)`.
+    ///
+    /// Consumer real de small caps requer shaping OpenType (`smcp`/`c2sc`);
+    /// até lá, o layout trata como stub transparente (ADR-0054 graded).
+    pub fn smallcaps(body: Content) -> Self {
+        Self::SmallCaps { body: Box::new(body) }
+    }
+
     /// `pad(body, sides)` — Passo 156C (ADR-0061 Fase 1) /
     /// Passo 156L (refino sides individualizadas per ADR-0064 Caso C).
     pub fn pad(body: Content, sides: Sides<Option<Length>>) -> Self {
@@ -1624,6 +1645,8 @@ impl Content {
             Self::Underline(e) => e.is_empty(),
             Self::Strike(e)    => e.is_empty(),
             Self::Overline(e)  => e.is_empty(),
+            // P408: smallcaps é vazio sse o body for vazio (stub transparente).
+            Self::SmallCaps { body } => body.is_empty(),
             // P287 — SmartQuote: nunca vazio (sempre emite 1 glyph).
             Self::SmartQuote(e) => e.is_empty(),
             // Passo 156C (ADR-0061 Fase 1): Pad/Hide vazios se o body for.
@@ -1694,6 +1717,8 @@ impl Content {
             Self::Underline(e) => e.plain_text(),
             Self::Strike(e)    => e.plain_text(),
             Self::Overline(e)  => e.plain_text(),
+            // P408: smallcaps é transparente para plain_text (stub).
+            Self::SmallCaps { body } => body.plain_text(),
             // P287 — SmartQuote: paridade vanilla `PlainText for
             // Packed<SmartQuoteElem>` — emite fallback ASCII (`"` ou `'`).
             // Layouter resolve lang-aware (consumer pós-P287); plain_text
@@ -1908,6 +1933,8 @@ impl PartialEq for Content {
             (Self::Underline(a), Self::Underline(b)) => a == b,
             (Self::Strike(a),    Self::Strike(b))    => a == b,
             (Self::Overline(a),  Self::Overline(b))  => a == b,
+            // P408: smallcaps compara pelo body.
+            (Self::SmallCaps { body: a }, Self::SmallCaps { body: b }) => a == b,
             // Modelo D (Lote 9 P324): SmartQuote delega ao `Arc<…Elem>`.
             (Self::SmartQuote(a), Self::SmartQuote(b)) => a == b,
             // Passo 156C / 156L — Pad / Hide.
@@ -1971,6 +1998,8 @@ impl Content {
             (Content::Strong(e), f) => e.get_field(f),
             (Content::Emph(e),   f) => e.get_field(f),
             (Content::Figure(e),  "body")  => Some(Value::Content(e.body.clone())),
+            // P408: smallcaps expõe `body` para show rules (`it.body`).
+            (Content::SmallCaps { body }, "body") => Some(Value::Content(body.as_ref().clone())),
             // Lote F-1 (P334): leitura de campos da fronteira dinâmica (S7) —
             // o que o closure de `#show` usará (F-2+).
             (Content::Dynamic(e), f) => e.dyn_get_field(f),
@@ -2047,6 +2076,11 @@ impl Content {
             Content::Underline(e) => e.map_content(transform)?,
             Content::Strike(e)    => e.map_content(transform)?,
             Content::Overline(e)  => e.map_content(transform)?,
+
+            // P408: smallcaps container — recurse em body (stub transparente).
+            Content::SmallCaps { body } => Content::SmallCaps {
+                body: Box::new(body.map_content(transform)?),
+            },
 
             // Passo 156C / 156L: Pad / Hide containers — recurse em body;
             // sides é Copy primitivo (Sides<Option<Length>>).
@@ -2257,6 +2291,11 @@ impl Content {
             Content::Underline(e) => e.map_text(transform),
             Content::Strike(e)    => e.map_text(transform),
             Content::Overline(e)  => e.map_text(transform),
+
+            // P408: smallcaps container — map_text recurse no body (stub).
+            Content::SmallCaps { body } => Content::SmallCaps {
+                body: Box::new(body.map_text(transform)),
+            },
 
             // Passo 156C / 156L: Pad / Hide containers — recurse em body.
             // Modelo D (Lote 10 P325): Pad container delega ao elemento.

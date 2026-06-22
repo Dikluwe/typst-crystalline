@@ -1,10 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/text.md
-//! @prompt-hash 6239237e
+//! @prompt-hash e234b3fb
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-06-22
 //!
-//! Funções nativas de texto (upper, lower, replace, lorem).
+//! Funções nativas de texto (upper, lower, replace, lorem, smallcaps).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
 use super::{err, expect_no_named};
@@ -223,6 +223,41 @@ pub fn native_strike(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 
 pub fn native_overline(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
     build_decoration(DecoKind::Overline, args, "overline")
+}
+
+// ── Passo 408 — `smallcaps(body)` ───────────────────────────────────────────
+//
+// Paridade vanilla `text/smallcaps.rs::SmallcapsElem`: elemento de texto que
+// transforma o body em small capitals. Consumer real requer shaping OpenType
+// (`smcp` / `c2sc`) — DEBT-53 scope-out XL. Neste passo materializa-se o
+// variant `Content::SmallCaps` e a stdlib; o consumer em layout é stub
+// transparente (output byte-idêntico ao body).
+//
+// Modelo minimal: só `body` (sem atributos opcionais). Aceita `content` ou
+// `string` como argumento posicional único; named args são rejeitados.
+
+/// `smallcaps(body)` → content embrulhado em `Content::SmallCaps`.
+pub fn native_smallcaps(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+
+    let body = match args.items.as_slice() {
+        [Value::Content(c)] => c.clone(),
+        [Value::Str(s)]     => Content::text(s.as_str()),
+        [other] => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("smallcaps() espera content ou string, recebeu {}", other.type_name()),
+        )]),
+        [] => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "smallcaps() exige body como argumento posicional".to_string(),
+        )]),
+        _ => return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("smallcaps() recebeu {} argumentos posicionais (espera 1)", args.items.len()),
+        )]),
+    };
+
+    Ok(Value::Content(Content::smallcaps(body)))
 }
 
 // ── Passo 287 — função `#smartquote(double, enabled, alternative)` ──────────

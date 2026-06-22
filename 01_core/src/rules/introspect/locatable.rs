@@ -140,6 +140,8 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::Underline(_)
         | Content::Strike(_)
         | Content::Overline(_)
+        // P408 — SmallCaps é não-locatable (stub transparente; cosmtico inline).
+        | Content::SmallCaps { .. }
         // P287 — SmartQuote leaf não-locatable (glyph único; sem identidade
         // queryable; paridade Space/Linebreak).
         | Content::SmartQuote(_)

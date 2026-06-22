@@ -1,5 +1,5 @@
-# Prompt L0 — `stdlib/text` — smartquote, decoração textual e lorem
-Hash do Código: 11960470
+# Prompt L0 — `stdlib/text` — smartquote, decoração textual, lorem e smallcaps
+Hash do Código: 44dffb26
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/text.rs`
@@ -83,4 +83,30 @@ native_lorem(Int(5))  → Ok(Str("Lorem ipsum dolor sit amet"))
 native_lorem(Int(-1)) → Err
 native_lorem(Str("x")) → Err
 native_lorem(Int(5), foo:Int(1)) → Err
+```
+
+## `smallcaps(body)` — Passo 408
+
+Elemento de texto vanilla `SmallcapsElem` que transforma o body em small
+capitals. No cristalino o **consumer é stub transparente**: o shaping OpenType
+(`smcp` / `c2sc`) está scope-out (DEBT-53, XL futuro). A feature existe no
+pipeline (parse, eval, Content variant) sem fallback software incorreto.
+
+**Argumentos**: 1 posicional `Content | Str`. Zero named args.
+
+**Implementação**:
+- `Content::SmallCaps { body: Box<Content> }`.
+- `plain_text` delega a `body`; `map_content` recursa em `body`; `is_empty`
+  delega a `body`; `PartialEq` por `body`.
+- Layouter: `Content::SmallCaps { body } => self.layout_content(body)`.
+
+**Scope-out (ADR-0054 graded)**: small caps real requer shaping; não implementar
+fallback software (uppercase + scale) porque não é paridade vanilla.
+
+```
+native_smallcaps([Content(c)]) → Ok(Content::SmallCaps { body:c })
+native_smallcaps([Str("x")])   → Ok(Content::SmallCaps { body:text("x") })
+native_smallcaps()             → Err
+native_smallcaps([Content(c)], foo:Int(1)) → Err
+layout(smallcaps([Hello]))     → identical a layout([Hello]) (stub)
 ```
