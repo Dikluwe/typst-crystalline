@@ -89,6 +89,7 @@ rust = [
     "ciborium",      # ADR-0111 — decode_cbor (puro-Rust sem C)
     "roxmltree",     # ADR-0111 — decode_xml (read-only)
     "csv",           # ADR-0111 — decode_csv
+    "rust_decimal",  # ADR-0112 (P399) — Decimal precisão fixa em L1; puro-Rust, Copy, zero alloc
 ]
 
 [orphan_exceptions]

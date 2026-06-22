@@ -81,6 +81,8 @@ pub mod gradient;
 pub mod tiling;
 // P398 — Bytes binários; fecha DEBT-62.
 pub mod bytes;
+// P399 — Decimal precisão fixa; tipo S puro.
+pub mod decimal;
 // P264 — Axes<T> minimal per ADR-0088 + ADR-0080; consumer Radial.center.
 pub mod axes;
 pub mod ptr_eq_arc;

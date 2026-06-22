@@ -265,7 +265,7 @@ primitives e `skew`). Detalhe em
 
 Tipos do Rust em `01_core/src/entities/` versus `lab/typst-original/crates/typst-library/src/foundations/value.rs` etc.
 
-### B.1 — `Value` enum (vanilla 30 variants; cristalino 19 variants)
+### B.1 — `Value` enum (vanilla 30 variants; cristalino 20 variants)
 
 | Variant | Vanilla path | Cristalino estado | Referência | Nota |
 |---------|--------------|--------------------|------------|------|
@@ -288,7 +288,7 @@ Tipos do Rust em `01_core/src/entities/` versus `lab/typst-original/crates/typst
 | `Bytes` | foundations/bytes.rs | `implementado` | **Passo 398** | `entities::bytes::Bytes(Vec<u8>)` + `Value::Bytes(Bytes)`; `read` binário e byte-strings CBOR activados; `EcoVec<u8>` refino futuro XS |
 | `Label` | foundations/label.rs | `parcial` | Passos 63–66 | `Label` tipo separado de Value |
 | `Datetime` | foundations/datetime.rs | `implementado` | Passo 21 (ADR-0021) | |
-| `Decimal` | foundations/decimal.rs | `ausente` | — | |
+| `Decimal` | foundations/decimal.rs | `implementado` | **Passo 399** | `entities::decimal::Decimal(rust_decimal::Decimal)` + `Value::Decimal(Decimal)`; tipo S puro, `Copy`, zero I/O; `native_decimal(...)` e operações aritméticas são scope-out futuro |
 | `Duration` | foundations/duration.rs | `ausente` | — | |
 | `Content` | foundations/content/ | `implementado` | Passos 18, ADR-0026 + 0026-R1 | enum vs vtable |
 | `Styles` | foundations/styles.rs | `parcial` | Passos 99 | `Styles` tipo separado; não Value variant |
@@ -676,13 +676,13 @@ BibEntry com 16 fields cobertura ~70-75% hayagriva universais).
 
 | Tipo | `implementado` | `implementado⁺` | `parcial` | `ausente` | `scope-out` | Total |
 |------|----------------|-----------------|-----------|-----------|-------------|-------|
-| `Value` variants ⁸¹ | 19 | 2 | 2 | 9 | 0 | 32 |
+| `Value` variants ⁸¹ ⁸³ | 20 | 2 | 2 | 9 | 0 | 33 |
 | `Content` variants (cristalino) ³ ⁴ ⁷ ⁹ ¹¹ ¹⁴ ¹⁶ ¹⁸ ²⁰ ²³ ²⁵ ²⁷ ³⁰ | 46 | 9 | 3 | 0 | 0 | 58 |
 | `Content` variants (vanilla extra ausentes) | — | — | — | 0 | — | 0 |
 | `Style` variants | 5 | 0 | 0 | 0 | 0 | 5 |
 | `StyleDelta` fields | 7 | 2 | 0 | 0 | 1 | 10 |
 | `FrameItem` variants | 6 | 0 | 0 | 0 | 0 | 6 |
-| **Total arquitectural** | **75** | **13** | **5** | **13** | **1** | **107** |
+| **Total arquitectural** | **76** | **13** | **5** | **13** | **1** | **108** |
 
 ³ — Ajuste P154B: 39 → 42 (+`Divider`, +`Terms`, +`TermItem`).
 Vanilla extra ausentes desce de ~14 para ~12 (terms + divider
@@ -5744,3 +5744,15 @@ H6 não-listada na spec; refutação genuína documentada).
 passam a `implementado` (funcionalidade binária / byte-strings CBOR). As contagens
 linha-a-linha já reflectiam estes itens, pelo que o resumo 9/1/4/1/0=15 permanece
 inalterado; apenas a nota de qualidade muda de `implementado+` para `implementado`.
+
+⁸³ — Ajuste P399 (Tabela B.1 `Value` enum: novo variant `Decimal`;
+**fecha Passo 399**):
+
+- `Decimal` transita `ausente → implementado` em B.1:
+  - Novo tipo L1 `Decimal(rust_decimal::Decimal)` em `01_core/src/entities/decimal.rs`; `Copy`, puro-Rust, zero alloc.
+  - Novo variant `Value::Decimal(Decimal)` em `01_core/src/entities/value.rs` com `type_name == "decimal"`, `cast_decimal()` e `From<Decimal>`.
+- **Tabela B.1 `Value` variants**: 19 → **20** (+`Decimal`); total 32 → **33**.
+- **Tabela B total arquitectural**: 75 → **76** implementado; 107 → **108**.
+- **Contagem user-facing total mantém-se 141** (`Decimal` é tipo arquitectural; `decimal()` stdlib continua `ausente` — P400).
+- **Testes**: unitários (`decimal.rs`, `value.rs`) verdes; `cargo test --workspace` passa (com `RUST_MIN_STACK=33554432`).
+- **Decisão arquitectural**: ADR-0017 autoriza novos variants em `Value`; `Decimal` mantém-se L1 puro; operações aritméticas e constructor stdlib são scope-out futuro (ADR-0054).

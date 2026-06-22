@@ -11,6 +11,7 @@ use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
 use crate::entities::bytes::Bytes;
+use crate::entities::decimal::Decimal;
 
 /// Valor em tempo de avaliação do Typst.
 ///
@@ -99,14 +100,18 @@ pub enum Value {
     /// binário e byte-strings CBOR.
     Bytes(Bytes),
 
+    /// **P399** — Decimal de precisão fixa (28 dígitos). Tipo L1 puro;
+    /// operações aritméticas e constructor stdlib são scope-out futuro.
+    Decimal(Decimal),
+
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
-    // Variantes futuras (~12 restantes após P262):
+    // Variantes futuras (~11 restantes após P262):
     // Relative(Relative),       // comprimento relativo
     // Tiling(Tiling),           // padrão de azulejos
     // Symbol(Symbol),           // símbolo Unicode
     // Version(Version),         // versão semântica
     // Bytes(Bytes),             // bytes binários — já em L1 como tipo separado
-    // Decimal(Decimal),         // decimal de alta precisão
+    // Decimal(Decimal),         // decimal de alta precisão — já em L1 como tipo separado
     // Duration(Duration),       // duração
     // (Content migrado no Passo 18)
     // Styles(Styles),           // estilos encadeados — bloqueia show/set
@@ -158,6 +163,7 @@ impl Value {
             Self::Regex(_)     => "regex",
             Self::Tiling(_)    => "tiling",
             Self::Bytes(_)     => "bytes",
+            Self::Decimal(_)   => "decimal",
         }
     }
 
@@ -209,6 +215,20 @@ impl Value {
     pub fn cast_bytes(&self) -> Option<&Bytes> {
         match self { Self::Bytes(b) => Some(b), _ => None }
     }
+
+    /// Converte para `Decimal`, se compatível. Passo 399.
+    ///
+    /// Aceita `Decimal` (identidade), `Int` (preciso), `Float` (com perda;
+    /// rejeita NaN/Inf) e `Str` (parse decimal).
+    pub fn cast_decimal(&self) -> Option<Decimal> {
+        match self {
+            Self::Decimal(d) => Some(*d),
+            Self::Int(i)     => Some(Decimal::from_i64(*i)),
+            Self::Float(f)   => Decimal::from_f64(*f),
+            Self::Str(s)     => Decimal::from_str(s),
+            _                => None,
+        }
+    }
 }
 
 // Conversões From para ergonomia em eval() e testes
@@ -257,6 +277,9 @@ impl From<crate::entities::tiling::Tiling> for Value {
 }
 impl From<crate::entities::bytes::Bytes> for Value {
     fn from(v: crate::entities::bytes::Bytes) -> Self { Self::Bytes(v) }
+}
+impl From<crate::entities::decimal::Decimal> for Value {
+    fn from(v: crate::entities::decimal::Decimal) -> Self { Self::Decimal(v) }
 }
 
 #[cfg(test)]
@@ -424,6 +447,61 @@ mod tests {
         let a = Value::from(Bytes::new(vec![1, 2]));
         let b = Value::from(Bytes::new(vec![1, 2]));
         let c = Value::from(Bytes::new(vec![2, 1]));
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+    }
+
+    // ── Passo 399 — Decimal (tipo S puro) ────────────────────────────────────
+
+    #[test]
+    fn value_decimal_type_name() {
+        let d = Decimal::new(12345, 2);
+        assert_eq!(Value::from(d).type_name(), "decimal");
+    }
+
+    #[test]
+    fn value_decimal_cast_identity() {
+        let d = Decimal::new(12345, 2);
+        let v = Value::from(d);
+        assert_eq!(v.cast_decimal(), Some(d));
+        assert_eq!(v.cast_int(), None);
+    }
+
+    #[test]
+    fn value_decimal_cast_from_int() {
+        let v = Value::Int(42);
+        assert_eq!(v.cast_decimal(), Some(Decimal::from_i64(42)));
+    }
+
+    #[test]
+    fn value_decimal_cast_from_float() {
+        let v = Value::Float(1.5);
+        assert_eq!(v.cast_decimal(), Some(Decimal::from_f64(1.5).unwrap()));
+    }
+
+    #[test]
+    fn value_decimal_cast_from_float_nan_rejected() {
+        let v = Value::Float(f64::NAN);
+        assert_eq!(v.cast_decimal(), None);
+    }
+
+    #[test]
+    fn value_decimal_cast_from_str() {
+        let v = Value::Str("3.14".into());
+        assert_eq!(v.cast_decimal(), Some(Decimal::from_str("3.14").unwrap()));
+    }
+
+    #[test]
+    fn value_decimal_cast_from_str_invalid() {
+        let v = Value::Str("abc".into());
+        assert_eq!(v.cast_decimal(), None);
+    }
+
+    #[test]
+    fn value_decimal_partial_eq() {
+        let a = Value::from(Decimal::new(100, 2)); // 1.00
+        let b = Value::from(Decimal::new(10, 1));  // 1.0
+        let c = Value::from(Decimal::new(2, 0));
         assert_eq!(a, b);
         assert_ne!(a, c);
     }
