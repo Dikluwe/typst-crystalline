@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/rules/stdlib/primitives-constructors.md
-//! @prompt-hash d910ed09
+//! @prompt-hash 499f511d
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -9,6 +9,8 @@
 //! Passo 405: `duration()` estendido para named args vanilla (mantém string P403).
 
 use std::sync::Arc;
+
+use ecow::EcoString;
 
 use crate::entities::args::Args;
 use crate::entities::decimal::Decimal;
@@ -113,25 +115,88 @@ pub fn native_duration(
     Ok(Value::Duration(Duration::from_nanos(total as u64)))
 }
 
-/// `version(s)` → `Value::Version`.
+/// `version(...)` → `Value::Version`.
 ///
-/// Parse semver 2.0.0 via `Version::from_str`. Rejeita argumentos nomeados e
-/// qualquer tipo que não seja `Str`.
+/// Duas formas suportadas:
+/// 1. String posicional (compatibilidade P403): `version("1.2.3-alpha")`.
+/// 2. Vanilla: `version(1, 2, 3)`, `version(1, 2, 3, "alpha.1")`,
+///    `version(1, 2, 3, pre: "alpha.1", build: "build.2")`.
 pub fn native_version(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
-    match args.items.as_slice() {
-        [Value::Str(s)] => match Version::from_str(s) {
-            Some(v) => Ok(Value::Version(Arc::new(v))),
-            None => err(format!("version(): string inválida: '{}'", s)),
-        },
-        [other] => err(format!("version(): espera Str, recebeu {}", other.type_name())),
-        _ => err(format!("version(): requer 1 argumento, recebeu {}", args.items.len())),
+    fn parse_identifiers(s: &str) -> Vec<EcoString> {
+        if s.is_empty() {
+            Vec::new()
+        } else {
+            s.split('.').map(EcoString::from).collect()
+        }
     }
+
+    fn as_nonneg_int(v: &Value, name: &str) -> Result<u64, String> {
+        match v {
+            Value::Int(i) if *i < 0 => Err(format!("version(): '{}' não pode ser negativo", name)),
+            Value::Int(i) => Ok(*i as u64),
+            other => Err(format!("version(): '{}' espera Int, recebeu {}", name, other.type_name())),
+        }
+    }
+
+    fn extract_str(args: &Args, name: &str) -> Result<String, String> {
+        match args.named.get(name) {
+            Some(Value::Str(s)) => Ok(s.to_string()),
+            Some(other) => Err(format!("version(): '{}' espera Str, recebeu {}", name, other.type_name())),
+            None => Ok(String::new()),
+        }
+    }
+
+    // Forma string (P403): único arg posicional Str (sem named args).
+    if args.items.len() == 1 && matches!(args.items[0], Value::Str(_)) && args.named.is_empty() {
+        return match args.items.as_slice() {
+            [Value::Str(s)] => match Version::from_str(s) {
+                Some(v) => Ok(Value::Version(Arc::new(v))),
+                None => err(format!("version(): string inválida: '{}'", s)),
+            },
+            _ => unreachable!(),
+        };
+    }
+
+    // Mistura inválida: string posicional com named args.
+    if args.items.len() == 1 && matches!(args.items[0], Value::Str(_)) && !args.named.is_empty() {
+        return err("version(): não pode misturar string posicional com argumentos nomeados".to_string());
+    }
+
+    // Forma vanilla: major/minor/patch posicionais obrigatórios (e opcionalmente pre posicional)
+    // + pre/build named opcionais.
+    if args.items.len() < 3 || args.items.len() > 4 {
+        return err(format!("version(): requer 3 argumentos posicionais (major, minor, patch) [+ pre opcional], recebeu {}", args.items.len()));
+    }
+
+    let major = as_nonneg_int(&args.items[0], "major").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let minor = as_nonneg_int(&args.items[1], "minor").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let patch = as_nonneg_int(&args.items[2], "patch").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+
+    // pre pode vir como 4º posicional ou como named arg (named prevalece se ambos).
+    let pre_positional = if args.items.len() == 4 {
+        match &args.items[3] {
+            Value::Str(s) => Some(s.as_ref()),
+            other => return Err(vec![SourceDiagnostic::error(Span::detached(), format!("version(): 'pre' posicional espera Str, recebeu {}", other.type_name()))]),
+        }
+    } else {
+        None
+    };
+
+    let pre_named = extract_str(args, "pre").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let build = extract_str(args, "build").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+
+    let pre_str = if !pre_named.is_empty() { pre_named.as_str() } else { pre_positional.unwrap_or("") };
+
+    let version = Version::new(major, minor, patch)
+        .with_pre(parse_identifiers(pre_str))
+        .with_build(parse_identifiers(&build));
+
+    Ok(Value::Version(Arc::new(version)))
 }
 
 /// Parser canónico de duração.
@@ -444,6 +509,102 @@ mod tests {
     #[test]
     fn version_wrong_type() {
         assert!(native_version(&mut ctx(), &p(vec![Value::Int(1)]), &null_world(), test_file_id()).is_err());
+    }
+
+    // ── P406 — constructor version forma vanilla ─────────────────────────────
+
+    #[test]
+    fn version_vanilla_basic() {
+        let v = native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2), Value::Int(3)]), &null_world(), test_file_id()).unwrap();
+        assert_eq!(v, Value::Version(Arc::new(Version::new(1, 2, 3))));
+    }
+
+    #[test]
+    fn version_vanilla_zero() {
+        let v = native_version(&mut ctx(), &p(vec![Value::Int(0), Value::Int(0), Value::Int(0)]), &null_world(), test_file_id()).unwrap();
+        assert_eq!(v, Value::Version(Arc::new(Version::new(0, 0, 0))));
+    }
+
+    #[test]
+    fn version_vanilla_pre_positional() {
+        use ecow::EcoString;
+        let mut args = Args::positional(vec![Value::Int(1), Value::Int(2), Value::Int(3)]);
+        args.items.push(Value::Str("alpha.1".into()));
+        let v = native_version(&mut ctx(), &args, &null_world(), test_file_id()).unwrap();
+        let expected = Version::new(1, 2, 3).with_pre(vec![EcoString::from("alpha"), EcoString::from("1")]);
+        assert_eq!(v, Value::Version(Arc::new(expected)));
+    }
+
+    #[test]
+    fn version_vanilla_pre_named() {
+        use ecow::EcoString;
+        let mut args = Args::positional(vec![Value::Int(1), Value::Int(2), Value::Int(3)]);
+        args.named.insert("pre".into(), Value::Str("alpha.1".into()));
+        let v = native_version(&mut ctx(), &args, &null_world(), test_file_id()).unwrap();
+        let expected = Version::new(1, 2, 3).with_pre(vec![EcoString::from("alpha"), EcoString::from("1")]);
+        assert_eq!(v, Value::Version(Arc::new(expected)));
+    }
+
+    #[test]
+    fn version_vanilla_build_named() {
+        use ecow::EcoString;
+        let mut args = Args::positional(vec![Value::Int(1), Value::Int(2), Value::Int(3)]);
+        args.named.insert("build".into(), Value::Str("build.2".into()));
+        let v = native_version(&mut ctx(), &args, &null_world(), test_file_id()).unwrap();
+        let expected = Version::new(1, 2, 3).with_build(vec![EcoString::from("build"), EcoString::from("2")]);
+        assert_eq!(v, Value::Version(Arc::new(expected)));
+    }
+
+    #[test]
+    fn version_vanilla_pre_build_named() {
+        use ecow::EcoString;
+        let mut args = Args::positional(vec![Value::Int(1), Value::Int(2), Value::Int(3)]);
+        args.named.insert("pre".into(), Value::Str("alpha.1".into()));
+        args.named.insert("build".into(), Value::Str("build.2".into()));
+        let v = native_version(&mut ctx(), &args, &null_world(), test_file_id()).unwrap();
+        let expected = Version::new(1, 2, 3)
+            .with_pre(vec![EcoString::from("alpha"), EcoString::from("1")])
+            .with_build(vec![EcoString::from("build"), EcoString::from("2")]);
+        assert_eq!(v, Value::Version(Arc::new(expected)));
+    }
+
+    #[test]
+    fn version_vanilla_negative_major() {
+        assert!(native_version(&mut ctx(), &p(vec![Value::Int(-1), Value::Int(2), Value::Int(3)]), &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn version_vanilla_negative_minor() {
+        assert!(native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(-2), Value::Int(3)]), &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn version_vanilla_negative_patch() {
+        assert!(native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2), Value::Int(-3)]), &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn version_vanilla_wrong_type_named() {
+        let mut args = Args::positional(vec![Value::Int(1), Value::Int(2), Value::Int(3)]);
+        args.named.insert("pre".into(), Value::Int(1));
+        assert!(native_version(&mut ctx(), &args, &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn version_vanilla_too_few_positional() {
+        assert!(native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2)]), &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn version_vanilla_too_many_positional() {
+        assert!(native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2), Value::Int(3), Value::Int(4)]), &null_world(), test_file_id()).is_err());
+    }
+
+    #[test]
+    fn version_string_and_named_mixed() {
+        let mut args = Args::positional(vec![Value::Str("1.2.3".into())]);
+        args.named.insert("pre".into(), Value::Str("alpha".into()));
+        assert!(native_version(&mut ctx(), &args, &null_world(), test_file_id()).is_err());
     }
 
     #[test]

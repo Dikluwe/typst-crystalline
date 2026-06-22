@@ -1303,6 +1303,50 @@ mod tests {
         assert_eq!(eval_binary_op(BinOp::Gt,  dur(60), dur(60)), Ok(Value::Bool(false)));
     }
 
+    // ── P406 — Comparações Version ───────────────────────────────────────────
+
+    fn ver(major: u64, minor: u64, patch: u64) -> Value {
+        Value::Version(Arc::new(crate::entities::version::Version::new(major, minor, patch)))
+    }
+
+    fn ver_pre(major: u64, minor: u64, patch: u64, pre: &str) -> Value {
+        use ecow::EcoString;
+        let pre_ids = pre.split('.').map(EcoString::from).collect();
+        Value::Version(Arc::new(crate::entities::version::Version::new(major, minor, patch).with_pre(pre_ids)))
+    }
+
+    fn ver_build(major: u64, minor: u64, patch: u64, build: &str) -> Value {
+        use ecow::EcoString;
+        let build_ids = build.split('.').map(EcoString::from).collect();
+        Value::Version(Arc::new(crate::entities::version::Version::new(major, minor, patch).with_build(build_ids)))
+    }
+
+    #[test]
+    fn version_eq_neq() {
+        assert_eq!(eval_binary_op(BinOp::Eq,  ver(1, 2, 3), ver(1, 2, 3)), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Eq,  ver(1, 2, 3), ver(1, 2, 4)), Ok(Value::Bool(false)));
+        assert_eq!(eval_binary_op(BinOp::Eq,  ver(1, 2, 3), ver_pre(1, 2, 3, "alpha")), Ok(Value::Bool(false)));
+        assert_eq!(eval_binary_op(BinOp::Eq,  ver_build(1, 2, 3, "a"), ver_build(1, 2, 3, "b")), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Neq, ver(1, 2, 3), ver(1, 2, 4)), Ok(Value::Bool(true)));
+    }
+
+    #[test]
+    fn version_lt_gt_leq_geq() {
+        assert_eq!(eval_binary_op(BinOp::Lt,  ver(1, 2, 3), ver(1, 2, 4)), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Lt,  ver(2, 0, 0), ver(1, 0, 0)), Ok(Value::Bool(false)));
+        assert_eq!(eval_binary_op(BinOp::Gt,  ver(1, 2, 4), ver(1, 2, 3)), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Leq, ver(1, 2, 3), ver(1, 2, 3)), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Geq, ver(1, 2, 3), ver_pre(1, 2, 3, "alpha")), Ok(Value::Bool(true)));
+    }
+
+    #[test]
+    fn version_pre_release_ordering() {
+        assert_eq!(eval_binary_op(BinOp::Lt, ver_pre(1, 2, 3, "alpha"), ver(1, 2, 3)), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Lt, ver_pre(1, 2, 3, "alpha.1"), ver_pre(1, 2, 3, "alpha.2")), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Lt, ver_pre(1, 2, 3, "alpha"), ver_pre(1, 2, 3, "beta")), Ok(Value::Bool(true)));
+        assert_eq!(eval_binary_op(BinOp::Lt, ver_pre(1, 2, 3, "1"), ver_pre(1, 2, 3, "alpha")), Ok(Value::Bool(true)));
+    }
+
     // ── Testes de paridade: eval_unary_op ────────────────────────────────────
 
     #[test]

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/primitives-constructors` — constructors `decimal`, `duration`, `version`
-Hash do Código: 1bf011ed
+Hash do Código: 4a517dd9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/rules/stdlib/primitives_constructors.rs`
@@ -11,13 +11,13 @@ Hash do Código: 1bf011ed
 
 ## 1. Contexto
 
-P399 (`Decimal`), P400 (`Duration`) e P401 (`Version`) modelaram os tipos L1 e os variants em `Value`. Este passo expõe constructors stdlib puros `Str → T fallible` para cada um, sem criar novos tipos ou variants.
+P399 (`Decimal`), P400 (`Duration`) e P401 (`Version`) modelaram os tipos L1 e os variants em `Value`. Este passo expõe constructors stdlib puros para cada um, sem criar novos tipos ou variants.
 
 | Função | Constructor Typst | Tipo L1 | Parse |
 |--------|-------------------|---------|-------|
 | `native_decimal` | `decimal("1.23")` | `Value::Decimal` | `rust_decimal::Decimal::from_str` |
-| `native_duration` | `duration("3d2h30m")` | `Value::Duration` | canónico `NdNhNmNs` (fração decimal em `s`) |
-| `native_version` | `version("1.2.3-alpha")` | `Value::Version` | semver 2.0.0 via `Version::from_str` |
+| `native_duration` | `duration("3d2h30m")` / `duration(seconds: 90)` | `Value::Duration` | string canónica ou named args |
+| `native_version` | `version("1.2.3-alpha")` / `version(1, 2, 3, pre: "alpha")` | `Value::Version` | semver string ou major/minor/patch + pre/build |
 
 ---
 
@@ -97,11 +97,35 @@ Cálculo usa `u128` intermédio e converte para `u64` após verificação.
 
 ---
 
-## 5. `native_version(s: Str)`
+## 5. `native_version(...)`
+
+### Forma string (compatibilidade P403)
 
 - Delega parse a `Version::from_str(&s)` (já exposto em `entities::version`).
 - Sucesso: `Value::Version(Arc::new(version))`.
 - Erro: `"version(): string inválida: '{s}'"`.
+
+### Forma vanilla (positional + named pre/build)
+
+```typst
+version(1, 2, 3)
+version(1, 2, 3, "alpha.1")
+version(1, 2, 3, pre: "alpha.1", build: "build.2")
+```
+
+Argumentos:
+
+- `major`, `minor`, `patch`: 3 posicionais obrigatórios do tipo `Int`, ≥ 0.
+- `pre`: named arg opcional `Str`, default `""`. Parse `"a.b.c"` → vec!["a", "b", "c"]; `""` → vec vazio.
+- `build`: named arg opcional `Str`, default `""`. Parse idem.
+
+Validação:
+
+- major/minor/patch negativos → erro eval.
+- Tipo errado em qualquer arg → erro eval.
+- Mistura da forma string com a forma vanilla → erro eval.
+
+Constrói `Version::new(major, minor, patch).with_pre(pre_ids).with_build(build_ids)`.
 
 ---
 
@@ -122,6 +146,17 @@ Adicionar em `rules/eval/operators.rs` braços para `Value::Duration`:
 
 Não implementar coerção `Duration + Int`, `Duration * Duration`, etc.
 
+## 6b. Operações eval básicas Version (P406)
+
+`Value::Version` já implementa `PartialEq`/`Eq`/`PartialOrd`/`Ord` (P401). Em `rules/eval/operators.rs`, adicionar braços explícitos para ordenação:
+
+| Operador | Operandos | Resultado | Nota |
+|----------|-----------|-----------|------|
+| `==`, `!=` | Version vs Version | Bool | via `PartialEq` (todos os campos) |
+| `<`, `>`, `<=`, `>=` | Version vs Version | Bool | via `Ord` (semver; build metadata ignorado) |
+
+`Eq`/`Neq` já funcionam via wildcard `(BinOp::Eq, a, b) => Ok(Value::Bool(a == b))`, mas os braços explícitos garantem prioridade e clareza. Não implementar `+`, `-`, `*`, `/` nem comparações com Int/Str.
+
 ## 7. Paridade vanilla
 
 A paridade é com a **forma da linguagem**: uma função global que converte string no tipo. A mecânica interna (parser hand-rolled vs. biblioteca) é detalhe de implementação cristalino.
@@ -131,6 +166,9 @@ A paridade é com a **forma da linguagem**: uma função global que converte str
 - `duration(seconds: 90) + duration(seconds: 30)` ≡ `120s`.
 - `duration(minutes: 2) > duration(seconds: 119)` ≡ `true`.
 - `version("1.2.3")` compara via semver (operadores futuros; constructor só constrói).
+- `version(1, 2, 3) == version(1, 2, 3)` ≡ `true`.
+- `version(1, 2, 3, "alpha") < version(1, 2, 3)` ≡ `true` (prerelease < release).
+- `version(1, 2, 3, build: "a") == version(1, 2, 3, build: "b")` ≡ `true` (build ignorado).
 
 ---
 
@@ -169,6 +207,27 @@ native_version([Str("1.2.3+build.2")]) → Ok(build=["build","2"])
 native_version([Str("invalid")]) → Err
 native_version([Int(1)]) → Err
 native_version([]) → Err
+native_version(positional: [Int(1), Int(2), Int(3)]) → Ok(Value::Version(1,2,3,"",""))
+native_version(positional: [Int(1), Int(2), Int(3)], named: {pre: Str("alpha.1")}) → Ok(pre=["alpha","1"])
+native_version(positional: [Int(1), Int(2), Int(3)], named: {build: Str("build.2")}) → Ok(build=["build","2"])
+native_version(positional: [Int(-1), Int(2), Int(3)]) → Err
+native_version(positional: [Str("1.2.3")], named: {pre: Str("alpha")}) → Err (mistura de formas)
+```
+
+### Operações eval Version
+
+```
+version(1,2,3) == version(1,2,3) → true
+version(1,2,3) == version(1,2,4) → false
+version(1,2,3) == version(1,2,3,"alpha") → false
+version(1,2,3, build:"a") == version(1,2,3, build:"b") → true
+version(1,2,3) < version(1,2,4) → true
+version(1,2,3,"alpha") < version(1,2,3) → true
+version(1,2,3,"alpha.1") < version(1,2,3,"alpha.2") → true
+version(1,2,3,"alpha") < version(1,2,3,"beta") → true
+version(1,2,4) > version(1,2,3) → true
+version(1,2,3) <= version(1,2,3) → true
+version(1,2,3) >= version(1,2,3,"alpha") → true
 ```
 
 ### `native_duration` named args
@@ -212,8 +271,8 @@ native_duration(positional: [Str("1h30m")], named: {seconds: 1}) → Err
 
 - Não criar novos variants de `Value`.
 - Não tocar em `entities/`.
-- Não adicionar operações aritméticas para `Decimal`/`Version` neste prompt (ver P404 para Decimal).
-- Não adicionar field access (`.major`, `.minor`, `.hours()`, `.seconds()`, etc.).
-- Não implementar `.in(unit)`, `.display()`, extractores de componente.
-- Não implementar cast `Duration → Int/Float`.
-- Não aceitar argumentos nomeados para `decimal` e `version`.
+- Não adicionar operações aritméticas para `Decimal`/`Version`.
+- Não adicionar field access (`.major`, `.minor`, `.patch`, `.pre`, `.build`, `.hours()`, `.seconds()`, etc.).
+- Não implementar `.at(index)`, bump, `.in(unit)`, `.display()`, extractores de componente.
+- Não implementar cast `Duration → Int/Float` nem `Version → Str`.
+- Não aceitar argumentos nomeados para `decimal`.
