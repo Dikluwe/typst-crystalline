@@ -90,6 +90,7 @@ rust = [
     "roxmltree",     # ADR-0111 — decode_xml (read-only)
     "csv",           # ADR-0111 — decode_csv
     "rust_decimal",  # ADR-0112 (P399) — Decimal precisão fixa em L1; puro-Rust, Copy, zero alloc
+    "hayagriva",     # ADR-0062 (P418) — parsing bibliográfico + CSL engine
 ]
 
 [orphan_exceptions]

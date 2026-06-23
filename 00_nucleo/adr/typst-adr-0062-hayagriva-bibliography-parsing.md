@@ -1,6 +1,6 @@
 # ⚖️ ADR-0062: Autorização de crate `hayagriva` para bibliography + cite (CSL parsing)
 
-**Status**: `PROPOSTO`
+**Status**: `IMPLEMENTADO` (promovido em P418, 2026-06-23)
 **Data**: 2026-04-27
 
 ---
@@ -56,9 +56,15 @@ parsing externo, e Cite.style override.
 4. Style engine para resolução de citações (autor-ano,
    numérico, etc.).
 
-**Status PROPOSTO** — autorização concedida em princípio mas
-**não em vigor** até passo de materialização real (P159G ou
-equivalente que adiciona dependência ao `Cargo.toml` + `crystalline.toml`).
+**Status IMPLEMENTADO** — promovido em P418 (2026-06-23).
+
+**Critérios de promoção cumpridos**:
+1. `Cargo.toml` adiciona `hayagriva = "0.10"` ao workspace e a `01_core/Cargo.toml`.
+2. `crystalline.toml` adiciona `hayagriva` a `[l1_allowed_external]`.
+3. Uso real em código L1:
+   - `rules/layout/bib_csl.rs` — integração hayagriva/citationberg para render CSL.
+   - `rules/stdlib/structural.rs::native_bibliography` — expõe `style`/`locale`.
+   - `entities/elements/bibliography.rs` — `BibliographyElem` com `style`/`locale`.
 
 **Promoção a `IMPLEMENTADO`** ocorre quando:
 1. `Cargo.toml` adiciona `hayagriva = "0.9.1"` ou versão

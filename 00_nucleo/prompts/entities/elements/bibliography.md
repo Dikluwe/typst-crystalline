@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/bibliography` — `BibliographyElem`
-Hash do Código: 99cb1cfd
+Hash do Código: 93e71fd7
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/bibliography.rs`
 **Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait: ver
@@ -20,13 +20,17 @@ Hash do Código: 99cb1cfd
 pub struct BibliographyElem {
     pub entries: Vec<BibEntry>,
     pub title:   Option<Content>,        // era Option<Box<Content>>
+    pub style:   Option<EcoString>,      // P418 — CSL built-in ("ieee", "apa", ...)
+    pub locale:  Option<EcoString>,      // P418 — locale override ("en-US", "pt-PT", ...)
 }
 ```
 
 `Content::Bibliography { entries, title }` →
-`Content::Bibliography(Arc<BibliographyElem>)`. Construtor ergonómico:
-`Content::bibliography(entries, title)`. **Deriva `Hash`** (`BibEntry` deriva
-`Eq + Hash` — `bib_entry.rs:80`; `Content` tem `impl Hash` manual).
+`Content::Bibliography(Arc<BibliographyElem>)`. Construtores ergonómicos:
+`Content::bibliography(entries, title)` (fallback local) e
+`Content::bibliography_with_style(entries, title, style, locale)` (CSL).
+**Deriva `Hash`** (`BibEntry` deriva `Eq + Hash` — `bib_entry.rs:80`; `Content`
+tem `impl Hash` manual).
 
 ## `impl Element for BibliographyElem`
 
