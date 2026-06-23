@@ -228,7 +228,7 @@ fn parse_duration(s: &str) -> Option<Duration> {
                 return None;
             }
             // Verificar que nenhum sufixo posterior aparece antes deste.
-            for &(later, later_idx) in &suffixes[(idx + 1)..] {
+            for &(later, _later_idx) in &suffixes[(idx + 1)..] {
                 if let Some(later_pos) = rest.find(later) {
                     if later_pos < pos {
                         return None;

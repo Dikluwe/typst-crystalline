@@ -21,10 +21,9 @@ use crate::entities::dir::Dir;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
 use crate::entities::layout_types::{
-    Align2D, Color, Length, PlaceScope, Pt, TextStyle, TrackSizing, TransformMatrix,
+    Align2D, Color, Length, PlaceScope, TrackSizing, TransformMatrix,
 };
 use crate::entities::math_style::MathStyleKind;
-use crate::entities::paint::Paint;
 use crate::entities::parity::Parity;
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::sides::Sides;

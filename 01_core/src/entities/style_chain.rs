@@ -371,27 +371,6 @@ impl StyleChain {
         None
     }
 
-    fn resolve_bool(&self, f: impl Fn(&StyleDelta) -> Option<bool>) -> Option<bool> {
-        let mut node = self.0.as_deref();
-        while let Some(n) = node {
-            if let Some(v) = f(&n.delta) {
-                return Some(v);
-            }
-            node = n.parent.as_deref();
-        }
-        None
-    }
-
-    fn resolve_f64(&self, f: impl Fn(&StyleDelta) -> Option<f64>) -> Option<f64> {
-        let mut node = self.0.as_deref();
-        while let Some(n) = node {
-            if let Some(v) = f(&n.delta) {
-                return Some(v);
-            }
-            node = n.parent.as_deref();
-        }
-        None
-    }
 }
 
 /// **F-5b fatia 2 (P373)** — lê o valor do canal `custom` para `key` no delta

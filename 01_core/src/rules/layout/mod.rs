@@ -15,7 +15,7 @@ use crate::entities::{
     geometry::ShapeKind,
     image_sizer::{ImageSizer, NullImageSizer},
     layout_types::{
-        Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument, Point, Pt,
+        Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument, Pt,
         TextStyle, VAlign,
     },
     location::Location,

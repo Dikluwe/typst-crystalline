@@ -11,7 +11,6 @@
 use crate::entities::elements::shape::ShapeElem;
 use crate::entities::geometry::ShapeKind;
 use crate::entities::layout_types::{FrameItem, Point, Pt};
-use crate::entities::paint::Paint;
 
 use super::helpers::resolve_pt;
 use super::{FontMetrics, ImageSizer, Layouter};

@@ -31,7 +31,6 @@ use crate::entities::ast::expr::{ArrayItem, Expr};
 #[cfg(test)]
 use crate::entities::ast::expr::{BinOp, UnOp};
 use crate::entities::ast::markup::Label as AstLabel;
-use crate::entities::layout_types::TextStyle;
 use crate::entities::style_chain::StyleChain;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::func::Func;

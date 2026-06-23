@@ -202,7 +202,7 @@ pub fn path_bbox(items: &[PathItem]) -> (f64, f64, f64, f64) {
     let mut max_y = f64::NEG_INFINITY;
     let mut current = crate::entities::layout_types::Point::ZERO;
 
-    let mut update = |x: f64, y: f64, min_x: &mut f64, min_y: &mut f64,
+    let update = |x: f64, y: f64, min_x: &mut f64, min_y: &mut f64,
                       max_x: &mut f64, max_y: &mut f64| {
         if x < *min_x { *min_x = x; }
         if y < *min_y { *min_y = y; }

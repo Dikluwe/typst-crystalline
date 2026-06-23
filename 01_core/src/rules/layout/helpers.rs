@@ -12,7 +12,6 @@ use crate::entities::{
     content::Content,
     geometry::ShapeKind,
     layout_types::{FrameItem, Point, Pt},
-    paint::Paint,
 };
 
 /// Extrai a posição primária de um FrameItem (posição do canto superior esquerdo).

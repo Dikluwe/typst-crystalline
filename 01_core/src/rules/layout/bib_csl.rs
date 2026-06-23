@@ -19,7 +19,6 @@
 //! formatação vertical (superscript/subscript) sem Content variant correspondente.
 
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use hayagriva::archive::ArchivedStyle;
 use hayagriva::citationberg::{Display, IndependentStyle, Locale};

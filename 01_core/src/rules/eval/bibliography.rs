@@ -17,7 +17,6 @@
 
 use std::path::Path;
 
-use ecow::EcoString;
 use hayagriva::citationberg::IndependentStyle;
 
 use crate::contracts::world::World;

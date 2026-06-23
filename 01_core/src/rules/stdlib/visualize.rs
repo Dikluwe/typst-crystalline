@@ -16,7 +16,6 @@ use crate::contracts::world::World;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::file_id::FileId;
-use crate::entities::image_sizer::ImageSizer;
 use crate::entities::layout_types::{Length, Pt, Size};
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};

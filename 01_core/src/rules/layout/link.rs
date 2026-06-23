@@ -7,7 +7,6 @@
 //! P422 — Layout de `Content::Link`. Renderiza o body e envolve os itens
 //! resultantes em `FrameItem::Link`, preservando o URL como metadado.
 
-use ecow::EcoString;
 
 use crate::entities::elements::link::LinkElem;
 use crate::entities::layout_types::FrameItem;

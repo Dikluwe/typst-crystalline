@@ -465,10 +465,6 @@ pub fn native_state_update_with(
             "state_update_with() requer função como segundo argumento, recebeu {}",
             other.type_name()
         )),
-        [other, _] => err(format!(
-            "state_update_with() requer string como primeiro argumento (key), recebeu {}",
-            other.type_name()
-        )),
         _ => err(format!(
             "state_update_with() requer 2 argumentos (key, fn), recebeu {}",
             args.items.len()
@@ -623,10 +619,6 @@ pub fn native_counter_at(
             "counter_at() requer string como segundo argumento (label), recebeu {}",
             other.type_name()
         )),
-        [other, _] => err(format!(
-            "counter_at() requer string como primeiro argumento (key), recebeu {}",
-            other.type_name()
-        )),
         _ => err(format!(
             "counter_at() requer 2 argumentos (key, label), recebeu {}",
             args.items.len()
@@ -776,10 +768,6 @@ pub fn native_state_at(
         }
         [_, other] => err(format!(
             "state_at() requer string como segundo argumento (label), recebeu {}",
-            other.type_name()
-        )),
-        [other, _] => err(format!(
-            "state_at() requer string como primeiro argumento (key), recebeu {}",
             other.type_name()
         )),
         _ => err(format!(

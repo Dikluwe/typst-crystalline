@@ -8,11 +8,8 @@
 //! P162 sub-passo .D. Consumida pelo walk em P162 .E.
 
 use crate::entities::content::Content;
-use crate::entities::counter_update::CounterUpdate;
 use crate::entities::element_payload::ElementPayload;
 use crate::entities::elements::Element; // Modelo D (P316): trait p/ to_payload()
-use crate::entities::state_update::StateUpdate;
-use crate::entities::value::Value;
 
 /// Extrai o `ElementPayload` correspondente a um `Content`, se for
 /// uma variante locatable (Heading/Figure/Cite em M1).

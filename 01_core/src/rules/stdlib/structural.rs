@@ -18,11 +18,9 @@ use super::expect_no_named;
 
 use crate::entities::args::Args;
 use crate::entities::content::Content;
-use crate::entities::elements::bibliography::BibliographyElem;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::entities::world_types::Datetime;
 use crate::rules::eval::EvalContext;
 
 // ── Sentinelas e construtores de nós estruturais (Passo 69) ─────────────────

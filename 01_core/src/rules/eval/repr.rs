@@ -9,7 +9,6 @@
 //! **reconhecível**, não garante round-trip. Variants complexos usam
 //! representação scope-out ("function", "module", nome do tipo).
 
-use ecow::EcoString;
 
 use crate::entities::content::Content;
 use crate::entities::selector::Selector;
