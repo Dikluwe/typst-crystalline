@@ -20,9 +20,12 @@ use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::dir::Dir;
 use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::label::Label;
+#[allow(unused_imports)]
 use crate::entities::layout_types::{
-    Align2D, Color, Length, PlaceScope, TrackSizing, TransformMatrix,
+    Align2D, Color, Length, PlaceScope, Pt, TrackSizing, TransformMatrix,
 };
+#[allow(unused_imports)]
+use crate::entities::paint::Paint;
 use crate::entities::math_style::MathStyleKind;
 use crate::entities::parity::Parity;
 use crate::entities::ptr_eq_arc::PtrEqArc;

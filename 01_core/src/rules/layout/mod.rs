@@ -81,11 +81,14 @@ pub mod bib_csl;
 mod bibliography;
 mod cite;
 mod divider;
+mod dynamic;
 mod footnote;
 mod hide;
 mod link;
 mod quote;
 mod raw;
+mod sequence;
+mod set_page;
 mod smartquote;
 
 // Helpers livres usados pelo Layouter e pelos braços extraídos.
@@ -604,32 +607,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // S2–S6 (realização multi-passe/guards do vanilla) fica registada
             // (L0 §3b.6) — o eager do cristalino com `active_guards`+depth basta
             // até `#show` na linguagem exigir paridade medida (gatilho registado).
-            Content::Dynamic(e) => {
-                // F-item3 (P368, §3a.11): resolve campos setáveis da chain (mapa
-                // aberto) antes de renderizar — `#set <kind>(prop:)` chega como
-                // `custom("<kind>.<prop>")`. Precedência construído > chain (no
-                // próprio elemento). O custom é transparente à morfologia (P366).
-                let kind = e.dyn_kind();
-                let resolved = e.dyn_resolve_settable(&|prop| {
-                    self.chain.custom(&format!("{kind}.{prop}")).cloned()
-                });
-                let re: &dyn crate::entities::elements::dynamic::DynElement =
-                    match &resolved {
-                        Content::Dynamic(re) => re.as_ref(),
-                        _ => e.as_ref(),
-                    };
-                match re.dyn_get_field("body") {
-                    Some(crate::entities::value::Value::Content(body)) => {
-                        self.layout_content(&body);
-                    }
-                    _ => {
-                        let t = re.dyn_plain_text();
-                        if !t.is_empty() {
-                            self.layout_content(&Content::text(t));
-                        }
-                    }
-                }
-            }
+            // Atomizado (ADR-0109, P425) → layout/dynamic.rs.
+            Content::Dynamic(e) => dynamic::layout(self, e),
 
             // P169 (M9): Metadata é zero-size em layout — sem caixa,
             // sem texto, sem efeito visual. O `value` permanece
@@ -694,51 +673,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 }
             }
 
-            Content::Sequence(parts) => {
-                // P250 — refactor Sequence consumer para peekable + neighbour
-                // context. Permite:
-                // - Sticky lookahead (Block.sticky=true detecta next; se
-                //   combined_h > remaining + cabe em página inteira →
-                //   new_page() antes do block).
-                // - Spacing collapse via Layouter fields
-                //   `prev_block_below_pending` + `block_chain_active`
-                //   (reset entre Sequences para isolamento).
-                // Padrão emergente "Refactor Sequence consumer cross-arm"
-                // N=1 inaugurado P250.
-                let saved_below = self.prev_block_below_pending;
-                let saved_chain = self.block_chain_active;
-                self.prev_block_below_pending = 0.0;
-                self.block_chain_active = false;
-                let mut iter = parts.iter().peekable();
-                while let Some(part) = iter.next() {
-                    // P250 — sticky pre-layout lookahead 1-block.
-                    if matches!(part, Content::Block(e) if e.sticky) {
-                        if let Some(next) = iter.peek() {
-                            let avail_w = self.available_width();
-                            let (_, part_h) =
-                                self.measure_content_constrained(part, avail_w);
-                            let (_, next_h) =
-                                self.measure_content_constrained(next, avail_w);
-                            let combined = part_h + next_h;
-                            let remaining = self.page_bottom_limit()
-                                - self.regions.current.cursor_y.0;
-                            let page_usable = self.available_height();
-                            if combined > remaining && combined <= page_usable {
-                                self.new_page();
-                            }
-                            // else: cabem ambos OU overlong → emit normal.
-                        }
-                    }
-                    self.layout_content(part);
-                    if !matches!(part, Content::Block { .. }) {
-                        // P250 — non-Block child quebra chain.
-                        self.block_chain_active = false;
-                        self.prev_block_below_pending = 0.0;
-                    }
-                }
-                self.prev_block_below_pending = saved_below;
-                self.block_chain_active = saved_chain;
-            }
+            // Atomizado (ADR-0109, P425) → layout/sequence.rs.
+            Content::Sequence(parts) => sequence::layout(self, parts),
 
             // Passo 101: `Content::Strong` e `Content::Emph` removidos do enum.
             // `*bold*` e `_italic_` produzem `Content::Styled([Bold(true)/Italic(true)], body)`
@@ -875,38 +811,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // Atomizado (ADR-0109, P381) → layout/cite.rs.
             Content::Cite(e) => cite::layout(self, e),
 
+            // Atomizado (ADR-0109, P425) → layout/set_page.rs.
             Content::SetPage { width, height, margin } => {
-                let mut new_config = self.page_config.clone();
-                let mut changed = false;
-
-                if let Some(w) = width {
-                    new_config.width = *w;
-                    changed = true;
-                }
-                if let Some(h) = height {
-                    new_config.height = *h;
-                    changed = true;
-                }
-                if let Some(m) = margin {
-                    new_config.margin = *m;
-                    changed = true;
-                }
-
-                if changed {
-                    if !self.current_page_is_empty() {
-                        self.flush_line();
-                        self.new_page();
-                    }
-                    self.page_config = new_config;
-                    // P216A: sincronizar region.width/height com PageConfig
-                    // (Caminho B1 — redundância controlada).
-                    self.regions.current.width = self.page_config.width;
-                    self.regions.current.height = self.page_config.height;
-                    self.regions.current.cursor_x = Pt(self.page_config.margin);
-                    self.regions.current.cursor_y = Pt(self.page_config.margin);
-                    self.regions.current.line_start_x = Pt(self.page_config.margin);
-                    // DEBT-35b: se available_width() vier a ter cache, invalidar aqui.
-                }
+                set_page::layout(self, width, height, margin);
             }
 
             // Atomizado (ADR-0109, P378) → layout/image.rs.

@@ -16,7 +16,10 @@
 
 use super::*;
 use crate::entities::paint::Paint;
-use crate::entities::{content::Content, layout_types::FrameItem};
+use crate::entities::{
+    content::Content,
+    layout_types::{FrameItem, Point},
+};
 use crate::rules::introspect::introspect;
 
 /// **F-5a de-bake (P365)** — rotula reproduzindo a **forma de produção**: o
